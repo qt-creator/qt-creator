@@ -56,6 +56,13 @@
 
 namespace Debugger {
 namespace Internal {
+class ParseException
+{
+public:
+    ParseException(const QString &error) : error(error) {}
+
+    const QString error;
+};
 
 class NameDemanglerPrivate
 {
@@ -239,10 +246,7 @@ private:
 
     void insertQualifier(QByteArray &type, const QByteArray &qualifier);
 
-    void error(const QString &errorSpec);
-
     static const char eoi;
-    bool parseError;
     int pos;
     QByteArray mangledName;
     QString m_errorString;
@@ -304,26 +308,30 @@ NameDemanglerPrivate::~NameDemanglerPrivate()
 
 bool NameDemanglerPrivate::demangle(const QString &mangledName)
 {
-    this->mangledName = mangledName.toAscii();
-    pos = 0;
-    parseError = false;
-    m_demangledName.clear();
-    substitutions.clear();
-    templateParams.clear();
-    m_demangledName = parseMangledName();
-    m_demangledName.replace(
-        QRegExp(QLatin1String("([^a-zA-Z\\d>)])::")), QLatin1String("\\1"));
-    if (m_demangledName.startsWith(QLatin1String("::")))
-        m_demangledName.remove(0, 2);
-    if (!parseError && pos != mangledName.size())
-        error(QString::fromLatin1("Premature end of input"));
-
+    try {
+        this->mangledName = mangledName.toAscii();
+        pos = 0;
+        m_demangledName.clear();
+        substitutions.clear();
+        templateParams.clear();
+        m_demangledName = parseMangledName();
+        m_demangledName.replace(
+                    QRegExp(QLatin1String("([^a-zA-Z\\d>)])::")), QLatin1String("\\1"));
+        if (m_demangledName.startsWith(QLatin1String("::")))
+            m_demangledName.remove(0, 2);
+        if (pos != mangledName.size())
+            throw ParseException(QLatin1String("Unconsumed input"));
 #ifdef DO_TRACE
-    qDebug("%d", substitutions.size());
-    foreach (const QByteArray &s, substitutions)
-        qDebug(qPrintable(s));
+        qDebug("%d", substitutions.size());
+        foreach (const QByteArray &s, substitutions)
+            qDebug(qPrintable(s));
 #endif
-    return !parseError;
+        return true;
+    } catch (const ParseException &p) {
+        m_errorString = QString::fromLocal8Bit("Parse error at index %1 of mangled name '%2': %3.")
+                .arg(pos).arg(mangledName, p.error);
+        return false;
+    }
 }
 
 /*
@@ -361,7 +369,7 @@ const QByteArray NameDemanglerPrivate::parseEncoding()
     char next = peek();
     if (firstSetName.contains(next)) {
         encoding = parseName();
-        if (!parseError && firstSetBareFunctionType.contains(peek())) {
+        if (firstSetBareFunctionType.contains(peek())) {
            /*
             * A member function might have qualifiers attached to its name,
             * which must be moved all the way to the back of the declaration.
@@ -406,7 +414,7 @@ const QByteArray NameDemanglerPrivate::parseEncoding()
     } else if (firstSetSpecialName.contains(next)) {
         encoding = parseSpecialName();
     } else {
-        error(QString::fromLatin1("Invalid encoding"));
+        throw ParseException(QString::fromLatin1("Invalid encoding"));
     }
 
     FUNC_END(encoding);
@@ -440,28 +448,23 @@ const QByteArray NameDemanglerPrivate::parseName()
     Q_ASSERT((firstSetSubstitution & firstSetLocalName).isEmpty());
 
     QByteArray name;
-    if ((readAhead(2) == "St"
-         && firstSetUnqualifiedName.contains(peek(2)))
+    if ((readAhead(2) == "St" && firstSetUnqualifiedName.contains(peek(2)))
         || firstSetUnscopedName.contains(peek())) {
         name = parseUnscopedName();
-        if (!parseError && firstSetTemplateArgs.contains(peek())) {
+        if (firstSetTemplateArgs.contains(peek())) {
             addSubstitution(name);
             name += parseTemplateArgs();
         }
     } else {
-        char next = peek();
-        if (firstSetNestedName.contains(next)) {
+        const char next = peek();
+        if (firstSetNestedName.contains(next))
             name = parseNestedName();
-        } else if (firstSetSubstitution.contains(next)) {
-            name = parseSubstitution();
-            if (!parseError) {
-                name += parseTemplateArgs();
-            }
-        } else if (firstSetLocalName.contains(next)) {
+        else if (firstSetSubstitution.contains(next))
+            name = parseSubstitution() + parseTemplateArgs();
+        else if (firstSetLocalName.contains(next))
             name = parseLocalName();
-        } else {
-            error(QString::fromLatin1("Invalid name"));
-        }
+        else
+            throw ParseException(QString::fromLatin1("Invalid name"));
     }
 
     FUNC_END(name);
@@ -499,28 +502,26 @@ const QByteArray NameDemanglerPrivate::parseNestedName()
     Q_ASSERT((firstSetCvQualifiers & firstSetPrefix).size() == 1);
 
     QByteArray name;
-    if (advance() != 'N') {
-        error(QString::fromLatin1("Invalid nested-name"));
-    } else {
-        QByteArray cvQualifiers;
-        if (firstSetCvQualifiers.contains(peek()) && peek(1) != 'm'
-            && peek(1) != 'M' && peek(1) != 's' && peek(1) != 'S')
-            cvQualifiers = parseCvQualifiers();
-        if (!parseError) {
-            name = parsePrefix();
-            if (!parseError && advance() != 'E')
-                error(QString::fromLatin1("Invalid nested-name"));
+    if (advance() != 'N')
+        throw ParseException(QString::fromLatin1("Invalid nested-name"));
 
-            /*
-             * These are member function qualifiers which will have to
-             * be moved to the back of the whole declaration later on,
-             * so we mark them with the '@' character to ne able to easily
-             * spot them.
-             */
-            if (!cvQualifiers.isEmpty())
-                name += '@' + cvQualifiers;
-        }
+    QByteArray cvQualifiers;
+    if (firstSetCvQualifiers.contains(peek()) && peek(1) != 'm'
+            && peek(1) != 'M' && peek(1) != 's' && peek(1) != 'S') {
+        cvQualifiers = parseCvQualifiers();
     }
+    name = parsePrefix();
+    if (advance() != 'E')
+        throw ParseException(QString::fromLatin1("Invalid nested-name"));
+
+    /*
+     * These are member function qualifiers which will have to
+     * be moved to the back of the whole declaration later on,
+     * so we mark them with the '@' character to ne able to easily
+     * spot them.
+     */
+    if (!cvQualifiers.isEmpty())
+        name += '@' + cvQualifiers;
 
     FUNC_END(name);
     return name;
@@ -551,29 +552,24 @@ const QByteArray NameDemanglerPrivate::parsePrefix()
     char next = peek();
     if (firstSetTemplateParam.contains(next)) {
         prefix = parseTemplateParam();
-        if (!parseError && firstSetTemplateArgs.contains(peek())) {
+        if (firstSetTemplateArgs.contains(peek())) {
             addSubstitution(prefix);
             prefix += parseTemplateArgs();
         }
-        if (!parseError) {
-            if (firstSetUnqualifiedName.contains(peek())) {
-                addSubstitution(prefix);
-                prefix = parsePrefix2(prefix);
-            }
+        if (firstSetUnqualifiedName.contains(peek())) {
+            addSubstitution(prefix);
+            prefix = parsePrefix2(prefix);
         }
     } else if (firstSetSubstitution.contains(next)) {
         prefix = parseSubstitution();
         QByteArray templateArgs;
-        if (!parseError && firstSetTemplateArgs.contains(peek())) {
+        if (firstSetTemplateArgs.contains(peek())) {
             templateArgs = parseTemplateArgs();
             prefix += templateArgs;
         }
-        if (!parseError) {
-            if (firstSetUnqualifiedName.contains(peek()) &&
-                !templateArgs.isEmpty())
-                addSubstitution(prefix);
-            prefix = parsePrefix2(prefix);
-        }
+        if (firstSetUnqualifiedName.contains(peek()) && !templateArgs.isEmpty())
+            addSubstitution(prefix);
+        prefix = parsePrefix2(prefix);
     } else {
         prefix = parsePrefix2(prefix);
     }
@@ -593,15 +589,13 @@ const QByteArray NameDemanglerPrivate::parsePrefix2(const QByteArray &oldPrefix)
 
     QByteArray prefix = oldPrefix;
     bool firstRun = true;
-    while (!parseError && firstSetUnqualifiedName.contains(peek())) {
+    while (firstSetUnqualifiedName.contains(peek())) {
         if (!firstRun)
             addSubstitution(prefix);
         prefix += parseUnqualifiedName();
-        if (!parseError) {
-            if (firstSetTemplateArgs.contains(peek())) {
-                addSubstitution(prefix);
-                prefix += parseTemplateArgs();
-            }
+        if (firstSetTemplateArgs.contains(peek())) {
+            addSubstitution(prefix);
+            prefix += parseTemplateArgs();
         }
         firstRun = false;
     }
@@ -619,17 +613,17 @@ const QByteArray NameDemanglerPrivate::parseTemplateArgs()
     Q_ASSERT(!firstSetTemplateArg.contains('E'));
 
     QByteArray args = "<";
-    if (advance() != 'I') {
-        error(QString::fromLatin1("Invalid template args"));
-    } else {
-        do {
-            if (args.length() > 1)
-                args += ", ";
-            args += parseTemplateArg();
-        } while (!parseError && firstSetTemplateArg.contains(peek()));
-        if (!parseError && advance() != 'E')
-            error(QString::fromLatin1("Invalid template args"));
-    }
+    if (advance() != 'I')
+        throw ParseException(QString::fromLatin1("Invalid template args"));
+
+    do {
+        if (args.length() > 1)
+            args += ", ";
+        args += parseTemplateArg();
+    } while (firstSetTemplateArg.contains(peek()));
+
+    if (advance() != 'E')
+        throw ParseException(QString::fromLatin1("Invalid template args"));
 
     args += '>';
     FUNC_END(args);
@@ -645,18 +639,17 @@ const QByteArray NameDemanglerPrivate::parseTemplateParam()
     FUNC_START();
 
     QByteArray param;
-    if (advance() != 'T') {
-        error(QString::fromLatin1("Invalid template-param"));
-    } else {
-        int index;
-        if (peek() == '_')
-            index = 0;
-        else
-            index = parseNonNegativeNumber() + 1;
-        if (!parseError && advance() != '_')
-            error(QString::fromLatin1("Invalid template-param"));
-        param = templateParams.at(index);
-    }
+    if (advance() != 'T')
+        throw ParseException(QString::fromLatin1("Invalid template-param"));
+
+    int index;
+    if (peek() == '_')
+        index = 0;
+    else
+        index = parseNonNegativeNumber() + 1;
+    if (advance() != '_')
+        throw ParseException(QString::fromLatin1("Invalid template-param"));
+    param = templateParams.at(index);
 
     FUNC_END(param);
     return param;
@@ -672,23 +665,17 @@ const QByteArray NameDemanglerPrivate::parseCvQualifiers()
     bool constFound = false;
     while (true) {
         if (peek() == 'V') {
-            if (volatileFound || constFound) {
-                error(QString::fromLatin1("Invalid qualifiers: unexpected 'volatile'"));
-                break;
-            } else {
-                volatileFound = true;
-                qualifiers += " volatile";
-                advance();
-            }
+            if (volatileFound || constFound)
+                throw ParseException(QLatin1String("Invalid qualifiers: unexpected 'volatile'"));
+            volatileFound = true;
+            qualifiers += " volatile";
+            advance();
         } else if (peek() == 'K') {
-            if (constFound) {
-                error(QString::fromLatin1("Invalid qualifiers: 'const' appears twice"));
-                break;
-            } else {
-                constFound = true;
-                qualifiers += " const";
-                advance();
-            }
+            if (constFound)
+                throw ParseException(QLatin1String("Invalid qualifiers: 'const' appears twice"));
+            constFound = true;
+            qualifiers += " const";
+            advance();
         } else {
             break;
         }
@@ -697,7 +684,6 @@ const QByteArray NameDemanglerPrivate::parseCvQualifiers()
     FUNC_END(qualifiers);
     return qualifiers;
 }
-
 
 int NameDemanglerPrivate::parseNumber()
 {
@@ -723,13 +709,9 @@ int NameDemanglerPrivate::parseNonNegativeNumber(int base)
     int startPos = pos;
     while (std::isdigit(peek()))
         advance();
-    int number;
-    if (pos == startPos) {
-        error(QString::fromLatin1("Invalid non-negative number"));
-        number = 0;
-    } else {
-        number = mangledName.mid(startPos, pos - startPos).toInt(0, base);
-    }
+    if (pos == startPos)
+        throw ParseException(QString::fromLatin1("Invalid non-negative number"));
+    const int number = mangledName.mid(startPos, pos - startPos).toInt(0, base);
 
     FUNC_END(QString::number(number));
     return number;
@@ -782,19 +764,19 @@ const QByteArray NameDemanglerPrivate::parseTemplateArg()
     } else if (next == 'X') {
         advance();
         arg = parseExpression();
-        if (!parseError && advance() != 'E')
-            error(QString::fromLatin1("Invalid template-arg"));
+        if (advance() != 'E')
+            throw ParseException(QString::fromLatin1("Invalid template-arg"));
     } else if (next == 'I') {
         advance();
-        while (!parseError && firstSetTemplateArg.contains(peek())) {
+        while (firstSetTemplateArg.contains(peek())) {
             if (!arg.isEmpty())
                 arg += ", ";  // TODO: is this correct?
             arg += parseTemplateArg();
         }
-        if (!parseError && advance() != 'E')
-            error(QString::fromLatin1("Invalid template-arg"));
+        if (advance() != 'E')
+            throw ParseException(QString::fromLatin1("Invalid template-arg"));
     } else {
-        error(QString::fromLatin1("Invalid template-arg"));
+        throw ParseException(QString::fromLatin1("Invalid template-arg"));
     }
 
     templateParams.append(arg);
@@ -855,28 +837,24 @@ const QByteArray NameDemanglerPrivate::parseExpression()
     QByteArray str = readAhead(2);
     if (str == "cl") {
         advance(2);
-        while (!parseError && firstSetExpression.contains(peek()))
+        while (firstSetExpression.contains(peek()))
             expr += parseExpression();
-        if (!parseError && advance() != 'E')
-            error(QString::fromLatin1("Invalid expression"));
+        if (advance() != 'E')
+            throw ParseException(QString::fromLatin1("Invalid expression"));
     } else if (str == "cv") {
         advance(2);
         expr = parseType() + '(';
-        if (!parseError) {
-            if (peek() == '_') {
-                advance();
-                for (int numArgs = 0;
-                     !parseError && firstSetExpression.contains(peek());
-                     ++numArgs) {
-                    if (numArgs > 0)
-                        expr += ", ";
-                    expr += parseExpression();
-                }
-                if (!parseError && advance() != 'E')
-                    error(QString::fromLatin1("Invalid expression"));
-            } else {
+        if (peek() == '_') {
+            advance();
+            for (int numArgs = 0; firstSetExpression.contains(peek()); ++numArgs) {
+                if (numArgs > 0)
+                    expr += ", ";
                 expr += parseExpression();
             }
+            if (advance() != 'E')
+                throw ParseException(QString::fromLatin1("Invalid expression"));
+        } else {
+            expr += parseExpression();
         }
         expr += ')';
     } else if (str == "st") {
@@ -887,10 +865,8 @@ const QByteArray NameDemanglerPrivate::parseExpression()
         expr = "alignof(" + parseType() + ')';
     } else if (str == "sr") { // TODO: Which syntax to use here?
         advance(2);
-        expr = parseType();
-        if (!parseError)
-            expr += parseUnqualifiedName();
-        if (!parseError && firstSetTemplateArgs.contains(peek()))
+        expr = parseType() + parseUnqualifiedName();
+        if (firstSetTemplateArgs.contains(peek()))
             parseTemplateArgs();
     } else if (str == "sZ") {
         expr = parseTemplateParam(); // TODO: Syntax?
@@ -899,13 +875,11 @@ const QByteArray NameDemanglerPrivate::parseExpression()
         if (firstSetOperatorName.contains(next)) {
             const Operator &op = parseOperatorName();
             QList<QByteArray> exprs;
-            if (!parseError)
+            exprs.append(parseExpression());
+            if (op.type() != Operator::UnaryOp)
                 exprs.append(parseExpression());
-            if (!parseError && op.type() != Operator::UnaryOp)
+            if (op.type() == Operator::TernaryOp)
                 exprs.append(parseExpression());
-            if (!parseError && op.type() == Operator::TernaryOp) {
-                exprs.append(parseExpression());
-            }
             expr = op.makeExpr(exprs);
         } else if (firstSetTemplateParam.contains(next)) {
             expr = parseTemplateParam();
@@ -916,7 +890,7 @@ const QByteArray NameDemanglerPrivate::parseExpression()
         } else if (firstSetExprPrimary.contains(next)) {
             expr = parseExprPrimary();
         } else {
-            error(QString::fromLatin1("Invalid expression"));
+            throw ParseException(QString::fromLatin1("Invalid expression"));
         }
     }
 
@@ -935,28 +909,24 @@ const QByteArray NameDemanglerPrivate::parseExprPrimary()
     Q_ASSERT((firstSetType & firstSetMangledName).isEmpty());
 
     QByteArray expr;
-    if (advance() != 'L') {
-        error(QString::fromLatin1("Invalid primary expression"));
+    if (advance() != 'L')
+        throw ParseException(QString::fromLatin1("Invalid primary expression"));
+    const char next = peek();
+    if (firstSetType.contains(next)) {
+        const QByteArray type = parseType();
+        if (true /* type just parsed indicates integer */)
+            expr += QByteArray::number(parseNumber());
+        else if (true /* type just parsed indicates float */)
+            expr += QByteArray::number(parseFloat());
+        else
+            throw ParseException(QString::fromLatin1("Invalid expr-primary"));
+    } else if (firstSetMangledName.contains(next)) {
+        expr = parseMangledName();
     } else {
-        char next = peek();
-        if (firstSetType.contains(next)) {
-            const QByteArray type = parseType();
-            if (!parseError) {
-                if (true /* type just parsed indicates integer */)
-                    expr += QByteArray::number(parseNumber());
-                else if (true /* type just parsed indicates float */)
-                    expr += QByteArray::number(parseFloat());
-                else
-                    error(QString::fromLatin1("Invalid expr-primary"));
-            }
-        } else if (firstSetMangledName.contains(next)) {
-            expr = parseMangledName();
-        } else {
-            error(QString::fromLatin1("Invalid expr-primary"));
-        }
-        if (!parseError && advance() != 'E')
-            error(QString::fromLatin1("Invalid expr-primary"));
+        throw ParseException(QString::fromLatin1("Invalid expr-primary"));
     }
+    if (advance() != 'E')
+        throw ParseException(QString::fromLatin1("Invalid expr-primary"));
 
     FUNC_END(expr);
     return expr;
@@ -1089,13 +1059,13 @@ const QByteArray NameDemanglerPrivate::parseType()
     } else if (str == "Dt") {
         advance(2);
         type = parseExpression();  // TODO: See above
-        if (!parseError && advance() != 'E')
-            error(QString::fromLatin1("Invalid type"));
+        if (advance() != 'E')
+            throw ParseException(QString::fromLatin1("Invalid type"));
     } else if (str == "DT") {
         advance(2);
         type = parseExpression(); // TODO: See above
-        if (!parseError && advance() != 'E')
-            error(QString::fromLatin1("Invalid type"));
+        if (advance() != 'E')
+            throw ParseException(QString::fromLatin1("Invalid type"));
     } else {
         char next = peek();
         if (str == "Dd" || str == "De" || str == "Df" || str == "Dh" || str == "Di" || str == "Ds"
@@ -1114,24 +1084,22 @@ const QByteArray NameDemanglerPrivate::parseType()
         } else if (firstSetTemplateParam.contains(next)) {
             type = parseTemplateParam();
             addSubstitution(type);
-            if (!parseError && firstSetTemplateArgs.contains(peek())) {
+            if (firstSetTemplateArgs.contains(peek())) {
                 type += parseTemplateArgs();
                 addSubstitution(type);
             }
         } else if (firstSetSubstitution.contains(next)) {
             type = parseSubstitution();
-            if (!parseError && firstSetTemplateArgs.contains(peek())) {
+            if (firstSetTemplateArgs.contains(peek())) {
                 type += parseTemplateArgs();
                 addSubstitution(type);
             }
         } else if (firstSetCvQualifiers.contains(next)) {
             const QByteArray cvQualifiers = parseCvQualifiers();
-            if (!parseError) {
-                type = parseType();
-                if (!parseError && !cvQualifiers.isEmpty()) {
-                    insertQualifier(type, cvQualifiers);
-                    addSubstitution(type);
-                }
+            type = parseType();
+            if (!cvQualifiers.isEmpty()) {
+                insertQualifier(type, cvQualifiers);
+                addSubstitution(type);
             }
         } else if (next == 'P') {
             advance();
@@ -1158,10 +1126,9 @@ const QByteArray NameDemanglerPrivate::parseType()
         } else if (next == 'U') {
             advance();
             type = parseSourceName();
-            if (!parseError)
-                type += parseType(); // TODO: handle this correctly
+            type += parseType(); // TODO: handle this correctly
         } else {
-            error(QString::fromLatin1("Invalid type"));
+            throw ParseException(QString::fromLatin1("Invalid type"));
         }
     }
 
@@ -1174,10 +1141,8 @@ const QByteArray NameDemanglerPrivate::parseSourceName()
 {
     FUNC_START();
 
-    int idLen = parseNonNegativeNumber();
-    QByteArray sourceName;
-    if (!parseError)
-        sourceName = parseIdentifier(idLen);
+    const int idLen = parseNonNegativeNumber();
+    const QByteArray sourceName = parseIdentifier(idLen);
 
     FUNC_END(sourceName);
     return sourceName;
@@ -1246,11 +1211,11 @@ const QByteArray NameDemanglerPrivate::parseBuiltinType()
         case 'd': case 'e': case 'f': case 'h': type = "IEEE_special_float"; break;
         case 'i': type = "char32_t"; break;
         case 's': type = "char16_t"; break;
-        default: error(QString::fromLatin1("Invalid built-in type"));
+        default: throw ParseException(QString::fromLatin1("Invalid built-in type"));
         }
         break;
     default:
-        error(QString::fromLatin1("Invalid builtin-type"));
+        throw ParseException(QString::fromLatin1("Invalid builtin-type"));
     }
 
     FUNC_END(type);
@@ -1263,45 +1228,43 @@ const QByteArray NameDemanglerPrivate::parseFunctionType()
     FUNC_START();
 
     // TODO: Check how we get here. Do we always have a return type or not?
-    QByteArray funcType;
+    if (advance() != 'F')
+        throw ParseException(QString::fromLatin1("Invalid function type"));
+
     bool externC = false;
-    if (advance() != 'F') {
-        error(QString::fromLatin1("Invalid function type"));
-    } else {
-        if (peek() == 'Y') {
-            advance();
-            externC = true;
-        }
-        const QList<QByteArray> &signature = parseBareFunctionType();
-        if (!parseError && advance() != 'E')
-            error(QString::fromLatin1("Invalid function type"));
-        if (!parseError) {
-            QByteArray returnType = signature.first();
-            QByteArray argList = "(";
-            for (int i = 1; i < signature.size(); ++i) {
-                if (i > 1)
-                    argList.append(", ");
-                const QByteArray &type = signature.at(i);
-                if (type != "void")
-                    argList.append(type);
-            }
-            argList.append(')');
-            bool retTypeIsFuncPtr = false;
-            const int firstClosingParenIndex = returnType.indexOf(')');
-            if (firstClosingParenIndex != -1) {
-                const int firstOpeningParenIndex =
-                    returnType.lastIndexOf('(', firstClosingParenIndex);
-                const char next = returnType[firstOpeningParenIndex + 1];
-                if (next == '*' || next =='&') {
-                    retTypeIsFuncPtr = true;
-                    funcType = returnType.left(firstOpeningParenIndex + 2)
-                        + argList + returnType.mid(firstOpeningParenIndex + 2);
-                }
-            }
-            if (!retTypeIsFuncPtr)
-                funcType = returnType + ' ' + argList;
+    if (peek() == 'Y') {
+        advance();
+        externC = true;
+    }
+
+    QByteArray funcType;
+    const QList<QByteArray> &signature = parseBareFunctionType();
+    if (advance() != 'E')
+        throw ParseException(QString::fromLatin1("Invalid function type"));
+    QByteArray returnType = signature.first();
+    QByteArray argList = "(";
+    for (int i = 1; i < signature.size(); ++i) {
+        if (i > 1)
+            argList.append(", ");
+        const QByteArray &type = signature.at(i);
+        if (type != "void")
+            argList.append(type);
+    }
+    argList.append(')');
+    bool retTypeIsFuncPtr = false;
+    const int firstClosingParenIndex = returnType.indexOf(')');
+    if (firstClosingParenIndex != -1) {
+        const int firstOpeningParenIndex =
+                returnType.lastIndexOf('(', firstClosingParenIndex);
+        const char next = returnType[firstOpeningParenIndex + 1];
+        if (next == '*' || next =='&') {
+            retTypeIsFuncPtr = true;
+            funcType = returnType.left(firstOpeningParenIndex + 2)
+                    + argList + returnType.mid(firstOpeningParenIndex + 2);
         }
     }
+    if (!retTypeIsFuncPtr)
+        funcType = returnType + ' ' + argList;
 
     if (externC)
         funcType.prepend("extern \"C\" ");
@@ -1317,7 +1280,7 @@ const QList<QByteArray> NameDemanglerPrivate::parseBareFunctionType()
     QList<QByteArray> signature;
     do
         signature.append(parseType());
-    while (!parseError && firstSetType.contains(peek()));
+    while (firstSetType.contains(peek()));
 
     FUNC_END(signature.join(':'));
     return signature;
@@ -1353,7 +1316,7 @@ const QByteArray NameDemanglerPrivate::parseUnqualifiedName()
     else if (firstSetSourceName.contains(next))
         name = "::" + parseSourceName();
     else
-        error(QString::fromLatin1("Invalid unqualified-name"));
+        throw ParseException(QString::fromLatin1("Invalid unqualified-name"));
 
     FUNC_END(name);
     return name;
@@ -1426,8 +1389,7 @@ const NameDemanglerPrivate::Operator &NameDemanglerPrivate::parseOperatorName()
         advance();
         int numExprs = parseDigit();
         Q_UNUSED(numExprs);
-        if (!parseError)
-            parseSourceName();
+        parseSourceName();
         op = &vendorOp;
     } else {
         const QByteArray id = readAhead(2);
@@ -1442,7 +1404,8 @@ const NameDemanglerPrivate::Operator &NameDemanglerPrivate::parseOperatorName()
             if (op == 0) {
                 static const UnaryOperator pseudoOp("invalid", "invalid");
                 op = &pseudoOp;
-                error(QString::fromLatin1("Invalid operator-name '%s'").arg(QString::fromAscii(id)));
+                throw ParseException(QString::fromLatin1("Invalid operator-name '%s'")
+                        .arg(QString::fromAscii(id)));
             }
         }
     }
@@ -1463,21 +1426,19 @@ const QByteArray NameDemanglerPrivate::parseArrayType()
     Q_ASSERT(!firstSetExpression.contains('_'));
 
     QByteArray type;
-    if (advance() != 'A') {
-        error(QString::fromLatin1("Invalid array-type"));
-    } else {
-        char next = peek();
-        QByteArray dimension;
-        if (firstSetNonNegativeNumber.contains(next)) {
-            dimension = QByteArray::number(parseNonNegativeNumber());
-        } else if (firstSetExpression.contains(next)){
-            dimension = parseExpression();
-        }
-        if (!parseError && advance() != '_')
-            error(QString::fromLatin1("Invalid array-type"));
-        if (!parseError)
-            type = parseType() + '[' + dimension + ']';
+    if (advance() != 'A')
+        throw ParseException(QString::fromLatin1("Invalid array-type"));
+
+    const char next = peek();
+    QByteArray dimension;
+    if (firstSetNonNegativeNumber.contains(next)) {
+        dimension = QByteArray::number(parseNonNegativeNumber());
+    } else if (firstSetExpression.contains(next)){
+        dimension = parseExpression();
     }
+    if (advance() != '_')
+        throw ParseException(QString::fromLatin1("Invalid array-type"));
+    type = parseType() + '[' + dimension + ']';
 
     FUNC_END(type);
     return type;
@@ -1489,23 +1450,18 @@ const QByteArray NameDemanglerPrivate::parsePointerToMemberType()
     FUNC_START();
 
     QByteArray type;
-    if (advance() != 'M') {
-        error(QString::fromLatin1("Invalid pointer-to-member-type"));
+    if (advance() != 'M')
+        throw ParseException(QString::fromLatin1("Invalid pointer-to-member-type"));
+
+    const QByteArray classType = parseType();
+    QByteArray memberType = parseType();
+    if (memberType.contains(')')) { // Function?
+        const int parenIndex = memberType.indexOf('(');
+        QByteArray returnType = memberType.left(parenIndex);
+        memberType.remove(0, parenIndex);
+        type = returnType + '(' + classType + "::*)" + memberType;
     } else {
-        const QByteArray classType = parseType();
-        QByteArray memberType;
-        if (!parseError)
-            memberType = parseType();
-        if (!parseError) {
-            if (memberType.contains(')')) { // Function?
-                int parenIndex = memberType.indexOf('(');
-                QByteArray returnType = memberType.left(parenIndex);
-                memberType.remove(0, parenIndex);
-                type = returnType + '(' + classType + "::*)" + memberType;
-            } else {
-                type = memberType + ' ' + classType + "::*";
-            }
-        }
+        type = memberType + ' ' + classType + "::*";
     }
 
     FUNC_END(type);
@@ -1534,25 +1490,25 @@ const QByteArray NameDemanglerPrivate::parseSubstitution()
              && !firstSetSeqId.contains('o') && !firstSetSeqId.contains('d'));
 
     QByteArray substitution;
-    if (advance() != 'S') {
-        error(QString::fromLatin1("Invalid substitution"));
-    } else if (firstSetSeqId.contains(peek())) {
+    if (advance() != 'S')
+        throw ParseException(QString::fromLatin1("Invalid substitution"));
+
+    if (firstSetSeqId.contains(peek())) {
         int substIndex = parseSeqId() + 1;
-        if (!parseError && substIndex >= substitutions.size())
-            error(QString::fromLatin1("Invalid substitution: element %1 was requested, "
+        if (substIndex >= substitutions.size()) {
+            throw ParseException(QString::fromLatin1("Invalid substitution: element %1 was requested, "
                      "but there are only %2").
                   arg(substIndex + 1).arg(substitutions.size()));
-        else
-            substitution = substitutions.at(substIndex);
-        if (!parseError && advance() != '_')
-            error(QString::fromLatin1("Invalid substitution"));
+        }
+        substitution = substitutions.at(substIndex);
+        if (advance() != '_')
+            throw ParseException(QString::fromLatin1("Invalid substitution"));
     } else {
         switch (advance()) {
             case '_':
                 if (substitutions.isEmpty())
-                    error(QString::fromLatin1("Invalid substitution: There are no elements"));
-                else
-                    substitution = substitutions.first();
+                    throw ParseException(QString::fromLatin1("Invalid substitution: There are no elements"));
+                substitution = substitutions.first();
                 break;
             case 't':
                 substitution = "::std::";
@@ -1577,7 +1533,7 @@ const QByteArray NameDemanglerPrivate::parseSubstitution()
                 substitution = "::std::basic_iostream<char, std::char_traits<char> >";
                 break;
             default:
-                error(QString::fromLatin1("Invalid substitution"));
+                throw ParseException(QString::fromLatin1("Invalid substitution"));
         }
     }
 
@@ -1639,16 +1595,13 @@ const QByteArray NameDemanglerPrivate::parseSpecialName()
     } else if (str == "Tc") {
         advance(2);
         parseCallOffset();
-        if (!parseError)
-            parseCallOffset();
-        if (!parseError)
-            parseEncoding();
+        parseCallOffset();
+        parseEncoding();
     } else if (advance() == 'T') {
         parseCallOffset();
-        if (!parseError)
-            parseEncoding();
+        parseEncoding();
     } else {
-        error(QString::fromLatin1("Invalid special-name"));
+        throw ParseException(QString::fromLatin1("Invalid special-name"));
     }
 
     FUNC_END(name);
@@ -1671,7 +1624,7 @@ const QByteArray NameDemanglerPrivate::parseUnscopedName()
     } else if (firstSetUnqualifiedName.contains(peek())) {
         name = parseUnqualifiedName();
     } else {
-        error(QString::fromLatin1("Invalid unqualified-name"));
+        throw ParseException(QString::fromLatin1("Invalid unqualified-name"));
     }
 
     FUNC_END(name);
@@ -1690,28 +1643,26 @@ const QByteArray NameDemanglerPrivate::parseLocalName()
     FUNC_START();
 
     QByteArray name;
-    if (advance() != 'Z') {
-        error(QString::fromLatin1("Invalid local-name"));
+    if (advance() != 'Z')
+        throw ParseException(QString::fromLatin1("Invalid local-name"));
+
+    name = parseEncoding();
+    if (advance() != 'E')
+        throw ParseException(QString::fromLatin1("Invalid local-name"));
+
+    QByteArray str = readAhead(2);
+    char next = peek();
+    if (str == "sp" || str == "sr" || str == "st" || str == "sz" || str == "sZ"
+            || (next != 's' && firstSetName.contains(next)))
+        name +=  parseName();
+    else if (next == 's') {
+        advance();
+        name += "::\"string literal\"";
     } else {
-        name = parseEncoding();
-        if (!parseError && advance() != 'E') {
-            error(QString::fromLatin1("Invalid local-name"));
-        } else {
-            QByteArray str = readAhead(2);
-            char next = peek();
-            if (str == "sp" || str == "sr" || str == "st" || str == "sz" || str == "sZ"
-                    || (next != 's' && firstSetName.contains(next)))
-                name +=  parseName();
-            else if (next == 's') {
-                advance();
-                name += "::\"string literal\"";
-            } else {
-                error(QString::fromLatin1("Invalid local-name"));
-            }
-            if (!parseError && firstSetDiscriminator.contains(peek()))
-                parseDiscriminator();
-        }
+        throw ParseException(QString::fromLatin1("Invalid local-name"));
     }
+    if (firstSetDiscriminator.contains(peek()))
+        parseDiscriminator();
 
     FUNC_END(name);
     return name;
@@ -1720,13 +1671,10 @@ const QByteArray NameDemanglerPrivate::parseLocalName()
 /* <discriminator> := _ <non-negative-number> */
 int NameDemanglerPrivate::parseDiscriminator()
 {
-    int index;
-    if (advance() != '_') {
-        error(QString::fromLatin1("Invalid discriminator"));
-        index = -1;
-    } else {
-        index = parseNonNegativeNumber();
-    }
+    if (advance() != '_')
+        throw ParseException(QString::fromLatin1("Invalid discriminator"));
+
+    const int index = parseNonNegativeNumber();
 
     FUNC_END(QString::number(index));
     return index;
@@ -1749,41 +1697,30 @@ const QByteArray NameDemanglerPrivate::parseCtorDtorName()
     switch (advance()) {
         case 'C':
             switch (advance()) {
-                case '1':
-                case '2':
-                case '3':
-                    break;
-                default:
-                    error(QString::fromLatin1("Invalid ctor-dtor-name"));
+                case '1': case '2': case '3': break;
+                default: throw ParseException(QString::fromLatin1("Invalid ctor-dtor-name"));
             }
             break;
         case 'D':
             switch (advance()) {
-                case '0':
-                case '1':
-                case '2':
-                    destructor = true;
-                    break;
-                default:
-                    error(QString::fromLatin1("Invalid ctor-dtor-name"));
+                case '0': case '1': case '2': destructor = true; break;
+                default: throw ParseException(QString::fromLatin1("Invalid ctor-dtor-name"));
             }
             break;
         default:
-            error(QString::fromLatin1("Invalid ctor-dtor-name"));
+            throw ParseException(QString::fromLatin1("Invalid ctor-dtor-name"));
     }
 
-    if (!parseError) {
-        name = substitutions.last();
-        int templateArgsStart = name.indexOf('<');
-        if (templateArgsStart != -1)
-            name.remove(templateArgsStart,
-                        name.indexOf('>') - templateArgsStart + 1);
-        int lastComponentStart = name.lastIndexOf("::");
-        if (lastComponentStart != -1)
-            name.remove(0, lastComponentStart + 2);
-        if (destructor)
-            name.prepend('~');
-    }
+    name = substitutions.last();
+    int templateArgsStart = name.indexOf('<');
+    if (templateArgsStart != -1)
+        name.remove(templateArgsStart,
+                    name.indexOf('>') - templateArgsStart + 1);
+    int lastComponentStart = name.lastIndexOf("::");
+    if (lastComponentStart != -1)
+        name.remove(0, lastComponentStart + 2);
+    if (destructor)
+        name.prepend('~');
 
     FUNC_END(name);
     return name;
@@ -1817,10 +1754,10 @@ void NameDemanglerPrivate::parseCallOffset()
             parseVOffset();
             break;
         default:
-            error(QString::fromLatin1("Invalid call-offset"));
+            throw ParseException(QString::fromLatin1("Invalid call-offset"));
     }
-    if (!parseError && advance() != '_')
-        error(QString::fromLatin1("Invalid call-offset"));
+    if (advance() != '_')
+        throw ParseException(QString::fromLatin1("Invalid call-offset"));
     FUNC_END(QString());
 }
 
@@ -1842,7 +1779,7 @@ void NameDemanglerPrivate::parseVOffset()
 
     parseNumber();
     if (advance() != '_')
-        error(QString::fromLatin1("Invalid v-offset"));
+        throw ParseException(QString::fromLatin1("Invalid v-offset"));
     parseNumber();
 
     FUNC_END(QString());
@@ -1854,42 +1791,31 @@ int NameDemanglerPrivate::parseDigit()
 
     int digit = advance();
     if (!std::isdigit(digit))
-        error(QString::fromLatin1("Invalid digit"));
-    else
-        digit -= 0x30;
+        throw ParseException(QString::fromLatin1("Invalid digit"));
+    digit -= 0x30;
 
     FUNC_END(QString::number(digit));
     return digit;
 }
 
-void NameDemanglerPrivate::error(const QString &errorSpec)
-{
-    parseError = true;
-    m_errorString = QString::fromLatin1("At position %1: ").arg(pos) + errorSpec;
-}
-
 char NameDemanglerPrivate::peek(int ahead)
 {
     Q_ASSERT(pos >= 0);
-    if (pos + ahead < mangledName.size()) {
+
+    if (pos + ahead < mangledName.size())
         return mangledName[pos + ahead];
-    } else {
-        return eoi;
-    }
+    return eoi;
 }
 
 char NameDemanglerPrivate::advance(int steps)
 {
     Q_ASSERT(steps > 0);
-    if (pos + steps <= mangledName.size()) {
-        char c = mangledName[pos];
-        pos += steps;
-        return c;
-    } else {
-        pos = mangledName.size();
-        parseError = true;
-        return eoi;
-    }
+    if (pos + steps > mangledName.size())
+        throw ParseException(QLatin1String("Unexpected end of input"));
+
+    const char c = mangledName[pos];
+    pos += steps;
+    return c;
 }
 
 const QByteArray NameDemanglerPrivate::readAhead(int charCount)
