@@ -1,22 +1,8 @@
-source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
-
-def verifyCurrentLine(editorArea, currentLineExpectedText):
-    verifyMessage = "Verifying split initializer functionality at element line."
-    currentLineText = str(lineUnderCursor(editorArea)).strip();
-    return test.compare(currentLineText, currentLineExpectedText, verifyMessage)
+source("../shared/qmls.py")
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
-    # create qt quick application
-    createNewQtQuickApplication(tempDir(), "SampleApp")
-    # open qml file
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", "SampleApp.QML.qml/SampleApp.main\\.qml", 5, 5, 0, Qt.LeftButton)
-    # get editor
-    editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
-    # prepare code for test - type one-line element
-    if not placeCursorToLine(editorArea, "Text {"):
-        invokeMenuItem("File", "Exit")
+    editorArea = startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp", "Text {")
+    if not editorArea:
         return
     moveTextCursor(editorArea, QTextCursor.StartOfLine, QTextCursor.MoveAnchor)
     type(editorArea, "<Return>")
@@ -33,15 +19,16 @@ def main():
     # wait until refactoring ended
     waitFor("len(str(editorArea.plainText).splitlines()) == numLinesExpected", 5000)
     # verify if refactoring was properly applied - each part on separate line
-    verifyCurrentLine(editorArea, "Item {")
+    verifyMessage = "Verifying split initializer functionality at element line."
+    verifyCurrentLine(editorArea, "Item {", verifyMessage)
     moveTextCursor(editorArea, QTextCursor.Down, QTextCursor.MoveAnchor, 1)
-    verifyCurrentLine(editorArea, "x: 10;")
+    verifyCurrentLine(editorArea, "x: 10;", verifyMessage)
     moveTextCursor(editorArea, QTextCursor.Down, QTextCursor.MoveAnchor, 1)
-    verifyCurrentLine(editorArea, "y: 20;")
+    verifyCurrentLine(editorArea, "y: 20;", verifyMessage)
     moveTextCursor(editorArea, QTextCursor.Down, QTextCursor.MoveAnchor, 1)
-    verifyCurrentLine(editorArea, "width: 10")
+    verifyCurrentLine(editorArea, "width: 10", verifyMessage)
     moveTextCursor(editorArea, QTextCursor.Down, QTextCursor.MoveAnchor, 1)
-    verifyCurrentLine(editorArea, "}")
+    verifyCurrentLine(editorArea, "}", verifyMessage)
     moveTextCursor(editorArea, QTextCursor.Down, QTextCursor.MoveAnchor, 1)
     #save and exit
     invokeMenuItem("File", "Save All")
