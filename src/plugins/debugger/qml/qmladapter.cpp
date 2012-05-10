@@ -32,6 +32,7 @@
 
 #include "qmladapter.h"
 
+#include "debuggerstringutils.h"
 #include "qmlengine.h"
 #include "qmlv8debuggerclient.h"
 #include "qscriptdebuggerclient.h"
@@ -231,13 +232,13 @@ DebuggerEngine *QmlAdapter::debuggerEngine() const
 void QmlAdapter::showConnectionStatusMessage(const QString &message)
 {
     if (!m_engine.isNull())
-        m_engine.data()->showMessage(QLatin1String("QML Debugger: ") + message, LogStatus);
+        m_engine.data()->showMessage(_("QML Debugger: ") + message, LogStatus);
 }
 
 void QmlAdapter::showConnectionErrorMessage(const QString &message)
 {
     if (!m_engine.isNull())
-        m_engine.data()->showMessage(QLatin1String("QML Debugger: ") + message, LogError);
+        m_engine.data()->showMessage(_("QML Debugger: ") + message, LogError);
 }
 
 BaseQmlDebuggerClient *QmlAdapter::activeDebuggerClient() const
@@ -260,18 +261,18 @@ void QmlAdapter::logServiceStatusChange(const QString &service, float version,
 {
     switch (newStatus) {
     case QmlDebug::Unavailable: {
-        showConnectionStatusMessage(tr("Status of '%1' Version: %2 changed to 'unavailable'.").
+        showConnectionStatusMessage(_("Status of '%1' Version: %2 changed to 'unavailable'.").
                                     arg(service).arg(QString::number(version)));
         break;
     }
     case QmlDebug::Enabled: {
-        showConnectionStatusMessage(tr("Status of '%1' Version: %2 changed to 'enabled'.").
+        showConnectionStatusMessage(_("Status of '%1' Version: %2 changed to 'enabled'.").
                                     arg(service).arg(QString::number(version)));
         break;
     }
 
     case QmlDebug::NotConnected: {
-        showConnectionStatusMessage(tr("Status of '%1' Version: %2 changed to 'not connected'.").
+        showConnectionStatusMessage(_("Status of '%1' Version: %2 changed to 'not connected'.").
                                     arg(service).arg(QString::number(version)));
         break;
     }
