@@ -198,8 +198,10 @@ def logApplicationOutput():
     try:
         output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
         test.log("Application Output:\n%s" % output.plainText)
+        return str(output.plainText)
     except:
         test.fail("Could not find any Application Output - did the project run?")
+        return None
 
 # get the output from a given cmdline call
 def getOutputFromCmdline(cmdline):
