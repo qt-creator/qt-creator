@@ -240,24 +240,6 @@ void QmlAdapter::showConnectionErrorMessage(const QString &message)
         m_engine.data()->showMessage(QLatin1String("QML Debugger: ") + message, LogError);
 }
 
-bool QmlAdapter::disableJsDebugging(bool block)
-{
-    if (m_engine.isNull())
-        return block;
-
-    bool isBlocked = m_engine.data()->state() == InferiorRunOk;
-
-    if (isBlocked == block)
-        return block;
-
-    if (block)
-        m_engine.data()->continueInferior();
-    else
-        m_engine.data()->requestInterruptInferior();
-
-    return isBlocked;
-}
-
 BaseQmlDebuggerClient *QmlAdapter::activeDebuggerClient() const
 {
     return m_qmlClient;

@@ -73,8 +73,6 @@ public:
     QmlDebug::QmlDebugConnection *connection() const;
     DebuggerEngine *debuggerEngine() const;
 
-    bool disableJsDebugging(bool block);
-
     BaseQmlDebuggerClient *activeDebuggerClient() const;
     QHash<QString, BaseQmlDebuggerClient*> debuggerClients() const;
 
