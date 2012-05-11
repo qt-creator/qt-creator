@@ -109,9 +109,11 @@ void TimelineRenderer::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWid
     int firstIndex = m_profilerDataModel->findFirstIndex(m_startTime);
     int lastIndex = m_profilerDataModel->findLastIndex(m_endTime);
 
-    drawItemsToPainter(p, firstIndex, lastIndex);
-    drawSelectionBoxes(p, firstIndex, lastIndex);
-    drawBindingLoopMarkers(p, firstIndex, lastIndex);
+    if (lastIndex < m_profilerDataModel->count()) {
+        drawItemsToPainter(p, firstIndex, lastIndex);
+        drawSelectionBoxes(p, firstIndex, lastIndex);
+        drawBindingLoopMarkers(p, firstIndex, lastIndex);
+    }
 
     m_lastStartTime = m_startTime;
     m_lastEndTime = m_endTime;
@@ -357,7 +359,7 @@ void TimelineRenderer::manageHovered(int x, int y)
     // find if there's items in the time range
     int eventFrom = m_profilerDataModel->findFirstIndex(time);
     int eventTo = m_profilerDataModel->findLastIndex(time);
-    if (eventTo < eventFrom) {
+    if (eventTo < eventFrom || eventTo >= m_profilerDataModel->count()) {
         m_currentSelection.eventIndex = -1;
         return;
     }

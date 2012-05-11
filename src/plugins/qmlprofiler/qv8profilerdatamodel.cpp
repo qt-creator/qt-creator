@@ -237,6 +237,15 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
             v8event->eventId = index++;
         }
         v8RootEvent.eventId = v8EventHash[rootEventHash]->eventId;
+    } else {
+        // On empty data, still add a fake root event
+        clearV8RootEvent();
+        v8RootEvent.totalPercent = 100;
+        QString rootEventHash = QmlProfilerDataModel::getHashStringForV8Event(
+                    QmlProfilerDataModel::rootEventName(),
+                    QmlProfilerDataModel::rootEventDescription());
+        v8EventHash[rootEventHash] = new QV8EventData;
+        *v8EventHash[rootEventHash] = v8RootEvent;
     }
 }
 

@@ -800,6 +800,8 @@ void QmlProfilerDataModel::complete()
         d->postProcess();
     } else
     if (currentState() == Empty) {
+        d->v8DataModel->collectV8Statistics();
+        compileStatistics(traceStartTime(), traceEndTime());
         setState(Done);
     } else {
         emit error("Unexpected complete signal in data model");
@@ -819,7 +821,6 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::postProcess()
         q->reloadDetails();
         prepareForDisplay();
         q->compileStatistics(q->traceStartTime(), q->traceEndTime());
-
     }
     q->setState(Done);
 }
@@ -1063,9 +1064,18 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::linkEndsToStarts()
 void QmlProfilerDataModel::compileStatistics(qint64 startTime, qint64 endTime)
 {
     d->clearStatistics();
-    d->redoTree(startTime, endTime);
-    d->computeMedianTime(startTime, endTime);
-    d->findBindingLoops(startTime, endTime);
+    if (traceDuration() > 0) {
+        if (count() > 0) {
+            d->redoTree(startTime, endTime);
+            d->computeMedianTime(startTime, endTime);
+            d->findBindingLoops(startTime, endTime);
+        } else {
+            d->insertQmlRootEvent();
+            QmlRangeEventData *listedRootEvent = d->rangeEventDictionary.value(rootEventName());
+            listedRootEvent->calls = 1;
+            listedRootEvent->percentOfTime = 100;
+        }
+    }
 }
 
 void QmlProfilerDataModel::QmlProfilerDataModelPrivate::clearStatistics()
@@ -1074,7 +1084,7 @@ void QmlProfilerDataModel::QmlProfilerDataModelPrivate::clearStatistics()
     foreach (QmlRangeEventData *eventDescription, rangeEventDictionary.values()) {
         eventDescription->calls = 0;
         // maximum possible value
-        eventDescription->minTime = endInstanceList.last().endTime;
+        eventDescription->minTime = traceEndTime;
         eventDescription->maxTime = 0;
         eventDescription->medianTime = 0;
         eventDescription->duration = 0;
@@ -1661,10 +1671,6 @@ void QmlProfilerDataModel::setState(QmlProfilerDataModel::State state)
     d->listState = state;
     emit stateChanged();
 
-    // special: if we were done with an empty list, clean internal data and go back to empty
-    if (d->listState == Done && isEmpty()) {
-        clear();
-    }
     return;
 }
 

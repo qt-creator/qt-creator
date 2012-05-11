@@ -69,7 +69,7 @@ Item {
     states: [
         // no data available
         State {
-            when: (root.eventCount == 0) && !root.recordingEnabled
+            when: (root.eventCount == 0) && (elapsedTime > 0) && !root.recordingEnabled
             PropertyChanges {
                 target: statusDisplay
                 visible: true

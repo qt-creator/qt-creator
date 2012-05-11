@@ -176,6 +176,7 @@ Rectangle {
 
     function clearAll() {
         clearDisplay();
+        elapsedTime = 0;
     }
 
     function nextEvent() {
