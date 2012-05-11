@@ -755,7 +755,8 @@ void QmlInspectorAgent::addObjectToTree(const ObjectReference &obj,
     int count = m_rootObjects.count();
     for (int i = 0; i < count; i++) {
         int parentId = obj.parentId();
-        if (m_engineClient->serviceVersion() < 2) {
+        if (m_engineClient->serviceVersion() < 2
+                && !m_rootObjects.contains(obj)) {
             // we don't get parentId in qt 4.x
             parentId = m_rootObjects[i].insertObjectInTree(obj);
         }
