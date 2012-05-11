@@ -131,9 +131,9 @@ void QmlProfilerViewManager::createViews()
     timelineDock->show();
     v8profilerDock->show();
 
-    mw->splitDockWidget(mw->toolBarDockWidget(), eventsDock, Qt::Vertical);
-    mw->tabifyDockWidget(eventsDock, timelineDock);
-    mw->tabifyDockWidget(timelineDock, v8profilerDock);
+    mw->splitDockWidget(mw->toolBarDockWidget(), timelineDock, Qt::Vertical);
+    mw->tabifyDockWidget(timelineDock, eventsDock);
+    mw->tabifyDockWidget(eventsDock, v8profilerDock);
 }
 
 bool QmlProfilerViewManager::hasValidSelection() const
