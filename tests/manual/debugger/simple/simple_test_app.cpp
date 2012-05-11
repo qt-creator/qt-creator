@@ -275,6 +275,21 @@ struct SomeType
 } // namespace nsA
 
 
+struct BaseClass
+{
+    BaseClass() : a(1) {}
+    virtual ~BaseClass() {}
+    virtual int foo() { return a; }
+    int a;
+};
+
+struct DerivedClass : BaseClass
+{
+    DerivedClass() : b(2) {}
+    int foo() { return b; }
+    int b;
+};
+
 namespace multibp {
 
     // This tests multiple breakpoints.
@@ -4788,6 +4803,20 @@ namespace basic {
         dummyStatement(&a, &b, &d);
     }
 
+    void testDynamicReference()
+    {
+        DerivedClass d;
+        BaseClass *b1 = &d;
+        BaseClass &b2 = d;
+        BREAK_HERE;
+        // CheckType b1 DerivedClass *.
+        // CheckType b2 DerivedClass &.
+        // Continue.
+        int x = b1->foo();
+        int y = b2.foo();
+        dummyStatement(&d, &b1, &b2, &x, &y);
+    }
+
     void testLongEvaluation1()
     {
         QDateTime time = QDateTime::currentDateTime();
@@ -4981,6 +5010,7 @@ namespace basic {
         testReference1();
         testReference2();
         testReference3("hello");
+        testDynamicReference();
         testReturn();
         testArray1();
         testArray2();

@@ -1414,6 +1414,19 @@ class Dumper:
                     return
             except:
                 pass
+
+            try:
+                # Dynamic references are not supported by gdb, see
+                # http://sourceware.org/bugzilla/show_bug.cgi?id=14077.
+                # Find the dynamic type manually using referenced_type.
+                value = value.referenced_value()
+                value = value.cast(value.dynamic_type)
+                self.putItem(value)
+                self.putBetterType("%s &" % value.type)
+                return
+            except:
+                pass
+
             try:
                 # FIXME: This throws "RuntimeError: Attempt to dereference a
                 # generic pointer." with MinGW's gcc 4.5 when it "identifies"
