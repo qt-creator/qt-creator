@@ -255,7 +255,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_cleanSubProjectAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(cleanSubDirContextMenu()));
 
     m_buildFileAction = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
-                                                   Utils::ParameterAction::EnabledWithParameter, this);
+                                                   Utils::ParameterAction::AlwaysEnabled, this);
     command = am->registerAction(m_buildFileAction, Constants::BUILDFILE, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
@@ -385,7 +385,7 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     m_rebuildSubProjectAction->setParameter(subProjectName);
     m_cleanSubProjectAction->setParameter(subProjectName);
     m_buildSubProjectContextMenu->setParameter(subProjectName);
-    m_buildFileAction->setParameter(node ? QFileInfo(node->path()).fileName() : QString());
+    m_buildFileAction->setParameter(buildFilePossible ? QFileInfo(fileNode->path()).fileName() : QString());
 
     Qt4BuildConfiguration *buildConfiguration = (qt4Project && qt4Project->activeTarget()) ?
             qt4Project->activeTarget()->activeQt4BuildConfiguration() : 0;
@@ -411,6 +411,7 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     m_cleanSubProjectContextMenu->setEnabled(enabled && isProjectNode);
     m_runQMakeActionContextMenu->setEnabled(isProjectNode && !isBuilding
                                             && buildConfiguration->qmakeStep());
+    m_buildFileAction->setEnabled(buildFilePossible && !isBuilding);
 }
 
 void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
