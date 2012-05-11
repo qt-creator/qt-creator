@@ -161,6 +161,7 @@ bool debug = false;
 
 static const char kCurrentProjectPath[] = "CurrentProject:Path";
 static const char kCurrentProjectFilePath[] = "CurrentProject:FilePath";
+static const char kCurrentProjectBuildPath[] = "CurrentProject:BuildPath";
 
 namespace ProjectExplorer {
 
@@ -1028,6 +1029,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         tr("Full path of the current project's main file, including file name."));
     vm->registerVariable(kCurrentProjectPath,
         tr("Full path of the current project's main file, excluding file name."));
+    vm->registerVariable(kCurrentProjectBuildPath,
+        tr("Full build path of the current project's active build configuration."));
     connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
 
@@ -1162,6 +1165,13 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
         if (currentProject() && currentProject()->document()) {
             Core::VariableManager::instance()->insert(variable,
                                                       QFileInfo(currentProject()->document()->fileName()).path());
+        } else {
+            Core::VariableManager::instance()->remove(variable);
+        }
+    } else if (variable == kCurrentProjectBuildPath) {
+        if (currentProject() && currentProject()->activeTarget() && currentProject()->activeTarget()->activeBuildConfiguration()) {
+            Core::VariableManager::instance()->insert(variable,
+                                                      currentProject()->activeTarget()->activeBuildConfiguration()->buildDirectory());
         } else {
             Core::VariableManager::instance()->remove(variable);
         }
