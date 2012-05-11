@@ -1156,28 +1156,6 @@ class Dumper:
 
         #print('data=[' + locals + sep + watchers + ']\n')
 
-    def checkForQObjectBase(self, type):
-        name = str(type)
-        if name in qqQObjectCache:
-            return qqQObjectCache[name]
-        if name == self.ns + "QObject":
-            qqQObjectCache[name] = True
-            return True
-        fields = type.strip_typedefs().fields()
-        #fields = extractFields(type)
-        if len(fields) == 0:
-            qqQObjectCache[name] = False
-            return False
-        base = fields[0].type.strip_typedefs()
-        if base.code != StructCode:
-            return False
-        # Prevent infinite recursion in Qt 3.3.8
-        if str(base) == name:
-            return False
-        result = self.checkForQObjectBase(base)
-        qqQObjectCache[name] = result
-        return result
-
 
     def handleWatch(self, exp, iname):
         exp = str(exp)
@@ -1712,9 +1690,14 @@ class Dumper:
                 return
 
             # Is this derived from QObject?
-            if self.checkForQObjectBase(type):
-                qdump__QObject(self, value)
-                return
+            try:
+                # If this access fails, it's not a QObject.
+                d = value["d_ptr"]["d"]
+                privateType = lookupType(self.ns + "QObjectPrivate").pointer()
+                objectName = d.cast(privateType).dereference()["objectName"]
+                self.putStringValue(objectName, 1)
+            except:
+                pass
 
         #warn("GENERIC STRUCT: %s" % type)
         #warn("INAME: %s " % self.currentIName)
