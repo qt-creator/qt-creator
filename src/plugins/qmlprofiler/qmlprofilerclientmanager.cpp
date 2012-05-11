@@ -236,6 +236,11 @@ void QmlProfilerClientManager::connectToClient()
     }
 }
 
+bool QmlProfilerClientManager::isConnected() const
+{
+    return d->connection && d->connection->isConnected();
+}
+
 void QmlProfilerClientManager::disconnectClient()
 {
     // this might be actually be called indirectly by QDDConnectionPrivate::readyRead(), therefore allow

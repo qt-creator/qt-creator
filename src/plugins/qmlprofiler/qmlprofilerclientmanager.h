@@ -56,6 +56,7 @@ public:
 
     void clearBufferedData();
     void discardPendingData();
+    bool isConnected() const;
 
 signals:
     void connectionFailed();

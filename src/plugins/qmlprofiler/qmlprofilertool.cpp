@@ -719,6 +719,12 @@ void QmlProfilerTool::handleHelpRequest(const QString &link)
 void QmlProfilerTool::profilerStateChanged()
 {
     switch (d->m_profilerState->currentState()) {
+    case QmlProfilerStateManager::AppDying : {
+        // If already disconnected when dying, check again that all data was read
+        if (!d->m_profilerConnections->isConnected())
+            QTimer::singleShot(0, this, SLOT(clientsDisconnected()));
+        break;
+    }
     case QmlProfilerStateManager::AppKilled : {
         showNonmodalWarning(tr("Application finished before loading profiled data.\n Please use the stop button instead."));
         break;
