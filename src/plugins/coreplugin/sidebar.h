@@ -119,6 +119,7 @@ public:
     QMap<QString, Core::Command *> shortcutMap() const;
 
 signals:
+    void sideBarClosed();
     void availableItemsChanged();
 
 private slots:

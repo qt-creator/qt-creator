@@ -244,8 +244,10 @@ void SideBar::closeSubWidget()
         removeSideBarWidget(widget);
         updateWidgets();
     } else {
-        if (d->m_closeWhenEmpty)
+        if (d->m_closeWhenEmpty) {
             setVisible(false);
+            emit sideBarClosed();
+        }
     }
 }
 

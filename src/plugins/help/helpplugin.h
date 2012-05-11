@@ -119,6 +119,7 @@ private slots:
     void slotReportBug();
 
     void openFindToolBar();
+    void onSideBarVisibilityChanged();
 
     void scaleRightPaneUp();
     void scaleRightPaneDown();
@@ -176,6 +177,9 @@ private:
     QMenu *m_nextMenu;
     Utils::StyledBar *m_internalHelpBar;
     Utils::StyledBar *m_externalHelpBar;
+
+    bool m_isSidebarVisible;
+    QAction *m_toggleSideBarAction;
 };
 
 } // namespace Internal
