@@ -1682,11 +1682,12 @@ class Dumper:
 
             #warn(" STRIPPED: %s" % nsStrippedType)
             #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
-            if nsStrippedType in qqDumpers:
+            dumper = qqDumpers.get(nsStrippedType, None)
+            if not dumper is None:
                 if tryDynamic:
-                    qqDumpers[nsStrippedType](self, expensiveUpcast(value))
+                    dumper(self, expensiveUpcast(value))
                 else:
-                    qqDumpers[nsStrippedType](self, value)
+                    dumper(self, value)
                 return
 
             # Is this derived from QObject?
