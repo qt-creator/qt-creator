@@ -105,7 +105,7 @@ public:
     NameDemanglerPrivate();
     ~NameDemanglerPrivate();
 
-    bool demangle(const QString &m_mangledName);
+    bool demangle(const QString &mangledName);
     const QString &errorString() const { return m_errorString; }
     const QString &demangledName() const { return m_demangledName; }
 
@@ -327,7 +327,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
                     QRegExp(QLatin1String("([^a-zA-Z\\d>)])::")), QLatin1String("\\1"));
         if (m_demangledName.startsWith(QLatin1String("::")))
             m_demangledName.remove(0, 2);
-        if (m_pos != mangledName.size())
+        if (m_pos != m_mangledName.size())
             throw ParseException(QLatin1String("Unconsumed input"));
 #ifdef DO_TRACE
         qDebug("%d", substitutions.size());
