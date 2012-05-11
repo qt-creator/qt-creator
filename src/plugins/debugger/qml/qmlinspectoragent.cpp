@@ -675,6 +675,13 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const ObjectReference &obj,
     list.append(objWatch);
     m_debugIdToIname.insert(objWatch.id, objWatch.iname);
 
+    if (!m_engine->watchHandler()->isExpandedIName(objWatch.iname)
+            && obj.needsMoreData()) {
+        // we don't know the children yet. Not adding the 'properties'
+        // element makes sure we're queried on expansion.
+        return list;
+    }
+
     // properties
     WatchData propertiesWatch;
     propertiesWatch.id = objWatch.id;
