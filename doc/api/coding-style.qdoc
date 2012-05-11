@@ -658,14 +658,15 @@
 
     \list
         \o  Use the following format to include Qt headers:
-            \c{#include <QtCore/QWhatEver>}.
+            \c{#include <QWhatEver>}. Do not include the module as it might have changed between
+            Qt4 and Qt5.
         \o  Arrange includes in an order that goes from specific to generic to
             ensure that the headers are self-contained. For example:
         \list
             \o  \c{#include "myclass.h"}
             \o  \c{#include "otherclassinplugin.h"}
             \o  \c{#include <otherplugin/someclass.h>}
-            \o  \c{#include <QtModule/QtClass>}
+            \o  \c{#include <QtClass>}
             \o  \c{#include <stdthing>}
             \o  \c{#include <system.h>}
         \endlist
