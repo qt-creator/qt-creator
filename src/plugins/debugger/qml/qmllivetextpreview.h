@@ -65,15 +65,19 @@ public:
     void associateEditor(Core::IEditor *editor);
     void unassociateEditor(Core::IEditor *editor);
     void resetInitialDoc(const QmlJS::Document::Ptr &doc);
+    const QString fileName();
+    bool hasUnsynchronizableChange() { return m_changesUnsynchronizable; }
 
 signals:
     void selectedItemsChanged(const QList<int> &debugIds);
     void fetchObjectsForLocation(const QString &file,
                                          int lineNumber, int columnNumber);
+    void reloadRequest();
 
 public slots:
     void setApplyChangesToQmlInspector(bool applyChanges);
     void updateDebugIds();
+    void reloadQml();
 
 private slots:
     void changeSelectedElements(const QList<QmlJS::AST::UiObjectMember *> offsets,
@@ -84,7 +88,8 @@ private:
     enum UnsyncronizableChangeType {
         NoUnsyncronizableChanges,
         AttributeChangeWarning,
-        ElementChangeWarning
+        ElementChangeWarning,
+        JSChangeWarning
     };
 
     bool changeSelectedElements(const QList<int> offsets, const QString &wordAtCursor);
@@ -92,6 +97,7 @@ private:
     void showSyncWarning(UnsyncronizableChangeType unsyncronizableChangeType,
                          const QString &elementName,
                          unsigned line, unsigned column);
+    void removeOutofSyncInfo();
 
 private:
     QHash<QmlJS::AST::UiObjectMember*, QList<int> > m_debugIds;
@@ -108,6 +114,7 @@ private:
     QList<int> m_lastOffsets;
     QmlJS::AST::UiObjectMember *m_nodeForOffset;
     bool m_updateNodeForOffset;
+    bool m_changesUnsynchronizable;
 
     friend class UpdateInspector;
 };

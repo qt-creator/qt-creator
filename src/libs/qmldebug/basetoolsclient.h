@@ -44,7 +44,7 @@ public:
     BaseToolsClient(QmlDebugConnection *client, QLatin1String clientName);
 
     virtual void setCurrentObjects(const QList<int> &debugIds) = 0;
-    virtual void reloadViewer() = 0;
+    virtual void reload(const QHash<QString, QByteArray> &changesHash) = 0;
     virtual void setDesignModeBehavior(bool inDesignMode) = 0;
     virtual void setAnimationSpeed(qreal slowDownFactor) = 0;
     virtual void setAnimationPaused(bool paused) = 0;
@@ -81,7 +81,7 @@ signals:
     void animationPausedChanged(bool paused);
     void designModeBehaviorChanged(bool inDesignMode);
     void showAppOnTopChanged(bool showAppOnTop);
-    void reloaded(); // the server has reloadetd he document
+    void reloaded(); // the server has reloaded the document
 
     void logActivity(QString client, QString message);
 

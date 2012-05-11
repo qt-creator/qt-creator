@@ -202,6 +202,7 @@ void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status
                 SLOT(selectObjectsFromToolsClient(QList<int>)));
         connect(client, SIGNAL(logActivity(QString,QString)),
                 m_debugAdapter, SLOT(logServiceActivity(QString,QString)));
+        connect(client, SIGNAL(reloaded()), SLOT(onReloaded()));
 
         // only enable zoom action for Qt 4.x/old client
         // (zooming is integrated into selection tool in Qt 5).
@@ -340,14 +341,14 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
             QmlJS::ModelManagerInterface::instance();
     QmlJS::Document::Ptr doc = modelManager->snapshot().document(filename);
     if (!doc) {
-        if (filename.endsWith(".qml")) {
+        if (filename.endsWith(".qml") || filename.endsWith(".js")) {
             // add to list of docs that we have to update when
             // snapshot figures out that there's a new document
             m_pendingPreviewDocumentNames.append(filename);
         }
         return;
     }
-    if (!doc->qmlProgram())
+    if (!doc->qmlProgram() && !filename.endsWith(".js"))
         return;
 
     QmlJS::Document::Ptr initdoc = m_loadedSnapshot.document(filename);
@@ -366,6 +367,8 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
 
         preview->setApplyChangesToQmlInspector(
                     debuggerCore()->action(QmlUpdateOnSave)->isChecked());
+        connect(preview, SIGNAL(reloadRequest()),
+                this, SLOT(onReload()));
 
         m_textPreviews.insert(newEditor->document()->fileName(), preview);
         preview->associateEditor(newEditor);
@@ -604,6 +607,40 @@ void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
     m_currentSelectedDebugId = obj.debugId();
     m_currentSelectedDebugName = displayName(obj);
     emit selectionChanged();
+}
+
+void QmlInspectorAdapter::onReload()
+{
+    QHash<QString, QByteArray> changesHash;
+    for (QHash<QString, QmlLiveTextPreview *>::const_iterator it
+         = m_textPreviews.constBegin();
+         it != m_textPreviews.constEnd(); ++it) {
+        if (it.value()->hasUnsynchronizableChange()) {
+            QFileInfo info = QFileInfo(it.value()->fileName());
+            QFile changedFile(it.value()->fileName());
+            QByteArray fileContents;
+            if (changedFile.open(QFile::ReadOnly))
+                fileContents = changedFile.readAll();
+            changedFile.close();
+            changesHash.insert(info.fileName(),
+                               fileContents);
+        }
+    }
+    m_toolsClient->reload(changesHash);
+}
+
+void QmlInspectorAdapter::onReloaded()
+{
+    QmlJS::ModelManagerInterface *modelManager =
+            QmlJS::ModelManagerInterface::instance();
+    QmlJS::Snapshot snapshot = modelManager->snapshot();
+    m_loadedSnapshot = snapshot;
+    for (QHash<QString, QmlLiveTextPreview *>::const_iterator it
+         = m_textPreviews.constBegin();
+         it != m_textPreviews.constEnd(); ++it) {
+        QmlJS::Document::Ptr doc = snapshot.document(it.key());
+        it.value()->resetInitialDoc(doc);
+    }
 }
 
 } // namespace Internal

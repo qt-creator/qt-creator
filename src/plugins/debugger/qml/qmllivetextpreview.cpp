@@ -50,6 +50,8 @@ using namespace QmlJS::AST;
 namespace Debugger {
 namespace Internal {
 
+const char INFO_OUT_OF_SYNC[] = "Debugger.Inspector.OutOfSyncWarning";
+
 /*!
    Associates the UiObjectMember* to their QDeclarativeDebugObjectReference.
  */
@@ -351,6 +353,7 @@ QmlLiveTextPreview::QmlLiveTextPreview(const QmlJS::Document::Ptr &doc,
     , m_inspectorAdapter(inspectorAdapter)
     , m_nodeForOffset(0)
     , m_updateNodeForOffset(false)
+    , m_changesUnsynchronizable(false)
 {
     QTC_CHECK(doc->fileName() == initDoc->fileName());
 
@@ -413,6 +416,13 @@ void QmlLiveTextPreview::resetInitialDoc(const QmlJS::Document::Ptr &doc)
     m_createdObjects.clear();
     m_debugIds.clear();
     m_docWithUnappliedChanges.clear();
+    m_changesUnsynchronizable = false;
+    removeOutofSyncInfo();
+}
+
+const QString QmlLiveTextPreview::fileName()
+{
+    return m_previousDoc->fileName();
 }
 
 void QmlLiveTextPreview::setApplyChangesToQmlInspector(bool applyChanges)
@@ -582,27 +592,36 @@ void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (m_applyChangesToQmlInspector) {
         m_docWithUnappliedChanges.clear();
 
-        if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()
-                && doc->qmlProgram() && m_previousDoc->qmlProgram())
-        {
-            UpdateInspector delta(m_inspectorAdapter);
-            m_debugIds = delta(m_previousDoc, doc, m_debugIds);
+        if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()) {
+            if (doc->fileName().endsWith(".js")) {
+                m_changesUnsynchronizable = true;
+                showSyncWarning(JSChangeWarning, QString(), -1, -1);
+                m_previousDoc = doc;
+                return;
+            }
+            if (doc->qmlProgram() && m_previousDoc->qmlProgram()) {
+                UpdateInspector delta(m_inspectorAdapter);
+                m_debugIds = delta(m_previousDoc, doc, m_debugIds);
 
-            if (delta.referenceRefreshRequired)
-                m_inspectorAdapter->agent()->refreshObjectTree();
+                if (delta.referenceRefreshRequired)
+                    m_inspectorAdapter->agent()->refreshObjectTree();
 
 
-            if (delta.unsyncronizableChanges != NoUnsyncronizableChanges)
-                showSyncWarning(delta.unsyncronizableChanges,
-                                delta.unsyncronizableElementName,
-                                delta.unsyncronizableChangeLine,
-                                delta.unsyncronizableChangeColumn);
+                if (delta.unsyncronizableChanges != NoUnsyncronizableChanges) {
+                    m_changesUnsynchronizable = true;
+                    showSyncWarning(delta.unsyncronizableChanges,
+                                    delta.unsyncronizableElementName,
+                                    delta.unsyncronizableChangeLine,
+                                    delta.unsyncronizableChangeColumn);
+                    m_previousDoc = doc;
+                    return;
+                }
+                m_previousDoc = doc;
+                if (!delta.newObjects.isEmpty())
+                    m_createdObjects[doc] += delta.newObjects;
 
-            m_previousDoc = doc;
-            if (!delta.newObjects.isEmpty())
-                m_createdObjects[doc] += delta.newObjects;
-
-            m_inspectorAdapter->toolsClient()->clearComponentCache();
+                m_inspectorAdapter->toolsClient()->clearComponentCache();
+            }
         }
     } else {
         m_docWithUnappliedChanges = doc;
@@ -655,6 +674,10 @@ void QmlLiveTextPreview::showSyncWarning(
                           "changed without reloading the QML application. ")
                 .arg(elementName, QString::number(line), QString::number(column));
         break;
+    case JSChangeWarning:
+        errorMessage = tr("The changes in Java script cannot be applied "
+                          "without reloading the QML application. ");
+        break;
     case QmlLiveTextPreview::NoUnsyncronizableChanges:
     default:
         return;
@@ -662,12 +685,33 @@ void QmlLiveTextPreview::showSyncWarning(
 
     errorMessage.append(tr("You can continue debugging, but behavior can be unexpected."));
 
+    // Clear infobars if present before showing the same. Otherwise multiple infobars
+    // will be shown in case the user changes and saves the file multiple times.
+    removeOutofSyncInfo();
+
     foreach (TextEditor::BaseTextEditorWidget *editor, m_editors) {
         if (editor) {
             Core::InfoBar *infoBar = editor->editorDocument()->infoBar();
-            infoBar->addInfo(Core::InfoBarEntry(
-                                 QLatin1String("Debugger.Inspector.OutOfSyncWarning"),
-                                 errorMessage));
+            Core::InfoBarEntry info(INFO_OUT_OF_SYNC, errorMessage);
+            info.setCustomButtonInfo(tr("Reload QML"), this,
+                                     SLOT(reloadQml()));
+            infoBar->addInfo(info);
+        }
+    }
+}
+
+void QmlLiveTextPreview::reloadQml()
+{
+    removeOutofSyncInfo();
+    emit reloadRequest();
+}
+
+void QmlLiveTextPreview::removeOutofSyncInfo()
+{
+    foreach (TextEditor::BaseTextEditorWidget *editor, m_editors) {
+        if (editor) {
+            Core::InfoBar *infoBar = editor->editorDocument()->infoBar();
+            infoBar->removeInfo(INFO_OUT_OF_SYNC);
         }
     }
 }

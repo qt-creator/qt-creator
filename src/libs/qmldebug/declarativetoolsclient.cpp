@@ -306,8 +306,11 @@ void DeclarativeToolsClient::clearComponentCache()
     sendMessage(message);
 }
 
-void DeclarativeToolsClient::reloadViewer()
+void DeclarativeToolsClient::reload(const QHash<QString,
+                                          QByteArray> &changesHash)
 {
+    Q_UNUSED(changesHash);
+
     if (!m_connection || !m_connection->isConnected())
         return;
 

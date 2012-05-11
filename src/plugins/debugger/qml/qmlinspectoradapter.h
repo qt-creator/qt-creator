@@ -97,6 +97,8 @@ private slots:
     void onZoomActionTriggered(bool checked);
     void onShowAppOnTopChanged(const QVariant &value);
     void onUpdateOnSaveChanged(const QVariant &value);
+    void onReload();
+    void onReloaded();
 
 private:
     void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);

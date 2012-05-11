@@ -43,7 +43,7 @@ public:
     DeclarativeToolsClient(QmlDebugConnection *client);
 
     void setCurrentObjects(const QList<int> &debugIds);
-    void reloadViewer();
+    void reload(const QHash<QString, QByteArray> &changesHash);
     void setDesignModeBehavior(bool inDesignMode);
     void setAnimationSpeed(qreal slowDownFactor);
     void setAnimationPaused(bool paused);
