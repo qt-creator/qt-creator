@@ -71,12 +71,10 @@ public:
     void extensionsInitialized();
 
 private slots:
-    void updateContextMenu(ProjectExplorer::Project *project,
-                           ProjectExplorer::Node *node);
     void startupProjectChanged();
     void activeTargetChanged();
     void updateRunQMakeAction();
-    void currentNodeChanged(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
+    void updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project);
     void buildStateChanged(ProjectExplorer::Project *pro);
 
 #ifdef WITH_TESTS
