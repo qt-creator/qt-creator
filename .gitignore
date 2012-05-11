@@ -34,10 +34,10 @@ Thumbs.db
 *.qmlproject.user*
 *.pluginspec
 src/app/Info.plist
-src/app/app_version.h
-src/libs/utils/app_version.h
+app_version.h
 src/plugins/coreplugin/ide_version.h
 share/qtcreator/externaltools
+phony.c
 
 # xemacs temporary files
 *.flc
@@ -55,6 +55,10 @@ share/qtcreator/externaltools
 *.vcproj
 *vcproj.*.*.user
 *.ncb
+*.sdf
+*.opensdf
+*.vcxproj
+*vcxproj.*
 
 # MinGW generated files
 *.Debug
@@ -82,6 +86,8 @@ dist/gdb/python
 dist/gdb/qtcreator-*
 dist/gdb/source
 dist/gdb/staging
+ipch
+tmp
 
 # Binaries
 # --------
@@ -102,6 +108,8 @@ src/tools/mkvisitor/cplusplus0
 src/tools/qml/qmldump/qmldump
 src/tools/examplesscanner/examplesscanner
 src/tools/valgrindfake/valgrind-fake
+bin/*.exe
+src/tools/mdnssd
 
 # Tests
 #------
