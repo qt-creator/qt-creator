@@ -367,7 +367,7 @@ void QmlJSEditorPlugin::runSemanticScan()
     m_qmlTaskManager->updateSemanticMessagesNow();
     TaskHub *hub = ProjectExplorerPlugin::instance()->taskHub();
     hub->setCategoryVisibility(Constants::TASK_CATEGORY_QML_ANALYSIS, true);
-    hub->popup(false);
+    hub->requestPopup();
 }
 
 void QmlJSEditorPlugin::checkCurrentEditorSemanticInfoUpToDate()

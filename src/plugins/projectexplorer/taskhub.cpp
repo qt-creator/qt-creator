@@ -151,9 +151,9 @@ void TaskHub::setCategoryVisibility(const Core::Id &categoryId, bool visible)
     emit categoryVisibilityChanged(categoryId, visible);
 }
 
-void TaskHub::popup(bool withFocus)
+void TaskHub::requestPopup()
 {
-    emit popupRequested(withFocus);
+    emit popupRequested(false);
 }
 
 QIcon TaskHub::taskTypeIcon(Task::TaskType t) const

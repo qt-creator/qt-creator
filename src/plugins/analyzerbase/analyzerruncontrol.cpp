@@ -179,7 +179,7 @@ void AnalyzerRunControl::addTask(Task::TaskType type, const QString &description
     TaskHub *hub = ProjectExplorerPlugin::instance()->taskHub();
     hub->addTask(Task(type, description, Utils::FileName::fromUserInput(file), line,
                       Core::Id(Constants::ANALYZERTASK_ID)));
-    hub->popup(false);
+    hub->requestPopup();
 }
 
 } // namespace Analyzer

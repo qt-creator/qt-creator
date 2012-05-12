@@ -58,7 +58,7 @@ public:
     void showTaskInEditor(unsigned int id);
     void setCategoryVisibility(const Core::Id &categoryId, bool visible);
 
-    void popup(bool withFocus);
+    void requestPopup();
 
     QIcon taskTypeIcon(ProjectExplorer::Task::TaskType t) const;
 signals:
