@@ -130,6 +130,11 @@ FutureProgressPrivate::FutureProgressPrivate(FutureProgress *q) :
 */
 
 /*!
+    \fn void FutureProgress::canceled()
+    Connect to this signal to get informed when the operation is canceled.
+*/
+
+/*!
     \fn void FutureProgress::finished()
     Another way to get informed when the task has finished.
 */
@@ -157,6 +162,7 @@ FutureProgress::FutureProgress(QWidget *parent) :
 
     connect(&d->m_watcher, SIGNAL(started()), this, SLOT(setStarted()));
     connect(&d->m_watcher, SIGNAL(finished()), this, SLOT(setFinished()));
+    connect(&d->m_watcher, SIGNAL(canceled()), this, SIGNAL(canceled()));
     connect(&d->m_watcher, SIGNAL(progressRangeChanged(int,int)), this, SLOT(setProgressRange(int,int)));
     connect(&d->m_watcher, SIGNAL(progressValueChanged(int)), this, SLOT(setProgressValue(int)));
     connect(&d->m_watcher, SIGNAL(progressTextChanged(QString)),

@@ -77,6 +77,7 @@ public:
 signals:
     void clicked();
     void finished();
+    void canceled();
     void removeMe();
 
 protected:
