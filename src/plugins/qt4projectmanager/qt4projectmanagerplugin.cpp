@@ -390,7 +390,8 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     Qt4BuildConfiguration *buildConfiguration = (qt4Project && qt4Project->activeTarget()) ?
             qt4Project->activeTarget()->activeQt4BuildConfiguration() : 0;
     bool isProjectNode = qt4Project && proFileNode && buildConfiguration;
-    bool enabled = subProjectActionsVisible && !m_projectExplorer->buildManager()->isBuilding(project);
+    bool isBuilding = m_projectExplorer->buildManager()->isBuilding(project);
+    bool enabled = subProjectActionsVisible && !isBuilding;
 
     m_buildSubProjectAction->setVisible(subProjectActionsVisible);
     m_rebuildSubProjectAction->setVisible(subProjectActionsVisible);
@@ -399,8 +400,7 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     m_subProjectRebuildSeparator->setVisible(subProjectActionsVisible && isProjectNode);
     m_rebuildSubProjectContextMenu->setVisible(subProjectActionsVisible && isProjectNode);
     m_cleanSubProjectContextMenu->setVisible(subProjectActionsVisible && isProjectNode);
-    m_runQMakeActionContextMenu->setVisible(subProjectActionsVisible && isProjectNode
-                                            && buildConfiguration->qmakeStep());
+    m_runQMakeActionContextMenu->setVisible(isProjectNode && buildConfiguration->qmakeStep());
     m_buildFileAction->setVisible(buildFilePossible);
 
     m_buildSubProjectAction->setEnabled(enabled);
@@ -409,7 +409,8 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     m_buildSubProjectContextMenu->setEnabled(enabled && isProjectNode);
     m_rebuildSubProjectContextMenu->setEnabled(enabled && isProjectNode);
     m_cleanSubProjectContextMenu->setEnabled(enabled && isProjectNode);
-    m_runQMakeActionContextMenu->setEnabled(enabled && isProjectNode && buildConfiguration->qmakeStep());
+    m_runQMakeActionContextMenu->setEnabled(isProjectNode && !isBuilding
+                                            && buildConfiguration->qmakeStep());
 }
 
 void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
