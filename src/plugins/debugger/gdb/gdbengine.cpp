@@ -5066,10 +5066,6 @@ void GdbEngine::setupInferior()
         postCommand("set substitute-path " + it.key().toLocal8Bit()
             + " " + it.value().toLocal8Bit());
 
-    const QByteArray debugInfoLocation = sp.debugInfoLocation.toLocal8Bit();
-    if (!debugInfoLocation.isEmpty())
-        postCommand("set debug-file-directory " + debugInfoLocation);
-
     // Spaces just will not work.
     foreach (const QString &src, sp.debugSourceLocation)
         postCommand("directory " + src.toLocal8Bit());
@@ -5127,20 +5123,20 @@ void GdbEngine::finishInferiorSetup()
 void GdbEngine::handleDebugInfoLocation(const GdbResponse &response)
 {
 #ifdef Q_OS_WIN
-    #define PATHSEP ';'
+    const char pathSep = ';';
 #else
-    #define PATHSEP ':'
+    const char pathSep = ':';
 #endif
     if (response.resultClass == GdbResultDone) {
-        QByteArray debugInfoLocation = startParameters().debugInfoLocation.toLocal8Bit();
+        const QByteArray debugInfoLocation = startParameters().debugInfoLocation.toLocal8Bit();
         if (QFile::exists(QString::fromLocal8Bit(debugInfoLocation))) {
             const QByteArray curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
-            startParameters().debugInfoLocation = curDebugInfoLocations.isEmpty() ?
-                        QString::fromLocal8Bit(debugInfoLocation) :
-                        QString::fromLocal8Bit(debugInfoLocation + PATHSEP + curDebugInfoLocations);
+            if (curDebugInfoLocations.isEmpty())
+                postCommand("set debug-file-directory " + debugInfoLocation);
+            else
+                postCommand("set debug-file-directory " + debugInfoLocation + pathSep + curDebugInfoLocations);
         }
     }
-#undef PATHSEP
 }
 
 void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
