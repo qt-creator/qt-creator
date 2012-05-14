@@ -47,6 +47,10 @@ using namespace QmlDebug;
 namespace Debugger {
 namespace Internal {
 
+/*!
+ QmlAdapter manages the connection & clients for QML/JS debugging.
+ */
+
 QmlAdapter::QmlAdapter(DebuggerEngine *engine, QObject *parent)
     : QObject(parent)
     , m_engine(engine)
