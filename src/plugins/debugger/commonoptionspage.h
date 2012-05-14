@@ -34,7 +34,7 @@
 #define DEBUGGER_COMMONOPTIONSPAGE_H
 
 #include "ui_commonoptionspage.h"
-#include "ui_dumperoptionpage.h"
+#include "ui_localsandexpressionsoptionspage.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
@@ -96,14 +96,14 @@ private:
 
 ///////////////////////////////////////////////////////////////////////
 //
-// DebuggingHelperOptionPage
+// LocalsAndExpressionsOptionsPage
 //
 ///////////////////////////////////////////////////////////////////////
 
-class DebuggingHelperOptionPage : public Core::IOptionsPage
+class LocalsAndExpressionsOptionsPage : public Core::IOptionsPage
 {
 public:
-    DebuggingHelperOptionPage() {}
+    LocalsAndExpressionsOptionsPage() {}
 
     // IOptionsPage
     QString id() const;

@@ -3411,7 +3411,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     foreach (IOptionsPage *op, engineOptionPages)
         m_plugin->addAutoReleasedObject(op);
-    m_plugin->addAutoReleasedObject(new DebuggingHelperOptionPage);
+    m_plugin->addAutoReleasedObject(new LocalsAndExpressionsOptionsPage);
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
         SLOT(onModeChanged(Core::IMode*)));

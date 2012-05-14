@@ -75,7 +75,7 @@ QtcPlugin {
         "disassembleragent.h",
         "disassemblerlines.cpp",
         "disassemblerlines.h",
-        "dumperoptionpage.ui",
+        "localsandexpressionsoptionspage.ui",
         "localsandwatcherswindow.cpp",
         "localsandwatcherswindow.h",
         "logwindow.cpp",

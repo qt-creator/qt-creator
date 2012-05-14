@@ -868,8 +868,6 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(debuggerCore()->action(UseDebuggingHelpers));
     menu.addAction(debuggerCore()->action(UseToolTipsInLocalsView));
     menu.addAction(debuggerCore()->action(AutoDerefPointers));
-    menu.addAction(debuggerCore()->action(ShowStdNamespace));
-    menu.addAction(debuggerCore()->action(ShowQtNamespace));
     menu.addAction(debuggerCore()->action(SortStructMembers));
     menu.addAction(debuggerCore()->action(UseDynamicType));
 

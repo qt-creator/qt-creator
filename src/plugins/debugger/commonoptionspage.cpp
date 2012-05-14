@@ -224,42 +224,43 @@ bool CommonOptionsPage::matches(const QString &s) const
 //
 ///////////////////////////////////////////////////////////////////////
 
-QString DebuggingHelperOptionPage::id() const
+QString LocalsAndExpressionsOptionsPage::id() const
 {
-    return _("Z.DebuggingHelper");
+    return _("Z.LocalsAndExpressions");
 }
 
-QString DebuggingHelperOptionPage::displayName() const
+QString LocalsAndExpressionsOptionsPage::displayName() const
 {
-    return QCoreApplication::translate("Debugger", "Debugging Helper");
+    //: '&&' will appear as one (one is marking keyboard shortcut)
+    return QCoreApplication::translate("Debugger", "Locals && Expressions");
 }
 
-QString DebuggingHelperOptionPage::category() const
+QString LocalsAndExpressionsOptionsPage::category() const
 {
     return _(DEBUGGER_SETTINGS_CATEGORY);
 }
 
-QString DebuggingHelperOptionPage::displayCategory() const
+QString LocalsAndExpressionsOptionsPage::displayCategory() const
 {
     return QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY);
 }
 
-QIcon DebuggingHelperOptionPage::categoryIcon() const
+QIcon LocalsAndExpressionsOptionsPage::categoryIcon() const
 {
     return QIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
-void DebuggingHelperOptionPage::apply()
+void LocalsAndExpressionsOptionsPage::apply()
 {
     m_group.apply(ICore::settings());
 }
 
-void DebuggingHelperOptionPage::finish()
+void LocalsAndExpressionsOptionsPage::finish()
 {
     m_group.finish();
 }
 
-QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
+QWidget *LocalsAndExpressionsOptionsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
     m_ui.setupUi(w);
@@ -276,6 +277,8 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
 
     m_group.insert(dc->action(ShowThreadNames),
         m_ui.checkBoxShowThreadNames);
+    m_group.insert(dc->action(ShowStdNamespace), m_ui.checkBoxShowStdNamespace);
+    m_group.insert(dc->action(ShowQtNamespace), m_ui.checkBoxShowQtNamespace);
 
 
 #ifndef QT_DEBUG
@@ -292,13 +295,16 @@ QWidget *DebuggingHelperOptionPage::createPage(QWidget *parent)
         QTextStream(&m_searchKeywords)
                 << ' ' << m_ui.debuggingHelperGroupBox->title()
                 << ' ' << m_ui.checkBoxUseCodeModel->text()
-                << ' ' << m_ui.checkBoxShowThreadNames->text();
+                << ' ' << m_ui.checkBoxShowThreadNames->text()
+                << ' ' << m_ui.checkBoxShowStdNamespace->text()
+                << ' ' << m_ui.checkBoxShowQtNamespace->text();
+
         m_searchKeywords.remove(QLatin1Char('&'));
     }
     return w;
 }
 
-bool DebuggingHelperOptionPage::matches(const QString &s) const
+bool LocalsAndExpressionsOptionsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

@@ -131,7 +131,7 @@ FORMS += attachexternaldialog.ui \
     attachcoredialog.ui \
     breakcondition.ui \
     breakpoint.ui \
-    dumperoptionpage.ui \
+    localsandexpressionsoptionspage.ui \
     commonoptionspage.ui \
     startexternaldialog.ui \
     startremotedialog.ui \
