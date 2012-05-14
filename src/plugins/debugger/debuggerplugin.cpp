@@ -1088,7 +1088,6 @@ public slots:
     QIcon locationMarkIcon() const { return m_locationMarkIcon; }
 
     void openTextEditor(const QString &titlePattern0, const QString &contents);
-    void clearCppCodeModelSnapshot();
     void showMessage(const QString &msg, int channel, int timeout = -1);
 
     Utils::SavedAction *action(int code) const;
@@ -2611,12 +2610,6 @@ void DebuggerPluginPrivate::openTextEditor(const QString &titlePattern0,
         CC::K_DEFAULT_TEXT_EDITOR_ID, &titlePattern, contents);
     QTC_ASSERT(editor, return);
     EditorManager::activateEditor(editor, EditorManager::IgnoreNavigationHistory);
-}
-
-
-void DebuggerPluginPrivate::clearCppCodeModelSnapshot()
-{
-    m_codeModelSnapshot = CPlusPlus::Snapshot();
 }
 
 void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int timeout)

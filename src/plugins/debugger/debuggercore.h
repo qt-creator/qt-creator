@@ -96,8 +96,6 @@ public:
     virtual DebuggerEngine *currentEngine() const = 0;
     virtual bool isActiveDebugLanguage(int language) const = 0;
 
-    virtual void clearCppCodeModelSnapshot() = 0;
-
     // void runTest(const QString &fileName);
     virtual void showMessage(const QString &msg, int channel, int timeout = -1) = 0;
 

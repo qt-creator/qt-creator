@@ -871,11 +871,6 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     menu.addAction(debuggerCore()->action(SortStructMembers));
     menu.addAction(debuggerCore()->action(UseDynamicType));
 
-    QAction *actClearCodeModelSnapshot
-        = new QAction(tr("Refresh Code Model Snapshot"), &menu);
-    actClearCodeModelSnapshot->setEnabled(actionsEnabled
-        && debuggerCore()->action(UseCodeModel)->isChecked());
-    menu.addAction(actClearCodeModelSnapshot);
     QAction *actShowInEditor
         = new QAction(tr("Show View Contents in Editor"), &menu);
     actShowInEditor->setEnabled(actionsEnabled);
@@ -937,8 +932,6 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         copyToClipboard(mi1.data().toString());
     } else if (act == actRemoveWatches) {
         currentEngine()->watchHandler()->clearWatches();
-    } else if (act == actClearCodeModelSnapshot) {
-        debuggerCore()->clearCppCodeModelSnapshot();
     } else if (act == clearTypeFormatAction) {
         setModelData(LocalsTypeFormatRole, -1, mi1);
     } else if (act == clearIndividualFormatAction) {
