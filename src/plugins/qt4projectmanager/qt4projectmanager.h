@@ -122,6 +122,7 @@ public slots:
     void buildSubDirContextMenu();
     void rebuildSubDirContextMenu();
     void cleanSubDirContextMenu();
+    void buildFileContextMenu();
 
 private slots:
     void editorAboutToClose(Core::IEditor *editor);
@@ -131,7 +132,7 @@ private slots:
 
 private:
     QList<Qt4Project *> m_projects;
-    void handleSubDirContextMenu(Action action);
+    void handleSubDirContextMenu(Action action, bool isFileBuild);
     void addLibrary(const QString &fileName, Internal::ProFileEditorWidget *editor = 0);
     void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 

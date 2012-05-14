@@ -262,7 +262,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     command->setDescription(m_buildFileAction->text());
     command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+B")));
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
-    connect(m_buildFileAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildSubDirContextMenu()));
+    connect(m_buildFileAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildFileContextMenu()));
 
     connect(m_projectExplorer->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));

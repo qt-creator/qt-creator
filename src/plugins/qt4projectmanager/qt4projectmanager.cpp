@@ -400,20 +400,25 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
 
 void Qt4Manager::buildSubDirContextMenu()
 {
-    handleSubDirContextMenu(BUILD);
+    handleSubDirContextMenu(BUILD, false);
 }
 
 void Qt4Manager::cleanSubDirContextMenu()
 {
-    handleSubDirContextMenu(CLEAN);
+    handleSubDirContextMenu(CLEAN, false);
 }
 
 void Qt4Manager::rebuildSubDirContextMenu()
 {
-    handleSubDirContextMenu(REBUILD);
+    handleSubDirContextMenu(REBUILD, false);
 }
 
-void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action)
+void Qt4Manager::buildFileContextMenu()
+{
+    handleSubDirContextMenu(BUILD, true);
+}
+
+void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action, bool isFileBuild)
 {
     Qt4Project *qt4pro = qobject_cast<Qt4Project *>(m_contextProject);
     QTC_ASSERT(qt4pro, return);
@@ -427,7 +432,7 @@ void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action)
         if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(m_contextNode))
             bc->setSubNodeBuild(profile);
 
-    if (m_contextFile)
+    if (isFileBuild && m_contextFile)
         bc->setFileNodeBuild(m_contextFile);
     if (projectExplorer()->saveModifiedFiles()) {
         const Core::Id buildStep = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
