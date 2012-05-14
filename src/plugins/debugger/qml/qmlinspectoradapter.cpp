@@ -127,15 +127,15 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
         setActiveEngineClient(engineClient2);
 
     DeclarativeToolsClient *toolsClient1 = new DeclarativeToolsClient(connection);
-    connect(toolsClient1, SIGNAL(connectedStatusChanged(QmlDebug::ClientStatus)),
+    connect(toolsClient1, SIGNAL(newStatus(QmlDebug::ClientStatus)),
             this, SLOT(clientStatusChanged(QmlDebug::ClientStatus)));
-    connect(toolsClient1, SIGNAL(connectedStatusChanged(QmlDebug::ClientStatus)),
+    connect(toolsClient1, SIGNAL(newStatus(QmlDebug::ClientStatus)),
             this, SLOT(toolsClientStatusChanged(QmlDebug::ClientStatus)));
 
     QmlToolsClient *toolsClient2 = new QmlToolsClient(connection);
-    connect(toolsClient2, SIGNAL(connectedStatusChanged(QmlDebug::ClientStatus)),
+    connect(toolsClient2, SIGNAL(newStatus(QmlDebug::ClientStatus)),
             this, SLOT(clientStatusChanged(QmlDebug::ClientStatus)));
-    connect(toolsClient2, SIGNAL(connectedStatusChanged(QmlDebug::ClientStatus)),
+    connect(toolsClient2, SIGNAL(newStatus(QmlDebug::ClientStatus)),
             this, SLOT(toolsClientStatusChanged(QmlDebug::ClientStatus)));
 
     // toolbar
