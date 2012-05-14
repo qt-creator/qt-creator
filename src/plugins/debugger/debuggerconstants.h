@@ -80,12 +80,6 @@ const char DOCKWIDGET_WATCHERS[]     = "Debugger.Docks.LocalsAndWatchers";
 const char DOCKWIDGET_QML_INSPECTOR[]     = "Debugger.Docks.QmlInspector";
 const char DOCKWIDGET_QML_SCRIPTCONSOLE[] = "Debugger.Docks.ScriptConsole";
 const char DOCKWIDGET_DEFAULT_AREA[]      = "Debugger.Docks.DefaultArea";
-
-// Saved Actions
-const char SETTINGS_DIALOG[]            = "SettingsDialog";
-const char USE_ALTERNATING_ROW_COLORS[] = "UseAlternatingRowColors";
-const char SORT_STRUCT_MEMBERS[]        = "SortStructMembers";
-
 } // namespace Constants
 
 enum DebuggerState

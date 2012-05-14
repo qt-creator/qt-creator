@@ -41,8 +41,6 @@
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <QDebug>
 #include <QVariant>
 #include <QSettings>
@@ -102,13 +100,9 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
 
     SavedAction *item = 0;
 
-    //The Actions that are accessed by QML Inspector are added to PluginManager
-    //Needed by QML Inspector
     item = new SavedAction(this);
     insertItem(SettingsDialog, item);
     item->setText(tr("Debugger Properties..."));
-    item->setObjectName(QLatin1String(Constants::SETTINGS_DIALOG));
-    ExtensionSystem::PluginManager::instance()->addObject(item);
 
     //
     // View
@@ -183,8 +177,6 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setCheckable(true);
     item->setDefaultValue(false);
     insertItem(UseAlternatingRowColors, item);
-    item->setObjectName(QLatin1String(Constants::USE_ALTERNATING_ROW_COLORS));
-    ExtensionSystem::PluginManager::instance()->addObject(item);
 
     item = new SavedAction(this);
     item->setText(tr("Debugger Font Size Follows Main Editor"));
@@ -257,7 +249,6 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setValue(true);
     insertItem(ShowQtNamespace, item);
 
-    //Needed by QML Inspector
     item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("SortStructMembers"));
     item->setText(tr("Sort Members of Classes and Structs Alphabetically"));
@@ -265,8 +256,6 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setDefaultValue(true);
     item->setValue(true);
     insertItem(SortStructMembers, item);
-    item->setObjectName(QLatin1String(Constants::SORT_STRUCT_MEMBERS));
-    ExtensionSystem::PluginManager::instance()->addObject(item);
 
     //
     // DebuggingHelper
@@ -577,18 +566,6 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
 
 DebuggerSettings::~DebuggerSettings()
 {
-    ExtensionSystem::PluginManager *pluginManager =
-        ExtensionSystem::PluginManager::instance();
-    QObject *o = pluginManager->getObjectByName(Constants::SETTINGS_DIALOG);
-    if (o)
-        pluginManager->removeObject(o);
-    o = pluginManager->getObjectByName(Constants::USE_ALTERNATING_ROW_COLORS);
-    if (o)
-        pluginManager->removeObject(o);
-    o = pluginManager->getObjectByName(Constants::SORT_STRUCT_MEMBERS);
-    if (o)
-        pluginManager->removeObject(o);
-
     qDeleteAll(m_items);
 }
 
