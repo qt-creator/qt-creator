@@ -274,27 +274,14 @@ void QmlInspectorAdapter::engineClientStatusChanged(QmlDebug::ClientStatus statu
 
 void QmlInspectorAdapter::selectObjectsFromEditor(const QList<int> &debugIds)
 {
-    int debugId = debugIds.first();
-
     if (m_selectionCallbackExpected) {
         m_selectionCallbackExpected = false;
         return;
     }
     m_cursorPositionChangedExternally = true;
-
-    ObjectReference clientRef
-            = agent()->objectForId(debugId);
-
-    // if children haven't been loaded yet do so first, the editor
-    // might actually be interested in the children!
-    if (clientRef.debugId() != debugId
-            || clientRef.needsMoreData()) {
-        m_targetToSync = ToolTarget;
-        m_debugIdToSelect = debugId;
-        agent()->fetchObject(debugId);
-    } else {
-        selectObject(clientRef, ToolTarget);
-    }
+    m_targetToSync = ToolTarget;
+    m_debugIdToSelect = debugIds.first();
+    selectObject(ObjectReference(m_debugIdToSelect), ToolTarget);
 }
 
 void QmlInspectorAdapter::selectObjectsFromToolsClient(const QList<int> &debugIds)
@@ -302,18 +289,9 @@ void QmlInspectorAdapter::selectObjectsFromToolsClient(const QList<int> &debugId
     if (debugIds.isEmpty())
         return;
 
-    int debugId = debugIds.first();
-
-    ObjectReference clientRef
-            = agent()->objectForId(debugId);
-
-    if (clientRef.debugId() != debugId) {
-        m_targetToSync = EditorTarget;
-        m_debugIdToSelect = debugId;
-        agent()->fetchObject(debugId);
-    } else {
-        selectObject(clientRef, EditorTarget);
-    }
+    m_targetToSync = EditorTarget;
+    m_debugIdToSelect = debugIds.first();
+    selectObject(ObjectReference(m_debugIdToSelect), EditorTarget);
 }
 
 void QmlInspectorAdapter::onObjectFetched(const ObjectReference &ref)
@@ -520,8 +498,7 @@ void QmlInspectorAdapter::gotoObjectReferenceDefinition(
         m_selectionCallbackExpected = true;
 
     if (textEditor) {
-        ObjectReference ref = objectReferenceForLocation(fileName);
-        if (ref.debugId() != obj.debugId()) {
+        if (objectIdForLocation(fileName) != obj.debugId()) {
             m_selectionCallbackExpected = true;
             editorManager->addCurrentPositionToNavigationHistory();
             textEditor->gotoLine(source.lineNumber());
@@ -530,7 +507,7 @@ void QmlInspectorAdapter::gotoObjectReferenceDefinition(
     }
 }
 
-ObjectReference QmlInspectorAdapter::objectReferenceForLocation(
+int QmlInspectorAdapter::objectIdForLocation(
         const QString &fileName, int cursorPosition) const
 {
     Core::IEditor *editor = Core::EditorManager::openEditor(fileName);
@@ -552,41 +529,13 @@ ObjectReference QmlInspectorAdapter::objectReferenceForLocation(
                 = semanticInfo.declaringMemberNoProperties(cursorPosition)) {
             if (QmlJS::AST::UiObjectMember *objMember
                     = node->uiObjectMemberCast()) {
-                return agent()->objectForLocation(
+                return agent()->objectIdForLocation(
                             objMember->firstSourceLocation().startLine,
                             objMember->firstSourceLocation().startColumn);
             }
         }
     }
-    return ObjectReference();
-}
-
-inline QString displayName(const ObjectReference &obj)
-{
-    // special! state names
-    if (obj.className() == "State") {
-        foreach (const PropertyReference &prop, obj.properties()) {
-            if (prop.name() == "name")
-                return prop.value().toString();
-        }
-    }
-
-    // has id?
-    if (!obj.idString().isEmpty())
-        return obj.idString();
-
-    // return the simplified class name then
-    QString objTypeName = obj.className();
-    QStringList declarativeStrings;
-    declarativeStrings << QLatin1String("QDeclarative")
-                       << QLatin1String("QQml");
-    foreach (const QString &str, declarativeStrings) {
-        if (objTypeName.startsWith(str)) {
-            objTypeName = objTypeName.mid(str.length()).section('_', 0, 0);
-            break;
-        }
-    }
-    return QString("<%1>").arg(objTypeName);
+    return -1;
 }
 
 void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
@@ -602,7 +551,7 @@ void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
     agent()->selectObjectInTree(obj.debugId());
 
     m_currentSelectedDebugId = obj.debugId();
-    m_currentSelectedDebugName = displayName(obj);
+    m_currentSelectedDebugName = agent()->displayName(obj.debugId());
     emit selectionChanged();
 }
 
@@ -648,7 +597,7 @@ void QmlInspectorAdapter::onReloaded()
 
 void QmlInspectorAdapter::onDestroyedObject()
 {
-    m_agent->refreshObjectTree();
+    m_agent->queryEngineContext();
 }
 
 } // namespace Internal

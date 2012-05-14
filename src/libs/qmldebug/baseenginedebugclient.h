@@ -56,15 +56,15 @@ public:
     quint32 addWatch(const PropertyReference &property);
     quint32 addWatch(const ContextReference &context, const QString &id);
     quint32 addWatch(const ObjectReference &object, const QString &expr);
-    quint32 addWatch(const ObjectReference &object);
+    quint32 addWatch(int objectId);
     quint32 addWatch(const FileReference &file);
 
     void removeWatch(quint32 watch);
 
     quint32 queryAvailableEngines();
     quint32 queryRootContexts(const EngineReference &context);
-    quint32 queryObject(const ObjectReference &object);
-    quint32 queryObjectRecursive(const ObjectReference &object);
+    quint32 queryObject(int objectId);
+    quint32 queryObjectRecursive(int objectId);
     quint32 queryExpressionResult(int objectDebugId,
                                   const QString &expr, int engineId = -1);
     virtual quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
@@ -104,6 +104,12 @@ class FileReference
 {
 public:
     FileReference() : m_lineNumber(-1), m_columnNumber(-1) {}
+    FileReference(const QUrl &url, int line, int column)
+        : m_url(url),
+          m_lineNumber(line),
+          m_columnNumber(column)
+    {
+    }
 
     QUrl url() const { return m_url; }
     int lineNumber() const { return m_lineNumber; }
@@ -142,6 +148,7 @@ public:
     QString className() const { return m_className; }
     QString idString() const { return m_idString; }
     QString name() const { return m_name; }
+    bool isValid() const { return m_debugId != -1; }
 
     FileReference source() const { return m_source; }
     int contextDebugId() const { return m_contextDebugId; }

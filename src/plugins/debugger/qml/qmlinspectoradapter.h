@@ -107,7 +107,7 @@ private:
     void showConnectionStatusMessage(const QString &message);
 
     void gotoObjectReferenceDefinition(const QmlDebug::ObjectReference &obj);
-    QmlDebug::ObjectReference objectReferenceForLocation(
+    int objectIdForLocation(
             const QString &fileName, int cursorPosition = -1) const;
 
     enum SelectionTarget { NoTarget, ToolTarget, EditorTarget };

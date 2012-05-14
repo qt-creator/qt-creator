@@ -286,14 +286,14 @@ quint32 BaseEngineDebugClient::addWatch(const ObjectReference &object,
     return id;
 }
 
-quint32 BaseEngineDebugClient::addWatch(const ObjectReference &object)
+quint32 BaseEngineDebugClient::addWatch(int objectId)
 {
     quint32 id = 0;
     if (status() == Enabled) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("WATCH_OBJECT") << id << object.m_debugId;
+        ds << QByteArray("WATCH_OBJECT") << id << objectId;
         sendMessage(message);
     }
     return id;
@@ -341,28 +341,28 @@ quint32 BaseEngineDebugClient::queryRootContexts(const EngineReference &engine)
     return id;
 }
 
-quint32 BaseEngineDebugClient::queryObject(const ObjectReference &object)
+quint32 BaseEngineDebugClient::queryObject(int objectId)
 {
     quint32 id = 0;
-    if (status() == Enabled && object.m_debugId != -1) {
+    if (status() == Enabled && objectId != -1) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("FETCH_OBJECT") << id << object.m_debugId << false <<
+        ds << QByteArray("FETCH_OBJECT") << id << objectId << false <<
               true;
         sendMessage(message);
     }
     return id;
 }
 
-quint32 BaseEngineDebugClient::queryObjectRecursive(const ObjectReference &object)
+quint32 BaseEngineDebugClient::queryObjectRecursive(int objectId)
 {
     quint32 id = 0;
-    if (status() == Enabled && object.m_debugId != -1) {
+    if (status() == Enabled && objectId != -1) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("FETCH_OBJECT") << id << object.m_debugId << true <<
+        ds << QByteArray("FETCH_OBJECT") << id << objectId << true <<
               true;
         sendMessage(message);
     }

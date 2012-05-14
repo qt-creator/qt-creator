@@ -440,19 +440,6 @@ void QmlLiveTextPreview::setApplyChangesToQmlInspector(bool applyChanges)
     m_applyChangesToQmlInspector = applyChanges;
 }
 
-static QList<int> findRootObjectRecursive(const ObjectReference &object,
-                                          const Document::Ptr &doc)
-{
-    QList<int> result;
-    if (object.className() == doc->componentName())
-        result += object.debugId();
-
-    foreach (const ObjectReference &it, object.children()) {
-        result += findRootObjectRecursive(it, doc);
-    }
-    return result;
-}
-
 void QmlLiveTextPreview::updateDebugIds()
 {
     if (!m_initialDoc->qmlProgram())
@@ -485,11 +472,13 @@ void QmlLiveTextPreview::updateDebugIds()
     // Map the root nodes of the document.
     if (doc->qmlProgram()->members &&  doc->qmlProgram()->members->member) {
         UiObjectMember *root = doc->qmlProgram()->members->member;
+        QHashIterator<int,QString> rIds(m_inspectorAdapter->agent()->rootObjectIds());
         QList<int> r;
-        foreach (const ObjectReference& it,
-                 m_inspectorAdapter->agent()->rootObjects()) {
-            r += findRootObjectRecursive(it, doc);
-        }
+        while (rIds.hasNext()) {
+            rIds.next();
+            if (rIds.value() == doc->componentName())
+                r += rIds.key();
+            }
         if (!r.isEmpty())
             m_debugIds[root] += r;
     }
@@ -561,7 +550,7 @@ bool QmlLiveTextPreview::changeSelectedElements(const QList<int> offsets,
             QList<int> list = objectReferencesForOffset(offset);
 
             if (!containsReferenceUnderCursor
-                    && objectRefUnderCursor.debugId() != -1) {
+                    && objectRefUnderCursor.isValid()) {
                 foreach (int id, list) {
                     if (id == objectRefUnderCursor.debugId()) {
                         containsReferenceUnderCursor = true;
@@ -577,7 +566,7 @@ bool QmlLiveTextPreview::changeSelectedElements(const QList<int> offsets,
     // fallback: use ref under cursor if nothing else is found
     if (selectedReferences.isEmpty()
             && !containsReferenceUnderCursor
-            && objectRefUnderCursor.debugId() != -1) {
+            && objectRefUnderCursor.isValid()) {
         selectedReferences << objectRefUnderCursor.debugId();
     }
 
@@ -613,7 +602,7 @@ void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
                 m_debugIds = delta(m_previousDoc, doc, m_debugIds);
 
                 if (delta.referenceRefreshRequired)
-                    m_inspectorAdapter->agent()->refreshObjectTree();
+                    m_inspectorAdapter->agent()->queryEngineContext();
 
 
                 if (delta.unsyncronizableChanges != NoUnsyncronizableChanges) {
