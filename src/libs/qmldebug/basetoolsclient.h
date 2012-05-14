@@ -45,6 +45,7 @@ public:
 
     virtual void setCurrentObjects(const QList<int> &debugIds) = 0;
     virtual void reload(const QHash<QString, QByteArray> &changesHash) = 0;
+    virtual bool supportReload() const = 0;
     virtual void setDesignModeBehavior(bool inDesignMode) = 0;
     virtual void setAnimationSpeed(qreal slowDownFactor) = 0;
     virtual void setAnimationPaused(bool paused) = 0;

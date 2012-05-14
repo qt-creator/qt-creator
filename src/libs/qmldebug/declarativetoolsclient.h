@@ -44,6 +44,7 @@ public:
 
     void setCurrentObjects(const QList<int> &debugIds);
     void reload(const QHash<QString, QByteArray> &changesHash);
+    bool supportReload() const { return false; }
     void setDesignModeBehavior(bool inDesignMode);
     void setAnimationSpeed(qreal slowDownFactor);
     void setAnimationPaused(bool paused);

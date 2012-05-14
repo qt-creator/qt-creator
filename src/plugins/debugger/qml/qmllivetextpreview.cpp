@@ -693,8 +693,9 @@ void QmlLiveTextPreview::showSyncWarning(
         if (editor) {
             Core::InfoBar *infoBar = editor->editorDocument()->infoBar();
             Core::InfoBarEntry info(INFO_OUT_OF_SYNC, errorMessage);
-            info.setCustomButtonInfo(tr("Reload QML"), this,
-                                     SLOT(reloadQml()));
+            if (m_inspectorAdapter->toolsClient()->supportReload())
+                info.setCustomButtonInfo(tr("Reload QML"), this,
+                                         SLOT(reloadQml()));
             infoBar->addInfo(info);
         }
     }
