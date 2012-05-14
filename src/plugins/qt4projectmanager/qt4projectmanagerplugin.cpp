@@ -376,8 +376,7 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     Qt4ProFileNode *subProjectNode = node ? qobject_cast<Qt4ProFileNode *>(node->projectNode()) : 0;
     ProjectExplorer::FileNode *fileNode = qobject_cast<ProjectExplorer::FileNode *>(node);
     bool buildFilePossible = subProjectNode && fileNode
-            && (fileNode->fileType() == ProjectExplorer::SourceType)
-            && !subProjectNode->isDebugAndRelease();
+            && (fileNode->fileType() == ProjectExplorer::SourceType);
 
     m_qt4ProjectManager->setContextNode(subProjectNode);
     m_qt4ProjectManager->setContextProject(qt4Project);

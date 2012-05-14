@@ -183,15 +183,22 @@ bool MakeStep::init()
 
     ProjectExplorer::ToolChain *toolchain = bc->toolChain();
 
-    if (bc->subNodeBuild()) {
-        QString makefile = bc->subNodeBuild()->makefile();
-        if (!makefile.isEmpty()) {
+    Qt4ProjectManager::Qt4ProFileNode *subNode = bc->subNodeBuild();
+    if (subNode) {
+        QString makefile = subNode->makefile();
+        if (makefile.isEmpty())
+            makefile = QLatin1String("Makefile");
+        if (subNode->isDebugAndRelease()) {
+            if (bc->buildType() == Qt4BuildConfiguration::Debug)
+                makefile += QLatin1String(".Debug");
+            else
+                makefile += QLatin1String(".Release");
+        }
+        if (makefile != QLatin1String("Makefile")) {
             Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
             Utils::QtcProcess::addArg(&args, makefile);
-            m_makeFileToCheck = QDir(workingDirectory).filePath(makefile);
-        } else {
-            m_makeFileToCheck = QDir(workingDirectory).filePath(QLatin1String("Makefile"));
         }
+        m_makeFileToCheck = QDir(workingDirectory).filePath(makefile);
     } else {
         if (!bc->makefile().isEmpty()) {
             Utils::QtcProcess::addArg(&args, QLatin1String("-f"));
@@ -209,23 +216,24 @@ bool MakeStep::init()
             Utils::QtcProcess::addArg(&args, bc->defaultMakeTarget());
     }
 
-    if (bc->fileNodeBuild()) {
-        Qt4ProjectManager::Qt4ProFileNode *proNode = bc->subNodeBuild();
-        if (!proNode) {
-            Qt4Project *qt4project = qobject_cast<Qt4Project *>(project());
-            if (qt4project)
-                proNode = qt4project->rootQt4ProjectNode();
+    if (bc->fileNodeBuild() && subNode) {
+        QString objectsDir = subNode->objectsDirectory();
+        if (objectsDir.isEmpty()) {
+            objectsDir = subNode->buildDir(bc);
+            if (subNode->isDebugAndRelease()) {
+                if (bc->buildType() == Qt4BuildConfiguration::Debug)
+                    objectsDir += QLatin1String("/debug");
+                else
+                    objectsDir += QLatin1String("/release");
+            }
         }
-        if (proNode) {
-            QString objectsDir = QDir(pp->workingDirectory()).relativeFilePath(
-                        proNode->objectsDirectory());
-            if (!objectsDir.isEmpty())
-                objectsDir += QLatin1Char('/');
-            QString objectFile = objectsDir +
-                    QFileInfo(bc->fileNodeBuild()->path()).baseName() +
-                    proNode->objectExtension();
-            Utils::QtcProcess::addArg(&args, objectFile);
-        }
+        QString relObjectsDir = QDir(pp->workingDirectory()).relativeFilePath(objectsDir);
+        if (!relObjectsDir.isEmpty())
+            relObjectsDir += QLatin1Char('/');
+        QString objectFile = relObjectsDir +
+                QFileInfo(bc->fileNodeBuild()->path()).baseName() +
+                subNode->objectExtension();
+        Utils::QtcProcess::addArg(&args, objectFile);
     }
     Utils::Environment env = bc->environment();
     // Force output to english for the parsers. Do this here and not in the toolchain's

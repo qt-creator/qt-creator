@@ -427,12 +427,14 @@ void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action, bool isFileB
         !qt4pro->activeTarget()->activeBuildConfiguration())
     return;
 
+    if (!m_contextNode || !m_contextFile)
+        isFileBuild = false;
     Qt4BuildConfiguration *bc = qt4pro->activeTarget()->activeQt4BuildConfiguration();
-    if (m_contextNode != 0 && m_contextNode != qt4pro->rootProjectNode())
+    if (m_contextNode != 0 && (m_contextNode != qt4pro->rootProjectNode() || isFileBuild))
         if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(m_contextNode))
             bc->setSubNodeBuild(profile);
 
-    if (isFileBuild && m_contextFile)
+    if (isFileBuild)
         bc->setFileNodeBuild(m_contextFile);
     if (projectExplorer()->saveModifiedFiles()) {
         const Core::Id buildStep = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
