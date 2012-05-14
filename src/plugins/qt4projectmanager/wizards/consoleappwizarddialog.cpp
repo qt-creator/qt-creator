@@ -33,6 +33,7 @@
 #include "consoleappwizarddialog.h"
 #include "consoleappwizard.h"
 #include <coreplugin/basefilewizard.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QDebug>
 
@@ -55,7 +56,8 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
                           "provide a GUI."));
 
     addModulesPage();
-    addTargetSetupPage();
+    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+        addTargetSetupPage();
 
     addExtensionPages(parameters.extensionPages());
 }

@@ -120,7 +120,8 @@ AbstractMobileAppWizardDialog *MobileAppWizard::createWizardDialogInternal(QWidg
 
 void MobileAppWizard::projectPathChanged(const QString &path) const
 {
-    d->wizardDialog->targetsPage()->setProFilePath(path);
+    if (d->wizardDialog->targetsPage())
+        d->wizardDialog->targetsPage()->setProFilePath(path);
 }
 
 void MobileAppWizard::prepareGenerateFiles(const QWizard *w,

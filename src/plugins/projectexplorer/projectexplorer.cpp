@@ -2597,6 +2597,12 @@ void ProjectExplorerPlugin::addNewFile()
 
     QVariantMap map;
     map.insert(QLatin1String(Constants::PREFERED_PROJECT_NODE), d->m_currentNode->projectNode()->path());
+    if (d->m_currentProject) {
+        QList<Core::Id> profileIds;
+        foreach (Target *target, d->m_currentProject->targets())
+            profileIds << target->id();
+        map.insert(QLatin1String(Constants::PROJECT_PROFILE_IDS), QVariant::fromValue(profileIds));
+    }
     Core::ICore::showNewItemDialog(tr("New File", "Title of dialog"),
                                Core::IWizard::wizardsOfKind(Core::IWizard::FileWizard)
                                + Core::IWizard::wizardsOfKind(Core::IWizard::ClassWizard),
@@ -2613,6 +2619,13 @@ void ProjectExplorerPlugin::addNewSubproject()
                 d->m_currentNode->projectNode()).contains(ProjectNode::AddSubProject)) {
         QVariantMap map;
         map.insert(QLatin1String(Constants::PREFERED_PROJECT_NODE), d->m_currentNode->projectNode()->path());
+        if (d->m_currentProject) {
+            QList<Core::Id> profileIds;
+            foreach (Target *target, d->m_currentProject->targets())
+                profileIds << target->id();
+            map.insert(QLatin1String(Constants::PROJECT_PROFILE_IDS), QVariant::fromValue(profileIds));
+        }
+
         Core::ICore::showNewItemDialog(tr("New Subproject", "Title of dialog"),
                               Core::IWizard::wizardsOfKind(Core::IWizard::ProjectWizard),
                               location, map);

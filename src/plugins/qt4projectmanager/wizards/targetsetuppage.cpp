@@ -110,6 +110,20 @@ void TargetSetupPage::setRequiredProfileMatcher(ProjectExplorer::ProfileMatcher 
     m_requiredMatcher = matcher;
 }
 
+QList<Core::Id> TargetSetupPage::selectedProfiles() const
+{
+    QList<Core::Id> result;
+    QMap<Core::Id, Qt4TargetSetupWidget *>::const_iterator it, end;
+    it = m_widgets.constBegin();
+    end = m_widgets.constEnd();
+
+    for ( ; it != end; ++it) {
+        if (isProfileSelected(it.key()))
+            result << it.key();
+    }
+    return result;
+}
+
 void TargetSetupPage::setPreferredProfileMatcher(ProjectExplorer::ProfileMatcher *matcher)
 {
     m_preferredMatcher = matcher;

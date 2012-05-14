@@ -32,6 +32,7 @@
 
 #include "testwizarddialog.h"
 #include "testwizardpage.h"
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QFileInfo>
 
@@ -63,7 +64,8 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
     setWindowIcon(icon);
     setWindowTitle(templateName);
     setSelectedModules(QLatin1String("core testlib"), true);
-    addTargetSetupPage();
+    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+        addTargetSetupPage();
     m_modulesPageId = addModulesPage();
     m_testPageId = addPage(m_testPage);
     wizardProgress()->item(m_testPageId)->setTitle(tr("Details"));

@@ -77,6 +77,7 @@ private:
     int idOfNextGenericPage() const;
     Utils::WizardProgressItem *itemOfNextGenericPage() const;
     bool isQtPlatformSelected(const QString &platform) const;
+    QList<Core::Id> selectedProfiles() const;
 
     Internal::MobileAppWizardGenericOptionsPage *m_genericOptionsPage;
     Internal::MobileAppWizardSymbianOptionsPage *m_symbianOptionsPage;
@@ -95,6 +96,7 @@ private:
     Utils::WizardProgressItem *m_symbianItem;
     Utils::WizardProgressItem *m_maemoItem;
     Utils::WizardProgressItem *m_harmattanItem;
+    QList<Core::Id> m_profileIds;
 
     friend class AbstractMobileAppWizard;
 };

@@ -32,6 +32,7 @@
 
 #include "emptyprojectwizarddialog.h"
 #include "qtprojectparameters.h"
+#include <projectexplorer/projectexplorerconstants.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -47,7 +48,8 @@ EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
     setIntroDescription(tr("This wizard generates an empty Qt4 project. "
                            "Add files to it later on by using the other wizards."));
 
-    addTargetSetupPage();
+    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+        addTargetSetupPage();
 
     addExtensionPages(parameters.extensionPages());
 }

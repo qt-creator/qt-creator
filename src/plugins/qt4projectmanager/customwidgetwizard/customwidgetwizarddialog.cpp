@@ -34,6 +34,7 @@
 #include "customwidgetwidgetswizardpage.h"
 #include "customwidgetpluginwizardpage.h"
 #include "customwidgetwizard.h"
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -80,7 +81,9 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
 
     setIntroDescription(tr("This wizard generates a Qt4 Designer Custom Widget "
                            "or a Qt4 Designer Custom Widget Collection project."));
-    addTargetSetupPage();
+
+    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+        addTargetSetupPage();
     m_widgetPageId = addPage(m_widgetsPage);
     m_pluginPageId = addPage(m_pluginPage);
     wizardProgress()->item(m_widgetPageId)->setTitle(tr("Custom Widgets"));

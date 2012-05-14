@@ -174,7 +174,8 @@ CustomQt4ProjectWizard::CustomQt4ProjectWizard(const Core::BaseFileWizardParamet
     initProjectWizardDialog(wizard, wizardDialogParameters.defaultPath(), wizardDialogParameters.extensionPages());
     if (wizard->pageIds().contains(targetPageId))
         qWarning("CustomQt4ProjectWizard: Unable to insert target page at %d", int(targetPageId));
-    wizard->addTargetSetupPage(false, targetPageId);
+    if (!wizardDialogParameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+        wizard->addTargetSetupPage(false, targetPageId);
     return wizard;
 }
 
@@ -193,7 +194,8 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWi
                                                        const Core::WizardDialogParameters &parameters) :
     ProjectExplorer::BaseProjectWizardDialog(parent, parameters),
     m_modulesPage(0),
-    m_targetSetupPage(0)
+    m_targetSetupPage(0),
+    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_PROFILE_IDS).value<QList<Core::Id> >())
 {
     init(showModulesPage);
 }
@@ -204,7 +206,8 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
                                                        const Core::WizardDialogParameters &parameters) :
     ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent, parameters),
     m_modulesPage(0),
-    m_targetSetupPage(0)
+    m_targetSetupPage(0),
+    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_PROFILE_IDS).value<QList<Core::Id> >())
 {
     init(showModulesPage);
 }
@@ -315,12 +318,30 @@ bool BaseQt4ProjectWizardDialog::writeUserFile(const QString &proFileName) const
 
 bool BaseQt4ProjectWizardDialog::setupProject(Qt4Project *project) const
 {
+    if (!m_targetSetupPage)
+        return true;
     return m_targetSetupPage->setupProject(project);
 }
 
 bool BaseQt4ProjectWizardDialog::isQtPlatformSelected(const QString &platform) const
 {
-    return m_targetSetupPage->isQtPlatformSelected(platform);
+    QList<Core::Id> selectedProfileList = selectedProfiles();
+
+    QtSupport::QtPlatformProfileMatcher matcher(platform);
+    QList<ProjectExplorer::Profile *> allProfileList
+            = ProjectExplorer::ProfileManager::instance()->profiles(&matcher);
+    foreach (ProjectExplorer::Profile *p, allProfileList) {
+        if (selectedProfileList.contains(p->id()))
+            return true;
+    }
+    return false;
+}
+
+QList<Core::Id> BaseQt4ProjectWizardDialog::selectedProfiles() const
+{
+    if (!m_targetSetupPage)
+        return m_profileIds;
+    return m_targetSetupPage->selectedProfiles();
 }
 
 void BaseQt4ProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
@@ -331,8 +352,12 @@ void BaseQt4ProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &w
 
 void BaseQt4ProjectWizardDialog::generateProfileName(const QString &name, const QString &path)
 {
+    if (!m_targetSetupPage)
+        return;
+
     const QString proFile =
         QDir::cleanPath(path + QLatin1Char('/') + name + QLatin1Char('/')
                         + name + QLatin1String(".pro"));
+
     m_targetSetupPage->setProFilePath(proFile);
 }

@@ -129,7 +129,8 @@ AbstractMobileAppWizardDialog *Html5AppWizard::createWizardDialogInternal(QWidge
 
 void Html5AppWizard::projectPathChanged(const QString &path) const
 {
-    d->wizardDialog->targetsPage()->setProFilePath(path);
+    if (d->wizardDialog->targetsPage())
+        d->wizardDialog->targetsPage()->setProFilePath(path);
 }
 
 void Html5AppWizard::prepareGenerateFiles(const QWizard *w,

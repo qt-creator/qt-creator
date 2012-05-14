@@ -143,6 +143,7 @@ public:
     bool writeUserFile(const QString &proFileName) const;
     bool setupProject(Qt4Project *project) const;
     bool isQtPlatformSelected(const QString &platform) const;
+    QList<Core::Id> selectedProfiles() const;
 
     void addExtensionPages(const QList<QWizardPage *> &wizardPageList);
 
@@ -156,6 +157,7 @@ private:
     TargetSetupPage *m_targetSetupPage;
     QStringList m_selectedModules;
     QStringList m_deselectedModules;
+    QList<Core::Id> m_profileIds;
 };
 
 } // namespace Internal

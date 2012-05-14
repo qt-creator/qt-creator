@@ -37,6 +37,7 @@
 
 #include <qtsupport/qtsupportconstants.h>
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <QSet>
 
 namespace Qt4ProjectManager {
@@ -66,7 +67,8 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
          "and includes an empty widget."));
 
     addModulesPage();
-    addTargetSetupPage(isMobile);
+    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+        addTargetSetupPage(isMobile);
 
     m_filesPage->setFormInputCheckable(true);
     m_filesPage->setClassTypeComboVisible(false);

@@ -42,6 +42,7 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/projectintropage.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QDebug>
 #include <QDir>
@@ -154,10 +155,12 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     // Use the intro page instead, set up initially
     setIntroDescription(tr("This wizard generates a C++ library project."));
 
-    m_targetPageId = addTargetSetupPage();
-
-    if (m_targetPageId != -1)
+    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS)) {
+        m_targetPageId = addTargetSetupPage();
         m_mobilePageId = addPage(m_mobilePage);
+    } else if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM)) {
+        m_mobilePageId = addPage(m_mobilePage);
+    }
 
     m_modulesPageId = addModulesPage();
 
@@ -169,10 +172,12 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
 
     Utils::WizardProgressItem *introItem = wizardProgress()->item(startId());
     Utils::WizardProgressItem *targetItem = 0;
-    if (m_targetPageId != -1)
+    Utils::WizardProgressItem *mobileItem = 0;
+    if (m_targetPageId != -1) {
         targetItem = wizardProgress()->item(m_targetPageId);
-    Utils::WizardProgressItem *mobileItem = wizardProgress()->item(m_mobilePageId);
-    mobileItem->setTitle(QLatin1String("    ") + tr("Symbian Specific"));
+        mobileItem = wizardProgress()->item(m_mobilePageId);
+        mobileItem->setTitle(QLatin1String("    ") + tr("Symbian Specific"));
+    }
     Utils::WizardProgressItem *modulesItem = wizardProgress()->item(m_modulesPageId);
     Utils::WizardProgressItem *filesItem = wizardProgress()->item(m_filesPageId);
     filesItem->setTitle(tr("Details"));
@@ -185,11 +190,18 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
                                  << modulesItem << filesItem);
         mobileItem->setNextShownItem(0);
     } else {
-        introItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                << modulesItem << filesItem);
-        introItem->setNextShownItem(0);
+        if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM)) {
+            introItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                    << mobileItem);
+            mobileItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                    << modulesItem << filesItem);
+            mobileItem->setNextShownItem(0);
+        } else {
+            introItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                    << modulesItem << filesItem);
+            introItem->setNextShownItem(0);
+        }
     }
-
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
 
@@ -254,6 +266,10 @@ int LibraryWizardDialog::nextId() const
             return skipModulesPageIfNeeded();
         }
     } else if (currentId() == startId()) {
+        if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM))
+            return m_mobilePageId;
+        return skipModulesPageIfNeeded();
+    } else if (currentId() == m_mobilePageId) {
         return skipModulesPageIfNeeded();
     }
 
@@ -262,7 +278,8 @@ int LibraryWizardDialog::nextId() const
 
 void LibraryWizardDialog::initializePage(int id)
 {
-    if (m_targetPageId != -1 && id == m_targetPageId) {
+    if ((m_targetPageId != -1 && id == m_targetPageId)
+            || (m_targetPageId == -1 && id == m_mobilePageId)) {
         Utils::WizardProgressItem *mobileItem = wizardProgress()->item(m_mobilePageId);
         Utils::WizardProgressItem *modulesItem = wizardProgress()->item(m_modulesPageId);
         Utils::WizardProgressItem *filesItem = wizardProgress()->item(m_filesPageId);
@@ -277,7 +294,8 @@ void LibraryWizardDialog::initializePage(int id)
 
 void LibraryWizardDialog::cleanupPage(int id)
 {
-    if (m_targetPageId != -1 && id == m_targetPageId) {
+    if ((m_targetPageId != -1 && id == m_targetPageId)
+            || (m_targetPageId == -1 && id == m_mobilePageId)) {
         Utils::WizardProgressItem *mobileItem = wizardProgress()->item(m_mobilePageId);
         mobileItem->setNextShownItem(0);
     }

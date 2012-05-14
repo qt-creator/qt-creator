@@ -70,5 +70,6 @@ inline uint qHash(const Id &id) { return id.uniqueIdentifier(); }
 } // namespace Core
 
 Q_DECLARE_METATYPE(Core::Id)
+Q_DECLARE_METATYPE(QList<Core::Id>)
 
 #endif // CORE_ID_H

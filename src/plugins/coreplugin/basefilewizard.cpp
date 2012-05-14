@@ -474,7 +474,8 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
                                                                                            allExtensionPages,
                                                                                            platform,
                                                                                            requiredFeatures(),
-                                                                                           dialogParameterFlags)));
+                                                                                           dialogParameterFlags,
+                                                                                           extraValues)));
     QTC_ASSERT(!wizard.isNull(), return);
 
     GeneratedFiles files;

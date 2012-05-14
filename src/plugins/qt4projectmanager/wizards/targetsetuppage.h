@@ -82,6 +82,7 @@ public:
     bool isProfileSelected(Core::Id id) const;
     void setProfileSelected(Core::Id id, bool selected);
     bool isQtPlatformSelected(const QString &type) const;
+    QList<Core::Id> selectedProfiles() const;
     void setProFilePath(const QString &dir);
 
     /// Overrides the summary text of the targetsetuppage

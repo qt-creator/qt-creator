@@ -88,8 +88,9 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
     AbstractMobileAppWizardDialog::addMobilePages();
 
     if (kind == QtQuickAppWizard::ImportQml) {
-        m_componentItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                      << targetsPageItem());
+        if (targetsPageItem())
+            m_componentItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                          << targetsPageItem());
     }
 }
 
@@ -235,7 +236,8 @@ AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWid
 
 void QtQuickAppWizard::projectPathChanged(const QString &path) const
 {
-    d->wizardDialog->targetsPage()->setProFilePath(path);
+    if (d->wizardDialog->targetsPage())
+        d->wizardDialog->targetsPage()->setProFilePath(path);
 }
 
 void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,

@@ -32,6 +32,7 @@
 
 #include "subdirsprojectwizarddialog.h"
 #include "qtprojectparameters.h"
+#include <projectexplorer/projectexplorerconstants.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
@@ -48,7 +49,8 @@ SubdirsProjectWizardDialog::SubdirsProjectWizardDialog(const QString &templateNa
     setIntroDescription(tr("This wizard generates a Qt4 subdirs project. "
                            "Add subprojects to it later on by using the other wizards."));
 
-    addTargetSetupPage();
+    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+        addTargetSetupPage();
 
     addExtensionPages(parameters.extensionPages());
 }
