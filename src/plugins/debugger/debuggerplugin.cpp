@@ -62,7 +62,7 @@
 #include "watchwindow.h"
 #include "watchutils.h"
 #include "debuggertooltipmanager.h"
-#include "localsandwatcherswindow.h"
+#include "localsandexpressionswindow.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
@@ -1183,7 +1183,7 @@ public:
     BaseWindow *m_stackWindow;
     BaseWindow *m_threadsWindow;
     LogWindow *m_logWindow;
-    LocalsAndWatchersWindow *m_localsAndWatchersWindow;
+    LocalsAndExpressionsWindow *m_localsAndExpressionsWindow;
 
     bool m_busy;
     QString m_lastPermanentStatusMessage;
@@ -1238,7 +1238,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_stackWindow = 0;
     m_threadsWindow = 0;
     m_logWindow = 0;
-    m_localsAndWatchersWindow = 0;
+    m_localsAndExpressionsWindow = 0;
     m_qtMessageLogWindow = 0;
 
     m_mainWindow = 0;
@@ -2309,7 +2309,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_debugWithoutDeployAction->setEnabled(false);
         m_visibleStartAction->setAction(m_continueAction);
         m_hiddenStopAction->setAction(m_exitAction);
-        m_localsAndWatchersWindow->setShowLocals(true);
+        m_localsAndExpressionsWindow->setShowLocals(true);
     } else if (state == InferiorRunOk) {
         // Shift-F5 interrupts. It is also "interruptible".
         m_interruptAction->setEnabled(true);
@@ -2319,7 +2319,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_debugWithoutDeployAction->setEnabled(false);
         m_visibleStartAction->setAction(m_interruptAction);
         m_hiddenStopAction->setAction(m_interruptAction);
-        m_localsAndWatchersWindow->setShowLocals(false);
+        m_localsAndExpressionsWindow->setShowLocals(false);
     } else if (state == DebuggerFinished) {
         // We don't want to do anything anymore.
         m_interruptAction->setEnabled(false);
@@ -2342,7 +2342,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_visibleStartAction->setAction(m_undisturbableAction);
         m_hiddenStopAction->setAction(m_exitAction);
         // show locals in core dumps
-        m_localsAndWatchersWindow->setShowLocals(true);
+        m_localsAndExpressionsWindow->setShowLocals(true);
     } else {
         // Everything else is "undisturbable".
         m_interruptAction->setEnabled(false);
@@ -3061,13 +3061,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_mainWindow->createDockWidget(CppLanguage, m_stackWindow);
     m_mainWindow->createDockWidget(CppLanguage, m_threadsWindow);
 
-    m_localsAndWatchersWindow = new LocalsAndWatchersWindow(
+    m_localsAndExpressionsWindow = new LocalsAndExpressionsWindow(
                 m_localsWindow, m_inspectorWindow, m_returnWindow,
                 m_watchersWindow);
-    m_localsAndWatchersWindow->setObjectName(QLatin1String(DOCKWIDGET_WATCHERS));
-    m_localsAndWatchersWindow->setWindowTitle(m_localsWindow->windowTitle());
+    m_localsAndExpressionsWindow->setObjectName(QLatin1String(DOCKWIDGET_WATCHERS));
+    m_localsAndExpressionsWindow->setWindowTitle(m_localsWindow->windowTitle());
 
-    dock = m_mainWindow->createDockWidget(CppLanguage, m_localsAndWatchersWindow);
+    dock = m_mainWindow->createDockWidget(CppLanguage, m_localsAndExpressionsWindow);
     dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::RightDockWidgetArea);
 
     m_mainWindow->addStagedMenuEntries();

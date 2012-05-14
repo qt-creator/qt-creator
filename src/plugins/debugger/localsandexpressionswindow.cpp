@@ -1,4 +1,4 @@
-#include "localsandwatcherswindow.h"
+#include "localsandexpressionswindow.h"
 #include <QVBoxLayout>
 #include <QSplitter>
 #include <QStackedWidget>
@@ -6,7 +6,7 @@
 namespace Debugger {
 namespace Internal {
 
-LocalsAndWatchersWindow::LocalsAndWatchersWindow(
+LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(
         QWidget *locals, QWidget *inspector, QWidget *returnWidget,
         QWidget *watchers, QWidget *parent)
     : QWidget(parent)
@@ -32,7 +32,7 @@ LocalsAndWatchersWindow::LocalsAndWatchersWindow(
     m_splitter->setStretchFactor(3, 1);
 }
 
-void LocalsAndWatchersWindow::setShowLocals(bool showLocals)
+void LocalsAndExpressionsWindow::setShowLocals(bool showLocals)
 {
     m_localsAndInspector->setCurrentIndex(showLocals ? 0 : 1);
 }

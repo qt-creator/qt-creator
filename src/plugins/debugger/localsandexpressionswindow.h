@@ -1,5 +1,5 @@
-#ifndef LOCALSANDWATCHERSWIDGET_H
-#define LOCALSANDWATCHERSWIDGET_H
+#ifndef LOCALSANDEXPRESSIONSWINDOW_H
+#define LOCALSANDEXPRESSIONSWINDOW_H
 
 #include <QWidget>
 
@@ -11,11 +11,11 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
-class LocalsAndWatchersWindow : public QWidget
+class LocalsAndExpressionsWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LocalsAndWatchersWindow(
+    explicit LocalsAndExpressionsWindow(
             QWidget *locals, QWidget *inspector,
             QWidget *returnWidget, QWidget *watchers, QWidget *parent = 0);
 
@@ -29,4 +29,4 @@ private:
 } // namespace Internal
 } // namespace Debugger
 
-#endif // LOCALSANDWATCHERSWIDGET_H
+#endif // LOCALSANDEXPRESSIONSWINDOW_H
