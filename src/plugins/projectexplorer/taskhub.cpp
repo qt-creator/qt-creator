@@ -110,10 +110,12 @@ void TaskHub::addTask(Task task)
         TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line, visible);
         mark->setIcon(taskTypeIcon(task.type));
         mark->setPriority(TextEditor::ITextMark::LowPriority);
-        mark->init();
         task.addMark(mark);
+        emit taskAdded(task);
+        mark->init();
+    } else {
+        emit taskAdded(task);
     }
-    emit taskAdded(task);
 }
 
 void TaskHub::clearTasks(const Core::Id &categoryId)
