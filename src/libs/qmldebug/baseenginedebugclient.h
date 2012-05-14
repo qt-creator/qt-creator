@@ -81,7 +81,7 @@ public:
 
 signals:
     void newStatus(QmlDebug::ClientStatus status);
-    void newObjects();
+    void newObject(int engineId, int objectId, int parentId);
     void valueChanged(int debugId, const QByteArray &name,
                       const QVariant &value);
     void result(quint32 queryId, const QVariant &result, const QByteArray &type);

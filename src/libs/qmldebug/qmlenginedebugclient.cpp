@@ -90,4 +90,22 @@ quint32 QmlEngineDebugClient::setMethodBody(
     return id;
 }
 
+void QmlEngineDebugClient::messageReceived(const QByteArray &data)
+{
+    QDataStream ds(data);
+    int queryId;
+    QByteArray type;
+    ds >> type >> queryId;
+
+    if (type == "OBJECT_CREATED") {
+        int engineId;
+        int objectId;
+        int parentId;
+        ds >> engineId >> objectId >> parentId;
+        emit newObject(engineId, objectId, parentId);
+        return;
+    } else {
+        BaseEngineDebugClient::messageReceived(data);
+    }
+}
 } // namespace QmlDebug

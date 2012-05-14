@@ -345,8 +345,8 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
                    this, SLOT(updateStatus()));
         disconnect(m_engineClient, SIGNAL(result(quint32,QVariant,QByteArray)),
                    this, SLOT(onResult(quint32,QVariant,QByteArray)));
-        disconnect(m_engineClient, SIGNAL(newObjects()),
-                   this, SLOT(newObjects()));
+        disconnect(m_engineClient, SIGNAL(newObject(int,int,int)),
+                   this, SLOT(newObject(int,int,int)));
     }
 
     m_engineClient = client;
@@ -356,8 +356,8 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
                 this, SLOT(updateStatus()));
         connect(m_engineClient, SIGNAL(result(quint32,QVariant,QByteArray)),
                 this, SLOT(onResult(quint32,QVariant,QByteArray)));
-        connect(m_engineClient, SIGNAL(newObjects()),
-                this, SLOT(newObjects()));
+        connect(m_engineClient, SIGNAL(newObject(int,int,int)),
+                this, SLOT(newObject(int,int,int)));
     }
 
     updateStatus();
@@ -425,7 +425,7 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
 
 }
 
-void QmlInspectorAgent::newObjects()
+void QmlInspectorAgent::newObject(int /*engineId*/, int /*objectId*/, int /*parentId*/)
 {
     if (debug)
         qDebug() << __FUNCTION__ << "()";

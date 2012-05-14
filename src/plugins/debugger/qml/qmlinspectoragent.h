@@ -102,7 +102,7 @@ signals:
 private slots:
     void updateStatus();
     void onResult(quint32 queryId, const QVariant &value, const QByteArray &type);
-    void newObjects();
+    void newObject(int engineId, int objectId, int parentId);
 
 private:
     void reloadEngines();

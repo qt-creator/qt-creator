@@ -51,6 +51,9 @@ public:
     quint32 resetBindingForObject(int objectDebugId, const QString &propertyName);
     quint32 setMethodBody(int objectDebugId, const QString &methodName,
                           const QString &methodBody);
+
+protected:
+    void messageReceived(const QByteArray &data);
 };
 
 } // namespace QmlDebug

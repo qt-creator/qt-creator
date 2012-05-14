@@ -188,7 +188,10 @@ void BaseEngineDebugClient::messageReceived(const QByteArray &data)
     ds >> type;
 
     if (type == "OBJECT_CREATED") {
-        emit newObjects();
+        int engineId;
+        int objectId;
+        ds >> engineId >> objectId;
+        emit newObject(engineId, objectId, -1);
         return;
     }
 
