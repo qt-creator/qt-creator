@@ -1480,7 +1480,6 @@ class Dumper:
             else:
                 try:
                     value = value.cast(type)
-                    self.putItem(value)
                 except:
                     self.putValue("<optimized out typedef>")
                     self.putType(typeName)
