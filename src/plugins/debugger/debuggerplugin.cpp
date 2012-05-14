@@ -2342,6 +2342,8 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_debugWithoutDeployAction->setEnabled(false);
         m_visibleStartAction->setAction(m_undisturbableAction);
         m_hiddenStopAction->setAction(m_exitAction);
+        // show locals in core dumps
+        m_localsAndWatchersWindow->setShowLocals(true);
     } else {
         // Everything else is "undisturbable".
         m_interruptAction->setEnabled(false);
