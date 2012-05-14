@@ -166,7 +166,7 @@ WatchModel::WatchModel(WatchHandler *handler, WatchType type)
             break;
         case WatchersWatch:
             m_root->iname = "watch";
-            m_root->name = WatchHandler::tr("Watchers");
+            m_root->name = WatchHandler::tr("Expressions");
             break;
         case TooltipsWatch:
             m_root->iname = "tooltip";

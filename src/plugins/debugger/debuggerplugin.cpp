@@ -2996,10 +2996,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     act = m_breakAction = new QAction(tr("Toggle Breakpoint"), this);
 
-    act = m_watchAction1 = new QAction(tr("Add to Watch Window"), this);
+    act = m_watchAction1 = new QAction(tr("Add Expression Evaluator"), this);
     connect(act, SIGNAL(triggered()), SLOT(handleAddToWatchWindow()));
 
-    act = m_watchAction2 = new QAction(tr("Add to Watch Window"), this);
+    act = m_watchAction2 = new QAction(tr("Add Expression Evaluator"), this);
     connect(act, SIGNAL(triggered()), SLOT(handleAddToWatchWindow()));
 
     //m_snapshotAction = new QAction(tr("Create Snapshot"), this);
