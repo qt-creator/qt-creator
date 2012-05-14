@@ -45,6 +45,7 @@
 #include <algorithm>
 #include <errno.h>
 #include <limits>
+#include <signal.h>
 
 #include <QAtomicPointer>
 #include <QCoreApplication>
@@ -701,6 +702,14 @@ extern "C" void DNSSD_API cBrowseReply(DNSServiceRef       sdRef,
 
 void ConnectionThread::run()
 {
+#if defined(Q_OS_UNIX) && !defined(Q_OS_DARWIN)
+    struct sigaction act;
+    // ignore SIGPIPE
+    act.sa_handler=SIG_IGN;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags=0;
+    sigaction(SIGPIPE, &act, NULL);
+#endif
     connection.handleEvents();
 }
 
