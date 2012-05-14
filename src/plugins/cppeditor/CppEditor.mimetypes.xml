@@ -55,6 +55,9 @@
         <glob pattern="*.tpp"/>
         <glob pattern="*.t++"/>
         <glob pattern="*.txx"/>
+        <magic priority="30">
+        <match value="-*- C++ -*-" type="string" offset="0:30"/>
+        </magic>
     </mime-type>
 
     <mime-type type="text/x-objcsrc">
