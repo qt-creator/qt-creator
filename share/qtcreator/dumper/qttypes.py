@@ -1856,6 +1856,53 @@ def qdump__std__map(d, value):
                         node = node["_M_left"]
 
 
+def stdTreeIteratorHelper(d, value):
+    pnode = value["_M_node"]
+    node = pnode.dereference()
+    d.putNumChild(1)
+    d.putValue(" ")
+    if d.isExpanded():
+        dataType = templateArgument(value.type, 0)
+        nodeType = lookupType("std::_Rb_tree_node<%s>" % dataType)
+        data = pnode.cast(nodeType.pointer()).dereference()["_M_value_field"]
+        with Children(d):
+            try:
+                d.putSubItem("first", data["first"])
+                d.putSubItem("second", data["second"])
+            except:
+                d.putSubItem("value", data)
+            with SubItem(d, "node"):
+                d.putNumChild(1)
+                d.putValue(" ")
+                d.putType(" ")
+                if d.isExpanded():
+                    with Children(d):
+                        d.putSubItem("color", node["_M_color"])
+                        d.putSubItem("left", node["_M_left"])
+                        d.putSubItem("right", node["_M_right"])
+                        d.putSubItem("parent", node["_M_parent"])
+
+
+def qdump__std___Rb_tree_iterator(d, value):
+    stdTreeIteratorHelper(d, value)
+
+def qdump__std___Rb_tree_const_iterator(d, value):
+    stdTreeIteratorHelper(d, value)
+
+def qdump__std__map__iterator(d, value):
+    stdTreeIteratorHelper(d, value)
+
+def qdump__std__map__const_iterator(d, value):
+    stdTreeIteratorHelper(d, value)
+
+def qdump__std__set__iterator(d, value):
+    stdTreeIteratorHelper(d, value)
+
+def qdump__std__set__const_iterator(d, value):
+    stdTreeIteratorHelper(d, value)
+
+
+
 def qdump__std__set(d, value):
     impl = value["_M_t"]["_M_impl"]
     size = impl["_M_node_count"]

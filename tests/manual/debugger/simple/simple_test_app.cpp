@@ -2710,6 +2710,36 @@ namespace stdmap {
         dummyStatement(&map);
     }
 
+    void testStdMapUIntFloatIterator()
+    {
+        typedef std::map<uint, float> Map;
+        Map map;
+        map[11] = 11.0;
+        map[22] = 22.0;
+        map[33] = 33.0;
+        map[44] = 44.0;
+        map[55] = 55.0;
+        map[66] = 66.0;
+
+        Map::iterator it1 = map.begin();
+        Map::iterator it2 = it1; ++it2;
+        Map::iterator it3 = it2; ++it2;
+        Map::iterator it4 = it3; ++it3;
+        Map::iterator it5 = it4; ++it4;
+        Map::iterator it6 = it5; ++it5;
+
+        BREAK_HERE;
+        // Expand map.
+        // Check map <6 items> std::map<unsigned int, float>.
+        // Check map.11 11 float.
+        // Check it1.first 11 unsigned int.
+        // Check it1.second 11 float.
+        // Check it1.first 55 unsigned int.
+        // Check it1.second 55 float.
+        // Continue.
+        dummyStatement(&map, &it1, &it2, &it3, &it4, &it5, &it6);
+    }
+
     void testStdMapStringFloat()
     {
         std::map<QString, float> map;
@@ -2773,6 +2803,7 @@ namespace stdmap {
         testStdMapUIntStringList();
         testStdMapUIntStringListTypedef();
         testStdMapUIntFloat();
+        testStdMapUIntFloatIterator();
         testStdMapStringFloat();
         testStdMapIntString();
         testStdMapStringPointer();
@@ -2853,6 +2884,33 @@ namespace stdset {
         dummyStatement(&set);
     }
 
+    void testStdSetIntIterator()
+    {
+        typedef std::set<int> Set;
+        Set set;
+        set.insert(11.0);
+        set.insert(22.0);
+        set.insert(33.0);
+        set.insert(44.0);
+        set.insert(55.0);
+        set.insert(66.0);
+
+        Set::iterator it1 = set.begin();
+        Set::iterator it2 = it1; ++it2;
+        Set::iterator it3 = it2; ++it2;
+        Set::iterator it4 = it3; ++it3;
+        Set::iterator it5 = it4; ++it4;
+        Set::iterator it6 = it5; ++it5;
+
+        BREAK_HERE;
+        // Check set <6 items> std::set<int>.
+        // Check it1.key 11 unsigned int.
+        // Check it1.value 11 int.
+        // Check it1.key 55 unsigned int.
+        // Check it1.value 55 int.
+        dummyStatement(&set, &it1, &it2, &it3, &it4, &it5, &it6);
+    }
+
     void testStdSetString()
     {
         std::set<QString> set;
@@ -2881,6 +2939,7 @@ namespace stdset {
     void testStdSet()
     {
         testStdSetInt();
+        testStdSetIntIterator();
         testStdSetString();
         testStdSetPointer();
     }
