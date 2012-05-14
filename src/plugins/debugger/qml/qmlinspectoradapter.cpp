@@ -102,8 +102,6 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
 {
     connect(m_agent, SIGNAL(objectFetched(QmlDebug::ObjectReference)),
             SLOT(onObjectFetched(QmlDebug::ObjectReference)));
-    connect(m_agent, SIGNAL(objectTreeUpdated()),
-            SLOT(onObjectTreeUpdated()));
 
     QmlDebugConnection *connection = m_debugAdapter->connection();
     DeclarativeEngineDebugClient *engineClient1
@@ -324,15 +322,6 @@ void QmlInspectorAdapter::onObjectFetched(const ObjectReference &ref)
     if (ref.debugId() == m_debugIdToSelect) {
         m_debugIdToSelect = -1;
         selectObject(ref, m_targetToSync);
-    }
-}
-
-void QmlInspectorAdapter::onObjectTreeUpdated()
-{
-    if (m_currentSelectedDebugId == -1) {
-        // select root element on startup
-        if (!m_agent->rootObjects().isEmpty())
-            selectObject(m_agent->rootObjects().first(), NoTarget);
     }
 }
 

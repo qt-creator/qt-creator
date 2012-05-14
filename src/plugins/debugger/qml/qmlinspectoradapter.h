@@ -87,7 +87,6 @@ private slots:
     void selectObjectsFromEditor(const QList<int> &debugIds);
     void selectObjectsFromToolsClient(const QList<int> &debugIds);
     void onObjectFetched(const QmlDebug::ObjectReference &ref);
-    void onObjectTreeUpdated();
 
     void createPreviewForEditor(Core::IEditor *newEditor);
     void removePreviewForEditor(Core::IEditor *editor);
