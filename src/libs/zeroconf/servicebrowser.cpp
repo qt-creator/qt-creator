@@ -135,10 +135,12 @@ public:
     ZConfLib::Ptr defaultLib();
     void setDefaultLib(LibUsage usage, const QString &avahiLibName, const QString &avahiVersion,
                        const QString &dnsSdLibName, const QString &dnsSdDaemonPath);
+    int nFallbacksTot() const;
 
 private:
     static const char *defaultmDnsSdLibName;
     static const char *defaultmDNSDaemonName;
+    int m_nFallbacksTot;
     QMutex m_lock;
     ZConfLib::Ptr m_defaultLib;
 };
@@ -163,6 +165,8 @@ ZeroConfLib::ZeroConfLib(): m_lock(QMutex::Recursive),
     qRegisterMetaType<ZeroConf::ErrorMessage::SeverityLevel>("ZeroConf::ErrorMessage::SeverityLevel");
     qRegisterMetaType<ZeroConf::ErrorMessage>("ZeroConf::ErrorMessage");
     qRegisterMetaType<QList<ZeroConf::ErrorMessage> >("QList<ZeroConf::ErrorMessage>");
+    m_nFallbacksTot = (m_defaultLib ? m_defaultLib->nFallbacks() : 0);
+
 }
 
 ZConfLib::Ptr ZeroConfLib::defaultLib(){
@@ -196,6 +200,14 @@ void ZeroConfLib::setDefaultLib(LibUsage usage, const QString &avahiLibName,
     default:
         qDebug() << "invalid usage " << usage;
     }
+    int newNFallbacks = m_defaultLib->nFallbacks();
+    if (m_nFallbacksTot < newNFallbacks)
+        m_nFallbacksTot = newNFallbacks;
+}
+
+int ZeroConfLib::nFallbacksTot() const
+{
+    return m_nFallbacksTot;
 }
 
 } // end anonymous namespace
@@ -1468,9 +1480,12 @@ void ServiceBrowserPrivate::startBrowsing(quint32 interfaceIndex)
     this->interfaceIndex = interfaceIndex;
     if (failed || browsing)
         return;
-    if (mainConnection.isNull())
-        mainConnection = MainConnectionPtr(new MainConnection());
-    mainConnection->addBrowser(this);
+    if (mainConnection.isNull()) {
+        startupPhase(1, q->tr("Starting Zeroconf Browsing"));
+        mainConnection = MainConnectionPtr(new MainConnection(this));
+    } else {
+        mainConnection->addBrowser(this);
+    }
 }
 
 bool ServiceBrowserPrivate::internalStartBrowsing()
@@ -1568,6 +1583,13 @@ void ServiceBrowserPrivate::servicesUpdated(ServiceBrowser *browser)
     emit q->servicesUpdated(browser);
 }
 
+/// called to describe the current startup phase
+void ServiceBrowserPrivate::startupPhase(int progress, const QString &description)
+{
+    emit q->startupPhase(progress, description, q);
+}
+
+
 /// called when there is an error message
 void ServiceBrowserPrivate::errorMessage(ErrorMessage::SeverityLevel severity, const QString &msg)
 {
@@ -1612,13 +1634,15 @@ void MainConnection::stop(bool wait)
         m_thread->wait();
 }
 
-MainConnection::MainConnection():
+MainConnection::MainConnection(ServiceBrowserPrivate *initialBrowser):
     flowStatus(NormalRFS),
     lib(zeroConfLibInstance()->defaultLib()), m_lock(QMutex::Recursive),
     m_mainThreadLock(QMutex::NonRecursive), m_mainRef(0), m_failed(false), m_status(Starting), m_nErrs(0)
 {
+    if (initialBrowser)
+        addBrowser(initialBrowser);
     if (lib.isNull()){
-        qDebug() << "could not load a valid library for ZeroConf::MainConnection, failing";
+        appendError(ErrorMessage::FailureLevel, tr("Zeroconf could not load a valid library, failing."));
     } else {
         m_thread = new ConnectionThread(*this);
         m_mainThreadLock.lock();
@@ -1718,28 +1742,28 @@ void MainConnection::maybeUpdateLists()
 void MainConnection::gotoValidLib(){
     while (lib){
         if (lib->isOk()) break;
-        appendError(ErrorMessage::WarningLevel, tr("MainConnection giving up on non Ok lib %1 (%2)")
+        appendError(ErrorMessage::WarningLevel, tr("Zeroconf giving up on non working %1 (%2).")
                                 .arg(lib->name()).arg(lib->errorMsg()));
         lib = lib->fallbackLib;
     }
     if (!lib) {
-        appendError(ErrorMessage::FailureLevel, tr("MainConnection has no valid library, aborting connection"));
+        appendError(ErrorMessage::FailureLevel, tr("Zeroconf has no valid library, aborting connection."));
         increaseStatusTo(Stopping);
     }
 }
 
 void MainConnection::abortLib(){
     if (!lib){
-        appendError(ErrorMessage::FailureLevel, tr("MainConnection has no valid library, aborting connection"));
+        appendError(ErrorMessage::FailureLevel, tr("Zeroconf has no valid library, aborting connection."));
         increaseStatusTo(Stopping);
     } else if (lib->fallbackLib){
-        appendError(ErrorMessage::WarningLevel, tr("MainConnection giving up on lib %1, switching to lib %2")
+        appendError(ErrorMessage::WarningLevel, tr("Zeroconf giving up on %1, switching to %2.")
                                 .arg(lib->name()).arg(lib->fallbackLib->name()));
         lib = lib->fallbackLib;
         m_nErrs = 0;
         gotoValidLib();
     } else {
-        appendError(ErrorMessage::FailureLevel, tr("MainConnection giving up on lib %1, no fallback provided, aborting connection")
+        appendError(ErrorMessage::FailureLevel, tr("Zeroconf giving up on %1, no fallback provided, aborting connection.")
                                 .arg(lib->name()));
         increaseStatusTo(Stopping);
     }
@@ -1753,16 +1777,18 @@ void MainConnection::createConnection()
             increaseStatusTo(Stopped);
             break;
         }
+        startupPhase(m_nErrs + zeroConfLibInstance()->nFallbacksTot() - lib->nFallbacks() + 2,
+                     tr("Trying %1...").arg(lib->name()));
         uint32_t version;
         uint32_t size = (uint32_t)sizeof(uint32_t);
         DNSServiceErrorType err = lib->getProperty(kDNSServiceProperty_DaemonVersion, &version, &size);
         if (err == kDNSServiceErr_NoError){
             DNSServiceErrorType error = lib->createConnection(this, &m_mainRef);
             if (error != kDNSServiceErr_NoError){
-                appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed the initialization of mainRef with error %2")
+                appendError(ErrorMessage::WarningLevel, tr("Zeroconf using %1 failed the initialization of the main library connection with error %2.")
                                         .arg(lib->name()).arg(error));
                 ++m_nErrs;
-                if (m_nErrs > lib->maxErrors() || !lib->isOk())
+                if (m_nErrs > lib->nFallbacks() || !lib->isOk())
                     abortLib();
             } else {
                 QList<ServiceBrowserPrivate *> waitingBrowsers;
@@ -1780,29 +1806,31 @@ void MainConnection::createConnection()
                 break;
             }
         } else if (err == kDNSServiceErr_ServiceNotRunning) {
-            appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed because no daemon is running")
+            appendError(ErrorMessage::WarningLevel, tr("Zeroconf using %1 failed because no daemon is running.")
                                     .arg(lib->name()));
-            if (m_nErrs > lib->maxErrors()/2 || !lib->isOk()) {
+            ++m_nErrs;
+            if (m_nErrs > lib->maxErrors() || !lib->isOk()) {
                 abortLib();
-            } else if (lib->tryStartDaemon()) {
-                ++m_nErrs;
-                appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 daemon starting seem successful, continuing")
+            } else if (lib->tryStartDaemon(this)) {
+                appendError(ErrorMessage::WarningLevel, tr("Zeroconf using %1 daemon starting seem successful, continuing.")
                                         .arg(lib->name()));
             } else {
-                appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed because no daemon is running")
+                appendError(ErrorMessage::WarningLevel, tr("Zeroconf using %1 failed because no daemon is running.")
                                         .arg(lib->name()));
                 abortLib();
             }
         } else {
-            appendError(ErrorMessage::WarningLevel, tr("MainConnection using lib %1 failed getProperty call with error %2")
+            appendError(ErrorMessage::WarningLevel, tr("Zeroconf using %1 failed getProperty call with error %2.")
                                     .arg(lib->name()).arg(err));
             abortLib();
         }
     }
-    if (status() < Stopping)
+    if (status() < Stopping) {
+        startupPhase(zeroConfLibInstance()->nFallbacksTot() + 3, tr("Succeded using %1.").arg(lib->name()));
         appendError(ErrorMessage::NoteLevel,
-                    tr("MainConnection could successfully create a connection using lib %1")
+                    tr("MainConnection could successfully create a connection using %1.")
                     .arg(lib->name()));
+    }
 }
 
 ZConfLib::RunLoopStatus MainConnection::handleEvent()
@@ -1845,7 +1873,7 @@ void  MainConnection::handleEvents()
 {
     try {
         if (!m_status.testAndSetAcquire(Starting, Started)){
-            appendError(ErrorMessage::WarningLevel, tr("MainConnection::handleEvents called with m_status != Starting, aborting"));
+            appendError(ErrorMessage::WarningLevel, tr("Zeroconf, unexpected start status, aborting."));
             increaseStatusTo(Stopped);
             return;
         }
@@ -1876,7 +1904,7 @@ void  MainConnection::handleEvents()
             increaseStatusTo(Stopping);
             break;
         default:
-            appendError(ErrorMessage::FailureLevel, tr("MainConnection::handleEvents unexpected return status of handleEvent"));
+            appendError(ErrorMessage::FailureLevel, tr("Zeroconf detected an unexpected return status of handleEvent."));
             increaseStatusTo(Stopping);
             break;
         }
@@ -1886,7 +1914,7 @@ void  MainConnection::handleEvents()
         QString browsersNames = (m_browsers.isEmpty() ? QString() : m_browsers.at(0)->serviceType)
                 + ((m_browsers.count() > 1) ? QString::fromLatin1(",...") : QString());
         if (isOk())
-            appendError(ErrorMessage::FailureLevel, tr("MainConnection for [%1] accumulated %2 consecutive errors, aborting")
+            appendError(ErrorMessage::FailureLevel, tr("Zeroconf for [%1] accumulated %2 consecutive errors, aborting.")
                         .arg(browsersNames).arg(m_nErrs));
     }
     increaseStatusTo(Stopped);
@@ -1934,6 +1962,17 @@ void MainConnection::appendError(ErrorMessage::SeverityLevel severity, const QSt
     }
 }
 
+void MainConnection::startupPhase(int progress, const QString &description)
+{
+    QList<ServiceBrowserPrivate *> browsersAtt;
+    {
+        QMutexLocker l(lock());
+        browsersAtt = m_browsers;
+    }
+    foreach (ServiceBrowserPrivate *b, browsersAtt)
+        b->startupPhase(progress, description);
+}
+
 bool MainConnection::isOk()
 {
     return !m_failed;
@@ -1941,7 +1980,7 @@ bool MainConnection::isOk()
 
 // ----------------- ZConfLib impl -----------------
 
-bool ZConfLib::tryStartDaemon()
+bool ZConfLib::tryStartDaemon(ErrorMessage::ErrorLogger * /* logger */)
 {
     return false;
 }
@@ -1950,7 +1989,7 @@ QString ZConfLib::name(){
     return QString::fromLatin1("ZeroConfLib@%1").arg(size_t(this), 0, 16);
 }
 
-ZConfLib::ZConfLib(ZConfLib::Ptr f) : fallbackLib(f), m_isOk(true), m_maxErrors(8)
+ZConfLib::ZConfLib(ZConfLib::Ptr f) : fallbackLib(f), m_isOk(true), m_maxErrors(4)
 { }
 
 ZConfLib::~ZConfLib()
@@ -1975,6 +2014,12 @@ void ZConfLib::setError(bool failure, const QString &eMsg)
 int ZConfLib::maxErrors() const
 {
     return m_maxErrors;
+}
+
+int ZConfLib::nFallbacks() const
+{
+    return (m_isOk ? ((m_maxErrors > 0) ? m_maxErrors : 1) : 0)
+            + (fallbackLib ? fallbackLib->nFallbacks() : 0);
 }
 
 ZConfLib::RunLoopStatus ZConfLib::processOneEvent(MainConnection *mainConnection,
@@ -2023,5 +2068,12 @@ ZConfLib::RunLoopStatus ZConfLib::processOneEvent(MainConnection *mainConnection
     return ProcessedIdle; // change? should never happen anyway
 }
 
-} // namespace Internal
+}
+
+int ServiceBrowser::maxProgress() const
+{
+    return zeroConfLibInstance()->nFallbacksTot() + 3;
+}
+
+// namespace Internal
 } // namespace ZeroConf

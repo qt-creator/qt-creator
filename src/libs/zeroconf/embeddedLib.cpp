@@ -36,6 +36,7 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
 #include <QFileInfo>
 #include <QString>
 #include <QStringList>
@@ -82,10 +83,10 @@ public:
 
     QString name()
     {
-        return QString::fromLatin1("EmbeddedZeroConfLib@%1").arg(size_t(this), 0, 16);
+        return QString::fromLatin1("Embedded Dns_sd Library");
     }
 
-    bool tryStartDaemon()
+    bool tryStartDaemon(ErrorMessage::ErrorLogger *logger)
     {
         if (!daemonPath.isEmpty()) {
             QFileInfo dPath(daemonPath);
@@ -106,18 +107,46 @@ public:
                 killall.waitForFinished();
             }
             if (killAllFailed) {
-                this->setError(false,ZConfLib::tr("zeroconf failed to kill other daemons with '%1'").arg(cmd));
+                if (logger)
+                    logger->appendError(ErrorMessage::WarningLevel,
+                                        ZConfLib::tr("%1 failed to kill other daemons with '%2'.")
+                                        .arg(name()).arg(cmd));
                 if (DEBUG_ZEROCONF)
                     qDebug() << name() << " had an error trying to kill other daemons with " << cmd;
             }
-            if (QProcess::startDetached(daemonPath)) {
+            QString daemonCmd = daemonPath;
+            QStringList daemonArgs;
+#ifdef Q_OS_LINUX
+            if (QFile::exists("/tmp/mdnsd") && logger)
+                logger->appendError(ErrorMessage::WarningLevel,
+                                    ZConfLib::tr("%1 detected a file at /tmp/mdnsd, daemon startup will probably fail.")
+                                    .arg(name()));
+            QString logFile = QString::fromLatin1("/tmp/mdnssd.log");
+            static int didFail = 0;
+            QFile oldLog(logFile);
+            if (didFail > 1 && oldLog.exists()) {
+                oldLog.open(QIODevice::ReadOnly);
+                if (logger) {
+                    QByteArray logBA = oldLog.readAll();
+                    logger->appendError(ErrorMessage::NoteLevel,
+                                        ZConfLib::tr("%1: log of previous daemon run is: '%2'.\n")
+                                        .arg(name())
+                                        .arg(QString::fromAscii(logBA.constData(), logBA.size())));
+                    qDebug()<<logBA.size()<<oldLog.error()<<oldLog.errorString();
+                }
+                oldLog.close();
+            }
+            if (++didFail > 1)
+                daemonArgs << QString::fromLatin1("-debug");
+#endif
+            if (QProcess::startDetached(daemonCmd, daemonArgs)) {
                 QThread::yieldCurrentThread();
                 // sleep a bit?
                 if (DEBUG_ZEROCONF)
-                    qDebug() << name() << " started " << daemonPath;
+                    qDebug() << name() << " started " << daemonCmd << daemonArgs;
                 return true;
             } else {
-                this->setError(true, ZConfLib::tr("%1 failed starting embedded daemon at %2")
+                this->setError(true, ZConfLib::tr("%1 failed starting embedded daemon at %2.")
                                .arg(name()).arg(daemonPath));
             }
         }

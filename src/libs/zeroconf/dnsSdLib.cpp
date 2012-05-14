@@ -113,7 +113,7 @@ public:
         // dynamic linking
         if (!dnsSdLib.load()) {
             m_isOk = false;
-            m_errorMsg = tr("DnsSdZConfLib could not load native library");
+            m_errorMsg = tr("could not load native library");
         }
         m_refDeallocate = reinterpret_cast<RefDeallocatePtr>(dnsSdLib.resolve("DNSServiceRefDeallocate"));
         m_resolve = reinterpret_cast<ResolvePtr>(dnsSdLib.resolve("DNSServiceResolve"));
@@ -141,9 +141,9 @@ public:
         if (m_isOk && m_getAddrInfo == 0) {
             m_isOk = false;
 #ifdef Q_OS_LINUX
-            m_errorMsg = tr("DnsSdZConfLib skipping over avahi compatibility lib (or obsolete mdnsd)");
+            m_errorMsg = tr("skipping over avahi compatibility lib (or obsolete mdnsd)");
 #else
-            m_errorMsg = tr("*WARNING* DnsSdZConfLib detected an obsolete version of Apple Bonjour, either disable/uninstall it or upgrade it. Otherwise zeroconf will fail.");
+            m_errorMsg = tr("*WARNING* detected an obsolete version of Apple Bonjour, either disable/uninstall it or upgrade it, otherwise zeroconf will fail");
 #endif
         }
         if (DEBUG_ZEROCONF){
@@ -164,7 +164,7 @@ public:
     }
 
     QString name(){
-        return QString::fromLatin1("DnsSdZeroConfLib@%1").arg(size_t(this), 0, 16);
+        return QString::fromLatin1("Dns_sd (Apple Bonjour) Library");
     }
 
     // bool tryStartDaemon();

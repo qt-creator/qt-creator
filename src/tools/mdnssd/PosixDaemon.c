@@ -105,7 +105,11 @@ mDNSlocal void ParseCmdLinArgs(int argc, char **argv)
 	{
 	if (argc > 1)
 		{
-		if (0 == strcmp(argv[1], "-debug")) mDNS_DebugMode = mDNStrue;
+        if (0 == strcmp(argv[1], "-debug")) {
+            mDNS_DebugMode = mDNStrue;
+            stderr = fopen("/tmp/mdnssd.log", "w");
+            stdout = stderr;
+        }
 		else printf("Usage: %s [-debug]\n", argv[0]);
 		}
 

@@ -184,7 +184,7 @@ public:
     }
 
     QString name(){
-        return QString::fromLatin1("AvahiZeroConfLib@%1").arg(size_t(this), 0, 16);
+        return QString::fromLatin1("Avahi Library");
     }
 
     // bool tryStartDaemon();
@@ -483,7 +483,7 @@ extern "C" void cAvahiClientReply (AvahiClient * /*s*/, AvahiClientState state, 
         lib->setError(false, ZConfLib::tr("cAvahiClient, still connecting, no server available"));
         break;
     default:
-        lib->setError(true, ZConfLib::tr("Error: unexpected state %1 in cAvahiClientReply, ignoring it")
+        lib->setError(true, ZConfLib::tr("unexpected state %1 in cAvahiClientReply")
                       .arg(state));
     }
 }
@@ -534,7 +534,7 @@ extern "C" void cAvahiBrowseReply(
             break;
         default:
             browser->mainConnection->lib->setError(true, ZConfLib::tr(
-                                                       "Error: unexpected state %1 in cAvahiBrowseReply, ignoring it")
+                                                       "unexpected state %1 in cAvahiBrowseReply")
                                                    .arg(event));
     }
 }

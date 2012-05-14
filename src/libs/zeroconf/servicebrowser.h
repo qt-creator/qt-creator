@@ -73,6 +73,11 @@ public:
 
     SeverityLevel severity;
     QString msg;
+
+    class ErrorLogger{
+    public:
+        virtual void appendError(ErrorMessage::SeverityLevel severity, const QString& msg) = 0;
+    };
 };
 
 ZEROCONFSHARED_EXPORT QDebug operator<<(QDebug dbg, const ErrorMessage &eMsg);
@@ -142,6 +147,7 @@ public:
     void stopBrowsing();
     bool isBrowsing() const;
     bool didFail() const;
+    int maxProgress() const;
 
     const QString& serviceType() const;
     const QString& domain() const;
@@ -163,6 +169,7 @@ signals:
     void serviceRemoved(const ZeroConf::Service::ConstPtr &service,
         ZeroConf::ServiceBrowser *browser);
     void servicesUpdated(ZeroConf::ServiceBrowser *browser);
+    void startupPhase(int progress, const QString &description, ZeroConf::ServiceBrowser *browser);
     void errorMessage(ZeroConf::ErrorMessage::SeverityLevel severity, const QString &msg, ZeroConf::ServiceBrowser *browser);
     void hadFailure(const QList<ZeroConf::ErrorMessage> &messages, ZeroConf::ServiceBrowser *browser);
     void startedBrowsing(ZeroConf::ServiceBrowser *browser);
