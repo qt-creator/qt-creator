@@ -182,6 +182,8 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
     Core::ActionContainer *msubproject =
             am->actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
+    Core::ActionContainer *mfile =
+            am->actionContainer(ProjectExplorer::Constants::M_FILECONTEXT);
 
     //register actions
     Core::Command *command;
@@ -220,6 +222,12 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_cleanSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(cleanSubDirContextMenu()));
+
+    m_buildFileContextMenu = new QAction(tr("Build"), this);
+    command = am->registerAction(m_buildFileContextMenu, Constants::BUILDFILECONTEXTMENU, projectContext);
+    command->setAttribute(Core::Command::CA_Hide);
+    mfile->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
+    connect(m_buildFileContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildFileContextMenu()));
 
     m_buildSubProjectAction = new Utils::ParameterAction(tr("Build Subproject"), tr("Build Subproject \"%1\""),
                                                          Utils::ParameterAction::AlwaysEnabled, this);
@@ -402,6 +410,7 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     m_cleanSubProjectContextMenu->setVisible(subProjectActionsVisible && isProjectNode);
     m_runQMakeActionContextMenu->setVisible(isProjectNode && buildConfiguration->qmakeStep());
     m_buildFileAction->setVisible(buildFilePossible);
+    m_buildFileContextMenu->setVisible(buildFilePossible);
 
     m_buildSubProjectAction->setEnabled(enabled);
     m_rebuildSubProjectAction->setEnabled(enabled);
@@ -412,6 +421,7 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     m_runQMakeActionContextMenu->setEnabled(isProjectNode && !isBuilding
                                             && buildConfiguration->qmakeStep());
     m_buildFileAction->setEnabled(buildFilePossible && !isBuilding);
+    m_buildFileContextMenu->setEnabled(buildFilePossible && !isBuilding);
 }
 
 void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)

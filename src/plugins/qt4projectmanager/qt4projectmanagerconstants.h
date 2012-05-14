@@ -66,6 +66,7 @@ const char BUILDFILE[] = "Qt4Builder.BuildFile";
 const char BUILDSUBDIRCONTEXTMENU[] = "Qt4Builder.BuildSubDirContextMenu";
 const char REBUILDSUBDIRCONTEXTMENU[] = "Qt4Builder.RebuildSubDirContextMenu";
 const char CLEANSUBDIRCONTEXTMENU[] = "Qt4Builder.CleanSubDirContextMenu";
+const char BUILDFILECONTEXTMENU[] = "Qt4Builder.BuildFileContextMenu";
 const char ADDLIBRARY[] = "Qt4.AddLibrary";
 const char SEPARATOR[] = "Qt4.Separator";
 

@@ -101,6 +101,7 @@ private:
     QAction *m_subProjectRebuildSeparator;
     QAction *m_rebuildSubProjectContextMenu;
     QAction *m_cleanSubProjectContextMenu;
+    QAction *m_buildFileContextMenu;
     Utils::ParameterAction *m_buildSubProjectAction;
     Utils::ParameterAction *m_rebuildSubProjectAction;
     Utils::ParameterAction *m_cleanSubProjectAction;
