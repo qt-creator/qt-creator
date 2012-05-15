@@ -150,7 +150,7 @@ bool QmlCppEngine::setToolTipExpression(const QPoint & mousePos,
 void QmlCppEngine::updateWatchData(const WatchData &data,
     const WatchUpdateFlags &flags)
 {
-    if (data.iname.startsWith("inspect."))
+    if (data.isInspect())
         d->m_qmlEngine->updateWatchData(data, flags);
     else
         d->m_activeEngine->updateWatchData(data, flags);

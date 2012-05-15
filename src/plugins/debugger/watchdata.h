@@ -92,6 +92,7 @@ public:
 
     bool isLocal()   const { return iname.startsWith("local."); }
     bool isWatcher() const { return iname.startsWith("watch."); }
+    bool isInspect() const { return iname.startsWith("inspect."); }
     bool isValid()   const { return !iname.isEmpty(); }
     bool isVTablePointer() const;
 

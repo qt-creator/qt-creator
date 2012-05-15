@@ -1003,7 +1003,7 @@ void QmlEngine::updateWatchData(const WatchData &data,
     //watchHandler()->rebuildModel();
     //showStatusMessage(tr("Stopped."), 5000);
 
-    if (data.iname.startsWith("inspect.")) {
+    if (data.isInspect()) {
         m_inspectorAdapter.agent()->updateWatchData(data);
     } else {
         if (!data.name.isEmpty() && m_adapter.activeDebuggerClient()) {

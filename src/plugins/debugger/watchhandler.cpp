@@ -1377,7 +1377,7 @@ void WatchHandler::insertData(const WatchData &data)
     if (data.isSomethingNeeded() && data.iname.contains(".")) {
         MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
         if (!m_engine->isSynchronous()
-                || data.iname.startsWith("inspect.")) {
+                || data.isInspect()) {
             WatchModel *model = modelForIName(data.iname);
             QTC_ASSERT(model, return);
             model->insertData(data);
