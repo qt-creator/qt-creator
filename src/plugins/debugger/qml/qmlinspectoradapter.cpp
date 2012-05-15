@@ -193,7 +193,6 @@ void QmlInspectorAdapter::clientStatusChanged(QmlDebug::ClientStatus status)
 
 void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status)
 {
-    Core::ICore *core = Core::ICore::instance();
     Core::ActionManager *am = Core::ICore::actionManager();
     BaseToolsClient *client = qobject_cast<BaseToolsClient*>(sender());
     if (status == QmlDebug::Enabled) {
@@ -218,7 +217,7 @@ void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status
         am->registerAction(m_zoomAction, Core::Id(Constants::QML_ZOOMTOOL),
                            m_inspectorToolsContext);
 
-        core->updateAdditionalContexts(Core::Context(),
+        Core::ICore::updateAdditionalContexts(Core::Context(),
                                        m_inspectorToolsContext);
 
         Utils::SavedAction *action = debuggerCore()->action(QmlUpdateOnSave);
@@ -246,7 +245,7 @@ void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status
 
         m_selectAction->setChecked(false);
         m_zoomAction->setChecked(false);
-        core->updateAdditionalContexts(m_inspectorToolsContext,
+        Core::ICore::updateAdditionalContexts(m_inspectorToolsContext,
                                        Core::Context());
 
         Utils::SavedAction *action = debuggerCore()->action(QmlUpdateOnSave);
@@ -534,8 +533,7 @@ void QmlInspectorAdapter::gotoObjectReferenceDefinition(
 ObjectReference QmlInspectorAdapter::objectReferenceForLocation(
         const QString &fileName, int cursorPosition) const
 {
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    Core::IEditor *editor = editorManager->openEditor(fileName);
+    Core::IEditor *editor = Core::EditorManager::openEditor(fileName);
     TextEditor::ITextEditor *textEditor
             = qobject_cast<TextEditor::ITextEditor*>(editor);
 
