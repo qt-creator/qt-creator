@@ -883,8 +883,10 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
         return false;
 
     // add duplicates
+    QList<IEditor *> duplicates;
     foreach(IEditor *editor, acceptedEditors)
-        acceptedEditors += d->m_editorModel->duplicatesFor(editor);
+        duplicates += d->m_editorModel->duplicatesFor(editor);
+    acceptedEditors += duplicates;
 
     QList<EditorView*> closedViews;
 
@@ -914,8 +916,13 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
             activateEditor(view, newCurrent, NoActivate);
         } else {
             QModelIndex idx = d->m_editorModel->firstRestoredEditor();
-            if (idx.isValid())
+            if (idx.isValid()) {
                 activateEditorForIndex(view, idx, NoActivate);
+            } else {
+                const QList<IEditor *> editors = d->m_editorModel->editors();
+                if (!editors.isEmpty())
+                    activateEditor(view, editors.last(), NoActivate);
+            }
         }
     }
 
