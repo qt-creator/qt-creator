@@ -46,6 +46,7 @@
 #include <QUrl>
 #include <QTextStream>
 #include <QDesktopServices>
+#include <QTextStream>
 #include <QDebug>
 #include <QScopedPointer>
 #if QT_VERSION >= 0x050000
@@ -63,6 +64,33 @@ enum { debug = 0 };
 namespace Gerrit {
 namespace Internal {
 
+QDebug operator<<(QDebug d, const GerritApproval &a)
+{
+    d.nospace() << a.reviewer << " :" << a.approval << " ("
+                << a.type << ", " << a.description << ')';
+    return d;
+}
+
+// Sort approvals by type and reviewer
+bool gerritApprovalLessThan(const GerritApproval &a1, const GerritApproval &a2)
+{
+    return a1.type.compare(a2.type) < 0 || a1.reviewer.compare(a2.reviewer) < 0;
+}
+
+QDebug operator<<(QDebug d, const GerritPatchSet &p)
+{
+    d.nospace() << " Patch set: " << p.ref << ' ' << p.patchSetNumber
+                << ' ' << p.approvals;
+    return d;
+}
+
+QDebug operator<<(QDebug d, const GerritChange &c)
+{
+    d.nospace() << c.title << " by " << c.email
+                << ' ' << c.lastUpdated << ' ' <<  c.currentPatchSet;
+    return d;
+}
+
 // Format default Url for a change
 static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p, int gerritNumber)
 {
@@ -73,59 +101,108 @@ static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p, int 
     return result;
 }
 
-// Format approvals as "John Doe: -1, ...".
+// Format (sorted) approvals as separate HTML table
+// lines by type listing the revievers:
+// "<tr><td>Code Review</td><td>John Doe: -1, ...</tr><tr>...Sanity Review: ...".
 QString GerritPatchSet::approvalsToolTip() const
 {
+    if (approvals.isEmpty())
+        return QString();
+
     QString result;
-    if (const int approvalsCount = approvals.size()) {
-        const QString sepComma = QLatin1String(", ");
-        const QString sepColon = QLatin1String(": ");
-        for (int i = 0; i < approvalsCount; ++ i) {
-            if (i)
-                result += sepComma;
-            result += approvals.at(i).first;
-            result += sepColon;
-            result += QString::number(approvals.at(i).second);
+    QTextStream str(&result);
+    QString lastType;
+    foreach (const GerritApproval &a, approvals) {
+        if (a.type != lastType) {
+            if (!lastType.isEmpty())
+                str << "</tr>\n";
+            str << "<tr><td>"
+                << (a.description.isEmpty() ? a.type : a.description)
+                << "</td><td>";
+            lastType = a.type;
+        } else {
+            str << ", ";
         }
+        str << a.reviewer << ": " << a.approval;
+    }
+    str << "</tr>\n";
+    return result;
+}
+
+// Determine total approval level. Negative values take preference
+// and stay.
+static inline void applyApproval(int approval, int *total)
+{
+    if (approval < *total || (*total >= 0 && approval > *total))
+        *total = approval;
+}
+
+// Format the approvals similar to the columns in the Web view
+// by a type character followed by the approval level: "C: -2, S: 1"
+QString GerritPatchSet::approvalsColumn() const
+{
+    typedef QMap<QChar, int> TypeReviewMap;
+    typedef TypeReviewMap::iterator TypeReviewMapIterator;
+    typedef TypeReviewMap::const_iterator TypeReviewMapConstIterator;
+
+    QString result;
+    if (approvals.isEmpty())
+        return result;
+
+    TypeReviewMap reviews; // Sort approvals into a map by type character
+    foreach (const GerritApproval &a, approvals) {
+        if (a.type != QLatin1String("STGN")) { // Qt-Project specific: Ignore "STGN" (Staged)
+            const QChar typeChar = a.type.at(0);
+            TypeReviewMapIterator it = reviews.find(typeChar);
+            if (it == reviews.end())
+                it = reviews.insert(typeChar, 0);
+            applyApproval(a.approval, &it.value());
+        }
+    }
+
+    QTextStream str(&result);
+    const TypeReviewMapConstIterator cend = reviews.constEnd();
+    for (TypeReviewMapConstIterator it = reviews.constBegin(); it != cend; ++it) {
+        if (!result.isEmpty())
+            str << ' ';
+        str << it.key() << ": " << it.value();
     }
     return result;
 }
 
 bool GerritPatchSet::hasApproval(const QString &userName) const
 {
-    foreach (const Approval &a, approvals)
-        if (a.first == userName)
+    foreach (const GerritApproval &a, approvals)
+        if (a.reviewer == userName)
             return true;
     return false;
 }
 
-/* Return the approval level: Negative values take preference. */
 int GerritPatchSet::approvalLevel() const
 {
-    if (approvals.isEmpty())
-        return 0;
-
-    int maxLevel = -3;
-    int minLevel = 3;
-    foreach (const Approval &a, approvals) {
-        if (a.second > maxLevel)
-            maxLevel = a.second;
-        if (a.second < minLevel)
-            minLevel = a.second;
-    }
-    return minLevel < 0 ? minLevel : maxLevel;
+    int value = 0;
+    foreach (const GerritApproval &a, approvals)
+        applyApproval(a.approval, &value);
+    return value;
 }
 
 QString GerritChange::toolTip() const
 {
     static const QString format = GerritModel::tr(
-       "Subject: %1\nNumber: %2 Id: %3\nOwner: %4 <%5>\n"
-       "Project: %6 Branch: %7 Patch set: %8\nStatus: %9, %10\n"
-       "URL: %11\nApprovals: %12");
-    return format.arg(title).arg(number).arg(id, owner, email, project, branch)
+       "<html><head/><body><table>"
+       "<tr><td>Subject</td><td>%1</td></tr>"
+       "<tr><td>Number</td><td>%2"
+       "<tr><td>Owner</td><td>%3 &lt;%4&gt;</td></tr>"
+       "<tr><td>Project</td><td>%5 (%6)</td></tr>"
+       "<tr><td>Status</td><td>%7, %8</td></tr>"
+       "<tr><td>Patch set</td><td>%9</td></tr>"
+       "%10"
+       "<tr><td>URL</td><td>%11</td></tr>"
+       "</table></body></html>");
+    return format.arg(title).arg(number).arg(owner, email, project, branch)
+           .arg(status, lastUpdated.toString(Qt::DefaultLocaleShortDate))
            .arg(currentPatchSet.patchSetNumber)
-           .arg(status, lastUpdated.toString(Qt::DefaultLocaleShortDate),
-                url, currentPatchSet.approvalsToolTip());
+           .arg(currentPatchSet.approvalsToolTip(), url);
 }
 
 QString GerritChange::filterString() const
@@ -134,9 +211,9 @@ QString GerritChange::filterString() const
     QString result = QString::number(number) + blank + title + blank
             + owner + blank + project + blank
             + branch + blank + status;
-    foreach (const GerritPatchSet::Approval &a, currentPatchSet.approvals) {
+    foreach (const GerritApproval &a, currentPatchSet.approvals) {
         result += blank;
-        result += a.first;
+        result += a.reviewer;
     }
     return result;
 }
@@ -428,6 +505,9 @@ static QList<GerritChangePtr> parseOutput(const QSharedPointer<GerritParameters>
     const QString approvalsByKey = QLatin1String("by");
     const QString lastUpdatedKey = QLatin1String("lastUpdated");
     const QList<QByteArray> lines = output.split('\n');
+    const QString approvalsTypeKey = QLatin1String("type");
+    const QString approvalsDescriptionKey = QLatin1String("description");
+
     QList<GerritChangePtr> result;
     result.reserve(lines.size());
 
@@ -454,10 +534,16 @@ static QList<GerritChangePtr> parseOutput(const QSharedPointer<GerritParameters>
         const int ac = approvalsJ.size();
         for (int a = 0; a < ac; ++a) {
             const QJsonObject ao = approvalsJ.at(a).toObject();
-            const int value = ao.value(approvalsValueKey).toString().toInt();
-            const QString by = ao.value(approvalsByKey).toObject().value(ownerNameKey).toString();
-            change->currentPatchSet.approvals.push_back(GerritChange::Approval(by, value));
+            GerritApproval a;
+            a.reviewer = ao.value(approvalsByKey).toObject().value(ownerNameKey).toString();
+            a.approval = ao.value(approvalsValueKey).toString().toInt();
+            a.type = ao.value(approvalsTypeKey).toString();
+            a.description = ao.value(approvalsDescriptionKey).toString();
+            change->currentPatchSet.approvals.push_back(a);
         }
+        qStableSort(change->currentPatchSet.approvals.begin(),
+                    change->currentPatchSet.approvals.end(),
+                    gerritApprovalLessThan);
         // Remaining
         change->number = object.value(numberKey).toString().toInt();
         change->url = object.value(urlKey).toString();
@@ -531,6 +617,8 @@ static QList<GerritChangePtr> parseOutput(const QSharedPointer<GerritParameters>
     const QString approvalsKey = QLatin1String("approvals");
     const QString approvalsValueKey = QLatin1String("value");
     const QString approvalsByKey = QLatin1String("by");
+    const QString approvalsTypeKey = QLatin1String("type");
+    const QString approvalsDescriptionKey = QLatin1String("description");
     const QString lastUpdatedKey = QLatin1String("lastUpdated");
     QList<GerritChangePtr> result;
     result.reserve(lines.size());
@@ -538,7 +626,7 @@ static QList<GerritChangePtr> parseOutput(const QSharedPointer<GerritParameters>
     foreach (const QByteArray &line, lines) {
         if (line.isEmpty())
             continue;
-        QScopedPointer<Utils::JsonValue> objectValue(Utils::JsonValue::create(QString::fromAscii(line)));
+        QScopedPointer<Utils::JsonValue> objectValue(Utils::JsonValue::create(QString::fromUtf8(line)));
         if (objectValue.isNull()) {
             qWarning("Parse error: '%s'", line.constData());
             continue;
@@ -569,8 +657,16 @@ static QList<GerritChangePtr> parseOutput(const QSharedPointer<GerritParameters>
                         QTC_ASSERT(byO, break );
                         by = jsonStringMember(byO, ownerNameKey);
                     }
-                    change->currentPatchSet.approvals.push_back(GerritChange::Approval(by, value));
+                    GerritApproval a;
+                    a.reviewer = by;
+                    a.approval = value;
+                    a.type = jsonStringMember(oc, approvalsTypeKey);
+                    a.description = jsonStringMember(oc, approvalsDescriptionKey);
+                    change->currentPatchSet.approvals.push_back(a);
                 }
+                qStableSort(change->currentPatchSet.approvals.begin(),
+                            change->currentPatchSet.approvals.end(),
+                            gerritApprovalLessThan);
             }
         } // patch set
         // Remaining
@@ -598,6 +694,11 @@ static QList<GerritChangePtr> parseOutput(const QSharedPointer<GerritParameters>
         } else {
             qWarning("%s: Parse error in line '%s'.", Q_FUNC_INFO, line.constData());
         }
+    }
+    if (debug) {
+        qDebug() << __FUNCTION__;
+        foreach (const GerritChangePtr &p, result)
+            qDebug() << *p;
     }
     return result;
 }
@@ -641,13 +742,7 @@ void GerritModel::queryFinished(const QByteArray &output)
                 project += QLatin1String(" (") + c->branch  + QLatin1Char(')');
             row[ProjectColumn]->setText(project);
             row[StatusColumn]->setText(c->status);
-            QString approvals;
-            foreach (const GerritChange::Approval &a, c->currentPatchSet.approvals) {
-                if (!approvals.isEmpty())
-                    approvals.append(QLatin1String(", "));
-                approvals.append(QString::number(a.second));
-            }
-            row[ApprovalsColumn]->setText(approvals);
+            row[ApprovalsColumn]->setText(c->currentPatchSet.approvalsColumn());
             // Mark changes awaiting action using a bold font.
             bool bold = false;
             switch (m_query->currentQuery()) {

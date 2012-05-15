@@ -48,25 +48,32 @@ namespace Internal {
 class GerritParameters;
 class QueryContext;
 
+class GerritApproval {
+public:
+    GerritApproval() : approval(-1) {}
+
+    QString type; // Review type
+    QString description; // Type description, possibly empty
+    QString reviewer;
+    int approval;
+};
+
 class GerritPatchSet {
 public:
-     typedef QPair<QString, int> Approval;
-
     GerritPatchSet() : patchSetNumber(1) {}
     QString approvalsToolTip() const;
+    QString approvalsColumn() const;
     bool hasApproval(const QString &userName) const;
     int approvalLevel() const;
 
     QString ref;
     int patchSetNumber;
-    QList<Approval> approvals;
+    QList<GerritApproval> approvals;
 };
 
 class GerritChange
 {
 public:
-    typedef QPair<QString, int> Approval;
-
     GerritChange() : number(0) {}
 
     bool isValid() const { return number && !url.isEmpty() && !project.isEmpty(); }
