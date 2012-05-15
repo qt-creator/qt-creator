@@ -538,11 +538,11 @@
     instead of backslashes (\\) even on Windows. To pass a file name from the user
     to the API, convert it with QDir::fromNativeSeparators first. To present a file
     name to the user, convert it back to native format with
-    QDir::toNativeSeparators.
+    QDir::toNativeSeparators. Consider using Utils::FileName::fromUserInput(QString)
+    and Utils::FileName::toUserOutput() for these tasks.
 
-    When comparing file names, consider using DocumentManager::fixFileName which
-    makes sure that paths are clean and absolute and also takes Windows
-    case-insensitivity into account (even if it is an expensive operation).
+    Use Utils::FileName when comparing file names, because that takes case sensitivity into account.
+    Also make sure that you compare clean paths (QDir::cleanPath()).
 
     \section2 Plugin Extension Points
 
