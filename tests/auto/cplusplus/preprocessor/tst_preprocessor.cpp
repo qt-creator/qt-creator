@@ -677,6 +677,8 @@ void tst_Preprocessor::comparisons_data()
         << "macro_pounder_fn.c" << "" << "";
     QTest::newRow("macro_expand")
         << "macro_expand.c" << "macro_expand.out.c" << "";
+    QTest::newRow("macro_expand_1")
+        << "macro_expand_1.cpp" << "macro_expand_1.out.cpp" << "";
     QTest::newRow("macro-test")
         << "macro-test.cpp" << "macro-test.out.cpp" << "";
     QTest::newRow("empty-macro")
