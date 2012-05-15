@@ -1014,7 +1014,7 @@ void SubversionPlugin::projectStatus()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
-    svnStatus(state.currentFileTopLevel(), state.relativeCurrentProject());
+    svnStatus(state.currentProjectTopLevel(), state.relativeCurrentProject());
 }
 
 void SubversionPlugin::describe(const QString &source, const QString &changeNr)
