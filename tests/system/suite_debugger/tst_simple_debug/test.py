@@ -5,7 +5,7 @@ workingDir = None
 def main():
     global workingDir
     startApplication("qtcreator" + SettingsPath)
-    if not checkDebuggingLibrary("4.8.0", [QtQuickConstants.Targets.DESKTOP]):
+    if not checkDebuggingLibrary("4.7.4", [QtQuickConstants.Targets.DESKTOP]):
         test.fatal("Error while checking debugging libraries - leaving this test.")
         invokeMenuItem("File", "Exit")
         return
@@ -20,23 +20,27 @@ def main():
     if placeCursorToLine(editor, "MouseArea.*", True):
         type(editor, '<Up>')
         type(editor, '<Return>')
-        type(editor, 'Component.onCompleted: console.log("Break here")')
+        typeLines(editor, ['Timer {',
+                           'interval: 1000',
+                           'running: true',
+                           'onTriggered: console.log("Break here")'])
         invokeMenuItem("File", "Save All")
         filesAndLines = {
-                         "%s.QML.qml/%s.main\\.qml" % (projectName,projectName) : 'Component.onCompleted.*',
+                         "%s.QML.qml/%s.main\\.qml" % (projectName,projectName) : 'onTriggered:.*',
                          "%s.Sources.main\\.cpp" % projectName : "viewer.setOrientation\\(.+\\);"
                          }
         test.log("Setting breakpoints")
         result = setBreakpointsForCurrentProject(filesAndLines)
         if result:
-            expectedBreakpointsOrder = [{"main.cpp":9}, {"main.qml":11}]
-            availableConfigs = iterateBuildConfigs(1, 0, ".*4\.8(\.\d+)?.*$(?<![Rr]elease)")
+            expectedBreakpointsOrder = [{"main.cpp":9}, {"main.qml":14}]
+            # Only use 4.7.4 to work around QTBUG-25187
+            availableConfigs = iterateBuildConfigs(1, 0, ".*4\.7\.4.*$(?<![Rr]elease)")
             if not availableConfigs:
-                test.fatal("Haven't found a suitable Qt version (need Qt >= 4.8) - leaving without debugging.")
+                test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
             for config in availableConfigs:
                 test.log("Selecting '%s' as build config" % config)
                 selectBuildConfig(1, 0, config)
-                verifyBuildConfig(1, 0, True)
+                verifyBuildConfig(1, 0, True, enableQmlDebug=True)
                 # explicitly build before start debugging for adding the executable as allowed program to WinFW
                 invokeMenuItem("Build", "Rebuild All")
                 waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}",

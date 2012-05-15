@@ -1,16 +1,8 @@
-source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
+source("../shared/qmls.py")
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
-    # create qt quick application
-    createNewQtQuickApplication(tempDir(), "SampleApp")
-    # open qml file
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", "SampleApp.QML.qml/SampleApp.main\\.qml", 5, 5, 0, Qt.LeftButton)
-    # get editor
-    editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
-    if not placeCursorToLine(editorArea, "Text {"):
-        invokeMenuItem("File", "Exit")
+    editorArea = startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp", "Text {")
+    if not editorArea:
         return
     # write code with error (C should be lower case)
     testingCodeLine = 'Color : "blue"'

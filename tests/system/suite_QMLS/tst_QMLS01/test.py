@@ -1,5 +1,4 @@
-source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
+source("../shared/qmls.py")
 
 # go to proper line, make backup, type needed text
 def __beginTestSuggestions__(editorArea, lineText, textToType):
@@ -84,11 +83,8 @@ def saveAndExit():
     invokeMenuItem("File", "Exit")
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
-    # create qt quick application
-    createNewQtQuickApplication(tempDir(), "SampleApp")
-    # open qml file
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", "SampleApp.QML.qml/SampleApp.main\\.qml", 5, 5, 0, Qt.LeftButton)
+    if not startQtCreatorWithNewAppAtQMLEditor(tempDir(), "SampleApp"):
+        return
     # test "color: " suggestion usage with Enter key
     if not testSuggestionsAuto("Text {", "col", "color:", "<Return>"):
         saveAndExit()

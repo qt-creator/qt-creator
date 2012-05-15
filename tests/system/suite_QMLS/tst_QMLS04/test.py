@@ -1,18 +1,9 @@
-source("../../shared/qtcreator.py")
-source("../../shared/suites_qtta.py")
+source("../shared/qmls.py")
 
 def main():
-    startApplication("qtcreator" + SettingsPath)
-    # create qt quick application
     projectDir = tempDir()
-    createNewQtQuickApplication(projectDir, "SampleApp")
-    # open qml file
-    doubleClickItem(":Qt Creator_Utils::NavigationTreeView", "SampleApp.QML.qml/SampleApp.main\\.qml", 5, 5, 0, Qt.LeftButton)
-    # get editor
-    editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
-    # place cursor to component
-    if not placeCursorToLine(editorArea, "Text {"):
-        invokeMenuItem("File", "Exit")
+    editorArea = startQtCreatorWithNewAppAtQMLEditor(projectDir, "SampleApp", "Text {")
+    if not editorArea:
         return
     moveTextCursor(editorArea, QTextCursor.Left, QTextCursor.MoveAnchor, 5)
     # invoke Refactoring - Move Component into separate file
