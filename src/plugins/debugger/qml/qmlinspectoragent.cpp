@@ -41,6 +41,7 @@
 #include <qmldebug/qmldebugconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
+#include <QElapsedTimer>
 
 using namespace QmlDebug;
 
@@ -580,10 +581,20 @@ void QmlInspectorAgent::objectTreeFetched(const ObjectReference &object)
         foreach (const ObjectReference &obj, m_rootObjects)
             watchData.append(buildWatchData(obj, WatchData()));
 
+        QElapsedTimer t;
+        if (debug) {
+            t.start();
+            qDebug() << "inserting " << watchData.size()
+                     << "entries into watch handler ...";
+        }
+
         WatchHandler *watchHandler = m_engine->watchHandler();
         watchHandler->beginCycle(InspectWatch, true);
         watchHandler->insertBulkData(watchData);
         watchHandler->endCycle(InspectWatch);
+
+        if (debug)
+            qDebug() << "inserting entries took" << t.elapsed() << "ms";
     }
 }
 
