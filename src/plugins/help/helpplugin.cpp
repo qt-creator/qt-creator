@@ -133,6 +133,8 @@ HelpPlugin::HelpPlugin()
     m_bookmarkItem(0),
     m_sideBar(0),
     m_firstModeChange(true),
+    m_helpManager(0),
+    m_openPagesManager(0),
     m_oldMode(0),
     m_connectWindow(true),
     m_externalWindow(0),
@@ -144,7 +146,11 @@ HelpPlugin::HelpPlugin()
 
 HelpPlugin::~HelpPlugin()
 {
+    delete m_centralWidget;
+    delete m_openPagesManager;
     delete m_rightPaneSideBarWidget;
+
+    delete m_helpManager;
 }
 
 bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
@@ -169,8 +175,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
             qApp->installTranslator(qhelptr);
     }
 
-    addAutoReleasedObject(m_helpManager = new LocalHelpManager(this));
-    addAutoReleasedObject(m_openPagesManager = new OpenPagesManager(this));
+    m_helpManager = new LocalHelpManager(this);
+    m_openPagesManager = new OpenPagesManager(this);
     addAutoReleasedObject(m_docSettingsPage = new DocSettingsPage());
     addAutoReleasedObject(m_filterSettingsPage = new FilterSettingsPage());
     addAutoReleasedObject(m_generalSettingsPage = new GeneralSettingsPage());
