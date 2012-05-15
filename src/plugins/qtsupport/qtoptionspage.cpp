@@ -642,12 +642,15 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
 static QString filterForQmakeFileDialog()
 {
     QString filter = QLatin1String("qmake (");
-    foreach (const QString &s, Utils::BuildableHelperLibrary::possibleQMakeCommands()) {
+    const QStringList commands = Utils::BuildableHelperLibrary::possibleQMakeCommands();
+    for (int i = 0; i < commands.size(); ++i) {
+        if (i)
+            filter += QLatin1Char(' ');
 #ifdef Q_OS_MAC
         // work around QTBUG-7739 that prohibits filters that don't start with *
         filter += QLatin1Char('*');
 #endif
-        filter += s + QLatin1Char(' ');
+        filter += commands.at(i);
     }
     filter += QLatin1Char(')');
     return filter;
