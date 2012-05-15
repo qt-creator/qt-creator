@@ -8,6 +8,10 @@ HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator)
 
 VERSION_TAG = $$replace(QTCREATOR_VERSION, "[-.]", )
 
+# unset the installdir for qdoc, so we force generation
+# of URLs for the links to the Qt documentation
+QMAKE_DOCS_INSTALLDIR =
+
 defineReplace(qdoc) {
     equals(QMAKE_DIR_SEP, /) {   # unix, mingw+msys
         QDOC = SRCDIR=$$PWD OUTDIR=$$1 QTC_VERSION=$$QTCREATOR_VERSION QTC_VERSION_TAG=$$VERSION_TAG $$QDOC_BIN
