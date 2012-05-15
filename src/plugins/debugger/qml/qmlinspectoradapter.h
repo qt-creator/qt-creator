@@ -114,6 +114,7 @@ private:
     void selectObject(
             const QmlDebug::ObjectReference &objectReference,
             SelectionTarget target);
+    void deletePreviews();
 
 
     QmlAdapter *m_debugAdapter;
@@ -142,6 +143,8 @@ private:
     Core::Context m_inspectorToolsContext;
     QAction *m_selectAction;
     QAction *m_zoomAction;
+
+    bool m_engineClientConnected;
 };
 
 } // namespace Internal

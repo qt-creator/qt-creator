@@ -98,6 +98,7 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     , m_inspectorToolsContext("Debugger.QmlInspector")
     , m_selectAction(new QAction(this))
     , m_zoomAction(new QAction(this))
+    , m_engineClientConnected(false)
 {
     connect(m_agent, SIGNAL(objectFetched(QmlDebug::ObjectReference)),
             SLOT(onObjectFetched(QmlDebug::ObjectReference)));
@@ -260,13 +261,17 @@ void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status
 
 void QmlInspectorAdapter::engineClientStatusChanged(QmlDebug::ClientStatus status)
 {
-    if (status != QmlDebug::Enabled)
-        return;
-
     BaseEngineDebugClient *client
             = qobject_cast<BaseEngineDebugClient*>(sender());
-    QTC_ASSERT(client, return);
-    setActiveEngineClient(client);
+
+    if (status == QmlDebug::Enabled) {
+        QTC_ASSERT(client, return);
+        setActiveEngineClient(client);
+    } else if (m_engineClientConnected &&
+               (client == m_engineClient)) {
+        m_engineClientConnected = false;
+        deletePreviews();
+    }
 }
 
 void QmlInspectorAdapter::selectObjectsFromEditor(const QList<int> &debugIds)
@@ -332,6 +337,9 @@ void QmlInspectorAdapter::onObjectTreeUpdated()
 
 void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
 {
+    if (!m_engineClientConnected)
+        return;
+
     if (newEditor && newEditor->id()
             != QmlJSEditor::Constants::C_QMLJSEDITOR_ID)
         return;
@@ -455,7 +463,7 @@ void QmlInspectorAdapter::setActiveEngineClient(BaseEngineDebugClient *client)
 
     m_engineClient = client;
     m_agent->setEngineClient(m_engineClient);
-
+    m_engineClientConnected = true;
 
     if (m_engineClient &&
             m_engineClient->status() == QmlDebug::Enabled) {
@@ -607,6 +615,12 @@ void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
     m_currentSelectedDebugId = obj.debugId();
     m_currentSelectedDebugName = displayName(obj);
     emit selectionChanged();
+}
+
+void QmlInspectorAdapter::deletePreviews()
+{
+    foreach (const QString &key, m_textPreviews.keys())
+        delete m_textPreviews.take(key);
 }
 
 void QmlInspectorAdapter::onReload()
