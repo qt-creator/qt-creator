@@ -264,7 +264,7 @@ void EditorView::setCurrentEditor(IEditor *editor)
         || m_container->indexOf(editor->widget()) == -1) {
         m_toolBar->updateEditorStatus(0);
         m_infoBarDisplay->setInfoBar(0);
-        // ### TODO the combo box m_editorList should show an empty item
+        QTC_CHECK(m_container->count() == 0);
         return;
     }
 

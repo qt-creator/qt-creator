@@ -51,7 +51,6 @@ public:
 
     QString title() const;
     void setTitle(const QString &title);
-    // TODO rename setError
     void setError(bool on);
     bool hasError() const;
     QSize sizeHint() const;

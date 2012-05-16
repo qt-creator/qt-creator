@@ -273,13 +273,6 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
     case ItemDataRoles::IsGeneratedRole:
         result = row->isGenerated();
         break;
-// TODO this looks stupid in case of symbol tree, is it necessary?
-//    case Qt::BackgroundRole:
-//        if (row->parent() && row->parent()->parent())
-//            result = QVariant();
-//        else
-//            result = QApplication::palette().base().color().darker(105);
-//        break;
     default:
         result = QVariant();
         break;

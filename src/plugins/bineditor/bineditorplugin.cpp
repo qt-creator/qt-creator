@@ -375,8 +375,8 @@ public:
     bool duplicateSupported() const { return false; }
     IEditor *duplicate(QWidget * /* parent */) { return 0; }
 
-    QByteArray saveState() const { return QByteArray(); } // TODO
-    bool restoreState(const QByteArray & /* state */) { return false; } // TODO
+    QByteArray saveState() const { return QByteArray(); } // not supported
+    bool restoreState(const QByteArray & /* state */) { return false; }  // not supported
 
     QWidget *toolBar() { return m_toolBar; }
 

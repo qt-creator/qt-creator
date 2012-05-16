@@ -182,7 +182,7 @@ void RightPaneWidget::readSettings(QSettings *settings)
     if (settings->contains(QLatin1String("RightPane/Visible"))) {
         setShown(settings->value(QLatin1String("RightPane/Visible")).toBool());
     } else {
-        setShown(false); //TODO set to false
+        setShown(false);
     }
 
     if (settings->contains(QLatin1String("RightPane/Width"))) {

@@ -1588,7 +1588,7 @@ bool EditorManager::saveDocumentAs(IDocument *documentParam)
     const bool success = DocumentManager::saveDocument(document, absoluteFilePath);
     document->checkPermissions();
 
-    // @todo: There is an issue to be treated here. The new file might be of a different mime
+    // TODO: There is an issue to be treated here. The new file might be of a different mime
     // type than the original and thus require a different editor. An alternative strategy
     // would be to close the current editor and open a new appropriate one, but this is not
     // a good way out either (also the undo stack would be lost). Perhaps the best is to

@@ -64,7 +64,7 @@ struct FancyMainWindowPrivate
     FancyMainWindowPrivate();
 
     bool m_locked;
-    bool m_handleDockVisibilityChanges; //todo
+    bool m_handleDockVisibilityChanges;
 
     QAction m_menuSeparator1;
     QAction m_toggleLockedAction;
