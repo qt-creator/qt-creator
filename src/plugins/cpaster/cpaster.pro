@@ -18,7 +18,8 @@ HEADERS += cpasterplugin.h \
     columnindicatortextedit.h \
     fileshareprotocol.h \
     fileshareprotocolsettingspage.h \
-    kdepasteprotocol.h
+    kdepasteprotocol.h \
+    urlopenprotocol.h
 
 SOURCES += cpasterplugin.cpp \
     settingspage.cpp \
@@ -33,7 +34,8 @@ SOURCES += cpasterplugin.cpp \
     columnindicatortextedit.cpp \
     fileshareprotocol.cpp \
     fileshareprotocolsettingspage.cpp \
-    kdepasteprotocol.cpp
+    kdepasteprotocol.cpp \
+    urlopenprotocol.cpp
 
 FORMS += settingspage.ui \
     pasteselect.ui \

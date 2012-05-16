@@ -85,6 +85,7 @@ public slots:
                      bool error);
 
     void post(QString data, const QString &mimeType);
+    void fetchUrl();
 private:
 
     static CodepasterPlugin *m_instance;
@@ -92,8 +93,10 @@ private:
     QAction *m_postEditorAction;
     QAction *m_postClipboardAction;
     QAction *m_fetchAction;
+    QAction *m_fetchUrlAction;
     QList<Protocol*> m_protocols;
     QStringList m_fetchedSnippets;
+    Protocol *m_urlOpen;
 };
 
 } // namespace CodePaster

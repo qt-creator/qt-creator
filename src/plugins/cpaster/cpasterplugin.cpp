@@ -42,6 +42,7 @@
 #include "pasteselectdialog.h"
 #include "settingspage.h"
 #include "settings.h"
+#include "urlopenprotocol.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -66,6 +67,8 @@
 #include <QClipboard>
 #include <QMenu>
 #include <QMainWindow>
+#include <QInputDialog>
+#include <QUrl>
 
 using namespace Core;
 using namespace TextEditor;
@@ -152,6 +155,10 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
         m_protocols.append(protos[i]);
     }
 
+    m_urlOpen = new UrlOpenProtocol(networkAccessMgrProxy);
+    connect(m_urlOpen, SIGNAL(fetchDone(QString,QString,bool)),
+            this, SLOT(finishFetch(QString,QString,bool)));
+
     //register actions
     Core::ActionManager *actionManager = ICore::actionManager();
 
@@ -180,6 +187,11 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
     command = actionManager->registerAction(m_fetchAction, "CodePaster.Fetch", globalcontext);
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+F")));
     connect(m_fetchAction, SIGNAL(triggered()), this, SLOT(fetch()));
+    cpContainer->addAction(command);
+
+    m_fetchUrlAction = new QAction(tr("Fetch from URL..."), this);
+    command = actionManager->registerAction(m_fetchUrlAction, "CodePaster.FetchUrl", globalcontext);
+    connect(m_fetchUrlAction, SIGNAL(triggered()), this, SLOT(fetchUrl()));
     cpContainer->addAction(command);
 
     addAutoReleasedObject(new CodePasterService);
@@ -266,6 +278,18 @@ void CodepasterPlugin::post(QString data, const QString &mimeType)
         m_settings->protocol = view.protocol();
         m_settings->toSettings(Core::ICore::settings());
     }
+}
+
+void CodepasterPlugin::fetchUrl()
+{
+    QUrl url;
+    do {
+        bool ok = true;
+        url = QUrl(QInputDialog::getText(0, tr("Fetch from URL"), tr("Enter URL:"), QLineEdit::Normal, QString(), &ok));
+        if (!ok)
+            return;
+    } while (!url.isValid());
+    m_urlOpen->fetch(url.toString());
 }
 
 void CodepasterPlugin::fetch()
