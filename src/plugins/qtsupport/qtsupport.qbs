@@ -84,6 +84,7 @@ QtcPlugin {
 
     ProductModule {
         Depends { name: "cpp" }
+        cpp.includePaths: [ "../../shared" ]
         cpp.defines: [
             "PROPARSER_AS_LIBRARY",
             "PROPARSER_LIBRARY",
