@@ -130,6 +130,7 @@ protected:
 signals:
     void removeItem();
     void dirtyChanged(bool b);
+    void itemActivated(const QString &fileName);
     void showContextMenu(const QPoint &globalPos, const QString &fileName);
 
 public:
@@ -137,6 +138,7 @@ public:
     void changeValue(const QModelIndex &nodeIndex, NodeProperty property, const QString &value);
 
 private slots:
+    void itemActivated(const QModelIndex &index);
     void showContextMenu(const QPoint &pos);
 
 private:

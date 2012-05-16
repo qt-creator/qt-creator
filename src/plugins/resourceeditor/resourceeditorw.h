@@ -108,6 +108,8 @@ private slots:
     void onUndoStackChanged(bool canUndo, bool canRedo);
     void setShouldAutoSave(bool sad = true) { m_shouldAutoSave = sad; }
     void showContextMenu(const QPoint &globalPoint, const QString &fileName);
+    void openCurrentFile();
+    void openFile(const QString &fileName);
 
 private:
     const QString m_extension;
@@ -121,6 +123,7 @@ private:
     bool m_diskIo;
     QMenu *m_contextMenu;
     QMenu *m_openWithMenu;
+    QString m_currentFileName;
 
 public:
     void onUndo();

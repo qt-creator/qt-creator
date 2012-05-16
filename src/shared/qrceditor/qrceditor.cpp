@@ -66,6 +66,8 @@ QrcEditor::QrcEditor(QWidget *parent)
     connect(m_treeview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(updateCurrent()));
     connect(m_treeview, SIGNAL(dirtyChanged(bool)), this, SIGNAL(dirtyChanged(bool)));
+    connect(m_treeview, SIGNAL(itemActivated(QString)),
+            this, SIGNAL(itemActivated(QString)));
     connect(m_treeview, SIGNAL(showContextMenu(QPoint,QString)),
             this, SIGNAL(showContextMenu(QPoint,QString)));
     m_treeview->setFocus();

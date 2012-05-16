@@ -190,6 +190,8 @@ ResourceView::ResourceView(QUndoStack *history, QWidget *parent) :
         this, SIGNAL(dirtyChanged(bool)));
     connect(this, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(showContextMenu(QPoint)));
+    connect(this, SIGNAL(activated(QModelIndex)),
+            this, SLOT(itemActivated(QModelIndex)));
 }
 
 ResourceView::~ResourceView()
@@ -430,6 +432,14 @@ void ResourceView::changeValue(const QModelIndex &nodeIndex, NodeProperty proper
     case LanguageProperty: m_qrcModel->changeLang(nodeIndex, value); return;
     default: Q_ASSERT(false);
     }
+}
+
+void ResourceView::itemActivated(const QModelIndex &index)
+{
+    const QString fileName = m_qrcModel->file(index);
+    if (fileName.isEmpty())
+        return;
+    emit itemActivated(fileName);
 }
 
 void ResourceView::showContextMenu(const QPoint &pos)
