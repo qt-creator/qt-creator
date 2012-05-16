@@ -57,7 +57,8 @@
 namespace Gerrit {
 namespace Internal {
 
-enum { layoutSpacing  = 5 };
+static const int layoutSpacing  = 5;
+static const int maxTitleWidth = 350;
 
 GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
                            QWidget *parent)
@@ -131,7 +132,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     slotCurrentChanged();
     m_model->refresh();
 
-    resize(QSize(1200, 600));
+    resize(QSize(950, 600));
 }
 
 QPushButton *GerritDialog::addActionButton(const QString &text, const char *buttonSlot)
@@ -153,9 +154,12 @@ void GerritDialog::slotDoubleClicked(const QModelIndex &i)
 
 void GerritDialog::slotRefreshStateChanged(bool v)
 {
-    if (!v && m_model->rowCount())
+    if (!v && m_model->rowCount()) {
         for (int c = 0; c < GerritModel::ColumnCount; ++c)
             m_treeView->resizeColumnToContents(c);
+        if (m_treeView->columnWidth(GerritModel::TitleColumn) > maxTitleWidth)
+            m_treeView->setColumnWidth(GerritModel::TitleColumn, maxTitleWidth);
+    }
 }
 
 void GerritDialog::slotFetchDisplay()
