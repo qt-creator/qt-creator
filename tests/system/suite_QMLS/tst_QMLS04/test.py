@@ -9,10 +9,15 @@ def main():
     # invoke Refactoring - Move Component into separate file
     ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
     activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Refactoring"))
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Move Component into separate file"))
+    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Move Component into Separate File"))
     # give component name and proceed
     replaceEditorContent(waitForObject(":Dialog.componentNameEdit_QLineEdit"), "MyComponent")
     clickButton(waitForObject(":Dialog.OK_QPushButton"))
+    try:
+        waitForObject(":Add to Version Control_QMessageBox", 5000)
+        clickButton(waitForObject(":Add to Version Control.No_QPushButton"))
+    except:
+        pass
     # verify if refactoring is done correctly
     waitFor("'MyComponent' in str(editorArea.plainText)", 2000)
     codeText = str(editorArea.plainText)
