@@ -55,13 +55,14 @@ public:
     QString type; // Review type
     QString description; // Type description, possibly empty
     QString reviewer;
+    QString email;
     int approval;
 };
 
 class GerritPatchSet {
 public:
     GerritPatchSet() : patchSetNumber(1) {}
-    QString approvalsToolTip() const;
+    QString approvalsToHtml() const;
     QString approvalsColumn() const;
     bool hasApproval(const QString &userName) const;
     int approvalLevel() const;
@@ -77,7 +78,7 @@ public:
     GerritChange() : number(0) {}
 
     bool isValid() const { return number && !url.isEmpty() && !project.isEmpty(); }
-    QString toolTip() const;
+    QString toHtml() const;
     QString filterString() const;
     QStringList gitFetchArguments(const QSharedPointer<GerritParameters> &p) const;
 

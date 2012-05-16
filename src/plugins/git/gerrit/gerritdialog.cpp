@@ -38,13 +38,17 @@
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QSplitter>
 #include <QSpacerItem>
+#include <QLabel>
+#include <QTextBrowser>
 #include <QTreeView>
 #include <QHeaderView>
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QDesktopServices>
 #include <QSortFilterProxyModel>
+#include <QGroupBox>
 #include <QUrl>
 #include <QClipboard>
 #include <QApplication>
@@ -53,6 +57,8 @@
 namespace Gerrit {
 namespace Internal {
 
+enum { layoutSpacing  = 5 };
+
 GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
                            QWidget *parent)
     : QDialog(parent)
@@ -60,21 +66,26 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_filterModel(new QSortFilterProxyModel(this))
     , m_model(new GerritModel(p, this))
     , m_treeView(new QTreeView)
+    , m_detailsBrowser(new QTextBrowser)
     , m_filterLineEdit(new Utils::FilterLineEdit)
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Close))
 {
     setWindowTitle(tr("Gerrit %1@%2").arg(p->user, p->host));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    QVBoxLayout *l = new QVBoxLayout(this);
-    QHBoxLayout *hl = new QHBoxLayout;
-    hl->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
+
+    QGroupBox *changesGroup = new QGroupBox(tr("Changes"));
+    QVBoxLayout *changesLayout = new QVBoxLayout(changesGroup);
+    changesLayout->setMargin(layoutSpacing);
+    QHBoxLayout *filterLayout = new QHBoxLayout;
+    filterLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
     m_filterLineEdit->setFixedWidth(300);
-    hl->addWidget(m_filterLineEdit);
+    filterLayout->addWidget(m_filterLineEdit);
     connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
             m_filterModel, SLOT(setFilterFixedString(QString)));
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    l->addLayout(hl);
-    l->addWidget(m_treeView);
+    changesLayout->addLayout(filterLayout);
+    changesLayout->addWidget(m_treeView);
+
     m_filterModel->setSourceModel(m_model);
     m_filterModel->setFilterRole(GerritModel::FilterRole);
     m_treeView->setModel(m_filterModel);
@@ -85,11 +96,17 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
 
     QItemSelectionModel *selectionModel = m_treeView->selectionModel();
     connect(selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(slotEnableButtons()));
+            this, SLOT(slotCurrentChanged()));
     connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(slotDoubleClicked(QModelIndex)));
-    m_openButton = addActionButton(tr("Open"), SLOT(slotOpenBrowser()));
-    m_copyUrlButton = addActionButton(tr("Copy URL"), SLOT(slotCopyUrl()));
+
+    QGroupBox *detailsGroup = new QGroupBox(tr("Details"));
+    QVBoxLayout *detailsLayout = new QVBoxLayout(detailsGroup);
+    detailsLayout->setMargin(layoutSpacing);
+    m_detailsBrowser->setOpenExternalLinks(true);
+    m_detailsBrowser->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    detailsLayout->addWidget(m_detailsBrowser);
+
     m_displayButton = addActionButton(tr("Diff..."), SLOT(slotFetchDisplay()));
     m_applyButton = addActionButton(tr("Apply..."), SLOT(slotFetchApply()));
     m_checkoutButton = addActionButton(tr("Checkout..."), SLOT(slotFetchCheckout()));
@@ -99,14 +116,22 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
             m_refreshButton, SLOT(setDisabled(bool)));
     connect(m_model, SIGNAL(refreshStateChanged(bool)),
             this, SLOT(slotRefreshStateChanged(bool)));
-    l->addWidget(m_buttonBox);
     connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    slotEnableButtons();
+    QSplitter *splitter = new QSplitter(Qt::Vertical, this);
+    splitter->addWidget(changesGroup);
+    splitter->addWidget(detailsGroup);
+    splitter->setSizes(QList<int>() <<  400 << 200);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(splitter);
+    mainLayout->addWidget(m_buttonBox);
+
+    slotCurrentChanged();
     m_model->refresh();
 
-    resize(QSize(1200, 400));
+    resize(QSize(1200, 600));
 }
 
 QPushButton *GerritDialog::addActionButton(const QString &text, const char *buttonSlot)
@@ -123,7 +148,7 @@ GerritDialog::~GerritDialog()
 void GerritDialog::slotDoubleClicked(const QModelIndex &i)
 {
     if (const QStandardItem *item = itemAt(i))
-        openUrl(item->row());
+        QDesktopServices::openUrl(QUrl(m_model->change(item->row())->url));
 }
 
 void GerritDialog::slotRefreshStateChanged(bool v)
@@ -131,12 +156,6 @@ void GerritDialog::slotRefreshStateChanged(bool v)
     if (!v && m_model->rowCount())
         for (int c = 0; c < GerritModel::ColumnCount; ++c)
             m_treeView->resizeColumnToContents(c);
-}
-
-void GerritDialog::slotOpenBrowser()
-{
-    if (const QStandardItem *item = currentItem())
-        openUrl(item->row());
 }
 
 void GerritDialog::slotFetchDisplay()
@@ -157,20 +176,9 @@ void GerritDialog::slotFetchCheckout()
         emit fetchCheckout(m_model->change(item->row()));
 }
 
-void GerritDialog::slotCopyUrl()
-{
-    if (const QStandardItem *item = currentItem())
-        QApplication::clipboard()->setText(m_model->change(item->row())->url);
-}
-
 void GerritDialog::slotRefresh()
 {
     m_model->refresh();
-}
-
-void GerritDialog::openUrl(int row) const
-{
-    QDesktopServices::openUrl(QUrl(m_model->change(row)->url));
 }
 
 const QStandardItem *GerritDialog::itemAt(const QModelIndex &i, int column) const
@@ -191,12 +199,17 @@ const QStandardItem *GerritDialog::currentItem(int column) const
     return 0;
 }
 
-void GerritDialog::slotEnableButtons()
+void GerritDialog::slotCurrentChanged()
 {
-    const bool valid = m_treeView->selectionModel()->currentIndex().isValid();
-    m_openButton->setEnabled(valid);
+    const QModelIndex current = m_treeView->selectionModel()->currentIndex();
+    const bool valid = current.isValid();
+    if (valid) {
+        const int row = m_filterModel->mapToSource(current).row();
+        m_detailsBrowser->setText(m_model->change(row)->toHtml());
+    } else {
+        m_detailsBrowser->setText(QString());
+    }
     m_displayButton->setEnabled(valid);
-    m_copyUrlButton->setEnabled(valid);
     m_applyButton->setEnabled(valid);
     m_checkoutButton->setEnabled(valid);
 }

@@ -38,11 +38,13 @@
 
 QT_BEGIN_NAMESPACE
 class QTreeView;
+class QLabel;
 class QModelIndex;
 class QSortFilterProxyModel;
 class QStandardItem;
 class QPushButton;
 class QDialogButtonBox;
+class QTextBrowser;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -68,18 +70,15 @@ signals:
     void fetchCheckout(const QSharedPointer<Gerrit::Internal::GerritChange> &);
 
 private slots:
-    void slotEnableButtons();
+    void slotCurrentChanged();
     void slotDoubleClicked(const QModelIndex &);
     void slotRefreshStateChanged(bool);
-    void slotOpenBrowser();
     void slotFetchDisplay();
     void slotFetchApply();
     void slotFetchCheckout();
-    void slotCopyUrl();
     void slotRefresh();
 
 private:
-    inline void openUrl(int row) const;
     const QStandardItem *itemAt(const QModelIndex &i, int column = 0) const;
     const QStandardItem *currentItem(int column = 0) const;
     QPushButton *addActionButton(const QString &text, const char *buttonSlot);
@@ -88,13 +87,12 @@ private:
     QSortFilterProxyModel *m_filterModel;
     GerritModel *m_model;
     QTreeView *m_treeView;
+    QTextBrowser *m_detailsBrowser;
     Utils::FilterLineEdit *m_filterLineEdit;
     QDialogButtonBox *m_buttonBox;
-    QPushButton *m_openButton;
     QPushButton *m_displayButton;
     QPushButton *m_applyButton;
     QPushButton *m_checkoutButton;
-    QPushButton *m_copyUrlButton;
     QPushButton *m_refreshButton;
 };
 

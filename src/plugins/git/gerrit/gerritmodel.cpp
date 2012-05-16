@@ -104,7 +104,7 @@ static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p, int 
 // Format (sorted) approvals as separate HTML table
 // lines by type listing the revievers:
 // "<tr><td>Code Review</td><td>John Doe: -1, ...</tr><tr>...Sanity Review: ...".
-QString GerritPatchSet::approvalsToolTip() const
+QString GerritPatchSet::approvalsToHtml() const
 {
     if (approvals.isEmpty())
         return QString();
@@ -123,7 +123,10 @@ QString GerritPatchSet::approvalsToolTip() const
         } else {
             str << ", ";
         }
-        str << a.reviewer << ": " << a.approval;
+        str << a.reviewer;
+        if (!a.email.isEmpty())
+            str << " <a href=\"mailto:" << a.email << "\">" << a.email << "</a>";
+        str << ": " << forcesign << a.approval << noforcesign;
     }
     str << "</tr>\n";
     return result;
@@ -165,7 +168,7 @@ QString GerritPatchSet::approvalsColumn() const
     for (TypeReviewMapConstIterator it = reviews.constBegin(); it != cend; ++it) {
         if (!result.isEmpty())
             str << ' ';
-        str << it.key() << ": " << it.value();
+        str << it.key() << ": " << forcesign << it.value() << noforcesign;
     }
     return result;
 }
@@ -186,23 +189,23 @@ int GerritPatchSet::approvalLevel() const
     return value;
 }
 
-QString GerritChange::toolTip() const
+QString GerritChange::toHtml() const
 {
     static const QString format = GerritModel::tr(
        "<html><head/><body><table>"
        "<tr><td>Subject</td><td>%1</td></tr>"
        "<tr><td>Number</td><td>%2"
-       "<tr><td>Owner</td><td>%3 &lt;%4&gt;</td></tr>"
+       "<tr><td>Owner</td><td>%3 <a href=\"mailto:%4\">%4</a></td></tr>"
        "<tr><td>Project</td><td>%5 (%6)</td></tr>"
        "<tr><td>Status</td><td>%7, %8</td></tr>"
        "<tr><td>Patch set</td><td>%9</td></tr>"
        "%10"
-       "<tr><td>URL</td><td>%11</td></tr>"
+       "<tr><td>URL</td><td><a href=\"%11\">%11</a></td></tr>"
        "</table></body></html>");
     return format.arg(title).arg(number).arg(owner, email, project, branch)
            .arg(status, lastUpdated.toString(Qt::DefaultLocaleShortDate))
            .arg(currentPatchSet.patchSetNumber)
-           .arg(currentPatchSet.approvalsToolTip(), url);
+           .arg(currentPatchSet.approvalsToHtml(), url);
 }
 
 QString GerritChange::filterString() const
@@ -535,7 +538,9 @@ static QList<GerritChangePtr> parseOutput(const QSharedPointer<GerritParameters>
         for (int a = 0; a < ac; ++a) {
             const QJsonObject ao = approvalsJ.at(a).toObject();
             GerritApproval a;
-            a.reviewer = ao.value(approvalsByKey).toObject().value(ownerNameKey).toString();
+            const QJsonObject approverO = ao.value(approvalsByKey).toObject();
+            a.reviewer = approverO.value(ownerNameKey).toString();
+            a.email = approverO.value(ownerEmailKey).toString();
             a.approval = ao.value(approvalsValueKey).toString().toInt();
             a.type = ao.value(approvalsTypeKey).toString();
             a.description = ao.value(approvalsDescriptionKey).toString();
@@ -652,13 +657,16 @@ static QList<GerritChangePtr> parseOutput(const QSharedPointer<GerritParameters>
                     QTC_ASSERT(oc, break );
                     const int value = jsonIntMember(oc, approvalsValueKey);
                     QString by;
+                    QString byMail;
                     if (Utils::JsonValue *byV = oc->member(approvalsByKey)) {
                         Utils::JsonObjectValue *byO = byV->toObject();
                         QTC_ASSERT(byO, break );
                         by = jsonStringMember(byO, ownerNameKey);
+                        byMail = jsonStringMember(byO, ownerEmailKey);
                     }
                     GerritApproval a;
                     a.reviewer = by;
+                    a.email = byMail;
                     a.approval = value;
                     a.type = jsonStringMember(oc, approvalsTypeKey);
                     a.description = jsonStringMember(oc, approvalsDescriptionKey);
@@ -711,6 +719,7 @@ bool changeDateLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
 
 void GerritModel::queryFinished(const QByteArray &output)
 {
+    const QDate today = QDate::currentDate();
     QList<GerritChangePtr> changes = parseOutput(m_parameters, output);
     qStableSort(changes.begin(), changes.end(), changeDateLessThan);
     foreach (const GerritChangePtr &c, changes) {
@@ -722,7 +731,6 @@ void GerritModel::queryFinished(const QByteArray &output)
             if (m_userName.isEmpty() && !m_query->currentQuery())
                 m_userName = c->owner;
             const QVariant filterV = QVariant(c->filterString());
-            const QString toolTip = c->toolTip();
             const QVariant changeV = qVariantFromValue(c);
             QList<QStandardItem *> row;
             for (int i = 0; i < GerritModel::ColumnCount; ++i) {
@@ -730,13 +738,17 @@ void GerritModel::queryFinished(const QByteArray &output)
                 item->setData(changeV, GerritModel::GerritChangeRole);
                 item->setData(filterV, GerritModel::FilterRole);
                 item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-                item->setToolTip(toolTip);
                 row.append(item);
             }
             row[NumberColumn]->setText(QString::number(c->number));
             row[TitleColumn]->setText(c->title);
             row[OwnerColumn]->setText(c->owner);
-            row[DateColumn]->setText(c->lastUpdated.toString(Qt::SystemLocaleShortDate));
+            // Shorten columns: Display time if it is today, else date
+            const QString dateString = c->lastUpdated.date() == today ?
+                c->lastUpdated.time().toString(Qt::SystemLocaleShortDate) :
+                c->lastUpdated.date().toString(Qt::SystemLocaleShortDate);
+            row[DateColumn]->setText(dateString);
+
             QString project = c->project;
             if (c->branch != QLatin1String("master"))
                 project += QLatin1String(" (") + c->branch  + QLatin1Char(')');
