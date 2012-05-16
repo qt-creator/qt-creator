@@ -1227,11 +1227,6 @@ static const char colorKey[] = "Color";
 static const char windowGeometryKey[] = "WindowGeometry";
 static const char windowStateKey[] = "WindowState";
 
-// TODO compat for <= 2.1, remove later
-static const char geometryKey[] = "Geometry";
-static const char maxKey[] = "Maximized";
-static const char fullScreenKey[] = "FullScreen";
-
 void MainWindow::readSettings()
 {
     m_settings->beginGroup(QLatin1String(settingsGroup));

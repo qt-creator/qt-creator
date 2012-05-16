@@ -207,30 +207,6 @@ void LocatorModel::setEntries(const QList<FilterEntry> &entries)
     mEntries = entries;
     reset();
 }
-#if 0
-void LocatorModel::setDisplayCount(int count)
-{
-    // TODO: This method is meant to be used for increasing the number of items displayed at the
-    // user's request. There is however no way yet for the user to request this.
-    if (count == mDisplayCount)
-        return;
-
-    const int displayedOld = qMin(mDisplayCount, mEntries.size());
-    const int displayedNew = qMin(count, mEntries.size());
-
-    if (displayedNew < displayedOld)
-        beginRemoveRows(QModelIndex(), displayedNew - 1, displayedOld - 1);
-    else if (displayedNew > displayedOld)
-        beginInsertRows(QModelIndex(), displayedOld - 1, displayedNew - 1);
-
-    mDisplayCount = count;
-
-    if (displayedNew < displayedOld)
-        endRemoveRows();
-    else if (displayedNew > displayedOld)
-        endInsertRows();
-}
-#endif
 
 // =========== CompletionList ===========
 
@@ -255,32 +231,10 @@ CompletionList::CompletionList(QWidget *parent)
 
 void CompletionList::updatePreferredSize()
 {
-    //header()->setStretchLastSection(false);
-    //updateGeometries();
-
     const QStyleOptionViewItem &option = viewOptions();
     const QSize shint = itemDelegate()->sizeHint(option, model()->index(0, 0));
-#if 0
-    const int visibleItems = model()->rowCount();
 
-    // TODO: Look into enabling preferred height as well. Current problem is that this doesn't
-    // work nicely from the user perspective if the list is popping up instead of down.
-    //const int h = shint.height() * visibleItems;
-
-    const QScrollBar *vscroll = verticalScrollBar();
-    int preferredWidth = header()->length() + frameWidth() * 2
-                         + (vscroll->isVisibleTo(this) ? vscroll->width() : 0);
-    const int diff = preferredWidth - width();
-
-    // Avoid resizing the list widget when there are no results or when the preferred size is
-    // only a little smaller than our current size
-    if (visibleItems == 0 || (diff > -100 && diff < 0))
-        preferredWidth = width();
-#endif
-
-    m_preferredSize = QSize(730, //qMax(600, preferredWidth),
-                            shint.height() * 17 + frameWidth() * 2);
-    //header()->setStretchLastSection(true);
+    m_preferredSize = QSize(730, shint.height() * 17 + frameWidth() * 2);
 }
 
 // =========== LocatorWidget ===========
