@@ -554,6 +554,11 @@ int SubmitEditorWidget::checkedFilesCount() const
     return checkedCount;
 }
 
+bool SubmitEditorWidget::isDescriptionMandatory() const
+{
+    return true;
+}
+
 QString SubmitEditorWidget::cleanupDescription(const QString &input) const
 {
     return input;
@@ -591,7 +596,7 @@ void SubmitEditorWidget::descriptionTextChanged()
 
 bool SubmitEditorWidget::canSubmit() const
 {
-    if (cleanupDescription(descriptionText()).trimmed().isEmpty())
+    if (isDescriptionMandatory() && cleanupDescription(descriptionText()).trimmed().isEmpty())
         return false;
     const unsigned checkedCount = checkedFilesCount();
     return d->m_emptyFileListEnabled || checkedCount > 0;

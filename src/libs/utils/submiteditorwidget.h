@@ -125,6 +125,7 @@ private slots:
     void uncheckAll();
 
 protected:
+    virtual bool isDescriptionMandatory() const;
     virtual QString cleanupDescription(const QString &) const;
     virtual void changeEvent(QEvent *e);
     virtual QString commitName() const;
