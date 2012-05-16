@@ -38,8 +38,8 @@
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 
 #include <QApplication>
 #include <QStyle>
@@ -117,8 +117,8 @@ void CMakeTarget::updateRunConfigurations()
     foreach (ProjectExplorer::RunConfiguration* rc, runConfigurations()) {
         if (CMakeRunConfiguration* cmakeRC = qobject_cast<CMakeRunConfiguration *>(rc))
             existingRunConfigurations.insert(cmakeRC->title(), cmakeRC);
-        ProjectExplorer::CustomExecutableRunConfiguration *ceRC =
-                qobject_cast<ProjectExplorer::CustomExecutableRunConfiguration *>(rc);
+        QtSupport::CustomExecutableRunConfiguration *ceRC =
+                qobject_cast<QtSupport::CustomExecutableRunConfiguration *>(rc);
         if (ceRC && !ceRC->isConfigured())
             toRemove << rc;
     }
@@ -160,8 +160,7 @@ void CMakeTarget::updateRunConfigurations()
     if (runConfigurations().isEmpty()) {
         // Oh no, no run configuration,
         // create a custom executable run configuration
-        ProjectExplorer::CustomExecutableRunConfiguration *rc = new ProjectExplorer::CustomExecutableRunConfiguration(this);
-        addRunConfiguration(rc);
+        addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(this));
     }
 }
 

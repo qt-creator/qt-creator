@@ -39,9 +39,9 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/pathchooser.h>
@@ -477,7 +477,7 @@ bool GenericProject::fromMap(const QVariantMap &map)
             continue;
         }
         if (!t->activeRunConfiguration())
-            t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
+            t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
     }
 
     // Add default setup:

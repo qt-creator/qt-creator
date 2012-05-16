@@ -37,9 +37,9 @@
 #include "genericmakestep.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 
 #include <QApplication>
 #include <QStyle>
@@ -153,7 +153,7 @@ GenericTarget *GenericTargetFactory::create(ProjectExplorer::Project *parent, co
 
     // Add a runconfiguration. The CustomExecutableRC one will query the user
     // for its settings, so it is a good choice here.
-    t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));
+    t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
 
     return t;
 }

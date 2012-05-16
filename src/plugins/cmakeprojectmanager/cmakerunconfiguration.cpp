@@ -39,7 +39,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/helpmanager.h>
-#include <projectexplorer/debugginghelper.h>
+#include <qtsupport/debugginghelper.h>
 #include <projectexplorer/environmentwidget.h>
 
 #include <utils/pathchooser.h>
@@ -242,17 +242,17 @@ void CMakeRunConfiguration::setCommandLineArguments(const QString &newText)
 
 QString CMakeRunConfiguration::dumperLibrary() const
 {
-    Utils::FileName qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
-    QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
-    QString dhl = ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
+    Utils::FileName qmakePath = QtSupport::DebuggingHelperLibrary::findSystemQt(environment());
+    QString qtInstallData = QtSupport::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
+    QString dhl = QtSupport::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
     return dhl;
 }
 
 QStringList CMakeRunConfiguration::dumperLibraryLocations() const
 {
-    Utils::FileName qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
-    QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
-    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
+    Utils::FileName qmakePath = QtSupport::DebuggingHelperLibrary::findSystemQt(environment());
+    QString qtInstallData = QtSupport::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
+    return QtSupport::DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 }
 
 Utils::Environment CMakeRunConfiguration::baseEnvironment() const

@@ -33,22 +33,22 @@
 #ifndef CUSTOMEXECUTABLERUNCONFIGURATION_H
 #define CUSTOMEXECUTABLERUNCONFIGURATION_H
 
-#include "applicationrunconfiguration.h"
+#include "qtsupport_global.h"
+
+#include <projectexplorer/applicationrunconfiguration.h>
 
 #include <utils/environment.h>
 
 #include <QVariantMap>
 
-namespace ProjectExplorer {
-class Target;
+namespace ProjectExplorer { class Target; }
 
-namespace Internal {
-class CustomExecutableConfigurationWidget;
-}
+namespace QtSupport {
+namespace Internal { class CustomExecutableConfigurationWidget; }
 
 class CustomExecutableRunConfigurationFactory;
 
-class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public LocalApplicationRunConfiguration
+class QTSUPPORT_EXPORT CustomExecutableRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
     // the configuration widget needs to setExecutable setWorkingDirectory and setCommandLineArguments
@@ -56,7 +56,7 @@ class PROJECTEXPLORER_EXPORT CustomExecutableRunConfiguration : public LocalAppl
     friend class CustomExecutableRunConfigurationFactory;
 
 public:
-    explicit CustomExecutableRunConfiguration(Target *parent);
+    explicit CustomExecutableRunConfiguration(ProjectExplorer::Target *parent);
     ~CustomExecutableRunConfiguration();
 
     /**
@@ -69,7 +69,7 @@ public:
      */
     bool isConfigured() const;
 
-    LocalApplicationRunConfiguration::RunMode runMode() const;
+    RunMode runMode() const;
     QString workingDirectory() const;
     QString commandLineArguments() const;
     Utils::Environment environment() const;
@@ -92,7 +92,8 @@ private slots:
     void activeBuildConfigurationChanged();
 
 protected:
-    CustomExecutableRunConfiguration(Target *parent, CustomExecutableRunConfiguration *source);
+    CustomExecutableRunConfiguration(ProjectExplorer::Target *parent,
+                                     CustomExecutableRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
     QString defaultDisplayName() const;
 
@@ -116,7 +117,7 @@ private:
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     void setUserName(const QString &name);
-    void setRunMode(RunMode runMode);
+    void setRunMode(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
 
     QString m_executable;
     QString m_workingDirectory;
@@ -129,7 +130,7 @@ private:
     ProjectExplorer::BuildConfiguration *m_lastActiveBuildConfiguration;
 };
 
-class CustomExecutableRunConfigurationFactory : public IRunConfigurationFactory
+class CustomExecutableRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
 
@@ -137,17 +138,18 @@ public:
     explicit CustomExecutableRunConfigurationFactory(QObject *parent = 0);
     ~CustomExecutableRunConfigurationFactory();
 
-    QList<Core::Id> availableCreationIds(Target *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
     QString displayNameForId(const Core::Id id) const;
 
-    bool canCreate(Target *parent, const Core::Id id) const;
-    RunConfiguration *create(Target *parent, const Core::Id id);
-    bool canRestore(Target *parent, const QVariantMap &map) const;
-    RunConfiguration *restore(Target *parent, const QVariantMap &map);
-    bool canClone(Target *parent, RunConfiguration *product) const;
-    RunConfiguration *clone(Target *parent, RunConfiguration *source);
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
+    bool canClone(ProjectExplorer::Target *parent, ProjectExplorer::RunConfiguration *product) const;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
+                                             ProjectExplorer::RunConfiguration *source);
 };
 
-} // namespace ProjectExplorer
+} // namespace QtSupport
 
 #endif // CUSTOMEXECUTABLERUNCONFIGURATION_H

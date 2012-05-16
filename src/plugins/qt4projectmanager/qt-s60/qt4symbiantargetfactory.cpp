@@ -42,8 +42,8 @@
 #include "qt-s60/qt4symbiantarget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 
 #include <qtsupport/qtversionmanager.h>
 
@@ -210,7 +210,7 @@ ProjectExplorer::Target *Qt4SymbianTargetFactory::create(ProjectExplorer::Projec
     t->createApplicationProFiles(false);
 
     if (t->runConfigurations().isEmpty())
-        t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));
+        t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
     return t;
 }
 

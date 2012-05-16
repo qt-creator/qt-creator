@@ -46,7 +46,7 @@
 
 #include <QDesktopServices>
 
-using namespace ProjectExplorer;
+using namespace QtSupport;
 
 static inline QStringList validBinaryFilenames()
 {

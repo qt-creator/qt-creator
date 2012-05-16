@@ -90,8 +90,8 @@ public:
     virtual QString workingDirectory() const;
     virtual QString commandLineArguments() const;
     virtual Utils::Environment environment() const;
-    virtual QString dumperLibrary() const;
-    virtual QStringList dumperLibraryLocations() const;
+    QString dumperLibrary() const;
+    QStringList dumperLibraryLocations() const;
 
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);

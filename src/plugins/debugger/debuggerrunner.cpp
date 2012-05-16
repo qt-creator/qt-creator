@@ -51,7 +51,6 @@
 #endif
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>

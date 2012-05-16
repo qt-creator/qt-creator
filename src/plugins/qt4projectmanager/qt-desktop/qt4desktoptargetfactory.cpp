@@ -39,8 +39,8 @@
 
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 
 #include <qtsupport/qtversionmanager.h>
 
@@ -192,6 +192,6 @@ ProjectExplorer::Target *Qt4DesktopTargetFactory::create(ProjectExplorer::Projec
     t->createApplicationProFiles(false);
 
     if (t->runConfigurations().isEmpty())
-        t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));
+        t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
     return t;
 }

@@ -12,6 +12,7 @@ QtcPlugin {
     Depends { name: "CPlusPlus" }
     Depends { name: "TextEditor" }
     Depends { name: "Locator" }
+    Depends { name: "QtSupport" }
 
     Depends { name: "cpp" }
     cpp.includePaths: [

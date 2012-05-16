@@ -39,11 +39,11 @@
 #include "profilereader.h"
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/debugginghelper.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <qtsupport/debugginghelper.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/persistentsettings.h>
@@ -795,7 +795,7 @@ void BaseQtVersion::updateVersionInfo() const
         const QString qtInstallBins = m_versionInfo.value(installBinsKey);
         const QString qtHeaderData = m_versionInfo.value(installHeadersKey);
         if (!qtInstallData.isEmpty()) {
-            m_hasDebuggingHelper = !ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
+            m_hasDebuggingHelper = !QtSupport::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
             m_hasQmlDump
                     = !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, false).isEmpty()
                     || !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, true).isEmpty();
@@ -964,7 +964,7 @@ QString BaseQtVersion::gdbDebuggingHelperLibrary() const
     QString qtInstallData = versionInfo().value(QLatin1String("QT_INSTALL_DATA"));
     if (qtInstallData.isEmpty())
         return QString();
-    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
+    return QtSupport::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
 }
 
 QString BaseQtVersion::qmlDumpTool(bool debugVersion) const
@@ -998,7 +998,7 @@ QStringList BaseQtVersion::debuggingHelperLibraryLocations() const
     QString qtInstallData = versionInfo().value(QLatin1String("QT_INSTALL_DATA"));
     if (qtInstallData.isEmpty())
         return QStringList();
-    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
+    return QtSupport::DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 }
 
 bool BaseQtVersion::supportsBinaryDebuggingHelper() const

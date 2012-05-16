@@ -38,10 +38,10 @@
 
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <qt4projectmanager/buildconfigurationinfo.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
 
@@ -217,7 +217,7 @@ ProjectExplorer::Target *Qt4MaemoTargetFactory::create(ProjectExplorer::Project 
     }
     target->createApplicationProFiles(false);
     if (target->runConfigurations().isEmpty())
-        target->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(target));
+        target->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(target));
     return target;
 }
 

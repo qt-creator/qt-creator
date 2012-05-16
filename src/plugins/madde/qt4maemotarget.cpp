@@ -44,7 +44,6 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <projectexplorer/abi.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/toolchain.h>
@@ -52,6 +51,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 #include <remotelinux/deploymentsettingsassistant.h>
 #include <utils/fileutils.h>
 #include <utils/filesystemwatcher.h>
@@ -180,7 +180,7 @@ void AbstractQt4MaemoTarget::createApplicationProFiles(bool reparse)
 
     // Oh still none? Add a custom executable runconfiguration
     if (runConfigurations().isEmpty()) {
-        addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(this));
+        addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(this));
     }
 }
 

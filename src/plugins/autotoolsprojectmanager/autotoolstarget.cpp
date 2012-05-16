@@ -42,9 +42,9 @@
 #include "autoreconfstep.h"
 #include "configurestep.h"
 
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QApplication>
@@ -152,7 +152,7 @@ AutotoolsTarget *AutotoolsTargetFactory::create(Project *parent, const Core::Id 
     t->addDeployConfiguration(t->createDeployConfiguration(Core::Id(ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID)));
     // User needs to choose where the executable file is.
     // TODO: Parse the file in *Anjuta style* to be able to add custom RunConfigurations.
-    t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
+    t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
 
     return t;
 }

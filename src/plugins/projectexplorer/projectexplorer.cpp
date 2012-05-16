@@ -51,7 +51,6 @@
 #include "buildsettingspropertiespage.h"
 #include "currentprojectfind.h"
 #include "currentprojectfilter.h"
-#include "customexecutablerunconfiguration.h"
 #include "editorsettingspropertiespage.h"
 #include "codestylesettingspropertiespage.h"
 #include "dependenciespanel.h"
@@ -421,7 +420,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(currentProjectFind);
 
     addAutoReleasedObject(new LocalApplicationRunControlFactory);
-    addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
     addAutoReleasedObject(new ProjectFileWizardExtension);
 

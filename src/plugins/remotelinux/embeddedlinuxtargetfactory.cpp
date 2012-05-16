@@ -37,12 +37,11 @@
 #include "genericembeddedlinuxtarget.h"
 #include "remotelinux_constants.h"
 
-#include <projectexplorer/customexecutablerunconfiguration.h>
-
 #include <qt4projectmanager/buildconfigurationinfo.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 
+#include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <QIcon>
@@ -169,7 +168,7 @@ ProjectExplorer::Target *EmbeddedLinuxTargetFactory::create(ProjectExplorer::Pro
     t->createApplicationProFiles(false);
 
     if (t->runConfigurations().isEmpty())
-        t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));
+        t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
     return t;
 }
 

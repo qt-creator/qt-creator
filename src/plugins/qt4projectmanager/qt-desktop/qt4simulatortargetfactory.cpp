@@ -40,7 +40,7 @@
 
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 
 #include <QApplication>
 #include <QStyle>
@@ -168,6 +168,6 @@ ProjectExplorer::Target *Qt4SimulatorTargetFactory::create(ProjectExplorer::Proj
     t->createApplicationProFiles(false);
 
     if (t->runConfigurations().isEmpty())
-        t->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(t));
+        t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
     return t;
 }

@@ -36,8 +36,8 @@
 #include "qt4runconfiguration.h"
 #include "qt4buildconfiguration.h"
 
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 #include <QApplication>
 
 using namespace Qt4ProjectManager;
@@ -91,7 +91,7 @@ void Qt4SimulatorTarget::createApplicationProFiles(bool reparse)
 
     // Oh still none? Add a custom executable runconfiguration
     if (runConfigurations().isEmpty()) {
-        addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(this));
+        addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(this));
     }
 }
 

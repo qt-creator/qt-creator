@@ -47,11 +47,11 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
@@ -347,8 +347,8 @@ void Qt4BaseTarget::removeUnconfiguredCustomExectutableRunConfigurations()
         // Remove all run configurations which the new project wizard created
         QList<ProjectExplorer::RunConfiguration*> toRemove;
         foreach (ProjectExplorer::RunConfiguration * rc, runConfigurations()) {
-            ProjectExplorer::CustomExecutableRunConfiguration *cerc
-                    = qobject_cast<ProjectExplorer::CustomExecutableRunConfiguration *>(rc);
+            QtSupport::CustomExecutableRunConfiguration *cerc
+                    = qobject_cast<QtSupport::CustomExecutableRunConfiguration *>(rc);
             if (cerc && !cerc->isConfigured())
                 toRemove.append(rc);
         }

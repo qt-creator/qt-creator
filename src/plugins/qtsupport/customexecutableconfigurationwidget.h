@@ -48,9 +48,9 @@ class DetailsWidget;
 class PathChooser;
 }
 
-namespace ProjectExplorer {
+namespace ProjectExplorer { class EnvironmentWidget; }
+namespace QtSupport {
 class CustomExecutableRunConfiguration;
-class EnvironmentWidget;
 
 namespace Internal {
 
@@ -88,6 +88,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace ProjectExplorer
+} // namespace QtSupport
 
 #endif // CUSTOMEXECUTABLECONFIGURATIONWIDGET_H

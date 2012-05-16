@@ -38,12 +38,12 @@
 #include "androidglobal.h"
 #include "androidpackagecreationstep.h"
 
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qt4target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 
 #include <QDir>
 #include <QFileSystemWatcher>
@@ -120,7 +120,7 @@ void AndroidTarget::createApplicationProFiles(bool reparse)
 
     // Oh still none? Add a custom executable runconfiguration
     if (runConfigurations().isEmpty()) {
-        addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(this));
+        addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(this));
     }
 }
 

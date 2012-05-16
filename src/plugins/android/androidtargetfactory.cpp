@@ -42,8 +42,8 @@
 
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <qt4projectmanager/buildconfigurationinfo.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 
 #include <qtsupport/qtversionmanager.h>
 
@@ -173,7 +173,7 @@ Qt4BaseTarget *AndroidTargetFactory::create(ProjectExplorer::Project *parent, co
 
     target->createApplicationProFiles(false);
     if (target->runConfigurations().isEmpty())
-        target->addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(target));
+        target->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(target));
     return target;
 }
 

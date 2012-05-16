@@ -18,6 +18,7 @@
     <dependencyList>
         <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"ProjectExplorer\" version=\"$$QTCREATOR_VERSION\"/>
+        <dependency name=\"QtSupport\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"CppTools\" version=\"$$QTCREATOR_VERSION\"/>
     </dependencyList>
 </plugin>

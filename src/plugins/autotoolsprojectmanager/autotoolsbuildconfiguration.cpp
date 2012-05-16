@@ -44,7 +44,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/customexecutablerunconfiguration.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 #include <utils/qtcassert.h>
 
 #include <QInputDialog>
@@ -173,7 +173,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::create(Target *
     t->addDeployConfiguration(t->createDeployConfiguration(Core::Id(DEFAULT_DEPLOYCONFIGURATION_ID)));
     // User needs to choose where the executable file is.
     // TODO: Parse the file in *Anjuta style* to be able to add custom RunConfigurations.
-    t->addRunConfiguration(new CustomExecutableRunConfiguration(t));
+    t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
 
     return bc;
 }

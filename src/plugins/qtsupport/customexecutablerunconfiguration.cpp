@@ -32,12 +32,12 @@
 
 #include "customexecutablerunconfiguration.h"
 #include "customexecutableconfigurationwidget.h"
-
-#include "buildconfiguration.h"
 #include "debugginghelper.h"
-#include "projectexplorerconstants.h"
-#include "target.h"
-#include "abi.h"
+
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/abi.h>
 
 #include <coreplugin/icore.h>
 
@@ -52,8 +52,8 @@
 
 #include <QDir>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 
 namespace {
 const char * const CUSTOM_EXECUTABLE_ID("ProjectExplorer.CustomExecutableRunConfiguration");
@@ -81,8 +81,8 @@ void CustomExecutableRunConfiguration::ctor()
     }
 }
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent) :
-    LocalApplicationRunConfiguration(parent, Core::Id(CUSTOM_EXECUTABLE_ID)),
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(ProjectExplorer::Target *parent) :
+    ProjectExplorer::LocalApplicationRunConfiguration(parent, Core::Id(CUSTOM_EXECUTABLE_ID)),
     m_workingDirectory(QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR)),
     m_runMode(Gui),
     m_baseEnvironmentBase(CustomExecutableRunConfiguration::BuildEnvironmentBase)
@@ -90,8 +90,9 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *paren
     ctor();
 }
 
-CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *parent, CustomExecutableRunConfiguration *source) :
-    LocalApplicationRunConfiguration(parent, source),
+CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(ProjectExplorer::Target *parent,
+                                                                   CustomExecutableRunConfiguration *source) :
+    ProjectExplorer::LocalApplicationRunConfiguration(parent, source),
     m_executable(source->m_executable),
     m_workingDirectory(source->m_workingDirectory),
     m_cmdArguments(source->m_cmdArguments),
@@ -177,7 +178,7 @@ bool CustomExecutableRunConfiguration::isConfigured() const
     return !m_executable.isEmpty();
 }
 
-LocalApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runMode() const
+ProjectExplorer::LocalApplicationRunConfiguration::RunMode CustomExecutableRunConfiguration::runMode() const
 {
     return m_runMode;
 }
@@ -317,7 +318,7 @@ void CustomExecutableRunConfiguration::setBaseWorkingDirectory(const QString &wo
     emit changed();
 }
 
-void CustomExecutableRunConfiguration::setRunMode(RunMode runMode)
+void CustomExecutableRunConfiguration::setRunMode(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode)
 {
     m_runMode = runMode;
     emit changed();
@@ -330,21 +331,21 @@ QWidget *CustomExecutableRunConfiguration::createConfigurationWidget()
 
 QString CustomExecutableRunConfiguration::dumperLibrary() const
 {
-    Utils::FileName qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
-    QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
-    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
+    Utils::FileName qmakePath = DebuggingHelperLibrary::findSystemQt(environment());
+    QString qtInstallData = DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
+    return DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
 }
 
 QStringList CustomExecutableRunConfiguration::dumperLibraryLocations() const
 {
-    Utils::FileName qmakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(environment());
-    QString qtInstallData = ProjectExplorer::DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
-    return ProjectExplorer::DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
+    Utils::FileName qmakePath = DebuggingHelperLibrary::findSystemQt(environment());
+    QString qtInstallData = DebuggingHelperLibrary::qtInstallDataDir(qmakePath);
+    return DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
 }
 
 ProjectExplorer::Abi CustomExecutableRunConfiguration::abi() const
 {
-    return Abi(); // return an invalid ABI: We do not know what we will end up running!
+    return ProjectExplorer::Abi(); // return an invalid ABI: We do not know what we will end up running!
 }
 
 // Factory
@@ -359,28 +360,31 @@ CustomExecutableRunConfigurationFactory::~CustomExecutableRunConfigurationFactor
 
 }
 
-bool CustomExecutableRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
+bool CustomExecutableRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent,
+                                                        const Core::Id id) const
 {
     Q_UNUSED(parent);
     return id == Core::Id(CUSTOM_EXECUTABLE_ID);
 }
 
-RunConfiguration *CustomExecutableRunConfigurationFactory::create(Target *parent, const Core::Id id)
+ProjectExplorer::RunConfiguration *
+CustomExecutableRunConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
 
-    RunConfiguration *rc(new CustomExecutableRunConfiguration(parent));
-    return rc;
+    return new CustomExecutableRunConfiguration(parent);
 }
 
-bool CustomExecutableRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
+bool CustomExecutableRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent,
+                                                         const QVariantMap &map) const
 {
-    Core::Id id(idFromMap(map));
+    Core::Id id(ProjectExplorer::idFromMap(map));
     return canCreate(parent, id);
 }
 
-RunConfiguration *CustomExecutableRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+ProjectExplorer::RunConfiguration *
+CustomExecutableRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -391,19 +395,22 @@ RunConfiguration *CustomExecutableRunConfigurationFactory::restore(Target *paren
     return 0;
 }
 
-bool CustomExecutableRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
+bool CustomExecutableRunConfigurationFactory::canClone(ProjectExplorer::Target *parent,
+                                                       ProjectExplorer::RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
 }
 
-RunConfiguration *CustomExecutableRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
+ProjectExplorer::RunConfiguration *
+CustomExecutableRunConfigurationFactory::clone(ProjectExplorer::Target *parent,
+                                               ProjectExplorer::RunConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
     return new CustomExecutableRunConfiguration(parent, static_cast<CustomExecutableRunConfiguration*>(source));
 }
 
-QList<Core::Id> CustomExecutableRunConfigurationFactory::availableCreationIds(Target *parent) const
+QList<Core::Id> CustomExecutableRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
     Q_UNUSED(parent)
     return QList<Core::Id>() << Core::Id(CUSTOM_EXECUTABLE_ID);

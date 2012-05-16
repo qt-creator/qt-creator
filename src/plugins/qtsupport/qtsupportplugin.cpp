@@ -32,6 +32,7 @@
 
 #include "qtsupportplugin.h"
 
+#include "customexecutablerunconfiguration.h"
 #include "qtoptionspage.h"
 #include "qtversionmanager.h"
 
@@ -73,6 +74,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     GettingStartedWelcomePage *gettingStartedWelcomePage = new GettingStartedWelcomePage;
     addAutoReleasedObject(gettingStartedWelcomePage);
+
+    addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
     return true;
 }

@@ -33,7 +33,7 @@
 #ifndef DEBUGGINGHELPER_H
 #define DEBUGGINGHELPER_H
 
-#include "projectexplorer_export.h"
+#include "qtsupport_global.h"
 
 #include <utils/buildablehelperlibrary.h>
 
@@ -41,9 +41,9 @@
 
 QT_FORWARD_DECLARE_CLASS(QStringList)
 
-namespace ProjectExplorer {
+namespace QtSupport {
 
-class PROJECTEXPLORER_EXPORT DebuggingHelperLibrary : public Utils::BuildableHelperLibrary
+class QTSUPPORT_EXPORT DebuggingHelperLibrary : public Utils::BuildableHelperLibrary
 {
 public:
     static QString debuggingHelperLibraryByInstallData(const QString &qtInstallData);
@@ -56,6 +56,6 @@ public:
     static QString copy(const QString &qtInstallData, QString *errorMessage);
 
 };
-} // namespace ProjectExplorer
+} // namespace QtSupport
 
 #endif // DEBUGGINGHELPER_H

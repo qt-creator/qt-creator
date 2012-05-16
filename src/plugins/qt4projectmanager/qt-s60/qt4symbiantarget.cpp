@@ -40,11 +40,11 @@
 #include "qt-s60/s60deployconfiguration.h"
 #include "qt-s60/s60devicerunconfiguration.h"
 
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 #include <extensionsystem/pluginmanager.h>
 #include <QApplication>
 
@@ -104,7 +104,7 @@ void Qt4SymbianTarget::createApplicationProFiles(bool reparse)
 
     // Oh still none? Add a custom executable runconfiguration
     if (runConfigurations().isEmpty()) {
-        addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(this));
+        addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(this));
     }
 }
 

@@ -26,6 +26,9 @@ HEADERS += \
     qmlobservertool.h \
     qmldebugginglibrary.h \
     qtoptionspage.h \
+    customexecutablerunconfiguration.h \
+    customexecutableconfigurationwidget.h \
+    debugginghelper.h \
     debugginghelperbuildtask.h \
     qtsupportconstants.h \
     profilereader.h \
@@ -44,6 +47,9 @@ SOURCES += \
     qmlobservertool.cpp \
     qmldebugginglibrary.cpp \
     qtoptionspage.cpp \
+    customexecutablerunconfiguration.cpp \
+    customexecutableconfigurationwidget.cpp \
+    debugginghelper.cpp \
     debugginghelperbuildtask.cpp \
     profilereader.cpp \
     qtparser.cpp \

@@ -32,10 +32,10 @@
 
 #include "customexecutableconfigurationwidget.h"
 #include "customexecutablerunconfiguration.h"
-#include "target.h"
-#include "project.h"
-#include "environmentwidget.h"
 
+#include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/environmentwidget.h>
 #include <coreplugin/helpmanager.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
@@ -49,7 +49,7 @@
 #include <QLineEdit>
 
 
-namespace ProjectExplorer {
+namespace QtSupport {
 namespace Internal {
 
 CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomExecutableRunConfiguration *rc)
@@ -112,7 +112,7 @@ CustomExecutableConfigurationWidget::CustomExecutableConfigurationWidget(CustomE
     baseEnvironmentLayout->addWidget(m_baseEnvironmentComboBox);
     baseEnvironmentLayout->addStretch(10);
 
-    m_environmentWidget = new EnvironmentWidget(this, baseEnvironmentWidget);
+    m_environmentWidget = new ProjectExplorer::EnvironmentWidget(this, baseEnvironmentWidget);
     m_environmentWidget->setBaseEnvironment(rc->baseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(rc->baseEnvironmentText());
     m_environmentWidget->setUserChanges(rc->userEnvironmentChanges());
@@ -195,8 +195,8 @@ void CustomExecutableConfigurationWidget::workingDirectoryEdited()
 void CustomExecutableConfigurationWidget::termToggled(bool on)
 {
     m_ignoreChange = true;
-    m_runConfiguration->setRunMode(on ? LocalApplicationRunConfiguration::Console
-                                      : LocalApplicationRunConfiguration::Gui);
+    m_runConfiguration->setRunMode(on ? ProjectExplorer::LocalApplicationRunConfiguration::Console
+                                      : ProjectExplorer::LocalApplicationRunConfiguration::Gui);
     m_ignoreChange = false;
 }
 
@@ -209,8 +209,9 @@ void CustomExecutableConfigurationWidget::changed()
     m_executableChooser->setPath(m_runConfiguration->rawExecutable());
     m_commandLineArgumentsLineEdit->setText(m_runConfiguration->rawCommandLineArguments());
     m_workingDirectory->setPath(m_runConfiguration->baseWorkingDirectory());
-    m_useTerminalCheck->setChecked(m_runConfiguration->runMode() == LocalApplicationRunConfiguration::Console);
+    m_useTerminalCheck->setChecked(m_runConfiguration->runMode()
+                                   == ProjectExplorer::LocalApplicationRunConfiguration::Console);
 }
 
 } // namespace Internal
-} // namespace ProjectExplorer
+} // namespace QtSupport

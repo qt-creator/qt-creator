@@ -36,12 +36,12 @@
 
 #include "qtsupportconstants.h"
 
-#include <projectexplorer/debugginghelper.h>
 // only for legay restore
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/gcctoolchain.h>
 
+#include <qtsupport/debugginghelper.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
@@ -68,8 +68,6 @@
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;
-
-using ProjectExplorer::DebuggingHelperLibrary;
 
 static const char QTVERSION_DATA_KEY[] = "QtVersion.";
 static const char QTVERSION_TYPE_KEY[] = "QtVersion.Type";
@@ -413,7 +411,7 @@ void QtVersionManager::saveQtVersions()
 
 void QtVersionManager::findSystemQt()
 {
-    Utils::FileName systemQMakePath = ProjectExplorer::DebuggingHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
+    Utils::FileName systemQMakePath = QtSupport::DebuggingHelperLibrary::findSystemQt(Utils::Environment::systemEnvironment());
     if (systemQMakePath.isNull())
         return;
 

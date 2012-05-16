@@ -35,12 +35,12 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxrunconfiguration.h"
 
-#include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/customexecutablerunconfiguration.h>
 
 #include <QCoreApplication>
 
@@ -102,7 +102,7 @@ void GenericEmbeddedLinuxTarget::createApplicationProFiles(bool reparse)
 
     // Oh still none? Add a custom executable runconfiguration
     if (runConfigurations().isEmpty())
-        addRunConfiguration(new ProjectExplorer::CustomExecutableRunConfiguration(this));
+        addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(this));
 }
 
 } // namespace Internal

@@ -64,7 +64,6 @@ HEADERS += projectexplorer.h \
     runsettingspropertiespage.h \
     projecttreewidget.h \
     foldernavigationwidget.h \
-    customexecutablerunconfiguration.h \
     buildprogress.h \
     projectnodes.h \
     sessiondialog.h \
@@ -80,7 +79,6 @@ HEADERS += projectexplorer.h \
     toolchainoptionspage.h \
     cesdkhandler.h \
     gccparser.h \
-    debugginghelper.h \
     projectexplorersettingspage.h \
     projectwelcomepage.h \
     baseprojectwizarddialog.h \
@@ -97,7 +95,6 @@ HEADERS += projectexplorer.h \
     abstractprocessstep.h \
     taskhub.h \
     localapplicationruncontrol.h \
-    customexecutableconfigurationwidget.h \
     metatypedeclarations.h \
     publishing/publishingwizardselectiondialog.h \
     publishing/ipublishingwizardfactory.h \
@@ -164,7 +161,6 @@ SOURCES += projectexplorer.cpp \
     runsettingspropertiespage.cpp \
     projecttreewidget.cpp \
     foldernavigationwidget.cpp \
-    customexecutablerunconfiguration.cpp \
     buildprogress.cpp \
     projectnodes.cpp \
     sessiondialog.cpp \
@@ -180,7 +176,6 @@ SOURCES += projectexplorer.cpp \
     toolchainoptionspage.cpp \
     cesdkhandler.cpp \
     gccparser.cpp \
-    debugginghelper.cpp \
     projectexplorersettingspage.cpp \
     projectwelcomepage.cpp \
     corelistenercheckingforrunningbuild.cpp \
@@ -197,7 +192,6 @@ SOURCES += projectexplorer.cpp \
     taskhub.cpp \
     processparameters.cpp \
     localapplicationruncontrol.cpp \
-    customexecutableconfigurationwidget.cpp \
     publishing/publishingwizardselectiondialog.cpp \
     appoutputpane.cpp \
     codestylesettingspropertiespage.cpp \
