@@ -85,6 +85,7 @@ public:
 signals:
     void gotoSourceLocation(const QString &fileName, int lineNumber, int columnNumber);
     void showEventInTimeline(int eventId);
+    void resized();
 
 public slots:
     void updateSelectedEvent(int eventId) const;
@@ -95,6 +96,7 @@ private slots:
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
+    virtual void resizeEvent(QResizeEvent *event);
 
 private:
     class QmlProfilerEventsWidgetPrivate;

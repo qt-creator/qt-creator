@@ -138,6 +138,8 @@ signals:
     void enableToolbar(bool);
     void zoomLevelChanged(int);
 
+    void resized();
+
 private:
     void contextMenuEvent(QContextMenuEvent *);
     QWidget *createToolbar();

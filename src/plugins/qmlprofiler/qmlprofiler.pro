@@ -36,7 +36,8 @@ SOURCES += \
     qv8profilerdatamodel.cpp \
     qmlprofilerdatamodel.cpp \
     qmlprofilerclientmanager.cpp \
-    qmlprofilerviewmanager.cpp
+    qmlprofilerviewmanager.cpp \
+    qmlprofilerstatewidget.cpp
 
 HEADERS += \
     qmlprofilerconstants.h \
@@ -57,7 +58,8 @@ HEADERS += \
     qv8profilerdatamodel.h \
     qmlprofilerdatamodel.h \
     qmlprofilerclientmanager.h \
-    qmlprofilerviewmanager.h
+    qmlprofilerviewmanager.h \
+    qmlprofilerstatewidget.h
 
 RESOURCES += \
     qml/qmlprofiler.qrc
@@ -70,7 +72,6 @@ OTHER_FILES += \
     qml/RangeMover.qml \
     qml/TimeDisplay.qml \
     qml/TimeMarks.qml \
-    qml/StatusDisplay.qml \
     qml/SelectionRange.qml \
     qml/SelectionRangeDetails.qml \
     qml/Overview.qml

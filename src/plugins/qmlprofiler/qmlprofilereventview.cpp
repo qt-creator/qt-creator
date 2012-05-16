@@ -275,6 +275,12 @@ void QmlProfilerEventsWidget::contextMenuEvent(QContextMenuEvent *ev)
     }
 }
 
+void QmlProfilerEventsWidget::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    emit resized();
+}
+
 bool QmlProfilerEventsWidget::mouseOnTable(const QPoint &position) const
 {
     QPoint tableTopLeft = d->m_eventTree->mapToGlobal(QPoint(0,0));

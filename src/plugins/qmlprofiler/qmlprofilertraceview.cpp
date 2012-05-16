@@ -478,11 +478,13 @@ void QmlProfilerTraceView::updateVerticalScroll(int newPosition)
 
 void QmlProfilerTraceView::resizeEvent(QResizeEvent *event)
 {
+    QWidget::resizeEvent(event);
     if (d->m_mainView->rootObject()) {
         d->m_mainView->rootObject()->setProperty("width", QVariant(event->size().width()));
         int newHeight = event->size().height() - d->m_timebar->height() - d->m_overview->height();
         d->m_mainView->rootObject()->setProperty("candidateHeight", QVariant(newHeight));
     }
+    emit resized();
 }
 
 ////////////////////////////////////////////////////////////////

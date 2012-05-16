@@ -548,12 +548,6 @@ Rectangle {
         color: labels.color
     }
 
-    StatusDisplay {
-        anchors.horizontalCenter: flick.horizontalCenter
-        anchors.verticalCenter: labels.verticalCenter
-        z:3
-    }
-
     // Gradient borders
     Item {
         anchors.left: labels.right

@@ -37,11 +37,11 @@
 #include "qmlprofilertool.h"
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilerdatamodel.h"
+#include "qmlprofilerstatewidget.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <analyzerbase/analyzermanager.h>
-
 
 #include <QDockWidget>
 
@@ -134,6 +134,10 @@ void QmlProfilerViewManager::createViews()
     mw->splitDockWidget(mw->toolBarDockWidget(), timelineDock, Qt::Vertical);
     mw->tabifyDockWidget(timelineDock, eventsDock);
     mw->tabifyDockWidget(eventsDock, v8profilerDock);
+
+    new QmlProfilerStateWidget(d->profilerState, d->profilerDataModel, d->traceView);
+    new QmlProfilerStateWidget(d->profilerState, d->profilerDataModel, d->eventsView);
+    new QmlProfilerStateWidget(d->profilerState, d->profilerDataModel, d->v8profilerView);
 }
 
 bool QmlProfilerViewManager::hasValidSelection() const
