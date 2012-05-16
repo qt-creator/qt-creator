@@ -119,7 +119,7 @@ Id::Id(const char *name)
 {}
 
 Id::Id(const QString &name)
-   : m_id(theId(name.toLatin1()))
+   : m_id(theId(name.toUtf8()))
 {}
 
 QByteArray Id::name() const
@@ -129,7 +129,7 @@ QByteArray Id::name() const
 
 QString Id::toString() const
 {
-    return QString::fromLatin1(stringFromId[m_id]);
+    return QString::fromUtf8(stringFromId[m_id]);
 }
 
 } // namespace Core
