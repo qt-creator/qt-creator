@@ -227,7 +227,7 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
         const QString remoteFilePath = df.remoteDir + QLatin1Char('/')  + fi.fileName();
         if (fi.isSymLink()) {
              const QString target = fi.dir().relativeFilePath(fi.symLinkTarget()); // see QTBUG-5817.
-             const QString command = QLatin1String("ln -vsf ") + target + QLatin1Char(' ')
+             const QString command = QLatin1String("ln -sf ") + target + QLatin1Char(' ')
                  + remoteFilePath;
 
              // See comment in SftpChannel::createLink as to why we can't use it.
