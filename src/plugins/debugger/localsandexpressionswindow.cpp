@@ -1,4 +1,7 @@
 #include "localsandexpressionswindow.h"
+
+#include <coreplugin/minisplitter.h>
+
 #include <QVBoxLayout>
 #include <QSplitter>
 #include <QStackedWidget>
@@ -15,7 +18,7 @@ LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(
     layout->setMargin(0);
     layout->setSpacing(0);
 
-    m_splitter = new QSplitter(Qt::Vertical);
+    m_splitter = new Core::MiniSplitter(Qt::Vertical);
     layout->addWidget(m_splitter);
 
     m_localsAndInspector = new QStackedWidget();
