@@ -164,6 +164,11 @@ CustomWizardFieldPage::TextEditData::TextEditData(QTextEdit* le, const QString &
 {
 }
 
+CustomWizardFieldPage::PathChooserData::PathChooserData(Utils::PathChooser* pe, const QString &defText) :
+    pathChooser(pe), defaultText(defText)
+{
+}
+
 CustomWizardFieldPage::CustomWizardFieldPage(const QSharedPointer<CustomWizardContext> &ctx,
                                              const QSharedPointer<CustomWizardParameters> &parameters,
                                              QWidget *parent) :
@@ -305,10 +310,12 @@ QWidget *CustomWizardFieldPage::registerTextEdit(const QString &fieldName,
 } // QTextEdit
 
 QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
-                                                 const CustomWizardField & /*field*/)
+                                                 const CustomWizardField &field)
 {
     Utils::PathChooser *pathChooser = new Utils::PathChooser;
     registerField(fieldName, pathChooser, "path", SIGNAL(changed(QString)));
+    const QString defaultText = field.controlAttributes.value(QLatin1String("defaulttext"));
+    m_pathChoosers.push_back(PathChooserData(pathChooser, defaultText));
     return pathChooser;
 } // Utils::PathChooser
 
@@ -374,6 +381,15 @@ void CustomWizardFieldPage::initializePage()
             ted.textEdit->setText(defaultText);
         }
     }
+    foreach (const PathChooserData &ped, m_pathChoosers) {
+        if (!ped.userChange.isNull()) {
+            ped.pathChooser->setPath(ped.userChange);
+        } else if (!ped.defaultText.isEmpty()) {
+            QString defaultText = ped.defaultText;
+            CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
+            ped.pathChooser->setPath(defaultText);
+        }
+    }
 }
 
 void CustomWizardFieldPage::cleanupPage()
@@ -396,6 +412,15 @@ void CustomWizardFieldPage::cleanupPage()
             ted.userChange = ted.textEdit->toHtml();
         else
             ted.userChange.clear();
+    }
+    for (int i= 0; i < m_pathChoosers.count(); ++i) {
+        PathChooserData &ped = m_pathChoosers[i];
+        QString defaultText = ped.defaultText;
+        CustomWizardContext::replaceFields(m_context->baseReplacements, &defaultText);
+        if (ped.pathChooser->path() != ped.defaultText)
+            ped.userChange = ped.pathChooser->path();
+        else
+            ped.userChange.clear();
     }
     QWizardPage::cleanupPage();
 }

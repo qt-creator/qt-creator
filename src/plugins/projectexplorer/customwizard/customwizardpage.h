@@ -142,8 +142,16 @@ private:
         QString defaultText;
         QString userChange;
     };
+    struct PathChooserData {
+        explicit PathChooserData(Utils::PathChooser* pe = 0, const QString &defText = QString());
+        Utils::PathChooser* pathChooser;
+        QString defaultText;
+        QString userChange;
+    };
+
     typedef QList<LineEditData> LineEditDataList;
     typedef QList<TextEditData> TextEditDataList;
+    typedef QList<PathChooserData> PathChooserDataList;
 
     QWidget *registerLineEdit(const QString &fieldName, const CustomWizardField &field);
     QWidget *registerComboBox(const QString &fieldName, const CustomWizardField &field);
@@ -159,6 +167,7 @@ private:
     QFormLayout *m_formLayout;
     LineEditDataList m_lineEdits;
     TextEditDataList m_textEdits;
+    PathChooserDataList m_pathChoosers;
     QLabel *m_errorLabel;
 };
 
