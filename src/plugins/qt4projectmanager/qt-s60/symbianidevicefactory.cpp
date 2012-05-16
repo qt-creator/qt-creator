@@ -69,9 +69,9 @@ ProjectExplorer::IDevice::Ptr SymbianIDeviceFactory::restore(const QVariantMap &
     return ProjectExplorer::IDevice::Ptr(dev);
 }
 
-QString SymbianIDeviceFactory::deviceType()
+Core::Id SymbianIDeviceFactory::deviceType()
 {
-    return QLatin1String("Qt4ProjectManager.SymbianDevice");
+    return Core::Id("Qt4ProjectManager.SymbianDevice");
 }
 
 } // namespace internal

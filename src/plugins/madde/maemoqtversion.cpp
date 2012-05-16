@@ -124,16 +124,16 @@ QList<ProjectExplorer::Abi> MaemoQtVersion::detectQtAbis() const
     QList<ProjectExplorer::Abi> result;
     if (!isValid())
         return result;
-    if (m_deviceType == QLatin1String(Maemo5OsType)) {
+    if (m_deviceType == Core::Id(Maemo5OsType)) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::MaemoLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
                                            32));
-    } else if (m_deviceType == QLatin1String(HarmattanOsType)) {
+    } else if (m_deviceType == Core::Id(HarmattanOsType)) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::HarmattanLinuxFlavor,
                                            ProjectExplorer::Abi::ElfFormat,
                                            32));
-    } else if (m_deviceType == QLatin1String(MeeGoOsType)) {
+    } else if (m_deviceType == Core::Id(MeeGoOsType)) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::MeegoLinuxFlavor,
                                            ProjectExplorer::Abi::ElfFormat, 32));
@@ -151,11 +151,11 @@ QSet<Core::Id> MaemoQtVersion::supportedTargetIds() const
     QSet<Core::Id> result;
     if (!isValid())
         return result;
-    if (m_deviceType == QLatin1String(Maemo5OsType)) {
+    if (m_deviceType == Core::Id(Maemo5OsType)) {
         result.insert(Core::Id(Constants::MAEMO5_DEVICE_TARGET_ID));
-    } else if (m_deviceType == QLatin1String(HarmattanOsType)) {
+    } else if (m_deviceType == Core::Id(HarmattanOsType)) {
         result.insert(Core::Id(Constants::HARMATTAN_DEVICE_TARGET_ID));
-    } else if (m_deviceType == QLatin1String(MeeGoOsType)) {
+    } else if (m_deviceType == Core::Id(MeeGoOsType)) {
         result.insert(Core::Id(Constants::MEEGO_DEVICE_TARGET_ID));
     }
     return result;
@@ -163,11 +163,11 @@ QSet<Core::Id> MaemoQtVersion::supportedTargetIds() const
 
 QString MaemoQtVersion::description() const
 {
-    if (m_deviceType == QLatin1String(Maemo5OsType))
+    if (m_deviceType == Core::Id(Maemo5OsType))
         return QCoreApplication::translate("QtVersion", "Maemo", "Qt Version is meant for Maemo5");
-    else if (m_deviceType == QLatin1String(HarmattanOsType))
+    else if (m_deviceType == Core::Id(HarmattanOsType))
         return QCoreApplication::translate("QtVersion", "Harmattan ", "Qt Version is meant for Harmattan");
-    else if (m_deviceType == QLatin1String(MeeGoOsType))
+    else if (m_deviceType == Core::Id(MeeGoOsType))
         return QCoreApplication::translate("QtVersion", "MeeGo", "Qt Version is meant for MeeGo");
     return QString();
 }
@@ -180,7 +180,7 @@ bool MaemoQtVersion::supportsShadowBuilds() const
     return true;
 }
 
-QString MaemoQtVersion::deviceType() const
+Core::Id MaemoQtVersion::deviceType() const
 {
     return m_deviceType;
 }
@@ -192,7 +192,7 @@ Core::FeatureSet MaemoQtVersion::availableFeatures() const
         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO);
     features |= Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
 
-    if (deviceType() != QLatin1String(Maemo5OsType)) //Only Maemo5 has proper support for Widgets
+    if (deviceType() != Core::Id(Maemo5OsType)) //Only Maemo5 has proper support for Widgets
         features.remove(Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS));
 
     return features;

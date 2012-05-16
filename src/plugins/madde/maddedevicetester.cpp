@@ -117,7 +117,7 @@ void MaddeDeviceTester::handleGenericTestFinished(TestResult result)
     connect(m_processRunner, SIGNAL(processClosed(int)), SLOT(handleProcessFinished(int)));
 
     QString qtInfoCmd;
-    if (m_deviceConfiguration->type() == QLatin1String(MeeGoOsType)) {
+    if (m_deviceConfiguration->type() == Core::Id(MeeGoOsType)) {
         qtInfoCmd = QLatin1String("rpm -qa 'libqt*' --queryformat '%{NAME} %{VERSION}\\n'");
     } else {
         qtInfoCmd = QLatin1String("dpkg-query -W -f "
@@ -212,7 +212,7 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
     } else if (m_processRunner->processExitCode() != 0) {
         QString message = tr("Connectivity tool not installed on device. "
             "Deployment currently not possible.");
-        if (m_deviceConfiguration->type() == QLatin1String(HarmattanOsType)) {
+        if (m_deviceConfiguration->type() == Core::Id(HarmattanOsType)) {
             message += tr("Please switch the device to developer mode "
                 "via Settings -> Security.");
         }
@@ -222,7 +222,7 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
         emit progressMessage(tr("Connectivity tool present.\n"));
     }
 
-    if (m_deviceConfiguration->type() != QLatin1String(HarmattanOsType)) {
+    if (m_deviceConfiguration->type() != Core::Id(HarmattanOsType)) {
         setFinished();
         return;
     }
@@ -263,7 +263,7 @@ QString MaddeDeviceTester::processedQtLibsList()
     QString unfilteredLibs = QString::fromUtf8(m_stdout);
     QString filteredLibs;
     QString patternString;
-    if (m_deviceConfiguration->type() == QLatin1String(MeeGoOsType))
+    if (m_deviceConfiguration->type() == Core::Id(MeeGoOsType))
         patternString = QLatin1String("(libqt\\S+) ((\\d+)\\.(\\d+)\\.(\\d+))");
     else
         patternString = QLatin1String("(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+");

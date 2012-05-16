@@ -1133,7 +1133,7 @@ Qt4Maemo5Target::~Qt4Maemo5Target() {}
 
 bool Qt4Maemo5Target::supportsDevice(const ProjectExplorer::IDevice::ConstPtr &device) const
 {
-    return device->type() == QLatin1String(Maemo5OsType);
+    return device->type() == Core::Id(Maemo5OsType);
 }
 
 QString Qt4Maemo5Target::defaultDisplayName()
@@ -1177,7 +1177,7 @@ Qt4HarmattanTarget::~Qt4HarmattanTarget() {}
 
 bool Qt4HarmattanTarget::supportsDevice(const ProjectExplorer::IDevice::ConstPtr &device) const
 {
-    return device->type() == QLatin1String(HarmattanOsType);
+    return device->type() == Core::Id(HarmattanOsType);
 }
 
 QString Qt4HarmattanTarget::defaultDisplayName()
@@ -1253,7 +1253,7 @@ Qt4MeegoTarget::~Qt4MeegoTarget() {}
 
 bool Qt4MeegoTarget::supportsDevice(const ProjectExplorer::IDevice::ConstPtr &device) const
 {
-    return device->type() == QLatin1String(MeeGoOsType);
+    return device->type() == Core::Id(MeeGoOsType);
 }
 
 QString Qt4MeegoTarget::defaultDisplayName()

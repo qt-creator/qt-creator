@@ -84,7 +84,7 @@ bool MaemoPublishingWizardFactoryFremantleFree::canCreateWizard(const Project *p
             QtSupport::BaseQtVersion *qt = qt4Bc->qtVersion();
             if (!qt)
                 continue;
-            if (MaemoGlobal::deviceType(qt->qmakeCommand().toString()) == QLatin1String(Maemo5OsType))
+            if (MaemoGlobal::deviceType(qt->qmakeCommand().toString()) == Core::Id(Maemo5OsType))
                 return true;
         }
         break;

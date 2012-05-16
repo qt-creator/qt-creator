@@ -80,20 +80,20 @@ bool MaemoGlobal::isMeegoTargetId(const Core::Id id)
 
 bool MaemoGlobal::isValidMaemo5QtVersion(const QString &qmakePath)
 {
-    return isValidMaemoQtVersion(qmakePath, QLatin1String(Maemo5OsType));
+    return isValidMaemoQtVersion(qmakePath, Core::Id(Maemo5OsType));
 }
 
 bool MaemoGlobal::isValidHarmattanQtVersion(const QString &qmakePath)
 {
-    return isValidMaemoQtVersion(qmakePath, QLatin1String(HarmattanOsType));
+    return isValidMaemoQtVersion(qmakePath, Core::Id(HarmattanOsType));
 }
 
 bool MaemoGlobal::isValidMeegoQtVersion(const QString &qmakePath)
 {
-    return isValidMaemoQtVersion(qmakePath, QLatin1String(MeeGoOsType));
+    return isValidMaemoQtVersion(qmakePath, Core::Id(MeeGoOsType));
 }
 
-bool MaemoGlobal::isValidMaemoQtVersion(const QString &qmakePath, const QString &deviceType)
+bool MaemoGlobal::isValidMaemoQtVersion(const QString &qmakePath, Core::Id deviceType)
 {
     if (MaemoGlobal::deviceType(qmakePath) != deviceType)
         return false;
@@ -133,12 +133,12 @@ int MaemoGlobal::applicationIconSize(const ProjectExplorer::Target *target)
     return qobject_cast<const Qt4HarmattanTarget *>(target) ? 80 : 64;
 }
 
-QString MaemoGlobal::remoteSudo(const QString &deviceType, const QString &uname)
+QString MaemoGlobal::remoteSudo(Core::Id deviceType, const QString &uname)
 {
     if (uname == QLatin1String("root"))
         return QString();
-    if (deviceType == QLatin1String(Maemo5OsType) || deviceType == QLatin1String(HarmattanOsType)
-            || deviceType == QLatin1String(MeeGoOsType)) {
+    if (deviceType == Core::Id(Maemo5OsType) || deviceType == Core::Id(HarmattanOsType)
+            || deviceType == Core::Id(MeeGoOsType)) {
         return devrootshPath();
     }
     return QString(); // Using sudo would open a can of worms.
@@ -200,22 +200,22 @@ QString MaemoGlobal::madCommand(const QString &qmakePath)
     return maddeRoot(qmakePath) + QLatin1String("/bin/mad");
 }
 
-QString MaemoGlobal::madDeveloperUiName(const QString &deviceType)
+QString MaemoGlobal::madDeveloperUiName(Core::Id deviceType)
 {
-    return deviceType == QLatin1String(HarmattanOsType)
+    return deviceType == Core::Id(HarmattanOsType)
         ? tr("SDK Connectivity") : tr("Mad Developer");
 }
 
-QString MaemoGlobal::deviceType(const QString &qmakePath)
+Core::Id MaemoGlobal::deviceType(const QString &qmakePath)
 {
     const QString &name = targetName(qmakePath);
     if (name.startsWith(QLatin1String("fremantle")))
-        return QLatin1String(Maemo5OsType);
+        return Core::Id(Maemo5OsType);
     if (name.startsWith(QLatin1String("harmattan")))
-        return QLatin1String(HarmattanOsType);
+        return Core::Id(HarmattanOsType);
     if (name.startsWith(QLatin1String("meego")))
-        return QLatin1String(MeeGoOsType);
-    return QLatin1String(RemoteLinux::Constants::GenericLinuxOsType);
+        return Core::Id(MeeGoOsType);
+    return Core::Id(RemoteLinux::Constants::GenericLinuxOsType);
 }
 
 QString MaemoGlobal::architecture(const QString &qmakePath)

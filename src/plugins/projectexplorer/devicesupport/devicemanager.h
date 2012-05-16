@@ -62,8 +62,8 @@ public:
     IDevice::ConstPtr deviceAt(int index) const;
 
     IDevice::ConstPtr find(Core::Id id) const;
-    IDevice::ConstPtr findInactiveAutoDetectedDevice(const QString &type, Core::Id id);
-    IDevice::ConstPtr defaultDevice(const QString &deviceType) const;
+    IDevice::ConstPtr findInactiveAutoDetectedDevice(Core::Id type, Core::Id id);
+    IDevice::ConstPtr defaultDevice(Core::Id deviceType) const;
     bool hasDevice(const QString &name) const;
     Core::Id deviceId(const IDevice::ConstPtr &device) const;
 

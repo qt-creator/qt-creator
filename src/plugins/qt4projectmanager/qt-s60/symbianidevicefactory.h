@@ -51,7 +51,7 @@ public:
     bool canRestore(const QVariantMap &map) const;
     ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const;
 
-    static QString deviceType();
+    static Core::Id deviceType();
 };
 
 } // namespace Internal

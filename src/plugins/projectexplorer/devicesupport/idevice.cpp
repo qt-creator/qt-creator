@@ -160,7 +160,7 @@ public:
     { }
 
     QString displayName;
-    QString type;
+    Core::Id type;
     IDevice::Origin origin;
     Core::Id id;
     IDevice::AvailabilityState availability;
@@ -170,7 +170,7 @@ public:
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
 { }
 
-IDevice::IDevice(const QString &type, Origin origin, Core::Id id) : d(new Internal::IDevicePrivate)
+IDevice::IDevice(Core::Id type, Origin origin, Core::Id id) : d(new Internal::IDevicePrivate)
 {
     d->type = type;
     d->origin = origin;
@@ -216,7 +216,7 @@ IDevice::DeviceInfo IDevice::deviceInformation() const
     return result;
 }
 
-QString IDevice::type() const
+Core::Id IDevice::type() const
 {
     return d->type;
 }
@@ -248,9 +248,9 @@ Core::Id IDevice::invalidId()
     return Core::Id();
 }
 
-QString IDevice::typeFromMap(const QVariantMap &map)
+Core::Id IDevice::typeFromMap(const QVariantMap &map)
 {
-    return map.value(QLatin1String(TypeKey)).toString();
+    return Core::Id(map.value(QLatin1String(TypeKey)).toByteArray().constData());
 }
 
 Core::Id IDevice::idFromMap(const QVariantMap &map)
@@ -270,7 +270,7 @@ QVariantMap IDevice::toMap() const
 {
     QVariantMap map;
     map.insert(QLatin1String(DisplayNameKey), d->displayName);
-    map.insert(QLatin1String(TypeKey), d->type);
+    map.insert(QLatin1String(TypeKey), d->type.name());
     map.insert(QLatin1String(IdKey), d->id.name());
     map.insert(QLatin1String(OriginKey), d->origin);
     return map;

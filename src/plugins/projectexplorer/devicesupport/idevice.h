@@ -74,7 +74,7 @@ public:
     typedef QList<DeviceInfoItem> DeviceInfo;
     virtual DeviceInfo deviceInformation() const;
 
-    QString type() const;
+    Core::Id type() const;
     bool isAutoDetected() const;
     Core::Id id() const;
 
@@ -94,12 +94,12 @@ public:
 
     static Core::Id invalidId();
 
-    static QString typeFromMap(const QVariantMap &map);
+    static Core::Id typeFromMap(const QVariantMap &map);
     static Core::Id idFromMap(const QVariantMap &map);
 
 protected:
     IDevice();
-    IDevice(const QString &type, Origin origin, Core::Id id = Core::Id());
+    IDevice(Core::Id type, Origin origin, Core::Id id = Core::Id());
     IDevice(const IDevice &other);
 
     Ptr sharedFromThis();

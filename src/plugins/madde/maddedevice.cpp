@@ -53,7 +53,7 @@ MaddeDevice::Ptr MaddeDevice::create()
     return Ptr(new MaddeDevice);
 }
 
-MaddeDevice::Ptr MaddeDevice::create(const QString &name, const QString &type,
+MaddeDevice::Ptr MaddeDevice::create(const QString &name, Core::Id type,
         MachineType machineType, Origin origin, Core::Id id)
 {
     return Ptr(new MaddeDevice(name, type, machineType, origin, id));
@@ -63,7 +63,7 @@ MaddeDevice::MaddeDevice()
 {
 }
 
-MaddeDevice::MaddeDevice(const QString &name, const QString &type, MachineType machineType,
+MaddeDevice::MaddeDevice(const QString &name, Core::Id type, MachineType machineType,
         Origin origin, Core::Id id)
     : LinuxDeviceConfiguration(name, type, machineType, origin, id)
 {
@@ -120,11 +120,11 @@ void MaddeDevice::executeAction(Core::Id actionId, QWidget *parent) const
         d->exec();
 }
 
-QString MaddeDevice::maddeDisplayType(const QString &type)
+QString MaddeDevice::maddeDisplayType(Core::Id type)
 {
-    if (type == QLatin1String(Maemo5OsType))
+    if (type == Core::Id(Maemo5OsType))
         return tr("Maemo5/Fremantle");
-    if (type == QLatin1String(HarmattanOsType))
+    if (type == Core::Id(HarmattanOsType))
         return tr("MeeGo 1.2 Harmattan");
     return tr("Other MeeGo OS");
 }

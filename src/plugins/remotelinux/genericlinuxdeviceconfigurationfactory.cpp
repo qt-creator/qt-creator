@@ -66,7 +66,7 @@ IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const
 
 bool GenericLinuxDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
 {
-    return IDevice::typeFromMap(map) == QLatin1String(Constants::GenericLinuxOsType);
+    return IDevice::typeFromMap(map) == Core::Id(Constants::GenericLinuxOsType);
 }
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::restore(const QVariantMap &map) const

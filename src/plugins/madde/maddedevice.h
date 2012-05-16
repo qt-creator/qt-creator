@@ -47,7 +47,7 @@ public:
     typedef QSharedPointer<const MaddeDevice> ConstPtr;
 
     static Ptr create();
-    static Ptr create(const QString &name, const QString &type, MachineType machineType,
+    static Ptr create(const QString &name, Core::Id type, MachineType machineType,
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
 
     QString displayType() const;
@@ -55,11 +55,11 @@ public:
     QString displayNameForActionId(Core::Id actionId) const;
     void executeAction(Core::Id actionId, QWidget *parent) const;
     ProjectExplorer::IDevice::Ptr clone() const;
-    static QString maddeDisplayType(const QString &type);
+    static QString maddeDisplayType(Core::Id type);
 
 private:
     MaddeDevice();
-    MaddeDevice(const QString &name, const QString &type, MachineType machineType,
+    MaddeDevice(const QString &name, Core::Id type, MachineType machineType,
                 Origin origin, Core::Id id);
 
     MaddeDevice(const MaddeDevice &other);

@@ -86,7 +86,7 @@ void MaemoPublishingBuildSettingsPageFremantleFree::collectBuildConfigurations(c
             QtSupport::BaseQtVersion *lqt = qt4Bc->qtVersion();
             if (!lqt)
                 continue;
-            if (MaemoGlobal::deviceType(lqt->qmakeCommand().toString()) == QLatin1String(Maemo5OsType))
+            if (MaemoGlobal::deviceType(lqt->qmakeCommand().toString()) == Core::Id(Maemo5OsType))
                 m_buildConfigs << qt4Bc;
         }
         break;

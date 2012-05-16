@@ -62,9 +62,9 @@ namespace Madde {
 namespace Internal {
 namespace {
 
-QString defaultUser(const QString &deviceType)
+QString defaultUser(Core::Id deviceType)
 {
-    if (deviceType == QLatin1String(MeeGoOsType))
+    if (deviceType == Core::Id(MeeGoOsType))
         return QLatin1String("meego");
     return QLatin1String("developer");
 }
@@ -78,7 +78,7 @@ struct WizardData
 {
     QString configName;
     QString hostName;
-    QString deviceType;
+    Core::Id deviceType;
     SshConnectionParameters::AuthenticationType authType;
     LinuxDeviceConfiguration::MachineType machineType;
     QString privateKeyFilePath;
@@ -105,12 +105,13 @@ public:
         setTitle(tr("General Information"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
 
-        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(QLatin1String(Maemo5OsType)),
-            QLatin1String(Maemo5OsType));
-        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(QLatin1String(HarmattanOsType)),
-            QLatin1String(HarmattanOsType));
-        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(QLatin1String(MeeGoOsType)),
-            QLatin1String(MeeGoOsType));
+        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(Core::Id(Maemo5OsType)),
+            QVariant::fromValue(Core::Id(Maemo5OsType)));
+        const QVariant harmattanIdVariant = QVariant::fromValue(Core::Id(HarmattanOsType));
+        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(Core::Id(HarmattanOsType)),
+            harmattanIdVariant);
+        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(Core::Id(MeeGoOsType)),
+            QVariant::fromValue(Core::Id(MeeGoOsType)));
 
         QButtonGroup *buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
@@ -119,7 +120,7 @@ public:
         connect(buttonGroup, SIGNAL(buttonClicked(int)), SLOT(handleMachineTypeChanged()));
 
         m_ui->nameLineEdit->setText(tr("MeeGo Device"));
-        m_ui->osTypeComboBox->setCurrentIndex(m_ui->osTypeComboBox->findData(QLatin1String(HarmattanOsType)));
+        m_ui->osTypeComboBox->setCurrentIndex(m_ui->osTypeComboBox->findData(harmattanIdVariant));
         m_ui->hwButton->setChecked(true);
         handleMachineTypeChanged();
         m_ui->hostNameLineEdit->setText(defaultHost(machineType()));
@@ -146,9 +147,9 @@ public:
             : m_ui->hostNameLineEdit->text().trimmed();
     }
 
-    QString deviceType() const
+    Core::Id deviceType() const
     {
-        return m_ui->osTypeComboBox->itemData(m_ui->osTypeComboBox->currentIndex()).toString();
+        return m_ui->osTypeComboBox->itemData(m_ui->osTypeComboBox->currentIndex()).value<Core::Id>();
     }
 
     LinuxDeviceConfiguration::MachineType machineType() const
@@ -566,7 +567,7 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
     sshParams.port = d->wizardData.sshPort;
     if (d->wizardData.machineType == LinuxDeviceConfiguration::Emulator) {
         sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByPassword;
-        sshParams.password = d->wizardData.deviceType == QLatin1String(MeeGoOsType)
+        sshParams.password = d->wizardData.deviceType == Core::Id(MeeGoOsType)
             ? QLatin1String("meego") : QString();
         sshParams.timeout = 30;
         freePortsSpec = QLatin1String("13219,14168");

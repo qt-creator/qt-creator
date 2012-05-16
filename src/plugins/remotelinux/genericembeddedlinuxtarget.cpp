@@ -74,7 +74,7 @@ Utils::FileName GenericEmbeddedLinuxTarget::mkspec(const Qt4ProjectManager::Qt4B
 
 bool GenericEmbeddedLinuxTarget::supportsDevice(const ProjectExplorer::IDevice::ConstPtr &device) const
 {
-    return device->type() == QLatin1String(Constants::GenericLinuxOsType);
+    return device->type() == Core::Id(Constants::GenericLinuxOsType);
 }
 
 void GenericEmbeddedLinuxTarget::createApplicationProFiles(bool reparse)
