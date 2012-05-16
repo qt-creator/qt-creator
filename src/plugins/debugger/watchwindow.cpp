@@ -790,9 +790,9 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         new QAction(tr("Remove All Expression Evaluators"), &menu);
     actRemoveWatches->setEnabled(!WatchHandler::watcherNames().isEmpty());
 
-    if (m_type == LocalsType)
+    if (m_type == LocalsType) {
         menu.addAction(actWatchExpression);
-    else {
+    } else if (m_type == WatchersType) {
         menu.addAction(actRemoveWatchExpression);
         menu.addAction(actRemoveWatches);
     }
