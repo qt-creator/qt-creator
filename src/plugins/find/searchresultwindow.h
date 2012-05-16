@@ -105,7 +105,7 @@ public slots:
     void addResult(const QString &fileName, int lineNumber, const QString &lineText,
                    int searchTermStart, int searchTermLength, const QVariant &userData = QVariant());
     void addResults(const QList<SearchResultItem> &items, AddMode mode);
-    void finishSearch();
+    void finishSearch(bool canceled);
     void setTextToReplace(const QString &textToReplace);
     void restart();
     void setSearchAgainEnabled(bool enabled);

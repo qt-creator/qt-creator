@@ -275,7 +275,7 @@ void CppFindReferences::findAll_helper(Find::SearchResult *search)
 {
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
     if (!(parameters.symbol && parameters.symbol->identifier())) {
-        search->finishSearch();
+        search->finishSearch(false);
         return;
     }
     connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
@@ -313,7 +313,7 @@ void CppFindReferences::searchAgain()
     Snapshot snapshot = CppModelManagerInterface::instance()->snapshot();
     search->restart();
     if (!findSymbol(&parameters, snapshot)) {
-        search->finishSearch();
+        search->finishSearch(false);
         return;
     }
     search->setUserData(qVariantFromValue(parameters));
@@ -498,7 +498,7 @@ void CppFindReferences::searchFinished()
     QFutureWatcher<Usage> *watcher = static_cast<QFutureWatcher<Usage> *>(sender());
     Find::SearchResult *search = m_watchers.value(watcher);
     if (search)
-        search->finishSearch();
+        search->finishSearch(watcher->isCanceled());
     m_watchers.remove(watcher);
 }
 

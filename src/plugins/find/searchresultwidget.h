@@ -37,6 +37,7 @@
 
 #include <coreplugin/infobar.h>
 
+#include <QFrame>
 #include <QLabel>
 #include <QLineEdit>
 #include <QToolButton>
@@ -89,7 +90,7 @@ public:
     void setSearchAgainEnabled(bool enabled);
 
 public slots:
-    void finishSearch();
+    void finishSearch(bool canceled);
 
 signals:
     void activated(const Find::SearchResultItem &item);
@@ -117,6 +118,7 @@ private:
     SearchResultTreeView *m_searchResultTreeView;
     int m_count;
     QString m_dontAskAgainGroup;
+    QFrame *m_messageWidget;
     Core::InfoBar m_infoBar;
     Core::InfoBarDisplay m_infoBarDisplay;
     bool m_isShowingReplaceUI;

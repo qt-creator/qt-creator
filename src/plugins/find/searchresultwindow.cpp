@@ -669,9 +669,9 @@ void SearchResult::addResults(const QList<SearchResultItem> &items, AddMode mode
     \brief Notifies the search result window that the current search
     has finished, and the UI should reflect that.
 */
-void SearchResult::finishSearch()
+void SearchResult::finishSearch(bool canceled)
 {
-    m_widget->finishSearch();
+    m_widget->finishSearch(canceled);
 }
 
 /*!

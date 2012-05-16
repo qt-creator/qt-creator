@@ -958,7 +958,7 @@ void FindReferences::displayResults(int first, int last)
 void FindReferences::searchFinished()
 {
     if (m_currentSearch)
-        m_currentSearch->finishSearch();
+        m_currentSearch->finishSearch(m_watcher.isCanceled());
     m_currentSearch = 0;
     emit changed();
 }

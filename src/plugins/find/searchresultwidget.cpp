@@ -96,6 +96,23 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     QHBoxLayout *topLayout = new QHBoxLayout(topWidget);
     topLayout->setMargin(2);
     topWidget->setLayout(topLayout);
+    layout->addWidget(topWidget);
+
+    m_messageWidget = new QFrame;
+    pal.setColor(QPalette::Window, QColor(255, 255, 225));
+    pal.setColor(QPalette::WindowText, Qt::red);
+    m_messageWidget->setPalette(pal);
+    m_messageWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);
+    m_messageWidget->setLineWidth(1);
+    m_messageWidget->setAutoFillBackground(true);
+    QHBoxLayout *messageLayout = new QHBoxLayout(m_messageWidget);
+    messageLayout->setMargin(2);
+    m_messageWidget->setLayout(messageLayout);
+    QLabel *messageLabel = new QLabel(tr("Search was canceled."));
+    messageLabel->setPalette(pal);
+    messageLayout->addWidget(messageLabel);
+    layout->addWidget(m_messageWidget);
+    m_messageWidget->setVisible(false);
 
     m_searchResultTreeView = new Internal::SearchResultTreeView(this);
     m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
@@ -104,11 +121,9 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     agg->add(m_searchResultTreeView);
     agg->add(new TreeViewFind(m_searchResultTreeView,
                               ItemDataRoles::ResultLineRole));
-
-    layout->addWidget(topWidget);
     layout->addWidget(m_searchResultTreeView);
 
-    m_infoBarDisplay.setTarget(layout, 1);
+    m_infoBarDisplay.setTarget(layout, 2);
     m_infoBarDisplay.setInfoBar(&m_infoBar);
 
     m_descriptionContainer = new QWidget(topWidget);
@@ -332,6 +347,7 @@ void SearchResultWidget::restart()
     m_count = 0;
     m_cancelButton->setVisible(true);
     m_searchAgainButton->setVisible(false);
+    m_messageWidget->setVisible(false);
     updateMatchesFoundLabel();
     emit restarted();
 }
@@ -347,11 +363,12 @@ void SearchResultWidget::setSearchAgainEnabled(bool enabled)
     m_searchAgainButton->setEnabled(enabled);
 }
 
-void SearchResultWidget::finishSearch()
+void SearchResultWidget::finishSearch(bool canceled)
 {
     m_replaceTextEdit->setEnabled(m_count > 0);
     m_replaceButton->setEnabled(m_count > 0);
     m_cancelButton->setVisible(false);
+    m_messageWidget->setVisible(canceled);
     m_searchAgainButton->setVisible(m_searchAgainSupported);
 }
 

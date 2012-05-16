@@ -216,7 +216,7 @@ void BaseFileFind::searchFinished()
             static_cast<QFutureWatcher<FileSearchResultList> *>(sender());
     SearchResult *search = m_watchers.value(watcher);
     if (search)
-        search->finishSearch();
+        search->finishSearch(watcher->isCanceled());
     m_watchers.remove(watcher);
     watcher->deleteLater();
 }
