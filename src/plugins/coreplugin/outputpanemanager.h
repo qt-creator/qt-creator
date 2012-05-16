@@ -33,14 +33,17 @@
 #ifndef OUTPUTPANEMANAGER_H
 #define OUTPUTPANEMANAGER_H
 
+#include <coreplugin/id.h>
+
 #include <QMap>
 #include <QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
-class QStackedWidget;
+class QLabel;
 class QSplitter;
+class QStackedWidget;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -48,11 +51,9 @@ namespace Core {
 class IOutputPane;
 
 namespace Internal {
-class OutputPaneManager;
-class MainWindow;
-}
 
-namespace Internal {
+class MainWindow;
+class OutputPaneManageButton;
 
 class OutputPaneManager : public QWidget
 {
@@ -77,16 +78,18 @@ protected:
     void focusInEvent(QFocusEvent *e);
 
 private slots:
-    void changePage();
     void showPage(bool focus, bool ensureSizeHint);
     void togglePage(bool focus);
     void clearPage();
     void buttonTriggered();
     void updateNavigateState();
+    void popupMenu();
+    void saveSettings() const;
 
 private:
     // the only class that is allowed to create and destroy
     friend class MainWindow;
+    friend class OutputPaneManageButton;
 
     static void create();
     static void destroy();
@@ -97,7 +100,13 @@ private:
     void showPage(int idx, bool focus);
     void ensurePageVisible(int idx);
     int findIndexForPage(IOutputPane *out);
-    QComboBox *m_widgetComboBox;
+    int currentIndex() const;
+    void setCurrentIndex(int idx);
+    void buttonTriggered(int idx);
+    void readSettings();
+
+    QLabel *m_titleLabel;
+    OutputPaneManageButton *m_manageButton;
     QAction *m_clearAction;
     QToolButton *m_clearButton;
     QToolButton *m_closeButton;
@@ -111,14 +120,14 @@ private:
     QToolButton *m_nextToolButton;
     QWidget *m_toolBar;
 
-    QMap<int, Core::IOutputPane*> m_pageMap;
-    int m_lastIndex;
+    QList<IOutputPane *> m_panes;
+    QVector<QToolButton *> m_buttons;
+    QVector<QAction *> m_actions;
+    QVector<Id> m_ids;
 
     QStackedWidget *m_outputWidgetPane;
     QStackedWidget *m_opToolBarWidgets;
     QWidget *m_buttonsWidget;
-    QMap<int, QToolButton *> m_buttons;
-    QMap<QAction *, int> m_actions;
     QPixmap m_minimizeIcon;
     QPixmap m_maximizeIcon;
     bool m_maximised;
@@ -140,6 +149,15 @@ private:
     QString m_number;
     QString m_text;
     QAction *m_action;
+};
+
+class OutputPaneManageButton : public QToolButton
+{
+    Q_OBJECT
+public:
+    OutputPaneManageButton();
+    QSize sizeHint() const;
+    void paintEvent(QPaintEvent *event);
 };
 
 } // namespace Internal

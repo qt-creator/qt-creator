@@ -71,5 +71,6 @@
         <file>images/splitbutton_closeright.png</file>
         <file>images/splitbutton_closetop.png</file>
         <file>images/splitbutton_vertical.png</file>
+        <file>images/panel_manage_button.png</file>
     </qresource>
 </RCC>
