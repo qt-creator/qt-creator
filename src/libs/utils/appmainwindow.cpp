@@ -40,6 +40,7 @@
 #include <QCoreApplication>
 
 #ifdef Q_WS_X11
+#include <X11/Xlib.h>
 #include <QX11Info>
 #endif
 
@@ -64,11 +65,28 @@ void AppMainWindow::raiseWindow()
     setWindowState(windowState() & ~Qt::WindowMinimized);
 
     raise();
-#ifdef Q_WS_X11
-    // work around QTBUG-24932
-    QX11Info::setAppUserTime(0);
-#endif
+
+#if defined(Q_WS_X11)
+    // Do the same as QWidget::activateWindow(), but with two differences
+    // * set newest timestamp (instead of userTime()). See QTBUG-24932
+    // * set source to 'pager'. This seems to do the trick e.g. on kwin even if
+    //   the app currently having focus is 'active' (but we hit a breakpoint).
+    XEvent e;
+    e.xclient.type = ClientMessage;
+    e.xclient.message_type = XInternAtom(QX11Info::display(), "_NET_ACTIVE_WINDOW", 1);
+    e.xclient.display = QX11Info::display();
+    e.xclient.window = winId();
+    e.xclient.format = 32;
+    e.xclient.data.l[0] = 2;     // pager!
+    e.xclient.data.l[1] = QX11Info::appTime(); // X11 time!
+    e.xclient.data.l[2] = None;
+    e.xclient.data.l[3] = 0;
+    e.xclient.data.l[4] = 0;
+    XSendEvent(QX11Info::display(), QX11Info::appRootWindow(x11Info().screen()),
+               false, SubstructureNotifyMask | SubstructureRedirectMask, &e);
+#else
     activateWindow();
+#endif
 }
 
 #ifdef Q_OS_WIN
