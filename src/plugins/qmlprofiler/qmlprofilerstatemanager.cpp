@@ -142,6 +142,7 @@ void QmlProfilerStateManager::setCurrentState(QmlProfilerState newState)
     case AppKilled:
         QTC_ASSERT(d->m_currentState == AppDying,
                    qDebug() << "from" << stringForState(d->m_currentState));
+        break;
     default:
         qDebug() << tr("Switching to unknown state in %1:%2").arg(QString(__FILE__), QString::number(__LINE__));
         break;
