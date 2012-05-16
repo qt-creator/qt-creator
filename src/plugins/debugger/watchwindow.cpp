@@ -765,11 +765,11 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actInsertNewWatchItem =
         menu.addAction(tr("Insert New Expression Evaluator"));
     actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
-    QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Add into Expression Evaluator"));
+    QAction *actSelectWidgetToWatch =
+        menu.addAction(tr("Select Widget to Add into Expression Evaluator"));
     actSelectWidgetToWatch->setEnabled(canHandleWatches && canInsertWatches
-                                       && engine->hasCapability(WatchWidgetsCapability));
-    QAction *actEditTypeFormats = menu.addAction(tr("Change Global Display Formats..."));
-    actEditTypeFormats->setEnabled(true);
+           && engine->hasCapability(WatchWidgetsCapability));
+
     menu.addSeparator();
 
     QAction *actWatchExpression = new QAction(addWatchActionText(exp), &menu);
@@ -858,7 +858,6 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addAction(actInsertNewWatchItem);
     menu.addAction(actSelectWidgetToWatch);
-    menu.addAction(actEditTypeFormats);
     menu.addMenu(&formatMenu);
     menu.addMenu(&memoryMenu);
     menu.addMenu(&breakpointMenu);
@@ -927,8 +926,6 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         handler->removeData(p.data(LocalsINameRole).toByteArray());
     } else if (act == actCopy) {
         copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
-    } else if (act == actEditTypeFormats) {
-        handler->editTypeFormats(true, mi0.data(LocalsINameRole).toByteArray());
     } else if (act == actCopyValue) {
         copyToClipboard(mi1.data().toString());
     } else if (act == actRemoveWatches) {
