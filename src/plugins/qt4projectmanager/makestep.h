@@ -49,6 +49,7 @@ class Project;
 namespace Qt4ProjectManager {
 
 class Qt4BuildConfiguration;
+class MakeStepConfigWidget;
 
 namespace Internal {
 
@@ -80,6 +81,7 @@ class QT4PROJECTMANAGER_EXPORT MakeStep : public ProjectExplorer::AbstractProces
 {
     Q_OBJECT
     friend class Internal::MakeStepFactory;
+    friend class MakeStepConfigWidget;
 
 public:
     explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
@@ -111,6 +113,7 @@ protected:
 
 private:
     void ctor();
+    void setMakeCommand(const QString &make);
     bool m_clean;
     bool m_scriptTarget;
     QString m_makeFileToCheck;

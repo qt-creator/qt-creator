@@ -90,6 +90,11 @@ void MakeStep::ctor()
     setDefaultDisplayName(tr("Make", "Qt4 MakeStep display name."));
 }
 
+void MakeStep::setMakeCommand(const QString &make)
+{
+    m_makeCmd = make;
+}
+
 MakeStep::~MakeStep()
 {
 }
@@ -495,7 +500,7 @@ void MakeStepConfigWidget::userArgumentsChanged()
 
 void MakeStepConfigWidget::makeEdited()
 {
-    m_makeStep->makeCommand() = m_ui->makePathChooser->rawPath();
+    m_makeStep->setMakeCommand(m_ui->makePathChooser->rawPath());
     updateDetails();
 }
 
