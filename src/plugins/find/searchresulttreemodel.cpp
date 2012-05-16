@@ -51,6 +51,7 @@ SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
     , m_currentParent(0)
     , m_showReplaceUI(false)
+    , m_editorFontIsUsed(false)
 {
     m_rootItem = new SearchResultTreeItem;
     m_textEditorFont = QFont(QLatin1String("Courier"));
@@ -161,10 +162,12 @@ QVariant SearchResultTreeModel::data(const QModelIndex &idx, int role) const
     QVariant result;
 
     if (role == Qt::SizeHintRole) {
-        // TODO we should not use editor font height if that is not used by any item
-        const int appFontHeight = QApplication::fontMetrics().height();
-        const int editorFontHeight = QFontMetrics(m_textEditorFont).height();
-        result = QSize(0, qMax(appFontHeight, editorFontHeight));
+        int height = QApplication::fontMetrics().height();
+        if (m_editorFontIsUsed) {
+            const int editorFontHeight = QFontMetrics(m_textEditorFont).height();
+            height = qMax(height, editorFontHeight);
+        }
+        result = QSize(0, height);
     } else {
         result = data(treeItemAtIndex(idx), role);
     }
@@ -386,6 +389,7 @@ QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultIte
     qStableSort(sortedItems.begin(), sortedItems.end(), lessThanByPath);
     QList<SearchResultItem> itemSet;
     foreach (const SearchResultItem &item, sortedItems) {
+        m_editorFontIsUsed |= item.useTextEditorFont;
         if (!m_currentParent || (m_currentPath != item.path)) {
             // first add all the items from before
             if (!itemSet.isEmpty()) {
@@ -411,6 +415,7 @@ void SearchResultTreeModel::clear()
 {
     m_currentParent = NULL;
     m_rootItem->clearChildren();
+    m_editorFontIsUsed = false;
     reset();
 }
 

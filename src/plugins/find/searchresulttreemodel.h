@@ -93,6 +93,7 @@ private:
     QStringList m_currentPath; // the path that belongs to the current parent
     QFont m_textEditorFont;
     bool m_showReplaceUI;
+    bool m_editorFontIsUsed;
 };
 
 } // namespace Internal
