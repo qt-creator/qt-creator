@@ -26,6 +26,7 @@ QtcPlugin {
         "columnindicatortextedit.cpp",
         "columnindicatortextedit.h",
         "cpasterconstants.h",
+        "cpasterplugin.cpp",
         "cpasterplugin.h",
         "fileshareprotocol.cpp",
         "fileshareprotocol.h",
@@ -52,7 +53,8 @@ QtcPlugin {
         "settingspage.cpp",
         "settingspage.h",
         "settingspage.ui",
-        "cpasterplugin.cpp"
+        "urlopenprotocol.cpp",
+        "urlopenprotocol.h"
     ]
 
     Group {
@@ -65,7 +67,3 @@ QtcPlugin {
         ]
     }
 }
-
-
-
-
