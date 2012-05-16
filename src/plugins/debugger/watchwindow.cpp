@@ -769,8 +769,8 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         menu.addAction(tr("Insert New Expression Evaluator"));
     actInsertNewWatchItem->setEnabled(canHandleWatches && canInsertWatches);
     QAction *actSelectWidgetToWatch = menu.addAction(tr("Select Widget to Add into Expression Evaluator"));
-    actSelectWidgetToWatch->setEnabled(canHandleWatches
-           && engine->hasCapability(WatchWidgetsCapability));
+    actSelectWidgetToWatch->setEnabled(canHandleWatches && canInsertWatches
+                                       && engine->hasCapability(WatchWidgetsCapability));
     QAction *actEditTypeFormats = menu.addAction(tr("Change Global Display Formats..."));
     actEditTypeFormats->setEnabled(true);
     menu.addSeparator();
