@@ -124,6 +124,7 @@ GerritParameters GerritOptionsWidget::parameters() const
     result.port = m_portSpinBox->value();
     result.additionalQueries = m_additionalQueriesLineEdit->text().trimmed();
     result.https = m_httpsCheckBox->isChecked();
+    result.setPortFlagBySshType();
     return result;
 }
 

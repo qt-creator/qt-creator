@@ -51,6 +51,7 @@ public:
     bool equals(const GerritParameters &rhs) const;
     void toSettings(QSettings *) const;
     void fromSettings(const QSettings *);
+    void setPortFlagBySshType();
 
     QString host;
     unsigned short port;
@@ -58,6 +59,7 @@ public:
     QString ssh;
     QString additionalQueries;
     bool https;
+    QString portFlag;
 };
 
 inline bool operator==(const GerritParameters &p1, const GerritParameters &p2)

@@ -38,6 +38,7 @@
 #else
 #  include <utils/environment.h>
 #endif
+#include <utils/pathchooser.h>
 #include <QDebug>
 #include <QFileInfo>
 #include <QSettings>
@@ -49,11 +50,14 @@ static const char settingsGroupC[] = "Gerrit";
 static const char hostKeyC[] = "Host";
 static const char userKeyC[] = "User";
 static const char portKeyC[] = "Port";
+static const char portFlagKeyC[] = "PortFlag";
 static const char sshKeyC[] = "Ssh";
 static const char httpsKeyC[] = "Https";
 static const char defaultHostC[] = "codereview.qt-project.org";
 static const char defaultSshC[] = "ssh";
 static const char additionalQueriesKeyC[] = "AdditionalQueries";
+
+static const char defaultPortFlag[] = "-p";
 
 enum { defaultPort = 29418 };
 
@@ -83,17 +87,25 @@ static inline QString detectSsh()
     return ssh;
 }
 
+void GerritParameters::setPortFlagBySshType()
+{
+    const QString version = Utils::PathChooser::toolVersion(ssh, QStringList(QLatin1String("-V")));
+    portFlag = (version.contains(QLatin1String("plink"), Qt::CaseInsensitive)) ?
+                QLatin1String("-P") : QLatin1String(defaultPortFlag);
+}
+
 GerritParameters::GerritParameters()
     : host(QLatin1String(defaultHostC))
     , port(defaultPort)
     , https(true)
+    , portFlag(QLatin1String(defaultPortFlag))
 {
 }
 
 QStringList GerritParameters::baseCommandArguments() const
 {
     QStringList result;
-    result << ssh << QLatin1String("-p") << QString::number(port)
+    result << ssh << portFlag << QString::number(port)
            << sshHostArgument() << QLatin1String("gerrit");
     return result;
 }
@@ -116,6 +128,7 @@ void GerritParameters::toSettings(QSettings *s) const
     s->setValue(QLatin1String(hostKeyC), host);
     s->setValue(QLatin1String(userKeyC), user);
     s->setValue(QLatin1String(portKeyC), port);
+    s->setValue(QLatin1String(portFlagKeyC), portFlag);
     s->setValue(QLatin1String(sshKeyC), ssh);
     s->setValue(QLatin1String(additionalQueriesKeyC), additionalQueries);
     s->setValue(QLatin1String(httpsKeyC), https);
@@ -129,6 +142,7 @@ void GerritParameters::fromSettings(const QSettings *s)
     user = s->value(rootKey + QLatin1String(userKeyC), QString()).toString();
     ssh = s->value(rootKey + QLatin1String(sshKeyC), QString()).toString();
     port = s->value(rootKey + QLatin1String(portKeyC), QVariant(int(defaultPort))).toInt();
+    portFlag = s->value(rootKey + QLatin1String(portFlagKeyC), QLatin1String(defaultPortFlag)).toString();
     additionalQueries = s->value(rootKey + QLatin1String(additionalQueriesKeyC), QString()).toString();
     https = s->value(rootKey + QLatin1String(httpsKeyC), QVariant(true)).toBool();
     if (ssh.isEmpty())
