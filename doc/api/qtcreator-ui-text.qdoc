@@ -79,9 +79,12 @@
 
     \list
 
+        \o  Use full stops in messages.
+
         \o  Never user full stops (.) at the end of menu item names.
 
-        \o  Use full stops in messages.
+        \o  Place three full stops (...) at the end of menu item names that
+            open a dialog requiring user action.
 
         \o  Use exclamation marks (!) only in text that demands extra attention
             from the user or carries special weight.
