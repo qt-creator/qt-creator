@@ -130,6 +130,8 @@ bool MakeStep::fromMap(const QVariantMap &map)
 bool MakeStep::init()
 {
     CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
+    if (!bc)
+        bc = static_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
 
     QString arguments = Utils::QtcProcess::joinArgs(m_buildTargets);
     Utils::QtcProcess::addArgs(&arguments, additionalArguments());
