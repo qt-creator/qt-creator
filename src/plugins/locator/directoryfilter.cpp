@@ -71,13 +71,12 @@ bool DirectoryFilter::restoreState(const QByteArray &state)
 {
     QMutexLocker locker(&m_lock);
 
-    QStringList dirEntries;
     QString shortcut;
     bool defaultFilter;
 
     QDataStream in(state);
     in >> m_name;
-    in >> dirEntries;
+    in >> m_directories;
     in >> m_filters;
     in >> shortcut;
     in >> defaultFilter;
@@ -85,15 +84,6 @@ bool DirectoryFilter::restoreState(const QByteArray &state)
 
     setShortcutString(shortcut);
     setIncludedByDefault(defaultFilter);
-
-    // ### TODO throw that out again:
-    // clear the list of directories of empty entries (which might at least happen at a format change)
-    m_directories.clear();
-    foreach (const QString &dir, dirEntries) {
-        if (dir.isEmpty())
-            continue;
-        m_directories.append(dir);
-    }
 
     generateFileNames();
     return true;
