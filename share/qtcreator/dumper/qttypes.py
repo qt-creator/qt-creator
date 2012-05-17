@@ -1369,7 +1369,7 @@ def qdump__QStringList(d, value):
     d.putNumChild(size)
     if d.isExpanded():
         innerType = lookupType(d.ns + "QString")
-        d.putArrayData(innerType, d_ptr["array"], size)
+        d.putArrayData(innerType, d_ptr["array"], size, 0)
 
 
 def qdump__QTemporaryFile(d, value):
