@@ -1468,6 +1468,11 @@ class Dumper:
             return
 
         if type.code == TypedefCode:
+            if typeName in qqDumpers:
+                self.putType(typeName)
+                qqDumpers[typeName](self, value)
+                return
+
             type = stripTypedefs(type)
             # The cast can destroy the address?
             self.putAddress(value.address)
