@@ -57,7 +57,7 @@ class TodoOutputPane : public Core::IOutputPane
     Q_OBJECT
 
 public:
-    TodoOutputPane(TodoItemsModel *m_todoItemsModel, QObject *parent = 0);
+    TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent = 0);
     ~TodoOutputPane();
 
     QWidget *outputWidget(QWidget *parent);

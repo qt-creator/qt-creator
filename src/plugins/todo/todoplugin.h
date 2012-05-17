@@ -59,7 +59,7 @@ public:
     bool initialize(const QStringList &arguments, QString *errorString);
 
 private slots:
-    void settingsChanged(const Settings &m_settings);
+    void settingsChanged(const Settings &settings);
     void scanningScopeChanged(ScanningScope scanningScope);
     void todoItemClicked(const TodoItem &item);
 
