@@ -1358,6 +1358,25 @@ class Dumper:
             self.putName(name)
             self.putItem(value)
 
+    def tryPutSimple(self, type, base, n):
+        if isSimpleType(type):
+            self.put('{value="')
+            self.put('"},{value="'.join([str((base + i).dereference())
+                for i in xrange(n)]))
+            self.put('"}');
+            return True
+        return False
+
+    def putArrayData(self, type, base, n, maxNumChild = 10000):
+        charPointer = lookupType("char *")
+        s = (base+1).cast(charPointer) - base.cast(charPointer)
+        with Children(self, n, maxNumChild=maxNumChild, childType=type,
+                addrBase=base, addrStep=s):
+            if not self.tryPutSimple(type, base, n):
+                for i in self.childRange():
+                    self.putSubItem(i, (base + i).dereference())
+
+
     def putCallItem(self, name, value, func, *args):
         result = call2(value, func, args)
         with SubItem(self, name):
@@ -1469,7 +1488,7 @@ class Dumper:
             return
 
         if type.code == ArrayCode:
-            targettype = type.target()
+            targetType = type.target()
             self.putAddress(value.address)
             self.putType(typeName)
             self.putNumChild(1)
@@ -1484,14 +1503,14 @@ class Dumper:
                 # Explicitly requested Local 8-bit formatting.
                 self.putValue(encodeCharArray(value, 100), Hex2EncodedLocal8Bit)
             else:
-                self.putValue("@0x%x" % long(value.cast(targettype.pointer())))
+                self.putValue("@0x%x" % long(value.cast(targetType.pointer())))
             if self.currentIName in self.expandedINames:
-                i = 0
-                with Children(self, childType=targettype,
-                        addrBase=value.cast(targettype.pointer()),
-                        addrStep=targettype.sizeof):
-                    self.putFields(value)
-                    i = i + 1
+                p = value.cast(targetType.pointer())
+                ts = targetType.sizeof
+                with Children(self, childType=targetType,
+                        addrBase=p, addrStep=ts):
+                    if not self.tryPutSimple(targetType, p, type.sizeof/ts):
+                        self.putFields(value)
             return
 
         if type.code == PointerCode:
