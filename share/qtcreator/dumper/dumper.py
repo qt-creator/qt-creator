@@ -1358,7 +1358,7 @@ class Dumper:
             self.putName(name)
             self.putItem(value)
 
-    def tryPutSimple(self, type, base, n):
+    def tryPutArrayContents(self, type, base, n):
         if isSimpleType(type):
             self.put('{value="')
             self.put('"},{value="'.join([str((base + i).dereference())
@@ -1367,12 +1367,12 @@ class Dumper:
             return True
         return False
 
-    def putArrayData(self, type, base, n, maxNumChild = 10000):
-        charPointer = lookupType("char *")
-        s = (base+1).cast(charPointer) - base.cast(charPointer)
-        with Children(self, n, maxNumChild=maxNumChild, childType=type,
-                addrBase=base, addrStep=s):
-            if not self.tryPutSimple(type, base, n):
+    def putArrayData(self, type, base, n,
+            childNumChild = None, maxNumChild = 10000):
+        base = base.cast(type.pointer())
+        with Children(self, n, type, childNumChild, maxNumChild,
+                base, type.sizeof):
+            if not self.tryPutArrayContents(type, base, n):
                 for i in self.childRange():
                     self.putSubItem(i, (base + i).dereference())
 
@@ -1509,7 +1509,7 @@ class Dumper:
                 ts = targetType.sizeof
                 with Children(self, childType=targetType,
                         addrBase=p, addrStep=ts):
-                    if not self.tryPutSimple(targetType, p, type.sizeof/ts):
+                    if not self.tryPutArrayContents(targetType, p, type.sizeof/ts):
                         self.putFields(value)
             return
 
@@ -1680,10 +1680,6 @@ class Dumper:
         if self.useFancy and (format is None or format >= 1):
             self.putAddress(value.address)
             self.putType(typeName)
-
-            if typeName in qqDumpers:
-                qqDumpers[typeName](self, value)
-                return
 
             nsStrippedType = self.stripNamespaceFromType(typeName)\
                 .replace("::", "__")

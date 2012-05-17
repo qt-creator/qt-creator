@@ -2364,11 +2364,13 @@ namespace stdarray {
     {
         #if USE_CXX11
         std::array<int, 4> a = { { 1, 2, 3, 4} };
+        std::array<QString, 4> b = { { "1", "2", "3", "4"} };
         BREAK_HERE;
         // Expand a.
         // Check a <4 items> std::array<int, 4u>.
+        // Check a <4 items> std::array<QString, 4u>.
         // Continue.
-        dummyStatement(&a);
+        dummyStatement(&a, &b);
         #endif
     }
 
