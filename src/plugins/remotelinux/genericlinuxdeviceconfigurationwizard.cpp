@@ -38,7 +38,7 @@
 #include <utils/portlist.h>
 
 using namespace ProjectExplorer;
-using namespace Utils;
+using namespace QSsh;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -76,7 +76,7 @@ GenericLinuxDeviceConfigurationWizard::~GenericLinuxDeviceConfigurationWizard()
 
 IDevice::Ptr GenericLinuxDeviceConfigurationWizard::device()
 {
-    Utils::SshConnectionParameters sshParams;
+    QSsh::SshConnectionParameters sshParams;
     sshParams.host = d->setupPage.hostName();
     sshParams.userName = d->setupPage.userName();
     sshParams.port = 22;

@@ -48,7 +48,7 @@
 #include <remotelinux/deploymentinfo.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 #include <QFileInfo>
 #include <QList>

@@ -30,13 +30,13 @@
 **************************************************************************/
 #include "sshkeydeployer.h"
 
-#include <utils/ssh/sshremoteprocessrunner.h>
+#include <ssh/sshremoteprocessrunner.h>
 #include <utils/fileutils.h>
 
 #include <QFile>
 #include <QSharedPointer>
 
-using namespace Utils;
+using namespace QSsh;
 
 namespace RemoteLinux {
 namespace Internal {

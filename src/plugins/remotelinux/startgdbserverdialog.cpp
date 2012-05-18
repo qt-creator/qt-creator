@@ -43,8 +43,8 @@
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshremoteprocessrunner.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocessrunner.h>
 
 #include <QVariant>
 #include <QSettings>
@@ -70,6 +70,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace QSsh;
 using namespace Utils;
 
 const char LastSysroot[] = "RemoteLinux/LastSysroot";

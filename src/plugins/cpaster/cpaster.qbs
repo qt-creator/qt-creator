@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "CodePaster"
 
-    Depends { name: "qt"; submodules: ['widgets'] }
+    Depends { name: "qt"; submodules: ['widgets', 'network'] }
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
 

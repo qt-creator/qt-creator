@@ -43,13 +43,13 @@
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
-namespace Utils {
-class PortList;
+namespace QSsh {
 class SftpChannel;
 class SshConnection;
 class SshRemoteProcess;
 }
 
+namespace Utils { class PortList; }
 namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 
 namespace RemoteLinux {
@@ -68,7 +68,7 @@ public:
     ~MaemoRemoteMounter();
 
     // Must already be connected.
-    void setConnection(const QSharedPointer<Utils::SshConnection> &connection,
+    void setConnection(const QSharedPointer<QSsh::SshConnection> &connection,
         const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf);
 
     void setBuildConfiguration(const Qt4ProjectManager::Qt4BuildConfiguration *bc);
@@ -123,11 +123,11 @@ private:
         int remotePort;
     };
 
-    QSharedPointer<Utils::SshConnection> m_connection;
+    QSharedPointer<QSsh::SshConnection> m_connection;
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
     QList<MountInfo> m_mountSpecs;
-    QSharedPointer<Utils::SshRemoteProcess> m_mountProcess;
-    QSharedPointer<Utils::SshRemoteProcess> m_unmountProcess;
+    QSharedPointer<QSsh::SshRemoteProcess> m_mountProcess;
+    QSharedPointer<QSsh::SshRemoteProcess> m_unmountProcess;
 
     typedef QSharedPointer<QProcess> ProcPtr;
     QList<ProcPtr> m_utfsServers;

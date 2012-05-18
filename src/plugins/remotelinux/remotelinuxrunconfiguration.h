@@ -44,9 +44,7 @@ class Qt4BaseTarget;
 class Qt4ProFileNode;
 } // namespace Qt4ProjectManager
 
-namespace Utils {
-class PortList;
-}
+namespace Utils { class PortList; }
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;

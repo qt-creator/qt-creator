@@ -39,7 +39,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QString)
 
-namespace Utils {
+namespace QSsh {
 class SshConnection;
 }
 
@@ -80,7 +80,7 @@ public:
     void testDevice(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration);
     void stopTest();
 
-    QSharedPointer<Utils::SshConnection> connection() const;
+    QSharedPointer<QSsh::SshConnection> connection() const;
 
 private slots:
     void handleConnected();

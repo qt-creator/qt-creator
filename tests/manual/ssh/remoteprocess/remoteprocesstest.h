@@ -33,7 +33,7 @@
 #ifndef REMOTEPROCESSTEST_H
 #define REMOTEPROCESSTEST_H
 
-#include <utils/ssh/sshremoteprocessrunner.h>
+#include <ssh/sshremoteprocessrunner.h>
 
 #include <QObject>
 
@@ -44,7 +44,7 @@ class RemoteProcessTest : public QObject
 {
     Q_OBJECT
 public:
-    RemoteProcessTest(const Utils::SshConnectionParameters &params);
+    RemoteProcessTest(const QSsh::SshConnectionParameters &params);
     ~RemoteProcessTest();
     void run();
 
@@ -70,13 +70,13 @@ private:
     void handleSuccessfulCrashTest();
     void handleSuccessfulIoTest();
 
-    const Utils::SshConnectionParameters m_sshParams;
+    const QSsh::SshConnectionParameters m_sshParams;
     QTimer * const m_timeoutTimer;
     QTextStream *m_textStream;
-    Utils::SshRemoteProcessRunner * const m_remoteRunner;
-    Utils::SshRemoteProcess::Ptr m_catProcess;
-    Utils::SshRemoteProcess::Ptr m_echoProcess;
-    Utils::SshConnection::Ptr m_sshConnection;
+    QSsh::SshRemoteProcessRunner * const m_remoteRunner;
+    QSsh::SshRemoteProcess::Ptr m_catProcess;
+    QSsh::SshRemoteProcess::Ptr m_echoProcess;
+    QSsh::SshConnection::Ptr m_sshConnection;
     QByteArray m_remoteStdout;
     QByteArray m_remoteStderr;
     QByteArray m_remoteData;

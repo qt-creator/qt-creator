@@ -34,8 +34,9 @@
 
 #include <iostream>
 
+using namespace QSsh;
+
 using namespace std;
-using namespace Utils;
 
 ArgumentsCollector::ArgumentsCollector(const QStringList &args)
     : m_arguments(args)

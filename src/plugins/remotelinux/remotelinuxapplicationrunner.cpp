@@ -37,13 +37,14 @@
 
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshconnectionmanager.h>
-#include <utils/ssh/sshremoteprocess.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshconnectionmanager.h>
+#include <ssh/sshremoteprocess.h>
 
 #include <limits>
 
 using namespace Qt4ProjectManager;
+using namespace QSsh;
 using namespace Utils;
 
 namespace RemoteLinux {
@@ -79,9 +80,9 @@ public:
     const QString commandPrefix;
     const PortList initialFreePorts;
 
-    Utils::SshConnection::Ptr connection;
-    Utils::SshRemoteProcess::Ptr runner;
-    Utils::SshRemoteProcess::Ptr cleaner;
+    QSsh::SshConnection::Ptr connection;
+    QSsh::SshRemoteProcess::Ptr runner;
+    QSsh::SshRemoteProcess::Ptr cleaner;
 
     PortList freePorts;
     int exitStatus;
@@ -400,13 +401,13 @@ void AbstractRemoteLinuxApplicationRunner::handleDeviceSetupDone(bool success)
     d->exitStatus = -1;
     d->freePorts = d->initialFreePorts;
     connect(d->connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
-    connect(d->connection.data(), SIGNAL(error(Utils::SshError)),
+    connect(d->connection.data(), SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionFailure()));
     if (d->connection->state() == SshConnection::Connected) {
         handleConnected();
     } else {
         emit reportProgress(tr("Connecting to device..."));
-        if (d->connection->state() == Utils::SshConnection::Unconnected)
+        if (d->connection->state() == QSsh::SshConnection::Unconnected)
             d->connection->connectToHost();
     }
 }

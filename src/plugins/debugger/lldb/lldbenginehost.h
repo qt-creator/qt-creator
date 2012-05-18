@@ -34,10 +34,10 @@
 #define DEBUGGER_LLDBENGINE_HOST_H
 
 #include "ipcenginehost.h"
-#include <utils/ssh/ssherrors.h>
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshremoteprocess.h>
-#include <utils/ssh/sshremoteprocessrunner.h>
+#include <ssh/ssherrors.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocess.h>
+#include <ssh/sshremoteprocessrunner.h>
 
 #include <QProcess>
 #include <QQueue>
@@ -49,7 +49,7 @@ class SshIODevice : public QIODevice
 {
 Q_OBJECT
 public:
-    SshIODevice(Utils::SshRemoteProcessRunner *r);
+    SshIODevice(QSsh::SshRemoteProcessRunner *r);
     ~SshIODevice();
     virtual qint64 bytesAvailable () const;
     virtual qint64 writeData (const char * data, qint64 maxSize);
@@ -59,8 +59,8 @@ private slots:
     void outputAvailable(const QByteArray &output);
     void errorOutputAvailable(const QByteArray &output);
 private:
-    Utils::SshRemoteProcessRunner *runner;
-    Utils::SshRemoteProcess::Ptr proc;
+    QSsh::SshRemoteProcessRunner *runner;
+    QSsh::SshRemoteProcess::Ptr proc;
     int buckethead;
     QQueue<QByteArray> buckets;
     QByteArray startupbuffer;
@@ -76,11 +76,11 @@ public:
 
 private:
     QProcess *m_guestProcess;
-    Utils::SshRemoteProcessRunner *m_ssh;
+    QSsh::SshRemoteProcessRunner *m_ssh;
 protected:
     void nuke();
 private slots:
-    void sshConnectionError(Utils::SshError);
+    void sshConnectionError(QSsh::SshError);
     void finished(int, QProcess::ExitStatus);
     void stderrReady();
 };

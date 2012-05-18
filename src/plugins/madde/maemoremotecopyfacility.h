@@ -40,7 +40,7 @@
 #include <QSharedPointer>
 #include <QString>
 
-namespace Utils {
+namespace QSsh {
 class SshConnection;
 class SshRemoteProcessRunner;
 }
@@ -59,7 +59,7 @@ public:
     explicit MaemoRemoteCopyFacility(QObject *parent = 0);
     ~MaemoRemoteCopyFacility();
 
-    void copyFiles(const QSharedPointer<Utils::SshConnection> &connection,
+    void copyFiles(const QSharedPointer<QSsh::SshConnection> &connection,
         const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf,
         const QList<RemoteLinux::DeployableFile> &deployables, const QString &mountPoint);
     void cancel();
@@ -81,8 +81,8 @@ private:
     void copyNextFile();
     void setFinished();
 
-    Utils::SshRemoteProcessRunner *m_copyRunner;
-    Utils::SshRemoteProcessRunner *m_killProcess;
+    QSsh::SshRemoteProcessRunner *m_copyRunner;
+    QSsh::SshRemoteProcessRunner *m_killProcess;
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
     QList<RemoteLinux::DeployableFile> m_deployables;
     QString m_mountPoint;

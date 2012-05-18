@@ -40,7 +40,7 @@
 
 #include <iostream>
 
-using namespace Utils;
+using namespace QSsh;
 
 SftpTest::SftpTest(const Parameters &params)
     : m_parameters(params), m_state(Inactive), m_error(false),
@@ -64,7 +64,7 @@ void SftpTest::run()
     m_connection = SshConnection::create(m_parameters.sshParams);
     connect(m_connection.data(), SIGNAL(connected()), this,
         SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
+    connect(m_connection.data(), SIGNAL(error(QSsh::SshError)), this,
         SLOT(handleError()));
     connect(m_connection.data(), SIGNAL(disconnected()), this,
         SLOT(handleDisconnected()));
@@ -87,11 +87,11 @@ void SftpTest::handleConnected()
            SLOT(handleChannelInitialized()));
         connect(m_channel.data(), SIGNAL(initializationFailed(QString)), this,
             SLOT(handleChannelInitializationFailure(QString)));
-        connect(m_channel.data(), SIGNAL(finished(Utils::SftpJobId,QString)),
-            this, SLOT(handleJobFinished(Utils::SftpJobId,QString)));
+        connect(m_channel.data(), SIGNAL(finished(QSsh::SftpJobId,QString)),
+            this, SLOT(handleJobFinished(QSsh::SftpJobId,QString)));
         connect(m_channel.data(),
-            SIGNAL(fileInfoAvailable(Utils::SftpJobId,QList<Utils::SftpFileInfo>)),
-            SLOT(handleFileInfo(Utils::SftpJobId,QList<Utils::SftpFileInfo>)));
+            SIGNAL(fileInfoAvailable(QSsh::SftpJobId,QList<QSsh::SftpFileInfo>)),
+            SLOT(handleFileInfo(QSsh::SftpJobId,QList<QSsh::SftpFileInfo>)));
         connect(m_channel.data(), SIGNAL(closed()), this,
             SLOT(handleChannelClosed()));
         m_state = InitializingChannel;
@@ -200,7 +200,7 @@ void SftpTest::handleChannelClosed()
     m_connection->disconnectFromHost();
 }
 
-void SftpTest::handleJobFinished(Utils::SftpJobId job, const QString &error)
+void SftpTest::handleJobFinished(QSsh::SftpJobId job, const QString &error)
 {
     switch (m_state) {
     case UploadingSmall:

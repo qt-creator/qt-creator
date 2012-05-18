@@ -36,7 +36,7 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -119,7 +119,7 @@ public:
     QByteArray remoteSourcesDir;
     QString remoteMountPoint;
     QString localMountDir;
-    Utils::SshConnectionParameters connParams;
+    QSsh::SshConnectionParameters connParams;
     bool requestRemoteSetup;
 
     QString debuggerCommand;

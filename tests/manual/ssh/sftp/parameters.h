@@ -33,10 +33,10 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 struct Parameters {
-    Utils::SshConnectionParameters sshParams;
+    QSsh::SshConnectionParameters sshParams;
     int smallFileCount;
     int bigFileSize;
 };

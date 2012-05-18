@@ -35,7 +35,7 @@
 #include "ui_startremotedialog.h"
 
 #include <coreplugin/icore.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 #include <QPushButton>
 
@@ -113,16 +113,16 @@ void StartRemoteDialog::validate()
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(valid);
 }
 
-Utils::SshConnectionParameters StartRemoteDialog::sshParams() const
+QSsh::SshConnectionParameters StartRemoteDialog::sshParams() const
 {
-    Utils::SshConnectionParameters params;
+    QSsh::SshConnectionParameters params;
     params.host = m_ui->host->text();
     params.userName = m_ui->user->text();
     if (m_ui->keyFile->isValid()) {
-        params.authenticationType = Utils::SshConnectionParameters::AuthenticationByKey;
+        params.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
         params.privateKeyFile = m_ui->keyFile->path();
     } else {
-        params.authenticationType = Utils::SshConnectionParameters::AuthenticationByPassword;
+        params.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
         params.password = m_ui->password->text();
     }
     params.port = m_ui->port->value();

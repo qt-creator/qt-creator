@@ -36,12 +36,12 @@
 
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshremoteprocessrunner.h>
+#include <ssh/sshremoteprocessrunner.h>
 
 #include <QRegExp>
 
 using namespace RemoteLinux;
-using namespace Utils;
+using namespace QSsh;
 
 namespace Madde {
 namespace Internal {

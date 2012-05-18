@@ -33,8 +33,8 @@
 #include "argumentscollector.h"
 #include "sftptest.h"
 
-#include <utils/ssh/sftpchannel.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sftpchannel.h>
+#include <ssh/sshconnection.h>
 
 #include <QCoreApplication>
 #include <QObject>
@@ -43,14 +43,11 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace Utils;
-
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
     bool parseSuccess;
-    const Parameters parameters
-        = ArgumentsCollector(app.arguments()).collect(parseSuccess);
+    const Parameters parameters = ArgumentsCollector(app.arguments()).collect(parseSuccess);
     if (!parseSuccess)
         return EXIT_FAILURE;
     SftpTest sftpTest(parameters);

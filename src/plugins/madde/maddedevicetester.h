@@ -36,7 +36,7 @@
 
 #include <QByteArray>
 
-namespace Utils {
+namespace QSsh {
 class SshRemoteProcessRunner;
 }
 
@@ -73,7 +73,7 @@ private:
     RemoteLinux::GenericLinuxDeviceTester * const m_genericTester;
     State m_state;
     TestResult m_result;
-    Utils::SshRemoteProcessRunner *m_processRunner;
+    QSsh::SshRemoteProcessRunner *m_processRunner;
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_deviceConfiguration;
     QByteArray m_stdout;
     QByteArray m_stderr;

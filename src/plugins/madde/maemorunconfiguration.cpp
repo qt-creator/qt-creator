@@ -42,7 +42,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <utils/portlist.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 #include <QDir>
 #include <QFileInfo>

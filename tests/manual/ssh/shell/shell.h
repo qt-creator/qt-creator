@@ -35,7 +35,7 @@
 #include <QObject>
 #include <QSharedPointer>
 
-namespace Utils {
+namespace QSsh {
 class SshConnection;
 class SshConnectionParameters;
 class SshRemoteProcess;
@@ -51,7 +51,7 @@ class Shell : public QObject
 {
     Q_OBJECT
 public:
-    Shell(const Utils::SshConnectionParameters &parameters, QObject *parent = 0);
+    Shell(const QSsh::SshConnectionParameters &parameters, QObject *parent = 0);
     ~Shell();
 
     void run();
@@ -67,8 +67,8 @@ private slots:
     void handleStdin();
 
 private:
-    QSharedPointer<Utils::SshConnection> m_connection;
-    QSharedPointer<Utils::SshRemoteProcess> m_shell;
+    QSharedPointer<QSsh::SshConnection> m_connection;
+    QSharedPointer<QSsh::SshRemoteProcess> m_shell;
     QFile * const m_stdin;
 };
 

@@ -42,7 +42,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <remotelinux/abstractuploadandinstallpackageservice.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 using namespace RemoteLinux;
 

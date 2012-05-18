@@ -39,7 +39,7 @@
 #include <QMetaType>
 
 #include <coreplugin/id.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 #include <utils/environment.h>
 
 namespace Analyzer {
@@ -54,7 +54,7 @@ public:
     {}
 
     StartMode startMode;
-    Utils::SshConnectionParameters connParams;
+    QSsh::SshConnectionParameters connParams;
 
     Core::Id toolId;
     QString debuggee;

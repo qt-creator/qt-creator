@@ -37,7 +37,7 @@
 #include <QObject>
 #include <QSharedPointer>
 
-namespace Utils {
+namespace QSsh {
 class SshRemoteProcessRunner;
 }
 
@@ -80,7 +80,7 @@ private:
     Utils::Environment m_env;
     QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
     RemoteLinuxRunConfiguration *m_runConfig;
-    Utils::SshRemoteProcessRunner *m_remoteProcessRunner;
+    QSsh::SshRemoteProcessRunner *m_remoteProcessRunner;
 };
 
 } // namespace Internal

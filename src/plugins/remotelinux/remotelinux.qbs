@@ -11,6 +11,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "Qt4ProjectManager" }
     Depends { name: "QtSupport" }
+    Depends { name: "QtcSsh" }
 
     Depends { name: "cpp" }
     cpp.includePaths: [
@@ -133,6 +134,7 @@ QtcPlugin {
 
     ProductModule {
         Depends { name: "Core" }
+        Depends { name: "QtcSsh" }
     }
 }
 

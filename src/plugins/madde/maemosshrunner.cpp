@@ -38,11 +38,11 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
-using namespace Utils;
+using namespace QSsh;
 
 namespace Madde {
 namespace Internal {

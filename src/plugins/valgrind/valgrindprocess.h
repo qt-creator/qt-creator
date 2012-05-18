@@ -36,8 +36,8 @@
 #define VALGRIND_RUNNER_P_H
 
 #include <utils/qtcprocess.h>
-#include <utils/ssh/sshremoteprocess.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshremoteprocess.h>
+#include <ssh/sshconnection.h>
 #include <utils/outputformat.h>
 
 namespace Valgrind {
@@ -118,9 +118,9 @@ class RemoteValgrindProcess : public ValgrindProcess
     Q_OBJECT
 
 public:
-    explicit RemoteValgrindProcess(const Utils::SshConnectionParameters &sshParams,
+    explicit RemoteValgrindProcess(const QSsh::SshConnectionParameters &sshParams,
                                    QObject *parent = 0);
-    explicit RemoteValgrindProcess(const Utils::SshConnection::Ptr &connection,
+    explicit RemoteValgrindProcess(const QSsh::SshConnection::Ptr &connection,
                                    QObject *parent = 0);
 
     virtual bool isRunning() const;
@@ -139,21 +139,21 @@ public:
 
     virtual qint64 pid() const;
 
-    Utils::SshConnection::Ptr connection() const;
+    QSsh::SshConnection::Ptr connection() const;
 
 private slots:
     void closed(int);
     void connected();
-    void error(Utils::SshError error);
+    void error(QSsh::SshError error);
     void processStarted();
     void findPIDOutputReceived();
     void standardOutput();
     void standardError();
 
 private:
-    Utils::SshConnectionParameters m_params;
-    Utils::SshConnection::Ptr m_connection;
-    Utils::SshRemoteProcess::Ptr m_process;
+    QSsh::SshConnectionParameters m_params;
+    QSsh::SshConnection::Ptr m_connection;
+    QSsh::SshRemoteProcess::Ptr m_process;
     QString m_workingDir;
     QString m_valgrindExe;
     QStringList m_valgrindArgs;
@@ -162,7 +162,7 @@ private:
     QString m_errorString;
     QProcess::ProcessError m_error;
     qint64 m_pid;
-    Utils::SshRemoteProcess::Ptr m_findPID;
+    QSsh::SshRemoteProcess::Ptr m_findPID;
 };
 
 } // namespace Valgrind

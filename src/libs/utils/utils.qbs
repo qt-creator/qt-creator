@@ -7,8 +7,6 @@ QtcLibrary {
     cpp.defines: ["QTCREATOR_UTILS_LIB"]
     cpp.includePaths: [ ".", "..",
         "../..",
-        "../3rdparty/botan/build",
-        "ssh",
         buildDirectory
     ]
 
@@ -23,7 +21,6 @@ QtcLibrary {
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ['widgets', 'network', 'script', 'concurrent'] }
-    Depends { name: "Botan" }
     Depends { name: "app_version_header" }
 
     files: [
@@ -178,60 +175,6 @@ QtcLibrary {
         "images/crumblepath-segment.png",
         "images/removesubmitfield.png",
         "images/triangle_vert.png",
-        "ssh/sftpchannel.h",
-        "ssh/sftpchannel_p.h",
-        "ssh/sftpdefs.cpp",
-        "ssh/sftpdefs.h",
-        "ssh/sftpincomingpacket.cpp",
-        "ssh/sftpincomingpacket_p.h",
-        "ssh/sftpoperation.cpp",
-        "ssh/sftpoperation_p.h",
-        "ssh/sftpoutgoingpacket.cpp",
-        "ssh/sftpoutgoingpacket_p.h",
-        "ssh/sftppacket.cpp",
-        "ssh/sftppacket_p.h",
-        "ssh/sshbotanconversions_p.h",
-        "ssh/sshcapabilities_p.h",
-        "ssh/sshchannel.cpp",
-        "ssh/sshchannel_p.h",
-        "ssh/sshchannelmanager.cpp",
-        "ssh/sshchannelmanager_p.h",
-        "ssh/sshconnection.h",
-        "ssh/sshconnection_p.h",
-        "ssh/sshconnectionmanager.cpp",
-        "ssh/sshconnectionmanager.h",
-        "ssh/sshcryptofacility.cpp",
-        "ssh/sshcryptofacility_p.h",
-        "ssh/ssherrors.h",
-        "ssh/sshexception_p.h",
-        "ssh/sshincomingpacket_p.h",
-        "ssh/sshkeyexchange.cpp",
-        "ssh/sshkeyexchange_p.h",
-        "ssh/sshkeypasswordretriever_p.h",
-        "ssh/sshoutgoingpacket.cpp",
-        "ssh/sshoutgoingpacket_p.h",
-        "ssh/sshpacket.cpp",
-        "ssh/sshpacket_p.h",
-        "ssh/sshpacketparser.cpp",
-        "ssh/sshpacketparser_p.h",
-        "ssh/sshpseudoterminal.h",
-        "ssh/sshremoteprocess.cpp",
-        "ssh/sshremoteprocess.h",
-        "ssh/sshremoteprocess_p.h",
-        "ssh/sshremoteprocessrunner.cpp",
-        "ssh/sshremoteprocessrunner.h",
-        "ssh/sshsendfacility.cpp",
-        "ssh/sshsendfacility_p.h",
-        "ssh/sshkeypasswordretriever.cpp",
-        "ssh/sftpchannel.cpp",
-        "ssh/sshcapabilities.cpp",
-        "ssh/sshconnection.cpp",
-        "ssh/sshincomingpacket.cpp",
-        "ssh/sshkeygenerator.cpp",
-        "ssh/sshkeygenerator.h",
-        "ssh/sshkeycreationdialog.cpp",
-        "ssh/sshkeycreationdialog.h",
-        "ssh/sshkeycreationdialog.ui"
     ]
 
     Group {
@@ -260,7 +203,7 @@ QtcLibrary {
     }
 
     ProductModule {
-        Depends { name: "Qt"; submodules: ["concurrent", "widgets", "network"] }
+        Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
     }
 }
 

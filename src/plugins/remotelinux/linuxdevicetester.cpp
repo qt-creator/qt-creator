@@ -35,10 +35,10 @@
 #include "remotelinuxusedportsgatherer.h"
 
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshremoteprocess.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshremoteprocess.h>
+#include <ssh/sshconnection.h>
 
-using namespace Utils;
+using namespace QSsh;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -86,7 +86,7 @@ void GenericLinuxDeviceTester::testDevice(const LinuxDeviceConfiguration::ConstP
     d->deviceConfiguration = deviceConfiguration;
     d->connection = SshConnection::create(deviceConfiguration->sshParameters());
     connect(d->connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
-    connect(d->connection.data(), SIGNAL(error(Utils::SshError)),
+    connect(d->connection.data(), SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionFailure()));
 
     emit progressMessage(tr("Connecting to host..."));

@@ -74,7 +74,7 @@
 #include <utils/qtcassert.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/statuslabel.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 #include <QVariant>
 #include <QDebug>

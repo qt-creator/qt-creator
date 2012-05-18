@@ -34,11 +34,11 @@
 #include "linuxdeviceconfiguration.h"
 
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshremoteprocessrunner.h>
+#include <ssh/sshremoteprocessrunner.h>
 
 #include <QString>
 
-using namespace Utils;
+using namespace QSsh;
 
 namespace RemoteLinux {
 namespace Internal {

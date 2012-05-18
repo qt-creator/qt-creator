@@ -35,7 +35,7 @@
 #include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_export.h"
 
-#include <utils/ssh/sftpdefs.h>
+#include <ssh/sftpdefs.h>
 
 #include <QList>
 
@@ -66,7 +66,7 @@ public:
 private slots:
     void handleSftpInitialized();
     void handleSftpInitializationFailed(const QString &errorMessage);
-    void handleUploadFinished(Utils::SftpJobId jobId, const QString &errorMsg);
+    void handleUploadFinished(QSsh::SftpJobId jobId, const QString &errorMsg);
     void handleMkdirFinished(int exitStatus);
     void handleLnFinished(int exitStatus);
     void handleStdOutData();

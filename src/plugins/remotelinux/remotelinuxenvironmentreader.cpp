@@ -33,7 +33,7 @@
 #include "linuxdeviceconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
 
-#include <utils/ssh/sshremoteprocessrunner.h>
+#include <ssh/sshremoteprocessrunner.h>
 
 namespace RemoteLinux {
 namespace Internal {
@@ -60,7 +60,7 @@ void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
         return;
     m_stop = false;
     if (!m_remoteProcessRunner)
-        m_remoteProcessRunner = new Utils::SshRemoteProcessRunner(this);
+        m_remoteProcessRunner = new QSsh::SshRemoteProcessRunner(this);
     connect(m_remoteProcessRunner, SIGNAL(connectionError()), SLOT(handleConnectionFailure()));
     connect(m_remoteProcessRunner, SIGNAL(processClosed(int)), SLOT(remoteProcessFinished(int)));
     connect(m_remoteProcessRunner, SIGNAL(processOutputAvailable(QByteArray)),
@@ -102,16 +102,16 @@ void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
 
 void RemoteLinuxEnvironmentReader::remoteProcessFinished(int exitCode)
 {
-    Q_ASSERT(exitCode == Utils::SshRemoteProcess::FailedToStart
-        || exitCode == Utils::SshRemoteProcess::KilledBySignal
-        || exitCode == Utils::SshRemoteProcess::ExitedNormally);
+    Q_ASSERT(exitCode == QSsh::SshRemoteProcess::FailedToStart
+        || exitCode == QSsh::SshRemoteProcess::KilledBySignal
+        || exitCode == QSsh::SshRemoteProcess::ExitedNormally);
 
     if (m_stop)
         return;
 
     disconnect(m_remoteProcessRunner, 0, this, 0);
     m_env.clear();
-    if (exitCode == Utils::SshRemoteProcess::ExitedNormally) {
+    if (exitCode == QSsh::SshRemoteProcess::ExitedNormally) {
         if (!m_remoteOutput.isEmpty()) {
             m_env = Utils::Environment(m_remoteOutput.split(QLatin1Char('\n'),
                 QString::SkipEmptyParts));

@@ -33,12 +33,13 @@
 #include "ui_genericlinuxdeviceconfigurationwidget.h"
 
 #include <utils/portlist.h>
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshkeycreationdialog.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshkeycreationdialog.h>
 
 #include <QTextStream>
 
 using namespace RemoteLinux;
+using namespace QSsh;
 using namespace Utils;
 
 GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(

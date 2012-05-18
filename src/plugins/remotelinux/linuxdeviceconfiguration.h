@@ -38,10 +38,8 @@
 
 #include <QCoreApplication>
 
-namespace Utils {
-class SshConnectionParameters;
-class PortList;
-}
+namespace QSsh { class SshConnectionParameters; }
+namespace Utils { class PortList; }
 
 namespace RemoteLinux {
 namespace Internal {
@@ -60,10 +58,10 @@ public:
     ~LinuxDeviceConfiguration();
 
     Utils::PortList freePorts() const;
-    Utils::SshConnectionParameters sshParameters() const;
+    QSsh::SshConnectionParameters sshParameters() const;
     MachineType machineType() const;
 
-    void setSshParameters(const Utils::SshConnectionParameters &sshParameters);
+    void setSshParameters(const QSsh::SshConnectionParameters &sshParameters);
     void setFreePorts(const Utils::PortList &freePorts);
 
     static QString defaultPrivateKeyFilePath();

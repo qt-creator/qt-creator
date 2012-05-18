@@ -36,18 +36,19 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/ssh/sshconnectionmanager.h>
+#include <ssh/sshconnectionmanager.h>
 
 #include <QFileInfo>
 
 #include <ctype.h>
 
+using namespace QSsh;
 using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
 
-RemoteGdbProcess::RemoteGdbProcess(const Utils::SshConnectionParameters &connParams,
+RemoteGdbProcess::RemoteGdbProcess(const QSsh::SshConnectionParameters &connParams,
     RemotePlainGdbAdapter *adapter, QObject *parent)
     : AbstractGdbProcess(parent), m_connParams(connParams),
       m_state(Inactive), m_adapter(adapter)
@@ -92,7 +93,7 @@ void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args,
     m_errorOutput.clear();
     m_inputToSend.clear();
     m_conn = SshConnectionManager::instance().acquireConnection(m_connParams);
-    connect(m_conn.data(), SIGNAL(error(Utils::SshError)), this,
+    connect(m_conn.data(), SIGNAL(error(QSsh::SshError)), this,
         SLOT(handleConnectionError()));
     if (m_conn->state() == SshConnection::Connected) {
         handleConnected();
@@ -130,7 +131,7 @@ void RemoteGdbProcess::handleFifoCreationFinished(int exitStatus)
         return;
     QTC_ASSERT(m_state == CreatingFifo, return);
 
-    if (exitStatus != Utils::SshRemoteProcess::ExitedNormally) {
+    if (exitStatus != QSsh::SshRemoteProcess::ExitedNormally) {
         emitErrorExit(tr("Could not create FIFO."));
     } else {
         setState(StartingFifoReader);
@@ -172,7 +173,7 @@ void RemoteGdbProcess::handleAppOutputReaderStarted()
 
 void RemoteGdbProcess::handleAppOutputReaderFinished(int exitStatus)
 {
-    if (exitStatus != Utils::SshRemoteProcess::ExitedNormally)
+    if (exitStatus != QSsh::SshRemoteProcess::ExitedNormally)
         emitErrorExit(tr("Application output reader unexpectedly finished."));
 }
 
@@ -192,15 +193,15 @@ void RemoteGdbProcess::handleGdbFinished(int exitStatus)
     QTC_ASSERT(m_state == RunningGdb, return);
 
     switch (exitStatus) {
-    case Utils::SshRemoteProcess::FailedToStart:
+    case QSsh::SshRemoteProcess::FailedToStart:
         m_error = tr("Remote GDB failed to start.");
         setState(Inactive);
         emit startFailed();
         break;
-    case Utils::SshRemoteProcess::KilledBySignal:
+    case QSsh::SshRemoteProcess::KilledBySignal:
         emitErrorExit(tr("Remote GDB crashed."));
         break;
-    case Utils::SshRemoteProcess::ExitedNormally:
+    case QSsh::SshRemoteProcess::ExitedNormally:
         const int exitCode = m_gdbProc->exitCode();
         setState(Inactive);
         emit finished(exitCode, QProcess::NormalExit);
@@ -229,7 +230,7 @@ qint64 RemoteGdbProcess::write(const QByteArray &data)
 void RemoteGdbProcess::kill()
 {
     if (m_state == RunningGdb) {
-        Utils::SshRemoteProcess::Ptr killProc
+        QSsh::SshRemoteProcess::Ptr killProc
             = m_conn->createRemoteProcess("pkill -SIGKILL -x gdb");
         killProc->start();
     } else {
@@ -246,7 +247,7 @@ void RemoteGdbProcess::interruptInferior()
 {
     QTC_ASSERT(m_state == RunningGdb, return);
 
-    Utils::SshRemoteProcess::Ptr intProc
+    QSsh::SshRemoteProcess::Ptr intProc
         = m_conn->createRemoteProcess("pkill -x -SIGINT gdb");
     intProc->start();
 }
@@ -386,15 +387,15 @@ void RemoteGdbProcess::setState(State newState)
     if (m_state == Inactive) {
         if (m_gdbProc) {
             disconnect(m_gdbProc.data(), 0, this, 0);
-            m_gdbProc = Utils::SshRemoteProcess::Ptr();
+            m_gdbProc = QSsh::SshRemoteProcess::Ptr();
         }
         if (m_appOutputReader) {
             disconnect(m_appOutputReader.data(), 0, this, 0);
-            m_appOutputReader = Utils::SshRemoteProcess::Ptr();
+            m_appOutputReader = QSsh::SshRemoteProcess::Ptr();
         }
         if (m_fifoCreator) {
             disconnect(m_fifoCreator.data(), 0, this, 0);
-            m_fifoCreator = Utils::SshRemoteProcess::Ptr();
+            m_fifoCreator = QSsh::SshRemoteProcess::Ptr();
         }
         disconnect(m_conn.data(), 0, this, 0);
         SshConnectionManager::instance().releaseConnection(m_conn);

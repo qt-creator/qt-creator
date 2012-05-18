@@ -38,8 +38,8 @@
 #include <utils/qtcassert.h>
 
 #include <utils/environment.h>
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshremoteprocess.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocess.h>
 
 #include <QEventLoop>
 
@@ -70,7 +70,7 @@ public:
     QString debuggeeArguments;
     QString workingdir;
     Analyzer::StartMode startMode;
-    Utils::SshConnectionParameters connParams;
+    QSsh::SshConnectionParameters connParams;
 };
 
 void ValgrindRunner::Private::run(ValgrindProcess *_process)
@@ -178,12 +178,12 @@ void ValgrindRunner::setStartMode(Analyzer::StartMode startMode)
     d->startMode = startMode;
 }
 
-const Utils::SshConnectionParameters &ValgrindRunner::connectionParameters() const
+const QSsh::SshConnectionParameters &ValgrindRunner::connectionParameters() const
 {
     return d->connParams;
 }
 
-void ValgrindRunner::setConnectionParameters(const Utils::SshConnectionParameters &connParams)
+void ValgrindRunner::setConnectionParameters(const QSsh::SshConnectionParameters &connParams)
 {
     d->connParams = connParams;
 }

@@ -33,10 +33,10 @@
 #include "packageuploader.h"
 
 #include <utils/qtcassert.h>
-#include <utils/ssh/sftpchannel.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sftpchannel.h>
+#include <ssh/sshconnection.h>
 
-using namespace Utils;
+using namespace QSsh;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -61,15 +61,15 @@ void PackageUploader::uploadPackage(const SshConnection::Ptr &connection,
     m_localFilePath = localFilePath;
     m_remoteFilePath = remoteFilePath;
     m_connection = connection;
-    connect(m_connection.data(), SIGNAL(error(Utils::SshError)),
+    connect(m_connection.data(), SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionFailure()));
     m_uploader = m_connection->createSftpChannel();
     connect(m_uploader.data(), SIGNAL(initialized()), this,
         SLOT(handleSftpChannelInitialized()));
     connect(m_uploader.data(), SIGNAL(initializationFailed(QString)), this,
         SLOT(handleSftpChannelInitializationFailed(QString)));
-    connect(m_uploader.data(), SIGNAL(finished(Utils::SftpJobId,QString)),
-        this, SLOT(handleSftpJobFinished(Utils::SftpJobId,QString)));
+    connect(m_uploader.data(), SIGNAL(finished(QSsh::SftpJobId,QString)),
+        this, SLOT(handleSftpJobFinished(QSsh::SftpJobId,QString)));
     m_uploader->initialize();
 }
 

@@ -39,7 +39,7 @@
 #include <QVariantMap>
 QT_FORWARD_DECLARE_CLASS(QString)
 
-namespace Utils { class SshConnection; }
+namespace QSsh { class SshConnection; }
 
 namespace Qt4ProjectManager {
 class Qt4BuildConfiguration;
@@ -82,7 +82,7 @@ signals:
 protected:
     const Qt4ProjectManager::Qt4BuildConfiguration *qt4BuildConfiguration() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
-    QSharedPointer<Utils::SshConnection> connection() const;
+    QSharedPointer<QSsh::SshConnection> connection() const;
 
     void saveDeploymentTimeStamp(const DeployableFile &deployableFile);
     bool hasChangedSinceLastDeployment(const DeployableFile &deployableFile) const;

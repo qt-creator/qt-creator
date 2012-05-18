@@ -36,10 +36,8 @@
 #include <QObject>
 #include <QSharedPointer>
 
-namespace Utils {
-class PortList;
-class SshConnection;
-}
+namespace QSsh { class SshConnection; }
+namespace Utils { class PortList; }
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
@@ -64,7 +62,7 @@ public:
 
     void startExecution(const QByteArray &remoteCall);
 
-    QSharedPointer<Utils::SshConnection> connection() const;
+    QSharedPointer<QSsh::SshConnection> connection() const;
     QSharedPointer<const LinuxDeviceConfiguration> devConfig() const;
     const RemoteLinuxUsedPortsGatherer *usedPortsGatherer() const;
     Utils::PortList *freePorts();

@@ -38,7 +38,7 @@
 #include <valgrindprocess.h>
 
 #include <utils/qtcassert.h>
-#include <utils/ssh/sftpchannel.h>
+#include <ssh/sftpchannel.h>
 
 #include <QTemporaryFile>
 
@@ -236,8 +236,8 @@ void CallgrindController::foundRemoteFile()
     m_remoteFile = m_findRemoteFile->readAllStandardOutput().trimmed();
 
     m_sftp = m_ssh->createSftpChannel();
-    connect(m_sftp.data(), SIGNAL(finished(Utils::SftpJobId,QString)),
-            this, SLOT(sftpJobFinished(Utils::SftpJobId,QString)));
+    connect(m_sftp.data(), SIGNAL(finished(QSsh::SftpJobId,QString)),
+            this, SLOT(sftpJobFinished(QSsh::SftpJobId,QString)));
     connect(m_sftp.data(), SIGNAL(initialized()), this, SLOT(sftpInitialized()));
     m_sftp->initialize();
 }
@@ -251,10 +251,10 @@ void CallgrindController::sftpInitialized()
     dataFile.setAutoRemove(false);
     dataFile.close();
 
-    m_downloadJob = m_sftp->downloadFile(m_remoteFile, m_tempDataFile, Utils::SftpOverwriteExisting);
+    m_downloadJob = m_sftp->downloadFile(m_remoteFile, m_tempDataFile, QSsh::SftpOverwriteExisting);
 }
 
-void CallgrindController::sftpJobFinished(Utils::SftpJobId job, const QString &error)
+void CallgrindController::sftpJobFinished(QSsh::SftpJobId job, const QString &error)
 {
     QTC_ASSERT(job == m_downloadJob, return);
 

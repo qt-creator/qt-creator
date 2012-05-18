@@ -45,7 +45,7 @@
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/sshkeydeployer.h>
 #include <utils/fileutils.h>
-#include <utils/ssh/sshkeygenerator.h>
+#include <ssh/sshkeygenerator.h>
 
 #include <QDir>
 #include <QFile>
@@ -56,6 +56,7 @@
 
 using namespace ProjectExplorer;
 using namespace RemoteLinux;
+using namespace QSsh;
 using namespace Utils;
 
 namespace Madde {
@@ -443,7 +444,7 @@ private:
 
     Q_SLOT void deployKey()
     {
-        using namespace Utils;
+        using namespace QSsh;
         m_ui->deviceAddressLineEdit->setEnabled(false);
         m_ui->passwordLineEdit->setEnabled(false);
         m_ui->deployButton->setEnabled(false);
@@ -561,19 +562,19 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
 {
     bool doTest;
     QString freePortsSpec;
-    Utils::SshConnectionParameters sshParams;
+    QSsh::SshConnectionParameters sshParams;
     sshParams.userName = defaultUser(d->wizardData.deviceType);
     sshParams.host = d->wizardData.hostName;
     sshParams.port = d->wizardData.sshPort;
     if (d->wizardData.machineType == LinuxDeviceConfiguration::Emulator) {
-        sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByPassword;
+        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
         sshParams.password = d->wizardData.deviceType == Core::Id(MeeGoOsType)
             ? QLatin1String("meego") : QString();
         sshParams.timeout = 30;
         freePortsSpec = QLatin1String("13219,14168");
         doTest = false;
     } else {
-        sshParams.authenticationType = Utils::SshConnectionParameters::AuthenticationByKey;
+        sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;
         sshParams.privateKeyFile = d->wizardData.privateKeyFilePath;
         sshParams.timeout = 10;
         freePortsSpec = QLatin1String("10000-10100");

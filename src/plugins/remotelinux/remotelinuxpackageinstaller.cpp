@@ -34,11 +34,11 @@
 #include "linuxdeviceconfiguration.h"
 
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshremoteprocessrunner.h>
+#include <ssh/sshremoteprocessrunner.h>
 
 #include <QByteArray>
 
-using namespace Utils;
+using namespace QSsh;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -50,8 +50,8 @@ public:
 
     bool isRunning;
     LinuxDeviceConfiguration::ConstPtr deviceConfig;
-    Utils::SshRemoteProcessRunner *installer;
-    Utils::SshRemoteProcessRunner *killProcess;
+    QSsh::SshRemoteProcessRunner *installer;
+    QSsh::SshRemoteProcessRunner *killProcess;
 };
 
 } // namespace Internal

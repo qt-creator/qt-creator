@@ -47,7 +47,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 
-using namespace Utils;
+using namespace QSsh;
 using namespace Debugger;
 using namespace ProjectExplorer;
 

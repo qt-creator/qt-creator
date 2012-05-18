@@ -34,13 +34,13 @@
 #include "maemoglobal.h"
 
 #include <remotelinux/linuxdeviceconfiguration.h>
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshremoteprocessrunner.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocessrunner.h>
 
 #include <QDir>
 
 using namespace RemoteLinux;
-using namespace Utils;
+using namespace QSsh;
 
 namespace Madde {
 namespace Internal {

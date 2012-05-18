@@ -45,10 +45,6 @@
 QT_FORWARD_DECLARE_CLASS(QAction)
 QT_FORWARD_DECLARE_CLASS(QStringList)
 
-namespace Utils {
-class FileSystemWatcher;
-}
-
 namespace ProjectExplorer {
 class BuildConfiguration;
 class Project;
@@ -56,13 +52,9 @@ class RunConfiguration;
 class Target;
 }
 
-namespace QtSupport {
-class BaseQtVersion;
-}
-
-namespace RemoteLinux {
-class RemoteLinuxRunConfiguration;
-}
+namespace QtSupport { class BaseQtVersion; }
+namespace RemoteLinux { class RemoteLinuxRunConfiguration; }
+namespace Utils { class FileSystemWatcher; }
 
 namespace Madde {
 namespace Internal {

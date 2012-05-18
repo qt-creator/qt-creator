@@ -34,8 +34,8 @@
 
 #include "modeltest.h"
 
-#include <utils/ssh/sftpfilesystemmodel.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sftpfilesystemmodel.h>
+#include <ssh/sshconnection.h>
 
 #include <QApplication>
 #include <QDir>
@@ -45,7 +45,7 @@
 #include <QItemSelectionModel>
 #include <QString>
 
-using namespace Utils;
+using namespace QSsh;
 
 SftpFsWindow::SftpFsWindow(QWidget *parent) : QDialog(parent), m_ui(new Ui::Window)
 {
@@ -75,8 +75,8 @@ void SftpFsWindow::connectToHost()
     connect(m_fsModel, SIGNAL(sftpOperationFailed(QString)),
         SLOT(handleSftpOperationFailed(QString)));
     connect(m_fsModel, SIGNAL(connectionError(QString)), SLOT(handleConnectionError(QString)));
-    connect(m_fsModel, SIGNAL(sftpOperationFinished(Utils::SftpJobId,QString)),
-        SLOT(handleSftpOperationFinished(Utils::SftpJobId,QString)));
+    connect(m_fsModel, SIGNAL(sftpOperationFinished(QSsh::SftpJobId,QString)),
+        SLOT(handleSftpOperationFinished(QSsh::SftpJobId,QString)));
     m_fsModel->setSshConnection(sshParams);
     m_ui->fsView->setModel(m_fsModel);
 }

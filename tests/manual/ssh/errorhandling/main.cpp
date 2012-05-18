@@ -30,9 +30,9 @@
 **
 **************************************************************************/
 
-#include <utils/ssh/sftpchannel.h>
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshremoteprocess.h>
+#include <ssh/sftpchannel.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocess.h>
 
 #include <QCoreApplication>
 #include <QList>
@@ -40,7 +40,7 @@
 #include <QPair>
 #include <QTimer>
 
-using namespace Utils;
+using namespace QSsh;
 
 class Test : public QObject {
     Q_OBJECT
@@ -129,7 +129,7 @@ private slots:
         qApp->quit();
     }
 
-    void handleError(Utils::SshError error)
+    void handleError(QSsh::SshError error)
     {
         if (m_testSet.isEmpty()) {
             qDebug("Error: Received error %d, but no test was running.", error);
@@ -173,8 +173,8 @@ private:
             SLOT(handleDisconnected()));
         connect(m_connection.data(), SIGNAL(dataAvailable(QString)), this,
             SLOT(handleDataAvailable(QString)));
-        connect(m_connection.data(), SIGNAL(error(Utils::SshError)), this,
-            SLOT(handleError(Utils::SshError)));
+        connect(m_connection.data(), SIGNAL(error(QSsh::SshError)), this,
+            SLOT(handleError(QSsh::SshError)));
         const TestItem &nextItem = m_testSet.first();
         m_timeoutTimer.stop();
         m_timeoutTimer.setInterval(qMax(10000, nextItem.params.timeout * 1000));

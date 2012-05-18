@@ -34,16 +34,16 @@
 #include "deployablefile.h"
 
 #include <utils/qtcassert.h>
-#include <utils/ssh/sftpchannel.h>
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshremoteprocess.h>
+#include <ssh/sftpchannel.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
 #include <QList>
 #include <QString>
 
-using namespace Utils;
+using namespace QSsh;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -131,8 +131,8 @@ void GenericDirectUploadService::handleSftpInitialized()
     }
 
     Q_ASSERT(!d->filesToUpload.isEmpty());
-    connect(d->uploader.data(), SIGNAL(finished(Utils::SftpJobId,QString)),
-        SLOT(handleUploadFinished(Utils::SftpJobId,QString)));
+    connect(d->uploader.data(), SIGNAL(finished(QSsh::SftpJobId,QString)),
+        SLOT(handleUploadFinished(QSsh::SftpJobId,QString)));
     d->state = Uploading;
     uploadNextFile();
 }
@@ -146,7 +146,7 @@ void GenericDirectUploadService::handleSftpInitializationFailed(const QString &m
     handleDeploymentDone();
 }
 
-void GenericDirectUploadService::handleUploadFinished(Utils::SftpJobId jobId, const QString &errorMsg)
+void GenericDirectUploadService::handleUploadFinished(QSsh::SftpJobId jobId, const QString &errorMsg)
 {
     Q_UNUSED(jobId);
 

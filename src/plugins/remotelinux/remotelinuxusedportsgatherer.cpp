@@ -34,12 +34,13 @@
 
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshconnectionmanager.h>
-#include <utils/ssh/sshremoteprocess.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshconnectionmanager.h>
+#include <ssh/sshremoteprocess.h>
 
 #include <QString>
 
+using namespace QSsh;
 using namespace Utils;
 
 namespace RemoteLinux {
@@ -75,7 +76,7 @@ void RemoteLinuxUsedPortsGatherer::start(const LinuxDeviceConfiguration::ConstPt
     QTC_ASSERT(!d->connection, return);
     d->portsToCheck = devConf->freePorts();
     d->connection = SshConnectionManager::instance().acquireConnection(devConf->sshParameters());
-    connect(d->connection.data(), SIGNAL(error(Utils::SshError)), SLOT(handleConnectionError()));
+    connect(d->connection.data(), SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
     if (d->connection->state() == SshConnection::Connected) {
         handleConnectionEstablished();
         return;

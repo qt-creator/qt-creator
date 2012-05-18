@@ -32,7 +32,7 @@
 #ifndef MAEMOPUBLISHERFREMANTLEFREE_H
 #define MAEMOPUBLISHERFREMANTLEFREE_H
 
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 #include <QObject>
 #include <QProcess>
@@ -45,7 +45,7 @@ namespace Qt4ProjectManager {
 class Qt4BuildConfiguration;
 }
 
-namespace Utils {
+namespace QSsh {
 class SshRemoteProcessRunner;
 }
 
@@ -118,9 +118,9 @@ private:
     State m_state;
     QString m_tmpProjectDir;
     QProcess *m_process;
-    Utils::SshConnectionParameters m_sshParams;
+    QSsh::SshConnectionParameters m_sshParams;
     QString m_remoteDir;
-    Utils::SshRemoteProcessRunner *m_uploader;
+    QSsh::SshRemoteProcessRunner *m_uploader;
     QByteArray m_scpOutput;
     QList<QString> m_filesToUpload;
     QString m_resultString;

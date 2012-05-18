@@ -64,7 +64,7 @@
 namespace Debugger {
 namespace Internal {
 
-SshIODevice::SshIODevice(Utils::SshRemoteProcessRunner *r)
+SshIODevice::SshIODevice(QSsh::SshRemoteProcessRunner *r)
     : runner(r)
     , buckethead(0)
 {
@@ -150,9 +150,9 @@ LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
     if (startParameters.startMode == StartRemoteEngine)
     {
         m_guestProcess = 0;
-        Utils::SshRemoteProcessRunner * const runner = new Utils::SshRemoteProcessRunner;
-        connect (runner, SIGNAL(connectionError(Utils::SshError)),
-                this, SLOT(sshConnectionError(Utils::SshError)));
+        QSsh::SshRemoteProcessRunner * const runner = new QSsh::SshRemoteProcessRunner;
+        connect (runner, SIGNAL(connectionError(QSsh::SshError)),
+                this, SLOT(sshConnectionError(QSsh::SshError)));
         runner->run(startParameters.serverStartScript.toUtf8(), startParameters.connParams);
         setGuestDevice(new SshIODevice(runner));
     } else  {
@@ -199,7 +199,7 @@ LldbEngineHost::~LldbEngineHost()
     if (m_ssh && m_ssh->isProcessRunning()) {
         // TODO: openssh doesn't do that
 
-        m_ssh->sendSignalToProcess(Utils::SshRemoteProcess::KillSignal);
+        m_ssh->sendSignalToProcess(QSsh::SshRemoteProcess::KillSignal);
     }
 }
 
@@ -212,7 +212,7 @@ void LldbEngineHost::nuke()
     m_guestProcess->kill();
     notifyEngineSpontaneousShutdown();
 }
-void LldbEngineHost::sshConnectionError(Utils::SshError e)
+void LldbEngineHost::sshConnectionError(QSsh::SshError e)
 {
     showStatusMessage(tr("SSH connection error: %1").arg(e));
 }

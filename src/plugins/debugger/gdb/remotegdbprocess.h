@@ -35,8 +35,8 @@
 
 #include "abstractgdbprocess.h"
 
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshremoteprocess.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocess.h>
 
 #include <QByteArray>
 #include <QQueue>
@@ -50,7 +50,7 @@ class RemoteGdbProcess : public AbstractGdbProcess
 {
     Q_OBJECT
 public:
-    RemoteGdbProcess(const Utils::SshConnectionParameters &server,
+    RemoteGdbProcess(const QSsh::SshConnectionParameters &server,
                      RemotePlainGdbAdapter *adapter, QObject *parent = 0);
 
     virtual QByteArray readAllStandardOutput();
@@ -106,11 +106,11 @@ private:
     void emitErrorExit(const QString &error);
     void setState(State newState);
 
-    Utils::SshConnectionParameters m_connParams;
-    Utils::SshConnection::Ptr m_conn;
-    Utils::SshRemoteProcess::Ptr m_gdbProc;
-    Utils::SshRemoteProcess::Ptr m_appOutputReader;
-    Utils::SshRemoteProcess::Ptr m_fifoCreator;
+    QSsh::SshConnectionParameters m_connParams;
+    QSsh::SshConnection::Ptr m_conn;
+    QSsh::SshRemoteProcess::Ptr m_gdbProc;
+    QSsh::SshRemoteProcess::Ptr m_appOutputReader;
+    QSsh::SshRemoteProcess::Ptr m_fifoCreator;
     QByteArray m_gdbOutput;
     QByteArray m_errorOutput;
     QString m_command;

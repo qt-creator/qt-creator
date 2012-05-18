@@ -35,8 +35,8 @@
 #include "maemoglobal.h"
 #include "qt4maemotarget.h"
 
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshremoteprocess.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocess.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 #include <remotelinux/linuxdeviceconfiguration.h>
@@ -47,6 +47,7 @@
 
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
+using namespace QSsh;
 using namespace Utils;
 
 namespace Madde {

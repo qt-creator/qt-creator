@@ -37,7 +37,7 @@
 
 #include <QDialog>
 
-namespace Utils { class SshConnectionParameters; }
+namespace QSsh { class SshConnectionParameters; }
 
 namespace Analyzer {
 
@@ -52,7 +52,7 @@ public:
     explicit StartRemoteDialog(QWidget *parent = 0);
     virtual ~StartRemoteDialog();
 
-    Utils::SshConnectionParameters sshParams() const;
+    QSsh::SshConnectionParameters sshParams() const;
     QString executable() const;
     QString arguments() const;
     QString workingDirectory() const;

@@ -51,6 +51,7 @@
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
+using namespace QSsh;
 using namespace Utils;
 
 namespace RemoteLinux {

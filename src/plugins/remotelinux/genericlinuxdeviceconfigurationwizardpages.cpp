@@ -50,6 +50,7 @@ public:
 
 } // namespace Internal
 
+using namespace QSsh;
 using namespace Utils;
 
 GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationWizardSetupPage(QWidget *parent) :

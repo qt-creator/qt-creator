@@ -39,11 +39,11 @@
 #include <remotelinux/linuxdeviceconfiguration.h>
 #include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
-using namespace Utils;
+using namespace QSsh;
 
 namespace Madde {
 namespace Internal {
@@ -82,7 +82,7 @@ void MaemoDeploymentMounter::setupMounts(const SshConnection::Ptr &connection,
     m_devConf = devConf;
     m_mounter->setConnection(m_connection, m_devConf);
     m_buildConfig = bc;
-    connect(m_connection.data(), SIGNAL(error(Utils::SshError)),
+    connect(m_connection.data(), SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionError()));
     setState(UnmountingOldDirs);
     unmount();

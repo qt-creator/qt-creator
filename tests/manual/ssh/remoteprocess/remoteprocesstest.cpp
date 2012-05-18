@@ -32,7 +32,7 @@
 
 #include "remoteprocesstest.h"
 
-#include <utils/ssh/sshpseudoterminal.h>
+#include <ssh/sshpseudoterminal.h>
 
 #include <QCoreApplication>
 #include <QTextStream>
@@ -40,7 +40,7 @@
 
 #include <iostream>
 
-using namespace Utils;
+using namespace QSsh;
 
 const QByteArray StderrOutput("ChannelTest");
 
@@ -93,8 +93,8 @@ void RemoteProcessTest::handleProcessStarted()
     } else {
         m_started = true;
         if (m_state == TestingCrash) {
-            Utils::SshRemoteProcessRunner * const killer
-                = new Utils::SshRemoteProcessRunner(this);
+            QSsh::SshRemoteProcessRunner * const killer
+                = new QSsh::SshRemoteProcessRunner(this);
             killer->run("pkill -9 sleep", m_sshParams);
         } else if (m_state == TestingIoDevice) {
             connect(m_catProcess.data(), SIGNAL(readyRead()), SLOT(handleReadyRead()));
@@ -214,9 +214,9 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             }
             std::cout << "Ok.\nTesting I/O device functionality... " << std::flush;
             m_state = TestingIoDevice;
-            m_sshConnection = Utils::SshConnection::create(m_sshParams);
+            m_sshConnection = QSsh::SshConnection::create(m_sshParams);
             connect(m_sshConnection.data(), SIGNAL(connected()), SLOT(handleConnected()));
-            connect(m_sshConnection.data(), SIGNAL(error(Utils::SshError)),
+            connect(m_sshConnection.data(), SIGNAL(error(QSsh::SshError)),
                 SLOT(handleConnectionError()));
             m_sshConnection->connectToHost();
             m_timeoutTimer->start();
@@ -308,7 +308,7 @@ void RemoteProcessTest::handleReadyRead()
                 << qPrintable(testString()) << "', got '" << qPrintable(data) << "'." << std::endl;
             qApp->exit(1);
         }
-        Utils::SshRemoteProcessRunner * const killer = new Utils::SshRemoteProcessRunner(this);
+        QSsh::SshRemoteProcessRunner * const killer = new QSsh::SshRemoteProcessRunner(this);
         killer->run("pkill -9 cat", m_sshParams);
         break;
     }

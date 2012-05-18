@@ -33,7 +33,7 @@
 
 #include "remotelinux_export.h"
 
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 #include <QWizardPage>
 
@@ -57,7 +57,7 @@ public:
     QString configurationName() const;
     QString hostName() const;
     QString userName() const;
-    Utils::SshConnectionParameters::AuthenticationType authenticationType() const;
+    QSsh::SshConnectionParameters::AuthenticationType authenticationType() const;
     QString password() const;
     QString privateKeyFilePath() const;
 

@@ -16,6 +16,7 @@ QtcPlugin {
     Depends { name: "symbianutils" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlDebug" }
+    Depends { name: "QtcSsh" }
 
     Depends { name: "cpp" }
     cpp.defines: ["DEBUGGER_LIBRARY"]
@@ -314,6 +315,7 @@ QtcPlugin {
 
     ProductModule {
         Depends { name: "cpp" }
+        Depends { name: "QtcSsh" }
         cpp.includePaths: ["."]
     }
 }

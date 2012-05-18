@@ -37,9 +37,9 @@
 #include <QSharedPointer>
 #include <QString>
 
-#include <utils/ssh/sftpdefs.h>
+#include <ssh/sftpdefs.h>
 
-namespace Utils {
+namespace QSsh {
 class SftpChannel;
 class SshConnection;
 }
@@ -55,7 +55,7 @@ public:
     ~PackageUploader();
 
     // Connection has to be established already.
-    void uploadPackage(const QSharedPointer<Utils::SshConnection> &connection,
+    void uploadPackage(const QSharedPointer<QSsh::SshConnection> &connection,
         const QString &localFilePath, const QString &remoteFilePath);
     void cancelUpload();
 
@@ -67,7 +67,7 @@ private slots:
     void handleConnectionFailure();
     void handleSftpChannelInitialized();
     void handleSftpChannelInitializationFailed(const QString &error);
-    void handleSftpJobFinished(Utils::SftpJobId job, const QString &error);
+    void handleSftpJobFinished(QSsh::SftpJobId job, const QString &error);
 
 private:
     enum State { InitializingSftp, Uploading, Inactive };
@@ -76,8 +76,8 @@ private:
     void setState(State newState);
 
     State m_state;
-    QSharedPointer<Utils::SshConnection> m_connection;
-    QSharedPointer<Utils::SftpChannel> m_uploader;
+    QSharedPointer<QSsh::SshConnection> m_connection;
+    QSharedPointer<QSsh::SftpChannel> m_uploader;
     QString m_localFilePath;
     QString m_remoteFilePath;
 };

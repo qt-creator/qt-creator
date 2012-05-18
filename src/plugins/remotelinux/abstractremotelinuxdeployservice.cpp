@@ -36,8 +36,8 @@
 
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshconnectionmanager.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshconnectionmanager.h>
 
 #include <QDateTime>
 #include <QFileInfo>
@@ -45,7 +45,7 @@
 #include <QString>
 
 using namespace Qt4ProjectManager;
-using namespace Utils;
+using namespace QSsh;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -263,7 +263,7 @@ void AbstractRemoteLinuxDeployService::handleDeviceSetupDone(bool success)
 
     d->state = Connecting;
     d->connection = SshConnectionManager::instance().acquireConnection(d->deviceConfiguration->sshParameters());
-    connect(d->connection.data(), SIGNAL(error(Utils::SshError)),
+    connect(d->connection.data(), SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionFailure()));
     if (d->connection->state() == SshConnection::Connected) {
         handleConnected();

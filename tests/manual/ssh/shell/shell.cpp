@@ -31,8 +31,8 @@
 **************************************************************************/
 #include "shell.h"
 
-#include <utils/ssh/sshconnection.h>
-#include <utils/ssh/sshremoteprocess.h>
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocess.h>
 
 #include <QCoreApplication>
 #include <QFile>
@@ -41,16 +41,16 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace Utils;
+using namespace QSsh;
 
-Shell::Shell(const Utils::SshConnectionParameters &parameters, QObject *parent)
+Shell::Shell(const QSsh::SshConnectionParameters &parameters, QObject *parent)
     : QObject(parent),
       m_connection(SshConnection::create(parameters)),
       m_stdin(new QFile(this))
 {
     connect(m_connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
     connect(m_connection.data(), SIGNAL(dataAvailable(QString)), SLOT(handleShellMessage(QString)));
-    connect(m_connection.data(), SIGNAL(error(Utils::SshError)), SLOT(handleConnectionError()));
+    connect(m_connection.data(), SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
 }
 
 Shell::~Shell()

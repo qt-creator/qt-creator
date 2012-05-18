@@ -31,13 +31,11 @@
 **************************************************************************/
 #include "window.h"
 
-#include <utils/ssh/sftpfilesystemmodel.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sftpfilesystemmodel.h>
+#include <ssh/sshconnection.h>
 
 #include <QApplication>
 #include <QTreeView>
-
-using namespace Utils;
 
 int main(int argc, char *argv[])
 {

@@ -35,7 +35,7 @@
 
 #include <QObject>
 
-namespace Utils {
+namespace QSsh {
 class SshConnectionParameters;
 }
 
@@ -52,7 +52,7 @@ public:
     explicit SshKeyDeployer(QObject *parent = 0);
     ~SshKeyDeployer();
 
-    void deployPublicKey(const Utils::SshConnectionParameters &sshParams,
+    void deployPublicKey(const QSsh::SshConnectionParameters &sshParams,
         const QString &keyFilePath);
     void stopDeployment();
 

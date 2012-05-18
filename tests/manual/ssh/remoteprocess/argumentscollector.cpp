@@ -36,15 +36,16 @@
 
 #include <iostream>
 
+using namespace QSsh;
+
 using namespace std;
-using namespace Utils;
 
 ArgumentsCollector::ArgumentsCollector(const QStringList &args)
     : m_arguments(args)
 {
 }
 
-Utils::SshConnectionParameters ArgumentsCollector::collect(bool &success) const
+QSsh::SshConnectionParameters ArgumentsCollector::collect(bool &success) const
 {
     SshConnectionParameters parameters;
     try {

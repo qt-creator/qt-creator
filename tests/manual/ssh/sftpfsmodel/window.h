@@ -29,7 +29,7 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#include <utils/ssh/sftpdefs.h>
+#include <ssh/sftpdefs.h>
 
 #include <QDialog>
 
@@ -37,7 +37,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Window; }
 QT_END_NAMESPACE
 
-namespace Utils { class SftpFileSystemModel; }
+namespace QSsh { class SftpFileSystemModel; }
 
 class SftpFsWindow : public QDialog
 {
@@ -51,9 +51,9 @@ private slots:
     void downloadFile();
     void handleConnectionError(const QString &errorMessage);
     void handleSftpOperationFailed(const QString &errorMessage);
-    void handleSftpOperationFinished(Utils::SftpJobId jobId, const QString &error);
+    void handleSftpOperationFinished(QSsh::SftpJobId jobId, const QString &error);
 
 private:
-    Utils::SftpFileSystemModel *m_fsModel;
+    QSsh::SftpFileSystemModel *m_fsModel;
     Ui::Window *m_ui;
 };

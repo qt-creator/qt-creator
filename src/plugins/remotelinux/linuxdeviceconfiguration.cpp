@@ -39,13 +39,15 @@
 #include "remotelinux_constants.h"
 
 #include <utils/portlist.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
 
 #include <QDesktopServices>
 #include <QStringList>
 
+using namespace QSsh;
 using namespace Utils;
+
 typedef SshConnectionParameters::AuthenticationType AuthType;
 
 namespace RemoteLinux {

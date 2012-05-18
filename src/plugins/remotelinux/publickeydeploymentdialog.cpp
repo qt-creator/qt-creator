@@ -34,7 +34,7 @@
 #include "sshkeydeployer.h"
 
 #include <coreplugin/icore.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 #include <QTimer>
 #include <QFileDialog>

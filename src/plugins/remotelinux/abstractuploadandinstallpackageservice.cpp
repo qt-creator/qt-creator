@@ -37,7 +37,7 @@
 #include "remotelinuxpackageinstaller.h"
 
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshconnection.h>
+#include <ssh/sshconnection.h>
 
 #include <QFileInfo>
 #include <QString>

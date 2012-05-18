@@ -47,7 +47,7 @@
 #include <remotelinux/deploymentinfo.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/ssh/sshremoteprocessrunner.h>
+#include <ssh/sshremoteprocessrunner.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -59,7 +59,7 @@
 using namespace Core;
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
-using namespace Utils;
+using namespace QSsh;
 
 namespace Madde {
 namespace Internal {
