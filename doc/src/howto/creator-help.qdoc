@@ -199,8 +199,21 @@
     in the \gui {On context help} field. To detach the help window, select
     \gui {Always Show Help in External Window}.
 
-    You can select the help page to open upon startup in the \gui {Home Page}
-    field.
+    \section1 Selecting the Start Page
+
+    You can select the page to display when you open the \gui Help mode in the
+    \gui {Tools > Options > Help > General Settings > On help start} field.
+    To display the page and help panes that were open when you exited the mode,
+    select the \gui {Show My Tabs from Last Session} option. However, Web pages
+    are not opened, because loading them would slow down opening the \gui Help
+    mode.
+
+    To display a particular page, select \gui {Show My Home Page}, and specify
+    the page in the \gui {Home Page} field.
+
+    To display a blank page, select the \gui {Show a Blank Page} option. You can
+    also select the \gui {Use Blank Page} button to set a blank page as your
+    home page.
 
     \section1 Using Documentation Filters
 
