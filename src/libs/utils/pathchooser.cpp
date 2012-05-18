@@ -166,7 +166,8 @@ QString BinaryVersionToolTipEventFilter::toolVersion(const QString &binary, cons
         Utils::SynchronousProcess::stopProcess(proc);
         return QString();
     }
-    return QString::fromLocal8Bit(proc.readAllStandardOutput() + proc.readAllStandardError());
+    return QString::fromLocal8Bit(QByteArray(proc.readAllStandardOutput()
+        + proc.readAllStandardError()));
 }
 
 // Extends BinaryVersionToolTipEventFilter to prepend the existing pathchooser
