@@ -230,7 +230,6 @@ QDataStream &operator<<(QDataStream &stream, const WatchData &wd)
     stream << wd.address;
     stream << wd.size;
     stream << wd.hasChildren;
-    stream << wd.generation;
     stream << wd.valueEnabled;
     stream << wd.valueEditable;
     stream << wd.error;
@@ -256,7 +255,6 @@ QDataStream &operator>>(QDataStream &stream, WatchData &wd)
     stream >> wd.address;
     stream >> wd.size;
     stream >> wd.hasChildren;
-    stream >> wd.generation;
     stream >> wd.valueEnabled;
     stream >> wd.valueEditable;
     stream >> wd.error;

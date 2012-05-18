@@ -272,7 +272,7 @@ void QmlV8DebuggerClientPrivate::evaluate(const QString expr, bool global,
         QScriptValue ctxtList = parser.call(QScriptValue(), QScriptValueList() << _(ARRAY  ));
         while (rowCount) {
             QModelIndex index = localsModel->index(--rowCount, 0);
-            const WatchData *data = engine->watchHandler()->watchData(LocalsWatch, index);
+            const WatchData *data = engine->watchHandler()->watchData(index);
             QScriptValue ctxt = parser.call(QScriptValue(), QScriptValueList() << QScriptValue(_(OBJECT)));
             ctxt.setProperty(_(NAME), QScriptValue(data->name));
             ctxt.setProperty(_(HANDLE), QScriptValue(int(data->id)));
@@ -1173,7 +1173,7 @@ void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId
 {
     if (objectId == 0) {
         //We may have got the global object
-        const WatchData *watch = d->engine->watchHandler()->findItem(iname);
+        const WatchData *watch = d->engine->watchHandler()->findData(iname);
         if (watch->value == QLatin1String("global")) {
             StackHandler *stackHandler = d->engine->stackHandler();
             if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
@@ -1706,9 +1706,7 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
             data.setHasChildren(true);
             data.id = 0;
         }
-        d->engine->watchHandler()->beginCycle();
         d->engine->watchHandler()->insertData(data);
-        d->engine->watchHandler()->endCycle();
     }
 
     const QVariantList currentFrameScopes = currentFrame.value(_("scopes")).toList();
@@ -1785,11 +1783,8 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
     if (!handlesToLookup.isEmpty())
         d->lookup(handlesToLookup);
 
-    if (!locals.isEmpty()) {
-        d->engine->watchHandler()->beginCycle(false);
-        d->engine->watchHandler()->insertBulkData(locals);
-        d->engine->watchHandler()->endCycle();
-    }
+    if (!locals.isEmpty())
+        d->engine->watchHandler()->insertData(locals);
 }
 
 void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, const QVariant &bodyVal,
@@ -1810,7 +1805,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
             d->scope(index);
         //Also update "this"
         QByteArray iname("local.this");
-        const WatchData *parent = d->engine->watchHandler()->findItem(iname);
+        const WatchData *parent = d->engine->watchHandler()->findData(iname);
         d->localsAndWatchers.insertMulti(parent->id, iname);
         d->lookup(QList<int>() << parent->id);
 
@@ -1833,7 +1828,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
             WatchData data;
             //Do we have request to evaluate a local?
             if (exp.startsWith("local.")) {
-                const WatchData *watch = d->engine->watchHandler()->findItem(exp.toLatin1());
+                const WatchData *watch = d->engine->watchHandler()->findData(exp.toLatin1());
                 watchDataList << createWatchDataList(watch, body.properties, refsVal);
             } else {
                 QByteArray iname = d->engine->watchHandler()->watcherName(exp.toLatin1());
@@ -1854,9 +1849,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
                 watchDataList << data << createWatchDataList(&data, body.properties, refsVal);
             }
             //Insert the newly evaluated expression to the Watchers Window
-            d->engine->watchHandler()->beginCycle(false);
-            d->engine->watchHandler()->insertBulkData(watchDataList);
-            d->engine->watchHandler()->endCycle();
+            d->engine->watchHandler()->insertData(watchDataList);
         }
     }
 }
@@ -1933,7 +1926,7 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
         if (prepend.startsWith("local.") || prepend.startsWith("watch.")) {
             //Data for expanded local/watch
             //Could be an object or function
-            const WatchData *parent = d->engine->watchHandler()->findItem(prepend);
+            const WatchData *parent = d->engine->watchHandler()->findData(prepend);
             watchDataList << createWatchDataList(parent, bodyObjectData.properties, refsVal);
         } else {
             //rest
@@ -1952,9 +1945,7 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
         }
     }
 
-    d->engine->watchHandler()->beginCycle(false);
-    d->engine->watchHandler()->insertBulkData(watchDataList);
-    d->engine->watchHandler()->endCycle();
+    d->engine->watchHandler()->insertData(watchDataList);
 }
 
 QList<WatchData> QmlV8DebuggerClient::createWatchDataList(const WatchData *parent,

@@ -530,12 +530,12 @@ void WatchTreeView::keyPressEvent(QKeyEvent *ev)
         QString exp = model()->data(idx1).toString();
         watchExpression(exp);
     }
-    QTreeView::keyPressEvent(ev);
+    BaseTreeView::keyPressEvent(ev);
 }
 
 void WatchTreeView::dragEnterEvent(QDragEnterEvent *ev)
 {
-    //QTreeView::dragEnterEvent(ev);
+    //BaseTreeView::dragEnterEvent(ev);
     if (ev->mimeData()->hasText()) {
         ev->setDropAction(Qt::CopyAction);
         ev->accept();
@@ -544,7 +544,7 @@ void WatchTreeView::dragEnterEvent(QDragEnterEvent *ev)
 
 void WatchTreeView::dragMoveEvent(QDragMoveEvent *ev)
 {
-    //QTreeView::dragMoveEvent(ev);
+    //BaseTreeView::dragMoveEvent(ev);
     if (ev->mimeData()->hasText()) {
         ev->setDropAction(Qt::CopyAction);
         ev->accept();
@@ -559,7 +559,7 @@ void WatchTreeView::dropEvent(QDropEvent *ev)
         ev->setDropAction(Qt::CopyAction);
         ev->accept();
     }
-    //QTreeView::dropEvent(ev);
+    //BaseTreeView::dropEvent(ev);
 }
 
 void WatchTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
@@ -570,7 +570,7 @@ void WatchTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
         watchExpression(QString());
         return;
     }
-    QTreeView::mouseDoubleClickEvent(ev);
+    BaseTreeView::mouseDoubleClickEvent(ev);
 }
 
 // Text for add watch action with truncated expression.
@@ -971,7 +971,7 @@ bool WatchTreeView::event(QEvent *ev)
         releaseMouse();
         currentEngine()->watchPoint(mapToGlobal(mev->pos()));
     }
-    return QTreeView::event(ev);
+    return BaseTreeView::event(ev);
 }
 
 void WatchTreeView::editItem(const QModelIndex &idx)
@@ -982,6 +982,7 @@ void WatchTreeView::editItem(const QModelIndex &idx)
 void WatchTreeView::setModel(QAbstractItemModel *model)
 {
     BaseTreeView::setModel(model);
+    setRootIndex(model->index(m_type, 0, QModelIndex()));
     setRootIsDecorated(true);
     if (header()) {
         header()->setDefaultAlignment(Qt::AlignLeft);
@@ -990,15 +991,25 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
     }
 
     connect(model, SIGNAL(layoutChanged()), SLOT(resetHelper()));
-
-    QTC_ASSERT(qobject_cast<WatchModel*>(model), return);
-    connect(model, SIGNAL(setCurrentIndex(QModelIndex)),
+    connect(model, SIGNAL(currentIndexRequested(QModelIndex)),
             SLOT(setCurrentIndex(QModelIndex)));
+    connect(model, SIGNAL(itemIsExpanded(QModelIndex)),
+            SLOT(handleItemIsExpanded(QModelIndex)));
+}
+
+void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)
+{
+    bool on = idx.data(LocalsExpandedRole).toBool();
+    QTC_ASSERT(on, return);
+    if (!isExpanded(idx))
+        expand(idx);
 }
 
 void WatchTreeView::resetHelper()
 {
-    resetHelper(model()->index(0, 0));
+    QModelIndex idx = model()->index(m_type, 0);
+    resetHelper(idx);
+    expand(idx);
 }
 
 void WatchTreeView::resetHelper(const QModelIndex &idx)
@@ -1017,6 +1028,13 @@ void WatchTreeView::resetHelper(const QModelIndex &idx)
         if (isExpanded(idx))
             collapse(idx);
     }
+}
+
+void WatchTreeView::reset()
+{
+    BaseTreeView::reset();
+    setRootIndex(model()->index(m_type, 0));
+    resetHelper();
 }
 
 void WatchTreeView::watchExpression(const QString &exp)
@@ -1063,7 +1081,5 @@ void WatchTreeView::setWatchpointAtExpression(const QString &exp)
     breakHandler()->appendBreakpoint(data);
 }
 
-
 } // namespace Internal
 } // namespace Debugger
-

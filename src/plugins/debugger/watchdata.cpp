@@ -143,7 +143,6 @@ WatchData::WatchData() :
     size(0),
     bitpos(0),
     bitsize(0),
-    generation(-1),
     hasChildren(false),
     valueEnabled(true),
     valueEditable(true),
@@ -399,8 +398,6 @@ QString WatchData::toToolTip() const
     if (size)
         formatToolTipRow(str, tr("Static Object Size"), tr("%1 bytes").arg(size));
     formatToolTipRow(str, tr("Internal ID"), QLatin1String(iname));
-    formatToolTipRow(str, tr("Generation"),
-        QString::number(generation));
     str << "</table></body></html>";
     return res;
 }

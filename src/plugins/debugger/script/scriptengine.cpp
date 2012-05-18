@@ -651,7 +651,6 @@ bool ScriptEngine::checkForBreakCondition(bool byFunction)
 void ScriptEngine::updateLocals()
 {
     QScriptContext *context = m_scriptEngine->currentContext();
-    watchHandler()->beginCycle();
     SDEBUG(Q_FUNC_INFO);
 
     //
@@ -686,9 +685,7 @@ void ScriptEngine::updateLocals()
     data.iname = "local";
     data.name = _(data.iname);
 
-    watchHandler()->beginCycle();
     updateSubItem(data);
-    watchHandler()->endCycle();
     // FIXME: Use an extra thread. This here is evil.
     m_stopped = true;
     showStatusMessage(tr("Stopped."), 5000);
@@ -809,9 +806,9 @@ void ScriptEngine::updateSubItem(const WatchData &data0)
     }
 
     SDEBUG(msgDebugInsert(data, children));
-    watchHandler()->insertData(data);
+    watchHandler()->insertIncompleteData(data);
     if (!children.isEmpty())
-        watchHandler()->insertBulkData(children);
+        watchHandler()->insertData(children);
 }
 
 DebuggerEngine *createScriptEngine(const DebuggerStartParameters &sp)

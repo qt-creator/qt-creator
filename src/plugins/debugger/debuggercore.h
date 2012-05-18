@@ -85,7 +85,7 @@ public:
     virtual QVariant configValue(const QString &name) const = 0;
     virtual void setConfigValue(const QString &name, const QVariant &value) = 0;
     virtual void updateState(DebuggerEngine *engine) = 0;
-    virtual void updateWatchersWindow() = 0;
+    virtual void updateWatchersWindow(bool showWatch, bool showReturn) = 0;
     virtual void showQtDumperLibraryWarning(const QString &details) = 0;
     virtual QIcon locationMarkIcon() const = 0;
     virtual const CPlusPlus::Snapshot &cppCodeModelSnapshot() const = 0;

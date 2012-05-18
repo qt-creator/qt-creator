@@ -815,7 +815,7 @@ public slots:
     void fontSettingsChanged(const TextEditor::FontSettings &settings);
 
     void updateState(DebuggerEngine *engine);
-    void updateWatchersWindow();
+    void updateWatchersWindow(bool showWatch, bool showReturn);
     void onCurrentProjectChanged(ProjectExplorer::Project *project);
 
     void sessionLoaded();
@@ -2238,12 +2238,10 @@ void DebuggerPluginPrivate::setInitialState()
     m_qtMessageLogWindow->setEnabled(true);
 }
 
-void DebuggerPluginPrivate::updateWatchersWindow()
+void DebuggerPluginPrivate::updateWatchersWindow(bool showWatch, bool showReturn)
 {
-    m_watchersWindow->setVisible(
-        m_watchersWindow->model()->rowCount(QModelIndex()) > 0);
-    m_returnWindow->setVisible(
-                m_returnWindow->model()->rowCount(QModelIndex()) > 0);
+    m_watchersWindow->setVisible(showWatch);
+    m_returnWindow->setVisible(showReturn);
 }
 
 void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
@@ -2254,8 +2252,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     QTC_ASSERT(!engine->isSlaveEngine(), return);
 
     m_threadBox->setCurrentIndex(engine->threadsHandler()->currentThread());
-
-    updateWatchersWindow();
+    engine->watchHandler()->updateWatchersWindow();
 
     const DebuggerState state = engine->state();
     //showMessage(QString("PLUGIN SET STATE: ")

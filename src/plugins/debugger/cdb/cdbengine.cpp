@@ -98,6 +98,12 @@ enum { debugSourceMapping = 0 };
 enum { debugWatches = 0 };
 enum { debugBreakpoints = 0 };
 
+enum HandleLocalsFlags
+{
+    PartialLocalsUpdate = 0x1,
+    LocalsUpdateForNewFrame = 0x2
+};
+
 #if 0
 #  define STATE_DEBUG(state, func, line, notifyFunc) qDebug("%s in %s at %s:%d", notifyFunc, stateName(state), func, line);
 #else
@@ -550,18 +556,16 @@ bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
     // Can this be found as a local variable?
     const QByteArray localsPrefix(localsPrefixC);
     QByteArray iname = localsPrefix + exp.toAscii();
-    QModelIndex index = watchHandler()->itemIndex(iname);
-    if (!index.isValid()) {
+    if (!watchHandler()->hasItem(iname)) {
         // Nope, try a 'local.this.m_foo'.
         exp.prepend(QLatin1String("this."));
         iname.insert(localsPrefix.size(), "this.");
-        index = watchHandler()->itemIndex(iname);
-        if (!index.isValid())
+        if (!watchHandler()->hasItem(iname))
             return false;
     }
     DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
     tw->setContext(context);
-    tw->setDebuggerModel(LocalsWatch);
+    tw->setDebuggerModel(LocalsType);
     tw->setExpression(exp);
     tw->acquireEngine(this);
     DebuggerToolTipManager::instance()->showToolTip(mousePos, editor, tw);
@@ -1048,7 +1052,7 @@ void CdbEngine::handleAddWatch(const CdbExtensionCommandPtr &reply)
         updateLocalVariable(item.iname);
     } else {
         item.setError(tr("Unable to add expression"));
-        watchHandler()->insertData(item);
+        watchHandler()->insertIncompleteData(item);
         showMessage(QString::fromLatin1("Unable to add watch item '%1'/'%2': %3").
                     arg(QString::fromLatin1(item.iname), QString::fromLatin1(item.exp),
                         QString::fromLocal8Bit(reply->errorMessage)), LogError);
@@ -1086,7 +1090,10 @@ void CdbEngine::updateLocalVariable(const QByteArray &iname)
         str << blankSeparator << stackFrame;
     }
     str << blankSeparator << iname;
-    postExtensionCommand(isWatch ? "watches" : "locals", localsArguments, 0, &CdbEngine::handleLocals);
+    postExtensionCommand(isWatch ? "watches" : "locals",
+                         localsArguments, 0,
+                         &CdbEngine::handleLocals,
+                         0, QVariant(int(PartialLocalsUpdate)));
 }
 
 bool CdbEngine::hasCapability(unsigned cap) const
@@ -1465,8 +1472,7 @@ void CdbEngine::activateFrame(int index)
     stackHandler()->setCurrentIndex(index);
     const bool showAssembler = !frames.at(index).isUsable();
     if (showAssembler) { // Assembly code: Clean out model and force instruction mode.
-        watchHandler()->beginCycle();
-        watchHandler()->endCycle();
+        watchHandler()->removeAllData();
         QAction *assemblerAction = theAssemblerAction();
         if (assemblerAction->isChecked()) {
             gotoLocation(frame);
@@ -1485,14 +1491,12 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
 
     const int frameIndex = stackHandler()->currentIndex();
     if (frameIndex < 0) {
-        watchHandler()->beginCycle();
-        watchHandler()->endCycle();
+        watchHandler()->removeAllData();
         return;
     }
     const StackFrame frame = stackHandler()->currentFrame();
     if (!frame.isUsable()) {
-        watchHandler()->beginCycle();
-        watchHandler()->endCycle();
+        watchHandler()->removeAllData();
         return;
     }
     /* Watchers: Forcibly discard old symbol group as switching from
@@ -1542,9 +1546,11 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
     }
 
     // Required arguments: frame
+    const int flags = forNewStackFrame ? LocalsUpdateForNewFrame : 0;
     str << blankSeparator << frameIndex;
-    watchHandler()->beginCycle();
-    postExtensionCommand("locals", arguments, 0, &CdbEngine::handleLocals, 0, QVariant(forNewStackFrame));
+    postExtensionCommand("locals", arguments, 0,
+                         &CdbEngine::handleLocals, 0,
+                         QVariant(flags));
 }
 
 void CdbEngine::selectThread(int index)
@@ -1925,6 +1931,9 @@ void CdbEngine::handleRegisters(const CdbExtensionCommandPtr &reply)
 
 void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
 {
+    const int flags = reply->cookie.toInt();
+    if (!(flags & PartialLocalsUpdate))
+        watchHandler()->removeAllData();
     if (reply->success) {
         QList<WatchData> watchData;
         GdbMi root;
@@ -1940,16 +1949,14 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
             dummy.name = QLatin1String(child.findChild("name").data());
             parseWatchData(watchHandler()->expandedINames(), dummy, child, &watchData);
         }
-        watchHandler()->insertBulkData(watchData);
-        watchHandler()->endCycle();
+        watchHandler()->insertData(watchData);
         if (debugLocals) {
             QDebug nsp = qDebug().nospace();
             nsp << "Obtained " << watchData.size() << " items:\n";
             foreach (const WatchData &wd, watchData)
                 nsp << wd.toString() <<'\n';
         }
-        const bool forNewStackFrame = reply->cookie.toBool();
-        if (forNewStackFrame)
+        if (flags & LocalsUpdateForNewFrame)
             emit stackFrameCompleted();
     } else {
         showMessage(QString::fromLatin1(reply->errorMessage), LogWarning);

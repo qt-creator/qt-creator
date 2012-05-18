@@ -103,15 +103,11 @@ void QmlInspectorAgent::updateWatchData(const WatchData &data)
     if (debug)
         qDebug() << __FUNCTION__ << "(" << data.id << ")";
 
-    if (data.id) {
+    if (data.id && !m_fetchDataIds.contains(data.id)) {
         // objects
+        m_fetchDataIds << data.id;
         ObjectReference ref(data.id);
         m_fetchCurrentObjectsQueryIds << fetchContextObject(ref);
-        WatchData d = data;
-        d.setAllUnneeded();
-        m_engine->watchHandler()->beginCycle(InspectWatch, false);
-        m_engine->watchHandler()->insertData(d);
-        m_engine->watchHandler()->endCycle(InspectWatch);
     }
 }
 
@@ -126,12 +122,9 @@ void QmlInspectorAgent::selectObjectInTree(int debugId)
     if (m_debugIdToIname.contains(debugId)) {
         QByteArray iname = m_debugIdToIname.value(debugId);
         QTC_ASSERT(iname.startsWith("inspect."), qDebug() << iname);
-        QModelIndex itemIndex = m_engine->watchHandler()->itemIndex(iname);
-        QTC_ASSERT(itemIndex.isValid(),
-                   qDebug() << "No  for " << debugId << ", iname " << iname; return;);
         if (debug)
             qDebug() << "  selecting" << iname << "in tree";
-        m_engine->watchHandler()->setCurrentModelIndex(InspectWatch, itemIndex);
+        m_engine->watchHandler()->setCurrentItem(iname);
         m_objectToSelect = 0;
     } else {
         // we've to fetch it
@@ -370,9 +363,8 @@ void QmlInspectorAgent::updateStatus()
             && debuggerCore()->boolSetting(ShowQmlObjectTree)) {
         reloadEngines();
     } else {
-        // clear view
-        m_engine->watchHandler()->beginCycle(InspectWatch, true);
-        m_engine->watchHandler()->endCycle(InspectWatch);
+        // Clear view.
+        m_engine->watchHandler()->removeChildren("inspect");
     }
 }
 
@@ -588,10 +580,7 @@ void QmlInspectorAgent::objectTreeFetched(const ObjectReference &object)
                      << "entries into watch handler ...";
         }
 
-        WatchHandler *watchHandler = m_engine->watchHandler();
-        watchHandler->beginCycle(InspectWatch, true);
-        watchHandler->insertBulkData(watchData);
-        watchHandler->endCycle(InspectWatch);
+        m_engine->watchHandler()->insertData(watchData);
 
         if (debug)
             qDebug() << "inserting entries took" << t.elapsed() << "ms";
@@ -615,15 +604,16 @@ void QmlInspectorAgent::onCurrentObjectsFetched(const ObjectReference &obj)
 
     ObjectReference last = m_fetchCurrentObjects.last();
     m_fetchCurrentObjects.clear();
+    m_fetchDataIds.clear();
 
     if (m_objectToSelect == last.debugId()) {
         // select item in view
         QByteArray iname = m_debugIdToIname.value(last.debugId());
-        QModelIndex itemIndex = m_engine->watchHandler()->itemIndex(iname);
-        QTC_ASSERT(itemIndex.isValid(), return);
+        WatchHandler *handler = m_engine->watchHandler();
+        QTC_ASSERT(handler->hasItem(iname), return);
         if (debug)
             qDebug() << "  selecting" << iname << "in tree";
-        m_engine->watchHandler()->setCurrentModelIndex(InspectWatch, itemIndex);
+        handler->setCurrentItem(iname);
         m_objectToSelect = -1;
     }
 
@@ -780,12 +770,11 @@ void QmlInspectorAgent::addObjectToTree(const ObjectReference &obj,
             // find parent
             QTC_ASSERT(m_debugIdToIname.contains(parentId), break);
             QByteArray iname = m_debugIdToIname.value(parentId);
-            const WatchData *parent = m_engine->watchHandler()->findItem(iname);
+            WatchHandler *handler = m_engine->watchHandler();
+            const WatchData *parent = handler->findData(iname);
             if (parent) {
                 QList<WatchData> watches = buildWatchData(obj, *parent);
-                m_engine->watchHandler()->beginCycle(false);
-                m_engine->watchHandler()->insertBulkData(watches);
-                m_engine->watchHandler()->endCycle();
+                handler->insertData(watches);
                 break;
             }
         }

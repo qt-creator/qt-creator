@@ -720,14 +720,12 @@ void PdbEngine::updateAll()
 
 void PdbEngine::updateLocals()
 {
-    WatchHandler *handler = watchHandler();
-    handler->beginCycle(true);
-
     QByteArray watchers;
     //if (!m_toolTipExpression.isEmpty())
     //    watchers += m_toolTipExpression.toLatin1()
     //        + '#' + tooltipINameForExpression(m_toolTipExpression.toLatin1());
 
+    WatchHandler *handler = watchHandler();
     QHash<QByteArray, int> watcherNames = handler->watcherNames();
     QHashIterator<QByteArray, int> it(watcherNames);
     while (it.hasNext()) {
@@ -831,8 +829,7 @@ void PdbEngine::handleListLocals(const PdbResponse &response)
         //qDebug() << "CHILD: " << child.toString();
         parseWatchData(handler->expandedINames(), dummy, child, &list);
     }
-    handler->insertBulkData(list);
-    handler->endCycle();
+    handler->insertData(list);
 }
 
 bool PdbEngine::hasCapability(unsigned cap) const

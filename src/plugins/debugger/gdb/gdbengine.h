@@ -36,6 +36,7 @@
 #include "debuggerengine.h"
 
 #include "stackframe.h"
+#include "watchhandler.h"
 #include "watchutils.h"
 
 #include <QByteArray>
@@ -78,16 +79,6 @@ enum DebuggingHelperState
     DebuggingHelperLoadTried,
     DebuggingHelperAvailable,
     DebuggingHelperUnavailable
-};
-
-class UpdateParameters
-{
-public:
-    UpdateParameters() { tryPartial = tooltipOnly = false; }
-
-    bool tryPartial;
-    bool tooltipOnly;
-    QByteArray varList;
 };
 
 /* This is only used with Mac gdb since 2.2
@@ -322,9 +313,6 @@ private: ////////// Gdb Command Management //////////
         NeedsStop = 1,
         // No need to wait for the reply before continuing inferior.
         Discardable = 2,
-        // Trigger watch model rebuild when no such commands are pending anymore.
-        RebuildWatchModel = 4,
-        WatchUpdate = Discardable | RebuildWatchModel,
         // We can live without receiving an answer.
         NonCriticalResponse = 8,
         // Callback expects GdbResultRunning instead of GdbResultDone.
@@ -407,7 +395,6 @@ private: ////////// Gdb Command Management //////////
     int m_oldestAcceptableToken;
     int m_nonDiscardableCount;
 
-    int m_pendingWatchRequests; // Watch updating commands in flight
     int m_pendingBreakpointRequests; // Watch updating commands in flight
 
     typedef void (GdbEngine::*CommandsDoneCallback)();
@@ -630,13 +617,11 @@ private: ////////// View & Data Stuff //////////
     virtual void watchPoint(const QPoint &);
     void handleWatchPoint(const GdbResponse &response);
 
-    // FIXME: BaseClass. called to improve situation for a watch item
     void updateSubItemClassic(const WatchData &data);
 
-    void virtual updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
-    Q_SLOT void updateWatchDataHelper(const WatchData &data);
+    void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
     void rebuildWatchModel();
-    bool showToolTip();
+    void showToolTip();
 
     void insertData(const WatchData &data);
     void sendWatchParameters(const QByteArray &params0);
@@ -753,6 +738,11 @@ private: ////////// View & Data Stuff //////////
     // debug information.
     bool attemptQuickStart() const;
     bool m_fullStartDone;
+
+    // Test
+    bool m_forceAsyncModel;
+    QList<WatchData> m_completed;
+    QSet<QByteArray> m_uncompleted;
 };
 
 } // namespace Internal

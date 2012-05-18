@@ -716,7 +716,7 @@ static bool parseConsoleStream(const GdbResponse &response, GdbMi *contents)
 void GdbEngine::updateLocalsClassic()
 {
     PRECONDITION;
-    m_pendingWatchRequests = 0;
+    //m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
     m_processedNames.clear();
 
@@ -724,15 +724,14 @@ void GdbEngine::updateLocalsClassic()
         qDebug() << "\nRESET PENDING";
     //m_toolTipCache.clear();
     clearToolTip();
-    watchHandler()->beginCycle();
 
     QByteArray level = QByteArray::number(currentFrame());
     // '2' is 'list with type and value'
     QByteArray cmd = "-stack-list-arguments 2 " + level + ' ' + level;
-    postCommand(cmd, WatchUpdate,
+    postCommand(cmd, Discardable,
         CB(handleStackListArgumentsClassic));
     // '2' is 'list with type and value'
-    postCommand("-stack-list-locals 2", WatchUpdate,
+    postCommand("-stack-list-locals 2", Discardable,
         CB(handleStackListLocalsClassic)); // stage 2/2
 }
 
@@ -754,9 +753,9 @@ void GdbEngine::runDirectDebuggingHelperClassic(const WatchData &data, bool dump
 
     QVariant var;
     var.setValue(data);
-    postCommand(cmd, WatchUpdate, CB(handleDebuggingHelperValue3Classic), var);
+    postCommand(cmd, Discardable, CB(handleDebuggingHelperValue3Classic), var);
 
-    showStatusMessage(msgRetrievingWatchData(m_pendingWatchRequests + 1), 10000);
+    showStatusMessage(msgRetrievingWatchData(m_uncompleted.size()), 10000);
 }
 
 void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChildren)
@@ -811,25 +810,25 @@ void GdbEngine::runDebuggingHelperClassic(const WatchData &data0, bool dumpChild
         cmd += ',' + ex;
     cmd += ')';
 
-    postCommand(cmd, WatchUpdate | NonCriticalResponse);
+    postCommand(cmd, Discardable | NonCriticalResponse);
 
-    showStatusMessage(msgRetrievingWatchData(m_pendingWatchRequests + 1), 10000);
+    showStatusMessage(msgRetrievingWatchData(m_uncompleted.size()), 10000);
 
     // retrieve response
-    postCommand("p (char*)&qDumpOutBuffer", WatchUpdate,
+    postCommand("p (char*)&qDumpOutBuffer", Discardable,
         CB(handleDebuggingHelperValue2Classic), qVariantFromValue(data));
 }
 
 void GdbEngine::createGdbVariableClassic(const WatchData &data)
 {
     PRECONDITION;
-    postCommand("-var-delete \"" + data.iname + '"', WatchUpdate);
+    postCommand("-var-delete \"" + data.iname + '"', Discardable);
     QByteArray exp = data.exp;
     if (exp.isEmpty() && data.address)
         exp = "*(" + gdbQuoteTypes(data.type) + "*)" + data.hexAddress();
     QVariant val = QVariant::fromValue<WatchData>(data);
     postCommand("-var-create \"" + data.iname + "\" * \"" + exp + '"',
-        WatchUpdate, CB(handleVarCreate), val);
+        Discardable, CB(handleVarCreate), val);
 }
 
 void GdbEngine::updateSubItemClassic(const WatchData &data0)
@@ -929,7 +928,7 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
         if (debugSubItem)
             qDebug() << "UPDATE SUBITEM: VALUE";
         QByteArray cmd = "-var-evaluate-expression \"" + data.iname + '"';
-        postCommand(cmd, WatchUpdate,
+        postCommand(cmd, Discardable,
             CB(handleEvaluateExpressionClassic), QVariant::fromValue(data));
         return;
     }
@@ -953,7 +952,7 @@ void GdbEngine::updateSubItemClassic(const WatchData &data0)
     if (data.isChildrenNeeded()) {
         QTC_ASSERT(!data.variable.isEmpty(), return); // tested above
         QByteArray cmd = "-var-list-children --all-values \"" + data.variable + '"';
-        postCommand(cmd, WatchUpdate,
+        postCommand(cmd, Discardable,
             CB(handleVarListChildrenClassic), QVariant::fromValue(data));
         return;
     }
@@ -999,7 +998,7 @@ void GdbEngine::handleDebuggingHelperValue2Classic(const GdbResponse &response)
     if (m_cookieForToken.contains(response.token - 1)) {
         m_cookieForToken.remove(response.token - 1);
         showMessage(_("DETECTING LOST COMMAND %1").arg(response.token - 1));
-        --m_pendingWatchRequests;
+        // --m_pendingWatchRequests;
         data.setError(WatchData::msgNotInScope());
         insertData(data);
         return;
@@ -1025,7 +1024,7 @@ void GdbEngine::handleDebuggingHelperValue2Classic(const GdbResponse &response)
     parseWatchData(watchHandler()->expandedINames(), data, contents, &list);
     //for (int i = 0; i != list.size(); ++i)
     //    qDebug() << "READ: " << list.at(i).toString();
-    watchHandler()->insertBulkData(list);
+    watchHandler()->insertData(list);
 }
 
 void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
@@ -1082,7 +1081,7 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
                     QByteArray cmd = "qdumpqstring (" + data1.exp + ')';
                     QVariant var;
                     var.setValue(data1);
-                    postCommand(cmd, WatchUpdate,
+                    postCommand(cmd, Discardable,
                         CB(handleDebuggingHelperValue3Classic), var);
                 }
             }
@@ -1101,6 +1100,9 @@ void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
 
 void GdbEngine::tryLoadDebuggingHelpersClassic()
 {
+    if (m_forceAsyncModel)
+        return;
+
     PRECONDITION;
     if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
         // Load at least gdb macro based dumpers.
@@ -1171,12 +1173,12 @@ void GdbEngine::updateAllClassic()
         qDebug() << state());
     tryLoadDebuggingHelpersClassic();
     reloadModulesInternal();
-    postCommand("-stack-list-frames", WatchUpdate,
+    postCommand("-stack-list-frames", Discardable,
         CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     stackHandler()->setCurrentIndex(0);
     if (supportsThreads())
-        postCommand("-thread-list-ids", WatchUpdate, CB(handleThreadListIds), 0);
+        postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds), 0);
     reloadRegisters();
     updateLocals();
 }
@@ -1248,11 +1250,10 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
                                       frame.function, frame.file, frame.line,
                                       &uninitializedVariables);
     }
-    QList<WatchData> list;
     foreach (const GdbMi &item, locals) {
         const WatchData data = localVariable(item, uninitializedVariables, &seen);
         if (data.isValid())
-            list.push_back(data);
+            insertData(data);
     }
 
     if (!m_resultVarName.isEmpty()) {
@@ -1260,10 +1261,9 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
         rd.iname = "return.0";
         rd.name = QLatin1String("return");
         rd.exp = m_resultVarName;
-        list.append(rd);
+        insertData(rd);
     }
 
-    watchHandler()->insertBulkData(list);
     watchHandler()->updateWatchers();
 }
 
@@ -1371,7 +1371,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         data.setChildrenUnneeded();
         QByteArray cmd = "-var-list-children --all-values \"" + data.variable + '"';
         //iname += '.' + exp;
-        postCommand(cmd, WatchUpdate,
+        postCommand(cmd, Discardable,
             CB(handleVarListChildrenClassic), QVariant::fromValue(data));
     } else if (!startsWithDigit(QLatin1String(exp))
             && item.findChild("numchild").data() == "0") {
@@ -1390,7 +1390,7 @@ void GdbEngine::handleVarListChildrenHelperClassic(const GdbMi &item,
         WatchData data;
         data.iname = name;
         QByteArray cmd = "-var-list-children --all-values \"" + data.variable + '"';
-        postCommand(cmd, WatchUpdate,
+        postCommand(cmd, Discardable,
             CB(handleVarListChildrenClassic), QVariant::fromValue(data));
     } else if (exp == "staticMetaObject") {
         //    && item.findChild("type").data() == "const QMetaObject")
@@ -1464,9 +1464,6 @@ void GdbEngine::handleVarListChildrenClassic(const GdbResponse &response)
         //qDebug() <<  "VAR_LIST_CHILDREN: PARENT" << data.toString();
         QList<GdbMi> children = response.data.findChild("children").children();
 
-        for (int i = 0; i != children.size(); ++i)
-            handleVarListChildrenHelperClassic(children.at(i), data, i);
-
         if (children.isEmpty()) {
             // happens e.g. if no debug information is present or
             // if the class really has no children
@@ -1479,14 +1476,18 @@ void GdbEngine::handleVarListChildrenClassic(const GdbResponse &response)
             insertData(data1);
             data.setAllUnneeded();
             insertData(data);
-        } else if (data.variable.endsWith("private")
+        } else {
+            if (data.variable.endsWith("private")
                 || data.variable.endsWith("protected")
                 || data.variable.endsWith("public")) {
             // this skips the spurious "public", "private" etc levels
             // gdb produces
-        } else {
-            data.setChildrenUnneeded();
-            insertData(data);
+            } else {
+                data.setChildrenUnneeded();
+                insertData(data);
+            }
+            for (int i = 0; i != children.size(); ++i)
+                handleVarListChildrenHelperClassic(children.at(i), data, i);
         }
     } else {
         data.setError(QString::fromLocal8Bit(response.data.findChild("msg").data()));

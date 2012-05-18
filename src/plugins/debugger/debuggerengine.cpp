@@ -491,42 +491,32 @@ QAbstractItemModel *DebuggerEngine::threadsModel() const
 
 QAbstractItemModel *DebuggerEngine::localsModel() const
 {
-    QAbstractItemModel *model = watchHandler()->model(LocalsWatch);
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("LocalsModel"));
-    return model;
+    return watchHandler()->model();
 }
 
 QAbstractItemModel *DebuggerEngine::watchersModel() const
 {
-    QAbstractItemModel *model = watchHandler()->model(WatchersWatch);
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("WatchersModel"));
-    return model;
+    return watchHandler()->model();
 }
 
 QAbstractItemModel *DebuggerEngine::returnModel() const
 {
-    QAbstractItemModel *model = watchHandler()->model(ReturnWatch);
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("ReturnModel"));
-    return model;
+    return watchHandler()->model();
 }
 
 QAbstractItemModel *DebuggerEngine::inspectorModel() const
 {
-    QAbstractItemModel *model = watchHandler()->model(InspectWatch);
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("InspectorModel"));
-    return model;
+    return watchHandler()->model();
 }
 
 QAbstractItemModel *DebuggerEngine::toolTipsModel() const
 {
-    QAbstractItemModel *model = watchHandler()->model(TooltipsWatch);
-    if (model->objectName().isEmpty()) // Make debugging easier.
-        model->setObjectName(objectName() + QLatin1String("TooltipsModel"));
-    return model;
+    return watchHandler()->model();
+}
+
+QAbstractItemModel *DebuggerEngine::watchModel() const
+{
+    return watchHandler()->model();
 }
 
 QAbstractItemModel *DebuggerEngine::sourceFilesModel() const

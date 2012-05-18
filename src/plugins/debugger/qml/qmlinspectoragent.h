@@ -153,6 +153,7 @@ private:
     DebugIdHash m_debugIdHash;
 
     QList<int> m_objectWatches;
+    QList<int> m_fetchDataIds;
 };
 
 } // Internal

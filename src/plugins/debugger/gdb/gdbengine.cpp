@@ -255,7 +255,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
     m_oldestAcceptableToken = -1;
     m_nonDiscardableCount = 0;
     m_outputCodec = QTextCodec::codecForLocale();
-    m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
     m_commandsDoneCallback = 0;
     m_stackNeeded = false;
@@ -263,6 +262,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
     m_disassembleUsesComma = false;
     m_actingOnExpectedStop = false;
     m_fullStartDone = false;
+    m_forceAsyncModel = false;
 
     invalidateSourcesList();
 
@@ -788,7 +788,8 @@ void GdbEngine::readGdbStandardOutput()
     int newstart = 0;
     int scan = m_inbuffer.size();
 
-    m_inbuffer.append(gdbProc()->readAllStandardOutput());
+    QByteArray out = gdbProc()->readAllStandardOutput();
+    m_inbuffer.append(out);
 
     // This can trigger when a dialog starts a nested event loop.
     if (m_busy)
@@ -811,7 +812,8 @@ void GdbEngine::readGdbStandardOutput()
                 continue;
         }
         m_busy = true;
-        handleResponse(QByteArray::fromRawData(m_inbuffer.constData() + start, end - start));
+        QByteArray ba = QByteArray::fromRawData(m_inbuffer.constData() + start, end - start);
+        handleResponse(ba);
         m_busy = false;
     }
     m_inbuffer.clear();
@@ -903,17 +905,13 @@ void GdbEngine::postCommandHelper(const GdbCommand &cmd)
         return;
     }
 
-    if (cmd.flags & RebuildWatchModel) {
-        ++m_pendingWatchRequests;
-        PENDING_DEBUG("   WATCH MODEL:" << cmd.command << "=>" << cmd.callbackName
-                      << "INCREMENTS PENDING TO" << m_pendingWatchRequests);
-    } else if (cmd.flags & RebuildBreakpointModel) {
+    if (cmd.flags & RebuildBreakpointModel) {
         ++m_pendingBreakpointRequests;
         PENDING_DEBUG("   BRWAKPOINT MODEL:" << cmd.command << "=>" << cmd.callbackName
                       << "INCREMENTS PENDING TO" << m_pendingBreakpointRequests);
     } else {
         PENDING_DEBUG("   OTHER (IN):" << cmd.command << "=>" << cmd.callbackName
-                      << "LEAVES PENDING WATCH AT" << m_pendingWatchRequests
+                      << "LEAVES PENDING WATCH AT" << m_uncompleted.size()
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
@@ -1055,7 +1053,6 @@ void GdbEngine::commandTimeout()
         if (mb->exec() == QMessageBox::Ok) {
             showMessage(_("KILLING DEBUGGER AS REQUESTED BY USER"));
             // This is an undefined state, so we just pull the emergency brake.
-            watchHandler()->endCycle();
             gdbProc()->kill();
         } else {
             showMessage(_("CONTINUE DEBUGGER AS REQUESTED BY USER"));
@@ -1205,25 +1202,17 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
     else if (cmd.adapterCallback)
         (m_gdbAdapter->*cmd.adapterCallback)(*response);
 
-    if (cmd.flags & RebuildWatchModel) {
-        --m_pendingWatchRequests;
-        PENDING_DEBUG("   WATCH" << cmd.command << "=>" << cmd.callbackName
-                      << "DECREMENTS PENDING WATCH TO" << m_pendingWatchRequests);
-        if (m_pendingWatchRequests <= 0) {
-            PENDING_DEBUG("\n\n ... AND TRIGGERS WATCH MODEL UPDATE\n");
-            rebuildWatchModel();
-        }
-    } else if (cmd.flags & RebuildBreakpointModel) {
+    if (cmd.flags & RebuildBreakpointModel) {
         --m_pendingBreakpointRequests;
         PENDING_DEBUG("   BREAKPOINT" << cmd.command << "=>" << cmd.callbackName
-                      << "DECREMENTS PENDING TO" << m_pendingWatchRequests);
+                      << "DECREMENTS PENDING TO" << m_uncompleted.size());
         if (m_pendingBreakpointRequests <= 0) {
             PENDING_DEBUG("\n\n ... AND TRIGGERS BREAKPOINT MODEL UPDATE\n");
             attemptBreakpointSynchronization();
         }
     } else {
         PENDING_DEBUG("   OTHER (OUT):" << cmd.command << "=>" << cmd.callbackName
-                      << "LEAVES PENDING WATCH AT" << m_pendingWatchRequests
+                      << "LEAVES PENDING WATCH AT" << m_uncompleted.size()
                       << "LEAVES PENDING BREAKPOINT AT" << m_pendingBreakpointRequests);
     }
 
@@ -3918,10 +3907,10 @@ bool GdbEngine::supportsThreads() const
 //
 //////////////////////////////////////////////////////////////////////
 
-bool GdbEngine::showToolTip()
+void GdbEngine::showToolTip()
 {
     if (m_toolTipContext.isNull())
-        return false;
+        return;
     const QString expression = m_toolTipContext->expression;
     const QByteArray iname = tooltipIName(m_toolTipContext->expression);
     if (DebuggerToolTipManager::debug())
@@ -3929,15 +3918,15 @@ bool GdbEngine::showToolTip()
 
     if (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)) {
         watchHandler()->removeData(iname);
-        return true;
+        return;
     }
 
     if (!watchHandler()->isValidToolTip(iname)) {
         watchHandler()->removeData(iname);
-        return true;
+        return;
     }
     DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
-    tw->setDebuggerModel(TooltipsWatch);
+    tw->setDebuggerModel(TooltipType);
     tw->setExpression(expression);
     tw->setContext(*m_toolTipContext);
     tw->acquireEngine(this);
@@ -3945,7 +3934,6 @@ bool GdbEngine::showToolTip()
                                                     m_toolTipContext->editor, tw);
     // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
     m_toolTipContext.reset();
-    return true;
 }
 
 QString GdbEngine::tooltipExpression() const
@@ -4034,7 +4022,6 @@ bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
         toolTip.exp = exp.toLatin1();
         toolTip.name = exp;
         toolTip.iname = tooltipIName(exp);
-        watchHandler()->removeData(toolTip.iname);
         watchHandler()->insertData(toolTip);
     }
     return true;
@@ -4071,19 +4058,12 @@ bool GdbEngine::hasDebuggingHelperForType(const QByteArray &type) const
     return m_dumperHelper.type(type) != DumperHelper::UnknownType;
 }
 
-
 void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &flags)
 {
     if (isSynchronous()) {
         // This should only be called for fresh expanded items, not for
         // items that had their children retrieved earlier.
         //qDebug() << "\nUPDATE WATCH DATA: " << data.toString() << "\n";
-#if 0
-        WatchData data1 = data;
-        data1.setAllUnneeded();
-        insertData(data1);
-        rebuildModel();
-#else
         if (data.iname.endsWith("."))
             return;
 
@@ -4106,53 +4086,26 @@ void GdbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &f
         // triggered e.g. by manually entered command in the gdb console?
         //qDebug() << "TRY PARTIAL: " << flags.tryIncremental
         //        << hasPython()
-        //        << (m_pendingWatchRequests == 0)
         //        << (m_pendingBreakpointRequests == 0);
 
         UpdateParameters params;
         params.tooltipOnly = data.iname.startsWith("tooltip");
         params.tryPartial = flags.tryIncremental
                 && hasPython()
-                && m_pendingWatchRequests == 0
                 && m_pendingBreakpointRequests == 0;
         params.varList = data.iname;
 
         updateLocalsPython(params);
-#endif
     } else {
-        // Bump requests to avoid model rebuilding during the nested
-        // updateWatchModel runs.
-        ++m_pendingWatchRequests;
-        PENDING_DEBUG("UPDATE WATCH BUMPS PENDING UP TO " << m_pendingWatchRequests);
-#if 1
-        QMetaObject::invokeMethod(this, "updateWatchDataHelper",
-            Qt::QueuedConnection, Q_ARG(WatchData, data));
-#else
-        updateWatchDataHelper(data);
-#endif
+        PENDING_DEBUG("UPDATE WATCH BUMPS PENDING UP TO " << m_uncompleted.size());
+        updateSubItemClassic(data);
     }
-}
-
-void GdbEngine::updateWatchDataHelper(const WatchData &data)
-{
-    //m_pendingRequests = 0;
-    PENDING_DEBUG("UPDATE WATCH DATA");
-#    if DEBUG_PENDING
-    //qDebug() << "##############################################";
-    qDebug() << "UPDATE MODEL, FOUND INCOMPLETE:";
-    //qDebug() << data.toString();
-#    endif
-
-    updateSubItemClassic(data);
-    //PENDING_DEBUG("INTERNAL TRIGGERING UPDATE WATCH MODEL");
-    --m_pendingWatchRequests;
-    PENDING_DEBUG("UPDATE WATCH DONE BUMPS PENDING DOWN TO " << m_pendingWatchRequests);
-    if (m_pendingWatchRequests <= 0)
-        rebuildWatchModel();
 }
 
 void GdbEngine::rebuildWatchModel()
 {
+    QTC_CHECK(m_completed.isEmpty());
+    QTC_CHECK(m_uncompleted.isEmpty());
     static int count = 0;
     ++count;
     if (!isSynchronous())
@@ -4162,7 +4115,6 @@ void GdbEngine::rebuildWatchModel()
         showMessage(LogWindow::logTimeStamp(), LogMiscInput);
     showMessage(_("<Rebuild Watchmodel %1>").arg(count), LogMiscInput);
     showStatusMessage(tr("Finished retrieving data"), 400);
-    watchHandler()->endCycle();
     showToolTip();
     handleAutoTests();
 }
@@ -4332,15 +4284,23 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
     return data;
 }
 
-void GdbEngine::insertData(const WatchData &data0)
+void GdbEngine::insertData(const WatchData &data)
 {
-    PENDING_DEBUG("INSERT DATA" << data0.toString());
-    WatchData data = data0;
-    if (data.value.startsWith(QLatin1String("mi_cmd_var_create:"))) {
-        qDebug() << "BOGUS VALUE:" << data.toString();
-        return;
+    PENDING_DEBUG("INSERT DATA" << data.toString());
+    if (data.isSomethingNeeded()) {
+        m_uncompleted.insert(data.iname);
+        WatchUpdateFlags flags;
+        flags.tryIncremental = true;
+        updateWatchData(data, flags);
+    } else {
+        m_completed.append(data);
+        m_uncompleted.remove(data.iname);
+        if (m_uncompleted.isEmpty()) {
+            watchHandler()->insertData(m_completed);
+            m_completed.clear();
+            rebuildWatchModel();
+        }
     }
-    watchHandler()->insertData(data);
 }
 
 void GdbEngine::assignValueInDebugger(const WatchData *data,
@@ -4901,12 +4861,6 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 
     postCommand("disassemble 0 0", ConsoleCommand, CB(handleDisassemblerCheck));
 
-    if (sp.breakOnMain) {
-        QByteArray cmd = "tbreak ";
-        cmd += sp.toolChainAbi.os() == Abi::WindowsOS ? "qMain" : "main";
-        postCommand(cmd);
-    }
-
     if (attemptQuickStart()) {
         postCommand("set auto-solib-add off", ConsoleCommand);
     } else {
@@ -4941,6 +4895,9 @@ void GdbEngine::loadInitScript()
 
 void GdbEngine::loadPythonDumpers()
 {
+    if (m_forceAsyncModel)
+        return;
+
     const QByteArray dumperSourcePath =
         Core::ICore::resourcePath().toLocal8Bit() + "/dumper/";
 
@@ -5090,6 +5047,12 @@ void GdbEngine::handleInferiorPrepared()
     const DebuggerStartParameters &sp = startParameters();
 
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+
+    if (sp.breakOnMain) {
+        QByteArray cmd = "tbreak ";
+        cmd += sp.toolChainAbi.os() == Abi::WindowsOS ? "qMain" : "main";
+        postCommand(cmd);
+    }
 
     // Initial attempt to set breakpoints.
     if (sp.startMode != AttachCore) {
@@ -5361,6 +5324,9 @@ void GdbEngine::requestDebugInformation(const DebugInfoTask &task)
 
 bool GdbEngine::attemptQuickStart() const
 {
+    if (m_forceAsyncModel)
+        return false;
+
     // Don't try if the user does not ask for it.
     if (!debuggerCore()->boolSetting(AttemptQuickStart))
         return false;

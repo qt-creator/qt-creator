@@ -54,12 +54,11 @@ namespace Internal {
 void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 {
     PRECONDITION;
-    m_pendingWatchRequests = 0;
+    //m_pendingWatchRequests = 0;
     m_pendingBreakpointRequests = 0;
     m_processedNames.clear();
-    WatchHandler *handler = watchHandler();
-    handler->beginCycle(!params.tryPartial);
 
+    WatchHandler *handler = watchHandler();
     QByteArray expanded = "expanded:" + handler->expansionRequests() + ' ';
     expanded += "typeformats:" + handler->typeFormatRequests() + ' ';
     expanded += "formats:" + handler->individualFormatRequests();
@@ -117,7 +116,7 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 
     postCommand("bb options:" + options + " vars:" + params.varList + ' '
             + resultVar + expanded + " watchers:" + watchers.toHex(),
-        WatchUpdate, CB(handleStackFramePython), QVariant(params.tryPartial));
+        Discardable, CB(handleStackFramePython), QVariant(params.tryPartial));
 }
 
 void GdbEngine::handleStackFramePython(const GdbResponse &response)
@@ -136,9 +135,11 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         }
         GdbMi all;
         all.fromStringMultiple(out);
-
         GdbMi data = all.findChild("data");
+
+        WatchHandler *handler = watchHandler();
         QList<WatchData> list;
+
         foreach (const GdbMi &child, data.children()) {
             WatchData dummy;
             dummy.iname = child.findChild("iname").data();
@@ -151,7 +152,7 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
             } else {
                 dummy.name = _(child.findChild("name").data());
             }
-            parseWatchData(watchHandler()->expandedINames(), dummy, child, &list);
+            parseWatchData(handler->expandedINames(), dummy, child, &list);
         }
         const GdbMi typeInfo = all.findChild("typeinfo");
         if (typeInfo.type() == GdbMi::List) {
@@ -169,15 +170,20 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
                 list[i].size = ti.size;
         }
 
-        watchHandler()->insertBulkData(list);
+        if (!partial) {
+            handler->removeChildren("local");
+            handler->removeChildren("watch");
+        }
+
+        handler->insertData(list);
 
         //PENDING_DEBUG("AFTER handleStackFrame()");
         // FIXME: This should only be used when updateLocals() was
         // triggered by expanding an item in the view.
-        if (m_pendingWatchRequests <= 0) {
+        //if (m_pendingWatchRequests <= 0) {
             //PENDING_DEBUG("\n\n ....  AND TRIGGERS MODEL UPDATE\n");
             rebuildWatchModel();
-        }
+        //}
         if (!partial)
             emit stackFrameCompleted();
     } else {

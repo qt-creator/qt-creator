@@ -2397,6 +2397,14 @@ def qdump__Debugger__Internal__GdbMi(d, value):
     d.putByteArrayValue(value["m_data"])
     d.putPlainChildren(value)
 
+def qdump__Debugger__Internal__WatchData(d, value):
+    d.putByteArrayValue(value["iname"])
+    d.putPlainChildren(value)
+
+def qdump__Debugger__Internal__WatchItem(d, value):
+    d.putByteArrayValue(value["iname"])
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__ByteArrayRef(d, value):
     d.putValue(encodeCharArray(value["m_start"], 100, value["m_length"]),
         Hex2EncodedLatin1)

@@ -1000,7 +1000,6 @@ void QmlEngine::updateWatchData(const WatchData &data,
     const WatchUpdateFlags &)
 {
 //    qDebug() << "UPDATE WATCH DATA" << data.toString();
-    //watchHandler()->rebuildModel();
     //showStatusMessage(tr("Stopped."), 5000);
 
     if (data.isInspect()) {
@@ -1020,7 +1019,7 @@ void QmlEngine::updateWatchData(const WatchData &data,
 
 
     if (!data.isSomethingNeeded())
-        watchHandler()->insertData(data);
+        watchHandler()->insertIncompleteData(data);
 }
 
 void QmlEngine::synchronizeWatchers()

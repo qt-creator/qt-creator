@@ -49,15 +49,17 @@ class WatchTreeView : public BaseTreeView
     Q_OBJECT
 
 public:
-    enum Type { ReturnType, LocalsType, TooltipType, WatchersType, InspectType };
+    enum Type { LocalsType, InspectType, WatchersType, ReturnType, TooltipType };
 
     explicit WatchTreeView(Type type, QWidget *parent = 0);
     Type type() const { return m_type; }
     void setModel(QAbstractItemModel *model);
+    void reset();
 
 public slots:
     void watchExpression(const QString &exp);
     void removeWatchExpression(const QString &exp);
+    void handleItemIsExpanded(const QModelIndex &idx);
 
 private:
     Q_SLOT void resetHelper();

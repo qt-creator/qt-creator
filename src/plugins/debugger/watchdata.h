@@ -135,7 +135,6 @@ public:
     uint       size;         // Size
     uint       bitpos;       // Position within bit fields
     uint       bitsize;      // Size in case of bit fields
-    qint32     generation;   // When updated?
     bool hasChildren;
     bool valueEnabled;       // Value will be enabled or not
     bool valueEditable;      // Value will be editable
