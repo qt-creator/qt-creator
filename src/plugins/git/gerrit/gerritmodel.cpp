@@ -537,14 +537,14 @@ static QList<GerritChangePtr> parseOutput(const QSharedPointer<GerritParameters>
         const int ac = approvalsJ.size();
         for (int a = 0; a < ac; ++a) {
             const QJsonObject ao = approvalsJ.at(a).toObject();
-            GerritApproval a;
+            GerritApproval approval;
             const QJsonObject approverO = ao.value(approvalsByKey).toObject();
-            a.reviewer = approverO.value(ownerNameKey).toString();
-            a.email = approverO.value(ownerEmailKey).toString();
-            a.approval = ao.value(approvalsValueKey).toString().toInt();
-            a.type = ao.value(approvalsTypeKey).toString();
-            a.description = ao.value(approvalsDescriptionKey).toString();
-            change->currentPatchSet.approvals.push_back(a);
+            approval.reviewer = approverO.value(ownerNameKey).toString();
+            approval.email = approverO.value(ownerEmailKey).toString();
+            approval.approval = ao.value(approvalsValueKey).toString().toInt();
+            approval.type = ao.value(approvalsTypeKey).toString();
+            approval.description = ao.value(approvalsDescriptionKey).toString();
+            change->currentPatchSet.approvals.push_back(approval);
         }
         qStableSort(change->currentPatchSet.approvals.begin(),
                     change->currentPatchSet.approvals.end(),
