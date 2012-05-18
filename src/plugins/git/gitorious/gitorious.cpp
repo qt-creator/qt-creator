@@ -55,16 +55,19 @@ static const char settingsKeyC[] = "GitoriousHosts";
 // Gitorious paginates projects as 20 per page. It starts with page 1.
 enum { ProjectsPageSize = 20 };
 
-// Format an URL for a XML request
-static inline QUrl xmlRequest(const QString &host, const QString &request, int page = -1)
+// Format an URL for a http request
+static inline QUrl httpRequest(const QString &host, const QString &request)
 {
     QUrl url;
     url.setScheme(QLatin1String("http"));
-    url.setHost(host);
+    const QStringList hostList = host.split(QLatin1Char(':'), QString::SkipEmptyParts);
+    if (hostList.size() > 0)
+    {
+        url.setHost(hostList.at(0));
+        if (hostList.size() > 1)
+            url.setPort(hostList.at(1).toInt());
+    }
     url.setPath(QLatin1Char('/') + request);
-    url.addQueryItem(QLatin1String("format"), QLatin1String("xml"));
-    if (page >= 0)
-        url.addQueryItem(QLatin1String("page"), QString::number(page));
     return url;
 }
 
@@ -545,10 +548,7 @@ QNetworkReply *Gitorious::createRequest(const QUrl &url, int protocol, int hostI
 void Gitorious::updateCategories(int index)
 {
     // For now, parse the HTML of the projects site for "Popular Categories":
-    QUrl url;
-    url.setScheme(QLatin1String("http"));
-    url.setHost(hostName(index));
-    url.setPath(QLatin1String("/projects"));
+    const QUrl url = httpRequest(hostName(index), QLatin1String("projects"));
     createRequest(url, ListCategoriesProtocol, index);
 }
 
@@ -559,7 +559,10 @@ void Gitorious::updateProjectList(int hostIndex)
 
 void Gitorious::startProjectsRequest(int hostIndex, int page)
 {
-    const QUrl url = xmlRequest(hostName(hostIndex), QLatin1String("projects"), page);
+    QUrl url = httpRequest(hostName(hostIndex), QLatin1String("projects"));
+    url.addQueryItem(QLatin1String("format"), QLatin1String("xml"));
+    if (page >= 0)
+        url.addQueryItem(QLatin1String("page"), QString::number(page));
     createRequest(url, ListProjectsProtocol, hostIndex, page);
 }
 
