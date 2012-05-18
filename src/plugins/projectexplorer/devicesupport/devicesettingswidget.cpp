@@ -45,6 +45,7 @@
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
+#include <QPixmap>
 #include <QRegExp>
 #include <QSettings>
 #include <QSignalMapper>
@@ -193,6 +194,18 @@ void DeviceSettingsWidget::displayCurrent()
     m_ui->autoDetectionValueLabel->setText(current->isAutoDetected()
         ? tr("Yes (fingerprint is '%1')").arg(current->id().toString()) : tr("No"));
     m_nameValidator->setDisplayName(current->displayName());
+    switch (current->availability()) {
+    case IDevice::DeviceAvailable:
+        m_ui->availableValueLabel->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/ConnectionOn.png")));
+        break;
+    case IDevice::DeviceUnavailable:
+        m_ui->availableValueLabel->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/ConnectionOff.png")));
+        break;
+    case IDevice::DeviceAvailabilityUnknown:
+        m_ui->availableValueLabel->setText(tr("Unknown"));
+        break;
+    }
+
     m_ui->removeConfigButton->setEnabled(!current->isAutoDetected());
     fillInValues();
 }
