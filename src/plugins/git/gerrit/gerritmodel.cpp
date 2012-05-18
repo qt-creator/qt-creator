@@ -194,7 +194,7 @@ QString GerritChange::toHtml() const
     static const QString format = GerritModel::tr(
        "<html><head/><body><table>"
        "<tr><td>Subject</td><td>%1</td></tr>"
-       "<tr><td>Number</td><td>%2"
+       "<tr><td>Number</td><td><a href=\"%11\">%2</a></td></tr>"
        "<tr><td>Owner</td><td>%3 <a href=\"mailto:%4\">%4</a></td></tr>"
        "<tr><td>Project</td><td>%5 (%6)</td></tr>"
        "<tr><td>Status</td><td>%7, %8</td></tr>"
