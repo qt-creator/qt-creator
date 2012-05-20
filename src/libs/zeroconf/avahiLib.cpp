@@ -405,7 +405,7 @@ extern "C" void cAvahiResolveReply(
             sg->txtFieldReply(
                         kDNSServiceFlagsAdd | ((txtAtt->next || address)?kDNSServiceFlagsMoreComing:0),
                         kDNSServiceErr_NoError, static_cast<unsigned short>(txtAtt->size),
-                        txtAtt->text, -1);
+                        txtAtt->text, ~0);
             txtAtt = txtAtt->next;
         }
         if (address){
