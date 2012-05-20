@@ -595,7 +595,7 @@ void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
         if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()) {
             if (doc->fileName().endsWith(".js")) {
                 m_changesUnsynchronizable = true;
-                showSyncWarning(JSChangeWarning, QString(), -1, -1);
+                showSyncWarning(JSChangeWarning, QString(), 0, 0);
                 m_previousDoc = doc;
                 return;
             }
