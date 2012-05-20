@@ -77,7 +77,7 @@ namespace {
 enum {
     eagerExpansion = 1,
     MAX_TOKEN_EXPANSION_COUNT = 5000,
-    MAX_TOKEN_BUFFER_DEPTH = 16000, // for when macros are using some kind of right-folding, this is the list of "delayed" buffers waiting to be expanded after the current one.
+    MAX_TOKEN_BUFFER_DEPTH = 16000 // for when macros are using some kind of right-folding, this is the list of "delayed" buffers waiting to be expanded after the current one.
 };
 }
 

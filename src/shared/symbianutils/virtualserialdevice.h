@@ -97,7 +97,7 @@ private:
     enum FlushPendingOption {
         NothingSpecial = 0,
         StopAfterWritingOneBuffer = 1,
-        EmitBytesWrittenAsync = 2, // Needed so we don't emit bytesWritten signal directly from writeBytes
+        EmitBytesWrittenAsync = 2 // Needed so we don't emit bytesWritten signal directly from writeBytes
     };
     Q_DECLARE_FLAGS(FlushPendingOptions, FlushPendingOption)
     bool tryFlushPendingBuffers(QMutexLocker& locker, FlushPendingOptions flags = NothingSpecial);
