@@ -394,7 +394,7 @@ extern "C" void cAvahiResolveReply(
     const unsigned char emptyTxt[1]="";
     switch (event) {
     case AVAHI_RESOLVER_FAILURE:
-        sg->serviceResolveReply(0, kDNSServiceErr_Timeout, interface, 0, QString(), 0, 0);
+        sg->serviceResolveReply(0, interface, kDNSServiceErr_Timeout, 0, QString(), 0, 0);
         break;
     case AVAHI_RESOLVER_FOUND:
         sg->serviceResolveReply(
