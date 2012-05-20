@@ -77,7 +77,7 @@ class CORESHARED_EXPORT  ModelNode
     friend CORESHARED_EXPORT uint qHash(const ModelNode & node);
     friend CORESHARED_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
     friend CORESHARED_EXPORT bool operator <(const ModelNode &firstNode, const ModelNode &secondNode);
-    friend CORESHARED_EXPORT QList<Internal::InternalNodePointer> QmlDesigner::toInternalNodeList(const QList<ModelNode> &nodeList);
+    friend CORESHARED_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
     friend class QmlDesigner::Model;
     friend class QmlDesigner::AbstractView;
     friend class QmlDesigner::NodeListProperty;

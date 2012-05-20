@@ -49,8 +49,8 @@ CORESHARED_EXPORT QDataStream &operator>>(QDataStream &stream, PropertyContainer
 
 class CORESHARED_EXPORT PropertyContainer
 {
-    friend CORESHARED_EXPORT QDataStream &QmlDesigner::operator<<(QDataStream &stream, const PropertyContainer &propertyContainer);
-    friend CORESHARED_EXPORT QDataStream &QmlDesigner::operator>>(QDataStream &stream, PropertyContainer &propertyContainer);
+    friend CORESHARED_EXPORT QDataStream &operator<<(QDataStream &stream, const PropertyContainer &propertyContainer);
+    friend CORESHARED_EXPORT QDataStream &operator>>(QDataStream &stream, PropertyContainer &propertyContainer);
 
 public:
     PropertyContainer();

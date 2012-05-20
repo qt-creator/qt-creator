@@ -56,8 +56,8 @@ class CORESHARED_EXPORT ItemLibraryEntry
 {
     //friend class QmlDesigner::MetaInfo;
     //friend class QmlDesigner::Internal::MetaInfoParser;
-    friend CORESHARED_EXPORT QDataStream& QmlDesigner::operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibraryEntry);
-    friend CORESHARED_EXPORT QDataStream& QmlDesigner::operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry);
+    friend CORESHARED_EXPORT QDataStream& operator<<(QDataStream& stream, const ItemLibraryEntry &itemLibraryEntry);
+    friend CORESHARED_EXPORT QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry);
 
 public:
     ItemLibraryEntry();
