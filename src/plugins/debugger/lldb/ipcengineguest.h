@@ -152,8 +152,8 @@ public:
     void notifyInferiorIll();
     void notifyEngineIll();
     void notifyInferiorPid(qint64 pid);
-    void showMessage(const QString &msg, quint16 channel = LogDebug, quint64 timeout = -1);
-    void showStatusMessage(const QString &msg, quint64 timeout = -1);
+    void showMessage(const QString &msg, quint16 channel = LogDebug, quint64 timeout = quint64(-1));
+    void showStatusMessage(const QString &msg, quint64 timeout = quint64(-1));
 
     void currentFrameChanged(qint64 token);
     void currentThreadChanged(qint64 token);

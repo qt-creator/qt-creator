@@ -278,7 +278,7 @@ QByteArray GLSLEditorPlugin::glslFile(const QString &fileName) const
 void GLSLEditorPlugin::parseGlslFile(const QString &fileName, InitFile *initFile) const
 {
     // Parse the builtins for any langugage variant so we can use all keywords.
-    const unsigned variant = GLSL::Lexer::Variant_All;
+    const int variant = GLSL::Lexer::Variant_All;
 
     const QByteArray code = glslFile(fileName);
     initFile->engine = new GLSL::Engine();

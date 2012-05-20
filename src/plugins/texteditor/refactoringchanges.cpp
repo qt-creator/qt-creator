@@ -330,7 +330,7 @@ void RefactoringFile::apply()
 {
     // open / activate / goto position
     if (m_openEditor && !m_fileName.isEmpty()) {
-        unsigned line = -1, column = -1;
+        unsigned line = unsigned(-1), column = unsigned(-1);
         if (m_editorCursorPosition != -1)
             lineAndColumn(m_editorCursorPosition, &line, &column);
         m_editor = RefactoringChanges::openEditor(m_fileName, m_activateEditor, line, column);

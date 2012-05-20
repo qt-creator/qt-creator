@@ -96,7 +96,7 @@ private:
 };
 
 BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
-    : QDialog(parent), m_enabledParts(-1), m_previousType(UnknownType),
+    : QDialog(parent), m_enabledParts(~0), m_previousType(UnknownType),
       m_firstTypeChange(true)
 {
     m_ui.setupUi(this);

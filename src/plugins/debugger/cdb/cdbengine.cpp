@@ -844,7 +844,7 @@ void CdbEngine::setupInferior()
     if (startParameters().breakOnMain) {
         const BreakpointParameters bp(BreakpointAtMain);
         postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings,
-                                            BreakpointModelId(-1), true), 0);
+                                            BreakpointModelId(quint16(-1)), true), 0);
     }
     postCommand("sxn 0x4000001f", 0); // Do not break on WowX86 exceptions.
     postCommand(".asm source_line", 0); // Source line in assembly
@@ -1209,7 +1209,7 @@ void CdbEngine::executeRunToLine(const ContextData &data)
         bp.fileName = data.fileName;
         bp.lineNumber = data.lineNumber;
     }
-    postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(-1), true), 0);
+    postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(quint16(-1)), true), 0);
     continueInferior();
 }
 
@@ -1219,7 +1219,7 @@ void CdbEngine::executeRunToFunction(const QString &functionName)
     BreakpointParameters bp(BreakpointByFunction);
     bp.functionName = functionName;
 
-    postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(-1), true), 0);
+    postCommand(cdbAddBreakpointCommand(bp, m_sourcePathMappings, BreakpointModelId(quint16(-1)), true), 0);
     continueInferior();
 }
 

@@ -65,7 +65,7 @@ QString cdbSourcePathMapping(QString fileName,
 // Convert breakpoint in CDB syntax (applying source path mappings using native paths).
 QByteArray cdbAddBreakpointCommand(const BreakpointParameters &d,
                                    const QList<QPair<QString, QString> > &sourcePathMapping,
-                                   BreakpointModelId id = BreakpointModelId(-1), bool oneshot = false);
+                                   BreakpointModelId id = BreakpointModelId(quint16(-1)), bool oneshot = false);
 // Parse extension command listing breakpoints.
 // Note that not all fields are returned, since file, line, function are encoded
 // in the expression (that is in addition deleted on resolving for a bp-type breakpoint).
