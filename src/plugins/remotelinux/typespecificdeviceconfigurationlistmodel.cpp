@@ -92,7 +92,8 @@ LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::dev
         if (target()->supportsDevice(device) && ++currentRow == idx)
             return device.staticCast<const LinuxDeviceConfiguration>();
     }
-    QTC_ASSERT(false, return LinuxDeviceConfiguration::ConstPtr());
+    QTC_CHECK(false);
+    return LinuxDeviceConfiguration::ConstPtr();
 }
 
 LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::defaultDeviceConfig() const
