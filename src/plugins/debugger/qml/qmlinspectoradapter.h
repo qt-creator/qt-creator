@@ -99,6 +99,7 @@ private slots:
     void onUpdateOnSaveChanged(const QVariant &value);
     void onReload();
     void onReloaded();
+    void onDestroyedObject();
 
 private:
     void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);

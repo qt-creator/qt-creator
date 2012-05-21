@@ -67,7 +67,8 @@ QmlToolsClient::QmlToolsClient(QmlDebugConnection *client)
       m_connection(client),
       m_requestId(0),
       m_slowDownFactor(1),
-      m_reloadQueryId(-1)
+      m_reloadQueryId(-1),
+      m_destroyObjectQueryId(-1)
 {
     setObjectName(name());
 }
@@ -86,6 +87,9 @@ void QmlToolsClient::messageReceived(const QByteArray &message)
 
         if ((m_reloadQueryId != -1) && (m_reloadQueryId == requestId) && success)
             emit reloaded();
+
+        if ((m_destroyObjectQueryId != -1) && (m_destroyObjectQueryId == requestId) && success)
+            emit destroyedObject();
 
         log(LogReceive, type, QString(QLatin1String("requestId: %1 success: %2"))
             .arg(QString::number(requestId)).arg(QString::number(success)));
@@ -277,6 +281,7 @@ void QmlToolsClient::destroyQmlObject(int debugId)
         return;
     QByteArray message;
     QDataStream ds(&message, QIODevice::WriteOnly);
+    m_destroyObjectQueryId = m_requestId;
     ds << QByteArray(REQUEST) << m_requestId++
        << QByteArray(DESTROY_OBJECT) << debugId;
 

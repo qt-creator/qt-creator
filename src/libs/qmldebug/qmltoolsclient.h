@@ -83,6 +83,7 @@ private:
     int m_requestId;
     qreal m_slowDownFactor;
     int m_reloadQueryId;
+    int m_destroyObjectQueryId;
 };
 
 } // namespace QmlDebug

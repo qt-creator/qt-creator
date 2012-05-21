@@ -83,6 +83,7 @@ signals:
     void designModeBehaviorChanged(bool inDesignMode);
     void showAppOnTopChanged(bool showAppOnTop);
     void reloaded(); // the server has reloaded the document
+    void destroyedObject();
 
     void logActivity(QString client, QString message);
 

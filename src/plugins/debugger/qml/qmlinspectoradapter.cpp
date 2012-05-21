@@ -204,6 +204,7 @@ void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status
         connect(client, SIGNAL(logActivity(QString,QString)),
                 m_debugAdapter, SLOT(logServiceActivity(QString,QString)));
         connect(client, SIGNAL(reloaded()), SLOT(onReloaded()));
+        connect(client, SIGNAL(destroyedObject()), SLOT(onDestroyedObject()));
 
         // only enable zoom action for Qt 4.x/old client
         // (zooming is integrated into selection tool in Qt 5).
@@ -655,6 +656,11 @@ void QmlInspectorAdapter::onReloaded()
         QmlJS::Document::Ptr doc = snapshot.document(it.key());
         it.value()->resetInitialDoc(doc);
     }
+}
+
+void QmlInspectorAdapter::onDestroyedObject()
+{
+    m_agent->refreshObjectTree();
 }
 
 } // namespace Internal
