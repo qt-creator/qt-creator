@@ -2,6 +2,7 @@ TEMPLATE = lib
 TARGET = TextEditor
 DEFINES += TEXTEDITOR_LIBRARY
 QT += xml network
+CONFIG += exceptions
 greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
 include(../../qtcreatorplugin.pri)
 include(texteditor_dependencies.pri)

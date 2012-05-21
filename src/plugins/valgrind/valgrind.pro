@@ -8,6 +8,8 @@ include(memcheck/memcheck.pri)
 include(xmlprotocol/xmlprotocol.pri)
 QT *= network
 
+CONFIG += exceptions
+
 INCLUDEPATH *= $$PWD
 
 HEADERS += \

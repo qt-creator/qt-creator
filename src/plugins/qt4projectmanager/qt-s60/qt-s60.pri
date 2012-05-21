@@ -1,3 +1,5 @@
+CONFIG += exceptions
+
 SOURCES += $$PWD/s60manager.cpp \
     $$PWD/symbianidevice.cpp \
     $$PWD/symbianideviceconfigwidget.cpp \

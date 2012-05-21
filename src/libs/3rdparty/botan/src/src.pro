@@ -5,6 +5,8 @@ PRECOMPILED_HEADER = ../../precompiled_headers/botan_pch.h
 
 include(../../../../qtcreatorlibrary.pri)
 
+CONFIG += exceptions
+
 DEPENDPATH += .
 INCLUDEPATH += $$PWD $$PWD/../build $$PWD/../build/botan
 unix:QMAKE_CXXFLAGS_DEBUG += -O2

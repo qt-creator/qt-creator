@@ -1,6 +1,8 @@
 TEMPLATE = lib
 TARGET = QmlDesigner
 
+CONFIG += exceptions
+
 INCLUDEPATH += $$PWD
 
 include(../../qtcreatorplugin.pri)

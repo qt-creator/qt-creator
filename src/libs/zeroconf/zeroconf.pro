@@ -1,5 +1,6 @@
 QT       -= gui
 QT       += network
+CONFIG   += exceptions
 
 TARGET = zeroconf
 TEMPLATE = lib

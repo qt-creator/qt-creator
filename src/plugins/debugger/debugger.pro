@@ -16,6 +16,8 @@ QT += gui \
     network \
     script
 
+CONFIG += exceptions
+
 HEADERS += \
     basewindow.h \
     breakhandler.h \
