@@ -109,7 +109,6 @@ src/tools/qml/qmldump/qmldump
 src/tools/examplesscanner/examplesscanner
 src/tools/valgrindfake/valgrind-fake
 bin/*.exe
-src/tools/mdnssd
 
 # Tests
 #------
