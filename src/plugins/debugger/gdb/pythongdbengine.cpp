@@ -120,21 +120,6 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
         WatchUpdate, CB(handleStackFramePython), QVariant(params.tryPartial));
 }
 
-void GdbEngine::handleStackListLocalsPython(const GdbResponse &response)
-{
-    PRECONDITION;
-    if (response.resultClass == GdbResultDone) {
-        // 44^done,data={locals=[name="model",name="backString",...]}
-        QByteArray varList = "vars"; // Dummy entry, will be stripped by dumper.
-        foreach (const GdbMi &child, response.data.findChild("locals").children()) {
-            varList.append(',');
-            varList.append(child.data());
-        }
-        UpdateParameters params;
-        updateLocalsPython(params);
-    }
-}
-
 void GdbEngine::handleStackFramePython(const GdbResponse &response)
 {
     PRECONDITION;

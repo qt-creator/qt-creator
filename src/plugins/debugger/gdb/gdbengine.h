@@ -672,7 +672,6 @@ private: ////////// View & Data Stuff //////////
             void handleStackFramePython(const GdbResponse &response);
 
     void handleStackListLocalsClassic(const GdbResponse &response);
-    void handleStackListLocalsPython(const GdbResponse &response);
 
     WatchData localVariable(const GdbMi &item,
                             const QStringList &uninitializedVariables,
