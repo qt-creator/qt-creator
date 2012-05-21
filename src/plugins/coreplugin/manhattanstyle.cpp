@@ -66,7 +66,7 @@
 #include <QAbstractItemView>
 
 // We define a currently unused state for indicating animations
-#define State_Animating 0x00000040
+const QStyle::State State_Animating = QStyle::State(0x00000040);
 
 // Because designer needs to disable this for widget previews
 // we have a custom property that is inherited
@@ -415,7 +415,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
             Animation *anim = d->animator.widgetAnimation(widget);
             QStyleOption opt = *option;
             opt.state = (QStyle::State)oldState;
-            opt.state |= (State)State_Animating;
+            opt.state |= State_Animating;
             startImage.fill(0);
             Transition *t = new Transition;
             t->setWidget(w);
@@ -427,7 +427,7 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                 d->animator.stopAnimation(widget);
             }
             QStyleOption endOpt = *option;
-            endOpt.state |= (State)State_Animating;
+            endOpt.state |= State_Animating;
             t->setStartImage(startImage);
             d->animator.startAnimation(t);
             endImage.fill(0);
