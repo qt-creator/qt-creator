@@ -169,8 +169,22 @@ bool CommandMappings::filter(const QString &filterString, QTreeWidgetItem *item)
 {
     bool visible = filterString.isEmpty();
     int columnCount = item->columnCount();
-    for (int i = 0; !visible && i < columnCount; ++i)
-        visible |= (bool)item->text(i).contains(filterString, Qt::CaseInsensitive);
+    for (int i = 0; !visible && i < columnCount; ++i) {
+        QString text = item->text(i);
+#ifdef Q_OS_MAC
+        // accept e.g. Cmd+E in the filter. the text shows special fancy characters for Cmd
+        if (i == columnCount - 1) {
+            QKeySequence key = QKeySequence::fromString(text, QKeySequence::NativeText);
+            if (!key.isEmpty()) {
+                text = key.toString(QKeySequence::PortableText);
+                text.replace(QLatin1String("Ctrl"), QLatin1String("Cmd"));
+                text.replace(QLatin1String("Meta"), QLatin1String("Ctrl"));
+                text.replace(QLatin1String("Alt"), QLatin1String("Opt"));
+            }
+        }
+#endif
+        visible |= (bool)text.contains(filterString, Qt::CaseInsensitive);
+    }
 
     int childCount = item->childCount();
     if (childCount > 0) {
