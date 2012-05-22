@@ -7,7 +7,7 @@ QtcPlugin {
 
     condition: qtcore.versionMajor === 4
     Depends { id: qtcore; name: "qt.core" }
-    Depends { name: "qt"; submodules: ['widgets', 'help', 'webkit'] }
+    Depends { name: "qt"; submodules: ['widgets', 'help', 'webkit', 'network'] }
     Depends { name: "Core" }
     Depends { name: "Find" }
     Depends { name: "Locator" }
