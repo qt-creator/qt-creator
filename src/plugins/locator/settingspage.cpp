@@ -51,31 +51,11 @@ using namespace Locator::Internal;
 SettingsPage::SettingsPage(LocatorPlugin *plugin)
     : m_plugin(plugin), m_page(0)
 {
-}
-
-QString SettingsPage::id() const
-{
-    return QLatin1String(Constants::FILTER_OPTIONS_PAGE);
-}
-
-QString SettingsPage::displayName() const
-{
-    return QCoreApplication::translate("Locator", Locator::Constants::FILTER_OPTIONS_PAGE);
-}
-
-QString SettingsPage::category() const
-{
-    return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
-}
-
-QString SettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
-}
-
-QIcon SettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setId(Constants::FILTER_OPTIONS_PAGE);
+    setDisplayName(QCoreApplication::translate("Locator", Locator::Constants::FILTER_OPTIONS_PAGE));
+    setCategory(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE));
+    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

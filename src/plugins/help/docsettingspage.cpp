@@ -45,31 +45,11 @@ using namespace Help::Internal;
 
 DocSettingsPage::DocSettingsPage()
 {
-}
-
-QString DocSettingsPage::id() const
-{
-    return QLatin1String("B.Documentation");
-}
-
-QString DocSettingsPage::displayName() const
-{
-    return tr("Documentation");
-}
-
-QString DocSettingsPage::category() const
-{
-    return QLatin1String(Help::Constants::HELP_CATEGORY);
-}
-
-QString DocSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY);
-}
-
-QIcon DocSettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
+    setId(QLatin1String("B.Documentation"));
+    setDisplayName(tr("Documentation"));
+    setCategory(QLatin1String(Help::Constants::HELP_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
 }
 
 QWidget *DocSettingsPage::createPage(QWidget *parent)

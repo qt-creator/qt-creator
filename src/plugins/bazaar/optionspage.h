@@ -67,8 +67,6 @@ class OptionsPage : public VcsBase::VcsBaseOptionsPage
 
 public:
     OptionsPage();
-    QString id() const;
-    QString displayName() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

@@ -83,21 +83,13 @@ HighlighterSettingsPage::HighlighterSettingsPage(const QString &id, QObject *par
     m_requestMimeTypeRegistration(false),
     m_d(new HighlighterSettingsPagePrivate(id))
 {
+    setId(m_d->m_id);
+    setDisplayName(m_d->m_displayName);
 }
 
 HighlighterSettingsPage::~HighlighterSettingsPage()
 {
     delete m_d;
-}
-
-QString HighlighterSettingsPage::id() const
-{
-    return m_d->m_id;
-}
-
-QString HighlighterSettingsPage::displayName() const
-{
-    return m_d->m_displayName;
 }
 
 QWidget *HighlighterSettingsPage::createPage(QWidget *parent)

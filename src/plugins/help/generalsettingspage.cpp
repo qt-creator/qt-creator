@@ -66,31 +66,11 @@ GeneralSettingsPage::GeneralSettingsPage()
     QWebSettings* webSettings = QWebSettings::globalSettings();
     m_font.setPointSize(webSettings->fontSize(QWebSettings::DefaultFontSize));
 #endif
-}
-
-QString GeneralSettingsPage::id() const
-{
-    return QLatin1String("A.General settings");
-}
-
-QString GeneralSettingsPage::displayName() const
-{
-    return tr("General");
-}
-
-QString GeneralSettingsPage::category() const
-{
-    return QLatin1String(Help::Constants::HELP_CATEGORY);
-}
-
-QString GeneralSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY);
-}
-
-QIcon GeneralSettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
+    setId(QLatin1String("A.General settings"));
+    setDisplayName(tr("General"));
+    setCategory(QLatin1String(Help::Constants::HELP_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("Help", Help::Constants::HELP_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
 }
 
 QWidget *GeneralSettingsPage::createPage(QWidget *parent)

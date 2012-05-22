@@ -48,13 +48,7 @@ public:
     MimeTypeSettings(QObject *parent = 0);
     virtual ~MimeTypeSettings();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
     virtual bool matches(const QString &s) const;
-
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
     virtual void finish();

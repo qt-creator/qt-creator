@@ -121,16 +121,8 @@ QString SettingsPageWidget::searchKeywords() const
 SettingsPage::SettingsPage() :
     m_widget(0)
 {
-}
-
-QString SettingsPage::id() const
-{
-    return QLatin1String(VcsBase::Constants::VCS_ID_GIT);
-}
-
-QString SettingsPage::displayName() const
-{
-    return tr("Git");
+    setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
+    setDisplayName(tr("Git"));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

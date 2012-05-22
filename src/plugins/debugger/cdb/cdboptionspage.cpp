@@ -230,36 +230,18 @@ CdbOptionsPage::CdbOptionsPage() :
 {
     CdbOptionsPage::m_instance = this;
     m_options->fromSettings(Core::ICore::settings());
+
+    setId(QLatin1String("F.Cda")); // before old CDB
+    setDisplayName(tr("CDB"));
+    setCategory(QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("Debugger",
+        Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 CdbOptionsPage::~CdbOptionsPage()
 {
     CdbOptionsPage::m_instance = 0;
-}
-
-QString CdbOptionsPage::settingsId()
-{
-    return QLatin1String("F.Cda"); // before old CDB
-}
-
-QString CdbOptionsPage::displayName() const
-{
-    return tr("CDB");
-}
-
-QString CdbOptionsPage::category() const
-{
-    return QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
-}
-
-QString CdbOptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Debugger", Debugger::Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
-}
-
-QIcon CdbOptionsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Debugger::Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *CdbOptionsPage::createPage(QWidget *parent)

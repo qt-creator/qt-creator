@@ -82,31 +82,12 @@ QString SettingsPageWidget::searchKeywords() const
 SettingsPage::SettingsPage() :
     m_widget(0)
 {
-}
-
-QString SettingsPage::id() const
-{
-    return QLatin1String("B.QmlDesigner");
-}
-
-QString SettingsPage::displayName() const
-{
-    return tr("Qt Quick Designer");
-}
-
-QString SettingsPage::category() const
-{
-    return QLatin1String(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-}
-
-QString SettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("QmlJSEditor", QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML);
-}
-
-QIcon SettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_QML_ICON));
+    setId(QLatin1String("B.QmlDesigner"));
+    setDisplayName(tr("Qt Quick Designer"));
+    setCategory(QLatin1String(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML));
+    setDisplayCategory(QCoreApplication::translate("QmlJSEditor",
+        QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

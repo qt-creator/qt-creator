@@ -50,13 +50,6 @@ class AnalyzerOptionsPage : public Core::IOptionsPage
 public:
     explicit AnalyzerOptionsPage(AbstractAnalyzerSubConfig *config, QObject *parent = 0);
 
-    // IOptionsPage implementation
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();

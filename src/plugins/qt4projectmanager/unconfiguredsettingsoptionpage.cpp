@@ -126,32 +126,12 @@ bool UnConfiguredSettingsWidget::matches(const QString &searchKeyword)
 
 UnConfiguredSettingsOptionPage::UnConfiguredSettingsOptionPage()
 {
-}
-
-QString UnConfiguredSettingsOptionPage::id() const
-{
-    return Constants::UNCONFIGURED_SETTINGS_PAGE_ID;
-}
-
-QString UnConfiguredSettingsOptionPage::displayName() const
-{
-    return QCoreApplication::translate("Qt4ProjectManager", Constants::UNCONFIGURED_SETTINGS_PAGE_NAME);
-}
-
-QString UnConfiguredSettingsOptionPage::category() const
-{
-    return QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-}
-
-QString UnConfiguredSettingsOptionPage::displayCategory() const
-{
-    return QCoreApplication::translate("ProjectExplorer",
-                                       ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
-}
-
-QIcon UnConfiguredSettingsOptionPage::categoryIcon() const
-{
-    return QIcon(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON);
+    setId(Constants::UNCONFIGURED_SETTINGS_PAGE_ID);
+    setDisplayName(QCoreApplication::translate("Qt4ProjectManager", Constants::UNCONFIGURED_SETTINGS_PAGE_NAME));
+    setCategory(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+        ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
 bool UnConfiguredSettingsOptionPage::matches(const QString &searchKeyword) const

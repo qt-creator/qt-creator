@@ -105,16 +105,8 @@ QString SettingsPageWidget::searchKeywords() const
 SettingsPage::SettingsPage() :
     m_widget(0)
 {
-}
-
-QString SettingsPage::id() const
-{
-    return QLatin1String(VcsBase::Constants::VCS_ID_SUBVERSION);
-}
-
-QString SettingsPage::displayName() const
-{
-    return tr("Subversion");
+    setId(QLatin1String(VcsBase::Constants::VCS_ID_SUBVERSION));
+    setDisplayName(tr("Subversion"));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

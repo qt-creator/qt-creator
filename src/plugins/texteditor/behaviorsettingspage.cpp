@@ -102,21 +102,14 @@ BehaviorSettingsPage::BehaviorSettingsPage(const BehaviorSettingsPageParameters 
     d->m_defaultCodeStylePool = new CodeStylePool(0, this); // Any language
     d->m_defaultCodeStylePool->addCodeStyle(d->m_codeStyle);
     d->init();
+
+    setId(p.id);
+    setDisplayName(p.displayName);
 }
 
 BehaviorSettingsPage::~BehaviorSettingsPage()
 {
     delete d;
-}
-
-QString BehaviorSettingsPage::id() const
-{
-    return d->m_parameters.id;
-}
-
-QString BehaviorSettingsPage::displayName() const
-{
-    return d->m_parameters.displayName;
 }
 
 QWidget *BehaviorSettingsPage::createPage(QWidget *parent)

@@ -110,20 +110,9 @@ CommonOptionsPage::CommonOptionsPage(QObject *parent) :
     VcsBaseOptionsPage(parent)
 {
     m_settings.fromSettings(Core::ICore::settings());
-}
 
-void CommonOptionsPage::updateNickNames()
-{
-}
-
-QString CommonOptionsPage::id() const
-{
-    return QLatin1String(Constants::VCS_COMMON_SETTINGS_ID);
-}
-
-QString CommonOptionsPage::displayName() const
-{
-    return QCoreApplication::translate("VcsBase", Constants::VCS_COMMON_SETTINGS_NAME);
+    setId(QLatin1String(Constants::VCS_COMMON_SETTINGS_ID));
+    setDisplayName(QCoreApplication::translate("VcsBase", Constants::VCS_COMMON_SETTINGS_NAME));
 }
 
 QWidget *CommonOptionsPage::createPage(QWidget *parent)

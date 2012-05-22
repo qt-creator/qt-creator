@@ -53,6 +53,7 @@ namespace Internal {
 class SettingsPageWidget : public QWidget
 {
     Q_OBJECT
+
 public:
     explicit SettingsPageWidget(QWidget *parent = 0);
 
@@ -73,16 +74,10 @@ class SettingsPage : public Core::IOptionsPage
 public:
     SettingsPage();
 
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
-    virtual bool matches(const QString &) const;
+    bool matches(const QString &) const;
 
 private:
     QString m_searchKeywords;

@@ -67,18 +67,12 @@ class SettingsPage : public Core::IOptionsPage
 
 public:
     explicit SettingsPage(const QSharedPointer<Settings> &settings);
-    virtual ~SettingsPage();
-
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
+    ~SettingsPage();
 
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
-    virtual bool matches(const QString &) const;
+    bool matches(const QString &) const;
 
     void addProtocol(const QString& name);
 

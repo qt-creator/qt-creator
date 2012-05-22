@@ -48,16 +48,10 @@ class GeneralSettingsPage : public Core::IOptionsPage
 public:
     GeneralSettingsPage();
 
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
-    virtual bool matches(const QString &s) const;
+    bool matches(const QString &s) const;
 
 signals:
     void fontChanged();

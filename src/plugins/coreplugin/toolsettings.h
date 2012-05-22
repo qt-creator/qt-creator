@@ -45,17 +45,11 @@ class ExternalToolConfig;
 class ToolSettings : public IOptionsPage
 {
     Q_OBJECT
+
 public:
     explicit ToolSettings(QObject *parent = 0);
-    ~ToolSettings();
 
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
     bool matches(const QString & searchKeyWord) const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();

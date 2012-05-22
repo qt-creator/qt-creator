@@ -472,32 +472,13 @@ void ToolChainModel::removeToolChain(ToolChain *tc)
 
 ToolChainOptionsPage::ToolChainOptionsPage() :
     m_ui(0), m_model(0), m_selectionModel(0), m_currentTcWidget(0)
-{ }
-
-QString ToolChainOptionsPage::id() const
 {
-    return QLatin1String(Constants::TOOLCHAIN_SETTINGS_PAGE_ID);
-}
-
-QString ToolChainOptionsPage::displayName() const
-{
-    return tr("Tool Chains");
-}
-
-QString ToolChainOptionsPage::category() const
-{
-    return QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-}
-
-QString ToolChainOptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("ProjectExplorer",
-                                       Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
-}
-
-QIcon ToolChainOptionsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
+    setId(QLatin1String(Constants::TOOLCHAIN_SETTINGS_PAGE_ID));
+    setDisplayName(tr("Tool Chains"));
+    setCategory(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+        Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *ToolChainOptionsPage::createPage(QWidget *parent)

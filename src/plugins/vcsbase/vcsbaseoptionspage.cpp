@@ -35,7 +35,6 @@
 #include "vcsbaseconstants.h"
 
 #include <QCoreApplication>
-#include <QIcon>
 
 /*!
     \class VcsBase::VcsBaseOptionsPage
@@ -48,21 +47,9 @@ namespace VcsBase {
 VcsBaseOptionsPage::VcsBaseOptionsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
-}
-
-QString VcsBaseOptionsPage::category() const
-{
-    return QLatin1String(Constants::VCS_SETTINGS_CATEGORY);
-}
-
-QString VcsBaseOptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("VcsBase", Constants::VCS_SETTINGS_TR_CATEGORY);
-}
-
-QIcon VcsBaseOptionsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_VCS_ICON));
+    setCategory(QLatin1String(Constants::VCS_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("VcsBase", Constants::VCS_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_VCS_ICON));
 }
 
 } // namespace VcsBase

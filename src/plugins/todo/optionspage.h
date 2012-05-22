@@ -46,19 +46,12 @@ class OptionsDialog;
 class OptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
     OptionsPage(const Settings &settings, QObject *parent = 0);
-    ~OptionsPage();
 
     void setSettings(const Settings &settings);
 
-    QString id() const;
-    QString trName() const;
-    QString category() const;
-    QString trCategory() const;
-    QString displayName() const;
-    QIcon categoryIcon() const;
-    QString displayCategory() const;
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();

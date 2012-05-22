@@ -50,17 +50,10 @@ class SettingsPage : public Core::IOptionsPage
 
 public:
     explicit SettingsPage(QDesignerOptionsPageInterface *designerPage);
-    virtual ~SettingsPage();
 
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
-
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
 
 private:
     QDesignerOptionsPageInterface *m_designerPage;
@@ -73,11 +66,6 @@ class SettingsPageProvider : public Core::IOptionsPageProvider
 
 public:
     SettingsPageProvider(QObject *parent = 0);
-    ~SettingsPageProvider();
-
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 
     QList<Core::IOptionsPage *> pages() const;
 

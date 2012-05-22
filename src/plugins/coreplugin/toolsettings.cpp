@@ -53,39 +53,11 @@ using namespace Core::Internal;
 ToolSettings::ToolSettings(QObject *parent) :
     IOptionsPage(parent)
 {
-}
-
-ToolSettings::~ToolSettings()
-{
-}
-
-QString ToolSettings::id() const
-{
-    return QLatin1String(Core::Constants::SETTINGS_ID_TOOLS);
-}
-
-
-QString ToolSettings::displayName() const
-{
-    return tr("External Tools");
-}
-
-
-QString ToolSettings::category() const
-{
-    return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
-}
-
-
-QString ToolSettings::displayCategory() const
-{
-    return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
-}
-
-
-QIcon ToolSettings::categoryIcon() const
-{
-    return QIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setId(QLatin1String(Core::Constants::SETTINGS_ID_TOOLS));
+    setDisplayName(tr("External Tools"));
+    setCategory(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE));
+    setDisplayCategory(QCoreApplication::translate("Core", Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 

@@ -41,19 +41,14 @@ class MaemoQemuSettingsWidget;
 class MaemoQemuSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
     MaemoQemuSettingsPage(QObject *parent = 0);
-    ~MaemoQemuSettingsPage();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
-    virtual bool matches(const QString &searchKeyWord) const;
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
+    bool matches(const QString &searchKeyWord) const;
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
 
     static void showQemuCrashDialog();
     static QString pageId();

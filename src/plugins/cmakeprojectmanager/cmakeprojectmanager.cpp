@@ -246,6 +246,13 @@ QString CMakeManager::qtVersionForQMake(const QString &qmakePath)
 CMakeSettingsPage::CMakeSettingsPage()
     :  m_pathchooser(0)
 {
+    setId(QLatin1String("Z.CMake"));
+    setDisplayName(tr("CMake"));
+    setCategory(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+       ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
+
     m_userCmake.process = 0;
     m_pathCmake.process = 0;
     m_userCmake.hasCodeBlocksMsvcGenerator = false;
@@ -345,32 +352,6 @@ QString CMakeSettingsPage::findCmakeExecutable() const
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
     return env.searchInPath(QLatin1String("cmake"));
-}
-
-QString CMakeSettingsPage::id() const
-{
-    return QLatin1String("Z.CMake");
-}
-
-QString CMakeSettingsPage::displayName() const
-{
-    return tr("CMake");
-}
-
-QString CMakeSettingsPage::category() const
-{
-    return QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-}
-
-QString CMakeSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("ProjectExplorer",
-                                       ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
-}
-
-QIcon CMakeSettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *CMakeSettingsPage::createPage(QWidget *parent)

@@ -58,16 +58,11 @@ class SettingsPage : public Core::IOptionsPage
 
 public:
     explicit SettingsPage(LocatorPlugin *plugin);
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
-    virtual bool matches(const QString &) const;
+    bool matches(const QString &) const;
 
 private slots:
     void updateButtonStates();

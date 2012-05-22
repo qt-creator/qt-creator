@@ -48,11 +48,6 @@ class TEXTEDITOR_EXPORT TextEditorOptionsPage : public Core::IOptionsPage
 
 public:
     explicit TextEditorOptionsPage(QObject *parent = 0);
-
-    // IOptionsPage
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 };
 
 } // namespace TextEditor

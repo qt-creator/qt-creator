@@ -62,16 +62,11 @@ class UnConfiguredSettingsOptionPage : public Core::IOptionsPage
 public:
     UnConfiguredSettingsOptionPage();
 
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
     bool matches(const QString &searcKeyword) const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
+
 private:
     UnConfiguredSettingsWidget *m_widget;
 };

@@ -76,7 +76,7 @@ public:
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
-    virtual bool matches(const QString &) const;
+    bool matches(const QString &) const;
 
 private:
     QString m_searchKeywords;

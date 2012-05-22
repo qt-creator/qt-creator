@@ -50,12 +50,10 @@ class HighlighterSettings;
 class HighlighterSettingsPage : public TextEditorOptionsPage
 {
     Q_OBJECT
+
 public:
     HighlighterSettingsPage(const QString &id, QObject *parent);
-    virtual ~HighlighterSettingsPage();
-
-    QString id() const;
-    QString displayName() const;
+    ~HighlighterSettingsPage();
 
     QWidget *createPage(QWidget *parent);
     void apply();

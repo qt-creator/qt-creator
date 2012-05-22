@@ -43,14 +43,11 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <QCoreApplication>
-#include <QLatin1String>
 #include <QStringList>
-#include <QVector>
 #include <QSet>
 #include <QScopedPointer>
 #include <QAbstractTableModel>
 #include <QHash>
-#include <QIcon>
 #include <QTableWidgetItem>
 #include <QMessageBox>
 #include <QtAlgorithms>
@@ -548,36 +545,18 @@ void MimeTypeSettingsPrivate::resetMimeTypes()
 MimeTypeSettings::MimeTypeSettings(QObject *parent)
     : IOptionsPage(parent)
     , d(new MimeTypeSettingsPrivate)
-{}
+{
+    setId(QLatin1String(Core::Constants::SETTINGS_ID_MIMETYPES));
+    setDisplayName(tr("MIME Types"));
+    setCategory(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE));
+    setDisplayCategory(QCoreApplication::translate("Core",
+        Core::Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+}
 
 MimeTypeSettings::~MimeTypeSettings()
 {
     delete d;
-}
-
-QString MimeTypeSettings::id() const
-{
-    return QLatin1String(Core::Constants::SETTINGS_ID_MIMETYPES);
-}
-
-QString MimeTypeSettings::displayName() const
-{
-    return tr("MIME Types");
-}
-
-QString MimeTypeSettings::category() const
-{
-    return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
-}
-
-QString MimeTypeSettings::displayCategory() const
-{
-    return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
-}
-
-QIcon MimeTypeSettings::categoryIcon() const
-{
-    return QIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 bool MimeTypeSettings::matches(const QString &s) const

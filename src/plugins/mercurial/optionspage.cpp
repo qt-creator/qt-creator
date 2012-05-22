@@ -94,16 +94,8 @@ QString OptionsPageWidget::searchKeywords() const
 
 OptionsPage::OptionsPage()
 {
-}
-
-QString OptionsPage::id() const
-{
-    return QLatin1String(VcsBase::Constants::VCS_ID_MERCURIAL);
-}
-
-QString OptionsPage::displayName() const
-{
-    return tr("Mercurial");
+    setId(QLatin1String(VcsBase::Constants::VCS_ID_MERCURIAL));
+    setDisplayName(tr("Mercurial"));
 }
 
 QWidget *OptionsPage::createPage(QWidget *parent)

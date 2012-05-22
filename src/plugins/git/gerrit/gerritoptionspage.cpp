@@ -50,11 +50,13 @@ GerritOptionsPage::GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
     : VcsBase::VcsBaseOptionsPage(parent)
     , m_parameters(p)
 {
+    setId(optionsId());
+    setDisplayName(tr("Gerrit"));
 }
 
-QString GerritOptionsPage::displayName() const
+QString GerritOptionsPage::optionsId()
 {
-    return tr("Gerrit");
+    return QLatin1String("Gerrit");
 }
 
 QWidget *GerritOptionsPage::createPage(QWidget *parent)

@@ -110,26 +110,24 @@ struct CMakeValidator
 class CMakeSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
     CMakeSettingsPage();
-    virtual ~CMakeSettingsPage();
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
+    ~CMakeSettingsPage();
 
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
 
     QString cmakeExecutable() const;
     void setCMakeExecutable(const QString &executable);
     bool isCMakeExecutableValid() const;
     bool hasCodeBlocksMsvcGenerator() const;
+
 private slots:
     void userCmakeFinished();
     void pathCmakeFinished();
+
 private:
     void cmakeFinished(CMakeValidator *cmakeValidator) const;
     void saveSettings() const;

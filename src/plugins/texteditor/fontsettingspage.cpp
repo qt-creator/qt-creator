@@ -321,21 +321,13 @@ FontSettingsPage::FontSettingsPage(const FormatDescriptions &fd,
     TextEditorOptionsPage(parent),
     d_ptr(new FontSettingsPagePrivate(fd, id, tr("Font && Colors"), category()))
 {
+    setId(d_ptr->m_id);
+    setDisplayName(d_ptr->m_displayName);
 }
 
 FontSettingsPage::~FontSettingsPage()
 {
     delete d_ptr;
-}
-
-QString FontSettingsPage::id() const
-{
-    return d_ptr->m_id;
-}
-
-QString FontSettingsPage::displayName() const
-{
-    return d_ptr->m_displayName;
 }
 
 QWidget *FontSettingsPage::createPage(QWidget *parent)

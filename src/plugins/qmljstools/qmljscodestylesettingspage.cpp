@@ -169,35 +169,11 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage(/*QSharedPointer<CppFileS
     Core::IOptionsPage(parent),
     m_pageTabPreferences(0)
 {
-}
-
-QmlJSCodeStyleSettingsPage::~QmlJSCodeStyleSettingsPage()
-{
-}
-
-QString QmlJSCodeStyleSettingsPage::id() const
-{
-    return QLatin1String(Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
-}
-
-QString QmlJSCodeStyleSettingsPage::displayName() const
-{
-    return QCoreApplication::translate("QmlJSTools", Constants::QML_JS_CODE_STYLE_SETTINGS_NAME);
-}
-
-QString QmlJSCodeStyleSettingsPage::category() const
-{
-    return QLatin1String(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-}
-
-QString QmlJSCodeStyleSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("QmlJSEditor", QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML);
-}
-
-QIcon QmlJSCodeStyleSettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(QmlDesigner::Constants::SETTINGS_CATEGORY_QML_ICON));
+    setId(QLatin1String(Constants::QML_JS_CODE_STYLE_SETTINGS_ID));
+    setDisplayName(QCoreApplication::translate("QmlJSTools", Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));
+    setCategory(QLatin1String(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML));
+    setDisplayCategory(QCoreApplication::translate("QmlJSEditor", QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
+    setCategoryIcon(QLatin1String(QmlDesigner::Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
 QWidget *QmlJSCodeStyleSettingsPage::createPage(QWidget *parent)

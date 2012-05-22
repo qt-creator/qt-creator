@@ -66,16 +66,10 @@ class CppSettingsPage : public Core::IOptionsPage
 public:
     explicit CppSettingsPage(QObject *parent = 0);
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
-
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
-    virtual bool matches(const QString &s) const;
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
+    bool matches(const QString &s) const;
 
 private:
     QPointer<CppSettingsPageWidget> m_widget;

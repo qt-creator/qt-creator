@@ -54,36 +54,17 @@ namespace CodePaster {
 
 CodePasterSettingsPage::CodePasterSettingsPage()
 {
+    setId(QLatin1String("C.CodePaster"));
+    setDisplayName(tr("CodePaster"));
+    setCategory(QLatin1String(Constants::CPASTER_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("CodePaster",
+        Constants::CPASTER_SETTINGS_TR_CATEGORY));
+
     m_settings = Core::ICore::settings();
     if (m_settings) {
         const QString keyRoot = QLatin1String(settingsGroupC) + QLatin1Char('/');
         m_host = m_settings->value(keyRoot + QLatin1String(serverKeyC), QString()).toString();
     }
-}
-
-QString CodePasterSettingsPage::id() const
-{
-    return QLatin1String("C.CodePaster");
-}
-
-QString CodePasterSettingsPage::displayName() const
-{
-    return tr("CodePaster");
-}
-
-QString CodePasterSettingsPage::category() const
-{
-    return QLatin1String(Constants::CPASTER_SETTINGS_CATEGORY);
-}
-
-QString CodePasterSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY);
-}
-
-QIcon CodePasterSettingsPage::categoryIcon() const
-{
-    return QIcon();
 }
 
 QWidget *CodePasterSettingsPage::createPage(QWidget *parent)

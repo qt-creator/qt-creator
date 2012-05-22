@@ -72,18 +72,14 @@ public:
 private:
     Internal::Ui::FileShareProtocolSettingsWidget m_ui;
 };
+
 class FileShareProtocolSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
     explicit FileShareProtocolSettingsPage(const QSharedPointer<FileShareProtocolSettings> &s,
                                            QObject *parent = 0);
-
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 
     QWidget *createPage(QWidget *parent);
     void apply();

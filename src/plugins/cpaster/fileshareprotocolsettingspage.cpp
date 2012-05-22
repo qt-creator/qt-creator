@@ -101,31 +101,10 @@ FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(const QSharedPointe
                                                              QObject *parent) :
     Core::IOptionsPage(parent), m_settings(s), m_widget(0)
 {
-}
-
-QString FileShareProtocolSettingsPage::id() const
-{
-    return QLatin1String("X.FileSharePaster");
-}
-
-QString FileShareProtocolSettingsPage::displayName() const
-{
-    return tr("Fileshare");
-}
-
-QString FileShareProtocolSettingsPage::category() const
-{
-    return QLatin1String(Constants::CPASTER_SETTINGS_CATEGORY);
-}
-
-QString FileShareProtocolSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY);
-}
-
-QIcon FileShareProtocolSettingsPage::categoryIcon() const
-{
-    return QIcon();
+    setId(QLatin1String("X.FileSharePaster"));
+    setDisplayName(tr("Fileshare"));
+    setCategory(QLatin1String(Constants::CPASTER_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("CodePaster", Constants::CPASTER_SETTINGS_TR_CATEGORY));
 }
 
 QWidget *FileShareProtocolSettingsPage::createPage(QWidget *parent)

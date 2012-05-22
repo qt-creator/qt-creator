@@ -40,10 +40,7 @@
 #include <coreplugin/icore.h>
 
 #include <QCoreApplication>
-#include <QLatin1String>
 #include <QDebug>
-
-#include <QIcon>
 #include <QWidget>
 
 using namespace Analyzer;
@@ -53,31 +50,11 @@ AnalyzerOptionsPage::AnalyzerOptionsPage(AbstractAnalyzerSubConfig *config, QObj
     Core::IOptionsPage(parent),
     m_config(config)
 {
-}
-
-QString AnalyzerOptionsPage::id() const
-{
-    return m_config->id();
-}
-
-QString AnalyzerOptionsPage::displayName() const
-{
-    return m_config->displayName();
-}
-
-QString AnalyzerOptionsPage::category() const
-{
-    return QLatin1String("T.Analyzer");
-}
-
-QString AnalyzerOptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Analyzer", "Analyzer");
-}
-
-QIcon AnalyzerOptionsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(":/images/analyzer_category.png"));
+    setId(m_config->id());
+    setDisplayName(m_config->displayName());
+    setCategory(QLatin1String("T.Analyzer"));
+    setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
+    setCategoryIcon(QLatin1String(":/images/analyzer_category.png"));
 }
 
 QWidget *AnalyzerOptionsPage::createPage(QWidget *parent)

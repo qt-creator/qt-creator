@@ -105,35 +105,11 @@ private:
 MaemoQemuSettingsPage::MaemoQemuSettingsPage(QObject *parent)
     : Core::IOptionsPage(parent)
 {
-}
-
-MaemoQemuSettingsPage::~MaemoQemuSettingsPage()
-{
-}
-
-QString MaemoQemuSettingsPage::id() const
-{
-    return pageId();
-}
-
-QString MaemoQemuSettingsPage::displayName() const
-{
-    return tr("MeeGo Qemu Settings");
-}
-
-QString MaemoQemuSettingsPage::category() const
-{
-    return pageCategory();
-}
-
-QString MaemoQemuSettingsPage::displayCategory() const
-{
-    return QString(); // Already set by device configurations page.
-}
-
-QIcon MaemoQemuSettingsPage::categoryIcon() const
-{
-    return QIcon(); // See above.
+    setId(pageId());
+    setDisplayName(tr("MeeGo Qemu Settings"));
+    setCategory(pageCategory());
+    //setDisplayCategory(QString()); // Will be set by device configurations page.
+    //setCategoryIcon(QIcon()) // See above.
 }
 
 bool MaemoQemuSettingsPage::matches(const QString &searchKeyWord) const

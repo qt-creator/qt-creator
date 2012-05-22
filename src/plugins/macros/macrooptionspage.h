@@ -48,16 +48,9 @@ class MACROS_EXPORT MacroOptionsPage : public Core::IOptionsPage
 
 public:
     MacroOptionsPage(QObject *parent = 0);
-    ~MacroOptionsPage();
 
     // IOptionsPage implementation
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
     QWidget *createPage(QWidget *parent);
-
     void apply();
     void finish();
 

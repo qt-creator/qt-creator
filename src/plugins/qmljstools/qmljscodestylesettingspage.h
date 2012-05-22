@@ -61,10 +61,9 @@ class QmlJSCodeStylePreferencesWidget : public QWidget
 
 public:
     explicit QmlJSCodeStylePreferencesWidget(QWidget *parent = 0);
-    virtual ~QmlJSCodeStylePreferencesWidget();
+    ~QmlJSCodeStylePreferencesWidget();
 
     void setPreferences(TextEditor::ICodeStylePreferences *preferences);
-
     QString searchKeywords() const;
 
 private slots:
@@ -74,7 +73,6 @@ private slots:
     void updatePreview();
 
 private:
-
     TextEditor::ICodeStylePreferences *m_preferences;
     Ui::QmlJSCodeStyleSettingsPage *m_ui;
 };
@@ -86,19 +84,11 @@ class QmlJSCodeStyleSettingsPage : public Core::IOptionsPage
 
 public:
     explicit QmlJSCodeStyleSettingsPage(QWidget *parent = 0);
-    ~QmlJSCodeStyleSettingsPage();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
-
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish() { }
-    virtual bool matches(const QString &) const;
-
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() { }
+    bool matches(const QString &) const;
 
 private:
     QString m_searchKeywords;

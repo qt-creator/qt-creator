@@ -51,21 +51,14 @@ CompletionSettingsPage::CompletionSettingsPage(QObject *parent)
 {
     if (QSettings *s = Core::ICore::settings())
         m_commentsSettings.fromSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), s);
+
+    setId(QLatin1String("P.Completion"));
+    setDisplayName(tr("Completion"));
 }
 
 CompletionSettingsPage::~CompletionSettingsPage()
 {
     delete m_page;
-}
-
-QString CompletionSettingsPage::id() const
-{
-    return QLatin1String("P.Completion");
-}
-
-QString CompletionSettingsPage::displayName() const
-{
-    return tr("Completion");
 }
 
 QWidget *CompletionSettingsPage::createPage(QWidget *parent)

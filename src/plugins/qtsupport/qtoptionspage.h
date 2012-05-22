@@ -139,17 +139,14 @@ private:
 class QtOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
     QtOptionsPage();
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
+
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() {}
-    virtual bool matches(const QString &) const;
+    bool matches(const QString &) const;
 
 private:
     QtOptionsPageWidget *m_widget;

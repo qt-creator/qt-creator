@@ -51,52 +51,18 @@ OptionsPage::OptionsPage(const Settings &settings, QObject *parent) :
     m_dialog(0)
 {
     setSettings(settings);
-}
 
-OptionsPage::~OptionsPage()
-{
+    setId(QLatin1String("TodoSettings"));
+    setDisplayName(tr("To-Do"));
+    setCategory(QLatin1String("To-Do"));
+    setDisplayCategory(tr("To-Do"));
+    setCategoryIcon(QLatin1String(Constants::ICON_TODO));
 }
 
 void OptionsPage::setSettings(const Settings &settings)
 {
     m_settings = settings;
 }
-
-QString OptionsPage::id() const
-{
-    return QLatin1String("TodoSettings");
-}
-
-QString OptionsPage::trName() const
-{
-    return tr("To-Do");
-}
-
-QString OptionsPage::category() const
-{
-    return QLatin1String("To-Do");
-}
-
-QString OptionsPage::trCategory() const
-{
-    return tr("To-Do");
-}
-
-QString OptionsPage::displayName() const
-{
-    return trName();
-}
-
-QString OptionsPage::displayCategory() const
-{
-    return trCategory();
-}
-
-QIcon OptionsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Constants::ICON_TODO));
-}
-
 
 QWidget *OptionsPage::createPage(QWidget *parent)
 {

@@ -94,16 +94,10 @@ class QuickToolBarSettingsPage : public Core::IOptionsPage
 public:
     QuickToolBarSettingsPage();
 
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
-    virtual bool matches(const QString &) const;    
+    bool matches(const QString &) const;
 
 private:
     QString m_searchKeywords;

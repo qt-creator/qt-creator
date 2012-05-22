@@ -65,21 +65,13 @@ DisplaySettingsPage::DisplaySettingsPage(const DisplaySettingsPageParameters &p,
   : TextEditorOptionsPage(parent),
     d(new DisplaySettingsPagePrivate(p))
 {
+    setId(p.id);
+    setDisplayName(p.displayName);
 }
 
 DisplaySettingsPage::~DisplaySettingsPage()
 {
     delete d;
-}
-
-QString DisplaySettingsPage::id() const
-{
-    return d->m_parameters.id;
-}
-
-QString DisplaySettingsPage::displayName() const
-{
-    return d->m_parameters.displayName;
 }
 
 QWidget *DisplaySettingsPage::createPage(QWidget *parent)

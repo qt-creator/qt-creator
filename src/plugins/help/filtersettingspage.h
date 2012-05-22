@@ -42,21 +42,14 @@ namespace Internal {
 class FilterSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
-    typedef QMap<QString, QStringList> FilterMap;
 
 public:
     FilterSettingsPage();
 
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
-    virtual bool matches(const QString &s) const;
+    bool matches(const QString &s) const;
 
 signals:
     void filtersChanged();
@@ -75,6 +68,7 @@ private:
     QString msgFilterLabel(const QString &filter) const;
     Ui::FilterSettingsPage m_ui;
 
+    typedef QMap<QString, QStringList> FilterMap;
     FilterMap m_filterMap;
     FilterMap m_filterMapBackup;
 

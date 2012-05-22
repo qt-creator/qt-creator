@@ -42,21 +42,14 @@ namespace Internal {
 class DocSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
-    typedef QHash<QString, QString> NameSpaceToPathHash;
 
 public:
     DocSettingsPage();
 
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() {}
-    virtual bool matches(const QString &s) const;
+    bool matches(const QString &s) const;
 
 private slots:
     void addDocumentation();
@@ -73,6 +66,7 @@ private:
     QString m_searchKeywords;
     QString m_recentDialogPath;
 
+    typedef QHash<QString, QString> NameSpaceToPathHash;
     NameSpaceToPathHash m_filesToRegister;
     NameSpaceToPathHash m_filesToUnregister;
 };

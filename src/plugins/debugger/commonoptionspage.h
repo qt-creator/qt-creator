@@ -73,14 +73,9 @@ class CommonOptionsPage : public Core::IOptionsPage
 
 public:
     explicit CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions> &go);
-    virtual ~CommonOptionsPage();
+    ~CommonOptionsPage();
 
     // IOptionsPage
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
@@ -103,15 +98,9 @@ private:
 class LocalsAndExpressionsOptionsPage : public Core::IOptionsPage
 {
 public:
-    LocalsAndExpressionsOptionsPage() {}
+    LocalsAndExpressionsOptionsPage();
 
     // IOptionsPage
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();

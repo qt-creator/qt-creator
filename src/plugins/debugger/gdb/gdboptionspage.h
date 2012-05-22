@@ -36,8 +36,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <utils/savedaction.h>
 
-namespace ProjectExplorer { class ToolChain; }
-
 namespace Debugger {
 namespace Internal {
 
@@ -46,21 +44,14 @@ class GdbOptionsPageUi;
 class GdbOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
-    explicit GdbOptionsPage();
+    GdbOptionsPage();
 
-    virtual QString id() const { return settingsId(); }
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
-
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
-    virtual bool matches(const QString &) const;
-
-    static QString settingsId();
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
+    bool matches(const QString &) const;
 
 private:
     GdbOptionsPageUi *m_ui;

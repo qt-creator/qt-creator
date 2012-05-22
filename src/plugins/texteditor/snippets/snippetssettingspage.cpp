@@ -565,21 +565,14 @@ void SnippetsSettingsPagePrivate::decorateEditors(const TextEditor::FontSettings
 SnippetsSettingsPage::SnippetsSettingsPage(const QString &id, QObject *parent) :
     TextEditorOptionsPage(parent),
     d(new SnippetsSettingsPagePrivate(id))
-{}
+{
+    setId(d->id());
+    setDisplayName(d->displayName());
+}
 
 SnippetsSettingsPage::~SnippetsSettingsPage()
 {
     delete d;
-}
-
-QString SnippetsSettingsPage::id() const
-{
-    return d->id();
-}
-
-QString SnippetsSettingsPage::displayName() const
-{
-    return d->displayName();
 }
 
 bool SnippetsSettingsPage::matches(const QString &s) const

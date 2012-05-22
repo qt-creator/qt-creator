@@ -55,12 +55,9 @@ class DisplaySettingsPage : public TextEditorOptionsPage
 
 public:
     DisplaySettingsPage(const DisplaySettingsPageParameters &p, QObject *parent);
-    virtual ~DisplaySettingsPage();
+    ~DisplaySettingsPage();
 
     // IOptionsPage
-    QString id() const;
-    QString displayName() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();

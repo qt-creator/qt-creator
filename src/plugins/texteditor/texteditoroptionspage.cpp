@@ -35,26 +35,13 @@
 #include "texteditorconstants.h"
 
 #include <QCoreApplication>
-#include <QIcon>
 
 using namespace TextEditor;
 
 TextEditorOptionsPage::TextEditorOptionsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
-}
-
-QString TextEditorOptionsPage::category() const
-{
-    return QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-}
-
-QString TextEditorOptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("TextEditor", Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY);
-}
-
-QIcon TextEditorOptionsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON));
+    setCategory(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("TextEditor", Constants::TEXT_EDITOR_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON));
 }

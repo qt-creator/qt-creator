@@ -45,16 +45,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-class Command;
-
-namespace Internal {
-
-namespace Ui { class CommandMappings; }
-
-class ActionManagerPrivate;
-class MainWindow;
-
-}
+namespace Internal {  namespace Ui { class CommandMappings; }  }
 
 class CORE_EXPORT CommandMappings : public Core::IOptionsPage
 {
@@ -62,7 +53,6 @@ class CORE_EXPORT CommandMappings : public Core::IOptionsPage
 
 public:
     CommandMappings(QObject *parent = 0);
-    ~CommandMappings();
 
 protected slots:
     void commandChanged(QTreeWidgetItem *current);

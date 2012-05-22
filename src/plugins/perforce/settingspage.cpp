@@ -140,16 +140,8 @@ QString SettingsPageWidget::searchKeywords() const
 
 SettingsPage::SettingsPage()
 {
-}
-
-QString SettingsPage::id() const
-{
-    return QLatin1String(VcsBase::Constants::VCS_ID_PERFORCE);
-}
-
-QString SettingsPage::displayName() const
-{
-    return tr("Perforce");
+    setId(QLatin1String(VcsBase::Constants::VCS_ID_PERFORCE));
+    setDisplayName(tr("Perforce"));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

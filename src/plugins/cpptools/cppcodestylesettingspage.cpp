@@ -479,40 +479,15 @@ void CppCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
 
 // ------------------ CppCodeStyleSettingsPage
 
-CppCodeStyleSettingsPage::CppCodeStyleSettingsPage(
-        QWidget *parent) :
+CppCodeStyleSettingsPage::CppCodeStyleSettingsPage(QWidget *parent) :
     Core::IOptionsPage(parent),
     m_pageCppCodeStylePreferences(0)
 {
-}
-
-CppCodeStyleSettingsPage::~CppCodeStyleSettingsPage()
-{
-}
-
-QString CppCodeStyleSettingsPage::id() const
-{
-    return QLatin1String(Constants::CPP_CODE_STYLE_SETTINGS_ID);
-}
-
-QString CppCodeStyleSettingsPage::displayName() const
-{
-    return QCoreApplication::translate("CppTools", Constants::CPP_CODE_STYLE_SETTINGS_NAME);
-}
-
-QString CppCodeStyleSettingsPage::category() const
-{
-    return QLatin1String(Constants::CPP_SETTINGS_CATEGORY);
-}
-
-QString CppCodeStyleSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY);
-}
-
-QIcon CppCodeStyleSettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPP_ICON));
+    setId(QLatin1String(Constants::CPP_CODE_STYLE_SETTINGS_ID));
+    setDisplayName(QCoreApplication::translate("CppTools", Constants::CPP_CODE_STYLE_SETTINGS_NAME));
+    setCategory(QLatin1String(Constants::CPP_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPP_ICON));
 }
 
 QWidget *CppCodeStyleSettingsPage::createPage(QWidget *parent)

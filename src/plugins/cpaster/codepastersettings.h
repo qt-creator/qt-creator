@@ -48,17 +48,12 @@ class CodePasterSettingsPage : public Core::IOptionsPage
 public:
     CodePasterSettingsPage();
 
-    QString id() const;
-    QString displayName() const;
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
 
     QString hostName() const;
+
 public slots:
     void serverChanged(const QString &host);
 

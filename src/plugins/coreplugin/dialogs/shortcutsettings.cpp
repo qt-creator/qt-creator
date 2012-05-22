@@ -63,38 +63,12 @@ ShortcutSettings::ShortcutSettings(QObject *parent)
 {
     Core::Internal::ActionManagerPrivate *am = ActionManagerPrivate::instance();
     connect(am, SIGNAL(commandListChanged()), this, SLOT(initialize()));
-}
 
-ShortcutSettings::~ShortcutSettings()
-{
-}
-
-// IOptionsPage
-
-
-QString ShortcutSettings::id() const
-{
-    return QLatin1String(Core::Constants::SETTINGS_ID_SHORTCUTS);
-}
-
-QString ShortcutSettings::displayName() const
-{
-    return tr("Keyboard");
-}
-
-QString ShortcutSettings::category() const
-{
-    return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
-}
-
-QString ShortcutSettings::displayCategory() const
-{
-    return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
-}
-
-QIcon ShortcutSettings::categoryIcon() const
-{
-    return QIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setId(QLatin1String(Core::Constants::SETTINGS_ID_SHORTCUTS));
+    setDisplayName(tr("Keyboard"));
+    setCategory(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE));
+    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 QWidget *ShortcutSettings::createPage(QWidget *parent)

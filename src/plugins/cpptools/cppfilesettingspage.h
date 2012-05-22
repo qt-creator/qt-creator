@@ -98,18 +98,11 @@ class CppFileSettingsPage : public Core::IOptionsPage
 public:
     explicit CppFileSettingsPage(QSharedPointer<CppFileSettings> &settings,
                                  QObject *parent = 0);
-    virtual ~CppFileSettingsPage();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
-
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish() { }
-    virtual bool matches(const QString &) const;
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish() { }
+    bool matches(const QString &) const;
 
 private:
     const QSharedPointer<CppFileSettings> m_settings;

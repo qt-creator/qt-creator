@@ -62,10 +62,6 @@ CommandMappings::CommandMappings(QObject *parent)
 {
 }
 
-CommandMappings::~CommandMappings()
-{
-}
-
 // IOptionsPage
 
 QWidget *CommandMappings::createPage(QWidget *parent)

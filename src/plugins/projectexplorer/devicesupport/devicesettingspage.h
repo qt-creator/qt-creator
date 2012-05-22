@@ -35,27 +35,20 @@
 
 namespace ProjectExplorer {
 namespace Internal {
+
 class DeviceSettingsWidget;
 
 class DeviceSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
     DeviceSettingsPage(QObject *parent = 0);
-    ~DeviceSettingsPage();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
-    virtual bool matches(const QString &searchKeyWord) const;
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
-
-    static QString pageId();
-    static QString pageCategory();
+    bool matches(const QString &searchKeyWord) const;
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
 
 private:
     QString m_keywords;

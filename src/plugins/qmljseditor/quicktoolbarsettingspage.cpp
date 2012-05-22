@@ -126,31 +126,12 @@ QuickToolBarSettings QuickToolBarSettings::get()
 QuickToolBarSettingsPage::QuickToolBarSettingsPage() :
     m_widget(0)
 {
-}
-
-QString QuickToolBarSettingsPage::id() const
-{
-    return QLatin1String("C.QmlToolbar");
-}
-
-QString QuickToolBarSettingsPage::displayName() const
-{
-    return tr("Qt Quick ToolBar");
-}
-
-QString QuickToolBarSettingsPage::category() const
-{
-    return QLatin1String(Constants::SETTINGS_CATEGORY_QML);
-}
-
-QString QuickToolBarSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("QmlJSEditor", QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML);
-}
-
-QIcon QuickToolBarSettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(QmlDesigner::Constants::SETTINGS_CATEGORY_QML_ICON));
+    setId(QLatin1String("C.QmlToolbar"));
+    setDisplayName(tr("Qt Quick ToolBar"));
+    setCategory(QLatin1String(Constants::SETTINGS_CATEGORY_QML));
+    setDisplayCategory(QCoreApplication::translate("QmlJSEditor",
+        QmlJSEditor::Constants::SETTINGS_TR_CATEGORY_QML));
+    setCategoryIcon(QLatin1String(QmlDesigner::Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
 QWidget *QuickToolBarSettingsPage::createPage(QWidget *parent)

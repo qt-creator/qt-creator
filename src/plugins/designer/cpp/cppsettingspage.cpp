@@ -108,31 +108,11 @@ QString CppSettingsPageWidget::searchKeywords() const
 CppSettingsPage::CppSettingsPage(QObject *parent) : Core::IOptionsPage(parent)
 {
     m_parameters.fromSettings(Core::ICore::settings());
-}
-
-QString CppSettingsPage::id() const
-{
-    return QLatin1String(Designer::Constants::SETTINGS_CPP_SETTINGS_ID);
-}
-
-QString CppSettingsPage::displayName() const
-{
-    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_CPP_SETTINGS_NAME);
-}
-
-QString CppSettingsPage::category() const
-{
-    return QLatin1String(Designer::Constants::SETTINGS_CATEGORY);
-}
-
-QString CppSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY);
-}
-
-QIcon CppSettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
+    setId(QLatin1String(Designer::Constants::SETTINGS_CPP_SETTINGS_ID));
+    setDisplayName(QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_CPP_SETTINGS_NAME));
+    setCategory(QLatin1String(Designer::Constants::SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *CppSettingsPage::createPage(QWidget *parent)

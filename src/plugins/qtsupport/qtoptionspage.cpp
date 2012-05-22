@@ -71,32 +71,12 @@ using namespace QtSupport::Internal;
 QtOptionsPage::QtOptionsPage()
     : m_widget(0)
 {
-}
-
-QString QtOptionsPage::id() const
-{
-    return QLatin1String(Constants::QTVERSION_SETTINGS_PAGE_ID);
-}
-
-QString QtOptionsPage::displayName() const
-{
-    return QCoreApplication::translate("Qt4ProjectManager", Constants::QTVERSION_SETTINGS_PAGE_NAME);
-}
-
-QString QtOptionsPage::category() const
-{
-    return QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-}
-
-QString QtOptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("ProjectExplorer",
-                                       ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY);
-}
-
-QIcon QtOptionsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
+    setId(QLatin1String(Constants::QTVERSION_SETTINGS_PAGE_ID));
+    setDisplayName(QCoreApplication::translate("Qt4ProjectManager", Constants::QTVERSION_SETTINGS_PAGE_NAME));
+    setCategory(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+        ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *QtOptionsPage::createPage(QWidget *parent)

@@ -152,34 +152,15 @@ void CommonOptionsPageWidget::setGlobalOptions(const GlobalDebuggerOptions &go)
 CommonOptionsPage::CommonOptionsPage(const QSharedPointer<GlobalDebuggerOptions> &go) :
     m_options(go)
 {
+    setId(QLatin1String(DEBUGGER_COMMON_SETTINGS_ID));
+    setDisplayName(QCoreApplication::translate("Debugger", "General"));
+    setCategory(QLatin1String(DEBUGGER_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 CommonOptionsPage::~CommonOptionsPage()
 {
-}
-
-QString CommonOptionsPage::id() const
-{
-    return _(DEBUGGER_COMMON_SETTINGS_ID);
-}
-
-QString CommonOptionsPage::displayName() const
-{
-    return QCoreApplication::translate("Debugger", "General");
-}
-
-QString CommonOptionsPage::category() const
-{
-    return _(DEBUGGER_SETTINGS_CATEGORY);
-}
-
-QString CommonOptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY);}
-
-QIcon CommonOptionsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 void CommonOptionsPage::apply()
@@ -220,34 +201,18 @@ bool CommonOptionsPage::matches(const QString &s) const
 
 ///////////////////////////////////////////////////////////////////////
 //
-// DebuggingHelperOptionPage
+// LocalsAndExpressionsOptionsPage
 //
 ///////////////////////////////////////////////////////////////////////
 
-QString LocalsAndExpressionsOptionsPage::id() const
+LocalsAndExpressionsOptionsPage::LocalsAndExpressionsOptionsPage()
 {
-    return _("Z.LocalsAndExpressions");
-}
-
-QString LocalsAndExpressionsOptionsPage::displayName() const
-{
+    setId(QLatin1String("Z.LocalsAndExpressions"));
     //: '&&' will appear as one (one is marking keyboard shortcut)
-    return QCoreApplication::translate("Debugger", "Locals && Expressions");
-}
-
-QString LocalsAndExpressionsOptionsPage::category() const
-{
-    return _(DEBUGGER_SETTINGS_CATEGORY);
-}
-
-QString LocalsAndExpressionsOptionsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY);
-}
-
-QIcon LocalsAndExpressionsOptionsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
+    setDisplayName(QCoreApplication::translate("Debugger", "Locals && Expressions"));
+    setCategory(QLatin1String(DEBUGGER_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("Debugger", DEBUGGER_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
 void LocalsAndExpressionsOptionsPage::apply()

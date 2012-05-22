@@ -55,13 +55,10 @@ public:
     CompletionSettingsPage(QObject *parent);
     ~CompletionSettingsPage();
 
-    QString id() const;
-    QString displayName() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();
-    virtual bool matches(const QString &) const;
+    bool matches(const QString &) const;
 
     const CommentsSettings &commentsSettings() const;
 

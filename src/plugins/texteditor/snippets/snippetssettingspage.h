@@ -46,14 +46,12 @@ class SnippetsSettingsPage : public TextEditorOptionsPage
 
 public:
     SnippetsSettingsPage(const QString &id, QObject *parent);
-    virtual ~SnippetsSettingsPage();
+    ~SnippetsSettingsPage();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual bool matches(const QString &s) const;
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
+    bool matches(const QString &s) const;
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
 
 private:
     SnippetsSettingsPagePrivate *d;

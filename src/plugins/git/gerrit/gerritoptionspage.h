@@ -73,20 +73,17 @@ private:
 class GerritOptionsPage : public VcsBase::VcsBaseOptionsPage
 {
     Q_OBJECT
+
 public:
     GerritOptionsPage(const QSharedPointer<GerritParameters> &p,
                       QObject *parent = 0);
 
-    static QString optionsId() { return QLatin1String("Gerrit"); }
-
-    QString id() const { return optionsId(); }
-    QString displayName() const;
+    static QString optionsId();
 
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
-
-    virtual bool matches(const QString &) const;
+    bool matches(const QString &) const;
 
 private:
     const QSharedPointer<GerritParameters> &m_parameters;

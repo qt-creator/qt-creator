@@ -61,12 +61,9 @@ class BehaviorSettingsPage : public TextEditorOptionsPage
 
 public:
     BehaviorSettingsPage(const BehaviorSettingsPageParameters &p, QObject *parent);
-    virtual ~BehaviorSettingsPage();
+    ~BehaviorSettingsPage();
 
     // IOptionsPage
-    QString id() const;
-    QString displayName() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();

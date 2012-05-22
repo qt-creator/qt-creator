@@ -102,18 +102,10 @@ public:
     static CdbOptionsPage *instance();
 
     // IOptionsPage
-    virtual QString id() const { return settingsId(); }
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    QIcon categoryIcon() const;
-
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
-    virtual bool matches(const QString &) const;
-
-    static QString settingsId();
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
+    bool matches(const QString &) const;
 
     QSharedPointer<CdbOptions> options() const { return m_options; }
 

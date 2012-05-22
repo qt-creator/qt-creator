@@ -41,14 +41,8 @@ namespace VcsBase {
 
 class VCSBASE_EXPORT VcsBaseOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
     explicit VcsBaseOptionsPage(QObject *parent = 0);
-
-    QString category() const;
-    QString displayCategory() const;
-    QIcon categoryIcon() const;
 };
 
 } // namespace VcsBase

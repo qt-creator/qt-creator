@@ -325,35 +325,11 @@ CppFileSettingsPage::CppFileSettingsPage(QSharedPointer<CppFileSettings> &settin
     Core::IOptionsPage(parent),
     m_settings(settings)
 {
-}
-
-CppFileSettingsPage::~CppFileSettingsPage()
-{
-}
-
-QString CppFileSettingsPage::id() const
-{
-    return QLatin1String(Constants::CPP_FILE_SETTINGS_ID);
-}
-
-QString CppFileSettingsPage::displayName() const
-{
-    return QCoreApplication::translate("CppTools", Constants::CPP_FILE_SETTINGS_NAME);
-}
-
-QString CppFileSettingsPage::category() const
-{
-    return QLatin1String(Constants::CPP_SETTINGS_CATEGORY);
-}
-
-QString CppFileSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY);
-}
-
-QIcon CppFileSettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPP_ICON));
+    setId(QLatin1String(Constants::CPP_FILE_SETTINGS_ID));
+    setDisplayName(QCoreApplication::translate("CppTools", Constants::CPP_FILE_SETTINGS_NAME));
+    setCategory(QLatin1String(Constants::CPP_SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("CppTools", Constants::CPP_SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPP_ICON));
 }
 
 QWidget *CppFileSettingsPage::createPage(QWidget *parent)

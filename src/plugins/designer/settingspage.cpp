@@ -49,35 +49,12 @@ using namespace Designer::Internal;
 SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
     m_designerPage(designerPage), m_initialized(false)
 {
-}
-
-SettingsPage::~SettingsPage()
-{
-}
-
-QString SettingsPage::id() const
-{
-    return m_designerPage->name();
-}
-
-QString SettingsPage::displayName() const
-{
-    return m_designerPage->name();
-}
-
-QString SettingsPage::category() const
-{
-    return QLatin1String(Designer::Constants::SETTINGS_CATEGORY);
-}
-
-QString SettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY);
-}
-
-QIcon SettingsPage::categoryIcon() const
-{
-    return QIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
+    setId(m_designerPage->name());
+    setDisplayName(m_designerPage->name());
+    setCategory(QLatin1String(Designer::Constants::SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("Designer",
+        Designer::Constants::SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)
@@ -101,25 +78,10 @@ void SettingsPage::finish()
 SettingsPageProvider::SettingsPageProvider(QObject *parent)
     : IOptionsPageProvider(parent), m_initialized(false)
 {
-}
-
-SettingsPageProvider::~SettingsPageProvider()
-{
-}
-
-QString SettingsPageProvider::category() const
-{
-    return QLatin1String(Designer::Constants::SETTINGS_CATEGORY);
-}
-
-QString SettingsPageProvider::displayCategory() const
-{
-    return QCoreApplication::translate("Designer", Designer::Constants::SETTINGS_TR_CATEGORY);
-}
-
-QIcon SettingsPageProvider::categoryIcon() const
-{
-    return QIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
+    setCategory(QLatin1String(Designer::Constants::SETTINGS_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("Designer",
+        Designer::Constants::SETTINGS_TR_CATEGORY));
+    setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
 }
 
 QList<Core::IOptionsPage *> SettingsPageProvider::pages() const

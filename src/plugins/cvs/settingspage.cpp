@@ -94,14 +94,10 @@ QString SettingsPageWidget::searchKeywords() const
     return rc;
 }
 
-QString SettingsPage::id() const
+SettingsPage::SettingsPage()
 {
-    return QLatin1String(VcsBase::Constants::VCS_ID_CVS);
-}
-
-QString SettingsPage::displayName() const
-{
-    return tr("CVS");
+    setId(QLatin1String(VcsBase::Constants::VCS_ID_CVS));
+    setDisplayName(tr("CVS"));
 }
 
 QWidget *SettingsPage::createPage(QWidget *parent)

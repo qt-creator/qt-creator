@@ -43,19 +43,14 @@ class AndroidSettingsWidget;
 class AndroidSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
+
 public:
     explicit AndroidSettingsPage(QObject *parent = 0);
-    ~AndroidSettingsPage();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QIcon categoryIcon() const;
-    virtual bool matches(const QString &searchKeyWord) const;
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish();
+    bool matches(const QString &searchKeyWord) const;
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
 
 private:
     QString m_keywords;

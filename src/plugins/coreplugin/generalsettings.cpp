@@ -58,31 +58,11 @@ using namespace Core::Internal;
 GeneralSettings::GeneralSettings():
     m_page(0), m_dialog(0)
 {
-}
-
-QString GeneralSettings::id() const
-{
-    return QLatin1String(Core::Constants::SETTINGS_ID_ENVIRONMENT);
-}
-
-QString GeneralSettings::displayName() const
-{
-    return tr("General");
-}
-
-QString GeneralSettings::category() const
-{
-    return QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE);
-}
-
-QString GeneralSettings::displayCategory() const
-{
-    return QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE);
-}
-
-QIcon GeneralSettings::categoryIcon() const
-{
-    return QIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setId(QLatin1String(Core::Constants::SETTINGS_ID_ENVIRONMENT));
+    setDisplayName(tr("General"));
+    setCategory(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE));
+    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
+    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
 static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrPath)

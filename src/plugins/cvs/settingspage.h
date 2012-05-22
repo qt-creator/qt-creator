@@ -72,10 +72,7 @@ class SettingsPage : public VcsBase::VcsBaseOptionsPage
     Q_OBJECT
 
 public:
-    SettingsPage() {}
-
-    QString id() const;
-    QString displayName() const;
+    SettingsPage();
 
     QWidget *createPage(QWidget *parent);
     void apply();

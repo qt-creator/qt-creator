@@ -69,9 +69,6 @@ class CommonOptionsPage : public VcsBaseOptionsPage
 public:
     explicit CommonOptionsPage(QObject *parent = 0);
 
-    QString id() const;
-    QString displayName() const;
-
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish() { }
@@ -83,8 +80,6 @@ signals:
     void settingsChanged(const VcsBase::Internal::CommonVcsSettings &s);
 
 private:
-    void updateNickNames();
-
     CommonSettingsWidget *m_widget;
     CommonVcsSettings m_settings;
     QString m_searchKeyWords;
