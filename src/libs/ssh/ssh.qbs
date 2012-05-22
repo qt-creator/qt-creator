@@ -46,6 +46,9 @@ QtcLibrary {
         "sshbotanconversions_p.h"
     ]
 
-    ProductModule { Depends { name: "Qt"; submodules: ["widgets", "network"] } }
+    ProductModule {
+        Depends { name: "cpp" }
+        Depends { name: "Qt"; submodules: ["widgets", "network"] }
+        cpp.includePaths: ".."
+    }
 }
-
