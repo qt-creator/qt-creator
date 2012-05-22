@@ -141,7 +141,7 @@ public slots:
         if (m_searchString != arg) {
             m_searchString = arg;
             emit searchStrings(arg);
-            updateFilter();
+            delayedUpdateFilter();
         }
     }
 
@@ -155,11 +155,17 @@ signals:
 
     void searchStrings(const QStringList& arg);
 
+protected:
+    void timerEvent(QTimerEvent *event);
+
 private:
+    void delayedUpdateFilter();
+
     bool m_showTutorialsOnly;
     QStringList m_filterTags;
     QStringList m_searchString;
     ExamplesListModel *m_sourceModel;
+    int m_timerId;
 };
 
 } // namespace Internal

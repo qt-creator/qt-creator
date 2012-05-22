@@ -476,7 +476,7 @@ void ExamplesListModel::ensureInitialized() const
 }
 
 ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, QObject *parent) :
-    QSortFilterProxyModel(parent), m_showTutorialsOnly(true), m_sourceModel(sourceModel)
+    QSortFilterProxyModel(parent), m_showTutorialsOnly(true), m_sourceModel(sourceModel), m_timerId(0)
 {
     connect(this, SIGNAL(showTutorialsOnlyChanged()), SLOT(updateFilter()));
     setSourceModel(m_sourceModel);
@@ -568,6 +568,23 @@ void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
 {
     m_showTutorialsOnly = showTutorialsOnly;
     emit showTutorialsOnlyChanged();
+}
+
+void ExamplesListModelFilter::delayedUpdateFilter()
+{
+    if (m_timerId != 0)
+        killTimer(m_timerId);
+
+    m_timerId = startTimer(320);
+}
+
+void ExamplesListModelFilter::timerEvent(QTimerEvent *timerEvent)
+{
+    if (m_timerId == timerEvent->timerId()) {
+        updateFilter();
+        killTimer(m_timerId);
+        m_timerId = 0;
+    }
 }
 
 struct SearchStringLexer {
@@ -675,7 +692,7 @@ void ExamplesListModelFilter::parseSearchString(const QString &arg)
 
     setSearchStrings(searchTerms);
     setFilterTags(tags);
-    updateFilter();
+    delayedUpdateFilter();
 }
 
 } // namespace Internal
