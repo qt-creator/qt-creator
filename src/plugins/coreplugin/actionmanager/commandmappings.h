@@ -68,7 +68,7 @@ protected:
     virtual void finish();
 
     virtual void initialize() = 0;
-    bool filter(const QString &f, const QTreeWidgetItem *item);
+    bool filter(const QString &filterString, QTreeWidgetItem *item);
 
     // access to m_page
     void setImportExportEnabled(bool enabled);

@@ -161,38 +161,28 @@ void CommandMappings::filterChanged(const QString &f)
         return;
     for (int i=0; i<m_page->commandList->topLevelItemCount(); ++i) {
         QTreeWidgetItem *item = m_page->commandList->topLevelItem(i);
-        item->setHidden(filter(f, item));
+        filter(f, item);
     }
 }
 
-bool CommandMappings::filter(const QString &f, const QTreeWidgetItem *item)
+bool CommandMappings::filter(const QString &filterString, QTreeWidgetItem *item)
 {
-    if (QTreeWidgetItem *parent = item->parent()) {
-        if (parent->text(0).contains(f, Qt::CaseInsensitive))
-            return false;
-    }
+    bool visible = filterString.isEmpty();
+    int columnCount = item->columnCount();
+    for (int i = 0; !visible && i < columnCount; ++i)
+        visible |= (bool)item->text(i).contains(filterString, Qt::CaseInsensitive);
 
-    if (item->childCount() == 0) {
-        if (f.isEmpty())
-            return false;
-        for (int i = 0; i < item->columnCount(); ++i) {
-            if (item->text(i).contains(f, Qt::CaseInsensitive))
-                return false;
-        }
-        return true;
-    }
-
-    bool found = false;
-    for (int i = 0; i < item->childCount(); ++i) {
-        QTreeWidgetItem *citem = item->child(i);
-        if (filter(f, citem)) {
-            citem->setHidden(true);
-        } else {
-            citem->setHidden(false);
-            found = true;
+    int childCount = item->childCount();
+    if (childCount > 0) {
+        // force visibility if this item matches
+        QString leafFilterString = visible ? QString() : filterString;
+        for (int i = 0; i < childCount; ++i) {
+            QTreeWidgetItem *citem = item->child(i);
+            visible |= !filter(leafFilterString, citem); // parent visible if any child visible
         }
     }
-    return !found;
+    item->setHidden(!visible);
+    return !visible;
 }
 
 void CommandMappings::setModified(QTreeWidgetItem *item , bool modified)
