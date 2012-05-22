@@ -79,6 +79,12 @@ public:
 
     void ensureInitialized() const;
 
+    void beginReset()
+    { beginResetModel(); }
+
+    void endReset()
+    { endResetModel(); }
+
 signals:
     void tagsUpdated();
 

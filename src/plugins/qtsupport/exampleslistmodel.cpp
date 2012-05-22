@@ -484,7 +484,12 @@ ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel,
 
 void ExamplesListModelFilter::updateFilter()
 {
-    invalidateFilter();
+    ExamplesListModel *exampleListModel = qobject_cast<ExamplesListModel*>(sourceModel());
+    if (exampleListModel) {
+        exampleListModel->beginReset();
+        invalidateFilter();
+        exampleListModel->endReset();
+    }
 }
 
 bool containsSubString(const QStringList& list, const QString& substr, Qt::CaseSensitivity cs)
