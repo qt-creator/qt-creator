@@ -91,7 +91,8 @@ public:
 private:
     void preprocess(const QString &filename,
                     const QByteArray &source,
-                    QByteArray *result, bool noLines, bool markGeneratedTokens, bool inCondition);
+                    QByteArray *result, bool noLines, bool markGeneratedTokens, bool inCondition,
+                    unsigned offset = 0);
 
     enum { MAX_LEVEL = 512 };
 
@@ -118,6 +119,8 @@ private:
         bool m_noLines;
         bool m_inCondition;
         bool m_inDefine;
+
+        unsigned m_offsetRef;
     };
 
     void handleDefined(PPToken *tk);
@@ -125,7 +128,9 @@ private:
     void lex(PPToken *tk);
     void skipPreprocesorDirective(PPToken *tk);
     bool handleIdentifier(PPToken *tk);
-    bool handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVector<PPToken> &body, bool addWhitespaceMarker);
+    bool handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVector<PPToken> &body,
+                                 bool addWhitespaceMarker,
+                                 const QVector<QVector<PPToken> > &actuals);
 
     bool skipping() const
     { return m_state.m_skipping[m_state.m_ifLevel]; }

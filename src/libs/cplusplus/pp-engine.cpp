@@ -538,6 +538,7 @@ Preprocessor::State::State()
     , m_noLines(false)
     , m_inCondition(false)
     , m_inDefine(false)
+    , m_offsetRef(0)
 {
     m_skipping[m_ifLevel] = false;
     m_trueTest[m_ifLevel] = false;
@@ -720,6 +721,9 @@ void Preprocessor::skipPreprocesorDirective(PPToken *tk)
 
 bool Preprocessor::handleIdentifier(PPToken *tk)
 {
+    if (!expandMacros())
+        return false;
+
     ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
 
     static const QByteArray ppLine("__LINE__");
@@ -764,24 +768,51 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
     }
 
     Macro *macro = m_env->resolve(macroNameRef);
-    if (!macro)
+    if (!macro
+            || (tk->generated()
+                && m_state.m_tokenBuffer
+                && m_state.m_tokenBuffer->isBlocked(macro))) {
         return false;
-    if (tk->generated() && m_state.m_tokenBuffer && m_state.m_tokenBuffer->isBlocked(macro))
-        return false;
+    }
 //    qDebug() << "expanding" << macro->name() << "on line" << tk->lineno;
 
-    if (m_client && !tk->generated())
-        m_client->startExpandingMacro(tk->offset, *macro, macroNameRef);
+
+    PPToken idTk = *tk;
     QVector<PPToken> body = macro->definitionTokens();
 
     if (macro->isFunctionLike()) {
-        if (!expandMacros() || !handleFunctionLikeMacro(tk, macro, body, !m_state.m_inDefine)) {
-            // the call is not function like or expandMacros() returns false, so stop
-            if (m_client && !tk->generated())
-                m_client->stopExpandingMacro(tk->offset, *macro);
+        // Collect individual tokens that form the macro arguments.
+        QVector<QVector<PPToken> > allArgTks;
+        if (!collectActualArguments(tk, &allArgTks)) {
+            pushToken(tk);
+            *tk = idTk;
             return false;
         }
 
+        if (m_client && !idTk.generated()) {
+            // Bundle each token sequence into a macro argument "reference" for notification.
+            QVector<MacroArgumentReference> argRefs;
+            for (int i = 0; i < allArgTks.size(); ++i) {
+                const QVector<PPToken> &argTks = allArgTks.at(i);
+                if (argTks.isEmpty())
+                    continue;
+
+                argRefs.push_back(
+                            MacroArgumentReference(
+                                m_state.m_offsetRef + argTks.first().begin(),
+                                argTks.last().begin() + argTks.last().length() - argTks.first().begin()));
+            }
+
+            m_client->startExpandingMacro(idTk.offset, *macro, macroNameRef, argRefs);
+        }
+
+        if (!handleFunctionLikeMacro(tk, macro, body, !m_state.m_inDefine, allArgTks)) {
+            if (m_client && !idTk.generated())
+                m_client->stopExpandingMacro(idTk.offset, *macro);
+            return false;
+        }
+    } else if (m_client && !idTk.generated()) {
+        m_client->startExpandingMacro(idTk.offset, *macro, macroNameRef);
     }
 
     if (body.isEmpty()) {
@@ -802,22 +833,18 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 
     m_state.pushTokenBuffer(body.begin(), body.end(), macro);
 
-    if (m_client && !tk->generated())
-        m_client->stopExpandingMacro(tk->offset, *macro);
+    if (m_client && !idTk.generated())
+        m_client->stopExpandingMacro(idTk.offset, *macro);
 
     return true;
 }
 
-bool Preprocessor::handleFunctionLikeMacro(PPToken *tk, const Macro *macro, QVector<PPToken> &body, bool addWhitespaceMarker)
+bool Preprocessor::handleFunctionLikeMacro(PPToken *tk,
+                                           const Macro *macro,
+                                           QVector<PPToken> &body,
+                                           bool addWhitespaceMarker,
+                                           const QVector<QVector<PPToken> > &actuals)
 {
-    QVector<QVector<PPToken> > actuals;
-    PPToken idToken = *tk;
-    if (!collectActualArguments(tk, &actuals)) {
-        pushToken(tk);
-        *tk = idToken;
-        return false;
-    }
-
     QVector<PPToken> expanded;
     expanded.reserve(MAX_TOKEN_EXPANSION_COUNT);
     for (size_t i = 0, bodySize = body.size(); i < bodySize && expanded.size() < MAX_TOKEN_EXPANSION_COUNT; ++i) {
@@ -901,7 +928,8 @@ exitNicely:
 /// invalid pp-tokens are used as markers to force whitespace checks.
 void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                               QByteArray *result, bool noLines,
-                              bool markGeneratedTokens, bool inCondition)
+                              bool markGeneratedTokens, bool inCondition,
+                              unsigned offset)
 {
     if (source.isEmpty())
         return;
@@ -920,6 +948,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     m_state.m_noLines = noLines;
     m_state.m_markGeneratedTokens = markGeneratedTokens;
     m_state.m_inCondition = inCondition;
+    m_state.m_offsetRef = offset;
 
     const QString previousFileName = m_env->currentFile;
     m_env->currentFile = fileName;
@@ -1264,24 +1293,25 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
 
 QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
 {
-    QByteArray condition;
-    condition.reserve(256);
+    unsigned begin = tk->begin();
+    PPToken lastTk;
     while (isValidToken(*tk)) {
-        const ByteArrayRef s = tk->asByteArrayRef();
-        condition.append(s.start(), s.length());
-        condition += ' ';
-        if (lastConditionToken)
-            *lastConditionToken = *tk;
+        lastTk = *tk;
         lex(tk);
     }
-//    qDebug("*** Condition before: [%s]", condition.constData());
+    // Gather the exact spelling of the content in the source.
+    QByteArray condition(m_state.m_source.mid(begin, lastTk.begin() + lastTk.length() - begin));
 
+//    qDebug("*** Condition before: [%s]", condition.constData());
     QByteArray result;
     result.reserve(256);
-
-    preprocess(m_state.m_currentFileName, condition, &result, true, false, true);
+    preprocess(m_state.m_currentFileName, condition, &result, true, false, true, begin);
     result.squeeze();
 //    qDebug("*** Condition after: [%s]", result.constData());
+
+    if (lastConditionToken)
+        *lastConditionToken = lastTk;
+
     return result;
 }
 
