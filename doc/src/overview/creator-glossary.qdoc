@@ -39,10 +39,7 @@
             \o  Meaning
 
         \row
-            \o
-                \raw HTML
-                Qt&nbsp;in&nbsp;PATH
-                \endraw
+            \o  Qt in PATH
                 \target glossary-system-qt
             \o  This is the Qt
                 version for the \c qmake command found in your \c PATH
@@ -51,20 +48,14 @@
 
 
         \row
-            \o
-                \raw HTML
-                Project&nbsp;Qt
-                \endraw
+            \o  Project Qt
                 \target glossary-project-qt
             \o  The version of Qt configured in the \gui{Projects} mode,
                 \gui {Build Settings}, \gui {Qt Version} field. This is the Qt
                 version that is actually used by a particular project.
 
         \row
-            \o
-                \raw HTML
-                Shadow&nbsp;build
-                \endraw
+            \o  Shadow build
                 \target glossary-shadow-build
             \o  Shadow building means building a project in a separate
                 directory, the \e{build directory}. The build directory is
@@ -74,10 +65,7 @@
                 configurations for a single set of source.
 
         \row
-            \o
-                \raw HTML
-                Target
-                \endraw
+            \o  Target
                 \target glossary-development-target
             \o  Target means the software platform for which you develop an
                 application. \QC groups platform specific settings (such
@@ -86,10 +74,7 @@
                 easier.
 
         \row
-            \o
-                \raw HTML
-                Component
-                \endraw
+            \o  Component
                 \target glossary-component
             \o  A component is an instantiable QML definition, typically
                 contained in a .qml file. For instance, a Button component may
