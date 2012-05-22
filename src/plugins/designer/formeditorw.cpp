@@ -499,7 +499,7 @@ void FormEditorW::setupActions()
 
     //tool actions
     m_toolActionIds.push_back(Core::Id("FormEditor.LayoutHorizontally"));
-    const QString horizLayoutShortcut = osMac ? tr("Meta+H") : tr("Ctrl+H");
+    const QString horizLayoutShortcut = osMac ? tr("Meta+Shift+H") : tr("Ctrl+H");
     addToolAction(m_fwm->actionHorizontalLayout(), am, m_contexts,
                   m_toolActionIds.back(), mformtools, horizLayoutShortcut);
 
@@ -521,7 +521,7 @@ void FormEditorW::setupActions()
                   m_toolActionIds.back(),  mformtools);
 
     m_toolActionIds.push_back(Core::Id("FormEditor.LayoutGrid"));
-    const QString gridShortcut = osMac ? tr("Meta+G") : tr("Ctrl+G");
+    const QString gridShortcut = osMac ? tr("Meta+Shift+G") : tr("Ctrl+G");
     addToolAction(m_fwm->actionGridLayout(), am, m_contexts,
                   m_toolActionIds.back(),  mformtools, gridShortcut);
 

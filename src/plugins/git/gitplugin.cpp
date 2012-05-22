@@ -328,20 +328,32 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                tr("Blame Current File"), tr("Blame for \"%1\""),
                                Core::Id("Git.Blame"),
                                globalcontext, true, SLOT(blameFile()));
+#ifdef Q_OS_MAC
+    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Meta+G,Meta+B")));
+#else
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+B")));
+#endif
 
     parameterActionCommand
             = createFileAction(actionManager, gitContainer,
                                tr("Diff Current File"), tr("Diff of \"%1\""),
                                Core::Id("Git.Diff"), globalcontext, true,
                                SLOT(diffCurrentFile()));
+#ifdef Q_OS_MAC
+    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Meta+G,Meta+D")));
+#else
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+D")));
+#endif
 
     parameterActionCommand
             = createFileAction(actionManager, gitContainer,
                                tr("Log Current File"), tr("Log of \"%1\""),
                                Core::Id("Git.Log"), globalcontext, true, SLOT(logFile()));
+#ifdef Q_OS_MAC
+    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Meta+G,Meta+L")));
+#else
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+L")));
+#endif
 
 
     // ------
@@ -351,7 +363,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
             = createFileAction(actionManager, gitContainer,
                                tr("Stage File for Commit"), tr("Stage \"%1\" for Commit"),
                                Core::Id("Git.Stage"), globalcontext, true, SLOT(stageFile()));
+#ifdef Q_OS_MAC
+    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Meta+G,Meta+A")));
+#else
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+A")));
+#endif
 
     parameterActionCommand
             = createFileAction(actionManager, gitContainer,
@@ -369,7 +385,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                tr("Undo Uncommitted Changes"), tr("Undo Uncommitted Changes for \"%1\""),
                                Core::Id("Git.Undo"), globalcontext,
                                true, SLOT(undoFileChanges()));
+#ifdef Q_OS_MAC
+    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Meta+G,Meta+U")));
+#else
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+U")));
+#endif
 
 
     // ------------
@@ -381,14 +401,22 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                   Core::Id("Git.DiffProject"),
                                   globalcontext, true,
                                   SLOT(diffCurrentProject()));
+#ifdef Q_OS_MAC
+    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Meta+G,Meta+Shift+D")));
+#else
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+Shift+D")));
+#endif
 
     parameterActionCommand
             = createProjectAction(actionManager, gitContainer,
                                   tr("Log Project"), tr("Log Project \"%1\""),
                                   Core::Id("Git.LogProject"), globalcontext, true,
                                   SLOT(logProject()));
+#ifdef Q_OS_MAC
+    parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Meta+G,Meta+K")));
+#else
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+K")));
+#endif
 
     parameterActionCommand
                 = createProjectAction(actionManager, gitContainer,
@@ -532,7 +560,11 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     actionCommand = createRepositoryAction(actionManager, gitContainer,
                                            tr("Commit..."), Core::Id("Git.Commit"),
                                            globalcontext, true, SLOT(startCommit()));
+#ifdef Q_OS_MAC
+    actionCommand.second->setDefaultKeySequence(QKeySequence(tr("Meta+G,Meta+C")));
+#else
     actionCommand.second->setDefaultKeySequence(QKeySequence(tr("Alt+G,Alt+C")));
+#endif
 
     createRepositoryAction(actionManager, gitContainer,
                            tr("Amend Last Commit..."), Core::Id("Git.AmendCommit"),

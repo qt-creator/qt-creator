@@ -174,7 +174,11 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     m_postEditorAction = new QAction(tr("Paste Snippet..."), this);
     command = actionManager->registerAction(m_postEditorAction, "CodePaster.Post", globalcontext);
+#ifdef Q_OS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Meta+C,Meta+P")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+P")));
+#endif
     connect(m_postEditorAction, SIGNAL(triggered()), this, SLOT(postEditor()));
     cpContainer->addAction(command);
 
@@ -185,7 +189,11 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
     command = actionManager->registerAction(m_fetchAction, "CodePaster.Fetch", globalcontext);
+#ifdef Q_OS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Meta+C,Meta+F")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+F")));
+#endif
     connect(m_fetchAction, SIGNAL(triggered()), this, SLOT(fetch()));
     cpContainer->addAction(command);
 

@@ -294,7 +294,11 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_filelogCurrentAction = new Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_filelogCurrentAction, CMD_ID_FILELOG_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
+#ifdef Q_OS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Meta+P,Meta+F")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+F")));
+#endif
     command->setDescription(tr("Filelog Current File"));
     connect(m_filelogCurrentAction, SIGNAL(triggered()), this, SLOT(filelogCurrentFile()));
     mperforce->addAction(command);
@@ -305,7 +309,11 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_editAction = new Utils::ParameterAction(tr("Edit"), tr("Edit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_editAction, CMD_ID_EDIT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
+#ifdef Q_OS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Meta+P,Meta+E")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+E")));
+#endif
     command->setDescription(tr("Edit File"));
     connect(m_editAction, SIGNAL(triggered()), this, SLOT(openCurrentFile()));
     mperforce->addAction(command);
@@ -314,7 +322,11 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_addAction, CMD_ID_ADD, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
+#ifdef Q_OS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Meta+P,Meta+A")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+A")));
+#endif
     command->setDescription(tr("Add File"));
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     mperforce->addAction(command);
@@ -331,7 +343,11 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_revertFileAction = new Utils::ParameterAction(tr("Revert"), tr("Revert \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_revertFileAction, CMD_ID_REVERT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
+#ifdef Q_OS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Meta+P,Meta+R")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+R")));
+#endif
     command->setDescription(tr("Revert File"));
     connect(m_revertFileAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     mperforce->addAction(command);
@@ -343,7 +359,11 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_diffProjectAction = new Utils::ParameterAction(diffProjectDefaultText, tr("Diff Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
     command = am->registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
+#ifdef Q_OS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Meta+P,Meta+D")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+D")));
+#endif
     command->setDescription(diffProjectDefaultText);
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffCurrentProject()));
     mperforce->addAction(command);
@@ -359,7 +379,11 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     m_submitProjectAction = new Utils::ParameterAction(tr("Submit Project"), tr("Submit Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = am->registerAction(m_submitProjectAction, CMD_ID_SUBMIT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
+#ifdef Q_OS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Meta+P,Meta+S")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+S")));
+#endif
     connect(m_submitProjectAction, SIGNAL(triggered()), this, SLOT(startSubmitProject()));
     mperforce->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -397,7 +421,11 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     m_openedAction = new QAction(tr("Opened"), this);
     command = am->registerAction(m_openedAction, CMD_ID_OPENED, globalcontext);
+#ifdef Q_OS_MAC
+    command->setDefaultKeySequence(QKeySequence(tr("Meta+P,Meta+O")));
+#else
     command->setDefaultKeySequence(QKeySequence(tr("Alt+P,Alt+O")));
+#endif
     connect(m_openedAction, SIGNAL(triggered()), this, SLOT(printOpenedFileList()));
     mperforce->addAction(command);
     m_commandLocator->appendCommand(command);
