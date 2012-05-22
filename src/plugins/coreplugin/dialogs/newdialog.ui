@@ -136,8 +136,8 @@
    </item>
    <item row="1" column="2">
     <widget class="QFrame" name="frame">
-     <property name="styleSheet">
-      <string notr="true">QFrame { background: white }</string>
+     <property name="autoFillBackground">
+      <bool>true</bool>
      </property>
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>

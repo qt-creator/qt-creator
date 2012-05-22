@@ -199,6 +199,9 @@ NewDialog::NewDialog(QWidget *parent) :
 
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     m_ui->setupUi(this);
+    QPalette p = m_ui->frame->palette();
+    p.setColor(QPalette::Window, p.color(QPalette::Base));
+    m_ui->frame->setPalette(p);
     m_okButton = m_ui->buttonBox->button(QDialogButtonBox::Ok);
     m_okButton->setDefault(true);
     m_okButton->setText(tr("&Choose..."));
