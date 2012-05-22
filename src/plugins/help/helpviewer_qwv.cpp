@@ -39,12 +39,15 @@
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
+#include <QDebug>
 #include <QFileInfo>
 #include <QString>
 #include <QStringBuilder>
 #include <QTimer>
+#include <QWebFrame>
 
 #include <QApplication>
+#include <QDesktopServices>
 #include <QWheelEvent>
 
 #include <QHelpEngine>
@@ -57,6 +60,52 @@
 using namespace Find;
 using namespace Help;
 using namespace Help::Internal;
+
+static const char g_htmlPage[] = "<html><head><meta http-equiv=\"content-type\" content=\"text/html; "
+    "charset=UTF-8\"><title>%1</title><style>body{padding: 3em 0em;background: #eeeeee;}"
+    "hr{color: lightgray;width: 100%;}img{float: left;opacity: .8;}#box{background: white;border: 1px solid "
+    "lightgray;width: 600px;padding: 60px;margin: auto;}h1{font-size: 130%;font-weight: bold;border-bottom: "
+    "1px solid lightgray;margin-left: 48px;}h2{font-size: 100%;font-weight: normal;border-bottom: 1px solid "
+    "lightgray;margin-left: 48px;}ul{font-size: 80%;padding-left: 48px;margin: 0;}#reloadButton{padding-left:"
+    "48px;}</style></head><body><div id=\"box\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACA"
+    "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\" width=\"32\"height=\"32\" /><h1>%2</h1><h2>%3</h2>"
+    "<ul>%4%5%6%7</ul></div></body></html>";
+
+// some of the values we will replace %1...6 inside the former html
+const QString g_percent1 = QCoreApplication::translate("HelpViewer", "Error 404...");
+const QString g_percent2 = QCoreApplication::translate("HelpViewer", "The page could not be found!");
+// percent3 will be the url of the page we got the error from
+const QString g_percent4 = QCoreApplication::translate("HelpViewer", "<li>Check that you have one or more "
+    "documentation sets installed.</li>");
+const QString g_percent5 = QCoreApplication::translate("HelpViewer", "<li>Check that you have installed the "
+    "appropriate browser plug-in to support the file your loading.</li>");
+const QString g_percent6 = QCoreApplication::translate("HelpViewer", "<li>If you try to access a public "
+    "URL, make sure to have a network connection.</li>");
+const QString g_percent7 = QCoreApplication::translate("HelpViewer", "<li>If your computer or network is "
+    "protected by a firewall or proxy, make sure the application is permitted to access the network.</li>");
+
 
 // -- HelpNetworkReply
 
@@ -150,7 +199,8 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
 
     const QString &mimeType = HelpViewer::mimeFromUrl(url);
     const QByteArray &data = engine.findFile(url).isValid() ? engine.fileData(url)
-        : HelpViewer::PageNotFoundMessage.arg(url).toUtf8();
+        : QString::fromLatin1(g_htmlPage).arg(g_percent1, g_percent2, HelpViewer::tr("Error loading: %1")
+            .arg(url), g_percent4, g_percent6, g_percent7, QString()).toUtf8();
 
     return new HelpNetworkReply(request, data, mimeType.isEmpty()
         ? QLatin1String("application/octet-stream") : mimeType);
@@ -160,6 +210,7 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
 
 class HelpPage : public QWebPage
 {
+    Q_OBJECT
 public:
     HelpPage(QObject *parent);
 
@@ -170,13 +221,21 @@ protected:
     virtual bool acceptNavigationRequest(QWebFrame *frame,
         const QNetworkRequest &request, NavigationType type);
 
+private slots:
+    void onHandleUnsupportedContent(QNetworkReply *reply);
+
 private:
+    QUrl m_loadingUrl;
     bool closeNewTabIfNeeded;
 
     friend class Help::Internal::HelpViewer;
     Qt::MouseButtons m_pressedButtons;
     Qt::KeyboardModifiers m_keyboardModifiers;
 };
+#include "helpviewer_qwv.moc"
+
+
+// - HelpPage
 
 HelpPage::HelpPage(QObject *parent)
     : QWebPage(parent)
@@ -184,6 +243,9 @@ HelpPage::HelpPage(QObject *parent)
     , m_pressedButtons(Qt::NoButton)
     , m_keyboardModifiers(Qt::NoModifier)
 {
+    setForwardUnsupportedContent(true);
+    connect(this, SIGNAL(unsupportedContent(QNetworkReply*)), this,
+        SLOT(onHandleUnsupportedContent(QNetworkReply*)));
 }
 
 QWebPage *HelpPage::createWindow(QWebPage::WebWindowType)
@@ -206,8 +268,8 @@ void HelpPage::triggerAction(WebAction action, bool checked)
     }
 }
 
-bool HelpPage::acceptNavigationRequest(QWebFrame *,
-    const QNetworkRequest &request, QWebPage::NavigationType type)
+bool HelpPage::acceptNavigationRequest(QWebFrame *frame, const QNetworkRequest &request,
+    QWebPage::NavigationType type)
 {
     const bool closeNewTab = closeNewTabIfNeeded;
     closeNewTabIfNeeded = false;
@@ -227,8 +289,58 @@ bool HelpPage::acceptNavigationRequest(QWebFrame *,
             return false;
     }
 
+    if (frame == mainFrame())
+        m_loadingUrl = request.url();
+
     return true;
 }
+
+void HelpPage::onHandleUnsupportedContent(QNetworkReply *reply)
+{
+    // sub resource of this page
+    if (m_loadingUrl != reply->url()) {
+        qWarning() << "Resource" << reply->url().toEncoded() << "has unknown Content-Type, will be ignored.";
+        reply->deleteLater();
+        return;
+    }
+
+    // set a default error string we are going to display
+    QString errorString = HelpViewer::tr("Unknown or unsupported Content!");
+    if (reply->error() == QNetworkReply::NoError) {
+        // try to open the url using using the desktop service
+        if (QDesktopServices::openUrl(reply->url())) {
+            reply->deleteLater();
+            return;
+        }
+        // seems we failed, now we show the error page inside creator
+    } else {
+        errorString = reply->errorString();
+    }
+
+    // setup html
+    const QString html = QString::fromLatin1(g_htmlPage).arg(g_percent1, errorString,
+        HelpViewer::tr("Error loading: %1").arg(reply->url().toString()), g_percent4, g_percent5, g_percent6,
+        g_percent7);
+
+    // update the current layout
+    QList<QWebFrame*> frames;
+    frames.append(mainFrame());
+    while (!frames.isEmpty()) {
+        QWebFrame *frame = frames.takeFirst();
+        if (frame->url() == reply->url()) {
+            frame->setHtml(html, reply->url());
+            return;
+        }
+
+        QList<QWebFrame *> children = frame->childFrames();
+        foreach (QWebFrame *frame, children)
+            frames.append(frame);
+    }
+
+    if (m_loadingUrl == reply->url())
+        mainFrame()->setHtml(html, reply->url());
+}
+
 
 // -- HelpViewer
 
@@ -238,8 +350,9 @@ HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
     setAcceptDrops(false);
     installEventFilter(this);
 
-    settings()->setAttribute(QWebSettings::JavaEnabled, false);
-    settings()->setAttribute(QWebSettings::PluginsEnabled, false);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::JavaEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::DnsPrefetchEnabled, true);
 
     setPage(new HelpPage(this));
     HelpNetworkAccessManager *manager = new HelpNetworkAccessManager(this);
@@ -451,8 +564,9 @@ void HelpViewer::slotNetworkReplyFinished(QNetworkReply *reply)
 {
     if (reply && reply->error() != QNetworkReply::NoError) {
         setSource(QUrl(Help::Constants::AboutBlank));
-        setHtml(HelpViewer::PageNotFoundMessage.arg(reply->url().toString()
-            + QString::fromLatin1("<br><br>Error: %1").arg(reply->errorString())));
+        setHtml(QString::fromLatin1(g_htmlPage).arg(g_percent1, reply->errorString(),
+            HelpViewer::tr("Error loading: %1").arg(reply->url().toString()), g_percent4, g_percent6, g_percent7,
+            QString()));
     }
 }
 
