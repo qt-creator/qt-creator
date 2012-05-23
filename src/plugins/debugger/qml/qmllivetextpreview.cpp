@@ -690,7 +690,7 @@ void QmlLiveTextPreview::showSyncWarning(
                 .arg(elementName, QString::number(line), QString::number(column));
         break;
     case JSChangeWarning:
-        errorMessage = tr("The changes in Java script cannot be applied "
+        errorMessage = tr("The changes in JavaScript cannot be applied "
                           "without reloading the QML application. ");
         break;
     case QmlLiveTextPreview::NoUnsyncronizableChanges:
