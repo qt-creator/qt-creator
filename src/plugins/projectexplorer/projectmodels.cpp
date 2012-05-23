@@ -544,7 +544,7 @@ bool FlatModel::filter(Node *node) const
     } else if (ProjectNode *projectNode = qobject_cast<ProjectNode*>(node)) {
         if (m_filterProjects && projectNode->parentFolderNode() != m_rootNode)
             isHidden = !projectNode->hasBuildTargets();
-    } else if (node->nodeType() == FolderNodeType) {
+    } else if (node->nodeType() == FolderNodeType || node->nodeType() == VirtualFolderNodeType) {
         if (m_filterProjects)
             isHidden = true;
     } else if (FileNode *fileNode = qobject_cast<FileNode*>(node)) {
