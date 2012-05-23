@@ -168,9 +168,10 @@ void GeneralSettingsPage::apply()
         emit fontChanged();
     }
 
-    QString homePage = m_ui->homePageLineEdit->text();
+    QString homePage = QUrl::fromUserInput(m_ui->homePageLineEdit->text()).toString();
     if (homePage.isEmpty())
         homePage = Help::Constants::AboutBlank;
+    m_ui->homePageLineEdit->setText(homePage);
     manager->setCustomValue(QLatin1String("HomePage"), homePage);
 
     const int startOption = m_ui->helpStartComboBox->currentIndex();
