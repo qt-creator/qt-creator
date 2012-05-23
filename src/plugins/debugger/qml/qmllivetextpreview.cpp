@@ -354,6 +354,7 @@ QmlLiveTextPreview::QmlLiveTextPreview(const QmlJS::Document::Ptr &doc,
     , m_nodeForOffset(0)
     , m_updateNodeForOffset(false)
     , m_changesUnsynchronizable(false)
+    , m_contentsChanged(false)
 {
     QTC_CHECK(doc->fileName() == initDoc->fileName());
 
@@ -385,10 +386,12 @@ void QmlLiveTextPreview::associateEditor(Core::IEditor *editor)
 
         if (!m_editors.contains(editWidget)) {
             m_editors << editWidget;
-            if (m_inspectorAdapter)
+            if (m_inspectorAdapter) {
+                connect(editWidget, SIGNAL(changed()), SLOT(editorContentsChanged()));
                 connect(editWidget,
                         SIGNAL(selectedElementsChanged(QList<QmlJS::AST::UiObjectMember*>,QString)),
                         SLOT(changeSelectedElements(QList<QmlJS::AST::UiObjectMember*>,QString)));
+            }
         }
     }
 }
@@ -589,6 +592,12 @@ void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     if (doc->fileName() != m_previousDoc->fileName())
         return;
 
+    // Changes to be applied when changes were made from the editor.
+    // m_contentsChanged ensures that the changes were made by the user in
+    // the editor before starting with the comparisons.
+    if (!m_contentsChanged)
+        return;
+
     if (m_applyChangesToQmlInspector) {
         m_docWithUnappliedChanges.clear();
 
@@ -626,6 +635,12 @@ void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
     } else {
         m_docWithUnappliedChanges = doc;
     }
+    m_contentsChanged = false;
+}
+
+void QmlLiveTextPreview::editorContentsChanged()
+{
+    m_contentsChanged = true;
 }
 
 QList<int> QmlLiveTextPreview::objectReferencesForOffset(quint32 offset)

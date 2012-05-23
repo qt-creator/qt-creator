@@ -83,6 +83,7 @@ private slots:
     void changeSelectedElements(const QList<QmlJS::AST::UiObjectMember *> offsets,
                                 const QString &wordAtCursor);
     void documentChanged(QmlJS::Document::Ptr doc);
+    void editorContentsChanged();
 
 private:
     enum UnsyncronizableChangeType {
@@ -115,6 +116,7 @@ private:
     QmlJS::AST::UiObjectMember *m_nodeForOffset;
     bool m_updateNodeForOffset;
     bool m_changesUnsynchronizable;
+    bool m_contentsChanged;
 
     friend class UpdateInspector;
 };
