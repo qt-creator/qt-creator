@@ -100,6 +100,7 @@ public:
     virtual ~CdbOptionsPage();
 
     static CdbOptionsPage *instance();
+    static QString settingsId();
 
     // IOptionsPage
     QWidget *createPage(QWidget *parent);
