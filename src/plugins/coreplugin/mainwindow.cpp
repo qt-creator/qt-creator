@@ -657,9 +657,7 @@ void MainWindow::registerDefaultActions()
     tmpaction = new QAction(icon, tr("Save &As..."), this);
     tmpaction->setEnabled(false);
     cmd = am->registerAction(tmpaction, Constants::SAVEAS, globalContext);
-#ifdef Q_OS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+S")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+S") : QString()));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(tr("Save As..."));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
@@ -667,9 +665,7 @@ void MainWindow::registerDefaultActions()
     // SaveAll Action
     m_saveAllAction = new QAction(tr("Save A&ll"), this);
     cmd = am->registerAction(m_saveAllAction, Constants::SAVEALL, globalContext);
-#ifndef Q_OS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+S")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? QString() : tr("Ctrl+Shift+S")));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
     connect(m_saveAllAction, SIGNAL(triggered()), this, SLOT(saveAll()));
 
@@ -755,31 +751,31 @@ void MainWindow::registerDefaultActions()
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
     m_optionsAction = new QAction(tr("&Options..."), this);
     cmd = am->registerAction(m_optionsAction, Constants::OPTIONS, globalContext);
-#ifdef Q_OS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+,")));
-    cmd->action()->setMenuRole(QAction::PreferencesRole);
-#endif
+    if (UseMacShortcuts) {
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+,")));
+        cmd->action()->setMenuRole(QAction::PreferencesRole);
+    }
     mtools->addAction(cmd, Constants::G_TOOLS_OPTIONS);
     connect(m_optionsAction, SIGNAL(triggered()), this, SLOT(showOptionsDialog()));
 
-#ifdef Q_OS_MAC
-    // Minimize Action
-    m_minimizeAction = new QAction(tr("Minimize"), this);
-    cmd = am->registerAction(m_minimizeAction, Constants::MINIMIZE_WINDOW, globalContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+M")));
-    mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
-    connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(showMinimized()));
+    if (UseMacShortcuts) {
+        // Minimize Action
+        m_minimizeAction = new QAction(tr("Minimize"), this);
+        cmd = am->registerAction(m_minimizeAction, Constants::MINIMIZE_WINDOW, globalContext);
+        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+M")));
+        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        connect(m_minimizeAction, SIGNAL(triggered()), this, SLOT(showMinimized()));
 
-    // Zoom Action
-    m_zoomAction = new QAction(tr("Zoom"), this);
-    cmd = am->registerAction(m_zoomAction, Constants::ZOOM_WINDOW, globalContext);
-    mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
-    connect(m_zoomAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
+        // Zoom Action
+        m_zoomAction = new QAction(tr("Zoom"), this);
+        cmd = am->registerAction(m_zoomAction, Constants::ZOOM_WINDOW, globalContext);
+        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        connect(m_zoomAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
 
-    // Window separator
-    cmd = createSeparator(am, this, Id("QtCreator.Window.Sep.Size"), globalContext);
-    mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
-#endif
+        // Window separator
+        cmd = createSeparator(am, this, Id("QtCreator.Window.Sep.Size"), globalContext);
+        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+    }
 
     // Show Sidebar Action
     m_toggleSideBarAction = new QAction(QIcon(QLatin1String(Constants::ICON_TOGGLE_SIDEBAR)),
@@ -787,11 +783,7 @@ void MainWindow::registerDefaultActions()
     m_toggleSideBarAction->setCheckable(true);
     cmd = am->registerAction(m_toggleSideBarAction, Constants::TOGGLE_SIDEBAR, globalContext);
     cmd->setAttribute(Command::CA_UpdateText);
-#ifdef Q_OS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+0")));
-#else
-    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+0")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+0") : tr("Alt+0")));
     connect(m_toggleSideBarAction, SIGNAL(triggered(bool)), this, SLOT(setSidebarVisible(bool)));
     m_toggleSideBarButton->setDefaultAction(cmd->action());
     mwindow->addAction(cmd, Constants::G_WINDOW_VIEWS);
@@ -799,25 +791,23 @@ void MainWindow::registerDefaultActions()
 
 #if defined(Q_OS_MAC)
     bool fullScreenCheckable = false;
-    QKeySequence fullScreenKeySequence(tr("Ctrl+Meta+F"));
     const QString fullScreenActionText(tr("Enter Full Screen"));
-    if (MacFullScreen::supportsFullScreen()) {
+    bool supportsFullScreen = MacFullScreen::supportsFullScreen();
 #else
     bool fullScreenCheckable = true;
-    QKeySequence fullScreenKeySequence(tr("Ctrl+Shift+F11"));
     const QString fullScreenActionText(tr("Full Screen"));
+    bool supportsFullScreen = true;
 #endif
-    // Full Screen Action
-    m_toggleFullScreenAction = new QAction(fullScreenActionText, this);
-    m_toggleFullScreenAction->setCheckable(fullScreenCheckable);
-    cmd = am->registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, globalContext);
-    cmd->setDefaultKeySequence(fullScreenKeySequence);
-    cmd->setAttribute(Command::CA_UpdateText); /* for Mac */
-    mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
-    connect(m_toggleFullScreenAction, SIGNAL(triggered(bool)), this, SLOT(setFullScreen(bool)));
-#ifdef Q_OS_MAC
+    if (supportsFullScreen) {
+        // Full Screen Action
+        m_toggleFullScreenAction = new QAction(fullScreenActionText, this);
+        m_toggleFullScreenAction->setCheckable(fullScreenCheckable);
+        cmd = am->registerAction(m_toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN, globalContext);
+        cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Meta+F") : tr("Ctrl+Shift+F11")));
+        cmd->setAttribute(Command::CA_UpdateText); /* for Mac */
+        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        connect(m_toggleFullScreenAction, SIGNAL(triggered(bool)), this, SLOT(setFullScreen(bool)));
     }
-#endif
 
     // Window->Views
     ActionContainer *mviews = am->createMenu(Constants::M_WINDOW_VIEWS);

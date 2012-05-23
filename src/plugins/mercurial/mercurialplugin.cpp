@@ -233,11 +233,7 @@ void MercurialPlugin::createFileActions(const Core::Context &context)
     diffFile = new ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(diffFile, Core::Id(Constants::DIFF), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-#ifdef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Meta+H,Meta+D")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+D")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+H,Meta+D") : tr("Alt+H,Alt+D")));
     connect(diffFile, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -245,11 +241,7 @@ void MercurialPlugin::createFileActions(const Core::Context &context)
     logFile = new ParameterAction(tr("Log Current File"), tr("Log \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(logFile, Core::Id(Constants::LOG), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-#ifdef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Meta+H,Meta+L")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+L")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+H,Meta+L") : tr("Alt+H,Alt+L")));
     connect(logFile, SIGNAL(triggered()), this, SLOT(logCurrentFile()));
     mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -257,11 +249,7 @@ void MercurialPlugin::createFileActions(const Core::Context &context)
     statusFile = new ParameterAction(tr("Status Current File"), tr("Status \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = actionManager->registerAction(statusFile, Core::Id(Constants::STATUS), context);
     command->setAttribute(Core::Command::CA_UpdateText);
-#ifdef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Meta+H,Meta+S")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+S")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+H,Meta+S") : tr("Alt+H,Alt+S")));
     connect(statusFile, SIGNAL(triggered()), this, SLOT(statusCurrentFile()));
     mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -451,11 +439,7 @@ void MercurialPlugin::createRepositoryActions(const Core::Context &context)
     action = new QAction(tr("Commit..."), this);
     m_repositoryActionList.append(action);
     command = actionManager->registerAction(action, Core::Id(Constants::COMMIT), context);
-#ifdef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Meta+H,Meta+C")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+H,Alt+C")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+H,Meta+C") : tr("Alt+H,Alt+C")));
     connect(action, SIGNAL(triggered()), this, SLOT(commit()));
     mercurialContainer->addAction(command);
     m_commandLocator->appendCommand(command);

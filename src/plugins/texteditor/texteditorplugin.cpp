@@ -189,11 +189,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     // Make sure the shortcut still works when the completion widget is active
     completionShortcut->setContext(Qt::ApplicationShortcut);
     Core::Command *command = am->registerShortcut(completionShortcut, Constants::COMPLETE_THIS, context);
-#ifndef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+Space")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Meta+Space")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
     connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
 
     // Add shortcut for invoking quick fix options

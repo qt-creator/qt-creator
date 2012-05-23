@@ -105,12 +105,6 @@
 
 static const char settingsGroupC[] = "Designer";
 
-#ifdef Q_OS_MAC
-    enum { osMac = 1 };
-#else
-    enum { osMac = 0 };
-#endif
-
 /* Actions of the designer plugin:
  * Designer provides a toolbar which is subject to a context change (to
  * "edit mode" context) when it is focused.
@@ -499,12 +493,12 @@ void FormEditorW::setupActions()
 
     //tool actions
     m_toolActionIds.push_back(Core::Id("FormEditor.LayoutHorizontally"));
-    const QString horizLayoutShortcut = osMac ? tr("Meta+Shift+H") : tr("Ctrl+H");
+    const QString horizLayoutShortcut = Core::UseMacShortcuts ? tr("Meta+Shift+H") : tr("Ctrl+H");
     addToolAction(m_fwm->actionHorizontalLayout(), am, m_contexts,
                   m_toolActionIds.back(), mformtools, horizLayoutShortcut);
 
     m_toolActionIds.push_back(Core::Id("FormEditor.LayoutVertically"));
-    const QString vertLayoutShortcut = osMac ? tr("Meta+L") : tr("Ctrl+L");
+    const QString vertLayoutShortcut = Core::UseMacShortcuts ? tr("Meta+L") : tr("Ctrl+L");
     addToolAction(m_fwm->actionVerticalLayout(), am, m_contexts,
                   m_toolActionIds.back(),  mformtools, vertLayoutShortcut);
 
@@ -521,7 +515,7 @@ void FormEditorW::setupActions()
                   m_toolActionIds.back(),  mformtools);
 
     m_toolActionIds.push_back(Core::Id("FormEditor.LayoutGrid"));
-    const QString gridShortcut = osMac ? tr("Meta+Shift+G") : tr("Ctrl+G");
+    const QString gridShortcut = Core::UseMacShortcuts ? tr("Meta+Shift+G") : tr("Ctrl+G");
     addToolAction(m_fwm->actionGridLayout(), am, m_contexts,
                   m_toolActionIds.back(),  mformtools, gridShortcut);
 
@@ -530,7 +524,7 @@ void FormEditorW::setupActions()
                   m_toolActionIds.back(), mformtools);
 
     m_toolActionIds.push_back(Core::Id("FormEditor.LayoutAdjustSize"));
-    const QString adjustShortcut = osMac ? tr("Meta+J") : tr("Ctrl+J");
+    const QString adjustShortcut = Core::UseMacShortcuts ? tr("Meta+J") : tr("Ctrl+J");
     addToolAction(m_fwm->actionAdjustSize(), am, m_contexts,
                   m_toolActionIds.back(),  mformtools, adjustShortcut);
 

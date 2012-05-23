@@ -88,22 +88,14 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     QAction *startMacro = new QAction(tr("Record Macro"),  this);
     Core::Command *command = am->registerAction(startMacro, Constants::START_MACRO, textContext);
-#ifdef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+(")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+(")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Ctrl+(") : tr("Alt+(")));
     mmacrotools->addAction(command);
     connect(startMacro, SIGNAL(triggered()), m_macroManager, SLOT(startMacro()));
 
     QAction *endMacro = new QAction(tr("Stop Recording Macro"),  this);
     endMacro->setEnabled(false);
     command = am->registerAction(endMacro, Constants::END_MACRO, globalcontext);
-#ifdef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+)")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+)")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Ctrl+)") : tr("Alt+)")));
     mmacrotools->addAction(command);
     connect(endMacro, SIGNAL(triggered()), m_macroManager, SLOT(endMacro()));
 

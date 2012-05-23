@@ -369,77 +369,55 @@ EditorManager::EditorManager(QWidget *parent) :
 
     // Goto Previous In History Action
     cmd = am->registerAction(d->m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editDesignContext);
-#ifdef Q_OS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Tab")));
-#else
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Tab")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Alt+Tab") : tr("Ctrl+Tab")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(d->m_gotoPreviousDocHistoryAction, SIGNAL(triggered()), this, SLOT(gotoPreviousDocHistory()));
 
     // Goto Next In History Action
     cmd = am->registerAction(d->m_gotoNextDocHistoryAction, Constants::GOTONEXTINHISTORY, editDesignContext);
-#ifdef Q_OS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+Tab")));
-#else
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+Tab")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Alt+Shift+Tab") : tr("Ctrl+Shift+Tab")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(d->m_gotoNextDocHistoryAction, SIGNAL(triggered()), this, SLOT(gotoNextDocHistory()));
 
     // Go back in navigation history
     cmd = am->registerAction(d->m_goBackAction, Constants::GO_BACK, editDesignContext);
-#ifdef Q_OS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Left")));
-#else
-    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Left")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Alt+Left") : tr("Alt+Left")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(d->m_goBackAction, SIGNAL(triggered()), this, SLOT(goBackInNavigationHistory()));
 
     // Go forward in navigation history
     cmd = am->registerAction(d->m_goForwardAction, Constants::GO_FORWARD, editDesignContext);
-#ifdef Q_OS_MAC
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Right")));
-#else
-    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+Right")));
-#endif
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Alt+Right") : tr("Alt+Right")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(d->m_goForwardAction, SIGNAL(triggered()), this, SLOT(goForwardInNavigationHistory()));
 
-#ifdef Q_OS_MAC
-    QString prefix = tr("Meta+E");
-#else
-    QString prefix = tr("Ctrl+E");
-#endif
-
     d->m_splitAction = new QAction(tr("Split"), this);
     cmd = am->registerAction(d->m_splitAction, Constants::SPLIT, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("%1,2").arg(prefix)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,2") : tr("Ctrl+E,2")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_splitAction, SIGNAL(triggered()), this, SLOT(split()));
 
     d->m_splitSideBySideAction = new QAction(tr("Split Side by Side"), this);
     cmd = am->registerAction(d->m_splitSideBySideAction, Constants::SPLIT_SIDE_BY_SIDE, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("%1,3").arg(prefix)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,3") : tr("Ctrl+E,3")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_splitSideBySideAction, SIGNAL(triggered()), this, SLOT(splitSideBySide()));
 
     d->m_removeCurrentSplitAction = new QAction(tr("Remove Current Split"), this);
     cmd = am->registerAction(d->m_removeCurrentSplitAction, Constants::REMOVE_CURRENT_SPLIT, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("%1,0").arg(prefix)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,0") : tr("Ctrl+E,0")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_removeCurrentSplitAction, SIGNAL(triggered()), this, SLOT(removeCurrentSplit()));
 
     d->m_removeAllSplitsAction = new QAction(tr("Remove All Splits"), this);
     cmd = am->registerAction(d->m_removeAllSplitsAction, Constants::REMOVE_ALL_SPLITS, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("%1,1").arg(prefix)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,1") : tr("Ctrl+E,1")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_removeAllSplitsAction, SIGNAL(triggered()), this, SLOT(removeAllSplits()));
 
     d->m_gotoOtherSplitAction = new QAction(tr("Go to Next Split"), this);
     cmd = am->registerAction(d->m_gotoOtherSplitAction, Constants::GOTO_OTHER_SPLIT, editManagerContext);
-    cmd->setDefaultKeySequence(QKeySequence(tr("%1,o").arg(prefix)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,o") : tr("Ctrl+E,o")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_gotoOtherSplitAction, SIGNAL(triggered()), this, SLOT(gotoOtherSplit()));
 

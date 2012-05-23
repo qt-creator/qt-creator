@@ -107,7 +107,6 @@ namespace Constants {
 
 const char INSTALL_HANDLER[]                = "TextEditor.FakeVimHandler";
 const char MINI_BUFFER[]                    = "TextEditor.FakeVimMiniBuffer";
-const char INSTALL_KEY[]                    = "Alt+V,Alt+V";
 const char SETTINGS_CATEGORY[]              = "D.FakeVim";
 const char SETTINGS_CATEGORY_FAKEVIM_ICON[] = ":/core/images/category_fakevim.png";
 const char SETTINGS_ID[]                    = "A.General";
@@ -971,7 +970,7 @@ bool FakeVimPluginPrivate::initialize()
     Core::Command *cmd = 0;
     cmd = actionManager->registerAction(theFakeVimSetting(ConfigUseFakeVim),
         Constants::INSTALL_HANDLER, globalcontext, true);
-    cmd->setDefaultKeySequence(QKeySequence(Constants::INSTALL_KEY));
+    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,Alt+V")));
 
     ActionContainer *advancedMenu =
         actionManager->actionContainer(Core::Constants::M_EDIT_ADVANCED);
@@ -982,9 +981,8 @@ bool FakeVimPluginPrivate::initialize()
         act->setText(tr("Execute User Action #%1").arg(i));
         act->setData(i);
         QString id = QString("FakeVim.UserAction%1").arg(i);
-        QString keys = QString("Alt+V,%1").arg(i);
         cmd = actionManager->registerAction(act, Core::Id(id), globalcontext);
-        cmd->setDefaultKeySequence(QKeySequence(keys));
+        cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,%1").arg(i)));
         connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
     }
 

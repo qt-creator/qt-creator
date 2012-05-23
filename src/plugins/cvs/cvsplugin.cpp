@@ -285,11 +285,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ami->registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
-#ifdef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Meta+C,Meta+D")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+D")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+D") : tr("Alt+C,Alt+D")));
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -318,11 +314,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ami->registerAction(m_addAction, CMD_ID_ADD,
         globalcontext);
     command->setAttribute(Command::CA_UpdateText);
-#ifdef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Meta+C,Meta+A")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+A")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+A") : tr("Alt+C,Alt+A")));
     connect(m_addAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -331,11 +323,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     command = ami->registerAction(m_commitCurrentAction,
         CMD_ID_COMMIT_CURRENT, globalcontext);
     command->setAttribute(Command::CA_UpdateText);
-#ifdef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Meta+C,Meta+C")));
-#else
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+C,Alt+C")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+C") : tr("Alt+C,Alt+C")));
     connect(m_commitCurrentAction, SIGNAL(triggered()), this, SLOT(startCommitCurrentFile()));
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);

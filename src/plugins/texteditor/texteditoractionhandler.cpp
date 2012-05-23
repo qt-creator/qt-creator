@@ -170,16 +170,10 @@ void TextEditorActionHandler::createActions()
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_formatAction, SIGNAL(triggered(bool)), this, SLOT(formatAction()));
 
-#ifdef Q_OS_MAC
-    QString modifier = tr("Meta");
-#else
-    QString modifier = tr("Ctrl");
-#endif
-
     m_rewrapParagraphAction = new QAction(tr("&Rewrap Paragraph"), this);
     m_modifyingActions << m_rewrapParagraphAction;
     command = am->registerAction(m_rewrapParagraphAction, TextEditor::Constants::REWRAP_PARAGRAPH, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("%1+E, R").arg(modifier)));
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, R") : tr("Ctrl+E, R")));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_rewrapParagraphAction, SIGNAL(triggered(bool)), this, SLOT(rewrapParagraphAction()));
 
@@ -188,7 +182,7 @@ void TextEditorActionHandler::createActions()
     m_visualizeWhitespaceAction->setCheckable(true);
     command = am->registerAction(m_visualizeWhitespaceAction,
                                  TextEditor::Constants::VISUALIZE_WHITESPACE, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(tr("%1+E, %2+V").arg(modifier, modifier)));
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, Meta+V") : tr("Ctrl+E, Ctrl+V")));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_visualizeWhitespaceAction, SIGNAL(triggered(bool)), this, SLOT(setVisualizeWhitespace(bool)));
 
@@ -203,7 +197,7 @@ void TextEditorActionHandler::createActions()
     m_textWrappingAction = new QAction(tr("Enable Text &Wrapping"), this);
     m_textWrappingAction->setCheckable(true);
     command = am->registerAction(m_textWrappingAction, TextEditor::Constants::TEXT_WRAPPING, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(tr("%1+E, %2+W").arg(modifier, modifier)));
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, Meta+W") : tr("Ctrl+E, Ctrl+W")));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FORMAT);
     connect(m_textWrappingAction, SIGNAL(triggered(bool)), this, SLOT(setTextWrapping(bool)));
 
@@ -282,9 +276,7 @@ void TextEditorActionHandler::createActions()
 
     m_resetFontSizeAction = new QAction(tr("Reset Font Size"), this);
     command = am->registerAction(m_resetFontSizeAction, Constants::RESET_FONT_SIZE, m_contextId);
-#ifndef Q_OS_MAC
-    command->setDefaultKeySequence(QKeySequence(tr("Ctrl+0")));
-#endif
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? QString() : tr("Ctrl+0")));
     connect(m_resetFontSizeAction, SIGNAL(triggered()), this, SLOT(resetFontSize()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
 

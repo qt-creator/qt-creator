@@ -217,11 +217,8 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
     cmd = am->registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
-#ifdef Q_OS_MACX
-    cmd->setDefaultKeySequence(QKeySequence(Qt::META + Qt::ALT + Qt::Key_Space));
-#else
-    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Space));
-#endif
+    cmd->setDefaultKeySequence(Core::UseMacShortcuts ? QKeySequence(Qt::META + Qt::ALT + Qt::Key_Space)
+                                                     : QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Space));
     connect(showQuickToolbar, SIGNAL(triggered()), this, SLOT(showContextPane()));
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);

@@ -54,11 +54,6 @@ const char OPENED_WITH_MEMORY[]         = "MemoryView";
 // Debug action
 const char DEBUG[]                      = "Debugger.Debug";
 const int  P_ACTION_DEBUG               = 90; // Priority for the modemanager.
-#ifdef Q_OS_MAC
-const char DEBUG_KEY[] = "Ctrl+Y";
-#else
-const char DEBUG_KEY[] = "F5";
-#endif
 
 } // namespace Constants
 

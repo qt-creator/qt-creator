@@ -385,38 +385,6 @@ namespace PE = ProjectExplorer::Constants;
 namespace Debugger {
 namespace Constants {
 
-#ifdef Q_OS_MAC
-const char STOP_KEY[]                     = "Shift+Ctrl+Y";
-const char RESET_KEY[]                    = "Ctrl+Shift+F5";
-const char STEP_KEY[]                     = "Ctrl+Shift+I";
-const char STEPOUT_KEY[]                  = "Ctrl+Shift+T";
-const char NEXT_KEY[]                     = "Ctrl+Shift+O";
-const char REVERSE_KEY[]                  = "";
-const char RUN_TO_LINE_KEY[]              = "Shift+F8";
-const char RUN_TO_SELECTED_FUNCTION_KEY[] = "Ctrl+F6";
-const char JUMP_TO_LINE_KEY[]             = "Ctrl+D,Ctrl+L";
-const char TOGGLE_BREAK_KEY[]             = "F8";
-const char BREAK_BY_FUNCTION_KEY[]        = "Ctrl+D,Ctrl+F";
-const char BREAK_AT_MAIN_KEY[]            = "Ctrl+D,Ctrl+M";
-const char ADD_TO_WATCH_KEY[]             = "Ctrl+D,Ctrl+W";
-const char SNAPSHOT_KEY[]                 = "Ctrl+D,Ctrl+S";
-#else
-const char STOP_KEY[]                     = "Shift+F5";
-const char RESET_KEY[]                    = "Ctrl+Shift+F5";
-const char STEP_KEY[]                     = "F11";
-const char STEPOUT_KEY[]                  = "Shift+F11";
-const char NEXT_KEY[]                     = "F10";
-const char REVERSE_KEY[]                  = "F12";
-const char RUN_TO_LINE_KEY[]              = "Ctrl+F10";
-const char RUN_TO_SELECTED_FUNCTION_KEY[] = "Ctrl+F6";
-const char JUMP_TO_LINE_KEY[]             = "";
-const char TOGGLE_BREAK_KEY[]             = "F9";
-const char BREAK_BY_FUNCTION_KEY[]        = "";
-const char BREAK_AT_MAIN_KEY[]            = "";
-const char ADD_TO_WATCH_KEY[]             = "Ctrl+Alt+Q";
-const char SNAPSHOT_KEY[]                 = "Ctrl+D,Ctrl+S";
-#endif
-
 } // namespace Constants
 
 
@@ -2871,6 +2839,8 @@ QMessageBox *showMessageBox(int icon, const QString &title,
 
 void DebuggerPluginPrivate::extensionsInitialized()
 {
+    const QKeySequence debugKey = QKeySequence(UseMacShortcuts ? tr("Ctrl+Y") : tr("F5"));
+
     m_coreSettings = ICore::settings();
 
     m_debuggerSettings = new DebuggerSettings(m_coreSettings);
@@ -3158,7 +3128,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_startAction, Constants::DEBUG, globalcontext);
     cmd->setDescription(tr("Start Debugging"));
-    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::DEBUG_KEY)));
+    cmd->setDefaultKeySequence(debugKey);
     cmd->setAttribute(Command::CA_UpdateText);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
@@ -3254,7 +3224,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_continueAction,
         Constants::CONTINUE, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::DEBUG_KEY)));
+    cmd->setDefaultKeySequence(debugKey);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
     cmd = am->registerAction(m_exitAction,
@@ -3269,11 +3239,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_hiddenStopAction,
         Constants::HIDDEN_STOP, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::STOP_KEY)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Shift+Ctrl+Y") : tr("Shift+F5")));
 
     cmd = am->registerAction(m_abortAction,
         Constants::ABORT, globalcontext);
-    //cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::RESET_KEY)));
     cmd->setDescription(tr("Reset Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
@@ -3284,34 +3253,33 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_nextAction,
         Constants::NEXT, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::NEXT_KEY)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+O") : tr("F10")));
     cmd->setAttribute(Command::CA_Hide);
     cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_stepAction,
         Constants::STEP, globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::STEP_KEY)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+I") : tr("F11")));
     cmd->setAttribute(Command::CA_Hide);
     cmd->setAttribute(Command::CA_UpdateText);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_stepOutAction,
         Constants::STEPOUT, cppDebuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::STEPOUT_KEY)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Shift+T") : tr("Shift+F11")));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_runToLineAction,
         "Debugger.RunToLine", cppDebuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::RUN_TO_LINE_KEY)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Shift+F8") : tr("Ctrl+F10")));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
     cmd = am->registerAction(m_runToSelectedFunctionAction,
         "Debugger.RunToSelectedFunction", cppDebuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(
-        QLatin1String(Constants::RUN_TO_SELECTED_FUNCTION_KEY)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+F6") : tr("Ctrl+F6")));
     cmd->setAttribute(Command::CA_Hide);
     // Don't add to menu by default as keeping its enabled state
     // and text up-to-date is a lot of hassle.
@@ -3329,7 +3297,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_reverseDirectionAction,
         Constants::REVERSE, cppDebuggercontext);
-    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::REVERSE_KEY)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? QString() : tr("F12")));
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
@@ -3340,7 +3308,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     //cmd = am->registerAction(m_snapshotAction,
     //    "Debugger.Snapshot", cppDebuggercontext);
-    //cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::SNAPSHOT_KEY)));
+    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+S")));
     //cmd->setAttribute(Command::CA_Hide);
     //debugMenu->addAction(cmd);
 
@@ -3356,7 +3324,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_breakAction,
         "Debugger.ToggleBreak", globalcontext);
-    cmd->setDefaultKeySequence(QKeySequence(QLatin1String(Constants::TOGGLE_BREAK_KEY)));
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("F8") : tr("F9")));
     debugMenu->addAction(cmd);
     connect(m_breakAction, SIGNAL(triggered()),
         SLOT(toggleBreakpoint()));

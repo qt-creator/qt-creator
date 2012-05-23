@@ -49,6 +49,12 @@ namespace Core {
 
 class Context;
 
+#ifdef Q_OS_MAC
+enum { UseMacShortcuts = 1 };
+#else
+enum { UseMacShortcuts = 0 };
+#endif
+
 class CORE_EXPORT Command : public QObject
 {
     Q_OBJECT
