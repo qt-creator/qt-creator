@@ -183,7 +183,6 @@ QtcLibrary {
             "consoleprocess_win.cpp",
             "winutils.cpp",
             "winutils.h",
-            "process_ctrlc_stub.cpp"
         ]
     }
 
