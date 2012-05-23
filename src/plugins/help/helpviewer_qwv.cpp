@@ -492,6 +492,11 @@ void HelpViewer::copy()
     triggerPageAction(QWebPage::Copy);
 }
 
+void HelpViewer::stop()
+{
+    triggerPageAction(QWebPage::Stop);
+}
+
 void HelpViewer::forward()
 {
     QWebView::forward();

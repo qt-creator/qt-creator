@@ -249,6 +249,10 @@ void HelpViewer::copy()
     QTextBrowser::copy();
 }
 
+void HelpViewer::stop()
+{
+}
+
 void HelpViewer::forward()
 {
     QTextBrowser::forward();

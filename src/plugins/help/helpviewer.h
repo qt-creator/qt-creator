@@ -100,6 +100,7 @@ public:
 public slots:
     void copy();
     void home();
+    void stop();
 
     void forward();
     void backward();

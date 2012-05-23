@@ -87,6 +87,7 @@ void OpenPagesModel::removePage(int index)
     Q_ASSERT(index >= 0 && index < rowCount());
     beginRemoveRows(QModelIndex(), index, index);
     HelpViewer *page = m_pages.at(index);
+    page->stop();
     m_pages.removeAt(index);
     endRemoveRows();
     page->deleteLater();
