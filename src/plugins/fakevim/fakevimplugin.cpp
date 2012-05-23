@@ -970,7 +970,7 @@ bool FakeVimPluginPrivate::initialize()
     Core::Command *cmd = 0;
     cmd = actionManager->registerAction(theFakeVimSetting(ConfigUseFakeVim),
         Constants::INSTALL_HANDLER, globalcontext, true);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,Alt+V")));
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+V,Meta+V") : tr("Alt+V,Alt+V")));
 
     ActionContainer *advancedMenu =
         actionManager->actionContainer(Core::Constants::M_EDIT_ADVANCED);
@@ -982,7 +982,7 @@ bool FakeVimPluginPrivate::initialize()
         act->setData(i);
         QString id = QString("FakeVim.UserAction%1").arg(i);
         cmd = actionManager->registerAction(act, Core::Id(id), globalcontext);
-        cmd->setDefaultKeySequence(QKeySequence(tr("Alt+V,%1").arg(i)));
+        cmd->setDefaultKeySequence(QKeySequence((Core::UseMacShortcuts ? tr("Meta+V,%1") : tr("Alt+V,%1")).arg(i)));
         connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
     }
 

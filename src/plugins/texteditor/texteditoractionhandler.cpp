@@ -358,13 +358,13 @@ void TextEditorActionHandler::createActions()
     m_upperCaseSelectionAction = new QAction(tr("Uppercase Selection"), this);
     m_modifyingActions << m_upperCaseSelectionAction;
     command = am->registerAction(m_upperCaseSelectionAction, Constants::UPPERCASE_SELECTION, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+Shift+U")));
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+U") : tr("Alt+Shift+U")));
     connect(m_upperCaseSelectionAction, SIGNAL(triggered()), this, SLOT(uppercaseSelection()));
 
     m_lowerCaseSelectionAction = new QAction(tr("Lowercase Selection"), this);
     m_modifyingActions << m_lowerCaseSelectionAction;
     command = am->registerAction(m_lowerCaseSelectionAction, Constants::LOWERCASE_SELECTION, m_contextId, true);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+U")));
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+U") : tr("Alt+U")));
     connect(m_lowerCaseSelectionAction, SIGNAL(triggered()), this, SLOT(lowercaseSelection()));
 
     m_circularPasteAction = new QAction(tr("Paste from Clipboard History"), this);

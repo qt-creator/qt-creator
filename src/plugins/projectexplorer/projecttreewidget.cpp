@@ -39,6 +39,7 @@
 #include "projectexplorerconstants.h"
 #include "projectmodels.h"
 
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -412,7 +413,7 @@ Core::Id ProjectTreeWidgetFactory::id() const
 
 QKeySequence ProjectTreeWidgetFactory::activationSequence() const
 {
-    return QKeySequence(Qt::ALT + Qt::Key_X);
+    return QKeySequence(Core::UseMacShortcuts ? tr("Meta+X") : tr("Alt+X"));
 }
 
 Core::NavigationView ProjectTreeWidgetFactory::createWidget()

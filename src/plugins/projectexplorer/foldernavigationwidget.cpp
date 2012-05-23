@@ -36,6 +36,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/documentmanager.h>
@@ -408,7 +409,7 @@ Core::Id FolderNavigationWidgetFactory::id() const
 
 QKeySequence FolderNavigationWidgetFactory::activationSequence() const
 {
-    return QKeySequence(Qt::ALT + Qt::Key_Y);
+    return QKeySequence(Core::UseMacShortcuts ? tr("Meta+Y") : tr("Alt+Y"));
 }
 
 Core::NavigationView FolderNavigationWidgetFactory::createWidget()

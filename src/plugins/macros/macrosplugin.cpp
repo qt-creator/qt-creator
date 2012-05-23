@@ -101,7 +101,7 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     QAction *executeLastMacro = new QAction(tr("Play Last Macro"),  this);
     command = am->registerAction(executeLastMacro, Constants::EXECUTE_LAST_MACRO, textContext);
-    command->setDefaultKeySequence(QKeySequence(tr("Alt+R")));
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+R") : tr("Alt+R")));
     mmacrotools->addAction(command);
     connect(executeLastMacro, SIGNAL(triggered()), m_macroManager, SLOT(executeLastMacro()));
 

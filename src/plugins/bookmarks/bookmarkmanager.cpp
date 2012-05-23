@@ -39,6 +39,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/basetexteditor.h>
@@ -784,7 +785,7 @@ Id BookmarkViewFactory::id() const
 
 QKeySequence BookmarkViewFactory::activationSequence() const
 {
-    return QKeySequence(Qt::ALT + Qt::Key_M);
+    return QKeySequence(Core::UseMacShortcuts ? tr("Alt+Meta+M") : tr("Alt+M"));
 }
 
 Core::NavigationView BookmarkViewFactory::createWidget()

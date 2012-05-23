@@ -41,6 +41,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/id.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>
@@ -240,7 +241,7 @@ Core::Id OpenEditorsViewFactory::id() const
 
 QKeySequence OpenEditorsViewFactory::activationSequence() const
 {
-    return QKeySequence(Qt::ALT + Qt::Key_O);
+    return QKeySequence(Core::UseMacShortcuts ? tr("Meta+O") : tr("Alt+O"));
 }
 
 OpenEditorsViewFactory::OpenEditorsViewFactory()
