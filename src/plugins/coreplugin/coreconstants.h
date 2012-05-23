@@ -103,10 +103,8 @@ const char OPTIONS[]               = "QtCreator.Options";
 const char TOGGLE_SIDEBAR[]        = "QtCreator.ToggleSidebar";
 const char TOGGLE_FULLSCREEN[]     = "QtCreator.ToggleFullScreen";
 
-#ifdef Q_OS_MAC
 const char MINIMIZE_WINDOW[]       = "QtCreator.MinimizeWindow";
 const char ZOOM_WINDOW[]           = "QtCreator.ZoomWindow";
-#endif
 
 const char SPLIT[]                 = "QtCreator.Split";
 const char SPLIT_SIDE_BY_SIDE[]    = "QtCreator.SplitSideBySide";
