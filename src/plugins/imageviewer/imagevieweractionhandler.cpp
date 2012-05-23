@@ -95,7 +95,7 @@ void ImageViewerActionHandler::createActions()
     registerNewAction(ZoomOut, Constants::ACTION_ZOOM_OUT, tr("Zoom Out"),
                       QKeySequence(tr("Ctrl+-")));
     registerNewAction(OriginalSize, Constants::ACTION_ORIGINAL_SIZE, tr("Original Size"),
-                      QKeySequence(tr("Ctrl+0")));
+                      QKeySequence(Core::UseMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")));
     registerNewAction(FitToScreen, Constants::ACTION_FIT_TO_SCREEN, tr("Fit To Screen"),
                       QKeySequence(tr("Ctrl+=")));
     registerNewAction(Background, Constants::ACTION_BACKGROUND, tr("Switch Background"),

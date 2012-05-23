@@ -246,7 +246,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     m_openTypeHierarchyAction = new QAction(tr("Open Type Hierarchy"), this);
     cmd = Core::ActionManager::registerAction(m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+T")));
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+T") : tr("Ctrl+Shift+T")));
     connect(m_openTypeHierarchyAction, SIGNAL(triggered()), this, SLOT(openTypeHierarchy()));
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);

@@ -274,7 +274,7 @@ void TextEditorActionHandler::createActions()
 
     m_resetFontSizeAction = new QAction(tr("Reset Font Size"), this);
     command = Core::ActionManager::registerAction(m_resetFontSizeAction, Constants::RESET_FONT_SIZE, m_contextId);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? QString() : tr("Ctrl+0")));
+    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+0") : tr("Ctrl+0")));
     connect(m_resetFontSizeAction, SIGNAL(triggered()), this, SLOT(resetFontSize()));
     advancedMenu->addAction(command, Core::Constants::G_EDIT_FONT);
 

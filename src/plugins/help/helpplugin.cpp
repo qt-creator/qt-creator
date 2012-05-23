@@ -232,7 +232,7 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         tr("Add Bookmark"), this);
     cmd = Core::ActionManager::registerAction(action, Core::Id("Help.AddBookmark"),
         modecontext);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::Key_M));
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     connect(action, SIGNAL(triggered()), this, SLOT(addBookmark()));
 
     // Add Contents, Index, and Context menu items and a separator to the Help menu
@@ -449,7 +449,7 @@ void HelpPlugin::setupUi()
     shortcut->setWhatsThis(tr("Activate Index in Help mode"));
     Core::Command* cmd = Core::ActionManager::registerShortcut(shortcut,
         Core::Id("Help.IndexShortcut"), modecontext);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_I));
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+I") : tr("Ctrl+Shift+I")));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateIndex()));
     shortcutMap.insert(QLatin1String(SB_INDEX), cmd);
 
@@ -463,7 +463,7 @@ void HelpPlugin::setupUi()
     shortcut->setWhatsThis(tr("Activate Contents in Help mode"));
     cmd = Core::ActionManager::registerShortcut(shortcut, Core::Id("Help.ContentsShortcut"),
         modecontext);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_C));
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+C") : tr("Ctrl+Shift+C")));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateContents()));
     shortcutMap.insert(QLatin1String(SB_CONTENTS), cmd);
 
@@ -477,7 +477,7 @@ void HelpPlugin::setupUi()
      shortcut->setWhatsThis(tr("Activate Search in Help mode"));
      cmd = Core::ActionManager::registerShortcut(shortcut, Core::Id("Help.SearchShortcut"),
          modecontext);
-     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Slash));
+     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+/") : tr("Ctrl+Shift+/")));
      connect(shortcut, SIGNAL(activated()), this, SLOT(activateSearch()));
      shortcutMap.insert(QLatin1String(SB_SEARCH), cmd);
 
@@ -494,7 +494,7 @@ void HelpPlugin::setupUi()
      shortcut->setWhatsThis(tr("Activate Bookmarks in Help mode"));
      cmd = Core::ActionManager::registerShortcut(shortcut, Core::Id("Help.BookmarkShortcut"),
          modecontext);
-     cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_B));
+     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+B") : tr("Ctrl+Shift+B")));
      connect(shortcut, SIGNAL(activated()), this, SLOT(activateBookmarks()));
      shortcutMap.insert(QLatin1String(SB_BOOKMARKS), cmd);
 
@@ -506,7 +506,7 @@ void HelpPlugin::setupUi()
     shortcut->setWhatsThis(tr("Activate Open Pages in Help mode"));
     cmd = Core::ActionManager::registerShortcut(shortcut, Core::Id("Help.PagesShortcut"),
         modecontext);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_O));
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+O") : tr("Ctrl+Shift+O")));
     connect(shortcut, SIGNAL(activated()), this, SLOT(activateOpenPages()));
     shortcutMap.insert(QLatin1String(SB_OPENPAGES), cmd);
 
