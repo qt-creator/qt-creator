@@ -286,14 +286,14 @@ quint32 BaseEngineDebugClient::addWatch(const ObjectReference &object,
     return id;
 }
 
-quint32 BaseEngineDebugClient::addWatch(int objectId)
+quint32 BaseEngineDebugClient::addWatch(int objectDebugId)
 {
     quint32 id = 0;
     if (status() == Enabled) {
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("WATCH_OBJECT") << id << objectId;
+        ds << QByteArray("WATCH_OBJECT") << id << objectDebugId;
         sendMessage(message);
     }
     return id;

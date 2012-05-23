@@ -1139,12 +1139,13 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
         = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     static const Qt::ItemFlags editable = notEditable | Qt::ItemIsEditable;
 
-    // Disable editing if debuggee is positively running.
+    // Disable editing if debuggee is positively running except for Inspector data
+    const WatchData &data = *watchItem(idx);
     const bool isRunning = engine() && engine()->state() == InferiorRunOk;
-    if (isRunning && engine() && !engine()->hasCapability(AddWatcherWhileRunningCapability))
+    if (isRunning && engine() && !engine()->hasCapability(AddWatcherWhileRunningCapability) &&
+            !data.isInspect())
         return notEditable;
 
-    const WatchData &data = *watchItem(idx);
     if (data.isWatcher()) {
         if (idx.column() == 0 && data.iname.count('.') == 1)
             return editable; // Watcher names are editable.
@@ -1159,6 +1160,9 @@ Qt::ItemFlags WatchModel::flags(const QModelIndex &idx) const
     } else if (data.isLocal()) {
         if (idx.column() == 1 && data.valueEditable)
             return editable; // Locals values are sometimes editable.
+    } else if (data.isInspect()) {
+        if (idx.column() == 1 && data.valueEditable)
+            return editable; // Inspector values are sometimes editable.
     }
     return notEditable;
 }

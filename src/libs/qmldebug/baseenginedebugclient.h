@@ -56,7 +56,7 @@ public:
     quint32 addWatch(const PropertyReference &property);
     quint32 addWatch(const ContextReference &context, const QString &id);
     quint32 addWatch(const ObjectReference &object, const QString &expr);
-    quint32 addWatch(int objectId);
+    quint32 addWatch(int objectDebugId);
     quint32 addWatch(const FileReference &file);
 
     void removeWatch(quint32 watch);

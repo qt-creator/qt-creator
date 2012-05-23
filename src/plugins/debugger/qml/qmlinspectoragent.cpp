@@ -81,6 +81,23 @@ quint32 QmlInspectorAgent::queryExpressionResult(int debugId,
                                                  m_engine.debugId());
 }
 
+void QmlInspectorAgent::assignValue(const WatchData *data,
+                                    const QString &expr, const QVariant &valueV)
+{
+    if (debug)
+        qDebug() << __FUNCTION__ << "(" << data->id << ")" << data->iname;
+
+    if (data->id) {
+        QString val(valueV.toString());
+        if (valueV.type() == QVariant::String) {
+            val = val.replace(QLatin1Char('\"'), QLatin1String("\\\""));
+            val = QLatin1Char('\"') + val + QLatin1Char('\"');
+        }
+        QString expression = QString(_("%1 = %2;")).arg(expr).arg(val);
+        queryExpressionResult(data->id, expression);
+    }
+}
+
 void QmlInspectorAgent::updateWatchData(const WatchData &data)
 {
     if (debug)
@@ -269,7 +286,7 @@ bool QmlInspectorAgent::addObjectWatch(int objectDebugId)
     if (m_engineClient->addWatch(objectDebugId))
         m_objectWatches.append(objectDebugId);
 
-    return false;
+    return true;
 }
 
 bool QmlInspectorAgent::isObjectBeingWatched(int objectDebugId)
@@ -316,6 +333,8 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
                    this, SLOT(onResult(quint32,QVariant,QByteArray)));
         disconnect(m_engineClient, SIGNAL(newObject(int,int,int)),
                    this, SLOT(newObject(int,int,int)));
+        disconnect(m_engineClient, SIGNAL(valueChanged(int,QByteArray,QVariant)),
+                   this, SLOT(onValueChanged(int,QByteArray,QVariant)));
     }
 
     m_engineClient = client;
@@ -327,6 +346,8 @@ void QmlInspectorAgent::setEngineClient(BaseEngineDebugClient *client)
                 this, SLOT(onResult(quint32,QVariant,QByteArray)));
         connect(m_engineClient, SIGNAL(newObject(int,int,int)),
                 this, SLOT(newObject(int,int,int)));
+        connect(m_engineClient, SIGNAL(valueChanged(int,QByteArray,QVariant)),
+                this, SLOT(onValueChanged(int,QByteArray,QVariant)));
     }
 
     updateStatus();
@@ -416,6 +437,21 @@ void QmlInspectorAgent::newObject(int engineId, int objectId, int /*parentId*/)
         fetchObject(objectId);
     else
         m_delayQueryTimer.start();
+}
+
+void QmlInspectorAgent::onValueChanged(int debugId, const QByteArray &propertyName,
+                                       const QVariant &value)
+{
+    const QByteArray iname = m_debugIdToIname.value(debugId) +
+            ".[properties]." + propertyName;
+    const WatchData *data = m_debuggerEngine->watchHandler()->findData(iname);
+    if (debug)
+        qDebug() << __FUNCTION__ << "(" << debugId << ")" << iname <<value.toString();
+    if (data) {
+        WatchData d(*data);
+        d.value = value.toString();
+        m_debuggerEngine->watchHandler()->insertData(d);
+    }
 }
 
 void QmlInspectorAgent::reloadEngines()
@@ -660,6 +696,7 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const ObjectReference &obj,
 
     list.append(objWatch);
     m_debugIdToIname.insert(objWatch.id, objWatch.iname);
+    addObjectWatch(objWatch.id);
 
     if (m_engineClient->objectName() != QmlDebug::Constants::QML_DEBUGGER) {
         QList<int> childIds;
@@ -694,6 +731,7 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const ObjectReference &obj,
 
         foreach (const PropertyReference &property, obj.properties()) {
             WatchData propertyWatch;
+            propertyWatch.id = objWatch.id;
             propertyWatch.exp = property.name().toLatin1();
             propertyWatch.name = property.name();
             propertyWatch.iname = buildIName(propertiesWatch.iname, property.name());
@@ -744,6 +782,9 @@ void QmlInspectorAgent::clearObjectTree()
     m_debugIdToIname.clear();
     m_debugIdChildIds.clear();
     m_objectStack.clear();
+
+    removeAllObjectWatches();
 }
 } // Internal
 } // Debugger
+

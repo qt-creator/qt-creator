@@ -62,6 +62,7 @@ public:
     void fetchObject(int debugId);
     quint32 queryExpressionResult(int debugId, const QString &expression);
 
+    void assignValue(const WatchData *data, const QString &expression, const QVariant &valueV);
     void updateWatchData(const WatchData &data);
     void selectObjectInTree(int debugId);
 
@@ -105,6 +106,7 @@ private slots:
     void updateStatus();
     void onResult(quint32 queryId, const QVariant &value, const QByteArray &type);
     void newObject(int engineId, int objectId, int parentId);
+    void onValueChanged(int debugId, const QByteArray &propertyName, const QVariant &value);
 
 private:
     void reloadEngines();
