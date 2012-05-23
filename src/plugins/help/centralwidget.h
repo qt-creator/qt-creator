@@ -59,7 +59,6 @@ public:
 
     static CentralWidget *instance();
 
-    bool hasSelection() const;
     bool isForwardAvailable() const;
     bool isBackwardAvailable() const;
 
@@ -84,10 +83,7 @@ public slots:
     void resetZoom();
 
     void forward();
-    void nextPage();
-
     void backward();
-    void previousPage();
 
     void print();
     void pageSetup();
@@ -102,7 +98,6 @@ protected:
 
 signals:
     void openFindToolBar();
-    void currentViewerChanged();
     void sourceChanged(const QUrl &url);
     void forwardAvailable(bool available);
     void backwardAvailable(bool available);

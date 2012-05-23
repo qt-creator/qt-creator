@@ -99,13 +99,6 @@ CentralWidget *CentralWidget::instance()
     return gStaticCentralWidget;
 }
 
-bool CentralWidget::hasSelection() const
-{
-    if (HelpViewer* viewer = currentHelpViewer())
-        return !viewer->selectedText().isEmpty();
-    return false;
-}
-
 bool CentralWidget::isForwardAvailable() const
 {
     const HelpViewer* viewer = currentHelpViewer();
@@ -148,10 +141,7 @@ void CentralWidget::addPage(HelpViewer *page, bool fromSearch)
 
 void CentralWidget::removePage(int index)
 {
-    const bool currentChanged = (index == currentIndex());
     m_stackedWidget->removeWidget(m_stackedWidget->widget(index));
-    if (currentChanged)
-        emit currentViewerChanged();
 }
 
 int CentralWidget::currentIndex() const
@@ -162,7 +152,6 @@ int CentralWidget::currentIndex() const
 void CentralWidget::setCurrentPage(HelpViewer *page)
 {
     m_stackedWidget->setCurrentWidget(page);
-    emit currentViewerChanged();
 }
 
 bool CentralWidget::find(const QString &txt, Find::FindFlags flags,
@@ -212,22 +201,10 @@ void CentralWidget::forward()
         viewer->forward();
 }
 
-void CentralWidget::nextPage()
-{
-    m_stackedWidget->setCurrentIndex((m_stackedWidget->currentIndex() + 1)
-        % m_stackedWidget->count());
-}
-
 void CentralWidget::backward()
 {
     if (HelpViewer* viewer = currentHelpViewer())
         viewer->backward();
-}
-
-void CentralWidget::previousPage()
-{
-    m_stackedWidget->setCurrentIndex((m_stackedWidget->currentIndex() - 1)
-        % m_stackedWidget->count());
 }
 
 void CentralWidget::print()
