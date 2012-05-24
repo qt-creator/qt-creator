@@ -334,6 +334,16 @@ QModelIndex ResourceView::addPrefix()
     return idx;
 }
 
+void ResourceView::refresh()
+{
+    m_qrcModel->refresh();
+    QModelIndex idx = currentIndex();
+    setModel(0);
+    setModel(m_qrcModel);
+    setCurrentIndex(idx);
+    expandAll();
+}
+
 QStringList ResourceView::fileNamesToAdd()
 {
     return QFileDialog::getOpenFileNames(this, tr("Open File"),

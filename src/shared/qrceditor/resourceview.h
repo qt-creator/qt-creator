@@ -118,6 +118,8 @@ public:
     QStringList fileNamesToAdd();
     QModelIndex addPrefix();
 
+    void refresh();
+
 public slots:
     void setCurrentAlias(const QString &before, const QString &after);
     void setCurrentPrefix(const QString &before, const QString &after);

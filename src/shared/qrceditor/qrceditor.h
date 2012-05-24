@@ -67,6 +67,8 @@ public:
 
     const QUndoStack *commandHistory() const { return &m_history; }
 
+    void refresh();
+
 signals:
     void dirtyChanged(bool dirty);
     void itemActivated(const QString &fileName);

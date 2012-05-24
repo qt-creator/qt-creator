@@ -40,6 +40,8 @@ const char C_RESOURCEEDITOR[] = "Qt4.ResourceEditor";
 const char RESOURCEEDITOR_ID[] = "Qt4.ResourceEditor";
 const char C_RESOURCEEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Resource Editor");
 
+const char REFRESH[] = "ResourceEditor.Refresh";
+
 const char C_RESOURCE_MIMETYPE[] = "application/vnd.nokia.xml.qt.resource";
 
 } // namespace Constants

@@ -38,6 +38,8 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
 #include <find/treeviewfind.h>
@@ -51,6 +53,7 @@
 #include <QHBoxLayout>
 #include <QMainWindow>
 #include <QMenu>
+#include <QToolBar>
 
 namespace ResourceEditor {
 namespace Internal {
@@ -82,10 +85,17 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
         m_plugin(plugin),
         m_shouldAutoSave(false),
         m_diskIo(false),
-        m_contextMenu(new QMenu)
+        m_contextMenu(new QMenu),
+        m_toolBar(new QToolBar)
 {
     setContext(context);
     setWidget(m_resourceEditor);
+
+    Core::ActionManager * const actionManager = Core::ICore::actionManager();
+    Core::CommandButton *refreshButton = new Core::CommandButton(Constants::REFRESH, m_toolBar);
+    refreshButton->setIcon(QIcon(QLatin1String(":/texteditor/images/finddocuments.png")));
+    connect(refreshButton, SIGNAL(clicked()), this, SLOT(onRefresh()));
+    m_toolBar->addWidget(refreshButton);
 
     Aggregation::Aggregate * agg = new Aggregation::Aggregate;
     agg->add(m_resourceEditor->treeView());
@@ -121,6 +131,7 @@ ResourceEditorW::~ResourceEditorW()
     if (m_resourceEditor)
         m_resourceEditor->deleteLater();
     delete m_contextMenu;
+    delete m_toolBar;
 }
 
 bool ResourceEditorW::createNew(const QString &contents)
@@ -214,6 +225,11 @@ Core::Id ResourceEditorW::id() const
     return Core::Id(ResourceEditor::Constants::RESOURCEEDITOR_ID);
 }
 
+QWidget *ResourceEditorW::toolBar()
+{
+    return m_toolBar;
+}
+
 QString ResourceEditorDocument::fileName() const
 {
     return m_parent->m_resourceEditor->fileName();
@@ -297,6 +313,12 @@ void ResourceEditorW::openCurrentFile()
 void ResourceEditorW::openFile(const QString &fileName)
 {
     Core::EditorManager::openEditor(fileName);
+}
+
+void ResourceEditorW::onRefresh()
+{
+    if (!m_resourceEditor.isNull())
+        m_resourceEditor.data()->refresh();
 }
 
 void ResourceEditorW::onUndo()

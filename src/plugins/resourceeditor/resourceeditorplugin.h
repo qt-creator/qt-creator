@@ -62,6 +62,7 @@ public:
 private slots:
     void onUndo();
     void onRedo();
+    void onRefresh();
 
 public:
     void onUndoStackChanged(ResourceEditorW const *editor, bool canUndo, bool canRedo);
@@ -74,6 +75,7 @@ private:
     ResourceEditorFactory *m_editor;
     QAction *m_redoAction;
     QAction *m_undoAction;
+    QAction *m_refreshAction;
 };
 
 } // namespace Internal

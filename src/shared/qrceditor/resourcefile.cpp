@@ -61,6 +61,33 @@ static QString msgFileNameEmpty()
 
 namespace qdesigner_internal {
 
+/******************************************************************************
+** File
+*/
+
+File::File(Prefix *prefix, const QString &_name, const QString &_alias)
+    : Node(this, prefix)
+    , name(_name)
+    , alias(_alias)
+    , m_checked(false)
+    , m_exists(false)
+{
+}
+
+void File::checkExistence()
+{
+    m_checked = false;
+}
+
+bool File::exists()
+{
+    if (!m_checked) {
+        m_exists = QFile::exists(name);
+        m_checked = true;
+    }
+
+    return m_exists;
+}
 
 /******************************************************************************
 ** FileList
@@ -210,6 +237,15 @@ bool ResourceFile::save()
     }
 #endif
     return true;
+}
+
+void ResourceFile::refresh()
+{
+    for (int i = 0; i < prefixCount(); ++i) {
+        const FileList &file_list = m_prefix_list.at(i)->file_list;
+        foreach (File *file, file_list)
+            file->checkExistence();
+    }
 }
 
 bool ResourceFile::split(const QString &_path, QString *prefix, QString *file) const
@@ -457,6 +493,7 @@ QString ResourceFile::file(int prefix_idx, int file_idx) const
     Q_ASSERT(prefix_idx >= 0 && prefix_idx < m_prefix_list.count());
     FileList &fileList = m_prefix_list.at(prefix_idx)->file_list;
     Q_ASSERT(file_idx >= 0 && file_idx < fileList.count());
+    fileList.at(file_idx)->checkExistence();
     return fileList.at(file_idx)->name;
 }
 
@@ -604,6 +641,11 @@ bool ResourceModel::hasChildren(const QModelIndex &parent) const
     return rowCount(parent) != 0;
 }
 
+void ResourceModel::refresh()
+{
+    m_resource_file.refresh();
+}
+
 bool ResourceModel::iconFileExtension(const QString &path)
 {
     static QStringList ext_list;
@@ -683,6 +725,14 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
 
         } else {
             result = m_prefixIcon;
+        }
+        break;
+    case Qt::ForegroundRole:
+        if (isFileNode) {
+            // File node
+            Q_ASSERT(file);
+            if (!file->exists())
+                result = QBrush(QColor(Qt::red));
         }
         break;
     default:

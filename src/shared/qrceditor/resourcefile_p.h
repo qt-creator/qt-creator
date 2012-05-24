@@ -43,7 +43,7 @@ QT_BEGIN_NAMESPACE
 
 namespace qdesigner_internal {
 
-struct File;
+class File;
 struct Prefix;
 
 /*!
@@ -71,15 +71,24 @@ private:
 
     Represents a file node in a \l ResourceFile tree.
 */
-struct File : public Node {
-    File(Prefix *prefix, const QString &_name = QString(), const QString &_alias = QString())
-        : Node(this, prefix), name(_name), alias(_alias) {}
+class File : public Node
+{
+public:
+    File(Prefix *prefix, const QString &_name, const QString &_alias = QString());
+    void checkExistence();
+    bool exists();
+
     bool operator < (const File &other) const { return name < other.name; }
     bool operator == (const File &other) const { return name == other.name; }
     bool operator != (const File &other) const { return name != other.name; }
+
     QString name;
     QString alias;
     QIcon icon;
+
+private:
+    bool m_checked;
+    bool m_exists;
 };
 
 class FileList : public QList<File *>
@@ -125,6 +134,7 @@ public:
     bool load();
     bool save();
     QString errorMessage() const { return m_error_message; }
+    void refresh();
 
 private:
     QString resolvePath(const QString &path) const;
@@ -201,6 +211,8 @@ public:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     bool hasChildren(const QModelIndex &parent) const;
+
+    void refresh();
 
 protected:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;

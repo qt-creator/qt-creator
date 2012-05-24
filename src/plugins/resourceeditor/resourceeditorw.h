@@ -40,6 +40,7 @@
 
 QT_BEGIN_NAMESPACE
 class QMenu;
+class QToolBar;
 QT_END_NAMESPACE
 
 namespace SharedTools {
@@ -96,7 +97,7 @@ public:
     Core::Id id() const;
     QString displayName() const { return m_displayName; }
     void setDisplayName(const QString &title) { m_displayName = title; emit changed(); }
-    QWidget *toolBar() { return 0; }
+    QWidget *toolBar();
     QByteArray saveState() const { return QByteArray(); }
     bool restoreState(const QByteArray &/*state*/) { return true; }
 
@@ -124,6 +125,10 @@ private:
     QMenu *m_contextMenu;
     QMenu *m_openWithMenu;
     QString m_currentFileName;
+    QToolBar *m_toolBar;
+
+public slots:
+    void onRefresh();
 
 public:
     void onUndo();

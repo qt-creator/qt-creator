@@ -127,6 +127,11 @@ bool QrcEditor::load(const QString &fileName)
     return success;
 }
 
+void QrcEditor::refresh()
+{
+    m_treeview->refresh();
+}
+
 bool QrcEditor::save()
 {
     return m_treeview->save();

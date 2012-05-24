@@ -92,10 +92,13 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     const Core::Context context(Constants::C_RESOURCEEDITOR);
     m_undoAction = new QAction(tr("&Undo"), this);
     m_redoAction = new QAction(tr("&Redo"), this);
+    m_refreshAction = new QAction(tr("Recheck existence of referenced files"), this);
     Core::ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
     Core::ActionManager::registerAction(m_redoAction, Core::Constants::REDO, context);
+    Core::ActionManager::registerAction(m_refreshAction, Constants::REFRESH, context);
     connect(m_undoAction, SIGNAL(triggered()), this, SLOT(onUndo()));
     connect(m_redoAction, SIGNAL(triggered()), this, SLOT(onRedo()));
+    connect(m_refreshAction, SIGNAL(triggered()), this, SLOT(onRefresh()));
 
     return true;
 }
@@ -112,6 +115,11 @@ void ResourceEditorPlugin::onUndo()
 void ResourceEditorPlugin::onRedo()
 {
     currentEditor()->onRedo();
+}
+
+void ResourceEditorPlugin::onRefresh()
+{
+    currentEditor()->onRefresh();
 }
 
 void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,
