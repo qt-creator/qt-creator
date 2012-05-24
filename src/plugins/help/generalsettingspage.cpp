@@ -97,9 +97,9 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     }
     m_ui->homePageLineEdit->setText(m_homePage);
 
-    const int startOption = manager->customValue(QLatin1String("StartOption"),
+    m_startOption = manager->customValue(QLatin1String("StartOption"),
         Help::Constants::ShowLastPages).toInt();
-    m_ui->helpStartComboBox->setCurrentIndex(startOption);
+    m_ui->helpStartComboBox->setCurrentIndex(m_startOption);
 
     m_contextOption = manager->customValue(QLatin1String("ContextHelpOption"),
         Help::Constants::SideBySideIfPossible).toInt();
@@ -172,10 +172,16 @@ void GeneralSettingsPage::apply()
     if (homePage.isEmpty())
         homePage = Help::Constants::AboutBlank;
     m_ui->homePageLineEdit->setText(homePage);
-    manager->setCustomValue(QLatin1String("HomePage"), homePage);
+    if (m_homePage != homePage) {
+        m_homePage = homePage;
+        manager->setCustomValue(QLatin1String("HomePage"), homePage);
+    }
 
     const int startOption = m_ui->helpStartComboBox->currentIndex();
-    manager->setCustomValue(QLatin1String("StartOption"), startOption);
+    if (m_startOption != startOption) {
+        m_startOption = startOption;
+        manager->setCustomValue(QLatin1String("StartOption"), startOption);
+    }
 
     const int helpOption = m_ui->contextHelpComboBox->currentIndex();
     if (m_contextOption != helpOption) {

@@ -79,6 +79,7 @@ private:
     QString m_homePage;
     int m_contextOption;
 
+    int m_startOption;
     bool m_returnOnClose;
 
     QString m_searchKeywords;
