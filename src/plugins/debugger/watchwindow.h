@@ -58,7 +58,7 @@ public:
 
 public slots:
     void watchExpression(const QString &exp);
-    void removeWatchExpression(const QString &exp);
+    void removeWatch(const QByteArray &iname);
     void handleItemIsExpanded(const QModelIndex &idx);
 
 private:

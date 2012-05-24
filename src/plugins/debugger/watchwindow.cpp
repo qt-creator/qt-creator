@@ -131,7 +131,7 @@ public:
         const QString exp = index.data(LocalsExpressionRole).toString();
         if (exp == value)
             return;
-        m_watchWindow->removeWatchExpression(exp);
+        m_watchWindow->removeWatch(index.data(LocalsINameRole).toByteArray());
         m_watchWindow->watchExpression(value);
     }
 
@@ -515,13 +515,10 @@ void WatchTreeView::keyPressEvent(QKeyEvent *ev)
         QModelIndexList indices = selectionModel()->selectedRows();
         if (indices.isEmpty() && selectionModel()->currentIndex().isValid())
             indices.append(selectionModel()->currentIndex());
-        QStringList exps;
         foreach (const QModelIndex &idx, indices) {
-            QModelIndex idx1 = idx.sibling(idx.row(), 0);
-            exps.append(idx1.data(LocalsRawExpressionRole).toString());
+            const QByteArray iname = idx.data(LocalsINameRole).toByteArray();
+            removeWatch(iname);
         }
-        foreach (const QString &exp, exps)
-            removeWatchExpression(exp);
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
             && m_type == LocalsType) {
@@ -780,8 +777,12 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     // Can remove watch if engine can handle it or session engine.
     QModelIndex p = mi0;
-    while (p.parent().isValid())
-        p = p.parent();
+    while (true) {
+        QModelIndex pp = p.parent();
+        if (!pp.isValid() || !pp.parent().isValid())
+            break;
+        p = pp;
+    }
     QString removeExp = p.data(LocalsExpressionRole).toString();
     QAction *actRemoveWatchExpression = new QAction(removeWatchActionText(removeExp), &menu);
     actRemoveWatchExpression->setEnabled(
@@ -923,7 +924,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actWatchExpression) {
         watchExpression(exp);
     } else if (act == actRemoveWatchExpression) {
-        removeWatchExpression(removeExp);
+        removeWatch(p.data(LocalsINameRole).toByteArray());
     } else if (act == actCopy) {
         copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
     } else if (act == actEditTypeFormats) {
@@ -1042,9 +1043,9 @@ void WatchTreeView::watchExpression(const QString &exp)
     currentEngine()->watchHandler()->watchExpression(exp);
 }
 
-void WatchTreeView::removeWatchExpression(const QString &exp)
+void WatchTreeView::removeWatch(const QByteArray &iname)
 {
-    currentEngine()->watchHandler()->removeWatchExpression(exp);
+    currentEngine()->watchHandler()->removeData(iname);
 }
 
 void WatchTreeView::setModelData

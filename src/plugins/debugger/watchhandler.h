@@ -89,7 +89,6 @@ public:
 
     void cleanup();
     void watchExpression(const QString &exp);
-    void removeWatchExpression(const QString &exp);
     Q_SLOT void clearWatches();
 
     void updateWatchers(); // Called after locals are fetched

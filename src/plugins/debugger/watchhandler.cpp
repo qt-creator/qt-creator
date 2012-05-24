@@ -1609,6 +1609,7 @@ void WatchHandler::insertData(const QList<WatchData> &list)
 void WatchHandler::removeAllData()
 {
     m_model->reinitialize();
+    updateWatchersWindow();
 }
 
 void WatchHandler::removeData(const QByteArray &iname)
@@ -1616,6 +1617,7 @@ void WatchHandler::removeData(const QByteArray &iname)
     WatchItem *item = m_model->findItem(iname);
     if (item)
         m_model->destroyItem(item);
+    updateWatchersWindow();
 }
 
 void WatchHandler::removeChildren(const QByteArray &iname)
@@ -1623,6 +1625,7 @@ void WatchHandler::removeChildren(const QByteArray &iname)
     WatchItem *item = m_model->findItem(iname);
     if (item)
         m_model->destroyChildren(item);
+    updateWatchersWindow();
 }
 
 QByteArray WatchHandler::watcherName(const QByteArray &exp)
@@ -1764,22 +1767,6 @@ void WatchHandler::clearWatches()
     m_watcherCounter = 0;
     updateWatchersWindow();
     saveWatchers();
-}
-
-void WatchHandler::removeWatchExpression(const QString &exp0)
-{
-    QByteArray exp = exp0.toLatin1();
-    MODEL_DEBUG("REMOVE WATCH: " << exp);
-    theWatcherNames.remove(exp);
-
-    foreach (WatchItem *item, m_model->m_watchRoot->children) {
-        if (item->exp == exp) {
-            m_model->destroyItem(item);
-            saveWatchers();
-            updateWatchersWindow();
-            break;
-        }
-    }
 }
 
 void WatchHandler::updateWatchersWindow()
