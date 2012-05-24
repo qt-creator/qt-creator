@@ -464,7 +464,7 @@ BinEditorPlugin::~BinEditorPlugin()
 QAction *BinEditorPlugin::registerNewAction(const QString &id, const QString &title)
 {
     QAction *result = new QAction(title, this);
-    Core::ICore::actionManager()->registerAction(result, Core::Id(id), m_context);
+    Core::ActionManager::registerAction(result, Core::Id(id), m_context);
     return result;
 }
 

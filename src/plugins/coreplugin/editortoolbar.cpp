@@ -200,12 +200,11 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
             this, SIGNAL(closeSplitClicked()), Qt::QueuedConnection);
 
 
-    ActionManager *am = ICore::actionManager();
-    connect(am->command(Constants::CLOSE), SIGNAL(keySequenceChanged()),
+    connect(ActionManager::command(Constants::CLOSE), SIGNAL(keySequenceChanged()),
             this, SLOT(updateActionShortcuts()));
-    connect(am->command(Constants::GO_BACK), SIGNAL(keySequenceChanged()),
+    connect(ActionManager::command(Constants::GO_BACK), SIGNAL(keySequenceChanged()),
             this, SLOT(updateActionShortcuts()));
-    connect(am->command(Constants::GO_FORWARD), SIGNAL(keySequenceChanged()),
+    connect(ActionManager::command(Constants::GO_FORWARD), SIGNAL(keySequenceChanged()),
             this, SLOT(updateActionShortcuts()));
 
     updateActionShortcuts();
@@ -362,11 +361,10 @@ void EditorToolBar::setCanGoForward(bool canGoForward)
 
 void EditorToolBar::updateActionShortcuts()
 {
-    ActionManager *am = ICore::actionManager();
-    d->m_closeEditorButton->setToolTip(am->command(Constants::CLOSE)->stringWithAppendedShortcut(EditorManager::tr("Close Document")));
-    d->m_goBackAction->setToolTip(am->command(Constants::GO_BACK)->action()->toolTip());
-    d->m_goForwardAction->setToolTip(am->command(Constants::GO_FORWARD)->action()->toolTip());
-    d->m_closeSplitButton->setToolTip(am->command(Constants::REMOVE_CURRENT_SPLIT)->stringWithAppendedShortcut(tr("Remove Split")));
+    d->m_closeEditorButton->setToolTip(ActionManager::command(Constants::CLOSE)->stringWithAppendedShortcut(EditorManager::tr("Close Document")));
+    d->m_goBackAction->setToolTip(ActionManager::command(Constants::GO_BACK)->action()->toolTip());
+    d->m_goForwardAction->setToolTip(ActionManager::command(Constants::GO_FORWARD)->action()->toolTip());
+    d->m_closeSplitButton->setToolTip(ActionManager::command(Constants::REMOVE_CURRENT_SPLIT)->stringWithAppendedShortcut(tr("Remove Split")));
 }
 
 void EditorToolBar::checkEditorStatus()

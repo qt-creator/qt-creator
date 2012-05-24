@@ -39,18 +39,17 @@ bool %PluginName%Plugin::initialize(const QStringList &arguments, QString *error
 
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
-    Core::ActionManager *am = Core::ICore::actionManager();
 
     QAction *action = new QAction(tr("%PluginName% action"), this);
-    Core::Command *cmd = am->registerAction(action, Constants::ACTION_ID,
+    Core::Command *cmd = Core::ActionManager::registerAction(action, Constants::ACTION_ID,
                          Core::Context(Core::Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Meta+A")));
     connect(action, SIGNAL(triggered()), this, SLOT(triggerAction()));
 
-    Core::ActionContainer *menu = am->createMenu(Constants::MENU_ID);
+    Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
     menu->menu()->setTitle(tr("%PluginName%"));
     menu->addAction(cmd);
-    am->actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+    Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
     return true;
 }

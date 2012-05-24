@@ -57,20 +57,19 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
             TextEditorActionHandler::UnCommentSelection
             | TextEditorActionHandler::JumpToFileUnderCursor);
 
-    ActionManager *am = ICore::actionManager();
-    ActionContainer *contextMenu = am->createMenu(Constants::M_CONTEXT);
+    ActionContainer *contextMenu = Core::ActionManager::createMenu(Constants::M_CONTEXT);
     Command *cmd;
     Context cmakeEditorContext = Context(Constants::C_CMAKEEDITOR);
 
-    cmd = am->command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
+    cmd = Core::ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
     contextMenu->addAction(cmd);
 
     QAction *separator = new QAction(this);
     separator->setSeparator(true);
-    contextMenu->addAction(am->registerAction(separator,
+    contextMenu->addAction(Core::ActionManager::registerAction(separator,
                   Id(Constants::SEPARATOR), cmakeEditorContext));
 
-    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    cmd = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 }
 

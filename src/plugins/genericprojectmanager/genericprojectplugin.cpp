@@ -95,11 +95,10 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     addAutoReleasedObject(new GenericTargetFactory);
 
     const Core::Context projectContext(Constants::PROJECTCONTEXT);
-    Core::ActionManager *am = Core::ICore::actionManager();
     Core::ActionContainer *mproject =
-            am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
     m_editFilesAction = new QAction(tr("Edit Files..."), this);
-    Core::Command *command = am->registerAction(m_editFilesAction, Constants::EDITFILESACTION, projectContext);
+    Core::Command *command = Core::ActionManager::registerAction(m_editFilesAction, Constants::EDITFILESACTION, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
     connect(m_editFilesAction, SIGNAL(triggered()), this, SLOT(editFiles()));

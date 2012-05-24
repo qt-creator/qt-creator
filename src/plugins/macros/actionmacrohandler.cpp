@@ -64,12 +64,11 @@ ActionMacroHandler::ActionMacroHandler():
     connect(m_mapper, SIGNAL(mapped(QString)),
             this, SLOT(addActionEvent(QString)));
 
-    const Core::ActionManager *am = Core::ICore::actionManager();
-    connect(am, SIGNAL(commandAdded(QString)),
+    connect(Core::ActionManager::instance(), SIGNAL(commandAdded(QString)),
             this, SLOT(addCommand(QString)));
 
     // Register all existing scriptable actions
-    QList<Core::Command *> commands = am->commands();
+    QList<Core::Command *> commands = Core::ActionManager::commands();
     foreach (Core::Command *command, commands) {
         if (command->isScriptable()) {
             QString id = command->id().toString();
@@ -85,9 +84,7 @@ bool ActionMacroHandler::canExecuteEvent(const MacroEvent &macroEvent)
 
 bool ActionMacroHandler::executeEvent(const MacroEvent &macroEvent)
 {
-    const Core::ActionManager *am = Core::ICore::actionManager();
-
-    QAction *action = am->command(Core::Id(macroEvent.value(ACTIONNAME).toString()))->action();
+    QAction *action = Core::ActionManager::command(Core::Id(macroEvent.value(ACTIONNAME).toString()))->action();
     if (!action)
         return false;
 
@@ -100,8 +97,7 @@ void ActionMacroHandler::addActionEvent(const QString &id)
     if (!isRecording())
         return;
 
-    const Core::ActionManager *am = Core::ICore::actionManager();
-    const Core::Command *cmd = am->command(Core::Id(id));
+    const Core::Command *cmd = Core::ActionManager::command(Core::Id(id));
     if (cmd->isScriptable(cmd->context())) {
         MacroEvent e;
         e.setId(EVENTNAME);
@@ -114,14 +110,13 @@ void ActionMacroHandler::registerCommand(const QString &id)
 {
     if (!m_commandIds.contains(id)) {
         m_commandIds.insert(id);
-        const Core::ActionManager *am = Core::ICore::actionManager();
-        QAction* action = am->command(Core::Id(id))->action();
+        QAction* action = Core::ActionManager::command(Core::Id(id))->action();
         if (action) {
             connect(action, SIGNAL(triggered()), m_mapper, SLOT(map()));
             m_mapper->setMapping(action, id);
             return;
         }
-        QShortcut* shortcut = am->command(Core::Id(id))->shortcut();
+        QShortcut* shortcut = Core::ActionManager::command(Core::Id(id))->shortcut();
         if (shortcut) {
             connect(shortcut, SIGNAL(activated()), m_mapper, SLOT(map()));
             m_mapper->setMapping(shortcut, id);
@@ -131,7 +126,6 @@ void ActionMacroHandler::registerCommand(const QString &id)
 
 void ActionMacroHandler::addCommand(const QString &id)
 {
-    const Core::ActionManager *am = Core::ICore::actionManager();
-    if (am->command(Core::Id(id))->isScriptable())
+    if (Core::ActionManager::command(Core::Id(id))->isScriptable())
         registerCommand(id);
 }

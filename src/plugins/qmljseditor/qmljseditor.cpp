@@ -1236,7 +1236,7 @@ void QmlJSTextEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     refactoringMenu->setEnabled(!refactoringMenu->isEmpty());
 
-    if (Core::ActionContainer *mcontext = Core::ICore::actionManager()->actionContainer(QmlJSEditor::Constants::M_CONTEXT)) {
+    if (Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(QmlJSEditor::Constants::M_CONTEXT)) {
         QMenu *contextMenu = mcontext->menu();
         foreach (QAction *action, contextMenu->actions()) {
             menu->addAction(action);

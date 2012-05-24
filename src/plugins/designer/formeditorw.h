@@ -147,27 +147,24 @@ private:
 
     void setupActions();
     void setupViewActions();
-    void addDockViewAction(Core::ActionManager *am,
-                           Core::ActionContainer *viewMenu,
+    void addDockViewAction(Core::ActionContainer *viewMenu,
                            int index,
                            const Core::Context &context,
                            const QString &title, const Core::Id &id);
 
-    Core::ActionContainer *createPreviewStyleMenu(Core::ActionManager *am,
-                                                   QActionGroup *actionGroup);
+    Core::ActionContainer *createPreviewStyleMenu(QActionGroup *actionGroup);
 
     void critical(const QString &errorMessage);
     void bindShortcut(Core::Command *command, QAction *action);
     QAction *createEditModeAction(QActionGroup *ag,
                                          const Core::Context &context,
-                                         Core::ActionManager *am,
                                          Core::ActionContainer *medit,
                                          const QString &actionName,
                                          const Core::Id &id,
                                          int toolNumber,
                                          const QString &iconName = QString(),
                                          const QString &keySequence = QString());
-    Core::Command *addToolAction(QAction *a, Core::ActionManager *am,
+    Core::Command *addToolAction(QAction *a,
                                  const Core::Context &context, const Core::Id &id,
                                  Core::ActionContainer *c1, const QString &keySequence = QString());
     QToolBar *createEditorToolBar() const;

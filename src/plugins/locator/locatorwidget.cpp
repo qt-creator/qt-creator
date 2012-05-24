@@ -316,7 +316,6 @@ void LocatorWidget::updateFilterList()
     m_filterMenu->clear();
 
     // update actions and menu
-    Core::ActionManager *am = Core::ICore::actionManager();
     QMap<QString, QAction *> actionCopy = m_filterActionMap;
     m_filterActionMap.clear();
     // register new actions, update existent
@@ -329,7 +328,7 @@ void LocatorWidget::updateFilterList()
         if (!actionCopy.contains(filter->id())) {
             // register new action
             action = new QAction(filter->displayName(), this);
-            cmd = am->registerAction(action, locatorId,
+            cmd = Core::ActionManager::registerAction(action, locatorId,
                                Core::Context(Core::Constants::C_GLOBAL));
             cmd->setAttribute(Core::Command::CA_UpdateText);
             connect(action, SIGNAL(triggered()), this, SLOT(filterSelected()));
@@ -337,7 +336,7 @@ void LocatorWidget::updateFilterList()
         } else {
             action = actionCopy.take(filter->id());
             action->setText(filter->displayName());
-            cmd = am->command(locatorId);
+            cmd = Core::ActionManager::command(locatorId);
         }
         m_filterActionMap.insert(filter->id(), action);
         m_filterMenu->addAction(cmd->action());
@@ -345,7 +344,7 @@ void LocatorWidget::updateFilterList()
 
     // unregister actions that are deleted now
     foreach (const QString &id, actionCopy.keys()) {
-        am->unregisterAction(actionCopy.value(id), Core::Id(QLatin1String("Locator.") + id));
+        Core::ActionManager::unregisterAction(actionCopy.value(id), Core::Id(QLatin1String("Locator.") + id));
     }
     qDeleteAll(actionCopy);
 

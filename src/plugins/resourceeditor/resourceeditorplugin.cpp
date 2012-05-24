@@ -92,9 +92,8 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     const Core::Context context(Constants::C_RESOURCEEDITOR);
     m_undoAction = new QAction(tr("&Undo"), this);
     m_redoAction = new QAction(tr("&Redo"), this);
-    Core::ActionManager * const actionManager = Core::ICore::actionManager();
-    actionManager->registerAction(m_undoAction, Core::Constants::UNDO, context);
-    actionManager->registerAction(m_redoAction, Core::Constants::REDO, context);
+    Core::ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
+    Core::ActionManager::registerAction(m_redoAction, Core::Constants::REDO, context);
     connect(m_undoAction, SIGNAL(triggered()), this, SLOT(onUndo()));
     connect(m_redoAction, SIGNAL(triggered()), this, SLOT(onRedo()));
 

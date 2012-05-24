@@ -181,14 +181,13 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     addAutoReleasedObject(m_lineNumberFilter);
 
     Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
-    Core::ActionManager *am = Core::ICore::actionManager();
 
     // Add shortcut for invoking automatic completion
     QShortcut *completionShortcut = new QShortcut(Core::ICore::mainWindow());
     completionShortcut->setWhatsThis(tr("Triggers a completion in this scope"));
     // Make sure the shortcut still works when the completion widget is active
     completionShortcut->setContext(Qt::ApplicationShortcut);
-    Core::Command *command = am->registerShortcut(completionShortcut, Constants::COMPLETE_THIS, context);
+    Core::Command *command = Core::ActionManager::registerShortcut(completionShortcut, Constants::COMPLETE_THIS, context);
     command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
     connect(completionShortcut, SIGNAL(activated()), this, SLOT(invokeCompletion()));
 
@@ -197,7 +196,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     quickFixShortcut->setWhatsThis(tr("Triggers a quick fix in this scope"));
     // Make sure the shortcut still works when the quick fix widget is active
     quickFixShortcut->setContext(Qt::ApplicationShortcut);
-    Core::Command *quickFixCommand = am->registerShortcut(quickFixShortcut, Constants::QUICKFIX_THIS, context);
+    Core::Command *quickFixCommand = Core::ActionManager::registerShortcut(quickFixShortcut, Constants::QUICKFIX_THIS, context);
     quickFixCommand->setDefaultKeySequence(QKeySequence(tr("Alt+Return")));
     connect(quickFixShortcut, SIGNAL(activated()), this, SLOT(invokeQuickFix()));
 

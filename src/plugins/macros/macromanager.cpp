@@ -163,11 +163,10 @@ void MacroManager::MacroManagerPrivate::addMacro(Macro *macro)
 {
     // Add sortcut
     Core::Context context(TextEditor::Constants::C_TEXTEDITOR);
-    Core::ActionManager *am = Core::ICore::actionManager();
     QShortcut *shortcut = new QShortcut(Core::ICore::mainWindow());
     shortcut->setWhatsThis(macro->description());
     const Core::Id macroId(QLatin1String(Constants::PREFIX_MACRO) + macro->displayName());
-    am->registerShortcut(shortcut, macroId, context);
+    Core::ActionManager::registerShortcut(shortcut, macroId, context);
     connect(shortcut, SIGNAL(activated()), mapper, SLOT(map()));
     mapper->setMapping(shortcut, macro->displayName());
 
@@ -180,8 +179,7 @@ void MacroManager::MacroManagerPrivate::removeMacro(const QString &name)
     if (!macros.contains(name))
         return;
     // Remove shortcut
-    Core::ActionManager *am = Core::ICore::actionManager();
-    am->unregisterShortcut(Core::Id(Constants::PREFIX_MACRO+name));
+    Core::ActionManager::unregisterShortcut(Core::Id(Constants::PREFIX_MACRO+name));
 
     // Remove macro from the map
     Macro *macro = macros.take(name);
@@ -196,9 +194,7 @@ void MacroManager::MacroManagerPrivate::changeMacroDescription(Macro *macro, con
     macro->save(macro->fileName(), Core::ICore::mainWindow());
 
     // Change shortcut what's this
-    Core::ActionManager *am = Core::ICore::actionManager();
-
-    Core::Command *command = am->command(Core::Id(Constants::PREFIX_MACRO+macro->displayName()));
+    Core::Command *command = Core::ActionManager::command(Core::Id(Constants::PREFIX_MACRO+macro->displayName()));
     if (command && command->shortcut())
         command->shortcut()->setWhatsThis(description);
 }
@@ -284,16 +280,15 @@ void MacroManager::startMacro()
         delete d->currentMacro;
     d->currentMacro = new Macro;
 
-    Core::ActionManager *am = Core::ICore::actionManager();
-    am->command(Constants::START_MACRO)->action()->setEnabled(false);
-    am->command(Constants::END_MACRO)->action()->setEnabled(true);
-    am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(false);
-    am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(false);
+    Core::ActionManager::command(Constants::START_MACRO)->action()->setEnabled(false);
+    Core::ActionManager::command(Constants::END_MACRO)->action()->setEnabled(true);
+    Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(false);
+    Core::ActionManager::command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(false);
     foreach (IMacroHandler *handler, d->handlers)
         handler->startRecording(d->currentMacro);
 
-    QString endShortcut = am->command(Constants::END_MACRO)->defaultKeySequence().toString();
-    QString executeShortcut = am->command(Constants::EXECUTE_LAST_MACRO)->defaultKeySequence().toString();
+    QString endShortcut = Core::ActionManager::command(Constants::END_MACRO)->defaultKeySequence().toString();
+    QString executeShortcut = Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->defaultKeySequence().toString();
     QString help = tr("Macro mode. Type \"%1\" to stop recording and \"%2\" to play it")
         .arg(endShortcut).arg(executeShortcut);
     Core::EditorManager::instance()->showEditorStatusBar(
@@ -306,11 +301,10 @@ void MacroManager::endMacro()
 {
     Core::EditorManager::instance()->hideEditorStatusBar(QLatin1String(Constants::M_STATUS_BUFFER));
 
-    Core::ActionManager *am = Core::ICore::actionManager();
-    am->command(Constants::START_MACRO)->action()->setEnabled(true);
-    am->command(Constants::END_MACRO)->action()->setEnabled(false);
-    am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(true);
-    am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
+    Core::ActionManager::command(Constants::START_MACRO)->action()->setEnabled(true);
+    Core::ActionManager::command(Constants::END_MACRO)->action()->setEnabled(false);
+    Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(true);
+    Core::ActionManager::command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
     foreach (IMacroHandler *handler, d->handlers)
         handler->endRecordingMacro(d->currentMacro);
 
@@ -323,18 +317,17 @@ void MacroManager::executeLastMacro()
         return;
 
     // make sure the macro doesn't accidentally invoke a macro action
-    Core::ActionManager *am = Core::ICore::actionManager();
-    am->command(Constants::START_MACRO)->action()->setEnabled(false);
-    am->command(Constants::END_MACRO)->action()->setEnabled(false);
-    am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(false);
-    am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(false);
+    Core::ActionManager::command(Constants::START_MACRO)->action()->setEnabled(false);
+    Core::ActionManager::command(Constants::END_MACRO)->action()->setEnabled(false);
+    Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(false);
+    Core::ActionManager::command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(false);
 
     d->executeMacro(d->currentMacro);
 
-    am->command(Constants::START_MACRO)->action()->setEnabled(true);
-    am->command(Constants::END_MACRO)->action()->setEnabled(false);
-    am->command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(true);
-    am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
+    Core::ActionManager::command(Constants::START_MACRO)->action()->setEnabled(true);
+    Core::ActionManager::command(Constants::END_MACRO)->action()->setEnabled(false);
+    Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->action()->setEnabled(true);
+    Core::ActionManager::command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
 }
 
 bool MacroManager::executeMacro(const QString &name)
@@ -352,8 +345,7 @@ bool MacroManager::executeMacro(const QString &name)
         delete d->currentMacro;
     d->currentMacro = macro;
 
-    Core::ActionManager *am = Core::ICore::actionManager();
-    am->command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
+    Core::ActionManager::command(Constants::SAVE_LAST_MACRO)->action()->setEnabled(true);
 
     return true;
 }

@@ -160,37 +160,36 @@ bool CodepasterPlugin::initialize(const QStringList &arguments, QString *errorMe
             this, SLOT(finishFetch(QString,QString,bool)));
 
     //register actions
-    Core::ActionManager *actionManager = ICore::actionManager();
 
     Core::ActionContainer *toolsContainer =
-        actionManager->actionContainer(Core::Constants::M_TOOLS);
+        Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
     Core::ActionContainer *cpContainer =
-        actionManager->createMenu(Core::Id("CodePaster"));
+        Core::ActionManager::createMenu(Core::Id("CodePaster"));
     cpContainer->menu()->setTitle(tr("&Code Pasting"));
     toolsContainer->addMenu(cpContainer);
 
     Core::Command *command;
 
     m_postEditorAction = new QAction(tr("Paste Snippet..."), this);
-    command = actionManager->registerAction(m_postEditorAction, "CodePaster.Post", globalcontext);
+    command = Core::ActionManager::registerAction(m_postEditorAction, "CodePaster.Post", globalcontext);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+P") : tr("Alt+C,Alt+P")));
     connect(m_postEditorAction, SIGNAL(triggered()), this, SLOT(postEditor()));
     cpContainer->addAction(command);
 
     m_postClipboardAction = new QAction(tr("Paste Clipboard..."), this);
-    command = actionManager->registerAction(m_postClipboardAction, "CodePaster.PostClipboard", globalcontext);
+    command = Core::ActionManager::registerAction(m_postClipboardAction, "CodePaster.PostClipboard", globalcontext);
     connect(m_postClipboardAction, SIGNAL(triggered()), this, SLOT(postClipboard()));
     cpContainer->addAction(command);
 
     m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
-    command = actionManager->registerAction(m_fetchAction, "CodePaster.Fetch", globalcontext);
+    command = Core::ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch", globalcontext);
     command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+C,Meta+F") : tr("Alt+C,Alt+F")));
     connect(m_fetchAction, SIGNAL(triggered()), this, SLOT(fetch()));
     cpContainer->addAction(command);
 
     m_fetchUrlAction = new QAction(tr("Fetch from URL..."), this);
-    command = actionManager->registerAction(m_fetchUrlAction, "CodePaster.FetchUrl", globalcontext);
+    command = Core::ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl", globalcontext);
     connect(m_fetchUrlAction, SIGNAL(triggered()), this, SLOT(fetchUrl()));
     cpContainer->addAction(command);
 

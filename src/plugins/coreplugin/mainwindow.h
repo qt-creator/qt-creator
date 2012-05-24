@@ -124,9 +124,6 @@ public:
 
     void setOverrideColor(const QColor &color);
 
-    bool isPresentationModeEnabled();
-    void setPresentationModeEnabled(bool);
-
 #ifdef Q_OS_MAC
     void setIsFullScreen(bool fullScreen);
 #endif
@@ -189,7 +186,7 @@ private:
     QSettings *m_globalSettings;
     SettingsDatabase *m_settingsDatabase;
     mutable QPrinter *m_printer;
-    ActionManagerPrivate *m_actionManager;
+    ActionManager *m_actionManager;
     EditorManager *m_editorManager;
     ExternalToolManager *m_externalToolManager;
     MessageManager *m_messageManager;

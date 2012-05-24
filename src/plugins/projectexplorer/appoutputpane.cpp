@@ -133,7 +133,6 @@ AppOutputPane::AppOutputPane() :
             this, SLOT(reRunRunControl()));
 
     // Stop
-    Core::ActionManager *am = Core::ICore::actionManager();
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
     QIcon stopIcon = QIcon(QLatin1String(Constants::ICON_STOP));
@@ -142,7 +141,7 @@ AppOutputPane::AppOutputPane() :
     m_stopAction->setToolTip(tr("Stop"));
     m_stopAction->setEnabled(false);
 
-    Core::Command *cmd = am->registerAction(m_stopAction, Constants::STOP, globalcontext);
+    Core::Command *cmd = Core::ActionManager::registerAction(m_stopAction, Constants::STOP, globalcontext);
 
     m_stopButton->setDefaultAction(cmd->action());
     m_stopButton->setAutoRaise(true);

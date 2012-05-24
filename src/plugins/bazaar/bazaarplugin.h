@@ -139,7 +139,6 @@ private:
     BazaarClient *m_client;
 
     Locator::CommandLocator *m_commandLocator;
-    Core::ActionManager *m_actionManager;
     Core::ActionContainer *m_bazaarContainer;
 
     QList<QAction *> m_repositoryActionList;

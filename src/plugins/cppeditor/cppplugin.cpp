@@ -124,14 +124,13 @@ QStringList CppEditorFactory::mimeTypes() const
 ///////////////////////////////// CppPlugin //////////////////////////////////
 
 static inline
-Core::Command *createSeparator(Core::ActionManager *am,
-                               QObject *parent,
+Core::Command *createSeparator(QObject *parent,
                                Core::Context &context,
                                const char *id)
 {
     QAction *separator = new QAction(parent);
     separator->setSeparator(true);
-    return am->registerAction(separator, Core::Id(id), context);
+    return Core::ActionManager::registerAction(separator, Core::Id(id), context);
 }
 
 CppPlugin *CppPlugin::m_instance = 0;
@@ -227,21 +226,20 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     Core::Context context(CppEditor::Constants::C_CPPEDITOR);
 
-    Core::ActionManager *am = Core::ICore::actionManager();
-    Core::ActionContainer *contextMenu= am->createMenu(CppEditor::Constants::M_CONTEXT);
+    Core::ActionContainer *contextMenu= Core::ActionManager::createMenu(CppEditor::Constants::M_CONTEXT);
 
     Core::Command *cmd;
-    Core::ActionContainer *cppToolsMenu = am->actionContainer(Core::Id(CppTools::Constants::M_TOOLS_CPP));
+    Core::ActionContainer *cppToolsMenu = Core::ActionManager::actionContainer(Core::Id(CppTools::Constants::M_TOOLS_CPP));
 
-    cmd = am->command(Core::Id(CppTools::Constants::SWITCH_HEADER_SOURCE));
+    cmd = Core::ActionManager::command(Core::Id(CppTools::Constants::SWITCH_HEADER_SOURCE));
     contextMenu->addAction(cmd);
 
-    cmd = am->command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
+    cmd = Core::ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
     QAction *switchDeclarationDefinition = new QAction(tr("Switch Between Method Declaration/Definition"), this);
-    cmd = am->registerAction(switchDeclarationDefinition,
+    cmd = Core::ActionManager::registerAction(switchDeclarationDefinition,
         Constants::SWITCH_DECLARATION_DEFINITION, context, true);
     cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F2")));
     connect(switchDeclarationDefinition, SIGNAL(triggered()),
@@ -250,14 +248,14 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cppToolsMenu->addAction(cmd);
 
     m_findUsagesAction = new QAction(tr("Find Usages"), this);
-    cmd = am->registerAction(m_findUsagesAction, Constants::FIND_USAGES, context);
+    cmd = Core::ActionManager::registerAction(m_findUsagesAction, Constants::FIND_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
     connect(m_findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
     m_openTypeHierarchyAction = new QAction(tr("Open Type Hierarchy"), this);
-    cmd = am->registerAction(m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);
+    cmd = Core::ActionManager::registerAction(m_openTypeHierarchyAction, Constants::OPEN_TYPE_HIERARCHY, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+T")));
     connect(m_openTypeHierarchyAction, SIGNAL(triggered()), this, SLOT(openTypeHierarchy()));
     contextMenu->addAction(cmd);
@@ -265,16 +263,16 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     // Refactoring sub-menu
     Core::Context globalContext(Core::Constants::C_GLOBAL);
-    Core::Command *sep = createSeparator(am, this, globalContext,
+    Core::Command *sep = createSeparator(this, globalContext,
                                          Constants::SEPARATOR2);
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
     contextMenu->addAction(sep);
-    contextMenu->addAction(createSeparator(am, this, globalContext,
+    contextMenu->addAction(createSeparator(this, globalContext,
                                            Constants::SEPARATOR3));
 
     m_renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol Under Cursor"),
                                                   this);
-    cmd = am->registerAction(m_renameSymbolUnderCursorAction,
+    cmd = Core::ActionManager::registerAction(m_renameSymbolUnderCursorAction,
                              Constants::RENAME_SYMBOL_UNDER_CURSOR,
                              context);
     cmd->setDefaultKeySequence(QKeySequence(tr("CTRL+SHIFT+R")));
@@ -283,9 +281,9 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cppToolsMenu->addAction(cmd);
 
     // Update context in global context
-    cppToolsMenu->addAction(createSeparator(am, this, globalContext, CppEditor::Constants::SEPARATOR4));
+    cppToolsMenu->addAction(createSeparator(this, globalContext, CppEditor::Constants::SEPARATOR4));
     m_updateCodeModelAction = new QAction(tr("Update Code Model"), this);
-    cmd = am->registerAction(m_updateCodeModelAction, Core::Id(Constants::UPDATE_CODEMODEL), globalContext);
+    cmd = Core::ActionManager::registerAction(m_updateCodeModelAction, Core::Id(Constants::UPDATE_CODEMODEL), globalContext);
     CPlusPlus::CppModelManagerInterface *cppModelManager = CPlusPlus::CppModelManagerInterface::instance();
     connect(m_updateCodeModelAction, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);
@@ -298,12 +296,12 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     m_actionHandler->initializeActions();
 
-    contextMenu->addAction(createSeparator(am, this, context, CppEditor::Constants::SEPARATOR));
+    contextMenu->addAction(createSeparator(this, context, CppEditor::Constants::SEPARATOR));
 
-    cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
+    cmd = Core::ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    cmd = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
     connect(Core::ICore::progressManager(), SIGNAL(taskStarted(QString)),

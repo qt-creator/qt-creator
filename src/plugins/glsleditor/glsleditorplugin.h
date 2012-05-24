@@ -109,7 +109,7 @@ private:
     void parseGlslFile(const QString &fileName, InitFile *initFile) const;
 
     // FIXME: Unused?
-    Core::Command *addToolAction(QAction *a, Core::ActionManager *am, Core::Context &context, const Core::Id &name,
+    Core::Command *addToolAction(QAction *a, Core::Context &context, const Core::Id &name,
                                  Core::ActionContainer *c1, const QString &keySequence);
 
     static GLSLEditorPlugin *m_instance;

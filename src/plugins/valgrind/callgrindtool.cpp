@@ -538,26 +538,24 @@ IAnalyzerTool::ToolMode CallgrindTool::toolMode() const
 
 void CallgrindTool::extensionsInitialized()
 {
-    Core::ActionManager *actionManager = Core::ICore::actionManager();
-
     Core::Context analyzerContext = Core::Context(Analyzer::Constants::C_ANALYZEMODE);
 
     // check if there is a CppEditor context menu, if true, add our own context menu actions
     if (Core::ActionContainer *editorContextMenu =
-            actionManager->actionContainer(CppEditor::Constants::M_CONTEXT)) {
+            Core::ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT)) {
         QAction *action = 0;
         Core::Command *cmd = 0;
 
         action = new QAction(this);
         action->setSeparator(true);
-        cmd = actionManager->registerAction(action, "Analyzer.Callgrind.ContextMenu.Sep",
+        cmd = Core::ActionManager::registerAction(action, "Analyzer.Callgrind.ContextMenu.Sep",
             analyzerContext);
         editorContextMenu->addAction(cmd);
 
         action = new QAction(tr("Profile Costs of this Function and its Callees"), this);
         action->setIcon(QIcon(Analyzer::Constants::ANALYZER_CONTROL_START_ICON));
         connect(action, SIGNAL(triggered()), d, SLOT(handleShowCostsOfFunction()));
-        cmd = actionManager->registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",
+        cmd = Core::ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",
             analyzerContext);
         editorContextMenu->addAction(cmd);
         cmd->setAttribute(Core::Command::CA_Hide);

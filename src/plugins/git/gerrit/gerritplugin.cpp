@@ -346,11 +346,10 @@ bool GerritPlugin::initialize(Core::ActionContainer *ac)
 {
     m_parameters->fromSettings(Core::ICore::instance()->settings());
 
-    Core::ActionManager *am = Core::ICore::instance()->actionManager();
     QAction *openViewAction = new QAction(tr("Gerrit..."), this);
 
     Core::Command *command =
-        am->registerAction(openViewAction, Constants::GERRIT_OPEN_VIEW,
+        Core::ActionManager::registerAction(openViewAction, Constants::GERRIT_OPEN_VIEW,
                            Core::Context(Core::Constants::C_GLOBAL));
     connect(openViewAction, SIGNAL(triggered()), this, SLOT(openView()));
     ac->addAction(command);

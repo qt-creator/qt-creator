@@ -31,7 +31,7 @@
 **************************************************************************/
 
 #include "shortcutsettings.h"
-#include "actionmanager_p.h"
+#include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
 #include "command_p.h"
 #include "commandsfile.h"
@@ -61,8 +61,7 @@ using namespace Core::Internal;
 ShortcutSettings::ShortcutSettings(QObject *parent)
     : CommandMappings(parent), m_initialized(false)
 {
-    Core::Internal::ActionManagerPrivate *am = ActionManagerPrivate::instance();
-    connect(am, SIGNAL(commandListChanged()), this, SLOT(initialize()));
+    connect(ActionManager::instance(), SIGNAL(commandListChanged()), this, SLOT(initialize()));
 
     setId(QLatin1String(Core::Constants::SETTINGS_ID_SHORTCUTS));
     setDisplayName(tr("Keyboard"));
@@ -265,10 +264,9 @@ void ShortcutSettings::initialize()
     if (!m_initialized)
         return;
     clear();
-    Core::Internal::ActionManagerPrivate *am = ActionManagerPrivate::instance();
     QMap<QString, QTreeWidgetItem *> sections;
 
-    foreach (Command *c, am->commands()) {
+    foreach (Command *c, ActionManager::instance()->commands()) {
         if (c->hasAttribute(Command::CA_NonConfigurable))
             continue;
         if (c->action() && c->action()->isSeparator())

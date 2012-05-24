@@ -279,7 +279,7 @@ SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
     d->m_expandCollapseAction = new QAction(tr("Expand All"), this);
     d->m_expandCollapseAction->setCheckable(true);
     d->m_expandCollapseAction->setIcon(QIcon(QLatin1String(":/find/images/expand.png")));
-    Core::Command *cmd = Core::ICore::actionManager()->registerAction(
+    Core::Command *cmd = Core::ActionManager::registerAction(
             d->m_expandCollapseAction, "Find.ExpandAll",
             Core::Context(Core::Constants::C_GLOBAL));
     cmd->setAttribute(Core::Command::CA_UpdateText);

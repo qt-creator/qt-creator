@@ -249,13 +249,12 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
 };
 
 static inline Core::Command *createSeparator(QObject *parent,
-                                             Core::ActionManager *ami,
                                              const char*id,
                                              const Core::Context &globalcontext)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
-    return ami->registerAction(tmpaction, id, globalcontext);
+    return Core::ActionManager::registerAction(tmpaction, id, globalcontext);
 }
 
 bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
@@ -294,11 +293,10 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     addAutoReleasedObject(m_commandLocator);
 
     //register actions
-    Core::ActionManager *ami = Core::ICore::actionManager();
-    Core::ActionContainer *toolsContainer = ami->actionContainer(M_TOOLS);
+    Core::ActionContainer *toolsContainer = Core::ActionManager::actionContainer(M_TOOLS);
 
     Core::ActionContainer *subversionMenu =
-        ami->createMenu(Core::Id(CMD_ID_SUBVERSION_MENU));
+        Core::ActionManager::createMenu(Core::Id(CMD_ID_SUBVERSION_MENU));
     subversionMenu->menu()->setTitle(tr("&Subversion"));
     toolsContainer->addMenu(subversionMenu);
     m_menuAction = subversionMenu->menu()->menuAction();
@@ -306,7 +304,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     Core::Command *command;
 
     m_diffCurrentAction = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_diffCurrentAction,
+    command = Core::ActionManager::registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+S,Meta+D") : tr("Alt+S,Alt+D")));
@@ -315,7 +313,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     m_filelogCurrentAction = new Utils::ParameterAction(tr("Filelog Current File"), tr("Filelog \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_filelogCurrentAction,
+    command = Core::ActionManager::registerAction(m_filelogCurrentAction,
         CMD_ID_FILELOG_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_filelogCurrentAction, SIGNAL(triggered()), this,
@@ -324,7 +322,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     m_annotateCurrentAction = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_annotateCurrentAction,
+    command = Core::ActionManager::registerAction(m_annotateCurrentAction,
         CMD_ID_ANNOTATE_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_annotateCurrentAction, SIGNAL(triggered()), this,
@@ -332,10 +330,10 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    subversionMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR0, globalcontext));
+    subversionMenu->addAction(createSeparator(this, CMD_ID_SEPARATOR0, globalcontext));
 
     m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_addAction, CMD_ID_ADD,
+    command = Core::ActionManager::registerAction(m_addAction, CMD_ID_ADD,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+S,Meta+A") : tr("Alt+S,Alt+A")));
@@ -344,7 +342,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     m_commitCurrentAction = new Utils::ParameterAction(tr("Commit Current File"), tr("Commit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_commitCurrentAction,
+    command = Core::ActionManager::registerAction(m_commitCurrentAction,
         CMD_ID_COMMIT_CURRENT, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+S,Meta+C") : tr("Alt+S,Alt+C")));
@@ -353,7 +351,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     m_deleteAction = new Utils::ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
+    command = Core::ActionManager::registerAction(m_deleteAction, CMD_ID_DELETE_FILE,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, SIGNAL(triggered()), this, SLOT(promptToDeleteCurrentFile()));
@@ -361,17 +359,17 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     m_revertAction = new Utils::ParameterAction(tr("Revert..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_revertAction, CMD_ID_REVERT,
+    command = Core::ActionManager::registerAction(m_revertAction, CMD_ID_REVERT,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_revertAction, SIGNAL(triggered()), this, SLOT(revertCurrentFile()));
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    subversionMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR1, globalcontext));
+    subversionMenu->addAction(createSeparator(this, CMD_ID_SEPARATOR1, globalcontext));
 
     m_diffProjectAction = new Utils::ParameterAction(tr("Diff Project"), tr("Diff Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
+    command = Core::ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_diffProjectAction, SIGNAL(triggered()), this, SLOT(diffProject()));
@@ -379,7 +377,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     m_statusProjectAction = new Utils::ParameterAction(tr("Project Status"), tr("Status of Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_statusProjectAction, CMD_ID_STATUS,
+    command = Core::ActionManager::registerAction(m_statusProjectAction, CMD_ID_STATUS,
         globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_statusProjectAction, SIGNAL(triggered()), this, SLOT(projectStatus()));
@@ -387,66 +385,66 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     m_commandLocator->appendCommand(command);
 
     m_logProjectAction = new Utils::ParameterAction(tr("Log Project"), tr("Log Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, globalcontext);
+    command = Core::ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, globalcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_logProjectAction, SIGNAL(triggered()), this, SLOT(logProject()));
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_updateProjectAction = new Utils::ParameterAction(tr("Update Project"), tr("Update Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_updateProjectAction, CMD_ID_UPDATE, globalcontext);
+    command = Core::ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE, globalcontext);
     connect(m_updateProjectAction, SIGNAL(triggered()), this, SLOT(updateProject()));
     command->setAttribute(Core::Command::CA_UpdateText);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_commitProjectAction = new Utils::ParameterAction(tr("Commit Project"), tr("Commit Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = ami->registerAction(m_commitProjectAction, CMD_ID_COMMIT_PROJECT, globalcontext);
+    command = Core::ActionManager::registerAction(m_commitProjectAction, CMD_ID_COMMIT_PROJECT, globalcontext);
     connect(m_commitProjectAction, SIGNAL(triggered()), this, SLOT(startCommitProject()));
     command->setAttribute(Core::Command::CA_UpdateText);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    subversionMenu->addAction(createSeparator(this, ami, CMD_ID_SEPARATOR2, globalcontext));
+    subversionMenu->addAction(createSeparator(this, CMD_ID_SEPARATOR2, globalcontext));
 
     m_diffRepositoryAction = new QAction(tr("Diff Repository"), this);
-    command = ami->registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, globalcontext);
+    command = Core::ActionManager::registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, globalcontext);
     connect(m_diffRepositoryAction, SIGNAL(triggered()), this, SLOT(diffRepository()));
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_statusRepositoryAction = new QAction(tr("Repository Status"), this);
-    command = ami->registerAction(m_statusRepositoryAction, CMD_ID_REPOSITORYSTATUS, globalcontext);
+    command = Core::ActionManager::registerAction(m_statusRepositoryAction, CMD_ID_REPOSITORYSTATUS, globalcontext);
     connect(m_statusRepositoryAction, SIGNAL(triggered()), this, SLOT(statusRepository()));
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_logRepositoryAction = new QAction(tr("Log Repository"), this);
-    command = ami->registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, globalcontext);
+    command = Core::ActionManager::registerAction(m_logRepositoryAction, CMD_ID_REPOSITORYLOG, globalcontext);
     connect(m_logRepositoryAction, SIGNAL(triggered()), this, SLOT(logRepository()));
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_updateRepositoryAction = new QAction(tr("Update Repository"), this);
-    command = ami->registerAction(m_updateRepositoryAction, CMD_ID_REPOSITORYUPDATE, globalcontext);
+    command = Core::ActionManager::registerAction(m_updateRepositoryAction, CMD_ID_REPOSITORYUPDATE, globalcontext);
     connect(m_updateRepositoryAction, SIGNAL(triggered()), this, SLOT(updateRepository()));
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_commitAllAction = new QAction(tr("Commit All Files"), this);
-    command = ami->registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
+    command = Core::ActionManager::registerAction(m_commitAllAction, CMD_ID_COMMIT_ALL,
         globalcontext);
     connect(m_commitAllAction, SIGNAL(triggered()), this, SLOT(startCommitAll()));
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_describeAction = new QAction(tr("Describe..."), this);
-    command = ami->registerAction(m_describeAction, CMD_ID_DESCRIBE, globalcontext);
+    command = Core::ActionManager::registerAction(m_describeAction, CMD_ID_DESCRIBE, globalcontext);
     connect(m_describeAction, SIGNAL(triggered()), this, SLOT(slotDescribe()));
     subversionMenu->addAction(command);
 
     m_revertRepositoryAction = new QAction(tr("Revert Repository..."), this);
-    command = ami->registerAction(m_revertRepositoryAction, CMD_ID_REVERT_ALL,
+    command = Core::ActionManager::registerAction(m_revertRepositoryAction, CMD_ID_REVERT_ALL,
         globalcontext);
     connect(m_revertRepositoryAction, SIGNAL(triggered()), this, SLOT(revertAll()));
     subversionMenu->addAction(command);
@@ -456,18 +454,18 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     Core::Context svncommitcontext(Constants::SUBVERSIONCOMMITEDITOR);
 
     m_submitCurrentLogAction = new QAction(VcsBase::VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);
-    command = ami->registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, svncommitcontext);
+    command = Core::ActionManager::registerAction(m_submitCurrentLogAction, Constants::SUBMIT_CURRENT, svncommitcontext);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_submitCurrentLogAction, SIGNAL(triggered()), this, SLOT(submitCurrentLog()));
 
     m_submitDiffAction = new QAction(VcsBase::VcsBaseSubmitEditor::diffIcon(), tr("Diff &Selected Files"), this);
-    command = ami->registerAction(m_submitDiffAction , Constants::DIFF_SELECTED, svncommitcontext);
+    command = Core::ActionManager::registerAction(m_submitDiffAction , Constants::DIFF_SELECTED, svncommitcontext);
 
     m_submitUndoAction = new QAction(tr("&Undo"), this);
-    command = ami->registerAction(m_submitUndoAction, Core::Constants::UNDO, svncommitcontext);
+    command = Core::ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, svncommitcontext);
 
     m_submitRedoAction = new QAction(tr("&Redo"), this);
-    command = ami->registerAction(m_submitRedoAction, Core::Constants::REDO, svncommitcontext);
+    command = Core::ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, svncommitcontext);
 
     return true;
 }

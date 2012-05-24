@@ -192,7 +192,6 @@ void QmlInspectorAdapter::clientStatusChanged(QmlDebug::ClientStatus status)
 
 void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status)
 {
-    Core::ActionManager *am = Core::ICore::actionManager();
     BaseToolsClient *client = qobject_cast<BaseToolsClient*>(sender());
     if (status == QmlDebug::Enabled) {
         m_toolsClient = client;
@@ -212,10 +211,10 @@ void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status
         // register actions here
         // because there can be multiple QmlEngines
         // at the same time (but hopefully one one is connected)
-        am->registerAction(m_selectAction,
+        Core::ActionManager::registerAction(m_selectAction,
                            Core::Id(Constants::QML_SELECTTOOL),
                            m_inspectorToolsContext);
-        am->registerAction(m_zoomAction, Core::Id(Constants::QML_ZOOMTOOL),
+        Core::ActionManager::registerAction(m_zoomAction, Core::Id(Constants::QML_ZOOMTOOL),
                            m_inspectorToolsContext);
 
         Core::ICore::updateAdditionalContexts(Core::Context(),
@@ -239,9 +238,9 @@ void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status
         disconnect(client, SIGNAL(logActivity(QString,QString)),
                    m_debugAdapter, SLOT(logServiceActivity(QString,QString)));
 
-        am->unregisterAction(m_selectAction,
+        Core::ActionManager::unregisterAction(m_selectAction,
                              Core::Id(Constants::QML_SELECTTOOL));
-        am->unregisterAction(m_zoomAction,
+        Core::ActionManager::unregisterAction(m_zoomAction,
                              Core::Id(Constants::QML_ZOOMTOOL));
 
         m_selectAction->setChecked(false);

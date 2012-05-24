@@ -376,12 +376,9 @@ QWidget *FakeVimExCommandsPage::createPage(QWidget *parent)
 
 void FakeVimExCommandsPage::initialize()
 {
-    ActionManager *am = ICore::actionManager();
-    QTC_ASSERT(am, return);
-
     QMap<QString, QTreeWidgetItem *> sections;
 
-    foreach (Command *c, am->commands()) {
+    foreach (Command *c, Core::ActionManager::commands()) {
         if (c->action() && c->action()->isSeparator())
             continue;
 
@@ -937,8 +934,6 @@ void FakeVimPluginPrivate::aboutToShutdown()
 bool FakeVimPluginPrivate::initialize()
 {
     EditorManager *editorManager = ICore::editorManager();
-    ActionManager *actionManager = ICore::actionManager();
-    QTC_ASSERT(actionManager, return false);
 
     //m_wordCompletion = new WordCompletion;
     //q->addAutoReleasedObject(m_wordCompletion);
@@ -968,12 +963,12 @@ bool FakeVimPluginPrivate::initialize()
     readSettings();
 
     Core::Command *cmd = 0;
-    cmd = actionManager->registerAction(theFakeVimSetting(ConfigUseFakeVim),
+    cmd = Core::ActionManager::registerAction(theFakeVimSetting(ConfigUseFakeVim),
         Constants::INSTALL_HANDLER, globalcontext, true);
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+V,Meta+V") : tr("Alt+V,Alt+V")));
 
     ActionContainer *advancedMenu =
-        actionManager->actionContainer(Core::Constants::M_EDIT_ADVANCED);
+        Core::ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
     advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
 
     for (int i = 1; i < 10; ++i) {
@@ -981,7 +976,7 @@ bool FakeVimPluginPrivate::initialize()
         act->setText(tr("Execute User Action #%1").arg(i));
         act->setData(i);
         QString id = QString("FakeVim.UserAction%1").arg(i);
-        cmd = actionManager->registerAction(act, Core::Id(id), globalcontext);
+        cmd = Core::ActionManager::registerAction(act, Core::Id(id), globalcontext);
         cmd->setDefaultKeySequence(QKeySequence((Core::UseMacShortcuts ? tr("Meta+V,%1") : tr("Alt+V,%1")).arg(i)));
         connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
     }
@@ -1134,9 +1129,7 @@ void FakeVimPluginPrivate::showSettingsDialog()
 
 void FakeVimPluginPrivate::triggerAction(const Id &id)
 {
-    Core::ActionManager *am = ICore::actionManager();
-    QTC_ASSERT(am, return);
-    Core::Command *cmd = am->command(id);
+    Core::Command *cmd = Core::ActionManager::command(id);
     QTC_ASSERT(cmd, qDebug() << "UNKNOWN CODE: " << id.name(); return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
@@ -1145,9 +1138,7 @@ void FakeVimPluginPrivate::triggerAction(const Id &id)
 
 void FakeVimPluginPrivate::setActionChecked(const Id &id, bool check)
 {
-    Core::ActionManager *am = ICore::actionManager();
-    QTC_ASSERT(am, return);
-    Core::Command *cmd = am->command(id);
+    Core::Command *cmd = Core::ActionManager::command(id);
     QTC_ASSERT(cmd, return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);

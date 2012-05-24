@@ -51,30 +51,46 @@ namespace Core {
 
 class ActionContainer;
 
+namespace Internal {
+class ActionManagerPrivate;
+class MainWindow;
+}
+
 class CORE_EXPORT ActionManager : public QObject
 {
     Q_OBJECT
 public:
-    ActionManager(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ActionManager() {}
+    static ActionManager *instance();
 
-    virtual ActionContainer *createMenu(const Id &id) = 0;
-    virtual ActionContainer *createMenuBar(const Id &id) = 0;
+    static ActionContainer *createMenu(const Id &id);
+    static ActionContainer *createMenuBar(const Id &id);
 
-    virtual Command *registerAction(QAction *action, const Id &id, const Context &context, bool scriptable = false) = 0;
-    virtual Command *registerShortcut(QShortcut *shortcut, const Id &id, const Context &context, bool scriptable = false) = 0;
+    static Command *registerAction(QAction *action, const Id &id, const Context &context, bool scriptable = false);
+    static Command *registerShortcut(QShortcut *shortcut, const Id &id, const Context &context, bool scriptable = false);
 
-    virtual Command *command(const Id &id) const = 0;
-    virtual ActionContainer *actionContainer(const Id &id) const = 0;
+    static Command *command(const Id &id);
+    static ActionContainer *actionContainer(const Id &id);
 
-    virtual QList<Command *> commands() const = 0;
+    static QList<Command *> commands();
 
-    virtual void unregisterAction(QAction *action, const Id &id) = 0;
-    virtual void unregisterShortcut(const Id &id) = 0;
+    static void unregisterAction(QAction *action, const Id &id);
+    static void unregisterShortcut(const Id &id);
+
+    static void setPresentationModeEnabled(bool enabled);
+    static bool isPresentationModeEnabled();
+
+    static bool hasContext(int context);
 
 signals:
     void commandListChanged();
     void commandAdded(const QString &id);
+
+private:
+    ActionManager(QObject *parent = 0);
+    ~ActionManager();
+    Internal::ActionManagerPrivate *d;
+
+    friend class Core::Internal::MainWindow;
 };
 
 } // namespace Core

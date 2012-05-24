@@ -340,7 +340,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_taskHub = new TaskHub;
     addAutoReleasedObject(d->m_taskHub);
 
-    Core::ActionManager *am = Core::ICore::actionManager();
     connect(Core::ICore::instance(), SIGNAL(newItemsDialogRequested()), this, SLOT(loadCustomWizards()));
 
     d->m_welcomePage = new ProjectWelcomePage;
@@ -429,15 +428,15 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // context menus
     Core::ActionContainer *msessionContextMenu =
-        am->createMenu(Constants::M_SESSIONCONTEXT);
+        Core::ActionManager::createMenu(Constants::M_SESSIONCONTEXT);
     Core::ActionContainer *mprojectContextMenu =
-        am->createMenu(Constants::M_PROJECTCONTEXT);
+        Core::ActionManager::createMenu(Constants::M_PROJECTCONTEXT);
     Core::ActionContainer *msubProjectContextMenu =
-        am->createMenu(Constants::M_SUBPROJECTCONTEXT);
+        Core::ActionManager::createMenu(Constants::M_SUBPROJECTCONTEXT);
     Core::ActionContainer *mfolderContextMenu =
-        am->createMenu(Constants::M_FOLDERCONTEXT);
+        Core::ActionManager::createMenu(Constants::M_FOLDERCONTEXT);
     Core::ActionContainer *mfileContextMenu =
-        am->createMenu(Constants::M_FILECONTEXT);
+        Core::ActionManager::createMenu(Constants::M_FILECONTEXT);
 
     d->m_sessionContextMenu = msessionContextMenu->menu();
     d->m_projectMenu = mprojectContextMenu->menu();
@@ -446,24 +445,24 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_fileMenu = mfileContextMenu->menu();
 
     Core::ActionContainer *mfile =
-        am->actionContainer(Core::Constants::M_FILE);
+        Core::ActionManager::actionContainer(Core::Constants::M_FILE);
     Core::ActionContainer *menubar =
-        am->actionContainer(Core::Constants::MENU_BAR);
+        Core::ActionManager::actionContainer(Core::Constants::MENU_BAR);
 
     // build menu
     Core::ActionContainer *mbuild =
-        am->createMenu(Constants::M_BUILDPROJECT);
+        Core::ActionManager::createMenu(Constants::M_BUILDPROJECT);
     mbuild->menu()->setTitle(tr("&Build"));
     menubar->addMenu(mbuild, Core::Constants::G_VIEW);
 
     // debug menu
     Core::ActionContainer *mdebug =
-        am->createMenu(Constants::M_DEBUG);
+        Core::ActionManager::createMenu(Constants::M_DEBUG);
     mdebug->menu()->setTitle(tr("&Debug"));
     menubar->addMenu(mdebug, Core::Constants::G_VIEW);
 
     Core::ActionContainer *mstartdebugging =
-        am->createMenu(Constants::M_DEBUG_STARTDEBUGGING);
+        Core::ActionManager::createMenu(Constants::M_DEBUG_STARTDEBUGGING);
     mstartdebugging->menu()->setTitle(tr("&Start Debugging"));
     mdebug->addMenu(mstartdebugging, Core::Constants::G_DEFAULT_ONE);
 
@@ -499,7 +498,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_LAST);
     msubProjectContextMenu->appendGroup(Constants::G_PROJECT_TREE);
 
-    Core::ActionContainer *runMenu = Core::ICore::actionManager()->createMenu(Constants::RUNMENUCONTEXTMENU);
+    Core::ActionContainer *runMenu = Core::ActionManager::createMenu(Constants::RUNMENUCONTEXTMENU);
     runMenu->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
     QIcon runIcon = QIcon(QLatin1String(Constants::ICON_RUN));
     runIcon.addFile(QLatin1String(Constants::ICON_RUN_SMALL));
@@ -518,7 +517,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mfileContextMenu->appendGroup(Constants::G_PROJECT_TREE);
     // "open with" submenu
     Core::ActionContainer * const openWith =
-            am->createMenu(ProjectExplorer::Constants::M_OPENFILEWITHCONTEXT);
+            Core::ActionManager::createMenu(ProjectExplorer::Constants::M_OPENFILEWITHCONTEXT);
     openWith->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     d->m_openWithMenu = openWith->menu();
     d->m_openWithMenu->setTitle(tr("Open With"));
@@ -535,40 +534,40 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Config.Sep"), projecTreeContext);
+    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Config.Sep"), projecTreeContext);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Files.Sep"), projecTreeContext);
+    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Files.Sep"), projecTreeContext);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Projects.Sep"), globalcontext);
+    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Projects.Sep"), globalcontext);
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Other.Sep"), globalcontext);
+    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Other.Sep"), globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_OTHER);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.CancelBuild.Sep"), globalcontext);
+    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.CancelBuild.Sep"), globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Run.Sep"), globalcontext);
+    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Run.Sep"), globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, Core::Id("ProjectExplorer.Rebuild.Sep"), globalcontext);
+    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Rebuild.Sep"), globalcontext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_REBUILD);
 
     //
@@ -577,13 +576,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // new action
     d->m_newAction = new QAction(tr("New Project..."), this);
-    cmd = am->registerAction(d->m_newAction, Constants::NEWPROJECT, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_newAction, Constants::NEWPROJECT, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+N")));
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // open action
     d->m_loadAction = new QAction(tr("Load Project..."), this);
-    cmd = am->registerAction(d->m_loadAction, Constants::LOAD, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_loadAction, Constants::LOAD, globalcontext);
 #ifndef Q_OS_MAC
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+O")));
 #endif
@@ -591,24 +590,24 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // Default open action
     d->m_openFileAction = new QAction(tr("Open File"), this);
-    cmd = am->registerAction(d->m_openFileAction, ProjectExplorer::Constants::OPENFILE,
+    cmd = Core::ActionManager::registerAction(d->m_openFileAction, ProjectExplorer::Constants::OPENFILE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
 
     d->m_searchOnFileSystem = new QAction(FolderNavigationWidget::msgFindOnFileSystem(), this);
-    cmd = am->registerAction(d->m_searchOnFileSystem, ProjectExplorer::Constants::SEARCHONFILESYSTEM, projecTreeContext);
+    cmd = Core::ActionManager::registerAction(d->m_searchOnFileSystem, ProjectExplorer::Constants::SEARCHONFILESYSTEM, projecTreeContext);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_CONFIG);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
 
     d->m_showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), this);
-    cmd = am->registerAction(d->m_showInGraphicalShell, ProjectExplorer::Constants::SHOWINGRAPHICALSHELL,
+    cmd = Core::ActionManager::registerAction(d->m_showInGraphicalShell, ProjectExplorer::Constants::SHOWINGRAPHICALSHELL,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
 
     d->m_openTerminalHere = new QAction(Core::FileUtils::msgTerminalAction(), this);
-    cmd = am->registerAction(d->m_openTerminalHere, ProjectExplorer::Constants::OPENTERMIANLHERE,
+    cmd = Core::ActionManager::registerAction(d->m_openTerminalHere, ProjectExplorer::Constants::OPENTERMIANLHERE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OPEN);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_FILES);
@@ -618,7 +617,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // recent projects menu
     Core::ActionContainer *mrecent =
-        am->createMenu(Constants::M_RECENTPROJECTS);
+        Core::ActionManager::createMenu(Constants::M_RECENTPROJECTS);
     mrecent->menu()->setTitle(tr("Recent P&rojects"));
     mrecent->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     mfile->addMenu(mrecent, Core::Constants::G_FILE_OPEN);
@@ -626,7 +625,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         this, SLOT(updateRecentProjectMenu()));
 
     // session menu
-    Core::ActionContainer *msession = am->createMenu(Constants::M_SESSION);
+    Core::ActionContainer *msession = Core::ActionManager::createMenu(Constants::M_SESSION);
     msession->menu()->setTitle(tr("Sessions"));
     msession->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     mfile->addMenu(msession, Core::Constants::G_FILE_OPEN);
@@ -636,7 +635,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // session manager action
     d->m_sessionManagerAction = new QAction(tr("Session Manager..."), this);
-    cmd = am->registerAction(d->m_sessionManagerAction, Constants::NEWSESSION, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_sessionManagerAction, Constants::NEWSESSION, globalcontext);
     mfile->addAction(cmd, Core::Constants::G_FILE_OPEN);
     cmd->setDefaultKeySequence(QKeySequence());
 
@@ -645,14 +644,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // unload action
     d->m_unloadAction = new Utils::ParameterAction(tr("Close Project"), tr("Close Project \"%1\""),
                                                       Utils::ParameterAction::EnabledWithParameter, this);
-    cmd = am->registerAction(d->m_unloadAction, Constants::UNLOAD, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_unloadAction, Constants::UNLOAD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDescription(d->m_unloadAction->text());
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
 
     // unload session action
     d->m_closeAllProjects = new QAction(tr("Close All Projects and Editors"), this);
-    cmd = am->registerAction(d->m_closeAllProjects, Constants::CLEARSESSION, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_closeAllProjects, Constants::CLEARSESSION, globalcontext);
     mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
@@ -660,14 +659,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QIcon buildIcon = QIcon(QLatin1String(Constants::ICON_BUILD));
     buildIcon.addFile(QLatin1String(Constants::ICON_BUILD_SMALL));
     d->m_buildSessionAction = new QAction(buildIcon, tr("Build All"), this);
-    cmd = am->registerAction(d->m_buildSessionAction, Constants::BUILDSESSION, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_buildSessionAction, Constants::BUILDSESSION, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+B")));
     mbuild->addAction(cmd, Constants::G_BUILD_BUILD);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
     // deploy session
     d->m_deploySessionAction = new QAction(tr("Deploy All"), this);
-    cmd = am->registerAction(d->m_deploySessionAction, Constants::DEPLOYSESSION, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_deploySessionAction, Constants::DEPLOYSESSION, globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_DEPLOY);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_BUILD);
 
@@ -675,7 +674,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QIcon rebuildIcon = QIcon(QLatin1String(Constants::ICON_REBUILD));
     rebuildIcon.addFile(QLatin1String(Constants::ICON_REBUILD_SMALL));
     d->m_rebuildSessionAction = new QAction(rebuildIcon, tr("Rebuild All"), this);
-    cmd = am->registerAction(d->m_rebuildSessionAction, Constants::REBUILDSESSION, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_rebuildSessionAction, Constants::REBUILDSESSION, globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
@@ -683,7 +682,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QIcon cleanIcon = QIcon(QLatin1String(Constants::ICON_CLEAN));
     cleanIcon.addFile(QLatin1String(Constants::ICON_CLEAN_SMALL));
     d->m_cleanSessionAction = new QAction(cleanIcon, tr("Clean All"), this);
-    cmd = am->registerAction(d->m_cleanSessionAction, Constants::CLEANSESSION, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_cleanSessionAction, Constants::CLEANSESSION, globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
 
@@ -691,7 +690,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_buildAction = new Utils::ParameterAction(tr("Build Project"), tr("Build Project \"%1\""),
                                                      Utils::ParameterAction::AlwaysEnabled, this);
     d->m_buildAction->setIcon(buildIcon);
-    cmd = am->registerAction(d->m_buildAction, Constants::BUILD, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_buildAction, Constants::BUILD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDescription(d->m_buildAction->text());
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+B")));
@@ -703,7 +702,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // deploy action
     d->m_deployAction = new Utils::ParameterAction(tr("Deploy Project"), tr("Deploy Project \"%1\""),
                                                      Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = am->registerAction(d->m_deployAction, Constants::DEPLOY, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_deployAction, Constants::DEPLOY, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDescription(d->m_deployAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_DEPLOY);
@@ -711,7 +710,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // rebuild action
     d->m_rebuildAction = new Utils::ParameterAction(tr("Rebuild Project"), tr("Rebuild Project \"%1\""),
                                                        Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = am->registerAction(d->m_rebuildAction, Constants::REBUILD, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_rebuildAction, Constants::REBUILD, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDescription(d->m_rebuildAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
@@ -719,7 +718,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // clean action
     d->m_cleanAction = new Utils::ParameterAction(tr("Clean Project"), tr("Clean Project \"%1\""),
                                                      Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = am->registerAction(d->m_cleanAction, Constants::CLEAN, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_cleanAction, Constants::CLEAN, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDescription(d->m_cleanAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_CLEAN);
@@ -728,12 +727,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     QIcon stopIcon = QIcon(QLatin1String(Constants::ICON_STOP));
     stopIcon.addFile(QLatin1String(Constants::ICON_STOP_SMALL));
     d->m_cancelBuildAction = new QAction(stopIcon, tr("Cancel Build"), this);
-    cmd = am->registerAction(d->m_cancelBuildAction, Constants::CANCELBUILD, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_cancelBuildAction, Constants::CANCELBUILD, globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
 
     // run action
     d->m_runAction = new QAction(runIcon, tr("Run"), this);
-    cmd = am->registerAction(d->m_runAction, Constants::RUN, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_runAction, Constants::RUN, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
 
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+R")));
@@ -743,61 +742,61 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // Run without deployment action
     d->m_runWithoutDeployAction = new QAction(tr("Run Without Deployment"), this);
-    cmd = am->registerAction(d->m_runWithoutDeployAction, Constants::RUNWITHOUTDEPLOY, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_runWithoutDeployAction, Constants::RUNWITHOUTDEPLOY, globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
     // Publish action
     d->m_publishAction = new Utils::ParameterAction(tr("Publish Project..."), tr("Publish Project \"%1\"..."),
                                                     Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = am->registerAction(d->m_publishAction, Constants::PUBLISH, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_publishAction, Constants::PUBLISH, globalcontext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDescription(d->m_publishAction->text());
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
     // build action (context menu)
     d->m_buildActionContextMenu = new QAction(tr("Build"), this);
-    cmd = am->registerAction(d->m_buildActionContextMenu, Constants::BUILDCM, projecTreeContext);
+    cmd = Core::ActionManager::registerAction(d->m_buildActionContextMenu, Constants::BUILDCM, projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_BUILD);
 
     // rebuild action (context menu)
     d->m_rebuildActionContextMenu = new QAction(tr("Rebuild"), this);
-    cmd = am->registerAction(d->m_rebuildActionContextMenu, Constants::REBUILDCM, projecTreeContext);
+    cmd = Core::ActionManager::registerAction(d->m_rebuildActionContextMenu, Constants::REBUILDCM, projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_REBUILD);
 
     // clean action (context menu)
     d->m_cleanActionContextMenu = new QAction(tr("Clean"), this);
-    cmd = am->registerAction(d->m_cleanActionContextMenu, Constants::CLEANCM, projecTreeContext);
+    cmd = Core::ActionManager::registerAction(d->m_cleanActionContextMenu, Constants::CLEANCM, projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_REBUILD);
 
     // build without dependencies action
     d->m_buildProjectOnlyAction = new QAction(tr("Build Without Dependencies"), this);
-    cmd = am->registerAction(d->m_buildProjectOnlyAction, Constants::BUILDPROJECTONLY, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_buildProjectOnlyAction, Constants::BUILDPROJECTONLY, globalcontext);
 
     // rebuild without dependencies action
     d->m_rebuildProjectOnlyAction = new QAction(tr("Rebuild Without Dependencies"), this);
-    cmd = am->registerAction(d->m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_rebuildProjectOnlyAction, Constants::REBUILDPROJECTONLY, globalcontext);
 
     // deploy without dependencies action
     d->m_deployProjectOnlyAction = new QAction(tr("Deploy Without Dependencies"), this);
-    cmd = am->registerAction(d->m_deployProjectOnlyAction, Constants::DEPLOYPROJECTONLY, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_deployProjectOnlyAction, Constants::DEPLOYPROJECTONLY, globalcontext);
 
     // clean without dependencies action
     d->m_cleanProjectOnlyAction = new QAction(tr("Clean Without Dependencies"), this);
-    cmd = am->registerAction(d->m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_cleanProjectOnlyAction, Constants::CLEANPROJECTONLY, globalcontext);
 
     // deploy action (context menu)
     d->m_deployActionContextMenu = new QAction(tr("Deploy"), this);
-    cmd = am->registerAction(d->m_deployActionContextMenu, Constants::DEPLOYCM, projecTreeContext);
+    cmd = Core::ActionManager::registerAction(d->m_deployActionContextMenu, Constants::DEPLOYCM, projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_RUN);
 
     d->m_runActionContextMenu = new QAction(runIcon, tr("Run"), this);
-    cmd = am->registerAction(d->m_runActionContextMenu, Constants::RUNCONTEXTMENU, projecTreeContext);
+    cmd = Core::ActionManager::registerAction(d->m_runActionContextMenu, Constants::RUNCONTEXTMENU, projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_RUN);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_RUN);
 
     // add new file action
     d->m_addNewFileAction = new QAction(tr("Add New..."), this);
-    cmd = am->registerAction(d->m_addNewFileAction, ProjectExplorer::Constants::ADDNEWFILE,
+    cmd = Core::ActionManager::registerAction(d->m_addNewFileAction, ProjectExplorer::Constants::ADDNEWFILE,
                        projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -805,7 +804,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // add existing file action
     d->m_addExistingFilesAction = new QAction(tr("Add Existing Files..."), this);
-    cmd = am->registerAction(d->m_addExistingFilesAction, ProjectExplorer::Constants::ADDEXISTINGFILES,
+    cmd = Core::ActionManager::registerAction(d->m_addExistingFilesAction, ProjectExplorer::Constants::ADDEXISTINGFILES,
                        projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
@@ -813,37 +812,37 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     // new subproject action
     d->m_addNewSubprojectAction = new QAction(tr("New Subproject..."), this);
-    cmd = am->registerAction(d->m_addNewSubprojectAction, ProjectExplorer::Constants::ADDNEWSUBPROJECT,
+    cmd = Core::ActionManager::registerAction(d->m_addNewSubprojectAction, ProjectExplorer::Constants::ADDNEWSUBPROJECT,
                        projecTreeContext);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
 
     // unload project again, in right position
-    mprojectContextMenu->addAction(am->command(Constants::UNLOAD), Constants::G_PROJECT_LAST);
+    mprojectContextMenu->addAction(Core::ActionManager::command(Constants::UNLOAD), Constants::G_PROJECT_LAST);
 
     // remove file action
     d->m_removeFileAction = new QAction(tr("Remove File..."), this);
-    cmd = am->registerAction(d->m_removeFileAction, ProjectExplorer::Constants::REMOVEFILE,
+    cmd = Core::ActionManager::registerAction(d->m_removeFileAction, ProjectExplorer::Constants::REMOVEFILE,
                        projecTreeContext);
     cmd->setDefaultKeySequence(QKeySequence::Delete);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     //: Remove project from parent profile (Project explorer view); will not physically delete any files.
     d->m_removeProjectAction = new QAction(tr("Remove Project..."), this);
-    cmd = am->registerAction(d->m_removeProjectAction, ProjectExplorer::Constants::REMOVEPROJECT,
+    cmd = Core::ActionManager::registerAction(d->m_removeProjectAction, ProjectExplorer::Constants::REMOVEPROJECT,
                        projecTreeContext);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
 
     // delete file action
     d->m_deleteFileAction = new QAction(tr("Delete File..."), this);
-    cmd = am->registerAction(d->m_deleteFileAction, ProjectExplorer::Constants::DELETEFILE,
+    cmd = Core::ActionManager::registerAction(d->m_deleteFileAction, ProjectExplorer::Constants::DELETEFILE,
                              projecTreeContext);
     cmd->setDefaultKeySequence(QKeySequence::Delete);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
     // renamefile action
     d->m_renameFileAction = new QAction(tr("Rename..."), this);
-    cmd = am->registerAction(d->m_renameFileAction, ProjectExplorer::Constants::RENAMEFILE,
+    cmd = Core::ActionManager::registerAction(d->m_renameFileAction, ProjectExplorer::Constants::RENAMEFILE,
                        projecTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
     // Not yet used by anyone, so hide for now
@@ -855,7 +854,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_setStartupProjectAction = new Utils::ParameterAction(tr("Set as Active Project"),
                                                               tr("Set \"%1\" as Active Project"),
                                                               Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = am->registerAction(d->m_setStartupProjectAction, ProjectExplorer::Constants::SETSTARTUP,
+    cmd = Core::ActionManager::registerAction(d->m_setStartupProjectAction, ProjectExplorer::Constants::SETSTARTUP,
                              projecTreeContext);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDescription(d->m_setStartupProjectAction->text());
@@ -864,10 +863,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // Collapse All.
     sep = new QAction(this);
     sep->setSeparator(true);
-    Core::Command *treeSpacer = am->registerAction(sep, Core::Id("ProjectExplorer.Tree.Sep"), globalcontext);
+    Core::Command *treeSpacer = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Tree.Sep"), globalcontext);
 
     d->m_projectTreeCollapseAllAction = new QAction(tr("Collapse All"), this);
-    cmd = am->registerAction(d->m_projectTreeCollapseAllAction, Constants::PROJECTTREE_COLLAPSE_ALL,
+    cmd = Core::ActionManager::registerAction(d->m_projectTreeCollapseAllAction, Constants::PROJECTTREE_COLLAPSE_ALL,
                              projecTreeContext);
     const Core::Id treeGroup = Constants::G_PROJECT_TREE;
     mfileContextMenu->addAction(treeSpacer, treeGroup);
@@ -894,7 +893,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_projectSelectorActionMenu->setEnabled(false);
     d->m_projectSelectorActionMenu->setText(tr("Open Build/Run Target Selector..."));
     connect(d->m_projectSelectorActionMenu, SIGNAL(triggered()), d->m_targetSelector, SLOT(toggleVisible()));
-    cmd = am->registerAction(d->m_projectSelectorActionMenu, ProjectExplorer::Constants::SELECTTARGET,
+    cmd = Core::ActionManager::registerAction(d->m_projectSelectorActionMenu, ProjectExplorer::Constants::SELECTTARGET,
                        globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
@@ -902,7 +901,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     d->m_projectSelectorActionQuick->setEnabled(false);
     d->m_projectSelectorActionQuick->setText(tr("Quick Switch Target Selector"));
     connect(d->m_projectSelectorActionQuick, SIGNAL(triggered()), d->m_targetSelector, SLOT(nextOrShow()));
-    cmd = am->registerAction(d->m_projectSelectorActionQuick, ProjectExplorer::Constants::SELECTTARGETQUICK, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_projectSelectorActionQuick, ProjectExplorer::Constants::SELECTTARGETQUICK, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+T")));
 
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
@@ -2436,7 +2435,7 @@ void ProjectExplorerPlugin::updateRecentProjectMenu()
         qDebug() << "ProjectExplorerPlugin::updateRecentProjectMenu";
 
     Core::ActionContainer *aci =
-        Core::ICore::actionManager()->actionContainer(Constants::M_RECENTPROJECTS);
+        Core::ActionManager::actionContainer(Constants::M_RECENTPROJECTS);
     QMenu *menu = aci->menu();
     menu->clear();
 
@@ -2518,7 +2517,7 @@ void ProjectExplorerPlugin::updateContextMenuActions()
     d->m_deleteFileAction->setVisible(true);
     d->m_runActionContextMenu->setVisible(false);
 
-    Core::ActionContainer *runMenu = Core::ICore::actionManager()->actionContainer(Constants::RUNMENUCONTEXTMENU);
+    Core::ActionContainer *runMenu = Core::ActionManager::actionContainer(Constants::RUNMENUCONTEXTMENU);
     runMenu->menu()->clear();
 
     if (d->m_currentNode && d->m_currentNode->projectNode()) {

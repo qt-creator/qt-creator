@@ -70,52 +70,51 @@ void BookmarksPlugin::extensionsInitialized()
 
 bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
 {
-    Core::ActionManager *am = Core::ICore::actionManager();
     Core::Context textcontext(TextEditor::Constants::C_TEXTEDITOR);
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
-    Core::ActionContainer *mtools = am->actionContainer(Core::Constants::M_TOOLS);
-    Core::ActionContainer *mbm = am->createMenu(Core::Id(BOOKMARKS_MENU));
+    Core::ActionContainer *mtools = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    Core::ActionContainer *mbm = Core::ActionManager::createMenu(Core::Id(BOOKMARKS_MENU));
     mbm->menu()->setTitle(tr("&Bookmarks"));
     mtools->addMenu(mbm);
 
     //Toggle
     m_toggleAction = new QAction(tr("Toggle Bookmark"), this);
     Core::Command *cmd =
-        am->registerAction(m_toggleAction, BOOKMARKS_TOGGLE_ACTION, textcontext);
+        Core::ActionManager::registerAction(m_toggleAction, BOOKMARKS_TOGGLE_ACTION, textcontext);
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     mbm->addAction(cmd);
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, Core::Id("Bookmarks.Sep.Toggle"), textcontext);
+    cmd = Core::ActionManager::registerAction(sep, Core::Id("Bookmarks.Sep.Toggle"), textcontext);
     mbm->addAction(cmd);
 
     //Previous
     m_prevAction = new QAction(tr("Previous Bookmark"), this);
-    cmd = am->registerAction(m_prevAction, BOOKMARKS_PREV_ACTION, globalcontext);
+    cmd = Core::ActionManager::registerAction(m_prevAction, BOOKMARKS_PREV_ACTION, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+,") : tr("Ctrl+,")));
     mbm->addAction(cmd);
 
     //Next
     m_nextAction = new QAction(tr("Next Bookmark"), this);
-    cmd = am->registerAction(m_nextAction, BOOKMARKS_NEXT_ACTION, globalcontext);
+    cmd = Core::ActionManager::registerAction(m_nextAction, BOOKMARKS_NEXT_ACTION, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+.") : tr("Ctrl+.")));
     mbm->addAction(cmd);
 
     sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, Core::Id("Bookmarks.Sep.DirNavigation"), globalcontext);
+    cmd = Core::ActionManager::registerAction(sep, Core::Id("Bookmarks.Sep.DirNavigation"), globalcontext);
     mbm->addAction(cmd);
 
     //Previous Doc
     m_docPrevAction = new QAction(tr("Previous Bookmark in Document"), this);
-    cmd = am->registerAction(m_docPrevAction, BOOKMARKS_PREVDOC_ACTION, globalcontext);
+    cmd = Core::ActionManager::registerAction(m_docPrevAction, BOOKMARKS_PREVDOC_ACTION, globalcontext);
     mbm->addAction(cmd);
 
     //Next Doc
     m_docNextAction = new QAction(tr("Next Bookmark in Document"), this);
-    cmd = am->registerAction(m_docNextAction, BOOKMARKS_NEXTDOC_ACTION, globalcontext);
+    cmd = Core::ActionManager::registerAction(m_docNextAction, BOOKMARKS_NEXTDOC_ACTION, globalcontext);
     mbm->addAction(cmd);
 
     m_bookmarkManager = new BookmarkManager;

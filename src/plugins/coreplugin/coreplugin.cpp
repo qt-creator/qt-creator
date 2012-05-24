@@ -31,6 +31,7 @@
 **************************************************************************/
 
 #include "coreplugin.h"
+#include "actionmanager.h"
 #include "designmode.h"
 #include "editmode.h"
 #include "editormanager.h"
@@ -81,7 +82,7 @@ void CorePlugin::parseArguments(const QStringList &arguments)
             i++; // skip the argument
         }
         if (arguments.at(i) == QLatin1String("-presentationMode"))
-            m_mainWindow->setPresentationModeEnabled(true);
+            ActionManager::setPresentationModeEnabled(true);
     }
 }
 

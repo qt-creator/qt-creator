@@ -324,9 +324,8 @@ void DebuggerMainWindow::onModeChanged(IMode *mode)
 
 void DebuggerMainWindowPrivate::createViewsMenuItems()
 {
-    ActionManager *am = ICore::actionManager();
     Context debugcontext(Constants::C_DEBUGMODE);
-    m_viewsMenu = am->actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
+    m_viewsMenu = Core::ActionManager::actionContainer(Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(m_viewsMenu, return);
 
     QAction *openMemoryEditorAction = new QAction(this);
@@ -336,25 +335,25 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
 
     // Add menu items
     Command *cmd = 0;
-    cmd = am->registerAction(openMemoryEditorAction,
+    cmd = Core::ActionManager::registerAction(openMemoryEditorAction,
         Core::Id("Debugger.Views.OpenMemoryEditor"),
         debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
-    cmd = am->registerAction(q->menuSeparator1(),
+    cmd = Core::ActionManager::registerAction(q->menuSeparator1(),
         Core::Id("Debugger.Views.Separator1"), debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = am->registerAction(q->toggleLockedAction(),
+    cmd = Core::ActionManager::registerAction(q->toggleLockedAction(),
         Core::Id("Debugger.Views.ToggleLocked"), debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = am->registerAction(q->menuSeparator2(),
+    cmd = Core::ActionManager::registerAction(q->menuSeparator2(),
         Core::Id("Debugger.Views.Separator2"), debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = am->registerAction(q->resetLayoutAction(),
+    cmd = Core::ActionManager::registerAction(q->resetLayoutAction(),
         Core::Id("Debugger.Views.ResetSimple"), debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
@@ -452,9 +451,8 @@ QDockWidget *DebuggerMainWindow::createDockWidget(const DebuggerLanguage &langua
 
     Context globalContext(Core::Constants::C_GLOBAL);
 
-    ActionManager *am = ICore::actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
-    Command *cmd = am->registerAction(toggleViewAction,
+    Command *cmd = Core::ActionManager::registerAction(toggleViewAction,
              Core::Id(QLatin1String("Debugger.") + widget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
     d->m_menuCommandsToAdd.append(cmd);
@@ -486,12 +484,11 @@ void DebuggerMainWindow::addStagedMenuEntries()
 
 QWidget *DebuggerMainWindow::createContents(IMode *mode)
 {
-    ActionManager *am = ICore::actionManager();
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     connect(pe->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         d, SLOT(updateUiForProject(ProjectExplorer::Project*)));
 
-    d->m_viewsMenu = am->actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
+    d->m_viewsMenu = Core::ActionManager::actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
     QTC_ASSERT(d->m_viewsMenu, return 0);
 
     //d->m_mainWindow = new Internal::DebuggerMainWindow(this);

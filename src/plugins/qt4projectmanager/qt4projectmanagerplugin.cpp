@@ -122,7 +122,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
         return false;
 
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-    Core::ActionManager *am = Core::ICore::actionManager();
 
     //create and register objects
     m_qt4ProjectManager = new Qt4Manager(this);
@@ -177,13 +176,13 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     //menus
     Core::ActionContainer *mbuild =
-            am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
     Core::ActionContainer *mproject =
-            am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
     Core::ActionContainer *msubproject =
-            am->actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
     Core::ActionContainer *mfile =
-            am->actionContainer(ProjectExplorer::Constants::M_FILECONTEXT);
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_FILECONTEXT);
 
     //register actions
     Core::Command *command;
@@ -191,7 +190,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_buildSubProjectContextMenu = new Utils::ParameterAction(tr("Build"), tr("Build \"%1\""),
                                                               Utils::ParameterAction::AlwaysEnabled/*handled manually*/,
                                                               this);
-    command = am->registerAction(m_buildSubProjectContextMenu, Constants::BUILDSUBDIRCONTEXTMENU, projectContext);
+    command = Core::ActionManager::registerAction(m_buildSubProjectContextMenu, Constants::BUILDSUBDIRCONTEXTMENU, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildSubProjectContextMenu->text());
@@ -199,7 +198,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_buildSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildSubDirContextMenu()));
 
     m_runQMakeActionContextMenu = new QAction(tr("Run qmake"), this);
-    command = am->registerAction(m_runQMakeActionContextMenu, Constants::RUNQMAKECONTEXTMENU, projectContext);
+    command = Core::ActionManager::registerAction(m_runQMakeActionContextMenu, Constants::RUNQMAKECONTEXTMENU, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
@@ -208,30 +207,33 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_subProjectRebuildSeparator = new QAction(this);
     m_subProjectRebuildSeparator->setSeparator(true);
     command->setAttribute(Core::Command::CA_Hide);
-    command = am->registerAction(m_subProjectRebuildSeparator, Core::Id("ProjectExplorer.SubprojectRebuild.Sep"), projectContext);
+    command = Core::ActionManager::registerAction(
+                m_subProjectRebuildSeparator, Core::Id("ProjectExplorer.SubprojectRebuild.Sep"), projectContext);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
 
     m_rebuildSubProjectContextMenu = new QAction(tr("Rebuild"), this);
-    command = am->registerAction(m_rebuildSubProjectContextMenu, Constants::REBUILDSUBDIRCONTEXTMENU, projectContext);
+    command = Core::ActionManager::registerAction(
+                m_rebuildSubProjectContextMenu, Constants::REBUILDSUBDIRCONTEXTMENU, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_rebuildSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(rebuildSubDirContextMenu()));
 
     m_cleanSubProjectContextMenu = new QAction(tr("Clean"), this);
-    command = am->registerAction(m_cleanSubProjectContextMenu, Constants::CLEANSUBDIRCONTEXTMENU, projectContext);
+    command = Core::ActionManager::registerAction(
+                m_cleanSubProjectContextMenu, Constants::CLEANSUBDIRCONTEXTMENU, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_cleanSubProjectContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(cleanSubDirContextMenu()));
 
     m_buildFileContextMenu = new QAction(tr("Build"), this);
-    command = am->registerAction(m_buildFileContextMenu, Constants::BUILDFILECONTEXTMENU, projectContext);
+    command = Core::ActionManager::registerAction(m_buildFileContextMenu, Constants::BUILDFILECONTEXTMENU, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mfile->addAction(command, ProjectExplorer::Constants::G_FILE_OTHER);
     connect(m_buildFileContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildFileContextMenu()));
 
     m_buildSubProjectAction = new Utils::ParameterAction(tr("Build Subproject"), tr("Build Subproject \"%1\""),
                                                          Utils::ParameterAction::AlwaysEnabled, this);
-    command = am->registerAction(m_buildSubProjectAction, Constants::BUILDSUBDIR, projectContext);
+    command = Core::ActionManager::registerAction(m_buildSubProjectAction, Constants::BUILDSUBDIR, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildSubProjectAction->text());
@@ -239,14 +241,14 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_buildSubProjectAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildSubDirContextMenu()));
 
     m_runQMakeAction = new QAction(tr("Run qmake"), this);
-    command = am->registerAction(m_runQMakeAction, Constants::RUNQMAKE, projectContext);
+    command = Core::ActionManager::registerAction(m_runQMakeAction, Constants::RUNQMAKE, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_runQMakeAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(runQMake()));
 
     m_rebuildSubProjectAction = new Utils::ParameterAction(tr("Rebuild Subproject"), tr("Rebuild Subproject \"%1\""),
                                                            Utils::ParameterAction::AlwaysEnabled, this);
-    command = am->registerAction(m_rebuildSubProjectAction, Constants::REBUILDSUBDIR, projectContext);
+    command = Core::ActionManager::registerAction(m_rebuildSubProjectAction, Constants::REBUILDSUBDIR, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_rebuildSubProjectAction->text());
@@ -255,7 +257,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     m_cleanSubProjectAction = new Utils::ParameterAction(tr("Clean Subproject"), tr("Clean Subproject \"%1\""),
                                                          Utils::ParameterAction::AlwaysEnabled, this);
-    command = am->registerAction(m_cleanSubProjectAction, Constants::CLEANSUBDIR, projectContext);
+    command = Core::ActionManager::registerAction(m_cleanSubProjectAction, Constants::CLEANSUBDIR, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_cleanSubProjectAction->text());
@@ -264,7 +266,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     m_buildFileAction = new Utils::ParameterAction(tr("Build File"), tr("Build File \"%1\""),
                                                    Utils::ParameterAction::AlwaysEnabled, this);
-    command = am->registerAction(m_buildFileAction, Constants::BUILDFILE, projectContext);
+    command = Core::ActionManager::registerAction(m_buildFileAction, Constants::BUILDFILE, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     command->setAttribute(Core::Command::CA_UpdateText);
     command->setDescription(m_buildFileAction->text());
@@ -279,22 +281,22 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
             this, SLOT(updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*)));
 
-    Core::ActionContainer *contextMenu = am->createMenu(Qt4ProjectManager::Constants::M_CONTEXT);
+    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(Qt4ProjectManager::Constants::M_CONTEXT);
 
     Core::Context proFileEditorContext = Core::Context(Qt4ProjectManager::Constants::C_PROFILEEDITOR);
 
-    command = am->command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
+    command = Core::ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
     contextMenu->addAction(command);
 
     m_addLibraryAction = new QAction(tr("Add Library..."), this);
-    command = am->registerAction(m_addLibraryAction,
+    command = Core::ActionManager::registerAction(m_addLibraryAction,
         Constants::ADDLIBRARY, proFileEditorContext);
     connect(m_addLibraryAction, SIGNAL(triggered()),
             m_qt4ProjectManager, SLOT(addLibrary()));
     contextMenu->addAction(command);
 
     m_addLibraryActionContextMenu = new QAction(tr("Add Library..."), this);
-    command = am->registerAction(m_addLibraryActionContextMenu,
+    command = Core::ActionManager::registerAction(m_addLibraryActionContextMenu,
         Constants::ADDLIBRARY, projecTreeContext);
     connect(m_addLibraryActionContextMenu, SIGNAL(triggered()),
             m_qt4ProjectManager, SLOT(addLibraryContextMenu()));
@@ -303,10 +305,10 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     QAction *separator = new QAction(this);
     separator->setSeparator(true);
-    contextMenu->addAction(am->registerAction(separator,
+    contextMenu->addAction(Core::ActionManager::registerAction(separator,
                   Core::Id(Constants::SEPARATOR), proFileEditorContext));
 
-    command = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    command = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(command);
 
     return true;

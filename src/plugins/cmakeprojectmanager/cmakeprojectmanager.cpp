@@ -67,25 +67,25 @@ CMakeManager::CMakeManager(CMakeSettingsPage *cmakeSettingsPage)
     connect(projectExplorer, SIGNAL(aboutToShowContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)),
             this, SLOT(updateContextMenu(ProjectExplorer::Project*,ProjectExplorer::Node*)));
 
-    Core::ActionManager *am = Core::ICore::actionManager();
-
     Core::ActionContainer *mbuild =
-            am->actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
     Core::ActionContainer *mproject =
-            am->actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
     Core::ActionContainer *msubproject =
-            am->actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
+            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
 
     const Core::Context projectContext(CMakeProjectManager::Constants::PROJECTCONTEXT);
 
     m_runCMakeAction = new QAction(QIcon(), tr("Run CMake"), this);
-    Core::Command *command = am->registerAction(m_runCMakeAction, Constants::RUNCMAKE, projectContext);
+    Core::Command *command = Core::ActionManager::registerAction(m_runCMakeAction,
+                                                                 Constants::RUNCMAKE, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_DEPLOY);
     connect(m_runCMakeAction, SIGNAL(triggered()), this, SLOT(runCMake()));
 
     m_runCMakeActionContextMenu = new QAction(QIcon(), tr("Run CMake"), this);
-    command = am->registerAction(m_runCMakeActionContextMenu, Constants::RUNCMAKECONTEXTMENU, projectContext);
+    command = Core::ActionManager::registerAction(m_runCMakeActionContextMenu,
+                                                  Constants::RUNCMAKECONTEXTMENU, projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);

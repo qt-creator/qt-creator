@@ -258,12 +258,11 @@ AnalyzerManagerPrivate::~AnalyzerManagerPrivate()
 
 void AnalyzerManagerPrivate::setupActions()
 {
-    ActionManager *am = ICore::actionManager();
     const Context globalcontext(C_GLOBAL);
     Command *command = 0;
 
     // Menus
-    m_menu = am->createMenu(M_DEBUG_ANALYZER);
+    m_menu = Core::ActionManager::createMenu(M_DEBUG_ANALYZER);
     m_menu->menu()->setTitle(tr("&Analyze"));
     m_menu->menu()->setEnabled(true);
 
@@ -272,36 +271,36 @@ void AnalyzerManagerPrivate::setupActions()
     m_menu->appendGroup(G_ANALYZER_REMOTE_TOOLS);
     m_menu->appendGroup(G_ANALYZER_OPTIONS);
 
-    ActionContainer *menubar = am->actionContainer(MENU_BAR);
-    ActionContainer *mtools = am->actionContainer(M_TOOLS);
+    ActionContainer *menubar = Core::ActionManager::actionContainer(MENU_BAR);
+    ActionContainer *mtools = Core::ActionManager::actionContainer(M_TOOLS);
     menubar->addMenu(mtools, m_menu);
 
     m_startAction = new QAction(tr("Start"), m_menu);
     m_startAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_START_ICON)));
-    command = am->registerAction(m_startAction, "Analyzer.Start", globalcontext);
+    command = Core::ActionManager::registerAction(m_startAction, "Analyzer.Start", globalcontext);
     connect(m_startAction, SIGNAL(triggered()), this, SLOT(startTool()));
 
     m_stopAction = new QAction(tr("Stop"), m_menu);
     m_stopAction->setEnabled(false);
     m_stopAction->setIcon(QIcon(QLatin1String(ANALYZER_CONTROL_STOP_ICON)));
-    command = am->registerAction(m_stopAction, "Analyzer.Stop", globalcontext);
+    command = Core::ActionManager::registerAction(m_stopAction, "Analyzer.Stop", globalcontext);
     m_menu->addAction(command, G_ANALYZER_CONTROL);
 
     QAction *separatorAction1 = new QAction(m_menu);
     separatorAction1->setSeparator(true);
-    command = am->registerAction(separatorAction1,
+    command = Core::ActionManager::registerAction(separatorAction1,
         "Menu.Action.Analyzer.Tools.Separator1", globalcontext);
     m_menu->addAction(command, G_ANALYZER_TOOLS);
 
     QAction *separatorAction2 = new QAction(m_menu);
     separatorAction2->setSeparator(true);
-    command = am->registerAction(separatorAction2,
+    command = Core::ActionManager::registerAction(separatorAction2,
         "Menu.Action.Analyzer.Tools.Separator2", globalcontext);
     m_menu->addAction(command, G_ANALYZER_REMOTE_TOOLS);
 
     QAction *separatorAction3 = new QAction(m_menu);
     separatorAction3->setSeparator(true);
-    command = am->registerAction(separatorAction3,
+    command = Core::ActionManager::registerAction(separatorAction3,
         "Menu.Action.Analyzer.Tools.Separator3", globalcontext);
     m_menu->addAction(command, G_ANALYZER_OPTIONS);
 }
@@ -334,21 +333,20 @@ void AnalyzerManagerPrivate::delayedInit()
 
     // Populate Windows->Views menu with standard actions.
     Context analyzerContext(C_ANALYZEMODE);
-    ActionManager *am = ICore::actionManager();
-    ActionContainer *viewsMenu = am->actionContainer(Id(M_WINDOW_VIEWS));
-    Command *cmd = am->registerAction(m_mainWindow->menuSeparator1(),
+    ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Id(M_WINDOW_VIEWS));
+    Command *cmd = Core::ActionManager::registerAction(m_mainWindow->menuSeparator1(),
         Id("Analyzer.Views.Separator1"), analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, G_DEFAULT_THREE);
-    cmd = am->registerAction(m_mainWindow->toggleLockedAction(),
+    cmd = Core::ActionManager::registerAction(m_mainWindow->toggleLockedAction(),
         Id("Analyzer.Views.ToggleLocked"), analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, G_DEFAULT_THREE);
-    cmd = am->registerAction(m_mainWindow->menuSeparator2(),
+    cmd = Core::ActionManager::registerAction(m_mainWindow->menuSeparator2(),
         Id("Analyzer.Views.Separator2"), analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, G_DEFAULT_THREE);
-    cmd = am->registerAction(m_mainWindow->resetLayoutAction(),
+    cmd = Core::ActionManager::registerAction(m_mainWindow->resetLayoutAction(),
         Id("Analyzer.Views.ResetSimple"), analyzerContext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, G_DEFAULT_THREE);
@@ -428,22 +426,20 @@ void AnalyzerManagerPrivate::activateDock(Qt::DockWidgetArea area, QDockWidget *
 
     Context globalContext(C_GLOBAL);
 
-    ActionManager *am = ICore::actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
     toggleViewAction->setText(dockWidget->windowTitle());
-    Command *cmd = am->registerAction(toggleViewAction,
+    Command *cmd = Core::ActionManager::registerAction(toggleViewAction,
         Id(QLatin1String("Analyzer.") + dockWidget->objectName()), globalContext);
     cmd->setAttribute(Command::CA_Hide);
 
-    ActionContainer *viewsMenu = am->actionContainer(Id(M_WINDOW_VIEWS));
+    ActionContainer *viewsMenu = Core::ActionManager::actionContainer(Id(M_WINDOW_VIEWS));
     viewsMenu->addAction(cmd);
 }
 
 void AnalyzerManagerPrivate::deactivateDock(QDockWidget *dockWidget)
 {
-    ActionManager *am = ICore::actionManager();
     QAction *toggleViewAction = dockWidget->toggleViewAction();
-    am->unregisterAction(toggleViewAction, Id(QLatin1String("Analyzer.") + dockWidget->objectName()));
+    Core::ActionManager::unregisterAction(toggleViewAction, Id(QLatin1String("Analyzer.") + dockWidget->objectName()));
     m_mainWindow->removeDockWidget(dockWidget);
     dockWidget->hide();
     // Prevent saveState storing the data of the wrong children.
@@ -682,13 +678,12 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
     delayedInit(); // Make sure that there is a valid IMode instance.
 
     const bool blocked = m_toolBox->blockSignals(true); // Do not make current.
-    ActionManager *am = ICore::actionManager();
     foreach (StartMode mode, modes) {
         QString actionName = tool->actionName(mode);
         Id menuGroup = tool->menuGroup(mode);
         Id actionId = tool->actionId(mode);
         QAction *action = new QAction(actionName, 0);
-        Command *command = am->registerAction(action, actionId, Context(C_GLOBAL));
+        Command *command = Core::ActionManager::registerAction(action, actionId, Context(C_GLOBAL));
         m_menu->addAction(command, menuGroup);
         command->action()->setData(int(StartLocal));
         // Assuming this happens before project loading.

@@ -1562,12 +1562,11 @@ void CPPEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     QMenu *menu = new QMenu;
 
-    Core::ActionManager *am = Core::ICore::actionManager();
-    Core::ActionContainer *mcontext = am->actionContainer(Constants::M_CONTEXT);
+    Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(Constants::M_CONTEXT);
     QMenu *contextMenu = mcontext->menu();
 
     QMenu *quickFixMenu = new QMenu(tr("&Refactor"), menu);
-    quickFixMenu->addAction(am->command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
+    quickFixMenu->addAction(Core::ActionManager::command(Constants::RENAME_SYMBOL_UNDER_CURSOR)->action());
 
     QSignalMapper mapper;
     connect(&mapper, SIGNAL(mapped(int)), this, SLOT(performQuickFix(int)));

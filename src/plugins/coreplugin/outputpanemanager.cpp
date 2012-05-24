@@ -208,12 +208,11 @@ static inline int paneShortCut(int number)
 
 void OutputPaneManager::init()
 {
-    ActionManager *am = Core::ICore::actionManager();
-    ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
     const Context globalContext(Constants::C_GLOBAL);
 
     // Window->Output Panes
-    ActionContainer *mpanes = am->createMenu(Constants::M_WINDOW_PANES);
+    ActionContainer *mpanes = ActionManager::createMenu(Constants::M_WINDOW_PANES);
     mwindow->addMenu(mpanes, Constants::G_WINDOW_PANES);
     mpanes->menu()->setTitle(tr("Output &Panes"));
     mpanes->appendGroup("Coreplugin.OutputPane.ActionsGroup");
@@ -221,21 +220,21 @@ void OutputPaneManager::init()
 
     Command *cmd;
 
-    cmd = am->registerAction(m_clearAction, "Coreplugin.OutputPane.clear", globalContext);
+    cmd = ActionManager::registerAction(m_clearAction, "Coreplugin.OutputPane.clear", globalContext);
     m_clearButton->setDefaultAction(cmd->action());
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
-    cmd = am->registerAction(m_prevAction, "Coreplugin.OutputPane.previtem", globalContext);
+    cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem", globalContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F6")));
     m_prevToolButton->setDefaultAction(cmd->action());
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
-    cmd = am->registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem", globalContext);
+    cmd = ActionManager::registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem", globalContext);
     m_nextToolButton->setDefaultAction(cmd->action());
     cmd->setDefaultKeySequence(QKeySequence(tr("F6")));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
-    cmd = am->registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax", globalContext);
+    cmd = ActionManager::registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax", globalContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+9") : tr("Alt+9")));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
@@ -245,7 +244,7 @@ void OutputPaneManager::init()
 
     QAction *sep = new QAction(this);
     sep->setSeparator(true);
-    cmd = am->registerAction(sep, "Coreplugin.OutputPane.Sep", globalContext);
+    cmd = ActionManager::registerAction(sep, "Coreplugin.OutputPane.Sep", globalContext);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     QFontMetrics titleFm = m_titleLabel->fontMetrics();
@@ -284,7 +283,7 @@ void OutputPaneManager::init()
         actionId.remove(QLatin1Char(' '));
         Id id(actionId);
         QAction *action = new QAction(outPane->displayName(), this);
-        Command *cmd = am->registerAction(action, id, globalContext);
+        Command *cmd = ActionManager::registerAction(action, id, globalContext);
 
         mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
         m_actions.append(cmd->action());

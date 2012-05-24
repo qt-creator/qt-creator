@@ -6083,24 +6083,23 @@ QMimeData *BaseTextEditorWidget::duplicateMimeData(const QMimeData *source) cons
 void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
     menu->addSeparator();
-    Core::ActionManager *am = Core::ICore::actionManager();
 
-    QAction *a = am->command(Core::Constants::CUT)->action();
+    QAction *a = Core::ActionManager::command(Core::Constants::CUT)->action();
     if (a && a->isEnabled())
         menu->addAction(a);
-    a = am->command(Core::Constants::COPY)->action();
+    a = Core::ActionManager::command(Core::Constants::COPY)->action();
     if (a && a->isEnabled())
         menu->addAction(a);
-    a = am->command(Core::Constants::PASTE)->action();
+    a = Core::ActionManager::command(Core::Constants::PASTE)->action();
     if (a && a->isEnabled())
         menu->addAction(a);
-    a = am->command(Constants::CIRCULAR_PASTE)->action();
+    a = Core::ActionManager::command(Constants::CIRCULAR_PASTE)->action();
     if (a && a->isEnabled())
         menu->addAction(a);
 
     BaseTextDocument *doc = baseTextDocument();
     if (doc->codec()->name() == QString(QLatin1String("UTF-8"))) {
-        a = am->command(Constants::SWITCH_UTF8BOM)->action();
+        a = Core::ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
         if (a && a->isEnabled()) {
             a->setText(doc->format().hasUtf8Bom ? tr("Delete UTF-8 BOM on Save")
                                                 : tr("Add UTF-8 BOM on Save"));

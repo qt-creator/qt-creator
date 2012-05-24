@@ -170,13 +170,13 @@
     \row
     \o Add a menu or menu item.
     \o You can extend existing menus or create new ones.
-    \o \l{Core::ActionManager}, \l{Core::Command}, \l{Core::ICore::actionManager()}
+    \o \l{Core::ActionManager}, \l{Core::Command}
 
     \row
     \o Add a configurable keyboard shortcut.
     \o Registering shortcuts makes it possible for users to configure them in
        the common shortcut settings dialog.
-    \o \l{Core::ActionManager}, \l{Core::Command}, \l{Core::ICore::actionManager()}
+    \o \l{Core::ActionManager}, \l{Core::Command}
 
     \row
     \o Add a mode.

@@ -274,12 +274,12 @@ static EditorManager *m_instance = 0;
 
 EditorManager *EditorManager::instance() { return m_instance; }
 
-static Command *createSeparator(ActionManager *am, QObject *parent,
+static Command *createSeparator(QObject *parent,
                                 const Id &id, const Context &context)
 {
     QAction *tmpaction = new QAction(parent);
     tmpaction->setSeparator(true);
-    Command *cmd = am->registerAction(tmpaction, id, context);
+    Command *cmd = ActionManager::registerAction(tmpaction, id, context);
     return cmd;
 }
 
@@ -296,12 +296,11 @@ EditorManager::EditorManager(QWidget *parent) :
     // combined context for edit & design modes
     const Context editDesignContext(Constants::C_EDITORMANAGER, Constants::C_DESIGN_MODE);
 
-    ActionManager *am = ICore::actionManager();
-    ActionContainer *mfile = am->actionContainer(Constants::M_FILE);
+    ActionContainer *mfile = ActionManager::actionContainer(Constants::M_FILE);
 
     // Revert to saved
     d->m_revertToSavedAction->setIcon(QIcon::fromTheme(QLatin1String("document-revert")));
-    Command *cmd = am->registerAction(d->m_revertToSavedAction,
+    Command *cmd = ActionManager::registerAction(d->m_revertToSavedAction,
                                        Constants::REVERTTOSAVED, editManagerContext);
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(tr("Revert File to Saved"));
@@ -309,29 +308,29 @@ EditorManager::EditorManager(QWidget *parent) :
     connect(d->m_revertToSavedAction, SIGNAL(triggered()), this, SLOT(revertToSaved()));
 
     // Save Action
-    am->registerAction(d->m_saveAction, Constants::SAVE, editManagerContext);
+    ActionManager::registerAction(d->m_saveAction, Constants::SAVE, editManagerContext);
     connect(d->m_saveAction, SIGNAL(triggered()), this, SLOT(saveDocument()));
 
     // Save As Action
-    am->registerAction(d->m_saveAsAction, Constants::SAVEAS, editManagerContext);
+    ActionManager::registerAction(d->m_saveAsAction, Constants::SAVEAS, editManagerContext);
     connect(d->m_saveAsAction, SIGNAL(triggered()), this, SLOT(saveDocumentAs()));
 
     // Window Menu
-    ActionContainer *mwindow = am->actionContainer(Constants::M_WINDOW);
+    ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
 
     // Window menu separators
     QAction *tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
-    cmd = am->registerAction(tmpaction, "QtCreator.Window.Sep.Split", editManagerContext);
+    cmd = ActionManager::registerAction(tmpaction, "QtCreator.Window.Sep.Split", editManagerContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
 
     tmpaction = new QAction(this);
     tmpaction->setSeparator(true);
-    cmd = am->registerAction(tmpaction, "QtCreator.Window.Sep.Navigate", editManagerContext);
+    cmd = ActionManager::registerAction(tmpaction, "QtCreator.Window.Sep.Navigate", editManagerContext);
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
 
     // Close Action
-    cmd = am->registerAction(d->m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext, true);
+    cmd = ActionManager::registerAction(d->m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext, true);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+W")));
     cmd->setAttribute(Core::Command::CA_UpdateText);
     cmd->setDescription(d->m_closeCurrentEditorAction->text());
@@ -341,20 +340,20 @@ EditorManager::EditorManager(QWidget *parent) :
 #ifdef Q_WS_WIN
     // workaround for QTCREATORBUG-72
     QShortcut *sc = new QShortcut(parent);
-    cmd = am->registerShortcut(sc, Constants::CLOSE_ALTERNATIVE, editManagerContext);
+    cmd = ActionManager::registerShortcut(sc, Constants::CLOSE_ALTERNATIVE, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+F4")));
     cmd->setDescription(EditorManager::tr("Close"));
     connect(sc, SIGNAL(activated()), this, SLOT(closeEditor()));
 #endif
 
     // Close All Action
-    cmd = am->registerAction(d->m_closeAllEditorsAction, Constants::CLOSEALL, editManagerContext, true);
+    cmd = ActionManager::registerAction(d->m_closeAllEditorsAction, Constants::CLOSEALL, editManagerContext, true);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+W")));
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(d->m_closeAllEditorsAction, SIGNAL(triggered()), this, SLOT(closeAllEditors()));
 
     // Close All Others Action
-    cmd = am->registerAction(d->m_closeOtherEditorsAction, Constants::CLOSEOTHERS, editManagerContext, true);
+    cmd = ActionManager::registerAction(d->m_closeOtherEditorsAction, Constants::CLOSEOTHERS, editManagerContext, true);
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     cmd->setAttribute(Core::Command::CA_UpdateText);
     connect(d->m_closeOtherEditorsAction, SIGNAL(triggered()), this, SLOT(closeOtherEditors()));
@@ -368,61 +367,61 @@ EditorManager::EditorManager(QWidget *parent) :
     connect(d->m_openTerminalAction, SIGNAL(triggered()), this, SLOT(openTerminal()));
 
     // Goto Previous In History Action
-    cmd = am->registerAction(d->m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editDesignContext);
+    cmd = ActionManager::registerAction(d->m_gotoPreviousDocHistoryAction, Constants::GOTOPREVINHISTORY, editDesignContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Alt+Tab") : tr("Ctrl+Tab")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(d->m_gotoPreviousDocHistoryAction, SIGNAL(triggered()), this, SLOT(gotoPreviousDocHistory()));
 
     // Goto Next In History Action
-    cmd = am->registerAction(d->m_gotoNextDocHistoryAction, Constants::GOTONEXTINHISTORY, editDesignContext);
+    cmd = ActionManager::registerAction(d->m_gotoNextDocHistoryAction, Constants::GOTONEXTINHISTORY, editDesignContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Alt+Shift+Tab") : tr("Ctrl+Shift+Tab")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(d->m_gotoNextDocHistoryAction, SIGNAL(triggered()), this, SLOT(gotoNextDocHistory()));
 
     // Go back in navigation history
-    cmd = am->registerAction(d->m_goBackAction, Constants::GO_BACK, editDesignContext);
+    cmd = ActionManager::registerAction(d->m_goBackAction, Constants::GO_BACK, editDesignContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Alt+Left") : tr("Alt+Left")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(d->m_goBackAction, SIGNAL(triggered()), this, SLOT(goBackInNavigationHistory()));
 
     // Go forward in navigation history
-    cmd = am->registerAction(d->m_goForwardAction, Constants::GO_FORWARD, editDesignContext);
+    cmd = ActionManager::registerAction(d->m_goForwardAction, Constants::GO_FORWARD, editDesignContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Ctrl+Alt+Right") : tr("Alt+Right")));
     mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
     connect(d->m_goForwardAction, SIGNAL(triggered()), this, SLOT(goForwardInNavigationHistory()));
 
     d->m_splitAction = new QAction(tr("Split"), this);
-    cmd = am->registerAction(d->m_splitAction, Constants::SPLIT, editManagerContext);
+    cmd = ActionManager::registerAction(d->m_splitAction, Constants::SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,2") : tr("Ctrl+E,2")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_splitAction, SIGNAL(triggered()), this, SLOT(split()));
 
     d->m_splitSideBySideAction = new QAction(tr("Split Side by Side"), this);
-    cmd = am->registerAction(d->m_splitSideBySideAction, Constants::SPLIT_SIDE_BY_SIDE, editManagerContext);
+    cmd = ActionManager::registerAction(d->m_splitSideBySideAction, Constants::SPLIT_SIDE_BY_SIDE, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,3") : tr("Ctrl+E,3")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_splitSideBySideAction, SIGNAL(triggered()), this, SLOT(splitSideBySide()));
 
     d->m_removeCurrentSplitAction = new QAction(tr("Remove Current Split"), this);
-    cmd = am->registerAction(d->m_removeCurrentSplitAction, Constants::REMOVE_CURRENT_SPLIT, editManagerContext);
+    cmd = ActionManager::registerAction(d->m_removeCurrentSplitAction, Constants::REMOVE_CURRENT_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,0") : tr("Ctrl+E,0")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_removeCurrentSplitAction, SIGNAL(triggered()), this, SLOT(removeCurrentSplit()));
 
     d->m_removeAllSplitsAction = new QAction(tr("Remove All Splits"), this);
-    cmd = am->registerAction(d->m_removeAllSplitsAction, Constants::REMOVE_ALL_SPLITS, editManagerContext);
+    cmd = ActionManager::registerAction(d->m_removeAllSplitsAction, Constants::REMOVE_ALL_SPLITS, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,1") : tr("Ctrl+E,1")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_removeAllSplitsAction, SIGNAL(triggered()), this, SLOT(removeAllSplits()));
 
     d->m_gotoOtherSplitAction = new QAction(tr("Go to Next Split"), this);
-    cmd = am->registerAction(d->m_gotoOtherSplitAction, Constants::GOTO_OTHER_SPLIT, editManagerContext);
+    cmd = ActionManager::registerAction(d->m_gotoOtherSplitAction, Constants::GOTO_OTHER_SPLIT, editManagerContext);
     cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+E,o") : tr("Ctrl+E,o")));
     mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
     connect(d->m_gotoOtherSplitAction, SIGNAL(triggered()), this, SLOT(gotoOtherSplit()));
 
-    ActionContainer *medit = am->actionContainer(Constants::M_EDIT);
-    ActionContainer *advancedMenu = am->createMenu(Constants::M_EDIT_ADVANCED);
+    ActionContainer *medit = ActionManager::actionContainer(Constants::M_EDIT);
+    ActionContainer *advancedMenu = ActionManager::createMenu(Constants::M_EDIT_ADVANCED);
     medit->addMenu(advancedMenu, Constants::G_EDIT_ADVANCED);
     advancedMenu->menu()->setTitle(tr("Ad&vanced"));
     advancedMenu->appendGroup(Constants::G_EDIT_FORMAT);
@@ -432,13 +431,13 @@ EditorManager::EditorManager(QWidget *parent) :
     advancedMenu->appendGroup(Constants::G_EDIT_EDITOR);
 
     // Advanced menu separators
-    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.Collapsing"), editManagerContext);
+    cmd = createSeparator(this, Id("QtCreator.Edit.Sep.Collapsing"), editManagerContext);
     advancedMenu->addAction(cmd, Constants::G_EDIT_COLLAPSING);
-    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.Blocks"), editManagerContext);
+    cmd = createSeparator(this, Id("QtCreator.Edit.Sep.Blocks"), editManagerContext);
     advancedMenu->addAction(cmd, Constants::G_EDIT_BLOCKS);
-    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.Font"), editManagerContext);
+    cmd = createSeparator(this, Id("QtCreator.Edit.Sep.Font"), editManagerContext);
     advancedMenu->addAction(cmd, Constants::G_EDIT_FONT);
-    cmd = createSeparator(am, this, Id("QtCreator.Edit.Sep.Editor"), editManagerContext);
+    cmd = createSeparator(this, Id("QtCreator.Edit.Sep.Editor"), editManagerContext);
     advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
 
     // other setup

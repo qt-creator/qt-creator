@@ -197,11 +197,10 @@ void ModeManager::objectAdded(QObject *obj)
     d->m_modeStack->setTabEnabled(index, mode->isEnabled());
 
     // Register mode shortcut
-    ActionManager *am = d->m_mainWindow->actionManager();
     const Id shortcutId(QLatin1String("QtCreator.Mode.") + mode->id().toString());
     QShortcut *shortcut = new QShortcut(d->m_mainWindow);
     shortcut->setWhatsThis(tr("Switch to <b>%1</b> mode").arg(mode->displayName()));
-    Command *cmd = am->registerShortcut(shortcut, shortcutId, Context(Constants::C_GLOBAL));
+    Command *cmd = ActionManager::registerShortcut(shortcut, shortcutId, Context(Constants::C_GLOBAL));
 
     d->m_modeShortcuts.insert(index, cmd);
     connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateModeToolTip()));

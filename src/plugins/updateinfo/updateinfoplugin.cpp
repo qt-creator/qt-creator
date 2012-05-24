@@ -142,7 +142,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
         return false;
     }
 
-    Core::ActionContainer* const helpActionContainer = Core::ICore::actionManager()->actionContainer(Core::Constants::M_HELP);
+    Core::ActionContainer* const helpActionContainer = Core::ActionManager::actionContainer(Core::Constants::M_HELP);
     helpActionContainer->menu()->addAction(tr("Start Updater"), this, SLOT(startUpdaterUiApplication()));
 
     //wait some time before we want to have the first check

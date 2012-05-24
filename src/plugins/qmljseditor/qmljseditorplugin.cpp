@@ -117,14 +117,13 @@ QmlJSEditorPlugin::~QmlJSEditorPlugin()
 
 /*! Copied from cppplugin.cpp */
 static inline
-Core::Command *createSeparator(Core::ActionManager *am,
-                               QObject *parent,
+Core::Command *createSeparator(QObject *parent,
                                Core::Context &context,
                                const char *id)
 {
     QAction *separator = new QAction(parent);
     separator->setSeparator(true);
-    return am->registerAction(separator, Core::Id(id), context);
+    return Core::ActionManager::registerAction(separator, Core::Id(id), context);
 }
 
 bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
@@ -178,45 +177,44 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
         | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
     m_actionHandler->initializeActions();
 
-    Core::ActionManager *am = Core::ICore::actionManager();
-    Core::ActionContainer *contextMenu = am->createMenu(QmlJSEditor::Constants::M_CONTEXT);
-    Core::ActionContainer *qmlToolsMenu = am->actionContainer(Core::Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
+    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(QmlJSEditor::Constants::M_CONTEXT);
+    Core::ActionContainer *qmlToolsMenu = Core::ActionManager::actionContainer(Core::Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
 
     Core::Context globalContext(Core::Constants::C_GLOBAL);
-    qmlToolsMenu->addAction(createSeparator(am, this, globalContext, QmlJSEditor::Constants::SEPARATOR3));
+    qmlToolsMenu->addAction(createSeparator(this, globalContext, QmlJSEditor::Constants::SEPARATOR3));
 
     Core::Command *cmd;
-    cmd = am->command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
+    cmd = Core::ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     QAction *findUsagesAction = new QAction(tr("Find Usages"), this);
-    cmd = am->registerAction(findUsagesAction, Constants::FIND_USAGES, context);
+    cmd = Core::ActionManager::registerAction(findUsagesAction, Constants::FIND_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+U")));
     connect(findUsagesAction, SIGNAL(triggered()), this, SLOT(findUsages()));
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     QAction *renameUsagesAction = new QAction(tr("Rename Symbol Under Cursor"), this);
-    cmd = am->registerAction(renameUsagesAction, Constants::RENAME_USAGES, context);
+    cmd = Core::ActionManager::registerAction(renameUsagesAction, Constants::RENAME_USAGES, context);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+R")));
     connect(renameUsagesAction, SIGNAL(triggered()), this, SLOT(renameUsages()));
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
     QAction *semanticScan = new QAction(tr("Run Checks"), this);
-    cmd = am->registerAction(semanticScan, Core::Id(Constants::RUN_SEMANTIC_SCAN), globalContext);
+    cmd = Core::ActionManager::registerAction(semanticScan, Core::Id(Constants::RUN_SEMANTIC_SCAN), globalContext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+C")));
     connect(semanticScan, SIGNAL(triggered()), this, SLOT(runSemanticScan()));
     qmlToolsMenu->addAction(cmd);
 
     m_reformatFileAction = new QAction(tr("Reformat File"), this);
-    cmd = am->registerAction(m_reformatFileAction, Core::Id(Constants::REFORMAT_FILE), context);
+    cmd = Core::ActionManager::registerAction(m_reformatFileAction, Core::Id(Constants::REFORMAT_FILE), context);
     connect(m_reformatFileAction, SIGNAL(triggered()), this, SLOT(reformatFile()));
     qmlToolsMenu->addAction(cmd);
 
     QAction *showQuickToolbar = new QAction(tr("Show Qt Quick Toolbar"), this);
-    cmd = am->registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
+    cmd = Core::ActionManager::registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
     cmd->setDefaultKeySequence(Core::UseMacShortcuts ? QKeySequence(Qt::META + Qt::ALT + Qt::Key_Space)
                                                      : QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_Space));
     connect(showQuickToolbar, SIGNAL(triggered()), this, SLOT(showContextPane()));
@@ -224,17 +222,17 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     qmlToolsMenu->addAction(cmd);
 
     // Insert marker for "Refactoring" menu:
-    Core::Command *sep = createSeparator(am, this, globalContext,
+    Core::Command *sep = createSeparator(this, globalContext,
                                          Constants::SEPARATOR1);
     sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);
     contextMenu->addAction(sep);
-    contextMenu->addAction(createSeparator(am, this, globalContext,
+    contextMenu->addAction(createSeparator(this, globalContext,
                                            Constants::SEPARATOR2));
 
-    cmd = am->command(TextEditor::Constants::AUTO_INDENT_SELECTION);
+    cmd = Core::ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    cmd = am->command(TextEditor::Constants::UN_COMMENT_SELECTION);
+    cmd = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
     m_quickFixAssistProvider = new QmlJSQuickFixAssistProvider;
@@ -321,11 +319,11 @@ void QmlJSEditorPlugin::showContextPane()
 
 }
 
-Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a, Core::ActionManager *am,
+Core::Command *QmlJSEditorPlugin::addToolAction(QAction *a,
                                           Core::Context &context, const Core::Id &id,
                                           Core::ActionContainer *c1, const QString &keySequence)
 {
-    Core::Command *command = am->registerAction(a, id, context);
+    Core::Command *command = Core::ActionManager::registerAction(a, id, context);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
     c1->addAction(command);

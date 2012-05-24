@@ -94,7 +94,7 @@ public:
                                        const QString &settingsId = QString(),
                                        QWidget *parent = 0);
 
-    static ActionManager *actionManager();
+    static QT_DEPRECATED ActionManager *actionManager(); // Use Actionmanager::... directly.
     static QT_DEPRECATED DocumentManager *documentManager(); // Use DocumentManager::... directly.
     static MessageManager *messageManager();
     static EditorManager *editorManager();

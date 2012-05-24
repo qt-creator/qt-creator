@@ -196,9 +196,8 @@ void FindPlugin::openFindDialog(IFindFilter *filter)
 
 void FindPlugin::setupMenu()
 {
-    Core::ActionManager *am = Core::ICore::actionManager();
-    Core::ActionContainer *medit = am->actionContainer(Core::Constants::M_EDIT);
-    Core::ActionContainer *mfind = am->createMenu(Constants::M_FIND);
+    Core::ActionContainer *medit = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
+    Core::ActionContainer *mfind = Core::ActionManager::createMenu(Constants::M_FIND);
     medit->addMenu(mfind, Core::Constants::G_EDIT_FIND);
     mfind->menu()->setTitle(tr("&Find/Replace"));
     mfind->appendGroup(Constants::G_FIND_CURRENTDOCUMENT);
@@ -210,19 +209,19 @@ void FindPlugin::setupMenu()
     QAction *separator;
     separator = new QAction(this);
     separator->setSeparator(true);
-    cmd = am->registerAction(separator, "Find.Sep.Flags", globalcontext);
+    cmd = Core::ActionManager::registerAction(separator, "Find.Sep.Flags", globalcontext);
     mfind->addAction(cmd, Constants::G_FIND_FLAGS);
     separator = new QAction(this);
     separator->setSeparator(true);
-    cmd = am->registerAction(separator, "Find.Sep.Actions", globalcontext);
+    cmd = Core::ActionManager::registerAction(separator, "Find.Sep.Actions", globalcontext);
     mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
 
-    Core::ActionContainer *mfindadvanced = am->createMenu(Constants::M_FIND_ADVANCED);
+    Core::ActionContainer *mfindadvanced = Core::ActionManager::createMenu(Constants::M_FIND_ADVANCED);
     mfindadvanced->menu()->setTitle(tr("Advanced Find"));
     mfind->addMenu(mfindadvanced, Constants::G_FIND_FILTERS);
     d->m_openFindDialog = new QAction(tr("Open Advanced Find..."), this);
     d->m_openFindDialog->setIconText(tr("Advanced..."));
-    cmd = am->registerAction(d->m_openFindDialog, Constants::ADVANCED_FIND, globalcontext);
+    cmd = Core::ActionManager::registerAction(d->m_openFindDialog, Constants::ADVANCED_FIND, globalcontext);
     cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
     mfindadvanced->addAction(cmd);
     connect(d->m_openFindDialog, SIGNAL(triggered()), this, SLOT(openFindFilter()));
@@ -230,13 +229,12 @@ void FindPlugin::setupMenu()
 
 void FindPlugin::setupFilterMenuItems()
 {
-    Core::ActionManager *am = Core::ICore::actionManager();
     QList<IFindFilter*> findInterfaces =
         ExtensionSystem::PluginManager::instance()->getObjects<IFindFilter>();
     Core::Command *cmd;
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
-    Core::ActionContainer *mfindadvanced = am->actionContainer(Constants::M_FIND_ADVANCED);
+    Core::ActionContainer *mfindadvanced = Core::ActionManager::actionContainer(Constants::M_FIND_ADVANCED);
     d->m_filterActions.clear();
     bool haveEnabledFilters = false;
     foreach (IFindFilter *filter, findInterfaces) {
@@ -246,7 +244,7 @@ void FindPlugin::setupFilterMenuItems()
             haveEnabledFilters = true;
         action->setEnabled(isEnabled);
         action->setData(qVariantFromValue(filter));
-        cmd = am->registerAction(action, Core::Id(QLatin1String("FindFilter.")+filter->id()), globalcontext);
+        cmd = Core::ActionManager::registerAction(action, Core::Id(QLatin1String("FindFilter.")+filter->id()), globalcontext);
         cmd->setDefaultKeySequence(filter->defaultShortcut());
         mfindadvanced->addAction(cmd);
         d->m_filterActions.insert(filter, action);
