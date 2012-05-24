@@ -543,11 +543,8 @@
             \o Debugging tools for Windows
             \o To use this engine, you must install the
                \e{Debugging tools for Windows}. You can download them from
-               \l{http://msdn.microsoft.com/en-us/windows/hardware/gg463009/}.
-
-               The \QC help browser does
-               not allow you to download files, and therefore, you must copy
-               the above link to a browser.
+               \l{http://msdn.microsoft.com/en-us/windows/hardware/gg463009/}
+                {Download and Install Debugging Tools for Windows}.
 
                \note Visual Studio does not include the Debugging tools needed,
                and therefore, you must install them separately.

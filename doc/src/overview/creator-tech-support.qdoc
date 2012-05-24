@@ -64,9 +64,6 @@
             \o  Find free Qt-based applications
             \o  \l{http://qt-apps.org/}{Qt Apps}
 
-                \note The \QC help browser does not allow you to download files,
-                and therefore, you must copy the following link to a browser:
-                http://qt-apps.org/
         \row
             \o  Buy commercial Qt support from Digia
             \o  \l{http://qt.digia.com/}{Qt Commercial}
