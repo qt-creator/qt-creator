@@ -451,6 +451,16 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
+static void setProxyAction(Utils::ProxyAction *proxy, const char *id)
+{
+    proxy->setAction(Core::ICore::actionManager()->command(id)->action());
+}
+
+static QToolButton *toolButton(const char *id)
+{
+    return toolButton(Core::ICore::actionManager()->command(id)->action());
+}
+
 static Abi anyAbiOfBinary(const QString &fileName)
 {
     QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(fileName));
@@ -1476,7 +1486,7 @@ void DebuggerPluginPrivate::onCurrentProjectChanged(Project *project)
     m_exitAction->setEnabled(false);
     m_startAction->setEnabled(true);
     m_debugWithoutDeployAction->setEnabled(true);
-    m_visibleStartAction->setAction(m_startAction);
+    setProxyAction(m_visibleStartAction, Constants::DEBUG);
 }
 
 void DebuggerPluginPrivate::languagesChanged()
@@ -2266,7 +2276,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_exitAction->setEnabled(false);
         m_startAction->setEnabled(true);
         m_debugWithoutDeployAction->setEnabled(true);
-        m_visibleStartAction->setAction(m_startAction);
+        setProxyAction(m_visibleStartAction, Constants::DEBUG);
         m_hiddenStopAction->setAction(m_undisturbableAction);
     } else if (state == InferiorStopOk) {
         // F5 continues, Shift-F5 kills. It is "continuable".
@@ -2275,7 +2285,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_exitAction->setEnabled(true);
         m_startAction->setEnabled(false);
         m_debugWithoutDeployAction->setEnabled(false);
-        m_visibleStartAction->setAction(m_continueAction);
+        setProxyAction(m_visibleStartAction, Constants::CONTINUE);
         m_hiddenStopAction->setAction(m_exitAction);
         m_localsAndExpressionsWindow->setShowLocals(true);
     } else if (state == InferiorRunOk) {
@@ -2285,7 +2295,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_exitAction->setEnabled(true);
         m_startAction->setEnabled(false);
         m_debugWithoutDeployAction->setEnabled(false);
-        m_visibleStartAction->setAction(m_interruptAction);
+        setProxyAction(m_visibleStartAction, Constants::INTERRUPT);
         m_hiddenStopAction->setAction(m_interruptAction);
         m_localsAndExpressionsWindow->setShowLocals(false);
     } else if (state == DebuggerFinished) {
@@ -2295,7 +2305,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_exitAction->setEnabled(false);
         m_startAction->setEnabled(true);
         m_debugWithoutDeployAction->setEnabled(true);
-        m_visibleStartAction->setAction(m_startAction);
+        setProxyAction(m_visibleStartAction, Constants::DEBUG);
         m_hiddenStopAction->setAction(m_undisturbableAction);
         m_codeModelSnapshot = CPlusPlus::Snapshot();
         setBusyCursor(false);
@@ -2915,7 +2925,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setIcon(m_continueIcon);
     connect(act, SIGNAL(triggered()), SLOT(handleExecContinue()));
 
-    act = m_exitAction = new QAction(tr("Exit Debugger"), this);
+    act = m_exitAction = new QAction(tr("Stop Debugger"), this);
     act->setIcon(m_exitIcon);
     connect(act, SIGNAL(triggered()), SLOT(handleExecExit()));
 
@@ -2993,17 +3003,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     qmlSelectDummyAction->setCheckable(true);
     qmlSelectDummyAction->setIcon(QIcon(_(":/debugger/images/qml/select.png")));
     qmlSelectDummyAction->setEnabled(false);
-    Core::Command *qmlSelectCommand
-            = am->registerAction(qmlSelectDummyAction, QML_SELECTTOOL,
-                                 globalcontext);
+    am->registerAction(qmlSelectDummyAction, Constants::QML_SELECTTOOL, globalcontext);
 
     QAction *qmlZoomDummyAction = new QAction(tr("Zoom"), this);
     qmlZoomDummyAction->setCheckable(true);
     qmlZoomDummyAction->setIcon(QIcon(_(":/debugger/images/qml/zoom.png")));
     qmlZoomDummyAction->setEnabled(false);
-    Core::Command *qmlZoomCommand
-            = am->registerAction(qmlZoomDummyAction, QML_ZOOMTOOL,
-                                 globalcontext);
+    am->registerAction(qmlZoomDummyAction, Constants::QML_ZOOMTOOL, globalcontext);
 
     ActionContainer *debugMenu =
         am->actionContainer(ProjectExplorer::Constants::M_DEBUG);
@@ -3131,9 +3137,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDefaultKeySequence(debugKey);
     cmd->setAttribute(Command::CA_UpdateText);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
-
     m_visibleStartAction = new Utils::ProxyAction(this);
-    m_visibleStartAction->initialize(m_startAction);
+    m_visibleStartAction->initialize(cmd->action());
     m_visibleStartAction->setAttribute(Utils::ProxyAction::UpdateText);
     m_visibleStartAction->setAttribute(Utils::ProxyAction::UpdateIcon);
     m_visibleStartAction->setAction(cmd->action());
@@ -3229,11 +3234,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     cmd = am->registerAction(m_exitAction,
         Constants::STOP, globalcontext);
-    cmd->setDescription(tr("Stop Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
-
     m_hiddenStopAction = new Utils::ProxyAction(this);
-    m_hiddenStopAction->initialize(m_exitAction);
+    m_hiddenStopAction->initialize(cmd->action());
     m_hiddenStopAction->setAttribute(Utils::ProxyAction::UpdateText);
     m_hiddenStopAction->setAttribute(Utils::ProxyAction::UpdateIcon);
 
@@ -3436,14 +3439,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->setMargin(0);
     hbox->setSpacing(0);
     hbox->addWidget(toolButton(m_visibleStartAction));
-    hbox->addWidget(toolButton(m_exitAction));
-    hbox->addWidget(toolButton(m_nextAction));
-    hbox->addWidget(toolButton(m_stepAction));
-    hbox->addWidget(toolButton(m_stepOutAction));
-    hbox->addWidget(toolButton(action(OperateByInstruction)));
+    hbox->addWidget(toolButton(Constants::STOP));
+    hbox->addWidget(toolButton(Constants::NEXT));
+    hbox->addWidget(toolButton(Constants::STEP));
+    hbox->addWidget(toolButton(Constants::STEPOUT));
+    hbox->addWidget(toolButton(Constants::OPERATE_BY_INSTRUCTION));
 
     //hbox->addWidget(new Utils::StyledSeparator);
-    m_reverseToolButton = toolButton(m_reverseDirectionAction);
+    m_reverseToolButton = toolButton(Constants::REVERSE);
     hbox->addWidget(m_reverseToolButton);
     //m_reverseToolButton->hide();
 
@@ -3466,8 +3469,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->addWidget(toolButton(action(QmlUpdateOnSave)));
     hbox->addWidget(toolButton(action(ShowAppOnTop)));
     hbox->addWidget(new Utils::StyledSeparator);
-    hbox->addWidget(toolButton(qmlSelectCommand->action()));
-    hbox->addWidget(toolButton(qmlZoomCommand->action()));
+    hbox->addWidget(toolButton(Constants::QML_SELECTTOOL));
+    hbox->addWidget(toolButton(Constants::QML_ZOOMTOOL));
     hbox->addWidget(new Utils::StyledSeparator);
     m_mainWindow->setToolBar(QmlLanguage, qmlToolbar);
 
