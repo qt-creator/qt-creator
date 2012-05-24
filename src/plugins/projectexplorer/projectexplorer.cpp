@@ -127,10 +127,6 @@
 #include <QFileInfo>
 #include <QSettings>
 
-#if QT_VERSION < 0x050000
-#include <QAbstractFileEngine>
-#endif
-
 #include <QAction>
 #include <QApplication>
 #include <QFileDialog>
@@ -2822,18 +2818,6 @@ void ProjectExplorerPlugin::renameFile()
     }
 }
 
-static inline bool fileSystemRenameFile(const QString &orgFilePath,
-                                        const QString &newFilePath)
-{
-#if QT_VERSION < 0x050000 // ### fixme: QTBUG-3570 might be fixed in Qt 5?
-    QFile f(orgFilePath); // Due to QTBUG-3570
-    QAbstractFileEngine *fileEngine = f.fileEngine();
-    if (!fileEngine->caseSensitive() && orgFilePath.compare(newFilePath, Qt::CaseInsensitive) == 0)
-        return fileEngine->rename(newFilePath);
-#endif
-    return QFile::rename(orgFilePath, newFilePath);
-}
-
 void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
 {
     FileNode *fileNode = qobject_cast<FileNode *>(node);
@@ -2843,20 +2827,8 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
     QString dir = QFileInfo(orgFilePath).absolutePath();
     QString newFilePath = dir + QLatin1Char('/') + to;
 
-    if (orgFilePath == newFilePath)
-        return;
-
-    Core::IVersionControl *vc = Core::ICore::vcsManager()->findVersionControlForDirectory(dir);
-
-    bool result = false;
-    if (vc && vc->supportsOperation(Core::IVersionControl::MoveOperation))
-        result = vc->vcsMove(orgFilePath, newFilePath);
-    if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
-        result = fileSystemRenameFile(orgFilePath, newFilePath);
-    if (result) {
-        // yeah we moved, tell the filemanager about it
-        Core::DocumentManager::renamedFile(orgFilePath, newFilePath);
-        // Tell the project plugin about it
+    if (Core::FileUtils::renameFile(orgFilePath, newFilePath)) {
+        // Tell the project plugin about rename
         ProjectNode *projectNode = fileNode->projectNode();
         if (!projectNode->renameFile(fileNode->fileType(), orgFilePath, newFilePath)) {
             QMessageBox::warning(Core::ICore::mainWindow(), tr("Project Editing Failed"),

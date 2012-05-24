@@ -349,12 +349,12 @@ void QrcEditor::addFile(const QString &prefix, const QString &file)
     m_treeview->addFile(prefix, file);
 }
 
-/*
-void QrcEditor::removeFile(const QString &prefix, const QString &file)
+void QrcEditor::editCurrentItem()
 {
-    m_treeview->removeFile(prefix, file);
+    if (m_treeview->selectionModel()->currentIndex().isValid())
+        m_treeview->edit(m_treeview->selectionModel()->currentIndex());
 }
-*/
+
 // Slot for change of line edit content 'alias'
 void QrcEditor::onAliasChanged(const QString &alias)
 {

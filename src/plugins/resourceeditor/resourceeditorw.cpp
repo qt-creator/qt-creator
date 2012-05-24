@@ -54,6 +54,8 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QToolBar>
+#include <QInputDialog>
+#include <QMessageBox>
 
 namespace ResourceEditor {
 namespace Internal {
@@ -103,6 +105,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
     m_resourceEditor->setResourceDragEnabled(true);
     m_contextMenu->addAction(tr("Open File"), this, SLOT(openCurrentFile()));
     m_openWithMenu = m_contextMenu->addMenu(tr("Open With"));
+    m_renameAction = m_contextMenu->addAction(tr("Rename File..."), this, SLOT(renameCurrentFile()), Qt::Key_F2);
     // Below we need QueuedConnection because otherwise, if this qrc file
     // is inside of the qrc file, crashes happen when using "Open With" on it.
     // (That is because this editor instance is deleted in executeOpenWithMenuAction
@@ -298,10 +301,9 @@ void ResourceEditorW::onUndoStackChanged(bool canUndo, bool canRedo)
 void ResourceEditorW::showContextMenu(const QPoint &globalPoint, const QString &fileName)
 {
     Core::DocumentManager::populateOpenWithMenu(m_openWithMenu, fileName);
-    if (!m_openWithMenu->actions().isEmpty()) {
-        m_currentFileName = fileName;
-        m_contextMenu->popup(globalPoint);
-    }
+    m_currentFileName = fileName;
+    m_renameAction->setEnabled(!document()->isFileReadOnly());
+    m_contextMenu->popup(globalPoint);
 }
 
 void ResourceEditorW::openCurrentFile()
@@ -318,6 +320,11 @@ void ResourceEditorW::onRefresh()
 {
     if (!m_resourceEditor.isNull())
         m_resourceEditor.data()->refresh();
+}
+
+void ResourceEditorW::renameCurrentFile()
+{
+    m_resourceEditor->editCurrentItem();
 }
 
 void ResourceEditorW::onUndo()

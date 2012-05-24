@@ -63,11 +63,11 @@ public:
     bool resourceDragEnabled() const;
 
     void addFile(const QString &prefix, const QString &file);
-//    void removeFile(const QString &prefix, const QString &file);
 
     const QUndoStack *commandHistory() const { return &m_history; }
 
     void refresh();
+    void editCurrentItem();
 
 signals:
     void dirtyChanged(bool dirty);

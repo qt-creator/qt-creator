@@ -77,6 +77,7 @@ public:
     File(Prefix *prefix, const QString &_name, const QString &_alias = QString());
     void checkExistence();
     bool exists();
+    void setExists(bool exists);
 
     bool operator < (const File &other) const { return name < other.name; }
     bool operator == (const File &other) const { return name == other.name; }
@@ -161,6 +162,8 @@ public:
     void replaceLang(int prefix_idx, const QString &lang);
     void replaceAlias(int prefix_idx, int file_idx, const QString &alias);
 
+    bool renameFile(const QString fileName, const QString &newFileName);
+
 private:
     void replaceFile(int pref_idx, int file_idx, const QString &file);
 public:
@@ -211,11 +214,13 @@ public:
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     bool hasChildren(const QModelIndex &parent) const;
+    Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void refresh();
 
 protected:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
 public:
     QString fileName() const { return m_resource_file.fileName(); }
@@ -247,6 +252,7 @@ private:
     QString relativePath(const QString &path) const
         { return m_resource_file.relativePath(path); }
     QString lastResourceOpenDirectory() const;
+    bool renameFile(const QString &fileName, const QString &newFileName);
 
 public:
     virtual bool reload();

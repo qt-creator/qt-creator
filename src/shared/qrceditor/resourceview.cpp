@@ -183,6 +183,7 @@ ResourceView::ResourceView(QUndoStack *history, QWidget *parent) :
     advanceMergeId();
     setModel(m_qrcModel);
     setContextMenuPolicy(Qt::CustomContextMenu);
+    setEditTriggers(EditKeyPressed);
 
     header()->hide();
 

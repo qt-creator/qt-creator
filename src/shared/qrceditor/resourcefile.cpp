@@ -33,6 +33,8 @@
 #include "resourcefile_p.h"
 
 #include <coreplugin/fileiconprovider.h>
+#include <coreplugin/fileutils.h>
+#include <utils/fileutils.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -87,6 +89,11 @@ bool File::exists()
     }
 
     return m_exists;
+}
+
+void File::setExists(bool exists)
+{
+    m_exists = exists;
 }
 
 /******************************************************************************
@@ -378,6 +385,41 @@ void ResourceFile::replaceAlias(int prefix_idx, int file_idx, const QString &ali
     fileList[file_idx]->alias = alias;
 }
 
+bool ResourceFile::renameFile(const QString fileName, const QString &newFileName)
+{
+    bool success = true;
+
+    FileList entries;
+    for (int i = 0; i < prefixCount(); ++i) {
+        const FileList &file_list = m_prefix_list.at(i)->file_list;
+        foreach (File *file, file_list) {
+            if (file->name == fileName)
+                entries.append(file);
+            if (file->name == newFileName)
+                return false; // prevent conflicts
+        }
+    }
+
+    Q_ASSERT(!entries.isEmpty());
+
+    entries.at(0)->checkExistence();
+    if (entries.at(0)->exists()) {
+        foreach (File *file, entries)
+            file->setExists(true);
+        success = Core::FileUtils::renameFile(entries.at(0)->name, newFileName);
+    }
+
+    if (success) {
+        bool exists = QFile::exists(newFileName);
+        foreach (File *file, entries) {
+            file->name = newFileName;
+            file->setExists(exists);
+        }
+    }
+
+    return success;
+}
+
 
 void ResourceFile::replaceFile(int pref_idx, int file_idx, const QString &file)
 {
@@ -646,6 +688,22 @@ void ResourceModel::refresh()
     m_resource_file.refresh();
 }
 
+Qt::ItemFlags ResourceModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags f = QAbstractItemModel::flags(index);
+
+    const void *internalPointer = index.internalPointer();
+    const Node *node = reinterpret_cast<const Node *>(internalPointer);
+    const Prefix *prefix = node->prefix();
+    Q_ASSERT(prefix);
+    const bool isFileNode = (prefix != node);
+
+    if (isFileNode)
+        f |= Qt::ItemIsEditable;
+
+    return f;
+}
+
 bool ResourceModel::iconFileExtension(const QString &path)
 {
     static QStringList ext_list;
@@ -701,7 +759,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                 // File node
                 Q_ASSERT(file);
                 QString conv_file = m_resource_file.relativePath(file->name);
-                stringRes = conv_file.replace(QDir::separator(), QLatin1Char('/'));
+                stringRes = QDir::fromNativeSeparators(conv_file);
                 const QString alias = file->alias;
                 if (!alias.isEmpty())
                     appendParenthesized(alias, stringRes);
@@ -727,6 +785,13 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             result = m_prefixIcon;
         }
         break;
+    case Qt::EditRole:
+        if (isFileNode) {
+            Q_ASSERT(file);
+            QString conv_file = m_resource_file.relativePath(file->name);
+            result = QDir::fromNativeSeparators(conv_file);
+        }
+        break;
     case Qt::ForegroundRole:
         if (isFileNode) {
             // File node
@@ -739,6 +804,26 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
         break;
     }
     return result;
+}
+
+bool ResourceModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (!index.isValid())
+        return false;
+    if (role != Qt::EditRole)
+        return false;
+
+    const QDir baseDir = QFileInfo(fileName()).absoluteDir();
+    Utils::FileName newFileName = Utils::FileName::fromUserInput(
+                baseDir.absoluteFilePath(value.toString()));
+
+    if (newFileName.isEmpty())
+        return false;
+
+    if (!newFileName.isChildOf(Utils::FileName::fromString(baseDir.absolutePath())))
+        return false;
+
+    return renameFile(file(index), newFileName.toString());
 }
 
 void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &file) const
@@ -922,6 +1007,14 @@ void ResourceModel::insertFile(int prefixIndex, int fileIndex,
     m_resource_file.replaceAlias(prefixIndex, fileIndex, alias);
     endInsertRows();
     setDirty(true);
+}
+
+bool ResourceModel::renameFile(const QString &fileName, const QString &newFileName)
+{
+    bool success = m_resource_file.renameFile(fileName, newFileName);
+    if (success)
+        setDirty(true);
+    return success;
 }
 
 void ResourceModel::changePrefix(const QModelIndex &model_idx, const QString &prefix)

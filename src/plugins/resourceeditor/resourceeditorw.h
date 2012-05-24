@@ -111,6 +111,7 @@ private slots:
     void showContextMenu(const QPoint &globalPoint, const QString &fileName);
     void openCurrentFile();
     void openFile(const QString &fileName);
+    void renameCurrentFile();
 
 private:
     const QString m_extension;
@@ -126,6 +127,7 @@ private:
     QMenu *m_openWithMenu;
     QString m_currentFileName;
     QToolBar *m_toolBar;
+    QAction *m_renameAction;
 
 public slots:
     void onRefresh();

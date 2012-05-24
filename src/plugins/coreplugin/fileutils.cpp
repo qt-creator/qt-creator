@@ -32,6 +32,9 @@
 
 #include "fileutils.h"
 
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/vcsmanager.h>
 #include <utils/environment.h>
 
 #include <QDir>
@@ -40,6 +43,10 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QWidget>
+
+#if QT_VERSION < 0x050000
+#include <QAbstractFileEngine>
+#endif
 
 #ifndef Q_OS_WIN
 #include <coreplugin/icore.h>
@@ -164,4 +171,36 @@ QString FileUtils::msgTerminalAction()
 #else
     return QApplication::translate("Core::Internal", "Open Terminal Here");
 #endif
+}
+
+static inline bool fileSystemRenameFile(const QString &orgFilePath,
+                                        const QString &newFilePath)
+{
+#if QT_VERSION < 0x050000 // ### fixme: QTBUG-3570 might be fixed in Qt 5?
+    QFile f(orgFilePath); // Due to QTBUG-3570
+    QAbstractFileEngine *fileEngine = f.fileEngine();
+    if (!fileEngine->caseSensitive() && orgFilePath.compare(newFilePath, Qt::CaseInsensitive) == 0)
+        return fileEngine->rename(newFilePath);
+#endif
+    return QFile::rename(orgFilePath, newFilePath);
+}
+
+bool FileUtils::renameFile(const QString &orgFilePath, const QString &newFilePath)
+{
+    if (orgFilePath == newFilePath)
+        return false;
+
+    QString dir = QFileInfo(orgFilePath).absolutePath();
+    Core::IVersionControl *vc = Core::ICore::vcsManager()->findVersionControlForDirectory(dir);
+
+    bool result = false;
+    if (vc && vc->supportsOperation(Core::IVersionControl::MoveOperation))
+        result = vc->vcsMove(orgFilePath, newFilePath);
+    if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
+        result = fileSystemRenameFile(orgFilePath, newFilePath);
+    if (result) {
+        // yeah we moved, tell the filemanager about it
+        Core::DocumentManager::renamedFile(orgFilePath, newFilePath);
+    }
+    return result;
 }
