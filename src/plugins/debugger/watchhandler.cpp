@@ -1615,8 +1615,13 @@ void WatchHandler::removeAllData()
 void WatchHandler::removeData(const QByteArray &iname)
 {
     WatchItem *item = m_model->findItem(iname);
-    if (item)
-        m_model->destroyItem(item);
+    if (!item)
+        return;
+    if (item->isWatcher()) {
+        theWatcherNames.remove(item->exp);
+        saveWatchers();
+    }
+    m_model->destroyItem(item);
     updateWatchersWindow();
 }
 

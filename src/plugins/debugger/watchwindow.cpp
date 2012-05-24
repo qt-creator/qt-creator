@@ -131,7 +131,8 @@ public:
         const QString exp = index.data(LocalsExpressionRole).toString();
         if (exp == value)
             return;
-        m_watchWindow->removeWatch(index.data(LocalsINameRole).toByteArray());
+        WatchHandler *handler = currentEngine()->watchHandler();
+        handler->removeData(index.data(LocalsINameRole).toByteArray());
         m_watchWindow->watchExpression(value);
     }
 
@@ -515,10 +516,9 @@ void WatchTreeView::keyPressEvent(QKeyEvent *ev)
         QModelIndexList indices = selectionModel()->selectedRows();
         if (indices.isEmpty() && selectionModel()->currentIndex().isValid())
             indices.append(selectionModel()->currentIndex());
-        foreach (const QModelIndex &idx, indices) {
-            const QByteArray iname = idx.data(LocalsINameRole).toByteArray();
-            removeWatch(iname);
-        }
+        WatchHandler *handler = currentEngine()->watchHandler();
+        foreach (const QModelIndex &idx, indices)
+            handler->removeData(idx.data(LocalsINameRole).toByteArray());
     } else if (ev->key() == Qt::Key_Return
             && ev->modifiers() == Qt::ControlModifier
             && m_type == LocalsType) {
@@ -924,7 +924,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actWatchExpression) {
         watchExpression(exp);
     } else if (act == actRemoveWatchExpression) {
-        removeWatch(p.data(LocalsINameRole).toByteArray());
+        handler->removeData(p.data(LocalsINameRole).toByteArray());
     } else if (act == actCopy) {
         copyToClipboard(DebuggerToolTipWidget::treeModelClipboardContents(model()));
     } else if (act == actEditTypeFormats) {
@@ -932,7 +932,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actCopyValue) {
         copyToClipboard(mi1.data().toString());
     } else if (act == actRemoveWatches) {
-        currentEngine()->watchHandler()->clearWatches();
+        handler->clearWatches();
     } else if (act == clearTypeFormatAction) {
         setModelData(LocalsTypeFormatRole, -1, mi1);
     } else if (act == clearIndividualFormatAction) {
@@ -1041,11 +1041,6 @@ void WatchTreeView::reset()
 void WatchTreeView::watchExpression(const QString &exp)
 {
     currentEngine()->watchHandler()->watchExpression(exp);
-}
-
-void WatchTreeView::removeWatch(const QByteArray &iname)
-{
-    currentEngine()->watchHandler()->removeData(iname);
 }
 
 void WatchTreeView::setModelData
