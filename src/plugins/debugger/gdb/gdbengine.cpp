@@ -3582,15 +3582,6 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
     int stackDepth = debuggerCore()->action(MaximalStackDepth)->value().toInt();
     if (stackDepth && !m_gdbAdapter->isCodaAdapter())
         cmd += " 0 " + QByteArray::number(stackDepth);
-    // FIXME: gdb 6.4 symbianelf likes to be asked twice. The first time it
-    // returns with "^error,msg="Previous frame identical to this frame
-    // (corrupt stack?)". Might be related to the fact that we can't
-    // access the memory belonging to the lower frames. But as we know
-    // this sometimes happens, ask the second time immediately instead
-    // of waiting for the first request to fail.
-    // FIXME: Seems to work with 6.8.
-    if (m_gdbAdapter->isCodaAdapter() && m_gdbVersion < 6.8)
-        postCommand(cmd);
     postCommand(cmd, Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
 }
