@@ -140,31 +140,31 @@ typeCache = {}
 
 class TypeInfo:
     def __init__(self, type):
-        self.size = type.sizeof
+        self.type = type
         self.reported = False
 
-typeInfoCache = {}
 
 def lookupType(typestring):
-    type = typeCache.get(typestring)
+    typeInfo = typeCache.get(typestring)
     #warn("LOOKUP 1: %s -> %s" % (typestring, type))
-    if not type is None:
-        return type
+    if not typeInfo is None:
+        return typeInfo.type
 
     if typestring == "void":
         type = gdb.lookup_type(typestring)
-        typeCache[typestring] = type
+        typeCache[typestring] = TypeInfo(type)
         return type
 
     if typestring.find("(anon") != -1:
         # gdb doesn't like
         # '(anonymous namespace)::AddAnalysisMessageSuppressionComment'
-        typeCache[typestring] = None
+        #typeCache[typestring] = None
+        typeCache[typestring] = TypeInfo(type)
         return None
 
     try:
         type = gdb.parse_and_eval("{%s}&main" % typestring).type
-        typeCache[typestring] = type
+        typeCache[typestring] = TypeInfo(type)
         return type
     except:
         pass
@@ -204,7 +204,7 @@ def lookupType(typestring):
         type = lookupType(ts[0:-1])
         if not type is None:
             type = type.pointer()
-            typeCache[typestring] = type
+            typeCache[typestring] = TypeInfo(type)
             return type
 
     try:
@@ -371,11 +371,6 @@ class SubItem:
 
             if len(typeName) > 0 and typeName != self.d.currentChildType:
                 self.d.put('type="%s",' % typeName) # str(type.unqualified()) ?
-                if not typeName in typeInfoCache \
-                        and typeName != " ": # FIXME: Move to lookupType
-                    typeObj = lookupType(typeName)
-                    if not typeObj is None:
-                        typeInfoCache[typeName] = TypeInfo(typeObj)
             if  self.d.currentValue is None:
                 self.d.put('value="<not accessible>",numchild="0",')
             else:
@@ -853,13 +848,6 @@ qqDumpers = {}
 # This is a cache of all dumpers that support writing.
 qqEditable = {}
 
-# This is a cache of the namespace of the currently used Qt version.
-# FIXME: This is not available on 'bbsetup' time, only at 'bb' time.
-
-# This is a cache of typenames->bool saying whether we are QObject
-# derived.
-qqQObjectCache = {}
-
 # This keeps canonical forms of the typenames, without array indices etc.
 qqStripForFormat = {}
 
@@ -884,7 +872,6 @@ def stripForFormat(typeName):
     return stripped
 
 def bbsetup(args):
-    typeInfoCache = {}
     typeCache = {}
     module = sys.modules[__name__]
     for key, value in module.__dict__.items():
@@ -956,15 +943,14 @@ registerCommand("bbedit", bbedit)
 
 def bb(args):
     output = 'data=[' + "".join(Dumper(args).output) + '],typeinfo=['
-    for typeName, typeInfo in typeInfoCache.iteritems():
+    for typeName, typeInfo in typeCache.iteritems():
         if not typeInfo.reported:
             output += '{name="' + base64.b64encode(typeName)
-            output += '",size="' + str(typeInfo.size) + '"},'
+            output += '",size="' + str(typeInfo.type.sizeof) + '"},'
             typeInfo.reported = True
     output += ']';
     return output
 
-registerCommand("bb", bb)
 
 def p1(args):
     import cProfile
@@ -973,13 +959,14 @@ def p1(args):
     pstats.Stats('/tmp/bbprof').sort_stats('time').print_stats()
     return ""
 
-registerCommand("p1", p1)
 
 def p2(args):
     import timeit
     return timeit.repeat('bb("%s")' % args,
         'from __main__ import bb', number=10)
 
+registerCommand("bb", bb)
+registerCommand("p1", p1)
 registerCommand("p2", p2)
 
 
