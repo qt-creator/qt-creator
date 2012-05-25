@@ -593,6 +593,7 @@ void QmlInspectorAdapter::onReloaded()
         QmlJS::Document::Ptr doc = snapshot.document(it.key());
         it.value()->resetInitialDoc(doc);
     }
+    m_agent->reloadEngines();
 }
 
 void QmlInspectorAdapter::onDestroyedObject(int objectDebugId)

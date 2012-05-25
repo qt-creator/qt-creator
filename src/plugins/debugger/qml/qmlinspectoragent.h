@@ -90,6 +90,7 @@ public:
     void setEngineClient(QmlDebug::BaseEngineDebugClient *client);
     QString displayName(int objectDebugId) const;
     int parentIdForObject(int objectDebugId);
+    void reloadEngines();
 
 public slots:
     void fetchContextObjectsForLocation(const QString &file,
@@ -110,7 +111,6 @@ private slots:
     void onValueChanged(int debugId, const QByteArray &propertyName, const QVariant &value);
 
 private:
-    void reloadEngines();
     void fetchObjectsInContextRecursive(const QmlDebug::ContextReference &context);
 
     void objectTreeFetched(const QmlDebug::ObjectReference &result);
