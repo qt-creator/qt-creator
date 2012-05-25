@@ -53,7 +53,7 @@ QDataStream &operator>>(QDataStream &ds, QmlObjectData &data)
 }
 
 struct QmlObjectProperty {
-    enum Type { Unknown, Basic, Object, List, SignalProperty };
+    enum Type { Unknown, Basic, Object, List, SignalProperty, Variant };
     Type type;
     QString name;
     QVariant value;
@@ -120,6 +120,7 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
         case QmlObjectProperty::Basic:
         case QmlObjectProperty::List:
         case QmlObjectProperty::SignalProperty:
+        case QmlObjectProperty::Variant:
         {
             prop.m_value = data.value;
             break;
