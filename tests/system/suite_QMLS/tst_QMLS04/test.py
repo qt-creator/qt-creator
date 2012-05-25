@@ -5,7 +5,8 @@ def main():
     editorArea = startQtCreatorWithNewAppAtQMLEditor(projectDir, "SampleApp", "Text {")
     if not editorArea:
         return
-    moveTextCursor(editorArea, QTextCursor.Left, QTextCursor.MoveAnchor, 5)
+    for i in range(5):
+        type(editorArea, "<Left>")
     # invoke Refactoring - Move Component into separate file
     ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
     activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Refactoring"))
