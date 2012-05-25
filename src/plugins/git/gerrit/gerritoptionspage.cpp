@@ -72,8 +72,10 @@ void GerritOptionsPage::apply()
     if (GerritOptionsWidget *w = m_widget.data()) {
         const GerritParameters newParameters = w->parameters();
         if (newParameters != *m_parameters) {
+            bool sshChanged = m_parameters->ssh != newParameters.ssh;
             *m_parameters = newParameters;
-            m_parameters->setPortFlagBySshType();
+            if (sshChanged)
+                m_parameters->setPortFlagBySshType();
             m_parameters->toSettings(Core::ICore::instance()->settings());
         }
     }
