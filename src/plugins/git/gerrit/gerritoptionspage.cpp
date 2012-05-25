@@ -73,6 +73,7 @@ void GerritOptionsPage::apply()
         const GerritParameters newParameters = w->parameters();
         if (newParameters != *m_parameters) {
             *m_parameters = newParameters;
+            m_parameters->setPortFlagBySshType();
             m_parameters->toSettings(Core::ICore::instance()->settings());
         }
     }
@@ -124,7 +125,6 @@ GerritParameters GerritOptionsWidget::parameters() const
     result.port = m_portSpinBox->value();
     result.additionalQueries = m_additionalQueriesLineEdit->text().trimmed();
     result.https = m_httpsCheckBox->isChecked();
-    result.setPortFlagBySshType();
     return result;
 }
 

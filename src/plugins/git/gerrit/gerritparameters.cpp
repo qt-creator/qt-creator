@@ -89,9 +89,12 @@ static inline QString detectSsh()
 
 void GerritParameters::setPortFlagBySshType()
 {
-    const QString version = Utils::PathChooser::toolVersion(ssh, QStringList(QLatin1String("-V")));
-    portFlag = (version.contains(QLatin1String("plink"), Qt::CaseInsensitive)) ?
-                QLatin1String("-P") : QLatin1String(defaultPortFlag);
+    bool isPlink = false;
+    if (!ssh.isEmpty()) {
+        const QString version = Utils::PathChooser::toolVersion(ssh, QStringList(QLatin1String("-V")));
+        isPlink = version.contains(QLatin1String("plink"), Qt::CaseInsensitive);
+    }
+    portFlag = isPlink ? QLatin1String("-P") : QLatin1String(defaultPortFlag);
 }
 
 GerritParameters::GerritParameters()
