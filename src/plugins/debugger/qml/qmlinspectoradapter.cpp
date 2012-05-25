@@ -49,7 +49,6 @@
 #include <qmldebug/qmltoolsclient.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljstools/qmljssemanticinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
@@ -57,24 +56,6 @@ using namespace QmlDebug;
 
 namespace Debugger {
 namespace Internal {
-
-// Get semantic info from QmlJSTextEditorWidget
-// (we use the meta object system here to avoid having to link
-// against qmljseditor)
-static QmlJSTools::SemanticInfo getSemanticInfo(QPlainTextEdit *qmlJSTextEdit)
-{
-    QmlJSTools::SemanticInfo info;
-    QTC_ASSERT(QLatin1String(qmlJSTextEdit->metaObject()->className())
-               == QLatin1String("QmlJSEditor::QmlJSTextEditorWidget"),
-               return info);
-    QTC_ASSERT(qmlJSTextEdit->metaObject()->indexOfProperty("semanticInfo")
-               != -1, return info);
-
-    info = qmlJSTextEdit->property("semanticInfo")
-            .value<QmlJSTools::SemanticInfo>();
-    return info;
-}
-
 /*!
  * QmlInspectorAdapter manages the clients for the inspector, and the
  * integration with the text editor.
@@ -281,7 +262,7 @@ void QmlInspectorAdapter::selectObjectsFromEditor(const QList<int> &debugIds)
     m_cursorPositionChangedExternally = true;
     m_targetToSync = ToolTarget;
     m_debugIdToSelect = debugIds.first();
-    selectObject(ObjectReference(m_debugIdToSelect), ToolTarget);
+    selectObject(agent()->objectForId(m_debugIdToSelect), ToolTarget);
 }
 
 void QmlInspectorAdapter::selectObjectsFromToolsClient(const QList<int> &debugIds)
@@ -291,7 +272,7 @@ void QmlInspectorAdapter::selectObjectsFromToolsClient(const QList<int> &debugId
 
     m_targetToSync = EditorTarget;
     m_debugIdToSelect = debugIds.first();
-    selectObject(ObjectReference(m_debugIdToSelect), EditorTarget);
+    selectObject(agent()->objectForId(m_debugIdToSelect), EditorTarget);
 }
 
 void QmlInspectorAdapter::onObjectFetched(const ObjectReference &ref)
@@ -477,16 +458,14 @@ void QmlInspectorAdapter::showConnectionStatusMessage(const QString &message)
 }
 
 void QmlInspectorAdapter::gotoObjectReferenceDefinition(
-        const ObjectReference &obj)
+        const FileReference &objSource)
 {
     if (m_cursorPositionChangedExternally) {
         m_cursorPositionChangedExternally = false;
         return;
     }
 
-    FileReference source = obj.source();
-
-    const QString fileName = m_engine->toFileInProject(source.url());
+    const QString fileName = m_engine->toFileInProject(objSource.url());
 
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     Core::IEditor *currentEditor = editorManager->currentEditor();
@@ -498,44 +477,11 @@ void QmlInspectorAdapter::gotoObjectReferenceDefinition(
         m_selectionCallbackExpected = true;
 
     if (textEditor) {
-        if (objectIdForLocation(fileName) != obj.debugId()) {
-            m_selectionCallbackExpected = true;
-            editorManager->addCurrentPositionToNavigationHistory();
-            textEditor->gotoLine(source.lineNumber());
-            textEditor->widget()->setFocus();
-        }
+        m_selectionCallbackExpected = true;
+        editorManager->addCurrentPositionToNavigationHistory();
+        textEditor->gotoLine(objSource.lineNumber());
+        textEditor->widget()->setFocus();
     }
-}
-
-int QmlInspectorAdapter::objectIdForLocation(
-        const QString &fileName, int cursorPosition) const
-{
-    Core::IEditor *editor = Core::EditorManager::openEditor(fileName);
-    TextEditor::ITextEditor *textEditor
-            = qobject_cast<TextEditor::ITextEditor*>(editor);
-
-    if (textEditor
-            && textEditor->id() == QmlJSEditor::Constants::C_QMLJSEDITOR_ID) {
-        if (cursorPosition == -1)
-            cursorPosition = textEditor->position();
-        TextEditor::BaseTextEditor *baseTextEditor =
-                static_cast<TextEditor::BaseTextEditor*>(editor);
-        QPlainTextEdit *editWidget
-                = qobject_cast<QPlainTextEdit*>(baseTextEditor->widget());
-
-        QmlJSTools::SemanticInfo semanticInfo = getSemanticInfo(editWidget);
-
-        if (QmlJS::AST::Node *node
-                = semanticInfo.declaringMemberNoProperties(cursorPosition)) {
-            if (QmlJS::AST::UiObjectMember *objMember
-                    = node->uiObjectMemberCast()) {
-                return agent()->objectIdForLocation(
-                            objMember->firstSourceLocation().startLine,
-                            objMember->firstSourceLocation().startColumn);
-            }
-        }
-    }
-    return -1;
 }
 
 void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
@@ -546,9 +492,10 @@ void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
                     QList<ObjectReference>() << obj);
 
     if (target == EditorTarget)
-        gotoObjectReferenceDefinition(obj);
+        gotoObjectReferenceDefinition(obj.source());
 
-    agent()->selectObjectInTree(obj.debugId());
+    if (!agent()->selectObjectInTree(obj.debugId()))
+        return;
 
     m_currentSelectedDebugId = obj.debugId();
     m_currentSelectedDebugName = agent()->displayName(obj.debugId());

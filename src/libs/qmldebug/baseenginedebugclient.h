@@ -140,8 +140,19 @@ private:
 class ObjectReference
 {
 public:
-    ObjectReference() : m_debugId(-1), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
-    explicit ObjectReference(int id) : m_debugId(id), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false) {}
+    ObjectReference()
+        : m_debugId(-1), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false)
+    {
+    }
+    explicit ObjectReference(int id)
+        : m_debugId(id), m_parentId(-1), m_contextDebugId(-1), m_needsMoreData(false)
+    {
+    }
+    ObjectReference(int id, int parentId, const FileReference &source)
+        : m_debugId(id), m_parentId(parentId), m_source(source),
+          m_contextDebugId(-1), m_needsMoreData(false)
+    {
+    }
 
     int debugId() const { return m_debugId; }
     int parentId() const { return m_parentId; }

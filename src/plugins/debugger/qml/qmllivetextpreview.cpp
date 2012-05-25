@@ -540,7 +540,7 @@ bool QmlLiveTextPreview::changeSelectedElements(const QList<int> offsets,
     m_lastOffsets = offsets;
     ObjectReference objectRefUnderCursor;
     objectRefUnderCursor
-            = m_inspectorAdapter->agent()->objectForId(wordAtCursor);
+            = m_inspectorAdapter->agent()->objectForName(wordAtCursor);
 
     QList<int> selectedReferences;
     bool containsReferenceUnderCursor = false;

@@ -110,7 +110,7 @@ void QmlInspectorAgent::updateWatchData(const WatchData &data)
     }
 }
 
-void QmlInspectorAgent::selectObjectInTree(int debugId)
+bool QmlInspectorAgent::selectObjectInTree(int debugId)
 {
     if (debug) {
         qDebug() << __FUNCTION__ << "(" << debugId << ")";
@@ -125,10 +125,12 @@ void QmlInspectorAgent::selectObjectInTree(int debugId)
             qDebug() << "  selecting" << iname << "in tree";
         m_debuggerEngine->watchHandler()->setCurrentItem(iname);
         m_objectToSelect = 0;
+        return true;
     } else {
         // we've to fetch it
         m_objectToSelect = debugId;
         fetchObject(debugId);
+        return false;
     }
 }
 
@@ -220,7 +222,7 @@ quint32 QmlInspectorAgent::resetBindingForObject(int objectDebugId,
     return queryId;
 }
 
-ObjectReference QmlInspectorAgent::objectForId(
+ObjectReference QmlInspectorAgent::objectForName(
         const QString &objectId) const
 {
     if (!objectId.isEmpty() && objectId[0].isLower()) {
@@ -232,6 +234,36 @@ ObjectReference QmlInspectorAgent::objectForId(
         }
     }
     return ObjectReference();
+}
+
+ObjectReference QmlInspectorAgent::objectForId(int objectDebugId) const
+{
+    if (!m_debugIdToIname.contains(objectDebugId))
+        return ObjectReference(objectDebugId);
+
+    int line = -1;
+    int column = -1;
+    QString file;
+    QHashIterator<QPair<QString, int>, QHash<QPair<int, int>, QList<int> > > iter(m_debugIdHash);
+    while (iter.hasNext()) {
+        iter.next();
+        QHashIterator<QPair<int, int>, QList<int> > i(iter.value());
+        while (i.hasNext()) {
+            i.next();
+            if (i.value().contains(objectDebugId)) {
+                line = i.key().first;
+                column = i.key().second;
+                break;
+            }
+        }
+        if (line != -1) {
+            file = iter.key().first;
+            break;
+        }
+    }
+    // TODO: Set correct parentId
+    return ObjectReference(objectDebugId, -1,
+                           FileReference(QUrl::fromLocalFile(file), line, column));
 }
 
 int QmlInspectorAgent::objectIdForLocation(

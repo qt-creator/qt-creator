@@ -48,6 +48,7 @@ namespace QmlDebug {
 class BaseEngineDebugClient;
 class BaseToolsClient;
 class ObjectReference;
+class FileReference;
 }
 
 namespace Debugger {
@@ -106,9 +107,7 @@ private:
     void initializePreviews();
     void showConnectionStatusMessage(const QString &message);
 
-    void gotoObjectReferenceDefinition(const QmlDebug::ObjectReference &obj);
-    int objectIdForLocation(
-            const QString &fileName, int cursorPosition = -1) const;
+    void gotoObjectReferenceDefinition(const QmlDebug::FileReference &objSource);
 
     enum SelectionTarget { NoTarget, ToolTarget, EditorTarget };
     void selectObject(

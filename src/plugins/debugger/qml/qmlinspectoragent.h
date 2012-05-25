@@ -64,7 +64,7 @@ public:
 
     void assignValue(const WatchData *data, const QString &expression, const QVariant &valueV);
     void updateWatchData(const WatchData &data);
-    void selectObjectInTree(int debugId);
+    bool selectObjectInTree(int debugId);
 
     quint32 setBindingForObject(int objectDebugId,
                                 const QString &propertyName,
@@ -77,7 +77,8 @@ public:
     quint32 resetBindingForObject(int objectDebugId,
                                   const QString &propertyName);
 
-    QmlDebug::ObjectReference objectForId(const QString &objectId) const;
+    QmlDebug::ObjectReference objectForName(const QString &objectId) const;
+    QmlDebug::ObjectReference objectForId(int objectDebugId) const;
     int objectIdForLocation(int line, int column) const;
     QHash<int, QString> rootObjectIds() const;
     DebugIdHash debugIdHash() const { return m_debugIdHash; }
