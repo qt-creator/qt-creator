@@ -64,10 +64,11 @@ QWidget *DocSettingsPage::createPage(QWidget *parent)
 
     Core::HelpManager *manager = Core::HelpManager::instance();
     const QStringList &nameSpaces = manager->registeredNamespaces();
-    foreach (const QString &nameSpace, nameSpaces)
+    foreach (const QString &nameSpace, nameSpaces) {
         addItem(nameSpace, manager->fileFromNamespace(nameSpace));
+        m_filesToRegister.insert(nameSpace, manager->fileFromNamespace(nameSpace));
+    }
 
-    m_filesToRegister.clear();
     m_filesToUnregister.clear();
 
     if (m_searchKeywords.isEmpty())
@@ -85,23 +86,63 @@ void DocSettingsPage::addDocumentation()
         return;
     m_recentDialogPath = QFileInfo(files.first()).canonicalPath();
 
+    NameSpaceToPathHash docsUnableToRegister;
     Core::HelpManager *manager = Core::HelpManager::instance();
-    const QStringList &nameSpaces = manager->registeredNamespaces();
-
     foreach (const QString &file, files) {
-        const QString &nameSpace = manager->namespaceFromFile(file);
-        if (nameSpace.isEmpty())
+        const QString filePath = QDir::cleanPath(file);
+        const QString &nameSpace = manager->namespaceFromFile(filePath);
+        if (nameSpace.isEmpty()) {
+            docsUnableToRegister.insertMulti(QLatin1String("UnknownNamespace"),
+                QDir::toNativeSeparators(filePath));
             continue;
-
-        if (m_filesToUnregister.value(nameSpace) != QDir::cleanPath(file)) {
-            if (!m_filesToRegister.contains(nameSpace) && !nameSpaces.contains(nameSpace)) {
-                addItem(nameSpace, file);
-                m_filesToRegister.insert(nameSpace, QDir::cleanPath(file));
-            }
-        } else {
-            addItem(nameSpace, file);
-            m_filesToUnregister.remove(nameSpace);
         }
+
+        if (m_filesToRegister.contains(nameSpace)) {
+            docsUnableToRegister.insert(nameSpace, QDir::toNativeSeparators(filePath));
+            continue;
+        }
+
+        addItem(nameSpace, file);
+        m_filesToRegister.insert(nameSpace, QDir::toNativeSeparators(filePath));
+
+        // If the files to unregister contains the namespace, grab a copy of all paths added and try to
+        // remove the current file path. Afterwards remove the whole entry and add the clean list back.
+        // Possible outcome:
+        //      - might not add the entry back at all if we register the same file again
+        //      - might add the entry back with paths to other files with the same namespace
+        // The reason to do this is, if we remove a file with a given namespace/ path and re-add another
+        // file with the same namespace but a different path, we need to unregister the namespace before
+        // we can register the new one. Help engine allows just one registered namespace.
+        if (m_filesToUnregister.contains(nameSpace)) {
+            QSet<QString> values = m_filesToUnregister.values(nameSpace).toSet();
+            values.remove(filePath);
+            m_filesToUnregister.remove(nameSpace);
+            foreach (const QString &value, values)
+                m_filesToUnregister.insertMulti(nameSpace, value);
+        }
+    }
+
+    QString formatedFail;
+    if (docsUnableToRegister.contains(QLatin1String("UnknownNamespace"))) {
+        formatedFail += QString::fromLatin1("<ul><li><b>%1</b>").arg(tr("Invalid documentation file:"));
+        foreach (const QString &value, docsUnableToRegister.values(QLatin1String("UnknownNamespace")))
+            formatedFail += QString::fromLatin1("<ul><li>%2</li></ul>").arg(value);
+        formatedFail += QLatin1String("</li></ul>");
+        docsUnableToRegister.remove(QLatin1String("UnknownNamespace"));
+    }
+
+    if (!docsUnableToRegister.isEmpty()) {
+        formatedFail += QString::fromLatin1("<ul><li><b>%1</b>").arg(tr("Namespace already registered:"));
+        foreach (const QString &key, docsUnableToRegister.keys()) {
+            formatedFail += QString::fromLatin1("<ul><li>%1 - %2</li></ul>").arg(key, docsUnableToRegister
+                .value(key));
+        }
+        formatedFail += QLatin1String("</li></ul>");
+    }
+
+    if (!formatedFail.isEmpty()) {
+        QMessageBox::information(m_ui.addButton->parentWidget(), tr("Registration failed"),
+            tr("Unable to register documentation.") + formatedFail, QMessageBox::Ok);
     }
 }
 
@@ -117,7 +158,6 @@ void DocSettingsPage::apply()
     manager->unregisterDocumentation(m_filesToUnregister.keys());
     manager->registerDocumentation(m_filesToRegister.values());
 
-    m_filesToRegister.clear();
     m_filesToUnregister.clear();
 }
 
@@ -152,15 +192,10 @@ void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> items)
     int row = 0;
     Core::HelpManager *manager = Core::HelpManager::instance();
     foreach (QListWidgetItem* item, items) {
-        const QString &nameSpace = item->text();
-        const QString &docPath = manager->fileFromNamespace(nameSpace);
+        const QString nameSpace = item->text();
 
-        if (m_filesToRegister.value(nameSpace) != docPath) {
-            if (!m_filesToUnregister.contains(nameSpace))
-                m_filesToUnregister.insert(nameSpace, docPath);
-        } else {
-            m_filesToRegister.remove(nameSpace);
-        }
+        m_filesToRegister.remove(nameSpace);
+        m_filesToUnregister.insertMulti(nameSpace, QDir::cleanPath(manager->fileFromNamespace(nameSpace)));
 
         row = m_ui.docsListWidget->row(item);
         delete m_ui.docsListWidget->takeItem(row);
