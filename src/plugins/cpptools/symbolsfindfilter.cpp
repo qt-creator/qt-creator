@@ -36,6 +36,7 @@
 #include "cpptoolsconstants.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/icore.h>
 #include <find/textfindconstants.h>
 #include <utils/runextensions.h>
@@ -77,7 +78,11 @@ namespace {
             findString = QString::fromLatin1("\\b%1\\b").arg(findString);
         QRegExp matcher(findString, (parameters.flags & Find::FindCaseSensitively
                                      ? Qt::CaseSensitive : Qt::CaseInsensitive));
-        while (it != snapshot.end() && !future.isCanceled()) {
+        while (it != snapshot.end()) {
+            if (future.isPaused())
+                future.waitForResume();
+            if (future.isCanceled())
+                break;
             if (fileNames.isEmpty() || fileNames.contains(it.value()->fileName())) {
                 QVector<Find::SearchResultItem> resultItems;
                 QList<ModelItemInfo> modelInfos = search(it.value());
@@ -104,6 +109,8 @@ namespace {
             ++progress;
             future.setProgressValue(progress);
         }
+        if (future.isPaused())
+            future.waitForResume();
     }
 } //namespace
 
@@ -144,6 +151,16 @@ void SymbolsFindFilter::cancel()
     watcher->cancel();
 }
 
+void SymbolsFindFilter::setPaused(bool paused)
+{
+    Find::SearchResult *search = qobject_cast<Find::SearchResult *>(sender());
+    QTC_ASSERT(search, return);
+    QFutureWatcher<Find::SearchResultItem> *watcher = m_watchers.key(search);
+    QTC_ASSERT(watcher, return);
+    if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
+        watcher->setPaused(paused);
+}
+
 Find::FindFlags SymbolsFindFilter::supportedFindFlags() const
 {
     return Find::FindCaseSensitively | Find::FindRegularExpression | Find::FindWholeWords;
@@ -157,6 +174,7 @@ void SymbolsFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
     connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
     connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
+    connect(search, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
     connect(search, SIGNAL(searchAgainRequested()), this, SLOT(searchAgain()));
     connect(this, SIGNAL(enabledChanged(bool)), search, SLOT(setSearchAgainEnabled(bool)));
     window->popup(true);
@@ -190,9 +208,10 @@ void SymbolsFindFilter::startSearch(Find::SearchResult *search)
     watcher->setFuture(QtConcurrent::run<Find::SearchResultItem, SymbolsFindParameters,
                        CPlusPlus::Snapshot, QSet<QString> >(runSearch, parameters,
                                                     m_manager->snapshot(), projectFileNames));
-    Core::ICore::progressManager()->addTask(watcher->future(),
+    Core::FutureProgress *progress = Core::ICore::progressManager()->addTask(watcher->future(),
                                                         tr("Searching"),
                                                         Find::Constants::TASK_SEARCH);
+    connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 
 void SymbolsFindFilter::addResults(int begin, int end)

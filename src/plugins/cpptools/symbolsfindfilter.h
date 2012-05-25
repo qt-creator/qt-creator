@@ -87,6 +87,7 @@ private slots:
     void addResults(int begin, int end);
     void finish();
     void cancel();
+    void setPaused(bool paused);
     void onTaskStarted(const QString &type);
     void onAllTasksFinished(const QString &type);
     void searchAgain();

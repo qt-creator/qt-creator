@@ -91,6 +91,16 @@ void BaseFileFind::cancel()
     watcher->cancel();
 }
 
+void BaseFileFind::setPaused(bool paused)
+{
+    SearchResult *search = qobject_cast<SearchResult *>(sender());
+    QTC_ASSERT(search, return);
+    QFutureWatcher<FileSearchResultList> *watcher = m_watchers.key(search);
+    QTC_ASSERT(watcher, return);
+    if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
+        watcher->setPaused(paused);
+}
+
 QStringList BaseFileFind::fileNameFilters() const
 {
     QStringList filters;
@@ -130,6 +140,7 @@ void BaseFileFind::runNewSearch(const QString &txt, Find::FindFlags findFlags,
     }
     connect(search, SIGNAL(visibilityChanged(bool)), this, SLOT(hideHighlightAll(bool)));
     connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
+    connect(search, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
     connect(search, SIGNAL(searchAgainRequested()), this, SLOT(searchAgain()));
     connect(this, SIGNAL(enabledChanged(bool)), search, SLOT(setSearchAgainEnabled(bool)));
     runSearch(search);
@@ -162,7 +173,7 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
                                                                         tr("Search"),
                                                                         QLatin1String(Constants::TASK_SEARCH));
     progress->setWidget(label);
-    connect(progress, SIGNAL(clicked()), Find::SearchResultWindow::instance(), SLOT(popup()));
+    connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 
 void BaseFileFind::findAll(const QString &txt, Find::FindFlags findFlags)

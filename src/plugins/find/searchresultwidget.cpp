@@ -47,6 +47,10 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+static const int SEARCHRESULT_WARNING_LIMIT = 200000;
+static const char UNDO_WARNING_ID[] = "warninglabel";
+static const char SIZE_WARNING_ID[] = "sizeWarningLabel";
+
 namespace Find {
 namespace Internal {
 
@@ -77,6 +81,8 @@ using namespace Find::Internal;
 SearchResultWidget::SearchResultWidget(QWidget *parent) :
     QWidget(parent),
     m_count(0),
+    m_sizeWarningActive(false),
+    m_sizeWarningOverridden(false),
     m_isShowingReplaceUI(false),
     m_searchAgainSupported(false)
 {
@@ -182,6 +188,12 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     connect(m_replaceButton, SIGNAL(clicked()), this, SLOT(handleReplaceButton()));
 }
 
+SearchResultWidget::~SearchResultWidget()
+{
+    if (m_sizeWarningActive)
+        cancelAfterSizeWarning();
+}
+
 void SearchResultWidget::setInfo(const QString &label, const QString &toolTip, const QString &term)
 {
     m_label->setText(label);
@@ -210,9 +222,10 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
     bool firstItems = (m_count == 0);
     m_count += items.size();
     m_searchResultTreeView->addResults(items, mode);
+    updateMatchesFoundLabel();
     if (firstItems) {
         if (showWarningMessage()) {
-            Core::InfoBarEntry info(QLatin1String("warninglabel"), tr("This change cannot be undone."));
+            Core::InfoBarEntry info(QLatin1String(UNDO_WARNING_ID), tr("This change cannot be undone."));
             info.setCustomButtonInfo(tr("Do not warn again"), this, SLOT(hideNoUndoWarning()));
             m_infoBar.addInfo(info);
         }
@@ -227,9 +240,20 @@ void SearchResultWidget::addResults(const QList<SearchResultItem> &items, Search
         }
         m_searchResultTreeView->selectionModel()->select(m_searchResultTreeView->model()->index(0, 0, QModelIndex()), QItemSelectionModel::Select);
         emit navigateStateChanged();
+    } else if (m_count > SEARCHRESULT_WARNING_LIMIT && !m_sizeWarningOverridden && !m_sizeWarningActive) {
+        m_sizeWarningActive = true;
+        emit paused(true);
+        Core::InfoBarEntry info(QLatin1String(SIZE_WARNING_ID),
+                                tr("The search resulted in more than %1 items, do you still want to continue?")
+                                .arg(SEARCHRESULT_WARNING_LIMIT));
+        info.setCancelButtonInfo(tr("Cancel"), this, SLOT(cancelAfterSizeWarning()));
+        info.setCustomButtonInfo(tr("Continue"), this, SLOT(continueAfterSizeWarning()));
+        m_infoBar.addInfo(info);
+        emit requestPopup(false/*no focus*/);
     }
-    updateMatchesFoundLabel();
 }
+
+
 
 int SearchResultWidget::count() const
 {
@@ -345,6 +369,10 @@ void SearchResultWidget::restart()
     m_replaceButton->setEnabled(false);
     m_searchResultTreeView->clear();
     m_count = 0;
+    if (m_sizeWarningActive)
+        m_infoBar.removeInfo(QLatin1String(SIZE_WARNING_ID));
+    m_sizeWarningActive = false;
+    m_sizeWarningOverridden = false;
     m_cancelButton->setVisible(true);
     m_searchAgainButton->setVisible(false);
     m_messageWidget->setVisible(false);
@@ -365,6 +393,10 @@ void SearchResultWidget::setSearchAgainEnabled(bool enabled)
 
 void SearchResultWidget::finishSearch(bool canceled)
 {
+    if (m_sizeWarningActive)
+        m_infoBar.removeInfo(QLatin1String(SIZE_WARNING_ID));
+    m_sizeWarningActive = false;
+    m_sizeWarningOverridden = false;
     m_replaceTextEdit->setEnabled(m_count > 0);
     m_replaceButton->setEnabled(m_count > 0);
     m_cancelButton->setVisible(false);
@@ -372,10 +404,32 @@ void SearchResultWidget::finishSearch(bool canceled)
     m_searchAgainButton->setVisible(m_searchAgainSupported);
 }
 
+void SearchResultWidget::sendRequestPopup()
+{
+    emit requestPopup(true/*focus*/);
+}
+
 void SearchResultWidget::hideNoUndoWarning()
 {
     setShowWarningMessage(false);
-    m_infoBar.clear();
+    m_infoBar.removeInfo(QLatin1String(UNDO_WARNING_ID));
+}
+
+void SearchResultWidget::continueAfterSizeWarning()
+{
+    m_sizeWarningOverridden = true;
+    m_sizeWarningActive = false;
+    m_infoBar.removeInfo(QLatin1String(SIZE_WARNING_ID));
+    emit paused(false);
+}
+
+void SearchResultWidget::cancelAfterSizeWarning()
+{
+    m_infoBar.removeInfo(QLatin1String(SIZE_WARNING_ID));
+    m_sizeWarningOverridden = true;
+    m_sizeWarningActive = false;
+    emit cancelled();
+    emit paused(false);
 }
 
 void SearchResultWidget::handleJumpToSearchResult(const SearchResultItem &item)
@@ -396,7 +450,10 @@ void SearchResultWidget::handleReplaceButton()
 void SearchResultWidget::cancel()
 {
     m_cancelButton->setVisible(false);
-    emit cancelled();
+    if (m_sizeWarningActive)
+        cancelAfterSizeWarning();
+    else
+        emit cancelled();
 }
 
 void SearchResultWidget::searchAgain()

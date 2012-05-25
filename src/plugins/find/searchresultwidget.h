@@ -53,6 +53,7 @@ class SearchResultWidget : public QWidget
     Q_OBJECT
 public:
     explicit SearchResultWidget(QWidget *parent = 0);
+    ~SearchResultWidget();
 
     void setInfo(const QString &label, const QString &toolTip, const QString &term);
 
@@ -91,19 +92,24 @@ public:
 
 public slots:
     void finishSearch(bool canceled);
+    void sendRequestPopup();
 
 signals:
     void activated(const Find::SearchResultItem &item);
     void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems);
     void searchAgainRequested();
     void cancelled();
+    void paused(bool paused);
     void restarted();
     void visibilityChanged(bool visible);
+    void requestPopup(bool focus);
 
     void navigateStateChanged();
 
 private slots:
     void hideNoUndoWarning();
+    void continueAfterSizeWarning();
+    void cancelAfterSizeWarning();
     void handleJumpToSearchResult(const SearchResultItem &item);
     void handleReplaceButton();
     void cancel();
@@ -117,6 +123,8 @@ private:
 
     SearchResultTreeView *m_searchResultTreeView;
     int m_count;
+    bool m_sizeWarningActive;
+    bool m_sizeWarningOverridden;
     QString m_dontAskAgainGroup;
     QFrame *m_messageWidget;
     Core::InfoBar m_infoBar;

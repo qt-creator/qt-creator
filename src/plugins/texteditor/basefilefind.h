@@ -95,6 +95,7 @@ private slots:
     void displayResult(int index);
     void searchFinished();
     void cancel();
+    void setPaused(bool paused);
     void openEditor(const Find::SearchResultItem &item);
     void doReplace(const QString &txt,
                     const QList<Find::SearchResultItem> &items);

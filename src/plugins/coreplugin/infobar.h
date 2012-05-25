@@ -53,6 +53,7 @@ public:
     InfoBarEntry(const InfoBarEntry &other) { *this = other; }
     void setCustomButtonInfo(const QString &_buttonText, QObject *_object, const char *_member);
     void setCancelButtonInfo(QObject *_object, const char *_member);
+    void setCancelButtonInfo(const QString &_cancelButtonText, QObject *_object, const char *_member);
 
 private:
     QString id;
@@ -60,6 +61,7 @@ private:
     QString buttonText;
     QObject *object;
     const char *buttonPressMember;
+    QString cancelButtonText;
     QObject *cancelObject;
     const char *cancelButtonPressMember;
     friend class InfoBar;

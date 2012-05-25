@@ -698,18 +698,23 @@ class ProcessFile: public std::unary_function<QString, QList<FindReferences::Usa
     typedef FindReferences::Usage Usage;
     QString name;
     const ObjectValue *scope;
+    QFutureInterface<Usage> *future;
 
 public:
     ProcessFile(const ContextPtr &context,
                 QString name,
-                const ObjectValue *scope)
-        : context(context), name(name), scope(scope)
+                const ObjectValue *scope,
+                QFutureInterface<Usage> *future)
+        : context(context), name(name), scope(scope), future(future)
     { }
 
     QList<Usage> operator()(const QString &fileName)
     {
         QList<Usage> usages;
-
+        if (future->isPaused())
+            future->waitForResume();
+        if (future->isCanceled())
+            return usages;
         Document::Ptr doc = context->snapshot().document(fileName);
         if (!doc)
             return usages;
@@ -719,7 +724,8 @@ public:
         FindUsages::Result results = findUsages(name, scope);
         foreach (const AST::SourceLocation &loc, results)
             usages.append(Usage(fileName, matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
-
+        if (future->isPaused())
+            future->waitForResume();
         return usages;
     }
 };
@@ -730,18 +736,23 @@ class SearchFileForType: public std::unary_function<QString, QList<FindReference
     typedef FindReferences::Usage Usage;
     QString name;
     const ObjectValue *scope;
+    QFutureInterface<Usage> *future;
 
 public:
     SearchFileForType(const ContextPtr &context,
-                QString name,
-                const ObjectValue *scope)
-        : context(context), name(name), scope(scope)
+                      QString name,
+                      const ObjectValue *scope,
+                      QFutureInterface<Usage> *future)
+        : context(context), name(name), scope(scope), future(future)
     { }
 
     QList<Usage> operator()(const QString &fileName)
     {
         QList<Usage> usages;
-
+        if (future->isPaused())
+            future->waitForResume();
+        if (future->isCanceled())
+            return usages;
         Document::Ptr doc = context->snapshot().document(fileName);
         if (!doc)
             return usages;
@@ -751,7 +762,8 @@ public:
         FindTypeUsages::Result results = findUsages(name, scope);
         foreach (const AST::SourceLocation &loc, results)
             usages.append(Usage(fileName, matchingLine(loc.offset, doc->source()), loc.startLine, loc.startColumn - 1, loc.length));
-
+        if (future->isPaused())
+            future->waitForResume();
         return usages;
     }
 };
@@ -857,7 +869,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
             return;
         future.reportResult(searchStarting);
 
-        SearchFileForType process(context, name, typeValue);
+        SearchFileForType process(context, name, typeValue, &future);
         UpdateUI reduce(&future);
 
         QtConcurrent::blockingMappedReduced<QList<FindReferences::Usage> > (files, process, reduce);
@@ -872,7 +884,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
             searchStarting.lineText.prepend(scope->className() + QLatin1Char('.'));
         future.reportResult(searchStarting);
 
-        ProcessFile process(context, name, scope);
+        ProcessFile process(context, name, scope, &future);
         UpdateUI reduce(&future);
 
         QtConcurrent::blockingMappedReduced<QList<FindReferences::Usage> > (files, process, reduce);
@@ -930,13 +942,14 @@ void FindReferences::displayResults(int first, int last)
         connect(m_currentSearch, SIGNAL(activated(Find::SearchResultItem)),
                 this, SLOT(openEditor(Find::SearchResultItem)));
         connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
+        connect(m_currentSearch, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
         Find::SearchResultWindow::instance()->popup(true);
 
         Core::ProgressManager *progressManager = Core::ICore::progressManager();
         Core::FutureProgress *progress = progressManager->addTask(
                     m_watcher.future(), tr("Searching"),
                     QmlJSEditor::Constants::TASK_SEARCH);
-        connect(progress, SIGNAL(clicked()), Find::SearchResultWindow::instance(), SLOT(popup()));
+        connect(progress, SIGNAL(clicked()), m_currentSearch, SLOT(popup()));
 
         ++first;
     }
@@ -966,6 +979,12 @@ void FindReferences::searchFinished()
 void FindReferences::cancel()
 {
     m_watcher.cancel();
+}
+
+void FindReferences::setPaused(bool paused)
+{
+    if (!paused || m_watcher.isRunning()) // guard against pausing when the search is finished
+        m_watcher.setPaused(paused);
 }
 
 void FindReferences::openEditor(const Find::SearchResultItem &item)

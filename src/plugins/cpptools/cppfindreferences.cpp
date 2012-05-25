@@ -113,6 +113,8 @@ public:
     QList<Usage> operator()(const QString &fileName)
     {
         QList<Usage> usages;
+        if (future->isPaused())
+            future->waitForResume();
         if (future->isCanceled())
             return usages;
         const Identifier *symbolId = symbol->identifier();
@@ -145,6 +147,8 @@ public:
             usages = process.usages();
         }
 
+        if (future->isPaused())
+            future->waitForResume();
         return usages;
     }
 };
@@ -252,6 +256,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     search->setTextToReplace(replacement);
     connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
             SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
+    connect(search, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
     search->setSearchAgainSupported(true);
     connect(search, SIGNAL(searchAgainRequested()), this, SLOT(searchAgain()));
     CppFindReferencesParameters parameters;
@@ -293,7 +298,7 @@ void CppFindReferences::findAll_helper(Find::SearchResult *search)
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
                                                               CppTools::Constants::TASK_SEARCH);
 
-    connect(progress, SIGNAL(clicked()), Find::SearchResultWindow::instance(), SLOT(popup()));
+    connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 
 void CppFindReferences::onReplaceButtonClicked(const QString &text,
@@ -511,6 +516,16 @@ void CppFindReferences::cancel()
     watcher->cancel();
 }
 
+void CppFindReferences::setPaused(bool paused)
+{
+    Find::SearchResult *search = qobject_cast<Find::SearchResult *>(sender());
+    QTC_ASSERT(search, return);
+    QFutureWatcher<Usage> *watcher = m_watchers.key(search);
+    QTC_ASSERT(watcher, return);
+    if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
+        watcher->setPaused(paused);
+}
+
 void CppFindReferences::openEditor(const Find::SearchResultItem &item)
 {
     if (item.path.size() > 0) {
@@ -545,6 +560,8 @@ public:
     QList<Usage> operator()(const QString &fileName)
     {
         QList<Usage> usages;
+        if (future->isPaused())
+            future->waitForResume();
         if (future->isCanceled())
             return usages;
 
@@ -566,6 +583,8 @@ public:
             }
         }
 
+        if (future->isPaused())
+            future->waitForResume();
         return usages;
     }
 
@@ -638,6 +657,7 @@ void CppFindReferences::findMacroUses(const Macro &macro)
     connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
     connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
+    connect(search, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
 
     const Snapshot snapshot = _modelManager->snapshot();
     const CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
@@ -662,7 +682,7 @@ void CppFindReferences::findMacroUses(const Macro &macro)
     Core::ProgressManager *progressManager = Core::ICore::progressManager();
     Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
                                                               CppTools::Constants::TASK_SEARCH);
-    connect(progress, SIGNAL(clicked()), Find::SearchResultWindow::instance(), SLOT(popup()));
+    connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 
 DependencyTable CppFindReferences::updateDependencyTable(CPlusPlus::Snapshot snapshot)

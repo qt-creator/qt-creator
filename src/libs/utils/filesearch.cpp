@@ -208,6 +208,8 @@ void runFileSearch(QFutureInterface<FileSearchResultList> &future,
     if (!future.isCanceled())
         future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
     delete files;
+    if (future.isPaused())
+        future.waitForResume();
 }
 
 void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
@@ -290,6 +292,8 @@ void runFileSearchRegExp(QFutureInterface<FileSearchResultList> &future,
     if (!future.isCanceled())
         future.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, numMatches, numFilesSearched));
     delete files;
+    if (future.isPaused())
+        future.waitForResume();
 }
 
 } // namespace

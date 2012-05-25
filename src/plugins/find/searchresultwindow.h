@@ -109,11 +109,13 @@ public slots:
     void setTextToReplace(const QString &textToReplace);
     void restart();
     void setSearchAgainEnabled(bool enabled);
+    void popup();
 
 signals:
     void activated(const Find::SearchResultItem &item);
     void replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems);
     void cancelled();
+    void paused(bool paused);
     void visibilityChanged(bool visible);
     void countChanged(int count);
     void searchAgainRequested();
