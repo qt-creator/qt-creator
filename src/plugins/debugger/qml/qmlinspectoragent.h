@@ -89,6 +89,7 @@ public:
 
     void setEngineClient(QmlDebug::BaseEngineDebugClient *client);
     QString displayName(int objectDebugId) const;
+    int parentIdForObject(int objectDebugId);
 
 public slots:
     void fetchContextObjectsForLocation(const QString &file,

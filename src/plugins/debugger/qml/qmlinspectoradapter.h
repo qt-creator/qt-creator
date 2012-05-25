@@ -98,7 +98,7 @@ private slots:
     void onUpdateOnSaveChanged(const QVariant &value);
     void onReload();
     void onReloaded();
-    void onDestroyedObject();
+    void onDestroyedObject(int);
 
 private:
     void setActiveEngineClient(QmlDebug::BaseEngineDebugClient *client);

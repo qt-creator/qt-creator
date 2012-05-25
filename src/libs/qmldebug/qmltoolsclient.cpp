@@ -35,10 +35,11 @@
 //INSPECTOR SERVICE PROTOCOL
 // <HEADER><COMMAND><DATA>
 // <HEADER> : <type{request, response, event}><requestId/eventId>[<response_success_bool>]
-// <COMMAND> : {"enable", "disable", "select", "setAnimationSpeed",
+// <COMMAND> : {"enable", "disable", "select", "reload", "setAnimationSpeed",
 //              "showAppOnTop", "createObject", "destroyObject", "moveObject",
 //              "clearCache"}
 // <DATA> : select: <debugIds_int_list>
+//          reload: <hash<changed_filename_string, filecontents_bytearray>>
 //          setAnimationSpeed: <speed_real>
 //          showAppOnTop: <set_bool>
 //          createObject: <qml_string><parentId_int><imports_string_list><filename_string>
@@ -88,8 +89,12 @@ void QmlToolsClient::messageReceived(const QByteArray &message)
         if ((m_reloadQueryId != -1) && (m_reloadQueryId == requestId) && success)
             emit reloaded();
 
-        if ((m_destroyObjectQueryId != -1) && (m_destroyObjectQueryId == requestId) && success)
-            emit destroyedObject();
+        if ((m_destroyObjectQueryId != -1) && (m_destroyObjectQueryId == requestId)
+                && success && !ds.atEnd()) {
+            int objectDebugId;
+            ds >> objectDebugId;
+            emit destroyedObject(objectDebugId);
+        }
 
         log(LogReceive, type, QString(QLatin1String("requestId: %1 success: %2"))
             .arg(QString::number(requestId)).arg(QString::number(success)));

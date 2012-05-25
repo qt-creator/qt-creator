@@ -254,6 +254,8 @@ QHash<int,QString> QmlInspectorAgent::rootObjectIds() const
     QHash<int,QString> rIds;
     foreach (const QByteArray &in, m_debugIdToIname) {
         const WatchData *data = m_debuggerEngine->watchHandler()->findData(in);
+        if (!data)
+            continue;
         int debugId = data->id;
         QString className = data->type;
         rIds.insert(debugId, className);
@@ -465,6 +467,22 @@ void QmlInspectorAgent::reloadEngines()
     log(LogSend, _("LIST_ENGINES"));
 
     m_engineQueryId = m_engineClient->queryAvailableEngines();
+}
+
+int QmlInspectorAgent::parentIdForObject(int objectDebugId)
+{
+    int pid = -1;
+
+    if (m_debugIdToIname.contains(objectDebugId)) {
+        QByteArray iname = m_debugIdToIname.value(objectDebugId);
+        if (iname.count('.') > 1) {
+            int offset = iname.lastIndexOf('.');
+            QTC_ASSERT(offset > 0, return pid);
+            iname = iname.left(offset);
+            pid = m_debugIdToIname.key(iname);
+        }
+    }
+    return pid;
 }
 
 void QmlInspectorAgent::queryEngineContext()
