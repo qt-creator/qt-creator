@@ -462,7 +462,7 @@ bool AndroidTarget::openXmlFile(QDomDocument &doc, const QString &fileName, bool
         return false;
 
     if (!doc.setContent(f.readAll())) {
-        raiseError(tr("Can't parse '%1'").arg(fileName));
+        raiseError(tr("Cannot parse '%1'").arg(fileName));
         return false;
     }
     return true;
@@ -475,7 +475,7 @@ bool AndroidTarget::saveXmlFile(QDomDocument &doc, const QString &fileName) cons
 
     QFile f(fileName);
     if (!f.open(QIODevice::WriteOnly)) {
-        raiseError(tr("Can't open '%1'").arg(fileName));
+        raiseError(tr("Cannot open '%1'").arg(fileName));
         return false;
     }
     return f.write(doc.toByteArray(4)) >= 0;

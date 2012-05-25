@@ -312,7 +312,7 @@ void AndroidSettingsWidget::openJDKLocationEditingFinished()
 
 void AndroidSettingsWidget::browseSDKLocation()
 {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Select Android SDK folder"));
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select Android SDK Folder"));
     if (!checkSDK(dir))
         return;
     m_ui->SDKLocationLineEdit->setText(dir);
@@ -321,7 +321,7 @@ void AndroidSettingsWidget::browseSDKLocation()
 
 void AndroidSettingsWidget::browseNDKLocation()
 {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Select Android NDK folder"));
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select Android NDK Folder"));
     if (!checkNDK(dir))
         return;
     m_ui->NDKLocationLineEdit->setText(dir);
@@ -340,7 +340,8 @@ void AndroidSettingsWidget::browseAntLocation()
     dir = QLatin1String("/opt/local/bin/ant");
     QLatin1String antApp("ant");
 #endif
-    QString file = QFileDialog::getOpenFileName(this, tr("Select ant script"),dir,antApp);
+    const QString file =
+        QFileDialog::getOpenFileName(this, tr("Select ant Script"), dir, antApp);
     if (!file.length())
         return;
     m_ui->AntLocationLineEdit->setText(file);
@@ -350,7 +351,7 @@ void AndroidSettingsWidget::browseAntLocation()
 void AndroidSettingsWidget::browseGdbLocation()
 {
     QString gdbPath = AndroidConfigurations::instance().gdbPath(ProjectExplorer::Abi::ArmArchitecture);
-    QString file = QFileDialog::getOpenFileName(this, tr("Select gdb executable"),gdbPath);
+    QString file = QFileDialog::getOpenFileName(this, tr("Select gdb Executable"),gdbPath);
     if (!file.length())
         return;
     m_ui->GdbLocationLineEdit->setText(file);
@@ -360,7 +361,8 @@ void AndroidSettingsWidget::browseGdbLocation()
 void AndroidSettingsWidget::browseGdbserverLocation()
 {
     QString gdbserverPath = AndroidConfigurations::instance().gdbServerPath(ProjectExplorer::Abi::ArmArchitecture);
-    QString file = QFileDialog::getOpenFileName(this, tr("Select gdbserver android executable"),gdbserverPath);
+    const QString file =
+        QFileDialog::getOpenFileName(this, tr("Select gdbserver Android Executable"),gdbserverPath);
     if (!file.length())
         return;
     m_ui->GdbserverLocationLineEdit->setText(file);
@@ -370,7 +372,8 @@ void AndroidSettingsWidget::browseGdbserverLocation()
 void AndroidSettingsWidget::browseGdbLocationX86()
 {
     QString gdbPath = AndroidConfigurations::instance().gdbPath(ProjectExplorer::Abi::X86Architecture);
-    QString file = QFileDialog::getOpenFileName(this, tr("Select gdb executable"),gdbPath);
+    const QString file =
+        QFileDialog::getOpenFileName(this, tr("Select gdb Executable"),gdbPath);
     if (!file.length())
         return;
     m_ui->GdbLocationLineEditx86->setText(file);
@@ -380,7 +383,8 @@ void AndroidSettingsWidget::browseGdbLocationX86()
 void AndroidSettingsWidget::browseGdbserverLocationX86()
 {
     QString gdbserverPath = AndroidConfigurations::instance().gdbServerPath(ProjectExplorer::Abi::X86Architecture);
-    QString file = QFileDialog::getOpenFileName(this, tr("Select gdbserver android executable"),gdbserverPath);
+    const QString file =
+        QFileDialog::getOpenFileName(this, tr("Select gdbserver Android Executable"), gdbserverPath);
     if (!file.length())
         return;
     m_ui->GdbserverLocationLineEditx86->setText(file);
@@ -390,7 +394,8 @@ void AndroidSettingsWidget::browseGdbserverLocationX86()
 void AndroidSettingsWidget::browseOpenJDKLocation()
 {
     QString openJDKPath = AndroidConfigurations::instance().openJDKPath();
-    QString file = QFileDialog::getOpenFileName(this, tr("Select OpenJDK path"),openJDKPath);
+    const QString file =
+        QFileDialog::getOpenFileName(this, tr("Select OpenJDK Path"), openJDKPath);
     if (!file.length())
         return;
     m_ui->OpenJDKLocationLineEdit->setText(file);

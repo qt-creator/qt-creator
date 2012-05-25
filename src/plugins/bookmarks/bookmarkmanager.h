@@ -169,6 +169,7 @@ public:
 
 class BookmarkViewFactory : public Core::INavigationWidgetFactory
 {
+    Q_OBJECT
 public:
     BookmarkViewFactory(BookmarkManager *bm);
     QString displayName() const;

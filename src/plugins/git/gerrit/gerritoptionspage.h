@@ -55,6 +55,7 @@ class GerritParameters;
 
 class GerritOptionsWidget : public QWidget
 {
+    Q_OBJECT
 public:
     explicit GerritOptionsWidget(QWidget *parent = 0);
 

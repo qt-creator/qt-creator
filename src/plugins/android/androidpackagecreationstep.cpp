@@ -198,8 +198,8 @@ void AndroidPackageCreationStep::checkRequiredLibraries()
     QProcess readelfProc;
     QString appPath = androidTarget()->targetApplicationPath();
     if (!QFile::exists(appPath)) {
-        raiseError(tr("Can't find read elf information"),
-                   tr("Can't find '%1'.\n"
+        raiseError(tr("Cannot find read elf information"),
+                   tr("Cannot find '%1'.\n"
                       "Please make sure your application is "
                       "built successfully and is selected in Application tab ('Run option') ").arg(appPath));
         return;
@@ -249,7 +249,7 @@ void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
 {
     QProcess readelfProc;
     if (!QFile::exists(m_appPath)) {
-        raiseError(tr("Can't find read elf information"),
+        raiseError(tr("Cannot find read elf information"),
                    tr("Can't find '%1'.\n"
                       "Please make sure your application is "
                       "built successfully and is selected in Application tab ('Run option') ").arg(m_appPath));
@@ -386,7 +386,7 @@ bool AndroidPackageCreationStep::createPackage()
     if (m_debugBuild || !m_certificateAlias.length()) {
         build << QLatin1String("debug");
         if (!QFile::copy(m_gdbServerSource, m_gdbServerDestination)) {
-            raiseError(tr("Can't copy gdbserver from '%1' to '%2'").arg(m_gdbServerSource)
+            raiseError(tr("Cannot copy gdbserver from '%1' to '%2'").arg(m_gdbServerSource)
                        .arg(m_gdbServerDestination));
             return false;
         }

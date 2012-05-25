@@ -300,7 +300,7 @@ void AndroidPackageCreationWidget::setPackageName()
 {
     const QString packageName= m_ui->packageNameLineEdit->text();
     if (!checkPackageName(packageName)) {
-        QMessageBox::critical(this, tr("Invalid package name") ,
+        QMessageBox::critical(this, tr("Invalid Package Name") ,
                               tr("The package name '%1' is not valid.\n"
                                  "Please choose a valid package name for your application (e.g. \"org.example.myapplication\").")
                               .arg(packageName));
@@ -524,7 +524,7 @@ void AndroidPackageCreationWidget::on_KeystoreLocationPushButton_clicked()
     QString keystorePath = m_step->keystorePath();
     if (!keystorePath.length())
         keystorePath = QDir::homePath();
-    QString file = QFileDialog::getOpenFileName(this, tr("Select keystore file"), keystorePath, tr("Keystore files (*.keystore *.jks)"));
+    QString file = QFileDialog::getOpenFileName(this, tr("Select Keystore File"), keystorePath, tr("Keystore files (*.keystore *.jks)"));
     if (!file.length())
         return;
     m_ui->KeystoreLocationLineEdit->setText(file);

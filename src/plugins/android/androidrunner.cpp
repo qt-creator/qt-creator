@@ -191,7 +191,7 @@ void AndroidRunner::asyncStart()
         checkPID();
     }
     if (m_processPID == -1) {
-        emit remoteProcessFinished(tr("Can't find %1 process").arg(m_packageName));
+        emit remoteProcessFinished(tr("Cannot find %1 process").arg(m_packageName));
         return;
     }
 

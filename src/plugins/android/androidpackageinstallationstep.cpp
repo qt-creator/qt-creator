@@ -41,16 +41,23 @@ using namespace Android::Internal;
 
 const Core::Id AndroidPackageInstallationStep::Id("Qt4ProjectManager.AndroidPackageInstallationStep");
 
+static inline QString stepDisplayName()
+{
+    return AndroidPackageInstallationStep::tr("Copy application data");
+}
+
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl) : MakeStep(bsl, Id)
 {
-    setDefaultDisplayName(tr("Copy application data"));
-    setDisplayName(tr("Copy application data"));
+    const QString name = stepDisplayName();
+    setDefaultDisplayName(name);
+    setDisplayName(name);
 }
 
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc, AndroidPackageInstallationStep *other): MakeStep(bc, other)
 {
-    setDefaultDisplayName(tr("Copy application data"));
-    setDisplayName(tr("Copy application data"));
+    const QString name = stepDisplayName();
+    setDefaultDisplayName(name);
+    setDisplayName(name);
 }
 
 AndroidPackageInstallationStep::~AndroidPackageInstallationStep()
@@ -61,7 +68,7 @@ bool AndroidPackageInstallationStep::init()
 {
     AndroidTarget *androidTarget = qobject_cast<AndroidTarget *>(target());
     if (!androidTarget) {
-        emit addOutput(tr("Current target is not an android target"), BuildStep::MessageOutput);
+        emit addOutput(tr("Current target is not an Android target"), BuildStep::MessageOutput);
         return false;
     }
 

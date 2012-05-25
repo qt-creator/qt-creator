@@ -40,6 +40,7 @@ namespace Internal {
 
 class AndroidPackageInstallationStep : public Qt4ProjectManager::MakeStep
 {
+    Q_OBJECT
     friend class AndroidPackageInstallationFactory;
 public:
     explicit AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl);

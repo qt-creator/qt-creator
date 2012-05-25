@@ -84,6 +84,7 @@ private:
 
 class OpenEditorsViewFactory : public Core::INavigationWidgetFactory
 {
+    Q_OBJECT
 public:
     OpenEditorsViewFactory();
     ~OpenEditorsViewFactory();

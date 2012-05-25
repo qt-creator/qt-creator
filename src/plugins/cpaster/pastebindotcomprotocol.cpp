@@ -322,7 +322,6 @@ static inline QStringList parseLists(QIODevice *io)
     int tableColumn = 0;
 
     const QString hrefAttribute = QLatin1String("href");
-    //: Unknown user of paste.
     QString link;
     QString title;
     QString age;
