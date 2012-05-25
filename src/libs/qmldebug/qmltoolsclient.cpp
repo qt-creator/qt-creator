@@ -105,12 +105,16 @@ void QmlToolsClient::messageReceived(const QByteArray &message)
             m_currentDebugIds.clear();
             QList<int> debugIds;
             ds >> debugIds;
-            log(LogReceive, type + ':' + event,
-                QString("%1 [list of debug ids]").arg(debugIds.count()));
+
+            QStringList debugIdStrings;
             foreach (int debugId, debugIds) {
-                if (debugId != -1)
+                if (debugId != -1)  {
                     m_currentDebugIds << debugId;
+                    debugIdStrings << QString::number(debugId);
+                }
             }
+            log(LogReceive, type + ':' + event,
+                QString("[%1]").arg(debugIdStrings.join(QLatin1String(","))));
             emit currentObjectsChanged(m_currentDebugIds);
         }
     } else {
@@ -333,9 +337,9 @@ void QmlToolsClient::log(LogDirection direction,
 {
     QString msg;
     if (direction == LogSend)
-        msg += QLatin1String(" sending ");
+        msg += QLatin1String("sending ");
     else
-        msg += QLatin1String(" receiving ");
+        msg += QLatin1String("receiving ");
 
     msg += message;
     msg += QLatin1Char(' ');

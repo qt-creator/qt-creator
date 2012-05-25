@@ -529,9 +529,9 @@ void DeclarativeToolsClient::log(LogDirection direction,
 {
     QString msg;
     if (direction == LogSend)
-        msg += QLatin1String(" sending ");
+        msg += QLatin1String("sending ");
     else
-        msg += QLatin1String(" receiving ");
+        msg += QLatin1String("receiving ");
 
     InspectorProtocol::Message msgType
             = static_cast<InspectorProtocol::Message>(message);
