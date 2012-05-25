@@ -5,7 +5,7 @@ import re;
 # and goes to the end of the line
 # line can be a regex - but if so, remember to set isRegex to True
 # the function returns True if this went fine, False on error
-def placeCursorToLine(editor,line,isRegex=False):
+def placeCursorToLine(editor, line, isRegex=False):
     cursor = editor.textCursor()
     oldPosition = 0
     cursor.setPosition(oldPosition)
@@ -15,44 +15,20 @@ def placeCursorToLine(editor,line,isRegex=False):
         regex = re.compile(line)
     while not found:
         currentLine = str(lineUnderCursor(editor)).strip()
-        if isRegex:
-            if regex.match(currentLine):
-                found = True
-            else:
-                moveTextCursor(editor, QTextCursor.Down, QTextCursor.MoveAnchor)
-                if oldPosition==editor.textCursor().position():
-                    break
-                oldPosition = editor.textCursor().position()
-        else:
-            if currentLine==line:
-                found = True
-            else:
-                moveTextCursor(editor, QTextCursor.Down, QTextCursor.MoveAnchor)
-                if oldPosition==editor.textCursor().position():
-                    break
-                oldPosition = editor.textCursor().position()
+        found = isRegex and regex.match(currentLine) or not isRegex and currentLine == line
+        if not found:
+            type(editor, "<Down>")
+            newPosition = editor.textCursor().position()
+            if oldPosition == newPosition:
+                break
+            oldPosition = newPosition
     if not found:
         test.fatal("Couldn't find line matching\n\n%s\n\nLeaving test..." % line)
         return False
-    cursor=editor.textCursor()
+    cursor = editor.textCursor()
     cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.MoveAnchor)
     editor.setTextCursor(cursor)
     return True
-
-# this function moves the text cursor of an editor by using Qt internal functions
-# this is more reliable (especially on Mac) than the type() approach
-# param editor an editor object
-# param moveOperation a value of enum MoveOperation (of QTextCursor)
-# param moveAnchor a value of enum MoveMode (of QTextCursor)
-# param n how often repeat the move operation?
-def moveTextCursor(editor, moveOperation, moveAnchor, n=1):
-    if not editor or isinstance(editor, (str,unicode)):
-        test.fatal("Either got a NoneType or a string instead of an editor object")
-        return False
-    textCursor = editor.textCursor()
-    result = textCursor.movePosition(moveOperation, moveAnchor, n)
-    editor.setTextCursor(textCursor)
-    return result
 
 # this function returns True if a QMenu is
 # popped up above the given editor

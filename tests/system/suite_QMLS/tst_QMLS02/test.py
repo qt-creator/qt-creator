@@ -16,8 +16,9 @@ def main():
                 "Verifying if error is properly reported")
     # repair error - go to written line
     placeCursorToLine(editorArea, testingCodeLine)
-    moveTextCursor(editorArea, QTextCursor.Left, QTextCursor.MoveAnchor, 14)
-    moveTextCursor(editorArea, QTextCursor.Right, QTextCursor.KeepAnchor, 1)
+    for i in range(14):
+        type(editorArea, "<Left>")
+    type(editorArea, "<Shift+Right>")
     type(editorArea, "c")
     # invoke QML parsing
     invokeMenuItem("Tools", "QML/JS", "Run Checks")

@@ -17,7 +17,10 @@ def main():
     # save all
     invokeMenuItem("File", "Save All")
     # build it - on all (except Qt 4.7.0 (would fail)) build configurations
-    for config in iterateBuildConfigs(1, 0, "(?!.*4\.7\.0.*)"):
+    availableConfigs = iterateBuildConfigs(1, 0, "(?!.*4\.7\.0.*)")
+    if not availableConfigs:
+        test.fatal("Haven't found a suitable Qt version (anything except Qt 4.7.0) - leaving without building.")
+    for config in availableConfigs:
         selectBuildConfig(1, 0, config)
         # try to compile
         test.log("Testing build configuration: " + config)

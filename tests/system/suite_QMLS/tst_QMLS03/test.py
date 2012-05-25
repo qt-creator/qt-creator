@@ -59,7 +59,8 @@ def main():
     if not placeCursorToLine(editorArea, "Rectangle {"):
         invokeMenuItem("File", "Exit")
         return
-    moveTextCursor(editorArea, QTextCursor.Left, QTextCursor.MoveAnchor, 5)
+    for i in range(5):
+        type(editorArea, "<Left>")
     ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
     activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Find Usages"))
     # check if usage was properly found
@@ -77,7 +78,8 @@ def main():
     if not placeCursorToLine(editorArea, "anchors { left: parent.left; top: parent.top; right: parent.right; bottom: parent.verticalCenter }"):
         invokeMenuItem("File", "Exit")
         return
-    moveTextCursor(editorArea, QTextCursor.Left, QTextCursor.MoveAnchor, 87)
+    for i in range(87):
+        type(editorArea, "<Left>")
     invokeMenuItem("Tools", "QML/JS", "Find Usages")
     # check if usage was properly found
     expectedResults = [ExpectedResult("color-animation.qml", 50, "anchors { left: parent.left; top: parent.top; right: parent.right; bottom: parent.verticalCenter }"),
@@ -94,7 +96,8 @@ def main():
     if not placeCursorToLine(editorArea, "SequentialAnimation on opacity {"):
         invokeMenuItem("File", "Exit")
         return
-    moveTextCursor(editorArea, QTextCursor.Left, QTextCursor.MoveAnchor, 5)
+    for i in range(5):
+        type(editorArea, "<Left>")
     type(editorArea, "<Ctrl+Shift+U>")
     # check if usage was properly found
     expectedResults = [ExpectedResult("color-animation.qml", 87, "SequentialAnimation on opacity {")]
