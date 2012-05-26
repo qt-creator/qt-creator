@@ -162,9 +162,11 @@ public:
     QList<ProjectExplorer::FileNode *> cmakeFileList();
     QStringList includeFiles();
     QList<CMakeBuildTarget> buildTargets();
+    QByteArray defines() const;
     QString projectName() const;
     QString compilerName() const;
     bool hasCMakeFiles();
+
 private:
     void parseCodeBlocks_project_file();
     void parseProject();
@@ -186,6 +188,8 @@ private:
     QSet<QString> m_processedUnits;
     bool m_parsingCmakeUnit;
     QStringList m_includeFiles;
+    QStringList m_compilerOptions;
+    QByteArray m_defines;
 
     CMakeBuildTarget m_buildTarget;
     bool m_buildTargetType;

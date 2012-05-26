@@ -293,6 +293,10 @@ bool CMakeProject::parseCMakeLists()
     allIncludePaths.append(projectDirectory());
     allIncludePaths.append(cbpparser.includeFiles());
 
+     QByteArray allDefines;
+     allDefines.append(activeBC->toolChain()->predefinedMacros(QStringList()));
+     allDefines.append(cbpparser.defines());
+
     QStringList allFrameworkPaths;
     QList<ProjectExplorer::HeaderPath> allHeaderPaths;
     if (activeBC->toolChain())
@@ -310,7 +314,7 @@ bool CMakeProject::parseCMakeLists()
         CPlusPlus::CppModelManagerInterface::ProjectInfo pinfo = modelmanager->projectInfo(this);
         if (pinfo.includePaths() != allIncludePaths
                 || pinfo.sourceFiles() != m_files
-                || pinfo.defines() != (activeBC->toolChain() ? activeBC->toolChain()->predefinedMacros(QStringList()) : QByteArray())
+                || pinfo.defines() != allDefines
                 || pinfo.frameworkPaths() != allFrameworkPaths)  {
             pinfo.clearProjectParts();
             CPlusPlus::CppModelManagerInterface::ProjectPart::Ptr part(
@@ -318,7 +322,7 @@ bool CMakeProject::parseCMakeLists()
             part->includePaths = allIncludePaths;
             // TODO we only want C++ files, not all other stuff that might be in the project
             part->sourceFiles = m_files;
-            part->defines = (activeBC->toolChain() ? activeBC->toolChain()->predefinedMacros(QStringList()) : QByteArray()); // TODO this is to simplistic
+            part->defines = allDefines;
             part->frameworkPaths = allFrameworkPaths;
             part->language = CPlusPlus::CppModelManagerInterface::CXX;
             pinfo.appendProjectPart(part);
@@ -1085,7 +1089,31 @@ void CMakeCbpParser::parseCompiler()
 
 void CMakeCbpParser::parseAdd()
 {
-    m_includeFiles.append(attributes().value("directory").toString());
+    // CMake only supports <Add option=\> and <Add directory=\>
+    const QXmlStreamAttributes addAttributes = attributes();
+
+    const QString includeDirectory = addAttributes.value("directory").toString();
+    // allow adding multiple times because order happens
+    if (!includeDirectory.isEmpty()) {
+        m_includeFiles.append(includeDirectory);
+    }
+
+    QString compilerOption = addAttributes.value("option").toString();
+    // defining multiple times a macro to the same value makes no sense
+    if (!compilerOption.isEmpty() && !m_compilerOptions.contains(compilerOption)) {
+        m_compilerOptions.append(compilerOption);
+        int macroNameIndex = compilerOption.indexOf("-D") + 2;
+        if (macroNameIndex != 1) {
+            int assignIndex = compilerOption.indexOf('=', macroNameIndex);
+            if (assignIndex != -1) {
+                compilerOption[assignIndex] = ' ';
+            }
+            m_defines.append("#define ");
+            m_defines.append(compilerOption.mid(macroNameIndex).toAscii());
+            m_defines.append('\n');
+        }
+    }
+
     while (!atEnd()) {
         readNext();
         if (isEndElement()) {
@@ -1181,6 +1209,11 @@ bool CMakeCbpParser::hasCMakeFiles()
 QStringList CMakeCbpParser::includeFiles()
 {
     return m_includeFiles;
+}
+
+QByteArray CMakeCbpParser::defines() const
+{
+    return m_defines;
 }
 
 QList<CMakeBuildTarget> CMakeCbpParser::buildTargets()
