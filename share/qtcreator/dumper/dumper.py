@@ -695,12 +695,12 @@ def extractByteArray(value):
         checkAccess(data + size) == 0
     return extractCharArray(data, min(qqStringCutOff, size))
 
-def encodeCharArray(p, maxsize = None, limit = -1):
-    if maxsize == None:
+def encodeCharArray(p, maxsize = None, limit = None):
+    if maxsize is None:
         maxsize = qqStringCutOff
     t = lookupType("unsigned char").pointer()
     p = p.cast(t)
-    if limit == -1:
+    if limit is None
         limit = findFirstZero(p, maxsize)
     s = ""
     try:
