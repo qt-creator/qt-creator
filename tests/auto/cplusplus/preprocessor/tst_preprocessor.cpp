@@ -125,7 +125,7 @@ public:
     {
         m_expandedMacros.append(QByteArray(originalText.start(), originalText.length()));
         m_expandedMacrosOffset.append(offset);
-        m_macroUsesLine.insert(macro.name(), m_env->currentLine);
+        m_macroUsesLine[macro.name()].append(m_env->currentLine);
     }
 
     virtual void stopExpandingMacro(unsigned /*offset*/, const Macro &/*macro*/) {}
@@ -229,7 +229,7 @@ public:
     QList<unsigned> definedMacrosLine() const
     { return m_definedMacrosLine; }
 
-    QHash<QByteArray, unsigned> macroUsesLine() const
+    QHash<QByteArray, QList<unsigned> > macroUsesLine() const
     { return m_macroUsesLine; }
 
 private:
@@ -244,7 +244,7 @@ private:
     QList<unsigned> m_expandedMacrosOffset;
     QList<QByteArray> m_definedMacros;
     QList<unsigned> m_definedMacrosLine;
-    QHash<QByteArray, unsigned> m_macroUsesLine;
+    QHash<QByteArray, QList<unsigned> > m_macroUsesLine;
 };
 
 QT_BEGIN_NAMESPACE
@@ -495,7 +495,9 @@ void tst_Preprocessor::macro_uses_lines()
                       "#if ENABLE(COOL)\n"
                       "class Cool {};\n"
                       "#endif\n"
-                      "int cool = ENABLE_COOL;\n");
+                      "int cool = ENABLE_COOL;\n"
+                      "#define OTHER_ENABLE(FEATURE) ENABLE(FEATURE)\n"
+                      "#define MORE(LESS) FOO ENABLE(LESS)\n");
 
     QByteArray output;
     Environment env;
@@ -503,19 +505,22 @@ void tst_Preprocessor::macro_uses_lines()
     Preprocessor preprocess(&client, &env);
     preprocess.run(QLatin1String("<stdin>"), buffer);
 
-    QCOMPARE(client.macroUsesLine().value("FOO"), 2U);
-    QCOMPARE(client.macroUsesLine().value("HEADER"), 5U);
-    QCOMPARE(client.macroUsesLine().value("DECLARE"), 9U);
-    QCOMPARE(client.macroUsesLine().value("NOTHING"), 13U);
-    QCOMPARE(client.macroUsesLine().value("ENABLE"), 18U);
-    QCOMPARE(client.macroUsesLine().value("ENABLE_COOL"), 21U);
+    QCOMPARE(client.macroUsesLine().value("FOO"), QList<unsigned>() << 2U << 23U);
+    QCOMPARE(client.macroUsesLine().value("HEADER"), QList<unsigned>() << 5U);
+    QCOMPARE(client.macroUsesLine().value("DECLARE"), QList<unsigned>() << 9U);
+    QCOMPARE(client.macroUsesLine().value("NOTHING"), QList<unsigned>() << 13U);
+    QCOMPARE(client.macroUsesLine().value("ENABLE"), QList<unsigned>() << 18U << 22U << 23U);
+    QCOMPARE(client.macroUsesLine().value("ENABLE_COOL"), QList<unsigned>() << 21U);
     QCOMPARE(client.expandedMacrosOffset(), QList<unsigned>()
-             << buffer.lastIndexOf("FOO")
+             << buffer.lastIndexOf("FOO\n")
              << buffer.lastIndexOf("HEADER")
              << buffer.lastIndexOf("DECLARE")
              << buffer.lastIndexOf("NOTHING")
              << buffer.lastIndexOf("ENABLE(COOL)")
-             << buffer.lastIndexOf("ENABLE_COOL"));
+             << buffer.lastIndexOf("ENABLE_COOL")
+             << buffer.lastIndexOf("ENABLE(FEATURE)")
+             << buffer.lastIndexOf("FOO ")
+             << buffer.lastIndexOf("ENABLE(LESS)"));
 }
 
 void tst_Preprocessor::macro_definition_lineno()

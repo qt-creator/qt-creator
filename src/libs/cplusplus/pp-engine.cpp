@@ -1257,16 +1257,22 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
     QVector<PPToken> bodyTokens;
     PPToken firstBodyToken = *tk;
     while (isValidToken(*tk)) {
-        tk->f.generated = true;
-        bodyTokens.push_back(*tk);
-        lex(tk);
-        if (eagerExpansion)
+        if (eagerExpansion) {
+            PPToken idTk = *tk;
             while (tk->is(T_IDENTIFIER)
                    && (!tk->newline() || tk->joined())
                    && !isQtReservedWord(tk->asByteArrayRef())
                    && handleIdentifier(tk)) {
                 lex(tk);
+                if (tk->asByteArrayRef() == macroName) {
+                    *tk = idTk;
+                    break;
+                }
             }
+        }
+        tk->f.generated = true;
+        bodyTokens.push_back(*tk);
+        lex(tk);
     }
 
     if (isQtReservedWord(ByteArrayRef(&macroName))) {
