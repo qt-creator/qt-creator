@@ -4948,8 +4948,8 @@ void GdbEngine::handleGdbFinished(int code, QProcess::ExitStatus type)
     default: {
         notifyEngineIll(); // Initiate shutdown sequence
         const QString msg = type == QProcess::CrashExit ?
-                    tr("The gdb process crashed.") :
-                    tr("The gdb process exited unexpectedly (code %1)").arg(code);
+                    tr("The gdb process terminated.") :
+                    tr("The gdb process terminated unexpectedly (code %1)").arg(code);
         showMessageBox(QMessageBox::Critical, tr("Unexpected GDB Exit"), msg);
         break;
     }
