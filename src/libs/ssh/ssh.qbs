@@ -39,6 +39,7 @@ QtcLibrary {
         "sshkeypasswordretriever.cpp",
         "sshkeygenerator.cpp", "sshkeygenerator.h",
         "sshkeycreationdialog.cpp", "sshkeycreationdialog.h", "sshkeycreationdialog.ui",
+        "sftpfilesystemmodel.cpp", "sftpfilesystemmodel.h",
         "sshincomingpacket_p.h", "sshincomingpacket.cpp",
         "ssherrors.h",
         "sshexception_p.h",
