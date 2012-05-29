@@ -776,7 +776,7 @@ static void setWatchDataAddress(WatchData &data, quint64 address, quint64 origAd
             // *(class X*)0xdeadbeef for gdb.
             data.exp = data.name.toLatin1();
         else
-            data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" +data.hexAddress();
+            data.exp = "*(" + gdbQuoteTypes(data.type) + "*)" + data.hexAddress();
     }
 }
 
