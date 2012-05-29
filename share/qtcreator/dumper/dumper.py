@@ -81,6 +81,8 @@ DisplayProcess \
     = range(5)
 
 
+qqStringCutOff = 1000
+
 def hasInferiorThreadList():
     #return False
     try:
@@ -691,9 +693,11 @@ def extractByteArray(value):
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
-    return extractCharArray(data, min(100, size))
+    return extractCharArray(data, min(qqStringCutOff, size))
 
-def encodeCharArray(p, maxsize, limit = -1):
+def encodeCharArray(p, maxsize = None, limit = -1):
+    if maxsize == None:
+        maxsize = qqStringCutOff
     t = lookupType("unsigned char").pointer()
     p = p.cast(t)
     if limit == -1:
@@ -711,7 +715,9 @@ def encodeCharArray(p, maxsize, limit = -1):
         s += "2e2e2e"
     return s
 
-def encodeChar2Array(p, maxsize):
+def encodeChar2Array(p, maxsize = None):
+    if maxsize == None:
+        maxsize = qqStringCutOff
     t = lookupType("unsigned short").pointer()
     p = p.cast(t)
     limit = findFirstZero(p, maxsize)
@@ -723,7 +729,9 @@ def encodeChar2Array(p, maxsize):
         s += "2e002e002e00"
     return s
 
-def encodeChar4Array(p, maxsize):
+def encodeChar4Array(p, maxsize = None):
+    if maxsize == None:
+        maxsize = qqStringCutOff
     t = lookupType("unsigned int").pointer()
     p = p.cast(t)
     limit = findFirstZero(p, maxsize)
@@ -754,7 +762,7 @@ def encodeByteArray(value):
     if size > 0:
         checkAccess(data, 4)
         checkAccess(data + size) == 0
-    return encodeCharArray(data, 100, size)
+    return encodeCharArray(data, limit = size)
 
 def qQStringData(value):
     private = value['d']
@@ -778,7 +786,7 @@ def encodeString(value):
         checkAccess(data, 4)
         checkAccess(data + size) == 0
     s = ""
-    limit = min(size, 1000)
+    limit = min(size, qqStringCutOff)
     try:
         # gdb.Inferior is new in gdb 7.2
         inferior = gdb.inferiors()[0]
@@ -1487,13 +1495,13 @@ class Dumper:
             format = self.currentItemFormat()
             if format == 0:
                 # Explicitly requested Latin1 formatting.
-                self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
+                self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
             elif format == 1:
                 # Explicitly requested UTF-8 formatting.
-                self.putValue(encodeCharArray(value, 100), Hex2EncodedUtf8)
+                self.putValue(encodeCharArray(value), Hex2EncodedUtf8)
             elif format == 2:
                 # Explicitly requested Local 8-bit formatting.
-                self.putValue(encodeCharArray(value, 100), Hex2EncodedLocal8Bit)
+                self.putValue(encodeCharArray(value), Hex2EncodedLocal8Bit)
             else:
                 self.putValue("@0x%x" % long(value.cast(targetType.pointer())))
             if self.currentIName in self.expandedINames:
@@ -1594,7 +1602,7 @@ class Dumper:
                 # Explicitly requested UTF-16 formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
-                self.putValue(encodeChar2Array(value, 100), Hex4EncodedBigEndian)
+                self.putValue(encodeChar2Array(value), Hex4EncodedBigEndian)
                 self.putNumChild(0)
                 return
 
@@ -1602,7 +1610,7 @@ class Dumper:
                 # Explicitly requested UCS-4 formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
-                self.putValue(encodeChar4Array(value, 100), Hex8EncodedBigEndian)
+                self.putValue(encodeChar4Array(value), Hex8EncodedBigEndian)
                 self.putNumChild(0)
                 return
 
