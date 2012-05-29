@@ -700,7 +700,7 @@ def encodeCharArray(p, maxsize = None, limit = None):
         maxsize = qqStringCutOff
     t = lookupType("unsigned char").pointer()
     p = p.cast(t)
-    if limit is None
+    if limit is None:
         limit = findFirstZero(p, maxsize)
     s = ""
     try:
