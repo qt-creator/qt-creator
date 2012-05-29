@@ -371,8 +371,8 @@ void ToolChainModel::markForRemoval(ToolChain *tc)
             delete node->toolChain;
             node->toolChain = 0;
             m_toAddList.removeOne(node);
+            delete node;
         } else {
-            node->parent = 0;
             m_toRemoveList.append(node);
         }
         emit endRemoveRows();
