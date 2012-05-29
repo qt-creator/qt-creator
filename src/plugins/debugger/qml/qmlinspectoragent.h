@@ -58,7 +58,6 @@ class QmlInspectorAgent : public QObject
 public:
     explicit QmlInspectorAgent(DebuggerEngine *engine, QObject *parent = 0);
 
-
     void fetchObject(int debugId);
     quint32 queryExpressionResult(int debugId, const QString &expression);
 
@@ -118,7 +117,7 @@ private:
 
     void buildDebugIdHashRecursive(const QmlDebug::ObjectReference &ref);
     QList<WatchData> buildWatchData(const QmlDebug::ObjectReference &obj,
-                                           const QByteArray &parentIname);
+                                           const QByteArray &parentIname, bool append);
 
     enum LogDirection {
         LogSend,
@@ -147,6 +146,7 @@ private:
     QList<int> m_objectWatches;
     QList<int> m_fetchDataIds;
     QTimer m_delayQueryTimer;
+    bool m_newObjectsCreated;
 };
 
 } // Internal
