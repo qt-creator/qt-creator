@@ -539,6 +539,7 @@ Preprocessor::State::State()
     , m_inCondition(false)
     , m_inDefine(false)
     , m_offsetRef(0)
+    , m_envLineRef(1)
 {
     m_skipping[m_ifLevel] = false;
     m_trueTest[m_ifLevel] = false;
@@ -687,13 +688,16 @@ _Lagain:
         m_state.m_lexer->scan(tk);
     }
 
-//    if (tk->isValid() && !tk->generated() && !tk->is(T_EOF_SYMBOL))
-//        m_env->currentLine = tk->lineno;
-
 _Lclassify:
     if (! m_state.m_inPreprocessorDirective) {
+        // Bellow, during directive and identifier handling the current environment line is
+        // updated in accordance to "global" context in order for clients to rely on consistent
+        // information. Afterwards, it's restored until output is eventually processed.
         if (tk->newline() && tk->is(T_POUND)) {
+            unsigned envLine = m_env->currentLine;
+            m_env->currentLine = tk->lineno + m_state.m_envLineRef - 1;
             handlePreprocessorDirective(tk);
+            m_env->currentLine = envLine;
             goto _Lclassify;
         } else if (tk->newline() && skipping()) {
             ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
@@ -702,10 +706,16 @@ _Lclassify:
             } while (isValidToken(*tk));
             goto _Lclassify;
         } else if (tk->is(T_IDENTIFIER) && !isQtReservedWord(tk->asByteArrayRef())) {
-            if (m_state.m_inCondition && tk->asByteArrayRef() == "defined")
+            if (m_state.m_inCondition && tk->asByteArrayRef() == "defined") {
                 handleDefined(tk);
-            else if (handleIdentifier(tk))
-                goto _Lagain;
+            } else {
+                unsigned envLine = m_env->currentLine;
+                m_env->currentLine = tk->lineno + m_state.m_envLineRef - 1;
+                bool willExpand = handleIdentifier(tk);
+                m_env->currentLine = envLine;
+                if (willExpand)
+                    goto _Lagain;
+            }
         }
     }
 }
@@ -803,7 +813,8 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
                                 argTks.last().begin() + argTks.last().length() - argTks.first().begin()));
             }
 
-            m_client->startExpandingMacro(idTk.offset, *macro, macroNameRef, argRefs);
+            m_client->startExpandingMacro(m_state.m_offsetRef + idTk.offset, *macro, macroNameRef,
+                                          argRefs);
         }
 
         if (!handleFunctionLikeMacro(tk, macro, body, !m_state.m_inDefine, allArgTks)) {
@@ -812,7 +823,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
             return false;
         }
     } else if (m_client && !idTk.generated()) {
-        m_client->startExpandingMacro(idTk.offset, *macro, macroNameRef);
+        m_client->startExpandingMacro(m_state.m_offsetRef + idTk.offset, *macro, macroNameRef);
     }
 
     if (body.isEmpty()) {
@@ -929,7 +940,7 @@ exitNicely:
 void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
                               QByteArray *result, bool noLines,
                               bool markGeneratedTokens, bool inCondition,
-                              unsigned offset)
+                              unsigned offsetRef, unsigned envLineRef)
 {
     if (source.isEmpty())
         return;
@@ -948,7 +959,8 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     m_state.m_noLines = noLines;
     m_state.m_markGeneratedTokens = markGeneratedTokens;
     m_state.m_inCondition = inCondition;
-    m_state.m_offsetRef = offset;
+    m_state.m_offsetRef = offsetRef;
+    m_state.m_envLineRef = envLineRef;
 
     const QString previousFileName = m_env->currentFile;
     m_env->currentFile = fileName;
@@ -1249,8 +1261,12 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         bodyTokens.push_back(*tk);
         lex(tk);
         if (eagerExpansion)
-            while (tk->is(T_IDENTIFIER) && !isQtReservedWord(tk->asByteArrayRef()) && handleIdentifier(tk))
+            while (tk->is(T_IDENTIFIER)
+                   && (!tk->newline() || tk->joined())
+                   && !isQtReservedWord(tk->asByteArrayRef())
+                   && handleIdentifier(tk)) {
                 lex(tk);
+            }
     }
 
     if (isQtReservedWord(ByteArrayRef(&macroName))) {
@@ -1305,7 +1321,8 @@ QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)
 //    qDebug("*** Condition before: [%s]", condition.constData());
     QByteArray result;
     result.reserve(256);
-    preprocess(m_state.m_currentFileName, condition, &result, true, false, true, begin);
+    preprocess(m_state.m_currentFileName, condition, &result, true, false, true, begin,
+               m_env->currentLine);
     result.squeeze();
 //    qDebug("*** Condition after: [%s]", result.constData());
 

@@ -92,7 +92,7 @@ private:
     void preprocess(const QString &filename,
                     const QByteArray &source,
                     QByteArray *result, bool noLines, bool markGeneratedTokens, bool inCondition,
-                    unsigned offset = 0);
+                    unsigned offsetRef = 0, unsigned envLineRef = 1);
 
     enum { MAX_LEVEL = 512 };
 
@@ -121,6 +121,7 @@ private:
         bool m_inDefine;
 
         unsigned m_offsetRef;
+        unsigned m_envLineRef;
     };
 
     void handleDefined(PPToken *tk);

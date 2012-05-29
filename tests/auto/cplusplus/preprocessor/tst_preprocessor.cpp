@@ -32,6 +32,7 @@
 
 #include <QtTest>
 #include <pp.h>
+#include <QHash>
 
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
@@ -117,13 +118,14 @@ public:
     virtual void failedMacroDefinitionCheck(unsigned /*offset*/, const ByteArrayRef &/*name*/) {}
 
     virtual void startExpandingMacro(unsigned offset,
-                                     const Macro &/*macro*/,
+                                     const Macro &macro,
                                      const ByteArrayRef &originalText,
                                      const QVector<MacroArgumentReference> &/*actuals*/
                                               = QVector<MacroArgumentReference>())
     {
         m_expandedMacros.append(QByteArray(originalText.start(), originalText.length()));
         m_expandedMacrosOffset.append(offset);
+        m_macroUsesLine.insert(macro.name(), m_env->currentLine);
     }
 
     virtual void stopExpandingMacro(unsigned /*offset*/, const Macro &/*macro*/) {}
@@ -227,6 +229,9 @@ public:
     QList<unsigned> definedMacrosLine() const
     { return m_definedMacrosLine; }
 
+    QHash<QByteArray, unsigned> macroUsesLine() const
+    { return m_macroUsesLine; }
+
 private:
     Environment *m_env;
     QByteArray *m_output;
@@ -239,6 +244,7 @@ private:
     QList<unsigned> m_expandedMacrosOffset;
     QList<QByteArray> m_definedMacros;
     QList<unsigned> m_definedMacrosLine;
+    QHash<QByteArray, unsigned> m_macroUsesLine;
 };
 
 QT_BEGIN_NAMESPACE
@@ -304,6 +310,7 @@ private slots:
     void objmacro_expanding_as_fnmacro_notification();
     void macro_definition_lineno();
     void macro_uses();
+    void macro_uses_lines();
     void macro_arguments_notificatin();
     void unfinished_function_like_macro_call();
     void nasty_macro_expansion();
@@ -464,6 +471,51 @@ void tst_Preprocessor::macro_uses()
     QCOMPARE(client.expandedMacrosOffset(), QList<unsigned>() << buffer.indexOf("FOO;") << buffer.indexOf("BAR;"));
     QCOMPARE(client.definedMacros(), QList<QByteArray>() << QByteArray("FOO") << QByteArray("BAR"));
     QCOMPARE(client.definedMacrosLine(), QList<unsigned>() << 2 << 3);
+}
+
+void tst_Preprocessor::macro_uses_lines()
+{
+    QByteArray buffer("#define FOO\n"
+                      "FOO\n"
+                      "\n"
+                      "#define HEADER <test>\n"
+                      "#include HEADER\n"
+                      "\n"
+                      "#define DECLARE(C, V) struct C {}; C V;\n"
+                      "#define ABC X\n"
+                      "DECLARE(Test, test)\n"
+                      "\n"
+                      "int abc;\n"
+                      "#define NOTHING(C)\n"
+                      "NOTHING(abc)\n"
+                      "\n"
+                      "#define ENABLE(FEATURE) (defined ENABLE_##FEATURE && ENABLE_##FEATURE)\n"
+                      "#define ENABLE_COOL 1\n"
+                      "void fill();\n"
+                      "#if ENABLE(COOL)\n"
+                      "class Cool {};\n"
+                      "#endif\n"
+                      "int cool = ENABLE_COOL;\n");
+
+    QByteArray output;
+    Environment env;
+    MockClient client(&env, &output);
+    Preprocessor preprocess(&client, &env);
+    preprocess.run(QLatin1String("<stdin>"), buffer);
+
+    QCOMPARE(client.macroUsesLine().value("FOO"), 2U);
+    QCOMPARE(client.macroUsesLine().value("HEADER"), 5U);
+    QCOMPARE(client.macroUsesLine().value("DECLARE"), 9U);
+    QCOMPARE(client.macroUsesLine().value("NOTHING"), 13U);
+    QCOMPARE(client.macroUsesLine().value("ENABLE"), 18U);
+    QCOMPARE(client.macroUsesLine().value("ENABLE_COOL"), 21U);
+    QCOMPARE(client.expandedMacrosOffset(), QList<unsigned>()
+             << buffer.lastIndexOf("FOO")
+             << buffer.lastIndexOf("HEADER")
+             << buffer.lastIndexOf("DECLARE")
+             << buffer.lastIndexOf("NOTHING")
+             << buffer.lastIndexOf("ENABLE(COOL)")
+             << buffer.lastIndexOf("ENABLE_COOL"));
 }
 
 void tst_Preprocessor::macro_definition_lineno()

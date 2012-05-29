@@ -524,9 +524,7 @@ void CppPreprocessor::startExpandingMacro(unsigned offset,
     if (! m_currentDoc)
         return;
 
-    //qDebug() << "start expanding:" << macro.name() << "text:" << originalText;
-    m_currentDoc->addMacroUse(macro, offset, originalText.length(), env.currentLine,
-                              actuals);
+    m_currentDoc->addMacroUse(macro, offset, originalText.length(), env.currentLine, actuals);
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
