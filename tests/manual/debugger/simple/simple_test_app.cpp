@@ -2714,7 +2714,7 @@ namespace stdmap {
 
     void testStdMapUIntFloatIterator()
     {
-        typedef std::map<uint, float> Map;
+        typedef std::map<int, float> Map;
         Map map;
         map[11] = 11.0;
         map[22] = 22.0;
@@ -2732,11 +2732,11 @@ namespace stdmap {
 
         BREAK_HERE;
         // Expand map.
-        // Check map <6 items> std::map<unsigned int, float>.
+        // Check map <6 items> std::map<int, float>.
         // Check map.11 11 float.
-        // Check it1.first 11 unsigned int.
+        // Check it1.first 11 int.
         // Check it1.second 11 float.
-        // Check it1.first 55 unsigned int.
+        // Check it1.first 55 int.
         // Check it1.second 55 float.
         // Continue.
         dummyStatement(&map, &it1, &it2, &it3, &it4, &it5, &it6);

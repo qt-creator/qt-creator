@@ -459,9 +459,6 @@ def qdump__QList(d, value):
     check(begin >= 0 and end >= 0 and end <= 1000 * 1000 * 1000)
     size = end - begin
     check(size >= 0)
-    #if n > 0:
-    #    checkAccess(&list.front())
-    #    checkAccess(&list.back())
     checkRef(d_ptr["ref"])
 
     # Additional checks on pointer arrays.
@@ -1650,7 +1647,6 @@ def qdump__QVector(d, value):
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
-        d.putField("size", size)
         d.putArrayData(innerType, p, size)
 
 
@@ -2569,8 +2565,10 @@ if False:
     def qdump__Function(d, value):
         min = value["min"]
         max = value["max"]
-        var = extractByteArray(value["var"])
-        f = extractByteArray(value["f"])
+        data, size, alloc = qByteArrayData(value["var"])
+        var = extractCString(data)
+        data, size, alloc = qByteArrayData(value["f"])
+        f = extractCString(data)
         d.putValue("%s, %s=%f..%f" % (f, var, min, max))
         d.putNumChild(0)
         d.putField("typeformats", "Normal,Displayed");

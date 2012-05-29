@@ -592,7 +592,7 @@ QString decodeData(const QByteArray &ba, int encoding)
         case Hex8EncodedBigEndian: { // 10, %08x encoded 32 bit data
             const QChar doubleQuote(QLatin1Char('"'));
             QByteArray decodedBa = QByteArray::fromHex(ba);
-            for (int i = 0; i < decodedBa.size(); i += 4) {
+            for (int i = 0; i < decodedBa.size() - 3; i += 4) {
                 char c = decodedBa.at(i);
                 decodedBa[i] = decodedBa.at(i + 3);
                 decodedBa[i + 3] = c;
@@ -641,6 +641,54 @@ QString decodeData(const QByteArray &ba, int encoding)
     }
     qDebug() << "ENCODING ERROR: " << encoding;
     return QCoreApplication::translate("Debugger", "<Encoding error>");
+}
+
+template <class T>
+void decodeArrayHelper(QList<WatchData> *list, const WatchData &tmplate,
+    const QByteArray &rawData)
+{
+    const QByteArray ba = QByteArray::fromHex(rawData);
+    const T *p = (const T *) ba.data();
+    WatchData data;
+    const QByteArray exp = "*(" + gdbQuoteTypes(tmplate.type) + "*)0x";
+    for (int i = 0, n = ba.size() / sizeof(T); i < n; ++i) {
+        data = tmplate;
+        data.sortId = i;
+        data.iname += QByteArray::number(i);
+        data.name = QString::fromLatin1("[%1]").arg(i);
+        data.value = QString::number(p[i]);
+        data.address += i * sizeof(T);
+        data.exp = exp + QByteArray::number(data.address, 16);
+        data.setAllUnneeded();
+        list->append(data);
+    }
+}
+
+void decodeArray(QList<WatchData> *list, const WatchData &tmplate,
+    const QByteArray &rawData, int encoding)
+{
+    switch (encoding) {
+        case Hex2EncodedInt1:
+            decodeArrayHelper<uchar>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedInt2:
+            decodeArrayHelper<ushort>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedInt4:
+            decodeArrayHelper<uint>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedInt8:
+            decodeArrayHelper<quint64>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedFloat4:
+            decodeArrayHelper<float>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedFloat8:
+            decodeArrayHelper<double>(list, tmplate, rawData);
+            break;
+        default:
+            qDebug() << "ENCODING ERROR: " << encoding;
+    }
 }
 
 // Editor tooltip support
@@ -870,41 +918,49 @@ void parseWatchData(const QSet<QByteArray> &expandedINames,
     setWatchDataChildCount(childtemplate, item.findChild("childnumchild"));
     //qDebug() << "CHILD TEMPLATE:" << childtemplate.toString();
 
-    for (int i = 0, n = children.children().size(); i != n; ++i) {
-        const GdbMi &child = children.children().at(i);
-        WatchData data1 = childtemplate;
-        data1.sortId = i;
-        GdbMi name = child.findChild("name");
-        if (name.isValid())
-            data1.name = _(name.data());
-        else
-            data1.name = QString::number(i);
-        GdbMi iname = child.findChild("iname");
-        if (iname.isValid()) {
-            data1.iname = iname.data();
-        } else {
-            data1.iname = data.iname;
-            data1.iname += '.';
-            data1.iname += data1.name.toLatin1();
-        }
-        if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
-            data1.name = QLatin1Char('[') + data1.name + QLatin1Char(']');
-        if (addressStep) {
-            setWatchDataAddress(data1, addressBase);
-            addressBase += addressStep;
-        }
-        QByteArray key = child.findChild("key").data();
-        if (!key.isEmpty()) {
-            int encoding = child.findChild("keyencoded").data().toInt();
-            QString skey = decodeData(key, encoding);
-            if (skey.size() > 13) {
-                skey = skey.left(12);
-                skey += _("...");
+    mi = item.findChild("arraydata");
+    if (mi.isValid()) {
+        int encoding = item.findChild("arrayencoding").data().toInt();
+        childtemplate.iname = data.iname + '.';
+        childtemplate.address = addressBase;
+        decodeArray(list, childtemplate, mi.data(), encoding);
+    } else {
+        for (int i = 0, n = children.children().size(); i != n; ++i) {
+            const GdbMi &child = children.children().at(i);
+            WatchData data1 = childtemplate;
+            data1.sortId = i;
+            GdbMi name = child.findChild("name");
+            if (name.isValid())
+                data1.name = _(name.data());
+            else
+                data1.name = QString::number(i);
+            GdbMi iname = child.findChild("iname");
+            if (iname.isValid()) {
+                data1.iname = iname.data();
+            } else {
+                data1.iname = data.iname;
+                data1.iname += '.';
+                data1.iname += data1.name.toLatin1();
             }
-            //data1.name += " (" + skey + ")";
-            data1.name = skey;
+            if (!data1.name.isEmpty() && data1.name.at(0).isDigit())
+                data1.name = QLatin1Char('[') + data1.name + QLatin1Char(']');
+            if (addressStep) {
+                setWatchDataAddress(data1, addressBase);
+                addressBase += addressStep;
+            }
+            QByteArray key = child.findChild("key").data();
+            if (!key.isEmpty()) {
+                int encoding = child.findChild("keyencoded").data().toInt();
+                QString skey = decodeData(key, encoding);
+                if (skey.size() > 13) {
+                    skey = skey.left(12);
+                    skey += _("...");
+                }
+                //data1.name += " (" + skey + ")";
+                data1.name = skey;
+            }
+            parseWatchData(expandedINames, data1, child, list);
         }
-        parseWatchData(expandedINames, data1, child, list);
     }
 }
 

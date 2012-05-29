@@ -42,11 +42,6 @@ def removeTempFile(name, file):
     except:
         pass
 
-try:
-    import binascii
-except:
-    pass
-
 verbosity = 0
 verbosity = 1
 
@@ -69,8 +64,14 @@ Hex4EncodedLittleEndianWithoutQuotes, \
 Hex2EncodedLocal8Bit, \
 JulianDate, \
 MillisecondsSinceMidnight, \
-JulianDateAndMillisecondsSinceMidnight \
-    = range(17)
+JulianDateAndMillisecondsSinceMidnight, \
+Hex2EncodedInt1, \
+Hex2EncodedInt2, \
+Hex2EncodedInt4, \
+Hex2EncodedInt8, \
+Hex2EncodedFloat4, \
+Hex2EncodedFloat8 \
+    = range(23)
 
 # Display modes
 StopDisplay, \
@@ -479,6 +480,26 @@ def isSimpleType(typeobj):
         or code == FloatCode \
         or code == EnumCode
 
+def simpleEncoding(typeobj):
+    code = typeobj.code
+    if code == BoolCode or code == CharCode:
+        return Hex2EncodedInt1
+    if code == IntCode:
+        if typeobj.sizeof == 1:
+            return Hex2EncodedInt1
+        if typeobj.sizeof == 2:
+            return Hex2EncodedInt2
+        if typeobj.sizeof == 4:
+            return Hex2EncodedInt4
+        if typeobj.sizeof == 8:
+            return Hex2EncodedInt8
+    if code == FloatCode:
+        if typeobj.sizeof == 4:
+            return Hex2EncodedFloat4
+        if typeobj.sizeof == 8:
+            return Hex2EncodedFloat8
+    return None
+
 def warn(message):
     if True or verbosity > 0:
         print "XXX: %s\n" % message.encode("latin1")
@@ -668,80 +689,23 @@ def findFirstZero(p, maximum):
         p = p + 1
     return maximum + 1
 
-def extractCharArray(p, maxsize):
-    p = p.cast(lookupType("unsigned char").pointer())
-    s = ""
-    i = 0
-    while i < maxsize:
-        c = int(p.dereference())
-        if c == 0:
-            return s
-        s += "%c" % c
-        p += 1
-        i += 1
-    if p.dereference() != 0:
-        s += "..."
+def encodeCArray(p, innerType, suffix):
+    t = lookupType(innerType)
+    p = p.cast(t.pointer())
+    limit = findFirstZero(p, qqStringCutOff)
+    s = readRawMemory(p, limit * t.sizeof)
+    if limit > qqStringCutOff:
+        s += suffix
     return s
 
-def extractByteArray(value):
-    d_ptr = value['d'].dereference()
-    data = d_ptr['data']
-    size = d_ptr['size']
-    alloc = d_ptr['alloc']
-    check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    checkRef(d_ptr["ref"])
-    if size > 0:
-        checkAccess(data, 4)
-        checkAccess(data + size) == 0
-    return extractCharArray(data, min(qqStringCutOff, size))
+def encodeCharArray(p):
+    return encodeCArray(p, "unsigned char", "2e2e2e")
 
-def encodeCharArray(p, maxsize = None, limit = None):
-    if maxsize is None:
-        maxsize = qqStringCutOff
-    t = lookupType("unsigned char").pointer()
-    p = p.cast(t)
-    if limit is None:
-        limit = findFirstZero(p, maxsize)
-    s = ""
-    try:
-        # gdb.Inferior is new in gdb 7.2
-        inferior = gdb.inferiors()[0]
-        s = binascii.hexlify(inferior.read_memory(p, limit))
-    except:
-        for i in xrange(limit):
-            s += "%02x" % int(p.dereference())
-            p += 1
-    if limit > maxsize:
-        s += "2e2e2e"
-    return s
+def encodeChar2Array(p):
+    return encodeCArray(p, "unsigned short", "2e002e002e00")
 
-def encodeChar2Array(p, maxsize = None):
-    if maxsize == None:
-        maxsize = qqStringCutOff
-    t = lookupType("unsigned short").pointer()
-    p = p.cast(t)
-    limit = findFirstZero(p, maxsize)
-    s = ""
-    for i in xrange(limit):
-        s += "%04x" % int(p.dereference())
-        p += 1
-    if i == maxsize:
-        s += "2e002e002e00"
-    return s
-
-def encodeChar4Array(p, maxsize = None):
-    if maxsize == None:
-        maxsize = qqStringCutOff
-    t = lookupType("unsigned int").pointer()
-    p = p.cast(t)
-    limit = findFirstZero(p, maxsize)
-    s = ""
-    for i in xrange(limit):
-        s += "%08x" % int(p.dereference())
-        p += 1
-    if i > maxsize:
-        s += "2e0000002e0000002e000000"
-    return s
+def encodeChar4Array(p):
+    return encodeCArray(p, "unsigned int", "2e0000002e0000002e000000")
 
 def qByteArrayData(value):
     private = value['d']
@@ -758,13 +722,15 @@ def qByteArrayData(value):
 
 def encodeByteArray(value):
     data, size, alloc = qByteArrayData(value)
-    check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    if size > 0:
-        checkAccess(data, 4)
-        checkAccess(data + size) == 0
-    return encodeCharArray(data, limit = size)
+    if alloc != 0:
+        check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    limit = min(size, qqStringCutOff)
+    s = readRawMemory(data, limit)
+    if limit < size:
+        s += "2e2e2e"
+    return s
 
-def qQStringData(value):
+def qStringData(value):
     private = value['d']
     checkRef(private['ref'])
     try:
@@ -778,26 +744,11 @@ def qQStringData(value):
         return private['data'], int(private['size']), int(private['alloc'])
 
 def encodeString(value):
-    data, size, alloc = qQStringData(value)
-
+    data, size, alloc = qStringData(value)
     if alloc != 0:
         check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
-    if size > 0:
-        checkAccess(data, 4)
-        checkAccess(data + size) == 0
-    s = ""
     limit = min(size, qqStringCutOff)
-    try:
-        # gdb.Inferior is new in gdb 7.2
-        inferior = gdb.inferiors()[0]
-        s = binascii.hexlify(inferior.read_memory(data, 2 * limit))
-    except:
-        p = data
-        for i in xrange(limit):
-            val = int(p.dereference())
-            s += "%02x" % (val % 256)
-            s += "%02x" % (val / 256)
-            p += 1
+    s = readRawMemory(data, 2 * limit)
     if limit < size:
         s += "2e002e002e00"
     return s
@@ -1082,7 +1033,7 @@ class Dumper:
             for item in listOfLocals([]):
                 self.expandedINames.add(item.iname)
                 self.expandedINames.discard("")
-                warn("EXPANDED: %s" % self.expandedINames)
+                #warn("EXPANDED: %s" % self.expandedINames)
 
         # Take care of the return value of the last function call.
         if len(resultVarName) > 0:
@@ -1353,21 +1304,25 @@ class Dumper:
             self.putName(name)
             self.putItem(value)
 
-    def tryPutArrayContents(self, type, base, n):
-        if isSimpleType(type):
-            self.put('{value="')
-            self.put('"},{value="'.join([str((base + i).dereference())
-                for i in xrange(n)]))
-            self.put('"}');
-            return True
-        return False
+    def tryPutArrayContents(self, typeobj, base, n):
+        if not isSimpleType(typeobj):
+            return False
+        size = n * typeobj.sizeof;
+        self.put('childtype="%s",' % typeobj)
+        self.put('addrbase="0x%x",' % long(base))
+        self.put('addrstep="0x%x",' % long(typeobj.sizeof))
+        self.put('arrayencoding="%s",' % simpleEncoding(typeobj))
+        self.put('arraydata="')
+        self.put(readRawMemory(base, size))
+        self.put('",')
+        return True
 
     def putArrayData(self, type, base, n,
             childNumChild = None, maxNumChild = 10000):
         base = base.cast(type.pointer())
-        with Children(self, n, type, childNumChild, maxNumChild,
-                base, type.sizeof):
-            if not self.tryPutArrayContents(type, base, n):
+        if not self.tryPutArrayContents(type, base, n):
+            with Children(self, n, type, childNumChild, maxNumChild,
+                    base, type.sizeof):
                 for i in self.childRange():
                     self.putSubItem(i, (base + i).dereference())
 
@@ -1507,9 +1462,9 @@ class Dumper:
             if self.currentIName in self.expandedINames:
                 p = value.cast(targetType.pointer())
                 ts = targetType.sizeof
-                with Children(self, childType=targetType,
-                        addrBase=p, addrStep=ts):
-                    if not self.tryPutArrayContents(targetType, p, type.sizeof/ts):
+                if not self.tryPutArrayContents(targetType, p, type.sizeof/ts):
+                    with Children(self, childType=targetType,
+                            addrBase=p, addrStep=ts):
                         self.putFields(value)
             return
 
@@ -1557,7 +1512,7 @@ class Dumper:
                 # Use Latin1 as default for char *.
                 self.putAddress(value.address)
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
+                self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
                 self.putNumChild(0)
                 return
 
@@ -1578,7 +1533,7 @@ class Dumper:
                 # Explicitly requested Latin1 formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value, 100), Hex2EncodedLatin1)
+                self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
                 self.putNumChild(0)
                 return
 
@@ -1586,7 +1541,7 @@ class Dumper:
                 # Explicitly requested UTF-8 formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value, 100), Hex2EncodedUtf8)
+                self.putValue(encodeCharArray(value), Hex2EncodedUtf8)
                 self.putNumChild(0)
                 return
 
@@ -1594,7 +1549,7 @@ class Dumper:
                 # Explicitly requested local 8 bit formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value, 100), Hex2EncodedLocal8Bit)
+                self.putValue(encodeCharArray(value), Hex2EncodedLocal8Bit)
                 self.putNumChild(0)
                 return
 
@@ -1602,7 +1557,7 @@ class Dumper:
                 # Explicitly requested UTF-16 formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
-                self.putValue(encodeChar2Array(value), Hex4EncodedBigEndian)
+                self.putValue(encodeChar2Array(value), Hex4EncodedLittleEndian)
                 self.putNumChild(0)
                 return
 
@@ -1610,7 +1565,7 @@ class Dumper:
                 # Explicitly requested UCS-4 formatting.
                 self.putAddress(value.address)
                 self.putType(typeName)
-                self.putValue(encodeChar4Array(value), Hex8EncodedBigEndian)
+                self.putValue(encodeChar4Array(value), Hex8EncodedLittleEndian)
                 self.putNumChild(0)
                 return
 
@@ -1860,7 +1815,8 @@ def threadnames(arg):
     out = '['
     oldthread = gdb.selected_thread()
     try:
-        for thread in gdb.inferiors()[0].threads():
+        inferior = selectedInferior()
+        for thread in inferior.threads():
             maximalStackDepth = int(arg)
             thread.switch()
             e = gdb.selected_frame ()
