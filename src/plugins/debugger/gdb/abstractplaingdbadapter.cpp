@@ -63,11 +63,8 @@ void AbstractPlainGdbAdapter::setupInferior()
         QString args = startParameters().processArgs;
         m_engine->postCommand("-exec-arguments " + toLocalEncoding(args));
     }
-    if (m_engine->gdbVersion() > 70000)
-        m_engine->postCommand("-file-exec-and-symbols \"" + execFilePath() + '"',
-            CB(handleFileExecAndSymbols));
-    else
-        m_engine->postCommand("file " + execFilePath(), CB(handleFileExecAndSymbols));
+    m_engine->postCommand("-file-exec-and-symbols \"" + execFilePath() + '"',
+        CB(handleFileExecAndSymbols));
 }
 
 void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
