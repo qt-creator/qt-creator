@@ -63,7 +63,7 @@ private slots:
 
 private:
     void handleSymbianDeviceStateChange(const SymbianUtils::SymbianDevice &d,
-                                        ProjectExplorer::IDevice::AvailabilityState s);
+                                        ProjectExplorer::IDevice::DeviceState s);
 
     void addAutoReleasedObject(QObject *p);
 

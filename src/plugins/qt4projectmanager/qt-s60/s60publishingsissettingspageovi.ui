@@ -61,7 +61,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/DeviceReadyToUse.png</pixmap>
      </property>
     </widget>
    </item>
@@ -333,7 +333,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/DeviceReadyToUse.png</pixmap>
      </property>
     </widget>
    </item>
@@ -357,7 +357,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/DeviceReadyToUse.png</pixmap>
      </property>
     </widget>
    </item>
@@ -407,7 +407,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/DeviceReadyToUse.png</pixmap>
      </property>
     </widget>
    </item>
@@ -479,7 +479,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/DeviceReadyToUse.png</pixmap>
      </property>
     </widget>
    </item>
@@ -502,7 +502,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/ConnectionOn.png</pixmap>
+      <pixmap resource="../../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/DeviceReadyToUse.png</pixmap>
      </property>
     </widget>
    </item>

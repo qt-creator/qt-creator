@@ -168,12 +168,12 @@ void S60Manager::delayedInitialize()
 
 void S60Manager::symbianDeviceRemoved(const SymbianUtils::SymbianDevice &d)
 {
-    handleSymbianDeviceStateChange(d, ProjectExplorer::IDevice::DeviceUnavailable);
+    handleSymbianDeviceStateChange(d, ProjectExplorer::IDevice::DeviceDisconnected);
 }
 
 void S60Manager::symbianDeviceAdded(const SymbianUtils::SymbianDevice &d)
 {
-    handleSymbianDeviceStateChange(d, ProjectExplorer::IDevice::DeviceAvailable);
+    handleSymbianDeviceStateChange(d, ProjectExplorer::IDevice::DeviceReadyToUse);
 }
 
 void S60Manager::handleQtVersionChanges()
@@ -205,7 +205,7 @@ void S60Manager::handleQtVersionChanges()
         dm->removeDevice(symbianDeviceId);
 }
 
-void S60Manager::handleSymbianDeviceStateChange(const SymbianUtils::SymbianDevice &d, ProjectExplorer::IDevice::AvailabilityState s)
+void S60Manager::handleSymbianDeviceStateChange(const SymbianUtils::SymbianDevice &d, ProjectExplorer::IDevice::DeviceState s)
 {
     ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
     for (int i = 0; i < dm->deviceCount(); ++i) {
@@ -217,7 +217,7 @@ void S60Manager::handleSymbianDeviceStateChange(const SymbianUtils::SymbianDevic
             continue;
 
         SymbianIDevice *newDev = new SymbianIDevice(*sdev); // Get a new device to replace the current one
-        newDev->setAvailability(s);
+        newDev->setDeviceState(s);
         dm->addDevice(ProjectExplorer::IDevice::Ptr(newDev));
         break;
     }

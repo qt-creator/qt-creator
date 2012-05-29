@@ -31,8 +31,9 @@
         <file>images/MaemoDevice.png</file>
         <file>images/SymbianDevice.png</file>
         <file>images/SymbianEmulator.png</file>
-        <file>images/ConnectionOff.png</file>
-        <file>images/ConnectionOn.png</file>
+        <file>images/DeviceConnected.png</file>
+        <file>images/DeviceDisconnected.png</file>
+        <file>images/DeviceReadyToUse.png</file>
         <file>images/build.png</file>
         <file>images/targetpanel_bottom.png</file>
         <file>images/targetpanel_gradient.png</file>

@@ -156,14 +156,14 @@ class IDevicePrivate
 public:
     IDevicePrivate() :
         origin(IDevice::AutoDetected),
-        availability(IDevice::DeviceAvailabilityUnknown)
+        deviceState(IDevice::DeviceStateUnknown)
     { }
 
     QString displayName;
     Core::Id type;
     IDevice::Origin origin;
     Core::Id id;
-    IDevice::AvailabilityState availability;
+    IDevice::DeviceState deviceState;
 };
 } // namespace Internal
 
@@ -202,18 +202,8 @@ void IDevice::setDisplayName(const QString &name)
 
 IDevice::DeviceInfo IDevice::deviceInformation() const
 {
-    DeviceInfo result;
-    if (availability() == DeviceUnavailable)
-        //: Title of the connectivity state information in a tool tip
-        result << IDevice::DeviceInfoItem(QCoreApplication::translate("ProjectExplorer::IDevice", "Device"),
-                                          //: Device is not connected
-                                          QCoreApplication::translate("ProjectExplorer::IDevice", "not connected"));
-    else if (availability() == DeviceAvailable)
-        //: Title of the connectivity state information in a tool tip
-        result << IDevice::DeviceInfoItem(QCoreApplication::translate("ProjectExplorer::IDevice", "Device"),
-                                          //: Device is not connected
-                                          QCoreApplication::translate("ProjectExplorer::IDevice", "connected"));
-    return result;
+    const QString key = QCoreApplication::translate("ProjectExplorer::IDevice", "Device");
+    return DeviceInfo() << IDevice::DeviceInfoItem(key, deviceStateToString());
 }
 
 Core::Id IDevice::type() const
@@ -231,16 +221,16 @@ Core::Id IDevice::id() const
     return d->id;
 }
 
-IDevice::AvailabilityState IDevice::availability() const
+IDevice::DeviceState IDevice::deviceState() const
 {
-    return d->availability;
+    return d->deviceState;
 }
 
-void IDevice::setAvailability(const IDevice::AvailabilityState as)
+void IDevice::setDeviceState(const IDevice::DeviceState state)
 {
-    if (d->availability == as)
+    if (d->deviceState == state)
         return;
-    d->availability = as;
+    d->deviceState = state;
 }
 
 Core::Id IDevice::invalidId()
@@ -284,6 +274,18 @@ IDevice::Ptr IDevice::sharedFromThis()
 IDevice::ConstPtr IDevice::sharedFromThis() const
 {
     return DeviceManager::instance()->fromRawPointer(this);
+}
+
+QString IDevice::deviceStateToString() const
+{
+    const char context[] = "ProjectExplorer::IDevice";
+    switch (d->deviceState) {
+    case IDevice::DeviceReadyToUse: return QCoreApplication::translate(context, "Ready to use");
+    case IDevice::DeviceConnected: return QCoreApplication::translate(context, "Connected");
+    case IDevice::DeviceDisconnected: return QCoreApplication::translate(context, "Disconnected");
+    case IDevice::DeviceStateUnknown: return QCoreApplication::translate(context, "Unknown");
+    default: return QCoreApplication::translate(context, "Invalid");
+    }
 }
 
 } // namespace ProjectExplorer

@@ -92,6 +92,7 @@ public:
     RunConfiguration* m_activeRunConfiguration;
 
     QPixmap m_connectedPixmap;
+    QPixmap m_readyToUsePixmap;
     QPixmap m_disconnectedPixmap;
 };
 
@@ -100,8 +101,9 @@ TargetPrivate::TargetPrivate() :
     m_activeBuildConfiguration(0),
     m_activeDeployConfiguration(0),
     m_activeRunConfiguration(0),
-    m_connectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOn.png")),
-    m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/ConnectionOff.png"))
+    m_connectedPixmap(QLatin1String(":/projectexplorer/images/DeviceConnected.png")),
+    m_readyToUsePixmap(QLatin1String(":/projectexplorer/images/DeviceReadyToUse.png")),
+    m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/DeviceDisconnected.png"))
 {
 }
 
@@ -511,15 +513,18 @@ void Target::updateDeviceState()
     if (current.isNull()) {
         overlay = d->m_disconnectedPixmap;
     } else {
-        switch (current->availability()) {
-        case IDevice::DeviceAvailabilityUnknown:
+        switch (current->deviceState()) {
+        case IDevice::DeviceStateUnknown:
             setOverlayIcon(QIcon());
             setToolTip(QString());
             return;
-        case IDevice::DeviceAvailable:
+        case IDevice::DeviceReadyToUse:
+            overlay = d->m_readyToUsePixmap;
+            break;
+        case IDevice::DeviceConnected:
             overlay = d->m_connectedPixmap;
             break;
-        case IDevice::DeviceUnavailable:
+        case IDevice::DeviceDisconnected:
             overlay = d->m_disconnectedPixmap;
             break;
         default:

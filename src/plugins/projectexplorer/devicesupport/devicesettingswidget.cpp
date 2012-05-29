@@ -200,17 +200,22 @@ void DeviceSettingsWidget::displayCurrent()
     m_ui->autoDetectionValueLabel->setText(current->isAutoDetected()
         ? tr("Yes (fingerprint is '%1')").arg(current->id().toString()) : tr("No"));
     m_nameValidator->setDisplayName(current->displayName());
-    switch (current->availability()) {
-    case IDevice::DeviceAvailable:
-        m_ui->availableValueLabel->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/ConnectionOn.png")));
+    m_ui->deviceStateValueIconLabel->show();
+    switch (current->deviceState()) {
+    case IDevice::DeviceReadyToUse:
+        m_ui->deviceStateValueIconLabel->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/DeviceReadyToUse.png")));
         break;
-    case IDevice::DeviceUnavailable:
-        m_ui->availableValueLabel->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/ConnectionOff.png")));
+    case IDevice::DeviceConnected:
+        m_ui->deviceStateValueIconLabel->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/DeviceConnected.png")));
         break;
-    case IDevice::DeviceAvailabilityUnknown:
-        m_ui->availableValueLabel->setText(tr("Unknown"));
+    case IDevice::DeviceDisconnected:
+        m_ui->deviceStateValueIconLabel->setPixmap(QPixmap(QLatin1String(":/projectexplorer/images/DeviceDisconnected.png")));
+        break;
+    case IDevice::DeviceStateUnknown:
+        m_ui->deviceStateValueIconLabel->hide();
         break;
     }
+    m_ui->deviceStateValueTextLabel->setText(current->deviceStateToString());
 
     m_ui->removeConfigButton->setEnabled(!current->isAutoDetected());
     fillInValues();

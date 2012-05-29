@@ -140,7 +140,7 @@ void SymbianIDevice::setAddress(const QString &address)
 {
     if (m_address != address) {
         m_address = address;
-        setAvailability(IDevice::DeviceAvailabilityUnknown);
+        setDeviceState(IDevice::DeviceStateUnknown);
     }
 }
 
@@ -157,7 +157,7 @@ void SymbianIDevice::setPort(const QString &port)
             m_port = QLatin1String(DEFAULT_CODA_TCP_PORT);
         else
             m_port = port;
-        setAvailability(IDevice::DeviceAvailabilityUnknown);
+        setDeviceState(IDevice::DeviceStateUnknown);
     }
 }
 
@@ -170,7 +170,7 @@ void SymbianIDevice::setCommunicationChannel(CommunicationChannel channel)
 {
     if (m_communicationChannel != channel) {
         m_communicationChannel = channel;
-        setAvailability(IDevice::DeviceAvailabilityUnknown);
+        setDeviceState(IDevice::DeviceStateUnknown);
     }
     updateState();
 }
@@ -240,11 +240,11 @@ void SymbianIDevice::updateState()
             }
         }
 
-        setAvailability(sdm->findByPortName(m_serialPortName) >= 0
-                        ? ProjectExplorer::IDevice::DeviceAvailable
-                        : ProjectExplorer::IDevice::DeviceUnavailable);
+        setDeviceState(sdm->findByPortName(m_serialPortName) >= 0
+                        ? ProjectExplorer::IDevice::DeviceReadyToUse
+                        : ProjectExplorer::IDevice::DeviceDisconnected);
     } else {
-        setAvailability(ProjectExplorer::IDevice::DeviceAvailabilityUnknown);
+        setDeviceState(ProjectExplorer::IDevice::DeviceStateUnknown);
     }
 }
 

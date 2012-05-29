@@ -84,9 +84,10 @@ public:
     virtual QString displayNameForActionId(Core::Id actionId) const = 0;
     virtual void executeAction(Core::Id actionId, QWidget *parent = 0) const = 0;
 
-    enum AvailabilityState { DeviceAvailable, DeviceUnavailable, DeviceAvailabilityUnknown };
-    AvailabilityState availability() const;
-    void setAvailability(const AvailabilityState as);
+    enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
+    DeviceState deviceState() const;
+    void setDeviceState(const DeviceState state);
+    QString deviceStateToString() const;
 
     virtual void fromMap(const QVariantMap &map);
     virtual QVariantMap toMap() const;
