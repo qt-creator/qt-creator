@@ -31,7 +31,7 @@
 **************************************************************************/
 #include "devicemanagermodel.h"
 
-#include "desktopdevice.h"
+#include "../projectexplorerconstants.h"
 #include "devicemanager.h"
 
 #include <coreplugin/id.h>
@@ -127,7 +127,7 @@ void DeviceManagerModel::handleDeviceListChanged()
 
     for (int i = 0; i < d->deviceManager->deviceCount(); ++i) {
         IDevice::ConstPtr dev = d->deviceManager->deviceAt(i);
-        if (dev->id() == DesktopDevice::Id)
+        if (dev->id() == Core::Id(Constants::DESKTOP_DEVICE_ID))
             continue;
         d->devices << dev;
     }

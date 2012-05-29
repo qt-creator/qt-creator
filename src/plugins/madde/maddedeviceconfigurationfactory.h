@@ -43,9 +43,10 @@ class MaddeDeviceConfigurationFactory : public ProjectExplorer::IDeviceFactory
 public:
     MaddeDeviceConfigurationFactory(QObject *parent = 0);
 
-    QString displayName() const;
-    bool canCreate() const;
-    ProjectExplorer::IDevice::Ptr create() const;
+    QString displayNameForId(Core::Id type) const;
+    QList<Core::Id> availableCreationIds() const;
+
+    ProjectExplorer::IDevice::Ptr create(Core::Id id) const;
     bool canRestore(const QVariantMap &map) const;
     ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const;
 };

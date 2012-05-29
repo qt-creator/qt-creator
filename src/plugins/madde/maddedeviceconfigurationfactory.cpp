@@ -48,19 +48,19 @@ MaddeDeviceConfigurationFactory::MaddeDeviceConfigurationFactory(QObject *parent
 {
 }
 
-QString MaddeDeviceConfigurationFactory::displayName() const
+QString MaddeDeviceConfigurationFactory::displayNameForId(Core::Id type) const
 {
-    return tr("Device with MADDE support (Fremantle, Harmattan, MeeGo)");
+    return MaddeDevice::maddeDisplayType(type);
 }
 
-bool MaddeDeviceConfigurationFactory::canCreate() const
+QList<Core::Id> MaddeDeviceConfigurationFactory::availableCreationIds() const
 {
-    return true;
+    return QList<Core::Id>() << Core::Id(Maemo5OsType) << Core::Id(HarmattanOsType) << Core::Id(MeeGoOsType);
 }
 
-IDevice::Ptr MaddeDeviceConfigurationFactory::create() const
+IDevice::Ptr MaddeDeviceConfigurationFactory::create(Core::Id id) const
 {
-    MaemoDeviceConfigWizard wizard;
+    MaemoDeviceConfigWizard wizard(id);
     if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
     return wizard.device();

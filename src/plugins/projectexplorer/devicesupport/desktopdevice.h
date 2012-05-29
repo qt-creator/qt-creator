@@ -56,8 +56,6 @@ public:
 
     IDevice::Ptr clone() const;
 
-    static const Core::Id Id;
-
 protected:
     DesktopDevice();
     DesktopDevice(const DesktopDevice &other);

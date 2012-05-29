@@ -43,7 +43,6 @@
 #include <limits>
 #include <coreplugin/coreconstants.h>
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/devicesupport/desktopdevice.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -545,7 +544,7 @@ void Target::updateDeviceState()
 
 ProjectExplorer::IDevice::ConstPtr Target::currentDevice() const
 {
-    return DeviceManager::instance()->find(ProjectExplorer::DesktopDevice::Id);
+    return DeviceManager::instance()->find(ProjectExplorer::Constants::DESKTOP_DEVICE_ID);
 }
 
 void Target::setEnabled(bool enabled)

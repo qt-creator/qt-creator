@@ -42,9 +42,16 @@ namespace Internal {
 SymbianIDeviceFactory::SymbianIDeviceFactory(QObject *parent) : IDeviceFactory(parent)
 { }
 
-QString SymbianIDeviceFactory::displayName() const
+QString SymbianIDeviceFactory::displayNameForId(Core::Id type) const
 {
-    return tr("Symbian Device");
+    if (type == deviceType())
+        return tr("Symbian Device");
+    return QString();
+}
+
+QList<Core::Id> SymbianIDeviceFactory::availableCreationIds() const
+{
+    return QList<Core::Id>() << deviceType();
 }
 
 bool SymbianIDeviceFactory::canCreate() const
@@ -52,8 +59,9 @@ bool SymbianIDeviceFactory::canCreate() const
     return false;
 }
 
-ProjectExplorer::IDevice::Ptr SymbianIDeviceFactory::create() const
+ProjectExplorer::IDevice::Ptr SymbianIDeviceFactory::create(Core::Id id) const
 {
+    Q_UNUSED(id);
     return ProjectExplorer::IDevice::Ptr();
 }
 

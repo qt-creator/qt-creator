@@ -29,31 +29,30 @@
 ** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
-#ifndef GENERICLINUXDEVICECONFIGURATIONFACTORY_H
-#define GENERICLINUXDEVICECONFIGURATIONFACTORY_H
 
-#include "remotelinux_export.h"
+#include "idevicefactory.h"
 
-#include <projectexplorer/devicesupport/idevicefactory.h>
+#include <extensionsystem/pluginmanager.h>
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationFactory
-    : public ProjectExplorer::IDeviceFactory
+bool IDeviceFactory::canCreate() const
 {
-    Q_OBJECT
+    return !availableCreationIds().isEmpty();
+}
 
-public:
-    GenericLinuxDeviceConfigurationFactory(QObject *parent = 0);
+IDeviceFactory *IDeviceFactory::find(Core::Id type)
+{
+    QList<IDeviceFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
+    foreach (IDeviceFactory *factory, factories) {
+        if (factory->availableCreationIds().contains(type))
+            return factory;
+    }
+    return 0;
+}
 
-    QString displayNameForId(Core::Id type) const;
-    QList<Core::Id> availableCreationIds() const;
+IDeviceFactory::IDeviceFactory(QObject *parent) : QObject(parent)
+{ }
 
-    ProjectExplorer::IDevice::Ptr create(Core::Id id) const;
-    bool canRestore(const QVariantMap &map) const;
-    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const;
-};
-
-} // namespace RemoteLinux
-
-#endif // GENERICLINUXDEVICECONFIGURATIONFACTORY_H
+} // namespace ProjectExplorer

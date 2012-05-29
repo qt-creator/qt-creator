@@ -1131,7 +1131,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
 bool ProjectExplorerPlugin::delayedInitialize()
 {
     DeviceManager *dm = DeviceManager::instance();
-    if (dm->find(DesktopDevice::Id).isNull())
+    if (dm->find(Core::Id(Constants::DESKTOP_DEVICE_ID)).isNull())
         DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
 
     return true;

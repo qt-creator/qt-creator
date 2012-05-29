@@ -33,6 +33,8 @@
 #ifndef DEVICEFACTORYSELECTIONDIALOG_H
 #define DEVICEFACTORYSELECTIONDIALOG_H
 
+#include <coreplugin/id.h>
+
 #include <QList>
 #include <QDialog>
 
@@ -49,13 +51,12 @@ class DeviceFactorySelectionDialog : public QDialog
 public:
     explicit DeviceFactorySelectionDialog(QWidget *parent = 0);
     ~DeviceFactorySelectionDialog();
-    const IDeviceFactory *selectedFactory() const;
+    Core::Id selectedId() const;
 
 private:
     Q_SLOT void handleItemSelectionChanged();
 
     Ui::DeviceFactorySelectionDialog *ui;
-    QList<const IDeviceFactory *> m_factories;
 };
 
 } // namespace Internal

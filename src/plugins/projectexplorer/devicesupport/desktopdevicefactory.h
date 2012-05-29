@@ -45,10 +45,11 @@ class DesktopDeviceFactory : public IDeviceFactory
 public:
     explicit DesktopDeviceFactory(QObject *parent = 0);
 
-    QString displayName() const;
+    QString displayNameForId(Core::Id type) const;
+    QList<Core::Id> availableCreationIds() const;
 
     bool canCreate() const;
-    IDevice::Ptr create() const;
+    IDevice::Ptr create(Core::Id id) const;
     bool canRestore(const QVariantMap &map) const;
     IDevice::Ptr restore(const QVariantMap &map) const;
 };

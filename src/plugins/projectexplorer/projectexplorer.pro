@@ -200,6 +200,7 @@ SOURCES += projectexplorer.cpp \
     devicesupport/idevice.cpp \
     devicesupport/desktopdevice.cpp \
     devicesupport/desktopdevicefactory.cpp \
+    devicesupport/idevicefactory.cpp \
     devicesupport/devicemanager.cpp \
     devicesupport/devicemanagermodel.cpp \
     devicesupport/devicefactoryselectiondialog.cpp \

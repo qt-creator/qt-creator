@@ -60,20 +60,24 @@ class PROJECTEXPLORER_EXPORT IDeviceFactory : public QObject
 
 public:
     /*!
-      A short, one-line description of what kind of device this factory supports.
+      A short, one-line description of what the device type.
     */
-    virtual QString displayName() const = 0;
+    virtual QString displayNameForId(Core::Id type) const = 0;
+    /*!
+      A list of device types this factory can create.
+    */
+    virtual QList<Core::Id> availableCreationIds() const = 0;
 
     /*!
       Check whether this factory can create new devices. This is used to hide
       auto-detect-only factories from the listing of possible devices to create.
      */
-    virtual bool canCreate() const = 0;
+    virtual bool canCreate() const;
 
     /*!
       Create a new device. This may or may not open a wizard.
      */
-    virtual IDevice::Ptr create() const = 0;
+    virtual IDevice::Ptr create(Core::Id id) const = 0;
 
     /*!
       Check whether this factory can restore a device from the given serialized state.
@@ -86,8 +90,10 @@ public:
     */
     virtual IDevice::Ptr restore(const QVariantMap &map) const = 0;
 
+    static IDeviceFactory *find(Core::Id type);
+
 protected:
-    IDeviceFactory(QObject *parent) : QObject(parent) { }
+    IDeviceFactory(QObject *parent = 0);
 };
 
 } // namespace ProjectExplorer

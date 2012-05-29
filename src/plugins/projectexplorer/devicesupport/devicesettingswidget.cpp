@@ -169,7 +169,13 @@ void DeviceSettingsWidget::addDevice()
     if (d.exec() != QDialog::Accepted)
         return;
 
-    IDevice::Ptr device = d.selectedFactory()->create();
+    Core::Id toCreate = d.selectedId();
+    if (!toCreate.isValid())
+        return;
+    IDeviceFactory *factory = IDeviceFactory::find(toCreate);
+    if (!factory)
+        return;
+    IDevice::Ptr device = factory->create(toCreate);
     if (device.isNull())
         return;
 

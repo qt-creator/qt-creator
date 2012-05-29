@@ -31,12 +31,11 @@
 **************************************************************************/
 
 #include "desktopdevice.h"
+#include "projectexplorerconstants.h"
 
 #include <QCoreApplication>
 
 namespace ProjectExplorer {
-
-const Core::Id DesktopDevice::Id = Core::Id("Desktop Device");
 
 IDevice::DeviceInfo DesktopDevice::deviceInformation() const
 {
@@ -74,7 +73,8 @@ IDevice::Ptr DesktopDevice::clone() const
     return Ptr(new DesktopDevice(*this));
 }
 
-DesktopDevice::DesktopDevice() : IDevice(Core::Id("Desktop"), IDevice::AutoDetected, Id)
+DesktopDevice::DesktopDevice() : IDevice(Core::Id(Constants::DESKTOP_DEVICE_TYPE), IDevice::AutoDetected,
+                                         Core::Id(Constants::DESKTOP_DEVICE_ID))
 {
     setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Run locally"));
 }

@@ -46,7 +46,7 @@ class MaemoDeviceConfigWizard : public QWizard
     Q_OBJECT
 
 public:
-    explicit MaemoDeviceConfigWizard(QWidget *parent = 0);
+    explicit MaemoDeviceConfigWizard(Core::Id id, QWidget *parent = 0);
     ~MaemoDeviceConfigWizard();
 
     ProjectExplorer::IDevice::Ptr device();

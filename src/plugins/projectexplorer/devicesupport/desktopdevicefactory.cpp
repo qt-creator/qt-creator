@@ -32,13 +32,24 @@
 
 #include "desktopdevicefactory.h"
 #include "desktopdevice.h"
+#include "projectexplorerconstants.h"
 
 namespace ProjectExplorer {
 namespace Internal {
 
-QString DesktopDeviceFactory::displayName() const
+DesktopDeviceFactory::DesktopDeviceFactory(QObject *parent) : IDeviceFactory(parent)
+{ }
+
+QString DesktopDeviceFactory::displayNameForId(Core::Id type) const
 {
-    return tr("Desktop");
+    if (type == Core::Id(Constants::DESKTOP_DEVICE_TYPE))
+        return tr("Desktop");
+    return QString();
+}
+
+QList<Core::Id> DesktopDeviceFactory::availableCreationIds() const
+{
+    return QList<Core::Id>() << Core::Id(Constants::DESKTOP_DEVICE_TYPE);
 }
 
 bool DesktopDeviceFactory::canCreate() const
@@ -46,14 +57,15 @@ bool DesktopDeviceFactory::canCreate() const
     return false;
 }
 
-IDevice::Ptr DesktopDeviceFactory::create() const
+IDevice::Ptr DesktopDeviceFactory::create(Core::Id id) const
 {
+    Q_UNUSED(id);
     return IDevice::Ptr();
 }
 
 bool DesktopDeviceFactory::canRestore(const QVariantMap &map) const
 {
-    return IDevice::idFromMap(map) == DesktopDevice::Id;
+    return IDevice::idFromMap(map) == Core::Id(Constants::DESKTOP_DEVICE_ID);
 }
 
 IDevice::Ptr DesktopDeviceFactory::restore(const QVariantMap &map) const
@@ -61,9 +73,6 @@ IDevice::Ptr DesktopDeviceFactory::restore(const QVariantMap &map) const
     Q_UNUSED(map);
     return IDevice::Ptr(new DesktopDevice);
 }
-
-DesktopDeviceFactory::DesktopDeviceFactory(QObject *parent) : IDeviceFactory(parent)
-{ }
 
 } // namespace Internal
 } // namespace ProjectExplorer

@@ -54,8 +54,11 @@ DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
     foreach (const IDeviceFactory * const factory, factories) {
         if (!factory->canCreate())
             continue;
-        m_factories << factory;
-        ui->listWidget->addItem(factory->displayName());
+        foreach (Core::Id id, factory->availableCreationIds()) {
+            QListWidgetItem *item = new QListWidgetItem(factory->displayNameForId(id));
+            item->setData(Qt::UserRole, QVariant::fromValue(id));
+            ui->listWidget->addItem(item);
+        }
     }
 
     connect(ui->listWidget, SIGNAL(itemSelectionChanged()), SLOT(handleItemSelectionChanged()));
@@ -73,9 +76,12 @@ void DeviceFactorySelectionDialog::handleItemSelectionChanged()
         ->setEnabled(!ui->listWidget->selectedItems().isEmpty());
 }
 
-const IDeviceFactory *DeviceFactorySelectionDialog::selectedFactory() const
+Core::Id DeviceFactorySelectionDialog::selectedId() const
 {
-    return m_factories.at(ui->listWidget->row(ui->listWidget->selectedItems().first()));
+    QList<QListWidgetItem *> selected = ui->listWidget->selectedItems();
+    if (selected.isEmpty())
+        return Core::Id();
+    return selected.at(0)->data(Qt::UserRole).value<Core::Id>();
 }
 
 } // namespace Internal

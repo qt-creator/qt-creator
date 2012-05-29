@@ -45,9 +45,11 @@ class SymbianIDeviceFactory : public ProjectExplorer::IDeviceFactory
 public:
     SymbianIDeviceFactory(QObject *parent = 0);
 
-    QString displayName() const;
+    QString displayNameForId(Core::Id type) const;
+    QList<Core::Id> availableCreationIds() const;
+
     bool canCreate() const;
-    ProjectExplorer::IDevice::Ptr create() const;
+    ProjectExplorer::IDevice::Ptr create(Core::Id id) const;
     bool canRestore(const QVariantMap &map) const;
     ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const;
 

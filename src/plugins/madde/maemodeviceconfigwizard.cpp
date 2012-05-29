@@ -99,20 +99,12 @@ class MaemoDeviceConfigWizardStartPage : public QWizardPage
     Q_OBJECT
 
 public:
-    MaemoDeviceConfigWizardStartPage(QWidget *parent = 0)
+    explicit MaemoDeviceConfigWizardStartPage(QWidget *parent = 0)
         : QWizardPage(parent), m_ui(new Ui::MaemoDeviceConfigWizardStartPage)
     {
         m_ui->setupUi(this);
         setTitle(tr("General Information"));
         setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
-
-        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(Core::Id(Maemo5OsType)),
-            QVariant::fromValue(Core::Id(Maemo5OsType)));
-        const QVariant harmattanIdVariant = QVariant::fromValue(Core::Id(HarmattanOsType));
-        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(Core::Id(HarmattanOsType)),
-            harmattanIdVariant);
-        m_ui->osTypeComboBox->addItem(MaddeDevice::maddeDisplayType(Core::Id(MeeGoOsType)),
-            QVariant::fromValue(Core::Id(MeeGoOsType)));
 
         QButtonGroup *buttonGroup = new QButtonGroup(this);
         buttonGroup->setExclusive(true);
@@ -121,7 +113,6 @@ public:
         connect(buttonGroup, SIGNAL(buttonClicked(int)), SLOT(handleMachineTypeChanged()));
 
         m_ui->nameLineEdit->setText(tr("MeeGo Device"));
-        m_ui->osTypeComboBox->setCurrentIndex(m_ui->osTypeComboBox->findData(harmattanIdVariant));
         m_ui->hwButton->setChecked(true);
         handleMachineTypeChanged();
         m_ui->hostNameLineEdit->setText(defaultHost(machineType()));
@@ -132,6 +123,12 @@ public:
             SIGNAL(completeChanged()));
         connect(m_ui->hostNameLineEdit, SIGNAL(textChanged(QString)), this,
             SIGNAL(completeChanged()));
+    }
+
+    void setDeviceType(Core::Id type)
+    {
+        m_deviceType = type;
+        m_ui->nameLineEdit->setText(tr("%1 Device").arg(MaddeDevice::maddeDisplayType(m_deviceType)));
     }
 
     virtual bool isComplete() const
@@ -150,7 +147,7 @@ public:
 
     Core::Id deviceType() const
     {
-        return m_ui->osTypeComboBox->itemData(m_ui->osTypeComboBox->currentIndex()).value<Core::Id>();
+        return m_deviceType;
     }
 
     LinuxDeviceConfiguration::MachineType machineType() const
@@ -177,6 +174,7 @@ private slots:
 
 private:
     const QScopedPointer<Ui::MaemoDeviceConfigWizardStartPage> m_ui;
+    Core::Id m_deviceType;
 };
 
 class MaemoDeviceConfigWizardPreviousKeySetupCheckPage : public QWizardPage
@@ -540,11 +538,12 @@ struct MaemoDeviceConfigWizardPrivate
 };
 
 
-MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(QWidget *parent)
+MaemoDeviceConfigWizard::MaemoDeviceConfigWizard(Core::Id id, QWidget *parent)
     : QWizard(parent), d(new MaemoDeviceConfigWizardPrivate(this))
 {
     setWindowTitle(tr("New Device Configuration Setup"));
     setPage(StartPageId, &d->startPage);
+    d->startPage.setDeviceType(id);
     setPage(PreviousKeySetupCheckPageId, &d->previousKeySetupPage);
     setPage(ReuseKeysCheckPageId, &d->reuseKeysCheckPage);
     setPage(KeyCreationPageId, &d->keyCreationPage);

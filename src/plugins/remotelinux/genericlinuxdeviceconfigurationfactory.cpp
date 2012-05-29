@@ -46,18 +46,20 @@ GenericLinuxDeviceConfigurationFactory::GenericLinuxDeviceConfigurationFactory(Q
 {
 }
 
-QString GenericLinuxDeviceConfigurationFactory::displayName() const
+QString GenericLinuxDeviceConfigurationFactory::displayNameForId(Core::Id type) const
 {
+    QTC_ASSERT(type == Core::Id(Constants::GenericLinuxOsType), return QString());
     return tr("Generic Linux Device");
 }
 
-bool GenericLinuxDeviceConfigurationFactory::canCreate() const
+QList<Core::Id> GenericLinuxDeviceConfigurationFactory::availableCreationIds() const
 {
-    return true;
+    return QList<Core::Id>() << Core::Id(Constants::GenericLinuxOsType);
 }
 
-IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create() const
+IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create(Core::Id id) const
 {
+    QTC_ASSERT(id == Core::Id(Constants::GenericLinuxOsType), return IDevice::Ptr());
     GenericLinuxDeviceConfigurationWizard wizard;
     if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
