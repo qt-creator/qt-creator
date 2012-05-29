@@ -886,6 +886,26 @@ void tst_Preprocessor::defined_data()
         "#if X <= 0x040000\n"
         "#define Y 1\n"
         "#endif\n";
+
+    QTest::newRow("incomplete defined 1") << true << true <<
+        "#define X 0x040500\n"
+        "#if defined(X\n"
+        "#define Y 1\n"
+        "#endif\n";
+    QTest::newRow("incomplete defined 2") << false << false <<
+        "#if defined(X\n"
+        "#define Y 1\n"
+        "#endif\n";
+    QTest::newRow("complete defined 1") << true << true <<
+        "#define X 0x040500\n"
+        "#if defined(X )\n"
+        "#define Y 1\n"
+        "#endif\n";
+    QTest::newRow("complete defined 2") << true << true <<
+        "#define X 0x040500\n"
+        "#if defined(X/*xxx*/)\n"
+        "#define Y 1\n"
+        "#endif\n";
 }
 
 QTEST_APPLESS_MAIN(tst_Preprocessor)
