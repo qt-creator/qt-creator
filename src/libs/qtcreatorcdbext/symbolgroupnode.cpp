@@ -1029,19 +1029,26 @@ int SymbolGroupNode::dump(std::ostream &str, const std::string &visitingFullInam
 
 // Return a watch expression basically as "*(type *)(address)"
 static inline std::string watchExpression(ULONG64 address,
-                                          const std::string &type,
+                                          const std::string &typeIn,
                                           int /* kType */,
                                           const std::string &module)
 {
-    std::ostringstream str;
-    str << "*(";
-    // Try to make watch expressions faster by at least qualifying templates with
-    // the local module. We cannot do expensive type lookup here.
+    std::string type = SymbolGroupValue::stripClassPrefixes(typeIn);
+    // Try to make watch expressions faster by at least qualifying
+    // templates with the local module. We cannot do expensive type
+    // lookup here.
     // We could insert a placeholder here for non-POD types indicating
     // that a type lookup should be done when inserting watches?
-    if (!module.empty() && type.find('>') != std::string::npos)
-        str << module << '!';
-    str << SymbolGroupValue::pointerType(SymbolGroupValue::stripClassPrefixes(type)) << ')' << std::hex << std::showbase << address;
+    if (!module.empty() && type.find('>') != std::string::npos) {
+        type.insert(0, 1, '!');
+        type.insert(0, module);
+    }
+    if (SymbolGroupValue::isArrayType(type))
+        type = SymbolGroupValue::stripArrayType(type);
+
+    std::ostringstream str;
+    str << "*(" << SymbolGroupValue::pointerType(type) << ')'
+        << std::hex << std::showbase << address;
     return str.str();
 }
 
@@ -1053,8 +1060,10 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
 {
     const std::string t = type();
     const ULONG64 addr = address();
-    SymbolGroupNode::dumpBasicData(str, aName, aFullIName, t,
-                                   watchExpression(addr, t, m_dumperType, m_module));
+    // Use name as watchExpression in case evaluation failed (watch group item
+    // names are the expression).
+    const std::string watchExp = t.empty() ? aName : watchExpression(addr, t, m_dumperType, m_module);
+    SymbolGroupNode::dumpBasicData(str, aName, aFullIName, t, watchExp);
 
     if (addr)
         str << ",addr=\"" << std::hex << std::showbase << addr << std::noshowbase << std::dec << '"';

@@ -113,6 +113,7 @@ public:
     static std::string moduleOfType(const std::string &type);
     // pointer type, return number of characters to strip
     static unsigned isPointerType(const std::string &);
+    static bool isArrayType(const std::string &);
     static bool isVTableType(const std::string &t);
     // add pointer type 'Foo' -> 'Foo *', 'Foo *' -> 'Foo **'
     static std::string pointerType(const std::string &type);

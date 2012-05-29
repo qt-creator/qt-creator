@@ -419,6 +419,11 @@ unsigned SymbolGroupValue::isPointerType(const std::string &t)
     return 0;
 }
 
+bool SymbolGroupValue::isArrayType(const std::string &t)
+{
+    return endsWith(t, ']');
+}
+
 // Return number of characters to strip for pointer type
 bool SymbolGroupValue::isVTableType(const std::string &t)
 {
