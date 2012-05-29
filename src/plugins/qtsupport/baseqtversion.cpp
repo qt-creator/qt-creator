@@ -51,6 +51,7 @@
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
+#include <QUrl>
 #include <QFileInfo>
 #include <QCoreApplication>
 #include <QProcess>
@@ -474,8 +475,24 @@ QString BaseQtVersion::toHtml(bool verbose) const
             const QHash<QString,QString> vInfo = versionInfo();
             if (!vInfo.isEmpty()) {
                 const QHash<QString,QString>::const_iterator vcend = vInfo.constEnd();
-                for (QHash<QString,QString>::const_iterator it = vInfo.constBegin(); it != vcend; ++it)
-                    str << "<tr><td><pre>" << it.key() <<  "</pre></td><td>" << it.value() << "</td></tr>";
+                for (QHash<QString,QString>::const_iterator it = vInfo.constBegin(); it != vcend; ++it) {
+                    const QString &variableName = it.key();
+                    const QString &value = it.value();
+                    if (!variableName.endsWith(QLatin1String("/raw")) && !variableName.endsWith(QLatin1String("/get"))) {
+                        const bool isPath = !value.isEmpty() &&
+                            (variableName == QLatin1String("QMAKE_MKSPECS")
+                             || variableName.contains(QLatin1String("HOST"))
+                             || variableName.contains(QLatin1String("INSTALL")));
+                        str << "<tr><td><pre>" << variableName <<  "</pre></td><td>";
+                        if (isPath) {
+                            str << "<a href=\"" << QUrl::fromLocalFile(value).toString()
+                                << "\">" << QDir::toNativeSeparators(value) << "</a>";
+                        } else {
+                            str << it.value() ;
+                        }
+                        str << "</td></tr>";
+                    }
+                }
             }
         }
     }

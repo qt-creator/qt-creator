@@ -58,6 +58,8 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QMainWindow>
+#include <QTextBrowser>
+#include <QDesktopServices>
 
 enum ModelRoles { VersionIdRole = Qt::UserRole, ToolChainIdRole, BuildLogRole, BuildRunningRole};
 
@@ -110,6 +112,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     , m_ui(new Internal::Ui::QtVersionManager())
     , m_versionUi(new Internal::Ui::QtVersionInfo())
     , m_debuggingHelperUi(new Internal::Ui::DebuggingHelper())
+    , m_infoBrowser(new QTextBrowser)
     , m_invalidVersionIcon(QLatin1String(":/projectexplorer/images/compile_error.png"))
     , m_warningVersionIcon(QLatin1String(":/projectexplorer/images/compile_warning.png"))
     , m_configurationWidget(0)
@@ -125,6 +128,11 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
 
     m_ui->setupUi(this);
 
+    m_infoBrowser->setOpenLinks(false);
+    m_infoBrowser->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    connect(m_infoBrowser, SIGNAL(anchorClicked(QUrl)), this, SLOT(infoAnchorClicked(QUrl)));
+    m_ui->infoWidget->setWidget(m_infoBrowser);
+
     m_ui->versionInfoWidget->setWidget(versionInfoWidget);
     m_ui->versionInfoWidget->setState(Utils::DetailsWidget::NoSummary);
 
@@ -137,7 +145,6 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_ui->qtdirList->header()->setStretchLastSection(false);
     m_ui->qtdirList->setTextElideMode(Qt::ElideNone);
     m_autoItem = new QTreeWidgetItem(m_ui->qtdirList);
-    m_ui->qtdirList->installEventFilter(this);
     m_autoItem->setText(0, tr("Auto-detected"));
     m_autoItem->setFirstColumnSpanned(true);
     m_autoItem->setFlags(Qt::ItemIsEnabled);
@@ -197,26 +204,6 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
 
     connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
             this, SLOT(toolChainsUpdated()));
-}
-
-bool QtOptionsPageWidget::eventFilter(QObject *o, QEvent *e)
-{
-    // Set the items tooltip, which may cause costly initialization
-    // of QtVersion and must be up-to-date
-    if (o != m_ui->qtdirList || e->type() != QEvent::ToolTip)
-        return false;
-    QHelpEvent *helpEvent = static_cast<QHelpEvent *>(e);
-    const QPoint treePos = helpEvent->pos() - QPoint(0, m_ui->qtdirList->header()->height());
-    QTreeWidgetItem *item = m_ui->qtdirList->itemAt(treePos);
-    if (!item)
-        return false;
-    const int index = indexForTreeItem(item);
-    if (index == -1)
-        return false;
-    const QString tooltip = m_versions.at(index)->toHtml(true);
-    QToolTip::showText(helpEvent->globalPos(), tooltip, m_ui->qtdirList);
-    helpEvent->accept();
-    return true;
 }
 
 int QtOptionsPageWidget::currentIndex() const
@@ -354,6 +341,11 @@ void QtOptionsPageWidget::handleDebuggingHelperExpanded(bool expanded)
     m_ui->versionInfoWidget->setVisible(!expanded);
 }
 
+void QtOptionsPageWidget::infoAnchorClicked(const QUrl &url)
+{
+    QDesktopServices::openUrl(url);
+}
+
 QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const BaseQtVersion *version)
 {
     ValidityInfo info;
@@ -362,6 +354,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     if (!version)
         return info;
 
+    info.description = tr("Qt version %1 for %2").arg(version->qtVersionString(), version->description());
     if (!version->isValid()) {
         info.icon = m_invalidVersionIcon;
         info.message = version->invalidReason();
@@ -381,20 +374,19 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     }
 
     bool useable = true;
-    if (missingToolChains.isEmpty()) {
-        // No:
-        info.message = tr("Qt version %1 for %2").arg(version->qtVersionString(), version->description());
-    } else if (missingToolChains.count() == abiCount) {
-        // Yes, this Qt version can't be used at all!
-        info.message = tr("No tool chain can produce code for this Qt version. Please define one or more tool chains.");
-        info.icon = m_invalidVersionIcon;
-        useable = false;
-    } else {
-        // Yes, some ABIs are unsupported
-        info.message = tr("Not all possible target environments can be supported due to missing tool chains.");
-        info.toolTip = tr("The following ABIs are currently not supported:<ul><li>%1</li></ul>")
-                       .arg(missingToolChains.join(QLatin1String("</li><li>")));
-        info.icon = m_warningVersionIcon;
+    if (!missingToolChains.isEmpty()) {
+        if (missingToolChains.count() == abiCount) {
+            // Yes, this Qt version can't be used at all!
+            info.message = tr("No tool chain can produce code for this Qt version. Please define one or more tool chains.");
+            info.icon = m_invalidVersionIcon;
+            useable = false;
+        } else {
+            // Yes, some ABIs are unsupported
+            info.message = tr("Not all possible target environments can be supported due to missing tool chains.");
+            info.toolTip = tr("The following ABIs are currently not supported:<ul><li>%1</li></ul>")
+                    .arg(missingToolChains.join(QLatin1String("</li><li>")));
+            info.icon = m_warningVersionIcon;
+        }
     }
 
     if (useable) {
@@ -943,11 +935,26 @@ void QtOptionsPageWidget::qtVersionChanged()
 void QtOptionsPageWidget::updateDescriptionLabel()
 {
     QTreeWidgetItem *item = m_ui->qtdirList->currentItem();
-    const ValidityInfo info = validInformation(currentVersion());
-    m_versionUi->errorLabel->setText(info.message);
-    m_versionUi->errorLabel->setToolTip(info.toolTip);
+    const BaseQtVersion *version = currentVersion();
+    const ValidityInfo info = validInformation(version);
+    if (info.message.isEmpty()) {
+        m_versionUi->errorLabel->setVisible(false);
+    } else {
+        m_versionUi->errorLabel->setVisible(true);
+        m_versionUi->errorLabel->setText(info.message);
+        m_versionUi->errorLabel->setToolTip(info.toolTip);
+    }
+    m_ui->infoWidget->setSummaryText(info.description);
     if (item)
         item->setIcon(0, info.icon);
+
+    if (version) {
+        m_infoBrowser->setHtml(version->toHtml(true));
+        m_ui->infoWidget->setVisible(true);
+    } else {
+        m_infoBrowser->setHtml(QString());
+        m_ui->infoWidget->setVisible(false);
+    }
 }
 
 int QtOptionsPageWidget::indexForTreeItem(const QTreeWidgetItem *item) const

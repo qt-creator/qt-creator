@@ -41,6 +41,8 @@
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
+class QTextBrowser;
+class QUrl;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -71,8 +73,6 @@ public:
     void apply();
     QString searchKeywords() const;
 
-    virtual bool eventFilter(QObject *o, QEvent *e);
-
 private:
     void updateDescriptionLabel();
     void userChangedCurrentVersion();
@@ -90,6 +90,7 @@ private:
     Internal::Ui::QtVersionManager *m_ui;
     Internal::Ui::QtVersionInfo *m_versionUi;
     Internal::Ui::DebuggingHelper *m_debuggingHelperUi;
+    QTextBrowser *m_infoBrowser;
     QList<BaseQtVersion *> m_versions;
     int m_defaultVersion;
     QIcon m_invalidVersionIcon;
@@ -121,9 +122,11 @@ private slots:
 
     void qtVersionsDumpUpdated(const Utils::FileName &qmakeCommand);
     void handleDebuggingHelperExpanded(bool expanded);
+    void infoAnchorClicked(const QUrl &);
 
 private:
     struct ValidityInfo {
+        QString description;
         QString message;
         QString toolTip;
         QIcon icon;
