@@ -68,7 +68,7 @@ public:
     ~MaemoRemoteMounter();
 
     // Must already be connected.
-    void setConnection(const QSharedPointer<QSsh::SshConnection> &connection,
+    void setConnection(QSsh::SshConnection *connection,
         const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf);
 
     void setBuildConfiguration(const Qt4ProjectManager::Qt4BuildConfiguration *bc);
@@ -123,7 +123,7 @@ private:
         int remotePort;
     };
 
-    QSharedPointer<QSsh::SshConnection> m_connection;
+    QSsh::SshConnection *m_connection;
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
     QList<MountInfo> m_mountSpecs;
     QSharedPointer<QSsh::SshRemoteProcess> m_mountProcess;

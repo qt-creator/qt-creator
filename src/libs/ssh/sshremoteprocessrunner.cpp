@@ -54,7 +54,7 @@ public:
     SshRemoteProcessRunnerPrivate() : m_state(Inactive) {}
 
     SshRemoteProcess::Ptr m_process;
-    SshConnection::Ptr m_connection;
+    SshConnection *m_connection;
     bool m_runInTerminal;
     SshPseudoTerminal m_terminal;
     QByteArray m_command;
@@ -112,13 +112,13 @@ void SshRemoteProcessRunner::runInternal(const QByteArray &command,
     d->m_exitCode = -1;
     d->m_command = command;
     d->m_connection = SshConnectionManager::instance().acquireConnection(sshParams);
-    connect(d->m_connection.data(), SIGNAL(error(QSsh::SshError)),
+    connect(d->m_connection, SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionError(QSsh::SshError)));
-    connect(d->m_connection.data(), SIGNAL(disconnected()), SLOT(handleDisconnected()));
+    connect(d->m_connection, SIGNAL(disconnected()), SLOT(handleDisconnected()));
     if (d->m_connection->state() == SshConnection::Connected) {
         handleConnected();
     } else {
-        connect(d->m_connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
+        connect(d->m_connection, SIGNAL(connected()), SLOT(handleConnected()));
         if (d->m_connection->state() == SshConnection::Unconnected)
             d->m_connection->connectToHost();
     }
@@ -208,9 +208,9 @@ void SshRemoteProcessRunner::setState(int newState)
             d->m_process.clear();
         }
         if (d->m_connection) {
-            disconnect(d->m_connection.data(), 0, this, 0);
+            disconnect(d->m_connection, 0, this, 0);
             SshConnectionManager::instance().releaseConnection(d->m_connection);
-            d->m_connection.clear();
+            d->m_connection = 0;
         }
     }
 }

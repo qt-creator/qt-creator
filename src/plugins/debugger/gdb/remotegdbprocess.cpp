@@ -50,7 +50,7 @@ namespace Internal {
 
 RemoteGdbProcess::RemoteGdbProcess(const QSsh::SshConnectionParameters &connParams,
     RemotePlainGdbAdapter *adapter, QObject *parent)
-    : AbstractGdbProcess(parent), m_connParams(connParams),
+    : AbstractGdbProcess(parent), m_connParams(connParams), m_conn(0),
       m_state(Inactive), m_adapter(adapter)
 {
 }
@@ -93,12 +93,11 @@ void RemoteGdbProcess::realStart(const QString &cmd, const QStringList &args,
     m_errorOutput.clear();
     m_inputToSend.clear();
     m_conn = SshConnectionManager::instance().acquireConnection(m_connParams);
-    connect(m_conn.data(), SIGNAL(error(QSsh::SshError)), this,
-        SLOT(handleConnectionError()));
+    connect(m_conn, SIGNAL(error(QSsh::SshError)), this, SLOT(handleConnectionError()));
     if (m_conn->state() == SshConnection::Connected) {
         handleConnected();
     } else {
-        connect(m_conn.data(), SIGNAL(connected()), this, SLOT(handleConnected()));
+        connect(m_conn, SIGNAL(connected()), this, SLOT(handleConnected()));
         if (m_conn->state() == SshConnection::Unconnected)
             m_conn->connectToHost();
     }
@@ -397,9 +396,9 @@ void RemoteGdbProcess::setState(State newState)
             disconnect(m_fifoCreator.data(), 0, this, 0);
             m_fifoCreator = QSsh::SshRemoteProcess::Ptr();
         }
-        disconnect(m_conn.data(), 0, this, 0);
+        disconnect(m_conn, 0, this, 0);
         SshConnectionManager::instance().releaseConnection(m_conn);
-        m_conn.clear();
+        m_conn = 0;
     }
 }
 

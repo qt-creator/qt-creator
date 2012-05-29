@@ -66,7 +66,7 @@ MaemoRemoteMounter::~MaemoRemoteMounter()
     killAllUtfsServers();
 }
 
-void MaemoRemoteMounter::setConnection(const SshConnection::Ptr &connection,
+void MaemoRemoteMounter::setConnection(SshConnection *connection,
     const LinuxDeviceConfiguration::ConstPtr &devConf)
 {
     QTC_ASSERT(m_state == Inactive, return);

@@ -86,7 +86,7 @@ SftpDirNode *indexToDirNode(const QModelIndex &index)
 class SftpFileSystemModelPrivate
 {
 public:
-    SshConnection::Ptr sshConnection;
+    SshConnection *sshConnection;
     SftpChannel::Ptr sftpChannel;
     QString rootDirectory;
     SftpFileNode *rootNode;
@@ -101,6 +101,7 @@ using namespace Internal;
 SftpFileSystemModel::SftpFileSystemModel(QObject *parent)
     : QAbstractItemModel(parent), d(new SftpFileSystemModelPrivate)
 {
+    d->sshConnection = 0;
     d->rootDirectory = QLatin1String("/");
     d->rootNode = 0;
     d->statJobId = SftpInvalidJob;
@@ -116,13 +117,12 @@ void SftpFileSystemModel::setSshConnection(const SshConnectionParameters &sshPar
 {
     QSSH_ASSERT_AND_RETURN(!d->sshConnection);
     d->sshConnection = SshConnectionManager::instance().acquireConnection(sshParams);
-    connect(d->sshConnection.data(), SIGNAL(error(QSsh::SshError)),
-        SLOT(handleSshConnectionFailure()));
+    connect(d->sshConnection, SIGNAL(error(QSsh::SshError)), SLOT(handleSshConnectionFailure()));
     if (d->sshConnection->state() == SshConnection::Connected) {
         handleSshConnectionEstablished();
         return;
     }
-    connect(d->sshConnection.data(), SIGNAL(connected()), SLOT(handleSshConnectionEstablished()));
+    connect(d->sshConnection, SIGNAL(connected()), SLOT(handleSshConnectionEstablished()));
     if (d->sshConnection->state() == SshConnection::Unconnected)
         d->sshConnection->connectToHost();
 }
@@ -269,9 +269,9 @@ void SftpFileSystemModel::shutDown()
         d->sftpChannel.clear();
     }
     if (d->sshConnection) {
-        disconnect(d->sshConnection.data(), 0, this, 0);
+        disconnect(d->sshConnection, 0, this, 0);
         SshConnectionManager::instance().releaseConnection(d->sshConnection);
-        d->sshConnection.clear();
+        d->sshConnection = 0;
     }
     delete d->rootNode;
     d->rootNode = 0;

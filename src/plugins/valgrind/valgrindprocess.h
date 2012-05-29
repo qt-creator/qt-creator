@@ -120,8 +120,9 @@ class RemoteValgrindProcess : public ValgrindProcess
 public:
     explicit RemoteValgrindProcess(const QSsh::SshConnectionParameters &sshParams,
                                    QObject *parent = 0);
-    explicit RemoteValgrindProcess(const QSsh::SshConnection::Ptr &connection,
+    explicit RemoteValgrindProcess(QSsh::SshConnection *connection,
                                    QObject *parent = 0);
+    ~RemoteValgrindProcess();
 
     virtual bool isRunning() const;
 
@@ -139,7 +140,7 @@ public:
 
     virtual qint64 pid() const;
 
-    QSsh::SshConnection::Ptr connection() const;
+    QSsh::SshConnection *connection() const;
 
 private slots:
     void closed(int);
@@ -152,7 +153,7 @@ private slots:
 
 private:
     QSsh::SshConnectionParameters m_params;
-    QSsh::SshConnection::Ptr m_connection;
+    QSsh::SshConnection *m_connection;
     QSsh::SshRemoteProcess::Ptr m_process;
     QString m_workingDir;
     QString m_valgrindExe;

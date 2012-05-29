@@ -82,7 +82,7 @@ signals:
 protected:
     const Qt4ProjectManager::Qt4BuildConfiguration *qt4BuildConfiguration() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
-    QSharedPointer<QSsh::SshConnection> connection() const;
+    QSsh::SshConnection *connection() const;
 
     void saveDeploymentTimeStamp(const DeployableFile &deployableFile);
     bool hasChangedSinceLastDeployment(const DeployableFile &deployableFile) const;

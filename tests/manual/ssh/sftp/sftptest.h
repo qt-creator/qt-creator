@@ -90,7 +90,7 @@ private:
     const Parameters m_parameters;
     State m_state;
     bool m_error;
-    QSsh::SshConnection::Ptr m_connection;
+    QSsh::SshConnection *m_connection;
     QSsh::SftpChannel::Ptr m_channel;
     QList<FilePtr> m_localSmallFiles;
     JobMap m_smallFilesUploadJobs;

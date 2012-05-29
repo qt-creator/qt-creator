@@ -107,12 +107,6 @@ bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters
 
 // TODO: Mechanism for checking the host key. First connection to host: save, later: compare
 
-SshConnection::Ptr SshConnection::create(const SshConnectionParameters &serverInfo)
-{
-    doStaticInitializationsIfNecessary();
-    return Ptr(new SshConnection(serverInfo));
-}
-
 SshConnection::SshConnection(const SshConnectionParameters &serverInfo)
     : d(new Internal::SshConnectionPrivate(this, serverInfo))
 {
@@ -208,6 +202,8 @@ SshConnectionPrivate::SshConnectionPrivate(SshConnection *conn,
       m_connParams(serverInfo), m_error(SshNoError), m_ignoreNextPacket(false),
       m_conn(conn)
 {
+    doStaticInitializationsIfNecessary();
+
     setupPacketHandlers();
     m_socket->setProxy(m_connParams.proxyType == SshConnectionParameters::DefaultProxy
         ? QNetworkProxy::DefaultProxy : QNetworkProxy::NoProxy);

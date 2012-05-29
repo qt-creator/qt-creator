@@ -67,7 +67,7 @@ private slots:
     void handleStdin();
 
 private:
-    QSharedPointer<QSsh::SshConnection> m_connection;
+    QSsh::SshConnection *m_connection;
     QSharedPointer<QSsh::SshRemoteProcess> m_shell;
     QFile * const m_stdin;
 };

@@ -80,8 +80,6 @@ public:
     void testDevice(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration);
     void stopTest();
 
-    QSharedPointer<QSsh::SshConnection> connection() const;
-
 private slots:
     void handleConnected();
     void handleConnectionFailure();

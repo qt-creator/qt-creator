@@ -42,7 +42,7 @@ namespace RemoteLinux {
 namespace Internal {
 
 PackageUploader::PackageUploader(QObject *parent) :
-    QObject(parent), m_state(Inactive)
+    QObject(parent), m_state(Inactive), m_connection(0)
 {
 }
 
@@ -50,7 +50,7 @@ PackageUploader::~PackageUploader()
 {
 }
 
-void PackageUploader::uploadPackage(const SshConnection::Ptr &connection,
+void PackageUploader::uploadPackage(SshConnection *connection,
     const QString &localFilePath, const QString &remoteFilePath)
 {
     QTC_ASSERT(m_state == Inactive, return);
@@ -61,8 +61,7 @@ void PackageUploader::uploadPackage(const SshConnection::Ptr &connection,
     m_localFilePath = localFilePath;
     m_remoteFilePath = remoteFilePath;
     m_connection = connection;
-    connect(m_connection.data(), SIGNAL(error(QSsh::SshError)),
-        SLOT(handleConnectionFailure()));
+    connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionFailure()));
     m_uploader = m_connection->createSftpChannel();
     connect(m_uploader.data(), SIGNAL(initialized()), this,
         SLOT(handleSftpChannelInitialized()));
@@ -149,8 +148,8 @@ void PackageUploader::setState(State newState)
             m_uploader.clear();
         }
         if (m_connection) {
-            disconnect(m_connection.data(), 0, this, 0);
-            m_connection.clear();
+            disconnect(m_connection, 0, this, 0);
+            m_connection = 0;
         }
     }
     m_state = newState;

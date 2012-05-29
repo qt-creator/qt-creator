@@ -152,17 +152,23 @@ RemoteValgrindProcess::RemoteValgrindProcess(const QSsh::SshConnectionParameters
                                              QObject *parent)
     : ValgrindProcess(parent)
     , m_params(sshParams)
+    , m_connection(0)
     , m_error(QProcess::UnknownError)
     , m_pid(0)
 {}
 
-RemoteValgrindProcess::RemoteValgrindProcess(const QSsh::SshConnection::Ptr &connection, QObject *parent)
+RemoteValgrindProcess::RemoteValgrindProcess(QSsh::SshConnection *connection, QObject *parent)
     : ValgrindProcess(parent)
     , m_params(connection->connectionParameters())
     , m_connection(connection)
     , m_error(QProcess::UnknownError)
     , m_pid(0)
 {}
+
+RemoteValgrindProcess::~RemoteValgrindProcess()
+{
+    delete m_connection;
+}
 
 bool RemoteValgrindProcess::isRunning() const
 {
@@ -179,12 +185,11 @@ void RemoteValgrindProcess::run(const QString &valgrindExecutable, const QString
 
     // connect to host and wait for connection
     if (!m_connection)
-        m_connection = QSsh::SshConnection::create(m_params);
+        m_connection = new QSsh::SshConnection(m_params);
 
     if (m_connection->state() != QSsh::SshConnection::Connected) {
-        connect(m_connection.data(), SIGNAL(connected()),
-                this, SLOT(connected()));
-        connect(m_connection.data(), SIGNAL(error(QSsh::SshError)),
+        connect(m_connection, SIGNAL(connected()), this, SLOT(connected()));
+        connect(m_connection, SIGNAL(error(QSsh::SshError)),
                 this, SLOT(error(QSsh::SshError)));
         if (m_connection->state() == QSsh::SshConnection::Unconnected)
             m_connection->connectToHost();
@@ -219,7 +224,7 @@ void RemoteValgrindProcess::connected()
     m_process->start();
 }
 
-QSsh::SshConnection::Ptr RemoteValgrindProcess::connection() const
+QSsh::SshConnection *RemoteValgrindProcess::connection() const
 {
     return m_connection;
 }

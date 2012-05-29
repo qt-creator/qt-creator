@@ -128,7 +128,7 @@ void MaddeDeviceTester::handleGenericTestFinished(TestResult result)
     m_stdout.clear();
     m_stderr.clear();
     m_state = QtTest;
-    m_processRunner->run(qtInfoCmd.toUtf8(), m_genericTester->connection()->connectionParameters());
+    m_processRunner->run(qtInfoCmd.toUtf8(), m_deviceConfiguration->sshParameters());
 }
 
 void MaddeDeviceTester::handleConnectionError()
@@ -196,7 +196,7 @@ void MaddeDeviceTester::handleQtTestFinished(int exitStatus)
     emit progressMessage(tr("Checking for connectivity support..."));
     m_state = MadDeveloperTest;
     m_processRunner->run(QString(QLatin1String("test -x") + MaemoGlobal::devrootshPath()).toUtf8(),
-        m_genericTester->connection()->connectionParameters());
+        m_deviceConfiguration->sshParameters());
 }
 
 void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
@@ -233,8 +233,7 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
     emit progressMessage(tr("Checking for QML tooling support..."));
     m_state = QmlToolingTest;
     m_processRunner->run(QString(QLatin1String("test -d ")
-        + QLatin1String(QmlToolingDirectory)).toUtf8(),
-        m_genericTester->connection()->connectionParameters());
+        + QLatin1String(QmlToolingDirectory)).toUtf8(), m_deviceConfiguration->sshParameters());
 }
 
 void MaddeDeviceTester::handleQmlToolingTestFinished(int exitStatus)

@@ -55,7 +55,7 @@ public:
     ~PackageUploader();
 
     // Connection has to be established already.
-    void uploadPackage(const QSharedPointer<QSsh::SshConnection> &connection,
+    void uploadPackage(QSsh::SshConnection *connection,
         const QString &localFilePath, const QString &remoteFilePath);
     void cancelUpload();
 
@@ -76,7 +76,7 @@ private:
     void setState(State newState);
 
     State m_state;
-    QSharedPointer<QSsh::SshConnection> m_connection;
+    QSsh::SshConnection *m_connection;
     QSharedPointer<QSsh::SftpChannel> m_uploader;
     QString m_localFilePath;
     QString m_remoteFilePath;

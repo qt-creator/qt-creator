@@ -70,7 +70,7 @@ MaemoDeploymentMounter::MaemoDeploymentMounter(QObject *parent)
 
 MaemoDeploymentMounter::~MaemoDeploymentMounter() {}
 
-void MaemoDeploymentMounter::setupMounts(const SshConnection::Ptr &connection,
+void MaemoDeploymentMounter::setupMounts(SshConnection *connection,
     const LinuxDeviceConfiguration::ConstPtr &devConf,
     const QList<MaemoMountSpecification> &mountSpecs,
     const Qt4BuildConfiguration *bc)
@@ -82,8 +82,7 @@ void MaemoDeploymentMounter::setupMounts(const SshConnection::Ptr &connection,
     m_devConf = devConf;
     m_mounter->setConnection(m_connection, m_devConf);
     m_buildConfig = bc;
-    connect(m_connection.data(), SIGNAL(error(QSsh::SshError)),
-        SLOT(handleConnectionError()));
+    connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
     setState(UnmountingOldDirs);
     unmount();
 }
@@ -205,8 +204,8 @@ void MaemoDeploymentMounter::setState(State newState)
     if (m_state == newState)
         return;
     if (newState == Inactive && m_connection) {
-        disconnect(m_connection.data(), 0, this, 0);
-        m_connection.clear();
+        disconnect(m_connection, 0, this, 0);
+        m_connection = 0;
     }
     m_state = newState;
 }

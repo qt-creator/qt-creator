@@ -45,16 +45,17 @@ using namespace QSsh;
 
 Shell::Shell(const QSsh::SshConnectionParameters &parameters, QObject *parent)
     : QObject(parent),
-      m_connection(SshConnection::create(parameters)),
+      m_connection(new SshConnection(parameters)),
       m_stdin(new QFile(this))
 {
-    connect(m_connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(dataAvailable(QString)), SLOT(handleShellMessage(QString)));
-    connect(m_connection.data(), SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
+    connect(m_connection, SIGNAL(connected()), SLOT(handleConnected()));
+    connect(m_connection, SIGNAL(dataAvailable(QString)), SLOT(handleShellMessage(QString)));
+    connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
 }
 
 Shell::~Shell()
 {
+    delete m_connection;
 }
 
 void Shell::run()

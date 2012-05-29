@@ -48,7 +48,7 @@ public:
     Test()
     {
         m_timeoutTimer.setSingleShot(true);
-        m_connection = SshConnection::create(SshConnectionParameters());
+        m_connection = new SshConnection(SshConnectionParameters());
         if (m_connection->state() != SshConnection::Unconnected) {
             qDebug("Error: Newly created SSH connection has state %d.",
                 m_connection->state());
@@ -107,7 +107,10 @@ public:
         runNextTest();
     }
 
-    ~Test();
+    ~Test()
+    {
+        delete m_connection;
+    }
 
 private slots:
     void handleConnected()
@@ -164,17 +167,15 @@ private slots:
 private:
     void runNextTest()
     {
-        if (m_connection)
-            disconnect(m_connection.data(), 0, this, 0);
-        m_connection = SshConnection::create(m_testSet.first().params);
-        connect(m_connection.data(), SIGNAL(connected()), this,
-            SLOT(handleConnected()));
-        connect(m_connection.data(), SIGNAL(disconnected()), this,
-            SLOT(handleDisconnected()));
-        connect(m_connection.data(), SIGNAL(dataAvailable(QString)), this,
-            SLOT(handleDataAvailable(QString)));
-        connect(m_connection.data(), SIGNAL(error(QSsh::SshError)), this,
-            SLOT(handleError(QSsh::SshError)));
+        if (m_connection) {
+            disconnect(m_connection, 0, this, 0);
+            delete m_connection;
+            }
+        m_connection = new SshConnection(m_testSet.first().params);
+        connect(m_connection, SIGNAL(connected()), SLOT(handleConnected()));
+        connect(m_connection, SIGNAL(disconnected()), SLOT(handleDisconnected()));
+        connect(m_connection, SIGNAL(dataAvailable(QString)), SLOT(handleDataAvailable(QString)));
+        connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleError(QSsh::SshError)));
         const TestItem &nextItem = m_testSet.first();
         m_timeoutTimer.stop();
         m_timeoutTimer.setInterval(qMax(10000, nextItem.params.timeout * 1000));
@@ -182,7 +183,7 @@ private:
         m_connection->connectToHost();
     }
 
-    SshConnection::Ptr m_connection;
+    SshConnection *m_connection;
     typedef QList<SshError> ErrorList;
     struct TestItem {
         TestItem(const char *d, const SshConnectionParameters &p,
@@ -195,8 +196,6 @@ private:
     QList<TestItem> m_testSet;
     QTimer m_timeoutTimer;
 };
-
-Test::~Test() {}
 
 int main(int argc, char *argv[])
 {

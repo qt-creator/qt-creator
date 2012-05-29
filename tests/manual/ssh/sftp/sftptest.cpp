@@ -43,7 +43,7 @@
 using namespace QSsh;
 
 SftpTest::SftpTest(const Parameters &params)
-    : m_parameters(params), m_state(Inactive), m_error(false),
+    : m_parameters(params), m_state(Inactive), m_error(false), m_connection(0),
       m_bigFileUploadJob(SftpInvalidJob),
       m_bigFileDownloadJob(SftpInvalidJob),
       m_bigFileRemovalJob(SftpInvalidJob),
@@ -57,17 +57,15 @@ SftpTest::SftpTest(const Parameters &params)
 SftpTest::~SftpTest()
 {
     removeFiles(true);
+    delete m_connection;
 }
 
 void SftpTest::run()
 {
-    m_connection = SshConnection::create(m_parameters.sshParams);
-    connect(m_connection.data(), SIGNAL(connected()), this,
-        SLOT(handleConnected()));
-    connect(m_connection.data(), SIGNAL(error(QSsh::SshError)), this,
-        SLOT(handleError()));
-    connect(m_connection.data(), SIGNAL(disconnected()), this,
-        SLOT(handleDisconnected()));
+    m_connection = new SshConnection(m_parameters.sshParams);
+    connect(m_connection, SIGNAL(connected()), SLOT(handleConnected()));
+    connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleError()));
+    connect(m_connection, SIGNAL(disconnected()), SLOT(handleDisconnected()));
     std::cout << "Connecting to host '"
         << qPrintable(m_parameters.sshParams.host) << "'..." << std::endl;
     m_state = Connecting;

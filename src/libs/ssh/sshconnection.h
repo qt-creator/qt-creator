@@ -90,9 +90,8 @@ class QSSH_EXPORT SshConnection : public QObject
 
 public:
     enum State { Unconnected, Connecting, Connected };
-    typedef QSharedPointer<SshConnection> Ptr;
 
-    static Ptr create(const SshConnectionParameters &serverInfo);
+    SshConnection(const SshConnectionParameters &serverInfo);
 
     void connectToHost();
     void disconnectFromHost();
@@ -114,8 +113,6 @@ signals:
     void error(QSsh::SshError);
 
 private:
-    SshConnection(const SshConnectionParameters &serverInfo);
-
     Internal::SshConnectionPrivate *d;
 };
 

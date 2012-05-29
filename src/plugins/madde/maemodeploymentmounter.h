@@ -61,7 +61,7 @@ public:
     ~MaemoDeploymentMounter();
 
     // Connection must be in connected state.
-    void setupMounts(const QSharedPointer<QSsh::SshConnection> &connection,
+    void setupMounts(QSsh::SshConnection *connection,
         const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf,
         const QList<MaemoMountSpecification> &mountSpecs,
         const Qt4ProjectManager::Qt4BuildConfiguration *bc);
@@ -93,7 +93,7 @@ private:
     void setState(State newState);
 
     State m_state;
-    QSharedPointer<QSsh::SshConnection> m_connection;
+    QSsh::SshConnection *m_connection;
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
     MaemoRemoteMounter * const m_mounter;
     RemoteLinux::RemoteLinuxUsedPortsGatherer * const m_portsGatherer;

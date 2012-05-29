@@ -107,7 +107,7 @@ private:
     void setState(State newState);
 
     QSsh::SshConnectionParameters m_connParams;
-    QSsh::SshConnection::Ptr m_conn;
+    QSsh::SshConnection *m_conn;
     QSsh::SshRemoteProcess::Ptr m_gdbProc;
     QSsh::SshRemoteProcess::Ptr m_appOutputReader;
     QSsh::SshRemoteProcess::Ptr m_fifoCreator;

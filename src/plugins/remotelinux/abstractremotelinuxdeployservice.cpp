@@ -83,11 +83,12 @@ const char LastDeployedTimesKey[] = "Qt4ProjectManager.MaemoRunConfiguration.Las
 class AbstractRemoteLinuxDeployServicePrivate
 {
 public:
-    AbstractRemoteLinuxDeployServicePrivate() : state(Inactive), stopRequested(false) {}
+    AbstractRemoteLinuxDeployServicePrivate()
+        : connection(0), state(Inactive), stopRequested(false) {}
 
     LinuxDeviceConfiguration::ConstPtr deviceConfiguration;
     QPointer<Qt4BuildConfiguration> buildConfiguration;
-    SshConnection::Ptr connection;
+    SshConnection *connection;
     State state;
     bool stopRequested;
 
@@ -117,7 +118,7 @@ LinuxDeviceConfiguration::ConstPtr AbstractRemoteLinuxDeployService::deviceConfi
     return d->deviceConfiguration;
 }
 
-SshConnection::Ptr AbstractRemoteLinuxDeployService::connection() const
+SshConnection *AbstractRemoteLinuxDeployService::connection() const
 {
     return d->connection;
 }
@@ -263,12 +264,12 @@ void AbstractRemoteLinuxDeployService::handleDeviceSetupDone(bool success)
 
     d->state = Connecting;
     d->connection = SshConnectionManager::instance().acquireConnection(d->deviceConfiguration->sshParameters());
-    connect(d->connection.data(), SIGNAL(error(QSsh::SshError)),
+    connect(d->connection, SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionFailure()));
     if (d->connection->state() == SshConnection::Connected) {
         handleConnected();
     } else {
-        connect(d->connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
+        connect(d->connection, SIGNAL(connected()), SLOT(handleConnected()));
         emit progressMessage(tr("Connecting to device..."));
         if (d->connection->state() == SshConnection::Unconnected)
             d->connection->connectToHost();
@@ -322,9 +323,9 @@ void AbstractRemoteLinuxDeployService::setFinished()
 {
     d->state = Inactive;
     if (d->connection) {
-        disconnect(d->connection.data(), 0, this, 0);
+        disconnect(d->connection, 0, this, 0);
         SshConnectionManager::instance().releaseConnection(d->connection);
-        d->connection = SshConnection::Ptr();
+        d->connection = 0;
     }
     d->stopRequested = false;
     emit finished();

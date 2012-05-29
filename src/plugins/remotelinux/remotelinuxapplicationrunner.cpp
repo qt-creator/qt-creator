@@ -68,6 +68,7 @@ public:
           appArguments(runConfig->arguments()),
           commandPrefix(runConfig->commandPrefix()),
           initialFreePorts(runConfig->freePorts()),
+          connection(0),
           stopRequested(false),
           state(Inactive)
     {
@@ -80,7 +81,7 @@ public:
     const QString commandPrefix;
     const PortList initialFreePorts;
 
-    QSsh::SshConnection::Ptr connection;
+    QSsh::SshConnection *connection;
     QSsh::SshRemoteProcess::Ptr runner;
     QSsh::SshRemoteProcess::Ptr cleaner;
 
@@ -108,7 +109,7 @@ AbstractRemoteLinuxApplicationRunner::~AbstractRemoteLinuxApplicationRunner()
     delete d;
 }
 
-SshConnection::Ptr AbstractRemoteLinuxApplicationRunner::connection() const
+SshConnection *AbstractRemoteLinuxApplicationRunner::connection() const
 {
     return d->connection;
 }
@@ -310,9 +311,9 @@ void AbstractRemoteLinuxApplicationRunner::setInactive()
 {
     d->portsGatherer.stop();
     if (d->connection) {
-        disconnect(d->connection.data(), 0, this, 0);
+        disconnect(d->connection, 0, this, 0);
         SshConnectionManager::instance().releaseConnection(d->connection);
-        d->connection = SshConnection::Ptr();
+        d->connection = 0;
     }
     if (d->cleaner)
         disconnect(d->cleaner.data(), 0, this, 0);
@@ -400,8 +401,8 @@ void AbstractRemoteLinuxApplicationRunner::handleDeviceSetupDone(bool success)
     d->state = Connecting;
     d->exitStatus = -1;
     d->freePorts = d->initialFreePorts;
-    connect(d->connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
-    connect(d->connection.data(), SIGNAL(error(QSsh::SshError)),
+    connect(d->connection, SIGNAL(connected()), SLOT(handleConnected()));
+    connect(d->connection, SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionFailure()));
     if (d->connection->state() == SshConnection::Connected) {
         handleConnected();

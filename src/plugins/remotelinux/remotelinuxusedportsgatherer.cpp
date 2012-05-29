@@ -49,7 +49,7 @@ namespace Internal {
 class RemoteLinuxUsedPortsGathererPrivate
 {
  public:
-    SshConnection::Ptr connection;
+    SshConnection *connection;
     SshRemoteProcess::Ptr process;
     PortList portsToCheck;
     QList<int> usedPorts;
@@ -64,6 +64,7 @@ using namespace Internal;
 RemoteLinuxUsedPortsGatherer::RemoteLinuxUsedPortsGatherer(QObject *parent) :
     QObject(parent), d(new RemoteLinuxUsedPortsGathererPrivate)
 {
+    d->connection = 0;
 }
 
 RemoteLinuxUsedPortsGatherer::~RemoteLinuxUsedPortsGatherer()
@@ -76,12 +77,12 @@ void RemoteLinuxUsedPortsGatherer::start(const LinuxDeviceConfiguration::ConstPt
     QTC_ASSERT(!d->connection, return);
     d->portsToCheck = devConf->freePorts();
     d->connection = SshConnectionManager::instance().acquireConnection(devConf->sshParameters());
-    connect(d->connection.data(), SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
+    connect(d->connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
     if (d->connection->state() == SshConnection::Connected) {
         handleConnectionEstablished();
         return;
     }
-    connect(d->connection.data(), SIGNAL(connected()), SLOT(handleConnectionEstablished()));
+    connect(d->connection, SIGNAL(connected()), SLOT(handleConnectionEstablished()));
     if (d->connection->state() == SshConnection::Unconnected)
         d->connection->connectToHost();
 }
@@ -119,9 +120,9 @@ void RemoteLinuxUsedPortsGatherer::stop()
     if (d->process)
         disconnect(d->process.data(), 0, this, 0);
     d->process.clear();
-    disconnect(d->connection.data(), 0, this, 0);
+    disconnect(d->connection, 0, this, 0);
     SshConnectionManager::instance().releaseConnection(d->connection);
-    d->connection.clear();
+    d->connection = 0;
 }
 
 int RemoteLinuxUsedPortsGatherer::getNextFreePort(PortList *freePorts) const

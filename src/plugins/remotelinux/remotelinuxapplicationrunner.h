@@ -62,8 +62,8 @@ public:
 
     void startExecution(const QByteArray &remoteCall);
 
-    QSharedPointer<QSsh::SshConnection> connection() const;
     QSharedPointer<const LinuxDeviceConfiguration> devConfig() const;
+    QSsh::SshConnection *connection() const;
     const RemoteLinuxUsedPortsGatherer *usedPortsGatherer() const;
     Utils::PortList *freePorts();
     QString remoteExecutable() const;

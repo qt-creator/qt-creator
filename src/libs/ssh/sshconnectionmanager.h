@@ -36,7 +36,6 @@
 #include "ssh_global.h"
 
 #include <QScopedPointer>
-#include <QSharedPointer>
 
 namespace QSsh {
 class SshConnection;
@@ -49,8 +48,8 @@ class QSSH_EXPORT SshConnectionManager
 public:
     static SshConnectionManager &instance();
 
-    QSharedPointer<SshConnection> acquireConnection(const SshConnectionParameters &sshParams);
-    void releaseConnection(const QSharedPointer<SshConnection> &connection);
+    SshConnection *acquireConnection(const SshConnectionParameters &sshParams);
+    void releaseConnection(SshConnection *connection);
     // Make sure the next acquireConnection with the given parameters will return a new connection.
     void forceNewConnection(const SshConnectionParameters &sshParams);
 

@@ -76,7 +76,7 @@ private:
     QSsh::SshRemoteProcessRunner * const m_remoteRunner;
     QSsh::SshRemoteProcess::Ptr m_catProcess;
     QSsh::SshRemoteProcess::Ptr m_echoProcess;
-    QSsh::SshConnection::Ptr m_sshConnection;
+    QSsh::SshConnection *m_sshConnection;
     QByteArray m_remoteStdout;
     QByteArray m_remoteStderr;
     QByteArray m_remoteData;

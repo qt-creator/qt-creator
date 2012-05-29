@@ -47,6 +47,7 @@ const QByteArray StderrOutput("ChannelTest");
 RemoteProcessTest::RemoteProcessTest(const SshConnectionParameters &params)
     : m_sshParams(params),
       m_timeoutTimer(new QTimer(this)),
+      m_sshConnection(0),
       m_remoteRunner(new SshRemoteProcessRunner(this)),
       m_state(Inactive)
 {
@@ -54,7 +55,10 @@ RemoteProcessTest::RemoteProcessTest(const SshConnectionParameters &params)
     connect(m_timeoutTimer, SIGNAL(timeout()), SLOT(handleTimeout()));
 }
 
-RemoteProcessTest::~RemoteProcessTest() { }
+RemoteProcessTest::~RemoteProcessTest()
+{
+    delete m_sshConnection;
+}
 
 void RemoteProcessTest::run()
 {
@@ -214,9 +218,9 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
             }
             std::cout << "Ok.\nTesting I/O device functionality... " << std::flush;
             m_state = TestingIoDevice;
-            m_sshConnection = QSsh::SshConnection::create(m_sshParams);
-            connect(m_sshConnection.data(), SIGNAL(connected()), SLOT(handleConnected()));
-            connect(m_sshConnection.data(), SIGNAL(error(QSsh::SshError)),
+            m_sshConnection = new QSsh::SshConnection(m_sshParams);
+            connect(m_sshConnection, SIGNAL(connected()), SLOT(handleConnected()));
+            connect(m_sshConnection, SIGNAL(error(QSsh::SshError)),
                 SLOT(handleConnectionError()));
             m_sshConnection->connectToHost();
             m_timeoutTimer->start();

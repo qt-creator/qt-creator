@@ -52,7 +52,7 @@ MaemoRemoteCopyFacility::MaemoRemoteCopyFacility(QObject *parent) :
 
 MaemoRemoteCopyFacility::~MaemoRemoteCopyFacility() {}
 
-void MaemoRemoteCopyFacility::copyFiles(const SshConnection::Ptr &connection,
+void MaemoRemoteCopyFacility::copyFiles(SshConnection *connection,
     const LinuxDeviceConfiguration::ConstPtr &devConf,
     const QList<DeployableFile> &deployables, const QString &mountPoint)
 {

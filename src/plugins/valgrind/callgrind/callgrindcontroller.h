@@ -102,7 +102,7 @@ private:
     Option m_lastOption;
 
     // remote callgrind support
-    QSsh::SshConnection::Ptr m_ssh;
+    QSsh::SshConnection *m_ssh;
     QString m_tempDataFile;
     QSsh::SshRemoteProcess::Ptr m_findRemoteFile;
     QSsh::SftpChannel::Ptr m_sftp;

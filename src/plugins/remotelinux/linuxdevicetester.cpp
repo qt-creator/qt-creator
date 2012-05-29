@@ -51,10 +51,10 @@ enum State { Inactive, Connecting, RunningUname, TestingPorts };
 class GenericLinuxDeviceTesterPrivate
 {
 public:
-    GenericLinuxDeviceTesterPrivate() : state(Inactive) {}
+    GenericLinuxDeviceTesterPrivate() : connection(0), state(Inactive) {}
 
     LinuxDeviceConfiguration::ConstPtr deviceConfiguration;
-    SshConnection::Ptr connection;
+    SshConnection *connection;
     SshRemoteProcess::Ptr process;
     RemoteLinuxUsedPortsGatherer portsGatherer;
     State state;
@@ -76,6 +76,7 @@ GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester()
 {
+    delete d->connection;
     delete d;
 }
 
@@ -84,9 +85,9 @@ void GenericLinuxDeviceTester::testDevice(const LinuxDeviceConfiguration::ConstP
     QTC_ASSERT(d->state == Inactive, return);
 
     d->deviceConfiguration = deviceConfiguration;
-    d->connection = SshConnection::create(deviceConfiguration->sshParameters());
-    connect(d->connection.data(), SIGNAL(connected()), SLOT(handleConnected()));
-    connect(d->connection.data(), SIGNAL(error(QSsh::SshError)),
+    d->connection = new SshConnection(deviceConfiguration->sshParameters());
+    connect(d->connection, SIGNAL(connected()), SLOT(handleConnected()));
+    connect(d->connection, SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionFailure()));
 
     emit progressMessage(tr("Connecting to host..."));
@@ -113,11 +114,6 @@ void GenericLinuxDeviceTester::stopTest()
     }
 
     setFinished(TestFailure);
-}
-
-SshConnection::Ptr GenericLinuxDeviceTester::connection() const
-{
-    return d->connection;
 }
 
 void GenericLinuxDeviceTester::handleConnected()
@@ -190,8 +186,10 @@ void GenericLinuxDeviceTester::handlePortListReady()
 void GenericLinuxDeviceTester::setFinished(TestResult result)
 {
     d->state = Inactive;
-    disconnect(d->connection.data(), 0, this, 0);
+    disconnect(d->connection, 0, this, 0);
     disconnect(&d->portsGatherer, 0, this, 0);
+    delete d->connection;
+    d->connection = 0;
     emit finished(result);
 }
 
