@@ -187,7 +187,7 @@
         \o  Class names begin with a capital letter.
         \o  Function names begin with a lower case letter.
         \o  Variable names begin with a lower case letter.
-        \o  Enum names begin with a capital letter. Enum values use lower case and
+        \o  Enum names and values begin with a capital letter. Enum values
             contain some part of the name of the enum type.
     \endlist
 
