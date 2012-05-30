@@ -31,7 +31,7 @@ def ensureChecked(objectName, shouldBeChecked = True):
     else:
         state = "unchecked"
     test.log("New state for QCheckBox: %s" % state)
-    test.verify(object.checked == shouldBeChecked)
+    test.verify(waitFor("object.checked == shouldBeChecked", 1000))
     return object
 
 # verify that an object is in an expected enable state. Returns the object.

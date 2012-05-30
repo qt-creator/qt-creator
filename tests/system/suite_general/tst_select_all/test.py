@@ -35,7 +35,7 @@ def main():
             test.compare(editor.textCursor().selectionStart(), 0)
             test.compare(editor.textCursor().selectionEnd(), size)
             test.compare(editor.textCursor().position(), size)
-            test.log("Pressing key %s" % key)
+            test.log("Pressing key: %s" % key.replace("<", "").replace(">", ""))
             type(editor, key)
             if key == "<Up>":
                 test.compare(editor.textCursor().selectionStart(), editor.textCursor().selectionEnd())
@@ -43,7 +43,7 @@ def main():
                 pos = size
                 if key == "<Left>":
                     pos -= 1
-                    if platform.system() != 'Darwin' and JIRA.isBugStillOpen(7215, JIRA.Bug.CREATOR):
+                    if JIRA.isBugStillOpen(7215, JIRA.Bug.CREATOR):
                         test.warning("Using workaround for %s-%d" % (JIRA.Bug.CREATOR, 7215))
                         pos = 0
                 test.compare(editor.textCursor().selectionStart(), pos)
