@@ -240,7 +240,7 @@ void GitoriousProjectReader::readProjects(QXmlStreamReader &reader)
             break;
 
         if (reader.isStartElement()) {
-            if (reader.name() == "project") {
+            if (reader.name() == QLatin1String("project")) {
                 const QSharedPointer<GitoriousProject> p = readProject(reader);
                 if (!p->name.isEmpty())
                     m_projects.push_back(p);
