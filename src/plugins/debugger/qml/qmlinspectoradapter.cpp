@@ -174,6 +174,7 @@ void QmlInspectorAdapter::clientStatusChanged(QmlDebug::ClientStatus status)
 void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status)
 {
     BaseToolsClient *client = qobject_cast<BaseToolsClient*>(sender());
+    QTC_ASSERT(client, return);
     if (status == QmlDebug::Enabled) {
         m_toolsClient = client;
 
@@ -212,8 +213,7 @@ void QmlInspectorAdapter::toolsClientStatusChanged(QmlDebug::ClientStatus status
             m_toolsClient->showAppOnTop(true);
 
         m_toolsClientConnected = true;
-    } else if (m_toolsClientConnected
-               && client == m_toolsClient) {
+    } else if (m_toolsClientConnected && client == m_toolsClient) {
         disconnect(client, SIGNAL(currentObjectsChanged(QList<int>)),
                    this, SLOT(selectObjectsFromToolsClient(QList<int>)));
         disconnect(client, SIGNAL(logActivity(QString,QString)),
@@ -246,8 +246,7 @@ void QmlInspectorAdapter::engineClientStatusChanged(QmlDebug::ClientStatus statu
     if (status == QmlDebug::Enabled) {
         QTC_ASSERT(client, return);
         setActiveEngineClient(client);
-    } else if (m_engineClientConnected &&
-               (client == m_engineClient)) {
+    } else if (m_engineClientConnected && client == m_engineClient) {
         m_engineClientConnected = false;
         deletePreviews();
     }
@@ -367,6 +366,7 @@ void QmlInspectorAdapter::updatePendingPreviewDocuments(QmlJS::Document::Ptr doc
 
 void QmlInspectorAdapter::onSelectActionTriggered(bool checked)
 {
+    QTC_ASSERT(toolsClient(), return);
     if (checked) {
         toolsClient()->setDesignModeBehavior(true);
         toolsClient()->changeToSelectTool();
@@ -378,6 +378,7 @@ void QmlInspectorAdapter::onSelectActionTriggered(bool checked)
 
 void QmlInspectorAdapter::onZoomActionTriggered(bool checked)
 {
+    QTC_ASSERT(toolsClient(), return);
     if (checked) {
         toolsClient()->setDesignModeBehavior(true);
         toolsClient()->changeToZoomTool();
@@ -390,7 +391,7 @@ void QmlInspectorAdapter::onZoomActionTriggered(bool checked)
 void QmlInspectorAdapter::onShowAppOnTopChanged(const QVariant &value)
 {
     bool showAppOnTop = value.toBool();
-    if (m_toolsClient->status() == QmlDebug::Enabled)
+    if (m_toolsClient && m_toolsClient->status() == QmlDebug::Enabled)
         m_toolsClient->showAppOnTop(showAppOnTop);
 }
 
@@ -487,7 +488,7 @@ void QmlInspectorAdapter::gotoObjectReferenceDefinition(
 void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
                                        SelectionTarget target)
 {
-    if (target == ToolTarget)
+    if (m_toolsClient && target == ToolTarget)
         m_toolsClient->setObjectIdList(
                     QList<ObjectReference>() << obj);
 
@@ -525,7 +526,8 @@ void QmlInspectorAdapter::onReload()
                                fileContents);
         }
     }
-    m_toolsClient->reload(changesHash);
+    if (m_toolsClient)
+        m_toolsClient->reload(changesHash);
 }
 
 void QmlInspectorAdapter::onReloaded()

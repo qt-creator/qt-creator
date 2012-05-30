@@ -189,8 +189,9 @@ protected:
         Q_UNUSED(scriptBinding);
         Q_UNUSED(parentDefinition);
         appliedChangesToViewer = true;
-        m_inspectorAdapter->engineClient()->setMethodBody(debugId,
-                                                          methodName, methodBody);
+        if (m_inspectorAdapter->engineClient())
+            m_inspectorAdapter->engineClient()->setMethodBody(debugId,
+                                                              methodName, methodBody);
     }
 
     virtual void updateScriptBinding(DebugId debugId,
@@ -217,22 +218,25 @@ protected:
         if (isLiteral)
             expr = castToLiteral(scriptCode, scriptBinding);
         appliedChangesToViewer = true;
-        m_inspectorAdapter->engineClient()->setBindingForObject(
-                    debugId, propertyName, expr,
-                    isLiteral, document()->fileName(),
-                    scriptBinding->firstSourceLocation().startLine);
+        if (m_inspectorAdapter->engineClient())
+            m_inspectorAdapter->engineClient()->setBindingForObject(
+                        debugId, propertyName, expr,
+                        isLiteral, document()->fileName(),
+                        scriptBinding->firstSourceLocation().startLine);
     }
 
     virtual void resetBindingForObject(int debugId, const QString &propertyName)
     {
         appliedChangesToViewer = true;
-        m_inspectorAdapter->engineClient()->resetBindingForObject(debugId, propertyName);
+        if (m_inspectorAdapter->engineClient())
+            m_inspectorAdapter->engineClient()->resetBindingForObject(debugId, propertyName);
     }
 
     virtual void removeObject(int debugId)
     {
         appliedChangesToViewer = true;
-        m_inspectorAdapter->toolsClient()->destroyQmlObject(debugId);
+        if (m_inspectorAdapter->toolsClient())
+            m_inspectorAdapter->toolsClient()->destroyQmlObject(debugId);
     }
 
     virtual void createObject(const QString &qmlText, DebugId ref,
@@ -242,13 +246,15 @@ protected:
     {
         appliedChangesToViewer = true;
         referenceRefreshRequired = true;
-        m_inspectorAdapter->toolsClient()->createQmlObject(qmlText, ref, importList, filename, order);
+        if (m_inspectorAdapter->toolsClient())
+            m_inspectorAdapter->toolsClient()->createQmlObject(qmlText, ref, importList, filename, order);
     }
 
     virtual void reparentObject(int debugId, int newParent)
     {
         appliedChangesToViewer = true;
-        m_inspectorAdapter->toolsClient()->reparentQmlObject(debugId, newParent);
+        if (m_inspectorAdapter->toolsClient())
+            m_inspectorAdapter->toolsClient()->reparentQmlObject(debugId, newParent);
     }
 
     void notifyUnsyncronizableElementChange(UiObjectMember *parent)
@@ -617,8 +623,8 @@ void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
                 m_previousDoc = doc;
                 if (!delta.newObjects.isEmpty())
                     m_createdObjects[doc] += delta.newObjects;
-
-                m_inspectorAdapter->toolsClient()->clearComponentCache();
+                if (m_inspectorAdapter->toolsClient())
+                    m_inspectorAdapter->toolsClient()->clearComponentCache();
             }
         }
     } else {
@@ -697,7 +703,8 @@ void QmlLiveTextPreview::showSyncWarning(
         if (editor) {
             Core::InfoBar *infoBar = editor->editorDocument()->infoBar();
             Core::InfoBarEntry info(INFO_OUT_OF_SYNC, errorMessage);
-            if (m_inspectorAdapter->toolsClient()->supportReload())
+            BaseToolsClient *toolsClient = m_inspectorAdapter->toolsClient();
+            if (toolsClient && toolsClient->supportReload())
                 info.setCustomButtonInfo(tr("Reload QML"), this,
                                          SLOT(reloadQml()));
             infoBar->addInfo(info);
