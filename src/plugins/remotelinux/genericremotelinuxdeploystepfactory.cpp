@@ -32,6 +32,7 @@
 #include "genericremotelinuxdeploystepfactory.h"
 
 #include "genericdirectuploadstep.h"
+#include "remotelinuxcheckforfreediskspacestep.h"
 #include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxcustomcommanddeploymentstep.h"
 #include "tarpackagecreationstep.h"
@@ -58,7 +59,8 @@ QList<Core::Id> GenericRemoteLinuxDeployStepFactory::availableCreationIds(BuildS
         return ids;
     ids << TarPackageCreationStep::stepId() << UploadAndInstallTarPackageStep::stepId()
         << GenericDirectUploadStep::stepId()
-        << GenericRemoteLinuxCustomCommandDeploymentStep::stepId();
+        << GenericRemoteLinuxCustomCommandDeploymentStep::stepId()
+        << RemoteLinuxCheckForFreeDiskSpaceStep::stepId();
     return ids;
 }
 
@@ -72,6 +74,8 @@ QString GenericRemoteLinuxDeployStepFactory::displayNameForId(const Core::Id id)
         return GenericDirectUploadStep::displayName();
     if (id == GenericRemoteLinuxCustomCommandDeploymentStep::stepId())
         return GenericRemoteLinuxCustomCommandDeploymentStep::stepDisplayName();
+    if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
+        return RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName();
     return QString();
 }
 
@@ -92,6 +96,8 @@ BuildStep *GenericRemoteLinuxDeployStepFactory::create(BuildStepList *parent, co
         return new GenericDirectUploadStep(parent, GenericDirectUploadStep::stepId());
     if (id == GenericRemoteLinuxCustomCommandDeploymentStep::stepId())
         return new GenericRemoteLinuxCustomCommandDeploymentStep(parent);
+    if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
+        return new RemoteLinuxCheckForFreeDiskSpaceStep(parent);
     return 0;
 }
 
@@ -129,6 +135,8 @@ BuildStep *GenericRemoteLinuxDeployStepFactory::clone(BuildStepList *parent, Bui
         return new GenericDirectUploadStep(parent, other);
     if (GenericRemoteLinuxCustomCommandDeploymentStep * const other = qobject_cast<GenericRemoteLinuxCustomCommandDeploymentStep *>(product))
         return new GenericRemoteLinuxCustomCommandDeploymentStep(parent, other);
+    if (RemoteLinuxCheckForFreeDiskSpaceStep * const other = qobject_cast<RemoteLinuxCheckForFreeDiskSpaceStep *>(product))
+        return new RemoteLinuxCheckForFreeDiskSpaceStep(parent, other);
     return 0;
 }
 

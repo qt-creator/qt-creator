@@ -129,6 +129,11 @@ QtcPlugin {
         "remotelinuxruncontrolfactory.h",
         "tarpackagecreationstep.cpp",
         "uploadandinstalltarpackagestep.cpp",
+        "remotelinuxcheckforfreediskspaceservice.h",
+        "remotelinuxcheckforfreediskspaceservice.cpp",
+        "remotelinuxcheckforfreediskspacestep.h",
+        "remotelinuxcheckforfreediskspacestep.cpp",
+        "remotelinuxcheckforfreediskspacestepwidget.ui",
         "images/embeddedtarget.png"
     ]
 

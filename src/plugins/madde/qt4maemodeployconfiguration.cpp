@@ -44,6 +44,7 @@
 #include <remotelinux/deployablefile.h>
 #include <remotelinux/deployablefilesperprofile.h>
 #include <remotelinux/deploymentinfo.h>
+#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -158,19 +159,23 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
     DeployConfiguration * const dc = new Qt4MaemoDeployConfiguration(parent, id, displayName);
     if (id == Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId()) {
         dc->stepList()->insertStep(0, new MaemoMakeInstallToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(1, new MaemoCopyFilesViaMountStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaemoCopyFilesViaMountStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::fremantleWithPackagingId()) {
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new MaemoInstallPackageViaMountStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+        dc->stepList()->insertStep(3, new MaemoInstallPackageViaMountStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::harmattanId()) {
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new MaemoUploadAndInstallPackageStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+        dc->stepList()->insertStep(3, new MaemoUploadAndInstallPackageStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::meegoId()) {
         dc->stepList()->insertStep(0, new MaemoRpmPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallRpmPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new MeegoUploadAndInstallPackageStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+        dc->stepList()->insertStep(3, new MeegoUploadAndInstallPackageStep(dc->stepList()));
     }
     return dc;
 }

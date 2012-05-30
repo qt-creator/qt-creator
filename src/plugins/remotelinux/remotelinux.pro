@@ -57,7 +57,9 @@ HEADERS += \
     remotelinuxcustomcommanddeployservice.h \
     remotelinuxcustomcommanddeploymentstep.h \
     abstractembeddedlinuxtarget.h \
-    genericlinuxdeviceconfigurationwidget.h
+    genericlinuxdeviceconfigurationwidget.h \
+    remotelinuxcheckforfreediskspaceservice.h \
+    remotelinuxcheckforfreediskspacestep.h
 
 SOURCES += \
     genericembeddedlinuxtarget.cpp \
@@ -108,7 +110,9 @@ SOURCES += \
     remotelinuxcustomcommanddeployservice.cpp \
     remotelinuxcustomcommanddeploymentstep.cpp \
     abstractembeddedlinuxtarget.cpp \
-    genericlinuxdeviceconfigurationwidget.cpp
+    genericlinuxdeviceconfigurationwidget.cpp \
+    remotelinuxcheckforfreediskspaceservice.cpp \
+    remotelinuxcheckforfreediskspacestep.cpp
 
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \
@@ -116,7 +120,8 @@ FORMS += \
     remotelinuxprocessesdialog.ui \
     remotelinuxdeployconfigurationwidget.ui \
     profilesupdatedialog.ui \
-    genericlinuxdeviceconfigurationwidget.ui
+    genericlinuxdeviceconfigurationwidget.ui \
+    remotelinuxcheckforfreediskspacestepwidget.ui
 
 RESOURCES += remotelinux.qrc
 

@@ -33,6 +33,7 @@
 
 #include "genericembeddedlinuxtarget.h"
 #include "genericdirectuploadstep.h"
+#include "remotelinuxcheckforfreediskspacestep.h"
 #include "remotelinuxdeployconfiguration.h"
 
 #include <QCoreApplication>
@@ -78,7 +79,8 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::create(Target *paren
 
     DeployConfiguration * const dc = new RemoteLinuxDeployConfiguration(parent, id,
         genericLinuxDisplayName());
-    dc->stepList()->insertStep(0, new GenericDirectUploadStep(dc->stepList(),
+    dc->stepList()->insertStep(0, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+    dc->stepList()->insertStep(1, new GenericDirectUploadStep(dc->stepList(),
         GenericDirectUploadStep::stepId()));
     return dc;
 }

@@ -43,6 +43,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <remotelinux/genericdirectuploadstep.h>
+#include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
 #include <remotelinux/uploadandinstalltarpackagestep.h>
 
 #include <QCoreApplication>
@@ -83,6 +84,7 @@ QList<Core::Id> MaemoDeployStepFactory::availableCreationIds(BuildStepList *pare
     if (qobject_cast<Qt4Maemo5Target *>(parent->target()))
         ids << MaemoInstallPackageViaMountStep::stepId()
             << MaemoCopyFilesViaMountStep::stepId();
+    ids << RemoteLinuxCheckForFreeDiskSpaceStep::stepId();
 
     return ids;
 }
@@ -107,6 +109,8 @@ QString MaemoDeployStepFactory::displayNameForId(const Core::Id id) const
         return MaemoMakeInstallToSysrootStep::displayName();
     else if (id == GenericDirectUploadStep::stepId())
         return GenericDirectUploadStep::displayName();
+    if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
+        return RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName();
     return QString();
 }
 
@@ -140,6 +144,8 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const Core::Id 
         return new MeegoUploadAndInstallPackageStep(parent);
     } else if (id == GenericDirectUploadStep::stepId()) {
         return new GenericDirectUploadStep(parent, id);
+    } else if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId()) {
+        return new RemoteLinuxCheckForFreeDiskSpaceStep(parent);
     }
 
     return 0;
@@ -197,7 +203,10 @@ BuildStep *MaemoDeployStepFactory::clone(BuildStepList *parent, BuildStep *produ
     } else if (product->id() == GenericDirectUploadStep::stepId()) {
         return new GenericDirectUploadStep(parent,
              qobject_cast<GenericDirectUploadStep *>(product));
+    } else if (RemoteLinuxCheckForFreeDiskSpaceStep * const other = qobject_cast<RemoteLinuxCheckForFreeDiskSpaceStep *>(product)) {
+        return new RemoteLinuxCheckForFreeDiskSpaceStep(parent, other);
     }
+
     return 0;
 }
 
