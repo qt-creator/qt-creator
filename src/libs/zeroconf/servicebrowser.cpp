@@ -46,6 +46,10 @@
 #include <errno.h>
 #include <limits>
 #include <signal.h>
+#ifdef Q_OS_UNIX
+// for select()
+#  include <unistd.h>
+#endif
 
 #include <QAtomicPointer>
 #include <QCoreApplication>
