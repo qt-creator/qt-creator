@@ -386,24 +386,37 @@ static bool isNameChar(char c)
     return (c >= 'a' && c <= 'z') || c == '-';
 }
 
+static bool contains(const QByteArray &message, const char *pattern, int size)
+{
+    const int s = message.size();
+    if (s < size)
+        return false;
+    const int pos = message.indexOf(pattern);
+    if (pos == -1)
+        return false;
+    if (pos != 0 && message.at(pos - 1) != '\n')
+        return false;
+    if (pos + size != s && message.at(pos + size + 1) != '\n')
+        return false;
+    return true;
+}
+
 static bool isGdbConnectionError(const QByteArray &message)
 {
-    //
     // Handle messages gdb client produces when the target exits (gdbserver)
     //
     // we get this as response either to a specific command, e.g.
     //    31^error,msg="Remote connection closed"
     // or as informative output:
     //    &Remote connection closed
-    //
-    const QByteArray trimmed = message.trimmed();
-    if (trimmed == "Remote connection closed"
-            || trimmed == "Remote communication error.  "
-                          "Target disconnected.: No error."
-            || trimmed == "Quit") {
-        return true;
-    }
-    return false;
+
+    const char msg1[] = "Remote connection closed";
+    const char msg2[] = "Remote communication error.  Target disconnected.: No error.";
+    const char msg3[] = "Quit";
+
+    return contains(message, msg1, sizeof(msg1) - 1)
+        || contains(message, msg2, sizeof(msg2) - 1)
+        || contains(message, msg3, sizeof(msg3) - 1);
 }
 
 void GdbEngine::handleResponse(const QByteArray &buff)
