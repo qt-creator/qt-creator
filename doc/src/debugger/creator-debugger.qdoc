@@ -767,6 +767,46 @@
 
     \title Using Debugging Helpers
 
+    Structured data, such as objects of \c class, \c struct, or \c union
+    types, is displayed in the \gui{Locals and Expressions} view as part
+    of a tree.
+    To access sub-structures of the objects, expand the tree nodes.
+    The sub-structures are presented in their in-memory order, unless
+    the \gui{Sort Members of Classes and Structs Alphabetically} option
+    from the context menu is selected.
+
+    Similarly, pointers are displayed as a tree item with a single child
+    item representing the target of the pointer. In case the
+    context menu item
+    \gui{Dereference Pointers Automatically} is selected, the pointer
+    and the target are combined into a single entry, showing the name
+    and the type of the pointer and the value of the target.
+
+    This standard representation is good enough for the examination
+    of simple structures, but it does usually not give enough insight into
+    more complex structures, such as \c QObjects or associative containers.
+    These items are internally represented by a complex arrangement of
+    pointers, often highly optimized, with part of the data not directly
+    accessible through either sub-structures or pointers.
+
+    To give the user simple access also to these items, \QC employs
+    so-called Debugging Helpers. Debugging Helpers come in two varieties,
+    compiled, and Python based, depending on the selected
+    \l{glossary-development-target}{target}.
+
+    By default, Debugging Helpers are automatically and transparently used.
+    To disable them, select \gui Tools > \gui Options > \gui Debugger >
+    \gui {Locals & Expressions}, and deselect the \gui{Use Debugging Helper}
+    check box.
+
+    \QC ships with Debugging Helpers for about 80 of the most
+    popular Qt classes, Standard C++ containers and smart pointers,
+    covering the usual needs of a C++ application developer out-of-the-box.
+
+    The following sections describe how to extend the debugging helpers
+    to your own data types.
+
+
     There are two approaches to displaying complex data types. The first and
     original one is to use debugging helpers based on C++. While it has been
     superseded on most  platforms by the more robust and more flexible second
