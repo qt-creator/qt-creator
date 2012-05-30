@@ -335,7 +335,7 @@ def checkDebuggingLibrary(targVersion, targets):
                           "visible='1' windowTitle?='Debugging Helper Build Log*'}")
         if target in targStrings and version == targVersion:
             detailsButton = waitForObject("{%s type='Utils::DetailsButton' text='Details' "
-                                          "visible='1' unnamed='1'}" % container)
+                                          "visible='1' unnamed='1' occurrence='2'}" % container)
             ensureChecked(detailsButton)
             gdbHelperStat = waitForObject("{%s type='QLabel' name='gdbHelperStatus' "
                                           "visible='1'}" % container)
