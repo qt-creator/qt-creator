@@ -119,20 +119,23 @@ static QByteArray stripForFormat(const QByteArray &ba)
 // destruction of items.
 
 class WatchItem;
+typedef QList<WatchItem *> WatchItems;
+
 WatchItem *itemConstructor(WatchModel *model, const QByteArray &iname);
 void itemDestructor(WatchModel *model, WatchItem *item);
 
 class WatchItem : public WatchData
 {
 public:
-    WatchItem *parent;
-    QList<WatchItem *> children;
+    WatchItem *parent; // Not owned.
+    WatchItems children; // Not owned. Handled via itemDestructor().
+    bool modified;
 
 private:
     friend WatchItem *itemConstructor(WatchModel *model, const QByteArray &iname);
     friend void itemDestructor(WatchModel *model, WatchItem *item);
 
-    WatchItem() { parent = 0; }
+    WatchItem() { parent = 0; modified = false; }
     ~WatchItem() {}
     WatchItem(const WatchItem &); // Not implemented.
 };
@@ -175,6 +178,8 @@ private:
     void fetchMore(const QModelIndex &parent);
 
     void invalidateAll(const QModelIndex &parentIndex = QModelIndex());
+    void unmodifyTree(WatchItem *item);
+
     WatchItem *createItem(const QByteArray &iname, const QString &name, WatchItem *parent);
 
     friend class WatchHandler;
@@ -192,7 +197,7 @@ private:
     void reinitialize();
     void destroyItem(WatchItem *item); // With model notification.
     void destroyChildren(WatchItem *item); // With model notification.
-    void destroyHelper(const QList<WatchItem *> &items); // Without model notification.
+    void destroyHelper(const WatchItems &items); // Without model notification.
     void emitDataChanged(int column,
         const QModelIndex &parentIndex = QModelIndex());
 
@@ -347,7 +352,7 @@ void WatchModel::dumpHelper(WatchItem *item)
         dumpHelper(child);
 }
 
-void WatchModel::destroyHelper(const QList<WatchItem *> &items)
+void WatchModel::destroyHelper(const WatchItems &items)
 {
     for (int i = items.size(); --i >= 0; ) {
         WatchItem *item = items.at(i);
@@ -387,7 +392,7 @@ void WatchModel::destroyChildren(WatchItem *item)
     if (item->children.isEmpty())
         return;
 
-    QList<WatchItem *> items = item->children;
+    WatchItems items = item->children;
 
     // Deregister from model and parent.
     // It's sufficient to do this non-recursively.
@@ -767,16 +772,18 @@ QModelIndex WatchModel::parent(const QModelIndex &idx) const
         return QModelIndex();
 
     const WatchItem *item = watchItem(idx);
-    if (!item->parent || item->parent == m_root)
+    const WatchItem *father = watchItem(idx);
+    if (!father || father == m_root)
         return QModelIndex();
 
-    const WatchItem *grandparent = item->parent->parent;
+    const WatchItem *grandparent = father->parent;
     if (!grandparent)
         return QModelIndex();
 
-    for (int i = 0; i < grandparent->children.size(); ++i)
-        if (grandparent->children.at(i) == item->parent)
-            return createIndex(i, 0, (void*) item->parent);
+    const WatchItems &uncles = grandparent->children;
+    for (int i = 0, n = uncles.size(); i < n; ++i)
+        if (uncles.at(i) == father)
+            return createIndex(i, 0, (void*) father);
 
     return QModelIndex();
 }
@@ -849,6 +856,15 @@ void WatchModel::invalidateAll(const QModelIndex &parentIndex)
     QModelIndex idx2 = index(rowCount(parentIndex) - 1, columnCount(parentIndex) - 1, parentIndex);
     if (idx1.isValid() && idx2.isValid())
         emit dataChanged(idx1, idx2);
+}
+
+void WatchModel::unmodifyTree(WatchItem *item)
+{
+    item->modified = false;
+    const WatchItems &items = item->children;
+    for (int i = items.size(); --i >= 0; )
+        unmodifyTree(items.at(i));
+
 }
 
 // Truncate value for item view, maintaining quotes.
