@@ -611,9 +611,15 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
         if (m_fieldShown[Type]) {
             QString typeString = QmlProfilerEventsMainView::nameForType(binding->eventType);
             QString toolTipText;
-            if (binding->eventType == Binding && binding->bindingType == (int)OptimizedBinding) {
-                typeString = typeString + tr(" (Opt)");
-                toolTipText = tr("Binding is evaluated by the optimized engine.");
+            if (binding->eventType == Binding) {
+                if (binding->bindingType == (int)OptimizedBinding) {
+                    typeString = typeString + tr(" (Opt)");
+                    toolTipText = tr("Binding is evaluated by the optimized engine.");
+                } else if (binding->bindingType == (int)V8Binding) {
+                    toolTipText = tr("Binding not optimized (eg. has side effects or assignments,\n"
+                                     "references to elements in other files, loops, etc.)");
+
+                }
             }
             newRow << new EventsViewItem(typeString);
             newRow.last()->setData(QVariant(typeString));
