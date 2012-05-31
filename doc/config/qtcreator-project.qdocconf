@@ -1,4 +1,4 @@
-project     = "Qt Creator"
+project     = "QtCreator"
 description = "Qt Creator Manual"
 
 headerdirs = 
