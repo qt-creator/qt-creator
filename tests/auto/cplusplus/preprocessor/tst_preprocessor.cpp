@@ -290,7 +290,6 @@ protected:
     static QString simplified(QByteArray buf);
 
 private /* not corrected yet */:
-    void macro_definition_lineno();
     void param_expanding_as_multiple_params();
     void macro_argument_expansion();
 
@@ -303,6 +302,7 @@ private slots:
     void first_empty_macro_arg();
     void invalid_param_count();
     void objmacro_expanding_as_fnmacro_notification();
+    void macro_definition_lineno();
     void macro_uses();
     void macro_arguments_notificatin();
     void unfinished_function_like_macro_call();
@@ -474,30 +474,30 @@ void tst_Preprocessor::macro_definition_lineno()
     QByteArray preprocessed = preprocess.run(QLatin1String("<stdin>"),
                                          QByteArray("#define foo(ARGS) int f(ARGS)\n"
                                                     "foo(int a);\n"));
-    QVERIFY(preprocessed.contains("#gen true\n# 2 \"<stdin>\"\nint f"));
+    QVERIFY(preprocessed.contains("#gen true\n# 1 \"<stdin>\"\nint f"));
 
     preprocessed = preprocess.run(QLatin1String("<stdin>"),
                               QByteArray("#define foo(ARGS) int f(ARGS)\n"
                                          "foo(int a)\n"
                                          ";\n"));
-    QVERIFY(preprocessed.contains("#gen true\n# 2 \"<stdin>\"\nint f"));
+    QVERIFY(preprocessed.contains("#gen true\n# 1 \"<stdin>\"\nint f"));
 
     preprocessed = preprocess.run(QLatin1String("<stdin>"),
                               QByteArray("#define foo(ARGS) int f(ARGS)\n"
                                          "foo(int  \n"
                                          "    a);\n"));
-    QVERIFY(preprocessed.contains("#gen true\n# 2 \"<stdin>\"\nint f"));
+    QVERIFY(preprocessed.contains("#gen true\n# 1 \"<stdin>\"\nint f"));
 
     preprocessed = preprocess.run(QLatin1String("<stdin>"),
                               QByteArray("#define foo int f\n"
                                          "foo;\n"));
-    QVERIFY(preprocessed.contains("#gen true\n# 2 \"<stdin>\"\nint f"));
+    QVERIFY(preprocessed.contains("#gen true\n# 1 \"<stdin>\"\nint f"));
 
     preprocessed = preprocess.run(QLatin1String("<stdin>"),
                               QByteArray("#define foo int f\n"
                                          "foo\n"
                                          ";\n"));
-    QVERIFY(preprocessed.contains("#gen true\n# 2 \"<stdin>\"\nint f"));
+    QVERIFY(preprocessed.contains("#gen true\n# 1 \"<stdin>\"\nint f"));
 }
 
 void tst_Preprocessor::objmacro_expanding_as_fnmacro_notification()
