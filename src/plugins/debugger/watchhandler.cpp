@@ -1318,13 +1318,13 @@ void WatchModel::insertDataItem(const WatchData &data, bool destructive)
         // Add new entry.
         WatchItem *parent = findItem(parentName(data.iname));
         QTC_ASSERT(parent, return);
-        WatchItem *item = createItem(data);
-        item->parent = parent;
-        item->changed = true;
-        const int row = findInsertPosition(parent->children, item);
+        WatchItem *newItem = createItem(data);
+        newItem->parent = parent;
+        newItem->changed = true;
+        const int row = findInsertPosition(parent->children, newItem);
         QModelIndex idx = watchIndex(parent);
         beginInsertRows(idx, row, row);
-        parent->children.insert(row, item);
+        parent->children.insert(row, newItem);
         endInsertRows();
         if (m_expandedINames.contains(parent->iname))
             emit itemIsExpanded(idx);
