@@ -93,6 +93,7 @@ SessionManager::SessionManager(QObject *parent)
     m_sessionNode(new SessionNode(this)),
     m_sessionName(QLatin1String("default")),
     m_virginSession(true),
+    m_loadingSession(false),
     m_startupProject(0)
 {
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
@@ -289,6 +290,11 @@ void SessionManager::removeProject(Project *project)
         return;
     }
     removeProjects(QList<Project*>() << project);
+}
+
+bool SessionManager::loadingSession()
+{
+    return m_loadingSession;
 }
 
 bool SessionManager::save()
@@ -810,17 +816,23 @@ bool SessionManager::loadSession(const QString &session)
         }
     }
 
+    m_loadingSession = true;
+
     // Allow everyone to set something in the session and before saving
     emit aboutToUnloadSession(m_sessionName);
 
     if (!isDefaultVirgin()) {
-        if (!save())
+        if (!save()) {
+            m_loadingSession = false;
             return false;
+        }
     }
 
     // Clean up
-    if (!ICore::editorManager()->closeAllEditors())
+    if (!ICore::editorManager()->closeAllEditors()) {
+        m_loadingSession = false;
         return false;
+    }
 
     setStartupProject(0);
     removeProjects(projects());
@@ -872,6 +884,7 @@ bool SessionManager::loadSession(const QString &session)
 
     // Starts a event loop, better do that at the very end
     askUserAboutFailedProjects();
+    m_loadingSession = false;
     return true;
 }
 
