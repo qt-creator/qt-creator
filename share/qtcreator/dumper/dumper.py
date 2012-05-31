@@ -365,8 +365,11 @@ class SubItem:
     def __exit__(self, exType, exValue, exTraceBack):
         #warn(" CURRENT VALUE: %s %s %s" % (self.d.currentValue,
         #    self.d.currentValueEncoding, self.d.currentValuePriority))
-        if self.d.passExceptions and not exType is None:
-            showException("SUBITEM", exType, exValue, exTraceBack)
+        if not exType is None:
+            if self.d.passExceptions:
+                showException("SUBITEM", exType, exValue, exTraceBack)
+            self.d.putNumChild(0)
+            self.d.putValue("<not accessible>")
         try:
             #warn("TYPE VALUE: %s" % self.d.currentValue)
             typeName = stripClassTag(self.d.currentType)
@@ -451,8 +454,11 @@ class Children:
         self.d.put("children=[")
 
     def __exit__(self, exType, exValue, exTraceBack):
-        if self.d.passExceptions and not exType is None:
-            showException("CHILDREN", exType, exValue, exTraceBack)
+        if not exType is None:
+            if self.d.passExceptions:
+                showException("CHILDREN", exType, exValue, exTraceBack)
+            self.d.putNumChild(0)
+            self.d.putValue("<not accessible>")
         if not self.d.currentMaxNumChild is None:
             if self.d.currentMaxNumChild < self.d.currentNumChild:
                 self.d.put('{name="<incomplete>",value="",type="",numchild="0"},')
