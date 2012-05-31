@@ -611,9 +611,9 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
         if (m_fieldShown[Type]) {
             QString typeString = QmlProfilerEventsMainView::nameForType(binding->eventType);
             QString toolTipText;
-            if (binding->eventType == Binding && binding->bindingType == (int)V4Binding) {
-                typeString = typeString + tr(" (v4)");
-                toolTipText = tr("Binding is evaluated by the optimized v4 engine.");
+            if (binding->eventType == Binding && binding->bindingType == (int)OptimizedBinding) {
+                typeString = typeString + tr(" (Opt)");
+                toolTipText = tr("Binding is evaluated by the optimized engine.");
             }
             newRow << new EventsViewItem(typeString);
             newRow.last()->setData(QVariant(typeString));

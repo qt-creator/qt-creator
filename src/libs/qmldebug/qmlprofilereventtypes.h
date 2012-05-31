@@ -48,7 +48,7 @@ enum QmlEventType {
 enum BindingType {
     QmlBinding,
     V8Binding,
-    V4Binding,
+    OptimizedBinding,
 
     MaximumBindingType
 };
