@@ -283,7 +283,8 @@ int main(int argc, char **argv)
         uiLanguages.prepend(overrideLanguage);
     const QString &creatorTrPath = QCoreApplication::applicationDirPath()
             + QLatin1String(SHARE_PATH "/translations");
-    foreach (const QString &locale, uiLanguages) {
+    foreach (QString locale, uiLanguages) {
+        locale.replace(QLatin1Char('-'), QLatin1Char('_')); // work around QTBUG-25973
         if (translator.load(QLatin1String("qtcreator_") + locale, creatorTrPath)) {
             const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
             const QString &qtTrFile = QLatin1String("qt_") + locale;
