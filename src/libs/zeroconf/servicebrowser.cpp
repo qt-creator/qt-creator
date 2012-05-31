@@ -298,6 +298,41 @@ QNetworkInterface Service::networkInterface() const
     return QNetworkInterface::interfaceFromIndex(m_interfaceNr);
 }
 
+QStringList Service::addresses(Service::AddressStyle style) const
+{
+    QStringList res;
+    if (host() == 0)
+        return res;
+    foreach (const QHostAddress &addr, host()->addresses()){
+        QString addrStr;
+        if (addr.protocol() == QAbstractSocket::IPv6Protocol) {
+            // Add the interface to use to the address <address>%<interface>
+            //
+            // This is required only for link local addresses (like fe80:*)
+            // but as we have it we do it (and most likely addresses here are
+            // link local).
+            //
+            // on windows only addresses like fe80::42%22 work
+            // on OSX 10.5 only things like fe80::42%en4 work
+            // on later OSX versions and linux both <address>%<interface number>
+            // and <address>%<interface name> work, we use the interface name as
+            // it looks better
+#ifdef Q_OS_WIN
+            QString interfaceStr = QString::number(networkInterface().index());
+#else
+            QString interfaceStr = networkInterface().name();
+#endif
+            addrStr = QString::fromLatin1("%1%%2").arg(addr.toString()).arg(interfaceStr);
+            if (style == QuoteIPv6Adresses)
+                addrStr = QString::fromLatin1("[%1]").arg(addrStr);
+        } else {
+            addrStr = addr.toString();
+        }
+        res.append(addrStr);
+    }
+    return res;
+}
+
 bool Service::operator==(const Service &o) const {
     bool eq = m_fullName == o.m_fullName
             && m_name == o.m_name && m_type == o.m_type

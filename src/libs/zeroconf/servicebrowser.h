@@ -94,6 +94,12 @@ public:
     typedef QSharedPointer<const Service> ConstPtr;
     typedef QSharedPointer<Service> Ptr;
 
+    enum AddressStyle
+    {
+        PlainAddresses,
+        QuoteIPv6Adresses
+    };
+
     Service(const Service &o);
     Service();
     ~Service();
@@ -109,6 +115,7 @@ public:
     const QHostInfo *host() const { return m_host; }
     int interfaceNr() const { return m_interfaceNr; }
     QNetworkInterface networkInterface() const;
+    QStringList addresses(AddressStyle style = PlainAddresses) const;
     bool operator==(const Service &o) const;
 
     bool invalidate() { bool res = m_outdated; m_outdated = true; return res; }
