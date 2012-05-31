@@ -1798,6 +1798,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
     //      "running"     : <is the VM running after sending this response>
     //      "success"     : true
     //    }
+    WatchHandler *watchHandler = d->engine->watchHandler();
     if (d->updateLocalsAndWatchers.contains(sequence)) {
         d->updateLocalsAndWatchers.removeOne(sequence);
         //Update the locals
@@ -1805,7 +1806,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
             d->scope(index);
         //Also update "this"
         QByteArray iname("local.this");
-        const WatchData *parent = d->engine->watchHandler()->findData(iname);
+        const WatchData *parent = watchHandler->findData(iname);
         d->localsAndWatchers.insertMulti(parent->id, iname);
         d->lookup(QList<int>() << parent->id);
 
@@ -1828,10 +1829,10 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
             WatchData data;
             //Do we have request to evaluate a local?
             if (exp.startsWith("local.")) {
-                const WatchData *watch = d->engine->watchHandler()->findData(exp.toLatin1());
+                const WatchData *watch = watchHandler->findData(exp.toLatin1());
                 watchDataList << createWatchDataList(watch, body.properties, refsVal);
             } else {
-                QByteArray iname = d->engine->watchHandler()->watcherName(exp.toLatin1());
+                QByteArray iname = watchHandler->watcherName(exp.toLatin1());
                 SDEBUG(QString(iname));
 
                 data.exp = exp.toLatin1();
@@ -1849,7 +1850,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
                 watchDataList << data << createWatchDataList(&data, body.properties, refsVal);
             }
             //Insert the newly evaluated expression to the Watchers Window
-            d->engine->watchHandler()->insertData(watchDataList);
+            watchHandler->insertData(watchDataList);
         }
     }
 }
@@ -1918,6 +1919,7 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
 
     QList<WatchData> watchDataList;
     QStringList handlesList = body.keys();
+    WatchHandler *watchHandler = d->engine->watchHandler();
     foreach (const QString &handle, handlesList) {
         QmlV8ObjectData bodyObjectData = d->extractData(
                     body.value(handle), refsVal);
@@ -1926,7 +1928,7 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
         if (prepend.startsWith("local.") || prepend.startsWith("watch.")) {
             //Data for expanded local/watch
             //Could be an object or function
-            const WatchData *parent = d->engine->watchHandler()->findData(prepend);
+            const WatchData *parent = watchHandler->findData(prepend);
             watchDataList << createWatchDataList(parent, bodyObjectData.properties, refsVal);
         } else {
             //rest
@@ -1945,7 +1947,7 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
         }
     }
 
-    d->engine->watchHandler()->insertData(watchDataList);
+    watchHandler->insertData(watchDataList);
 }
 
 QList<WatchData> QmlV8DebuggerClient::createWatchDataList(const WatchData *parent,
