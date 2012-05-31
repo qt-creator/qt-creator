@@ -603,7 +603,6 @@ public:
     bool m_fileLogAnnotateEnabled;
     TextEditor::BaseTextEditor *m_editor;
     QWidget *m_configurationWidget;
-    bool m_revertChunkEnabled;
     bool m_mouseDragging;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
 
@@ -619,7 +618,6 @@ VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *edit
     m_fileLogAnnotateEnabled(false),
     m_editor(0),
     m_configurationWidget(0),
-    m_revertChunkEnabled(false),
     m_mouseDragging(false)
 {
     m_textCursorHandlers.append(new ChangeTextCursorHandler(editorWidget));
@@ -922,7 +920,7 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         connect(applyAction, SIGNAL(triggered()), this, SLOT(slotApplyDiffChunk()));
         // Revert a chunk from a VCS diff, which might be linked to reloading the diff.
         QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
-        revertAction->setEnabled(isRevertDiffChunkEnabled() && canApply);
+        revertAction->setEnabled(canApply);
         revertAction->setData(qVariantFromValue(Internal::DiffChunkAction(chunk, true)));
         connect(revertAction, SIGNAL(triggered()), this, SLOT(slotApplyDiffChunk()));
     }
@@ -1410,16 +1408,6 @@ void VcsBaseEditorWidget::slotPaste()
         QMessageBox::information(this, tr("Unable to Paste"),
                                  tr("Code pasting services are not available."));
     }
-}
-
-bool VcsBaseEditorWidget::isRevertDiffChunkEnabled() const
-{
-    return d->m_revertChunkEnabled;
-}
-
-void VcsBaseEditorWidget::setRevertDiffChunkEnabled(bool e)
-{
-    d->m_revertChunkEnabled = e;
 }
 
 bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const

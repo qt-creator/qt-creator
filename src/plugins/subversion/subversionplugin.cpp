@@ -622,7 +622,6 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
 
     // Wire up the parameter widget to trigger a re-run on
     // parameter change and 'revert' from inside the diff editor.
-    diffEditorWidget->setRevertDiffChunkEnabled(true);
     SubversionDiffParameterWidget *pw = new SubversionDiffParameterWidget(p);
     connect(pw, SIGNAL(reRunDiff(Subversion::Internal::SubversionDiffParameters)),
             this, SLOT(svnDiff(Subversion::Internal::SubversionDiffParameters)));

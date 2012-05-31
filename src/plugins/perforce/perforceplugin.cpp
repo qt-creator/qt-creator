@@ -1300,7 +1300,6 @@ void PerforcePlugin::p4Diff(const PerforceDiffParameters &p)
     VcsBase::VcsBaseEditorWidget *diffEditorWidget = qobject_cast<VcsBase::VcsBaseEditorWidget *>(editor->widget());
     // Wire up the parameter widget to trigger a re-run on
     // parameter change and 'revert' from inside the diff editor.
-    diffEditorWidget->setRevertDiffChunkEnabled(true);
     PerforceDiffParameterWidget *pw = new PerforceDiffParameterWidget(p);
     connect(pw, SIGNAL(reRunDiff(Perforce::Internal::PerforceDiffParameters)),
             this, SLOT(p4Diff(Perforce::Internal::PerforceDiffParameters)));

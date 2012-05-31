@@ -470,7 +470,6 @@ void GitClient::diff(const QString &workingDirectory,
         editor = createVcsEditor(editorId, title,
                                  workingDirectory, CodecSource, "originalFileName", workingDirectory, argWidget);
         connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)), argWidget, SLOT(executeCommand()));
-        editor->setRevertDiffChunkEnabled(true);
     }
 
     GitCommitDiffArgumentsWidget *argWidget = qobject_cast<GitCommitDiffArgumentsWidget *>(editor->configurationWidget());
@@ -528,7 +527,6 @@ void GitClient::diff(const QString &workingDirectory,
 
         editor = createVcsEditor(editorId, title, sourceFile, CodecSource, "originalFileName", sourceFile, argWidget);
         connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)), argWidget, SLOT(executeCommand()));
-        editor->setRevertDiffChunkEnabled(true);
     }
     editor->setDiffBaseDirectory(workingDirectory);
 

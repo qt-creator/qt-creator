@@ -622,7 +622,6 @@ void CvsPlugin::cvsDiff(const CvsDiffParameters &p)
 
     // Wire up the parameter widget to trigger a re-run on
     // parameter change and 'revert' from inside the diff editor.
-    diffEditorWidget->setRevertDiffChunkEnabled(true);
     CvsDiffParameterWidget *pw = new CvsDiffParameterWidget(p);
     connect(pw, SIGNAL(reRunDiff(Cvs::Internal::CvsDiffParameters)),
             this, SLOT(cvsDiff(Cvs::Internal::CvsDiffParameters)));

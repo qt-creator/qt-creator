@@ -95,7 +95,6 @@ class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::BaseTextEditorWidg
     Q_PROPERTY(QString annotateRevisionTextFormat READ annotateRevisionTextFormat WRITE setAnnotateRevisionTextFormat)
     Q_PROPERTY(QString copyRevisionTextFormat READ copyRevisionTextFormat WRITE setCopyRevisionTextFormat)
     Q_PROPERTY(bool isFileLogAnnotateEnabled READ isFileLogAnnotateEnabled WRITE setFileLogAnnotateEnabled)
-    Q_PROPERTY(bool revertDiffChunkEnabled READ isRevertDiffChunkEnabled WRITE setRevertDiffChunkEnabled)
     Q_OBJECT
 
 protected:
@@ -141,10 +140,6 @@ public:
     // Base directory for diff views
     QString diffBaseDirectory() const;
     void setDiffBaseDirectory(const QString &d);
-
-    // Diff: Can revert?
-    bool isRevertDiffChunkEnabled() const;
-    void setRevertDiffChunkEnabled(bool e);
 
     bool isModified() const;
 
