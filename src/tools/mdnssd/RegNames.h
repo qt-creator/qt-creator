@@ -23,8 +23,8 @@
 
 #	define kServiceParametersSoftware			L"SOFTWARE"
 #	define kServiceParametersAppleComputer		L"Apple Computer, Inc."
-#	define kServiceParametersBonjour			L"Bonjour"
-#	define kServiceParametersNode				L"SOFTWARE\\Apple Inc.\\Bonjour"
+#	define kServiceParametersBonjour			L"BonjourFallback"
+#	define kServiceParametersNode				L"SOFTWARE\\Nokia\\Bonjour"
 #	define kServiceName							L"Bonjour Service"
 #	define kServiceDynDNSBrowseDomains			L"BrowseDomains"
 #	define kServiceDynDNSHostNames				L"HostNames"
@@ -41,8 +41,8 @@
 
 #	define kServiceParametersSoftware			"SOFTWARE"
 #	define kServiceParametersAppleComputer		"Apple Computer, Inc."
-#	define kServiceParametersBonjour			"Bonjour"
-#	define kServiceParametersNode				"SOFTWARE\\Apple Inc.\\Bonjour"
+#	define kServiceParametersBonjour			"BonjourFallback"
+#	define kServiceParametersNode				"SOFTWARE\\Nokia\\Bonjour"
 #	define kServiceName							"Bonjour Service"
 #	define kServiceDynDNSBrowseDomains			"BrowseDomains"
 #	define kServiceDynDNSHostNames				"HostNames"

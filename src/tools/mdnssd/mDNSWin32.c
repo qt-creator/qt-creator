@@ -1640,7 +1640,7 @@ mDNSPlatformDynDNSHostNameStatusChanged(const domainname *const dname, const mSt
 
 	check( strlen( p ) <= MAX_ESCAPED_DOMAIN_NAME );
 	name = kServiceParametersNode TEXT("\\DynDNS\\State\\HostNames");
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, name, &key );
+	err = RegCreateKey( HKEY_CURRENT_USER, name, &key );
 	require_noerr( err, exit );
 
 	bStatus = ( status ) ? 0 : 1;
@@ -2918,7 +2918,7 @@ mDNSlocal mStatus	SetupSocket( mDNS * const inMDNS, const struct sockaddr *inAdd
 		// for IPv4, but the IPv6 stack in Windows currently doesn't support IPv4-mapped IPv6 addresses and doesn't
 		// support the IPV6_V6ONLY socket option so the following code would typically not be executed (or needed).
 
-		#if( defined( IPV6_V6ONLY ) && ! defined( WIN_32 ) )
+		#if( defined( IPV6_V6ONLY ) && ! defined( WIN32 ) )
 			option = 1;
 			err = setsockopt( sock, IPPROTO_IPV6, IPV6_V6ONLY, (char *) &option, sizeof( option ) );
 			check_translated_errno( err == 0, errno_compat(), kOptionErr );		
@@ -4462,7 +4462,7 @@ mDNSlocal void GetDDNSFQDN( domainname *const fqdn )
 
 	// Get info from Bonjour registry key
 
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, kServiceParametersNode TEXT("\\DynDNS\\Setup\\") kServiceDynDNSHostNames, &key );
+	err = RegCreateKey( HKEY_CURRENT_USER, kServiceParametersNode TEXT("\\DynDNS\\Setup\\") kServiceDynDNSHostNames, &key );
 	require_noerr( err, exit );
 
 	err = RegQueryString( key, "", &name, &dwSize, &enabled );
@@ -4513,7 +4513,7 @@ mDNSlocal void GetDDNSConfig( DNameListElem ** domains, LPCSTR lpSubKey )
 
 	*domains = NULL;
 
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, lpSubKey, &key );
+	err = RegCreateKey( HKEY_CURRENT_USER, lpSubKey, &key );
 	require_noerr( err, exit );
 
 	// Get information about this node
@@ -4743,7 +4743,7 @@ CheckFileShares( mDNS * const m )
 
 	require_action_quiet( m->AdvertiseLocalAddresses && !m->ShutdownTime, exit, err = kNoErr );
 
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, kServiceParametersNode L"\\Services\\SMB", &key );
+	err = RegCreateKey( HKEY_CURRENT_USER, kServiceParametersNode L"\\Services\\SMB", &key );
 
 	if ( !err )
 	{

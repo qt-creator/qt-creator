@@ -120,6 +120,7 @@ static void	CALLBACK	PowerResumeNotification( HANDLE event, void * context );
 static void CALLBACK	InterfaceListNotification( SOCKET socket, LPWSANETWORKEVENTS event, void *context );
 static void CALLBACK	ComputerDescriptionNotification( HANDLE event, void *context );
 static void CALLBACK	TCPChangedNotification( HANDLE event, void *context );
+static void CALLBACK	TCPChangedNotification2( HANDLE event, void *context );
 static void CALLBACK	DDNSChangedNotification( HANDLE event, void *context );
 static void CALLBACK	FileSharingChangedNotification( HANDLE event, void *context );
 static void CALLBACK	FirewallChangedNotification( HANDLE event, void *context );
@@ -178,6 +179,8 @@ DEBUG_LOCAL HKEY						gDescKey					= NULL;
 DEBUG_LOCAL HANDLE						gDescChangedEvent			= NULL;	// Computer description changed event
 DEBUG_LOCAL HKEY						gTcpipKey					= NULL;
 DEBUG_LOCAL HANDLE						gTcpipChangedEvent			= NULL;	// TCP/IP config changed
+DEBUG_LOCAL HANDLE						gTcpipChangedEvent2Handle	= NULL;	// handle for overlapped comm of gTcpipChangedEvent2
+DEBUG_LOCAL OVERLAPPED					gTcpipChangedEvent2;                // TCP/IP config changed (using NotiyAddrChanges)
 DEBUG_LOCAL HKEY						gDdnsKey					= NULL;
 DEBUG_LOCAL HANDLE						gDdnsChangedEvent			= NULL;	// DynDNS config changed
 DEBUG_LOCAL HKEY						gFileSharingKey				= NULL;
@@ -477,7 +480,7 @@ static OSStatus SetServiceParameters()
 	//
 	// Add/Open Parameters section under service entry in registry
 	//
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, kServiceParametersNode, &key );
+    err = RegCreateKey( HKEY_CURRENT_USER, kServiceParametersNode, &key );
 	require_noerr( err, exit );
 	
 	//
@@ -522,7 +525,7 @@ static OSStatus GetServiceParameters()
 	//
 	// Add/Open Parameters section under service entry in registry
 	//
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, kServiceParametersNode, &key );
+    err = RegCreateKey( HKEY_CURRENT_USER, kServiceParametersNode, &key );
 	require_noerr( err, exit );
 	
 	valueLen = sizeof(DWORD);
@@ -621,7 +624,7 @@ static OSStatus CheckFirewall()
 		}
 	}
 
-	require_action( isRunning, exit, err = kUnknownErr );
+	// require_action( isRunning, exit, err = kUnknownErr );
 
 	// Check to see if we've managed the firewall.
 	// This package might have been installed, then
@@ -629,7 +632,7 @@ static OSStatus CheckFirewall()
 	// the case, then we need to manipulate the firewall
 	// so networking works correctly.
 
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, kServiceParametersNode, &key );
+    err = RegCreateKey( HKEY_CURRENT_USER, kServiceParametersNode, &key );
 	require_noerr( err, exit );
 
 	valueLen = sizeof(DWORD);
@@ -919,7 +922,7 @@ static OSStatus	ServiceSetupEventLogging( void )
 	// Add/Open source name as a sub-key under the Application key in the EventLog registry key.
 
 	s = TEXT("SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\") kServiceName;
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, s, &key );
+    err = RegCreateKey( HKEY_CURRENT_USER, s, &key );
 	require_noerr( err, exit );
 	
 	// Add the name to the EventMessageFile subkey.
@@ -1459,6 +1462,7 @@ mDNSlocal mStatus	SetupNotifications()
 	err = mDNSPollRegisterEvent( gDescChangedEvent, ComputerDescriptionNotification, NULL );
 	require_noerr( err, exit );
 
+#ifndef TCP_CHANGES_NO_REGISTRY
 	// This will catch all changes to tcp/ip networking, including changes to the domain search list
 
 	gTcpipChangedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -1470,13 +1474,28 @@ mDNSlocal mStatus	SetupNotifications()
 	require_noerr( err, exit );
 	err = mDNSPollRegisterEvent( gTcpipChangedEvent, TCPChangedNotification, NULL );
 	require_noerr( err, exit );
-
+#else
+	// This is another way to catch tcp/ip changes, which avoid the registry
+	// (better if the registry does not work reliably)
+	{
+		DWORD				ret;
+		gTcpipChangedEvent2.hEvent = WSACreateEvent();
+		err = gTcpipChangedEvent2.hEvent == WSA_INVALID_EVENT;
+		require_noerr( err, skipTCP2 );
+		ret = NotifyAddrChange(&gTcpipChangedEvent2Handle, &gTcpipChangedEvent2);
+		if (ret != NO_ERROR)
+			err = (WSAGetLastError() != WSA_IO_PENDING );
+		require_noerr( err, skipTCP2 );
+		err = mDNSPollRegisterEvent( gTcpipChangedEvent2.hEvent, &TCPChangedNotification2, NULL );
+		check_noerr( err );
+	}
+#endif
 	// This will catch all changes to ddns configuration
 
 	gDdnsChangedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	err = translate_errno( gDdnsChangedEvent, (mStatus) GetLastError(), kUnknownErr );
 	require_noerr( err, exit );
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, kServiceParametersNode TEXT("\\DynDNS\\Setup"), &gDdnsKey );
+	err = RegCreateKey( HKEY_CURRENT_USER, kServiceParametersNode TEXT("\\DynDNS\\Setup"), &gDdnsKey );
 	require_noerr( err, exit );
 	err = RegNotifyChangeKeyValue( gDdnsKey, TRUE, REG_NOTIFY_CHANGE_NAME|REG_NOTIFY_CHANGE_LAST_SET, gDdnsChangedEvent, TRUE);
 	require_noerr( err, exit );
@@ -1536,7 +1555,7 @@ mDNSlocal mStatus	SetupNotifications()
 	gAdvertisedServicesChangedEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	err = translate_errno( gAdvertisedServicesChangedEvent, (mStatus) GetLastError(), kUnknownErr );
 	require_noerr( err, exit );
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, kServiceParametersNode TEXT("\\Services"), &gAdvertisedServicesKey );
+	err = RegCreateKey( HKEY_CURRENT_USER, kServiceParametersNode TEXT("\\Services"), &gAdvertisedServicesKey );
 	require_noerr( err, exit );
 	err = RegNotifyChangeKeyValue( gAdvertisedServicesKey, TRUE, REG_NOTIFY_CHANGE_NAME|REG_NOTIFY_CHANGE_LAST_SET, gAdvertisedServicesChangedEvent, TRUE);
 	require_noerr( err, exit );
@@ -1599,6 +1618,14 @@ mDNSlocal mStatus	TearDownNotifications()
 		mDNSPollUnregisterEvent( gTcpipChangedEvent );
 		CloseHandle( gTcpipChangedEvent );
 		gTcpipChangedEvent = NULL;
+	}
+
+	if ( gTcpipChangedEvent2Handle != NULL || gTcpipChangedEvent2.hEvent != NULL  )
+	{
+		mDNSPollUnregisterEvent( gTcpipChangedEvent2.hEvent );
+		CancelIPChangeNotify(&gTcpipChangedEvent2);
+		gTcpipChangedEvent2Handle = NULL;
+		gTcpipChangedEvent2.hEvent = NULL;
 	}
 
 	if ( gDdnsChangedEvent != NULL )
@@ -1827,6 +1854,8 @@ TCPChangedNotification( HANDLE event, void *context )
 	DEBUG_UNUSED( event );
 	DEBUG_UNUSED( context );
 
+	dlog( kDebugLevelInfo, DEBUG_NAME "TCPChangeNotification\n" );
+
 	TCPIPConfigDidChange( &gMDNSRecord );
 	udsserver_handle_configchange( &gMDNSRecord );
 
@@ -1837,6 +1866,34 @@ TCPChangedNotification( HANDLE event, void *context )
 		int err = RegNotifyChangeKeyValue( gTcpipKey, TRUE, REG_NOTIFY_CHANGE_NAME|REG_NOTIFY_CHANGE_LAST_SET, gTcpipChangedEvent, TRUE );
 		check_noerr( err );
 	}
+}
+
+
+mDNSlocal void CALLBACK
+TCPChangedNotification2( HANDLE event, void *context ){
+	int err;
+	DWORD dwRetVal;
+
+	DEBUG_UNUSED( event );
+	DEBUG_UNUSED( context );
+
+	dlog( kDebugLevelInfo, DEBUG_NAME "TCPChangeNotification2\n" );
+
+	err = WSAResetEvent(gTcpipChangedEvent2.hEvent);
+	check_noerr(err);
+	//std::cout << "WSAResetEvent() failed. Error code: " << WSAGetLastError() << std::endl;
+
+	// The TCP/IP might have changed
+
+	TCPIPConfigDidChange( &gMDNSRecord );
+	udsserver_handle_configchange( &gMDNSRecord );
+
+	// and reset the event handler
+
+	// call NotifyAddrChange in synchronous mode
+	dwRetVal = NotifyAddrChange(&gTcpipChangedEvent2Handle, &gTcpipChangedEvent2);
+
+	check_noerr(dwRetVal != ERROR_IO_PENDING);
 }
 
 
@@ -2142,7 +2199,7 @@ SystemWakeForNetworkAccess( LARGE_INTEGER * timeout )
 
 	// Make sure the user enabled bonjour sleep proxy client 
 	
-	err = RegCreateKey( HKEY_LOCAL_MACHINE, kServiceParametersNode L"\\Power Management", &key );
+	err = RegCreateKey( HKEY_CURRENT_USER, kServiceParametersNode L"\\Power Management", &key );
 	require_action( !err, exit, ok = FALSE );
 	dwSize = sizeof( DWORD );
 	err = RegQueryValueEx( key, L"Enabled", NULL, NULL, (LPBYTE) &enabled, &dwSize );
