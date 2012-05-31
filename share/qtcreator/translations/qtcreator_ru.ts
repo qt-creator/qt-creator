@@ -12796,7 +12796,7 @@ QML.</translation>
     <name>Locator</name>
     <message>
         <source>Locator</source>
-        <translation>Поисковик</translation>
+        <translation>Быстрый поиск</translation>
     </message>
 </context>
 <context>
@@ -12862,8 +12862,8 @@ QML.</translation>
     <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
-        <translation>Укажите сокращение или аббревиатуру, которая будет использоваться для ограничения дополнения до файлов из
-данного дерева каталогов. Для этого требуется ввести указанное сокращение, пробел и искомое слово в поле поисковика.</translation>
+        <translation>Укажите сокращение или аббревиатуру, которая будет использоваться для выполнения дополнения имён файлов из
+данного дерева каталогов. Для этого требуется ввести указанное сокращение, пробел и искомое слово в поле быстрого поиска.</translation>
     </message>
     <message>
         <source>Limit to prefix</source>
