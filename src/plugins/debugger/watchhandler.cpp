@@ -129,13 +129,12 @@ class WatchItem : public WatchData
 public:
     WatchItem *parent; // Not owned.
     WatchItems children; // Not owned. Handled via itemDestructor().
-    bool modified;
 
 private:
     friend WatchItem *itemConstructor(WatchModel *model, const QByteArray &iname);
     friend void itemDestructor(WatchModel *model, WatchItem *item);
 
-    WatchItem() { parent = 0; modified = false; }
+    WatchItem() { parent = 0; }
     ~WatchItem() {}
     WatchItem(const WatchItem &); // Not implemented.
 };
@@ -178,7 +177,7 @@ private:
     void fetchMore(const QModelIndex &parent);
 
     void invalidateAll(const QModelIndex &parentIndex = QModelIndex());
-    void unmodifyTree(WatchItem *item);
+    void setUnchangedRecursively(WatchItem *item);
 
     WatchItem *createItem(const QByteArray &iname, const QString &name, WatchItem *parent);
 
@@ -189,9 +188,10 @@ private:
     QModelIndex watchIndexHelper(const WatchItem *needle,
         const WatchItem *parentItem, const QModelIndex &parentIndex) const;
 
-    void insertDataItem(const WatchData &data);
+    void insertDataItem(const WatchData &data, bool destructive = true);
     Q_SLOT void reinsertAllData();
     void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
+    bool ancestorChanged(const QSet<QByteArray> &parentINames, WatchItem *item) const;
     void insertBulkData(const QList<WatchData> &data);
     QString displayForAutoTest(const QByteArray &iname) const;
     void reinitialize();
@@ -244,7 +244,8 @@ private:
     void assignData(WatchItem *item, const WatchData &data);
     WatchItem *findItem(const QByteArray &iname) const;
     friend class WatchItem;
-    QHash<QByteArray, WatchItem *> m_cache;
+    typedef QHash<QByteArray, WatchItem *> Cache;
+    Cache m_cache;
 
     #if USE_EXPENSIVE_CHECKS
     QHash<const WatchItem *, QByteArray> m_cache2;
@@ -772,18 +773,18 @@ QModelIndex WatchModel::parent(const QModelIndex &idx) const
         return QModelIndex();
 
     const WatchItem *item = watchItem(idx);
-    const WatchItem *father = watchItem(idx);
-    if (!father || father == m_root)
+    const WatchItem *parent = item->parent;
+    if (!parent || parent == m_root)
         return QModelIndex();
 
-    const WatchItem *grandparent = father->parent;
+    const WatchItem *grandparent = parent->parent;
     if (!grandparent)
         return QModelIndex();
 
     const WatchItems &uncles = grandparent->children;
     for (int i = 0, n = uncles.size(); i < n; ++i)
-        if (uncles.at(i) == father)
-            return createIndex(i, 0, (void*) father);
+        if (uncles.at(i) == parent)
+            return createIndex(i, 0, (void*) parent);
 
     return QModelIndex();
 }
@@ -858,13 +859,12 @@ void WatchModel::invalidateAll(const QModelIndex &parentIndex)
         emit dataChanged(idx1, idx2);
 }
 
-void WatchModel::unmodifyTree(WatchItem *item)
+void WatchModel::setUnchangedRecursively(WatchItem *item)
 {
-    item->modified = false;
+    item->changed = false;
     const WatchItems &items = item->children;
     for (int i = items.size(); --i >= 0; )
-        unmodifyTree(items.at(i));
-
+        setUnchangedRecursively(items.at(i));
 }
 
 // Truncate value for item view, maintaining quotes.
@@ -1293,7 +1293,7 @@ static int findInsertPosition(const QList<WatchItem *> &list, const WatchItem *i
     return it - list.begin();
 }
 
-void WatchModel::insertDataItem(const WatchData &data)
+void WatchModel::insertDataItem(const WatchData &data, bool destructive)
 {
 #if USE_WATCH_MODEL_TEST
     (void) new ModelTest(this, this);
@@ -1302,40 +1302,11 @@ void WatchModel::insertDataItem(const WatchData &data)
     CHECK(checkTree());
 
     QTC_ASSERT(!data.iname.isEmpty(), qDebug() << data.toString(); return);
-    WatchItem *parent = findItem(parentName(data.iname));
-    if (!parent) {
-        WatchData parent;
-        parent.iname = parentName(data.iname);
-        MODEL_DEBUG("\nFIXING MISSING PARENT FOR\n" << data.iname);
-        if (!parent.iname.isEmpty())
-            insertDataItem(parent);
-        return;
-    }
 
-    WatchItem *item = findItem(data.iname);
-#if 0
-    if (item) {
-        // Overwrite old entry.
-        bool hasChanged = item->hasChanged(data);
-        assignData(item, data);
-        item->changed = hasChanged;
-        //    QModelIndex idx = watchIndex(oldItem);
-        //    emit dataChanged(idx, idx.sibling(idx.row(), 2));
-    } else {
-        // Add new entry.
-        item = createItem(data);
-        item->parent = parent;
-        item->changed = true;
-    }
-    const int n = findInsertPosition(parent->children, item);
-    QModelIndex idx = watchIndex(parent);
-    beginInsertRows(idx, n, n);
-    parent->children.insert(n, item);
-    endInsertRows();
-#else
-    if (item) {
+    if (WatchItem *item = findItem(data.iname)) {
         // Remove old children.
-        destroyChildren(item);
+        if (destructive)
+            destroyChildren(item);
 
         // Overwrite old entry.
         bool hasChanged = item->hasChanged(data);
@@ -1345,7 +1316,9 @@ void WatchModel::insertDataItem(const WatchData &data)
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
     } else {
         // Add new entry.
-        item = createItem(data);
+        WatchItem *parent = findItem(parentName(data.iname));
+        QTC_ASSERT(parent, return);
+        WatchItem *item = createItem(data);
         item->parent = parent;
         item->changed = true;
         const int row = findInsertPosition(parent->children, item);
@@ -1353,142 +1326,51 @@ void WatchModel::insertDataItem(const WatchData &data)
         beginInsertRows(idx, row, row);
         parent->children.insert(row, item);
         endInsertRows();
-        if (m_expandedINames.contains(parentName(data.iname))) {
+        if (m_expandedINames.contains(parent->iname))
             emit itemIsExpanded(idx);
-        }
-//        if (m_expandedINames.contains(data.iname)) {
-//            QModelIndex child = index(row, 0, idx);
-//            emit itemIsExpanded(child);
-//        }
     }
-#endif
+}
+
+// Identify items that have to be removed, i.e. current items that
+// have an ancestor in the list, but do not appear in the list themselves.
+bool WatchModel::ancestorChanged(const QSet<QByteArray> &inames, WatchItem *item) const
+{
+    if (item == m_root)
+        return false;
+    WatchItem *parent = item->parent;
+    if (inames.contains(parent->iname))
+        return true;
+    return ancestorChanged(inames, parent);
 }
 
 void WatchModel::insertBulkData(const QList<WatchData> &list)
 {
-    foreach (const WatchData &data, list)
-        insertDataItem(data);
+#if 1
+    for (int i = 0, n = list.size(); i != n; ++i)
+        insertDataItem(list.at(i));
+#else
+    // Destroy unneeded items.
+    QSet<QByteArray> inames;
+    for (int i = list.size(); --i >= 0; )
+        inames.insert(list.at(i).iname);
+
+    QList<QByteArray> toDestroy;
+    for (Cache::const_iterator it = m_cache.begin(), et = m_cache.end(); it != et; ++it)
+        if (!inames.contains(it.key()) && ancestorChanged(inames, it.value()))
+            toDestroy.append(it.key());
+
+    for (int i = 0, n = toDestroy.size(); i != n; ++i) {
+        // Can be destroyed as child of a previous item.
+        WatchItem *item = findItem(toDestroy.at(i));
+        if (item)
+            destroyItem(item);
+    }
+
+    // All remaining items are changed or new.
+    for (int i = 0, n = list.size(); i != n; ++i)
+        insertDataItem(list.at(i), false);
+#endif
     CHECK(checkTree());
-    return;
-
-#if 0
-    QMap<QByteArray, QList<WatchData> > hash;
-
-    foreach (const WatchData &data, list) {
-        // we insert everything, including incomplete stuff
-        // to reduce the number of row add operations in the model.
-        if (data.isValid()) {
-            hash[parentName(data.iname)].append(data);
-        } else {
-            qWarning("%s:%d: Attempt to bulk-insert invalid watch item: %s",
-                __FILE__, __LINE__, qPrintable(data.toString()));
-        }
-    }
-    foreach (const QByteArray &parentIName, hash.keys()) {
-        // FIXME
-        insertBulkDataX(hash[parentIName]);
-    }
-
-    foreach (const WatchData &data, list) {
-        if (data.isSomethingNeeded())
-            m_engine->updateWatchData(data);
-    }
-    const int n = list.size();
-#if 0
-    for (int i = 0; i != n; ++i)
-        insertData(list.at(i), false);
-    layoutChanged();
-    return;
-#endif
-    // This method does not properly insert items in proper "iname sort
-    // order".
-
-    //qDebug() << "WMI:" << list.toString();
-    //static int bulk = 0;
-    //foreach (const WatchItem &data, list)
-    //    qDebug() << "BULK: " << ++bulk << data.toString();
-    QTC_ASSERT(n > 0, return);
-    QByteArray parentIName = parentName(list.at(0).iname);
-    WatchItem *parent = m_handler->findItem(parentIName);
-    if (!parent) {
-        WatchData parent;
-        parent.iname = parentIName;
-        insertDataItem(parent, true);
-        MODEL_DEBUG("\nFIXING MISSING PARENT FOR\n" << list.at(0).iname);
-        return;
-    }
-    QModelIndex idx = watchIndex(parent);
-
-    sortWatchDataAlphabetically = debuggerCore()->boolSetting(SortStructMembers);
-    QMap<WatchDataSortKey, WatchData> newList;
-    typedef QMap<WatchDataSortKey, WatchData>::iterator Iterator;
-    for (int i = 0; i != n; ++i)
-        newList.insert(WatchDataSortKey(list.at(i)), list.at(i));
-
-    //if (newList.size() != n) {
-    //    qDebug() << "LIST: ";
-    //    for (int i = 0; i != n; ++i)
-    //        qDebug() << list.at(i).toString();
-    //    qDebug() << "NEW LIST: ";
-    //    foreach (const WatchData &data, newList)
-    //        qDebug() << data.toString();
-    //    qDebug() << "P->CHILDREN: ";
-    //    foreach (const WatchItem *item, parent->children)
-    //        qDebug() << item->toString();
-    //    qDebug()
-    //        << "P->CHILDREN.SIZE: " << parent->children.size()
-    //        << "NEWLIST SIZE: " << newList.size()
-    //        << "LIST SIZE: " << list.size();
-    //}
-    QTC_ASSERT(newList.size() == list.size(), return);
-
-    foreach (WatchItem *oldItem, parent->children) {
-        const WatchDataSortKey oldSortKey(*oldItem);
-        Iterator it = newList.find(oldSortKey);
-        if (it == newList.end()) {
-            WatchData data = *oldItem;
-            newList.insert(oldSortKey, data);
-        } else {
-            it->changed = it->hasChanged(*oldItem);
-        }
-    }
-
-    for (Iterator it = newList.begin(); it != newList.end(); ++it) {
-        qDebug() << "  NEW: " << it->iname;
-    }
-
-    // overwrite existing items
-    Iterator it = newList.begin();
-    QModelIndex idx = watchIndex(parent);
-    const int oldCount = parent->children.size();
-    for (int i = 0; i < oldCount; ++i, ++it) {
-        if (!parent->children[i]->isEqual(*it)) {
-            qDebug() << "REPLACING" << parent->children.at(i)->iname
-                << " WITH " << it->iname << it->generation;
-            m_handler->setData(parent->children[i], *it);
-            //emit dataChanged(idx.sibling(i, 0), idx.sibling(i, 2));
-        } else {
-            //qDebug() << "SKIPPING REPLACEMENT" << parent->children.at(i)->iname;
-        }
-    }
-    emit dataChanged(idx.sibling(0, 0), idx.sibling(oldCount - 1, 2));
-
-    // add new items
-    if (oldCount < newList.size()) {
-        beginInsertRows(idx, oldCount, newList.size() - 1);
-        //MODEL_DEBUG("INSERT : " << data.iname << data.value);
-        for (int i = oldCount; i < newList.size(); ++i, ++it) {
-            WatchItem *item = m_handler->createItem(*it);
-            qDebug() << "ADDING" << it->iname;
-            item->parent = parent;
-            item->changed = true;
-            parent->children.append(item);
-        }
-        endInsertRows();
-    }
-    //qDebug() << "ITEMS: " << parent->children.size();
-    dump();
-#endif
 }
 
 static void debugRecursion(QDebug &d, const WatchItem *item, int depth)
@@ -1630,6 +1512,11 @@ void WatchHandler::removeAllData()
 {
     m_model->reinitialize();
     updateWatchersWindow();
+}
+
+void WatchHandler::markAllUnchanged()
+{
+    m_model->setUnchangedRecursively(m_model->m_root);
 }
 
 void WatchHandler::removeData(const QByteArray &iname)

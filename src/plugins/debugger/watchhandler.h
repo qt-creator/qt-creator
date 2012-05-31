@@ -142,6 +142,7 @@ public:
     void removeData(const QByteArray &iname);
     void removeChildren(const QByteArray &iname);
     void removeAllData();
+    void markAllUnchanged();
 
 private:
     friend class WatchModel;

@@ -140,6 +140,12 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
         WatchHandler *handler = watchHandler();
         QList<WatchData> list;
 
+        if (!partial) {
+            list.append(*handler->findData("local"));
+            list.append(*handler->findData("watch"));
+            list.append(*handler->findData("return"));
+        }
+
         foreach (const GdbMi &child, data.children()) {
             WatchData dummy;
             dummy.iname = child.findChild("iname").data();
@@ -168,11 +174,6 @@ void GdbEngine::handleStackFramePython(const GdbResponse &response)
             const TypeInfo ti = m_typeInfoCache.value(list.at(i).type);
             if (ti.size)
                 list[i].size = ti.size;
-        }
-
-        if (!partial) {
-            handler->removeChildren("local");
-            handler->removeChildren("watch");
         }
 
         handler->insertData(list);
