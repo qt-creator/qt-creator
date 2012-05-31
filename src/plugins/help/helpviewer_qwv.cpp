@@ -379,7 +379,7 @@ HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
     connect(this, SIGNAL(titleChanged(QString)), this, SIGNAL(titleChanged()));
     connect(page(), SIGNAL(printRequested(QWebFrame*)), this, SIGNAL(printRequested()));
 
-    setFont(viewerFont());
+    setViewerFont(viewerFont());
     setTextSizeMultiplier(zoom == 0.0 ? 1.0 : zoom);
 }
 
