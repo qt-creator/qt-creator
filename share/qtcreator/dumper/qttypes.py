@@ -434,6 +434,27 @@ def qdump__QHashNode(d, value):
             d.putSubItem("value", val)
 
 
+def qHashIteratorHelper(d, value):
+    typeName = str(value.type)
+    hashType = lookupType(typeName[0:typeName.rfind("::")])
+    keyType = templateArgument(hashType, 0)
+    valueType = templateArgument(hashType, 1)
+    d.putNumChild(1)
+    d.putValue(" ")
+    if d.isExpanded():
+        with Children(d):
+            typeName = "%sQHash<%s,%s>::Node" % (d.ns, keyType, valueType)
+            node = value["i"].cast(lookupType(typeName).pointer())
+            d.putSubItem("key", node["key"])
+            d.putSubItem("value", node["value"])
+
+def qdump__QHash__const_iterator(d, value):
+    qHashIteratorHelper(d, value)
+
+def qdump__QHash__iterator(d, value):
+    qHashIteratorHelper(d, value)
+
+
 def qdump__QHostAddress(d, value):
     data = value["d"]["d"].dereference()
     if int(data["ipString"]["d"]["size"]):

@@ -913,6 +913,36 @@ namespace qhash {
         dummyStatement(&hash, &ob);
     }
 
+    void testQHashIntFloatIterator()
+    {
+        typedef QHash<int, float> Hash;
+        Hash hash;
+        hash[11] = 11.0;
+        hash[22] = 22.0;
+        hash[33] = 33.0;
+        hash[44] = 44.0;
+        hash[55] = 55.0;
+        hash[66] = 66.0;
+
+        Hash::iterator it1 = hash.begin();
+        Hash::iterator it2 = it1; ++it2;
+        Hash::iterator it3 = it2; ++it2;
+        Hash::iterator it4 = it3; ++it3;
+        Hash::iterator it5 = it4; ++it4;
+        Hash::iterator it6 = it5; ++it5;
+
+        BREAK_HERE;
+        // Expand hash.
+        // Check hash <6 items> Hash.
+        // Check hash.11 11 float.
+        // Check it1.first 11 int.
+        // Check it1.second 11 float.
+        // Check it1.first 55 int.
+        // Check it1.second 55 float.
+        // Continue.
+        dummyStatement(&hash, &it1, &it2, &it3, &it4, &it5, &it6);
+    }
+
     void testQHash()
     {
         testQHash1();
@@ -922,6 +952,7 @@ namespace qhash {
         testQHash5();
         testQHash6();
         testQHash7();
+        testQHashIntFloatIterator();
     }
 
 } // namespace qhash
