@@ -77,15 +77,18 @@ DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4ProFileNode *proFi
         const QString &installPrefix, QObject *parent)
     : QAbstractTableModel(parent), d(new DeployableFilesPerProFilePrivate(proFileNode))
 {
-    if (d->projectType == ApplicationTemplate) {
-        d->deployables.prepend(DeployableFile(localExecutableFilePath(),
-            d->installsList.targetPath));
-    } else if (d->projectType == LibraryTemplate) {
-        foreach (const QString &filePath, localLibraryFilePaths()) {
-            d->deployables.prepend(DeployableFile(filePath,
-                d->installsList.targetPath));
+    if (hasTargetPath()) {
+        if (d->projectType == ApplicationTemplate) {
+            d->deployables.prepend(DeployableFile(localExecutableFilePath(),
+                    d->installsList.targetPath));
+        } else if (d->projectType == LibraryTemplate) {
+            foreach (const QString &filePath, localLibraryFilePaths()) {
+                d->deployables.prepend(DeployableFile(filePath,
+                        d->installsList.targetPath));
+            }
         }
     }
+
     foreach (const InstallsItem &elem, d->installsList.items) {
         foreach (const QString &file, elem.files)
             d->deployables << DeployableFile(file, elem.path);
@@ -123,21 +126,10 @@ QVariant DeployableFilesPerProFile::data(const QModelIndex &index, int role) con
     if (!index.isValid() || index.row() >= rowCount())
         return QVariant();
 
-    if (d->projectType != AuxTemplate && !hasTargetPath() && index.row() == 0
-            && index.column() == 1) {
-        if (role == Qt::DisplayRole)
-            return tr("<no target path set>");
-        if (role == Qt::ForegroundRole) {
-            QBrush brush;
-            brush.setColor("red");
-            return brush;
-        }
-    }
-
     const DeployableFile &d = deployableAt(index.row());
     if (index.column() == 0 && role == Qt::DisplayRole)
         return QDir::toNativeSeparators(d.localFilePath);
-    if (role == Qt::DisplayRole || role == Qt::EditRole)
+    if (role == Qt::DisplayRole)
         return QDir::cleanPath(d.remoteDir);
     return QVariant();
 }
@@ -205,4 +197,5 @@ QString DeployableFilesPerProFile::projectName() const { return d->projectName; 
 QString DeployableFilesPerProFile::proFilePath() const { return d->proFilePath; }
 Qt4ProjectType DeployableFilesPerProFile::projectType() const { return d->projectType; }
 QString DeployableFilesPerProFile::applicationName() const { return d->targetInfo.target; }
+
 } // namespace RemoteLinux

@@ -2342,6 +2342,8 @@ void Qt4ProFileNode::setupInstallsList(const QtSupport::ProFileReader *reader)
         return;
     const QStringList &itemList = reader->values(QLatin1String("INSTALLS"));
     foreach (const QString &item, itemList) {
+        if (reader->values(item + QLatin1String(".CONFIG")).contains(QLatin1String("no_default_install")))
+            continue;
         QString itemPath;
         const QString pathVar = item + QLatin1String(".path");
         const QStringList &itemPaths = reader->values(pathVar);
@@ -2360,9 +2362,6 @@ void Qt4ProFileNode::setupInstallsList(const QtSupport::ProFileReader *reader)
             = reader->absoluteFileValues(item + QLatin1String(".files"),
                   m_projectDir, QStringList() << m_projectDir, 0);
         if (item == QLatin1String("target")) {
-            if (!m_installsList.targetPath.isEmpty())
-                qDebug("%s: Overwriting existing target.path in INSTALLS list.",
-                    qPrintable(m_projectFilePath));
             m_installsList.targetPath = itemPath;
         } else {
             if (itemFiles.isEmpty()) {
