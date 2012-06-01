@@ -79,6 +79,7 @@
 #include <projectexplorer/itaskhandler.h>
 #include <texteditor/itexteditor.h>
 #include <utils/qtcassert.h>
+#include <utils/elfreader.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -2150,6 +2151,8 @@ void GdbEngine::setupEngine()
     }
 
     QTC_CHECK(state() == EngineSetupRequested);
+    if (debuggerCore()->boolSetting(WarnOnReleaseBuilds))
+        checkForReleaseBuild();
     m_gdbAdapter->startAdapter();
 }
 
@@ -5343,6 +5346,62 @@ bool GdbEngine::attemptQuickStart() const
     }
 
     return true;
+}
+
+void GdbEngine::checkForReleaseBuild()
+{
+    QString binary = startParameters().executable;
+    Utils::ElfReader reader(binary);
+    QList<QByteArray> names = reader.sectionNames();
+    QString error = reader.errorString();
+
+    showMessage(_("EXAMINING ") + binary);
+    QByteArray msg = "ELF SECTIONS: ";
+
+    static QList<QByteArray> interesting;
+    if (interesting.isEmpty()) {
+        interesting.append(".debug_info");
+        interesting.append(".debug_abbrev");
+        interesting.append(".debug_line");
+        interesting.append(".debug_str");
+        interesting.append(".debug_loc");
+        interesting.append(".debug_range");
+        interesting.append(".gdb_index");
+        interesting.append(".note.gnu.build-id");
+        interesting.append(".gnu.hash");
+    }
+
+    QSet<QByteArray> seen;
+    foreach (const QByteArray &name, names) {
+        msg.append(name);
+        msg.append(' ');
+        if (interesting.contains(name))
+            seen.insert(name);
+    }
+    showMessage(_(msg));
+
+    if (!error.isEmpty()) {
+        showMessage(_("ERROR WHILE READING ELF SECTIONS: ") + error);
+        return;
+    }
+    if (names.isEmpty()) {
+        showMessage(_("NO SECTION HEADERS FOUND"));
+        return;
+    }
+
+    if (names.contains(".debug_info"))
+        return;
+
+    QString warning;
+    warning = tr("This does not seem to be a \"Debug\" build.\n"
+        "Setting breakpoints by file name and line number may fail.\n");
+
+    foreach (const QByteArray &name, interesting) {
+        QString found = seen.contains(name) ? tr("Found.") : tr("Not Found.");
+        warning.append(tr("\nSection %1: %2").arg(_(name)).arg(found));
+    }
+
+    showMessageBox(QMessageBox::Information, tr("Warning"), warning);
 }
 
 //

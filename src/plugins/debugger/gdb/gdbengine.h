@@ -403,6 +403,7 @@ private: ////////// Gdb Command Management //////////
 
     QList<GdbCommand> m_commandsToRunOnTemporaryBreak;
     int gdbVersion() const { return m_gdbVersion; }
+    void checkForReleaseBuild();
 
 private: ////////// Gdb Output, State & Capability Handling //////////
 

@@ -43,8 +43,6 @@
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
-#include <QProcess>
-#include <QMessageBox>
 
 namespace Debugger {
 namespace Internal {
@@ -100,7 +98,6 @@ void LocalPlainGdbAdapter::startAdapter()
         return;
     }
 
-    checkForReleaseBuild();
     m_engine->handleAdapterStarted();
 }
 
@@ -119,52 +116,6 @@ void LocalPlainGdbAdapter::shutdownAdapter()
     showMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
     m_outputCollector.shutdown();
     m_engine->notifyAdapterShutdownOk();
-}
-
-void LocalPlainGdbAdapter::checkForReleaseBuild()
-{
-#ifndef Q_OS_MAC
-    // There is usually no objdump on Mac, and if there is,
-    // there are no .debug_info sections.
-    QString objDump = _("objdump");
-    // Windows: Locate objdump in the debuggee's (MinGW) environment
-    if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS
-        && startParameters().environment.size()) {
-        objDump = startParameters().environment.searchInPath(objDump);
-    } else {
-        objDump = Utils::Environment::systemEnvironment().searchInPath(objDump);
-    }
-    if (objDump.isEmpty()) {
-        showMessage(_("Could not locate objdump command for release build check"), LogWarning);
-        return;
-    }
-    // Quick check for a "release" build
-    QProcess proc;
-    QStringList args;
-    args.append(_("-h"));
-    args.append(_("-j"));
-    args.append(_(".debug_info"));
-    args.append(startParameters().executable);
-    proc.start(objDump, args);
-    proc.closeWriteChannel();
-    if (!proc.waitForStarted()) {
-        showMessage(_("OBJDUMP PROCESS COULD NOT BE STARTED. "
-            "RELEASE BUILD CHECK WILL FAIL"));
-        return;
-    }
-    proc.waitForFinished();
-    QByteArray ba = proc.readAllStandardOutput();
-    // This should yield something like
-    // "debuggertest:     file format elf32-i386\n\n"
-    // "Sections:\nIdx Name          Size      VMA       LMA       File off  Algn\n"
-    // "30 .debug_info   00087d36  00000000  00000000  0006bbd5  2**0\n"
-    // " CONTENTS, READONLY, DEBUGGING"
-    if (ba.contains("Sections:") && !ba.contains(".debug_info")) {
-        showMessageBox(QMessageBox::Information, tr("Warning"),
-           tr("This does not seem to be a \"Debug\" build.\n"
-              "Setting breakpoints by file name and line number may fail."));
-    }
-#endif
 }
 
 void LocalPlainGdbAdapter::interruptInferior()

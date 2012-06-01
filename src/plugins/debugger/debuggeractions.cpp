@@ -389,6 +389,12 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(TargetAsync, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("WarnOnReleaseBuilds"));
+    item->setCheckable(true);
+    item->setDefaultValue(true);
+    insertItem(WarnOnReleaseBuilds, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("GdbStartupCommands"));
     item->setDefaultValue(QString());
     insertItem(GdbStartupCommands, item);

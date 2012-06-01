@@ -66,6 +66,7 @@ public:
     QCheckBox *checkBoxAdjustBreakpointLocations;
     QCheckBox *checkBoxUseDynamicType;
     QCheckBox *checkBoxLoadGdbInit;
+    QCheckBox *checkBoxWarnOnReleaseBuilds;
     QLabel *labelDangerous;
     QCheckBox *checkBoxTargetAsync;
     QCheckBox *checkBoxAutoEnrichParameters;
@@ -146,6 +147,13 @@ public:
             "This allows or inhibits reading the user's default\n"
             ".gdbinit file on debugger startup."));
 
+        checkBoxWarnOnReleaseBuilds = new QCheckBox(groupBoxGeneral);
+        checkBoxWarnOnReleaseBuilds->setText(GdbOptionsPage::tr(
+            "Warn when debugging \"Release\" builds"));
+        checkBoxWarnOnReleaseBuilds->setToolTip(GdbOptionsPage::tr(
+            "Show a warning when starting the debugger "
+            "on a binary with insufficient debug information."));
+
         labelDangerous = new QLabel(GdbOptionsPage::tr(
             "The options below should be used with care."));
 
@@ -223,6 +231,7 @@ public:
         formLayout->addRow(checkBoxAdjustBreakpointLocations);
         formLayout->addRow(checkBoxUseDynamicType);
         formLayout->addRow(checkBoxLoadGdbInit);
+        formLayout->addRow(checkBoxWarnOnReleaseBuilds);
         formLayout->addRow(new QLabel(QString()));
         formLayout->addRow(labelDangerous);
         formLayout->addRow(checkBoxTargetAsync);
@@ -282,6 +291,8 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
         m_ui->checkBoxUseDynamicType);
     m_group.insert(debuggerCore()->action(TargetAsync),
         m_ui->checkBoxTargetAsync);
+    m_group.insert(debuggerCore()->action(WarnOnReleaseBuilds),
+        m_ui->checkBoxWarnOnReleaseBuilds);
     m_group.insert(debuggerCore()->action(AdjustBreakpointLocations),
         m_ui->checkBoxAdjustBreakpointLocations);
     m_group.insert(debuggerCore()->action(BreakOnWarning),
@@ -316,6 +327,7 @@ QWidget *GdbOptionsPage::createPage(QWidget *parent)
                 << sep << m_ui->groupBoxGeneral->title()
                 << sep << m_ui->checkBoxLoadGdbInit->text()
                 << sep << m_ui->checkBoxTargetAsync->text()
+                << sep << m_ui->checkBoxWarnOnReleaseBuilds->text()
                 << sep << m_ui->checkBoxUseDynamicType->text()
                 << sep << m_ui->labelGdbWatchdogTimeout->text()
                 << sep << m_ui->checkBoxEnableReverseDebugging->text()

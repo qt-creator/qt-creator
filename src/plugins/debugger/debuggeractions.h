@@ -124,6 +124,7 @@ enum DebuggerActionCode
     AutoEnrichParameters,
     UseDynamicType,
     TargetAsync,
+    WarnOnReleaseBuilds,
 
     // Stack
     MaximalStackDepth,
