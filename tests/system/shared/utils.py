@@ -31,7 +31,7 @@ def ensureChecked(objectName, shouldBeChecked = True):
     else:
         state = "unchecked"
     test.log("New state for QCheckBox: %s" % state)
-    test.verify(object.checked == shouldBeChecked)
+    test.verify(waitFor("object.checked == shouldBeChecked", 1000))
     return object
 
 # verify that an object is in an expected enable state. Returns the object.
@@ -198,8 +198,10 @@ def logApplicationOutput():
     try:
         output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
         test.log("Application Output:\n%s" % output.plainText)
+        return str(output.plainText)
     except:
         test.fail("Could not find any Application Output - did the project run?")
+        return None
 
 # get the output from a given cmdline call
 def getOutputFromCmdline(cmdline):

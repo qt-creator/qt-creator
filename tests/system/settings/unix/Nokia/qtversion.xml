@@ -5,7 +5,7 @@
  <data>
   <variable>QtVersion.0</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">4</value>
+   <value type="int" key="Id">3</value>
    <value type="QString" key="Name">Qt for Fremantle PR1.3 Devices (Qt SDK)</value>
    <value type="QString" key="QMakePath">~/QtSDK/Maemo/4.6.2/targets/fremantle-pr13/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Maemo</value>
@@ -15,7 +15,7 @@
  <data>
   <variable>QtVersion.1</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">5</value>
+   <value type="int" key="Id">4</value>
    <value type="QString" key="Name">Desktop Qt 4.7.4 for GCC (Qt SDK)</value>
    <value type="QString" key="QMakePath">~/QtSDK/Desktop/Qt/474/gcc/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
@@ -25,7 +25,7 @@
  <data>
   <variable>QtVersion.2</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">6</value>
+   <value type="int" key="Id">5</value>
    <value type="QString" key="Name">Simulator Qt for GCC (Qt SDK)</value>
    <value type="QString" key="QMakePath">~/QtSDK/Simulator/Qt/gcc/bin/qmake</value>
    <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Simulator</value>
@@ -35,16 +35,6 @@
  <data>
   <variable>QtVersion.3</variable>
   <valuemap type="QVariantMap">
-   <value type="int" key="Id">8</value>
-   <value type="QString" key="Name">4.7.0</value>
-   <value type="QString" key="QMakePath">/usr/bin/qmake</value>
-   <value type="QString" key="QtVersion.Type">Qt4ProjectManager.QtVersion.Desktop</value>
-   <value type="bool" key="isAutodetected">false</value>
-  </valuemap>
- </data>
- <data>
-  <variable>QtVersion.4</variable>
-  <valuemap type="QVariantMap">
    <value type="int" key="Id">1</value>
    <value type="QString" key="Name">Harmattan Target (Qt SDK)</value>
    <value type="QString" key="QMakePath">~/QtSDK/Madde/targets/harmattan_10.2011.34-1/bin/qmake</value>
@@ -53,7 +43,7 @@
   </valuemap>
  </data>
  <data>
-  <variable>QtVersion.5</variable>
+  <variable>QtVersion.4</variable>
   <valuemap type="QVariantMap">
    <value type="int" key="Id">2</value>
    <value type="QString" key="Name">Desktop Qt 4.8 for GCC (Qt SDK)</value>
@@ -64,7 +54,7 @@
  </data>
  <data>
   <variable>QtVersion.Count</variable>
-  <value type="int">6</value>
+  <value type="int">5</value>
  </data>
  <data>
   <variable>Version</variable>

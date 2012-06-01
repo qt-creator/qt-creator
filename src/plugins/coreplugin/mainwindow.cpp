@@ -237,9 +237,7 @@ MainWindow::MainWindow() :
 #endif
 
     m_autoSaveSessionTimer = new QTimer(this);
-    m_autoSaveSessionTimer->setSingleShot(true);
     m_autoSaveSessionTimer->setInterval(10000);
-    m_autoSaveSessionTimer->start();
     connect(m_autoSaveSessionTimer, SIGNAL(timeout()),
             m_coreImpl, SIGNAL(saveSettingsRequested()));
 }
@@ -383,6 +381,7 @@ void MainWindow::extensionsInitialized()
     emit m_coreImpl->coreAboutToOpen();
     show();
     emit m_coreImpl->coreOpened();
+    m_autoSaveSessionTimer->start();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

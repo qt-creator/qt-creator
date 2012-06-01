@@ -1260,13 +1260,15 @@ void ProjectExplorerPlugin::savePersistentSettings()
     if (d->m_shuttingDown)
         return;
 
-    foreach (Project *pro, d->m_session->projects())
-        pro->saveSettings();
+    if (!d->m_session->loadingSession())  {
+        foreach (Project *pro, d->m_session->projects())
+            pro->saveSettings();
 
-    if (d->m_session->isDefaultVirgin()) {
-        // do not save new virgin default sessions
-    } else {
-        d->m_session->save();
+        if (d->m_session->isDefaultVirgin()) {
+            // do not save new virgin default sessions
+        } else {
+            d->m_session->save();
+        }
     }
 
     QSettings *s = Core::ICore::settings();
@@ -1520,7 +1522,6 @@ void ProjectExplorerPlugin::restoreSession()
 
     Core::ICore::openFiles(combinedList, Core::ICore::OpenFilesFlags(Core::ICore::CanContainLineNumbers | Core::ICore::SwitchMode));
     updateActions();
-
 }
 
 void ProjectExplorerPlugin::loadSession(const QString &session)

@@ -123,6 +123,7 @@ public:
     QStringList projectsForSessionName(const QString &session) const;
 
     void reportProjectLoadingProgress();
+    bool loadingSession();
 signals:
     void projectAdded(ProjectExplorer::Project *project);
     void singleProjectAdded(ProjectExplorer::Project *project);
@@ -169,6 +170,7 @@ private:
     mutable QStringList m_sessions;
 
     mutable QHash<Project *, QStringList> m_projectFileCache;
+    bool m_loadingSession;
 
     Project *m_startupProject;
     QList<Project *> m_projects;
