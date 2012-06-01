@@ -37,11 +37,24 @@
     process.
 
     To view all keyboard shortcuts defined in \QC, and to change them, select
-    \gui {Tools > Options > Environment > Keyboard}. To find a keyboard
+    \gui {Tools > Options > Environment > Keyboard}. The shortcuts are listed by
+    category. To find a keyboard
     shortcut in the list, enter a function name or shortcut in the \gui Filter
     field.
 
     \image qtcreator-keyboard-shortcuts.png
+
+    The shortcuts that are displayed in red color are associated with several
+    functions. \QC executes the function that is available in the current
+    context. If several functions are available for the same shortcut at a
+    time, there is a conflict and \QC cannot execute any function.
+
+    A keyboard shortcut might also conflict with a shortcut that a Window
+    manager uses for its own purposes. In that case, \QC shortcuts do not work.
+    Typically, you can configure the shortcuts in the window manager, but if
+    that is not allowed, you can change the \QC shortcuts. For example, Unity on
+    Ubuntu 11.10 uses \key F10 in its window manager, and therefore the default
+    \QC keyboard shortcut \key F10 (Step Over) does not work on that system.
 
     \section1 Configuring Keyboard Shortcuts
 
@@ -65,22 +78,14 @@
     \list
 
         \o  To import a keyboard shortcut mapping scheme, click \gui Import
-            and select the kms file containing keyboard shortcut mapping scheme
+            and select the .kms file containing the keyboard shortcut mapping scheme
             you want to import.
 
         \o  To export the current keyboard shortcut mapping scheme, click
             \gui Export and select the location where you want to save the
-            exported kms file.
+            exported .kms file.
 
     \endlist
-
-    \note Window managers use some keyboard shortcuts for their own purposes.
-    If such shortcuts happen to be the same as the \QC default shortcuts, the
-    \QC shortcuts are not delivered to applications. Typically, you can
-    configure the shortcuts in the window manager, but if that is not allowed,
-    you can change the \QC shortcuts. For example, Unity on Ubuntu 11.10 uses
-    \key F10 in its window manager, and therefore the default \QC keyboard
-    shortcut \key F10 (Step Over) does not work on that system.
 
     \section1 Default Keyboard Shortcuts
 
