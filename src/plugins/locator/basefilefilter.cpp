@@ -51,6 +51,7 @@ QList<FilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Locator::FilterEn
     QList<FilterEntry> matches;
     QList<FilterEntry> badMatches;
     QString needle = trimWildcards(origEntry);
+    const QString lineNoSuffix = EditorManager::splitLineNumber(&needle);
     QStringMatcher matcher(needle, Qt::CaseInsensitive);
     const QChar asterisk = QLatin1Char('*');
     QRegExp regexp(asterisk + needle+ asterisk, Qt::CaseInsensitive, QRegExp::Wildcard);
@@ -81,7 +82,7 @@ QList<FilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Locator::FilterEn
         if ((hasWildcard && regexp.exactMatch(name))
                 || (!hasWildcard && matcher.indexIn(name) != -1)) {
             QFileInfo fi(path);
-            FilterEntry entry(this, fi.fileName(), path);
+            FilterEntry entry(this, fi.fileName(), QString(path + lineNoSuffix));
             entry.extraInfo = QDir::toNativeSeparators(fi.path());
             entry.resolveFileIcon = true;
             if (name.startsWith(needle))
@@ -99,7 +100,8 @@ QList<FilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Locator::FilterEn
 
 void BaseFileFilter::accept(Locator::FilterEntry selection) const
 {
-    EditorManager::openEditor(selection.internalData.toString(), Id(), EditorManager::ModeSwitch);
+    EditorManager::openEditor(selection.internalData.toString(), Id(),
+                              EditorManager::ModeSwitch | EditorManager::CanContainLineNumber);
 }
 
 void BaseFileFilter::generateFileNames()

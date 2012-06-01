@@ -43,6 +43,7 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileiconprovider.h>
 #include <utils/filterlineedit.h>
@@ -189,8 +190,9 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         FilterEntry &entry = mEntries[index.row()];
         if (entry.resolveFileIcon && entry.displayIcon.isNull()) {
             entry.resolveFileIcon = false;
-            entry.displayIcon =
-                 Core::FileIconProvider::instance()->icon(QFileInfo(entry.internalData.toString()));
+            QString path = entry.internalData.toString();
+            Core::EditorManager::splitLineNumber(&path);
+            entry.displayIcon = Core::FileIconProvider::instance()->icon(QFileInfo(path));
         }
         return entry.displayIcon;
     } else if (role == Qt::ForegroundRole && index.column() == 1) {

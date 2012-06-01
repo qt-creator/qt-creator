@@ -117,6 +117,7 @@ public:
     };
     Q_DECLARE_FLAGS(OpenEditorFlags, OpenEditorFlag)
 
+    static QString splitLineNumber(QString *fileName);
     static IEditor *openEditor(const QString &fileName, const Id &editorId = Id(),
         OpenEditorFlags flags = 0, bool *newEditor = 0);
     static IEditor *openEditorWithContents(const Id &editorId,

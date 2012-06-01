@@ -53,9 +53,11 @@ OpenDocumentsFilter::OpenDocumentsFilter(EditorManager *editorManager) :
     setIncludedByDefault(true);
 }
 
-QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
+QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry_)
 {
     QList<FilterEntry> value;
+    QString entry = entry_;
+    const QString lineNoSuffix = EditorManager::splitLineNumber(&entry);
     const QChar asterisk = QLatin1Char('*');
     QString pattern = QString(asterisk);
     pattern += entry;
@@ -71,7 +73,7 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::Fil
         if (regexp.exactMatch(displayName)) {
             if (!fileName.isEmpty()) {
                 QFileInfo fi(fileName);
-                FilterEntry fiEntry(this, fi.fileName(), fileName);
+                FilterEntry fiEntry(this, fi.fileName(), QString(fileName + lineNoSuffix));
                 fiEntry.extraInfo = QDir::toNativeSeparators(fi.path());
                 fiEntry.resolveFileIcon = true;
                 value.append(fiEntry);
@@ -102,5 +104,6 @@ void OpenDocumentsFilter::refresh(QFutureInterface<void> &future)
 
 void OpenDocumentsFilter::accept(FilterEntry selection) const
 {
-    EditorManager::openEditor(selection.internalData.toString(), Id(), EditorManager::ModeSwitch);
+    EditorManager::openEditor(selection.internalData.toString(), Id(),
+                              EditorManager::ModeSwitch | EditorManager::CanContainLineNumber);
 }

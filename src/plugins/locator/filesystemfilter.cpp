@@ -48,9 +48,11 @@ FileSystemFilter::FileSystemFilter(EditorManager *editorManager, LocatorWidget *
     setIncludedByDefault(false);
 }
 
-QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry)
+QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry_)
 {
     QList<FilterEntry> value;
+    QString entry = entry_;
+    const QString lineNoSuffix = EditorManager::splitLineNumber(&entry);
     QFileInfo entryInfo(entry);
     QString name = entryInfo.fileName();
     QString directory = entryInfo.path();
@@ -81,7 +83,8 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
         if (future.isCanceled())
             break;
         if (dir != QLatin1String(".") && (name.isEmpty() || dir.startsWith(name, Qt::CaseInsensitive))) {
-            FilterEntry filterEntry(this, dir, dirInfo.filePath(dir));
+            const QString fullPath = dirInfo.filePath(dir);
+            FilterEntry filterEntry(this, dir, QString(fullPath + lineNoSuffix));
             filterEntry.resolveFileIcon = true;
             value.append(filterEntry);
         }
@@ -91,7 +94,7 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
             break;
         if (name.isEmpty() || file.startsWith(name, Qt::CaseInsensitive)) {
             const QString fullPath = dirInfo.filePath(file);
-            FilterEntry filterEntry(this, file, fullPath);
+            FilterEntry filterEntry(this, file, QString(fullPath + lineNoSuffix));
             filterEntry.resolveFileIcon = true;
             value.append(filterEntry);
         }
@@ -101,16 +104,20 @@ QList<FilterEntry> FileSystemFilter::matchesFor(QFutureInterface<Locator::Filter
 
 void FileSystemFilter::accept(FilterEntry selection) const
 {
-    QFileInfo info(selection.internalData.toString());
+    QString file = selection.internalData.toString();
+    const QString lineNoSuffix = EditorManager::splitLineNumber(&file);
+
+    QFileInfo info(file);
     if (info.isDir()) {
         QString value = shortcutString();
         value += QLatin1Char(' ');
         value += QDir::toNativeSeparators(info.absoluteFilePath() + QLatin1Char('/'));
+        value += lineNoSuffix;
         m_locatorWidget->show(value, value.length());
         return;
     }
     EditorManager::openEditor(selection.internalData.toString(), Id(),
-                                EditorManager::ModeSwitch);
+                              EditorManager::ModeSwitch | EditorManager::CanContainLineNumber);
 }
 
 bool FileSystemFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
