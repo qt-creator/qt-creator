@@ -57,8 +57,6 @@
 :formFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Form file:_QLabel' name='formFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :frame.templateDescription_QTextBrowser	{container=':New.frame_QFrame' name='templateDescription' type='QTextBrowser' visible='1'}
 :headerFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Header file:_QLabel' name='headerFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
-:projects.projects.pro_QModelIndex	{column='0' container=':projects_QModelIndex' text='projects.pro' type='QModelIndex'}
-:projects_QModelIndex	{column='0' container=':Qt Creator_Utils::NavigationTreeView' text='projects' type='QModelIndex'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='QtSupport__Internal__QtVersionManager' type='QtSupport::Internal::QtOptionsPageWidget' visible='1'}
 :scrollArea.Create Build Configurations:_QComboBox_2	{container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Create Build Configurations:_QLabel_2' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Create Build Configurations:_QLabel_2	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Create build configurations:' type='QLabel' unnamed='1' visible='1'}

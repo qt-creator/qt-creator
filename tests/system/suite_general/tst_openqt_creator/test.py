@@ -15,17 +15,6 @@ def main():
     # Wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 300000)
 
-    # Test that some of the expected items are in the navigation tree
-    for row, record in enumerate(testData.dataset("creator_tree.tsv")):
-        node = testData.field(record, "node")
-        value = testData.field(record, "value")
-        test.compare(waitForObject(node).text, value)
-
-    for row, record in enumerate(testData.dataset("speedcrunch_tree.tsv")):
-        node = testData.field(record, "node")
-        value = testData.field(record, "value")
-        test.compare(waitForObject(node).text, value)
-
     # Now check some basic lookups in the search box
     selectFromLocator(": Qlist::QList", "QList::QList")
     test.compare(wordUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "QList")
