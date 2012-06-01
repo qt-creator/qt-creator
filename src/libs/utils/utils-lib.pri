@@ -77,7 +77,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/tcpportsgatherer.cpp \
     $$PWD/appmainwindow.cpp \
     $$PWD/basetreeview.cpp \
-    $$PWD/qtcassert.cpp
+    $$PWD/qtcassert.cpp \
+    $$PWD/elfreader.cpp
 
 win32 {
     SOURCES += \
@@ -161,7 +162,8 @@ HEADERS += \
     $$PWD/portlist.h \
     $$PWD/tcpportsgatherer.h \
     $$PWD/appmainwindow.h \
-    $$PWD/basetreeview.h
+    $$PWD/basetreeview.h \
+    $$PWD/elfreader.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

@@ -51,6 +51,8 @@ QtcLibrary {
         "detailsbutton.h",
         "detailswidget.cpp",
         "detailswidget.h",
+        "elfreader.cpp",
+        "elfreader.h",
         "environment.h",
         "environmentmodel.cpp",
         "environmentmodel.h",
