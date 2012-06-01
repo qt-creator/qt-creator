@@ -47,21 +47,46 @@
 namespace Debugger {
 namespace Internal {
 
-ModulesModel::ModulesModel(ModulesHandler *parent)
-  : QAbstractItemModel(parent)
-{}
+class ModulesModel : public QAbstractItemModel
+{
+public:
+    explicit ModulesModel(QObject *parent)
+      : QAbstractItemModel(parent)
+    {}
+
+    int columnCount(const QModelIndex &parent) const
+        { return parent.isValid() ? 0 : 5; }
+    int rowCount(const QModelIndex &parent) const
+        { return parent.isValid() ? 0 : m_modules.size(); }
+    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
+    QModelIndex index(int row, int column, const QModelIndex &) const
+        { return createIndex(row, column); }
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QVariant data(const QModelIndex &index, int role) const;
+
+    void clearModel();
+    void addModule(const Module &module);
+    void removeModule(const QString &modulePath);
+    void setModules(const Modules &modules);
+    void updateModule(const Module &module);
+
+    int indexOfModule(const QString &modulePath) const;
+
+    Modules m_modules;
+};
+
 
 QVariant ModulesModel::headerData(int section,
     Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
-            tr("Module name") + QLatin1String("        "),
-            tr("Module path") + QLatin1String("        "),
-            tr("Symbols read") + QLatin1String("        "),
-            tr("Symbols type") + QLatin1String("        "),
-            tr("Start address") + QLatin1String("        "),
-            tr("End address") + QLatin1String("        ")
+            ModulesHandler::tr("Module name") + QLatin1String("        "),
+            ModulesHandler::tr("Module path") + QLatin1String("        "),
+            ModulesHandler::tr("Symbols read") + QLatin1String("        "),
+            ModulesHandler::tr("Symbols type") + QLatin1String("        "),
+            ModulesHandler::tr("Start address") + QLatin1String("        "),
+            ModulesHandler::tr("End address") + QLatin1String("        ")
         };
         return headers[section];
     }
@@ -91,17 +116,17 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
         case 2:
             if (role == Qt::DisplayRole)
                 switch (module.symbolsRead) {
-                    case Module::UnknownReadState: return tr("unknown");
-                    case Module::ReadFailed: return tr("no");
-                    case Module::ReadOk: return tr("yes");
+                    case Module::UnknownReadState: return ModulesHandler::tr("unknown");
+                    case Module::ReadFailed: return ModulesHandler::tr("no");
+                    case Module::ReadOk: return ModulesHandler::tr("yes");
                 }
             break;
         case 3:
             if (role == Qt::DisplayRole)
                 switch (module.symbolsType) {
-                    case Module::UnknownType: return tr("unknown");
-                    case Module::PlainSymbols: return tr("plain");
-                    case Module::FastSymbols: return tr("fast");
+                    case Module::UnknownType: return ModulesHandler::tr("unknown");
+                    case Module::PlainSymbols: return ModulesHandler::tr("plain");
+                    case Module::FastSymbols: return ModulesHandler::tr("fast");
                 }
             break;
         case 4:
@@ -115,7 +140,7 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
                     return QString(QLatin1String("0x")
                                 + QString::number(module.endAddress, 16));
                 //: End address of loaded module
-                return tr("<unknown>", "address");
+                return ModulesHandler::tr("<unknown>", "address");
             }
             break;
     }
@@ -143,30 +168,30 @@ void ModulesModel::clearModel()
     }
 }
 
-int ModulesModel::indexOfModule(const QString &name) const
+int ModulesModel::indexOfModule(const QString &modulePath) const
 {
     // Recent modules are more likely to be unloaded first.
     for (int i = m_modules.size() - 1; i >= 0; i--)
-        if (m_modules.at(i).moduleName == name)
+        if (m_modules.at(i).modulePath == modulePath)
             return i;
     return -1;
 }
 
-void ModulesModel::removeModule(const QString &moduleName)
+void ModulesModel::removeModule(const QString &modulePath)
 {
-    const int index = indexOfModule(moduleName);
-    QTC_ASSERT(index != -1, return);
-    beginRemoveRows(QModelIndex(), index, index);
-    m_modules.remove(index);
+    const int row = indexOfModule(modulePath);
+    QTC_ASSERT(row != -1, return);
+    beginRemoveRows(QModelIndex(), row, row);
+    m_modules.remove(row);
     endRemoveRows();
 }
 
-void ModulesModel::updateModule(const QString &moduleName, const Module &module)
+void ModulesModel::updateModule(const Module &module)
 {
-    const int index = indexOfModule(moduleName);
-    QTC_ASSERT(index != -1, return);
-    m_modules[index] = module;
-    reset();
+    const int row = indexOfModule(module.modulePath);
+    QTC_ASSERT(row != -1, return);
+    m_modules[row] = module;
+    dataChanged(index(row, 0, QModelIndex()), index(row, 4, QModelIndex()));
 }
 
 //////////////////////////////////////////////////////////////////
@@ -197,14 +222,14 @@ void ModulesHandler::addModule(const Module &module)
     m_model->addModule(module);
 }
 
-void ModulesHandler::removeModule(const QString &moduleName)
+void ModulesHandler::removeModule(const QString &modulePath)
 {
-    m_model->removeModule(moduleName);
+    m_model->removeModule(modulePath);
 }
 
-void ModulesHandler::updateModule(const QString &moduleName, const Module &module)
+void ModulesHandler::updateModule(const Module &module)
 {
-    m_model->updateModule(moduleName, module);
+    m_model->updateModule(module);
 }
 
 void ModulesHandler::setModules(const Modules &modules)
@@ -214,9 +239,8 @@ void ModulesHandler::setModules(const Modules &modules)
 
 Modules ModulesHandler::modules() const
 {
-    return m_model->modules();
+    return m_model->m_modules;
 }
 
 } // namespace Internal
 } // namespace Debugger
-

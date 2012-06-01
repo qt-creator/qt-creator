@@ -33,11 +33,11 @@
 #ifndef DEBUGGER_MODULESHANDLER_H
 #define DEBUGGER_MODULESHANDLER_H
 
-#include <QAbstractItemModel>
 #include <QObject>
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
 class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
@@ -45,8 +45,6 @@ namespace Debugger {
 namespace Internal {
 
 class ModulesModel;
-class ModulesHandler;
-
 
 //////////////////////////////////////////////////////////////////
 //
@@ -101,45 +99,6 @@ typedef QVector<Module> Modules;
 
 //////////////////////////////////////////////////////////////////
 //
-// ModulesModel
-//
-//////////////////////////////////////////////////////////////////
-
-class ModulesModel : public QAbstractItemModel
-{
-    // Needs tr - context.
-    Q_OBJECT
-public:
-    ModulesModel(ModulesHandler *parent);
-
-    // QAbstractItemModel
-    int columnCount(const QModelIndex &parent) const
-        { return parent.isValid() ? 0 : 5; }
-    int rowCount(const QModelIndex &parent) const
-        { return parent.isValid() ? 0 : m_modules.size(); }
-    QModelIndex parent(const QModelIndex &) const { return QModelIndex(); }
-    QModelIndex index(int row, int column, const QModelIndex &) const
-        { return createIndex(row, column); }
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    QVariant data(const QModelIndex &index, int role) const;
-
-    void clearModel();
-    void addModule(const Module &module);
-    void removeModule(const QString &moduleName);
-    void setModules(const Modules &modules);
-    void updateModule(const QString &moduleName, const Module &module);
-
-    const Modules &modules() const { return m_modules; }
-
-private:
-    int indexOfModule(const QString &name) const;
-
-    Modules m_modules;
-};
-
-
-//////////////////////////////////////////////////////////////////
-//
 // ModulesHandler
 //
 //////////////////////////////////////////////////////////////////
@@ -155,8 +114,8 @@ public:
 
     void setModules(const Modules &modules);
     void addModule(const Module &module);
-    void removeModule(const QString &moduleName);
-    void updateModule(const QString &moduleName, const Module &module);
+    void removeModule(const QString &modulePath);
+    void updateModule(const Module &module);
 
     Modules modules() const;
     void removeAll();
