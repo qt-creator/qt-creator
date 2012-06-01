@@ -315,9 +315,6 @@ bool QmlInspectorAgent::addObjectWatch(int objectDebugId)
     if (m_objectWatches.contains(objectDebugId))
         return true;
 
-    if (!m_debugIdToIname.contains(objectDebugId))
-        return false;
-
     // is flooding the debugging output log!
     // log(LogSend, QString("WATCH_PROPERTY %1").arg(objectDebugId));
 
