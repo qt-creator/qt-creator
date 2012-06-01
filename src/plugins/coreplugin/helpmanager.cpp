@@ -225,12 +225,14 @@ QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id) const
 // This should go into Qt 4.8 once we start using it for Qt Creator
 QStringList HelpManager::findKeywords(const QString &key, int maxHits) const
 {
-    QStringList keywords;
     if (d->m_needsSetup)
-        return keywords;
+        return QStringList();
 
     const QLatin1String sqlite("QSQLITE");
     const QLatin1String name("HelpManager::findKeywords");
+
+    QSet<QString> keywords;
+    QSet<QString> keywordsToSort;
 
     DbCleaner cleaner(name);
     QSqlDatabase db = QSqlDatabase::addDatabase(sqlite, name);
@@ -245,20 +247,24 @@ QStringList HelpManager::findKeywords(const QString &key, int maxHits) const
             if (db.open()) {
                 QSqlQuery query = QSqlQuery(db);
                 query.setForwardOnly(true);
-                query.exec(QString::fromLatin1("SELECT DISTINCT Name FROM "
-                    "IndexTable WHERE Name LIKE '%%1%'").arg(key));
+                query.exec(QString::fromLatin1("SELECT DISTINCT Name FROM IndexTable WHERE Name LIKE "
+                    "'%%1%' LIMIT %2").arg(key, QString::number(maxHits)));
                 while (query.next()) {
                     const QString &keyValue = query.value(0).toString();
                     if (!keyValue.isEmpty()) {
-                        keywords.append(keyValue);
-                        if (keywords.count() == maxHits)
-                            return keywords;
+                        if (keyValue.startsWith(key, Qt::CaseInsensitive))
+                            keywordsToSort.insert(keyValue);
+                        else
+                            keywords.insert(keyValue);
                     }
                 }
             }
         }
     }
-    return keywords;
+
+    QStringList keywordsSorted = keywordsToSort.toList();
+    qSort(keywordsSorted.begin(), keywordsSorted.end());
+    return keywordsSorted + keywords.toList();
 }
 
 QUrl HelpManager::findFile(const QUrl &url) const
