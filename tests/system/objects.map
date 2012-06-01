@@ -1,10 +1,7 @@
-:*Qt Creator.Build Project_Core::Internal::FancyToolButton	{text='Build Project' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Continue_Core::Internal::FancyToolButton	{text='Continue' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{text='Interrupt' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.Run_Core::Internal::FancyToolButton	{text='Run' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{text='Start Debugging' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.findEdit_Utils::FilterLineEdit	{name='findEdit' type='Utils::FilterLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:*Qt Creator.qt_tabwidget_stackedwidget_QStackedWidget	{name='qt_tabwidget_stackedwidget' type='QStackedWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Core::Internal::FancyToolButton	{occurrence='3' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::FilterLineEdit	{type='Utils::FilterLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::IconButton	{occurrence='4' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -47,15 +44,12 @@
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton	{occurrence='2' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:Qt Creator_Utils::IconButton	{occurrence='2' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::NavigationTreeView	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Gui Application.Form file:_QLabel	{name='formLabel' text='Form file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
 :Qt Gui Application.Header file:_QLabel	{name='headerLabel' text='Header file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
 :Qt Gui Application.Source file:_QLabel	{name='sourceLabel' text='Source file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
-:Qt Gui Application.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
 :Qt Gui Application.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1'}
 :Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog	{type='Qt4ProjectManager::Internal::GuiAppWizardDialog' unnamed='1' visible='1' windowTitle='Qt Gui Application'}
-:QtCreator.MenuBar_ProjectExplorer::Internal::MiniProjectTargetSelector	{type='ProjectExplorer::Internal::MiniProjectTargetSelector'}
 :QtSupport__Internal__QtVersionManager.QLabel	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='errorLabel' type='QLabel' visible='1'}
 :QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='qtdirList' type='QTreeWidget' visible='1'}
 :Symbol Server_Utils::CheckableMessageBox	{type='Utils::CheckableMessageBox' unnamed='1' visible='1' windowTitle='Symbol Server'}
