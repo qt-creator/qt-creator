@@ -109,8 +109,13 @@ void DeploymentInfo::createModels(const Qt4ProFileNode *proFileNode)
         foreach (const ProjectExplorer::ProjectNode * const subProject, subProjects) {
             const Qt4ProFileNode * const qt4SubProject
                 = qobject_cast<const Qt4ProFileNode *>(subProject);
-            if (qt4SubProject && !qt4SubProject->path().endsWith(QLatin1String(".pri")))
-                createModels(qt4SubProject);
+            if (!qt4SubProject)
+                continue;
+            if (qt4SubProject->path().endsWith(QLatin1String(".pri")))
+                continue;
+            if (!proFileNode->isSubProjectDeployable(subProject->path()))
+                continue;
+            createModels(qt4SubProject);
         }
     }
     default:

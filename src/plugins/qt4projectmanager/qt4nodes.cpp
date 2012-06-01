@@ -1792,9 +1792,10 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     QHash<QString, ProFile*> includeFilesExact;
     QSet<QString> exactSubdirs;
     ProFile *fileForCurrentProjectExact = 0;
+    QStringList subProjectsNotToDeploy;
     if (evalResult == EvalOk) {
         if (m_projectType == SubDirsTemplate) {
-            newProjectFilesExact = subDirsPaths(m_readerExact);
+            newProjectFilesExact = subDirsPaths(m_readerExact, &subProjectsNotToDeploy);
             exactSubdirs = newProjectFilesExact.toSet();
         }
         foreach (ProFile *includeFile, m_readerExact->includeFiles()) {
@@ -1968,6 +1969,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         m_qt4targetInformation = targetInformation(m_readerExact);
         m_resolvedMkspecPath = m_project->proFileOption()->qmakespec;
 
+        m_subProjectsNotToDeploy = subProjectsNotToDeploy;
         setupInstallsList(m_readerExact);
         setupProjectVersion(m_readerExact);
 
@@ -2203,7 +2205,7 @@ QStringList Qt4ProFileNode::libDirectories(QtSupport::ProFileReader *reader) con
     return result;
 }
 
-QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader) const
+QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader, QStringList *subProjectsNotToDeploy) const
 {
     QStringList subProjectPaths;
 
@@ -2239,7 +2241,13 @@ QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader) const
         }
 
         if (QFile::exists(realFile)) {
-            subProjectPaths << QDir::cleanPath(realFile);
+            realFile = QDir::cleanPath(realFile);
+            subProjectPaths << realFile;
+            if (subProjectsNotToDeploy && !subProjectsNotToDeploy->contains(realFile)
+                    && reader->values(subDirVar + QLatin1String(".CONFIG"))
+                        .contains(QLatin1String("no_default_target"))) {
+                subProjectsNotToDeploy->append(realFile);
+            }
         } else {
             m_project->proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
                                          .arg(subDirVar).arg(realDir));

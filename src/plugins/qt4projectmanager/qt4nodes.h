@@ -360,6 +360,10 @@ public:
 
     QStringList variableValue(const Qt4Variable var) const;
 
+    bool isSubProjectDeployable(const QString &filePath) const {
+        return !m_subProjectsNotToDeploy.contains(filePath);
+    }
+
     void updateCodeModelSupportFromBuild(const QStringList &files);
     void updateCodeModelSupportFromEditor(const QString &uiFileName, const QString &contents);
 
@@ -423,7 +427,8 @@ private:
     QString mocDirPath(QtSupport::ProFileReader *reader) const;
     QStringList includePaths(QtSupport::ProFileReader *reader) const;
     QStringList libDirectories(QtSupport::ProFileReader *reader) const;
-    QStringList subDirsPaths(QtSupport::ProFileReader *reader) const;
+    QStringList subDirsPaths(QtSupport::ProFileReader *reader, QStringList *subProjectsNotToDeploy = 0) const;
+
     TargetInformation targetInformation(QtSupport::ProFileReader *reader) const;
     void setupInstallsList(const QtSupport::ProFileReader *reader);
     void setupProjectVersion(const QtSupport::ProFileReader *reader);
@@ -435,6 +440,7 @@ private:
     QMap<QString, QDateTime> m_uitimestamps;
     TargetInformation m_qt4targetInformation;
     QString m_resolvedMkspecPath;
+    QStringList m_subProjectsNotToDeploy;
     InstallsList m_installsList;
     ProjectVersion m_projectVersion;
     friend class Qt4NodeHierarchy;
