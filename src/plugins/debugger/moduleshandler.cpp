@@ -124,15 +124,51 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
         case 3:
             if (role == Qt::DisplayRole)
                 switch (module.symbolsType) {
-                    case Module::UnknownType: return ModulesHandler::tr("unknown");
-                    case Module::PlainSymbols: return ModulesHandler::tr("plain");
-                    case Module::FastSymbols: return ModulesHandler::tr("fast");
+                    case Module::UnknownSymbols:
+                        return ModulesHandler::tr("unknown");
+                    case Module::NoSymbols:
+                        return ModulesHandler::tr("none");
+                    case Module::PlainSymbols:
+                        return ModulesHandler::tr("plain");
+                    case Module::FastSymbols:
+                        return ModulesHandler::tr("fast");
+                    case Module::SeparateSymbols:
+                        return ModulesHandler::tr("separate");
+                }
+            else if (role == Qt::ToolTipRole)
+                switch (module.symbolsType) {
+                    case Module::UnknownSymbols:
+                        return ModulesHandler::tr(
+                        "It is unknown whether this module contains debug "
+                        "information.\nUse \"Examine Symbols\" from the "
+                        "context menu to initiate a check.");
+                    case Module::NoSymbols:
+                        return ModulesHandler::tr(
+                        "This module neither contains nor references debug "
+                        "information.\nStepping into the module or setting "
+                        "breakpoints by file and line will not work.");
+                    case Module::PlainSymbols:
+                        return ModulesHandler::tr(
+                        "This module contains debug information.\nStepping "
+                        "into the module or setting breakpoints by file and "
+                        "is expected to work.");
+                    case Module::FastSymbols:
+                        return ModulesHandler::tr(
+                        "This module contains debug information.\nStepping "
+                        "into the module or setting breakpoints by file and "
+                        "is expected to work.");
+                    case Module::SeparateSymbols:
+                        return ModulesHandler::tr(
+                        "This module does not contains debug information "
+                        "itself, but contains a reference to external "
+                        "debug information.");
                 }
             break;
         case 4:
             if (role == Qt::DisplayRole)
-                return QString(QLatin1String("0x")
-                            + QString::number(module.startAddress, 16));
+                if (module.startAddress)
+                    return QString(QLatin1String("0x")
+                                + QString::number(module.startAddress, 16));
             break;
         case 5:
             if (role == Qt::DisplayRole) {
@@ -189,9 +225,12 @@ void ModulesModel::removeModule(const QString &modulePath)
 void ModulesModel::updateModule(const Module &module)
 {
     const int row = indexOfModule(module.modulePath);
-    QTC_ASSERT(row != -1, return);
-    m_modules[row] = module;
-    dataChanged(index(row, 0, QModelIndex()), index(row, 4, QModelIndex()));
+    if (row == -1) {
+        addModule(module);
+    } else {
+        m_modules[row] = module;
+        dataChanged(index(row, 0, QModelIndex()), index(row, 4, QModelIndex()));
+    }
 }
 
 //////////////////////////////////////////////////////////////////

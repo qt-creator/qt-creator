@@ -483,11 +483,24 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 // target-name="/usr/lib/libdrm.so.2",
                 // host-name="/usr/lib/libdrm.so.2",
                 // symbols-loaded="0"
+
+                // id="/lib/i386-linux-gnu/libc.so.6"
+                // target-name="/lib/i386-linux-gnu/libc.so.6"
+                // host-name="/lib/i386-linux-gnu/libc.so.6"
+                // symbols-loaded="0",thread-group="i1"
                 QByteArray id = result.findChild("id").data();
                 if (!id.isEmpty())
                     showStatusMessage(tr("Library %1 loaded").arg(_(id)), 1000);
                 progressPing();
                 invalidateSourcesList();
+                Module module;
+                module.startAddress = 0;
+                module.endAddress = 0;
+                module.hostPath = _(result.findChild("host-name").data());
+                module.modulePath = _(result.findChild("target-name").data());
+                module.moduleName = QFileInfo(module.hostPath).baseName();
+                examineModule(&module);
+                modulesHandler()->addModule(module);
             } else if (asyncClass == "library-unloaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
                 // target-name="/usr/lib/libdrm.so.2",
@@ -1675,10 +1688,6 @@ void GdbEngine::handleStop2(const GdbMi &data)
         // to the user.
         isStopperThread = true;
     }
-
-    // This is for display only.
-    if (m_modulesListOutdated)
-        reloadModulesInternal();
 
     if (m_breakListOutdated) {
         reloadBreakListInternal();
@@ -3353,7 +3362,7 @@ void GdbEngine::loadSymbolsForStack()
         }
     }
     if (needUpdate) {
-        reloadModulesInternal();
+        //reloadModulesInternal();
         reloadBreakListInternal();
         reloadStack(true);
         updateLocals();
@@ -3442,7 +3451,6 @@ void GdbEngine::reloadModules()
 
 void GdbEngine::reloadModulesInternal()
 {
-    m_modulesListOutdated = false;
     postCommand("info shared", NeedsStop, CB(handleModulesList));
 }
 
@@ -3453,15 +3461,16 @@ static QString nameFromPath(const QString &path)
 
 void GdbEngine::handleModulesList(const GdbResponse &response)
 {
-    Modules modules;
     if (response.resultClass == GdbResultDone) {
+        ModulesHandler *handler = modulesHandler();
+        Module module;
         // That's console-based output, likely Linux or Windows,
         // but we can avoid the target dependency here.
         QString data = QString::fromLocal8Bit(response.consoleStreamOutput);
         QTextStream ts(&data, QIODevice::ReadOnly);
+        bool found = false;
         while (!ts.atEnd()) {
             QString line = ts.readLine();
-            Module module;
             QString symbolsRead;
             QTextStream ts(&line, QIODevice::ReadOnly);
             if (line.startsWith(QLatin1String("0x"))) {
@@ -3470,7 +3479,9 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
                 module.moduleName = nameFromPath(module.modulePath);
                 module.symbolsRead =
                     (symbolsRead == QLatin1String("Yes") ? Module::ReadOk : Module::ReadFailed);
-                modules.append(module);
+                examineModule(&module);
+                handler->updateModule(module);
+                found = true;
             } else if (line.trimmed().startsWith(QLatin1String("No"))) {
                 // gdb 6.4 symbianelf
                 ts >> symbolsRead;
@@ -3479,17 +3490,18 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
                 module.endAddress = 0;
                 module.modulePath = ts.readLine().trimmed();
                 module.moduleName = nameFromPath(module.modulePath);
-                modules.append(module);
+                examineModule(&module);
+                handler->updateModule(module);
+                found = true;
             }
         }
-        if (modules.isEmpty()) {
+        if (!found) {
             // Mac has^done,shlib-info={num="1",name="dyld",kind="-",
             // dyld-addr="0x8fe00000",reason="dyld",requested-state="Y",
             // state="Y",path="/usr/lib/dyld",description="/usr/lib/dyld",
             // loaded_addr="0x8fe00000",slide="0x0",prefix="__dyld_"},
             // shlib-info={...}...
             foreach (const GdbMi &item, response.data.children()) {
-                Module module;
                 module.modulePath =
                     QString::fromLocal8Bit(item.findChild("path").data());
                 module.moduleName = nameFromPath(module.modulePath);
@@ -3498,25 +3510,34 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
                 module.startAddress =
                     item.findChild("loaded_addr").data().toULongLong(0, 0);
                 module.endAddress = 0; // FIXME: End address not easily available.
-                modules.append(module);
+                examineModule(&module);
+                handler->updateModule(module);
             }
         }
     }
-    modulesHandler()->setModules(modules);
+}
+
+void GdbEngine::examineModule(Module *module)
+{
+    Utils::ElfReader reader(module->modulePath);
+    QList<QByteArray> names = reader.sectionNames();
+    if (names.contains(".gdb_index"))
+        module->symbolsType = Module::FastSymbols;
+    else if (names.contains(".debug_inf"))
+        module->symbolsType = Module::PlainSymbols;
+    else if (names.contains(".gnu_debuglink"))
+        module->symbolsType = Module::SeparateSymbols;
+    else
+        module->symbolsType = Module::NoSymbols;
 }
 
 void GdbEngine::examineModules()
 {
     ModulesHandler *handler = modulesHandler();
     foreach (Module module, handler->modules()) {
-        if (module.symbolsType == Module::UnknownType) {
-            Utils::ElfReader reader(module.modulePath);
-            QList<QByteArray> names = reader.sectionNames();
-            if (names.contains(".gdb_index"))
-                module.symbolsType = Module::FastSymbols;
-            else
-                module.symbolsType = Module::PlainSymbols;
-            handler->updateModule(module);
+        if (module.symbolsType == Module::UnknownSymbols) {
+            examineModule(&module);
+            modulesHandler()->updateModule(module);
         }
     }
 }
@@ -3529,7 +3550,6 @@ void GdbEngine::examineModules()
 
 void GdbEngine::invalidateSourcesList()
 {
-    m_modulesListOutdated = true;
     m_breakListOutdated = true;
 }
 
@@ -5003,6 +5023,13 @@ void GdbEngine::handleAdapterStarted()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("ADAPTER SUCCESSFULLY STARTED"));
     notifyEngineSetupOk();
+
+    Module module;
+    module.startAddress = 0;
+    module.endAddress = 0;
+    module.modulePath = startParameters().executable;
+    module.moduleName = QLatin1String("<executable>");
+    modulesHandler()->addModule(module);
 }
 
 void GdbEngine::setupInferior()
@@ -5363,6 +5390,7 @@ void GdbEngine::checkForReleaseBuild()
         interesting.append(".gdb_index");
         interesting.append(".note.gnu.build-id");
         interesting.append(".gnu.hash");
+        interesting.append(".gnu_debuglink");
     }
 
     QSet<QByteArray> seen;

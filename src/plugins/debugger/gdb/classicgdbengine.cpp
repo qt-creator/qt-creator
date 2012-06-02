@@ -117,18 +117,21 @@ QString DumperHelper::msgPtraceError(DebuggerStartMode sm)
 {
     if (sm == StartInternal) {
         return QCoreApplication::translate("QtDumperHelper",
-                  "ptrace: Operation not permitted.\n\n"
-                  "Could not attach to the process. Check the settings of\n"
-                  "/proc/sys/kernel/yama/ptrace_scope\n"
-                  "For more details, see/etc/sysctl.d/10-ptrace.conf\n");
-    } else {
-        return QCoreApplication::translate("QtDumperHelper",
-                 "ptrace: Operation not permitted.\n\n"
-                 "Could not attach to the process. If your uid matches the uid\n"
-                 "of the target process, check the settings of\n"
-                 "/proc/sys/kernel/yama/ptrace_scope\n"
-                 "For more details, see/etc/sysctl.d/10-ptrace.conf\n");
+            "ptrace: Operation not permitted.\n\n"
+            "Could not attach to the process. "
+            "Make sure no other debugger traces this process.\n"
+            "Check the settings of\n"
+            "/proc/sys/kernel/yama/ptrace_scope\n"
+            "For more details, see /etc/sysctl.d/10-ptrace.conf\n");
     }
+    return QCoreApplication::translate("QtDumperHelper",
+        "ptrace: Operation not permitted.\n\n"
+        "Could not attach to the process. "
+        "Make sure no other debugger traces this process.\n"
+        "If your uid matches the uid\n"
+        "of the target process, check the settings of\n"
+        "/proc/sys/kernel/yama/ptrace_scope\n"
+        "For more details, see /etc/sysctl.d/10-ptrace.conf\n");
 }
 
 static inline void formatQtVersion(int v, QTextStream &str)

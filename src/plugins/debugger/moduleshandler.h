@@ -73,21 +73,24 @@ typedef QVector<Symbol> Symbols;
 class Module
 {
 public:
-    Module() : symbolsRead(UnknownReadState), symbolsType(UnknownType) {}
+    Module() : symbolsRead(UnknownReadState), symbolsType(UnknownSymbols) {}
 
 public:
     enum SymbolReadState {
         UnknownReadState,  // Not tried.
         ReadFailed,        // Tried to read, but failed.
-        ReadOk            // Dwarf index available.
+        ReadOk             // Dwarf index available.
     };
     enum SymbolType {
-        UnknownType,       // Unknown.
+        UnknownSymbols,    // Unknown.
+        NoSymbols,         // No usable symbols.
+        SeparateSymbols,   // Symbols mentioned, but not in binary.
         PlainSymbols,      // Ordinary symbols available.
-        FastSymbols       // Dwarf index available.
+        FastSymbols        // Dwarf index available.
     };
     QString moduleName;
     QString modulePath;
+    QString hostPath;
     SymbolReadState symbolsRead;
     SymbolType symbolsType;
     quint64 startAddress;
