@@ -168,6 +168,10 @@ public:
     static QString displayFromThreadSpec(int spec);
     static int threadSpecFromDisplay(const QString &str);
 
+    // Convenience.
+    void setWatchpointAtAddress(quint64 address, unsigned size);
+    void setWatchpointAtExpression(const QString &exp);
+
 private:
     // QAbstractItemModel implementation.
     int columnCount(const QModelIndex &parent) const;

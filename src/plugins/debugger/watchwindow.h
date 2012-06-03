@@ -75,8 +75,6 @@ private:
 
     void editItem(const QModelIndex &idx);
     void resetHelper(const QModelIndex &idx);
-    void setWatchpointAtAddress(quint64 address, unsigned size);
-    void setWatchpointAtExpression(const QString &exp);
 
     void setModelData(int role, const QVariant &value = QVariant(),
         const QModelIndex &index = QModelIndex());

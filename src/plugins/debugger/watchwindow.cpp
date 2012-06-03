@@ -912,11 +912,11 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == actOpenMemoryEditorStackLayout) {
         addStackLayoutMemoryView(currentEngine(), false, model(), ev->globalPos(), this);
     } else if (act == actSetWatchpointAtVariableAddress) {
-        setWatchpointAtAddress(address, size);
+        breakHandler()->setWatchpointAtAddress(address, size);
     } else if (act == actSetWatchpointAtPointerValue) {
-        setWatchpointAtAddress(pointerValue, sizeof(void *)); // FIXME: an approximation..
+        breakHandler()->setWatchpointAtAddress(pointerValue, sizeof(void *)); // FIXME: an approximation..
     } else if (act == actSetWatchpointAtExpression) {
-        setWatchpointAtExpression(name);
+        breakHandler()->setWatchpointAtExpression(name);
     } else if (act == actSelectWidgetToWatch) {
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
@@ -1045,33 +1045,6 @@ void WatchTreeView::setModelData
 {
     QTC_ASSERT(model(), return);
     model()->setData(index, value, role);
-}
-
-void WatchTreeView::setWatchpointAtAddress(quint64 address, unsigned size)
-{
-    BreakpointParameters data(WatchpointAtAddress);
-    data.address = address;
-    data.size = size;
-    BreakpointModelId id = breakHandler()->findWatchpoint(data);
-    if (id) {
-        qDebug() << "WATCHPOINT EXISTS";
-        //   removeBreakpoint(index);
-        return;
-    }
-    breakHandler()->appendBreakpoint(data);
-}
-
-void WatchTreeView::setWatchpointAtExpression(const QString &exp)
-{
-    BreakpointParameters data(WatchpointAtExpression);
-    data.expression = exp;
-    BreakpointModelId id = breakHandler()->findWatchpoint(data);
-    if (id) {
-        qDebug() << "WATCHPOINT EXISTS";
-        //   removeBreakpoint(index);
-        return;
-    }
-    breakHandler()->appendBreakpoint(data);
 }
 
 } // namespace Internal

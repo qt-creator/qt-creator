@@ -1569,5 +1569,32 @@ QString BreakHandler::BreakpointItem::toToolTip() const
     return rc;
 }
 
+void BreakHandler::setWatchpointAtAddress(quint64 address, unsigned size)
+{
+    BreakpointParameters data(WatchpointAtAddress);
+    data.address = address;
+    data.size = size;
+    BreakpointModelId id = findWatchpoint(data);
+    if (id) {
+        qDebug() << "WATCHPOINT EXISTS";
+        //   removeBreakpoint(index);
+        return;
+    }
+    appendBreakpoint(data);
+}
+
+void BreakHandler::setWatchpointAtExpression(const QString &exp)
+{
+    BreakpointParameters data(WatchpointAtExpression);
+    data.expression = exp;
+    BreakpointModelId id = findWatchpoint(data);
+    if (id) {
+        qDebug() << "WATCHPOINT EXISTS";
+        //   removeBreakpoint(index);
+        return;
+    }
+    appendBreakpoint(data);
+}
+
 } // namespace Internal
 } // namespace Debugger
