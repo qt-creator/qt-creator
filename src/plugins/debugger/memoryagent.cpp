@@ -33,6 +33,7 @@
 #include "memoryagent.h"
 #include "memoryview.h"
 
+#include "breakhandler.h"
 #include "debuggerengine.h"
 #include "debuggerstartparameters.h"
 #include "debuggercore.h"
@@ -152,6 +153,12 @@ void MemoryAgent::connectBinEditorWidget(QWidget *w)
     connect(w,
         SIGNAL(dataChanged(Core::IEditor*,quint64,QByteArray)),
         SLOT(handleDataChanged(Core::IEditor*,quint64,QByteArray)));
+    connect(w,
+        SIGNAL(dataChanged(Core::IEditor*,quint64,QByteArray)),
+        SLOT(handleDataChanged(Core::IEditor*,quint64,QByteArray)));
+    connect(w,
+        SIGNAL(addWatchpointRequested(quint64, uint)),
+        SLOT(handleWatchpointRequest(quint64, uint)));
 }
 
 bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,
@@ -268,6 +275,11 @@ void MemoryAgent::handleDataChanged(IEditor *,
     quint64 addr, const QByteArray &data)
 {
     m_engine->changeMemory(this, sender(), addr, data);
+}
+
+void MemoryAgent::handleWatchpointRequest(quint64 address, uint size)
+{
+    m_engine->breakHandler()->setWatchpointAtAddress(address, size);
 }
 
 void MemoryAgent::updateContents()

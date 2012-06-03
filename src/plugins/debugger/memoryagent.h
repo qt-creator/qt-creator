@@ -106,6 +106,7 @@ private slots:
     void handleEndOfFileRequested(Core::IEditor *editor);
     void handleDataChanged(Core::IEditor *editor, quint64 address,
         const QByteArray &data);
+    void handleWatchpointRequest(quint64 address, uint size);
     void updateMemoryView(quint64 address, quint64 length);
     void engineStateChanged(Debugger::DebuggerState s);
 
