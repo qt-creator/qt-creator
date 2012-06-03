@@ -146,6 +146,9 @@ void BranchDialog::add()
                                                         | QItemSelectionModel::Select
                                                         | QItemSelectionModel::Current);
         m_ui->branchView->scrollTo(idx);
+        if (QMessageBox::question(this, tr("Checkout"), tr("Checkout branch?"),
+                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+            checkout();
     }
 }
 
