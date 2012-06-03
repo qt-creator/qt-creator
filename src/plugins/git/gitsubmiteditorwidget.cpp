@@ -135,7 +135,11 @@ GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
 void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
 {
     m_gitSubmitPanelUi.repositoryLabel->setText(QDir::toNativeSeparators(info.repository));
-    m_gitSubmitPanelUi.branchLabel->setText(info.branch);
+    if (info.branch.contains(QLatin1String("(no branch)")))
+        m_gitSubmitPanelUi.branchLabel->setText(QString::fromLatin1("<span style=\"color:red\">%1</span>")
+                                                .arg(tr("Detached HEAD")));
+    else
+        m_gitSubmitPanelUi.branchLabel->setText(info.branch);
 }
 
 GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
