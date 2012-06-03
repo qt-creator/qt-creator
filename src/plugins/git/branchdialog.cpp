@@ -109,7 +109,7 @@ void BranchDialog::enableButtons()
     m_ui->removeButton->setEnabled(hasSelection && !currentSelected && isLocal && isLeaf);
     m_ui->logButton->setEnabled(hasSelection && isLeaf);
     m_ui->diffButton->setEnabled(hasSelection && isLeaf);
-    m_ui->checkoutButton->setEnabled(hasSelection && !currentSelected && isLocal && isLeaf);
+    m_ui->checkoutButton->setEnabled(hasSelection && !currentSelected && isLeaf);
 }
 
 void BranchDialog::refresh()
