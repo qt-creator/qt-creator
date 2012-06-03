@@ -501,7 +501,9 @@ QModelIndex BranchModel::addBranch(const QString &branchName, bool track, const 
 
     QStringList args;
     args << (track ? QLatin1String("--track") : QLatin1String("--no-track"));
-    args << branchName << startPoint;
+    args << branchName;
+    if (!startPoint.isEmpty())
+        args << startPoint;
 
     if (!m_client->synchronousBranchCmd(m_workingDirectory, args, &output, &errorMessage)) {
         VcsBase::VcsBaseOutputWindow::instance()->appendError(errorMessage);
