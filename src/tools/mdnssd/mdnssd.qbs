@@ -1,4 +1,5 @@
 import qbs.base 1.0
+import qbs.fileinfo 1.0 as FileInfo
 import "../QtcTool.qbs" as QtcTool
 
 QtcTool {
@@ -99,14 +100,19 @@ QtcTool {
     Rule {
         inputs: "mc"
         Artifact {
-            fileName: input.baseName + ".h"
+            fileName: product.name + "/" + input.baseName + ".h"
             fileTags: "hpp"
         }
-
+        Artifact {
+            fileName: product.name + "/" + input.baseName + ".rc"
+            fileTags: "mc_result"
+        }
         prepare: {
-            var cmd = new Command("mc", input.fileName)
-            cmd.description = "mc"
-            return cmd
+            var cmd = new Command("mc", input.fileName);
+            cmd.workingDirectory = FileInfo.path(outputs["mc_result"][0].fileName);
+            cmd.description = "mc " + FileInfo.fileName(input.fileName);
+            return cmd;
         }
     }
 }
+
