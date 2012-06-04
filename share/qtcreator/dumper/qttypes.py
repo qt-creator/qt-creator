@@ -2431,6 +2431,10 @@ def qdump__CPlusPlus__Internal__Value(d, value):
     d.putValue(value["l"])
     d.putPlainChildren(value)
 
+def qdump__Utils__ElfSection(d, value):
+    d.putByteArrayValue(value["name"])
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__Token(d, value):
     k = value["f"]["kind"];
     if long(k) == 6:

@@ -48,11 +48,22 @@
 #include "utils_global.h"
 
 #include <qendian.h>
+#include <qlist.h>
 #include <qstring.h>
 
 namespace Utils {
 
 class ElfSectionHeader;
+class ElfSections;
+
+enum DebugSymbolsType
+{
+    UnknownSymbols,    // Unknown.
+    NoSymbols,         // No usable symbols.
+    SeparateSymbols,   // Symbols mentioned, but not in binary.
+    PlainSymbols,      // Ordinary symbols available.
+    FastSymbols        // Dwarf index available.
+};
 
 class QTCREATOR_UTILS_EXPORT ElfSection
 {
@@ -63,8 +74,6 @@ public:
     quint64 offset;
     quint64 size;
 };
-
-typedef QList<ElfSection> ElfSections;
 
 class QTCREATOR_UTILS_EXPORT ElfReader
 {
@@ -84,6 +93,15 @@ private:
     QString m_binary;
     QString m_errorString;
     ElfEndian m_endian;
+};
+
+class QTCREATOR_UTILS_EXPORT ElfSections
+{
+public:
+    ElfSections() : symbolsType(UnknownSymbols) {}
+
+    QList<ElfSection> sections;
+    DebugSymbolsType symbolsType;
 };
 
 } // namespace Utils

@@ -225,6 +225,13 @@ ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
             section.index = strtab.name;
             section.offset = strtab.offset;
             section.size = strtab.size;
+            if (section.name == ".gdb_index")
+                sections->symbolsType = FastSymbols;
+            else if (section.name == ".debug_info")
+                sections->symbolsType = PlainSymbols;
+            else if (section.name == ".gnu_debuglink")
+                sections->symbolsType = SeparateSymbols;
+            sections->sections.append(section);
         }
 
         s += e_shentsize;

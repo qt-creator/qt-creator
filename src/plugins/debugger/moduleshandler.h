@@ -33,6 +33,8 @@
 #ifndef DEBUGGER_MODULESHANDLER_H
 #define DEBUGGER_MODULESHANDLER_H
 
+#include <utils/elfreader.h>
+
 #include <QObject>
 #include <QVector>
 
@@ -73,7 +75,7 @@ typedef QVector<Symbol> Symbols;
 class Module
 {
 public:
-    Module() : symbolsRead(UnknownReadState), symbolsType(UnknownSymbols) {}
+    Module() : symbolsRead(UnknownReadState) {}
 
 public:
     enum SymbolReadState {
@@ -81,20 +83,14 @@ public:
         ReadFailed,        // Tried to read, but failed.
         ReadOk             // Dwarf index available.
     };
-    enum SymbolType {
-        UnknownSymbols,    // Unknown.
-        NoSymbols,         // No usable symbols.
-        SeparateSymbols,   // Symbols mentioned, but not in binary.
-        PlainSymbols,      // Ordinary symbols available.
-        FastSymbols        // Dwarf index available.
-    };
     QString moduleName;
     QString modulePath;
     QString hostPath;
     SymbolReadState symbolsRead;
-    SymbolType symbolsType;
     quint64 startAddress;
     quint64 endAddress;
+
+    Utils::ElfSections sections;
 };
 
 typedef QVector<Module> Modules;
@@ -116,7 +112,6 @@ public:
     QAbstractItemModel *model() const;
 
     void setModules(const Modules &modules);
-    void addModule(const Module &module);
     void removeModule(const QString &modulePath);
     void updateModule(const Module &module);
 

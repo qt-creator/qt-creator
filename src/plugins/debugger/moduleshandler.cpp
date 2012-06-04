@@ -32,11 +32,13 @@
 
 #include "moduleshandler.h"
 
+#include <utils/elfreader.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QSortFilterProxyModel>
 
+using namespace Utils;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -65,7 +67,6 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     void clearModel();
-    void addModule(const Module &module);
     void removeModule(const QString &modulePath);
     void setModules(const Modules &modules);
     void updateModule(const Module &module);
@@ -123,41 +124,41 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
             break;
         case 3:
             if (role == Qt::DisplayRole)
-                switch (module.symbolsType) {
-                    case Module::UnknownSymbols:
+                switch (module.sections.symbolsType) {
+                    case UnknownSymbols:
                         return ModulesHandler::tr("unknown");
-                    case Module::NoSymbols:
+                    case NoSymbols:
                         return ModulesHandler::tr("none");
-                    case Module::PlainSymbols:
+                    case PlainSymbols:
                         return ModulesHandler::tr("plain");
-                    case Module::FastSymbols:
+                    case FastSymbols:
                         return ModulesHandler::tr("fast");
-                    case Module::SeparateSymbols:
+                    case SeparateSymbols:
                         return ModulesHandler::tr("separate");
                 }
             else if (role == Qt::ToolTipRole)
-                switch (module.symbolsType) {
-                    case Module::UnknownSymbols:
+                switch (module.sections.symbolsType) {
+                    case UnknownSymbols:
                         return ModulesHandler::tr(
                         "It is unknown whether this module contains debug "
                         "information.\nUse \"Examine Symbols\" from the "
                         "context menu to initiate a check.");
-                    case Module::NoSymbols:
+                    case NoSymbols:
                         return ModulesHandler::tr(
                         "This module neither contains nor references debug "
                         "information.\nStepping into the module or setting "
                         "breakpoints by file and line will not work.");
-                    case Module::PlainSymbols:
+                    case PlainSymbols:
                         return ModulesHandler::tr(
                         "This module contains debug information.\nStepping "
                         "into the module or setting breakpoints by file and "
                         "is expected to work.");
-                    case Module::FastSymbols:
+                    case FastSymbols:
                         return ModulesHandler::tr(
                         "This module contains debug information.\nStepping "
                         "into the module or setting breakpoints by file and "
                         "is expected to work.");
-                    case Module::SeparateSymbols:
+                    case SeparateSymbols:
                         return ModulesHandler::tr(
                         "This module does not contains debug information "
                         "itself, but contains a reference to external "
@@ -181,13 +182,6 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
             break;
     }
     return QVariant();
-}
-
-void ModulesModel::addModule(const Module &m)
-{
-    beginInsertRows(QModelIndex(), m_modules.size(), m_modules.size());
-    m_modules.push_back(m);
-    endInsertRows();
 }
 
 void ModulesModel::setModules(const Modules &m)
@@ -225,10 +219,17 @@ void ModulesModel::removeModule(const QString &modulePath)
 void ModulesModel::updateModule(const Module &module)
 {
     const int row = indexOfModule(module.modulePath);
+    ElfReader reader(module.modulePath);
+    ElfSections sections = reader.sections();
     if (row == -1) {
-        addModule(module);
+        const int n = m_modules.size();
+        beginInsertRows(QModelIndex(), n, n);
+        m_modules.push_back(module);
+        m_modules.back().sections = sections;
+        endInsertRows();
     } else {
         m_modules[row] = module;
+        m_modules[row].sections = sections;
         dataChanged(index(row, 0, QModelIndex()), index(row, 4, QModelIndex()));
     }
 }
@@ -254,11 +255,6 @@ QAbstractItemModel *ModulesHandler::model() const
 void ModulesHandler::removeAll()
 {
     m_model->clearModel();
-}
-
-void ModulesHandler::addModule(const Module &module)
-{
-    m_model->addModule(module);
 }
 
 void ModulesHandler::removeModule(const QString &modulePath)

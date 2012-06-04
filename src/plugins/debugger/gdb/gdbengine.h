@@ -514,7 +514,6 @@ private: ////////// View & Data Stuff //////////
     void requestModuleSymbols(const QString &moduleName);
     void reloadModules();
     void examineModules();
-    void examineModule(Module *module);
     void reloadModulesInternal();
     void handleModulesList(const GdbResponse &response);
     void handleShowModuleSymbols(const GdbResponse &response);

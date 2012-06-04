@@ -106,6 +106,7 @@
 #include <ctype.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -499,8 +500,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 module.hostPath = _(result.findChild("host-name").data());
                 module.modulePath = _(result.findChild("target-name").data());
                 module.moduleName = QFileInfo(module.hostPath).baseName();
-                examineModule(&module);
-                modulesHandler()->addModule(module);
+                modulesHandler()->updateModule(module);
             } else if (asyncClass == "library-unloaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
                 // target-name="/usr/lib/libdrm.so.2",
@@ -730,7 +730,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 Task task(Task::Warning,
                     tr("Missing debug information for %1\nTry: %2")
                         .arg(m_lastMissingDebugInfo).arg(cmd),
-                    Utils::FileName(), 0, Core::Id("Debuginfo"));
+                    FileName(), 0, Core::Id("Debuginfo"));
 
                 taskHub()->addTask(task);
 
@@ -3479,7 +3479,6 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
                 module.moduleName = nameFromPath(module.modulePath);
                 module.symbolsRead =
                     (symbolsRead == QLatin1String("Yes") ? Module::ReadOk : Module::ReadFailed);
-                examineModule(&module);
                 handler->updateModule(module);
                 found = true;
             } else if (line.trimmed().startsWith(QLatin1String("No"))) {
@@ -3490,7 +3489,6 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
                 module.endAddress = 0;
                 module.modulePath = ts.readLine().trimmed();
                 module.moduleName = nameFromPath(module.modulePath);
-                examineModule(&module);
                 handler->updateModule(module);
                 found = true;
             }
@@ -3510,32 +3508,8 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
                 module.startAddress =
                     item.findChild("loaded_addr").data().toULongLong(0, 0);
                 module.endAddress = 0; // FIXME: End address not easily available.
-                examineModule(&module);
                 handler->updateModule(module);
             }
-        }
-    }
-}
-
-void GdbEngine::examineModule(Module *module)
-{
-    using namespace Utils;
-    ElfReader reader(module->modulePath);
-    ElfSections sections = reader.sections();
-    module->symbolsType = Module::NoSymbols;
-    for (int i = 0, n = sections.size(); i != n; ++i) {
-        const QByteArray &name = sections.at(i).name;
-        if (name == ".gdb_index") {
-            module->symbolsType = Module::FastSymbols;
-            break;
-        }
-        if (name == ".debug_info") {
-            module->symbolsType = Module::PlainSymbols;
-            break;
-        }
-        if (name == ".gnu_debuglink") {
-            module->symbolsType = Module::SeparateSymbols;
-            break;
         }
     }
 }
@@ -3544,10 +3518,8 @@ void GdbEngine::examineModules()
 {
     ModulesHandler *handler = modulesHandler();
     foreach (Module module, handler->modules()) {
-        if (module.symbolsType == Module::UnknownSymbols) {
-            examineModule(&module);
-            modulesHandler()->updateModule(module);
-        }
+        if (module.sections.symbolsType == UnknownSymbols)
+            handler->updateModule(module);
     }
 }
 
@@ -5038,7 +5010,7 @@ void GdbEngine::handleAdapterStarted()
     module.endAddress = 0;
     module.modulePath = startParameters().executable;
     module.moduleName = QLatin1String("<executable>");
-    modulesHandler()->addModule(module);
+    modulesHandler()->updateModule(module);
 }
 
 void GdbEngine::setupInferior()
@@ -5380,7 +5352,6 @@ bool GdbEngine::attemptQuickStart() const
 
 void GdbEngine::checkForReleaseBuild()
 {
-    using namespace Utils;
     QString binary = startParameters().executable;
     ElfReader reader(binary);
     ElfSections sections = reader.sections();
@@ -5404,7 +5375,7 @@ void GdbEngine::checkForReleaseBuild()
     }
 
     QSet<QByteArray> seen;
-    foreach (const ElfSection &section, sections) {
+    foreach (const ElfSection &section, sections.sections) {
         msg.append(section.name);
         msg.append(' ');
         if (interesting.contains(section.name))
@@ -5417,12 +5388,12 @@ void GdbEngine::checkForReleaseBuild()
         return;
     }
 
-    if (sections.isEmpty()) {
+    if (sections.sections.isEmpty()) {
         showMessage(_("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?"));
         return;
     }
 
-    foreach (const ElfSection &section, sections) {
+    foreach (const ElfSection &section, sections.sections) {
         if (section.name == ".debug_info")
             return;
     }
