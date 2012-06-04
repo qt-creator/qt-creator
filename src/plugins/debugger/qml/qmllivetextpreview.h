@@ -84,13 +84,15 @@ private slots:
                                 const QString &wordAtCursor);
     void documentChanged(QmlJS::Document::Ptr doc);
     void editorContentsChanged();
+    void onAutomaticUpdateFailed();
 
 private:
     enum UnsyncronizableChangeType {
         NoUnsyncronizableChanges,
         AttributeChangeWarning,
         ElementChangeWarning,
-        JSChangeWarning
+        JSChangeWarning,
+        AutomaticUpdateFailed
     };
 
     bool changeSelectedElements(const QList<int> offsets, const QString &wordAtCursor);

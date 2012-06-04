@@ -376,6 +376,8 @@ QmlLiveTextPreview::QmlLiveTextPreview(const QmlJS::Document::Ptr &doc,
             SIGNAL(fetchObjectsForLocation(QString,int,int)),
             m_inspectorAdapter->agent(),
             SLOT(fetchContextObjectsForLocation(QString,int,int)));
+    connect(m_inspectorAdapter->agent(), SIGNAL(automaticUpdateFailed()),
+            SLOT(onAutomaticUpdateFailed()));
 }
 
 void QmlLiveTextPreview::associateEditor(Core::IEditor *editor)
@@ -598,7 +600,6 @@ void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 
         if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()) {
             if (doc->fileName().endsWith(".js")) {
-                m_changesUnsynchronizable = true;
                 showSyncWarning(JSChangeWarning, QString(), 0, 0);
                 m_previousDoc = doc;
                 return;
@@ -612,7 +613,6 @@ void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 
 
                 if (delta.unsyncronizableChanges != NoUnsyncronizableChanges) {
-                    m_changesUnsynchronizable = true;
                     showSyncWarning(delta.unsyncronizableChanges,
                                     delta.unsyncronizableElementName,
                                     delta.unsyncronizableChangeLine,
@@ -636,6 +636,11 @@ void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
 void QmlLiveTextPreview::editorContentsChanged()
 {
     m_contentsChanged = true;
+}
+
+void QmlLiveTextPreview::onAutomaticUpdateFailed()
+{
+    showSyncWarning(AutomaticUpdateFailed, QString(), -1, -1);
 }
 
 QList<int> QmlLiveTextPreview::objectReferencesForOffset(quint32 offset)
@@ -688,11 +693,16 @@ void QmlLiveTextPreview::showSyncWarning(
         errorMessage = tr("The changes in JavaScript cannot be applied "
                           "without reloading the QML application. ");
         break;
+    case AutomaticUpdateFailed:
+        errorMessage = tr("The changes made cannot be applied without "
+                          "reloading the QML application. ");
+        break;
     case QmlLiveTextPreview::NoUnsyncronizableChanges:
     default:
         return;
     }
 
+    m_changesUnsynchronizable = true;
     errorMessage.append(tr("You can continue debugging, but behavior can be unexpected."));
 
     // Clear infobars if present before showing the same. Otherwise multiple infobars

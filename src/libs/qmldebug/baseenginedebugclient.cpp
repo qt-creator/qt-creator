@@ -230,7 +230,10 @@ void BaseEngineDebugClient::messageReceived(const QByteArray &data)
         emit result(queryId, exprResult, type);
     } else if (type == "WATCH_PROPERTY_R" ||
                type == "WATCH_OBJECT_R" ||
-               type == "WATCH_EXPR_OBJECT_R") {
+               type == "WATCH_EXPR_OBJECT_R" ||
+               type == "SET_BINDING_R" ||
+               type == "RESET_BINDING_R" ||
+               type == "SET_METHOD_BODY_R") {
         bool valid;
         ds >> valid;
         emit result(queryId, valid, type);

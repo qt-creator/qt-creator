@@ -423,6 +423,14 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
     if (type == _("FETCH_OBJECT_R")) {
         log(LogReceive, _("FETCH_OBJECT_R %1").arg(
                 qvariant_cast<ObjectReference>(value).idString()));
+    } else if (type == _("SET_BINDING_R")
+               || type == _("RESET_BINDING_R")
+               || type == _("SET_METHOD_BODY_R")) {
+        QString msg = QLatin1String(type) + tr(" success : ");
+        msg += value.toBool() ? "1" : "0";
+        if (!value.toBool())
+            emit automaticUpdateFailed();
+        log(LogReceive, msg);
     } else {
         log(LogReceive, QLatin1String(type));
     }

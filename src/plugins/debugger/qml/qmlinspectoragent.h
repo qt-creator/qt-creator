@@ -103,6 +103,7 @@ signals:
     void expressionResult(quint32 queryId, const QVariant &value);
     void propertyChanged(int debugId, const QByteArray &propertyName,
                          const QVariant &propertyValue);
+    void automaticUpdateFailed();
 
 private slots:
     void updateStatus();
