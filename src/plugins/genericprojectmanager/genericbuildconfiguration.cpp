@@ -188,12 +188,12 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Ta
     Q_ASSERT(buildSteps);
     GenericMakeStep *makeStep = new GenericMakeStep(buildSteps);
     buildSteps->insertStep(0, makeStep);
-    makeStep->setBuildTarget("all", /* on = */ true);
+    makeStep->setBuildTarget(QLatin1String("all"), /* on = */ true);
 
     Q_ASSERT(cleanSteps);
     GenericMakeStep *cleanMakeStep = new GenericMakeStep(cleanSteps);
     cleanSteps->insertStep(0, cleanMakeStep);
-    cleanMakeStep->setBuildTarget("clean", /* on = */ true);
+    cleanMakeStep->setBuildTarget(QLatin1String("clean"), /* on = */ true);
     cleanMakeStep->setClean(true);
 
     target->addBuildConfiguration(bc); // also makes the name unique...
