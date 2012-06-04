@@ -332,6 +332,8 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::Buil
     if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)) {
         step->setClean(true);
         step->setBuildTarget("clean", /* on = */ true);
+    } else if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)) {
+        step->setBuildTarget("all", /* on = */ true);
     }
     return step;
 }
