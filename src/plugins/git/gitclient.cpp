@@ -1156,7 +1156,7 @@ QString GitClient::synchronousShortDescription(const QString &workingDirectory, 
         VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
         outputWindow->appendSilently(tr("Cannot describe revision \"%1\" in \"%2\": %3")
                                      .arg(revision, workingDirectory, commandOutputFromLocal8Bit(errorText)));
-        return QString();
+        return revision;
     }
     description = commandOutputFromLocal8Bit(outputTextData);
     if (description.endsWith(QLatin1Char('\n')))

@@ -211,7 +211,7 @@ QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
         args << QLatin1String("--template") << format;
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
-        return QString();
+        return revision;
     description = QString::fromLocal8Bit(outputData);
     description.remove(QLatin1Char('\r'));
     if (description.endsWith(QLatin1Char('\n')))
