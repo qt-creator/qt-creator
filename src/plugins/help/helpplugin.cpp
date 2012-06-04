@@ -420,7 +420,12 @@ ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
         // depends on the always visible property of the sidebar...
         settings->setValue(QLatin1String("HelpSideBar/") + QLatin1String("Visible"), m_isSidebarVisible);
     }
-    delete m_externalWindow;
+
+    if (m_externalWindow) {
+        delete m_externalWindow;
+        m_centralWidget = 0; // Running the external window will take down the central widget as well, cause
+            // calling m_externalWindow->setCentralWidget(m_centralWidget) will pass ownership to the window.
+    }
 
     return SynchronousShutdown;
 }
