@@ -254,6 +254,8 @@ private:
     // Implement to return a local file name from the diff file specification
     // (text cursor at position above change hunk)
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileSpec) const = 0;
+    // Implement to return decorated annotation change for "Annotate version"
+    virtual QString decorateVersion(const QString &revision) const;
     // Implement to return the previous version[s] of an annotation change
     // for "Annotate previous version"
     virtual QStringList annotationPreviousVersions(const QString &revision) const;

@@ -160,12 +160,9 @@ public:
                                     const QString &revision,
                                     QStringList *parents,
                                     QString *errorMessage);
-    bool synchronousShortDescription(const QString &workingDirectory, const QString &revision,
-                                     QString *description, QString *errorMessage);
-    bool synchronousShortDescription(const QString &workingDirectory, const QString &revision,
-                                     const QString &format, QString *description, QString *errorMessage);
-    bool synchronousShortDescriptions(const QString &workingDirectory, const QStringList &revisions,
-                                      QStringList *descriptions, QString *errorMessage);
+    QString synchronousShortDescription(const QString &workingDirectory, const QString &revision);
+    QString synchronousShortDescription(const QString &workingDirectory, const QString &revision,
+                                     const QString &format);
     bool synchronousTopRevision(const QString &workingDirectory, QString *revision = 0,
                                 QString *branch = 0, QString *errorMessage = 0);
 

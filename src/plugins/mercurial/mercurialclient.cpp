@@ -157,19 +157,18 @@ static inline QString msgParseParentsOutputFailed(const QString &output)
     return MercurialClient::tr("Cannot parse output: %1").arg(output);
 }
 
-bool MercurialClient::parentRevisionsSync(const QString &workingDirectory,
+QStringList MercurialClient::parentRevisionsSync(const QString &workingDirectory,
                                           const QString &file /* = QString() */,
-                                          const QString &revision,
-                                          QStringList *parents)
+                                          const QString &revision)
 {
-    parents->clear();
+    QStringList parents;
     QStringList args;
     args << QLatin1String("parents") <<  QLatin1String("-r") <<revision;
     if (!file.isEmpty())
         args << file;
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
-        return false;
+        return QStringList();
     QString output = QString::fromLocal8Bit(outputData);
     output.remove(QLatin1Char('\r'));
     /* Looks like: \code
@@ -181,12 +180,12 @@ user: ...
     const QStringList lines = output.split(QLatin1Char('\n'));
     if (lines.size() < 1) {
         outputWindow->appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
-        return false;
+        return QStringList();
     }
     QStringList changeSets = lines.front().simplified().split(QLatin1Char(' '));
     if (changeSets.size() < 2) {
         outputWindow->appendSilently(msgParentRevisionFailed(workingDirectory, revision, msgParseParentsOutputFailed(output)));
-        return false;
+        return QStringList();
     }
     // Remove revision numbers
     const QChar colon = QLatin1Char(':');
@@ -195,57 +194,38 @@ user: ...
     for (++it; it != end; ++it) {
         const int colonIndex = it->indexOf(colon);
         if (colonIndex != -1)
-            parents->push_back(it->mid(colonIndex + 1));
+            parents.push_back(it->mid(colonIndex + 1));
     }
-    return true;
+    return parents;
 }
 
 // Describe a change using an optional format
-bool MercurialClient::shortDescriptionSync(const QString &workingDirectory,
+QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
                                            const QString &revision,
-                                           const QString &format,
-                                           QString *description)
+                                           const QString &format)
 {
-    description->clear();
+    QString description;
     QStringList args;
     args << QLatin1String("log") <<  QLatin1String("-r") <<revision;
     if (!format.isEmpty())
         args << QLatin1String("--template") << format;
     QByteArray outputData;
     if (!vcsFullySynchronousExec(workingDirectory, args, &outputData))
-        return false;
-    *description = QString::fromLocal8Bit(outputData);
-    description->remove(QLatin1Char('\r'));
-    if (description->endsWith(QLatin1Char('\n')))
-        description->truncate(description->size() - 1);
-    return true;
+        return QString();
+    description = QString::fromLocal8Bit(outputData);
+    description.remove(QLatin1Char('\r'));
+    if (description.endsWith(QLatin1Char('\n')))
+        description.truncate(description.size() - 1);
+    return description;
 }
 
 // Default format: "SHA1 (author summmary)"
 static const char defaultFormatC[] = "{node} ({author|person} {desc|firstline})";
 
-bool MercurialClient::shortDescriptionSync(const QString &workingDirectory,
-                                           const QString &revision,
-                                           QString *description)
+QString MercurialClient::shortDescriptionSync(const QString &workingDirectory,
+                                           const QString &revision)
 {
-    if (!shortDescriptionSync(workingDirectory, revision, QLatin1String(defaultFormatC), description))
-        return false;
-    description->remove(QLatin1Char('\n'));
-    return true;
-}
-
-// Convenience to format a list of changes
-bool MercurialClient::shortDescriptionsSync(const QString &workingDirectory, const QStringList &revisions,
-                                            QStringList *descriptions)
-{
-    descriptions->clear();
-    foreach(const QString &revision, revisions) {
-        QString description;
-        if (!shortDescriptionSync(workingDirectory, revision, &description))
-            return false;
-        descriptions->push_back(description);
-    }
-    return true;
+    return shortDescriptionSync(workingDirectory, revision, QLatin1String(defaultFormatC));
 }
 
 QString MercurialClient::vcsGetRepositoryURL(const QString &directory)

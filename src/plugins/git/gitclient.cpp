@@ -1070,29 +1070,11 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
 // Short SHA1, author, subject
 static const char defaultShortLogFormatC[] = "%h (%an \"%s\")";
 
-bool GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision,
-                                            QString *description, QString *errorMessage)
+QString GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision)
 {
     // Short SHA 1, author, subject
     return synchronousShortDescription(workingDirectory, revision,
-                                       QLatin1String(defaultShortLogFormatC),
-                                       description, errorMessage);
-}
-
-// Convenience working on a list of revisions
-bool GitClient::synchronousShortDescriptions(const QString &workingDirectory, const QStringList &revisions,
-                                             QStringList *descriptions, QString *errorMessage)
-{
-    descriptions->clear();
-    foreach (const QString &revision, revisions) {
-        QString description;
-        if (!synchronousShortDescription(workingDirectory, revision, &description, errorMessage)) {
-            descriptions->clear();
-            return false;
-        }
-        descriptions->push_back(description);
-    }
-    return true;
+                                       QLatin1String(defaultShortLogFormatC));
 }
 
 static inline QString msgCannotDetermineBranch(const QString &workingDirectory, const QString &why)
@@ -1161,10 +1143,10 @@ bool GitClient::synchronousTopRevision(const QString &workingDirectory, QString 
 }
 
 // Format an entry in a one-liner for selection list using git log.
-bool GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision,
-                                            const QString &format, QString *description,
-                                            QString *errorMessage)
+QString GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision,
+                                            const QString &format)
 {
+    QString description;
     QByteArray outputTextData;
     QByteArray errorText;
     QStringList arguments;
@@ -1173,13 +1155,15 @@ bool GitClient::synchronousShortDescription(const QString &workingDirectory, con
               << QLatin1String("--max-count=1") << revision;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText);
     if (!rc) {
-        *errorMessage = tr("Cannot describe revision \"%1\" in \"%2\": %3").arg(revision, workingDirectory, commandOutputFromLocal8Bit(errorText));
-        return false;
+        VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
+        outputWindow->appendSilently(tr("Cannot describe revision \"%1\" in \"%2\": %3")
+                                     .arg(revision, workingDirectory, commandOutputFromLocal8Bit(errorText)));
+        return QString();
     }
-    *description = commandOutputFromLocal8Bit(outputTextData);
-    if (description->endsWith(QLatin1Char('\n')))
-        description->truncate(description->size() - 1);
-    return true;
+    description = commandOutputFromLocal8Bit(outputTextData);
+    if (description.endsWith(QLatin1Char('\n')))
+        description.truncate(description.size() - 1);
+    return description;
 }
 
 // Create a default message to be used for describing stashes

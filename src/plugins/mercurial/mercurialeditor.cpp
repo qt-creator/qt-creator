@@ -118,19 +118,18 @@ QString MercurialEditor::fileNameFromDiffSpecification(const QTextBlock &inBlock
     return QString();
 }
 
+QString MercurialEditor::decorateVersion(const QString &revision) const
+{
+    const QFileInfo fi(source());
+    const QString workingDirectory = fi.absolutePath();
+    // Format with short summary
+    return MercurialPlugin::instance()->client()->shortDescriptionSync(workingDirectory, revision);
+}
+
 QStringList MercurialEditor::annotationPreviousVersions(const QString &revision) const
 {
-    MercurialClient *client = MercurialPlugin::instance()->client();
-    QStringList parents;
     const QFileInfo fi(source());
     const QString workingDirectory = fi.absolutePath();
     // Retrieve parent revisions
-    QStringList revisions;
-    if (!client->parentRevisionsSync(workingDirectory, fi.fileName(), revision, &revisions))
-        return QStringList();
-    // Format with short summary
-    QStringList descriptions;
-    if (!client->shortDescriptionsSync(workingDirectory, revisions, &descriptions))
-        return QStringList();
-    return descriptions;
+    return MercurialPlugin::instance()->client()->parentRevisionsSync(workingDirectory, fi.fileName(), revision);
 }

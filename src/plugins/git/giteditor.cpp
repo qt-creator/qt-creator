@@ -227,6 +227,15 @@ void GitEditor::commandFinishedGotoLine(bool ok, int /* exitCode */, const QVari
     }
 }
 
+QString GitEditor::decorateVersion(const QString &revision) const
+{
+    const QFileInfo fi(source());
+    const QString workingDirectory = fi.absolutePath();
+
+    // Format verbose, SHA1 being first token
+    return GitPlugin::instance()->gitClient()->synchronousShortDescription(workingDirectory, revision);
+}
+
 QStringList GitEditor::annotationPreviousVersions(const QString &revision) const
 {
     QStringList revisions;
@@ -240,13 +249,7 @@ QStringList GitEditor::annotationPreviousVersions(const QString &revision) const
         VcsBase::VcsBaseOutputWindow::instance()->appendSilently(errorMessage);
         return QStringList();
     }
-    // Format verbose, SHA1 being first token
-    QStringList descriptions;
-    if (!client->synchronousShortDescriptions(workingDirectory, revisions, &descriptions, &errorMessage)) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendSilently(errorMessage);
-        return QStringList();
-    }
-    return descriptions;
+    return revisions;
 }
 
 } // namespace Internal
