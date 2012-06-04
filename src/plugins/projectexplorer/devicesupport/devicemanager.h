@@ -67,9 +67,6 @@ public:
     bool hasDevice(const QString &name) const;
     Core::Id deviceId(const IDevice::ConstPtr &device) const;
 
-    int indexForId(Core::Id id) const;
-    int indexOf(const IDevice::ConstPtr &device) const;
-
     void addDevice(const IDevice::Ptr &device);
     void removeDevice(Core::Id id);
 

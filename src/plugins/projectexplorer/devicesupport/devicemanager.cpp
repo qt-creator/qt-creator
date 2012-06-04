@@ -70,6 +70,15 @@ const char DefaultDevicesKey[] = "DefaultDevices";
 class DeviceManagerPrivate
 {
 public:
+    int indexForId(Core::Id id) const
+    {
+        for (int i = 0; i < devices.count(); ++i) {
+            if (devices.at(i)->id() == id)
+                return i;
+        }
+        return -1;
+    }
+
     static DeviceManager *clonedInstance;
     QList<IDevice::Ptr> devices;
     QList<IDevice::Ptr> inactiveAutoDetectedDevices;
@@ -223,7 +232,7 @@ void DeviceManager::addDevice(const IDevice::Ptr &_device)
     QTC_ASSERT(this != instance() || device->isAutoDetected(), return);
 
     QString name = device->displayName();
-    const int pos = indexForId(device->id());
+    const int pos = d->indexForId(device->id());
     if (pos >= 0) {
         device->setDisplayName(QString()); // For name uniquification to work.
         d->devices[pos] = device;
@@ -272,7 +281,7 @@ void DeviceManager::removeDevice(Core::Id id)
 
     const bool wasDefault = d->defaultDevices.value(device->type()) == device->id();
     const Core::Id deviceType = device->type();
-    d->devices.removeAt(indexForId(id));
+    d->devices.removeAt(d->indexForId(id));
     emit deviceRemoved(device->id());
 
     if (wasDefault) {
@@ -342,7 +351,7 @@ IDevice::ConstPtr DeviceManager::deviceAt(int idx) const
 
 IDevice::Ptr DeviceManager::mutableDevice(Core::Id id) const
 {
-    const int index = indexForId(id);
+    const int index = d->indexForId(id);
     return index == -1 ? IDevice::Ptr() : d->devices.at(index);
 }
 
@@ -357,7 +366,7 @@ bool DeviceManager::hasDevice(const QString &name) const
 
 IDevice::ConstPtr DeviceManager::find(Core::Id id) const
 {
-    const int index = indexForId(id);
+    const int index = d->indexForId(id);
     return index == -1 ? IDevice::ConstPtr() : deviceAt(index);
 }
 
@@ -374,23 +383,9 @@ IDevice::ConstPtr DeviceManager::defaultDevice(Core::Id deviceType) const
     return find(id);
 }
 
-int DeviceManager::indexForId(Core::Id id) const
-{
-    for (int i = 0; i < d->devices.count(); ++i) {
-        if (deviceAt(i)->id() == id)
-            return i;
-    }
-    return -1;
-}
-
 Core::Id DeviceManager::deviceId(const IDevice::ConstPtr &device) const
 {
     return device ? device->id() : IDevice::invalidId();
-}
-
-int DeviceManager::indexOf(const IDevice::ConstPtr &device) const
-{
-    return indexForId(device->id());
 }
 
 void DeviceManager::ensureOneDefaultDevicePerType()

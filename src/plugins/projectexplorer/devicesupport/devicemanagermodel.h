@@ -56,6 +56,7 @@ public:
     IDevice::ConstPtr device(int pos) const;
     Core::Id deviceId(int pos) const;
     int indexOf(IDevice::ConstPtr dev) const;
+    int indexForId(Core::Id id) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 private slots:
@@ -66,8 +67,6 @@ private slots:
 
 private:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-
-    int indexForId(Core::Id id) const;
 
     Internal::DeviceManagerModelPrivate * const d;
 };

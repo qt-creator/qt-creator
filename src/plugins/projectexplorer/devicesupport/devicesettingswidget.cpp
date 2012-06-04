@@ -271,7 +271,7 @@ void DeviceSettingsWidget::setDefaultDevice()
 
 void DeviceSettingsWidget::handleDeviceUpdated(Id id)
 {
-    const int index = m_deviceManager->indexForId(id);
+    const int index = m_deviceManagerModel->indexForId(id);
     if (index == currentIndex())
         currentDeviceChanged(index);
 }
