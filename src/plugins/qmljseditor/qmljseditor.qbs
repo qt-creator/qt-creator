@@ -93,5 +93,9 @@ QtcPlugin {
         "qmljswrapinloader.h",
         "images/qmlfile.png"
     ]
+
+    ProductModule {
+        Depends { name: "QmlJSTools" }
+    }
 }
 
