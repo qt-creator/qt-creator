@@ -3519,16 +3519,25 @@ void GdbEngine::handleModulesList(const GdbResponse &response)
 
 void GdbEngine::examineModule(Module *module)
 {
-    Utils::ElfReader reader(module->modulePath);
-    QList<QByteArray> names = reader.sectionNames();
-    if (names.contains(".gdb_index"))
-        module->symbolsType = Module::FastSymbols;
-    else if (names.contains(".debug_inf"))
-        module->symbolsType = Module::PlainSymbols;
-    else if (names.contains(".gnu_debuglink"))
-        module->symbolsType = Module::SeparateSymbols;
-    else
-        module->symbolsType = Module::NoSymbols;
+    using namespace Utils;
+    ElfReader reader(module->modulePath);
+    ElfSections sections = reader.sections();
+    module->symbolsType = Module::NoSymbols;
+    for (int i = 0, n = sections.size(); i != n; ++i) {
+        const QByteArray &name = sections.at(i).name;
+        if (name == ".gdb_index") {
+            module->symbolsType = Module::FastSymbols;
+            break;
+        }
+        if (name == ".debug_info") {
+            module->symbolsType = Module::PlainSymbols;
+            break;
+        }
+        if (name == ".gnu_debuglink") {
+            module->symbolsType = Module::SeparateSymbols;
+            break;
+        }
+    }
 }
 
 void GdbEngine::examineModules()
@@ -5371,9 +5380,10 @@ bool GdbEngine::attemptQuickStart() const
 
 void GdbEngine::checkForReleaseBuild()
 {
+    using namespace Utils;
     QString binary = startParameters().executable;
-    Utils::ElfReader reader(binary);
-    QList<QByteArray> names = reader.sectionNames();
+    ElfReader reader(binary);
+    ElfSections sections = reader.sections();
     QString error = reader.errorString();
 
     showMessage(_("EXAMINING ") + binary);
@@ -5394,11 +5404,11 @@ void GdbEngine::checkForReleaseBuild()
     }
 
     QSet<QByteArray> seen;
-    foreach (const QByteArray &name, names) {
-        msg.append(name);
+    foreach (const ElfSection &section, sections) {
+        msg.append(section.name);
         msg.append(' ');
-        if (interesting.contains(name))
-            seen.insert(name);
+        if (interesting.contains(section.name))
+            seen.insert(section.name);
     }
     showMessage(_(msg));
 
@@ -5406,13 +5416,16 @@ void GdbEngine::checkForReleaseBuild()
         showMessage(_("ERROR WHILE READING ELF SECTIONS: ") + error);
         return;
     }
-    if (names.isEmpty()) {
-        showMessage(_("NO SECTION HEADERS FOUND"));
+
+    if (sections.isEmpty()) {
+        showMessage(_("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?"));
         return;
     }
 
-    if (names.contains(".debug_info"))
-        return;
+    foreach (const ElfSection &section, sections) {
+        if (section.name == ".debug_info")
+            return;
+    }
 
     QString warning;
     warning = tr("This does not seem to be a \"Debug\" build.\n"

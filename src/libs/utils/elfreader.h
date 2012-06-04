@@ -52,33 +52,34 @@
 
 namespace Utils {
 
-typedef quint16  qelfhalf_t;
-typedef quint32  qelfword_t;
-typedef quintptr qelfoff_t;
-typedef quintptr qelfaddr_t;
+class ElfSectionHeader;
+
+class QTCREATOR_UTILS_EXPORT ElfSection
+{
+public:
+    QByteArray name;
+    quint32 index;
+    quint32 type;
+    quint64 offset;
+    quint64 size;
+};
+
+typedef QList<ElfSection> ElfSections;
 
 class QTCREATOR_UTILS_EXPORT ElfReader
 {
 public:
     explicit ElfReader(const QString &binary);
 
-    struct ElfSectionHeader
-    {
-        qelfword_t name;
-        qelfword_t type;
-        qelfoff_t  offset;
-        qelfoff_t  size;
-    };
-
     enum ElfEndian { ElfLittleEndian = 0, ElfBigEndian = 1 };
-    QList<QByteArray> sectionNames();
+    ElfSections sections();
     QString errorString() const { return m_errorString; }
 
 private:
     enum Result { Ok, NotElf, Corrupt };
 
     const char *parseSectionHeader(const char *s, ElfSectionHeader *sh);
-    Result parse(const char *dataStart, quint64 fdlen, QList<QByteArray> *sectionNames);
+    Result parse(const char *dataStart, quint64 fdlen, ElfSections *sections);
 
     QString m_binary;
     QString m_errorString;

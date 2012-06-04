@@ -48,6 +48,21 @@
 
 namespace Utils {
 
+
+typedef quint16  qelfhalf_t;
+typedef quint32  qelfword_t;
+typedef quintptr qelfoff_t;
+typedef quintptr qelfaddr_t;
+
+class ElfSectionHeader
+{
+public:
+    qelfword_t name;
+    qelfword_t type;
+    qelfoff_t  offset;
+    qelfoff_t  size;
+};
+
 template <typename T>
 T read(const char *s, ElfReader::ElfEndian endian)
 {
@@ -78,7 +93,7 @@ const char *ElfReader::parseSectionHeader(const char *data, ElfSectionHeader *sh
 }
 
 ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
-    QList<QByteArray> *sectionNames)
+    ElfSections *sections)
 {
     if (fdlen < 64) {
         m_errorString = QLibrary::tr("'%1' is not an ELF object (%2)")
@@ -204,17 +219,22 @@ ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
             return Corrupt;
         }
 
-        if (sectionNames)
-            sectionNames->append(shnam);
+        if (sections) {
+            ElfSection section;
+            section.name = shnam;
+            section.index = strtab.name;
+            section.offset = strtab.offset;
+            section.size = strtab.size;
+        }
 
         s += e_shentsize;
     }
     return Ok;
 }
 
-QList<QByteArray> ElfReader::sectionNames()
+ElfSections ElfReader::sections()
 {
-    QList<QByteArray> names;
+    ElfSections names;
 
     QFile file(m_binary);
     if (!file.open(QIODevice::ReadOnly)) {
