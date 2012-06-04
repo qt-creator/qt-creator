@@ -75,6 +75,7 @@
 #include <utils/changeset.h>
 #include <utils/uncommentselection.h>
 #include <utils/qtcassert.h>
+#include <utils/annotateditemdelegate.h>
 
 #include <QFileInfo>
 #include <QSignalMapper>
@@ -1070,6 +1071,12 @@ void QmlJSTextEditorWidget::createToolBar(QmlJSEditorEditable *editor)
     m_outlineCombo->setModel(m_outlineModel);
 
     QTreeView *treeView = new QTreeView;
+
+    Utils::AnnotatedItemDelegate *itemDelegate = new Utils::AnnotatedItemDelegate(this);
+    itemDelegate->setDelimiter(QLatin1String(" "));
+    itemDelegate->setAnnotationRole(QmlOutlineModel::AnnotationRole);
+    treeView->setItemDelegateForColumn(0, itemDelegate);
+
     treeView->header()->hide();
     treeView->setItemsExpandable(false);
     treeView->setRootIsDecorated(false);
