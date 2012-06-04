@@ -45,7 +45,7 @@
 #include <QMouseEvent>
 #include <QUndoStack>
 
-namespace SharedTools {
+namespace ResourceEditor {
 
 /*!
     \class FileEntryBackup

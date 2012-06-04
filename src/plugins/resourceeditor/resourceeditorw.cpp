@@ -82,7 +82,7 @@ QString ResourceEditorDocument::mimeType() const
 ResourceEditorW::ResourceEditorW(const Core::Context &context,
                                ResourceEditorPlugin *plugin,
                                QWidget *parent)
-      : m_resourceEditor(new SharedTools::QrcEditor(parent)),
+      : m_resourceEditor(new QrcEditor(parent)),
         m_resourceDocument(new ResourceEditorDocument(this)),
         m_plugin(plugin),
         m_shouldAutoSave(false),

@@ -39,9 +39,7 @@
 #include <QStringList>
 #include <QIcon>
 
-QT_BEGIN_NAMESPACE
-
-namespace qdesigner_internal {
+namespace ResourceEditor {
 
 class File;
 struct Prefix;
@@ -278,8 +276,6 @@ private:
     QIcon m_prefixIcon;
 };
 
-} // namespace qdesigner_internal
-
-QT_END_NAMESPACE
+} // namespace SharedTools
 
 #endif // RESOURCEFILE_P_H

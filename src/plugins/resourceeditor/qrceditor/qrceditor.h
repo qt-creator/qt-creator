@@ -38,7 +38,7 @@
 #include <QWidget>
 #include <QUndoStack>
 
-namespace SharedTools {
+namespace ResourceEditor {
 
 class QrcEditor : public QWidget
 {

@@ -49,8 +49,6 @@
 
 #include <QDomDocument>
 
-QT_BEGIN_NAMESPACE
-
 
 /*
 TRANSLATOR qdesigner_internal::ResourceModel
@@ -61,7 +59,7 @@ static QString msgFileNameEmpty()
     return QCoreApplication::translate("Designer", "The file name is empty.");
 }
 
-namespace qdesigner_internal {
+namespace ResourceEditor {
 
 /******************************************************************************
 ** File
@@ -1155,6 +1153,6 @@ QMimeData *ResourceModel::mimeData(const QModelIndexList &indexes) const
     return rc;
 }
 
-} // namespace qdesigner_internal
+} // namespace SharedTools
 
 QT_END_NAMESPACE

@@ -34,7 +34,7 @@
 
 #include <QModelIndex>
 
-namespace SharedTools {
+namespace ResourceEditor {
 
 ViewCommand::ViewCommand(ResourceView *view)
         : m_view(view)

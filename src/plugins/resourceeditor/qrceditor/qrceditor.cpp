@@ -39,7 +39,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-using namespace SharedTools;
+using namespace ResourceEditor;
 
 QrcEditor::QrcEditor(QWidget *parent)
   : QWidget(parent),

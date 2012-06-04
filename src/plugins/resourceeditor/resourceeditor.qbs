@@ -15,7 +15,7 @@ QtcPlugin {
         "../..",
         "../../libs",
         buildDirectory,
-        "../../shared/qrceditor",
+        "qrceditor",
         "../../tools/utils"
     ]
 
@@ -31,15 +31,15 @@ QtcPlugin {
         "resourceeditorw.h",
         "resourcewizard.cpp",
         "resourcewizard.h",
-        "../../shared/qrceditor/resourcefile.cpp",
-        "../../shared/qrceditor/resourceview.cpp",
-        "../../shared/qrceditor/qrceditor.cpp",
-        "../../shared/qrceditor/undocommands.cpp",
-        "../../shared/qrceditor/resourcefile_p.h",
-        "../../shared/qrceditor/resourceview.h",
-        "../../shared/qrceditor/qrceditor.h",
-        "../../shared/qrceditor/undocommands_p.h",
-        "../../shared/qrceditor/qrceditor.ui"
+        "qrceditor/resourcefile.cpp",
+        "qrceditor/resourceview.cpp",
+        "qrceditor/qrceditor.cpp",
+        "qrceditor/undocommands.cpp",
+        "qrceditor/resourcefile_p.h",
+        "qrceditor/resourceview.h",
+        "qrceditor/qrceditor.h",
+        "qrceditor/undocommands_p.h",
+        "qrceditor/qrceditor.ui"
     ]
 }
 

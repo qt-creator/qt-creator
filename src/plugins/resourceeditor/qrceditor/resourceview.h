@@ -38,8 +38,6 @@
 #include <QTreeView>
 #include <QPoint>
 
-using namespace qdesigner_internal;
-
 QT_BEGIN_NAMESPACE
 class QAction;
 class QMenu;
@@ -47,7 +45,7 @@ class QMouseEvent;
 class QUndoStack;
 QT_END_NAMESPACE
 
-namespace SharedTools {
+namespace ResourceEditor {
 
 /*!
     \class EntryBackup
@@ -147,7 +145,7 @@ private:
     void addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property,
                         const QString &before, const QString &after);
 
-    qdesigner_internal::ResourceFile m_qrcFile;
+    ResourceFile m_qrcFile;
     Internal::RelativeResourceModel *m_qrcModel;
 
     QUndoStack *m_history;

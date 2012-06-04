@@ -43,11 +43,10 @@ class QMenu;
 class QToolBar;
 QT_END_NAMESPACE
 
-namespace SharedTools {
-    class QrcEditor;
-}
-
 namespace ResourceEditor {
+
+class QrcEditor;
+
 namespace Internal {
 
 class ResourceEditorPlugin;
@@ -118,7 +117,7 @@ private:
     const QString m_fileFilter;
     QString m_displayName;
     QString m_suggestedName;
-    QPointer<SharedTools::QrcEditor> m_resourceEditor;
+    QPointer<QrcEditor> m_resourceEditor;
     ResourceEditorDocument *m_resourceDocument;
     ResourceEditorPlugin *m_plugin;
     bool m_shouldAutoSave;
