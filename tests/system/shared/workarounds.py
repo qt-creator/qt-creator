@@ -187,7 +187,10 @@ class JIRA:
 
         def _workaroundCreator6994_(self, *args):
             if args[0] in ('Mobile Qt Application', 'Qt Gui Application', 'Qt Custom Designer Widget'):
-                args[1].remove('Harmattan')
+                if QtQuickConstants.Targets.HARMATTAN in args[1]:
+                    args[1].remove(QtQuickConstants.Targets.HARMATTAN)
+                else:
+                    args[1].remove(QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.HARMATTAN))
                 test.xverify(False, "Removed Harmattan from expected targets.")
 
         def _workaroundCreator6853_(self, *args):

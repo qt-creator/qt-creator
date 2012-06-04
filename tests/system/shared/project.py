@@ -153,7 +153,9 @@ def __verifyFileCreation__(path, expectedFiles):
 #                 created for this version. If it is None, all Qt versions will be used
 # param checks turns tests in the function on if set to True
 def createProject_Qt_GUI(path, projectName, qtVersion = None, checks = True):
-    available = __createProjectSelectType__("  Applications", "Qt Gui Application")
+    template = "Qt Gui Application"
+    available = __createProjectSelectType__("  Applications", template)
+    JIRA.performWorkaroundIfStillOpen(6994, JIRA.Bug.CREATOR, template, available)
     __createProjectSetNameAndPath__(path, projectName, checks)
     __selectQtVersionDesktop__(qtVersion, checks, available)
 
