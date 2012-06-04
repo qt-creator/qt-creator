@@ -1,4 +1,5 @@
 QT       -= gui
+QT       -= core
 TEST = 0
 include(../../../qtcreator.pri)
 CONFIG -= console testlib TEST

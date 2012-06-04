@@ -9,7 +9,6 @@ QtcTool {
     cpp.includePaths: [ ".",  buildDirectory ]
 
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ['network' ] }
 
     files: [
         "uds_daemon.c", "uds_daemon.h",
