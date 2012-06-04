@@ -38,14 +38,18 @@ QtcTool {
 
     Properties {
         condition: qbs.targetOS === "linux"
-        cpp.defines: [ "_GNU_SOURCE", , "NOT_HAVE_SA_LEN", "USES_NETLINK", "HAVE_LINUX",
-            "TARGET_OS_LINUX" ]
+        cpp.defines: outer.concat([
+            "_GNU_SOURCE", "NOT_HAVE_SA_LEN",
+            "USES_NETLINK", "HAVE_LINUX", "TARGET_OS_LINUX"
+        ])
     }
 
     Properties {
         condition: qbs.targetOS === "macx"
-        cpp.defines: [ "__MAC_OS_X_VERSION_MIN_REQUIRED=__MAC_OS_X_VERSION_10_4",
-            "__APPLE_USE_RFC_2292" ]
+        cpp.defines: outer.concat([
+            "__MAC_OS_X_VERSION_MIN_REQUIRED=__MAC_OS_X_VERSION_10_4",
+            "__APPLE_USE_RFC_2292"
+        ])
     }
 
     Group {
@@ -69,11 +73,14 @@ QtcTool {
 
     Properties {
         condition: qbs.targetOS === "windows"
-        cpp.defines: [ "_WIN32_WINNT=0x0501", "NDEBUG", "MDNS_DEBUGMSGS=0", "TARGET_OS_WIN32",
+        cpp.defines: outer.concat([
+            "WIN32",
+            "_WIN32_WINNT=0x0501", "NDEBUG", "MDNS_DEBUGMSGS=0", "TARGET_OS_WIN32",
             "WIN32_LEAN_AND_MEAN", "USE_TCP_LOOPBACK", "PLATFORM_NO_STRSEP",
             "PLATFORM_NO_EPIPE", "PLATFORM_NO_RLIMIT", "UNICODE", "_UNICODE",
             "_CRT_SECURE_NO_DEPRECATE", "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1",
-            "_LEGACY_NAT_TRAVERSAL_" ]
+            "_LEGACY_NAT_TRAVERSAL_"
+        ])
         cpp.dynamicLibraries: [ "ws2_32.lib", "advapi32.lib", "ole32.lib", "oleaut32.lib",
             "iphlpapi.lib", "netapi32.lib", "user32.lib", "powrprof.lib", "shell32.lib" ]
     }
