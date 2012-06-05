@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = ProjectExplorer
-QT += xml script
+QT += xml script network
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += quick1
 } else {
@@ -10,6 +10,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 include(../../qtcreatorplugin.pri)
 include(projectexplorer_dependencies.pri)
 include(../../libs/utils/utils.pri)
+include(../../libs/ssh/ssh.pri)
 include(customwizard/customwizard.pri)
 INCLUDEPATH += $$PWD/../../libs/utils
 HEADERS += projectexplorer.h \

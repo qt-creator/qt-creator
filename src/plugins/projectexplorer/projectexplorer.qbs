@@ -9,6 +9,7 @@ QtcPlugin {
     Depends { name: "Locator" }
     Depends { name: "Find" }
     Depends { name: "TextEditor" }
+    Depends { name: "QtcSsh" }
 
     Depends { name: "cpp" }
     cpp.defines: base.concat(["QTC_CPU=X86Architecture"])

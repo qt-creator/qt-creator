@@ -55,17 +55,7 @@ public:
 
     enum MachineType { Hardware, Emulator };
 
-    ~LinuxDeviceConfiguration();
-
-    Utils::PortList freePorts() const;
-    QSsh::SshConnectionParameters sshParameters() const;
     MachineType machineType() const;
-
-    void setSshParameters(const QSsh::SshConnectionParameters &sshParameters);
-    void setFreePorts(const Utils::PortList &freePorts);
-
-    static QString defaultPrivateKeyFilePath();
-    static QString defaultPublicKeyFilePath();
 
     static Ptr create();
     static Ptr create(const QString &name, Core::Id type, MachineType machineType,
@@ -80,7 +70,7 @@ public:
     ProjectExplorer::IDevice::Ptr clone() const;
 
 protected:
-    LinuxDeviceConfiguration();
+    LinuxDeviceConfiguration() {}
     LinuxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType,
                              Origin origin, Core::Id id);
     LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other);
@@ -89,8 +79,7 @@ protected:
 
 private:
     LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);
-
-    Internal::LinuxDeviceConfigurationPrivate *d;
+    LinuxDeviceConfiguration::MachineType m_machineType;
 };
 
 } // namespace RemoteLinux

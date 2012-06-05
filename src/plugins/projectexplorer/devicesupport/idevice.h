@@ -44,6 +44,9 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
+namespace QSsh { class SshConnectionParameters; }
+namespace Utils { class PortList; }
+
 namespace ProjectExplorer {
 namespace Internal { class IDevicePrivate; }
 class IDeviceWidget;
@@ -98,6 +101,15 @@ public:
     static Core::Id typeFromMap(const QVariantMap &map);
     static Core::Id idFromMap(const QVariantMap &map);
 
+    static QString defaultPrivateKeyFilePath();
+    static QString defaultPublicKeyFilePath();
+
+    QSsh::SshConnectionParameters sshParameters() const;
+    void setSshParameters(const QSsh::SshConnectionParameters &sshParameters);
+
+    Utils::PortList freePorts() const;
+    void setFreePorts(const Utils::PortList &freePorts);
+
 protected:
     IDevice();
     IDevice(Core::Id type, Origin origin, Core::Id id = Core::Id());
@@ -107,7 +119,7 @@ protected:
     ConstPtr sharedFromThis() const;
 
 private:
-    IDevice &operator=(const IDevice &);
+    IDevice &operator=(const IDevice &); // Unimplemented.
 
     Internal::IDevicePrivate *d;
 };

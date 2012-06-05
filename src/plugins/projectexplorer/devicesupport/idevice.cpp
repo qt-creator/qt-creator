@@ -34,9 +34,12 @@
 #include "devicemanager.h"
 
 #include <coreplugin/id.h>
+#include <ssh/sshconnection.h>
+#include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QDesktopServices>
 
 #include <QString>
 #include <QUuid>
@@ -150,6 +153,21 @@ const char TypeKey[] = "OsType";
 const char IdKey[] = "InternalId";
 const char OriginKey[] = "Origin";
 
+// Connection
+const char HostKey[] = "Host";
+const char SshPortKey[] = "SshPort";
+const char PortsSpecKey[] = "FreePortsSpec";
+const char UserNameKey[] = "Uname";
+const char AuthKey[] = "Authentication";
+const char KeyFileKey[] = "KeyFile";
+const char PasswordKey[] = "Password";
+const char TimeoutKey[] = "Timeout";
+
+typedef QSsh::SshConnectionParameters::AuthenticationType AuthType;
+const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationByKey;
+
+const int DefaultTimeout = 10;
+
 namespace Internal {
 class IDevicePrivate
 {
@@ -164,6 +182,9 @@ public:
     IDevice::Origin origin;
     Core::Id id;
     IDevice::DeviceState deviceState;
+
+    QSsh::SshConnectionParameters sshParameters;
+    Utils::PortList freePorts;
 };
 } // namespace Internal
 
@@ -254,6 +275,18 @@ void IDevice::fromMap(const QVariantMap &map)
     d->displayName = map.value(QLatin1String(DisplayNameKey)).toString();
     d->id = Core::Id(map.value(QLatin1String(IdKey), newId().name()).toByteArray().constData());
     d->origin = static_cast<Origin>(map.value(QLatin1String(OriginKey), ManuallyAdded).toInt());
+
+    d->sshParameters.host = map.value(HostKey).toString();
+    d->sshParameters.port = map.value(SshPortKey, 22).toInt();
+    d->sshParameters.userName = map.value(UserNameKey).toString();
+    d->sshParameters.authenticationType
+        = static_cast<AuthType>(map.value(AuthKey, DefaultAuthType).toInt());
+    d->sshParameters.password = map.value(PasswordKey).toString();
+    d->sshParameters.privateKeyFile = map.value(KeyFileKey, defaultPrivateKeyFilePath()).toString();
+    d->sshParameters.timeout = map.value(TimeoutKey, DefaultTimeout).toInt();
+
+    d->freePorts = Utils::PortList::fromString(map.value(PortsSpecKey,
+        QLatin1String("10000-10100")).toString());
 }
 
 QVariantMap IDevice::toMap() const
@@ -263,6 +296,17 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(TypeKey), d->type.name());
     map.insert(QLatin1String(IdKey), d->id.name());
     map.insert(QLatin1String(OriginKey), d->origin);
+
+    map.insert(HostKey, d->sshParameters.host);
+    map.insert(SshPortKey, d->sshParameters.port);
+    map.insert(UserNameKey, d->sshParameters.userName);
+    map.insert(AuthKey, d->sshParameters.authenticationType);
+    map.insert(PasswordKey, d->sshParameters.password);
+    map.insert(KeyFileKey, d->sshParameters.privateKeyFile);
+    map.insert(TimeoutKey, d->sshParameters.timeout);
+
+    map.insert(PortsSpecKey, d->freePorts.toString());
+
     return map;
 }
 
@@ -286,6 +330,37 @@ QString IDevice::deviceStateToString() const
     case IDevice::DeviceStateUnknown: return QCoreApplication::translate(context, "Unknown");
     default: return QCoreApplication::translate(context, "Invalid");
     }
+}
+
+QSsh::SshConnectionParameters IDevice::sshParameters() const
+{
+    return d->sshParameters;
+}
+
+void IDevice::setSshParameters(const QSsh::SshConnectionParameters &sshParameters)
+{
+    d->sshParameters = sshParameters;
+}
+
+void IDevice::setFreePorts(const Utils::PortList &freePorts)
+{
+    d->freePorts = freePorts;
+}
+
+Utils::PortList IDevice::freePorts() const
+{
+    return d->freePorts;
+}
+
+QString IDevice::defaultPrivateKeyFilePath()
+{
+    return QDesktopServices::storageLocation(QDesktopServices::HomeLocation)
+        + QLatin1String("/.ssh/id_rsa");
+}
+
+QString IDevice::defaultPublicKeyFilePath()
+{
+    return defaultPrivateKeyFilePath() + QLatin1String(".pub");
 }
 
 } // namespace ProjectExplorer
