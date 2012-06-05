@@ -37,12 +37,16 @@ enum Kind {
 
     T_FIRST_LITERAL,
     T_NUMERIC_LITERAL = T_FIRST_LITERAL,
-    T_CHAR_LITERAL,
+    T_FIRST_CHAR_LITERAL,
+    T_CHAR_LITERAL = T_FIRST_CHAR_LITERAL,
     T_WIDE_CHAR_LITERAL,
-    T_STRING_LITERAL,
+    T_LAST_CHAR_LITERAL = T_WIDE_CHAR_LITERAL,
+    T_FIRST_STRING_LITERAL,
+    T_STRING_LITERAL = T_FIRST_STRING_LITERAL,
     T_WIDE_STRING_LITERAL,
     T_AT_STRING_LITERAL,
     T_ANGLE_STRING_LITERAL,
+    T_LAST_STRING_LITERAL = T_ANGLE_STRING_LITERAL,
     T_LAST_LITERAL = T_ANGLE_STRING_LITERAL,
 
     T_FIRST_OPERATOR,
@@ -286,6 +290,12 @@ public:
 
     inline bool isLiteral() const
     { return f.kind >= T_FIRST_LITERAL && f.kind <= T_LAST_LITERAL; }
+
+    inline bool isCharLiteral() const
+    { return f.kind >= T_FIRST_CHAR_LITERAL && f.kind <= T_LAST_CHAR_LITERAL; }
+
+    inline bool isStringLiteral() const
+    { return f.kind >= T_FIRST_STRING_LITERAL && f.kind <= T_LAST_STRING_LITERAL; }
 
     inline bool isOperator() const
     { return f.kind >= T_FIRST_OPERATOR && f.kind <= T_LAST_OPERATOR; }
