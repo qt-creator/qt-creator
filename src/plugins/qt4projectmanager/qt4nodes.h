@@ -423,7 +423,7 @@ private:
     QStringList updateUiFiles();
 
     QStringList fileListForVar(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
-                               const QString &varName, const QString &projectDir) const;
+                               const QString &varName, const QString &projectDir, FileType type) const;
     QString uiDirPath(QtSupport::ProFileReader *reader) const;
     QString mocDirPath(QtSupport::ProFileReader *reader) const;
     QStringList includePaths(QtSupport::ProFileReader *reader) const;
