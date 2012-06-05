@@ -76,7 +76,8 @@ GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester()
 {
-    delete d->connection;
+    if (d->connection)
+        d->connection->deleteLater();
     delete d;
 }
 
@@ -186,10 +187,12 @@ void GenericLinuxDeviceTester::handlePortListReady()
 void GenericLinuxDeviceTester::setFinished(TestResult result)
 {
     d->state = Inactive;
-    disconnect(d->connection, 0, this, 0);
     disconnect(&d->portsGatherer, 0, this, 0);
-    delete d->connection;
-    d->connection = 0;
+    if (d->connection) {
+        disconnect(d->connection, 0, this, 0);
+        d->connection->deleteLater();
+        d->connection = 0;
+    }
     emit finished(result);
 }
 

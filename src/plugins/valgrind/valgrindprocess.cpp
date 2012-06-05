@@ -167,7 +167,8 @@ RemoteValgrindProcess::RemoteValgrindProcess(QSsh::SshConnection *connection, QO
 
 RemoteValgrindProcess::~RemoteValgrindProcess()
 {
-    delete m_connection;
+    if (m_connection)
+        m_connection->deleteLater();
 }
 
 bool RemoteValgrindProcess::isRunning() const

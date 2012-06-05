@@ -154,7 +154,7 @@ public:
         if (doDelete) {
             disconnect(connection, 0, this, 0);
             m_deprecatedConnections.removeAll(connection);
-            delete connection;
+            connection->deleteLater();
         }
     }
 

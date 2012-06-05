@@ -69,6 +69,7 @@ RemoteLinuxUsedPortsGatherer::RemoteLinuxUsedPortsGatherer(QObject *parent) :
 
 RemoteLinuxUsedPortsGatherer::~RemoteLinuxUsedPortsGatherer()
 {
+    stop();
     delete d;
 }
 
