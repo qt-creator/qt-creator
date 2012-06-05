@@ -543,7 +543,7 @@ struct InternalNode
 };
 }
 
-QStringList Qt4PriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir)
+QStringList Qt4PriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir) const
 {
     QStringList result;
     if (!reader)
@@ -555,7 +555,8 @@ QStringList Qt4PriFileNode::baseVPaths(QtSupport::ProFileReader *reader, const Q
     return result;
 }
 
-QStringList Qt4PriFileNode::fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, FileType type, const QString &qmakeVariable, const QString &projectDir)
+QStringList Qt4PriFileNode::fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader,
+                                       FileType type, const QString &qmakeVariable, const QString &projectDir) const
 {
     QStringList vPaths;
     if (!reader)

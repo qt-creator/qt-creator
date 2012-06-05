@@ -190,8 +190,9 @@ private:
     bool priFileWritable(const QString &path);
     bool saveModifiedEditors();
     QStringList formResources(const QString &formFile) const;
-    QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir);
-    QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, FileType type, const QString &qmakeVariable, const QString &projectDir);
+    QStringList baseVPaths(QtSupport::ProFileReader *reader, const QString &projectDir) const;
+    QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader,
+                           FileType type, const QString &qmakeVariable, const QString &projectDir) const;
     void watchFolders(const QSet<QString> &folders);
 
     Qt4Project *m_project;
