@@ -233,9 +233,9 @@ diff -rup gdb-7.4ori//gdb/configure gdb-7.4/gdb/configure
 +PKG_CONFIG
 +RPM_CFLAGS
 +RPM_LIBS
+ MAKEINFO
+ MAKEINFOFLAGS
  YACC
- YFLAGS
- XMKMF'
 @@ -1658,6 +1665,8 @@ Optional Packages:
                            [DATADIR/gdb]
    --with-relocated-sources=PATH
@@ -252,9 +252,9 @@ diff -rup gdb-7.4ori//gdb/configure gdb-7.4/gdb/configure
 +  PKG_CONFIG  path to pkg-config utility
 +  RPM_CFLAGS  C compiler flags for RPM, overriding pkg-config
 +  RPM_LIBS    linker flags for RPM, overriding pkg-config
+   MAKEINFO    Parent configure detects if it is of sufficient version.
+   MAKEINFOFLAGS
    YACC        The `Yet Another C Compiler' implementation to use. Defaults to
-               the first program found out of: `bison -y', `byacc', `yacc'.
-   YFLAGS      The list of arguments that will be passed by default to $YACC.
 @@ -7968,6 +7980,486 @@ _ACEOF
  fi
 
