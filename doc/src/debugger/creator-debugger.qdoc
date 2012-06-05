@@ -213,8 +213,13 @@
     The probe is either integrated into the running process (e.g. for QML
     debugging) or runs a separate process (e.g. when using GDB server
     on embedded Linux, or TRK/CODA on Symbian). The host side typically
-    consists of \QC itself, often with help of external process such
-    as CDB or GDB.
+    consists of \QC itself, often with the help of an external process, such as
+    \if defined(qcmanual)
+    GDB or CDB.
+    \else
+    GDB.
+    \endif
+
 
     While this setup might look daunting, it is mostly invisible to
     the user. With a properly loaded and configured project, pressing
