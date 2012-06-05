@@ -204,9 +204,11 @@ struct ifi_info *get_ifi_info_linuxv6(int family, int doaliases)
 		res0=NULL;
 		}
 	done:
-	if (sockfd != -1) {
-		assert(close(sockfd) == 0);
-	}
+	if (fp != NULL)
+		fclose(fp);
+	if (sockfd != -1 && close(sockfd) != 0) {
+		assert(1);
+		}
 	return(ifihead);    /* pointer to first structure in linked list */
 	}
 #endif // defined(AF_INET6) && HAVE_IPV6 && HAVE_LINUX
