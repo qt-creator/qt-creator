@@ -585,6 +585,7 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
     case T_ASM:
         return parseAsmDefinition(node);
 
+
     case T_TEMPLATE:
     case T_EXPORT:
         return parseTemplateDeclaration(node);
@@ -623,11 +624,15 @@ bool Parser::parseDeclaration(DeclarationAST *&node)
         consumeToken();
         break;
 
-    // C++11
     case T_INLINE:
         if (_cxx0xEnabled && LA(2) == T_NAMESPACE)
             return parseNamespace(node);
-        // else: intentionally fall-through
+        return parseSimpleDeclaration(node);
+
+    case T_STATIC_ASSERT:
+        if (_cxx0xEnabled)
+            return parseStaticAssertDeclaration(node);
+        return parseSimpleDeclaration(node);
 
     default: {
         if (_objCEnabled && LA() == T___ATTRIBUTE__) {
@@ -2306,9 +2311,10 @@ bool Parser::parseMemberSpecification(DeclarationAST *&node, ClassSpecifierAST *
     case T_Q_INTERFACES:
         return parseQtInterfaces(node);
 
-    // C++11
     case T_STATIC_ASSERT:
-        return parseStaticAssertDeclaration(node);
+        if (_cxx0xEnabled)
+            return parseStaticAssertDeclaration(node);
+        // fall-through
 
     default:
         return parseSimpleDeclaration(node, declaringClass);
@@ -3023,8 +3029,15 @@ bool Parser::parseExpressionOrDeclarationStatement(StatementAST *&node)
 
     const unsigned start = cursor();
 
-    if (lookAtCVQualifier() || lookAtStorageClassSpecifier() || lookAtBuiltinTypeSpecifier() || LA() == T_TYPENAME || LA() == T_ENUM || lookAtClassKey() || LA() == T_STATIC_ASSERT)
+    if (lookAtCVQualifier()
+            || lookAtStorageClassSpecifier()
+            || lookAtBuiltinTypeSpecifier()
+            || LA() == T_TYPENAME
+            || LA() == T_ENUM
+            || lookAtClassKey()
+            || (LA() == T_STATIC_ASSERT && _cxx0xEnabled)) {
         return parseDeclarationStatement(node);
+    }
 
     if (LA() == T_IDENTIFIER || (LA() == T_COLON_COLON && LA(2) == T_IDENTIFIER)) {
         const bool blocked = blockErrors(true);
@@ -3435,7 +3448,9 @@ bool Parser::parseBlockDeclaration(DeclarationAST *&node)
         return parseNamespaceAliasDefinition(node);
 
     case T_STATIC_ASSERT:
-        return parseStaticAssertDeclaration(node);
+        if (_cxx0xEnabled)
+            return parseStaticAssertDeclaration(node);
+        // fall-through
 
     default:
         return parseSimpleDeclaration(node);

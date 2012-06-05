@@ -6,3 +6,4 @@ struct S {
     }
 };
 
+static_assert(sizeof(char) == 1, "One more");
