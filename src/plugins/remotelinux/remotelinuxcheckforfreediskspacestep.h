@@ -41,7 +41,8 @@ class REMOTELINUX_EXPORT RemoteLinuxCheckForFreeDiskSpaceStep : public AbstractR
 {
     Q_OBJECT
 public:
-    explicit RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl);
+    explicit RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl,
+            Core::Id id = stepId());
     RemoteLinuxCheckForFreeDiskSpaceStep(ProjectExplorer::BuildStepList *bsl,
             RemoteLinuxCheckForFreeDiskSpaceStep *other);
     ~RemoteLinuxCheckForFreeDiskSpaceStep();
@@ -55,7 +56,7 @@ public:
     static Core::Id stepId();
     static QString stepDisplayName();
 
-private:
+protected:
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
@@ -63,6 +64,7 @@ private:
     bool initInternal(QString *error);
     AbstractRemoteLinuxDeployService *deployService() const;
 
+private:
     void ctor();
 
     Internal::RemoteLinuxCheckForFreeDiskSpaceStepPrivate *d;
