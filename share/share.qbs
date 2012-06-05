@@ -1132,6 +1132,7 @@ Product {
             "Delegate.qml",
             "Feedback.qml",
             "GettingStartedItem.qml",
+            "IconAndLink.qml",
             "LinkedText.qml",
             "LinksBar.qml",
             "Logo.qml",
@@ -1143,6 +1144,7 @@ Product {
             "SessionItem.qml",
             "Sessions.qml",
             "ToolTip.qml",
+            "qmldir",
         ]
     }
 
