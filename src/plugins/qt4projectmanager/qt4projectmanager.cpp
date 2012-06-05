@@ -83,7 +83,7 @@ using ProjectExplorer::UnknownFileType;
 static const char kInstallBins[] = "CurrentProject:QT_INSTALL_BINS";
 
 // Known file types of a Qt 4 project
-static const char* qt4FileTypes[] = {
+static const char *qt4FileTypes[] = {
     "CppHeaderFiles",
     "CppSourceFiles",
     "Qt4FormFiles",
@@ -163,7 +163,7 @@ void Qt4Manager::editorChanged(Core::IEditor *editor)
 
         if (m_dirty) {
             const QString contents = formWindowEditorContents(m_lastEditor);
-            foreach(Qt4Project *project, m_projects)
+            foreach (Qt4Project *project, m_projects)
                 project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->document()->fileName(), contents);
             m_dirty = false;
         }
@@ -185,7 +185,7 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
             disconnect(m_lastEditor, SIGNAL(changed()), this, SLOT(uiEditorContentsChanged()));
             if (m_dirty) {
                 const QString contents = formWindowEditorContents(m_lastEditor);
-                foreach(Qt4Project *project, m_projects)
+                foreach (Qt4Project *project, m_projects)
                     project->rootQt4ProjectNode()->updateCodeModelSupportFromEditor(m_lastEditor->document()->fileName(), contents);
                 m_dirty = false;
             }
