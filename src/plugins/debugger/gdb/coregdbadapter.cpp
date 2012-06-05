@@ -40,10 +40,13 @@
 #include "gdbengine.h"
 
 #include <utils/qtcassert.h>
+#include <utils/elfreader.h>
 
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
+
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -75,10 +78,25 @@ void CoreGdbAdapter::startAdapter()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
-    QStringList args;
-    args.append(_("-ex"));
-    args.append(_("set auto-solib-add off"));
-    m_engine->startGdb(args);
+    if (m_executable.isEmpty()) {
+        // Read executable from core.
+        ElfReader reader(m_coreName);
+        QByteArray data = reader.readSection("note0");
+        m_executable = QByteArray(data.data() + 0x40);
+
+        // Strip off command line arguments. FIXME: make robust.
+        int idx = m_executable.indexOf(QLatin1Char(' '));
+        if (idx >= 0)
+            m_executable.truncate(idx);
+        if (m_executable.isEmpty()) {
+            showMessageBox(QMessageBox::Warning,
+                tr("Error Loading Symbols"),
+                tr("No executable to load symbols from specified."));
+            m_engine->notifyEngineSetupFailed();
+            return;
+        }
+    }
+    m_engine->startGdb();
 }
 
 void CoreGdbAdapter::handleGdbStartFailed()
@@ -87,82 +105,7 @@ void CoreGdbAdapter::handleGdbStartFailed()
 
 void CoreGdbAdapter::handleGdbStartDone()
 {
-    //if (m_executable.isEmpty()) {
-    //    showMessageBox(QMessageBox::Warning,
-    //        tr("Error Loading Symbols"),
-    //        tr("No executable to load symbols from specified."));
-    //}
-
-#ifdef Q_OS_LINUX
-    const bool canUseExeFromCore = true;
-#else
-    const bool canUseExeFromCore = false;
-#endif
-
-    if (!m_executable.isEmpty()) {
-        m_engine->notifyEngineSetupOk();
-    } else if (canUseExeFromCore) {
-        // Extra round trip to get executable name from core file.
-        // This is sometimes not the full name, so it can't be used
-        // as the generic solution.
-
-        // Quoting core name below fails in gdb 6.8-debian.
-        m_engine->postCommand("target core " + m_coreName,
-            CB(handleTemporaryTargetCore));
-    } else {
-        QString msg = tr("The name of the binary file cannot be extracted "
-            "from this core file.");
-        msg += _(" ");
-        msg += tr("Try to specify the binary using the "
-            "<i>Debug->Start Debugging->Attach to Core</i> dialog.");
-        showMessageBox(QMessageBox::Warning,
-            tr("Loading core file failed"), msg);
-        m_engine->notifyEngineSetupFailed();
-    }
-}
-
-void CoreGdbAdapter::handleTemporaryTargetCore(const GdbResponse &response)
-{
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    if (response.resultClass != GdbResultDone) {
-        showMessage(tr("Attach to core failed."), StatusBar);
-        m_engine->notifyEngineSetupFailed();
-        return;
-    }
-
-    QByteArray console = response.consoleStreamOutput;
-    int pos1 = console.indexOf('`');
-    int pos2 = console.indexOf('\'');
-    if (pos1 == -1 || pos2 == -1) {
-        showMessage(tr("Attach to core failed."), StatusBar);
-        m_engine->notifyEngineSetupFailed();
-        return;
-    }
-
-    m_executable = QLatin1String(console.mid(pos1 + 1, pos2 - pos1 - 1));
-    // Strip off command line arguments. FIXME: make robust.
-    int idx = m_executable.indexOf(QLatin1Char(' '));
-    if (idx >= 0)
-        m_executable.truncate(idx);
-    if (m_executable.isEmpty()) {
-        m_engine->postCommand("detach");
-        m_engine->notifyEngineSetupFailed();
-        return;
-    }
-    m_executable = QFileInfo(startParameters().coreFile).absoluteDir()
-                   .absoluteFilePath(m_executable);
-    showMessage(tr("Attached to core temporarily."), StatusBar);
-    m_engine->postCommand("detach", CB(handleTemporaryDetach));
-}
-
-void CoreGdbAdapter::handleTemporaryDetach(const GdbResponse &response)
-{
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    if (response.resultClass == GdbResultDone) {
-        m_engine->notifyEngineSetupOk();
-    } else {
-        m_engine->notifyEngineSetupFailed();
-    }
+    m_engine->handleAdapterStarted();
 }
 
 void CoreGdbAdapter::setupInferior()

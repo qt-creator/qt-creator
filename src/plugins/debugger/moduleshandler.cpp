@@ -220,7 +220,7 @@ void ModulesModel::updateModule(const Module &module)
 {
     const int row = indexOfModule(module.modulePath);
     ElfReader reader(module.modulePath);
-    ElfSections sections = reader.sections();
+    ElfHeaders sections = reader.readHeaders();
     if (row == -1) {
         const int n = m_modules.size();
         beginInsertRows(QModelIndex(), n, n);

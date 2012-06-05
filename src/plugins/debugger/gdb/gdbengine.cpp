@@ -4747,7 +4747,7 @@ bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
 // Starting up & shutting down
 //
 
-void GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
+void GdbEngine::startGdb(const QStringList &args)
 {
     const QByteArray tests = qgetenv("QTC_DEBUGGER_TESTS");
     foreach (const QByteArray &test, tests.split(','))
@@ -4788,7 +4788,7 @@ void GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     if (!gdbProc()->waitForStarted()) {
         m_gdbAdapter->handleGdbStartFailed();
         const QString msg = errorMessage(QProcess::FailedToStart);
-        handleAdapterStartFailed(msg, settingsIdHint);
+        handleAdapterStartFailed(msg);
         return;
     }
 
@@ -5364,7 +5364,7 @@ void GdbEngine::checkForReleaseBuild()
 {
     QString binary = startParameters().executable;
     ElfReader reader(binary);
-    ElfSections sections = reader.sections();
+    ElfHeaders sections = reader.readHeaders();
     QString error = reader.errorString();
 
     showMessage(_("EXAMINING ") + binary);
@@ -5385,7 +5385,7 @@ void GdbEngine::checkForReleaseBuild()
     }
 
     QSet<QByteArray> seen;
-    foreach (const ElfSection &section, sections.sections) {
+    foreach (const ElfHeader &section, sections) {
         msg.append(section.name);
         msg.append(' ');
         if (interesting.contains(section.name))
@@ -5398,15 +5398,13 @@ void GdbEngine::checkForReleaseBuild()
         return;
     }
 
-    if (sections.sections.isEmpty()) {
+    if (sections.isEmpty()) {
         showMessage(_("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?"));
         return;
     }
 
-    foreach (const ElfSection &section, sections.sections) {
-        if (section.name == ".debug_info")
-            return;
-    }
+    if (sections.indexOf(".debug_info") >= 0)
+        return;
 
     QString warning;
     warning = tr("This does not seem to be a \"Debug\" build.\n"

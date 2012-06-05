@@ -1667,14 +1667,14 @@ class Dumper:
                 return
 
             # Is this derived from QObject?
-            try:
-                # If this access fails, it's not a QObject.
-                d = value["d_ptr"]["d"]
-                privateType = lookupType(self.ns + "QObjectPrivate").pointer()
-                objectName = d.cast(privateType).dereference()["objectName"]
-                self.putStringValue(objectName, 1)
-            except:
-                pass
+            #try:
+            #    # If this access fails, it's not a QObject.
+            #    d = value["d_ptr"]["d"]
+            #    privateType = lookupType(self.ns + "QObjectPrivate").pointer()
+            #    objectName = d.cast(privateType).dereference()["objectName"]
+            #    self.putStringValue(objectName, 1)
+            #except:
+            #    pass
 
         #warn("GENERIC STRUCT: %s" % type)
         #warn("INAME: %s " % self.currentIName)

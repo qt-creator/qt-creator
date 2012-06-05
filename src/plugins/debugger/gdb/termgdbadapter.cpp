@@ -115,7 +115,7 @@ void TermGdbAdapter::startAdapter()
     if (!m_stubProc.start(startParameters().executable,
                          startParameters().processArgs)) {
         // Error message for user is delivered via a signal.
-        m_engine->handleAdapterStartFailed(QString(), QString());
+        m_engine->handleAdapterStartFailed(QString());
         return;
     }
 

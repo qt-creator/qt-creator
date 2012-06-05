@@ -83,7 +83,7 @@ void LocalPlainGdbAdapter::startAdapter()
 
     if (!m_outputCollector.listen()) {
         m_engine->handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
-                .arg(m_outputCollector.errorString()), QString());
+                .arg(m_outputCollector.errorString()));
         return;
     }
     gdbArgs.append(_("--tty=") + m_outputCollector.serverName());

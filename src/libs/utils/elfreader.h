@@ -53,9 +53,6 @@
 
 namespace Utils {
 
-class ElfSectionHeader;
-class ElfSections;
-
 enum DebugSymbolsType
 {
     UnknownSymbols,    // Unknown.
@@ -65,7 +62,7 @@ enum DebugSymbolsType
     FastSymbols        // Dwarf index available.
 };
 
-class QTCREATOR_UTILS_EXPORT ElfSection
+class QTCREATOR_UTILS_EXPORT ElfHeader
 {
 public:
     QByteArray name;
@@ -73,35 +70,38 @@ public:
     quint32 type;
     quint64 offset;
     quint64 size;
+    quint64 data;
+};
+
+class QTCREATOR_UTILS_EXPORT ElfHeaders : public QList<ElfHeader>
+{
+public:
+    ElfHeaders() : symbolsType(UnknownSymbols) {}
+    int indexOf(const QByteArray &name) const;
+
+public:
+    DebugSymbolsType symbolsType;
 };
 
 class QTCREATOR_UTILS_EXPORT ElfReader
 {
 public:
     explicit ElfReader(const QString &binary);
+    enum Result { Ok, NotElf, Corrupt };
 
     enum ElfEndian { ElfLittleEndian = 0, ElfBigEndian = 1 };
-    ElfSections sections();
+    ElfHeaders readHeaders();
+    QByteArray readSection(const QByteArray &sectionName);
     QString errorString() const { return m_errorString; }
 
 private:
-    enum Result { Ok, NotElf, Corrupt };
-
-    const char *parseSectionHeader(const char *s, ElfSectionHeader *sh);
-    Result parse(const char *dataStart, quint64 fdlen, ElfSections *sections);
+    friend class ElfMapper;
+    Result readIt();
 
     QString m_binary;
     QString m_errorString;
     ElfEndian m_endian;
-};
-
-class QTCREATOR_UTILS_EXPORT ElfSections
-{
-public:
-    ElfSections() : symbolsType(UnknownSymbols) {}
-
-    QList<ElfSection> sections;
-    DebugSymbolsType symbolsType;
+    ElfHeaders m_headers;
 };
 
 } // namespace Utils

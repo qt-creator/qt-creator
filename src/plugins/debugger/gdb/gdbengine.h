@@ -249,8 +249,7 @@ private: ////////// General State //////////
 private: ////////// Gdb Process Management //////////
 
     AbstractGdbAdapter *createAdapter();
-    void startGdb(const QStringList &args = QStringList(),
-                  const QString &settingsIdHint = QString());
+    void startGdb(const QStringList &args = QStringList());
     void handleGdbStart(const GdbResponse &response);
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);

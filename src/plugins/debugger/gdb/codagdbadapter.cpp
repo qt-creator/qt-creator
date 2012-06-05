@@ -403,7 +403,7 @@ void CodaGdbAdapter::codaDeviceError(const QString  &errorString)
 {
     logMessage(errorString);
     if (state() == EngineSetupRequested) {
-        m_engine->handleAdapterStartFailed(errorString, QString());
+        m_engine->handleAdapterStartFailed(errorString);
     } else {
         m_engine->handleAdapterCrashed(errorString);
     }
@@ -1072,7 +1072,7 @@ void CodaGdbAdapter::startAdapter()
             const QString msg = QString::fromLatin1("Could not open serial device '%1': %2")
                                 .arg(parameters.remoteChannel, reason);
             logMessage(msg, LogError);
-            m_engine->handleAdapterStartFailed(msg, QString());
+            m_engine->handleAdapterStartFailed(msg);
             return;
         }
         setupDeviceSignals();
@@ -1104,7 +1104,7 @@ void CodaGdbAdapter::startAdapter()
         QString msg = QString::fromLatin1("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer->errorString());
         logMessage(msg, LogError);
-        m_engine->handleAdapterStartFailed(msg, QString());
+        m_engine->handleAdapterStartFailed(msg);
         return;
     }
 

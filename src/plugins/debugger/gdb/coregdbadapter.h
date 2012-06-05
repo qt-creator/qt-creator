@@ -69,8 +69,8 @@ private:
 
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
-    void handleTemporaryDetach(const GdbResponse &response);
-    void handleTemporaryTargetCore(const GdbResponse &response);
+    //void handleTemporaryDetach(const GdbResponse &response);
+    //void handleTemporaryTargetCore(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleTargetCore(const GdbResponse &response);
     void handleModulesList(const GdbResponse &response);

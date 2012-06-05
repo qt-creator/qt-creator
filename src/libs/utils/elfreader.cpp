@@ -48,28 +48,71 @@
 
 namespace Utils {
 
-
 typedef quint16  qelfhalf_t;
 typedef quint32  qelfword_t;
 typedef quintptr qelfoff_t;
 typedef quintptr qelfaddr_t;
 
-class ElfSectionHeader
+class RawElfSectionHeader
 {
 public:
     qelfword_t name;
     qelfword_t type;
+    qelfoff_t  data;
     qelfoff_t  offset;
     qelfoff_t  size;
 };
 
+class ElfMapper
+{
+public:
+    ElfMapper(const ElfReader *reader) : file(reader->m_binary) {}
+
+    bool map()
+    {
+        if (!file.open(QIODevice::ReadOnly))
+            return false;
+
+        fdlen = file.size();
+        start = file.map(0, fdlen);
+        if (start == 0) {
+            // Try reading the data into memory instead.
+            raw = file.readAll();
+            start = (uchar *)raw.constData();
+            fdlen = raw.size();
+        }
+        return true;
+    }
+
+public:
+    QFile file;
+    QByteArray raw;
+    uchar *start;
+    quint64 fdlen;
+};
+
 template <typename T>
-T read(const char *s, ElfReader::ElfEndian endian)
+T get(const unsigned char *s, ElfReader::ElfEndian endian)
 {
     if (endian == ElfReader::ElfBigEndian)
-        return qFromBigEndian<T>(reinterpret_cast<const uchar *>(s));
+        return qFromBigEndian<T>(s);
     else
-        return qFromLittleEndian<T>(reinterpret_cast<const uchar *>(s));
+        return qFromLittleEndian<T>(s);
+}
+
+static void parseSectionHeader(const uchar *data, RawElfSectionHeader *sh, ElfReader::ElfEndian endian)
+{
+    sh->name = get<qelfword_t>(data, endian);
+    data += sizeof(qelfword_t); // sh_name
+    sh->type = get<qelfword_t>(data, endian);
+    data += sizeof(qelfword_t); // sh_type
+    data += sizeof(qelfaddr_t);  // sh_flags
+    sh->data = get<qelfaddr_t>(data, endian);
+    data += sizeof(qelfaddr_t); // sh_addr
+    sh->offset = get<qelfoff_t>(data, endian);
+    data += sizeof(qelfoff_t);  // sh_offset
+    sh->size = get<qelfoff_t>(data, endian);
+    data += sizeof(qelfoff_t);  // sh_size
 }
 
 ElfReader::ElfReader(const QString &binary)
@@ -77,31 +120,29 @@ ElfReader::ElfReader(const QString &binary)
 {
 }
 
-const char *ElfReader::parseSectionHeader(const char *data, ElfSectionHeader *sh)
+ElfHeaders ElfReader::readHeaders()
 {
-    sh->name = read<qelfword_t>(data, m_endian);
-    data += sizeof(qelfword_t); // sh_name
-    sh->type = read<qelfword_t>(data, m_endian);
-    data += sizeof(qelfword_t)  // sh_type
-         + sizeof(qelfaddr_t)   // sh_flags
-         + sizeof(qelfaddr_t);  // sh_addr
-    sh->offset = read<qelfoff_t>(data, m_endian);
-    data += sizeof(qelfoff_t);  // sh_offset
-    sh->size = read<qelfoff_t>(data, m_endian);
-    data += sizeof(qelfoff_t);  // sh_size
-    return data;
+    if (m_headers.isEmpty())
+        readIt();
+    return m_headers;
 }
 
-ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
-    ElfSections *sections)
+ElfReader::Result ElfReader::readIt()
 {
+    ElfMapper mapper(this);
+    if (!mapper.map())
+        return Corrupt;
+
+    const quint64 fdlen = mapper.fdlen;
+
     if (fdlen < 64) {
         m_errorString = QLibrary::tr("'%1' is not an ELF object (%2)")
             .arg(m_binary).arg(QLatin1String("file too small"));
         return NotElf;
     }
-    const char *data = dataStart;
-    if (strncmp(data, "\177ELF", 4) != 0) {
+
+    const uchar *data = mapper.start;
+    if (strncmp((const char *)data, "\177ELF", 4) != 0) {
         m_errorString = QLibrary::tr("'%1' is not an ELF object")
                 .arg(m_binary);
         return NotElf;
@@ -141,11 +182,11 @@ ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
          +  sizeof(qelfaddr_t)  // e_entry
          +  sizeof(qelfoff_t);  // e_phoff
 
-    qelfoff_t e_shoff = read<qelfoff_t>(data, m_endian);
+    qelfoff_t e_shoff = get<qelfoff_t>(data, m_endian);
     data += sizeof(qelfoff_t)    // e_shoff
          +  sizeof(qelfword_t);  // e_flags
 
-    qelfhalf_t e_shsize = read<qelfhalf_t>(data, m_endian);
+    qelfhalf_t e_shsize = get<qelfhalf_t>(data, m_endian);
 
     if (e_shsize > fdlen) {
         m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
@@ -157,7 +198,7 @@ ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
          +  sizeof(qelfhalf_t)  // e_phentsize
          +  sizeof(qelfhalf_t); // e_phnum
 
-    qelfhalf_t e_shentsize = read<qelfhalf_t>(data, m_endian);
+    qelfhalf_t e_shentsize = get<qelfhalf_t>(data, m_endian);
 
     if (e_shentsize % 4) {
         m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
@@ -165,9 +206,9 @@ ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
         return Corrupt;
     }
     data += sizeof(qelfhalf_t); // e_shentsize
-    qelfhalf_t e_shnum     = read<qelfhalf_t>(data, m_endian);
+    qelfhalf_t e_shnum     = get<qelfhalf_t>(data, m_endian);
     data += sizeof(qelfhalf_t); // e_shnum
-    qelfhalf_t e_shtrndx   = read<qelfhalf_t>(data, m_endian);
+    qelfhalf_t e_shtrndx   = get<qelfhalf_t>(data, m_endian);
     data += sizeof(qelfhalf_t); // e_shtrndx
 
     if (quint32(e_shnum * e_shentsize) > fdlen) {
@@ -178,7 +219,7 @@ ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
         return Corrupt;
     }
 
-    ElfSectionHeader strtab;
+    RawElfSectionHeader strtab;
     qulonglong soff = e_shoff + e_shentsize * (e_shtrndx);
 
     if ((soff + e_shentsize) > fdlen || soff % 4 || soff == 0) {
@@ -189,7 +230,7 @@ ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
         return Corrupt;
     }
 
-    parseSectionHeader(dataStart + soff, &strtab);
+    parseSectionHeader(mapper.start + soff, &strtab, m_endian);
     const int stringTableFileOffset = strtab.offset;
 
     if (quint32(stringTableFileOffset + e_shentsize) >= fdlen
@@ -201,15 +242,14 @@ ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
         return Corrupt;
     }
 
-    const char *s = dataStart + e_shoff;
+    const uchar *s = mapper.start + e_shoff;
     for (int i = 0; i < e_shnum; ++i) {
-        ElfSectionHeader sh;
-        parseSectionHeader(s, &sh);
+        RawElfSectionHeader sh;
+        parseSectionHeader(s, &sh, m_endian);
         if (sh.name == 0) {
             s += e_shentsize;
             continue;
         }
-        const char *shnam = dataStart + stringTableFileOffset + sh.name;
 
         if (stringTableFileOffset + sh.name > fdlen) {
             m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
@@ -219,49 +259,50 @@ ElfReader::Result ElfReader::parse(const char *dataStart, quint64 fdlen,
             return Corrupt;
         }
 
-        if (sections) {
-            ElfSection section;
-            section.name = shnam;
-            section.index = strtab.name;
-            section.offset = strtab.offset;
-            section.size = strtab.size;
-            if (section.name == ".gdb_index")
-                sections->symbolsType = FastSymbols;
-            else if (section.name == ".debug_info")
-                sections->symbolsType = PlainSymbols;
-            else if (section.name == ".gnu_debuglink")
-                sections->symbolsType = SeparateSymbols;
-            sections->sections.append(section);
-        }
+        ElfHeader section;
+        section.name = ((const char *)mapper.start) + stringTableFileOffset + sh.name;
+        section.index = sh.name;
+        section.offset = sh.offset;
+        section.size = sh.size;
+        section.data = sh.data;
+        if (section.name == ".gdb_index")
+            m_headers.symbolsType = FastSymbols;
+        else if (section.name == ".debug_info")
+            m_headers.symbolsType = PlainSymbols;
+        else if (section.name == ".gnu_debuglink")
+            m_headers.symbolsType = SeparateSymbols;
+        m_headers.append(section);
 
         s += e_shentsize;
     }
     return Ok;
 }
 
-ElfSections ElfReader::sections()
+QByteArray ElfReader::readSection(const QByteArray &name)
 {
-    ElfSections names;
+    QByteArray contents;
+    if (m_headers.isEmpty())
+        readIt();
+    int i = m_headers.indexOf(name);
+    if (i == -1)
+        return contents;
 
-    QFile file(m_binary);
-    if (!file.open(QIODevice::ReadOnly)) {
-        m_errorString = file.errorString();
-        return names;
-    }
+    ElfMapper mapper(this);
+    if (!mapper.map())
+        return contents;
 
-    QByteArray data;
-    const char *filedata = 0;
-    quint64 fdlen = file.size();
-    filedata = (char *) file.map(0, fdlen);
-    if (filedata == 0) {
-        // Try reading the data into memory instead.
-        data = file.readAll();
-        filedata = data.constData();
-        fdlen = data.size();
-    }
+    const ElfHeader &section = m_headers.at(i);
 
-    parse(filedata, fdlen, &names);
-    return names;
+    contents = QByteArray((const char *)mapper.start + section.offset, section.size);
+    return contents;
+}
+
+int ElfHeaders::indexOf(const QByteArray &name) const
+{
+    for (int i = 0, n = size(); i != n; ++i)
+        if (at(i).name == name)
+            return i;
+    return -1;
 }
 
 } // namespace Utils
