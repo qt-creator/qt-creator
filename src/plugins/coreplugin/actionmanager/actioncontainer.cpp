@@ -32,6 +32,7 @@
 
 #include "actioncontainer_p.h"
 #include "actionmanager_p.h"
+#include "actionmanager.h"
 
 #include "command_p.h"
 
@@ -291,6 +292,31 @@ void ActionContainerPrivate::addMenu(ActionContainer *before, ActionContainer *m
     connect(menu, SIGNAL(destroyed()), this, SLOT(itemDestroyed()));
     insertMenu(beforeAction, container->menu());
     scheduleUpdate();
+}
+
+/*!
+ * \fn Command *ActionContainer::addSeparator(const Context &context, const Id &group, QAction **outSeparator)
+ *
+ * Adds a separator to the end of the given \a group to the action container, which is enabled
+ * for a given \a context. The created separator action is returned through \a outSeparator.
+ *
+ * Returns the created Command for the separator.
+ */
+/*! \a context \a group \a outSeparator
+ * \internal
+ */
+Command *ActionContainerPrivate::addSeparator(const Context &context, const Id &group, QAction **outSeparator)
+{
+    static int separatorIdCount = 0;
+    QAction *separator = new QAction(this);
+    separator->setSeparator(true);
+    Command *cmd = ActionManager::registerAction(separator, Id(QString::fromLatin1("%1.Separator.%2")
+                                                 .arg(id().toString()).arg(++separatorIdCount)),
+                                                 context);
+    addAction(cmd, group);
+    if (outSeparator)
+        *outSeparator = separator;
+    return cmd;
 }
 
 void ActionContainerPrivate::clear()

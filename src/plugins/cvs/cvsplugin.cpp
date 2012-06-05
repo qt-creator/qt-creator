@@ -98,14 +98,11 @@ static const char CMD_ID_EDIT_FILE[]          = "CVS.EditFile";
 static const char CMD_ID_UNEDIT_FILE[]        = "CVS.UneditFile";
 static const char CMD_ID_UNEDIT_REPOSITORY[]  = "CVS.UneditRepository";
 static const char CMD_ID_REVERT[]             = "CVS.Revert";
-static const char CMD_ID_SEPARATOR0[]         = "CVS.Separator0";
 static const char CMD_ID_DIFF_PROJECT[]       = "CVS.DiffAll";
 static const char CMD_ID_DIFF_CURRENT[]       = "CVS.DiffCurrent";
-static const char CMD_ID_SEPARATOR1[]         = "CVS.Separator1";
 static const char CMD_ID_COMMIT_ALL[]         = "CVS.CommitAll";
 static const char CMD_ID_REVERT_ALL[]         = "CVS.RevertAll";
 static const char CMD_ID_COMMIT_CURRENT[]     = "CVS.CommitCurrent";
-static const char CMD_ID_SEPARATOR2[]         = "CVS.Separator2";
 static const char CMD_ID_FILELOG_CURRENT[]    = "CVS.FilelogCurrent";
 static const char CMD_ID_ANNOTATE_CURRENT[]   = "CVS.AnnotateCurrent";
 static const char CMD_ID_STATUS[]             = "CVS.Status";
@@ -116,7 +113,6 @@ static const char CMD_ID_REPOSITORYLOG[]      = "CVS.RepositoryLog";
 static const char CMD_ID_REPOSITORYDIFF[]     = "CVS.RepositoryDiff";
 static const char CMD_ID_REPOSITORYSTATUS[]   = "CVS.RepositoryStatus";
 static const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
-static const char CMD_ID_SEPARATOR3[]         = "CVS.Separator3";
 
 static const VcsBaseEditorParameters editorParameters[] = {
 {
@@ -223,15 +219,6 @@ static const VcsBaseSubmitEditorParameters submitParameters = {
     Constants::CVSCOMMITEDITOR
 };
 
-static Command *createSeparator(QObject *parent,
-                                const char *id,
-                                const Context &globalcontext)
-{
-    QAction *tmpaction = new QAction(parent);
-    tmpaction->setSeparator(true);
-    return Core::ActionManager::registerAction(tmpaction, id, globalcontext);
-}
-
 bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments);
@@ -306,7 +293,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    cvsMenu->addAction(createSeparator(this, CMD_ID_SEPARATOR0, globalcontext));
+    cvsMenu->addSeparator(globalcontext);
 
     m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_addAction, CMD_ID_ADD,
@@ -342,7 +329,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    cvsMenu->addAction(createSeparator(this, CMD_ID_SEPARATOR1, globalcontext));
+    cvsMenu->addSeparator(globalcontext);
 
     m_editCurrentAction = new Utils::ParameterAction(tr("Edit"), tr("Edit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_editCurrentAction, CMD_ID_EDIT_FILE, globalcontext);
@@ -364,7 +351,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    cvsMenu->addAction(createSeparator(this, CMD_ID_SEPARATOR2, globalcontext));
+    cvsMenu->addSeparator(globalcontext);
 
     m_diffProjectAction = new Utils::ParameterAction(tr("Diff Project"), tr("Diff Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
@@ -403,7 +390,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     cvsMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    cvsMenu->addAction(createSeparator(this, CMD_ID_SEPARATOR3, globalcontext));
+    cvsMenu->addSeparator(globalcontext);
 
     m_diffRepositoryAction = new QAction(tr("Diff Repository"), this);
     command = Core::ActionManager::registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, globalcontext);

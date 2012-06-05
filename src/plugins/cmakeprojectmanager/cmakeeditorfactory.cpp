@@ -64,10 +64,7 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
     cmd = Core::ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
     contextMenu->addAction(cmd);
 
-    QAction *separator = new QAction(this);
-    separator->setSeparator(true);
-    contextMenu->addAction(Core::ActionManager::registerAction(separator,
-                  Id(Constants::SEPARATOR), cmakeEditorContext));
+    contextMenu->addSeparator(cmakeEditorContext);
 
     cmd = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);

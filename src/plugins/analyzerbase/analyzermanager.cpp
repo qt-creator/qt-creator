@@ -286,23 +286,9 @@ void AnalyzerManagerPrivate::setupActions()
     command = Core::ActionManager::registerAction(m_stopAction, "Analyzer.Stop", globalcontext);
     m_menu->addAction(command, G_ANALYZER_CONTROL);
 
-    QAction *separatorAction1 = new QAction(m_menu);
-    separatorAction1->setSeparator(true);
-    command = Core::ActionManager::registerAction(separatorAction1,
-        "Menu.Action.Analyzer.Tools.Separator1", globalcontext);
-    m_menu->addAction(command, G_ANALYZER_TOOLS);
-
-    QAction *separatorAction2 = new QAction(m_menu);
-    separatorAction2->setSeparator(true);
-    command = Core::ActionManager::registerAction(separatorAction2,
-        "Menu.Action.Analyzer.Tools.Separator2", globalcontext);
-    m_menu->addAction(command, G_ANALYZER_REMOTE_TOOLS);
-
-    QAction *separatorAction3 = new QAction(m_menu);
-    separatorAction3->setSeparator(true);
-    command = Core::ActionManager::registerAction(separatorAction3,
-        "Menu.Action.Analyzer.Tools.Separator3", globalcontext);
-    m_menu->addAction(command, G_ANALYZER_OPTIONS);
+    m_menu->addSeparator(globalcontext, G_ANALYZER_TOOLS);
+    m_menu->addSeparator(globalcontext, G_ANALYZER_REMOTE_TOOLS);
+    m_menu->addSeparator(globalcontext, G_ANALYZER_OPTIONS);
 }
 
 void AnalyzerManagerPrivate::delayedInit()

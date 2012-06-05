@@ -66,8 +66,6 @@ public:
 
     Id id() const;
 
-    QAction *action() const;
-    QShortcut *shortcut() const;
     Context context() const;
 
 
@@ -100,6 +98,8 @@ public:
     void setShortcut(QShortcut *shortcut);
     QShortcut *shortcut() const;
 
+    QAction *action() const { return 0; }
+
     void setContext(const Context &context);
     Context context() const;
     void setCurrentContext(const Context &context);
@@ -125,6 +125,7 @@ public:
     QKeySequence keySequence() const;
 
     QAction *action() const;
+    QShortcut *shortcut() const { return 0; }
 
     void setCurrentContext(const Context &context);
     bool isActive() const;

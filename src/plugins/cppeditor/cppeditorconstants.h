@@ -44,10 +44,6 @@ const char SWITCH_DECLARATION_DEFINITION[] = "CppEditor.SwitchDeclarationDefinit
 const char RENAME_SYMBOL_UNDER_CURSOR[] = "CppEditor.RenameSymbolUnderCursor";
 const char FIND_USAGES[] = "CppEditor.FindUsages";
 const char M_REFACTORING_MENU_INSERTION_POINT[] = "CppEditor.RefactorGroup";
-const char SEPARATOR[] = "CppEditor.Separator";
-const char SEPARATOR2[] = "CppEditor.Separator2";
-const char SEPARATOR3[] = "CppEditor.Separator3";
-const char SEPARATOR4[] = "CppEditor.Separator4";
 const char UPDATE_CODEMODEL[] = "CppEditor.UpdateCodeModel";
 
 const int TYPE_HIERARCHY_PRIORITY = 700;

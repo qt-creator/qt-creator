@@ -42,8 +42,6 @@ namespace Constants {
 const char M_CONTEXT[] = "GLSL Editor.ContextMenu";
 const char M_TOOLS_GLSL[] = "GLSLEditor.Tools.Menu";
 
-const char SEPARATOR1[] = "GLSLEditor.Separator1";
-const char SEPARATOR2[] = "GLSLEditor.Separator2";
 const char M_REFACTORING_MENU_INSERTION_POINT[] = "GLSLEditor.RefactorGroup";
 
 const char C_GLSLEDITOR_ID[] = "GLSLEditor.GLSLEditor";

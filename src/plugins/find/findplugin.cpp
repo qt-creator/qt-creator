@@ -206,15 +206,8 @@ void FindPlugin::setupMenu()
     mfind->appendGroup(Constants::G_FIND_ACTIONS);
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Command *cmd;
-    QAction *separator;
-    separator = new QAction(this);
-    separator->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(separator, "Find.Sep.Flags", globalcontext);
-    mfind->addAction(cmd, Constants::G_FIND_FLAGS);
-    separator = new QAction(this);
-    separator->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(separator, "Find.Sep.Actions", globalcontext);
-    mfind->addAction(cmd, Constants::G_FIND_ACTIONS);
+    mfind->addSeparator(globalcontext, Constants::G_FIND_FLAGS);
+    mfind->addSeparator(globalcontext, Constants::G_FIND_ACTIONS);
 
     Core::ActionContainer *mfindadvanced = Core::ActionManager::createMenu(Constants::M_FIND_ADVANCED);
     mfindadvanced->menu()->setTitle(tr("Advanced Find"));

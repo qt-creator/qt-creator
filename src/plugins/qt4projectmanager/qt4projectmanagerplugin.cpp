@@ -204,12 +204,9 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
     connect(m_runQMakeActionContextMenu, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(runQMakeContextMenu()));
 
-    m_subProjectRebuildSeparator = new QAction(this);
-    m_subProjectRebuildSeparator->setSeparator(true);
+    command = msubproject->addSeparator(projectContext, ProjectExplorer::Constants::G_PROJECT_BUILD,
+                                        &m_subProjectRebuildSeparator);
     command->setAttribute(Core::Command::CA_Hide);
-    command = Core::ActionManager::registerAction(
-                m_subProjectRebuildSeparator, Core::Id("ProjectExplorer.SubprojectRebuild.Sep"), projectContext);
-    msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_BUILD);
 
     m_rebuildSubProjectContextMenu = new QAction(tr("Rebuild"), this);
     command = Core::ActionManager::registerAction(
@@ -303,10 +300,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
     msubproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
 
-    QAction *separator = new QAction(this);
-    separator->setSeparator(true);
-    contextMenu->addAction(Core::ActionManager::registerAction(separator,
-                  Core::Id(Constants::SEPARATOR), proFileEditorContext));
+    contextMenu->addSeparator(proFileEditorContext);
 
     command = Core::ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(command);

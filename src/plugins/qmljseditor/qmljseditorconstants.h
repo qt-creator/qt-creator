@@ -40,9 +40,6 @@ namespace Constants {
 
 const char M_CONTEXT[] = "QML JS Editor.ContextMenu";
 
-const char SEPARATOR1[] = "QmlJSEditor.Separator1";
-const char SEPARATOR2[] = "QmlJSEditor.Separator2";
-const char SEPARATOR3[] = "QmlJSEditor.Separator3";
 const char M_REFACTORING_MENU_INSERTION_POINT[] = "QmlJSEditor.RefactorGroup";
 
 const char C_QMLJSEDITOR_ID[] = "QMLProjectManager.QMLJSEditor";

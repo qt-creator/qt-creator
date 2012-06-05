@@ -162,9 +162,6 @@ static const char CMD_ID_ANNOTATE[] = "Perforce.Annotate";
 static const char CMD_ID_FILELOG_CURRENT[] = "Perforce.FilelogCurrent";
 static const char CMD_ID_FILELOG[] = "Perforce.Filelog";
 static const char CMD_ID_UPDATEALL[] = "Perforce.UpdateAll";
-static const char CMD_ID_SEPARATOR1[] = "Perforce.Separator1";
-static const char CMD_ID_SEPARATOR2[] = "Perforce.Separator2";
-static const char CMD_ID_SEPARATOR3[] = "Perforce.Separator3";
 
 ////
 // PerforcePlugin
@@ -219,15 +216,6 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
     Perforce::Constants::PERFORCE_SUBMIT_EDITOR_DISPLAY_NAME,
     Perforce::Constants::PERFORCESUBMITEDITOR_CONTEXT
 };
-
-static inline Core::Command *createSeparator(QObject *parent,
-                                             const char *id,
-                                             const Core::Context &globalcontext)
-{
-    QAction *tmpaction = new QAction(parent);
-    tmpaction->setSeparator(true);
-    return Core::ActionManager::registerAction(tmpaction, id, globalcontext);
-}
 
 bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
 {
@@ -296,7 +284,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     mperforce->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    mperforce->addAction(createSeparator(this, "Perforce.Sep.Edit", globalcontext));
+    mperforce->addSeparator(globalcontext);
 
     m_editAction = new Utils::ParameterAction(tr("Edit"), tr("Edit \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_editAction, CMD_ID_EDIT, globalcontext);
@@ -333,7 +321,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     mperforce->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    mperforce->addAction(createSeparator(this, "Perforce.Sep.Project", globalcontext));
+    mperforce->addSeparator(globalcontext);
 
     const QString diffProjectDefaultText = tr("Diff Current Project/Session");
     m_diffProjectAction = new Utils::ParameterAction(diffProjectDefaultText, tr("Diff Project \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
@@ -383,7 +371,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     mperforce->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    mperforce->addAction(createSeparator(this, "Perforce.Sep.Repository", globalcontext));
+    mperforce->addSeparator(globalcontext);
 
     m_diffAllAction = new QAction(tr("Diff Opened Files"), this);
     command = Core::ActionManager::registerAction(m_diffAllAction, CMD_ID_DIFF_ALL, globalcontext);
@@ -416,7 +404,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
     mperforce->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    mperforce->addAction(createSeparator(this, "Perforce.Sep.Dialogs", globalcontext));
+    mperforce->addSeparator(globalcontext);
 
     m_describeAction = new QAction(tr("Describe..."), this);
     command = Core::ActionManager::registerAction(m_describeAction, CMD_ID_DESCRIBE, globalcontext);

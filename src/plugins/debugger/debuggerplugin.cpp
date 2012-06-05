@@ -3200,11 +3200,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
         mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
     }
 
-    QAction *sep = new QAction(mstart);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep,
-        "Debugger.Start.Qml", globalcontext);
-    mstart->addAction(cmd, Constants::G_START_QML);
+    mstart->addSeparator(globalcontext, Constants::G_START_QML);
 
     cmd = Core::ActionManager::registerAction(m_attachToQmlPortAction,
         "Debugger.AttachToQmlPort", globalcontext);
@@ -3243,10 +3239,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDescription(tr("Reset Debugger"));
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, "Debugger.Sep.Step", globalcontext);
-    debugMenu->addAction(cmd);
+    debugMenu->addSeparator(globalcontext);
 
     cmd = Core::ActionManager::registerAction(m_nextAction,
         Constants::NEXT, globalcontext);
@@ -3298,10 +3291,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setAttribute(Command::CA_Hide);
     debugMenu->addAction(cmd);
 
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, "Debugger.Sep.Break", globalcontext);
-    debugMenu->addAction(cmd);
+    debugMenu->addSeparator(globalcontext);
 
     //cmd = Core::ActionManager::registerAction(m_snapshotAction,
     //    "Debugger.Snapshot", cppDebuggercontext);
@@ -3326,10 +3316,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(m_breakAction, SIGNAL(triggered()),
         SLOT(toggleBreakpoint()));
 
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, "Debugger.Sep.Watch", globalcontext);
-    debugMenu->addAction(cmd);
+    debugMenu->addSeparator(globalcontext);
 
     // Don't add '1' to the string as it shows up in the shortcut dialog.
     cmd = Core::ActionManager::registerAction(m_watchAction1,
@@ -3341,9 +3328,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // the editor context menu.
     if (ActionContainer *editorContextMenu =
             Core::ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT)) {
-        cmd = Core::ActionManager::registerAction(sep, "Debugger.Sep.Views",
-            cppDebuggercontext);
-        editorContextMenu->addAction(cmd);
+        cmd = editorContextMenu->addSeparator(cppDebuggercontext);
         cmd->setAttribute(Command::CA_Hide);
 
         cmd = Core::ActionManager::registerAction(m_watchAction2,
@@ -3590,20 +3575,9 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     mstart->appendGroup(Constants::G_START_QML);
 
     // Separators
-    QAction *sep = new QAction(mstart);
-    sep->setSeparator(true);
-    Command *cmd = Core::ActionManager::registerAction(sep, "Debugger.Local.Cpp", globalcontext);
-    mstart->addAction(cmd, Constants::G_START_LOCAL);
-
-    sep = new QAction(mstart);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, "Debugger.StartRemote.Cpp", globalcontext);
-    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
-
-    sep = new QAction(mstart);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, "Debugger.AttachRemote.Cpp", globalcontext);
-    mstart->addAction(cmd, Constants::G_AUTOMATIC_REMOTE);
+    mstart->addSeparator(globalcontext, Constants::G_START_LOCAL);
+    mstart->addSeparator(globalcontext, Constants::G_MANUAL_REMOTE);
+    mstart->addSeparator(globalcontext, Constants::G_AUTOMATIC_REMOTE);
 
     return theDebuggerCore->initialize(arguments, errorMessage);
 }

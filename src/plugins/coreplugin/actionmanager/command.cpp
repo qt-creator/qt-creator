@@ -265,16 +265,6 @@ Id CommandPrivate::id() const
     return m_id;
 }
 
-QAction *CommandPrivate::action() const
-{
-    return 0;
-}
-
-QShortcut *CommandPrivate::shortcut() const
-{
-    return 0;
-}
-
 Core::Context CommandPrivate::context() const
 {
     return m_context;

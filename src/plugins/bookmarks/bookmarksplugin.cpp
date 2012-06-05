@@ -85,10 +85,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+M") : tr("Ctrl+M")));
     mbm->addAction(cmd);
 
-    QAction *sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, Core::Id("Bookmarks.Sep.Toggle"), textcontext);
-    mbm->addAction(cmd);
+    mbm->addSeparator(textcontext);
 
     //Previous
     m_prevAction = new QAction(tr("Previous Bookmark"), this);
@@ -102,10 +99,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+.") : tr("Ctrl+.")));
     mbm->addAction(cmd);
 
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, Core::Id("Bookmarks.Sep.DirNavigation"), globalcontext);
-    mbm->addAction(cmd);
+    mbm->addSeparator(globalcontext);
 
     //Previous Doc
     m_docPrevAction = new QAction(tr("Previous Bookmark in Document"), this);

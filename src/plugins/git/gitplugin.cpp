@@ -182,15 +182,6 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
     Git::Constants::C_GITSUBMITEDITOR
 };
 
-static Core::Command *createSeparator(const Core::Context &context,
-                                      const Core::Id &id,
-                                      QObject *parent)
-{
-    QAction *a = new QAction(parent);
-    a->setSeparator(true);
-    return Core::ActionManager::registerAction(a, id, context);
-}
-
 // Create a parameter action
 ParameterActionCommandPair
         GitPlugin::createParameterAction(Core::ActionContainer *ac,
@@ -341,7 +332,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+G,Meta+L") : tr("Alt+G,Alt+L")));
 
     // ------
-    gitContainer->addAction(createSeparator(globalcontext, Core::Id("Git.Sep.File"), this));
+    gitContainer->addSeparator(globalcontext);
 
     parameterActionCommand
             = createFileAction(gitContainer,
@@ -368,7 +359,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     parameterActionCommand.second->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+G,Meta+U") : tr("Alt+G,Alt+U")));
 
     // ------------
-    gitContainer->addAction(createSeparator(globalcontext, Core::Id("Git.Sep.Project"), this));
+    gitContainer->addSeparator(globalcontext);
 
     parameterActionCommand
             = createProjectAction(gitContainer,
@@ -393,7 +384,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 
     // --------------
-    gitContainer->addAction(createSeparator(globalcontext, Core::Id("Git.Sep.Repository"), this));
+    gitContainer->addSeparator(globalcontext);
 
     createRepositoryAction(gitContainer,
                            tr("Diff"), Core::Id("Git.DiffRepository"),
@@ -422,7 +413,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     gitContainer->addAction(createRepositoryCommand);
 
     // --------------
-    gitContainer->addAction(createSeparator(globalcontext, Core::Id("Git.Sep.Info"), this));
+    gitContainer->addSeparator(globalcontext);
 
     createRepositoryAction(gitContainer,
                            tr("Launch gitk"), Core::Id("Git.LaunchGitK"),
@@ -448,7 +439,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 
     // --------------
-    gitContainer->addAction(createSeparator(globalcontext, Core::Id("Git.Sep.RarelyUsed"), this));
+    gitContainer->addSeparator(globalcontext);
 
     Core::ActionContainer *patchMenu = Core::ActionManager::createMenu(Core::Id("Git.PatchMenu"));
     patchMenu->menu()->setTitle(tr("Patch"));
@@ -476,7 +467,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Stashes..."), Core::Id("Git.StashList"),
                            globalcontext, false, SLOT(stashList()));
 
-    stashMenu->addAction(createSeparator(globalcontext, Core::Id("Git.Sep.StashMenuPush"), this));
+    stashMenu->addSeparator(globalcontext);
 
     ActionCommandPair actionCommand =
             createRepositoryAction(stashMenu,
@@ -489,7 +480,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                            globalcontext, true, SLOT(stashSnapshot()));
     actionCommand.first->setToolTip(tr("Saves the current state of your work."));
 
-    stashMenu->addAction(createSeparator(globalcontext, Core::Id("Git.Sep.StashMenuPop"), this));
+    stashMenu->addSeparator(globalcontext);
 
     actionCommand = createRepositoryAction(stashMenu,
                                            tr("Stash Pop"), Core::Id("Git.StashPop"),
@@ -508,9 +499,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            tr("Fetch"), Core::Id("Git.Subversion.Fetch"),
                            globalcontext, false, &GitClient::synchronousSubversionFetch);
 
-    gitContainer->addAction(createSeparator(globalcontext, Core::Id("Git.Sep.PushPull"), this));
+    gitContainer->addSeparator(globalcontext);
 
-    gitContainer->addAction(createSeparator(globalcontext, Core::Id("Git.Sep.Global"), this));
+    gitContainer->addSeparator(globalcontext);
 
     createRepositoryAction(gitContainer,
                            tr("Fetch"), Core::Id("Git.Fetch"),
@@ -534,7 +525,7 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            globalcontext, true, SLOT(startAmendCommit()));
 
     // Subversion in a submenu.
-    gitContainer->addAction(createSeparator(globalcontext, Core::Id("Git.Sep.Subversion"), this));
+    gitContainer->addSeparator(globalcontext);
 
     if (0) {
         const QList<QAction*> snapShotActions = createSnapShotTestActions();

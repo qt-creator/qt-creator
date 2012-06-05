@@ -115,17 +115,6 @@ QmlJSEditorPlugin::~QmlJSEditorPlugin()
     m_instance = 0;
 }
 
-/*! Copied from cppplugin.cpp */
-static inline
-Core::Command *createSeparator(QObject *parent,
-                               Core::Context &context,
-                               const char *id)
-{
-    QAction *separator = new QAction(parent);
-    separator->setSeparator(true);
-    return Core::ActionManager::registerAction(separator, Core::Id(id), context);
-}
-
 bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/qmljseditor/QmlJSEditor.mimetypes.xml"), errorMessage))
@@ -181,7 +170,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     Core::ActionContainer *qmlToolsMenu = Core::ActionManager::actionContainer(Core::Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
 
     Core::Context globalContext(Core::Constants::C_GLOBAL);
-    qmlToolsMenu->addAction(createSeparator(this, globalContext, QmlJSEditor::Constants::SEPARATOR3));
+    qmlToolsMenu->addSeparator(globalContext);
 
     Core::Command *cmd;
     cmd = Core::ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
@@ -222,12 +211,9 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     qmlToolsMenu->addAction(cmd);
 
     // Insert marker for "Refactoring" menu:
-    Core::Command *sep = createSeparator(this, globalContext,
-                                         Constants::SEPARATOR1);
+    Core::Command *sep = contextMenu->addSeparator(globalContext);
     sep->action()->setObjectName(Constants::M_REFACTORING_MENU_INSERTION_POINT);
-    contextMenu->addAction(sep);
-    contextMenu->addAction(createSeparator(this, globalContext,
-                                           Constants::SEPARATOR2));
+    contextMenu->addSeparator(globalContext);
 
     cmd = Core::ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION);
     contextMenu->addAction(cmd);

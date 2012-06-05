@@ -50,9 +50,6 @@ const char CMAKEPROJECT_ID[] = "CMakeProjectManager.CMakeProject";
 // Menu
 const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 
-// Actions
-const char SEPARATOR[]        = "CMakeEditor.Separator";
-
 } // namespace Constants
 } // namespace CMakeProjectManager
 

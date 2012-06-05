@@ -193,7 +193,6 @@ private:
     QActionGroup *m_actionGroupPreviewInStyle;
     QMenu *m_previewInStyleMenu;
     QAction *m_actionAboutPlugins;
-    QAction *m_modeActionSeparator;
     QAction *m_actionSwitchSource;
     QSignalMapper *m_shortcutMapper;
 

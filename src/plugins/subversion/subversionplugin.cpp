@@ -88,18 +88,14 @@ static const char CMD_ID_SUBVERSION_MENU[]    = "Subversion.Menu";
 static const char CMD_ID_ADD[]                = "Subversion.Add";
 static const char CMD_ID_DELETE_FILE[]        = "Subversion.Delete";
 static const char CMD_ID_REVERT[]             = "Subversion.Revert";
-static const char CMD_ID_SEPARATOR0[]         = "Subversion.Separator0";
 static const char CMD_ID_DIFF_PROJECT[]       = "Subversion.DiffAll";
 static const char CMD_ID_DIFF_CURRENT[]       = "Subversion.DiffCurrent";
-static const char CMD_ID_SEPARATOR1[]         = "Subversion.Separator1";
 static const char CMD_ID_COMMIT_ALL[]         = "Subversion.CommitAll";
 static const char CMD_ID_REVERT_ALL[]         = "Subversion.RevertAll";
 static const char CMD_ID_COMMIT_CURRENT[]     = "Subversion.CommitCurrent";
 static const char CMD_ID_SEPARATOR2[]         = "Subversion.Separator2";
 static const char CMD_ID_FILELOG_CURRENT[]    = "Subversion.FilelogCurrent";
 static const char CMD_ID_ANNOTATE_CURRENT[]   = "Subversion.AnnotateCurrent";
-static const char CMD_ID_SEPARATOR3[]         = "Subversion.Separator3";
-static const char CMD_ID_SEPARATOR4[]         = "Subversion.Separator4";
 static const char CMD_ID_STATUS[]             = "Subversion.Status";
 static const char CMD_ID_PROJECTLOG[]         = "Subversion.ProjectLog";
 static const char CMD_ID_REPOSITORYLOG[]      = "Subversion.RepositoryLog";
@@ -248,15 +244,6 @@ static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
     Subversion::Constants::SUBVERSIONCOMMITEDITOR
 };
 
-static inline Core::Command *createSeparator(QObject *parent,
-                                             const char*id,
-                                             const Core::Context &globalcontext)
-{
-    QAction *tmpaction = new QAction(parent);
-    tmpaction->setSeparator(true);
-    return Core::ActionManager::registerAction(tmpaction, id, globalcontext);
-}
-
 bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
 {
     typedef VcsBase::VcsSubmitEditorFactory<SubversionSubmitEditor> SubversionSubmitEditorFactory;
@@ -330,7 +317,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    subversionMenu->addAction(createSeparator(this, CMD_ID_SEPARATOR0, globalcontext));
+    subversionMenu->addSeparator(globalcontext);
 
     m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_addAction, CMD_ID_ADD,
@@ -366,7 +353,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    subversionMenu->addAction(createSeparator(this, CMD_ID_SEPARATOR1, globalcontext));
+    subversionMenu->addSeparator(globalcontext);
 
     m_diffProjectAction = new Utils::ParameterAction(tr("Diff Project"), tr("Diff Project \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
@@ -405,7 +392,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    subversionMenu->addAction(createSeparator(this, CMD_ID_SEPARATOR2, globalcontext));
+    subversionMenu->addSeparator(globalcontext);
 
     m_diffRepositoryAction = new QAction(tr("Diff Repository"), this);
     command = Core::ActionManager::registerAction(m_diffRepositoryAction, CMD_ID_REPOSITORYDIFF, globalcontext);

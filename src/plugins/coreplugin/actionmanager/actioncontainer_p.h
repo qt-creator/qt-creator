@@ -65,6 +65,7 @@ public:
     void addAction(Command *action, const Id &group = Id());
     void addMenu(ActionContainer *menu, const Id &group = Id());
     void addMenu(ActionContainer *before, ActionContainer *menu, const Id &group = Id());
+    Command *addSeparator(const Context &context, const Id &group = Id(), QAction **outSeparator = 0);
     virtual void clear();
 
     Id id() const;

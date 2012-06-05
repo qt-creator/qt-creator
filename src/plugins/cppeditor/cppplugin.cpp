@@ -123,16 +123,6 @@ QStringList CppEditorFactory::mimeTypes() const
 
 ///////////////////////////////// CppPlugin //////////////////////////////////
 
-static inline
-Core::Command *createSeparator(QObject *parent,
-                               Core::Context &context,
-                               const char *id)
-{
-    QAction *separator = new QAction(parent);
-    separator->setSeparator(true);
-    return Core::ActionManager::registerAction(separator, Core::Id(id), context);
-}
-
 CppPlugin *CppPlugin::m_instance = 0;
 
 CppPlugin::CppPlugin() :
@@ -263,12 +253,9 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     // Refactoring sub-menu
     Core::Context globalContext(Core::Constants::C_GLOBAL);
-    Core::Command *sep = createSeparator(this, globalContext,
-                                         Constants::SEPARATOR2);
+    Core::Command *sep = contextMenu->addSeparator(globalContext);
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
-    contextMenu->addAction(sep);
-    contextMenu->addAction(createSeparator(this, globalContext,
-                                           Constants::SEPARATOR3));
+    contextMenu->addSeparator(globalContext);
 
     m_renameSymbolUnderCursorAction = new QAction(tr("Rename Symbol Under Cursor"),
                                                   this);
@@ -281,7 +268,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
     cppToolsMenu->addAction(cmd);
 
     // Update context in global context
-    cppToolsMenu->addAction(createSeparator(this, globalContext, CppEditor::Constants::SEPARATOR4));
+    cppToolsMenu->addSeparator(globalContext);
     m_updateCodeModelAction = new QAction(tr("Update Code Model"), this);
     cmd = Core::ActionManager::registerAction(m_updateCodeModelAction, Core::Id(Constants::UPDATE_CODEMODEL), globalContext);
     CPlusPlus::CppModelManagerInterface *cppModelManager = CPlusPlus::CppModelManagerInterface::instance();
@@ -296,7 +283,7 @@ bool CppPlugin::initialize(const QStringList & /*arguments*/, QString *errorMess
 
     m_actionHandler->initializeActions();
 
-    contextMenu->addAction(createSeparator(this, context, CppEditor::Constants::SEPARATOR));
+    contextMenu->addSeparator(context);
 
     cmd = Core::ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION);
     contextMenu->addAction(cmd);

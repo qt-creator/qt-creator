@@ -242,10 +242,7 @@ void OutputPaneManager::init()
     connect(m_minMaxAction, SIGNAL(triggered()), this, SLOT(slotMinMax()));
     m_minMaxButton->setDefaultAction(cmd->action());
 
-    QAction *sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = ActionManager::registerAction(sep, "Coreplugin.OutputPane.Sep", globalContext);
-    mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
+    mpanes->addSeparator(globalContext, "Coreplugin.OutputPane.ActionsGroup");
 
     QFontMetrics titleFm = m_titleLabel->fontMetrics();
     int minTitleWidth = 0;

@@ -217,11 +217,11 @@ void BazaarPlugin::createMenu()
     menu->setTitle(tr("Bazaar"));
 
     createFileActions(context);
-    createSeparator(context, Core::Id("Bazaar.FileDirSeperator"));
+    m_bazaarContainer->addSeparator(context);
     createDirectoryActions(context);
-    createSeparator(context, Core::Id("Bazaar.DirRepoSeperator"));
+    m_bazaarContainer->addSeparator(context);
     createRepositoryActions(context);
-    createSeparator(context, Core::Id("Bazaar.Repository Management"));
+    m_bazaarContainer->addSeparator(context);
 
     // Request the Tools menu and add the Bazaar menu to it
     Core::ActionContainer *toolsMenu = Core::ActionManager::actionContainer(Core::Id(Core::Constants::M_TOOLS));
@@ -264,7 +264,7 @@ void BazaarPlugin::createFileActions(const Core::Context &context)
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    createSeparator(context, Core::Id("Bazaar.FileDirSeperator1"));
+    m_bazaarContainer->addSeparator(context);
 
     m_addAction = new Utils::ParameterAction(tr("Add"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_addAction, Core::Id(Constants::ADD), context);
@@ -674,13 +674,6 @@ void BazaarPlugin::deleteCommitLog()
         delete m_changeLog;
         m_changeLog = 0;
     }
-}
-
-void BazaarPlugin::createSeparator(const Core::Context &context, const Core::Id &id)
-{
-    QAction *action = new QAction(this);
-    action->setSeparator(true);
-    m_bazaarContainer->addAction(Core::ActionManager::registerAction(action, id, context));
 }
 
 void BazaarPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)

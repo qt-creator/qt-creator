@@ -546,11 +546,7 @@ void CallgrindTool::extensionsInitialized()
         QAction *action = 0;
         Core::Command *cmd = 0;
 
-        action = new QAction(this);
-        action->setSeparator(true);
-        cmd = Core::ActionManager::registerAction(action, "Analyzer.Callgrind.ContextMenu.Sep",
-            analyzerContext);
-        editorContextMenu->addAction(cmd);
+        editorContextMenu->addSeparator(analyzerContext);
 
         action = new QAction(tr("Profile Costs of this Function and its Callees"), this);
         action->setIcon(QIcon(Analyzer::Constants::ANALYZER_CONTROL_START_ICON));

@@ -125,20 +125,6 @@ static inline QIcon designerIcon(const QString &iconName)
     return icon;
 }
 
-// Create a menu separator
-static QAction *createSeparator(QObject *parent,
-                                 const Core::Context &context,
-                                 Core::ActionContainer *container,
-                                 const Core::Id &id,
-                                 const Core::Id &group = Core::Id())
-{
-    QAction *actSeparator = new QAction(parent);
-    actSeparator->setSeparator(true);
-    Core::Command *command = Core::ActionManager::registerAction(actSeparator, id, context);
-    container->addAction(command, group);
-    return actSeparator;
-}
-
 using namespace Designer::Constants;
 
 namespace Designer {
@@ -462,10 +448,7 @@ void FormEditorW::setupActions()
     m_actionGroupEditMode->setExclusive(true);
     connect(m_actionGroupEditMode, SIGNAL(triggered(QAction*)), this, SLOT(activateEditMode(QAction*)));
 
-    m_modeActionSeparator = new QAction(this);
-    m_modeActionSeparator->setSeparator(true);
-    command = Core::ActionManager::registerAction(m_modeActionSeparator, Core::Id("FormEditor.Sep.ModeActions"), m_contexts);
-    medit->addAction(command, Core::Constants::G_EDIT_OTHER);
+    medit->addSeparator(m_contexts, Core::Constants::G_EDIT_OTHER);
 
     m_toolActionIds.push_back(Core::Id("FormEditor.WidgetEditor"));
     createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
@@ -528,7 +511,7 @@ void FormEditorW::setupActions()
     addToolAction(m_fwm->actionSimplifyLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools);
 
-    createSeparator(this, m_contexts, mformtools, Core::Id("FormEditor.Menu.Tools.Separator1"));
+    mformtools->addSeparator(m_contexts);
 
     addToolAction(m_fwm->actionLower(), m_contexts,
                   Core::Id("FormEditor.Lower"), mformtools);
@@ -537,7 +520,7 @@ void FormEditorW::setupActions()
                   Core::Id("FormEditor.Raise"), mformtools);
 
     // Commands that do not go into the editor toolbar
-    createSeparator(this, m_contexts, mformtools, Core::Id("FormEditor.Menu.Tools.Separator2"));
+    mformtools->addSeparator(m_contexts);
 
 #if QT_VERSION >= 0x050000
     m_actionPreview = m_fwm->action(QDesignerFormWindowManagerInterface::DefaultPreviewAction);
@@ -561,9 +544,9 @@ void FormEditorW::setupActions()
     setPreviewMenuEnabled(false);
 
     // Form settings
-    createSeparator(this, m_contexts,  medit, Core::Id("FormEditor.Edit.Separator2"), Core::Constants::G_EDIT_OTHER);
+    medit->addSeparator(m_contexts, Core::Constants::G_EDIT_OTHER);
 
-    createSeparator(this, m_contexts, mformtools, Core::Id("FormEditor.Menu.Tools.Separator3"));
+    mformtools->addSeparator(m_contexts);
 
     m_actionSwitchSource = new QAction(tr("Switch Source/Form"), this);
     connect(m_actionSwitchSource, SIGNAL(triggered()), this, SLOT(switchSourceForm()));
@@ -574,7 +557,7 @@ void FormEditorW::setupActions()
     addToolAction(m_actionSwitchSource, switchContexts, Core::Id("FormEditor.FormSwitchSource"), mformtools,
                   tr("Shift+F4"));
 
-    createSeparator(this, m_contexts, mformtools, Core::Id("FormEditor.Menu.Tools.Separator4"));
+    mformtools->addSeparator(m_contexts);
 #if QT_VERSION >= 0x050000
     QAction *actionFormSettings = m_fwm->action(QDesignerFormWindowManagerInterface::FormWindowSettingsDialogAction);
 #else
@@ -582,7 +565,7 @@ void FormEditorW::setupActions()
 #endif
     addToolAction(actionFormSettings, m_contexts, Core::Id("FormEditor.FormSettings"), mformtools);
 
-    createSeparator(this, m_contexts, mformtools, Core::Id("FormEditor.Menu.Tools.Separator5"));
+    mformtools->addSeparator(m_contexts);
     m_actionAboutPlugins = new QAction(tr("About Qt Designer plugins...."), this);
     addToolAction(m_actionAboutPlugins, m_contexts,
                    Core::Id("FormEditor.AboutPlugins"), mformtools);

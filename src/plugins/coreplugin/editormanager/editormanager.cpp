@@ -274,15 +274,6 @@ static EditorManager *m_instance = 0;
 
 EditorManager *EditorManager::instance() { return m_instance; }
 
-static Command *createSeparator(QObject *parent,
-                                const Id &id, const Context &context)
-{
-    QAction *tmpaction = new QAction(parent);
-    tmpaction->setSeparator(true);
-    Command *cmd = ActionManager::registerAction(tmpaction, id, context);
-    return cmd;
-}
-
 EditorManager::EditorManager(QWidget *parent) :
     QWidget(parent),
     d(new EditorManagerPrivate(parent))
@@ -319,15 +310,8 @@ EditorManager::EditorManager(QWidget *parent) :
     ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
 
     // Window menu separators
-    QAction *tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    cmd = ActionManager::registerAction(tmpaction, "QtCreator.Window.Sep.Split", editManagerContext);
-    mwindow->addAction(cmd, Constants::G_WINDOW_SPLIT);
-
-    tmpaction = new QAction(this);
-    tmpaction->setSeparator(true);
-    cmd = ActionManager::registerAction(tmpaction, "QtCreator.Window.Sep.Navigate", editManagerContext);
-    mwindow->addAction(cmd, Constants::G_WINDOW_NAVIGATE);
+    mwindow->addSeparator(editManagerContext, Constants::G_WINDOW_SPLIT);
+    mwindow->addSeparator(editManagerContext, Constants::G_WINDOW_NAVIGATE);
 
     // Close Action
     cmd = ActionManager::registerAction(d->m_closeCurrentEditorAction, Constants::CLOSE, editManagerContext, true);
@@ -431,14 +415,10 @@ EditorManager::EditorManager(QWidget *parent) :
     advancedMenu->appendGroup(Constants::G_EDIT_EDITOR);
 
     // Advanced menu separators
-    cmd = createSeparator(this, Id("QtCreator.Edit.Sep.Collapsing"), editManagerContext);
-    advancedMenu->addAction(cmd, Constants::G_EDIT_COLLAPSING);
-    cmd = createSeparator(this, Id("QtCreator.Edit.Sep.Blocks"), editManagerContext);
-    advancedMenu->addAction(cmd, Constants::G_EDIT_BLOCKS);
-    cmd = createSeparator(this, Id("QtCreator.Edit.Sep.Font"), editManagerContext);
-    advancedMenu->addAction(cmd, Constants::G_EDIT_FONT);
-    cmd = createSeparator(this, Id("QtCreator.Edit.Sep.Editor"), editManagerContext);
-    advancedMenu->addAction(cmd, Constants::G_EDIT_EDITOR);
+    advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_COLLAPSING);
+    advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_BLOCKS);
+    advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_FONT);
+    advancedMenu->addSeparator(editManagerContext, Constants::G_EDIT_EDITOR);
 
     // other setup
     d->m_splitter = new SplitterOrView(d->m_editorModel);

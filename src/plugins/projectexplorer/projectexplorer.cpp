@@ -530,45 +530,18 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     //
 
     Core::Command *cmd;
-    QAction *sep;
 
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Config.Sep"), projecTreeContext);
-    msessionContextMenu->addAction(cmd, Constants::G_SESSION_REBUILD);
+    msessionContextMenu->addSeparator(projecTreeContext, Constants::G_SESSION_REBUILD);
 
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Files.Sep"), projecTreeContext);
-    msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
-    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
-    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Projects.Sep"), globalcontext);
-    mfile->addAction(cmd, Core::Constants::G_FILE_PROJECT);
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Other.Sep"), globalcontext);
-    mbuild->addAction(cmd, Constants::G_BUILD_REBUILD);
-    msessionContextMenu->addAction(cmd, Constants::G_SESSION_OTHER);
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.CancelBuild.Sep"), globalcontext);
-    mbuild->addAction(cmd, Constants::G_BUILD_CANCEL);
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Run.Sep"), globalcontext);
-    mbuild->addAction(cmd, Constants::G_BUILD_RUN);
-
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Rebuild.Sep"), globalcontext);
-    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_REBUILD);
+    msessionContextMenu->addSeparator(projecTreeContext, Constants::G_SESSION_FILES);
+    mprojectContextMenu->addSeparator(projecTreeContext, Constants::G_PROJECT_FILES);
+    msubProjectContextMenu->addSeparator(projecTreeContext, Constants::G_PROJECT_FILES);
+    mfile->addSeparator(globalcontext, Core::Constants::G_FILE_PROJECT);
+    mbuild->addSeparator(globalcontext, Constants::G_BUILD_REBUILD);
+    msessionContextMenu->addSeparator(globalcontext, Constants::G_SESSION_OTHER);
+    mbuild->addSeparator(globalcontext, Constants::G_BUILD_CANCEL);
+    mbuild->addSeparator(globalcontext, Constants::G_BUILD_RUN);
+    mprojectContextMenu->addSeparator(globalcontext, Constants::G_PROJECT_REBUILD);
 
     //
     // Actions
@@ -861,23 +834,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FIRST);
 
     // Collapse All.
-    sep = new QAction(this);
-    sep->setSeparator(true);
-    Core::Command *treeSpacer = Core::ActionManager::registerAction(sep, Core::Id("ProjectExplorer.Tree.Sep"), globalcontext);
-
     d->m_projectTreeCollapseAllAction = new QAction(tr("Collapse All"), this);
     cmd = Core::ActionManager::registerAction(d->m_projectTreeCollapseAllAction, Constants::PROJECTTREE_COLLAPSE_ALL,
                              projecTreeContext);
     const Core::Id treeGroup = Constants::G_PROJECT_TREE;
-    mfileContextMenu->addAction(treeSpacer, treeGroup);
+    mfileContextMenu->addSeparator(globalcontext, treeGroup);
     mfileContextMenu->addAction(cmd, treeGroup);
-    msubProjectContextMenu->addAction(treeSpacer, treeGroup);
+    msubProjectContextMenu->addSeparator(globalcontext, treeGroup);
     msubProjectContextMenu->addAction(cmd, treeGroup);
-    mfolderContextMenu->addAction(treeSpacer, treeGroup);
+    mfolderContextMenu->addSeparator(globalcontext, treeGroup);
     mfolderContextMenu->addAction(cmd, treeGroup);
-    mprojectContextMenu->addAction(treeSpacer, treeGroup);
+    mprojectContextMenu->addSeparator(globalcontext, treeGroup);
     mprojectContextMenu->addAction(cmd, treeGroup);
-    msessionContextMenu->addAction(treeSpacer, treeGroup);
+    msessionContextMenu->addSeparator(globalcontext, treeGroup);
     msessionContextMenu->addAction(cmd, treeGroup);
 
     // target selector
