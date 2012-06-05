@@ -74,6 +74,7 @@ QtcTool {
 
     Properties {
         condition: qbs.targetOS === "windows"
+        cpp.includePaths: outer.concat([buildDirectory + "/" + name])
         cpp.defines: outer.concat([
             "WIN32",
             "_WIN32_WINNT=0x0501", "NDEBUG", "MDNS_DEBUGMSGS=0", "TARGET_OS_WIN32",
