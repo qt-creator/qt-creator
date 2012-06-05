@@ -60,9 +60,9 @@ enum State { Inactive, StartingRunner, StartingRemoteProcess, Debugging };
 class AbstractRemoteLinuxDebugSupportPrivate
 {
 public:
-    AbstractRemoteLinuxDebugSupportPrivate(RemoteLinuxRunConfiguration *runConfig,
+    AbstractRemoteLinuxDebugSupportPrivate(RunConfiguration *runConfig,
             DebuggerEngine *engine)
-        : engine(engine), deviceConfig(runConfig->deviceConfig()),
+        : engine(engine),
           qmlDebugging(runConfig->debuggerAspect()->useQmlDebugger()),
           cppDebugging(runConfig->debuggerAspect()->useCppDebugger()),
           state(Inactive),
@@ -71,7 +71,6 @@ public:
     }
 
     const QPointer<Debugger::DebuggerEngine> engine;
-    const LinuxDeviceConfiguration::ConstPtr deviceConfig;
     bool qmlDebugging;
     bool cppDebugging;
     QByteArray gdbserverOutput;
@@ -95,7 +94,7 @@ using namespace Internal;
 DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const RemoteLinuxRunConfiguration *runConfig)
 {
     DebuggerStartParameters params;
-    const LinuxDeviceConfiguration::ConstPtr &devConf = runConfig->deviceConfig();
+    const IDevice::ConstPtr &devConf = runConfig->deviceConfig();
     if (runConfig->debuggerAspect()->useQmlDebugger()) {
         params.languages |= QmlLanguage;
         params.qmlServerAddress = runConfig->deviceConfig()->sshParameters().host;
@@ -135,7 +134,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
     return params;
 }
 
-AbstractRemoteLinuxDebugSupport::AbstractRemoteLinuxDebugSupport(RemoteLinuxRunConfiguration *runConfig,
+AbstractRemoteLinuxDebugSupport::AbstractRemoteLinuxDebugSupport(RunConfiguration *runConfig,
         DebuggerEngine *engine)
     : QObject(engine), d(new AbstractRemoteLinuxDebugSupportPrivate(runConfig, engine))
 {

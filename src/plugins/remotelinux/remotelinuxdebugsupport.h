@@ -40,7 +40,11 @@ namespace Debugger {
 class DebuggerEngine;
 class DebuggerStartParameters;
 }
-namespace ProjectExplorer { class RunControl; }
+
+namespace ProjectExplorer {
+class RunControl;
+class RunConfiguration;
+}
 
 namespace RemoteLinux {
 class RemoteLinuxRunConfiguration;
@@ -58,7 +62,8 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxDebugSupport : public QObject
 public:
     static Debugger::DebuggerStartParameters startParameters(const RemoteLinuxRunConfiguration *runConfig);
 
-    AbstractRemoteLinuxDebugSupport(RemoteLinuxRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
+    AbstractRemoteLinuxDebugSupport(ProjectExplorer::RunConfiguration *runConfig,
+                                    Debugger::DebuggerEngine *engine);
     ~AbstractRemoteLinuxDebugSupport();
 
 private slots:

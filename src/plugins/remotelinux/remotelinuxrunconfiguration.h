@@ -73,7 +73,6 @@ public:
 
     RemoteLinuxRunConfiguration(Qt4ProjectManager::Qt4BaseTarget *parent, const Core::Id id,
         const QString &proFilePath);
-    virtual ~RemoteLinuxRunConfiguration();
 
     bool isEnabled() const;
     QString disabledReason() const;

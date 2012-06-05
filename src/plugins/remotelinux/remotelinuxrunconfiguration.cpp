@@ -141,10 +141,6 @@ void RemoteLinuxRunConfiguration::init()
             this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 }
 
-RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
-{
-}
-
 Qt4BaseTarget *RemoteLinuxRunConfiguration::qt4Target() const
 {
     return static_cast<Qt4BaseTarget *>(target());
