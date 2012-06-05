@@ -542,7 +542,6 @@ void QmlInspectorAgent::queryEngineContext()
 
     m_rootContextQueryId
             = m_engineClient->queryRootContexts(m_engine);
-    m_newObjectsCreated = true;
 }
 
 void QmlInspectorAgent::fetchObject(int debugId)
@@ -665,6 +664,12 @@ void QmlInspectorAgent::objectTreeFetched(const ObjectReference &object)
             fetchObject(parentId);
             return;
         }
+        // 5.x
+        if (m_engineClient->objectName() == QmlDebug::Constants::QML_DEBUGGER
+                && m_newObjectsCreated && parentIname.isEmpty()) {
+            return;
+        }
+
         if (debug)
             timeElapsed.start();
         watchData.append(buildWatchData(last, parentIname, true));
