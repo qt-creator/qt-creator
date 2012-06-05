@@ -3064,11 +3064,12 @@ static void qDumpQTextCodec(QDumper &d)
 static void qDumpQVector(QDumper &d)
 {
     qCheckAccess(deref(d.data)); // is the d-ptr de-referenceable and valid
-    QVectorData *v = *reinterpret_cast<QVectorData *const*>(d.data);
 
 #if QT_VERSION >= 0x050000
+    QArrayData *v = *reinterpret_cast<QArrayData *const*>(d.data);
     const unsigned typeddatasize = (char *)(&v->offset) - (char *)v;
 #else
+    QVectorData *v = *reinterpret_cast<QVectorData *const*>(d.data);
     QVectorTypedData<int> *dummy = 0;
     const unsigned typeddatasize = (char*)(&dummy->array) - (char*)dummy;
 #endif
