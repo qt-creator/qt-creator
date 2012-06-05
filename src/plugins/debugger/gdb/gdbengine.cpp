@@ -5321,8 +5321,8 @@ bool GdbEngine::usesExecInterrupt() const
 
     // debuggerCore()->boolSetting(TargetAsync)
     DebuggerStartMode mode = startParameters().startMode;
-    return (mode == AttachToRemoteServer
-        || mode == AttachToRemoteProcess) && debuggerCore()->boolSetting(TargetAsync);
+    return (mode == AttachToRemoteServer || mode == AttachToRemoteProcess)
+        && debuggerCore()->boolSetting(TargetAsync);
 }
 
 void GdbEngine::scheduleTestResponse(int testCase, const QByteArray &response)

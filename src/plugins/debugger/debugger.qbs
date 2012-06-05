@@ -76,6 +76,8 @@ QtcPlugin {
         "disassembleragent.h",
         "disassemblerlines.cpp",
         "disassemblerlines.h",
+        "loadremotecoredialog.cpp",
+        "loadremotecoredialog.h",
         "localsandexpressionsoptionspage.ui",
         "localsandexpressionswindow.cpp",
         "localsandexpressionswindow.h",

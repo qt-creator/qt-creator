@@ -63,6 +63,7 @@
 #include "watchutils.h"
 #include "debuggertooltipmanager.h"
 #include "localsandexpressionswindow.h"
+#include "loadremotecoredialog.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
@@ -115,19 +116,20 @@
 #include <utils/statuslabel.h>
 #include <utils/fileutils.h>
 
-#include <QTimer>
-#include <QtPlugin>
 #include <QComboBox>
 #include <QDockWidget>
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTemporaryFile>
 #include <QTextBlock>
 #include <QTextCursor>
+#include <QTimer>
 #include <QToolButton>
+#include <QtPlugin>
 #include <QTreeWidget>
-#include <QInputDialog>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -762,6 +764,7 @@ public slots:
     void startRemoteCdbSession();
     void startRemoteProcess();
     void startRemoteServer();
+    void loadRemoteCoreFile();
     bool queryRemoteParameters(DebuggerStartParameters &sp, bool useScript);
     void attachToRemoteServer();
     void attachToRemoteProcess();
@@ -1114,6 +1117,7 @@ public:
     QAction *m_attachToRemoteServerAction;
     QAction *m_startRemoteCdbAction;
     QAction *m_startRemoteLldbAction;
+    QAction *m_loadRemoteCoreAction;
     QAction *m_attachToLocalProcessAction;
     QAction *m_attachToCoreAction;
     QAction *m_detachAction;
@@ -1285,7 +1289,8 @@ void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
     if (sp->sysroot.isEmpty() &&
               (sp->startMode == AttachToRemoteServer
             || sp->startMode == StartRemoteProcess
-            || sp->startMode == AttachToRemoteProcess)) {
+            || sp->startMode == AttachToRemoteProcess
+            || sp->startMode == LoadRemoteCore)) {
         // FIXME: Get from BaseQtVersion.
         sp->sysroot = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_SYSROOT"));
         showMessage(QString::fromLatin1("USING QTC_DEBUGGER_SYSROOT %1")
@@ -1682,6 +1687,28 @@ void DebuggerPluginPrivate::gdbServerStarted(const QString &channel,
     showStatusMessage(tr("gdbserver is now listening at %1").arg(channel));
 }
 
+void DebuggerPluginPrivate::loadRemoteCoreFile()
+{
+    DebuggerStartParameters sp;
+    {
+        QTemporaryFile localCoreFile(QDir::tempPath() + "/remotecore-XXXXXX");
+        localCoreFile.open();
+        sp.coreFile = localCoreFile.fileName();
+    }
+    LoadRemoteCoreFileDialog dlg(mainWindow());
+    dlg.setLocalCoreFileName(sp.coreFile);
+    if (!dlg.exec())
+        return;
+    sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
+    sp.startMode = AttachCore;
+    //sp.debuggerCommand = dlg.debuggerCommand();
+    //sp.toolChainAbi = dlg.abi();
+    sp.sysroot = dlg.sysroot();
+    //sp.overrideStartScript = dlg.overrideStartScript();
+    if (DebuggerRunControl *rc = createDebugger(sp))
+        startDebugger(rc);
+}
+
 void DebuggerPluginPrivate::attachToRemoteProcess()
 {
     PluginManager *pm = PluginManager::instance();
@@ -1689,7 +1716,7 @@ void DebuggerPluginPrivate::attachToRemoteProcess()
     QObject *rl = pm->getObjectByName(_("RemoteLinuxPlugin"));
     QTC_ASSERT(rl, return);
     QMetaObject::invokeMethod(rl, "attachToRemoteProcess", Qt::QueuedConnection);
-    // This will call back attachedtToProcess() below.
+    // This will call back attachedToProcess() below.
 }
 
 void DebuggerPluginPrivate::attachedToProcess(const QString &channel,
@@ -3102,6 +3129,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Attach to Running Remote Process..."));
     connect(act, SIGNAL(triggered()), SLOT(attachToRemoteProcess()));
 
+    act = m_loadRemoteCoreAction = new QAction(this);
+    act->setText(tr("Load Remote Core File..."));
+    connect(act, SIGNAL(triggered()), SLOT(loadRemoteCoreFile()));
+
     act = m_attachToQmlPortAction = new QAction(this);
     act->setText(tr("Attach to QML Port..."));
     connect(act, SIGNAL(triggered()), SLOT(attachToQmlPort()));
@@ -3184,6 +3215,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = Core::ActionManager::registerAction(m_attachToRemoteProcessAction,
          "Debugger.AttachToRemoteProcess", globalcontext);
     cmd->setDescription(tr("Attach to Remote Process"));
+    mstart->addAction(cmd, Debugger::Constants::G_AUTOMATIC_REMOTE);
+
+    cmd = Core::ActionManager::registerAction(m_loadRemoteCoreAction,
+         "Debugger.LoadRemoteCore", globalcontext);
+    cmd->setDescription(tr("Load Remote Core File"));
     mstart->addAction(cmd, Debugger::Constants::G_AUTOMATIC_REMOTE);
 
 #ifdef WITH_LLDB

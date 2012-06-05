@@ -674,6 +674,7 @@ static QList<DebuggerEngineType> engineTypes(const DebuggerStartParameters &sp)
 
     if (sp.startMode != AttachToRemoteServer
             && sp.startMode != AttachToRemoteProcess
+            && sp.startMode != LoadRemoteCore
             && !sp.executable.isEmpty())
         result = enginesForExecutable(sp.executable);
     if (!result.isEmpty())

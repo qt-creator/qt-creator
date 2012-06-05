@@ -40,6 +40,7 @@ HEADERS += \
     debuggerstringutils.h \
     disassembleragent.h \
     disassemblerlines.h \
+    loadremotecoredialog.h \
     logwindow.h \
     memoryagent.h \
     moduleshandler.h \
@@ -93,6 +94,7 @@ SOURCES += \
     debuggerstreamops.cpp \
     disassembleragent.cpp \
     disassemblerlines.cpp \
+    loadremotecoredialog.cpp \
     logwindow.cpp \
     memoryagent.cpp \
     moduleshandler.cpp \
