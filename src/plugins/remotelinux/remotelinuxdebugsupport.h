@@ -43,7 +43,6 @@ class DebuggerStartParameters;
 namespace ProjectExplorer { class RunControl; }
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
 class RemoteLinuxRunConfiguration;
 class AbstractRemoteLinuxApplicationRunner;
 
@@ -74,7 +73,6 @@ private slots:
     void handleRemoteProcessFinished(qint64 exitCode);
 
 private:
-
     virtual AbstractRemoteLinuxApplicationRunner *runner() const = 0;
 
     void handleAdapterSetupFailed(const QString &error);
@@ -91,7 +89,7 @@ class REMOTELINUX_EXPORT RemoteLinuxDebugSupport : public AbstractRemoteLinuxDeb
 {
     Q_OBJECT
 public:
-    RemoteLinuxDebugSupport(RemoteLinuxRunConfiguration * runConfig, Debugger::DebuggerEngine *engine);
+    RemoteLinuxDebugSupport(RemoteLinuxRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
     ~RemoteLinuxDebugSupport();
 
 private:
