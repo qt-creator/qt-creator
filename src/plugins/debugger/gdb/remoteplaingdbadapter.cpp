@@ -47,7 +47,7 @@ RemotePlainGdbAdapter::RemotePlainGdbAdapter(GdbEngine *engine)
 {
     connect(&m_gdbProc, SIGNAL(started()), this, SLOT(handleGdbStarted()));
     connect(&m_gdbProc, SIGNAL(startFailed()), this,
-        SLOT(handleGdbStartFailed()));
+        SLOT(handleGdbStartFailed1()));
 }
 
 void RemotePlainGdbAdapter::startAdapter()
@@ -117,11 +117,19 @@ void RemotePlainGdbAdapter::handleRemoteSetupDone(int gdbServerPort, int qmlPort
 
 void RemotePlainGdbAdapter::handleGdbStarted()
 {
-    if (m_engine->startGdb())
-        m_engine->handleAdapterStarted();
+     m_engine->startGdb();
+}
+
+void RemotePlainGdbAdapter::handleGdbStartDone()
+{
+     m_engine->handleAdapterStarted();
 }
 
 void RemotePlainGdbAdapter::handleGdbStartFailed()
+{
+}
+
+void RemotePlainGdbAdapter::handleGdbStartFailed1()
 {
     m_engine->handleAdapterStartFailed(m_gdbProc.errorString());
 }

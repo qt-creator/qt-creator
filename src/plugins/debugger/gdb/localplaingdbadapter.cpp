@@ -93,12 +93,17 @@ void LocalPlainGdbAdapter::startAdapter()
     if (startParameters().environment.size())
         m_gdbProc.setEnvironment(startParameters().environment.toStringList());
 
-    if (!m_engine->startGdb(gdbArgs)) {
-        m_outputCollector.shutdown();
-        return;
-    }
+    m_engine->startGdb(gdbArgs);
+}
 
+void LocalPlainGdbAdapter::handleGdbStartDone()
+{
     m_engine->handleAdapterStarted();
+}
+
+void LocalPlainGdbAdapter::handleGdbStartFailed()
+{
+    m_outputCollector.shutdown();
 }
 
 void LocalPlainGdbAdapter::setupInferior()

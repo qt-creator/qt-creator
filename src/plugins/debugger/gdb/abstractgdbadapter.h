@@ -72,6 +72,8 @@ public:
     virtual void write(const QByteArray &data);
 
     virtual void startAdapter() = 0;
+    virtual void handleGdbStartDone() = 0;
+    virtual void handleGdbStartFailed() = 0;
     virtual void setupInferior() = 0;
     virtual void runEngine() = 0;
     virtual void interruptInferior() = 0;

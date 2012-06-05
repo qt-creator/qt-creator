@@ -83,7 +83,7 @@ public:
     typedef Coda::Callback<const GdbResponse &> GdbCallback;
 
     explicit CodaGdbAdapter(GdbEngine *engine);
-    virtual ~CodaGdbAdapter();
+    ~CodaGdbAdapter();
     void setGdbServerName(const QString &name);
     QString gdbServerName() const { return m_gdbServerName; }
 
@@ -111,6 +111,8 @@ public:
 private:
     void setupDeviceSignals();
     void startAdapter();
+    void handleGdbStartDone();
+    void handleGdbStartFailed();
     void setupInferior();
     void runEngine();
     void interruptInferior();

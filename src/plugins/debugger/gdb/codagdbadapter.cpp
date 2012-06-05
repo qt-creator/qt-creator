@@ -386,11 +386,17 @@ void CodaGdbAdapter::startGdb()
 {
     QStringList gdbArgs;
     gdbArgs.append(_("--nx")); // Do not read .gdbinit file
-    if (!m_engine->startGdb(gdbArgs)) {
-        cleanup();
-        return;
-    }
+    m_engine->startGdb(gdbArgs);
+}
+
+void CodaGdbAdapter::handleGdbStartDone()
+{
     m_engine->handleAdapterStarted();
+}
+
+void CodaGdbAdapter::handleGdbStartFailed()
+{
+    cleanup();
 }
 
 void CodaGdbAdapter::codaDeviceError(const QString  &errorString)

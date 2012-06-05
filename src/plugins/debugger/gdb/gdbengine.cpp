@@ -4747,7 +4747,7 @@ bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
 // Starting up & shutting down
 //
 
-bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
+void GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
 {
     const QByteArray tests = qgetenv("QTC_DEBUGGER_TESTS");
     foreach (const QByteArray &test, tests.split(','))
@@ -4760,10 +4760,11 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     const DebuggerStartParameters &sp = startParameters();
     m_gdb = gdbBinary(sp);
     if (m_gdb.isEmpty()) {
+        m_gdbAdapter->handleGdbStartFailed();
         handleAdapterStartFailed(
             msgNoGdbBinaryForToolChain(sp.toolChainAbi),
             _(Constants::DEBUGGER_COMMON_SETTINGS_ID));
-        return false;
+        return;
     }
     QStringList gdbArgs;
     gdbArgs << _("-i");
@@ -4785,9 +4786,10 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     gdbProc()->start(m_gdb, gdbArgs);
 
     if (!gdbProc()->waitForStarted()) {
+        m_gdbAdapter->handleGdbStartFailed();
         const QString msg = errorMessage(QProcess::FailedToStart);
         handleAdapterStartFailed(msg, settingsIdHint);
-        return false;
+        return;
     }
 
     showMessage(_("GDB STARTED, INITIALIZING IT"));
@@ -4845,7 +4847,6 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     //postCommand(_("handle SIGTERM pass nostop print"));
 
     postCommand("set unwindonsignal on");
-    postCommand("pwd");
     postCommand("set width 0");
     postCommand("set height 0");
 
@@ -4861,6 +4862,8 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
     postCommand("maintenance set internal-warning quit no", ConsoleCommand);
     postCommand("maintenance set internal-error quit no", ConsoleCommand);
 
+    showMessage(_("THE FOLLOWING COMMAND CHECKS AVAILABLE FEATURES. "
+                  "AN ERROR IS EXPECTED."));
     postCommand("disassemble 0 0", ConsoleCommand, CB(handleDisassemblerCheck));
 
     if (attemptQuickStart()) {
@@ -4871,7 +4874,14 @@ bool GdbEngine::startGdb(const QStringList &args, const QString &settingsIdHint)
         loadPythonDumpers();
     }
 
-    return true;
+    // Dummy command to guarantee a roundtrip before the adapter proceed.
+    postCommand("pwd", ConsoleCommand, CB(handleGdbStart));
+}
+
+void GdbEngine::handleGdbStart(const GdbResponse &response)
+{
+    Q_UNUSED(response);
+    m_gdbAdapter->handleGdbStartDone();
 }
 
 void GdbEngine::loadInitScript()

@@ -98,7 +98,7 @@ void RemoteGdbServerAdapter::startAdapter()
     if (startParameters().requestRemoteSetup)
         m_engine->notifyEngineRequestRemoteSetup();
     else
-        handleSetupDone();
+        m_engine->startGdb();
 }
 
 void RemoteGdbServerAdapter::uploadProcError(QProcess::ProcessError error)
@@ -155,7 +155,7 @@ void RemoteGdbServerAdapter::uploadProcFinished()
 {
     if (m_uploadProc.exitStatus() == QProcess::NormalExit
         && m_uploadProc.exitCode() == 0)
-        handleSetupDone();
+        m_engine->startGdb();
     else
         handleRemoteSetupFailed(m_uploadProc.errorString());
 }
@@ -401,13 +401,16 @@ void RemoteGdbServerAdapter::handleRemoteSetupDone(int gdbServerPort, int qmlPor
                        QString::number(gdbServerPort));
         }
     }
-    handleSetupDone();
+    m_engine->startGdb();
 }
 
-void RemoteGdbServerAdapter::handleSetupDone()
+void RemoteGdbServerAdapter::handleGdbStartDone()
 {
-    if (m_engine->startGdb())
-        m_engine->handleAdapterStarted();
+    m_engine->handleAdapterStarted();
+}
+
+void RemoteGdbServerAdapter::handleGdbStartFailed()
+{
 }
 
 void RemoteGdbServerAdapter::handleRemoteSetupFailed(const QString &reason)

@@ -78,9 +78,15 @@ void CoreGdbAdapter::startAdapter()
     QStringList args;
     args.append(_("-ex"));
     args.append(_("set auto-solib-add off"));
-    if (!m_engine->startGdb(args, QString()))
-        return;
+    m_engine->startGdb(args);
+}
 
+void CoreGdbAdapter::handleGdbStartFailed()
+{
+}
+
+void CoreGdbAdapter::handleGdbStartDone()
+{
     //if (m_executable.isEmpty()) {
     //    showMessageBox(QMessageBox::Warning,
     //        tr("Error Loading Symbols"),

@@ -249,8 +249,9 @@ private: ////////// General State //////////
 private: ////////// Gdb Process Management //////////
 
     AbstractGdbAdapter *createAdapter();
-    bool startGdb(const QStringList &args = QStringList(),
+    void startGdb(const QStringList &args = QStringList(),
                   const QString &settingsIdHint = QString());
+    void handleGdbStart(const GdbResponse &response);
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);
     void handleRemoteSetupDone(int gdbServerPort, int qmlPort);

@@ -56,6 +56,8 @@ private:
     DumperHandling dumperHandling() const { return DumperLoadedByGdb; }
 
     void startAdapter();
+    void handleGdbStartDone();
+    void handleGdbStartFailed();
     void setupInferior();
     void runEngine();
     void interruptInferior();

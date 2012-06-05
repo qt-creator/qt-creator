@@ -49,10 +49,12 @@ public:
 
 private slots:
     void handleGdbStarted();
-    void handleGdbStartFailed();
+    void handleGdbStartFailed1();
 
 private:
     void startAdapter();
+    void handleGdbStartDone();
+    void handleGdbStartFailed();
     void setupInferior();
     void interruptInferior();
     void shutdownAdapter();

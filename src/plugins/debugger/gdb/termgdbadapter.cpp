@@ -119,10 +119,16 @@ void TermGdbAdapter::startAdapter()
         return;
     }
 
-    if (!m_engine->startGdb()) {
-        m_stubProc.stop();
-        return;
-    }
+    m_engine->startGdb();
+}
+
+void TermGdbAdapter::handleGdbStartDone()
+{
+}
+
+void TermGdbAdapter::handleGdbStartFailed()
+{
+    m_stubProc.stop();
 }
 
 void TermGdbAdapter::handleInferiorSetupOk()

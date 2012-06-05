@@ -63,11 +63,16 @@ void AttachGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
+    m_engine->startGdb();
+}
 
-    if (!m_engine->startGdb())
-        return;
-
+void AttachGdbAdapter::handleGdbStartDone()
+{
     m_engine->handleAdapterStarted();
+}
+
+void AttachGdbAdapter::handleGdbStartFailed()
+{
 }
 
 void AttachGdbAdapter::setupInferior()
