@@ -149,9 +149,9 @@ void Qt4Manager::init()
             this, SLOT(updateVariable(QByteArray)));
 
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup("Qt4ProjectManager");
-    m_unConfiguredVersionId = settings->value("QtVersionId", -1).toInt();
-    m_unconfiguredToolChainId = settings->value("ToolChainId", QString()).toString();
+    settings->beginGroup(QLatin1String("Qt4ProjectManager"));
+    m_unConfiguredVersionId = settings->value(QLatin1String("QtVersionId"), -1).toInt();
+    m_unconfiguredToolChainId = settings->value(QLatin1String("ToolChainId"), QString()).toString();
     settings->endGroup();
 }
 
@@ -523,9 +523,9 @@ void Qt4Manager::setUnconfiguredSettings(const UnConfiguredSettings &setting)
     m_unconfiguredToolChainId = setting.toolchain ? setting.toolchain->id() : QString();
 
     QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup("Qt4ProjectManager");
-    settings->setValue("QtVersionId", m_unConfiguredVersionId);
-    settings->setValue("ToolChainId", m_unconfiguredToolChainId);
+    settings->beginGroup(QLatin1String("Qt4ProjectManager"));
+    settings->setValue(QLatin1String("QtVersionId"), m_unConfiguredVersionId);
+    settings->setValue(QLatin1String("ToolChainId"), m_unconfiguredToolChainId);
     settings->endGroup();
 
     foreach (Qt4Project *pro, m_projects)
