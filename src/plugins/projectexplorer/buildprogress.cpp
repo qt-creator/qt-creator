@@ -95,7 +95,8 @@ void BuildProgress::updateState()
     m_errorIcon->setEnabled(haveErrors);
     m_errorLabel->setEnabled(haveErrors);
     m_errorLabel->setText(QString::number(errors));
-    int warnings = m_taskWindow->warningTaskCount();
+    int warnings = m_taskWindow->warningTaskCount(Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM))
+            + m_taskWindow->warningTaskCount(Core::Id(Constants::TASK_CATEGORY_COMPILE));
     bool haveWarnings = (warnings > 0);
     m_warningIcon->setEnabled(haveWarnings);
     m_warningLabel->setEnabled(haveWarnings);
