@@ -71,7 +71,7 @@ class DetailsWidgetPrivate
 public:
     DetailsWidgetPrivate(QWidget *parent);
 
-    QPixmap cacheBackground(const QSize &size, bool expanded);
+    QPixmap cacheBackground(const QSize &size);
     void updateControls();
     void changeHoverState(bool hovered);
 
@@ -133,7 +133,7 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
     m_grid->addWidget(m_additionalSummaryLabel, 1, 0, 1, 3);
 }
 
-QPixmap DetailsWidgetPrivate::cacheBackground(const QSize &size, bool expanded)
+QPixmap DetailsWidgetPrivate::cacheBackground(const QSize &size)
 {
     QPixmap pixmap(size);
     pixmap.fill(Qt::transparent);
@@ -149,11 +149,6 @@ QPixmap DetailsWidgetPrivate::cacheBackground(const QSize &size, bool expanded)
     p.fillRect(fullRect, qApp->palette().window().color());
 #endif
     p.fillRect(fullRect, QColor(255, 255, 255, 40));
-
-    QColor highlight = q->palette().highlight().color();
-    highlight.setAlpha(0.5);
-    if (expanded)
-        p.fillRect(topRect, highlight);
 
     QLinearGradient lg(topRect.topLeft(), topRect.bottomLeft());
     lg.setColorAt(0, QColor(255, 255, 255, 130));
@@ -274,12 +269,12 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
     if (d->m_state == Collapsed) {
         if (d->m_collapsedPixmap.isNull() ||
             d->m_collapsedPixmap.size() != size())
-            d->m_collapsedPixmap = d->cacheBackground(paintArea.size(), false);
+            d->m_collapsedPixmap = d->cacheBackground(paintArea.size());
         p.drawPixmap(paintArea, d->m_collapsedPixmap);
     } else {
         if (d->m_expandedPixmap.isNull() ||
             d->m_expandedPixmap.size() != size())
-            d->m_expandedPixmap = d->cacheBackground(paintArea.size(), true);
+            d->m_expandedPixmap = d->cacheBackground(paintArea.size());
         p.drawPixmap(paintArea, d->m_expandedPixmap);
     }
 }
