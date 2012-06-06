@@ -79,7 +79,8 @@ ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/gdb-${version}/configure ${staging
 	export PYTHONHOME=${staging} && \
 	export PATH="${staging}/bin/:$$PATH" && \
 	cd ${staging}/gdb-${version}-$* && \
-	${staging}/gdb-${version}/configure --disable-nls --disable-werror --target=$* --with-python=${staging} --with-libexpat-prefix=${staging} && \
+	${staging}/gdb-${version}/configure --disable-nls --target=$* --with-separate-debug-dir="" \
+        --disable-werror --with-python=${staging} --with-libexpat-prefix=${staging} && \
 	${MAKE} MAKEFLAGS+=-j1 && \
 	strip -o ${targetdir}/gdb-$* gdb/gdb
 

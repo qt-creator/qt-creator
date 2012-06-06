@@ -105,6 +105,7 @@ ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libi
 	${staging}/gdb-${version}/configure --target=$* --disable-nls --disable-werror \
 	--with-libiconv-prefix=${staging} \
 	--with-expat --with-libexpat-prefix=${staging} \
+	--with-separate-debug-dir="" \
 	--with-python=${pydir} && \
 	${MAKE} MAKEFLAGS+= -j1 && \
 	strip -o ${targetdir}/gdb-$*.exe gdb/gdb.exe
