@@ -185,6 +185,12 @@ void TypePrettyPrinter::visit(IntegerType *type)
     case IntegerType::Char:
         _text.prepend(QLatin1String("char"));
         break;
+    case IntegerType::Char16:
+        _text.prepend(QLatin1String("char16_t"));
+        break;
+    case IntegerType::Char32:
+        _text.prepend(QLatin1String("char32_t"));
+        break;
     case IntegerType::WideChar:
         _text.prepend(QLatin1String("wchar_t"));
         break;

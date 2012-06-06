@@ -89,9 +89,7 @@ bool GLSLCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) c
         if (pos < tk.end())
             return false;
     }
-    else if (tk.is(T_STRING_LITERAL) || tk.is(T_WIDE_STRING_LITERAL)
-        || tk.is(T_CHAR_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL)) {
-
+    else if (tk.isStringLiteral() || tk.isCharLiteral()) {
         const unsigned pos = cursor.selectionEnd() - cursor.block().position();
         if (pos <= tk.end())
             return false;

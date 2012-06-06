@@ -167,15 +167,10 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (tk.is(T_NUMERIC_LITERAL))
             setFormat(tk.begin(), tk.length(), m_formats[CppNumberFormat]);
 
-        else if (tk.is(T_STRING_LITERAL) || tk.is(T_CHAR_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL) ||
-                 tk.is(T_AT_STRING_LITERAL))
-            setFormat(tk.begin(), tk.length(), m_formats[CppStringFormat]);
-
-        else if (tk.is(T_WIDE_STRING_LITERAL) || tk.is(T_WIDE_CHAR_LITERAL))
+        else if (tk.isStringLiteral() || tk.isCharLiteral())
             setFormat(tk.begin(), tk.length(), m_formats[CppStringFormat]);
 
         else if (tk.isComment()) {
-
             if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT))
                 setFormat(tk.begin(), tk.length(), m_formats[CppCommentFormat]);
 

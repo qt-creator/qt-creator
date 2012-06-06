@@ -778,6 +778,28 @@ static inline int classify8(const char *s, bool q, bool x) {
           }
         }
       }
+    } else if (x && s[1] == 'h') {
+        if (s[2] == 'a') {
+            if (s[3] == 'r') {
+                if (s[4] == '1') {
+                    if (s[5] == '6') {
+                        if (s[6] == '_') {
+                            if (s[7] == 't') {
+                                return T_CHAR16_T;
+                            }
+                        }
+                    }
+                } else if (s[4] == '3') {
+                    if (s[5] == '2') {
+                        if (s[6] == '_') {
+                            if (s[7] == 't') {
+                                return T_CHAR32_T;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
   }
   else if (x && s[0] == 'd') {

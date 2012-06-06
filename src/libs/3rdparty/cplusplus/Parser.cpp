@@ -313,6 +313,8 @@ bool Parser::skipUntilStatement()
             case T_CATCH:
             case T_THROW:
             case T_CHAR:
+            case T_CHAR16_T:
+            case T_CHAR32_T:
             case T_WCHAR_T:
             case T_BOOL:
             case T_SHORT:
@@ -2811,12 +2813,21 @@ bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
 bool Parser::parseStringLiteral(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
-    if (! (LA() == T_STRING_LITERAL || LA() == T_WIDE_STRING_LITERAL))
+    if (! (LA() == T_STRING_LITERAL
+           || LA() == T_WIDE_STRING_LITERAL
+           || LA() == T_UTF8_STRING_LITERAL
+           || LA() == T_UTF16_STRING_LITERAL
+           || LA() == T_UTF32_STRING_LITERAL)) {
         return false;
+    }
 
     StringLiteralAST **ast = reinterpret_cast<StringLiteralAST **> (&node);
 
-    while (LA() == T_STRING_LITERAL || LA() == T_WIDE_STRING_LITERAL) {
+    while (LA() == T_STRING_LITERAL
+           || LA() == T_WIDE_STRING_LITERAL
+           || LA() == T_UTF8_STRING_LITERAL
+           || LA() == T_UTF16_STRING_LITERAL
+           || LA() == T_UTF32_STRING_LITERAL) {
         *ast = new (_pool) StringLiteralAST;
         (*ast)->literal_token = consumeToken();
         ast = &(*ast)->next;
@@ -3541,6 +3552,8 @@ bool Parser::lookAtBuiltinTypeSpecifier() const
 {
     switch (LA()) {
     case T_CHAR:
+    case T_CHAR16_T:
+    case T_CHAR32_T:
     case T_WCHAR_T:
     case T_BOOL:
     case T_SHORT:
@@ -3982,7 +3995,9 @@ bool Parser::parseNumericLiteral(ExpressionAST *&node)
     DEBUG_THIS_RULE();
     if (LA() == T_NUMERIC_LITERAL  ||
         LA() == T_CHAR_LITERAL     ||
-        LA() == T_WIDE_CHAR_LITERAL) {
+        LA() == T_WIDE_CHAR_LITERAL ||
+        LA() == T_UTF16_CHAR_LITERAL ||
+        LA() == T_UTF32_CHAR_LITERAL) {
         NumericLiteralAST *ast = new (_pool) NumericLiteralAST;
         ast->literal_token = consumeToken();
         node = ast;
@@ -4021,6 +4036,9 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     switch (LA()) {
     case T_STRING_LITERAL:
     case T_WIDE_STRING_LITERAL:
+    case T_UTF8_STRING_LITERAL:
+    case T_UTF16_STRING_LITERAL:
+    case T_UTF32_STRING_LITERAL:
         return parseStringLiteral(node);
 
     case T_NULLPTR:
@@ -4030,6 +4048,8 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
 
     case T_CHAR_LITERAL: // ### FIXME don't use NumericLiteral for chars
     case T_WIDE_CHAR_LITERAL:
+    case T_UTF16_CHAR_LITERAL:
+    case T_UTF32_CHAR_LITERAL:
     case T_NUMERIC_LITERAL:
         return parseNumericLiteral(node);
 

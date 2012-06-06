@@ -224,37 +224,13 @@ void Lexer::scan_helper(Token *tok)
         }
         goto _Lagain;
 
-    case '"': case '\'': {
-        const char quote = ch;
+    case '"':
+        scanStringLiteral(tok);
+        break;
 
-        tok->f.kind = quote == '"'
-            ? T_STRING_LITERAL
-            : T_CHAR_LITERAL;
-
-        const char *yytext = _currentChar;
-
-        while (_yychar && _yychar != quote) {
-            if (_yychar == '\n')
-                break;
-            else if (_yychar != '\\')
-                yyinp();
-            else {
-                yyinp(); // skip `\\'
-
-                if (_yychar)
-                    yyinp();
-            }
-        }
-        // assert(_yychar == quote);
-
-        int yylen = _currentChar - yytext;
-
-        if (_yychar == quote)
-            yyinp();
-
-        if (control())
-            tok->string = control()->stringLiteral(yytext, yylen);
-    } break;
+    case '\'':
+        scanCharLiteral(tok);
+        break;
 
     case '{':
         tok->f.kind = T_LBRACE;
@@ -589,112 +565,148 @@ void Lexer::scan_helper(Token *tok)
                 tok->f.kind = classifyObjCAtKeyword(yytext, yylen);
                 break;
             } else if (ch == '@' && _yychar == '"') {
-                // objc @string literals
                 yyinp();
-                tok->f.kind = T_AT_STRING_LITERAL;
-
-                const char *yytext = _currentChar;
-
-                while (_yychar && _yychar != '"') {
-                    if (_yychar != '\\')
-                        yyinp();
-                    else {
-                        yyinp(); // skip `\\'
-
-                        if (_yychar)
-                            yyinp();
-                    }
-                }
-                // assert(_yychar == '"');
-
-                int yylen = _currentChar - yytext;
-
-                if (_yychar == '"')
-                    yyinp();
-
-                if (control())
-                    tok->string = control()->stringLiteral(yytext, yylen);
-
+                scanStringLiteral(tok, '"');
                 break;
             }
         }
 
-        if (ch == 'L' && (_yychar == '"' || _yychar == '\'')) {
-            // wide char/string literals
-            ch = _yychar;
-            yyinp();
-
-            const char quote = ch;
-
-            tok->f.kind = quote == '"'
-                ? T_WIDE_STRING_LITERAL
-                : T_WIDE_CHAR_LITERAL;
-
-            const char *yytext = _currentChar;
-
-            while (_yychar && _yychar != quote) {
-                if (_yychar != '\\')
-                    yyinp();
-                else {
-                    yyinp(); // skip `\\'
-
-                    if (_yychar)
-                        yyinp();
-                }
-            }
-            // assert(_yychar == quote);
-
-            int yylen = _currentChar - yytext;
-
-            if (_yychar == quote)
+        if (ch == 'L' || ch == 'u' || ch == 'U') {
+            // Either a literal or still an identifier.
+            if (_yychar == '"') {
                 yyinp();
-
-            if (control())
-                tok->string = control()->stringLiteral(yytext, yylen);
-        } else if (std::isalpha(ch) || ch == '_' || ch == '$') {
-            const char *yytext = _currentChar - 1;
-            while (std::isalnum(_yychar) || _yychar == '_' || _yychar == '$')
+                scanStringLiteral(tok, ch);
+            } else if (_yychar == '\'') {
                 yyinp();
-            int yylen = _currentChar - yytext;
-            if (f._scanKeywords)
-                tok->f.kind = classify(yytext, yylen, f._qtMocRunEnabled, f._cxx0xEnabled);
-            else
-                tok->f.kind = T_IDENTIFIER;
-
-            if (tok->f.kind == T_IDENTIFIER) {
-                tok->f.kind = classifyOperator(yytext, yylen);
-
-                if (control())
-                    tok->identifier = control()->identifier(yytext, yylen);
-            }
-            break;
-        } else if (std::isdigit(ch)) {
-            const char *yytext = _currentChar - 1;
-            while (_yychar) {
-                if (_yychar == 'e' || _yychar == 'E') {
-                    yyinp();
-                    if (_yychar == '-' || _yychar == '+') {
+                scanCharLiteral(tok, ch);
+            } else {
+                if (_yychar == '8') {
+                    unsigned char la = 0;
+                    if (_currentChar + 1 != _lastChar)
+                        la = *(_currentChar + 1);
+                    if (la == '"') {
                         yyinp();
-                        // ### assert(std::isdigit(_yychar));
+                        yyinp();
+                        scanStringLiteral(tok, '8');
+                    } else if (la == '\'') {
+                        yyinp();
+                        yyinp();
+                        scanCharLiteral(tok, '8');
+                    } else {
+                        scanIdentifier(tok);
                     }
-                } else if (std::isalnum(_yychar) || _yychar == '.') {
-                    yyinp();
                 } else {
-                    break;
+                    scanIdentifier(tok);
                 }
             }
-            int yylen = _currentChar - yytext;
-            tok->f.kind = T_NUMERIC_LITERAL;
-            if (control())
-                tok->number = control()->numericLiteral(yytext, yylen);
-            break;
+        } else if (std::isalpha(ch) || ch == '_' || ch == '$') {
+            scanIdentifier(tok);
+        } else if (std::isdigit(ch)) {
+            scanNumericLiteral(tok);
         } else {
             tok->f.kind = T_ERROR;
-            break;
         }
+        break;
     } // default
 
     } // switch
 }
 
+void Lexer::scanStringLiteral(Token *tok, unsigned char hint)
+{
+    scanUntilQuote(tok, '"');
 
+    if (hint == 'L')
+        tok->f.kind = T_WIDE_STRING_LITERAL;
+    else if (hint == 'U')
+        tok->f.kind = T_UTF32_STRING_LITERAL;
+    else if (hint == 'u')
+        tok->f.kind = T_UTF16_STRING_LITERAL;
+    else if (hint == '8')
+        tok->f.kind = T_UTF8_STRING_LITERAL;
+    else if (hint == '@')
+        tok->f.kind = T_AT_STRING_LITERAL;
+    else
+        tok->f.kind = T_STRING_LITERAL;
+}
+
+void Lexer::scanCharLiteral(Token *tok, unsigned char hint)
+{
+    scanUntilQuote(tok, '\'');
+
+    if (hint == 'L')
+        tok->f.kind = T_WIDE_CHAR_LITERAL;
+    else if (hint == 'U')
+        tok->f.kind = T_UTF32_CHAR_LITERAL;
+    else if (hint == 'u')
+        tok->f.kind = T_UTF16_CHAR_LITERAL;
+    else
+        tok->f.kind = T_CHAR_LITERAL;
+}
+
+void Lexer::scanUntilQuote(Token *tok, unsigned char quote)
+{
+    assert(quote == '"' || quote == '\'');
+
+    const char *yytext = _currentChar;
+    while (_yychar && _yychar != quote) {
+        if (_yychar != '\\')
+            yyinp();
+        else {
+            yyinp(); // skip `\\'
+
+            if (_yychar)
+                yyinp();
+        }
+    }
+    int yylen = _currentChar - yytext;
+
+    if (_yychar == quote)
+        yyinp();
+
+    if (control())
+        tok->string = control()->stringLiteral(yytext, yylen);
+}
+
+void Lexer::scanNumericLiteral(Token *tok)
+{
+    const char *yytext = _currentChar - 1;
+    while (_yychar) {
+        if (_yychar == 'e' || _yychar == 'E') {
+            yyinp();
+            if (_yychar == '-' || _yychar == '+') {
+                yyinp();
+                // ### assert(std::isdigit(_yychar));
+            }
+        } else if (std::isalnum(_yychar) || _yychar == '.') {
+            yyinp();
+        } else {
+            break;
+        }
+    }
+    int yylen = _currentChar - yytext;
+
+    tok->f.kind = T_NUMERIC_LITERAL;
+
+    if (control())
+        tok->number = control()->numericLiteral(yytext, yylen);
+}
+
+void Lexer::scanIdentifier(Token *tok)
+{
+    const char *yytext = _currentChar - 1;
+    while (std::isalnum(_yychar) || _yychar == '_' || _yychar == '$')
+        yyinp();
+    int yylen = _currentChar - yytext;
+    if (f._scanKeywords)
+        tok->f.kind = classify(yytext, yylen, f._qtMocRunEnabled, f._cxx0xEnabled);
+    else
+        tok->f.kind = T_IDENTIFIER;
+
+    if (tok->f.kind == T_IDENTIFIER) {
+        tok->f.kind = classifyOperator(yytext, yylen);
+
+        if (control())
+            tok->identifier = control()->identifier(yytext, yylen);
+    }
+}

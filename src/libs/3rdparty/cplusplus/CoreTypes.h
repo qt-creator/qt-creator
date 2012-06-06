@@ -70,6 +70,8 @@ class CPLUSPLUS_EXPORT IntegerType: public Type
 public:
     enum Kind {
         Char,
+        Char16,
+        Char32,
         WideChar,
         Bool,
         Short,

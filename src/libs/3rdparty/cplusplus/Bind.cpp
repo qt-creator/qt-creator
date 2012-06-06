@@ -2750,6 +2750,18 @@ bool Bind::visit(SimpleSpecifierAST *ast)
             _type.setType(control()->integerType(IntegerType::Char));
             break;
 
+        case T_CHAR16_T:
+            if (_type)
+                translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+            _type.setType(control()->integerType(IntegerType::Char16));
+            break;
+
+        case T_CHAR32_T:
+            if (_type)
+                translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");
+            _type.setType(control()->integerType(IntegerType::Char32));
+            break;
+
         case T_WCHAR_T:
             if (_type)
                 translationUnit()->error(ast->specifier_token, "duplicate data type in declaration");

@@ -76,8 +76,7 @@ bool CppAutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor
     if (isInCommentHelper(cursor, &token))
         return false;
 
-    if (token.is(T_STRING_LITERAL) || token.is(T_WIDE_STRING_LITERAL)
-            || token.is(T_CHAR_LITERAL) || token.is(T_WIDE_CHAR_LITERAL)) {
+    if (token.isStringLiteral() || token.isCharLiteral()) {
         const unsigned pos = cursor.selectionEnd() - cursor.block().position();
         if (pos <= token.end())
             return false;

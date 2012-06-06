@@ -29,8 +29,12 @@ static const char *token_names[] = {
     ("<C++ comment>"), ("<C++ doxy comment>"),
     ("<comment>"), ("<doxy comment>"),
 
-    ("<identifier>"), ("<numeric literal>"), ("<char literal>"),
-    ("<wide char literal>"), ("<string literal>"), ("<wide char literal>"),
+    ("<identifier>"),
+
+    ("<numeric literal>"),
+    ("<char literal>"), ("<wide char literal>"), ("<utf16 char literal>"), ("<utf32 char literal>"),
+    ("<string literal>"), ("<wide string literal>"), ("<utf8 string literal>"),
+    ("<utf16 string literal>"), ("<utf32 string literal>"),
     ("<@string literal>"), ("<angle string literal>"),
 
     ("&"), ("&&"), ("&="), ("->"), ("->*"), ("^"), ("^="), (":"), ("::"),
@@ -40,7 +44,8 @@ static const char *token_names[] = {
     ("|="), ("||"), ("+"), ("+="), ("++"), ("#"), ("##"), ("?"), ("}"),
     ("]"), (")"), (";"), ("*"), ("*="), ("~"), ("~="),
 
-    ("asm"), ("auto"), ("bool"), ("break"), ("case"), ("catch"), ("char"),
+    ("asm"), ("auto"), ("bool"), ("break"), ("case"), ("catch"),
+    ("char"), ("char16_t"), ("char32_t"),
     ("class"), ("const"), ("const_cast"), ("constexpr"), ("continue"),
     ("decltype"), ("default"),
     ("delete"), ("do"), ("double"), ("dynamic_cast"), ("else"), ("enum"),
@@ -92,11 +97,16 @@ const char *Token::spell() const
 
     case T_NUMERIC_LITERAL:
     case T_CHAR_LITERAL:
+    case T_WIDE_CHAR_LITERAL:
+    case T_UTF16_CHAR_LITERAL:
+    case T_UTF32_CHAR_LITERAL:
     case T_STRING_LITERAL:
+    case T_WIDE_STRING_LITERAL:
+    case T_UTF8_STRING_LITERAL:
+    case T_UTF16_STRING_LITERAL:
+    case T_UTF32_STRING_LITERAL:
     case T_AT_STRING_LITERAL:
     case T_ANGLE_STRING_LITERAL:
-    case T_WIDE_CHAR_LITERAL:
-    case T_WIDE_STRING_LITERAL:
         return literal->chars();
 
     default:

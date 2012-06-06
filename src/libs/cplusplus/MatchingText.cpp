@@ -170,7 +170,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
 
     const Token &token = tk[index - 1];
 
-    if (text.at(0) == QLatin1Char('"') && (token.is(T_STRING_LITERAL) || token.is(T_WIDE_STRING_LITERAL))) {
+    if (text.at(0) == QLatin1Char('"') && token.isStringLiteral()) {
         if (text.length() != 1)
             qWarning() << Q_FUNC_INFO << "handle event compression";
 
@@ -178,7 +178,7 @@ QString MatchingText::insertMatchingBrace(const QTextCursor &cursor, const QStri
             return QLatin1String("\"");
 
         return QString();
-    } else if (text.at(0) == QLatin1Char('\'') && (token.is(T_CHAR_LITERAL) || token.is(T_WIDE_CHAR_LITERAL))) {
+    } else if (text.at(0) == QLatin1Char('\'') && token.isCharLiteral()) {
         if (text.length() != 1)
             qWarning() << Q_FUNC_INFO << "handle event compression";
 

@@ -289,13 +289,16 @@ bool ResolveExpression::visit(NumericLiteralAST *ast)
     Type *type = 0;
     bool isUnsigned = false;
 
-    if (tk.is(T_CHAR_LITERAL))
+    if (tk.is(T_CHAR_LITERAL)) {
         type = control()->integerType(IntegerType::Char);
-    else if (tk.is(T_WIDE_CHAR_LITERAL))
+    } else if (tk.is(T_WIDE_CHAR_LITERAL)) {
         type = control()->integerType(IntegerType::WideChar);
-    else if (const NumericLiteral *literal = numericLiteral(ast->literal_token)) {
+    } else if (tk.is(T_UTF16_CHAR_LITERAL)) {
+        type = control()->integerType(IntegerType::Char16);
+    } else if (tk.is(T_UTF32_CHAR_LITERAL)) {
+        type = control()->integerType(IntegerType::Char32);
+    } else if (const NumericLiteral *literal = numericLiteral(ast->literal_token)) {
         isUnsigned = literal->isUnsigned();
-
         if (literal->isInt())
             type = control()->integerType(IntegerType::Int);
         else if (literal->isLong())

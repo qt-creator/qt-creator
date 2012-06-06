@@ -456,6 +456,8 @@ static bool canReplaceSpecifier(TranslationUnit *translationUnit, SpecifierAST *
         case T_CONST:
         case T_VOLATILE:
         case T_CHAR:
+        case T_CHAR16_T:
+        case T_CHAR32_T:
         case T_WCHAR_T:
         case T_BOOL:
         case T_SHORT:

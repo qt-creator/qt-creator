@@ -205,8 +205,8 @@ void TranslationUnit::tokenize()
                     unsigned line = (unsigned) strtoul(tk.spell(), 0, 0);
                     lex(&tk);
                     if (! tk.f.newline && tk.is(T_STRING_LITERAL)) {
-                        const StringLiteral *fileName = control()->stringLiteral(tk.string->chars(),
-                                                                                             tk.string->size());
+                        const StringLiteral *fileName =
+                                control()->stringLiteral(tk.string->chars(), tk.string->size());
                         pushPreprocessorLine(offset, line, fileName);
                         lex(&tk);
                     }
