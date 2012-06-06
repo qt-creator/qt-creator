@@ -83,16 +83,7 @@ ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/gdb-${version}/configure ${staging
 	${MAKE} MAKEFLAGS+=-j1 && \
 	strip -o ${targetdir}/gdb-$* gdb/gdb
 
-${targetdir}/gdb: ${staging}/gdb-${version}/configure ${staging}/lib/libpython${pyversion}.a ${staging}/lib/libexpat.a | maketargetdir
-	test -e ${staging}/gdb-${version}-${arch} || mkdir ${staging}/gdb-${version}-${arch}
-	export PYTHONHOME=${staging}  && \
-	export PATH="${staging}/bin/:$$PATH" && \
-	cd ${staging}/gdb-${version}-${arch} && \
-	${staging}/gdb-${version}/configure --disable-nls --disable-werror --with-python=${staging} --with-libexpat-prefix=${staging} && \
-	${MAKE} MAKEFLAGS+=-j1 && \
-	strip -o ${targetdir}/gdb-$* gdb/gdb
-
-package: ${gdbtargets} ${targetdir}/gdb ${targetdir}/python/include/python${pyversion}/pyconfig.h
+package: ${gdbtargets} ${targetdir}/python/include/python${pyversion}/pyconfig.h
 	mv ${targetdir} ${targetdir}-${arch}
 	echo "Packing..."
 	tar czf ${packagename} qtcreator-gdb-${version}-${arch}
