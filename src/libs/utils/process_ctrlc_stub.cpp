@@ -120,7 +120,7 @@ int main(int argc, char **)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     if (message == uiShutDownWindowMessage) {
-        GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
+        GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, 0);
         PostQuitMessage(0);
         return 0;
     }
