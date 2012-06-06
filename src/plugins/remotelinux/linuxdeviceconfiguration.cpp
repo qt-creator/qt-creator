@@ -87,7 +87,7 @@ void LinuxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
 {
     QTC_ASSERT(actionIds().contains(actionId), return);
 
-    QDialog *d;
+    QDialog *d = 0;
     const LinuxDeviceConfiguration::ConstPtr device
             = sharedFromThis().staticCast<const LinuxDeviceConfiguration>();
     if (actionId == Core::Id(Constants::GenericTestDeviceActionId))
