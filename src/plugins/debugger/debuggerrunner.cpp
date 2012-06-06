@@ -609,6 +609,9 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
                 result.push_back(QmlEngineType);
         }
         break;
+    case LoadRemoteCore:
+        result.push_back(GdbEngineType);
+        break;
     case AttachCore:
 #ifdef Q_OS_WIN
         result.push_back(CdbEngineType);
