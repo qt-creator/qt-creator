@@ -157,4 +157,5 @@ win32-msvc* {
 qt:greaterThan(QT_MAJOR_VERSION, 4) {
     contains(QT, core): QT += concurrent
     contains(QT, gui): QT += widgets
+    DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x040900
 }
