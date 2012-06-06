@@ -3518,7 +3518,7 @@ void GdbEngine::examineModules()
 {
     ModulesHandler *handler = modulesHandler();
     foreach (Module module, handler->modules()) {
-        if (module.sections.symbolsType == UnknownSymbols)
+        if (module.elfData.symbolsType == UnknownSymbols)
             handler->updateModule(module);
     }
 }
@@ -5364,7 +5364,7 @@ void GdbEngine::checkForReleaseBuild()
 {
     QString binary = startParameters().executable;
     ElfReader reader(binary);
-    ElfHeaders sections = reader.readHeaders();
+    ElfData elfData = reader.readHeaders();
     QString error = reader.errorString();
 
     showMessage(_("EXAMINING ") + binary);
@@ -5385,11 +5385,11 @@ void GdbEngine::checkForReleaseBuild()
     }
 
     QSet<QByteArray> seen;
-    foreach (const ElfHeader &section, sections.headers) {
-        msg.append(section.name);
+    foreach (const ElfSectionHeader &header, elfData.sectionHeaders) {
+        msg.append(header.name);
         msg.append(' ');
-        if (interesting.contains(section.name))
-            seen.insert(section.name);
+        if (interesting.contains(header.name))
+            seen.insert(header.name);
     }
     showMessage(_(msg));
 
@@ -5398,12 +5398,12 @@ void GdbEngine::checkForReleaseBuild()
         return;
     }
 
-    if (sections.headers.isEmpty()) {
+    if (elfData.sectionHeaders.isEmpty()) {
         showMessage(_("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?"));
         return;
     }
 
-    if (sections.indexOf(".debug_info") >= 0)
+    if (elfData.indexOf(".debug_info") >= 0)
         return;
 
     QString warning;

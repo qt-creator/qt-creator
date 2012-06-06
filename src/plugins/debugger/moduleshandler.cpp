@@ -113,6 +113,14 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
         case 1:
             if (role == Qt::DisplayRole)
                 return module.modulePath;
+            if (role == Qt::ToolTipRole) {
+                QString msg;
+                if (!module.elfData.buildId.isEmpty())
+                    msg += QString::fromLatin1("Build Id: " + module.elfData.buildId);
+                if (!module.elfData.debugLink.isEmpty())
+                    msg += QString::fromLatin1("Debug Link: " + module.elfData.debugLink);
+                return msg;
+            }
             break;
         case 2:
             if (role == Qt::DisplayRole)
@@ -124,7 +132,7 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
             break;
         case 3:
             if (role == Qt::DisplayRole)
-                switch (module.sections.symbolsType) {
+                switch (module.elfData.symbolsType) {
                     case UnknownSymbols:
                         return ModulesHandler::tr("unknown");
                     case NoSymbols:
@@ -133,11 +141,13 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
                         return ModulesHandler::tr("plain");
                     case FastSymbols:
                         return ModulesHandler::tr("fast");
-                    case SeparateSymbols:
-                        return ModulesHandler::tr("separate");
+                    case LinkedSymbols:
+                        return ModulesHandler::tr("debuglnk");
+                    case BuildIdSymbols:
+                        return ModulesHandler::tr("buildid");
                 }
             else if (role == Qt::ToolTipRole)
-                switch (module.sections.symbolsType) {
+                switch (module.elfData.symbolsType) {
                     case UnknownSymbols:
                         return ModulesHandler::tr(
                         "It is unknown whether this module contains debug "
@@ -158,7 +168,8 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
                         "This module contains debug information.\nStepping "
                         "into the module or setting breakpoints by file and "
                         "is expected to work.");
-                    case SeparateSymbols:
+                    case LinkedSymbols:
+                    case BuildIdSymbols:
                         return ModulesHandler::tr(
                         "This module does not contains debug information "
                         "itself, but contains a reference to external "
@@ -220,16 +231,17 @@ void ModulesModel::updateModule(const Module &module)
 {
     const int row = indexOfModule(module.modulePath);
     ElfReader reader(module.modulePath);
-    ElfHeaders sections = reader.readHeaders();
+    ElfData elfData = reader.readHeaders();
+
     if (row == -1) {
         const int n = m_modules.size();
         beginInsertRows(QModelIndex(), n, n);
         m_modules.push_back(module);
-        m_modules.back().sections = sections;
+        m_modules.back().elfData = elfData;
         endInsertRows();
     } else {
         m_modules[row] = module;
-        m_modules[row].sections = sections;
+        m_modules[row].elfData = elfData;
         dataChanged(index(row, 0, QModelIndex()), index(row, 4, QModelIndex()));
     }
 }

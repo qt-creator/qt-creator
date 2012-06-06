@@ -90,7 +90,7 @@ public:
     quint64 startAddress;
     quint64 endAddress;
 
-    Utils::ElfHeaders sections;
+    Utils::ElfData elfData;
 };
 
 typedef QVector<Module> Modules;

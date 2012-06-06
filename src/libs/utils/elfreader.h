@@ -39,30 +39,28 @@
 **
 ****************************************************************************/
 
-// This is essentially copied from Qt 5's
-// qtbase/src/corelib/plugin/qelfparser_p.{h,cpp}
-
 #ifndef UTILS_ELFREADER_H
 #define UTILS_ELFREADER_H
 
 #include "utils_global.h"
 
 #include <qendian.h>
-#include <qlist.h>
 #include <qstring.h>
+#include <qvector.h>
 
 namespace Utils {
 
 enum DebugSymbolsType
 {
-    UnknownSymbols,    // Unknown.
-    NoSymbols,         // No usable symbols.
-    SeparateSymbols,   // Symbols mentioned, but not in binary.
-    PlainSymbols,      // Ordinary symbols available.
-    FastSymbols        // Dwarf index available.
+    UnknownSymbols   = 0,    // Unknown.
+    NoSymbols        = 1,    // No usable symbols.
+    LinkedSymbols    = 2,    // Link to symols available.
+    BuildIdSymbols   = 4,    // BuildId available.
+    PlainSymbols     = 8,    // Ordinary symbols available.
+    FastSymbols      = 16    // Dwarf index available.
 };
 
-class QTCREATOR_UTILS_EXPORT ElfHeader
+class ElfSectionHeader
 {
 public:
     QByteArray name;
@@ -73,15 +71,27 @@ public:
     quint64 data;
 };
 
-class QTCREATOR_UTILS_EXPORT ElfHeaders
+class ElfProgramHeader
 {
 public:
-    ElfHeaders() : symbolsType(UnknownSymbols) {}
+    quint32 type;
+    quint64 offset;
+    quint64 filesz;
+    quint64 memsz;
+};
+
+class QTCREATOR_UTILS_EXPORT ElfData
+{
+public:
+    ElfData() : symbolsType(UnknownSymbols) {}
     int indexOf(const QByteArray &name) const;
 
 public:
+    QByteArray debugLink;
+    QByteArray buildId;
     DebugSymbolsType symbolsType;
-    QList<ElfHeader> headers;
+    QVector<ElfSectionHeader> sectionHeaders;
+    QVector<ElfProgramHeader> programHeaders;
 };
 
 class QTCREATOR_UTILS_EXPORT ElfReader
@@ -91,9 +101,10 @@ public:
     enum Result { Ok, NotElf, Corrupt };
 
     enum ElfEndian { ElfLittleEndian = 0, ElfBigEndian = 1 };
-    ElfHeaders readHeaders();
+    ElfData readHeaders();
     QByteArray readSection(const QByteArray &sectionName);
     QString errorString() const { return m_errorString; }
+    QByteArray readCoreName();
 
 private:
     friend class ElfMapper;
@@ -102,7 +113,7 @@ private:
     QString m_binary;
     QString m_errorString;
     ElfEndian m_endian;
-    ElfHeaders m_headers;
+    ElfData m_elfData;
 };
 
 } // namespace Utils

@@ -39,12 +39,16 @@
 #include "gdbmi.h"
 #include "gdbengine.h"
 
-#include <utils/qtcassert.h>
+#include <utils/consoleprocess.h>
 #include <utils/elfreader.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QProcess>
+#include <QTemporaryFile>
 
 using namespace Utils;
 
@@ -61,28 +65,37 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-static QByteArray coreName(const DebuggerStartParameters &sp)
-{
-    QFileInfo fi(sp.coreFile);
-    return fi.absoluteFilePath().toLocal8Bit();
-}
-
 CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine)
-  : AbstractGdbAdapter(engine),
-    m_executable(startParameters().executable),
-    m_coreName(coreName(startParameters()))
+    : AbstractGdbAdapter(engine)
 {}
+
+CoreGdbAdapter::~CoreGdbAdapter()
+{
+    if (false && !m_tempCoreName.isEmpty()) {
+        QFile tmpFile(m_tempCoreName);
+        tmpFile.remove();
+    }
+}
 
 void CoreGdbAdapter::startAdapter()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
 
+    const DebuggerStartParameters &sp = startParameters();
+    m_executable = sp.executable;
+    QFileInfo fi(sp.coreFile);
+    m_coreName = fi.absoluteFilePath();
+
+    unpackCoreIfNeeded();
+}
+
+void CoreGdbAdapter::continueAdapterStart()
+{
     if (m_executable.isEmpty()) {
         // Read executable from core.
-        ElfReader reader(m_coreName);
-        QByteArray data = reader.readSection("note0");
-        m_executable = QByteArray(data.data() + 0x40);
+        ElfReader reader(coreFileName());
+        m_executable = reader.readCoreName();
 
         // Strip off command line arguments. FIXME: make robust.
         int idx = m_executable.indexOf(QLatin1Char(' '));
@@ -128,14 +141,15 @@ void CoreGdbAdapter::setupInferior()
 void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    QString core = coreFileName();
     if (response.resultClass == GdbResultDone) {
         showMessage(tr("Symbols found."), StatusBar);
-        m_engine->postCommand("target core " + m_coreName,
+        m_engine->postCommand("target core " + core.toLocal8Bit(),
             CB(handleTargetCore));
         return;
     }
     QString msg = tr("No symbols found in core file <i>%1</i>.")
-        .arg(startParameters().coreFile);
+        .arg(core);
     msg += _(" ");
     msg += tr("This can be caused by a path length limitation in the "
         "core file.");
@@ -195,14 +209,34 @@ void CoreGdbAdapter::interruptInferior()
     QTC_CHECK(false);
 }
 
-void CoreGdbAdapter::shutdownInferior()
-{
-    m_engine->notifyInferiorShutdownOk();
-}
-
 void CoreGdbAdapter::shutdownAdapter()
 {
     m_engine->notifyAdapterShutdownOk();
+}
+
+void CoreGdbAdapter::unpackCoreIfNeeded()
+{
+    if (!m_coreName.endsWith(QLatin1String(".lzo"))) {
+        continueAdapterStart();
+        return;
+    }
+
+    {
+        QString pattern = QDir::tempPath() + QLatin1String("/tmpcore-XXXXXX");
+        QTemporaryFile tmp(pattern, this);
+        tmp.open();
+        m_tempCoreName = tmp.fileName();
+    }
+
+    QProcess *process = new QProcess(this);
+    process->setWorkingDirectory(QDir::tempPath());
+    process->start("/usr/bin/lzop", QStringList() << "-o" << m_tempCoreName << "-x" << m_coreName);
+    connect(process, SIGNAL(finished(int)), SLOT(continueAdapterStart()));
+}
+
+QString CoreGdbAdapter::coreFileName() const
+{
+    return m_tempCoreName.isEmpty() ? m_coreName : m_tempCoreName;
 }
 
 } // namespace Internal

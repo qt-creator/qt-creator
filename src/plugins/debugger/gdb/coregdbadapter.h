@@ -51,6 +51,7 @@ class CoreGdbAdapter : public AbstractGdbAdapter
 
 public:
     explicit CoreGdbAdapter(GdbEngine *engine);
+    ~CoreGdbAdapter();
 
 private:
     DumperHandling dumperHandling() const { return DumperNotAvailable; }
@@ -61,7 +62,6 @@ private:
     void setupInferior();
     void runEngine();
     void interruptInferior();
-    void shutdownInferior();
     void shutdownAdapter();
 
     Q_SLOT void loadSymbolsForStack();
@@ -69,15 +69,18 @@ private:
 
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
-    //void handleTemporaryDetach(const GdbResponse &response);
-    //void handleTemporaryTargetCore(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleTargetCore(const GdbResponse &response);
     void handleModulesList(const GdbResponse &response);
+    void unpackCoreIfNeeded();
+    QString coreFileName() const;
+    Q_SLOT void continueAdapterStart();
+    QString coreName() const;
 
     QString m_executable;
-    const QByteArray m_coreName;
+    QString m_coreName;
     LocalGdbProcess m_gdbProc;
+    QString m_tempCoreName;
 };
 
 } // namespace Internal
