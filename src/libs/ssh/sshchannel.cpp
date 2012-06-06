@@ -116,9 +116,11 @@ void AbstractSshChannel::handleWindowAdjust(quint32 bytesToAdd)
 
 void AbstractSshChannel::flushSendBuffer()
 {
-    const quint32 bytesToSend = qMin(m_remoteMaxPacketSize,
-        qMin<quint32>(m_remoteWindowSize, m_sendBuffer.size()));
-    if (bytesToSend > 0) {
+    while (true) {
+        const quint32 bytesToSend = qMin(m_remoteMaxPacketSize,
+                qMin<quint32>(m_remoteWindowSize, m_sendBuffer.size()));
+        if (bytesToSend == 0)
+            break;
         const QByteArray &data = m_sendBuffer.left(bytesToSend);
         m_sendFacility.sendChannelDataPacket(m_remoteChannel, data);
         m_sendBuffer.remove(0, bytesToSend);
