@@ -833,6 +833,7 @@ mDNSlocal int SetupOneInterface(mDNS *const m, struct sockaddr *intfAddr, struct
 
 	// Allocate the interface structure itself.
 	intf = (PosixNetworkInterface*)malloc(sizeof(*intf));
+	memset(intf, 0, sizeof(*intf));
 	if (intf == NULL) { assert(0); err = ENOMEM; }
 
 	// And make a copy of the intfName.
