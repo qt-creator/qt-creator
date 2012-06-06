@@ -61,6 +61,7 @@ public:
                        const QmlJS::Document::Ptr &initDoc,
                        QmlInspectorAdapter *inspectorAdapter,
                        QObject *parent = 0);
+    ~QmlLiveTextPreview();
 
     void associateEditor(Core::IEditor *editor);
     void unassociateEditor(Core::IEditor *editor);

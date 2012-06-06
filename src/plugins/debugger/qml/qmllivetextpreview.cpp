@@ -380,6 +380,11 @@ QmlLiveTextPreview::QmlLiveTextPreview(const QmlJS::Document::Ptr &doc,
             SLOT(onAutomaticUpdateFailed()));
 }
 
+QmlLiveTextPreview::~QmlLiveTextPreview()
+{
+    removeOutofSyncInfo();
+}
+
 void QmlLiveTextPreview::associateEditor(Core::IEditor *editor)
 {
     using namespace TextEditor;
