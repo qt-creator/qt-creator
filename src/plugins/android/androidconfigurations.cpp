@@ -264,7 +264,7 @@ QStringList AndroidConfigurations::ndkToolchainVersions() const
 
 QString AndroidConfigurations::adbToolPath() const
 {
-    return m_config.sdkLocation + QLatin1String("/platform-tools/adb"ANDROID_EXE_SUFFIX);
+    return m_config.sdkLocation + QLatin1String("/platform-tools/adb" ANDROID_EXE_SUFFIX);
 }
 
 QString AndroidConfigurations::androidToolPath() const
@@ -272,13 +272,13 @@ QString AndroidConfigurations::androidToolPath() const
 #ifdef Q_OS_WIN32
     // I want to switch from using android.bat to using an executable. All it really does is call
     // Java and I've made some progress on it. So if android.exe exists, return that instead.
-    QFileInfo fi(m_config.sdkLocation + QLatin1String("/tools/android"ANDROID_EXE_SUFFIX));
+    QFileInfo fi(m_config.sdkLocation + QLatin1String("/tools/android" ANDROID_EXE_SUFFIX));
     if (fi.exists())
-        return m_config.sdkLocation + QString("/tools/android"ANDROID_EXE_SUFFIX);
+        return m_config.sdkLocation + QString("/tools/android" ANDROID_EXE_SUFFIX);
     else
-        return m_config.sdkLocation + QLatin1String("/tools/android"ANDROID_BAT_SUFFIX);
+        return m_config.sdkLocation + QLatin1String("/tools/android" ANDROID_BAT_SUFFIX);
 #else
-    return m_config.sdkLocation + QLatin1String("/tools/android"ANDROID_EXE_SUFFIX);
+    return m_config.sdkLocation + QLatin1String("/tools/android" ANDROID_EXE_SUFFIX);
 #endif
 }
 
@@ -292,7 +292,7 @@ QString AndroidConfigurations::antToolPath() const
 
 QString AndroidConfigurations::emulatorToolPath() const
 {
-    return m_config.sdkLocation + QLatin1String("/tools/emulator"ANDROID_EXE_SUFFIX);
+    return m_config.sdkLocation + QLatin1String("/tools/emulator" ANDROID_EXE_SUFFIX);
 }
 
 QString AndroidConfigurations::toolPath(ProjectExplorer::Abi::Architecture architecture) const
@@ -306,17 +306,17 @@ QString AndroidConfigurations::toolPath(ProjectExplorer::Abi::Architecture archi
 
 QString AndroidConfigurations::stripPath(ProjectExplorer::Abi::Architecture architecture) const
 {
-    return toolPath(architecture) + QLatin1String("-strip"ANDROID_EXE_SUFFIX);
+    return toolPath(architecture) + QLatin1String("-strip" ANDROID_EXE_SUFFIX);
 }
 
 QString AndroidConfigurations::readelfPath(ProjectExplorer::Abi::Architecture architecture) const
 {
-    return toolPath(architecture) + QLatin1String("-readelf"ANDROID_EXE_SUFFIX);
+    return toolPath(architecture) + QLatin1String("-readelf" ANDROID_EXE_SUFFIX);
 }
 
 QString AndroidConfigurations::gccPath(ProjectExplorer::Abi::Architecture architecture) const
 {
-    return toolPath(architecture) + QLatin1String("-gcc"ANDROID_EXE_SUFFIX);
+    return toolPath(architecture) + QLatin1String("-gcc" ANDROID_EXE_SUFFIX);
 }
 
 QString AndroidConfigurations::gdbServerPath(ProjectExplorer::Abi::Architecture architecture) const
@@ -357,7 +357,7 @@ QString AndroidConfigurations::gdbPath(ProjectExplorer::Abi::Architecture archit
     }
     if (!gdbPath.isEmpty())
         return gdbPath;
-    return toolPath(architecture) + QLatin1String("-gdb"ANDROID_EXE_SUFFIX);
+    return toolPath(architecture) + QLatin1String("-gdb" ANDROID_EXE_SUFFIX);
 }
 
 QString AndroidConfigurations::openJDKPath() const
