@@ -73,7 +73,7 @@ public:
     quint64 data;
 };
 
-class QTCREATOR_UTILS_EXPORT ElfHeaders : public QList<ElfHeader>
+class QTCREATOR_UTILS_EXPORT ElfHeaders
 {
 public:
     ElfHeaders() : symbolsType(UnknownSymbols) {}
@@ -81,6 +81,7 @@ public:
 
 public:
     DebugSymbolsType symbolsType;
+    QList<ElfHeader> headers;
 };
 
 class QTCREATOR_UTILS_EXPORT ElfReader

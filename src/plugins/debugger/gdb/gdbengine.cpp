@@ -5385,7 +5385,7 @@ void GdbEngine::checkForReleaseBuild()
     }
 
     QSet<QByteArray> seen;
-    foreach (const ElfHeader &section, sections) {
+    foreach (const ElfHeader &section, sections.headers) {
         msg.append(section.name);
         msg.append(' ');
         if (interesting.contains(section.name))
@@ -5398,7 +5398,7 @@ void GdbEngine::checkForReleaseBuild()
         return;
     }
 
-    if (sections.isEmpty()) {
+    if (sections.headers.isEmpty()) {
         showMessage(_("NO SECTION HEADERS FOUND. IS THIS AN EXECUTABLE?"));
         return;
     }

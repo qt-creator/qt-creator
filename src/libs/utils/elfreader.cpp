@@ -122,7 +122,7 @@ ElfReader::ElfReader(const QString &binary)
 
 ElfHeaders ElfReader::readHeaders()
 {
-    if (m_headers.isEmpty())
+    if (m_headers.headers.isEmpty())
         readIt();
     return m_headers;
 }
@@ -271,7 +271,7 @@ ElfReader::Result ElfReader::readIt()
             m_headers.symbolsType = PlainSymbols;
         else if (section.name == ".gnu_debuglink")
             m_headers.symbolsType = SeparateSymbols;
-        m_headers.append(section);
+        m_headers.headers.append(section);
 
         s += e_shentsize;
     }
@@ -281,7 +281,7 @@ ElfReader::Result ElfReader::readIt()
 QByteArray ElfReader::readSection(const QByteArray &name)
 {
     QByteArray contents;
-    if (m_headers.isEmpty())
+    if (m_headers.headers.isEmpty())
         readIt();
     int i = m_headers.indexOf(name);
     if (i == -1)
@@ -291,7 +291,7 @@ QByteArray ElfReader::readSection(const QByteArray &name)
     if (!mapper.map())
         return contents;
 
-    const ElfHeader &section = m_headers.at(i);
+    const ElfHeader &section = m_headers.headers.at(i);
 
     contents = QByteArray((const char *)mapper.start + section.offset, section.size);
     return contents;
@@ -299,8 +299,8 @@ QByteArray ElfReader::readSection(const QByteArray &name)
 
 int ElfHeaders::indexOf(const QByteArray &name) const
 {
-    for (int i = 0, n = size(); i != n; ++i)
-        if (at(i).name == name)
+    for (int i = 0, n = headers.size(); i != n; ++i)
+        if (headers.at(i).name == name)
             return i;
     return -1;
 }
