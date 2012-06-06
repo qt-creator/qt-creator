@@ -385,6 +385,8 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = OpenBsdFlavor;
         else if (abiParts.at(2) == QLatin1String("maemo") && m_os == LinuxOS)
             m_osFlavor = MaemoLinuxFlavor;
+        else if (abiParts.at(2) == QLatin1String("harmattan") && m_os == LinuxOS)
+            m_osFlavor = HarmattanLinuxFlavor;
         else if (abiParts.at(2) == QLatin1String("meego") && m_os == LinuxOS)
             m_osFlavor = MeegoLinuxFlavor;
         else if (abiParts.at(2) == QLatin1String("generic") && m_os == MacOS)
