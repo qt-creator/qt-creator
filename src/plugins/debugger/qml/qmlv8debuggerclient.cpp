@@ -1109,8 +1109,9 @@ void QmlV8DebuggerClient::changeBreakpoint(const BreakpointModelId &id)
     } else {
         //V8 supports only minimalistic changes in breakpoint
         //Remove the breakpoint and add again
-        removeBreakpoint(id);
-        d->engine->insertBreakpoint(id);
+        handler->notifyBreakpointChangeOk(id);
+        handler->removeBreakpoint(id);
+        handler->appendBreakpoint(params);
     }
 }
 
