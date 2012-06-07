@@ -70,12 +70,13 @@ QWidget *GerritOptionsPage::createPage(QWidget *parent)
 void GerritOptionsPage::apply()
 {
     if (GerritOptionsWidget *w = m_widget.data()) {
-        const GerritParameters newParameters = w->parameters();
+        GerritParameters newParameters = w->parameters();
         if (newParameters != *m_parameters) {
-            bool sshChanged = m_parameters->ssh != newParameters.ssh;
+            if (m_parameters->ssh == newParameters.ssh)
+                newParameters.portFlag = m_parameters->portFlag;
+            else
+                newParameters.setPortFlagBySshType();
             *m_parameters = newParameters;
-            if (sshChanged)
-                m_parameters->setPortFlagBySshType();
             m_parameters->toSettings(Core::ICore::instance()->settings());
         }
     }
