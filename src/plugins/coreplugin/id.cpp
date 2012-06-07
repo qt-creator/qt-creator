@@ -39,6 +39,8 @@
 #include <QHash>
 #include <QVector>
 
+#include <string.h>
+
 namespace Core {
 
 /*!
@@ -107,7 +109,7 @@ static int theId(const char *str)
         if (lastUid == 0)
             stringFromId.append(QByteArray());
         res = ++lastUid;
-        sh.str = qstrdup(sh.str);
+        sh.str = strdup(sh.str);
         idFromString[sh] = res;
         stringFromId.append(QByteArray::fromRawData(sh.str, sh.n));
     }
