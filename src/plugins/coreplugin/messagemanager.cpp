@@ -82,11 +82,11 @@ void MessageManager::printToOutputPane(const QString &text, bool bringToForegrou
 
 void MessageManager::printToOutputPanePopup(const QString &text)
 {
-    printToOutputPane(text + QLatin1Char('\n'), true);
+    printToOutputPane(text, true);
 }
 
 void MessageManager::printToOutputPane(const QString &text)
 {
-    printToOutputPane(text + QLatin1Char('\n'), false);
+    printToOutputPane(text, false);
 }
 
