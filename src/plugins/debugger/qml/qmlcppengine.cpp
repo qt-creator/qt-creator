@@ -296,7 +296,10 @@ void QmlCppEngine::selectThread(int index)
 void QmlCppEngine::assignValueInDebugger(const WatchData *data,
     const QString &expr, const QVariant &value)
 {
-    d->m_activeEngine->assignValueInDebugger(data, expr, value);
+    if (data.isInspect())
+        d->m_qmlEngine->assignValueInDebugger(data, expr, value);
+    else
+        d->m_activeEngine->assignValueInDebugger(data, expr, value);
 }
 
 void QmlCppEngine::notifyInferiorIll()
