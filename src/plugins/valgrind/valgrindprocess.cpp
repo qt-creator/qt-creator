@@ -324,9 +324,9 @@ void RemoteValgrindProcess::closed(int status)
     if (status == QSsh::SshRemoteProcess::FailedToStart) {
         m_error = QProcess::FailedToStart;
         emit ValgrindProcess::error(QProcess::FailedToStart);
-    } else if (status == QSsh::SshRemoteProcess::ExitedNormally) {
+    } else if (status == QSsh::SshRemoteProcess::NormalExit) {
         emit finished(m_process->exitCode(), QProcess::NormalExit);
-    } else if (status == QSsh::SshRemoteProcess::KilledBySignal) {
+    } else if (status == QSsh::SshRemoteProcess::CrashExit) {
         m_error = QProcess::Crashed;
         emit finished(m_process->exitCode(), QProcess::CrashExit);
     }

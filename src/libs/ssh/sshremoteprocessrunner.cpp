@@ -169,11 +169,11 @@ void SshRemoteProcessRunner::handleProcessFinished(int exitStatus)
     case SshRemoteProcess::FailedToStart:
         QSSH_ASSERT_AND_RETURN(d->m_state == Connected);
         break;
-    case SshRemoteProcess::KilledBySignal:
+    case SshRemoteProcess::CrashExit:
         QSSH_ASSERT_AND_RETURN(d->m_state == ProcessRunning);
         d->m_exitSignal = d->m_process->exitSignal();
         break;
-    case SshRemoteProcess::ExitedNormally:
+    case SshRemoteProcess::NormalExit:
         QSSH_ASSERT_AND_RETURN(d->m_state == ProcessRunning);
         d->m_exitCode = d->m_process->exitCode();
         break;
@@ -234,13 +234,13 @@ SshRemoteProcess::ExitStatus SshRemoteProcessRunner::processExitStatus() const
 
 SshRemoteProcess::Signal SshRemoteProcessRunner::processExitSignal() const
 {
-    QSSH_ASSERT(processExitStatus() == SshRemoteProcess::KilledBySignal);
+    QSSH_ASSERT(processExitStatus() == SshRemoteProcess::CrashExit);
     return d->m_exitSignal;
 }
 
 int SshRemoteProcessRunner::processExitCode() const
 {
-    QSSH_ASSERT(processExitStatus() == SshRemoteProcess::ExitedNormally);
+    QSSH_ASSERT(processExitStatus() == SshRemoteProcess::NormalExit);
     return d->m_exitCode;
 }
 

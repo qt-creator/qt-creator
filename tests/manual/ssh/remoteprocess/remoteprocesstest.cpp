@@ -142,7 +142,7 @@ void RemoteProcessTest::handleProcessStderr(const QByteArray &output)
 void RemoteProcessTest::handleProcessClosed(int exitStatus)
 {
     switch (exitStatus) {
-    case SshRemoteProcess::ExitedNormally:
+    case SshRemoteProcess::NormalExit:
         if (!m_started) {
             std::cerr << "Error: Process exited without starting." << std::endl;
             qApp->quit();
@@ -263,7 +263,7 @@ void RemoteProcessTest::handleProcessClosed(int exitStatus)
         }
         qApp->quit();
         break;
-    case SshRemoteProcess::KilledBySignal:
+    case SshRemoteProcess::CrashExit:
         switch (m_state) {
         case TestingCrash:
             handleSuccessfulCrashTest();

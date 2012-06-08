@@ -157,11 +157,11 @@ void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
     case SshRemoteProcess::FailedToStart:
         errorMsg = tr("Could not execute unmount request.");
         break;
-    case SshRemoteProcess::KilledBySignal:
+    case SshRemoteProcess::CrashExit:
         errorMsg = tr("Failure unmounting: %1")
             .arg(m_unmountProcess->errorString());
         break;
-    case SshRemoteProcess::ExitedNormally:
+    case SshRemoteProcess::NormalExit:
         break;
     default:
         Q_ASSERT_X(false, Q_FUNC_INFO,
@@ -255,7 +255,7 @@ void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
         return;
 
     setState(Inactive);
-    if (exitStatus == SshRemoteProcess::ExitedNormally
+    if (exitStatus == SshRemoteProcess::NormalExit
             && m_mountProcess->exitCode() == 0) {
         emit reportProgress(tr("Mount operation succeeded."));
         emit mounted();

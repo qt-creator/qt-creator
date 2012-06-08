@@ -88,13 +88,13 @@ void SshKeyDeployer::handleConnectionFailure()
 void SshKeyDeployer::handleKeyUploadFinished(int exitStatus)
 {
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
-        || exitStatus == SshRemoteProcess::KilledBySignal
-        || exitStatus == SshRemoteProcess::ExitedNormally);
+        || exitStatus == SshRemoteProcess::CrashExit
+        || exitStatus == SshRemoteProcess::NormalExit);
 
     const int exitCode = d->deployProcess.processExitCode();
     const QString errorMsg = d->deployProcess.processErrorString();
     cleanup();
-    if (exitStatus == SshRemoteProcess::ExitedNormally && exitCode == 0)
+    if (exitStatus == SshRemoteProcess::NormalExit && exitCode == 0)
         emit finishedSuccessfully();
     else
         emit error(tr("Key deployment failed: %1.").arg(errorMsg));

@@ -136,7 +136,7 @@ void RemoteLinuxCustomCommandDeployService::handleProcessClosed(int exitStatus)
 
     if (exitStatus == SshRemoteProcess::FailedToStart) {
         emit errorMessage(tr("Remote process failed to start."));
-    } else if (exitStatus == SshRemoteProcess::KilledBySignal) {
+    } else if (exitStatus == SshRemoteProcess::CrashExit) {
         emit errorMessage(tr("Remote process was killed by a signal."));
     } else if (d->runner->processExitCode() != 0) {
         emit errorMessage(tr("Remote process finished with exit code %1.")

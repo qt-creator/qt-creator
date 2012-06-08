@@ -192,7 +192,7 @@ void GenericDirectUploadService::handleLnFinished(int exitStatus)
 
     const DeployableFile df = d->filesToUpload.takeFirst();
     const QString nativePath = QDir::toNativeSeparators(df.localFilePath);
-    if (exitStatus != SshRemoteProcess::ExitedNormally || d->lnProc->exitCode() != 0) {
+    if (exitStatus != SshRemoteProcess::NormalExit || d->lnProc->exitCode() != 0) {
         emit errorMessage(tr("Failed to upload file '%1'.").arg(nativePath));
         setFinished();
         handleDeploymentDone();
@@ -215,7 +215,7 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
     const DeployableFile &df = d->filesToUpload.first();
     QFileInfo fi(df.localFilePath);
     const QString nativePath = QDir::toNativeSeparators(df.localFilePath);
-    if (exitStatus != SshRemoteProcess::ExitedNormally || d->mkdirProc->exitCode() != 0) {
+    if (exitStatus != SshRemoteProcess::NormalExit || d->mkdirProc->exitCode() != 0) {
         emit errorMessage(tr("Failed to upload file '%1'.").arg(nativePath));
         setFinished();
         handleDeploymentDone();

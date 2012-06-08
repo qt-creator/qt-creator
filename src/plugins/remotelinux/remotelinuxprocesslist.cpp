@@ -184,11 +184,11 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
         d->errorMsg = tr("Error: Remote process failed to start: %1")
             .arg(d->process.processErrorString());
         break;
-    case SshRemoteProcess::KilledBySignal:
+    case SshRemoteProcess::CrashExit:
         d->errorMsg = tr("Error: Remote process crashed: %1")
             .arg(d->process.processErrorString());
         break;
-    case SshRemoteProcess::ExitedNormally:
+    case SshRemoteProcess::NormalExit:
         if (d->process.processExitCode() == 0) {
             if (d->state == Listing) {
                 beginResetModel();

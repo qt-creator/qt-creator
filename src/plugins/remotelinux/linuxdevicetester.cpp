@@ -141,7 +141,7 @@ void GenericLinuxDeviceTester::handleProcessFinished(int exitStatus)
 {
     QTC_ASSERT(d->state == RunningUname, return);
 
-    if (exitStatus != SshRemoteProcess::ExitedNormally || d->process->exitCode() != 0) {
+    if (exitStatus != SshRemoteProcess::NormalExit || d->process->exitCode() != 0) {
         const QByteArray stderrOutput = d->process->readAllStandardError();
         if (!stderrOutput.isEmpty())
             emit errorMessage(tr("uname failed: %1\n").arg(QString::fromUtf8(stderrOutput)));

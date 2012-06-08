@@ -178,10 +178,10 @@ void RemoteLinuxUsedPortsGatherer::handleProcessClosed(int exitStatus)
     case SshRemoteProcess::FailedToStart:
         errMsg = tr("Could not start remote process: %1").arg(d->process->errorString());
         break;
-    case SshRemoteProcess::KilledBySignal:
+    case SshRemoteProcess::CrashExit:
         errMsg = tr("Remote process crashed: %1").arg(d->process->errorString());
         break;
-    case SshRemoteProcess::ExitedNormally:
+    case SshRemoteProcess::NormalExit:
         if (d->process->exitCode() == 0)
             setupUsedPorts();
         else

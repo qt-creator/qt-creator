@@ -234,8 +234,8 @@ void AbstractRemoteLinuxApplicationRunner::cleanup()
 void AbstractRemoteLinuxApplicationRunner::handleCleanupFinished(int exitStatus)
 {
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
-        || exitStatus == SshRemoteProcess::KilledBySignal
-        || exitStatus == SshRemoteProcess::ExitedNormally);
+        || exitStatus == SshRemoteProcess::CrashExit
+        || exitStatus == SshRemoteProcess::NormalExit);
 
     QTC_ASSERT(d->state == PreRunCleaning
         || (d->state == ProcessStarted && d->stopRequested) || d->state == Inactive, return);
@@ -253,7 +253,7 @@ void AbstractRemoteLinuxApplicationRunner::handleCleanupFinished(int exitStatus)
         return;
     }
 
-    if (exitStatus != SshRemoteProcess::ExitedNormally) {
+    if (exitStatus != SshRemoteProcess::NormalExit) {
         emitError(tr("Initial cleanup failed: %1").arg(d->cleaner->errorString()));
         emit remoteProcessFinished(InvalidExitCode);
         return;
@@ -296,8 +296,8 @@ void AbstractRemoteLinuxApplicationRunner::handleRemoteProcessStarted()
 void AbstractRemoteLinuxApplicationRunner::handleRemoteProcessFinished(int exitStatus)
 {
     Q_ASSERT(exitStatus == SshRemoteProcess::FailedToStart
-        || exitStatus == SshRemoteProcess::KilledBySignal
-        || exitStatus == SshRemoteProcess::ExitedNormally);
+        || exitStatus == SshRemoteProcess::CrashExit
+        || exitStatus == SshRemoteProcess::NormalExit);
     QTC_ASSERT(d->state == ProcessStarted || d->state == Inactive, return);
 
     d->exitStatus = exitStatus;
@@ -454,7 +454,7 @@ void AbstractRemoteLinuxApplicationRunner::handlePostRunCleanupDone()
     setInactive();
     if (wasStopRequested)
         emit remoteProcessFinished(InvalidExitCode);
-    else if (d->exitStatus == SshRemoteProcess::ExitedNormally)
+    else if (d->exitStatus == SshRemoteProcess::NormalExit)
         emit remoteProcessFinished(d->runner->exitCode());
     else
         emit error(tr("Error running remote process: %1").arg(d->runner->errorString()));

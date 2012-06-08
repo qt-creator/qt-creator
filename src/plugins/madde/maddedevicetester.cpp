@@ -176,7 +176,7 @@ void MaddeDeviceTester::handleProcessFinished(int exitStatus)
 
 void MaddeDeviceTester::handleQtTestFinished(int exitStatus)
 {
-    if (exitStatus != SshRemoteProcess::ExitedNormally
+    if (exitStatus != SshRemoteProcess::NormalExit
             || m_processRunner->processExitCode() != 0) {
         if (!m_stderr.isEmpty()) {
             emit errorMessage(tr("Error checking for Qt libraries: %1\n")
@@ -201,7 +201,7 @@ void MaddeDeviceTester::handleQtTestFinished(int exitStatus)
 
 void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
 {
-    if (exitStatus != SshRemoteProcess::ExitedNormally) {
+    if (exitStatus != SshRemoteProcess::NormalExit) {
         if (!m_stderr.isEmpty()) {
             emit errorMessage(tr("Error checking for connectivity tool: %1\n")
                 .arg(QString::fromUtf8(m_stderr)));
@@ -238,7 +238,7 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
 
 void MaddeDeviceTester::handleQmlToolingTestFinished(int exitStatus)
 {
-    if (exitStatus != SshRemoteProcess::ExitedNormally) {
+    if (exitStatus != SshRemoteProcess::NormalExit) {
         if (!m_stderr.isEmpty()) {
             emit errorMessage(tr("Error checking for QML tooling support: %1\n")
                 .arg(QString::fromUtf8(m_stderr)));

@@ -110,7 +110,7 @@ void Shell::handleChannelClosed(int exitStatus)
 {
     std::cerr << "Shell closed. Exit status was " << exitStatus << ", exit code was "
         << m_shell->exitCode() << "." << std::endl;
-    qApp->exit(exitStatus == SshRemoteProcess::ExitedNormally && m_shell->exitCode() == 0
+    qApp->exit(exitStatus == SshRemoteProcess::NormalExit && m_shell->exitCode() == 0
         ? EXIT_SUCCESS : EXIT_FAILURE);
 }
 

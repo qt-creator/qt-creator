@@ -130,7 +130,7 @@ void RemoteGdbProcess::handleFifoCreationFinished(int exitStatus)
         return;
     QTC_ASSERT(m_state == CreatingFifo, return);
 
-    if (exitStatus != QSsh::SshRemoteProcess::ExitedNormally) {
+    if (exitStatus != QSsh::SshRemoteProcess::NormalExit) {
         emitErrorExit(tr("Could not create FIFO."));
     } else {
         setState(StartingFifoReader);
@@ -172,7 +172,7 @@ void RemoteGdbProcess::handleAppOutputReaderStarted()
 
 void RemoteGdbProcess::handleAppOutputReaderFinished(int exitStatus)
 {
-    if (exitStatus != QSsh::SshRemoteProcess::ExitedNormally)
+    if (exitStatus != QSsh::SshRemoteProcess::NormalExit)
         emitErrorExit(tr("Application output reader unexpectedly finished."));
 }
 
@@ -197,10 +197,10 @@ void RemoteGdbProcess::handleGdbFinished(int exitStatus)
         setState(Inactive);
         emit startFailed();
         break;
-    case QSsh::SshRemoteProcess::KilledBySignal:
+    case QSsh::SshRemoteProcess::CrashExit:
         emitErrorExit(tr("Remote GDB crashed."));
         break;
-    case QSsh::SshRemoteProcess::ExitedNormally:
+    case QSsh::SshRemoteProcess::NormalExit:
         const int exitCode = m_gdbProc->exitCode();
         setState(Inactive);
         emit finished(exitCode, QProcess::NormalExit);

@@ -91,11 +91,11 @@ void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
         emit errorMessage(tr("Remote process failed to start."));
         stopDeployment();
         return;
-    case QSsh::SshRemoteProcess::KilledBySignal:
+    case QSsh::SshRemoteProcess::CrashExit:
         emit errorMessage(tr("Remote process crashed."));
         stopDeployment();
         return;
-    case QSsh::SshRemoteProcess::ExitedNormally:
+    case QSsh::SshRemoteProcess::NormalExit:
         break;
     }
 

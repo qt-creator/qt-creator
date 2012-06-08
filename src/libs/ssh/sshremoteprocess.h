@@ -60,7 +60,7 @@ class QSSH_EXPORT SshRemoteProcess : public QIODevice
 
 public:
     typedef QSharedPointer<SshRemoteProcess> Ptr;
-    enum ExitStatus { FailedToStart, KilledBySignal, ExitedNormally };
+    enum ExitStatus { FailedToStart, CrashExit, NormalExit };
     enum Signal {
         AbrtSignal, AlrmSignal, FpeSignal, HupSignal, IllSignal, IntSignal, KillSignal, PipeSignal,
         QuitSignal, SegvSignal, TermSignal, Usr1Signal, Usr2Signal, NoSignal

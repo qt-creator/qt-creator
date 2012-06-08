@@ -103,15 +103,15 @@ void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
 void RemoteLinuxEnvironmentReader::remoteProcessFinished(int exitCode)
 {
     Q_ASSERT(exitCode == QSsh::SshRemoteProcess::FailedToStart
-        || exitCode == QSsh::SshRemoteProcess::KilledBySignal
-        || exitCode == QSsh::SshRemoteProcess::ExitedNormally);
+        || exitCode == QSsh::SshRemoteProcess::CrashExit
+        || exitCode == QSsh::SshRemoteProcess::NormalExit);
 
     if (m_stop)
         return;
 
     disconnect(m_remoteProcessRunner, 0, this, 0);
     m_env.clear();
-    if (exitCode == QSsh::SshRemoteProcess::ExitedNormally) {
+    if (exitCode == QSsh::SshRemoteProcess::NormalExit) {
         if (!m_remoteOutput.isEmpty()) {
             m_env = Utils::Environment(m_remoteOutput.split(QLatin1Char('\n'),
                 QString::SkipEmptyParts));

@@ -280,9 +280,9 @@ void SshRemoteProcessPrivate::closeHook()
 {
     if (m_wasRunning) {
         if (m_signal != SshRemoteProcess::NoSignal)
-            emit closed(SshRemoteProcess::KilledBySignal);
+            emit closed(SshRemoteProcess::CrashExit);
         else
-            emit closed(SshRemoteProcess::ExitedNormally);
+            emit closed(SshRemoteProcess::NormalExit);
     }
 }
 

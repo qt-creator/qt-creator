@@ -424,10 +424,10 @@ void MaemoPublisherFremantleFree::handleUploadJobFinished(int exitStatus)
     QTC_ASSERT(m_state == PreparingToUploadFile || m_state == UploadingFile || m_state ==Inactive,
         return);
 
-    if (m_state != Inactive && (exitStatus != SshRemoteProcess::ExitedNormally
+    if (m_state != Inactive && (exitStatus != SshRemoteProcess::NormalExit
             || m_uploader->processExitCode() != 0)) {
         QString error;
-        if (exitStatus != SshRemoteProcess::ExitedNormally) {
+        if (exitStatus != SshRemoteProcess::NormalExit) {
             error = tr("Error uploading file: %1.")
                 .arg(m_uploader->processErrorString());
         } else {
