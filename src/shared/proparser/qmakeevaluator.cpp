@@ -914,6 +914,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 // ### init QMAKE_EXT_{C,H,CPP,OBJ}
                 // ### init TEMPLATE_PREFIX
 
+              if (m_option->do_cache) {
                 QString qmake_cache = m_option->cachefile;
                 if (qmake_cache.isEmpty() && !m_outputDir.isEmpty())  { //find it as it has not been specified
                     QDir dir(m_outputDir);
@@ -941,6 +942,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                     }
                 }
                 m_option->cachefile = qmake_cache;
+              }
 
                 loadSpec();
 

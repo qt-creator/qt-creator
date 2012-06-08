@@ -93,6 +93,8 @@ QMakeGlobals::QMakeGlobals()
 {
     initStatics();
 
+    do_cache = true;
+
 #ifdef Q_OS_WIN
     dirlist_sep = QLatin1Char(';');
     dir_sep = QLatin1Char('\\');

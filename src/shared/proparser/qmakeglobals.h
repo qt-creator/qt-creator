@@ -56,6 +56,7 @@ public:
     QMakeGlobals();
     ~QMakeGlobals();
 
+    bool do_cache;
     QString dir_sep;
     QString dirlist_sep;
     QString qmakespec;
