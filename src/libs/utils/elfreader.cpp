@@ -48,67 +48,70 @@
 
 namespace Utils {
 
-typedef quint16  qelfhalf_t;
-typedef quint32  qelfword_t;
-typedef quintptr qelfoff_t;
-typedef quintptr qelfaddr_t;
-
-
-template <typename T>
-T get(const unsigned char *s, ElfEndian endian)
+quint16 getHalfWord(const unsigned char *&s, const ElfData &context)
 {
-    if (endian == ElfBigEndian)
-        return qFromBigEndian<T>(s);
+    quint16 res;
+    if (context.endian == Elf_ELFDATA2MSB)
+        res = qFromBigEndian<quint16>(s);
     else
-        return qFromLittleEndian<T>(s);
+        res = qFromLittleEndian<quint16>(s);
+    s += 2;
+    return res;
 }
 
-class RawElfSectionHeader
+quint32 getWord(const unsigned char *&s, const ElfData &context)
 {
-public:
-    qelfword_t name;
-    qelfword_t type;
-    qelfoff_t  data;
-    qelfoff_t  offset;
-    qelfoff_t  size;
-};
-
-static void parseSectionHeader(const uchar *data, RawElfSectionHeader *sh, ElfEndian endian)
-{
-    sh->name = get<qelfword_t>(data, endian);
-    data += sizeof(qelfword_t); // sh_name
-    sh->type = get<qelfword_t>(data, endian);
-    data += sizeof(qelfword_t); // sh_type
-    data += sizeof(qelfaddr_t);  // sh_flags
-    sh->data = get<qelfaddr_t>(data, endian);
-    data += sizeof(qelfaddr_t); // sh_addr
-    sh->offset = get<qelfoff_t>(data, endian);
-    data += sizeof(qelfoff_t);  // sh_offset
-    sh->size = get<qelfoff_t>(data, endian);
-    data += sizeof(qelfoff_t);  // sh_size
+    quint32 res;
+    if (context.endian == Elf_ELFDATA2MSB)
+        res = qFromBigEndian<quint32>(s);
+    else
+        res = qFromLittleEndian<quint32>(s);
+    s += 4;
+    return res;
 }
 
-class RawElfProgramHeader
+quint64 getAddress(const unsigned char *&s, const ElfData &context)
 {
-public:
-    qelfword_t type;
-    qelfoff_t  offset;
-    qelfword_t filesz;
-    qelfword_t memsz;
-};
+    quint64 res;
+    if (context.elfclass == Elf_ELFCLASS32) {
+        if (context.endian == Elf_ELFDATA2MSB)
+            res = qFromBigEndian<quint32>(s);
+        else
+            res = qFromLittleEndian<quint32>(s);
+        s += 4;
+    } else {
+        if (context.endian == Elf_ELFDATA2MSB)
+            res = qFromBigEndian<quint64>(s);
+        else
+            res = qFromLittleEndian<quint64>(s);
+        s += 8;
+    }
+    return res;
+}
 
-static void parseProgramHeader(const uchar *data, RawElfProgramHeader *sh, ElfEndian endian)
+quint64 getOffset(const unsigned char *&s, const ElfData &context)
 {
-    sh->type = get<qelfword_t>(data, endian);
-    data += sizeof(qelfword_t); // p_type
-    sh->offset = get<qelfoff_t>(data, endian);
-    data += sizeof(qelfoff_t);  // p_offset
-    data += sizeof(qelfaddr_t); // p_vaddr
-    data += sizeof(qelfaddr_t); // p_paddr
-    sh->filesz = get<qelfword_t>(data, endian);
-    data += sizeof(qelfword_t); // p_filesz
-    sh->memsz = get<qelfword_t>(data, endian);
-    data += sizeof(qelfword_t); // p_memsz
+    return getAddress(s, context);
+}
+
+static void parseSectionHeader(const uchar *s, ElfSectionHeader *sh, const ElfData &context)
+{
+    sh->index = getWord(s, context);
+    sh->type = getWord(s, context);
+    sh->flags = getWord(s, context);
+    sh->addr = getAddress(s, context);
+    sh->offset = getOffset(s, context);
+    sh->size = getOffset(s, context);
+}
+
+static void parseProgramHeader(const uchar *s, ElfProgramHeader *sh, const ElfData &context)
+{
+    sh->type = getWord(s, context);
+    sh->offset = getOffset(s, context);
+    /* p_vaddr = */ getAddress(s, context);
+    /* p_paddr = */ getAddress(s, context);
+    sh->filesz = getWord(s, context);
+    sh->memsz = getWord(s, context);
 }
 
 class ElfMapper
@@ -169,20 +172,20 @@ ElfReader::Result ElfReader::readIt()
         return NotElf;
     }
 
-    const uchar *data = mapper.ustart;
-    if (strncmp((const char *)data, "\177ELF", 4) != 0) {
+    if (strncmp(mapper.start, "\177ELF", 4) != 0) {
         m_errorString = QLibrary::tr("'%1' is not an ELF object")
                 .arg(m_binary);
         return NotElf;
     }
 
     // 32 or 64 bit
-    if (data[4] != 1 && data[4] != 2) {
+    m_elfData.elfclass = ElfClass(mapper.start[4]);
+    const bool is64Bit = m_elfData.elfclass == Elf_ELFCLASS64;
+    if (m_elfData.elfclass != Elf_ELFCLASS32 && m_elfData.elfclass != Elf_ELFCLASS64) {
         m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
             .arg(m_binary).arg(QLatin1String("odd cpu architecture"));
         return Corrupt;
     }
-    m_elfData.elfclass = (data[4] == 1 ? Elf_ELFCLASS32 : Elf_ELFCLASS64);
 
     // int bits = (data[4] << 5);
     // If you remove this check to read ELF objects of a different arch,
@@ -197,32 +200,24 @@ ElfReader::Result ElfReader::readIt()
     // }
 
     // Read Endianess.
-    if (data[5] == 0) {
+    m_elfData.endian = ElfEndian(mapper.ustart[5]);
+    if (m_elfData.endian != Elf_ELFDATA2LSB && m_elfData.endian != Elf_ELFDATA2MSB) {
         m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
             .arg(m_binary).arg(QLatin1String("odd endianess"));
         return Corrupt;
     }
-    m_elfData.endian = (data[5] == 1 ? ElfLittleEndian : ElfBigEndian);
 
-    data += 16;                 // e_ident
-    m_elfData.elftype = ElfType(get<qelfhalf_t>(data, m_elfData.endian));
-    data += sizeof(qelfhalf_t); // e_type
+    const uchar *data = mapper.ustart + 16; // e_ident
+    m_elfData.elftype    = ElfType(getHalfWord(data, m_elfData));
+    m_elfData.elfmachine = ElfMachine(getHalfWord(data, m_elfData));
+    /* e_version = */   getWord(data, m_elfData);
+    m_elfData.entryPoint = getAddress(data, m_elfData);
 
-    m_elfData.elfmachine = ElfMachine(get<qelfhalf_t>(data, m_elfData.endian));
-    data += sizeof(qelfhalf_t); // e_machine
+    quint64 e_phoff   = getOffset(data, m_elfData);
+    quint64 e_shoff   = getOffset(data, m_elfData);
+    /* e_flags = */     getWord(data, m_elfData);
 
-    data += sizeof(qelfword_t); // e_version
-    data += sizeof(qelfaddr_t); // e_entry
-
-    qelfoff_t e_phoff = get<qelfoff_t>(data, m_elfData.endian);
-    data += sizeof(qelfoff_t);  // e_phoff
-
-    qelfoff_t e_shoff = get<qelfoff_t>(data, m_elfData.endian);
-    data += sizeof(qelfoff_t);  // e_shoff
-    data += sizeof(qelfword_t); // e_flags
-
-    qelfhalf_t e_shsize = get<qelfhalf_t>(data, m_elfData.endian);
-    data += sizeof(qelfhalf_t); // e_ehsize
+    quint32 e_shsize  = getHalfWord(data, m_elfData);
 
     if (e_shsize > fdlen) {
         m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
@@ -230,14 +225,11 @@ ElfReader::Result ElfReader::readIt()
         return Corrupt;
     }
 
-    qelfhalf_t e_phentsize = get<qelfhalf_t>(data, m_elfData.endian);
-    data += sizeof(qelfhalf_t); // e_phentsize
+    quint32 e_phentsize = getHalfWord(data, m_elfData);
+    QTC_CHECK(e_phentsize == (is64Bit ? 44 : 32));
+    quint32 e_phnum     = getHalfWord(data, m_elfData);
 
-    qelfhalf_t e_phnum = get<qelfhalf_t>(data, m_elfData.endian);
-    data += sizeof(qelfhalf_t); // e_phnum
-
-    qelfhalf_t e_shentsize = get<qelfhalf_t>(data, m_elfData.endian);
-    data += sizeof(qelfhalf_t); // e_shentsize
+    quint32 e_shentsize = getHalfWord(data, m_elfData);
 
     if (e_shentsize % 4) {
         m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
@@ -245,12 +237,11 @@ ElfReader::Result ElfReader::readIt()
         return Corrupt;
     }
 
-    qelfhalf_t e_shnum     = get<qelfhalf_t>(data, m_elfData.endian);
-    data += sizeof(qelfhalf_t); // e_shnum
-    qelfhalf_t e_shtrndx   = get<qelfhalf_t>(data, m_elfData.endian);
-    data += sizeof(qelfhalf_t); // e_shtrndx
+    quint32 e_shnum     = getHalfWord(data, m_elfData);
+    quint32 e_shtrndx   = getHalfWord(data, m_elfData);
+    QTC_CHECK(data == mapper.ustart + (is64Bit ? 58 : 52));
 
-    if (quint32(e_shnum * e_shentsize) > fdlen) {
+    if (quint64(e_shnum) * e_shentsize > fdlen) {
         m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
             .arg(m_binary)
             .arg(QLatin1String("announced %2 sections, each %3 bytes, exceed file size"))
@@ -258,7 +249,7 @@ ElfReader::Result ElfReader::readIt()
         return Corrupt;
     }
 
-    qulonglong soff = e_shoff + e_shentsize * (e_shtrndx);
+    quint64 soff = e_shoff + e_shentsize * e_shtrndx;
 
 //    if ((soff + e_shentsize) > fdlen || soff % 4 || soff == 0) {
 //        m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
@@ -269,9 +260,9 @@ ElfReader::Result ElfReader::readIt()
 //    }
 
     if (e_shoff) {
-        RawElfSectionHeader strtab;
-        parseSectionHeader(mapper.ustart + soff, &strtab, m_elfData.endian);
-        const int stringTableFileOffset = strtab.offset;
+        ElfSectionHeader strtab;
+        parseSectionHeader(mapper.ustart + soff, &strtab, m_elfData);
+        const quint64 stringTableFileOffset = strtab.offset;
 
         if (quint32(stringTableFileOffset + e_shentsize) >= fdlen
                 || stringTableFileOffset == 0) {
@@ -282,16 +273,12 @@ ElfReader::Result ElfReader::readIt()
             return Corrupt;
         }
 
-        const uchar *s = mapper.ustart + e_shoff;
         for (int i = 0; i < e_shnum; ++i) {
-            RawElfSectionHeader sh;
-            parseSectionHeader(s, &sh, m_elfData.endian);
-            if (sh.name == 0) {
-                s += e_shentsize;
-                continue;
-            }
+            const uchar *s = mapper.ustart + e_shoff + i * e_shentsize;
+            ElfSectionHeader sh;
+            parseSectionHeader(s, &sh, m_elfData);
 
-            if (stringTableFileOffset + sh.name > fdlen) {
+            if (stringTableFileOffset + sh.index > fdlen) {
                 m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
                     .arg(m_binary)
                     .arg(QLatin1String("section name %2 of %3 behind end of file"))
@@ -299,46 +286,30 @@ ElfReader::Result ElfReader::readIt()
                 return Corrupt;
             }
 
-            ElfSectionHeader header;
-            header.name = mapper.start + stringTableFileOffset + sh.name;
-            header.index = sh.name;
-            header.offset = sh.offset;
-            header.size = sh.size;
-            header.data = sh.data;
-            if (header.name == ".gdb_index") {
+            sh.name = mapper.start + stringTableFileOffset + sh.index;
+            if (sh.name == ".gdb_index") {
                 m_elfData.symbolsType = FastSymbols;
-            } else if (header.name == ".debug_info") {
+            } else if (sh.name == ".debug_info") {
                 m_elfData.symbolsType = PlainSymbols;
-            } else if (header.name == ".gnu_debuglink") {
-                m_elfData.debugLink = QByteArray(mapper.start + header.offset);
+            } else if (sh.name == ".gnu_debuglink") {
+                m_elfData.debugLink = QByteArray(mapper.start + sh.offset);
                 m_elfData.symbolsType = LinkedSymbols;
-            } else if (header.name == ".note.gnu.build-id") {
+            } else if (sh.name == ".note.gnu.build-id") {
                 m_elfData.symbolsType = BuildIdSymbols;
-                if (header.size > 16)
-                    m_elfData.buildId = QByteArray(mapper.start + header.offset + 16,
-                                                   header.size - 16).toHex();
+                if (sh.size > 16)
+                    m_elfData.buildId = QByteArray(mapper.start + sh.offset + 16,
+                                                   sh.size - 16).toHex();
             }
-            m_elfData.sectionHeaders.append(header);
-
-            s += e_shentsize;
+            m_elfData.sectionHeaders.append(sh);
         }
     }
 
     if (e_phoff) {
-        const uchar *s = mapper.ustart + e_phoff;
-
         for (int i = 0; i < e_phnum; ++i) {
-            RawElfProgramHeader ph;
-            parseProgramHeader(s, &ph, m_elfData.endian);
-
-            ElfProgramHeader header;
-            header.type = ph.type;
-            header.offset = ph.offset;
-            header.filesz = ph.filesz;
-            header.memsz = ph.memsz;
-
-            m_elfData.programHeaders.append(header);
-            s += e_phentsize;
+            const uchar *s = mapper.ustart + e_phoff + i * e_phentsize;
+            ElfProgramHeader ph;
+            parseProgramHeader(s, &ph, m_elfData);
+            m_elfData.programHeaders.append(ph);
         }
     }
     return Ok;
@@ -356,7 +327,7 @@ QByteArray ElfReader::readSection(const QByteArray &name)
         return QByteArray();
 
     const ElfSectionHeader &section = m_elfData.sectionHeaders.at(i);
-    return QByteArray((const char *)mapper.ustart + section.offset, section.size);
+    return QByteArray(mapper.start + section.offset, section.size);
 }
 
 QByteArray ElfReader::readCoreName(bool *isCore)
@@ -369,25 +340,23 @@ QByteArray ElfReader::readCoreName(bool *isCore)
     if (!mapper.map())
         return QByteArray();
 
-    *isCore = (m_elfData.elftype == Elf_ET_CORE);
-    if (!*isCore)
+    if (m_elfData.elftype != Elf_ET_CORE)
         return QByteArray();
 
+    *isCore = true;
+
     for (int i = 0, n = m_elfData.sectionHeaders.size(); i != n; ++i)
-        if (m_elfData.sectionHeaders.at(i).type == Elf_PT_NOTE) {
+        if (m_elfData.sectionHeaders.at(i).type == Elf_SHT_NOTE) {
             const ElfSectionHeader &header = m_elfData.sectionHeaders.at(i);
-            const char *s = mapper.start + header.offset + 0x30; // short name
-            const char *t = s + strlen(s) + 1; // command line
-            int n = strlen(t);
-            return QByteArray(t, n);
+            const char *s = mapper.start + header.offset + 0x40;
+            return QByteArray(s);
         }
 
     for (int i = 0, n = m_elfData.programHeaders.size(); i != n; ++i)
         if (m_elfData.programHeaders.at(i).type == Elf_PT_NOTE) {
             const ElfProgramHeader &header = m_elfData.programHeaders.at(i);
-            const char *s = mapper.start + header.offset;
-            QByteArray ba(s + 0xec);
-            return ba;
+            const char *s = mapper.start + header.offset + 0xec;
+            return QByteArray(s);
         }
 
     return QByteArray();

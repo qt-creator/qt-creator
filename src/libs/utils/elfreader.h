@@ -63,10 +63,33 @@ enum ElfProgramHeaderType
     Elf_PT_NUM     = 8
 };
 
+enum ElfSectionHeaderType
+{
+    Elf_SHT_NULL          = 0,
+    Elf_SHT_PROGBITS      = 1,
+    Elf_SHT_SYMTAB        = 2,
+    Elf_SHT_STRTAB        = 3,
+    Elf_SHT_RELA          = 4,
+    Elf_SHT_HASH          = 5,
+    Elf_SHT_DYNAMIC       = 6,
+    Elf_SHT_NOTE          = 7,
+    Elf_SHT_NOBITS        = 8,
+    Elf_SHT_REL           = 9,
+    Elf_SHT_SHLIB         = 10,
+    Elf_SHT_DYNSYM        = 11,
+    Elf_SHT_INIT_ARRAY    = 14,
+    Elf_SHT_FINI_ARRAY    = 15,
+    Elf_SHT_PREINIT_ARRAY = 16,
+    Elf_SHT_GROUP         = 17,
+    Elf_SHT_SYMTAB_SHNDX  = 18
+};
+
 enum ElfEndian
 {
-    ElfLittleEndian = 0,
-    ElfBigEndian = 1
+    Elf_ELFDATANONE = 0,
+    Elf_ELFDATA2LSB = 1,
+    Elf_ELFDATA2MSB = 2,
+    Elf_ELFDATANUM  = 3
 };
 
 enum ElfClass
@@ -107,14 +130,16 @@ public:
     QByteArray name;
     quint32 index;
     quint32 type;
+    quint32 flags;
     quint64 offset;
     quint64 size;
-    quint64 data;
+    quint64 addr;
 };
 
 class ElfProgramHeader
 {
 public:
+    quint32 name;
     quint32 type;
     quint64 offset;
     quint64 filesz;
@@ -132,6 +157,7 @@ public:
     ElfType    elftype;
     ElfMachine elfmachine;
     ElfClass   elfclass;
+    quint64    entryPoint;
     QByteArray debugLink;
     QByteArray buildId;
     DebugSymbolsType symbolsType;
