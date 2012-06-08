@@ -894,23 +894,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 }
                 m_option->cachefile = qmake_cache;
 
-                QStringList mkspec_roots = qmakeMkspecPaths();
-
                 QString qmakespec = m_option->expandEnvVars(m_option->qmakespec);
-                if (qmakespec.isEmpty()) {
-                    foreach (const QString &root, mkspec_roots) {
-                        QString mkspec = root + QLatin1String("/default");
-                        if (IoUtils::fileType(mkspec) == IoUtils::FileIsDir) {
-                            qmakespec = mkspec;
-                            break;
-                        }
-                    }
-                    if (qmakespec.isEmpty()) {
-                        m_handler->configError(fL1S("Could not find qmake configuration directory"));
-                        // Unlike in qmake, not finding the spec is not critical ...
-                    }
-                }
-
+                if (qmakespec.isEmpty())
+                    qmakespec = QLatin1String("default");
                 if (IoUtils::isRelativePath(qmakespec)) {
                     if (IoUtils::exists(currentDirectory() + QLatin1Char('/') + qmakespec
                                         + QLatin1String("/qmake.conf"))) {
@@ -920,7 +906,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                                                   + QLatin1String("/qmake.conf"))) {
                         qmakespec = m_outputDir + QLatin1Char('/') + qmakespec;
                     } else {
-                        foreach (const QString &root, mkspec_roots) {
+                        foreach (const QString &root, qmakeMkspecPaths()) {
                             QString mkspec = root + QLatin1Char('/') + qmakespec;
                             if (IoUtils::exists(mkspec)) {
                                 qmakespec = mkspec;
