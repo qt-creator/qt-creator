@@ -841,14 +841,13 @@ void QMakeEvaluator::prepareProject()
             }
         }
         if (!qmake_cache.isEmpty()) {
-            ProValueMap cache_valuemap;
-            if (evaluateFileInto(qmake_cache, QMakeHandler::EvalConfigFile,
-                                 &cache_valuemap, EvalProOnly)) {
-                if (m_option->qmakespec.isEmpty()) {
-                    const ProStringList &vals = cache_valuemap.value(ProString("QMAKESPEC"));
-                    if (!vals.isEmpty())
-                        m_option->qmakespec = vals.first().toQString();
-                }
+            QMakeEvaluator evaluator(m_option, m_parser, m_handler);
+#ifdef PROEVALUATOR_CUMULATIVE
+            evaluator.m_cumulative = false;
+#endif
+            if (evaluator.evaluateFileDirect(qmake_cache, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+                if (m_option->qmakespec.isEmpty())
+                    m_option->qmakespec = evaluator.first(ProString("QMAKESPEC")).toQString();
             } else {
                 qmake_cache.clear();
             }
