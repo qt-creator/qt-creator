@@ -667,6 +667,8 @@ void QmlInspectorAgent::objectTreeFetched(const ObjectReference &object)
         // 5.x
         if (m_engineClient->objectName() == QmlDebug::Constants::QML_DEBUGGER
                 && m_newObjectsCreated && parentIname.isEmpty()) {
+            if (watchData.count())
+                break;
             return;
         }
 
