@@ -820,6 +820,57 @@ void QMakeEvaluator::visitProVariable(
     }
 }
 
+void QMakeEvaluator::loadSpec()
+{
+    QString qmakespec = m_option->expandEnvVars(m_option->qmakespec);
+    if (qmakespec.isEmpty())
+        qmakespec = QLatin1String("default");
+    if (IoUtils::isRelativePath(qmakespec)) {
+        foreach (const QString &root, qmakeMkspecPaths()) {
+            QString mkspec = root + QLatin1Char('/') + qmakespec;
+            if (IoUtils::exists(mkspec)) {
+                qmakespec = mkspec;
+                goto cool;
+            }
+        }
+        m_handler->configError(fL1S("Could not find qmake configuration file"));
+        // Unlike in qmake, a missing config is not critical ...
+        qmakespec.clear();
+    }
+  cool:
+
+  if (!qmakespec.isEmpty()) {
+    m_option->qmakespec = QDir::cleanPath(qmakespec);
+
+    QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
+    if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+        m_handler->configError(
+                fL1S("Could not read qmake configuration file %1").arg(spec));
+    } else if (!m_option->cachefile.isEmpty()) {
+        evaluateFileDirect(m_option->cachefile, QMakeHandler::EvalConfigFile, LoadProOnly);
+    }
+    m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
+    if (m_option->qmakespec_name == QLatin1String("default")) {
+#ifdef Q_OS_UNIX
+        char buffer[1024];
+        int l = ::readlink(m_option->qmakespec.toLocal8Bit().constData(), buffer, 1024);
+        if (l != -1)
+            m_option->qmakespec_name =
+                    IoUtils::fileName(QString::fromLocal8Bit(buffer, l)).toString();
+#else
+        // We can't resolve symlinks as they do on Unix, so configure.exe puts
+        // the source of the qmake.conf at the end of the default/qmake.conf in
+        // the QMAKESPEC_ORG variable.
+        const ProStringList &spec_org =
+                m_option->base_valuemap.value(ProString("QMAKESPEC_ORIGINAL"));
+        if (!spec_org.isEmpty())
+            m_option->qmakespec_name =
+                    IoUtils::fileName(spec_org.first().toQString()).toString();
+#endif
+    }
+  }
+}
+
 void QMakeEvaluator::visitCmdLine(const QString &cmds)
 {
     if (!cmds.isEmpty()) {
@@ -894,54 +945,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 }
                 m_option->cachefile = qmake_cache;
 
-                QString qmakespec = m_option->expandEnvVars(m_option->qmakespec);
-                if (qmakespec.isEmpty())
-                    qmakespec = QLatin1String("default");
-                if (IoUtils::isRelativePath(qmakespec)) {
-                        foreach (const QString &root, qmakeMkspecPaths()) {
-                            QString mkspec = root + QLatin1Char('/') + qmakespec;
-                            if (IoUtils::exists(mkspec)) {
-                                qmakespec = mkspec;
-                                goto cool;
-                            }
-                        }
-                        m_handler->configError(fL1S("Could not find qmake configuration file"));
-                        // Unlike in qmake, a missing config is not critical ...
-                        qmakespec.clear();
-                      cool: ;
-                }
-
-                if (!qmakespec.isEmpty()) {
-                    m_option->qmakespec = QDir::cleanPath(qmakespec);
-
-                    QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
-                    if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
-                        m_handler->configError(
-                                fL1S("Could not read qmake configuration file %1").arg(spec));
-                    } else if (!m_option->cachefile.isEmpty()) {
-                        evaluateFileDirect(m_option->cachefile,
-                                           QMakeHandler::EvalConfigFile, LoadProOnly);
-                    }
-                    m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
-                    if (m_option->qmakespec_name == QLatin1String("default")) {
-#ifdef Q_OS_UNIX
-                        char buffer[1024];
-                        int l = ::readlink(m_option->qmakespec.toLocal8Bit().constData(), buffer, 1024);
-                        if (l != -1)
-                            m_option->qmakespec_name =
-                                    IoUtils::fileName(QString::fromLocal8Bit(buffer, l)).toString();
-#else
-                        // We can't resolve symlinks as they do on Unix, so configure.exe puts
-                        // the source of the qmake.conf at the end of the default/qmake.conf in
-                        // the QMAKESPEC_ORG variable.
-                        const ProStringList &spec_org =
-                                m_option->base_valuemap.value(ProString("QMAKESPEC_ORIGINAL"));
-                        if (!spec_org.isEmpty())
-                            m_option->qmakespec_name =
-                                    IoUtils::fileName(spec_org.first().toQString()).toString();
-#endif
-                    }
-                }
+                loadSpec();
 
                 m_option->base_valuemap = m_valuemapStack.top();
                 m_option->base_functions = m_functionDefs;

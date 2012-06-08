@@ -101,6 +101,7 @@ public:
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
     void skipExpression(const ushort *&tokPtr);
 
+    void loadSpec();
     void visitCmdLine(const QString &cmds);
     VisitReturn visitProFile(ProFile *pro, QMakeHandler::EvalFileType type,
                              LoadFlags flags);
