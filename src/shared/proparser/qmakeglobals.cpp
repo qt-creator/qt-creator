@@ -32,6 +32,7 @@
 
 #include "qmakeglobals.h"
 
+#include "qmakeevaluator.h"
 #include "ioutils.h"
 
 #include <QByteArray>
@@ -109,10 +110,12 @@ QMakeGlobals::QMakeGlobals()
 #ifdef PROEVALUATOR_THREAD_SAFE
     base_inProgress = false;
 #endif
+    base_eval = 0;
 }
 
 QMakeGlobals::~QMakeGlobals()
 {
+    delete base_eval;
 }
 
 void QMakeGlobals::setCommandLineArguments(const QStringList &args)

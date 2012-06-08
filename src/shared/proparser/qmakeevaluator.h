@@ -103,6 +103,7 @@ public:
 
     void prepareProject();
     void loadSpec();
+    void initFrom(const QMakeEvaluator &other);
     void visitCmdLine(const QString &cmds);
     VisitReturn visitProFile(ProFile *pro, QMakeHandler::EvalFileType type,
                              LoadFlags flags);

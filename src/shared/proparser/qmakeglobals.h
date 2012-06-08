@@ -80,8 +80,6 @@ private:
     QString getEnv(const QString &) const;
     QStringList getPathListEnv(const QString &var) const;
 
-    ProValueMap base_valuemap; // Cached results of qmake.conf, .qmake.cache & default_pre.prf
-    ProFunctionDefs base_functions;
     QStringList feature_roots;
     QString qmakespec_name;
     QString precmds, postcmds;
@@ -93,6 +91,7 @@ private:
     QWaitCondition cond;
     bool base_inProgress;
 #endif
+    QMakeEvaluator *base_eval;
 
     friend class QMakeEvaluator;
 };

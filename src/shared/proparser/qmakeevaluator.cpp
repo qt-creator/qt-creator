@@ -171,6 +171,13 @@ QMakeEvaluator::~QMakeEvaluator()
 {
 }
 
+void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
+{
+    Q_ASSERT_X(&other, "QMakeEvaluator::visitProFile", "Project not prepared");
+    m_functionDefs = other.m_functionDefs;
+    m_valuemapStack = other.m_valuemapStack;
+}
+
 //////// Evaluator tools /////////
 
 uint QMakeEvaluator::getBlockLen(const ushort *&tokPtr)
@@ -858,6 +865,10 @@ void QMakeEvaluator::prepareProject()
 
 void QMakeEvaluator::loadSpec()
 {
+#ifdef PROEVALUATOR_CUMULATIVE
+    m_cumulative = false;
+#endif
+
     QString qmakespec = m_option->expandEnvVars(m_option->qmakespec);
     if (qmakespec.isEmpty())
         qmakespec = QLatin1String("default");
@@ -935,43 +946,28 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 QThreadPool::globalInstance()->reserveThread();
             } else
 #endif
-            if (m_option->base_valuemap.isEmpty()) {
+            if (!m_option->base_eval) {
 #ifdef PROEVALUATOR_THREAD_SAFE
                 m_option->base_inProgress = true;
                 locker.unlock();
 #endif
 
-#ifdef PROEVALUATOR_CUMULATIVE
-                bool cumulative = m_cumulative;
-                m_cumulative = false;
-#endif
-
                 prepareProject();
 
-                loadSpec();
-
-                m_option->base_valuemap = m_valuemapStack.top();
-                m_option->base_functions = m_functionDefs;
-
-#ifdef PROEVALUATOR_CUMULATIVE
-                m_cumulative = cumulative;
-#endif
+                m_option->base_eval = new QMakeEvaluator(m_option, m_parser, m_handler);
+                m_option->base_eval->loadSpec();
 
 #ifdef PROEVALUATOR_THREAD_SAFE
                 locker.relock();
                 m_option->base_inProgress = false;
                 m_option->cond.wakeAll();
 #endif
-                goto fresh;
             }
 #ifdef PROEVALUATOR_THREAD_SAFE
         }
 #endif
 
-        m_valuemapStack.top() = m_option->base_valuemap;
-        m_functionDefs = m_option->base_functions;
-
-      fresh: ;
+        initFrom(*m_option->base_eval);
     }
 
     m_handler->aboutToEval(currentProFile(), pro, type);
@@ -1441,8 +1437,7 @@ bool QMakeEvaluator::modesForGenerator(const QString &gen,
 void QMakeEvaluator::validateModes() const
 {
     if (m_option->target_mode == QMakeGlobals::TARG_UNKNOWN_MODE) {
-        const ProValueMap &vals =
-                m_option->base_valuemap.isEmpty() ? m_valuemapStack[0] : m_option->base_valuemap;
+        const ProValueMap &vals = m_valuemapStack[0];
         QMakeGlobals::TARG_MODE target_mode;
         const ProStringList &gen = vals.value(ProString("MAKEFILE_GENERATOR"));
         if (gen.isEmpty()) {
