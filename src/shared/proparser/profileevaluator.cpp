@@ -32,6 +32,7 @@
 
 #include "profileevaluator.h"
 
+#include "qmakeglobals.h"
 #include "ioutils.h"
 
 #include <QDir>

@@ -105,8 +105,6 @@ QMakeGlobals::QMakeGlobals()
 #endif
     qmakespec = getEnv(QLatin1String("QMAKESPEC"));
 
-    target_mode = TARG_UNKNOWN_MODE;
-
 #ifdef PROEVALUATOR_THREAD_SAFE
     base_inProgress = false;
 #endif
@@ -138,13 +136,8 @@ void QMakeGlobals::setCommandLineArguments(const QStringList &args)
                 isConf = true;
             } else if (arg == QLatin1String("-win32")) {
                 dir_sep = QLatin1Char('\\');
-                target_mode = TARG_WIN_MODE;
             } else if (arg == QLatin1String("-unix")) {
                 dir_sep = QLatin1Char('/');
-                target_mode = TARG_UNIX_MODE;
-            } else if (arg == QLatin1String("-macx")) {
-                dir_sep = QLatin1Char('/');
-                target_mode = TARG_MACX_MODE;
             }
         } else if (arg.contains(QLatin1Char('='))) {
             if (after)

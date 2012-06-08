@@ -45,11 +45,6 @@ struct QMakeStatics {
     QString field_sep;
     QString strtrue;
     QString strfalse;
-    QString strunix;
-    QString strmacx;
-    QString strmac;
-    QString strwin32;
-    QString strsymbian;
     ProString strCONFIG;
     ProString strARGS;
     QString strDot;

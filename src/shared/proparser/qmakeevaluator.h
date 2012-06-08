@@ -34,7 +34,6 @@
 #define QMAKEEVALUATOR_H
 
 #include "qmakeparser.h"
-#include "qmakeglobals.h"
 #include "ioutils.h"
 
 #include <QList>
@@ -42,8 +41,13 @@
 #include <QStack>
 #include <QString>
 #include <QStringList>
+#ifndef QT_BOOTSTRAPPED
+# include <QProcess>
+#endif
 
 QT_BEGIN_NAMESPACE
+
+class QMakeGlobals;
 
 class QMAKE_EXPORT QMakeHandler : public QMakeParserHandler
 {
@@ -154,8 +158,6 @@ public:
     VisitReturn evaluateConditionalFunction(const ProString &function, const ushort *&tokPtr);
     VisitReturn evaluateConditionalFunction(const ProString &function, const ProStringList &args);
 
-    bool modesForGenerator(const QString &gen, QMakeGlobals::TARG_MODE *target_mode) const;
-    void validateModes() const;
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;
 

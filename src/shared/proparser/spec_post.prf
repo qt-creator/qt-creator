@@ -1,0 +1,38 @@
+isEmpty(MAKEFILE_GENERATOR):error("Qmake spec does not set MAKEFILE_GENERATOR.")
+isEmpty(QMAKE_PLATFORM) {
+    isEmpty(TARGET_PLATFORM) {
+        equals(MAKEFILE_GENERATOR, UNIX) {
+            equals(QMAKE_HOST.os, Darwin): \
+                TARGET_PLATFORM = macx
+            else: \
+                TARGET_PLATFORM = unix
+        } else:if(equals(MAKEFILE_GENERATOR, MSVC.NET) \
+                 |equals(MAKEFILE_GENERATOR, BMAKE) \
+                 |equals(MAKEFILE_GENERATOR, MSBUILD) \
+                 |equals(MAKEFILE_GENERATOR, MINGW)) {
+            TARGET_PLATFORM = win32
+        } else:if(equals(MAKEFILE_GENERATOR, PROJECTBUILDER) \
+                 |equals(MAKEFILE_GENERATOR, XCODE)) {
+        } else:equals(MAKEFILE_GENERATOR, GBUILD) {
+            TARGET_PLATFORM = unix
+        } else:if(equals(MAKEFILE_GENERATOR, SYMBIAN_ABLD) \
+                 |equals(MAKEFILE_GENERATOR, SYMBIAN_SBSV2) \
+                 |equals(MAKEFILE_GENERATOR, SYMBIAN_UNIX) \
+                 |equals(MAKEFILE_GENERATOR, SYMBIAN_MINGW)) {
+            TARGET_PLATFORM = symbian
+        } else {
+            error("Qmake spec sets an invalid MAKEFILE_GENERATOR.")
+        }
+    }
+    equals(TARGET_PLATFORM, unix): \
+        QMAKE_PLATFORM = unix
+    else:equals(TARGET_PLATFORM, macx): \
+        QMAKE_PLATFORM = mac macx unix
+    else:equals(TARGET_PLATFORM, win32): \
+        QMAKE_PLATFORM = win32
+    else:equals(TARGET_PLATFORM, symbian): \
+        QMAKE_PLATFORM = symbian unix
+    else: \
+        error("Qmake spec sets an invalid TARGET_PLATFORM.")
+}
+CONFIG += $$QMAKE_PLATFORM

@@ -83,9 +83,6 @@ private:
     QStringList feature_roots;
     QString qmakespec_name;
     QString precmds, postcmds;
-    enum TARG_MODE { TARG_UNKNOWN_MODE, TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE,
-                     TARG_SYMBIAN_MODE };
-    TARG_MODE target_mode;
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutex mutex;
     QWaitCondition cond;

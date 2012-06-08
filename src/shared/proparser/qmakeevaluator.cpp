@@ -83,11 +83,6 @@ void QMakeEvaluator::initStatics()
     statics.field_sep = QLatin1String(" ");
     statics.strtrue = QLatin1String("true");
     statics.strfalse = QLatin1String("false");
-    statics.strunix = QLatin1String("unix");
-    statics.strmacx = QLatin1String("macx");
-    statics.strmac = QLatin1String("mac");
-    statics.strwin32 = QLatin1String("win32");
-    statics.strsymbian = QLatin1String("symbian");
     statics.strCONFIG = ProString("CONFIG");
     statics.strARGS = ProString("ARGS");
     statics.strDot = QLatin1String(".");
@@ -905,6 +900,8 @@ bool QMakeEvaluator::loadSpec()
     m_option->qmakespec_name = IoUtils::fileName(real_spec).toString();
     if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
         return false;
+    // The spec extends the feature search path, so invalidate the cache.
+    m_option->feature_roots.clear();
     if (!m_option->cachefile.isEmpty()
         && !evaluateFileDirect(m_option->cachefile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
@@ -1037,25 +1034,8 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     QString mkspecs_concat = QLatin1String("/mkspecs");
     QString features_concat = QLatin1String("/features");
     QStringList concat;
-
-    validateModes();
-    switch (m_option->target_mode) {
-    case QMakeGlobals::TARG_MACX_MODE:
-        concat << QLatin1String("/features/mac");
-        concat << QLatin1String("/features/macx");
-        concat << QLatin1String("/features/unix");
-        break;
-    default: // Can't happen, just make the compiler shut up
-    case QMakeGlobals::TARG_UNIX_MODE:
-        concat << QLatin1String("/features/unix");
-        break;
-    case QMakeGlobals::TARG_WIN_MODE:
-        concat << QLatin1String("/features/win32");
-        break;
-    case QMakeGlobals::TARG_SYMBIAN_MODE:
-        concat << QLatin1String("/features/symbian");
-        break;
-    }
+    foreach (const ProString &sfx, values(ProString("QMAKE_PLATFORM")))
+        concat << features_concat + QLatin1Char('/') + sfx;
     concat << features_concat;
 
     QStringList feature_roots;
@@ -1411,60 +1391,6 @@ ProStringList QMakeEvaluator::expandVariableReferences(
     return ret;
 }
 
-bool QMakeEvaluator::modesForGenerator(const QString &gen,
-                                       QMakeGlobals::TARG_MODE *target_mode) const
-{
-    if (gen == fL1S("UNIX")) {
-#ifdef Q_OS_MAC
-        *target_mode = QMakeGlobals::TARG_MACX_MODE;
-#else
-        *target_mode = QMakeGlobals::TARG_UNIX_MODE;
-#endif
-    } else if (gen == fL1S("MSVC.NET") || gen == fL1S("BMAKE") || gen == fL1S("MSBUILD")) {
-        *target_mode = QMakeGlobals::TARG_WIN_MODE;
-    } else if (gen == fL1S("MINGW")) {
-        *target_mode = QMakeGlobals::TARG_WIN_MODE;
-    } else if (gen == fL1S("PROJECTBUILDER") || gen == fL1S("XCODE")) {
-        *target_mode = QMakeGlobals::TARG_MACX_MODE;
-    } else if (gen == fL1S("SYMBIAN_ABLD") || gen == fL1S("SYMBIAN_SBSV2")
-               || gen == fL1S("SYMBIAN_UNIX") || gen == fL1S("SYMBIAN_MINGW")) {
-        *target_mode = QMakeGlobals::TARG_SYMBIAN_MODE;
-    } else {
-        evalError(fL1S("Unknown generator specified: %1").arg(gen));
-        return false;
-    }
-    return true;
-}
-
-void QMakeEvaluator::validateModes() const
-{
-    if (m_option->target_mode == QMakeGlobals::TARG_UNKNOWN_MODE) {
-        const ProValueMap &vals = m_valuemapStack[0];
-        QMakeGlobals::TARG_MODE target_mode;
-        const ProStringList &gen = vals.value(ProString("MAKEFILE_GENERATOR"));
-        if (gen.isEmpty()) {
-            evalError(fL1S("Using OS scope before setting MAKEFILE_GENERATOR"));
-        } else if (modesForGenerator(gen.at(0).toQString(), &target_mode)) {
-                const ProStringList &tgt = vals.value(ProString("TARGET_PLATFORM"));
-                if (!tgt.isEmpty()) {
-                    const QString &os = tgt.at(0).toQString();
-                    if (os == statics.strunix)
-                        m_option->target_mode = QMakeGlobals::TARG_UNIX_MODE;
-                    else if (os == statics.strmacx)
-                        m_option->target_mode = QMakeGlobals::TARG_MACX_MODE;
-                    else if (os == statics.strsymbian)
-                        m_option->target_mode = QMakeGlobals::TARG_SYMBIAN_MODE;
-                    else if (os == statics.strwin32)
-                        m_option->target_mode = QMakeGlobals::TARG_WIN_MODE;
-                    else
-                        evalError(fL1S("Unknown target platform specified: %1").arg(os));
-                } else {
-                    m_option->target_mode = target_mode;
-                }
-        }
-    }
-}
-
 bool QMakeEvaluator::isActiveConfig(const QString &config, bool regex)
 {
     // magic types for easy flipping
@@ -1472,22 +1398,6 @@ bool QMakeEvaluator::isActiveConfig(const QString &config, bool regex)
         return true;
     if (config == statics.strfalse)
         return false;
-
-    if (config == statics.strunix) {
-        validateModes();
-        return m_option->target_mode == QMakeGlobals::TARG_UNIX_MODE
-               || m_option->target_mode == QMakeGlobals::TARG_MACX_MODE
-               || m_option->target_mode == QMakeGlobals::TARG_SYMBIAN_MODE;
-    } else if (config == statics.strmacx || config == statics.strmac) {
-        validateModes();
-        return m_option->target_mode == QMakeGlobals::TARG_MACX_MODE;
-    } else if (config == statics.strsymbian) {
-        validateModes();
-        return m_option->target_mode == QMakeGlobals::TARG_SYMBIAN_MODE;
-    } else if (config == statics.strwin32) {
-        validateModes();
-        return m_option->target_mode == QMakeGlobals::TARG_WIN_MODE;
-    }
 
     if (regex && (config.contains(QLatin1Char('*')) || config.contains(QLatin1Char('?')))) {
         QString cfg = config;
@@ -1741,7 +1651,6 @@ ProStringList QMakeEvaluator::values(const ProString &variableName) const
             ret = currentDirectory();
             break;
         case V_DIR_SEPARATOR:
-            validateModes();
             ret = m_option->dir_sep;
             break;
         case V_DIRLIST_SEPARATOR:
