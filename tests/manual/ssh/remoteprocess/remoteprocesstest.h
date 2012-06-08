@@ -51,8 +51,8 @@ public:
 private slots:
     void handleConnectionError();
     void handleProcessStarted();
-    void handleProcessStdout(const QByteArray &output);
-    void handleProcessStderr(const QByteArray &output);
+    void handleProcessStdout();
+    void handleProcessStderr();
     void handleProcessClosed(int exitStatus);
     void handleTimeout();
     void handleReadyRead();

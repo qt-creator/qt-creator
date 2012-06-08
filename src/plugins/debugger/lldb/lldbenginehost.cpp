@@ -70,10 +70,8 @@ SshIODevice::SshIODevice(QSsh::SshRemoteProcessRunner *r)
 {
     setOpenMode(QIODevice::ReadWrite | QIODevice::Unbuffered);
     connect (runner, SIGNAL(processStarted()), this, SLOT(processStarted()));
-    connect(runner, SIGNAL(processOutputAvailable(QByteArray)),
-            this, SLOT(outputAvailable(QByteArray)));
-    connect(runner, SIGNAL(processErrorOutputAvailable(QByteArray)),
-            this, SLOT(errorOutputAvailable(QByteArray)));
+    connect(runner, SIGNAL(readyReadStandardOutput()), this, SLOT(outputAvailable()));
+    connect(runner, SIGNAL(readyReadStandardError()), this, SLOT(errorOutputAvailable()));
 }
 
 SshIODevice::~SshIODevice()
@@ -130,15 +128,15 @@ void SshIODevice::processStarted()
     runner->writeDataToProcess(startupbuffer);
 }
 
-void SshIODevice::outputAvailable(const QByteArray &output)
+void SshIODevice::outputAvailable()
 {
-    buckets.enqueue(output);
+    buckets.enqueue(runner->readAllStandardOutput());
     emit readyRead();
 }
 
-void SshIODevice::errorOutputAvailable(const QByteArray &output)
+void SshIODevice::errorOutputAvailable()
 {
-    fprintf(stderr, "%s", output.data());
+    fprintf(stderr, "%s", runner->readAllStandardError().data());
 }
 
 

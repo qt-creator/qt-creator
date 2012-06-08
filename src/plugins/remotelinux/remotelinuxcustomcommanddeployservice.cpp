@@ -99,10 +99,8 @@ void RemoteLinuxCustomCommandDeployService::doDeploy()
 
     if (!d->runner)
         d->runner = new SshRemoteProcessRunner(this);
-    connect(d->runner, SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(handleStdout(QByteArray)));
-    connect(d->runner, SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SLOT(handleStderr(QByteArray)));
+    connect(d->runner, SIGNAL(readyReadStandardOutput()), SLOT(handleStdout()));
+    connect(d->runner, SIGNAL(readyReadStandardError()), SLOT(handleStderr()));
     connect(d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
 
     emit progressMessage(tr("Starting remote command '%1'...").arg(d->commandLine));
@@ -120,14 +118,14 @@ void RemoteLinuxCustomCommandDeployService::stopDeployment()
     handleDeploymentDone();
 }
 
-void RemoteLinuxCustomCommandDeployService::handleStdout(const QByteArray &output)
+void RemoteLinuxCustomCommandDeployService::handleStdout()
 {
-    emit stdOutData(QString::fromUtf8(output));
+    emit stdOutData(QString::fromUtf8(d->runner->readAllStandardOutput()));
 }
 
-void RemoteLinuxCustomCommandDeployService::handleStderr(const QByteArray &output)
+void RemoteLinuxCustomCommandDeployService::handleStderr()
 {
-    emit stdErrData(QString::fromUtf8(output));
+    emit stdErrData(QString::fromUtf8(d->runner->readAllStandardError()));
 }
 
 void RemoteLinuxCustomCommandDeployService::handleProcessClosed(int exitStatus)

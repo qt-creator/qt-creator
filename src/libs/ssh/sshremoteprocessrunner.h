@@ -65,6 +65,15 @@ public:
     SshRemoteProcess::Signal processExitSignal() const;
     int processExitCode() const;
     QString processErrorString() const;
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
+
+signals:
+    void connectionError();
+    void processStarted();
+    void readyReadStandardOutput();
+    void readyReadStandardError();
+    void processClosed(int exitStatus); // values are of type SshRemoteProcess::ExitStatus
 
 private slots:
     void handleConnected();
@@ -74,13 +83,6 @@ private slots:
     void handleProcessFinished(int exitStatus);
     void handleStdout();
     void handleStderr();
-
-signals:
-    void connectionError();
-    void processStarted();
-    void processOutputAvailable(const QByteArray &output);
-    void processErrorOutputAvailable(const QByteArray &output);
-    void processClosed(int exitStatus); // values are of type SshRemoteProcess::ExitStatus
 
 private:
     void runInternal(const QByteArray &command, const QSsh::SshConnectionParameters &sshParams);

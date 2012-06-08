@@ -66,10 +66,8 @@ void RemoteProcessTest::run()
         SLOT(handleConnectionError()));
     connect(m_remoteRunner, SIGNAL(processStarted()),
         SLOT(handleProcessStarted()));
-    connect(m_remoteRunner, SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(handleProcessStdout(QByteArray)));
-    connect(m_remoteRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SLOT(handleProcessStderr(QByteArray)));
+    connect(m_remoteRunner, SIGNAL(readyReadStandardOutput()), SLOT(handleProcessStdout()));
+    connect(m_remoteRunner, SIGNAL(readyReadStandardError()), SLOT(handleProcessStderr()));
     connect(m_remoteRunner, SIGNAL(processClosed(int)),
         SLOT(handleProcessClosed(int)));
 
@@ -109,7 +107,7 @@ void RemoteProcessTest::handleProcessStarted()
     }
 }
 
-void RemoteProcessTest::handleProcessStdout(const QByteArray &output)
+void RemoteProcessTest::handleProcessStdout()
 {
     if (!m_started) {
         std::cerr << "Error: Remote output from non-started process."
@@ -120,11 +118,11 @@ void RemoteProcessTest::handleProcessStdout(const QByteArray &output)
             << "." << std::endl;
         qApp->quit();
     } else {
-        m_remoteStdout += output;
+        m_remoteStdout += m_remoteRunner->readAllStandardOutput();
     }
 }
 
-void RemoteProcessTest::handleProcessStderr(const QByteArray &output)
+void RemoteProcessTest::handleProcessStderr()
 {
     if (!m_started) {
         std::cerr << "Error: Remote error output from non-started process."
@@ -135,7 +133,7 @@ void RemoteProcessTest::handleProcessStderr(const QByteArray &output)
             << std::endl;
         qApp->quit();
     } else {
-        m_remoteStderr += output;
+        m_remoteStderr += m_remoteRunner->readAllStandardError();
     }
 }
 

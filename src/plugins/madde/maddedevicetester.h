@@ -56,8 +56,6 @@ public:
 private slots:
     void handleGenericTestFinished(RemoteLinux::AbstractLinuxDeviceTester::TestResult result);
     void handleConnectionError();
-    void handleStdout(const QByteArray &data);
-    void handleStderr(const QByteArray &data);
     void handleProcessFinished(int exitStatus);
 
 private:
@@ -75,8 +73,6 @@ private:
     TestResult m_result;
     QSsh::SshRemoteProcessRunner *m_processRunner;
     QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_deviceConfiguration;
-    QByteArray m_stdout;
-    QByteArray m_stderr;
 };
 
 } // namespace Internal

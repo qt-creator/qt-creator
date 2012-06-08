@@ -68,15 +68,11 @@ private slots:
     void handleCurrentDeviceConfigChanged();
 
     void remoteProcessFinished(int exitCode);
-    void remoteOutput(const QByteArray &data);
-    void remoteErrorOutput(const QByteArray &data);
 
 private:
     void setFinished();
 
     bool m_stop;
-    QString m_remoteOutput;
-    QByteArray m_remoteErrorOutput;
     Utils::Environment m_env;
     QSharedPointer<const LinuxDeviceConfiguration> m_devConfig;
     RemoteLinuxRunConfiguration *m_runConfig;

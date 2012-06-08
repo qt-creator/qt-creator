@@ -349,13 +349,14 @@ void StartGdbServerDialog::handleProcessStarted()
     logMessage(tr("Starting gdbserver..."));
 }
 
-void StartGdbServerDialog::handleProcessOutputAvailable(const QByteArray &ba)
+void StartGdbServerDialog::handleProcessOutputAvailable()
 {
-    logMessage(QString::fromUtf8(ba.trimmed()));
+    logMessage(QString::fromUtf8(d->runner.readAllStandardOutput().trimmed()));
 }
 
-void StartGdbServerDialog::handleProcessErrorOutput(const QByteArray &ba)
+void StartGdbServerDialog::handleProcessErrorOutput()
 {
+    const QByteArray ba = d->runner.readAllStandardError();
     logMessage(QString::fromUtf8(ba.trimmed()));
     // "Attached; pid = 16740"
     // "Listening on port 10000"
@@ -397,10 +398,8 @@ void StartGdbServerDialog::startGdbServerOnPort(int port, int pid)
     LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
     connect(&d->runner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(&d->runner, SIGNAL(processStarted()), SLOT(handleProcessStarted()));
-    connect(&d->runner, SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(handleProcessOutputAvailable(QByteArray)));
-    connect(&d->runner, SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SLOT(handleProcessErrorOutput(QByteArray)));
+    connect(&d->runner, SIGNAL(readyReadStandardOutput()), SLOT(handleProcessOutputAvailable()));
+    connect(&d->runner, SIGNAL(readyReadStandardError()), SLOT(handleProcessErrorOutput()));
     connect(&d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
 
     QByteArray cmd = "/usr/bin/gdbserver --attach :"

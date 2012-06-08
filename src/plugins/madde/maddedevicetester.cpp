@@ -110,10 +110,6 @@ void MaddeDeviceTester::handleGenericTestFinished(TestResult result)
     if (!m_processRunner)
         m_processRunner = new SshRemoteProcessRunner(this);
     connect(m_processRunner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(m_processRunner, SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(handleStdout(QByteArray)));
-    connect(m_processRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SLOT(handleStderr(QByteArray)));
     connect(m_processRunner, SIGNAL(processClosed(int)), SLOT(handleProcessFinished(int)));
 
     QString qtInfoCmd;
@@ -125,8 +121,6 @@ void MaddeDeviceTester::handleGenericTestFinished(TestResult result)
     }
 
     emit progressMessage(tr("Checking for Qt libraries..."));
-    m_stdout.clear();
-    m_stderr.clear();
     m_state = QtTest;
     m_processRunner->run(qtInfoCmd.toUtf8(), m_deviceConfiguration->sshParameters());
 }
@@ -139,22 +133,6 @@ void MaddeDeviceTester::handleConnectionError()
         .arg(m_processRunner->lastConnectionErrorString()));
     m_result = TestFailure;
     setFinished();
-}
-
-void MaddeDeviceTester::handleStdout(const QByteArray &data)
-{
-    QTC_ASSERT(m_state == QtTest || m_state == MadDeveloperTest || m_state == QmlToolingTest,
-        return);
-
-    m_stdout += data;
-}
-
-void MaddeDeviceTester::handleStderr(const QByteArray &data)
-{
-    QTC_ASSERT(m_state == QtTest || m_state == MadDeveloperTest || m_state == QmlToolingTest,
-        return);
-
-    m_stderr += data;
 }
 
 void MaddeDeviceTester::handleProcessFinished(int exitStatus)
@@ -178,9 +156,10 @@ void MaddeDeviceTester::handleQtTestFinished(int exitStatus)
 {
     if (exitStatus != SshRemoteProcess::NormalExit
             || m_processRunner->processExitCode() != 0) {
-        if (!m_stderr.isEmpty()) {
+        const QByteArray stdErr = m_processRunner->readAllStandardError();
+        if (!stdErr.isEmpty()) {
             emit errorMessage(tr("Error checking for Qt libraries: %1\n")
-                .arg(QString::fromUtf8(m_stderr)));
+                .arg(QString::fromUtf8(stdErr)));
         } else {
             emit errorMessage(tr("Error checking for Qt libraries.\n"));
         }
@@ -189,9 +168,6 @@ void MaddeDeviceTester::handleQtTestFinished(int exitStatus)
     } else {
         emit progressMessage(processedQtLibsList());
     }
-
-    m_stdout.clear();
-    m_stderr.clear();
 
     emit progressMessage(tr("Checking for connectivity support..."));
     m_state = MadDeveloperTest;
@@ -202,9 +178,10 @@ void MaddeDeviceTester::handleQtTestFinished(int exitStatus)
 void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
 {
     if (exitStatus != SshRemoteProcess::NormalExit) {
-        if (!m_stderr.isEmpty()) {
+        const QByteArray stdErr = m_processRunner->readAllStandardError();
+        if (!stdErr.isEmpty()) {
             emit errorMessage(tr("Error checking for connectivity tool: %1\n")
-                .arg(QString::fromUtf8(m_stderr)));
+                .arg(QString::fromUtf8(stdErr)));
         } else {
             emit errorMessage(tr("Error checking for connectivity tool.\n"));
         }
@@ -227,9 +204,6 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
         return;
     }
 
-    m_stdout.clear();
-    m_stderr.clear();
-
     emit progressMessage(tr("Checking for QML tooling support..."));
     m_state = QmlToolingTest;
     m_processRunner->run(QString(QLatin1String("test -d ")
@@ -239,9 +213,10 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
 void MaddeDeviceTester::handleQmlToolingTestFinished(int exitStatus)
 {
     if (exitStatus != SshRemoteProcess::NormalExit) {
-        if (!m_stderr.isEmpty()) {
+        const QByteArray stdErr = m_processRunner->readAllStandardError();
+        if (!stdErr.isEmpty()) {
             emit errorMessage(tr("Error checking for QML tooling support: %1\n")
-                .arg(QString::fromUtf8(m_stderr)));
+                .arg(QString::fromUtf8(stdErr)));
         } else {
             emit errorMessage(tr("Error checking for QML tooling support.\n"));
         }
@@ -259,7 +234,7 @@ void MaddeDeviceTester::handleQmlToolingTestFinished(int exitStatus)
 
 QString MaddeDeviceTester::processedQtLibsList()
 {
-    QString unfilteredLibs = QString::fromUtf8(m_stdout);
+    QString unfilteredLibs = QString::fromUtf8(m_processRunner->readAllStandardOutput());
     QString filteredLibs;
     QString patternString;
     if (m_deviceConfiguration->type() == Core::Id(MeeGoOsType))

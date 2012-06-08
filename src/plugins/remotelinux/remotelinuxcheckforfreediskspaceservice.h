@@ -48,8 +48,7 @@ public:
     void setRequiredSpaceInBytes(quint64 sizeInBytes);
 
 private slots:
-    void handleStdOut(const QByteArray &output);
-    void handleStdErr(const QByteArray &output);
+    void handleStdErr();
     void handleProcessFinished();
 
 private:

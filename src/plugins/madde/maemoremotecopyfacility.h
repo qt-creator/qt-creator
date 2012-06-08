@@ -74,8 +74,8 @@ signals:
 private slots:
     void handleConnectionError();
     void handleCopyFinished(int exitStatus);
-    void handleRemoteStdout(const QByteArray &output);
-    void handleRemoteStderr(const QByteArray &output);
+    void handleRemoteStdout();
+    void handleRemoteStderr();
 
 private:
     void copyNextFile();

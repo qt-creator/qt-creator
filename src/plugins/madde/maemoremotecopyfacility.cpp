@@ -66,10 +66,8 @@ void MaemoRemoteCopyFacility::copyFiles(SshConnection *connection,
     if (!m_copyRunner)
         m_copyRunner = new SshRemoteProcessRunner(this);
     connect(m_copyRunner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(m_copyRunner, SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(handleRemoteStdout(QByteArray)));
-    connect(m_copyRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SLOT(handleRemoteStderr(QByteArray)));
+    connect(m_copyRunner, SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdout()));
+    connect(m_copyRunner, SIGNAL(readyReadStandardError()), SLOT(handleRemoteStderr()));
     connect(m_copyRunner, SIGNAL(processClosed(int)), SLOT(handleCopyFinished(int)));
 
     m_isCopying = true;
@@ -92,14 +90,14 @@ void MaemoRemoteCopyFacility::handleConnectionError()
     emit finished(tr("Connection failed: %1").arg(m_copyRunner->lastConnectionErrorString()));
 }
 
-void MaemoRemoteCopyFacility::handleRemoteStdout(const QByteArray &output)
+void MaemoRemoteCopyFacility::handleRemoteStdout()
 {
-    emit stdoutData(QString::fromUtf8(output));
+    emit stdoutData(QString::fromUtf8(m_copyRunner->readAllStandardOutput()));
 }
 
-void MaemoRemoteCopyFacility::handleRemoteStderr(const QByteArray &output)
+void MaemoRemoteCopyFacility::handleRemoteStderr()
 {
-    emit stderrData(QString::fromUtf8(output));
+    emit stderrData(QString::fromUtf8(m_copyRunner->readAllStandardError()));
 }
 
 void MaemoRemoteCopyFacility::handleCopyFinished(int exitStatus)

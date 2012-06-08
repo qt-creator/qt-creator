@@ -67,8 +67,8 @@ protected:
 private slots:
     void handleConnectionError();
     void handleInstallationFinished(int exitStatus);
-    void handleInstallerOutput(const QByteArray &output);
-    void handleInstallerErrorOutput(const QByteArray &output);
+    void handleInstallerOutput();
+    void handleInstallerErrorOutput();
 
 private:
     virtual QString installCommandLine(const QString &packageFilePath) const = 0;

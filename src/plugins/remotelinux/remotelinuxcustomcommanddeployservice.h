@@ -59,8 +59,8 @@ protected:
     void stopDeployment();
 
 private slots:
-    void handleStdout(const QByteArray &output);
-    void handleStderr(const QByteArray &output);
+    void handleStdout();
+    void handleStderr();
     void handleProcessClosed(int exitStatus);
 
 private:

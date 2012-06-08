@@ -396,8 +396,7 @@ void MaemoPublisherFremantleFree::uploadPackage()
     connect(m_uploader, SIGNAL(processStarted()), SLOT(handleScpStarted()));
     connect(m_uploader, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(m_uploader, SIGNAL(processClosed(int)), SLOT(handleUploadJobFinished(int)));
-    connect(m_uploader, SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(handleScpStdOut(QByteArray)));
+    connect(m_uploader, SIGNAL(readyReadStandardOutput()), SLOT(handleScpStdOut()));
     emit progressReport(tr("Starting scp..."));
     setState(StartingScp);
     m_uploader->run("scp -td " + m_remoteDir.toUtf8(), m_sshParams);
@@ -488,7 +487,7 @@ void MaemoPublisherFremantleFree::sendFile()
     m_uploader->writeDataToProcess(QByteArray(1, '\0'));
 }
 
-void MaemoPublisherFremantleFree::handleScpStdOut(const QByteArray &output)
+void MaemoPublisherFremantleFree::handleScpStdOut()
 {
     QTC_ASSERT(m_state == PreparingToUploadFile || m_state == UploadingFile || m_state == Inactive,
         return);
@@ -496,7 +495,7 @@ void MaemoPublisherFremantleFree::handleScpStdOut(const QByteArray &output)
     if (m_state == Inactive)
         return;
 
-    m_scpOutput += output;
+    m_scpOutput += m_uploader->readAllStandardOutput();
     if (m_scpOutput == QByteArray(1, '\0')) {
         m_scpOutput.clear();
         switch (m_state) {

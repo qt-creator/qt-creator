@@ -56,8 +56,8 @@ public:
     virtual qint64 readData (char * data, qint64 maxSize);
 private slots:
     void processStarted();
-    void outputAvailable(const QByteArray &output);
-    void errorOutputAvailable(const QByteArray &output);
+    void outputAvailable();
+    void errorOutputAvailable();
 private:
     QSsh::SshRemoteProcessRunner *runner;
     QSsh::SshRemoteProcess::Ptr proc;

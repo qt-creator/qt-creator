@@ -67,8 +67,8 @@ private slots:
     void portListReady();
 
     void handleProcessClosed(int);
-    void handleProcessErrorOutput(const QByteArray &data);
-    void handleProcessOutputAvailable(const QByteArray &data);
+    void handleProcessErrorOutput();
+    void handleProcessOutputAvailable();
     void handleProcessStarted();
     void handleConnectionError();
 

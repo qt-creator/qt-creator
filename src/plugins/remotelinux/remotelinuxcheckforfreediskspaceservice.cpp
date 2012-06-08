@@ -46,7 +46,6 @@ public:
     QString pathToCheck;
     quint64 requiredSpaceInBytes;
     QSsh::SshRemoteProcessRunner *processRunner;
-    QByteArray processOutput;
 };
 } // namespace Internal
 
@@ -74,14 +73,9 @@ void RemoteLinuxCheckForFreeDiskSpaceService::setRequiredSpaceInBytes(quint64 si
     d->requiredSpaceInBytes = sizeInBytes;
 }
 
-void RemoteLinuxCheckForFreeDiskSpaceService::handleStdOut(const QByteArray &output)
+void RemoteLinuxCheckForFreeDiskSpaceService::handleStdErr()
 {
-    d->processOutput += output;
-}
-
-void RemoteLinuxCheckForFreeDiskSpaceService::handleStdErr(const QByteArray &output)
-{
-    emit stdErrData(QString::fromUtf8(output));
+    emit stdErrData(QString::fromUtf8(d->processRunner->readAllStandardError()));
 }
 
 void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
@@ -100,11 +94,12 @@ void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
     }
 
     bool isNumber;
-    d->processOutput.chop(1); // newline
-    quint64 freeSpace = d->processOutput.toULongLong(&isNumber);
+    QByteArray processOutput = d->processRunner->readAllStandardOutput();
+    processOutput.chop(1); // newline
+    quint64 freeSpace = processOutput.toULongLong(&isNumber);
     if (!isNumber) {
         emit errorMessage(tr("Unexpected output from remote process: '%1'.")
-                .arg(QString::fromUtf8(d->processOutput)));
+                .arg(QString::fromUtf8(processOutput)));
         stopDeployment();
         return;
     }
@@ -140,10 +135,7 @@ void RemoteLinuxCheckForFreeDiskSpaceService::doDeploy()
 {
     d->processRunner = new QSsh::SshRemoteProcessRunner;
     connect(d->processRunner, SIGNAL(processClosed(int)), SLOT(handleProcessFinished()));
-    connect(d->processRunner, SIGNAL(processOutputAvailable(QByteArray)),
-            SLOT(handleStdOut(QByteArray)));
-    connect(d->processRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
-            SLOT(handleStdErr(QByteArray)));
+    connect(d->processRunner, SIGNAL(readyReadStandardError()), SLOT(handleStdErr()));
     const QString command = QString::fromLocal8Bit("df -k -P %1 |tail -n 1 |sed 's/  */ /g' "
             "|cut -d ' ' -f 4").arg(d->pathToCheck);
     d->processRunner->run(command.toUtf8(), deviceConfiguration()->sshParameters());
@@ -163,7 +155,6 @@ void RemoteLinuxCheckForFreeDiskSpaceService::cleanup()
         delete d->processRunner;
         d->processRunner = 0;
     }
-    d->processOutput.clear();
 }
 
 } // namespace RemoteLinux

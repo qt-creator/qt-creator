@@ -63,13 +63,8 @@ void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
         m_remoteProcessRunner = new QSsh::SshRemoteProcessRunner(this);
     connect(m_remoteProcessRunner, SIGNAL(connectionError()), SLOT(handleConnectionFailure()));
     connect(m_remoteProcessRunner, SIGNAL(processClosed(int)), SLOT(remoteProcessFinished(int)));
-    connect(m_remoteProcessRunner, SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(remoteOutput(QByteArray)));
-    connect(m_remoteProcessRunner, SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SLOT(remoteErrorOutput(QByteArray)));
     const QByteArray remoteCall
         = QString(environmentSetupCommand + QLatin1String("; env")).toUtf8();
-    m_remoteOutput.clear();
     m_remoteProcessRunner->run(remoteCall, m_devConfig->sshParameters());
 }
 
@@ -112,30 +107,20 @@ void RemoteLinuxEnvironmentReader::remoteProcessFinished(int exitCode)
     disconnect(m_remoteProcessRunner, 0, this, 0);
     m_env.clear();
     if (exitCode == QSsh::SshRemoteProcess::NormalExit) {
-        if (!m_remoteOutput.isEmpty()) {
-            m_env = Utils::Environment(m_remoteOutput.split(QLatin1Char('\n'),
+        QString remoteOutput = QString::fromUtf8(m_remoteProcessRunner->readAllStandardOutput());
+        if (!remoteOutput.isEmpty()) {
+            m_env = Utils::Environment(remoteOutput.split(QLatin1Char('\n'),
                 QString::SkipEmptyParts));
         }
     } else {
         QString errorMsg = tr("Error running remote process: %1")
             .arg(m_remoteProcessRunner->processErrorString());
-        if (!m_remoteErrorOutput.isEmpty()) {
-            errorMsg += tr("\nRemote stderr was: '%1'")
-                .arg(QString::fromUtf8(m_remoteErrorOutput));
-        }
+        QString remoteStderr = m_remoteProcessRunner->readAllStandardError();
+        if (!remoteStderr.isEmpty())
+            errorMsg += tr("\nRemote stderr was: '%1'").arg(remoteStderr);
         emit error(errorMsg);
     }
     setFinished();
-}
-
-void RemoteLinuxEnvironmentReader::remoteOutput(const QByteArray &data)
-{
-    m_remoteOutput.append(QString::fromUtf8(data));
-}
-
-void RemoteLinuxEnvironmentReader::remoteErrorOutput(const QByteArray &data)
-{
-    m_remoteErrorOutput += data;
 }
 
 void RemoteLinuxEnvironmentReader::setFinished()

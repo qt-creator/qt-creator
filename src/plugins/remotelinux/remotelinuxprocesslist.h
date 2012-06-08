@@ -78,8 +78,6 @@ protected:
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
 
 private slots:
-    void handleRemoteStdOut(const QByteArray &output);
-    void handleRemoteStdErr(const QByteArray &output);
     void handleConnectionError();
     void handleRemoteProcessFinished(int exitStatus);
 

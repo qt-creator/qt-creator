@@ -76,10 +76,8 @@ void AbstractRemoteLinuxPackageInstaller::installPackage(const LinuxDeviceConfig
     if (!d->installer)
         d->installer = new SshRemoteProcessRunner(this);
     connect(d->installer, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(d->installer, SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(handleInstallerOutput(QByteArray)));
-    connect(d->installer, SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SLOT(handleInstallerErrorOutput(QByteArray)));
+    connect(d->installer, SIGNAL(readyReadStandardOutput()), SLOT(handleInstallerOutput()));
+    connect(d->installer, SIGNAL(readyReadStandardError()), SLOT(handleInstallerErrorOutput()));
     connect(d->installer, SIGNAL(processClosed(int)), SLOT(handleInstallationFinished(int)));
 
     QString cmdLine = installCommandLine(packageFilePath);
@@ -123,14 +121,14 @@ void AbstractRemoteLinuxPackageInstaller::handleInstallationFinished(int exitSta
     setFinished();
 }
 
-void AbstractRemoteLinuxPackageInstaller::handleInstallerOutput(const QByteArray &output)
+void AbstractRemoteLinuxPackageInstaller::handleInstallerOutput()
 {
-    emit stdoutData(QString::fromUtf8(output));
+    emit stdoutData(QString::fromUtf8(d->installer->readAllStandardOutput()));
 }
 
-void AbstractRemoteLinuxPackageInstaller::handleInstallerErrorOutput(const QByteArray &output)
+void AbstractRemoteLinuxPackageInstaller::handleInstallerErrorOutput()
 {
-    emit stderrData(QString::fromUtf8(output));
+    emit stderrData(QString::fromUtf8(d->installer->readAllStandardError()));
 }
 
 void AbstractRemoteLinuxPackageInstaller::setFinished()

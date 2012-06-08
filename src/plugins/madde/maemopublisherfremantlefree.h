@@ -87,7 +87,7 @@ private slots:
     void handleScpStarted();
     void handleConnectionError();
     void handleUploadJobFinished(int exitStatus);
-    void handleScpStdOut(const QByteArray &output);
+    void handleScpStdOut();
 
 private:
     enum State {

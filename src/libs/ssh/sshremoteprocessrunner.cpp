@@ -62,6 +62,8 @@ public:
     QString m_lastConnectionErrorString;
     SshRemoteProcess::ExitStatus m_exitStatus;
     SshRemoteProcess::Signal m_exitSignal;
+    QByteArray m_stdout;
+    QByteArray m_stderr;
     int m_exitCode;
     QString m_processErrorString;
     State m_state;
@@ -187,12 +189,14 @@ void SshRemoteProcessRunner::handleProcessFinished(int exitStatus)
 
 void SshRemoteProcessRunner::handleStdout()
 {
-    emit processOutputAvailable(d->m_process->readAllStandardOutput());
+    d->m_stdout += d->m_process->readAllStandardOutput();
+    emit readyReadStandardOutput();
 }
 
 void SshRemoteProcessRunner::handleStderr()
 {
-    emit processErrorOutputAvailable(d->m_process->readAllStandardError());
+    d->m_stderr += d->m_process->readAllStandardError();
+    emit readyReadStandardError();
 }
 
 void SshRemoteProcessRunner::setState(int newState)
@@ -247,6 +251,20 @@ int SshRemoteProcessRunner::processExitCode() const
 QString SshRemoteProcessRunner::processErrorString() const
 {
     return d->m_processErrorString;
+}
+
+QByteArray SshRemoteProcessRunner::readAllStandardOutput()
+{
+    const QByteArray data = d->m_stdout;
+    d->m_stdout.clear();
+    return data;
+}
+
+QByteArray SshRemoteProcessRunner::readAllStandardError()
+{
+    const QByteArray data = d->m_stderr;
+    d->m_stderr.clear();
+    return data;
 }
 
 void SshRemoteProcessRunner::writeDataToProcess(const QByteArray &data)

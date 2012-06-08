@@ -67,8 +67,6 @@ public:
     const LinuxDeviceConfiguration::ConstPtr deviceConfiguration;
     SshRemoteProcessRunner process;
     QList<RemoteProcess> remoteProcesses;
-    QByteArray remoteStdout;
-    QByteArray remoteStderr;
     QString errorMsg;
     State state;
 };
@@ -152,18 +150,6 @@ QVariant AbstractRemoteLinuxProcessList::data(const QModelIndex &index, int role
     return QVariant();
 }
 
-void AbstractRemoteLinuxProcessList::handleRemoteStdOut(const QByteArray &output)
-{
-    if (d->state == Listing)
-        d->remoteStdout += output;
-}
-
-void AbstractRemoteLinuxProcessList::handleRemoteStdErr(const QByteArray &output)
-{
-    if (d->state != Inactive)
-        d->remoteStderr += output;
-}
-
 void AbstractRemoteLinuxProcessList::handleConnectionError()
 {
     QTC_ASSERT(d->state != Inactive, return);
@@ -192,8 +178,9 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
         if (d->process.processExitCode() == 0) {
             if (d->state == Listing) {
                 beginResetModel();
-                QList<RemoteProcess> processes = buildProcessList(QString::fromUtf8(d->remoteStdout.data(),
-                    d->remoteStdout.count()));
+                const QByteArray remoteStdout = d->process.readAllStandardOutput();
+                QList<RemoteProcess> processes = buildProcessList(QString::fromUtf8(remoteStdout.data(),
+                    remoteStdout.count()));
                 if (!processes.isEmpty()) {
                     beginInsertRows(QModelIndex(), 0, processes.count()-1);
                     d->remoteProcesses = processes;
@@ -212,8 +199,9 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
         emit processListUpdated();
 
     if (!d->errorMsg.isEmpty()) {
-        if (!d->remoteStderr.isEmpty())
-            d->errorMsg += tr("\nRemote stderr was: %1").arg(QString::fromUtf8(d->remoteStderr));
+        const QByteArray remoteStderr = d->process.readAllStandardError();
+        if (!remoteStderr.isEmpty())
+            d->errorMsg += tr("\nRemote stderr was: %1").arg(QString::fromUtf8(remoteStderr));
         emit error(d->errorMsg);
     } else if (d->state == Killing) {
         emit processKilled();
@@ -225,14 +213,8 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
 void AbstractRemoteLinuxProcessList::startProcess(const QString &cmdLine)
 {
     connect(&d->process, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(&d->process, SIGNAL(processOutputAvailable(QByteArray)),
-        SLOT(handleRemoteStdOut(QByteArray)));
-    connect(&d->process, SIGNAL(processErrorOutputAvailable(QByteArray)),
-        SLOT(handleRemoteStdErr(QByteArray)));
     connect(&d->process, SIGNAL(processClosed(int)),
         SLOT(handleRemoteProcessFinished(int)));
-    d->remoteStdout.clear();
-    d->remoteStderr.clear();
     d->errorMsg.clear();
     d->process.run(cmdLine.toUtf8(), d->deviceConfiguration->sshParameters());
 }
