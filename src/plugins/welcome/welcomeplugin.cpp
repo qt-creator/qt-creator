@@ -119,7 +119,6 @@ signals:
 
 private slots:
     void welcomePluginAdded(QObject*);
-    void modeChanged(Core::IMode*);
 
 private:
     void facilitateQml(QDeclarativeEngine *engine);
@@ -166,8 +165,6 @@ WelcomeMode::WelcomeMode() :
     m_welcomePage->setMinimumHeight(548);
     PluginManager *pluginManager = PluginManager::instance();
     connect(pluginManager, SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
-
-    connect(Core::ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)), SLOT(modeChanged(Core::IMode*)));
 
     setWidget(m_modeWidget);
 }
@@ -326,22 +323,6 @@ void WelcomeMode::openProject()
 {
     ProjectExplorer::ProjectExplorerPlugin::instance()->openOpenProjectDialog();
 }
-
-void WelcomeMode::modeChanged(Core::IMode *mode)
-{
-    Q_UNUSED(mode)
-
-// Eike doesn't like this, but I do...
-
-//    ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
-//    Core::EditorManager *editorManager = Core::ICore::editorManager();
-//    if (mode->id() == id() && (!projectExplorer->currentProject() && editorManager->openedEditors().isEmpty()))
-//        ModeManager::setModeBarHidden(true);
-//    else
-//        ModeManager::setModeBarHidden(false);
-}
-
-//
 
 WelcomePlugin::WelcomePlugin()
   : m_welcomeMode(0)
