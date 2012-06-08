@@ -76,8 +76,6 @@ GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
 
 GenericLinuxDeviceTester::~GenericLinuxDeviceTester()
 {
-    if (d->connection)
-        d->connection->deleteLater();
     delete d;
 }
 
@@ -86,7 +84,7 @@ void GenericLinuxDeviceTester::testDevice(const LinuxDeviceConfiguration::ConstP
     QTC_ASSERT(d->state == Inactive, return);
 
     d->deviceConfiguration = deviceConfiguration;
-    d->connection = new SshConnection(deviceConfiguration->sshParameters());
+    d->connection = new SshConnection(deviceConfiguration->sshParameters(), this);
     connect(d->connection, SIGNAL(connected()), SLOT(handleConnected()));
     connect(d->connection, SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionFailure()));

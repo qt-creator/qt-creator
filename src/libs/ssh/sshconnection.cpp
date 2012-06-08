@@ -107,7 +107,8 @@ bool operator!=(const SshConnectionParameters &p1, const SshConnectionParameters
 
 // TODO: Mechanism for checking the host key. First connection to host: save, later: compare
 
-SshConnection::SshConnection(const SshConnectionParameters &serverInfo)
+SshConnection::SshConnection(const SshConnectionParameters &serverInfo, QObject *parent)
+    : QObject(parent)
 {
     doStaticInitializationsIfNecessary();
 

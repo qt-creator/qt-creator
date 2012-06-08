@@ -167,8 +167,6 @@ RemoteValgrindProcess::RemoteValgrindProcess(QSsh::SshConnection *connection, QO
 
 RemoteValgrindProcess::~RemoteValgrindProcess()
 {
-    if (m_connection)
-        m_connection->deleteLater();
 }
 
 bool RemoteValgrindProcess::isRunning() const
@@ -186,7 +184,7 @@ void RemoteValgrindProcess::run(const QString &valgrindExecutable, const QString
 
     // connect to host and wait for connection
     if (!m_connection)
-        m_connection = new QSsh::SshConnection(m_params);
+        m_connection = new QSsh::SshConnection(m_params, this);
 
     if (m_connection->state() != QSsh::SshConnection::Connected) {
         connect(m_connection, SIGNAL(connected()), this, SLOT(connected()));
