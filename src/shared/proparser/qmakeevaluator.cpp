@@ -898,14 +898,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 if (qmakespec.isEmpty())
                     qmakespec = QLatin1String("default");
                 if (IoUtils::isRelativePath(qmakespec)) {
-                    if (IoUtils::exists(currentDirectory() + QLatin1Char('/') + qmakespec
-                                        + QLatin1String("/qmake.conf"))) {
-                        qmakespec = currentDirectory() + QLatin1Char('/') + qmakespec;
-                    } else if (!m_outputDir.isEmpty()
-                               && IoUtils::exists(m_outputDir + QLatin1Char('/') + qmakespec
-                                                  + QLatin1String("/qmake.conf"))) {
-                        qmakespec = m_outputDir + QLatin1Char('/') + qmakespec;
-                    } else {
                         foreach (const QString &root, qmakeMkspecPaths()) {
                             QString mkspec = root + QLatin1Char('/') + qmakespec;
                             if (IoUtils::exists(mkspec)) {
@@ -917,7 +909,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                         // Unlike in qmake, a missing config is not critical ...
                         qmakespec.clear();
                       cool: ;
-                    }
                 }
 
                 if (!qmakespec.isEmpty()) {
