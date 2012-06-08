@@ -889,8 +889,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
     if (!m_cumulative && !pro->isOk())
         return ReturnFalse;
 
-    m_handler->aboutToEval(currentProFile(), pro, type);
-    m_profileStack.push(pro);
     if (flags & LoadPreFiles) {
 #ifdef PROEVALUATOR_THREAD_SAFE
         {
@@ -967,7 +965,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         m_valuemapStack.top() = m_option->base_valuemap;
         m_functionDefs = m_option->base_functions;
 
-      fresh:
+      fresh: ;
+    }
+
+    m_handler->aboutToEval(currentProFile(), pro, type);
+    m_profileStack.push(pro);
+    if (flags & LoadPreFiles) {
         evaluateFeatureFile(QLatin1String("default_pre.prf"));
 
         ProStringList &tgt = m_valuemapStack.top()[ProString("TARGET")];
