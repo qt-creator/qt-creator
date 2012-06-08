@@ -879,7 +879,9 @@ void QmlInspectorAgent::clearObjectTree()
     m_debugIdToIname.clear();
     m_debugIdChildIds.clear();
     m_objectStack.clear();
-    m_newObjectsCreated = false;
+    // reset only for 5.x.
+    if (m_engineClient->objectName() == QmlDebug::Constants::QML_DEBUGGER)
+        m_newObjectsCreated = false;
 
     removeAllObjectWatches();
 }
