@@ -649,12 +649,13 @@ void Lexer::scanUntilQuote(Token *tok, unsigned char quote)
     assert(quote == '"' || quote == '\'');
 
     const char *yytext = _currentChar;
-    while (_yychar && _yychar != quote) {
+    while (_yychar
+           && _yychar != quote
+           && _yychar != '\n') {
         if (_yychar != '\\')
             yyinp();
         else {
             yyinp(); // skip `\\'
-
             if (_yychar)
                 yyinp();
         }
