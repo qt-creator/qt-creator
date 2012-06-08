@@ -95,7 +95,16 @@ void CoreGdbAdapter::continueAdapterStart()
     if (m_executable.isEmpty()) {
         // Read executable from core.
         ElfReader reader(coreFileName());
-        m_executable = reader.readCoreName();
+        bool isCore = false;
+        m_executable = reader.readCoreName(&isCore);
+
+        if (!isCore) {
+            showMessageBox(QMessageBox::Warning,
+                tr("Error Loading Core File"),
+                tr("The specified file does not appear to be a core file."));
+            m_engine->notifyEngineSetupFailed();
+            return;
+        }
 
         // Strip off command line arguments. FIXME: make robust.
         int idx = m_executable.indexOf(QLatin1Char(' '));
@@ -104,7 +113,7 @@ void CoreGdbAdapter::continueAdapterStart()
         if (m_executable.isEmpty()) {
             showMessageBox(QMessageBox::Warning,
                 tr("Error Loading Symbols"),
-                tr("No executable to load symbols from specified."));
+                tr("No executable to load symbols from specified core."));
             m_engine->notifyEngineSetupFailed();
             return;
         }

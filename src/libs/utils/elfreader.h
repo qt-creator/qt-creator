@@ -50,6 +50,47 @@
 
 namespace Utils {
 
+enum ElfProgramHeaderType
+{
+    Elf_PT_NULL    = 0,
+    Elf_PT_LOAD    = 1,
+    Elf_PT_DYNAMIC = 2,
+    Elf_PT_INTERP  = 3,
+    Elf_PT_NOTE    = 4,
+    Elf_PT_SHLIB   = 5,
+    Elf_PT_PHDR    = 6,
+    Elf_PT_TLS     = 7,
+    Elf_PT_NUM     = 8
+};
+
+enum ElfEndian
+{
+    ElfLittleEndian = 0,
+    ElfBigEndian = 1
+};
+
+enum ElfClass
+{
+    Elf_ELFCLASS32 = 1,
+    Elf_ELFCLASS64 = 2
+};
+
+enum ElfType
+{
+    Elf_ET_NONE = 0,
+    Elf_ET_REL  = 1,
+    Elf_ET_EXEC = 2,
+    Elf_ET_DYN  = 3,
+    Elf_ET_CORE = 4
+};
+
+enum ElfMachine
+{
+    Elf_EM_386    =  3,
+    Elf_EM_ARM    = 40,
+    Elf_EM_X86_64 = 62
+};
+
 enum DebugSymbolsType
 {
     UnknownSymbols   = 0,    // Unknown.
@@ -87,6 +128,10 @@ public:
     int indexOf(const QByteArray &name) const;
 
 public:
+    ElfEndian  endian;
+    ElfType    elftype;
+    ElfMachine elfmachine;
+    ElfClass   elfclass;
     QByteArray debugLink;
     QByteArray buildId;
     DebugSymbolsType symbolsType;
@@ -100,11 +145,10 @@ public:
     explicit ElfReader(const QString &binary);
     enum Result { Ok, NotElf, Corrupt };
 
-    enum ElfEndian { ElfLittleEndian = 0, ElfBigEndian = 1 };
     ElfData readHeaders();
     QByteArray readSection(const QByteArray &sectionName);
     QString errorString() const { return m_errorString; }
-    QByteArray readCoreName();
+    QByteArray readCoreName(bool *isCore);
 
 private:
     friend class ElfMapper;
@@ -112,7 +156,6 @@ private:
 
     QString m_binary;
     QString m_errorString;
-    ElfEndian m_endian;
     ElfData m_elfData;
 };
 

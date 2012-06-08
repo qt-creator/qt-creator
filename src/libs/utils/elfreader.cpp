@@ -53,23 +53,11 @@ typedef quint32  qelfword_t;
 typedef quintptr qelfoff_t;
 typedef quintptr qelfaddr_t;
 
-enum {
-    PT_NULL    = 0,
-    PT_LOAD    = 1,
-    PT_DYNAMIC = 2,
-    PT_INTERP  = 3,
-    PT_NOTE    = 4,
-    PT_SHLIB   = 5,
-    PT_PHDR    = 6,
-    PT_TLS     = 7,
-    PT_NUM     = 8
-};
-
 
 template <typename T>
-T get(const unsigned char *s, ElfReader::ElfEndian endian)
+T get(const unsigned char *s, ElfEndian endian)
 {
-    if (endian == ElfReader::ElfBigEndian)
+    if (endian == ElfBigEndian)
         return qFromBigEndian<T>(s);
     else
         return qFromLittleEndian<T>(s);
@@ -85,7 +73,7 @@ public:
     qelfoff_t  size;
 };
 
-static void parseSectionHeader(const uchar *data, RawElfSectionHeader *sh, ElfReader::ElfEndian endian)
+static void parseSectionHeader(const uchar *data, RawElfSectionHeader *sh, ElfEndian endian)
 {
     sh->name = get<qelfword_t>(data, endian);
     data += sizeof(qelfword_t); // sh_name
@@ -109,7 +97,7 @@ public:
     qelfword_t memsz;
 };
 
-static void parseProgramHeader(const uchar *data, RawElfProgramHeader *sh, ElfReader::ElfEndian endian)
+static void parseProgramHeader(const uchar *data, RawElfProgramHeader *sh, ElfEndian endian)
 {
     sh->type = get<qelfword_t>(data, endian);
     data += sizeof(qelfword_t); // p_type
@@ -134,11 +122,11 @@ public:
             return false;
 
         fdlen = file.size();
-        start = file.map(0, fdlen);
-        if (start == 0) {
+        ustart = file.map(0, fdlen);
+        if (ustart == 0) {
             // Try reading the data into memory instead.
             raw = file.readAll();
-            start = (uchar *)raw.constData();
+            start = raw.constData();
             fdlen = raw.size();
         }
         return true;
@@ -147,7 +135,7 @@ public:
 public:
     QFile file;
     QByteArray raw;
-    uchar *start;
+    union { const char *start; const uchar *ustart; };
     quint64 fdlen;
 };
 
@@ -181,7 +169,7 @@ ElfReader::Result ElfReader::readIt()
         return NotElf;
     }
 
-    const uchar *data = mapper.start;
+    const uchar *data = mapper.ustart;
     if (strncmp((const char *)data, "\177ELF", 4) != 0) {
         m_errorString = QLibrary::tr("'%1' is not an ELF object")
                 .arg(m_binary);
@@ -194,6 +182,7 @@ ElfReader::Result ElfReader::readIt()
             .arg(m_binary).arg(QLatin1String("odd cpu architecture"));
         return Corrupt;
     }
+    m_elfData.elfclass = (data[4] == 1 ? Elf_ELFCLASS32 : Elf_ELFCLASS64);
 
     // int bits = (data[4] << 5);
     // If you remove this check to read ELF objects of a different arch,
@@ -213,22 +202,26 @@ ElfReader::Result ElfReader::readIt()
             .arg(m_binary).arg(QLatin1String("odd endianess"));
         return Corrupt;
     }
-    m_endian = (data[5] == 1 ? ElfLittleEndian : ElfBigEndian);
+    m_elfData.endian = (data[5] == 1 ? ElfLittleEndian : ElfBigEndian);
 
-    data += 16                  // e_ident
-         +  sizeof(qelfhalf_t)  // e_type
-         +  sizeof(qelfhalf_t)  // e_machine
-         +  sizeof(qelfword_t)  // e_version
-         +  sizeof(qelfaddr_t); // e_entry
+    data += 16;                 // e_ident
+    m_elfData.elftype = ElfType(get<qelfhalf_t>(data, m_elfData.endian));
+    data += sizeof(qelfhalf_t); // e_type
 
-    qelfoff_t e_phoff = get<qelfoff_t>(data, m_endian);
+    m_elfData.elfmachine = ElfMachine(get<qelfhalf_t>(data, m_elfData.endian));
+    data += sizeof(qelfhalf_t); // e_machine
+
+    data += sizeof(qelfword_t); // e_version
+    data += sizeof(qelfaddr_t); // e_entry
+
+    qelfoff_t e_phoff = get<qelfoff_t>(data, m_elfData.endian);
     data += sizeof(qelfoff_t);  // e_phoff
 
-    qelfoff_t e_shoff = get<qelfoff_t>(data, m_endian);
-    data += sizeof(qelfoff_t)    // e_shoff
-         +  sizeof(qelfword_t);  // e_flags
+    qelfoff_t e_shoff = get<qelfoff_t>(data, m_elfData.endian);
+    data += sizeof(qelfoff_t);  // e_shoff
+    data += sizeof(qelfword_t); // e_flags
 
-    qelfhalf_t e_shsize = get<qelfhalf_t>(data, m_endian);
+    qelfhalf_t e_shsize = get<qelfhalf_t>(data, m_elfData.endian);
     data += sizeof(qelfhalf_t); // e_ehsize
 
     if (e_shsize > fdlen) {
@@ -237,13 +230,13 @@ ElfReader::Result ElfReader::readIt()
         return Corrupt;
     }
 
-    qelfhalf_t e_phentsize = get<qelfhalf_t>(data, m_endian);
+    qelfhalf_t e_phentsize = get<qelfhalf_t>(data, m_elfData.endian);
     data += sizeof(qelfhalf_t); // e_phentsize
 
-    qelfhalf_t e_phnum = get<qelfhalf_t>(data, m_endian);
+    qelfhalf_t e_phnum = get<qelfhalf_t>(data, m_elfData.endian);
     data += sizeof(qelfhalf_t); // e_phnum
 
-    qelfhalf_t e_shentsize = get<qelfhalf_t>(data, m_endian);
+    qelfhalf_t e_shentsize = get<qelfhalf_t>(data, m_elfData.endian);
     data += sizeof(qelfhalf_t); // e_shentsize
 
     if (e_shentsize % 4) {
@@ -252,9 +245,9 @@ ElfReader::Result ElfReader::readIt()
         return Corrupt;
     }
 
-    qelfhalf_t e_shnum     = get<qelfhalf_t>(data, m_endian);
+    qelfhalf_t e_shnum     = get<qelfhalf_t>(data, m_elfData.endian);
     data += sizeof(qelfhalf_t); // e_shnum
-    qelfhalf_t e_shtrndx   = get<qelfhalf_t>(data, m_endian);
+    qelfhalf_t e_shtrndx   = get<qelfhalf_t>(data, m_elfData.endian);
     data += sizeof(qelfhalf_t); // e_shtrndx
 
     if (quint32(e_shnum * e_shentsize) > fdlen) {
@@ -265,7 +258,6 @@ ElfReader::Result ElfReader::readIt()
         return Corrupt;
     }
 
-    RawElfSectionHeader strtab;
     qulonglong soff = e_shoff + e_shentsize * (e_shtrndx);
 
 //    if ((soff + e_shentsize) > fdlen || soff % 4 || soff == 0) {
@@ -277,7 +269,8 @@ ElfReader::Result ElfReader::readIt()
 //    }
 
     if (e_shoff) {
-        parseSectionHeader(mapper.start + soff, &strtab, m_endian);
+        RawElfSectionHeader strtab;
+        parseSectionHeader(mapper.ustart + soff, &strtab, m_elfData.endian);
         const int stringTableFileOffset = strtab.offset;
 
         if (quint32(stringTableFileOffset + e_shentsize) >= fdlen
@@ -289,10 +282,10 @@ ElfReader::Result ElfReader::readIt()
             return Corrupt;
         }
 
-        const uchar *s = mapper.start + e_shoff;
+        const uchar *s = mapper.ustart + e_shoff;
         for (int i = 0; i < e_shnum; ++i) {
             RawElfSectionHeader sh;
-            parseSectionHeader(s, &sh, m_endian);
+            parseSectionHeader(s, &sh, m_elfData.endian);
             if (sh.name == 0) {
                 s += e_shentsize;
                 continue;
@@ -307,7 +300,7 @@ ElfReader::Result ElfReader::readIt()
             }
 
             ElfSectionHeader header;
-            header.name = ((const char *)mapper.start) + stringTableFileOffset + sh.name;
+            header.name = mapper.start + stringTableFileOffset + sh.name;
             header.index = sh.name;
             header.offset = sh.offset;
             header.size = sh.size;
@@ -317,14 +310,13 @@ ElfReader::Result ElfReader::readIt()
             } else if (header.name == ".debug_info") {
                 m_elfData.symbolsType = PlainSymbols;
             } else if (header.name == ".gnu_debuglink") {
-                m_elfData.debugLink = QByteArray((const char *)mapper.start
-                        + header.offset);
+                m_elfData.debugLink = QByteArray(mapper.start + header.offset);
                 m_elfData.symbolsType = LinkedSymbols;
             } else if (header.name == ".note.gnu.build-id") {
                 m_elfData.symbolsType = BuildIdSymbols;
                 if (header.size > 16)
-                    m_elfData.buildId = QByteArray((const char *)mapper.start
-                        + header.offset + 16, header.size - 16).toHex();
+                    m_elfData.buildId = QByteArray(mapper.start + header.offset + 16,
+                                                   header.size - 16).toHex();
             }
             m_elfData.sectionHeaders.append(header);
 
@@ -333,11 +325,11 @@ ElfReader::Result ElfReader::readIt()
     }
 
     if (e_phoff) {
-        const uchar *s = mapper.start + e_phoff;
+        const uchar *s = mapper.ustart + e_phoff;
 
         for (int i = 0; i < e_phnum; ++i) {
             RawElfProgramHeader ph;
-            parseProgramHeader(s, &ph, m_endian);
+            parseProgramHeader(s, &ph, m_elfData.endian);
 
             ElfProgramHeader header;
             header.type = ph.type;
@@ -364,27 +356,37 @@ QByteArray ElfReader::readSection(const QByteArray &name)
         return QByteArray();
 
     const ElfSectionHeader &section = m_elfData.sectionHeaders.at(i);
-    return QByteArray((const char *)mapper.start + section.offset, section.size);
+    return QByteArray((const char *)mapper.ustart + section.offset, section.size);
 }
 
-QByteArray ElfReader::readCoreName()
+QByteArray ElfReader::readCoreName(bool *isCore)
 {
+    *isCore = false;
+
     readIt();
 
     ElfMapper mapper(this);
     if (!mapper.map())
         return QByteArray();
 
+    *isCore = (m_elfData.elftype == Elf_ET_CORE);
+    if (!*isCore)
+        return QByteArray();
+
     for (int i = 0, n = m_elfData.sectionHeaders.size(); i != n; ++i)
-        if (m_elfData.sectionHeaders.at(i).type == PT_NOTE) {
+        if (m_elfData.sectionHeaders.at(i).type == Elf_PT_NOTE) {
             const ElfSectionHeader &header = m_elfData.sectionHeaders.at(i);
-            return QByteArray((const char *)mapper.start + header.offset + 0x40);
+            const char *s = mapper.start + header.offset + 0x30; // short name
+            const char *t = s + strlen(s) + 1; // command line
+            int n = strlen(t);
+            return QByteArray(t, n);
         }
 
     for (int i = 0, n = m_elfData.programHeaders.size(); i != n; ++i)
-        if (m_elfData.programHeaders.at(i).type == PT_NOTE) {
+        if (m_elfData.programHeaders.at(i).type == Elf_PT_NOTE) {
             const ElfProgramHeader &header = m_elfData.programHeaders.at(i);
-            QByteArray ba((const char *)mapper.start + header.offset + 0xec);
+            const char *s = mapper.start + header.offset;
+            QByteArray ba(s + 0xec);
             return ba;
         }
 
