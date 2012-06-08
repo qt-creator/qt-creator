@@ -98,7 +98,7 @@ static void parseSectionHeader(const uchar *s, ElfSectionHeader *sh, const ElfDa
 {
     sh->index = getWord(s, context);
     sh->type = getWord(s, context);
-    sh->flags = getWord(s, context);
+    sh->flags = getOffset(s, context);
     sh->addr = getAddress(s, context);
     sh->offset = getOffset(s, context);
     sh->size = getOffset(s, context);
