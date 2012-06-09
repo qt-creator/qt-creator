@@ -1907,6 +1907,8 @@ void DebuggerPluginPrivate::toggleBreakpointByFileAndLine(const QString &fileNam
         handler->removeBreakpoint(id);
     } else {
         BreakpointParameters data(BreakpointByFileAndLine);
+        if (debuggerCore()->boolSetting(BreakpointsFullPathByDefault))
+            data.pathUsage = BreakpointUseFullPath;
         data.tracepoint = !tracePointMessage.isEmpty();
         data.message = tracePointMessage;
         data.fileName = fileName;
