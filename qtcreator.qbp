@@ -74,6 +74,7 @@ Project {
         "src/plugins/vcsbase/vcsbase.qbs",
         "src/plugins/welcome/welcome.qbs",
         "src/tools/mdnssd/mdnssd.qbs"
+        "src/tools/qtpromaker/qtpromaker.qbs"
     ]
 
     Product {
