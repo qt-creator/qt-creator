@@ -30,6 +30,7 @@ Project {
         "src/libs/zeroconf/zeroconf.qbs",
         "src/plugins/analyzerbase/analyzerbase.qbs",
         "src/plugins/android/android.qbs",
+        "src/plugins/autotoolsprojectmanager/autotoolsprojectmanager.qbs",
         "src/plugins/bazaar/bazaar.qbs",
         "src/plugins/bineditor/bineditor.qbs",
         "src/plugins/bookmarks/bookmarks.qbs",
