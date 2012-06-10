@@ -53,7 +53,7 @@
 #include <windows.h>
 #include <psapi.h>
 
-#include "app_version.h"
+#include <app/app_version.h>
 
 using namespace RegistryAccess;
 
