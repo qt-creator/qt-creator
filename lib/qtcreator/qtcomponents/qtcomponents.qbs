@@ -42,21 +42,23 @@ Product {
     Group {
         qbs.installDir: "lib/qtcreator/qtcomponents/custom"
         fileTags: ["install"]
+        prefix: "custom/"
         files: [
-            "custom/BasicButton.qml",
-            "custom/Button.qml",
-            "custom/ButtonColumn.qml",
-            "custom/ButtonGroup.js",
-            "custom/ButtonRow.qml",
-            "custom/CheckBox.qml",
-            "custom/ChoiceList.qml",
-            "custom/GroupBox.qml",
-            "custom/ProgressBar.qml",
-            "custom/Slider.qml",
-            "custom/SpinBox.qml",
-            "custom/SplitterRow.qml",
-            "custom/TextField.qml",
-            "custom/qmldir",
+            "BasicButton.qml",
+            "Button.qml",
+            "ButtonColumn.qml",
+            "ButtonGroup.js",
+            "ButtonRow.qml",
+            "CheckBox.qml",
+            "ChoiceList.qml",
+            "components.pro",
+            "GroupBox.qml",
+            "ProgressBar.qml",
+            "Slider.qml",
+            "SpinBox.qml",
+            "SplitterRow.qml",
+            "TextField.qml",
+            "qmldir",
         ]
     }
 
