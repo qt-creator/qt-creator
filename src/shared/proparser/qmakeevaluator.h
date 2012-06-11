@@ -64,6 +64,14 @@ public:
 class QMAKE_EXPORT QMakeEvaluator
 {
 public:
+    enum LoadFlag {
+        LoadProOnly = 0,
+        LoadPreFiles = 1,
+        LoadPostFiles = 2,
+        LoadAll = LoadPreFiles|LoadPostFiles
+    };
+    Q_DECLARE_FLAGS(LoadFlags, LoadFlag)
+
     static void initStatics();
     static void initFunctionStatics();
     QMakeEvaluator(QMakeGlobals *option, QMakeParser *parser,
@@ -95,7 +103,7 @@ public:
 
     void visitCmdLine(const QString &cmds);
     VisitReturn visitProFile(ProFile *pro, QMakeEvaluatorHandler::EvalFileType type,
-                             ProFileEvaluator::LoadFlags flags);
+                             LoadFlags flags);
     VisitReturn visitProBlock(ProFile *pro, const ushort *tokPtr);
     VisitReturn visitProBlock(const ushort *tokPtr);
     VisitReturn visitProLoop(const ProString &variable, const ushort *exprPtr,
@@ -119,9 +127,9 @@ public:
         { return ProFileEvaluatorInternal::IoUtils::resolvePath(currentDirectory(), fileName); }
 
     bool evaluateFileDirect(const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
-                            ProFileEvaluator::LoadFlags flags);
+                            LoadFlags flags);
     bool evaluateFile(const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
-                      ProFileEvaluator::LoadFlags flags);
+                      LoadFlags flags);
     bool evaluateFeatureFile(const QString &fileName);
     enum EvalIntoMode { EvalProOnly, EvalWithDefaults, EvalWithSetup };
     bool evaluateFileInto(const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
@@ -206,6 +214,8 @@ public:
         V__DATE_, V__QMAKE_CACHE_
     };
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QMakeEvaluator::LoadFlags)
 
 QT_END_NAMESPACE
 

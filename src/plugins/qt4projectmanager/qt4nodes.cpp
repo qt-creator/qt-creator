@@ -1690,9 +1690,9 @@ Qt4ProFileNode::EvalResult Qt4ProFileNode::evaluate()
 {
     EvalResult evalResult = EvalOk;
     if (ProFile *pro = m_readerExact->parsedProFile(m_projectFilePath)) {
-        if (!m_readerExact->accept(pro, ProFileEvaluator::LoadAll))
+        if (!m_readerExact->accept(pro, QMakeEvaluator::LoadAll))
             evalResult = EvalPartial;
-        if (!m_readerCumulative->accept(pro, ProFileEvaluator::LoadPreFiles))
+        if (!m_readerCumulative->accept(pro, QMakeEvaluator::LoadPreFiles))
             evalResult = EvalFail;
         pro->deref();
     } else {

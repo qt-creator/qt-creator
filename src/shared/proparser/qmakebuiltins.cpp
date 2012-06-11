@@ -30,12 +30,11 @@
 **
 **************************************************************************/
 
-#include "profileevaluator.h"
+#include "qmakeevaluator.h"
 
+#include "qmakeevaluator_p.h"
 #include "qmakeglobals.h"
 #include "qmakeparser.h"
-#include "qmakeevaluator.h"
-#include "qmakeevaluator_p.h"
 #include "ioutils.h"
 
 #include <QByteArray>
@@ -992,8 +991,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         fn.detach();
         bool ok;
         if (parseInto.isEmpty()) {
-            ok = evaluateFile(fn, QMakeEvaluatorHandler::EvalIncludeFile,
-                              ProFileEvaluator::LoadProOnly);
+            ok = evaluateFile(fn, QMakeEvaluatorHandler::EvalIncludeFile, LoadProOnly);
         } else {
             QHash<ProString, ProStringList> symbols;
             if ((ok = evaluateFileInto(fn, QMakeEvaluatorHandler::EvalAuxFile,

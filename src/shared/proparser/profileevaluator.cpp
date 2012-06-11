@@ -32,7 +32,6 @@
 
 #include "profileevaluator.h"
 
-#include "qmakeevaluator.h"
 #include "ioutils.h"
 
 #include <QDir>
@@ -186,7 +185,7 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
     return TT_Unknown;
 }
 
-bool ProFileEvaluator::accept(ProFile *pro, LoadFlags flags)
+bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
 {
     return d->visitProFile(pro, QMakeEvaluatorHandler::EvalProjectFile, flags) == QMakeEvaluator::ReturnTrue;
 }

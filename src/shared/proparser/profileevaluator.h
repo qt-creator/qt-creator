@@ -34,6 +34,7 @@
 #define PROFILEEVALUATOR_H
 
 #include "qmake_global.h"
+#include "qmakeevaluator.h"
 #include "proitems.h"
 
 #include <QHash>
@@ -70,14 +71,7 @@ public:
 #endif
     void setOutputDir(const QString &dir); // Default is empty
 
-    enum LoadFlag {
-        LoadProOnly = 0,
-        LoadPreFiles = 1,
-        LoadPostFiles = 2,
-        LoadAll = LoadPreFiles|LoadPostFiles
-    };
-    Q_DECLARE_FLAGS(LoadFlags, LoadFlag)
-    bool accept(ProFile *pro, LoadFlags flags = LoadAll);
+    bool accept(ProFile *pro, QMakeEvaluator::LoadFlags flags = QMakeEvaluator::LoadAll);
 
     bool contains(const QString &variableName) const;
     QString value(const QString &variableName) const;
@@ -96,8 +90,6 @@ private:
 
     friend class QMakeEvaluator;
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(ProFileEvaluator::LoadFlags)
 
 QT_END_NAMESPACE
 

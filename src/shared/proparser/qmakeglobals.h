@@ -36,8 +36,6 @@
 #include "qmake_global.h"
 #include "proitems.h"
 
-#include "profileevaluator.h"
-
 #include <QHash>
 #include <QStringList>
 #ifndef QT_BOOTSTRAPPED
@@ -95,7 +93,6 @@ private:
     bool base_inProgress;
 #endif
 
-    friend class ProFileEvaluator;
     friend class QMakeEvaluator;
 };
 

@@ -84,7 +84,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     ProFileEvaluator evaluator(&globals, &parser, &msgHandler);
     if (ProFile *pro = parser.parsedProFile(mkspec.toString() + QLatin1String("/qmake.conf"))) {
         evaluator.setCumulative(false);
-        evaluator.accept(pro, ProFileEvaluator::LoadProOnly);
+        evaluator.accept(pro, QMakeEvaluator::LoadProOnly);
         pro->deref();
     }
 

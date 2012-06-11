@@ -145,7 +145,7 @@ void S60PublisherOvi::completeCreation()
     //m_reader->setCumulative(false); // todo need to reenable that, after fixing parsing for symbian scopes
 
     ProFile *profile = m_reader->parsedProFile(m_qt4project->rootProjectNode()->path());
-    m_reader->accept(profile, ProFileEvaluator::LoadProOnly);
+    m_reader->accept(profile, QMakeEvaluator::LoadProOnly);
     profile->deref();
 
     // set up process for creating the resulting SIS files

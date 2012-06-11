@@ -32,6 +32,7 @@
 
 #include "qmakeevaluator.h"
 
+#include "profileevaluator.h"
 #include "qmakeglobals.h"
 #include "qmakeparser.h"
 #include "qmakeevaluator_p.h"
@@ -847,15 +848,14 @@ void QMakeEvaluator::visitCmdLine(const QString &cmds)
 }
 
 QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
-        ProFile *pro, QMakeEvaluatorHandler::EvalFileType type,
-        ProFileEvaluator::LoadFlags flags)
+        ProFile *pro, QMakeEvaluatorHandler::EvalFileType type, LoadFlags flags)
 {
     if (!m_cumulative && !pro->isOk())
         return ReturnFalse;
 
     m_handler->aboutToEval(currentProFile(), pro, type);
     m_profileStack.push(pro);
-    if (flags & ProFileEvaluator::LoadPreFiles) {
+    if (flags & LoadPreFiles) {
 #ifdef PROEVALUATOR_THREAD_SAFE
         {
             QMutexLocker locker(&m_option->mutex);
@@ -953,14 +953,13 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
                     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
-                    if (!evaluateFileDirect(spec, QMakeEvaluatorHandler::EvalConfigFile,
-                                            ProFileEvaluator::LoadProOnly)) {
+                    if (!evaluateFileDirect(spec,
+                                            QMakeEvaluatorHandler::EvalConfigFile, LoadProOnly)) {
                         m_handler->configError(
                                 fL1S("Could not read qmake configuration file %1").arg(spec));
                     } else if (!m_option->cachefile.isEmpty()) {
                         evaluateFileDirect(m_option->cachefile,
-                                           QMakeEvaluatorHandler::EvalConfigFile,
-                                           ProFileEvaluator::LoadProOnly);
+                                           QMakeEvaluatorHandler::EvalConfigFile, LoadProOnly);
                     }
                     m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
                     if (m_option->qmakespec_name == QLatin1String("default")) {
@@ -1016,7 +1015,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
     visitProBlock(pro, pro->tokPtr());
 
-    if (flags & ProFileEvaluator::LoadPostFiles) {
+    if (flags & LoadPostFiles) {
         visitCmdLine(m_option->postcmds);
 
         evaluateFeatureFile(QLatin1String("default_post.prf"));
@@ -1926,8 +1925,7 @@ ProStringList QMakeEvaluator::values(const ProString &variableName) const
 }
 
 bool QMakeEvaluator::evaluateFileDirect(
-        const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
-        ProFileEvaluator::LoadFlags flags)
+        const QString &fileName, QMakeEvaluatorHandler::EvalFileType type, LoadFlags flags)
 {
     if (ProFile *pro = m_parser->parsedProFile(fileName, true)) {
         m_locationStack.push(m_current);
@@ -1941,8 +1939,7 @@ bool QMakeEvaluator::evaluateFileDirect(
 }
 
 bool QMakeEvaluator::evaluateFile(
-        const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
-        ProFileEvaluator::LoadFlags flags)
+        const QString &fileName, QMakeEvaluatorHandler::EvalFileType type, LoadFlags flags)
 {
     if (fileName.isEmpty())
         return false;
@@ -1999,8 +1996,7 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
 #endif
 
     // The path is fully normalized already.
-    bool ok = evaluateFileDirect(fn, QMakeEvaluatorHandler::EvalFeatureFile,
-                                 ProFileEvaluator::LoadProOnly);
+    bool ok = evaluateFileDirect(fn, QMakeEvaluatorHandler::EvalFeatureFile, LoadProOnly);
 
 #ifdef PROEVALUATOR_CUMULATIVE
     m_cumulative = cumulative;
@@ -2023,7 +2019,7 @@ bool QMakeEvaluator::evaluateFileInto(
     if (mode == EvalWithDefaults)
         visitor.d->evaluateFeatureFile(QLatin1String("default_pre.prf"));
     if (!visitor.d->evaluateFile(fileName, type,
-            (mode == EvalWithSetup) ? ProFileEvaluator::LoadAll : ProFileEvaluator::LoadProOnly))
+            (mode == EvalWithSetup) ? LoadAll : LoadProOnly))
         return false;
     *values = visitor.d->m_valuemapStack.top();
 //    if (funcs)
