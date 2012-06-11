@@ -85,12 +85,14 @@ public slots:
     void toggle() { toggle(true); }
     void toggle(bool withFocusIfShown) { emit togglePage(withFocusIfShown); }
     void navigateStateChanged() { emit navigateStateUpdate(); }
+    void flash() { emit flashButton(); }
 
 signals:
     void showPage(bool withFocus, bool ensureSizeHint);
     void hidePage();
     void togglePage(bool withFocusIfShown);
     void navigateStateUpdate();
+    void flashButton();
 };
 
 } // namespace Core

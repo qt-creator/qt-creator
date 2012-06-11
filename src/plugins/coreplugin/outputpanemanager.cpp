@@ -67,6 +67,7 @@
 #include <QStyle>
 #include <QStackedWidget>
 #include <QToolButton>
+#include <QTimeLine>
 
 namespace Core {
 namespace Internal {
@@ -261,6 +262,7 @@ void OutputPaneManager::init()
         connect(outPane, SIGNAL(hidePage()), this, SLOT(slotHide()));
         connect(outPane, SIGNAL(togglePage(bool)), this, SLOT(togglePage(bool)));
         connect(outPane, SIGNAL(navigateStateUpdate()), this, SLOT(updateNavigateState()));
+        connect(outPane, SIGNAL(flashButton()), this, SLOT(flashButton()));
 
         QWidget *toolButtonsContainer = new QWidget(m_opToolBarWidgets);
         QHBoxLayout *toolButtonsLayout = new QHBoxLayout;
@@ -286,8 +288,8 @@ void OutputPaneManager::init()
         m_ids.append(id);
 
         cmd->setDefaultKeySequence(QKeySequence(paneShortCut(shortcutNumber)));
-        QToolButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->displayName(),
-                                                         cmd->action());
+        OutputPaneToggleButton *button = new OutputPaneToggleButton(shortcutNumber, outPane->displayName(),
+                                                                    cmd->action());
         ++shortcutNumber;
         m_buttonsWidget->layout()->addWidget(button);
         m_buttons.append(button);
@@ -351,7 +353,7 @@ void OutputPaneManager::slotMinMax()
 
 void OutputPaneManager::buttonTriggered()
 {
-    QToolButton *button = qobject_cast<QToolButton *>(sender());
+    OutputPaneToggleButton *button = qobject_cast<OutputPaneToggleButton *>(sender());
     buttonTriggered(m_buttons.indexOf(button));
 }
 
@@ -441,6 +443,14 @@ void OutputPaneManager::updateNavigateState()
         m_prevAction->setEnabled(pane->canNavigate() && pane->canPrevious());
         m_nextAction->setEnabled(pane->canNavigate() && pane->canNext());
     }
+}
+
+void OutputPaneManager::flashButton()
+{
+    IOutputPane* pane = qobject_cast<IOutputPane*>(sender());
+    int idx = findIndexForPage(pane);
+    if (pane)
+        m_buttons.value(idx)->flash();
 }
 
 // Slot connected to showPage signal of each page
@@ -592,6 +602,7 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     , m_number(QString::number(number))
     , m_text(text)
     , m_action(action)
+    , m_flashTimer(new QTimeLine(1000, this))
 {
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
@@ -600,6 +611,12 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     setStyleSheet(buttonStyleSheet());
     if (m_action)
         connect(m_action, SIGNAL(changed()), this, SLOT(updateToolTip()));
+
+    m_flashTimer->setDirection(QTimeLine::Forward);
+    m_flashTimer->setCurveShape(QTimeLine::SineCurve);
+    m_flashTimer->setFrameRange(0, 92);
+    connect(m_flashTimer, SIGNAL(valueChanged(qreal)), this, SLOT(update()));
+    connect(m_flashTimer, SIGNAL(finished()), this, SLOT(update()));
 }
 
 void OutputPaneToggleButton::updateToolTip()
@@ -631,6 +648,10 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent *event)
     const int numberWidth = fm.width(m_number);
 
     QPainter p(this);
+    if (m_flashTimer->state() == QTimeLine::Running) {
+        p.setPen(Qt::transparent);
+        p.fillRect(rect().adjusted(19, 1, -1, -1), QBrush(QColor(255,0,0, m_flashTimer->currentFrame())));
+    }
     p.setFont(font());
     p.setPen(Qt::white);
     p.drawText((20 - numberWidth) / 2, baseLine, m_number);
@@ -638,6 +659,24 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent *event)
         p.setPen(Qt::black);
     int leftPart = 22;
     p.drawText(leftPart, baseLine, fm.elidedText(m_text, Qt::ElideRight, width() - leftPart - 1));
+}
+
+void OutputPaneToggleButton::checkStateSet()
+{
+    //Stop flashing when button is checked
+    QToolButton::checkStateSet();
+    m_flashTimer->stop();
+}
+
+void OutputPaneToggleButton::flash(int count)
+{
+    //Start flashing if button is not checked
+    if (!isChecked()) {
+        m_flashTimer->setLoopCount(count);
+        if (m_flashTimer->state() != QTimeLine::Running)
+            m_flashTimer->start();
+        update();
+    }
 }
 
 

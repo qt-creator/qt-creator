@@ -44,6 +44,7 @@ class QComboBox;
 class QLabel;
 class QSplitter;
 class QStackedWidget;
+class QTimeLine;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -53,6 +54,7 @@ class IOutputPane;
 namespace Internal {
 
 class MainWindow;
+class OutputPaneToggleButton;
 class OutputPaneManageButton;
 
 class OutputPaneManager : public QWidget
@@ -85,6 +87,7 @@ private slots:
     void updateNavigateState();
     void popupMenu();
     void saveSettings() const;
+    void flashButton();
 
 private:
     // the only class that is allowed to create and destroy
@@ -121,7 +124,7 @@ private:
     QWidget *m_toolBar;
 
     QList<IOutputPane *> m_panes;
-    QVector<QToolButton *> m_buttons;
+    QVector<OutputPaneToggleButton *> m_buttons;
     QVector<QAction *> m_actions;
     QVector<Id> m_ids;
 
@@ -141,14 +144,18 @@ public:
                            QWidget *parent = 0);
     QSize sizeHint() const;
     void paintEvent(QPaintEvent *event);
+    void flash(int count = 3);
 
 private slots:
     void updateToolTip();
 
 private:
+    void checkStateSet();
+
     QString m_number;
     QString m_text;
     QAction *m_action;
+    QTimeLine *m_flashTimer;
 };
 
 class OutputPaneManageButton : public QToolButton
