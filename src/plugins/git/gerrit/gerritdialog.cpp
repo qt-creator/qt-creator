@@ -60,6 +60,38 @@ namespace Internal {
 static const int layoutSpacing  = 5;
 static const int maxTitleWidth = 350;
 
+QueryValidatingLineEdit::QueryValidatingLineEdit(QWidget *parent)
+    : Utils::FilterLineEdit(parent)
+    , m_valid(true)
+    , m_okTextColor(palette().color(QPalette::Active, QPalette::Text))
+    , m_errorTextColor(Qt::red)
+{
+    connect(this, SIGNAL(textChanged(QString)), this, SLOT(setValid()));
+}
+
+void QueryValidatingLineEdit::setTextColor(const QColor &c)
+{
+    QPalette pal = palette();
+    pal.setColor(QPalette::Active, QPalette::Text, c);
+    setPalette(pal);
+}
+
+void QueryValidatingLineEdit::setValid()
+{
+    if (!m_valid) {
+        m_valid = true;
+        setTextColor(m_okTextColor);
+    }
+}
+
+void QueryValidatingLineEdit::setInvalid()
+{
+    if (m_valid) {
+        m_valid = false;
+        setTextColor(m_errorTextColor);
+    }
+}
+
 GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
                            QWidget *parent)
     : QDialog(parent)
@@ -68,6 +100,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_model(new GerritModel(p, this))
     , m_treeView(new QTreeView)
     , m_detailsBrowser(new QTextBrowser)
+    , m_queryLineEdit(new QueryValidatingLineEdit)
     , m_filterLineEdit(new Utils::FilterLineEdit)
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Close))
 {
@@ -78,11 +111,20 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     QVBoxLayout *changesLayout = new QVBoxLayout(changesGroup);
     changesLayout->setMargin(layoutSpacing);
     QHBoxLayout *filterLayout = new QHBoxLayout;
+    QLabel *queryLabel = new QLabel(tr("&Query:"));
+    queryLabel->setBuddy(m_queryLineEdit);
+    m_queryLineEdit->setFixedWidth(400);
+    m_queryLineEdit->setPlaceholderText(tr("Change #, SHA-1, tr:id, owner:email or reviewer:email"));
+    filterLayout->addWidget(queryLabel);
+    filterLayout->addWidget(m_queryLineEdit);
     filterLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
     m_filterLineEdit->setFixedWidth(300);
     filterLayout->addWidget(m_filterLineEdit);
     connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
             m_filterModel, SLOT(setFilterFixedString(QString)));
+    connect(m_queryLineEdit, SIGNAL(returnPressed()),
+            this, SLOT(slotRefresh()));
+    connect(m_model, SIGNAL(queryError()), m_queryLineEdit, SLOT(setInvalid()));
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     changesLayout->addLayout(filterLayout);
     changesLayout->addWidget(m_treeView);
@@ -130,9 +172,10 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     mainLayout->addWidget(m_buttonBox);
 
     slotCurrentChanged();
-    m_model->refresh();
+    slotRefresh();
 
     resize(QSize(950, 600));
+    m_treeView->setFocus();
 }
 
 QPushButton *GerritDialog::addActionButton(const QString &text, const char *buttonSlot)
@@ -182,7 +225,7 @@ void GerritDialog::slotFetchCheckout()
 
 void GerritDialog::slotRefresh()
 {
-    m_model->refresh();
+    m_model->refresh(m_queryLineEdit->text());
 }
 
 const QStandardItem *GerritDialog::itemAt(const QModelIndex &i, int column) const

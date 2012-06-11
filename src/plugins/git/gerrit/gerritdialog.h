@@ -33,6 +33,8 @@
 #ifndef GERRIT_INTERNAL_GERRITDIALOG_H
 #define GERRIT_INTERNAL_GERRITDIALOG_H
 
+#include <utils/filterlineedit.h>
+
 #include <QDialog>
 #include <QSharedPointer>
 
@@ -47,14 +49,29 @@ class QDialogButtonBox;
 class QTextBrowser;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FilterLineEdit;
-}
 namespace Gerrit {
 namespace Internal {
 class GerritParameters;
 class GerritModel;
 class GerritChange;
+
+class QueryValidatingLineEdit : public Utils::FilterLineEdit
+{
+    Q_OBJECT
+
+public:
+    explicit QueryValidatingLineEdit(QWidget *parent = 0);
+    void setTextColor(const QColor &c);
+
+public slots:
+    void setValid();
+    void setInvalid();
+
+private:
+    bool m_valid;
+    const QColor m_okTextColor;
+    const QColor m_errorTextColor;
+};
 
 class GerritDialog : public QDialog
 {
@@ -88,6 +105,7 @@ private:
     GerritModel *m_model;
     QTreeView *m_treeView;
     QTextBrowser *m_detailsBrowser;
+    QueryValidatingLineEdit *m_queryLineEdit;
     Utils::FilterLineEdit *m_filterLineEdit;
     QDialogButtonBox *m_buttonBox;
     QPushButton *m_displayButton;

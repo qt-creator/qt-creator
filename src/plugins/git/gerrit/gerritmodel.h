@@ -124,10 +124,11 @@ public:
     int indexOf(int gerritNumber) const;
 
 public slots:
-    void refresh();
+    void refresh(const QString &query);
 
 signals:
     void refreshStateChanged(bool isRefreshing); // For disabling the "Refresh" button.
+    void queryError();
 
 private slots:
     void queryFinished(const QByteArray &);
