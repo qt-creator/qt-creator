@@ -397,7 +397,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             if (args.count() > 1)
                 singleLine = isTrue(args.at(1), m_tmp2);
 
-            QFile qfile(resolvePath(expandEnvVars(file)));
+            QFile qfile(resolvePath(m_option->expandEnvVars(file)));
             if (qfile.open(QIODevice::ReadOnly)) {
                 QTextStream stream(&qfile);
                 while (!stream.atEnd()) {
@@ -414,7 +414,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             evalError(fL1S("fromfile(file, variable) requires two arguments."));
         } else {
             QHash<ProString, ProStringList> vars;
-            QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
+            QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
             if (evaluateFileInto(fn, QMakeEvaluatorHandler::EvalAuxFile,
                                  &vars, &m_functionDefs, EvalWithDefaults))
@@ -702,7 +702,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             evalError(fL1S("infile(file, var, [values]) requires two or three arguments."));
         } else {
             QHash<ProString, ProStringList> vars;
-            QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
+            QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
             if (!evaluateFileInto(fn, QMakeEvaluatorHandler::EvalAuxFile,
                                   &vars, &m_functionDefs, EvalWithDefaults))
@@ -987,7 +987,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             evalError(fL1S("include(file, into, silent) requires one, two or three arguments."));
             return ReturnFalse;
         }
-        QString fn = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
+        QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
         fn.detach();
         bool ok;
         if (parseInto.isEmpty()) {
@@ -1029,7 +1029,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             return ReturnFalse;
         }
         // XXX ignore_error unused
-        return returnBool(evaluateFeatureFile(expandEnvVars(args.at(0).toQString())));
+        return returnBool(evaluateFeatureFile(m_option->expandEnvVars(args.at(0).toQString())));
     }
     case T_DEBUG:
         // Yup - do nothing. Nothing is going to enable debug output anyway.
@@ -1040,7 +1040,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
                       .arg(function.toQString(m_tmp1)));
             return ReturnFalse;
         }
-        const QString &msg = expandEnvVars(args.at(0).toQString(m_tmp2));
+        const QString &msg = m_option->expandEnvVars(args.at(0).toQString(m_tmp2));
         if (!m_skipLevel)
             m_handler->fileMessage(fL1S("Project %1: %2")
                                    .arg(function.toQString(m_tmp1).toUpper(), msg));
@@ -1085,7 +1085,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             evalError(fL1S("exists(file) requires one argument."));
             return ReturnFalse;
         }
-        const QString &file = resolvePath(expandEnvVars(args.at(0).toQString(m_tmp1)));
+        const QString &file = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
 
         if (IoUtils::exists(file)) {
             return ReturnTrue;

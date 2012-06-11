@@ -73,6 +73,8 @@ public:
     bool initProperties(const QString &qmake);
 #endif
 
+    QString expandEnvVars(const QString &str) const;
+
 private:
     QString getEnv(const QString &) const;
     QStringList getPathListEnv(const QString &var) const;

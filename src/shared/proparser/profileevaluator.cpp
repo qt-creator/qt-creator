@@ -76,7 +76,7 @@ QStringList ProFileEvaluator::values(const QString &variableName) const
     QStringList ret;
     ret.reserve(values.size());
     foreach (const ProString &str, values)
-        ret << d->expandEnvVars(str.toQString());
+        ret << d->m_option->expandEnvVars(str.toQString());
     return ret;
 }
 
@@ -88,7 +88,7 @@ QStringList ProFileEvaluator::values(const QString &variableName, const ProFile 
     ret.reserve(values.size());
     foreach (const ProString &str, values)
         if (str.sourceFile() == pro)
-            ret << d->expandEnvVars(str.toQString());
+            ret << d->m_option->expandEnvVars(str.toQString());
     return ret;
 }
 

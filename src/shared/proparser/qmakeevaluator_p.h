@@ -62,7 +62,6 @@ struct QMakeStatics {
     QHash<ProString, int> functions;
     QHash<ProString, int> varList;
     QHash<ProString, ProString> varMap;
-    QRegExp reg_variableName;
     ProStringList fakeValue;
 };
 

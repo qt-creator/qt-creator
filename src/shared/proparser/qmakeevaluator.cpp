@@ -98,9 +98,6 @@ void QMakeEvaluator::initStatics()
     statics.strTEMPLATE = ProString("TEMPLATE");
     statics.strQMAKE_DIR_SEP = ProString("QMAKE_DIR_SEP");
 
-    statics.reg_variableName.setPattern(QLatin1String("\\$\\(.*\\)"));
-    statics.reg_variableName.setMinimal(true);
-
     statics.fakeValue = ProStringList(ProString("_FAKE_")); // It has to have a unique begin() value
 
     initFunctionStatics();
@@ -313,21 +310,10 @@ static void replaceInList(ProStringList *varlist,
     }
 }
 
-QString QMakeEvaluator::expandEnvVars(const QString &str) const
-{
-    QString string = str;
-    int rep;
-    QRegExp reg_variableName = statics.reg_variableName; // Copy for thread safety
-    while ((rep = reg_variableName.indexIn(string)) != -1)
-        string.replace(rep, reg_variableName.matchedLength(),
-                       m_option->getEnv(string.mid(rep + 2, reg_variableName.matchedLength() - 3)));
-    return string;
-}
-
 // This is braindead, but we want qmake compat
 QString QMakeEvaluator::fixPathToLocalOS(const QString &str) const
 {
-    QString string = expandEnvVars(str);
+    QString string = m_option->expandEnvVars(str);
 
     if (string.length() > 2 && string.at(0).isLetter() && string.at(1) == QLatin1Char(':'))
         string[0] = string[0].toLower();
@@ -911,7 +897,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
                 QStringList mkspec_roots = qmakeMkspecPaths();
 
-                QString qmakespec = expandEnvVars(m_option->qmakespec);
+                QString qmakespec = m_option->expandEnvVars(m_option->qmakespec);
                 if (qmakespec.isEmpty()) {
                     foreach (const QString &root, mkspec_roots) {
                         QString mkspec = root + QLatin1String("/default");

@@ -166,7 +166,6 @@ public:
             QHash<ProString, ProStringList> &dependees,
             ProStringList &rootSet) const;
 
-    QString expandEnvVars(const QString &str) const;
     QString fixPathToLocalOS(const QString &str) const;
 
 #ifndef QT_BOOTSTRAPPED
