@@ -150,7 +150,7 @@ const ProString &QMakeEvaluator::map(const ProString &var)
 
 
 QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
-                               QMakeParser *parser, QMakeEvaluatorHandler *handler)
+                               QMakeParser *parser, QMakeHandler *handler)
   : m_option(option), m_parser(parser), m_handler(handler)
 {
     // So that single-threaded apps don't have to call initialize() for now.
@@ -834,7 +834,7 @@ void QMakeEvaluator::visitCmdLine(const QString &cmds)
 }
 
 QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
-        ProFile *pro, QMakeEvaluatorHandler::EvalFileType type, LoadFlags flags)
+        ProFile *pro, QMakeHandler::EvalFileType type, LoadFlags flags)
 {
     if (!m_cumulative && !pro->isOk())
         return ReturnFalse;
@@ -882,7 +882,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 if (!qmake_cache.isEmpty()) {
                     qmake_cache = resolvePath(qmake_cache);
                     QHash<ProString, ProStringList> cache_valuemap;
-                    if (evaluateFileInto(qmake_cache, QMakeEvaluatorHandler::EvalConfigFile,
+                    if (evaluateFileInto(qmake_cache, QMakeHandler::EvalConfigFile,
                                          &cache_valuemap, 0, EvalProOnly)) {
                         if (m_option->qmakespec.isEmpty()) {
                             const ProStringList &vals = cache_valuemap.value(ProString("QMAKESPEC"));
@@ -939,13 +939,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
                     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
-                    if (!evaluateFileDirect(spec,
-                                            QMakeEvaluatorHandler::EvalConfigFile, LoadProOnly)) {
+                    if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
                         m_handler->configError(
                                 fL1S("Could not read qmake configuration file %1").arg(spec));
                     } else if (!m_option->cachefile.isEmpty()) {
                         evaluateFileDirect(m_option->cachefile,
-                                           QMakeEvaluatorHandler::EvalConfigFile, LoadProOnly);
+                                           QMakeHandler::EvalConfigFile, LoadProOnly);
                     }
                     m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
                     if (m_option->qmakespec_name == QLatin1String("default")) {
@@ -1884,7 +1883,7 @@ ProString QMakeEvaluator::first(const ProString &variableName) const
 }
 
 bool QMakeEvaluator::evaluateFileDirect(
-        const QString &fileName, QMakeEvaluatorHandler::EvalFileType type, LoadFlags flags)
+        const QString &fileName, QMakeHandler::EvalFileType type, LoadFlags flags)
 {
     if (ProFile *pro = m_parser->parsedProFile(fileName, true)) {
         m_locationStack.push(m_current);
@@ -1898,7 +1897,7 @@ bool QMakeEvaluator::evaluateFileDirect(
 }
 
 bool QMakeEvaluator::evaluateFile(
-        const QString &fileName, QMakeEvaluatorHandler::EvalFileType type, LoadFlags flags)
+        const QString &fileName, QMakeHandler::EvalFileType type, LoadFlags flags)
 {
     if (fileName.isEmpty())
         return false;
@@ -1955,7 +1954,7 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
 #endif
 
     // The path is fully normalized already.
-    bool ok = evaluateFileDirect(fn, QMakeEvaluatorHandler::EvalFeatureFile, LoadProOnly);
+    bool ok = evaluateFileDirect(fn, QMakeHandler::EvalFeatureFile, LoadProOnly);
 
 #ifdef PROEVALUATOR_CUMULATIVE
     m_cumulative = cumulative;
@@ -1964,7 +1963,7 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
 }
 
 bool QMakeEvaluator::evaluateFileInto(
-        const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
+        const QString &fileName, QMakeHandler::EvalFileType type,
         QHash<ProString, ProStringList> *values, ProFunctionDefs *funcs, EvalIntoMode mode)
 {
     ProFileEvaluator visitor(m_option, m_parser, m_handler);

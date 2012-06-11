@@ -33,6 +33,7 @@
 #ifndef QMAKEEVALUATOR_H
 #define QMAKEEVALUATOR_H
 
+#include "qmakeparser.h"
 #include "qmakeglobals.h"
 #include "ioutils.h"
 
@@ -44,9 +45,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QMakeParser;
-
-class QMAKE_EXPORT QMakeEvaluatorHandler
+class QMAKE_EXPORT QMakeHandler : public QMakeParserHandler
 {
 public:
     // qmake/project configuration error
@@ -75,7 +74,7 @@ public:
     static void initStatics();
     static void initFunctionStatics();
     QMakeEvaluator(QMakeGlobals *option, QMakeParser *parser,
-                   QMakeEvaluatorHandler *handler);
+                   QMakeHandler *handler);
     ~QMakeEvaluator();
 
     ProStringList values(const ProString &variableName) const;
@@ -103,7 +102,7 @@ public:
     void skipExpression(const ushort *&tokPtr);
 
     void visitCmdLine(const QString &cmds);
-    VisitReturn visitProFile(ProFile *pro, QMakeEvaluatorHandler::EvalFileType type,
+    VisitReturn visitProFile(ProFile *pro, QMakeHandler::EvalFileType type,
                              LoadFlags flags);
     VisitReturn visitProBlock(ProFile *pro, const ushort *tokPtr);
     VisitReturn visitProBlock(const ushort *tokPtr);
@@ -127,13 +126,13 @@ public:
     QString resolvePath(const QString &fileName) const
         { return ProFileEvaluatorInternal::IoUtils::resolvePath(currentDirectory(), fileName); }
 
-    bool evaluateFileDirect(const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
+    bool evaluateFileDirect(const QString &fileName, QMakeHandler::EvalFileType type,
                             LoadFlags flags);
-    bool evaluateFile(const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
+    bool evaluateFile(const QString &fileName, QMakeHandler::EvalFileType type,
                       LoadFlags flags);
     bool evaluateFeatureFile(const QString &fileName);
     enum EvalIntoMode { EvalProOnly, EvalWithDefaults, EvalWithSetup };
-    bool evaluateFileInto(const QString &fileName, QMakeEvaluatorHandler::EvalFileType type,
+    bool evaluateFileInto(const QString &fileName, QMakeHandler::EvalFileType type,
                           QHash<ProString, ProStringList> *values, ProFunctionDefs *defs,
                           EvalIntoMode mode); // values are output-only, defs are input-only
     void evalError(const QString &msg) const;
@@ -201,7 +200,7 @@ public:
 
     QMakeGlobals *m_option;
     QMakeParser *m_parser;
-    QMakeEvaluatorHandler *m_handler;
+    QMakeHandler *m_handler;
 
     enum VarName {
         V_LITERAL_DOLLAR, V_LITERAL_HASH, V_LITERAL_WHITESPACE,

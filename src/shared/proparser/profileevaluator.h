@@ -45,7 +45,7 @@ QT_BEGIN_NAMESPACE
 class QMakeGlobals;
 class QMakeParser;
 class QMakeEvaluator;
-class QMakeEvaluatorHandler;
+class QMakeHandler;
 
 class QMAKE_EXPORT ProFileEvaluator
 {
@@ -62,7 +62,7 @@ public:
     // Call this from a concurrency-free context
     static void initialize();
 
-    ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser, QMakeEvaluatorHandler *handler);
+    ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser, QMakeHandler *handler);
     ~ProFileEvaluator();
 
     ProFileEvaluator::TemplateType templateType() const;

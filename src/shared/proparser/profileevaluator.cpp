@@ -46,7 +46,7 @@ void ProFileEvaluator::initialize()
 }
 
 ProFileEvaluator::ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser,
-                                   QMakeEvaluatorHandler *handler)
+                                   QMakeHandler *handler)
   : d(new QMakeEvaluator(option, parser, handler))
 {
 }
@@ -187,7 +187,7 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
 
 bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
 {
-    return d->visitProFile(pro, QMakeEvaluatorHandler::EvalProjectFile, flags) == QMakeEvaluator::ReturnTrue;
+    return d->visitProFile(pro, QMakeHandler::EvalProjectFile, flags) == QMakeEvaluator::ReturnTrue;
 }
 
 QString ProFileEvaluator::propertyValue(const QString &name) const

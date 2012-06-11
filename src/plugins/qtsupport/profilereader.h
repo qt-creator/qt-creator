@@ -48,8 +48,7 @@ namespace Internal {
 class QtSupportPlugin;
 }
 
-class QTSUPPORT_EXPORT ProMessageHandler : public QObject,
-                          public QMakeParserHandler, public QMakeEvaluatorHandler
+class QTSUPPORT_EXPORT ProMessageHandler : public QObject, public QMakeHandler
 {
     Q_OBJECT
 

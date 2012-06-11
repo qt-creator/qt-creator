@@ -53,14 +53,11 @@ static void print(const QString &fileName, int lineNo, const QString &msg)
         qWarning("%s", qPrintable(msg));
 }
 
-class ParseHandler : public QMakeParserHandler {
+class EvalHandler : public QMakeHandler {
 public:
     virtual void parseError(const QString &fileName, int lineNo, const QString &msg)
         { print(fileName, lineNo, msg); }
-};
 
-class EvalHandler : public QMakeEvaluatorHandler {
-public:
     virtual void configError(const QString &msg)
         { qWarning("%s", qPrintable(msg)); }
     virtual void evalError(const QString &fileName, int lineNo, const QString &msg)
@@ -72,7 +69,6 @@ public:
     virtual void doneWithEval(ProFile *) {}
 };
 
-static ParseHandler parseHandler;
 static EvalHandler evalHandler;
 
 static QString value(ProFileEvaluator &reader, const QString &variable)
@@ -165,7 +161,7 @@ int main(int argc, char **argv)
     option.initProperties(QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/qmake"));
     if (args.count() >= 4)
         option.setCommandLineArguments(args.mid(3));
-    QMakeParser parser(0, &parseHandler);
+    QMakeParser parser(0, &evalHandler);
 
     bool cumulative = args[0] == QLatin1String("true");
     QFileInfo infi(args[1]);

@@ -416,7 +416,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             QHash<ProString, ProStringList> vars;
             QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
-            if (evaluateFileInto(fn, QMakeEvaluatorHandler::EvalAuxFile,
+            if (evaluateFileInto(fn, QMakeHandler::EvalAuxFile,
                                  &vars, &m_functionDefs, EvalWithDefaults))
                 ret = vars.value(map(args.at(1)));
         }
@@ -704,7 +704,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             QHash<ProString, ProStringList> vars;
             QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
-            if (!evaluateFileInto(fn, QMakeEvaluatorHandler::EvalAuxFile,
+            if (!evaluateFileInto(fn, QMakeHandler::EvalAuxFile,
                                   &vars, &m_functionDefs, EvalWithDefaults))
                 return ReturnFalse;
             if (args.count() == 2)
@@ -991,10 +991,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         fn.detach();
         bool ok;
         if (parseInto.isEmpty()) {
-            ok = evaluateFile(fn, QMakeEvaluatorHandler::EvalIncludeFile, LoadProOnly);
+            ok = evaluateFile(fn, QMakeHandler::EvalIncludeFile, LoadProOnly);
         } else {
             QHash<ProString, ProStringList> symbols;
-            if ((ok = evaluateFileInto(fn, QMakeEvaluatorHandler::EvalAuxFile,
+            if ((ok = evaluateFileInto(fn, QMakeHandler::EvalAuxFile,
                                        &symbols, 0, EvalWithSetup))) {
                 QHash<ProString, ProStringList> newMap;
                 for (QHash<ProString, ProStringList>::ConstIterator
