@@ -90,6 +90,9 @@ private:
     QMutex mutex;
     QWaitCondition cond;
     bool base_inProgress;
+    // The coupling of this flag to thread safety exists because for other
+    // use cases failure is immediately fatal anyway.
+    bool base_isOk;
 #endif
     QMakeEvaluator *base_eval;
 

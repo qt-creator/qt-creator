@@ -827,7 +827,7 @@ void QMakeEvaluator::visitProVariable(
     }
 }
 
-void QMakeEvaluator::prepareProject()
+bool QMakeEvaluator::prepareProject()
 {
     // ### init QMAKE_QMAKE, QMAKE_SH
     // ### init QMAKE_EXT_{C,H,CPP,OBJ}
@@ -852,18 +852,17 @@ void QMakeEvaluator::prepareProject()
 #ifdef PROEVALUATOR_CUMULATIVE
             evaluator.m_cumulative = false;
 #endif
-            if (evaluator.evaluateFileDirect(qmake_cache, QMakeHandler::EvalConfigFile, LoadProOnly)) {
-                if (m_option->qmakespec.isEmpty())
-                    m_option->qmakespec = evaluator.first(ProString("QMAKESPEC")).toQString();
-            } else {
-                qmake_cache.clear();
-            }
+            if (!evaluator.evaluateFileDirect(qmake_cache, QMakeHandler::EvalConfigFile, LoadProOnly))
+                return false;
+            if (m_option->qmakespec.isEmpty())
+                m_option->qmakespec = evaluator.first(ProString("QMAKESPEC")).toQString();
         }
         m_option->cachefile = qmake_cache;
     }
+    return true;
 }
 
-void QMakeEvaluator::loadSpec()
+bool QMakeEvaluator::loadSpec()
 {
 #ifdef PROEVALUATOR_CUMULATIVE
     m_cumulative = false;
@@ -881,20 +880,16 @@ void QMakeEvaluator::loadSpec()
             }
         }
         m_handler->configError(fL1S("Could not find qmake configuration file"));
-        // Unlike in qmake, a missing config is not critical ...
-        qmakespec.clear();
+        return false;
     }
   cool:
-
-  if (!qmakespec.isEmpty()) {
     m_option->qmakespec = QDir::cleanPath(qmakespec);
 
     QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
     if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         m_handler->configError(
                 fL1S("Could not read qmake configuration file %1").arg(spec));
-    } else if (!m_option->cachefile.isEmpty()) {
-        evaluateFileDirect(m_option->cachefile, QMakeHandler::EvalConfigFile, LoadProOnly);
+        return false;
     }
     m_option->qmakespec_name = IoUtils::fileName(m_option->qmakespec).toString();
     if (m_option->qmakespec_name == QLatin1String("default")) {
@@ -915,7 +910,11 @@ void QMakeEvaluator::loadSpec()
                     IoUtils::fileName(spec_org.first().toQString()).toString();
 #endif
     }
-  }
+    if (!m_option->cachefile.isEmpty()
+        && !evaluateFileDirect(m_option->cachefile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+        return false;
+    }
+    return true;
 }
 
 void QMakeEvaluator::visitCmdLine(const QString &cmds)
@@ -944,6 +943,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 QThreadPool::globalInstance()->releaseThread();
                 m_option->cond.wait(&m_option->mutex);
                 QThreadPool::globalInstance()->reserveThread();
+                if (!m_option->base_isOk)
+                    return ReturnFalse;
             } else
 #endif
             if (!m_option->base_eval) {
@@ -952,16 +953,22 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 locker.unlock();
 #endif
 
-                prepareProject();
+                bool ok = prepareProject();
 
-                m_option->base_eval = new QMakeEvaluator(m_option, m_parser, m_handler);
-                m_option->base_eval->loadSpec();
+                if (ok) {
+                    m_option->base_eval = new QMakeEvaluator(m_option, m_parser, m_handler);
+                    ok = m_option->base_eval->loadSpec();
+                }
 
 #ifdef PROEVALUATOR_THREAD_SAFE
                 locker.relock();
+                m_option->base_isOk = ok;
                 m_option->base_inProgress = false;
                 m_option->cond.wakeAll();
 #endif
+
+                if (!ok)
+                    return ReturnFalse;
             }
 #ifdef PROEVALUATOR_THREAD_SAFE
         }

@@ -101,8 +101,8 @@ public:
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
     void skipExpression(const ushort *&tokPtr);
 
-    void prepareProject();
-    void loadSpec();
+    bool prepareProject();
+    bool loadSpec();
     void initFrom(const QMakeEvaluator &other);
     void visitCmdLine(const QString &cmds);
     VisitReturn visitProFile(ProFile *pro, QMakeHandler::EvalFileType type,
