@@ -240,9 +240,7 @@ QStringList GerritChange::gitFetchArguments(const QSharedPointer<GerritParameter
 class QueryContext : public QObject {
     Q_OBJECT
 public:
-    typedef QList<QStringList> StringListList;
-
-    QueryContext(const StringListList &queries,
+    QueryContext(const QStringList &queries,
                  const QSharedPointer<GerritParameters> &p,
                  QObject *parent = 0);
 
@@ -264,11 +262,11 @@ private slots:
     void readyReadStandardOutput();
 
 private:
-    void startQuery(const QStringList &queryArguments);
+    void startQuery(const QString &query);
     void errorTermination(const QString &msg);
 
     const QSharedPointer<GerritParameters> m_parameters;
-    const StringListList m_queries;
+    const QStringList m_queries;
     QProcess m_process;
     QString m_binary;
     QByteArray m_output;
@@ -277,7 +275,7 @@ private:
     QStringList m_baseArguments;
 };
 
-QueryContext::QueryContext(const StringListList &queries,
+QueryContext::QueryContext(const QStringList &queries,
                            const QSharedPointer<GerritParameters> &p,
                            QObject *parent)
     : QObject(parent)
@@ -321,9 +319,10 @@ void QueryContext::start()
     startQuery(m_queries.front()); // Order: synchronous call to  error handling if something goes wrong.
 }
 
-void QueryContext::startQuery(const QStringList &queryArguments)
+void QueryContext::startQuery(const QString &query)
 {
-    const QStringList arguments = m_baseArguments + queryArguments;
+    QStringList arguments = m_baseArguments;
+    arguments.push_back(query);
     VcsBase::VcsBaseOutputWindow::instance()
         ->appendCommand(m_process.workingDirectory(), m_binary, arguments);
     m_process.start(m_binary, arguments);
@@ -413,8 +412,6 @@ int GerritModel::indexOf(int gerritNumber) const
 
 void GerritModel::refresh()
 {
-    typedef QueryContext::StringListList StringListList;
-
     if (m_query) {
         qWarning("%s: Another query is still running", Q_FUNC_INFO);
         return;
@@ -424,30 +421,20 @@ void GerritModel::refresh()
     // Assemble list of queries
     const QString statusOpenQuery = QLatin1String("status:open");
 
-    StringListList queries;
-    QStringList queryArguments;
+    QStringList queries;
     if (m_parameters->user.isEmpty()) {
-        queryArguments << statusOpenQuery;
-        queries.push_back(queryArguments);
-        queryArguments.clear();
+        queries.push_back(statusOpenQuery);
     } else {
         // Owned by:
-        queryArguments << (QLatin1String("owner:") + m_parameters->user) << statusOpenQuery;
-        queries.push_back(queryArguments);
-        queryArguments.clear();
+        queries.push_back(statusOpenQuery + QLatin1String(" owner:") + m_parameters->user);
         // For Review by:
-        queryArguments << (QLatin1String("reviewer:") + m_parameters->user) << statusOpenQuery;
-        queries.push_back(queryArguments);
-        queryArguments.clear();
+        queries.push_back(statusOpenQuery + QLatin1String(" reviewer:") + m_parameters->user);
     }
     // Any custom queries?
     if (!m_parameters->additionalQueries.isEmpty()) {
         foreach (const QString &customQuery, m_parameters->additionalQueries.split(QString::SkipEmptyParts)) {
-            queryArguments = customQuery.split(QLatin1Char(' '), QString::SkipEmptyParts);
-            if (!queryArguments.isEmpty()) {
-                queries.push_back(queryArguments);
-                queryArguments.clear();
-            }
+            if (!customQuery.trimmed().isEmpty())
+                queries.push_back(customQuery);
         }
     }
 
