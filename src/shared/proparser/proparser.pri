@@ -19,6 +19,7 @@ HEADERS += \
 SOURCES += \
         qmakeglobals.cpp \
         qmakeparser.cpp \
+        qmakeevaluator.cpp \
         profileevaluator.cpp \
         qmakebuiltins.cpp \
         proitems.cpp \

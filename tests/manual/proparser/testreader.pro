@@ -15,7 +15,7 @@ build_all:!build_pass {
     CONFIG += release
 }
 
-SOURCES = main.cpp qmakeglobals.cpp qmakeparser.cpp profileevaluator.cpp qmakebuiltins.cpp proitems.cpp ioutils.cpp
+SOURCES = main.cpp qmakeglobals.cpp qmakeparser.cpp qmakeevaluator.cpp profileevaluator.cpp qmakebuiltins.cpp proitems.cpp ioutils.cpp
 HEADERS = qmakeglobals.h qmakeparser.h profileevaluator.h qmakeevaluator.h qmakeevaluator_p.h proitems.h ioutils.h
 
 DEFINES += QT_NO_CAST_TO_ASCII QT_NO_CAST_FROM_ASCII

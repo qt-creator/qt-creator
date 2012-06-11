@@ -33,8 +33,7 @@
 #ifndef QMAKEEVALUATOR_H
 #define QMAKEEVALUATOR_H
 
-#include "profileevaluator.h"
-
+#include "qmakeglobals.h"
 #include "ioutils.h"
 
 #include <QList>

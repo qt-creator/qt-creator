@@ -191,6 +191,27 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command,
 }
 #endif
 
+void QMakeEvaluator::populateDeps(
+        const ProStringList &deps, const ProString &prefix,
+        QHash<ProString, QSet<ProString> > &dependencies, QHash<ProString, ProStringList> &dependees,
+        ProStringList &rootSet) const
+{
+    foreach (const ProString &item, deps)
+        if (!dependencies.contains(item)) {
+            QSet<ProString> &dset = dependencies[item]; // Always create entry
+            ProStringList depends = valuesDirect(ProString(prefix + item + QString::fromLatin1(".depends")));
+            if (depends.isEmpty()) {
+                rootSet << item;
+            } else {
+                foreach (const ProString &dep, depends) {
+                    dset.insert(dep);
+                    dependees[dep] << item;
+                }
+                populateDeps(depends, prefix, dependencies, dependees, rootSet);
+            }
+        }
+}
+
 ProStringList QMakeEvaluator::evaluateExpandFunction(
         const ProString &func, const ProStringList &args)
 {
