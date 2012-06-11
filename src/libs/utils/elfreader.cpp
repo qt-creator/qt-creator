@@ -226,7 +226,7 @@ ElfReader::Result ElfReader::readIt()
     }
 
     quint32 e_phentsize = getHalfWord(data, m_elfData);
-    QTC_CHECK(e_phentsize == (is64Bit ? 44 : 32));
+    QTC_CHECK(e_phentsize == (is64Bit ? 56 : 32));
     quint32 e_phnum     = getHalfWord(data, m_elfData);
 
     quint32 e_shentsize = getHalfWord(data, m_elfData);
@@ -239,7 +239,7 @@ ElfReader::Result ElfReader::readIt()
 
     quint32 e_shnum     = getHalfWord(data, m_elfData);
     quint32 e_shtrndx   = getHalfWord(data, m_elfData);
-    QTC_CHECK(data == mapper.ustart + (is64Bit ? 58 : 52));
+    QTC_CHECK(data == mapper.ustart + (is64Bit ? 64 : 52));
 
     if (quint64(e_shnum) * e_shentsize > fdlen) {
         m_errorString = QLibrary::tr("'%1' is an invalid ELF object (%2)")
