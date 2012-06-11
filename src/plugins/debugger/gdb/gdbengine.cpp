@@ -5403,7 +5403,10 @@ void GdbEngine::checkForReleaseBuild()
         return;
     }
 
-    if (elfData.indexOf(".debug_info") >= 0)
+    bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
+    bool hasBuildId = elfData.indexOf(".note.gnu.build-id") >= 0;
+    bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
+    if (hasEmbeddedInfo || hasBuildId || hasLink)
         return;
 
     QString warning;
