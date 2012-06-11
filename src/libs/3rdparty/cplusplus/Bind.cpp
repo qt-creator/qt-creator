@@ -1851,6 +1851,8 @@ bool Bind::visit(SimpleDeclarationAST *ast)
                 name = elabTypeSpec->name->name;
             }
 
+            ensureValidClassName(&name, sourceLocation);
+
             ForwardClassDeclaration *decl = control()->newForwardClassDeclaration(sourceLocation, name);
             setDeclSpecifiers(decl, type);
             _scope->addMember(decl);
@@ -2894,20 +2896,7 @@ bool Bind::visit(ClassSpecifierAST *ast)
             }
         }
 
-        // get the unqualified class name
-        const QualifiedNameId *q = className->asQualifiedNameId();
-        const Name *unqualifiedClassName = q ? q->name() : className;
-
-        if (! unqualifiedClassName) // paranoia check
-            className = 0;
-        else if (! (unqualifiedClassName->isNameId() || unqualifiedClassName->isTemplateNameId())) {
-            translationUnit()->error(sourceLocation, "expected a class-name");
-
-            className = unqualifiedClassName->identifier();
-
-            if (q && className)
-                className = control()->qualifiedNameId(q->base(), className);
-        }
+        ensureValidClassName(&className, sourceLocation);
     }
 
     Class *klass = control()->newClass(sourceLocation, className);
@@ -3134,6 +3123,24 @@ bool Bind::visit(ArrayDeclaratorAST *ast)
     FullySpecifiedType type(control()->arrayType(_type));
     _type = type;
     return false;
+}
+
+void Bind::ensureValidClassName(const Name **name, unsigned sourceLocation)
+{
+    if (!*name)
+        return;
+
+    const QualifiedNameId *qName = (*name)->asQualifiedNameId();
+    if (qName)
+        *name = qName->name();
+
+    if (!(*name)->isNameId() && !(*name)->isTemplateNameId()) {
+        translationUnit()->error(sourceLocation, "expected a class-name");
+
+        *name = (*name)->identifier();
+        if (qName)
+            *name = control()->qualifiedNameId(qName->base(), *name);
+    }
 }
 
 int Bind::visibilityForAccessSpecifier(int tokenKind)

@@ -549,8 +549,8 @@ void MercurialPlugin::commit()
 
     m_submitRepository = state.topLevel();
 
-    connect(m_client, SIGNAL(parsedStatus(QList<VcsBaseClient::StatusItem>)),
-            this, SLOT(showCommitWidget(QList<VcsBaseClient::StatusItem>)));
+    connect(m_client, SIGNAL(parsedStatus(QList<VcsBase::VcsBaseClient::StatusItem>)),
+            this, SLOT(showCommitWidget(QList<VcsBase::VcsBaseClient::StatusItem>)));
     m_client->emitParsedStatus(m_submitRepository);
 }
 
@@ -559,8 +559,8 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
 
     VcsBaseOutputWindow *outputWindow = VcsBaseOutputWindow::instance();
     //Once we receive our data release the connection so it can be reused elsewhere
-    disconnect(m_client, SIGNAL(parsedStatus(QList<VcsBaseClient::StatusItem>)),
-               this, SLOT(showCommitWidget(QList<VcsBaseClient::StatusItem>)));
+    disconnect(m_client, SIGNAL(parsedStatus(QList<VcsBase::VcsBaseClient::StatusItem>)),
+               this, SLOT(showCommitWidget(QList<VcsBase::VcsBaseClient::StatusItem>)));
 
     if (status.isEmpty()) {
         outputWindow->appendError(tr("There are no changes to commit."));

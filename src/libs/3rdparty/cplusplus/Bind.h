@@ -274,6 +274,8 @@ protected:
 private:
     static const int kMaxDepth;
 
+    void ensureValidClassName(const Name **name, unsigned sourceLocation);
+
     Scope *_scope;
     ExpressionTy _expression;
     const Name *_name;
