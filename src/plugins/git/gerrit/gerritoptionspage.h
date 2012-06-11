@@ -67,7 +67,6 @@ private:
     QLineEdit *m_userLineEdit;
     Utils::PathChooser *m_sshChooser;
     QSpinBox *m_portSpinBox;
-    QLineEdit *m_additionalQueriesLineEdit;
     QCheckBox *m_httpsCheckBox;
 };
 

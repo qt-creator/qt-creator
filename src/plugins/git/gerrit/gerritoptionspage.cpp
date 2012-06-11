@@ -93,7 +93,6 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     , m_userLineEdit(new QLineEdit(this))
     , m_sshChooser(new Utils::PathChooser)
     , m_portSpinBox(new QSpinBox(this))
-    , m_additionalQueriesLineEdit(new QLineEdit(this))
     , m_httpsCheckBox(new QCheckBox(tr("HTTPS")))
 {
     QFormLayout *formLayout = new QFormLayout(this);
@@ -106,12 +105,6 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     m_portSpinBox->setMinimum(1);
     m_portSpinBox->setMaximum(65535);
     formLayout->addRow(tr("&Port: "), m_portSpinBox);
-    formLayout->addRow(tr("&Additional queries: "), m_additionalQueriesLineEdit);
-    m_additionalQueriesLineEdit->setToolTip(tr(
-    "A comma-separated list of additional queries.\n"
-    "For example \"status:staged,status:integrating\""
-    " can be used to show the status of the Continuous Integration\n"
-    "of the Qt project."));
     formLayout->addRow(tr("P&rotocol:"), m_httpsCheckBox);
     m_httpsCheckBox->setToolTip(tr(
     "Determines the protocol used to form a URL in case\n"
@@ -126,7 +119,6 @@ GerritParameters GerritOptionsWidget::parameters() const
     result.user = m_userLineEdit->text().trimmed();
     result.ssh = m_sshChooser->path();
     result.port = m_portSpinBox->value();
-    result.additionalQueries = m_additionalQueriesLineEdit->text().trimmed();
     result.https = m_httpsCheckBox->isChecked();
     return result;
 }
@@ -137,7 +129,6 @@ void GerritOptionsWidget::setParameters(const GerritParameters &p)
     m_userLineEdit->setText(p.user);
     m_sshChooser->setPath(p.ssh);
     m_portSpinBox->setValue(p.port);
-    m_additionalQueriesLineEdit->setText(p.additionalQueries);
     m_httpsCheckBox->setChecked(p.https);
 }
 

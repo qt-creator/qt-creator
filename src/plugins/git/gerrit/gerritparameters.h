@@ -50,6 +50,7 @@ public:
     bool isValid() const;
     bool equals(const GerritParameters &rhs) const;
     void toSettings(QSettings *) const;
+    void saveQueries(QSettings *) const;
     void fromSettings(const QSettings *);
     void setPortFlagBySshType();
 
@@ -57,7 +58,7 @@ public:
     unsigned short port;
     QString user;
     QString ssh;
-    QString additionalQueries;
+    QStringList savedQueries;
     bool https;
     QString portFlag;
 };

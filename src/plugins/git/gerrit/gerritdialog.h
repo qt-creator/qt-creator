@@ -44,6 +44,7 @@ class QLabel;
 class QModelIndex;
 class QSortFilterProxyModel;
 class QStandardItem;
+class QStringListModel;
 class QPushButton;
 class QDialogButtonBox;
 class QTextBrowser;
@@ -99,10 +100,12 @@ private:
     const QStandardItem *itemAt(const QModelIndex &i, int column = 0) const;
     const QStandardItem *currentItem(int column = 0) const;
     QPushButton *addActionButton(const QString &text, const char *buttonSlot);
+    void updateCompletions(const QString &query);
 
     const QSharedPointer<GerritParameters> m_parameters;
     QSortFilterProxyModel *m_filterModel;
     GerritModel *m_model;
+    QStringListModel *m_queryModel;
     QTreeView *m_treeView;
     QTextBrowser *m_detailsBrowser;
     QueryValidatingLineEdit *m_queryLineEdit;

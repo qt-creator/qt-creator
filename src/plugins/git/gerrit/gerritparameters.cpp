@@ -55,7 +55,7 @@ static const char sshKeyC[] = "Ssh";
 static const char httpsKeyC[] = "Https";
 static const char defaultHostC[] = "codereview.qt-project.org";
 static const char defaultSshC[] = "ssh";
-static const char additionalQueriesKeyC[] = "AdditionalQueries";
+static const char savedQueriesKeyC[] = "SavedQueries";
 
 static const char defaultPortFlag[] = "-p";
 
@@ -121,8 +121,7 @@ QString GerritParameters::sshHostArgument() const
 bool GerritParameters::equals(const GerritParameters &rhs) const
 {
     return port == rhs.port && host == rhs.host && user == rhs.user
-           && ssh == rhs.ssh && additionalQueries == rhs.additionalQueries
-           && https == rhs.https;
+           && ssh == rhs.ssh && https == rhs.https;
 }
 
 void GerritParameters::toSettings(QSettings *s) const
@@ -133,8 +132,14 @@ void GerritParameters::toSettings(QSettings *s) const
     s->setValue(QLatin1String(portKeyC), port);
     s->setValue(QLatin1String(portFlagKeyC), portFlag);
     s->setValue(QLatin1String(sshKeyC), ssh);
-    s->setValue(QLatin1String(additionalQueriesKeyC), additionalQueries);
     s->setValue(QLatin1String(httpsKeyC), https);
+    s->endGroup();
+}
+
+void GerritParameters::saveQueries(QSettings *s) const
+{
+    s->beginGroup(QLatin1String(settingsGroupC));
+    s->setValue(QLatin1String(savedQueriesKeyC), savedQueries.join(QLatin1String(",")));
     s->endGroup();
 }
 
@@ -146,7 +151,8 @@ void GerritParameters::fromSettings(const QSettings *s)
     ssh = s->value(rootKey + QLatin1String(sshKeyC), QString()).toString();
     port = s->value(rootKey + QLatin1String(portKeyC), QVariant(int(defaultPort))).toInt();
     portFlag = s->value(rootKey + QLatin1String(portFlagKeyC), QLatin1String(defaultPortFlag)).toString();
-    additionalQueries = s->value(rootKey + QLatin1String(additionalQueriesKeyC), QString()).toString();
+    savedQueries = s->value(rootKey + QLatin1String(savedQueriesKeyC), QString()).toString()
+            .split(QLatin1String(","));
     https = s->value(rootKey + QLatin1String(httpsKeyC), QVariant(true)).toBool();
     if (ssh.isEmpty())
         ssh = detectSsh();

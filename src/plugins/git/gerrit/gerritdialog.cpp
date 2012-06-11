@@ -35,6 +35,7 @@
 #include "gerritparameters.h"
 
 #include <utils/filterlineedit.h>
+#include <coreplugin/icore.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -53,6 +54,8 @@
 #include <QClipboard>
 #include <QApplication>
 #include <QProcess>
+#include <QStringListModel>
+#include <QCompleter>
 
 namespace Gerrit {
 namespace Internal {
@@ -98,6 +101,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_parameters(p)
     , m_filterModel(new QSortFilterProxyModel(this))
     , m_model(new GerritModel(p, this))
+    , m_queryModel(new QStringListModel(this))
     , m_treeView(new QTreeView)
     , m_detailsBrowser(new QTextBrowser)
     , m_queryLineEdit(new QueryValidatingLineEdit)
@@ -115,6 +119,10 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     queryLabel->setBuddy(m_queryLineEdit);
     m_queryLineEdit->setFixedWidth(400);
     m_queryLineEdit->setPlaceholderText(tr("Change #, SHA-1, tr:id, owner:email or reviewer:email"));
+    m_queryModel->setStringList(m_parameters->savedQueries);
+    QCompleter *completer = new QCompleter(this);
+    completer->setModel(m_queryModel);
+    m_queryLineEdit->setCompleter(completer);
     filterLayout->addWidget(queryLabel);
     filterLayout->addWidget(m_queryLineEdit);
     filterLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
@@ -185,6 +193,17 @@ QPushButton *GerritDialog::addActionButton(const QString &text, const char *butt
     return button;
 }
 
+void GerritDialog::updateCompletions(const QString &query)
+{
+    if (query.isEmpty())
+        return;
+    QStringList &queries = m_parameters->savedQueries;
+    queries.removeAll(query);
+    queries.prepend(query);
+    m_queryModel->setStringList(queries);
+    m_parameters->saveQueries(Core::ICore::instance()->settings());
+}
+
 GerritDialog::~GerritDialog()
 {
 }
@@ -225,7 +244,9 @@ void GerritDialog::slotFetchCheckout()
 
 void GerritDialog::slotRefresh()
 {
-    m_model->refresh(m_queryLineEdit->text());
+    const QString &query = m_queryLineEdit->text().trimmed();
+    updateCompletions(query);
+    m_model->refresh(query);
 }
 
 const QStandardItem *GerritDialog::itemAt(const QModelIndex &i, int column) const

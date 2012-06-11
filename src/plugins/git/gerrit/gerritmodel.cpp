@@ -434,13 +434,6 @@ void GerritModel::refresh(const QString &query)
             // For Review by:
             queries.push_back(statusOpenQuery + QLatin1String(" reviewer:") + m_parameters->user);
         }
-        // Any custom queries?
-        if (!m_parameters->additionalQueries.isEmpty()) {
-            foreach (const QString &customQuery, m_parameters->additionalQueries.split(QString::SkipEmptyParts)) {
-                if (!customQuery.trimmed().isEmpty())
-                    queries.push_back(customQuery);
-            }
-        }
     }
 
     m_query = new QueryContext(queries, m_parameters, this);
