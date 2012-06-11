@@ -217,7 +217,7 @@ def __configureCustomExecutable__(projectName, port, mkspec, qmakeVersion):
     clickButton(addButton)
     addMenu = addButton.menu()
     activateItem(waitForObjectItem(objectMap.realName(addMenu), 'Custom Executable'))
-    exePathChooser = waitForObject("{buddy={container=':Qt Creator.scrollArea_QScrollArea' text='Executable:' type='QLabel'} "
+    exePathChooser = waitForObject("{buddy={container=':Qt Creator.scrollArea_QScrollArea' text='Command:' type='QLabel'} "
                                    "type='Utils::PathChooser' unnamed='1' visible='1'}", 2000)
     exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
     argLineEd = waitForObject("{buddy={container={type='QScrollArea' name='scrollArea'} "
