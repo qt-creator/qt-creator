@@ -106,6 +106,8 @@ public:
     QString propertyValue(const QString &val) const;
 
 private:
+    QString sysrootify(const QString &path, const QString &baseDir) const;
+
     Private *d;
 
     friend class QMakeGlobals;
