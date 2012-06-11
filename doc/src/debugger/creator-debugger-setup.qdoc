@@ -77,10 +77,15 @@
 
     \section2 Supported GDB Versions
 
-    GDB comes in two varieties with common roots. One is used on
-    Mac OS X and does not support Python as scripting language; the
-    other one is the version maintained by the Free Software Foundation
-    that can use Python as scripting language since version 7.0
+    GDB comes in two varieties with common roots.
+
+    One is used on Mac OS X and does not support Python as scripting language.
+    The minimal supported versions in is GDB 6.3.50-20050815, build 1469.
+
+    The second is maintained by the Free Software Foundation, and can
+    use Python as scripting language. The minimal supported version
+    in this case is FSF GDB 7.4.1, using Python version 2.6 or 2.7.
+    Note that Python 3.x is not supported by GDB.
 
     The Python enabled versions are very convenient to interface,
     and much of \QC's advanced data display options depend on the
@@ -98,10 +103,6 @@
 
     FSF GDB can also be compiled for Mac OS, but the build is currently
     unstable, and thererefore, this is not recommended.
-
-    The minimal supported version is 7.2. Using GDB version 7.4
-    is highly recommended with \QC 2.5. For \QC 2.6 the minimal
-    supported version will be raised to GDB 7.4.
 
     \section2 Supported CDB Versions
 
@@ -202,8 +203,6 @@
                 build your own Python-enabled GDB. Follow the instructions in
                 \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}
                 {Building GDB}.
-                You must use at least Python version 2.5, but we recommend that
-                you use version 2.6.
 
         \row
             \o  Debugging tools for Windows
