@@ -96,12 +96,8 @@ void QMakeEvaluator::initStatics()
     initFunctionStatics();
 
     static const char * const names[] = {
-        "DIRLIST_SEPARATOR", "DIR_SEPARATOR",
         "OUT_PWD", "PWD",
-        "_PRO_FILE_", "_PRO_FILE_PWD_",
-        "QMAKE_HOST.arch", "QMAKE_HOST.name", "QMAKE_HOST.os",
-        "QMAKE_HOST.version", "QMAKE_HOST.version_string",
-        "_DATE_", "_QMAKE_CACHE_"
+        "_PRO_FILE_", "_PRO_FILE_PWD_"
     };
     for (unsigned i = 0; i < sizeof(names)/sizeof(names[0]); ++i)
         statics.varList.insert(ProString(names[i]), i);
@@ -1006,6 +1002,8 @@ bool QMakeEvaluator::loadSpec()
 void QMakeEvaluator::setupProject()
 {
     setTemplate();
+    ProValueMap &vars = m_valuemapStack.top();
+    vars[ProString("TARGET")] << ProString(QFileInfo(currentFileName()).baseName(), NoHash);
 }
 
 void QMakeEvaluator::visitCmdLine(const QString &cmds)
@@ -1074,10 +1072,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         setupProject();
 
         evaluateFeatureFile(QLatin1String("default_pre.prf"));
-
-        ProStringList &tgt = m_valuemapStack.top()[ProString("TARGET")];
-        if (tgt.isEmpty())
-            tgt.append(ProString(QFileInfo(pro->fileName()).baseName(), NoHash));
 
         visitCmdLine(m_option->precmds);
     }
