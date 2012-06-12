@@ -672,10 +672,7 @@ void BaseQtVersion::updateMkspec() const
     if (m_mkspecFullPath.isEmpty())
         return;
 
-    Utils::FileName baseMkspecDir = Utils::FileName::fromUserInput(versionInfo().value(QLatin1String("QMAKE_MKSPECS")));
-    if (baseMkspecDir.isEmpty())
-        baseMkspecDir = Utils::FileName::fromUserInput(versionInfo().value(QLatin1String("QT_INSTALL_DATA"))
-                                                       + QLatin1String("/mkspecs"));
+    Utils::FileName baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo());
 
     if (m_mkspec.isChildOf(baseMkspecDir)) {
         m_mkspec = m_mkspec.relativeChildPath(baseMkspecDir);
@@ -1154,11 +1151,22 @@ bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QSt
     return true;
 }
 
-Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo)
+Utils::FileName BaseQtVersion::mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo)
 {
     Utils::FileName baseMkspecDir = Utils::FileName::fromUserInput(versionInfo.value(QLatin1String("QMAKE_MKSPECS")));
-    if (baseMkspecDir.isEmpty())
-        baseMkspecDir = Utils::FileName::fromUserInput(versionInfo.value(QLatin1String("QT_INSTALL_DATA")) + QLatin1String("/mkspecs"));
+    if (baseMkspecDir.isEmpty()) {
+        baseMkspecDir = Utils::FileName::fromUserInput(versionInfo.value(QLatin1String("QT_HOST_DATA")));
+        if (baseMkspecDir.isEmpty())
+            baseMkspecDir = Utils::FileName::fromUserInput(versionInfo.value(QLatin1String("QT_INSTALL_DATA")));
+        if (!baseMkspecDir.isEmpty())
+            baseMkspecDir.appendPath("mkspecs");
+    }
+    return baseMkspecDir;
+}
+
+Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo)
+{
+    Utils::FileName baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo);
     if (baseMkspecDir.isEmpty())
         return Utils::FileName();
 

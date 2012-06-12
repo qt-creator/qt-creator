@@ -191,6 +191,7 @@ public:
 
     static bool queryQMakeVariables(const Utils::FileName &binary, QHash<QString, QString> *versionInfo);
     static bool queryQMakeVariables(const Utils::FileName &binary, QHash<QString, QString> *versionInfo, bool *qmakeIsExecutable);
+    static Utils::FileName mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo);
     static Utils::FileName mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo);
 
 
