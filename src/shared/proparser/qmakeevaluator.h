@@ -208,10 +208,6 @@ public:
     QMakeGlobals *m_option;
     QMakeParser *m_parser;
     QMakeHandler *m_handler;
-
-    enum VarName {
-        V_PWD
-    };
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QMakeEvaluator::LoadFlags)

@@ -95,12 +95,6 @@ void QMakeEvaluator::initStatics()
 
     initFunctionStatics();
 
-    static const char * const names[] = {
-        "PWD"
-    };
-    for (unsigned i = 0; i < sizeof(names)/sizeof(names[0]); ++i)
-        statics.varList.insert(ProString(names[i]), i);
-
     static const struct {
         const char * const oldname, * const newname;
     } mapInits[] = {
@@ -1070,6 +1064,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
     m_handler->aboutToEval(currentProFile(), pro, type);
     m_profileStack.push(pro);
+    valuesRef(ProString("PWD")) = ProStringList(ProString(currentDirectory(), NoHash));
     if (flags & LoadPreFiles) {
         setupProject();
 
@@ -1105,6 +1100,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         }
     }
     m_profileStack.pop();
+    valuesRef(ProString("PWD")) = ProStringList(ProString(currentDirectory(), NoHash));
     m_handler->doneWithEval(currentProFile());
 
     return ReturnTrue;
@@ -1212,8 +1208,10 @@ QString QMakeEvaluator::currentFileName() const
 
 QString QMakeEvaluator::currentDirectory() const
 {
-    ProFile *cur = m_profileStack.top();
-    return cur->directoryName();
+    ProFile *pro = currentProFile();
+    if (pro)
+        return pro->directoryName();
+    return QString();
 }
 
 // The (QChar*)current->constData() constructs below avoid pointless detach() calls
@@ -1736,18 +1734,6 @@ ProStringList QMakeEvaluator::valuesDirect(const ProString &variableName) const
 
 ProStringList QMakeEvaluator::values(const ProString &variableName) const
 {
-    QHash<ProString, int>::ConstIterator vli = statics.varList.find(variableName);
-    if (vli != statics.varList.constEnd()) {
-        int vlidx = *vli;
-        QString ret;
-        switch ((VarName)vlidx) {
-        case V_PWD: // containing directory of most nested project/include file
-            ret = currentDirectory();
-            break;
-        }
-        return ProStringList(ProString(ret, NoHash));
-    }
-
     ProStringList result = valuesDirect(variableName);
     return result;
 }

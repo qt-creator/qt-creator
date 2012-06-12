@@ -54,7 +54,6 @@ struct QMakeStatics {
     ProString strTEMPLATE;
     QHash<ProString, int> expands;
     QHash<ProString, int> functions;
-    QHash<ProString, int> varList;
     QHash<ProString, ProString> varMap;
     ProStringList fakeValue;
 };
