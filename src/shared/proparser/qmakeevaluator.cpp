@@ -878,6 +878,23 @@ void QMakeEvaluator::loadDefaults()
         break;
     }
     vars[ProString("QMAKE_HOST.arch")] << archStr;
+
+# if defined(Q_CC_MSVC) // ### bogus condition, but nobody x-builds for msvc with a different qmake
+    QString paths = m_option->getEnv("PATH");
+    QString vcBin64 = m_option->getEnv("VCINSTALLDIR");
+    if (!vcBin64.endsWith('\\'))
+        vcBin64.append('\\');
+    vcBin64.append("bin\\amd64");
+    QString vcBinX86_64 = m_option->getEnv("VCINSTALLDIR");
+    if (!vcBinX86_64.endsWith('\\'))
+        vcBinX86_64.append('\\');
+    vcBinX86_64.append("bin\\x86_amd64");
+    if (paths.contains(vcBin64, Qt::CaseInsensitive)
+            || paths.contains(vcBinX86_64, Qt::CaseInsensitive))
+        vars[ProString("QMAKE_TARGET.arch")] << ProString("x86_64", NoHash);
+    else
+        vars[ProString("QMAKE_TARGET.arch")] << ProString("x86", NoHash);
+# endif
 #elif defined(Q_OS_UNIX)
     struct utsname name;
     if (!uname(&name)) {
