@@ -1175,7 +1175,11 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
 
     feature_roots.removeDuplicates();
 
-    return feature_roots;
+    QStringList ret;
+    foreach (const QString &root, feature_roots)
+        if (IoUtils::exists(root))
+            ret << root;
+    return ret;
 }
 
 QString QMakeEvaluator::propertyValue(const QString &name, bool complain) const
