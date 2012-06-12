@@ -403,10 +403,19 @@ void QmlEngine::tryToConnect(quint16 port)
 {
     showMessage(QLatin1String("QML Debugger: No application output received in time, trying to connect ..."), LogStatus);
     m_retryOnConnectFail = true;
-    if (state() == EngineRunRequested)
-        beginConnection(port);
-    else
+    if (state() == EngineRunRequested) {
+        if (isSlaveEngine()) {
+            // Probably cpp is being debugged and hence we did not get the output yet.
+            if (!masterEngine()->isDying())
+                m_noDebugOutputTimer.start();
+            else
+                appStartupFailed(tr("No application output received in time"));
+        } else {
+            beginConnection(port);
+        }
+    } else {
         m_automaticConnect = true;
+    }
 }
 
 void QmlEngine::beginConnection(quint16 port)
@@ -625,6 +634,12 @@ void QmlEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 
     notifyEngineRemoteSetupDone();
     notifyEngineSetupOk();
+
+    // The remote setup can take while especialy with mixed debugging.
+    // Just waiting for 8 seconds is not enough. Increase the timeout
+    // to 60 s
+    // In case we get an output the m_outputParser will start the connection.
+    m_noDebugOutputTimer.setInterval(60000);
 }
 
 void QmlEngine::handleRemoteSetupFailed(const QString &message)
@@ -1059,6 +1074,14 @@ bool QmlEngine::hasCapability(unsigned cap) const
         | CreateFullBacktraceCapability
         | WatchpointCapability
         | AddWatcherCapability;*/
+}
+
+void QmlEngine::quitDebugger()
+{
+    m_noDebugOutputTimer.stop();
+    m_automaticConnect = false;
+    m_retryOnConnectFail = false;
+    DebuggerEngine::quitDebugger();
 }
 
 void QmlEngine::inferiorSpontaneousStop()

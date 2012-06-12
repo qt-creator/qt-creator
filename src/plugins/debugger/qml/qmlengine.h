@@ -169,6 +169,7 @@ private:
     bool evaluateScriptExpression(const QString &expression);
 
     bool hasCapability(unsigned) const;
+    void quitDebugger();
 
 private:
     void closeConnection();
