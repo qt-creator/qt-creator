@@ -793,7 +793,25 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
     if (macro->isFunctionLike()) {
         // Collect individual tokens that form the macro arguments.
         QVector<QVector<PPToken> > allArgTks;
-        if (!collectActualArguments(tk, &allArgTks)) {
+        bool hasArgs = collectActualArguments(tk, &allArgTks);
+
+        // Check for matching parameter/argument count.
+        bool hasMatchingArgs = false;
+        if (hasArgs) {
+            const int expectedArgCount = macro->formals().size();
+            const int actualArgCount = allArgTks.size();
+            if (expectedArgCount == actualArgCount
+                    || (macro->isVariadic() && actualArgCount > expectedArgCount - 1)
+                    // Handle '#define foo()' when invoked as 'foo()'
+                    || (expectedArgCount == 0
+                        && actualArgCount == 1
+                        && allArgTks.at(0).isEmpty())) {
+                 hasMatchingArgs = true;
+            }
+        }
+
+        if (!hasArgs || !hasMatchingArgs) {
+            //### TODO: error message
             pushToken(tk);
             *tk = idTk;
             return false;
@@ -872,12 +890,6 @@ bool Preprocessor::handleFunctionLikeMacro(PPToken *tk,
             int j = 0;
             for (; j < formals.size() && expanded.size() < MAX_TOKEN_EXPANSION_COUNT; ++j) {
                 if (formals[j] == id) {
-                    if (actuals.size() <= j) {
-                        // too few actual parameters
-                        //### TODO: error message
-                        goto exitNicely;
-                    }
-
                     QVector<PPToken> actualsForThisParam = actuals.at(j);
                     if (id == "__VA_ARGS__" || (macro->isVariadic() && j + 1 == formals.size())) {
                         unsigned lineno = 0;
@@ -929,7 +941,6 @@ bool Preprocessor::handleFunctionLikeMacro(PPToken *tk,
         }
     }
 
-exitNicely:
     pushToken(tk);
     if (addWhitespaceMarker) {
         PPToken forceWhitespacingToken;

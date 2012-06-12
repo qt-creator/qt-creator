@@ -300,10 +300,6 @@ protected:
     }
     static QString simplified(QByteArray buf);
 
-private /* not corrected yet */:
-    void param_expanding_as_multiple_params();
-    void macro_argument_expansion();
-
 private slots:
     void defined();
     void defined_data();
@@ -447,49 +443,21 @@ void tst_Preprocessor::macro_args_count()
 
 void tst_Preprocessor::invalid_param_count()
 {
-    Client *client = 0; // no client.
     Environment env;
+    QByteArray output;
+    MockClient client(&env, &output);
+    Preprocessor preprocess(&client, &env);
+    // The following are illegal, but shouldn't crash the preprocessor.
+    preprocess.run(QLatin1String("<stdin>"),
+                   "\n#define foo(a,b) int f(a,b);"
+                   "\n#define ARGS(t)  t a,t b"
+                   "\nfoo(ARGS(int))"
+                   "\nfoo()"
+                   "\nfoo(int a, int b, int c)",
+                   true, false);
 
-    Preprocessor preprocess(client, &env);
-    // The following is illegal, but shouldn't crash the preprocessor.
-    // GCC says: 3:14: error: macro "foo" requires 2 arguments, but only 1 given
-    QByteArray preprocessed = preprocess.run(QLatin1String("<stdin>"),
-                                                "\n#define foo(a,b) int f(a,b);"
-                                                "\n#define ARGS(t)  t a,t b"
-                                                "\nfoo(ARGS(int))",
-                                             true, false);
-    // do not verify the output: it's illegal, so anything might be outputted.
-}
-
-void tst_Preprocessor::param_expanding_as_multiple_params()
-{
-    Client *client = 0; // no client.
-    Environment env;
-
-    Preprocessor preprocess(client, &env);
-    QByteArray preprocessed = preprocess.run(QLatin1String("<stdin>"),
-                                                "\n#define foo(a,b) int f(a,b);"
-                                                "\n#define ARGS(t)  t a,t b"
-                                                "\nfoo(ARGS(int))",
-                                            false, true);
-    QCOMPARE(simplified(preprocessed), QString("int f(int a,int b);"));
-}
-
-void tst_Preprocessor::macro_argument_expansion() //QTCREATORBUG-7225
-{
-    Client *client = 0; // no client.
-    Environment env;
-
-    Preprocessor preprocess(client, &env);
-    QByteArray preprocessed = preprocess.run(QLatin1String("<stdin>"),
-                                                "\n#define BAR1        2,3,4"
-                                                "\n#define FOO1(a,b,c) a+b+c"
-                                                "\nvoid test2(){"
-                                                "\nint x=FOO1(BAR1);"
-                                                "\n}",
-                                            false, true);
-    QCOMPARE(simplified(preprocessed), QString("void test2(){int x=2+3+4;}"));
-
+    // Output is not that relevant but check that nothing triggered expansion.
+    QCOMPARE(client.macroArgsCount(), QList<int>());
 }
 
 void tst_Preprocessor::macro_uses()
