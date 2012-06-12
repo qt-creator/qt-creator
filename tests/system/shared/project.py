@@ -1,3 +1,4 @@
+import __builtin__
 import re
 
 processStarted = False
@@ -467,3 +468,40 @@ def prepareTemplate(sourceExample):
     templateDir = os.path.abspath(tempDir() + "/template")
     shutil.copytree(sourceExample, templateDir)
     return templateDir
+
+def __iterateChildren__(model, parent, nestingLevel=0):
+    children = []
+    for currentIndex in [model.index(row, 0, parent) for row in range(model.rowCount(parent))]:
+        children.append([str(currentIndex.text), nestingLevel])
+        if model.hasChildren(currentIndex):
+            children.extend(__iterateChildren__(model, currentIndex, nestingLevel + 1))
+    return children
+
+# This will write the data to a file which can then be used for comparing
+def __writeProjectTreeFile__(projectTree, filename):
+    f = open(filename, "w+")
+    f.write('"text"\t"nestinglevel"\n')
+    for elem in projectTree:
+        f.write('"%s"\t"%s"\n' % (elem[0], elem[1]))
+    f.close()
+
+def __getTestData__(record):
+    return [testData.field(record, "text"),
+            __builtin__.int(testData.field(record, "nestinglevel"))]
+
+def compareProjectTree(rootObject, dataset):
+    root = waitForObject(rootObject)
+    tree = __iterateChildren__(root.model(), root)
+
+    # __writeProjectTreeFile__(tree, dataset)
+
+    for i, current in enumerate(map(__getTestData__, testData.dataset(dataset))):
+        try:
+            # Just removing everything up to the found item
+            # Writing a pass would result in truly massive logs
+            tree = tree[tree.index(current) + 1:]
+        except ValueError:
+            test.fail('Could not find "%s" with nesting level %s' % tuple(current),
+                      'Line %s in dataset' % str(i + 1))
+            return
+    test.passes("No errors found in project tree")
