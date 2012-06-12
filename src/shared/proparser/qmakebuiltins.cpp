@@ -198,7 +198,7 @@ void QMakeEvaluator::populateDeps(
     foreach (const ProString &item, deps)
         if (!dependencies.contains(item)) {
             QSet<ProString> &dset = dependencies[item]; // Always create entry
-            ProStringList depends = valuesDirect(ProString(prefix + item + QString::fromLatin1(".depends")));
+            ProStringList depends = values(ProString(prefix + item + QString::fromLatin1(".depends")));
             if (depends.isEmpty()) {
                 rootSet << item;
             } else {
@@ -609,7 +609,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             QHash<ProString, QSet<ProString> > dependencies;
             ProValueMap dependees;
             ProStringList rootSet;
-            ProStringList orgList = valuesDirect(args.at(0));
+            ProStringList orgList = values(args.at(0));
             populateDeps(orgList, (args.count() < 2 ? ProString() : args.at(1)),
                          dependencies, dependees, rootSet);
             for (int i = 0; i < rootSet.size(); ++i) {
@@ -827,7 +827,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         if (args.count() == 1)
             return returnBool(isActiveConfig(args.at(0).toQString(m_tmp2)));
         const QStringList &mutuals = args.at(1).toQString(m_tmp2).split(QLatin1Char('|'));
-        const ProStringList &configs = valuesDirect(statics.strCONFIG);
+        const ProStringList &configs = values(statics.strCONFIG);
 
         for (int i = configs.size() - 1; i >= 0; i--) {
             for (int mut = 0; mut < mutuals.count(); mut++) {

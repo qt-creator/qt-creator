@@ -122,7 +122,6 @@ public:
 
     static const ProString &map(const ProString &var);
     ProValueMap *findValues(const ProString &variableName, ProValueMap::Iterator *it);
-    ProStringList valuesDirect(const ProString &variableName) const;
 
     void setTemplate();
 

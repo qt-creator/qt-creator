@@ -639,9 +639,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
         it_list = ProString(statics.strforever);
     } else {
         variable = map(_variable);
-        oldVarVal = valuesDirect(variable);
+        oldVarVal = values(variable);
     }
-    ProStringList list = valuesDirect(it_list);
+    ProStringList list = values(it_list);
     if (list.isEmpty()) {
         if (it_list == statics.strforever) {
             infinite = true;
@@ -1083,7 +1083,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         QSet<QString> processed;
         forever {
             bool finished = true;
-            ProStringList configs = valuesDirect(statics.strCONFIG);
+            ProStringList configs = values(statics.strCONFIG);
             for (int i = configs.size() - 1; i >= 0; --i) {
                 QString config = configs.at(i).toQString(m_tmp1).toLower();
                 if (!processed.contains(config)) {
@@ -1505,7 +1505,7 @@ bool QMakeEvaluator::isActiveConfig(const QString &config, bool regex)
 
         // CONFIG variable
         int t = 0;
-        foreach (const ProString &configValue, valuesDirect(statics.strCONFIG)) {
+        foreach (const ProString &configValue, values(statics.strCONFIG)) {
             if (re.exactMatch(configValue.toQString(m_tmp[t])))
                 return true;
             t ^= 1;
@@ -1516,7 +1516,7 @@ bool QMakeEvaluator::isActiveConfig(const QString &config, bool regex)
             return true;
 
         // CONFIG variable
-        if (valuesDirect(statics.strCONFIG).contains(ProString(config, NoHash)))
+        if (values(statics.strCONFIG).contains(ProString(config, NoHash)))
             return true;
     }
 
@@ -1719,7 +1719,7 @@ ProStringList &QMakeEvaluator::valuesRef(const ProString &variableName)
     return m_valuemapStack.top()[variableName];
 }
 
-ProStringList QMakeEvaluator::valuesDirect(const ProString &variableName) const
+ProStringList QMakeEvaluator::values(const ProString &variableName) const
 {
     for (int i = m_valuemapStack.size(); --i >= 0; ) {
         ProValueMap::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
@@ -1730,12 +1730,6 @@ ProStringList QMakeEvaluator::valuesDirect(const ProString &variableName) const
         }
     }
     return ProStringList();
-}
-
-ProStringList QMakeEvaluator::values(const ProString &variableName) const
-{
-    ProStringList result = valuesDirect(variableName);
-    return result;
 }
 
 ProString QMakeEvaluator::first(const ProString &variableName) const
