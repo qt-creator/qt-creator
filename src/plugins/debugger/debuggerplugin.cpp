@@ -2186,15 +2186,21 @@ void DebuggerPluginPrivate::cleanupViews()
     QList<IEditor *> toClose;
     foreach (IEditor *editor, editorManager->openedEditors()) {
         if (editor->property(Constants::OPENED_BY_DEBUGGER).toBool()) {
-            // Close disassembly views. Close other opened files
-            // if they are not modified and not current editor.
-            if (editor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()
-                    || (!editor->document()->isModified()
-                        && editor != EditorManager::currentEditor())) {
-                toClose.append(editor);
-            } else {
+            IDocument *doc = editor->document();
+            bool keepIt = true;
+            if (editor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool())
+                keepIt = false;
+            else if (doc->isModified())
+                keepIt = true;
+            else if (doc->fileName().contains(_("qeventdispatcher")))
+                keepIt = false;
+            else
+                keepIt = (editor == EditorManager::currentEditor());
+
+            if (keepIt)
                 editor->setProperty(Constants::OPENED_BY_DEBUGGER, false);
-            }
+            else
+                toClose.append(editor);
         }
     }
     editorManager->closeEditors(toClose);
