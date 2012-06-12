@@ -210,8 +210,7 @@ public:
     QMakeHandler *m_handler;
 
     enum VarName {
-        V_OUT_PWD, V_PWD,
-        V__PRO_FILE_, V__PRO_FILE_PWD_
+        V_PWD
     };
 };
 

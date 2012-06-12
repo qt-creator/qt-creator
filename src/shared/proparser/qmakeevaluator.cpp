@@ -96,8 +96,7 @@ void QMakeEvaluator::initStatics()
     initFunctionStatics();
 
     static const char * const names[] = {
-        "OUT_PWD", "PWD",
-        "_PRO_FILE_", "_PRO_FILE_PWD_"
+        "PWD"
     };
     for (unsigned i = 0; i < sizeof(names)/sizeof(names[0]); ++i)
         statics.varList.insert(ProString(names[i]), i);
@@ -1004,6 +1003,9 @@ void QMakeEvaluator::setupProject()
     setTemplate();
     ProValueMap &vars = m_valuemapStack.top();
     vars[ProString("TARGET")] << ProString(QFileInfo(currentFileName()).baseName(), NoHash);
+    vars[ProString("_PRO_FILE_")] << ProString(currentFileName(), NoHash);
+    vars[ProString("_PRO_FILE_PWD_")] << ProString(currentDirectory(), NoHash);
+    vars[ProString("OUT_PWD")] << ProString(m_outputDir, NoHash);
 }
 
 void QMakeEvaluator::visitCmdLine(const QString &cmds)
@@ -1739,17 +1741,8 @@ ProStringList QMakeEvaluator::values(const ProString &variableName) const
         int vlidx = *vli;
         QString ret;
         switch ((VarName)vlidx) {
-        case V_OUT_PWD: // the outgoing dir (shadow of _PRO_FILE_PWD_)
-            ret = m_outputDir;
-            break;
         case V_PWD: // containing directory of most nested project/include file
             ret = currentDirectory();
-            break;
-        case V__PRO_FILE_:
-            ret = m_profileStack.first()->fileName();
-            break;
-        case V__PRO_FILE_PWD_:
-            ret = m_profileStack.first()->directoryName();
             break;
         }
         return ProStringList(ProString(ret, NoHash));
