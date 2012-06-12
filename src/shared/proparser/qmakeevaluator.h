@@ -105,6 +105,7 @@ public:
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
     void skipExpression(const ushort *&tokPtr);
 
+    void loadDefaults();
     bool prepareProject();
     bool loadSpec();
     void initFrom(const QMakeEvaluator &other);
@@ -206,12 +207,8 @@ public:
     QMakeHandler *m_handler;
 
     enum VarName {
-        V_DIRLIST_SEPARATOR, V_DIR_SEPARATOR,
         V_OUT_PWD, V_PWD,
-        V__PRO_FILE_, V__PRO_FILE_PWD_,
-        V_QMAKE_HOST_arch, V_QMAKE_HOST_name, V_QMAKE_HOST_os,
-        V_QMAKE_HOST_version, V_QMAKE_HOST_version_string,
-        V__DATE_, V__QMAKE_CACHE_
+        V__PRO_FILE_, V__PRO_FILE_PWD_
     };
 };
 

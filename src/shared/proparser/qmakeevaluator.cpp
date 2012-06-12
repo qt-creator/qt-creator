@@ -821,6 +821,75 @@ void QMakeEvaluator::visitProVariable(
     }
 }
 
+void QMakeEvaluator::loadDefaults()
+{
+    ProValueMap &vars = m_valuemapStack.top();
+
+    vars[ProString("LITERAL_WHITESPACE")] << ProString("\t", NoHash);
+    vars[ProString("LITERAL_DOLLAR")] << ProString("$", NoHash);
+    vars[ProString("LITERAL_HASH")] << ProString("#", NoHash);
+    vars[ProString("DIR_SEPARATOR")] << ProString(m_option->dir_sep, NoHash);
+    vars[ProString("DIRLIST_SEPARATOR")] << ProString(m_option->dirlist_sep, NoHash);
+    vars[ProString("_DATE_")] << ProString(QDateTime::currentDateTime().toString(), NoHash);
+#if defined(Q_OS_WIN32)
+    vars[ProString("QMAKE_HOST.os")] << ProString("Windows", NoHash);
+
+    DWORD name_length = 1024;
+    wchar_t name[1024];
+    if (GetComputerName(name, &name_length))
+        vars[ProString("QMAKE_HOST.name")] << ProString(QString::fromWCharArray(name), NoHahs);
+
+    QSysInfo::WinVersion ver = QSysInfo::WindowsVersion;
+    vars[ProString("QMAKE_HOST.version")] << ProString(QString::number(ver), NoHash);
+    ProString verStr;
+    switch (ver) {
+    case QSysInfo::WV_Me: verStr = ProString("WinMe", NoHash); break;
+    case QSysInfo::WV_95: verStr = ProString("Win95", NoHash); break;
+    case QSysInfo::WV_98: verStr = ProString("Win98", NoHash); break;
+    case QSysInfo::WV_NT: verStr = ProString("WinNT", NoHash); break;
+    case QSysInfo::WV_2000: verStr = ProString("Win2000", NoHash); break;
+    case QSysInfo::WV_2003: verStr = ProString("Win2003", NoHash); break;
+    case QSysInfo::WV_XP: verStr = ProString("WinXP", NoHash); break;
+    case QSysInfo::WV_VISTA: verStr = ProString("WinVista", NoHash); break;
+    default: verStr = ProString("Unknown", NoHash); break;
+    }
+    vars[ProString("QMAKE_HOST.version_string")] << verStr;
+
+    SYSTEM_INFO info;
+    GetSystemInfo(&info);
+    ProString archStr;
+    switch (info.wProcessorArchitecture) {
+# ifdef PROCESSOR_ARCHITECTURE_AMD64
+    case PROCESSOR_ARCHITECTURE_AMD64:
+        archStr = ProString("x86_64", NoHash);
+        break;
+# endif
+    case PROCESSOR_ARCHITECTURE_INTEL:
+        archStr = ProString("x86", NoHash);
+        break;
+    case PROCESSOR_ARCHITECTURE_IA64:
+# ifdef PROCESSOR_ARCHITECTURE_IA32_ON_WIN64
+    case PROCESSOR_ARCHITECTURE_IA32_ON_WIN64:
+# endif
+        archStr = ProString("IA64", NoHash);
+        break;
+    default:
+        archStr = ProString("Unknown", NoHash);
+        break;
+    }
+    vars[ProString("QMAKE_HOST.arch")] << archStr;
+#elif defined(Q_OS_UNIX)
+    struct utsname name;
+    if (!uname(&name)) {
+        vars[ProString("QMAKE_HOST.os")] << ProString(name.sysname, NoHash);
+        vars[ProString("QMAKE_HOST.name")] << ProString(QString::fromLocal8Bit(name.nodename), NoHash);
+        vars[ProString("QMAKE_HOST.version")] << ProString(name.release, NoHash);
+        vars[ProString("QMAKE_HOST.version_string")] << ProString(name.version, NoHash);
+        vars[ProString("QMAKE_HOST.arch")] << ProString(name.machine, NoHash);
+    }
+#endif
+}
+
 bool QMakeEvaluator::prepareProject()
 {
     if (m_option->do_cache) {
@@ -848,6 +917,7 @@ bool QMakeEvaluator::prepareProject()
                 m_option->qmakespec = evaluator.first(ProString("QMAKESPEC")).toQString();
         }
         m_option->cachefile = qmake_cache;
+        valuesRef(ProString("_QMAKE_CACHE_")) << ProString(qmake_cache, NoHash);
     }
     return true;
 }
@@ -857,6 +927,8 @@ bool QMakeEvaluator::loadSpec()
 #ifdef PROEVALUATOR_CUMULATIVE
     m_cumulative = false;
 #endif
+
+    loadDefaults();
 
     QString qmakespec = m_option->expandEnvVars(m_option->qmakespec);
     if (qmakespec.isEmpty())
@@ -1645,93 +1717,12 @@ ProStringList QMakeEvaluator::values(const ProString &variableName) const
         case V_PWD: // containing directory of most nested project/include file
             ret = currentDirectory();
             break;
-        case V_DIR_SEPARATOR:
-            ret = m_option->dir_sep;
-            break;
-        case V_DIRLIST_SEPARATOR:
-            ret = m_option->dirlist_sep;
-            break;
-        case V__DATE_: //current date/time
-            ret = QDateTime::currentDateTime().toString();
-            break;
         case V__PRO_FILE_:
             ret = m_profileStack.first()->fileName();
             break;
         case V__PRO_FILE_PWD_:
             ret = m_profileStack.first()->directoryName();
             break;
-        case V__QMAKE_CACHE_:
-            ret = m_option->cachefile;
-            break;
-#if defined(Q_OS_WIN32)
-        case V_QMAKE_HOST_os: ret = QLatin1String("Windows"); break;
-        case V_QMAKE_HOST_name: {
-            DWORD name_length = 1024;
-            TCHAR name[1024];
-            if (GetComputerName(name, &name_length))
-                ret = QString::fromUtf16((ushort*)name, name_length);
-            break;
-        }
-        case V_QMAKE_HOST_version:
-            ret = QString::number(QSysInfo::WindowsVersion);
-            break;
-        case V_QMAKE_HOST_version_string:
-            switch (QSysInfo::WindowsVersion) {
-            case QSysInfo::WV_Me: ret = QLatin1String("WinMe"); break;
-            case QSysInfo::WV_95: ret = QLatin1String("Win95"); break;
-            case QSysInfo::WV_98: ret = QLatin1String("Win98"); break;
-            case QSysInfo::WV_NT: ret = QLatin1String("WinNT"); break;
-            case QSysInfo::WV_2000: ret = QLatin1String("Win2000"); break;
-            case QSysInfo::WV_2003: ret = QLatin1String("Win2003"); break;
-            case QSysInfo::WV_XP: ret = QLatin1String("WinXP"); break;
-            case QSysInfo::WV_VISTA: ret = QLatin1String("WinVista"); break;
-            default: ret = QLatin1String("Unknown"); break;
-            }
-            break;
-        case V_QMAKE_HOST_arch:
-            SYSTEM_INFO info;
-            GetSystemInfo(&info);
-            switch(info.wProcessorArchitecture) {
-#ifdef PROCESSOR_ARCHITECTURE_AMD64
-            case PROCESSOR_ARCHITECTURE_AMD64:
-                ret = QLatin1String("x86_64");
-                break;
-#endif
-            case PROCESSOR_ARCHITECTURE_INTEL:
-                ret = QLatin1String("x86");
-                break;
-            case PROCESSOR_ARCHITECTURE_IA64:
-#ifdef PROCESSOR_ARCHITECTURE_IA32_ON_WIN64
-            case PROCESSOR_ARCHITECTURE_IA32_ON_WIN64:
-#endif
-                ret = QLatin1String("IA64");
-                break;
-            default:
-                ret = QLatin1String("Unknown");
-                break;
-            }
-            break;
-#elif defined(Q_OS_UNIX)
-        case V_QMAKE_HOST_os:
-        case V_QMAKE_HOST_name:
-        case V_QMAKE_HOST_version:
-        case V_QMAKE_HOST_version_string:
-        case V_QMAKE_HOST_arch:
-            {
-                struct utsname name;
-                const char *what;
-                if (!uname(&name)) {
-                    switch (vlidx) {
-                    case V_QMAKE_HOST_os: what = name.sysname; break;
-                    case V_QMAKE_HOST_name: what = name.nodename; break;
-                    case V_QMAKE_HOST_version: what = name.release; break;
-                    case V_QMAKE_HOST_version_string: what = name.version; break;
-                    case V_QMAKE_HOST_arch: what = name.machine; break;
-                    }
-                    ret = QString::fromLocal8Bit(what);
-                }
-            }
-#endif
         }
         return ProStringList(ProString(ret, NoHash));
     }
