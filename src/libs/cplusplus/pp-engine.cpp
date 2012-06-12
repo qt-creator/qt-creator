@@ -801,16 +801,20 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 
         if (m_client && !idTk.generated()) {
             // Bundle each token sequence into a macro argument "reference" for notification.
+            // Even empty ones, which are not necessarily important on its own, but for the matter
+            // of couting their number - such as in foo(,)
             QVector<MacroArgumentReference> argRefs;
             for (int i = 0; i < allArgTks.size(); ++i) {
                 const QVector<PPToken> &argTks = allArgTks.at(i);
-                if (argTks.isEmpty())
-                    continue;
+                if (argTks.isEmpty()) {
+                    argRefs.push_back(MacroArgumentReference());
+                } else {
 
-                argRefs.push_back(
-                            MacroArgumentReference(
-                                m_state.m_offsetRef + argTks.first().begin(),
-                                argTks.last().begin() + argTks.last().length() - argTks.first().begin()));
+                    argRefs.push_back(MacroArgumentReference(
+                                          m_state.m_offsetRef + argTks.first().begin(),
+                                          argTks.last().begin() + argTks.last().length()
+                                            - argTks.first().begin()));
+                }
             }
 
             m_client->startExpandingMacro(m_state.m_offsetRef + idTk.offset, *macro, macroNameRef,

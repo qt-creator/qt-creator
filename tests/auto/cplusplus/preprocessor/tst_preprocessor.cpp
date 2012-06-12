@@ -120,12 +120,13 @@ public:
     virtual void startExpandingMacro(unsigned offset,
                                      const Macro &macro,
                                      const ByteArrayRef &originalText,
-                                     const QVector<MacroArgumentReference> &/*actuals*/
-                                              = QVector<MacroArgumentReference>())
+                                     const QVector<MacroArgumentReference> &actuals
+                                            = QVector<MacroArgumentReference>())
     {
         m_expandedMacros.append(QByteArray(originalText.start(), originalText.length()));
         m_expandedMacrosOffset.append(offset);
         m_macroUsesLine[macro.name()].append(m_env->currentLine);
+        m_macroArgsCount.append(actuals.size());
     }
 
     virtual void stopExpandingMacro(unsigned /*offset*/, const Macro &/*macro*/) {}
@@ -232,6 +233,9 @@ public:
     QHash<QByteArray, QList<unsigned> > macroUsesLine() const
     { return m_macroUsesLine; }
 
+    const QList<int> macroArgsCount() const
+    { return m_macroArgsCount; }
+
 private:
     Environment *m_env;
     QByteArray *m_output;
@@ -245,6 +249,7 @@ private:
     QList<QByteArray> m_definedMacros;
     QList<unsigned> m_definedMacrosLine;
     QHash<QByteArray, QList<unsigned> > m_macroUsesLine;
+    QList<int> m_macroArgsCount;
 };
 
 QT_BEGIN_NAMESPACE
@@ -305,7 +310,8 @@ private slots:
 
     void va_args();
     void named_va_args();
-    void first_empty_macro_arg();
+    void empty_macro_args();
+    void macro_args_count();
     void invalid_param_count();
     void objmacro_expanding_as_fnmacro_notification();
     void macro_definition_lineno();
@@ -386,7 +392,7 @@ void tst_Preprocessor::named_va_args()
     QCOMPARE(simplified(preprocessed), QString("int f();int f(int a);int f(int a,int b);"));
 }
 
-void tst_Preprocessor::first_empty_macro_arg()
+void tst_Preprocessor::empty_macro_args()
 {
     Client *client = 0; // no client.
     Environment env;
@@ -396,12 +402,47 @@ void tst_Preprocessor::first_empty_macro_arg()
                                                 "\n#define foo(a,b) a int b;"
                                                 "\nfoo(const,cVal)\n"
                                                 "\nfoo(,Val)\n"
-                                                "\nfoo( ,Val2)\n",
+                                                "\nfoo( ,Val2)\n"
+                                                "\nfoo(,)\n"
+                                                "\nfoo(, )\n",
                                              true, false);
 
     preprocessed = preprocessed.simplified();
 //    DUMP_OUTPUT(preprocessed);
-    QCOMPARE(simplified(preprocessed), QString("const int cVal;int Val;int Val2;"));
+    QCOMPARE(simplified(preprocessed),
+             QString("const int cVal;int Val;int Val2;int;int;"));
+}
+
+void tst_Preprocessor::macro_args_count()
+{
+    Environment env;
+    QByteArray output;
+    MockClient client(&env, &output);
+    Preprocessor preprocess(&client, &env);
+    preprocess.run(QLatin1String("<stdin>"),
+                   "#define foo(a,b) a int b;\n"
+                   "foo(const,cVal)\n"
+                   "foo(, i)\n"
+                   "foo(,Val)\n"
+                   "foo( ,Val2)\n"
+                   "foo(,)\n"
+                   "foo(, )\n"
+                   "#define bar(a)\n"
+                   "bar()\n"
+                   "bar(i)\n",
+                   true, false);
+
+    QCOMPARE(client.macroArgsCount(),
+             QList<int>() << 2 // foo(const,cVal)
+                          << 2 // foo(, i)
+                          << 2 // foo(,Val)
+                          << 2 // foo( , Val2)
+                          << 2 // foo(,)
+                          << 2 // foo(, )
+                          << 1 // bar()
+                          << 1 // bar(i)
+            );
+
 }
 
 void tst_Preprocessor::invalid_param_count()
