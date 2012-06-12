@@ -273,7 +273,7 @@ ElfReader::Result ElfReader::readIt()
             return Corrupt;
         }
 
-        for (int i = 0; i < e_shnum; ++i) {
+        for (quint32 i = 0; i < e_shnum; ++i) {
             const uchar *s = mapper.ustart + e_shoff + i * e_shentsize;
             ElfSectionHeader sh;
             parseSectionHeader(s, &sh, m_elfData);
@@ -305,7 +305,7 @@ ElfReader::Result ElfReader::readIt()
     }
 
     if (e_phoff) {
-        for (int i = 0; i < e_phnum; ++i) {
+        for (quint32 i = 0; i < e_phnum; ++i) {
             const uchar *s = mapper.ustart + e_phoff + i * e_phentsize;
             ElfProgramHeader ph;
             parseProgramHeader(s, &ph, m_elfData);
