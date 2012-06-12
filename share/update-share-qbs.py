@@ -1,14 +1,15 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 #
 # Script for automatically updating share.qbs
 # Usage: Just call it without arguments.
 #
 
-import os, os.path
+import os
+import posixpath as path
 import inspect
 
-scriptFileName = os.path.basename(inspect.getfile(inspect.currentframe()))
-shareDirPath = os.path.dirname(inspect.getfile(inspect.currentframe()))
+scriptFileName = path.basename(inspect.getfile(inspect.currentframe()))
+shareDirPath = path.dirname(inspect.getfile(inspect.currentframe()))
 print "updating " + shareDirPath + "/share.qbs"
 
 os.chdir(shareDirPath)
@@ -51,6 +52,7 @@ for root, dirs, files in os.walk("."):
         dirs.remove('.obj')
     except: pass
 
+    root = root.replace('\\', '/')
     for file in files:
         if not (file in blacklist):
             if not root in filenamedict:
@@ -59,12 +61,12 @@ for root, dirs, files in os.walk("."):
                 filenamedict[root].append(file)
 
 for directory in sorted(filenamedict.iterkeys()):
-    prefix = directory
+    prefix = directory.replace('\\', '/')
     if prefix.startswith("./"):
-        prefix = os.path.normpath(prefix[2:])
+        prefix = path.normpath(prefix[2:])
     if not prefix.endswith("/"):
         prefix += "/"
-    normalizedDirectory = os.path.normpath(directory)
+    normalizedDirectory = path.normpath(directory.replace('\\', '/'))
     writeln("")
     writeln("    Group {")
     writeln("        qbs.installDir: \"share/" + normalizedDirectory + "\"")
