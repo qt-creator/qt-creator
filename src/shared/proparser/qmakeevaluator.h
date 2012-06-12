@@ -109,6 +109,7 @@ public:
     bool prepareProject();
     bool loadSpec();
     void initFrom(const QMakeEvaluator &other);
+    void setupProject();
     void visitCmdLine(const QString &cmds);
     VisitReturn visitProFile(ProFile *pro, QMakeHandler::EvalFileType type,
                              LoadFlags flags);
@@ -122,6 +123,8 @@ public:
     static const ProString &map(const ProString &var);
     ProValueMap *findValues(const ProString &variableName, ProValueMap::Iterator *it);
     ProStringList valuesDirect(const ProString &variableName) const;
+
+    void setTemplate();
 
     ProStringList split_value_list(const QString &vals, const ProFile *source = 0);
     ProStringList expandVariableReferences(const ProString &value, int *pos = 0, bool joined = false);

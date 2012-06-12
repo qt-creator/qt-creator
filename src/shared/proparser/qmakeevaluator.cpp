@@ -819,6 +819,16 @@ void QMakeEvaluator::visitProVariable(
             break;
         }
     }
+
+    if (varName == statics.strTEMPLATE)
+        setTemplate();
+}
+
+void QMakeEvaluator::setTemplate()
+{
+    ProStringList &values = valuesRef(statics.strTEMPLATE);
+    if (values.isEmpty())
+        values.append(ProString("app", NoHash));
 }
 
 void QMakeEvaluator::loadDefaults()
@@ -993,6 +1003,11 @@ bool QMakeEvaluator::loadSpec()
     return true;
 }
 
+void QMakeEvaluator::setupProject()
+{
+    setTemplate();
+}
+
 void QMakeEvaluator::visitCmdLine(const QString &cmds)
 {
     if (!cmds.isEmpty()) {
@@ -1056,6 +1071,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
     m_handler->aboutToEval(currentProFile(), pro, type);
     m_profileStack.push(pro);
     if (flags & LoadPreFiles) {
+        setupProject();
+
         evaluateFeatureFile(QLatin1String("default_pre.prf"));
 
         ProStringList &tgt = m_valuemapStack.top()[ProString("TARGET")];
@@ -1745,11 +1762,6 @@ ProStringList QMakeEvaluator::values(const ProString &variableName) const
     }
 
     ProStringList result = valuesDirect(variableName);
-    if (result.isEmpty()) {
-        if (variableName == statics.strTEMPLATE) {
-            result.append(ProString("app", NoHash));
-        }
-    }
     return result;
 }
 
