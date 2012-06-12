@@ -316,6 +316,16 @@ def qdump__QFixed(d, value):
     d.putNumChild(0)
 
 
+def qdump__QFiniteStack(d, value):
+    alloc = value["_alloc"]
+    size = value["_size"]
+    check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
+    d.putItemCount(size)
+    d.putNumChild(size)
+    if d.isExpanded():
+        innerType = templateArgument(value.type, 0)
+        d.putArrayData(innerType, value["_array"], size)
+
 # Stock gdb 7.2 seems to have a problem with types here:
 #
 #  echo -e "namespace N { struct S { enum E { zero, one, two }; }; }\n"\
