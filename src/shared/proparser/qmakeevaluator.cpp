@@ -1773,43 +1773,37 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
     if (!fn.endsWith(QLatin1String(".prf")))
         fn += QLatin1String(".prf");
 
-    if ((!fileName.contains((ushort)'/') && !fileName.contains((ushort)'\\'))
-        || !IoUtils::exists(resolvePath(fn))) {
-        if (m_option->feature_roots.isEmpty())
-            m_option->feature_roots = qmakeFeaturePaths();
-        int start_root = 0;
-        QString currFn = currentFileName();
-        if (IoUtils::fileName(currFn) == IoUtils::fileName(fn)) {
-            for (int root = 0; root < m_option->feature_roots.size(); ++root)
-                if (currFn == m_option->feature_roots.at(root) + fn) {
-                    start_root = root + 1;
-                    break;
-                }
-        }
-        for (int root = start_root; root < m_option->feature_roots.size(); ++root) {
-            QString fname = m_option->feature_roots.at(root) + fn;
-            if (IoUtils::exists(fname)) {
-                fn = fname;
-                goto cool;
+    if (m_option->feature_roots.isEmpty())
+        m_option->feature_roots = qmakeFeaturePaths();
+    int start_root = 0;
+    QString currFn = currentFileName();
+    if (IoUtils::fileName(currFn) == IoUtils::fileName(fn)) {
+        for (int root = 0; root < m_option->feature_roots.size(); ++root)
+            if (currFn == m_option->feature_roots.at(root) + fn) {
+                start_root = root + 1;
+                break;
             }
-        }
-#ifdef QMAKE_BUILTIN_PRFS
-        fn.prepend(QLatin1String(":/qmake/features/"));
-        if (QFileInfo(fn).exists())
-            goto cool;
-#endif
-        return false;
-
-      cool:
-        // It's beyond me why qmake has this inside this if ...
-        ProStringList &already = valuesRef(ProString("QMAKE_INTERNAL_INCLUDED_FEATURES"));
-        ProString afn(fn, NoHash);
-        if (already.contains(afn))
-            return true;
-        already.append(afn);
-    } else {
-        fn = resolvePath(fn);
     }
+    for (int root = start_root; root < m_option->feature_roots.size(); ++root) {
+        QString fname = m_option->feature_roots.at(root) + fn;
+        if (IoUtils::exists(fname)) {
+            fn = fname;
+            goto cool;
+        }
+    }
+#ifdef QMAKE_BUILTIN_PRFS
+    fn.prepend(QLatin1String(":/qmake/features/"));
+    if (QFileInfo(fn).exists())
+        goto cool;
+#endif
+    return false;
+
+  cool:
+    ProStringList &already = valuesRef(ProString("QMAKE_INTERNAL_INCLUDED_FEATURES"));
+    ProString afn(fn, NoHash);
+    if (already.contains(afn))
+        return true;
+    already.append(afn);
 
 #ifdef PROEVALUATOR_CUMULATIVE
     bool cumulative = m_cumulative;
