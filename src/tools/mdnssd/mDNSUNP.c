@@ -106,7 +106,7 @@ struct ifi_info *get_ifi_info_linuxv6(int family, int doaliases)
 			goto gotError;
 		}
 		while (fscanf(fp,
-					  "%4s%4s%4s%4s%4s%4s%4s%4s %02x %02x %02x %02x %8s\n",
+					  "%4s%4s%4s%4s%4s%4s%4s%4s %x %x %x %x %s\n",
 					  addr[0],addr[1],addr[2],addr[3],
 					  addr[4],addr[5],addr[6],addr[7],
 					  &index, &plen, &scope, &flags, ifname) != EOF) {
