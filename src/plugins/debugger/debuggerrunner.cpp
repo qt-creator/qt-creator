@@ -584,7 +584,8 @@ static QList<DebuggerEngineType> enginesForMode(DebuggerStartMode startMode,
 
     if (languages == QmlLanguage) {
         QTC_ASSERT(startMode == StartInternal
-                   || startMode == AttachToRemoteServer,
+                   || startMode == AttachToRemoteServer
+                   || startMode == AttachToRemoteProcess,
                    qDebug() << "qml debugging not supported for mode"
                             << startMode);
 

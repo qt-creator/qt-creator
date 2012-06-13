@@ -594,6 +594,8 @@ void QmlEngine::runEngine()
 
     if (!isSlaveEngine()) {
         if (startParameters().startMode == AttachToRemoteServer)
+            m_noDebugOutputTimer.start();
+        else if (startParameters().startMode == AttachToRemoteProcess)
             beginConnection();
         else
             startApplicationLauncher();

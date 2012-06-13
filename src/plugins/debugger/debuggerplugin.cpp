@@ -1814,7 +1814,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     sp.qmlServerPort = dlg.port();
     sp.sysroot = dlg.sysroot();
 
-    sp.startMode = AttachToRemoteServer;
+    sp.startMode = AttachToRemoteProcess;
     sp.closeMode = KillAtClose;
     sp.languages = QmlLanguage;
 
