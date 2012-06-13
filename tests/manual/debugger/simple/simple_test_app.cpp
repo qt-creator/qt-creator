@@ -4965,16 +4965,19 @@ namespace basic {
 
     void testFunctionPointerHelper() {}
 
+    static int someData;
+
     void testFunctionPointer()
     {
         typedef void (*func_t)();
         func_t f2 = testFunctionPointerHelper;
+        int *p = &someData;
         BREAK_HERE;
         // CheckType f2 basic::func_t.
         // Continue.
 
         // Check there's a valid display for f2.
-        dummyStatement(&f2);
+        dummyStatement(&f2, p);
     }
 
     void testPassByReferenceHelper(Foo &f)
