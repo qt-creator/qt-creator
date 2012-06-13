@@ -168,7 +168,6 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode 
 
 RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode mode)
 {
-    Q_ASSERT(mode == NormalRunMode || mode == DebugRunMode);
     Q_ASSERT(canRun(runConfig, mode));
 
     MaemoRunConfiguration *rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
