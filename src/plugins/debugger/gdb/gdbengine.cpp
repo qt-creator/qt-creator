@@ -3326,7 +3326,7 @@ void GdbEngine::handleShowModuleSymbols(const GdbResponse &response)
             if (posAddress == -1)
                 continue;
             int posName = line.indexOf(" ", posAddress);
-            int lenAddress = posName - posAddress - 1;
+            int lenAddress = posName - posAddress;
             int posSection = line.indexOf(" section ");
             int lenName = 0;
             int lenSection = 0;
