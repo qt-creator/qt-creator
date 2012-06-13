@@ -56,23 +56,16 @@
 namespace Debugger {
 namespace Internal {
 
-class AbstractGdbAdapter;
 class AbstractGdbProcess;
 class DebugInfoTask;
 class DebugInfoTaskHandler;
 class GdbResponse;
 class GdbMi;
 class GdbToolTipContext;
-class Module;
 
 class WatchData;
 class DisassemblerAgentCookie;
 class DisassemblerLines;
-
-class AttachGdbAdapter;
-class CoreGdbAdapter;
-class LocalPlainGdbAdapter;
-class RemoteGdbServerAdapter;
 
 enum DebuggingHelperState
 {
@@ -207,30 +200,18 @@ public:
     GdbEngine(const DebuggerStartParameters &startParameters,
         DebuggerEngine *masterEngine);
     ~GdbEngine();
-    AbstractGdbAdapter *gdbAdapter() const { return m_gdbAdapter; }
-
-private:
-    friend class AbstractGdbAdapter;
-    friend class AbstractPlainGdbAdapter;
-    friend class AttachGdbAdapter;
-    friend class CoreGdbAdapter;
-    friend class LocalPlainGdbAdapter;
-    friend class TermGdbAdapter;
-    friend class RemoteGdbServerAdapter;
-    friend class RemotePlainGdbAdapter;
-    friend class CodaGdbAdapter;
 
 private: ////////// General Interface //////////
 
-    virtual void setupEngine();
-    virtual void setupInferior();
-    virtual void runEngine();
+    virtual void setupEngine() = 0;
+    virtual void handleGdbStartFailed();
+    virtual void setupInferior() = 0;
+    virtual void notifyInferiorSetupFailed();
 
     virtual bool hasCapability(unsigned) const;
     virtual void detachDebugger();
-    virtual void shutdownEngine();
     virtual void shutdownInferior();
-    virtual void notifyInferiorSetupFailed();
+    virtual void shutdownEngine() = 0;
     virtual void abortDebugger();
 
     virtual bool acceptsDebuggerCommands() const;
@@ -246,18 +227,16 @@ private: ////////// General State //////////
 
     bool m_registerNamesListed;
 
-private: ////////// Gdb Process Management //////////
+protected: ////////// Gdb Process Management //////////
 
-    AbstractGdbAdapter *createAdapter();
     void startGdb(const QStringList &args = QStringList());
-    void handleGdbStart(const GdbResponse &response);
+    void reportEngineSetupOk(const GdbResponse &response);
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);
     void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     void handleRemoteSetupFailed(const QString &message);
     void handleNamespaceExtraction(const GdbResponse &response);
 
-    void handleAdapterStarted();
     void loadInitScript();
     void loadPythonDumpers();
     void pythonDumpersFailed();
@@ -299,8 +278,6 @@ private:
     QByteArray m_inbuffer;
     bool m_busy;
 
-    AbstractGdbAdapter *m_gdbAdapter;
-
     // Name of the convenience variable containing the last
     // known function return value.
     QByteArray m_resultVarName;
@@ -330,22 +307,18 @@ private: ////////// Gdb Command Management //////////
         ConsoleCommand = 512
     };
     Q_DECLARE_FLAGS(GdbCommandFlags, GdbCommandFlag)
-    private:
 
-    typedef void (GdbEngine::*GdbCommandCallback)
-        (const GdbResponse &response);
-    typedef void (AbstractGdbAdapter::*AdapterCallback)
-        (const GdbResponse &response);
+    protected:
+    typedef void (GdbEngine::*GdbCommandCallback)(const GdbResponse &response);
 
     struct GdbCommand
     {
         GdbCommand()
-            : flags(0), callback(0), adapterCallback(0), callbackName(0)
+            : flags(0), callback(0), callbackName(0)
         {}
 
         int flags;
         GdbCommandCallback callback;
-        AdapterCallback adapterCallback;
         const char *callbackName;
         QByteArray command;
         QVariant cookie;
@@ -357,6 +330,7 @@ private: ////////// Gdb Command Management //////////
     // send and decrements on receipt, effectively preventing
     // watch model updates before everything is finished.
     void flushCommand(const GdbCommand &cmd);
+protected:
     void postCommand(const QByteArray &command,
                      GdbCommandFlags flags,
                      GdbCommandCallback callback = 0,
@@ -366,15 +340,7 @@ private: ////////// Gdb Command Management //////////
                      GdbCommandCallback callback = 0,
                      const char *callbackName = 0,
                      const QVariant &cookie = QVariant());
-    void postCommand(const QByteArray &command,
-                     AdapterCallback callback,
-                     const char *callbackName,
-                     const QVariant &cookie = QVariant());
-    void postCommand(const QByteArray &command,
-                     GdbCommandFlags flags,
-                     AdapterCallback callback,
-                     const char *callbackName,
-                     const QVariant &cookie = QVariant());
+private:
     void postCommandHelper(const GdbCommand &cmd);
     void flushQueuedCommands();
     Q_SLOT void commandTimeout();
@@ -407,7 +373,7 @@ private: ////////// Gdb Command Management //////////
     void checkForReleaseBuild();
 
 private: ////////// Gdb Output, State & Capability Handling //////////
-
+protected:
     Q_SLOT void handleResponse(const QByteArray &buff);
     void handleStopResponse(const GdbMi &data);
     void handleResultRecord(GdbResponse *response);
@@ -451,11 +417,13 @@ private: ////////// Inferior Management //////////
     void executeStepI();
     void executeNextI();
 
+    protected:
     void continueInferiorInternal();
     void doNotifyInferiorRunOk();
     void autoContinueInferior();
     void continueInferior();
     void interruptInferior();
+    virtual void interruptInferior2() {}
     void interruptInferiorTemporarily();
 
     void executeRunToLine(const ContextData &data);
@@ -474,6 +442,7 @@ private: ////////// Inferior Management //////////
     void handleInfoProc(const GdbResponse &response);
 
 private: ////////// View & Data Stuff //////////
+    protected:
 
     void selectThread(int index);
     void activateFrame(int index);
@@ -509,7 +478,7 @@ private: ////////// View & Data Stuff //////////
     // Modules specific stuff
     //
     void loadSymbols(const QString &moduleName);
-    void loadAllSymbols();
+    Q_SLOT void loadAllSymbols();
     void loadSymbolsForStack();
     void requestModuleSymbols(const QString &moduleName);
     void reloadModules();
@@ -584,6 +553,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Stack specific stuff
     //
+protected:
     void updateAll();
         void updateAllClassic();
         void updateAllPython();
@@ -743,7 +713,38 @@ private: ////////// View & Data Stuff //////////
     bool m_forceAsyncModel;
     QList<WatchData> m_completed;
     QSet<QByteArray> m_uncompleted;
+
+    static QString msgGdbStopFailed(const QString &why);
+    static QString msgInferiorStopFailed(const QString &why);
+    static QString msgAttachedToStoppedInferior();
+    static QString msgInferiorSetupOk();
+    static QString msgInferiorRunOk();
+    static QString msgConnectRemoteServerFailed(const QString &why);
+
+protected:
+    enum DumperHandling
+    {
+        DumperNotAvailable,
+        DumperLoadedByAdapter,
+        DumperLoadedByGdbPreload,
+        DumperLoadedByGdb
+    };
+
+    virtual void write(const QByteArray &data);
+
+    virtual AbstractGdbProcess *gdbProc() = 0;
+    virtual DumperHandling dumperHandling() const = 0;
+
+    // CODA specific stuff
+    virtual bool isCodaAdapter() const;
+    virtual void codaReloadRegisters() {}
+    virtual void codaReloadThreads() {}
+
+protected:
+    bool prepareCommand();
+    void interruptLocalInferior(qint64 pid);
 };
+
 
 } // namespace Internal
 } // namespace Debugger

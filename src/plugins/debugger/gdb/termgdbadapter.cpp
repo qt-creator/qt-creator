@@ -49,7 +49,7 @@ namespace Debugger {
 namespace Internal {
 
 #define CB(callback) \
-    static_cast<GdbEngine::AdapterCallback>(&TermGdbAdapter::callback), \
+    static_cast<GdbEngine::GdbCommandCallback>(&GdbTermEngine::callback), \
     STRINGIFY(callback)
 
 ///////////////////////////////////////////////////////////////////////
@@ -58,8 +58,9 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-TermGdbAdapter::TermGdbAdapter(GdbEngine *engine)
-    : AbstractGdbAdapter(engine)
+GdbTermEngine::GdbTermEngine(const DebuggerStartParameters &startParameters,
+    DebuggerEngine *masterEngine)
+    : GdbEngine(startParameters, masterEngine)
 {
 #ifdef Q_OS_WIN
     // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win
@@ -72,18 +73,14 @@ TermGdbAdapter::TermGdbAdapter(GdbEngine *engine)
     m_stubProc.setMode(Utils::ConsoleProcess::Debug);
     m_stubProc.setSettings(Core::ICore::settings());
 #endif
-
-    connect(&m_stubProc, SIGNAL(processError(QString)), SLOT(stubError(QString)));
-    connect(&m_stubProc, SIGNAL(processStarted()), SLOT(handleInferiorSetupOk()));
-    connect(&m_stubProc, SIGNAL(wrapperStopped()), SLOT(stubExited()));
 }
 
-TermGdbAdapter::~TermGdbAdapter()
+GdbTermEngine::~GdbTermEngine()
 {
     m_stubProc.disconnect(); // Avoid spurious state transitions from late exiting stub
 }
 
-AbstractGdbAdapter::DumperHandling TermGdbAdapter::dumperHandling() const
+GdbEngine::DumperHandling GdbTermEngine::dumperHandling() const
 {
     // LD_PRELOAD fails for System-Qt on Mac.
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
@@ -93,7 +90,7 @@ AbstractGdbAdapter::DumperHandling TermGdbAdapter::dumperHandling() const
 #endif
 }
 
-void TermGdbAdapter::startAdapter()
+void GdbTermEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
@@ -110,34 +107,32 @@ void TermGdbAdapter::startAdapter()
     m_stubProc.setWorkingDirectory(startParameters().workingDirectory);
     // Set environment + dumper preload.
     m_stubProc.setEnvironment(startParameters().environment);
+
+    connect(&m_stubProc, SIGNAL(processError(QString)), SLOT(stubError(QString)));
+    connect(&m_stubProc, SIGNAL(processStarted()), SLOT(stubStarted()));
+    connect(&m_stubProc, SIGNAL(wrapperStopped()), SLOT(stubExited()));
     // FIXME: Starting the stub implies starting the inferior. This is
     // fairly unclean as far as the state machine and error reporting go.
+
     if (!m_stubProc.start(startParameters().executable,
                          startParameters().processArgs)) {
         // Error message for user is delivered via a signal.
-        m_engine->handleAdapterStartFailed(QString());
+        handleAdapterStartFailed(QString());
         return;
     }
-
-    m_engine->startGdb();
 }
 
-void TermGdbAdapter::handleGdbStartDone()
+void GdbTermEngine::stubStarted()
 {
+    startGdb();
 }
 
-void TermGdbAdapter::handleGdbStartFailed()
+void GdbTermEngine::handleGdbStartFailed()
 {
     m_stubProc.stop();
 }
 
-void TermGdbAdapter::handleInferiorSetupOk()
-{
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    m_engine->handleAdapterStarted();
-}
-
-void TermGdbAdapter::setupInferior()
+void GdbTermEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const qint64 attachedPID = m_stubProc.applicationPID();
@@ -147,12 +142,12 @@ void TermGdbAdapter::setupInferior()
 #else
     showMessage(QString::fromLatin1("Attaching to %1").arg(attachedPID), LogMisc);
 #endif
-    m_engine->notifyInferiorPid(attachedPID);
-    m_engine->postCommand("attach " + QByteArray::number(attachedPID),
+    notifyInferiorPid(attachedPID);
+    postCommand("attach " + QByteArray::number(attachedPID),
         CB(handleStubAttached));
 }
 
-void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
+void GdbTermEngine::handleStubAttached(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 #ifdef Q_OS_WIN
@@ -174,51 +169,51 @@ void TermGdbAdapter::handleStubAttached(const GdbResponse &response)
 #else
         showMessage(_("INFERIOR ATTACHED"));
 #endif // Q_OS_WIN
-        m_engine->handleInferiorPrepared();
+        handleInferiorPrepared();
         break;
     case GdbResultError:
         if (response.data.findChild("msg").data() == "ptrace: Operation not permitted.") {
-            m_engine->notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
+            notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
             break;
         }
-        m_engine->notifyInferiorSetupFailed(QString::fromLocal8Bit(response.data.findChild("msg").data()));
+        notifyInferiorSetupFailed(QString::fromLocal8Bit(response.data.findChild("msg").data()));
         break;
     default:
-        m_engine->notifyInferiorSetupFailed(QString::fromLatin1("Invalid response %1").arg(response.resultClass));
+        notifyInferiorSetupFailed(QString::fromLatin1("Invalid response %1").arg(response.resultClass));
         break;
     }
 }
 
-void TermGdbAdapter::runEngine()
+void GdbTermEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    m_engine->notifyEngineRunAndInferiorStopOk();
-    m_engine->continueInferiorInternal();
+    notifyEngineRunAndInferiorStopOk();
+    continueInferiorInternal();
 }
 
-void TermGdbAdapter::interruptInferior()
+void GdbTermEngine::interruptInferior2()
 {
-    interruptLocalInferior(m_engine->inferiorPid());
+    interruptLocalInferior(inferiorPid());
 }
 
-void TermGdbAdapter::stubError(const QString &msg)
+void GdbTermEngine::stubError(const QString &msg)
 {
     showMessageBox(QMessageBox::Critical, tr("Debugger Error"), msg);
 }
 
-void TermGdbAdapter::stubExited()
+void GdbTermEngine::stubExited()
 {
     if (state() == EngineShutdownRequested || state() == DebuggerFinished) {
         showMessage(_("STUB EXITED EXPECTEDLY"));
         return;
     }
     showMessage(_("STUB EXITED"));
-    m_engine->notifyEngineIll();
+    notifyEngineIll();
 }
 
-void TermGdbAdapter::shutdownAdapter()
+void GdbTermEngine::shutdownEngine()
 {
-    m_engine->notifyAdapterShutdownOk();
+    notifyAdapterShutdownOk();
 }
 
 } // namespace Internal

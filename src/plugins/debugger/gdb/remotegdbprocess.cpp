@@ -49,7 +49,7 @@ namespace Debugger {
 namespace Internal {
 
 RemoteGdbProcess::RemoteGdbProcess(const QSsh::SshConnectionParameters &connParams,
-    RemotePlainGdbAdapter *adapter, QObject *parent)
+    GdbRemotePlainEngine *adapter, QObject *parent)
     : AbstractGdbProcess(parent), m_connParams(connParams), m_conn(0),
       m_state(Inactive), m_adapter(adapter)
 {

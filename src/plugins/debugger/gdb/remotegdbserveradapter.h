@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_REMOTEGDBADAPTER_H
 #define DEBUGGER_REMOTEGDBADAPTER_H
 
-#include "abstractgdbadapter.h"
+#include "gdbengine.h"
 #include "localgdbprocess.h"
 
 namespace Debugger {
@@ -45,23 +45,22 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-class RemoteGdbServerAdapter : public AbstractGdbAdapter
+class GdbRemoteServerEngine : public GdbEngine
 {
     Q_OBJECT
 
 public:
-    RemoteGdbServerAdapter(GdbEngine *engine);
+    GdbRemoteServerEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine);
 
 private:
     DumperHandling dumperHandling() const;
 
-    void startAdapter();
-    void handleGdbStartDone();
-    void handleGdbStartFailed();
+    void setupEngine();
     void setupInferior();
     void runEngine();
-    void interruptInferior();
-    void shutdownAdapter();
+    void interruptInferior2();
+    void shutdownEngine();
 
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 

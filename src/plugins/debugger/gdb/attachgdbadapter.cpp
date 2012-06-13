@@ -45,7 +45,7 @@ namespace Debugger {
 namespace Internal {
 
 #define CB(callback) \
-    static_cast<GdbEngine::AdapterCallback>(&AttachGdbAdapter::callback), \
+    static_cast<GdbEngine::GdbCommandCallback>(&GdbAttachEngine::callback), \
     STRINGIFY(callback)
 
 ///////////////////////////////////////////////////////////////////////
@@ -54,47 +54,37 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-AttachGdbAdapter::AttachGdbAdapter(GdbEngine *engine)
-    : AbstractGdbAdapter(engine)
+GdbAttachEngine::GdbAttachEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine)
+    : GdbEngine(startParameters, masterEngine)
 {
 }
 
-void AttachGdbAdapter::startAdapter()
+void GdbAttachEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
-    m_engine->startGdb();
+    startGdb();
 }
 
-void AttachGdbAdapter::handleGdbStartDone()
-{
-    m_engine->handleAdapterStarted();
-}
-
-void AttachGdbAdapter::handleGdbStartFailed()
-{
-}
-
-void AttachGdbAdapter::setupInferior()
+void GdbAttachEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const qint64 pid = startParameters().attachPID;
-    m_engine->postCommand("attach " + QByteArray::number(pid), CB(handleAttach));
+    postCommand("attach " + QByteArray::number(pid), CB(handleAttach));
     // Task 254674 does not want to remove them
     //qq->breakHandler()->removeAllBreakpoints();
 }
 
-void AttachGdbAdapter::runEngine()
+void GdbAttachEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    m_engine->showStatusMessage(tr("Attached to process %1.")
-        .arg(m_engine->inferiorPid()));
-    m_engine->notifyEngineRunAndInferiorStopOk();
-    GdbMi data;
-    m_engine->handleStop1(data);
+    showStatusMessage(tr("Attached to process %1.").arg(inferiorPid()));
+    notifyEngineRunAndInferiorStopOk();
+    handleStop1(GdbMi());
 }
 
-void AttachGdbAdapter::handleAttach(const GdbResponse &response)
+void GdbAttachEngine::handleAttach(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     switch (response.resultClass) {
@@ -102,28 +92,28 @@ void AttachGdbAdapter::handleAttach(const GdbResponse &response)
     case GdbResultRunning:
         showMessage(_("INFERIOR ATTACHED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        m_engine->handleInferiorPrepared();
+        handleInferiorPrepared();
         break;
     case GdbResultError:
         if (response.data.findChild("msg").data() == "ptrace: Operation not permitted.") {
-            m_engine->notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
+            notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
             break;
         }
         // if msg != "ptrace: ..." fall through
     default:
         QString msg = QString::fromLocal8Bit(response.data.findChild("msg").data());
-        m_engine->notifyInferiorSetupFailed(msg);
+        notifyInferiorSetupFailed(msg);
     }
 }
 
-void AttachGdbAdapter::interruptInferior()
+void GdbAttachEngine::interruptInferior2()
 {
     interruptLocalInferior(startParameters().attachPID);
 }
 
-void AttachGdbAdapter::shutdownAdapter()
+void GdbAttachEngine::shutdownEngine()
 {
-    m_engine->notifyAdapterShutdownOk();
+    notifyAdapterShutdownOk();
 }
 
 } // namespace Internal

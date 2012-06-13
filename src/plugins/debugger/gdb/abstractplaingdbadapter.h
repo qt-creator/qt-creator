@@ -33,20 +33,21 @@
 #ifndef ABSTRACTPLAINGDBADAPTER_H
 #define ABSTRACTPLAINGDBADAPTER_H
 
-#include "abstractgdbadapter.h"
+#include "gdbengine.h"
 
 namespace Debugger {
 namespace Internal {
 
-class AbstractPlainGdbAdapter : public AbstractGdbAdapter
+class GdbAbstractPlainEngine : public GdbEngine
 {
     // Needs tr - context
     Q_OBJECT
 
 public:
-    explicit AbstractPlainGdbAdapter(GdbEngine *engine);
+    GdbAbstractPlainEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine);
 
-    virtual void setupInferior();
+    void setupInferior();
     void runEngine();
 
 private:

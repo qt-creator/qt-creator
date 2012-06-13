@@ -1357,6 +1357,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     sp.remoteArchitecture = val;
                 else if (key == QLatin1String("core")) {
                     sp.startMode = AttachCore;
+                    sp.closeMode = DetachAtClose;
                     sp.coreFile = val;
                     sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
                     sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
@@ -1590,6 +1591,7 @@ void DebuggerPluginPrivate::attachCore()
     sp.coreFile = dlg.coreFile();
     sp.displayName = tr("Core file \"%1\"").arg(dlg.coreFile());
     sp.startMode = AttachCore;
+    sp.closeMode = DetachAtClose;
     sp.debuggerCommand = dlg.debuggerCommand();
     sp.toolChainAbi = dlg.abi();
     sp.sysroot = dlg.sysroot();
@@ -1701,6 +1703,7 @@ void DebuggerPluginPrivate::loadRemoteCoreFile()
         return;
     sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
     sp.startMode = AttachCore;
+    sp.closeMode = DetachAtClose;
     //sp.debuggerCommand = dlg.debuggerCommand();
     //sp.toolChainAbi = dlg.abi();
     sp.sysroot = dlg.sysroot();

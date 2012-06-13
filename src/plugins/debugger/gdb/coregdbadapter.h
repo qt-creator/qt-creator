@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_COREGDBADAPTER_H
 #define DEBUGGER_COREGDBADAPTER_H
 
-#include "abstractgdbadapter.h"
+#include "gdbengine.h"
 #include "localgdbprocess.h"
 
 namespace Debugger {
@@ -45,36 +45,32 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-class CoreGdbAdapter : public AbstractGdbAdapter
+class GdbCoreEngine : public GdbEngine
 {
     Q_OBJECT
 
 public:
-    explicit CoreGdbAdapter(GdbEngine *engine);
-    ~CoreGdbAdapter();
+    GdbCoreEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine);
+    ~GdbCoreEngine();
 
 private:
     DumperHandling dumperHandling() const { return DumperNotAvailable; }
 
-    void startAdapter();
-    void handleGdbStartDone();
-    void handleGdbStartFailed();
+    void setupEngine();
     void setupInferior();
     void runEngine();
     void interruptInferior();
-    void shutdownAdapter();
-
-    Q_SLOT void loadSymbolsForStack();
-    Q_SLOT void loadAllSymbols();
+    void shutdownEngine();
 
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleTargetCore(const GdbResponse &response);
-    void handleModulesList(const GdbResponse &response);
+    void handleRoundTrip(const GdbResponse &response);
     void unpackCoreIfNeeded();
     QString coreFileName() const;
-    Q_SLOT void continueAdapterStart();
+    Q_SLOT void continueSetupEngine();
     QString coreName() const;
 
     QString m_executable;

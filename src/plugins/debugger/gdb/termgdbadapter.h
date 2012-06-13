@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_TERMGDBADAPTER_H
 #define DEBUGGER_TERMGDBADAPTER_H
 
-#include "abstractgdbadapter.h"
+#include "gdbengine.h"
 #include "localgdbprocess.h"
 
 #include <utils/consoleprocess.h>
@@ -47,30 +47,31 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-class TermGdbAdapter : public AbstractGdbAdapter
+class GdbTermEngine : public GdbEngine
 {
     Q_OBJECT
 
 public:
-    explicit TermGdbAdapter(GdbEngine *engine);
-    ~TermGdbAdapter();
+    GdbTermEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine);
+
+    ~GdbTermEngine();
 
 private:
     DumperHandling dumperHandling() const;
 
-    void startAdapter();
-    void handleGdbStartDone();
+    void setupEngine();
     void handleGdbStartFailed();
     void setupInferior();
     void runEngine();
-    void interruptInferior();
-    void shutdownAdapter();
+    void interruptInferior2();
+    void shutdownEngine();
 
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
     void handleStubAttached(const GdbResponse &response);
 
-    Q_SLOT void handleInferiorSetupOk();
+    Q_SLOT void stubStarted();
     Q_SLOT void stubExited();
     Q_SLOT void stubError(const QString &msg);
 

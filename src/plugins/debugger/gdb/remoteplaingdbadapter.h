@@ -39,25 +39,24 @@
 namespace Debugger {
 namespace Internal {
 
-class RemotePlainGdbAdapter : public AbstractPlainGdbAdapter
+class GdbRemotePlainEngine : public GdbAbstractPlainEngine
 {
     Q_OBJECT
 
 public:
     friend class RemoteGdbProcess;
-    explicit RemotePlainGdbAdapter(GdbEngine *engine);
+    GdbRemotePlainEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine);
 
 private slots:
     void handleGdbStarted();
     void handleGdbStartFailed1();
 
 private:
-    void startAdapter();
-    void handleGdbStartDone();
-    void handleGdbStartFailed();
+    void setupEngine();
     void setupInferior();
-    void interruptInferior();
-    void shutdownAdapter();
+    void interruptInferior2();
+    void shutdownEngine();
     void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
     void handleRemoteSetupFailed(const QString &reason);
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }

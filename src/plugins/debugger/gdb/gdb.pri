@@ -2,7 +2,6 @@ HEADERS += \
     $$PWD/gdbmi.h \
     $$PWD/gdbengine.h \
     $$PWD/gdboptionspage.h \
-    $$PWD/abstractgdbadapter.h \
     $$PWD/attachgdbadapter.h \
     $$PWD/coregdbadapter.h \
     $$PWD/localplaingdbadapter.h \
@@ -22,7 +21,6 @@ SOURCES += \
     $$PWD/classicgdbengine.cpp \
     $$PWD/pythongdbengine.cpp \
     $$PWD/gdboptionspage.cpp \
-    $$PWD/abstractgdbadapter.cpp \
     $$PWD/attachgdbadapter.cpp \
     $$PWD/coregdbadapter.cpp \
     $$PWD/localplaingdbadapter.cpp \

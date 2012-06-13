@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_CODAGDBADAPTER_H
 #define DEBUGGER_CODAGDBADAPTER_H
 
-#include "abstractgdbadapter.h"
+#include "gdbengine.h"
 #include "localgdbprocess.h"
 #include "callback.h"
 #include "codautils.h"
@@ -73,7 +73,7 @@ struct GdbResult;
 //
 ///////////////////////////////////////////////////////////////////////
 
-class CodaGdbAdapter : public AbstractGdbAdapter
+class GdbCodaEngine : public GdbEngine
 {
     Q_OBJECT
 
@@ -82,8 +82,10 @@ public:
     typedef Coda::Callback<const Coda::CodaCommandResult &> CodaCallback;
     typedef Coda::Callback<const GdbResponse &> GdbCallback;
 
-    explicit CodaGdbAdapter(GdbEngine *engine);
-    ~CodaGdbAdapter();
+    GdbCodaEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine);
+    ~GdbCodaEngine();
+
     void setGdbServerName(const QString &name);
     QString gdbServerName() const { return m_gdbServerName; }
 
@@ -110,13 +112,12 @@ public:
 
 private:
     void setupDeviceSignals();
-    void startAdapter();
-    void handleGdbStartDone();
+    void setupEngine();
     void handleGdbStartFailed();
     void setupInferior();
     void runEngine();
-    void interruptInferior();
-    void shutdownAdapter();
+    void interruptInferior2();
+    void shutdownEngine();
     void sendRunControlTerminateCommand();
     void handleRunControlTerminate(const Coda::CodaCommandResult &);
     void sendRegistersGetMCommand();
@@ -159,8 +160,6 @@ private:
     Q_SLOT void readGdbServerCommand();
     Q_SLOT void codaDeviceError(const QString &);
     Q_SLOT void codaDeviceRemoved(const SymbianUtils::SymbianDevice &dev);
-
-    void startGdb();
     Q_SLOT void codaEvent(const Coda::CodaEvent &knownEvent);
     void handleCodaRunControlModuleLoadContextSuspendedEvent(const Coda::CodaRunControlModuleLoadContextSuspendedEvent &e);
     inline void sendContinue();

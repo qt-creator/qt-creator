@@ -166,8 +166,6 @@ QtcPlugin {
         "cdb/cdbparsehelpers.cpp",
         "cdb/cdbparsehelpers.h",
         "gdb/gdb.qrc",
-        "gdb/abstractgdbadapter.cpp",
-        "gdb/abstractgdbadapter.h",
         "gdb/abstractgdbprocess.cpp",
         "gdb/abstractgdbprocess.h",
         "gdb/abstractplaingdbadapter.cpp",

@@ -44,14 +44,14 @@
 namespace Debugger {
 namespace Internal {
 
-class RemotePlainGdbAdapter;
+class GdbRemotePlainEngine;
 
 class RemoteGdbProcess : public AbstractGdbProcess
 {
     Q_OBJECT
 public:
     RemoteGdbProcess(const QSsh::SshConnectionParameters &server,
-                     RemotePlainGdbAdapter *adapter, QObject *parent = 0);
+                     GdbRemotePlainEngine *adapter, QObject *parent = 0);
 
     virtual QByteArray readAllStandardOutput();
     virtual QByteArray readAllStandardError();
@@ -123,7 +123,7 @@ private:
     QByteArray m_appOutputFileName;
     State m_state;
 
-    RemotePlainGdbAdapter *m_adapter;
+    GdbRemotePlainEngine *m_adapter;
 };
 
 } // namespace Internal

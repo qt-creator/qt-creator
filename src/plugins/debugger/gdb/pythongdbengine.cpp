@@ -32,7 +32,6 @@
 
 #include "gdbengine.h"
 #include "gdbmi.h"
-#include "abstractgdbadapter.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
@@ -202,8 +201,8 @@ void GdbEngine::updateAllPython()
     postCommand("-stack-list-frames", CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     stackHandler()->setCurrentIndex(0);
-    if (m_gdbAdapter->isCodaAdapter())
-        m_gdbAdapter->codaReloadThreads();
+    if (isCodaAdapter())
+        codaReloadThreads();
     else
         postCommand("-thread-info", CB(handleThreadInfo), 0);
     reloadRegisters();

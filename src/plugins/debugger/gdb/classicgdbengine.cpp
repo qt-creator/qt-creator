@@ -34,7 +34,6 @@
 #include "gdbmi.h"
 
 #include "debuggerstartparameters.h"
-#include "abstractgdbadapter.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerstringutils.h"
@@ -1107,7 +1106,7 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
         return;
 
     PRECONDITION;
-    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
+    if (dumperHandling() == GdbEngine::DumperNotAvailable) {
         // Load at least gdb macro based dumpers.
         m_debuggingHelperState = DebuggingHelperLoadTried;
         postCommand(Utils::FileReader::fetchQrc(_(":/gdb/gdbmacros.txt")));

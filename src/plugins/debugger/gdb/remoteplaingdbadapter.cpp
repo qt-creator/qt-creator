@@ -41,16 +41,17 @@
 namespace Debugger {
 namespace Internal {
 
-RemotePlainGdbAdapter::RemotePlainGdbAdapter(GdbEngine *engine)
-    : AbstractPlainGdbAdapter(engine),
-      m_gdbProc(engine->startParameters().connParams, this)
+GdbRemotePlainEngine::GdbRemotePlainEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine)
+    : GdbAbstractPlainEngine(startParameters, masterEngine),
+      m_gdbProc(startParameters.connParams, this)
 {
     connect(&m_gdbProc, SIGNAL(started()), this, SLOT(handleGdbStarted()));
     connect(&m_gdbProc, SIGNAL(startFailed()), this,
         SLOT(handleGdbStartFailed1()));
 }
 
-void RemotePlainGdbAdapter::startAdapter()
+void GdbRemotePlainEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(QLatin1String("TRYING TO START ADAPTER"));
@@ -63,79 +64,68 @@ void RemotePlainGdbAdapter::startAdapter()
     handleRemoteSetupDone(startParameters().connParams.port, startParameters().qmlServerPort);
 }
 
-void RemotePlainGdbAdapter::setupInferior()
+void GdbRemotePlainEngine::setupInferior()
 {
-    AbstractPlainGdbAdapter::setupInferior();
-    m_engine->postCommand("directory "
-        + m_engine->startParameters().remoteSourcesDir);
+    GdbAbstractPlainEngine::setupInferior();
+    postCommand("directory " + startParameters().remoteSourcesDir);
 }
 
-void RemotePlainGdbAdapter::interruptInferior()
+void GdbRemotePlainEngine::interruptInferior2()
 {
     m_gdbProc.interruptInferior();
 }
 
-QByteArray RemotePlainGdbAdapter::execFilePath() const
+QByteArray GdbRemotePlainEngine::execFilePath() const
 {
     return startParameters().executable.toUtf8();
 }
 
-QByteArray RemotePlainGdbAdapter::toLocalEncoding(const QString &s) const
+QByteArray GdbRemotePlainEngine::toLocalEncoding(const QString &s) const
 {
     return s.toUtf8();
 }
 
-QString RemotePlainGdbAdapter::fromLocalEncoding(const QByteArray &b) const
+QString GdbRemotePlainEngine::fromLocalEncoding(const QByteArray &b) const
 {
     return QString::fromUtf8(b);
 }
 
-void RemotePlainGdbAdapter::handleApplicationOutput(const QByteArray &output)
+void GdbRemotePlainEngine::handleApplicationOutput(const QByteArray &output)
 {
     showMessage(QString::fromUtf8(output), AppOutput);
 }
 
-void RemotePlainGdbAdapter::shutdownAdapter()
+void GdbRemotePlainEngine::shutdownEngine()
 {
-    m_engine->notifyAdapterShutdownOk();
+    notifyAdapterShutdownOk();
 }
 
-void RemotePlainGdbAdapter::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
+void GdbRemotePlainEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     Q_UNUSED(gdbServerPort);
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
     if (qmlPort != -1)
         startParameters().qmlServerPort = qmlPort;
-    m_gdbProc.realStart(m_engine->startParameters().debuggerCommand,
+    m_gdbProc.realStart(startParameters().debuggerCommand,
         QStringList() << QLatin1String("-i") << QLatin1String("mi"),
-        m_engine->startParameters().executable);
+        startParameters().executable);
 }
 
-void RemotePlainGdbAdapter::handleGdbStarted()
+void GdbRemotePlainEngine::handleGdbStarted()
 {
-     m_engine->startGdb();
+     startGdb();
 }
 
-void RemotePlainGdbAdapter::handleGdbStartDone()
+void GdbRemotePlainEngine::handleGdbStartFailed1()
 {
-     m_engine->handleAdapterStarted();
+    handleAdapterStartFailed(m_gdbProc.errorString());
 }
 
-void RemotePlainGdbAdapter::handleGdbStartFailed()
-{
-}
-
-void RemotePlainGdbAdapter::handleGdbStartFailed1()
-{
-    m_engine->handleAdapterStartFailed(m_gdbProc.errorString());
-}
-
-void RemotePlainGdbAdapter::handleRemoteSetupFailed(const QString &reason)
+void GdbRemotePlainEngine::handleRemoteSetupFailed(const QString &reason)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-
-    m_engine->handleAdapterStartFailed(reason);
+    handleAdapterStartFailed(reason);
 }
 
 } // namespace Internal

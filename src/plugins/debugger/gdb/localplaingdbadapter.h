@@ -46,21 +46,19 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-class LocalPlainGdbAdapter : public AbstractPlainGdbAdapter
+class GdbLocalPlainEngine : public GdbAbstractPlainEngine
 {
     Q_OBJECT
 
 public:
-    explicit LocalPlainGdbAdapter(GdbEngine *engine);
+    GdbLocalPlainEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine);
 
 private:
-    void startAdapter();
-    void handleGdbStartDone();
+    void setupEngine();
     void handleGdbStartFailed();
-    void setupInferior();
-    void runEngine();
-    void interruptInferior();
-    void shutdownAdapter();
+    void interruptInferior2();
+    void shutdownEngine();
 
     DumperHandling dumperHandling() const;
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }

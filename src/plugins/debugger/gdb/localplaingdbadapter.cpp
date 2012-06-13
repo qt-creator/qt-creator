@@ -53,15 +53,16 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-LocalPlainGdbAdapter::LocalPlainGdbAdapter(GdbEngine *engine)
-    : AbstractPlainGdbAdapter(engine)
+GdbLocalPlainEngine::GdbLocalPlainEngine(const DebuggerStartParameters &startParameters,
+    DebuggerEngine *masterEngine)
+    : GdbAbstractPlainEngine(startParameters, masterEngine)
 {
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
-        engine, SLOT(readDebugeeOutput(QByteArray)));
+        this, SLOT(readDebugeeOutput(QByteArray)));
 }
 
-AbstractGdbAdapter::DumperHandling LocalPlainGdbAdapter::dumperHandling() const
+GdbEngine::DumperHandling GdbLocalPlainEngine::dumperHandling() const
 {
     // LD_PRELOAD fails for System-Qt on Mac.
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
@@ -71,7 +72,7 @@ AbstractGdbAdapter::DumperHandling LocalPlainGdbAdapter::dumperHandling() const
 #endif
 }
 
-void LocalPlainGdbAdapter::startAdapter()
+void GdbLocalPlainEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
@@ -82,7 +83,7 @@ void LocalPlainGdbAdapter::startAdapter()
     QStringList gdbArgs;
 
     if (!m_outputCollector.listen()) {
-        m_engine->handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
+        handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
                 .arg(m_outputCollector.errorString()));
         return;
     }
@@ -93,53 +94,38 @@ void LocalPlainGdbAdapter::startAdapter()
     if (startParameters().environment.size())
         m_gdbProc.setEnvironment(startParameters().environment.toStringList());
 
-    m_engine->startGdb(gdbArgs);
+    startGdb(gdbArgs);
 }
 
-void LocalPlainGdbAdapter::handleGdbStartDone()
-{
-    m_engine->handleAdapterStarted();
-}
-
-void LocalPlainGdbAdapter::handleGdbStartFailed()
+void GdbLocalPlainEngine::handleGdbStartFailed()
 {
     m_outputCollector.shutdown();
 }
 
-void LocalPlainGdbAdapter::setupInferior()
-{
-    AbstractPlainGdbAdapter::setupInferior();
-}
-
-void LocalPlainGdbAdapter::runEngine()
-{
-    AbstractPlainGdbAdapter::runEngine();
-}
-
-void LocalPlainGdbAdapter::shutdownAdapter()
+void GdbLocalPlainEngine::shutdownEngine()
 {
     showMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
     m_outputCollector.shutdown();
-    m_engine->notifyAdapterShutdownOk();
+    notifyAdapterShutdownOk();
 }
 
-void LocalPlainGdbAdapter::interruptInferior()
+void GdbLocalPlainEngine::interruptInferior2()
 {
-    interruptLocalInferior(m_engine->inferiorPid());
+    interruptLocalInferior(inferiorPid());
 }
 
-QByteArray LocalPlainGdbAdapter::execFilePath() const
+QByteArray GdbLocalPlainEngine::execFilePath() const
 {
     return QFileInfo(startParameters().executable)
             .absoluteFilePath().toLocal8Bit();
 }
 
-QByteArray LocalPlainGdbAdapter::toLocalEncoding(const QString &s) const
+QByteArray GdbLocalPlainEngine::toLocalEncoding(const QString &s) const
 {
     return s.toLocal8Bit();
 }
 
-QString LocalPlainGdbAdapter::fromLocalEncoding(const QByteArray &b) const
+QString GdbLocalPlainEngine::fromLocalEncoding(const QByteArray &b) const
 {
     return QString::fromLocal8Bit(b);
 }

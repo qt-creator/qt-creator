@@ -48,62 +48,62 @@ namespace Debugger {
 namespace Internal {
 
 #define CB(callback) \
-    static_cast<GdbEngine::AdapterCallback>(&AbstractPlainGdbAdapter::callback), \
+    static_cast<GdbEngine::GdbCommandCallback>(&GdbAbstractPlainEngine::callback), \
     STRINGIFY(callback)
 
-AbstractPlainGdbAdapter::AbstractPlainGdbAdapter(GdbEngine *engine)
-    : AbstractGdbAdapter(engine)
-{
-}
+GdbAbstractPlainEngine::GdbAbstractPlainEngine(const DebuggerStartParameters &startParameters,
+    DebuggerEngine *masterEngine)
+    : GdbEngine(startParameters, masterEngine)
+{}
 
-void AbstractPlainGdbAdapter::setupInferior()
+void GdbAbstractPlainEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (!startParameters().processArgs.isEmpty()) {
         QString args = startParameters().processArgs;
-        m_engine->postCommand("-exec-arguments " + toLocalEncoding(args));
+        postCommand("-exec-arguments " + toLocalEncoding(args));
     }
-    m_engine->postCommand("-file-exec-and-symbols \"" + execFilePath() + '"',
+    postCommand("-file-exec-and-symbols \"" + execFilePath() + '"',
         CB(handleFileExecAndSymbols));
 }
 
-void AbstractPlainGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
+void GdbAbstractPlainEngine::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
-        m_engine->handleInferiorPrepared();
+        handleInferiorPrepared();
     } else {
         QByteArray ba = response.data.findChild("msg").data();
         QString msg = fromLocalEncoding(ba);
         // Extend the message a bit in unknown cases.
         if (!ba.endsWith("File format not recognized"))
             msg = tr("Starting executable failed:\n") + msg;
-        m_engine->notifyInferiorSetupFailed(msg);
+        notifyInferiorSetupFailed(msg);
     }
 }
 
-void AbstractPlainGdbAdapter::runEngine()
+void GdbAbstractPlainEngine::runEngine()
 {
-    m_engine->postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
+    postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
 }
 
-void AbstractPlainGdbAdapter::handleExecRun(const GdbResponse &response)
+void GdbAbstractPlainEngine::handleExecRun(const GdbResponse &response)
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        m_engine->notifyEngineRunAndInferiorRunOk();
+        notifyEngineRunAndInferiorRunOk();
         //showStatusMessage(tr("Running..."));
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgInferiorSetupOk(), StatusBar);
         // FIXME: That's the wrong place for it.
         if (debuggerCore()->boolSetting(EnableReverseDebugging))
-            m_engine->postCommand("target record");
+            postCommand("target record");
     } else {
         QString msg = fromLocalEncoding(response.data.findChild("msg").data());
         //QTC_CHECK(status() == InferiorRunOk);
         //interruptInferior();
         showMessage(msg);
-        m_engine->notifyEngineRunFailed();
+        notifyEngineRunFailed();
     }
 }
 

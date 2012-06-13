@@ -33,7 +33,7 @@
 #ifndef DEBUGGER_ATTACHGDBADAPTER_H
 #define DEBUGGER_ATTACHGDBADAPTER_H
 
-#include "abstractgdbadapter.h"
+#include "gdbengine.h"
 #include "localgdbprocess.h"
 
 namespace Debugger {
@@ -45,23 +45,22 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-class AttachGdbAdapter : public AbstractGdbAdapter
+class GdbAttachEngine : public GdbEngine
 {
     Q_OBJECT
 
 public:
-    explicit AttachGdbAdapter(GdbEngine *engine);
+    GdbAttachEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine);
 
 private:
     DumperHandling dumperHandling() const { return DumperLoadedByGdb; }
 
-    void startAdapter();
-    void handleGdbStartDone();
-    void handleGdbStartFailed();
+    void setupEngine();
     void setupInferior();
     void runEngine();
-    void interruptInferior();
-    void shutdownAdapter();
+    void interruptInferior2();
+    void shutdownEngine();
 
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
     void handleAttach(const GdbResponse &response);

@@ -56,7 +56,7 @@ namespace Debugger {
 namespace Internal {
 
 #define CB(callback) \
-    static_cast<GdbEngine::AdapterCallback>(&CoreGdbAdapter::callback), \
+    static_cast<GdbEngine::GdbCommandCallback>(&GdbCoreEngine::callback), \
     STRINGIFY(callback)
 
 ///////////////////////////////////////////////////////////////////////
@@ -65,11 +65,12 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-CoreGdbAdapter::CoreGdbAdapter(GdbEngine *engine)
-    : AbstractGdbAdapter(engine)
+GdbCoreEngine::GdbCoreEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine)
+    : GdbEngine(startParameters, masterEngine)
 {}
 
-CoreGdbAdapter::~CoreGdbAdapter()
+GdbCoreEngine::~GdbCoreEngine()
 {
     if (false && !m_tempCoreName.isEmpty()) {
         QFile tmpFile(m_tempCoreName);
@@ -77,7 +78,7 @@ CoreGdbAdapter::~CoreGdbAdapter()
     }
 }
 
-void CoreGdbAdapter::startAdapter()
+void GdbCoreEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
@@ -90,7 +91,7 @@ void CoreGdbAdapter::startAdapter()
     unpackCoreIfNeeded();
 }
 
-void CoreGdbAdapter::continueAdapterStart()
+void GdbCoreEngine::continueSetupEngine()
 {
     if (m_executable.isEmpty()) {
         // Read executable from core.
@@ -102,7 +103,7 @@ void CoreGdbAdapter::continueAdapterStart()
             showMessageBox(QMessageBox::Warning,
                 tr("Error Loading Core File"),
                 tr("The specified file does not appear to be a core file."));
-            m_engine->notifyEngineSetupFailed();
+            notifyEngineSetupFailed();
             return;
         }
 
@@ -114,46 +115,30 @@ void CoreGdbAdapter::continueAdapterStart()
             showMessageBox(QMessageBox::Warning,
                 tr("Error Loading Symbols"),
                 tr("No executable to load symbols from specified core."));
-            m_engine->notifyEngineSetupFailed();
+            notifyEngineSetupFailed();
             return;
         }
     }
-    m_engine->startGdb();
+    startGdb();
 }
 
-void CoreGdbAdapter::handleGdbStartFailed()
-{
-}
-
-void CoreGdbAdapter::handleGdbStartDone()
-{
-    m_engine->handleAdapterStarted();
-}
-
-void CoreGdbAdapter::setupInferior()
+void GdbCoreEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     // Do that first, otherwise no symbols are loaded.
     QFileInfo fi(m_executable);
-    const QByteArray sysroot = startParameters().sysroot.toLocal8Bit();
     QByteArray path = fi.absoluteFilePath().toLocal8Bit();
-    if (!sysroot.isEmpty()) {
-        m_engine->postCommand("set sysroot " + sysroot);
-        // sysroot is not enough to correctly locate the sources, so explicitly
-        // relocate the most likely place for the debug source
-        m_engine->postCommand("set substitute-path /usr/src " + sysroot + "/usr/src");
-    }
-    m_engine->postCommand("-file-exec-and-symbols \"" + path + '"',
+    postCommand("-file-exec-and-symbols \"" + path + '"',
          CB(handleFileExecAndSymbols));
 }
 
-void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
+void GdbCoreEngine::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     QString core = coreFileName();
     if (response.resultClass == GdbResultDone) {
         showMessage(tr("Symbols found."), StatusBar);
-        m_engine->postCommand("target core " + core.toLocal8Bit(),
+        postCommand("target core " + core.toLocal8Bit(),
             CB(handleTargetCore));
         return;
     }
@@ -165,68 +150,59 @@ void CoreGdbAdapter::handleFileExecAndSymbols(const GdbResponse &response)
     msg += _(" ");
     msg += tr("Try to specify the binary using the "
         "<i>Debug->Start Debugging->Attach to Core</i> dialog.");
-    m_engine->notifyInferiorSetupFailed(msg);
+    notifyInferiorSetupFailed(msg);
 }
 
-void CoreGdbAdapter::handleTargetCore(const GdbResponse &response)
+void GdbCoreEngine::handleTargetCore(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
         // HACK: The namespace is not accessible in the initial run.
-        m_engine->loadPythonDumpers();
+        loadPythonDumpers();
         showMessage(tr("Attached to core."), StatusBar);
-        m_engine->handleInferiorPrepared();
+        handleInferiorPrepared();
         // Due to the auto-solib-add off setting, we don't have any
         // symbols yet. Load them in order of importance.
-        m_engine->reloadStack(true);
-        m_engine->postCommand("info shared", CB(handleModulesList));
+        reloadStack(true);
+        reloadModulesInternal();
+        postCommand("p 5", CB(handleRoundTrip));
         return;
     }
     QString msg = tr("Attach to core \"%1\" failed:\n")
         .arg(startParameters().coreFile)
         + QString::fromLocal8Bit(response.data.findChild("msg").data());
-    m_engine->notifyInferiorSetupFailed(msg);
+    notifyInferiorSetupFailed(msg);
 }
 
-void CoreGdbAdapter::handleModulesList(const GdbResponse &response)
+void GdbCoreEngine::handleRoundTrip(const GdbResponse &response)
 {
-    m_engine->handleModulesList(response);
+    Q_UNUSED(response);
     loadSymbolsForStack();
-}
-
-void CoreGdbAdapter::loadSymbolsForStack()
-{
-    m_engine->loadSymbolsForStack();
     QTimer::singleShot(1000, this, SLOT(loadAllSymbols()));
 }
 
-void CoreGdbAdapter::loadAllSymbols()
-{
-    m_engine->loadAllSymbols();
-}
-
-void CoreGdbAdapter::runEngine()
+void GdbCoreEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    m_engine->notifyInferiorUnrunnable();
-    m_engine->updateAll();
+    notifyInferiorUnrunnable();
+    updateAll();
 }
 
-void CoreGdbAdapter::interruptInferior()
+void GdbCoreEngine::interruptInferior()
 {
     // A core never runs, so this cannot be called.
     QTC_CHECK(false);
 }
 
-void CoreGdbAdapter::shutdownAdapter()
+void GdbCoreEngine::shutdownEngine()
 {
-    m_engine->notifyAdapterShutdownOk();
+    notifyAdapterShutdownOk();
 }
 
-void CoreGdbAdapter::unpackCoreIfNeeded()
+void GdbCoreEngine::unpackCoreIfNeeded()
 {
     if (!m_coreName.endsWith(QLatin1String(".lzo"))) {
-        continueAdapterStart();
+        continueSetupEngine();
         return;
     }
 
@@ -240,10 +216,10 @@ void CoreGdbAdapter::unpackCoreIfNeeded()
     QProcess *process = new QProcess(this);
     process->setWorkingDirectory(QDir::tempPath());
     process->start("/usr/bin/lzop", QStringList() << "-o" << m_tempCoreName << "-x" << m_coreName);
-    connect(process, SIGNAL(finished(int)), SLOT(continueAdapterStart()));
+    connect(process, SIGNAL(finished(int)), SLOT(continueSetupEngine()));
 }
 
-QString CoreGdbAdapter::coreFileName() const
+QString GdbCoreEngine::coreFileName() const
 {
     return m_tempCoreName.isEmpty() ? m_coreName : m_tempCoreName;
 }

@@ -65,7 +65,7 @@
 #endif
 
 #define CB(callback) \
-    static_cast<GdbEngine::AdapterCallback>(&CodaGdbAdapter::callback), \
+    static_cast<GdbEngine::GdbCommandCallback>(&GdbCodaEngine::callback), \
     STRINGIFY(callback)
 
 enum { debug = 0 };
@@ -91,7 +91,7 @@ using namespace Coda;
 
 static inline QString startMsg(const Coda::Session &session)
 {
-    return CodaGdbAdapter::tr("Process started, PID: 0x%1, thread id: 0x%2, "
+    return GdbCodaEngine::tr("Process started, PID: 0x%1, thread id: 0x%2, "
        "code segment: 0x%3, data segment: 0x%4.")
          .arg(session.pid, 0, 16).arg(session.tid, 0, 16)
          .arg(session.codeseg, 0, 16).arg(session.dataseg, 0, 16);
@@ -118,8 +118,9 @@ static inline QString startMsg(const Coda::Session &session)
  *       - Stop all threads once one stops?
  *       - Breakpoints do not trigger in threads other than the main thread. */
 
-CodaGdbAdapter::CodaGdbAdapter(GdbEngine *engine) :
-    AbstractGdbAdapter(engine),
+GdbCodaEngine:: GdbCodaEngine(const DebuggerStartParameters &startParameters,
+        DebuggerEngine *masterEngine)
+    : GdbEngine(startParameters, masterEngine),
     m_running(false),
     m_stopReason(0),
     m_gdbAckMode(true),
@@ -149,7 +150,7 @@ CodaGdbAdapter::CodaGdbAdapter(GdbEngine *engine) :
         this, SLOT(setVerbose(QVariant)));
 }
 
-void CodaGdbAdapter::setupDeviceSignals()
+void GdbCodaEngine::setupDeviceSignals()
 {
     connect(m_codaDevice.data(), SIGNAL(error(QString)),
         this, SLOT(codaDeviceError(QString)));
@@ -161,7 +162,7 @@ void CodaGdbAdapter::setupDeviceSignals()
             this, SLOT(codaDeviceRemoved(SymbianUtils::SymbianDevice)));
 }
 
-CodaGdbAdapter::~CodaGdbAdapter()
+GdbCodaEngine::~GdbCodaEngine()
 {
     if (m_codaDevice)
         SymbianUtils::SymbianDeviceManager::instance()->releaseCodaDevice(m_codaDevice);
@@ -170,12 +171,12 @@ CodaGdbAdapter::~CodaGdbAdapter()
     logMessage(QLatin1String("Shutting down.\n"));
 }
 
-void CodaGdbAdapter::setVerbose(const QVariant &value)
+void GdbCodaEngine::setVerbose(const QVariant &value)
 {
     setVerbose(value.toInt());
 }
 
-void CodaGdbAdapter::setVerbose(int verbose)
+void GdbCodaEngine::setVerbose(int verbose)
 {
     if (debug)
         qDebug("CodaGdbAdapter::setVerbose %d", verbose);
@@ -184,12 +185,12 @@ void CodaGdbAdapter::setVerbose(int verbose)
         m_codaDevice->setVerbose(m_verbose);
 }
 
-void CodaGdbAdapter::codaLogMessage(const QString &msg)
+void GdbCodaEngine::codaLogMessage(const QString &msg)
 {
     logMessage(_("CODA ") + msg);
 }
 
-void CodaGdbAdapter::setGdbServerName(const QString &name)
+void GdbCodaEngine::setGdbServerName(const QString &name)
 {
     m_gdbServerName = name;
 }
@@ -210,7 +211,7 @@ static QPair<QString, unsigned short> splitIpAddressSpec(const QString &addressS
     return QPair<QString, unsigned short>(address, port);
 }
 
-void CodaGdbAdapter::handleCodaRunControlModuleLoadContextSuspendedEvent(const CodaRunControlModuleLoadContextSuspendedEvent &se)
+void GdbCodaEngine::handleCodaRunControlModuleLoadContextSuspendedEvent(const CodaRunControlModuleLoadContextSuspendedEvent &se)
 {
     m_snapshot.resetMemory();
     const ModuleLoadEventInfo &minfo = se.info();
@@ -234,7 +235,7 @@ void CodaGdbAdapter::handleCodaRunControlModuleLoadContextSuspendedEvent(const C
                 if (!localSymFileName.isEmpty()) {
                     showMessage(msgLoadLocalSymFile(localSymFileName,
                         library.name, library.codeseg), LogMisc);
-                    m_engine->postCommand(symFileLoadCommand(
+                    postCommand(symFileLoadCommand(
                         localSymFileName, library.codeseg, library.dataseg));
                 } // has local sym
             } // code seg
@@ -271,11 +272,11 @@ void CodaGdbAdapter::handleCodaRunControlModuleLoadContextSuspendedEvent(const C
                 // have to wait for the CODA startup to learn the load address.
                 //m_engine->postCommand("add-symbol-file \"" + symbolFile + "\" "
                 //    + QByteArray::number(m_session.codeseg));
-                m_engine->postCommand("symbol-file \"" + symbolFile + "\"");
+                postCommand("symbol-file \"" + symbolFile + "\"");
             }
             foreach (const QByteArray &s, Symbian::gdbStartupSequence())
-                m_engine->postCommand(s);
-            m_engine->postCommand("target remote " + gdbServerName().toLatin1(),
+                postCommand(s);
+            postCommand("target remote " + gdbServerName().toLatin1(),
                                   CB(handleTargetRemote));
             if (debug)
                 qDebug() << "Initial module load suspended: " << m_session.toString();
@@ -286,32 +287,32 @@ void CodaGdbAdapter::handleCodaRunControlModuleLoadContextSuspendedEvent(const C
     }
 }
 
-void CodaGdbAdapter::handleTargetRemote(const GdbResponse &record)
+void GdbCodaEngine::handleTargetRemote(const GdbResponse &record)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (record.resultClass == GdbResultDone) {
-        m_engine->handleInferiorPrepared();
+        handleInferiorPrepared();
         if (debug)
             qDebug() << "handleTargetRemote" << m_session.toString();
     } else {
         QString msg = tr("Connecting to CODA server adapter failed:\n")
             + QString::fromLocal8Bit(record.data.findChild("msg").data());
-        m_engine->notifyInferiorSetupFailed(msg);
+        notifyInferiorSetupFailed(msg);
     }
 }
 
-void CodaGdbAdapter::codaDeviceRemoved(const SymbianUtils::SymbianDevice &dev)
+void GdbCodaEngine::codaDeviceRemoved(const SymbianUtils::SymbianDevice &dev)
 {
     const DebuggerStartParameters &parameters = startParameters();
     if (state() != DebuggerNotReady && !m_codaDevice.isNull() && parameters.remoteChannel == dev.portName()) {
         const QString message = QString::fromLatin1("Device '%1' has been disconnected.").arg(dev.friendlyName());
         logMessage(message);
-        m_engine->handleAdapterCrashed(message);
+        handleAdapterCrashed(message);
         cleanup();
     }
 }
 
-void CodaGdbAdapter::codaEvent(const CodaEvent &e)
+void GdbCodaEngine::codaEvent(const CodaEvent &e)
 {
     if (debug)
         qDebug() << e.toString() << m_session.toString() << m_snapshot.toString();
@@ -322,7 +323,9 @@ void CodaGdbAdapter::codaEvent(const CodaEvent &e)
         if (state() == EngineSetupRequested && m_firstHelloEvent) {
             m_firstHelloEvent = false;
             m_codaDevice->sendLoggingAddListenerCommand(CodaCallback());
-            startGdb(); // Commands are only accepted after hello
+            QStringList gdbArgs;
+            gdbArgs.append(_("--nx")); // Do not read .gdbinit file
+            startGdb(gdbArgs); // Commands are only accepted after hello
         }
         break;
     case CodaEvent::RunControlModuleLoadSuspended: // A module was loaded
@@ -369,7 +372,7 @@ void CodaGdbAdapter::codaEvent(const CodaEvent &e)
                            || reason.contains(_("panic"), Qt::CaseInsensitive) ?
                            gdbServerSignalSegfault : gdbServerSignalTrap;
             m_codaDevice->sendRegistersGetMRangeCommand(
-                CodaCallback(this, &CodaGdbAdapter::handleAndReportReadRegistersAfterStop),
+                CodaCallback(this, &GdbCodaEngine::handleAndReportReadRegistersAfterStop),
                 currentThreadContextId(), 0,
                 Symbian::RegisterCount);
     }
@@ -382,34 +385,22 @@ void CodaGdbAdapter::codaEvent(const CodaEvent &e)
     }
 }
 
-void CodaGdbAdapter::startGdb()
-{
-    QStringList gdbArgs;
-    gdbArgs.append(_("--nx")); // Do not read .gdbinit file
-    m_engine->startGdb(gdbArgs);
-}
-
-void CodaGdbAdapter::handleGdbStartDone()
-{
-    m_engine->handleAdapterStarted();
-}
-
-void CodaGdbAdapter::handleGdbStartFailed()
+void GdbCodaEngine::handleGdbStartFailed()
 {
     cleanup();
 }
 
-void CodaGdbAdapter::codaDeviceError(const QString  &errorString)
+void GdbCodaEngine::codaDeviceError(const QString  &errorString)
 {
     logMessage(errorString);
     if (state() == EngineSetupRequested) {
-        m_engine->handleAdapterStartFailed(errorString);
+        handleAdapterStartFailed(errorString);
     } else {
-        m_engine->handleAdapterCrashed(errorString);
+        handleAdapterCrashed(errorString);
     }
 }
 
-void CodaGdbAdapter::logMessage(const QString &msg, int channel)
+void GdbCodaEngine::logMessage(const QString &msg, int channel)
 {
     if (m_verbose || channel != LogDebug)
         showMessage(msg, channel);
@@ -420,7 +411,7 @@ void CodaGdbAdapter::logMessage(const QString &msg, int channel)
 //
 // Gdb
 //
-void CodaGdbAdapter::handleGdbConnection()
+void GdbCodaEngine::handleGdbConnection()
 {
     logMessage(QLatin1String("HANDLING GDB CONNECTION"));
     QTC_CHECK(m_gdbConnection == 0);
@@ -437,7 +428,7 @@ static inline QString msgGdbPacket(const QString &p)
     return _("gdb:                              ") + p;
 }
 
-void CodaGdbAdapter::readGdbServerCommand()
+void GdbCodaEngine::readGdbServerCommand()
 {
     QTC_ASSERT(m_gdbConnection, return);
     QByteArray packet = m_gdbConnection->readAll();
@@ -508,7 +499,7 @@ void CodaGdbAdapter::readGdbServerCommand()
     }
 }
 
-bool CodaGdbAdapter::sendGdbServerPacket(const QByteArray &packet, bool doFlush)
+bool GdbCodaEngine::sendGdbServerPacket(const QByteArray &packet, bool doFlush)
 {
     if (!m_gdbConnection) {
         logMessage(_("Cannot write to gdb: No connection (%1)")
@@ -530,7 +521,7 @@ bool CodaGdbAdapter::sendGdbServerPacket(const QByteArray &packet, bool doFlush)
     return true;
 }
 
-void CodaGdbAdapter::sendGdbServerAck()
+void GdbCodaEngine::sendGdbServerAck()
 {
     if (!m_gdbAckMode)
         return;
@@ -538,7 +529,7 @@ void CodaGdbAdapter::sendGdbServerAck()
     sendGdbServerPacket(QByteArray(1, '+'), false);
 }
 
-void CodaGdbAdapter::sendGdbServerMessage(const QByteArray &msg, const QByteArray &logNote)
+void GdbCodaEngine::sendGdbServerMessage(const QByteArray &msg, const QByteArray &logNote)
 {
     Coda::byte sum = 0;
     for (int i = 0; i != msg.size(); ++i)
@@ -573,7 +564,7 @@ static QByteArray msgStepRangeReceived(unsigned from, unsigned to, bool over)
     return rc;
 }
 
-void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
+void GdbCodaEngine::handleGdbServerCommand(const QByteArray &cmd)
 {
     if (debug)
         qDebug("handleGdbServerCommand: %s", cmd.constData());
@@ -720,7 +711,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
                    arg(addrLength.second).arg(addrLength.first, 0, 16).
                    arg(QString::fromLatin1(data.toHex())));
         m_codaDevice->sendMemorySetCommand(
-            CodaCallback(this, &CodaGdbAdapter::handleWriteMemory),
+            CodaCallback(this, &GdbCodaEngine::handleWriteMemory),
             m_codaProcessId, addrLength.first, data);
     }
 
@@ -740,7 +731,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         } else {
             //qDebug() << "Fetching single register";
             m_codaDevice->sendRegistersGetMRangeCommand(
-                CodaCallback(this, &CodaGdbAdapter::handleAndReportReadRegister),
+                CodaCallback(this, &GdbCodaEngine::handleAndReportReadRegister),
                 currentThreadContextId(), registerNumber, 1);
         }
     }
@@ -757,7 +748,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         QByteArray registerValue;
         Coda::appendInt(&registerValue, Coda::BigEndian); // Registers are big endian
         m_codaDevice->sendRegistersSetCommand(
-            CodaCallback(this, &CodaGdbAdapter::handleWriteRegister),
+            CodaCallback(this, &GdbCodaEngine::handleWriteRegister),
             currentThreadContextId(), regnumValue.first, registerValue,
             QVariant(regnumValue.first));
         // Note that App CODA refuses to write registers 13 and 14
@@ -938,7 +929,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
             // We use the automatic ids calculated from the location
             // address instead of the map in snapshot.
             m_codaDevice->sendBreakpointsAddCommand(
-                CodaCallback(this, &CodaGdbAdapter::handleAndReportSetBreakpoint),
+                CodaCallback(this, &GdbCodaEngine::handleAndReportSetBreakpoint),
                 bp);
         } else {
             logMessage(_("MISPARSED BREAKPOINT '") + QLatin1String(cmd)
@@ -954,7 +945,7 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
         const int pos = cmd.lastIndexOf(',');
         const uint addr = cmd.mid(3, pos - 3).toUInt(0, 16);
         m_codaDevice->sendBreakpointsRemoveCommand(
-            CodaCallback(this, &CodaGdbAdapter::handleClearBreakpoint),
+            CodaCallback(this, &GdbCodaEngine::handleClearBreakpoint),
             Coda::Breakpoint::idFromLocation(addr));
     }
 
@@ -994,17 +985,17 @@ void CodaGdbAdapter::handleGdbServerCommand(const QByteArray &cmd)
     }
 }
 
-void CodaGdbAdapter::sendRunControlTerminateCommand()
+void GdbCodaEngine::sendRunControlTerminateCommand()
 {
     // Requires id of main thread to terminate.
     // Note that calling 'Settings|set|removeExecutable' crashes CODA,
     // so, it is apparently not required.
     m_codaDevice->sendRunControlTerminateCommand(
-        CodaCallback(this, &CodaGdbAdapter::handleRunControlTerminate),
+        CodaCallback(this, &GdbCodaEngine::handleRunControlTerminate),
                                                 mainThreadContextId());
 }
 
-void CodaGdbAdapter::handleRunControlTerminate(const CodaCommandResult &)
+void GdbCodaEngine::handleRunControlTerminate(const CodaCommandResult &)
 {
     QString msg = QString::fromLatin1("CODA disconnected");
     const bool emergencyShutdown = m_gdbProc.state() != QProcess::Running
@@ -1014,11 +1005,11 @@ void CodaGdbAdapter::handleRunControlTerminate(const CodaCommandResult &)
     logMessage(msg, LogMisc);
     if (emergencyShutdown) {
         cleanup();
-        m_engine->notifyAdapterShutdownOk();
+        notifyAdapterShutdownOk();
     }
 }
 
-void CodaGdbAdapter::gdbSetCurrentThread(const QByteArray &cmd, const char *why)
+void GdbCodaEngine::gdbSetCurrentThread(const QByteArray &cmd, const char *why)
 {
     // Thread ID from Hg/Hc commands: '-1': All, '0': arbitrary, else hex thread id.
     const QByteArray id = cmd.mid(2);
@@ -1032,12 +1023,12 @@ void CodaGdbAdapter::gdbSetCurrentThread(const QByteArray &cmd, const char *why)
     sendGdbServerMessage("OK", message);
 }
 
-void CodaGdbAdapter::interruptInferior()
+void GdbCodaEngine::interruptInferior2()
 {
     m_codaDevice->sendRunControlSuspendCommand(CodaCallback(), m_codaProcessId);
 }
 
-void CodaGdbAdapter::startAdapter()
+void GdbCodaEngine::setupEngine()
 {
     m_snapshot.fullReset();
     m_session.reset();
@@ -1072,7 +1063,7 @@ void CodaGdbAdapter::startAdapter()
             const QString msg = QString::fromLatin1("Could not open serial device '%1': %2")
                                 .arg(parameters.remoteChannel, reason);
             logMessage(msg, LogError);
-            m_engine->handleAdapterStartFailed(msg);
+            handleAdapterStartFailed(msg);
             return;
         }
         setupDeviceSignals();
@@ -1104,7 +1095,7 @@ void CodaGdbAdapter::startAdapter()
         QString msg = QString::fromLatin1("Unable to start the gdb server at %1: %2.")
             .arg(m_gdbServerName).arg(m_gdbServer->errorString());
         logMessage(msg, LogError);
-        m_engine->handleAdapterStartFailed(msg);
+        handleAdapterStartFailed(msg);
         return;
     }
 
@@ -1124,7 +1115,7 @@ void CodaGdbAdapter::startAdapter()
     }
 }
 
-void CodaGdbAdapter::setupInferior()
+void GdbCodaEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
 
@@ -1135,12 +1126,12 @@ void CodaGdbAdapter::setupInferior()
         libraries.push_back(QString::fromLatin1(librariesC[i]));
 
     m_codaDevice->sendProcessStartCommand(
-        CodaCallback(this, &CodaGdbAdapter::handleCreateProcess),
+        CodaCallback(this, &GdbCodaEngine::handleCreateProcess),
         m_remoteExecutable, m_uid, m_remoteArguments,
         QString(), true, libraries);
 }
 
-void CodaGdbAdapter::addThread(unsigned id)
+void GdbCodaEngine::addThread(unsigned id)
 {
     showMessage(QString::fromLatin1("Thread %1 reported").arg(id), LogMisc);
     // Make thread known, register as main if it is the first one.
@@ -1155,19 +1146,19 @@ void CodaGdbAdapter::addThread(unsigned id)
         // thread have been retrieved (CODA oddity).
         const QByteArray contextId = RunControlContext::codaId(m_session.pid, id);
         m_codaDevice->sendRegistersGetChildrenCommand(
-            CodaCallback(this, &CodaGdbAdapter::handleRegisterChildren),
+            CodaCallback(this, &GdbCodaEngine::handleRegisterChildren),
                          contextId, QVariant(contextId));
     }
 }
 
-void CodaGdbAdapter::handleCreateProcess(const CodaCommandResult &result)
+void GdbCodaEngine::handleCreateProcess(const CodaCommandResult &result)
 {
     if (debug)
         qDebug() << "ProcessCreated: " << result.toString();
     if (!result) {
         const QString errorMessage = result.errorString();
         logMessage(_("Failed to start process: %1").arg(errorMessage), LogError);
-        m_engine->notifyInferiorSetupFailed(result.errorString());
+        notifyInferiorSetupFailed(result.errorString());
         return;
     }
     QTC_ASSERT(!result.values.isEmpty(), return);
@@ -1185,19 +1176,19 @@ void CodaGdbAdapter::handleCreateProcess(const CodaCommandResult &result)
     m_session.dataseg = 0;
 }
 
-void CodaGdbAdapter::runEngine()
+void GdbCodaEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    m_engine->notifyEngineRunAndInferiorStopOk();
+    notifyEngineRunAndInferiorStopOk();
     // Trigger the initial "continue" manually.
-    m_engine->continueInferiorInternal();
+    continueInferiorInternal();
 }
 
 //
 // AbstractGdbAdapter interface implementation
 //
 
-void CodaGdbAdapter::write(const QByteArray &data)
+void GdbCodaEngine::write(const QByteArray &data)
 {
     // Write magic packets directly to TRK.
     if (data.startsWith("@#")) {
@@ -1229,7 +1220,7 @@ void CodaGdbAdapter::write(const QByteArray &data)
     m_gdbProc.write(data);
 }
 
-void CodaGdbAdapter::cleanup()
+void GdbCodaEngine::cleanup()
 {
     delete m_gdbServer;
     m_gdbServer = 0;
@@ -1243,11 +1234,11 @@ void CodaGdbAdapter::cleanup()
     }
 }
 
-void CodaGdbAdapter::shutdownAdapter()
+void GdbCodaEngine::shutdownEngine()
 {
     if (m_gdbProc.state() == QProcess::Running) {
         cleanup();
-        m_engine->notifyAdapterShutdownOk();
+        notifyAdapterShutdownOk();
     } else {
         // Something is wrong, gdb crashed. Kill debuggee (see handleDeleteProcess2)
         if (m_codaDevice && m_codaDevice->device()->isOpen()) {
@@ -1257,18 +1248,18 @@ void CodaGdbAdapter::shutdownAdapter()
     }
 }
 
-void CodaGdbAdapter::codaReloadRegisters()
+void GdbCodaEngine::codaReloadRegisters()
 {
     // Take advantage of direct access to cached register values.
-    m_snapshot.syncRegisters(m_session.tid, m_engine->registerHandler());
+    m_snapshot.syncRegisters(m_session.tid, registerHandler());
 }
 
-void CodaGdbAdapter::codaReloadThreads()
+void GdbCodaEngine::codaReloadThreads()
 {
-    m_snapshot.syncThreads(m_engine->threadsHandler());
+    m_snapshot.syncThreads(threadsHandler());
 }
 
-void CodaGdbAdapter::handleWriteRegister(const CodaCommandResult &result)
+void GdbCodaEngine::handleWriteRegister(const CodaCommandResult &result)
 {
     const int registerNumber = result.cookie.toInt();
     if (result) {
@@ -1280,18 +1271,18 @@ void CodaGdbAdapter::handleWriteRegister(const CodaCommandResult &result)
     }
 }
 
-void CodaGdbAdapter::sendRegistersGetMCommand()
+void GdbCodaEngine::sendRegistersGetMCommand()
 {
     // Send off a register command, which requires the names to be present.
     QTC_ASSERT(!m_codaDevice->registerNames().isEmpty(), return);
 
     m_codaDevice->sendRegistersGetMRangeCommand(
-                CodaCallback(this, &CodaGdbAdapter::handleAndReportReadRegisters),
+                CodaCallback(this, &GdbCodaEngine::handleAndReportReadRegisters),
                 currentThreadContextId(), 0,
                 Symbian::RegisterCount);
 }
 
-void CodaGdbAdapter::reportRegisters()
+void GdbCodaEngine::reportRegisters()
 {
     const int threadIndex = m_snapshot.indexOfThread(m_session.tid);
     QTC_ASSERT(threadIndex != -1, return);
@@ -1300,7 +1291,7 @@ void CodaGdbAdapter::reportRegisters()
         thread.gdbRegisterLogMessage(m_verbose));
 }
 
-void CodaGdbAdapter::handleRegisterChildren(const CodaCommandResult &result)
+void GdbCodaEngine::handleRegisterChildren(const CodaCommandResult &result)
 {
     QTC_ASSERT(m_codaDevice, return);
     const QByteArray contextId = result.cookie.toByteArray();
@@ -1317,7 +1308,7 @@ void CodaGdbAdapter::handleRegisterChildren(const CodaCommandResult &result)
     QVector<QByteArray> registerNames = CodaDevice::parseRegisterGetChildren(result);
     if (registerNames.size() == 1) {
         m_codaDevice->sendRegistersGetChildrenCommand(
-            CodaCallback(this, &CodaGdbAdapter::handleRegisterChildren),
+            CodaCallback(this, &GdbCodaEngine::handleRegisterChildren),
                          registerNames.front(), result.cookie);
         return;
     }
@@ -1348,7 +1339,7 @@ void CodaGdbAdapter::handleRegisterChildren(const CodaCommandResult &result)
     }
 }
 
-void CodaGdbAdapter::handleReadRegisters(const CodaCommandResult &result)
+void GdbCodaEngine::handleReadRegisters(const CodaCommandResult &result)
 {
     // Check for errors.
     if (!result) {
@@ -1382,13 +1373,13 @@ void CodaGdbAdapter::handleReadRegisters(const CodaCommandResult &result)
         qDebug() << "handleReadRegisters: " << m_snapshot.toString();
 }
 
-void CodaGdbAdapter::handleAndReportReadRegisters(const CodaCommandResult &result)
+void GdbCodaEngine::handleAndReportReadRegisters(const CodaCommandResult &result)
 {
     handleReadRegisters(result);
     reportRegisters();
 }
 
-void CodaGdbAdapter::handleAndReportReadRegister(const CodaCommandResult &result)
+void GdbCodaEngine::handleAndReportReadRegister(const CodaCommandResult &result)
 {
     handleReadRegisters(result);
     const uint registerNumber = result.cookie.toUInt();
@@ -1399,7 +1390,7 @@ void CodaGdbAdapter::handleAndReportReadRegister(const CodaCommandResult &result
         thread.gdbSingleRegisterLogMessage(registerNumber));
 }
 
-QByteArray CodaGdbAdapter::stopMessage() const
+QByteArray GdbCodaEngine::stopMessage() const
 {
     QByteArray logMsg = "Stopped with registers in thread 0x";
     logMsg += QByteArray::number(m_session.tid, 16);
@@ -1420,7 +1411,7 @@ QByteArray CodaGdbAdapter::stopMessage() const
     return logMsg;
 }
 
-void CodaGdbAdapter::handleAndReportReadRegistersAfterStop(const CodaCommandResult &result)
+void GdbCodaEngine::handleAndReportReadRegistersAfterStop(const CodaCommandResult &result)
 {
     handleReadRegisters(result);
     handleReadRegisters(result);
@@ -1429,7 +1420,7 @@ void CodaGdbAdapter::handleAndReportReadRegistersAfterStop(const CodaCommandResu
         m_stopReason, reportThread), stopMessage());
 }
 
-void CodaGdbAdapter::handleAndReportSetBreakpoint(const CodaCommandResult &result)
+void GdbCodaEngine::handleAndReportSetBreakpoint(const CodaCommandResult &result)
 {
     if (result) {
         sendGdbServerMessage("OK");
@@ -1439,7 +1430,7 @@ void CodaGdbAdapter::handleAndReportSetBreakpoint(const CodaCommandResult &resul
     }
 }
 
-void CodaGdbAdapter::handleClearBreakpoint(const CodaCommandResult &result)
+void GdbCodaEngine::handleClearBreakpoint(const CodaCommandResult &result)
 {
     logMessage(QLatin1String("CLEAR BREAKPOINT "));
     if (!result)
@@ -1448,7 +1439,7 @@ void CodaGdbAdapter::handleClearBreakpoint(const CodaCommandResult &result)
     sendGdbServerMessage("OK");
 }
 
-void CodaGdbAdapter::readMemory(uint addr, uint len, bool buffered)
+void GdbCodaEngine::readMemory(uint addr, uint len, bool buffered)
 {
     Q_ASSERT(len < (2 << 16));
 
@@ -1467,16 +1458,16 @@ static QString msgMemoryReadError(uint addr, uint len = 0)
     return _("Memory read error at: 0x%1 %2").arg(addr, 0, 16).arg(lenS);
 }
 
-void CodaGdbAdapter::sendMemoryGetCommand(const MemoryRange &range, bool buffered)
+void GdbCodaEngine::sendMemoryGetCommand(const MemoryRange &range, bool buffered)
 {
     const QVariant cookie = QVariant::fromValue(range);
     const CodaCallback cb = buffered ?
-      CodaCallback(this, &CodaGdbAdapter::handleReadMemoryBuffered) :
-      CodaCallback(this, &CodaGdbAdapter::handleReadMemoryUnbuffered);
+      CodaCallback(this, &GdbCodaEngine::handleReadMemoryBuffered) :
+      CodaCallback(this, &GdbCodaEngine::handleReadMemoryUnbuffered);
     m_codaDevice->sendMemoryGetCommand(cb, currentThreadContextId(), range.from, range.size(), cookie);
 }
 
-void CodaGdbAdapter::handleReadMemoryBuffered(const CodaCommandResult &result)
+void GdbCodaEngine::handleReadMemoryBuffered(const CodaCommandResult &result)
 {
     QTC_ASSERT(qVariantCanConvert<MemoryRange>(result.cookie), return);
 
@@ -1502,7 +1493,7 @@ void CodaGdbAdapter::handleReadMemoryBuffered(const CodaCommandResult &result)
     tryAnswerGdbMemoryRequest(true);
 }
 
-void CodaGdbAdapter::handleReadMemoryUnbuffered(const CodaCommandResult &result)
+void GdbCodaEngine::handleReadMemoryUnbuffered(const CodaCommandResult &result)
 {
     QTC_ASSERT(qVariantCanConvert<MemoryRange>(result.cookie), return);
 
@@ -1526,7 +1517,7 @@ void CodaGdbAdapter::handleReadMemoryUnbuffered(const CodaCommandResult &result)
     tryAnswerGdbMemoryRequest(false);
 }
 
-void CodaGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
+void GdbCodaEngine::tryAnswerGdbMemoryRequest(bool buffered)
 {
     //logMessage("TRYING TO ANSWER MEMORY REQUEST ");
     MemoryRange wanted = m_snapshot.wantedMemory;
@@ -1588,7 +1579,7 @@ void CodaGdbAdapter::tryAnswerGdbMemoryRequest(bool buffered)
     }
 }
 
-void CodaGdbAdapter::handleWriteMemory(const CodaCommandResult &result)
+void GdbCodaEngine::handleWriteMemory(const CodaCommandResult &result)
 {
     if (result) {
         sendGdbServerMessage("OK", "Write memory");
@@ -1598,17 +1589,17 @@ void CodaGdbAdapter::handleWriteMemory(const CodaCommandResult &result)
     }
 }
 
-QByteArray CodaGdbAdapter::mainThreadContextId() const
+QByteArray GdbCodaEngine::mainThreadContextId() const
 {
     return RunControlContext::codaId(m_session.pid, m_session.mainTid);
 }
 
-QByteArray CodaGdbAdapter::currentThreadContextId() const
+QByteArray GdbCodaEngine::currentThreadContextId() const
 {
     return RunControlContext::codaId(m_session.pid, m_session.tid);
 }
 
-void CodaGdbAdapter::sendContinue()
+void GdbCodaEngine::sendContinue()
 {
     // Remove all but main thread as we do not know whether they will exist
     // at the next stop.
@@ -1617,7 +1608,7 @@ void CodaGdbAdapter::sendContinue()
     m_codaDevice->sendRunControlResumeCommand(CodaCallback(), m_codaProcessId);
 }
 
-void CodaGdbAdapter::sendStepRange()
+void GdbCodaEngine::sendStepRange()
 {
     uint from = m_snapshot.lineFromAddress;
     uint to = m_snapshot.lineToAddress;
@@ -1638,12 +1629,12 @@ void CodaGdbAdapter::sendStepRange()
     logMessage(_("Stepping from 0x%1 to 0x%2 (current PC=0x%3), mode %4").
                arg(from, 0, 16).arg(to, 0, 16).arg(pc).arg(int(mode)));
     m_codaDevice->sendRunControlResumeCommand(
-        CodaCallback(this, &CodaGdbAdapter::handleStep),
+        CodaCallback(this, &GdbCodaEngine::handleStep),
         currentThreadContextId(),
         mode, 1, from, to);
 }
 
-void CodaGdbAdapter::handleStep(const CodaCommandResult &result)
+void GdbCodaEngine::handleStep(const CodaCommandResult &result)
 {
     if (!result) { // Try fallback with Continue.
         logMessage(QString::fromLatin1("Error while stepping: %1 (fallback to 'continue')").

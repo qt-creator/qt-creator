@@ -69,6 +69,7 @@
 #include "debuggersourcepathmappingwidget.h"
 #include "hostutils.h"
 #include "logwindow.h"
+#include "procinterrupt.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -78,8 +79,9 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/itaskhandler.h>
 #include <texteditor/itexteditor.h>
-#include <utils/qtcassert.h>
 #include <utils/elfreader.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -243,7 +245,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
     setObjectName(_("GdbEngine"));
 
     m_busy = false;
-    m_gdbAdapter = 0;
     m_debuggingHelperState = DebuggingHelperUninitialized;
     m_gdbVersion = 100;
     m_gdbBuildVersion = -1;
@@ -268,8 +269,6 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
 
     invalidateSourcesList();
 
-    m_gdbAdapter = createAdapter();
-
     m_debugInfoTaskHandler = new DebugInfoTaskHandler(this);
     ExtensionSystem::PluginManager::instance()->addObject(m_debugInfoTaskHandler);
 
@@ -280,16 +279,10 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
             SLOT(reloadLocals()));
     connect(debuggerCore()->action(CreateFullBacktrace), SIGNAL(triggered()),
             SLOT(createFullBacktrace()));
-}
-
-DebuggerStartMode GdbEngine::startMode() const
-{
-    return startParameters().startMode;
-}
-
-AbstractGdbProcess *GdbEngine::gdbProc() const
-{
-    return m_gdbAdapter->gdbProc();
+    connect(debuggerCore()->action(UseDebuggingHelpers), SIGNAL(valueChanged(QVariant)),
+            SLOT(reloadLocals()));
+    connect(debuggerCore()->action(UseDynamicType), SIGNAL(valueChanged(QVariant)),
+            SLOT(reloadLocals()));
 }
 
 GdbEngine::~GdbEngine()
@@ -299,10 +292,12 @@ GdbEngine::~GdbEngine()
     m_debugInfoTaskHandler = 0;
 
     // Prevent sending error messages afterwards.
-    if (m_gdbAdapter)
-        disconnect(gdbProc(), 0, this, 0);
-    delete m_gdbAdapter;
-    m_gdbAdapter = 0;
+    disconnect();
+}
+
+DebuggerStartMode GdbEngine::startMode() const
+{
+    return startParameters().startMode;
 }
 
 QString GdbEngine::errorMessage(QProcess::ProcessError error)
@@ -396,11 +391,9 @@ static bool contains(const QByteArray &message, const char *pattern, int size)
     const int pos = message.indexOf(pattern);
     if (pos == -1)
         return false;
-    if (pos != 0 && message.at(pos - 1) != '\n')
-        return false;
-    if (pos + size != s && message.at(pos + size + 1) != '\n')
-        return false;
-    return true;
+    const bool beginFits = pos == 0 || message.at(pos - 1) == '\n';
+    const bool endFits = pos + size == s || message.at(pos + size) == '\n';
+    return beginFits && endFits;
 }
 
 static bool isGdbConnectionError(const QByteArray &message)
@@ -856,7 +849,7 @@ void GdbEngine::interruptInferior()
     } else {
         showStatusMessage(tr("Stop requested..."), 5000);
         showMessage(_("TRYING TO INTERRUPT INFERIOR"));
-        m_gdbAdapter->interruptInferior();
+        interruptInferior2();
     }
 }
 
@@ -883,25 +876,6 @@ void GdbEngine::maybeHandleInferiorPidChanged(const QString &pid0)
 
     showMessage(_("FOUND PID %1").arg(pid));
     notifyInferiorPid(pid);
-}
-
-void GdbEngine::postCommand(const QByteArray &command, AdapterCallback callback,
-                            const char *callbackName, const QVariant &cookie)
-{
-    postCommand(command, NoFlags, callback, callbackName, cookie);
-}
-
-void GdbEngine::postCommand(const QByteArray &command, GdbCommandFlags flags,
-                            AdapterCallback callback,
-                            const char *callbackName, const QVariant &cookie)
-{
-    GdbCommand cmd;
-    cmd.command = command;
-    cmd.flags = flags;
-    cmd.adapterCallback = callback;
-    cmd.callbackName = callbackName;
-    cmd.cookie = cookie;
-    postCommandHelper(cmd);
 }
 
 void GdbEngine::postCommand(const QByteArray &command, GdbCommandCallback callback,
@@ -1021,7 +995,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         QMetaObject::invokeMethod(this, "handleResponse",
             Q_ARG(QByteArray, buffer));
     } else {
-        m_gdbAdapter->write(cmd.command + "\r\n");
+        write(cmd.command + "\r\n");
 
         // Start Watchdog.
         if (m_commandTimer.interval() <= 20000)
@@ -1226,8 +1200,6 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
 
     if (cmd.callback)
         (this->*cmd.callback)(*response);
-    else if (cmd.adapterCallback)
-        (m_gdbAdapter->*cmd.adapterCallback)(*response);
 
     if (cmd.flags & RebuildBreakpointModel) {
         --m_pendingBreakpointRequests;
@@ -1595,7 +1567,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
     // Don't load helpers on stops triggered by signals unless it's
     // an intentional trap.
     if (initHelpers
-            && m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperLoadedByGdbPreload
+            && dumperHandling() != DumperLoadedByGdbPreload
             && reason == "signal-received") {
         const QByteArray name = data.findChild("signal-name").data();
         const DebuggerStartParameters &sp = startParameters();
@@ -1775,8 +1747,8 @@ void GdbEngine::handleStop2()
     reloadStack(false); // Will trigger register reload.
 
     if (supportsThreads()) {
-        if (m_gdbAdapter->isCodaAdapter()) {
-            m_gdbAdapter->codaReloadThreads();
+        if (isCodaAdapter()) {
+            codaReloadThreads();
         } else if (m_isMacGdb || m_gdbVersion < 70100) {
             postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds));
         } else {
@@ -1875,8 +1847,7 @@ void GdbEngine::pythonDumpersFailed()
 {
     m_hasPython = false;
     const DebuggerStartParameters &sp = startParameters();
-    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperLoadedByGdbPreload
-            && checkDebuggingHelpersClassic()) {
+    if (dumperHandling() == DumperLoadedByGdbPreload && checkDebuggingHelpersClassic()) {
         QByteArray cmd = "set environment ";
         if (sp.toolChainAbi.os() == Abi::MacOS)
             cmd += "DYLD_INSERT_LIBRARIES";
@@ -2031,13 +2002,8 @@ void GdbEngine::handleInferiorShutdown(const GdbResponse &response)
     }
     showMessageBox(QMessageBox::Critical,
         tr("Failed to shut down application"),
-        AbstractGdbAdapter::msgInferiorStopFailed(QString::fromLocal8Bit(ba)));
+        msgInferiorStopFailed(QString::fromLocal8Bit(ba)));
     notifyInferiorShutdownFailed();
-}
-
-void GdbEngine::shutdownEngine()
-{
-    m_gdbAdapter->shutdownAdapter();
 }
 
 void GdbEngine::notifyAdapterShutdownFailed()
@@ -2076,7 +2042,7 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
         // Don't set state here, this will be handled in handleGdbFinished()
         //notifyEngineShutdownOk();
     } else {
-        QString msg = m_gdbAdapter->msgGdbStopFailed(
+        QString msg = msgGdbStopFailed(
             QString::fromLocal8Bit(response.data.findChild("msg").data()));
         qDebug() << (_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
         showMessage(_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
@@ -2119,50 +2085,6 @@ QString msgNoGdbBinaryForToolChain(const Abi &tc)
 {
     return GdbEngine::tr("There is no gdb binary available for binaries in format '%1'")
         .arg(tc.toString());
-}
-
-AbstractGdbAdapter *GdbEngine::createAdapter()
-{
-    const DebuggerStartParameters &sp = startParameters();
-    if (sp.toolChainAbi.os() == Abi::SymbianOS) {
-        // FIXME: 1 of 3 testing hacks.
-        return new CodaGdbAdapter(this);
-    }
-
-    switch (sp.startMode) {
-    case AttachCore:
-        return new CoreGdbAdapter(this);
-    case AttachToRemoteServer:
-        return new RemoteGdbServerAdapter(this);
-    case StartRemoteGdb:
-        return new RemotePlainGdbAdapter(this);
-    case AttachExternal:
-        return new AttachGdbAdapter(this);
-    default:
-        if (sp.useTerminal)
-            return new TermGdbAdapter(this);
-        return new LocalPlainGdbAdapter(this);
-    }
-}
-
-void GdbEngine::setupEngine()
-{
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    QTC_CHECK(m_debuggingHelperState == DebuggingHelperUninitialized);
-
-    if (m_gdbAdapter->dumperHandling() != AbstractGdbAdapter::DumperNotAvailable) {
-        connect(debuggerCore()->action(UseDebuggingHelpers),
-            SIGNAL(valueChanged(QVariant)),
-            SLOT(reloadLocals()));
-        connect(debuggerCore()->action(UseDynamicType),
-            SIGNAL(valueChanged(QVariant)),
-            SLOT(reloadLocals()));
-    }
-
-    QTC_CHECK(state() == EngineSetupRequested);
-    if (debuggerCore()->boolSetting(WarnOnReleaseBuilds))
-        checkForReleaseBuild();
-    m_gdbAdapter->startAdapter();
 }
 
 bool GdbEngine::hasCapability(unsigned cap) const
@@ -2237,7 +2159,7 @@ void GdbEngine::executeStep()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
-    if (m_gdbAdapter->isCodaAdapter() && stackHandler()->stackSize() > 0)
+    if (isCodaAdapter() && stackHandler()->stackSize() > 0)
         postCommand("sal step,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
     if (isReverseDebugging()) {
         postCommand("reverse-step", RunRequest, CB(handleExecuteStep));
@@ -2311,7 +2233,7 @@ void GdbEngine::executeNext()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
-    if (m_gdbAdapter->isCodaAdapter() && stackHandler()->stackSize() > 0)
+    if (isCodaAdapter() && stackHandler()->stackSize() > 0)
         postCommand("sal next,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
     if (isReverseDebugging()) {
         postCommand("reverse-next", RunRequest, CB(handleExecuteNext));
@@ -3206,7 +3128,7 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
         cmd = "-break-insert -a -f ";
     } else if (m_isMacGdb) {
         cmd = "-break-insert -l -1 -f ";
-    } else if (m_gdbAdapter->isCodaAdapter()) {
+    } else if (isCodaAdapter()) {
         cmd = "-break-insert -h -f ";
     } else if (m_gdbVersion >= 70000) {
         int spec = handler->threadSpec(id);
@@ -3591,7 +3513,7 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
     PENDING_DEBUG("RELOAD STACK");
     QByteArray cmd = "-stack-list-frames";
     int stackDepth = debuggerCore()->action(MaximalStackDepth)->value().toInt();
-    if (stackDepth && !m_gdbAdapter->isCodaAdapter())
+    if (stackDepth && !isCodaAdapter())
         cmd += " 0 " + QByteArray::number(stackDepth);
     postCommand(cmd, Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
@@ -3832,12 +3754,12 @@ void GdbEngine::reloadRegisters()
         postCommand("-data-list-register-names", CB(handleRegisterListNames));
         m_registerNamesListed = true;
         // FIXME: Maybe better completely re-do this logic in CODA adapter.
-        if (m_gdbAdapter->isCodaAdapter())
+        if (isCodaAdapter())
             return;
     }
 
-    if (m_gdbAdapter->isCodaAdapter()) {
-        m_gdbAdapter->codaReloadRegisters();
+    if (isCodaAdapter()) {
+        codaReloadRegisters();
     } else {
         postCommand("-data-list-register-values r",
                     Discardable, CB(handleRegisterListValues));
@@ -3865,8 +3787,8 @@ void GdbEngine::handleRegisterListNames(const GdbResponse &response)
 
     registerHandler()->setRegisters(registers);
 
-    if (m_gdbAdapter->isCodaAdapter())
-        m_gdbAdapter->codaReloadRegisters();
+    if (isCodaAdapter())
+        codaReloadRegisters();
 }
 
 void GdbEngine::handleRegisterListValues(const GdbResponse &response)
@@ -4047,7 +3969,7 @@ bool GdbEngine::hasDebuggingHelperForType(const QByteArray &type) const
     if (!debuggerCore()->boolSetting(UseDebuggingHelpers))
         return false;
 
-    if (m_gdbAdapter->dumperHandling() == AbstractGdbAdapter::DumperNotAvailable) {
+    if (dumperHandling() == DumperNotAvailable) {
         // Inferior calls are not possible in gdb when looking at core files.
         return type == "QString" || type.endsWith("::QString")
             || type == "QStringList" || type.endsWith("::QStringList");
@@ -4760,7 +4682,7 @@ void GdbEngine::startGdb(const QStringList &args)
     const DebuggerStartParameters &sp = startParameters();
     m_gdb = gdbBinary(sp);
     if (m_gdb.isEmpty()) {
-        m_gdbAdapter->handleGdbStartFailed();
+        handleGdbStartFailed();
         handleAdapterStartFailed(
             msgNoGdbBinaryForToolChain(sp.toolChainAbi),
             _(Constants::DEBUGGER_COMMON_SETTINGS_ID));
@@ -4786,7 +4708,7 @@ void GdbEngine::startGdb(const QStringList &args)
     gdbProc()->start(m_gdb, gdbArgs);
 
     if (!gdbProc()->waitForStarted()) {
-        m_gdbAdapter->handleGdbStartFailed();
+        handleGdbStartFailed();
         const QString msg = errorMessage(QProcess::FailedToStart);
         handleAdapterStartFailed(msg);
         return;
@@ -4866,6 +4788,47 @@ void GdbEngine::startGdb(const QStringList &args)
                   "AN ERROR IS EXPECTED."));
     postCommand("disassemble 0 0", ConsoleCommand, CB(handleDisassemblerCheck));
 
+    typedef GlobalDebuggerOptions::SourcePathMap SourcePathMap;
+    typedef SourcePathMap::const_iterator SourcePathMapIterator;
+
+    if (debuggerCore()->boolSetting(WarnOnReleaseBuilds))
+        checkForReleaseBuild();
+
+    showStatusMessage(tr("Setting up inferior..."));
+
+    // Addint executable to modules list.
+    Module module;
+    module.startAddress = 0;
+    module.endAddress = 0;
+    module.modulePath = sp.executable;
+    module.moduleName = QLatin1String("<executable>");
+    modulesHandler()->updateModule(module);
+
+    // Apply source path mappings from global options.
+    const SourcePathMap sourcePathMap =
+        DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp.qtInstallPath,
+                debuggerCore()->globalDebuggerOptions()->sourcePathMap);
+    const SourcePathMapIterator cend = sourcePathMap.constEnd();
+    SourcePathMapIterator it = sourcePathMap.constBegin();
+    for ( ; it != cend; ++it)
+        postCommand("set substitute-path " + it.key().toLocal8Bit()
+            + " " + it.value().toLocal8Bit());
+
+    // Spaces just will not work.
+    foreach (const QString &src, sp.debugSourceLocation)
+        postCommand("directory " + src.toLocal8Bit());
+
+    const QByteArray sysroot = sp.sysroot.toLocal8Bit();
+    if (!sysroot.isEmpty()) {
+        postCommand("set sysroot " + sysroot);
+        // sysroot is not enough to correctly locate the sources, so explicitly
+        // relocate the most likely place for the debug source
+        postCommand("set substitute-path /usr/src " + sysroot + "/usr/src");
+    }
+
+    //QByteArray ba = QFileInfo(sp.dumperLibrary).path().toLocal8Bit();
+    //if (!ba.isEmpty())
+    //    postCommand("set solib-search-path " + ba);
     if (attemptQuickStart()) {
         postCommand("set auto-solib-add off", ConsoleCommand);
     } else {
@@ -4875,14 +4838,21 @@ void GdbEngine::startGdb(const QStringList &args)
     }
 
     // Dummy command to guarantee a roundtrip before the adapter proceed.
-    postCommand("pwd", ConsoleCommand, CB(handleGdbStart));
+    postCommand("pwd", ConsoleCommand, CB(reportEngineSetupOk));
 }
 
-void GdbEngine::handleGdbStart(const GdbResponse &response)
+void GdbEngine::reportEngineSetupOk(const GdbResponse &response)
 {
     Q_UNUSED(response);
-    m_gdbAdapter->handleGdbStartDone();
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+    showMessage(_("ENGINE SUCCESSFULLY STARTED"));
+    notifyEngineSetupOk();
 }
+
+void GdbEngine::handleGdbStartFailed()
+{
+}
+
 
 void GdbEngine::loadInitScript()
 {
@@ -4982,9 +4952,8 @@ void GdbEngine::abortDebugger()
     if (targetState() == DebuggerFinished) {
         // We already tried. Try harder.
         showMessage(_("ABORTING DEBUGGER. SECOND TIME."));
-        QTC_ASSERT(m_gdbAdapter, return);
-        QTC_ASSERT(m_gdbAdapter->gdbProc(), return);
-        m_gdbAdapter->gdbProc()->kill();
+        QTC_ASSERT(gdbProc(), return);
+        gdbProc()->kill();
     } else {
         // Be friendly the first time. This will change targetState().
         showMessage(_("ABORTING DEBUGGER. FIRST TIME."));
@@ -5007,50 +4976,6 @@ void GdbEngine::handleAdapterStartFailed(const QString &msg,
         }
     }
     notifyEngineSetupFailed();
-}
-
-void GdbEngine::handleAdapterStarted()
-{
-    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    showMessage(_("ADAPTER SUCCESSFULLY STARTED"));
-    notifyEngineSetupOk();
-
-    Module module;
-    module.startAddress = 0;
-    module.endAddress = 0;
-    module.modulePath = startParameters().executable;
-    module.moduleName = QLatin1String("<executable>");
-    modulesHandler()->updateModule(module);
-}
-
-void GdbEngine::setupInferior()
-{
-    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
-    typedef GlobalDebuggerOptions::SourcePathMap SourcePathMap;
-    typedef SourcePathMap::const_iterator SourcePathMapIterator;
-
-    showStatusMessage(tr("Setting up inferior..."));
-    const DebuggerStartParameters &sp = startParameters();
-
-    // Apply source path mappings from global options.
-    const SourcePathMap sourcePathMap =
-        DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp.qtInstallPath,
-                debuggerCore()->globalDebuggerOptions()->sourcePathMap);
-    const SourcePathMapIterator cend = sourcePathMap.constEnd();
-    SourcePathMapIterator it = sourcePathMap.constBegin();
-    for ( ; it != cend; ++it)
-        postCommand("set substitute-path " + it.key().toLocal8Bit()
-            + " " + it.value().toLocal8Bit());
-
-    // Spaces just will not work.
-    foreach (const QString &src, sp.debugSourceLocation)
-        postCommand("directory " + src.toLocal8Bit());
-
-    //QByteArray ba = QFileInfo(sp.dumperLibrary).path().toLocal8Bit();
-    //if (!ba.isEmpty())
-    //    postCommand("set solib-search-path " + ba);
-
-    m_gdbAdapter->setupInferior();
 }
 
 void GdbEngine::notifyInferiorSetupFailed()
@@ -5172,12 +5097,6 @@ void GdbEngine::handleBreakOnQFatal(const GdbResponse &response)
     notifyInferiorSetupOk();
 }
 
-void GdbEngine::runEngine()
-{
-    QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
-    m_gdbAdapter->runEngine();
-}
-
 void GdbEngine::notifyInferiorSetupFailed(const QString &msg)
 {
     showStatusMessage(tr("Failed to start application: ") + msg);
@@ -5246,14 +5165,15 @@ void GdbEngine::resetCommandQueue()
 
 void GdbEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
+    Q_UNUSED(gdbServerPort);
+    Q_UNUSED(qmlPort);
     notifyEngineRemoteSetupDone();
-    m_gdbAdapter->handleRemoteSetupDone(gdbServerPort, qmlPort);
 }
 
 void GdbEngine::handleRemoteSetupFailed(const QString &message)
 {
+    Q_UNUSED(message);
     notifyEngineRemoteSetupFailed();
-    m_gdbAdapter->handleRemoteSetupFailed(message);
 }
 
 bool GdbEngine::setupQmlStep(bool on)
@@ -5421,14 +5341,106 @@ void GdbEngine::checkForReleaseBuild()
     showMessageBox(QMessageBox::Information, tr("Warning"), warning);
 }
 
+void GdbEngine::write(const QByteArray &data)
+{
+    gdbProc()->write(data);
+}
+
+bool GdbEngine::isCodaAdapter() const
+{
+    return false;
+}
+
+bool GdbEngine::prepareCommand()
+{
+#ifdef Q_OS_WIN
+    Utils::QtcProcess::SplitError perr;
+    startParameters().processArgs = Utils::QtcProcess::prepareArgs(
+                startParameters().processArgs, &perr,
+                &startParameters().environment, &startParameters().workingDirectory);
+    if (perr != Utils::QtcProcess::SplitOk) {
+        // perr == BadQuoting is never returned on Windows
+        // FIXME? QTCREATORBUG-2809
+        handleAdapterStartFailed(QCoreApplication::translate("DebuggerEngine", // Same message in CdbEngine
+            "Debugging complex command lines is currently not supported on Windows."), QString());
+        return false;
+    }
+#endif
+    return true;
+}
+
+QString GdbEngine::msgGdbStopFailed(const QString &why)
+{
+    return tr("The gdb process could not be stopped:\n%1").arg(why);
+}
+
+QString GdbEngine::msgInferiorStopFailed(const QString &why)
+{
+    return tr("Application process could not be stopped:\n%1").arg(why);
+}
+
+QString GdbEngine::msgInferiorSetupOk()
+{
+    return tr("Application started");
+}
+
+QString GdbEngine::msgInferiorRunOk()
+{
+    return tr("Application running");
+}
+
+QString GdbEngine::msgAttachedToStoppedInferior()
+{
+    return tr("Attached to stopped application");
+}
+
+QString GdbEngine::msgConnectRemoteServerFailed(const QString &why)
+{
+    return tr("Connecting to remote server failed:\n%1").arg(why);
+}
+
+void GdbEngine::interruptLocalInferior(qint64 pid)
+{
+    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); return);
+    if (pid <= 0) {
+        showMessage(QLatin1String("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED"), LogError);
+        return;
+    }
+    QString errorMessage;
+    if (interruptProcess(pid, GdbEngineType, &errorMessage)) {
+        showMessage(QLatin1String("Interrupted ") + QString::number(pid));
+    } else {
+        showMessage(errorMessage, LogError);
+        notifyInferiorStopFailed();
+    }
+}
+
 //
 // Factory
 //
 
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &startParameters,
+DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp,
     DebuggerEngine *masterEngine)
 {
-    return new GdbEngine(startParameters, masterEngine);
+    if (sp.toolChainAbi.os() == Abi::SymbianOS) {
+        // FIXME: 1 of 3 testing hacks.
+        return new GdbCodaEngine(sp, masterEngine);
+    }
+
+    switch (sp.startMode) {
+    case AttachCore:
+        return new GdbCoreEngine(sp, masterEngine);
+    case AttachToRemoteServer:
+        return new GdbRemoteServerEngine(sp, masterEngine);
+    case StartRemoteGdb:
+        return new GdbRemotePlainEngine(sp, masterEngine);
+    case AttachExternal:
+        return new GdbAttachEngine(sp, masterEngine);
+    default:
+        if (sp.useTerminal)
+            return new GdbTermEngine(sp, masterEngine);
+        return new GdbLocalPlainEngine(sp, masterEngine);
+    }
 }
 
 void addGdbOptionPages(QList<Core::IOptionsPage *> *opts)
