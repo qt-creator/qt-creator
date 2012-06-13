@@ -59,7 +59,7 @@ RemoteLinuxRunControlFactory::~RemoteLinuxRunControlFactory()
 
 bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-    if (mode != NormalRunMode && mode != DebugRunMode)
+    if (mode != NormalRunMode && mode != DebugRunMode && mode != DebugRunModeWithBreakOnMain)
         return false;
 
     const QString idStr = QString::fromLatin1(runConfiguration->id().name());
@@ -68,11 +68,12 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
         return false;
     }
 
+    if (mode == NormalRunMode)
+        return true;
+
     const RemoteLinuxRunConfiguration * const remoteRunConfig
         = qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration);
-    if (mode == DebugRunMode)
-        return remoteRunConfig->portsUsedByDebuggers() <= remoteRunConfig->freePorts().count();
-    return true;
+    return remoteRunConfig->portsUsedByDebuggers() <= remoteRunConfig->freePorts().count();
 }
 
 RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode)
