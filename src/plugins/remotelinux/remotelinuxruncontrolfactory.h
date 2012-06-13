@@ -44,7 +44,6 @@ public:
     ~RemoteLinuxRunControlFactory();
 
     QString displayName() const;
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                 ProjectExplorer::RunMode mode) const;

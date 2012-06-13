@@ -574,6 +574,11 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect()
     return 0;
 }
 
+RunConfigWidget *IRunControlFactory::createConfigurationWidget(RunConfiguration *)
+{
+    return 0;
+}
+
 /*!
     \class ProjectExplorer::RunControl
     \brief Each instance of this class represents one item that is run.

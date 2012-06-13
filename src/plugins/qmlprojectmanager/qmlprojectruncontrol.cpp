@@ -196,12 +196,6 @@ QString QmlProjectRunControlFactory::displayName() const
     return tr("Run");
 }
 
-ProjectExplorer::RunConfigWidget *QmlProjectRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
-{
-    Q_UNUSED(runConfiguration)
-    return 0;
-}
-
 RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)
 {
     Debugger::DebuggerStartParameters params;

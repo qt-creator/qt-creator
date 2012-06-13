@@ -80,7 +80,6 @@ public:
     ~AndroidRunControlFactory();
 
     QString displayName() const;
-    RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
     bool canRun(RunConfiguration *runConfiguration,
                 ProjectExplorer::RunMode mode) const;

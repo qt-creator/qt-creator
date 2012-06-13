@@ -191,11 +191,5 @@ QString MaemoRunControlFactory::displayName() const
     return tr("Run on device");
 }
 
-RunConfigWidget *MaemoRunControlFactory::createConfigurationWidget(RunConfiguration *config)
-{
-    Q_UNUSED(config)
-    return 0;
-}
-
     } // namespace Internal
 } // namespace Madde

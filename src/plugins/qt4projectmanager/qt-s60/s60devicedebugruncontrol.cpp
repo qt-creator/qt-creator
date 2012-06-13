@@ -246,8 +246,3 @@ QString S60DeviceDebugRunControlFactory::displayName() const
 {
     return S60DeviceDebugRunControl::tr("Debug on Device");
 }
-
-ProjectExplorer::RunConfigWidget *S60DeviceDebugRunControlFactory::createConfigurationWidget(RunConfiguration* /*runConfiguration */)
-{
-    return 0;
-}

@@ -53,8 +53,6 @@ public:
 
     QString displayName() const;
 
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
-
 private:
     const ProjectExplorer::RunMode m_mode;
     const QString m_name;

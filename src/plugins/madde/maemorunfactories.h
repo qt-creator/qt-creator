@@ -78,7 +78,6 @@ public:
     ~MaemoRunControlFactory();
 
     QString displayName() const;
-    RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
     RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode);

@@ -97,10 +97,6 @@ public:
         return m_name;
     }
 
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *) {
-        return 0;
-    }
-
 private:
     const ProjectExplorer::RunMode m_mode;
     const QString m_name;

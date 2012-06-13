@@ -190,11 +190,5 @@ QString AndroidRunControlFactory::displayName() const
     return tr("Run on Android device/emulator");
 }
 
-RunConfigWidget *AndroidRunControlFactory::createConfigurationWidget(RunConfiguration *config)
-{
-    Q_UNUSED(config)
-    return 0;
-}
-
 } // namespace Internal
 } // namespace Qt4ProjectManager

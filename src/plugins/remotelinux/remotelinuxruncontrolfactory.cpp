@@ -101,11 +101,5 @@ QString RemoteLinuxRunControlFactory::displayName() const
     return tr("Run on remote Linux device");
 }
 
-RunConfigWidget *RemoteLinuxRunControlFactory::createConfigurationWidget(RunConfiguration *config)
-{
-    Q_UNUSED(config)
-    return 0;
-}
-
 } // namespace Internal
 } // namespace RemoteLinux

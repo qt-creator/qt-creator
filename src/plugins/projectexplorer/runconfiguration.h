@@ -235,7 +235,7 @@ public:
     virtual QString displayName() const = 0;
 
     virtual IRunConfigurationAspect *createRunConfigurationAspect();
-    virtual RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration) = 0;
+    virtual RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 };
 
 class PROJECTEXPLORER_EXPORT RunConfigWidget

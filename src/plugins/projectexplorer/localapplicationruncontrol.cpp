@@ -73,12 +73,6 @@ RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfi
     return new LocalApplicationRunControl(localRunConfiguration, mode);
 }
 
-RunConfigWidget *LocalApplicationRunControlFactory::createConfigurationWidget(RunConfiguration *runConfiguration)
-{
-    Q_UNUSED(runConfiguration)
-    return 0;
-}
-
 // ApplicationRunControl
 
 LocalApplicationRunControl::LocalApplicationRunControl(LocalApplicationRunConfiguration *rc, RunMode mode)
