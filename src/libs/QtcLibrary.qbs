@@ -5,6 +5,6 @@ DynamicLibrary {
         if (qbs.targetOS === "windows")
             return "bin"
         else
-            return "lib"
+            return "lib/qtcreator"
     }
 }

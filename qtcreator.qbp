@@ -131,7 +131,7 @@ Project {
         destination: "bin"
         consoleApplication: qbs.debugInformation
 
-        cpp.rpaths: ["$ORIGIN/../lib"]
+        cpp.rpaths: ["$ORIGIN/../lib/qtcreator"]
         cpp.defines: project.additionalCppDefines
         cpp.includePaths: [
             "src",
