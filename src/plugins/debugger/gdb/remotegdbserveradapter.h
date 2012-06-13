@@ -81,8 +81,8 @@ private:
     Q_SLOT void uploadProcError(QProcess::ProcessError error);
     Q_SLOT void uploadProcFinished();
 
-    virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
-    virtual void handleRemoteSetupFailed(const QString &reason);
+    virtual void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
+    virtual void notifyEngineRemoteSetupFailed(const QString &reason);
 
     void handleSetTargetAsync(const GdbResponse &response);
     void handleFileExecAndSymbols(const GdbResponse &response);

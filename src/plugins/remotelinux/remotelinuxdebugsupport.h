@@ -67,7 +67,7 @@ public:
     ~AbstractRemoteLinuxDebugSupport();
 
 private slots:
-    void handleAdapterSetupRequested();
+    void handleRemoteSetupRequested();
     void handleSshError(const QString &error);
     void startExecution();
     void handleDebuggingFinished();

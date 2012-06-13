@@ -120,7 +120,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
     } else {
         params.startMode = AttachToRemoteServer;
     }
-    params.requestRemoteSetup = true;
+    params.remoteSetupNeeded = true;
     params.displayName = runConfig->displayName();
 
     if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
@@ -138,7 +138,7 @@ AbstractRemoteLinuxDebugSupport::AbstractRemoteLinuxDebugSupport(RunConfiguratio
         DebuggerEngine *engine)
     : QObject(engine), d(new AbstractRemoteLinuxDebugSupportPrivate(runConfig, engine))
 {
-    connect(d->engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleAdapterSetupRequested()));
+    connect(d->engine, SIGNAL(requestRemoteSetup()), this, SLOT(handleRemoteSetupRequested()));
 }
 
 AbstractRemoteLinuxDebugSupport::~AbstractRemoteLinuxDebugSupport()
@@ -153,7 +153,7 @@ void AbstractRemoteLinuxDebugSupport::showMessage(const QString &msg, int channe
         d->engine->showMessage(msg, channel);
 }
 
-void AbstractRemoteLinuxDebugSupport::handleAdapterSetupRequested()
+void AbstractRemoteLinuxDebugSupport::handleRemoteSetupRequested()
 {
     QTC_ASSERT(d->state == Inactive, return);
 
@@ -235,7 +235,7 @@ void AbstractRemoteLinuxDebugSupport::handleRemoteProcessFinished(qint64 exitCod
         const QString errorMsg = (d->qmlDebugging && !d->cppDebugging)
             ? tr("Remote application failed with exit code %1.").arg(exitCode)
             : tr("The gdbserver process closed unexpectedly.");
-        d->engine->handleRemoteSetupFailed(errorMsg);
+        d->engine->notifyEngineRemoteSetupFailed(errorMsg);
     }
 }
 
@@ -277,13 +277,13 @@ void AbstractRemoteLinuxDebugSupport::handleProgressReport(const QString &progre
 void AbstractRemoteLinuxDebugSupport::handleAdapterSetupFailed(const QString &error)
 {
     setFinished();
-    d->engine->handleRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
+    d->engine->notifyEngineRemoteSetupFailed(tr("Initial setup failed: %1").arg(error));
 }
 
 void AbstractRemoteLinuxDebugSupport::handleAdapterSetupDone()
 {
     d->state = Debugging;
-    d->engine->handleRemoteSetupDone(d->gdbServerPort, d->qmlPort);
+    d->engine->notifyEngineRemoteSetupDone(d->gdbServerPort, d->qmlPort);
 }
 
 void AbstractRemoteLinuxDebugSupport::handleRemoteProcessStarted()

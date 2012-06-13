@@ -627,14 +627,12 @@ void QmlEngine::stopApplicationLauncher()
     }
 }
 
-void QmlEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
+void QmlEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
-    Q_UNUSED(gdbServerPort);
-
     if (qmlPort != -1)
         startParameters().qmlServerPort = qmlPort;
 
-    notifyEngineRemoteSetupDone();
+    DebuggerEngine::notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
     notifyEngineSetupOk();
 
     // The remote setup can take while especialy with mixed debugging.
@@ -644,13 +642,13 @@ void QmlEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
     m_noDebugOutputTimer.setInterval(60000);
 }
 
-void QmlEngine::handleRemoteSetupFailed(const QString &message)
+void QmlEngine::notifyEngineRemoteSetupFailed(const QString &message)
 {
+    DebuggerEngine::notifyEngineRemoteSetupFailed(message);
     if (isMasterEngine())
         QMessageBox::critical(0,tr("Failed to start application"),
             tr("Application startup failed: %1").arg(message));
 
-    notifyEngineRemoteSetupFailed();
     notifyEngineSetupFailed();
 }
 
@@ -682,7 +680,7 @@ void QmlEngine::shutdownEngine()
 
 void QmlEngine::setupEngine()
 {
-    if (startParameters().requestRemoteSetup) {
+    if (startParameters().remoteSetupNeeded) {
         // we need to get the port first
         notifyEngineRequestRemoteSetup();
     } else {

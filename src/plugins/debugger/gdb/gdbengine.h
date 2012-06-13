@@ -233,8 +233,6 @@ protected: ////////// Gdb Process Management //////////
     void reportEngineSetupOk(const GdbResponse &response);
     void handleInferiorShutdown(const GdbResponse &response);
     void handleGdbExit(const GdbResponse &response);
-    void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
-    void handleRemoteSetupFailed(const QString &message);
     void handleNamespaceExtraction(const GdbResponse &response);
 
     void loadInitScript();

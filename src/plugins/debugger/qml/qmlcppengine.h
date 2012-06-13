@@ -90,8 +90,8 @@ public:
     DebuggerEngine *cppEngine() const;
     DebuggerEngine *qmlEngine() const;
 
-    void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
-    void handleRemoteSetupFailed(const QString &message);
+    void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
+    void notifyEngineRemoteSetupFailed(const QString &message);
 
     void showMessage(const QString &msg, int channel = LogDebug,
         int timeout = -1) const;

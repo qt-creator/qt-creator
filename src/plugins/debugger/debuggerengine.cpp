@@ -939,9 +939,10 @@ void DebuggerEngine::notifyEngineRequestRemoteSetup()
     emit requestRemoteSetup();
 }
 
-void DebuggerEngine::notifyEngineRemoteSetupDone()
+void DebuggerEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
-    showMessage(_("NOTE: REMOTE SETUP DONE"));
+    showMessage(_("NOTE: REMOTE SETUP DONE: GDB SERVER PORT: %1  QML PORT %2")
+                .arg(gdbServerPort).arg(qmlPort));
     QTC_ASSERT(state() == EngineSetupRequested
                || state() == EngineSetupFailed
                || state() == DebuggerFinished, qDebug() << this << state());
@@ -956,9 +957,9 @@ void DebuggerEngine::notifyEngineRemoteSetupDone()
     d->setRemoteSetupState(RemoteSetupSucceeded);
 }
 
-void DebuggerEngine::notifyEngineRemoteSetupFailed()
+void DebuggerEngine::notifyEngineRemoteSetupFailed(const QString &message)
 {
-    showMessage(_("NOTE: REMOTE SETUP FAILED"));
+    showMessage(_("NOTE: REMOTE SETUP FAILED: ") + message);
     QTC_ASSERT(state() == EngineSetupRequested
                || state() == EngineSetupFailed
                || state() == DebuggerFinished, qDebug() << this << state());
@@ -1823,15 +1824,6 @@ void DebuggerEngine::openDisassemblerView(const Location &location)
 {
     DisassemblerAgent *agent = new DisassemblerAgent(this);
     agent->setLocation(location);
-}
-
-void DebuggerEngine::handleRemoteSetupDone(int /*gdbServerPort*/,
-                                           int /*qmlPort*/)
-{
-}
-
-void DebuggerEngine::handleRemoteSetupFailed(const QString &/*message*/)
-{
 }
 
 bool DebuggerEngine::isStateDebugging() const

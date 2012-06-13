@@ -66,8 +66,8 @@ public:
         DebuggerEngine *masterEngine);
     ~QmlEngine();
 
-    void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
-    void handleRemoteSetupFailed(const QString &message);
+    void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
+    void notifyEngineRemoteSetupFailed(const QString &message);
 
     bool canDisplayTooltip() const;
 

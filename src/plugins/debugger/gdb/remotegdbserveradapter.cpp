@@ -96,7 +96,7 @@ void GdbRemoteServerEngine::setupEngine()
             m_uploadProc.waitForStarted();
         }
     }
-    if (startParameters().requestRemoteSetup)
+    if (startParameters().remoteSetupNeeded)
         notifyEngineRequestRemoteSetup();
     else
         startGdb();
@@ -158,7 +158,7 @@ void GdbRemoteServerEngine::uploadProcFinished()
         && m_uploadProc.exitCode() == 0)
         startGdb();
     else
-        handleRemoteSetupFailed(m_uploadProc.errorString());
+        notifyEngineRemoteSetupFailed(m_uploadProc.errorString());
 }
 
 void GdbRemoteServerEngine::setupInferior()
@@ -380,10 +380,10 @@ void GdbRemoteServerEngine::shutdownEngine()
     notifyAdapterShutdownOk();
 }
 
-void GdbRemoteServerEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
+void GdbRemoteServerEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
-    notifyEngineRemoteSetupDone();
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+    DebuggerEngine::notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
 
     if (qmlPort != -1)
         startParameters().qmlServerPort = qmlPort;
@@ -398,9 +398,10 @@ void GdbRemoteServerEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort
     startGdb();
 }
 
-void GdbRemoteServerEngine::handleRemoteSetupFailed(const QString &reason)
+void GdbRemoteServerEngine::notifyEngineRemoteSetupFailed(const QString &reason)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+    DebuggerEngine::notifyEngineRemoteSetupFailed(reason);
     handleAdapterStartFailed(reason);
 }
 

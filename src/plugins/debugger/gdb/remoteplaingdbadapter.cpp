@@ -61,7 +61,7 @@ void GdbRemotePlainEngine::setupEngine()
     if (startParameters().environment.size())
         m_gdbProc.setEnvironment(startParameters().environment.toStringList());
 
-    handleRemoteSetupDone(startParameters().connParams.port, startParameters().qmlServerPort);
+    notifyEngineRemoteSetupDone(startParameters().connParams.port, startParameters().qmlServerPort);
 }
 
 void GdbRemotePlainEngine::setupInferior()
@@ -100,7 +100,7 @@ void GdbRemotePlainEngine::shutdownEngine()
     notifyAdapterShutdownOk();
 }
 
-void GdbRemotePlainEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
+void GdbRemotePlainEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
 {
     Q_UNUSED(gdbServerPort);
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
@@ -122,7 +122,7 @@ void GdbRemotePlainEngine::handleGdbStartFailed1()
     handleAdapterStartFailed(m_gdbProc.errorString());
 }
 
-void GdbRemotePlainEngine::handleRemoteSetupFailed(const QString &reason)
+void GdbRemotePlainEngine::notifyEngineRemoteSetupFailed(const QString &reason)
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     handleAdapterStartFailed(reason);

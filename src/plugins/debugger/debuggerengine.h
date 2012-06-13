@@ -213,9 +213,6 @@ public:
         const QString &expr, const QVariant &value);
     virtual void selectThread(int index);
 
-    virtual void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
-    virtual void handleRemoteSetupFailed(const QString &message);
-
     virtual Internal::ModulesHandler *modulesHandler() const;
     virtual Internal::RegisterHandler *registerHandler() const;
     virtual Internal::StackHandler *stackHandler() const;
@@ -295,8 +292,8 @@ signals:
     /*
      * For "external" clients of a debugger run control that needs to do
      * further setup before the debugger is started (e.g. Maemo).
-     * Afterwards, handleRemoteSetupDone() or handleRemoteSetupFailed() must be called
-     * to continue or abort debugging, respectively.
+     * Afterwards, notifyEngineRemoteSetupDone() or notifyEngineRemoteSetupFailed()
+     * must be called to continue or abort debugging, respectively.
      * This signal is only emitted if the start parameters indicate that
      * a server start script should be used, but none is given.
      */
@@ -312,9 +309,11 @@ protected:
     virtual void notifyEngineRunFailed();
 
     virtual void notifyEngineRequestRemoteSetup();
-    virtual void notifyEngineRemoteSetupDone();
-    virtual void notifyEngineRemoteSetupFailed();
+    public:
+    virtual void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
+    virtual void notifyEngineRemoteSetupFailed(const QString &message);
 
+    protected:
     virtual void notifyInferiorSetupOk();
     virtual void notifyInferiorSetupFailed();
 

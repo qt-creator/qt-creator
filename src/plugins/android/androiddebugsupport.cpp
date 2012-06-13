@@ -84,7 +84,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     params.solibSearchPath.append(qtSoPaths(runConfig->activeQt4BuildConfiguration()->qtVersion()));
 
     params.useServerStartScript = true;
-    params.requestRemoteSetup = true;
+    params.remoteSetupNeeded = true;
     params.remoteArchitecture = QLatin1String("arm");
 
     DebuggerRunControl * const debuggerRunControl
@@ -124,14 +124,14 @@ void AndroidDebugSupport::handleRemoteProcessStarted(int gdbServerPort, int qmlP
 {
     disconnect(m_runner, SIGNAL(remoteProcessStarted(int,int)),
         this, SLOT(handleRemoteProcessStarted(int,int)));
-    m_runControl->engine()->handleRemoteSetupDone(gdbServerPort, qmlPort);
+    m_runControl->engine()->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
 }
 
 void AndroidDebugSupport::handleRemoteProcessFinished(const QString &errorMsg)
 {
     disconnect(m_runner, SIGNAL(remoteProcessFinished(const QString &)),
         this,SLOT(handleRemoteProcessFinished(const QString &)));
-    m_runControl->engine()->handleRemoteSetupFailed(errorMsg);
+    m_runControl->engine()->notifyEngineRemoteSetupFailed(errorMsg);
 }
 
 void AndroidDebugSupport::handleRemoteOutput(const QByteArray &output)

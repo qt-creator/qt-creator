@@ -57,8 +57,8 @@ private:
     void setupInferior();
     void interruptInferior2();
     void shutdownEngine();
-    void handleRemoteSetupDone(int gdbServerPort, int qmlPort);
-    void handleRemoteSetupFailed(const QString &reason);
+    void notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort);
+    void notifyEngineRemoteSetupFailed(const QString &reason);
     AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
     DumperHandling dumperHandling() const { return DumperLoadedByGdbPreload; }
 

@@ -5163,19 +5163,6 @@ void GdbEngine::resetCommandQueue()
     }
 }
 
-void GdbEngine::handleRemoteSetupDone(int gdbServerPort, int qmlPort)
-{
-    Q_UNUSED(gdbServerPort);
-    Q_UNUSED(qmlPort);
-    notifyEngineRemoteSetupDone();
-}
-
-void GdbEngine::handleRemoteSetupFailed(const QString &message)
-{
-    Q_UNUSED(message);
-    notifyEngineRemoteSetupFailed();
-}
-
 bool GdbEngine::setupQmlStep(bool on)
 {
     QTC_ASSERT(isSlaveEngine(), return false);

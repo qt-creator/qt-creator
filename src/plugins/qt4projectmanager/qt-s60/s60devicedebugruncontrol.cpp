@@ -87,7 +87,7 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
     sp.remoteChannel = dev->serialPortName();
     sp.processArgs = rc->commandLineArguments();
     if (rc->debuggerAspect()->useQmlDebugger() && !rc->debuggerAspect()->useCppDebugger()) {
-        sp.requestRemoteSetup = true;
+        sp.remoteSetupNeeded = true;
         sp.startMode = Debugger::AttachToRemoteServer;
     } else {
         sp.startMode = Debugger::StartInternal;
@@ -181,7 +181,7 @@ void S60DeviceDebugRunControl::codaFinished()
         m_codaRunControl = NULL;
     }
     if (m_codaState == EWaitingForCodaConnection) {
-        engine()->handleRemoteSetupFailed(QLatin1String("CODA failed to initialise")); // TODO sort out this error string? Unlikely we'll ever hit this state anyway.
+        engine()->notifyEngineRemoteSetupFailed(QLatin1String("CODA failed to initialise")); // TODO sort out this error string? Unlikely we'll ever hit this state anyway.
     } else {
         debuggingFinished();
     }
@@ -192,7 +192,7 @@ void S60DeviceDebugRunControl::codaConnected()
 {
     QTC_ASSERT(m_codaState == EWaitingForCodaConnection, return);
     m_codaState = ECodaConnected;
-    engine()->handleRemoteSetupDone(-1, -1); // calls notifyInferiorSetupOk()
+    engine()->notifyEngineRemoteSetupDone(-1, -1); // calls notifyInferiorSetupOk()
 }
 
 void S60DeviceDebugRunControl::qmlEngineStateChanged(Debugger::DebuggerState state)
