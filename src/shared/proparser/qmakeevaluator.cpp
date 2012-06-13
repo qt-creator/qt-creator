@@ -930,7 +930,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                     }
                 }
                 if (!qmake_cache.isEmpty()) {
-                    qmake_cache = resolvePath(qmake_cache);
                     ProValueMap cache_valuemap;
                     if (evaluateFileInto(qmake_cache, QMakeHandler::EvalConfigFile,
                                          &cache_valuemap, EvalProOnly)) {
