@@ -50,6 +50,25 @@ QT_BEGIN_NAMESPACE
 
 class QMakeEvaluator;
 
+typedef QString QMakeBaseKey;
+
+class QMakeBaseEnv
+{
+public:
+    QMakeBaseEnv();
+    ~QMakeBaseEnv();
+
+#ifdef PROEVALUATOR_THREAD_SAFE
+    QMutex mutex;
+    QWaitCondition cond;
+    bool inProgress;
+    // The coupling of this flag to thread safety exists because for other
+    // use cases failure is immediately fatal anyway.
+    bool isOk;
+#endif
+    QMakeEvaluator *evaluator;
+};
+
 class QMAKE_EXPORT QMakeGlobals
 {
 public:
@@ -81,18 +100,12 @@ private:
     QString getEnv(const QString &) const;
     QStringList getPathListEnv(const QString &var) const;
 
-    QStringList feature_roots;
-    QString qmakespec_name;
     QString precmds, postcmds;
+
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutex mutex;
-    QWaitCondition cond;
-    bool base_inProgress;
-    // The coupling of this flag to thread safety exists because for other
-    // use cases failure is immediately fatal anyway.
-    bool base_isOk;
 #endif
-    QMakeEvaluator *base_eval;
+    QHash<QMakeBaseKey, QMakeBaseEnv *> baseEnvs;
 
     friend class QMakeEvaluator;
 };

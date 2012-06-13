@@ -104,16 +104,11 @@ QMakeGlobals::QMakeGlobals()
     dir_sep = QLatin1Char('/');
 #endif
     qmakespec = getEnv(QLatin1String("QMAKESPEC"));
-
-#ifdef PROEVALUATOR_THREAD_SAFE
-    base_inProgress = false;
-#endif
-    base_eval = 0;
 }
 
 QMakeGlobals::~QMakeGlobals()
 {
-    delete base_eval;
+    qDeleteAll(baseEnvs);
 }
 
 void QMakeGlobals::setCommandLineArguments(const QStringList &args)

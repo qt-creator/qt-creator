@@ -68,8 +68,21 @@ QT_BEGIN_NAMESPACE
 
 using namespace ProStringConstants;
 
-
 #define fL1S(s) QString::fromLatin1(s)
+
+
+QMakeBaseEnv::QMakeBaseEnv()
+    : evaluator(0)
+{
+#ifdef PROEVALUATOR_THREAD_SAFE
+    inProgress = false;
+#endif
+}
+
+QMakeBaseEnv::~QMakeBaseEnv()
+{
+    delete evaluator;
+}
 
 namespace ProFileEvaluatorInternal {
 QMakeStatics statics;
@@ -159,6 +172,9 @@ void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
     Q_ASSERT_X(&other, "QMakeEvaluator::visitProFile", "Project not prepared");
     m_functionDefs = other.m_functionDefs;
     m_valuemapStack = other.m_valuemapStack;
+    m_qmakespec = other.m_qmakespec;
+    m_qmakespecName = other.m_qmakespecName;
+    m_featureRoots = other.m_featureRoots;
 }
 
 //////// Evaluator tools /////////
@@ -938,14 +954,9 @@ bool QMakeEvaluator::prepareProject()
             }
         }
         if (!qmake_cache.isEmpty()) {
-            QMakeEvaluator evaluator(m_option, m_parser, m_handler);
-            if (!evaluator.evaluateFileDirect(qmake_cache, QMakeHandler::EvalConfigFile, LoadProOnly))
-                return false;
-            if (m_option->qmakespec.isEmpty())
-                m_option->qmakespec = evaluator.first(ProString("QMAKESPEC")).toQString();
+            m_cachefile = qmake_cache;
+            m_buildRoot = QFileInfo(qmake_cache).path();
         }
-        m_option->cachefile = qmake_cache;
-        valuesRef(ProString("_QMAKE_CACHE_")) << ProString(qmake_cache, NoHash);
     }
     return true;
 }
@@ -955,6 +966,18 @@ bool QMakeEvaluator::loadSpec()
     loadDefaults();
 
     QString qmakespec = m_option->expandEnvVars(m_option->qmakespec);
+
+    {
+        QMakeEvaluator evaluator(m_option, m_parser, m_handler);
+        if (!m_cachefile.isEmpty()) {
+            valuesRef(ProString("_QMAKE_CACHE_")) << ProString(m_cachefile, NoHash);
+            if (!evaluator.evaluateFileDirect(m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly))
+                return false;
+        }
+        if (qmakespec.isEmpty())
+            qmakespec = evaluator.first(ProString("QMAKESPEC")).toQString();
+    }
+
     if (qmakespec.isEmpty())
         qmakespec = QLatin1String("default");
     if (IoUtils::isRelativePath(qmakespec)) {
@@ -969,32 +992,32 @@ bool QMakeEvaluator::loadSpec()
         return false;
     }
   cool:
-    m_option->qmakespec = QDir::cleanPath(qmakespec);
+    m_qmakespec = QDir::cleanPath(qmakespec);
 
     if (!evaluateFeatureFile(QLatin1String("spec_pre.prf")))
         return false;
-    QString spec = m_option->qmakespec + QLatin1String("/qmake.conf");
+    QString spec = m_qmakespec + QLatin1String("/qmake.conf");
     if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         m_handler->configError(
                 fL1S("Could not read qmake configuration file %1").arg(spec));
         return false;
     }
 #ifdef Q_OS_UNIX
-    QString real_spec = QFileInfo(m_option->qmakespec).canonicalFilePath();
+    QString real_spec = QFileInfo(m_qmakespec).canonicalFilePath();
 #else
     // We can't resolve symlinks as they do on Unix, so configure.exe puts
     // the source of the qmake.conf at the end of the default/qmake.conf in
     // the QMAKESPEC_ORIGINAL variable.
     const ProString &orig_spec = first(ProString("QMAKESPEC_ORIGINAL"));
-    QString real_spec = orig_spec.isEmpty() ? m_option->qmakespec : orig_spec.toQString();
+    QString real_spec = orig_spec.isEmpty() ? m_qmakespec : orig_spec.toQString();
 #endif
-    m_option->qmakespec_name = IoUtils::fileName(real_spec).toString();
+    m_qmakespecName = IoUtils::fileName(real_spec).toString();
     if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
         return false;
     // The spec extends the feature search path, so invalidate the cache.
-    m_option->feature_roots.clear();
-    if (!m_option->cachefile.isEmpty()
-        && !evaluateFileDirect(m_option->cachefile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+    m_featureRoots.clear();
+    if (!m_cachefile.isEmpty()
+        && !evaluateFileDirect(m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
     }
     return true;
@@ -1029,35 +1052,46 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         return ReturnFalse;
 
     if (flags & LoadPreFiles) {
+        if (!prepareProject())
+            return ReturnFalse;
+
+#ifdef PROEVALUATOR_THREAD_SAFE
+        m_option->mutex.lock();
+#endif
+        QMakeBaseEnv **baseEnvPtr = &m_option->baseEnvs[QMakeBaseKey(m_buildRoot)];
+        if (!*baseEnvPtr)
+            *baseEnvPtr = new QMakeBaseEnv;
+        QMakeBaseEnv *baseEnv = *baseEnvPtr;
+
 #ifdef PROEVALUATOR_THREAD_SAFE
         {
-            QMutexLocker locker(&m_option->mutex);
-            if (m_option->base_inProgress) {
+            QMutexLocker locker(&baseEnv->mutex);
+            m_option->mutex.unlock();
+            if (baseEnv->inProgress) {
                 QThreadPool::globalInstance()->releaseThread();
-                m_option->cond.wait(&m_option->mutex);
+                baseEnv->cond.wait(&baseEnv->mutex);
                 QThreadPool::globalInstance()->reserveThread();
-                if (!m_option->base_isOk)
+                if (!baseEnv->isOk)
                     return ReturnFalse;
             } else
 #endif
-            if (!m_option->base_eval) {
+            if (!baseEnv->evaluator) {
 #ifdef PROEVALUATOR_THREAD_SAFE
-                m_option->base_inProgress = true;
+                baseEnv->inProgress = true;
                 locker.unlock();
 #endif
 
-                bool ok = prepareProject();
-
-                if (ok) {
-                    m_option->base_eval = new QMakeEvaluator(m_option, m_parser, m_handler);
-                    ok = m_option->base_eval->loadSpec();
-                }
+                QMakeEvaluator *baseEval = new QMakeEvaluator(m_option, m_parser, m_handler);
+                baseEnv->evaluator = baseEval;
+                baseEval->m_cachefile = m_cachefile;
+                baseEval->m_buildRoot = m_buildRoot;
+                bool ok = baseEval->loadSpec();
 
 #ifdef PROEVALUATOR_THREAD_SAFE
                 locker.relock();
-                m_option->base_isOk = ok;
-                m_option->base_inProgress = false;
-                m_option->cond.wakeAll();
+                baseEnv->isOk = ok;
+                baseEnv->inProgress = false;
+                baseEnv->cond.wakeAll();
 #endif
 
                 if (!ok)
@@ -1067,7 +1101,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         }
 #endif
 
-        initFrom(*m_option->base_eval);
+        initFrom(*baseEnv->evaluator);
     }
 
     m_handler->aboutToEval(currentProFile(), pro, type);
@@ -1147,8 +1181,8 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     feature_roots += propertyValue(QLatin1String("QMAKEFEATURES"), false).split(
             m_option->dirlist_sep, QString::SkipEmptyParts);
 
-    if (!m_option->cachefile.isEmpty()) {
-        QString path = m_option->cachefile.left(m_option->cachefile.lastIndexOf((ushort)'/'));
+    if (!m_cachefile.isEmpty()) {
+        QString path = m_cachefile.left(m_cachefile.lastIndexOf((ushort)'/'));
         foreach (const QString &concat_it, concat)
             feature_roots << (path + concat_it);
     }
@@ -1157,11 +1191,11 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
         foreach (const QString &concat_it, concat)
             feature_roots << (item + mkspecs_concat + concat_it);
 
-    if (!m_option->qmakespec.isEmpty()) {
-        feature_roots << (m_option->qmakespec + features_concat);
+    if (!m_qmakespec.isEmpty()) {
+        feature_roots << (m_qmakespec + features_concat);
 
         // Also check directly under the root directory of the mkspecs collection
-        QDir specdir(m_option->qmakespec);
+        QDir specdir(m_qmakespec);
         while (!specdir.isRoot() && specdir.cdUp()) {
             const QString specpath = specdir.path();
             if (specpath.endsWith(mkspecs_concat)) {
@@ -1512,7 +1546,7 @@ bool QMakeEvaluator::isActiveConfig(const QString &config, bool regex)
         QRegExp re(cfg, Qt::CaseSensitive, QRegExp::Wildcard);
 
         // mkspecs
-        if (re.exactMatch(m_option->qmakespec_name))
+        if (re.exactMatch(m_qmakespecName))
             return true;
 
         // CONFIG variable
@@ -1524,7 +1558,7 @@ bool QMakeEvaluator::isActiveConfig(const QString &config, bool regex)
         }
     } else {
         // mkspecs
-        if (m_option->qmakespec_name == config)
+        if (m_qmakespecName == config)
             return true;
 
         // CONFIG variable
@@ -1785,19 +1819,19 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
     if (!fn.endsWith(QLatin1String(".prf")))
         fn += QLatin1String(".prf");
 
-    if (m_option->feature_roots.isEmpty())
-        m_option->feature_roots = qmakeFeaturePaths();
+    if (m_featureRoots.isEmpty())
+        m_featureRoots = qmakeFeaturePaths();
     int start_root = 0;
     QString currFn = currentFileName();
     if (IoUtils::fileName(currFn) == IoUtils::fileName(fn)) {
-        for (int root = 0; root < m_option->feature_roots.size(); ++root)
-            if (currFn == m_option->feature_roots.at(root) + fn) {
+        for (int root = 0; root < m_featureRoots.size(); ++root)
+            if (currFn == m_featureRoots.at(root) + fn) {
                 start_root = root + 1;
                 break;
             }
     }
-    for (int root = start_root; root < m_option->feature_roots.size(); ++root) {
-        QString fname = m_option->feature_roots.at(root) + fn;
+    for (int root = start_root; root < m_featureRoots.size(); ++root) {
+        QString fname = m_featureRoots.at(root) + fn;
         if (IoUtils::exists(fname)) {
             fn = fname;
             goto cool;

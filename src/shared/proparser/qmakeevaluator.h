@@ -198,6 +198,11 @@ public:
     QString m_outputDir;
 
     int m_listCount;
+    QString m_qmakespec;
+    QString m_qmakespecName;
+    QString m_cachefile;
+    QString m_buildRoot;
+    QStringList m_featureRoots;
     ProFunctionDefs m_functionDefs;
     ProStringList m_returnValue;
     QStack<ProValueMap> m_valuemapStack; // VariableName must be us-ascii, the content however can be non-us-ascii.
