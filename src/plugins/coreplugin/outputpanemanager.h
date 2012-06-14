@@ -45,6 +45,7 @@ class QLabel;
 class QSplitter;
 class QStackedWidget;
 class QTimeLine;
+class QLabel;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -88,6 +89,7 @@ private slots:
     void popupMenu();
     void saveSettings() const;
     void flashButton();
+    void setBadgeNumber(int number);
 
 private:
     // the only class that is allowed to create and destroy
@@ -143,8 +145,10 @@ public:
     OutputPaneToggleButton(int number, const QString &text, QAction *action,
                            QWidget *parent = 0);
     QSize sizeHint() const;
+    void resizeEvent(QResizeEvent *event);
     void paintEvent(QPaintEvent *event);
     void flash(int count = 3);
+    void setIconBadgeNumber(int number);
 
 private slots:
     void updateToolTip();
@@ -156,6 +160,7 @@ private:
     QString m_text;
     QAction *m_action;
     QTimeLine *m_flashTimer;
+    QLabel *m_label;
 };
 
 class OutputPaneManageButton : public QToolButton

@@ -68,6 +68,7 @@
 #include <QStackedWidget>
 #include <QToolButton>
 #include <QTimeLine>
+#include <QLabel>
 
 namespace Core {
 namespace Internal {
@@ -263,6 +264,7 @@ void OutputPaneManager::init()
         connect(outPane, SIGNAL(togglePage(bool)), this, SLOT(togglePage(bool)));
         connect(outPane, SIGNAL(navigateStateUpdate()), this, SLOT(updateNavigateState()));
         connect(outPane, SIGNAL(flashButton()), this, SLOT(flashButton()));
+        connect(outPane, SIGNAL(setBadgeNumber(int)), this, SLOT(setBadgeNumber(int)));
 
         QWidget *toolButtonsContainer = new QWidget(m_opToolBarWidgets);
         QHBoxLayout *toolButtonsLayout = new QHBoxLayout;
@@ -453,6 +455,14 @@ void OutputPaneManager::flashButton()
         m_buttons.value(idx)->flash();
 }
 
+void OutputPaneManager::setBadgeNumber(int number)
+{
+    IOutputPane* pane = qobject_cast<IOutputPane*>(sender());
+    int idx = findIndexForPage(pane);
+    if (pane)
+        m_buttons.value(idx)->setIconBadgeNumber(number);
+}
+
 // Slot connected to showPage signal of each page
 void OutputPaneManager::showPage(bool focus, bool ensureSizeHint)
 {
@@ -617,6 +627,15 @@ OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
     m_flashTimer->setFrameRange(0, 92);
     connect(m_flashTimer, SIGNAL(valueChanged(qreal)), this, SLOT(update()));
     connect(m_flashTimer, SIGNAL(finished()), this, SLOT(update()));
+
+    m_label = new QLabel(this);
+    fnt.setBold(true);
+    fnt.setPixelSize(11);
+    m_label->setFont(fnt);
+    m_label->setAlignment(Qt::AlignCenter);
+    m_label->setStyleSheet("background-color: #818181; color: white; border-radius: 6; padding-left: 4; padding-right: 4;");
+    m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_label->hide();
 }
 
 void OutputPaneToggleButton::updateToolTip()
@@ -635,7 +654,19 @@ QSize OutputPaneToggleButton::sizeHint() const
     s.rwidth() += 19 + 5 + 2;
     s.rheight() += 2 + 2;
 
+    if (!m_label->text().isNull())
+        s.rwidth() += m_label->width();
+
     return s.expandedTo(QApplication::globalStrut());
+}
+
+void OutputPaneToggleButton::resizeEvent(QResizeEvent *event)
+{
+    QToolButton::resizeEvent(event);
+    if (!m_label->text().isNull()) {
+        m_label->move(width() - m_label->width() - 3,  (height() - m_label->height() + 1) / 2);
+        m_label->show();
+    }
 }
 
 void OutputPaneToggleButton::paintEvent(QPaintEvent *event)
@@ -658,7 +689,8 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent *event)
     if (!isChecked())
         p.setPen(Qt::black);
     int leftPart = 22;
-    p.drawText(leftPart, baseLine, fm.elidedText(m_text, Qt::ElideRight, width() - leftPart - 1));
+    int labelWidth = m_label->isVisible() ? m_label->width() + 3 : 0;
+    p.drawText(leftPart, baseLine, fm.elidedText(m_text, Qt::ElideRight, width() - leftPart - 1 - labelWidth));
 }
 
 void OutputPaneToggleButton::checkStateSet()
@@ -666,6 +698,11 @@ void OutputPaneToggleButton::checkStateSet()
     //Stop flashing when button is checked
     QToolButton::checkStateSet();
     m_flashTimer->stop();
+
+    if (isChecked())
+        m_label->setStyleSheet("background-color: #e1e1e1; color: #606060; border-radius: 6; padding-left: 4; padding-right: 4;");
+    else
+        m_label->setStyleSheet("background-color: #818181; color: white; border-radius: 6; padding-left: 4; padding-right: 4;");
 }
 
 void OutputPaneToggleButton::flash(int count)
@@ -677,6 +714,26 @@ void OutputPaneToggleButton::flash(int count)
             m_flashTimer->start();
         update();
     }
+}
+
+void OutputPaneToggleButton::setIconBadgeNumber(int number)
+{
+    if (number) {
+        const QString text = QString::number(number);
+        m_label->setText(text);
+
+        QSize size = m_label->sizeHint();
+        if (size.width() < size.height())
+            //Ensure we increase size by an even number of pixels
+            size.setWidth(size.height() + ((size.width() - size.height()) & 1));
+        m_label->resize(size);
+
+        //Do not show yet, we wait until the button has been resized
+    } else {
+        m_label->setText(QString());
+        m_label->hide();
+    }
+    updateGeometry();
 }
 
 

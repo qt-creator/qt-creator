@@ -52,6 +52,7 @@ TodoOutputPane::TodoOutputPane(TodoItemsModel *todoItemsModel, QObject *parent) 
     createScopeButtons();
     setScanningScope(ScanningScopeCurrentFile); // default
     connect(m_todoItemsModel, SIGNAL(layoutChanged()), SIGNAL(navigateStateUpdate()));
+    connect(m_todoItemsModel, SIGNAL(layoutChanged()), SLOT(updateTodoCount()));
 }
 
 TodoOutputPane::~TodoOutputPane()
@@ -149,6 +150,7 @@ void TodoOutputPane::scopeButtonClicked(QAbstractButton* button)
         emit scanningScopeChanged(ScanningScopeCurrentFile);
     else if (button == m_wholeProjectButton)
         emit scanningScopeChanged(ScanningScopeProject);
+    setBadgeNumber(m_todoItemsModel->rowCount());
 }
 
 void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
@@ -165,6 +167,11 @@ void TodoOutputPane::todoTreeViewClicked(const QModelIndex &index)
     item.iconResource = index.sibling(row, Constants::OUTPUT_COLUMN_TEXT).data(Qt::DecorationRole).toString();
 
     emit todoItemClicked(item);
+}
+
+void TodoOutputPane::updateTodoCount()
+{
+    setBadgeNumber(m_todoItemsModel->rowCount());
 }
 
 void TodoOutputPane::createTreeView()

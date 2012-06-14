@@ -84,6 +84,7 @@ signals:
 private slots:
     void scopeButtonClicked(QAbstractButton *button);
     void todoTreeViewClicked(const QModelIndex &index);
+    void updateTodoCount();
 
 private:
     QTreeView *m_todoTreeView;

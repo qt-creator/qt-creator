@@ -86,6 +86,7 @@ public slots:
     void toggle(bool withFocusIfShown) { emit togglePage(withFocusIfShown); }
     void navigateStateChanged() { emit navigateStateUpdate(); }
     void flash() { emit flashButton(); }
+    void setIconBadgeNumber(int number) { emit setBadgeNumber(number); }
 
 signals:
     void showPage(bool withFocus, bool ensureSizeHint);
@@ -93,6 +94,7 @@ signals:
     void togglePage(bool withFocusIfShown);
     void navigateStateUpdate();
     void flashButton();
+    void setBadgeNumber(int number);
 };
 
 } // namespace Core
