@@ -76,7 +76,7 @@ def prepareBuildSettings(targetCount, currentTarget, setReleaseBuild=True, disab
 def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings, isQtQuickUI=False):
     try:
         targetSel = waitForObject("{type='ProjectExplorer::Internal::TargetSelector' unnamed='1' "
-                                  "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+                                  "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 5000)
     except LookupError:
         # if it's a QtQuick UI - this depends on the creator version - so better not fatal
         if isQtQuickUI:

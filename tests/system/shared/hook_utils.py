@@ -78,8 +78,9 @@ def modifyRunSettingsForHookIntoQtQuickUI(projectName, port):
                                          "window=':Qt Creator_Core::Internal::MainWindow' occurrence='2'}")
             clickButton(addRunConfig)
             activateItem(waitForObject("{type='QMenu' visible='1' unnamed='1'}"), "Custom Executable")
-            exePathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' text='Executable:' "
-                                           "type='QLabel'} type='Utils::PathChooser' unnamed='1' visible='1'}")
+            exePathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' text='Command:' "
+                                           "type='QLabel' unnamed='1' visible='1'} type='Utils::PathChooser' "
+                                           "unnamed='1' visible='1'}")
             exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
             argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' type='QLabel' "
                                       "text='Arguments:' visible='1'} type='QLineEdit' unnamed='1' visible='1'}")
