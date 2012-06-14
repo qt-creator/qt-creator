@@ -43,6 +43,7 @@ SubversionSubmitEditor::SubversionSubmitEditor(const VcsBase::VcsBaseSubmitEdito
     VcsBase::VcsBaseSubmitEditor(parameters, new Utils::SubmitEditorWidget(parentWidget))
 {
     setDisplayName(tr("Subversion Submit"));
+    setDescriptionMandatory(false);
 }
 
 void SubversionSubmitEditor::setStatusList(const QList<StatusFilePair> &statusOutput)
