@@ -160,14 +160,36 @@ public:
 class OverviewCombo : public QComboBox
 {
 public:
-    OverviewCombo(QWidget *parent = 0) : QComboBox(parent)
+    OverviewCombo(QWidget *parent = 0) : QComboBox(parent), m_skipNextHide(false)
     {}
+
+    bool eventFilter(QObject* object, QEvent* event)
+    {
+        if (event->type() == QEvent::MouseButtonPress && object == view()->viewport()) {
+            QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+            QModelIndex index = view()->indexAt(mouseEvent->pos());
+            if (!view()->visualRect(index).contains(mouseEvent->pos()))
+                m_skipNextHide = true;
+        }
+        return false;
+    }
 
     void showPopup()
     {
         static_cast<OverviewTreeView *>(view())->adjustWidth();
         QComboBox::showPopup();
     }
+
+    virtual void hidePopup()
+    {
+        if (m_skipNextHide)
+            m_skipNextHide = false;
+        else
+            QComboBox::hidePopup();
+    }
+
+private:
+    bool m_skipNextHide;
 };
 
 class OverviewProxyModel : public QSortFilterProxyModel
@@ -504,9 +526,10 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
 
     QTreeView *outlineView = new OverviewTreeView;
     outlineView->header()->hide();
-    outlineView->setItemsExpandable(false);
+    outlineView->setItemsExpandable(true);
     m_outlineCombo->setView(outlineView);
     m_outlineCombo->setMaxVisibleItems(40);
+    outlineView->viewport()->installEventFilter(m_outlineCombo);
 
     m_outlineModel = new OverviewModel(this);
     m_proxyModel = new OverviewProxyModel(m_outlineModel, this);
