@@ -570,6 +570,16 @@ bool VcsBaseSubmitEditor::setFileContents(const QString &contents)
     return true;
 }
 
+bool VcsBaseSubmitEditor::isDescriptionMandatory() const
+{
+    return d->m_widget->isDescriptionMandatory();
+}
+
+void VcsBaseSubmitEditor::setDescriptionMandatory(bool v)
+{
+    d->m_widget->setDescriptionMandatory(v);
+}
+
 enum { checkDialogMinimumWidth = 500 };
 
 VcsBaseSubmitEditor::PromptSubmitResult

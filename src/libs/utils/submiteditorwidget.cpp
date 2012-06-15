@@ -178,6 +178,7 @@ struct SubmitEditorWidgetPrivate
 
     bool m_commitEnabled;
     bool m_ignoreChange;
+    bool m_descriptionMandatory;
 };
 
 SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
@@ -189,7 +190,8 @@ SubmitEditorWidgetPrivate::SubmitEditorWidgetPrivate() :
     m_submitShortcut(0),
     m_lineWidth(defaultLineWidth),
     m_commitEnabled(false),
-    m_ignoreChange(false)
+    m_ignoreChange(false),
+    m_descriptionMandatory(true)
 {
 }
 
@@ -376,6 +378,16 @@ void SubmitEditorWidget::setLineWrapWidth(int v)
         d->m_ui.description->setLineWrapColumnOrWidth(v);
 }
 
+bool SubmitEditorWidget::isDescriptionMandatory() const
+{
+    return d->m_descriptionMandatory;
+}
+
+void SubmitEditorWidget::setDescriptionMandatory(bool v)
+{
+    d->m_descriptionMandatory = v;
+}
+
 int SubmitEditorWidget::fileNameColumn() const
 {
     return d->m_fileNameColumn;
@@ -552,11 +564,6 @@ int SubmitEditorWidget::checkedFilesCount() const
                 ++checkedCount;
     }
     return checkedCount;
-}
-
-bool SubmitEditorWidget::isDescriptionMandatory() const
-{
-    return true;
 }
 
 QString SubmitEditorWidget::cleanupDescription(const QString &input) const

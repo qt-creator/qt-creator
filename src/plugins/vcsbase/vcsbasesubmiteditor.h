@@ -172,6 +172,9 @@ protected:
     virtual QByteArray fileContents() const;
     virtual bool setFileContents(const QString &contents);
 
+    void setDescriptionMandatory(bool v);
+    bool isDescriptionMandatory() const;
+
 private:
     void createUserFields(const QString &fieldConfigFile);
     bool checkSubmitMessage(QString *errorMessage) const;
