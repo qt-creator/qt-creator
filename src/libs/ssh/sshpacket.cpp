@@ -70,7 +70,6 @@ bool AbstractSshPacket::isComplete() const
 {
     if (currentDataSize() < minPacketSize())
         return false;
-    Q_ASSERT(4 + length() + macLength() >= currentDataSize());
     return 4 + length() + macLength() == currentDataSize();
 }
 

@@ -90,6 +90,9 @@ void SshIncomingPacket::consumeData(QByteArray &newData)
             return;
     }
 
+    if (4 + length() + macLength() < currentDataSize())
+        throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR, "Server sent invalid packet.");
+
     const int bytesToTake
         = qMin<quint32>(length() + 4 + macLength() - currentDataSize(),
               newData.size());
