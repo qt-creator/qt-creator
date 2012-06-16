@@ -12,7 +12,7 @@ QtcLibrary {
     ]
 
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ['gui', 'network' ] }
+    Depends { name: "Qt"; submodules: ['widgets', 'network' ] }
     Depends { name: "Botan" }
 
     files: [
