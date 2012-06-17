@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Designer"
 
-    Depends { name: "qt"; submodules: ['widgets', 'xml', 'designer', 'designercomponents'] }
+    Depends { name: "qt"; submodules: ['widgets', 'xml', 'printsupport', 'designer', 'designercomponents'] }
     Depends { name: "Core" }
     Depends { name: "CPlusPlus" }
     Depends { name: "CppTools" }
