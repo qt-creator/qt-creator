@@ -79,6 +79,7 @@ using ProjectExplorer::FormType;
 using ProjectExplorer::ResourceType;
 using ProjectExplorer::UnknownFileType;
 
+static const char kHostBins[] = "CurrentProject:QT_HOST_BINS";
 static const char kInstallBins[] = "CurrentProject:QT_INSTALL_BINS";
 
 // Known file types of a Qt 4 project
@@ -142,8 +143,11 @@ void Qt4Manager::init()
             this, SLOT(editorChanged(Core::IEditor*)));
 
     Core::VariableManager *vm = Core::VariableManager::instance();
+    vm->registerVariable(kHostBins,
+        tr("Full path to the host bin directory of the current project's Qt version."));
     vm->registerVariable(kInstallBins,
-        tr("Full path to the bin directory of the current project's Qt version."));
+        tr("Full path to the target bin directory of the current project's Qt version."
+           " You probably want %1 instead.").arg(QString::fromLatin1(kHostBins)));
     connect(vm, SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
 }
@@ -189,10 +193,10 @@ void Qt4Manager::editorAboutToClose(Core::IEditor *editor)
 
 void Qt4Manager::updateVariable(const QByteArray &variable)
 {
-    if (variable == kInstallBins) {
+    if (variable == kHostBins || variable == kInstallBins) {
         Qt4Project *qt4pro = qobject_cast<Qt4Project *>(ProjectExplorer::ProjectExplorerPlugin::currentProject());
         if (!qt4pro) {
-            Core::VariableManager::instance()->remove(kInstallBins);
+            Core::VariableManager::instance()->remove(variable);
             return;
         }
         QString value;
@@ -203,8 +207,10 @@ void Qt4Manager::updateVariable(const QByteArray &variable)
             qtv = QtSupport::QtProfileInformation::qtVersion(ProjectExplorer::ProfileManager::instance()->defaultProfile());
 
         if (qtv)
-            value = qtv->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
-        Core::VariableManager::instance()->insert(kInstallBins, value);
+            value = qtv->versionInfo().value(variable == kHostBins
+                                             ? QLatin1String("QT_HOST_BINS")
+                                             : QLatin1String("QT_INSTALL_BINS"));
+        Core::VariableManager::instance()->insert(variable, value);
     }
 }
 

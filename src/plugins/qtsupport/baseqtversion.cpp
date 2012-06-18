@@ -362,7 +362,7 @@ bool BaseQtVersion::isValid() const
 
     return  !qmakeCommand().isEmpty()
             && m_installed
-            && m_versionInfo.contains(QLatin1String("QT_INSTALL_BINS"))
+            && m_versionInfo.contains(QLatin1String("QT_HOST_BINS"))
             && !m_mkspecFullPath.isEmpty()
             && m_qmakeIsExecutable;
 }
@@ -377,7 +377,7 @@ QString BaseQtVersion::invalidReason() const
         return QCoreApplication::translate("QtVersion", "qmake does not exist or is not executable");
     if (!m_installed)
         return QCoreApplication::translate("QtVersion", "Qt version is not properly installed, please run make install");
-    if (!m_versionInfo.contains(QLatin1String("QT_INSTALL_BINS")))
+    if (!m_versionInfo.contains(QLatin1String("QT_HOST_BINS")))
         return QCoreApplication::translate("QtVersion",
                                            "Could not determine the path to the binaries of the Qt installation, maybe the qmake path is wrong?");
     if (m_mkspecUpToDate && m_mkspecFullPath.isEmpty())
@@ -533,7 +533,7 @@ void BaseQtVersion::updateSourcePath() const
     if (!m_sourcePath.isEmpty())
         return;
     updateVersionInfo();
-    const QString installData = m_versionInfo.value(QLatin1String("QT_INSTALL_DATA"));
+    const QString installData = m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX"));
     QString sourcePath = installData;
     QFile qmakeCache(installData + QLatin1String("/.qmake.cache"));
     if (qmakeCache.exists()) {
@@ -592,7 +592,7 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
 {
     QString baseDir;
     if (qtVersion() < QtVersionNumber(5, 0, 0)) {
-        baseDir = versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
+        baseDir = versionInfo().value(QLatin1String("QT_HOST_BINS"));
     } else {
         ensureMkSpecParsed();
         switch (binary) {
@@ -604,7 +604,7 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
             baseDir = m_mkspecValues.value(QLatin1String("QT.designer.bins"));
             break;
         case Uic:
-            baseDir = versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
+            baseDir = versionInfo().value(QLatin1String("QT_HOST_BINS"));
             break;
         default:
             // Can't happen
@@ -953,8 +953,8 @@ QList<ProjectExplorer::HeaderPath> BaseQtVersion::systemHeaderPathes(const Proje
 void BaseQtVersion::addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const
 {
     Q_UNUSED(p);
-    env.set(QLatin1String("QTDIR"), QDir::toNativeSeparators(versionInfo().value(QLatin1String("QT_INSTALL_DATA"))));
-    env.prependOrSetPath(versionInfo().value(QLatin1String("QT_INSTALL_BINS")));
+    env.set(QLatin1String("QTDIR"), QDir::toNativeSeparators(versionInfo().value(QLatin1String("QT_HOST_DATA"))));
+    env.prependOrSetPath(versionInfo().value(QLatin1String("QT_HOST_BINS")));
 }
 
 bool BaseQtVersion::hasGdbDebuggingHelper() const
