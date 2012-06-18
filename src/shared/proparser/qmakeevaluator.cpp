@@ -939,13 +939,14 @@ void QMakeEvaluator::loadDefaults()
 
 bool QMakeEvaluator::prepareProject(const QString &inDir)
 {
+    QString superdir;
     if (m_option->do_cache) {
         QString conffile;
         QString cachefile = m_option->cachefile;
         if (cachefile.isEmpty())  { //find it as it has not been specified
             if (m_outputDir.isEmpty())
                 goto no_cache;
-            QString superdir = m_outputDir;
+            superdir = m_outputDir;
             forever {
                 QString superfile = superdir + QLatin1String("/.qmake.super");
                 if (IoUtils::exists(superfile)) {
@@ -989,6 +990,28 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
         m_cachefile = cachefile;
     }
   no_cache:
+
+    // Look for mkspecs/ in source and build. First to win determines the root.
+    QString sdir = inDir;
+    QString dir = m_outputDir;
+    while (dir != m_buildRoot) {
+        if ((dir != sdir && QFileInfo(sdir, QLatin1String("mkspecs")).isDir())
+                || QFileInfo(dir, QLatin1String("mkspecs")).isDir()) {
+            if (dir != sdir)
+                m_sourceRoot = sdir;
+            m_buildRoot = dir;
+            break;
+        }
+        if (dir == superdir)
+            break;
+        QFileInfo qsdfi(sdir);
+        QFileInfo qdfi(dir);
+        if (qsdfi.isRoot() || qdfi.isRoot())
+            break;
+        sdir = qsdfi.path();
+        dir = qdfi.path();
+    }
+
     return true;
 }
 
