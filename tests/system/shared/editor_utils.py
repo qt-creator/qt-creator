@@ -207,7 +207,7 @@ def getEditorForFileSuffix(curFile):
                          "tcc", "tpp", "t++", "c", "cu", "m", "mm", "hh", "hxx", "h++", "hpp", "hp"]
     qmlEditorSuffixes = ["qml", "qmlproject", "js", "qs", "qtt"]
     proEditorSuffixes = ["pro", "pri", "prf"]
-    glslEditorSuffixes= ["frag", "vert", "fsh", "vsh"]
+    glslEditorSuffixes= ["frag", "vert", "fsh", "vsh", "glsl", "shader", "gsh"]
     suffix = __getFileSuffix__(curFile)
     if suffix in cppEditorSuffixes:
         editor = waitForObject("{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' "
