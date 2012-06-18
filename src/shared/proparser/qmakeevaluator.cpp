@@ -1242,11 +1242,7 @@ QStringList QMakeEvaluator::qmakeMkspecPaths() const
 QStringList QMakeEvaluator::qmakeFeaturePaths() const
 {
     QString mkspecs_concat = QLatin1String("/mkspecs");
-    QString features_concat = QLatin1String("/features");
-    QStringList concat;
-    foreach (const ProString &sfx, values(ProString("QMAKE_PLATFORM")))
-        concat << features_concat + QLatin1Char('/') + sfx;
-    concat << features_concat;
+    QString features_concat = QLatin1String("/features/");
 
     QStringList feature_roots;
 
@@ -1256,17 +1252,18 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     feature_roots += propertyValue(QLatin1String("QMAKEFEATURES"), false).split(
             m_option->dirlist_sep, QString::SkipEmptyParts);
 
+    QStringList feature_bases;
+
     if (!m_cachefile.isEmpty()) {
         QString path = m_cachefile.left(m_cachefile.lastIndexOf((ushort)'/'));
-        foreach (const QString &concat_it, concat)
-            feature_roots << (path + concat_it);
+        feature_bases << path;
     }
 
     foreach (const QString &item, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
-        foreach (const QString &concat_it, concat)
-            feature_roots << (item + mkspecs_concat + concat_it);
+        feature_bases << (item + mkspecs_concat);
 
     if (!m_qmakespec.isEmpty()) {
+        // The spec is already platform-dependent, so no subdirs here.
         feature_roots << (m_qmakespec + features_concat);
 
         // Also check directly under the root directory of the mkspecs collection
@@ -1275,16 +1272,19 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
             const QString specpath = specdir.path();
             if (specpath.endsWith(mkspecs_concat)) {
                 if (IoUtils::exists(specpath + features_concat))
-                    foreach (const QString &concat_it, concat)
-                        feature_roots << (specdir.path() + concat_it);
+                    feature_bases << specpath;
                 break;
             }
         }
     }
 
-    foreach (const QString &concat_it, concat)
-        feature_roots << (propertyValue(QLatin1String("QT_INSTALL_DATA"), false) +
-                          mkspecs_concat + concat_it);
+    feature_bases << (propertyValue(QLatin1String("QT_INSTALL_DATA"), false) + mkspecs_concat);
+
+    foreach (const QString &fb, feature_bases) {
+        foreach (const ProString &sfx, values(ProString("QMAKE_PLATFORM")))
+            feature_roots << (fb + features_concat + sfx + QLatin1Char('/'));
+        feature_roots << (fb + features_concat);
+    }
 
     for (int i = 0; i < feature_roots.count(); ++i)
         if (!feature_roots.at(i).endsWith((ushort)'/'))
