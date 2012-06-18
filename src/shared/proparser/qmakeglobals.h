@@ -66,6 +66,7 @@ public:
     QProcessEnvironment environment;
 #endif
     QString sysroot;
+    QString user_template, user_template_prefix;
 
     // -nocache, -cache, -spec, QMAKESPEC
     // -set persistent value

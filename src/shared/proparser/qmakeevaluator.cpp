@@ -816,8 +816,22 @@ void QMakeEvaluator::visitProVariable(
 void QMakeEvaluator::setTemplate()
 {
     ProStringList &values = valuesRef(statics.strTEMPLATE);
-    if (values.isEmpty())
-        values.append(ProString("app", NoHash));
+    if (!m_option->user_template.isEmpty()) {
+        // Don't allow override
+        values = ProStringList(ProString(m_option->user_template, NoHash));
+    } else {
+        if (values.isEmpty())
+            values.append(ProString("app", NoHash));
+        else
+            values.erase(values.begin() + 1, values.end());
+    }
+    if (!m_option->user_template_prefix.isEmpty()) {
+        QString val = values.first().toQString(m_tmp1);
+        if (!val.startsWith(m_option->user_template_prefix)) {
+            val.prepend(m_option->user_template_prefix);
+            values = ProStringList(ProString(val, NoHash));
+        }
+    }
 }
 
 void QMakeEvaluator::loadDefaults()
