@@ -199,6 +199,7 @@ public:
 
     int m_listCount;
     QString m_qmakespec;
+    QString m_qmakespecFull;
     QString m_qmakespecName;
     QString m_superfile;
     QString m_conffile;

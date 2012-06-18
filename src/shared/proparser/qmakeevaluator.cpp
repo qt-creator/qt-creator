@@ -173,6 +173,7 @@ void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
     m_functionDefs = other.m_functionDefs;
     m_valuemapStack = other.m_valuemapStack;
     m_qmakespec = other.m_qmakespec;
+    m_qmakespecFull = other.m_qmakespecFull;
     m_qmakespecName = other.m_qmakespecName;
     m_featureRoots = other.m_featureRoots;
 }
@@ -1072,15 +1073,15 @@ bool QMakeEvaluator::loadSpec()
         return false;
     }
 #ifdef Q_OS_UNIX
-    QString real_spec = QFileInfo(m_qmakespec).canonicalFilePath();
+    m_qmakespecFull = QFileInfo(m_qmakespec).canonicalFilePath();
 #else
     // We can't resolve symlinks as they do on Unix, so configure.exe puts
     // the source of the qmake.conf at the end of the default/qmake.conf in
     // the QMAKESPEC_ORIGINAL variable.
     const ProString &orig_spec = first(ProString("QMAKESPEC_ORIGINAL"));
-    QString real_spec = orig_spec.isEmpty() ? m_qmakespec : orig_spec.toQString();
+    m_qmakespecFull = orig_spec.isEmpty() ? m_qmakespec : orig_spec.toQString();
 #endif
-    m_qmakespecName = IoUtils::fileName(real_spec).toString();
+    m_qmakespecName = IoUtils::fileName(m_qmakespecFull).toString();
     if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
         return false;
     // The spec extends the feature search path, so invalidate the cache.
@@ -1266,12 +1267,12 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     foreach (const QString &item, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
         feature_bases << (item + mkspecs_concat);
 
-    if (!m_qmakespec.isEmpty()) {
+    if (!m_qmakespecFull.isEmpty()) {
         // The spec is already platform-dependent, so no subdirs here.
-        feature_roots << (m_qmakespec + features_concat);
+        feature_roots << (m_qmakespecFull + features_concat);
 
         // Also check directly under the root directory of the mkspecs collection
-        QDir specdir(m_qmakespec);
+        QDir specdir(m_qmakespecFull);
         while (!specdir.isRoot() && specdir.cdUp()) {
             const QString specpath = specdir.path();
             if (specpath.endsWith(mkspecs_concat)) {
