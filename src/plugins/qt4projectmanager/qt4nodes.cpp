@@ -1681,9 +1681,9 @@ void Qt4ProFileNode::setupReader()
     Q_ASSERT(!m_readerCumulative);
 
     m_readerExact = m_project->createProFileReader(this);
-    m_readerExact->setCumulative(false);
 
     m_readerCumulative = m_project->createProFileReader(this);
+    m_readerCumulative->setCumulative(true);
 }
 
 Qt4ProFileNode::EvalResult Qt4ProFileNode::evaluate()

@@ -726,7 +726,6 @@ void BaseQtVersion::ensureMkSpecParsed() const
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &msgHandler);
     ProFileEvaluator evaluator(&option, &parser, &msgHandler);
     if (ProFile *pro = parser.parsedProFile(mkspecPath().toString() + QLatin1String("/qmake.conf"))) {
-        evaluator.setCumulative(false);
         evaluator.accept(pro, QMakeEvaluator::LoadProOnly);
         pro->deref();
     }

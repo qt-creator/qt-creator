@@ -140,7 +140,7 @@ QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
 
     // Configuration, more or less
 #ifdef PROEVALUATOR_CUMULATIVE
-    m_cumulative = true;
+    m_cumulative = false;
 #endif
 
     // Evaluator state
@@ -924,9 +924,6 @@ bool QMakeEvaluator::prepareProject()
         }
         if (!qmake_cache.isEmpty()) {
             QMakeEvaluator evaluator(m_option, m_parser, m_handler);
-#ifdef PROEVALUATOR_CUMULATIVE
-            evaluator.m_cumulative = false;
-#endif
             if (!evaluator.evaluateFileDirect(qmake_cache, QMakeHandler::EvalConfigFile, LoadProOnly))
                 return false;
             if (m_option->qmakespec.isEmpty())
@@ -940,10 +937,6 @@ bool QMakeEvaluator::prepareProject()
 
 bool QMakeEvaluator::loadSpec()
 {
-#ifdef PROEVALUATOR_CUMULATIVE
-    m_cumulative = false;
-#endif
-
     loadDefaults();
 
     QString qmakespec = m_option->expandEnvVars(m_option->qmakespec);
@@ -1828,9 +1821,6 @@ bool QMakeEvaluator::evaluateFileInto(
         ProValueMap *values, EvalIntoMode mode)
 {
     QMakeEvaluator visitor(m_option, m_parser, m_handler);
-#ifdef PROEVALUATOR_CUMULATIVE
-    visitor.m_cumulative = false;
-#endif
     visitor.m_outputDir = m_outputDir;
     if (!visitor.evaluateFile(fileName, type,
             (mode == EvalWithSetup) ? LoadAll : LoadProOnly))
