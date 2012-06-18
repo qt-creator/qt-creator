@@ -158,7 +158,9 @@ int main(int argc, char **argv)
         qFatal("need at least two arguments: [-v] <cumulative?> <filenme> [<out_pwd> [<qmake options>]]");
 
     QMakeGlobals option;
-    option.initProperties(QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/qmake"));
+    option.qmake_abslocation =
+            QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/qmake"));
+    option.initProperties();
     if (args.count() >= 4)
         option.setCommandLineArguments(args.mid(3));
     QMakeParser parser(0, &evalHandler);

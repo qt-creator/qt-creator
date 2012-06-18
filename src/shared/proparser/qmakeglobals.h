@@ -84,13 +84,14 @@ public:
     QProcessEnvironment environment;
 #endif
     QString sysroot;
+    QString qmake_abslocation;
     QString user_template, user_template_prefix;
 
     // -nocache, -cache, -spec, QMAKESPEC
     // -set persistent value
     void setCommandLineArguments(const QStringList &args);
 #ifdef PROEVALUATOR_INIT_PROPS
-    bool initProperties(const QString &qmake);
+    bool initProperties();
 #else
     void setProperties(const QHash<QString, QString> &props);
 #endif

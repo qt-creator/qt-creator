@@ -184,17 +184,17 @@ QString QMakeGlobals::expandEnvVars(const QString &str) const
 }
 
 #ifdef PROEVALUATOR_INIT_PROPS
-bool QMakeGlobals::initProperties(const QString &qmake)
+bool QMakeGlobals::initProperties()
 {
     QByteArray data;
 #ifndef QT_BOOTSTRAPPED
     QProcess proc;
-    proc.start(qmake, QStringList() << QLatin1String("-query"));
+    proc.start(qmake_abslocation, QStringList() << QLatin1String("-query"));
     if (!proc.waitForFinished())
         return false;
     data = proc.readAll();
 #else
-    if (FILE *proc = QT_POPEN(QString(IoUtils::shellQuote(qmake) + QLatin1String(" -query"))
+    if (FILE *proc = QT_POPEN(QString(IoUtils::shellQuote(qmake_abslocation) + QLatin1String(" -query"))
                               .toLocal8Bit(), "r")) {
         char buff[1024];
         while (!feof(proc))

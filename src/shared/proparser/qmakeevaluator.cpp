@@ -859,6 +859,8 @@ void QMakeEvaluator::loadDefaults()
     vars[ProString("DIR_SEPARATOR")] << ProString(m_option->dir_sep, NoHash);
     vars[ProString("DIRLIST_SEPARATOR")] << ProString(m_option->dirlist_sep, NoHash);
     vars[ProString("_DATE_")] << ProString(QDateTime::currentDateTime().toString(), NoHash);
+    if (!m_option->qmake_abslocation.isEmpty())
+        vars[ProString("QMAKE_QMAKE")] << ProString(m_option->qmake_abslocation, NoHash);
 #if defined(Q_OS_WIN32)
     vars[ProString("QMAKE_HOST.os")] << ProString("Windows", NoHash);
 
