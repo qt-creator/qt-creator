@@ -502,10 +502,8 @@ Utils::FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
     if (parsedSpec.isEmpty())
         return Utils::FileName();
 
-    Utils::FileName baseMkspecDir = Utils::FileName::fromUserInput(version->versionInfo().value(QLatin1String("QMAKE_MKSPECS")));
-    if (baseMkspecDir.isEmpty())
-        baseMkspecDir = Utils::FileName::fromUserInput(version->versionInfo().value(QLatin1String("QT_INSTALL_DATA"))
-                                                       + QLatin1String("/mkspecs"));
+    Utils::FileName baseMkspecDir = Utils::FileName::fromUserInput(
+            version->versionInfo().value(QLatin1String("QT_HOST_DATA")) + QLatin1String("/mkspecs"));
 
     // if the path is relative it can be
     // relative to the working directory (as found in the Makefiles)

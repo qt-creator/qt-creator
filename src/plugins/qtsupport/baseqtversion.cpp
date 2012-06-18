@@ -783,8 +783,8 @@ bool BaseQtVersion::hasMkspec(const Utils::FileName &spec) const
 {
     updateVersionInfo();
     QFileInfo fi;
-    fi.setFile(QDir::fromNativeSeparators(m_versionInfo.value(QLatin1String("QMAKE_MKSPECS")))
-               + QLatin1Char('/') + spec.toString());
+    fi.setFile(QDir::fromNativeSeparators(m_versionInfo.value(QLatin1String("QT_HOST_DATA")))
+               + QLatin1String("/mkspecs/") + spec.toString());
     if (fi.isDir())
         return true;
     fi.setFile(sourcePath().toString() + QLatin1String("/mkspecs/") + spec.toString());
@@ -1198,15 +1198,10 @@ bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QSt
 
 Utils::FileName BaseQtVersion::mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo)
 {
-    Utils::FileName baseMkspecDir = Utils::FileName::fromUserInput(versionInfo.value(QLatin1String("QMAKE_MKSPECS")));
-    if (baseMkspecDir.isEmpty()) {
-        baseMkspecDir = Utils::FileName::fromUserInput(versionInfo.value(QLatin1String("QT_HOST_DATA")));
-        if (baseMkspecDir.isEmpty())
-            baseMkspecDir = Utils::FileName::fromUserInput(versionInfo.value(QLatin1String("QT_INSTALL_DATA")));
-        if (!baseMkspecDir.isEmpty())
-            baseMkspecDir.appendPath("mkspecs");
-    }
-    return baseMkspecDir;
+    QString dataDir = versionInfo.value(QLatin1String("QT_HOST_DATA"));
+    if (dataDir.isEmpty())
+        return Utils::FileName();
+    return Utils::FileName::fromUserInput(dataDir + QLatin1String("/mkspecs"));
 }
 
 Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo)
