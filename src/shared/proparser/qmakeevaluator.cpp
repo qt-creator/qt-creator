@@ -1232,10 +1232,14 @@ QStringList QMakeEvaluator::qmakeMkspecPaths() const
     foreach (const QString &it, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
         ret << it + concat;
 
-    QString builtIn = propertyValue(QLatin1String("QT_INSTALL_DATA"), false) + concat;
-    if (!ret.contains(builtIn))
-        ret << builtIn;
+    if (!m_buildRoot.isEmpty())
+        ret << m_buildRoot + concat;
+    if (!m_sourceRoot.isEmpty())
+        ret << m_sourceRoot + concat;
 
+    ret << propertyValue(QLatin1String("QT_INSTALL_DATA"), false) + concat;
+
+    ret.removeDuplicates();
     return ret;
 }
 
@@ -1253,11 +1257,10 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
             m_option->dirlist_sep, QString::SkipEmptyParts);
 
     QStringList feature_bases;
-
-    if (!m_cachefile.isEmpty()) {
-        QString path = m_cachefile.left(m_cachefile.lastIndexOf((ushort)'/'));
-        feature_bases << path;
-    }
+    if (!m_buildRoot.isEmpty())
+        feature_bases << m_buildRoot;
+    if (!m_sourceRoot.isEmpty())
+        feature_bases << m_sourceRoot;
 
     foreach (const QString &item, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
         feature_bases << (item + mkspecs_concat);
