@@ -34,6 +34,7 @@
 
 #include <QFileInfo>
 #include <QSet>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 
@@ -346,6 +347,15 @@ void ProStringList::removeDuplicates()
     }
     if (n != j)
         erase(begin() + j, end());
+}
+
+QStringList ProStringList::toQStringList() const
+{
+    QStringList ret;
+    ret.reserve(size());
+    foreach (const ProString &str, *this)
+        ret << str.toQString();
+    return ret;
 }
 
 ProFile::ProFile(const QString &fileName)

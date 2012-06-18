@@ -206,6 +206,8 @@ public:
     QString m_cachefile;
     QString m_sourceRoot;
     QString m_buildRoot;
+    QStringList m_qmakepath;
+    QStringList m_qmakefeatures;
     QStringList m_featureRoots;
     ProFunctionDefs m_functionDefs;
     ProStringList m_returnValue;

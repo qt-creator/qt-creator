@@ -175,6 +175,8 @@ void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
     m_qmakespec = other.m_qmakespec;
     m_qmakespecFull = other.m_qmakespecFull;
     m_qmakespecName = other.m_qmakespecName;
+    m_qmakepath = other.m_qmakepath;
+    m_qmakefeatures = other.m_qmakefeatures;
     m_featureRoots = other.m_featureRoots;
 }
 
@@ -1042,6 +1044,8 @@ bool QMakeEvaluator::loadSpec()
         }
         if (qmakespec.isEmpty())
             qmakespec = evaluator.first(ProString("QMAKESPEC")).toQString();
+        m_qmakepath = evaluator.values(ProString("QMAKEPATH")).toQStringList();
+        m_qmakefeatures = evaluator.values(ProString("QMAKEFEATURES")).toQStringList();
     }
 
     if (qmakespec.isEmpty())
@@ -1235,6 +1239,9 @@ QStringList QMakeEvaluator::qmakeMkspecPaths() const
     foreach (const QString &it, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
         ret << it + concat;
 
+    foreach (const QString &it, m_qmakepath)
+        ret << it + concat;
+
     if (!m_buildRoot.isEmpty())
         ret << m_buildRoot + concat;
     if (!m_sourceRoot.isEmpty())
@@ -1256,6 +1263,8 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     foreach (const QString &f, m_option->getPathListEnv(QLatin1String("QMAKEFEATURES")))
         feature_roots += f;
 
+    feature_roots += m_qmakefeatures;
+
     feature_roots += m_option->propertyValue(ProString("QMAKEFEATURES")).toQString(m_mtmp).split(
             m_option->dirlist_sep, QString::SkipEmptyParts);
 
@@ -1266,6 +1275,9 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
         feature_bases << m_sourceRoot;
 
     foreach (const QString &item, m_option->getPathListEnv(QLatin1String("QMAKEPATH")))
+        feature_bases << (item + mkspecs_concat);
+
+    foreach (const QString &item, m_qmakepath)
         feature_bases << (item + mkspecs_concat);
 
     if (!m_qmakespecFull.isEmpty()) {

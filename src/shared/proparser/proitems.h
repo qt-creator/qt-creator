@@ -126,6 +126,7 @@ public:
     ProStringList(const ProString &str) { *this << str; }
     QString join(const QString &sep) const;
     void removeDuplicates();
+    QStringList toQStringList() const;
 };
 
 typedef QHash<ProString, ProStringList> ProValueMap;
