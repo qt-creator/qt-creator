@@ -210,26 +210,34 @@ bool QMakeGlobals::initProperties(const QString &qmake)
             if (line.endsWith('\r'))
                 line.chop(1);
             QString name = QString::fromLatin1(line.left(off));
-            QString value = QDir::fromNativeSeparators(
-                        QString::fromLocal8Bit(line.mid(off + 1)));
-            properties.insert(name, value);
+            ProString value = ProString(QDir::fromNativeSeparators(
+                        QString::fromLocal8Bit(line.mid(off + 1))), ProStringConstants::NoHash);
+            properties.insert(ProString(name), value);
             if (name.startsWith(QLatin1String("QT_")) && !name.contains(QLatin1Char('/'))) {
                 if (name.startsWith(QLatin1String("QT_INSTALL_"))) {
-                    properties.insert(name + QLatin1String("/raw"), value);
-                    properties.insert(name + QLatin1String("/get"), value);
+                    properties.insert(ProString(name + QLatin1String("/raw")), value);
+                    properties.insert(ProString(name + QLatin1String("/get")), value);
                     if (name == QLatin1String("QT_INSTALL_PREFIX")
                         || name == QLatin1String("QT_INSTALL_DATA")
                         || name == QLatin1String("QT_INSTALL_BINS")) {
                         name.replace(3, 7, QLatin1String("HOST"));
-                        properties.insert(name, value);
-                        properties.insert(name + QLatin1String("/get"), value);
+                        properties.insert(ProString(name), value);
+                        properties.insert(ProString(name + QLatin1String("/get")), value);
                     }
                 } else if (name.startsWith(QLatin1String("QT_HOST_"))) {
-                    properties.insert(name + QLatin1String("/get"), value);
+                    properties.insert(ProString(name + QLatin1String("/get")), value);
                 }
             }
         }
+    properties.insert(ProString("QMAKE_VERSION"), ProString("2.01a", ProStringConstants::NoHash));
     return true;
+}
+#else
+void QMakeGlobals::setProperties(const QHash<QString, QString> &props)
+{
+    QHash<QString, QString>::ConstIterator it = props.constBegin(), eit = props.constEnd();
+    for (; it != eit; ++it)
+        properties.insert(ProString(it.key()), ProString(it.value(), ProStringConstants::NoHash));
 }
 #endif
 

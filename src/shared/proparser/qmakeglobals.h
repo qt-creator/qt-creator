@@ -80,7 +80,6 @@ public:
     QString dirlist_sep;
     QString qmakespec;
     QString cachefile;
-    QHash<QString, QString> properties;
 #ifndef QT_BOOTSTRAPPED
     QProcessEnvironment environment;
 #endif
@@ -92,7 +91,10 @@ public:
     void setCommandLineArguments(const QStringList &args);
 #ifdef PROEVALUATOR_INIT_PROPS
     bool initProperties(const QString &qmake);
+#else
+    void setProperties(const QHash<QString, QString> &props);
 #endif
+    ProString propertyValue(const ProString &name) const { return properties.value(name); }
 
     QString expandEnvVars(const QString &str) const;
 
@@ -101,6 +103,7 @@ private:
     QStringList getPathListEnv(const QString &var) const;
 
     QString precmds, postcmds;
+    QHash<ProString, ProString> properties;
 
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutex mutex;

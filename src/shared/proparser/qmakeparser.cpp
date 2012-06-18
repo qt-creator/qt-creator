@@ -450,7 +450,7 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                         tok = TokVariable;
                         c = *cur;
                         if (c == '[') {
-                            ptr += 2;
+                            ptr += 4;
                             tok = TokProperty;
                             term = ']';
                             c = *++cur;
@@ -488,18 +488,19 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                             wordCount++;
                         }
                         tlen = ptr - xprPtr;
-                        if (rtok == TokVariable) {
-                            if (!resolveVariable(xprPtr, tlen, needSep, &ptr,
-                                                 &buf, &xprBuff, &tokPtr, &tokBuff, cur, in)) {
+                        if (rtok != TokVariable
+                            || !resolveVariable(xprPtr, tlen, needSep, &ptr,
+                                                &buf, &xprBuff, &tokPtr, &tokBuff, cur, in)) {
+                            if (rtok == TokVariable || rtok == TokProperty) {
                                 xprPtr[-4] = tok;
                                 uint hash = ProString::hash((const QChar *)xprPtr, tlen);
                                 xprPtr[-3] = (ushort)hash;
                                 xprPtr[-2] = (ushort)(hash >> 16);
                                 xprPtr[-1] = tlen;
+                            } else {
+                                xprPtr[-2] = tok;
+                                xprPtr[-1] = tlen;
                             }
-                        } else {
-                            xprPtr[-2] = tok;
-                            xprPtr[-1] = tlen;
                         }
                         if ((tok & TokMask) == TokFuncName) {
                             cur++;

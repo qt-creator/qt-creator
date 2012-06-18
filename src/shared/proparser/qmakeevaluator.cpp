@@ -409,8 +409,7 @@ void QMakeEvaluator::evaluateExpression(
             addStrList(values(map(getHashStr(tokPtr))), tok, ret, pending, joined);
             break;
         case TokProperty:
-            addStr(ProString(propertyValue(
-                      getStr(tokPtr).toQString(m_tmp1), true), NoHash).setSource(currentProFile()),
+            addStr(propertyValue(getHashStr(tokPtr)).setSource(currentProFile()),
                    ret, pending, joined);
             break;
         case TokEnvVar:
@@ -446,12 +445,12 @@ void QMakeEvaluator::skipExpression(const ushort *&pTokPtr)
         default:
             switch (tok & TokMask) {
             case TokLiteral:
-            case TokProperty:
             case TokEnvVar:
                 skipStr(tokPtr);
                 break;
             case TokHashLiteral:
             case TokVariable:
+            case TokProperty:
                 skipHashStr(tokPtr);
                 break;
             case TokFuncName:
@@ -1237,7 +1236,7 @@ QStringList QMakeEvaluator::qmakeMkspecPaths() const
     if (!m_sourceRoot.isEmpty())
         ret << m_sourceRoot + concat;
 
-    ret << propertyValue(QLatin1String("QT_INSTALL_DATA"), false) + concat;
+    ret << m_option->propertyValue(ProString("QT_INSTALL_DATA")) + concat;
 
     ret.removeDuplicates();
     return ret;
@@ -1253,7 +1252,7 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     foreach (const QString &f, m_option->getPathListEnv(QLatin1String("QMAKEFEATURES")))
         feature_roots += f;
 
-    feature_roots += propertyValue(QLatin1String("QMAKEFEATURES"), false).split(
+    feature_roots += m_option->propertyValue(ProString("QMAKEFEATURES")).toQString(m_mtmp).split(
             m_option->dirlist_sep, QString::SkipEmptyParts);
 
     QStringList feature_bases;
@@ -1281,7 +1280,8 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
         }
     }
 
-    feature_bases << (propertyValue(QLatin1String("QT_INSTALL_DATA"), false) + mkspecs_concat);
+    feature_bases << (m_option->propertyValue(ProString("QT_INSTALL_DATA")).toQString(m_mtmp)
+                      + mkspecs_concat);
 
     foreach (const QString &fb, feature_bases) {
         foreach (const ProString &sfx, values(ProString("QMAKE_PLATFORM")))
@@ -1302,17 +1302,14 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     return ret;
 }
 
-QString QMakeEvaluator::propertyValue(const QString &name, bool complain) const
+ProString QMakeEvaluator::propertyValue(const ProString &name) const
 {
-    if (m_option->properties.contains(name))
-        return m_option->properties.value(name);
     if (name == QLatin1String("QMAKE_MKSPECS"))
-        return qmakeMkspecPaths().join(m_option->dirlist_sep);
-    if (name == QLatin1String("QMAKE_VERSION"))
-        return QLatin1String("1.0");        //### FIXME
-    if (complain)
-        evalError(fL1S("Querying unknown property %1").arg(name));
-    return QString();
+        return ProString(qmakeMkspecPaths().join(m_option->dirlist_sep), NoHash);
+    ProString ret = m_option->propertyValue(name);
+    if (ret.isNull())
+        evalError(fL1S("Querying unknown property %1").arg(name.toQString(m_mtmp)));
+    return ret;
 }
 
 ProFile *QMakeEvaluator::currentProFile() const
@@ -1527,7 +1524,7 @@ ProStringList QMakeEvaluator::expandVariableReferences(
                 if (var_type == ENVIRON) {
                     replacement = split_value_list(m_option->getEnv(var.toQString(m_tmp1)));
                 } else if (var_type == PROPERTY) {
-                    replacement << ProString(propertyValue(var.toQString(m_tmp1), true), NoHash);
+                    replacement << propertyValue(var);
                 } else if (var_type == FUNCTION) {
                     replacement += evaluateExpandFunction(var, args);
                 } else if (var_type == VAR) {

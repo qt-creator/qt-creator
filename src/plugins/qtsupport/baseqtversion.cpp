@@ -720,7 +720,7 @@ void BaseQtVersion::ensureMkSpecParsed() const
         return;
 
     QMakeGlobals option;
-    option.properties = versionInfo();
+    option.setProperties(versionInfo());
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &msgHandler);

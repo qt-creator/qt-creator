@@ -77,7 +77,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     Utils::FileName mkspec = BaseQtVersion::mkspecFromVersionInfo(versionInfo);
 
     QMakeGlobals globals;
-    globals.properties = versionInfo;
+    globals.setProperties(versionInfo);
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &msgHandler);

@@ -89,6 +89,7 @@ public:
     bool operator!=(const ProString &other) const { return !(*this == other); }
     bool operator!=(const QString &other) const { return !(*this == other); }
     bool operator!=(const QLatin1String &other) const { return !(*this == other); }
+    bool isNull() const { return m_string.isNull(); }
     bool isEmpty() const { return !m_length; }
     int size() const { return m_length; }
     const QChar *constData() const { return m_string.constData() + m_offset; }
@@ -154,6 +155,7 @@ enum ProToken {
                         // - name length (1)
                         // - name (name length; unterminated)
     TokProperty,        // qmake property expansion
+                        // - hash (2)
                         // - name length (1)
                         // - name (name length; unterminated)
     TokEnvVar,          // environment variable expansion

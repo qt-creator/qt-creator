@@ -193,7 +193,7 @@ bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
 
 QString ProFileEvaluator::propertyValue(const QString &name) const
 {
-    return d->propertyValue(name, false);
+    return d->m_option->propertyValue(ProString(name)).toQString();
 }
 
 #ifdef PROEVALUATOR_CUMULATIVE

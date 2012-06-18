@@ -944,7 +944,7 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
                 ? SysRootProfileInformation::sysRoot(p).toString() : QString();
 
         if (qtVersion && qtVersion->isValid())
-            m_qmakeGlobals->properties = qtVersion->versionInfo();
+            m_qmakeGlobals->setProperties(qtVersion->versionInfo());
         m_qmakeGlobals->sysroot = systemRoot;
 
         Utils::Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();
