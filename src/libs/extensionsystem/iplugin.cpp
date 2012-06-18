@@ -185,9 +185,8 @@ IPlugin::IPlugin()
 */
 IPlugin::~IPlugin()
 {
-    PluginManager *pm = PluginManager::instance();
     foreach (QObject *obj, d->addedObjectsInReverseOrder)
-        pm->removeObject(obj);
+        PluginManager::removeObject(obj);
     qDeleteAll(d->addedObjectsInReverseOrder);
     d->addedObjectsInReverseOrder.clear();
     delete d;
@@ -211,7 +210,7 @@ PluginSpec *IPlugin::pluginSpec() const
 */
 void IPlugin::addObject(QObject *obj)
 {
-    PluginManager::instance()->addObject(obj);
+    PluginManager::addObject(obj);
 }
 
 /*!
@@ -227,7 +226,7 @@ void IPlugin::addObject(QObject *obj)
 void IPlugin::addAutoReleasedObject(QObject *obj)
 {
     d->addedObjectsInReverseOrder.prepend(obj);
-    PluginManager::instance()->addObject(obj);
+    PluginManager::addObject(obj);
 }
 
 /*!
@@ -237,6 +236,6 @@ void IPlugin::addAutoReleasedObject(QObject *obj)
 */
 void IPlugin::removeObject(QObject *obj)
 {
-    PluginManager::instance()->removeObject(obj);
+    PluginManager::removeObject(obj);
 }
 

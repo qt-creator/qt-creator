@@ -1670,9 +1670,7 @@ void DebuggerPluginPrivate::attachToRemoteServer()
 
 void DebuggerPluginPrivate::startRemoteServer()
 {
-    PluginManager *pm = PluginManager::instance();
-    QTC_ASSERT(pm, return);
-    QObject *rl = pm->getObjectByName(_("RemoteLinuxPlugin"));
+    QObject *rl = PluginManager::getObjectByName(_("RemoteLinuxPlugin"));
     QTC_ASSERT(rl, return);
     QMetaObject::invokeMethod(rl, "startGdbServer", Qt::QueuedConnection);
     // Will call back gdbServerStarted() below.
@@ -1714,9 +1712,7 @@ void DebuggerPluginPrivate::loadRemoteCoreFile()
 
 void DebuggerPluginPrivate::attachToRemoteProcess()
 {
-    PluginManager *pm = PluginManager::instance();
-    QTC_ASSERT(pm, return);
-    QObject *rl = pm->getObjectByName(_("RemoteLinuxPlugin"));
+    QObject *rl = PluginManager::getObjectByName(_("RemoteLinuxPlugin"));
     QTC_ASSERT(rl, return);
     QMetaObject::invokeMethod(rl, "attachToRemoteProcess", Qt::QueuedConnection);
     // This will call back attachedToProcess() below.

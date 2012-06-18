@@ -51,7 +51,7 @@ RemoteLinuxQmlProfilerRunner::RemoteLinuxQmlProfilerRunner(
     // find run control factory
     IRunControlFactory *runControlFactory = 0;
     QList<IRunControlFactory*> runControlFactories
-            = PluginManager::instance()->getObjects<IRunControlFactory>();
+            = PluginManager::getObjects<IRunControlFactory>();
 
     foreach (IRunControlFactory *factory, runControlFactories) {
         if (factory->canRun(runConfiguration, NormalRunMode)) {

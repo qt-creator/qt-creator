@@ -88,7 +88,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
         pro->deref();
     }
 
-    QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<QtVersionFactory>();
+    QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
     qSort(factories.begin(), factories.end(), &sortByPriority);
 
     foreach (QtVersionFactory *factory, factories) {

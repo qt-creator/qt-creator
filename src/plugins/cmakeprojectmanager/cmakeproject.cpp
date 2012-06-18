@@ -533,7 +533,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     bool hasUserFile = activeTarget();
     if (!hasUserFile) {
         CMakeTargetFactory *factory =
-                ExtensionSystem::PluginManager::instance()->getObject<CMakeTargetFactory>();
+                ExtensionSystem::PluginManager::getObject<CMakeTargetFactory>();
         CMakeTarget *t = factory->create(this, Core::Id(DEFAULT_CMAKE_TARGET_ID));
 
         Q_ASSERT(t);

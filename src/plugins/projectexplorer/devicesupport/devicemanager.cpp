@@ -222,8 +222,7 @@ QVariantMap DeviceManager::toMap() const
 
 QString DeviceManager::settingsFilePath()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    return QFileInfo(pm->settings()->fileName()).absolutePath() + QLatin1String("/devices.xml");
+    return QFileInfo(ExtensionSystem::PluginManager::settings()->fileName()).absolutePath() + QLatin1String("/devices.xml");
 }
 
 void DeviceManager::addDevice(const IDevice::Ptr &_device)
@@ -320,7 +319,7 @@ void DeviceManager::setDefaultDevice(int idx)
 const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
 {
     const QList<IDeviceFactory *> &factories
-        = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
+        = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
     foreach (const IDeviceFactory * const factory, factories) {
         if (factory->canRestore(map))
             return factory;

@@ -1334,7 +1334,7 @@ bool Qt4Project::needsConfiguration() const
 
 void Qt4Project::configureAsExampleProject(const QStringList &platforms)
 {
-    QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
+    QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *factory, factories) {
         foreach (const Core::Id id, factory->supportedTargetIds()) {
             QList<BuildConfigurationInfo> infos

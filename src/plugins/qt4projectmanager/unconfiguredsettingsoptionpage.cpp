@@ -71,7 +71,7 @@ UnConfiguredSettingsWidget::UnConfiguredSettingsWidget(QWidget *parent)
     m_toolchainComboBox = new QComboBox;
     layout->addRow(tr("Tool Chain:"), m_toolchainComboBox);
 
-    Qt4Manager *qt4Manager = ExtensionSystem::PluginManager::instance()->getObject<Qt4Manager>();
+    Qt4Manager *qt4Manager = ExtensionSystem::PluginManager::getObject<Qt4Manager>();
     Internal::UnConfiguredSettings ucs = qt4Manager->unconfiguredSettings();
 
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
@@ -98,7 +98,7 @@ UnConfiguredSettingsWidget::UnConfiguredSettingsWidget(QWidget *parent)
 
 void UnConfiguredSettingsWidget::apply()
 {
-    Qt4Manager *qt4Manager = ExtensionSystem::PluginManager::instance()->getObject<Qt4Manager>();
+    Qt4Manager *qt4Manager = ExtensionSystem::PluginManager::getObject<Qt4Manager>();
     Internal::UnConfiguredSettings ucs;
 
     int index = m_qtVersionComboBox->currentIndex();

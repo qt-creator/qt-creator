@@ -140,9 +140,8 @@ S60Manager::S60Manager(QObject *parent) : QObject(parent)
 
 S60Manager::~S60Manager()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     for (int i = m_pluginObjects.size() - 1; i >= 0; i--) {
-        pm->removeObject(m_pluginObjects.at(i));
+        ExtensionSystem::PluginManager::removeObject(m_pluginObjects.at(i));
         delete m_pluginObjects.at(i);
     }
 }
@@ -221,7 +220,7 @@ void S60Manager::handleSymbianDeviceStateChange(const SymbianUtils::SymbianDevic
 
 void S60Manager::addAutoReleasedObject(QObject *o)
 {
-    ExtensionSystem::PluginManager::instance()->addObject(o);
+    ExtensionSystem::PluginManager::addObject(o);
     m_pluginObjects.push_back(o);
 }
 

@@ -194,8 +194,7 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
 {
     Q_UNUSED(arguments)
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    d->hub = pm->getObject<ProjectExplorer::TaskHub>();
+    d->hub = ExtensionSystem::PluginManager::getObject<ProjectExplorer::TaskHub>();
 
     //: Category under which tasklist tasks are listed in Issues view
     d->hub->addCategory(Core::Id(Constants::TASKLISTTASK_ID), tr("My Tasks"));

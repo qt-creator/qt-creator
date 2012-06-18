@@ -275,7 +275,7 @@ bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 
 static inline QList<Core::IOptionsPage*> sortedOptionsPages()
 {
-    QList<Core::IOptionsPage*> rc = ExtensionSystem::PluginManager::instance()->getObjects<IOptionsPage>();
+    QList<Core::IOptionsPage*> rc = ExtensionSystem::PluginManager::getObjects<IOptionsPage>();
     qStableSort(rc.begin(), rc.end(), optionsPageLessThan);
     return rc;
 }
@@ -304,7 +304,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 #endif
 
     m_model->setPages(m_pages,
-        ExtensionSystem::PluginManager::instance()->getObjects<IOptionsPageProvider>());
+        ExtensionSystem::PluginManager::getObjects<IOptionsPageProvider>());
 
     m_proxyModel->setSourceModel(m_model);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);

@@ -678,8 +678,8 @@ void CppModelManager::updateModifiedSourceFiles()
 
 CppModelManager *CppModelManager::instance()
 {
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-    return pluginManager->getObject<CppModelManager>();
+    // TODO this is pretty stupid. use regular singleton pattern.
+    return ExtensionSystem::PluginManager::getObject<CppModelManager>();
 }
 
 
@@ -742,14 +742,14 @@ CppModelManager::CppModelManager(QObject *parent)
 
     m_completionFallback = new InternalCompletionAssistProvider;
     m_completionAssistProvider = m_completionFallback;
-    ExtensionSystem::PluginManager::instance()->addObject(m_completionAssistProvider);
+    ExtensionSystem::PluginManager::addObject(m_completionAssistProvider);
     m_highlightingFallback = new CppHighlightingSupportInternalFactory;
     m_highlightingFactory = m_highlightingFallback;
 }
 
 CppModelManager::~CppModelManager()
 {
-    ExtensionSystem::PluginManager::instance()->removeObject(m_completionAssistProvider);
+    ExtensionSystem::PluginManager::removeObject(m_completionAssistProvider);
     delete m_completionFallback;
     delete m_highlightingFallback;
 }
@@ -1383,12 +1383,12 @@ CppCompletionSupport *CppModelManager::completionSupport(Core::IEditor *editor) 
 
 void CppModelManager::setCppCompletionAssistProvider(CppCompletionAssistProvider *completionAssistProvider)
 {
-    ExtensionSystem::PluginManager::instance()->removeObject(m_completionAssistProvider);
+    ExtensionSystem::PluginManager::removeObject(m_completionAssistProvider);
     if (completionAssistProvider)
         m_completionAssistProvider = completionAssistProvider;
     else
         m_completionAssistProvider = m_completionFallback;
-    ExtensionSystem::PluginManager::instance()->addObject(m_completionAssistProvider);
+    ExtensionSystem::PluginManager::addObject(m_completionAssistProvider);
 }
 
 CppHighlightingSupport *CppModelManager::highlightingSupport(Core::IEditor *editor) const

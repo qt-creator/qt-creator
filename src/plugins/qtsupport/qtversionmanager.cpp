@@ -88,7 +88,7 @@ template<class T>
 static T *createToolChain(const QString &id)
 {
     QList<ProjectExplorer::ToolChainFactory *> factories =
-            ExtensionSystem::PluginManager::instance()->getObjects<ProjectExplorer::ToolChainFactory>();
+            ExtensionSystem::PluginManager::getObjects<ProjectExplorer::ToolChainFactory>();
     foreach (ProjectExplorer::ToolChainFactory *f, factories) {
        if (f->id() == id) {
            Q_ASSERT(f->canCreate());
@@ -100,15 +100,13 @@ static T *createToolChain(const QString &id)
 
 static QString globalSettingsFileName()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    return QFileInfo(pm->globalSettings()->fileName()).absolutePath()
+    return QFileInfo(ExtensionSystem::PluginManager::globalSettings()->fileName()).absolutePath()
             + QLatin1String(QTVERSION_FILENAME);
 }
 
 static QString settingsFileName()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QFileInfo settingsLocation(pm->settings()->fileName());
+    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
     return settingsLocation.absolutePath() + QLatin1String(QTVERSION_FILENAME);
 }
 
@@ -182,8 +180,7 @@ QtVersionManager *QtVersionManager::instance()
 
 bool QtVersionManager::restoreQtVersions()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QList<QtVersionFactory *> factories = pm->getObjects<QtVersionFactory>();
+    QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
 
     Utils::PersistentSettingsReader reader;
     if (!reader.load(settingsFileName()))
@@ -246,8 +243,7 @@ void QtVersionManager::updateFromInstaller()
     QList<int> removed;
     QList<int> changed;
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QList<QtVersionFactory *> factories = pm->getObjects<QtVersionFactory>();
+    QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
     Utils::PersistentSettingsReader reader;
     QVariantMap data;
     if (reader.load(globalSettingsFileName()))

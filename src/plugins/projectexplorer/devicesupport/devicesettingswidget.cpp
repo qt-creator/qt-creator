@@ -141,7 +141,7 @@ void DeviceSettingsWidget::initGui()
 
     bool hasDeviceFactories = false;
     const QList<IDeviceFactory *> &factories
-        = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
+        = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
     foreach (const IDeviceFactory *f, factories) {
         if (f->canCreate()) {
             hasDeviceFactories = true;

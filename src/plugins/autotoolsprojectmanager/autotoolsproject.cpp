@@ -188,7 +188,7 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
     bool hasUserFile = activeTarget();
     if (!hasUserFile) {
         AutotoolsTargetFactory *factory =
-                ExtensionSystem::PluginManager::instance()->getObject<AutotoolsTargetFactory>();
+                ExtensionSystem::PluginManager::getObject<AutotoolsTargetFactory>();
         AutotoolsTarget *t = factory->create(this, Core::Id(Constants::DEFAULT_AUTOTOOLS_TARGET_ID));
 
         QTC_ASSERT(t, return false);

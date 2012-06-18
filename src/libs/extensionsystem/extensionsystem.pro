@@ -23,7 +23,6 @@ HEADERS += pluginerrorview.h \
     pluginspec.h \
     pluginspec_p.h \
     pluginview.h \
-    pluginview_p.h \
     optionsparser.h \
     plugincollection.h \
     pluginerroroverview.h

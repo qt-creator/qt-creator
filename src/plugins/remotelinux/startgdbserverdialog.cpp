@@ -376,8 +376,7 @@ void StartGdbServerDialog::reportOpenPort(int port)
     logMessage(tr("Server started on %1").arg(channel));
 
     const char *member = d->startServerOnly ? "gdbServerStarted" : "attachedToProcess";
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QObject *ob = pm->getObjectByName("DebuggerCore");
+    QObject *ob = ExtensionSystem::PluginManager::getObjectByName("DebuggerCore");
     if (ob) {
         QMetaObject::invokeMethod(ob, member, Qt::QueuedConnection,
             Q_ARG(QString, channel),

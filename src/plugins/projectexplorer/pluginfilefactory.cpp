@@ -87,7 +87,7 @@ QList<ProjectFileFactory *> ProjectFileFactory::createFactories(QString *filterS
     // Register factories for all project managers
     QList<Internal::ProjectFileFactory*> rc;
     QList<IProjectManager*> projectManagers =
-        ExtensionSystem::PluginManager::instance()->getObjects<IProjectManager>();
+        ExtensionSystem::PluginManager::getObjects<IProjectManager>();
 
     QList<Core::MimeGlobPattern> allGlobPatterns;
 

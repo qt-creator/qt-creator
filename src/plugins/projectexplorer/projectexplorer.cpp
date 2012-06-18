@@ -1298,8 +1298,7 @@ Project *ProjectExplorerPlugin::openProject(const QString &fileName, QString *er
 
 static inline QList<IProjectManager*> allProjectManagers()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    return pm->getObjects<IProjectManager>();
+    return ExtensionSystem::PluginManager::getObjects<IProjectManager>();
 }
 
 QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileNames, QString *errorString)
@@ -1427,7 +1426,7 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
     // Process command line arguments first:
     if (pluginSpec()->arguments().contains(QLatin1String("-lastsession")))
         d->m_sessionToRestoreAtStartup = d->m_session->lastSession();
-    QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
+    QStringList arguments = ExtensionSystem::PluginManager::arguments();
     if (d->m_sessionToRestoreAtStartup.isNull()) {
         QStringList sessions = d->m_session->sessions();
         // We have command line arguments, try to find a session in them
@@ -1463,7 +1462,7 @@ void ProjectExplorerPlugin::restoreSession()
         qDebug() << "ProjectExplorerPlugin::restoreSession";
 
     // We have command line arguments, try to find a session in them
-    QStringList arguments = ExtensionSystem::PluginManager::instance()->arguments();
+    QStringList arguments = ExtensionSystem::PluginManager::arguments();
     arguments.removeOne(d->m_sessionToRestoreAtStartup);
 
     // Restore latest session or what was passed on the command line
@@ -2233,8 +2232,7 @@ void ProjectExplorerPlugin::activeRunConfigurationChanged()
 // NBS TODO implement more than one runner
 IRunControlFactory *ProjectExplorerPlugin::findRunControlFactory(RunConfiguration *config, RunMode mode)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    const QList<IRunControlFactory *> factories = pm->getObjects<IRunControlFactory>();
+    const QList<IRunControlFactory *> factories = ExtensionSystem::PluginManager::getObjects<IRunControlFactory>();
     foreach (IRunControlFactory *f, factories)
         if (f->canRun(config, mode))
             return f;

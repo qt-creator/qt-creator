@@ -169,10 +169,10 @@ void CodeAssistantPrivate::configure(BaseTextEditor *textEditor)
 
     m_textEditor = textEditor;
     m_completionProviders =
-        ExtensionSystem::PluginManager::instance()->getObjects<CompletionAssistProvider>();
+        ExtensionSystem::PluginManager::getObjects<CompletionAssistProvider>();
     filterEditorSpecificProviders(&m_completionProviders, m_textEditor->id());
     m_quickFixProviders =
-        ExtensionSystem::PluginManager::instance()->getObjects<QuickFixAssistProvider>();
+        ExtensionSystem::PluginManager::getObjects<QuickFixAssistProvider>();
     filterEditorSpecificProviders(&m_quickFixProviders, m_textEditor->id());
 
     m_textEditor->editorWidget()->installEventFilter(this);

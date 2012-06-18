@@ -52,7 +52,7 @@ PublishingWizardSelectionDialog::PublishingWizardSelectionDialog(const Project *
     ui->setupUi(this);
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start Wizard"));
     const QList<IPublishingWizardFactory *> &factories
-        = ExtensionSystem::PluginManager::instance()->getObjects<IPublishingWizardFactory>();
+        = ExtensionSystem::PluginManager::getObjects<IPublishingWizardFactory>();
     foreach (const IPublishingWizardFactory * const factory, factories) {
         if (factory->canCreateWizard(project)) {
             m_factories << factory;

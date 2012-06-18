@@ -94,11 +94,6 @@ static const char kCurrentDocumentPath[] = "CurrentDocument:Path";
 static const char kCurrentDocumentXPos[] = "CurrentDocument:XPos";
 static const char kCurrentDocumentYPos[] = "CurrentDocument:YPos";
 
-static inline ExtensionSystem::PluginManager *pluginManager()
-{
-    return ExtensionSystem::PluginManager::instance();
-}
-
 //===================EditorClosingCoreListener======================
 
 namespace Core {
@@ -443,12 +438,11 @@ EditorManager::~EditorManager()
 {
     m_instance = 0;
     if (ICore::instance()) {
-        ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
         if (d->m_coreListener) {
-            pm->removeObject(d->m_coreListener);
+            ExtensionSystem::PluginManager::removeObject(d->m_coreListener);
             delete d->m_coreListener;
         }
-        pm->removeObject(d->m_openEditorsFactory);
+        ExtensionSystem::PluginManager::removeObject(d->m_openEditorsFactory);
         delete d->m_openEditorsFactory;
     }
     delete d;
@@ -457,10 +451,10 @@ EditorManager::~EditorManager()
 void EditorManager::init()
 {
     d->m_coreListener = new EditorClosingCoreListener(this);
-    pluginManager()->addObject(d->m_coreListener);
+    ExtensionSystem::PluginManager::addObject(d->m_coreListener);
 
     d->m_openEditorsFactory = new OpenEditorsViewFactory();
-    pluginManager()->addObject(d->m_openEditorsFactory);
+    ExtensionSystem::PluginManager::addObject(d->m_openEditorsFactory);
 
     VariableManager *vm = VariableManager::instance();
     vm->registerVariable(kCurrentDocumentFilePath,
@@ -807,7 +801,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     QList<IEditor*> acceptedEditors;
     //ask all core listeners to check whether the editor can be closed
     const QList<ICoreListener *> listeners =
-        pluginManager()->getObjects<ICoreListener>();
+        ExtensionSystem::PluginManager::getObjects<ICoreListener>();
     foreach (IEditor *editor, editorsToClose) {
         bool editorAccepted = true;
         if (d->m_editorModel->isDuplicate(editor))
@@ -1091,7 +1085,7 @@ EditorManager::EditorFactoryList
     EditorManager::editorFactories(const MimeType &mimeType, bool bestMatchOnly)
 {
     EditorFactoryList rc;
-    const EditorFactoryList allFactories = pluginManager()->getObjects<IEditorFactory>();
+    const EditorFactoryList allFactories = ExtensionSystem::PluginManager::getObjects<IEditorFactory>();
     mimeTypeFactoryRecursion(ICore::mimeDatabase(), mimeType, allFactories, bestMatchOnly, &rc);
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.type() << " returns " << rc;
@@ -1102,7 +1096,7 @@ EditorManager::ExternalEditorList
         EditorManager::externalEditors(const MimeType &mimeType, bool bestMatchOnly)
 {
     ExternalEditorList rc;
-    const ExternalEditorList allEditors = pluginManager()->getObjects<IExternalEditor>();
+    const ExternalEditorList allEditors = ExtensionSystem::PluginManager::getObjects<IExternalEditor>();
     mimeTypeFactoryRecursion(ICore::mimeDatabase(), mimeType, allEditors, bestMatchOnly, &rc);
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.type() << " returns " << rc;
@@ -1112,9 +1106,9 @@ EditorManager::ExternalEditorList
 /* For something that has a 'QString id' (IEditorFactory
  * or IExternalEditor), find the one matching a id. */
 template <class EditorFactoryLike>
-EditorFactoryLike *findById(ExtensionSystem::PluginManager *pm, const Core::Id &id)
+EditorFactoryLike *findById(const Core::Id &id)
 {
-    const QList<EditorFactoryLike *> factories = pm->template getObjects<EditorFactoryLike>();
+    const QList<EditorFactoryLike *> factories = ExtensionSystem::PluginManager::getObjects<EditorFactoryLike>();
     foreach(EditorFactoryLike *efl, factories)
         if (id == efl->id())
             return efl;
@@ -1142,7 +1136,7 @@ IEditor *EditorManager::createEditor(const Id &editorId, const QString &fileName
         factories = editorFactories(mimeType, true);
     } else {
         // Find by editor id
-        if (IEditorFactory *factory = findById<IEditorFactory>(pluginManager(), editorId))
+        if (IEditorFactory *factory = findById<IEditorFactory>(editorId))
             factories.push_back(factory);
     }
     if (factories.empty()) {
@@ -1317,7 +1311,7 @@ IEditor *EditorManager::openEditor(Core::Internal::EditorView *view, const QStri
 
 bool EditorManager::openExternalEditor(const QString &fileName, const Core::Id &editorId)
 {
-    IExternalEditor *ee = findById<IExternalEditor>(pluginManager(), editorId);
+    IExternalEditor *ee = findById<IExternalEditor>(editorId);
     if (!ee)
         return false;
     QString errorMessage;

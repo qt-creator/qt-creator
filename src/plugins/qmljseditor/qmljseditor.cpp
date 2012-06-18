@@ -509,7 +509,7 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     baseTextDocument()->setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
 
     m_modelManager = QmlJS::ModelManagerInterface::instance();
-    m_contextPane = ExtensionSystem::PluginManager::instance()->getObject<QmlJS::IContextPane>();
+    m_contextPane = ExtensionSystem::PluginManager::getObject<QmlJS::IContextPane>();
 
 
     if (m_contextPane) {

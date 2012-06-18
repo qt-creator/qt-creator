@@ -53,7 +53,7 @@ typedef QList<IVersionControl *> VersionControlList;
 
 static inline VersionControlList allVersionControls()
 {
-    return ExtensionSystem::PluginManager::instance()->getObjects<IVersionControl>();
+    return ExtensionSystem::PluginManager::getObjects<IVersionControl>();
 }
 
 // ---- VCSManagerPrivate:

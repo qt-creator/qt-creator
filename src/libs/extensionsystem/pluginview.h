@@ -50,7 +50,6 @@ class PluginSpec;
 class PluginCollection;
 
 namespace Internal {
-    class PluginViewPrivate;
 namespace Ui {
     class PluginView;
 } // namespace Ui
@@ -61,7 +60,7 @@ class EXTENSIONSYSTEM_EXPORT PluginView : public QWidget
     Q_OBJECT
 
 public:
-    explicit PluginView(PluginManager *manager, QWidget *parent = 0);
+    explicit PluginView(QWidget *parent = 0);
     ~PluginView();
 
     PluginSpec *currentPlugin() const;
@@ -84,7 +83,6 @@ private:
     int parsePluginSpecs(QTreeWidgetItem *parentItem, Qt::CheckState &groupState, QList<PluginSpec*> plugins);
 
     Internal::Ui::PluginView *m_ui;
-    Internal::PluginViewPrivate *p;
     QList<QTreeWidgetItem*> m_items;
     QHash<PluginSpec*, QTreeWidgetItem*> m_specToItem;
 

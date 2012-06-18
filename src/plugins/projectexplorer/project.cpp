@@ -315,7 +315,7 @@ bool Project::fromMap(const QVariantMap &map)
         QVariantMap targetMap = map.value(key).toMap();
 
         QList<ITargetFactory *> factories =
-                ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
+                ExtensionSystem::PluginManager::getObjects<ITargetFactory>();
 
         Target *t = 0;
 

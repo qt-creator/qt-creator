@@ -78,8 +78,7 @@ IAssistProcessor *CppQuickFixAssistProvider::createProcessor() const
 QList<TextEditor::QuickFixFactory *> CppQuickFixAssistProvider::quickFixFactories() const
 {
     QList<TextEditor::QuickFixFactory *> results;
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    foreach (CppQuickFixFactory *f, pm->getObjects<CppEditor::CppQuickFixFactory>())
+    foreach (CppQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<CppEditor::CppQuickFixFactory>())
         results.append(f);
     return results;
 }

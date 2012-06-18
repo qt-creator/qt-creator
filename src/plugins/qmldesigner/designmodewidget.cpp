@@ -661,7 +661,8 @@ void DesignModeWidget::setCurrentDocument(DesignDocumentController *newDesignDoc
 
 void DesignModeWidget::setup()
 {
-    QList<Core::INavigationWidgetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Core::INavigationWidgetFactory>();
+    QList<Core::INavigationWidgetFactory *> factories =
+            ExtensionSystem::PluginManager::getObjects<Core::INavigationWidgetFactory>();
 
     QWidget *openDocumentsWidget = 0;
     QWidget *projectsExplorer = 0;

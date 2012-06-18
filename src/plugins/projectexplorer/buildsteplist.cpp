@@ -47,7 +47,7 @@ namespace {
 
 IBuildStepFactory *findCloneFactory(BuildStepList *parent, BuildStep *source)
 {
-    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
+    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::getObjects<IBuildStepFactory>();
     foreach(IBuildStepFactory *factory, factories)
         if (factory->canClone(parent, source))
             return factory;
@@ -56,7 +56,7 @@ IBuildStepFactory *findCloneFactory(BuildStepList *parent, BuildStep *source)
 
 IBuildStepFactory *findRestoreFactory(BuildStepList *parent, const QVariantMap &map)
 {
-    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
+    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::getObjects<IBuildStepFactory>();
     foreach(IBuildStepFactory *factory, factories)
         if (factory->canRestore(parent, map))
             return factory;

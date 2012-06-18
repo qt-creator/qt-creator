@@ -50,7 +50,7 @@ class EXTENSIONSYSTEM_EXPORT PluginErrorOverview : public QDialog
     Q_OBJECT
 
 public:
-    explicit PluginErrorOverview(PluginManager *manager, QWidget *parent = 0);
+    explicit PluginErrorOverview(QWidget *parent = 0);
     ~PluginErrorOverview();
 
 private:

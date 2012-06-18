@@ -143,8 +143,7 @@ private:
 IRunConfigurationFactory *findRunConfigurationFactory(RunConfigurationFactoryMatcher &matcher)
 {
     QList<IRunConfigurationFactory *> factories
-        = ExtensionSystem::PluginManager::instance()->
-                getObjects<IRunConfigurationFactory>();
+        = ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
     foreach (IRunConfigurationFactory *factory, factories) {
         if (matcher(factory))
             return factory;
@@ -386,8 +385,7 @@ RunConfiguration::~RunConfiguration()
 
 void RunConfiguration::addExtraAspects()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    foreach (IRunControlFactory *factory, pm->getObjects<IRunControlFactory>())
+    foreach (IRunControlFactory *factory, ExtensionSystem::PluginManager::getObjects<IRunControlFactory>())
         if (IRunConfigurationAspect *aspect = factory->createRunConfigurationAspect())
             m_aspects.append(aspect);
 }

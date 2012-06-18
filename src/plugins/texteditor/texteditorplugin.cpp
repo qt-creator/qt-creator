@@ -222,11 +222,9 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
 void TextEditorPlugin::extensionsInitialized()
 {
-    ExtensionSystem::PluginManager *pluginManager = ExtensionSystem::PluginManager::instance();
-
     m_searchResultWindow = Find::SearchResultWindow::instance();
 
-    m_outlineFactory->setWidgetFactories(pluginManager->getObjects<TextEditor::IOutlineWidgetFactory>());
+    m_outlineFactory->setWidgetFactories(ExtensionSystem::PluginManager::getObjects<TextEditor::IOutlineWidgetFactory>());
 
     connect(m_settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             this, SLOT(updateSearchResultsFont(TextEditor::FontSettings)));

@@ -133,8 +133,8 @@ MainWindow::MainWindow() :
     Utils::AppMainWindow(),
     m_coreImpl(new ICore(this)),
     m_additionalContexts(Constants::C_GLOBAL),
-    m_settings(ExtensionSystem::PluginManager::instance()->settings()),
-    m_globalSettings(ExtensionSystem::PluginManager::instance()->globalSettings()),
+    m_settings(ExtensionSystem::PluginManager::settings()),
+    m_globalSettings(ExtensionSystem::PluginManager::globalSettings()),
     m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
                                             QLatin1String("QtCreator"),
                                             this)),
@@ -277,12 +277,11 @@ void MainWindow::setIsFullScreen(bool fullScreen)
 
 MainWindow::~MainWindow()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    pm->removeObject(m_shortcutSettings);
-    pm->removeObject(m_generalSettings);
-    pm->removeObject(m_toolSettings);
-    pm->removeObject(m_mimeTypeSettings);
-    pm->removeObject(m_systemEditor);
+    ExtensionSystem::PluginManager::removeObject(m_shortcutSettings);
+    ExtensionSystem::PluginManager::removeObject(m_generalSettings);
+    ExtensionSystem::PluginManager::removeObject(m_toolSettings);
+    ExtensionSystem::PluginManager::removeObject(m_mimeTypeSettings);
+    ExtensionSystem::PluginManager::removeObject(m_systemEditor);
     delete m_externalToolManager;
     m_externalToolManager = 0;
     delete m_messageManager;
@@ -310,7 +309,7 @@ MainWindow::~MainWindow()
     OutputPaneManager::destroy();
 
     // Now that the OutputPaneManager is gone, is a good time to delete the view
-    pm->removeObject(m_outputView);
+    ExtensionSystem::PluginManager::removeObject(m_outputView);
     delete m_outputView;
 
     delete m_editorManager;
@@ -319,7 +318,7 @@ MainWindow::~MainWindow()
     m_statusBarManager = 0;
     delete m_progressManager;
     m_progressManager = 0;
-    pm->removeObject(m_coreImpl);
+    ExtensionSystem::PluginManager::removeObject(m_coreImpl);
     delete m_coreImpl;
     m_coreImpl = 0;
 
@@ -342,24 +341,23 @@ bool MainWindow::init(QString *errorMessage)
     if (!mimeDatabase()->addMimeTypes(QLatin1String(":/core/editormanager/BinFiles.mimetypes.xml"), errorMessage))
         return false;
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    pm->addObject(m_coreImpl);
+    ExtensionSystem::PluginManager::addObject(m_coreImpl);
     m_statusBarManager->init();
     m_modeManager->init();
     m_progressManager->init();
 
-    pm->addObject(m_generalSettings);
-    pm->addObject(m_shortcutSettings);
-    pm->addObject(m_toolSettings);
-    pm->addObject(m_mimeTypeSettings);
-    pm->addObject(m_systemEditor);
+    ExtensionSystem::PluginManager::addObject(m_generalSettings);
+    ExtensionSystem::PluginManager::addObject(m_shortcutSettings);
+    ExtensionSystem::PluginManager::addObject(m_toolSettings);
+    ExtensionSystem::PluginManager::addObject(m_mimeTypeSettings);
+    ExtensionSystem::PluginManager::addObject(m_systemEditor);
 
     // Add widget to the bottom, we create the view here instead of inside the
     // OutputPaneManager, since the StatusBarManager needs to be initialized before
     m_outputView = new Core::StatusBarWidget;
     m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
     m_outputView->setPosition(Core::StatusBarWidget::Second);
-    pm->addObject(m_outputView);
+    ExtensionSystem::PluginManager::addObject(m_outputView);
     m_messageManager->init();
     return true;
 }
@@ -370,7 +368,7 @@ void MainWindow::extensionsInitialized()
     m_statusBarManager->extensionsInitalized();
     OutputPaneManager::instance()->init();
     m_vcsManager->extensionsInitialized();
-    m_navigationWidget->setFactories(ExtensionSystem::PluginManager::instance()->getObjects<INavigationWidgetFactory>());
+    m_navigationWidget->setFactories(ExtensionSystem::PluginManager::getObjects<INavigationWidgetFactory>());
 
     // reading the shortcut settings must be done after all shortcuts have been registered
     m_actionManager->d->initialize();
@@ -398,7 +396,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 
     const QList<ICoreListener *> listeners =
-        ExtensionSystem::PluginManager::instance()->getObjects<ICoreListener>();
+        ExtensionSystem::PluginManager::getObjects<ICoreListener>();
     foreach (ICoreListener *listener, listeners) {
         if (!listener->coreAboutToClose()) {
             event->ignore();
@@ -826,7 +824,7 @@ void MainWindow::openFile()
 static QList<IDocumentFactory*> getNonEditorDocumentFactories()
 {
     const QList<IDocumentFactory*> allFileFactories =
-        ExtensionSystem::PluginManager::instance()->getObjects<IDocumentFactory>();
+        ExtensionSystem::PluginManager::getObjects<IDocumentFactory>();
     QList<IDocumentFactory*> nonEditorFileFactories;
     foreach (IDocumentFactory *factory, allFileFactories) {
         if (!qobject_cast<IEditorFactory *>(factory))

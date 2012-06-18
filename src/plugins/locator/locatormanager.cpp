@@ -50,7 +50,7 @@ LocatorManager::LocatorManager(LocatorWidget *locatorWidget)
 
 LocatorManager::~LocatorManager()
 {
-    ExtensionSystem::PluginManager::instance()->removeObject(this);
+    ExtensionSystem::PluginManager::removeObject(this);
     m_instance = 0;
 }
 

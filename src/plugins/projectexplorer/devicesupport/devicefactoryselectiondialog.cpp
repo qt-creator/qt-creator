@@ -50,7 +50,7 @@ DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start Wizard"));
 
     const QList<IDeviceFactory *> &factories
-        = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
+        = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
     foreach (const IDeviceFactory * const factory, factories) {
         if (!factory->canCreate())
             continue;

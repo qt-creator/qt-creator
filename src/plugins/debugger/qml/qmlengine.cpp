@@ -279,9 +279,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
 {
     setObjectName(QLatin1String("QmlEngine"));
 
-    ExtensionSystem::PluginManager *pluginManager =
-        ExtensionSystem::PluginManager::instance();
-    pluginManager->addObject(this);
+    ExtensionSystem::PluginManager::addObject(this);
 
     connect(&m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
         SLOT(connectionError(QAbstractSocket::SocketError)));
@@ -353,11 +351,8 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
 
 QmlEngine::~QmlEngine()
 {
-    ExtensionSystem::PluginManager *pluginManager =
-        ExtensionSystem::PluginManager::instance();
-
-    if (pluginManager->allObjects().contains(this)) {
-        pluginManager->removeObject(this);
+    if (ExtensionSystem::PluginManager::allObjects().contains(this)) {
+        ExtensionSystem::PluginManager::removeObject(this);
     }
 
     QList<Core::IEditor *> editorsToClose;

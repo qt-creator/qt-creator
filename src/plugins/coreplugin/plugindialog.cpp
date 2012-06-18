@@ -52,7 +52,7 @@ bool PluginDialog::m_isRestartRequired = false;
 
 PluginDialog::PluginDialog(QWidget *parent)
     : QDialog(parent),
-      m_view(new ExtensionSystem::PluginView(ExtensionSystem::PluginManager::instance(), this))
+      m_view(new ExtensionSystem::PluginView(this))
 {
     QVBoxLayout *vl = new QVBoxLayout(this);
     vl->addWidget(m_view);
@@ -97,7 +97,7 @@ PluginDialog::PluginDialog(QWidget *parent)
 
 void PluginDialog::closeDialog()
 {
-    ExtensionSystem::PluginManager::instance()->writeSettings();
+    ExtensionSystem::PluginManager::writeSettings();
     accept();
 }
 

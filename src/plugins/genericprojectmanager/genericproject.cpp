@@ -483,7 +483,7 @@ bool GenericProject::fromMap(const QVariantMap &map)
     // Add default setup:
     if (targets().isEmpty()) {
         GenericTargetFactory *factory =
-                ExtensionSystem::PluginManager::instance()->getObject<GenericTargetFactory>();
+                ExtensionSystem::PluginManager::getObject<GenericTargetFactory>();
         addTarget(factory->create(this, Core::Id(GENERIC_DESKTOP_TARGET_ID)));
     }
 

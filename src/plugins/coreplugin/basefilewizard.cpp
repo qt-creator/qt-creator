@@ -442,7 +442,7 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
 
     QString errorMessage;
     // Compile extension pages, purge out unused ones
-    ExtensionList extensions = ExtensionSystem::PluginManager::instance()->getObjects<IFileWizardExtension>();
+    ExtensionList extensions = ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
     WizardPageList  allExtensionPages;
     for (ExtensionList::iterator it = extensions.begin(); it !=  extensions.end(); ) {
         const WizardPageList extensionPages = (*it)->extensionPages(this);

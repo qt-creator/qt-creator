@@ -109,7 +109,7 @@ TargetPrivate::TargetPrivate() :
 
 QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
 {
-    return ExtensionSystem::PluginManager::instance()->getObjects<DeployConfigurationFactory>();
+    return ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
 }
 
 

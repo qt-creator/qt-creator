@@ -85,7 +85,7 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
             this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
 
     QList<ITargetFactory *> factories =
-            ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
+            ExtensionSystem::PluginManager::getObjects<ITargetFactory>();
 
     foreach (ITargetFactory *fac, factories) {
         connect(fac, SIGNAL(canCreateTargetIdsChanged()),
@@ -185,7 +185,7 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
     PanelsWidget *buildPanel = new PanelsWidget(m_centralWidget);
     PanelsWidget *runPanel = new PanelsWidget(m_centralWidget);
 
-    foreach (ITargetPanelFactory *panelFactory, ExtensionSystem::PluginManager::instance()->getObjects<ITargetPanelFactory>()) {
+    foreach (ITargetPanelFactory *panelFactory, ExtensionSystem::PluginManager::getObjects<ITargetPanelFactory>()) {
         if (panelFactory->id() == QLatin1String(BUILDSETTINGS_PANEL_ID)) {
             PropertiesPanel *panel = panelFactory->createPanel(target);
             buildPanel->addPropertiesPanel(panel);
@@ -216,7 +216,7 @@ void TargetSettingsPanelWidget::addTarget(QAction *action)
     Core::Id id = action->data().value<Core::Id>();
     Q_ASSERT(!m_project->target(id));
     QList<ITargetFactory *> factories =
-            ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
+            ExtensionSystem::PluginManager::getObjects<ITargetFactory>();
 
     Target *target = 0;
     foreach (ITargetFactory *fac, factories) {
@@ -313,7 +313,7 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
     m_addMenu->clear();
 
     QList<ITargetFactory *> factories =
-            ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>();
+            ExtensionSystem::PluginManager::getObjects<ITargetFactory>();
 
     foreach (ITargetFactory *fac, factories) {
         foreach (Core::Id id, fac->supportedTargetIds()) {

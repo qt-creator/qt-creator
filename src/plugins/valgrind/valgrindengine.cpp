@@ -190,8 +190,7 @@ void ValgrindEngine::receiveProcessError(const QString &error, QProcess::Process
         return;
 
     ///FIXME: get a better API for this into Qt Creator
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QList<Core::IOutputPane *> panes = pm->getObjects<Core::IOutputPane>();
+    QList<Core::IOutputPane *> panes = ExtensionSystem::PluginManager::getObjects<Core::IOutputPane>();
     foreach (Core::IOutputPane *pane, panes) {
         if (pane->displayName() == tr("Application Output")) {
             pane->popup(false);

@@ -1811,7 +1811,7 @@ class IncludeAdder : public CppQuickFixFactory
 public:
     virtual QList<CppQuickFixOperation::Ptr> match(const QSharedPointer<const CppQuickFixAssistInterface> &interface)
     {
-        CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::instance()->getObject<CppClassesFilter>();
+        CppClassesFilter *classesFilter = ExtensionSystem::PluginManager::getObject<CppClassesFilter>();
         if (!classesFilter)
             return noResult();
 

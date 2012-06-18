@@ -97,7 +97,7 @@ TextEditor::Indenter *QmlJSCodeStylePreferencesFactory::createIndenter() const
 TextEditor::ISnippetProvider *QmlJSCodeStylePreferencesFactory::snippetProvider() const
 {
     const QList<TextEditor::ISnippetProvider *> &providers =
-    ExtensionSystem::PluginManager::instance()->getObjects<TextEditor::ISnippetProvider>();
+    ExtensionSystem::PluginManager::getObjects<TextEditor::ISnippetProvider>();
     foreach (TextEditor::ISnippetProvider *provider, providers)
         if (provider->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID))
             return provider;

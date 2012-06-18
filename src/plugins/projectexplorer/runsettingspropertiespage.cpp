@@ -266,7 +266,7 @@ void RunSettingsWidget::aboutToShowAddMenu()
 {
     m_addRunMenu->clear();
     QList<IRunConfigurationFactory *> factories =
-        ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
+        ExtensionSystem::PluginManager::getObjects<IRunConfigurationFactory>();
     foreach (IRunConfigurationFactory *factory, factories) {
         QList<Core::Id> ids = factory->availableCreationIds(m_target);
         foreach (Core::Id id, ids) {
@@ -518,8 +518,7 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
 
 void RunSettingsWidget::addRunControlWidgets()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    foreach (IRunControlFactory *f, pm->getObjects<IRunControlFactory>()) {
+    foreach (IRunControlFactory *f, ExtensionSystem::PluginManager::getObjects<IRunControlFactory>()) {
         ProjectExplorer::RunConfigWidget *rcw =
             f->createConfigurationWidget(m_target->activeRunConfiguration());
         if (rcw)

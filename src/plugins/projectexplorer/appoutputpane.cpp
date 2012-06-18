@@ -68,7 +68,7 @@ using namespace ProjectExplorer::Internal;
 
 static QObject *debuggerCore()
 {
-    return ExtensionSystem::PluginManager::instance()->getObjectByName(QLatin1String("DebuggerCore"));
+    return ExtensionSystem::PluginManager::getObjectByName(QLatin1String("DebuggerCore"));
 }
 
 static QString msgAttachDebuggerTooltip(const QString &handleDescription = QString())

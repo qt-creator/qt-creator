@@ -247,8 +247,7 @@ void OutputPaneManager::init()
     QFontMetrics titleFm = m_titleLabel->fontMetrics();
     int minTitleWidth = 0;
 
-    m_panes = ExtensionSystem::PluginManager::instance()
-        ->getObjects<IOutputPane>();
+    m_panes = ExtensionSystem::PluginManager::getObjects<IOutputPane>();
     qSort(m_panes.begin(), m_panes.end(), &comparePanes);
     const int n = m_panes.size();
 

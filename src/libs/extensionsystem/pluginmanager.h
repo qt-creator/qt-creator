@@ -66,12 +66,12 @@ public:
     virtual ~PluginManager();
 
     // Object pool operations
-    void addObject(QObject *obj);
-    void removeObject(QObject *obj);
-    QList<QObject *> allObjects() const;
-    template <typename T> QList<T *> getObjects() const
+    static void addObject(QObject *obj);
+    static void removeObject(QObject *obj);
+    static QList<QObject *> allObjects();
+    template <typename T> static QList<T *> getObjects()
     {
-        QReadLocker lock(&m_lock);
+        QReadLocker lock(&m_instance->m_lock);
         QList<T *> results;
         QList<QObject *> all = allObjects();
         QList<T *> result;
@@ -82,9 +82,9 @@ public:
         }
         return results;
     }
-    template <typename T> T *getObject() const
+    template <typename T> static T *getObject()
     {
-        QReadLocker lock(&m_lock);
+        QReadLocker lock(&m_instance->m_lock);
         QList<QObject *> all = allObjects();
         T *result = 0;
         foreach (QObject *obj, all) {
@@ -94,43 +94,43 @@ public:
         return result;
     }
 
-    QObject *getObjectByName(const QString &name) const;
-    QObject *getObjectByClassName(const QString &className) const;
+    static QObject *getObjectByName(const QString &name);
+    static QObject *getObjectByClassName(const QString &className);
 
     // Plugin operations
-    QList<PluginSpec *> loadQueue();
-    void loadPlugins();
-    QStringList pluginPaths() const;
-    void setPluginPaths(const QStringList &paths);
-    QList<PluginSpec *> plugins() const;
-    QHash<QString, PluginCollection *> pluginCollections() const;
-    void setFileExtension(const QString &extension);
-    QString fileExtension() const;
-    bool hasError() const;
+    static QList<PluginSpec *> loadQueue();
+    static void loadPlugins();
+    static QStringList pluginPaths();
+    static void setPluginPaths(const QStringList &paths);
+    static QList<PluginSpec *> plugins();
+    static QHash<QString, PluginCollection *> pluginCollections();
+    static void setFileExtension(const QString &extension);
+    static QString fileExtension();
+    static bool hasError();
 
     // Settings
-    void setSettings(QSettings *settings);
-    QSettings *settings() const;
-    void setGlobalSettings(QSettings *settings);
-    QSettings *globalSettings() const;
-    void writeSettings();
+    static void setSettings(QSettings *settings);
+    static QSettings *settings();
+    static void setGlobalSettings(QSettings *settings);
+    static QSettings *globalSettings();
+    static void writeSettings();
 
     // command line arguments
-    QStringList arguments() const;
-    bool parseOptions(const QStringList &args,
+    static QStringList arguments();
+    static bool parseOptions(const QStringList &args,
         const QMap<QString, bool> &appOptions,
         QMap<QString, QString> *foundAppOptions,
         QString *errorString);
     static void formatOptions(QTextStream &str, int optionIndentation, int descriptionIndentation);
-    void formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation) const;
-    void formatPluginVersions(QTextStream &str) const;
+    static void formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation);
+    static void formatPluginVersions(QTextStream &str);
 
-    QString serializedArguments() const;
+    static QString serializedArguments();
 
-    bool runningTests() const;
-    QString testDataDirectory() const;
+    static bool runningTests();
+    static QString testDataDirectory();
 
-    void profilingReport(const char *what, const PluginSpec *spec = 0);
+    static void profilingReport(const char *what, const PluginSpec *spec = 0);
 
 signals:
     void objectAdded(QObject *obj);

@@ -109,8 +109,7 @@ IAssistProcessor *QmlJSQuickFixAssistProvider::createProcessor() const
 QList<QuickFixFactory *> QmlJSQuickFixAssistProvider::quickFixFactories() const
 {
     QList<TextEditor::QuickFixFactory *> results;
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    foreach (QmlJSQuickFixFactory *f, pm->getObjects<QmlJSEditor::QmlJSQuickFixFactory>())
+    foreach (QmlJSQuickFixFactory *f, ExtensionSystem::PluginManager::getObjects<QmlJSEditor::QmlJSQuickFixFactory>())
         results.append(f);
     return results;
 }

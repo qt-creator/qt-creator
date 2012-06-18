@@ -44,7 +44,7 @@ class PluginErrorOverviewPrivate : public QObject
 {
     Q_OBJECT
 public:
-    PluginErrorOverviewPrivate(PluginManager *manager, QDialog *dialog);
+    PluginErrorOverviewPrivate(QDialog *dialog);
     ~PluginErrorOverviewPrivate();
 
 private slots:
@@ -52,7 +52,6 @@ private slots:
 
 private:
     Ui::PluginErrorOverview *m_ui;
-    PluginManager *m_manager;
 };
 
 } // Internal
@@ -61,9 +60,9 @@ private:
 using namespace ExtensionSystem;
 using namespace ExtensionSystem::Internal;
 
-PluginErrorOverview::PluginErrorOverview(PluginManager *manager, QWidget *parent) :
+PluginErrorOverview::PluginErrorOverview(QWidget *parent) :
     QDialog(parent),
-    d(new PluginErrorOverviewPrivate(manager, this))
+    d(new PluginErrorOverviewPrivate(this))
 {
 }
 
@@ -72,14 +71,13 @@ PluginErrorOverview::~PluginErrorOverview()
     delete d;
 }
 
-PluginErrorOverviewPrivate::PluginErrorOverviewPrivate(PluginManager *manager, QDialog *dialog)
-    : m_ui(new Ui::PluginErrorOverview),
-      m_manager(manager)
+PluginErrorOverviewPrivate::PluginErrorOverviewPrivate(QDialog *dialog)
+    : m_ui(new Ui::PluginErrorOverview)
 {
     m_ui->setupUi(dialog);
     m_ui->buttonBox->addButton(tr("Continue"), QDialogButtonBox::AcceptRole);
 
-    foreach (PluginSpec *spec, m_manager->plugins()) {
+    foreach (PluginSpec *spec, PluginManager::plugins()) {
         // only show errors on startup if plugin is enabled.
         if (spec->hasError() && spec->isEnabled() && !spec->isDisabledIndirectly()) {
             QListWidgetItem *item = new QListWidgetItem(spec->name());

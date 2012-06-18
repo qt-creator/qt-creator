@@ -50,9 +50,8 @@ MessageManager::MessageManager()
 
 MessageManager::~MessageManager()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    if (pm && m_messageOutputWindow) {
-        pm->removeObject(m_messageOutputWindow);
+    if (m_messageOutputWindow) {
+        ExtensionSystem::PluginManager::removeObject(m_messageOutputWindow);
         delete m_messageOutputWindow;
     }
 
@@ -62,7 +61,7 @@ MessageManager::~MessageManager()
 void MessageManager::init()
 {
     m_messageOutputWindow = new Internal::MessageOutputWindow;
-    ExtensionSystem::PluginManager::instance()->addObject(m_messageOutputWindow);
+    ExtensionSystem::PluginManager::addObject(m_messageOutputWindow);
 }
 
 void MessageManager::showOutputPane()

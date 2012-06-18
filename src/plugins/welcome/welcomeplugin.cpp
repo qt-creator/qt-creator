@@ -206,7 +206,7 @@ void WelcomeMode::initPlugins()
     QDeclarativeContext *ctx = m_welcomePage->rootContext();
     ctx->setContextProperty(QLatin1String("welcomeMode"), this);
 
-    QList<Utils::IWelcomePage*> duplicatePlugins = PluginManager::instance()->getObjects<Utils::IWelcomePage>();
+    QList<Utils::IWelcomePage*> duplicatePlugins = PluginManager::getObjects<Utils::IWelcomePage>();
     qSort(duplicatePlugins.begin(), duplicatePlugins.end(), &sortFunction);
 
     QList<Utils::IWelcomePage*> plugins;
@@ -294,7 +294,7 @@ void WelcomeMode::welcomePluginAdded(QObject *obj)
         }
 
         int insertPos = 0;
-        foreach (Utils::IWelcomePage* p, PluginManager::instance()->getObjects<Utils::IWelcomePage>()) {
+        foreach (Utils::IWelcomePage* p, PluginManager::getObjects<Utils::IWelcomePage>()) {
             if (plugin->priority() < p->priority())
                 insertPos++;
             else

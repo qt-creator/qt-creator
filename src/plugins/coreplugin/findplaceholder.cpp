@@ -47,12 +47,12 @@ FindToolBarPlaceHolder::FindToolBarPlaceHolder(QWidget *owner, QWidget *parent)
     setLayout(new QVBoxLayout);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     layout()->setMargin(0);
-    ExtensionSystem::PluginManager::instance()->addObject(this);
+    ExtensionSystem::PluginManager::addObject(this);
 }
 
 FindToolBarPlaceHolder::~FindToolBarPlaceHolder()
 {
-    ExtensionSystem::PluginManager::instance()->removeObject(this);
+    ExtensionSystem::PluginManager::removeObject(this);
     if (m_subWidget) {
         m_subWidget->setVisible(false);
         m_subWidget->setParent(0);

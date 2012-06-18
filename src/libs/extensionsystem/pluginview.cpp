@@ -31,7 +31,6 @@
 **************************************************************************/
 
 #include "pluginview.h"
-#include "pluginview_p.h"
 #include "pluginmanager.h"
 #include "pluginspec.h"
 #include "plugincollection.h"
@@ -78,10 +77,9 @@ Q_DECLARE_METATYPE(ExtensionSystem::PluginCollection*)
     Constructs a PluginView that gets the list of plugins from the
     given plugin \a manager with a given \a parent widget.
 */
-PluginView::PluginView(PluginManager *manager, QWidget *parent)
+PluginView::PluginView(QWidget *parent)
     : QWidget(parent),
       m_ui(new Internal::Ui::PluginView),
-      p(new Internal::PluginViewPrivate),
       m_allowCheckStateUpdate(true),
       C_LOAD(1)
 {
@@ -100,8 +98,7 @@ PluginView::PluginView(PluginManager *manager, QWidget *parent)
     m_whitelist << QString("Core") << QString("Locator")
                 << QString("Find") << QString("TextEditor");
 
-    p->manager = manager;
-    connect(p->manager, SIGNAL(pluginsChanged()), this, SLOT(updateList()));
+    connect(PluginManager::instance(), SIGNAL(pluginsChanged()), this, SLOT(updateList()));
     connect(m_ui->categoryWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
             this, SLOT(selectPlugin(QTreeWidgetItem*)));
     connect(m_ui->categoryWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
@@ -116,7 +113,6 @@ PluginView::PluginView(PluginManager *manager, QWidget *parent)
 */
 PluginView::~PluginView()
 {
-    delete p;
     delete m_ui;
 }
 
@@ -139,7 +135,7 @@ void PluginView::updateList()
             this, SLOT(updatePluginSettings(QTreeWidgetItem*,int)));
 
     PluginCollection *defaultCollection = 0;
-    foreach(PluginCollection *collection, p->manager->pluginCollections()) {
+    foreach (PluginCollection *collection, PluginManager::pluginCollections()) {
         if (collection->name().isEmpty()) {
             defaultCollection = collection;
             continue;
@@ -345,7 +341,7 @@ void PluginView::updatePluginSettings(QTreeWidgetItem *item, int column)
 
 void PluginView::updatePluginDependencies()
 {
-    foreach (PluginSpec *spec, PluginManager::instance()->loadQueue()) {
+    foreach (PluginSpec *spec, PluginManager::loadQueue()) {
         bool disableIndirectly = false;
         if (m_whitelist.contains(spec->name()))
             continue;

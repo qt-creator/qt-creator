@@ -290,7 +290,7 @@ PluginManager::~PluginManager()
 */
 void PluginManager::addObject(QObject *obj)
 {
-    d->addObject(obj);
+    m_instance->d->addObject(obj);
 }
 
 /*!
@@ -300,7 +300,7 @@ void PluginManager::addObject(QObject *obj)
 */
 void PluginManager::removeObject(QObject *obj)
 {
-    d->removeObject(obj);
+    m_instance->d->removeObject(obj);
 }
 
 /*!
@@ -310,9 +310,9 @@ void PluginManager::removeObject(QObject *obj)
     \sa PluginManager::getObject()
     \sa PluginManager::getObjects()
 */
-QList<QObject *> PluginManager::allObjects() const
+QList<QObject *> PluginManager::allObjects()
 {
-    return d->allObjects;
+    return m_instance->d->allObjects;
 }
 
 /*!
@@ -326,7 +326,7 @@ QList<QObject *> PluginManager::allObjects() const
 */
 void PluginManager::loadPlugins()
 {
-    return d->loadPlugins();
+    return m_instance->d->loadPlugins();
 }
 
 /*!
@@ -334,7 +334,7 @@ void PluginManager::loadPlugins()
     Returns true if any plugin has errors even though it is enabled.
     Most useful to call after loadPlugins().
 */
-bool PluginManager::hasError() const
+bool PluginManager::hasError()
 {
     foreach (PluginSpec *spec, plugins()) {
         // only show errors on startup if plugin is enabled.
@@ -360,9 +360,9 @@ void PluginManager::shutdown()
 
     \sa setPluginPaths()
 */
-QStringList PluginManager::pluginPaths() const
+QStringList PluginManager::pluginPaths()
 {
-    return d->pluginPaths;
+    return m_instance->d->pluginPaths;
 }
 
 /*!
@@ -376,7 +376,7 @@ QStringList PluginManager::pluginPaths() const
 */
 void PluginManager::setPluginPaths(const QStringList &paths)
 {
-    d->setPluginPaths(paths);
+    m_instance->d->setPluginPaths(paths);
 }
 
 /*!
@@ -386,9 +386,9 @@ void PluginManager::setPluginPaths(const QStringList &paths)
 
     \sa setFileExtension()
 */
-QString PluginManager::fileExtension() const
+QString PluginManager::fileExtension()
 {
-    return d->extension;
+    return m_instance->d->extension;
 }
 
 /*!
@@ -400,7 +400,7 @@ QString PluginManager::fileExtension() const
 */
 void PluginManager::setFileExtension(const QString &extension)
 {
-    d->extension = extension;
+    m_instance->d->extension = extension;
 }
 
 /*!
@@ -409,7 +409,7 @@ void PluginManager::setFileExtension(const QString &extension)
 */
 void PluginManager::setSettings(QSettings *settings)
 {
-    d->setSettings(settings);
+    m_instance->d->setSettings(settings);
 }
 
 /*!
@@ -418,28 +418,28 @@ void PluginManager::setSettings(QSettings *settings)
 */
 void PluginManager::setGlobalSettings(QSettings *settings)
 {
-    d->setGlobalSettings(settings);
+    m_instance->d->setGlobalSettings(settings);
 }
 
 /*!
     Returns the user specific settings used for information about enabled/disabled plugins.
 */
-QSettings *PluginManager::settings() const
+QSettings *PluginManager::settings()
 {
-    return d->settings;
+    return m_instance->d->settings;
 }
 
 /*!
     Returns the global (user-independent) settings used for information about default disabled plugins.
 */
-QSettings *PluginManager::globalSettings() const
+QSettings *PluginManager::globalSettings()
 {
-    return d->globalSettings;
+    return m_instance->d->globalSettings;
 }
 
 void PluginManager::writeSettings()
 {
-    d->writeSettings();
+    m_instance->d->writeSettings();
 }
 
 /*!
@@ -447,9 +447,9 @@ void PluginManager::writeSettings()
     The arguments left over after parsing (Neither startup nor plugin
     arguments). Typically, this will be the list of files to open.
 */
-QStringList PluginManager::arguments() const
+QStringList PluginManager::arguments()
 {
-    return d->arguments;
+    return m_instance->d->arguments;
 }
 
 /*!
@@ -462,14 +462,14 @@ QStringList PluginManager::arguments() const
 
     \sa setPluginPaths()
 */
-QList<PluginSpec *> PluginManager::plugins() const
+QList<PluginSpec *> PluginManager::plugins()
 {
-    return d->pluginSpecs;
+    return m_instance->d->pluginSpecs;
 }
 
-QHash<QString, PluginCollection *> PluginManager::pluginCollections() const
+QHash<QString, PluginCollection *> PluginManager::pluginCollections()
 {
-    return d->pluginCategories;
+    return m_instance->d->pluginCategories;
 }
 
 /*!
@@ -485,7 +485,7 @@ QHash<QString, PluginCollection *> PluginManager::pluginCollections() const
 
 static const char argumentKeywordC[] = ":arguments";
 
-QString PluginManager::serializedArguments() const
+QString PluginManager::serializedArguments()
 {
     const QChar separator = QLatin1Char('|');
     QString rc;
@@ -499,13 +499,13 @@ QString PluginManager::serializedArguments() const
             rc +=  ps->arguments().join(QString(separator));
         }
     }
-    if (!d->arguments.isEmpty()) {
+    if (!m_instance->d->arguments.isEmpty()) {
         if (!rc.isEmpty())
             rc += separator;
         rc += QLatin1String(argumentKeywordC);
         // If the argument appears to be a file, make it absolute
         // when sending to another instance.
-        foreach(const QString &argument, d->arguments) {
+        foreach (const QString &argument, m_instance->d->arguments) {
             rc += separator;
             const QFileInfo fi(argument);
             if (fi.exists() && fi.isRelative()) {
@@ -578,7 +578,7 @@ bool PluginManager::parseOptions(const QStringList &args,
     QMap<QString, QString> *foundAppOptions,
     QString *errorString)
 {
-    OptionsParser options(args, appOptions, foundAppOptions, errorString, d);
+    OptionsParser options(args, appOptions, foundAppOptions, errorString, m_instance->d);
     return options.parse();
 }
 
@@ -633,12 +633,12 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
     Format the plugin  options of the plugin specs for command line help.
 */
 
-void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation) const
+void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation)
 {
     typedef PluginSpec::PluginArgumentDescriptions PluginArgumentDescriptions;
     // Check plugins for options
-    const PluginSpecSet::const_iterator pcend = d->pluginSpecs.constEnd();
-    for (PluginSpecSet::const_iterator pit = d->pluginSpecs.constBegin(); pit != pcend; ++pit) {
+    const PluginSpecSet::const_iterator pcend = m_instance->d->pluginSpecs.constEnd();
+    for (PluginSpecSet::const_iterator pit = m_instance->d->pluginSpecs.constBegin(); pit != pcend; ++pit) {
         const PluginArgumentDescriptions pargs = (*pit)->argumentDescriptions();
         if (!pargs.empty()) {
             str << "\nPlugin: " <<  (*pit)->name() << '\n';
@@ -655,10 +655,10 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
     Format the version of the plugin specs for command line help.
 */
 
-void PluginManager::formatPluginVersions(QTextStream &str) const
+void PluginManager::formatPluginVersions(QTextStream &str)
 {
-    const PluginSpecSet::const_iterator cend = d->pluginSpecs.constEnd();
-    for (PluginSpecSet::const_iterator it = d->pluginSpecs.constBegin(); it != cend; ++it) {
+    const PluginSpecSet::const_iterator cend = m_instance->d->pluginSpecs.constEnd();
+    for (PluginSpecSet::const_iterator it = m_instance->d->pluginSpecs.constBegin(); it != cend; ++it) {
         const PluginSpec *ps = *it;
         str << "  " << ps->name() << ' ' << ps->version() << ' ' << ps->description() <<  '\n';
     }
@@ -699,16 +699,16 @@ void PluginManager::startTests()
  * \fn bool PluginManager::runningTests() const
  * \internal
  */
-bool PluginManager::runningTests() const
+bool PluginManager::runningTests()
 {
-    return !d->testSpecs.isEmpty();
+    return !m_instance->d->testSpecs.isEmpty();
 }
 
 /*!
  * \fn QString PluginManager::testDataDirectory() const
  * \internal
  */
-QString PluginManager::testDataDirectory() const
+QString PluginManager::testDataDirectory()
 {
     QByteArray ba = qgetenv("QTCREATOR_TEST_DIR");
     QString s = QString::fromLocal8Bit(ba.constData(), ba.size());
@@ -728,7 +728,7 @@ QString PluginManager::testDataDirectory() const
 
 void PluginManager::profilingReport(const char *what, const PluginSpec *spec)
 {
-    d->profilingReport(what, spec);
+    m_instance->d->profilingReport(what, spec);
 }
 
 
@@ -739,7 +739,7 @@ void PluginManager::profilingReport(const char *what, const PluginSpec *spec)
 */
 QList<PluginSpec *> PluginManager::loadQueue()
 {
-    return d->loadQueue();
+    return m_instance->d->loadQueue();
 }
 
 //============PluginManagerPrivate===========
@@ -1286,9 +1286,9 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
     \sa addObject()
 */
 
-QObject *PluginManager::getObjectByName(const QString &name) const
+QObject *PluginManager::getObjectByName(const QString &name)
 {
-    QReadLocker lock(&m_lock);
+    QReadLocker lock(&m_instance->m_lock);
     QList<QObject *> all = allObjects();
     foreach (QObject *obj, all) {
         if (obj->objectName() == name)
@@ -1303,10 +1303,10 @@ QObject *PluginManager::getObjectByName(const QString &name) const
     \sa addObject()
 */
 
-QObject *PluginManager::getObjectByClassName(const QString &className) const
+QObject *PluginManager::getObjectByClassName(const QString &className)
 {
     const QByteArray ba = className.toUtf8();
-    QReadLocker lock(&m_lock);
+    QReadLocker lock(&m_instance->m_lock);
     QList<QObject *> all = allObjects();
     foreach (QObject *obj, all) {
         if (obj->inherits(ba.constData()))

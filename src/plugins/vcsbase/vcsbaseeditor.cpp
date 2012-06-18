@@ -1400,8 +1400,7 @@ void VcsBaseEditorWidget::slotPaste()
 {
     // Retrieve service by soft dependency.
     QObject *pasteService =
-            ExtensionSystem::PluginManager::instance()
-                ->getObjectByClassName(QLatin1String("CodePaster::CodePasterService"));
+            ExtensionSystem::PluginManager::getObjectByClassName(QLatin1String("CodePaster::CodePasterService"));
     if (pasteService) {
         QMetaObject::invokeMethod(pasteService, "postCurrentEditor");
     } else {

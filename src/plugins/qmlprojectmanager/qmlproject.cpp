@@ -300,7 +300,7 @@ bool QmlProject::fromMap(const QVariantMap &map)
 
     if (targets().isEmpty()) {
         Internal::QmlProjectTargetFactory *factory
-                = ExtensionSystem::PluginManager::instance()->getObject<Internal::QmlProjectTargetFactory>();
+                = ExtensionSystem::PluginManager::getObject<Internal::QmlProjectTargetFactory>();
         Internal::QmlProjectTarget *target = factory->create(this, Core::Id(Constants::QML_VIEWER_TARGET_ID));
         addTarget(target);
     }

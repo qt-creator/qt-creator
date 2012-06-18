@@ -223,7 +223,7 @@ void FindPlugin::setupMenu()
 void FindPlugin::setupFilterMenuItems()
 {
     QList<IFindFilter*> findInterfaces =
-        ExtensionSystem::PluginManager::instance()->getObjects<IFindFilter>();
+        ExtensionSystem::PluginManager::getObjects<IFindFilter>();
     Core::Command *cmd;
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
 

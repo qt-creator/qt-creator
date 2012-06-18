@@ -162,7 +162,7 @@ void LocatorPlugin::openLocator()
 
 void LocatorPlugin::extensionsInitialized()
 {
-    m_filters = ExtensionSystem::PluginManager::instance()->getObjects<ILocatorFilter>();
+    m_filters = ExtensionSystem::PluginManager::getObjects<ILocatorFilter>();
     qSort(m_filters.begin(), m_filters.end(), filterLessThan);
     setFilters(m_filters);
 }

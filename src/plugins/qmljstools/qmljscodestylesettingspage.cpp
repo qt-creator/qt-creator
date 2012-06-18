@@ -66,7 +66,7 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent
     m_ui->setupUi(this);
 
     const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::instance()->getObjects<ISnippetProvider>();
+        ExtensionSystem::PluginManager::getObjects<ISnippetProvider>();
     foreach (ISnippetProvider *provider, providers) {
         if (provider->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID)) {
             provider->decorateEditor(m_ui->previewTextEdit);
@@ -115,7 +115,7 @@ void QmlJSCodeStylePreferencesWidget::decorateEditor(const TextEditor::FontSetti
 {
     const ISnippetProvider *provider = 0;
     const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::instance()->getObjects<ISnippetProvider>();
+        ExtensionSystem::PluginManager::getObjects<ISnippetProvider>();
     foreach (const ISnippetProvider *current, providers) {
         if (current->groupId() == QLatin1String(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID)) {
             provider = current;

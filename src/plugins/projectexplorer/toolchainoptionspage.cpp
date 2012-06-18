@@ -507,7 +507,7 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
             this, SLOT(toolChainSelectionChanged()));
 
     // Get toolchainfactories:
-    m_factories = ExtensionSystem::PluginManager::instance()->getObjects<ToolChainFactory>();
+    m_factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
 
     // Set up add menu:
     QMenu *addMenu = new QMenu(m_ui->addButton);

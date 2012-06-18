@@ -426,7 +426,7 @@ int SnippetsCollection::groupIndex(const QString &groupId) const
 void SnippetsCollection::identifyGroups()
 {
     const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::instance()->getObjects<ISnippetProvider>();
+        ExtensionSystem::PluginManager::getObjects<ISnippetProvider>();
     foreach (ISnippetProvider *provider, providers) {
         const int groupIndex = m_groupIndexById.size();
         m_groupIndexById.insert(provider->groupId(), groupIndex);

@@ -606,8 +606,7 @@ void FindToolBar::hideAndResetFocus()
 
 Core::FindToolBarPlaceHolder *FindToolBar::findToolBarPlaceHolder() const
 {
-    QList<Core::FindToolBarPlaceHolder*> placeholders = ExtensionSystem::PluginManager::instance()
-                                                        ->getObjects<Core::FindToolBarPlaceHolder>();
+    QList<Core::FindToolBarPlaceHolder*> placeholders = ExtensionSystem::PluginManager::getObjects<Core::FindToolBarPlaceHolder>();
     QWidget *candidate = QApplication::focusWidget();
     while (candidate) {
         foreach (Core::FindToolBarPlaceHolder *ph, placeholders) {

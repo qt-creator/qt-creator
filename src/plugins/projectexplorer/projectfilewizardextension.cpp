@@ -324,7 +324,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 
     // Store all version controls for later use:
     if (m_context->versionControls.isEmpty()) {
-        foreach (Core::IVersionControl *vc, ExtensionSystem::PluginManager::instance()->getObjects<Core::IVersionControl>()) {
+        foreach (Core::IVersionControl *vc, ExtensionSystem::PluginManager::getObjects<Core::IVersionControl>()) {
             m_context->versionControls.append(vc);
             connect(vc, SIGNAL(configurationChanged()), this, SLOT(initializeVersionControlChoices()));
         }

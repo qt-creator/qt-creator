@@ -44,7 +44,7 @@ bool IDeviceFactory::canCreate() const
 IDeviceFactory *IDeviceFactory::find(Core::Id type)
 {
     QList<IDeviceFactory *> factories
-            = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
+            = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
     foreach (IDeviceFactory *factory, factories) {
         if (factory->availableCreationIds().contains(type))
             return factory;

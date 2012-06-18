@@ -452,7 +452,7 @@ void CppCodeStylePreferencesWidget::decorateEditors(const TextEditor::FontSettin
 {
     const ISnippetProvider *provider = 0;
     const QList<ISnippetProvider *> &providers =
-        ExtensionSystem::PluginManager::instance()->getObjects<ISnippetProvider>();
+        ExtensionSystem::PluginManager::getObjects<ISnippetProvider>();
     foreach (const ISnippetProvider *current, providers) {
         if (current->groupId() == QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID)) {
             provider = current;

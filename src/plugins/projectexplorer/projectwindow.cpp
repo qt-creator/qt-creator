@@ -262,11 +262,11 @@ ProjectWindow::~ProjectWindow()
 
 void ProjectWindow::extensionsInitialized()
 {
-    foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>())
+    foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::getObjects<ITargetFactory>())
         connect(fac, SIGNAL(canCreateTargetIdsChanged()),
                 this, SLOT(targetFactoriesChanged()));
 
-    QList<IProjectPanelFactory *> list = ExtensionSystem::PluginManager::instance()->getObjects<IProjectPanelFactory>();
+    QList<IProjectPanelFactory *> list = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
     qSort(list.begin(), list.end(), &IPanelFactory::prioritySort);
 }
 
@@ -309,7 +309,7 @@ bool ProjectWindow::useTargetPage(ProjectExplorer::Project *project)
     if (project->targets().size() > 1)
         return true;
     int count = 0;
-    foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::instance()->getObjects<ITargetFactory>()) {
+    foreach (ITargetFactory *fac, ExtensionSystem::PluginManager::getObjects<ITargetFactory>()) {
         foreach (Core::Id targetId, fac->supportedTargetIds()) {
             if (fac->canCreate(project, targetId))
                 ++count;
@@ -344,7 +344,7 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
         // Show the target specific pages directly
         if (project->activeTarget()) {
             QList<ITargetPanelFactory *> factories =
-                    ExtensionSystem::PluginManager::instance()->getObjects<ITargetPanelFactory>();
+                    ExtensionSystem::PluginManager::getObjects<ITargetPanelFactory>();
 
             qSort(factories.begin(), factories.end(), &IPanelFactory::prioritySort);
 
@@ -358,7 +358,7 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
     }
 
     // Add the project specific pages
-    QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IProjectPanelFactory>();
+    QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
     qSort(factories.begin(), factories.end(), &IPanelFactory::prioritySort);
     foreach (IProjectPanelFactory *panelFactory, factories) {
         if (panelFactory->supports(project))
@@ -418,7 +418,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
         ++pos;
     } else if (project->activeTarget()) {
         // No Targets page, target specific pages are first in the list
-        QList<ITargetPanelFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<ITargetPanelFactory>();
+        QList<ITargetPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<ITargetPanelFactory>();
         qSort(factories.begin(), factories.end(), &ITargetPanelFactory::prioritySort);
         foreach (ITargetPanelFactory *panelFactory, factories) {
             if (panelFactory->supports(project->activeTarget())) {
@@ -432,7 +432,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
     }
 
     if (!fac) {
-        QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IProjectPanelFactory>();
+        QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
         qSort(factories.begin(), factories.end(), &IPanelFactory::prioritySort);
         foreach (IProjectPanelFactory *panelFactory, factories) {
             if (panelFactory->supports(project)) {

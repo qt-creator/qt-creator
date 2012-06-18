@@ -153,7 +153,7 @@ void TargetSetupPage::setupWidgets()
         layout = m_ui->centralWidget->layout();
 
     // Target Page setup
-    QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
+    QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::getObjects<Qt4BaseTargetFactory>();
     bool atLeastOneTargetSelected = false;
     foreach (Qt4BaseTargetFactory *factory, factories) {
         QList<Core::Id> ids = factory->supportedTargetIds();

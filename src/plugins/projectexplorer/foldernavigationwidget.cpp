@@ -373,7 +373,7 @@ void FolderNavigationWidget::findOnFileSystem(const QString &pathIn)
     const QFileInfo fileInfo(pathIn);
     const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.absolutePath();
 
-    TextEditor::FindInFiles *fif = ExtensionSystem::PluginManager::instance()->getObject<TextEditor::FindInFiles>();
+    TextEditor::FindInFiles *fif = ExtensionSystem::PluginManager::getObject<TextEditor::FindInFiles>();
     if (!fif)
         return;
     Find::FindPlugin *plugin = Find::FindPlugin::instance();

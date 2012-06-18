@@ -119,7 +119,6 @@ BuildManagerPrivate::BuildManagerPrivate() :
 BuildManager::BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAction)
     : QObject(parent), d(new BuildManagerPrivate)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
     d->m_projectExplorerPlugin = parent;
 
     connect(&d->m_watcher, SIGNAL(finished()),
@@ -136,11 +135,11 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAc
             this, SLOT(aboutToRemoveProject(ProjectExplorer::Project*)));
 
     d->m_outputWindow = new Internal::CompileOutputWindow(this, cancelBuildAction);
-    pm->addObject(d->m_outputWindow);
+    ExtensionSystem::PluginManager::addObject(d->m_outputWindow);
 
     d->m_taskHub = ProjectExplorerPlugin::instance()->taskHub();
     d->m_taskWindow = new Internal::TaskWindow(d->m_taskHub);
-    pm->addObject(d->m_taskWindow);
+    ExtensionSystem::PluginManager::addObject(d->m_taskWindow);
 
     qRegisterMetaType<ProjectExplorer::BuildStep::OutputFormat>();
     qRegisterMetaType<ProjectExplorer::BuildStep::OutputNewlineSetting>();
@@ -168,12 +167,10 @@ void BuildManager::extensionsInitialized()
 BuildManager::~BuildManager()
 {
     cancel();
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-
-    pm->removeObject(d->m_taskWindow);
+    ExtensionSystem::PluginManager::removeObject(d->m_taskWindow);
     delete d->m_taskWindow;
 
-    pm->removeObject(d->m_outputWindow);
+    ExtensionSystem::PluginManager::removeObject(d->m_outputWindow);
     delete d->m_outputWindow;
 
     delete d;

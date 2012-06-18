@@ -133,7 +133,7 @@ DesignMode::DesignMode()
     setId(Constants::MODE_DESIGN);
     setType(Constants::MODE_DESIGN_TYPE);
 
-    ExtensionSystem::PluginManager::instance()->addObject(d->m_coreListener);
+    ExtensionSystem::PluginManager::addObject(d->m_coreListener);
 
     connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(currentEditorChanged(Core::IEditor*)));
@@ -144,7 +144,7 @@ DesignMode::DesignMode()
 
 DesignMode::~DesignMode()
 {
-    ExtensionSystem::PluginManager::instance()->removeObject(d->m_coreListener);
+    ExtensionSystem::PluginManager::removeObject(d->m_coreListener);
     delete d->m_coreListener;
 
     qDeleteAll(d->m_editors);

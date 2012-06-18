@@ -198,7 +198,7 @@ QString Qt4BaseTargetFactory::buildNameForId(Core::Id id) const
 
 Qt4BaseTargetFactory *Qt4BaseTargetFactory::qt4BaseTargetFactoryForId(const Core::Id id)
 {
-    QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
+    QList<Qt4BaseTargetFactory *> factories = ExtensionSystem::PluginManager::getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *fac, factories) {
         if (fac->supportsTargetId(id))
             return fac;
@@ -1425,7 +1425,7 @@ QList<BuildConfigurationInfo> BuildConfigurationInfo::importBuildConfigurations(
 
     // Check for builds in build directory
     QList<Qt4BaseTargetFactory *> factories =
-            ExtensionSystem::PluginManager::instance()->getObjects<Qt4BaseTargetFactory>();
+            ExtensionSystem::PluginManager::getObjects<Qt4BaseTargetFactory>();
     foreach (Qt4BaseTargetFactory *factory, factories) {
         foreach (const Core::Id id, factory->supportedTargetIds()) {
             QString expectedBuildprefix = factory->shadowBuildDirectory(proFilePath, id, QString());

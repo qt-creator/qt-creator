@@ -84,7 +84,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
     qRegisterMetaType<CppTools::CppCodeStyleSettings>("CppTools::CppCodeStyleSettings");
 
     d->m_completionSettingsPage = new CompletionSettingsPage(this);
-    ExtensionSystem::PluginManager::instance()->addObject(d->m_completionSettingsPage);
+    ExtensionSystem::PluginManager::addObject(d->m_completionSettingsPage);
 
     connect(d->m_completionSettingsPage,
             SIGNAL(commentsSettingsChanged(CppTools::CommentsSettings)),
@@ -243,7 +243,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
 CppToolsSettings::~CppToolsSettings()
 {
-    ExtensionSystem::PluginManager::instance()->removeObject(d->m_completionSettingsPage);
+    ExtensionSystem::PluginManager::removeObject(d->m_completionSettingsPage);
 
     delete d;
 

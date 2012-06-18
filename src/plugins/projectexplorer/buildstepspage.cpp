@@ -341,7 +341,7 @@ void BuildStepListWidget::updateAddBuildStepMenu()
 {
     QMap<QString, QPair<Core::Id, IBuildStepFactory *> > map;
     //Build up a list of possible steps and save map the display names to the (internal) name and factories.
-    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::instance()->getObjects<IBuildStepFactory>();
+    QList<IBuildStepFactory *> factories = ExtensionSystem::PluginManager::getObjects<IBuildStepFactory>();
     foreach (IBuildStepFactory *factory, factories) {
         QList<Core::Id> ids = factory->availableCreationIds(m_buildStepList);
         foreach (Core::Id id, ids)

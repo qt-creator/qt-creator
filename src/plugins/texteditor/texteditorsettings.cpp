@@ -111,8 +111,6 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-
     // Note: default background colors are coming from FormatDescription::background()
 
     // Add font preference page
@@ -196,7 +194,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     m_d->m_fontSettingsPage = new FontSettingsPage(formatDescriptions,
                                                    QLatin1String(Constants::TEXT_EDITOR_FONT_SETTINGS),
                                                    this);
-    pm->addObject(m_d->m_fontSettingsPage);
+    ExtensionSystem::PluginManager::addObject(m_d->m_fontSettingsPage);
 
     // Add the GUI used to configure the tab, storage and interaction settings
     TextEditor::BehaviorSettingsPageParameters behaviorSettingsPageParameters;
@@ -204,22 +202,22 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     behaviorSettingsPageParameters.displayName = tr("Behavior");
     behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
     m_d->m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
-    pm->addObject(m_d->m_behaviorSettingsPage);
+    ExtensionSystem::PluginManager::addObject(m_d->m_behaviorSettingsPage);
 
     TextEditor::DisplaySettingsPageParameters displaySettingsPageParameters;
     displaySettingsPageParameters.id = QLatin1String(Constants::TEXT_EDITOR_DISPLAY_SETTINGS),
     displaySettingsPageParameters.displayName = tr("Display");
     displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
     m_d->m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
-    pm->addObject(m_d->m_displaySettingsPage);
+    ExtensionSystem::PluginManager::addObject(m_d->m_displaySettingsPage);
 
     m_d->m_highlighterSettingsPage =
         new HighlighterSettingsPage(QLatin1String(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS), this);
-    pm->addObject(m_d->m_highlighterSettingsPage);
+    ExtensionSystem::PluginManager::addObject(m_d->m_highlighterSettingsPage);
 
     m_d->m_snippetsSettingsPage =
         new SnippetsSettingsPage(QLatin1String(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS), this);
-    pm->addObject(m_d->m_snippetsSettingsPage);
+    ExtensionSystem::PluginManager::addObject(m_d->m_snippetsSettingsPage);
 
     connect(m_d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
             this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)));
@@ -239,12 +237,11 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
 TextEditorSettings::~TextEditorSettings()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    pm->removeObject(m_d->m_fontSettingsPage);
-    pm->removeObject(m_d->m_behaviorSettingsPage);
-    pm->removeObject(m_d->m_displaySettingsPage);
-    pm->removeObject(m_d->m_highlighterSettingsPage);
-    pm->removeObject(m_d->m_snippetsSettingsPage);
+    ExtensionSystem::PluginManager::removeObject(m_d->m_fontSettingsPage);
+    ExtensionSystem::PluginManager::removeObject(m_d->m_behaviorSettingsPage);
+    ExtensionSystem::PluginManager::removeObject(m_d->m_displaySettingsPage);
+    ExtensionSystem::PluginManager::removeObject(m_d->m_highlighterSettingsPage);
+    ExtensionSystem::PluginManager::removeObject(m_d->m_snippetsSettingsPage);
 
     delete m_d;
 

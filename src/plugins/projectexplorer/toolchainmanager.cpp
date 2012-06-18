@@ -58,8 +58,7 @@ using Utils::PersistentSettingsReader;
 
 static QString settingsFileName()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QFileInfo settingsLocation(pm->settings()->fileName());
+    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
     return settingsLocation.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME);
 }
 
@@ -159,8 +158,7 @@ void ToolChainManager::restoreToolChains()
 
     // Then auto detect
     QList<ToolChain *> detectedTcs;
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QList<ToolChainFactory *> factories = pm->getObjects<ToolChainFactory>();
+    QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
     foreach (ToolChainFactory *f, factories)
         detectedTcs.append(f->autoDetect());
 
@@ -248,8 +246,7 @@ QList<ToolChain *> ToolChainManager::restoreToolChains(const QString &fileName)
                                   Utils::FileName::fromString(data.value(pathKey).toString()));
     }
 
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QList<ToolChainFactory *> factories = pm->getObjects<ToolChainFactory>();
+    QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
 
     count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
     for (int i = 0; i < count; ++i) {

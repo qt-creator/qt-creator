@@ -425,7 +425,7 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
 
     // Find a default handler to use:
     if (!d->m_defaultHandler) {
-        QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::instance()->getObjects<ITaskHandler>();
+        QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::getObjects<ITaskHandler>();
         foreach(ITaskHandler *handler, handlers) {
             if (handler->isDefaultHandler()) {
                 d->m_defaultHandler = handler;
@@ -458,7 +458,7 @@ void TaskWindow::showContextMenu(const QPoint &position)
     if (task.isNull())
         return;
 
-    QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::instance()->getObjects<ITaskHandler>();
+    QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::getObjects<ITaskHandler>();
     foreach(ITaskHandler *handler, handlers) {
         if (handler == d->m_defaultHandler)
             continue;
