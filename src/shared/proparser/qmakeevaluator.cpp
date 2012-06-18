@@ -937,28 +937,39 @@ void QMakeEvaluator::loadDefaults()
 #endif
 }
 
-bool QMakeEvaluator::prepareProject()
+bool QMakeEvaluator::prepareProject(const QString &inDir)
 {
     if (m_option->do_cache) {
+        QString conffile;
         QString cachefile = m_option->cachefile;
         if (cachefile.isEmpty())  { //find it as it has not been specified
             if (m_outputDir.isEmpty())
                 goto no_cache;
+            QString sdir = inDir;
             QString dir = m_outputDir;
             forever {
+                conffile = sdir + QLatin1String("/.qmake.conf");
+                if (!IoUtils::exists(conffile))
+                    conffile.clear();
                 cachefile = dir + QLatin1String("/.qmake.cache");
-                if (IoUtils::exists(cachefile)) {
+                if (!IoUtils::exists(cachefile))
+                    cachefile.clear();
+                if (!conffile.isEmpty() || !cachefile.isEmpty()) {
+                    m_sourceRoot = sdir;
                     m_buildRoot = dir;
                     break;
                 }
+                QFileInfo qsdfi(sdir);
                 QFileInfo qdfi(dir);
-                if (qdfi.isRoot())
+                if (qsdfi.isRoot() || qdfi.isRoot())
                     goto no_cache;
+                sdir = qsdfi.path();
                 dir = qdfi.path();
             }
         } else {
             m_buildRoot = QFileInfo(cachefile).path();
         }
+        m_conffile = conffile;
         m_cachefile = cachefile;
     }
   no_cache:
@@ -973,6 +984,11 @@ bool QMakeEvaluator::loadSpec()
 
     {
         QMakeEvaluator evaluator(m_option, m_parser, m_handler);
+        if (!m_conffile.isEmpty()) {
+            valuesRef(ProString("_QMAKE_CONF_")) << ProString(m_conffile, NoHash);
+            if (!evaluator.evaluateFileDirect(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly))
+                return false;
+        }
         if (!m_cachefile.isEmpty()) {
             valuesRef(ProString("_QMAKE_CACHE_")) << ProString(m_cachefile, NoHash);
             if (!evaluator.evaluateFileDirect(m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly))
@@ -1020,6 +1036,10 @@ bool QMakeEvaluator::loadSpec()
         return false;
     // The spec extends the feature search path, so invalidate the cache.
     m_featureRoots.clear();
+    if (!m_conffile.isEmpty()
+        && !evaluateFileDirect(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+        return false;
+    }
     if (!m_cachefile.isEmpty()
         && !evaluateFileDirect(m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
@@ -1056,7 +1076,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         return ReturnFalse;
 
     if (flags & LoadPreFiles) {
-        if (!prepareProject())
+        if (!prepareProject(pro->directoryName()))
             return ReturnFalse;
 
 #ifdef PROEVALUATOR_THREAD_SAFE
@@ -1087,7 +1107,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
                 QMakeEvaluator *baseEval = new QMakeEvaluator(m_option, m_parser, m_handler);
                 baseEnv->evaluator = baseEval;
+                baseEval->m_conffile = m_conffile;
                 baseEval->m_cachefile = m_cachefile;
+                baseEval->m_sourceRoot = m_sourceRoot;
                 baseEval->m_buildRoot = m_buildRoot;
                 bool ok = baseEval->loadSpec();
 

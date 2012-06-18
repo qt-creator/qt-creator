@@ -106,7 +106,7 @@ public:
     void skipExpression(const ushort *&tokPtr);
 
     void loadDefaults();
-    bool prepareProject();
+    bool prepareProject(const QString &inDir);
     bool loadSpec();
     void initFrom(const QMakeEvaluator &other);
     void setupProject();
@@ -200,7 +200,9 @@ public:
     int m_listCount;
     QString m_qmakespec;
     QString m_qmakespecName;
+    QString m_conffile;
     QString m_cachefile;
+    QString m_sourceRoot;
     QString m_buildRoot;
     QStringList m_featureRoots;
     ProFunctionDefs m_functionDefs;
