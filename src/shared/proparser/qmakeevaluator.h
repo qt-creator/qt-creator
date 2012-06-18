@@ -200,6 +200,7 @@ public:
     int m_listCount;
     QString m_qmakespec;
     QString m_qmakespecName;
+    QString m_superfile;
     QString m_conffile;
     QString m_cachefile;
     QString m_sourceRoot;

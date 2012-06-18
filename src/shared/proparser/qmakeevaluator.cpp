@@ -945,6 +945,20 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
         if (cachefile.isEmpty())  { //find it as it has not been specified
             if (m_outputDir.isEmpty())
                 goto no_cache;
+            QString superdir = m_outputDir;
+            forever {
+                QString superfile = superdir + QLatin1String("/.qmake.super");
+                if (IoUtils::exists(superfile)) {
+                    m_superfile = superfile;
+                    break;
+                }
+                QFileInfo qdfi(superdir);
+                if (qdfi.isRoot()) {
+                    superdir.clear();
+                    break;
+                }
+                superdir = qdfi.path();
+            }
             QString sdir = inDir;
             QString dir = m_outputDir;
             forever {
@@ -959,6 +973,8 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
                     m_buildRoot = dir;
                     break;
                 }
+                if (dir == superdir)
+                    goto no_cache;
                 QFileInfo qsdfi(sdir);
                 QFileInfo qdfi(dir);
                 if (qsdfi.isRoot() || qdfi.isRoot())
@@ -984,6 +1000,11 @@ bool QMakeEvaluator::loadSpec()
 
     {
         QMakeEvaluator evaluator(m_option, m_parser, m_handler);
+        if (!m_superfile.isEmpty()) {
+            valuesRef(ProString("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile, NoHash);
+            if (!evaluator.evaluateFileDirect(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly))
+                return false;
+        }
         if (!m_conffile.isEmpty()) {
             valuesRef(ProString("_QMAKE_CONF_")) << ProString(m_conffile, NoHash);
             if (!evaluator.evaluateFileDirect(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly))
@@ -1014,6 +1035,10 @@ bool QMakeEvaluator::loadSpec()
   cool:
     m_qmakespec = QDir::cleanPath(qmakespec);
 
+    if (!m_superfile.isEmpty()
+        && !evaluateFileDirect(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+        return false;
+    }
     if (!evaluateFeatureFile(QLatin1String("spec_pre.prf")))
         return false;
     QString spec = m_qmakespec + QLatin1String("/qmake.conf");
@@ -1107,6 +1132,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
                 QMakeEvaluator *baseEval = new QMakeEvaluator(m_option, m_parser, m_handler);
                 baseEnv->evaluator = baseEval;
+                baseEval->m_superfile = m_superfile;
                 baseEval->m_conffile = m_conffile;
                 baseEval->m_cachefile = m_cachefile;
                 baseEval->m_sourceRoot = m_sourceRoot;
