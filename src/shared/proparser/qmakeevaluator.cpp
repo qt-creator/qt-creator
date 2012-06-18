@@ -940,24 +940,28 @@ void QMakeEvaluator::loadDefaults()
 bool QMakeEvaluator::prepareProject()
 {
     if (m_option->do_cache) {
-        QString qmake_cache = m_option->cachefile;
-        if (qmake_cache.isEmpty() && !m_outputDir.isEmpty())  { //find it as it has not been specified
-            QDir dir(m_outputDir);
+        QString cachefile = m_option->cachefile;
+        if (cachefile.isEmpty())  { //find it as it has not been specified
+            if (m_outputDir.isEmpty())
+                goto no_cache;
+            QString dir = m_outputDir;
             forever {
-                qmake_cache = dir.path() + QLatin1String("/.qmake.cache");
-                if (IoUtils::exists(qmake_cache))
-                    break;
-                if (!dir.cdUp() || dir.isRoot()) {
-                    qmake_cache.clear();
+                cachefile = dir + QLatin1String("/.qmake.cache");
+                if (IoUtils::exists(cachefile)) {
+                    m_buildRoot = dir;
                     break;
                 }
+                QFileInfo qdfi(dir);
+                if (qdfi.isRoot())
+                    goto no_cache;
+                dir = qdfi.path();
             }
+        } else {
+            m_buildRoot = QFileInfo(cachefile).path();
         }
-        if (!qmake_cache.isEmpty()) {
-            m_cachefile = qmake_cache;
-            m_buildRoot = QFileInfo(qmake_cache).path();
-        }
+        m_cachefile = cachefile;
     }
+  no_cache:
     return true;
 }
 
