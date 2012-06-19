@@ -69,6 +69,9 @@ public:
     void sendInvalidPacket();
     void sendSessionPacket(quint32 channelId, quint32 windowSize,
         quint32 maxPacketSize);
+    void sendDirectTcpIpPacket(quint32 channelId, quint32 windowSize, quint32 maxPacketSize,
+        const QByteArray &remoteHost, quint32 remotePort, const QByteArray &localIpAddress,
+        quint32 localPort);
     void sendPtyRequestPacket(quint32 remoteChannel,
         const SshPseudoTerminal &terminal);
     void sendEnvPacket(quint32 remoteChannel, const QByteArray &var,

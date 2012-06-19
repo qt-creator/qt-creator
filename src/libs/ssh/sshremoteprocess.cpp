@@ -167,6 +167,7 @@ void SshRemoteProcess::init()
     connect(d, SIGNAL(readyReadStandardError()), this,
         SIGNAL(readyReadStandardError()), Qt::QueuedConnection);
     connect(d, SIGNAL(closed(int)), this, SIGNAL(closed(int)), Qt::QueuedConnection);
+    connect(d, SIGNAL(eof()), SIGNAL(readChannelFinished()), Qt::QueuedConnection);
 }
 
 void SshRemoteProcess::addToEnvironment(const QByteArray &var, const QByteArray &value)

@@ -150,6 +150,15 @@ void SshSendFacility::sendSessionPacket(quint32 channelId, quint32 windowSize,
     sendPacket();
 }
 
+void SshSendFacility::sendDirectTcpIpPacket(quint32 channelId, quint32 windowSize,
+    quint32 maxPacketSize, const QByteArray &remoteHost, quint32 remotePort,
+    const QByteArray &localIpAddress, quint32 localPort)
+{
+    m_outgoingPacket.generateDirectTcpIpPacket(channelId, windowSize, maxPacketSize, remoteHost,
+            remotePort, localIpAddress, localPort);
+    sendPacket();
+}
+
 void SshSendFacility::sendPtyRequestPacket(quint32 remoteChannel,
     const SshPseudoTerminal &terminal)
 {

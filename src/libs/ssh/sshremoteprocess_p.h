@@ -54,13 +54,6 @@ public:
         NotYetStarted, ExecRequested, StartFailed, Running, Exited
     };
 
-    virtual void handleChannelSuccess();
-    virtual void handleChannelFailure();
-
-    virtual void closeHook();
-
-    QByteArray &data();
-
 signals:
     void started();
     void readyRead();
@@ -74,6 +67,9 @@ private:
     SshRemoteProcessPrivate(quint32 channelId, SshSendFacility &sendFacility,
         SshRemoteProcess *proc);
 
+    virtual void handleChannelSuccess();
+    virtual void handleChannelFailure();
+
     virtual void handleOpenSuccessInternal();
     virtual void handleOpenFailureInternal(const QString &reason);
     virtual void handleChannelDataInternal(const QByteArray &data);
@@ -82,8 +78,11 @@ private:
     virtual void handleExitStatus(const SshChannelExitStatus &exitStatus);
     virtual void handleExitSignal(const SshChannelExitSignal &signal);
 
+    virtual void closeHook();
+
     void init();
     void setProcState(ProcessState newState);
+    QByteArray &data();
 
     QProcess::ProcessChannel m_readChannel;
 

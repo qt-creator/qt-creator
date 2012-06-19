@@ -143,7 +143,16 @@ void SshOutgoingPacket::generateSessionPacket(quint32 channelId,
     quint32 windowSize, quint32 maxPacketSize)
 {
     init(SSH_MSG_CHANNEL_OPEN).appendString("session").appendInt(channelId)
-        .appendInt(windowSize).appendInt(maxPacketSize).finalize();
+            .appendInt(windowSize).appendInt(maxPacketSize).finalize();
+}
+
+void SshOutgoingPacket::generateDirectTcpIpPacket(quint32 channelId, quint32 windowSize,
+        quint32 maxPacketSize, const QByteArray &remoteHost, quint32 remotePort,
+        const QByteArray &localIpAddress, quint32 localPort)
+{
+    init(SSH_MSG_CHANNEL_OPEN).appendString("direct-tcpip").appendInt(channelId)
+            .appendInt(windowSize).appendInt(maxPacketSize).appendString(remoteHost)
+            .appendInt(remotePort).appendString(localIpAddress).appendInt(localPort).finalize();
 }
 
 void SshOutgoingPacket::generateEnvPacket(quint32 remoteChannel,

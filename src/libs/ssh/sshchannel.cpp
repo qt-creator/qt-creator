@@ -40,18 +40,14 @@
 namespace QSsh {
 namespace Internal {
 
-namespace {
-    const quint32 MinMaxPacketSize = 32768;
-    const quint32 MaxPacketSize = 16 * 1024 * 1024;
-    const quint32 InitialWindowSize = MaxPacketSize;
-    const quint32 NoChannel = 0xffffffffu;
-} // anonymous namespace
+const quint32 MinMaxPacketSize = 32768;
+const quint32 NoChannel = 0xffffffffu;
 
 AbstractSshChannel::AbstractSshChannel(quint32 channelId,
     SshSendFacility &sendFacility)
     : m_sendFacility(sendFacility), m_timeoutTimer(new QTimer(this)),
       m_localChannel(channelId), m_remoteChannel(NoChannel),
-      m_localWindowSize(InitialWindowSize), m_remoteWindowSize(0),
+      m_localWindowSize(initialWindowSize()), m_remoteWindowSize(0),
       m_state(Inactive)
 {
     m_timeoutTimer->setSingleShot(true);
@@ -77,8 +73,7 @@ void AbstractSshChannel::requestSessionStart()
     // with our cryptography stuff, it would have hit us before, on
     // establishing the connection.
     try {
-        m_sendFacility.sendSessionPacket(m_localChannel, InitialWindowSize,
-            MaxPacketSize);
+        m_sendFacility.sendSessionPacket(m_localChannel, initialWindowSize(), maxPacketSize());
         setChannelState(SessionRequested);
         m_timeoutTimer->start(ReplyTimeout);
     }  catch (Botan::Exception &e) {
@@ -96,6 +91,16 @@ void AbstractSshChannel::sendData(const QByteArray &data)
         qDebug("Botan error: %s", e.what());
         closeChannel();
     }
+}
+
+quint32 AbstractSshChannel::initialWindowSize()
+{
+    return maxPacketSize();
+}
+
+quint32 AbstractSshChannel::maxPacketSize()
+{
+    return 16 * 1024 * 1024;
 }
 
 void AbstractSshChannel::handleWindowAdjust(quint32 bytesToAdd)
@@ -174,6 +179,7 @@ void AbstractSshChannel::handleChannelEof()
             "Unexpected SSH_MSG_CHANNEL_EOF message.");
     }
     m_localWindowSize = 0;
+    emit eof();
 }
 
 void AbstractSshChannel::handleChannelClose()
@@ -224,10 +230,9 @@ int AbstractSshChannel::handleChannelOrExtendedChannelData(const QByteArray &dat
         qWarning("Misbehaving server does not respect local window, clipping.");
 
     m_localWindowSize -= bytesToDeliver;
-    if (m_localWindowSize < MaxPacketSize) {
-        m_localWindowSize += MaxPacketSize;
-        m_sendFacility.sendWindowAdjustPacket(m_remoteChannel,
-            MaxPacketSize);
+    if (m_localWindowSize < maxPacketSize()) {
+        m_localWindowSize += maxPacketSize();
+        m_sendFacility.sendWindowAdjustPacket(m_remoteChannel, maxPacketSize());
     }
     return bytesToDeliver;
 }
@@ -256,7 +261,7 @@ void AbstractSshChannel::checkChannelActive()
 
 quint32 AbstractSshChannel::maxDataSize() const
 {
-    return qMin(m_localWindowSize, MaxPacketSize);
+    return qMin(m_localWindowSize, maxPacketSize());
 }
 
 } // namespace Internal

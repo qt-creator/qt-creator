@@ -35,8 +35,10 @@
 #include "sshcapabilities_p.h"
 #include "sshchannelmanager_p.h"
 #include "sshcryptofacility_p.h"
+#include "sshdirecttcpiptunnel.h"
 #include "sshexception_p.h"
 #include "sshkeyexchange_p.h"
+#include "sshremoteprocess.h"
 
 #include <botan/botan.h>
 
@@ -189,6 +191,12 @@ QSharedPointer<SftpChannel> SshConnection::createSftpChannel()
 {
     QSSH_ASSERT_AND_RETURN_VALUE(state() == Connected, QSharedPointer<SftpChannel>());
     return d->createSftpChannel();
+}
+
+SshDirectTcpIpTunnel::Ptr SshConnection::createTunnel(quint16 remotePort)
+{
+    QSSH_ASSERT_AND_RETURN_VALUE(state() == Connected, SshDirectTcpIpTunnel::Ptr());
+    return d->createTunnel(remotePort);
 }
 
 int SshConnection::closeAllChannels()
@@ -728,6 +736,11 @@ QSharedPointer<SshRemoteProcess> SshConnectionPrivate::createRemoteShell()
 QSharedPointer<SftpChannel> SshConnectionPrivate::createSftpChannel()
 {
     return m_channelManager->createSftpChannel();
+}
+
+SshDirectTcpIpTunnel::Ptr SshConnectionPrivate::createTunnel(quint16 remotePort)
+{
+    return m_channelManager->createTunnel(remotePort, m_conn->connectionInfo());
 }
 
 const quint64 SshConnectionPrivate::InvalidSeqNr = static_cast<quint64>(-1);

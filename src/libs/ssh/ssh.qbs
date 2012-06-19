@@ -35,6 +35,7 @@ QtcLibrary {
         "sshpacket.cpp", "sshpacket_p.h",
         "sshpacketparser.cpp", "sshpacketparser_p.h",
         "sshremoteprocess.cpp", "sshremoteprocess.h", "sshremoteprocess_p.h",
+        "sshdirecttcpiptunnel.h", "sshdirecttcpiptunnel_p.h", "sshdirecttcpiptunnel.cpp",
         "sshremoteprocessrunner.cpp", "sshremoteprocessrunner.h",
         "sshsendfacility.cpp", "sshsendfacility_p.h",
         "sshkeypasswordretriever.cpp",

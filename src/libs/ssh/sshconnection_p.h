@@ -34,7 +34,6 @@
 #include "sshconnection.h"
 #include "sshexception_p.h"
 #include "sshincomingpacket_p.h"
-#include "sshremoteprocess.h"
 #include "sshsendfacility_p.h"
 
 #include <QHash>
@@ -50,6 +49,8 @@ QT_END_NAMESPACE
 
 namespace QSsh {
 class SftpChannel;
+class SshRemoteProcess;
+class SshDirectTcpIpTunnel;
 
 namespace Internal {
 class SshChannelManager;
@@ -88,6 +89,8 @@ public:
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
     QSharedPointer<SshRemoteProcess> createRemoteShell();
     QSharedPointer<SftpChannel> createSftpChannel();
+    QSharedPointer<SshDirectTcpIpTunnel> createTunnel(quint16 remotePort);
+
     SshStateInternal state() const { return m_state; }
     SshError error() const { return m_error; }
     QString errorString() const { return m_errorString; }

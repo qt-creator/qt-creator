@@ -49,13 +49,7 @@ class SftpChannelPrivate : public AbstractSshChannel
     Q_OBJECT
     friend class QSsh::SftpChannel;
 public:
-
     enum SftpState { Inactive, SubsystemRequested, InitSent, Initialized };
-
-    virtual void handleChannelSuccess();
-    virtual void handleChannelFailure();
-
-    virtual void closeHook();
 
 signals:
     void initialized();
@@ -72,6 +66,9 @@ private:
         SftpChannel *sftp);
     SftpJobId createJob(const AbstractSftpOperation::Ptr &job);
 
+    virtual void handleChannelSuccess();
+    virtual void handleChannelFailure();
+
     virtual void handleOpenSuccessInternal();
     virtual void handleOpenFailureInternal(const QString &reason);
     virtual void handleChannelDataInternal(const QByteArray &data);
@@ -79,6 +76,8 @@ private:
         const QByteArray &data);
     virtual void handleExitStatus(const SshChannelExitStatus &exitStatus);
     virtual void handleExitSignal(const SshChannelExitSignal &signal);
+
+    virtual void closeHook();
 
     void handleCurrentPacket();
     void handleServerVersion();

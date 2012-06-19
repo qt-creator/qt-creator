@@ -62,6 +62,9 @@ public:
     void generateInvalidMessagePacket();
     void generateSessionPacket(quint32 channelId, quint32 windowSize,
         quint32 maxPacketSize);
+    void generateDirectTcpIpPacket(quint32 channelId, quint32 windowSize,
+        quint32 maxPacketSize, const QByteArray &remoteHost, quint32 remotePort,
+        const QByteArray &localIpAddress, quint32 localPort);
     void generateEnvPacket(quint32 remoteChannel, const QByteArray &var,
         const QByteArray &value);
     void generatePtyRequestPacket(quint32 remoteChannel,

@@ -36,8 +36,9 @@
 #include <QSharedPointer>
 
 namespace QSsh {
-
 class SftpChannel;
+class SshConnectionInfo;
+class SshDirectTcpIpTunnel;
 class SshRemoteProcess;
 
 namespace Internal {
@@ -55,8 +56,10 @@ public:
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
     QSharedPointer<SshRemoteProcess> createRemoteShell();
     QSharedPointer<SftpChannel> createSftpChannel();
-    int channelCount() const;
+    QSharedPointer<SshDirectTcpIpTunnel> createTunnel(quint16 remotePort,
+            const SshConnectionInfo &connectionInfo);
 
+    int channelCount() const;
     enum CloseAllMode { CloseAllRegular, CloseAllAndReset };
     int closeAllChannels(CloseAllMode mode);
 
