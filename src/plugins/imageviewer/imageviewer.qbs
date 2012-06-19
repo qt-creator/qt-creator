@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "ImageViewer"
 
-    Depends { name: "qt"; submodules: ['widgets', 'svg'] }
+    Depends { name: "Qt"; submodules: ["widgets", "svg"] }
     Depends { name: "Core" }
 
     Depends { name: "cpp" }
@@ -34,7 +34,4 @@ QtcPlugin {
         "ImageViewer.mimetypes.xml"
     ]
 }
-
-
-
 

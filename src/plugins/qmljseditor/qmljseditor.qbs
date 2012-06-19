@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "QmlJSEditor"
 
-    Depends { name: "qt"; submodules: ['widgets', 'script'] }
+    Depends { name: "Qt"; submodules: ["widgets", "script"] }
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
@@ -26,7 +26,7 @@ QtcPlugin {
     ]
 
     files: [
-         "qmljseditor.qrc",
+        "qmljseditor.qrc",
         "quicktoolbarsettingspage.ui",
         "QmlJSEditor.mimetypes.xml",
         "jsfilewizard.cpp",

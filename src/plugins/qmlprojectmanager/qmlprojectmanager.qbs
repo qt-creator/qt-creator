@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "QmlProjectManager"
 
-    Depends { name: "qt"; submodules: ['widgets', 'quick1'] }
+    Depends { name: "Qt"; submodules: ["widgets", "quick1"] }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
@@ -57,7 +57,4 @@ QtcPlugin {
         "QmlProject.mimetypes.xml"
     ]
 }
-
-
-
 

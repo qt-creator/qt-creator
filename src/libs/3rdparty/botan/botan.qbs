@@ -5,14 +5,16 @@ QtcLibrary {
     name: "Botan"
 
     Depends { name: "cpp" }
-    Depends { name: "qt"; submodules: 'core' }
+    Depends { name: "Qt.core" }
 
-    cpp.includePaths: ["build", "src"]
+    cpp.includePaths: [
+        "build",
+        "src"
+    ]
     cpp.dynamicLibraries: {
-        if (qbs.targetOS == 'linux' || qbs.targetOS == 'freebsd') {
-            return ['rt']
-        }
-        else if (qbs.targetOS == 'windows') {
+        if (qbs.targetOS == "linux" || qbs.targetOS == "freebsd") {
+            return ["rt"]
+        } else if (qbs.targetOS == "windows") {
             return [
                 "advapi32",
                 "user32"
@@ -22,17 +24,17 @@ QtcLibrary {
 
     cpp.defines: {
         var result = []
-        if (qbs.toolchain == 'msvc2005' || qbs.toolchain == 'msvc2008' || qbs.toolchain == 'msvc2010')
-            result.push('BOTAN_DLL=__declspec(dllexport)')
+        if (qbs.toolchain == "msvc2005" || qbs.toolchain == "msvc2008" || qbs.toolchain == "msvc2010")
+            result.push("BOTAN_DLL=__declspec(dllexport)")
         return result
     }
 
     Properties {
-        condition: qbs.toolchain === 'mingw'
+        condition: qbs.toolchain == "mingw"
         cpp.cxxFlags: [
-            '-fpermissive',
-            '-finline-functions',
-            '-Wno-long-long'
+            "-fpermissive",
+            "-finline-functions",
+            "-Wno-long-long"
         ]
     }
 
@@ -500,7 +502,7 @@ QtcLibrary {
     }
 
     Group {
-        condition: qbs.targetOS == "linux" || qbs.targetOS == 'mac'
+        condition: qbs.targetOS == "linux" || qbs.targetOS == "mac"
         files: [
             "src/alloc/alloc_mmap/mmap_mem.cpp",
             "src/cert/cvc/asn1_eac_str.cpp",
@@ -545,8 +547,8 @@ QtcLibrary {
     ProductModule {
         Depends { name: "cpp" }
         cpp.linkerFlags: {
-            if (qbs.toolchain === 'mingw') {
-                return ['--enable-auto-import']
+            if (qbs.toolchain == "mingw") {
+                return ["--enable-auto-import"]
             }
         }
     }

@@ -8,7 +8,7 @@ QtcTool {
     Depends { name: "cpp" }
 
     files: {
-        if (qbs.targetOS === "windows") {
+        if (qbs.targetOS == "windows") {
             return [ "process_stub_win.c" ]
         } else {
             return [ "process_stub_unix.c" ]
@@ -16,7 +16,7 @@ QtcTool {
     }
 
     cpp.dynamicLibraries: {
-        if (qbs.targetOS === "windows") {
+        if (qbs.targetOS == "windows") {
             return [ "shell32.lib" ]
         }
     }

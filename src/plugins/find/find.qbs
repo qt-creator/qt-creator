@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Find"
 
-    Depends { name: "qt"; submodules: ['widgets', 'xml', 'network', 'script'] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script"] }
     Depends { name: "Core" }
     Depends { name: "cpp" }
 

@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "CMakeProjectManager"
 
-    Depends { name: "qt"; submodules: ['widgets'] }
+    Depends { name: "Qt.widgets" }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "CppTools" }

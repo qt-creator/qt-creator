@@ -5,14 +5,16 @@ QtcLibrary {
     name: "QtcSsh"
 
     cpp.defines: ["QSSH_LIBRARY"]
-    cpp.includePaths: [ ".", "..",
+    cpp.includePaths: [
+        ".",
+        "..",
         "../..",
         "../3rdparty/botan/build",
         buildDirectory
     ]
 
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ['widgets', 'network' ] }
+    Depends { name: "Qt"; submodules: ["widgets", "network" ] }
     Depends { name: "Botan" }
 
     files: [
@@ -50,6 +52,6 @@ QtcLibrary {
     ProductModule {
         Depends { name: "cpp" }
         Depends { name: "Qt"; submodules: ["widgets", "network"] }
-        cpp.includePaths: ".."
+        cpp.includePaths: [".."]
     }
 }

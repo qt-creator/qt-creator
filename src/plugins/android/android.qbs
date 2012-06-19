@@ -10,7 +10,7 @@ QtcPlugin {
     Depends { name: "Qt4ProjectManager" }
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
-    Depends { name: "qt"; submodules: ['widgets', 'xml', 'network'] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     property bool enable: false
     property var pluginspecreplacements: ({"ANDROID_EXPERIMENTAL_STR": (enable ? "false": "true")})

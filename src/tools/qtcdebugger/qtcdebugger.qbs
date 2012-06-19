@@ -3,13 +3,19 @@ import "../QtcTool.qbs" as QtcTool
 
 QtcTool {
     name: "qtcdebugger"
-    condition: qbs.targetOS === "windows"
+    condition: qbs.targetOS == "windows"
 
-    cpp.includePaths: [ buildDirectory, "../../shared/registryaccess" ]
-    cpp.dynamicLibraries: [ "psapi", "advapi32" ]
+    cpp.includePaths: [
+        buildDirectory,
+        "../../shared/registryaccess"
+    ]
+    cpp.dynamicLibraries: [
+        "psapi",
+        "advapi32"
+    ]
 
     Depends { name: "cpp" }
-    Depends { name: "qt"; submodules: ['widgets'] }
+    Depends { name: "Qt.widgets" }
     Depends { name: "app_version_header" }
 
     files: [

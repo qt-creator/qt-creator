@@ -2,7 +2,7 @@ import qbs.base 1.0
 import qbs.fileinfo 1.0 as FileInfo
 
 Module {
-    Depends { id: qtcore; name: "qt.core" }
+    Depends { id: qtcore; name: "Qt.core" }
 
     additionalProductFileTags: qtcore.versionMajor < 5 ? ["pluginSpec"] : ["pluginJSON"]
     property int ide_version_major: project.ide_version_major
@@ -49,7 +49,7 @@ Module {
                 var inf = new TextFile(input.fileName);
                 var all = inf.readAll();
                 // replace quoted quotes
-                all = all.replace(/\\\"/g, "\"");
+                all = all.replace(/\\\"/g, '"');
                 // replace config vars
                 vars['QTCREATOR_VERSION'] = qtcreator_version;
                 vars['IDE_VERSION_MAJOR'] = ide_version_major;
@@ -83,8 +83,11 @@ Module {
             var xslFile = project.path + "/src/pluginjsonmetadata.xsl";
             var xmlPatternsPath = product.modules["qt/core"].binPath + "/xmlpatterns";
             var args = [
-                "-no-format", "-output", output.fileName,
-                xslFile, input.fileName
+                "-no-format",
+                "-output",
+                output.fileName,
+                xslFile,
+                input.fileName
             ];
             var cmd = new Command(xmlPatternsPath, args);
             cmd.description = "generating " + FileInfo.fileName(output.fileName);

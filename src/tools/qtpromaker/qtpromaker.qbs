@@ -5,7 +5,7 @@ QtcTool {
     name: "qtpromaker"
 
     Depends { name: "cpp" }
-    Depends { name: "qt"; submodules: ['core'] }
+    Depends { name: "Qt.core" }
 
     files: [ "main.cpp" ]
 }

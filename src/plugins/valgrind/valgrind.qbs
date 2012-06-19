@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Valgrind"
 
-    Depends { name: "qt"; submodules: ['widgets', 'network'] }
+    Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Core" }
     Depends { name: "AnalyzerBase" }
     Depends { name: "ProjectExplorer" }

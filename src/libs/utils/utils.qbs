@@ -5,22 +5,28 @@ QtcLibrary {
     name: "Utils"
 
     cpp.defines: ["QTCREATOR_UTILS_LIB"]
-    cpp.includePaths: [ ".", "..",
+    cpp.includePaths: [
+        ".",
+        "..",
         "../..",
         buildDirectory
     ]
 
     Properties {
         condition: qbs.targetOS == "windows"
-        cpp.dynamicLibraries: ["user32", "iphlpapi", "ws2_32"]
+        cpp.dynamicLibraries: [
+            "user32",
+            "iphlpapi",
+            "ws2_32"
+        ]
     }
     Properties {
-        condition: qbs.targetOS === "linux"
+        condition: qbs.targetOS == "linux"
         cpp.dynamicLibraries: ["X11"]
     }
 
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ['widgets', 'network', 'script', 'concurrent'] }
+    Depends { name: "Qt"; submodules: ["widgets", "network", "script", "concurrent"] }
     Depends { name: "app_version_header" }
 
     files: [

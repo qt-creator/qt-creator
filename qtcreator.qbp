@@ -106,7 +106,7 @@ Project {
                     var file = new TextFile(input.fileName);
                     var content = file.readAll();
                     // replace quoted quotes
-                    content = content.replace(/\\\"/g, "\"");
+                    content = content.replace(/\\\"/g, '"');
                     // replace Windows line endings
                     if (onWindows)
                         content = content.replace(/\r\n/g, "\n");

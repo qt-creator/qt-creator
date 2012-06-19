@@ -13,8 +13,7 @@ QtcLibrary {
     ]
 
     Depends { name: "cpp" }
-    Depends { name: "Qt.gui" }
-    Depends { name: "Qt.network" }
+    Depends { name: "Qt"; submodules: ["gui", "network"] }
     Depends { name: "symbianutils" }
 
     files: [
@@ -50,9 +49,7 @@ QtcLibrary {
     ProductModule {
         Depends { name: "cpp" }
         Depends { name: "symbianutils" }
-        cpp.includePaths: [
-            "."
-        ]
+        cpp.includePaths: ["."]
     }
 }
 

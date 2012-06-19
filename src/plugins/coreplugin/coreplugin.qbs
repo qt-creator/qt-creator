@@ -5,10 +5,9 @@ QtcPlugin {
     name: "Core"
 
     Depends {
-        name: "qt"
+        name: "Qt"
         submodules: [
-            'core', 'widgets', 'xml', 'network',
-            'script', 'sql', 'help', 'printsupport'
+            "core", "widgets", "xml", "network", "script", "sql", "help", "printsupport"
         ]
     }
     Depends { name: "Utils" }
@@ -30,7 +29,7 @@ QtcPlugin {
     ]
 
     cpp.dynamicLibraries: {
-        if (qbs.targetOS == 'windows') return [
+        if (qbs.targetOS == "windows") return [
             "ole32"
         ]
     }

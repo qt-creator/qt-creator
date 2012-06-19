@@ -7,7 +7,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "cpp" }
-    Depends { name: "qt"; submodules: ['widgets', 'xml', 'network', 'script'] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script"] }
 
     cpp.includePaths: [
         "..",

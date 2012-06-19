@@ -4,7 +4,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "ProjectExplorer"
 
-    Depends { name: "qt"; submodules: ['widgets', 'xml', 'network', 'script', 'quick1'] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script", "quick1"] }
     Depends { name: "Core" }
     Depends { name: "Locator" }
     Depends { name: "Find" }

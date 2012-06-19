@@ -20,7 +20,7 @@ QtcLibrary {
     cpp.optimization: "fast"
 
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ["network"]}
+    Depends { name: "Qt.network" }
     Depends { name: "Utils" }
 
     Group {

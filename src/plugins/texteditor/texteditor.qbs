@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "TextEditor"
 
-    Depends { name: "qt"; submodules: ['widgets', 'xml', 'network', 'script', 'printsupport'] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script", "printsupport"] }
     Depends { name: "cpp" }
     Depends { name: "Core" }
     Depends { name: "Find" }

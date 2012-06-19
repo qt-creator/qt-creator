@@ -10,7 +10,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "Find" }
     Depends { name: "cpp" }
-    Depends { name: "qt"; submodules: ['widgets'] }
+    Depends { name: "Qt.widgets" }
     Depends { name: "CppTools" }
     Depends { name: "CPlusPlus" }
 
