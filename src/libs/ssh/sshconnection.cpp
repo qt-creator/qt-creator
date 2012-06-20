@@ -193,6 +193,15 @@ QSharedPointer<SftpChannel> SshConnection::createSftpChannel()
     return d->createSftpChannel();
 }
 
+int SshConnection::closeAllChannels()
+{
+    try {
+        return d->m_channelManager->closeAllChannels();
+    } catch (const Botan::Exception &e) {
+        qDebug("%s: %s", Q_FUNC_INFO, e.what());
+        return -1;
+    }
+}
 
 namespace Internal {
 
