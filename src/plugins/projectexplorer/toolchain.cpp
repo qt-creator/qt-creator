@@ -243,4 +243,14 @@ QString ToolChainFactory::idFromMap(const QVariantMap &data)
     return data.value(QLatin1String(ID_KEY)).toString();
 }
 
+void ToolChainFactory::idToMap(QVariantMap &data, const QString id)
+{
+    data.insert(QLatin1String(ID_KEY), id);
+}
+
+void ToolChainFactory::autoDetectionToMap(QVariantMap &data, bool detected)
+{
+    data.insert(QLatin1String(AUTODETECT_KEY), detected);
+}
+
 } // namespace ProjectExplorer

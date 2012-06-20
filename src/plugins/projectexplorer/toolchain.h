@@ -143,6 +143,8 @@ public:
     virtual ToolChain *restore(const QVariantMap &data);
 
     static QString idFromMap(const QVariantMap &data);
+    static void idToMap(QVariantMap &data, const QString id);
+    static void autoDetectionToMap(QVariantMap &data, bool detected);
 };
 
 } // namespace ProjectExplorer
