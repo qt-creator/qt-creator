@@ -1,7 +1,11 @@
 # 1 "data/recursive.1.cpp"
-#gen true
-# 1 "data/recursive.1.cpp"
+
+
+
+# expansion begin 25,1 ~1
 b
- a
-#gen false
+# expansion end
+# expansion begin 27,1 ~1
+a
+# expansion end
 # 6 "data/recursive.1.cpp"

@@ -27,7 +27,7 @@
 #include "DiagnosticClient.h"
 #include <cstdio>
 #include <vector>
-
+#include <map>
 
 namespace CPlusPlus {
 
@@ -170,6 +170,7 @@ private:
     std::vector<Token> *_comments;
     std::vector<unsigned> _lineOffsets;
     std::vector<PPLine> _ppLines;
+    std::map<unsigned, std::pair<unsigned, unsigned> > _expandedLineColumn; // TODO: Replace this for a hash
     MemoryPool *_pool;
     AST *_ast;
     TranslationUnit *_previousTranslationUnit;

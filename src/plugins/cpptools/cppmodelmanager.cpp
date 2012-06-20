@@ -340,7 +340,7 @@ public:
 void CppPreprocessor::run(const QString &fileName)
 {
     QString absoluteFilePath = fileName;
-    sourceNeeded(absoluteFilePath, IncludeGlobal, /*line = */ 0);
+    sourceNeeded(0, absoluteFilePath, IncludeGlobal);
 }
 
 void CppPreprocessor::resetEnvironment()
@@ -499,12 +499,12 @@ void CppPreprocessor::macroAdded(const Macro &macro)
     m_currentDoc->appendMacro(macro);
 }
 
-void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, const Macro &macro)
+void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, unsigned line, const Macro &macro)
 {
     if (! m_currentDoc)
         return;
 
-    m_currentDoc->addMacroUse(macro, offset, macro.name().length(), env.currentLine,
+    m_currentDoc->addMacroUse(macro, offset, macro.name().length(), line,
                               QVector<MacroArgumentReference>());
 }
 
@@ -516,15 +516,23 @@ void CppPreprocessor::failedMacroDefinitionCheck(unsigned offset, const ByteArra
     m_currentDoc->addUndefinedMacroUse(QByteArray(name.start(), name.size()), offset);
 }
 
-void CppPreprocessor::startExpandingMacro(unsigned offset,
+void CppPreprocessor::notifyMacroReference(unsigned offset, unsigned line, const Macro &macro)
+{
+    if (! m_currentDoc)
+        return;
+
+    m_currentDoc->addMacroUse(macro, offset, macro.name().length(), line,
+                              QVector<MacroArgumentReference>());
+}
+
+void CppPreprocessor::startExpandingMacro(unsigned offset, unsigned line,
                                           const Macro &macro,
-                                          const ByteArrayRef &originalText,
                                           const QVector<MacroArgumentReference> &actuals)
 {
     if (! m_currentDoc)
         return;
 
-    m_currentDoc->addMacroUse(macro, offset, originalText.length(), env.currentLine, actuals);
+    m_currentDoc->addMacroUse(macro, offset, macro.name().length(), line, actuals);
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)
@@ -573,7 +581,7 @@ void CppPreprocessor::stopSkippingBlocks(unsigned offset)
         m_currentDoc->stopSkippingBlocks(offset);
 }
 
-void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned line)
+void CppPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType type)
 {
     if (fileName.isEmpty())
         return;
@@ -590,7 +598,7 @@ void CppPreprocessor::sourceNeeded(QString &fileName, IncludeType type, unsigned
 
             Document::DiagnosticMessage d(Document::DiagnosticMessage::Warning,
                                           m_currentDoc->fileName(),
-                                          env.currentLine, /*column = */ 0,
+                                          line, /*column = */ 0,
                                           msg);
 
             m_currentDoc->addDiagnosticMessage(d);

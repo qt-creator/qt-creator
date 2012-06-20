@@ -63,4 +63,3 @@ Write in C, write in C,
 Write in C, yeah, write in C.
 The government loves ADA,
 Write in C.
-

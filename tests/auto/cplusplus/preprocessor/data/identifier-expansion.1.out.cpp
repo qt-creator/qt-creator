@@ -1,15 +1,18 @@
 # 1 "data/identifier-expansion.1.cpp"
-#gen true
-# 1 "data/identifier-expansion.1.cpp"
-test test
-#gen false
+
+
+# expansion begin 19,4 ~1
+test
+# expansion end
+# expansion begin 24,4 ~1
+test
+# expansion end
 # 3 "data/identifier-expansion.1.cpp"
          ;
 
 void
-#gen true
-# 1 "data/identifier-expansion.1.cpp"
+# expansion begin 36,4 ~1
 test
-#gen false
+# expansion end
 # 5 "data/identifier-expansion.1.cpp"
          ();

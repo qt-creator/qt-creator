@@ -300,17 +300,19 @@ protected:
     void mergeEnvironment(CPlusPlus::Document::Ptr doc);
 
     virtual void macroAdded(const CPlusPlus::Macro &macro);
-    virtual void passedMacroDefinitionCheck(unsigned offset, const CPlusPlus::Macro &macro);
+    virtual void passedMacroDefinitionCheck(unsigned offset, unsigned line,
+                                            const CPlusPlus::Macro &macro);
     virtual void failedMacroDefinitionCheck(unsigned offset, const CPlusPlus::ByteArrayRef &name);
+    virtual void notifyMacroReference(unsigned offset, unsigned line,
+                                      const CPlusPlus::Macro &macro);
     virtual void startExpandingMacro(unsigned offset,
+                                     unsigned line,
                                      const CPlusPlus::Macro &macro,
-                                     const CPlusPlus::ByteArrayRef &originalText,
                                      const QVector<CPlusPlus::MacroArgumentReference> &actuals);
     virtual void stopExpandingMacro(unsigned offset, const CPlusPlus::Macro &macro);
     virtual void startSkippingBlocks(unsigned offset);
     virtual void stopSkippingBlocks(unsigned offset);
-    virtual void sourceNeeded(QString &fileName, IncludeType type,
-                              unsigned line);
+    virtual void sourceNeeded(unsigned line, QString &fileName, IncludeType type);
 
 private:
 #ifndef ICHECK_BUILD

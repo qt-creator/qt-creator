@@ -1,8 +1,10 @@
 # 1 "data/poundpound.1.cpp"
 struct QQ {};
-#gen true
-# 3 "data/poundpound.1.cpp"
+
+
+
+# expansion begin 50,2 ~4
 typedef QQ PPCC;
-#gen false
+# expansion end
 # 7 "data/poundpound.1.cpp"
 typedef PPCC RR;

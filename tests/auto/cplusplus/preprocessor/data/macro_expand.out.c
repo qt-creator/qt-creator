@@ -3,8 +3,7 @@
 
 
 A:
-#gen true
-# 1 "data/macro_expand.c"
+# expansion begin 32,1 ~1
 Y
-#gen false
+# expansion end
 # 5 "data/macro_expand.c"

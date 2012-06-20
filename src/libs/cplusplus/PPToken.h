@@ -96,6 +96,11 @@ public:
     const QByteArray &source() const
     { return m_src; }
 
+    bool hasSource() const
+    { return !m_src.isEmpty(); }
+
+    void squeezeSource();
+
     const char *bufferStart() const
     { return m_src.constData(); }
 
@@ -104,11 +109,6 @@ public:
 
     ByteArrayRef asByteArrayRef() const
     { return ByteArrayRef(&m_src, offset, length()); }
-
-    bool isValid() const
-    { return !m_src.isEmpty(); }
-
-    void squeeze();
 
 private:
     QByteArray m_src;

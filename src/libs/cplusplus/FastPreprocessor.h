@@ -59,18 +59,19 @@ public:
     QByteArray run(QString fileName, const QString &source);
 
     // CPlusPlus::Client
-    virtual void sourceNeeded(QString &fileName, IncludeType, unsigned);
+    virtual void sourceNeeded(unsigned, QString &fileName, IncludeType);
 
     virtual void macroAdded(const Macro &) {}
 
-    virtual void passedMacroDefinitionCheck(unsigned, const Macro &) {}
+    virtual void passedMacroDefinitionCheck(unsigned, unsigned, const Macro &) {}
     virtual void failedMacroDefinitionCheck(unsigned, const ByteArrayRef &) {}
 
-    virtual void startExpandingMacro(unsigned,
-                                     const Macro &,
-                                     const ByteArrayRef &,
-                                     const QVector<MacroArgumentReference> &) {}
+    virtual void notifyMacroReference(unsigned, unsigned, const Macro &) {}
 
+    virtual void startExpandingMacro(unsigned,
+                                     unsigned,
+                                     const Macro &,
+                                     const QVector<MacroArgumentReference> &) {}
     virtual void stopExpandingMacro(unsigned, const Macro &) {}
 
     virtual void startSkippingBlocks(unsigned) {}

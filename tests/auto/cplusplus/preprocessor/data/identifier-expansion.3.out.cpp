@@ -1,24 +1,22 @@
 # 1 "data/identifier-expansion.3.cpp"
-# 8 "data/identifier-expansion.3.cpp"
+# 12 "data/identifier-expansion.3.cpp"
 enum op_code {
-#gen true
-# 6 "data/identifier-expansion.3.cpp"
+# expansion begin 195,14 ~4
 op_ADD, op_SUB,
-#gen false
-# 10 "data/identifier-expansion.3.cpp"
+# expansion end
+# expansion begin 232,14 ~4
+op_DIV, op_MUL,
+# expansion end
+# 15 "data/identifier-expansion.3.cpp"
 };
 
+
 static const char *names[] = {
-#gen true
-# 2 "data/identifier-expansion.3.cpp"
-"ADD"
-
-
-,
-# 3 "data/identifier-expansion.3.cpp"
- "SUB"
-
-,
-#gen false
-# 14 "data/identifier-expansion.3.cpp"
+# expansion begin 301,14 ~4
+"ADD", "SUB",
+# expansion end
+# expansion begin 331,14 ~4
+"DIV", "MUL",
+# expansion end
+# 21 "data/identifier-expansion.3.cpp"
 };

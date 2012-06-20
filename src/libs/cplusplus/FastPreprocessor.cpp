@@ -60,7 +60,7 @@ QByteArray FastPreprocessor::run(QString fileName, const QString &source)
     return preprocessed;
 }
 
-void FastPreprocessor::sourceNeeded(QString &fileName, IncludeType, unsigned)
+void FastPreprocessor::sourceNeeded(unsigned, QString &fileName, IncludeType)
 { mergeEnvironment(fileName); }
 
 void FastPreprocessor::mergeEnvironment(const QString &fileName)

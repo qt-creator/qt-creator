@@ -321,13 +321,29 @@ public:
 
 public:
     struct Flags {
+        // The token kind.
         unsigned kind       : 8;
+        // The token starts a new line.
         unsigned newline    : 1;
+        // The token is preceeded by whitespace(s).
         unsigned whitespace : 1;
+        // The token is joined with the previous one.
         unsigned joined     : 1;
+        // The token originates from a macro expansion.
         unsigned expanded   : 1;
+        // The token originates from a macro expansion and does not correspond to an
+        // argument that went through substitution. Notice the example:
+        //
+        // #define FOO(a, b) a + b;
+        // FOO(1, 2)
+        //
+        // After preprocessing we would expect the following tokens: 1 + 2;
+        // Tokens '1', '+', '2', and ';' are all expanded. However only tokens '+' and ';'
+        // are generated.
         unsigned generated  : 1;
+        // Unused...
         unsigned pad        : 3;
+        // The token lenght.
         unsigned length     : 16;
     };
     union {

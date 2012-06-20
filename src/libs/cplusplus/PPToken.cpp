@@ -23,10 +23,10 @@ int ByteArrayRef::count(char ch) const
     return num;
 }
 
-void Internal::PPToken::squeeze()
+void Internal::PPToken::squeezeSource()
 {
-    if (isValid()) {
-        m_src = m_src.mid(offset, length());
+    if (hasSource()) {
+        m_src = m_src.mid(offset, f.length);
         m_src.squeeze();
         offset = 0;
     }

@@ -27,8 +27,10 @@
 #include "Literals.h"
 #include "DiagnosticClient.h"
 #include <stack>
+#include <vector>
 #include <cstdarg>
 #include <algorithm>
+#include <utility>
 
 #ifdef _MSC_VER
 #    define va_copy(dst, src) ((dst) = (src))
@@ -176,27 +178,84 @@ void TranslationUnit::tokenize()
     pushPreprocessorLine(0, 1, fileId());
 
     const Identifier *lineId   = control()->identifier("line");
-    const Identifier *genId    = control()->identifier("gen");
+    const Identifier *expansionId = control()->identifier("expansion");
+    const Identifier *beginId = control()->identifier("begin");
+    const Identifier *endId = control()->identifier("end");
 
-    bool generated = false;
+    // We need to track information about the expanded tokens. A vector with an addition
+    // explicit index control is used instead of queue mainly for performance reasons.
+    std::vector<std::pair<unsigned, unsigned> > lineColumn;
+    unsigned lineColumnIdx = 0;
+
     Token tk;
     do {
         lex(&tk);
 
-      _Lrecognize:
+        _Lrecognize:
         if (tk.is(T_POUND) && tk.newline()) {
             unsigned offset = tk.offset;
             lex(&tk);
 
-            if (! tk.f.newline && tk.is(T_IDENTIFIER) && tk.identifier == genId) {
-                // it's a gen directive.
+            if (! tk.f.newline && tk.is(T_IDENTIFIER) && tk.identifier == expansionId) {
+                // It's an expansion mark.
                 lex(&tk);
 
-                if (! tk.f.newline && tk.is(T_TRUE)) {
-                    lex(&tk);
-                    generated = true;
-                } else {
-                    generated = false;
+                if (!tk.f.newline && tk.is(T_IDENTIFIER)) {
+                    if (tk.identifier == beginId) {
+                        // Start of a macro expansion section.
+                        lex(&tk);
+
+                        // Gather where the expansion happens and its length.
+                        unsigned macroOffset = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                        lex(&tk);
+                        lex(&tk); // Skip the separating comma
+                        unsigned macroLength = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                        lex(&tk);
+
+                        // NOTE: We are currently not using the macro offset and length. They
+                        // are kept here for now because of future use.
+                        Q_UNUSED(macroOffset)
+                        Q_UNUSED(macroLength)
+
+                        // Now we need to gather the real line and columns from the upcoming
+                        // tokens. But notice this is only relevant for tokens which are expanded
+                        // but not generated.
+                        while (tk.isNot(T_EOF_SYMBOL) && !tk.f.newline) {
+                            // When we get a ~ it means there's a number of generated tokens
+                            // following. Otherwise, we have actual data.
+                            if (tk.is(T_TILDE)) {
+                                lex(&tk);
+
+                                // Get the total number of generated tokens and specifiy "null"
+                                // information for them.
+                                unsigned totalGenerated =
+                                        static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                                const std::size_t previousSize = lineColumn.size();
+                                lineColumn.resize(previousSize + totalGenerated);
+                                std::fill(lineColumn.begin() + previousSize,
+                                          lineColumn.end(),
+                                          std::make_pair(0, 0));
+
+                                lex(&tk);
+                            } else if (tk.is(T_NUMERIC_LITERAL)) {
+                                unsigned line = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+                                lex(&tk);
+                                lex(&tk); // Skip the separating colon
+                                unsigned column = static_cast<unsigned>(strtoul(tk.spell(), 0, 0));
+
+                                // Store line and column for this non-generated token.
+                                lineColumn.push_back(std::make_pair(line, column));
+
+                                lex(&tk);
+                            }
+                        }
+                    } else if (tk.identifier == endId) {
+                        // End of a macro expansion.
+                        lineColumn.clear();
+                        lineColumnIdx = 0;
+
+                        lex(&tk);
+                    }
                 }
             } else {
                 if (! tk.f.newline && tk.is(T_IDENTIFIER) && tk.identifier == lineId)
@@ -211,9 +270,9 @@ void TranslationUnit::tokenize()
                         lex(&tk);
                     }
                 }
+                while (tk.isNot(T_EOF_SYMBOL) && ! tk.f.newline)
+                    lex(&tk);
             }
-            while (tk.isNot(T_EOF_SYMBOL) && ! tk.f.newline)
-                lex(&tk);
             goto _Lrecognize;
         } else if (tk.f.kind == T_LBRACE) {
             braces.push(_tokens->size());
@@ -225,7 +284,24 @@ void TranslationUnit::tokenize()
             _comments->push_back(tk);
             continue; // comments are not in the regular token stream
         }
-        tk.f.generated = generated;
+
+        bool currentExpanded = false;
+        bool currentGenerated = false;
+
+        if (!lineColumn.empty() && lineColumnIdx < lineColumn.size()) {
+            currentExpanded = true;
+            const std::pair<unsigned, unsigned> &p = lineColumn[lineColumnIdx];
+            if (p.first)
+                _expandedLineColumn.insert(std::make_pair(tk.offset, p));
+            else
+                currentGenerated = true;
+
+            ++lineColumnIdx;
+        }
+
+        tk.f.expanded = currentExpanded;
+        tk.f.generated = currentGenerated;
+
         _tokens->push_back(tk);
     } while (tk.f.kind);
 
@@ -355,12 +431,32 @@ void TranslationUnit::getPosition(unsigned tokenOffset,
                                   unsigned *column,
                                   const StringLiteral **fileName) const
 {
-    unsigned lineNumber = findLineNumber(tokenOffset);
-    unsigned columnNumber = findColumnNumber(tokenOffset, lineNumber);
-    const PPLine ppLine = findPreprocessorLine(tokenOffset);
+    unsigned lineNumber = 0;
+    unsigned columnNumber = 0;
+    const StringLiteral *file = 0;
 
-    lineNumber -= findLineNumber(ppLine.offset) + 1;
-    lineNumber += ppLine.line;
+    // If this token is expanded we already have the information directly from the expansion
+    // section header. Otherwise, we need to calculate it.
+    std::map<unsigned, std::pair<unsigned, unsigned> >::const_iterator it =
+            _expandedLineColumn.find(tokenOffset);
+    if (it != _expandedLineColumn.end()) {
+        lineNumber = it->second.first;
+        columnNumber = it->second.second + 1;
+        file = _fileId;
+    } else {
+        // Identify line within the entire translation unit.
+        lineNumber = findLineNumber(tokenOffset);
+
+        // Identify column.
+        columnNumber = findColumnNumber(tokenOffset, lineNumber);
+
+        // Adjust the line in regards to the preprocessing markers.
+        const PPLine ppLine = findPreprocessorLine(tokenOffset);
+        lineNumber -= findLineNumber(ppLine.offset) + 1;
+        lineNumber += ppLine.line;
+
+        file = ppLine.fileName;
+    }
 
     if (line)
         *line = lineNumber;
@@ -369,7 +465,7 @@ void TranslationUnit::getPosition(unsigned tokenOffset,
         *column = columnNumber;
 
     if (fileName)
-       *fileName = ppLine.fileName;
+       *fileName = file;
 }
 
 bool TranslationUnit::blockErrors(bool block)
