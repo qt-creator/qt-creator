@@ -56,12 +56,12 @@ public:
     QString displayNameForId(const Core::Id id) const;
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
     ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
-    bool canRestore(ProjectExplorer::Target *parent,
-        const QVariantMap &map) const;
-    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent,
-        const QVariantMap &map);
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
     ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
         ProjectExplorer::DeployConfiguration *product);
+
+    bool canHandle(ProjectExplorer::Target *parent) const;
 };
 
 class Qt4MaemoDeployConfiguration : public RemoteLinux::RemoteLinuxDeployConfiguration

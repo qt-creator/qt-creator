@@ -282,7 +282,7 @@ Qt4MaemoDeployConfigurationFactory::Qt4MaemoDeployConfigurationFactory(QObject *
 QList<Core::Id> Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> ids;
-    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
+    if (!canHandle(parent))
         return ids;
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
@@ -348,9 +348,10 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
 
 bool Qt4MaemoDeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, idFromMap(map))
-        || (idFromMap(map) == Core::Id(OldDeployConfigId)
-            && MaemoGlobal::supportsMaemoDevice(parent->profile()));
+    Core::Id id = idFromMap(map);
+    return canHandle(parent)
+            && (availableCreationIds(parent).contains(id) || id == Core::Id(OldDeployConfigId))
+            && MaemoGlobal::supportsMaemoDevice(parent->profile());
 }
 
 DeployConfiguration *Qt4MaemoDeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
@@ -382,7 +383,16 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::clone(Target *parent,
     if (!canClone(parent, product))
         return 0;
     return new Qt4MaemoDeployConfiguration(parent,
-        qobject_cast<Qt4MaemoDeployConfiguration *>(product));
+                                           qobject_cast<Qt4MaemoDeployConfiguration *>(product));
+}
+
+bool Qt4MaemoDeployConfigurationFactory::canHandle(Target *parent) const
+{
+    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
+        return false;
+    if (!parent->project()->supportsProfile(parent->profile()))
+        return false;
+    return MaemoGlobal::supportsMaemoDevice(parent->profile());
 }
 
 } // namespace Internal

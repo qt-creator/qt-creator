@@ -114,8 +114,10 @@ public:
 signals:
     void availableCreationIdsChanged();
 
+protected:
+    virtual bool canHandle(Target *parent) const;
+
 private:
-    bool canHandle(Target *parent) const;
 };
 
 class PROJECTEXPLORER_EXPORT DeployConfigurationWidget : public NamedWidget

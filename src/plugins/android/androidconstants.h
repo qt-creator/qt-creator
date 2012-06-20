@@ -56,7 +56,7 @@ enum AndroidQemuStatus {
 #define ANDROID_BAT_SUFFIX ""
 #endif
 
-static const QLatin1String ANDROID_RC_ID_PREFIX(ANDROID_PREFIX ".");
+static const QLatin1String ANDROID_RC_ID_PREFIX(ANDROID_PREFIX ":");
 
 } // namespace Internal
 

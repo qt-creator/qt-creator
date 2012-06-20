@@ -466,7 +466,7 @@ Utils::FileName QMakeStep::mkspec()
         }
     }
 
-    return Qt4ProjectManager::QmakeProfileInformation::mkspec(target()->profile());
+    return Qt4ProjectManager::QmakeProfileInformation::effectiveMkspec(target()->profile());
 }
 
 QVariantMap QMakeStep::toMap() const

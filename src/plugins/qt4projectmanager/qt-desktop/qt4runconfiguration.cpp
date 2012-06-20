@@ -79,7 +79,7 @@ using Utils::PersistentSettingsReader;
 using Utils::PersistentSettingsWriter;
 
 namespace {
-const char * const QT4_RC_PREFIX("Qt4ProjectManager.Qt4RunConfiguration.");
+const char * const QT4_RC_PREFIX("Qt4ProjectManager.Qt4RunConfiguration:");
 
 const char * const COMMAND_LINE_ARGUMENTS_KEY("Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments");
 const char * const PRO_FILE_KEY("Qt4ProjectManager.Qt4RunConfiguration.ProFile");
