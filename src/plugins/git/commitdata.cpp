@@ -165,7 +165,10 @@ bool CommitData::parseFilesFromStatus(const QString &output)
             continue;
         }
         QTC_ASSERT(line.at(2) == QLatin1Char(' '), continue);
-        if (!checkLine(line.mid(0, 2), line.mid(3), &files))
+        QString file = line.mid(3);
+        if (file.startsWith(QLatin1Char('"')))
+            file.remove(0, 1).chop(1);
+        if (!checkLine(line.mid(0, 2), file, &files))
             return false;
     }
 
