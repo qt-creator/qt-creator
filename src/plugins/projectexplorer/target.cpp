@@ -117,7 +117,6 @@ QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
     return ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
 }
 
-
 Target::Target(Project *project, Profile *p) :
     ProjectConfiguration(project, p->id()),
     d(new TargetPrivate)

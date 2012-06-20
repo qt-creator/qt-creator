@@ -35,9 +35,10 @@
 #include "profile.h"
 
 #include <QHBoxLayout>
+#include <QFileDialog>
 #include <QFormLayout>
 #include <QPushButton>
-#include <QFileDialog>
+#include <QSizePolicy>
 
 namespace ProjectExplorer {
 namespace Internal {
