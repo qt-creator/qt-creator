@@ -98,7 +98,7 @@ public:
     void setUseAlternateExecutable(bool useAlternate);
     bool useAlternateExecutable() const;
 
-    virtual QVariantMap toMap() const;
+    QVariantMap toMap() const;
 
     QString baseEnvironmentText() const;
     BaseEnvironmentType baseEnvironmentType() const;
@@ -123,7 +123,7 @@ signals:
 protected:
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent,
         RemoteLinuxRunConfiguration *source);
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map);
     QString defaultDisplayName();
     void setDisabledReason(const QString &reason) const;
     QString userEnvironmentChangesAsString() const;
