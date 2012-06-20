@@ -261,12 +261,15 @@ Core::Id IDevice::invalidId()
 
 Core::Id IDevice::typeFromMap(const QVariantMap &map)
 {
-    return Core::Id(map.value(QLatin1String(TypeKey)).toByteArray().constData());
+    const QString idStr = map.value(QLatin1String(TypeKey)).toString();
+    if (idStr.isEmpty())
+        return Core::Id();
+    return Core::Id(idStr);
 }
 
 Core::Id IDevice::idFromMap(const QVariantMap &map)
 {
-    return Core::Id(map.value(QLatin1String(IdKey)).toByteArray().constData());
+    return Core::Id(map.value(QLatin1String(IdKey)).toString());
 }
 
 void IDevice::fromMap(const QVariantMap &map)
@@ -293,7 +296,7 @@ QVariantMap IDevice::toMap() const
 {
     QVariantMap map;
     map.insert(QLatin1String(DisplayNameKey), d->displayName);
-    map.insert(QLatin1String(TypeKey), d->type.name());
+    map.insert(QLatin1String(TypeKey), d->type.toString());
     map.insert(QLatin1String(IdKey), d->id.name());
     map.insert(QLatin1String(OriginKey), d->origin);
 
