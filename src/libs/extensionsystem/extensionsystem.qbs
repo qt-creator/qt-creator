@@ -46,7 +46,6 @@ QtcLibrary {
         "pluginspec_p.h",
         "pluginview.cpp",
         "pluginview.h",
-        "pluginview_p.h",
         "pluginspec.cpp",
         "images/error.png",
         "images/notloaded.png",
