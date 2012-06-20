@@ -145,7 +145,5 @@ AndroidRunConfiguration::DebuggingType AndroidRunConfiguration::debuggingType() 
     return DebugCppAndQml;
 }
 
-
-
 } // namespace Internal
 } // namespace Android

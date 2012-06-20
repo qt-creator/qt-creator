@@ -264,9 +264,6 @@ ProjectWindow::~ProjectWindow()
 void ProjectWindow::extensionsInitialized()
 {
     connect(ProfileManager::instance(), SIGNAL(profilesChanged()), this, SLOT(handleProfilesChanges()));
-
-    QList<IProjectPanelFactory *> list = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();
-    qSort(list.begin(), list.end(), &IPanelFactory::prioritySort);
 }
 
 void ProjectWindow::aboutToShutdown()
