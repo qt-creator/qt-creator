@@ -402,25 +402,42 @@ void LogWindow::showOutput(int channel, const QString &output)
 {
     if (output.isEmpty())
         return;
-    QTextCursor oldCursor = m_combinedText->textCursor();
-    QTextCursor cursor = oldCursor;
-    cursor.movePosition(QTextCursor::End);
-    bool atEnd = oldCursor.position() == cursor.position();
 
-    if (debuggerCore()->boolSetting(LogTimeStamps))
-        m_combinedText->appendPlainText(charForChannel(LogTime) + logTimeStamp());
-    foreach (QString line, output.split(QLatin1Char('\n'))) {
-        // FIXME: QTextEdit asserts on really long lines...
-        const int n = 30000;
-        if (line.size() > n) {
-            line.truncate(n);
-            line += QLatin1String(" [...] <cut off>");
-        }
-        if (line != QLatin1String("(gdb) "))
-            m_combinedText->appendPlainText(charForChannel(channel) + line);
+    QTextCursor cursor = m_combinedText->textCursor();
+    const bool atEnd = cursor.atEnd();
+
+    const QChar cchar = charForChannel(channel);
+    const QChar nchar = QLatin1Char('\n');
+
+    QString out;
+    out.reserve(output.size() + 1000);
+
+    if (output.at(0) != QLatin1Char('~') && debuggerCore()->boolSetting(LogTimeStamps)) {
+        out.append(charForChannel(LogTime));
+        out.append(logTimeStamp());
+        out.append(nchar);
     }
-    cursor.movePosition(QTextCursor::End);
+
+    for (int pos = 0, n = output.size(); pos < n; ) {
+        const int npos = output.indexOf(nchar, pos);
+        const int nnpos = npos == -1 ? n : npos;
+        const int l = nnpos - pos;
+        if (l != 6 || output.midRef(pos, 6) != QLatin1String("(gdb) "))  {
+            out.append(cchar);
+            if (l > 30000) {
+                // FIXME: QTextEdit asserts on really long lines...
+                out.append(output.midRef(pos, 30000));
+                out.append(QLatin1String(" [...] <cut off>\n"));
+            } else {
+                out.append(output.midRef(pos, l + 1));
+            }
+        }
+        pos = nnpos + 1;
+    }
+    m_combinedText->appendPlainText(out);
+
     if (atEnd) {
+        cursor.movePosition(QTextCursor::End);
         m_combinedText->setTextCursor(cursor);
         m_combinedText->ensureCursorVisible();
     }
