@@ -9,17 +9,17 @@
 :Add Bookmark.treeView_QTreeView	{name='treeView' type='QTreeView' visible='1' window=':Add Bookmark_BookmarkDialog'}
 :Add Bookmark_BookmarkDialog	{name='BookmarkDialog' type='BookmarkDialog' visible='1' windowTitle='Add Bookmark'}
 :Folder 1.Folder 2_QModelIndex	{column='0' container=':Sample.Folder 1_QModelIndex' text='Folder 2' type='QModelIndex'}
-:Folder 2.Qt Creator : Building and Running an Example_QModelIndex	{column='0' container=':Folder 1.Folder 2_QModelIndex' text?='Qt Creator : Building and Running an Example*' type='QModelIndex'}
+:Folder 2.Qt Creator : Building and Running an Example_QModelIndex	{column='0' container=':Folder 1.Folder 2_QModelIndex' text?='QtCreator : Building and Running an Example*' type='QModelIndex'}
 :Getting Started.Building and Running an Example_QModelIndex	{column='0' container=':Qt Creator Manual*.Getting Started_QModelIndex' text='Building and Running an Example' type='QModelIndex'}
 :Hits_QCLuceneResultWidget	{aboveWidget=':Hits_QLabel' type='QCLuceneResultWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Hits_QLabel	{text~='\\\\d+ - \\\\d+ of \\\\d+ Hits' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
-:New Folder.Qt Creator : Qt Creator Manual_QModelIndex	{column='0' container=':Sample.New Folder_QModelIndex' text='Qt Creator : Qt Creator Manual' type='QModelIndex'}
+:New Folder.Qt Creator : Qt Creator Manual_QModelIndex	{column='0' container=':Sample.New Folder_QModelIndex' text='QtCreator : Qt Creator Manual' type='QModelIndex'}
 :Next_QPushButton	{text~='(Next.*|Continue)' type='QPushButton' visible='1'}
 :Options.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
 :Options.qt_tabwidget_tabbar_QTabBar	{name='qt_tabwidget_tabbar' type='QTabBar' visible='1' window=':Options_Core::Internal::SettingsDialog'}
 :Options_Core::Internal::SettingsDialog	{type='Core::Internal::SettingsDialog' unnamed='1' visible='1' windowTitle~='Options|Preferences'}
 :Options_QListView	{type='QListView' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
-:Qt Creator Manual QModelIndex	{column='0' container=':Qt Creator_QHelpContentWidget' text='Qt Creator Manual 2.5.1' type='QModelIndex'}
+:Qt Creator Manual QModelIndex	{column='0' container=':Qt Creator_QHelpContentWidget' text~='Qt Creator Manual 2\\\\.[1-9]+[0-9]?\\\\.[1-9]+[0-9]?' type='QModelIndex'}
 :Qt Creator Manual*.Getting Started_QModelIndex	{column='0' container=':Qt Creator Manual QModelIndex' text='Getting Started' type='QModelIndex'}
 :Qt Creator.+_QToolButton	{text='+' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Add Bookmark_QToolButton	{text='Add Bookmark' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
