@@ -328,8 +328,9 @@ const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
         if (factory->canRestore(map))
             return factory;
     }
-    qWarning("Warning: No factory found for device of type '%s'.",
-        qPrintable(IDevice::typeFromMap(map).toString()));
+    qWarning("Warning: No factory found for device '%s' of type '%s'.",
+             qPrintable(IDevice::idFromMap(map).toString()),
+             qPrintable(IDevice::typeFromMap(map).toString()));
     return 0;
 }
 
