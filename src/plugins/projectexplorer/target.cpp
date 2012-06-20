@@ -764,7 +764,9 @@ bool Target::fromMap(const QVariantMap &map)
         QVariantMap valueMap = map.value(key).toMap();
         DeployConfigurationFactory *factory = DeployConfigurationFactory::find(this, valueMap);
         if (!factory) {
-            qWarning("No factory found to restore deployment configuration!");
+            Core::Id id = idFromMap(valueMap);
+            qWarning("No factory found to restore deployment configuration of id '%s'!",
+                     qPrintable(id.isValid() ? id.toString() : "UNKNOWN"));
             continue;
         }
         DeployConfiguration *dc = factory->restore(this, valueMap);
@@ -795,7 +797,7 @@ bool Target::fromMap(const QVariantMap &map)
         // Ignore missing RCs: We will just populate them using the default ones.
         QVariantMap valueMap = map.value(key).toMap();
         IRunConfigurationFactory *factory = IRunConfigurationFactory::find(this, valueMap);
-        if (!factory || !factory->canRestore(this, valueMap))
+        if (!factory)
             continue;
         RunConfiguration *rc = factory->restore(this, valueMap);
         if (!rc)
