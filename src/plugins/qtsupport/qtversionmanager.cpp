@@ -72,11 +72,6 @@ using namespace QtSupport::Internal;
 
 static const char QTVERSION_DATA_KEY[] = "QtVersion.";
 static const char QTVERSION_TYPE_KEY[] = "QtVersion.Type";
-static const char QTVERSION_COUNT_KEY[] = "QtVersion.Count";
-static const char OLDQTVERSION_COUNT_KEY[] = "QtVersion.Old.Count";
-static const char OLDQTVERSION_DATA_KEY[] = "QtVersion.Old.";
-static const char OLDQTVERSION_SDKSOURCE[] = "QtVersion.Old.SdkSource";
-static const char OLDQTVERSION_PATH[] = "QtVersion.Old.Path";
 static const char QTVERSION_FILE_VERSION_KEY[] = "Version";
 static const char QTVERSION_FILENAME[] = "/qtcreator/qtversion.xml";
 static const char QTVERSION_SDK_FILENAME[] = "/qtversion.xml";
@@ -188,6 +183,7 @@ bool QtVersionManager::restoreQtVersions()
 
     Utils::PersistentSettingsReader reader;
     QString filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
+
     // Read Qt Creator 2.5 qtversions.xml once:
     if (!QFileInfo(filename).exists())
         filename = settingsFileName(QLatin1String(QTVERSION_SDK_FILENAME));
@@ -200,12 +196,14 @@ bool QtVersionManager::restoreQtVersions()
     if (version < 1)
         return false;
 
-
-    int count = data.value(QLatin1String(QTVERSION_COUNT_KEY), 0).toInt();
-    for (int i = 0; i < count; ++i) {
-        const QString key = QString::fromLatin1(QTVERSION_DATA_KEY) + QString::number(i);
-        if (!data.contains(key))
-            break;
+    const QString keyPrefix = QLatin1String(QTVERSION_DATA_KEY);
+    foreach (const QString &key, data.keys()) {
+        if (!key.startsWith(keyPrefix))
+            continue;
+        bool ok;
+        int count = key.mid(keyPrefix.count()).toInt(&ok);
+        if (!ok || count < 0)
+            continue;
 
         const QVariantMap qtversionMap = data.value(key).toMap();
         const QString type = qtversionMap.value(QLatin1String(QTVERSION_TYPE_KEY)).toString();
@@ -264,50 +262,19 @@ void QtVersionManager::updateFromInstaller()
             qDebug() << "  autodetection source:"<< version->autodetectionSource();
             qDebug() << "";
         }
-    }
-
-    int oldcount = data.value(QLatin1String(OLDQTVERSION_COUNT_KEY), 0).toInt();
-    for (int i=0; i < oldcount; ++i) {
-        const QString key = QString::fromLatin1(OLDQTVERSION_DATA_KEY) +QString::number(i);
-        if (!data.contains(key))
-            break;
-        QVariantMap map = data.value(key).toMap();
-        Utils::FileName path = Utils::FileName::fromString(map.value(QLatin1String(OLDQTVERSION_PATH)).toString());
-        QString autodetectionSource = map.value(QLatin1String(OLDQTVERSION_SDKSOURCE)).toString();
-        foreach (BaseQtVersion *v, m_versions) {
-            if (v->qmakeCommand() == path) {
-                if (v->autodetectionSource().isEmpty()) {
-                    v->setAutoDetectionSource(autodetectionSource);
-                } else {
-                    if (debug)
-                        qDebug() << "## Conflicting autodetictonSource for"<<path.toString()<<"\n"
-                                 <<"     version retains"<<v->autodetectionSource();
-                }
-                // No break, we want to mark all qt versions matching that path
-                // There's no way for us to decide whether this qt was added
-                // by the user or by the installer, so we treat them all as coming
-                // from the installer. Thus removing/updating them deletes/updates them all
-                // Note: This only applies to versions that are marked via QtVersion.Old
-            }
-        }
-    }
-
-    if (debug) {
-        qDebug()<< "======= After using OLD QtVersion data to mark versions =======";
-        foreach (BaseQtVersion *version, m_versions) {
-            qDebug() << version->qmakeCommand().toString() << "id:"<<version->uniqueId();
-            qDebug() << "  autodetection source:"<< version->autodetectionSource();
-            qDebug() << "";
-        }
-
         qDebug()<< "======= Adding sdk versions =======";
     }
+
     QStringList sdkVersions;
-    int count = data.value(QLatin1String(QTVERSION_COUNT_KEY), 0).toInt();
-    for (int i = 0; i < count; ++i) {
-        const QString key = QString::fromLatin1(QTVERSION_DATA_KEY) + QString::number(i);
-        if (!data.contains(key))
-            break;
+
+    const QString keyPrefix = QLatin1String(QTVERSION_DATA_KEY);
+    foreach (const QString &key, data.keys()) {
+        if (!key.startsWith(keyPrefix))
+            continue;
+        bool ok;
+        int count = key.mid(keyPrefix.count()).toInt(&ok);
+        if (!ok || count < 0)
+            continue;
 
         QVariantMap qtversionMap = data.value(key).toMap();
         const QString type = qtversionMap.value(QLatin1String(QTVERSION_TYPE_KEY)).toString();
@@ -316,9 +283,8 @@ void QtVersionManager::updateFromInstaller()
         int id = -1; // see BaseQtVersion::fromMap()
         QtVersionFactory *factory = 0;
         foreach (QtVersionFactory *f, factories) {
-            if (f->canRestore(type)) {
+            if (f->canRestore(type))
                 factory = f;
-            }
         }
         if (!factory) {
             if (debug)
@@ -409,7 +375,6 @@ void QtVersionManager::saveQtVersions()
         ++count;
 
     }
-    writer.saveValue(QLatin1String(QTVERSION_COUNT_KEY), count);
     writer.save(settingsFileName(QLatin1String(QTVERSION_FILENAME)), QLatin1String("QtCreatorQtVersions"), Core::ICore::mainWindow());
 }
 
