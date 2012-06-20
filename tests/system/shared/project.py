@@ -26,6 +26,10 @@ def openQmakeProject(projectPath, targets=QtQuickConstants.Targets.DESKTOP):
     selectFromCombo(waitForObject(":Qt Creator.Create Build Configurations:_QComboBox", 180000),
                     "For Each Qt Version One Debug And One Release")
     __chooseTargets__(targets)
+    if targets & QtQuickConstants.Targets.DESKTOP:
+        ensureChecked("{text='Shadow build' type='QCheckBox' unnamed='1' visible='1' "
+                      "window=':Qt Creator_Core::Internal::MainWindow'}")
+
     configureButton = waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
                                     "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
     clickButton(configureButton)
@@ -275,7 +279,8 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP, availableTargets
         available = availableTargets
     else:
         # following targets depend on the build environment - added for further/later tests
-        available = [QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.EMBEDDED_LINUX,
+        available = [QtQuickConstants.Targets.DESKTOP,
+                     QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.EMBEDDED_LINUX,
                      QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
             available += [QtQuickConstants.Targets.SYMBIAN]

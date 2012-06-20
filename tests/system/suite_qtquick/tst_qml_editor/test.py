@@ -91,8 +91,7 @@ def __invokeFindUsage__(treeView, filename, line, additionalKeyPresses, expected
     for ty in additionalKeyPresses:
         type(editor, ty)
     searchFinished = False
-    ctxtMenu = openContextMenuOnTextCursorPosition(editor)
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), "Find Usages"))
+    invokeContextMenuItem(editor, "Find Usages")
     waitFor("searchFinished")
     validateSearchResult(expectedCount)
 
@@ -108,32 +107,6 @@ def testFindUsages():
     if platform.system() == "Darwin":
         home = "<Ctrl+Left>"
     __invokeFindUsage__(navTree, "focus\\.qml", "id: window", ["<Down>", "<Down>", home], 26)
-
-def validateSearchResult(expectedCount):
-    searchResult = waitForObject(":Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton")
-    ensureChecked(searchResult)
-    resultTreeView = waitForObject("{type='Find::Internal::SearchResultTreeView' unnamed='1' "
-                                   "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
-    counterLabel = waitForObject("{type='QLabel' unnamed='1' visible='1' text?='*matches found.' "
-                                 "window=':Qt Creator_Core::Internal::MainWindow'}")
-    matches = cast((str(counterLabel.text)).split(" ", 1)[0], "int")
-    test.verify(matches==expectedCount, "Verfified match count.")
-    model = resultTreeView.model()
-    for row in range(model.rowCount()):
-        index = model.index(row, 0)
-        itemText = str(model.data(index).toString())
-        doubleClickItem(resultTreeView, maskSpecialCharsForSearchResult(itemText), 5, 5, 0, Qt.LeftButton)
-        test.log("%d occurrences in %s" % (model.rowCount(index), itemText))
-        for chRow in range(model.rowCount(index)):
-            chIndex = model.index(chRow, 0, index)
-            resultTreeView.scrollTo(chIndex)
-            text = str(chIndex.data())
-            rect = resultTreeView.visualRect(chIndex)
-            doubleClick(resultTreeView, rect.x+5, rect.y+5, 0, Qt.LeftButton)
-            editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
-                       "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
-            waitFor("lineUnderCursor(editor) == text", 2000)
-            test.compare(lineUnderCursor(editor), text)
 
 def testHovering():
     navTree = waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
@@ -218,10 +191,6 @@ def maskSpecialCharsForProjectTree(filename):
     filename = filename.replace("\\", "/").replace("_", "\\_").replace(".","\\.")
     # undoing mask operations on chars masked by mistake
     filename = filename.replace("/?","\\?").replace("/*","\\*")
-    return filename
-
-def maskSpecialCharsForSearchResult(filename):
-    filename = filename.replace("_", "\\_").replace(".","\\.")
     return filename
 
 def cleanup():

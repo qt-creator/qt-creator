@@ -11,7 +11,8 @@ def charactersInFile(filename):
 
 def main():
     files = [srcPath + "/creator/README", srcPath + "/creator/qtcreator.pri",
-             srcPath + "/creator/doc/snippets/qml/list-of-transitions.qml"]
+             srcPath + "/creator/doc/snippets/qml/list-of-transitions.qml",
+             srcPath + "/creator/share/qtcreator/glsl/glsl_120.frag"]
     for currentFile in files:
         if not neededFilePresent(currentFile):
             return

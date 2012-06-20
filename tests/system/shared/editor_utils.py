@@ -207,6 +207,7 @@ def getEditorForFileSuffix(curFile):
                          "tcc", "tpp", "t++", "c", "cu", "m", "mm", "hh", "hxx", "h++", "hpp", "hp"]
     qmlEditorSuffixes = ["qml", "qmlproject", "js", "qs", "qtt"]
     proEditorSuffixes = ["pro", "pri", "prf"]
+    glslEditorSuffixes= ["frag", "vert", "fsh", "vsh", "glsl", "shader", "gsh"]
     suffix = __getFileSuffix__(curFile)
     if suffix in cppEditorSuffixes:
         editor = waitForObject("{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' "
@@ -216,6 +217,9 @@ def getEditorForFileSuffix(curFile):
                                "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
     elif suffix in proEditorSuffixes:
         editor = waitForObject("{type='Qt4ProjectManager::Internal::ProFileEditorWidget' unnamed='1' "
+                               "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    elif suffix in glslEditorSuffixes:
+        editor = waitForObject("{type='GLSLEditor::GLSLTextEditorWidget' unnamed='1' "
                                "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
     else:
         test.log("Trying PlainTextEditor (file suffix: %s)" % suffix)
@@ -235,3 +239,52 @@ def __getFileSuffix__(fileName):
         return None
     else:
         return suffix[1]
+
+def maskSpecialCharsForSearchResult(filename):
+    filename = filename.replace("_", "\\_").replace(".","\\.")
+    return filename
+
+def validateSearchResult(expectedCount):
+    searchResult = waitForObject(":Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton")
+    ensureChecked(searchResult)
+    resultTreeView = waitForObject("{type='Find::Internal::SearchResultTreeView' unnamed='1' "
+                                   "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    counterLabel = waitForObject("{type='QLabel' unnamed='1' visible='1' text?='*matches found.' "
+                                 "window=':Qt Creator_Core::Internal::MainWindow'}")
+    matches = cast((str(counterLabel.text)).split(" ", 1)[0], "int")
+    test.compare(matches, expectedCount, "Verified match count.")
+    model = resultTreeView.model()
+    for row in range(model.rowCount()):
+        index = model.index(row, 0)
+        itemText = str(model.data(index).toString())
+        doubleClickItem(resultTreeView, maskSpecialCharsForSearchResult(itemText), 5, 5, 0, Qt.LeftButton)
+        test.log("%d occurrences in %s" % (model.rowCount(index), itemText))
+        for chRow in range(model.rowCount(index)):
+            chIndex = model.index(chRow, 0, index)
+            resultTreeView.scrollTo(chIndex)
+            text = str(chIndex.data())
+            rect = resultTreeView.visualRect(chIndex)
+            doubleClick(resultTreeView, rect.x+5, rect.y+5, 0, Qt.LeftButton)
+            editor = getEditorForFileSuffix(itemText)
+            waitFor("lineUnderCursor(editor) == text", 2000)
+            test.compare(lineUnderCursor(editor), text)
+
+# this function invokes context menu and command from it
+def invokeContextMenuItem(editorArea, command1, command2 = None):
+    ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
+    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command1, 1000))
+    if command2:
+        activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command2, 1000))
+
+# this function invokes the "Find Usages" item from context menu
+# param editor an editor object
+# param line a line in editor (content of the line as a string)
+# param typeOperation a key to type
+# param n how often repeat the type operation?
+def invokeFindUsage(editor, line, typeOperation, n=1):
+    if not placeCursorToLine(editor, line, True):
+        return False
+    for i in range(n):
+        type(editor, typeOperation)
+    invokeContextMenuItem(editor, "Find Usages")
+    return True
