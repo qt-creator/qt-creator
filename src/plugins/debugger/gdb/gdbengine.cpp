@@ -5310,10 +5310,11 @@ void GdbEngine::checkForReleaseBuild()
         return;
     }
 
+    // Note: .note.gnu.build-id also appears in regular release builds.
+    // bool hasBuildId = elfData.indexOf(".note.gnu.build-id") >= 0;
     bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
-    bool hasBuildId = elfData.indexOf(".note.gnu.build-id") >= 0;
     bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
-    if (hasEmbeddedInfo || hasBuildId || hasLink)
+    if (hasEmbeddedInfo || hasLink)
         return;
 
     QString warning;
