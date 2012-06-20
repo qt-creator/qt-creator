@@ -57,9 +57,9 @@ namespace {
 QString pathFromId(Core::Id id)
 {
     QString idStr = QString::fromUtf8(id.name());
-    if (!idStr.startsWith(RemoteLinuxRunConfiguration::Id))
+    if (!idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix))
         return QString();
-    return idStr.mid(RemoteLinuxRunConfiguration::Id.size());
+    return idStr.mid(RemoteLinuxRunConfiguration::IdPrefix.size());
 }
 
 } // namespace
@@ -83,7 +83,7 @@ bool RemoteLinuxRunConfigurationFactory::canRestore(Target *parent, const QVaria
 {
     if (!canHandle(parent))
         return false;
-    return ProjectExplorer::idFromMap(map).toString().startsWith(RemoteLinuxRunConfiguration::Id);
+    return ProjectExplorer::idFromMap(map).toString().startsWith(RemoteLinuxRunConfiguration::IdPrefix);
 }
 
 bool RemoteLinuxRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
@@ -101,7 +101,7 @@ QList<Core::Id> RemoteLinuxRunConfigurationFactory::availableCreationIds(Target 
         return result;
 
     QStringList proFiles = static_cast<Qt4Project *>(parent->project())
-            ->applicationProFilePathes(RemoteLinuxRunConfiguration::Id);
+            ->applicationProFilePathes(RemoteLinuxRunConfiguration::IdPrefix);
     foreach (const QString &pf, proFiles)
         result << Core::Id(pf);
     return result;
@@ -124,7 +124,7 @@ RunConfiguration *RemoteLinuxRunConfigurationFactory::restore(Target *parent,
 {
     QTC_ASSERT(canRestore(parent, map), return 0);
     RemoteLinuxRunConfiguration *rc
-            = new RemoteLinuxRunConfiguration(parent, Core::Id(RemoteLinuxRunConfiguration::Id), QString());
+            = new RemoteLinuxRunConfiguration(parent, Core::Id(RemoteLinuxRunConfiguration::IdPrefix), QString());
     if (rc->fromMap(map))
         return rc;
 

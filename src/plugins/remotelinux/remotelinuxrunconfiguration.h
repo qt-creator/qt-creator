@@ -111,7 +111,7 @@ public:
 
     QString proFilePath() const;
 
-    static const QString Id;
+    static const QString IdPrefix;
 
 signals:
     void deploySpecsChanged();

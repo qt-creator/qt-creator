@@ -63,16 +63,14 @@ QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Targ
     QList<Core::Id> ids;
     if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
         return ids;
+    if (!parent->project()->supportsProfile(parent->profile()))
+        return ids;
     ProjectExplorer::ToolChain *tc
             = ProjectExplorer::ToolChainProfileInformation::toolChain(parent->profile());
     if (!tc || tc->targetAbi().os() != ProjectExplorer::Abi::LinuxOS)
         return ids;
-    if (ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile())
-            == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
-        return ids;
-
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(parent->profile());
-    if (!dev.isNull() && dev->type() == Core::Id(Constants::GenericLinuxOsType))
+    const Core::Id devType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
+    if (devType == Core::Id(Constants::GenericLinuxOsType))
         ids << genericDeployConfigurationId();
     return ids;
 }

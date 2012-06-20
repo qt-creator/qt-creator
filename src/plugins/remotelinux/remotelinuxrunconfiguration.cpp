@@ -447,6 +447,6 @@ void RemoteLinuxRunConfiguration::setDisabledReason(const QString &reason) const
     d->disabledReason = reason;
 }
 
-const QString RemoteLinuxRunConfiguration::Id = QLatin1String("RemoteLinuxRunConfiguration");
+const QString RemoteLinuxRunConfiguration::IdPrefix = QLatin1String("RemoteLinuxRunConfiguration:");
 
 } // namespace RemoteLinux

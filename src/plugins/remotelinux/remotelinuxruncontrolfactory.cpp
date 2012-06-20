@@ -65,7 +65,7 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
         return false;
 
     const QString idStr = QString::fromLatin1(runConfiguration->id().name());
-    if (!runConfiguration->isEnabled() || !idStr.startsWith(RemoteLinuxRunConfiguration::Id))
+    if (!runConfiguration->isEnabled() || !idStr.startsWith(RemoteLinuxRunConfiguration::IdPrefix))
         return false;
 
     if (mode == NormalRunMode)
