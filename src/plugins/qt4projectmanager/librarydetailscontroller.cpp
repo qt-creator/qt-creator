@@ -39,6 +39,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -83,14 +84,11 @@ LibraryDetailsController::LibraryDetailsController(
     // project for which we are going to insert the snippet
     const ProjectExplorer::Project *project =
             ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile);
-    // take active build configuration for it
-    Qt4BuildConfiguration *qt4BuildConfiguration =
-            qobject_cast<Qt4BuildConfiguration *>(project->activeTarget()->activeBuildConfiguration());
     // if its tool chain is maemo behave the same as we would be on linux
-    if (qt4BuildConfiguration
-            && qt4BuildConfiguration->toolChain()
-            && (qt4BuildConfiguration->toolChain()->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
-                || qt4BuildConfiguration->toolChain()->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(project->activeTarget()->profile());
+    if (tc
+            && (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
+                || tc->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
         m_creatorPlatform = CreatorLinux;
 #endif
 
