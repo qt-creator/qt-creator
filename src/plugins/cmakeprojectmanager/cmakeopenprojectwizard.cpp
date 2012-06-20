@@ -409,6 +409,8 @@ void CMakeRunPage::initializePage()
         QVariant profileVariant = qVariantFromValue(static_cast<void *>(p));
 
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
+        if (!tc)
+            continue;
         ProjectExplorer::Abi targetAbi = tc->targetAbi();
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
