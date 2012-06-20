@@ -58,8 +58,11 @@ public:
 
     ItemList toUserOutput(ProjectExplorer::Profile *p) const;
 
-    static Utils::FileName mkspec(const ProjectExplorer::Profile *p);
     static void setMkspec(ProjectExplorer::Profile *p, const Utils::FileName &fn);
+    static Utils::FileName mkspec(const ProjectExplorer::Profile *p);
+    static Utils::FileName effectiveMkspec(const ProjectExplorer::Profile *p);
+    static Utils::FileName defaultMkspec(const ProjectExplorer::Profile *p);
+
 };
 
 } // namespace Qt4ProjectManager

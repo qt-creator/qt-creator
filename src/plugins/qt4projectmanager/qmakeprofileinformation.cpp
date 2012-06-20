@@ -63,19 +63,8 @@ unsigned int QmakeProfileInformation::priority() const
 
 QVariant QmakeProfileInformation::defaultValue(ProjectExplorer::Profile *p) const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
-    if (!version) // No version, so no qmake
-        return QString();
-
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
-
-    const QList<Utils::FileName> tcSpecList = tc ? tc->suggestedMkspecList() : QList<Utils::FileName>();
-    foreach (const Utils::FileName &tcSpec, tcSpecList) {
-        if (version->hasMkspec(tcSpec))
-            return tcSpec.toString();
-    }
-
-    return version ? version->mkspec().toString() : QString();
+    Q_UNUSED(p);
+    return QString();
 }
 
 QList<ProjectExplorer::Task> QmakeProfileInformation::validate(ProjectExplorer::Profile *p) const
@@ -115,9 +104,39 @@ Utils::FileName QmakeProfileInformation::mkspec(const ProjectExplorer::Profile *
     return Utils::FileName::fromString(p->value(Core::Id(Internal::MKSPEC_INFORMATION)).toString());
 }
 
+Utils::FileName QmakeProfileInformation::effectiveMkspec(const ProjectExplorer::Profile *p)
+{
+    if (!p)
+        return Utils::FileName();
+    Utils::FileName spec = mkspec(p);
+    if (spec.isEmpty())
+        return defaultMkspec(p);
+    return spec;
+}
+
 void QmakeProfileInformation::setMkspec(ProjectExplorer::Profile *p, const Utils::FileName &fn)
 {
-    p->setValue(Core::Id(Internal::MKSPEC_INFORMATION), fn.toString());
+    if (fn == defaultMkspec(p))
+        p->setValue(Core::Id(Internal::MKSPEC_INFORMATION), QString());
+    else
+        p->setValue(Core::Id(Internal::MKSPEC_INFORMATION), fn.toString());
+}
+
+Utils::FileName QmakeProfileInformation::defaultMkspec(const ProjectExplorer::Profile *p)
+{
+    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+    if (!version) // No version, so no qmake
+        return Utils::FileName();
+
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
+
+    const QList<Utils::FileName> tcSpecList = tc ? tc->suggestedMkspecList() : QList<Utils::FileName>();
+    foreach (const Utils::FileName &tcSpec, tcSpecList) {
+        if (version->hasMkspec(tcSpec))
+            return tcSpec;
+    }
+
+    return version ? version->mkspec() : Utils::FileName();
 }
 
 } // namespace Qt4ProjectManager
