@@ -63,6 +63,8 @@ static const char compilerCommandKeyC[] = "ProjectExplorer.GccToolChain.Path";
 static const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
 static const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
 
+static const char LEGACY_MAEMO_ID[] = "Qt4ProjectManager.ToolChain.Maemo:";
+
 static QByteArray runGcc(const Utils::FileName &gcc, const QStringList &arguments, const QStringList &env)
 {
     if (gcc.isEmpty() || !gcc.toFileInfo().isExecutable())
@@ -602,13 +604,23 @@ QList<ToolChain *> Internal::GccToolChainFactory::autoDetect()
 // Used by the ToolChainManager to restore user-generated tool chains
 bool Internal::GccToolChainFactory::canRestore(const QVariantMap &data)
 {
-    return idFromMap(data).startsWith(QLatin1String(Constants::GCC_TOOLCHAIN_ID) + QLatin1Char(':'));
+    const QString id = idFromMap(data);
+    return id.startsWith(QLatin1String(Constants::GCC_TOOLCHAIN_ID) + QLatin1Char(':'))
+            || id.startsWith(QLatin1String(LEGACY_MAEMO_ID));
 }
 
 ToolChain *Internal::GccToolChainFactory::restore(const QVariantMap &data)
 {
     GccToolChain *tc = new GccToolChain(false);
-    if (tc->fromMap(data))
+    // Updating from 2.5:
+    QVariantMap updated = data;
+    QString id = idFromMap(updated);
+    if (id.startsWith(LEGACY_MAEMO_ID)) {
+        id = QString::fromLatin1(Constants::GCC_TOOLCHAIN_ID).append(id.mid(id.indexOf(QLatin1Char(':'))));
+        idToMap(updated, id);
+        autoDetectionToMap(updated, false);
+    }
+    if (tc->fromMap(updated))
         return tc;
 
     delete tc;
