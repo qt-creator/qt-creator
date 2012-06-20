@@ -50,7 +50,7 @@ class MaemoPublishingWizardFremantleFree : public Utils::Wizard
     Q_OBJECT
 public:
     explicit MaemoPublishingWizardFremantleFree(const ProjectExplorer::Project *project,
-        QWidget *parent = 0);
+                                                QWidget *parent = 0);
 
 private:
     virtual int nextId() const;

@@ -227,7 +227,7 @@ void Project::setActiveTarget(Target *target)
 
 Target *Project::target(const Core::Id id) const
 {
-    foreach (Target * target, d->m_targets) {
+    foreach (Target *target, d->m_targets) {
         if (target->id() == id)
             return target;
     }

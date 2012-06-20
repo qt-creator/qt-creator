@@ -545,7 +545,7 @@ void MaemoPublisherFremantleFree::finishWithFailure(const QString &progressMsg,
 bool MaemoPublisherFremantleFree::updateDesktopFiles(QString *error) const
 {
     bool success = true;
-    const Qt4MaemoDeployConfiguration * const deployConfig
+    const Qt4MaemoDeployConfiguration *const deployConfig
         = qobject_cast<Qt4MaemoDeployConfiguration *>(m_buildConfig->target()->activeDeployConfiguration());
     QTC_ASSERT(deployConfig, return false);
     const DeploymentInfo *const deploymentInfo = deployConfig->deploymentInfo();

@@ -103,7 +103,7 @@ private:
 
     void setDeviceInfoLabel(const QString &message, bool isError = false);
 
-    QWidget * createCommunicationChannel();
+    QWidget *createCommunicationChannel();
 
     void getQtVersionCommandResult(const Coda::CodaCommandResult &result);
     void getRomInfoResult(const Coda::CodaCommandResult &result);

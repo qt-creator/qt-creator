@@ -506,7 +506,7 @@ void SymbianIDeviceConfigurationWidget::getInstalledPackagesResult(const Coda::C
         const QString uidKey = QLatin1String("uid");
         const QString errorKey = QLatin1String("error");
         const QString versionKey = QLatin1String("version");
-        foreach (const QVariant& var, resultsList) {
+        foreach (const QVariant &var, resultsList) {
             QVariantHash obj = var.toHash();
             bool ok = false;
             uint uid = obj.value(uidKey).toString().toUInt(&ok, 16);
@@ -567,7 +567,7 @@ void SymbianIDeviceConfigurationWidget::getHalResult(const Coda::CodaCommandResu
         int y = 0;
         const QString nameKey = QLatin1String("name");
         const QString valueKey = QLatin1String("value");
-        foreach (const QVariant& var, resultsList) {
+        foreach (const QVariant &var, resultsList) {
             QVariantHash obj = var.toHash();
             const QString name = obj.value(nameKey).toString();
             if (name == QLatin1String("EDisplayXPixels"))

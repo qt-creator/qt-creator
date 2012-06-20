@@ -87,7 +87,7 @@ public:
         Q_UNUSED(e);
         QPainter p(this);
         QColor fillColor = Utils::StyleHelper::mergedColors(
-                palette().button().color(), Qt::black, 80);
+                    palette().button().color(), Qt::black, 80);
         p.fillRect(contentsRect(), fillColor);
     }
 };
@@ -107,9 +107,9 @@ void RootWidget::paintEvent(QPaintEvent *e)
 
     QPainter painter(this);
     QColor light = Utils::StyleHelper::mergedColors(
-            palette().button().color(), Qt::white, 30);
+                palette().button().color(), Qt::white, 30);
     QColor dark = Utils::StyleHelper::mergedColors(
-            palette().button().color(), Qt::black, 85);
+                palette().button().color(), Qt::black, 85);
 
     painter.setPen(light);
     painter.drawLine(rect().topRight(), rect().bottomRight());
@@ -132,7 +132,7 @@ PanelsWidget::PanelsWidget(QWidget *parent) :
 
     QPalette pal = m_root->palette();
     QColor background = Utils::StyleHelper::mergedColors(
-            palette().window().color(), Qt::white, 85);
+                palette().window().color(), Qt::white, 85);
     pal.setColor(QPalette::All, QPalette::Window, background.darker(102));
     setPalette(pal);
     pal.setColor(QPalette::All, QPalette::Window, background);
