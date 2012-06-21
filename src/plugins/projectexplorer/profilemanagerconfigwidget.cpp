@@ -53,7 +53,7 @@ ProfileManagerConfigWidget::ProfileManagerConfigWidget(Profile *p, QWidget *pare
     m_layout->setSpacing(6);
 
     m_iconButton->setMinimumSize(70, 70);
-    m_iconButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::QSizePolicy::Fixed);
+    m_iconButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QVBoxLayout *iconLayout = new QVBoxLayout;
     iconLayout->addWidget(m_iconButton);
     iconLayout->addStretch();

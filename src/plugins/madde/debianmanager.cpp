@@ -560,7 +560,7 @@ bool DebianManager::setPackageManagerIcon(const Utils::FileName &debianDir, Core
         while (nextEolPos != -1 && nextEolPos != contents.length() - 1
             && contents.at(nextEolPos + 1) != '\n'
             && (contents.at(nextEolPos + 1) == '#'
-                || std::isspace(contents.at(nextEolPos + 1))))
+                || isspace(contents.at(nextEolPos + 1))))
             nextEolPos = contents.indexOf('\n', nextEolPos + 1);
         if (nextEolPos == -1)
             nextEolPos = contents.length();
