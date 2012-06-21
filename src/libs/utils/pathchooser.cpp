@@ -204,6 +204,7 @@ public:
     QString m_baseDirectory;
     Environment m_environment;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter;
+    QList<QAbstractButton *> m_buttons;
 };
 
 PathChooserPrivate::PathChooserPrivate(PathChooser *chooser) :
@@ -271,15 +272,21 @@ PathChooser::~PathChooser()
 
 void PathChooser::addButton(const QString &text, QObject *receiver, const char *slotFunc)
 {
+    insertButton(d->m_buttons.count(), text, receiver, slotFunc);
+}
+
+void PathChooser::insertButton(int index, const QString &text, QObject *receiver, const char *slotFunc)
+{
     QPushButton *button = new QPushButton;
     button->setText(text);
     connect(button, SIGNAL(clicked()), receiver, slotFunc);
-    d->m_hLayout->addWidget(button);
+    d->m_hLayout->insertWidget(index + 1/*line edit*/, button);
+    d->m_buttons.insert(index, button);
 }
 
 QAbstractButton *PathChooser::buttonAtIndex(int index) const
 {
-    return findChildren<QAbstractButton*>().at(index);
+    return d->m_buttons.at(index);
 }
 
 QString PathChooser::baseDirectory() const
@@ -343,8 +350,7 @@ bool PathChooser::isReadOnly() const
 void PathChooser::setReadOnly(bool b)
 {
     d->m_lineEdit->setReadOnly(b);
-    const QList<QAbstractButton *> &allButtons = findChildren<QAbstractButton *>();
-    foreach (QAbstractButton *button, allButtons)
+    foreach (QAbstractButton *button, d->m_buttons)
         button->setEnabled(!b);
 }
 

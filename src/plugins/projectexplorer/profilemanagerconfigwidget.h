@@ -37,8 +37,8 @@
 
 QT_BEGIN_NAMESPACE
 class QHBoxLayout;
-class QFormLayout;
-class QPushButton;
+class QGridLayout;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -65,8 +65,8 @@ private slots:
     void setIcon();
 
 private:
-    QFormLayout *m_layout;
-    QPushButton *m_iconButton;
+    QGridLayout *m_layout;
+    QToolButton *m_iconButton;
     QList<ProfileConfigWidget *> m_widgets;
     Profile *m_profile;
     QString m_iconPath;

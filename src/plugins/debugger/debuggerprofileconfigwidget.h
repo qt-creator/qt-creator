@@ -65,6 +65,7 @@ public:
     void apply();
     void discard();
     bool isDirty() const;
+    QWidget *buttonWidget() const;
 
 private slots:
     void autoDetectDebugger();

@@ -59,6 +59,7 @@ public:
     void apply();
     void discard();
     bool isDirty() const;
+    QWidget *buttonWidget() const;
 
 private slots:
     void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);

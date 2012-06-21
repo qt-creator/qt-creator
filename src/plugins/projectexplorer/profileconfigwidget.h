@@ -58,6 +58,7 @@ public:
     virtual void discard() = 0;
     virtual bool isDirty() const = 0;
 
+    virtual QWidget *buttonWidget() const { return 0; }
 signals:
     void dirty();
 };

@@ -98,6 +98,11 @@ void SysRootInformationConfigWidget::makeReadOnly()
     m_chooser->setEnabled(false);
 }
 
+QWidget *SysRootInformationConfigWidget::buttonWidget() const
+{
+    return m_chooser->buttonAtIndex(0);
+}
+
 // --------------------------------------------------------------------------
 // ToolChainInformationConfigWidget:
 // --------------------------------------------------------------------------
@@ -105,7 +110,7 @@ void SysRootInformationConfigWidget::makeReadOnly()
 ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Profile *p, QWidget *parent) :
     ProfileConfigWidget(parent),
     m_isReadOnly(false), m_profile(p),
-    m_comboBox(new QComboBox), m_manageButton(new QPushButton)
+    m_comboBox(new QComboBox), m_manageButton(new QPushButton(this))
 {
     ToolChainManager *tcm = ToolChainManager::instance();
 
@@ -126,7 +131,6 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Profile *p, Q
 
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     m_manageButton->setText(tr("Manage..."));
-    layout->addWidget(m_manageButton);
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageToolChains()));
 
     connect(tcm, SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
@@ -164,6 +168,11 @@ bool ToolChainInformationConfigWidget::isDirty() const
 void ToolChainInformationConfigWidget::makeReadOnly()
 {
     m_comboBox->setEnabled(false);
+}
+
+QWidget *ToolChainInformationConfigWidget::buttonWidget() const
+{
+    return m_manageButton;
 }
 
 void ToolChainInformationConfigWidget::toolChainAdded(ProjectExplorer::ToolChain *tc)
@@ -292,7 +301,7 @@ void DeviceTypeInformationConfigWidget::makeReadOnly()
 DeviceInformationConfigWidget::DeviceInformationConfigWidget(Profile *p, QWidget *parent) :
     ProfileConfigWidget(parent),
     m_isReadOnly(false), m_profile(p),
-    m_comboBox(new QComboBox), m_manageButton(new QPushButton),
+    m_comboBox(new QComboBox), m_manageButton(new QPushButton(this)),
     m_model(new DeviceManagerModel(DeviceManager::instance()))
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
@@ -305,7 +314,6 @@ DeviceInformationConfigWidget::DeviceInformationConfigWidget(Profile *p, QWidget
 
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     m_manageButton->setText(tr("Manage..."));
-    layout->addWidget(m_manageButton);
 
     discard();
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(dirty()));
@@ -341,6 +349,11 @@ bool DeviceInformationConfigWidget::isDirty() const
 void DeviceInformationConfigWidget::makeReadOnly()
 {
     m_comboBox->setEnabled(false);
+}
+
+QWidget *DeviceInformationConfigWidget::buttonWidget() const
+{
+    return m_manageButton;
 }
 
 void DeviceInformationConfigWidget::manageDevices()

@@ -36,24 +36,24 @@
 
 #include <QHBoxLayout>
 #include <QFileDialog>
-#include <QFormLayout>
-#include <QPushButton>
+#include <QGridLayout>
+#include <QLabel>
+#include <QToolButton>
 #include <QSizePolicy>
+#include <QStyle>
 
 namespace ProjectExplorer {
 namespace Internal {
 
 ProfileManagerConfigWidget::ProfileManagerConfigWidget(Profile *p, QWidget *parent) :
     ProfileConfigWidget(parent),
-    m_layout(new QFormLayout),
-    m_iconButton(new QPushButton),
+    m_layout(new QGridLayout),
+    m_iconButton(new QToolButton),
     m_profile(p)
 {
     m_layout->setMargin(0);
     m_layout->setSpacing(6);
 
-    m_iconButton->setMinimumSize(70, 70);
-    m_iconButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     QVBoxLayout *iconLayout = new QVBoxLayout;
     iconLayout->addWidget(m_iconButton);
     iconLayout->addStretch();
@@ -103,7 +103,12 @@ void ProfileManagerConfigWidget::addConfigWidget(ProjectExplorer::ProfileConfigW
     Q_ASSERT(!m_widgets.contains(widget));
 
     connect(widget, SIGNAL(dirty()), this, SIGNAL(dirty()));
-    m_layout->addRow(widget->displayName(), widget);
+    int row = m_layout->rowCount();
+    m_layout->addWidget(new QLabel(widget->displayName()), row, 0,
+                        Qt::Alignment(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment)));
+    m_layout->addWidget(widget, row, 1);
+    if (widget->buttonWidget())
+        m_layout->addWidget(widget->buttonWidget(), row, 2);
     m_widgets.append(widget);
 }
 

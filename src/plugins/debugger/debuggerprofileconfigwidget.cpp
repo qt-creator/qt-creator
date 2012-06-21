@@ -96,15 +96,8 @@ DebuggerProfileConfigWidget::DebuggerProfileConfigWidget(ProjectExplorer::Profil
 
     m_chooser->setContentsMargins(0, 0, 0, 0);
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_chooser->insertButton(0, tr("Auto detect"), this, SLOT(autoDetectDebugger()));
 
-    QPushButton *button = new QPushButton(tr("Auto detect"));
-    button->setContentsMargins(0, 0, 0, 0);
-    connect(button, SIGNAL(clicked()), this, SLOT(autoDetectDebugger()));
-
-    QHBoxLayout *box = dynamic_cast<QHBoxLayout *>(m_chooser->layout());
-    QTC_CHECK(box);
-    if (box)
-        box->insertWidget(1, button);
     layout->addWidget(m_chooser);
 
     discard();
@@ -135,6 +128,11 @@ void DebuggerProfileConfigWidget::discard()
 bool DebuggerProfileConfigWidget::isDirty() const
 {
     return m_chooser->fileName() != DebuggerProfileInformation::debuggerCommand(m_profile);
+}
+
+QWidget *DebuggerProfileConfigWidget::buttonWidget() const
+{
+    return m_chooser->buttonAtIndex(1);
 }
 
 void DebuggerProfileConfigWidget::autoDetectDebugger()

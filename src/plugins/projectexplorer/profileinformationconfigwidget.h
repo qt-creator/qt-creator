@@ -64,6 +64,7 @@ public:
     void discard();
     bool isDirty() const;
     void makeReadOnly();
+    QWidget *buttonWidget() const;
 
 private:
     Profile *m_profile;
@@ -86,6 +87,7 @@ public:
     void discard();
     bool isDirty() const;
     void makeReadOnly();
+    QWidget *buttonWidget() const;
 
 private slots:
     void toolChainAdded(ProjectExplorer::ToolChain *tc);
@@ -142,6 +144,7 @@ public:
     void discard();
     bool isDirty() const;
     void makeReadOnly();
+    QWidget *buttonWidget() const;
 
 private slots:
     void manageDevices();

@@ -53,7 +53,7 @@ QtProfileConfigWidget::QtProfileConfigWidget(ProjectExplorer::Profile *p,
     ProjectExplorer::ProfileConfigWidget(parent),
     m_profile(p),
     m_combo(new QComboBox),
-    m_manageButton(new QPushButton)
+    m_manageButton(new QPushButton(this))
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
@@ -64,7 +64,6 @@ QtProfileConfigWidget::QtProfileConfigWidget(ProjectExplorer::Profile *p,
 
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     m_manageButton->setText(tr("Manage..."));
-    layout->addWidget(m_manageButton);
 
     QtVersionManager *mgr = QtVersionManager::instance();
 
@@ -112,6 +111,11 @@ bool QtProfileConfigWidget::isDirty() const
 {
     int id = m_combo->itemData(m_combo->currentIndex()).toInt();
     return id != QtProfileInformation::qtVersionId(m_profile);
+}
+
+QWidget *QtProfileConfigWidget::buttonWidget() const
+{
+    return m_manageButton;
 }
 
 void QtProfileConfigWidget::versionsChanged(const QList<int> &added, const QList<int> &removed,

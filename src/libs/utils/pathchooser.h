@@ -114,6 +114,7 @@ public:
     static QString homePath();
 
     void addButton(const QString &text, QObject *receiver, const char *slotFunc);
+    void insertButton(int index, const QString &text, QObject *receiver, const char *slotFunc);
     QAbstractButton *buttonAtIndex(int index) const;
 
     QLineEdit *lineEdit() const;
