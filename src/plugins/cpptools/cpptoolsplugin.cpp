@@ -294,7 +294,8 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
         const QFileInfo candidateFi(absoluteDir, candidateFileName);
         if (candidateFi.isFile()) {
             m_headerSourceMapping[fi.absoluteFilePath()] = candidateFi.absoluteFilePath();
-            m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
+            if (type != HeaderFile || !baseName.endsWith(privateHeaderSuffix))
+                m_headerSourceMapping[candidateFi.absoluteFilePath()] = fi.absoluteFilePath();
             return candidateFi.absoluteFilePath();
         }
     }
