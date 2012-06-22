@@ -132,6 +132,8 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_infoBrowser->setTextInteractionFlags(Qt::TextBrowserInteraction);
     connect(m_infoBrowser, SIGNAL(anchorClicked(QUrl)), this, SLOT(infoAnchorClicked(QUrl)));
     m_ui->infoWidget->setWidget(m_infoBrowser);
+    connect(m_ui->infoWidget, SIGNAL(expanded(bool)),
+            this, SLOT(handleInfoWidgetExpanded(bool)));
 
     m_ui->versionInfoWidget->setWidget(versionInfoWidget);
     m_ui->versionInfoWidget->setState(Utils::DetailsWidget::NoSummary);
@@ -336,9 +338,16 @@ void QtOptionsPageWidget::qtVersionsDumpUpdated(const Utils::FileName &qmakeComm
     }
 }
 
+void QtOptionsPageWidget::handleInfoWidgetExpanded(bool expanded)
+{
+    m_ui->versionInfoWidget->setVisible(!expanded);
+    m_ui->debuggingHelperWidget->setVisible(!expanded);
+}
+
 void QtOptionsPageWidget::handleDebuggingHelperExpanded(bool expanded)
 {
     m_ui->versionInfoWidget->setVisible(!expanded);
+    m_ui->infoWidget->setVisible(!expanded);
 }
 
 void QtOptionsPageWidget::infoAnchorClicked(const QUrl &url)
