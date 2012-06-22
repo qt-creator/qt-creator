@@ -62,7 +62,7 @@ QmakeProfileConfigWidget::QmakeProfileConfigWidget(ProjectExplorer::Profile *p,
 
 QString QmakeProfileConfigWidget::displayName() const
 {
-    return tr("Mkspec:");
+    return tr("Qt mkspec:");
 }
 
 void QmakeProfileConfigWidget::makeReadOnly()
