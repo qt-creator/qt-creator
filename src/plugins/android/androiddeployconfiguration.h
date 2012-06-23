@@ -48,7 +48,7 @@ class AndroidDeployConfiguration : public ProjectExplorer::DeployConfiguration
     friend class AndroidDeployConfigurationFactory;
 
 public:
-    AndroidDeployConfiguration(ProjectExplorer::Target *parent);
+    AndroidDeployConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     virtual ~AndroidDeployConfiguration();
 protected:
     AndroidDeployConfiguration(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *source);
@@ -72,6 +72,9 @@ public:
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
     // used to translate the ids to names to display to the user
     QString displayNameForId(const Core::Id id) const;
+
+private:
+    bool canHandle(ProjectExplorer::Target *parent) const;
 };
 
 } // namespace Internal

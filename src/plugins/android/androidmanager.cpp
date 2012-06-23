@@ -432,10 +432,15 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
         }
     }
 
+    Utils::FileName src = androidPath;
+    src.appendPath("src");
+    Utils::FileName res = androidPath;
+    res.appendPath("res");
+
     if (!forceUpdate && androidPath.toFileInfo().exists()
             && manifestPath(target).toFileInfo().exists()
-            && androidPath.append(QLatin1String("/src")).toFileInfo().exists()
-            && androidPath.append(QLatin1String("/res")).toFileInfo().exists())
+            && src.toFileInfo().exists()
+            && res.toFileInfo().exists())
         return true;
 
     forceUpdate &= androidPath.toFileInfo().exists();

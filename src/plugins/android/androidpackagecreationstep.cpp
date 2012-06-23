@@ -152,15 +152,17 @@ bool AndroidPackageCreationStep::init()
 
     // Copying
     m_androidDir = AndroidManager::dirPath(target());
+    Utils::FileName path = m_androidDir;
     Utils::FileName androidLibPath;
     if (project->rootQt4ProjectNode()->variableValue(Qt4ProjectManager::ConfigVar).contains(QLatin1String("x86")))
-        androidLibPath = m_androidDir.appendPath(QLatin1String("libs/x86"));
+        androidLibPath = path.appendPath(QLatin1String("libs/x86"));
     else if (project->rootQt4ProjectNode()
              ->variableValue(Qt4ProjectManager::ConfigVar).contains(QLatin1String("armeabi-v7a")))
-        androidLibPath = m_androidDir.appendPath(QLatin1String("libs/armeabi-v7a"));
+        androidLibPath = path.appendPath(QLatin1String("libs/armeabi-v7a"));
     else
-        androidLibPath = m_androidDir.appendPath(QLatin1String("libs/armeabi"));
-    m_gdbServerDestination = androidLibPath.appendPath(QLatin1String("gdbserver"));
+        androidLibPath = path.appendPath(QLatin1String("libs/armeabi"));
+    path = m_androidDir;
+    m_gdbServerDestination = path.appendPath(QLatin1String("gdbserver"));
     m_gdbServerSource = AndroidConfigurations::instance().gdbServerPath(target()->activeRunConfiguration()->abi().architecture());
     m_debugBuild = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
 

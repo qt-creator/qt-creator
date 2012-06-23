@@ -35,6 +35,7 @@
 #include "androidconstants.h"
 #include "androidconfigurations.h"
 #include "androiddeploystepfactory.h"
+#include "androiddevicefactory.h"
 #include "androidconfigurations.h"
 #include "androidmanager.h"
 #include "androidpackagecreationfactory.h"
@@ -74,6 +75,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new Internal::AndroidQtVersionFactory);
     addAutoReleasedObject(new Internal::AndroidToolChainFactory);
     addAutoReleasedObject(new Internal::AndroidDeployConfigurationFactory);
+    addAutoReleasedObject(new Internal::AndroidDeviceFactory);
     return true;
 }
 

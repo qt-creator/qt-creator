@@ -214,7 +214,8 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
 void AndroidConfigurations::updateAvailablePlatforms()
 {
     m_availablePlatforms.clear();
-    QDirIterator it(m_config.ndkLocation.appendPath(QLatin1String("platforms")).toString(), QStringList() << QLatin1String("android-*"), QDir::Dirs);
+    Utils::FileName path = m_config.ndkLocation;
+    QDirIterator it(path.appendPath(QLatin1String("platforms")).toString(), QStringList() << QLatin1String("android-*"), QDir::Dirs);
     while (it.hasNext()) {
         const QString &fileName = it.next();
         m_availablePlatforms.push_back(fileName.mid(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
@@ -282,7 +283,7 @@ Utils::FileName AndroidConfigurations::androidToolPath() const
     return path.appendPath(QLatin1String("tools/android"ANDROID_BAT_SUFFIX));
 #else
     Utils::FileName path = m_config.sdkLocation;
-    return path.appendPath(QLatin1String("tools/android"ANDROID_EXE_SUFFIX));
+    return path.appendPath(QLatin1String("tools/android"));
 #endif
 }
 

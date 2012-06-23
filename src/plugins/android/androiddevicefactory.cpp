@@ -30,46 +30,48 @@
 **
 **************************************************************************/
 
-#ifndef ANDROIDCONSTANTS_H
-#define ANDROIDCONSTANTS_H
+#include "androiddevicefactory.h"
 
-#include <QLatin1String>
+#include "androidconstants.h"
+#include <coreplugin/id.h>
 
 namespace Android {
 namespace Internal {
 
-enum AndroidQemuStatus {
-    AndroidQemuStarting,
-    AndroidQemuFailedToStart,
-    AndroidQemuFinished,
-    AndroidQemuCrashed,
-    AndroidQemuUserReason
-};
+AndroidDeviceFactory::AndroidDeviceFactory()
+{ setObjectName(QLatin1String("AndroidDeviceFactory")); }
 
-#define ANDROID_PREFIX "Qt4ProjectManager.AndroidRunConfiguration"
+QString AndroidDeviceFactory::displayNameForId(Core::Id type) const
+{
+    if (type == Core::Id(Constants::ANDROID_DEVICE_TYPE))
+        return tr("Android Device");
+    return QString();
+}
 
-#ifdef Q_OS_WIN32
-#define ANDROID_EXE_SUFFIX ".exe"
-#define ANDROID_BAT_SUFFIX ".bat"
-#else
-#define ANDROID_EXE_SUFFIX ""
-#define ANDROID_BAT_SUFFIX ""
-#endif
+QList<Core::Id> AndroidDeviceFactory::availableCreationIds() const
+{
+    return QList<Core::Id>() << Core::Id(Constants::ANDROID_DEVICE_TYPE);
+}
 
-static const QLatin1String ANDROID_RC_ID_PREFIX(ANDROID_PREFIX ":");
+bool AndroidDeviceFactory::canCreate() const
+{
+    return false;
+}
+
+ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::create(Core::Id id) const
+{
+    return ProjectExplorer::IDevice::Ptr();
+}
+
+bool AndroidDeviceFactory::canRestore(const QVariantMap &map) const
+{
+    return false;
+}
+
+ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::restore(const QVariantMap &map) const
+{
+    return ProjectExplorer::IDevice::Ptr();
+}
 
 } // namespace Internal
-
-namespace Constants {
-const char ANDROID_SETTINGS_ID[] = "ZZ.Android Configurations";
-const char ANDROID_SETTINGS_CATEGORY[] = "X.Android";
-const char ANDROID_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Android", "Android");
-const char ANDROID_SETTINGS_CATEGORY_ICON[] = ":/android/images/QtAndroid.png";
-const char ANDROID_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.Android";
-const char ANDROIDQT[] = "Qt4ProjectManager.QtVersion.Android";
-const char ANDROID_DEVICE_TYPE[] = "Android.Device.Type";
-
-}
 } // namespace Android
-
-#endif  // ANDROIDCONSTANTS_H

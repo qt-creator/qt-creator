@@ -217,12 +217,12 @@ bool AndroidSettingsWidget::checkNDK(const Utils::FileName &location)
         QMessageBox::critical(this, tr("Android SDK Folder"), tr("\"%1\" doesn't seem to be an Android NDK top folder").arg(location.toUserOutput()));
         return false;
     }
+    m_androidConfig.ndkLocation = location;
     m_ui->toolchainVersionComboBox->setEnabled(true);
     m_ui->GdbLocationLineEdit->setEnabled(true);
     m_ui->GdbLocationPushButton->setEnabled(true);
     m_ui->GdbserverLocationLineEdit->setEnabled(true);
     m_ui->GdbserverLocationPushButton->setEnabled(true);
-    fillToolchainVersions();
     return true;
 
 }
@@ -243,10 +243,10 @@ void AndroidSettingsWidget::sdkLocationEditingFinished()
 void AndroidSettingsWidget::ndkLocationEditingFinished()
 {
     Utils::FileName location = Utils::FileName::fromUserInput(m_ui->NDKLocationLineEdit->text());
-    if (checkNDK(location))
+    if (!checkNDK(location))
         return;
-    m_androidConfig.ndkLocation = location;
     saveSettings(true);
+    fillToolchainVersions();
 }
 
 void AndroidSettingsWidget::fillToolchainVersions()

@@ -227,9 +227,9 @@ void AndroidPackageCreationWidget::initGui()
     m_fileSystemWatcher->addPath(AndroidManager::manifestPath(target).toString());
     m_fileSystemWatcher->addPath(AndroidManager::srcPath(target).toString());
     connect(m_fileSystemWatcher, SIGNAL(directoryChanged(QString)),
-            this, SIGNAL(updateAndroidProjectInfo()));
+            this, SLOT(updateAndroidProjectInfo()));
     connect(m_fileSystemWatcher, SIGNAL(fileChanged(QString)), this,
-            SIGNAL(updateAndroidProjectInfo()));
+            SLOT(updateAndroidProjectInfo()));
 
     m_ui->packageNameLineEdit->setValidator(new QRegExpValidator(QRegExp(packageNameRegExp), this));
     connect(m_ui->packageNameLineEdit, SIGNAL(editingFinished()), SLOT(setPackageName()));
