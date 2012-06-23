@@ -125,6 +125,7 @@ private:
     Utils::FileName m_keystorePathForRun;
     QString m_certificatePasswdForRun;
     Utils::FileName m_jarSigner;
+    Utils::FileName m_zipAligner;
     // more for checkLibraries
     Utils::FileName m_appPath;
     Utils::FileName m_readElf;

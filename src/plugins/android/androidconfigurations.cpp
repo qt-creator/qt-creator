@@ -390,6 +390,12 @@ Utils::FileName AndroidConfigurations::jarsignerPath() const
     return openJDKBinPath().appendPath(jarsignerName);
 }
 
+Utils::FileName AndroidConfigurations::zipalignPath() const
+{
+    Utils::FileName path = m_config.sdkLocation;
+    return path.appendPath(QLatin1String("tools/zipalign" ANDROID_EXE_SUFFIX));
+}
+
 QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel) const
 {
     QVector<AndroidDeviceInfo> devices = connectedDevices();

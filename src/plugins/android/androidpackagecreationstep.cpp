@@ -175,6 +175,7 @@ bool AndroidPackageCreationStep::init()
     m_keystorePathForRun = m_keystorePath;
     m_certificatePasswdForRun = m_certificatePasswd;
     m_jarSigner = AndroidConfigurations::instance().jarsignerPath();
+    m_zipAligner = AndroidConfigurations::instance().zipalignPath();
     initCheckRequiredLibrariesForRun();
     return true;
 }
@@ -425,7 +426,7 @@ bool AndroidPackageCreationStep::createPackage()
                   << QLatin1String("-storepass") << m_keystorePasswd
                   << m_apkPathUnsigned.toUserOutput()
                   << m_certificateAlias;
-            buildProc->start(m_jarSigner.toString(), build); //TODO
+            buildProc->start(m_jarSigner.toString(), build);
             if (!buildProc->waitForStarted()) {
                 disconnect(buildProc, 0, this, 0);
                 buildProc->deleteLater();
@@ -442,7 +443,12 @@ bool AndroidPackageCreationStep::createPackage()
             emit addOutput(tr("Failed, try again"), ErrorMessageOutput);
             m_certificatePasswdForRun.clear();
         }
-        if (QFile::rename(m_apkPathUnsigned.toString(), m_apkPathSigned.toString())) {
+        build.clear();
+        build << QLatin1String("-f") << QLatin1String("-v") << QLatin1String("4") << m_apkPathUnsigned.toString() << m_apkPathSigned.toString();
+        buildProc->start(m_zipAligner.toString(), build);
+        buildProc->waitForFinished();
+        if (!buildProc->exitCode()) {
+            QFile::remove(m_apkPathUnsigned.toString());
             emit addOutput(tr("Release signed package created to %1")
                            .arg(m_apkPathSigned.toUserOutput())
                            , MessageOutput);

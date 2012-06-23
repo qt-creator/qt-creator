@@ -107,6 +107,7 @@ public:
     Utils::FileName openJDKPath() const;
     Utils::FileName keytoolPath() const;
     Utils::FileName jarsignerPath() const;
+    Utils::FileName zipalignPath() const;
     Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture) const;
     Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture) const;
     QString getDeployDeviceSerialNumber(int *apiLevel) const;
