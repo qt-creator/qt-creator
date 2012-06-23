@@ -41,6 +41,8 @@ QtcPlugin {
         "androiddeploystepwidget.cpp",
         "androiddeploystepwidget.h",
         "androiddeploystepwidget.ui",
+        "androiddevicefactory.cpp",
+        "androiddevicefactory.h",
         "androidglobal.h",
         "androidmanager.h",
         "androidmanager.cpp",

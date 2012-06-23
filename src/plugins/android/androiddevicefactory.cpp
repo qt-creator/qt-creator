@@ -60,16 +60,19 @@ bool AndroidDeviceFactory::canCreate() const
 
 ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::create(Core::Id id) const
 {
+    Q_UNUSED(id);
     return ProjectExplorer::IDevice::Ptr();
 }
 
 bool AndroidDeviceFactory::canRestore(const QVariantMap &map) const
 {
+    Q_UNUSED(map);
     return false;
 }
 
 ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::restore(const QVariantMap &map) const
 {
+    Q_UNUSED(map);
     return ProjectExplorer::IDevice::Ptr();
 }
 
