@@ -226,6 +226,8 @@ void BuildSettingsWidget::updateAddButtonMenu()
                                        this, SLOT(cloneConfiguration()));
         }
         IBuildConfigurationFactory * factory = IBuildConfigurationFactory::find(m_target);
+        if (!factory)
+            return;
         foreach (Core::Id id, factory->availableCreationIds(m_target)) {
             QAction *action = m_addButtonMenu->addAction(factory->displayNameForId(id), this, SLOT(createConfiguration()));
             action->setData(QVariant::fromValue(id));

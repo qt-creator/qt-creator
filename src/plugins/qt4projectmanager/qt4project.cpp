@@ -924,17 +924,16 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
 
         Profile *p;
         Utils::Environment env = Utils::Environment::systemEnvironment();
-        Qt4BuildConfiguration *currentBc = bc;
         QStringList qmakeArgs;
-        if (!currentBc)
-            currentBc = activeTarget() ? qobject_cast<Qt4BuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : 0;
+        if (!bc)
+            bc = activeTarget() ? qobject_cast<Qt4BuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : 0;
 
-        if (currentBc) {
-            p = currentBc->target()->profile();
-            env = currentBc->environment();
-            if (currentBc->qmakeStep()) {
-                qmakeArgs = currentBc->qmakeStep()->parserArguments();
-                m_proFileOption->qmakespec = currentBc->qmakeStep()->mkspec().toString();
+        if (bc) {
+            p = bc->target()->profile();
+            env = bc->environment();
+            if (bc->qmakeStep()) {
+                qmakeArgs = bc->qmakeStep()->parserArguments();
+                m_proFileOption->qmakespec = bc->qmakeStep()->mkspec().toString();
             } else {
                 qmakeArgs = bc->configCommandLineArguments();
             }
