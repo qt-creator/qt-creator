@@ -149,6 +149,7 @@ Project {
 
         files: [
             "src/app/main.cpp",
+            "src/app/qtcreator.rc",
             "src/shared/qtsingleapplication/qtsingleapplication.h",
             "src/shared/qtsingleapplication/qtsingleapplication.cpp",
             "src/shared/qtsingleapplication/qtlocalpeer.h",
