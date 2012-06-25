@@ -4,6 +4,7 @@ include(../../qtcreatorplugin.pri)
 include(imageviewer_dependencies.pri)
 
 HEADERS += \
+    commandbutton.h \
     imageviewerplugin.h \
     imageviewerfactory.h \
     imageviewerfile.h \
@@ -13,6 +14,7 @@ HEADERS += \
     imagevieweractionhandler.h
 
 SOURCES += \
+    commandbutton.cpp \
     imageviewerplugin.cpp \
     imageviewerfactory.cpp \
     imageviewerfile.cpp \

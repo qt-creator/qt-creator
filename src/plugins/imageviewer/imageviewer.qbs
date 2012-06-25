@@ -16,6 +16,7 @@ QtcPlugin {
     ]
 
     files: [
+        "commandbutton.h",
         "imageviewerplugin.h",
         "imageviewerfactory.h",
         "imageviewerfile.h",
@@ -23,6 +24,7 @@ QtcPlugin {
         "imageview.h",
         "imageviewerconstants.h",
         "imagevieweractionhandler.h",
+        "commandbutton.cpp",
         "imageviewerplugin.cpp",
         "imageviewerfactory.cpp",
         "imageviewerfile.cpp",

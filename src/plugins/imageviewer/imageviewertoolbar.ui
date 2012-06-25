@@ -18,8 +18,8 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QToolButton" name="toolButtonBackground">
-     <property name="toolTip">
+    <widget class="CommandButton" name="toolButtonBackground">
+     <property name="toolTipBase">
       <string>Show Background</string>
      </property>
      <property name="icon">
@@ -35,8 +35,8 @@
     </widget>
    </item>
    <item>
-    <widget class="QToolButton" name="toolButtonOutline">
-     <property name="toolTip">
+    <widget class="CommandButton" name="toolButtonOutline">
+     <property name="toolTipBase">
       <string>Show Outline</string>
      </property>
      <property name="icon">
@@ -52,8 +52,8 @@
     </widget>
    </item>
    <item>
-    <widget class="QToolButton" name="toolButtonFitToScreen">
-     <property name="toolTip">
+    <widget class="CommandButton" name="toolButtonFitToScreen">
+     <property name="toolTipBase">
       <string>Fit to Screen</string>
      </property>
      <property name="icon">
@@ -66,8 +66,8 @@
     </widget>
    </item>
    <item>
-    <widget class="QToolButton" name="toolButtonOriginalSize">
-     <property name="toolTip">
+    <widget class="CommandButton" name="toolButtonOriginalSize">
+     <property name="toolTipBase">
       <string>Original Size</string>
      </property>
      <property name="icon">
@@ -77,8 +77,8 @@
     </widget>
    </item>
    <item>
-    <widget class="QToolButton" name="toolButtonZoomIn">
-     <property name="toolTip">
+    <widget class="CommandButton" name="toolButtonZoomIn">
+     <property name="toolTipBase">
       <string>Zoom In</string>
      </property>
      <property name="icon">
@@ -91,8 +91,8 @@
     </widget>
    </item>
    <item>
-    <widget class="QToolButton" name="toolButtonZoomOut">
-     <property name="toolTip">
+    <widget class="CommandButton" name="toolButtonZoomOut">
+     <property name="toolTipBase">
       <string>Zoom Out</string>
      </property>
      <property name="icon">
@@ -105,10 +105,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QToolButton" name="toolButtonPlayPause">
-     <property name="toolTip">
-      <string>Pause Animation</string>
-     </property>
+    <widget class="CommandButton" name="toolButtonPlayPause">
     </widget>
    </item>
    <item>
@@ -147,6 +144,11 @@
    <extends>QWidget</extends>
    <header>utils/styledbar.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CommandButton</class>
+   <extends>QToolButton</extends>
+   <header>commandbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources>
