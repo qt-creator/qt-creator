@@ -789,9 +789,10 @@ void QmlCppEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qmlPort)
 void QmlCppEngine::notifyEngineRemoteSetupFailed(const QString &message)
 {
     EDEBUG("MASTER REMOTE SETUP FAILED");
-    notifyEngineRemoteSetupFailed(message);
+    DebuggerEngine::notifyEngineRemoteSetupFailed(message);
 
     cppEngine()->notifyEngineRemoteSetupFailed(message);
+    qmlEngine()->notifyEngineRemoteSetupFailed(message);
 }
 
 void QmlCppEngine::showMessage(const QString &msg, int channel, int timeout) const
