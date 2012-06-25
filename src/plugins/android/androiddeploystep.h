@@ -75,6 +75,9 @@ public:
     AndroidDeployAction deployAction();
     bool useLocalQtLibs();
 
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
+
 public slots:
     void setDeployAction(AndroidDeployAction deploy);
     void setDeployQASIPackagePath(const QString &package);

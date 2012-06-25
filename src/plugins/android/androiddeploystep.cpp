@@ -58,6 +58,8 @@ using namespace Qt4ProjectManager;
 namespace Android {
 namespace Internal {
 
+static const char USE_LOCAL_QT_KEY[] = "Qt4ProjectManager.AndroidDeployStep.UseLocalQtLibs";
+
 const Core::Id AndroidDeployStep::Id("Qt4ProjectManager.AndroidDeployStep");
 
 AndroidDeployStep::AndroidDeployStep(ProjectExplorer::BuildStepList *parent)
@@ -129,6 +131,19 @@ AndroidDeployStep::AndroidDeployAction AndroidDeployStep::deployAction()
 bool AndroidDeployStep::useLocalQtLibs()
 {
     return m_useLocalQtLibs;
+}
+
+bool AndroidDeployStep::fromMap(const QVariantMap &map)
+{
+    m_useLocalQtLibs = map.value(QLatin1String(USE_LOCAL_QT_KEY), false).toBool();
+    return ProjectExplorer::BuildStep::fromMap(map);
+}
+
+QVariantMap AndroidDeployStep::toMap() const
+{
+    QVariantMap map = ProjectExplorer::BuildStep::toMap();
+    map.insert(QLatin1String(USE_LOCAL_QT_KEY), m_useLocalQtLibs);
+    return map;
 }
 
 void AndroidDeployStep::setDeployAction(AndroidDeployStep::AndroidDeployAction deploy)
