@@ -46,6 +46,7 @@ const char ACTION_ORIGINAL_SIZE[] = "ImageViewer.OriginalSize";
 const char ACTION_FIT_TO_SCREEN[] = "ImageViewer.FitToScreen";
 const char ACTION_BACKGROUND[] = "ImageViewer.Background";
 const char ACTION_OUTLINE[] = "ImageViewer.Outline";
+const char ACTION_TOGGLE_ANIMATION[] = "ImageViewer.ToggleAnimation";
 
 } // namespace Constants
 } // namespace ImageViewer

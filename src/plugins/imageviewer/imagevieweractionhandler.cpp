@@ -48,7 +48,15 @@
 namespace ImageViewer {
 namespace Internal {
 
-enum SupportedActions { ZoomIn = 0, ZoomOut, OriginalSize, FitToScreen, Background, Outline };
+enum SupportedActions {
+    ZoomIn = 0,
+    ZoomOut,
+    OriginalSize,
+    FitToScreen,
+    Background,
+    Outline,
+    ToggleAnimation
+};
 
 ImageViewerActionHandler::ImageViewerActionHandler(QObject *parent) :
     QObject(parent), m_signalMapper(new QSignalMapper(this))
@@ -83,6 +91,9 @@ void ImageViewerActionHandler::actionTriggered(int supportedAction)
     case Outline:
         viewer->switchViewOutline();
         break;
+    case ToggleAnimation:
+        viewer->togglePlay();
+        break;
     default:
         break;
     }
@@ -102,6 +113,8 @@ void ImageViewerActionHandler::createActions()
                       QKeySequence(tr("Ctrl+[")));
     registerNewAction(Outline, Constants::ACTION_OUTLINE, tr("Switch Outline"),
                       QKeySequence(tr("Ctrl+]")));
+    registerNewAction(ToggleAnimation, Constants::ACTION_TOGGLE_ANIMATION, tr("Toggle Animation"),
+                      QKeySequence());
 }
 
 void ImageViewerActionHandler::registerNewAction(int actionId, const Core::Id &id,
