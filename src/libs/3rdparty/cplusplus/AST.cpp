@@ -523,6 +523,8 @@ unsigned ClassSpecifierAST::firstToken() const
     if (name)
         if (unsigned candidate = name->firstToken())
             return candidate;
+    if (final_token)
+        return final_token;
     if (colon_token)
         return colon_token;
     if (base_clause_list)
@@ -557,6 +559,8 @@ unsigned ClassSpecifierAST::lastToken() const
             return candidate;
     if (colon_token)
         return colon_token + 1;
+    if (final_token)
+        return final_token + 1;
     if (name)
         if (unsigned candidate = name->lastToken())
             return candidate;

@@ -151,6 +151,8 @@ protected:
 
     virtual bool visit(GotoStatementAST *ast);
     virtual bool visit(LabeledStatementAST *ast);
+    virtual bool visit(SimpleSpecifierAST *ast);
+    virtual bool visit(ClassSpecifierAST *ast);
 
     virtual bool visit(MemInitializerAST *ast);
     virtual bool visit(EnumeratorAST *ast);

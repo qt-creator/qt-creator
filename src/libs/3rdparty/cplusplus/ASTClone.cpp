@@ -362,6 +362,7 @@ ClassSpecifierAST *ClassSpecifierAST::clone(MemoryPool *pool) const
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     if (name)
         ast->name = name->clone(pool);
+    ast->final_token = final_token;
     ast->colon_token = colon_token;
     for (BaseSpecifierListAST *iter = base_clause_list, **ast_iter = &ast->base_clause_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)

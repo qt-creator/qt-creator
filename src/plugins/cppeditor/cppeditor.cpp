@@ -1775,6 +1775,8 @@ void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
             fs.toTextCharFormat(TextEditor::C_PREPROCESSOR);
     m_semanticHighlightFormatMap[SemanticInfo::FunctionUse] =
             fs.toTextCharFormat(TextEditor::C_FUNCTION);
+    m_semanticHighlightFormatMap[SemanticInfo::PseudoKeywordUse] =
+            fs.toTextCharFormat(TextEditor::C_KEYWORD);
     m_keywordFormat = fs.toTextCharFormat(TextEditor::C_KEYWORD);
 
     // only set the background, we do not want to modify foreground properties set by the syntax highlighter or the link

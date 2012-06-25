@@ -134,6 +134,8 @@ private:
             fun->setConst(funTy->isConst());
             fun->setVolatile(funTy->isVolatile());
             fun->setVirtual(funTy->isVirtual());
+            fun->setOverride(funTy->isOverride());
+            fun->setFinal(funTy->isFinal());
             fun->setAmbiguous(funTy->isAmbiguous());
             fun->setVariadic(funTy->isVariadic());
 

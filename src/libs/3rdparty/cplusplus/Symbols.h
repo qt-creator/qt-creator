@@ -323,6 +323,12 @@ public:
     bool isVirtual() const;
     void setVirtual(bool isVirtual);
 
+    bool isOverride() const;
+    void setOverride(bool isOverride);
+
+    bool isFinal() const;
+    void setFinal(bool isFinal);
+
     bool isVariadic() const;
     void setVariadic(bool isVariadic);
 
@@ -371,6 +377,8 @@ private:
     FullySpecifiedType _returnType;
     struct Flags {
         unsigned _isVirtual: 1;
+        unsigned _isOverride: 1;
+        unsigned _isFinal: 1;
         unsigned _isVariadic: 1;
         unsigned _isPureVirtual: 1;
         unsigned _isConst: 1;
