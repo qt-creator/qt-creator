@@ -386,7 +386,7 @@ bool ProfileManager::registerProfile(ProjectExplorer::Profile *p)
     if (!p)
         return true;
     foreach (Profile *current, profiles()) {
-        if (p == current || *p == *current)
+        if (p == current)
             return false;
     }
 
