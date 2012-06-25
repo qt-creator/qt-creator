@@ -228,7 +228,7 @@ QStringList QMakeStep::deducedArguments()
 QStringList QMakeStep::deducedArgumentsAfter()
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
-    if (version && version->supportsShadowBuilds()) {
+    if (version && !version->supportsShadowBuilds()) {
         // We have a target which does not allow shadow building.
         // But we really don't want to have the build artefacts in the source dir
         // so we try to hack around it, to make the common cases work.
