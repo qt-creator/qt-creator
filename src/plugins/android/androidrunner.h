@@ -52,8 +52,7 @@ class AndroidRunner : public QThread
     Q_OBJECT
 
 public:
-    AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig,
-        bool debugging);
+    AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig, bool debuggingMode);
     ~AndroidRunner();
 
     QString displayName() const;
@@ -82,7 +81,6 @@ private:
     void adbKill(qint64 pid, const QString &device, int timeout = 2000, const QString &runAsPackageName = QString());
 
 private:
-    bool m_debugingMode;
     QProcess m_adbLogcatProcess;
     QByteArray m_logcat;
     QString m_intentName;
@@ -91,7 +89,10 @@ private:
     qint64 m_processPID;
     qint64 m_gdbserverPID;
     QTimer m_checkPIDTimer;
-    QString m_remoteChannel;
+    bool m_useCppDebugger;
+    bool m_useQmlDebugger;
+    QString m_remoteGdbChannel;
+    uint m_qmlPort;
     bool m_useLocalQtLibs;
     QString m_localLibs;
     QString m_localJars;

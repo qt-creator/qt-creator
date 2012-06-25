@@ -46,11 +46,13 @@
 namespace Android {
 namespace Internal {
 
-AndroidRunner::AndroidRunner(QObject *parent,
-    AndroidRunConfiguration *runConfig, bool debugging)
+AndroidRunner::AndroidRunner(QObject *parent, AndroidRunConfiguration *runConfig, bool debuggingMode)
     : QThread(parent)
 {
-    m_remoteChannel = runConfig->remoteChannel();
+    m_useCppDebugger = debuggingMode && runConfig->debuggerAspect()->useCppDebugger();
+    m_useQmlDebugger = debuggingMode && runConfig->debuggerAspect()->useQmlDebugger();
+    m_remoteGdbChannel = runConfig->remoteChannel();
+    m_qmlPort = runConfig->debuggerAspect()->qmlDebugServerPort();
     ProjectExplorer::Target *target = runConfig->target();
     AndroidDeployStep *ds = runConfig->deployStep();
     if ((m_useLocalQtLibs = ds->useLocalQtLibs())) {
@@ -58,7 +60,6 @@ AndroidRunner::AndroidRunner(QObject *parent,
         m_localJars = AndroidManager::loadLocalJars(target, ds->deviceAPILevel());
     }
     m_intentName = AndroidManager::intentName(target);
-    m_debugingMode = debugging;
     m_packageName = m_intentName.left(m_intentName.indexOf(QLatin1Char('/')));
     m_deviceSerialNumber = ds->deviceSerialNumber();
     m_processPID = -1;
@@ -101,9 +102,9 @@ void AndroidRunner::checkPID()
         return;
     }
     m_processPID = pid;
-    if (!m_debugingMode)
-        return;
 
+    if (!m_useCppDebugger)
+        return;
     m_gdbserverPID = -1;
     foreach (const QByteArray &proc, procs) {
         if (proc.trimmed().endsWith("gdbserver")) {
@@ -145,21 +146,38 @@ void AndroidRunner::asyncStart()
     killPID(); // kill any process with this name
     QString extraParams;
     QProcess adbStarProc;
-    if (m_debugingMode) {
+    if (m_useCppDebugger) {
         QStringList arguments;
         arguments << QLatin1String("-s") << m_deviceSerialNumber
-                  << QLatin1String("forward") << QString::fromLatin1("tcp%1").arg(m_remoteChannel)
+                  << QLatin1String("forward") << QString::fromLatin1("tcp%1").arg(m_remoteGdbChannel)
                   << QString::fromLatin1("localfilesystem:/data/data/%1/debug-socket").arg(m_packageName);
         adbStarProc.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
         if (!adbStarProc.waitForStarted()) {
-            emit remoteProcessFinished(tr("Failed to forward debugging ports. Reason: $1").arg(adbStarProc.errorString()));
+            emit remoteProcessFinished(tr("Failed to forward C++ debugging ports. Reason: %1").arg(adbStarProc.errorString()));
             return;
         }
         if (!adbStarProc.waitForFinished(-1)) {
-            emit remoteProcessFinished(tr("Failed to forward debugging ports"));
+            emit remoteProcessFinished(tr("Failed to forward C++ debugging ports"));
             return;
         }
         extraParams = QLatin1String("-e native_debug true -e gdbserver_socket +debug-socket");
+    }
+    if (m_useQmlDebugger) {
+        QStringList arguments;
+        QString port = QString::fromLatin1("tcp:%1").arg(m_qmlPort);
+        arguments << QLatin1String("-s") << m_deviceSerialNumber
+                  << QLatin1String("forward") << port << port; // currently forward to same port on device and host
+        adbStarProc.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
+        if (!adbStarProc.waitForStarted()) {
+            emit remoteProcessFinished(tr("Failed to forward QML debugging ports. Reason: %1").arg(adbStarProc.errorString()));
+            return;
+        }
+        if (!adbStarProc.waitForFinished(-1)) {
+            emit remoteProcessFinished(tr("Failed to forward QML debugging ports"));
+            return;
+        }
+        extraParams+=QString::fromLatin1(" -e qml_debug true -e qmljsdebugger port:%1")
+                .arg(m_qmlPort);
     }
 
     if (m_useLocalQtLibs) {
@@ -197,7 +215,7 @@ void AndroidRunner::asyncStart()
         return;
     }
 
-    if (m_debugingMode) {
+    if (m_useCppDebugger) {
         startTime = QTime::currentTime();
         while (m_gdbserverPID == -1 && startTime.secsTo(QTime::currentTime()) < 25) { // wait up to 25 seconds to connect
             checkPID();
@@ -247,6 +265,9 @@ void AndroidRunner::logcatReadStandardOutput()
     foreach (line, m_logcat.split('\n')) {
         if (!line.contains(pid))
             continue;
+        if (line.endsWith('\r'))
+            line.chop(1);
+        line.append('\n');
         if (line.startsWith("E/"))
             emit remoteErrorOutput(line);
         else

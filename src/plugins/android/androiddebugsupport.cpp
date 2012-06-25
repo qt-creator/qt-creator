@@ -70,30 +70,40 @@ static Qt4Project *project(AndroidRunConfiguration *rc)
 RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig)
 {
     DebuggerStartParameters params;
-    Profile *profile = runConfig->target()->profile();
-    params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
-    params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
-    if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
-        params.toolChainAbi = tc->targetAbi();
-    params.dumperLibrary = runConfig->dumperLib();
     params.startMode = AttachToRemoteServer;
-    params.executable = project(runConfig)->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
-    params.remoteChannel = runConfig->remoteChannel();
     params.displayName = AndroidManager::packageName(runConfig->target());
-
-    params.solibSearchPath.clear();
-
-    QList<Qt4ProFileNode *> nodes = project(runConfig)->allProFiles();
-    foreach (Qt4ProFileNode *node, nodes)
-        if (node->projectType() == ApplicationTemplate)
-            params.solibSearchPath.append(node->targetInformation().buildDir);
-
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(runConfig->target()->profile());
-    params.solibSearchPath.append(qtSoPaths(version));
-
-    params.useServerStartScript = true;
     params.remoteSetupNeeded = true;
-    params.remoteArchitecture = QLatin1String("arm");
+
+    if (runConfig->debuggerAspect()->useCppDebugger()) {
+        params.languages |= CppLanguage;
+        Profile *profile = runConfig->target()->profile();
+        params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
+        params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
+        if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
+            params.toolChainAbi = tc->targetAbi();
+        params.dumperLibrary = runConfig->dumperLib();
+        params.executable = project(runConfig)->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
+        params.remoteChannel = runConfig->remoteChannel();
+        params.remoteArchitecture = QLatin1String("arm");
+        params.useServerStartScript = true;
+
+        params.solibSearchPath.clear();
+        QList<Qt4ProFileNode *> nodes = project(runConfig)->allProFiles();
+        foreach (Qt4ProFileNode *node, nodes)
+            if (node->projectType() == ApplicationTemplate)
+                params.solibSearchPath.append(node->targetInformation().buildDir);
+        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(runConfig->target()->profile());
+        params.solibSearchPath.append(qtSoPaths(version));
+    }
+    if (runConfig->debuggerAspect()->useQmlDebugger()) {
+        params.languages |= QmlLanguage;
+        params.qmlServerAddress = QLatin1String("localhost");
+        params.qmlServerPort = runConfig->debuggerAspect()->qmlDebugServerPort();
+        //TODO: Not sure if these are the right paths.
+        params.projectSourceDirectory = project(runConfig)->projectDirectory();
+        params.projectSourceFiles = project(runConfig)->files(Qt4Project::ExcludeGeneratedFiles);
+        params.projectBuildDirectory = project(runConfig)->rootQt4ProjectNode()->buildDir();
+    }
 
     DebuggerRunControl * const debuggerRunControl
         = DebuggerPlugin::createDebugger(params, runConfig);
@@ -106,8 +116,10 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
     : QObject(runControl), m_runControl(runControl),
       m_runner(new AndroidRunner(this, runConfig, true)),
       m_debuggingType(runConfig->debuggingType()),
-      m_gdbServerPort(5039), m_qmlPort(-1)
+      m_gdbServerPort(5039), m_qmlPort(runConfig->debuggerAspect()->qmlDebugServerPort())
 {
+    Q_ASSERT(runConfig->debuggerAspect()->useCppDebugger() || runConfig->debuggerAspect()->useQmlDebugger());
+
     connect(m_runControl->engine(), SIGNAL(requestRemoteSetup()),
             m_runner, SLOT(start()));
     connect(m_runControl, SIGNAL(finished()),
@@ -144,14 +156,22 @@ void AndroidDebugSupport::handleRemoteProcessFinished(const QString &errorMsg)
 
 void AndroidDebugSupport::handleRemoteOutput(const QByteArray &output)
 {
-    if (m_runControl)
-        m_runControl->showMessage(QString::fromUtf8(output), AppOutput);
+    if (m_runControl) {
+        if (m_runControl->engine())
+            m_runControl->engine()->showMessage(QString::fromUtf8(output), AppOutput);
+        else
+            m_runControl->showMessage(QString::fromUtf8(output), AppOutput);
+    }
 }
 
 void AndroidDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
 {
-   if (m_runControl)
-        m_runControl->showMessage(QString::fromUtf8(output), AppError);
+    if (m_runControl) {
+        if (m_runControl->engine())
+            m_runControl->engine()->showMessage(QString::fromUtf8(output), AppError);
+        else
+            m_runControl->showMessage(QString::fromUtf8(output), AppError);
+    }
 }
 
 QStringList AndroidDebugSupport::qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
