@@ -93,8 +93,8 @@ private slots:
     }
 
 protected:
-     void mouseDoubleClickEvent(QMouseEvent *ev)
-     {
+    void mouseDoubleClickEvent(QMouseEvent *ev)
+    {
         int line = cursorForPosition(ev->pos()).block().blockNumber();
         if (unsigned taskid = m_taskids.value(line, 0)) {
             TaskHub *hub = ExtensionSystem::PluginManager::getObject<TaskHub>();
