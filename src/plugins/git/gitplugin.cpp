@@ -787,10 +787,13 @@ void GitPlugin::pull()
     QTC_ASSERT(state.hasTopLevel(), return);
     const bool rebase = m_gitClient->settings()->boolValue(GitSettings::pullRebaseKey);
 
-    switch (m_gitClient->ensureStash(state.topLevel())) {
+    GitClient::StashResult stashResult = m_gitClient->ensureStash(state.topLevel());
+    switch (stashResult) {
     case GitClient::StashUnchanged:
     case GitClient::Stashed:
         m_gitClient->synchronousPull(state.topLevel(), rebase);
+        if (stashResult == GitClient::Stashed)
+            m_gitClient->stashPop(state.topLevel());
         break;
     case GitClient::NotStashed:
         if (!rebase)
