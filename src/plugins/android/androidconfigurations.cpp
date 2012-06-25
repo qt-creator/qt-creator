@@ -232,9 +232,8 @@ QStringList AndroidConfigurations::sdkTargets(int minApiLevel) const
         proc.terminate();
         return targets;
     }
-    QList<QByteArray> avds = proc.readAll().trimmed().split('\n');
-    for (int i = 0; i < avds.size(); i++) {
-        QString line = QLatin1String(avds[i]);
+    while (proc.canReadLine()) {
+        QString line = proc.readLine();
         int index = line.indexOf(QLatin1String("\"android-"));
         if (index == -1)
             continue;
