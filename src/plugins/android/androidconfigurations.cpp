@@ -266,7 +266,7 @@ QStringList AndroidConfigurations::ndkToolchainVersions() const
 Utils::FileName AndroidConfigurations::adbToolPath() const
 {
     Utils::FileName path = m_config.sdkLocation;
-    return path.appendPath(QLatin1String("platform-tools/adb"ANDROID_EXE_SUFFIX));
+    return path.appendPath(QLatin1String("platform-tools/adb" ANDROID_EXE_SUFFIX));
 }
 
 Utils::FileName AndroidConfigurations::androidToolPath() const
@@ -297,7 +297,7 @@ Utils::FileName AndroidConfigurations::antToolPath() const
 Utils::FileName AndroidConfigurations::emulatorToolPath() const
 {
     Utils::FileName path = m_config.sdkLocation;
-    return path.appendPath(QLatin1String("tools/emulator"ANDROID_EXE_SUFFIX));
+    return path.appendPath(QLatin1String("tools/emulator" ANDROID_EXE_SUFFIX));
 }
 
 Utils::FileName AndroidConfigurations::toolPath(ProjectExplorer::Abi::Architecture architecture) const
@@ -312,17 +312,17 @@ Utils::FileName AndroidConfigurations::toolPath(ProjectExplorer::Abi::Architectu
 
 Utils::FileName AndroidConfigurations::stripPath(ProjectExplorer::Abi::Architecture architecture) const
 {
-    return toolPath(architecture).append(QLatin1String("-strip"ANDROID_EXE_SUFFIX));
+    return toolPath(architecture).append(QLatin1String("-strip" ANDROID_EXE_SUFFIX));
 }
 
 Utils::FileName AndroidConfigurations::readelfPath(ProjectExplorer::Abi::Architecture architecture) const
 {
-    return toolPath(architecture).append(QLatin1String("-readelf"ANDROID_EXE_SUFFIX));
+    return toolPath(architecture).append(QLatin1String("-readelf" ANDROID_EXE_SUFFIX));
 }
 
 Utils::FileName AndroidConfigurations::gccPath(ProjectExplorer::Abi::Architecture architecture) const
 {
-    return toolPath(architecture).append(QLatin1String("-gcc"ANDROID_EXE_SUFFIX));
+    return toolPath(architecture).append(QLatin1String("-gcc" ANDROID_EXE_SUFFIX));
 }
 
 Utils::FileName AndroidConfigurations::gdbServerPath(ProjectExplorer::Abi::Architecture architecture) const
@@ -364,7 +364,7 @@ Utils::FileName AndroidConfigurations::gdbPath(ProjectExplorer::Abi::Architectur
     }
     if (!gdbPath.isEmpty())
         return gdbPath;
-    return toolPath(architecture).append(QLatin1String("-gdb"ANDROID_EXE_SUFFIX));
+    return toolPath(architecture).append(QLatin1String("-gdb" ANDROID_EXE_SUFFIX));
 }
 
 Utils::FileName AndroidConfigurations::openJDKPath() const
