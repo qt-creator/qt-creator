@@ -1552,9 +1552,11 @@ GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, bo
         return StatusFailed;
     }
     // Unchanged (output text depending on whether -u was passed)
-    if (outputText.count('\n') == 1)
-        return StatusUnchanged;
-    return StatusChanged;
+    QList<QByteArray> lines = outputText.split('\n');
+    foreach (const QByteArray &line, lines)
+        if (!line.isEmpty() && !line.startsWith('#') && !line.startsWith('?'))
+            return StatusChanged;
+    return StatusUnchanged;
 }
 
 // Quietly retrieve branch list of remote repository URL
