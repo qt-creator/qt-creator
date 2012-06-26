@@ -2467,7 +2467,11 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
 
             // Debugger + mkspec
             if (m_toolChainExtras.contains(origTcId)) {
-                tmp->setValue(Core::Id("Debugger.Information"), m_toolChainExtras.value(origTcId).m_debugger);
+                Utils::Environment env = Utils::Environment::systemEnvironment();
+                QString debugger = m_toolChainExtras.value(origTcId).m_debugger;
+                if (!debugger.isEmpty() && !QFileInfo(debugger).isAbsolute())
+                    debugger = env.searchInPath(debugger);
+                tmp->setValue(Core::Id("Debugger.Information"), debugger);
                 tmp->setValue(Core::Id("QtPM4.mkSpecInformation"), m_toolChainExtras.value(origTcId).m_mkspec);
             }
 
