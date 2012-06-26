@@ -10,6 +10,7 @@ QtcPlugin {
 
     Depends { name: "cpp" }
     cpp.includePaths: [
+        ".",
         "..",
         "../../libs",
         buildDirectory
