@@ -9,7 +9,6 @@ QtcLibrary {
         ".",
         "..",
         "../..",
-        "../3rdparty/botan/build",
         buildDirectory
     ]
 

@@ -13,7 +13,7 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "symbianutils" }
     Depends { name: "QmlJS" }
-    Depends { name: "botan" }
+    Depends { name: "Botan" }
     Depends { name: "CPlusPlus" }
     Depends { name: "TextEditor" }
 
@@ -33,8 +33,7 @@ QtcPlugin {
         "customwidgetwizard",
         "../../libs",
         "../../shared",
-        "../../shared/symbianutils",
-        "../../libs/3rdparty/botan/build"
+        "../../shared/symbianutils"
     ]
 
     files: [

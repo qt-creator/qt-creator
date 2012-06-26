@@ -1,7 +1,0 @@
-realname "S/390 64-bit"
-
-default_submodel s390x
-
-<submodels>
-s390x
-</submodels>

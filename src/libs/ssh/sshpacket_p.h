@@ -39,7 +39,7 @@
 #include <QByteArray>
 #include <QList>
 
-#include <botan/bigint.h>
+namespace Botan { class BigInt; }
 
 namespace QSsh {
 namespace Internal {

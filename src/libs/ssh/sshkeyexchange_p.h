@@ -33,12 +33,13 @@
 #ifndef SSHKEYEXCHANGE_P_H
 #define SSHKEYEXCHANGE_P_H
 
-#include <botan/dh.h>
-
 #include <QByteArray>
 #include <QScopedPointer>
 
-namespace Botan { class HashFunction; }
+namespace Botan {
+class DH_PrivateKey;
+class HashFunction;
+}
 
 namespace QSsh {
 namespace Internal {

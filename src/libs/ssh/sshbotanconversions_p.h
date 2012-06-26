@@ -35,8 +35,7 @@
 
 #include "sshcapabilities_p.h"
 
-#include <botan/rng.h>
-#include <botan/secmem.h>
+#include <botan/botan.h>
 
 namespace QSsh {
 namespace Internal {

@@ -36,7 +36,7 @@
 #include "sshincomingpacket_p.h"
 #include "sshsendfacility_p.h"
 
-#include <botan/exceptn.h>
+#include <botan/botan.h>
 
 #include <QTimer>
 

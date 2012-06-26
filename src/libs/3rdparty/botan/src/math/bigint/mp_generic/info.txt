@@ -1,8 +1,0 @@
-realname "MPI Core (C++)"
-
-load_on dep
-
-<add>
-mp_asm.h
-mp_asmi.h
-</add>

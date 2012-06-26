@@ -39,10 +39,6 @@
 #include "sshincomingpacket_p.h"
 
 #include <botan/botan.h>
-#include <botan/dsa.h>
-#include <botan/look_pk.h>
-#include <botan/pubkey.h>
-#include <botan/rsa.h>
 
 #ifdef CREATOR_SSH_DEBUG
 #include <iostream>
@@ -167,8 +163,8 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
     concatenatedData += reply.k_s;
     concatenatedData += AbstractSshPacket::encodeMpInt(m_dhKey->get_y());
     concatenatedData += AbstractSshPacket::encodeMpInt(reply.f);
-    SymmetricKey k = m_dhKey->derive_key(reply.f);
-    m_k = AbstractSshPacket::encodeMpInt(BigInt(k.begin(), k.length()));
+    const BigInt k = power_mod(reply.f, m_dhKey->get_x(), m_dhKey->get_domain().get_p());
+    m_k = AbstractSshPacket::encodeMpInt(k);
     concatenatedData += m_k;
 
     m_hash.reset(get_hash(botanSha1Name()));
@@ -198,14 +194,12 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
         DSA_PublicKey * const dsaKey
             = new DSA_PublicKey(group, reply.parameters.at(3));
         sigKey.reset(dsaKey);
-        verifier.reset(get_pk_verifier(*dsaKey,
-            botanEmsaAlgoName(SshCapabilities::PubKeyDss)));
+        verifier.reset(new PK_Verifier(*dsaKey, botanEmsaAlgoName(SshCapabilities::PubKeyDss)));
     } else if (m_serverHostKeyAlgo == SshCapabilities::PubKeyRsa) {
         RSA_PublicKey * const rsaKey
             = new RSA_PublicKey(reply.parameters.at(1), reply.parameters.at(0));
         sigKey.reset(rsaKey);
-        verifier.reset(get_pk_verifier(*rsaKey,
-            botanEmsaAlgoName(SshCapabilities::PubKeyRsa)));
+        verifier.reset(new PK_Verifier(*rsaKey, botanEmsaAlgoName(SshCapabilities::PubKeyRsa)));
     } else {
         Q_ASSERT(!"Impossible: Neither DSS nor RSA!");
     }

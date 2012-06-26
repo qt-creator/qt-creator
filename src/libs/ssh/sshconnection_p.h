@@ -50,8 +50,6 @@ QT_BEGIN_NAMESPACE
 class QTcpSocket;
 QT_END_NAMESPACE
 
-namespace Botan { class Exception; }
-
 namespace QSsh {
 class SftpChannel;
 

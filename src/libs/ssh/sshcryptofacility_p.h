@@ -33,22 +33,10 @@
 #ifndef SSHABSTRACTCRYPTOFACILITY_P_H
 #define SSHABSTRACTCRYPTOFACILITY_P_H
 
-#include <botan/auto_rng.h>
-#include <botan/symkey.h>
+#include <botan/botan.h>
 
 #include <QByteArray>
 #include <QScopedPointer>
-
-namespace Botan {
-    class BigInt;
-    class BlockCipher;
-    class BlockCipherMode;
-    class BlockCipherModePaddingMethod;
-    class HashFunction;
-    class HMAC;
-    class Pipe;
-    class PK_Signing_Key;
-}
 
 namespace QSsh {
 namespace Internal {
@@ -77,7 +65,7 @@ private:
 
     virtual QByteArray cryptAlgoName(const SshKeyExchange &kex) const = 0;
     virtual QByteArray hMacAlgoName(const SshKeyExchange &kex) const = 0;
-    virtual Botan::BlockCipherMode *makeCipherMode(Botan::BlockCipher *cipher,
+    virtual Botan::Keyed_Filter *makeCipherMode(Botan::BlockCipher *cipher,
         Botan::BlockCipherModePaddingMethod *paddingMethod,
         const Botan::InitializationVector &iv,
         const Botan::SymmetricKey &key) = 0;
@@ -111,7 +99,7 @@ public:
 private:
     virtual QByteArray cryptAlgoName(const SshKeyExchange &kex) const;
     virtual QByteArray hMacAlgoName(const SshKeyExchange &kex) const;
-    virtual Botan::BlockCipherMode *makeCipherMode(Botan::BlockCipher *cipher,
+    virtual Botan::Keyed_Filter *makeCipherMode(Botan::BlockCipher *cipher,
         Botan::BlockCipherModePaddingMethod *paddingMethod,
         const Botan::InitializationVector &iv, const Botan::SymmetricKey &key);
     virtual char ivChar() const { return 'A'; }
@@ -131,7 +119,7 @@ private:
     QByteArray m_authKeyAlgoName;
     QByteArray m_authPubKeyBlob;
     QByteArray m_cachedPrivKeyContents;
-    QScopedPointer<Botan::PK_Signing_Key> m_authKey;
+    QScopedPointer<Botan::Private_Key> m_authKey;
     mutable Botan::AutoSeeded_RNG m_rng;
 };
 
@@ -143,7 +131,7 @@ public:
 private:
     virtual QByteArray cryptAlgoName(const SshKeyExchange &kex) const;
     virtual QByteArray hMacAlgoName(const SshKeyExchange &kex) const;
-    virtual Botan::BlockCipherMode *makeCipherMode(Botan::BlockCipher *cipher,
+    virtual Botan::Keyed_Filter *makeCipherMode(Botan::BlockCipher *cipher,
         Botan::BlockCipherModePaddingMethod *paddingMethod,
         const Botan::InitializationVector &iv, const Botan::SymmetricKey &key);
     virtual char ivChar() const { return 'B'; }

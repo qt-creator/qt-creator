@@ -40,8 +40,7 @@
 #include "sshexception_p.h"
 #include "sshkeyexchange_p.h"
 
-#include <botan/exceptn.h>
-#include <botan/init.h>
+#include <botan/botan.h>
 
 #include <QFile>
 #include <QMutex>

@@ -32,7 +32,7 @@
 #ifndef KEYPASSWORDRETRIEVER_H
 #define KEYPASSWORDRETRIEVER_H
 
-#include <botan/ui.h>
+#include <botan/botan.h>
 
 #include <string>
 

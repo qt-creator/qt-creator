@@ -1,7 +1,0 @@
-realname "Montgomery Reduction"
-
-load_on dep
-
-<add>
-mp_monty.cpp
-</add>

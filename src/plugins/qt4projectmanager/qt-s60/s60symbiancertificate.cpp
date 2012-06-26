@@ -32,19 +32,7 @@
 
 #include "s60symbiancertificate.h"
 
-#include <botan/x509_obj.h>
-#include <botan/x509_ext.h>
-#include <botan/der_enc.h>
-#include <botan/ber_dec.h>
-#include <botan/stl_util.h>
-#include <botan/parsing.h>
-#include <botan/bigint.h>
-#include <botan/oids.h>
-#include <botan/pem.h>
-#include <botan/sha160.h>
-#include <botan/oids.h>
-#include <botan/libstate.h>
-#include <botan/bit_ops.h>
+#include <botan/botan.h>
 
 #include <algorithm>
 #include <memory>
@@ -114,7 +102,6 @@ MemoryVector<byte> S60DeviceIdListConstraint::encode_inner() const
 /*
 * Decode the extension
 */
-#include "botan/hex.h"
 void S60DeviceIdListConstraint::decode_inner(const MemoryRegion<byte>& in)
 {
     BER_Decoder(in)
@@ -472,7 +459,7 @@ S60SymbianCertificatePrivate::S60SymbianCertificatePrivate(const QByteArray &in)
 */
 void S60SymbianCertificatePrivate::force_decode()
 {
-    u32bit version;
+    size_t version;
     BigInt serial_bn;
     AlgorithmIdentifier sig_algo_inner;
     X509_DN dn_issuer, dn_subject;
@@ -544,7 +531,7 @@ void S60SymbianCertificatePrivate::force_decode()
     if(isCaCert() &&
             !m_subject.has_value("X509v3.BasicConstraints.path_constraint"))
     {
-        u32bit limit = (x509Version() < 3) ? NO_CERT_PATH_LIMIT : 0;
+        u32bit limit = (x509Version() < 3) ? Cert_Extension::NO_CERT_PATH_LIMIT : 0;
         m_subject.add("X509v3.BasicConstraints.path_constraint", limit);
     }
 }

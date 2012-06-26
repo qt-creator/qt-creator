@@ -36,14 +36,7 @@
 #include "sshcapabilities_p.h"
 #include "sshpacket_p.h"
 
-#include <botan/auto_rng.h>
-#include <botan/bigint.h>
-#include <botan/der_enc.h>
-#include <botan/dsa.h>
-#include <botan/pem.h>
-#include <botan/pkcs8.h>
-#include <botan/rsa.h>
-#include <botan/x509_key.h>
+#include <botan/botan.h>
 
 #include <QDateTime>
 #include <QInputDialog>
@@ -108,12 +101,12 @@ void SshKeyGenerator::generatePkcs8KeyString(const KeyPtr &key, bool privateKey,
         if (m_encryptionMode == DoOfferEncryption)
             password = getPassword();
         if (!password.isEmpty())
-            PKCS8::encrypt_key(*key, pipe, rng, password.toLocal8Bit().data());
+            pipe.write(PKCS8::PEM_encode(*key, rng, password.toLocal8Bit().data()));
         else
-            PKCS8::encode(*key, pipe);
+            pipe.write(PKCS8::PEM_encode(*key));
         keyData = &m_privateKey;
     } else {
-        X509::encode(*key, pipe);
+        pipe.write(X509::PEM_encode(*key));
         keyData = &m_publicKey;
     }
     pipe.end_msg();
@@ -172,7 +165,7 @@ void SshKeyGenerator::generateOpenSslPrivateKeyString(const KeyPtr &key)
     }
 
     DER_Encoder encoder;
-    encoder.start_cons(SEQUENCE).encode(0U);
+    encoder.start_cons(SEQUENCE).encode(size_t(0));
     foreach (const BigInt &b, params)
         encoder.encode(b);
     encoder.end_cons();

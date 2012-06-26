@@ -39,17 +39,7 @@
 #include "sshkeypasswordretriever_p.h"
 #include "sshpacket_p.h"
 
-#include <botan/ber_dec.h>
 #include <botan/botan.h>
-#include <botan/cbc.h>
-#include <botan/dsa.h>
-#include <botan/hash.h>
-#include <botan/hmac.h>
-#include <botan/look_pk.h>
-#include <botan/pipe.h>
-#include <botan/pkcs8.h>
-#include <botan/pubkey.h>
-#include <botan/rsa.h>
 
 #include <QDebug>
 #include <QList>
@@ -87,16 +77,15 @@ void SshAbstractCryptoFacility::recreateKeys(const SshKeyExchange &kex)
     const std::string &cryptAlgo = botanCryptAlgoName(cryptAlgoName(kex));
     BlockCipher * const cipher = af.prototype_block_cipher(cryptAlgo)->clone();
 
-    m_cipherBlockSize = cipher->BLOCK_SIZE;
+    m_cipherBlockSize = cipher->block_size();
     const QByteArray ivData = generateHash(kex, ivChar(), m_cipherBlockSize);
     const InitializationVector iv(convertByteArray(ivData), m_cipherBlockSize);
 
-    const quint32 keySize = max_keylength_of(cryptAlgo);
+    const quint32 keySize = cipher->key_spec().maximum_keylength();
     const QByteArray cryptKeyData = generateHash(kex, keyChar(), keySize);
     SymmetricKey cryptKey(convertByteArray(cryptKeyData), keySize);
 
-    BlockCipherMode * const cipherMode
-        = makeCipherMode(cipher, new Null_Padding, iv, cryptKey);
+    Keyed_Filter * const cipherMode = makeCipherMode(cipher, new Null_Padding, iv, cryptKey);
     m_pipe.reset(new Pipe(cipherMode));
 
     m_macLength = botanHMacKeyLen(hMacAlgoName(kex));
@@ -149,10 +138,10 @@ QByteArray SshAbstractCryptoFacility::generateHash(const SshKeyExchange &kex,
         = kex.hash()->process(convertByteArray(data), data.size());
     while (key.size() < length) {
         SecureVector<byte> tmpKey;
-        tmpKey.append(convertByteArray(k), k.size());
-        tmpKey.append(convertByteArray(h), h.size());
-        tmpKey.append(key);
-        key.append(kex.hash()->process(tmpKey));
+        tmpKey += SecureVector<byte>(convertByteArray(k), k.size());
+        tmpKey += SecureVector<byte>(convertByteArray(h), h.size());
+        tmpKey += key;
+        key += kex.hash()->process(tmpKey);
     }
     return QByteArray(reinterpret_cast<const char *>(key.begin()), length);
 }
@@ -178,7 +167,7 @@ QByteArray SshEncryptionFacility::hMacAlgoName(const SshKeyExchange &kex) const
     return kex.hMacAlgoClientToServer();
 }
 
-BlockCipherMode *SshEncryptionFacility::makeCipherMode(BlockCipher *cipher,
+Keyed_Filter *SshEncryptionFacility::makeCipherMode(BlockCipher *cipher,
     BlockCipherModePaddingMethod *paddingMethod, const InitializationVector &iv,
     const SymmetricKey &key)
 {
@@ -251,7 +240,11 @@ bool SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &p
     } catch (const Botan::Exception &ex) {
         error = QLatin1String(ex.what());
         return false;
+    } catch (const Botan::Decoding_Error &ex) {
+        error = QLatin1String(ex.what());
+        return false;
     }
+
     return true;
 }
 
@@ -290,7 +283,7 @@ bool SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray 
 
         BER_Decoder decoder(convertByteArray(privateKeyBlob), privateKeyBlob.size());
         BER_Decoder sequence = decoder.start_cons(SEQUENCE);
-        quint32 version;
+        size_t version;
         sequence.decode (version);
         if (version != 0) {
             error = SSH_TR("Key encoding has version %1, expected 0.").arg(version);
@@ -318,6 +311,9 @@ bool SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray 
     } catch (const Botan::Exception &ex) {
         error = QLatin1String(ex.what());
         return false;
+    } catch (const Botan::Decoding_Error &ex) {
+        error = QLatin1String(ex.what());
+        return false;
     }
     return true;
 }
@@ -332,7 +328,7 @@ QByteArray SshEncryptionFacility::authenticationKeySignature(const QByteArray &d
 {
     Q_ASSERT(m_authKey);
 
-    QScopedPointer<PK_Signer> signer(get_pk_signer (*m_authKey,
+    QScopedPointer<PK_Signer> signer(new PK_Signer(*m_authKey,
         botanEmsaAlgoName(m_authKeyAlgoName)));
     QByteArray dataToSign = AbstractSshPacket::encodeString(sessionId()) + data;
     QByteArray signature
@@ -363,7 +359,7 @@ QByteArray SshDecryptionFacility::hMacAlgoName(const SshKeyExchange &kex) const
     return kex.hMacAlgoServerToClient();
 }
 
-BlockCipherMode *SshDecryptionFacility::makeCipherMode(BlockCipher *cipher,
+Keyed_Filter *SshDecryptionFacility::makeCipherMode(BlockCipher *cipher,
     BlockCipherModePaddingMethod *paddingMethod, const InitializationVector &iv,
     const SymmetricKey &key)
 {

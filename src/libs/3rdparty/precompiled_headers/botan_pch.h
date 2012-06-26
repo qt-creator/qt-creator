@@ -39,31 +39,7 @@
 # undef _POSIX_
 #endif
 
-#include <botan/stream_cipher.h>
-#include <botan/pubkey_enums.h>
-#include <botan/filters.h>
-#include <botan/libstate.h>
-#include <botan/pubkey.h>
-#include <botan/rotate.h>
-#include <botan/util.h>
-#include <botan/xor_buf.h>
-#include <botan/look_pk.h>
-#include <botan/mac.h>
-#include <botan/secmem.h>
-#include <botan/pipe.h>
-#include <botan/oids.h>
-#include <botan/exceptn.h>
-#include <botan/der_enc.h>
-#include <botan/ber_dec.h>
-#include <botan/types.h>
-#include <botan/rng.h>
-#include <botan/numthry.h>
-#include <botan/bigint.h>
-#include <botan/botan.h>
-#include <botan/hash.h>
-#include <botan/loadstor.h>
-#include <botan/parsing.h>
-#include <botan/block_cipher.h>
+#include "../botan/botan.h"
 
 #include <map>
 #include <fstream>
