@@ -46,10 +46,6 @@
 
 using namespace ProjectExplorer;
 
-typedef QPair<Abi, QString> AbiDebuggerCommandPair;
-
-Q_DECLARE_METATYPE(AbiDebuggerCommandPair)
-
 namespace Debugger {
 namespace Internal {
 
@@ -75,77 +71,50 @@ void DebuggerToolChainComboBox::init(bool hostAbiOnly)
         if (debuggerCommand.isEmpty())
             continue;
 
-        const AbiDebuggerCommandPair data(abi, debuggerCommand);
         const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();
         const QString name = tr("%1 (%2)").arg(st->displayName(), completeBase);
-        addItem(name, qVariantFromValue(data));
+        addItem(name, qVariantFromValue(st->id()));
+        QString debugger = QDir::toNativeSeparators(debuggerCommand);
+        debugger.replace(QString(QLatin1Char(' ')), QLatin1String("&nbsp;"));
+        QString toolTip = tr("<html><head/><body><table>"
+            "<tr><td>ABI:</td><td><i>%1</i></td></tr>"
+            "<tr><td>Debugger:</td><td>%2</td></tr>")
+                .arg(st->displayName(), QDir::toNativeSeparators(debugger));
+        setItemData(count() - 1, toolTip, Qt::ToolTipRole);
     }
     setEnabled(count() > 1);
 }
 
-void DebuggerToolChainComboBox::setAbi(const Abi &abi)
+void DebuggerToolChainComboBox::setProfile(const Profile *profile)
 {
-    QTC_ASSERT(abi.isValid(), return);
+    QTC_ASSERT(profile->isValid(), return);
     const int c = count();
     for (int i = 0; i < c; i++) {
-        if (abiAt(i) == abi) {
+        if (profileAt(i) == profile) {
             setCurrentIndex(i);
             break;
         }
     }
 }
 
-Abi DebuggerToolChainComboBox::abi() const
+Profile *DebuggerToolChainComboBox::profile() const
 {
-    return abiAt(currentIndex());
+    return profileAt(currentIndex());
 }
 
-QString DebuggerToolChainComboBox::debuggerCommand() const
-{
-    return debuggerCommandAt(currentIndex());
-}
+//QString DebuggerToolChainComboBox::debuggerCommand() const
+//{
+//    int index = currentIndex();
+//    Core::Id id = qvariant_cast<Core::Id>(itemData(index));
+//    Profile *st = ProfileManager::instance()->find(id);
+//    QTC_ASSERT(st, return QString());
+//    return DebuggerProfileInformation::debuggerCommand(st).toString();
+//}
 
-QString DebuggerToolChainComboBox::debuggerCommandAt(int index) const
+Profile *DebuggerToolChainComboBox::profileAt(int index) const
 {
-    if (index >= 0 && index < count()) {
-        const AbiDebuggerCommandPair abiCommandPair = qvariant_cast<AbiDebuggerCommandPair>(itemData(index));
-        return abiCommandPair.second;
-    }
-    return QString();
-}
-
-Abi DebuggerToolChainComboBox::abiAt(int index) const
-{
-    if (index >= 0 && index < count()) {
-        const AbiDebuggerCommandPair abiCommandPair = qvariant_cast<AbiDebuggerCommandPair>(itemData(index));
-        return abiCommandPair.first;
-    }
-    return Abi();
-}
-
-static inline QString abiToolTip(const AbiDebuggerCommandPair &abiCommandPair)
-{
-    QString debugger = QDir::toNativeSeparators(abiCommandPair.second);
-    debugger.replace(QString(QLatin1Char(' ')), QLatin1String("&nbsp;"));
-    return DebuggerToolChainComboBox::tr(
-                "<html><head/><body><table><tr><td>ABI:</td><td><i>%1</i></td></tr>"
-                "<tr><td>Debugger:</td><td>%2</td></tr>").
-            arg(abiCommandPair.first.toString(),
-                QDir::toNativeSeparators(debugger));
-}
-
-bool DebuggerToolChainComboBox::event(QEvent *event)
-{
-    if (event->type() == QEvent::ToolTip) {
-        const int index = currentIndex();
-        if (index >= 0) {
-            const AbiDebuggerCommandPair abiCommandPair = qvariant_cast<AbiDebuggerCommandPair>(itemData(index));
-            setToolTip(abiToolTip(abiCommandPair));
-        } else {
-            setToolTip(QString());
-        }
-    }
-    return QComboBox::event(event);
+    Core::Id id = qvariant_cast<Core::Id>(itemData(index));
+    return ProfileManager::instance()->find(id);
 }
 
 } // namespace Debugger

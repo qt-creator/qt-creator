@@ -33,10 +33,9 @@
 #ifndef DEBUGGER_DIALOGS_H
 #define DEBUGGER_DIALOGS_H
 
+#include <QDialog>
 #include <QHash>
 #include <QStringList>
-#include <QDialog>
-#include <QVBoxLayout>
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
@@ -46,7 +45,7 @@ class QDialogButtonBox;
 class QSettings;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Abi; }
+namespace ProjectExplorer { class Profile; }
 
 namespace Debugger {
 class DebuggerStartParameters;
@@ -80,13 +79,9 @@ public:
     QString executableFile() const;
     QString coreFile() const;
 
-    int abiIndex() const;
-    void setAbiIndex(int);
-    ProjectExplorer::Abi abi() const;
-    QString debuggerCommand();
-
-    QString sysroot() const;
-    void setSysroot(const QString &sysroot);
+    int profileIndex() const;
+    void setProfileIndex(int);
+    ProjectExplorer::Profile *profile() const;
 
     QString overrideStartScript() const;
     void setOverrideStartScript(const QString &scriptName);
@@ -111,12 +106,11 @@ public:
     qint64 attachPID() const;
     QString executable() const;
 
-    int abiIndex() const;
-    void setAbiIndex(int);
-    ProjectExplorer::Abi abi() const;
-    QString debuggerCommand();
+    int profileIndex() const;
+    void setProfileIndex(int);
+    ProjectExplorer::Profile *profile() const;
 
-    virtual void accept();
+    void accept();
 
 private slots:
     void rebuildProcessList();
@@ -156,9 +150,7 @@ private:
     QString executableFile() const;
     void setExecutableFile(const QString &executable);
 
-    ProjectExplorer::Abi abi() const;
-    QString debuggerCommand();
-
+    ProjectExplorer::Profile *profile() const;
     bool isValid() const;
 
     Ui::StartExternalDialog *m_ui;
@@ -186,8 +178,7 @@ private:
 
     void setRemoteArchitectures(const QStringList &list);
 
-    ProjectExplorer::Abi abi() const;
-    QString debuggerCommand() const;
+    ProjectExplorer::Profile *profile() const;
 
     Ui::StartRemoteDialog *m_ui;
 };
@@ -224,12 +215,12 @@ public:
     QString connection() const;
     void setConnection(const QString &);
 
-    virtual void accept();
-
 private slots:
     void textChanged(const QString &);
 
 private:
+    void accept();
+
     QPushButton *m_okButton;
     QLineEdit *m_lineEdit;
 };
@@ -243,12 +234,12 @@ public:
      void setAddress(quint64 a);
      quint64 address() const;
 
-     virtual void accept();
-
 private slots:
      void textChanged();
 
 private:
+     void accept();
+
      void setOkButtonEnabled(bool v);
      bool isOkButtonEnabled() const;
 

@@ -1534,7 +1534,7 @@ void DebuggerPluginPrivate::startExternalApplication()
 void DebuggerPluginPrivate::attachExternalApplication()
 {
     AttachExternalDialog dlg(mainWindow());
-    dlg.setAbiIndex(configValue(_("LastAttachExternalAbiIndex")).toInt());
+    dlg.setProfileIndex(configValue(_("LastAttachExternalProfileIndex")).toInt());
 
     if (dlg.exec() != QDialog::Accepted)
         return;
@@ -1545,7 +1545,12 @@ void DebuggerPluginPrivate::attachExternalApplication()
         return;
     }
 
-    setConfigValue(_("LastAttachExternalAbiIndex"), QVariant(dlg.abiIndex()));
+    setConfigValue(_("LastAttachExternalProfileIndex"), QVariant(dlg.profileIndex()));
+
+    Profile *profile = dlg.profile();
+    QTC_ASSERT(profile, return);
+    ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
+    QTC_ASSERT(tc, return);
 
     DebuggerStartParameters sp;
     sp.attachPID = dlg.attachPID();
@@ -1553,8 +1558,8 @@ void DebuggerPluginPrivate::attachExternalApplication()
     sp.executable = dlg.executable();
     sp.startMode = AttachExternal;
     sp.closeMode = DetachAtClose;
-    sp.toolChainAbi = dlg.abi();
-    sp.debuggerCommand = dlg.debuggerCommand();
+    sp.toolChainAbi = tc->targetAbi();
+    sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1576,8 +1581,7 @@ void DebuggerPluginPrivate::attachCore()
     AttachCoreDialog dlg(mainWindow());
     dlg.setExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
     dlg.setCoreFile(configValue(_("LastExternalCoreFile")).toString());
-    dlg.setAbiIndex(configValue(_("LastExternalAbiIndex")).toInt());
-    dlg.setSysroot(configValue(_("LastSysroot")).toString());
+    dlg.setProfileIndex(configValue(_("LastExternalProfileIndex")).toInt());
     dlg.setOverrideStartScript(configValue(_("LastExternalStartScript")).toString());
 
     if (dlg.exec() != QDialog::Accepted)
@@ -1585,9 +1589,13 @@ void DebuggerPluginPrivate::attachCore()
 
     setConfigValue(_("LastExternalExecutableFile"), dlg.executableFile());
     setConfigValue(_("LastExternalCoreFile"), dlg.coreFile());
-    setConfigValue(_("LastExternalAbiIndex"), QVariant(dlg.abiIndex()));
-    setConfigValue(_("LastSysroot"), dlg.sysroot());
+    setConfigValue(_("LastExternalProfileIndex"), QVariant(dlg.profileIndex()));
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
+
+    Profile *profile = dlg.profile();
+    QTC_ASSERT(profile, return);
+    ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
+    QTC_ASSERT(tc, return);
 
     DebuggerStartParameters sp;
     sp.executable = dlg.executableFile();
@@ -1595,9 +1603,9 @@ void DebuggerPluginPrivate::attachCore()
     sp.displayName = tr("Core file \"%1\"").arg(dlg.coreFile());
     sp.startMode = AttachCore;
     sp.closeMode = DetachAtClose;
-    sp.debuggerCommand = dlg.debuggerCommand();
-    sp.toolChainAbi = dlg.abi();
-    sp.sysroot = dlg.sysroot();
+    sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
+    sp.toolChainAbi = tc->targetAbi();
+    sp.sysroot = SysRootProfileInformation::sysRoot(profile).toString();
     sp.overrideStartScript = dlg.overrideStartScript();
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);

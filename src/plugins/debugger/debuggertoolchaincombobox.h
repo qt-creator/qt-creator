@@ -35,32 +35,27 @@
 
 #include <QComboBox>
 
-namespace ProjectExplorer {
-class Abi;
-}
+namespace ProjectExplorer { class Profile; }
 
 namespace Debugger {
 namespace Internal {
 
-// Let the user pick a tool chain/ABI associated with a debugger.
+// Let the user pick a profile associated with a debugger.
 class DebuggerToolChainComboBox : public QComboBox
 {
     Q_OBJECT
+
 public:
     explicit DebuggerToolChainComboBox(QWidget *parent);
 
     void init(bool hostAbiOnly);
 
-    void setAbi(const ProjectExplorer::Abi &abi);
-    ProjectExplorer::Abi abi() const;
-    QString debuggerCommand() const;
-
-protected:
-    virtual bool event(QEvent *event);
+    void setProfile(const ProjectExplorer::Profile *profile);
+    ProjectExplorer::Profile *profile() const;
+    //QString debuggerCommand() const;
 
 private:
-    QString debuggerCommandAt(int index) const;
-    ProjectExplorer::Abi abiAt(int index) const;
+    ProjectExplorer::Profile *profileAt(int index) const;
 };
 
 } // namespace Debugger

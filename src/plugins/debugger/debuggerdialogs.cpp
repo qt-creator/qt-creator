@@ -34,6 +34,7 @@
 #include "debuggerstartparameters.h"
 
 #include "debuggerconstants.h"
+#include "debuggerprofileinformation.h"
 #include "debuggerstringutils.h"
 #include "cdb/cdbengine.h"
 #include "shared/hostutils.h"
@@ -47,6 +48,7 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/profileinformation.h>
 #include <utils/historycompleter.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
@@ -68,6 +70,7 @@
 #include <QStandardItemModel>
 #include <QGridLayout>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Debugger {
@@ -191,9 +194,6 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     m_ui->coreFileName->setExpectedKind(PathChooser::File);
     m_ui->coreFileName->setPromptDialogTitle(tr("Select Core File"));
 
-    m_ui->sysrootPathChooser->setExpectedKind(PathChooser::Directory);
-    m_ui->sysrootPathChooser->setPromptDialogTitle(tr("Select Sysroot"));
-
     m_ui->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
     m_ui->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
 
@@ -232,35 +232,20 @@ void AttachCoreDialog::setCoreFile(const QString &fileName)
     changed();
 }
 
-ProjectExplorer::Abi AttachCoreDialog::abi() const
+Profile *AttachCoreDialog::profile() const
 {
-    return m_ui->toolchainComboBox->abi();
+    return m_ui->toolchainComboBox->profile();
 }
 
-void AttachCoreDialog::setAbiIndex(int i)
+void AttachCoreDialog::setProfileIndex(int i)
 {
     if (i >= 0 && i < m_ui->toolchainComboBox->count())
         m_ui->toolchainComboBox->setCurrentIndex(i);
 }
 
-int AttachCoreDialog::abiIndex() const
+int AttachCoreDialog::profileIndex() const
 {
     return m_ui->toolchainComboBox->currentIndex();
-}
-
-QString AttachCoreDialog::debuggerCommand()
-{
-    return m_ui->toolchainComboBox->debuggerCommand();
-}
-
-QString AttachCoreDialog::sysroot() const
-{
-    return m_ui->sysrootPathChooser->path();
-}
-
-void AttachCoreDialog::setSysroot(const QString &sysroot)
-{
-    m_ui->sysrootPathChooser->setPath(sysroot);
 }
 
 QString AttachCoreDialog::overrideStartScript() const
@@ -394,25 +379,20 @@ QString AttachExternalDialog::executable() const
     return m_model->executableForPid(attachPIDText());
 }
 
-ProjectExplorer::Abi AttachExternalDialog::abi() const
+Profile *AttachExternalDialog::profile() const
 {
-    return m_ui->toolchainComboBox->abi();
+    return m_ui->toolchainComboBox->profile();
 }
 
-void AttachExternalDialog::setAbiIndex(int i)
+void AttachExternalDialog::setProfileIndex(int i)
 {
     if (i >= 0 && i < m_ui->toolchainComboBox->count())
         m_ui->toolchainComboBox->setCurrentIndex(i);
 }
 
-int AttachExternalDialog::abiIndex() const
+int AttachExternalDialog::profileIndex() const
 {
     return m_ui->toolchainComboBox->currentIndex();
-}
-
-QString AttachExternalDialog::debuggerCommand()
-{
-    return m_ui->toolchainComboBox->debuggerCommand();
 }
 
 void AttachExternalDialog::pidChanged(const QString &pid)
@@ -607,14 +587,9 @@ QString StartExternalDialog::executableFile() const
     return m_ui->execFile->path();
 }
 
-ProjectExplorer::Abi StartExternalDialog::abi() const
+Profile *StartExternalDialog::profile() const
 {
-    return m_ui->toolChainComboBox->abi();
-}
-
-QString StartExternalDialog::debuggerCommand()
-{
-    return m_ui->toolChainComboBox->debuggerCommand();
+    return m_ui->toolChainComboBox->profile();
 }
 
 bool StartExternalDialog::isValid() const
@@ -695,10 +670,15 @@ bool StartExternalDialog::run(QWidget *parent,
         writeParameterHistory(history, settings, settingsGroup, arrayName);
     }
 
+    Profile *profile = dialog.profile();
+    QTC_ASSERT(profile, return false);
+    ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
+    QTC_ASSERT(tc, return false);
+
     sp->executable = newParameters.executableFile;
     sp->startMode = StartExternal;
-    sp->toolChainAbi = dialog.abi();
-    sp->debuggerCommand = dialog.debuggerCommand();
+    sp->toolChainAbi = tc->targetAbi();
+    sp->debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
     sp->workingDirectory = newParameters.workingDirectory;
     sp->displayName = sp->executable;
     sp->useTerminal = newParameters.runInTerminal;
@@ -707,10 +687,10 @@ bool StartExternalDialog::run(QWidget *parent,
     // Fixme: 1 of 3 testing hacks.
     if (sp->processArgs.startsWith(QLatin1String("@tcf@ ")) || sp->processArgs.startsWith(QLatin1String("@sym@ ")))
         // Set up an ARM Symbian Abi
-        sp->toolChainAbi = ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture,
-                                                ProjectExplorer::Abi::SymbianOS,
-                                                ProjectExplorer::Abi::SymbianDeviceFlavor,
-                                                ProjectExplorer::Abi::ElfFormat, false);
+        sp->toolChainAbi = Abi(Abi::ArmArchitecture,
+                               Abi::SymbianOS,
+                               Abi::SymbianDeviceFlavor,
+                               Abi::ElfFormat, false);
 
     sp->breakOnMain = newParameters.breakAtMain;
     return true;
@@ -870,12 +850,17 @@ bool StartRemoteDialog::run(QWidget *parent,
         writeParameterHistory(history, settings, settingsGroup, arrayName);
     }
 
+    Profile *profile = dialog.profile();
+    QTC_ASSERT(profile, return false);
+    ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
+    QTC_ASSERT(tc, return false);
+
     sp->remoteChannel = newParameters.remoteChannel;
     sp->remoteArchitecture = newParameters.remoteArchitecture;
     sp->executable = newParameters.localExecutable;
     sp->displayName = tr("Remote: \"%1\"").arg(sp->remoteChannel);
-    sp->debuggerCommand = dialog.debuggerCommand();
-    sp->toolChainAbi = dialog.abi();
+    sp->debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
+    sp->toolChainAbi = tc->targetAbi();
     sp->overrideStartScript = newParameters.overrideStartScript;
     sp->useServerStartScript = newParameters.useServerStartScript;
     sp->serverStartScript = newParameters.serverStartScript;
@@ -933,14 +918,9 @@ void StartRemoteDialog::historyIndexChanged(int index)
     setParameters(v.value<StartRemoteParameters>());
 }
 
-ProjectExplorer::Abi StartRemoteDialog::abi() const
+Profile *StartRemoteDialog::profile() const
 {
-    return m_ui->toolchainComboBox->abi();
-}
-
-QString StartRemoteDialog::debuggerCommand() const
-{
-    return m_ui->toolchainComboBox->debuggerCommand();
+    return m_ui->toolchainComboBox->profile();
 }
 
 void StartRemoteDialog::setRemoteArchitectures(const QStringList &list)
