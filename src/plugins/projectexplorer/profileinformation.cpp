@@ -102,7 +102,7 @@ ProfileInformation::ItemList SysRootProfileInformation::toUserOutput(Profile *p)
 
 bool SysRootProfileInformation::hasSysRoot(const Profile *p)
 {
-    return !p->value(Core::Id(SYSROOT_INFORMATION)).isNull();
+    return !p->value(Core::Id(SYSROOT_INFORMATION)).toString().isEmpty();
 }
 
 Utils::FileName SysRootProfileInformation::sysRoot(const Profile *p)
