@@ -156,7 +156,6 @@ public:
     DebuggerPane(QWidget *parent)
         : QPlainTextEdit(parent)
     {
-        setMaximumBlockCount(100000);
         setFrameStyle(QFrame::NoFrame);
         m_clearContentsAction = new QAction(this);
         m_clearContentsAction->setText(tr("Clear Contents"));
@@ -181,6 +180,18 @@ public:
         menu->addAction(debuggerCore()->action(SettingsDialog));
         menu->exec(ev->globalPos());
         delete menu;
+    }
+
+    void append(const QString &text)
+    {
+        const int N = 100000;
+        if (blockCount() > N) {
+            QTextBlock block = document()->findBlock(9 * N / 10);
+            QTextCursor tc(block);
+            tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+            tc.removeSelectedText();
+        }
+        appendPlainText(text);
     }
 
 
@@ -434,7 +445,7 @@ void LogWindow::showOutput(int channel, const QString &output)
         }
         pos = nnpos + 1;
     }
-    m_combinedText->appendPlainText(out);
+    m_combinedText->append(out);
 
     if (atEnd) {
         cursor.movePosition(QTextCursor::End);
@@ -455,8 +466,8 @@ void LogWindow::showInput(int channel, const QString &input)
         return;
     }
     if (debuggerCore()->boolSetting(LogTimeStamps))
-        m_inputText->appendPlainText(logTimeStamp());
-    m_inputText->appendPlainText(input);
+        m_inputText->append(logTimeStamp());
+    m_inputText->append(input);
     QTextCursor cursor = m_inputText->textCursor();
     cursor.movePosition(QTextCursor::End);
     m_inputText->setTextCursor(cursor);

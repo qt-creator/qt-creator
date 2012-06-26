@@ -47,6 +47,8 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
+class DebuggerPane;
+
 class LogWindow : public QWidget
 {
     Q_OBJECT
@@ -78,8 +80,8 @@ signals:
     void statusMessageRequested(const QString &msg, int);
 
 private:
-    QPlainTextEdit *m_combinedText;  // combined input/output
-    QPlainTextEdit *m_inputText;     // scriptable input alone
+    DebuggerPane *m_combinedText;  // combined input/output
+    DebuggerPane *m_inputText;     // scriptable input alone
     QLineEdit *m_commandEdit;
     QLabel *m_commandLabel;
     bool m_ignoreNextInputEcho;
