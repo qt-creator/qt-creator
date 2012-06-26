@@ -148,16 +148,21 @@ QVariant DebuggerProfileInformation::defaultValue(ProjectExplorer::Profile *p) c
         return (abi.wordWidth() == 32) ? cdbs.first : cdbs.second;
     }
 
-    // Check suggestions from the SDK:
+    // fall back to system GDB:
+    QString debugger = QLatin1String("gdb");
     if (tc) {
+        // Check suggestions from the SDK:
         const QString path = tc->suggestedDebugger().toString();
-        if (!path.isEmpty())
-            return path;
+        if (!path.isEmpty()) {
+            QFileInfo fi(path);
+            if (fi.isAbsolute())
+                return path;
+            debugger = path;
+        }
     }
 
-    // fall back to system GDB:
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    return env.searchInPath(QLatin1String("gdb"));
+    return env.searchInPath(debugger);
 }
 
 QList<ProjectExplorer::Task> DebuggerProfileInformation::validate(ProjectExplorer::Profile *p) const
