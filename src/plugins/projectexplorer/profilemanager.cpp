@@ -174,12 +174,6 @@ void ProfileManager::restoreProfiles()
 
     // Then auto create profiles:
     QList<Profile *> detectedSts;
-    Profile *defaultProfile = new Profile; // One profile using default values
-    defaultProfile->setDisplayName(tr("Desktop"));
-    defaultProfile->setAutoDetected(true);
-    defaultProfile->setIconPath(QLatin1String(":///DESKTOP///"));
-
-    detectedSts << defaultProfile;
 
     // Find/update autodetected profiles:
     Profile *toStore = 0;
@@ -201,9 +195,18 @@ void ProfileManager::restoreProfiles()
     // Delete all loaded autodetected profiles that were not rediscovered:
     qDeleteAll(stsToCheck);
 
-    // Store manual tool chains
+    // Store manual profiles
     foreach (Profile *p, stsToRegister)
         addProfile(p);
+
+    if (profiles().isEmpty()) {
+        Profile *defaultProfile = new Profile; // One profile using default values
+        defaultProfile->setDisplayName(tr("Desktop"));
+        defaultProfile->setAutoDetected(false);
+        defaultProfile->setIconPath(QLatin1String(":///DESKTOP///"));
+
+        addProfile(defaultProfile);
+    }
 
     Profile *p = find(userProfiles.defaultProfile);
     if (p)
