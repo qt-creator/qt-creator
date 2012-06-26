@@ -336,8 +336,8 @@ IDevice::ConstPtr DeviceProfileInformation::device(const Profile *p)
 Core::Id DeviceProfileInformation::deviceId(const Profile *p)
 {
     if (p) {
-        QByteArray idname = p->value(Core::Id(DEVICE_INFORMATION)).toByteArray();
-        return idname.isEmpty() ? IDevice::invalidId() : Core::Id(idname.constData());
+        QString idname = p->value(Core::Id(DEVICE_INFORMATION)).toString();
+        return idname.isEmpty() ? IDevice::invalidId() : Core::Id(idname);
     }
     return IDevice::invalidId();
 }
@@ -349,7 +349,7 @@ void DeviceProfileInformation::setDevice(Profile *p, IDevice::ConstPtr dev)
 
 void DeviceProfileInformation::setDeviceId(Profile *p, const Core::Id id)
 {
-    p->setValue(Core::Id(DEVICE_INFORMATION), id.name());
+    p->setValue(Core::Id(DEVICE_INFORMATION), id.toString());
 }
 
 } // namespace ProjectExplorer
