@@ -174,12 +174,14 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
             if (node == m_defaultNode)
                 f.setItalic(f.style() != QFont::StyleItalic);
             return f;
-        } else if (role == Qt::DisplayRole || role == Qt::EditRole) {
+        } else if (role == Qt::DisplayRole) {
             QString baseName = node->newName.isEmpty() ? node->profile->displayName() : node->newName;
             if (node == m_defaultNode)
                 //: Mark up a profile as the default one.
                 baseName = tr("%1 (default)").arg(baseName);
             return baseName;
+        } else if (role == Qt::EditRole) {
+            return node->newName.isEmpty() ? node->profile->displayName() : node->newName;
         } else if (role == Qt::DecorationRole) {
             return node->profile->isValid() ? QIcon() : warningIcon;
         } else if (role == Qt::ToolTipRole) {
