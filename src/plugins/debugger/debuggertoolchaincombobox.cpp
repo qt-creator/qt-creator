@@ -85,11 +85,10 @@ void DebuggerToolChainComboBox::init(bool hostAbiOnly)
     setEnabled(count() > 1);
 }
 
-void DebuggerToolChainComboBox::setProfile(const Profile *profile)
+void DebuggerToolChainComboBox::setCurrentProfile(const Profile *profile)
 {
     QTC_ASSERT(profile->isValid(), return);
-    const int c = count();
-    for (int i = 0; i < c; i++) {
+    for (int i = 0, n = count(); i != n; ++i) {
         if (profileAt(i) == profile) {
             setCurrentIndex(i);
             break;
@@ -97,19 +96,25 @@ void DebuggerToolChainComboBox::setProfile(const Profile *profile)
     }
 }
 
-Profile *DebuggerToolChainComboBox::profile() const
+Profile *DebuggerToolChainComboBox::currentProfile() const
 {
     return profileAt(currentIndex());
 }
 
-//QString DebuggerToolChainComboBox::debuggerCommand() const
-//{
-//    int index = currentIndex();
-//    Core::Id id = qvariant_cast<Core::Id>(itemData(index));
-//    Profile *st = ProfileManager::instance()->find(id);
-//    QTC_ASSERT(st, return QString());
-//    return DebuggerProfileInformation::debuggerCommand(st).toString();
-//}
+void DebuggerToolChainComboBox::setCurrentProfileId(Core::Id id)
+{
+    for (int i = 0, n = count(); i != n; ++i) {
+        if (profileAt(i)->id() == id) {
+            setCurrentIndex(i);
+            break;
+        }
+    }
+}
+
+Core::Id DebuggerToolChainComboBox::currentProfileId() const
+{
+    return profileAt(currentIndex())->id();
+}
 
 Profile *DebuggerToolChainComboBox::profileAt(int index) const
 {

@@ -234,7 +234,7 @@ void AttachCoreDialog::setCoreFile(const QString &fileName)
 
 Profile *AttachCoreDialog::profile() const
 {
-    return m_ui->toolchainComboBox->profile();
+    return m_ui->toolchainComboBox->currentProfile();
 }
 
 void AttachCoreDialog::setProfileIndex(int i)
@@ -381,7 +381,7 @@ QString AttachExternalDialog::executable() const
 
 Profile *AttachExternalDialog::profile() const
 {
-    return m_ui->toolchainComboBox->profile();
+    return m_ui->toolchainComboBox->currentProfile();
 }
 
 void AttachExternalDialog::setProfileIndex(int i)
@@ -589,7 +589,7 @@ QString StartExternalDialog::executableFile() const
 
 Profile *StartExternalDialog::profile() const
 {
-    return m_ui->toolChainComboBox->profile();
+    return m_ui->toolChainComboBox->currentProfile();
 }
 
 bool StartExternalDialog::isValid() const
@@ -719,8 +719,7 @@ public:
     QString overrideStartScript;
     bool useServerStartScript;
     QString serverStartScript;
-    QString sysroot;
-    int abiIndex;
+    Core::Id profileId;
     QString debugInfoLocation;
 };
 
@@ -739,7 +738,7 @@ inline bool operator!=(const StartRemoteParameters &p1, const StartRemoteParamet
 { return !p1.equals(p2); }
 
 StartRemoteParameters::StartRemoteParameters() :
-    useServerStartScript(false), abiIndex(0)
+    useServerStartScript(false), profileId(0)
 {
 }
 
@@ -750,7 +749,7 @@ bool StartRemoteParameters::equals(const StartRemoteParameters &rhs) const
             && overrideStartScript == rhs.overrideStartScript
             && useServerStartScript == rhs.useServerStartScript
             && serverStartScript == rhs.serverStartScript
-            && sysroot == rhs.sysroot && abiIndex == rhs.abiIndex
+            && profileId == rhs.profileId
             && debugInfoLocation == rhs.debugInfoLocation;
 }
 
@@ -758,12 +757,11 @@ void StartRemoteParameters::toSettings(QSettings *settings) const
 {
     settings->setValue(_("LastRemoteChannel"), remoteChannel);
     settings->setValue(_("LastLocalExecutable"), localExecutable);
-    settings->setValue(_("LastExternalAbiIndex"), abiIndex);
     settings->setValue(_("LastRemoteArchitecture"), remoteArchitecture);
     settings->setValue(_("LastServerStartScript"), serverStartScript);
     settings->setValue(_("LastUseServerStartScript"), useServerStartScript);
     settings->setValue(_("LastRemoteStartScript"), overrideStartScript);
-    settings->setValue(_("LastSysroot"), sysroot);
+    settings->setValue(_("LastProfileId"), profileId.toString());
     settings->setValue(_("LastDebugInfoLocation"), debugInfoLocation);
 }
 
@@ -771,12 +769,11 @@ void StartRemoteParameters::fromSettings(const QSettings *settings)
 {
     remoteChannel = settings->value(_("LastRemoteChannel")).toString();
     localExecutable = settings->value(_("LastLocalExecutable")).toString();
-    abiIndex = settings->value(_("LastExternalAbiIndex")).toInt();
+    profileId = Core::Id(settings->value(_("LastProfileId")).toString());
     remoteArchitecture = settings->value(_("LastRemoteArchitecture")).toString();
     serverStartScript = settings->value(_("LastServerStartScript")).toString();
     useServerStartScript = settings->value(_("LastUseServerStartScript")).toBool();
     overrideStartScript = settings->value(_("LastRemoteStartScript")).toString();
-    sysroot = settings->value(_("LastSysroot")).toString();
     debugInfoLocation = settings->value(_("LastDebugInfoLocation")).toString();
 }
 
@@ -864,7 +861,6 @@ bool StartRemoteDialog::run(QWidget *parent,
     sp->overrideStartScript = newParameters.overrideStartScript;
     sp->useServerStartScript = newParameters.useServerStartScript;
     sp->serverStartScript = newParameters.serverStartScript;
-    sp->sysroot = newParameters.sysroot;
     sp->debugInfoLocation = newParameters.debugInfoLocation;
     return true;
 }
@@ -878,8 +874,7 @@ StartRemoteParameters StartRemoteDialog::parameters() const
     result.overrideStartScript = m_ui->overrideStartScriptPathChooser->path();
     result.useServerStartScript = m_ui->useServerStartScriptCheckBox->isChecked();
     result.serverStartScript = m_ui->serverStartScriptPathChooser->path();
-    result.sysroot = m_ui->sysrootPathChooser->path();
-    result.abiIndex = m_ui->toolchainComboBox->currentIndex();
+    result.profileId = m_ui->toolchainComboBox->currentProfileId();
     result.debugInfoLocation = m_ui->debuginfoPathChooser->path();
     return result;
 }
@@ -894,9 +889,7 @@ void StartRemoteDialog::setParameters(const StartRemoteParameters &p)
     m_ui->overrideStartScriptPathChooser->setPath(p.overrideStartScript);
     m_ui->useServerStartScriptCheckBox->setChecked(p.useServerStartScript);
     m_ui->serverStartScriptPathChooser->setPath(p.serverStartScript);
-    m_ui->sysrootPathChooser->setPath(p.sysroot);
-    if (p.abiIndex >= 0 && p.abiIndex < m_ui->toolchainComboBox->count())
-        m_ui->toolchainComboBox->setCurrentIndex(p.abiIndex);
+    m_ui->toolchainComboBox->setCurrentProfileId(p.profileId);
     m_ui->debuginfoPathChooser->setPath(p.debugInfoLocation);
 }
 
@@ -920,7 +913,7 @@ void StartRemoteDialog::historyIndexChanged(int index)
 
 Profile *StartRemoteDialog::profile() const
 {
-    return m_ui->toolchainComboBox->profile();
+    return m_ui->toolchainComboBox->currentProfile();
 }
 
 void StartRemoteDialog::setRemoteArchitectures(const QStringList &list)

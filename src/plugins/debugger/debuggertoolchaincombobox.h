@@ -35,6 +35,7 @@
 
 #include <QComboBox>
 
+namespace Core { class Id; }
 namespace ProjectExplorer { class Profile; }
 
 namespace Debugger {
@@ -50,9 +51,11 @@ public:
 
     void init(bool hostAbiOnly);
 
-    void setProfile(const ProjectExplorer::Profile *profile);
-    ProjectExplorer::Profile *profile() const;
-    //QString debuggerCommand() const;
+    void setCurrentProfileId(Core::Id id);
+    Core::Id currentProfileId() const;
+
+    void setCurrentProfile(const ProjectExplorer::Profile *profile);
+    ProjectExplorer::Profile *currentProfile() const;
 
 private:
     ProjectExplorer::Profile *profileAt(int index) const;
