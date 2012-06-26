@@ -341,23 +341,24 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
     // not consider content that ends as an identifier (which could be undesired).
     const int lineEnd = editor->position(TextEditor::ITextEditor::EndOfLine);
     const QString inEditor = editor->textAt(editor->position(), lineEnd - editor->position());
-    int existLength = 0;
+    int preserveLength = 0;
     if (!inEditor.isEmpty()) {
-        existLength = toInsert.length() - (editor->position() - basePosition);
+        preserveLength = toInsert.length() - (editor->position() - basePosition);
         const int inEditorLength = inEditor.length();
-        while (inEditorLength < existLength
-               || (!inEditor.startsWith(toInsert.right(existLength))
-               || (inEditorLength > existLength
-                   && (inEditor.at(existLength).isLetterOrNumber()
-                       || inEditor.at(existLength) == QLatin1Char('_'))))) {
-            if (--existLength == 0)
+        while (preserveLength) {
+            if (inEditor.startsWith(toInsert.right(preserveLength))
+                    && (inEditorLength == preserveLength
+                        || (!inEditor.at(preserveLength).isLetterOrNumber()
+                            && inEditor.at(preserveLength) != QLatin1Char('_')))) {
                 break;
+            }
+            --preserveLength;
         }
     }
 
     for (int i = 0; i < extraChars.length(); ++i) {
         const QChar a = extraChars.at(i);
-        const QChar b = editor->characterAt(editor->position() + i + existLength);
+        const QChar b = editor->characterAt(editor->position() + i + preserveLength);
         if (a == b)
             ++extraLength;
         else
@@ -367,7 +368,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
     toInsert += extraChars;
 
     // Insert the remainder of the name
-    const int length = editor->position() - basePosition + existLength + extraLength;
+    const int length = editor->position() - basePosition + preserveLength + extraLength;
     editor->setCursorPosition(basePosition);
     editor->replace(length, toInsert);
     if (cursorOffset)
