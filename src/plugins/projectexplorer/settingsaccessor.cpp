@@ -33,6 +33,7 @@
 #include "settingsaccessor.h"
 
 #include "buildconfiguration.h"
+#include "devicesupport/devicemanager.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
@@ -2480,19 +2481,20 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
                 tmp->setValue(Core::Id("PE.Profile.SysRoot"), m_qtVersionExtras.value(qtVersionId));
 
             // Device
-            QByteArray devId;
+            QString devId;
             foreach (const QVariantMap &dc, dcs) {
-                devId = dc.value(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DeviceId")).toString().toUtf8();
-                if (devId.isEmpty())
-                    devId = QByteArray("Desktop Device");
-                tmp->setValue(Core::Id("PE.Profile.Device"), devId);
-            } // dcs
+                devId = dc.value(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DeviceId")).toString();
+                if (!devId.isEmpty())
+                    break;
+            }
             if (devId.isEmpty()) {
                 if (targetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget"))
                     devId = QByteArray("Symbian Device");
                 else
                     devId = QByteArray("Desktop Device");
             }
+            if (!devId.isEmpty() && !DeviceManager::instance()->find(Core::Id(devId))) // We do not know that device
+                devId.clear();
             tmp->setValue(Core::Id("PE.Profile.Device"), devId);
 
             addBuildConfiguration(targetId, tmp, activeTarget == targetPos, bc, bcPos == activeBc);
