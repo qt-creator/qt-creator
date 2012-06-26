@@ -42,10 +42,11 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QPair>
-
 #include <QtEvents>
 
-typedef QPair<ProjectExplorer::Abi, QString> AbiDebuggerCommandPair;
+using namespace ProjectExplorer;
+
+typedef QPair<Abi, QString> AbiDebuggerCommandPair;
 
 Q_DECLARE_METATYPE(AbiDebuggerCommandPair)
 
@@ -59,15 +60,14 @@ DebuggerToolChainComboBox::DebuggerToolChainComboBox(QWidget *parent) :
 
 void DebuggerToolChainComboBox::init(bool hostAbiOnly)
 {
-    const ProjectExplorer::Abi hostAbi = ProjectExplorer::Abi::hostAbi();
-    foreach (const ProjectExplorer::Profile *st,
-             ProjectExplorer::ProfileManager::instance()->profiles()) {
+    const Abi hostAbi = Abi::hostAbi();
+    foreach (const Profile *st, ProfileManager::instance()->profiles()) {
         if (!st->isValid())
             continue;
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(st);
+        ToolChain *tc = ToolChainProfileInformation::toolChain(st);
         if (!tc)
             continue;
-        const ProjectExplorer::Abi abi = tc->targetAbi();
+        const Abi abi = tc->targetAbi();
         if (hostAbiOnly && hostAbi.os() != abi.os())
             continue;
 
@@ -83,7 +83,7 @@ void DebuggerToolChainComboBox::init(bool hostAbiOnly)
     setEnabled(count() > 1);
 }
 
-void DebuggerToolChainComboBox::setAbi(const ProjectExplorer::Abi &abi)
+void DebuggerToolChainComboBox::setAbi(const Abi &abi)
 {
     QTC_ASSERT(abi.isValid(), return);
     const int c = count();
@@ -95,7 +95,7 @@ void DebuggerToolChainComboBox::setAbi(const ProjectExplorer::Abi &abi)
     }
 }
 
-ProjectExplorer::Abi DebuggerToolChainComboBox::abi() const
+Abi DebuggerToolChainComboBox::abi() const
 {
     return abiAt(currentIndex());
 }
@@ -114,13 +114,13 @@ QString DebuggerToolChainComboBox::debuggerCommandAt(int index) const
     return QString();
 }
 
-ProjectExplorer::Abi DebuggerToolChainComboBox::abiAt(int index) const
+Abi DebuggerToolChainComboBox::abiAt(int index) const
 {
     if (index >= 0 && index < count()) {
         const AbiDebuggerCommandPair abiCommandPair = qvariant_cast<AbiDebuggerCommandPair>(itemData(index));
         return abiCommandPair.first;
     }
-    return ProjectExplorer::Abi();
+    return Abi();
 }
 
 static inline QString abiToolTip(const AbiDebuggerCommandPair &abiCommandPair)
