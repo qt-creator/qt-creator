@@ -34,6 +34,7 @@
 
 #include "profile.h"
 #include "profileconfigwidget.h"
+#include "profileinformation.h"
 #include "profilemanagerconfigwidget.h"
 #include "project.h"
 
@@ -397,7 +398,17 @@ bool ProfileManager::registerProfile(ProjectExplorer::Profile *p)
     QStringList names;
     foreach (Profile *tmp, profiles())
         names << tmp->displayName();
-    p->setDisplayName(Project::makeUnique(p->displayName(), names));
+    QString name = p->displayName();
+    QString uniqueName = Project::makeUnique(name, names);
+    if (uniqueName != name) {
+        ToolChain *tc = ToolChainProfileInformation::toolChain(p);
+        if (tc) {
+            const QString tcPostfix = QString::fromLatin1("-%1").arg(tc->displayName());
+            if (!name.contains(tcPostfix))
+                uniqueName = Project::makeUnique(name + tcPostfix, names);
+        }
+    }
+    p->setDisplayName(uniqueName);
 
     // make sure we have all the information in our profiles:
     foreach (ProfileInformation *pi, d->m_informationList) {
