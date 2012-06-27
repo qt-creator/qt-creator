@@ -125,7 +125,7 @@ class InputHighlighter : public QSyntaxHighlighter
 {
 public:
     InputHighlighter(QPlainTextEdit *parent)
-        : QSyntaxHighlighter(parent->document()), m_parent(parent)
+        : QSyntaxHighlighter(parent->document())
     {}
 
 private:
@@ -137,8 +137,6 @@ private:
             setFormat(1, text.size(), format);
         }
     }
-
-    QPlainTextEdit *m_parent;
 };
 
 

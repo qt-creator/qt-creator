@@ -827,9 +827,8 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
 ////////////////////////////////////////////////////////////////////////
 
 // A factory to create DebuggerRunControls
-DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent,
-        unsigned enabledEngines)
-    : IRunControlFactory(parent), m_enabledEngines(enabledEngines)
+DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent)
+    : IRunControlFactory(parent)
 {}
 
 bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const

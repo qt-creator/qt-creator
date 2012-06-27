@@ -43,7 +43,7 @@ class DebuggerRunControlFactory
     : public ProjectExplorer::IRunControlFactory
 {
 public:
-    explicit DebuggerRunControlFactory(QObject *parent, unsigned enabledEngines);
+    explicit DebuggerRunControlFactory(QObject *parent);
 
     // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
     // FIXME: What to do in case of a 0 runConfiguration?
@@ -66,8 +66,6 @@ public:
 private:
     QString displayName() const;
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
-
-    const unsigned m_enabledEngines;
 };
 
 } // namespace Internal

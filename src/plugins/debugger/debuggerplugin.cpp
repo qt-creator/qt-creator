@@ -3103,8 +3103,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     }
 
     // Register factory of DebuggerRunControl.
-    m_debuggerRunControlFactory = new DebuggerRunControlFactory
-        (m_plugin, DebuggerEngineType(m_cmdLineEnabledEngines));
+    m_debuggerRunControlFactory = new DebuggerRunControlFactory(m_plugin);
     m_plugin->addAutoReleasedObject(m_debuggerRunControlFactory);
 
     // The main "Start Debugging" action.
