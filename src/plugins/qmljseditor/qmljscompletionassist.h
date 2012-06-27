@@ -114,7 +114,6 @@ private:
     QScopedPointer<const QmlJSCompletionAssistInterface> m_interface;
     QList<TextEditor::BasicProposalItem *> m_completions;
     TextEditor::SnippetAssistCollector m_snippetCollector;
-    const TextEditor::IAssistProvider *m_provider;
 };
 
 
