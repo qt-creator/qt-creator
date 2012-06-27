@@ -93,8 +93,9 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
     if (mode == ProjectExplorer::NormalRunMode)
         return new RemoteLinuxRunControl(rc);
 
-    const DebuggerStartParameters params
-        = AbstractRemoteLinuxDebugSupport::startParameters(rc);
+    DebuggerStartParameters params = AbstractRemoteLinuxDebugSupport::startParameters(rc);
+    if (mode == ProjectExplorer::DebugRunModeWithBreakOnMain)
+        params.breakOnMain = true;
     DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc);
     if (!runControl)
         return 0;
