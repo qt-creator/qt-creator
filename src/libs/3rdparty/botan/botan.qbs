@@ -20,9 +20,9 @@ QtcLibrary {
     }
 
     cpp.defines: {
-        var result = []
-        if (qbs.toolchain == "msvc2005" || qbs.toolchain == "msvc2008" || qbs.toolchain == "msvc2010")
-            result.push("BOTAN_DLL=__declspec(dllexport)", "BOTAN_BUILD_COMPILER_IS_MSVC")
+        var result = ["BOTAN_DLL=Q_DECL_EXPORT"]
+        if (qbs.toolchain == "msvc")
+            result.push("BOTAN_BUILD_COMPILER_IS_MSVC")
         if (qbs.toolchain == "gcc" || qbs.toolchain == "mingw")
             result.push("BOTAN_BUILD_COMPILER_IS_GCC")
         if (qbs.targetOS == "linux")

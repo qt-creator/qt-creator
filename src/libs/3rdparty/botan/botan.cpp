@@ -5,7 +5,8 @@
 * Distributed under the terms of the Botan license
 */
 
-#include <QtGlobal>
+#include "botan.h"
+#include <deque>
 
 #ifdef Q_OS_WIN
 #ifndef NOMINMAX
@@ -13,12 +14,6 @@
 #endif
 #endif
 
-#include "botan.h"
-#include <map>
-#include <vector>
-#include <string>
-#include <deque>
-#include <utility>
 
 namespace Botan {
 

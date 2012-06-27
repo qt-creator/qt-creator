@@ -8,6 +8,8 @@
 #ifndef BOTAN_AMALGAMATION_H__
 #define BOTAN_AMALGAMATION_H__
 
+#include <QtGlobal>
+
 #include <iosfwd>
 #include <map>
 #include <exception>
@@ -28,11 +30,7 @@
 #define BOTAN_DISTRIBUTION_INFO "unspecified"
 
 #ifndef BOTAN_DLL
-#ifdef Q_OS_WIN
-    #define BOTAN_DLL __declspec(dllimport)
-#else
-    #define BOTAN_DLL __attribute__((visibility("default")))
-#endif
+#define BOTAN_DLL Q_DECL_IMPORT
 #endif
 
 /* Chunk sizes */
