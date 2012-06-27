@@ -112,24 +112,13 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
     return str(projectName)
 
 # Selects the Qt versions for a project
-# param qtVersion is the name of a Qt version. In the project, build configurations will be
-#                 created for this version. If it is None, all Qt versions will be used
 # param checks turns tests in the function on if set to True
 # param available a list holding the available targets
-def __selectQtVersionDesktop__(qtVersion, checks, available=None):
+def __selectQtVersionDesktop__(checks, available=None):
     __chooseTargets__(QtQuickConstants.Targets.DESKTOP, available)
-    if qtVersion == None:
-        selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox_2",
-                        "For Each Qt Version One Debug And One Release")
-        ensureChecked(":scrollArea.Use Shadow Building_QCheckBox")
-    else:
-        selectFromCombo(":scrollArea.Create Build Configurations:_QComboBox_2",
-                        "For One Qt Version One Debug And One Release")
-        ensureChecked(":scrollArea.Use Shadow Building_QCheckBox")
-        selectFromCombo(":scrollArea.Qt Version:_QComboBox", qtVersion)
-        if checks:
-            verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox")
-            verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox")
+    if checks:
+        verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox")
+        verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox")
     clickButton(waitForObject(":Next_QPushButton"))
 
 def __createProjectHandleLastPage__(expectedFiles = None):
@@ -153,15 +142,13 @@ def __verifyFileCreation__(path, expectedFiles):
 # Creates a Qt GUI project
 # param path specifies where to create the project
 # param projectName is the name for the new project
-# param qtVersion is the name of a Qt version. In the project, build configurations will be
-#                 created for this version. If it is None, all Qt versions will be used
 # param checks turns tests in the function on if set to True
-def createProject_Qt_GUI(path, projectName, qtVersion = None, checks = True):
+def createProject_Qt_GUI(path, projectName, checks = True):
     template = "Qt Gui Application"
     available = __createProjectSelectType__("  Applications", template)
     JIRA.performWorkaroundIfStillOpen(6994, JIRA.Bug.CREATOR, template, available)
     __createProjectSetNameAndPath__(path, projectName, checks)
-    __selectQtVersionDesktop__(qtVersion, checks, available)
+    __selectQtVersionDesktop__(checks, available)
 
     if checks:
         exp_filename = "mainwindow"
@@ -195,13 +182,11 @@ def createProject_Qt_GUI(path, projectName, qtVersion = None, checks = True):
 # Creates a Qt Console project
 # param path specifies where to create the project
 # param projectName is the name for the new project
-# param qtVersion is the name of a Qt version. In the project, build configurations will be
-#                 created for this version. If it is None, all Qt versions will be used
 # param checks turns tests in the function on if set to True
-def createProject_Qt_Console(path, projectName, qtVersion = None, checks = True):
+def createProject_Qt_Console(path, projectName, checks = True):
     available = __createProjectSelectType__("  Applications", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
-    __selectQtVersionDesktop__(qtVersion, checks, available)
+    __selectQtVersionDesktop__(checks, available)
 
     expectedFiles = None
     if checks:

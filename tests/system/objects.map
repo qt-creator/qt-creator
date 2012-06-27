@@ -66,8 +66,8 @@
 :scrollArea.Edit build configuration:_QComboBox	{container=':Qt Creator.scrollArea_QScrollArea' leftWidget=':scrollArea.Edit build configuration:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Edit build configuration:_QLabel	{container=':Qt Creator.scrollArea_QScrollArea' text='Edit build configuration:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Library not available_QLabel	{container=':Qt Creator.scrollArea_QScrollArea' name='qmlDebuggingWarningText' text?='Library not available*' type='QLabel' visible='1'}
-:scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text?='*Qt 4.* for *(Qt SDK) debug' type='QCheckBox' unnamed='1' visible='1'}
-:scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text?='*Qt 4.* for *(Qt SDK) release' type='QCheckBox' unnamed='1' visible='1'}
+:scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' occurrence='1' text='Debug' type='QCheckBox' unnamed='1' visible='1'}
+:scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' occurrence='1' text='Release' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Qt Version:_QComboBox	{aboveWidget=':scrollArea.Use Shadow Building_QCheckBox' container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Qt Version:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Qt Version:_QLabel	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Qt Version:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Use Shadow Building_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Shadow build' type='QCheckBox' unnamed='1' visible='1'}
