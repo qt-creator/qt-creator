@@ -224,7 +224,7 @@ S60Extensions& S60Extensions::operator=(const S60Extensions& other)
 /*
 * Return the OID of this extension
 */
-OID Certificate_Extension::oid_of() const
+OID S60CertificateExtension::oid_of() const
 {
     return OIDS::lookup(oid_name());
 }
