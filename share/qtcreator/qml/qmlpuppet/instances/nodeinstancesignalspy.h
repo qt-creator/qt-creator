@@ -61,7 +61,6 @@ private:
     QHash<int, QString> m_indexPropertyHash;
     QObjectList m_registeredObjectList;
     ObjectNodeInstanceWeakPointer m_objectNodeInstance;
-    QMetaObject m_metaObject;
 };
 
 } // namespace Internal
