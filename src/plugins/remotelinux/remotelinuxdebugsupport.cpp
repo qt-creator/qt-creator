@@ -73,7 +73,7 @@ public:
     {
     }
 
-    const QPointer<Debugger::DebuggerEngine> engine;
+    const QPointer<DebuggerEngine> engine;
     bool qmlDebugging;
     bool cppDebugging;
     QByteArray gdbserverOutput;
@@ -98,7 +98,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
 {
     DebuggerStartParameters params;
     const LinuxDeviceConfiguration::ConstPtr devConf
-            = ProjectExplorer::DeviceProfileInformation::device(runConfig->target()->profile())
+            = DeviceProfileInformation::device(runConfig->target()->profile())
               .dynamicCast<const RemoteLinux::LinuxDeviceConfiguration>();
     if (runConfig->debuggerAspect()->useQmlDebugger()) {
         params.languages |= QmlLanguage;
@@ -109,21 +109,21 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
         params.languages |= CppLanguage;
         params.processArgs = runConfig->arguments();
         QString systemRoot;
-        if (ProjectExplorer::SysRootProfileInformation::hasSysRoot(runConfig->target()->profile()))
-            systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(runConfig->target()->profile()).toString();
+        if (SysRootProfileInformation::hasSysRoot(runConfig->target()->profile()))
+            systemRoot = SysRootProfileInformation::sysRoot(runConfig->target()->profile()).toString();
         params.sysroot = systemRoot;
         params.toolChainAbi = runConfig->abi();
         params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
-        params.debuggerCommand = Debugger::DebuggerProfileInformation::debuggerCommand(runConfig->target()->profile()).toString();
+        params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(runConfig->target()->profile()).toString();
         params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
 
         // TODO: This functionality should be inside the debugger.
         ToolChain *tc = ToolChainProfileInformation::toolChain(runConfig->target()->profile());
         if (tc) {
-            const ProjectExplorer::Abi &abi = tc->targetAbi();
+            const Abi &abi = tc->targetAbi();
             params.remoteArchitecture = abi.toString();
-            params.gnuTarget = QLatin1String(abi.architecture() == ProjectExplorer::Abi::ArmArchitecture
+            params.gnuTarget = QLatin1String(abi.architecture() == Abi::ArmArchitecture
                                              ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
         }
     } else {
@@ -132,11 +132,10 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
     params.remoteSetupNeeded = true;
     params.displayName = runConfig->displayName();
 
-    if (const ProjectExplorer::Project *project = runConfig->target()->project()) {
+    if (const Project *project = runConfig->target()->project()) {
         params.projectSourceDirectory = project->projectDirectory();
-        if (const ProjectExplorer::BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration()) {
+        if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
             params.projectBuildDirectory = buildConfig->buildDirectory();
-        }
         params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
     }
 
