@@ -66,7 +66,6 @@
   #define BOTAN_GCC_VERSION 0
 #endif
 
-#define BOTAN_TARGET_ARCH_IS_X86_32
 #define BOTAN_TARGET_CPU_IS_LITTLE_ENDIAN
 #define BOTAN_TARGET_CPU_IS_X86_FAMILY
 #define BOTAN_TARGET_UNALIGNED_MEMORY_ACCESS_OK 1
@@ -10615,12 +10614,6 @@ inline u32bit reverse_bytes(u32bit val)
         : "r3", "cc");
 
    return val;
-
-#elif defined(_MSC_VER) && defined(BOTAN_TARGET_ARCH_IS_X86_32)
-
-   // Visual C++ inline asm for 32-bit x86, by Yves Jerschow
-   __asm mov eax, val;
-   __asm bswap eax;
 
 #else
 
