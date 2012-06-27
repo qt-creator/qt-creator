@@ -90,8 +90,7 @@ bool RemoteLinuxRunConfigurationFactory::canClone(Target *parent, RunConfigurati
 {
     const RemoteLinuxRunConfiguration * const rlrc
             = qobject_cast<RemoteLinuxRunConfiguration *>(source);
-    const QString idStr = source->id().toString() + QLatin1Char('.') + rlrc->proFilePath();
-    return rlrc && canCreate(parent, Core::Id(idStr));
+    return rlrc && canCreate(parent, source->id());
 }
 
 QList<Core::Id> RemoteLinuxRunConfigurationFactory::availableCreationIds(Target *parent) const
