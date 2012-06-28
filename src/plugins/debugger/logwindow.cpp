@@ -394,6 +394,8 @@ LogWindow::LogWindow(QWidget *parent)
     connect(m_inputText, SIGNAL(executeLineRequested()),
         SLOT(executeLine()));
 
+    connect(&m_outputTimer, SIGNAL(timeout()), SLOT(doOutput()));
+
     setMinimumHeight(60);
 }
 
@@ -413,9 +415,6 @@ void LogWindow::showOutput(int channel, const QString &output)
 {
     if (output.isEmpty())
         return;
-
-    QTextCursor cursor = m_combinedText->textCursor();
-    const bool atEnd = cursor.atEnd();
 
     const QChar cchar = charForChannel(channel);
     const QChar nchar = QLatin1Char('\n');
@@ -445,7 +444,24 @@ void LogWindow::showOutput(int channel, const QString &output)
         }
         pos = nnpos + 1;
     }
-    m_combinedText->append(out);
+    if (!out.endsWith(nchar))
+        out.append(nchar);
+
+    m_queuedOutput.append(out);
+    m_outputTimer.setSingleShot(true);
+    m_outputTimer.start(80);
+}
+
+void LogWindow::doOutput()
+{
+    if (m_queuedOutput.isEmpty())
+        return;
+
+    QTextCursor cursor = m_combinedText->textCursor();
+    const bool atEnd = cursor.atEnd();
+
+    m_combinedText->append(m_queuedOutput);
+    m_queuedOutput.clear();
 
     if (atEnd) {
         cursor.movePosition(QTextCursor::End);

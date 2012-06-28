@@ -36,6 +36,7 @@
 #include "debuggerconstants.h"
 
 #include <QWidget>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QCursor;
@@ -74,6 +75,7 @@ public slots:
     void executeLine();
     void showOutput(int channel, const QString &output);
     void showInput(int channel, const QString &input);
+    void doOutput();
 
 signals:
     void showPage();
@@ -82,11 +84,12 @@ signals:
 private:
     DebuggerPane *m_combinedText;  // combined input/output
     DebuggerPane *m_inputText;     // scriptable input alone
+    QTimer m_outputTimer;
+    QString m_queuedOutput;
     QLineEdit *m_commandEdit;
     QLabel *m_commandLabel;
     bool m_ignoreNextInputEcho;
 };
-
 
 } // namespace Internal
 } // namespace Debugger
