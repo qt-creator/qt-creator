@@ -32,6 +32,8 @@
 
 #include "qdebugmessageclient.h"
 
+#include <QDataStream>
+
 namespace QmlDebug {
 
 QDebugMessageClient::QDebugMessageClient(QmlDebugConnection *client)

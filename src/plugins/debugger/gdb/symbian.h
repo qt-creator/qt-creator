@@ -35,6 +35,7 @@
 
 #include <QMap>
 #include <QByteArray>
+#include <QString>
 #include <QMetaType>
 #include <QVector>
 #include <QPair>

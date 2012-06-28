@@ -33,6 +33,7 @@
 #ifndef DEBUGGER_ACTIONS_H
 #define DEBUGGER_ACTIONS_H
 
+#include <QObject>
 #include <QHash>
 #include <QMap>
 
