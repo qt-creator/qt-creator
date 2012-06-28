@@ -371,7 +371,7 @@ static inline bool isMsvcFlavor(Abi::OSFlavor osf)
 bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
 {
 #ifdef Q_OS_WIN
-    const Abi abi = toolChainAbi(sp);
+    const Abi abi = sp.toolChainAbi;
     if (!isCdbEngineEnabled()) {
         check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
                            arg(abi.toString()));
@@ -396,7 +396,7 @@ bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck
         return false;
     }
 
-    if (debuggerCommand(sp).isEmpty()) {
+    if (sp.debuggerCommand.isEmpty()) {
         check->errorDetails.push_back(msgNoCdbBinaryForToolChain(abi));
         check->settingsCategory = QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
         check->settingsPage = QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
