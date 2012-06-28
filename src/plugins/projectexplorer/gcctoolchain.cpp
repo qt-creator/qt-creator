@@ -38,6 +38,7 @@
 #include "projectexplorerconstants.h"
 #include "toolchainmanager.h"
 
+#include <utils/detailswidget.h>
 #include <utils/environment.h>
 #include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
@@ -677,7 +678,16 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
 {
     Q_ASSERT(tc);
 
-    QFormLayout *layout = new QFormLayout(this);
+    Utils::DetailsWidget *details = new Utils::DetailsWidget(this);
+    details->setState(Utils::DetailsWidget::NoSummary);
+    QVBoxLayout *box = new QVBoxLayout(this);
+    box->setMargin(0);
+    box->addWidget(details);
+
+    QWidget *widget = new QWidget(details);
+    details->setWidget(widget);
+
+    QFormLayout *layout = new QFormLayout(widget);
 
     const QStringList gnuVersionArgs = QStringList(QLatin1String("--version"));
     m_compilerCommand->setExpectedKind(Utils::PathChooser::ExistingCommand);
