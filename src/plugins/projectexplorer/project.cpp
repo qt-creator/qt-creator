@@ -73,12 +73,11 @@
 */
 
 namespace {
-const char * const ACTIVE_TARGET_KEY("ProjectExplorer.Project.ActiveTarget");
-const char * const TARGET_KEY_PREFIX("ProjectExplorer.Project.Target.");
-const char * const TARGET_COUNT_KEY("ProjectExplorer.Project.TargetCount");
-
-const char * const EDITOR_SETTINGS_KEY("ProjectExplorer.Project.EditorSettings");
-const char * const PLUGIN_SETTINGS_KEY("ProjectExplorer.Project.PluginSettings");
+const char ACTIVE_TARGET_KEY[] = "ProjectExplorer.Project.ActiveTarget";
+const char TARGET_KEY_PREFIX[] = "ProjectExplorer.Project.Target.";
+const char TARGET_COUNT_KEY[] = "ProjectExplorer.Project.TargetCount";
+const char EDITOR_SETTINGS_KEY[] = "ProjectExplorer.Project.EditorSettings";
+const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Project.PluginSettings";
 } // namespace
 
 namespace ProjectExplorer {
