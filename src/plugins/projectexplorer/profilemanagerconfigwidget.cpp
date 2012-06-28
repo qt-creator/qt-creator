@@ -34,11 +34,14 @@
 
 #include "profile.h"
 
+#include <utils/detailswidget.h>
+
 #include <QHBoxLayout>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
 #include <QToolButton>
+#include <QScrollArea>
 #include <QSizePolicy>
 #include <QStyle>
 
@@ -54,14 +57,30 @@ ProfileManagerConfigWidget::ProfileManagerConfigWidget(Profile *p, QWidget *pare
     m_layout->setMargin(0);
     m_layout->setSpacing(6);
 
+    QVBoxLayout *top = new QVBoxLayout(this);
+    top->setMargin(0);
+
+    QScrollArea *scroll = new QScrollArea;
+    scroll->setFrameShape(QFrame::NoFrame);
+    scroll->setWidgetResizable(true);
+    scroll->setFocusPolicy(Qt::NoFocus);
+    top->addWidget(scroll);
+
+    Utils::DetailsWidget *details = new Utils::DetailsWidget;
+    details->setState(Utils::DetailsWidget::NoSummary);
+    scroll->setWidget(details);
+
+    QWidget *widget = new QWidget;
+    details->setWidget(widget);
+
+    QHBoxLayout *masterLayout = new QHBoxLayout(widget);
+    masterLayout->setSpacing(12);
+
     QVBoxLayout *iconLayout = new QVBoxLayout;
     iconLayout->addWidget(m_iconButton);
     iconLayout->addStretch();
 
-    QHBoxLayout *masterLayout = new QHBoxLayout(this);
     masterLayout->addLayout(iconLayout);
-    masterLayout->setMargin(0);
-    masterLayout->setSpacing(12);
     masterLayout->addLayout(m_layout);
 
     discard();
