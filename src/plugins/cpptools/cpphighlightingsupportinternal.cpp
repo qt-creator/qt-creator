@@ -69,6 +69,7 @@ QFuture<CppHighlightingSupport::Use> CppHighlightingSupportInternal::highlightin
         SimpleLexer tokenize;
         tokenize.setQtMocRunEnabled(false);
         tokenize.setObjCEnabled(false);
+        tokenize.setCxx0xEnabled(true);
         const QList<Token> tokens = tokenize(name);
         if (tokens.length() && (tokens.at(0).isKeyword() || tokens.at(0).isObjCAtKeyword()))
             continue;
