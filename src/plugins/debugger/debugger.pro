@@ -135,15 +135,11 @@ SOURCES += \
     qtmessagelogeditor.cpp \
     localsandexpressionswindow.cpp
 
-FORMS += attachexternaldialog.ui \
-    attachcoredialog.ui \
+FORMS += \
     breakcondition.ui \
     breakpoint.ui \
     localsandexpressionsoptionspage.ui \
-    commonoptionspage.ui \
-    startexternaldialog.ui \
-    startremotedialog.ui \
-    startremoteenginedialog.ui
+    commonoptionspage.ui
 
 RESOURCES += debugger.qrc
 

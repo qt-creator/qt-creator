@@ -44,7 +44,6 @@ QtcPlugin {
         "ianalyzertool.cpp",
         "startremotedialog.cpp",
         "startremotedialog.h",
-        "startremotedialog.ui",
         "analyzermanager.cpp",
         "analyzermanager.h",
         "analyzerruncontrol.cpp",

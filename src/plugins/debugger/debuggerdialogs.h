@@ -53,18 +53,15 @@ class DebuggerStartParameters;
 
 namespace Internal {
 
-namespace Ui {
-class AttachCoreDialog;
-class AttachExternalDialog;
-class StartExternalDialog;
-class StartRemoteDialog;
-class StartRemoteEngineDialog;
-} // namespace Ui
-
-class ProcessListFilterModel;
-class StartExternalParameters;
-class StartRemoteParameters;
+class AttachCoreDialogPrivate;
+class AttachExternalDialogPrivate;
 class AttachToQmlPortDialogPrivate;
+class ProcessListFilterModel;
+class StartExternalDialogPrivate;
+class StartExternalParameters;
+class StartRemoteDialogPrivate;
+class StartRemoteEngineDialogPrivate;
+class StartRemoteParameters;
 
 class AttachCoreDialog : public QDialog
 {
@@ -93,7 +90,7 @@ private slots:
 private:
     bool isValid() const;
 
-    Ui::AttachCoreDialog *m_ui;
+    AttachCoreDialogPrivate *d;
 };
 
 class AttachExternalDialog : public QDialog
@@ -124,9 +121,7 @@ private:
     inline QPushButton *okButton() const;
     inline QString attachPIDText() const;
 
-    const QString m_selfPid;
-    Ui::AttachExternalDialog *m_ui;
-    ProcessListFilterModel *m_model;
+    AttachExternalDialogPrivate *d;
 };
 
 class StartExternalDialog : public QDialog
@@ -146,7 +141,7 @@ private slots:
 private:
     StartExternalParameters parameters() const;
     void setParameters(const StartExternalParameters &p);
-    void setHistory(const QList<StartExternalParameters> l);
+    void setHistory(const QList<StartExternalParameters> &l);
 
     QString executableFile() const;
     void setExecutableFile(const QString &executable);
@@ -154,7 +149,7 @@ private:
     Core::Id profileId() const;
     bool isValid() const;
 
-    Ui::StartExternalDialog *m_ui;
+    StartExternalDialogPrivate *d;
 };
 
 class StartRemoteDialog : public QDialog
@@ -181,7 +176,7 @@ private:
 
     Core::Id profileId() const;
 
-    Ui::StartRemoteDialog *m_ui;
+    StartRemoteDialogPrivate *d;
 };
 
 class AttachToQmlPortDialog : public QDialog
@@ -266,7 +261,7 @@ public:
     QString inferiorPath() const;
 
 private:
-    Ui::StartRemoteEngineDialog *m_ui;
+    StartRemoteEngineDialogPrivate *d;
 };
 
 class TypeFormatsDialogUi;

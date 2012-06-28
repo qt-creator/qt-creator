@@ -39,8 +39,5 @@ HEADERS += \
     startremotedialog.h \
     analyzerruncontrolfactory.h
 
-FORMS += \
-    startremotedialog.ui
-
 RESOURCES += \
     analyzerbase.qrc

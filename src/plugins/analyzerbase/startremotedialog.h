@@ -41,8 +41,7 @@ namespace QSsh { class SshConnectionParameters; }
 
 namespace Analyzer {
 
-namespace Internal { namespace Ui { class StartRemoteDialog; } }
-
+namespace Internal { class StartRemoteDialogPrivate; }
 
 class ANALYZER_EXPORT StartRemoteDialog : public QDialog
 {
@@ -50,7 +49,7 @@ class ANALYZER_EXPORT StartRemoteDialog : public QDialog
 
 public:
     explicit StartRemoteDialog(QWidget *parent = 0);
-    virtual ~StartRemoteDialog();
+    ~StartRemoteDialog();
 
     QSsh::SshConnectionParameters sshParams() const;
     QString executable() const;
@@ -62,7 +61,7 @@ private slots:
     virtual void accept();
 
 private:
-    Internal::Ui::StartRemoteDialog *m_ui;
+    Internal::StartRemoteDialogPrivate *d;
 };
 
 } // namespace Analyzer
