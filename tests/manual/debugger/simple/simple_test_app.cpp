@@ -365,6 +365,13 @@ private:
     QHash<QObject *, Map::iterator> h;
 };
 
+class Fooooo : public Foo
+{
+public:
+    Fooooo(int x) : Foo(x), a(x + 2) {}
+    int a;
+};
+
 class X : virtual public Foo { public: X() { } };
 
 class XX : virtual public Foo { public: XX() { } };
@@ -4144,16 +4151,19 @@ namespace qvector {
         vec.append(new Foo(1));
         vec.append(0);
         vec.append(new Foo(2));
+        vec.append(new Fooooo(3));
         // switch "Auto derefencing pointers" in Locals context menu
         // off and on again, and check result looks sane.
         BREAK_HERE;
         // Expand vec vec.0 vec.2.
-        // Check vec <3 items> QVector<Foo*>.
+        // Check vec <4 items> QVector<Foo*>.
         // CheckType vec.0 Foo.
         // Check vec.0.a 1 int.
         // Check vec.1 0x0 Foo *.
         // CheckType vec.2 Foo.
         // Check vec.2.a 2 int.
+        // CheckType vec.3 Fooooo.
+        // Check vec.3.a 5 int.
         // Continue.
         dummyStatement(&vec);
     }
