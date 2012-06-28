@@ -613,7 +613,7 @@ bool Qt4BuildConfigurationFactory::canCreate(const Target *parent, const Core::I
 {
     if (!canHandle(parent))
         return false;
-    return id.toString() == QLatin1String(QT4_BC_ID);
+    return id == QT4_BC_ID;
 }
 
 BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name)
