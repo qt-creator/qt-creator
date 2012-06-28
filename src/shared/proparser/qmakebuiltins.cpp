@@ -1044,8 +1044,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         // ### Consider real termination in non-cumulative mode
         return returnBool(function != QLatin1String("error"));
     }
-#if 0 // Way too dangerous to enable.
+#ifdef PROEVALUATOR_FULL
     case T_SYSTEM: {
+        if (m_cumulative) // Anything else would be insanity
+            return ReturnFalse;
         if (args.count() != 1) {
             evalError(fL1S("system(exec) requires one argument."));
             return ReturnFalse;
