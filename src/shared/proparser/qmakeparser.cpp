@@ -770,11 +770,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                 goto freshLine;
             }
 
-        if (!lineCont) {
-            cur = cptr;
-            ++m_lineNo;
-            goto freshLine;
-        }
         lineMarked = false;
       ignore:
         cur = cptr;
