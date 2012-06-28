@@ -1885,6 +1885,14 @@ bool QMakeEvaluator::evaluateFileDirect(
         bool ok = (visitProFile(pro, type, flags) == ReturnTrue);
         m_current = m_locationStack.pop();
         pro->deref();
+#ifdef PROEVALUATOR_FULL
+        if (ok) {
+            ProStringList &iif = m_valuemapStack.first()[ProString("QMAKE_INTERNAL_INCLUDED_FILES")];
+            ProString ifn(fileName, NoHash);
+            if (!iif.contains(ifn))
+                iif << ifn;
+        }
+#endif
         return ok;
     } else {
         return false;
