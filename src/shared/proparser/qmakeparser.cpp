@@ -459,7 +459,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                             term = '}';
                             c = *++cur;
                         } else if (c == '(') {
-                            // FIXME: could/should expand this immediately
                             ptr += 2;
                             tok = TokEnvVar;
                             term = ')';
