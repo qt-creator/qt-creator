@@ -1345,6 +1345,9 @@ QString Qt4Project::disabledReasonForRunConfiguration(const QString &proFilePath
         return tr("The .pro file '%1' does not exist.")
                 .arg(QFileInfo(proFilePath).fileName());
 
+    if (!m_rootProjectNode) // Shutting down
+        return QString();
+
     if (!m_rootProjectNode->findProFileFor(proFilePath))
         return tr("The .pro file '%1' is not part of the project.")
                 .arg(QFileInfo(proFilePath).fileName());
