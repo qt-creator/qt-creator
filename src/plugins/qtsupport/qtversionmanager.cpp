@@ -123,7 +123,7 @@ QtVersionManager *QtVersionManager::m_self = 0;
 
 QtVersionManager::QtVersionManager() :
     m_configFileWatcher(0),
-    m_fileWatcherTimer(new QTimer)
+    m_fileWatcherTimer(new QTimer(this))
 {
     m_self = this;
     m_idcount = 1;
