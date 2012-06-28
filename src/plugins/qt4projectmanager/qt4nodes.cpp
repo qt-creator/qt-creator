@@ -1478,7 +1478,7 @@ Qt4ProFileNode::~Qt4ProFileNode()
     m_parseFutureWatcher.waitForFinished();
     if (m_readerExact) {
         // Oh we need to clean up
-        applyEvaluate(EvalFail, true);
+        applyEvaluate(EvalAbort, true);
         m_project->decrementPendingEvaluateFutures();
     }
 }
