@@ -1746,17 +1746,14 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         }
     }
 
-    commitData->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
-    commitData->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
     commitData->commitEncoding = readConfigValue(workingDirectory, QLatin1String("i18n.commitEncoding"));
 
     // Get the commit template or the last commit message
     if (amend) {
-        // Amend: get last commit data as "SHA1@message".
+        // Amend: get last commit data as "SHA1<tab>author<tab>email<tab>message".
         QStringList args(QLatin1String("log"));
-        const QString format = gitVersion(true) > 0x010701 ?
-                               QLatin1String("%h@%B") :
-                               QLatin1String("%h@%s%n%n%b");
+        const QString msgFormat = QLatin1String((gitVersion(true) > 0x010701) ? "%B" : "%s%n%n%b");
+        const QString format = QLatin1String("%h\t%an\t%ae\t") + msgFormat;
         args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:") + format;
         QTextCodec *codec = QTextCodec::codecForName(commitData->commitEncoding.toLocal8Bit());
         const Utils::SynchronousProcessResponse sp = synchronousGit(repoDirectory, args, 0, codec);
@@ -1764,11 +1761,15 @@ bool GitClient::getCommitData(const QString &workingDirectory,
             *errorMessage = tr("Cannot retrieve last commit data of repository \"%1\".").arg(repoDirectory);
             return false;
         }
-        const int separatorPos = sp.stdOut.indexOf(QLatin1Char('@'));
-        QTC_ASSERT(separatorPos != -1, return false);
-        commitData->amendSHA1= sp.stdOut.left(separatorPos);
-        *commitTemplate = sp.stdOut.mid(separatorPos + 1);
+        QStringList values = sp.stdOut.split(QLatin1Char('\t'));
+        QTC_ASSERT(values.size() >= 4, return false);
+        commitData->amendSHA1 = values.takeFirst();
+        commitData->panelData.author = values.takeFirst();
+        commitData->panelData.email = values.takeFirst();
+        *commitTemplate = values.join(QLatin1String("\t"));
     } else {
+        commitData->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
+        commitData->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
         // Commit: Get the commit template
         QString templateFilename = gitDir.absoluteFilePath(QLatin1String("MERGE_MSG"));
         if (!QFileInfo(templateFilename).isFile())
