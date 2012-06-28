@@ -126,7 +126,7 @@ class Qt4ProjectFile : public Core::IDocument
     Q_OBJECT
 
 public:
-    Qt4ProjectFile(Qt4Project *project, const QString &filePath, QObject *parent = 0);
+    Qt4ProjectFile(const QString &filePath, QObject *parent = 0);
 
     bool save(QString *errorString, const QString &fileName, bool autoSave);
     QString fileName() const;
@@ -144,7 +144,6 @@ public:
 
 private:
     const QString m_mimeType;
-    Qt4Project *m_project;
     QString m_filePath;
 };
 
@@ -277,10 +276,9 @@ void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 
 // ----------- Qt4ProjectFile
 namespace Internal {
-Qt4ProjectFile::Qt4ProjectFile(Qt4Project *project, const QString &filePath, QObject *parent)
+Qt4ProjectFile::Qt4ProjectFile(const QString &filePath, QObject *parent)
     : Core::IDocument(parent),
       m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE)),
-      m_project(project),
       m_filePath(filePath)
 {
 }
@@ -354,7 +352,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_manager(manager),
     m_rootProjectNode(0),
     m_nodesWatcher(new Internal::Qt4NodesWatcher(this)),
-    m_fileInfo(new Qt4ProjectFile(this, fileName, this)),
+    m_fileInfo(new Qt4ProjectFile(fileName, this)),
     m_projectFiles(new Qt4ProjectFiles),
     m_proFileOption(0),
     m_asyncUpdateFutureInterface(0),

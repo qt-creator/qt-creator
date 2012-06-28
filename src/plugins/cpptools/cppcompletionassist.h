@@ -137,7 +137,6 @@ private:
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
     QList<TextEditor::BasicProposalItem *> m_completions;
     TextEditor::SnippetAssistCollector m_snippetCollector;
-    const InternalCompletionAssistProvider *m_provider;
     CPlusPlus::Icons m_icons;
     QStringList preprocessorCompletions;
     QScopedPointer<CppAssistProposalModel> m_model;
