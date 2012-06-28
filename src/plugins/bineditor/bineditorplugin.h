@@ -83,8 +83,8 @@ private slots:
 
 private:
     Core::Context m_context;
-    QAction *registerNewAction(const QString &id, const QString &title = QString());
-    QAction *registerNewAction(const QString &id, QObject *receiver, const char *slot,
+    QAction *registerNewAction(Core::Id id, const QString &title = QString());
+    QAction *registerNewAction(Core::Id id, QObject *receiver, const char *slot,
                                const QString &title = QString());
     QAction *m_undoAction;
     QAction *m_redoAction;

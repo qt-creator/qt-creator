@@ -461,14 +461,14 @@ BinEditorPlugin::~BinEditorPlugin()
 {
 }
 
-QAction *BinEditorPlugin::registerNewAction(const QString &id, const QString &title)
+QAction *BinEditorPlugin::registerNewAction(Core::Id id, const QString &title)
 {
     QAction *result = new QAction(title, this);
-    Core::ActionManager::registerAction(result, Core::Id(id), m_context);
+    Core::ActionManager::registerAction(result, id, m_context);
     return result;
 }
 
-QAction *BinEditorPlugin::registerNewAction(const QString &id,
+QAction *BinEditorPlugin::registerNewAction(Core::Id id,
                                             QObject *receiver,
                                             const char *slot,
                                             const QString &title)
@@ -489,16 +489,10 @@ void BinEditorPlugin::initializeEditor(BinEditor *editor)
 
     m_context.add(Constants::C_BINEDITOR);
     if (!m_undoAction) {
-        m_undoAction      = registerNewAction(QLatin1String(Core::Constants::UNDO),
-                                              this, SLOT(undoAction()),
-                                              tr("&Undo"));
-        m_redoAction      = registerNewAction(QLatin1String(Core::Constants::REDO),
-                                              this, SLOT(redoAction()),
-                                              tr("&Redo"));
-        m_copyAction      = registerNewAction(QLatin1String(Core::Constants::COPY),
-                                              this, SLOT(copyAction()));
-        m_selectAllAction = registerNewAction(QLatin1String(Core::Constants::SELECTALL),
-                                              this, SLOT(selectAllAction()));
+        m_undoAction      = registerNewAction(Core::Constants::UNDO, this, SLOT(undoAction()), tr("&Undo"));
+        m_redoAction      = registerNewAction(Core::Constants::REDO, this, SLOT(redoAction()), tr("&Redo"));
+        m_copyAction      = registerNewAction(Core::Constants::COPY, this, SLOT(copyAction()));
+        m_selectAllAction = registerNewAction(Core::Constants::SELECTALL, this, SLOT(selectAllAction()));
     }
 
     // Font settings
