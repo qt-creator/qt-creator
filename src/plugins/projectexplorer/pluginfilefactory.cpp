@@ -44,6 +44,8 @@
 #include <coreplugin/messagemanager.h>
 
 #include <QDebug>
+#include <QMessageBox>
+#include <QMainWindow>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -78,7 +80,10 @@ QString ProjectFileFactory::displayName() const
 Core::IDocument *ProjectFileFactory::open(const QString &fileName)
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    pe->openProject(fileName, 0);
+    QString errorMessage;
+    pe->openProject(fileName, &errorMessage);
+    if (!errorMessage.isEmpty())
+        QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errorMessage);
     return 0;
 }
 
