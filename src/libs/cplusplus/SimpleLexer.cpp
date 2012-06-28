@@ -45,7 +45,8 @@ SimpleLexer::SimpleLexer()
       _skipComments(false),
       _qtMocRunEnabled(true),
       _objCEnabled(false),
-      _endedJoined(false)
+      _endedJoined(false),
+      _cxx0xEnabled(false)
 {
 }
 
