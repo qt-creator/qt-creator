@@ -59,7 +59,6 @@ class PROJECTEXPLORER_EXPORT Profile
 {
 public:
     Profile();
-    Profile(const Profile &other);
     ~Profile();
 
     bool isValid() const;
@@ -85,8 +84,13 @@ public:
     void addToEnvironment(Utils::Environment &env) const;
 
     QString toHtml();
+    Profile *clone() const;
 
 private:
+    // Unimplemented.
+    Profile(const Profile &other);
+    void operator=(const Profile &other);
+
     void setAutoDetected(bool detected);
     void setId(const Core::Id &id);
     void setValid(bool valid);

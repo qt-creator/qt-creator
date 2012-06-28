@@ -97,20 +97,22 @@ Profile::Profile() :
     setIconPath(QLatin1String(":///DESKTOP///"));
 }
 
-Profile::Profile(const Profile &other) :
-    d(new Internal::ProfilePrivate)
-{
-    d->m_displayName = QCoreApplication::translate("ProjectExplorer::Profile", "Clone of %1").arg(other.d->m_displayName);
-    d->m_autodetected = false;
-    d->m_data = other.d->m_data;
-    d->m_isValid = other.d->m_isValid;
-    d->m_icon = other.d->m_icon;
-    d->m_iconPath = other.d->m_iconPath;
-}
-
 Profile::~Profile()
 {
     delete d;
+}
+
+Profile *Profile::clone() const
+{
+    Profile *p = new Profile;
+    p->d->m_displayName = QCoreApplication::translate("ProjectExplorer::Profile", "Clone of %1")
+            .arg(d->m_displayName);
+    p->d->m_autodetected = false;
+    p->d->m_data = d->m_data;
+    p->d->m_isValid = d->m_isValid;
+    p->d->m_icon = d->m_icon;
+    p->d->m_iconPath = d->m_iconPath;
+    return p;
 }
 
 bool Profile::isValid() const

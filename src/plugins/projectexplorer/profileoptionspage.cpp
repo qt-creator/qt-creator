@@ -189,11 +189,11 @@ void ProfileOptionsPage::addNewProfile()
 
 void ProfileOptionsPage::cloneProfile()
 {
-    Profile *clone = m_model->profile(currentIndex());
-    if (!clone)
+    Profile *current = m_model->profile(currentIndex());
+    if (!current)
         return;
 
-    Profile *p = new Profile(*clone);
+    Profile *p = current->clone();
 
     m_model->markForAddition(p);
 
