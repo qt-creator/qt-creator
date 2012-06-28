@@ -119,6 +119,7 @@ CodepasterPlugin::CodepasterPlugin() :
 
 CodepasterPlugin::~CodepasterPlugin()
 {
+    delete m_urlOpen;
     qDeleteAll(m_protocols);
     CodepasterPlugin::m_instance = 0;
 }
