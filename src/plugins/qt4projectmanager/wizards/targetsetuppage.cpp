@@ -418,7 +418,8 @@ void TargetSetupPage::selectAtLeastOneTarget()
     if (!atLeastOneTargetSelected) {
         Qt4TargetSetupWidget *widget = m_firstWidget;
         ProjectExplorer::Profile *defaultProfile = ProjectExplorer::ProfileManager::instance()->defaultProfile();
-        widget = m_widgets.value(defaultProfile->id(), m_firstWidget);
+        if (defaultProfile)
+            widget = m_widgets.value(defaultProfile->id(), m_firstWidget);
         if (widget)
             widget->setTargetSelected(true);
         m_firstWidget = 0;
