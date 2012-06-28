@@ -158,7 +158,7 @@ static inline QString msgEngineNotAvailable(DebuggerEngineType et)
 //
 ////////////////////////////////////////////////////////////////////////
 
-class DebuggerRunConfigWidget : public ProjectExplorer::RunConfigWidget
+class DebuggerRunConfigWidget : public RunConfigWidget
 {
     Q_OBJECT
 
@@ -323,7 +323,7 @@ DebuggerRunControlPrivate::DebuggerRunControlPrivate(DebuggerRunControl *parent,
 DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
                                        const DebuggerStartParameters &sp,
                                        const QPair<DebuggerEngineType, DebuggerEngineType> &masterSlaveEngineTypes)
-    : RunControl(runConfiguration, ProjectExplorer::DebugRunMode),
+    : RunControl(runConfiguration, DebugRunMode),
       d(new DebuggerRunControlPrivate(this, runConfiguration))
 {
     connect(this, SIGNAL(finished()), SLOT(handleFinished()));
@@ -671,12 +671,6 @@ static QList<DebuggerEngineType> engineTypes(const DebuggerStartParameters &sp)
             return result;
     }
 
-    // FIXME: 1 of 3 testing hacks.
-    if (sp.processArgs.startsWith(QLatin1String("@tcf@ "))) {
-        result.push_back(GdbEngineType);
-        return result;
-    }
-
     if (sp.startMode != AttachToRemoteServer
             && sp.startMode != AttachToRemoteProcess
             && sp.startMode != LoadRemoteCore
@@ -743,8 +737,9 @@ static inline bool canUseEngine(DebuggerEngineType et,
 DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartParameters &sp)
 {
     ConfigurationCheck result;
+    QString abi = sp.toolChainAbi.toString();
     if (debug)
-        qDebug().nospace() << "checkDebugConfiguration " << sp.toolChainAbi.toString()
+        qDebug().nospace() << "checkDebugConfiguration " << abi
                            << " Start mode=" << sp.startMode << " Executable=" << sp.executable
                            << " Debugger command=" << sp.debuggerCommand;
     // Get all applicable types.
@@ -780,12 +775,12 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
             result.errorMessage = DebuggerPlugin::tr(
                 "The debugger engine '%1' required for debugging binaries of the type '%2'"
                 " is not configured correctly.").
-                arg(QLatin1String(engineTypeName(requiredTypes.front())), sp.toolChainAbi.toString());
+                arg(QLatin1String(engineTypeName(requiredTypes.front())), abi);
         } else {
             result.errorMessage = DebuggerPlugin::tr(
                 "None of the debugger engines '%1' capable of debugging binaries of the type '%2'"
                 " is configured correctly.").
-                arg(engineTypeNames(requiredTypes), sp.toolChainAbi.toString());
+                arg(engineTypeNames(requiredTypes), abi);
         }
         return result;
     }
@@ -796,7 +791,7 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
         const QString msg = DebuggerPlugin::tr(
             "The preferred debugger engine for debugging binaries of type '%1' is not available.\n"
             "The debugger engine '%2' will be used as a fallback.\nDetails: %3").
-                arg(sp.toolChainAbi.toString(), QLatin1String(engineTypeName(usableType)),
+                arg(abi, QLatin1String(engineTypeName(usableType)),
                     result.errorDetails.join(QString(QLatin1Char('\n'))));
         debuggerCore()->showMessage(msg, LogWarning);
         showMessageBox(QMessageBox::Warning, DebuggerPlugin::tr("Warning"), msg);
@@ -880,6 +875,9 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return sp);
 
+    Target *target = runConfiguration->target();
+    Profile *profile = target ? target->profile() : ProfileManager::instance()->defaultProfile();
+    fillParameters(&sp, profile->id());
     sp.environment = rc->environment();
     sp.workingDirectory = rc->workingDirectory();
 
@@ -893,17 +891,11 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         return sp;
     sp.startMode = StartInternal;
     sp.processArgs = rc->commandLineArguments();
-    sp.toolChainAbi = rc->abi();
-    if (!sp.toolChainAbi.isValid()) {
-        QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(sp.executable));
-        if (!abis.isEmpty())
-            sp.toolChainAbi = abis.at(0);
-    }
     sp.useTerminal = rc->runMode() == LocalApplicationRunConfiguration::Console;
     sp.dumperLibrary = rc->dumperLibrary();
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
 
-    if (const ProjectExplorer::Target *target = runConfiguration->target()) {
+    if (target) {
         if (QByteArray(target->metaObject()->className()).contains("Qt4")) {
             // FIXME: Get this from the profile?
             //        We could query the QtVersion for this information directly, but then we
@@ -915,13 +907,10 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
             if (!qmake.isEmpty())
                 sp.qtInstallPath = findQtInstallPath(qmake);
         }
-        if (const ProjectExplorer::Project *project = target->project()) {
+        if (const Project *project = target->project()) {
             sp.projectSourceDirectory = project->projectDirectory();
-            if (const ProjectExplorer::BuildConfiguration *buildConfig = target->activeBuildConfiguration()) {
+            if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
                 sp.projectBuildDirectory = buildConfig->buildDirectory();
-                const ProjectExplorer::Profile *p = runConfiguration->target()->profile();
-                sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(p).toString();
-            }
             sp.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
         }
     }

@@ -1182,7 +1182,8 @@ void GdbEngine::handleResultRecord(GdbResponse *response)
 
     if (!isExpectedResult) {
         const DebuggerStartParameters &sp = startParameters();
-        if (sp.toolChainAbi.os() == Abi::WindowsOS
+        Abi abi = sp.toolChainAbi;
+        if (abi.os() == Abi::WindowsOS
             && cmd.command.startsWith("attach")
             && (sp.startMode == AttachExternal || sp.useTerminal))
         {
@@ -1628,7 +1629,6 @@ void GdbEngine::handleStop2(const GdbMi &data)
     const QByteArray reason = data.findChild("reason").data();
     const QByteArray func = data.findChild("frame").findChild("from").data();
     const DebuggerStartParameters &sp = startParameters();
-    const Abi abi = sp.toolChainAbi;
 
     bool isStopperThread = false;
 
@@ -1644,7 +1644,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
         return;
     }
 
-    if (abi.os() == Abi::WindowsOS
+    if (sp.toolChainAbi.os() == Abi::WindowsOS
             && sp.useTerminal
             && reason == "signal-received"
             && data.findChild("signal-name").data() == "SIGTRAP")
@@ -1934,7 +1934,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     if (!debuggerCore()->boolSetting(AutoEnrichParameters))
         return cleanFilePath;
 
-    const QString sysroot = startParameters().sysroot;
+    const QString sysroot = startParameters().sysRoot;
     if (QFileInfo(cleanFilePath).isReadable())
         return cleanFilePath;
     if (!sysroot.isEmpty() && fileName.startsWith(QLatin1Char('/'))) {
@@ -2068,6 +2068,7 @@ void GdbEngine::handleThreadGroupCreated(const GdbMi &result)
 {
     QByteArray id = result.findChild("id").data();
     QByteArray pid = result.findChild("pid").data();
+    Q_UNUSED(id);
     Q_UNUSED(pid);
 }
 
@@ -2081,7 +2082,7 @@ int GdbEngine::currentFrame() const
     return stackHandler()->currentIndex();
 }
 
-QString msgNoGdbBinaryForToolChain(const Abi &tc)
+static QString msgNoGdbBinaryForToolChain(const Abi &tc)
 {
     return GdbEngine::tr("There is no gdb binary available for binaries in format '%1'")
         .arg(tc.toString());
@@ -4634,27 +4635,21 @@ static QString gdbBinary(const DebuggerStartParameters &sp)
     const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
         return QString::fromLocal8Bit(envBinary);
-    // 2) Command explicitly specified.
-    if (!sp.debuggerCommand.isEmpty()) {
-        // Do not use a CDB binary if we got started for a project with MSVC runtime.
-        const Abi abi = sp.toolChainAbi;
-        if (abi.os() != Abi::WindowsOS || abi.osFlavor() == Abi::WindowsMSysFlavor)
-            return sp.debuggerCommand;
-    }
-    // 3) Find one from tool chains.
-    return debuggerCore()->debuggerForAbi(sp.toolChainAbi, GdbEngineType);
+    // 2) Command from profile.
+    return sp.debuggerCommand;
 }
 
 bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
 {
     const QString binary = gdbBinary(sp);
-    if (gdbBinary(sp).isEmpty()) {
-        check->errorDetails.push_back(msgNoGdbBinaryForToolChain(sp.toolChainAbi));
+    const Abi abi = sp.toolChainAbi;
+    if (binary.isEmpty()) {
+        check->errorDetails.push_back(msgNoGdbBinaryForToolChain(abi));
         check->settingsCategory = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
         check->settingsPage = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
         return false;
     }
-    if (sp.toolChainAbi.os() == Abi::WindowsOS &&  !QFileInfo(binary).isAbsolute()) {
+    if (abi.os() == Abi::WindowsOS &&  !QFileInfo(binary).isAbsolute()) {
     // See initialization below, we need an absolute path to be able to locate Python on Windows.
         check->errorDetails.push_back(GdbEngine::tr("The gdb location must be given as an "
                 "absolute path in the debugger settings (%1).").arg(binary));
@@ -4818,7 +4813,7 @@ void GdbEngine::startGdb(const QStringList &args)
     foreach (const QString &src, sp.debugSourceLocation)
         postCommand("directory " + src.toLocal8Bit());
 
-    const QByteArray sysroot = sp.sysroot.toLocal8Bit();
+    const QByteArray sysroot = sp.sysRoot.toLocal8Bit();
     if (!sysroot.isEmpty()) {
         postCommand("set sysroot " + sysroot);
         // sysroot is not enough to correctly locate the sources, so explicitly

@@ -466,14 +466,6 @@ static QToolButton *toolButton(const char *id)
     return toolButton(Core::ActionManager::command(id)->action());
 }
 
-static Abi anyAbiOfBinary(const QString &fileName)
-{
-    QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(fileName));
-    if (abis.isEmpty())
-        return Abi();
-    return abis.at(0);
-}
-
 ///////////////////////////////////////////////////////////////////////
 //
 // DummyEngine
@@ -553,6 +545,17 @@ public:
 // Misc
 //
 ///////////////////////////////////////////////////////////////////////
+
+void fillParameters(DebuggerStartParameters *sp, Core::Id id)
+{
+    Profile *profile = ProfileManager::instance()->find(id);
+    QTC_ASSERT(profile, return);
+    sp->sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
+    sp->debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
+    ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
+    if (tc)
+        sp->toolChainAbi = tc->targetAbi();
+}
 
 static TextEditor::ITextEditor *currentTextEditor()
 {
@@ -768,7 +771,7 @@ public slots:
     void startRemoteProcess();
     void startRemoteServer();
     void loadRemoteCoreFile();
-    bool queryRemoteParameters(DebuggerStartParameters &sp, bool useScript);
+    //bool queryRemoteParameters(DebuggerStartParameters &sp, bool useScript);
     void attachToRemoteServer();
     void attachToRemoteProcess();
     void attachToQmlPort();
@@ -798,7 +801,7 @@ public slots:
     void runControlFinished(DebuggerEngine *engine);
     DebuggerLanguages activeLanguages() const;
     unsigned enabledEngines() const { return m_cmdLineEnabledEngines; }
-    QString debuggerForAbi(const Abi &abi, DebuggerEngineType et = NoEngineType) const;
+//    QString debuggerForAbi(const Abi &abi, DebuggerEngineType et = NoEngineType) const;
     void remoteCommand(const QStringList &options, const QStringList &);
 
     bool isReverseDebugging() const;
@@ -1092,9 +1095,9 @@ public slots:
     // FIXME: Remove.
     void maybeEnrichParameters(DebuggerStartParameters *sp);
 
-    void gdbServerStarted(const QString &channel, const QString &sysroot,
+    void gdbServerStarted(const QString &channel, const QString &profile,
         const QString &remoteCommandLine, const QString &remoteExecutable);
-    void attachedToProcess(const QString &channel, const QString &sysroot,
+    void attachedToProcess(const QString &channel, const QString &profile,
         const QString &remoteCommandLine, const QString &remoteExecutable);
 
     void updateQmlActions() {
@@ -1289,21 +1292,12 @@ void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
 {
     if (!boolSetting(AutoEnrichParameters))
         return;
-    if (sp->sysroot.isEmpty() &&
-              (sp->startMode == AttachToRemoteServer
-            || sp->startMode == StartRemoteProcess
-            || sp->startMode == AttachToRemoteProcess
-            || sp->startMode == LoadRemoteCore)) {
-        // FIXME: Get from BaseQtVersion.
-        sp->sysroot = QString::fromLocal8Bit(qgetenv("QTC_DEBUGGER_SYSROOT"));
-        showMessage(QString::fromLatin1("USING QTC_DEBUGGER_SYSROOT %1")
-            .arg(sp->sysroot), LogWarning);
-    }
+    const QString sysroot = sp->sysRoot;
     if (sp->debugInfoLocation.isEmpty()) {
-        sp->debugInfoLocation = sp->sysroot + QLatin1String("/usr/lib/debug");
+        sp->debugInfoLocation = sysroot + QLatin1String("/usr/lib/debug");
     }
     if (sp->debugSourceLocation.isEmpty()) {
-        QString base = sp->sysroot + QLatin1String("/usr/src/debug/");
+        QString base = sysroot + QLatin1String("/usr/src/debug/");
         sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/corelib"));
         sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/gui"));
         sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/network"));
@@ -1318,7 +1312,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
 {
     const QString &option = *it;
     // '-debug <pid>'
-    // '-debug <exe>[,server=<server:port>|,core=<core>][,arch=<arch>][,sysroot=<sysroot>]'
+    // '-debug <exe>[,server=<server:port>|,core=<core>][,arch=<arch>][,profile=<profile>]'
     if (*it == _("-debug")) {
         ++it;
         if (it == cend) {
@@ -1326,6 +1320,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
+        fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id());
         qulonglong pid = it->toULongLong();
         if (pid) {
             sp.startMode = AttachExternal;
@@ -1333,10 +1328,9 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             sp.attachPID = pid;
             sp.displayName = tr("Process %1").arg(sp.attachPID);
             sp.startMessage = tr("Attaching to local process %1.").arg(sp.attachPID);
-            sp.toolChainAbi = Abi::hostAbi();
         } else {
-            QStringList args = it->split(QLatin1Char(','));
             sp.startMode = StartExternal;
+            QStringList args = it->split(QLatin1Char(','));
             foreach (const QString &arg, args) {
                 QString key = arg.section(QLatin1Char('='), 0, 0);
                 QString val = arg.section(QLatin1Char('='), 1, 1);
@@ -1365,10 +1359,9 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
                     sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
                 }
-                else if (key == QLatin1String("sysroot"))
-                    sp.sysroot = val;
+                else if (key == QLatin1String("profile"))
+                    fillParameters(&sp, Id(val));
             }
-            sp.toolChainAbi = anyAbiOfBinary(sp.executable);
         }
         if (sp.startMode == StartExternal) {
             sp.displayName = tr("Executable file \"%1\"").arg(sp.executable);
@@ -1389,12 +1382,12 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
+        fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id());
         sp.startMode = AttachCrashedExternal;
         sp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
         sp.attachPID = it->section(QLatin1Char(':'), 1, 1).toULongLong();
         sp.displayName = tr("Crashed process %1").arg(sp.attachPID);
         sp.startMessage = tr("Attaching to crashed process %1").arg(sp.attachPID);
-        sp.toolChainAbi = Abi::hostAbi();
         if (!sp.attachPID) {
             *errorMessage = DebuggerPlugin::tr("The parameter '%1' of option '%2' "
                 "does not match the pattern <handle>:<pid>.").arg(*it, option);
@@ -1547,19 +1540,13 @@ void DebuggerPluginPrivate::attachExternalApplication()
 
     setConfigValue(_("LastAttachExternalProfileIndex"), QVariant(dlg.profileIndex()));
 
-    Profile *profile = dlg.profile();
-    QTC_ASSERT(profile, return);
-    ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
-    QTC_ASSERT(tc, return);
-
     DebuggerStartParameters sp;
+    fillParameters(&sp, dlg.profileId());
     sp.attachPID = dlg.attachPID();
     sp.displayName = tr("Process %1").arg(dlg.attachPID());
     sp.executable = dlg.executable();
     sp.startMode = AttachExternal;
     sp.closeMode = DetachAtClose;
-    sp.toolChainAbi = tc->targetAbi();
-    sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1567,11 +1554,11 @@ void DebuggerPluginPrivate::attachExternalApplication()
 void DebuggerPluginPrivate::attachExternalApplication(RunControl *rc)
 {
     DebuggerStartParameters sp;
+    fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id()); // FIXME: Extract from rc.
     sp.attachPID = rc->applicationProcessHandle().pid();
     sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
     sp.startMode = AttachExternal;
     sp.closeMode = DetachAtClose;
-    sp.toolChainAbi = rc->abi();
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -1592,20 +1579,13 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue(_("LastExternalProfileIndex"), QVariant(dlg.profileIndex()));
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
 
-    Profile *profile = dlg.profile();
-    QTC_ASSERT(profile, return);
-    ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
-    QTC_ASSERT(tc, return);
-
     DebuggerStartParameters sp;
+    fillParameters(&sp, dlg.profileId());
     sp.executable = dlg.executableFile();
     sp.coreFile = dlg.coreFile();
     sp.displayName = tr("Core file \"%1\"").arg(dlg.coreFile());
     sp.startMode = AttachCore;
     sp.closeMode = DetachAtClose;
-    sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
-    sp.toolChainAbi = tc->targetAbi();
-    sp.sysroot = SysRootProfileInformation::sysRoot(profile).toString();
     sp.overrideStartScript = dlg.overrideStartScript();
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
@@ -1613,26 +1593,47 @@ void DebuggerPluginPrivate::attachCore()
 
 void DebuggerPluginPrivate::attachToRemoteServer(const QString &spec)
 {
-    // spec is: server:port@executable@architecture
+    // spec is: profile@server:port@executable@architecture
+    const QChar delim(QLatin1Char('@'));
     DebuggerStartParameters sp;
-    sp.remoteChannel = spec.section(QLatin1Char('@'), 0, 0);
-    sp.executable = spec.section(QLatin1Char('@'), 1, 1);
-    sp.remoteArchitecture = spec.section(QLatin1Char('@'), 2, 2);
+    fillParameters(&sp, Id(spec.section(delim, 0, 0)));
+    sp.remoteChannel = spec.section(delim, 1, 1);
+    sp.executable = spec.section(delim, 2, 2);
+    sp.remoteArchitecture = spec.section(delim, 3, 3);
     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
-    sp.toolChainAbi = anyAbiOfBinary(sp.executable);
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
+
+struct RemoteCdbMatcher : ProfileMatcher
+{
+    RemoteCdbMatcher() : m_hostAbi(Abi::hostAbi()) {}
+
+    bool matches(const Profile *profile) const
+    {
+        ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
+        QTC_ASSERT(tc, return false);
+        Abi abi = tc->targetAbi();
+        return abi.architecture() == m_hostAbi.architecture()
+                && abi.os() == Abi::WindowsOS
+                && abi.osFlavor() == Abi::WindowsMsvc2010Flavor
+                && abi.binaryFormat() == Abi::PEFormat
+                && abi.wordWidth() == m_hostAbi.wordWidth();
+    }
+
+    Abi m_hostAbi;
+};
 
 void DebuggerPluginPrivate::startRemoteCdbSession()
 {
     const QString connectionKey = _("CdbRemoteConnection");
     DebuggerStartParameters sp;
-    Abi hostAbi = Abi::hostAbi();
-    sp.toolChainAbi = Abi(hostAbi.architecture(), Abi::WindowsOS,
-        Abi::WindowsMsvc2010Flavor, Abi::PEFormat, hostAbi.wordWidth());
+    RemoteCdbMatcher matcher;
+    Profile *profile = ProfileManager::instance()->find(&matcher);
+    QTC_ASSERT(profile, return);
+    fillParameters(&sp, profile->id());
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
     StartRemoteCdbDialog dlg(mainWindow());
@@ -1648,13 +1649,10 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
         startDebugger(rc);
 }
 
-bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, bool useScript)
-{
-    return StartRemoteDialog::run(mainWindow(),
-                                  m_coreSettings,
-                                  useScript,
-                                  &sp);
-}
+//bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, bool useScript)
+//{
+//    return StartRemoteDialog::run(mainWindow(), m_coreSettings, useScript, &sp);
+//}
 
 void DebuggerPluginPrivate::startRemoteProcess()
 {
@@ -1688,13 +1686,13 @@ void DebuggerPluginPrivate::startRemoteServer()
 }
 
 void DebuggerPluginPrivate::gdbServerStarted(const QString &channel,
-    const QString &sysroot,
+    const QString &profileId,
     const QString &remoteCommandLine,
     const QString &remoteExecutable)
 {
     Q_UNUSED(remoteCommandLine);
     Q_UNUSED(remoteExecutable);
-    Q_UNUSED(sysroot);
+    Q_UNUSED(profileId);
     showStatusMessage(tr("gdbserver is now listening at %1").arg(channel));
 }
 
@@ -1710,12 +1708,10 @@ void DebuggerPluginPrivate::loadRemoteCoreFile()
     dlg.setLocalCoreFileName(sp.coreFile);
     if (!dlg.exec())
         return;
+    fillParameters(&sp, dlg.profileId());
     sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
     sp.startMode = AttachCore;
     sp.closeMode = DetachAtClose;
-    //sp.debuggerCommand = dlg.debuggerCommand();
-    //sp.toolChainAbi = dlg.abi();
-    sp.sysroot = dlg.sysroot();
     //sp.overrideStartScript = dlg.overrideStartScript();
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
@@ -1730,10 +1726,13 @@ void DebuggerPluginPrivate::attachToRemoteProcess()
 }
 
 void DebuggerPluginPrivate::attachedToProcess(const QString &channel,
-    const QString &sysroot,
+    const QString &profileId,
     const QString &remoteCommandLine,
     const QString &remoteExecutable)
 {
+    Profile *profile = ProfileManager::instance()->find(Id(profileId));
+    QTC_ASSERT(profile, return);
+    QString sysroot = SysRootProfileInformation::sysRoot(profile).toString();
     QString binary;
     QString localExecutable;
     QString candidate = sysroot + remoteExecutable;
@@ -1771,11 +1770,9 @@ void DebuggerPluginPrivate::attachedToProcess(const QString &channel,
     }
 
     DebuggerStartParameters sp;
-    sp.toolChainAbi = abis.at(0);
-    //sp.remoteArchitecture = abis.at(0).toString();
+    fillParameters(&sp, Id(profileId));
     sp.displayName = tr("Remote: \"%1\"").arg(channel);
     sp.remoteChannel = channel;
-    sp.sysroot = sysroot;
     sp.executable = localExecutable;
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
@@ -1806,20 +1803,20 @@ void DebuggerPluginPrivate::attachToQmlPort()
         dlg.setPort(sp.qmlServerPort);
     }
 
-    const QVariant sysrootPath = configValue(_("LastSysroot"));
-    if (sysrootPath.isValid())
-        dlg.setSysroot(sysrootPath.toString());
+    const QVariant profileId = configValue(_("LastProfile"));
+    if (profileId.isValid())
+        dlg.setProfileId(Id(profileId.toString()));
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
     setConfigValue(_("LastQmlServerAddress"), dlg.host());
     setConfigValue(_("LastQmlServerPort"), dlg.port());
-    setConfigValue(_("LastSysroot"), dlg.sysroot());
+    setConfigValue(_("LastProfile"), dlg.profileId().toString());
 
+    fillParameters(&sp, dlg.profileId());
     sp.qmlServerAddress = dlg.host();
     sp.qmlServerPort = dlg.port();
-    sp.sysroot = dlg.sysroot();
 
     sp.startMode = AttachToRemoteProcess;
     sp.closeMode = KillAtClose;
@@ -2731,8 +2728,9 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
             str.setIntegerBase(10);
         }
     }
-    if (!sp.debuggerCommand.isEmpty())
-        str << "Debugger: " << QDir::toNativeSeparators(sp.debuggerCommand) << '\n';
+    QString cmd = sp.debuggerCommand;
+    if (!cmd.isEmpty())
+        str << "Debugger: " << QDir::toNativeSeparators(cmd) << '\n';
     if (!sp.coreFile.isEmpty())
         str << "Core: " << QDir::toNativeSeparators(sp.coreFile) << '\n';
     if (sp.attachPID > 0)
@@ -2762,7 +2760,7 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     }
     if (!sp.gnuTarget.isEmpty())
         str << "Gnu target: " << sp.gnuTarget << '\n';
-    str << "Sysroot: " << sp.sysroot << '\n';
+    str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1String(":")) << '\n';
     str << "Symbol file: " << sp.symbolFileName << '\n';
     if (sp.useServerStartScript)
@@ -2817,61 +2815,6 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
         return;
     }
     runScheduled();
-}
-
-QString DebuggerPluginPrivate::debuggerForAbi(const Abi &abi, DebuggerEngineType et) const
-{
-    enum { debug = 0 };
-    QList<Abi> searchAbis;
-    searchAbis.push_back(abi);
-    // Pick the right tool chain in case cdb/gdb were started with other tool chains.
-    // Also, lldb should be preferred over gdb.
-    if (abi.os() == Abi::WindowsOS) {
-        switch (et) {
-        case CdbEngineType:
-            searchAbis.clear();
-            searchAbis.push_back(Abi(abi.architecture(), abi.os(),
-                Abi::WindowsMsvc2010Flavor, abi.binaryFormat(), abi.wordWidth()));
-            searchAbis.push_back(Abi(abi.architecture(), abi.os(),
-                Abi::WindowsMsvc2008Flavor, abi.binaryFormat(), abi.wordWidth()));
-            searchAbis.push_back(Abi(abi.architecture(), abi.os(),
-                Abi::WindowsMsvc2005Flavor, abi.binaryFormat(), abi.wordWidth()));
-            break;
-        case GdbEngineType:
-            searchAbis.clear();
-            searchAbis.push_back(Abi(abi.architecture(), abi.os(),
-                Abi::WindowsMSysFlavor, abi.binaryFormat(), abi.wordWidth()));
-            break;
-        default:
-            break;
-        }
-    }
-    if (debug)
-        qDebug() << "debuggerForAbi" << abi.toString() << searchAbis.size()
-                 << searchAbis.front().toString() << et;
-
-    QList<Profile *> profileList = ProfileManager::instance()->profiles();
-    // Note: stList is not sorted with autodected first!
-    QStringList debuggerList;
-    foreach (Profile *p, profileList) {
-        if (!p->isValid())
-            continue;
-        ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
-        if (!tc)
-            continue;
-        if (searchAbis.contains(tc->targetAbi())) {
-            const QString debugger = DebuggerProfileInformation::debuggerCommand(p).toString();
-            if (!debugger.isEmpty()) {
-                if (p->isAutoDetected())
-                    debuggerList.append(debugger);
-                else
-                    debuggerList.prepend(debugger);
-            }
-        }
-    }
-    if (!debuggerList.isEmpty())
-        return debuggerList.at(0);
-    return QString();
 }
 
 DebuggerLanguages DebuggerPluginPrivate::activeLanguages() const
@@ -3738,12 +3681,12 @@ static Target *activeTarget()
     return project->activeTarget();
 }
 
-static ToolChain *currentToolChain()
+static Id currentProfileId()
 {
     Target *t = activeTarget();
     if (!t || !t->isEnabled())
         return 0;
-    return ToolChainProfileInformation::toolChain(activeTarget()->profile());
+    return activeTarget()->profile()->id();
 }
 
 static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
@@ -3793,7 +3736,7 @@ void DebuggerPluginPrivate::testPythonDumpers1()
 void DebuggerPluginPrivate::testPythonDumpers2()
 {
     DebuggerStartParameters sp;
-    sp.toolChainAbi = currentToolChain()->targetAbi();
+    fillParameters(&sp, currentProfileId());
     sp.executable = activeLocalRunConfiguration()->executable();
     testRunProject(sp, TestCallBack(this, "testPythonDumpers3"));
 }
@@ -3825,7 +3768,7 @@ void DebuggerPluginPrivate::testStateMachine1()
 void DebuggerPluginPrivate::testStateMachine2()
 {
     DebuggerStartParameters sp;
-    sp.toolChainAbi = currentToolChain()->targetAbi();
+    fillParameters(&sp, currentProfileId());
     sp.executable = activeLocalRunConfiguration()->executable();
     sp.testCase = TestNoBoundsOfCurrentFunction;
     testRunProject(sp, TestCallBack(this, "testStateMachine3"));

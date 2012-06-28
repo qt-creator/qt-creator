@@ -45,6 +45,7 @@ class QDialogButtonBox;
 class QSettings;
 QT_END_NAMESPACE
 
+namespace Core { class Id; }
 namespace ProjectExplorer { class Profile; }
 
 namespace Debugger {
@@ -57,13 +58,13 @@ class AttachCoreDialog;
 class AttachExternalDialog;
 class StartExternalDialog;
 class StartRemoteDialog;
-class AttachToQmlPortDialog;
 class StartRemoteEngineDialog;
 } // namespace Ui
 
 class ProcessListFilterModel;
 class StartExternalParameters;
 class StartRemoteParameters;
+class AttachToQmlPortDialogPrivate;
 
 class AttachCoreDialog : public QDialog
 {
@@ -81,7 +82,7 @@ public:
 
     int profileIndex() const;
     void setProfileIndex(int);
-    ProjectExplorer::Profile *profile() const;
+    Core::Id profileId() const;
 
     QString overrideStartScript() const;
     void setOverrideStartScript(const QString &scriptName);
@@ -108,7 +109,7 @@ public:
 
     int profileIndex() const;
     void setProfileIndex(int);
-    ProjectExplorer::Profile *profile() const;
+    Core::Id profileId() const;
 
     void accept();
 
@@ -150,7 +151,7 @@ private:
     QString executableFile() const;
     void setExecutableFile(const QString &executable);
 
-    ProjectExplorer::Profile *profile() const;
+    Core::Id profileId() const;
     bool isValid() const;
 
     Ui::StartExternalDialog *m_ui;
@@ -178,7 +179,7 @@ private:
 
     void setRemoteArchitectures(const QStringList &list);
 
-    ProjectExplorer::Profile *profile() const;
+    Core::Id profileId() const;
 
     Ui::StartRemoteDialog *m_ui;
 };
@@ -197,11 +198,11 @@ public:
     int port() const;
     void setPort(const int port);
 
-    QString sysroot() const;
-    void setSysroot(const QString &sysroot);
+    Core::Id profileId() const;
+    void setProfileId(const Core::Id &id);
 
 private:
-    Ui::AttachToQmlPortDialog *m_ui;
+    AttachToQmlPortDialogPrivate *d;
 };
 
 class StartRemoteCdbDialog : public QDialog

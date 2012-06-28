@@ -47,14 +47,13 @@
 using namespace ProjectExplorer;
 
 namespace Debugger {
-namespace Internal {
 
-DebuggerToolChainComboBox::DebuggerToolChainComboBox(QWidget *parent) :
+ProfileChooser::ProfileChooser(QWidget *parent) :
     QComboBox(parent)
 {
 }
 
-void DebuggerToolChainComboBox::init(bool hostAbiOnly)
+void ProfileChooser::init(bool hostAbiOnly)
 {
     const Abi hostAbi = Abi::hostAbi();
     foreach (const Profile *st, ProfileManager::instance()->profiles()) {
@@ -85,23 +84,12 @@ void DebuggerToolChainComboBox::init(bool hostAbiOnly)
     setEnabled(count() > 1);
 }
 
-void DebuggerToolChainComboBox::setCurrentProfile(const Profile *profile)
-{
-    QTC_ASSERT(profile->isValid(), return);
-    for (int i = 0, n = count(); i != n; ++i) {
-        if (profileAt(i) == profile) {
-            setCurrentIndex(i);
-            break;
-        }
-    }
-}
-
-Profile *DebuggerToolChainComboBox::currentProfile() const
+Profile *ProfileChooser::currentProfile() const
 {
     return profileAt(currentIndex());
 }
 
-void DebuggerToolChainComboBox::setCurrentProfileId(Core::Id id)
+void ProfileChooser::setCurrentProfileId(Core::Id id)
 {
     for (int i = 0, n = count(); i != n; ++i) {
         if (profileAt(i)->id() == id) {
@@ -111,16 +99,15 @@ void DebuggerToolChainComboBox::setCurrentProfileId(Core::Id id)
     }
 }
 
-Core::Id DebuggerToolChainComboBox::currentProfileId() const
+Core::Id ProfileChooser::currentProfileId() const
 {
     return profileAt(currentIndex())->id();
 }
 
-Profile *DebuggerToolChainComboBox::profileAt(int index) const
+Profile *ProfileChooser::profileAt(int index) const
 {
     Core::Id id = qvariant_cast<Core::Id>(itemData(index));
     return ProfileManager::instance()->find(id);
 }
 
 } // namespace Debugger
-} // namespace Internal

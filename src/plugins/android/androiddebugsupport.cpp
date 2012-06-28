@@ -37,9 +37,10 @@
 #include "androidrunner.h"
 #include "androidmanager.h"
 
-#include <debugger/debuggerplugin.h>
-#include <debugger/debuggerrunner.h>
 #include <debugger/debuggerengine.h>
+#include <debugger/debuggerplugin.h>
+#include <debugger/debuggerprofileinformation.h>
+#include <debugger/debuggerrunner.h>
 #include <debugger/debuggerstartparameters.h>
 
 #include <projectexplorer/target.h>
@@ -69,11 +70,14 @@ static Qt4Project *project(AndroidRunConfiguration *rc)
 RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig)
 {
     DebuggerStartParameters params;
-    params.toolChainAbi = runConfig->abi();
+    Profile *profile = runConfig->target()->profile();
+    params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
+    params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
+    if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
+        params.toolChainAbi = tc->targetAbi();
     params.dumperLibrary = runConfig->dumperLib();
     params.startMode = AttachToRemoteServer;
     params.executable = project(runConfig)->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
-    params.debuggerCommand = runConfig->gdbCmd().toString();
     params.remoteChannel = runConfig->remoteChannel();
     params.displayName = AndroidManager::packageName(runConfig->target());
 

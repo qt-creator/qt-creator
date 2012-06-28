@@ -33,28 +33,28 @@
 #ifndef DEBUGGERTOOLCHAINCOMBOBOX_H
 #define DEBUGGERTOOLCHAINCOMBOBOX_H
 
+#include "debugger_global.h"
+
 #include <QComboBox>
 
 namespace Core { class Id; }
 namespace ProjectExplorer { class Profile; }
 
 namespace Debugger {
-namespace Internal {
 
-// Let the user pick a profile associated with a debugger.
-class DebuggerToolChainComboBox : public QComboBox
+// Let the user pick a profile.
+class DEBUGGER_EXPORT ProfileChooser : public QComboBox
 {
     Q_OBJECT
 
 public:
-    explicit DebuggerToolChainComboBox(QWidget *parent);
+    explicit ProfileChooser(QWidget *parent);
 
     void init(bool hostAbiOnly);
 
     void setCurrentProfileId(Core::Id id);
     Core::Id currentProfileId() const;
 
-    void setCurrentProfile(const ProjectExplorer::Profile *profile);
     ProjectExplorer::Profile *currentProfile() const;
 
 private:
@@ -62,6 +62,5 @@ private:
 };
 
 } // namespace Debugger
-} // namespace Internal
 
 #endif // DEBUGGERTOOLCHAINCOMBOBOX_H

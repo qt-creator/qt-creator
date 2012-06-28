@@ -35,6 +35,7 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/profile.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <utils/qtcassert.h>
@@ -214,9 +215,6 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
         params.languages |= Debugger::QmlLanguage;
     if (runConfig->debuggerAspect()->useCppDebugger())
         params.languages |= Debugger::CppLanguage;
-
-    if (!runConfig->qtVersion()->qtAbis().isEmpty())
-        params.toolChainAbi = runConfig->qtVersion()->qtAbis().first();
 
     // Makes sure that all bindings go through the JavaScript engine, so that
     // breakpoints are actually hit!

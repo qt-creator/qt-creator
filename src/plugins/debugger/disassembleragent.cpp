@@ -32,18 +32,21 @@
 
 #include "disassembleragent.h"
 
-#include "disassemblerlines.h"
 #include "breakhandler.h"
+#include "debuggercore.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
-#include "debuggercore.h"
+#include "debuggerstartparameters.h"
 #include "debuggerstringutils.h"
+#include "disassemblerlines.h"
 #include "stackframe.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
+
+#include <projectexplorer/abi.h>
 
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
@@ -116,6 +119,7 @@ public:
     QList<ITextMark *> breakpointMarks;
     QList<CacheEntry> cache;
     QString mimeType;
+    bool tryMixedInitialized;
     bool tryMixed;
     bool resetLocationScheduled;
 };
@@ -124,6 +128,7 @@ DisassemblerAgentPrivate::DisassemblerAgentPrivate()
   : editor(0),
     locationMark(0),
     mimeType(_("text/x-qtcreator-generic-asm")),
+    tryMixedInitialized(false),
     tryMixed(true),
     resetLocationScheduled(false)
 {
@@ -214,6 +219,12 @@ const Location &DisassemblerAgent::location() const
 
 bool DisassemblerAgent::isMixed() const
 {
+    if (!d->tryMixedInitialized) {
+        if (d->engine->startParameters().toolChainAbi.os() == ProjectExplorer::Abi::MacOS)
+           d->tryMixed = false;
+        d->tryMixedInitialized = true;
+    }
+
     return d->tryMixed
         && d->location.lineNumber() > 0
         && !d->location.functionName().isEmpty()
@@ -404,11 +415,6 @@ void DisassemblerAgent::updateBreakpointMarkers()
 quint64 DisassemblerAgent::address() const
 {
     return d->location.address();
-}
-
-void DisassemblerAgent::setTryMixed(bool on)
-{
-    d->tryMixed = on;
 }
 
 } // namespace Internal

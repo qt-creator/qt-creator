@@ -105,11 +105,12 @@ void GdbRemotePlainEngine::notifyEngineRemoteSetupDone(int gdbServerPort, int qm
     Q_UNUSED(gdbServerPort);
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
+    DebuggerStartParameters &sp = startParameters();
     if (qmlPort != -1)
-        startParameters().qmlServerPort = qmlPort;
-    m_gdbProc.realStart(startParameters().debuggerCommand,
+        sp.qmlServerPort = qmlPort;
+    m_gdbProc.realStart(sp.debuggerCommand,
         QStringList() << QLatin1String("-i") << QLatin1String("mi"),
-        startParameters().executable);
+        sp.executable);
 }
 
 void GdbRemotePlainEngine::handleGdbStarted()

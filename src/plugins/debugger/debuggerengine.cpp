@@ -185,8 +185,6 @@ public:
         m_taskHub(0)
     {
         connect(&m_locationTimer, SIGNAL(timeout()), SLOT(resetLocation()));
-        if (sp.toolChainAbi.os() == Abi::MacOS)
-            m_disassemblerAgent.setTryMixed(false);
     }
 
     ~DebuggerEnginePrivate() {}
@@ -1321,9 +1319,10 @@ DebuggerLanguages DebuggerEngine::languages() const
 QString DebuggerEngine::toFileInProject(const QUrl &fileUrl)
 {
     // make sure file finder is properly initialized
-    d->m_fileFinder.setProjectDirectory(startParameters().projectSourceDirectory);
-    d->m_fileFinder.setProjectFiles(startParameters().projectSourceFiles);
-    d->m_fileFinder.setSysroot(startParameters().sysroot);
+    const DebuggerStartParameters &sp = startParameters();
+    d->m_fileFinder.setProjectDirectory(sp.projectSourceDirectory);
+    d->m_fileFinder.setProjectFiles(sp.projectSourceFiles);
+    d->m_fileFinder.setSysroot(sp.sysRoot);
 
     return d->m_fileFinder.findFile(fileUrl);
 }

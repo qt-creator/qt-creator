@@ -37,6 +37,7 @@
 #include "remotelinuxusedportsgatherer.h"
 
 #include <coreplugin/icore.h>
+#include <debugger/debuggertoolchaincombobox.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/devicemanagermodel.h>
@@ -73,7 +74,7 @@ using namespace ProjectExplorer;
 using namespace QSsh;
 using namespace Utils;
 
-const char LastSysroot[] = "RemoteLinux/LastSysroot";
+const char LastProfile[] = "RemoteLinux/LastProfile";
 const char LastDevice[] = "RemoteLinux/LastDevice";
 const char LastProcessName[] = "RemoteLinux/LastProcessName";
 //const char LastLocalExecutable[] = "RemoteLinux/LastLocalExecutable";
@@ -104,7 +105,7 @@ public:
     QPushButton *attachProcessButton;
     QTextBrowser *textBrowser;
     QPushButton *closeButton;
-    PathChooser *sysrootPathChooser;
+    Debugger::ProfileChooser *profileChooser;
 
     RemoteLinuxUsedPortsGatherer gatherer;
     SshRemoteProcessRunner runner;
@@ -120,10 +121,11 @@ StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q
 
     deviceComboBox = new QComboBox(q);
 
-    sysrootPathChooser = new PathChooser(q);
-    sysrootPathChooser->setExpectedKind(PathChooser::Directory);
-    sysrootPathChooser->setPromptDialogTitle(StartGdbServerDialog::tr("Select Sysroot"));
-    sysrootPathChooser->setPath(settings->value(LastSysroot).toString());
+    profileChooser = new Debugger::ProfileChooser(q);
+//    sysrootPathChooser = new PathChooser(q);
+//    sysrootPathChooser->setExpectedKind(PathChooser::Directory);
+//    sysrootPathChooser->setPromptDialogTitle(StartGdbServerDialog::tr("Select Sysroot"));
+//    sysrootPathChooser->setPath(settings->value(LastSysroot).toString());
 
     //executablePathChooser = new PathChooser(q);
     //executablePathChooser->setExpectedKind(PathChooser::File);
@@ -153,7 +155,7 @@ StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q
 
     QFormLayout *formLayout = new QFormLayout();
     formLayout->addRow(StartGdbServerDialog::tr("Device:"), deviceComboBox);
-    formLayout->addRow(StartGdbServerDialog::tr("Sysroot:"), sysrootPathChooser);
+    formLayout->addRow(StartGdbServerDialog::tr("Profile:"), profileChooser);
     formLayout->addRow(StartGdbServerDialog::tr("&Filter entries:"), processFilterLineEdit);
 
     QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
@@ -197,7 +199,7 @@ StartGdbServerDialog::StartGdbServerDialog(QWidget *parent) :
         connect(d->tableView->selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             SLOT(updateButtons()));
-        connect(d->sysrootPathChooser, SIGNAL(changed(QString)),
+        connect(d->profileChooser, SIGNAL(activated(int)),
                 SLOT(updateButtons()));
         //connect(d->updateListButton, SIGNAL(clicked()),
         //    SLOT(updateProcessList()));
@@ -281,7 +283,7 @@ void StartGdbServerDialog::attachToProcess()
         return;
     }
 
-    d->settings->setValue(LastSysroot, d->sysrootPathChooser->path());
+    d->settings->setValue(LastProfile, d->profileChooser->currentProfileId().toString());
     d->settings->setValue(LastDevice, d->deviceComboBox->currentIndex());
     d->settings->setValue(LastProcessName, d->processFilterLineEdit->text());
 
@@ -380,7 +382,7 @@ void StartGdbServerDialog::reportOpenPort(int port)
     if (ob) {
         QMetaObject::invokeMethod(ob, member, Qt::QueuedConnection,
             Q_ARG(QString, channel),
-            Q_ARG(QString, d->sysrootPathChooser->path()),
+            Q_ARG(QString, d->profileChooser->currentProfileId().toString()),
             Q_ARG(QString, d->remoteCommandLine),
             Q_ARG(QString, d->remoteExecutable));
     }

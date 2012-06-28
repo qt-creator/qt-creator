@@ -53,7 +53,6 @@ public:
     explicit DisassemblerAgent(DebuggerEngine *engine);
     ~DisassemblerAgent();
 
-    void setTryMixed(bool on);
     void setLocation(const Location &location);
     const Location &location() const;
     void scheduleResetLocation();

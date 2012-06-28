@@ -31,9 +31,11 @@
 **************************************************************************/
 
 #include "loadremotecoredialog.h"
-#include "debuggerstartparameters.h"
+
 #include "debuggerconstants.h"
 #include "debuggercore.h"
+#include "debuggerstartparameters.h"
+#include "debuggertoolchaincombobox.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
@@ -93,7 +95,8 @@ public:
     QPushButton *loadCoreFileButton;
     QTextBrowser *textBrowser;
     QPushButton *closeButton;
-    PathChooser *sysrootPathChooser;
+    //PathChooser *sysrootPathChooser;
+    ProfileChooser *toolchainComboBox;
 
     QSettings *settings;
     QString remoteCommandLine;
@@ -113,11 +116,7 @@ LoadRemoteCoreFileDialog::LoadRemoteCoreFileDialog(QWidget *parent)
 
     d->deviceComboBox = new QComboBox(this);
 
-    d->sysrootPathChooser = new PathChooser(this);
-    d->sysrootPathChooser->setExpectedKind(PathChooser::Directory);
-    d->sysrootPathChooser->setPromptDialogTitle(tr("Select Sysroot"));
-    d->sysrootPathChooser->setPath(d->settings->value(QLatin1String("LastSysroot")).toString());
-
+    d->toolchainComboBox = new ProfileChooser(this);
     d->fileSystemModel = new SftpFileSystemModel(this);
 
     //executablePathChooser = new PathChooser(q);
@@ -143,7 +142,7 @@ LoadRemoteCoreFileDialog::LoadRemoteCoreFileDialog(QWidget *parent)
 
     QFormLayout *formLayout = new QFormLayout();
     formLayout->addRow(tr("Device:"), d->deviceComboBox);
-    formLayout->addRow(tr("Sysroot:"), d->sysrootPathChooser);
+    formLayout->addRow(tr("Profile:"), d->toolchainComboBox);
 
     QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
     horizontalLayout2->addStretch(1);
@@ -169,8 +168,7 @@ LoadRemoteCoreFileDialog::LoadRemoteCoreFileDialog(QWidget *parent)
         connect(d->fileSystemView->selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             SLOT(updateButtons()));
-        connect(d->sysrootPathChooser, SIGNAL(changed(QString)),
-                SLOT(updateButtons()));
+        connect(d->toolchainComboBox, SIGNAL(activated(int)), SLOT(updateButtons()));
         connect(d->loadCoreFileButton, SIGNAL(clicked()), SLOT(selectCoreFile()));
         connect(d->deviceComboBox, SIGNAL(currentIndexChanged(int)),
             SLOT(attachToDevice(int)));
@@ -194,9 +192,9 @@ QString LoadRemoteCoreFileDialog::localCoreFileName() const
     return d->localCoreFile;
 }
 
-QString LoadRemoteCoreFileDialog::sysroot() const
+Id LoadRemoteCoreFileDialog::profileId() const
 {
-    return d->sysrootPathChooser->path();
+    return d->toolchainComboBox->currentProfileId();
 }
 
 void LoadRemoteCoreFileDialog::attachToDevice(int modelIndex)
@@ -251,7 +249,8 @@ void LoadRemoteCoreFileDialog::selectCoreFile()
     d->loadCoreFileButton->setEnabled(false);
     d->fileSystemView->setEnabled(false);
 
-    d->settings->setValue(QLatin1String("LastSysroot"), d->sysrootPathChooser->path());
+    d->settings->setValue(QLatin1String("LastProfile"),
+        d->toolchainComboBox->currentProfileId().toString());
     d->settings->setValue(QLatin1String("LastDevice"), d->deviceComboBox->currentIndex());
     d->settings->setValue(QLatin1String("LastSftpRoot"), d->fileSystemModel->rootDirectory());
 

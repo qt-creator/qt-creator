@@ -44,7 +44,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="toolchainLabel">
        <property name="text">
-        <string>&amp;Tool chain:</string>
+        <string>&amp;Target:</string>
        </property>
        <property name="buddy">
         <cstring>toolchainComboBox</cstring>
@@ -52,7 +52,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="Debugger::Internal::DebuggerToolChainComboBox" name="toolchainComboBox"/>
+      <widget class="Debugger::ProfileChooser" name="toolchainComboBox"/>
      </item>
     </layout>
    </item>
@@ -94,7 +94,7 @@
    <header location="global">utils/filterlineedit.h</header>
   </customwidget>
   <customwidget>
-   <class>Debugger::Internal::DebuggerToolChainComboBox</class>
+   <class>Debugger::ProfileChooser</class>
    <extends>QComboBox</extends>
    <header>debuggertoolchaincombobox.h</header>
   </customwidget>

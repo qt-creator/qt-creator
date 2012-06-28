@@ -39,8 +39,11 @@
 
 #include <coreplugin/icore.h>
 #include <debugger/debuggerengine.h>
+#include <debugger/debuggerprofileinformation.h>
 #include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/profile.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
@@ -80,35 +83,41 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
         qobject_cast<S60DeployConfiguration *>(rc->target()->activeDeployConfiguration());
     QTC_ASSERT(activeDeployConf, return sp);
 
+    DebuggerRunConfigurationAspect *debuggerAspect = rc->debuggerAspect();
+
     const QString debugFileName = QString::fromLatin1("%1:\\sys\\bin\\%2.exe")
             .arg(activeDeployConf->installationDrive()).arg(rc->targetName());
 
+    Profile *profile = rc->target()->profile();
+    sp.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
+    sp.debuggerCommand = Debugger::DebuggerProfileInformation::debuggerCommand(profile).toString();
+    if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
+        sp.toolChainAbi = tc->targetAbi();
     SymbianIDevice::ConstPtr dev = activeDeployConf->device();
     sp.remoteChannel = dev->serialPortName();
     sp.processArgs = rc->commandLineArguments();
-    if (rc->debuggerAspect()->useQmlDebugger() && !rc->debuggerAspect()->useCppDebugger()) {
+    if (debuggerAspect->useQmlDebugger() && !debuggerAspect->useCppDebugger()) {
         sp.remoteSetupNeeded = true;
         sp.startMode = Debugger::AttachToRemoteServer;
     } else {
         sp.startMode = Debugger::StartInternal;
     }
 
-    sp.toolChainAbi = rc->abi();
     sp.executable = debugFileName;
     sp.executableUid = rc->executableUid();
     sp.serverAddress = dev->address();
     sp.serverPort = dev->port().toInt();
     sp.displayName = rc->displayName();
     sp.qmlServerAddress = dev->address();
-    sp.qmlServerPort = rc->debuggerAspect()->qmlDebugServerPort();
-    if (rc->debuggerAspect()->useQmlDebugger()) {
+    sp.qmlServerPort = debuggerAspect->qmlDebugServerPort();
+    if (debuggerAspect->useQmlDebugger()) {
         sp.languages |= Debugger::QmlLanguage;
         QString qmlArgs = rc->qmlCommandLineArguments();
         if (sp.processArgs.length())
             sp.processArgs.prepend(QLatin1Char(' '));
         sp.processArgs.prepend(qmlArgs);
     }
-    if (rc->debuggerAspect()->useCppDebugger())
+    if (debuggerAspect->useCppDebugger())
         sp.languages |= Debugger::CppLanguage;
 
     sp.communicationChannel = dev->communicationChannel() == SymbianIDevice::CommunicationCodaTcpConnection?

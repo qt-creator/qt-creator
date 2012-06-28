@@ -36,6 +36,7 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
+#include <coreplugin/id.h>
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
@@ -77,6 +78,12 @@ public:
         testCase(0)
     {}
 
+    //Core::Id profileId;
+
+    QString sysRoot;
+    QString debuggerCommand;
+    ProjectExplorer::Abi toolChainAbi;
+
     QString executable;
     QString displayName; // Used in the Snapshots view.
     QString startMessage; // First status message shown.
@@ -111,7 +118,7 @@ public:
     QString symbolFileName;
     bool useServerStartScript;
     QString serverStartScript;
-    QString sysroot;
+    //QString sysroot;
     QString searchPath; // Gdb "set solib-search-path"
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
@@ -122,8 +129,8 @@ public:
     QSsh::SshConnectionParameters connParams;
     bool remoteSetupNeeded;
 
-    QString debuggerCommand;
-    ProjectExplorer::Abi toolChainAbi;
+    //QString debuggerCommand;
+    //ProjectExplorer::Abi toolChainAbi;
 
     QString dumperLibrary;
     QStringList solibSearchPath;
@@ -143,6 +150,11 @@ public:
     int testCase;
 };
 
+namespace Internal {
+
+void fillParameters(DebuggerStartParameters *sp, Core::Id id);
+
+} // namespace Internal
 } // namespace Debugger
 
 Q_DECLARE_METATYPE(Debugger::DebuggerStartParameters)

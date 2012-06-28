@@ -37,6 +37,8 @@
 
 #include <QDialog>
 
+namespace Core { class Id; }
+
 namespace Debugger {
 namespace Internal {
 
@@ -52,7 +54,7 @@ public:
 
     void setLocalCoreFileName(const QString &fileName);
     QString localCoreFileName() const;
-    QString sysroot() const;
+    Core::Id profileId() const;
 
 private slots:
     void handleSftpOperationFinished(QSsh::SftpJobId, const QString &error);

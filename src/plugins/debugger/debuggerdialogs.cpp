@@ -36,6 +36,7 @@
 #include "debuggerconstants.h"
 #include "debuggerprofileinformation.h"
 #include "debuggerstringutils.h"
+#include "debuggertoolchaincombobox.h"
 #include "cdb/cdbengine.h"
 #include "shared/hostutils.h"
 
@@ -44,31 +45,40 @@
 #include "ui_startexternaldialog.h"
 #include "ui_startremotedialog.h"
 #include "ui_startremoteenginedialog.h"
-#include "ui_attachtoqmlportdialog.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/profileinformation.h>
 #include <utils/historycompleter.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/synchronousprocess.h>
 
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
-#include <QRegExp>
-
-#include <QButtonGroup>
 #include <QFileDialog>
+#include <QFormLayout>
+#include <QGridLayout>
 #include <QGroupBox>
 #include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QRegExp>
 #include <QScrollArea>
 #include <QSortFilterProxyModel>
+#include <QSpinBox>
 #include <QStandardItemModel>
-#include <QGridLayout>
+#include <QVariant>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -232,9 +242,9 @@ void AttachCoreDialog::setCoreFile(const QString &fileName)
     changed();
 }
 
-Profile *AttachCoreDialog::profile() const
+Core::Id AttachCoreDialog::profileId() const
 {
-    return m_ui->toolchainComboBox->currentProfile();
+    return m_ui->toolchainComboBox->currentProfileId();
 }
 
 void AttachCoreDialog::setProfileIndex(int i)
@@ -379,9 +389,9 @@ QString AttachExternalDialog::executable() const
     return m_model->executableForPid(attachPIDText());
 }
 
-Profile *AttachExternalDialog::profile() const
+Core::Id AttachExternalDialog::profileId() const
 {
-    return m_ui->toolchainComboBox->currentProfile();
+    return m_ui->toolchainComboBox->currentProfileId();
 }
 
 void AttachExternalDialog::setProfileIndex(int i)
@@ -587,9 +597,9 @@ QString StartExternalDialog::executableFile() const
     return m_ui->execFile->path();
 }
 
-Profile *StartExternalDialog::profile() const
+Core::Id StartExternalDialog::profileId() const
 {
-    return m_ui->toolChainComboBox->currentProfile();
+    return m_ui->toolChainComboBox->currentProfileId();
 }
 
 bool StartExternalDialog::isValid() const
@@ -670,28 +680,14 @@ bool StartExternalDialog::run(QWidget *parent,
         writeParameterHistory(history, settings, settingsGroup, arrayName);
     }
 
-    Profile *profile = dialog.profile();
-    QTC_ASSERT(profile, return false);
-    ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
-    QTC_ASSERT(tc, return false);
-
+    fillParameters(sp, dialog.profileId());
     sp->executable = newParameters.executableFile;
     sp->startMode = StartExternal;
-    sp->toolChainAbi = tc->targetAbi();
-    sp->debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
     sp->workingDirectory = newParameters.workingDirectory;
     sp->displayName = sp->executable;
     sp->useTerminal = newParameters.runInTerminal;
     if (!newParameters.arguments.isEmpty())
         sp->processArgs = newParameters.arguments;
-    // Fixme: 1 of 3 testing hacks.
-    if (sp->processArgs.startsWith(QLatin1String("@tcf@ ")) || sp->processArgs.startsWith(QLatin1String("@sym@ ")))
-        // Set up an ARM Symbian Abi
-        sp->toolChainAbi = Abi(Abi::ArmArchitecture,
-                               Abi::SymbianOS,
-                               Abi::SymbianDeviceFlavor,
-                               Abi::ElfFormat, false);
-
     sp->breakOnMain = newParameters.breakAtMain;
     return true;
 }
@@ -847,17 +843,11 @@ bool StartRemoteDialog::run(QWidget *parent,
         writeParameterHistory(history, settings, settingsGroup, arrayName);
     }
 
-    Profile *profile = dialog.profile();
-    QTC_ASSERT(profile, return false);
-    ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
-    QTC_ASSERT(tc, return false);
-
+    fillParameters(sp, dialog.profileId());
     sp->remoteChannel = newParameters.remoteChannel;
     sp->remoteArchitecture = newParameters.remoteArchitecture;
     sp->executable = newParameters.localExecutable;
     sp->displayName = tr("Remote: \"%1\"").arg(sp->remoteChannel);
-    sp->debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
-    sp->toolChainAbi = tc->targetAbi();
     sp->overrideStartScript = newParameters.overrideStartScript;
     sp->useServerStartScript = newParameters.useServerStartScript;
     sp->serverStartScript = newParameters.serverStartScript;
@@ -911,9 +901,9 @@ void StartRemoteDialog::historyIndexChanged(int index)
     setParameters(v.value<StartRemoteParameters>());
 }
 
-Profile *StartRemoteDialog::profile() const
+Core::Id StartRemoteDialog::profileId() const
 {
-    return m_ui->toolchainComboBox->currentProfile();
+    return m_ui->toolchainComboBox->currentProfileId();
 }
 
 void StartRemoteDialog::setRemoteArchitectures(const QStringList &list)
@@ -938,51 +928,97 @@ void StartRemoteDialog::updateState()
 //
 ///////////////////////////////////////////////////////////////////////
 
+class AttachToQmlPortDialogPrivate
+{
+public:
+    QLabel *hostLabel;
+    QLineEdit *hostLineEdit;
+    QLabel *portLabel;
+    QSpinBox *portSpinBox;
+    QLabel *profileLabel;
+    Debugger::ProfileChooser *profileChooser;
+};
+
 AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
   : QDialog(parent),
-    m_ui(new Ui::AttachToQmlPortDialog)
+    d(new AttachToQmlPortDialogPrivate)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    m_ui->setupUi(this);
-    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+    setWindowTitle(tr("Start Debugger"));
 
-    connect(m_ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(m_ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    d->hostLineEdit = new QLineEdit(this);
+    d->hostLineEdit->setText(QString::fromUtf8("localhost"));
+
+    d->hostLabel = new QLabel(this);
+    d->hostLabel->setText(tr("&Host:"));
+    d->hostLabel->setBuddy(d->hostLineEdit);
+
+    d->portSpinBox = new QSpinBox(this);
+    d->portSpinBox->setMaximum(65535);
+    d->portSpinBox->setValue(3768);
+
+    d->portLabel = new QLabel(this);
+    d->portLabel->setText(tr("&Port:"));
+    d->portLabel->setBuddy(d->portSpinBox);
+
+    d->profileChooser = new Debugger::ProfileChooser(this);
+
+    d->profileLabel = new QLabel(this);
+    d->profileLabel->setText(tr("Target:"));
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
+    buttonBox->setOrientation(Qt::Horizontal);
+    buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    QFormLayout *formLayout = new QFormLayout();
+
+    formLayout->addRow(d->hostLabel, d->hostLineEdit);
+    formLayout->addRow(d->portLabel, d->portSpinBox);
+    formLayout->addRow(d->profileLabel, d->profileChooser);
+
+    verticalLayout->addLayout(formLayout);
+    verticalLayout->addWidget(buttonBox);
+
+    buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
 AttachToQmlPortDialog::~AttachToQmlPortDialog()
 {
-    delete m_ui;
+    delete d;
 }
 
 void AttachToQmlPortDialog::setHost(const QString &host)
 {
-    m_ui->hostLineEdit->setText(host);
+    d->hostLineEdit->setText(host);
 }
 
 QString AttachToQmlPortDialog::host() const
 {
-    return m_ui->hostLineEdit->text();
+    return d->hostLineEdit->text();
 }
 
 void AttachToQmlPortDialog::setPort(const int port)
 {
-    m_ui->portSpinBox->setValue(port);
+    d->portSpinBox->setValue(port);
 }
 
 int AttachToQmlPortDialog::port() const
 {
-    return m_ui->portSpinBox->value();
+    return d->portSpinBox->value();
 }
 
-QString AttachToQmlPortDialog::sysroot() const
+Core::Id AttachToQmlPortDialog::profileId() const
 {
-    return m_ui->sysRootChooser->path();
+    return d->profileChooser->currentProfileId();
 }
 
-void AttachToQmlPortDialog::setSysroot(const QString &sysroot)
+void AttachToQmlPortDialog::setProfileId(const Core::Id &id)
 {
-    m_ui->sysRootChooser->setPath(sysroot);
+    d->profileChooser->setCurrentProfileId(id);
 }
 
 // --------- StartRemoteCdbDialog

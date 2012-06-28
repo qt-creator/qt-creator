@@ -97,9 +97,17 @@ using namespace Internal;
 DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const RemoteLinuxRunConfiguration *runConfig)
 {
     DebuggerStartParameters params;
+    Target *target = runConfig->target();
+    Profile *profile = target->profile();
     const LinuxDeviceConfiguration::ConstPtr devConf
-            = DeviceProfileInformation::device(runConfig->target()->profile())
+            = DeviceProfileInformation::device(profile)
               .dynamicCast<const RemoteLinux::LinuxDeviceConfiguration>();
+
+    params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
+    params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
+    if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
+        params.toolChainAbi = tc->targetAbi();
+
     if (runConfig->debuggerAspect()->useQmlDebugger()) {
         params.languages |= QmlLanguage;
         params.qmlServerAddress = devConf->sshParameters().host;
@@ -108,18 +116,12 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
     if (runConfig->debuggerAspect()->useCppDebugger()) {
         params.languages |= CppLanguage;
         params.processArgs = runConfig->arguments();
-        QString systemRoot;
-        if (SysRootProfileInformation::hasSysRoot(runConfig->target()->profile()))
-            systemRoot = SysRootProfileInformation::sysRoot(runConfig->target()->profile()).toString();
-        params.sysroot = systemRoot;
-        params.toolChainAbi = runConfig->abi();
         params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
-        params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(runConfig->target()->profile()).toString();
         params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
 
         // TODO: This functionality should be inside the debugger.
-        ToolChain *tc = ToolChainProfileInformation::toolChain(runConfig->target()->profile());
+        ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
         if (tc) {
             const Abi &abi = tc->targetAbi();
             params.remoteArchitecture = abi.toString();
@@ -132,9 +134,9 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
     params.remoteSetupNeeded = true;
     params.displayName = runConfig->displayName();
 
-    if (const Project *project = runConfig->target()->project()) {
+    if (const Project *project = target->project()) {
         params.projectSourceDirectory = project->projectDirectory();
-        if (const BuildConfiguration *buildConfig = runConfig->target()->activeBuildConfiguration())
+        if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
             params.projectBuildDirectory = buildConfig->buildDirectory();
         params.projectSourceFiles = project->files(Project::ExcludeGeneratedFiles);
     }

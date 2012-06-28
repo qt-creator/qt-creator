@@ -143,8 +143,7 @@ FORMS += attachexternaldialog.ui \
     commonoptionspage.ui \
     startexternaldialog.ui \
     startremotedialog.ui \
-    startremoteenginedialog.ui \
-    attachtoqmlportdialog.ui
+    startremoteenginedialog.ui
 
 RESOURCES += debugger.qrc
 

@@ -42,7 +42,6 @@ QtcPlugin {
         "debuggerprofileinformation.h",
         "attachcoredialog.ui",
         "attachexternaldialog.ui",
-        "attachtoqmlportdialog.ui",
         "basewindow.cpp",
         "breakhandler.cpp",
         "breakhandler.h",

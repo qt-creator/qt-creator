@@ -80,7 +80,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="toolChainLabel">
        <property name="text">
-        <string>&amp;Tool chain:</string>
+        <string>&amp;Target:</string>
        </property>
        <property name="buddy">
         <cstring>toolChainComboBox</cstring>
@@ -88,7 +88,7 @@
       </widget>
      </item>
      <item row="4" column="1">
-      <widget class="Debugger::Internal::DebuggerToolChainComboBox" name="toolChainComboBox"/>
+      <widget class="Debugger::ProfileChooser" name="toolChainComboBox"/>
      </item>
      <item row="5" column="0">
       <widget class="QLabel" name="labelBreakAtMain">
@@ -173,7 +173,7 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>Debugger::Internal::DebuggerToolChainComboBox</class>
+   <class>Debugger::ProfileChooser</class>
    <extends>QComboBox</extends>
    <header>debuggertoolchaincombobox.h</header>
   </customwidget>
