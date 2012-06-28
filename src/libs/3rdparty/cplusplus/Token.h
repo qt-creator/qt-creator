@@ -217,7 +217,8 @@ enum Kind {
     T_FIRST_QT_KEYWORD,
 
     // Qt keywords
-    T_SIGNAL = T_FIRST_QT_KEYWORD,
+    T_EMIT = T_FIRST_QT_KEYWORD,
+    T_SIGNAL,
     T_SLOT,
     T_Q_SIGNAL,
     T_Q_SLOT,
@@ -230,6 +231,7 @@ enum Kind {
     T_Q_PROPERTY,
     T_Q_PRIVATE_PROPERTY,
     T_Q_INTERFACES,
+    T_Q_EMIT,
     T_Q_ENUMS,
     T_Q_FLAGS,
     T_Q_PRIVATE_SLOT,

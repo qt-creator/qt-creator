@@ -1813,6 +1813,10 @@ bool Preprocessor::isQtReservedWord(const ByteArrayRef &macroId)
         return true;
     else if (size == 5 && macroId.at(0) == 's' && macroId == "slots")
         return true;
+    else if (size == 4 && macroId.at(0) == 'e' && macroId == "emit")
+        return true;
+    else if (size == 6 && macroId.at(0) == 'Q' && macroId == "Q_EMIT")
+        return true;
     return false;
 }
 

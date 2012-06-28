@@ -2947,6 +2947,23 @@ bool Parser::parseStatement(StatementAST *&node)
         node = ast;
     } return true;
 
+    case T_EMIT:
+    case T_Q_EMIT: {
+        // Simply skip the emit token and parse as an expression statement - no strong
+        // reason to have an specific ast type.
+        consumeToken();
+        ExpressionAST *expression = 0;
+        if (parsePostfixExpression(expression)) {
+            ExpressionStatementAST *ast = new (_pool) ExpressionStatementAST;
+            ast->expression = expression;
+            match(T_SEMICOLON, &ast->semicolon_token);
+            node = ast;
+            return true;
+        }
+        error(cursor(), "expected statement");
+        return false;
+    }
+
     default:
         if (LA() == T_IDENTIFIER && LA(2) == T_COLON)
             return parseLabeledStatement(node);

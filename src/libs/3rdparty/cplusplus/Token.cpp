@@ -71,10 +71,10 @@ static const char *token_names[] = {
     ("@synchronized"), ("@synthesize"), ("@throw"), ("@try"),
 
     // Qt keywords
-    ("SIGNAL"), ("SLOT"), ("Q_SIGNAL"), ("Q_SLOT"), ("signals"), ("slots"),
+    ("emit"), ("SIGNAL"), ("SLOT"), ("Q_SIGNAL"), ("Q_SLOT"), ("signals"), ("slots"),
     ("Q_FOREACH"), ("Q_D"), ("Q_Q"),
     ("Q_INVOKABLE"), ("Q_PROPERTY"), ("T_Q_PRIVATE_PROPERTY"),
-    ("Q_INTERFACES"), ("Q_ENUMS"), ("Q_FLAGS"),
+    ("Q_INTERFACES"), ("Q_EMIT"), ("Q_ENUMS"), ("Q_FLAGS"),
     ("Q_PRIVATE_SLOT"), ("Q_DECLARE_INTERFACE"), ("Q_OBJECT"), ("Q_GADGET"),
 
 };

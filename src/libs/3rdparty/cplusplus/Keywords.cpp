@@ -136,6 +136,13 @@ static inline int classify4(const char *s, bool q, bool) {
         }
       }
     }
+    else if (q && s[1] == 'm') {
+      if (s[2] == 'i') {
+        if (s[3] == 't') {
+          return T_EMIT;
+        }
+      }
+    }
   }
   else if (s[0] == 'g') {
     if (s[1] == 'o') {
@@ -411,6 +418,19 @@ static inline int classify6(const char *s, bool q, bool) {
           if (s[4] == 'i') {
             if (s[5] == 'c') {
               return T_PUBLIC;
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (q && s[0] == 'Q') {
+    if (s[1] == '_') {
+      if (s[2] == 'E') {
+        if (s[3] == 'M') {
+          if (s[4] == 'I') {
+            if (s[5] == 'T') {
+              return T_Q_EMIT;
             }
           }
         }
