@@ -56,7 +56,7 @@ BaseTreeView::BaseTreeView(QWidget *parent)
     connect(header(), SIGNAL(sectionClicked(int)),
         SLOT(headerSectionClicked(int)));
 
-    m_adjustColumnsAction = new QAction(tr("Adjust Column Widths to Contents"), 0);
+    m_adjustColumnsAction = new QAction(tr("Adjust Column Widths to Contents"), this);
     m_alwaysAdjustColumnsAction = 0;
 }
 
