@@ -33386,20 +33386,18 @@ BigInt BigInt::decode(const byte buf[], size_t length, Base base)
    else if(base == Hexadecimal)
       {
       SecureVector<byte> binary;
+      const char *cbuf = reinterpret_cast<const char *>(buf);
 
       if(length % 2)
          {
          // Handle lack of leading 0
-         const char buf0_with_leading_0[2] = { '0', buf[0] };
+         const char buf0_with_leading_0[2] = { '0', cbuf[0] };
          binary = hex_decode(buf0_with_leading_0, 2);
 
-         binary += hex_decode(reinterpret_cast<const char*>(&buf[1]),
-                              length - 1,
-                              false);
+         binary += hex_decode(&cbuf[1], length - 1, false);
          }
       else
-         binary = hex_decode(reinterpret_cast<const char*>(buf),
-                             length, false);
+         binary = hex_decode(cbuf, length, false);
 
       r.binary_decode(&binary[0], binary.size());
       }
