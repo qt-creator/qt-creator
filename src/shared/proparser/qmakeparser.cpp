@@ -131,7 +131,7 @@ QMakeParser::QMakeParser(ProFileCache *cache, QMakeParserHandler *handler)
     initialize();
 }
 
-ProFile *QMakeParser::parsedProFile(const QString &fileName, bool cache, const QString *contents)
+ProFile *QMakeParser::parsedProFile(const QString &fileName, bool cache)
 {
     ProFile *pro;
     if (cache && m_cache) {
@@ -163,7 +163,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, bool cache, const Q
             locker.unlock();
 #endif
             pro = new ProFile(fileName);
-            if (!(!contents ? read(pro) : read(pro, *contents))) {
+            if (!read(pro)) {
                 delete pro;
                 pro = 0;
             } else {
@@ -183,10 +183,20 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, bool cache, const Q
         }
     } else {
         pro = new ProFile(fileName);
-        if (!(!contents ? read(pro) : read(pro, *contents))) {
+        if (!read(pro)) {
             delete pro;
             pro = 0;
         }
+    }
+    return pro;
+}
+
+ProFile *QMakeParser::parsedProBlock(const QString &name, const QString &contents)
+{
+    ProFile *pro = new ProFile(name);
+    if (!read(pro, contents)) {
+        delete pro;
+        pro = 0;
     }
     return pro;
 }
