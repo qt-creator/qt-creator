@@ -206,7 +206,8 @@ bool QMakeParser::read(ProFile *pro)
     QFile file(pro->fileName());
     if (!file.open(QIODevice::ReadOnly)) {
         if (m_handler && IoUtils::exists(pro->fileName()))
-            m_handler->parseError(QString(), 0, fL1S("%1 not readable.").arg(pro->fileName()));
+            m_handler->parseError(QString(), 0, fL1S("Cannot read %1: %2")
+                                  .arg(pro->fileName(), file.errorString()));
         return false;
     }
 
