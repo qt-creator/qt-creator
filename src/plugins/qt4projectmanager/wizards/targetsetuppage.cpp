@@ -62,6 +62,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_preferredMatcher(0),
     m_baseLayout(0),
     m_importSearch(false),
+    m_ignoreUpdates(false),
     m_firstWidget(0),
     m_ui(new Internal::Ui::TargetSetupPage),
     m_importWidget(new Internal::ImportWidget),
@@ -180,21 +181,78 @@ void TargetSetupPage::reset()
 {
     foreach (Qt4TargetSetupWidget *widget, m_widgets.values()) {
         ProjectExplorer::Profile *p = widget->profile();
-        Q_ASSERT(p);
-        if (p->hasValue(PROFILE_IS_TEMPORARY) && !m_proFilePath.isEmpty()) {
-            QStringList projects = p->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-            if (projects.contains(m_proFilePath)) {
-                projects.removeOne(m_proFilePath);
-                p->setValue(TEMPORARY_OF_PROJECTS, projects);
-                if (projects.isEmpty())
-                    ProjectExplorer::ProfileManager::instance()->deregisterProfile(p);
-            }
-        }
+        if (!p)
+            continue;
+        removeProject(p, m_proFilePath);
         delete widget;
     }
 
     m_widgets.clear();
     m_firstWidget = 0;
+}
+
+ProjectExplorer::Profile *TargetSetupPage::createTemporaryProfile(QtSupport::BaseQtVersion *version,
+                                                                  bool temporaryVersion,
+                                                                  const Utils::FileName &parsedSpec)
+{
+    ProjectExplorer::Profile *p = new ProjectExplorer::Profile;
+    p->setDisplayName(version->displayName());
+    QtSupport::QtProfileInformation::setQtVersion(p, version);
+    QmakeProfileInformation::setMkspec(p, parsedSpec);
+    ProjectExplorer::ToolChainProfileInformation::setToolChain(p, version->preferredToolChain(parsedSpec));
+
+    p->setValue(PROFILE_IS_TEMPORARY, true);
+    p->setValue(TEMPORARY_OF_PROJECTS, QStringList() << m_proFilePath);
+    if (temporaryVersion)
+        p->setValue(QT_IS_TEMPORARY, version->uniqueId());
+
+    m_ignoreUpdates = true;
+    ProjectExplorer::ProfileManager::instance()->registerProfile(p);
+    m_ignoreUpdates = false;
+
+    return p;
+}
+
+void TargetSetupPage::cleanProfile(ProjectExplorer::Profile *p)
+{
+    m_ignoreUpdates = true;
+    p->removeKey(PROFILE_IS_TEMPORARY);
+    p->removeKey(QT_IS_TEMPORARY);
+    p->removeKey(TEMPORARY_OF_PROJECTS);
+    m_ignoreUpdates = false;
+}
+
+void TargetSetupPage::makeQtPersistent(ProjectExplorer::Profile *p)
+{
+    m_ignoreUpdates = true;
+    p->removeKey(QT_IS_TEMPORARY);
+    m_ignoreUpdates = false;
+}
+
+void TargetSetupPage::addProject(ProjectExplorer::Profile *p, const QString &path)
+{
+    QStringList profiles = p->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
+    Q_ASSERT(!profiles.contains(path));
+    profiles.append(path);
+    m_ignoreUpdates = true;
+    p->setValue(PROFILE_IS_TEMPORARY, profiles);
+    m_ignoreUpdates = false;
+}
+
+void TargetSetupPage::removeProject(ProjectExplorer::Profile *p, const QString &path)
+{
+    if (!p->hasValue(PROFILE_IS_TEMPORARY) || path.isEmpty())
+        return;
+
+    QStringList projects = p->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
+    if (projects.contains(path)) {
+        projects.removeOne(path);
+        m_ignoreUpdates = true;
+        p->setValue(TEMPORARY_OF_PROJECTS, projects);
+        m_ignoreUpdates = false;
+        if (projects.isEmpty())
+            ProjectExplorer::ProfileManager::instance()->deregisterProfile(p);
+    }
 }
 
 void TargetSetupPage::setProFilePath(const QString &path)
@@ -204,6 +262,9 @@ void TargetSetupPage::setProFilePath(const QString &path)
         m_ui->descriptionLabel->setText(tr("Qt Creator can set up the following targets for project <b>%1</b>:",
                                            "%1: Project name").arg(QFileInfo(m_proFilePath).baseName()));
     }
+
+    if (m_widgets.isEmpty())
+        return;
 
     reset();
     setupWidgets();
@@ -284,26 +345,10 @@ void TargetSetupPage::import(const Utils::FileName &path, const bool silent)
                 profile = p;
             }
         }
-        if (!profile) {
-            profile = new ProjectExplorer::Profile;
-            profile->setDisplayName(version->displayName());
-            QtSupport::QtProfileInformation::setQtVersion(profile, version);
-            QmakeProfileInformation::setMkspec(profile, parsedSpec);
-            ProjectExplorer::ToolChainProfileInformation::setToolChain(profile,
-                                                                       version->preferredToolChain(parsedSpec));
-
-            profile->setValue(PROFILE_IS_TEMPORARY, true);
-            profile->setValue(TEMPORARY_OF_PROJECTS, QStringList() << m_proFilePath);
-            if (temporaryVersion)
-                profile->setValue(QT_IS_TEMPORARY, version->uniqueId());
-
-            pm->registerProfile(profile);
-        } else if (profile->hasValue(PROFILE_IS_TEMPORARY)) {
-            QStringList profiles = profile->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-            Q_ASSERT(!profiles.contains(m_proFilePath));
-            profiles.append(m_proFilePath);
-            profile->setValue(PROFILE_IS_TEMPORARY, profiles);
-        }
+        if (!profile)
+            profile = createTemporaryProfile(version, temporaryVersion, parsedSpec);
+        else if (profile->hasValue(PROFILE_IS_TEMPORARY))
+            addProject(profile, m_proFilePath);
 
         // Create widget:
         Qt4TargetSetupWidget *widget = m_widgets.value(profile->id(), 0);
@@ -342,7 +387,7 @@ void TargetSetupPage::handleQtUpdate(const QList<int> &add, const QList<int> &rm
             continue;
         int qtVersion = p->value(QT_IS_TEMPORARY, -1).toInt();
         if (rm.contains(qtVersion) || mod.contains(qtVersion))
-            p->removeKey(QT_IS_TEMPORARY);
+            makeQtPersistent(p);
     }
 }
 
@@ -369,6 +414,9 @@ void TargetSetupPage::setupImports()
 
 void TargetSetupPage::handleProfileAddition(ProjectExplorer::Profile *p)
 {
+    if (m_ignoreUpdates)
+        return;
+
     Q_ASSERT(!m_widgets.contains(p->id()));
     addWidget(p);
     updateVisibility();
@@ -376,6 +424,9 @@ void TargetSetupPage::handleProfileAddition(ProjectExplorer::Profile *p)
 
 void TargetSetupPage::handleProfileRemoval(ProjectExplorer::Profile *p)
 {
+    if (m_ignoreUpdates)
+        return;
+
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     QtSupport::BaseQtVersion *version = vm->version(p->value(QT_IS_TEMPORARY, -1).toInt());
     if (version)
@@ -387,10 +438,10 @@ void TargetSetupPage::handleProfileRemoval(ProjectExplorer::Profile *p)
 
 void TargetSetupPage::handleProfileUpdate(ProjectExplorer::Profile *p)
 {
-    p->removeKey(PROFILE_IS_TEMPORARY);
-    p->removeKey(QT_IS_TEMPORARY);
-    p->removeKey(TEMPORARY_OF_PROJECTS);
+    if (m_ignoreUpdates)
+        return;
 
+    cleanProfile(p);
     Qt4TargetSetupWidget *widget = m_widgets.value(p->id());
 
     bool acceptable = true;
@@ -485,21 +536,33 @@ Qt4TargetSetupWidget *TargetSetupPage::addWidget(ProjectExplorer::Profile *p)
     return widget;
 }
 
+struct ProfileBuildInfo
+{
+    ProfileBuildInfo(ProjectExplorer::Profile *p, const QList<BuildConfigurationInfo> &il) :
+        profile(p), infoList(il)
+    { }
+
+    ProjectExplorer::Profile *profile;
+    QList<BuildConfigurationInfo> infoList;
+};
+
 bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
 {
+    QList<ProfileBuildInfo> toRegister;
     foreach (Qt4TargetSetupWidget *widget, m_widgets.values()) {
         if (!widget->isTargetSelected())
             continue;
 
         ProjectExplorer::Profile *p = widget->profile();
-
-        // Persist profile:
-        p->removeKey(PROFILE_IS_TEMPORARY);
-        p->removeKey(QT_IS_TEMPORARY);
-        p->removeKey(TEMPORARY_OF_PROJECTS);
-
-        project->addTarget(project->createTarget(p, widget->selectedBuildConfigurationInfoList()));
+        cleanProfile(p);
+        toRegister.append(ProfileBuildInfo(p, widget->selectedBuildConfigurationInfoList()));
+        widget->clearProfile();
     }
+    reset();
+
+    // only register targets after we are done cleaning up
+    foreach (const ProfileBuildInfo &data, toRegister)
+        project->addTarget(project->createTarget(data.profile, data.infoList));
 
     // Select active target
     // a) Simulator target

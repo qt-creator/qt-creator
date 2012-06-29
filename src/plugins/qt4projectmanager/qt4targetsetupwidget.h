@@ -70,6 +70,7 @@ public:
     ~Qt4TargetSetupWidget();
 
     ProjectExplorer::Profile *profile();
+    void clearProfile();
 
     bool isTargetSelected() const;
     void setTargetSelected(bool b);

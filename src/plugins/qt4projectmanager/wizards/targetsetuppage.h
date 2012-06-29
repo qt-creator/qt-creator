@@ -107,12 +107,18 @@ private:
 
     void setupWidgets();
     void reset();
+    ProjectExplorer::Profile *createTemporaryProfile(QtSupport::BaseQtVersion *version, bool temporaryVersion, const Utils::FileName &parsedSpec);
+    void cleanProfile(ProjectExplorer::Profile *p);
+    void makeQtPersistent(ProjectExplorer::Profile *p);
+    void addProject(ProjectExplorer::Profile *p, const QString &path);
+    void removeProject(ProjectExplorer::Profile *p, const QString &path);
 
     ProjectExplorer::ProfileMatcher *m_requiredMatcher;
     ProjectExplorer::ProfileMatcher *m_preferredMatcher;
     QLayout *m_baseLayout;
     bool m_importSearch;
     bool m_useScrollArea;
+    bool m_ignoreUpdates;
     QString m_proFilePath;
     QString m_defaultShadowBuildLocation;
     QMap<Core::Id, Qt4TargetSetupWidget *> m_widgets;

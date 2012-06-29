@@ -66,6 +66,8 @@ Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Profile *p,
     m_ignoreChange(false),
     m_selected(0)
 {
+    Q_ASSERT(m_profile);
+
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     QVBoxLayout *vboxLayout = new QVBoxLayout();
     setLayout(vboxLayout);
@@ -124,6 +126,11 @@ ProjectExplorer::Profile *Qt4TargetSetupWidget::profile()
     return m_profile;
 }
 
+void Qt4TargetSetupWidget::clearProfile()
+{
+    m_profile = 0;
+}
+
 bool Qt4TargetSetupWidget::isTargetSelected() const
 {
     if (!m_detailsWidget->isChecked())
@@ -174,7 +181,8 @@ void Qt4TargetSetupWidget::addBuildConfigurationInfo(const BuildConfigurationInf
     pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     pathChooser->setPath(info.directory);
     QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(m_profile);
-    Q_ASSERT(version);
+    if (!version)
+        return;
     pathChooser->setReadOnly(!version->supportsShadowBuilds() || importing);
     m_newBuildsLayout->addWidget(pathChooser, pos * 2, 1);
 
@@ -219,7 +227,7 @@ void Qt4TargetSetupWidget::manageProfile()
 {
     ProjectExplorer::ProfileOptionsPage *page =
             ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProfileOptionsPage>();
-    if (!page)
+    if (!page || !m_profile)
         return;
 
     page->showProfile(m_profile);
@@ -229,8 +237,10 @@ void Qt4TargetSetupWidget::manageProfile()
 
 void Qt4TargetSetupWidget::setProFilePath(const QString &proFilePath)
 {
-    m_proFilePath = proFilePath;
+    if (!m_profile)
+        return;
 
+    m_proFilePath = proFilePath;
     clear();
 
     QList<BuildConfigurationInfo> infoList
@@ -330,6 +340,8 @@ QPair<ProjectExplorer::Task::TaskType, QString> Qt4TargetSetupWidget::findIssues
 
     QString buildDir = info.directory;
     QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(m_profile);
+    if (!version)
+        return qMakePair(ProjectExplorer::Task::Unknown, QString());
 
     QList<ProjectExplorer::Task> issues = version->reportIssues(m_proFilePath, buildDir);
 
