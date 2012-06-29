@@ -55,7 +55,6 @@ public:
     void removedFromEditor();
 private:
     unsigned int m_id;
-    bool m_visible;
 };
 
 void TaskMark::updateLineNumber(int lineNumber)
