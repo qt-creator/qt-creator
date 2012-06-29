@@ -128,15 +128,7 @@ Utils::FileName QmakeProfileInformation::defaultMkspec(const ProjectExplorer::Pr
     if (!version) // No version, so no qmake
         return Utils::FileName();
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
-
-    const QList<Utils::FileName> tcSpecList = tc ? tc->suggestedMkspecList() : QList<Utils::FileName>();
-    foreach (const Utils::FileName &tcSpec, tcSpecList) {
-        if (version->hasMkspec(tcSpec))
-            return tcSpec;
-    }
-
-    return version ? version->mkspec() : Utils::FileName();
+    return version->mkspecFor(ProjectExplorer::ToolChainProfileInformation::toolChain(p));
 }
 
 } // namespace Qt4ProjectManager

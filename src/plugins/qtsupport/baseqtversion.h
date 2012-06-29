@@ -162,6 +162,7 @@ public:
 
     /// @returns the name of the mkspec
     Utils::FileName mkspec() const;
+    Utils::FileName mkspecFor(ProjectExplorer::ToolChain *tc) const;
     /// @returns the full path to the default directory
     /// specifally not the directory the symlink/ORIGINAL_QMAKESPEC points to
     Utils::FileName mkspecPath() const;

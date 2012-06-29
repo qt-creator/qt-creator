@@ -164,8 +164,10 @@ void TargetSetupPage::setImportSearch(bool b)
 void TargetSetupPage::setupWidgets()
 {
     // Known profiles:
-    foreach (ProjectExplorer::Profile *p, ProjectExplorer::ProfileManager::instance()->profiles(m_requiredMatcher))
+    foreach (ProjectExplorer::Profile *p, ProjectExplorer::ProfileManager::instance()->profiles(m_requiredMatcher)) {
+        cleanProfile(p); // clean up broken profiles added by some development versions of QtC
         addWidget(p);
+    }
 
     // Setup import widget:
     m_baseLayout->addWidget(m_importWidget);
@@ -231,6 +233,9 @@ void TargetSetupPage::makeQtPersistent(ProjectExplorer::Profile *p)
 
 void TargetSetupPage::addProject(ProjectExplorer::Profile *p, const QString &path)
 {
+    if (!p->hasValue(PROFILE_IS_TEMPORARY))
+        return;
+
     QStringList profiles = p->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
     Q_ASSERT(!profiles.contains(path));
     profiles.append(path);
@@ -339,15 +344,17 @@ void TargetSetupPage::import(const Utils::FileName &path, const bool silent)
         foreach (ProjectExplorer::Profile *p, pm->profiles()) {
             QtSupport::BaseQtVersion *profileVersion = QtSupport::QtProfileInformation::qtVersion(p);
             Utils::FileName profileSpec = QmakeProfileInformation::mkspec(p);
+            ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
+            if (profileSpec.isEmpty() && profileVersion)
+                profileSpec = profileVersion->mkspecFor(tc);
+
             if (profileVersion == version
-                    && profileSpec == parsedSpec) {
-                Q_ASSERT(!temporaryVersion);
+                    && profileSpec == parsedSpec)
                 profile = p;
-            }
         }
         if (!profile)
             profile = createTemporaryProfile(version, temporaryVersion, parsedSpec);
-        else if (profile->hasValue(PROFILE_IS_TEMPORARY))
+        else
             addProject(profile, m_proFilePath);
 
         // Create widget:

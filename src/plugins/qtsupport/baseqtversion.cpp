@@ -760,6 +760,20 @@ Utils::FileName BaseQtVersion::mkspec() const
     return m_mkspec;
 }
 
+Utils::FileName BaseQtVersion::mkspecFor(ProjectExplorer::ToolChain *tc) const
+{
+    if (!tc)
+        return mkspec();
+
+    const QList<Utils::FileName> tcSpecList = tc->suggestedMkspecList();
+    foreach (const Utils::FileName &tcSpec, tcSpecList) {
+        if (hasMkspec(tcSpec))
+            return tcSpec;
+    }
+
+    return mkspec();
+}
+
 Utils::FileName BaseQtVersion::mkspecPath() const
 {
     updateMkspec();
