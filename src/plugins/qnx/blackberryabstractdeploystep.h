@@ -1,0 +1,106 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (C) 2011 - 2012 Research In Motion
+**
+** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: KDAB (info@kdab.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+**************************************************************************/
+
+#ifndef QNX_INTERNAL_BLACKBERRYABSTRACTDEPLOYSTEP_H
+#define QNX_INTERNAL_BLACKBERRYABSTRACTDEPLOYSTEP_H
+
+#include <projectexplorer/buildstep.h>
+#include <projectexplorer/processparameters.h>
+
+#include <QProcess>
+
+QT_BEGIN_NAMESPACE
+class QEventLoop;
+QT_END_NAMESPACE
+
+namespace Utils {
+class QtcProcess;
+}
+
+namespace Qnx {
+namespace Internal {
+
+class BlackBerryAbstractDeployStep : public ProjectExplorer::BuildStep
+{
+    Q_OBJECT
+public:
+    explicit BlackBerryAbstractDeployStep(ProjectExplorer::BuildStepList *bsl, Core::Id id);
+    ~BlackBerryAbstractDeployStep();
+
+    bool init();
+    void run(QFutureInterface<bool> &fi);
+    virtual void cleanup() = 0;
+
+protected:
+    BlackBerryAbstractDeployStep(ProjectExplorer::BuildStepList *bsl, BlackBerryAbstractDeployStep *bs);
+
+    void addCommand(const QString &command, const QStringList &arguments);
+    void reportProgress(int progress);
+
+    virtual void stdOutput(const QString &line);
+    virtual void stdError(const QString &line);
+
+    virtual void processStarted(const ProjectExplorer::ProcessParameters &param);
+
+    void emitOutputInfo(const ProjectExplorer::ProcessParameters &params, const QString& arguments);
+
+private slots:
+    void processReadyReadStdOutput();
+    void processReadyReadStdError();
+
+    void checkForCancel();
+
+    void handleProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+
+private:
+    void ctor();
+
+    void runCommands();
+    void runNextCommand();
+
+    QList<ProjectExplorer::ProcessParameters> m_params;
+    int m_processCounter;
+    Utils::QtcProcess *m_process;
+
+    Utils::Environment m_environment;
+    QString m_buildDirectory;
+
+    QTimer *m_timer;
+    QFutureInterface<bool> *m_futureInterface;
+    QEventLoop *m_eventLoop;
+};
+
+} // namespace Internal
+} // namespace Qnx
+
+#endif // QNX_INTERNAL_BLACKBERRYABSTRACTDEPLOYSTEP_H

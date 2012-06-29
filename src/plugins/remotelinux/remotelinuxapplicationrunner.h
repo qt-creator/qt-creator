@@ -64,7 +64,7 @@ public:
 
     QSharedPointer<const LinuxDeviceConfiguration> devConfig() const;
     QSsh::SshConnection *connection() const;
-    const RemoteLinuxUsedPortsGatherer *usedPortsGatherer() const;
+    RemoteLinuxUsedPortsGatherer *usedPortsGatherer() const;
     Utils::PortList *freePorts();
     QString remoteExecutable() const;
     QString arguments() const;

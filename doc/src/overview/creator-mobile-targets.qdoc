@@ -27,7 +27,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-deployment-maemo.html
+    \previouspage creator-deployment-qnx.html
     \page creator-connecting-mobile.html
     \nextpage creator-developing-meego.html
 
@@ -75,6 +75,13 @@
             devices, some version of Qt is pre-installed.
             Install and launch the CODA on-device debugging agent on the
             devices and connect the devices to the development PC.
+
+        \o  \l{Connecting QNX Devices}
+
+            You can connect QNX devices to the development PC to deploy, run and
+            debug applications on them from within \QC. This is currently only
+            supported for BlackBerry Playbook, and requires the BlackBerry NDK
+            to be installed on the development PC.
 
     \endlist
 

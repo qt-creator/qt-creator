@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<qnx xmlns="http://www.qnx.com/schemas/application/1.0">
+    <id>ID</id>
+    <name>%ProjectName%</name>
+    <versionNumber>1.0.0</versionNumber>
+    <description>DESCRIPTION</description>
+
+    <initialWindow>
+        <systemChrome>none</systemChrome>
+        <transparent>false</transparent>
+        <autoOrients>true</autoOrients>
+        <aspectRatio>landscape</aspectRatio>
+    </initialWindow>
+
+    <env var="QML_IMPORT_PATH" value="app/native/imports"/>
+    <env var="QT_PLUGIN_PATH" value="app/native/plugins"/>
+    <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
+    <arg>-platform</arg>
+    <arg>blackberry</arg>
+
+    <action system="true">run_native</action>
+    <asset entry="true" path="%ProjectName%" type="Qnx/Elf">%ProjectName%</asset>
+
+    <asset path="%SRC_DIR%/qml">qml</asset>
+
+    <!-- These values will be replaced when deploying in Qt Creator -->
+    <asset path="%QT_INSTALL_LIBS%">lib</asset>
+    <asset path="%QT_INSTALL_PLUGINS%">plugins</asset>
+    <asset path="%QT_INSTALL_IMPORTS%">imports</asset>
+</qnx>

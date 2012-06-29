@@ -28,7 +28,7 @@
     \endif
     \page creator-developing-symbian.html
     \if defined(qcmanual)
-    \nextpage creator-build-process-customizing.html
+    \nextpage creator-developing-qnx.html
     \else
     \nextpage creator-developing-meego.html
     \endif

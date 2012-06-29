@@ -144,6 +144,9 @@ public:
     QString serverAddress;
     quint16 serverPort;
 
+    // For QNX debugging
+    QString remoteExecutable;
+
     // For Debugger testing.
     QObject *testReceiver;
     const char *testCallback;

@@ -16,6 +16,8 @@
 
         \o  Symbian
 
+        \o  QNX
+
     \endlist
 
     The following table summarizes operating system support for developing
@@ -23,8 +25,8 @@
 
     \table
         \header
-            \o  {1,6} Operating system
-            \o  {6,1} Platform
+            \o  {1,7} Operating system
+            \o  {7,1} Platform
         \header
             \o  Desktop
             \o  \QS
@@ -32,6 +34,7 @@
             \o  MeeGo Harmattan
             \o  Generic Remote Linux
             \o  Symbian
+            \o  QNX
 
         \row
             \o  Windows
@@ -41,6 +44,7 @@
             \o  Yes
             \o  Yes
             \o  Yes
+            \o  Yes (see \l{Running on QNX Devices} for limitations)
         \row
             \o  Linux
             \o  Yes
@@ -49,6 +53,7 @@
             \o  Yes
             \o  Yes
             \o  Yes (by using Remote Compiler for building)
+            \o  Yes
         \row
             \o  Mac OS X
             \o  Yes
@@ -57,4 +62,5 @@
             \o  Yes
             \o  Yes
             \o  Yes (by using Remote Compiler for building)
+            \o  Yes
     \endtable

@@ -55,6 +55,7 @@
     \input linux-mobile/creator-projects-running-madde.qdocinc
     \input linux-mobile/creator-projects-running-generic-linux.qdocinc
     \input symbian/creator-projects-running-symbian.qdocinc
+    \input qnx/creator-projects-running-qnx.qdocinc
     \endif
 
 */

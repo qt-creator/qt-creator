@@ -45,7 +45,8 @@ SUBDIRS   = plugin_coreplugin \
             plugin_android \
             plugin_madde \
             plugin_valgrind \
-            plugin_todo
+            plugin_todo \
+            plugin_qnx
 
 isEmpty(IDE_PACKAGE_MODE) {
     SUBDIRS += plugin_helloworld \
@@ -322,3 +323,9 @@ plugin_todo.depends = plugin_coreplugin
 plugin_todo.depends += plugin_projectexplorer
 plugin_todo.depends += plugin_texteditor
 plugin_todo.depends += plugin_cpptools
+
+plugin_qnx.subdir = qnx
+plugin_qnx.depends = plugin_remotelinux
+plugin_qnx.depends += plugin_qt4projectmanager
+plugin_qnx.depends += plugin_coreplugin
+

@@ -1,0 +1,37 @@
+    \section1 Running on QNX Devices
+
+    \list 1
+
+        \o  Connect the device to the development PC or to the Wi-Fi network.
+
+        \o  Configure the device and specify a connection to it. For more
+            information, see \l{Connecting QNX Devices}.
+
+        \o  Create an Application Descriptor File if it does not already exist.
+            For more information, see \l{Deploying Applications to QNX
+            Devices}.
+
+        \o  Click the \gui Run button.
+
+    \endlist
+
+    \QC uses the compiler specified in the QNX tool chain to build the
+    application.
+
+    \QC generates a BAR package, installs it on the device, and
+    executes the selected application. The application views are displayed on
+    the device. Command-line output is visible in the \QC
+    \gui {Application Output} view.
+
+    \note Debugging is currently only fully supported on Linux and Mac OS.
+    It is not possible to insert breakpoints during runtime on Windows.
+
+    \section2 Troubleshooting Errors
+
+    For the command-line output to show up in the \gui{Application Output}
+    view, \QC needs to be able to establish an SSH connection to the device.
+    This is only possible if QNX Momentics is not running, and the SSH key
+    configured for the device is a 4096-bit key.
+
+    If these conditions are not met, you will get an error message saying debug
+    output cannot be shown.

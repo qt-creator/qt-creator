@@ -1,0 +1,61 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (C) 2011 - 2012 Research In Motion
+**
+** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: KDAB (info@kdab.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-deployment-maemo.html
+    \page creator-deployment-qnx.html
+    \nextpage creator-connecting-mobile.html
+
+    \title Deploying Applications to QNX Devices
+
+    When you deploy the application on the \gui{QNX} target, \QC generates
+    a BAR package in the build directory and installs it on the connected
+    device. The contents of the BAR package are specified in the \gui{Application
+    Descriptor File}.
+
+    \image qtcreator-qnx-deployment.png "Deploy to device"
+
+    The name of the generated BAR package is shown in the \gui{Bar package}
+    setting. If the package already exists, it will be overwritten without
+    prior notification.
+
+    \section1 Application Descriptor File
+
+    The application descriptor file needs to be created manually,
+    or you can use the \gui{Application Descriptor} wizard to have a generic
+    template generated. The wizard is available in \gui {File > New File or
+    Project > BlackBerry > Application descriptor}. This wizard will also
+    include a splashscreen.png and an icon.png file which are included in the
+    application descriptor file.
+
+    To tailor your BAR packages, you will have to manually edit the application
+    descriptor file. For a full reference, see
+    \l{https://bdsc.webapps.blackberry.com/native/documentation/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/r_blackberry_tablet_dtd_intro.html}
+    {Document Type Definition (DTD) for the application descriptor file}.
+*/

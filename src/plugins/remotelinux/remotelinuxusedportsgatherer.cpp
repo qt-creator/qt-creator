@@ -55,6 +55,7 @@ class RemoteLinuxUsedPortsGathererPrivate
     QList<int> usedPorts;
     QByteArray remoteStdout;
     QByteArray remoteStderr;
+    QString command;
 };
 
 } // namespace Internal
@@ -90,18 +91,21 @@ void RemoteLinuxUsedPortsGatherer::start(const LinuxDeviceConfiguration::ConstPt
 
 void RemoteLinuxUsedPortsGatherer::handleConnectionEstablished()
 {
-    QString procFilePath;
-    int addressLength;
-    if (d->connection->connectionInfo().localAddress.protocol() == QAbstractSocket::IPv4Protocol) {
-        procFilePath = QLatin1String("/proc/net/tcp");
-        addressLength = 8;
-    } else {
-        procFilePath = QLatin1String("/proc/net/tcp6");
-        addressLength = 32;
+    QString command = d->command;
+    if (command.isEmpty()) {
+        QString procFilePath;
+        int addressLength;
+        if (d->connection->connectionInfo().localAddress.protocol() == QAbstractSocket::IPv4Protocol) {
+            procFilePath = QLatin1String("/proc/net/tcp");
+            addressLength = 8;
+        } else {
+            procFilePath = QLatin1String("/proc/net/tcp6");
+            addressLength = 32;
+        }
+        command = QString::fromLatin1("sed "
+            "'s/.*: [[:xdigit:]]\\{%1\\}:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' %2")
+            .arg(addressLength).arg(procFilePath);
     }
-    const QString command = QString::fromLatin1("sed "
-        "'s/.*: [[:xdigit:]]\\{%1\\}:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' %2")
-        .arg(addressLength).arg(procFilePath);
     d->process = d->connection->createRemoteProcess(command.toUtf8());
 
     connect(d->process.data(), SIGNAL(closed(int)), SLOT(handleProcessClosed(int)));
@@ -139,6 +143,11 @@ int RemoteLinuxUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
 QList<int> RemoteLinuxUsedPortsGatherer::usedPorts() const
 {
     return d->usedPorts;
+}
+
+void RemoteLinuxUsedPortsGatherer::setCommand(const QString &command)
+{
+    d->command = command;
 }
 
 void RemoteLinuxUsedPortsGatherer::setupUsedPorts()

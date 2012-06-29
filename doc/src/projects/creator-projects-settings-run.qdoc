@@ -54,6 +54,7 @@
     \input projects/creator-projects-settings-run-debug.qdocinc
     \input symbian/creator-projects-settings-run-symbian.qdocinc
     \input linux-mobile/creator-projects-settings-run-linux.qdocinc
+    \input qnx/creator-projects-settings-run-qnx.qdocinc
     \endif
 
     \section1 Specifying a Custom Executable to Run

@@ -1,0 +1,121 @@
+/**************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (C) 2011 - 2012 Research In Motion
+**
+** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: KDAB (info@kdab.com)
+**
+**
+** GNU Lesser General Public License Usage
+**
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this file.
+** Please review the following information to ensure the GNU Lesser General
+** Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Nokia gives you certain additional
+** rights. These rights are described in the Nokia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** Other Usage
+**
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Nokia.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at info@qt.nokia.com.
+**
+**************************************************************************/
+
+#ifndef QNX_INTERNAL_BLACKBERRYAPPLICATIONRUNNER_H
+#define QNX_INTERNAL_BLACKBERRYAPPLICATIONRUNNER_H
+
+#include <projectexplorer/runconfiguration.h>
+
+#include <ssh/sshconnection.h>
+#include <utils/environment.h>
+
+#include <QObject>
+#include <QProcess>
+
+namespace QSsh {
+class SshRemoteProcessRunner;
+}
+
+namespace Qnx {
+namespace Internal {
+
+class BlackBerryRunConfiguration;
+
+class BlackBerryApplicationRunner : public QObject
+{
+    Q_OBJECT
+public:
+    explicit BlackBerryApplicationRunner(bool debugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent = 0);
+
+    bool isRunning() const;
+    qint64 pid() const;
+
+    ProjectExplorer::RunControl::StopResult stop();
+
+public slots:
+    void start();
+    void tailApplicationLog();
+
+signals:
+    void output(const QString &msg, Utils::OutputFormat format);
+    void started();
+    void finished();
+
+    void startFailed(const QString &msg);
+
+private slots:
+    void startFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void stopFinished(int exitCode, QProcess::ExitStatus exitStatus);
+
+    void readStandardOutput();
+    void readStandardError();
+
+    void handleTailOutput();
+    void handleTailError();
+    void handleTailConnectionError();
+
+    void startRunningStateTimer();
+    void determineRunningState();
+    void readRunningStateStandardOutput();
+
+private:
+    void reset();
+    void killTailProcess();
+
+    bool m_debugMode;
+
+    qint64 m_pid;
+    QString m_appId;
+
+    bool m_running;
+    bool m_stopping;
+
+    Utils::Environment m_environment;
+    QString m_deployCmd;
+    QString m_deviceHost;
+    QString m_password;
+    QString m_barPackage;
+    QSsh::SshConnectionParameters m_sshParams;
+
+    QProcess *m_launchProcess;
+    QProcess *m_stopProcess;
+    QSsh::SshRemoteProcessRunner *m_tailProcess;
+
+    QTimer *m_runningStateTimer;
+    QProcess *m_runningStateProcess;
+};
+
+} // namespace Internal
+} // namespace Qnx
+
+#endif // QNX_INTERNAL_BLACKBERRYAPPLICATIONRUNNER_H

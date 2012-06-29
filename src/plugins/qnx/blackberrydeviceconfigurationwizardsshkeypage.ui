@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Qnx::Internal::BlackBerryDeviceConfigurationWizardSshKeyPage</class>
+ <widget class="QWizardPage" name="Qnx::Internal::BlackBerryDeviceConfigurationWizardSshKeyPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>413</width>
+    <height>88</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>WizardPage</string>
+  </property>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Private key file:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="Utils::PathChooser" name="privateKey" native="true"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Public key file:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="generate">
+     <property name="text">
+      <string>Generate</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="publicKey">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Utils::PathChooser</class>
+   <extends>QWidget</extends>
+   <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
+   <slots>
+    <signal>editingFinished()</signal>
+    <signal>browsingFinished()</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

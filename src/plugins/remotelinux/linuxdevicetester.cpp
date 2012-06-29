@@ -115,6 +115,11 @@ void GenericLinuxDeviceTester::stopTest()
     setFinished(TestFailure);
 }
 
+RemoteLinuxUsedPortsGatherer *GenericLinuxDeviceTester::usedPortsGatherer() const
+{
+    return &d->portsGatherer;
+}
+
 void GenericLinuxDeviceTester::handleConnected()
 {
     QTC_ASSERT(d->state == Connecting, return);

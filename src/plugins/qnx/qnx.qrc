@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/qnx">
+        <file>images/target-small.png</file>
+        <file>images/target.png</file>
+    </qresource>
+</RCC>

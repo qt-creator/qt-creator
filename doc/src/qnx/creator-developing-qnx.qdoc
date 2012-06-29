@@ -1,0 +1,118 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (C) 2011 - 2012 Research In Motion
+**
+** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: KDAB (info@kdab.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+/*!
+    \contentspage index.html
+    \previouspage creator-developing-symbian.html
+    \page creator-developing-qnx.html
+    \nextpage creator-build-process-customizing.html
+
+    \title Connecting QNX Devices
+
+    You can connect QNX devices to the development PC to deploy, run and debug
+    applications on them from within \QC.
+
+    \section1 Setting Up Connectivity on Playbook
+
+    In order to deploy applications to the Playbook, you will need to enable
+    Development Mode on the device and upload a debug token to it.
+
+    Enabling Development Mode is done by sliding top-down on the Playbook,
+    thereby opening the \gui{Preferences}. Now go to \gui{Security >
+    Development Mode} and set \gui{Use Development Mode} to \gui{ON}. Enter the
+    device password when asked to do so.
+
+    \image qtcreator-qnx-playbook-development-mode.png
+
+    \section2 USB Access
+
+    The \gui{Development Address} shown in the \gui{Development Mode} settings
+    is the IP address to use when you are connecting the device with a USB
+    cable to the development PC. If you are deploying over a Wi-Fi network, you
+    should use the IP address shown in \gui{Preferences > About > Network}.
+
+    To enable access over USB, change \gui{Preferences > Storage & Sharing >
+    USB Connections} to \gui{Connect to Windows} if you are deploying from
+    Windows, or \gui{Connect to Mac} if you are deploying from Linux or Mac OS.
+
+    \image qtcreator-qnx-playbook-storage-sharing.png
+
+    \section2 Debug Token
+
+    If you are using a physical device, you will have to upload a debug token to
+    the device. The simulator does not require any debug token.
+
+    \section3 Create a Debug Token
+
+    You can create the debug token either in QNX Momentics or from the command
+    line. There is currently no support for creating the debug token from
+    within \QC.
+
+    From the command line:
+    \c{blackberry-debugtokenrequest -storepass <pass> -devicepin <your PB pin> debugtoken.bar}
+
+    \section3 Install Debug Token on Playbook
+
+    You can install the debug token on the Playbook either in QNX Momentics or
+    from the command line. There is currently no support for installing the
+    debug token from within \QC.
+
+    From the command line:
+    \c{blackberry-nativepackage -installDebugToken ~/.rim/debugtoken.bar -device <device_ip> [-password <device_pass>]}
+
+    \section1 Adding a QNX Device in \QC
+
+    Adding a QNX device is done using a wizard in the \gui{Device
+    Configurations} options. To launch it, go to \gui{Tools > Options >
+    Linux Devices > Device Configurations > Add... > QNX device > Start
+    Wizard}.
+
+    \image qtcreator-qnx-device-configurations-wizard-1.png "Connection details"
+
+    \list
+        \o In the \gui{The name to identify this configuration} field, enter a
+        name for the device.
+        \o In the \gui{The device's host name or IP address} field, enter the
+        host name or IP address of the device.
+        \o In the \gui{Device password} field, enter the password for the device.
+        \o In the \gui{Device type} field, select whether it is a \gui{Physical
+        device} or a \gui{Simulator} you are connecting to.
+        \o In the \gui{Debug token} field, enter the path to the debug token
+        that is also installed on the device. This is only necessary if you are
+        connecting to a \gui{Physical device}.
+        \o Click \gui{Next} to continue.
+    \endlist
+
+    \image qtcreator-qnx-device-configurations-wizard-2.png "SSH Key Setup"
+
+    For the \gui{SSH Key Setup}, you can either select an existing \bold{4096}-bit
+    key, or click \gui{Generate} to create a new key. The generated key will be
+    stored next to the \QC settings, in a \bold{qnx} sub-directory.
+
+    Click \gui{Next} and then \gui{Finish} to complete setting up the device
+    connection.
+
+    Once the device is added, you can edit the settings directly in the
+    \gui{Device Configurations} options page.
+
+    \image qtcreator-qnx-device-configurations.png "Device Configurations"
+*/

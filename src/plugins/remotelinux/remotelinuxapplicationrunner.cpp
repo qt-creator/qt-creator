@@ -122,7 +122,7 @@ LinuxDeviceConfiguration::ConstPtr AbstractRemoteLinuxApplicationRunner::devConf
     return d->devConfig;
 }
 
-const RemoteLinuxUsedPortsGatherer *AbstractRemoteLinuxApplicationRunner::usedPortsGatherer() const
+RemoteLinuxUsedPortsGatherer *AbstractRemoteLinuxApplicationRunner::usedPortsGatherer() const
 {
     return &d->portsGatherer;
 }

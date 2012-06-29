@@ -75,7 +75,7 @@ public:
     QString id() const;
 
     virtual QList<Utils::FileName> suggestedMkspecList() const { return QList<Utils::FileName>(); }
-    Utils::FileName suggestedDebugger();
+    virtual Utils::FileName suggestedDebugger();
 
     virtual QString type() const = 0;
     virtual QString typeDisplayName() const = 0;

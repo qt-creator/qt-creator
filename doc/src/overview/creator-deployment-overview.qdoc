@@ -55,6 +55,11 @@
             can test and debug the application on the device.
             You can create Debian installation packages for MeeGo Harmattan and
             Maemo 5 devices.
+        \o \l{Deploying Applications to QNX Devices}
+
+            When you deploy the application on the \gui{QNX} target, \QC generates
+            a BAR package in the build directory and deploys it to the connected
+            device. You can test and debug the application on the device.
     \endlist
 
     \section1 Related Topics
