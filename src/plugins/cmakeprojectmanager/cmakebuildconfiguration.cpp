@@ -36,9 +36,14 @@
 #include "cmakeproject.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtparser.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <utils/qtcassert.h>
 
 #include <QInputDialog>
@@ -110,10 +115,16 @@ void CMakeBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
 
 ProjectExplorer::IOutputParser *CMakeBuildConfiguration::createOutputParser() const
 {
+    ProjectExplorer::IOutputParser *parserchain = new ProjectExplorer::GnuMakeParser;
+
+    int versionId = QtSupport::QtProfileInformation::qtVersionId(target()->profile());
+    if (versionId >= 0)
+        parserchain->appendOutputParser(new QtSupport::QtParser);
+
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
     if (tc)
-        return tc->outputParser();
-    return 0;
+        parserchain->appendOutputParser(tc->outputParser());
+    return parserchain;
 }
 
 Utils::Environment CMakeBuildConfiguration::baseEnvironment() const
