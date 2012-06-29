@@ -164,6 +164,12 @@ void NameDemanglerAutoTest::testCorrectlyMangledNames()
                              "test_func(void const * (ns1::c<unsigned long>::*)(int *, long &, unsigned long) const)");
     testCorrectlyMangledName("_ZN3ns11fEPKPFPKiS1_RKhE",
         "ns1::f(int const * (* const *)(int const *, unsigned char const &))");
+    testCorrectlyMangledName("_ZNK1CcviEv", "C::operator int() const");
+    testCorrectlyMangledName("_ZN1CppEv", "C::operator++()");
+    testCorrectlyMangledName("_ZN1CmmEv", "C::operator--()");
+    testCorrectlyMangledName("_ZN1CppEi", "C::operator++(int)");
+    testCorrectlyMangledName("_ZN1CmmEi", "C::operator--(int)");
+    testCorrectlyMangledName("_ZNK1CcvT_IPKcEEv", "C::operator char const *<char const *>() const");
 }
 
 void NameDemanglerAutoTest::testIncorrectlyMangledNames()

@@ -46,7 +46,7 @@
 //#define DO_TRACE
 #ifdef DO_TRACE
 #define FUNC_START()                                                           \
-    qDebug("Function %s has started, input is at position %d.", Q_FUNC_INFO, pos)
+    qDebug("Function %s has started, input is at position %d.", Q_FUNC_INFO, m_pos)
 #define FUNC_END(result)                                                       \
     qDebug("Function %s has finished, result is '%s'.", Q_FUNC_INFO, qPrintable(result))
 #else
@@ -291,6 +291,7 @@ private:
     QString m_demangledName;
     QList<QByteArray> m_substitutions;
     QList<QByteArray> m_templateParams;
+    bool m_isConversionOperator;
 };
 
 
@@ -319,6 +320,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
     try {
         m_mangledName = mangledName.toAscii();
         m_pos = 0;
+        m_isConversionOperator = false;
         m_demangledName.clear();
         m_substitutions.clear();
         m_templateParams.clear();
@@ -330,9 +332,9 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
         if (m_pos != m_mangledName.size())
             throw ParseException(QLatin1String("Unconsumed input"));
 #ifdef DO_TRACE
-        qDebug("%d", substitutions.size());
-        foreach (const QByteArray &s, substitutions)
-            qDebug(qPrintable(s));
+        qDebug("%d", m_substitutions.size());
+        foreach (const QByteArray &s, m_substitutions)
+            qDebug("%s", s.constData());
 #endif
         return true;
     } catch (const ParseException &p) {
@@ -395,10 +397,9 @@ const QByteArray NameDemanglerPrivate::parseEncoding()
              * Instantiations of function templates encode their return type,
              * normal functions do not. Also, constructors, destructors
              * and conversion operators never encode their return type.
-             * TODO: The latter are probably not handled yet.
              */
             int start;
-            if (encoding.endsWith('>')) { // Template instantiation.
+            if (!m_isConversionOperator && encoding.endsWith('>')) { // Template instantiation.
                 start = 1;
                 encoding.prepend(signature.first() + ' ');
             } else {                              // Normal function.
@@ -419,6 +420,7 @@ const QByteArray NameDemanglerPrivate::parseEncoding()
             addSubstitution(encoding);
         }
         m_templateParams.clear();
+        m_isConversionOperator = false;
     } else if (firstSetSpecialName.contains(next)) {
         encoding = parseSpecialName();
     } else {
@@ -657,7 +659,15 @@ const QByteArray NameDemanglerPrivate::parseTemplateParam()
         index = parseNonNegativeNumber() + 1;
     if (advance() != '_')
         throw ParseException(QString::fromLatin1("Invalid template-param"));
-    param = m_templateParams.at(index);
+    if (index >= m_templateParams.count()) {
+        if (!m_isConversionOperator) {
+            throw ParseException(QString::fromLocal8Bit("Invalid template parameter index %1")
+                    .arg(index));
+        }
+        param = QByteArray::number(index);
+    } else {
+        param = m_templateParams.at(index);
+    }
 
     FUNC_END(param);
     return param;
@@ -746,17 +756,17 @@ double NameDemanglerPrivate::parseFloat()
  * <template-arg> ::= <type>                    # type or template
  *                ::= X <expression> E          # expression
  *                ::= <expr-primary>            # simple expressions
- *                ::= I <template-arg>* E       # argument pack
+ *                ::= J <template-arg>* E       # argument pack
  *                ::= sp <expression>           # pack expansion of (C++0x)
  */
 const QByteArray NameDemanglerPrivate::parseTemplateArg()
 {
     FUNC_START();
-    Q_ASSERT(!firstSetType.contains('X') && !firstSetType.contains('I')
+    Q_ASSERT(!firstSetType.contains('X') && !firstSetType.contains('J')
              /* && !firstSetType.contains('s') */);
     Q_ASSERT((firstSetType & firstSetExprPrimary).isEmpty());
     Q_ASSERT(!firstSetExprPrimary.contains('X')
-             && !firstSetExprPrimary.contains('I')
+             && !firstSetExprPrimary.contains('J')
              && !firstSetExprPrimary.contains('s'));
     Q_ASSERT(!firstSetTemplateArg.contains('E'));
 
@@ -774,7 +784,7 @@ const QByteArray NameDemanglerPrivate::parseTemplateArg()
         arg = parseExpression();
         if (advance() != 'E')
             throw ParseException(QString::fromLatin1("Invalid template-arg"));
-    } else if (next == 'I') {
+    } else if (next == 'J') {
         advance();
         while (firstSetTemplateArg.contains(peek())) {
             if (!arg.isEmpty())
@@ -838,7 +848,7 @@ const QByteArray NameDemanglerPrivate::parseExpression()
 
    /*
     * Some of the terminals in the productions of <expression>
-    * also appear in the productions of operator-name. We assume the direct
+    * also appear in the productions of <operator-name>. We assume the direct
     * productions to have higher precedence and check them first to prevent
     * them being parsed by parseOperatorName().
     */
@@ -1091,10 +1101,20 @@ const QByteArray NameDemanglerPrivate::parseType()
             type = parsePointerToMemberType();
         } else if (firstSetTemplateParam.contains(next)) {
             type = parseTemplateParam();
+            const int typeLen = type.count();
+            bool ok;
+            const int index = type.toInt(&ok);
             addSubstitution(type);
             if (firstSetTemplateArgs.contains(peek())) {
                 type += parseTemplateArgs();
                 addSubstitution(type);
+            }
+            if (ok) {
+                if (index >= m_templateParams.count()) {
+                    throw ParseException(QString::fromLocal8Bit("Invalid tenplate parameter "
+                        "index %1 in forwarding").arg(index));
+                }
+                type.replace(0, typeLen, m_templateParams.at(index));
             }
         } else if (firstSetSubstitution.contains(next)) {
             type = parseSubstitution();
@@ -1290,7 +1310,7 @@ const QList<QByteArray> NameDemanglerPrivate::parseBareFunctionType()
         signature.append(parseType());
     while (firstSetType.contains(peek()));
 
-    FUNC_END(signature.join(':'));
+    FUNC_END(QString::number(signature.count()));
     return signature;
 }
 
@@ -1404,8 +1424,9 @@ const NameDemanglerPrivate::Operator &NameDemanglerPrivate::parseOperatorName()
         advance(2);
         if (id == "cv") {
             static UnaryOperator castOp("cv", "");
+            m_isConversionOperator = true;
             QByteArray type = parseType();
-            castOp.repr = '(' + type + ')';
+            castOp.repr = ' ' + type;
             op = &castOp;
         } else {
             op = ops.value(id);
@@ -1941,8 +1962,8 @@ void NameDemanglerPrivate::setupOps()
     ops["nt"] = new UnaryOperator("nt", "!");
     ops["aa"] = new BinaryOperator("aa", "&&");
     ops["oo"] = new BinaryOperator("oo", "||");
-    ops["pp"] = new UnaryOperator("pp", "++"); // Prefix?
-    ops["mm"] = new UnaryOperator("mm", "--"); // Prefix?
+    ops["pp"] = new UnaryOperator("pp", "++");
+    ops["mm"] = new UnaryOperator("mm", "--");
     ops["cm"] = new BinaryOperator("cm", ",");
     ops["pm"] = new BinOpWithNoSpaces("pm", "->*");
     ops["pt"] = new BinOpWithNoSpaces("pm", "->");
