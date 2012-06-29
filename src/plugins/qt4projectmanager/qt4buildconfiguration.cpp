@@ -613,7 +613,7 @@ bool Qt4BuildConfigurationFactory::canCreate(const Target *parent, const Core::I
 {
     if (!canHandle(parent))
         return false;
-    return id == QT4_BC_ID;
+    return id == Core::Id(QT4_BC_ID);
 }
 
 BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name)
@@ -680,7 +680,7 @@ bool Qt4BuildConfigurationFactory::canRestore(const Target *parent, const QVaria
 {
     if (!canHandle(parent))
         return false;
-    return ProjectExplorer::idFromMap(map).toString() == QLatin1String(QT4_BC_ID);
+    return ProjectExplorer::idFromMap(map) == Core::Id(QT4_BC_ID);
 }
 
 BuildConfiguration *Qt4BuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
