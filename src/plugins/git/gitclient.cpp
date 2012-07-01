@@ -366,7 +366,7 @@ const char *GitClient::decorateOption = "--decorate";
 
 QString GitClient::findRepositoryForDirectory(const QString &dir)
 {
-    if (gitVersion(true) >= 0x010700) {
+    if (gitVersion() >= 0x010700) {
         // Find a directory to run git in:
         const QString root = QDir::rootPath();
         const QString home = QDir::homePath();
@@ -1752,7 +1752,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
     if (amend) {
         // Amend: get last commit data as "SHA1<tab>author<tab>email<tab>message".
         QStringList args(QLatin1String("log"));
-        const QString msgFormat = QLatin1String((gitVersion(true) > 0x010701) ? "%B" : "%s%n%n%b");
+        const QString msgFormat = QLatin1String((gitVersion() > 0x010701) ? "%B" : "%s%n%n%b");
         const QString format = QLatin1String("%h\t%an\t%ae\t") + msgFormat;
         args << QLatin1String("--max-count=1") << QLatin1String("--pretty=format:") + format;
         QTextCodec *codec = QTextCodec::codecForName(commitData->commitEncoding.toLocal8Bit());
@@ -2317,31 +2317,20 @@ void GitClient::connectRepositoryChanged(const QString & repository, VcsBase::Co
 }
 
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-unsigned GitClient::gitVersion(bool silent, QString *errorMessage) const
+unsigned GitClient::gitVersion(QString *errorMessage) const
 {
     const QString newGitBinary = gitBinaryPath();
     if (m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty()) {
         // Do not execute repeatedly if that fails (due to git
         // not being installed) until settings are changed.
-        m_cachedGitVersion = synchronousGitVersion(silent, errorMessage);
+        m_cachedGitVersion = synchronousGitVersion(errorMessage);
         m_gitVersionForBinary = newGitBinary;
     }
     return m_cachedGitVersion;
 }
 
-QString GitClient::gitVersionString(bool silent, QString *errorMessage) const
-{
-    if (const unsigned version = gitVersion(silent, errorMessage)) {
-        QString rc;
-        QTextStream(&rc) << (version >> 16) << '.'
-                << (0xFF & (version >> 8)) << '.'
-                << (version & 0xFF);
-        return rc;
-    }
-    return QString();
-}
 // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage) const
+unsigned GitClient::synchronousGitVersion(QString *errorMessage) const
 {
     if (gitBinaryPath().isEmpty())
         return 0;
@@ -2349,18 +2338,13 @@ unsigned GitClient::synchronousGitVersion(bool silent, QString *errorMessage) co
     // run git --version
     QByteArray outputText;
     QByteArray errorText;
-    const bool rc = fullySynchronousGit(QString(), QStringList(QLatin1String("--version")), &outputText, &errorText);
+    const bool rc = fullySynchronousGit(QString(), QStringList(QLatin1String("--version")), &outputText, &errorText, false);
     if (!rc) {
         const QString msg = tr("Cannot determine git version: %1").arg(commandOutputFromLocal8Bit(errorText));
-        if (errorMessage) {
+        if (errorMessage)
             *errorMessage = msg;
-        } else {
-            if (silent) {
-                outputWindow()->append(msg);
-            } else {
-                outputWindow()->appendError(msg);
-            }
-        }
+        else
+            outputWindow()->append(msg);
         return 0;
     }
     // cut 'git version 1.6.5.1.sha'

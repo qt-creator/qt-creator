@@ -84,8 +84,7 @@ public:
     ~GitClient();
 
     QString gitBinaryPath(bool *ok = 0, QString *errorMessage = 0) const;
-    unsigned gitVersion(bool silent, QString *errorMessage = 0) const;
-    QString gitVersionString(bool silent, QString *errorMessage = 0) const;
+    unsigned gitVersion(QString *errorMessage = 0) const;
 
     QString findRepositoryForDirectory(const QString &dir);
 
@@ -277,7 +276,7 @@ private:
                            unsigned flags = 0, QTextCodec *outputCodec = 0);
 
     // determine version as '(major << 16) + (minor << 8) + patch' or 0.
-    unsigned synchronousGitVersion(bool silent, QString *errorMessage = 0) const;
+    unsigned synchronousGitVersion(QString *errorMessage = 0) const;
 
     enum RevertResult { RevertOk, RevertUnchanged, RevertCanceled, RevertFailed };
     RevertResult revertI(QStringList files,

@@ -77,7 +77,7 @@ bool GitVersionControl::supportsOperation(Operation operation) const
     bool rc = false;
     switch (operation) {
     case AddOperation:
-        rc = m_client->gitVersion(true) >= version(1, 6, 1);;
+        rc = m_client->gitVersion() >= version(1, 6, 1);;
         break;
     case DeleteOperation:
         rc = true;
@@ -110,7 +110,7 @@ bool GitVersionControl::vcsOpen(const QString & /*fileName*/)
 bool GitVersionControl::vcsAdd(const QString & fileName)
 {
     // Implement in terms of using "--intent-to-add"
-    QTC_ASSERT(m_client->gitVersion(true) >= version(1, 6, 1), return false);
+    QTC_ASSERT(m_client->gitVersion() >= version(1, 6, 1), return false);
     const QFileInfo fi(fileName);
     return m_client->synchronousAdd(fi.absolutePath(), true, QStringList(fi.fileName()));
 }
