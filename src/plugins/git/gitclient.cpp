@@ -1331,12 +1331,11 @@ bool GitClient::synchronousShow(const QString &workingDirectory, const QString &
 }
 
 // Retrieve list of files to be cleaned
-bool GitClient::synchronousCleanList(const QString &workingDirectory,
-                                     QStringList *files, QString *errorMessage)
+bool GitClient::cleanList(const QString &workingDirectory, const QString &flag, QStringList *files, QString *errorMessage)
 {
     files->clear();
     QStringList args;
-    args << QLatin1String("clean") << QLatin1String("--dry-run") << QLatin1String("-dxf");
+    args << QLatin1String("clean") << QLatin1String("--dry-run") << flag;
     QByteArray outputText;
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);
@@ -1350,6 +1349,14 @@ bool GitClient::synchronousCleanList(const QString &workingDirectory,
         if (line.startsWith(prefix))
             files->push_back(line.mid(prefix.size()));
     return true;
+}
+
+bool GitClient::synchronousCleanList(const QString &workingDirectory, QStringList *files,
+                                     QStringList *ignoredFiles, QString *errorMessage)
+{
+    bool res = cleanList(workingDirectory, QLatin1String("-df"), files, errorMessage);
+    res &= cleanList(workingDirectory, QLatin1String("-dXf"), ignoredFiles, errorMessage);
+    return res;
 }
 
 bool GitClient::synchronousApplyPatch(const QString &workingDirectory,

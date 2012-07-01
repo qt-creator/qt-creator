@@ -122,7 +122,7 @@ public:
     bool synchronousReset(const QString &workingDirectory,
                           const QStringList &files = QStringList(),
                           QString *errorMessage = 0);
-    bool synchronousCleanList(const QString &workingDirectory, QStringList *files, QString *errorMessage);
+    bool synchronousCleanList(const QString &workingDirectory, QStringList *files, QStringList *ignoredFiles, QString *errorMessage);
     bool synchronousApplyPatch(const QString &workingDirectory, const QString &file, QString *errorMessage);
     bool synchronousInit(const QString &workingDirectory);
     bool synchronousCheckoutFiles(const QString &workingDirectory,
@@ -289,6 +289,7 @@ private:
                          const QString &workingDirectory,
                          const QString &gitBinDirectory,
                          bool silent);
+    bool cleanList(const QString &workingDirectory, const QString &flag, QStringList *files, QString *errorMessage);
 
     mutable QString m_gitVersionForBinary;
     mutable unsigned m_cachedGitVersion;

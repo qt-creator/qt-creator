@@ -853,31 +853,25 @@ void GitPlugin::cleanRepository(const QString &directory)
     // Find files to be deleted
     QString errorMessage;
     QStringList files;
+    QStringList ignoredFiles;
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    const bool gotFiles = m_gitClient->synchronousCleanList(directory, &files, &errorMessage);
+    const bool gotFiles = m_gitClient->synchronousCleanList(directory, &files, &ignoredFiles, &errorMessage);
     QApplication::restoreOverrideCursor();
 
     QWidget *parent = Core::ICore::mainWindow();
     if (!gotFiles) {
-        QMessageBox::warning(parent, tr("Unable to retrieve file list"),
-                             errorMessage);
+        QMessageBox::warning(parent, tr("Unable to retrieve file list"), errorMessage);
         return;
     }
-    if (files.isEmpty()) {
+    if (files.isEmpty() && ignoredFiles.isEmpty()) {
         QMessageBox::information(parent, tr("Repository Clean"),
                                  tr("The repository is clean."));
         return;
     }
-    // Clean the trailing slash of directories
-    const QChar slash = QLatin1Char('/');
-    const QStringList::iterator end = files.end();
-    for (QStringList::iterator it = files.begin(); it != end; ++it)
-        if (it->endsWith(slash))
-            it->truncate(it->size() - 1);
 
     // Show in dialog
     VcsBase::CleanDialog dialog(parent);
-    dialog.setFileList(directory, files);
+    dialog.setFileList(directory, files, ignoredFiles);
     dialog.exec();
 }
 

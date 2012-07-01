@@ -180,7 +180,8 @@ CleanDialog::~CleanDialog()
     delete d;
 }
 
-void CleanDialog::setFileList(const QString &workingDirectory, const QStringList &l)
+void CleanDialog::setFileList(const QString &workingDirectory, const QStringList &files,
+                              const QStringList &ignoredFiles)
 {
     d->m_workingDirectory = workingDirectory;
     d->ui.groupBox->setTitle(tr("Repository: %1").
@@ -188,40 +189,42 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
     if (const int oldRowCount = d->m_filesModel->rowCount())
         d->m_filesModel->removeRows(0, oldRowCount);
 
-    QStyle *style = QApplication::style();
-    const QIcon folderIcon = style->standardIcon(QStyle::SP_DirIcon);
-    const QIcon fileIcon = style->standardIcon(QStyle::SP_FileIcon);
-    const QString diffSuffix = QLatin1String(".diff");
-    const QString patchSuffix = QLatin1String(".patch");
-    const QString proUserSuffix = QLatin1String(".pro.user");
-    const QString qmlProUserSuffix = QLatin1String(".qmlproject.user");
-    const QChar slash = QLatin1Char('/');
-    // Do not initially check patches or 'pro.user' files for deletion.
-    foreach (const QString &fileName, l) {
-        const QFileInfo fi(workingDirectory + slash + fileName);
-        const bool isDir = fi.isDir();
-        QStandardItem *nameItem = new QStandardItem(QDir::toNativeSeparators(fileName));
-        nameItem->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-        nameItem->setIcon(isDir ? folderIcon : fileIcon);
-        const bool saveFile = !isDir && (fileName.endsWith(diffSuffix)
-                                        || fileName.endsWith(patchSuffix)
-                                        || fileName.endsWith(proUserSuffix)
-                                        || fileName.endsWith(qmlProUserSuffix));
-        nameItem->setCheckable(true);
-        nameItem->setCheckState(saveFile ? Qt::Unchecked : Qt::Checked);
-        nameItem->setData(QVariant(fi.absoluteFilePath()), Internal::fileNameRole);
-        nameItem->setData(QVariant(isDir), Internal::isDirectoryRole);
-        // Tooltip with size information
-        if (fi.isFile()) {
-            const QString lastModified = fi.lastModified().toString(Qt::DefaultLocaleShortDate);
-            nameItem->setToolTip(tr("%1 bytes, last modified %2")
-                                 .arg(fi.size()).arg(lastModified));
-        }
-        d->m_filesModel->appendRow(nameItem);
-    }
+    foreach (const QString &fileName, files)
+        addFile(workingDirectory, fileName, true);
+    foreach (const QString &fileName, ignoredFiles)
+        addFile(workingDirectory, fileName, false);
 
     for (int c = 0; c < d->m_filesModel->columnCount(); c++)
         d->ui.filesTreeView->resizeColumnToContents(c);
+}
+
+void CleanDialog::addFile(const QString &workingDirectory, QString fileName, bool checked)
+{
+    QStyle *style = QApplication::style();
+    const QIcon folderIcon = style->standardIcon(QStyle::SP_DirIcon);
+    const QIcon fileIcon = style->standardIcon(QStyle::SP_FileIcon);
+    const QChar slash = QLatin1Char('/');
+    // Clean the trailing slash of directories
+    if (fileName.endsWith(slash))
+        fileName.chop(1);
+    QFileInfo fi(workingDirectory + slash + fileName);
+    bool isDir = fi.isDir();
+    if (isDir)
+        checked = false;
+    QStandardItem *nameItem = new QStandardItem(QDir::toNativeSeparators(fileName));
+    nameItem->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+    nameItem->setIcon(isDir ? folderIcon : fileIcon);
+    nameItem->setCheckable(true);
+    nameItem->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
+    nameItem->setData(QVariant(fi.absoluteFilePath()), Internal::fileNameRole);
+    nameItem->setData(QVariant(isDir), Internal::isDirectoryRole);
+    // Tooltip with size information
+    if (fi.isFile()) {
+        const QString lastModified = fi.lastModified().toString(Qt::DefaultLocaleShortDate);
+        nameItem->setToolTip(tr("%1 bytes, last modified %2")
+                             .arg(fi.size()).arg(lastModified));
+    }
+    d->m_filesModel->appendRow(nameItem);
 }
 
 QStringList CleanDialog::checkedFiles() const
