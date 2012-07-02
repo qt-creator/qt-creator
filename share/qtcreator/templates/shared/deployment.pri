@@ -7,7 +7,11 @@
 defineTest(qtcAddDeployment) {
 for(deploymentfolder, DEPLOYMENTFOLDERS) {
     item = item$${deploymentfolder}
-    itemsources = $${item}.sources
+    greaterThan(QT_MAJOR_VERSION, 4) {
+        itemsources = $${item}.files
+    } else {
+        itemsources = $${item}.sources
+    }
     $$itemsources = $$eval($${deploymentfolder}.source)
     itempath = $${item}.path
     $$itempath= $$eval($${deploymentfolder}.target)
