@@ -2535,7 +2535,16 @@ void Version11Handler::addBuildConfiguration(const QString &origTarget, Profile 
                                              const QVariantMap &bc, bool bcActive)
 {
     foreach (Profile *i, m_targets.keys()) {
-        if (*i == *p) {
+        const QString tc = i->value(Core::Id("PE.Profile.ToolChain")).toString();
+        const int qt = i->value(Core::Id("QtSupport.QtInformation")).toInt();
+        const QString debugger = i->value(Core::Id("Debugger.Information")).toString();
+        const QString mkspec = i->value(Core::Id("QtPM4.mkSpecInformation")).toString();
+        if ((i->value(Core::Id("PE.Profile.DeviceType")).toString() == p->value(Core::Id("PE.Profile.DeviceType")).toString())
+                && (tc.isEmpty() || (tc == p->value(Core::Id("PE.Profile.ToolChain")).toString()))
+                && (qt < 0 || (qt == p->value(Core::Id("QtSupport.QtInformation")).toInt()))
+                && (debugger.isEmpty() || (debugger == p->value(Core::Id("Debugger.Information")).toString()))
+                && (mkspec.isEmpty() || (mkspec == p->value(Core::Id("QtPM4.mkSpecInformation")).toString()))
+                && (i->value(Core::Id("PE.Profile.SysRoot")).toString() == p->value(Core::Id("PE.Profile.SysRoot")).toString())) {
             delete p;
             p = i;
         }
