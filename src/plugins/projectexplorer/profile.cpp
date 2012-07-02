@@ -35,6 +35,7 @@
 #include "devicesupport/devicemanager.h"
 #include "profileinformation.h"
 #include "profilemanager.h"
+#include "project.h"
 #include "toolchainmanager.h"
 
 #include <QApplication>
@@ -136,9 +137,24 @@ QString Profile::displayName() const
 
 void Profile::setDisplayName(const QString &name)
 {
-    if (d->m_displayName == name)
+    // make name unique:
+    QStringList nameList;
+    foreach (Profile *p, ProfileManager::instance()->profiles())
+        nameList << p->displayName();
+
+    QString uniqueName = Project::makeUnique(name, nameList);
+    if (uniqueName != name) {
+        ToolChain *tc = ToolChainProfileInformation::toolChain(this);
+        if (tc) {
+            const QString tcPostfix = QString::fromLatin1("-%1").arg(tc->displayName());
+            if (!name.contains(tcPostfix))
+                uniqueName = Project::makeUnique(name + tcPostfix, nameList);
+        }
+    }
+
+    if (d->m_displayName == uniqueName)
         return;
-    d->m_displayName = name;
+    d->m_displayName = uniqueName;
     profileUpdated();
 }
 
