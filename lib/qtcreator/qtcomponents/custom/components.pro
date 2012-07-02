@@ -35,11 +35,11 @@ QML_DIRS = \
         visuals
 
 qmlfiles.files = $$QML_FILES
-qmlfiles.sources = $$QML_FILES
+lessThan(QT_MAJOR_VERSION, 5):qmlfiles.sources = $$QML_FILES
 qmlfiles.path = $$INSTALL_IMPORTS/$$TARGETPATH
 
 qmldirs.files = $$QML_DIRS
-qmldirs.sources = $$QML_DIRS
+lessThan(QT_MAJOR_VERSION, 5):qmldirs.sources = $$QML_DIRS
 qmldirs.path = $$INSTALL_IMPORTS/$$TARGETPATH
 
 INSTALLS += qmlfiles qmldirs
