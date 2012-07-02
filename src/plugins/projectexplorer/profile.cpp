@@ -291,11 +291,6 @@ void Profile::setAutoDetected(bool detected)
     d->m_autodetected = detected;
 }
 
-void Profile::setId(const Core::Id &id)
-{
-    d->m_id = id;
-}
-
 void Profile::setValid(bool valid)
 {
     d->m_isValid = valid;

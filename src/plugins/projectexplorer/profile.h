@@ -92,7 +92,6 @@ private:
     void operator=(const Profile &other);
 
     void setAutoDetected(bool detected);
-    void setId(const Core::Id &id);
     void setValid(bool valid);
 
     void profileUpdated();
