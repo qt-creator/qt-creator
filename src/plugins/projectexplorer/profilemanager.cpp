@@ -225,6 +225,9 @@ ProfileManager::~ProfileManager()
 
 void ProfileManager::saveProfiles()
 {
+    if (!d->m_initialized) // ignore save requests while we are not initialized.
+        return;
+
     PersistentSettingsWriter writer;
     writer.saveValue(QLatin1String(PROFILE_FILE_VERSION_KEY), 1);
 
