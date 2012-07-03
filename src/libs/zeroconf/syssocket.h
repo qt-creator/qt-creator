@@ -41,7 +41,7 @@
 #include <qglobal.h>
 
 #ifdef Q_OS_WIN32
-# include <Winsock2.h>
+# include <winsock2.h>
 # ifndef SHUT_RDWR
 #  ifdef SD_BOTH
 #    define SHUT_RDWR SD_BOTH

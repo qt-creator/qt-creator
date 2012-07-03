@@ -42,9 +42,9 @@
 #include <QDir>
 #include <QString>
 
-#include <Windows.h>
-#include <Objbase.h>
-#include <Shellapi.h>
+#include <windows.h>
+#include <objbase.h>
+#include <shellapi.h>
 
 using namespace RegistryAccess;
 

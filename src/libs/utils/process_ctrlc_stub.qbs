@@ -11,7 +11,7 @@ QtcTool {
     files: [ "process_ctrlc_stub.cpp" ]
 
     cpp.dynamicLibraries: [
-        "user32.lib",
-        "shell32.lib"
+        "user32",
+        "shell32"
     ]
 }

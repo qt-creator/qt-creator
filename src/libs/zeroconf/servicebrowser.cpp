@@ -36,7 +36,7 @@
 #  ifndef NOMINMAX
 #    define NOMINMAX
 #  endif
-#  include <WinSock2.h>
+#  include <winsock2.h>
 #endif // Q_OS_WIN
 
 #include "mdnsderived.h"

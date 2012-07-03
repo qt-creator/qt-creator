@@ -17,7 +17,7 @@ QtcTool {
 
     cpp.dynamicLibraries: {
         if (qbs.targetOS == "windows") {
-            return [ "shell32.lib" ]
+            return [ "shell32" ]
         }
     }
 }
