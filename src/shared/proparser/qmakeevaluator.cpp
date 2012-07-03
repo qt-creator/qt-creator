@@ -1831,14 +1831,12 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
     return ok;
 }
 
-bool QMakeEvaluator::evaluateFileInto(
-        const QString &fileName, QMakeHandler::EvalFileType type,
-        ProValueMap *values, EvalIntoMode mode)
+bool QMakeEvaluator::evaluateFileInto(const QString &fileName, QMakeHandler::EvalFileType type,
+        ProValueMap *values, LoadFlags flags)
 {
     QMakeEvaluator visitor(m_option, m_parser, m_handler);
     visitor.m_outputDir = m_outputDir;
-    if (!visitor.evaluateFile(fileName, type,
-            (mode == EvalWithSetup) ? LoadAll : LoadProOnly))
+    if (!visitor.evaluateFile(fileName, type, flags))
         return false;
     *values = visitor.m_valuemapStack.top();
     return true;
