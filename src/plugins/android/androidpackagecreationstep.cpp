@@ -161,8 +161,7 @@ bool AndroidPackageCreationStep::init()
         androidLibPath = path.appendPath(QLatin1String("libs/armeabi-v7a"));
     else
         androidLibPath = path.appendPath(QLatin1String("libs/armeabi"));
-    path = m_androidDir;
-    m_gdbServerDestination = path.appendPath(QLatin1String("gdbserver"));
+    m_gdbServerDestination = androidLibPath.appendPath(QLatin1String("gdbserver"));
     m_gdbServerSource = AndroidConfigurations::instance().gdbServerPath(target()->activeRunConfiguration()->abi().architecture());
     m_debugBuild = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
 

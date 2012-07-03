@@ -30,52 +30,62 @@
 **
 **************************************************************************/
 
-#include "androiddevicefactory.h"
 #include "androiddevice.h"
-
 #include "androidconstants.h"
-#include <coreplugin/id.h>
+
+#include <QCoreApplication>
 
 namespace Android {
 namespace Internal {
 
-AndroidDeviceFactory::AndroidDeviceFactory()
+AndroidDevice::AndroidDevice():
+    ProjectExplorer::IDevice(Core::Id(Constants::ANDROID_DEVICE_TYPE), IDevice::AutoDetected,
+                             Core::Id(Constants::ANDROID_DEVICE_ID))
 {
-    setObjectName(QLatin1String("AndroidDeviceFactory"));
+    setDisplayName(QCoreApplication::translate("ProjectExplorer::AndroidDevice", "Run on Android"));
+    setDeviceState(DeviceReadyToUse);
 }
 
-QString AndroidDeviceFactory::displayNameForId(Core::Id type) const
+AndroidDevice::AndroidDevice(const AndroidDevice &other):
+    ProjectExplorer::IDevice(other)
+{ }
+
+
+ProjectExplorer::IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 {
-    if (type == Core::Id(Constants::ANDROID_DEVICE_TYPE))
-        return tr("Android Device");
+    return ProjectExplorer::IDevice::DeviceInfo();
+}
+
+QString AndroidDevice::displayType() const
+{
+    return QCoreApplication::translate("ProjectExplorer::AndroidDevice", "Android");
+}
+
+ProjectExplorer::IDeviceWidget *AndroidDevice::createWidget()
+{
+    return 0;
+}
+
+QList<Core::Id> AndroidDevice::actionIds() const
+{
+    return QList<Core::Id>()<<Core::Id(Constants::ANDROID_DEVICE_ID);
+}
+
+QString AndroidDevice::displayNameForActionId(Core::Id actionId) const
+{
+    Q_UNUSED(actionId)
     return QString();
 }
 
-QList<Core::Id> AndroidDeviceFactory::availableCreationIds() const
+void AndroidDevice::executeAction(Core::Id actionId, QWidget *parent) const
 {
-    return QList<Core::Id>() << Core::Id(Constants::ANDROID_DEVICE_TYPE);
+    Q_UNUSED(actionId)
+    Q_UNUSED(parent)
 }
 
-bool AndroidDeviceFactory::canCreate() const
+ProjectExplorer::IDevice::Ptr AndroidDevice::clone() const
 {
-    return false;
-}
-
-ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::create(Core::Id id) const
-{
-    Q_UNUSED(id)
-    return ProjectExplorer::IDevice::Ptr();
-}
-
-bool AndroidDeviceFactory::canRestore(const QVariantMap &map) const
-{
-    return ProjectExplorer::IDevice::typeFromMap(map) == Core::Id(Constants::ANDROID_DEVICE_TYPE);
-}
-
-ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::restore(const QVariantMap &map) const
-{
-    Q_UNUSED(map)
-    return ProjectExplorer::IDevice::Ptr(new AndroidDevice);
+    return ProjectExplorer::IDevice::Ptr(new AndroidDevice(*this));
 }
 
 } // namespace Internal

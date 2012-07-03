@@ -36,7 +36,8 @@ HEADERS += \
     androidcreatekeystorecertificate.h \
     javaparser.h \
     androidplugin.h \
-    androiddevicefactory.h
+    androiddevicefactory.h \
+    androiddevice.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -63,7 +64,8 @@ SOURCES += \
     androidcreatekeystorecertificate.cpp \
     javaparser.cpp \
     androidplugin.cpp \
-    androiddevicefactory.cpp
+    androiddevicefactory.cpp \
+    androiddevice.cpp
 
 
 FORMS += \

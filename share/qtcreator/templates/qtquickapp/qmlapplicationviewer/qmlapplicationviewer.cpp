@@ -78,9 +78,6 @@ QmlApplicationViewer::QmlApplicationViewer(QWidget *parent)
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QDeclarativeView::SizeRootObjectToView);
 
-#ifdef Q_OS_ANDROID
-    engine()->setBaseUrl(QUrl::fromLocalFile(QLatin1String("/")));
-#endif
     // Qt versions prior to 4.8.0 don't have QML/JS debugging services built in
 #if defined(QMLJSDEBUGGER) && QT_VERSION < 0x040800
 #if !defined(NO_JSDEBUGGER)
@@ -105,7 +102,11 @@ QmlApplicationViewer *QmlApplicationViewer::create()
 void QmlApplicationViewer::setMainQmlFile(const QString &file)
 {
     d->mainQmlFile = QmlApplicationViewerPrivate::adjustPath(file);
+#ifdef Q_OS_ANDROID
+    setSource(QUrl(QLatin1String("assets:/")+d->mainQmlFile));
+#else
     setSource(QUrl::fromLocalFile(d->mainQmlFile));
+#endif
 }
 
 void QmlApplicationViewer::addImportPath(const QString &path)

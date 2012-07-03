@@ -408,16 +408,20 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
 
     Utils::FileName javaSrcPath
             = Utils::FileName::fromString(version->versionInfo()[QLatin1String("QT_INSTALL_PREFIX")])
-            .append(QLatin1String("src/android/java"));
+            .appendPath(QLatin1String("src/android/java"));
     QDir projectDir(qt4Project->projectDirectory());
     Utils::FileName androidPath = dirPath(target);
 
     QStringList m_ignoreFiles;
     bool forceUpdate = false;
     QDomDocument srcVersionDoc;
-    if (openXmlFile(target, srcVersionDoc, javaSrcPath.append(QLatin1String("version.xml")), false)) {
+    Utils::FileName srcVersionPath = javaSrcPath;
+    srcVersionPath.appendPath(QLatin1String("version.xml"));
+    if (openXmlFile(target, srcVersionDoc, srcVersionPath, false)) {
         QDomDocument dstVersionDoc;
-        if (openXmlFile(target, dstVersionDoc, androidPath.append(QLatin1String("version.xml")), false))
+        Utils::FileName dstVersionPath=androidPath;
+        dstVersionPath.appendPath(QLatin1String("version.xml"));
+        if (openXmlFile(target, dstVersionDoc, dstVersionPath, false))
             forceUpdate = (srcVersionDoc.documentElement().attribute(QLatin1String("value")).toDouble()
                            > dstVersionDoc.documentElement().attribute(QLatin1String("value")).toDouble());
         else
@@ -458,7 +462,8 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
         if (it.fileInfo().isDir()) {
             projectDir.mkpath(AndroidDirName + it.filePath().mid(pos));
         } else {
-            const Utils::FileName dstFile = androidPath.append(it.filePath().mid(pos));
+            Utils::FileName dstFile = androidPath;
+            dstFile.appendPath(it.filePath().mid(pos));
             if (m_ignoreFiles.contains(it.fileName())) {
                 continue;
             } else {

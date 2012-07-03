@@ -55,7 +55,7 @@ class AVDModel: public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    void setAvdList(QVector<AndroidDevice> list);
+    void setAvdList(QVector<AndroidDeviceInfo> list);
     QString avdName(const QModelIndex &index);
 
 protected:
@@ -65,7 +65,7 @@ protected:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
 private:
-    QVector<AndroidDevice> m_list;
+    QVector<AndroidDeviceInfo> m_list;
 };
 
 class AndroidSettingsWidget : public QWidget

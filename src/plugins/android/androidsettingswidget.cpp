@@ -49,7 +49,7 @@
 namespace Android {
 namespace Internal {
 
-void AVDModel::setAvdList(QVector<AndroidDevice> list)
+void AVDModel::setAvdList(QVector<AndroidDeviceInfo> list)
 {
     m_list = list;
     reset();
@@ -147,7 +147,6 @@ QString AndroidSettingsWidget::searchKeywords() const
 void AndroidSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
-    m_ui->toolchainVersionComboBox->clear();
     if (checkSDK(m_androidConfig.sdkLocation))
         m_ui->SDKLocationLineEdit->setText(m_androidConfig.sdkLocation.toUserOutput());
     else
@@ -167,6 +166,7 @@ void AndroidSettingsWidget::initGui()
     m_AVDModel.setAvdList(AndroidConfigurations::instance().androidVirtualDevices());
     m_ui->AVDTableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
     m_ui->AVDTableView->horizontalHeader()->setResizeMode(1, QHeaderView::ResizeToContents);
+    fillToolchainVersions();
 }
 
 void AndroidSettingsWidget::saveSettings(bool saveNow)
@@ -251,9 +251,9 @@ void AndroidSettingsWidget::ndkLocationEditingFinished()
 
 void AndroidSettingsWidget::fillToolchainVersions()
 {
-    m_ui->toolchainVersionComboBox->clear();
     QStringList toolchainVersions = AndroidConfigurations::instance().ndkToolchainVersions();
     QString toolchain = m_androidConfig.ndkToolchainVersion;
+    m_ui->toolchainVersionComboBox->clear();
     foreach (const QString &item, toolchainVersions)
         m_ui->toolchainVersionComboBox->addItem(item);
     if (!toolchain.isEmpty())

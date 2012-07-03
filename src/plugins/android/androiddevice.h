@@ -30,48 +30,39 @@
 **
 **************************************************************************/
 
-#ifndef ANDROIDCONSTANTS_H
-#define ANDROIDCONSTANTS_H
+#ifndef ANDROIDDEVICE_H
+#define ANDROIDDEVICE_H
 
-#include <QLatin1String>
+#include <projectexplorer/devicesupport/idevice.h>
 
 namespace Android {
+class AndroidPlugin; // needed for friend declaration
+
 namespace Internal {
 
-enum AndroidQemuStatus {
-    AndroidQemuStarting,
-    AndroidQemuFailedToStart,
-    AndroidQemuFinished,
-    AndroidQemuCrashed,
-    AndroidQemuUserReason
+class AndroidDevice : public ProjectExplorer::IDevice
+{
+public:
+
+    ProjectExplorer::IDevice::DeviceInfo deviceInformation() const;
+
+    virtual QString displayType() const;
+    virtual ProjectExplorer::IDeviceWidget *createWidget();
+    virtual QList<Core::Id> actionIds() const;
+    virtual QString displayNameForActionId(Core::Id actionId) const;
+    virtual void executeAction(Core::Id actionId, QWidget *parent = 0) const;
+
+    virtual ProjectExplorer::IDevice::Ptr clone() const;
+
+
+protected:
+    friend class AndroidDeviceFactory;
+    friend class Android::AndroidPlugin;
+    AndroidDevice();
+    AndroidDevice(const AndroidDevice &other);
 };
 
-#define ANDROID_PREFIX "Qt4ProjectManager.AndroidRunConfiguration"
-
-#ifdef Q_OS_WIN32
-#define ANDROID_EXE_SUFFIX ".exe"
-#define ANDROID_BAT_SUFFIX ".bat"
-#else
-#define ANDROID_EXE_SUFFIX ""
-#define ANDROID_BAT_SUFFIX ""
-#endif
-
-static const QLatin1String ANDROID_RC_ID_PREFIX(ANDROID_PREFIX ":");
-
 } // namespace Internal
-
-namespace Constants {
-const char ANDROID_SETTINGS_ID[] = "ZZ.Android Configurations";
-const char ANDROID_SETTINGS_CATEGORY[] = "X.Android";
-const char ANDROID_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Android", "Android");
-const char ANDROID_SETTINGS_CATEGORY_ICON[] = ":/android/images/QtAndroid.png";
-const char ANDROID_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.Android";
-const char ANDROIDQT[] = "Qt4ProjectManager.QtVersion.Android";
-
-const char ANDROID_DEVICE_TYPE[] = "Android.Device.Type";
-const char ANDROID_DEVICE_ID[] = "Android Device";
-
-}
 } // namespace Android
 
-#endif  // ANDROIDCONSTANTS_H
+#endif // ANDROIDDEVICE_H

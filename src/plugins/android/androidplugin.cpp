@@ -35,6 +35,7 @@
 #include "androidconstants.h"
 #include "androidconfigurations.h"
 #include "androiddeploystepfactory.h"
+#include "androiddevice.h"
 #include "androiddevicefactory.h"
 #include "androidconfigurations.h"
 #include "androidmanager.h"
@@ -47,6 +48,8 @@
 #include "androiddeployconfiguration.h"
 
 #include <QtPlugin>
+
+#include <projectexplorer/devicesupport/devicemanager.h>
 
 namespace Android {
 
@@ -76,6 +79,9 @@ bool AndroidPlugin::initialize(const QStringList &arguments,
     addAutoReleasedObject(new Internal::AndroidToolChainFactory);
     addAutoReleasedObject(new Internal::AndroidDeployConfigurationFactory);
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
+    ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
+    if (dm->find(Core::Id(Constants::ANDROID_DEVICE_ID)).isNull())
+        dm->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
     return true;
 }
 

@@ -90,7 +90,7 @@ namespace {
             QFileInfo(Core::ICore::settings(QSettings::SystemScope)->fileName()).absolutePath());
     }
 
-    bool androidDevicesLessThan(const AndroidDevice &dev1, const AndroidDevice &dev2)
+    bool androidDevicesLessThan(const AndroidDeviceInfo &dev1, const AndroidDeviceInfo &dev2)
     {
         return dev1.sdk < dev2.sdk;
     }
@@ -233,7 +233,7 @@ QStringList AndroidConfigurations::sdkTargets(int minApiLevel) const
         return targets;
     }
     while (proc.canReadLine()) {
-        QString line = proc.readLine();
+        QString line = proc.readLine().trimmed();
         int index = line.indexOf(QLatin1String("\"android-"));
         if (index == -1)
             continue;
@@ -392,9 +392,9 @@ Utils::FileName AndroidConfigurations::jarsignerPath() const
 
 QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel) const
 {
-    QVector<AndroidDevice> devices = connectedDevices();
+    QVector<AndroidDeviceInfo> devices = connectedDevices();
 
-    foreach (AndroidDevice device, devices) {
+    foreach (AndroidDeviceInfo device, devices) {
         if (device.sdk >= *apiLevel) {
             *apiLevel = device.sdk;
             return device.serialNumber;
@@ -403,9 +403,9 @@ QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel) const
     return startAVD(apiLevel);
 }
 
-QVector<AndroidDevice> AndroidConfigurations::connectedDevices(int apiLevel) const
+QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(int apiLevel) const
 {
-    QVector<AndroidDevice> devices;
+    QVector<AndroidDeviceInfo> devices;
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), QStringList() << QLatin1String("devices"));
     if (!adbProc.waitForFinished(-1)) {
@@ -414,7 +414,7 @@ QVector<AndroidDevice> AndroidConfigurations::connectedDevices(int apiLevel) con
     }
     QList<QByteArray> adbDevs = adbProc.readAll().trimmed().split('\n');
     adbDevs.removeFirst();
-    AndroidDevice dev;
+    AndroidDeviceInfo dev;
     foreach (const QByteArray &device, adbDevs) {
         dev.serialNumber = QString::fromLatin1(device.left(device.indexOf('\t')).trimmed());
         dev.sdk = getSDKVersion(dev.serialNumber);
@@ -480,9 +480,9 @@ bool AndroidConfigurations::removeAVD(const QString &name) const
     return !proc.exitCode();
 }
 
-QVector<AndroidDevice> AndroidConfigurations::androidVirtualDevices() const
+QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
 {
-    QVector<AndroidDevice> devices;
+    QVector<AndroidDeviceInfo> devices;
     QProcess proc;
     proc.start(androidToolPath().toString(),
                QStringList() << QLatin1String("list") << QLatin1String("avd")); // list available AVDs
@@ -492,7 +492,7 @@ QVector<AndroidDevice> AndroidConfigurations::androidVirtualDevices() const
     }
     QList<QByteArray> avds = proc.readAll().trimmed().split('\n');
     avds.removeFirst();
-    AndroidDevice dev;
+    AndroidDeviceInfo dev;
     for (int i = 0; i < avds.size(); i++) {
         QString line = QLatin1String(avds[i]);
         if (!line.contains(QLatin1String("Name:")))
@@ -523,12 +523,12 @@ QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) cons
     connect(m_avdProcess, SIGNAL(finished(int)), m_avdProcess, SLOT(deleteLater()));
 
     QString avdName = name;
-    QVector<AndroidDevice> devices;
+    QVector<AndroidDeviceInfo> devices;
     bool createAVDOnce = false;
     while (true) {
         if (avdName.isEmpty()) {
             devices = androidVirtualDevices();
-            foreach (AndroidDevice device, devices)
+            foreach (AndroidDeviceInfo device, devices)
                 if (device.sdk >= *apiLevel) { // take first emulator how supports this package
                     *apiLevel = device.sdk;
                     avdName = device.serialNumber;
@@ -575,7 +575,7 @@ QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) cons
 
     // get connected devices
     devices = connectedDevices(*apiLevel);
-    foreach (AndroidDevice device, devices)
+    foreach (AndroidDeviceInfo device, devices)
         if (device.sdk == *apiLevel)
             return device.serialNumber;
     // this should not happen, but ...

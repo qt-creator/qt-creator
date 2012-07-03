@@ -38,9 +38,11 @@
 
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
 
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <qt4projectmanager/qt4project.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/environment.h>
@@ -91,6 +93,11 @@ void AndroidToolChain::addToEnvironment(Utils::Environment &env) const
 // TODO this vars should be configurable in projects -> build tab
 // TODO invalidate all .pro files !!!
 
+    Qt4Project *qt4pro = qobject_cast<Qt4Project *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject());
+    if (!qt4pro || !qt4pro->activeTarget()
+            || QtSupport::QtProfileInformation::qtVersion(qt4pro->activeTarget()->profile())->type() != QLatin1String(Constants::ANDROIDQT))
+        return;
+
     QString ndk_host = QLatin1String(
 #if defined(Q_OS_LINUX)
         "linux-x86"
@@ -107,11 +114,6 @@ void AndroidToolChain::addToEnvironment(Utils::Environment &env) const
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_PREFIX"), AndroidConfigurations::toolchainPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLS_PREFIX"), AndroidConfigurations::toolsPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_VERSION"), AndroidConfigurations::instance().config().ndkToolchainVersion);
-
-    // TODO that is very ugly and likely to be wrong...
-    Qt4Project *qt4pro = qobject_cast<Qt4Project *>(ProjectExplorer::ProjectExplorerPlugin::instance()->currentProject());
-    if (!qt4pro || !qt4pro->activeTarget())
-        return;
     env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
             AndroidConfigurations::instance().bestMatch(AndroidManager::targetSDK(qt4pro->activeTarget())));
 }

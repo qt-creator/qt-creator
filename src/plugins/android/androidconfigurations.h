@@ -80,7 +80,7 @@ public:
     unsigned partitionSize;
 };
 
-struct AndroidDevice {
+struct AndroidDeviceInfo {
     QString serialNumber;
     QString cpuABI;
     int sdk;
@@ -112,8 +112,8 @@ public:
     QString getDeployDeviceSerialNumber(int *apiLevel) const;
     bool createAVD(const QString &target, const QString &name, int sdcardSize) const;
     bool removeAVD(const QString &name) const;
-    QVector<AndroidDevice> connectedDevices(int apiLevel = -1) const;
-    QVector<AndroidDevice> androidVirtualDevices() const;
+    QVector<AndroidDeviceInfo> connectedDevices(int apiLevel = -1) const;
+    QVector<AndroidDeviceInfo> androidVirtualDevices() const;
     QString startAVD(int *apiLevel, const QString &name = QString()) const;
     QString bestMatch(const QString &targetAPI) const;
 
