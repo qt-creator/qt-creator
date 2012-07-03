@@ -54,19 +54,9 @@ ProMessageHandler::ProMessageHandler(bool verbose)
                      Qt::QueuedConnection);
 }
 
-void ProMessageHandler::parseError(const QString &fileName, int lineNo, const QString &msg)
+void ProMessageHandler::message(int type, const QString &msg, const QString &fileName, int lineNo)
 {
-    emit errorFound(format(fileName, lineNo, msg));
-}
-
-void ProMessageHandler::configError(const QString &msg)
-{
-    emit errorFound(msg);
-}
-
-void ProMessageHandler::evalError(const QString &fileName, int lineNo, const QString &msg)
-{
-    if (m_verbose)
+    if ((type & CategoryMask) == ErrorMessage && ((type & SourceMask) == SourceParser || m_verbose))
         emit errorFound(format(fileName, lineNo, msg));
 }
 

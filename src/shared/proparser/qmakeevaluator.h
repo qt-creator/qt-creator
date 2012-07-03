@@ -50,11 +50,13 @@ class QMakeGlobals;
 class QMAKE_EXPORT QMakeHandler : public QMakeParserHandler
 {
 public:
-    // qmake/project configuration error
-    virtual void configError(const QString &msg) = 0;
-    // Some error during evaluation
-    virtual void evalError(const QString &filename, int lineNo, const QString &msg) = 0;
-    // error() and message() from .pro file
+    enum {
+        SourceEvaluator = 0x10,
+
+        EvalError = ErrorMessage | SourceEvaluator
+    };
+
+    // error(), warning() and message() from .pro file
     virtual void fileMessage(const QString &msg) = 0;
 
     enum EvalFileType { EvalProjectFile, EvalIncludeFile, EvalConfigFile, EvalFeatureFile, EvalAuxFile };
@@ -141,7 +143,9 @@ public:
     bool evaluateFileInto(const QString &fileName, QMakeHandler::EvalFileType type,
                           ProValueMap *values, // output-only
                           LoadFlags flags);
-    void evalError(const QString &msg) const;
+    void message(int type, const QString &msg) const;
+    void evalError(const QString &msg) const
+            { message(QMakeHandler::EvalError, msg); }
 
     QList<ProStringList> prepareFunctionArgs(const ushort *&tokPtr);
     QList<ProStringList> prepareFunctionArgs(const ProString &arguments);

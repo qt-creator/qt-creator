@@ -184,7 +184,7 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command,
     QByteArray errout = proc->readAll();
     if (errout.endsWith('\n'))
         errout.chop(1);
-    m_handler->evalError(QString(), 0, QString::fromLocal8Bit(errout));
+    m_handler->message(QMakeHandler::EvalError, QString::fromLocal8Bit(errout));
 }
 #endif
 

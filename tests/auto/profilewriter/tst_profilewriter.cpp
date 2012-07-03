@@ -47,7 +47,7 @@ static void print(const QString &fileName, int lineNo, const QString &msg)
 
 class ParseHandler : public QMakeParserHandler {
 public:
-    virtual void parseError(const QString &fileName, int lineNo, const QString &msg)
+    virtual void message(int /* type */, const QString &msg, const QString &fileName, int lineNo)
         { print(fileName, lineNo, msg); }
 };
 

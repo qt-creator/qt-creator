@@ -53,13 +53,9 @@ static void print(const QString &fileName, int lineNo, const QString &msg)
 
 class EvalHandler : public QMakeHandler {
 public:
-    virtual void parseError(const QString &fileName, int lineNo, const QString &msg)
+    virtual void message(int /* type */, const QString &msg, const QString &fileName, int lineNo)
         { print(fileName, lineNo, msg); }
 
-    virtual void configError(const QString &msg)
-        { qWarning("%s", qPrintable(msg)); }
-    virtual void evalError(const QString &fileName, int lineNo, const QString &msg)
-        { print(fileName, lineNo, msg); }
     virtual void fileMessage(const QString &msg)
         { qWarning("%s", qPrintable(msg)); }
 

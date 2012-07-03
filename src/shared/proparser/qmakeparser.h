@@ -44,8 +44,18 @@ QT_BEGIN_NAMESPACE
 class QMAKE_EXPORT QMakeParserHandler
 {
 public:
-    // Some error during parsing
-    virtual void parseError(const QString &filename, int lineNo, const QString &msg) = 0;
+    enum {
+        CategoryMask = 0xf00,
+        ErrorMessage = 0x100,
+
+        SourceMask = 0xf0,
+        SourceParser = 0,
+
+        ParserIoError = ErrorMessage | SourceParser,
+        ParserError
+    };
+    virtual void message(int type, const QString &msg,
+                         const QString &fileName = QString(), int lineNo = 0) = 0;
 };
 
 class ProFileCache;
@@ -110,7 +120,9 @@ private:
     void flushCond(ushort *&tokPtr);
     void flushScopes(ushort *&tokPtr);
 
-    void parseError(const QString &msg) const;
+    void message(int type, const QString &msg) const;
+    void parseError(const QString &msg) const
+            { message(QMakeParserHandler::ParserError, msg); }
 
     // Current location
     ProFile *m_proFile;

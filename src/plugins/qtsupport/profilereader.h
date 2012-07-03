@@ -56,9 +56,7 @@ public:
 
     virtual void aboutToEval(ProFile *, ProFile *, EvalFileType) {}
     virtual void doneWithEval(ProFile *) {}
-    virtual void parseError(const QString &filename, int lineNo, const QString &msg);
-    virtual void configError(const QString &msg);
-    virtual void evalError(const QString &filename, int lineNo, const QString &msg);
+    virtual void message(int type, const QString &msg, const QString &fileName, int lineNo);
     virtual void fileMessage(const QString &msg);
 
 signals:

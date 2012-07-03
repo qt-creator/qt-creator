@@ -204,8 +204,8 @@ bool QMakeParser::read(ProFile *pro)
     QFile file(pro->fileName());
     if (!file.open(QIODevice::ReadOnly)) {
         if (m_handler && IoUtils::exists(pro->fileName()))
-            m_handler->parseError(QString(), 0, fL1S("Cannot read %1: %2")
-                                  .arg(pro->fileName(), file.errorString()));
+            m_handler->message(QMakeParserHandler::ParserIoError,
+                               fL1S("Cannot read %1: %2").arg(pro->fileName(), file.errorString()));
         return false;
     }
 
@@ -1086,10 +1086,10 @@ bool QMakeParser::resolveVariable(ushort *xprPtr, int tlen, int needSep, ushort 
     return true;
 }
 
-void QMakeParser::parseError(const QString &msg) const
+void QMakeParser::message(int type, const QString &msg) const
 {
     if (!m_inError && m_handler)
-        m_handler->parseError(m_proFile->fileName(), m_lineNo, msg);
+        m_handler->message(type, msg, m_proFile->fileName(), m_lineNo);
 }
 
 QT_END_NAMESPACE

@@ -1056,7 +1056,7 @@ bool QMakeEvaluator::loadSpec()
                 goto cool;
             }
         }
-        m_handler->configError(fL1S("Could not find qmake configuration file"));
+        evalError(fL1S("Could not find qmake configuration file %1").arg(qmakespec));
         return false;
     }
   cool:
@@ -1070,8 +1070,7 @@ bool QMakeEvaluator::loadSpec()
         return false;
     QString spec = m_qmakespec + QLatin1String("/qmake.conf");
     if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
-        m_handler->configError(
-                fL1S("Could not read qmake configuration file %1").arg(spec));
+        evalError(fL1S("Could not read qmake configuration file %1").arg(spec));
         return false;
     }
 #ifdef Q_OS_UNIX
@@ -1973,11 +1972,11 @@ bool QMakeEvaluator::evaluateFileInto(const QString &fileName, QMakeHandler::Eva
     return true;
 }
 
-void QMakeEvaluator::evalError(const QString &message) const
+void QMakeEvaluator::message(int type, const QString &msg) const
 {
     if (!m_skipLevel)
-        m_handler->evalError(m_current.line ? m_current.pro->fileName() : QString(),
-                             m_current.line, message);
+        m_handler->message(type, msg,
+                m_current.line ? m_current.pro->fileName() : QString(), m_current.line);
 }
 
 QT_END_NAMESPACE
