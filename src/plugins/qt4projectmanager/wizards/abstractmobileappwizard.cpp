@@ -95,13 +95,13 @@ void AbstractMobileAppWizardDialog::addMobilePages()
     const bool shouldAddGenericPage = m_targetsPage
             || (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM) && !m_ignoreGeneralOptions)
             || isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM);
-    const bool shouldAddSymbianPage = m_targetsPage ||
-            isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM);
-    const bool shouldAddMaemoPage = m_targetsPage ||
-            isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM)
+    const bool shouldAddSymbianPage = m_targetsPage
+            || isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM);
+    const bool shouldAddMaemoPage = m_targetsPage
+            || isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM)
             || isQtPlatformSelected(QtSupport::Constants::MEEGO_PLATFORM);
-    const bool shouldAddHarmattanPage = m_targetsPage ||
-            isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM);
+    const bool shouldAddHarmattanPage = m_targetsPage
+            || isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM);
 
     if (shouldAddGenericPage) {
         m_genericOptionsPageId = addPageWithTitle(m_genericOptionsPage,
@@ -199,8 +199,7 @@ void AbstractMobileAppWizardDialog::initializePage(int id)
                     << m_maemoItem << m_harmattanItem << itemOfNextGenericPage());
             m_maemoItem->setNextItems(QList<Utils::WizardProgressItem *>()
                     << m_harmattanItem << itemOfNextGenericPage());
-        } else if ((!m_targetItem && id == startId())
-                   || id == m_genericOptionsPageId
+        } else if (id == m_genericOptionsPageId
                    || id == m_symbianOptionsPageId
                    || id == m_maemoOptionsPageId) {
             QList<Utils::WizardProgressItem *> order;

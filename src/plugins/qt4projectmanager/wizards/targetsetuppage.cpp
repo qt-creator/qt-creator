@@ -150,17 +150,6 @@ void TargetSetupPage::setProfileSelected(Core::Id id, bool selected)
         widget->setTargetSelected(selected);
 }
 
-bool TargetSetupPage::isQtPlatformSelected(const QString &platform) const
-{
-    QtSupport::QtPlatformProfileMatcher matcher(platform);
-    QList<ProjectExplorer::Profile *> profileList = ProjectExplorer::ProfileManager::instance()->profiles(&matcher);
-    foreach (ProjectExplorer::Profile *p, profileList) {
-        if (isProfileSelected(p->id()))
-            return true;
-    }
-    return false;
-}
-
 bool TargetSetupPage::isComplete() const
 {
     foreach (Qt4TargetSetupWidget *widget, m_widgets.values())

@@ -175,6 +175,8 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
     Utils::WizardProgressItem *mobileItem = 0;
     if (m_targetPageId != -1) {
         targetItem = wizardProgress()->item(m_targetPageId);
+    }
+    if (m_mobilePageId != -1) {
         mobileItem = wizardProgress()->item(m_mobilePageId);
         mobileItem->setTitle(QLatin1String("    ") + tr("Symbian Specific"));
     }
@@ -189,18 +191,16 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
         mobileItem->setNextItems(QList<Utils::WizardProgressItem *>()
                                  << modulesItem << filesItem);
         mobileItem->setNextShownItem(0);
+    } else if (m_mobilePageId != -1) {
+        introItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                 << mobileItem);
+        mobileItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                 << modulesItem << filesItem);
+        mobileItem->setNextShownItem(0);
     } else {
-        if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM)) {
-            introItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                    << mobileItem);
-            mobileItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                    << modulesItem << filesItem);
-            mobileItem->setNextShownItem(0);
-        } else {
-            introItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                    << modulesItem << filesItem);
-            introItem->setNextShownItem(0);
-        }
+        introItem->setNextItems(QList<Utils::WizardProgressItem *>()
+                                 << modulesItem << filesItem);
+        introItem->setNextShownItem(0);
     }
 
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotCurrentIdChanged(int)));
@@ -278,8 +278,7 @@ int LibraryWizardDialog::nextId() const
 
 void LibraryWizardDialog::initializePage(int id)
 {
-    if ((m_targetPageId != -1 && id == m_targetPageId)
-            || (m_targetPageId == -1 && id == m_mobilePageId)) {
+    if (m_targetPageId != -1 && (id == m_targetPageId || id == m_mobilePageId)) {
         Utils::WizardProgressItem *mobileItem = wizardProgress()->item(m_mobilePageId);
         Utils::WizardProgressItem *modulesItem = wizardProgress()->item(m_modulesPageId);
         Utils::WizardProgressItem *filesItem = wizardProgress()->item(m_filesPageId);
@@ -294,8 +293,7 @@ void LibraryWizardDialog::initializePage(int id)
 
 void LibraryWizardDialog::cleanupPage(int id)
 {
-    if ((m_targetPageId != -1 && id == m_targetPageId)
-            || (m_targetPageId == -1 && id == m_mobilePageId)) {
+    if (m_targetPageId != -1 && (id == m_targetPageId || id == m_mobilePageId)) {
         Utils::WizardProgressItem *mobileItem = wizardProgress()->item(m_mobilePageId);
         mobileItem->setNextShownItem(0);
     }
