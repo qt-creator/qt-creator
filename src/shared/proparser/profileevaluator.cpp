@@ -419,7 +419,7 @@ void ProFileEvaluator::Private::initStatics()
     statics.reg_variableName.setPattern(QLatin1String("\\$\\(.*\\)"));
     statics.reg_variableName.setMinimal(true);
 
-    statics.fakeValue.detach(); // It has to have a unique begin() value
+    statics.fakeValue = ProStringList(ProString("_FAKE_")); // It has to have a unique begin() value
 
     static const struct {
         const char * const name;
@@ -3119,13 +3119,17 @@ QHash<ProString, ProStringList> *ProFileEvaluator::Private::findValues(
 ProStringList &ProFileEvaluator::Private::valuesRef(const ProString &variableName)
 {
     QHash<ProString, ProStringList>::Iterator it = m_valuemapStack.top().find(variableName);
-    if (it != m_valuemapStack.top().end())
+    if (it != m_valuemapStack.top().end()) {
+        if (it->constBegin() == statics.fakeValue.constBegin())
+            it->clear();
         return *it;
+    }
     for (int i = m_valuemapStack.size() - 1; --i >= 0; ) {
         QHash<ProString, ProStringList>::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
         if (it != m_valuemapStack.at(i).constEnd()) {
             ProStringList &ret = m_valuemapStack.top()[variableName];
-            ret = *it;
+            if (it->constBegin() != statics.fakeValue.constBegin())
+                ret = *it;
             return ret;
         }
     }
