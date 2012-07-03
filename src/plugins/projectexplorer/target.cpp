@@ -569,10 +569,10 @@ void Target::updateDefaultRunConfigurations()
 
     // sort existing RCs into configured/unconfigured.
     foreach (RunConfiguration *rc, runConfigurations()) {
-        if (rc->isConfigured())
-            existingConfigured << rc;
-        else
+        if (!rc->isConfigured() && rc != activeRunConfiguration())
             existingUnconfigured << rc;
+        else
+            existingConfigured << rc;
     }
     int configuredCount = existingConfigured.count();
 
@@ -584,12 +584,15 @@ void Target::updateDefaultRunConfigurations()
     // Put outdated RCs into toRemove, do not bother with factories
     // that produce already existing RCs
     QList<RunConfiguration *> toRemove;
+    QList<Core::Id> toIgnore;
     foreach (RunConfiguration *rc, existingConfigured) {
         if (factoryIds.contains(rc->id()))
-            factoryIds.removeOne(rc->id()); // Already there
+            toIgnore.append(rc->id()); // Already there
         else
             toRemove << rc;
     }
+    foreach (Core::Id i, toIgnore)
+        factoryIds.removeAll(i);
     configuredCount -= toRemove.count();
 
     // Create new RCs and put them into newConfigured/newUnconfigured
