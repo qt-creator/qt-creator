@@ -688,9 +688,7 @@ QList<BuildConfigurationInfo> Qt4BuildConfigurationFactory::availableBuildConfig
 
     info.buildConfig = config ^ QtSupport::BaseQtVersion::DebugBuild;
     info.directory = Qt4Project::shadowBuildDirectory(proFilePath, p, buildConfigurationDisplayName(info));
-    if (!QFileInfo(info.directory).exists())
-        infoList.append(info);
-
+    infoList.append(info);
     return infoList;
 }
 
