@@ -91,7 +91,7 @@ Qt4BuildConfiguration *enableActiveQt4BuildConfiguration(ProjectExplorer::Target
 {
     if (!t)
         return 0;
-    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(t->activeBuildConfiguration());
+    Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(t->activeBuildConfiguration());
     if (!bc)
         return 0;
     bc->setEnabled(enabled);
@@ -924,7 +924,7 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
         Utils::Environment env = Utils::Environment::systemEnvironment();
         QStringList qmakeArgs;
         if (!bc)
-            bc = activeTarget() ? qobject_cast<Qt4BuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : 0;
+            bc = activeTarget() ? static_cast<Qt4BuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : 0;
 
         if (bc) {
             p = bc->target()->profile();
