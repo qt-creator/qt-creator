@@ -29,6 +29,7 @@
 **************************************************************************/
 
 #include "qtsingleapplication.h"
+#include "../tools/qtcreatorcrashhandler/crashhandlersetup.h"
 
 #include <app/app_version.h>
 #include <extensionsystem/iplugin.h>
@@ -227,6 +228,8 @@ int main(int argc, char **argv)
 
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
     QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
+
+    setupCrashHandler(); // Display a backtrace once a serious signal is delivered.
 
 #ifdef ENABLE_QT_BREAKPAD
     QtSystemExceptionHandler systemExceptionHandler;
@@ -432,5 +435,7 @@ int main(int argc, char **argv)
         QTimer::singleShot(100, &pluginManager, SLOT(startTests()));
 #endif
 
-    return app.exec();
+    const int r = app.exec();
+    cleanupCrashHandler();
+    return r;
 }

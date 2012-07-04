@@ -6,6 +6,13 @@ TARGET = $$IDE_APP_TARGET
 DESTDIR = $$IDE_APP_PATH
 
 SOURCES += main.cpp
+linux-* {
+    # Build only in debug mode.
+    debug_and_release|CONFIG(debug, debug|release) {
+        HEADERS += ../tools/qtcreatorcrashhandler/crashhandlersetup.h
+        SOURCES += ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp
+    }
+}
 
 include(../rpath.pri)
 
