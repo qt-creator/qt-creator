@@ -38,15 +38,13 @@
 
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/target.h>
+#include <qtsupport/qtoutputformatter.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 
-#include <qtsupport/qtprofileinformation.h>
-
 #include <utils/qtcassert.h>
 
-#include <qtsupport/qtoutputformatter.h>
-#include <qtsupport/qtprofileinformation.h>
 
 using namespace Qt4ProjectManager;
 
