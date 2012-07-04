@@ -495,9 +495,9 @@ CMakeRunConfigurationFactory::~CMakeRunConfigurationFactory()
 // used to show the list of possible additons to a project, returns a list of ids
 QList<Core::Id> CMakeRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
-    CMakeProject *project = qobject_cast<CMakeProject *>(parent->project());
     if (!canHandle(parent))
         return QList<Core::Id>();
+    CMakeProject *project = static_cast<CMakeProject *>(parent->project());
     QList<Core::Id> allIds;
     foreach (const QString &buildTarget, project->buildTargetTitles())
         allIds << idFromBuildTarget(buildTarget);
