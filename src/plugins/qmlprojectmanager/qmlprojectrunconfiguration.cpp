@@ -137,9 +137,7 @@ QString QmlProjectRunConfiguration::viewerArguments() const
     QString args = m_qmlViewerArgs;
 
     // arguments from .qmlproject file
-    QmlProject *project = qobject_cast<QmlProject *>(target()->project());
-    if (!project)
-        return args;
+    QmlProject *project = static_cast<QmlProject *>(target()->project());
     foreach (const QString &importPath, project->importPaths()) {
         Utils::QtcProcess::addArg(&args, "-I");
         Utils::QtcProcess::addArg(&args, importPath);
@@ -192,9 +190,7 @@ Utils::OutputFormatter *QmlProjectRunConfiguration::createOutputFormatter() cons
 
 QmlProjectRunConfiguration::MainScriptSource QmlProjectRunConfiguration::mainScriptSource() const
 {
-    QmlProject *project = qobject_cast<QmlProject *>(target()->project());
-    if (!project)
-        return FileInEditor;
+    QmlProject *project = static_cast<QmlProject *>(target()->project());
     if (!project->mainFile().isEmpty())
         return FileInProjectFile;
     if (!m_mainScriptFilename.isEmpty())
