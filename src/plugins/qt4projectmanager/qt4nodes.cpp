@@ -2465,7 +2465,7 @@ QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
     const QDir srcDirRoot = m_project->rootQt4ProjectNode()->sourceDir();
     const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);
     if (!bc && m_project->activeTarget())
-        bc = qobject_cast<Qt4BuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
+        bc = static_cast<Qt4BuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
     if (!bc)
         return QString();
     return QDir(bc->buildDirectory()).absoluteFilePath(relativeDir);
