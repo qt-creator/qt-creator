@@ -109,7 +109,7 @@ protected:
     virtual bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage);
 
 private:
-    enum { targetPageId = 2 };
+    enum { targetPageId = 1 };
 };
 
 /* BaseQt4ProjectWizardDialog: Additionally offers modules page

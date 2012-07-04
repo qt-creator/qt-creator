@@ -171,11 +171,11 @@ CustomQt4ProjectWizard::CustomQt4ProjectWizard(const Core::BaseFileWizardParamet
 {
     BaseQt4ProjectWizardDialog *wizard = new BaseQt4ProjectWizardDialog(false, parent, wizardDialogParameters);
 
-    initProjectWizardDialog(wizard, wizardDialogParameters.defaultPath(), wizardDialogParameters.extensionPages());
-    if (wizard->pageIds().contains(targetPageId))
-        qWarning("CustomQt4ProjectWizard: Unable to insert target page at %d", int(targetPageId));
     if (!wizardDialogParameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
         wizard->addTargetSetupPage(false, targetPageId);
+
+    initProjectWizardDialog(wizard, wizardDialogParameters.defaultPath(),
+                            wizardDialogParameters.extensionPages());
     return wizard;
 }
 
@@ -256,7 +256,6 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(bool mobile, int id)
     m_targetSetupPage->setRequiredProfileMatcher(new QtSupport::QtVersionProfileMatcher(requiredFeatures()));
 
     resize(900, 450);
-
     if (id >= 0)
         setPage(id, m_targetSetupPage);
     else
