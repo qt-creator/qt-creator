@@ -53,9 +53,6 @@ public:
                                                                                 ProjectExplorer::Node *n) = 0;
 
     static QmakeRunConfigurationFactory *find(ProjectExplorer::Target *t);
-
-protected:
-    void removeUnconfiguredCustomExectutableRunConfigurations(ProjectExplorer::Target *t);
 };
 
 } // Qt4ProjectManager

@@ -56,18 +56,4 @@ QmakeRunConfigurationFactory *QmakeRunConfigurationFactory::find(ProjectExplorer
     return 0;
 }
 
-void QmakeRunConfigurationFactory::removeUnconfiguredCustomExectutableRunConfigurations(ProjectExplorer::Target *t)
-{
-    QList<ProjectExplorer::RunConfiguration*> toRemove;
-    // Remove all run configurations which the new project wizard created
-    foreach (ProjectExplorer::RunConfiguration * rc, t->runConfigurations()) {
-        QtSupport::CustomExecutableRunConfiguration *cerc
-                = qobject_cast<QtSupport::CustomExecutableRunConfiguration *>(rc);
-        if (cerc && !cerc->isConfigured())
-            toRemove.append(rc);
-    }
-    foreach (ProjectExplorer::RunConfiguration *rc, toRemove)
-        t->removeRunConfiguration(rc);
-}
-
 } // namespace Qt4ProjectManager
