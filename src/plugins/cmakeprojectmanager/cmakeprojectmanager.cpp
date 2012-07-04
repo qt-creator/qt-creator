@@ -119,9 +119,7 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
         return;
 
     CMakeBuildConfiguration *bc
-            = qobject_cast<CMakeBuildConfiguration *>(cmakeProject->activeTarget()->activeBuildConfiguration());
-    if (!bc)
-        return;
+            = static_cast<CMakeBuildConfiguration *>(cmakeProject->activeTarget()->activeBuildConfiguration());
 
     CMakeOpenProjectWizard copw(this,
                                 cmakeProject->projectDirectory(),
