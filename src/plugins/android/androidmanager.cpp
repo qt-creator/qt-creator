@@ -79,17 +79,6 @@ namespace {
 namespace Android {
 namespace Internal {
 
-AndroidManager *AndroidManager::m_instance = 0;
-
-AndroidManager *AndroidManager::instance()
-{
-    return m_instance;
-}
-
-AndroidManager::~AndroidManager()
-{
-}
-
 bool AndroidManager::supportsAndroid(ProjectExplorer::Target *target)
 {
     if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project()))
@@ -694,16 +683,6 @@ bool AndroidManager::openLibsXml(ProjectExplorer::Target *target, QDomDocument &
 bool AndroidManager::saveLibsXml(ProjectExplorer::Target *target, QDomDocument &doc)
 {
     return saveXmlFile(target, doc, libsPath(target));
-}
-
-AndroidManager::AndroidManager(QObject *parent) :
-    QObject(parent)
-{
-    m_instance = this;
-
-//    ProjectExplorer::SessionManager *sm = ProjectExplorerPlugin::instance()->session();
-//    connect(sm, SIGNAL(projectAdded(ProjectExplorer::Project*)),
-//            this, SLOT(handleProjectAdditions(ProjectExplorer::Project*)));
 }
 
 void AndroidManager::raiseError(const QString &reason)

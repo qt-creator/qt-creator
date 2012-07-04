@@ -67,8 +67,6 @@ bool AndroidPlugin::initialize(const QStringList &arguments,
 
     Internal::AndroidConfigurations::instance(this);
 
-    new Internal::AndroidManager(this);
-
     addAutoReleasedObject(new Internal::AndroidRunControlFactory);
     addAutoReleasedObject(new Internal::AndroidRunConfigurationFactory);
     addAutoReleasedObject(new Internal::AndroidPackageInstallationFactory);

@@ -58,10 +58,6 @@ public:
         ReleaseBuildSigned
     };
 
-    static AndroidManager *instance();
-
-    ~AndroidManager();
-
     static bool supportsAndroid(ProjectExplorer::Target *target);
 
     static QString packageName(ProjectExplorer::Target *target);
@@ -121,8 +117,6 @@ public:
     static bool setPrebundledLibs(ProjectExplorer::Target *target, const QStringList &libs);
 
 private:
-    explicit AndroidManager(QObject *parent = 0);
-
     static void raiseError(const QString &reason);
     static bool openXmlFile(ProjectExplorer::Target *target, QDomDocument &doc,
                             const Utils::FileName &fileName, bool createAndroidTemplates = false);
@@ -165,10 +159,6 @@ private:
     static QStringList dependencies(const Utils::FileName &readelfPath, const QString &lib);
     static int setLibraryLevel(const QString &library, LibrariesMap &mapLibs);
     static bool qtLibrariesLessThan(const Library &a, const Library &b);
-
-    static AndroidManager *m_instance;
-
-    friend class Android::AndroidPlugin;
 };
 
 } // namespace Internal
