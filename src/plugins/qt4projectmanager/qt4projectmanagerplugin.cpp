@@ -385,7 +385,7 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     m_buildFileAction->setParameter(buildFilePossible ? QFileInfo(fileNode->path()).fileName() : QString());
 
     Qt4BuildConfiguration *buildConfiguration = (qt4Project && qt4Project->activeTarget()) ?
-                qobject_cast<Qt4BuildConfiguration *>(qt4Project->activeTarget()->activeBuildConfiguration()) : 0;
+                static_cast<Qt4BuildConfiguration *>(qt4Project->activeTarget()->activeBuildConfiguration()) : 0;
     bool isProjectNode = qt4Project && proFileNode && buildConfiguration;
     bool isBuilding = m_projectExplorer->buildManager()->isBuilding(project);
     bool enabled = subProjectActionsVisible && !isBuilding;
