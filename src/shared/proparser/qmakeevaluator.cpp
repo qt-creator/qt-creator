@@ -850,7 +850,7 @@ void QMakeEvaluator::loadDefaults()
     DWORD name_length = 1024;
     wchar_t name[1024];
     if (GetComputerName(name, &name_length))
-        vars[ProString("QMAKE_HOST.name")] << ProString(QString::fromWCharArray(name), NoHahs);
+        vars[ProString("QMAKE_HOST.name")] << ProString(QString::fromWCharArray(name), NoHash);
 
     QSysInfo::WinVersion ver = QSysInfo::WindowsVersion;
     vars[ProString("QMAKE_HOST.version")] << ProString(QString::number(ver), NoHash);
