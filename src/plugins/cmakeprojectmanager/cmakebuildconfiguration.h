@@ -43,6 +43,7 @@ class ToolChain;
 namespace CMakeProjectManager {
 namespace Internal {
 
+class CMakeProject;
 class CMakeBuildConfigurationFactory;
 
 class CMakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
