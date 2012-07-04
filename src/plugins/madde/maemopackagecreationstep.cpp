@@ -515,12 +515,12 @@ bool MaemoRpmPackageCreationStep::createPackage(QProcess *buildProc,
 {
     Q_UNUSED(fi);
     const QStringList args = QStringList() << QLatin1String("rrpmbuild")
-        << QLatin1String("-bb") << m_specFile.toUserOutput();
+        << QLatin1String("-bb") << m_specFile.toString();
     if (!callPackagingCommand(buildProc, args))
         return false;
     QFile::remove(cachedPackageFilePath());
     const QString packageSourceFilePath = rpmBuildDir() + QLatin1Char('/')
-        + m_packageFileName.toUserOutput();
+        + m_packageFileName.toString();
     if (!QFile::rename(packageSourceFilePath, cachedPackageFilePath())) {
         raiseError(tr("Packaging failed: Could not move package file from %1 to %2.")
             .arg(packageSourceFilePath, cachedPackageFilePath()));
