@@ -122,11 +122,6 @@ void CMakeRunConfiguration::ctor()
     setDefaultDisplayName(defaultDisplayName());
 }
 
-ProjectExplorer::BuildConfiguration *CMakeRunConfiguration::activeBuildConfiguration() const
-{
-    return target()->activeBuildConfiguration();
-}
-
 QString CMakeRunConfiguration::executable() const
 {
     return m_buildTarget;

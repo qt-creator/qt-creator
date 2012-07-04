@@ -66,8 +66,6 @@ public:
                           const QString &workingDirectory, const QString &title);
     ~CMakeRunConfiguration();
 
-    ProjectExplorer::BuildConfiguration *activeBuildConfiguration() const;
-
     QString executable() const;
     RunMode runMode() const;
     void setRunMode(RunMode runMode);
