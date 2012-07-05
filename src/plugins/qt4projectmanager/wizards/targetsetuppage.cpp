@@ -257,9 +257,9 @@ void TargetSetupPage::removeProject(ProjectExplorer::Profile *p, const QString &
         projects.removeOne(path);
         m_ignoreUpdates = true;
         p->setValue(TEMPORARY_OF_PROJECTS, projects);
-        m_ignoreUpdates = false;
         if (projects.isEmpty())
             ProjectExplorer::ProfileManager::instance()->deregisterProfile(p);
+        m_ignoreUpdates = false;
     }
 }
 
