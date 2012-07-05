@@ -26,6 +26,7 @@ QtcPlugin {
             "QT_NO_CAST_TO_ASCII",
             "QMAKE_AS_LIBRARY",
             "QMAKE_LIBRARY",
+            "PROPARSER_THREAD_SAFE",
             "PROEVALUATOR_THREAD_SAFE",
             "PROEVALUATOR_CUMULATIVE",
             "QMAKE_BUILTIN_PRFS"
