@@ -1081,6 +1081,7 @@ bool QMakeEvaluator::loadSpec()
     const ProString &orig_spec = first(ProString("QMAKESPEC_ORIGINAL"));
     m_qmakespecFull = orig_spec.isEmpty() ? m_qmakespec : orig_spec.toQString();
 #endif
+    valuesRef(ProString("QMAKESPEC")) << ProString(m_qmakespecFull, NoHash);
     m_qmakespecName = IoUtils::fileName(m_qmakespecFull).toString();
     if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
         return false;
