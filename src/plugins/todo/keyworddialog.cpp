@@ -85,7 +85,7 @@ void KeywordDialog::acceptButtonClicked()
 void KeywordDialog::setupListWidget(const QString &selectedIcon)
 {
     ui->listWidget->setViewMode(QListWidget::IconMode);
-
+    ui->listWidget->setDragEnabled(false);
     const QString infoIconName = QLatin1String(Constants::ICON_INFO);
     QListWidgetItem *item = new QListWidgetItem(QIcon(infoIconName),
                                                 QLatin1String("information"));
