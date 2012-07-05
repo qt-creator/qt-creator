@@ -102,10 +102,14 @@ DragWidget::DragWidget(QWidget *parent) : QFrame(parent)
     m_startPos = QPoint(-1, -1);
     m_pos = QPoint(-1, -1);
 
+    // TODO: The following code should be enabled for OSX
+    // when QTBUG-23205 is fixed
+#ifndef Q_OS_MAC
     m_dropShadowEffect = new QGraphicsDropShadowEffect;
     m_dropShadowEffect->setBlurRadius(6);
     m_dropShadowEffect->setOffset(2, 2);
     setGraphicsEffect(m_dropShadowEffect);
+#endif
 }
 
 void DragWidget::mousePressEvent(QMouseEvent * event)
@@ -123,10 +127,14 @@ void DragWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() ==  Qt::LeftButton) {
         m_startPos = QPoint(-1, -1);
+        // TODO: The following code should be enabled for OSX
+        // when QTBUG-23205 is fixed
+#ifndef Q_OS_MAC
         m_dropShadowEffect = new QGraphicsDropShadowEffect;
         m_dropShadowEffect->setBlurRadius(6);
         m_dropShadowEffect->setOffset(2, 2);
         setGraphicsEffect(m_dropShadowEffect);
+#endif
     }
     QFrame::mouseReleaseEvent(event);
 }
