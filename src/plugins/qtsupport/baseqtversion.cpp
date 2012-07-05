@@ -1215,16 +1215,16 @@ Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QStrin
     // qDebug() << "default mkspec is located at" << mkspecFullPath;
 
 #ifdef Q_OS_WIN
-    QFile f2(mkspecFullPath.toString() + "/qmake.conf");
+    QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
     if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
         while (!f2.atEnd()) {
             QByteArray line = f2.readLine();
             if (line.startsWith("QMAKESPEC_ORIGINAL")) {
                 const QList<QByteArray> &temp = line.split('=');
                 if (temp.size() == 2) {
-                    QString possibleFullPath = temp.at(1).trimmed();
+                    QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
                     // We sometimes get a mix of different slash styles here...
-                    possibleFullPath = possibleFullPath.replace('\\', '/');
+                    possibleFullPath = possibleFullPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
                     if (QFileInfo(possibleFullPath).exists()) // Only if the path exists
                         mkspecFullPath = Utils::FileName::fromUserInput(possibleFullPath);
                 }
@@ -1234,7 +1234,7 @@ Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QStrin
         f2.close();
     }
 #elif defined(Q_OS_MAC)
-    QFile f2(mkspecFullPath.toString() + "/qmake.conf");
+    QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
     if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
         while (!f2.atEnd()) {
             QByteArray line = f2.readLine();
@@ -1245,7 +1245,7 @@ Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QStrin
                     if (value.contains("XCODE")) {
                         // we don't want to generate xcode projects...
 //                      qDebug() << "default mkspec is xcode, falling back to g++";
-                        mkspecFullPath = baseMkspecDir.appendPath("macx-g++");
+                        mkspecFullPath = baseMkspecDir.appendPath(QLatin1String("macx-g++"));
                     }
                     //resolve mkspec link
                     mkspecFullPath = Utils::FileName::fromString(mkspecFullPath.toFileInfo().canonicalFilePath());
