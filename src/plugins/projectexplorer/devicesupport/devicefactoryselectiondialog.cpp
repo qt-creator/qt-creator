@@ -62,6 +62,8 @@ DeviceFactorySelectionDialog::DeviceFactorySelectionDialog(QWidget *parent) :
     }
 
     connect(ui->listWidget, SIGNAL(itemSelectionChanged()), SLOT(handleItemSelectionChanged()));
+    connect(ui->listWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+            SLOT(handleItemDoubleClicked()));
     handleItemSelectionChanged();
 }
 
@@ -74,6 +76,11 @@ void DeviceFactorySelectionDialog::handleItemSelectionChanged()
 {
     ui->buttonBox->button(QDialogButtonBox::Ok)
         ->setEnabled(!ui->listWidget->selectedItems().isEmpty());
+}
+
+void DeviceFactorySelectionDialog::handleItemDoubleClicked()
+{
+    accept();
 }
 
 Core::Id DeviceFactorySelectionDialog::selectedId() const

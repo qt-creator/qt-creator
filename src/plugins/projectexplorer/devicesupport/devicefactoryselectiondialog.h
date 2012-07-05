@@ -35,7 +35,6 @@
 
 #include <coreplugin/id.h>
 
-#include <QList>
 #include <QDialog>
 
 namespace ProjectExplorer {
@@ -55,7 +54,7 @@ public:
 
 private:
     Q_SLOT void handleItemSelectionChanged();
-
+    Q_SLOT void handleItemDoubleClicked();
     Ui::DeviceFactorySelectionDialog *ui;
 };
 
