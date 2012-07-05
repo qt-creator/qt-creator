@@ -23,24 +23,30 @@ QtcPlugin {
     cpp.defines: {
         return base.concat([
             "QT_NO_CAST_TO_ASCII",
-            "PROPARSER_AS_LIBRARY",
-            "PROPARSER_LIBRARY",
-            "PROPARSER_THREAD_SAFE",
+            "QMAKE_AS_LIBRARY",
+            "QMAKE_LIBRARY",
             "PROEVALUATOR_THREAD_SAFE",
-            "PROEVALUATOR_CUMULATIVE"
+            "PROEVALUATOR_CUMULATIVE",
+            "QMAKE_BUILTIN_PRFS"
         ])
     }
 
     files: [
-        "../../shared/proparser/proparser_global.h",
-        "../../shared/proparser/profileparser.h",
-        "../../shared/proparser/profileevaluator.h",
-        "../../shared/proparser/proitems.h",
-        "../../shared/proparser/prowriter.h",
-        "../../shared/proparser/profileparser.cpp",
+        "../../shared/proparser/qmakebuiltins.cpp",
+        "../../shared/proparser/qmakeevaluator.cpp",
+        "../../shared/proparser/qmakeevaluator.h",
+        "../../shared/proparser/qmakeevaluator_p.h",
+        "../../shared/proparser/qmakeglobals.cpp",
+        "../../shared/proparser/qmakeglobals.h",
+        "../../shared/proparser/qmakeparser.cpp",
+        "../../shared/proparser/qmakeparser.h",
+        "../../shared/proparser/qmake_global.h",
         "../../shared/proparser/profileevaluator.cpp",
+        "../../shared/proparser/profileevaluator.h",
         "../../shared/proparser/proitems.cpp",
+        "../../shared/proparser/proitems.h",
         "../../shared/proparser/prowriter.cpp",
+        "../../shared/proparser/prowriter.h",
         "../../shared/proparser/proparser.qrc",
         "../../shared/proparser/ioutils.h",
         "../../shared/proparser/ioutils.cpp",
@@ -96,12 +102,9 @@ QtcPlugin {
         Depends { name: "cpp" }
         cpp.includePaths: [ "../../shared" ]
         cpp.defines: [
-            "PROPARSER_AS_LIBRARY",
-            "PROPARSER_LIBRARY",
-            "PROPARSER_THREAD_SAFE",
+            "QMAKE_AS_LIBRARY",
             "PROEVALUATOR_THREAD_SAFE",
-            "PROEVALUATOR_CUMULATIVE"
+            "QMAKE_BUILTIN_PRFS"
         ]
     }
 }
-
