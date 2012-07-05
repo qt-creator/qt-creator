@@ -66,8 +66,6 @@ protected:
     const QString &targetName() const;
     const QString &commandLineArguments() const;
     const QString &executableFileName() const;
-    const QString &qtDir() const;
-    const QString &qtBinPath() const;
     bool runSmartInstaller() const;
     char installationDrive() const;
 
@@ -91,8 +89,6 @@ private:
     QString m_targetName;
     QString m_commandLineArguments;
     QString m_executableFileName;
-    QString m_qtDir;
-    QString m_qtBinPath;
     bool m_runSmartInstaller;
     char m_installationDrive;
 };
