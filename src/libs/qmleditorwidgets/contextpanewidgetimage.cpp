@@ -611,10 +611,14 @@ PreviewLabel::PreviewLabel(QWidget *parent)
     m_hooverInfo->setFrameShape(QFrame::StyledPanel);
     m_hooverInfo->setFrameShadow(QFrame::Sunken);
 
+    // TODO: The following code should be enabled for OSX
+    // when QTBUG-23205 is fixed
+#ifndef Q_OS_MAC
     QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
     dropShadowEffect->setBlurRadius(4);
     dropShadowEffect->setOffset(2, 2);
     m_hooverInfo->setGraphicsEffect(dropShadowEffect);
+#endif
     m_hooverInfo->setAutoFillBackground(true);
     m_hooverInfo->raise();
 }
