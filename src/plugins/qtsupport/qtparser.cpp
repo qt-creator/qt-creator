@@ -125,7 +125,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("No relevant classes found. No output generated."),
-                                                       Utils::FileName::fromUserInput("..\\untitled\\errorfile.h"), 0,
+                                                       Utils::FileName::fromUserInput(QLatin1String("..\\untitled\\errorfile.h")), 0,
                                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
     QTest::newRow("moc warning 2")
@@ -134,7 +134,7 @@ void QtSupportPlugin::testQtOutputParser_data()
             << QString() << QString()
             << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
                                                        QLatin1String("Property declaration ) has no READ accessor function. The property will be invalid."),
-                                                       Utils::FileName::fromUserInput("c:\\code\\test.h"), 96,
+                                                       Utils::FileName::fromUserInput(QLatin1String("c:\\code\\test.h")), 96,
                                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
 }
