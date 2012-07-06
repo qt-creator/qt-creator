@@ -390,6 +390,10 @@ QStringList BaseQtVersion::warningReason() const
     QStringList ret;
     if (qtAbis().count() == 1 && qtAbis().first().isNull())
         ret << QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching tool chain when building.");
+    if (m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX/get"))
+        != m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX"))) {
+        ret << QCoreApplication::translate("QtVersion", "Non-installed -prefix build - for internal development only.");
+    }
     return ret;
 }
 
