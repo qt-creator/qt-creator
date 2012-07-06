@@ -224,7 +224,7 @@ QString DesignDocumentController::pathToQt() const
     if (activeQtVersion && (activeQtVersion->qtVersion().majorVersion > 3)
             && (activeQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
                 || activeQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
-        return activeQtVersion->versionInfo().value("QT_INSTALL_DATA");
+        return activeQtVersion->qmakeProperty("QT_INSTALL_DATA");
     return QString();
 }
 

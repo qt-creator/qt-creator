@@ -623,7 +623,7 @@ Utils::Environment Qt4RunConfiguration::baseEnvironment() const
 
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(target()->profile());
     if (qtVersion)
-        env.prependOrSetLibrarySearchPath(qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_LIBS")));
+        env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
     return env;
 }
 

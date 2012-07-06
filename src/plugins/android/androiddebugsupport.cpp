@@ -161,9 +161,10 @@ QStringList AndroidDebugSupport::qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
 
     QSet<QString> paths;
     for (uint i = 0; i < sizeof qMakeVariables / sizeof qMakeVariables[0]; ++i) {
-        if (!qtVersion->versionInfo().contains(QLatin1String(qMakeVariables[i])))
+        QString path = qtVersion->qmakeProperty(qMakeVariables[i]);
+        if (path.isNull())
             continue;
-        QDirIterator it(qtVersion->versionInfo()[QLatin1String(qMakeVariables[i])], QStringList() << QLatin1String("*.so"), QDir::Files, QDirIterator::Subdirectories);
+        QDirIterator it(path, QStringList() << QLatin1String("*.so"), QDir::Files, QDirIterator::Subdirectories);
         while (it.hasNext()) {
             it.next();
             paths.insert(it.fileInfo().absolutePath());

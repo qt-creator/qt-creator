@@ -207,9 +207,7 @@ void Qt4Manager::updateVariable(const QByteArray &variable)
             qtv = QtSupport::QtProfileInformation::qtVersion(ProjectExplorer::ProfileManager::instance()->defaultProfile());
 
         if (qtv)
-            value = qtv->versionInfo().value(variable == kHostBins
-                                             ? QLatin1String("QT_HOST_BINS")
-                                             : QLatin1String("QT_INSTALL_BINS"));
+            value = qtv->qmakeProperty(variable == kHostBins ? "QT_HOST_BINS" : "QT_INSTALL_BINS");
         Core::VariableManager::instance()->insert(variable, value);
     }
 }

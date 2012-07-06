@@ -133,6 +133,8 @@ public:
 
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
+    static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name);
+    QString qmakeProperty(const QByteArray &name) const;
     virtual void addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const;
 
     virtual Utils::FileName sourcePath() const;

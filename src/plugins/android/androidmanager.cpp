@@ -407,7 +407,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
         return false;
 
     Utils::FileName javaSrcPath
-            = Utils::FileName::fromString(version->versionInfo()[QLatin1String("QT_INSTALL_PREFIX")])
+            = Utils::FileName::fromString(version->qmakeProperty("QT_INSTALL_PREFIX"))
             .appendPath(QLatin1String("src/android/java"));
     QDir projectDir(qt4Project->projectDirectory());
     Utils::FileName androidPath = dirPath(target);
@@ -571,7 +571,7 @@ Utils::FileName AndroidManager::localLibsRulesFilePath(ProjectExplorer::Target *
     QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
     if (!version)
         return Utils::FileName();
-    return Utils::FileName::fromString(version->versionInfo()[QLatin1String("QT_INSTALL_LIBS")] + QLatin1String("/rules.xml"));
+    return Utils::FileName::fromString(version->qmakeProperty("QT_INSTALL_LIBS") + QLatin1String("/rules.xml"));
 }
 
 QString AndroidManager::loadLocalLibs(ProjectExplorer::Target *target, int apiLevel)
@@ -596,7 +596,7 @@ QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
             = qobject_cast<const Qt4ProjectManager::Qt4Project *>(target->project());
     if (!qt4Project || !version)
         return libs;
-    QString qtLibsPath = version->versionInfo()[QLatin1String("QT_INSTALL_LIBS")];
+    QString qtLibsPath = version->qmakeProperty("QT_INSTALL_LIBS");
     if (!readelfPath.toFileInfo().exists()) {
         QDirIterator libsIt(qtLibsPath, QStringList() << QLatin1String("libQt*.so"));
         while (libsIt.hasNext()) {

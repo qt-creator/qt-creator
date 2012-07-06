@@ -165,7 +165,7 @@ void QmlProject::refresh(RefreshOptions options)
     }
     if (version) {
         pinfo.tryQmlDump = true;
-        pinfo.qtImportsPath = version->versionInfo().value("QT_INSTALL_IMPORTS");
+        pinfo.qtImportsPath = version->qmakeProperty("QT_INSTALL_IMPORTS");
         pinfo.qtVersionString = version->qtVersionString();
     }
     m_modelManager->updateProjectInfo(pinfo);
@@ -219,7 +219,7 @@ QStringList QmlProject::importPaths() const
         if (runConfig) {
             const QtSupport::BaseQtVersion *qtVersion = runConfig->qtVersion();
             if (qtVersion && qtVersion->isValid()) {
-                const QString qtVersionImportPath = qtVersion->versionInfo().value("QT_INSTALL_IMPORTS");
+                const QString qtVersionImportPath = qtVersion->qmakeProperty("QT_INSTALL_IMPORTS");
                 if (!qtVersionImportPath.isEmpty())
                     importPaths += qtVersionImportPath;
             }

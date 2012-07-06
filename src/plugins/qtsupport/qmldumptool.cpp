@@ -196,7 +196,7 @@ static bool hasPrivateHeaders(const QString &qtInstallHeaders) {
 
 bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 {
-    const QString installHeaders = qtVersion->versionInfo().value(QLatin1String("QT_INSTALL_HEADERS"));
+    const QString installHeaders = qtVersion->qmakeProperty("QT_INSTALL_HEADERS");
 
     if (qtVersion->type() != QLatin1String(Constants::DESKTOPQT)
             && qtVersion->type() != QLatin1String(Constants::SIMULATORQT)) {
@@ -227,9 +227,9 @@ bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
 QString QmlDumpTool::toolForVersion(BaseQtVersion *version, bool debugDump)
 {
     if (version) {
-        const QString qtInstallData = version->versionInfo().value(QLatin1String("QT_INSTALL_DATA"));
-        const QString qtInstallBins = version->versionInfo().value(QLatin1String("QT_INSTALL_BINS"));
-        const QString qtInstallHeaders = version->versionInfo().value(QLatin1String("QT_INSTALL_HEADERS"));
+        const QString qtInstallData = version->qmakeProperty("QT_INSTALL_DATA");
+        const QString qtInstallBins = version->qmakeProperty("QT_INSTALL_BINS");
+        const QString qtInstallHeaders = version->qmakeProperty("QT_INSTALL_HEADERS");
         return toolForQtPaths(qtInstallData, qtInstallBins, qtInstallHeaders, debugDump);
     }
 

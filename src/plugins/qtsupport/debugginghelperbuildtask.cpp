@@ -75,7 +75,7 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     // of the version pointer while compiling
     //
     m_qtId = version->uniqueId();
-    m_qtInstallData = version->versionInfo().value(QLatin1String("QT_INSTALL_DATA"));
+    m_qtInstallData = version->qmakeProperty("QT_INSTALL_DATA");
     if (m_qtInstallData.isEmpty()) {
         const QString error
                 = QCoreApplication::translate(
