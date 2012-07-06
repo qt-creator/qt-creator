@@ -506,10 +506,10 @@ QString BaseQtVersion::toHtml(bool verbose) const
                 for (QHash<QString,QString>::const_iterator it = vInfo.constBegin(); it != vcend; ++it) {
                     const QString &variableName = it.key();
                     const QString &value = it.value();
-                    if (!variableName.endsWith(QLatin1String("/raw")) && !variableName.endsWith(QLatin1String("/get"))) {
+                    if (variableName != QLatin1String("QMAKE_MKSPECS")
+                        && !variableName.endsWith(QLatin1String("/raw")) && !variableName.endsWith(QLatin1String("/get"))) {
                         const bool isPath = !value.isEmpty() &&
-                            (variableName == QLatin1String("QMAKE_MKSPECS")
-                             || variableName.contains(QLatin1String("HOST"))
+                            (variableName.contains(QLatin1String("HOST"))
                              || variableName.contains(QLatin1String("INSTALL")));
                         str << "<tr><td><pre>" << variableName <<  "</pre></td><td>";
                         if (isPath) {
