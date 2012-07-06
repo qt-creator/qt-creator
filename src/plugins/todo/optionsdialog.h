@@ -34,6 +34,8 @@
 
 #include <QWidget>
 
+class QListWidgetItem;
+
 namespace Todo {
 namespace Internal {
 
@@ -60,11 +62,13 @@ private slots:
     void removeButtonClicked();
     void resetButtonClicked();
     void setButtonsEnabled();
+    void itemDoubleClicked(QListWidgetItem *item);
 
 private:
     void uiFromSettings(const Settings &settings);
     Settings settingsFromUi();
     void addToKeywordsList(const Keyword &keyword);
+    void editItem(QListWidgetItem *item);
     QSet<QString> keywordNames();
 
     Ui::OptionsDialog *ui;
