@@ -502,10 +502,10 @@ QString BaseQtVersion::toHtml(bool verbose) const
         if (verbose) {
             const QHash<QString,QString> vInfo = versionInfo();
             if (!vInfo.isEmpty()) {
-                const QHash<QString,QString>::const_iterator vcend = vInfo.constEnd();
-                for (QHash<QString,QString>::const_iterator it = vInfo.constBegin(); it != vcend; ++it) {
-                    QString variableName = it.key();
-                    const QString &value = it.value();
+                QStringList keys = vInfo.keys();
+                keys.sort();
+                foreach (QString variableName, keys) {
+                    const QString &value = vInfo.value(variableName);
                     if (variableName != QLatin1String("QMAKE_MKSPECS")
                         && !variableName.endsWith(QLatin1String("/raw"))) {
                         bool isPath = false;
@@ -525,7 +525,7 @@ QString BaseQtVersion::toHtml(bool verbose) const
                             str << "<a href=\"" << QUrl::fromLocalFile(value).toString()
                                 << "\">" << QDir::toNativeSeparators(value) << "</a>";
                         } else {
-                            str << it.value() ;
+                            str << value;
                         }
                         str << "</td></tr>";
                     }
