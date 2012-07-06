@@ -63,12 +63,12 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
         m_parseState.m_isConversionOperator = false;
         m_demangledName.clear();
 
-        if (!MangledNameNode::mangledRepresentationStartsWith(m_parseState.peek())) {
+        if (!MangledNameRule::mangledRepresentationStartsWith(m_parseState.peek())) {
             m_demangledName = m_parseState.m_mangledName;
             return true;
         }
 
-        ParseTreeNode::parseRule<MangledNameNode>(&m_parseState);
+        MangledNameRule::parse(&m_parseState, 0);
         if (m_parseState.m_pos != m_parseState.m_mangledName.size())
             throw ParseException(QLatin1String("Unconsumed input"));
         if (m_parseState.m_parseStack.count() != 1) {

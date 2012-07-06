@@ -38,10 +38,6 @@
 #include <QList>
 #include <QSet>
 
-// TODO: Get the number of node objects in a tree down by only creating sub-nodes if there is really a need
-// or things would get more complicated without them.
-// Example for an unnecessary object: The parent type node of a function type node -- it holds zero information!
-
 namespace Debugger {
 namespace Internal {
 
@@ -110,18 +106,6 @@ public:
 
     QByteArray toByteArray() const;
 
-private:
-    void parse();
-};
-
-// TODO: DIE!!!
-class PredefinedBuiltinTypeNode : public ParseTreeNode
-{
-public:
-    QByteArray toByteArray() const;
-
-    void parse() {}
-
     enum Type {
         VoidType, WCharType, BoolType,
         PlainCharType, SignedCharType, UnsignedCharType, SignedShortType, UnsignedShortType,
@@ -129,19 +113,21 @@ public:
         SignedLongLongType, UnsignedLongLongType, SignedInt128Type, UnsignedInt128Type,
         FloatType, DoubleType, LongDoubleType, Float128Type, EllipsisType,
         DecimalFloatingType64, DecimalFloatingType128, DecimalFloatingType32,
-        DecimalFloatingType16, Char32Type, Char16Type
-    } m_type;
-};
-
-class CallOffsetNode : public ParseTreeNode
-{
-public:
-    static bool mangledRepresentationStartsWith(char c);
-
-    QByteArray toByteArray() const;
+        DecimalFloatingType16, Char32Type, Char16Type, VendorType
+    };
+    Type type() const { return m_type; }
 
 private:
     void parse();
+
+    Type m_type;
+};
+
+class CallOffsetRule
+{
+public:
+    static bool mangledRepresentationStartsWith(char c);
+    static void parse(GlobalParseState *parseState, ParseTreeNode *parentNode);
 };
 
 class NvOffsetNode : public ParseTreeNode
@@ -162,26 +148,18 @@ private:
     void parse();
 };
 
-class ClassEnumTypeNode : public ParseTreeNode
+class ClassEnumTypeRule
 {
 public:
     static bool mangledRepresentationStartsWith(char c);
-
-    QByteArray toByteArray() const;
-
-private:
-    void parse();
+    static void parse(GlobalParseState *parseState, ParseTreeNode *parentNode);
 };
 
-class DiscriminatorNode : public ParseTreeNode
+class DiscriminatorRule
 {
 public:
     static bool mangledRepresentationStartsWith(char c);
-
-    QByteArray toByteArray() const;
-
-private:
-    void parse();
+    static void parse(GlobalParseState *parseState, ParseTreeNode *parentNode);
 };
 
 class CtorDtorNameNode : public ParseTreeNode
@@ -305,15 +283,11 @@ private:
     bool m_isStringLiteral;
 };
 
-class MangledNameNode : public ParseTreeNode
+class MangledNameRule
 {
 public:
     static bool mangledRepresentationStartsWith(char c);
-
-    QByteArray toByteArray() const;
-
-private:
-    void parse();
+    static void parse(GlobalParseState *parseState, ParseTreeNode *parentNode);
 };
 
 class NumberNode : public ParseTreeNode

@@ -57,6 +57,7 @@ public:
     int substitutionCount() const { return m_substitutions.count(); }
     QByteArray substitutionAt(int index) const { return m_substitutions.at(index); }
     void addSubstitution(const ParseTreeNode *node);
+    void addSubstitution(const QByteArray &symbol);
 
     int templateParamCount() const { return m_templateParams.count(); }
     ParseTreeNode *templateParamAt(int index) const { return m_templateParams.at(index); }

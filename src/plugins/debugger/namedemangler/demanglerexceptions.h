@@ -61,7 +61,7 @@ public:
 
 #define DEMANGLER_ASSERT(cond) \
     do { \
-        if (!cond) { \
+        if (!(cond)) { \
             throw InternalDemanglerException(Q_FUNC_INFO, __FILE__, __LINE__); \
         } \
     } while (0)

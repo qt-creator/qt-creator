@@ -71,7 +71,6 @@ void NameDemanglerAutoTest::testCorrectlyMangledNames()
     TEST_CORRECTLY_MANGLED_NAME("_ZplR1XS0_", "operator+(X &, X &)");
     TEST_CORRECTLY_MANGLED_NAME("_ZlsRK1XS1_", "operator<<(X const &, X const &)");
     TEST_CORRECTLY_MANGLED_NAME("_ZN3FooIA4_iE3barE", "Foo<int[4]>::bar");
-    TEST_CORRECTLY_MANGLED_NAME("_Z1fIiEvi", "void f<int>(int)");
     TEST_CORRECTLY_MANGLED_NAME("_Z5firstI3DuoEvS0_", "void first<Duo>(Duo)");
     TEST_CORRECTLY_MANGLED_NAME("_Z5firstI3DuoEvT_", "void first<Duo>(Duo)");
     TEST_CORRECTLY_MANGLED_NAME("_Z3fooIiPFidEiEvv",
@@ -101,13 +100,6 @@ void NameDemanglerAutoTest::testCorrectlyMangledNames()
                              "foo()::C::bar()::E::baz()");
     TEST_CORRECTLY_MANGLED_NAME("_ZZN1N1fEiE1p", "N::f(int)::p");
     TEST_CORRECTLY_MANGLED_NAME("_ZZN1N1fEiEs", "N::f(int)::[string literal]");
-    TEST_CORRECTLY_MANGLED_NAME("_Z3fooc", "foo(char)");
-    TEST_CORRECTLY_MANGLED_NAME("_Z2CBIL_Z3foocEE", "CB<foo(char)>");
-    TEST_CORRECTLY_MANGLED_NAME("_Z2CBIL_Z7IsEmptyEE", "CB<IsEmpty>");
-    TEST_CORRECTLY_MANGLED_NAME("_ZN1N1TIiiE2mfES0_IddE",
-                             "N::T<int, int>::mf(N::T<double, double>)");
-    TEST_CORRECTLY_MANGLED_NAME("_ZSt5state", "std::state");
-    TEST_CORRECTLY_MANGLED_NAME("_ZNSt3_In4wardE", "std::_In::ward");
     TEST_CORRECTLY_MANGLED_NAME("_Z41__static_initialization_and_destruction_0ii",
         "__static_initialization_and_destruction_0(int, int)");
     TEST_CORRECTLY_MANGLED_NAME("_ZN20NameDemanglerPrivate3eoiE",
@@ -176,6 +168,40 @@ void NameDemanglerAutoTest::testCorrectlyMangledNames()
     TEST_CORRECTLY_MANGLED_NAME("_ZN1CppEi", "C::operator++(int)");
     TEST_CORRECTLY_MANGLED_NAME("_ZN1CmmEi", "C::operator--(int)");
     TEST_CORRECTLY_MANGLED_NAME("_ZNK1CcvT_IPKcEEv", "C::operator char const *<char const *>() const");
+
+    // All examples from the ABI spec.
+    TEST_CORRECTLY_MANGLED_NAME("_ZN1S1xE", "S::x");
+    TEST_CORRECTLY_MANGLED_NAME("_Z1fM1AKFvvE", "f(void (A::*)() const)");
+    TEST_CORRECTLY_MANGLED_NAME("_Z1fIiEvT_", "void f<int>(int)");
+    TEST_CORRECTLY_MANGLED_NAME("_Z3fooc", "foo(char)");
+    TEST_CORRECTLY_MANGLED_NAME("_Z2CBIL_Z3foocEE", "CB<foo(char)>");
+    TEST_CORRECTLY_MANGLED_NAME("_Z2CBIL_Z7IsEmptyEE", "CB<IsEmpty>");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZ1giEN1S1fE_2i", "g(int)::S::f(int)");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZ1gvEN1SC1Ev", "g()::S::S()");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZZ1gvEN1SC1EvEs", "g()::S::S()::[string literal]");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZ1gvE5str4a", "g()::str4a");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZ1gvEs_1", "g()::[string literal]");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZ1gvE5str4b", "g()::str4b");
+    TEST_CORRECTLY_MANGLED_NAME("_Z1fPFvvEM1SFvvE", "f(void (*)(), void (S::*)())");
+    TEST_CORRECTLY_MANGLED_NAME("_ZN1N1TIiiE2mfES0_IddE", "N::T<int, int>::mf(N::T<double, double>)");
+    TEST_CORRECTLY_MANGLED_NAME("_ZSt5state", "std::state");
+    TEST_CORRECTLY_MANGLED_NAME("_ZNSt3_In4wardE", "std::_In::ward");
+
+    /* ABI examples that do not work yet. Partly due to unimplemented C++11 features and missing ABI updates.
+    TEST_CORRECTLY_MANGLED_NAME("_Z1fIiEvT_PDtfL0pK_E", "??");
+    TEST_CORRECTLY_MANGLED_NAME("_Z1fN1SUt_E", "f(S::{unnamed type#1})");
+    TEST_CORRECTLY_MANGLED_NAME("_Z3fooILi2EEvRAplT_Li1E_i", "template void foo<2> (int (&)[3])");
+    TEST_CORRECTLY_MANGLED_NAME("_ZDTpldtfp_1xdtL_Z1qE1xE", "??");
+    TEST_CORRECTLY_MANGLED_NAME("_ZDTplfp_dtL_Z1dEsr1B1XIT_EE1xE", "??");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZZ1giEN1S1fE_2iEUt1_", "g(int)::S::f(int)::{unnamed type#3}");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZZ1giEN1S1fE_2iENUt1_2fxEv", "g(int)::S::f(int)::{unnamed type#3}::fx()");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZ1giENKUlvE_clEv", "g(int)::{lambda()#1}::operator()() const");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZ1giENKUlvE0_clEv", "g(int)::{lambda()#2}::operator()() const");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZN1S1fEiiEd0_NKUlvE_clEv", "S::f(int, int)::{default arg#2}::{lambda()#1}::operator()() const");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZN1S1fEiiEd0_NKUlvE0_clEv", "S::f(int, int)::{default arg#2}::{lambda()#2}::operator()() const");
+    TEST_CORRECTLY_MANGLED_NAME("_ZZN1S1fEiiEd_NKUlvE_clEv", "S::f(int, int)::{default arg#1}::{lambda()#1}::operator()() const");
+    TEST_CORRECTLY_MANGLED_NAME("_ZNK1SIiE1xMUlvE_clEv", "S<int>::x::{lambda()#1}::operator()() const");
+    */
 }
 
 void NameDemanglerAutoTest::testIncorrectlyMangledNames()
@@ -243,14 +269,14 @@ void NameDemanglerAutoTest::testDisjunctFirstSets()
 
         // <expr-primary>
         QVERIFY(!TypeNode::mangledRepresentationStartsWith(c)
-                || !MangledNameNode::mangledRepresentationStartsWith(c));
+                || !MangledNameRule::mangledRepresentationStartsWith(c));
 
         // <type>
         QVERIFY(!BuiltinTypeNode::mangledRepresentationStartsWith(c)
                 || !FunctionTypeNode::mangledRepresentationStartsWith(c));
 
         QVERIFY2(!BuiltinTypeNode::mangledRepresentationStartsWith(c)
-                || !ClassEnumTypeNode::mangledRepresentationStartsWith(c) || c == 'D', &c);
+                || !ClassEnumTypeRule::mangledRepresentationStartsWith(c) || c == 'D', &c);
         QVERIFY(!BuiltinTypeNode::mangledRepresentationStartsWith(c)
                 || !ArrayTypeNode::mangledRepresentationStartsWith(c));
         QVERIFY(!BuiltinTypeNode::mangledRepresentationStartsWith(c)
@@ -262,7 +288,7 @@ void NameDemanglerAutoTest::testDisjunctFirstSets()
         QVERIFY(!BuiltinTypeNode::mangledRepresentationStartsWith(c)
                 || !CvQualifiersNode::mangledRepresentationStartsWith(c));
         QVERIFY(!FunctionTypeNode::mangledRepresentationStartsWith(c)
-                || !ClassEnumTypeNode::mangledRepresentationStartsWith(c));
+                || !ClassEnumTypeRule::mangledRepresentationStartsWith(c));
         QVERIFY(!FunctionTypeNode::mangledRepresentationStartsWith(c)
                 || !ArrayTypeNode::mangledRepresentationStartsWith(c));
         QVERIFY(!FunctionTypeNode::mangledRepresentationStartsWith(c)
@@ -273,15 +299,15 @@ void NameDemanglerAutoTest::testDisjunctFirstSets()
                 || !SubstitutionNode::mangledRepresentationStartsWith(c));
         QVERIFY(!FunctionTypeNode::mangledRepresentationStartsWith(c)
                 || !CvQualifiersNode::mangledRepresentationStartsWith(c));
-        QVERIFY(!ClassEnumTypeNode::mangledRepresentationStartsWith(c)
+        QVERIFY(!ClassEnumTypeRule::mangledRepresentationStartsWith(c)
                 || !ArrayTypeNode::mangledRepresentationStartsWith(c));
-        QVERIFY(!ClassEnumTypeNode::mangledRepresentationStartsWith(c)
+        QVERIFY(!ClassEnumTypeRule::mangledRepresentationStartsWith(c)
                 || !PointerToMemberTypeNode::mangledRepresentationStartsWith(c));
-        QVERIFY(!ClassEnumTypeNode::mangledRepresentationStartsWith(c)
+        QVERIFY(!ClassEnumTypeRule::mangledRepresentationStartsWith(c)
                 || !TemplateParamNode::mangledRepresentationStartsWith(c));
-        QVERIFY(!ClassEnumTypeNode::mangledRepresentationStartsWith(c)
+        QVERIFY(!ClassEnumTypeRule::mangledRepresentationStartsWith(c)
                 || !SubstitutionNode::mangledRepresentationStartsWith(c));
-        QVERIFY(!ClassEnumTypeNode::mangledRepresentationStartsWith(c)
+        QVERIFY(!ClassEnumTypeRule::mangledRepresentationStartsWith(c)
                 || !CvQualifiersNode::mangledRepresentationStartsWith(c));
         QVERIFY(!ArrayTypeNode::mangledRepresentationStartsWith(c)
                 || !PointerToMemberTypeNode::mangledRepresentationStartsWith(c));
@@ -355,12 +381,12 @@ void NameDemanglerAutoTest::testDisjunctFirstSets()
             && !FunctionTypeNode::mangledRepresentationStartsWith('G')
             && !FunctionTypeNode::mangledRepresentationStartsWith('U')
             && !FunctionTypeNode::mangledRepresentationStartsWith('D'));
-    QVERIFY(!ClassEnumTypeNode::mangledRepresentationStartsWith('P')
-            && !ClassEnumTypeNode::mangledRepresentationStartsWith('R')
-            && !ClassEnumTypeNode::mangledRepresentationStartsWith('O')
-            && !ClassEnumTypeNode::mangledRepresentationStartsWith('C')
-            && !ClassEnumTypeNode::mangledRepresentationStartsWith('G')
-            && !ClassEnumTypeNode::mangledRepresentationStartsWith('U')
+    QVERIFY(!ClassEnumTypeRule::mangledRepresentationStartsWith('P')
+            && !ClassEnumTypeRule::mangledRepresentationStartsWith('R')
+            && !ClassEnumTypeRule::mangledRepresentationStartsWith('O')
+            && !ClassEnumTypeRule::mangledRepresentationStartsWith('C')
+            && !ClassEnumTypeRule::mangledRepresentationStartsWith('G')
+            && !ClassEnumTypeRule::mangledRepresentationStartsWith('U')
             /* && !firstSetClassEnumType.contains('D') */);
     QVERIFY(!ArrayTypeNode::mangledRepresentationStartsWith('P')
             && !ArrayTypeNode::mangledRepresentationStartsWith('R')
@@ -413,11 +439,11 @@ void NameDemanglerAutoTest::testDisjunctFirstSets()
             && !NonNegativeNumberNode<36>::mangledRepresentationStartsWith('d'));
 
     // <special-name>
-    QVERIFY(!CallOffsetNode::mangledRepresentationStartsWith('V')
-            && !CallOffsetNode::mangledRepresentationStartsWith('T')
-            && !CallOffsetNode::mangledRepresentationStartsWith('I')
-            && !CallOffsetNode::mangledRepresentationStartsWith('S')
-            && !CallOffsetNode::mangledRepresentationStartsWith('c'));
+    QVERIFY(!CallOffsetRule::mangledRepresentationStartsWith('V')
+            && !CallOffsetRule::mangledRepresentationStartsWith('T')
+            && !CallOffsetRule::mangledRepresentationStartsWith('I')
+            && !CallOffsetRule::mangledRepresentationStartsWith('S')
+            && !CallOffsetRule::mangledRepresentationStartsWith('c'));
 
     // <unscoped-name>
     QVERIFY(!UnqualifiedNameNode::mangledRepresentationStartsWith('S'));

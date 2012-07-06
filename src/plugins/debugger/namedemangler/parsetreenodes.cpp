@@ -39,13 +39,18 @@
 #define PEEK() (parseState()->peek())
 #define ADVANCE() (parseState()->advance())
 
-#define PARSE_RULE_AND_ADD_RESULT_AS_CHILD(nodeType) \
+#define PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(nodeType, parseState, parentNode) \
     do { \
-        parseRule<nodeType>(parseState()); \
-        DEMANGLER_ASSERT(parseState()->stackElementCount() > 0); \
-        DEMANGLER_ASSERT(dynamic_cast<nodeType *>(parseState()->stackTop())); \
-        addChild(parseState()->popFromStack()); \
+        ParseTreeNode::parseRule<nodeType>(parseState); \
+        DEMANGLER_ASSERT(parseState->stackElementCount() > 0); \
+        DEMANGLER_ASSERT(dynamic_cast<nodeType *>(parseState->stackTop())); \
+        if (parentNode) \
+            (parentNode)->addChild(parseState->popFromStack()); \
     } while (0)
+
+
+#define PARSE_RULE_AND_ADD_RESULT_AS_CHILD(nodeType) \
+    PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(nodeType, parseState(), this)
 
 #define CHILD_AT(obj, index) obj->childAt(index, Q_FUNC_INFO, __FILE__, __LINE__)
 #define MY_CHILD_AT(index) CHILD_AT(this, index)
@@ -211,66 +216,95 @@ void BuiltinTypeNode::parse()
 {
     const char next = ADVANCE();
     if (next == 'u') {
+        m_type = VendorType;
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SourceNameNode);
-    } else {
-        // TODO: This seems silly. Why not integrate the type into this node and have
-        // an additional one "VendorType" that indicates that there's a child node?
-        PredefinedBuiltinTypeNode * const fixedTypeNode = new PredefinedBuiltinTypeNode;
-        addChild(fixedTypeNode);
+        return;
+    }
 
-        switch (next) {
-        case 'v': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::VoidType; break;
-        case 'w': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::WCharType; break;
-        case 'b': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::BoolType; break;
-        case 'c': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::PlainCharType; break;
-        case 'a': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::SignedCharType; break;
-        case 'h': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::UnsignedCharType; break;
-        case 's': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::SignedShortType; break;
-        case 't': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::UnsignedShortType; break;
-        case 'i': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::SignedIntType; break;
-        case 'j': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::UnsignedIntType; break;
-        case 'l': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::SignedLongType; break;
-        case 'm': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::UnsignedLongType; break;
-        case 'x': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::SignedLongLongType; break;
-        case 'y': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::UnsignedLongLongType; break;
-        case 'n': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::SignedInt128Type; break;
-        case 'o': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::UnsignedInt128Type; break;
-        case 'f': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::FloatType; break;
-        case 'd': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::DoubleType; break;
-        case 'e': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::LongDoubleType; break;
-        case 'g': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::Float128Type; break;
-        case 'z': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::EllipsisType; break;
-        case 'D':
-            switch (ADVANCE()) {
-            case 'd':
-                fixedTypeNode->m_type = PredefinedBuiltinTypeNode::DecimalFloatingType64;
-                break;
-            case 'e':
-                fixedTypeNode->m_type = PredefinedBuiltinTypeNode::DecimalFloatingType128;
-                break;
-            case 'f':
-                fixedTypeNode->m_type = PredefinedBuiltinTypeNode::DecimalFloatingType32;
-                break;
-            case 'h':
-                fixedTypeNode->m_type = PredefinedBuiltinTypeNode::DecimalFloatingType16; break;
-            case 'i': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::Char32Type; break;
-            case 's': fixedTypeNode->m_type = PredefinedBuiltinTypeNode::Char16Type; break;
-            default: throw ParseException(QString::fromLatin1("Invalid built-in type"));
-            }
+    switch (next) {
+    case 'v': m_type = VoidType; break;
+    case 'w': m_type = WCharType; break;
+    case 'b': m_type = BoolType; break;
+    case 'c': m_type = PlainCharType; break;
+    case 'a': m_type = SignedCharType; break;
+    case 'h': m_type = UnsignedCharType; break;
+    case 's': m_type = SignedShortType; break;
+    case 't': m_type = UnsignedShortType; break;
+    case 'i': m_type = SignedIntType; break;
+    case 'j': m_type = UnsignedIntType; break;
+    case 'l': m_type = SignedLongType; break;
+    case 'm': m_type = UnsignedLongType; break;
+    case 'x': m_type = SignedLongLongType; break;
+    case 'y': m_type = UnsignedLongLongType; break;
+    case 'n': m_type = SignedInt128Type; break;
+    case 'o': m_type = UnsignedInt128Type; break;
+    case 'f': m_type = FloatType; break;
+    case 'd': m_type = DoubleType; break;
+    case 'e': m_type = LongDoubleType; break;
+    case 'g': m_type = Float128Type; break;
+    case 'z': m_type = EllipsisType; break;
+    case 'D':
+        switch (ADVANCE()) {
+        case 'd':
+            m_type = DecimalFloatingType64;
             break;
-        default:
-            DEMANGLER_ASSERT(false);
+        case 'e':
+            m_type = DecimalFloatingType128;
+            break;
+        case 'f':
+            m_type = DecimalFloatingType32;
+            break;
+        case 'h':
+            m_type = DecimalFloatingType16; break;
+        case 'i': m_type = Char32Type; break;
+        case 's': m_type = Char16Type; break;
+        default: throw ParseException(QString::fromLatin1("Invalid built-in type"));
         }
+        break;
+    default:
+        DEMANGLER_ASSERT(false);
     }
 }
 
 QByteArray BuiltinTypeNode::toByteArray() const
 {
-    return CHILD_TO_BYTEARRAY(0);
+    switch (m_type) {
+    case VoidType: return "void";
+    case WCharType: return "wchar_t";
+    case BoolType: return "bool";
+    case PlainCharType: return "char";
+    case SignedCharType: return "signed char";
+    case UnsignedCharType: return "unsigned char";
+    case SignedShortType: return "signed short";
+    case UnsignedShortType: return "unsigned short";
+    case SignedIntType: return "int";
+    case UnsignedIntType: return "unsigned int";
+    case SignedLongType: return "long";
+    case UnsignedLongType: return "unsigned long";
+    case SignedLongLongType: return "long long";
+    case UnsignedLongLongType: return "unsigned long long";
+    case SignedInt128Type: return "__int128";
+    case UnsignedInt128Type: return "unsigned __int128";
+    case FloatType: return "float";
+    case DoubleType: return "double";
+    case LongDoubleType: return "long double";
+    case Float128Type: return "__float128";
+    case EllipsisType: return "...";
+    case DecimalFloatingType16: return "[IEEE 754r half-precision floating point]";
+    case DecimalFloatingType32: return "[IEEE 754r decimal floating point (32 bits)]";
+    case DecimalFloatingType64: return "[IEEE 754r decimal floating point (64 bits)]";
+    case DecimalFloatingType128: return "[IEEE 754r decimal floating point (128 bits)]";
+    case Char32Type: return "char32_t";
+    case Char16Type: return "char16_t";
+    case VendorType: return CHILD_TO_BYTEARRAY(0);
+    }
+
+    DEMANGLER_ASSERT(false);
+    return QByteArray();
 }
 
 
-bool CallOffsetNode::mangledRepresentationStartsWith(char c)
+bool CallOffsetRule::mangledRepresentationStartsWith(char c)
 {
     return c == 'h' || c == 'v';
 }
@@ -279,24 +313,18 @@ bool CallOffsetNode::mangledRepresentationStartsWith(char c)
  * <call-offset> ::= h <nv-offset> _
  *               ::= v <v-offset> _
  */
-void CallOffsetNode::parse()
+void CallOffsetRule::parse(GlobalParseState *parseState, ParseTreeNode *parentNode)
 {
-    switch (ADVANCE()) {
-    case 'h': PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NvOffsetNode); break;
-    case 'v': PARSE_RULE_AND_ADD_RESULT_AS_CHILD(VOffsetNode); break;
+    switch (parseState->advance()) {
+    case 'h': PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(NvOffsetNode, parseState, parentNode); break;
+    case 'v': PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(VOffsetNode, parseState, parentNode); break;
     default: DEMANGLER_ASSERT(false);
     }
-    if (ADVANCE() != '_')
+    if (parseState->advance() != '_')
         throw ParseException(QString::fromLatin1("Invalid call-offset"));
 }
 
-QByteArray CallOffsetNode::toByteArray() const
-{
-    return CHILD_TO_BYTEARRAY(0);
-}
-
-
-bool ClassEnumTypeNode::mangledRepresentationStartsWith(char c)
+bool ClassEnumTypeRule::mangledRepresentationStartsWith(char c)
 {
     /*
      * The first set of <class-enum-type> is much smaller than
@@ -308,33 +336,23 @@ bool ClassEnumTypeNode::mangledRepresentationStartsWith(char c)
 }
 
 /* <class-enum-type> ::= <name> */
-void ClassEnumTypeNode::parse()
+void ClassEnumTypeRule::parse(GlobalParseState *parseState, ParseTreeNode *parentNode)
 {
-    PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NameNode);
-}
-
-QByteArray ClassEnumTypeNode::toByteArray() const
-{
-    return CHILD_TO_BYTEARRAY(0);
+    PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(NameNode, parseState, parentNode);
 }
 
 
-bool DiscriminatorNode::mangledRepresentationStartsWith(char c)
+bool DiscriminatorRule::mangledRepresentationStartsWith(char c)
 {
     return c == '_';
 }
 
 /* <discriminator> := _ <non-negative-number> */
-void DiscriminatorNode::parse()
+void DiscriminatorRule::parse(GlobalParseState *parseState, ParseTreeNode *parentNode)
 {
-    if (ADVANCE() != '_')
+    if (parseState->advance() != '_')
         throw ParseException(QString::fromLatin1("Invalid discriminator"));
-    PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
-}
-
-QByteArray DiscriminatorNode::toByteArray() const
-{
-    return CHILD_TO_BYTEARRAY(0);
+    PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(NonNegativeNumberNode<10>, parseState, parentNode);
 }
 
 
@@ -960,44 +978,6 @@ QByteArray OperatorNameNode::toByteArray() const
     return QByteArray();
 }
 
-
-QByteArray PredefinedBuiltinTypeNode::toByteArray() const
-{
-    switch (m_type) {
-    case VoidType: return "void";
-    case WCharType: return "wchar_t";
-    case BoolType: return "bool";
-    case PlainCharType: return "char";
-    case SignedCharType: return "signed char";
-    case UnsignedCharType: return "unsigned char";
-    case SignedShortType: return "signed short";
-    case UnsignedShortType: return "unsigned short";
-    case SignedIntType: return "int";
-    case UnsignedIntType: return "unsigned int";
-    case SignedLongType: return "long";
-    case UnsignedLongType: return "unsigned long";
-    case SignedLongLongType: return "long long";
-    case UnsignedLongLongType: return "unsigned long long";
-    case SignedInt128Type: return "__int128";
-    case UnsignedInt128Type: return "unsigned __int128";
-    case FloatType: return "float";
-    case DoubleType: return "double";
-    case LongDoubleType: return "long double";
-    case Float128Type: return "__float128";
-    case EllipsisType: return "...";
-    case DecimalFloatingType16: return "[IEEE 754r half-precision floating point]";
-    case DecimalFloatingType32: return "[IEEE 754r decimal floating point (32 bits)]";
-    case DecimalFloatingType64: return "[IEEE 754r decimal floating point (64 bits)]";
-    case DecimalFloatingType128: return "[IEEE 754r decimal floating point (128 bits)]";
-    case Char32Type: return "char32_t";
-    case Char16Type: return "char16_t";
-    }
-
-    DEMANGLER_ASSERT(false);
-    return QByteArray();
-}
-
-
 bool ExprPrimaryNode::mangledRepresentationStartsWith(char c)
 {
     return c == 'L';
@@ -1020,27 +1000,23 @@ void ExprPrimaryNode::parse()
                 ? 0 : dynamic_cast<BuiltinTypeNode * >(CHILD_AT(topLevelTypeNode, 0));
         if (!typeNode)
             throw ParseException(QLatin1String("Invalid type in expr-primary"));
-        PredefinedBuiltinTypeNode * const predefTypeNode
-                = dynamic_cast<PredefinedBuiltinTypeNode *>(CHILD_AT(typeNode, 0));
-        if (!predefTypeNode)
-            throw ParseException(QLatin1String("Invalid type in expr-primary"));
 
         // TODO: Of which type can a literal actually be?
-        switch (predefTypeNode->m_type) {
-        case PredefinedBuiltinTypeNode::SignedIntType:
-        case PredefinedBuiltinTypeNode::UnsignedIntType:
-        case PredefinedBuiltinTypeNode::UnsignedLongType:
+        switch (typeNode->type()) {
+        case BuiltinTypeNode::SignedIntType:
+        case BuiltinTypeNode::UnsignedIntType:
+        case BuiltinTypeNode::UnsignedLongType:
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NumberNode);
             break;
-        case PredefinedBuiltinTypeNode::FloatType: case PredefinedBuiltinTypeNode::DoubleType:
+        case BuiltinTypeNode::FloatType: case BuiltinTypeNode::DoubleType:
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(FloatValueNode);
             break;
         default:
             throw ParseException(QString::fromLatin1("Invalid type in expr-primary"));
         }
         delete parseState()->popFromStack(); // No need to keep the type node in the tree.
-    } else if (MangledNameNode::mangledRepresentationStartsWith(next)) {
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(MangledNameNode);
+    } else if (MangledNameRule::mangledRepresentationStartsWith(next)) {
+        MangledNameRule::parse(parseState(), this);
     } else {
         throw ParseException(QString::fromLatin1("Invalid expr-primary"));
     }
@@ -1115,8 +1091,8 @@ void LocalNameNode::parse()
     } else {
         throw ParseException(QString::fromLatin1("Invalid local-name"));
     }
-    if (DiscriminatorNode::mangledRepresentationStartsWith(PEEK()))
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(DiscriminatorNode);
+    if (DiscriminatorRule::mangledRepresentationStartsWith(PEEK()))
+        DiscriminatorRule::parse(parseState(), this);
 }
 
 QByteArray LocalNameNode::toByteArray() const
@@ -1131,15 +1107,16 @@ QByteArray LocalNameNode::toByteArray() const
         hasDiscriminator = childCount() == 3;
     }
     if (hasDiscriminator) {
-        const QByteArray discriminator = MY_CHILD_AT(childCount() - 1)->toByteArray();
-        const int rawDiscriminatorValue = discriminator.toInt();
-        name += " (occurrence number " + QByteArray::number(rawDiscriminatorValue - 2) + ')';
+        // TODO: Does this information serve any purpose? Names seem to demangle fine without printing anything here.
+//        const QByteArray discriminator = MY_CHILD_AT(childCount() - 1)->toByteArray();
+//        const int rawDiscriminatorValue = discriminator.toInt();
+//        name += " (occurrence number " + QByteArray::number(rawDiscriminatorValue - 2) + ')';
     }
     return name;
 }
 
 
-bool MangledNameNode::mangledRepresentationStartsWith(char c)
+bool MangledNameRule::mangledRepresentationStartsWith(char c)
 {
     return c == '_';
 }
@@ -1150,15 +1127,10 @@ bool MangledNameNode::mangledRepresentationStartsWith(char c)
  * were necessary, which we will document at the respective parsing function.
  * <mangled-name> ::= _Z <encoding>
  */
-void MangledNameNode::parse()
+void MangledNameRule::parse(GlobalParseState *parseState, ParseTreeNode *parentNode)
 {
-    parseState()->advance(2);
-    PARSE_RULE_AND_ADD_RESULT_AS_CHILD(EncodingNode);
-}
-
-QByteArray MangledNameNode::toByteArray() const
-{
-    return pasteAllChildren();
+    parseState->advance(2);
+    PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(EncodingNode, parseState, parentNode);
 }
 
 
@@ -1573,11 +1545,12 @@ void SpecialNameNode::parse()
     } else if (str == "Tc") {
         m_type = DoubleCallOffsetType;
         parseState()->advance(2);
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(CallOffsetNode);
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(CallOffsetNode);
+        CallOffsetRule::parse(parseState(), this);
+        CallOffsetRule::parse(parseState(), this);
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(EncodingNode);
     } else if (ADVANCE() == 'T') {
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(CallOffsetNode);
+        m_type = SingleCallOffsetType;
+        CallOffsetRule::parse(parseState(), this);
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(EncodingNode);
     } else {
         throw ParseException(QString::fromLatin1("Invalid special-name"));
@@ -1820,7 +1793,7 @@ QByteArray Prefix2Node::toByteArray() const
 
 bool Prefix2Node::isTemplate() const
 {
-    return dynamic_cast<TemplateArgsNode *>(MY_CHILD_AT(childCount() - 1));
+    return childCount() > 0 && dynamic_cast<TemplateArgsNode *>(MY_CHILD_AT(childCount() - 1));
 }
 
 bool Prefix2Node::isConstructorOrDestructorOrConversionOperator() const
@@ -1839,22 +1812,16 @@ bool Prefix2Node::isConstructorOrDestructorOrConversionOperator() const
  */
 void Prefix2Node::parse()
 {
-    // We need to do this so we can correctly add all substitutions, which always start
-    // with the representation of the prefix node.
-    // Note that this breaks the invariant that a node is on the stack while it is being parsed;
-    // it does not seem that this matters in practice for this particular node.
     ParseTreeNode * const prefixNode
             = parseState()->stackElementAt(parseState()->stackElementCount() - 2);
-    prefixNode->addChild(this);
-    parseState()->popFromStack();
 
     bool firstRun = true;
     while (UnqualifiedNameNode::mangledRepresentationStartsWith(PEEK())) {
         if (!firstRun)
-            parseState()->addSubstitution(prefixNode);
+            parseState()->addSubstitution(prefixNode->toByteArray() + toByteArray());
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(UnqualifiedNameNode);
         if (TemplateArgsNode::mangledRepresentationStartsWith(PEEK())) {
-            parseState()->addSubstitution(prefixNode);
+            parseState()->addSubstitution(prefixNode->toByteArray() + toByteArray());
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgsNode);
         }
         firstRun = false;
@@ -1871,6 +1838,8 @@ bool PrefixNode::mangledRepresentationStartsWith(char c)
 
 QByteArray PrefixNode::toByteArray() const
 {
+    if (childCount() == 0) // Can only happen when inserting a substitution from Prefix2Node::parse().
+        return QByteArray();
     if (childCount() == 1)
         return CHILD_TO_BYTEARRAY(0);
     if (MY_CHILD_AT(childCount() - 1)->childCount() == 0) // Empty prefix2, i.e. no symbol follows.
@@ -1920,7 +1889,7 @@ void PrefixNode::parse()
         }
         if (UnqualifiedNameNode::mangledRepresentationStartsWith(PEEK())) {
             parseState()->addSubstitution(this);
-            parseRule<Prefix2Node>(parseState()); // Pops itself to child list.
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(Prefix2Node);
         }
     } else if (SubstitutionNode::mangledRepresentationStartsWith(next)) {
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SubstitutionNode);
@@ -1929,9 +1898,9 @@ void PrefixNode::parse()
             if (UnqualifiedNameNode::mangledRepresentationStartsWith(PEEK()))
                 parseState()->addSubstitution(this);
         }
-        parseRule<Prefix2Node>(parseState()); // Pops itself to child list.
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(Prefix2Node);
     } else {
-        parseRule<Prefix2Node>(parseState()); // Pops itself to child list.
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(Prefix2Node);
     }
 }
 
@@ -1940,7 +1909,7 @@ bool TypeNode::mangledRepresentationStartsWith(char c)
 {
     return BuiltinTypeNode::mangledRepresentationStartsWith(c)
             || FunctionTypeNode::mangledRepresentationStartsWith(c)
-            || ClassEnumTypeNode::mangledRepresentationStartsWith(c)
+            || ClassEnumTypeRule::mangledRepresentationStartsWith(c)
             || ArrayTypeNode::mangledRepresentationStartsWith(c)
             || PointerToMemberTypeNode::mangledRepresentationStartsWith(c)
             || TemplateParamNode::mangledRepresentationStartsWith(c)
@@ -2011,9 +1980,9 @@ void TypeNode::parse()
             m_type = OtherType;
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(FunctionTypeNode);
             parseState()->addSubstitution(this);
-        } else if (ClassEnumTypeNode::mangledRepresentationStartsWith(next)) {
+        } else if (ClassEnumTypeRule::mangledRepresentationStartsWith(next)) {
             m_type = OtherType;
-            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ClassEnumTypeNode);
+            ClassEnumTypeRule::parse(parseState(), this);
             parseState()->addSubstitution(this);
         } else if (ArrayTypeNode::mangledRepresentationStartsWith(next)) {
             m_type = OtherType;

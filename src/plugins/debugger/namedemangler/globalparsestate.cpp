@@ -68,7 +68,11 @@ QByteArray GlobalParseState::readAhead(int charCount) const
 
 void GlobalParseState::addSubstitution(const ParseTreeNode *node)
 {
-    const QByteArray symbol = node->toByteArray();
+    addSubstitution(node->toByteArray());
+}
+
+void GlobalParseState::addSubstitution(const QByteArray &symbol)
+{
     if (!symbol.isEmpty() && !m_substitutions.contains(symbol))
         m_substitutions.append(symbol);
 }
