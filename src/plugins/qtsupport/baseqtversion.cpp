@@ -515,6 +515,8 @@ QString BaseQtVersion::toHtml(bool verbose) const
                                 continue;
                             variableName.chop(4);
                             isPath = true;
+                        } else if (variableName == QLatin1String("QT_SYSROOT")) {
+                            isPath = true;
                         }
                         str << "<tr><td><pre>" << variableName <<  "</pre></td><td>";
                         if (value.isEmpty())
