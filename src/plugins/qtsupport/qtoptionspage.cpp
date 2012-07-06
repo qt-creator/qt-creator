@@ -383,6 +383,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     }
 
     bool useable = true;
+    QStringList warnings;
     if (!missingToolChains.isEmpty()) {
         if (missingToolChains.count() == abiCount) {
             // Yes, this Qt version can't be used at all!
@@ -391,7 +392,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
             useable = false;
         } else {
             // Yes, some ABIs are unsupported
-            info.message = tr("Not all possible target environments can be supported due to missing tool chains.");
+            warnings << tr("Not all possible target environments can be supported due to missing tool chains.");
             info.toolTip = tr("The following ABIs are currently not supported:<ul><li>%1</li></ul>")
                     .arg(missingToolChains.join(QLatin1String("</li><li>")));
             info.icon = m_warningVersionIcon;
@@ -399,11 +400,9 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     }
 
     if (useable) {
-        QString warning = version->warningReason();
-        if (!warning.isEmpty()) {
-            if (!info.message.isEmpty())
-                info.message.append(QLatin1Char('\n'));
-            info.message += warning;
+        warnings += version->warningReason();
+        if (!warnings.isEmpty()) {
+            info.message = warnings.join(QLatin1String("\n"));
             info.icon = m_warningVersionIcon;
         }
     }

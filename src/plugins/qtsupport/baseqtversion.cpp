@@ -385,9 +385,9 @@ QString BaseQtVersion::invalidReason() const
     return QString();
 }
 
-QString BaseQtVersion::warningReason() const
+QStringList BaseQtVersion::warningReason() const
 {
-    return QString();
+    return QStringList();
 }
 
 ProjectExplorer::ToolChain *BaseQtVersion::preferredToolChain(const Utils::FileName &ms) const

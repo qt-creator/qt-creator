@@ -121,7 +121,7 @@ public:
     virtual QVariantMap toMap() const;
     virtual bool isValid() const;
     virtual QString invalidReason() const;
-    virtual QString warningReason() const;
+    virtual QStringList warningReason() const;
 
     virtual ProjectExplorer::ToolChain *preferredToolChain(const Utils::FileName &ms) const;
 

@@ -70,13 +70,14 @@ QString DesktopQtVersion::type() const
     return QLatin1String(QtSupport::Constants::DESKTOPQT);
 }
 
-QString DesktopQtVersion::warningReason() const
+QStringList DesktopQtVersion::warningReason() const
 {
+    QStringList ret;
     if (qtAbis().count() == 1 && qtAbis().first().isNull())
-        return QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching tool chain when building.");
+        ret << QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching tool chain when building.");
     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty())
-        return QCoreApplication::translate("QtVersion", "No qmlviewer installed.");
-    return QString();
+        ret << QCoreApplication::translate("QtVersion", "No qmlviewer installed.");
+    return ret;
 }
 
 QList<ProjectExplorer::Abi> DesktopQtVersion::detectQtAbis() const

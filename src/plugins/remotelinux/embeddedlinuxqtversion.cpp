@@ -62,11 +62,12 @@ QString EmbeddedLinuxQtVersion::type() const
     return RemoteLinux::Constants::EMBEDDED_LINUX_QT;
 }
 
-QString EmbeddedLinuxQtVersion::warningReason() const
+QStringList EmbeddedLinuxQtVersion::warningReason() const
 {
+    QStringList ret;
     if (qtAbis().count() == 1 && qtAbis().first().isNull())
-        return QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching tool chain when building.");
-    return QString();
+        ret << QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching tool chain when building.");
+    return ret;
 }
 
 QList<ProjectExplorer::Abi> EmbeddedLinuxQtVersion::detectQtAbis() const

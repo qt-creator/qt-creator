@@ -49,7 +49,7 @@ public:
 
     QString type() const;
 
-    QString warningReason() const;
+    QStringList warningReason() const;
 
     QList<ProjectExplorer::Abi> detectQtAbis() const;
 
