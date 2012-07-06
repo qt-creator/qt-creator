@@ -49,7 +49,7 @@ class NameDemanglerAutoTest : public QObject
 private slots:
     void testUnmangledName();
     void testDisjunctFirstSets();
-    void TEST_CORRECTLY_MANGLED_NAMEs();
+    void testCorrectlyMangledNames();
     void testIncorrectlyMangledNames();
 
 private:
@@ -62,7 +62,7 @@ void NameDemanglerAutoTest::testUnmangledName()
     QVERIFY(demangler.demangle("f") && demangler.demangledName() == "f");
 }
 
-void NameDemanglerAutoTest::TEST_CORRECTLY_MANGLED_NAMEs()
+void NameDemanglerAutoTest::testCorrectlyMangledNames()
 {
     TEST_CORRECTLY_MANGLED_NAME("_Z1fv", "f()");
     TEST_CORRECTLY_MANGLED_NAME("_Z1fi", "f(int)");
@@ -313,7 +313,7 @@ void NameDemanglerAutoTest::testDisjunctFirstSets()
                 || !SourceNameNode::mangledRepresentationStartsWith(c));
 
         // <array-type>
-        QVERIFY(!NonNegativeNumberNode::mangledRepresentationStartsWith(c)
+        QVERIFY(!NonNegativeNumberNode<10>::mangledRepresentationStartsWith(c)
                 || !ExpressionNode::mangledRepresentationStartsWith(c));
     }
 
@@ -399,18 +399,18 @@ void NameDemanglerAutoTest::testDisjunctFirstSets()
             && !CvQualifiersNode::mangledRepresentationStartsWith('D'));
 
     // <array-type>
-    QVERIFY(!NonNegativeNumberNode::mangledRepresentationStartsWith('_'));
+    QVERIFY(!NonNegativeNumberNode<10>::mangledRepresentationStartsWith('_'));
     QVERIFY(!ExpressionNode::mangledRepresentationStartsWith('_'));
 
     // <substitution>
-    QVERIFY(!NonNegativeNumberNode::mangledRepresentationStartsWith('_', 36)
-            && !NonNegativeNumberNode::mangledRepresentationStartsWith('t', 36)
-            && !NonNegativeNumberNode::mangledRepresentationStartsWith('a', 36)
-            && !NonNegativeNumberNode::mangledRepresentationStartsWith('b', 36)
-            && !NonNegativeNumberNode::mangledRepresentationStartsWith('s', 36)
-            && !NonNegativeNumberNode::mangledRepresentationStartsWith('i', 36)
-            && !NonNegativeNumberNode::mangledRepresentationStartsWith('o', 36)
-            && !NonNegativeNumberNode::mangledRepresentationStartsWith('d', 36));
+    QVERIFY(!NonNegativeNumberNode<36>::mangledRepresentationStartsWith('_')
+            && !NonNegativeNumberNode<36>::mangledRepresentationStartsWith('t')
+            && !NonNegativeNumberNode<36>::mangledRepresentationStartsWith('a')
+            && !NonNegativeNumberNode<36>::mangledRepresentationStartsWith('b')
+            && !NonNegativeNumberNode<36>::mangledRepresentationStartsWith('s')
+            && !NonNegativeNumberNode<36>::mangledRepresentationStartsWith('i')
+            && !NonNegativeNumberNode<36>::mangledRepresentationStartsWith('o')
+            && !NonNegativeNumberNode<36>::mangledRepresentationStartsWith('d'));
 
     // <special-name>
     QVERIFY(!CallOffsetNode::mangledRepresentationStartsWith('V')

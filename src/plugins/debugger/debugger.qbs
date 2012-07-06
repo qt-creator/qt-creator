@@ -265,7 +265,9 @@ QtcPlugin {
         "namedemangler/namedemangler.h",
         "namedemangler/parsetreenodes.cpp",
         "namedemangler/parsetreenodes.h",
-        "namedemangler/demanglerexceptions.h"
+        "namedemangler/demanglerexceptions.h",
+        "namedemangler/globalparsestate.h",
+        "namedemangler/globalparsestate.cpp"
     ]
 
     Group {

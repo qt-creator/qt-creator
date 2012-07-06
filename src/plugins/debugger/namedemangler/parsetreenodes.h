@@ -32,11 +32,15 @@
 #ifndef PARSETREENODES_H
 #define PARSETREENODES_H
 
+#include "globalparsestate.h"
+
 #include <QByteArray>
 #include <QList>
 #include <QSet>
 
-#define CHILD_AT(obj, index) obj->childAt(index, Q_FUNC_INFO, __FILE__, __LINE__)
+// TODO: Get the number of node objects in a tree down by only creating sub-nodes if there is really a need
+// or things would get more complicated without them.
+// Example for an unnecessary object: The parent type node of a function type node -- it holds zero information!
 
 namespace Debugger {
 namespace Internal {
@@ -52,11 +56,25 @@ public:
     ParseTreeNode *childAt(int i, const QString &func, const QString &file, int line) const;
     QByteArray pasteAllChildren() const;
 
+    template <typename T> static T *parseRule(GlobalParseState *parseState)
+    {
+        T * const node = new T;
+        node->m_parseState = parseState;
+        parseState->pushToStack(node);
+        parseState->stackTop()->parse();
+        return node;
+    }
+
 protected:
+    GlobalParseState *parseState() const { return m_parseState; }
+
     void clearChildList() { m_children.clear(); }
 
 private:
+    virtual void parse() = 0;
+
     QList<ParseTreeNode *> m_children; // Convention: Children are inserted in parse order.
+    GlobalParseState *m_parseState;
 };
 
 class ArrayTypeNode : public ParseTreeNode
@@ -65,6 +83,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class BareFunctionTypeNode : public ParseTreeNode
@@ -72,7 +93,12 @@ class BareFunctionTypeNode : public ParseTreeNode
 public:
     static bool mangledRepresentationStartsWith(char c);
 
+    bool hasReturnType() const { return m_hasReturnType; }
+
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 
     bool m_hasReturnType;
 };
@@ -83,12 +109,18 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
+// TODO: DIE!!!
 class PredefinedBuiltinTypeNode : public ParseTreeNode
 {
 public:
     QByteArray toByteArray() const;
+
+    void parse() {}
 
     enum Type {
         VoidType, WCharType, BoolType,
@@ -107,18 +139,27 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class NvOffsetNode : public ParseTreeNode
 {
 public:
     QByteArray toByteArray() const { return QByteArray(); } // TODO: How to encode this?
+
+private:
+    void parse();
 };
 
 class VOffsetNode : public ParseTreeNode
 {
 public:
     QByteArray toByteArray() const { return QByteArray(); } // TODO: How to encode this?
+
+private:
+    void parse();
 };
 
 class ClassEnumTypeNode : public ParseTreeNode
@@ -127,6 +168,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class DiscriminatorNode : public ParseTreeNode
@@ -135,6 +179,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class CtorDtorNameNode : public ParseTreeNode
@@ -143,6 +190,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 
     bool m_isDestructor;
     QByteArray m_representation;
@@ -153,7 +203,11 @@ class CvQualifiersNode : public ParseTreeNode
 public:
     static bool mangledRepresentationStartsWith(char c);
 
+    bool hasQualifiers() const { return m_hasConst || m_hasVolatile; }
+
     QByteArray toByteArray() const;
+private:
+    void parse();
 
     bool m_hasVolatile;
     bool m_hasConst;
@@ -165,6 +219,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class ExpressionNode : public ParseTreeNode
@@ -173,6 +230,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 
     enum Type {
         ConversionType, SizeofType, AlignofType, OperatorType, OtherType, ParameterPackSizeType
@@ -183,8 +243,6 @@ class OperatorNameNode : public ParseTreeNode
 {
 public:
     static bool mangledRepresentationStartsWith(char c);
-
-    QByteArray toByteArray() const;
 
     enum Type {
         NewType, ArrayNewType, DeleteType, ArrayDeleteType, UnaryPlusType, UnaryMinusType,
@@ -197,8 +255,15 @@ public:
         LogicalAndType, LogicalOrType, IncrementType, DecrementType, CommaType, ArrowStarType,
         ArrowType, CallType, IndexType, TernaryType, SizeofTypeType, SizeofExprType,
         AlignofTypeType, AlignofExprType, CastType, VendorType
-    } m_type;
+    };
+    Type type() const { return m_type; }
 
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
+
+    Type m_type;
 };
 
 class ExprPrimaryNode : public ParseTreeNode
@@ -207,6 +272,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class FunctionTypeNode : public ParseTreeNode
@@ -214,7 +282,12 @@ class FunctionTypeNode : public ParseTreeNode
 public:
     static bool mangledRepresentationStartsWith(char c);
 
+    bool isExternC() const { return m_isExternC; }
+
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 
     bool m_isExternC;
 };
@@ -226,6 +299,9 @@ public:
 
     QByteArray toByteArray() const;
 
+private:
+    void parse();
+
     bool m_isStringLiteral;
 };
 
@@ -235,14 +311,20 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class NumberNode : public ParseTreeNode
 {
 public:
-    static bool mangledRepresentationStartsWith(char c, int base = 10);
+    static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 
     bool m_isNegative;
 };
@@ -254,6 +336,9 @@ public:
 
     QByteArray toByteArray() const { return m_name; }
 
+private:
+    void parse();
+
     QByteArray m_name;
 };
 
@@ -262,9 +347,12 @@ class UnqualifiedNameNode : public ParseTreeNode
 public:
     static bool mangledRepresentationStartsWith(char c);
 
+    bool isConstructorOrDestructorOrConversionOperator() const;
+
     QByteArray toByteArray() const;
 
-    bool isConstructorOrDestructorOrConversionOperator() const;
+private:
+    void parse();
 };
 
 class UnscopedNameNode : public ParseTreeNode
@@ -272,9 +360,12 @@ class UnscopedNameNode : public ParseTreeNode
 public:
     static bool mangledRepresentationStartsWith(char c);
 
+    bool isConstructorOrDestructorOrConversionOperator() const;
+
     QByteArray toByteArray() const;
 
-    bool isConstructorOrDestructorOrConversionOperator() const;
+private:
+    void parse();
 
     bool m_inStdNamespace;
 };
@@ -284,10 +375,13 @@ class NestedNameNode : public ParseTreeNode
 public:
     static bool mangledRepresentationStartsWith(char c);
 
-    QByteArray toByteArray() const;
-
     bool isTemplate() const;
     bool isConstructorOrDestructorOrConversionOperator() const;
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class SubstitutionNode : public ParseTreeNode
@@ -296,6 +390,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 
     enum Type {
         ActualSubstitutionType, StdType, StdAllocType, StdBasicStringType, FullStdBasicStringType,
@@ -310,6 +407,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class TemplateParamNode : public ParseTreeNode
@@ -319,7 +419,14 @@ public:
 
     static bool mangledRepresentationStartsWith(char c);
 
+    int index() const { return m_index; }
+
     QByteArray toByteArray() const;
+
+private:
+    void parse();
+
+    int m_index;
 };
 
 class TemplateArgsNode : public ParseTreeNode
@@ -328,6 +435,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class SpecialNameNode : public ParseTreeNode
@@ -337,18 +447,26 @@ public:
 
     QByteArray toByteArray() const;
 
+private:
+    void parse();
+
     enum Type {
         VirtualTableType, VttStructType, TypeInfoType, TypeInfoNameType, GuardVarType,
         SingleCallOffsetType, DoubleCallOffsetType
     } m_type;
 };
 
-class NonNegativeNumberNode : public ParseTreeNode
+template<int base> class NonNegativeNumberNode : public ParseTreeNode
 {
 public:
-    static bool mangledRepresentationStartsWith(char c, int base = 10);
+    static bool mangledRepresentationStartsWith(char c);
+
+    quint64 number() const { return m_number; }
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 
     quint64 m_number;
 };
@@ -358,10 +476,13 @@ class NameNode : public ParseTreeNode
 public:
     static bool mangledRepresentationStartsWith(char c);
 
-    QByteArray toByteArray() const;
-
     bool isTemplate() const;
     bool isConstructorOrDestructorOrConversionOperator() const;
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class TemplateArgNode : public ParseTreeNode
@@ -371,6 +492,9 @@ public:
 
     QByteArray toByteArray() const;
 
+private:
+    void parse();
+
     bool m_isTemplateArgumentPack;
 };
 
@@ -379,10 +503,13 @@ class Prefix2Node : public ParseTreeNode
 public:
     static bool mangledRepresentationStartsWith(char c);
 
-    QByteArray toByteArray() const;
-
     bool isTemplate() const;
     bool isConstructorOrDestructorOrConversionOperator() const;
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class PrefixNode : public ParseTreeNode
@@ -390,10 +517,13 @@ class PrefixNode : public ParseTreeNode
 public:
     static bool mangledRepresentationStartsWith(char c);
 
-    QByteArray toByteArray() const;
-
     bool isTemplate() const;
     bool isConstructorOrDestructorOrConversionOperator() const;
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 class TypeNode : public ParseTreeNode
@@ -401,16 +531,22 @@ class TypeNode : public ParseTreeNode
 public:
     static bool mangledRepresentationStartsWith(char c);
 
+    enum Type {
+        QualifiedType, PointerType, ReferenceType, RValueType, VendorType, PackExpansionType,
+        DeclType, OtherType
+    };
+    Type type() const { return m_type; }
+
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 
     QByteArray toByteArrayQualPointerRef(const TypeNode *typeNode,
             const QByteArray &qualPtrRef) const;
     QByteArray qualPtrRefListToByteArray(const QList<const ParseTreeNode *> &nodeList) const;
 
-    enum Type {
-        QualifiedType, PointerType, ReferenceType, RValueType, VendorType, PackExpansionType,
-        DeclType, OtherType
-    } m_type;
+    Type m_type;
 };
 
 class FloatValueNode : public ParseTreeNode
@@ -419,6 +555,9 @@ public:
     static bool mangledRepresentationStartsWith(char c);
 
     QByteArray toByteArray() const;
+
+private:
+    void parse();
 
     double m_value;
 };
