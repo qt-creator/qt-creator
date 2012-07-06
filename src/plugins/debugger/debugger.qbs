@@ -92,8 +92,6 @@ QtcPlugin {
         "moduleshandler.h",
         "moduleswindow.cpp",
         "moduleswindow.h",
-        "name_demangler.cpp",
-        "name_demangler.h",
         "outputcollector.cpp",
         "outputcollector.h",
         "procinterrupt.cpp",
@@ -262,7 +260,12 @@ QtcPlugin {
         "lldb/ipcenginehost.cpp",
         "lldb/ipcenginehost.h",
         "lldb/lldbenginehost.cpp",
-        "lldb/lldbenginehost.h"
+        "lldb/lldbenginehost.h",
+        "namedemangler/namedemangler.cpp",
+        "namedemangler/namedemangler.h",
+        "namedemangler/parsetreenodes.cpp",
+        "namedemangler/parsetreenodes.h",
+        "namedemangler/demanglerexceptions.h"
     ]
 
     Group {

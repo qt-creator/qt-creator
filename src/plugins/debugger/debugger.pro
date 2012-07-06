@@ -47,7 +47,6 @@ HEADERS += \
     memoryagent.h \
     moduleshandler.h \
     moduleswindow.h \
-    name_demangler.h \
     outputcollector.h \
     procinterrupt.h \
     registerhandler.h \
@@ -103,7 +102,6 @@ SOURCES += \
     memoryagent.cpp \
     moduleshandler.cpp \
     moduleswindow.cpp \
-    name_demangler.cpp \
     outputcollector.cpp \
     procinterrupt.cpp \
     registerhandler.cpp \
@@ -162,5 +160,6 @@ include(script/script.pri)
 include(pdb/pdb.pri)
 include(lldb/lldbhost.pri)
 include(qml/qml.pri)
+include(namedemangler/namedemangler.pri)
 
 include(shared/shared.pri)
