@@ -504,14 +504,21 @@ QString BaseQtVersion::toHtml(bool verbose) const
             if (!vInfo.isEmpty()) {
                 const QHash<QString,QString>::const_iterator vcend = vInfo.constEnd();
                 for (QHash<QString,QString>::const_iterator it = vInfo.constBegin(); it != vcend; ++it) {
-                    const QString &variableName = it.key();
+                    QString variableName = it.key();
                     const QString &value = it.value();
                     if (variableName != QLatin1String("QMAKE_MKSPECS")
-                        && !variableName.endsWith(QLatin1String("/raw")) && !variableName.endsWith(QLatin1String("/get"))) {
-                        const bool isPath = !value.isEmpty() &&
-                            (variableName.contains(QLatin1String("HOST"))
-                             || variableName.contains(QLatin1String("INSTALL")));
+                        && !variableName.endsWith(QLatin1String("/raw"))) {
+                        bool isPath = false;
+                        if (variableName.contains(QLatin1String("_HOST_"))
+                            || variableName.contains(QLatin1String("_INSTALL_"))) {
+                            if (!variableName.endsWith(QLatin1String("/get")))
+                                continue;
+                            variableName.chop(4);
+                            isPath = true;
+                        }
                         str << "<tr><td><pre>" << variableName <<  "</pre></td><td>";
+                        if (value.isEmpty())
+                            isPath = false;
                         if (isPath) {
                             str << "<a href=\"" << QUrl::fromLocalFile(value).toString()
                                 << "\">" << QDir::toNativeSeparators(value) << "</a>";
@@ -895,6 +902,9 @@ QHash<QString,QString> BaseQtVersion::versionInfo() const
 
 QString BaseQtVersion::qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name)
 {
+    QString val = versionInfo.value(QString::fromLatin1(name + "/get"));
+    if (!val.isNull())
+        return val;
     return versionInfo.value(QString::fromLatin1(name));
 }
 
