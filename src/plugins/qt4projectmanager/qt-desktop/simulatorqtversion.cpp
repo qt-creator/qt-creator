@@ -72,9 +72,7 @@ QString SimulatorQtVersion::type() const
 
 QStringList SimulatorQtVersion::warningReason() const
 {
-    QStringList ret;
-    if (qtAbis().count() == 1 && qtAbis().first().isNull())
-        ret << QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching tool chain when building.");
+    QStringList ret = BaseQtVersion::warningReason();
     if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty())
         ret << QCoreApplication::translate("QtVersion", "No qmlviewer installed.");
     return ret;

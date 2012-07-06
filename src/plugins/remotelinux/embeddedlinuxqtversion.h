@@ -48,8 +48,6 @@ public:
 
     QString type() const;
 
-    QStringList warningReason() const;
-
     QList<ProjectExplorer::Abi> detectQtAbis() const;
 
     QString description() const;

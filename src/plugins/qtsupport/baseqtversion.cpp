@@ -387,7 +387,10 @@ QString BaseQtVersion::invalidReason() const
 
 QStringList BaseQtVersion::warningReason() const
 {
-    return QStringList();
+    QStringList ret;
+    if (qtAbis().count() == 1 && qtAbis().first().isNull())
+        ret << QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching tool chain when building.");
+    return ret;
 }
 
 ProjectExplorer::ToolChain *BaseQtVersion::preferredToolChain(const Utils::FileName &ms) const
