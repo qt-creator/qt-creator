@@ -35,7 +35,7 @@
 
 #include <QString>
 
-QT_USE_NAMESPACE
+QT_BEGIN_NAMESPACE
 
 namespace ProFileEvaluatorInternal {
 
@@ -62,6 +62,8 @@ public:
 #endif
 };
 
-}
+} // namespace ProFileEvaluatorInternal
+
+QT_END_NAMESPACE
 
 #endif // IOUTILS_H

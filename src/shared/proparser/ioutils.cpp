@@ -43,6 +43,8 @@
 #  include <unistd.h>
 #endif
 
+QT_BEGIN_NAMESPACE
+
 using namespace ProFileEvaluatorInternal;
 
 IoUtils::FileType IoUtils::fileType(const QString &fileName)
@@ -150,3 +152,5 @@ QString IoUtils::shellQuote(const QString &arg)
     return ret;
 }
 #endif
+
+QT_END_NAMESPACE
