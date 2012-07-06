@@ -132,7 +132,7 @@ public:
     virtual QList<ProjectExplorer::Abi> detectQtAbis() const = 0;
 
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
-    virtual QHash<QString,QString> versionInfo() const;
+    QHash<QString,QString> versionInfo() const;
     virtual void addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const;
 
     virtual Utils::FileName sourcePath() const;
