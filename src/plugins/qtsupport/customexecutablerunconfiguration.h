@@ -147,6 +147,7 @@ public:
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
                                              ProjectExplorer::RunConfiguration *source);
 
+private:
     bool canHandle(ProjectExplorer::Target *parent) const;
 };
 

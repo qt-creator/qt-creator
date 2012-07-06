@@ -173,6 +173,7 @@ public:
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
     QString displayNameForId(const Core::Id id) const;
 
+private:
     bool canHandle(ProjectExplorer::Target *parent) const;
 };
 
