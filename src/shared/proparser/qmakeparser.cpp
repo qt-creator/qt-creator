@@ -309,6 +309,7 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
     int parens = 0; // Braces in value context
     int argc = 0;
     int wordCount = 0; // Number of words in currently accumulated expression
+    int lastIndent = 0; // Previous line's indentation, to detect accidental continuation abuse
     bool putSpace = false; // Only ever true inside quoted string
     bool lineMarked = true; // For in-expression markers
     ushort needSep = TokNewStr; // Complementary to putSpace: separator outside quotes
@@ -372,7 +373,8 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
         ushort c;
 
         // First, skip leading whitespace
-        for (;; ++cur) {
+        int indent;
+        for (indent = 0; ; ++cur, ++indent) {
             c = *cur;
             if (c == '\n') {
                 ++cur;
@@ -556,12 +558,14 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                         needSep = 0;
                         goto nextChr;
                     }
-                } else if (c == '\\' && cur != end) {
+                } else if (c == '\\') {
                     static const char symbols[] = "[]{}()$\\'\"";
-                    ushort c2 = *cur;
-                    if (!(c2 & 0xff00) && strchr(symbols, c2)) {
+                    ushort c2;
+                    if (cur != end && !((c2 = *cur) & 0xff00) && strchr(symbols, c2)) {
                         c = c2;
                         cur++;
+                    } else {
+                        deprecationWarning(fL1S("Unescaped backslashes are deprecated"));
                     }
                 } else if (quote) {
                     if (c == quote) {
@@ -722,6 +726,9 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                             goto closeScope;
                         }
                         --parens;
+                    } else if (c == '=') {
+                        if (indent < lastIndent)
+                            languageWarning(fL1S("Possible accidental line continuation"));
                     }
                 }
                 if (putSpace) {
@@ -771,6 +778,8 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                     }
                 } else if (context == CtxValue) {
                     FLUSH_VALUE_LIST();
+                    if (parens)
+                        languageWarning(fL1S("Possible braces mismatch"));
                 } else {
                     finalizeCond(tokPtr, buf, ptr, wordCount);
                 }
@@ -780,6 +789,7 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                 goto freshLine;
             }
 
+        lastIndent = indent;
         lineMarked = false;
       ignore:
         cur = cptr;

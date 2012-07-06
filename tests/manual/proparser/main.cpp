@@ -43,18 +43,20 @@
 #include <QStringList>
 #include <QTextCodec>
 
-static void print(const QString &fileName, int lineNo, const QString &msg)
+static void print(const QString &fileName, int lineNo, int type, const QString &msg)
 {
+    QString pfx = ((type & QMakeHandler::CategoryMask) == QMakeHandler::WarningMessage)
+                  ? QString::fromLatin1("WARNING: ") : QString();
     if (lineNo)
-        qWarning("%s(%d): %s", qPrintable(fileName), lineNo, qPrintable(msg));
+        qWarning("%s%s:%d: %s", qPrintable(pfx), qPrintable(fileName), lineNo, qPrintable(msg));
     else
-        qWarning("%s", qPrintable(msg));
+        qWarning("%s%s", qPrintable(pfx), qPrintable(msg));
 }
 
 class EvalHandler : public QMakeHandler {
 public:
-    virtual void message(int /* type */, const QString &msg, const QString &fileName, int lineNo)
-        { print(fileName, lineNo, msg); }
+    virtual void message(int type, const QString &msg, const QString &fileName, int lineNo)
+        { print(fileName, lineNo, type, msg); }
 
     virtual void fileMessage(const QString &msg)
         { qWarning("%s", qPrintable(msg)); }

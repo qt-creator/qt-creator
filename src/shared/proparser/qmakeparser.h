@@ -46,10 +46,18 @@ class QMAKE_EXPORT QMakeParserHandler
 public:
     enum {
         CategoryMask = 0xf00,
+        WarningMessage = 0x000,
         ErrorMessage = 0x100,
 
         SourceMask = 0xf0,
         SourceParser = 0,
+
+        CodeMask = 0xf,
+        WarnLanguage = 0,
+        WarnDeprecated,
+
+        ParserWarnLanguage = SourceParser | WarningMessage | WarnLanguage,
+        ParserWarnDeprecated = SourceParser | WarningMessage | WarnDeprecated,
 
         ParserIoError = ErrorMessage | SourceParser,
         ParserError
@@ -123,6 +131,10 @@ private:
     void message(int type, const QString &msg) const;
     void parseError(const QString &msg) const
             { message(QMakeParserHandler::ParserError, msg); }
+    void languageWarning(const QString &msg) const
+            { message(QMakeParserHandler::ParserWarnLanguage, msg); }
+    void deprecationWarning(const QString &msg) const
+            { message(QMakeParserHandler::ParserWarnDeprecated, msg); }
 
     // Current location
     ProFile *m_proFile;

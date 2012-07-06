@@ -138,7 +138,11 @@ void QMakeEvaluator::initStatics()
 const ProString &QMakeEvaluator::map(const ProString &var)
 {
     QHash<ProString, ProString>::ConstIterator it = statics.varMap.constFind(var);
-    return (it != statics.varMap.constEnd()) ? it.value() : var;
+    if (it == statics.varMap.constEnd())
+        return var;
+    deprecationWarning(fL1S("Variable %s is deprecated; use %s instead.")
+                       .arg(var.toQString(), it.value().toQString()));
+    return it.value();
 }
 
 
@@ -239,7 +243,8 @@ ProStringList QMakeEvaluator::split_value_list(const QString &vals, const ProFil
     ushort unicode;
     const QChar *vals_data = vals.data();
     const int vals_len = vals.length();
-    for (int x = 0, parens = 0; x < vals_len; x++) {
+    int parens = 0;
+    for (int x = 0; x < vals_len; x++) {
         unicode = vals_data[x].unicode();
         if (x != (int)vals_len-1 && unicode == BACKSLASH &&
             (vals_data[x+1].unicode() == SINGLEQUOTE || vals_data[x+1].unicode() == DOUBLEQUOTE)) {
@@ -263,6 +268,8 @@ ProStringList QMakeEvaluator::split_value_list(const QString &vals, const ProFil
     }
     if (!build.isEmpty())
         ret << ProString(build, NoHash).setSource(source);
+    if (parens)
+        deprecationWarning(fL1S("Unmatched parentheses are deprecated."));
     return ret;
 }
 
@@ -780,6 +787,8 @@ void QMakeEvaluator::visitProVariable(
             if (!m_cumulative) {
                 if (!m_skipLevel) {
                     zipEmpty(&varVal);
+                    // FIXME: add check+warning about accidental value removal.
+                    // This may be a bit too noisy, though.
                     m_valuemapStack.top()[varName] = varVal;
                 }
             } else {
@@ -1210,7 +1219,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 if (!processed.contains(config)) {
                     config.detach();
                     processed.insert(config);
-                    if (evaluateFeatureFile(config)) {
+                    if (evaluateFeatureFile(config, true)) {
                         finished = false;
                         break;
                     }
@@ -1892,6 +1901,8 @@ bool QMakeEvaluator::evaluateFileDirect(
 #endif
         return ok;
     } else {
+        if (!(flags & LoadSilent) && IoUtils::exists(fileName))
+            languageWarning(fL1S("Include file %1 not found").arg(fileName));
         return false;
     }
 }
@@ -1909,7 +1920,7 @@ bool QMakeEvaluator::evaluateFile(
     return evaluateFileDirect(fileName, type, flags);
 }
 
-bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
+bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName, bool silent)
 {
     QString fn = fileName;
     if (!fn.endsWith(QLatin1String(".prf")))
@@ -1938,13 +1949,18 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName)
     if (QFileInfo(fn).exists())
         goto cool;
 #endif
+    if (!silent)
+        languageWarning(fL1S("Cannot find feature %1").arg(fileName));
     return false;
 
   cool:
     ProStringList &already = valuesRef(ProString("QMAKE_INTERNAL_INCLUDED_FEATURES"));
     ProString afn(fn, NoHash);
-    if (already.contains(afn))
+    if (already.contains(afn)) {
+        if (!silent)
+            languageWarning(fL1S("Feature %1 already included").arg(fileName));
         return true;
+    }
     already.append(afn);
 
 #ifdef PROEVALUATOR_CUMULATIVE

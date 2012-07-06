@@ -53,6 +53,9 @@ public:
     enum {
         SourceEvaluator = 0x10,
 
+        EvalWarnLanguage = SourceEvaluator |  WarningMessage | WarnLanguage,
+        EvalWarnDeprecated = SourceEvaluator | WarningMessage | WarnDeprecated,
+
         EvalError = ErrorMessage | SourceEvaluator
     };
 
@@ -71,7 +74,8 @@ public:
         LoadProOnly = 0,
         LoadPreFiles = 1,
         LoadPostFiles = 2,
-        LoadAll = LoadPreFiles|LoadPostFiles
+        LoadAll = LoadPreFiles|LoadPostFiles,
+        LoadSilent = 0x10
     };
     Q_DECLARE_FLAGS(LoadFlags, LoadFlag)
 
@@ -120,7 +124,7 @@ public:
     void visitProFunctionDef(ushort tok, const ProString &name, const ushort *tokPtr);
     void visitProVariable(ushort tok, const ProStringList &curr, const ushort *&tokPtr);
 
-    static const ProString &map(const ProString &var);
+    const ProString &map(const ProString &var);
     ProValueMap *findValues(const ProString &variableName, ProValueMap::Iterator *it);
 
     void setTemplate();
@@ -139,13 +143,17 @@ public:
                             LoadFlags flags);
     bool evaluateFile(const QString &fileName, QMakeHandler::EvalFileType type,
                       LoadFlags flags);
-    bool evaluateFeatureFile(const QString &fileName);
+    bool evaluateFeatureFile(const QString &fileName, bool silent = false);
     bool evaluateFileInto(const QString &fileName, QMakeHandler::EvalFileType type,
                           ProValueMap *values, // output-only
                           LoadFlags flags);
     void message(int type, const QString &msg) const;
     void evalError(const QString &msg) const
             { message(QMakeHandler::EvalError, msg); }
+    void languageWarning(const QString &msg) const
+            { message(QMakeHandler::EvalWarnLanguage, msg); }
+    void deprecationWarning(const QString &msg) const
+            { message(QMakeHandler::EvalWarnDeprecated, msg); }
 
     QList<ProStringList> prepareFunctionArgs(const ushort *&tokPtr);
     QList<ProStringList> prepareFunctionArgs(const ProString &arguments);

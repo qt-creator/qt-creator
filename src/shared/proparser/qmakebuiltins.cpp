@@ -216,8 +216,11 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
     if (func_t == 0) {
         const QString &fn = func.toQString(m_tmp1);
         const QString &lfn = fn.toLower();
-        if (!fn.isSharedWith(lfn))
+        if (!fn.isSharedWith(lfn)) {
             func_t = ExpandFunc(statics.expands.value(ProString(lfn)));
+            if (func_t)
+                deprecationWarning(fL1S("Using uppercased builtin functions is deprecated."));
+        }
     }
 
     ProStringList ret;
@@ -974,23 +977,25 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
     case T_INCLUDE: {
         if (m_skipLevel && !m_cumulative)
             return ReturnFalse;
-        QString parseInto;
-        // the third optional argument to include() controls warnings
-        //      and is not used here
-        if ((args.count() == 2) || (args.count() == 3) ) {
-            parseInto = args.at(1).toQString(m_tmp2);
-        } else if (args.count() != 1) {
-            evalError(fL1S("include(file, into, silent) requires one, two or three arguments."));
+        if (args.count() < 1 || args.count() > 3) {
+            evalError(fL1S("include(file, [into, [silent]]) requires one, two or three arguments."));
             return ReturnFalse;
+        }
+        QString parseInto;
+        LoadFlags flags = 0;
+        if (args.count() >= 2) {
+            parseInto = args.at(1).toQString(m_tmp2);
+            if (args.count() >= 3 && isTrue(args.at(2), m_tmp3))
+                flags = LoadSilent;
         }
         QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
         fn.detach();
         bool ok;
         if (parseInto.isEmpty()) {
-            ok = evaluateFile(fn, QMakeHandler::EvalIncludeFile, LoadProOnly);
+            ok = evaluateFile(fn, QMakeHandler::EvalIncludeFile, LoadProOnly | flags);
         } else {
             ProValueMap symbols;
-            if ((ok = evaluateFileInto(fn, QMakeHandler::EvalAuxFile, &symbols, LoadAll))) {
+            if ((ok = evaluateFileInto(fn, QMakeHandler::EvalAuxFile, &symbols, LoadAll | flags))) {
                 ProValueMap newMap;
                 for (ProValueMap::ConstIterator
                         it = m_valuemapStack.top().constBegin(),
@@ -1011,20 +1016,20 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
                 m_valuemapStack.top() = newMap;
             }
         }
-        return returnBool(ok);
+        return returnBool(ok || (flags & LoadSilent));
     }
     case T_LOAD: {
         if (m_skipLevel && !m_cumulative)
             return ReturnFalse;
-        // bool ignore_error = false;
+        bool ignore_error = false;
         if (args.count() == 2) {
-            // ignore_error = isTrue(args.at(1), m_tmp2);
+            ignore_error = isTrue(args.at(1), m_tmp2);
         } else if (args.count() != 1) {
             evalError(fL1S("load(feature) requires one or two arguments."));
             return ReturnFalse;
         }
-        // XXX ignore_error unused
-        return returnBool(evaluateFeatureFile(m_option->expandEnvVars(args.at(0).toQString())));
+        return returnBool(evaluateFeatureFile(m_option->expandEnvVars(args.at(0).toQString()),
+                                              ignore_error) || ignore_error);
     }
     case T_DEBUG:
         // Yup - do nothing. Nothing is going to enable debug output anyway.
