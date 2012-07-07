@@ -554,7 +554,7 @@ FileName FileName::relativeChildPath(const FileName &parent) const
 /// Appends \a s, ensuring a / between the parts
 FileName &FileName::appendPath(const QString &s)
 {
-    if (!QString::endsWith(QLatin1Char('/')))
+    if (!isEmpty() && !QString::endsWith(QLatin1Char('/')))
         append(QLatin1Char('/'));
     append(s);
     return *this;
