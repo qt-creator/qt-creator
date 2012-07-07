@@ -102,8 +102,13 @@ bool AndroidDeployStep::init()
     QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
     if (!version)
         return false;
+
+    const Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    if (!bc)
+        return false;
+
     m_qtVersionSourcePath = version->sourcePath().toString();
-    m_qtVersionQMakeBuildConfig = version->defaultBuildConfig();
+    m_qtVersionQMakeBuildConfig = bc->qmakeBuildConfiguration();
     m_androidDirPath = AndroidManager::dirPath(target());
     m_apkPathDebug = AndroidManager::apkPath(target(), AndroidManager::DebugBuild).toString();
     m_apkPathRelease = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildSigned).toString();

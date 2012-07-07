@@ -332,7 +332,7 @@ QAbstractItemModel *AndroidPackageCreationStep::keystoreCertificates()
     QProcess keytoolProc;
     while (!rawCerts.length() || !m_keystorePasswd.length()) {
         QStringList params;
-        params << QLatin1String("-list") << QLatin1String("-v") << QLatin1String("-keystore") << m_keystorePathForRun.toUserOutput() << QLatin1String("-storepass");
+        params << QLatin1String("-list") << QLatin1String("-v") << QLatin1String("-keystore") << m_keystorePath.toUserOutput() << QLatin1String("-storepass");
         if (!m_keystorePasswd.length())
             keystorePassword();
         if (!m_keystorePasswd.length())
