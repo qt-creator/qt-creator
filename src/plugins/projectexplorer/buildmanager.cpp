@@ -55,6 +55,7 @@
 #include <QList>
 #include <QHash>
 #include <QFutureWatcher>
+#include <QElapsedTimer>
 
 #include <utils/QtConcurrentTools>
 
@@ -98,6 +99,8 @@ struct BuildManagerPrivate {
     QFutureInterface<void> *m_progressFutureInterface;
     QFutureWatcher<void> m_progressWatcher;
     QPointer<Core::FutureProgress> m_futureProgress;
+
+    QElapsedTimer m_elapsed;
 };
 
 BuildManagerPrivate::BuildManagerPrivate() :
@@ -244,6 +247,18 @@ void BuildManager::updateTaskCount()
 
 void BuildManager::finish()
 {
+    const int seconds = d->m_elapsed.elapsed() / 1000;
+    const int minutes = seconds / 60;
+    const int hours = minutes / 60;
+    QString maybeHours;
+    if (hours) {
+        maybeHours.setNum(hours);
+        maybeHours.append(QLatin1Char(':'));
+    }
+    addToOutputWindow(tr("Elapsed time: %1%2:%3.") .arg(maybeHours)
+                      .arg(minutes % 60, 2, 10, QLatin1Char('0'))
+                      .arg(seconds % 60, 2, 10, QLatin1Char('0')), BuildStep::MessageOutput);
+
     QApplication::alert(Core::ICore::mainWindow(), 3000);
 }
 
@@ -308,6 +323,7 @@ void BuildManager::startBuildQueue(const QStringList &preambleMessage)
         return;
     }
     if (!d->m_running) {
+        d->m_elapsed.start();
         // Progress Reporting
         Core::ProgressManager *progressManager = Core::ICore::progressManager();
         d->m_progressFutureInterface = new QFutureInterface<void>;
