@@ -37,6 +37,7 @@ Project {
         "src/plugins/classview/classview.qbs",
         "src/plugins/cmakeprojectmanager/cmakeprojectmanager.qbs",
         "src/plugins/coreplugin/coreplugin.qbs",
+        "src/plugins/coreplugin/images/logo/logo.qbs",
         "src/plugins/cpaster/cpaster.qbs",
         "src/plugins/cppeditor/cppeditor.qbs",
         "src/plugins/cpptools/cpptools.qbs",
