@@ -463,7 +463,7 @@ void SearchResultWidget::searchAgain()
 
 bool SearchResultWidget::showWarningMessage() const
 {
-    if (m_dontAskAgainGroup.isEmpty())
+    if (m_dontAskAgainGroup.isEmpty() || m_infoBar.containsInfo(QLatin1String(UNDO_WARNING_ID)))
         return false;
     // read settings
     QSettings *settings = Core::ICore::settings();

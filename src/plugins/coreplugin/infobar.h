@@ -75,6 +75,7 @@ class CORE_EXPORT InfoBar : public QObject
 public:
     void addInfo(const InfoBarEntry &info);
     void removeInfo(const QString &id);
+    bool containsInfo(const QString &id) const;
     void clear();
 
 signals:

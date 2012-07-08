@@ -91,6 +91,16 @@ void InfoBar::removeInfo(const QString &id)
         }
 }
 
+bool InfoBar::containsInfo(const QString &id) const
+{
+    QListIterator<InfoBarEntry> it(m_infoBarEntries);
+    while (it.hasNext())
+        if (it.next().id == id)
+            return true;
+
+    return false;
+}
+
 void InfoBar::clear()
 {
     if (!m_infoBarEntries.isEmpty()) {
