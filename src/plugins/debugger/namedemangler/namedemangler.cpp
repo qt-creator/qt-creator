@@ -60,7 +60,6 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
     try {
         m_parseState.m_mangledName = mangledName.toAscii();
         m_parseState.m_pos = 0;
-        m_parseState.m_isConversionOperator = false;
         m_demangledName.clear();
 
         if (!MangledNameRule::mangledRepresentationStartsWith(m_parseState.peek())) {
@@ -90,7 +89,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
     qDeleteAll(m_parseState.m_parseStack);
     m_parseState.m_parseStack.clear();
     m_parseState.m_substitutions.clear();
-    m_parseState.clearTemplateParams();
+    m_parseState.m_templateParams.clear();
     return success;
 }
 

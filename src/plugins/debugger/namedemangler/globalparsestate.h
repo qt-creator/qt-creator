@@ -62,18 +62,11 @@ public:
     int templateParamCount() const { return m_templateParams.count(); }
     ParseTreeNode *templateParamAt(int index) const { return m_templateParams.at(index); }
     void addTemplateParam(ParseTreeNode *node) { m_templateParams << node; }
-    void clearTemplateParams() { m_templateParams.clear(); }
-
-    // TODO: Can we get rid of this by analyzing the stack?
-    bool isConversionOperator() const { return m_isConversionOperator; }
-    void setIsConversionOperator(bool is) { m_isConversionOperator = is; }
-
 private:
     int m_pos;
     QByteArray m_mangledName;
     QList<QByteArray> m_substitutions;
     QList<ParseTreeNode *> m_templateParams;
-    bool m_isConversionOperator;
     QStack<ParseTreeNode *> m_parseStack;
 
     static const char eoi = '$';

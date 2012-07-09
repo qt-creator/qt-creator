@@ -39,11 +39,11 @@
 #define PEEK() (parseState()->peek())
 #define ADVANCE() (parseState()->advance())
 
-#define PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(nodeType, parseState, parentNode) \
+#define PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(NodeType, parseState, parentNode) \
     do { \
-        ParseTreeNode::parseRule<nodeType>(parseState); \
+        ParseTreeNode::parseRule<NodeType>(parseState); \
         DEMANGLER_ASSERT(parseState->stackElementCount() > 0); \
-        DEMANGLER_ASSERT(dynamic_cast<nodeType *>(parseState->stackTop())); \
+        DEMANGLER_ASSERT(dynamic_cast<NodeType *>(parseState->stackTop())); \
         if (parentNode) \
             (parentNode)->addChild(parseState->popFromStack()); \
     } while (0)
@@ -51,7 +51,6 @@
 
 #define PARSE_RULE_AND_ADD_RESULT_AS_CHILD(nodeType) \
     PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(nodeType, parseState(), this)
-
 #define CHILD_AT(obj, index) obj->childAt(index, Q_FUNC_INFO, __FILE__, __LINE__)
 #define MY_CHILD_AT(index) CHILD_AT(this, index)
 #define CHILD_TO_BYTEARRAY(index) MY_CHILD_AT(index)->toByteArray()
@@ -100,16 +99,26 @@ bool ArrayTypeNode::mangledRepresentationStartsWith(char c)
 /*
  * <array-type> ::= A <number> _ <type>
  *              ::= A [<expression>] _ <type>
+ * Note that <expression> can also start with a number, so we have to do a non-constant look-ahead.
  */
 void ArrayTypeNode::parse()
 {
     if (!ArrayTypeNode::mangledRepresentationStartsWith(ADVANCE()))
         throw ParseException(QString::fromLatin1("Invalid array-type"));
 
-    const char next = PEEK();
-    if (NonNegativeNumberNode<10>::mangledRepresentationStartsWith(next))
+    bool isNumber = NonNegativeNumberNode<10>::mangledRepresentationStartsWith(PEEK());
+    int i = 1;
+    while (isNumber) {
+        const char next = parseState()->peek(i);
+        if (next == '_')
+            break;
+        if (!std::isdigit(parseState()->peek(i)))
+            isNumber = false;
+        ++i;
+    }
+    if (isNumber)
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
-    else if (ExpressionNode::mangledRepresentationStartsWith(next))
+    else if (ExpressionNode::mangledRepresentationStartsWith(PEEK()))
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
 
     if (ADVANCE() != '_')
@@ -120,6 +129,8 @@ void ArrayTypeNode::parse()
 
 QByteArray ArrayTypeNode::toByteArray() const
 {
+    // Note: This is not used for things like "reference to array", which need to
+    // combine the child nodes in a different way at a higher level.
     return CHILD_TO_BYTEARRAY(1) + '[' + CHILD_TO_BYTEARRAY(0) + ']';
 }
 
@@ -210,6 +221,8 @@ bool BuiltinTypeNode::mangledRepresentationStartsWith(char c)
  *                ::= Dh # IEEE 754r half-precision floating point (16 bits)
  *                ::= Di # char32_t
  *                ::= Ds # char16_t
+ *                ::= Da # auto (in dependent new-expressions)
+ *                ::= Dn # std::nullptr_t (i.e., decltype(nullptr))
  *                ::= u <source-name>    # vendor extended type
  */
 void BuiltinTypeNode::parse()
@@ -258,6 +271,8 @@ void BuiltinTypeNode::parse()
             m_type = DecimalFloatingType16; break;
         case 'i': m_type = Char32Type; break;
         case 's': m_type = Char16Type; break;
+        case 'a': m_type = AutoType; break;
+        case 'n': m_type = NullPtrType; break;
         default: throw ParseException(QString::fromLatin1("Invalid built-in type"));
         }
         break;
@@ -296,6 +311,8 @@ QByteArray BuiltinTypeNode::toByteArray() const
     case DecimalFloatingType128: return "[IEEE 754r decimal floating point (128 bits)]";
     case Char32Type: return "char32_t";
     case Char16Type: return "char16_t";
+    case AutoType: return "auto";
+    case NullPtrType: return "std::nullptr_t";
     case VendorType: return CHILD_TO_BYTEARRAY(0);
     }
 
@@ -347,12 +364,27 @@ bool DiscriminatorRule::mangledRepresentationStartsWith(char c)
     return c == '_';
 }
 
-/* <discriminator> := _ <non-negative-number> */
+/*
+ *
+ * <discriminator> := _ <non-negative number>      # when number < 10
+ *                 := __ <non-negative number> _   # when number >= 10
+ */
 void DiscriminatorRule::parse(GlobalParseState *parseState, ParseTreeNode *parentNode)
 {
     if (parseState->advance() != '_')
         throw ParseException(QString::fromLatin1("Invalid discriminator"));
+    bool ge10 = false;
+    if (parseState->peek() == '_') {
+        ge10 = true;
+        parseState->advance();
+    }
     PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(NonNegativeNumberNode<10>, parseState, parentNode);
+    const NonNegativeNumberNode<10> * const number
+            = DEMANGLER_CAST(NonNegativeNumberNode<10>, CHILD_AT(parentNode, parentNode->childCount() - 1));
+    if ((ge10 && number->number() < 10) || (!ge10 && number->number() >= 10))
+        throw ParseException(QString::fromLatin1("Invalid discriminator"));
+    if (ge10 && parseState->advance() != '_')
+        throw ParseException(QString::fromLatin1("Invalid discriminator"));
 }
 
 
@@ -467,8 +499,6 @@ void EncodingNode::parse()
         if (BareFunctionTypeNode::mangledRepresentationStartsWith(PEEK()))
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(BareFunctionTypeNode);
         parseState()->addSubstitution(this);
-        parseState()->clearTemplateParams();
-        parseState()->setIsConversionOperator(false);
     } else if (SpecialNameNode::mangledRepresentationStartsWith(next)) {
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SpecialNameNode);
     } else {
@@ -481,22 +511,20 @@ QByteArray EncodingNode::toByteArray() const
     if (childCount() == 1)
         return CHILD_TO_BYTEARRAY(0);
 
-    const ParseTreeNode * const nameNode = MY_CHILD_AT(0);
-    const NestedNameNode * const nestedNameNode
-            = dynamic_cast<NestedNameNode *>(CHILD_AT(nameNode, 0));
-    const CvQualifiersNode * const cvQualifiersNode = nestedNameNode
-            ? dynamic_cast<CvQualifiersNode *>(CHILD_AT(nestedNameNode, 0)) : 0;
+    const ParseTreeNode * const firstChild = MY_CHILD_AT(0);
+    const NameNode * const nameNode = dynamic_cast<const NameNode *>(firstChild);
+    const CvQualifiersNode * const cvQualifiersNode = nameNode ? nameNode->cvQualifiers() : 0;
 
     QByteArray repr;
     const BareFunctionTypeNode * const funcNode
             = DEMANGLER_CAST(BareFunctionTypeNode, MY_CHILD_AT(1));
     if (funcNode->hasReturnType())
         repr = CHILD_AT(funcNode, 0)->toByteArray() + ' ';
-    if (cvQualifiersNode) {
-        return repr + CHILD_AT(nestedNameNode, 1)->toByteArray() + funcNode->toByteArray() + ' '
+    if (cvQualifiersNode && cvQualifiersNode->hasQualifiers()) {
+        return repr + firstChild->toByteArray() + funcNode->toByteArray() + ' '
             + cvQualifiersNode->toByteArray();
     }
-    return repr + nameNode->toByteArray() + funcNode->toByteArray();
+    return repr + firstChild->toByteArray() + funcNode->toByteArray();
 }
 
 
@@ -504,46 +532,66 @@ bool ExpressionNode::mangledRepresentationStartsWith(char c)
 {
     return OperatorNameNode::mangledRepresentationStartsWith(c)
             || TemplateParamNode::mangledRepresentationStartsWith(c)
-/*            || FunctionParamNode::mangledRepresentationStartsWith(c) */
+            || FunctionParamNode::mangledRepresentationStartsWith(c)
             || ExprPrimaryNode::mangledRepresentationStartsWith(c)
-            || c == 'c' || c == 's' || c == 'a';
+            || UnresolvedNameNode::mangledRepresentationStartsWith(c)
+            || c == 'c' || c == 's' || c == 'a' || c == 'd' || c == 't';
 }
 
 /*
  * <expression> ::= <operator-name> <expression>
  *              ::= <operator-name> <expression> <expression>
  *              ::= <operator-name> <expression> <expression> <expression>
- *              ::= cl <expression>* E          # call
- *              ::= cv <type> expression        # conversion with one argument
+ *              ::= cl <expression>+ E                            # call
+ *              ::= cv <type> expression                          # conversion with one argument
  *              ::= cv <type> _ <expression>* E # conversion with a different number of arguments
- *              ::= st <type>                   # sizeof (a type)
- *              ::= at <type>                      # alignof (a type)
+ *              ::= [gs] nw <expression>* _ <type> E              # new (expr-list) type
+ *              ::= [gs] nw <expression>* _ <type> <initializer>  # new (expr-list) type (init)
+ *              ::= [gs] na <expression>* _ <type> E              # new[] (expr-list) type
+ *              ::= [gs] na <expression>* _ <type> <initializer>  # new[] (expr-list) type (init)
+ *              ::= [gs] dl <expression>                          # delete expression
+ *              ::= [gs] da <expression>                          # delete[] expression
+ *              ::= pp_ <expression>                              # prefix ++
+ *              ::= mm_ <expression>                              # prefix --
+ *              ::= ti <type>                                     # typeid (type)
+ *              ::= te <expression>                               # typeid (expression)
+ *              ::= dc <type> <expression>                        # dynamic_cast<type> (expression)
+ *              ::= sc <type> <expression>                        # static_cast<type> (expression)
+ *              ::= cc <type> <expression>                        # const_cast<type> (expression)
+ *              ::= rc <type> <expression>                        # reinterpret_cast<type> (expression)
+ *              ::= st <type>                                     # sizeof (a type)
+ *              ::= at <type>                                     # alignof (a type)
  *              ::= <template-param>
  *              ::= <function-param>
- *              ::= sr <type> <unqualified-name>                   # dependent name
- *              ::= sr <type> <unqualified-name> <template-args>   # dependent template-id
- *              ::= sZ <template-param>                            # size of a parameter pack
+ *              ::= dt <expression> <unresolved-name>             # expr.name
+ *              ::= pt <expression> <unresolved-name>             # expr->name
+ *              ::= ds <expression> <expression>                  # expr.*expr
+ *              ::= sZ <template-param>                           # size of a parameter pack
+ *              ::= sp <expression>                               # pack expansion
+ *              ::= sZ <function-param>                           # size of a function parameter pack
+ *              ::= tw <expression>                               # throw expression
+ *              ::= tr                                            # throw with no operand (rethrow)
+ *              ::= <unresolved-name>                             # f(p), N::f(p), ::f(p),
+ *                                                                # freestanding dependent name (e.g., T::x),
  *              ::= <expr-primary>
- *
- * Note that the grammar is missing the definition of <function-param>. This
- * has not been a problem in the test cases so far.
- * TODO: <function-param> is now defined and should therefore be supported
  */
 void ExpressionNode::parse()
 {
     m_type = OtherType;
+    m_globalNamespace = false;
 
    /*
     * Some of the terminals in the productions of <expression>
-    * also appear in the productions of <operator-name>. We assume the direct
-    * productions to have higher precedence and check them first to prevent
-    * them being parsed by parseOperatorName().
+    * also appear in the productions of <operator-name>. The direct
+    * productions have higher precedence and are checked first to prevent
+    * erroneous parsing by the operator rule.
     */
     QByteArray str = parseState()->readAhead(2);
     if (str == "cl") {
         parseState()->advance(2);
-        while (ExpressionNode::mangledRepresentationStartsWith(PEEK()))
+        do
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+        while (ExpressionNode::mangledRepresentationStartsWith(PEEK()));
         if (ADVANCE() != 'E')
             throw ParseException(QString::fromLatin1("Invalid expression"));
     } else if (str == "cv") {
@@ -559,6 +607,53 @@ void ExpressionNode::parse()
         } else {
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
         }
+    } else if (str == "nw" || str == "na"
+               || parseState()->readAhead(4) == "gsnw" || parseState()->readAhead(4) == "gsna") {
+        if (str == "gs") {
+            m_globalNamespace = true;
+            parseState()->advance(2);
+        }
+        m_type = parseState()->readAhead(2) == "nw" ? NewType : ArrayNewType;
+        parseState()->advance(2);
+        while (ExpressionNode::mangledRepresentationStartsWith(PEEK()))
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+        if (ADVANCE() != '_')
+            throw ParseException("Invalid expression");
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
+        if (PEEK() == 'E')
+            ADVANCE();
+        else
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(InitializerNode);
+    } else if (str == "dl" || str == "da" || parseState()->readAhead(4) == "gsdl"
+               || parseState()->readAhead(4) == "gsda") {
+        if (str == "gs") {
+            m_globalNamespace = true;
+            parseState()->advance(2);
+        }
+        m_type = parseState()->readAhead(2) == "dl" ? DeleteType : ArrayDeleteType;
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+    } else if (parseState()->readAhead(3) == "pp_") {
+        m_type = PrefixIncrementType;
+        parseState()->advance(3);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+    } else if (parseState()->readAhead(3) == "mm_") {
+        m_type = PrefixDecrementType;
+        parseState()->advance(3);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+    } else if (str == "ti") {
+        m_type = TypeIdTypeType;
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
+    } else if (str == "te") {
+        m_type = TypeIdExpressionType;
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+    } else if (str == "dc" || str == "sc" || str == "cc" || str == "rc") {
+        m_type = str == "dc" ? DynamicCastType : str == "sc" ? StaticCastType : str == "cc"
+                ? ConstCastType : ReinterpretCastType;
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
     } else if (str == "st") {
         m_type = SizeofType;
         parseState()->advance(2);
@@ -567,18 +662,42 @@ void ExpressionNode::parse()
         m_type = AlignofType;
         parseState()->advance(2);
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
-    } else if (str == "sr") { // TODO: Which syntax to use here?
-        parseState()->advance(2);
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(UnqualifiedNameNode);
-        if (TemplateArgsNode::mangledRepresentationStartsWith(PEEK()))
-            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgsNode);
     } else if (str == "sZ") {
         m_type = ParameterPackSizeType;
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateParamNode);
+        parseState()->advance(2);
+        if (TemplateParamNode::mangledRepresentationStartsWith(PEEK()))
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateParamNode);
+        else
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(FunctionParamNode);
+    } else if (str == "dt") {
+        m_type = MemberAccessType;
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(UnresolvedNameNode);
+    } else if (str == "pt") {
+        m_type = PointerMemberAccessType;
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(UnresolvedNameNode);
+    } else if (str == "ds") {
+        m_type = MemberDerefType;
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+    } else if (str == "ps") {
+        m_type = PackExpansionType;
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+    } else if (str == "tw") {
+        m_type = ThrowType;
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+    } else if (str == "tr") {
+        m_type = RethrowType;
     } else {
         const char next = PEEK();
-        if (OperatorNameNode::mangledRepresentationStartsWith(next)) {
+        if (OperatorNameNode::mangledRepresentationStartsWith(next) && str != "dn" && str != "on"
+                && str != "gs" && str != "sr") {
             m_type = OperatorType;
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(OperatorNameNode);
             OperatorNameNode * const opNode
@@ -589,39 +708,25 @@ void ExpressionNode::parse()
             case OperatorNameNode::TernaryType:
                 expressionCount = 3;
                 break;
-            case OperatorNameNode::ArrayNewType:
-            case OperatorNameNode::BinaryPlusType:
-            case OperatorNameNode::BinaryMinusType:
-            case OperatorNameNode::MultType:
-            case OperatorNameNode::DivType:
-            case OperatorNameNode::ModuloType:
-            case OperatorNameNode::BitwiseAndType:
-            case OperatorNameNode::BitwiseOrType:
-            case OperatorNameNode::XorType:
-            case OperatorNameNode::AssignType:
+            case OperatorNameNode::ArrayNewType: case OperatorNameNode::BinaryPlusType:
+            case OperatorNameNode::BinaryMinusType: case OperatorNameNode::MultType:
+            case OperatorNameNode::DivType: case OperatorNameNode::ModuloType:
+            case OperatorNameNode::BitwiseAndType: case OperatorNameNode::BitwiseOrType:
+            case OperatorNameNode::XorType: case OperatorNameNode::AssignType:
             case OperatorNameNode::IncrementAndAssignType:
             case OperatorNameNode::DecrementAndAssignType:
-            case OperatorNameNode::MultAndAssignType:
-            case OperatorNameNode::DivAndAssignType:
+            case OperatorNameNode::MultAndAssignType: case OperatorNameNode::DivAndAssignType:
             case OperatorNameNode::ModuloAndAssignType:
             case OperatorNameNode::BitwiseAndAndAssignType:
             case OperatorNameNode::BitwiseOrAndAssignType:
-            case OperatorNameNode::XorAndAssignType:
-            case OperatorNameNode::LeftShiftType:
-            case OperatorNameNode::RightShiftType:
-            case OperatorNameNode::LeftShiftAndAssignType:
-            case OperatorNameNode::RightShiftAndAssignType:
-            case OperatorNameNode::EqualsType:
-            case OperatorNameNode::NotEqualsType:
-            case OperatorNameNode::LessType:
-            case OperatorNameNode::GreaterType:
-            case OperatorNameNode::LessEqualType:
-            case OperatorNameNode::GreaterEqualType:
-            case OperatorNameNode::LogicalAndType:
-            case OperatorNameNode::LogicalOrType:
-            case OperatorNameNode::CommaType:
-            case OperatorNameNode::ArrowStarType:
-            case OperatorNameNode::ArrowType:
+            case OperatorNameNode::XorAndAssignType: case OperatorNameNode::LeftShiftType:
+            case OperatorNameNode::RightShiftType: case OperatorNameNode::LeftShiftAndAssignType:
+            case OperatorNameNode::RightShiftAndAssignType: case OperatorNameNode::EqualsType:
+            case OperatorNameNode::NotEqualsType: case OperatorNameNode::LessType:
+            case OperatorNameNode::GreaterType: case OperatorNameNode::LessEqualType:
+            case OperatorNameNode::GreaterEqualType: case OperatorNameNode::LogicalAndType:
+            case OperatorNameNode::LogicalOrType: case OperatorNameNode::CommaType:
+            case OperatorNameNode::ArrowStarType: case OperatorNameNode::ArrowType:
             case OperatorNameNode::IndexType:
                 expressionCount = 2;
                 break;
@@ -633,13 +738,12 @@ void ExpressionNode::parse()
                 PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
         } else if (TemplateParamNode::mangledRepresentationStartsWith(next)) {
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateParamNode);
-
-#if 0
         } else if (FunctionParamNode::mangledRepresentationStartsWith(next)) {
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(FunctionParamNode);
-#endif
         } else if (ExprPrimaryNode::mangledRepresentationStartsWith(next)) {
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExprPrimaryNode);
+        } else if (UnresolvedNameNode::mangledRepresentationStartsWith(next)) {
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(UnresolvedNameNode);
         } else {
             throw ParseException(QString::fromLatin1("Invalid expression"));
         }
@@ -657,14 +761,89 @@ QByteArray ExpressionNode::toByteArray() const
             repr += CHILD_TO_BYTEARRAY(i);
         repr += ')';
         break;
+    case NewType: case ArrayNewType: {
+        if (m_globalNamespace)
+            repr += "::";
+        repr += "new";
+        if (m_type == ArrayNewType)
+            repr += "[]";
+        repr += ' ';
+
+        // TODO: I don't understand what the first expression list means. Putting it into
+        // parentheses for now.
+        QByteArray exprList;
+        int i = 0;
+        for (; i < childCount(); ++i) {
+            if (!dynamic_cast<ExpressionNode *>(MY_CHILD_AT(i)))
+                break;
+            if (i > 0)
+                repr += ", ";
+            repr += CHILD_TO_BYTEARRAY(i);
+        }
+        if (i > 0)
+            repr.append('(').append(exprList).append(')');
+
+        repr += CHILD_TO_BYTEARRAY(i++); // <type>
+        if (i < childCount())
+            repr += CHILD_TO_BYTEARRAY(i); // <initializer>
+        break;
+    }
+    case DeleteType: case ArrayDeleteType:
+        if (m_globalNamespace)
+            repr += "::";
+        repr += "delete";
+        if (m_type == ArrayDeleteType)
+            repr += "[]";
+        repr.append(' ').append(CHILD_TO_BYTEARRAY(0));
+        break;
+    case PrefixIncrementType:
+        repr.append("++").append(CHILD_TO_BYTEARRAY(0));
+        break;
+    case PrefixDecrementType:
+        repr.append("--").append(CHILD_TO_BYTEARRAY(0));
+        break;
+    case TypeIdTypeType: case TypeIdExpressionType:
+        repr.append("typeid(").append(CHILD_TO_BYTEARRAY(0)).append(')');
+        break;
+    case DynamicCastType: case StaticCastType: case ConstCastType: case ReinterpretCastType:
+        if (m_type == DynamicCastType)
+            repr += "dynamic";
+        else if (m_type == StaticCastType)
+            repr += "static";
+        else if (m_type == ConstCastType)
+            repr += "const";
+        else
+            repr += "reinterpret";
+        repr.append("_cast<").append(CHILD_TO_BYTEARRAY(0)).append(">(")
+                .append(CHILD_TO_BYTEARRAY(1)).append(')');
+        break;
     case SizeofType:
         repr = "sizeof(" + CHILD_TO_BYTEARRAY(0) + ')';
         break;
     case AlignofType:
         repr = "alignof(" + CHILD_TO_BYTEARRAY(0) + ')';
         break;
+    case MemberAccessType:
+        repr.append(CHILD_TO_BYTEARRAY(0)).append('.').append(CHILD_TO_BYTEARRAY(1));
+        break;
+    case PointerMemberAccessType:
+        repr.append(CHILD_TO_BYTEARRAY(0)).append("->").append(CHILD_TO_BYTEARRAY(1));
+        break;
+    case MemberDerefType:
+        repr.append(CHILD_TO_BYTEARRAY(0)).append(".*").append(CHILD_TO_BYTEARRAY(1));
+        break;
     case ParameterPackSizeType:
         repr = CHILD_TO_BYTEARRAY(0); // TODO: What does this look like?
+        break;
+    case PackExpansionType:
+        repr = CHILD_TO_BYTEARRAY(0); // TODO: What does this look like?
+        break;
+    case ThrowType:
+        repr.append("throw ").append(CHILD_TO_BYTEARRAY(0));
+        break;
+    case RethrowType:
+        repr.append("throw");
+        break;
     case OperatorType: {
         const OperatorNameNode * const opNode = DEMANGLER_CAST(OperatorNameNode, MY_CHILD_AT(0));
         switch (opNode->type()) {
@@ -810,7 +989,6 @@ void OperatorNameNode::parse()
         const QByteArray id = parseState()->readAhead(2);
         parseState()->advance(2);
         if (id == "cv") {
-            parseState()->setIsConversionOperator(true);
             m_type = CastType;
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
         } else if (id == "nw") {
@@ -986,13 +1164,18 @@ bool ExprPrimaryNode::mangledRepresentationStartsWith(char c)
 /*
  * <expr-primary> ::= L <type> <number> E            # integer literal
  *                ::= L <type> <float> E             # floating literal
+ *                ::= L <string type>                # string literal
+ *                ::= L <nullptr type> E             # nullptr literal (i.e., "LDnE")
+ *                ::= L <type> <real-part float> _ <imag-part float> E   # complex floating point literal (C 2000)
  *                ::= L <mangled-name> E             # external name
+ * Note that we ignore C 2000 features.
  */
- // TODO: This has been updated in the spec. Needs to be adapted. (nullptr etc.)
 void ExprPrimaryNode::parse()
 {
     if (!ExprPrimaryNode::mangledRepresentationStartsWith(ADVANCE()))
         throw ParseException(QString::fromLatin1("Invalid primary expression"));
+    m_isNullPtr = false;
+    bool needsESuffix = true;
     const char next = PEEK();
     if (TypeNode::mangledRepresentationStartsWith(next)) {
         const ParseTreeNode * const topLevelTypeNode = parseRule<TypeNode>(parseState());
@@ -1001,16 +1184,38 @@ void ExprPrimaryNode::parse()
         if (!typeNode)
             throw ParseException(QLatin1String("Invalid type in expr-primary"));
 
-        // TODO: Of which type can a literal actually be?
         switch (typeNode->type()) {
-        case BuiltinTypeNode::SignedIntType:
+        case BuiltinTypeNode::UnsignedShortType:
         case BuiltinTypeNode::UnsignedIntType:
-        case BuiltinTypeNode::UnsignedLongType:
+            m_suffix = "U"; // Fall-through.
+        case BuiltinTypeNode::SignedShortType:
+        case BuiltinTypeNode::SignedIntType:
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NumberNode);
             break;
-        case BuiltinTypeNode::FloatType: case BuiltinTypeNode::DoubleType:
+        case BuiltinTypeNode::UnsignedLongType:
+            m_suffix = "U"; // Fall-through.
+        case BuiltinTypeNode::SignedLongType:
+            m_suffix = "L";
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NumberNode);
+            break;
+        case BuiltinTypeNode::UnsignedLongLongType:
+            m_suffix = "U"; // Fall-through.
+        case BuiltinTypeNode::SignedLongLongType:
+            m_suffix = "LL";
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NumberNode);
+            break;
+        case BuiltinTypeNode::FloatType:
+            m_suffix = "f"; // Fall-through.
+        case BuiltinTypeNode::DoubleType:
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(FloatValueNode);
             break;
+        case BuiltinTypeNode::NullPtrType:
+            m_isNullPtr = true;
+            break;
+        case BuiltinTypeNode::PlainCharType: case BuiltinTypeNode::WCharType:
+        case BuiltinTypeNode::Char16Type: case BuiltinTypeNode::Char32Type:
+            needsESuffix = false;
+            break; // string type
         default:
             throw ParseException(QString::fromLatin1("Invalid type in expr-primary"));
         }
@@ -1020,13 +1225,15 @@ void ExprPrimaryNode::parse()
     } else {
         throw ParseException(QString::fromLatin1("Invalid expr-primary"));
     }
-    if (ADVANCE() != 'E')
+    if (needsESuffix && ADVANCE() != 'E')
         throw ParseException(QString::fromLatin1("Invalid expr-primary"));
 }
 
 QByteArray ExprPrimaryNode::toByteArray() const
 {
-    return CHILD_TO_BYTEARRAY(0);
+    if (m_isNullPtr)
+        return "nullptr";
+    return CHILD_TO_BYTEARRAY(0) + m_suffix;
 }
 
 bool FunctionTypeNode::mangledRepresentationStartsWith(char c)
@@ -1066,13 +1273,19 @@ bool LocalNameNode::mangledRepresentationStartsWith(char c)
 /*
  * <local-name> := Z <encoding> E <name> [<discriminator>]
  *              := Z <encoding> E s [<discriminator>]
+ *              := Z <encoding> Ed [ <non-negative number> ] _ <name>
  *
  * Note that <name> can start with 's', so we need to do read-ahead.
+ * Also, <name> can start with 'd' (via <operator-name>).
+ * The last rule is for member functions with default closure type arguments.
  */
 void LocalNameNode::parse()
 {
     if (!mangledRepresentationStartsWith(ADVANCE()))
         throw ParseException(QString::fromLatin1("Invalid local-name"));
+
+    m_isStringLiteral = false;
+    m_isDefaultArg = false;
 
     PARSE_RULE_AND_ADD_RESULT_AS_CHILD(EncodingNode);
 
@@ -1080,10 +1293,17 @@ void LocalNameNode::parse()
         throw ParseException(QString::fromLatin1("Invalid local-name"));
 
     QByteArray str = parseState()->readAhead(2);
-    char next = PEEK();
-    if (str == "sp" || str == "sr" || str == "st" || str == "sz" || str == "sZ"
+    const char next = PEEK();
+    if (next == 'd' && str != "dl" && str != "da" && str != "de" && str != "dv" && str != "dV") {
+        m_isDefaultArg = true;
+        ADVANCE();
+        if (NonNegativeNumberNode<10>::mangledRepresentationStartsWith(PEEK()))
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
+        if (ADVANCE() != '_')
+            throw ParseException(QString::fromLatin1("Invalid local-name"));
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NameNode);
+    } else if (str == "sp" || str == "sr" || str == "st" || str == "sz" || str == "sZ"
             || (next != 's' && NameNode::mangledRepresentationStartsWith(next))) {
-        m_isStringLiteral = false;
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NameNode);
     } else if (next == 's') {
         m_isStringLiteral = true;
@@ -1099,8 +1319,24 @@ QByteArray LocalNameNode::toByteArray() const
 {
     QByteArray name;
     bool hasDiscriminator;
-    if (m_isStringLiteral) {
-        name = CHILD_TO_BYTEARRAY(0) + "::[string literal]";
+    if (m_isDefaultArg) {
+        const ParseTreeNode * const encodingNode = MY_CHILD_AT(0);
+        const BareFunctionTypeNode * const funcNode
+                = DEMANGLER_CAST(BareFunctionTypeNode, CHILD_AT(encodingNode, 1));
+        const int functionParamCount
+                = funcNode->hasReturnType() ? funcNode->childCount() - 1 : funcNode->childCount();
+        const NonNegativeNumberNode<10> * const numberNode
+                = dynamic_cast<NonNegativeNumberNode<10> *>(MY_CHILD_AT(1));
+
+        // "_" means last argument, "n" means (n+1)th to last.
+        // Note that c++filt in binutils 2.22 does this wrong.
+        const int argNumber = functionParamCount - (numberNode ? numberNode->number() + 1 : 0);
+
+        name = encodingNode->toByteArray();
+        name.append("::{default arg#").append(QByteArray::number(argNumber)).append("}::")
+                .append(MY_CHILD_AT(childCount() - 1)->toByteArray());
+    } else if (m_isStringLiteral) {
+        name = CHILD_TO_BYTEARRAY(0) + "::{string literal}";
         hasDiscriminator = childCount() == 2;
     } else {
         name = CHILD_TO_BYTEARRAY(0) + "::" + CHILD_TO_BYTEARRAY(1);
@@ -1113,6 +1349,29 @@ QByteArray LocalNameNode::toByteArray() const
 //        name += " (occurrence number " + QByteArray::number(rawDiscriminatorValue - 2) + ')';
     }
     return name;
+}
+
+bool LocalNameNode::isTemplate() const
+{
+    if (childCount() == 1 || dynamic_cast<NonNegativeNumberNode<10> *>(MY_CHILD_AT(1)))
+        return false;
+    return DEMANGLER_CAST(NameNode, MY_CHILD_AT(1))->isTemplate();
+}
+
+bool LocalNameNode::isConstructorOrDestructorOrConversionOperator() const
+{
+    if (childCount() == 1 || dynamic_cast<NonNegativeNumberNode<10> *>(MY_CHILD_AT(1)))
+        return false;
+    return DEMANGLER_CAST(NameNode, MY_CHILD_AT(1))->isConstructorOrDestructorOrConversionOperator();
+}
+
+const CvQualifiersNode *LocalNameNode::cvQualifiers() const
+{
+    if (m_isDefaultArg)
+        return DEMANGLER_CAST(const NameNode, MY_CHILD_AT(childCount() - 1))->cvQualifiers();
+    if (childCount() == 1 || dynamic_cast<NonNegativeNumberNode<10> *>(MY_CHILD_AT(1)))
+        return 0;
+    return DEMANGLER_CAST(const NameNode, MY_CHILD_AT(1))->cvQualifiers();
 }
 
 
@@ -1152,7 +1411,8 @@ bool UnqualifiedNameNode::mangledRepresentationStartsWith(char c)
 {
     return OperatorNameNode::mangledRepresentationStartsWith(c)
             || CtorDtorNameNode::mangledRepresentationStartsWith(c)
-            || SourceNameNode::mangledRepresentationStartsWith(c);
+            || SourceNameNode::mangledRepresentationStartsWith(c)
+            || UnnamedTypeNameNode::mangledRepresentationStartsWith(c);
 }
 
 QByteArray UnqualifiedNameNode::toByteArray() const
@@ -1175,6 +1435,7 @@ bool UnqualifiedNameNode::isConstructorOrDestructorOrConversionOperator() const
  * <unqualified-name> ::= <operator-name>
  *                    ::= <ctor-dtor-name>
  *                    ::= <source-name>
+ *                    ::= <unnamed-type-name>
  */
 void UnqualifiedNameNode::parse()
 {
@@ -1185,6 +1446,8 @@ void UnqualifiedNameNode::parse()
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(CtorDtorNameNode);
     else if (SourceNameNode::mangledRepresentationStartsWith(next))
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SourceNameNode);
+    else if (UnnamedTypeNameNode::mangledRepresentationStartsWith(next))
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(UnnamedTypeNameNode);
     else
         throw ParseException(QString::fromLatin1("Invalid unqualified-name"));
 }
@@ -1237,9 +1500,9 @@ bool NestedNameNode::mangledRepresentationStartsWith(char c)
 
 QByteArray NestedNameNode::toByteArray() const
 {
-    // This the valid representation only if no cv-qualifiers are present.
-    // In that case (only possible for member functions), a higher-level object must
-    // create the string representation.
+    // cv-qualifiers are not encoded here, since they only make sense at a higher level.
+    if (dynamic_cast<CvQualifiersNode *>(MY_CHILD_AT(0)))
+        return CHILD_TO_BYTEARRAY(1);
     return CHILD_TO_BYTEARRAY(0);
 }
 
@@ -1253,6 +1516,11 @@ bool NestedNameNode::isConstructorOrDestructorOrConversionOperator() const
 {
     const PrefixNode * const childNode = DEMANGLER_CAST(PrefixNode, MY_CHILD_AT(childCount() - 1));
     return childNode->isConstructorOrDestructorOrConversionOperator();
+}
+
+const CvQualifiersNode *NestedNameNode::cvQualifiers() const
+{
+    return dynamic_cast<CvQualifiersNode *>(MY_CHILD_AT(0));
 }
 
 /*
@@ -1454,7 +1722,16 @@ void TemplateParamNode::parse()
     if (ADVANCE() != '_')
         throw ParseException(QString::fromLatin1("Invalid template-param"));
     if (m_index >= parseState()->templateParamCount()) {
-        if (!parseState()->isConversionOperator()) {
+        bool isConversionOperator = false;
+        for (int i = parseState()->stackElementCount() - 1; i >= 0; --i) {
+            const OperatorNameNode * const opNode
+                    = dynamic_cast<OperatorNameNode *>(parseState()->stackElementAt(i));
+            if (opNode && opNode->type() == OperatorNameNode::CastType) {
+                isConversionOperator = true;
+                break;
+            }
+        }
+        if (!isConversionOperator) {
             throw ParseException(QString::fromLocal8Bit("Invalid template parameter index %1")
                     .arg(m_index));
         }
@@ -1658,8 +1935,10 @@ bool NameNode::isTemplate() const
     const NestedNameNode * const nestedNameNode = dynamic_cast<NestedNameNode *>(MY_CHILD_AT(0));
     if (nestedNameNode)
         return nestedNameNode->isTemplate();
+    const LocalNameNode * const localNameNode = dynamic_cast<LocalNameNode *>(MY_CHILD_AT(0));
+    if (localNameNode)
+        return localNameNode->isTemplate();
 
-    // TODO: Is <local-name> relevant?
     return false;
 }
 
@@ -1668,9 +1947,22 @@ bool NameNode::isConstructorOrDestructorOrConversionOperator() const
     const NestedNameNode * const nestedNameNode = dynamic_cast<NestedNameNode *>(MY_CHILD_AT(0));
     if (nestedNameNode)
         return nestedNameNode->isConstructorOrDestructorOrConversionOperator();
+    const LocalNameNode * const localNameNode = dynamic_cast<LocalNameNode *>(MY_CHILD_AT(0));
+    if (localNameNode)
+        return localNameNode->isConstructorOrDestructorOrConversionOperator();
 
-    // TODO: Is <local-name> relevant?
     return false;
+}
+
+const CvQualifiersNode *NameNode::cvQualifiers() const
+{
+    const NestedNameNode * const nestedNameNode = dynamic_cast<NestedNameNode *>(MY_CHILD_AT(0));
+    if (nestedNameNode)
+        return nestedNameNode->cvQualifiers();
+    const LocalNameNode * const localNameNode = dynamic_cast<LocalNameNode *>(MY_CHILD_AT(0));
+    if (localNameNode)
+        return localNameNode->cvQualifiers();
+    return 0;
 }
 
 /*
@@ -1718,7 +2010,7 @@ bool TemplateArgNode::mangledRepresentationStartsWith(char c)
 {
     return TypeNode::mangledRepresentationStartsWith(c)
             || ExprPrimaryNode::mangledRepresentationStartsWith(c)
-            || c == 'X' || c == 'I' || c == 's';
+            || c == 'X' || c == 'I';
 }
 
 /*
@@ -1726,17 +2018,13 @@ bool TemplateArgNode::mangledRepresentationStartsWith(char c)
  *                ::= X <expression> E          # expression
  *                ::= <expr-primary>            # simple expressions
  *                ::= J <template-arg>* E       # argument pack
- *                ::= sp <expression>           # pack expansion of (C++0x)
  */
 void TemplateArgNode::parse()
 {
     m_isTemplateArgumentPack = false;
 
     char next = PEEK();
-    if (parseState()->readAhead(2) == "sp") {
-        parseState()->advance(2);
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
-    } else if (TypeNode::mangledRepresentationStartsWith(next)) {
+    if (TypeNode::mangledRepresentationStartsWith(next)) {
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
     } else if (ExprPrimaryNode::mangledRepresentationStartsWith(next)) {
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExprPrimaryNode);
@@ -1775,7 +2063,8 @@ QByteArray TemplateArgNode::toByteArray() const
 
 bool Prefix2Node::mangledRepresentationStartsWith(char c)
 {
-    return UnqualifiedNameNode::mangledRepresentationStartsWith(c);
+    return UnqualifiedNameNode::mangledRepresentationStartsWith(c)
+            || SourceNameNode::mangledRepresentationStartsWith(c);
 }
 
 QByteArray Prefix2Node::toByteArray() const
@@ -1808,7 +2097,12 @@ bool Prefix2Node::isConstructorOrDestructorOrConversionOperator() const
 
 /*
  * <prefix-2> ::= <unqualified-name> [<template-args>] <prefix-2>
+ *            ::= <data-member-prefix> <prefix2>
  *            ::=  # empty
+ *
+ * <data-member-prefix> has overlap in its rhs with <unqualified-name>, so we cannot make it
+ * a node of its own. Instead, we just check whether a source name is followed by 'M' and
+ * remember that.
  */
 void Prefix2Node::parse()
 {
@@ -1819,12 +2113,20 @@ void Prefix2Node::parse()
     while (UnqualifiedNameNode::mangledRepresentationStartsWith(PEEK())) {
         if (!firstRun)
             parseState()->addSubstitution(prefixNode->toByteArray() + toByteArray());
+        firstRun = false;
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(UnqualifiedNameNode);
+        const bool isDataMember = dynamic_cast<SourceNameNode *>(
+                    CHILD_AT(MY_CHILD_AT(childCount() - 1), 0)) && PEEK() == 'M';
+        if (isDataMember) {
+            // TODO: Being a data member is apparently relevant for initializers, but what does
+            // this mean for the demangled string?
+            ADVANCE();
+            continue;
+        }
         if (TemplateArgsNode::mangledRepresentationStartsWith(PEEK())) {
             parseState()->addSubstitution(prefixNode->toByteArray() + toByteArray());
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgsNode);
         }
-        firstRun = false;
     }
 }
 
@@ -1833,8 +2135,10 @@ bool PrefixNode::mangledRepresentationStartsWith(char c)
 {
     return TemplateParamNode::mangledRepresentationStartsWith(c)
             || SubstitutionNode::mangledRepresentationStartsWith(c)
-            || Prefix2Node::mangledRepresentationStartsWith(c);
+            || Prefix2Node::mangledRepresentationStartsWith(c)
+            || DeclTypeNode::mangledRepresentationStartsWith(c);
 }
+
 
 QByteArray PrefixNode::toByteArray() const
 {
@@ -1869,13 +2173,20 @@ bool PrefixNode::isConstructorOrDestructorOrConversionOperator() const
  * <prefix> ::= <prefix> <unqualified-name>
  *          ::= <template-prefix> <template-args>
  *          ::= <template-param>
+ *          ::= <decltype>
  *          ::= # empty
  *          ::= <substitution>
+ *          ::= <prefix> <data-member-prefix>
+ * <template-prefix> ::= <prefix> <unqualified-name>
+ *                   ::= <template-param>
+ *                   ::= <substitution>
+ * <data-member-prefix> := <source-name> M
  *
  * We have to eliminate the left-recursion and the template-prefix rule
  * and end up with this:
  * <prefix> ::= <template-param> [<template-args>] <prefix-2>
  *          ::= <substitution> [<template-args>] <prefix-2>
+ *          ::= <decltype> [<template-args>] <prefix-2>
  *          ::= <prefix-2>
  */
 void PrefixNode::parse()
@@ -1899,6 +2210,14 @@ void PrefixNode::parse()
                 parseState()->addSubstitution(this);
         }
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(Prefix2Node);
+    } else if (DeclTypeNode::mangledRepresentationStartsWith(next)) {
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SubstitutionNode);
+        if (TemplateArgsNode::mangledRepresentationStartsWith(PEEK())) {
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgsNode);
+            if (UnqualifiedNameNode::mangledRepresentationStartsWith(PEEK()))
+                parseState()->addSubstitution(this);
+        }
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(Prefix2Node);
     } else {
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(Prefix2Node);
     }
@@ -1915,6 +2234,7 @@ bool TypeNode::mangledRepresentationStartsWith(char c)
             || TemplateParamNode::mangledRepresentationStartsWith(c)
             || SubstitutionNode::mangledRepresentationStartsWith(c)
             || CvQualifiersNode::mangledRepresentationStartsWith(c)
+            || DeclTypeNode::mangledRepresentationStartsWith(c)
             || strchr("PROCGUD", c);
 
 }
@@ -1927,6 +2247,7 @@ bool TypeNode::mangledRepresentationStartsWith(char c)
  *        ::= <pointer-to-member-type>
  *        ::= <template-param>
  *        ::= <template-template-param> <template-args>
+ *        ::= <decltype>
  *        ::= <substitution> # See Compression below
  *        ::= <CV-qualifiers> <type>
  *        ::= P <type>   # pointer-to
@@ -1936,8 +2257,6 @@ bool TypeNode::mangledRepresentationStartsWith(char c)
  *        ::= G <type>   # imaginary (C 2000)
  *        ::= U <source-name> <type>     # vendor extended type qualifier
  *        ::= Dp <type>          # pack expansion of (C++0x)
- *        ::= Dt <expression> E  # decltype of an id-expression or class member access (C++0x)
- *        ::= DT <expression> E  # decltype of an expression (C++0x)
  *
  * Because <template-template-param> can expand to <template-param>, we have to
  * do a slight transformation: We get rid of <template-template-param> and
@@ -1953,45 +2272,30 @@ bool TypeNode::mangledRepresentationStartsWith(char c)
  */
 void TypeNode::parse()
 {
+    m_type = OtherType;
     QByteArray str = parseState()->readAhead(2);
     if (str == "Dp") {
         m_type = PackExpansionType;
         parseState()->advance(2);
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
-    } else if (str == "Dt") {
-        m_type = DeclType;
-        parseState()->advance(2);
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
-        if (ADVANCE() != 'E')
-            throw ParseException(QString::fromLatin1("Invalid type"));
-    } else if (str == "DT") {
-        m_type = DeclType;
-        parseState()->advance(2);
-        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
-        if (ADVANCE() != 'E')
-            throw ParseException(QString::fromLatin1("Invalid type"));
     } else {
         const char next = PEEK();
-        if (str == "Dd" || str == "De" || str == "Df" || str == "Dh" || str == "Di" || str == "Ds"
+        if (str == "Dt" || str == "DT") {
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(DeclTypeNode);
+        } else if (str == "Dd" || str == "De" || str == "Df" || str == "Dh" || str == "Di" || str == "Ds"
             || (next != 'D' && BuiltinTypeNode::mangledRepresentationStartsWith(next))) {
-            m_type = OtherType;
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(BuiltinTypeNode);
         } else if (FunctionTypeNode::mangledRepresentationStartsWith(next)) {
-            m_type = OtherType;
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(FunctionTypeNode);
             parseState()->addSubstitution(this);
         } else if (ClassEnumTypeRule::mangledRepresentationStartsWith(next)) {
-            m_type = OtherType;
             ClassEnumTypeRule::parse(parseState(), this);
             parseState()->addSubstitution(this);
         } else if (ArrayTypeNode::mangledRepresentationStartsWith(next)) {
-            m_type = OtherType;
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ArrayTypeNode);
         } else if (PointerToMemberTypeNode::mangledRepresentationStartsWith(next)) {
-            m_type = OtherType;
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(PointerToMemberTypeNode);
         } else if (TemplateParamNode::mangledRepresentationStartsWith(next)) {
-            m_type = OtherType;
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateParamNode);
             // The type is now a substitution candidate, but the child node may contain a forward
             // reference, so we delay the substitution until it is resolved.
@@ -2020,7 +2324,6 @@ void TypeNode::parse()
             if (childCount() > 1)
                 parseState()->addSubstitution(this);
         } else if (SubstitutionNode::mangledRepresentationStartsWith(next)) {
-            m_type = OtherType;
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SubstitutionNode);
             if (TemplateArgsNode::mangledRepresentationStartsWith(PEEK())) {
                 PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgsNode);
@@ -2050,12 +2353,10 @@ void TypeNode::parse()
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
             parseState()->addSubstitution(this);
         } else if (next == 'C') {
-            m_type = OtherType;
             ADVANCE();
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
             parseState()->addSubstitution(this);
         } else if (next == 'G') {
-            m_type = OtherType;
             ADVANCE();
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
             parseState()->addSubstitution(this);
@@ -2104,10 +2405,11 @@ QByteArray TypeNode::toByteArray() const
     if (qualPtrRefList.isEmpty()) {
         switch (currentNode->m_type) {
         case PackExpansionType: return CHILD_TO_BYTEARRAY(0); // TODO: What's the syntax?
-        case DeclType: return "decltype(" + CHILD_TO_BYTEARRAY(0) + ')';
         case VendorType: return pasteAllChildren();
         case OtherType: return pasteAllChildren();
-        default: DEMANGLER_ASSERT(false);
+
+        // Can happen if qualifier node does not actually have qualifiers, e.g. in <function-param>.
+        default: return pasteAllChildren();
         }
     }
 
@@ -2128,6 +2430,12 @@ QByteArray TypeNode::toByteArrayQualPointerRef(const TypeNode *typeNode,
         if (bareFunctionNode->hasReturnType())
             repr += CHILD_AT(bareFunctionNode, 0)->toByteArray() + ' ';
         return repr += '(' + qualPtrRef + ')' + bareFunctionNode->toByteArray();
+    }
+
+    const ArrayTypeNode * const arrayNode = dynamic_cast<ArrayTypeNode *>(CHILD_AT(typeNode, 0));
+    if (arrayNode) {
+        return CHILD_AT(arrayNode, 1)->toByteArray() + " (" + qualPtrRef + ")["
+                + CHILD_AT(arrayNode, 0)->toByteArray() + ']';
     }
 
     if (dynamic_cast<PointerToMemberTypeNode *>(CHILD_AT(typeNode, 0)))
@@ -2212,6 +2520,397 @@ void VOffsetNode::parse()
     if (ADVANCE() != '_')
         throw ParseException(QString::fromLatin1("Invalid v-offset"));
     PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NumberNode);
+}
+
+
+bool LambdaSigNode::mangledRepresentationStartsWith(char c)
+{
+    return TypeNode::mangledRepresentationStartsWith(c);
+}
+
+// <lambda-sig> ::= <type>+  # Parameter types or "v" if the lambda has no parameters
+void LambdaSigNode::parse()
+{
+    do
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
+    while (TypeNode::mangledRepresentationStartsWith(PEEK()));
+}
+
+QByteArray LambdaSigNode::toByteArray() const
+{
+    QByteArray repr = "lambda(";
+    for (int i = 0; i < childCount(); ++i) {
+        const QByteArray paramRepr = CHILD_TO_BYTEARRAY(i);
+        if (paramRepr != "void")
+            repr += paramRepr;
+        if (i < childCount() - 1)
+            repr += ", ";
+    }
+    return repr += ')';
+}
+
+
+// <closure-type-name> ::= Ul <lambda-sig> E [ <nonnegative number> ] _
+void ClosureTypeNameNode::parse()
+{
+    if (parseState()->readAhead(2) != "Ul")
+        throw ParseException("Invalid closure-type-name");
+    parseState()->advance(2);
+    PARSE_RULE_AND_ADD_RESULT_AS_CHILD(LambdaSigNode);
+    if (ADVANCE() != 'E')
+        throw ParseException("invalid closure-type-name");
+    if (NonNegativeNumberNode<10>::mangledRepresentationStartsWith(PEEK()))
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
+    if (ADVANCE() != '_')
+        throw ParseException("Invalid closure-type-name");
+}
+
+QByteArray ClosureTypeNameNode::toByteArray() const
+{
+    QByteArray repr = CHILD_TO_BYTEARRAY(0) + '#';
+    quint64 number;
+    if (childCount() == 2) {
+        const NonNegativeNumberNode<10> * const numberNode
+                = DEMANGLER_CAST(NonNegativeNumberNode<10>, MY_CHILD_AT(1));
+        number = numberNode->number() + 2;
+    } else {
+        number = 1;
+    }
+    return repr += QByteArray::number(number);
+}
+
+
+bool UnnamedTypeNameNode::mangledRepresentationStartsWith(char c)
+{
+    return c == 'U';
+}
+
+/*
+ *  <unnamed-type-name> ::= Ut [ <nonnegative number> ] _
+ *                      ::= <closure-type-name>
+ */
+void UnnamedTypeNameNode::parse()
+{
+    if (parseState()->readAhead(2) == "Ut") {
+        parseState()->advance(2);
+        if (NonNegativeNumberNode<10>::mangledRepresentationStartsWith(PEEK()))
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
+        if (ADVANCE() != '_')
+            throw ParseException("Invalid unnamed-type-node");
+    } else {
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ClosureTypeNameNode);
+    }
+}
+
+QByteArray UnnamedTypeNameNode::toByteArray() const
+{
+    QByteArray repr(1, '{');
+    if (childCount() == 0) {
+        repr += "unnamed type#1";
+    } else {
+        const NonNegativeNumberNode<10> * const numberNode
+                = dynamic_cast<NonNegativeNumberNode<10> *>(MY_CHILD_AT(0));
+        if (numberNode)
+            repr += "unnamed type#" + QByteArray::number(numberNode->number() + 2);
+        else
+            repr += CHILD_TO_BYTEARRAY(0);
+    }
+    return repr += '}';
+}
+
+
+bool DeclTypeNode::mangledRepresentationStartsWith(char c)
+{
+    return c == 'D';
+}
+
+/*
+ * <decltype> ::= Dt <expression> E  # decltype of an id-expression or class member access (C++0x)
+ *            ::= DT <expression> E  # decltype of an expression (C++0x)
+ */
+void DeclTypeNode::parse()
+{
+    const QByteArray start = parseState()->readAhead(2);
+    if (start != "DT" && start != "Dt")
+        throw ParseException("Invalid decltype");
+    parseState()->advance(2);
+    PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+    if (ADVANCE() != 'E')
+        throw ParseException(QString::fromLatin1("Invalid type"));
+}
+
+QByteArray DeclTypeNode::toByteArray() const
+{
+    return "decltype(" + CHILD_TO_BYTEARRAY(0) + ')';
+}
+
+
+bool UnresolvedTypeRule::mangledRepresentationStartsWith(char c)
+{
+    return TemplateParamNode::mangledRepresentationStartsWith(c)
+            || DeclTypeNode::mangledRepresentationStartsWith(c)
+            || SubstitutionNode::mangledRepresentationStartsWith(c);
+}
+
+/*
+ * <unresolved-type> ::= <template-param>
+ *                   ::= <decltype>
+ *                   ::= <substitution>
+ */
+void UnresolvedTypeRule::parse(GlobalParseState *parseState, ParseTreeNode *parentNode)
+{
+    const char next = parseState->peek();
+    if (TemplateParamNode::mangledRepresentationStartsWith(next))
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(TemplateParamNode, parseState, parentNode);
+    else if (DeclTypeNode::mangledRepresentationStartsWith(next))
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(DeclTypeNode, parseState, parentNode);
+    else if (SubstitutionNode::mangledRepresentationStartsWith(next))
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(SubstitutionNode, parseState, parentNode);
+    else
+        throw ParseException("Invalid unresolved-type");
+}
+
+
+bool SimpleIdNode::mangledRepresentationStartsWith(char c)
+{
+    return SourceNameNode::mangledRepresentationStartsWith(c);
+}
+
+// <simple-id> ::= <source-name> [ <template-args> ]
+void SimpleIdNode::parse()
+{
+    PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SourceNameNode);
+    if (TemplateArgsNode::mangledRepresentationStartsWith(PEEK()))
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgsNode);
+}
+
+QByteArray SimpleIdNode::toByteArray() const
+{
+    return pasteAllChildren();
+}
+
+
+bool DestructorNameNode::mangledRepresentationStartsWith(char c)
+{
+    return UnresolvedTypeRule::mangledRepresentationStartsWith(c)
+            || SimpleIdNode::mangledRepresentationStartsWith(c);
+}
+
+/*
+ * <destructor-name> ::= <unresolved-type>       # e.g., ~T or ~decltype(f())
+ *                   ::= <simple-id>             # e.g., ~A<2*N>
+ */
+void DestructorNameNode::parse()
+{
+    const char next = PEEK();
+    if (UnresolvedTypeRule::mangledRepresentationStartsWith(next))
+        UnresolvedTypeRule::parse(parseState(), this);
+    else if (SimpleIdNode::mangledRepresentationStartsWith(next))
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SimpleIdNode);
+    else
+        throw ParseException("Invalid destructor-name");
+}
+
+QByteArray DestructorNameNode::toByteArray() const
+{
+    return '~' + CHILD_TO_BYTEARRAY(0);
+}
+
+
+bool UnresolvedQualifierLevelRule::mangledRepresentationStartsWith(char c)
+{
+    return SimpleIdNode::mangledRepresentationStartsWith(c);
+}
+
+// <unresolved-qualifier-level> ::= <simple-id>
+ void UnresolvedQualifierLevelRule::parse(GlobalParseState *parseState, ParseTreeNode *parentNode)
+{
+    PARSE_RULE_AND_ADD_RESULT_AS_CHILD_TO_NODE(SimpleIdNode, parseState, parentNode);
+}
+
+
+bool BaseUnresolvedNameNode::mangledRepresentationStartsWith(char c)
+{
+    return SimpleIdNode::mangledRepresentationStartsWith(c) || c == 'o' || c == 'd';
+}
+
+/*
+ * <base-unresolved-name> ::= <simple-id>                         # unresolved name
+ *                        ::= on <operator-name>                  # unresolved operator-function-id
+ *                        ::= on <operator-name> <template-args>  # unresolved operator template-id
+ *                        ::= dn <destructor-name>                # destructor or pseudo-destructor;
+ *                                                                # e.g. ~X or ~X<N-1>
+ */
+void BaseUnresolvedNameNode::parse()
+{
+    m_isOperator = false;
+    if (SimpleIdNode::mangledRepresentationStartsWith(PEEK())) {
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SimpleIdNode);
+    } else if (parseState()->readAhead(2) == "on") {
+        m_isOperator = true;
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(OperatorNameNode);
+        if (TemplateArgsNode::mangledRepresentationStartsWith(PEEK()))
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgsNode);
+    } else if (parseState()->readAhead(2) == "dn") {
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(DestructorNameNode);
+    } else {
+        throw ParseException("Invalid <base-unresolved-name>");
+    }
+}
+
+QByteArray BaseUnresolvedNameNode::toByteArray() const
+{
+    QByteArray repr;
+    if (m_isOperator)
+        repr += "operator";
+    return repr += pasteAllChildren();
+}
+
+
+bool InitializerNode::mangledRepresentationStartsWith(char c)
+{
+    return c == 'p';
+}
+
+// <initializer> ::= pi <expression>* E          # parenthesized initialization
+void InitializerNode::parse()
+{
+    if (parseState()->readAhead(2) != "pi")
+        throw ParseException("Invalid initializer");
+    parseState()->advance(2);
+    while (ExpressionNode::mangledRepresentationStartsWith(PEEK()))
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ExpressionNode);
+    if (ADVANCE() != 'E')
+        throw ParseException("Invalid initializer");
+}
+
+QByteArray InitializerNode::toByteArray() const
+{
+    QByteArray repr = "(";
+    for (int i = 0; i < childCount(); ++i) {
+        repr += CHILD_TO_BYTEARRAY(i);
+        if (i < childCount() - 1)
+            repr += ", ";
+    }
+    return repr += ')';
+}
+
+
+bool UnresolvedNameNode::mangledRepresentationStartsWith(char c)
+{
+    return BaseUnresolvedNameNode::mangledRepresentationStartsWith(c) || c == 'g' || c == 's';
+}
+
+/*
+ * <unresolved-name> ::= [gs] <base-unresolved-name>                     # x or (with "gs") ::x
+ *                   ::= sr <unresolved-type> <base-unresolved-name>     # T::x / decltype(p)::x
+ *                   ::= srN <unresolved-type> <unresolved-qualifier-level>+ E <base-unresolved-name>
+ *                                                    # T::N::x /decltype(p)::N::x
+ *                   ::= [gs] sr <unresolved-qualifier-level>+ E <base-unresolved-name>
+ *                                                    # A::x, N::y, A<T>::z; "gs" means leading "::"
+ */
+void UnresolvedNameNode::parse()
+{
+    if (parseState()->readAhead(2) == "gs") {
+        m_globalNamespace = true;
+        parseState()->advance(2);
+    } else {
+        m_globalNamespace = false;
+    }
+    if (parseState()->readAhead(2) == "sr") {
+        parseState()->advance(2);
+        if (PEEK() == 'N') {
+            ADVANCE();
+            UnresolvedTypeRule::parse(parseState(), this);
+            do
+                UnresolvedQualifierLevelRule::parse(parseState(), this);
+            while (UnresolvedQualifierLevelRule::mangledRepresentationStartsWith(PEEK()));
+            if (ADVANCE() != 'E')
+                throw ParseException("Invalid unresolev-name");
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(BaseUnresolvedNameNode);
+        } else if (UnresolvedTypeRule::mangledRepresentationStartsWith(PEEK())) {
+            if (m_globalNamespace)
+                throw ParseException("Invalid unresolved-name");
+            UnresolvedTypeRule::parse(parseState(), this);
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(BaseUnresolvedNameNode);
+        } else {
+            if (!UnresolvedQualifierLevelRule::mangledRepresentationStartsWith(PEEK()))
+                throw ParseException("Invalid unresolved-name");
+            while (UnresolvedQualifierLevelRule::mangledRepresentationStartsWith(PEEK()))
+                UnresolvedQualifierLevelRule::parse(parseState(), this);
+            if (ADVANCE() != 'E')
+                throw ParseException("Invalid unresolved-name");
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(BaseUnresolvedNameNode);
+        }
+    } else {
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(BaseUnresolvedNameNode);
+    }
+}
+
+QByteArray UnresolvedNameNode::toByteArray() const
+{
+    QByteArray repr;
+    if (m_globalNamespace)
+        repr += "::";
+    for (int i = 0; i < childCount(); ++i) {
+        repr += CHILD_TO_BYTEARRAY(i);
+        if (i < childCount() - 1)
+            repr += "::";
+    }
+    return repr;
+}
+
+
+bool FunctionParamNode::mangledRepresentationStartsWith(char c)
+{
+    return c == 'f';
+}
+
+/*
+ * <function-param> ::= fp <top-level CV-qualifiers> _                                     # L == 0, first parameter
+ *                  ::= fp <top-level CV-qualifiers> <parameter-2 non-negative number> _   # L == 0, second and later parameters
+ *                  ::= fL <L-1 non-negative number> p <top-level CV-qualifiers> _         # L > 0, first parameter
+ *                  ::= fL <L-1 non-negative number> p <top-level CV-qualifiers> <parameter-2 non-negative number> _   # L > 0, second and later parameters
+ */
+void FunctionParamNode::parse()
+{
+    if (parseState()->readAhead(2) == "fp") {
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(CvQualifiersNode);
+        if (NonNegativeNumberNode<10>::mangledRepresentationStartsWith(PEEK()))
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
+        if (ADVANCE() != '_')
+            throw ParseException("Invalid function-param");
+    } else if (parseState()->readAhead(2) == "fL") {
+        parseState()->advance(2);
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
+        if (ADVANCE() != 'p')
+            throw ParseException("Invalid function-param");
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(CvQualifiersNode);
+        if (NonNegativeNumberNode<10>::mangledRepresentationStartsWith(PEEK()))
+            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(NonNegativeNumberNode<10>);
+        if (ADVANCE() != '_')
+            throw ParseException("Invalid function-param");
+    } else {
+        throw ParseException("Invalid function-param");
+    }
+}
+
+QByteArray FunctionParamNode::toByteArray() const
+{
+    // We ignore L for now.
+    const NonNegativeNumberNode<10> * const numberNode
+            = dynamic_cast<NonNegativeNumberNode<10> *>(MY_CHILD_AT(childCount() - 1));
+    const int paramNumber = numberNode ? numberNode->number() + 2 : 1;
+    const int cvIndex = dynamic_cast<CvQualifiersNode *>(MY_CHILD_AT(0)) ? 0 : 1;
+    const CvQualifiersNode * const cvNode = DEMANGLER_CAST(CvQualifiersNode, MY_CHILD_AT(cvIndex));
+    QByteArray repr = "{param#" + QByteArray::number(paramNumber);
+    if (cvNode->hasQualifiers())
+        repr.append(' ').append(cvNode->toByteArray());
+    repr += '}';
+    return repr;
 }
 
 } // namespace Internal

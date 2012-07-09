@@ -113,7 +113,7 @@ public:
         SignedLongLongType, UnsignedLongLongType, SignedInt128Type, UnsignedInt128Type,
         FloatType, DoubleType, LongDoubleType, Float128Type, EllipsisType,
         DecimalFloatingType64, DecimalFloatingType128, DecimalFloatingType32,
-        DecimalFloatingType16, Char32Type, Char16Type, VendorType
+        DecimalFloatingType16, Char32Type, Char16Type, AutoType, NullPtrType, VendorType
     };
     Type type() const { return m_type; }
 
@@ -128,6 +128,9 @@ class CallOffsetRule
 public:
     static bool mangledRepresentationStartsWith(char c);
     static void parse(GlobalParseState *parseState, ParseTreeNode *parentNode);
+
+private:
+    CallOffsetRule();
 };
 
 class NvOffsetNode : public ParseTreeNode
@@ -153,6 +156,9 @@ class ClassEnumTypeRule
 public:
     static bool mangledRepresentationStartsWith(char c);
     static void parse(GlobalParseState *parseState, ParseTreeNode *parentNode);
+
+private:
+    ClassEnumTypeRule();
 };
 
 class DiscriminatorRule
@@ -160,6 +166,9 @@ class DiscriminatorRule
 public:
     static bool mangledRepresentationStartsWith(char c);
     static void parse(GlobalParseState *parseState, ParseTreeNode *parentNode);
+
+private:
+    DiscriminatorRule();
 };
 
 class CtorDtorNameNode : public ParseTreeNode
@@ -213,8 +222,14 @@ private:
     void parse();
 
     enum Type {
-        ConversionType, SizeofType, AlignofType, OperatorType, OtherType, ParameterPackSizeType
+        ConversionType, SizeofType, AlignofType, OperatorType, ParameterPackSizeType,
+        NewType, ArrayNewType, DeleteType, ArrayDeleteType, PrefixIncrementType,
+        PrefixDecrementType, TypeIdTypeType, TypeIdExpressionType, DynamicCastType,
+        StaticCastType, ConstCastType, ReinterpretCastType, MemberAccessType,
+        PointerMemberAccessType, MemberDerefType, PackExpansionType, ThrowType,
+        RethrowType, OtherType
     } m_type;
+    bool m_globalNamespace;
 };
 
 class OperatorNameNode : public ParseTreeNode
@@ -253,6 +268,9 @@ public:
 
 private:
     void parse();
+
+    QByteArray m_suffix;
+    bool m_isNullPtr;
 };
 
 class FunctionTypeNode : public ParseTreeNode
@@ -277,10 +295,15 @@ public:
 
     QByteArray toByteArray() const;
 
+    bool isTemplate() const;
+    bool isConstructorOrDestructorOrConversionOperator() const;
+    const CvQualifiersNode *cvQualifiers() const;
+
 private:
     void parse();
 
     bool m_isStringLiteral;
+    bool m_isDefaultArg;
 };
 
 class MangledNameRule
@@ -288,6 +311,9 @@ class MangledNameRule
 public:
     static bool mangledRepresentationStartsWith(char c);
     static void parse(GlobalParseState *parseState, ParseTreeNode *parentNode);
+
+private:
+    MangledNameRule();
 };
 
 class NumberNode : public ParseTreeNode
@@ -351,6 +377,7 @@ public:
 
     bool isTemplate() const;
     bool isConstructorOrDestructorOrConversionOperator() const;
+    const CvQualifiersNode *cvQualifiers() const;
 
     QByteArray toByteArray() const;
 
@@ -452,6 +479,7 @@ public:
 
     bool isTemplate() const;
     bool isConstructorOrDestructorOrConversionOperator() const;
+    const CvQualifiersNode *cvQualifiers() const;
 
     QByteArray toByteArray() const;
 
@@ -507,7 +535,7 @@ public:
 
     enum Type {
         QualifiedType, PointerType, ReferenceType, RValueType, VendorType, PackExpansionType,
-        DeclType, OtherType
+        OtherType
     };
     Type type() const { return m_type; }
 
@@ -534,6 +562,135 @@ private:
     void parse();
 
     double m_value;
+};
+
+class LambdaSigNode : public ParseTreeNode
+{
+    static bool mangledRepresentationStartsWith(char c);
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
+};
+
+class ClosureTypeNameNode : public ParseTreeNode
+{
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
+};
+
+class UnnamedTypeNameNode : public ParseTreeNode
+{
+public:
+    static bool mangledRepresentationStartsWith(char c);
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
+};
+
+class DeclTypeNode : public ParseTreeNode
+{
+public:
+    static bool mangledRepresentationStartsWith(char c);
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
+};
+
+class UnresolvedTypeRule
+{
+public:
+    static bool mangledRepresentationStartsWith(char c);
+    static void parse(GlobalParseState *parseState, ParseTreeNode *parentNode);
+
+private:
+    UnresolvedTypeRule();
+};
+
+class SimpleIdNode : public ParseTreeNode
+{
+public:
+    static bool mangledRepresentationStartsWith(char c);
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
+};
+
+class DestructorNameNode : public ParseTreeNode
+{
+    static bool mangledRepresentationStartsWith(char c);
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
+};
+
+class UnresolvedQualifierLevelRule
+{
+public:
+    static bool mangledRepresentationStartsWith(char c);
+    static void parse(GlobalParseState *parseState, ParseTreeNode *parentNode);
+
+private:
+    UnresolvedQualifierLevelRule();
+};
+
+class BaseUnresolvedNameNode : public ParseTreeNode
+{
+public:
+    static bool mangledRepresentationStartsWith(char c);
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
+
+    bool m_isOperator;
+};
+
+class InitializerNode : public ParseTreeNode
+{
+public:
+    static bool mangledRepresentationStartsWith(char c);
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
+};
+
+class UnresolvedNameNode : public ParseTreeNode
+{
+public:
+    static bool mangledRepresentationStartsWith(char c);
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
+
+    bool m_globalNamespace;
+};
+
+class FunctionParamNode : public ParseTreeNode
+{
+public:
+    static bool mangledRepresentationStartsWith(char c);
+
+    QByteArray toByteArray() const;
+
+private:
+    void parse();
 };
 
 } // namespace Internal
