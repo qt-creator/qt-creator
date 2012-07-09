@@ -41,6 +41,7 @@ SOURCES += mainwindow.cpp \
     editormanager/iexternaleditor.cpp \
     actionmanager/actionmanager.cpp \
     actionmanager/command.cpp \
+    actionmanager/commandbutton.cpp \
     actionmanager/actioncontainer.cpp \
     actionmanager/commandsfile.cpp \
     dialogs/saveitemsdialog.cpp \
@@ -122,6 +123,7 @@ HEADERS += mainwindow.h \
     actionmanager/actioncontainer.h \
     actionmanager/actionmanager.h \
     actionmanager/command.h \
+    actionmanager/commandbutton.h \
     actionmanager/actionmanager_p.h \
     actionmanager/command_p.h \
     actionmanager/actioncontainer_p.h \
