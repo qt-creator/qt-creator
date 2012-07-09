@@ -1244,10 +1244,11 @@ class Dumper:
         self.put('name="%s",' % name)
 
     def putMapName(self, value):
-        if str(value.type) == qqNs + "QString":
+        ns = qtNamespace()
+        if str(value.type) == ns + "QString":
             self.put('key="%s",' % encodeString(value))
             self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
-        elif str(value.type) == qqNs + "QByteArray":
+        elif str(value.type) == ns + "QByteArray":
             self.put('key="%s",' % encodeByteArray(value))
             self.put('keyencoded="%s",' % Hex2EncodedLatin1)
         else:
