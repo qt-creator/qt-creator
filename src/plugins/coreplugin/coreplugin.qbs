@@ -162,6 +162,8 @@ QtcPlugin {
         "actionmanager/command.cpp",
         "actionmanager/command.h",
         "actionmanager/command_p.h",
+        "actionmanager/commandbutton.h",
+        "actionmanager/commandbutton.cpp",
         "actionmanager/commandmappings.cpp",
         "actionmanager/commandmappings.h",
         "actionmanager/commandmappings.ui",
