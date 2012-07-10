@@ -39,6 +39,7 @@
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <utils/faketooltip.h>
 
@@ -264,7 +265,7 @@ GenericProposalWidgetPrivate::GenericProposalWidgetPrivate(QWidget *completionWi
     connect(m_completionListView, SIGNAL(activated(QModelIndex)),
             this, SLOT(handleActivation(QModelIndex)));
 
-    m_infoTimer.setInterval(1000);
+    m_infoTimer.setInterval(Constants::COMPLETION_ASSIST_TOOLTIP_DELAY);
     m_infoTimer.setSingleShot(true);
     connect(&m_infoTimer, SIGNAL(timeout()), SLOT(maybeShowInfoTip()));
 }

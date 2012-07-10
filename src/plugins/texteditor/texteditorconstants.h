@@ -181,6 +181,11 @@ const char TEXT_SNIPPET_GROUP_ID[] = "Text";
 
 const char GLOBAL_SETTINGS_ID[]    = "Global";
 
+/**
+ * Delay before tooltip will be shown near completion assistant proposal
+ */
+const unsigned COMPLETION_ASSIST_TOOLTIP_DELAY = 100;
+
 } // namespace Constants
 } // namespace TextEditor
 

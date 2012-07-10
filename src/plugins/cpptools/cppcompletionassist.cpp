@@ -536,7 +536,10 @@ public:
     ConvertToCompletionItem()
         : _item(0)
         , _symbol(0)
-    { }
+    {
+        overview.setShowReturnTypes(true);
+        overview.setShowArgumentNames(true);
+    }
 
     BasicProposalItem *operator()(Symbol *symbol)
     {
@@ -575,7 +578,12 @@ protected:
     }
 
     virtual void visit(const Identifier *name)
-    { _item = newCompletionItem(name); }
+    {
+        _item = newCompletionItem(name);
+        if (!_symbol->isScope() || _symbol->isFunction()) {
+            _item->setDetail(overview.prettyType(_symbol->type(), name));
+        }
+    }
 
     virtual void visit(const TemplateNameId *name)
     {
@@ -587,7 +595,10 @@ protected:
     { _item = newCompletionItem(name); }
 
     virtual void visit(const OperatorNameId *name)
-    { _item = newCompletionItem(name); }
+    {
+        _item = newCompletionItem(name);
+        _item->setDetail(overview.prettyType(_symbol->type(), name));
+    }
 
     virtual void visit(const ConversionNameId *name)
     { _item = newCompletionItem(name); }
