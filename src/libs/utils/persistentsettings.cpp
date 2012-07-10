@@ -38,6 +38,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QDir>
 #include <QVariant>
 #include <QStack>
 #include <QXmlStreamAttributes>
@@ -385,6 +386,8 @@ void PersistentSettingsWriter::saveValue(const QString &variable, const QVariant
 bool PersistentSettingsWriter::save(const QString &fileName, const QString &docType,
                                     QWidget *parent) const
 {
+    QDir tmp;
+    tmp.mkpath(QFileInfo(fileName).path());
     Utils::FileSaver saver(fileName, QIODevice::Text);
     if (!saver.hasError()) {
         const Context ctx;
