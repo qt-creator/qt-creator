@@ -105,12 +105,13 @@ protected:
     QByteArray textOf(AST *ast) const;
 
     bool maybeType(const Name *name) const;
-    bool maybeMember(const Name *name) const;
+    bool maybeField(const Name *name) const;
     bool maybeStatic(const Name *name) const;
     bool maybeFunction(const Name *name) const;
 
-    void checkName(NameAST *ast, Scope *scope = 0);
     void checkNamespace(NameAST *name);
+    void checkName(NameAST *ast, Scope *scope = 0);
+    ClassOrNamespace *checkNestedName(QualifiedNameAST *ast);
 
     void addUse(const Use &use);
     void addUse(unsigned tokenIndex, UseKind kind);
@@ -118,10 +119,9 @@ protected:
 
     void addType(ClassOrNamespace *b, NameAST *ast);
 
-    void addTypeOrStatic(const QList<LookupItem> &candidates, NameAST *ast);
-    void addStatic(const QList<LookupItem> &candidates, NameAST *ast);
-    void addClassMember(const QList<LookupItem> &candidates, NameAST *ast);
-    void addFunction(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount);
+    bool maybeAddTypeOrStatic(const QList<LookupItem> &candidates, NameAST *ast);
+    bool maybeAddField(const QList<LookupItem> &candidates, NameAST *ast);
+    bool maybeAddFunction(const QList<LookupItem> &candidates, NameAST *ast, unsigned argumentCount);
 
     bool isTemplateClass(Symbol *s) const;
 
@@ -135,30 +135,31 @@ protected:
     virtual bool visit(NamespaceAST *);
     virtual bool visit(UsingDirectiveAST *);
     virtual bool visit(SimpleDeclarationAST *);
-    virtual bool visit(NamedTypeSpecifierAST *);
-    virtual bool visit(ElaboratedTypeSpecifierAST *ast);
+    virtual bool visit(TypenameTypeParameterAST *ast);
+    virtual bool visit(TemplateTypeParameterAST *ast);
+    virtual bool visit(FunctionDefinitionAST *ast);
+    virtual bool visit(ParameterDeclarationAST *ast);
 
-    virtual bool visit(EnumeratorAST *);
+    virtual bool visit(ElaboratedTypeSpecifierAST *ast);
 
     virtual bool visit(SimpleNameAST *ast);
     virtual bool visit(DestructorNameAST *ast);
-    virtual bool visit(ParameterDeclarationAST *ast);
     virtual bool visit(QualifiedNameAST *ast);
     virtual bool visit(TemplateIdAST *ast);
 
-    virtual bool visit(TypenameTypeParameterAST *ast);
-    virtual bool visit(TemplateTypeParameterAST *ast);
-
-    virtual bool visit(FunctionDefinitionAST *ast);
     virtual bool visit(MemberAccessAST *ast);
     virtual bool visit(CallAST *ast);
-
-    virtual bool visit(MemInitializerAST *ast);
+    virtual bool visit(NewExpressionAST *ast);
 
     virtual bool visit(GotoStatementAST *ast);
     virtual bool visit(LabeledStatementAST *ast);
 
+    virtual bool visit(MemInitializerAST *ast);
+    virtual bool visit(EnumeratorAST *ast);
+
     NameAST *declaratorId(DeclaratorAST *ast) const;
+
+    static unsigned referenceToken(NameAST *name);
 
     void flush();
 
@@ -168,7 +169,7 @@ private:
     TypeOfExpression typeOfExpression;
     QString _fileName;
     QSet<QByteArray> _potentialTypes;
-    QSet<QByteArray> _potentialMembers;
+    QSet<QByteArray> _potentialFields;
     QSet<QByteArray> _potentialFunctions;
     QSet<QByteArray> _potentialStatics;
     QList<AST *> _astStack;
