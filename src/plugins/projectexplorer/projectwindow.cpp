@@ -273,6 +273,14 @@ void ProjectWindow::aboutToShutdown()
     disconnect(ProjectExplorerPlugin::instance()->session(), 0, this, 0);
 }
 
+void ProjectWindow::removedTarget(Target *target)
+{
+    Project *p = qobject_cast<Project *>(sender());
+    QTC_ASSERT(p, return);
+    if (p->targets().isEmpty())
+        projectUpdated(p);
+}
+
 void ProjectWindow::projectUpdated(Project *p)
 {
     // Called after a project was configured
@@ -362,6 +370,9 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
 
     m_tabIndexToProject.insert(index, project);
     m_tabWidget->insertTab(index, project->displayName(), project->document()->fileName(), subtabs);
+
+    connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
+            this, SLOT(removedTarget(ProjectExplorer::Target*)));
 }
 
 void ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
@@ -372,6 +383,8 @@ void ProjectWindow::deregisterProject(ProjectExplorer::Project *project)
 
     m_tabIndexToProject.removeAt(index);
     m_tabWidget->removeTab(index);
+    disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
+            this, SLOT(removedTarget(ProjectExplorer::Target*)));
 }
 
 void ProjectWindow::startupProjectChanged(ProjectExplorer::Project *p)

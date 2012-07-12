@@ -92,6 +92,7 @@ private slots:
     void registerProject(ProjectExplorer::Project*);
     void deregisterProject(ProjectExplorer::Project*);
     void startupProjectChanged(ProjectExplorer::Project *);
+    void removedTarget(ProjectExplorer::Target*);
 
 private:
     bool useTargetPage(ProjectExplorer::Project *project);
