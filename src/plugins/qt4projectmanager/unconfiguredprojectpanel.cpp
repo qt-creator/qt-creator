@@ -148,8 +148,15 @@ void TargetSetupPageWrapper::updateNoteText()
 {
     ProjectExplorer::Profile *p = ProjectExplorer::ProfileManager::instance()->defaultProfile();
 
+
     QString text;
-    if (p->isValid())
+    if (!p)
+        text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
+                  "<p>Qt Creator can not parse the project, because no profile "
+                  "has been setup. You can setup profiles "
+                  "in the <b><a href=\"edit\">settings.</a></b></p>")
+                .arg(m_project->displayName());
+    else if (p->isValid())
         text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
                   "<p>Qt Creator uses the profile: <b>%2</b> "
                   "to parse the project. You can edit "
