@@ -91,7 +91,6 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
     setContext(context);
     setWidget(m_resourceEditor);
 
-    Core::ActionManager * const actionManager = Core::ICore::actionManager();
     Core::CommandButton *refreshButton = new Core::CommandButton(Constants::REFRESH, m_toolBar);
     refreshButton->setIcon(QIcon(QLatin1String(":/texteditor/images/finddocuments.png")));
     connect(refreshButton, SIGNAL(clicked()), this, SLOT(onRefresh()));
