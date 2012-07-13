@@ -152,15 +152,12 @@ signals:
 
     /// Emitted whenever the project should (re-)evaluate the build system
     void requestBuildSystemEvaluation();
-    /// Emitted whenever the current build configuration has finished to initialize its build directory.
-    void buildDirectoryInitialized();
     /// Emitted whenever the current build configuartion changed or the build directory of the current
     /// build configuration was changed.
     void buildDirectoryChanged();
 
 public slots:
     void onRequestBuildSystemEvaluation();
-    void onBuildDirectoryInitialized();
     void onBuildDirectoryChanged();
 
 protected:

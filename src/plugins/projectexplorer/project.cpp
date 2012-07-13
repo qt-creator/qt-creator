@@ -456,13 +456,6 @@ void Project::buildSystemEvaluationFinished(bool success)
     emit buildSystemEvaluated();
 }
 
-void Project::onBuildDirectoryInitialized()
-{
-    Target *target = qobject_cast<Target *>(sender());
-    if (target && target == activeTarget())
-        emit buildDirectoryInitialized();
-}
-
 void Project::onBuildDirectoryChanged()
 {
     Target *target = qobject_cast<Target *>(sender());

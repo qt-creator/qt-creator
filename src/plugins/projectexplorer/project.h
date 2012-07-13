@@ -143,9 +143,6 @@ signals:
 
     void environmentChanged();
     void buildConfigurationEnabledChanged();
-    // The build directory of the current target/build configuration was successfully
-    // initialized (or configured).
-    void buildDirectoryInitialized();
     void buildDirectoryChanged();
     void buildSystemEvaluated();
 
@@ -168,7 +165,6 @@ protected:
 private slots:
     void changeEnvironment();
     void changeBuildConfigurationEnabled();
-    void onBuildDirectoryInitialized();
     void onBuildDirectoryChanged();
 
 private:

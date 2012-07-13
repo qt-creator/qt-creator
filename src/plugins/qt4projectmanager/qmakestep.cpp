@@ -362,7 +362,8 @@ bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
     bool result = AbstractProcessStep::processSucceeded(exitCode, status);
     if (!result)
         m_needToRunQMake = true;
-    qt4BuildConfiguration()->emitBuildDirectoryInitialized();
+    Qt4Project *project = static_cast<Qt4Project *>(qt4BuildConfiguration()->target()->project());
+    project->emitBuildDirectoryInitialized();
     return result;
 }
 

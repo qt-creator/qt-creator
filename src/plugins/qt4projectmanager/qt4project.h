@@ -140,8 +140,11 @@ public:
 
     ProjectExplorer::Target *createTarget(ProjectExplorer::Profile *p, const QList<BuildConfigurationInfo> &infoList);
 
+    void emitBuildDirectoryInitialized();
+
 signals:
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
+    void buildDirectoryInitialized();
 
 public slots:
     void proFileParseError(const QString &errorMessage);

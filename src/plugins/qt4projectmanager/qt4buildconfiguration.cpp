@@ -309,11 +309,6 @@ void Qt4BuildConfiguration::emitQMakeBuildConfigurationChanged()
     emit qmakeBuildConfigurationChanged();
 }
 
-void Qt4BuildConfiguration::emitBuildDirectoryInitialized()
-{
-    emit buildDirectoryInitialized();
-}
-
 QStringList Qt4BuildConfiguration::configCommandLineArguments() const
 {
     QStringList result;

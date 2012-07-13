@@ -1543,6 +1543,10 @@ void Qt4Project::collectLibraryData(const Qt4ProFileNode *node, DeploymentData &
     }
 }
 
+void Qt4Project::emitBuildDirectoryInitialized()
+{
+    emit buildDirectoryInitialized();
+}
 } // namespace Qt4ProjectManager
 
 #include "qt4project.moc"

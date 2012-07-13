@@ -845,13 +845,4 @@ void Target::onRequestBuildSystemEvaluation()
         emit requestBuildSystemEvaluation();
 }
 
-void Target::onBuildDirectoryInitialized()
-{
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(sender());
-    if (!bc)
-        return;
-    if (bc == activeBuildConfiguration())
-        emit buildDirectoryInitialized();
-}
-
 } // namespace ProjectExplorer

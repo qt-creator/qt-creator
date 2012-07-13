@@ -59,8 +59,6 @@ public:
     ProjectExplorer::IOutputParser *createOutputParser() const;
     BuildType buildType() const;
 
-    void emitBuildDirectoryInitialized();
-
 protected:
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id);
     AutotoolsBuildConfiguration(ProjectExplorer::Target *parent, AutotoolsBuildConfiguration *source);
