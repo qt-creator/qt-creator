@@ -78,11 +78,22 @@ def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings, i
         targetSel = waitForObject("{type='ProjectExplorer::Internal::TargetSelector' unnamed='1' "
                                   "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 5000)
     except LookupError:
-        # if it's a QtQuick UI - this depends on the creator version - so better not fatal
         if isQtQuickUI:
-            return True
-        test.fatal("Wrong (time of) call - must be already at Projects view")
-        return False
+            if projectSettings == ProjectSettings.RUN:
+                mouseClick(waitForObject(":*Qt Creator.DoubleTabWidget_ProjectExplorer::Internal::DoubleTabWidget"), 70, 44, 0, Qt.LeftButton)
+                return True
+            else:
+                test.fatal("Don't know what you're trying to switch to")
+                return False
+        # there's only one target defined so use the DoubleTabWidget instead
+        if projectSettings == ProjectSettings.RUN:
+            mouseClick(waitForObject(":*Qt Creator.DoubleTabWidget_ProjectExplorer::Internal::DoubleTabWidget"), 170, 44, 0, Qt.LeftButton)
+        elif projectSettings == ProjectSettings.BUILD:
+            mouseClick(waitForObject(":*Qt Creator.DoubleTabWidget_ProjectExplorer::Internal::DoubleTabWidget"), 70, 44, 0, Qt.LeftButton)
+        else:
+            test.fatal("Don't know what you're trying to switch to")
+            return False
+        return True
     ADD_BUTTON_WIDTH = 27 # bad... (taken from source)
     selectorWidth = (targetSel.width - 3 - 2 * (ADD_BUTTON_WIDTH + 1)) / targetCount - 1
     yToClick = targetSel.height * 3 / 5 + 5

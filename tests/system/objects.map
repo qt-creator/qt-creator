@@ -1,4 +1,5 @@
 :*Qt Creator.Continue_Core::Internal::FancyToolButton	{text='Continue' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator.DoubleTabWidget_ProjectExplorer::Internal::DoubleTabWidget	{name='ProjectExplorer__Internal__DoubleTabWidget' type='ProjectExplorer::Internal::DoubleTabWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='DoubleTabWidget'}
 :*Qt Creator.Interrupt_Core::Internal::FancyToolButton	{text='Interrupt' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{text='Start Debugging' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.findEdit_Utils::FilterLineEdit	{name='findEdit' type='Utils::FilterLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -61,8 +62,8 @@
 :scrollArea.Create Build Configurations:_QComboBox_2	{container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Create Build Configurations:_QLabel_2' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Create Build Configurations:_QLabel_2	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Create build configurations:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Details_Utils::DetailsButton	{container=':Qt Creator.scrollArea_QScrollArea' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1'}
-:scrollArea.Edit build configuration:_QComboBox	{container=':Qt Creator.scrollArea_QScrollArea' leftWidget=':scrollArea.Edit build configuration:_QLabel' type='QComboBox' unnamed='1' visible='1'}
-:scrollArea.Edit build configuration:_QLabel	{container=':Qt Creator.scrollArea_QScrollArea' text='Edit build configuration:' type='QLabel' unnamed='1' visible='1'}
+:scrollArea.Edit build configuration:_QComboBox	{leftWidget=':scrollArea.Edit build configuration:_QLabel' type='QComboBox' unnamed='1' visible='1'}
+:scrollArea.Edit build configuration:_QLabel	{text='Edit build configuration:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Library not available_QLabel	{container=':Qt Creator.scrollArea_QScrollArea' name='qmlDebuggingWarningText' text?='Library not available*' type='QLabel' visible='1'}
 :scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' occurrence='1' text='Debug' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' occurrence='1' text='Release' type='QCheckBox' unnamed='1' visible='1'}
