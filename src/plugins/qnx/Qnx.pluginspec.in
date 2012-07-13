@@ -1,4 +1,4 @@
-<plugin name=\"Qnx\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
+<plugin name=\"Qnx\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\" experimental=\"$$QNX_EXPERIMENTAL_STR\">
     <vendor>Research In Motion</vendor>
     <copyright>(C) Research In Motion</copyright>
     <license>
