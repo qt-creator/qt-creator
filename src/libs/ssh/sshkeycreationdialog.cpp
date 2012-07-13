@@ -60,6 +60,7 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
 SshKeyCreationDialog::~SshKeyCreationDialog()
 {
     delete m_keyGenerator;
+    delete m_ui;
 }
 
 void SshKeyCreationDialog::keyTypeChanged()
