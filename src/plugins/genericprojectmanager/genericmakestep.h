@@ -95,6 +95,7 @@ class GenericMakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
     Q_OBJECT
 public:
     GenericMakeStepConfigWidget(GenericMakeStep *makeStep);
+    ~GenericMakeStepConfigWidget();
     virtual QString displayName() const;
     virtual QString summaryText() const;
 private slots:

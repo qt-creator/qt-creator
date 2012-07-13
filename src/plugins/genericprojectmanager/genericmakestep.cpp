@@ -255,6 +255,11 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
             this, SLOT(updateMakeOverrrideLabel()));
 }
 
+GenericMakeStepConfigWidget::~GenericMakeStepConfigWidget()
+{
+    delete m_ui;
+}
+
 QString GenericMakeStepConfigWidget::displayName() const
 {
     return tr("Make", "GenericMakestep display name.");
