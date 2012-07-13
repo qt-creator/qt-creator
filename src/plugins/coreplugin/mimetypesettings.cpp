@@ -232,6 +232,7 @@ public slots:
     void removeMagicHeader();
     void editMagicHeader();
     void resetMimeTypes();
+    void updateMagicHeaderButtons();
 
 public:
     static const QChar kSemiColon;
@@ -281,6 +282,11 @@ void MimeTypeSettingsPrivate::configureUi(QWidget *w)
     connect(m_ui.removeMagicButton, SIGNAL(clicked()), this, SLOT(removeMagicHeader()));
     connect(m_ui.editMagicButton, SIGNAL(clicked()), this, SLOT(editMagicHeader()));
     connect(m_ui.resetButton, SIGNAL(clicked()), this, SLOT(resetMimeTypes()));
+    connect(m_ui.magicHeadersTableWidget->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this,
+            SLOT(updateMagicHeaderButtons()));
+    updateMagicHeaderButtons();
 }
 
 void MimeTypeSettingsPrivate::configureTable(QTableView *tableView)
@@ -536,6 +542,15 @@ void MimeTypeSettingsPrivate::resetMimeTypes()
                              tr("MIME Types"),
                              tr("Changes will take effect in the next time you start Qt Creator."));
     m_reset = true;
+}
+
+void MimeTypeSettingsPrivate::updateMagicHeaderButtons()
+{
+    const QModelIndex &modelIndex = m_ui.magicHeadersTableWidget->selectionModel()->currentIndex();
+    const bool enabled(modelIndex.isValid());
+
+    m_ui.removeMagicButton->setEnabled(enabled);
+    m_ui.editMagicButton->setEnabled(enabled);
 }
 
 // MimeTypeSettingsPage
