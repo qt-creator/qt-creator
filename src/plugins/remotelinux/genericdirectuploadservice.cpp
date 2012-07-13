@@ -76,6 +76,11 @@ GenericDirectUploadService::GenericDirectUploadService(QObject *parent)
 {
 }
 
+GenericDirectUploadService::~GenericDirectUploadService()
+{
+    delete d;
+}
+
 void GenericDirectUploadService::setDeployableFiles(const QList<DeployableFile> &deployableFiles)
 {
     d->deployableFiles = deployableFiles;

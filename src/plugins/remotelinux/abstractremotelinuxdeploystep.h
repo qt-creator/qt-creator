@@ -51,6 +51,7 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer:
     Q_OBJECT
 
 public:
+    ~AbstractRemoteLinuxDeployStep();
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
     bool init();
@@ -66,7 +67,6 @@ protected:
     AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id);
     AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl,
         AbstractRemoteLinuxDeployStep *other);
-
     virtual bool initInternal(QString *error = 0) = 0;
 
 private slots:

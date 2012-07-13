@@ -66,6 +66,11 @@ AbstractRemoteLinuxDeployStep::AbstractRemoteLinuxDeployStep(BuildStepList *bsl,
 {
 }
 
+AbstractRemoteLinuxDeployStep::~AbstractRemoteLinuxDeployStep()
+{
+    delete d;
+}
+
 bool AbstractRemoteLinuxDeployStep::fromMap(const QVariantMap &map)
 {
     if (!BuildStep::fromMap(map))
