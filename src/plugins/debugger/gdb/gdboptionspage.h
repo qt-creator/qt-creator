@@ -47,7 +47,7 @@ class GdbOptionsPage : public Core::IOptionsPage
 
 public:
     GdbOptionsPage();
-
+    ~GdbOptionsPage();
     QWidget *createPage(QWidget *parent);
     void apply();
     void finish();

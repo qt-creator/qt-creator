@@ -274,6 +274,11 @@ GdbOptionsPage::GdbOptionsPage()
     setCategoryIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON));
 }
 
+GdbOptionsPage::~GdbOptionsPage()
+{
+    delete m_ui;
+}
+
 QWidget *GdbOptionsPage::createPage(QWidget *parent)
 {
     QWidget *w = new QWidget(parent);
