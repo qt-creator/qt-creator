@@ -73,6 +73,7 @@ public:
 
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
         const QString &proFilePath);
+    ~RemoteLinuxRunConfiguration();
 
     bool isEnabled() const;
     QString disabledReason() const;

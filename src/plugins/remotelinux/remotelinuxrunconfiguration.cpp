@@ -128,6 +128,11 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(ProjectExplorer::Target
     init();
 }
 
+RemoteLinuxRunConfiguration::~RemoteLinuxRunConfiguration()
+{
+    delete d;
+}
+
 void RemoteLinuxRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
