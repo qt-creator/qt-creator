@@ -84,7 +84,7 @@ VcsConfigurationPage::VcsConfigurationPage(const Core::IVersionControl *vc, QWid
 
 VcsConfigurationPage::~VcsConfigurationPage()
 {
-    delete d->m_ui;
+    delete d;
 }
 
 bool VcsConfigurationPage::isComplete() const
