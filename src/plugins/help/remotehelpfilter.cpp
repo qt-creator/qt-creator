@@ -50,6 +50,8 @@ RemoteFilterOptions::RemoteFilterOptions(RemoteHelpFilter *filter, QWidget *pare
 
     connect(m_ui.add, SIGNAL(clicked()), this, SLOT(addNewItem()));
     connect(m_ui.remove, SIGNAL(clicked()), this, SLOT(removeItem()));
+    connect(m_ui.listWidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), SLOT(updateRemoveButton()));
+    updateRemoveButton();
 }
 
 void RemoteFilterOptions::addNewItem()
@@ -58,6 +60,7 @@ void RemoteFilterOptions::addNewItem()
     m_ui.listWidget->addItem(item);
     item->setSelected(true);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
+    m_ui.listWidget->setCurrentItem(item);
     m_ui.listWidget->editItem(item);
 }
 
@@ -67,6 +70,11 @@ void RemoteFilterOptions::removeItem()
         m_ui.listWidget->removeItemWidget(item);
         delete item;
     }
+}
+
+void RemoteFilterOptions::updateRemoveButton()
+{
+    m_ui.remove->setEnabled(m_ui.listWidget->currentItem());
 }
 
 // -- RemoteHelpFilter

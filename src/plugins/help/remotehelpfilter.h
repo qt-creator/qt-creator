@@ -79,6 +79,7 @@ public:
 private slots:
     void addNewItem();
     void removeItem();
+    void updateRemoveButton();
 
 private:
     RemoteHelpFilter *m_filter;
