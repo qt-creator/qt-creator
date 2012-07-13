@@ -23,13 +23,7 @@ def openQmakeProject(projectPath, targets=QtQuickConstants.Targets.DESKTOP):
         clickButton(waitForObject("{text='Yes' type='QPushButton' unnamed='1' visible='1'}"))
     except:
         pass
-    selectFromCombo(waitForObject(":Qt Creator.Create Build Configurations:_QComboBox", 180000),
-                    "For Each Qt Version One Debug And One Release")
     __chooseTargets__(targets)
-    if targets & QtQuickConstants.Targets.DESKTOP:
-        ensureChecked("{text='Shadow build' type='QCheckBox' unnamed='1' visible='1' "
-                      "window=':Qt Creator_Core::Internal::MainWindow'}")
-
     configureButton = waitForObject("{text='Configure Project' type='QPushButton' unnamed='1' visible='1'"
                                     "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
     clickButton(configureButton)
@@ -274,7 +268,7 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP, availableTargets
         mustCheck = targets & current == current
         try:
             ensureChecked("{type='QCheckBox' text='%s' visible='1'}" % QtQuickConstants.getStringForTarget(current),
-                          mustCheck)
+                          mustCheck, 3000)
         except LookupError:
             if mustCheck:
                 test.fail("Failed to check target '%s'." % QtQuickConstants.getStringForTarget(current))

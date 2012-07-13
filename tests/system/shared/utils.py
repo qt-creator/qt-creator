@@ -22,15 +22,16 @@ def verifyChecked(objectName):
     test.compare(object.checked, True)
     return object
 
-def ensureChecked(objectName, shouldBeChecked = True):
-    object = waitForObject(objectName, 20000)
+def ensureChecked(objectName, shouldBeChecked = True, timeout=20000):
+    object = waitForObject(objectName, timeout)
     if object.checked ^ shouldBeChecked:
         clickButton(object)
     if shouldBeChecked:
         state = "checked"
     else:
         state = "unchecked"
-    test.log("New state for QCheckBox: %s" % state)
+    test.log("New state for QCheckBox: %s" % state,
+             str(objectName))
     test.verify(waitFor("object.checked == shouldBeChecked", 1000))
     return object
 
