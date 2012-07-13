@@ -75,6 +75,11 @@ ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
 {
 }
 
+ToolChainConfigWidget::~ToolChainConfigWidget()
+{
+    delete d;
+}
+
 void ToolChainConfigWidget::setDisplayName(const QString &name)
 {
     d->m_toolChain->setDisplayName(name);

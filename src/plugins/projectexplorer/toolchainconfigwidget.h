@@ -60,7 +60,7 @@ class PROJECTEXPLORER_EXPORT ToolChainConfigWidget : public QWidget
 
 public:
     ToolChainConfigWidget(ProjectExplorer::ToolChain *);
-
+    ~ToolChainConfigWidget();
     void setDisplayName(const QString &);
     virtual void apply() = 0;
     virtual void discard() = 0;
