@@ -142,9 +142,7 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
     if (!bc || bc->target() != activeTarget())
         return;
 
-    CMakeBuildConfiguration * cmakebc(qobject_cast<CMakeBuildConfiguration *>(bc));
-    if (!cmakebc)
-        return;
+    CMakeBuildConfiguration *cmakebc = static_cast<CMakeBuildConfiguration *>(bc);
 
     // Pop up a dialog asking the user to rerun cmake
     QFileInfo sourceFileInfo(m_fileName);
@@ -845,9 +843,7 @@ void CMakeBuildSettingsWidget::init(BuildConfiguration *bc)
 
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
-    CMakeProject *project = qobject_cast<CMakeProject *>(m_buildConfiguration->target()->project());
-    if (!project)
-        return;
+    CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
     CMakeOpenProjectWizard copw(project->projectManager(),
                                 project->projectDirectory(),
                                 m_buildConfiguration->buildDirectory(),
@@ -861,9 +857,7 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 void CMakeBuildSettingsWidget::runCMake()
 {
     // TODO skip build directory
-    CMakeProject *project = qobject_cast<CMakeProject *>(m_buildConfiguration->target()->project());
-    if (!project)
-        return;
+    CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
     CMakeOpenProjectWizard copw(project->projectManager(),
                                 project->projectDirectory(),
                                 m_buildConfiguration->buildDirectory(),
