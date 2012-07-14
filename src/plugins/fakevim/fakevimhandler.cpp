@@ -749,6 +749,8 @@ public:
     int lineForPosition(int pos) const;  // 1 based line, 0 based pos
     QString lineContents(int line) const; // 1 based line
     void setLineContents(int line, const QString &contents); // 1 based line
+    int blockBoundary(const QString &left, const QString &right,
+        bool end) const; // end or start position of current code block
 
     int linesOnScreen() const;
     int columnsOnScreen() const;
@@ -4807,6 +4809,69 @@ void FakeVimHandler::Private::setLineContents(int line, const QString &contents)
     tc.insertText(contents);
 }
 
+int FakeVimHandler::Private::blockBoundary(const QString &left,
+    const QString &right, bool closing) const
+{
+    const QString &begin = closing ? left : right;
+    const QString &end = closing ? right : left;
+
+    // match even if cursor is already on opening/closing string
+    // - on opening string:
+    QTextCursor tc1 = cursor();
+    int pos = tc1.position();
+    int sz = left.size();
+    tc1.setPosition(qMax(pos - sz + 1, 0));
+    tc1 = document()->find(left, tc1);
+    if (!tc1.isNull() && (tc1.position() - pos) <= sz) {
+        if (!closing)
+            return tc1.position() - sz;
+    } else {
+        // - on closing string:
+        tc1 = cursor();
+        sz = right.size();
+        tc1.setPosition(qMax(pos - sz + 1, 0));
+        tc1 = document()->find(right, tc1);
+        if (!tc1.isNull() && (tc1.position() - pos) <= sz) {
+            if (closing)
+                return tc1.position() - sz;
+            else
+                tc1.setPosition(tc1.position() - sz);
+        } else {
+            tc1 = cursor();
+        }
+    }
+
+    QTextCursor tc2 = tc1;
+    QTextDocument::FindFlags flags(closing ? 0 : QTextDocument::FindBackward);
+    int level = 0;
+    while (true) {
+        tc2 = document()->find(end, tc2, flags);
+        if (tc2.isNull())
+            return -1;
+        tc1 = document()->find(begin, tc1, flags);
+
+        while (!tc1.isNull() && (closing ? (tc1 < tc2) : (tc2 < tc1))) {
+            ++level;
+            tc1 = document()->find(begin, tc1, flags);
+        }
+
+        while (level > 0 && (closing ? (tc2 < tc1) : (tc1 < tc2))) {
+            --level;
+            tc2 = document()->find(end, tc2, flags);
+            if (tc2.isNull())
+                return -1;
+        }
+
+        if (level == 0
+            && (tc1.isNull() || (closing ? (tc2 < tc1) : (tc1 < tc2)))) {
+            break;
+        }
+    }
+
+    return tc2.position() - end.size();
+}
+
+
 int FakeVimHandler::Private::firstPositionInLine(int line) const
 {
     return document()->findBlockByNumber(line - 1).position();
@@ -5077,16 +5142,24 @@ void FakeVimHandler::Private::selectBlockTextObject(bool inner,
 {
     QString sleft = QString(QLatin1Char(left));
     QString sright = QString(QLatin1Char(right));
-    QTextCursor tc2 = document()->find(sright, cursor());
-    if (tc2.isNull())
+
+    int p1 = blockBoundary(sleft, sright, false);
+    if (p1 == -1)
         return;
-    QTextCursor tc1 = document()->find(sleft, cursor(), QTextDocument::FindBackward);
-    if (tc1.isNull())
+
+    int p2 = blockBoundary(sleft, sright, true);
+    if (p2 == -1)
         return;
-    int p1 = tc1.position() + inner - sleft.size();
-    if (inner && document()->characterAt(p1) == ParagraphSeparator)
-        ++p1;
-    const int p2 = tc2.position() - inner - sright.size();
+
+    if (inner) {
+        p1 += sleft.size();
+        --p2;
+        if (document()->characterAt(p1) == ParagraphSeparator)
+            ++p1;
+    } else {
+        p2 -= sright.size() - 1;
+    }
+
     setAnchorAndPosition(p2, p1);
     m_movetype = MoveInclusive;
 }
