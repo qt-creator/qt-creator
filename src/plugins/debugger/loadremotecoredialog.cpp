@@ -142,7 +142,7 @@ LoadRemoteCoreFileDialog::LoadRemoteCoreFileDialog(QWidget *parent)
 
     QFormLayout *formLayout = new QFormLayout();
     formLayout->addRow(tr("Device:"), d->deviceComboBox);
-    formLayout->addRow(tr("Profile:"), d->profileChooser);
+    formLayout->addRow(tr("Target:"), d->profileChooser);
 
     QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
     horizontalLayout2->addStretch(1);

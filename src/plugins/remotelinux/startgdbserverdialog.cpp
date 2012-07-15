@@ -155,7 +155,7 @@ StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q
 
     QFormLayout *formLayout = new QFormLayout();
     formLayout->addRow(StartGdbServerDialog::tr("Device:"), deviceComboBox);
-    formLayout->addRow(StartGdbServerDialog::tr("Profile:"), profileChooser);
+    formLayout->addRow(StartGdbServerDialog::tr("Target:"), profileChooser);
     formLayout->addRow(StartGdbServerDialog::tr("&Filter entries:"), processFilterLineEdit);
 
     QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
