@@ -1052,7 +1052,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(d->channelLabel, d->channelLineEdit);
     formLayout->addRow(d->architectureLabel, d->architectureComboBox);
-    formLayout->addRow(d->profileLabel, d->debuginfoPathChooser);
+    formLayout->addRow(d->debuginfoLabel, d->debuginfoPathChooser);
     formLayout->addRow(d->overrideStartScriptLabel, d->overrideStartScriptPathChooser);
     formLayout->addRow(d->useServerStartScriptLabel, d->useServerStartScriptCheckBox);
     formLayout->addRow(d->serverStartScriptLabel, d->serverStartScriptPathChooser);
