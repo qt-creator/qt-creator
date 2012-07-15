@@ -69,8 +69,6 @@ QtcPlugin {
         "debuggerstreamops.cpp",
         "debuggerstreamops.h",
         "debuggerstringutils.h",
-        "debuggertoolchaincombobox.cpp",
-        "debuggertoolchaincombobox.h",
         "debuggertooltipmanager.cpp",
         "debuggertooltipmanager.h",
         "disassembleragent.cpp",

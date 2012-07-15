@@ -35,10 +35,10 @@
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerstartparameters.h"
-#include "debuggertoolchaincombobox.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/profilechooser.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <ssh/sshconnection.h>
@@ -96,7 +96,7 @@ public:
     QTextBrowser *textBrowser;
     QPushButton *closeButton;
     //PathChooser *sysrootPathChooser;
-    ProfileChooser *toolchainComboBox;
+    ProfileChooser *profileChooser;
 
     QSettings *settings;
     QString remoteCommandLine;
@@ -116,7 +116,7 @@ LoadRemoteCoreFileDialog::LoadRemoteCoreFileDialog(QWidget *parent)
 
     d->deviceComboBox = new QComboBox(this);
 
-    d->toolchainComboBox = new ProfileChooser(this);
+    d->profileChooser = new ProfileChooser(this);
     d->fileSystemModel = new SftpFileSystemModel(this);
 
     //executablePathChooser = new PathChooser(q);
@@ -142,7 +142,7 @@ LoadRemoteCoreFileDialog::LoadRemoteCoreFileDialog(QWidget *parent)
 
     QFormLayout *formLayout = new QFormLayout();
     formLayout->addRow(tr("Device:"), d->deviceComboBox);
-    formLayout->addRow(tr("Profile:"), d->toolchainComboBox);
+    formLayout->addRow(tr("Profile:"), d->profileChooser);
 
     QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
     horizontalLayout2->addStretch(1);
@@ -168,7 +168,7 @@ LoadRemoteCoreFileDialog::LoadRemoteCoreFileDialog(QWidget *parent)
         connect(d->fileSystemView->selectionModel(),
             SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             SLOT(updateButtons()));
-        connect(d->toolchainComboBox, SIGNAL(activated(int)), SLOT(updateButtons()));
+        connect(d->profileChooser, SIGNAL(activated(int)), SLOT(updateButtons()));
         connect(d->loadCoreFileButton, SIGNAL(clicked()), SLOT(selectCoreFile()));
         connect(d->deviceComboBox, SIGNAL(currentIndexChanged(int)),
             SLOT(attachToDevice(int)));
@@ -194,7 +194,7 @@ QString LoadRemoteCoreFileDialog::localCoreFileName() const
 
 Id LoadRemoteCoreFileDialog::profileId() const
 {
-    return d->toolchainComboBox->currentProfileId();
+    return d->profileChooser->currentProfileId();
 }
 
 void LoadRemoteCoreFileDialog::attachToDevice(int modelIndex)
@@ -250,7 +250,7 @@ void LoadRemoteCoreFileDialog::selectCoreFile()
     d->fileSystemView->setEnabled(false);
 
     d->settings->setValue(QLatin1String("LastProfile"),
-        d->toolchainComboBox->currentProfileId().toString());
+        d->profileChooser->currentProfileId().toString());
     d->settings->setValue(QLatin1String("LastDevice"), d->deviceComboBox->currentIndex());
     d->settings->setValue(QLatin1String("LastSftpRoot"), d->fileSystemModel->rootDirectory());
 

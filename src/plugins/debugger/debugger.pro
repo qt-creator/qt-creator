@@ -68,7 +68,6 @@ HEADERS += \
     watchdelegatewidgets.h \
     debuggerruncontrolfactory.h \
     debuggertooltipmanager.h \
-    debuggertoolchaincombobox.h \
     debuggersourcepathmappingwidget.h \
     memoryview.h \
     qtmessagelogwindow.h \
@@ -122,7 +121,6 @@ SOURCES += \
     stackframe.cpp \
     watchdelegatewidgets.cpp \
     debuggertooltipmanager.cpp \
-    debuggertoolchaincombobox.cpp \
     debuggersourcepathmappingwidget.cpp \
     memoryview.cpp \
     qtmessagelogwindow.cpp \

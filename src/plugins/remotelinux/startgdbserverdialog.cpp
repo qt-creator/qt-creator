@@ -37,8 +37,8 @@
 #include "remotelinuxusedportsgatherer.h"
 
 #include <coreplugin/icore.h>
-#include <debugger/debuggertoolchaincombobox.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/profilechooser.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/devicemanagermodel.h>
 #include <utils/pathchooser.h>
@@ -105,7 +105,7 @@ public:
     QPushButton *attachProcessButton;
     QTextBrowser *textBrowser;
     QPushButton *closeButton;
-    Debugger::ProfileChooser *profileChooser;
+    ProfileChooser *profileChooser;
 
     RemoteLinuxUsedPortsGatherer gatherer;
     SshRemoteProcessRunner runner;
@@ -121,7 +121,7 @@ StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q
 
     deviceComboBox = new QComboBox(q);
 
-    profileChooser = new Debugger::ProfileChooser(q);
+    profileChooser = new ProfileChooser(q);
 //    sysrootPathChooser = new PathChooser(q);
 //    sysrootPathChooser->setExpectedKind(PathChooser::Directory);
 //    sysrootPathChooser->setPromptDialogTitle(StartGdbServerDialog::tr("Select Sysroot"));

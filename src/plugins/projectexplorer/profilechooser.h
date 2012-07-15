@@ -30,20 +30,21 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGERTOOLCHAINCOMBOBOX_H
-#define DEBUGGERTOOLCHAINCOMBOBOX_H
+#ifndef PROJECTEXPLORER_PROFILECHOOSER_H
+#define PROJECTEXPLORER_PROFILECHOOSER_H
 
-#include "debugger_global.h"
+#include "projectexplorer_export.h"
 
 #include <QComboBox>
 
 namespace Core { class Id; }
-namespace ProjectExplorer { class Profile; }
 
-namespace Debugger {
+namespace ProjectExplorer {
+
+class Profile;
 
 // Let the user pick a profile.
-class DEBUGGER_EXPORT ProfileChooser : public QComboBox
+class PROJECTEXPLORER_EXPORT ProfileChooser : public QComboBox
 {
     Q_OBJECT
 
@@ -55,12 +56,12 @@ public:
     void setCurrentProfileId(Core::Id id);
     Core::Id currentProfileId() const;
 
-    ProjectExplorer::Profile *currentProfile() const;
+    Profile *currentProfile() const;
 
 private:
-    ProjectExplorer::Profile *profileAt(int index) const;
+    Profile *profileAt(int index) const;
 };
 
-} // namespace Debugger
+} // namespace ProjectExplorer
 
-#endif // DEBUGGERTOOLCHAINCOMBOBOX_H
+#endif // PROJECTEXPLORER_PROFILECHOOSER_H

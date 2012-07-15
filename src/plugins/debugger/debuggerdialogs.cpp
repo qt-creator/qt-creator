@@ -36,12 +36,12 @@
 #include "debuggerconstants.h"
 #include "debuggerprofileinformation.h"
 #include "debuggerstringutils.h"
-#include "debuggertoolchaincombobox.h"
 #include "cdb/cdbengine.h"
 #include "shared/hostutils.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/profilechooser.h>
 #include <projectexplorer/profileinformation.h>
 #include <utils/filterlineedit.h>
 #include <utils/historycompleter.h>
@@ -196,7 +196,7 @@ public:
     QLabel *coreLabel;
     Utils::PathChooser *coreFileName;
     QLabel *profileLabel;
-    Debugger::ProfileChooser *profileComboBox;
+    ProfileChooser *profileComboBox;
     Utils::PathChooser *overrideStartScriptFileName;
     QLabel *overrideStartScriptLabel;
     QDialogButtonBox *buttonBox;
@@ -226,7 +226,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->overrideStartScriptLabel = new QLabel(tr("Override &start script:"), this);
     d->overrideStartScriptLabel->setBuddy(d->overrideStartScriptFileName);
 
-    d->profileComboBox = new Debugger::ProfileChooser(this);
+    d->profileComboBox = new ProfileChooser(this);
     d->profileComboBox->init(false);
     d->profileLabel = new QLabel(tr("&Target:"), this);
     d->profileLabel->setBuddy(d->profileComboBox);
@@ -337,7 +337,7 @@ public:
     QLineEdit *pidLineEdit;
     Utils::FilterLineEdit *filterWidget;
     QLabel *profileLabel;
-    Debugger::ProfileChooser *profileComboBox;
+    ProfileChooser *profileComboBox;
     QTreeView *procView;
     QDialogButtonBox *buttonBox;
 
@@ -364,7 +364,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     d->filterWidget = new Utils::FilterLineEdit(this);
     d->filterWidget->setFocus(Qt::TabFocusReason);
 
-    d->profileComboBox = new Debugger::ProfileChooser(this);
+    d->profileComboBox = new ProfileChooser(this);
     d->profileComboBox->init(true);
     d->profileLabel = new QLabel(tr("&Target:"), this);
     d->profileLabel->setBuddy(d->profileComboBox);
@@ -621,7 +621,7 @@ public:
     QLabel *workingDirectoryLabel;
     Utils::PathChooser *workingDirectory;
     QLabel *profileLabel;
-    Debugger::ProfileChooser *profileChooser;
+    ProfileChooser *profileChooser;
     QLabel *breakAtMainLabel;
     QCheckBox *breakAtMainCheckBox;
     QLabel *historyLabel;
@@ -664,7 +664,7 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
     d->runInTerminalLabel = new QLabel(tr("Run in &terminal:"), this);
     d->runInTerminalLabel->setBuddy(d->runInTerminalCheckBox);
 
-    d->profileChooser = new Debugger::ProfileChooser(this);
+    d->profileChooser = new ProfileChooser(this);
     d->profileChooser->init(true);
     d->profileLabel = new QLabel(tr("&Target:"), this);
     d->profileLabel->setBuddy(d->profileChooser);
@@ -963,7 +963,7 @@ class StartRemoteDialogPrivate
 {
 public:
     QLabel *profileLabel;
-    Debugger::ProfileChooser *profileChooser;
+    ProfileChooser *profileChooser;
     QLabel *executableLabel;
     Utils::PathChooser *executablePathChooser;
     QLabel *channelLabel;
@@ -990,7 +990,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->profileChooser = new Debugger::ProfileChooser(this);
+    d->profileChooser = new ProfileChooser(this);
     d->profileChooser->init(false);
     d->profileLabel = new QLabel(tr("Target:"), this);
     d->profileLabel->setBuddy(d->profileChooser);
@@ -1210,7 +1210,7 @@ public:
     QLabel *portLabel;
     QSpinBox *portSpinBox;
     QLabel *profileLabel;
-    Debugger::ProfileChooser *profileChooser;
+    ProfileChooser *profileChooser;
 };
 
 AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
@@ -1220,7 +1220,7 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->profileChooser = new Debugger::ProfileChooser(this);
+    d->profileChooser = new ProfileChooser(this);
     d->profileLabel = new QLabel(tr("Target:"), this);
     d->profileLabel->setBuddy(d->profileChooser);
 

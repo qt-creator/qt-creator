@@ -21,6 +21,7 @@ HEADERS += projectexplorer.h \
     projectexplorer_export.h \
     projectwindow.h \
     profile.h \
+    profilechooser.h \
     profileconfigwidget.h \
     profileinformation.h \
     profileinformationconfigwidget.h \
@@ -131,6 +132,7 @@ SOURCES += projectexplorer.cpp \
     gcctoolchain.cpp \
     projectwindow.cpp \
     profile.cpp \
+    profilechooser.cpp \
     profileinformation.cpp \
     profileinformationconfigwidget.cpp \
     profilemanager.cpp \

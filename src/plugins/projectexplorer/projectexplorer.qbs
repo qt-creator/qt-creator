@@ -110,6 +110,8 @@ QtcPlugin {
         "processstep.h",
         "profile.cpp",
         "profile.h",
+        "profilechooser.cpp",
+        "profilechooser.h",
         "profileconfigwidget.h",
         "profileinformation.cpp",
         "profileinformation.h",

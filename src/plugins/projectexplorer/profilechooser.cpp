@@ -30,13 +30,12 @@
 **
 **************************************************************************/
 
-#include "debuggertoolchaincombobox.h"
+#include "profilechooser.h"
 
-#include "debuggerprofileinformation.h"
+#include "profileinformation.h"
+#include "profilemanager.h"
+#include "abi.h"
 
-#include <projectexplorer/profileinformation.h>
-#include <projectexplorer/profilemanager.h>
-#include <projectexplorer/abi.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -44,9 +43,7 @@
 #include <QPair>
 #include <QtEvents>
 
-using namespace ProjectExplorer;
-
-namespace Debugger {
+namespace ProjectExplorer {
 
 ProfileChooser::ProfileChooser(QWidget *parent) :
     QComboBox(parent)
@@ -56,29 +53,26 @@ ProfileChooser::ProfileChooser(QWidget *parent) :
 void ProfileChooser::init(bool hostAbiOnly)
 {
     const Abi hostAbi = Abi::hostAbi();
-    foreach (const Profile *st, ProfileManager::instance()->profiles()) {
-        if (!st->isValid())
+    foreach (const Profile *profile, ProfileManager::instance()->profiles()) {
+        if (!profile->isValid())
             continue;
-        ToolChain *tc = ToolChainProfileInformation::toolChain(st);
+        ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
         if (!tc)
             continue;
         const Abi abi = tc->targetAbi();
         if (hostAbiOnly && hostAbi.os() != abi.os())
             continue;
 
-        const QString debuggerCommand = DebuggerProfileInformation::debuggerCommand(st).toString();
-        if (debuggerCommand.isEmpty())
-            continue;
-
+        const QString debuggerCommand = profile->value(Core::Id("Debugger.Information")).toString();
         const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();
-        const QString name = tr("%1 (%2)").arg(st->displayName(), completeBase);
-        addItem(name, qVariantFromValue(st->id()));
+        const QString name = tr("%1 (%2)").arg(profile->displayName(), completeBase);
+        addItem(name, qVariantFromValue(profile->id()));
         QString debugger = QDir::toNativeSeparators(debuggerCommand);
         debugger.replace(QString(QLatin1Char(' ')), QLatin1String("&nbsp;"));
         QString toolTip = tr("<html><head/><body><table>"
             "<tr><td>ABI:</td><td><i>%1</i></td></tr>"
             "<tr><td>Debugger:</td><td>%2</td></tr>")
-                .arg(st->displayName(), QDir::toNativeSeparators(debugger));
+                .arg(profile->displayName(), QDir::toNativeSeparators(debugger));
         setItemData(count() - 1, toolTip, Qt::ToolTipRole);
     }
     setEnabled(count() > 1);
@@ -110,4 +104,4 @@ Profile *ProfileChooser::profileAt(int index) const
     return ProfileManager::instance()->find(id);
 }
 
-} // namespace Debugger
+} // namespace ProjectExplorer
