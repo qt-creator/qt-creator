@@ -135,7 +135,7 @@ BaseQtVersion *QtProfileInformation::qtVersion(const ProjectExplorer::Profile *p
     return QtVersionManager::instance()->version(qtVersionId(p));
 }
 
-void QtProfileInformation::setQtVersion(ProjectExplorer::Profile *p, BaseQtVersion *v)
+void QtProfileInformation::setQtVersion(ProjectExplorer::Profile *p, const BaseQtVersion *v)
 {
     if (!v)
         setQtVersionId(p, -1);

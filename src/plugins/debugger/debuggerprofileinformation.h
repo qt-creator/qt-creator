@@ -59,7 +59,7 @@ public:
     ItemList toUserOutput(ProjectExplorer::Profile *p) const;
 
     static Utils::FileName debuggerCommand(const ProjectExplorer::Profile *p);
-    static void setDebuggerCommand(ProjectExplorer::Profile *p, Utils::FileName &command);
+    static void setDebuggerCommand(ProjectExplorer::Profile *p, const Utils::FileName &command);
 };
 
 } // namespace Debugger

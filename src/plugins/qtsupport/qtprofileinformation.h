@@ -65,7 +65,7 @@ public:
     static int qtVersionId(const ProjectExplorer::Profile *p);
     static void setQtVersionId(ProjectExplorer::Profile *p, const int id);
     static BaseQtVersion *qtVersion(const ProjectExplorer::Profile *p);
-    static void setQtVersion(ProjectExplorer::Profile *p, BaseQtVersion *v);
+    static void setQtVersion(ProjectExplorer::Profile *p, const BaseQtVersion *v);
 };
 
 class QTSUPPORT_EXPORT QtTypeProfileMatcher : public ProjectExplorer::ProfileMatcher

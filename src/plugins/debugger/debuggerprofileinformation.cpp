@@ -205,7 +205,7 @@ Utils::FileName DebuggerProfileInformation::debuggerCommand(const ProjectExplore
     return Utils::FileName::fromString(p->value(Core::Id(DEBUGGER_INFORMATION)).toString());
 }
 
-void DebuggerProfileInformation::setDebuggerCommand(ProjectExplorer::Profile *p, Utils::FileName &command)
+void DebuggerProfileInformation::setDebuggerCommand(ProjectExplorer::Profile *p, const Utils::FileName &command)
 {
     p->setValue(Core::Id(DEBUGGER_INFORMATION), command.toString());
 }
