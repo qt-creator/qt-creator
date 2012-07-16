@@ -40,6 +40,7 @@ namespace Internal {
 
 class AndroidDeviceFactory : public ProjectExplorer::IDeviceFactory
 {
+    Q_OBJECT
 public:
     AndroidDeviceFactory();
 

@@ -233,7 +233,7 @@ QStringList AndroidConfigurations::sdkTargets(int minApiLevel) const
         return targets;
     }
     while (proc.canReadLine()) {
-        QString line = proc.readLine().trimmed();
+        const QString line = QString::fromLocal8Bit(proc.readLine().trimmed());
         int index = line.indexOf(QLatin1String("\"android-"));
         if (index == -1)
             continue;

@@ -95,7 +95,7 @@ bool AndroidManager::supportsAndroid(ProjectExplorer::Target *target)
     if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project()))
         return false;
     QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
-    return version && version->platformName() == QtSupport::Constants::ANDROID_PLATFORM;
+    return version && version->platformName() == QLatin1String(QtSupport::Constants::ANDROID_PLATFORM);
 }
 
 QString AndroidManager::packageName(ProjectExplorer::Target *target)
@@ -389,7 +389,7 @@ QString AndroidManager::targetApplicationPath(ProjectExplorer::Target *target)
                     && proFile->targetInformation().target.endsWith(QLatin1String(".so"))) {
                 if (proFile->targetInformation().target.mid(3, proFile->targetInformation().target.lastIndexOf(QLatin1Char('.')) - 3)
                         == selectedApp)
-                    return proFile->targetInformation().buildDir + QLatin1String("/") + proFile->targetInformation().target;
+                    return proFile->targetInformation().buildDir + QLatin1Char('/') + proFile->targetInformation().target;
             } else {
                 if (proFile->targetInformation().target == selectedApp)
                     return proFile->targetInformation().buildDir + QLatin1String("/lib") + proFile->targetInformation().target + QLatin1String(".so");
@@ -437,9 +437,9 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
     }
 
     Utils::FileName src = androidPath;
-    src.appendPath("src");
+    src.appendPath(QLatin1String("src"));
     Utils::FileName res = androidPath;
-    res.appendPath("res");
+    res.appendPath(QLatin1String("res"));
 
     if (!forceUpdate && androidPath.toFileInfo().exists()
             && manifestPath(target).toFileInfo().exists()

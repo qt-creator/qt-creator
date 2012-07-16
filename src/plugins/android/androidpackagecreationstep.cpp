@@ -85,7 +85,7 @@ public:
         QPair<QString, QString> item;
         while (from > -1) {
             from += 11;// strlen(AliasString);
-            const int eol = rowCertificates.indexOf(QLatin1String("\n"), from);
+            const int eol = rowCertificates.indexOf(QLatin1Char('\n'), from);
             item.first = rowCertificates.mid(from, eol - from).trimmed();
             const int eoc = rowCertificates.indexOf(CertificateSeparator, eol);
             item.second = rowCertificates.mid(eol + 1, eoc - eol - 2).trimmed();
@@ -433,7 +433,7 @@ bool AndroidPackageCreationStep::createPackage()
                 return false;
             }
 
-            keyPass += "\n";
+            keyPass += '\n';
             buildProc->write(keyPass);
             buildProc->waitForBytesWritten();
             buildProc->waitForFinished();

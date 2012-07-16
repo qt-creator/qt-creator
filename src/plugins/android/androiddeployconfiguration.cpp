@@ -143,7 +143,7 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(ProjectE
 
 QString AndroidDeployConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id.toString().startsWith(ANDROID_DC_PREFIX))
+    if (id.toString().startsWith(QLatin1String(ANDROID_DC_PREFIX)))
         return tr("Deploy on Android");
     return QString();
 }
