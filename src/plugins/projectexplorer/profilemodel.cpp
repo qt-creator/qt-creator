@@ -364,6 +364,15 @@ void ProfileModel::markForRemoval(Profile *p)
     if (!node)
         return;
 
+    if (node == m_defaultNode) {
+        ProfileNode *newDefault = 0;
+        if (!m_autoRoot->childNodes.isEmpty())
+            newDefault = m_autoRoot->childNodes.at(0);
+        else if (!m_manualRoot->childNodes.isEmpty())
+            newDefault = m_manualRoot->childNodes.at(0);
+        setDefaultNode(newDefault);
+    }
+
     beginRemoveRows(index(m_manualRoot), m_manualRoot->childNodes.indexOf(node), m_manualRoot->childNodes.indexOf(node));
     m_manualRoot->childNodes.removeOne(node);
     node->parent = 0;
@@ -376,15 +385,6 @@ void ProfileModel::markForRemoval(Profile *p)
         m_toRemoveList.append(node);
     }
     endRemoveRows();
-
-    if (node == m_defaultNode) {
-        ProfileNode *newDefault = 0;
-        if (!m_autoRoot->childNodes.isEmpty())
-            newDefault = m_autoRoot->childNodes.at(0);
-        else if (!m_manualRoot->childNodes.isEmpty())
-            newDefault = m_manualRoot->childNodes.at(0);
-        setDefaultNode(newDefault);
-    }
 }
 
 void ProfileModel::markForAddition(Profile *p)
