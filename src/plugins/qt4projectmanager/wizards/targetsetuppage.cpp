@@ -203,8 +203,8 @@ ProjectExplorer::Profile *TargetSetupPage::createTemporaryProfile(QtSupport::Bas
     ProjectExplorer::Profile *p = new ProjectExplorer::Profile;
     p->setDisplayName(version->displayName());
     QtSupport::QtProfileInformation::setQtVersion(p, version);
-    QmakeProfileInformation::setMkspec(p, parsedSpec);
     ProjectExplorer::ToolChainProfileInformation::setToolChain(p, version->preferredToolChain(parsedSpec));
+    QmakeProfileInformation::setMkspec(p, parsedSpec);
 
     p->setValue(PROFILE_IS_TEMPORARY, true);
     p->setValue(TEMPORARY_OF_PROJECTS, QStringList() << m_proFilePath);
