@@ -83,7 +83,7 @@ bool BlackBerryRunControl::isRunning() const
 
 QIcon BlackBerryRunControl::icon() const
 {
-    return QIcon(ProjectExplorer::Constants::ICON_RUN_SMALL);
+    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 void BlackBerryRunControl::handleStartFailed(const QString &message)

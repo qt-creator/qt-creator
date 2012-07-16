@@ -124,7 +124,7 @@ void BlackBerryApplicationRunner::start()
     args << QLatin1String("-launchApp");
     if (m_debugMode)
         args << QLatin1String("-debugNative");
-    args << "-device" << m_deviceHost;
+    args << QLatin1String("-device") << m_deviceHost;
     if (!m_password.isEmpty())
         args << QLatin1String("-password") << m_password;
     args << QDir::toNativeSeparators(m_barPackage);
@@ -304,7 +304,7 @@ void BlackBerryApplicationRunner::determineRunningState()
 {
     QStringList args;
     args << QLatin1String("-isAppRunning");
-    args << "-device" << m_deviceHost;
+    args << QLatin1String("-device") << m_deviceHost;
     if (!m_password.isEmpty())
         args << QLatin1String("-password") << m_password;
     args << m_barPackage;
@@ -340,7 +340,7 @@ void BlackBerryApplicationRunner::readRunningStateStandardOutput()
 void BlackBerryApplicationRunner::reset()
 {
     m_pid = -1;
-    m_appId = "";
+    m_appId.clear();
     m_running = false;
     m_stopping = false;
 

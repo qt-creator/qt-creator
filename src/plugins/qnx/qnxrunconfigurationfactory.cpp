@@ -116,7 +116,7 @@ bool QnxRunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, con
     if (!canHandle(parent))
         return false;
 
-    return ProjectExplorer::idFromMap(map).toString().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX);
+    return ProjectExplorer::idFromMap(map).toString().startsWith(QLatin1String(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX));
 }
 
 ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)

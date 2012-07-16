@@ -118,7 +118,7 @@ bool BlackBerryRunConfigurationFactory::canRestore(ProjectExplorer::Target *pare
     if (!canHandle(parent))
         return false;
 
-    return ProjectExplorer::idFromMap(map).toString().startsWith(Constants::QNX_BB_RUNCONFIGURATION_PREFIX);
+    return ProjectExplorer::idFromMap(map).toString().startsWith(QLatin1String(Constants::QNX_BB_RUNCONFIGURATION_PREFIX));
 }
 
 ProjectExplorer::RunConfiguration *BlackBerryRunConfigurationFactory::restore(
