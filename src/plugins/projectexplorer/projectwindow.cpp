@@ -273,7 +273,7 @@ void ProjectWindow::aboutToShutdown()
     disconnect(ProjectExplorerPlugin::instance()->session(), 0, this, 0);
 }
 
-void ProjectWindow::removedTarget(Target *target)
+void ProjectWindow::removedTarget(Target *)
 {
     Project *p = qobject_cast<Project *>(sender());
     QTC_ASSERT(p, return);
