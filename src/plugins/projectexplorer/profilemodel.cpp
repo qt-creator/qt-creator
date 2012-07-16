@@ -508,6 +508,9 @@ void ProfileModel::removeProfile(Profile *p)
 void ProfileModel::updateProfile(Profile *p)
 {
     ProfileNode *n = find(p);
+    // This can happen if Qt Versions and Profiles are removed simultaneously.
+    if (!n)
+        return;
     if (n->widget)
         n->widget->discard();
     QModelIndex idx = index(n);
