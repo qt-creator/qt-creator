@@ -331,15 +331,13 @@ void TargetSetupPage::import(const Utils::FileName &path, const bool silent)
         Utils::FileName parsedSpec =
                 Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, path.toString(), version);
         Utils::FileName versionSpec = version->mkspec();
+        if (parsedSpec.isEmpty() || parsedSpec == Utils::FileName::fromString(QLatin1String("default")))
+            parsedSpec = versionSpec;
 
         QString specArgument;
         // Compare mkspecs and add to additional arguments
-        if (parsedSpec.isEmpty() || parsedSpec == versionSpec
-            || parsedSpec == Utils::FileName::fromString(QLatin1String("default"))) {
-            // using the default spec, don't modify additional arguments
-        } else {
+        if (parsedSpec != versionSpec)
             specArgument = QLatin1String("-spec ") + Utils::QtcProcess::quoteArg(parsedSpec.toUserOutput());
-        }
         Utils::QtcProcess::addArgs(&specArgument, additionalArguments);
 
         // Find profile:
