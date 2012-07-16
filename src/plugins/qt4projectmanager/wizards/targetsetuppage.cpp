@@ -240,7 +240,6 @@ void TargetSetupPage::addProject(ProjectExplorer::Profile *p, const QString &pat
         return;
 
     QStringList profiles = p->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-    Q_ASSERT(!profiles.contains(path));
     profiles.append(path);
     m_ignoreUpdates = true;
     p->setValue(PROFILE_IS_TEMPORARY, profiles);
