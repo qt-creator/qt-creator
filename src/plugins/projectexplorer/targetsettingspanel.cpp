@@ -288,7 +288,6 @@ void TargetSettingsPanelWidget::removedTarget(ProjectExplorer::Target *target)
 
 void TargetSettingsPanelWidget::activeTargetChanged(ProjectExplorer::Target *target)
 {
-    Q_ASSERT(m_project == target->project());
     Q_ASSERT(m_selector);
 
     int index = m_targets.indexOf(target);
