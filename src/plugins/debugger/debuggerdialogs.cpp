@@ -914,7 +914,7 @@ bool operator!=(const StartRemoteParameters &p1, const StartRemoteParameters &p2
 }
 
 StartRemoteParameters::StartRemoteParameters() :
-    useServerStartScript(false), profileId(0)
+    useServerStartScript(false)
 {
 }
 
@@ -945,7 +945,12 @@ void StartRemoteParameters::fromSettings(const QSettings *settings)
 {
     remoteChannel = settings->value(_("LastRemoteChannel")).toString();
     localExecutable = settings->value(_("LastLocalExecutable")).toString();
-    profileId = Core::Id(settings->value(_("LastProfileId")).toString());
+    const QString profileIdString = settings->value(_("LastProfileId")).toString();
+    if (profileIdString.isEmpty()) {
+        profileId = Core::Id();
+    } else {
+        profileId = Core::Id(profileIdString);
+    }
     remoteArchitecture = settings->value(_("LastRemoteArchitecture")).toString();
     serverStartScript = settings->value(_("LastServerStartScript")).toString();
     useServerStartScript = settings->value(_("LastUseServerStartScript")).toBool();
