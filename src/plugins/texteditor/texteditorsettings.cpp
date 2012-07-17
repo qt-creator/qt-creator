@@ -144,7 +144,6 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.append(FormatDescription(C_STATIC, tr("Static"), Qt::darkMagenta));
 
     Format functionFormat;
-    functionFormat.setForeground(QColor(60, 60, 60)); // very dark grey
     formatDescriptions.append(FormatDescription(C_FUNCTION, tr("Function"), functionFormat));
     functionFormat.setItalic(true);
     formatDescriptions.append(FormatDescription(C_VIRTUAL_METHOD, tr("Virtual Method"), functionFormat));

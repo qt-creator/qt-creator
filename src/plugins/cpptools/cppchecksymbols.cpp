@@ -56,7 +56,7 @@
 // Whenever this feature is considered "accepted" the switch below should be permanently
 // removed, unless we decide to actually make this a user setting - that is why it's
 // currently a bool instead of a define.
-static const bool highlightCtorDtorAsType = false;
+static const bool highlightCtorDtorAsType = true;
 
 using namespace CPlusPlus;
 using namespace CppTools;
