@@ -958,9 +958,11 @@ void QtOptionsPageWidget::updateDescriptionLabel()
 
     if (version) {
         m_infoBrowser->setHtml(version->toHtml(true));
+        m_ui->versionInfoWidget->setVisible(true);
         m_ui->infoWidget->setVisible(true);
     } else {
         m_infoBrowser->setHtml(QString());
+        m_ui->versionInfoWidget->setVisible(false);
         m_ui->infoWidget->setVisible(false);
     }
 }
