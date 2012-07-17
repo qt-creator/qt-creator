@@ -35,8 +35,10 @@
 
 #include "profileconfigwidget.h"
 
-QT_FORWARD_DECLARE_CLASS(QComboBox)
-QT_FORWARD_DECLARE_CLASS(QPushButton)
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace Utils { class PathChooser; }
 

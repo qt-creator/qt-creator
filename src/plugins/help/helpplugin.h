@@ -37,11 +37,13 @@
 #include <QMap>
 #include <QStringList>
 
-QT_FORWARD_DECLARE_CLASS(QAction)
-QT_FORWARD_DECLARE_CLASS(QComboBox)
-QT_FORWARD_DECLARE_CLASS(QMenu)
-QT_FORWARD_DECLARE_CLASS(QToolButton)
-QT_FORWARD_DECLARE_CLASS(QUrl)
+QT_BEGIN_NAMESPACE
+class QAction;
+class QComboBox;
+class QMenu;
+class QToolButton;
+class QUrl;
+QT_END_NAMESPACE
 
 namespace Core {
 class IMode;

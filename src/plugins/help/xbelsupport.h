@@ -36,8 +36,10 @@
 #include <QIcon>
 #include <QXmlStreamReader>
 
-QT_FORWARD_DECLARE_CLASS(QIODevice)
-QT_FORWARD_DECLARE_CLASS(QStandardItem)
+QT_BEGIN_NAMESPACE
+class QIODevice;
+class QStandardItem;
+QT_END_NAMESPACE
 
 class BookmarkModel;
 

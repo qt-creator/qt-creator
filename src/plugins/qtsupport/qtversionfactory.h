@@ -39,8 +39,10 @@
 #include <QObject>
 #include <QVariantMap>
 
-QT_FORWARD_DECLARE_CLASS(QSettings)
-QT_FORWARD_DECLARE_CLASS(ProFileEvaluator)
+QT_BEGIN_NAMESPACE
+class QSettings;
+class ProFileEvaluator;
+QT_END_NAMESPACE
 
 namespace QtSupport {
 
@@ -49,6 +51,7 @@ class BaseQtVersion;
 class QTSUPPORT_EXPORT QtVersionFactory : public QObject
 {
     Q_OBJECT
+
 public:
     explicit QtVersionFactory(QObject *parent = 0);
     ~QtVersionFactory();
@@ -66,5 +69,6 @@ public:
     static BaseQtVersion *createQtVersionFromLegacySettings(const Utils::FileName &qmakePath, int id, QSettings *s);
 };
 
-}
+} // namespace QtSupport
+
 #endif // QTVERSIONFACTORY_H

@@ -38,10 +38,12 @@
 
 #include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QHelpSearchEngine)
-QT_FORWARD_DECLARE_CLASS(QHelpSearchResultWidget)
-QT_FORWARD_DECLARE_CLASS(QMouseEvent)
-QT_FORWARD_DECLARE_CLASS(QUrl)
+QT_BEGIN_NAMESPACE
+class QHelpSearchEngine;
+class QHelpSearchResultWidget;
+class QMouseEvent;
+class QUrl;
+QT_END_NAMESPACE
 
 namespace Help {
 namespace Internal {
