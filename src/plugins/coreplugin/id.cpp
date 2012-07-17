@@ -134,4 +134,10 @@ QString Id::toString() const
     return QString::fromUtf8(stringFromId[m_id]);
 }
 
+// For debugging purposes
+CORE_EXPORT const char *nameForId(int id)
+{
+    return (stringFromId.constData() + id)->constData();
+}
+
 } // namespace Core

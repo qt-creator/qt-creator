@@ -2420,6 +2420,18 @@ def qdump__QScriptValue(d, value):
 #
 #######################################################################
 
+def qdump__Core__Id(d, value):
+    try:
+        name = parseAndEvaluate("Core::nameForId(%d)" % value["m_id"])
+        d.putValue(encodeCharArray(name), Hex2EncodedLatin1)
+        d.putNumChild(1)
+        if d.isExpanded():
+            with Children(d):
+                d.putFields(value)
+    except:
+        d.putValue(value["m_id"])
+        d.putNumChild(0)
+
 def qdump__Debugger__Internal__GdbMi(d, value):
     d.putByteArrayValue(value["m_data"])
     d.putPlainChildren(value)
