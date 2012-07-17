@@ -147,45 +147,45 @@ ProfileManager::ProfileManager(QObject *parent) :
 
 void ProfileManager::restoreProfiles()
 {
-    QList<Profile *> stsToRegister;
-    QList<Profile *> stsToCheck;
+    QList<Profile *> profilesToRegister;
+    QList<Profile *> profilesToCheck;
 
     // read all profiles from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
     ProfileList system = restoreProfiles(systemSettingsFile.absolutePath() + QLatin1String(PROFILE_FILENAME));
-    QList<Profile *> readSts = system.profiles;
+    QList<Profile *> readProfiles = system.profiles;
     // make sure we mark these as autodetected!
-    foreach (Profile *p, readSts)
+    foreach (Profile *p, readProfiles)
         p->setAutoDetected(true);
 
-    stsToRegister = readSts; // SDK profiles are always considered to be up-to-date, so no need to
+    profilesToRegister = readProfiles; // SDK profiles are always considered to be up-to-date, so no need to
                              // recheck them.
 
     // read all profile chains from user file
     ProfileList userProfiles = restoreProfiles(settingsFileName());
-    readSts = userProfiles.profiles;
+    readProfiles = userProfiles.profiles;
 
-    foreach (Profile *p, readSts) {
+    foreach (Profile *p, readProfiles) {
         if (p->isAutoDetected())
-            stsToCheck.append(p);
+            profilesToCheck.append(p);
         else
-            stsToRegister.append(p);
+            profilesToRegister.append(p);
     }
-    readSts.clear();
+    readProfiles.clear();
 
     // Then auto create profiles:
-    QList<Profile *> detectedSts;
+    QList<Profile *> detectedProfiles;
 
     // Find/update autodetected profiles:
     Profile *toStore = 0;
-    foreach (Profile *currentDetected, detectedSts) {
+    foreach (Profile *currentDetected, detectedProfiles) {
         toStore = currentDetected;
 
         // Check whether we had this profile stored and prefer the old one with the old id:
-        for (int i = 0; i < stsToCheck.count(); ++i) {
-            if (*(stsToCheck.at(i)) == *currentDetected) {
-                toStore = stsToCheck.at(i);
-                stsToCheck.removeAt(i);
+        for (int i = 0; i < profilesToCheck.count(); ++i) {
+            if (*(profilesToCheck.at(i)) == *currentDetected) {
+                toStore = profilesToCheck.at(i);
+                profilesToCheck.removeAt(i);
                 delete currentDetected;
                 break;
             }
@@ -194,10 +194,10 @@ void ProfileManager::restoreProfiles()
     }
 
     // Delete all loaded autodetected profiles that were not rediscovered:
-    qDeleteAll(stsToCheck);
+    qDeleteAll(profilesToCheck);
 
     // Store manual profiles
-    foreach (Profile *p, stsToRegister)
+    foreach (Profile *p, profilesToRegister)
         addProfile(p);
 
     if (profiles().isEmpty()) {
