@@ -56,6 +56,7 @@ ProfileManagerConfigWidget::ProfileManagerConfigWidget(Profile *p, QWidget *pare
 {
     m_layout->setMargin(0);
     m_layout->setSpacing(6);
+    m_layout->setContentsMargins(0, 0, 0, 0);
 
     QVBoxLayout *top = new QVBoxLayout(this);
     top->setMargin(0);
@@ -73,15 +74,19 @@ ProfileManagerConfigWidget::ProfileManagerConfigWidget(Profile *p, QWidget *pare
     QWidget *widget = new QWidget;
     details->setWidget(widget);
 
-    QHBoxLayout *masterLayout = new QHBoxLayout(widget);
-    masterLayout->setSpacing(12);
-
     QVBoxLayout *iconLayout = new QVBoxLayout;
     iconLayout->addWidget(m_iconButton);
     iconLayout->addStretch();
 
-    masterLayout->addLayout(iconLayout);
-    masterLayout->addLayout(m_layout);
+    QHBoxLayout *spacer = new QHBoxLayout;
+    spacer->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
+
+    QGridLayout *masterLayout = new QGridLayout(widget);
+    masterLayout->setMargin(0);
+    masterLayout->setContentsMargins(6, 0, 6, 0);
+    masterLayout->addLayout(iconLayout, 0, 0);
+    masterLayout->addLayout(m_layout, 0, 1);
+    masterLayout->addLayout(spacer, 1, 0);
 
     discard();
 
