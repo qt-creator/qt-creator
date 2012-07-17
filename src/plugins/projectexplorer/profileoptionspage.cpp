@@ -66,11 +66,17 @@ ProfileOptionsPage::ProfileOptionsPage() :
     setCategoryIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
+struct SmallTreeView : QTreeView
+{
+    explicit SmallTreeView(QWidget *parent) : QTreeView(parent) {}
+    QSize sizeHint() const { return QSize(256, 150); }
+};
+
 QWidget *ProfileOptionsPage::createPage(QWidget *parent)
 {
     m_configWidget = new QWidget(parent);
 
-    m_profilesView = new QTreeView(m_configWidget);
+    m_profilesView = new SmallTreeView(m_configWidget);
     m_profilesView->setUniformRowHeights(true);
     m_profilesView->header()->setStretchLastSection(true);
 
