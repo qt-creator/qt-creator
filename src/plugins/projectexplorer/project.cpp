@@ -162,8 +162,6 @@ void Project::addTarget(Target *t)
             SLOT(changeEnvironment()));
     connect(t, SIGNAL(buildConfigurationEnabledChanged()),
             this, SLOT(changeBuildConfigurationEnabled()));
-    connect(t, SIGNAL(requestBuildSystemEvaluation()),
-            this, SLOT(triggerBuildSystemEvaluation()));
     connect(t, SIGNAL(buildDirectoryChanged()),
             this, SLOT(onBuildDirectoryChanged()));
     emit addedTarget(t);
@@ -399,9 +397,6 @@ void Project::setProjectLanguage(Core::Context language)
     d->m_projectLanguage = language;
 }
 
-void Project::evaluateBuildSystem()
-{ buildSystemEvaluationFinished(true); }
-
 Core::Context Project::projectContext() const
 {
     return d->m_projectContext;
@@ -433,27 +428,6 @@ bool Project::needsConfiguration() const
 void Project::configureAsExampleProject(const QStringList &platforms)
 {
     Q_UNUSED(platforms);
-}
-
-void Project::triggerBuildSystemEvaluation()
-{
-    Target *target = qobject_cast<Target *>(sender());
-    if (target && target != activeTarget())
-        return;
-
-    evaluateBuildSystem();
-}
-
-void Project::buildSystemEvaluationFinished(bool success)
-{
-    if (!success)
-        return;
-
-    // Create new run configurations:
-    foreach (Target *t, targets())
-        t->updateDefaultRunConfigurations();
-
-    emit buildSystemEvaluated();
 }
 
 void Project::onBuildDirectoryChanged()

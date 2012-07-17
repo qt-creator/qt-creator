@@ -67,20 +67,6 @@ const char ARGUMENTS_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.Argument
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMakeProjectManager.CMakeRunConfiguration.UserEnvironmentChanges";
 const char BASE_ENVIRONMENT_BASE_KEY[] = "CMakeProjectManager.BaseEnvironmentBase";
 
-QString buildTargetFromId(Core::Id id)
-{
-    QString idstr = QString::fromUtf8(id.name());
-    if (!idstr.startsWith(QLatin1String(CMAKE_RC_PREFIX)))
-        return QString();
-    return idstr.mid(QString::fromLatin1(CMAKE_RC_PREFIX).length());
-}
-
-Core::Id idFromBuildTarget(const QString &target)
-{
-    QString id = QString::fromLatin1(CMAKE_RC_PREFIX) + target;
-    return Core::Id(id.toUtf8().constData());
-}
-
 } // namespace
 
 CMakeRunConfiguration::CMakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &target,
@@ -567,4 +553,18 @@ ProjectExplorer::RunConfiguration *CMakeRunConfigurationFactory::restore(Project
         return rc;
     delete rc;
     return 0;
+}
+
+QString CMakeRunConfigurationFactory::buildTargetFromId(Core::Id id)
+{
+    QString idstr = QString::fromUtf8(id.name());
+    if (!idstr.startsWith(QLatin1String(CMAKE_RC_PREFIX)))
+        return QString();
+    return idstr.mid(QString::fromLatin1(CMAKE_RC_PREFIX).length());
+}
+
+Core::Id CMakeRunConfigurationFactory::idFromBuildTarget(const QString &target)
+{
+    QString id = QString::fromLatin1(CMAKE_RC_PREFIX) + target;
+    return Core::Id(id.toUtf8().constData());
 }

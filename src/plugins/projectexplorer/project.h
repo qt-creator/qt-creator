@@ -124,12 +124,6 @@ public:
     virtual bool needsConfiguration() const;
     virtual void configureAsExampleProject(const QStringList &platforms);
 
-public slots:
-    void triggerBuildSystemEvaluation();
-
-protected slots:
-    void buildSystemEvaluationFinished(bool success);
-
 signals:
     void displayNameChanged();
     void fileListChanged();
@@ -143,8 +137,8 @@ signals:
 
     void environmentChanged();
     void buildConfigurationEnabledChanged();
+
     void buildDirectoryChanged();
-    void buildSystemEvaluated();
 
     void settingsLoaded();
     void aboutToSaveSettings();
@@ -154,13 +148,6 @@ protected:
 
     virtual void setProjectContext(Core::Context context);
     virtual void setProjectLanguage(Core::Context language);
-
-    // Implement this to (re-)evaluate the build system of the project.
-    //
-    // This method is triggered by one of its active children (active*Configuration
-    // of the activeTarget) whenever some settings that has influence on the build
-    // system parsing is changed.
-    virtual void evaluateBuildSystem();
 
 private slots:
     void changeEnvironment();

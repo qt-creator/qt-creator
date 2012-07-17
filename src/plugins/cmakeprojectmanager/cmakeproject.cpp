@@ -109,8 +109,8 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
 
     connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
             SLOT(targetAdded(ProjectExplorer::Target*)));
-    connect(this, SIGNAL(buildDirectoryChanged()),
-            this, SLOT(triggerBuildSystemEvaluation()));
+    connect(this, SIGNAL(buildTargetsChanged()),
+            this, SLOT(updateRunConfigurations()));
 }
 
 CMakeProject::~CMakeProject()
@@ -134,7 +134,7 @@ void CMakeProject::fileChanged(const QString &fileName)
 {
     Q_UNUSED(fileName)
 
-    evaluateBuildSystem();
+    parseCMakeLists();
 }
 
 void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
@@ -170,7 +170,7 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
         copw.exec();
     }
     // reparse
-    evaluateBuildSystem();
+    parseCMakeLists();
 }
 
 void CMakeProject::targetAdded(ProjectExplorer::Target *t)
@@ -185,7 +185,7 @@ void CMakeProject::targetAdded(ProjectExplorer::Target *t)
 void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory)
 {
     bc->setBuildDirectory(newBuildDirectory);
-    evaluateBuildSystem();
+    parseCMakeLists();
 }
 
 QString CMakeProject::defaultBuildDirectory() const
@@ -193,20 +193,14 @@ QString CMakeProject::defaultBuildDirectory() const
     return projectDirectory() + QLatin1String("/qtcreator-build");
 }
 
-void CMakeProject::evaluateBuildSystem()
+bool CMakeProject::parseCMakeLists()
 {
     if (!activeTarget() ||
         !activeTarget()->activeBuildConfiguration()) {
-        buildSystemEvaluationFinished(false);
-        return;
+        return false;
     }
 
-    CMakeBuildConfiguration *activeBC = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
-    if (!activeBC) {
-        buildSystemEvaluationFinished(false);
-        return;
-    }
-
+    CMakeBuildConfiguration *activeBC = static_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
     foreach (Core::IEditor *editor, Core::EditorManager::instance()->openedEditors())
         if (isProjectFile(editor->document()->fileName()))
             editor->document()->infoBar()->removeInfo(QLatin1String("CMakeEditor.RunCMake"));
@@ -216,8 +210,7 @@ void CMakeProject::evaluateBuildSystem()
 
     if (cbpFile.isEmpty()) {
         emit buildTargetsChanged();
-        buildSystemEvaluationFinished(true);
-        return;
+        return false;
     }
 
     // setFolderName
@@ -228,8 +221,7 @@ void CMakeProject::evaluateBuildSystem()
     if (!cbpparser.parseCbpFile(cbpFile)) {
         // TODO report error
         emit buildTargetsChanged();
-        buildSystemEvaluationFinished(true);
-        return;
+        return false;
     }
 
     foreach (const QString &file, m_watcher->files())
@@ -296,8 +288,9 @@ void CMakeProject::evaluateBuildSystem()
 
     ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(activeTarget()->profile());
     if (!tc) {
-        buildSystemEvaluationFinished(true);
-        return;
+        emit buildTargetsChanged();
+        emit fileListChanged();
+        return true;
     }
 
     QStringList allIncludePaths;
@@ -345,7 +338,7 @@ void CMakeProject::evaluateBuildSystem()
     emit buildTargetsChanged();
     emit fileListChanged();
 
-    buildSystemEvaluationFinished(true);
+    return true;
 }
 
 bool CMakeProject::isProjectFile(const QString &fileName)
@@ -569,7 +562,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     m_watcher = new QFileSystemWatcher(this);
     connect(m_watcher, SIGNAL(fileChanged(QString)), this, SLOT(fileChanged(QString)));
 
-    triggerBuildSystemEvaluation();
+    parseCMakeLists();
 
     if (hasBuildTarget("all")) {
         MakeStep *makeStep = qobject_cast<MakeStep *>(
@@ -620,6 +613,71 @@ QString CMakeProject::uiHeaderFile(const QString &uiFile)
     uiHeaderFilePath += fi.completeBaseName();
     uiHeaderFilePath += QLatin1String(".h");
     return QDir::cleanPath(uiHeaderFilePath);
+}
+
+void CMakeProject::updateRunConfigurations()
+{
+    foreach (Target *t, targets())
+        updateRunConfigurations(t);
+}
+
+// TODO Compare with updateDefaultRunConfigurations();
+void CMakeProject::updateRunConfigurations(Target *t)
+{
+    // *Update* runconfigurations:
+    QMultiMap<QString, CMakeRunConfiguration*> existingRunConfigurations;
+    QList<ProjectExplorer::RunConfiguration *> toRemove;
+    foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations()) {
+        if (CMakeRunConfiguration* cmakeRC = qobject_cast<CMakeRunConfiguration *>(rc))
+            existingRunConfigurations.insert(cmakeRC->title(), cmakeRC);
+        QtSupport::CustomExecutableRunConfiguration *ceRC =
+                qobject_cast<QtSupport::CustomExecutableRunConfiguration *>(rc);
+        if (ceRC && !ceRC->isConfigured())
+            toRemove << rc;
+    }
+
+    foreach (const CMakeBuildTarget &ct, buildTargets()) {
+        if (ct.library)
+            continue;
+        if (ct.executable.isEmpty())
+            continue;
+        if (ct.title.endsWith("/fast"))
+            continue;
+        QList<CMakeRunConfiguration *> list = existingRunConfigurations.values(ct.title);
+        if (!list.isEmpty()) {
+            // Already exists, so override the settings...
+            foreach (CMakeRunConfiguration *rc, list) {
+                rc->setExecutable(ct.executable);
+                rc->setBaseWorkingDirectory(ct.workingDirectory);
+                rc->setEnabled(true);
+            }
+            existingRunConfigurations.remove(ct.title);
+        } else {
+            // Does not exist yet
+            Core::Id id = CMakeRunConfigurationFactory::idFromBuildTarget(ct.title);
+            CMakeRunConfiguration *rc = new CMakeRunConfiguration(t, id, ct.executable,
+                                                                  ct.workingDirectory, ct.title);
+            t->addRunConfiguration(rc);
+        }
+    }
+    QMultiMap<QString, CMakeRunConfiguration *>::const_iterator it =
+            existingRunConfigurations.constBegin();
+    for ( ; it != existingRunConfigurations.constEnd(); ++it) {
+        CMakeRunConfiguration *rc = it.value();
+        // The executables for those runconfigurations aren't build by the current buildconfiguration
+        // We just set a disable flag and show that in the display name
+        rc->setEnabled(false);
+        // removeRunConfiguration(rc);
+    }
+
+    foreach (ProjectExplorer::RunConfiguration *rc, toRemove)
+        t->removeRunConfiguration(rc);
+
+    if (t->runConfigurations().isEmpty()) {
+        // Oh no, no run configuration,
+        // create a custom executable run configuration
+        t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
+    }
 }
 
 void CMakeProject::createUiCodeModelSupport()
@@ -864,7 +922,7 @@ void CMakeBuildSettingsWidget::runCMake()
                                 CMakeOpenProjectWizard::WantToUpdate,
                                 m_buildConfiguration->environment());
     if (copw.exec() == QDialog::Accepted)
-        project->evaluateBuildSystem();
+        project->parseCMakeLists();
 }
 
 /////

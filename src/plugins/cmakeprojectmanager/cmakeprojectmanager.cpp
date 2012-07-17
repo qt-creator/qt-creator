@@ -125,7 +125,7 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
                                 CMakeOpenProjectWizard::WantToUpdate,
                                 bc->environment());
     if (copw.exec() == QDialog::Accepted)
-        cmakeProject->triggerBuildSystemEvaluation();
+        cmakeProject->parseCMakeLists();
 }
 
 ProjectExplorer::Project *CMakeManager::openProject(const QString &fileName, QString *errorString)

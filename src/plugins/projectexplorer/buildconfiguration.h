@@ -102,8 +102,6 @@ signals:
     void environmentChanged();
     void buildDirectoryChanged();
     void enabledChanged();
-    /// Emitted whenever the build system needs to be (re-) evaluated
-    void requestBuildSystemEvaluation();
 
 protected:
     BuildConfiguration(Target *target, const Core::Id id);

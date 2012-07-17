@@ -68,7 +68,6 @@ public:
 
 signals:
     void enabledChanged();
-    void requestBuildSystemEvaluation();
 
 protected:
     DeployConfiguration(Target *target, const Core::Id id);

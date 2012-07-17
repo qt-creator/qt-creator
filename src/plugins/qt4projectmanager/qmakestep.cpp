@@ -376,7 +376,7 @@ void QMakeStep::setUserArguments(const QString &arguments)
     emit userArgumentsChanged();
 
     qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
-    qt4BuildConfiguration()->emitEvaluateBuildSystem();
+    qt4BuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
 bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
@@ -438,7 +438,7 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
     emit linkQmlDebuggingLibraryChanged();
 
     qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
-    qt4BuildConfiguration()->emitEvaluateBuildSystem();
+    qt4BuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
 QStringList QMakeStep::parserArguments()

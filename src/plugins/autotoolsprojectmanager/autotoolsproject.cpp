@@ -156,7 +156,7 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
             this, SLOT(onFileChanged(QString)));
 
     // Load the project tree structure.
-    evaluateBuildSystem();
+    loadProjectTree();
 
     Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
     if (!activeTarget() && defaultProfile)
@@ -165,7 +165,7 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
     return true;
 }
 
-void AutotoolsProject::evaluateBuildSystem()
+void AutotoolsProject::loadProjectTree()
 {
     if (m_makefileParserThread != 0) {
         // The thread is still busy parsing a previus configuration.
@@ -257,14 +257,12 @@ void AutotoolsProject::makefileParsingFinished()
 
     m_makefileParserThread->deleteLater();
     m_makefileParserThread = 0;
-
-    buildSystemEvaluationFinished(true);
 }
 
 void AutotoolsProject::onFileChanged(const QString &file)
 {
     Q_UNUSED(file);
-    evaluateBuildSystem();
+    loadProjectTree();
 }
 
 QStringList AutotoolsProject::buildTargets() const

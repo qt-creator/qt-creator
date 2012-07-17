@@ -121,7 +121,7 @@ public:
     bool supportsShadowBuilds();
 
 public slots:
-    void emitEvaluateBuildSystem();
+    void emitProFileEvaluateNeeded();
 
 signals:
     /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even

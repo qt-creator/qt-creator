@@ -98,7 +98,6 @@ protected:
     bool fromMap(const QVariantMap &map);
 
 private:
-    void evaluateBuildSystem();
     bool saveRawFileList(const QStringList &rawFileList);
     void parseProject(RefreshOptions options);
     QStringList processEntries(const QStringList &paths,
