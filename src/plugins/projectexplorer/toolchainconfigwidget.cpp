@@ -42,52 +42,23 @@
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QLabel>
-#include <QPushButton>
 
 namespace ProjectExplorer {
-namespace Internal {
-
-// --------------------------------------------------------------------------
-// ToolChainConfigWidgetPrivate
-// --------------------------------------------------------------------------
-
-class ToolChainConfigWidgetPrivate
-{
-public:
-    ToolChainConfigWidgetPrivate(ToolChain *tc) :
-        m_toolChain(tc), m_errorLabel(0)
-    {
-        QTC_CHECK(tc);
-    }
-
-    ToolChain *m_toolChain;
-    QLabel *m_errorLabel;
-};
-
-} // namespace Internal
-
-// --------------------------------------------------------------------------
-// ToolChainConfigWidget
-// --------------------------------------------------------------------------
 
 ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
-    d(new Internal::ToolChainConfigWidgetPrivate(tc))
+    m_toolChain(tc), m_errorLabel(0)
 {
-}
-
-ToolChainConfigWidget::~ToolChainConfigWidget()
-{
-    delete d;
+    QTC_CHECK(tc);
 }
 
 void ToolChainConfigWidget::setDisplayName(const QString &name)
 {
-    d->m_toolChain->setDisplayName(name);
+    m_toolChain->setDisplayName(name);
 }
 
 ToolChain *ToolChainConfigWidget::toolChain() const
 {
-    return d->m_toolChain;
+    return m_toolChain;
 }
 
 void ToolChainConfigWidget::makeReadOnly()
@@ -95,40 +66,40 @@ void ToolChainConfigWidget::makeReadOnly()
 
 void ToolChainConfigWidget::addErrorLabel(QFormLayout *lt)
 {
-    if (!d->m_errorLabel) {
-        d->m_errorLabel = new QLabel;
-        d->m_errorLabel->setVisible(false);
+    if (!m_errorLabel) {
+        m_errorLabel = new QLabel;
+        m_errorLabel->setVisible(false);
     }
-    lt->addRow(d->m_errorLabel);
+    lt->addRow(m_errorLabel);
 }
 
 void ToolChainConfigWidget::addErrorLabel(QGridLayout *lt, int row, int column, int colSpan)
 {
-    if (!d->m_errorLabel) {
-        d->m_errorLabel = new QLabel;
-        d->m_errorLabel->setVisible(false);
+    if (!m_errorLabel) {
+        m_errorLabel = new QLabel;
+        m_errorLabel->setVisible(false);
     }
-    lt->addWidget(d->m_errorLabel, row, column, 1, colSpan);
+    lt->addWidget(m_errorLabel, row, column, 1, colSpan);
 }
 
 void ToolChainConfigWidget::setErrorMessage(const QString &m)
 {
-    QTC_ASSERT(d->m_errorLabel, return);
+    QTC_ASSERT(m_errorLabel, return);
     if (m.isEmpty()) {
         clearErrorMessage();
     } else {
-        d->m_errorLabel->setText(m);
-        d->m_errorLabel->setStyleSheet(QLatin1String("background-color: \"red\""));
-        d->m_errorLabel->setVisible(true);
+        m_errorLabel->setText(m);
+        m_errorLabel->setStyleSheet(QLatin1String("background-color: \"red\""));
+        m_errorLabel->setVisible(true);
     }
 }
 
 void ToolChainConfigWidget::clearErrorMessage()
 {
-    QTC_ASSERT(d->m_errorLabel, return);
-    d->m_errorLabel->clear();
-    d->m_errorLabel->setStyleSheet(QString());
-    d->m_errorLabel->setVisible(false);
+    QTC_ASSERT(m_errorLabel, return);
+    m_errorLabel->clear();
+    m_errorLabel->setStyleSheet(QString());
+    m_errorLabel->setVisible(false);
 }
 
 } // namespace ProjectExplorer

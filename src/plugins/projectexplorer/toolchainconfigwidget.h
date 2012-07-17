@@ -39,14 +39,13 @@
 
 #include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QFormLayout)
-QT_FORWARD_DECLARE_CLASS(QGridLayout)
+QT_BEGIN_NAMESPACE
+class QFormLayout;
+class QGridLayout;
+class QLabel;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-
-namespace Internal {
-class ToolChainConfigWidgetPrivate;
-} // namespace Internal
 
 class ToolChain;
 
@@ -60,7 +59,7 @@ class PROJECTEXPLORER_EXPORT ToolChainConfigWidget : public QWidget
 
 public:
     ToolChainConfigWidget(ProjectExplorer::ToolChain *);
-    ~ToolChainConfigWidget();
+
     void setDisplayName(const QString &);
     virtual void apply() = 0;
     virtual void discard() = 0;
@@ -82,7 +81,8 @@ protected:
     void addErrorLabel(QGridLayout *lt, int row = 0, int column = 0, int colSpan = 1);
 
 private:
-    Internal::ToolChainConfigWidgetPrivate *d;
+    ToolChain *m_toolChain;
+    QLabel *m_errorLabel;
 };
 
 } // namespace ProjectExplorer
