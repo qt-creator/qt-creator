@@ -33,6 +33,7 @@
 #include "fileutils.h"
 
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/environment.h>
@@ -49,7 +50,6 @@
 #endif
 
 #ifndef Q_OS_WIN
-#include <coreplugin/icore.h>
 #include <utils/consoleprocess.h>
 #include <utils/qtcprocess.h>
 #ifndef Q_OS_MAC
