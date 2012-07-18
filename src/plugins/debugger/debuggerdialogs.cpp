@@ -77,6 +77,7 @@
 #include <QVariant>
 #include <QVBoxLayout>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -192,12 +193,12 @@ class AttachCoreDialogPrivate
 {
 public:
     QLabel *execLabel;
-    Utils::PathChooser *execFileName;
+    PathChooser *execFileName;
     QLabel *coreLabel;
-    Utils::PathChooser *coreFileName;
+    PathChooser *coreFileName;
     QLabel *profileLabel;
     ProfileChooser *profileComboBox;
-    Utils::PathChooser *overrideStartScriptFileName;
+    PathChooser *overrideStartScriptFileName;
     QLabel *overrideStartScriptLabel;
     QDialogButtonBox *buttonBox;
 };
@@ -208,19 +209,19 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->coreFileName = new Utils::PathChooser(this);
+    d->coreFileName = new PathChooser(this);
     d->coreFileName->setExpectedKind(PathChooser::File);
     d->coreFileName->setPromptDialogTitle(tr("Select Core File"));
     d->coreLabel = new QLabel(tr("&Core file:"), this);
     d->coreLabel->setBuddy(d->coreFileName);
 
-    d->execFileName = new Utils::PathChooser(this);
+    d->execFileName = new PathChooser(this);
     d->execFileName->setExpectedKind(PathChooser::File);
     d->execFileName->setPromptDialogTitle(tr("Select Executable"));
     d->execLabel = new QLabel(tr("&Executable:"), this);
     d->execLabel->setBuddy(d->execFileName);
 
-    d->overrideStartScriptFileName = new Utils::PathChooser(this);
+    d->overrideStartScriptFileName = new PathChooser(this);
     d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
     d->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
     d->overrideStartScriptLabel = new QLabel(tr("Override &start script:"), this);
@@ -286,7 +287,7 @@ void AttachCoreDialog::setCoreFile(const QString &fileName)
     changed();
 }
 
-Core::Id AttachCoreDialog::profileId() const
+Id AttachCoreDialog::profileId() const
 {
     return d->profileComboBox->currentProfileId();
 }
@@ -334,7 +335,7 @@ class AttachExternalDialogPrivate
 public:
     QLabel *pidLabel;
     QLineEdit *pidLineEdit;
-    Utils::FilterLineEdit *filterWidget;
+    FilterLineEdit *filterWidget;
     QLabel *profileLabel;
     ProfileChooser *profileComboBox;
     QTreeView *procView;
@@ -360,7 +361,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     d->pidLabel = new QLabel(tr("Attach to &process ID:"), this);
     d->pidLabel->setBuddy(d->pidLineEdit);
 
-    d->filterWidget = new Utils::FilterLineEdit(this);
+    d->filterWidget = new FilterLineEdit(this);
     d->filterWidget->setFocus(Qt::TabFocusReason);
 
     d->profileComboBox = new ProfileChooser(this, true);
@@ -479,7 +480,7 @@ QString AttachExternalDialog::executable() const
     return d->model->executableForPid(attachPIDText());
 }
 
-Core::Id AttachExternalDialog::profileId() const
+Id AttachExternalDialog::profileId() const
 {
     return d->profileComboBox->currentProfileId();
 }
@@ -611,13 +612,13 @@ class StartExternalDialogPrivate
 {
 public:
     QLabel *execLabel;
-    Utils::PathChooser *execFile;
+    PathChooser *execFile;
     QLabel *argsLabel;
     QLineEdit *argsEdit;
     QLabel *runInTerminalLabel;
     QCheckBox *runInTerminalCheckBox;
     QLabel *workingDirectoryLabel;
-    Utils::PathChooser *workingDirectory;
+    PathChooser *workingDirectory;
     QLabel *profileLabel;
     ProfileChooser *profileChooser;
     QLabel *breakAtMainLabel;
@@ -635,9 +636,9 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
 
-    d->execFile = new Utils::PathChooser(this);
+    d->execFile = new PathChooser(this);
     d->execFile->setExpectedKind(PathChooser::File);
     d->execFile->setPromptDialogTitle(tr("Select Executable"));
     d->execFile->lineEdit()->setCompleter(
@@ -650,7 +651,7 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
     d->argsLabel = new QLabel(tr("&Arguments:"), this);
     d->argsLabel->setBuddy(d->argsEdit);
 
-    d->workingDirectory = new Utils::PathChooser(this);
+    d->workingDirectory = new PathChooser(this);
     d->workingDirectory->setExpectedKind(PathChooser::ExistingDirectory);
     d->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
     d->workingDirectory->lineEdit()->setCompleter(
@@ -771,7 +772,7 @@ QString StartExternalDialog::executableFile() const
     return d->execFile->path();
 }
 
-Core::Id StartExternalDialog::profileId() const
+Id StartExternalDialog::profileId() const
 {
     return d->profileChooser->currentProfileId();
 }
@@ -888,7 +889,7 @@ public:
     QString overrideStartScript;
     bool useServerStartScript;
     QString serverStartScript;
-    Core::Id profileId;
+    Id profileId;
     QString debugInfoLocation;
 };
 
@@ -944,9 +945,9 @@ void StartRemoteParameters::fromSettings(const QSettings *settings)
     localExecutable = settings->value(_("LastLocalExecutable")).toString();
     const QString profileIdString = settings->value(_("LastProfileId")).toString();
     if (profileIdString.isEmpty()) {
-        profileId = Core::Id();
+        profileId = Id();
     } else {
-        profileId = Core::Id(profileIdString);
+        profileId = Id(profileIdString);
     }
     remoteArchitecture = settings->value(_("LastRemoteArchitecture")).toString();
     serverStartScript = settings->value(_("LastServerStartScript")).toString();
@@ -962,19 +963,19 @@ public:
     QLabel *profileLabel;
     ProfileChooser *profileChooser;
     QLabel *executableLabel;
-    Utils::PathChooser *executablePathChooser;
+    PathChooser *executablePathChooser;
     QLabel *channelLabel;
     QLineEdit *channelLineEdit;
     QLabel *architectureLabel;
     QComboBox *architectureComboBox;
     QLabel *debuginfoLabel;
-    Utils::PathChooser *debuginfoPathChooser;
+    PathChooser *debuginfoPathChooser;
     QLabel *overrideStartScriptLabel;
-    Utils::PathChooser *overrideStartScriptPathChooser;
+    PathChooser *overrideStartScriptPathChooser;
     QLabel *useServerStartScriptLabel;
     QCheckBox *useServerStartScriptCheckBox;
     QLabel *serverStartScriptLabel;
-    Utils::PathChooser *serverStartScriptPathChooser;
+    PathChooser *serverStartScriptPathChooser;
     QLabel *historyLabel;
     QComboBox *historyComboBox;
     QDialogButtonBox *buttonBox;
@@ -991,7 +992,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     d->profileLabel = new QLabel(tr("Target:"), this);
     d->profileLabel->setBuddy(d->profileChooser);
 
-    d->executablePathChooser = new Utils::PathChooser(this);
+    d->executablePathChooser = new PathChooser(this);
     d->executablePathChooser->setExpectedKind(PathChooser::File);
     d->executablePathChooser->setPromptDialogTitle(tr("Select Executable"));
     d->executableLabel = new QLabel(tr("Local &executable:"));
@@ -1007,12 +1008,12 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     d->architectureLabel = new QLabel(tr("&Architecture:"), this);
     d->architectureLabel->setBuddy(d->architectureComboBox);
 
-    d->debuginfoPathChooser = new Utils::PathChooser(this);
+    d->debuginfoPathChooser = new PathChooser(this);
     d->debuginfoPathChooser->setPromptDialogTitle(tr("Select Location of Debugging Information"));
     d->debuginfoLabel = new QLabel(tr("Location of debugging &information:"), this);
     d->debuginfoLabel->setBuddy(d->debuginfoPathChooser);
 
-    d->overrideStartScriptPathChooser = new Utils::PathChooser(this);
+    d->overrideStartScriptPathChooser = new PathChooser(this);
     d->overrideStartScriptPathChooser->setExpectedKind(PathChooser::File);
     d->overrideStartScriptPathChooser->setPromptDialogTitle(tr("Select GDB Start Script"));
     d->overrideStartScriptLabel = new QLabel(tr("Override host GDB s&tart script:"), this);
@@ -1023,7 +1024,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     d->useServerStartScriptLabel = new QLabel(tr("&Use server start script:"), this);
     d->useServerStartScriptLabel->setVisible(enableStartScript);
 
-    d->serverStartScriptPathChooser = new Utils::PathChooser(this);
+    d->serverStartScriptPathChooser = new PathChooser(this);
     d->serverStartScriptPathChooser->setExpectedKind(PathChooser::File);
     d->serverStartScriptPathChooser->setPromptDialogTitle(tr("Select Server Start Script"));
     d->serverStartScriptPathChooser->setVisible(enableStartScript);
@@ -1171,7 +1172,7 @@ void StartRemoteDialog::historyIndexChanged(int index)
     setParameters(v.value<StartRemoteParameters>());
 }
 
-Core::Id StartRemoteDialog::profileId() const
+Id StartRemoteDialog::profileId() const
 {
     return d->profileChooser->currentProfileId();
 }
@@ -1273,12 +1274,12 @@ int AttachToQmlPortDialog::port() const
     return d->portSpinBox->value();
 }
 
-Core::Id AttachToQmlPortDialog::profileId() const
+Id AttachToQmlPortDialog::profileId() const
 {
     return d->profileChooser->currentProfileId();
 }
 
-void AttachToQmlPortDialog::setProfileId(const Core::Id &id)
+void AttachToQmlPortDialog::setProfileId(const Id &id)
 {
     d->profileChooser->setCurrentProfileId(id);
 }
@@ -1465,7 +1466,7 @@ public:
 StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent)
     : QDialog(parent), d(new StartRemoteEngineDialogPrivate)
 {
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Remote Engine"));
 
