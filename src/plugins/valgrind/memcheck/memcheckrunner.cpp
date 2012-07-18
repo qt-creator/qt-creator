@@ -120,70 +120,14 @@ bool MemcheckRunner::start()
         setValgrindArguments(memcheckArguments);
     }
 
+
     if (startMode() == Analyzer::StartRemote) {
         QTC_ASSERT(d->parser, return false);
 
-        QList<QHostAddress> possibleHostAddresses;
-        //NOTE: ::allAddresses does not seem to work for usb interfaces...
-        foreach (const QNetworkInterface &iface, QNetworkInterface::allInterfaces()) {
-            foreach (const QNetworkAddressEntry &entry, iface.addressEntries()) {
-                const QHostAddress addr = entry.ip();
-                if (addr.toString() != "127.0.0.1"
-                    && addr.toString() != "0:0:0:0:0:0:0:1")
-                {
-                    possibleHostAddresses << addr;
-                    break;
-                }
-            }
-        }
-
-        QHostAddress hostAddr;
-
-        if (possibleHostAddresses.isEmpty()) {
-            emit processErrorReceived(tr("No network interface found for remote analysis."),
-                                      QProcess::FailedToStart);
-            return false;
-        } else if (possibleHostAddresses.size() > 1) {
-            QDialog dlg;
-            dlg.setWindowTitle(tr("Select Network Interface"));
-            QVBoxLayout *layout = new QVBoxLayout;
-            QLabel *description = new QLabel;
-            description->setWordWrap(true);
-            description->setText(tr("More than one network interface was found on your machine. Please select which one you want to use for remote analysis."));
-            layout->addWidget(description);
-            QListWidget *list = new QListWidget;
-            foreach (const QHostAddress &address, possibleHostAddresses)
-                list->addItem(address.toString());
-
-            list->setSelectionMode(QAbstractItemView::SingleSelection);
-            list->setCurrentRow(0);
-            layout->addWidget(list);
-
-            QDialogButtonBox *buttons = new QDialogButtonBox;
-            buttons->addButton(QDialogButtonBox::Ok);
-            buttons->addButton(QDialogButtonBox::Cancel);
-            connect(buttons, SIGNAL(accepted()),
-                    &dlg, SLOT(accept()));
-            connect(buttons, SIGNAL(rejected()),
-                    &dlg, SLOT(reject()));
-            layout->addWidget(buttons);
-
-            dlg.setLayout(layout);
-            if (dlg.exec() != QDialog::Accepted) {
-                emit processErrorReceived(tr("No Network Interface was chosen for remote analysis"), QProcess::FailedToStart);
-                return false;
-            }
-
-            QTC_ASSERT(list->currentRow() >= 0, return false);
-            QTC_ASSERT(list->currentRow() < possibleHostAddresses.size(), return false);
-            hostAddr = possibleHostAddresses.at(list->currentRow());
-        } else {
-            hostAddr = possibleHostAddresses.first();
-        }
-
-        QString ip = hostAddr.toString();
+        QString ip = connectionParameters().host;
         QTC_ASSERT(!ip.isEmpty(), return false);
 
+        QHostAddress hostAddr(ip);
         bool check = d->xmlServer.listen(hostAddr);
         QTC_ASSERT(check, return false);
         d->xmlServer.setMaxPendingConnections(1);
