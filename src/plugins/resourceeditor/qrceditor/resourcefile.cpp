@@ -1153,6 +1153,4 @@ QMimeData *ResourceModel::mimeData(const QModelIndexList &indexes) const
     return rc;
 }
 
-} // namespace SharedTools
-
-QT_END_NAMESPACE
+} // namespace ResourceEditor
