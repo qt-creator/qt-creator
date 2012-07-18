@@ -51,7 +51,7 @@
 
 
 /*
-TRANSLATOR qdesigner_internal::ResourceModel
+TRANSLATOR ResourceEditor::ResourceModel
 */
 
 static QString msgFileNameEmpty()
