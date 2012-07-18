@@ -1043,6 +1043,11 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
     QByteArray outputTextData;
     QByteArray errorText;
     QStringList arguments;
+    if (parents && (revision == QLatin1String("00000000"))) { // Not Committed Yet
+        parents->clear();
+        parents->append(QLatin1String("HEAD"));
+        return true;
+    }
     arguments << QLatin1String("rev-list") << QLatin1String(GitClient::noColorOption)
               << QLatin1String("--parents") << QLatin1String("--max-count=1") << revision;
     if (!files.isEmpty()) {
