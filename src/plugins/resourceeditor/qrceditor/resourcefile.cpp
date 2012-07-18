@@ -32,6 +32,8 @@
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/fileutils.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/vcsmanager.h>
 #include <utils/fileutils.h>
 
 #include <QCoreApplication>
@@ -981,6 +983,9 @@ void ResourceModel::addFiles(int prefixIndex, const QStringList &fileNames, int 
 
     firstFile = cnt;
     lastFile = cnt + unique_list.count() - 1;
+
+    Core::ICore::vcsManager()->promptToAdd(QFileInfo(m_resource_file.fileName()).absolutePath(),
+                                           fileNames);
 }
 
 

@@ -326,4 +326,31 @@ bool VcsManager::promptToDelete(IVersionControl *vc, const QString &fileName)
     return vc->vcsDelete(fileName);
 }
 
+void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNames)
+{
+    IVersionControl *vc = findVersionControlForDirectory(directory);
+    if (!vc || !vc->supportsOperation(Core::IVersionControl::AddOperation))
+        return;
+
+    const QString files = fileNames.join(QString(QLatin1Char('\n')));
+    QMessageBox::StandardButton button =
+        QMessageBox::question(Core::ICore::mainWindow(), tr("Add to Version Control"),
+                              tr("Add files\n%1\nto version control (%2)?").arg(files, vc->displayName()),
+                              QMessageBox::Yes | QMessageBox::No);
+    if (button == QMessageBox::Yes) {
+        QStringList notAddedToVc;
+        foreach (const QString &file, fileNames) {
+            if (!vc->vcsAdd(file))
+                notAddedToVc << file;
+        }
+
+        if (!notAddedToVc.isEmpty()) {
+            const QString message = tr("Could not add following files to version control (%1)\n").arg(vc->displayName());
+            const QString filesNotAdded = notAddedToVc.join(QString(QLatin1Char('\n')));
+            QMessageBox::warning(Core::ICore::mainWindow(), tr("Adding to Version Control Failed"),
+                                 message + filesNotAdded);
+        }
+    }
+}
+
 } // namespace Core

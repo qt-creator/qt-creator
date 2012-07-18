@@ -79,7 +79,6 @@ HEADERS += projectexplorer.h \
     sessiondialog.h \
     projectwizardpage.h \
     buildstepspage.h \
-    removefiledialog.h \
     nodesvisitor.h \
     projectmodels.h \
     currentprojectfind.h \
@@ -184,7 +183,6 @@ SOURCES += projectexplorer.cpp \
     sessiondialog.cpp \
     projectwizardpage.cpp \
     buildstepspage.cpp \
-    removefiledialog.cpp \
     nodesvisitor.cpp \
     projectmodels.cpp \
     currentprojectfind.cpp \
@@ -229,7 +227,6 @@ FORMS += processstep.ui \
     editorsettingspropertiespage.ui \
     sessiondialog.ui \
     projectwizardpage.ui \
-    removefiledialog.ui \
     projectexplorersettingspage.ui \
     targetsettingswidget.ui \
     doubletabwidget.ui \

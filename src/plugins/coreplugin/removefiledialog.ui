@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ProjectExplorer::Internal::RemoveFileDialog</class>
- <widget class="QDialog" name="ProjectExplorer::Internal::RemoveFileDialog">
+ <class>Core::RemoveFileDialog</class>
+ <widget class="QDialog" name="Core::RemoveFileDialog">
   <property name="sizePolicy">
    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
     <horstretch>0</horstretch>
@@ -40,6 +40,9 @@
      </property>
      <property name="text">
       <string notr="true">placeholder</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -96,7 +99,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>ProjectExplorer::Internal::RemoveFileDialog</receiver>
+   <receiver>Core::RemoveFileDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -112,7 +115,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>ProjectExplorer::Internal::RemoveFileDialog</receiver>
+   <receiver>Core::RemoveFileDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

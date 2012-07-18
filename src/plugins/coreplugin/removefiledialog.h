@@ -28,47 +28,37 @@
 **
 **************************************************************************/
 
-#include "removefiledialog.h"
-#include "ui_removefiledialog.h"
+#ifndef REMOVEFILEDIALOG_H
+#define REMOVEFILEDIALOG_H
 
-#include <QDir>
+#include "core_global.h"
 
-using namespace ProjectExplorer::Internal;
+#include <QDialog>
 
-RemoveFileDialog::RemoveFileDialog(const QString &filePath, QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::RemoveFileDialog)
-{
-    m_ui->setupUi(this);
-    m_ui->fileNameLabel->setText(QDir::toNativeSeparators(filePath));
+namespace Core {
 
-    // TODO
-    m_ui->removeVCCheckBox->setVisible(false);
+namespace Ui {
+class RemoveFileDialog;
 }
 
-RemoveFileDialog::~RemoveFileDialog()
+class CORE_EXPORT RemoveFileDialog : public QDialog
 {
-    delete m_ui;
-}
+    Q_OBJECT
 
-void RemoveFileDialog::setDeleteFileVisible(bool visible)
-{
-    m_ui->deleteFileCheckBox->setVisible(visible);
-}
+public:
+    explicit RemoveFileDialog(const QString &filePath, QWidget *parent = 0);
+    virtual ~RemoveFileDialog();
 
-bool RemoveFileDialog::isDeleteFileChecked() const
-{
-    return m_ui->deleteFileCheckBox->isChecked();
-}
+    void setDeleteFileVisible(bool visible);
+    bool isDeleteFileChecked() const;
 
-void RemoveFileDialog::changeEvent(QEvent *e)
-{
-    QDialog::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
+protected:
+    virtual void changeEvent(QEvent *e);
+
+private:
+    Ui::RemoveFileDialog *m_ui;
+};
+
+} // namespace Core
+
+#endif // REMOVEFILEDIALOG_H

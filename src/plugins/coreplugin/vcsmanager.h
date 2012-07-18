@@ -78,10 +78,14 @@ public:
     QString repositoryUrl(const QString &directory);
 
     // Shows a confirmation dialog, whether the file should also be deleted
-    // from revision control Calls sccDelete on the file. Returns false
+    // from revision control. Calls vcsDelete on the file. Returns false
     // if a failure occurs
     bool promptToDelete(const QString &fileName);
     bool promptToDelete(IVersionControl *versionControl, const QString &fileName);
+
+    // Shows a confirmation dialog, whether the files in the list should be
+    // added to revision control. Calls vcsAdd for each file.
+    void promptToAdd(const QString &directory, const QStringList &fileNames);
 
 signals:
     void repositoryChanged(const QString &repository);

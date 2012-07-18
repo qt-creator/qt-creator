@@ -67,7 +67,6 @@
 #include "projectfilewizardextension.h"
 #include "projecttreewidget.h"
 #include "projectwindow.h"
-#include "removefiledialog.h"
 #include "runsettingspropertiespage.h"
 #include "session.h"
 #include "projectnodes.h"
@@ -111,6 +110,7 @@
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/variablemanager.h>
 #include <coreplugin/fileutils.h>
+#include <coreplugin/removefiledialog.h>
 #include <extensionsystem/pluginmanager.h>
 #include <find/searchresultwindow.h>
 #include <utils/consoleprocess.h>
@@ -2668,28 +2668,7 @@ void ProjectExplorerPlugin::addExistingFiles(ProjectNode *projectNode, const QSt
             fileNames.removeOne(file);
     }
 
-    if (Core::IVersionControl *vcManager = Core::ICore::vcsManager()->findVersionControlForDirectory(dir))
-        if (vcManager->supportsOperation(Core::IVersionControl::AddOperation)) {
-            const QString files = fileNames.join(QString(QLatin1Char('\n')));
-            QMessageBox::StandardButton button =
-                QMessageBox::question(Core::ICore::mainWindow(), tr("Add to Version Control"),
-                                      tr("Add files\n%1\nto version control (%2)?").arg(files, vcManager->displayName()),
-                                      QMessageBox::Yes | QMessageBox::No);
-            if (button == QMessageBox::Yes) {
-                QStringList notAddedToVc;
-                foreach (const QString &file, fileNames) {
-                    if (!vcManager->vcsAdd(file))
-                        notAddedToVc << file;
-                }
-
-                if (!notAddedToVc.isEmpty()) {
-                    const QString message = tr("Could not add following files to version control (%1)\n").arg(vcManager->displayName());
-                    const QString filesNotAdded = notAddedToVc.join(QString(QLatin1Char('\n')));
-                    QMessageBox::warning(Core::ICore::mainWindow(), tr("Adding to Version Control Failed"),
-                                         message + filesNotAdded);
-                }
-            }
-        }
+    Core::ICore::vcsManager()->promptToAdd(dir, fileNames);
 }
 
 void ProjectExplorerPlugin::removeProject()
@@ -2697,7 +2676,7 @@ void ProjectExplorerPlugin::removeProject()
     ProjectNode *subProjectNode = qobject_cast<ProjectNode*>(d->m_currentNode->projectNode());
     ProjectNode *projectNode = qobject_cast<ProjectNode *>(subProjectNode->parentFolderNode());
     if (projectNode) {
-        RemoveFileDialog removeFileDialog(subProjectNode->path(), Core::ICore::mainWindow());
+        Core::RemoveFileDialog removeFileDialog(subProjectNode->path(), Core::ICore::mainWindow());
         removeFileDialog.setDeleteFileVisible(false);
         if (removeFileDialog.exec() == QDialog::Accepted)
             projectNode->removeSubProjects(QStringList() << subProjectNode->path());
@@ -2736,7 +2715,7 @@ void ProjectExplorerPlugin::removeFile()
     FileNode *fileNode = qobject_cast<FileNode*>(d->m_currentNode);
 
     QString filePath = d->m_currentNode->path();
-    RemoveFileDialog removeFileDialog(filePath, Core::ICore::mainWindow());
+    Core::RemoveFileDialog removeFileDialog(filePath, Core::ICore::mainWindow());
 
     if (removeFileDialog.exec() == QDialog::Accepted) {
         const bool deleteFile = removeFileDialog.isDeleteFileChecked();
@@ -2751,20 +2730,7 @@ void ProjectExplorerPlugin::removeFile()
             return;
         }
 
-        // remove from version control
-        Core::ICore::vcsManager()->promptToDelete(filePath);
-
-        // remove from file system
-        if (deleteFile) {
-            QFile file(filePath);
-
-            if (file.exists()) {
-                // could have been deleted by vc
-                if (!file.remove())
-                    QMessageBox::warning(Core::ICore::mainWindow(), tr("Deleting File Failed"),
-                                         tr("Could not delete file %1.").arg(filePath));
-            }
-        }
+        Core::FileUtils::removeFile(filePath, deleteFile);
     }
 }
 

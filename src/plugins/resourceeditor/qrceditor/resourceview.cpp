@@ -32,6 +32,10 @@
 
 #include "undocommands_p.h"
 
+#include <coreplugin/fileutils.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/removefiledialog.h>
+
 #include <QDebug>
 
 #include <QAction>
@@ -165,8 +169,17 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
     } else {
         const QString fileNameBackup = file(index);
         const QString aliasBackup = alias(index);
-        deleteItem(index);
-        return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
+        if (!QFile::exists(fileNameBackup)) {
+            deleteItem(index);
+            return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
+        }
+        Core::RemoveFileDialog removeFileDialog(fileNameBackup, Core::ICore::mainWindow());
+        if (removeFileDialog.exec() == QDialog::Accepted) {
+            deleteItem(index);
+            Core::FileUtils::removeFile(fileNameBackup, removeFileDialog.isDeleteFileChecked());
+            return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
+        }
+        return 0;
     }
 }
 

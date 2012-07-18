@@ -33,6 +33,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
+#include <coreplugin/removefiledialog.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/environment.h>
 
@@ -169,6 +170,25 @@ QString FileUtils::msgTerminalAction()
 #else
     return QApplication::translate("Core::Internal", "Open Terminal Here");
 #endif
+}
+
+void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
+{
+    // remove from version control
+    ICore::vcsManager()->promptToDelete(filePath);
+
+    // remove from file system
+    if (deleteFromFS) {
+        QFile file(filePath);
+
+        if (file.exists()) {
+            // could have been deleted by vc
+            if (!file.remove())
+                QMessageBox::warning(ICore::mainWindow(),
+                    QApplication::translate("Core::Internal", "Deleting File Failed"),
+                    QApplication::translate("Core::Internal", "Could not delete file %1.").arg(filePath));
+        }
+    }
 }
 
 static inline bool fileSystemRenameFile(const QString &orgFilePath,

@@ -97,7 +97,8 @@ SOURCES += mainwindow.cpp \
     featureprovider.cpp \
     idocument.cpp \
     textdocument.cpp \
-    documentmanager.cpp
+    documentmanager.cpp \
+    removefiledialog.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \
@@ -194,7 +195,8 @@ HEADERS += mainwindow.h \
     idocument.h \
     idocumentfactory.h \
     textdocument.h \
-    documentmanager.h
+    documentmanager.h \
+    removefiledialog.h
 
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \
@@ -205,7 +207,8 @@ FORMS += dialogs/newdialog.ui \
     dialogs/externaltoolconfig.ui \
     variablechooser.ui \
     mimetypesettingspage.ui \
-    mimetypemagicdialog.ui
+    mimetypemagicdialog.ui \
+    removefiledialog.ui
 
 RESOURCES += core.qrc \
     fancyactionbar.qrc

@@ -47,7 +47,8 @@ struct CORE_EXPORT FileUtils
     // Platform-dependent action descriptions
     static QString msgGraphicalShellAction();
     static QString msgTerminalAction();
-    // File rename aware of version control and file system case-insensitiveness
+    // File operations aware of version control and file system case-insensitiveness
+    static void removeFile(const QString &filePath, bool deleteFromFS);
     static bool renameFile(const QString &from, const QString &to);
 };
 
