@@ -820,7 +820,7 @@ bool ResourceModel::setData(const QModelIndex &index, const QVariant &value, int
     if (newFileName.isEmpty())
         return false;
 
-    if (!newFileName.isChildOf(Utils::FileName::fromString(baseDir.absolutePath())))
+    if (!newFileName.isChildOf(baseDir))
         return false;
 
     return renameFile(file(index), newFileName.toString());

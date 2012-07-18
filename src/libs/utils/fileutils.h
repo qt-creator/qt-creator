@@ -162,6 +162,7 @@ public:
     bool operator>=(const FileName &other) const;
 
     bool isChildOf(const FileName &s) const;
+    bool isChildOf(const QDir &dir) const;
     bool endsWith(const QString &s) const;
 
     Utils::FileName relativeChildPath(const FileName &parent) const;

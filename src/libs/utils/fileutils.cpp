@@ -535,6 +535,12 @@ bool FileName::isChildOf(const FileName &s) const
     return at(s.size()) == QLatin1Char('/');
 }
 
+/// \overload
+bool FileName::isChildOf(const QDir &dir) const
+{
+    return isChildOf(Utils::FileName::fromString(dir.absolutePath()));
+}
+
 /// \returns whether FileName endsWith \a s
 bool FileName::endsWith(const QString &s) const
 {
