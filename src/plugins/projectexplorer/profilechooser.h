@@ -49,9 +49,7 @@ class PROJECTEXPLORER_EXPORT ProfileChooser : public QComboBox
     Q_OBJECT
 
 public:
-    explicit ProfileChooser(QWidget *parent);
-
-    void init(bool hostAbiOnly);
+    explicit ProfileChooser(QWidget *parent, bool hostAbiOnly = false);
 
     void setCurrentProfileId(Core::Id id);
     Core::Id currentProfileId() const;

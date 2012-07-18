@@ -45,12 +45,8 @@
 
 namespace ProjectExplorer {
 
-ProfileChooser::ProfileChooser(QWidget *parent) :
+ProfileChooser::ProfileChooser(QWidget *parent, bool hostAbiOnly) :
     QComboBox(parent)
-{
-}
-
-void ProfileChooser::init(bool hostAbiOnly)
 {
     const Abi hostAbi = Abi::hostAbi();
     foreach (const Profile *profile, ProfileManager::instance()->profiles()) {

@@ -226,8 +226,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->overrideStartScriptLabel = new QLabel(tr("Override &start script:"), this);
     d->overrideStartScriptLabel->setBuddy(d->overrideStartScriptFileName);
 
-    d->profileComboBox = new ProfileChooser(this);
-    d->profileComboBox->init(false);
+    d->profileComboBox = new ProfileChooser(this, false);
     d->profileLabel = new QLabel(tr("&Target:"), this);
     d->profileLabel->setBuddy(d->profileComboBox);
 
@@ -364,8 +363,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     d->filterWidget = new Utils::FilterLineEdit(this);
     d->filterWidget->setFocus(Qt::TabFocusReason);
 
-    d->profileComboBox = new ProfileChooser(this);
-    d->profileComboBox->init(true);
+    d->profileComboBox = new ProfileChooser(this, true);
     d->profileLabel = new QLabel(tr("&Target:"), this);
     d->profileLabel->setBuddy(d->profileComboBox);
 
@@ -664,8 +662,7 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
     d->runInTerminalLabel = new QLabel(tr("Run in &terminal:"), this);
     d->runInTerminalLabel->setBuddy(d->runInTerminalCheckBox);
 
-    d->profileChooser = new ProfileChooser(this);
-    d->profileChooser->init(true);
+    d->profileChooser = new ProfileChooser(this, true);
     d->profileLabel = new QLabel(tr("&Target:"), this);
     d->profileLabel->setBuddy(d->profileChooser);
 
@@ -991,7 +988,6 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     setWindowTitle(tr("Start Debugger"));
 
     d->profileChooser = new ProfileChooser(this);
-    d->profileChooser->init(false);
     d->profileLabel = new QLabel(tr("Target:"), this);
     d->profileLabel->setBuddy(d->profileChooser);
 
