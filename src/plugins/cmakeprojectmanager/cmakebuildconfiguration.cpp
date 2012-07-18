@@ -56,10 +56,10 @@ const char CMAKE_BC_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
 const char BUILD_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory";
 } // namespace
 
-CMakeBuildConfiguration::CMakeBuildConfiguration(CMakeProject *parent) :
+CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
     BuildConfiguration(parent, Core::Id(CMAKE_BC_ID))
 {
-    m_buildDirectory = parent->defaultBuildDirectory();
+    m_buildDirectory = static_cast<CMakeProject *>(parent->project())->defaultBuildDirectory();
 }
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent,
@@ -187,7 +187,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     if (!ok || buildConfigurationName.isEmpty())
         return 0;
 
-    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(project);
+    CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(parent);
     bc->setDisplayName(buildConfigurationName);
 
     ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
