@@ -1071,13 +1071,20 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
 }
 
 // Short SHA1, author, subject
-static const char defaultShortLogFormatC[] = "%h (%an \"%s\")";
+static const char defaultShortLogFormatC[] = "%h (%an \"%s";
+static const int maxShortLogLength = 120;
 
 QString GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision)
 {
     // Short SHA 1, author, subject
-    return synchronousShortDescription(workingDirectory, revision,
-                                       QLatin1String(defaultShortLogFormatC));
+    QString output = synchronousShortDescription(workingDirectory, revision,
+                                                 QLatin1String(defaultShortLogFormatC));
+    if (output.length() > maxShortLogLength) {
+        output.truncate(maxShortLogLength);
+        output.append(QLatin1String("..."));
+    }
+    output.append(QLatin1String("\")"));
+    return output;
 }
 
 static inline QString msgCannotDetermineBranch(const QString &workingDirectory, const QString &why)
