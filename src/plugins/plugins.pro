@@ -297,6 +297,8 @@ plugin_analyzerbase.depends += plugin_cpptools
 plugin_valgrind.subdir = valgrind
 plugin_valgrind.depends = plugin_coreplugin
 plugin_valgrind.depends += plugin_analyzerbase
+plugin_valgrind.depends += plugin_remotelinux
+plugin_valgrind.depends += plugin_texteditor
 
 plugin_qmlprofiler.subdir = qmlprofiler
 plugin_qmlprofiler.depends = plugin_coreplugin

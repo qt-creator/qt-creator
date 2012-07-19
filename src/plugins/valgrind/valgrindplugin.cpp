@@ -45,9 +45,6 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include <remotelinux/linuxdeviceconfiguration.h>
-#include <remotelinux/remotelinuxrunconfiguration.h>
-
 #include <utils/qtcassert.h>
 
 #include <QDebug>

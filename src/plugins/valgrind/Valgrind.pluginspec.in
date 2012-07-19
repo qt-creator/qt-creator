@@ -14,7 +14,9 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <description>Valgrind Plugin</description>
     <url>http://qt.nokia.com</url>
     <dependencyList>
-        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"AnalyzerBase\" version=\"$$QTCREATOR_VERSION\"/>
+        <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
+        <dependency name=\"RemoteLinux\" version=\"$$QTCREATOR_VERSION\"/>
+        <dependency name=\"TextEditor\" version=\"$$QTCREATOR_VERSION\"/>
     </dependencyList>
 </plugin>
