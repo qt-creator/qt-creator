@@ -4971,21 +4971,54 @@ namespace basic {
         dummyStatement(&ba);
     }
 
-    void testFunctionPointerHelper() {}
-
-    static int someData;
+    int testFunctionPointerHelper(int x) { return x; }
 
     void testFunctionPointer()
     {
-        typedef void (*func_t)();
-        func_t f2 = testFunctionPointerHelper;
-        int *p = &someData;
+        typedef int (*func_t)(int);
+        func_t f = testFunctionPointerHelper;
+        int a = f(43);
         BREAK_HERE;
-        // CheckType f2 basic::func_t.
+        // CheckType f basic::func_t.
         // Continue.
 
-        // Check there's a valid display for f2.
-        dummyStatement(&f2, p);
+        // Check there's a valid display for f.
+        dummyStatement(&f, &a);
+    }
+
+    struct Class
+    {
+        Class() : a(34) {}
+        int testFunctionPointerHelper(int x) { return x; }
+        int a;
+    };
+
+    void testMemberFunctionPointer()
+    {
+        Class x;
+        typedef int (Class::*func_t)(int);
+        func_t f = &Class::testFunctionPointerHelper;
+        int a = (x.*f)(43);
+        BREAK_HERE;
+        // CheckType f basic::func_t.
+        // Continue.
+
+        // Check there's a valid display for f.
+        dummyStatement(&f, &a);
+    }
+
+    void testMemberPointer()
+    {
+        Class x;
+        typedef int (Class::*member_t);
+        member_t m = &Class::a;
+        int a = x.*m;
+        BREAK_HERE;
+        // CheckType m basic::member_t.
+        // Continue.
+
+        // Check there's a valid display for m.
+        dummyStatement(&m, &a);
     }
 
     void testPassByReferenceHelper(Foo &f)
@@ -5139,6 +5172,8 @@ namespace basic {
         testLongEvaluation2();
         testFork();
         testFunctionPointer();
+        testMemberPointer();
+        testMemberFunctionPointer();
         testPassByReference();
         testBigInt();
         testHidden();

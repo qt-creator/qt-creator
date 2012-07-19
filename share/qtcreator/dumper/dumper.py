@@ -1616,6 +1616,13 @@ class Dumper:
             self.putPointerValue(value.address)
             return
 
+        if type.code == MethodPointerCode or type.code == MemberPointerCode:
+            self.putType(typeName)
+            self.putAddress(value.address)
+            self.putValue(value)
+            self.putNumChild(0)
+            return
+
         if typeName.startswith("<anon"):
             # Anonymous union. We need a dummy name to distinguish
             # multiple anonymous unions in the struct.

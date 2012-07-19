@@ -334,8 +334,8 @@ try:
     #BitStringCode = gdb.TYPE_CODE_BITSTRING
     #ErrorTypeCode = gdb.TYPE_CODE_ERROR
     MethodCode = gdb.TYPE_CODE_METHOD
-    #MethodPointerCode = gdb.TYPE_CODE_METHODPTR
-    #MemberPointerCode = gdb.TYPE_CODE_MEMBERPTR
+    MethodPointerCode = gdb.TYPE_CODE_METHODPTR
+    MemberPointerCode = gdb.TYPE_CODE_MEMBERPTR
     ReferenceCode = gdb.TYPE_CODE_REF
     CharCode = gdb.TYPE_CODE_CHAR
     BoolCode = gdb.TYPE_CODE_BOOL
