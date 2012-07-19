@@ -665,7 +665,7 @@ void AnalyzerManagerPrivate::addTool(IAnalyzerTool *tool, const StartModes &mode
         QString actionName = tool->actionName(mode);
         Id menuGroup = tool->menuGroup(mode);
         Id actionId = tool->actionId(mode);
-        QAction *action = new QAction(actionName, 0);
+        QAction *action = new QAction(actionName, this);
         Command *command = Core::ActionManager::registerAction(action, actionId, Context(C_GLOBAL));
         m_menu->addAction(command, menuGroup);
         command->action()->setData(int(StartLocal));

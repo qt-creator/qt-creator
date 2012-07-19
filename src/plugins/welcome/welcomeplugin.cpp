@@ -126,11 +126,13 @@ private:
     QHBoxLayout * buttonLayout;
     QList<QObject*> m_pluginList;
     int m_activePlugin;
+    NetworkAccessManagerFactory *m_networkAccessManagerFactory;
 };
 
 // ---  WelcomeMode
 WelcomeMode::WelcomeMode() :
     m_activePlugin(0)
+    , m_networkAccessManagerFactory(new NetworkAccessManagerFactory)
 {
     setDisplayName(tr("Welcome"));
     setIcon(QIcon(QLatin1String(Core::Constants::ICON_QTLOGO_32)));
@@ -181,6 +183,7 @@ WelcomeMode::~WelcomeMode()
     QSettings *settings = Core::ICore::settings();
     settings->setValue(QLatin1String(currentPageSettingsKeyC), activePlugin());
     delete m_modeWidget;
+    delete m_networkAccessManagerFactory;
 }
 
 bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
@@ -235,7 +238,7 @@ void WelcomeMode::initPlugins()
     engine->setImportPathList(importPathList);
     if (!debug)
         engine->setOutputWarningsToStandardError(false);
-    engine->setNetworkAccessManagerFactory(new NetworkAccessManagerFactory);
+    engine->setNetworkAccessManagerFactory(m_networkAccessManagerFactory);
     QString pluginPath = QCoreApplication::applicationDirPath();
 #ifdef Q_OS_MAC
     pluginPath += QLatin1String("/../PlugIns");

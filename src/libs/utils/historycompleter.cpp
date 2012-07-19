@@ -233,6 +233,11 @@ HistoryCompleter::HistoryCompleter(QSettings *settings, QObject *parent)
     view->setItemDelegate(delegate);
 }
 
+HistoryCompleter::~HistoryCompleter()
+{
+    delete d;
+}
+
 int HistoryCompleter::historySize() const
 {
     return d->model->rowCount();

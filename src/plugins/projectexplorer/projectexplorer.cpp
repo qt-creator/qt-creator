@@ -379,6 +379,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             this, SLOT(updateWelcomePage()));
 
     d->m_proWindow = new ProjectWindow;
+    addAutoReleasedObject(d->m_proWindow);
 
     Core::Context globalcontext(Core::Constants::C_GLOBAL);
     Core::Context projecTreeContext(Constants::C_PROJECT_TREE);

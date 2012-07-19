@@ -54,6 +54,7 @@ public:
     CodeStylePoolPrivate()
         : m_factory(0)
     {}
+    ~CodeStylePoolPrivate();
 
     QString generateUniqueId(const QString &id) const;
 
@@ -64,6 +65,11 @@ public:
     QMap<QString, ICodeStylePreferences *> m_idToCodeStyle;
     QString m_settingsPath;
 };
+
+CodeStylePoolPrivate::~CodeStylePoolPrivate()
+{
+    delete m_factory;
+}
 
 QString CodeStylePoolPrivate::generateUniqueId(const QString &id) const
 {
