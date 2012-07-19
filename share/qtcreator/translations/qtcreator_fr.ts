@@ -32710,17 +32710,20 @@ Details: %3</source>
     <message>
         <source>Debugging starts
 </source>
-        <translation>Début du débogage</translation>
+        <translation>Début du débogage
+</translation>
     </message>
     <message>
         <source>Debugging has failed
 </source>
-        <translation>Échec du débogage</translation>
+        <translation>Échec du débogage
+</translation>
     </message>
     <message>
         <source>Debugging has finished
 </source>
-        <translation>Fin du débogage</translation>
+        <translation>Fin du débogage
+</translation>
     </message>
     <message>
         <source>A debugging session is still in progress. Terminating the session in the current state can leave the target in an inconsistent state. Would you still like to terminate it?</source>

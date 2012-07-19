@@ -412,7 +412,7 @@ private slots:
 
 private:
     void setupReader();
-    enum EvalResult { EvalFail, EvalPartial, EvalOk };
+    enum EvalResult { EvalAbort, EvalFail, EvalPartial, EvalOk };
     EvalResult evaluate();
     void applyEvaluate(EvalResult parseResult, bool async);
 
