@@ -42,6 +42,11 @@
 #include <QFileInfo>
 #include <QAtomicInt>
 
+// in debug mode: make dumpers widely available without an extra include
+#ifdef QT_DEBUG
+#include "Dumpers.h"
+#endif
+
 namespace CPlusPlus {
 
 class Macro;

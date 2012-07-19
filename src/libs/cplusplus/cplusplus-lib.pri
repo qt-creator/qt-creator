@@ -55,7 +55,8 @@ HEADERS += \
     $$PWD/pp-scanner.h \
     $$PWD/ModelManagerInterface.h \
     $$PWD/findcdbbreakpoint.h \
-    $$PWD/TypeHierarchyBuilder.h
+    $$PWD/TypeHierarchyBuilder.h \
+    $$PWD/Dumpers.h
 
 SOURCES += \
     $$PWD/SimpleLexer.cpp \
@@ -84,6 +85,7 @@ SOURCES += \
     $$PWD/pp-scanner.cpp \
     $$PWD/ModelManagerInterface.cpp \
     $$PWD/findcdbbreakpoint.cpp \
-    $$PWD/TypeHierarchyBuilder.cpp
+    $$PWD/TypeHierarchyBuilder.cpp \
+    $$PWD/Dumpers.cpp
 
 RESOURCES += $$PWD/cplusplus.qrc
