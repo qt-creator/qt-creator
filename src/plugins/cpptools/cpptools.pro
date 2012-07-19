@@ -90,5 +90,6 @@ FORMS += completionsettingspage.ui \
 
 equals(TEST, 1) {
     SOURCES += \
-        cppcodegen_test.cpp
+        cppcodegen_test.cpp \
+        cppcompletion_test.cpp
 }
