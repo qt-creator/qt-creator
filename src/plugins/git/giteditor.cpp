@@ -250,6 +250,11 @@ QStringList GitEditor::annotationPreviousVersions(const QString &revision) const
     return revisions;
 }
 
+bool GitEditor::isValidRevision(const QString &revision) const
+{
+    return GitPlugin::instance()->gitClient()->isValidRevision(revision);
+}
+
 } // namespace Internal
 } // namespace Git
 

@@ -351,7 +351,8 @@ void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType typ
         menu->addAction(createCopyRevisionAction(m_currentChange));
         menu->addAction(createDescribeAction(m_currentChange));
         menu->addSeparator();
-        menu->addAction(createAnnotateAction(editorWidget()->decorateVersion(m_currentChange), false));
+        if (editorWidget()->isValidRevision(m_currentChange))
+            menu->addAction(createAnnotateAction(editorWidget()->decorateVersion(m_currentChange), false));
         const QStringList previousVersions = editorWidget()->annotationPreviousVersions(m_currentChange);
         if (!previousVersions.isEmpty()) {
             foreach (const QString &pv, previousVersions)
@@ -1426,6 +1427,12 @@ bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, bool revert) const
 QString VcsBaseEditorWidget::decorateVersion(const QString &revision) const
 {
     return revision;
+}
+
+bool VcsBaseEditorWidget::isValidRevision(const QString &revision) const
+{
+    Q_UNUSED(revision);
+    return true;
 }
 
 void VcsBaseEditorWidget::slotApplyDiffChunk()
