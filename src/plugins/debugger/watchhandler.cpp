@@ -100,6 +100,8 @@ static QByteArray stripForFormat(const QByteArray &ba)
             --inArray;
         if (c == ' ')
             continue;
+        if (c == '&') // Treat references like the referenced type.
+            continue;
         if (inArray && c >= '0' && c <= '9')
             continue;
         res.append(c);
