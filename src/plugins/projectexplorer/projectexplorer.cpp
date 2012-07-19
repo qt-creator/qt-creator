@@ -130,7 +130,6 @@
 #include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
-#include <QMainWindow>
 #include <QWizard>
 
 /*!

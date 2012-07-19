@@ -56,8 +56,6 @@
 #include <debugger/debuggerconstants.h>
 #include <utils/qtcassert.h>
 
-#include <QMainWindow>
-
 #include <QDir>
 
 namespace Qt4ProjectManager {

@@ -59,7 +59,6 @@
 #include <QList>
 
 #include <QShortcut>
-#include <QMainWindow>
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -228,7 +227,7 @@ bool MacroManager::MacroManagerPrivate::executeMacro(Macro *macro)
 
 void MacroManager::MacroManagerPrivate::showSaveDialog()
 {
-    QMainWindow *mainWindow = Core::ICore::mainWindow();
+    QWidget *mainWindow = Core::ICore::mainWindow();
     SaveDialog dialog(mainWindow);
     if (dialog.exec()) {
         if (dialog.name().isEmpty())

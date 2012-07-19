@@ -43,7 +43,6 @@
 
 #include <QDebug>
 #include <QMessageBox>
-#include <QMainWindow>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

@@ -46,7 +46,6 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QLabel>
-#include <QMainWindow>
 #include <QVBoxLayout>
 
 #include <QDir>

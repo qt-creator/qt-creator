@@ -40,7 +40,6 @@
 #include <QFileInfo>
 #include <QHash>
 #include <QList>
-#include <QMainWindow>
 #include <QSettings>
 #include <QString>
 #include <QVariantHash>

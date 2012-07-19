@@ -59,7 +59,6 @@
 #include <QTimer>
 
 #include <QApplication>
-#include <QMainWindow>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTextCodec>

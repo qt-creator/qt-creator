@@ -54,7 +54,6 @@
 #include <QDir>
 #include <QProcessEnvironment>
 
-#include <QMainWindow>
 #include <QComboBox>
 
 using namespace GenericProjectManager;

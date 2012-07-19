@@ -58,7 +58,6 @@
 #include <QPainter>
 #include <QAction>
 #include <QItemDelegate>
-#include <QMainWindow>
 #include <QApplication>
 
 static QIcon createCenteredIcon(const QIcon &icon, const QIcon &overlay)

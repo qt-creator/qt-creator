@@ -38,7 +38,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
-#include <QMainWindow>
 #include <QMessageBox>
 
 #include <QCoreApplication>

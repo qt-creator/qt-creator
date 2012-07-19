@@ -52,7 +52,6 @@
 
 #include <QApplication>
 #include <QDesktopServices>
-#include <QMainWindow>
 #include <QMessageBox>
 
 #ifdef ENABLE_QT_BREAKPAD

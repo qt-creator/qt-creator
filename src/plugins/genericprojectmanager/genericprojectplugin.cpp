@@ -54,7 +54,6 @@
 #include <QDebug>
 
 #include <QTreeView>
-#include <QMainWindow>
 
 using namespace GenericProjectManager;
 using namespace GenericProjectManager::Internal;

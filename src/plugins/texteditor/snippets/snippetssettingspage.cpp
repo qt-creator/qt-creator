@@ -49,7 +49,6 @@
 #include <QTextStream>
 #include <QHash>
 #include <QMessageBox>
-#include <QMainWindow>
 
 namespace TextEditor {
 namespace Internal {

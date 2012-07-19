@@ -513,7 +513,7 @@ IContext *ICore::currentContextObject()
 }
 
 
-QMainWindow *ICore::mainWindow()
+QWidget *ICore::mainWindow()
 {
     return m_mainwindow;
 }

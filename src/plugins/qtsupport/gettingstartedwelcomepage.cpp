@@ -67,7 +67,6 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QApplication>
-#include <QMainWindow>
 #include <QDeclarativeImageProvider>
 #include <QDeclarativeEngine>
 #include <QDeclarativeContext>

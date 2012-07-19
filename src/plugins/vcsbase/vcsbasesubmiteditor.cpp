@@ -78,7 +78,6 @@
 #include <QAction>
 #include <QApplication>
 #include <QMessageBox>
-#include <QMainWindow>
 #include <QCompleter>
 #include <QLineEdit>
 #include <QTextEdit>

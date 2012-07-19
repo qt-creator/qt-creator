@@ -90,7 +90,6 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <QDialogButtonBox>
-#include <QMainWindow>
 #include <QPushButton>
 
 using namespace Core;

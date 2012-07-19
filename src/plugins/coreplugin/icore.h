@@ -37,9 +37,9 @@
 #include <QSettings>
 
 QT_BEGIN_NAMESPACE
-class QMainWindow;
 class QPrinter;
 class QStatusBar;
+class QWidget;
 template <class T> class QList;
 QT_END_NAMESPACE
 
@@ -112,7 +112,7 @@ public:
     static QString resourcePath();
     static QString userResourcePath();
 
-    static QMainWindow *mainWindow();
+    static QWidget *mainWindow();
     static QStatusBar *statusBar();
 
     static IContext *currentContextObject();

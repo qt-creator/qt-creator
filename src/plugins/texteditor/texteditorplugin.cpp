@@ -61,7 +61,6 @@
 #include <utils/qtcassert.h>
 
 #include <QtPlugin>
-#include <QMainWindow>
 #include <QShortcut>
 #include <QDir>
 #include <QTemporaryFile>

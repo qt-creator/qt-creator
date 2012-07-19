@@ -47,7 +47,6 @@
 
 #include <QtPlugin>
 #include <QMessageBox>
-#include <QMainWindow>
 #include <QApplication>
 
 using namespace Analyzer;

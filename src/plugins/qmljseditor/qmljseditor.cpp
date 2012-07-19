@@ -85,7 +85,6 @@
 #include <QComboBox>
 #include <QHeaderView>
 #include <QInputDialog>
-#include <QMainWindow>
 #include <QToolBar>
 #include <QTreeView>
 

@@ -44,7 +44,6 @@
 
 #include <QMenu>
 #include <QAction>
-#include <QMainWindow>
 #include <QMessageBox>
 #include <QHBoxLayout>
 #include <QLineEdit>

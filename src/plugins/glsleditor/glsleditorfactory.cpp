@@ -47,7 +47,6 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QMainWindow>
 
 using namespace GLSLEditor::Internal;
 using namespace GLSLEditor::Constants;

@@ -59,7 +59,6 @@
 #include <utils/QtConcurrentTools>
 
 #include <QApplication>
-#include <QMainWindow>
 
 static inline QString msgProgress(int progress, int total)
 {

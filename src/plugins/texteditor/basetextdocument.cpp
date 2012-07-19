@@ -46,7 +46,6 @@
 #include <QTextStream>
 #include <QTextCodec>
 #include <QFutureInterface>
-#include <QMainWindow>
 #include <QSyntaxHighlighter>
 #include <QApplication>
 

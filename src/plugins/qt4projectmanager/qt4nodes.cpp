@@ -72,7 +72,6 @@
 #include <QXmlStreamReader>
 
 #include <QPainter>
-#include <QMainWindow>
 #include <QMessageBox>
 #include <QPushButton>
 #include <utils/QtConcurrentTools>

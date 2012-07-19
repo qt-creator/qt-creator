@@ -40,7 +40,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QFont>
-#include <QMainWindow>
 #include <QSettings>
 #include <QTextCharFormat>
 

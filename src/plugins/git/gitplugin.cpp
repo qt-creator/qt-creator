@@ -79,7 +79,6 @@
 
 #include <QAction>
 #include <QFileDialog>
-#include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
 

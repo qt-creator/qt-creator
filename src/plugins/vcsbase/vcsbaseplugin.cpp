@@ -60,7 +60,6 @@
 #include <QAction>
 #include <QMessageBox>
 #include <QFileDialog>
-#include <QMainWindow>
 
 using namespace Utils;
 
@@ -643,7 +642,7 @@ void VcsBasePlugin::createRepository()
     if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject())
         directory = QFileInfo(currentProject->document()->fileName()).absolutePath();
     // Prompt for a directory that is not under version control yet
-    QMainWindow *mw = Core::ICore::mainWindow();
+    QWidget *mw = Core::ICore::mainWindow();
     do {
         directory = QFileDialog::getExistingDirectory(mw, tr("Choose Repository Directory"), directory);
         if (directory.isEmpty())

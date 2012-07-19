@@ -47,7 +47,6 @@
 #include <extensionsystem/invoker.h>
 
 #include <QMessageBox>
-#include <QMainWindow>
 #include <QVBoxLayout>
 
 #include <cstring>

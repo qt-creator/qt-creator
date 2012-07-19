@@ -71,7 +71,6 @@
 #include <QSignalMapper>
 
 #include <QComboBox>
-#include <QMainWindow> // for msg box parent
 #include <QMessageBox>
 #include <QToolButton>
 #include <QTextCodec>

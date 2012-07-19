@@ -45,7 +45,6 @@
 #include <QDir>
 #include <QHash>
 #include <QString>
-#include <QMainWindow>
 
 using namespace Qt4ProjectManager;
 

@@ -55,7 +55,6 @@
 #include <QToolTip>
 #include <QMessageBox>
 #include <QFileDialog>
-#include <QMainWindow>
 #include <QTextBrowser>
 #include <QDesktopServices>
 

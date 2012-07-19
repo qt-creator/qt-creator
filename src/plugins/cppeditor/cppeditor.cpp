@@ -112,7 +112,6 @@
 #include <QToolBar>
 #include <QTreeView>
 #include <QSortFilterProxyModel>
-#include <QMainWindow>
 
 #include <sstream>
 

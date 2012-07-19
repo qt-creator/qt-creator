@@ -39,7 +39,6 @@
 
 #include <QAction>
 #include <QShortcut>
-#include <QMainWindow>
 
 /*!
     \class Core::Command

@@ -52,7 +52,6 @@
 #include <QTimer>
 
 #include <QMessageBox>
-#include <QMainWindow>
 
 #include <QTcpSocket>
 

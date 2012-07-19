@@ -44,7 +44,6 @@
 #endif
 
 #include <QMessageBox>
-#include <QMainWindow>
 #include <QUndoStack>
 
 #include <QFile>

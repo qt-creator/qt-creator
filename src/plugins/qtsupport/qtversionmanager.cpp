@@ -58,7 +58,6 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
-#include <QMainWindow>
 #include <QSettings>
 #include <QTextStream>
 #include <QTimer>

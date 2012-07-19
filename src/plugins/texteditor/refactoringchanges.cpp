@@ -39,7 +39,6 @@
 
 #include <QFile>
 #include <QSet>
-#include <QMainWindow>
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextDocument>

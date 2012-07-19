@@ -49,7 +49,6 @@
 
 #include <QFormLayout>
 #include <QLabel>
-#include <QMainWindow>
 
 static const char PROFILE_DATA_KEY[] = "Profile.";
 static const char PROFILE_COUNT_KEY[] = "Profile.Count";

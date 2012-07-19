@@ -49,7 +49,6 @@
 #include <QDir>
 #include <qdebug.h>
 #include <QHBoxLayout>
-#include <QMainWindow>
 #include <QMenu>
 #include <QToolBar>
 #include <QInputDialog>

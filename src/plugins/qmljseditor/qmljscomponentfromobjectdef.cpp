@@ -45,7 +45,6 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
-#include <QMainWindow>
 #include <QMessageBox>
 
 using namespace QmlJS::AST;

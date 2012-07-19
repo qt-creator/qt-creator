@@ -50,7 +50,6 @@
 #include <QApplication>
 #include <QDebug>
 #include <QFile>
-#include <QMainWindow>
 #include <QMessageBox>
 
 namespace ProjectExplorer {

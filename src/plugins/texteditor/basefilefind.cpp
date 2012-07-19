@@ -56,7 +56,6 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QMainWindow>
 #include <QPushButton>
 #include <QTextBlock>
 

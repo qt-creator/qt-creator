@@ -50,7 +50,6 @@
 #include <QHBoxLayout>
 #include <QToolButton>
 #include <QMessageBox>
-#include <QMainWindow>
 #include <QGraphicsOpacityEffect>
 
 using namespace ProjectExplorer;

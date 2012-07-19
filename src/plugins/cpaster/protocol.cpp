@@ -48,7 +48,6 @@
 
 #include <QMessageBox>
 #include <QApplication>
-#include <QMainWindow>
 #include <QPushButton>
 
 namespace CodePaster {

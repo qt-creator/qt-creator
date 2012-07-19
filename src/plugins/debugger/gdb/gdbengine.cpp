@@ -95,7 +95,6 @@
 #include <QAction>
 #include <QDialogButtonBox>
 #include <QLabel>
-#include <QMainWindow>
 #include <QMessageBox>
 #include <QPushButton>
 

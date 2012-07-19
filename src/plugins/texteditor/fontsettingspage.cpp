@@ -49,7 +49,6 @@
 #include <QInputDialog>
 #include <QListWidget>
 #include <QMessageBox>
-#include <QMainWindow>
 #include <QPalette>
 #include <QTextCharFormat>
 #include <QTextEdit>

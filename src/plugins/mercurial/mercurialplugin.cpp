@@ -63,7 +63,6 @@
 #include <QtPlugin>
 #include <QAction>
 #include <QMenu>
-#include <QMainWindow>
 #include <QtDebug>
 #include <QtGlobal>
 #include <QDir>

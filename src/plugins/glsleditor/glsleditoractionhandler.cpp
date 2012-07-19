@@ -37,7 +37,6 @@
 
 #include <QDebug>
 #include <QAction>
-#include <QMainWindow>
 #include <QMessageBox>
 
 namespace GLSLEditor {

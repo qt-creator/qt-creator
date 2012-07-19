@@ -37,7 +37,6 @@
 #include <coreplugin/id.h>
 #include <coreplugin/documentmanager.h>
 
-#include <QMainWindow>
 #include <QMessageBox>
 
 using namespace TaskList::Internal;

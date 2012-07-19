@@ -34,7 +34,6 @@
 #include <coreplugin/icore.h>
 
 #include <QSettings>
-#include <QMainWindow>
 #include <QStringListModel>
 #include <QCompleter>
 #include <QKeyEvent>

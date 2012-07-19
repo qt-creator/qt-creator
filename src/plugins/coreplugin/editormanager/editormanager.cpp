@@ -78,7 +78,6 @@
 #include <QApplication>
 #include <QFileDialog>
 #include <QLayout>
-#include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>

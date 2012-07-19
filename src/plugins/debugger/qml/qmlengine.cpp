@@ -76,7 +76,6 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QMainWindow>
 #include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QToolTip>

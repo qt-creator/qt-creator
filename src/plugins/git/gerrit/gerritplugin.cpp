@@ -59,7 +59,6 @@
 #include <QDebug>
 #include <QProcess>
 #include <QRegExp>
-#include <QMainWindow>
 #include <QAction>
 #include <QFileDialog>
 #include <QTemporaryFile>

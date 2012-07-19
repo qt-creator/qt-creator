@@ -47,7 +47,6 @@
 #include <QDockWidget>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMainWindow>
 #include <QMenuBar>
 #include <QPainter>
 #include <QPixmap>

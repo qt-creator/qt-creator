@@ -44,7 +44,6 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <QTimer>
-#include <QMainWindow>
 
 namespace Debugger {
 namespace Internal {

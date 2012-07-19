@@ -63,7 +63,6 @@
 #include <QDateTime>
 #include <QProcess>
 #include <QFormLayout>
-#include <QMainWindow>
 #include <QInputDialog>
 #include <QFileSystemWatcher>
 

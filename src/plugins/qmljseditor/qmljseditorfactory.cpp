@@ -50,7 +50,6 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QMainWindow>
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;

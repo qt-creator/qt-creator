@@ -36,7 +36,6 @@
 
 #include <QTimer>
 #include <QFileDialog>
-#include <QMainWindow>
 
 namespace RemoteLinux {
 namespace Internal {

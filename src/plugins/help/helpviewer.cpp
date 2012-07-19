@@ -43,7 +43,6 @@
 
 #include <QApplication>
 #include <QDesktopServices>
-#include <QMainWindow>
 #include <QMouseEvent>
 
 #include <QHelpEngine>

@@ -43,7 +43,6 @@
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QMessageBox>
-#include <QMainWindow>
 
 namespace Debugger {
 namespace Internal {

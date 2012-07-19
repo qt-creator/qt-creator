@@ -64,7 +64,6 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QMenu>
-#include <QMainWindow>
 #include <QInputDialog>
 #include <QUrl>
 

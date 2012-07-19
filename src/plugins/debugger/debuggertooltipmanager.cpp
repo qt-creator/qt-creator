@@ -56,7 +56,6 @@
 #include <QStyle>
 #include <QIcon>
 #include <QApplication>
-#include <QMainWindow>
 #include <QMoveEvent>
 #include <QDesktopWidget>
 #include <QScrollBar>

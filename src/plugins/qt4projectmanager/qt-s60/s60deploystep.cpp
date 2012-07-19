@@ -50,7 +50,6 @@
 #include <utils/qtcassert.h>
 
 #include <QMessageBox>
-#include <QMainWindow>
 
 #include <QTimer>
 #include <QDateTime>
