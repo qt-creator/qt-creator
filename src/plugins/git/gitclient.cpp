@@ -1076,11 +1076,13 @@ QString GitClient::synchronousShortDescription(const QString &workingDirectory, 
     // Short SHA 1, author, subject
     QString output = synchronousShortDescription(workingDirectory, revision,
                                                  QLatin1String(defaultShortLogFormatC));
-    if (output.length() > maxShortLogLength) {
-        output.truncate(maxShortLogLength);
-        output.append(QLatin1String("..."));
+    if (output != revision) {
+        if (output.length() > maxShortLogLength) {
+            output.truncate(maxShortLogLength);
+            output.append(QLatin1String("..."));
+        }
+        output.append(QLatin1String("\")"));
     }
-    output.append(QLatin1String("\")"));
     return output;
 }
 
