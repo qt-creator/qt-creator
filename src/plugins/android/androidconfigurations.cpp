@@ -72,7 +72,7 @@ namespace {
     const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String PartitionSizeKey("PartitionSize");
-    const QLatin1String NDKGccVersionRegExp("\\d\\.\\d\\.\\d");
+    const QLatin1String NDKGccVersionRegExp("-\\d[\\.\\d]+");
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
     const QLatin1String X86ToolchainPrefix("x86");
     const QLatin1String ArmToolsPrefix("arm-linux-androideabi");
@@ -138,7 +138,7 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
     if (versionRegExp.exactMatch(value))
         ndkToolchainVersion = value;
     else
-        ndkToolchainVersion = value.mid(versionRegExp.indexIn(value));
+        ndkToolchainVersion = value.mid(versionRegExp.indexIn(value)+1);
     // user settings
 
     PersistentSettingsReader reader;
@@ -156,7 +156,7 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
         if (versionRegExp.exactMatch(value))
             ndkToolchainVersion = value;
         else
-            ndkToolchainVersion = value.mid(versionRegExp.indexIn(value));
+            ndkToolchainVersion = value.mid(versionRegExp.indexIn(value)+1);
 
         if (armGdbLocation.isEmpty())
             armGdbLocation = Utils::FileName::fromString(reader.restoreValue(ArmGdbLocationKey).toString());
@@ -254,7 +254,7 @@ QStringList AndroidConfigurations::ndkToolchainVersions() const
         int idx = versionRegExp.indexIn(fileName);
         if (idx == -1)
             continue;
-        QString version = fileName.mid(idx);
+        QString version = fileName.mid(idx+1);
         if (!result.contains(version))
             result.append(version);
     }
