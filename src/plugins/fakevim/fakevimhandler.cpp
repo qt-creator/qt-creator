@@ -887,7 +887,7 @@ public:
     void selectParagraphTextObject(bool inner);
     void selectBlockTextObject(bool inner, char left, char right);
     void changeNumberTextObject(bool doIncrement);
-    void selectQuotedStringTextObject(bool inner, int type);
+    void selectQuotedStringTextObject(bool inner, const QString &quote);
 
     Q_SLOT void importSelection();
     void exportSelection();
@@ -1841,7 +1841,7 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
         else if (input.is('{') || input.is('}') || input.is('B'))
             selectBlockTextObject(m_subsubdata.is('i'), '{', '}');
         else if (input.is('"') || input.is('\'') || input.is('`'))
-            selectQuotedStringTextObject(m_subsubdata.is('i'), input.key());
+            selectQuotedStringTextObject(m_subsubdata.is('i'), input.asChar());
         m_subsubmode = NoSubSubMode;
         finishMovement(QString("%1%2%3")
                        .arg(count())
@@ -5201,10 +5201,36 @@ void FakeVimHandler::Private::changeNumberTextObject(bool doIncrement)
     moveLeft();
 }
 
-void FakeVimHandler::Private::selectQuotedStringTextObject(bool inner, int type)
+void FakeVimHandler::Private::selectQuotedStringTextObject(bool inner,
+    const QString &quote)
 {
-    Q_UNUSED(inner);
-    Q_UNUSED(type);
+    QTextCursor tc = cursor();
+    int sz = quote.size();
+
+    QTextCursor tc1;
+    QTextCursor tc2(document());
+    while (tc2 <= tc) {
+        tc1 = document()->find(quote, tc2);
+        if (tc1.isNull() || tc1.anchor() > tc.position())
+            return;
+        tc2 = document()->find(quote, tc1);
+        if (tc2.isNull())
+            return;
+    }
+
+    int p1 = tc1.position();
+    int p2 = tc2.position();
+    if (inner) {
+        p2 -= sz + 1;
+        if (document()->characterAt(p1) == ParagraphSeparator)
+            ++p1;
+    } else {
+        p1 -= sz;
+        p2 -= sz;
+    }
+
+    setAnchorAndPosition(p1, p2);
+    m_movetype = MoveInclusive;
 }
 
 int FakeVimHandler::Private::mark(int code) const
