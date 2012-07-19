@@ -18,6 +18,13 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += core-private
     QT *= widgets
 }
+
+false {
+    QT -= gui webkit widgets
+} else {
+    DEFINES += USE_GUILIB
+}
+
 #unix: QMAKE_CXXFLAGS += -msse2
 #DEFINES += USE_BOOST=1
 

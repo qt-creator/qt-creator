@@ -123,6 +123,7 @@ void dummyStatement(...) {}
 #undef __STRICT_ANSI__ // working around compile error with MinGW
 #endif
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QDateTime>
 #include <QDir>
@@ -146,16 +147,19 @@ void dummyStatement(...) {}
 #include <QSharedPointer>
 #endif
 
+#if USE_GUILIB
+#include <QAction>
+#include <QApplication> // QWidgets: Separate module as of Qt 5
 #include <QColor>
 #include <QFont>
-
-//#include <QtGui/private/qfixed_p.h>
+#include <QLabel>
 #include <QPainter>
 #include <QPainterPath>
 #include <QRegion>
-
+#include <QStandardItemModel>
 #include <QTextCursor>
 #include <QTextDocument>
+#endif
 
 #if USE_SCRIPTLIB
 #include <QScriptEngine>
@@ -170,11 +174,6 @@ void dummyStatement(...) {}
 
 #include <QHostAddress>
 #include <QNetworkRequest>
-
-#include <QApplication> // QWidgets: Separate module as of Qt 5
-#include <QAction>
-#include <QStandardItemModel>
-#include <QLabel>
 
 #if USE_CXX11
 #include <array>
@@ -442,6 +441,7 @@ namespace peekandpoke {
 
     void testQImageDisplay()
     {
+        #if USE_GUILIB
         QImage im(QSize(200, 200), QImage::Format_RGB32);
         im.fill(QColor(200, 10, 30).rgba());
         QPainter pain;
@@ -478,6 +478,7 @@ namespace peekandpoke {
 
         pain.end();
         dummyStatement(&pain);
+        #endif
     }
 
     void testPeekAndPoke3()
@@ -983,6 +984,7 @@ namespace painting {
 
     void testQImage()
     {
+        #if USE_GUILIB
         // only works with Python dumper
         QImage im(QSize(200, 200), QImage::Format_RGB32);
         im.fill(QColor(200, 100, 130).rgba());
@@ -998,10 +1000,12 @@ namespace painting {
         pain.drawRect(30, 30, 80, 80);
         pain.end();
         dummyStatement(&pain, &im);
+        #endif
     }
 
     void testQPixmap()
     {
+        #if USE_GUILIB
         QImage im(QSize(200, 200), QImage::Format_RGB32);
         im.fill(QColor(200, 100, 130).rgba());
         QPainter pain;
@@ -1015,6 +1019,7 @@ namespace painting {
         // Check pm (200x200) QPixmap.
         // Continue.
         dummyStatement(&im, &pm);
+        #endif
     }
 
     void testPainting()
@@ -1630,8 +1635,16 @@ namespace qobject {
         {
             Q_OBJECT
         public:
-            TestObject(QObject *parent = 0) : QObject(parent)
-                { m_ui = new Ui; m_ui->w = new QWidget; }
+            TestObject(QObject *parent = 0)
+                : QObject(parent)
+            {
+                m_ui = new Ui;
+                #if USE_GUILIB
+                m_ui->w = new QWidget;
+                #else
+                m_ui->w = 0;
+                #endif
+            }
 
             Q_PROPERTY(QString myProp1 READ myProp1 WRITE setMyProp1)
             QString myProp1() const { return m_myProp1; }
@@ -1677,6 +1690,7 @@ namespace qobject {
     #endif
 
     #if 1
+        #if USE_GUILIB
         QWidget ob;
         ob.setObjectName("An Object");
         ob.setProperty("USER DEFINED 1", 44);
@@ -1687,6 +1701,7 @@ namespace qobject {
         QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
         QObject::connect(&ob, SIGNAL(destroyed()), &ob1, SLOT(deleteLater()));
         //QObject::connect(&app, SIGNAL(lastWindowClosed()), &ob, SLOT(deleteLater()));
+        #endif
     #endif
 
     #if 0
@@ -1876,9 +1891,9 @@ namespace qregexp {
 
 } // namespace qregexp
 
-
 namespace qrect {
 
+    #if USE_GUILIB
     void testQPoint()
     {
         QPoint s;
@@ -1960,15 +1975,18 @@ namespace qrect {
         // Continue.
         dummyStatement(&s);
     }
+    #endif
 
     void testGeometry()
     {
+        #if USE_GUILIB
         testQPoint();
         testQPointF();
         testQRect();
         testQRectF();
         testQSize();
         testQSizeF();
+        #endif
     }
 
 } // namespace qrect
@@ -1978,6 +1996,7 @@ namespace qregion {
 
     void testQRegion()
     {
+        #if USE_GUILIB
         // Works with Python dumpers only.
         QRegion region;
         BREAK_HERE;
@@ -2027,6 +2046,7 @@ namespace qregion {
         // Check region <4 items> QRegion.
         // Continue.
         dummyStatement(&region);
+        #endif
     }
 
 } // namespace qregion
@@ -2141,10 +2161,12 @@ namespace final {
 
     void testApplicationStart(QCoreApplication *app)
     {
+        #if USE_GUILIB
         QString str = QString::fromUtf8("XXXXXXXXXXXXXXyyXXX ö");
         QLabel l(str);
         l.setObjectName("Some Label");
         l.show();
+        #endif
         // Jump over next line.
         return;
         app->exec();
@@ -3376,6 +3398,7 @@ namespace itemmodel {
 
     void testItemModel()
     {
+        #if USE_GUILIB
         //char buf[100];
         //QString *s = static_cast<QString *>(static_cast<void *>(&(v.data_ptr().data.c)));
         //QString *t = (QString *)&(v.data_ptr());
@@ -3397,6 +3420,7 @@ namespace itemmodel {
         // Check mi "1" QModelIndex.
         // Continue.
         dummyStatement(&i1, &mi, &m, &i2, &i11);
+        #endif
     }
 
 } // namespace itemmodel
@@ -3702,6 +3726,7 @@ namespace text {
 
     void testText()
     {
+        #if USE_GUILIB
         //char *argv[] = { "xxx", 0 };
         QTextDocument doc;
         doc.setPlainText("Hallo\nWorld");
@@ -3722,6 +3747,7 @@ namespace text {
         // Check anc 1 int.
         // Continue.
         dummyStatement(&pos, &anc);
+        #endif
     }
 
 } // namespace text
@@ -3853,6 +3879,8 @@ namespace qvariant {
         BREAK_HERE;
         // Check var "Hello 10" QVariant (QString).
         // Continue.
+
+        #if USE_GUILIB
         var.setValue(QRect(100, 200, 300, 400)); // 19 QRect
         BREAK_HERE;
         // Check var 300x400+100+200 QVariant (QRect).
@@ -3861,6 +3889,7 @@ namespace qvariant {
         BREAK_HERE;
         // Check var 300x400+100+200 QVariant (QRectF).
         // Continue.
+        #endif
 
         /*
          "QStringList", # 11
@@ -6390,7 +6419,11 @@ namespace sanity {
 
 int main(int argc, char *argv[])
 {
+    #if USE_GUILIB
     QApplication app(argc, argv);
+    #else
+    QCoreApplication app(argc, argv);
+    #endif
 
     QChar c(0x1E9E);
     bool b = c.isPrint();
