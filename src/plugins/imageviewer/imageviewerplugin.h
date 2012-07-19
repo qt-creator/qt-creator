@@ -5,7 +5,7 @@
 ** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
 ** Copyright (c) 2010 Denis Mingulov.
 **
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: http://www.qt-project.org/
 **
 **
 ** GNU Lesser General Public License Usage
@@ -26,8 +26,6 @@
 ** Alternatively, this file may be used in accordance with the terms and
 ** conditions contained in a signed written agreement between you and Nokia.
 **
-** If you have questions regarding the use of this file, please contact
-** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 

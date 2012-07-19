@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: http://www.qt-project.org/
 **
 ** You may use this file under the terms of the BSD license as follows:
 **

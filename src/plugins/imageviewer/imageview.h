@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Copyright (c) 2010 Denis Mingulov.
 **
-** Contact: Nokia Corporation (qt-info@nokia.com)
+** Contact: http://www.qt-project.org/
 **
 ** This file is part of Qt Creator.
 **
