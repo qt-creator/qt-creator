@@ -38,6 +38,7 @@
 #include <QIcon>
 
 namespace ResourceEditor {
+namespace Internal {
 
 class File;
 struct Prefix;
@@ -274,6 +275,7 @@ private:
     QIcon m_prefixIcon;
 };
 
-} // namespace SharedTools
+} // namespace Internal
+} // namespace ResourceEditor
 
 #endif // RESOURCEFILE_P_H

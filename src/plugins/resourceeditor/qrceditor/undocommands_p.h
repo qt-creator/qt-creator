@@ -41,6 +41,7 @@ class QModelIndex;
 QT_END_NAMESPACE
 
 namespace ResourceEditor {
+namespace Internal {
 
 /*!
     \class ViewCommand
@@ -157,6 +158,7 @@ private:
     void undo();
 };
 
-} // namespace SharedTools
+} // namespace Internal
+} // namespace ResourceEditor
 
 #endif // UNDO_COMMANDS_H

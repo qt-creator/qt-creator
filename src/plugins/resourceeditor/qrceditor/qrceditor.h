@@ -37,6 +37,7 @@
 #include <QUndoStack>
 
 namespace ResourceEditor {
+namespace Internal {
 
 class QrcEditor : public QWidget
 {
@@ -105,6 +106,7 @@ private:
     QString m_currentLanguage;
 };
 
-}
+} // namespace Internal
+} // namespace ResourceEditor
 
 #endif

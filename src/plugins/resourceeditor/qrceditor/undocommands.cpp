@@ -32,7 +32,8 @@
 
 #include <QModelIndex>
 
-namespace ResourceEditor {
+using namespace ResourceEditor;
+using namespace ResourceEditor::Internal;
 
 ViewCommand::ViewCommand(ResourceView *view)
         : m_view(view)
@@ -183,5 +184,3 @@ void AddEmptyPrefixCommand::undo()
             m_prefixArrayIndex, 0, QModelIndex());
     delete m_view->removeEntry(prefixModelIndex);
 }
-
-} // namespace SharedTools

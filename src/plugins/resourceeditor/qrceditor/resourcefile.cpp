@@ -59,7 +59,8 @@ static QString msgFileNameEmpty()
     return QCoreApplication::translate("Designer", "The file name is empty.");
 }
 
-namespace ResourceEditor {
+using namespace ResourceEditor;
+using namespace ResourceEditor::Internal;
 
 /******************************************************************************
 ** File
@@ -1155,5 +1156,3 @@ QMimeData *ResourceModel::mimeData(const QModelIndexList &indexes) const
     rc->setText(doc.toString());
     return rc;
 }
-
-} // namespace ResourceEditor

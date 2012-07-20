@@ -42,13 +42,11 @@ class QToolBar;
 QT_END_NAMESPACE
 
 namespace ResourceEditor {
-
-class QrcEditor;
-
 namespace Internal {
 
 class ResourceEditorPlugin;
 class ResourceEditorW;
+class QrcEditor;
 
 class ResourceEditorDocument
   : public virtual Core::IDocument

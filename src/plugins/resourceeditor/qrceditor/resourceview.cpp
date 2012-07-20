@@ -48,6 +48,7 @@
 #include <QUndoStack>
 
 namespace ResourceEditor {
+namespace Internal {
 
 /*!
     \class FileEntryBackup
@@ -98,8 +99,6 @@ void PrefixEntryBackup::restore() const
         entry.restore();
     }
 }
-
-namespace Internal {
 
 class RelativeResourceModel : public ResourceModel
 {
@@ -184,10 +183,14 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
 }
 
 } // namespace Internal
+} // namespace ResourceEditor
+
+using namespace ResourceEditor;
+using namespace ResourceEditor::Internal;
 
 ResourceView::ResourceView(QUndoStack *history, QWidget *parent) :
     QTreeView(parent),
-    m_qrcModel(new Internal::RelativeResourceModel(m_qrcFile, this)),
+    m_qrcModel(new RelativeResourceModel(m_qrcFile, this)),
     m_history(history),
     m_mergeId(-1)
 {
@@ -547,5 +550,3 @@ bool ResourceView::resourceDragEnabled() const
 {
     return m_qrcModel->resourceDragEnabled();
 }
-
-} // namespace SharedTools

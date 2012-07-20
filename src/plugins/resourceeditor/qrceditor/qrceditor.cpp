@@ -38,6 +38,7 @@
 #include <QMessageBox>
 
 using namespace ResourceEditor;
+using namespace ResourceEditor::Internal;
 
 QrcEditor::QrcEditor(QWidget *parent)
   : QWidget(parent),

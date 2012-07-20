@@ -44,6 +44,7 @@ class QUndoStack;
 QT_END_NAMESPACE
 
 namespace ResourceEditor {
+namespace Internal {
 
 /*!
     \class EntryBackup
@@ -65,9 +66,7 @@ public:
     virtual ~EntryBackup() { }
 };
 
-namespace Internal {
-    class RelativeResourceModel;
-}
+class RelativeResourceModel;
 
 class ResourceView : public QTreeView
 {
@@ -144,12 +143,13 @@ private:
                         const QString &before, const QString &after);
 
     ResourceFile m_qrcFile;
-    Internal::RelativeResourceModel *m_qrcModel;
+    RelativeResourceModel *m_qrcModel;
 
     QUndoStack *m_history;
     int m_mergeId;
 };
 
-} // namespace SharedTools
+} // namespace Internal
+} // namespace ResourceEditor
 
 #endif // RESOURCEVIEW_H
