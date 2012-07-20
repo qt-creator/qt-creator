@@ -34,7 +34,7 @@ def main():
         if result:
             expectedBreakpointsOrder = [{"main.cpp":9}, {"main.qml":14}]
             # Only use 4.7.4 to work around QTBUG-25187
-            availableConfigs = iterateBuildConfigs(1, 0, ".*4\.7\.4.*$(?<![Rr]elease)")
+            availableConfigs = iterateBuildConfigs(1, 0, "Debug")
             if not availableConfigs:
                 test.fatal("Haven't found a suitable Qt version (need Qt 4.7.4) - leaving without debugging.")
             for config in availableConfigs:

@@ -21,7 +21,7 @@ def main():
     fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
 
     qtVerPattern = re.compile("\d\.\d(\.\d+)?")
-    availableConfigs = iterateBuildConfigs(1, 0, "(Desktop )?Qt.*Release")
+    availableConfigs = iterateBuildConfigs(1, 0, "Release")
     if not availableConfigs:
         test.fatal("Haven't found a suitable Qt version (need Release build) - leaving without building.")
     for config in availableConfigs:
