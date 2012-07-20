@@ -34,8 +34,6 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <QPointer>
-
 QT_BEGIN_NAMESPACE
 class QMenu;
 class QToolBar;
@@ -113,7 +111,7 @@ private:
     const QString m_fileFilter;
     QString m_displayName;
     QString m_suggestedName;
-    QPointer<QrcEditor> m_resourceEditor;
+    QrcEditor *m_resourceEditor;
     ResourceEditorDocument *m_resourceDocument;
     ResourceEditorPlugin *m_plugin;
     bool m_shouldAutoSave;

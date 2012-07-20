@@ -315,8 +315,7 @@ void ResourceEditorW::openFile(const QString &fileName)
 
 void ResourceEditorW::onRefresh()
 {
-    if (!m_resourceEditor.isNull())
-        m_resourceEditor.data()->refresh();
+    m_resourceEditor->refresh();
 }
 
 void ResourceEditorW::renameCurrentFile()
@@ -326,14 +325,12 @@ void ResourceEditorW::renameCurrentFile()
 
 void ResourceEditorW::onUndo()
 {
-    if (!m_resourceEditor.isNull())
-        m_resourceEditor.data()->onUndo();
+    m_resourceEditor->onUndo();
 }
 
 void ResourceEditorW::onRedo()
 {
-    if (!m_resourceEditor.isNull())
-        m_resourceEditor.data()->onRedo();
+    m_resourceEditor->onRedo();
 }
 
 } // namespace Internal
