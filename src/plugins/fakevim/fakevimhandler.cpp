@@ -4853,7 +4853,8 @@ int FakeVimHandler::Private::blockBoundary(const QString &left,
             tc1 = document()->find(begin, tc1, flags);
         }
 
-        while (level > 0 && (closing ? (tc2 < tc1) : (tc1 < tc2))) {
+        while (level > 0
+               && (tc1.isNull() || (closing ? (tc2 < tc1) : (tc1 < tc2)))) {
             --level;
             tc2 = document()->find(end, tc2, flags);
             if (tc2.isNull())
@@ -5158,7 +5159,7 @@ void FakeVimHandler::Private::selectBlockTextObject(bool inner,
         p2 -= sright.size() - 1;
     }
 
-    setAnchorAndPosition(p2, p1);
+    setAnchorAndPosition(p1, p2);
     m_movetype = MoveInclusive;
 }
 
