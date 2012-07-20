@@ -1757,9 +1757,7 @@ ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
 void FakeVimPlugin::extensionsInitialized()
 {
     d->m_statusBar = new Core::StatusBarWidget;
-    MiniBuffer *miniBuffer = new MiniBuffer;
-    addAutoReleasedObject(miniBuffer);
-    d->m_statusBar->setWidget(miniBuffer);
+    d->m_statusBar->setWidget(new MiniBuffer);
     d->m_statusBar->setPosition(StatusBarWidget::Last);
     addAutoReleasedObject(d->m_statusBar);
 }
