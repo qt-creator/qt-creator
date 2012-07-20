@@ -173,10 +173,9 @@ bool QtQuickApp::setExternalModules(const QStringList &uris,
 
 QString QtQuickApp::pathExtended(int fileType) const
 {
-    QString cleanProjectName = projectName().replace(QLatin1Char('-'), QString());
     const bool importQmlFile = m_mainQmlMode == ModeImport;
     const QString qmlSubDir = QLatin1String("qml/")
-                              + (importQmlFile ? m_mainQmlFile.dir().dirName() : cleanProjectName)
+                              + (importQmlFile ? m_mainQmlFile.dir().dirName() : projectName())
                               + QLatin1Char('/');
     const QString appViewerTargetSubDir = appViewerOriginsSubDir;
 

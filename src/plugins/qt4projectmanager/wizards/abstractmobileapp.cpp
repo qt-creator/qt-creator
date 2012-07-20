@@ -164,26 +164,24 @@ QString AbstractMobileApp::path(int fileType) const
     const QString originsRootShared = templatesRoot() + QLatin1String("shared/");
     const QString mainCppFileName = QLatin1String("main.cpp");
     const QString symbianIconFileName = QLatin1String("symbianicon.svg");
-    QString cleanProjectName = m_projectName;
-    cleanProjectName.replace(QLatin1Char('-'), QString());
     switch (fileType) {
         case MainCpp:               return outputPathBase() + mainCppFileName;
         case MainCppOrigin:         return originsRootApp + mainCppFileName;
-        case AppPro:                return outputPathBase() + cleanProjectName + QLatin1String(".pro");
+        case AppPro:                return outputPathBase() + m_projectName + QLatin1String(".pro");
         case AppProOrigin:          return originsRootApp + QLatin1String("app.pro");
         case AppProPath:            return outputPathBase();
-        case DesktopFremantle:      return outputPathBase() + cleanProjectName + QLatin1String(".desktop");
-        case DesktopHarmattan:      return outputPathBase() + cleanProjectName + QLatin1String("_harmattan.desktop");
+        case DesktopFremantle:      return outputPathBase() + m_projectName + QLatin1String(".desktop");
+        case DesktopHarmattan:      return outputPathBase() + m_projectName + QLatin1String("_harmattan.desktop");
         case DesktopOrigin:         return originsRootShared + QLatin1String("app.desktop");
         case DeploymentPri:         return outputPathBase() + DeploymentPriFileName;
         case DeploymentPriOrigin:   return originsRootShared + DeploymentPriFileName;
-        case SymbianSvgIcon:        return outputPathBase() + cleanProjectName + QLatin1String(".svg");
+        case SymbianSvgIcon:        return outputPathBase() + m_projectName + QLatin1String(".svg");
         case SymbianSvgIconOrigin:  return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
                                         : originsRootShared + symbianIconFileName;
-        case PngIcon64:        return outputPathBase() + cleanProjectName +  QLatin1String("64.png");
+        case PngIcon64:        return outputPathBase() + m_projectName +  QLatin1String("64.png");
         case PngIconOrigin64:  return !m_pngIcon64.isEmpty() ? m_pngIcon64
                                         : originsRootShared + QLatin1String("icon64.png");
-        case PngIcon80:        return outputPathBase() + cleanProjectName +  QLatin1String("80.png");
+        case PngIcon80:        return outputPathBase() + m_projectName +  QLatin1String("80.png");
         case PngIconOrigin80:  return !m_pngIcon80.isEmpty() ? m_pngIcon80
                                         : originsRootShared + QLatin1String("icon80.png");
         default:                    return pathExtended(fileType);
