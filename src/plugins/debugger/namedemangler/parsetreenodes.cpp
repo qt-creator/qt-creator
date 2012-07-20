@@ -831,10 +831,10 @@ QByteArray ExpressionNode::toByteArray() const
         repr.append(CHILD_TO_BYTEARRAY(0)).append(".*").append(CHILD_TO_BYTEARRAY(1));
         break;
     case ParameterPackSizeType:
-        repr = CHILD_TO_BYTEARRAY(0); // TODO: What does this look like?
+        repr = "sizeof...(" + CHILD_TO_BYTEARRAY(0) + ')';
         break;
     case PackExpansionType:
-        repr = CHILD_TO_BYTEARRAY(0); // TODO: What does this look like?
+        repr = CHILD_TO_BYTEARRAY(0) + "...";
         break;
     case ThrowType:
         repr.append("throw ").append(CHILD_TO_BYTEARRAY(0));
@@ -2008,7 +2008,7 @@ bool TemplateArgNode::mangledRepresentationStartsWith(char c)
 {
     return TypeNode::mangledRepresentationStartsWith(c)
             || ExprPrimaryNode::mangledRepresentationStartsWith(c)
-            || c == 'X' || c == 'I';
+            || c == 'X' || c == 'J';
 }
 
 /*
@@ -2021,7 +2021,7 @@ void TemplateArgNode::parse()
 {
     m_isTemplateArgumentPack = false;
 
-    char next = PEEK();
+    const char next = PEEK();
     if (TypeNode::mangledRepresentationStartsWith(next)) {
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TypeNode);
     } else if (ExprPrimaryNode::mangledRepresentationStartsWith(next)) {
@@ -2032,6 +2032,7 @@ void TemplateArgNode::parse()
         if (ADVANCE() != 'E')
             throw ParseException(QString::fromLatin1("Invalid template-arg"));
     } else if (next == 'J') {
+        m_isTemplateArgumentPack = true;
         ADVANCE();
         while (TemplateArgNode::mangledRepresentationStartsWith(PEEK()))
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgNode);
@@ -2048,12 +2049,9 @@ QByteArray TemplateArgNode::toByteArray() const
 {
     if (m_isTemplateArgumentPack) {
         QByteArray repr;
-        for (int i = 0; i < childCount(); ++i) {
-            if (i > 0 && i < childCount() - 1)
-                repr += ", "; // TODO: Probably not the right syntax
-            repr += CHILD_TO_BYTEARRAY(i);
-        }
-        return repr;
+        for (int i = 0; i < childCount(); ++i)
+            repr.append(CHILD_TO_BYTEARRAY(i)).append(", ");
+        return repr += "typename...";
     }
     return CHILD_TO_BYTEARRAY(0);
 }
@@ -2402,7 +2400,7 @@ QByteArray TypeNode::toByteArray() const
 
     if (qualPtrRefList.isEmpty()) {
         switch (currentNode->m_type) {
-        case PackExpansionType: return CHILD_TO_BYTEARRAY(0); // TODO: What's the syntax?
+        case PackExpansionType: return CHILD_TO_BYTEARRAY(0) + "...";
         case VendorType: return pasteAllChildren();
         case OtherType: return pasteAllChildren();
 
@@ -2463,6 +2461,7 @@ QByteArray TypeNode::qualPtrRefListToByteArray(const QList<const ParseTreeNode *
                 if (!repr.isEmpty())
                     repr.prepend(' ');
                 repr.prepend("&&");
+                break;
             default:
                 DEMANGLER_ASSERT(false);
             }
