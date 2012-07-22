@@ -290,6 +290,122 @@ struct SearchData
     bool highlightCursor;
 };
 
+static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
+{
+    /* Trasformations (Vim regexp -> QRegExp):
+     *   \a -> [A-Za-z]
+     *   \A -> [^A-Za-z]
+     *   \h -> [A-Za-z_]
+     *   \H -> [^A-Za-z_]
+     *   \l -> [a-z]
+     *   \L -> [^a-z]
+     *   \o -> [0-7]
+     *   \O -> [^0-7]
+     *   \u -> [A-Z]
+     *   \U -> [^A-Z]
+     *   \x -> [0-9A-Fa-f]
+     *   \X -> [^0-9A-Fa-f]
+     *
+     *   \< -> \b
+     *   \> -> \b
+     *   [] -> \[\]
+     *   \= -> ?
+     *
+     *   (...)  <-> \(...\)
+     *   {...}  <-> \{...\}
+     *   |      <-> \|
+     *   ?      <-> \?
+     *   +      <-> \+
+     *   \{...} -> {...}
+     *
+     *   \c - set ignorecase for rest
+     *   \C - set noignorecase for rest
+     */
+    bool ignorecase = smartcase && !needle.contains(QRegExp("[A-Z]"));
+    QString pattern;
+    pattern.reserve(2 * needle.size());
+
+    bool escape = false;
+    bool brace = false;
+    bool curly = false;
+    foreach (const QChar &c, needle) {
+        if (brace) {
+            brace = false;
+            if (c == ']') {
+                pattern.append(_("\\[\\]"));
+                continue;
+            } else {
+                pattern.append('[');
+            }
+        }
+        if (QString("(){}+|?").indexOf(c) != -1) {
+            if (c == '{') {
+                curly = escape;
+            } else if (c == '}' && curly) {
+                curly = false;
+                escape = true;
+            }
+
+            if (escape)
+                escape = false;
+            else
+                pattern.append('\\');
+            pattern.append(c);
+        } else if (escape) {
+            // escape expression
+            escape = false;
+            if (c == '<' || c == '>')
+                pattern.append(_("\\b"));
+            else if (c == 'a')
+                pattern.append(_("[a-zA-Z]"));
+            else if (c == 'A')
+                pattern.append(_("[^a-zA-Z]"));
+            else if (c == 'h')
+                pattern.append(_("[A-Za-z_]"));
+            else if (c == 'H')
+                pattern.append(_("[^A-Za-z_]"));
+            else if (c == 'c' || c == 'C')
+                ignorecase = (c == 'c');
+            else if (c == 'l')
+                pattern.append(_("[a-z]"));
+            else if (c == 'L')
+                pattern.append(_("[^a-z]"));
+            else if (c == 'o')
+                pattern.append(_("[0-7]"));
+            else if (c == 'O')
+                pattern.append(_("[^0-7]"));
+            else if (c == 'u')
+                pattern.append(_("[A-Z]"));
+            else if (c == 'U')
+                pattern.append(_("[^A-Z]"));
+            else if (c == 'x')
+                pattern.append(_("[0-9A-Fa-f]"));
+            else if (c == 'X')
+                pattern.append(_("[^0-9A-Fa-f]"));
+            else if (c == '=')
+                pattern.append(_("?"));
+            else
+                pattern.append('\\' + c);
+        } else {
+            // unescaped expression
+            if (c == '\\')
+                escape = true;
+            else if (c == '[')
+                brace = true;
+            else if (c.isLetter() && ignorecase)
+                pattern.append('[' + c.toLower() + c.toUpper() + ']');
+            else
+                pattern.append(c);
+        }
+    }
+    if (escape)
+        pattern.append('\\');
+    else if (brace)
+        pattern.append('[');
+
+    return QRegExp(pattern);
+}
+
 
 Range::Range()
     : beginPos(-1), endPos(-1), rangemode(RangeCharMode)
@@ -3377,7 +3493,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 
         needle.replace('$', '\n');
         needle.replace("\\\n", "\\$");
-        pattern.setPattern(needle);
+        pattern = vimPatternToQtPattern(needle, hasConfig(ConfigSmartCase));
 
         m_lastSubstituteFlags = flags;
         m_lastSubstitutePattern = pattern;
@@ -3916,123 +4032,6 @@ bool FakeVimHandler::Private::handleExPluginCommand(const ExCommand &cmd)
     return handled;
 }
 
-static QRegExp vimPatternToQtPattern(QString needle)
-{
-    /* Trasformations (Vim regexp -> QRegExp):
-     *   \a -> [A-Za-z]
-     *   \A -> [^A-Za-z]
-     *   \h -> [A-Za-z_]
-     *   \H -> [^A-Za-z_]
-     *   \l -> [a-z]
-     *   \L -> [^a-z]
-     *   \o -> [0-7]
-     *   \O -> [^0-7]
-     *   \u -> [A-Z]
-     *   \U -> [^A-Z]
-     *   \x -> [0-9A-Fa-f]
-     *   \X -> [^0-9A-Fa-f]
-     *
-     *   \< -> \b
-     *   \> -> \b
-     *   [] -> \[\]
-     *   \= -> ?
-     *
-     *   (...)  <-> \(...\)
-     *   {...}  <-> \{...\}
-     *   |      <-> \|
-     *   ?      <-> \?
-     *   +      <-> \+
-     *   \{...} -> {...}
-     *
-     *   \c - set ignorecase for rest
-     *   \C - set noignorecase for rest
-     */
-    // TODO: Set initial value and handle smartcase option.
-    bool ignorecase = false;
-    QString pattern;
-    pattern.reserve(2 * needle.size());
-
-    bool escape = false;
-    bool brace = false;
-    bool curly = false;
-    foreach (const QChar &c, needle) {
-        if (brace) {
-            brace = false;
-            if (c == ']') {
-                pattern.append(_("\\[\\]"));
-                continue;
-            } else {
-                pattern.append('[');
-            }
-        }
-        if (QString("(){}+|?").indexOf(c) != -1) {
-            if (c == '{') {
-                curly = escape;
-            } else if (c == '}' && curly) {
-                curly = false;
-                escape = true;
-            }
-
-            if (escape)
-                escape = false;
-            else
-                pattern.append('\\');
-            pattern.append(c);
-        } else if (escape) {
-            // escape expression
-            escape = false;
-            if (c == '<' || c == '>')
-                pattern.append(_("\\b"));
-            else if (c == 'a')
-                pattern.append(_("[a-zA-Z]"));
-            else if (c == 'A')
-                pattern.append(_("[^a-zA-Z]"));
-            else if (c == 'h')
-                pattern.append(_("[A-Za-z_]"));
-            else if (c == 'H')
-                pattern.append(_("[^A-Za-z_]"));
-            else if (c == 'c' || c == 'C')
-                ignorecase = (c == 'c');
-            else if (c == 'l')
-                pattern.append(_("[a-z]"));
-            else if (c == 'L')
-                pattern.append(_("[^a-z]"));
-            else if (c == 'o')
-                pattern.append(_("[0-7]"));
-            else if (c == 'O')
-                pattern.append(_("[^0-7]"));
-            else if (c == 'u')
-                pattern.append(_("[A-Z]"));
-            else if (c == 'U')
-                pattern.append(_("[^A-Z]"));
-            else if (c == 'x')
-                pattern.append(_("[0-9A-Fa-f]"));
-            else if (c == 'X')
-                pattern.append(_("[^0-9A-Fa-f]"));
-            else if (c == '=')
-                pattern.append(_("?"));
-            else
-                pattern.append('\\' + c);
-        } else {
-            // unescaped expression
-            if (c == '\\')
-                escape = true;
-            else if (c == '[')
-                brace = true;
-            else if (c.isLetter() && ignorecase)
-                pattern.append('[' + c.toLower() + c.toUpper() + ']');
-            else
-                pattern.append(c);
-        }
-    }
-    if (escape)
-        pattern.append('\\');
-    else if (brace)
-        pattern.append('[');
-
-    return QRegExp(pattern);
-}
-
 void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar other)
 {
     int level = 1;
@@ -4074,7 +4073,7 @@ void FakeVimHandler::Private::search(const SearchData &sd)
     if (!sd.forward)
         flags |= QTextDocument::FindBackward;
 
-    QRegExp needleExp = vimPatternToQtPattern(sd.needle);
+    QRegExp needleExp = vimPatternToQtPattern(sd.needle, hasConfig(ConfigSmartCase));
 
     const int oldLine = cursorLine() - cursorLineOnScreen();
 
@@ -4135,7 +4134,7 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle)
         QTextCursor tc = cursor();
         tc.movePosition(StartOfDocument, MoveAnchor);
 
-        QRegExp needleExp = vimPatternToQtPattern(needle);
+        QRegExp needleExp = vimPatternToQtPattern(needle, hasConfig(ConfigSmartCase));
         if (!needleExp.isValid()) {
             QString error = needleExp.errorString();
             showRedMessage(

@@ -212,6 +212,13 @@ FakeVimSettings *theFakeVimSettings()
         _("usecoresearch"), _("ucs"));
 
     item = new SavedAction(instance);
+    item->setDefaultValue(false);
+    item->setValue(false);
+    item->setSettingsKey(group, _("SmartCase")); item->setCheckable(true);
+    item->setCheckable(true);
+    instance->insertItem(ConfigSmartCase, item, _("smartcase"), _("scs"));
+
+    item = new SavedAction(instance);
     item->setDefaultValue(_("indent,eol,start"));
     item->setSettingsKey(group, _("Backspace"));
     instance->insertItem(ConfigBackspace, item, _("backspace"), _("bs"));
