@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProfiles>
-<!-- Written by Qt Creator 2.5.81, 2012-07-06T16:56:24. -->
+<!-- Written by Qt Creator 2.5.81, 2012-07-17T17:54:08. -->
 <qtcreator>
  <data>
   <variable>Profile.0</variable>
@@ -11,7 +11,7 @@
     <value type="QByteArray" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
-    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{c8745d08-6963-45af-94fb-5f83c7f32ae4}</value>
+    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
     <value type="QString" key="QtPM4.mkSpecInformation"></value>
     <value type="int" key="QtSupport.QtInformation">4</value>
    </valuemap>
