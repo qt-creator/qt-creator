@@ -75,7 +75,7 @@ QString CPlusPlus::toString(const Symbol *s, QString id)
     return QString("%0: %1 (%2) at %3:%4:%5\n%6").arg(
                 id,
                 QString::fromLatin1(typeid(*s).name()),
-                QString::fromUtf8(s->identifier()->chars()),
+                s->identifier() ? QString::fromUtf8(s->identifier()->chars()) : "no id",
                 QString::fromLatin1(s->fileName()),
                 QString::number(s->line()),
                 QString::number(s->column()),
