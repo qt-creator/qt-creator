@@ -507,6 +507,8 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                         if (tok == TokVariable && c == '(')
                             tok = TokFuncName;
                       notfunc:
+                        if (ptr == xprPtr)
+                            languageWarning(fL1S("Missing name in expansion"));
                         if (quote)
                             tok |= TokQuoted;
                         if (needSep) {
