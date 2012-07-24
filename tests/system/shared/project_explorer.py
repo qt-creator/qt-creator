@@ -35,30 +35,14 @@ def prepareBuildSettings(targetCount, currentTarget, setReleaseBuild=True, disab
     for current in range(targetCount):
         if setForAll or current == currentTarget:
             switchToBuildOrRunSettingsFor(targetCount, current, ProjectSettings.BUILD)
-            qtCombo = waitForObject(":scrollArea.qtVersionComboBox_QComboBox")
-            chooseThis = None
-            wait = False
-            try:
-                if qtCombo.currentText != defaultQtVersion:
-                    selectFromCombo(qtCombo, defaultQtVersion)
-                if setReleaseBuild:
-                    chooseThis = "%s Release" % defaultQtVersion
-                else:
-                    chooseThis = "%s Debug" % defaultQtVersion
-                editBuildCfg = waitForObject("{container={type='QScrollArea' name='scrollArea'} "
-                                             "leftWidget={container={type='QScrollArea' name='scrollArea'} "
-                                             "text='Edit build configuration:' type='QLabel'}"
-                                             "unnamed='1' type='QComboBox' visible='1'}", 20000)
-                if editBuildCfg.currentText != chooseThis:
-                    wait = True
-                    clickItem(editBuildCfg, chooseThis.replace(".", "\\."), 5, 5, 0, Qt.LeftButton)
-                else:
-                    wait = False
-            except:
-                if current == currentTarget:
-                    success = False
-            if wait and chooseThis != None:
-                waitFor("editBuildCfg.currentText==chooseThis")
+            # TODO: Improve selection of Release/Debug version
+            if setReleaseBuild:
+                chooseThis = "Release"
+            else:
+                chooseThis = "Debug"
+            editBuildCfg = waitForObject("{leftWidget={text='Edit build configuration:' type='QLabel' "
+                                         "unnamed='1' visible='1'} unnamed='1' type='QComboBox' visible='1'}", 20000)
+            selectFromCombo(editBuildCfg, chooseThis)
             ensureChecked("{name='shadowBuildCheckBox' type='QCheckBox' visible='1'}", not disableShadowBuild)
     # get back to the current target
     if currentTarget < 0 or currentTarget >= targetCount:
@@ -117,3 +101,78 @@ def setRunInTerminal(targetCount, currentTarget, runInTerminal=True):
     ensureChecked("{window=':Qt Creator_Core::Internal::MainWindow' text='Run in terminal'\
                     type='QCheckBox' unnamed='1' visible='1'}", runInTerminal)
     switchViewTo(ViewConstants.EDIT)
+
+# helper function to get some Qt information for the current (already configured) project
+# param alreadyOnProjectsBuildSettings if set to True you have to make sure that you're
+#       on the Projects view on the Build settings page (otherwise this function will end
+#       up in a ScriptError)
+# param afterSwitchTo if you want to leave the Projects view/Build settings when returning
+#       from this function you can set this parameter to one of the ViewConstants
+# this function returns an array of 4 elements (all could be None):
+#       * the first element holds the Qt version
+#       * the second element holds the mkspec
+#       * the third element holds the Qt bin path
+#       * the fourth element holds the Qt lib path
+#       of the current active project
+def getQtInformationForBuildSettings(alreadyOnProjectsBuildSettings=False, afterSwitchTo=None):
+    if not alreadyOnProjectsBuildSettings:
+        switchViewTo(ViewConstants.PROJECTS)
+        switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.BUILD)
+    clickButton(waitForObject(":Qt Creator_SystemSettings.Details_Utils::DetailsButton"))
+    model = waitForObject(":scrollArea_QTableView").model()
+    qtDir = None
+    for row in range(model.rowCount()):
+        index = model.index(row, 0)
+        text = str(model.data(index).toString())
+        if text == "QTDIR":
+            qtDir = str(model.data(model.index(row, 1)).toString())
+            break
+    if qtDir == None:
+        test.fatal("UI seems to have changed - couldn't get QTDIR for this configuration.")
+        return None, None, None, None
+
+    qmakeCallLabel = waitForObject("{text?='<b>qmake:</b> qmake*' type='QLabel' unnamed='1' visible='1' "
+                                   "window=':Qt Creator_Core::Internal::MainWindow'}")
+    mkspec = __getMkspecFromQMakeCall__(str(qmakeCallLabel.text))
+    qtVersion = getQtInformationByQMakeCall(qtDir, QtInformation.QT_VERSION)
+    qtLibPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_LIBPATH)
+    qtBinPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_BINPATH)
+    if afterSwitchTo:
+        if ViewConstants.WELCOME <= afterSwitchTo <= ViewConstans.LAST_AVAILABLE:
+            switchViewTo(afterSwitchTo)
+        else:
+            test.warning("Don't know where you trying to switch to (%s)" % afterSwitchTo)
+    return qtVersion, mkspec, qtBinPath, qtLibPath
+
+def __getMkspecFromQMakeCall__(qmakeCall):
+    qCall = qmakeCall.split("</b>")[1].strip()
+    tmp = qCall.split()
+    for i in range(len(tmp)):
+        if tmp[i] == '-spec' and i + 1 < len(tmp):
+            return tmp[i + 1]
+    test.fatal("Couldn't get mkspec from qmake call '%s'" % qmakeCall)
+    return None
+
+# this function queries information from qmake
+# param qtDir set this to a path that holds a valid Qt
+# param which set this to one of the QtInformation "constants"
+# the function will return the wanted information or None if something went wrong
+def getQtInformationByQMakeCall(qtDir, which):
+    qmake = os.path.join(qtDir, "bin", "qmake")
+    if platform.system() in ('Microsoft', 'Windows'):
+        qmake += ".exe"
+    if not os.path.exists(qmake):
+        test.fatal("Given Qt directory does not exist or does not contain bin/qmake.",
+                   "Constructed path: '%s'" % qmake)
+        return None
+    query = ""
+    if which == QtInformation.QT_VERSION:
+        query = "QT_VERSION"
+    elif which == QtInformation.QT_BINPATH:
+        query = "QT_INSTALL_BINS"
+    elif which == QtInformation.QT_LIBPATH:
+        query = "QT_INSTALL_LIBS"
+    else:
+        test.fatal("You're trying to fetch an unknown information (%s)" % which)
+        return None
+    return getOutputFromCmdline("%s -query %s" % (qmake, query)).strip()

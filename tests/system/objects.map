@@ -20,6 +20,7 @@
 :Debugger Toolbar.Continue_QToolButton	{container=':DebugModeWidget.Debugger Toolbar_QDockWidget' text='Continue' type='QToolButton' unnamed='1' visible='1'}
 :Debugger Toolbar.Exit Debugger_QToolButton	{container=':DebugModeWidget.Debugger Toolbar_QDockWidget' text='Stop Debugger' type='QToolButton' unnamed='1' visible='1'}
 :Debugger Toolbar.StatusText_Utils::StatusLabel	{container=':DebugModeWidget.Debugger Toolbar_QDockWidget' type='Utils::StatusLabel' unnamed='1'}
+:Edit Environment_ProjectExplorer::EnvironmentItemsDialog	{type='ProjectExplorer::EnvironmentItemsDialog' unnamed='1' visible='1' windowTitle='Edit Environment'}
 :Failed to start application_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Failed to start application'}
 :Generator:_QComboBox	{buddy=':CMake Wizard.Generator:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :New.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':New_Core::Internal::NewDialog'}
@@ -45,6 +46,7 @@
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton	{occurrence='2' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_SystemSettings.Details_Utils::DetailsButton	{occurrence='4' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Utils::NavigationTreeView	{type='Utils::NavigationTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Gui Application.Form file:_QLabel	{name='formLabel' text='Form file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
 :Qt Gui Application.Header file:_QLabel	{name='headerLabel' text='Header file:' type='QLabel' visible='1' window=':Qt Gui Application_Qt4ProjectManager::Internal::GuiAppWizardDialog'}
@@ -67,10 +69,7 @@
 :scrollArea.Library not available_QLabel	{container=':Qt Creator.scrollArea_QScrollArea' name='qmlDebuggingWarningText' text?='Library not available*' type='QLabel' visible='1'}
 :scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' occurrence='1' text='Debug' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' occurrence='1' text='Release' type='QCheckBox' unnamed='1' visible='1'}
-:scrollArea.Qt Version:_QComboBox	{aboveWidget=':scrollArea.Use Shadow Building_QCheckBox' container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Qt Version:_QLabel' type='QComboBox' unnamed='1' visible='1'}
-:scrollArea.Qt Version:_QLabel	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Qt Version:' type='QLabel' unnamed='1' visible='1'}
 :scrollArea.Use Shadow Building_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Shadow build' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' name='qmlDebuggingLibraryCheckBox' type='QCheckBox' visible='1'}
-:scrollArea.qtVersionComboBox_QComboBox	{container=':Qt Creator.scrollArea_QScrollArea' name='qtVersionComboBox' type='QComboBox' visible='1'}
-:scrollArea_QTableView	{container=':Qt Creator.scrollArea_QScrollArea' type='QTableView' unnamed='1' visible='1'}
+:scrollArea_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :sourceFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Source file:_QLabel' name='sourceFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
