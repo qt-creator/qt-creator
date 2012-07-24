@@ -190,14 +190,10 @@ void ProcessListFilterModel::populate
 class AttachCoreDialogPrivate
 {
 public:
-    QLabel *execLabel;
     PathChooser *execFileName;
-    QLabel *coreLabel;
     PathChooser *coreFileName;
-    QLabel *profileLabel;
     ProfileChooser *profileComboBox;
     PathChooser *overrideStartScriptFileName;
-    QLabel *overrideStartScriptLabel;
     QDialogButtonBox *buttonBox;
 };
 
@@ -210,24 +206,16 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->coreFileName = new PathChooser(this);
     d->coreFileName->setExpectedKind(PathChooser::File);
     d->coreFileName->setPromptDialogTitle(tr("Select Core File"));
-    d->coreLabel = new QLabel(tr("&Core file:"), this);
-    d->coreLabel->setBuddy(d->coreFileName);
 
     d->execFileName = new PathChooser(this);
     d->execFileName->setExpectedKind(PathChooser::File);
     d->execFileName->setPromptDialogTitle(tr("Select Executable"));
-    d->execLabel = new QLabel(tr("&Executable:"), this);
-    d->execLabel->setBuddy(d->execFileName);
 
     d->overrideStartScriptFileName = new PathChooser(this);
     d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
     d->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
-    d->overrideStartScriptLabel = new QLabel(tr("Override &start script:"), this);
-    d->overrideStartScriptLabel->setBuddy(d->overrideStartScriptFileName);
 
     d->profileComboBox = new ProfileChooser(this, false);
-    d->profileLabel = new QLabel(tr("&Target:"), this);
-    d->profileLabel->setBuddy(d->profileComboBox);
 
     QFrame *line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
@@ -241,10 +229,10 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     formLayout->setContentsMargins(0, 0, 0, 0);
     formLayout->setHorizontalSpacing(6);
     formLayout->setVerticalSpacing(6);
-    formLayout->addRow(d->execLabel, d->execFileName);
-    formLayout->addRow(d->coreLabel, d->coreFileName);
-    formLayout->addRow(d->profileLabel, d->profileComboBox);
-    formLayout->addRow(d->overrideStartScriptLabel, d->overrideStartScriptFileName);
+    formLayout->addRow(tr("&Executable:"), d->execFileName);
+    formLayout->addRow(tr("&Core file:"), d->coreFileName);
+    formLayout->addRow(tr("&Target:"), d->profileComboBox);
+    formLayout->addRow(tr("Override &start script:"), d->overrideStartScriptFileName);
 
     QVBoxLayout *vboxLayout = new QVBoxLayout(this);
     vboxLayout->addLayout(formLayout);
@@ -331,10 +319,8 @@ void AttachCoreDialog::changed()
 class AttachExternalDialogPrivate
 {
 public:
-    QLabel *pidLabel;
     QLineEdit *pidLineEdit;
     FilterLineEdit *filterWidget;
-    QLabel *profileLabel;
     ProfileChooser *profileComboBox;
     QTreeView *procView;
     QDialogButtonBox *buttonBox;
@@ -356,15 +342,11 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     d->model = new ProcessListFilterModel(this);
 
     d->pidLineEdit = new QLineEdit(this);
-    d->pidLabel = new QLabel(tr("Attach to &process ID:"), this);
-    d->pidLabel->setBuddy(d->pidLineEdit);
 
     d->filterWidget = new FilterLineEdit(this);
     d->filterWidget->setFocus(Qt::TabFocusReason);
 
     d->profileComboBox = new ProfileChooser(this, true);
-    d->profileLabel = new QLabel(tr("&Target:"), this);
-    d->profileLabel->setBuddy(d->profileComboBox);
 
     d->procView = new QTreeView(this);
     d->procView->setAlternatingRowColors(true);
@@ -387,8 +369,8 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
 
     QFormLayout *formLayout = new QFormLayout();
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    formLayout->addRow(d->pidLabel, d->pidLineEdit);
-    formLayout->addRow(d->profileLabel, d->profileComboBox);
+    formLayout->addRow(tr("Attach to &process ID:"), d->pidLineEdit);
+    formLayout->addRow(tr("&Target:"), d->profileComboBox);
     formLayout->addRow(d->filterWidget);
 
     QVBoxLayout *vboxLayout = new QVBoxLayout(this);
@@ -609,19 +591,12 @@ void StartExternalParameters::fromSettings(const QSettings *settings)
 class StartExternalDialogPrivate
 {
 public:
-    QLabel *execLabel;
     PathChooser *execFile;
-    QLabel *argsLabel;
     QLineEdit *argsEdit;
-    QLabel *runInTerminalLabel;
     QCheckBox *runInTerminalCheckBox;
-    QLabel *workingDirectoryLabel;
     PathChooser *workingDirectory;
-    QLabel *profileLabel;
     ProfileChooser *profileChooser;
-    QLabel *breakAtMainLabel;
     QCheckBox *breakAtMainCheckBox;
-    QLabel *historyLabel;
     QComboBox *historyComboBox;
     QFrame *historyLine;
     QSpacerItem *spacerItem;
@@ -641,38 +616,24 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
     d->execFile->setPromptDialogTitle(tr("Select Executable"));
     d->execFile->lineEdit()->setCompleter(
         new HistoryCompleter(settings, d->execFile->lineEdit()));
-    d->execLabel = new QLabel(tr("&Executable:"), this);
-    d->execLabel->setBuddy(d->execFile);
 
     d->argsEdit = new QLineEdit(this);
     d->argsEdit->setCompleter(new HistoryCompleter(settings, d->argsEdit));
-    d->argsLabel = new QLabel(tr("&Arguments:"), this);
-    d->argsLabel->setBuddy(d->argsEdit);
 
     d->workingDirectory = new PathChooser(this);
     d->workingDirectory->setExpectedKind(PathChooser::ExistingDirectory);
     d->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
     d->workingDirectory->lineEdit()->setCompleter(
         new HistoryCompleter(settings, d->workingDirectory->lineEdit()));
-    d->workingDirectoryLabel = new QLabel(tr("&Working directory:"), this);
-    d->workingDirectoryLabel->setBuddy(d->workingDirectory);
 
     d->runInTerminalCheckBox = new QCheckBox(this);
-    d->runInTerminalLabel = new QLabel(tr("Run in &terminal:"), this);
-    d->runInTerminalLabel->setBuddy(d->runInTerminalCheckBox);
 
     d->profileChooser = new ProfileChooser(this, true);
-    d->profileLabel = new QLabel(tr("&Target:"), this);
-    d->profileLabel->setBuddy(d->profileChooser);
 
     d->breakAtMainCheckBox = new QCheckBox(this);
     d->breakAtMainCheckBox->setText(QString());
-    d->breakAtMainLabel = new QLabel(tr("Break at \"&main\":"), this);
-    d->breakAtMainLabel->setBuddy(d->breakAtMainCheckBox);
 
     d->historyComboBox = new QComboBox(this);
-    d->historyLabel = new QLabel(tr("&Recent:"), this);
-    d->historyLabel->setBuddy(d->historyComboBox);
 
     QFrame *historyLine = new QFrame(this);
     historyLine->setFrameShape(QFrame::HLine);
@@ -689,13 +650,13 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
     QFormLayout *formLayout = new QFormLayout();
     formLayout->setHorizontalSpacing(6);
     formLayout->setVerticalSpacing(6);
-    formLayout->addRow(d->execLabel, d->execFile);
-    formLayout->addRow(d->argsLabel, d->argsEdit);
-    formLayout->addRow(d->runInTerminalLabel, d->runInTerminalCheckBox);
-    formLayout->addRow(d->workingDirectoryLabel, d->workingDirectory);
-    formLayout->addRow(d->profileLabel, d->profileChooser);
-    formLayout->addRow(d->breakAtMainLabel, d->breakAtMainCheckBox);
-    formLayout->addRow(d->historyLabel, d->historyComboBox);
+    formLayout->addRow(tr("&Executable:"), d->execFile);
+    formLayout->addRow(tr("&Arguments:"), d->argsEdit);
+    formLayout->addRow(tr("Run in &terminal:"), d->runInTerminalCheckBox);
+    formLayout->addRow(tr("&Working directory:"), d->workingDirectory);
+    formLayout->addRow(tr("&Target:"), d->profileChooser);
+    formLayout->addRow(tr("Break at \"&main\":"), d->breakAtMainCheckBox);
+    formLayout->addRow(tr("&Recent:"), d->historyComboBox);
     formLayout->addWidget(historyLine);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
@@ -958,23 +919,15 @@ void StartRemoteParameters::fromSettings(const QSettings *settings)
 class StartRemoteDialogPrivate
 {
 public:
-    QLabel *profileLabel;
     ProfileChooser *profileChooser;
-    QLabel *executableLabel;
     PathChooser *executablePathChooser;
-    QLabel *channelLabel;
     QLineEdit *channelLineEdit;
-    QLabel *architectureLabel;
     QComboBox *architectureComboBox;
-    QLabel *debuginfoLabel;
     PathChooser *debuginfoPathChooser;
-    QLabel *overrideStartScriptLabel;
     PathChooser *overrideStartScriptPathChooser;
-    QLabel *useServerStartScriptLabel;
     QCheckBox *useServerStartScriptCheckBox;
     QLabel *serverStartScriptLabel;
     PathChooser *serverStartScriptPathChooser;
-    QLabel *historyLabel;
     QComboBox *historyComboBox;
     QDialogButtonBox *buttonBox;
 };
@@ -987,40 +940,26 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     setWindowTitle(tr("Start Debugger"));
 
     d->profileChooser = new ProfileChooser(this);
-    d->profileLabel = new QLabel(tr("Target:"), this);
-    d->profileLabel->setBuddy(d->profileChooser);
 
     d->executablePathChooser = new PathChooser(this);
     d->executablePathChooser->setExpectedKind(PathChooser::File);
     d->executablePathChooser->setPromptDialogTitle(tr("Select Executable"));
-    d->executableLabel = new QLabel(tr("Local &executable:"));
-    d->executableLabel->setBuddy(d->executablePathChooser);
 
     d->channelLineEdit = new QLineEdit(this);
     d->channelLineEdit->setText(QString::fromUtf8("localhost:5115"));
-    d->channelLabel = new QLabel(tr("&Host and port:"), this);
-    d->channelLabel->setBuddy(d->channelLineEdit);
 
     d->architectureComboBox = new QComboBox(this);
     d->architectureComboBox->setEditable(true);
-    d->architectureLabel = new QLabel(tr("&Architecture:"), this);
-    d->architectureLabel->setBuddy(d->architectureComboBox);
 
     d->debuginfoPathChooser = new PathChooser(this);
     d->debuginfoPathChooser->setPromptDialogTitle(tr("Select Location of Debugging Information"));
-    d->debuginfoLabel = new QLabel(tr("Location of debugging &information:"), this);
-    d->debuginfoLabel->setBuddy(d->debuginfoPathChooser);
 
     d->overrideStartScriptPathChooser = new PathChooser(this);
     d->overrideStartScriptPathChooser->setExpectedKind(PathChooser::File);
     d->overrideStartScriptPathChooser->setPromptDialogTitle(tr("Select GDB Start Script"));
-    d->overrideStartScriptLabel = new QLabel(tr("Override host GDB s&tart script:"), this);
-    d->overrideStartScriptLabel->setBuddy(d->overrideStartScriptPathChooser);
 
     d->useServerStartScriptCheckBox = new QCheckBox(this);
     d->useServerStartScriptCheckBox->setVisible(enableStartScript);
-    d->useServerStartScriptLabel = new QLabel(tr("&Use server start script:"), this);
-    d->useServerStartScriptLabel->setVisible(enableStartScript);
 
     d->serverStartScriptPathChooser = new PathChooser(this);
     d->serverStartScriptPathChooser->setExpectedKind(PathChooser::File);
@@ -1035,8 +974,6 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     line->setFrameShadow(QFrame::Sunken);
 
     d->historyComboBox = new QComboBox(this);
-    d->historyLabel = new QLabel(tr("&Recent:"), this);
-    d->historyLabel->setBuddy(d->historyComboBox);
 
     QFrame *line2 = new QFrame(this);
     line2->setFrameShape(QFrame::HLine);
@@ -1047,17 +984,17 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     d->buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     QFormLayout *formLayout = new QFormLayout();
-    formLayout->addRow(d->profileLabel, d->profileChooser);
-    formLayout->addRow(d->executableLabel, d->executablePathChooser);
+    formLayout->addRow(tr("Target:"), d->profileChooser);
+    formLayout->addRow(tr("Local &executable:"), d->executablePathChooser);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    formLayout->addRow(d->channelLabel, d->channelLineEdit);
-    formLayout->addRow(d->architectureLabel, d->architectureComboBox);
-    formLayout->addRow(d->debuginfoLabel, d->debuginfoPathChooser);
-    formLayout->addRow(d->overrideStartScriptLabel, d->overrideStartScriptPathChooser);
-    formLayout->addRow(d->useServerStartScriptLabel, d->useServerStartScriptCheckBox);
-    formLayout->addRow(d->serverStartScriptLabel, d->serverStartScriptPathChooser);
+    formLayout->addRow(tr("&Host and port:"), d->channelLineEdit);
+    formLayout->addRow(tr("&Architecture:"), d->architectureComboBox);
+    formLayout->addRow(tr("Location of debugging &information:"), d->debuginfoPathChooser);
+    formLayout->addRow(tr("Override host GDB s&tart script:"), d->overrideStartScriptPathChooser);
+    formLayout->addRow(d->serverStartScriptLabel, d->useServerStartScriptCheckBox);
+    formLayout->addRow(tr("&Server start script:"), d->serverStartScriptPathChooser);
     formLayout->addRow(line);
-    formLayout->addRow(d->historyLabel, d->historyComboBox);
+    formLayout->addRow(tr("&Recent:"), d->historyComboBox);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
@@ -1200,11 +1137,8 @@ void StartRemoteDialog::updateState()
 class AttachToQmlPortDialogPrivate
 {
 public:
-    QLabel *hostLabel;
     QLineEdit *hostLineEdit;
-    QLabel *portLabel;
     QSpinBox *portSpinBox;
-    QLabel *profileLabel;
     ProfileChooser *profileChooser;
 };
 
@@ -1216,28 +1150,22 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
     setWindowTitle(tr("Start Debugger"));
 
     d->profileChooser = new ProfileChooser(this);
-    d->profileLabel = new QLabel(tr("Target:"), this);
-    d->profileLabel->setBuddy(d->profileChooser);
 
     d->hostLineEdit = new QLineEdit(this);
     d->hostLineEdit->setText(QString::fromUtf8("localhost"));
-    d->hostLabel = new QLabel(tr("&Host:"), this);
-    d->hostLabel->setBuddy(d->hostLineEdit);
 
     d->portSpinBox = new QSpinBox(this);
     d->portSpinBox->setMaximum(65535);
     d->portSpinBox->setValue(3768);
-    d->portLabel = new QLabel(tr("&Port:"), this);
-    d->portLabel->setBuddy(d->portSpinBox);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     QFormLayout *formLayout = new QFormLayout();
-    formLayout->addRow(d->profileLabel, d->profileChooser);
-    formLayout->addRow(d->hostLabel, d->hostLineEdit);
-    formLayout->addRow(d->portLabel, d->portSpinBox);
+    formLayout->addRow(tr("Target:"), d->profileChooser);
+    formLayout->addRow(tr("&Host:"), d->hostLineEdit);
+    formLayout->addRow(tr("&Port:"), d->portSpinBox);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
@@ -1448,15 +1376,10 @@ bool AddressDialog::isValid() const
 class StartRemoteEngineDialogPrivate
 {
 public:
-    QLabel *hostLabel;
     QLineEdit *host;
-    QLabel *userLabel;
     QLineEdit *username;
-    QLabel *passwordLabel;
     QLineEdit *password;
-    QLabel *engineLabel;
     QLineEdit *enginePath;
-    QLabel *inferiorLabel;
     QLineEdit *inferiorPath;
     QDialogButtonBox *buttonBox;
 };
@@ -1471,38 +1394,28 @@ StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent)
     d->host = new QLineEdit(this);
     d->host->setText(QString());
     d->host->setCompleter(new HistoryCompleter(settings, d->host));
-    d->hostLabel = new QLabel(tr("&Host:"), this);
-    d->hostLabel->setBuddy(d->host);
 
     d->username = new QLineEdit(this);
     d->username->setCompleter(new HistoryCompleter(settings, d->username));
-    d->userLabel = new QLabel(tr("&Username:"), this);
-    d->userLabel->setBuddy(d->username);
 
     d->password = new QLineEdit(this);
     d->password->setEchoMode(QLineEdit::Password);
-    d->passwordLabel = new QLabel(tr("&Password:"), this);
-    d->passwordLabel->setBuddy(d->password);
 
     d->enginePath = new QLineEdit(this);
     d->enginePath->setCompleter(new HistoryCompleter(settings, d->enginePath));
-    d->engineLabel = new QLabel(tr("&Engine path:"), this);
-    d->engineLabel->setBuddy(d->enginePath);
 
     d->inferiorPath = new QLineEdit(this);
     d->inferiorPath->setCompleter(new HistoryCompleter(settings, d->inferiorPath));
-    d->inferiorLabel = new QLabel(tr("&Inferior path:"), this);
-    d->inferiorLabel->setBuddy(d->inferiorPath);
 
     d->buttonBox = new QDialogButtonBox(this);
     d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
     QFormLayout *formLayout = new QFormLayout();
-    formLayout->addRow(d->hostLabel, d->host);
-    formLayout->addRow(d->userLabel, d->username);
-    formLayout->addRow(d->passwordLabel, d->password);
-    formLayout->addRow(d->engineLabel, d->enginePath);
-    formLayout->addRow(d->inferiorLabel, d->inferiorPath);
+    formLayout->addRow(tr("&Host:"), d->host);
+    formLayout->addRow(tr("&Usename:"), d->username);
+    formLayout->addRow(tr("&Password:"), d->password);
+    formLayout->addRow(tr("&Engine path:"), d->enginePath);
+    formLayout->addRow(tr("&Inferior path:"), d->inferiorPath);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
