@@ -550,9 +550,16 @@ void fillParameters(DebuggerStartParameters *sp, Id id)
     QTC_ASSERT(profile, return);
     sp->sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
     sp->debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
+
     ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
     if (tc)
         sp->toolChainAbi = tc->targetAbi();
+
+    IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    if (device) {
+        sp->connParams = device->sshParameters();
+        sp->remoteChannel = QString("%1:%2").arg(sp->connParams.host).arg(sp->connParams.port);
+    }
 }
 
 static TextEditor::ITextEditor *currentTextEditor()
