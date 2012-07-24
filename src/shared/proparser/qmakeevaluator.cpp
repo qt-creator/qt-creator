@@ -1253,7 +1253,7 @@ QStringList QMakeEvaluator::qmakeMkspecPaths() const
     if (!m_sourceRoot.isEmpty())
         ret << m_sourceRoot + concat;
 
-    ret << m_option->propertyValue(ProString("QT_HOST_DATA")) + concat;
+    ret << m_option->propertyValue(ProString("QT_HOST_DATA/get")) + concat;
 
     ret.removeDuplicates();
     return ret;
@@ -1302,7 +1302,7 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
         }
     }
 
-    feature_bases << (m_option->propertyValue(ProString("QT_HOST_DATA")).toQString(m_mtmp)
+    feature_bases << (m_option->propertyValue(ProString("QT_HOST_DATA/get")).toQString(m_mtmp)
                       + mkspecs_concat);
 
     foreach (const QString &fb, feature_bases) {
