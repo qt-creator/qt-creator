@@ -2013,6 +2013,13 @@ bool QMakeEvaluator::evaluateFileInto(const QString &fileName, QMakeHandler::Eva
     if (!visitor.evaluateFile(fileName, type, flags))
         return false;
     *values = visitor.m_valuemapStack.top();
+#ifdef PROEVALUATOR_FULL
+    ProString qiif("QMAKE_INTERNAL_INCLUDED_FILES");
+    ProStringList &iif = m_valuemapStack.first()[qiif];
+    foreach (const ProString &ifn, values->value(qiif))
+        if (!iif.contains(ifn))
+            iif << ifn;
+#endif
     return true;
 }
 
