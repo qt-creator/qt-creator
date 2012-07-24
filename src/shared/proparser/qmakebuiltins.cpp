@@ -311,7 +311,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         break;
     }
     case E_SPLIT:
-        if (args.count() != 2) {
+        if (args.count() < 1 || args.count() > 2) {
             evalError(fL1S("split(var, sep) requires one or two arguments"));
         } else {
             const QString &sep = (args.count() == 2) ? args.at(1).toQString(m_tmp1) : statics.field_sep;
