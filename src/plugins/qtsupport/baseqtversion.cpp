@@ -306,11 +306,25 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateProfile(const ProjectExplore
                                         Utils::FileName(), -1,
                                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 
-    if (tc && !version->qtAbis().contains(tc->targetAbi()))
+
+    const QList<ProjectExplorer::Abi> qtAbis = version->qtAbis();
+    if (tc && !qtAbis.contains(tc->targetAbi())) {
+        QString qtAbiString;
+        foreach (const ProjectExplorer::Abi &qtAbi, qtAbis) {
+            if (!qtAbiString.isEmpty())
+                qtAbiString.append(QLatin1Char(' '));
+            qtAbiString.append(qtAbi.toString());
+        }
+        const QString message = QCoreApplication::translate("BaseQtVersion",
+                                                            "The tool chain '%1' (%2) cannot produce code for the Qt version '%3' (%4).").
+                                                            arg(tc->displayName(),
+                                                                tc->targetAbi().toString(),
+                                                                version->displayName(),
+                                                                qtAbiString);
         result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                        QCoreApplication::translate("BaseQtVersion", "Tool chain can not produce code for the Qt version."),
-                                        Utils::FileName(), -1,
+                                        message, Utils::FileName(), -1,
                                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+    } // Abi mismatch
     return result;
 }
 

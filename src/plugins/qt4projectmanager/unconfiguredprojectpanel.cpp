@@ -150,7 +150,7 @@ void TargetSetupPageWrapper::updateNoteText()
     QString text;
     if (!p)
         text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
-                  "<p>Qt Creator can not parse the project, because no profile "
+                  "<p>Qt Creator cannot parse the project, because no profile "
                   "has been setup. You can setup profiles "
                   "in the <b><a href=\"edit\">settings.</a></b></p>")
                 .arg(m_project->displayName());

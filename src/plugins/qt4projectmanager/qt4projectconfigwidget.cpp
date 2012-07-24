@@ -214,7 +214,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     if (!version) {
         m_ui->problemLabel->setVisible(true);
         m_ui->warningLabel->setVisible(true);
-        m_ui->problemLabel->setText(tr("This target can not build this project since it does not define a "
+        m_ui->problemLabel->setText(tr("This target cannot build this project since it does not define a "
                                        "Qt version."));
         return;
     }
