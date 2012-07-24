@@ -1,0 +1,35 @@
+Qt Creator version 2.5.1 contains bug fixes.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.5.0...origin/2.5
+
+Managing Projects
+   * Fixed crash in CMake makestep if used in the deploystep list
+     (QTCREATORBUG-7427)
+   * Fixed crash on unloading Qt4 projects
+
+C++ Support
+   * Fixed crash on invalid class name (QTCREATORBUG-7462)
+   * Fixed class scope completion for templates
+
+QML/JS Support
+   * Fixed crash with e.g. color picker on Mac (QTCREATORBUG-7605)
+
+Help
+   * Handle mailto links (QTCREATORBUG-4058)
+
+Version Control
+   * Fixed SVN project status command when no document is open
+   * Fixed committing to Mercurial repositories (QTCREATORBUG-7511)
+
+Platform Specific
+
+Linux
+   * Fixed default UI language on systems where that contains region information
+
+Mac
+   * Fixed font rendering problems (QTCREATORBUG-7127, fixed in Qt)
