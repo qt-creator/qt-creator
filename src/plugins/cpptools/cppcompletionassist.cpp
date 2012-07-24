@@ -1448,6 +1448,13 @@ bool CppCompletionAssistProcessor::completeScope(const QList<CPlusPlus::LookupIt
                 break;
             }
 
+        } else if (Template *templ = ty->asTemplateType()) {
+            if (!result.binding())
+                continue;
+            if (ClassOrNamespace *b = result.binding()->lookupType(templ->name())) {
+                completeClass(b);
+                break;
+            }
         }
     }
 

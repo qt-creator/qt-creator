@@ -53,7 +53,8 @@ HEADERS += \
     $$PWD/pp-engine.h \
     $$PWD/pp-scanner.h \
     $$PWD/findcdbbreakpoint.h \
-    $$PWD/PPToken.h
+    $$PWD/PPToken.h \
+    $$PWD/Dumpers.h
 
 SOURCES += \
     $$PWD/SimpleLexer.cpp \
@@ -80,6 +81,7 @@ SOURCES += \
     $$PWD/pp-engine.cpp \
     $$PWD/pp-scanner.cpp \
     $$PWD/findcdbbreakpoint.cpp \
-    $$PWD/PPToken.cpp
+    $$PWD/PPToken.cpp \
+    $$PWD/Dumpers.cpp
 
 RESOURCES += $$PWD/cplusplus.qrc

@@ -1763,11 +1763,11 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>Exit Full Screen</source>
-        <translation>Ukončit na celou obrazovku</translation>
+        <translation type="obsolete">Ukončit na celou obrazovku</translation>
     </message>
     <message>
         <source>Enter Full Screen</source>
-        <translation>Vstoupit na celou obrazovku</translation>
+        <translation type="obsolete">Vstoupit na celou obrazovku</translation>
     </message>
     <message>
         <source>Open File &amp;With...</source>
@@ -1895,7 +1895,7 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>Ctrl+Meta+F</source>
-        <translation>Ctrl+Meta+F</translation>
+        <translation type="obsolete">Ctrl+Meta+F</translation>
     </message>
     <message>
         <source>Ctrl+Shift+F11</source>
@@ -2422,7 +2422,7 @@ Chcete je nechat přepsat?</translation>
     </message>
     <message>
         <source>Follow Symbol Under Cursor</source>
-        <translation type="obsolete">Následovat symbol pod ukazovátkem</translation>
+        <translation>Následovat symbol pod ukazovátkem</translation>
     </message>
     <message>
         <source>Switch Between Method Declaration/Definition</source>
@@ -2941,7 +2941,7 @@ Qt Creator se k němu nemůže připojit.</translation>
     </message>
     <message>
         <source>Breakpoint on QML Signal Emit</source>
-        <translation>Přerušit při vyslání signálu QML</translation>
+        <translation type="obsolete">Přerušit při vyslání signálu QML</translation>
     </message>
     <message>
         <source>Breakpoint will only be hit in the specified thread(s).</source>
@@ -3098,7 +3098,7 @@ Qt Creator se k němu nemůže připojit.</translation>
     </message>
     <message>
         <source>Breakpoint on QML Signal Handler</source>
-        <translation type="obsolete">Přerušit při manipulátoru signálu QML</translation>
+        <translation>Přerušit při manipulátoru signálu QML</translation>
     </message>
     <message>
         <source>Breakpoint at JavaScript throw</source>
@@ -3217,43 +3217,43 @@ Qt Creator se k němu nemůže připojit.</translation>
     </message>
     <message>
         <source>Delete Breakpoint</source>
-        <translation type="obsolete">Smazat bod přerušení</translation>
+        <translation>Smazat bod přerušení</translation>
     </message>
     <message>
         <source>Delete All Breakpoints</source>
-        <translation type="obsolete">Smazat všechny body přerušení</translation>
+        <translation>Smazat všechny body přerušení</translation>
     </message>
     <message>
         <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation type="obsolete">Smazat body přerušení v &quot;%1&quot;</translation>
+        <translation>Smazat body přerušení v &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete Breakpoints of File</source>
-        <translation type="obsolete">Smazat body přerušení v souboru</translation>
+        <translation>Smazat body přerušení v souboru</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
+        <translation>Přizpůsobit šířku sloupců obsahu</translation>
     </message>
     <message>
         <source>Edit Breakpoint...</source>
-        <translation type="obsolete">Upravit bod přerušení...</translation>
+        <translation>Upravit bod přerušení...</translation>
     </message>
     <message>
         <source>Associate Breakpoint With All Threads</source>
-        <translation type="obsolete">Dát bod přerušení pro všechna vlákna</translation>
+        <translation>Dát bod přerušení pro všechna vlákna</translation>
     </message>
     <message>
         <source>Associate Breakpoint With Thread %1</source>
-        <translation type="obsolete">Dát bod přerušení pro vlákno %1</translation>
+        <translation>Dát bod přerušení pro vlákno %1</translation>
     </message>
     <message>
         <source>Add Breakpoint...</source>
-        <translation type="obsolete">Přidat bod přerušení...</translation>
+        <translation>Přidat bod přerušení...</translation>
     </message>
     <message>
         <source>Add Breakpoint</source>
-        <translation type="obsolete">Přidat bod přerušení</translation>
+        <translation>Přidat bod přerušení</translation>
     </message>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
@@ -3265,23 +3265,23 @@ Qt Creator se k němu nemůže připojit.</translation>
     </message>
     <message>
         <source>Synchronize Breakpoints</source>
-        <translation type="obsolete">Seřídit body přerušení</translation>
+        <translation>Seřídit body přerušení</translation>
     </message>
     <message>
         <source>Disable Selected Breakpoints</source>
-        <translation type="obsolete">Vypnout vybrané body přerušení</translation>
+        <translation>Vypnout vybrané body přerušení</translation>
     </message>
     <message>
         <source>Enable Selected Breakpoints</source>
-        <translation type="obsolete">Zapnout vybrané body přerušení</translation>
+        <translation>Zapnout vybrané body přerušení</translation>
     </message>
     <message>
         <source>Disable Breakpoint</source>
-        <translation type="obsolete">Vypnout bod přerušení</translation>
+        <translation>Vypnout bod přerušení</translation>
     </message>
     <message>
         <source>Enable Breakpoint</source>
-        <translation type="obsolete">Zapnout bod přerušení</translation>
+        <translation>Zapnout bod přerušení</translation>
     </message>
     <message>
         <source>Use Short Path</source>
@@ -4172,7 +4172,7 @@ Proces Gdb po úspěšném spuštění za nějakou dobu spadl.</translation>
     </message>
     <message>
         <source>Loading %1...</source>
-        <translation type="obsolete">Nahrává se %1...</translation>
+        <translation>Nahrává se %1...</translation>
     </message>
     <message>
         <source>Stopped at breakpoint.</source>
@@ -4329,7 +4329,7 @@ Můžete si vybrat mezi delším čekáním nebo přerušením ladění.</transl
     <message>
         <source>Missing debug information for %1
 Try: %2</source>
-        <translation>Chybí informace o ladění pro %1
+        <translation type="obsolete">Chybí informace o ladění pro %1
 Zkuste: %2</translation>
     </message>
     <message>
@@ -4512,7 +4512,7 @@ Můžete si vybrat mezi delším čekáním nebo přerušením ladění.</numeru
     </message>
     <message>
         <source>&lt;unknown&gt;</source>
-        <translation type="obsolete">&lt;Neznámý&gt;</translation>
+        <translation>&lt;Neznámá&gt;</translation>
     </message>
     <message>
         <source>Jumped. Stopped</source>
@@ -4862,11 +4862,11 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Attempt quick start</source>
-        <translation>Pokusit se o rychlé spuštění</translation>
+        <translation type="obsolete">Pokusit se o rychlé spuštění</translation>
     </message>
     <message>
         <source>Checking this option will postpone reading debug information as long as possible. This can result in faster startup times at the price of not being able to set breakpoints by file and number.</source>
-        <translation>Zaškrtnutí této volby odloží čtení informací o ladění na tak dlouho, jak jen to bude možné. To může mít za následek rychlejší časy spuštění za tu cenu, že body přerušení nejde nastavit podle souboru a čísla.</translation>
+        <translation type="obsolete">Zaškrtnutí této volby odloží čtení informací o ladění na tak dlouho, jak jen to bude možné. To může mít za následek rychlejší časy spuštění za tu cenu, že body přerušení nejde nastavit podle souboru a čísla.</translation>
     </message>
     <message>
         <source>Additional Startup Commands</source>
@@ -4986,51 +4986,51 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Update Module List</source>
-        <translation type="obsolete">Obnovit seznam s moduly</translation>
+        <translation>Obnovit seznam modulů</translation>
     </message>
     <message>
         <source>Show Source Files for Module &quot;%1&quot;</source>
-        <translation type="obsolete">Ukázat zdrojové soubory k modulu &quot;%1&quot;</translation>
+        <translation>Ukázat zdrojové soubory k modulu &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Load Symbols for All Modules</source>
-        <translation type="obsolete">Nahrát symboly ke všem modulům</translation>
+        <translation>Nahrát symboly ke všem modulům</translation>
     </message>
     <message>
         <source>Examine All Modules</source>
-        <translation type="obsolete">Vyšetřit všechny moduly</translation>
+        <translation>Vyšetřit všechny moduly</translation>
     </message>
     <message>
         <source>Load Symbols for Module</source>
-        <translation type="obsolete">Nahrát symboly k modulu</translation>
+        <translation>Nahrát symboly k modulu</translation>
     </message>
     <message>
         <source>Edit File</source>
-        <translation type="obsolete">Upravit soubor</translation>
+        <translation>Upravit soubor</translation>
     </message>
     <message>
         <source>Show Symbols</source>
-        <translation type="obsolete">Ukázat symboly</translation>
+        <translation>Ukázat symboly</translation>
     </message>
     <message>
         <source>Show Dependencies</source>
-        <translation type="obsolete">Ukázat závislosti</translation>
+        <translation>Ukázat závislosti</translation>
     </message>
     <message>
         <source>Load Symbols for Module &quot;%1&quot;</source>
-        <translation type="obsolete">Nahrát symboly k modulu &quot;%1&quot;</translation>
+        <translation>Nahrát symboly k modulu &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Edit File &quot;%1&quot;</source>
-        <translation type="obsolete">Upravit soubor &quot;%1&quot;</translation>
+        <translation>Upravit soubor &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Show Symbols in File &quot;%1&quot;</source>
-        <translation type="obsolete">Ukázat symboly v souboru &quot;%1&quot;</translation>
+        <translation>Ukázat symboly v souboru &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Show Dependencies of &quot;%1&quot;</source>
-        <translation type="obsolete">Ukázat závislosti &quot;%1&quot;</translation>
+        <translation>Ukázat závislosti &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -5103,35 +5103,35 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Reload Register Listing</source>
-        <translation type="obsolete">Registry nahrát znovu</translation>
+        <translation>Registry nahrát znovu</translation>
     </message>
     <message>
         <source>Open Disassembler...</source>
-        <translation type="obsolete">Otevřít překladač ze strojového jazyka do asembleru...</translation>
+        <translation>Otevřít disasembler...</translation>
     </message>
     <message>
         <source>Open Memory Editor at 0x%1</source>
-        <translation type="obsolete">Otevřít editor paměti při 0x%1</translation>
+        <translation>Otevřít editor paměti při 0x%1</translation>
     </message>
     <message>
         <source>Open Memory View at Value of Register %1 0x%2</source>
-        <translation type="obsolete">Otevřít editor paměti při hodnotě registru %1 0x%2</translation>
+        <translation>Otevřít náhled paměti při hodnotě registru %1 0x%2</translation>
     </message>
     <message>
         <source>Open Disassembler at 0x%1</source>
-        <translation type="obsolete">Otevřít překladač ze strojového jazyka do asembleru při %1</translation>
+        <translation>Otevřít disasembler při %1</translation>
     </message>
     <message>
         <source>Open Memory Editor</source>
-        <translation type="obsolete">Otevřít editor paměti</translation>
+        <translation>Otevřít editor paměti</translation>
     </message>
     <message>
         <source>Open Memory View at Value of Register</source>
-        <translation type="obsolete">Otevřít editor paměti při hodnotě registru</translation>
+        <translation>Otevřít náhled paměti při hodnotě registru</translation>
     </message>
     <message>
         <source>Open Disassembler</source>
-        <translation type="obsolete">Otevřít překladač ze strojového jazyka do asembleru</translation>
+        <translation>Otevřít disasembler</translation>
     </message>
     <message>
         <source>Open Memory Editor at %1</source>
@@ -5139,19 +5139,19 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
-        <translation type="obsolete">Šestnáctkový</translation>
+        <translation>Šestnáctkový</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation type="obsolete">Desítkový</translation>
+        <translation>Desítkový</translation>
     </message>
     <message>
         <source>Octal</source>
-        <translation type="obsolete">Osmičkový</translation>
+        <translation>Osmičkový</translation>
     </message>
     <message>
         <source>Binary</source>
-        <translation type="obsolete">Dvojkový</translation>
+        <translation>Dvojkový</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -5236,15 +5236,15 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Reload Data</source>
-        <translation type="obsolete">Data nahrát znovu</translation>
+        <translation>Data nahrát znovu</translation>
     </message>
     <message>
         <source>Open File</source>
-        <translation type="obsolete">Otevřít soubor</translation>
+        <translation>Otevřít soubor</translation>
     </message>
     <message>
         <source>Open File &quot;%1&quot;&apos;</source>
-        <translation type="obsolete">Otevřít soubor &quot;%1&quot;&apos;</translation>
+        <translation>Otevřít soubor &quot;%1&quot;&apos;</translation>
     </message>
     <message>
         <source>Reload data</source>
@@ -5321,16 +5321,32 @@ informacemi o ladění.</translation>
         <translation>Zásobník</translation>
     </message>
     <message>
+        <source>Function:</source>
+        <translation>Funkce:</translation>
+    </message>
+    <message>
+        <source>Disassemble Function</source>
+        <translation>Rozložit funkci (disassemble)</translation>
+    </message>
+    <message>
         <source>Copy Contents to Clipboard</source>
-        <translation type="obsolete">Obsah kopírovat do schránky</translation>
+        <translation>Obsah kopírovat do schránky</translation>
     </message>
     <message>
         <source>Open Memory Editor</source>
-        <translation type="obsolete">Otevřít editor paměti</translation>
+        <translation>Otevřít editor paměti</translation>
     </message>
     <message>
         <source>Open Memory Editor at 0x%1</source>
-        <translation type="obsolete">Otevřít editor paměti při 0x%1</translation>
+        <translation>Otevřít editor paměti při 0x%1</translation>
+    </message>
+    <message>
+        <source>Open Disassembler at Address...</source>
+        <translation>Otevřít disasembler na adrese...</translation>
+    </message>
+    <message>
+        <source>Disassemble Function...</source>
+        <translation>Rozložit funkci (disassemble)...</translation>
     </message>
     <message>
         <source>Open Disassembler...</source>
@@ -5338,19 +5354,19 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Open Disassembler at 0x%1</source>
-        <translation type="obsolete">Otevřít překladač ze strojového jazyka do asembleru při %1</translation>
+        <translation>Otevřít disasembler při %1</translation>
     </message>
     <message>
         <source>Try to Load Unknown Symbols</source>
-        <translation type="obsolete">Nahrát neznámé symboly</translation>
+        <translation>Nahrát neznámé symboly</translation>
     </message>
     <message>
         <source>Memory at Frame #%1 (%2) 0x%3</source>
-        <translation type="obsolete">Paměť při snímku #%1 (%2) 0x%3</translation>
+        <translation>Paměť při snímku #%1 (%2) 0x%3</translation>
     </message>
     <message>
         <source>Frame #%1 (%2)</source>
-        <translation type="obsolete">Snímek #%1 (%2)</translation>
+        <translation>Snímek #%1 (%2)</translation>
     </message>
     <message>
         <source>Open Memory Editor at %1</source>
@@ -5358,7 +5374,7 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Open Disassembler</source>
-        <translation type="obsolete">Otevřít překladač ze strojového jazyka do asembleru</translation>
+        <translation>Otevřít disasembler</translation>
     </message>
     <message>
         <source>Open Disassembler at %1</source>
@@ -5614,7 +5630,7 @@ informacemi o ladění.</translation>
     <name>Debugger::Internal::ThreadsWindow</name>
     <message>
         <source>Thread</source>
-        <translation type="obsolete">Vlákno</translation>
+        <translation>Vlákno</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -5634,7 +5650,7 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Threads</source>
-        <translation>Vlákna</translation>
+        <translation type="obsolete">Vlákna</translation>
     </message>
 </context>
 <context>
@@ -5682,15 +5698,15 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Static Object Size</source>
-        <translation>Velikost statického objektu</translation>
+        <translation type="obsolete">Velikost statického objektu</translation>
     </message>
     <message>
         <source>%1 bytes</source>
-        <translation>%1 bytů</translation>
+        <translation type="obsolete">%1 bytů</translation>
     </message>
     <message>
         <source>Size</source>
-        <translation type="obsolete">Velikost</translation>
+        <translation>Velikost</translation>
     </message>
     <message>
         <source>Stored Address</source>
@@ -5854,16 +5870,16 @@ informacemi o ladění.</translation>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="obsolete">&lt;i&gt;%1&lt;/i&gt; %2 při #%3</translation>
+        <translation>&lt;i&gt;%1&lt;/i&gt; %2 při #%3</translation>
     </message>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation type="obsolete">&lt;i&gt;%1&lt;/i&gt; %2</translation>
+        <translation>&lt;i&gt;%1&lt;/i&gt; %2</translation>
     </message>
     <message>
         <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
-        <translation type="obsolete">Registr &lt;i&gt;%1&lt;/i&gt;</translation>
+        <translation>Registr &lt;i&gt;%1&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Memory Referenced by Pointer &apos;%1&apos; (0x%2)</source>
@@ -5875,23 +5891,23 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">Paměť odkazovaná ukazatelem &quot;%1&quot; (0x%2)</translation>
+        <translation>Paměť odkazovaná ukazatelem &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation type="obsolete">Paměť při proměnné &quot;%1&quot; (0x%2)</translation>
+        <translation>Paměť při proměnné &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Cannot Display Stack Layout</source>
-        <translation type="obsolete">Nelze zobrazit rozvržení zásobníku</translation>
+        <translation>Nelze zobrazit rozvržení zásobníku</translation>
     </message>
     <message>
         <source>Could not determine a suitable address range.</source>
-        <translation type="obsolete">Nepodařilo se určit žádný vhodný rozsah adresy.</translation>
+        <translation>Nepodařilo se určit žádný vhodný rozsah adresy.</translation>
     </message>
     <message>
         <source>Memory Layout of Local Variables at 0x%1</source>
-        <translation type="obsolete">Rozložení paměti místní proměnné při 0x%1</translation>
+        <translation>Rozložení paměti místní proměnné při 0x%1</translation>
     </message>
     <message>
         <source>Locals and Expressions</source>
@@ -5899,19 +5915,19 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Evaluate Expression</source>
-        <translation type="obsolete">Vyhodnotit výraz</translation>
+        <translation>Vyhodnotit výraz</translation>
     </message>
     <message>
         <source>Evaluate Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Vyhodnotit výraz &quot;%1&quot;</translation>
+        <translation>Vyhodnotit výraz &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Remove Evaluated Expression</source>
-        <translation type="obsolete">Odstranit vyhodnocený výraz</translation>
+        <translation>Odstranit vyhodnocený výraz</translation>
     </message>
     <message>
         <source>Remove Evaluated Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Odstranit vyhodnocený výraz &quot;%1&quot;</translation>
+        <translation>Odstranit vyhodnocený výraz &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Change Display Format...</source>
@@ -5919,23 +5935,23 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Treat All Characters as Printable</source>
-        <translation type="obsolete">Považovat všechny znaky za tisknutelné</translation>
+        <translation>Považovat všechny znaky za tisknutelné</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Escape Sequences</source>
-        <translation type="obsolete">Ukázat netisknutelné znaky jako únikové posloupnosti</translation>
+        <translation>Ukázat netisknutelné znaky jako únikové posloupnosti</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Octal</source>
-        <translation type="obsolete">Ukázat netisknutelné znaky jako osmičkové</translation>
+        <translation>Ukázat netisknutelné znaky jako osmičkové</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Hexadecimal</source>
-        <translation type="obsolete">Ukázat netisknutelné znaky jako šestnáctkové</translation>
+        <translation>Ukázat netisknutelné znaky jako šestnáctkové</translation>
     </message>
     <message>
         <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation type="obsolete">Změnit formát zobrazení pro objekt s názvem &quot;%1&quot;:</translation>
+        <translation>Změnit formát zobrazení pro objekt s názvem &quot;%1&quot;:</translation>
     </message>
     <message>
         <source>Use Display Format Based on Type</source>
@@ -5943,127 +5959,147 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Change Display for Type &quot;%1&quot;:</source>
-        <translation type="obsolete">Změnit zobrazení pro typ &apos;%1&apos;:</translation>
+        <translation>Změnit zobrazení pro typ &apos;%1&apos;:</translation>
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="obsolete">Automaticky</translation>
+        <translation>Automaticky</translation>
     </message>
     <message>
         <source>Change Display for Type or Item...</source>
-        <translation type="obsolete">Změnit zobrazení pro typ nebo prvek...</translation>
+        <translation>Změnit zobrazení pro typ nebo prvek...</translation>
     </message>
     <message>
         <source>Add Data Breakpoint...</source>
-        <translation type="obsolete">Přidat bod přerušení dat...</translation>
+        <translation>Přidat bod přerušení dat...</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Přidat bod přerušení dat na adrese objektu (0x%1)</translation>
+        <translation>Přidat bod přerušení dat na adrese objektu (0x%1)</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Přidat bod přerušení dat na odkazované adrese (0x%1)</translation>
+        <translation>Přidat bod přerušení dat na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Add Data Breakpoint</source>
-        <translation type="obsolete">Přidat bod přerušení dat</translation>
+        <translation>Přidat bod přerušení dat</translation>
     </message>
     <message>
         <source>Setting a data breakpoint on an address will cause the program to stop when the data at the address is modified.</source>
-        <translation type="obsolete">Nastavení bodu přerušení dat na adrese způsobí, že program se zastaví, když jsou tam nacházející se data změněna.</translation>
+        <translation>Nastavení bodu přerušení dat na určitou adresu způsobí, že program se zastaví, když jsou tam nacházející se data změněna.</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
-        <translation type="obsolete">Přidat bod přerušení dat při výrazu &quot;%1&quot;</translation>
+        <translation>Přidat bod přerušení dat při výrazu &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Setting a data breakpoint on an expression will cause the program to stop when the data at the address given by the expression is modified.</source>
-        <translation type="obsolete">Nastavení bodu přerušení dat při výrazu způsobí, že program se zastaví, když jsou data nacházející se na adrese vyplývající z vyhodnocení výrazu změněna.</translation>
+        <translation>Nastavení bodu přerušení dat na určitý výraz způsobí, že program se zastaví, když jsou změněna data nacházející se na adrese dané oním výrazem.</translation>
     </message>
     <message>
         <source>Insert New Evaluated Expression</source>
-        <translation type="obsolete">Vložit nový vyhodnocený výraz</translation>
+        <translation>Vložit nový vyhodnocený výraz</translation>
     </message>
     <message>
         <source>Select Widget to Watch</source>
-        <translation type="obsolete">Vybrat prvek za účelem sledování</translation>
+        <translation>Vybrat prvek za účelem sledování</translation>
     </message>
     <message>
         <source>Remove All Evaluated Expressions</source>
-        <translation type="obsolete">Odstranit všechny vyhodnocené výrazy</translation>
+        <translation>Odstranit všechny vyhodnocené výrazy</translation>
     </message>
     <message>
         <source>Remove All Watch Items</source>
         <translation type="obsolete">Odstranit všechny sledované výrazy</translation>
     </message>
     <message>
+        <source>Change Local Display Format...</source>
+        <translation>Změnit místní formát zobrazení...</translation>
+    </message>
+    <message>
+        <source>Use Format for Type (Currently %1)</source>
+        <translation>Použít formát zobrazení na typ (nyní %1)</translation>
+    </message>
+    <message>
+        <source>Use Display Format Based on Type </source>
+        <translation>Použít formát zobrazení založený na typu</translation>
+    </message>
+    <message>
+        <source>Add Data Breakpoint at Expression</source>
+        <translation>Přidat bod přerušení dat při výrazu</translation>
+    </message>
+    <message>
+        <source>Change Global Display Formats...</source>
+        <translation>Změnit celkové formáty zobrazení...</translation>
+    </message>
+    <message>
         <source>Open Memory Editor...</source>
-        <translation type="obsolete">Otevřít editor paměti...</translation>
+        <translation>Otevřít editor paměti...</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Otevřít editor paměti na adrese objektu (0x%1)</translation>
+        <translation>Otevřít editor paměti na adrese objektu (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory View at Object&apos;s Address (0x%1)</source>
-        <translation type="obsolete">Otevřít zobrazení paměti na adrese objektu (0x%1)</translation>
+        <translation>Otevřít zobrazení paměti na adrese objektu (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address</source>
-        <translation type="obsolete">Otevřít editor paměti na adrese objektu</translation>
+        <translation>Otevřít editor paměti na adrese objektu</translation>
     </message>
     <message>
         <source>Open Memory View at Object&apos;s Address</source>
-        <translation type="obsolete">Otevřít zobrazení paměti na adrese objektu</translation>
+        <translation>Otevřít zobrazení paměti na adrese objektu</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Otevřít editor paměti na odkazované adrese (0x%1)</translation>
+        <translation>Otevřít editor paměti na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address (0x%1)</source>
-        <translation type="obsolete">Otevřít zobrazení paměti na odkazované adrese (0x%1)</translation>
+        <translation>Otevřít zobrazení paměti na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address</source>
-        <translation type="obsolete">Otevřít editor paměti na odkazované adrese</translation>
+        <translation>Otevřít editor paměti na odkazované adrese</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address</source>
-        <translation type="obsolete">Otevřít zobrazení paměti na odkazované adrese</translation>
+        <translation>Otevřít zobrazení paměti na odkazované adrese</translation>
     </message>
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
-        <translation type="obsolete">Otevřít editor paměti s ukázáním rozložení zásobníku</translation>
+        <translation>Otevřít editor paměti s ukázáním rozložení zásobníku</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
-        <translation type="obsolete">Kopírovat obsah do schránky</translation>
+        <translation>Obsah kopírovat do schránky</translation>
     </message>
     <message>
         <source>Copy Value to Clipboard</source>
-        <translation type="obsolete">Kopírovat hodnotu do schránky</translation>
+        <translation>Kopírovat hodnotu do schránky</translation>
     </message>
     <message>
         <source>Show View Contents in Editor</source>
-        <translation type="obsolete">Ukázat obsah pohledu v editoru</translation>
+        <translation>Ukázat obsah pohledu v editoru</translation>
     </message>
     <message>
         <source>Close Editor Tooltips</source>
-        <translation type="obsolete">Zavřít vysvětlivky editoru</translation>
+        <translation>Zavřít vysvětlivky editoru</translation>
     </message>
     <message>
         <source>Enter watch expression</source>
-        <translation type="obsolete">Zadat sledovaný výraz</translation>
+        <translation>Zadat sledovaný výraz</translation>
     </message>
     <message>
         <source>Expression:</source>
-        <translation type="obsolete">Výraz:</translation>
+        <translation>Výraz:</translation>
     </message>
     <message>
         <source>Locals &amp; Watchers</source>
-        <translation type="obsolete">Místní proměnné a sledované výrazy</translation>
+        <translation>Místní proměnné a sledované výrazy</translation>
     </message>
     <message>
         <source>Open Memory Editor at %1</source>
@@ -6071,7 +6107,7 @@ informacemi o ladění.</translation>
     </message>
     <message>
         <source>Refresh Code Model Snapshot</source>
-        <translation type="obsolete">Obnovit stav modelu kódu</translation>
+        <translation>Obnovit stav modelu kódu</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -6969,6 +7005,14 @@ Důvod: %3</translation>
         <source>Already at newest change</source>
         <translation>Dosažena poslední změna</translation>
     </message>
+    <message>
+        <source>Unknown option: %1</source>
+        <translation>Neznámá volba: %1</translation>
+    </message>
+    <message>
+        <source>Argument must be positive: %1=%2</source>
+        <translation>Argument musí být kladný: %1=%2</translation>
+    </message>
 </context>
 <context>
     <name>FakeVim::Internal::FakeVimOptionPage</name>
@@ -7425,19 +7469,19 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     </message>
     <message>
         <source>Find Next (Selected)</source>
-        <translation>Najít další (vybrané)</translation>
+        <translation type="obsolete">Najít další (vybrané)</translation>
     </message>
     <message>
         <source>Ctrl+F3</source>
-        <translation>Ctrl+F3</translation>
+        <translation type="obsolete">Ctrl+F3</translation>
     </message>
     <message>
         <source>Find Previous (Selected)</source>
-        <translation>Najít předchozí (vybrané)</translation>
+        <translation type="obsolete">Najít předchozí (vybrané)</translation>
     </message>
     <message>
         <source>Ctrl+Shift+F3</source>
-        <translation>Ctrl+Shift+F3</translation>
+        <translation type="obsolete">Ctrl+Shift+F3</translation>
     </message>
     <message>
         <source>Replace</source>
@@ -8253,7 +8297,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>You did not checkout a branch.</source>
-        <translation type="obsolete">Není přítomna žádná větev.</translation>
+        <translation>Není přítomna žádná větev.</translation>
     </message>
     <message numerus="yes">
         <source>Committed %n file(s).
@@ -8315,7 +8359,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>Cannot obtain log of &quot;%1&quot;: %2</source>
-        <translation>Nelze obdržet záznam pro &quot;%1&quot;: %2</translation>
+        <translation type="obsolete">Nelze obdržet záznam pro &quot;%1&quot;: %2</translation>
     </message>
     <message numerus="yes">
         <source>Cannot add %n file(s) to &quot;%1&quot;: %2</source>
@@ -8612,12 +8656,12 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>Undo all pending changes to the repository
 %1?</source>
-        <translation type="obsolete">Chcete vrátit všechny zbývající změny ve skladišti
+        <translation>Chcete vrátit všechny zbývající změny ve skladišti
 %1?</translation>
     </message>
     <message>
         <source>Undo Changes</source>
-        <translation type="obsolete">Změny vrátit zpět</translation>
+        <translation>Změny vrátit zpět</translation>
     </message>
     <message>
         <source>Repository Clean</source>
@@ -8809,7 +8853,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>Launch repository browser</source>
-        <translation>Spustit prohlížeč skladiště</translation>
+        <translation type="obsolete">Spustit prohlížeč skladiště</translation>
     </message>
     <message>
         <source>Branches...</source>
@@ -8984,7 +9028,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>By&amp;pass hooks</source>
-        <translation>O&amp;bejít podmíněné akce (hooks)</translation>
+        <translation type="obsolete">O&amp;bejít podmíněné akce (hooks)</translation>
     </message>
 </context>
 <context>
@@ -9118,11 +9162,11 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
     <message>
         <source>Repository browser</source>
-        <translation>Prohlížeč skladiště</translation>
+        <translation type="obsolete">Prohlížeč skladiště</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation>Příkaz:</translation>
+        <translation type="obsolete">Příkaz:</translation>
     </message>
 </context>
 <context>
@@ -11852,7 +11896,7 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     </message>
     <message>
         <source>Close All Projects</source>
-        <translation type="obsolete">Zavřít všechny projekty</translation>
+        <translation>Zavřít všechny projekty</translation>
     </message>
     <message>
         <source>Session</source>
@@ -11993,7 +12037,7 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     </message>
     <message>
         <source>Close All Projects and Editors</source>
-        <translation>Zavřít všechny projekty a editory</translation>
+        <translation type="obsolete">Zavřít všechny projekty a editory</translation>
     </message>
     <message>
         <source>Run Without Deployment</source>
@@ -12005,7 +12049,7 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     </message>
     <message>
         <source>Rebuild</source>
-        <translation>Sestavit znovu</translation>
+        <translation type="obsolete">Sestavit znovu</translation>
     </message>
     <message>
         <source>Clean</source>
@@ -12054,7 +12098,7 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     </message>
     <message>
         <source>Set &quot;%1&quot; as Active Project</source>
-        <translation>Nastavit &quot;%1&quot; jako činný projekt</translation>
+        <translation type="obsolete">Nastavit &quot;%1&quot; jako činný projekt</translation>
     </message>
     <message>
         <source>Collapse All</source>
@@ -12161,11 +12205,11 @@ Chcete je přehlížet?</translation>
     </message>
     <message>
         <source>Project Editing Failed</source>
-        <translation>Úpravy projektu se nepodařily</translation>
+        <translation type="obsolete">Úpravy projektu se nepodařily</translation>
     </message>
     <message>
         <source>The file %1 was renamed to %2, but the project file %3 could not be automatically changed.</source>
-        <translation>Soubor %1 byl přejmenován na %2, ale soubor s projektem %3 se automaticky změnit nepodařilo.</translation>
+        <translation type="obsolete">Soubor %1 byl přejmenován na %2, ale soubor s projektem %3 se automaticky změnit nepodařilo.</translation>
     </message>
     <message>
         <source>Currently building the active project</source>
@@ -13222,7 +13266,7 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
     </message>
     <message>
         <source>Build &quot;%1&quot;</source>
-        <translation>Sestavit &quot;%1&quot;</translation>
+        <translation type="obsolete">Sestavit &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Rebuild</source>
@@ -13234,31 +13278,31 @@ Vybere pro vývoj programu vhodnou verzi Qt, je-li dostupná.</translation>
     </message>
     <message>
         <source>Build Subproject</source>
-        <translation>Sestavit dílčí projekt</translation>
+        <translation type="obsolete">Sestavit dílčí projekt</translation>
     </message>
     <message>
         <source>Build Subproject &quot;%1&quot;</source>
-        <translation>Sestavit dílčí projekt &quot;%1&quot;</translation>
+        <translation type="obsolete">Sestavit dílčí projekt &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Rebuild Subproject</source>
-        <translation>Sestavit dílčí projekt znovu</translation>
+        <translation type="obsolete">Sestavit dílčí projekt znovu</translation>
     </message>
     <message>
         <source>Rebuild Subproject &quot;%1&quot;</source>
-        <translation>Sestavit dílčí projekt &quot;%1&quot; znovu</translation>
+        <translation type="obsolete">Sestavit dílčí projekt &quot;%1&quot; znovu</translation>
     </message>
     <message>
         <source>Clean Subproject</source>
-        <translation>Pročistit dílčí projekt</translation>
+        <translation type="obsolete">Pročistit dílčí projekt</translation>
     </message>
     <message>
         <source>Clean Subproject &quot;%1&quot;</source>
-        <translation>Pročistit dílčí projekt &quot;%1&quot;</translation>
+        <translation type="obsolete">Pročistit dílčí projekt &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Jump to File Under Cursor</source>
-        <translation type="obsolete">Jít na soubor pod ukazovátkem</translation>
+        <translation>Jít na soubor pod ukazovátkem</translation>
     </message>
     <message>
         <source>Add Library...</source>
@@ -15354,11 +15398,11 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
     </message>
     <message>
         <source>Creates a scratch buffer using a temporary file.</source>
-        <translation>Vytvoří narychlo udělanou vyrovnávací paměť z dočasného souboru.</translation>
+        <translation type="obsolete">Vytvoří narychlo udělanou vyrovnávací paměť z dočasného souboru.</translation>
     </message>
     <message>
         <source>Scratch Buffer</source>
-        <translation>Narychlo udělaná vyrovnávací paměť</translation>
+        <translation type="obsolete">Narychlo udělaná vyrovnávací paměť</translation>
     </message>
     <message>
         <source>Triggers a completion in this scope</source>
@@ -15645,11 +15689,11 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
     </message>
     <message>
         <source>Follow Symbol Under Cursor</source>
-        <translation>Následovat symbol pod ukazovátkem</translation>
+        <translation type="obsolete">Následovat symbol pod ukazovátkem</translation>
     </message>
     <message>
         <source>Jump To File Under Cursor</source>
-        <translation>Jít na soubor pod ukazovátkem</translation>
+        <translation type="obsolete">Jít na soubor pod ukazovátkem</translation>
     </message>
     <message>
         <source>Go to Line Start</source>
@@ -16134,11 +16178,11 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
     </message>
     <message>
         <source>General</source>
-        <translation>Obecné</translation>
+        <translation type="obsolete">Obecné</translation>
     </message>
     <message>
         <source>Common</source>
-        <translation type="obsolete">Obecné</translation>
+        <translation>Obecné</translation>
     </message>
     <message>
         <source>Project from Version Control</source>
@@ -16582,7 +16626,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Project:</source>
-        <translation>Projekt:</translation>
+        <translation type="obsolete">Projekt:</translation>
     </message>
 </context>
 <context>
@@ -17129,7 +17173,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
-        <translation type="obsolete">Nastavení filtru</translation>
+        <translation>Nastavení filtru</translation>
     </message>
     <message>
         <source>Prefix:</source>
@@ -17149,7 +17193,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
     <message>
         <source>Add Filter Configuration</source>
-        <translation>Přidat nastavení filtru</translation>
+        <translation type="obsolete">Přidat nastavení filtru</translation>
     </message>
 </context>
 <context>
@@ -19722,11 +19766,11 @@ Chcete jej ukončit?</translation>
     </message>
     <message>
         <source>General Settings</source>
-        <translation type="obsolete">Obecná nastavení</translation>
+        <translation>Obecná nastavení</translation>
     </message>
     <message>
         <source>General</source>
-        <translation>Obecné</translation>
+        <translation type="obsolete">Obecné</translation>
     </message>
     <message>
         <source>Import Bookmarks</source>
@@ -20944,20 +20988,20 @@ Prověřte, prosím, zda je telefon připojen a zda běží program Trk.</transl
         <extracomment>S60 emulator run configuration default display name, %1 is base pro-File name
 ----------
 S60 emulator run configuration default display name, %1 is base pro-File name</extracomment>
-        <translation type="obsolete">%1 v emulátoru Symbianu</translation>
+        <translation>%1 v emulátoru Symbianu</translation>
     </message>
     <message>
         <source>Run on Symbian Emulator</source>
         <extracomment>S60 emulator run configuration default display name (no pro-file name)</extracomment>
-        <translation type="obsolete">Spustit v emulátoru Symbianu</translation>
+        <translation>Spustit v emulátoru Symbianu</translation>
     </message>
     <message>
         <source>The .pro file is currently being parsed.</source>
-        <translation type="obsolete">Soubor .pro je právě vyhodnocován.</translation>
+        <translation>Soubor .pro je právě vyhodnocován.</translation>
     </message>
     <message>
         <source>The .pro file could not be parsed.</source>
-        <translation type="obsolete">Soubor .pro se nepodařilo vyhodnotit.</translation>
+        <translation>Soubor .pro se nepodařilo vyhodnotit.</translation>
     </message>
     <message>
         <source>Qt Symbian Emulator RunConfiguration</source>
@@ -20980,7 +21024,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="obsolete">Spustitelný soubor:</translation>
+        <translation>Spustitelný soubor:</translation>
     </message>
     <message>
         <source>Summary: Run %1 in emulator</source>
@@ -20991,7 +21035,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
     <message>
         <source>%1 in Symbian Emulator</source>
-        <translation type="obsolete">%1 v emulátoru Symbianu</translation>
+        <translation>%1 v emulátoru Symbianu</translation>
     </message>
 </context>
 <context>
@@ -21003,17 +21047,17 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Starting %1...
 </source>
-        <translation type="obsolete">Spouští se %1...
+        <translation>Spouští se %1...
 </translation>
     </message>
     <message>
         <source>[Qt Message]</source>
-        <translation type="obsolete">[Hlášení Qt]</translation>
+        <translation>[Hlášení Qt]</translation>
     </message>
     <message>
         <source>%1 exited with code %2
 </source>
-        <translation type="obsolete">%1 ukončen. Vrácená hodnota %2
+        <translation>%1 ukončen. Vrácená hodnota %2
 </translation>
     </message>
     <message>
@@ -21025,7 +21069,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <name>Qt4ProjectManager::Internal::S60Manager</name>
     <message>
         <source>Run in Emulator</source>
-        <translation type="obsolete">Spustit v emulátoru</translation>
+        <translation>Spustit v emulátoru</translation>
     </message>
     <message>
         <source>Run on Device</source>
@@ -25076,11 +25120,11 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
     <message>
         <source>Create Snapshot</source>
-        <translation type="obsolete">Vytvořit snímek</translation>
+        <translation>Vytvořit snímek</translation>
     </message>
     <message>
         <source>Remove Snapshot</source>
-        <translation type="obsolete">Odstranit snímek</translation>
+        <translation>Odstranit snímek</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
@@ -26171,7 +26215,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
     <message>
         <source>Devices</source>
-        <translation>Zařízení</translation>
+        <translation type="obsolete">Zařízení</translation>
     </message>
     <message>
         <source>Qt Application</source>
@@ -27322,7 +27366,7 @@ Ověřte, prosím, nastavení svého projektu.</translation>
     </message>
     <message>
         <source>Follow Symbol Under Cursor</source>
-        <translation type="obsolete">Následovat symbol pod ukazovátkem</translation>
+        <translation>Následovat symbol pod ukazovátkem</translation>
     </message>
     <message>
         <source>Find Usages</source>
@@ -28335,12 +28379,12 @@ Spustil jste Qemu?</translation>
     </message>
     <message>
         <source>Failed to detect the ABI(s) used by the Qt version.</source>
-        <translation>ABI(s) verze Qt se nepodařilo určit.</translation>
+        <translation type="obsolete">ABI(s) verze Qt se nepodařilo určit.</translation>
     </message>
     <message>
         <source>Android</source>
         <comment>Qt Version is meant for Android</comment>
-        <translation>Android</translation>
+        <translation type="obsolete">Android</translation>
     </message>
     <message>
         <source>ABI detection failed: Make sure to use a matching tool chain when building.</source>
@@ -29715,11 +29759,11 @@ if (a &amp;&amp;
     </message>
     <message>
         <source>Break on QML signal emit</source>
-        <translation>Přerušit při vyslání signálu QML</translation>
+        <translation type="obsolete">Přerušit při vyslání signálu QML</translation>
     </message>
     <message>
         <source>Break on QML signal handler</source>
-        <translation type="obsolete">Přerušit při manipulátoru signálu QML</translation>
+        <translation>Přerušit při manipulátoru signálu QML</translation>
     </message>
     <message>
         <source>Break when JavaScript exception is thrown</source>
@@ -29859,7 +29903,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <name>Help::Internal::RemoteFilterOptions</name>
     <message>
         <source>Filter configuration</source>
-        <translation type="obsolete">Nastavení filtru</translation>
+        <translation>Nastavení filtru</translation>
     </message>
     <message>
         <source>Prefix:</source>
@@ -29883,7 +29927,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
     <message>
         <source>Edit Filter Configuration</source>
-        <translation>Upravit nastavení filtru</translation>
+        <translation type="obsolete">Upravit nastavení filtru</translation>
     </message>
 </context>
 <context>
@@ -30352,19 +30396,19 @@ Předchozí verze Qt mají omezení v sestavování vhodných souborů SIS.</tra
     <name>Qt4ProjectManager::Internal::WinscwToolChainConfigWidget</name>
     <message>
         <source>Dialog</source>
-        <translation type="obsolete">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Compiler path:</source>
-        <translation type="obsolete">Cesta k překladači:</translation>
+        <translation>Cesta k překladači:</translation>
     </message>
     <message>
         <source>System include path:</source>
-        <translation type="obsolete">Systémová include cesta:</translation>
+        <translation>Systémová include cesta:</translation>
     </message>
     <message>
         <source>System library path:</source>
-        <translation type="obsolete">Cesta k systémové knihovně:</translation>
+        <translation>Cesta k systémové knihovně:</translation>
     </message>
 </context>
 <context>
@@ -33296,11 +33340,11 @@ Chcete je nechat přepsat?</translation>
     <name>Core::Internal::MimeTypeMagicDialog</name>
     <message>
         <source>Magic Header</source>
-        <translation type="obsolete">Kouzelné záhlaví</translation>
+        <translation>Kouzelné záhlaví</translation>
     </message>
     <message>
         <source>Add Magic Header</source>
-        <translation>Přidat kouzelné záhlaví</translation>
+        <translation type="obsolete">Přidat kouzelné záhlaví</translation>
     </message>
     <message>
         <source>Error</source>
@@ -34048,11 +34092,11 @@ Podrobnosti: %3</translation>
     </message>
     <message>
         <source>Install &amp;Debug Information</source>
-        <translation>Instalace informací o &amp;ladění</translation>
+        <translation type="obsolete">Instalace informací o &amp;ladění</translation>
     </message>
     <message>
         <source>This tries to install missing debug information.</source>
-        <translation>Toto se pokusí o instalaci chybějících informací o ladění.</translation>
+        <translation type="obsolete">Toto se pokusí o instalaci chybějících informací o ladění.</translation>
     </message>
 </context>
 <context>
@@ -34483,15 +34527,15 @@ Podrobnosti: %3</translation>
     <name>DebuggerRunControl</name>
     <message>
         <source>Debug</source>
-        <translation type="obsolete">Ladění</translation>
+        <translation>Ladění</translation>
     </message>
     <message>
         <source>Debugger</source>
-        <translation type="obsolete">Ladič</translation>
+        <translation>Ladič</translation>
     </message>
     <message>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
-        <translation type="obsolete">Nepodařilo se vytvořit žádný stroj ladicího programu typu &apos;%1&apos;</translation>
+        <translation>Nepodařilo se vytvořit žádný ladicí stroj typu &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
@@ -34770,27 +34814,27 @@ Nastavení bodů přerušení podle názvů souborů a čísel řádků může s
     </message>
     <message>
         <source>Status of &apos;%1&apos; Version: %2 changed to &apos;unavailable&apos;.</source>
-        <translation>Stav &apos;%1&apos; verze: %2 se změnil na &apos;nedostupný&apos;.</translation>
+        <translation type="obsolete">Stav &apos;%1&apos; verze: %2 se změnil na &apos;nedostupný&apos;.</translation>
     </message>
     <message>
         <source>Status of &apos;%1&apos; Version: %2 changed to &apos;enabled&apos;.</source>
-        <translation>Stav &apos;%1&apos; verze: %2 se změnil na &apos;povolený&apos;.</translation>
+        <translation type="obsolete">Stav &apos;%1&apos; verze: %2 se změnil na &apos;povolený&apos;.</translation>
     </message>
     <message>
         <source>Status of &apos;%1&apos; Version: %2 changed to &apos;not connected&apos;.</source>
-        <translation>Stav &apos;%1&apos; verze: %2 se změnil na &apos;nepřipojený&apos;.</translation>
+        <translation type="obsolete">Stav &apos;%1&apos; verze: %2 se změnil na &apos;nepřipojený&apos;.</translation>
     </message>
     <message>
         <source>Status of &apos;%1&apos; changed to &apos;unavailable&apos;.</source>
-        <translation type="obsolete">Stav &apos;%1&apos; se změnil na &apos;nedostupný&apos;.</translation>
+        <translation>Stav &apos;%1&apos; se změnil na &apos;nedostupný&apos;.</translation>
     </message>
     <message>
         <source>Status of &apos;%1&apos; changed to &apos;enabled&apos;.</source>
-        <translation type="obsolete">Stav &apos;%1&apos; se změnil na &apos;povolený&apos;.</translation>
+        <translation>Stav &apos;%1&apos; se změnil na &apos;povolený&apos;.</translation>
     </message>
     <message>
         <source>Status of &apos;%1&apos; changed to &apos;not connected&apos;.</source>
-        <translation type="obsolete">Stav &apos;%1&apos; se změnil na &apos;nepřipojený&apos;.</translation>
+        <translation>Stav &apos;%1&apos; se změnil na &apos;nepřipojený&apos;.</translation>
     </message>
     <message>
         <source>Debug service &apos;%1&apos; became unavailable.</source>
@@ -35003,19 +35047,19 @@ Má se to zkusit ještě jednou?</translation>
     </message>
     <message>
         <source>Note:</source>
-        <translation>Poznámka:</translation>
+        <translation type="obsolete">Poznámka:</translation>
     </message>
     <message>
         <source>Sources for this frame are available.&lt;br&gt;Double-click on the file name to open an editor.</source>
-        <translation>Zdroje pro tento snímek jsou dostupné.&lt;br&gt;Dvojité klepnutí na název souboru pro otevření editoru.</translation>
+        <translation type="obsolete">Zdroje pro tento snímek jsou dostupné.&lt;br&gt;Dvojité klepnutí na název souboru pro otevření editoru.</translation>
     </message>
     <message>
         <source>Binary debug information is not accessible for this frame. This either means the core was not compiled with debug information, or the debug information is not accessible. Note that most distributions ship debug information in separate packages.</source>
-        <translation>Informace o ladění spustitelného souboru nejsou pro tento snímek přístupné. To buď znamená, že core nebyl sestaven s informacemi o ladění, nebo že informace o ladění nejsou přístupné. Uvědomte si, že většina distribucí vede informace o ladění v oddělených balíčcích. </translation>
+        <translation type="obsolete">Informace o ladění spustitelného souboru nejsou pro tento snímek přístupné. To buď znamená, že core nebyl sestaven s informacemi o ladění, nebo že informace o ladění nejsou přístupné. Uvědomte si, že většina distribucí vede informace o ladění v oddělených balíčcích. </translation>
     </message>
     <message>
         <source>Binary debug information is accessible for this frame. However, matching sources have not been found. Note that some distributions ship debug sources in in separate packages.</source>
-        <translation>Informace o ladění spustitelného souboru jsou pro tento snímek přístupné. Nicméně odpovídající zdroje nebyly nalezeny. Uvědomte si, že většina distribucí vede informace o ladění v oddělených balíčcích.</translation>
+        <translation type="obsolete">Informace o ladění spustitelného souboru jsou pro tento snímek přístupné. Nicméně odpovídající zdroje nebyly nalezeny. Uvědomte si, že většina distribucí vede informace o ladění v oddělených balíčcích.</translation>
     </message>
 </context>
 <context>
@@ -35207,7 +35251,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
     <message>
         <source>Git Repository Browser Command</source>
-        <translation>Příkaz pro prohlížeč skladiště Git</translation>
+        <translation type="obsolete">Příkaz pro prohlížeč skladiště Git</translation>
     </message>
 </context>
 <context>
@@ -36138,7 +36182,7 @@ a vlastností součástek QML přímo.</translation>
     </message>
     <message>
         <source>Move Component into Separate File</source>
-        <translation>Přesunout součástku do odděleného souboru</translation>
+        <translation type="obsolete">Přesunout součástku do odděleného souboru</translation>
     </message>
     <message>
         <source>Path:</source>
@@ -36147,6 +36191,14 @@ a vlastností součástek QML přímo.</translation>
     <message>
         <source>Component name:</source>
         <translation>Název součástky:</translation>
+    </message>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>Choose...</source>
+        <translation>Vybrat...</translation>
     </message>
 </context>
 <context>
@@ -36260,7 +36312,7 @@ a vlastností součástek QML přímo.</translation>
     </message>
     <message>
         <source>Filter properties</source>
-        <translation type="obsolete">Filtrovat vlastnosti</translation>
+        <translation>Filtrovat vlastnosti</translation>
     </message>
 </context>
 <context>
@@ -36287,7 +36339,7 @@ a vlastností součástek QML přímo.</translation>
     </message>
     <message>
         <source>Color Picker</source>
-        <translation type="obsolete">Volič barvy</translation>
+        <translation>Volič barvy</translation>
     </message>
     <message>
         <source>1x</source>
@@ -36337,7 +36389,7 @@ a vlastností součástek QML přímo.</translation>
     <name>QmlJSInspector::Internal::QmlJSPropertyInspector</name>
     <message>
         <source>Always Adjust Column Widths to Contents</source>
-        <translation>Vždy přizpůsobit šířku sloupců obsahu</translation>
+        <translation type="obsolete">Vždy přizpůsobit šířku sloupců obsahu</translation>
     </message>
     <message>
         <source>Enter expression</source>
@@ -36360,7 +36412,7 @@ a vlastností součástek QML přímo.</translation>
     <name>QmlJSInspector::ToolBarColorBox</name>
     <message>
         <source>Copy Color</source>
-        <translation type="obsolete">Kopírovat barvu</translation>
+        <translation>Kopírovat barvu</translation>
     </message>
 </context>
 <context>
@@ -36526,7 +36578,7 @@ Vytvořte, prosím, součástky pomocné knihovny pro výstup dat o ladění na 
     <message>
         <source>Application finished before loading profiled data.
  Please use the stop button instead.</source>
-        <translation type="obsolete">Program byl před nahráním profilovaných dat ukončen.
+        <translation>Program byl před nahráním profilovaných dat ukončen.
 Použijte, prosím, místo toho tlačítko Zastavit.</translation>
     </message>
     <message>
@@ -36541,15 +36593,15 @@ Použijte, prosím, místo toho tlačítko Zastavit.</translation>
     </message>
     <message>
         <source>Unexpected engine stop from state %1 in %2:%3</source>
-        <translation>Neočekávané zastavení stroje ze stavu %1 v %2:%3</translation>
+        <translation type="obsolete">Neočekávané zastavení stroje ze stavu %1 v %2:%3</translation>
     </message>
     <message>
         <source>Process died unexpectedly from state %1 in %2:%3</source>
-        <translation>Proces neočekávaně skončil ze stavu %1 v %2:%3</translation>
+        <translation type="obsolete">Proces neočekávaně skončil ze stavu %1 v %2:%3</translation>
     </message>
     <message>
         <source>Unexpected process termination requested with state %1 in %2:%3</source>
-        <translation>Neočekávané zastavení procesu požadováno se stavem %1 v %2:%3</translation>
+        <translation type="obsolete">Neočekávané zastavení procesu požadováno se stavem %1 v %2:%3</translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -36675,6 +36727,26 @@ Použijte, prosím, místo toho tlačítko Zastavit.</translation>
         <translation>Uložit výpis volání QML</translation>
     </message>
     <message>
+        <source>Extended Event Statistics</source>
+        <translation>Rozšířená statistika událostí</translation>
+    </message>
+    <message>
+        <source>Limit Events Pane to Current Range</source>
+        <translation>Omezit tabulku na nynější rozsah</translation>
+    </message>
+    <message>
+        <source>Reset Events Pane</source>
+        <translation>Vynulovat tabulku událostí</translation>
+    </message>
+    <message>
+        <source>Reset Zoom</source>
+        <translation>Nastavit zvětšení znovu</translation>
+    </message>
+    <message>
+        <source>JavaScript</source>
+        <translation>JavaScript</translation>
+    </message>
+    <message>
         <source>%1 s</source>
         <translation>%1 s</translation>
     </message>
@@ -36689,16 +36761,16 @@ Použijte, prosím, místo toho tlačítko Zastavit.</translation>
     <message>
         <source>Application finished before loading profiled data.
  Please use the stop button instead.</source>
-        <translation>Program byl před nahráním profilovaných dat ukončen.
+        <translation type="obsolete">Program byl před nahráním profilovaných dat ukončen.
 Použijte, prosím, místo toho tlačítko Zastavit.</translation>
     </message>
     <message>
         <source>Copy Row</source>
-        <translation type="obsolete">Kopírovat řádek</translation>
+        <translation>Kopírovat řádek</translation>
     </message>
     <message>
         <source>Copy Table</source>
-        <translation type="obsolete">Kopírovat tabulku</translation>
+        <translation>Kopírovat tabulku</translation>
     </message>
     <message>
         <source>The QML profiler requires Qt 4.7.4 or newer.
@@ -36710,11 +36782,11 @@ Chcete pokračovat?</translation>
     </message>
     <message>
         <source>Events</source>
-        <translation type="obsolete">Události</translation>
+        <translation>Události</translation>
     </message>
     <message>
         <source>Timeline</source>
-        <translation type="obsolete">Časová přímka</translation>
+        <translation>Časová přímka</translation>
     </message>
     <message>
         <source>Callees</source>
@@ -36746,12 +36818,12 @@ Chcete pokračovat?</translation>
     </message>
     <message>
         <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
+        <translation>Qt Creator</translation>
     </message>
     <message>
         <source>Could not connect to the in-process QML profiler.
 Do you want to retry?</source>
-        <translation type="obsolete">Qt Creatoru se nepodařilo vytvořit žádné spojení s profilerem QML v procesu.
+        <translation>Qt Creatoru se nepodařilo vytvořit žádné spojení s profilerem QML v procesu.
 Má se to zkusit ještě jednou?</translation>
     </message>
     <message>
@@ -36784,11 +36856,23 @@ Má se to zkusit ještě jednou?</translation>
     <name>QmlProfiler::Internal::TraceWindow</name>
     <message>
         <source>Jump to previous event</source>
-        <translation type="obsolete">Jít na předchozí událost</translation>
+        <translation>Jít na předchozí událost</translation>
     </message>
     <message>
         <source>Jump to next event</source>
-        <translation type="obsolete">Jít na další událost</translation>
+        <translation>Jít na další událost</translation>
+    </message>
+    <message>
+        <source>Show zoom slider</source>
+        <translation>Ukázat zvětšovací posuvník</translation>
+    </message>
+    <message>
+        <source>Select range</source>
+        <translation>Vybrat rozsah</translation>
+    </message>
+    <message>
+        <source>View event information on mouseover</source>
+        <translation>Ukázat informace o události při přejezdu myši</translation>
     </message>
     <message>
         <source>Zoom in 10%</source>
@@ -37051,7 +37135,7 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
     <message>
         <source>Symbian Emulator</source>
         <comment>Qt4 Symbian Emulator target display name</comment>
-        <translation type="obsolete">Emulátor Symbianu</translation>
+        <translation>Emulátor Symbianu</translation>
     </message>
     <message>
         <source>Symbian Device</source>
@@ -37081,7 +37165,7 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
     <message>
         <source>Android</source>
         <comment>Qt4 Android target display name</comment>
-        <translation>Android</translation>
+        <translation type="obsolete">Android</translation>
     </message>
 </context>
 <context>
@@ -37229,19 +37313,19 @@ Ani cesta ke knihovně ani cesta k hlavičkovým souborům nebudou přidány do 
     <name>Qt4ProjectManager::Internal::Qt4SymbianTarget</name>
     <message>
         <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
-        <translation type="obsolete">&lt;b&gt;Zařízení:&lt;/b&gt; Nepřipojeno</translation>
+        <translation>&lt;b&gt;Zařízení:&lt;/b&gt; Nepřipojeno</translation>
     </message>
     <message>
         <source>&lt;b&gt;Device:&lt;/b&gt; %1</source>
-        <translation type="obsolete">&lt;b&gt;Zařízení:&lt;/b&gt; %1</translation>
+        <translation>&lt;b&gt;Zařízení:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;Device:&lt;/b&gt; %1, %2</source>
-        <translation type="obsolete">&lt;b&gt;Zařízení:&lt;/b&gt; %1, %2</translation>
+        <translation>&lt;b&gt;Zařízení:&lt;/b&gt; %1, %2</translation>
     </message>
     <message>
         <source>&lt;b&gt;IP address:&lt;/b&gt; %1:%2</source>
-        <translation type="obsolete">&lt;b&gt;IP adresa:&lt;/b&gt; %1:%2</translation>
+        <translation>&lt;b&gt;IP adresa:&lt;/b&gt; %1:%2</translation>
     </message>
 </context>
 <context>
@@ -37365,7 +37449,7 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
     <name>Qt4ProjectManager::Internal::S60DeployConfigurationWidget</name>
     <message>
         <source>Device:</source>
-        <translation type="obsolete">Zařízení:</translation>
+        <translation>Zařízení:</translation>
     </message>
     <message>
         <source>Silent installation</source>
@@ -37373,11 +37457,11 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
     </message>
     <message>
         <source>Serial:</source>
-        <translation type="obsolete">Sériová:</translation>
+        <translation>Sériová:</translation>
     </message>
     <message>
         <source>WLAN:</source>
-        <translation type="obsolete">WLAN:</translation>
+        <translation>WLAN:</translation>
     </message>
     <message>
         <source>Installation file:</source>
@@ -37393,103 +37477,103 @@ Použitím vývojářského certifikátu nebo jakékoliv jiné podoby podpisu se
     </message>
     <message>
         <source>Queries the device for information</source>
-        <translation type="obsolete">Vyvolává informace ze zařízení</translation>
+        <translation>Vyvolává informace ze zařízení</translation>
     </message>
     <message>
         <source>Serial port:</source>
-        <translation type="obsolete">Sériová přípojka:</translation>
+        <translation>Sériová přípojka:</translation>
     </message>
     <message>
         <source>Communication Channel</source>
-        <translation type="obsolete">Komunikační protokol</translation>
+        <translation>Komunikační protokol</translation>
     </message>
     <message>
         <source>Address:</source>
-        <translation type="obsolete">Adresa:</translation>
+        <translation>Adresa:</translation>
     </message>
     <message>
         <source>Connecting</source>
-        <translation type="obsolete">Připojuje se</translation>
+        <translation>Připojuje se</translation>
     </message>
     <message>
         <source>Unable to create CODA connection. Please try again.</source>
-        <translation type="obsolete">Nepodařilo se vytvořit žádné spojení s CODA. Zkuste to, prosím, znovu.</translation>
+        <translation>Nepodařilo se vytvořit žádné spojení s CODA. Zkuste to, prosím, znovu.</translation>
     </message>
     <message>
         <source>Currently there is no information about the device for this connection type.</source>
-        <translation type="obsolete">Pro tento typ spojení nejsou nyní dostupné žádné informace o zařízení.</translation>
+        <translation>Pro tento typ spojení nejsou nyní dostupné žádné informace o zařízení.</translation>
     </message>
     <message>
         <source>No device information available</source>
-        <translation type="obsolete">Nejsou dostupné žádné informace o zařízení</translation>
+        <translation>Nejsou dostupné žádné informace o zařízení</translation>
     </message>
     <message>
         <source>Qt version: </source>
-        <translation type="obsolete">Verze Qt: </translation>
+        <translation>Verze Qt: </translation>
     </message>
     <message>
         <source>Not installed on device</source>
-        <translation type="obsolete">Neinstalováno na zařízení</translation>
+        <translation>Neinstalováno na zařízení</translation>
     </message>
     <message>
         <source>Qt version:</source>
-        <translation type="obsolete">Verze Qt:</translation>
+        <translation>Verze Qt:</translation>
     </message>
     <message>
         <source>Unrecognised Symbian version 0x%1</source>
-        <translation type="obsolete">Nerozpoznaná verze Symbianu 0x%1</translation>
+        <translation>Nerozpoznaná verze Symbianu 0x%1</translation>
     </message>
     <message>
         <source>Unrecognised S60 version 0x%1</source>
-        <translation type="obsolete">Nerozpoznaná verze S60 0x%1</translation>
+        <translation>Nerozpoznaná verze S60 0x%1</translation>
     </message>
     <message>
         <source>OS version:</source>
-        <translation type="obsolete">Verze operačního systému:</translation>
+        <translation>Verze operačního systému:</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="obsolete">Neznámé</translation>
+        <translation>Neznámý</translation>
     </message>
     <message>
         <source>ROM version:</source>
-        <translation type="obsolete">Verze ROM:</translation>
+        <translation>Verze ROM:</translation>
     </message>
     <message>
         <source>Release:</source>
-        <translation type="obsolete">Vydání:</translation>
+        <translation>Vydání:</translation>
     </message>
     <message>
         <source>CODA version: </source>
-        <translation type="obsolete">Verze CODA: </translation>
+        <translation>Verze CODA: </translation>
     </message>
     <message>
         <source>Error reading CODA version</source>
-        <translation type="obsolete">Chyba při čtení verze CODA</translation>
+        <translation>Chyba při čtení verze CODA</translation>
     </message>
     <message>
         <source>Qt Mobility version: </source>
-        <translation type="obsolete">Verze Qt Mobility: </translation>
+        <translation>Verze Qt Mobility: </translation>
     </message>
     <message>
         <source>Error reading Qt Mobility version</source>
-        <translation type="obsolete">Chyba při čtení verze Qt Mobility</translation>
+        <translation>Chyba při čtení verze Qt Mobility</translation>
     </message>
     <message>
         <source>Qt Quick components version: </source>
-        <translation type="obsolete">Verze součásti Qt Quick: </translation>
+        <translation>Verze součásti Qt Quick: </translation>
     </message>
     <message>
         <source>Not installed</source>
-        <translation type="obsolete">Neinstalováno</translation>
+        <translation>Neinstalováno</translation>
     </message>
     <message>
         <source>QML Viewer version: </source>
-        <translation type="obsolete">Verze prohlížeče QML: </translation>
+        <translation>Verze prohlížeče QML: </translation>
     </message>
     <message>
         <source>Screen size:</source>
-        <translation type="obsolete">Velikost obrazovky:</translation>
+        <translation>Velikost obrazovky:</translation>
     </message>
 </context>
 <context>
@@ -38057,11 +38141,11 @@ Váš program bude Nokia Store QA také odmítnut v případě, že si vyberete 
     <name>Qt4ProjectManager::Internal::WinscwToolChainFactory</name>
     <message>
         <source>WINSCW</source>
-        <translation type="obsolete">WINSCW</translation>
+        <translation>WINSCW</translation>
     </message>
     <message>
         <source>WINSCW from Qt version</source>
-        <translation type="obsolete">WINSCW z verze Qt</translation>
+        <translation>WINSCW z verze Qt</translation>
     </message>
 </context>
 <context>
@@ -38945,7 +39029,15 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
     <name>RemoteLinux::Internal::LinuxDeviceFactorySelectionDialog</name>
     <message>
         <source>Start Wizard</source>
-        <translation type="obsolete">Spustit průvodce</translation>
+        <translation>Spustit průvodce</translation>
+    </message>
+    <message>
+        <source>Device Configuration Wizard Selection</source>
+        <translation>Zřízení nového nastavení zařízení</translation>
+    </message>
+    <message>
+        <source>Available device types:</source>
+        <translation>Dostupné typy zařízení:</translation>
     </message>
 </context>
 <context>
@@ -40695,11 +40787,11 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Delete UTF-8 BOM on Save</source>
-        <translation>Smazat UTF-8 BOM při uložení</translation>
+        <translation type="obsolete">Smazat UTF-8 BOM při uložení</translation>
     </message>
     <message>
         <source>Add UTF-8 BOM on Save</source>
-        <translation>Přidat UTF-8 BOM při uložení</translation>
+        <translation type="obsolete">Přidat UTF-8 BOM při uložení</translation>
     </message>
 </context>
 <context>
@@ -42316,27 +42408,51 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <name>QmlJsDebugClient::QmlProfilerEventList</name>
     <message>
         <source>&lt;bytecode&gt;</source>
-        <translation type="obsolete">&lt;bytecode&gt;</translation>
+        <translation>&lt;bytecode&gt;</translation>
     </message>
     <message>
         <source>Source code not available</source>
-        <translation type="obsolete">Není dostupný žádný zdrojový kód</translation>
+        <translation>Není dostupný žádný zdrojový kód</translation>
+    </message>
+    <message>
+        <source>&lt;program&gt;</source>
+        <translation>&lt;program&gt;</translation>
+    </message>
+    <message>
+        <source>Main Program</source>
+        <translation>Hlavní program</translation>
+    </message>
+    <message>
+        <source>Animation Timer Update</source>
+        <translation>Aktualizace časovače animace</translation>
+    </message>
+    <message>
+        <source>&lt;Animation Update&gt;</source>
+        <translation>&lt;aktualizace animace&gt;</translation>
     </message>
     <message>
         <source>No data to save</source>
-        <translation type="obsolete">Nejsou přítomna žádná data k uložení</translation>
+        <translation>Nejsou přítomna žádná data k uložení</translation>
     </message>
     <message>
         <source>Could not open %1 for writing</source>
-        <translation type="obsolete">Soubor &apos;%1&apos; se nepodařilo otevřít pro zápis</translation>
+        <translation>Soubor &apos;%1&apos; se nepodařilo otevřít pro zápis</translation>
     </message>
     <message>
         <source>Could not open %1 for reading</source>
-        <translation type="obsolete">Soubor &apos;%1&apos; se nepodařilo otevřít pro čtení</translation>
+        <translation>Soubor &apos;%1&apos; se nepodařilo otevřít pro čtení</translation>
     </message>
     <message>
         <source>Error while parsing %1</source>
-        <translation type="obsolete">Chyba při zpracování %1</translation>
+        <translation>Chyba při zpracování %1</translation>
+    </message>
+    <message>
+        <source>Invalid version of QML Trace file.</source>
+        <translation>Neplatná verze souboru QML Trace.</translation>
+    </message>
+    <message>
+        <source>%1 animations at %2 FPS</source>
+        <translation>%1 animace při %2 FPS</translation>
     </message>
 </context>
 <context>
@@ -42513,7 +42629,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <name>Debugger::Internal::BaseWindow</name>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
+        <translation>Přizpůsobit šířku sloupců obsahu</translation>
     </message>
 </context>
 <context>
@@ -42705,27 +42821,27 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
     <message>
         <source>Maemo5/Fremantle</source>
-        <translation type="obsolete">Maemo 5/Fremantle</translation>
+        <translation>Maemo 5/Fremantle</translation>
     </message>
     <message>
         <source>MeeGo 1.2 Harmattan</source>
-        <translation type="obsolete">MeeGo 1.2 Harmattan</translation>
+        <translation>MeeGo 1.2 Harmattan</translation>
     </message>
     <message>
         <source>Other MeeGo OS</source>
-        <translation type="obsolete">Jiné MeeGo OS</translation>
+        <translation>Jiné MeeGo OS</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation type="obsolete">Zkouška</translation>
+        <translation>Zkouška</translation>
     </message>
     <message>
         <source>Remote Processes...</source>
-        <translation type="obsolete">Procesy na zařízení...</translation>
+        <translation>Procesy na zařízení...</translation>
     </message>
     <message>
         <source>Deploy Public Key...</source>
-        <translation type="obsolete">Poslat veřejný klíč...</translation>
+        <translation>Poslat veřejný klíč...</translation>
     </message>
 </context>
 <context>
@@ -44338,26 +44454,26 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
     </message>
     <message>
         <source>Generic Linux</source>
-        <translation type="obsolete">Obecný Linux</translation>
+        <translation>Obecný Linux</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation type="obsolete">Zkouška</translation>
+        <translation>Zkouška</translation>
     </message>
     <message>
         <source>Remote Processes...</source>
-        <translation type="obsolete">Procesy na zařízení...</translation>
+        <translation>Procesy na zařízení...</translation>
     </message>
     <message>
         <source>Deploy Public Key...</source>
-        <translation type="obsolete">Poslat veřejný klíč...</translation>
+        <translation>Poslat veřejný klíč...</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::LinuxDeviceConfigurations</name>
     <message>
         <source>(default for %1)</source>
-        <translation type="obsolete">(výchozí pro %1)</translation>
+        <translation>(výchozí pro %1)</translation>
     </message>
 </context>
 <context>
@@ -44368,11 +44484,59 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
     </message>
     <message>
         <source>Physical Device</source>
-        <translation type="obsolete">Fyzické zařízení</translation>
+        <translation>Fyzické zařízení</translation>
     </message>
     <message>
         <source>Emulator</source>
-        <translation type="obsolete">Emulátor</translation>
+        <translation>Emulátor</translation>
+    </message>
+    <message>
+        <source>Linux Device Configurations</source>
+        <translation>Nastavení linuxového zařízení</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration:</source>
+        <translation>&amp;Nastavení:</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Obecné</translation>
+    </message>
+    <message>
+        <source>&amp;Name:</source>
+        <translation>&amp;Název:</translation>
+    </message>
+    <message>
+        <source>OS type:</source>
+        <translation>Typ operačního systému:</translation>
+    </message>
+    <message>
+        <source>Device type:</source>
+        <translation>Typ zařízení:</translation>
+    </message>
+    <message>
+        <source>OS Type Specific</source>
+        <translation>Zvláštní pro typ operačního systému</translation>
+    </message>
+    <message>
+        <source>&amp;Add...</source>
+        <translation>&amp;Přidat...</translation>
+    </message>
+    <message>
+        <source>&amp;Remove</source>
+        <translation>&amp;Odstranit</translation>
+    </message>
+    <message>
+        <source>Set As Default</source>
+        <translation>Nastavit jako výchozí</translation>
+    </message>
+    <message>
+        <source>Click here if you do not have an SSH key yet.</source>
+        <translation>Klepněte sem, pokud ještě nemáte nějaký klíč SSH.</translation>
+    </message>
+    <message>
+        <source>&amp;Generate SSH Key...</source>
+        <translation>&amp;Vytvořit klíč SSH...</translation>
     </message>
 </context>
 <context>
@@ -44567,11 +44731,11 @@ Každopádně se pokračuje.</translation>
     </message>
     <message>
         <source>Linux Devices</source>
-        <translation type="obsolete">Linuxová zařízení</translation>
+        <translation>Linuxová zařízení</translation>
     </message>
     <message>
         <source>Unknown OS</source>
-        <translation type="obsolete">Neznámý operační systém</translation>
+        <translation>Neznámý operační systém</translation>
     </message>
     <message>
         <source>(No device)</source>
@@ -44668,7 +44832,7 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsPage</name>
     <message>
         <source>Device Configurations</source>
-        <translation type="obsolete">Nastavení zařízení</translation>
+        <translation>Nastavení zařízení</translation>
     </message>
 </context>
 <context>
@@ -44705,6 +44869,58 @@ Vzdálený chybový výstup byl: %1</translation>
     <message>
         <source>Save Private Key File</source>
         <translation type="obsolete">Uložit soubor se soukromým klíčem</translation>
+    </message>
+    <message>
+        <source>SSH Key Configuration</source>
+        <translation>Nastavení klíče SSH</translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation>Volby</translation>
+    </message>
+    <message>
+        <source>Key algorithm:</source>
+        <translation>Algoritmus klíče:</translation>
+    </message>
+    <message>
+        <source>&amp;RSA</source>
+        <translation>&amp;RSA</translation>
+    </message>
+    <message>
+        <source>&amp;DSA</source>
+        <translation>&amp;DSA</translation>
+    </message>
+    <message>
+        <source>Key &amp;size:</source>
+        <translation>&amp;Velikost klíče:</translation>
+    </message>
+    <message>
+        <source>Private key file:</source>
+        <translation>Soubor se soukromým klíčem:</translation>
+    </message>
+    <message>
+        <source>Public key file:</source>
+        <translation>Soubor s veřejným klíčem:</translation>
+    </message>
+    <message>
+        <source>&amp;Generate And Save Key Pair</source>
+        <translation>&amp;Vytvořit a uložit dvojici klíčů</translation>
+    </message>
+    <message>
+        <source>&amp;Cancel</source>
+        <translation>&amp;Zrušit</translation>
+    </message>
+    <message>
+        <source>Key Generation Failed</source>
+        <translation>Chyba při vytváření klíče</translation>
+    </message>
+    <message>
+        <source>Failure To Save Key File</source>
+        <translation>Chyba při ukládání souboru s klíčem</translation>
+    </message>
+    <message>
+        <source>Failed to create directory: &apos;%1&apos;.</source>
+        <translation>Adresář &apos;%1&apos; se nepodařilo vytvořit.</translation>
     </message>
 </context>
 <context>
@@ -44746,7 +44962,11 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
     <message>
         <source>&amp;Filter entries:</source>
-        <translation>&amp;Filtrovat záznamy:</translation>
+        <translation type="obsolete">&amp;Filtrovat záznamy:</translation>
+    </message>
+    <message>
+        <source>&amp;Filter by process name:</source>
+        <translation>&amp;Filtrovat podle názvu procesu:</translation>
     </message>
     <message>
         <source>List of Remote Processes</source>
@@ -44845,11 +45065,11 @@ Vzdálený chybový výstup byl: %1</translation>
     <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
     <message>
         <source>(default)</source>
-        <translation type="obsolete">(výchozí)</translation>
+        <translation>(výchozí)</translation>
     </message>
     <message>
         <source>%1 (default)</source>
-        <translation>%1 (výchozí)</translation>
+        <translation type="obsolete">%1 (výchozí)</translation>
     </message>
 </context>
 <context>
@@ -44982,55 +45202,55 @@ Filtr: %2
     <name>Utils::SshKeyCreationDialog</name>
     <message>
         <source>SSH Key Configuration</source>
-        <translation>Nastavení klíče SSH</translation>
+        <translation type="obsolete">Nastavení klíče SSH</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation>Volby</translation>
+        <translation type="obsolete">Volby</translation>
     </message>
     <message>
         <source>Key algorithm:</source>
-        <translation>Algoritmus klíče:</translation>
+        <translation type="obsolete">Algoritmus klíče:</translation>
     </message>
     <message>
         <source>&amp;RSA</source>
-        <translation>&amp;RSA</translation>
+        <translation type="obsolete">&amp;RSA</translation>
     </message>
     <message>
         <source>&amp;DSA</source>
-        <translation>&amp;DSA</translation>
+        <translation type="obsolete">&amp;DSA</translation>
     </message>
     <message>
         <source>Key &amp;size:</source>
-        <translation>&amp;Velikost klíče:</translation>
+        <translation type="obsolete">&amp;Velikost klíče:</translation>
     </message>
     <message>
         <source>Private key file:</source>
-        <translation>Soubor se soukromým klíčem:</translation>
+        <translation type="obsolete">Soubor se soukromým klíčem:</translation>
     </message>
     <message>
         <source>Public key file:</source>
-        <translation>Soubor s veřejným klíčem:</translation>
+        <translation type="obsolete">Soubor s veřejným klíčem:</translation>
     </message>
     <message>
         <source>&amp;Generate And Save Key Pair</source>
-        <translation>&amp;Vytvořit a uložit dvojici klíčů</translation>
+        <translation type="obsolete">&amp;Vytvořit a uložit dvojici klíčů</translation>
     </message>
     <message>
         <source>&amp;Cancel</source>
-        <translation>&amp;Zrušit</translation>
+        <translation type="obsolete">&amp;Zrušit</translation>
     </message>
     <message>
         <source>Key Generation Failed</source>
-        <translation>Chyba při vytváření klíče</translation>
+        <translation type="obsolete">Chyba při vytváření klíče</translation>
     </message>
     <message>
         <source>Failure To Save Key File</source>
-        <translation>Chyba při ukládání souboru s klíčem</translation>
+        <translation type="obsolete">Chyba při ukládání souboru s klíčem</translation>
     </message>
     <message>
         <source>Failed to create directory: &apos;%1&apos;.</source>
-        <translation>Adresář &apos;%1&apos; se nepodařilo vytvořit.</translation>
+        <translation type="obsolete">Adresář &apos;%1&apos; se nepodařilo vytvořit.</translation>
     </message>
 </context>
 <context>
@@ -45088,156 +45308,156 @@ Filtr: %2
     <name>AddNewAVDDialog</name>
     <message>
         <source>Create new AVD</source>
-        <translation>Vytvořit nový AVD</translation>
+        <translation type="obsolete">Vytvořit nový AVD</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation>Název:</translation>
+        <translation type="obsolete">Název:</translation>
     </message>
     <message>
         <source>Target:</source>
-        <translation>Cíl:</translation>
+        <translation type="obsolete">Cíl:</translation>
     </message>
     <message>
         <source>SD card size:</source>
-        <translation>Velikost karty SD:</translation>
+        <translation type="obsolete">Velikost karty SD:</translation>
     </message>
     <message>
         <source> MiB</source>
-        <translation> MiB</translation>
+        <translation type="obsolete"> MiB</translation>
     </message>
 </context>
 <context>
     <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Create a keystore and a cetificate</source>
-        <translation>Vytvořit úložiště pro klíč a certifikát</translation>
+        <translation type="obsolete">Vytvořit úložiště pro klíč a certifikát</translation>
     </message>
     <message>
         <source>Keystore</source>
-        <translation>Úložiště pro klíč</translation>
+        <translation type="obsolete">Úložiště pro klíč</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation>Heslo:</translation>
+        <translation type="obsolete">Heslo:</translation>
     </message>
     <message>
         <source>Retype password:</source>
-        <translation>Nypsat heslo znovu:</translation>
+        <translation type="obsolete">Nypsat heslo znovu:</translation>
     </message>
     <message>
         <source>Show password</source>
-        <translation>Ukázat heslo</translation>
+        <translation type="obsolete">Ukázat heslo</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo je příliš krátké&lt;/span&gt;</translation>
+        <translation type="obsolete">&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo je příliš krátké&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Certificate</source>
-        <translation>Certifikát</translation>
+        <translation type="obsolete">Certifikát</translation>
     </message>
     <message>
         <source>Alias name:</source>
-        <translation>Název přezdívky:</translation>
+        <translation type="obsolete">Název přezdívky:</translation>
     </message>
     <message>
         <source>Aaaaaaaa; </source>
-        <translation>Aaaaaaaa; </translation>
+        <translation type="obsolete">Aaaaaaaa; </translation>
     </message>
     <message>
         <source>Keysize:</source>
-        <translation>Velikost klíče:</translation>
+        <translation type="obsolete">Velikost klíče:</translation>
     </message>
     <message>
         <source>Validity (days):</source>
-        <translation>Platnost (dny):</translation>
+        <translation type="obsolete">Platnost (dny):</translation>
     </message>
     <message>
         <source>Certificate  Distinguished Names</source>
-        <translation>Odlišené názvy certifikátu</translation>
+        <translation type="obsolete">Odlišené názvy certifikátu</translation>
     </message>
     <message>
         <source>First and last name:</source>
-        <translation>První a poslední název:</translation>
+        <translation type="obsolete">První a poslední název:</translation>
     </message>
     <message>
         <source>Organizational unit (e.g. Necessitas):</source>
-        <translation>Organizační jednotka (např. Necessitas):</translation>
+        <translation type="obsolete">Organizační jednotka (např. Necessitas):</translation>
     </message>
     <message>
         <source>Organization (e.g. KDE):</source>
-        <translation>Organizace (např. KDE):</translation>
+        <translation type="obsolete">Organizace (např. KDE):</translation>
     </message>
     <message>
         <source>City or Locality:</source>
-        <translation>Město nebo místo:</translation>
+        <translation type="obsolete">Město nebo místo:</translation>
     </message>
     <message>
         <source>State or Province:</source>
-        <translation>Stát nebo územní jednotka:</translation>
+        <translation type="obsolete">Stát nebo územní jednotka:</translation>
     </message>
     <message>
         <source>Two-letter country code for this unit (e.g. RO):</source>
-        <translation>Kód země tvořený dvěma písmeny této jednotky (např. RO):</translation>
+        <translation type="obsolete">Kód země tvořený dvěma písmeny této jednotky (např. RO):</translation>
     </message>
     <message>
         <source>&gt;AA; </source>
-        <translation>&gt;AA; </translation>
+        <translation type="obsolete">&gt;AA; </translation>
     </message>
 </context>
 <context>
     <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
-        <translation>Formulář</translation>
+        <translation type="obsolete">Formulář</translation>
     </message>
     <message>
         <source>Use devices qt libs</source>
-        <translation>Použít knihovny qt ze zařízení</translation>
+        <translation type="obsolete">Použít knihovny qt ze zařízení</translation>
     </message>
     <message>
         <source>Push local qt libs to device.
 You must have Qt libs compiled for that platform</source>
-        <translation>Odeslat místní knihovny qt do zařízení.
+        <translation type="obsolete">Odeslat místní knihovny qt do zařízení.
 Musíte mít pro ten systém sestaveny knihovny qt</translation>
     </message>
     <message>
         <source>Deploy local qt libs</source>
-        <translation>Nasadit místní knihovny qt</translation>
+        <translation type="obsolete">Nasadit místní knihovny qt</translation>
     </message>
     <message>
         <source>Check this option to force the application to use local qt libs instead of system libs.</source>
-        <translation>Zaškrtněte tuto volbu pro vynucení místních knihoven qt namísto systémových knihoven v programu.</translation>
+        <translation type="obsolete">Zaškrtněte tuto volbu pro vynucení místních knihoven qt namísto systémových knihoven v programu.</translation>
     </message>
     <message>
         <source>Use local qt libs</source>
-        <translation>Použít místní knihovny qt</translation>
+        <translation type="obsolete">Použít místní knihovny qt</translation>
     </message>
     <message>
         <source>Edit rules file</source>
-        <translation>Upravit soubor s pravidly</translation>
+        <translation type="obsolete">Upravit soubor s pravidly</translation>
     </message>
     <message>
         <source>Choose and install Ministro system wide qt shared libraries.
 This option is useful when you want to try your application on devices which don&apos;t have Android Market (e.g. Android Emulator).</source>
-        <translation>Vybrat a nainstalovat systémové sdílené knihovny qt Ministro.
+        <translation type="obsolete">Vybrat a nainstalovat systémové sdílené knihovny qt Ministro.
 Tato volba je užitečná, když chcete svůj program vyzkoušet na zařízeních, která nemájí Android Market (např. Android Emulator).</translation>
     </message>
     <message>
         <source>Install Ministro system wide qt shared libraries installer</source>
-        <translation>Instalátor pro nainstalování systémových sdílených knihoven qt Ministro</translation>
+        <translation type="obsolete">Instalátor pro nainstalování systémových sdílených knihoven qt Ministro</translation>
     </message>
     <message>
         <source>Choose apk</source>
-        <translation>Vybrat apk</translation>
+        <translation type="obsolete">Vybrat apk</translation>
     </message>
 </context>
 <context>
     <name>AndroidPackageCreationWidget</name>
     <message>
         <source>Manifest</source>
-        <translation>Provolání (manifest)</translation>
+        <translation type="obsolete">Provolání (manifest)</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -45248,7 +45468,7 @@ p, li { white-space: pre-wrap; }
 &lt;tr&gt;
 &lt;td style=&quot;border: none;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Android target SDK:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -45266,7 +45486,7 @@ p, li { white-space: pre-wrap; }
 &lt;tr&gt;
 &lt;td style=&quot;border: none;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Package name:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -45290,7 +45510,7 @@ p, li { white-space: pre-wrap; }
 &lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Complete conventions for disambiguating package names and rules for naming packages when the Internet domain name cannot be directly used as a package name are described in section 7.7 of the Java Language Specification.&lt;/p&gt;
 &lt;p align=&quot;justify&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -45314,7 +45534,7 @@ p, li { white-space: pre-wrap; }
 &lt;tr&gt;
 &lt;td style=&quot;border: none;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Version code:&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:600; font-style:normal;&quot;&gt;
@@ -45332,7 +45552,7 @@ p, li { white-space: pre-wrap; }
 &lt;tr&gt;
 &lt;td style=&quot;border: none;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Version name:&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:600; font-style:normal;&quot;&gt;
@@ -45343,11 +45563,11 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>1.0.0</source>
-        <translation>1.0.0</translation>
+        <translation type="obsolete">1.0.0</translation>
     </message>
     <message>
         <source>Application</source>
-        <translation>Program</translation>
+        <translation type="obsolete">Program</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -45358,7 +45578,7 @@ p, li { white-space: pre-wrap; }
 &lt;tr&gt;
 &lt;td style=&quot;border: none;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Application name:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -45376,7 +45596,7 @@ p, li { white-space: pre-wrap; }
 &lt;tr&gt;
 &lt;td style=&quot;border: none;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Run:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -45394,7 +45614,7 @@ p, li { white-space: pre-wrap; }
 &lt;tr&gt;
 &lt;td style=&quot;border: none;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Application icon:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -45405,527 +45625,527 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Select low dpi icon</source>
-        <translation>Vybrat ikonu s nízkým dpi</translation>
+        <translation type="obsolete">Vybrat ikonu s nízkým dpi</translation>
     </message>
     <message>
         <source>Select medium dpi icon</source>
-        <translation>Vybrat ikonu se středním dpi</translation>
+        <translation type="obsolete">Vybrat ikonu se středním dpi</translation>
     </message>
     <message>
         <source>Select high dpi icon</source>
-        <translation>Vybrat ikonu s vysokým dpi</translation>
+        <translation type="obsolete">Vybrat ikonu s vysokým dpi</translation>
     </message>
     <message>
         <source>Permissions</source>
-        <translation>Oprávnění</translation>
+        <translation type="obsolete">Oprávnění</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation>Přidat</translation>
+        <translation type="obsolete">Přidat</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Odstranit</translation>
+        <translation type="obsolete">Odstranit</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation>Uložit</translation>
+        <translation type="obsolete">Uložit</translation>
     </message>
     <message>
         <source>Discard</source>
-        <translation>Odmítnout</translation>
+        <translation type="obsolete">Odmítnout</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation>Název:</translation>
+        <translation type="obsolete">Název:</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_CHECKIN_PROPERTIES</source>
-        <translation>android.permission.ACCESS_CHECKIN_PROPERTIES</translation>
+        <translation type="obsolete">android.permission.ACCESS_CHECKIN_PROPERTIES</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_COARSE_LOCATION</source>
-        <translation>android.permission.ACCESS_COARSE_LOCATION</translation>
+        <translation type="obsolete">android.permission.ACCESS_COARSE_LOCATION</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_FINE_LOCATION</source>
-        <translation>android.permission.ACCESS_FINE_LOCATION</translation>
+        <translation type="obsolete">android.permission.ACCESS_FINE_LOCATION</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_LOCATION_EXTRA_COMMANDS</source>
-        <translation>android.permission.ACCESS_LOCATION_EXTRA_COMMANDS</translation>
+        <translation type="obsolete">android.permission.ACCESS_LOCATION_EXTRA_COMMANDS</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_MOCK_LOCATION</source>
-        <translation>android.permission.ACCESS_MOCK_LOCATION</translation>
+        <translation type="obsolete">android.permission.ACCESS_MOCK_LOCATION</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_NETWORK_STATE</source>
-        <translation>android.permission.ACCESS_NETWORK_STATE</translation>
+        <translation type="obsolete">android.permission.ACCESS_NETWORK_STATE</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_SURFACE_FLINGER</source>
-        <translation>android.permission.ACCESS_SURFACE_FLINGER</translation>
+        <translation type="obsolete">android.permission.ACCESS_SURFACE_FLINGER</translation>
     </message>
     <message>
         <source>android.permission.ACCESS_WIFI_STATE</source>
-        <translation>android.permission.ACCESS_WIFI_STATE</translation>
+        <translation type="obsolete">android.permission.ACCESS_WIFI_STATE</translation>
     </message>
     <message>
         <source>android.permission.ACCOUNT_MANAGER</source>
-        <translation>android.permission.ACCOUNT_MANAGER</translation>
+        <translation type="obsolete">android.permission.ACCOUNT_MANAGER</translation>
     </message>
     <message>
         <source>android.permission.AUTHENTICATE_ACCOUNTS</source>
-        <translation>android.permission.AUTHENTICATE_ACCOUNTS</translation>
+        <translation type="obsolete">android.permission.AUTHENTICATE_ACCOUNTS</translation>
     </message>
     <message>
         <source>android.permission.BATTERY_STATS</source>
-        <translation>android.permission.BATTERY_STATS</translation>
+        <translation type="obsolete">android.permission.BATTERY_STATS</translation>
     </message>
     <message>
         <source>android.permission.BIND_APPWIDGET</source>
-        <translation>android.permission.BIND_APPWIDGET</translation>
+        <translation type="obsolete">android.permission.BIND_APPWIDGET</translation>
     </message>
     <message>
         <source>android.permission.BIND_DEVICE_ADMIN</source>
-        <translation>android.permission.BIND_DEVICE_ADMIN</translation>
+        <translation type="obsolete">android.permission.BIND_DEVICE_ADMIN</translation>
     </message>
     <message>
         <source>android.permission.BIND_INPUT_METHOD</source>
-        <translation>android.permission.BIND_INPUT_METHOD</translation>
+        <translation type="obsolete">android.permission.BIND_INPUT_METHOD</translation>
     </message>
     <message>
         <source>android.permission.BIND_REMOTEVIEWS</source>
-        <translation>android.permission.BIND_REMOTEVIEWS</translation>
+        <translation type="obsolete">android.permission.BIND_REMOTEVIEWS</translation>
     </message>
     <message>
         <source>android.permission.BIND_WALLPAPER</source>
-        <translation>android.permission.BIND_WALLPAPER</translation>
+        <translation type="obsolete">android.permission.BIND_WALLPAPER</translation>
     </message>
     <message>
         <source>android.permission.BLUETOOTH</source>
-        <translation>android.permission.BLUETOOTH</translation>
+        <translation type="obsolete">android.permission.BLUETOOTH</translation>
     </message>
     <message>
         <source>android.permission.BLUETOOTH_ADMIN</source>
-        <translation>android.permission.BLUETOOTH_ADMIN</translation>
+        <translation type="obsolete">android.permission.BLUETOOTH_ADMIN</translation>
     </message>
     <message>
         <source>android.permission.BRICK</source>
-        <translation>android.permission.BRICK</translation>
+        <translation type="obsolete">android.permission.BRICK</translation>
     </message>
     <message>
         <source>android.permission.BROADCAST_PACKAGE_REMOVED</source>
-        <translation>android.permission.BROADCAST_PACKAGE_REMOVED</translation>
+        <translation type="obsolete">android.permission.BROADCAST_PACKAGE_REMOVED</translation>
     </message>
     <message>
         <source>android.permission.BROADCAST_SMS</source>
-        <translation>android.permission.BROADCAST_SMS</translation>
+        <translation type="obsolete">android.permission.BROADCAST_SMS</translation>
     </message>
     <message>
         <source>android.permission.BROADCAST_STICKY</source>
-        <translation>android.permission.BROADCAST_STICKY</translation>
+        <translation type="obsolete">android.permission.BROADCAST_STICKY</translation>
     </message>
     <message>
         <source>android.permission.BROADCAST_WAP_PUSH</source>
-        <translation>android.permission.BROADCAST_WAP_PUSH</translation>
+        <translation type="obsolete">android.permission.BROADCAST_WAP_PUSH</translation>
     </message>
     <message>
         <source>android.permission.CALL_PHONE</source>
-        <translation>android.permission.CALL_PHONE</translation>
+        <translation type="obsolete">android.permission.CALL_PHONE</translation>
     </message>
     <message>
         <source>android.permission.CALL_PRIVILEGED</source>
-        <translation>android.permission.CALL_PRIVILEGED</translation>
+        <translation type="obsolete">android.permission.CALL_PRIVILEGED</translation>
     </message>
     <message>
         <source>android.permission.CAMERA</source>
-        <translation>android.permission.CAMERA</translation>
+        <translation type="obsolete">android.permission.CAMERA</translation>
     </message>
     <message>
         <source>android.permission.CHANGE_COMPONENT_ENABLED_STATE</source>
-        <translation>android.permission.CHANGE_COMPONENT_ENABLED_STATE</translation>
+        <translation type="obsolete">android.permission.CHANGE_COMPONENT_ENABLED_STATE</translation>
     </message>
     <message>
         <source>android.permission.CHANGE_CONFIGURATION</source>
-        <translation>android.permission.CHANGE_CONFIGURATION</translation>
+        <translation type="obsolete">android.permission.CHANGE_CONFIGURATION</translation>
     </message>
     <message>
         <source>android.permission.CHANGE_NETWORK_STATE</source>
-        <translation>android.permission.CHANGE_NETWORK_STATE</translation>
+        <translation type="obsolete">android.permission.CHANGE_NETWORK_STATE</translation>
     </message>
     <message>
         <source>android.permission.CHANGE_WIFI_MULTICAST_STATE</source>
-        <translation>android.permission.CHANGE_WIFI_MULTICAST_STATE</translation>
+        <translation type="obsolete">android.permission.CHANGE_WIFI_MULTICAST_STATE</translation>
     </message>
     <message>
         <source>android.permission.CHANGE_WIFI_STATE</source>
-        <translation>android.permission.CHANGE_WIFI_STATE</translation>
+        <translation type="obsolete">android.permission.CHANGE_WIFI_STATE</translation>
     </message>
     <message>
         <source>android.permission.CLEAR_APP_CACHE</source>
-        <translation>android.permission.CLEAR_APP_CACHE</translation>
+        <translation type="obsolete">android.permission.CLEAR_APP_CACHE</translation>
     </message>
     <message>
         <source>android.permission.CLEAR_APP_USER_DATA</source>
-        <translation>android.permission.CLEAR_APP_USER_DATA</translation>
+        <translation type="obsolete">android.permission.CLEAR_APP_USER_DATA</translation>
     </message>
     <message>
         <source>android.permission.CONTROL_LOCATION_UPDATES</source>
-        <translation>android.permission.CONTROL_LOCATION_UPDATES</translation>
+        <translation type="obsolete">android.permission.CONTROL_LOCATION_UPDATES</translation>
     </message>
     <message>
         <source>android.permission.DELETE_CACHE_FILES</source>
-        <translation>android.permission.DELETE_CACHE_FILES</translation>
+        <translation type="obsolete">android.permission.DELETE_CACHE_FILES</translation>
     </message>
     <message>
         <source>android.permission.DELETE_PACKAGES</source>
-        <translation>android.permission.DELETE_PACKAGES</translation>
+        <translation type="obsolete">android.permission.DELETE_PACKAGES</translation>
     </message>
     <message>
         <source>android.permission.DEVICE_POWER</source>
-        <translation>android.permission.DEVICE_POWER</translation>
+        <translation type="obsolete">android.permission.DEVICE_POWER</translation>
     </message>
     <message>
         <source>android.permission.DIAGNOSTIC</source>
-        <translation>android.permission.DIAGNOSTIC</translation>
+        <translation type="obsolete">android.permission.DIAGNOSTIC</translation>
     </message>
     <message>
         <source>android.permission.DISABLE_KEYGUARD</source>
-        <translation>android.permission.DISABLE_KEYGUARD</translation>
+        <translation type="obsolete">android.permission.DISABLE_KEYGUARD</translation>
     </message>
     <message>
         <source>android.permission.DUMP</source>
-        <translation>android.permission.DUMP</translation>
+        <translation type="obsolete">android.permission.DUMP</translation>
     </message>
     <message>
         <source>android.permission.EXPAND_STATUS_BAR</source>
-        <translation>android.permission.EXPAND_STATUS_BAR</translation>
+        <translation type="obsolete">android.permission.EXPAND_STATUS_BAR</translation>
     </message>
     <message>
         <source>android.permission.FACTORY_TEST</source>
-        <translation>android.permission.FACTORY_TEST</translation>
+        <translation type="obsolete">android.permission.FACTORY_TEST</translation>
     </message>
     <message>
         <source>android.permission.FLASHLIGHT</source>
-        <translation>android.permission.FLASHLIGHT</translation>
+        <translation type="obsolete">android.permission.FLASHLIGHT</translation>
     </message>
     <message>
         <source>android.permission.FORCE_BACK</source>
-        <translation>android.permission.FORCE_BACK</translation>
+        <translation type="obsolete">android.permission.FORCE_BACK</translation>
     </message>
     <message>
         <source>android.permission.GET_ACCOUNTS</source>
-        <translation>android.permission.GET_ACCOUNTS</translation>
+        <translation type="obsolete">android.permission.GET_ACCOUNTS</translation>
     </message>
     <message>
         <source>android.permission.GET_PACKAGE_SIZE</source>
-        <translation>android.permission.GET_PACKAGE_SIZE</translation>
+        <translation type="obsolete">android.permission.GET_PACKAGE_SIZE</translation>
     </message>
     <message>
         <source>android.permission.GET_TASKS</source>
-        <translation>android.permission.GET_TASKS</translation>
+        <translation type="obsolete">android.permission.GET_TASKS</translation>
     </message>
     <message>
         <source>android.permission.GLOBAL_SEARCH</source>
-        <translation>android.permission.GLOBAL_SEARCH</translation>
+        <translation type="obsolete">android.permission.GLOBAL_SEARCH</translation>
     </message>
     <message>
         <source>android.permission.HARDWARE_TEST</source>
-        <translation>android.permission.HARDWARE_TEST</translation>
+        <translation type="obsolete">android.permission.HARDWARE_TEST</translation>
     </message>
     <message>
         <source>android.permission.INJECT_EVENTS</source>
-        <translation>android.permission.INJECT_EVENTS</translation>
+        <translation type="obsolete">android.permission.INJECT_EVENTS</translation>
     </message>
     <message>
         <source>android.permission.INSTALL_LOCATION_PROVIDER</source>
-        <translation>android.permission.INSTALL_LOCATION_PROVIDER</translation>
+        <translation type="obsolete">android.permission.INSTALL_LOCATION_PROVIDER</translation>
     </message>
     <message>
         <source>android.permission.INSTALL_PACKAGES</source>
-        <translation>android.permission.INSTALL_PACKAGES</translation>
+        <translation type="obsolete">android.permission.INSTALL_PACKAGES</translation>
     </message>
     <message>
         <source>android.permission.INTERNAL_SYSTEM_WINDOW</source>
-        <translation>android.permission.INTERNAL_SYSTEM_WINDOW</translation>
+        <translation type="obsolete">android.permission.INTERNAL_SYSTEM_WINDOW</translation>
     </message>
     <message>
         <source>android.permission.INTERNET</source>
-        <translation>android.permission.INTERNET</translation>
+        <translation type="obsolete">android.permission.INTERNET</translation>
     </message>
     <message>
         <source>android.permission.KILL_BACKGROUND_PROCESSES</source>
-        <translation>android.permission.KILL_BACKGROUND_PROCESSES</translation>
+        <translation type="obsolete">android.permission.KILL_BACKGROUND_PROCESSES</translation>
     </message>
     <message>
         <source>android.permission.MANAGE_ACCOUNTS</source>
-        <translation>android.permission.MANAGE_ACCOUNTS</translation>
+        <translation type="obsolete">android.permission.MANAGE_ACCOUNTS</translation>
     </message>
     <message>
         <source>android.permission.MANAGE_APP_TOKENS</source>
-        <translation>android.permission.MANAGE_APP_TOKENS</translation>
+        <translation type="obsolete">android.permission.MANAGE_APP_TOKENS</translation>
     </message>
     <message>
         <source>android.permission.MASTER_CLEAR</source>
-        <translation>android.permission.MASTER_CLEAR</translation>
+        <translation type="obsolete">android.permission.MASTER_CLEAR</translation>
     </message>
     <message>
         <source>android.permission.MODIFY_AUDIO_SETTINGS</source>
-        <translation>android.permission.MODIFY_AUDIO_SETTINGS</translation>
+        <translation type="obsolete">android.permission.MODIFY_AUDIO_SETTINGS</translation>
     </message>
     <message>
         <source>android.permission.MODIFY_PHONE_STATE</source>
-        <translation>android.permission.MODIFY_PHONE_STATE</translation>
+        <translation type="obsolete">android.permission.MODIFY_PHONE_STATE</translation>
     </message>
     <message>
         <source>android.permission.MOUNT_FORMAT_FILESYSTEMS</source>
-        <translation>android.permission.MOUNT_FORMAT_FILESYSTEMS</translation>
+        <translation type="obsolete">android.permission.MOUNT_FORMAT_FILESYSTEMS</translation>
     </message>
     <message>
         <source>android.permission.MOUNT_UNMOUNT_FILESYSTEMS</source>
-        <translation>android.permission.MOUNT_UNMOUNT_FILESYSTEMS</translation>
+        <translation type="obsolete">android.permission.MOUNT_UNMOUNT_FILESYSTEMS</translation>
     </message>
     <message>
         <source>android.permission.NFC</source>
-        <translation>android.permission.NFC</translation>
+        <translation type="obsolete">android.permission.NFC</translation>
     </message>
     <message>
         <source>android.permission.PERSISTENT_ACTIVITY</source>
-        <translation>android.permission.PERSISTENT_ACTIVITY</translation>
+        <translation type="obsolete">android.permission.PERSISTENT_ACTIVITY</translation>
     </message>
     <message>
         <source>android.permission.PROCESS_OUTGOING_CALLS</source>
-        <translation>android.permission.PROCESS_OUTGOING_CALLS</translation>
+        <translation type="obsolete">android.permission.PROCESS_OUTGOING_CALLS</translation>
     </message>
     <message>
         <source>android.permission.READ_CALENDAR</source>
-        <translation>android.permission.READ_CALENDAR</translation>
+        <translation type="obsolete">android.permission.READ_CALENDAR</translation>
     </message>
     <message>
         <source>android.permission.READ_CONTACTS</source>
-        <translation>android.permission.READ_CONTACTS</translation>
+        <translation type="obsolete">android.permission.READ_CONTACTS</translation>
     </message>
     <message>
         <source>android.permission.READ_FRAME_BUFFER</source>
-        <translation>android.permission.READ_FRAME_BUFFER</translation>
+        <translation type="obsolete">android.permission.READ_FRAME_BUFFER</translation>
     </message>
     <message>
         <source>com.android.browser.permission.READ_HISTORY_BOOKMARKS</source>
-        <translation>com.android.browser.permission.READ_HISTORY_BOOKMARKS</translation>
+        <translation type="obsolete">com.android.browser.permission.READ_HISTORY_BOOKMARKS</translation>
     </message>
     <message>
         <source>android.permission.READ_INPUT_STATE</source>
-        <translation>android.permission.READ_INPUT_STATE</translation>
+        <translation type="obsolete">android.permission.READ_INPUT_STATE</translation>
     </message>
     <message>
         <source>android.permission.READ_LOGS</source>
-        <translation>android.permission.READ_LOGS</translation>
+        <translation type="obsolete">android.permission.READ_LOGS</translation>
     </message>
     <message>
         <source>android.permission.READ_OWNER_DATA</source>
-        <translation>android.permission.READ_OWNER_DATA</translation>
+        <translation type="obsolete">android.permission.READ_OWNER_DATA</translation>
     </message>
     <message>
         <source>android.permission.READ_PHONE_STATE</source>
-        <translation>android.permission.READ_PHONE_STATE</translation>
+        <translation type="obsolete">android.permission.READ_PHONE_STATE</translation>
     </message>
     <message>
         <source>android.permission.READ_SMS</source>
-        <translation>android.permission.READ_SMS</translation>
+        <translation type="obsolete">android.permission.READ_SMS</translation>
     </message>
     <message>
         <source>android.permission.READ_SYNC_SETTINGS</source>
-        <translation>android.permission.READ_SYNC_SETTINGS</translation>
+        <translation type="obsolete">android.permission.READ_SYNC_SETTINGS</translation>
     </message>
     <message>
         <source>android.permission.READ_SYNC_STATS</source>
-        <translation>android.permission.READ_SYNC_STATS</translation>
+        <translation type="obsolete">android.permission.READ_SYNC_STATS</translation>
     </message>
     <message>
         <source>android.permission.REBOOT</source>
-        <translation>android.permission.REBOOT</translation>
+        <translation type="obsolete">android.permission.REBOOT</translation>
     </message>
     <message>
         <source>android.permission.RECEIVE_BOOT_COMPLETED</source>
-        <translation>android.permission.RECEIVE_BOOT_COMPLETED</translation>
+        <translation type="obsolete">android.permission.RECEIVE_BOOT_COMPLETED</translation>
     </message>
     <message>
         <source>android.permission.RECEIVE_MMS</source>
-        <translation>android.permission.RECEIVE_MMS</translation>
+        <translation type="obsolete">android.permission.RECEIVE_MMS</translation>
     </message>
     <message>
         <source>android.permission.RECEIVE_SMS</source>
-        <translation>android.permission.RECEIVE_SMS</translation>
+        <translation type="obsolete">android.permission.RECEIVE_SMS</translation>
     </message>
     <message>
         <source>android.permission.RECEIVE_WAP_PUSH</source>
-        <translation>android.permission.RECEIVE_WAP_PUSH</translation>
+        <translation type="obsolete">android.permission.RECEIVE_WAP_PUSH</translation>
     </message>
     <message>
         <source>android.permission.RECORD_AUDIO</source>
-        <translation>android.permission.RECORD_AUDIO</translation>
+        <translation type="obsolete">android.permission.RECORD_AUDIO</translation>
     </message>
     <message>
         <source>android.permission.REORDER_TASKS</source>
-        <translation>android.permission.REORDER_TASKS</translation>
+        <translation type="obsolete">android.permission.REORDER_TASKS</translation>
     </message>
     <message>
         <source>android.permission.RESTART_PACKAGES</source>
-        <translation>android.permission.RESTART_PACKAGES</translation>
+        <translation type="obsolete">android.permission.RESTART_PACKAGES</translation>
     </message>
     <message>
         <source>android.permission.SEND_SMS</source>
-        <translation>android.permission.SEND_SMS</translation>
+        <translation type="obsolete">android.permission.SEND_SMS</translation>
     </message>
     <message>
         <source>android.permission.SET_ACTIVITY_WATCHER</source>
-        <translation>android.permission.SET_ACTIVITY_WATCHER</translation>
+        <translation type="obsolete">android.permission.SET_ACTIVITY_WATCHER</translation>
     </message>
     <message>
         <source>com.android.alarm.permission.SET_ALARM</source>
-        <translation>com.android.alarm.permission.SET_ALARM</translation>
+        <translation type="obsolete">com.android.alarm.permission.SET_ALARM</translation>
     </message>
     <message>
         <source>android.permission.SET_ALWAYS_FINISH</source>
-        <translation>android.permission.SET_ALWAYS_FINISH</translation>
+        <translation type="obsolete">android.permission.SET_ALWAYS_FINISH</translation>
     </message>
     <message>
         <source>android.permission.SET_ANIMATION_SCALE</source>
-        <translation>android.permission.SET_ANIMATION_SCALE</translation>
+        <translation type="obsolete">android.permission.SET_ANIMATION_SCALE</translation>
     </message>
     <message>
         <source>android.permission.SET_DEBUG_APP</source>
-        <translation>android.permission.SET_DEBUG_APP</translation>
+        <translation type="obsolete">android.permission.SET_DEBUG_APP</translation>
     </message>
     <message>
         <source>android.permission.SET_ORIENTATION</source>
-        <translation>android.permission.SET_ORIENTATION</translation>
+        <translation type="obsolete">android.permission.SET_ORIENTATION</translation>
     </message>
     <message>
         <source>android.permission.SET_PREFERRED_APPLICATIONS</source>
-        <translation>android.permission.SET_PREFERRED_APPLICATIONS</translation>
+        <translation type="obsolete">android.permission.SET_PREFERRED_APPLICATIONS</translation>
     </message>
     <message>
         <source>android.permission.SET_PROCESS_LIMIT</source>
-        <translation>android.permission.SET_PROCESS_LIMIT</translation>
+        <translation type="obsolete">android.permission.SET_PROCESS_LIMIT</translation>
     </message>
     <message>
         <source>android.permission.SET_TIME</source>
-        <translation>android.permission.SET_TIME</translation>
+        <translation type="obsolete">android.permission.SET_TIME</translation>
     </message>
     <message>
         <source>android.permission.SET_TIME_ZONE</source>
-        <translation>android.permission.SET_TIME_ZONE</translation>
+        <translation type="obsolete">android.permission.SET_TIME_ZONE</translation>
     </message>
     <message>
         <source>android.permission.SET_WALLPAPER</source>
-        <translation>android.permission.SET_WALLPAPER</translation>
+        <translation type="obsolete">android.permission.SET_WALLPAPER</translation>
     </message>
     <message>
         <source>android.permission.SET_WALLPAPER_HINTS</source>
-        <translation>android.permission.SET_WALLPAPER_HINTS</translation>
+        <translation type="obsolete">android.permission.SET_WALLPAPER_HINTS</translation>
     </message>
     <message>
         <source>android.permission.SIGNAL_PERSISTENT_PROCESSES</source>
-        <translation>android.permission.SIGNAL_PERSISTENT_PROCESSES</translation>
+        <translation type="obsolete">android.permission.SIGNAL_PERSISTENT_PROCESSES</translation>
     </message>
     <message>
         <source>android.permission.STATUS_BAR</source>
-        <translation>android.permission.STATUS_BAR</translation>
+        <translation type="obsolete">android.permission.STATUS_BAR</translation>
     </message>
     <message>
         <source>android.permission.SUBSCRIBED_FEEDS_READ</source>
-        <translation>android.permission.SUBSCRIBED_FEEDS_READ</translation>
+        <translation type="obsolete">android.permission.SUBSCRIBED_FEEDS_READ</translation>
     </message>
     <message>
         <source>android.permission.SUBSCRIBED_FEEDS_WRITE</source>
-        <translation>android.permission.SUBSCRIBED_FEEDS_WRITE</translation>
+        <translation type="obsolete">android.permission.SUBSCRIBED_FEEDS_WRITE</translation>
     </message>
     <message>
         <source>android.permission.SYSTEM_ALERT_WINDOW</source>
-        <translation>android.permission.SYSTEM_ALERT_WINDOW</translation>
+        <translation type="obsolete">android.permission.SYSTEM_ALERT_WINDOW</translation>
     </message>
     <message>
         <source>android.permission.UPDATE_DEVICE_STATS</source>
-        <translation>android.permission.UPDATE_DEVICE_STATS</translation>
+        <translation type="obsolete">android.permission.UPDATE_DEVICE_STATS</translation>
     </message>
     <message>
         <source>android.permission.USE_CREDENTIALS</source>
-        <translation>android.permission.USE_CREDENTIALS</translation>
+        <translation type="obsolete">android.permission.USE_CREDENTIALS</translation>
     </message>
     <message>
         <source>android.permission.USE_SIP</source>
-        <translation>android.permission.USE_SIP</translation>
+        <translation type="obsolete">android.permission.USE_SIP</translation>
     </message>
     <message>
         <source>android.permission.VIBRATE</source>
-        <translation>android.permission.VIBRATE</translation>
+        <translation type="obsolete">android.permission.VIBRATE</translation>
     </message>
     <message>
         <source>android.permission.WAKE_LOCK</source>
-        <translation>android.permission.WAKE_LOCK</translation>
+        <translation type="obsolete">android.permission.WAKE_LOCK</translation>
     </message>
     <message>
         <source>android.permission.WRITE_APN_SETTINGS</source>
-        <translation>android.permission.WRITE_APN_SETTINGS</translation>
+        <translation type="obsolete">android.permission.WRITE_APN_SETTINGS</translation>
     </message>
     <message>
         <source>android.permission.WRITE_CALENDAR</source>
-        <translation>android.permission.WRITE_CALENDAR</translation>
+        <translation type="obsolete">android.permission.WRITE_CALENDAR</translation>
     </message>
     <message>
         <source>android.permission.WRITE_CONTACTS</source>
-        <translation>android.permission.WRITE_CONTACTS</translation>
+        <translation type="obsolete">android.permission.WRITE_CONTACTS</translation>
     </message>
     <message>
         <source>android.permission.WRITE_EXTERNAL_STORAGE</source>
-        <translation>android.permission.WRITE_EXTERNAL_STORAGE</translation>
+        <translation type="obsolete">android.permission.WRITE_EXTERNAL_STORAGE</translation>
     </message>
     <message>
         <source>android.permission.WRITE_GSERVICES</source>
-        <translation>android.permission.WRITE_GSERVICES</translation>
+        <translation type="obsolete">android.permission.WRITE_GSERVICES</translation>
     </message>
     <message>
         <source>com.android.browser.permission.WRITE_HISTORY_BOOKMARKS</source>
-        <translation>com.android.browser.permission.WRITE_HISTORY_BOOKMARKS</translation>
+        <translation type="obsolete">com.android.browser.permission.WRITE_HISTORY_BOOKMARKS</translation>
     </message>
     <message>
         <source>android.permission.WRITE_OWNER_DATA</source>
-        <translation>android.permission.WRITE_OWNER_DATA</translation>
+        <translation type="obsolete">android.permission.WRITE_OWNER_DATA</translation>
     </message>
     <message>
         <source>android.permission.WRITE_SECURE_SETTINGS</source>
-        <translation>android.permission.WRITE_SECURE_SETTINGS</translation>
+        <translation type="obsolete">android.permission.WRITE_SECURE_SETTINGS</translation>
     </message>
     <message>
         <source>android.permission.WRITE_SETTINGS</source>
-        <translation>android.permission.WRITE_SETTINGS</translation>
+        <translation type="obsolete">android.permission.WRITE_SETTINGS</translation>
     </message>
     <message>
         <source>android.permission.WRITE_SMS</source>
-        <translation>android.permission.WRITE_SMS</translation>
+        <translation type="obsolete">android.permission.WRITE_SMS</translation>
     </message>
     <message>
         <source>android.permission.WRITE_SYNC_SETTINGS</source>
-        <translation>android.permission.WRITE_SYNC_SETTINGS</translation>
+        <translation type="obsolete">android.permission.WRITE_SYNC_SETTINGS</translation>
     </message>
     <message>
         <source>Libraries</source>
-        <translation>Knihovny</translation>
+        <translation type="obsolete">Knihovny</translation>
     </message>
     <message>
         <source>Automatically check required Qt libraries from compiled application</source>
-        <translation>Automaticky ověřit požadované knihovny Qt ze sestaveného programu</translation>
+        <translation type="obsolete">Automaticky ověřit požadované knihovny Qt ze sestaveného programu</translation>
     </message>
     <message>
         <source>Read information from application (must be compiled)</source>
-        <translation>Číst informace z programu (musí být sestaven)</translation>
+        <translation type="obsolete">Číst informace z programu (musí být sestaven)</translation>
     </message>
     <message>
         <source>Required Qt libraries</source>
-        <translation>Požadované knihovny Qt</translation>
+        <translation type="obsolete">Požadované knihovny Qt</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -45937,7 +46157,7 @@ p, li { white-space: pre-wrap; }
 &lt;td style=&quot;border: none;&quot;&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Prebundled libraries&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Be aware, the order is very important: if library A depends on library B, B MUST be come before A!&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;DejaVu Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
@@ -45949,110 +46169,110 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Up</source>
-        <translation>Nahoru</translation>
+        <translation type="obsolete">Nahoru</translation>
     </message>
     <message>
         <source>Down</source>
-        <translation>Dolů</translation>
+        <translation type="obsolete">Dolů</translation>
     </message>
     <message>
         <source>Sign package</source>
-        <translation>Podepsat balíček</translation>
+        <translation type="obsolete">Podepsat balíček</translation>
     </message>
     <message>
         <source>Keystore:</source>
-        <translation>Úložiště pro klíč:</translation>
+        <translation type="obsolete">Úložiště pro klíč:</translation>
     </message>
     <message>
         <source>Create</source>
-        <translation>Vytvořit</translation>
+        <translation type="obsolete">Vytvořit</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation>Procházet</translation>
+        <translation type="obsolete">Procházet</translation>
     </message>
     <message>
         <source>Open package location after is complete</source>
-        <translation>Otevřít umístění balíčku, když je hotový</translation>
+        <translation type="obsolete">Otevřít umístění balíčku, když je hotový</translation>
     </message>
     <message>
         <source>Certificate alias:</source>
-        <translation>Osvědčit přezdívku:</translation>
+        <translation type="obsolete">Osvědčit přezdívku:</translation>
     </message>
 </context>
 <context>
     <name>AndroidSettingsWidget</name>
     <message>
         <source>Android Configuration</source>
-        <translation>Nastavení pro Android</translation>
+        <translation type="obsolete">Nastavení pro Android</translation>
     </message>
     <message>
         <source>Android SDK location:</source>
-        <translation>Umístění SDK pro Android:</translation>
+        <translation type="obsolete">Umístění SDK pro Android:</translation>
     </message>
     <message>
         <source>Browse</source>
-        <translation>Procházet</translation>
+        <translation type="obsolete">Procházet</translation>
     </message>
     <message>
         <source>Android NDK location:</source>
-        <translation>Umístění NDK pro Android:</translation>
+        <translation type="obsolete">Umístění NDK pro Android:</translation>
     </message>
     <message>
         <source>Android NDK toolchain version:</source>
-        <translation>Verze sady nástrojů NDK pro Android:</translation>
+        <translation type="obsolete">Verze sady nástrojů NDK pro Android:</translation>
     </message>
     <message>
         <source>Ant location:</source>
-        <translation>Umístění Ant:</translation>
+        <translation type="obsolete">Umístění Ant:</translation>
     </message>
     <message>
         <source>arm GDB location:</source>
-        <translation>Umístění GDB arm:</translation>
+        <translation type="obsolete">Umístění GDB arm:</translation>
     </message>
     <message>
         <source>arm GDBserver location:</source>
-        <translation>Umístění GDBserver arm:</translation>
+        <translation type="obsolete">Umístění GDBserver arm:</translation>
     </message>
     <message>
         <source>x86 GDB location:</source>
-        <translation>Umístění GDB x86:</translation>
+        <translation type="obsolete">Umístění GDB x86:</translation>
     </message>
     <message>
         <source>x86 GDBserver location:</source>
-        <translation>Umístění GDBserver x86:</translation>
+        <translation type="obsolete">Umístění GDBserver x86:</translation>
     </message>
     <message>
         <source>OpenJDK location:</source>
-        <translation>Umístění OpenJDK:</translation>
+        <translation type="obsolete">Umístění OpenJDK:</translation>
     </message>
     <message>
         <source>Start</source>
-        <translation>Spustit</translation>
+        <translation type="obsolete">Spustit</translation>
     </message>
     <message>
         <source>AVD Manager</source>
-        <translation>Správce AVD</translation>
+        <translation type="obsolete">Správce AVD</translation>
     </message>
     <message>
         <source>System/data partition size:</source>
-        <translation>Velikost oddílu se systémem/daty:</translation>
+        <translation type="obsolete">Velikost oddílu se systémem/daty:</translation>
     </message>
     <message>
         <source> Mb</source>
-        <translation> MiB</translation>
+        <translation type="obsolete"> MiB</translation>
     </message>
     <message>
         <source>Start Android AVD Manager</source>
-        <translation>Spustit správce AVD Android</translation>
+        <translation type="obsolete">Spustit správce AVD Android</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation>Přidat</translation>
+        <translation type="obsolete">Přidat</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Odstranit</translation>
+        <translation type="obsolete">Odstranit</translation>
     </message>
 </context>
 <context>
@@ -46389,7 +46609,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Bring Qt Creator to foreground when application interrupts</source>
-        <translation>Přivést Qt Creator do popředí, když dojde k přerušení programu</translation>
+        <translation type="obsolete">Přivést Qt Creator do popředí, když dojde k přerušení programu</translation>
     </message>
 </context>
 <context>
@@ -46526,66 +46746,66 @@ p, li { white-space: pre-wrap; }
     <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
-        <translation>Zřízení nového nastavení zařízení</translation>
+        <translation type="obsolete">Zřízení nového nastavení zařízení</translation>
     </message>
     <message>
         <source>Available device types:</source>
-        <translation>Dostupné typy zařízení:</translation>
+        <translation type="obsolete">Dostupné typy zařízení:</translation>
     </message>
     <message>
         <source>Start Wizard</source>
-        <translation>Spustit průvodce</translation>
+        <translation type="obsolete">Spustit průvodce</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
     <message>
         <source>Linux Device Configurations</source>
-        <translation>Nastavení linuxového zařízení</translation>
+        <translation type="obsolete">Nastavení linuxového zařízení</translation>
     </message>
     <message>
         <source>&amp;Device:</source>
-        <translation>&amp;Zařízení:</translation>
+        <translation type="obsolete">&amp;Zařízení:</translation>
     </message>
     <message>
         <source>General</source>
-        <translation>Obecné</translation>
+        <translation type="obsolete">Obecné</translation>
     </message>
     <message>
         <source>Type:</source>
-        <translation>Typ:</translation>
+        <translation type="obsolete">Typ:</translation>
     </message>
     <message>
         <source>&amp;Name:</source>
-        <translation>&amp;Název:</translation>
+        <translation type="obsolete">&amp;Název:</translation>
     </message>
     <message>
         <source>Auto-detected:</source>
-        <translation>Automaticky zjištěno:</translation>
+        <translation type="obsolete">Automaticky zjištěno:</translation>
     </message>
     <message>
         <source>Type Specific</source>
-        <translation>Typově zvláštní</translation>
+        <translation type="obsolete">Typově zvláštní</translation>
     </message>
     <message>
         <source>&amp;Add...</source>
-        <translation>&amp;Přidat...</translation>
+        <translation type="obsolete">&amp;Přidat...</translation>
     </message>
     <message>
         <source>&amp;Remove</source>
-        <translation>&amp;Odstranit</translation>
+        <translation type="obsolete">&amp;Odstranit</translation>
     </message>
     <message>
         <source>Set As Default</source>
-        <translation>Nastavit jako výchozí</translation>
+        <translation type="obsolete">Nastavit jako výchozí</translation>
     </message>
     <message>
         <source>Yes (fingerprint is &apos;%1&apos;)</source>
-        <translation>Ano (otisk prstu je &apos;%1&apos;)</translation>
+        <translation type="obsolete">Ano (otisk prstu je &apos;%1&apos;)</translation>
     </message>
     <message>
         <source>No</source>
-        <translation>Ne</translation>
+        <translation type="obsolete">Ne</translation>
     </message>
 </context>
 <context>
@@ -46893,23 +47113,27 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Create New...</source>
-        <translation>Vytvořit nový...</translation>
+        <translation type="obsolete">Vytvořit nový...</translation>
     </message>
     <message>
         <source>Machine type:</source>
-        <translation>Typ stroje:</translation>
+        <translation type="obsolete">Typ stroje:</translation>
     </message>
     <message>
         <source>Physical Device</source>
-        <translation>Fyzické zařízení</translation>
+        <translation type="obsolete">Fyzické zařízení</translation>
     </message>
     <message>
         <source>Emulator</source>
-        <translation>Emulátor</translation>
+        <translation type="obsolete">Emulátor</translation>
     </message>
     <message>
         <source>You will need at least one port.</source>
         <translation>Potřebujete alespoň jeden volný port.</translation>
+    </message>
+    <message>
+        <source>Set as Default</source>
+        <translation>Nastavit jako výchozí</translation>
     </message>
 </context>
 <context>
@@ -46989,7 +47213,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&amp;Filter entries:</source>
-        <translation>&amp;Filtrovat záznamy:</translation>
+        <translation type="obsolete">&amp;Filtrovat záznamy:</translation>
     </message>
     <message>
         <source>&amp;Update List</source>
@@ -46998,6 +47222,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>&amp;Kill Selected Process</source>
         <translation>&amp;Ukončit vybraný proces</translation>
+    </message>
+    <message>
+        <source>&amp;Filter by process name:</source>
+        <translation>&amp;Filtrovat podle názvu procesu:</translation>
     </message>
 </context>
 <context>
@@ -47461,27 +47689,27 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     <name>Todo::Internal::KeywordDialog</name>
     <message>
         <source>Keyword</source>
-        <translation>Klíčové slovo</translation>
+        <translation type="obsolete">Klíčové slovo</translation>
     </message>
     <message>
         <source>Icon</source>
-        <translation>Ikona</translation>
+        <translation type="obsolete">Ikona</translation>
     </message>
     <message>
         <source>Color</source>
-        <translation>Barva</translation>
+        <translation type="obsolete">Barva</translation>
     </message>
     <message>
         <source>errorLabel</source>
-        <translation>chybaŠtítek</translation>
+        <translation type="obsolete">chybaŠtítek</translation>
     </message>
     <message>
         <source>Keyword cannot be empty, contain spaces or colons.</source>
-        <translation>Klíčové slovo nemůže být prázdné, nemůže obsahovat mezery nebo dvojtečky.</translation>
+        <translation type="obsolete">Klíčové slovo nemůže být prázdné, nemůže obsahovat mezery nebo dvojtečky.</translation>
     </message>
     <message>
         <source>There is already a keyword with this name.</source>
-        <translation>Klíčové slovo s tímto názvem již existuje.</translation>
+        <translation type="obsolete">Klíčové slovo s tímto názvem již existuje.</translation>
     </message>
 </context>
 <context>
@@ -47742,8 +47970,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Delší popis pro příklad dvojrozměrného malování</translation>
     </message>
     <message>
-        <source>The 2D Painting example shows how QPainter and QGLWidget. The 2D Painting example shows how QPainter and QGLWidget work together.</source>
+        <source>The 2D Painting example shows how QPainter and QGLWidget work together.</source>
         <translation>Příklad dvojrozměrného malování ukazuje, jak QPainter and QGLWidget pracují dohromady.</translation>
+    </message>
+    <message>
+        <source>The 2D Painting example shows how QPainter and QGLWidget. The 2D Painting example shows how QPainter and QGLWidget work together.</source>
+        <translation type="obsolete">Příklad dvojrozměrného malování ukazuje, jak QPainter and QGLWidget pracují dohromady.</translation>
     </message>
     <message>
         <source>Tags:</source>
@@ -47788,12 +48020,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
-        <translation>Port se už používá.</translation>
+        <translation type="obsolete">Port se už používá.</translation>
     </message>
     <message>
         <source>The application is not set up for QML/JS debugging.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
-        <translation>Tento program není nastaven pro ladění QML/JS.</translation>
+        <translation type="obsolete">Tento program není nastaven pro ladění QML/JS.</translation>
     </message>
 </context>
 <context>
@@ -48059,7 +48291,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>Utils::BaseTreeView</name>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>Přizpůsobit šířku sloupců obsahu</translation>
+        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
     </message>
 </context>
 <context>
@@ -48151,7 +48383,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>zeroconf failed to kill other daemons with &apos;%1&apos;</source>
-        <translation>zeroconf se nepodařilo ukončit další démony s &apos;%1&apos;</translation>
+        <translation type="obsolete">zeroconf se nepodařilo ukončit další démony s &apos;%1&apos;</translation>
     </message>
     <message>
         <source>%1 failed starting embedded daemon at %2</source>
@@ -48166,11 +48398,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>DnsSdZConfLib skipping over avahi compatibility lib (or obsolete mdnsd)</source>
-        <translation>DnsSdZConfLib přeskakuje  knihovnu kompatibility avahi (nebo zastaralé mdnsd)</translation>
+        <translation type="obsolete">DnsSdZConfLib přeskakuje  knihovnu kompatibility avahi (nebo zastaralé mdnsd)</translation>
     </message>
     <message>
         <source>*WARNING* DnsSdZConfLib detected an obsolete version of Apple Bonjour, either disable/uninstall it or upgrade it. Otherwise zeroconf will fail.</source>
-        <translation>*WARNING* DnsSdZConfLib zjistil zastaralou verzi Apple Bonjour, buď ji zakažte/odinstalujte, nebo ji povyšte na verzi vyšší. Jinak zeroconf will spadne.</translation>
+        <translation type="obsolete">*WARNING* DnsSdZConfLib zjistil zastaralou verzi Apple Bonjour, buď ji zakažte/odinstalujte, nebo ji povyšte na verzi vyšší. Jinak zeroconf will spadne.</translation>
     </message>
     <message>
         <source>MainConnection giving up on non Ok lib %1 (%2)</source>
@@ -48206,7 +48438,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>MainConnection could successfully create a connection using lib %1</source>
-        <translation>Hlavní spojení se při použití knihovny %1 podařilo úspěšně vytvořit</translation>
+        <translation type="obsolete">Hlavní spojení se při použití knihovny %1 podařilo úspěšně vytvořit</translation>
     </message>
     <message>
         <source>MainConnection::handleEvents called with m_status != Starting, aborting</source>
@@ -48257,12 +48489,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <name>Android::Internal::AndroidConfigurations</name>
     <message>
         <source>Create AVD error</source>
-        <translation>Chyba při vytváření AVD</translation>
+        <translation type="obsolete">Chyba při vytváření AVD</translation>
     </message>
     <message>
         <source>Can&apos;t create a new AVD, not enough android SDKs available
 Please install one SDK with api version &gt;=%1</source>
-        <translation>Nelze vytvořit nové AVD, není dostupný dostatek SDK pro Android
+        <translation type="obsolete">Nelze vytvořit nové AVD, není dostupný dostatek SDK pro Android
 Nainstalujte, prosím, jedno SDK s API verze &gt;=%1</translation>
     </message>
 </context>
@@ -48270,14 +48502,14 @@ Nainstalujte, prosím, jedno SDK s API verze &gt;=%1</translation>
     <name>Android</name>
     <message>
         <source>Android</source>
-        <translation>Android</translation>
+        <translation type="obsolete">Android</translation>
     </message>
 </context>
 <context>
     <name>QtSupport</name>
     <message>
         <source>Android</source>
-        <translation>Android</translation>
+        <translation type="obsolete">Android</translation>
     </message>
     <message>
         <source>MeeGo/Harmattan</source>
@@ -48304,41 +48536,41 @@ Nainstalujte, prosím, jedno SDK s API verze &gt;=%1</translation>
     <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo je příliš krátké&lt;/span&gt;</translation>
+        <translation type="obsolete">&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo je příliš krátké&lt;/span&gt;</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Passwords don&apos;t match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo neodpovídá&lt;/span&gt;</translation>
+        <translation type="obsolete">&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo neodpovídá&lt;/span&gt;</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; color:#00ff00;&quot;&gt;Password is ok&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo je OK&lt;/span&gt;</translation>
+        <translation type="obsolete">&lt;span style=&quot; color:#ff0000;&quot;&gt;Heslo je OK&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Keystore file name</source>
-        <translation>Název souboru úložiště klíče</translation>
+        <translation type="obsolete">Název souboru úložiště klíče</translation>
     </message>
     <message>
         <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Soubory úložiště klíče (*.keystore *.jks)</translation>
+        <translation type="obsolete">Soubory úložiště klíče (*.keystore *.jks)</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Chyba</translation>
+        <translation type="obsolete">Chyba</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidDeployConfiguration</name>
     <message>
         <source>Deploy to Android device</source>
-        <translation>Poslat na zařízení Android</translation>
+        <translation type="obsolete">Poslat na zařízení Android</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidDeployConfigurationFactory</name>
     <message>
         <source>Deploy on Android</source>
-        <translation>Poslat na Android</translation>
+        <translation type="obsolete">Poslat na Android</translation>
     </message>
 </context>
 <context>
@@ -48346,277 +48578,277 @@ Nainstalujte, prosím, jedno SDK s API verze &gt;=%1</translation>
     <message>
         <source>Deploy to Android device</source>
         <extracomment>AndroidDeployStep default display name</extracomment>
-        <translation>Poslat na zařízení Android</translation>
+        <translation type="obsolete">Poslat na zařízení Android</translation>
     </message>
     <message>
         <source>Cannot deploy: current target is not android.</source>
-        <translation>Nelze nasadit: nynějšícíl není Android.</translation>
+        <translation type="obsolete">Nelze nasadit: nynějšícíl není Android.</translation>
     </message>
     <message>
         <source>Please wait, searching for a suitable device for target:%1.</source>
-        <translation>Počkejte, prosím, hledá se vhodné zařízení pro cíl %1.</translation>
+        <translation type="obsolete">Počkejte, prosím, hledá se vhodné zařízení pro cíl %1.</translation>
     </message>
     <message>
         <source>Cannot deploy: no devices or emulators found for your package.</source>
-        <translation>Nelze nasadit: Pro váš balíček nebyla nalezena žádná zařízení nebo emulátory.</translation>
+        <translation type="obsolete">Nelze nasadit: Pro váš balíček nebyla nalezena žádná zařízení nebo emulátory.</translation>
     </message>
     <message>
         <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>Nasazení balíčku: Spouští se příkaz &apos;%1 %2&apos;.</translation>
+        <translation type="obsolete">Nasazení balíčku: Spouští se příkaz &apos;%1 %2&apos;.</translation>
     </message>
     <message>
         <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>Chyba při vytváření balíčku: Nepodařilo se spustit příkaz &apos;%1 %2&apos;: Důvod %3</translation>
+        <translation type="obsolete">Chyba při vytváření balíčku: Nepodařilo se spustit příkaz &apos;%1 %2&apos;: Důvod %3</translation>
     </message>
     <message>
         <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>Chyba při vytváření balíčku: Příkaz &apos;%1 %2&apos; se nepodařilo provést.</translation>
+        <translation type="obsolete">Chyba při vytváření balíčku: Příkaz &apos;%1 %2&apos; se nepodařilo provést.</translation>
     </message>
     <message>
         <source> Reason: %1</source>
-        <translation>Důvod: %1</translation>
+        <translation type="obsolete">Důvod: %1</translation>
     </message>
     <message>
         <source>Exit code: %1</source>
-        <translation>Kód ukončení: %1</translation>
+        <translation type="obsolete">Kód ukončení: %1</translation>
     </message>
     <message>
         <source>Clean old qt libs</source>
-        <translation>Uklidit staré knihovny qt</translation>
+        <translation type="obsolete">Uklidit staré knihovny qt</translation>
     </message>
     <message>
         <source>Deploy qt libs ... this may take some time, please wait</source>
-        <translation>Nasadit knihovny qt ...To může nějakou dobu trvat, počkejte, prosím</translation>
+        <translation type="obsolete">Nasadit knihovny qt ...To může nějakou dobu trvat, počkejte, prosím</translation>
     </message>
     <message>
         <source>Qt Android smart installer instalation failed</source>
-        <translation>Instalace chytrého Qt instalátoru pro Android se nezdařila</translation>
+        <translation type="obsolete">Instalace chytrého Qt instalátoru pro Android se nezdařila</translation>
     </message>
     <message>
         <source>Installing package onto %1.</source>
-        <translation>Instalace balíčku do %1.</translation>
+        <translation type="obsolete">Instalace balíčku do %1.</translation>
     </message>
     <message>
         <source>Package instalation failed</source>
-        <translation>Instalace balíčku se nezdařila</translation>
+        <translation type="obsolete">Instalace balíčku se nezdařila</translation>
     </message>
     <message>
         <source>Pulling files necessary for debugging</source>
-        <translation>Vytahují se soubory nezbytné pro ladění</translation>
+        <translation type="obsolete">Vytahují se soubory nezbytné pro ladění</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::AndroidDeployStepFactory</name>
     <message>
         <source>Deploy to Android device/emulator</source>
-        <translation>Nasadit na zařízení/emulátor Android</translation>
+        <translation type="obsolete">Nasadit na zařízení/emulátor Android</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Nastavení nasazení&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Nastavení nasazení&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Qt Android smart installer</source>
-        <translation>Chytrý instalátor pro Qt Android</translation>
+        <translation type="obsolete">Chytrý instalátor pro Qt Android</translation>
     </message>
     <message>
         <source>Android package (*.apk)</source>
-        <translation>Balíček pro Android (*.apk)</translation>
+        <translation type="obsolete">Balíček pro Android (*.apk)</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::AndroidPackageCreationFactory</name>
     <message>
         <source>Create Android (.apk) Package</source>
-        <translation>Vytvořit balíček pro Android (*.apk)</translation>
+        <translation type="obsolete">Vytvořit balíček pro Android (*.apk)</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidPackageCreationStep</name>
     <message>
         <source>Packaging for Android</source>
-        <translation>Vytvoření balíčku pro Android</translation>
+        <translation type="obsolete">Vytvoření balíčku pro Android</translation>
     </message>
     <message>
         <source>Cannot create android package: current target is not android.</source>
-        <translation>Nelze vytvořit balíček pro Android: nynější cíl není Android.</translation>
+        <translation type="obsolete">Nelze vytvořit balíček pro Android: nynější cíl není Android.</translation>
     </message>
     <message>
         <source>Can&apos;t find read elf information</source>
-        <translation>Nelze najít informaci pro čtení ELF</translation>
+        <translation type="obsolete">Nelze najít informaci pro čtení ELF</translation>
     </message>
     <message>
         <source>Can&apos;t find &apos;%1&apos;.
 Please make sure your application is built successfully and is selected in Application tab (&apos;Run option&apos;) </source>
-        <translation>Nelze najít &apos;%1&apos;.
+        <translation type="obsolete">Nelze najít &apos;%1&apos;.
 Ujistěte se, prosím, že váš program je sestaven úspěšně a je vybrán na kartě s programy (&apos;Volba pro spuštění&apos;) </translation>
     </message>
     <message>
         <source>Error</source>
-        <translation>Chyba</translation>
+        <translation type="obsolete">Chyba</translation>
     </message>
     <message>
         <source>Failed to run keytool</source>
-        <translation>Nepodařilo se spustit nástroj klíče</translation>
+        <translation type="obsolete">Nepodařilo se spustit nástroj klíče</translation>
     </message>
     <message>
         <source>Invalid password</source>
-        <translation>Neplatné heslo</translation>
+        <translation type="obsolete">Neplatné heslo</translation>
     </message>
     <message>
         <source>Copy Qt app &amp; libs to Android package ...</source>
-        <translation>Kopírovat programy &amp; knihovny Qt do balíčku Android...</translation>
+        <translation type="obsolete">Kopírovat programy &amp; knihovny Qt do balíčku Android...</translation>
     </message>
     <message>
         <source>Can&apos;t copy gdbserver from &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation>Nelze kopírovat gdbserver z &apos;%1&apos; do &apos;%2&apos;</translation>
+        <translation type="obsolete">Nelze kopírovat gdbserver z &apos;%1&apos; do &apos;%2&apos;</translation>
     </message>
     <message>
         <source>Creating package file ...</source>
-        <translation>Vytváří se soubor s balíčkem...</translation>
+        <translation type="obsolete">Vytváří se soubor s balíčkem...</translation>
     </message>
     <message>
         <source>Signing package ...</source>
-        <translation>Podepisuje se balíček...</translation>
+        <translation type="obsolete">Podepisuje se balíček...</translation>
     </message>
     <message>
         <source>Failed, try again</source>
-        <translation>Nepodařilo se. Zkuste to znovu</translation>
+        <translation type="obsolete">Nepodařilo se. Zkuste to znovu</translation>
     </message>
     <message>
         <source>Release signed package created to %1</source>
-        <translation>Vydat podepsaný vytvořený soubor s balíčkem do %1</translation>
+        <translation type="obsolete">Vydat podepsaný vytvořený soubor s balíčkem do %1</translation>
     </message>
     <message>
         <source>Package created.</source>
-        <translation>Soubor s balíčkem byl vytvořen.</translation>
+        <translation type="obsolete">Soubor s balíčkem byl vytvořen.</translation>
     </message>
     <message>
         <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
-        <translation>Nasazení balíčku: Spouští se příkaz &apos;%1 %2&apos;.</translation>
+        <translation type="obsolete">Nasazení balíčku: Spouští se příkaz &apos;%1 %2&apos;.</translation>
     </message>
     <message>
         <source>Packaging failed.</source>
-        <translation>Vytvoření balíčku se nezdařilo.</translation>
+        <translation type="obsolete">Vytvoření balíčku se nezdařilo.</translation>
     </message>
     <message>
         <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
-        <translation>Chyba při vytváření balíčku: Nepodařilo se spustit příkaz &apos;%1 %2&apos;: Důvod %3</translation>
+        <translation type="obsolete">Chyba při vytváření balíčku: Nepodařilo se spustit příkaz &apos;%1 %2&apos;: Důvod %3</translation>
     </message>
     <message>
         <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
-        <translation>Chyba při vytváření balíčku: Příkaz &apos;%1 %2&apos; se nepodařilo provést.</translation>
+        <translation type="obsolete">Chyba při vytváření balíčku: Příkaz &apos;%1 %2&apos; se nepodařilo provést.</translation>
     </message>
     <message>
         <source> Reason: %1</source>
-        <translation>Důvod: %1</translation>
+        <translation type="obsolete">Důvod: %1</translation>
     </message>
     <message>
         <source>Exit code: %1</source>
-        <translation>Kód ukončení: %1</translation>
+        <translation type="obsolete">Kód ukončení: %1</translation>
     </message>
     <message>
         <source>Keystore</source>
-        <translation>Úložiště pro klíč</translation>
+        <translation type="obsolete">Úložiště pro klíč</translation>
     </message>
     <message>
         <source>Keystore password:</source>
-        <translation>Heslo pro úložiště klíče:</translation>
+        <translation type="obsolete">Heslo pro úložiště klíče:</translation>
     </message>
     <message>
         <source>Certificate</source>
-        <translation>Certifikát</translation>
+        <translation type="obsolete">Certifikát</translation>
     </message>
     <message>
         <source>Certificate password (%1):</source>
-        <translation>Heslo k certifikátu (%1):</translation>
+        <translation type="obsolete">Heslo k certifikátu (%1):</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidPackageCreationWidget</name>
     <message>
         <source>Invalid package name</source>
-        <translation>Neplatný název balíčku</translation>
+        <translation type="obsolete">Neplatný název balíčku</translation>
     </message>
     <message>
         <source>The package name &apos;%1&apos; is not valid.
 Please choose a valid package name for your application (e.g. &quot;org.example.myapplication&quot;).</source>
-        <translation>Název balíčku &apos;%1&apos; není platný.
+        <translation type="obsolete">Název balíčku &apos;%1&apos; není platný.
 Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.example.myapplication&quot;).</translation>
     </message>
     <message>
         <source>Choose High DPI Icon</source>
-        <translation>Vybrat ikonu s vysokým dpi</translation>
+        <translation type="obsolete">Vybrat ikonu s vysokým dpi</translation>
     </message>
     <message>
         <source>png images (*.png)</source>
-        <translation>Soubory s obrázky PNG (*.png)</translation>
+        <translation type="obsolete">Soubory s obrázky PNG (*.png)</translation>
     </message>
     <message>
         <source>Choose Medium DPI Icon</source>
-        <translation>Vybrat ikonu se středním dpi</translation>
+        <translation type="obsolete">Vybrat ikonu se středním dpi</translation>
     </message>
     <message>
         <source>Choose Low DPI Icon</source>
-        <translation>Vybrat ikonu s nízkým dpi</translation>
+        <translation type="obsolete">Vybrat ikonu s nízkým dpi</translation>
     </message>
     <message>
         <source>&lt; type or choose a permission &gt;</source>
-        <translation>&lt; napište nebo vyberte oprávnění &gt;</translation>
+        <translation type="obsolete">&lt; napište nebo vyberte oprávnění &gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Package configurations&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Nastavení balíčků&lt;/b&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;Nastavení balíčků&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Select keystore file</source>
-        <translation>Vybrat soubor úložiště klíče</translation>
+        <translation type="obsolete">Vybrat soubor úložiště klíče</translation>
     </message>
     <message>
         <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Soubory úložiště klíče (*.keystore *.jks)</translation>
+        <translation type="obsolete">Soubory úložiště klíče (*.keystore *.jks)</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::AndroidPackageInstallationFactory</name>
     <message>
         <source>Deploy to device</source>
-        <translation>Nasadit na zařízení</translation>
+        <translation type="obsolete">Nasadit na zařízení</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidPackageInstallationStep</name>
     <message>
         <source>Copy application data</source>
-        <translation>Kopírovat data programu</translation>
+        <translation type="obsolete">Kopírovat data programu</translation>
     </message>
     <message>
         <source>Current target is not an android target</source>
-        <translation>Nynější cíl není cílem Android</translation>
+        <translation type="obsolete">Nynější cíl není cílem Android</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidRunConfiguration</name>
     <message>
         <source>Run on Android device</source>
-        <translation>Spustit na zařízení Android</translation>
+        <translation type="obsolete">Spustit na zařízení Android</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidRunControl</name>
     <message>
         <source>Starting remote process ...</source>
-        <translation>Spouští se vzdálený proces...</translation>
+        <translation type="obsolete">Spouští se vzdálený proces...</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidRunControlFactory</name>
     <message>
         <source>Run on Android device/emulator</source>
-        <translation>Spustit na zařízení/emulátor Android</translation>
+        <translation type="obsolete">Spustit na zařízení/emulátor Android</translation>
     </message>
 </context>
 <context>
@@ -48625,35 +48857,35 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
         <source>
 
 &apos;%1&apos; died</source>
-        <translation>
+        <translation type="obsolete">
 
 &apos;%1&apos; zemřel</translation>
     </message>
     <message>
         <source>Failed to forward debugging ports. Reason: $1</source>
-        <translation>Nepodařilo se přeposlat porty pro ladění. Důvod: $1</translation>
+        <translation type="obsolete">Nepodařilo se přeposlat porty pro ladění. Důvod: $1</translation>
     </message>
     <message>
         <source>Failed to forward debugging ports</source>
-        <translation>Nepodařilo se přeposlat porty pro ladění. Důvod: $1</translation>
+        <translation type="obsolete">Nepodařilo se přeposlat porty pro ladění. Důvod: $1</translation>
     </message>
     <message>
         <source>Failed to start the activity. Reason: $1</source>
-        <translation>Nepodařilo se spustit činnost. Důvod: $1</translation>
+        <translation type="obsolete">Nepodařilo se spustit činnost. Důvod: $1</translation>
     </message>
     <message>
         <source>Unable to start &apos;%1&apos;</source>
-        <translation>Nelze spustit &apos;%1&apos;</translation>
+        <translation type="obsolete">Nelze spustit &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Can&apos;t find %1 process</source>
-        <translation>Nelze najít proces %1</translation>
+        <translation type="obsolete">Nelze najít proces %1</translation>
     </message>
     <message>
         <source>
 
 &apos;%1&apos; killed</source>
-        <translation>
+        <translation type="obsolete">
 
 &apos;%1&apos; ukončen</translation>
     </message>
@@ -48662,127 +48894,127 @@ Vyberte, prosím, platný název balíčku pro váš program (např. &quot;org.e
     <name>Android::Internal::AndroidSettingsPage</name>
     <message>
         <source>Android Configurations</source>
-        <translation>Nastavení pro Android</translation>
+        <translation type="obsolete">Nastavení pro Android</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AVDModel</name>
     <message>
         <source>AVD Name</source>
-        <translation>Název AVD</translation>
+        <translation type="obsolete">Název AVD</translation>
     </message>
     <message>
         <source>AVD Target</source>
-        <translation>Cíl AVD</translation>
+        <translation type="obsolete">Cíl AVD</translation>
     </message>
     <message>
         <source>CPU/ABI</source>
-        <translation>CPU/ABI</translation>
+        <translation type="obsolete">CPU/ABI</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Android SDK Folder</source>
-        <translation>Složka SDK pro Android</translation>
+        <translation type="obsolete">Složka SDK pro Android</translation>
     </message>
     <message>
         <source>&quot;%1&quot; doesn&apos;t seem to be an Android SDK top folder</source>
-        <translation>&quot;%1&quot; se nezdá být hlavní složkou SDK pro Android</translation>
+        <translation type="obsolete">&quot;%1&quot; se nezdá být hlavní složkou SDK pro Android</translation>
     </message>
     <message>
         <source>&quot;%1&quot; doesn&apos;t seem to be an Android NDK top folder</source>
-        <translation>&quot;%1&quot; se nezdá být hlavní složkou NDK pro Android</translation>
+        <translation type="obsolete">&quot;%1&quot; se nezdá být hlavní složkou NDK pro Android</translation>
     </message>
     <message>
         <source>Select Android SDK folder</source>
-        <translation>Vybrat složku SDK pro Android</translation>
+        <translation type="obsolete">Vybrat složku SDK pro Android</translation>
     </message>
     <message>
         <source>Select Android NDK folder</source>
-        <translation>Vybrat složku NDK pro Android</translation>
+        <translation type="obsolete">Vybrat složku NDK pro Android</translation>
     </message>
     <message>
         <source>Select ant script</source>
-        <translation>Vybrat skript ant</translation>
+        <translation type="obsolete">Vybrat skript ant</translation>
     </message>
     <message>
         <source>Select gdb executable</source>
-        <translation>Vybrat spustitelný soubor gdb</translation>
+        <translation type="obsolete">Vybrat spustitelný soubor gdb</translation>
     </message>
     <message>
         <source>Select gdbserver android executable</source>
-        <translation>Vybrat spustitelný soubor android gdbserver</translation>
+        <translation type="obsolete">Vybrat spustitelný soubor android gdbserver</translation>
     </message>
     <message>
         <source>Select OpenJDK path</source>
-        <translation>Vybrat cestu pro OpenJDK</translation>
+        <translation type="obsolete">Vybrat cestu pro OpenJDK</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidTarget</name>
     <message>
         <source>Error creating Android directory &apos;%1&apos;.</source>
-        <translation>Chyba při vytváření adresáře Android &apos;%1&apos;.</translation>
+        <translation type="obsolete">Chyba při vytváření adresáře Android &apos;%1&apos;.</translation>
     </message>
     <message>
         <source>No Qt for Android SDKs were found.
 Please install at least one SDK.</source>
-        <translation>Nepodařilo se najít žádné Qt pro SDK Android.
+        <translation type="obsolete">Nepodařilo se najít žádné Qt pro SDK Android.
 Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>Varování</translation>
+        <translation type="obsolete">Varování</translation>
     </message>
     <message>
         <source>Android files have been updated automatically</source>
-        <translation>Soubory Android byly zaktualizovány automaticky</translation>
+        <translation type="obsolete">Soubory Android byly zaktualizovány automaticky</translation>
     </message>
     <message>
         <source>Can&apos;t parse &apos;%1&apos;</source>
-        <translation>Nelze zpracovat &apos;%1&apos;</translation>
+        <translation type="obsolete">Nelze zpracovat &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Can&apos;t open &apos;%1&apos;</source>
-        <translation>Nelze otevřít &apos;%1&apos;</translation>
+        <translation type="obsolete">Nelze otevřít &apos;%1&apos;</translation>
     </message>
     <message>
         <source>Error creating Android templates</source>
-        <translation>Chyba při vytváření předloh Android</translation>
+        <translation type="obsolete">Chyba při vytváření předloh Android</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidTargetFactory</name>
     <message>
         <source>Debug</source>
-        <translation>Ladění</translation>
+        <translation type="obsolete">Ladění</translation>
     </message>
     <message>
         <source>Release</source>
-        <translation>Vydání</translation>
+        <translation type="obsolete">Vydání</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidToolChainFactory</name>
     <message>
         <source>Android GCC</source>
-        <translation>GCC Android</translation>
+        <translation type="obsolete">GCC Android</translation>
     </message>
     <message>
         <source>Android Gcc for %1</source>
-        <translation>GCC Android pro %1</translation>
+        <translation type="obsolete">GCC Android pro %1</translation>
     </message>
     <message>
         <source>Android GCC (%1-%2)</source>
-        <translation>GCC Android  (%1-%2)</translation>
+        <translation type="obsolete">GCC Android  (%1-%2)</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
         <source>NDK Root: %1</source>
-        <translation>Kořen (root) NDK: %1</translation>
+        <translation type="obsolete">Kořen (root) NDK: %1</translation>
     </message>
 </context>
 <context>
@@ -48922,7 +49154,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <name>AutotoolsProjectManager::Internal::AutotoolsTargetFactory</name>
     <message>
         <source>Default Build</source>
-        <translation>Výchozí sestavení</translation>
+        <translation type="obsolete">Výchozí sestavení</translation>
     </message>
 </context>
 <context>
@@ -49104,63 +49336,63 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <name>Debugger::Internal::BreakTreeView</name>
     <message>
         <source>Delete Breakpoint</source>
-        <translation>Smazat bod přerušení</translation>
+        <translation type="obsolete">Smazat bod přerušení</translation>
     </message>
     <message>
         <source>Delete All Breakpoints</source>
-        <translation>Smazat všechny body přerušení</translation>
+        <translation type="obsolete">Smazat všechny body přerušení</translation>
     </message>
     <message>
         <source>Delete Breakpoints of &quot;%1&quot;</source>
-        <translation>Smazat body přerušení v &quot;%1&quot;</translation>
+        <translation type="obsolete">Smazat body přerušení v &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete Breakpoints of File</source>
-        <translation>Smazat body přerušení v souboru</translation>
+        <translation type="obsolete">Smazat body přerušení v souboru</translation>
     </message>
     <message>
         <source>Adjust Column Widths to Contents</source>
-        <translation>Přizpůsobit šířku sloupců obsahu</translation>
+        <translation type="obsolete">Přizpůsobit šířku sloupců obsahu</translation>
     </message>
     <message>
         <source>Edit Breakpoint...</source>
-        <translation>Upravit bod přerušení...</translation>
+        <translation type="obsolete">Upravit bod přerušení...</translation>
     </message>
     <message>
         <source>Associate Breakpoint With All Threads</source>
-        <translation>Dát bod přerušení pro všechna vlákna</translation>
+        <translation type="obsolete">Dát bod přerušení pro všechna vlákna</translation>
     </message>
     <message>
         <source>Associate Breakpoint With Thread %1</source>
-        <translation>Dát bod přerušení pro vlákno %1</translation>
+        <translation type="obsolete">Dát bod přerušení pro vlákno %1</translation>
     </message>
     <message>
         <source>Synchronize Breakpoints</source>
-        <translation>Seřídit body přerušení</translation>
+        <translation type="obsolete">Seřídit body přerušení</translation>
     </message>
     <message>
         <source>Disable Selected Breakpoints</source>
-        <translation>Vypnout vybrané body přerušení</translation>
+        <translation type="obsolete">Vypnout vybrané body přerušení</translation>
     </message>
     <message>
         <source>Enable Selected Breakpoints</source>
-        <translation>Zapnout vybrané body přerušení</translation>
+        <translation type="obsolete">Zapnout vybrané body přerušení</translation>
     </message>
     <message>
         <source>Disable Breakpoint</source>
-        <translation>Vypnout bod přerušení</translation>
+        <translation type="obsolete">Vypnout bod přerušení</translation>
     </message>
     <message>
         <source>Enable Breakpoint</source>
-        <translation>Zapnout bod přerušení</translation>
+        <translation type="obsolete">Zapnout bod přerušení</translation>
     </message>
     <message>
         <source>Add Breakpoint...</source>
-        <translation>Přidat bod přerušení...</translation>
+        <translation type="obsolete">Přidat bod přerušení...</translation>
     </message>
     <message>
         <source>Add Breakpoint</source>
-        <translation>Přidat bod přerušení</translation>
+        <translation type="obsolete">Přidat bod přerušení</translation>
     </message>
 </context>
 <context>
@@ -49194,7 +49426,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
         <source>Debug Information</source>
-        <translation>Informace o ladění</translation>
+        <translation type="obsolete">Informace o ladění</translation>
     </message>
     <message>
         <source>Debugger Test</source>
@@ -49225,73 +49457,73 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
         <source>Enable Debugging of Subprocesses</source>
-        <translation>Povolit ladění podřízených procesů</translation>
+        <translation type="obsolete">Povolit ladění podřízených procesů</translation>
     </message>
 </context>
 <context>
     <name>DebuggerPlugin</name>
     <message>
         <source>Debug</source>
-        <translation>Ladění</translation>
+        <translation type="obsolete">Ladění</translation>
     </message>
     <message>
         <source>Debugger</source>
-        <translation>Ladič</translation>
+        <translation type="obsolete">Ladič</translation>
     </message>
     <message>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
-        <translation>Nepodařilo se vytvořit žádný ladicí stroj typu &apos;%1&apos;</translation>
+        <translation type="obsolete">Nepodařilo se vytvořit žádný ladicí stroj typu &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::ModulesTreeView</name>
     <message>
         <source>Update Module List</source>
-        <translation>Obnovit seznam modulů</translation>
+        <translation type="obsolete">Obnovit seznam modulů</translation>
     </message>
     <message>
         <source>Show Source Files for Module &quot;%1&quot;</source>
-        <translation>Ukázat zdrojové soubory k modulu &quot;%1&quot;</translation>
+        <translation type="obsolete">Ukázat zdrojové soubory k modulu &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Load Symbols for All Modules</source>
-        <translation>Nahrát symboly ke všem modulům</translation>
+        <translation type="obsolete">Nahrát symboly ke všem modulům</translation>
     </message>
     <message>
         <source>Examine All Modules</source>
-        <translation>Vyšetřit všechny moduly</translation>
+        <translation type="obsolete">Vyšetřit všechny moduly</translation>
     </message>
     <message>
         <source>Load Symbols for Module</source>
-        <translation>Nahrát symboly k modulu</translation>
+        <translation type="obsolete">Nahrát symboly k modulu</translation>
     </message>
     <message>
         <source>Edit File</source>
-        <translation>Upravit soubor</translation>
+        <translation type="obsolete">Upravit soubor</translation>
     </message>
     <message>
         <source>Show Symbols</source>
-        <translation>Ukázat symboly</translation>
+        <translation type="obsolete">Ukázat symboly</translation>
     </message>
     <message>
         <source>Show Dependencies</source>
-        <translation>Ukázat závislosti</translation>
+        <translation type="obsolete">Ukázat závislosti</translation>
     </message>
     <message>
         <source>Load Symbols for Module &quot;%1&quot;</source>
-        <translation>Nahrát symboly k modulu &quot;%1&quot;</translation>
+        <translation type="obsolete">Nahrát symboly k modulu &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Edit File &quot;%1&quot;</source>
-        <translation>Upravit soubor &quot;%1&quot;</translation>
+        <translation type="obsolete">Upravit soubor &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Show Symbols in File &quot;%1&quot;</source>
-        <translation>Ukázat symboly v souboru &quot;%1&quot;</translation>
+        <translation type="obsolete">Ukázat symboly v souboru &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Show Dependencies of &quot;%1&quot;</source>
-        <translation>Ukázat závislosti &quot;%1&quot;</translation>
+        <translation type="obsolete">Ukázat závislosti &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
@@ -49347,7 +49579,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
         <source>Show debug, log, and info messages.</source>
-        <translation>Ukázat ladění, záznamy a informační zprávy.</translation>
+        <translation type="obsolete">Ukázat ladění, záznamy a informační zprávy.</translation>
     </message>
     <message>
         <source>Warning</source>
@@ -49355,7 +49587,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
         <source>Show warning messages.</source>
-        <translation>Ukázat varovné zprávy.</translation>
+        <translation type="obsolete">Ukázat varovné zprávy.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -49363,7 +49595,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
     <message>
         <source>Show error and fatal messages.</source>
-        <translation>Ukázat chybové a kritické zprávy.</translation>
+        <translation type="obsolete">Ukázat chybové a kritické zprávy.</translation>
     </message>
     <message>
         <source>Clear Console</source>
@@ -49374,136 +49606,136 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <name>Debugger::Internal::RegisterTreeView</name>
     <message>
         <source>Reload Register Listing</source>
-        <translation>Registry nahrát znovu</translation>
+        <translation type="obsolete">Registry nahrát znovu</translation>
     </message>
     <message>
         <source>Open Disassembler...</source>
-        <translation>Otevřít disasembler...</translation>
+        <translation type="obsolete">Otevřít disasembler...</translation>
     </message>
     <message>
         <source>Open Memory Editor at 0x%1</source>
-        <translation>Otevřít editor paměti při 0x%1</translation>
+        <translation type="obsolete">Otevřít editor paměti při 0x%1</translation>
     </message>
     <message>
         <source>Open Memory View at Value of Register %1 0x%2</source>
-        <translation>Otevřít náhled paměti při hodnotě registru %1 0x%2</translation>
+        <translation type="obsolete">Otevřít náhled paměti při hodnotě registru %1 0x%2</translation>
     </message>
     <message>
         <source>Open Disassembler at 0x%1</source>
-        <translation>Otevřít disasembler při %1</translation>
+        <translation type="obsolete">Otevřít disasembler při %1</translation>
     </message>
     <message>
         <source>Open Memory Editor</source>
-        <translation>Otevřít editor paměti</translation>
+        <translation type="obsolete">Otevřít editor paměti</translation>
     </message>
     <message>
         <source>Open Memory View at Value of Register</source>
-        <translation>Otevřít náhled paměti při hodnotě registru</translation>
+        <translation type="obsolete">Otevřít náhled paměti při hodnotě registru</translation>
     </message>
     <message>
         <source>Open Disassembler</source>
-        <translation>Otevřít disasembler</translation>
+        <translation type="obsolete">Otevřít disasembler</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
-        <translation>Šestnáctková</translation>
+        <translation type="obsolete">Šestnáctková</translation>
     </message>
     <message>
         <source>Decimal</source>
-        <translation>Desítková</translation>
+        <translation type="obsolete">Desítková</translation>
     </message>
     <message>
         <source>Octal</source>
-        <translation>Osmičková</translation>
+        <translation type="obsolete">Osmičková</translation>
     </message>
     <message>
         <source>Binary</source>
-        <translation>Dvojková</translation>
+        <translation type="obsolete">Dvojková</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::SnapshotTreeView</name>
     <message>
         <source>Snapshots</source>
-        <translation>Snímky</translation>
+        <translation type="obsolete">Snímky</translation>
     </message>
     <message>
         <source>Create Snapshot</source>
-        <translation>Vytvořit snímek</translation>
+        <translation type="obsolete">Vytvořit snímek</translation>
     </message>
     <message>
         <source>Remove Snapshot</source>
-        <translation>Odstranit snímek</translation>
+        <translation type="obsolete">Odstranit snímek</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::SourceFilesTreeView</name>
     <message>
         <source>Reload Data</source>
-        <translation>Data nahrát znovu</translation>
+        <translation type="obsolete">Data nahrát znovu</translation>
     </message>
     <message>
         <source>Open File</source>
-        <translation>Otevřít soubor</translation>
+        <translation type="obsolete">Otevřít soubor</translation>
     </message>
     <message>
         <source>Open File &quot;%1&quot;&apos;</source>
-        <translation>Otevřít soubor &quot;%1&quot;&apos;</translation>
+        <translation type="obsolete">Otevřít soubor &quot;%1&quot;&apos;</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::StackTreeView</name>
     <message>
         <source>Stack</source>
-        <translation>Zásobník</translation>
+        <translation type="obsolete">Zásobník</translation>
     </message>
     <message>
         <source>Function:</source>
-        <translation>Funkce:</translation>
+        <translation type="obsolete">Funkce:</translation>
     </message>
     <message>
         <source>Disassemble Function</source>
-        <translation>Rozložit funkci (disassemble)</translation>
+        <translation type="obsolete">Rozložit funkci (disassemble)</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
-        <translation>Kopírovat obsah do schránky</translation>
+        <translation type="obsolete">Kopírovat obsah do schránky</translation>
     </message>
     <message>
         <source>Open Memory Editor</source>
-        <translation>Otevřít editor paměti</translation>
+        <translation type="obsolete">Otevřít editor paměti</translation>
     </message>
     <message>
         <source>Open Memory Editor at 0x%1</source>
-        <translation>Otevřít editor paměti při 0x%1</translation>
+        <translation type="obsolete">Otevřít editor paměti při 0x%1</translation>
     </message>
     <message>
         <source>Open Disassembler at Address...</source>
-        <translation>Otevřít disasembler na adrese...</translation>
+        <translation type="obsolete">Otevřít disasembler na adrese...</translation>
     </message>
     <message>
         <source>Disassemble Function...</source>
-        <translation>Rozložit funkci (disassemble)...</translation>
+        <translation type="obsolete">Rozložit funkci (disassemble)...</translation>
     </message>
     <message>
         <source>Open Disassembler</source>
-        <translation>Otevřít disasembler</translation>
+        <translation type="obsolete">Otevřít disasembler</translation>
     </message>
     <message>
         <source>Open Disassembler at 0x%1</source>
-        <translation>Otevřít disasembler při %1</translation>
+        <translation type="obsolete">Otevřít disasembler při %1</translation>
     </message>
     <message>
         <source>Try to Load Unknown Symbols</source>
-        <translation>Nahrát neznámé symboly</translation>
+        <translation type="obsolete">Nahrát neznámé symboly</translation>
     </message>
     <message>
         <source>Memory at Frame #%1 (%2) 0x%3</source>
-        <translation>Paměť při snímku #%1 (%2) 0x%3</translation>
+        <translation type="obsolete">Paměť při snímku #%1 (%2) 0x%3</translation>
     </message>
     <message>
         <source>Frame #%1 (%2)</source>
-        <translation>Snímek #%1 (%2)</translation>
+        <translation type="obsolete">Snímek #%1 (%2)</translation>
     </message>
 </context>
 <context>
@@ -49511,220 +49743,220 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation>&lt;i&gt;%1&lt;/i&gt; %2 při #%3</translation>
+        <translation type="obsolete">&lt;i&gt;%1&lt;/i&gt; %2 při #%3</translation>
     </message>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
-        <translation>&lt;i&gt;%1&lt;/i&gt; %2</translation>
+        <translation type="obsolete">&lt;i&gt;%1&lt;/i&gt; %2</translation>
     </message>
     <message>
         <source>Register &lt;i&gt;%1&lt;/i&gt;</source>
-        <translation>Registr &lt;i&gt;%1&lt;/i&gt;</translation>
+        <translation type="obsolete">Registr &lt;i&gt;%1&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Memory Referenced by Pointer &quot;%1&quot; (0x%2)</source>
-        <translation>Paměť odkazovaná ukazatelem &quot;%1&quot; (0x%2)</translation>
+        <translation type="obsolete">Paměť odkazovaná ukazatelem &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Memory at Variable &quot;%1&quot; (0x%2)</source>
-        <translation>Paměť při proměnné &quot;%1&quot; (0x%2)</translation>
+        <translation type="obsolete">Paměť při proměnné &quot;%1&quot; (0x%2)</translation>
     </message>
     <message>
         <source>Cannot Display Stack Layout</source>
-        <translation>Nelze zobrazit rozvržení zásobníku</translation>
+        <translation type="obsolete">Nelze zobrazit rozvržení zásobníku</translation>
     </message>
     <message>
         <source>Could not determine a suitable address range.</source>
-        <translation>Nepodařilo se určit žádný vhodný rozsah adresy.</translation>
+        <translation type="obsolete">Nepodařilo se určit žádný vhodný rozsah adresy.</translation>
     </message>
     <message>
         <source>Memory Layout of Local Variables at 0x%1</source>
-        <translation>Rozložení paměti místní proměnné při 0x%1</translation>
+        <translation type="obsolete">Rozložení paměti místní proměnné při 0x%1</translation>
     </message>
     <message>
         <source>Locals and Expressions</source>
-        <translation>Místní proměnné a výrazy</translation>
+        <translation type="obsolete">Místní proměnné a výrazy</translation>
     </message>
     <message>
         <source>Evaluate Expression</source>
-        <translation>Vyhodnotit výraz</translation>
+        <translation type="obsolete">Vyhodnotit výraz</translation>
     </message>
     <message>
         <source>Evaluate Expression &quot;%1&quot;</source>
-        <translation>Vyhodnotit výraz &quot;%1&quot;</translation>
+        <translation type="obsolete">Vyhodnotit výraz &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Remove Evaluated Expression</source>
-        <translation>Odstranit vyhodnocený výraz</translation>
+        <translation type="obsolete">Odstranit vyhodnocený výraz</translation>
     </message>
     <message>
         <source>Remove Evaluated Expression &quot;%1&quot;</source>
-        <translation>Odstranit vyhodnocený výraz &quot;%1&quot;</translation>
+        <translation type="obsolete">Odstranit vyhodnocený výraz &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Change Local Display Format...</source>
-        <translation>Změnit místní formát zobrazení...</translation>
+        <translation type="obsolete">Změnit místní formát zobrazení...</translation>
     </message>
     <message>
         <source>Treat All Characters as Printable</source>
-        <translation>Považovat všechny znaky za tisknutelné</translation>
+        <translation type="obsolete">Považovat všechny znaky za tisknutelné</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Escape Sequences</source>
-        <translation>Ukázat netisknutelné znaky jako únikové posloupnosti</translation>
+        <translation type="obsolete">Ukázat netisknutelné znaky jako únikové posloupnosti</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Octal</source>
-        <translation>Ukázat netisknutelné znaky jako osmičkové</translation>
+        <translation type="obsolete">Ukázat netisknutelné znaky jako osmičkové</translation>
     </message>
     <message>
         <source>Show Unprintable Characters as Hexadecimal</source>
-        <translation>Ukázat netisknutelné znaky jako šestnáctkové</translation>
+        <translation type="obsolete">Ukázat netisknutelné znaky jako šestnáctkové</translation>
     </message>
     <message>
         <source>Change Display for Object Named &quot;%1&quot;:</source>
-        <translation>Změnit formát zobrazení pro objekt s názvem &quot;%1&quot;:</translation>
+        <translation type="obsolete">Změnit formát zobrazení pro objekt s názvem &quot;%1&quot;:</translation>
     </message>
     <message>
         <source>Use Format for Type (Currently %1)</source>
-        <translation>Použít formát zobrazení na typ (nyní %1)</translation>
+        <translation type="obsolete">Použít formát zobrazení na typ (nyní %1)</translation>
     </message>
     <message>
         <source>Use Display Format Based on Type </source>
-        <translation>Použít formát zobrazení založený na typu</translation>
+        <translation type="obsolete">Použít formát zobrazení založený na typu</translation>
     </message>
     <message>
         <source>Change Display for Type &quot;%1&quot;:</source>
-        <translation>Změnit zobrazení pro typ &apos;%1&apos;:</translation>
+        <translation type="obsolete">Změnit zobrazení pro typ &apos;%1&apos;:</translation>
     </message>
     <message>
         <source>Automatic</source>
-        <translation>Automaticky</translation>
+        <translation type="obsolete">Automaticky</translation>
     </message>
     <message>
         <source>Change Display for Type or Item...</source>
-        <translation>Změnit zobrazení pro typ nebo prvek...</translation>
+        <translation type="obsolete">Změnit zobrazení pro typ nebo prvek...</translation>
     </message>
     <message>
         <source>Add Data Breakpoint...</source>
-        <translation>Přidat bod přerušení dat...</translation>
+        <translation type="obsolete">Přidat bod přerušení dat...</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Object&apos;s Address (0x%1)</source>
-        <translation>Přidat bod přerušení dat na adrese objektu (0x%1)</translation>
+        <translation type="obsolete">Přidat bod přerušení dat na adrese objektu (0x%1)</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Referenced Address (0x%1)</source>
-        <translation>Přidat bod přerušení dat na odkazované adrese (0x%1)</translation>
+        <translation type="obsolete">Přidat bod přerušení dat na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Add Data Breakpoint</source>
-        <translation>Přidat bod přerušení dat</translation>
+        <translation type="obsolete">Přidat bod přerušení dat</translation>
     </message>
     <message>
         <source>Setting a data breakpoint on an address will cause the program to stop when the data at the address is modified.</source>
-        <translation>Nastavení bodu přerušení dat na určitou adresu způsobí, že program se zastaví, když jsou tam nacházející se data změněna.</translation>
+        <translation type="obsolete">Nastavení bodu přerušení dat na určitou adresu způsobí, že program se zastaví, když jsou tam nacházející se data změněna.</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Expression</source>
-        <translation>Přidat bod přerušení dat při výrazu</translation>
+        <translation type="obsolete">Přidat bod přerušení dat při výrazu</translation>
     </message>
     <message>
         <source>Add Data Breakpoint at Expression &quot;%1&quot;</source>
-        <translation>Přidat bod přerušení dat při výrazu &quot;%1&quot;</translation>
+        <translation type="obsolete">Přidat bod přerušení dat při výrazu &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Setting a data breakpoint on an expression will cause the program to stop when the data at the address given by the expression is modified.</source>
-        <translation>Nastavení bodu přerušení dat na určitý výraz způsobí, že program se zastaví, když jsou změněna data nacházející se na adrese dané oním výrazem.</translation>
+        <translation type="obsolete">Nastavení bodu přerušení dat na určitý výraz způsobí, že program se zastaví, když jsou změněna data nacházející se na adrese dané oním výrazem.</translation>
     </message>
     <message>
         <source>Insert New Evaluated Expression</source>
-        <translation>Vložit nový vyhodnocený výraz</translation>
+        <translation type="obsolete">Vložit nový vyhodnocený výraz</translation>
     </message>
     <message>
         <source>Select Widget to Watch</source>
-        <translation>Vybrat prvek za účelem sledování</translation>
+        <translation type="obsolete">Vybrat prvek za účelem sledování</translation>
     </message>
     <message>
         <source>Change Global Display Formats...</source>
-        <translation>Změnit celkové formáty zobrazení...</translation>
+        <translation type="obsolete">Změnit celkové formáty zobrazení...</translation>
     </message>
     <message>
         <source>Remove All Evaluated Expressions</source>
-        <translation>Odstranit všechny vyhodnocené výrazy</translation>
+        <translation type="obsolete">Odstranit všechny vyhodnocené výrazy</translation>
     </message>
     <message>
         <source>Open Memory Editor...</source>
-        <translation>Otevřít editor paměti...</translation>
+        <translation type="obsolete">Otevřít editor paměti...</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
-        <translation>Otevřít editor paměti na adrese objektu (0x%1)</translation>
+        <translation type="obsolete">Otevřít editor paměti na adrese objektu (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory View at Object&apos;s Address (0x%1)</source>
-        <translation>Otevřít zobrazení paměti na adrese objektu (0x%1)</translation>
+        <translation type="obsolete">Otevřít zobrazení paměti na adrese objektu (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address</source>
-        <translation>Otevřít editor paměti na adrese objektu</translation>
+        <translation type="obsolete">Otevřít editor paměti na adrese objektu</translation>
     </message>
     <message>
         <source>Open Memory View at Object&apos;s Address</source>
-        <translation>Otevřít zobrazení paměti na adrese objektu</translation>
+        <translation type="obsolete">Otevřít zobrazení paměti na adrese objektu</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address (0x%1)</source>
-        <translation>Otevřít editor paměti na odkazované adrese (0x%1)</translation>
+        <translation type="obsolete">Otevřít editor paměti na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address (0x%1)</source>
-        <translation>Otevřít zobrazení paměti na odkazované adrese (0x%1)</translation>
+        <translation type="obsolete">Otevřít zobrazení paměti na odkazované adrese (0x%1)</translation>
     </message>
     <message>
         <source>Open Memory Editor at Referenced Address</source>
-        <translation>Otevřít editor paměti na odkazované adrese</translation>
+        <translation type="obsolete">Otevřít editor paměti na odkazované adrese</translation>
     </message>
     <message>
         <source>Open Memory View at Referenced Address</source>
-        <translation>Otevřít zobrazení paměti na odkazované adrese</translation>
+        <translation type="obsolete">Otevřít zobrazení paměti na odkazované adrese</translation>
     </message>
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
-        <translation>Otevřít editor paměti s ukázáním rozložení zásobníku</translation>
+        <translation type="obsolete">Otevřít editor paměti s ukázáním rozložení zásobníku</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
-        <translation>Obsah kopírovat do schránky</translation>
+        <translation type="obsolete">Obsah kopírovat do schránky</translation>
     </message>
     <message>
         <source>Copy Value to Clipboard</source>
-        <translation>Kopírovat hodnotu do schránky</translation>
+        <translation type="obsolete">Kopírovat hodnotu do schránky</translation>
     </message>
     <message>
         <source>Refresh Code Model Snapshot</source>
-        <translation>Obnovit stav modelu kódu</translation>
+        <translation type="obsolete">Obnovit stav modelu kódu</translation>
     </message>
     <message>
         <source>Show View Contents in Editor</source>
-        <translation>Ukázat obsah pohledu v editoru</translation>
+        <translation type="obsolete">Ukázat obsah pohledu v editoru</translation>
     </message>
     <message>
         <source>Close Editor Tooltips</source>
-        <translation>Zavřít vysvětlivky editoru</translation>
+        <translation type="obsolete">Zavřít vysvětlivky editoru</translation>
     </message>
     <message>
         <source>Enter watch expression</source>
-        <translation>Zadat sledovaný výraz</translation>
+        <translation type="obsolete">Zadat sledovaný výraz</translation>
     </message>
     <message>
         <source>Expression:</source>
-        <translation>Výraz:</translation>
+        <translation type="obsolete">Výraz:</translation>
     </message>
     <message>
         <source>Locals &amp; Watchers</source>
-        <translation>Místní proměnné a sledované výrazy</translation>
+        <translation type="obsolete">Místní proměnné a sledované výrazy</translation>
     </message>
 </context>
 <context>
@@ -49766,31 +49998,31 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <name>Gerrit::Internal::GerritDialog</name>
     <message>
         <source>Gerrit %1@%2</source>
-        <translation>Gerrit %1@%2</translation>
+        <translation type="obsolete">Gerrit %1@%2</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Otevřít</translation>
+        <translation type="obsolete">Otevřít</translation>
     </message>
     <message>
         <source>Copy URL</source>
-        <translation>Kopírovat adresu (URL)</translation>
+        <translation type="obsolete">Kopírovat adresu (URL)</translation>
     </message>
     <message>
         <source>Diff...</source>
-        <translation>Rozdíly...</translation>
+        <translation type="obsolete">Rozdíly...</translation>
     </message>
     <message>
         <source>Apply...</source>
-        <translation>Použít...</translation>
+        <translation type="obsolete">Použít...</translation>
     </message>
     <message>
         <source>Checkout...</source>
-        <translation>Načíst (checkout)...</translation>
+        <translation type="obsolete">Načíst (checkout)...</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation>Obnovit</translation>
+        <translation type="obsolete">Obnovit</translation>
     </message>
 </context>
 <context>
@@ -49803,7 +50035,7 @@ Project: %6 Branch: %7 Patch set: %8
 Status: %9, %10
 URL: %11
 Approvals: %12</source>
-        <translation>Předmět: %1
+        <translation type="obsolete">Předmět: %1
 Číslo: %2 Id: %3
 Vlastník: %4 &lt;%5&gt;
 Projekt: %6 Větev: %7 Sada změn: %8
@@ -49813,97 +50045,97 @@ Schválení: %12</translation>
     </message>
     <message>
         <source>Title</source>
-        <translation>Název</translation>
+        <translation type="obsolete">Název</translation>
     </message>
     <message>
         <source>Owner</source>
-        <translation>Vlastník</translation>
+        <translation type="obsolete">Vlastník</translation>
     </message>
     <message>
         <source>Date</source>
-        <translation>Datum</translation>
+        <translation type="obsolete">Datum</translation>
     </message>
     <message>
         <source>Project</source>
-        <translation>Projekt</translation>
+        <translation type="obsolete">Projekt</translation>
     </message>
     <message>
         <source>Approvals</source>
-        <translation>Schválení</translation>
+        <translation type="obsolete">Schválení</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation>Stav</translation>
+        <translation type="obsolete">Stav</translation>
     </message>
 </context>
 <context>
     <name>Gerrit::Internal::QueryContext</name>
     <message>
         <source>Gerrit</source>
-        <translation>Gerrit</translation>
+        <translation type="obsolete">Gerrit</translation>
     </message>
     <message>
         <source>Error running %1: %2</source>
-        <translation>Chyba při spouštění %1: %2</translation>
+        <translation type="obsolete">Chyba při spouštění %1: %2</translation>
     </message>
     <message>
         <source>%1 crashed.</source>
-        <translation>%1 spadl.</translation>
+        <translation type="obsolete">%1 spadl.</translation>
     </message>
     <message>
         <source>%1 returned %2.</source>
-        <translation>%1 vrátil %2.</translation>
+        <translation type="obsolete">%1 vrátil %2.</translation>
     </message>
 </context>
 <context>
     <name>Gerrit::Internal::GerritOptionsPage</name>
     <message>
         <source>Gerrit</source>
-        <translation>Gerrit</translation>
+        <translation type="obsolete">Gerrit</translation>
     </message>
 </context>
 <context>
     <name>Gerrit::Internal::GerritOptionsWidget</name>
     <message>
         <source>HTTPS</source>
-        <translation>HTTPS</translation>
+        <translation type="obsolete">HTTPS</translation>
     </message>
     <message>
         <source>&amp;Host: </source>
-        <translation>&amp;Hostitel: </translation>
+        <translation type="obsolete">&amp;Hostitel: </translation>
     </message>
     <message>
         <source>&amp;User: </source>
-        <translation>&amp;Uživatel: </translation>
+        <translation type="obsolete">&amp;Uživatel: </translation>
     </message>
     <message>
         <source>&amp;ssh: </source>
-        <translation>&amp;ssh: </translation>
+        <translation type="obsolete">&amp;ssh: </translation>
     </message>
     <message>
         <source>&amp;Port: </source>
-        <translation>&amp;Port: </translation>
+        <translation type="obsolete">&amp;Port: </translation>
     </message>
     <message>
         <source>&amp;Additional queries: </source>
-        <translation>Dodatečné &amp;dotazy:</translation>
+        <translation type="obsolete">Dodatečné &amp;dotazy:</translation>
     </message>
     <message>
         <source>A comma-separated list of additional queries.
 For example &quot;status:staged,status:integrating&quot; can be used to show the status of the Continuous Integration
 of the Qt project.</source>
-        <translation>Čárkou oddělený seznam dodatečných dotazů.
+        <translation type="obsolete">Čárkou oddělený seznam dodatečných dotazů.
 Například &quot;status:staged,status:integrating&quot; lze použít pro ukázání stavu pokračující integrace projektu Qt.</translation>
     </message>
     <message>
         <source>P&amp;rotocol:</source>
-        <translation>&amp;Protokol:</translation>
+        <translation type="obsolete">&amp;Protokol:</translation>
     </message>
     <message>
         <source>Determines the protocol used to form a URL in case
 &quot;canonicalWebUrl&quot; is not configured in the file
 &quot;gerrit.config&quot;.</source>
-        <translation>Udává protokol použitý na vytvoření adresy (URL) v případě že
+        <translation type="obsolete">Udává protokol použitý na vytvoření adresy (URL) v případě že
 &quot;canonicalWebUrl&quot;není nastavena v souboru
 &quot;gerrit.config&quot;.</translation>
     </message>
@@ -49912,46 +50144,46 @@ Například &quot;status:staged,status:integrating&quot; lze použít pro ukáz�
     <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
-        <translation>Gerrit Fetch (přivedení)</translation>
+        <translation type="obsolete">Gerrit Fetch (přivedení)</translation>
     </message>
     <message>
         <source>%1 crashed.</source>
-        <translation>%1 spadl.</translation>
+        <translation type="obsolete">%1 spadl.</translation>
     </message>
     <message>
         <source>%1 returned %2.</source>
-        <translation>%1 vrátil %2.</translation>
+        <translation type="obsolete">%1 vrátil %2.</translation>
     </message>
     <message>
         <source>Error running %1: %2</source>
-        <translation>Chyba při spouštění %1: %2</translation>
+        <translation type="obsolete">Chyba při spouštění %1: %2</translation>
     </message>
     <message>
         <source>Error writing to temporary file.</source>
-        <translation>Chyba při zápisu do dočasného souboru.</translation>
+        <translation type="obsolete">Chyba při zápisu do dočasného souboru.</translation>
     </message>
     <message>
         <source>Writing %1...</source>
-        <translation>Zapisuje se %1...</translation>
+        <translation type="obsolete">Zapisuje se %1...</translation>
     </message>
     <message>
         <source>Cherry-picking %1...</source>
-        <translation>Vybírá se %1...</translation>
+        <translation type="obsolete">Vybírá se %1...</translation>
     </message>
 </context>
 <context>
     <name>Gerrit::Internal::GerritPlugin</name>
     <message>
         <source>Gerrit...</source>
-        <translation>Gerrit...</translation>
+        <translation type="obsolete">Gerrit...</translation>
     </message>
     <message>
         <source>git is not available.</source>
-        <translation>Git je nedostupný.</translation>
+        <translation type="obsolete">Git je nedostupný.</translation>
     </message>
     <message>
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
-        <translation>Vstoupit do místního skladiště pro &apos;%1&apos; (%2)</translation>
+        <translation type="obsolete">Vstoupit do místního skladiště pro &apos;%1&apos; (%2)</translation>
     </message>
 </context>
 <context>
@@ -49969,19 +50201,19 @@ Například &quot;status:staged,status:integrating&quot; lze použít pro ukáz�
     <name>Git::Internal::ResetDialog</name>
     <message>
         <source>Sha1</source>
-        <translation>Sha1</translation>
+        <translation type="obsolete">Sha1</translation>
     </message>
     <message>
         <source>Subject</source>
-        <translation>Předmět</translation>
+        <translation type="obsolete">Předmět</translation>
     </message>
     <message>
         <source>Reset to:</source>
-        <translation>Nastavit znovu na:</translation>
+        <translation type="obsolete">Nastavit znovu na:</translation>
     </message>
     <message>
         <source>Undo Changes to %1</source>
-        <translation>Změny pro %1 vrátit zpět</translation>
+        <translation type="obsolete">Změny pro %1 vrátit zpět</translation>
     </message>
 </context>
 <context>
@@ -50021,59 +50253,59 @@ Chcete jej ukončit?</translation>
     <name>MaddeDevice</name>
     <message>
         <source>Test</source>
-        <translation>Zkouška</translation>
+        <translation type="obsolete">Zkouška</translation>
     </message>
     <message>
         <source>Remote Processes...</source>
-        <translation>Procesy na zařízení...</translation>
+        <translation type="obsolete">Procesy na zařízení...</translation>
     </message>
     <message>
         <source>Deploy Public Key...</source>
-        <translation>Poslat veřejný klíč...</translation>
+        <translation type="obsolete">Poslat veřejný klíč...</translation>
     </message>
     <message>
         <source>Maemo5/Fremantle</source>
-        <translation>Maemo 5/Fremantle</translation>
+        <translation type="obsolete">Maemo 5/Fremantle</translation>
     </message>
     <message>
         <source>MeeGo 1.2 Harmattan</source>
-        <translation>MeeGo 1.2 Harmattan</translation>
+        <translation type="obsolete">MeeGo 1.2 Harmattan</translation>
     </message>
     <message>
         <source>Other MeeGo OS</source>
-        <translation>Jiné MeeGo OS</translation>
+        <translation type="obsolete">Jiné MeeGo OS</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::DesktopDevice</name>
     <message>
         <source>Desktop</source>
-        <translation>Stolní počítač</translation>
+        <translation type="obsolete">Stolní počítač</translation>
     </message>
     <message>
         <source>Run locally</source>
-        <translation>Spustit místně</translation>
+        <translation type="obsolete">Spustit místně</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
     <message>
         <source>Desktop</source>
-        <translation>Stolní počítač</translation>
+        <translation type="obsolete">Stolní počítač</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::DeviceManagerModel</name>
     <message>
         <source>%1 (default for %2)</source>
-        <translation>%1 (výchozí pro %2)</translation>
+        <translation type="obsolete">%1 (výchozí pro %2)</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
     <message>
         <source>Devices</source>
-        <translation>Zařízení</translation>
+        <translation type="obsolete">Zařízení</translation>
     </message>
 </context>
 <context>
@@ -50083,17 +50315,17 @@ Chcete jej ukončit?</translation>
         <extracomment>Title of the connectivity state information in a tool tip
 ----------
 Title of the connectivity state information in a tool tip</extracomment>
-        <translation>Zařízení</translation>
+        <translation type="obsolete">Zařízení</translation>
     </message>
     <message>
         <source>not connected</source>
         <extracomment>Device is not connected</extracomment>
-        <translation>Nepřipojeno</translation>
+        <translation type="obsolete">Nepřipojeno</translation>
     </message>
     <message>
         <source>connected</source>
         <extracomment>Device is not connected</extracomment>
-        <translation>Připojeno</translation>
+        <translation type="obsolete">Připojeno</translation>
     </message>
 </context>
 <context>
@@ -50181,27 +50413,27 @@ Title of the connectivity state information in a tool tip</extracomment>
     <name>QmlJSInspector::Internal::QmlJSPropertyInspectorModel</name>
     <message>
         <source>Name</source>
-        <translation>Název</translation>
+        <translation type="obsolete">Název</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation>Hodnota</translation>
+        <translation type="obsolete">Hodnota</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation>Typ</translation>
+        <translation type="obsolete">Typ</translation>
     </message>
 </context>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerClientManager</name>
     <message>
         <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
+        <translation type="obsolete">Qt Creator</translation>
     </message>
     <message>
         <source>Could not connect to the in-process QML profiler.
 Do you want to retry?</source>
-        <translation>Qt Creatoru se nepodařilo vytvořit žádné spojení s profilerem QML v procesu.
+        <translation type="obsolete">Qt Creatoru se nepodařilo vytvořit žádné spojení s profilerem QML v procesu.
 Má se to zkusit ještě jednou?</translation>
     </message>
 </context>
@@ -50209,51 +50441,51 @@ Má se to zkusit ještě jednou?</translation>
     <name>QmlProfiler::Internal::QmlProfilerDataModel</name>
     <message>
         <source>Source code not available</source>
-        <translation>Není dostupný žádný zdrojový kód</translation>
+        <translation type="obsolete">Není dostupný žádný zdrojový kód</translation>
     </message>
     <message>
         <source>&lt;bytecode&gt;</source>
-        <translation>&lt;bytecode&gt;</translation>
+        <translation type="obsolete">&lt;bytecode&gt;</translation>
     </message>
     <message>
         <source>Animation Timer Update</source>
-        <translation>Aktualizace časovače animace</translation>
+        <translation type="obsolete">Aktualizace časovače animace</translation>
     </message>
     <message>
         <source>&lt;Animation Update&gt;</source>
-        <translation>&lt;aktualizace animace&gt;</translation>
+        <translation type="obsolete">&lt;aktualizace animace&gt;</translation>
     </message>
     <message>
         <source>&lt;program&gt;</source>
-        <translation>&lt;program&gt;</translation>
+        <translation type="obsolete">&lt;program&gt;</translation>
     </message>
     <message>
         <source>Main Program</source>
-        <translation>Hlavní program</translation>
+        <translation type="obsolete">Hlavní program</translation>
     </message>
     <message>
         <source>%1 animations at %2 FPS</source>
-        <translation>%1 animace při %2 FPS</translation>
+        <translation type="obsolete">%1 animace při %2 FPS</translation>
     </message>
     <message>
         <source>No data to save</source>
-        <translation>Nejsou přítomna žádná data k uložení</translation>
+        <translation type="obsolete">Nejsou přítomna žádná data k uložení</translation>
     </message>
     <message>
         <source>Could not open %1 for writing</source>
-        <translation>Soubor &apos;%1&apos; se nepodařilo otevřít pro zápis</translation>
+        <translation type="obsolete">Soubor &apos;%1&apos; se nepodařilo otevřít pro zápis</translation>
     </message>
     <message>
         <source>Could not open %1 for reading</source>
-        <translation>Soubor &apos;%1&apos; se nepodařilo otevřít pro čtení</translation>
+        <translation type="obsolete">Soubor &apos;%1&apos; se nepodařilo otevřít pro čtení</translation>
     </message>
     <message>
         <source>Error while parsing %1</source>
-        <translation>Chyba při zpracování %1</translation>
+        <translation type="obsolete">Chyba při zpracování %1</translation>
     </message>
     <message>
         <source>Invalid version of QML Trace file.</source>
-        <translation>Neplatná verze souboru QML Trace.</translation>
+        <translation type="obsolete">Neplatná verze souboru QML Trace.</translation>
     </message>
 </context>
 <context>
@@ -50264,23 +50496,23 @@ Má se to zkusit ještě jednou?</translation>
     </message>
     <message>
         <source>Copy Row</source>
-        <translation>Kopírovat řádek</translation>
+        <translation type="obsolete">Kopírovat řádek</translation>
     </message>
     <message>
         <source>Copy Table</source>
-        <translation>Kopírovat tabulku</translation>
+        <translation type="obsolete">Kopírovat tabulku</translation>
     </message>
     <message>
         <source>Extended Event Statistics</source>
-        <translation>Rozšířená statistika událostí</translation>
+        <translation type="obsolete">Rozšířená statistika událostí</translation>
     </message>
     <message>
         <source>Limit Events Pane to Current Range</source>
-        <translation>Omezit tabulku na nynější rozsah</translation>
+        <translation type="obsolete">Omezit tabulku na nynější rozsah</translation>
     </message>
     <message>
         <source>Reset Events Pane</source>
-        <translation>Vynulovat tabulku událostí</translation>
+        <translation type="obsolete">Vynulovat tabulku událostí</translation>
     </message>
 </context>
 <context>
@@ -50335,11 +50567,11 @@ Má se to zkusit ještě jednou?</translation>
     </message>
     <message>
         <source> (v4)</source>
-        <translation> (v4)</translation>
+        <translation type="obsolete"> (v4)</translation>
     </message>
     <message>
         <source>Binding is evaluated by the optimized v4 engine.</source>
-        <translation>Vázání je vyhodnoceno vyladěným strojem v4.</translation>
+        <translation type="obsolete">Vázání je vyhodnoceno vyladěným strojem v4.</translation>
     </message>
     <message>
         <source>Binding loop detected</source>
@@ -50417,207 +50649,207 @@ Má se to zkusit ještě jednou?</translation>
     <name>QmlProfiler::Internal::QmlProfilerStateManager</name>
     <message>
         <source>Switching to unknown state in %1:%2</source>
-        <translation>Přepnutí do neznámého stavu v %1:%2</translation>
+        <translation type="obsolete">Přepnutí do neznámého stavu v %1:%2</translation>
     </message>
 </context>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
     <message>
         <source>Jump to previous event</source>
-        <translation>Jít na předchozí událost</translation>
+        <translation type="obsolete">Jít na předchozí událost</translation>
     </message>
     <message>
         <source>Jump to next event</source>
-        <translation>Jít na další událost</translation>
+        <translation type="obsolete">Jít na další událost</translation>
     </message>
     <message>
         <source>Show zoom slider</source>
-        <translation>Ukázat zvětšovací posuvník</translation>
+        <translation type="obsolete">Ukázat zvětšovací posuvník</translation>
     </message>
     <message>
         <source>Select range</source>
-        <translation>Vybrat rozsah</translation>
+        <translation type="obsolete">Vybrat rozsah</translation>
     </message>
     <message>
         <source>View event information on mouseover</source>
-        <translation>Ukázat informace o události při přejezdu myši</translation>
+        <translation type="obsolete">Ukázat informace o události při přejezdu myši</translation>
     </message>
     <message>
         <source>Limit Events Pane to Current Range</source>
-        <translation>Omezit tabulku na nynější rozsah</translation>
+        <translation type="obsolete">Omezit tabulku na nynější rozsah</translation>
     </message>
     <message>
         <source>Reset Events Pane</source>
-        <translation>Vynulovat tabulku událostí</translation>
+        <translation type="obsolete">Vynulovat tabulku událostí</translation>
     </message>
     <message>
         <source>Reset Zoom</source>
-        <translation>Nastavit zvětšení znovu</translation>
+        <translation type="obsolete">Nastavit zvětšení znovu</translation>
     </message>
 </context>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
     <message>
         <source>Events</source>
-        <translation>Události</translation>
+        <translation type="obsolete">Události</translation>
     </message>
     <message>
         <source>Timeline</source>
-        <translation>Časová přímka</translation>
+        <translation type="obsolete">Časová přímka</translation>
     </message>
     <message>
         <source>JavaScript</source>
-        <translation>JavaScript</translation>
+        <translation type="obsolete">JavaScript</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::SymbianIDevice</name>
     <message>
         <source>Device</source>
-        <translation>Zařízení</translation>
+        <translation type="obsolete">Zařízení</translation>
     </message>
     <message>
         <source>Not connected</source>
-        <translation>Žádné spojení</translation>
+        <translation type="obsolete">Žádné spojení</translation>
     </message>
     <message>
         <source>%1, %2</source>
         <extracomment>%1 device friendly name, %2 additional information</extracomment>
-        <translation>%1: %2</translation>
+        <translation type="obsolete">%1: %2</translation>
     </message>
     <message>
         <source>IP address</source>
-        <translation>Adresa IP</translation>
+        <translation type="obsolete">Adresa IP</translation>
     </message>
     <message>
         <source>%1:%2</source>
-        <translation>%1:%2</translation>
+        <translation type="obsolete">%1:%2</translation>
     </message>
     <message>
         <source>Symbian Device</source>
-        <translation>Zařízení Symbian</translation>
+        <translation type="obsolete">Zařízení Symbian</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::SymbianIDeviceConfigurationWidget</name>
     <message>
         <source>Device:</source>
-        <translation>Zařízení:</translation>
+        <translation type="obsolete">Zařízení:</translation>
     </message>
     <message>
         <source>Serial:</source>
-        <translation>Sériová:</translation>
+        <translation type="obsolete">Sériová:</translation>
     </message>
     <message>
         <source>WLAN:</source>
-        <translation>WLAN:</translation>
+        <translation type="obsolete">WLAN:</translation>
     </message>
     <message>
         <source>Queries the device for information</source>
-        <translation>Vyvolává informace ze zařízení</translation>
+        <translation type="obsolete">Vyvolává informace ze zařízení</translation>
     </message>
     <message>
         <source>Serial port:</source>
-        <translation>Sériová přípojka:</translation>
+        <translation type="obsolete">Sériová přípojka:</translation>
     </message>
     <message>
         <source>Communication Channel</source>
-        <translation>Komunikační protokol</translation>
+        <translation type="obsolete">Komunikační protokol</translation>
     </message>
     <message>
         <source>Address:</source>
-        <translation>Adresa:</translation>
+        <translation type="obsolete">Adresa:</translation>
     </message>
     <message>
         <source>Connecting</source>
-        <translation>Připojuje se</translation>
+        <translation type="obsolete">Připojuje se</translation>
     </message>
     <message>
         <source>Unable to create CODA connection. Please try again.</source>
-        <translation>Nepodařilo se vytvořit žádné spojení s CODA. Zkuste to, prosím, znovu.</translation>
+        <translation type="obsolete">Nepodařilo se vytvořit žádné spojení s CODA. Zkuste to, prosím, znovu.</translation>
     </message>
     <message>
         <source>Currently there is no information about the device for this connection type.</source>
-        <translation>Pro tento typ spojení nejsou nyní dostupné žádné informace o zařízení.</translation>
+        <translation type="obsolete">Pro tento typ spojení nejsou nyní dostupné žádné informace o zařízení.</translation>
     </message>
     <message>
         <source>No device information available</source>
-        <translation>Nejsou dostupné žádné informace o zařízení</translation>
+        <translation type="obsolete">Nejsou dostupné žádné informace o zařízení</translation>
     </message>
     <message>
         <source>Qt version: </source>
-        <translation>Verze Qt: </translation>
+        <translation type="obsolete">Verze Qt: </translation>
     </message>
     <message>
         <source>Not installed on device</source>
-        <translation>Neinstalováno na zařízení</translation>
+        <translation type="obsolete">Neinstalováno na zařízení</translation>
     </message>
     <message>
         <source>Qt version:</source>
-        <translation>Verze Qt:</translation>
+        <translation type="obsolete">Verze Qt:</translation>
     </message>
     <message>
         <source>Unrecognised Symbian version 0x%1</source>
-        <translation>Nerozpoznaná verze Symbianu 0x%1</translation>
+        <translation type="obsolete">Nerozpoznaná verze Symbianu 0x%1</translation>
     </message>
     <message>
         <source>Unrecognised S60 version 0x%1</source>
-        <translation>Nerozpoznaná verze S60 0x%1</translation>
+        <translation type="obsolete">Nerozpoznaná verze S60 0x%1</translation>
     </message>
     <message>
         <source>OS version:</source>
-        <translation>Verze operačního systému:</translation>
+        <translation type="obsolete">Verze operačního systému:</translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation>Neznámý</translation>
+        <translation type="obsolete">Neznámý</translation>
     </message>
     <message>
         <source>ROM version:</source>
-        <translation>Verze ROM:</translation>
+        <translation type="obsolete">Verze ROM:</translation>
     </message>
     <message>
         <source>Release:</source>
-        <translation>Vydání:</translation>
+        <translation type="obsolete">Vydání:</translation>
     </message>
     <message>
         <source>CODA version: </source>
-        <translation>Verze CODA: </translation>
+        <translation type="obsolete">Verze CODA: </translation>
     </message>
     <message>
         <source>Error reading CODA version</source>
-        <translation>Chyba při čtení verze CODA</translation>
+        <translation type="obsolete">Chyba při čtení verze CODA</translation>
     </message>
     <message>
         <source>Qt Mobility version: </source>
-        <translation>Verze Qt Mobility: </translation>
+        <translation type="obsolete">Verze Qt Mobility: </translation>
     </message>
     <message>
         <source>Error reading Qt Mobility version</source>
-        <translation>Chyba při čtení verze Qt Mobility</translation>
+        <translation type="obsolete">Chyba při čtení verze Qt Mobility</translation>
     </message>
     <message>
         <source>Qt Quick components version: </source>
-        <translation>Verze součásti Qt Quick: </translation>
+        <translation type="obsolete">Verze součásti Qt Quick: </translation>
     </message>
     <message>
         <source>Not installed</source>
-        <translation>Neinstalováno</translation>
+        <translation type="obsolete">Neinstalováno</translation>
     </message>
     <message>
         <source>QML Viewer version: </source>
-        <translation>Verze prohlížeče QML: </translation>
+        <translation type="obsolete">Verze prohlížeče QML: </translation>
     </message>
     <message>
         <source>Screen size:</source>
-        <translation>Velikost obrazovky:</translation>
+        <translation type="obsolete">Velikost obrazovky:</translation>
     </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::SymbianIDeviceFactory</name>
     <message>
         <source>Symbian Device</source>
-        <translation>Zařízení Symbian</translation>
+        <translation type="obsolete">Zařízení Symbian</translation>
     </message>
 </context>
 <context>
@@ -50738,19 +50970,19 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     <name>LinuxDeviceConfiguration</name>
     <message>
         <source>Generic Linux</source>
-        <translation>Obecný Linux</translation>
+        <translation type="obsolete">Obecný Linux</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation>Zkouška</translation>
+        <translation type="obsolete">Zkouška</translation>
     </message>
     <message>
         <source>Remote Processes...</source>
-        <translation>Procesy na zařízení...</translation>
+        <translation type="obsolete">Procesy na zařízení...</translation>
     </message>
     <message>
         <source>Deploy Public Key...</source>
-        <translation>Poslat veřejný klíč...</translation>
+        <translation type="obsolete">Poslat veřejný klíč...</translation>
     </message>
 </context>
 <context>
@@ -50841,6 +51073,34 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     <message>
         <source>Copy email address</source>
         <translation>Kopírovat adresu e-mailu</translation>
+    </message>
+</context>
+<context>
+    <name>Todo::Internal::AddKeywordDialog</name>
+    <message>
+        <source>Keyword</source>
+        <translation>Klíčové slovo</translation>
+    </message>
+    <message>
+        <source>Icon</source>
+        <translation>Ikona</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Barva</translation>
+    </message>
+</context>
+<context>
+    <name>QmlJsDebugClient::QDeclarativeOutputParser</name>
+    <message>
+        <source>The port seems to be in use.</source>
+        <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
+        <translation>Port se už používá.</translation>
+    </message>
+    <message>
+        <source>The application is not set up for QML/JS debugging.</source>
+        <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
+        <translation>Tento program není nastaven pro ladění QML/JS.</translation>
     </message>
 </context>
 </TS>

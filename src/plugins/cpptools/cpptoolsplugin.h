@@ -89,6 +89,9 @@ private slots:
     void test_codegen_definition_first_member();
     void test_codegen_definition_last_member();
     void test_codegen_definition_middle_member();
+
+    void test_completion_basic_1();
+    void test_completion_template_1();
 #endif
 
 private:
