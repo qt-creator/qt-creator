@@ -15,7 +15,7 @@ def verifyBuildAndRun():
 
 # pick version 4.7.4 and then run project for debug and release
 def pickVersion474runVerify():
-    availableConfigs = iterateBuildConfigs(1, 0, ".*4.7.4.*")
+    availableConfigs = iterateBuildConfigs(1, 0)
     if not availableConfigs:
         test.fatal("Haven't found needed Qt version (Qt 4.7.4), quitting")
         invokeMenuItem("File", "Save All")

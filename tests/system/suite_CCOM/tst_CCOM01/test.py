@@ -14,7 +14,7 @@ def main():
     # open example project
     openQmakeProject(examplePath)
     # build and wait until finished - on all (except Qt 4.7.0 (would fail)) build configurations
-    availableConfigs = iterateBuildConfigs(1, 0, "(?!.*4\.7\.0.*)")
+    availableConfigs = iterateBuildConfigs(1, 0)
     if not availableConfigs:
         test.fatal("Haven't found a suitable Qt version (anything except Qt 4.7.0) - leaving without building.")
     for config in availableConfigs:
