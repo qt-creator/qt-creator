@@ -96,6 +96,8 @@ static struct {
     QString strfor;
     QString strdefineTest;
     QString strdefineReplace;
+    QString stroption;
+    QString strhost_build;
     QString strLINE;
     QString strFILE;
     QString strLITERAL_HASH;
@@ -114,6 +116,8 @@ void QMakeParser::initialize()
     statics.strfor = QLatin1String("for");
     statics.strdefineTest = QLatin1String("defineTest");
     statics.strdefineReplace = QLatin1String("defineReplace");
+    statics.stroption = QLatin1String("option");
+    statics.strhost_build = QLatin1String("host_build");
     statics.strLINE = QLatin1String("_LINE_");
     statics.strFILE = QLatin1String("_FILE_");
     statics.strLITERAL_HASH = QLatin1String("LITERAL_HASH");
@@ -1036,6 +1040,26 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                     }
                 }
                 parseError(fL1S("%1(function) requires one literal argument.").arg(*defName));
+                return;
+            } else if (m_tmp == statics.stroption) {
+                if (m_state != StNew || m_blockstack.top().braceLevel || m_blockstack.size() > 1
+                        || m_invert || m_operator != NoOperator) {
+                    parseError(fL1S("option() must appear outside any control structures."));
+                    return;
+                }
+                if (*uce == (TokLiteral|TokNewStr)) {
+                    uint nlen = uce[1];
+                    if (uce[nlen + 2] == TokFuncTerminator) {
+                        m_tmp.setRawData((QChar *)uce + 2, nlen);
+                        if (m_tmp == statics.strhost_build) {
+                            m_proFile->setHostBuild(true);
+                        } else {
+                            parseError(fL1S("Unknown option() %1.").arg(m_tmp));
+                        }
+                        return;
+                    }
+                }
+                parseError(fL1S("option() requires one literal argument."));
                 return;
             }
         }

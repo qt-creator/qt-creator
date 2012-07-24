@@ -208,6 +208,7 @@ public:
     QString m_outputDir;
 
     int m_listCount;
+    bool m_hostBuild;
     QString m_qmakespec;
     QString m_qmakespecFull;
     QString m_qmakespecName;

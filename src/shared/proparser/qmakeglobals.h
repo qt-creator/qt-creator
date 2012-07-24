@@ -48,7 +48,17 @@ QT_BEGIN_NAMESPACE
 
 class QMakeEvaluator;
 
-typedef QString QMakeBaseKey;
+class QMakeBaseKey
+{
+public:
+    QMakeBaseKey(const QString &_root, bool _hostBuild);
+
+    QString root;
+    bool hostBuild;
+};
+
+uint qHash(const QMakeBaseKey &key);
+bool operator==(const QMakeBaseKey &one, const QMakeBaseKey &two);
 
 class QMakeBaseEnv
 {
@@ -77,6 +87,7 @@ public:
     QString dir_sep;
     QString dirlist_sep;
     QString qmakespec;
+    QString xqmakespec;
     QString cachefile;
 #ifndef QT_BOOTSTRAPPED
     QProcessEnvironment environment;

@@ -69,6 +69,21 @@ using namespace ProStringConstants;
 #define fL1S(s) QString::fromLatin1(s)
 
 
+QMakeBaseKey::QMakeBaseKey(const QString &_root, bool _hostBuild)
+    : root(_root), hostBuild(_hostBuild)
+{
+}
+
+uint qHash(const QMakeBaseKey &key)
+{
+    return qHash(key.root) ^ key.hostBuild;
+}
+
+bool operator==(const QMakeBaseKey &one, const QMakeBaseKey &two)
+{
+    return one.root == two.root && one.hostBuild == two.hostBuild;
+}
+
 QMakeBaseEnv::QMakeBaseEnv()
     : evaluator(0)
 {
@@ -100,6 +115,7 @@ void QMakeEvaluator::initStatics()
     statics.strDotDot = QLatin1String("..");
     statics.strever = QLatin1String("ever");
     statics.strforever = QLatin1String("forever");
+    statics.strhost_build = QLatin1String("host_build");
     statics.strTEMPLATE = ProString("TEMPLATE");
 
     statics.fakeValue = ProStringList(ProString("_FAKE_")); // It has to have a unique begin() value
@@ -157,6 +173,7 @@ QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
 #ifdef PROEVALUATOR_CUMULATIVE
     m_cumulative = false;
 #endif
+    m_hostBuild = false;
 
     // Evaluator state
     m_skipLevel = 0;
@@ -1030,7 +1047,8 @@ bool QMakeEvaluator::loadSpec()
 {
     loadDefaults();
 
-    QString qmakespec = m_option->expandEnvVars(m_option->qmakespec);
+    QString qmakespec = m_option->expandEnvVars(
+                m_hostBuild ? m_option->qmakespec : m_option->xqmakespec);
 
     {
         QMakeEvaluator evaluator(m_option, m_parser, m_handler);
@@ -1049,14 +1067,18 @@ bool QMakeEvaluator::loadSpec()
             if (!evaluator.evaluateFileDirect(m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly))
                 return false;
         }
-        if (qmakespec.isEmpty())
-            qmakespec = evaluator.first(ProString("QMAKESPEC")).toQString();
+        if (qmakespec.isEmpty()) {
+            if (!m_hostBuild)
+                qmakespec = evaluator.first(ProString("XQMAKESPEC")).toQString();
+            if (qmakespec.isEmpty())
+                qmakespec = evaluator.first(ProString("QMAKESPEC")).toQString();
+        }
         m_qmakepath = evaluator.values(ProString("QMAKEPATH")).toQStringList();
         m_qmakefeatures = evaluator.values(ProString("QMAKEFEATURES")).toQStringList();
     }
 
     if (qmakespec.isEmpty())
-        qmakespec = QLatin1String("default");
+        qmakespec = m_hostBuild ? QLatin1String("default-host") : QLatin1String("default");
     if (IoUtils::isRelativePath(qmakespec)) {
         foreach (const QString &root, qmakeMkspecPaths()) {
             QString mkspec = root + QLatin1Char('/') + qmakespec;
@@ -1140,10 +1162,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         if (!prepareProject(pro->directoryName()))
             return ReturnFalse;
 
+        m_hostBuild = pro->isHostBuild();
+
 #ifdef PROEVALUATOR_THREAD_SAFE
         m_option->mutex.lock();
 #endif
-        QMakeBaseEnv **baseEnvPtr = &m_option->baseEnvs[QMakeBaseKey(m_buildRoot)];
+        QMakeBaseEnv **baseEnvPtr = &m_option->baseEnvs[QMakeBaseKey(m_buildRoot, m_hostBuild)];
         if (!*baseEnvPtr)
             *baseEnvPtr = new QMakeBaseEnv;
         QMakeBaseEnv *baseEnv = *baseEnvPtr;
@@ -1173,6 +1197,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
                 baseEval->m_cachefile = m_cachefile;
                 baseEval->m_sourceRoot = m_sourceRoot;
                 baseEval->m_buildRoot = m_buildRoot;
+                baseEval->m_hostBuild = m_hostBuild;
                 bool ok = baseEval->loadSpec();
 
 #ifdef PROEVALUATOR_THREAD_SAFE
@@ -1636,6 +1661,9 @@ bool QMakeEvaluator::isActiveConfig(const QString &config, bool regex)
         return true;
     if (config == statics.strfalse)
         return false;
+
+    if (config == statics.strhost_build)
+        return m_hostBuild;
 
     if (regex && (config.contains(QLatin1Char('*')) || config.contains(QLatin1Char('?')))) {
         QString cfg = config;

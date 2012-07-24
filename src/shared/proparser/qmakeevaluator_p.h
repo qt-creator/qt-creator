@@ -49,6 +49,7 @@ struct QMakeStatics {
     QString strDotDot;
     QString strever;
     QString strforever;
+    QString strhost_build;
     ProString strTEMPLATE;
     QHash<ProString, int> expands;
     QHash<ProString, int> functions;
