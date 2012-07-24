@@ -114,7 +114,7 @@ LoadRemoteCoreFileDialog::LoadRemoteCoreFileDialog(QWidget *parent)
 
     d->deviceComboBox = new QComboBox(this);
 
-    d->profileChooser = new ProfileChooser(this);
+    d->profileChooser = new ProfileChooser(this, ProfileChooser::RemoteDebugging);
     d->fileSystemModel = new SftpFileSystemModel(this);
 
     //executablePathChooser = new PathChooser(q);

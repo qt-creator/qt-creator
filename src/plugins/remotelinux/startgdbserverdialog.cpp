@@ -119,7 +119,7 @@ StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q
 
     deviceComboBox = new QComboBox(q);
 
-    profileChooser = new ProfileChooser(q);
+    profileChooser = new ProfileChooser(q, ProfileChooser::RemoteDebugging);
 //    sysrootPathChooser = new PathChooser(q);
 //    sysrootPathChooser->setExpectedKind(PathChooser::Directory);
 //    sysrootPathChooser->setPromptDialogTitle(StartGdbServerDialog::tr("Select Sysroot"));

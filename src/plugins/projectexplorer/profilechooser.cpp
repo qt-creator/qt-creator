@@ -43,21 +43,28 @@
 
 namespace ProjectExplorer {
 
-ProfileChooser::ProfileChooser(QWidget *parent, bool hostAbiOnly) :
+ProfileChooser::ProfileChooser(QWidget *parent, unsigned flags) :
     QComboBox(parent)
 {
+    populate(flags);
+}
+
+void ProfileChooser::populate(unsigned flags)
+{
+    clear();
     const Abi hostAbi = Abi::hostAbi();
     foreach (const Profile *profile, ProfileManager::instance()->profiles()) {
-        if (!profile->isValid())
+        if (!profile->isValid() && !(flags & IncludeInvalidProfiles))
             continue;
         ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
         if (!tc)
             continue;
         const Abi abi = tc->targetAbi();
-        if (hostAbiOnly && hostAbi.os() != abi.os())
+        if ((flags & HostAbiOnly) && hostAbi.os() != abi.os())
             continue;
-
         const QString debuggerCommand = profile->value(Core::Id("Debugger.Information")).toString();
+        if ((flags & HasDebugger) && debuggerCommand.isEmpty())
+            continue;
         const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();
         const QString name = tr("%1 (%2)").arg(profile->displayName(), completeBase);
         addItem(name, qVariantFromValue(profile->id()));

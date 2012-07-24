@@ -47,7 +47,15 @@ class PROJECTEXPLORER_EXPORT ProfileChooser : public QComboBox
     Q_OBJECT
 
 public:
-    explicit ProfileChooser(QWidget *parent, bool hostAbiOnly = false);
+    enum Flags {
+        HostAbiOnly = 0x1,
+        IncludeInvalidProfiles = 0x2,
+        HasDebugger = 0x4,
+        RemoteDebugging = IncludeInvalidProfiles | HasDebugger,
+        LocalDebugging = RemoteDebugging | HostAbiOnly
+    };
+
+    explicit ProfileChooser(QWidget *parent, unsigned flags = 0);
 
     void setCurrentProfileId(Core::Id id);
     Core::Id currentProfileId() const;
@@ -55,6 +63,7 @@ public:
     Profile *currentProfile() const;
 
 private:
+    void populate(unsigned flags);
     Profile *profileAt(int index) const;
 };
 

@@ -215,7 +215,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
     d->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
 
-    d->profileComboBox = new ProfileChooser(this, false);
+    d->profileComboBox = new ProfileChooser(this, ProfileChooser::RemoteDebugging);
 
     QFrame *line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
@@ -346,7 +346,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     d->filterWidget = new FilterLineEdit(this);
     d->filterWidget->setFocus(Qt::TabFocusReason);
 
-    d->profileComboBox = new ProfileChooser(this, true);
+    d->profileComboBox = new ProfileChooser(this, ProfileChooser::LocalDebugging);
 
     d->procView = new QTreeView(this);
     d->procView->setAlternatingRowColors(true);
@@ -628,7 +628,7 @@ StartExternalDialog::StartExternalDialog(QWidget *parent)
 
     d->runInTerminalCheckBox = new QCheckBox(this);
 
-    d->profileChooser = new ProfileChooser(this, true);
+    d->profileChooser = new ProfileChooser(this, ProfileChooser::LocalDebugging);
 
     d->breakAtMainCheckBox = new QCheckBox(this);
     d->breakAtMainCheckBox->setText(QString());
@@ -939,7 +939,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->profileChooser = new ProfileChooser(this);
+    d->profileChooser = new ProfileChooser(this, ProfileChooser::RemoteDebugging);
 
     d->executablePathChooser = new PathChooser(this);
     d->executablePathChooser->setExpectedKind(PathChooser::File);
@@ -1149,7 +1149,7 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->profileChooser = new ProfileChooser(this);
+    d->profileChooser = new ProfileChooser(this, ProfileChooser::RemoteDebugging);
 
     d->hostLineEdit = new QLineEdit(this);
     d->hostLineEdit->setText(QString::fromUtf8("localhost"));
