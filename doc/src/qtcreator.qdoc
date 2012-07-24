@@ -239,6 +239,7 @@
                 \o  \l{Deploying Applications to Symbian Devices}
                 \o  \l{Deploying Applications to Linux-Based Devices}
                 \o  \l{Deploying Applications to QNX Devices}
+                \o  \l{Deploying Applications to Android Devices}
             \endlist
             \o  \l{Connecting Mobile Targets}
             \list
@@ -247,6 +248,7 @@
                 \o  \l{Connecting Maemo Devices}
                 \o  \l{Connecting Symbian Devices}
                 \o  \l{Connecting QNX Devices}
+                \o  \l{Connecting Android Devices}
             \endlist
             \o  \l{Customizing the Build Process}
             \o  \l{Using Maemo or MeeGo Harmattan Emulator}
