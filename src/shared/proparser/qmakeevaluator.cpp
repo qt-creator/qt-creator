@@ -1329,8 +1329,8 @@ ProString QMakeEvaluator::propertyValue(const ProString &name) const
     if (name == QLatin1String("QMAKE_MKSPECS"))
         return ProString(qmakeMkspecPaths().join(m_option->dirlist_sep), NoHash);
     ProString ret = m_option->propertyValue(name);
-    if (ret.isNull())
-        evalError(fL1S("Querying unknown property %1").arg(name.toQString(m_mtmp)));
+//    if (ret.isNull())
+//        evalError(fL1S("Querying unknown property %1").arg(name.toQString(m_mtmp)));
     return ret;
 }
 
