@@ -142,18 +142,7 @@ void CMakeEditorWidget::unCommentSelection()
 
 void CMakeEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    QMenu *menu = new QMenu();
-
-    Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(Constants::M_CONTEXT);
-    QMenu *contextMenu = mcontext->menu();
-
-    foreach (QAction *action, contextMenu->actions())
-        menu->addAction(action);
-
-    appendStandardContextMenuActions(menu);
-
-    menu->exec(e->globalPos());
-    delete menu;
+    showDefaultContextMenu(e, Constants::M_CONTEXT);
 }
 
 void CMakeEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
