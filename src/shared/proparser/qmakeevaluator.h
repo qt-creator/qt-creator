@@ -186,6 +186,7 @@ public:
 #ifndef QT_BOOTSTRAPPED
     void runProcess(QProcess *proc, const QString &command) const;
 #endif
+    QByteArray getCommandOutput(const QString &args) const;
 
     int m_loopLevel; // To report unexpected break() and next()s
 #ifdef PROEVALUATOR_CUMULATIVE

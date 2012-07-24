@@ -333,6 +333,41 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
 }
 #endif
 
+QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
+{
+#ifndef QT_BOOTSTRAPPED
+    QProcess proc;
+    runProcess(&proc, args);
+    QByteArray errout = proc.readAllStandardError();
+# ifdef PROEVALUATOR_FULL
+    // FIXME: Qt really should have the option to set forwarding per channel
+    fputs(errout.constData(), stderr);
+# else
+    if (!errout.isEmpty()) {
+        if (errout.endsWith('\n'))
+            errout.chop(1);
+        m_handler->message(QMakeHandler::EvalError, QString::fromLocal8Bit(errout));
+    }
+# endif
+    return proc.readAllStandardOutput();
+#else
+    QByteArray out;
+    if (FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
+                               + IoUtils::shellQuote(currentDirectory())
+                               + QLatin1String(" && ") + args[0]).toLocal8Bit().constData(), "r")) {
+        while (!feof(proc)) {
+            char buff[10 * 1024];
+            int read_in = int(fread(buff, 1, sizeof(buff), proc));
+            if (!read_in)
+                break;
+            out += QByteArray(buff, read_in);
+        }
+        QT_PCLOSE(proc);
+    }
+    return out;
+#endif
+}
+
 void QMakeEvaluator::populateDeps(
         const ProStringList &deps, const ProString &prefix,
         QHash<ProString, QSet<ProString> > &dependencies, ProValueMap &dependees,
@@ -616,19 +651,35 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         } else {
             const QString &file = args.at(0).toQString(m_tmp1);
 
+            bool blob = false;
+            bool lines = false;
             bool singleLine = true;
-            if (args.count() > 1)
-                singleLine = isTrue(args.at(1), m_tmp2);
+            if (args.count() > 1) {
+                args.at(1).toQString(m_tmp2);
+                if (!m_tmp2.compare(QLatin1String("false"), Qt::CaseInsensitive))
+                    singleLine = false;
+                else if (!m_tmp2.compare(QLatin1String("blob"), Qt::CaseInsensitive))
+                    blob = true;
+                else if (!m_tmp2.compare(QLatin1String("lines"), Qt::CaseInsensitive))
+                    lines = true;
+            }
 
             QFile qfile(resolvePath(m_option->expandEnvVars(file)));
             if (qfile.open(QIODevice::ReadOnly)) {
                 QTextStream stream(&qfile);
-                while (!stream.atEnd()) {
-                    ret += split_value_list(stream.readLine().trimmed());
-                    if (!singleLine)
-                        ret += ProString("\n", NoHash);
+                if (blob) {
+                    ret += ProString(stream.readAll(), NoHash);
+                } else {
+                    while (!stream.atEnd()) {
+                        if (lines) {
+                            ret += ProString(stream.readLine(), NoHash);
+                        } else {
+                            ret += split_value_list(stream.readLine().trimmed());
+                            if (!singleLine)
+                                ret += ProString("\n", NoHash);
+                        }
+                    }
                 }
-                qfile.close();
             }
         }
         break;
@@ -677,36 +728,34 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             if (args.count() < 1 || args.count() > 2) {
                 evalError(fL1S("system(execute) requires one or two arguments."));
             } else {
+                bool blob = false;
+                bool lines = false;
                 bool singleLine = true;
-                if (args.count() > 1)
-                    singleLine = isTrue(args.at(1), m_tmp2);
-                QByteArray output;
-#ifndef QT_BOOTSTRAPPED
-                QProcess proc;
-                runProcess(&proc, args.at(0).toQString(m_tmp2), QProcess::StandardError);
-                output = proc.readAllStandardOutput();
-                output.replace('\t', ' ');
-                if (singleLine)
-                    output.replace('\n', ' ');
-#else
-                char buff[256];
-                FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
-                                       + IoUtils::shellQuote(currentDirectory())
-                                       + QLatin1String(" && ") + args[0]).toLocal8Bit(), "r");
-                while (proc && !feof(proc)) {
-                    int read_in = int(fread(buff, 1, 255, proc));
-                    if (!read_in)
-                        break;
-                    for (int i = 0; i < read_in; i++) {
-                        if ((singleLine && buff[i] == '\n') || buff[i] == '\t')
-                            buff[i] = ' ';
-                    }
-                    output.append(buff, read_in);
+                if (args.count() > 1) {
+                    args.at(1).toQString(m_tmp2);
+                    if (!m_tmp2.compare(QLatin1String("false"), Qt::CaseInsensitive))
+                        singleLine = false;
+                    else if (!m_tmp2.compare(QLatin1String("blob"), Qt::CaseInsensitive))
+                        blob = true;
+                    else if (!m_tmp2.compare(QLatin1String("lines"), Qt::CaseInsensitive))
+                        lines = true;
                 }
-                if (proc)
-                    QT_PCLOSE(proc);
-#endif
-                ret += split_value_list(QString::fromLocal8Bit(output));
+                QByteArray bytes = getCommandOutput(args.at(0).toQString(m_tmp2));
+                if (lines) {
+                    QTextStream stream(bytes);
+                    while (!stream.atEnd())
+                        ret += ProString(stream.readLine(), NoHash);
+                } else {
+                    QString output = QString::fromLocal8Bit(bytes);
+                    if (blob) {
+                        ret += ProString(output, NoHash);
+                    } else {
+                        output.replace(QLatin1Char('\t'), QLatin1Char(' '));
+                        if (singleLine)
+                            output.replace(QLatin1Char('\n'), QLatin1Char(' '));
+                        ret += split_value_list(output);
+                    }
+                }
             }
         }
         break;
