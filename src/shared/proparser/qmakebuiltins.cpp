@@ -74,7 +74,7 @@ using namespace ProStringConstants;
 enum ExpandFunc {
     E_INVALID = 0, E_MEMBER, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
     E_SPRINTF, E_FORMAT_NUMBER, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
-    E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
+    E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
     E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
     E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS
 };
@@ -110,6 +110,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "find", E_FIND },
         { "system", E_SYSTEM },
         { "unique", E_UNIQUE },
+        { "reverse", E_REVERSE },
         { "quote", E_QUOTE },
         { "escape_expand", E_ESCAPE_EXPAND },
         { "upper", E_UPPER },
@@ -565,6 +566,16 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         } else {
             ret = values(map(args.at(0)));
             ret.removeDuplicates();
+        }
+        break;
+    case E_REVERSE:
+        if (args.count() != 1) {
+            evalError(fL1S("reverse(var) requires one argument."));
+        } else {
+            ProStringList var = values(args.at(0));
+            for (int i = 0; i < var.size() / 2; i++)
+                qSwap(var[i], var[var.size() - i - 1]);
+            ret += var;
         }
         break;
     case E_QUOTE:
