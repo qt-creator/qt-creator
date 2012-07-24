@@ -46,9 +46,6 @@ class QSSH_EXPORT SftpFileSystemModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    // Use this to get the full path of a file or directory via data().
-    static const int PathRole = Qt::UserRole;
-
     explicit SftpFileSystemModel(QObject *parent = 0);
     ~SftpFileSystemModel();
 
@@ -62,6 +59,10 @@ public:
     QString rootDirectory() const;
 
     SftpJobId downloadFile(const QModelIndex &index, const QString &targetFilePath);
+
+    // Use this to get the full path of a file or directory.
+    static const int PathRole = Qt::UserRole;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 signals:
      /*
@@ -90,7 +91,6 @@ private slots:
 
 private:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
