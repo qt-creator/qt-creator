@@ -73,7 +73,7 @@ using namespace ProStringConstants;
 
 enum ExpandFunc {
     E_INVALID = 0, E_MEMBER, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
-    E_SPRINTF, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
+    E_SPRINTF, E_FORMAT_NUMBER, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
     E_FIND, E_SYSTEM, E_UNIQUE, E_QUOTE, E_ESCAPE_EXPAND,
     E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
     E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS
@@ -101,6 +101,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "eval", E_EVAL },
         { "list", E_LIST },
         { "sprintf", E_SPRINTF },
+        { "format_number", E_FORMAT_NUMBER },
         { "join", E_JOIN },
         { "split", E_SPLIT },
         { "basename", E_BASENAME },
@@ -284,6 +285,76 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             // Note: this depends on split_value_list() making a deep copy
             ret = split_value_list(tmp);
         }
+        break;
+    case E_FORMAT_NUMBER:
+        if (args.count() > 2) {
+            evalError(fL1S("format_number(number[, options...]) requires one or two arguments."));
+        } else {
+            int ibase = 10;
+            int obase = 10;
+            int width = 0;
+            bool zeropad = false;
+            bool leftalign = false;
+            enum { DefaultSign, PadSign, AlwaysSign } sign = DefaultSign;
+            if (args.count() >= 2) {
+                foreach (const ProString &opt, split_value_list(args.at(1).toQString(m_tmp2))) {
+                    opt.toQString(m_tmp3);
+                    if (m_tmp3.startsWith(QLatin1String("ibase="))) {
+                        ibase = m_tmp3.mid(6).toInt();
+                    } else if (m_tmp3.startsWith(QLatin1String("obase="))) {
+                        obase = m_tmp3.mid(6).toInt();
+                    } else if (m_tmp3.startsWith(QLatin1String("width="))) {
+                        width = m_tmp3.mid(6).toInt();
+                    } else if (m_tmp3 == QLatin1String("zeropad")) {
+                        zeropad = true;
+                    } else if (m_tmp3 == QLatin1String("padsign")) {
+                        sign = PadSign;
+                    } else if (m_tmp3 == QLatin1String("alwayssign")) {
+                        sign = AlwaysSign;
+                    } else if (m_tmp3 == QLatin1String("leftalign")) {
+                        leftalign = true;
+                    } else {
+                        evalError(fL1S("format_number(): invalid format option %1.").arg(m_tmp3));
+                        goto formfail;
+                    }
+                }
+            }
+            args.at(0).toQString(m_tmp3);
+            if (m_tmp3.contains(QLatin1Char('.'))) {
+                evalError(fL1S("format_number(): floats are currently not supported."));
+                break;
+            }
+            bool ok;
+            qlonglong num = m_tmp3.toLongLong(&ok, ibase);
+            if (!ok) {
+                evalError(fL1S("format_number(): malformed number %2 for base %1.")
+                          .arg(ibase).arg(m_tmp3));
+                break;
+            }
+            QString outstr;
+            if (num < 0) {
+                num = -num;
+                outstr = QLatin1Char('-');
+            } else if (sign == AlwaysSign) {
+                outstr = QLatin1Char('+');
+            } else if (sign == PadSign) {
+                outstr = QLatin1Char(' ');
+            }
+            QString numstr = QString::number(num, obase);
+            int space = width - outstr.length() - numstr.length();
+            if (space <= 0) {
+                outstr += numstr;
+            } else if (leftalign) {
+                outstr += numstr + QString(space, QLatin1Char(' '));
+            } else if (zeropad) {
+                outstr += QString(space, QLatin1Char('0')) + numstr;
+            } else {
+                outstr.prepend(QString(space, QLatin1Char(' ')));
+                outstr += numstr;
+            }
+            ret += ProString(outstr, NoHash);
+        }
+      formfail:
         break;
     case E_JOIN: {
         if (args.count() < 1 || args.count() > 4) {
