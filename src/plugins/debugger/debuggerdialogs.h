@@ -61,36 +61,6 @@ class StartRemoteDialogPrivate;
 class StartRemoteEngineDialogPrivate;
 class StartRemoteParameters;
 
-class AttachCoreDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit AttachCoreDialog(QWidget *parent);
-    ~AttachCoreDialog();
-
-    void setExecutableFile(const QString &executable);
-    void setCoreFile(const QString &core);
-
-    QString executableFile() const;
-    QString coreFile() const;
-
-    int profileIndex() const;
-    void setProfileIndex(int);
-    Core::Id profileId() const;
-
-    QString overrideStartScript() const;
-    void setOverrideStartScript(const QString &scriptName);
-
-private slots:
-    void changed();
-
-private:
-    bool isValid() const;
-
-    AttachCoreDialogPrivate *d;
-};
-
 class AttachExternalDialog : public QDialog
 {
     Q_OBJECT

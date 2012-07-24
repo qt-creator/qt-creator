@@ -62,7 +62,7 @@
 #include "watchutils.h"
 #include "debuggertooltipmanager.h"
 #include "localsandexpressionswindow.h"
-#include "loadremotecoredialog.h"
+#include "loadcoredialog.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
@@ -768,7 +768,6 @@ public slots:
     void startRemoteCdbSession();
     void startRemoteProcess();
     void startRemoteServer();
-    void loadRemoteCoreFile();
     //bool queryRemoteParameters(DebuggerStartParameters &sp, bool useScript);
     void attachToRemoteServer();
     void attachToRemoteProcess();
@@ -1121,7 +1120,6 @@ public:
     QAction *m_attachToRemoteServerAction;
     QAction *m_startRemoteCdbAction;
     QAction *m_startRemoteLldbAction;
-    QAction *m_loadRemoteCoreAction;
     QAction *m_attachToLocalProcessAction;
     QAction *m_attachToCoreAction;
     QAction *m_detachAction;
@@ -1564,24 +1562,28 @@ void DebuggerPluginPrivate::attachExternalApplication(RunControl *rc)
 void DebuggerPluginPrivate::attachCore()
 {
     AttachCoreDialog dlg(mainWindow());
-    dlg.setExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
-    dlg.setCoreFile(configValue(_("LastExternalCoreFile")).toString());
-    dlg.setProfileIndex(configValue(_("LastExternalProfileIndex")).toInt());
+
+    dlg.setProfileId(Id(configValue(_("LastExternalProfile")).toString()));
+    dlg.setLocalExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
+    dlg.setLocalCoreFile(configValue(_("LastLocalCoreFile")).toString());
+    dlg.setRemoteCoreFile(configValue(_("LastRemoteCoreFile")).toString());
     dlg.setOverrideStartScript(configValue(_("LastExternalStartScript")).toString());
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    setConfigValue(_("LastExternalExecutableFile"), dlg.executableFile());
-    setConfigValue(_("LastExternalCoreFile"), dlg.coreFile());
-    setConfigValue(_("LastExternalProfileIndex"), QVariant(dlg.profileIndex()));
+    setConfigValue(_("LastExternalExecutableFile"), dlg.localExecutableFile());
+    setConfigValue(_("LastLocalCoreFile"), dlg.localCoreFile());
+    setConfigValue(_("LastRemoteCoreFile"), dlg.remoteCoreFile());
+    setConfigValue(_("LastExternalProfile"), dlg.profileId().toString());
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
 
     DebuggerStartParameters sp;
+    QString display = dlg.isLocal() ? dlg.localCoreFile() : dlg.remoteCoreFile();
     fillParameters(&sp, dlg.profileId());
-    sp.executable = dlg.executableFile();
-    sp.coreFile = dlg.coreFile();
-    sp.displayName = tr("Core file \"%1\"").arg(dlg.coreFile());
+    sp.executable = dlg.localExecutableFile();
+    sp.coreFile = dlg.localCoreFile();
+    sp.displayName = tr("Core file \"%1\"").arg(display);
     sp.startMode = AttachCore;
     sp.closeMode = DetachAtClose;
     sp.overrideStartScript = dlg.overrideStartScript();
@@ -1692,27 +1694,6 @@ void DebuggerPluginPrivate::gdbServerStarted(const QString &channel,
     Q_UNUSED(remoteExecutable);
     Q_UNUSED(profileId);
     showStatusMessage(tr("gdbserver is now listening at %1").arg(channel));
-}
-
-void DebuggerPluginPrivate::loadRemoteCoreFile()
-{
-    DebuggerStartParameters sp;
-    {
-        QTemporaryFile localCoreFile(QDir::tempPath() + "/remotecore-XXXXXX");
-        localCoreFile.open();
-        sp.coreFile = localCoreFile.fileName();
-    }
-    LoadRemoteCoreFileDialog dlg(mainWindow());
-    dlg.setLocalCoreFileName(sp.coreFile);
-    if (!dlg.exec())
-        return;
-    fillParameters(&sp, dlg.profileId());
-    sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
-    sp.startMode = AttachCore;
-    sp.closeMode = DetachAtClose;
-    //sp.overrideStartScript = dlg.overrideStartScript();
-    if (DebuggerRunControl *rc = createDebugger(sp))
-        startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::attachToRemoteProcess()
@@ -3094,10 +3075,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Attach to Running Remote Process..."));
     connect(act, SIGNAL(triggered()), SLOT(attachToRemoteProcess()));
 
-    act = m_loadRemoteCoreAction = new QAction(this);
-    act->setText(tr("Load Remote Core File..."));
-    connect(act, SIGNAL(triggered()), SLOT(loadRemoteCoreFile()));
-
     act = m_attachToQmlPortAction = new QAction(this);
     act->setText(tr("Attach to QML Port..."));
     connect(act, SIGNAL(triggered()), SLOT(attachToQmlPort()));
@@ -3180,11 +3157,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = ActionManager::registerAction(m_attachToRemoteProcessAction,
          "Debugger.AttachToRemoteProcess", globalcontext);
     cmd->setDescription(tr("Attach to Remote Process"));
-    mstart->addAction(cmd, Debugger::Constants::G_AUTOMATIC_REMOTE);
-
-    cmd = ActionManager::registerAction(m_loadRemoteCoreAction,
-         "Debugger.LoadRemoteCore", globalcontext);
-    cmd->setDescription(tr("Load Remote Core File"));
     mstart->addAction(cmd, Debugger::Constants::G_AUTOMATIC_REMOTE);
 
 #ifdef WITH_LLDB

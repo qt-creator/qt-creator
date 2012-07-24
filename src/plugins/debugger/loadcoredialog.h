@@ -28,10 +28,8 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_LOADREMOTECOREDIALOG_H
-#define DEBUGGER_LOADREMOTECOREDIALOG_H
-
-#include <ssh/sftpdefs.h>
+#ifndef DEBUGGER_ATTACHCOREDIALOG_H
+#define DEBUGGER_ATTACHCOREDIALOG_H
 
 #include <QDialog>
 
@@ -40,34 +38,40 @@ namespace Core { class Id; }
 namespace Debugger {
 namespace Internal {
 
-class LoadRemoteCoreFileDialogPrivate;
+class AttachCoreDialogPrivate;
 
-class LoadRemoteCoreFileDialog : public QDialog
+class AttachCoreDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit LoadRemoteCoreFileDialog(QWidget *parent);
-    ~LoadRemoteCoreFileDialog();
+    explicit AttachCoreDialog(QWidget *parent);
+    ~AttachCoreDialog();
 
-    void setLocalCoreFileName(const QString &fileName);
-    QString localCoreFileName() const;
+    QString localExecutableFile() const;
+    QString localCoreFile() const;
+    QString remoteCoreFile() const;
+    QString overrideStartScript() const;
+    bool isLocal() const;
+
+    // For persistance.
     Core::Id profileId() const;
+    void setLocalExecutableFile(const QString &executable);
+    void setLocalCoreFile(const QString &core);
+    void setRemoteCoreFile(const QString &core);
+    void setOverrideStartScript(const QString &scriptName);
+    void setProfileId(const Core::Id &id);
 
 private slots:
-    void handleSftpOperationFinished(QSsh::SftpJobId, const QString &error);
-    void handleSftpOperationFailed(const QString &errorMessage);
-    void handleConnectionError(const QString &errorMessage);
-    void updateButtons();
-    void attachToDevice(int modelIndex);
-    void handleRemoteError(const QString &errorMessage);
-    void selectCoreFile();
+    void changed();
+    void selectRemoteCoreFile();
 
 private:
-    LoadRemoteCoreFileDialogPrivate *d;
+    AttachCoreDialogPrivate *d;
 };
+
 
 } // namespace Debugger
 } // namespace Internal
 
-#endif // DEBUGGER_LOADREMOTECOREDIALOG_H
+#endif // DEBUGGER_ATTACHCOREDIALOG_H
