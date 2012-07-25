@@ -53,6 +53,7 @@
     \input symbian/creator-projects-settings-run-symbian.qdocinc
     \input linux-mobile/creator-projects-settings-run-linux.qdocinc
     \input qnx/creator-projects-settings-run-qnx.qdocinc
+    \input android/creator-projects-settings-run-android.qdocinc
     \endif
 
     \section1 Specifying a Custom Executable to Run

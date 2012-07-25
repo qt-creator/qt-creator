@@ -73,6 +73,21 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
                     "expected one.").arg(m_parseState.m_parseStack.count()));
         }
         m_demangledName = m_parseState.m_parseStack.top()->toByteArray();
+
+        /*
+         * FIXME: This is a hack we do because TypeNode::toByteArray() cannot catch all
+         * all nested reference due to the way substitutions are currently implented.
+         * Note that even with this hack, we do not catch things like
+         * "reference to reference to array", because the operators do not follow each other
+         * in the string.
+         * For a correct solution, we'll probably have to clone substitution nodes instead of
+         * just dumping their strings (which means adding a copy constructor and a clone function
+         * to every node).
+         */
+        m_demangledName.replace("&& &&", "&&");
+        m_demangledName.replace("&& &", "&");
+        m_demangledName.replace(" & &", "&");
+
         success = true;
     } catch (const ParseException &p) {
         m_errorString = QString::fromLocal8Bit("Parse error at index %1 of mangled name '%2': %3.")

@@ -36,7 +36,10 @@
 #define AUTOTOOLSOPENPROJECTWIZARD_H
 
 #include <utils/wizard.h>
-#include <utils/pathchooser.h>
+
+namespace Utils {
+class PathChooser;
+}
 
 namespace AutotoolsProjectManager {
 namespace Internal {

@@ -38,7 +38,7 @@
 #include "makefileparser.h"
 
 #include <QMutex>
-#include <QString>
+#include <QStringList>
 #include <QThread>
 
 namespace AutotoolsProjectManager {

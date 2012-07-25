@@ -174,6 +174,13 @@ void NameDemanglerAutoTest::testCorrectlyMangledNames()
     TEST_CORRECTLY_MANGLED_NAME("_Z9weirdfuncIiEvT_DtfL0p_E", "void weirdfunc<int>(int, decltype({param#1}))");
     TEST_CORRECTLY_MANGLED_NAME("_Z9weirdfuncIiEvT_S0_S0_", "void weirdfunc<int>(int, int, int)");
     TEST_CORRECTLY_MANGLED_NAME("_Z9weirdfuncIiEvT_S0_DtfL0p0_E", "void weirdfunc<int>(int, int, decltype({param#2}))");
+    TEST_CORRECTLY_MANGLED_NAME("_Z8toStringIiESsT_",
+            "std::basic_string<char, std::char_traits<char>, std::allocator<char> > toString<int>(int)");
+
+    // TODO: The rvalue reference at the end has to actually collapse. Remove it once collapsing
+    // is properly implemented.
+    TEST_CORRECTLY_MANGLED_NAME("_ZSt9make_pairIiRA5_KcESt4pairINSt17__decay_and_stripIT_E6__typeENS4_IT0_E6__typeEEOS5_OS8_",
+            "std::pair<std::__decay_and_strip<int>::__type, std::__decay_and_strip<char const (&)[5]>::__type> std::make_pair<int, char const (&)[5]>(int &&, char const (&)[5] &&)");
 
     // All examples from the ABI spec.
     TEST_CORRECTLY_MANGLED_NAME("_ZN1S1xE", "S::x");

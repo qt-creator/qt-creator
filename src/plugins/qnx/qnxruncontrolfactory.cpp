@@ -132,10 +132,8 @@ Debugger::DebuggerStartParameters QnxRunControlFactory::startParameters(
     params.debuggerCommand = Debugger::DebuggerProfileInformation::debuggerCommand(profile).toString();
     params.sysRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(profile).toString();
 
-    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(profile)) {
+    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(profile))
         params.toolChainAbi = tc->targetAbi();
-        params.remoteArchitecture = ProjectExplorer::Abi::toString(tc->targetAbi().architecture());
-    }
 
     params.symbolFileName = runConfig->localExecutableFilePath();
     params.remoteExecutable = runConfig->remoteExecutableFilePath();

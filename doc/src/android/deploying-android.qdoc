@@ -1,0 +1,64 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: Nokia Corporation (qt-info@nokia.com)
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
+**
+****************************************************************************/
+
+    /*!
+
+    \contentspage index.html
+    \previouspage creator-deployment-qnx.html
+    \page creator-deploying-android.html
+    \nextpage creator-connecting-mobile.html
+
+    \title Deploying Applications to Android Devices
+
+    To specify settings for deploying applications to Android devices, select
+    \gui Projects > \gui Run.
+
+    \image qtcreator-deploy-android.png "Deploy configurations"
+
+    Select the \gui {Use device's Qt libs} option to use Qt libraries installed
+    on the device. If you do not select the \gui {Use local Qt libs} option,
+    the application needs the Ministro package to run. However, if you select
+    the \gui {Use local Qt libs} option, \QC passes special parameters to the
+    application, forcing it to use Qt libraries from the \c{/data/local/qt}
+    folder on the device
+
+    Select the \gui {Deploy local Qt libs} option to deploy Qt libraries from
+    the specified Qt for Android SDK (for exmple, android-lighthouse-4.8.0).
+    This option enables you to develop on the Qt framework to test it.
+
+    The \gui {Deploy local Qt libs} option automatically selects the
+    \gui {Use local Qt libs} option. It is deselected automatically after \QC
+    pushes the Qt libs to the device. Select the option again to push your local
+    Qt modifications to devices. This option takes the same effect as the
+    \c{push_qt_libs.sh} script thas is located in the root folder of the
+    Qt for Android SDK. You can also use the \gui {Use local Qt libs}
+    independently of the \gui {Deploy local Qt libs} option.
+
+    \section1 Installing Ministro
+
+    To install Ministro, select the \gui {Install Ministro system} option. You
+    can also use it to install any Android package (.apk). You can use this
+    option to install applications on an Android Virtual Device (AVD). Download
+    the Ministro .apk from the Google Market or from the
+    \l{http://necessitas.kde.org/necessitas/ministro.php}{Ministro} home page.
+
+*/
+

@@ -1,0 +1,71 @@
+    \section2 Specifying Run Settings for Android Devices
+
+    In \gui {Package configurations}, you can specify information for the
+    Android manifest file. The Android system uses the information from the file
+    to start application components.
+
+    \section3 Specifying Package Data
+
+    In the \gui Manifest tab, you can select the API level to use for the
+    Android target SDK and the name and version number for the application
+    package.
+
+    \image qtcreator-android-manifest.png "Manifest tab"
+
+    For more information about Android API levels, see
+    \l{http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels}
+    {What is API Level?}.
+
+    \note The android-4 API level does not support multitouch. If your
+    application needs multitouch, select a higher API level.
+
+    In the \gui {Package name} field, enter a package name for the application.
+    The application is launched by an automatically generated Java launcher that
+    is packaged with the application into an Android package (.apk). For more
+    information, see
+    \l{http://developer.android.com/guide/components/fundamentals.html}
+    {Android Application Fundamentals}.
+
+    \section3 Specifying Application Data
+
+    In the \gui Application tab, you can select an icon for the application and
+    give the application a name.
+
+    \image qtcreator-android-application.png "Application tab"
+
+    \section3 Setting Permissions
+
+    In the \gui Permissions tab, you can specify the permissions that your
+    application needs. Users are asked to grant the permissions when they
+    install the application. Android OS then grants the application access to
+    the appropriate data and features.
+
+    \image qtcreator-android-permissions.png "Permissions tab"
+
+    Select from existing Android permissions or add new ones to deploy the
+    application to a particular Android OS.
+
+    \section3 Selecting Qt Libraries
+
+    In the \gui Libraries tab, specify which Qt libraries the application uses.
+    To automatically determine this, select \gui {Read Infomation from
+    Application (Must Be Compiled)}. Alternatively, you can manually select the
+    Qt libraries and the external libraries you think your application needs.
+    Make sure to arrange the libraries so that depended libraries appear before
+    the ones that depend on them.
+
+    \image qtcreator-android-libraries.png "Libraries tab"
+
+    These entries are used by the Ministro tool to determine which Qt libraries
+    to download.
+
+    In addition, the Java Loader uses this list to determine which Qt Libraries
+    and other prebundled libraries to load with your application.
+
+    \section3 Signing Android Packages
+
+    In the \gui {Sign Package} tab, you can sign the Android package by using
+    a private key from the keystore. To create new keys, select \gui Create.
+
+    \image qtcreator-android-sign-package.png "Sign Package tab"
+

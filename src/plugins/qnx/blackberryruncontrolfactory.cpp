@@ -134,10 +134,8 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
     params.debuggerCommand = Debugger::DebuggerProfileInformation::debuggerCommand(profile).toString();
     params.sysRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(profile).toString();
 
-    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(profile)) {
+    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(profile))
         params.toolChainAbi = tc->targetAbi();
-        params.remoteArchitecture = ProjectExplorer::Abi::toString(tc->targetAbi().architecture());
-    }
 
     params.executable = runConfig->localExecutableFilePath();
     params.remoteChannel = runConfig->deployConfiguration()->deviceHost() + QLatin1String(":8000");

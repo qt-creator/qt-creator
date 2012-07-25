@@ -35,8 +35,6 @@
 #ifndef AUTOTOOLSBUILDCONFIGURATION_H
 #define AUTOTOOLSBUILDCONFIGURATION_H
 
-#include "autotoolsbuildsettingswidget.h"
-
 #include <projectexplorer/buildconfiguration.h>
 
 namespace AutotoolsProjectManager {

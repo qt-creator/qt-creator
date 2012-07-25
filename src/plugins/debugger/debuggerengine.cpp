@@ -126,7 +126,6 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
             << " attachPID=" << sp.attachPID
             << " useTerminal=" << sp.useTerminal
             << " remoteChannel=" << sp.remoteChannel
-            << " remoteArchitecture=" << sp.remoteArchitecture
             << " symbolFileName=" << sp.symbolFileName
             << " useServerStartScript=" << sp.useServerStartScript
             << " serverStartScript=" << sp.serverStartScript

@@ -84,7 +84,7 @@ int main(int argc, char **)
     // Get the command line and remove the call to this executable.
     wchar_t *strCommandLine = _wcsdup(GetCommandLine());
     const size_t strCommandLineLength = wcslen(strCommandLine);
-    size_t pos = 1;
+    size_t pos = 0;
     bool quoted = false;
     while (pos < strCommandLineLength) {
         if (strCommandLine[pos] == L'"') {

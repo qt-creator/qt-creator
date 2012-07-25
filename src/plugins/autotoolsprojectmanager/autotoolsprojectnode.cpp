@@ -35,6 +35,8 @@
 #include "autotoolsprojectnode.h"
 #include "autotoolsproject.h"
 
+#include <coreplugin/idocument.h>
+
 using namespace AutotoolsProjectManager;
 using namespace AutotoolsProjectManager::Internal;
 using namespace ProjectExplorer;

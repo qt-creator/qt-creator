@@ -37,6 +37,7 @@
 #include <utils/qtcassert.h>
 
 #include <QFile>
+#include <QDir>
 #include <QFileInfoList>
 #include <QMutexLocker>
 
