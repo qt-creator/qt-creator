@@ -229,6 +229,7 @@ void BuiltinTypeNode::parse()
     if (next == 'u') {
         m_type = VendorType;
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SourceNameNode);
+        parseState()->addSubstitution(this);
         return;
     }
 
@@ -1581,6 +1582,7 @@ bool SubstitutionNode::mangledRepresentationStartsWith(char c)
  *                ::= Si # ::std::basic_istream<char,  std::char_traits<char> >
  *                ::= So # ::std::basic_ostream<char,  std::char_traits<char> >
  *                ::= Sd # ::std::basic_iostream<char, std::char_traits<char> >
+ *                ::= St <unqualified-name> # ::std::
  */
 void SubstitutionNode::parse()
 {
@@ -1607,7 +1609,13 @@ void SubstitutionNode::parse()
             m_type = ActualSubstitutionType;
             m_substValue = parseState()->substitutionAt(0);
             break;
-        case 't': m_type = StdType; break;
+        case 't':
+            m_type = StdType;
+            if (UnqualifiedNameNode::mangledRepresentationStartsWith(PEEK())) {
+                PARSE_RULE_AND_ADD_RESULT_AS_CHILD(UnqualifiedNameNode);
+                parseState()->addSubstitution(this);
+            }
+            break;
         case 'a': m_type = StdAllocType; break;
         case 'b': m_type = StdBasicStringType; break;
         case 's': m_type = FullStdBasicStringType; break;
@@ -1623,7 +1631,12 @@ QByteArray SubstitutionNode::toByteArray() const
 {
     switch (m_type) {
     case ActualSubstitutionType: return m_substValue;
-    case StdType: return "std";
+    case StdType: {
+        QByteArray repr = "std";
+        if (childCount() > 0)
+            repr.append("::").append(CHILD_TO_BYTEARRAY(0));
+        return repr;
+    }
     case StdAllocType: return "std::allocator";
     case StdBasicStringType: return "std::basic_string";
     case FullStdBasicStringType: return "std::basic_string<char, std::char_traits<char>, "
@@ -2194,15 +2207,14 @@ void PrefixNode::parse()
             parseState()->addSubstitution(this);
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgsNode);
         }
-        if (UnqualifiedNameNode::mangledRepresentationStartsWith(PEEK())) {
+        if (Prefix2Node::mangledRepresentationStartsWith(PEEK()))
             parseState()->addSubstitution(this);
-            PARSE_RULE_AND_ADD_RESULT_AS_CHILD(Prefix2Node);
-        }
+        PARSE_RULE_AND_ADD_RESULT_AS_CHILD(Prefix2Node);
     } else if (SubstitutionNode::mangledRepresentationStartsWith(next)) {
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SubstitutionNode);
         if (TemplateArgsNode::mangledRepresentationStartsWith(PEEK())) {
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgsNode);
-            if (UnqualifiedNameNode::mangledRepresentationStartsWith(PEEK()))
+            if (Prefix2Node::mangledRepresentationStartsWith(PEEK()))
                 parseState()->addSubstitution(this);
         }
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(Prefix2Node);
@@ -2210,7 +2222,7 @@ void PrefixNode::parse()
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(SubstitutionNode);
         if (TemplateArgsNode::mangledRepresentationStartsWith(PEEK())) {
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateArgsNode);
-            if (UnqualifiedNameNode::mangledRepresentationStartsWith(PEEK()))
+            if (Prefix2Node::mangledRepresentationStartsWith(PEEK()))
                 parseState()->addSubstitution(this);
         }
         PARSE_RULE_AND_ADD_RESULT_AS_CHILD(Prefix2Node);
@@ -2289,8 +2301,10 @@ void TypeNode::parse()
             parseState()->addSubstitution(this);
         } else if (ArrayTypeNode::mangledRepresentationStartsWith(next)) {
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(ArrayTypeNode);
+            parseState()->addSubstitution(this);
         } else if (PointerToMemberTypeNode::mangledRepresentationStartsWith(next)) {
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(PointerToMemberTypeNode);
+            parseState()->addSubstitution(this);
         } else if (TemplateParamNode::mangledRepresentationStartsWith(next)) {
             PARSE_RULE_AND_ADD_RESULT_AS_CHILD(TemplateParamNode);
             // The type is now a substitution candidate, but the child node may contain a forward
@@ -2378,8 +2392,10 @@ QByteArray TypeNode::toByteArray() const
     QList<const ParseTreeNode *> qualPtrRefList;
     const TypeNode *currentNode = this;
     bool leafType = false;
+    Type lastType = TypeNode::OtherType;
     while (!leafType) {
-        switch (currentNode->m_type) {
+        Type currentType = currentNode->m_type;
+        switch (currentType) {
         case QualifiedType: {
             const CvQualifiersNode * const cvNode
                     = DEMANGLER_CAST(CvQualifiersNode, CHILD_AT(currentNode, 0));
@@ -2389,13 +2405,32 @@ QByteArray TypeNode::toByteArray() const
             break;
         }
         case PointerType: case ReferenceType: case RValueType:
-            qualPtrRefList << currentNode;
+            /*
+             * The Standard says (8.3.2/6) that nested references collapse according
+             * to the following rules:
+             *     (1) Reference to reference -> reference
+             *     (2) Reference to rvalue -> reference
+             *     (3) Rvalue to reference -> reference
+             *     (4) Rvalue to Rvalue -> Rvalue
+             */
+            if (currentType == ReferenceType
+                    && (lastType == ReferenceType || lastType == RValueType)) { // (1) and (3)
+                qualPtrRefList.removeLast();
+                qualPtrRefList << currentNode;
+            } else if (currentType == RValueType
+                       && (lastType == ReferenceType || lastType == RValueType)) { // (2) and (4)
+                // Ignore current element.
+                currentType = lastType;
+            } else {
+                qualPtrRefList << currentNode;
+            }
             currentNode = DEMANGLER_CAST(TypeNode, CHILD_AT(currentNode, 0));
             break;
         default:
             leafType = true;
             break;
         }
+        lastType = currentType;
     }
 
     if (qualPtrRefList.isEmpty()) {
@@ -2471,6 +2506,7 @@ QByteArray TypeNode::qualPtrRefListToByteArray(const QList<const ParseTreeNode *
             repr.prepend(n->toByteArray());
         }
     }
+
     return repr;
 }
 

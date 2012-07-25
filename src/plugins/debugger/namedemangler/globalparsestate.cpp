@@ -71,7 +71,7 @@ void GlobalParseState::addSubstitution(const ParseTreeNode *node)
 
 void GlobalParseState::addSubstitution(const QByteArray &symbol)
 {
-    if (!symbol.isEmpty() && !m_substitutions.contains(symbol))
+    if (!symbol.isEmpty())
         m_substitutions.append(symbol);
 }
 
