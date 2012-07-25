@@ -99,6 +99,7 @@ public:
     // -nocache, -cache, -spec, QMAKESPEC
     // -set persistent value
     void setCommandLineArguments(const QStringList &args);
+    void setDirectories(const QString &input_dir, const QString &output_dir);
 #ifdef PROEVALUATOR_INIT_PROPS
     bool initProperties();
 #else
@@ -111,6 +112,8 @@ public:
 private:
     QString getEnv(const QString &) const;
     QStringList getPathListEnv(const QString &var) const;
+
+    QString source_root, build_root;
 
     QString precmds, postcmds;
     QHash<ProString, ProString> properties;

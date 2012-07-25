@@ -76,7 +76,8 @@ enum ExpandFunc {
     E_SPRINTF, E_FORMAT_NUMBER, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
     E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
     E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE, E_VAL_ESCAPE,
-    E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS, E_ENUMERATE_VARS
+    E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS, E_ENUMERATE_VARS,
+    E_SHADOWED
 };
 
 enum TestFunc {
@@ -123,6 +124,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "sort_depends", E_SORT_DEPENDS },
         { "resolve_depends", E_RESOLVE_DEPENDS },
         { "enumerate_vars", E_ENUMERATE_VARS },
+        { "shadowed", E_SHADOWED },
     };
     for (unsigned i = 0; i < sizeof(expandInits)/sizeof(expandInits[0]); ++i)
         statics.expands.insert(ProString(expandInits[i].name), expandInits[i].func);
@@ -819,6 +821,21 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         foreach (const ProString &key, keys)
             ret << key;
         break; }
+    case E_SHADOWED:
+        if (args.count() != 1) {
+            evalError(fL1S("shadowed(path) requires one argument."));
+        } else {
+            QString val = resolvePath(args.at(0).toQString(m_tmp1));
+            if (m_option->source_root.isEmpty()) {
+                ret += ProString(val, NoHash);
+            } else if (val.startsWith(m_option->source_root)
+                       && (val.length() == m_option->source_root.length()
+                           || val.at(m_option->source_root.length()) == QLatin1Char('/'))) {
+                ret += ProString(m_option->build_root + val.mid(m_option->source_root.length()),
+                                 NoHash).setSource(args.at(0));
+            }
+        }
+        break;
     case E_INVALID:
         evalError(fL1S("'%1' is not a recognized replace function.")
                   .arg(func.toQString(m_tmp1)));

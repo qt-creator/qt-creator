@@ -168,6 +168,7 @@ int main(int argc, char **argv)
     QString file = infi.absoluteFilePath();
     QString in_pwd = infi.absolutePath();
     QString out_pwd = (args.count() > 2) ? QFileInfo(args[2]).absoluteFilePath() : in_pwd;
+    option.setDirectories(in_pwd, out_pwd);
 
     return evaluate(file, in_pwd, out_pwd, cumulative, &option, &parser, level);
 }
