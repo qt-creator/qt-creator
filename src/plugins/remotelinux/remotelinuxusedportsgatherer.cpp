@@ -26,9 +26,8 @@
 **
 **
 **************************************************************************/
-#include "remotelinuxusedportsgatherer.h"
 
-#include "linuxdeviceconfiguration.h"
+#include "remotelinuxusedportsgatherer.h"
 
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -38,6 +37,7 @@
 
 #include <QString>
 
+using namespace ProjectExplorer;
 using namespace QSsh;
 using namespace Utils;
 
@@ -72,7 +72,7 @@ RemoteLinuxUsedPortsGatherer::~RemoteLinuxUsedPortsGatherer()
     delete d;
 }
 
-void RemoteLinuxUsedPortsGatherer::start(const LinuxDeviceConfiguration::ConstPtr &devConf)
+void RemoteLinuxUsedPortsGatherer::start(const IDevice::ConstPtr &devConf)
 {
     QTC_ASSERT(!d->connection, return);
     d->portsToCheck = devConf->freePorts();
