@@ -118,7 +118,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "re_escape", E_RE_ESCAPE },
         { "val_escape", E_VAL_ESCAPE },
         { "files", E_FILES },
-        { "prompt", E_PROMPT }, // interactive, so cannot be implemented
+        { "prompt", E_PROMPT },
         { "replace", E_REPLACE },
         { "sort_depends", E_SORT_DEPENDS },
         { "resolve_depends", E_RESOLVE_DEPENDS }
@@ -751,6 +751,26 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             }
         }
         break;
+#ifdef PROEVALUATOR_FULL
+    case E_PROMPT: {
+        if (args.count() != 1) {
+            evalError(fL1S("prompt(question) requires one argument."));
+//        } else if (currentFileName() == QLatin1String("-")) {
+//            evalError(fL1S("prompt(question) cannot be used when '-o -' is used"));
+        } else {
+            QString msg = m_option->expandEnvVars(args.at(0).toQString(m_tmp1));
+            if (!msg.endsWith(QLatin1Char('?')))
+                msg += QLatin1Char('?');
+            fprintf(stderr, "Project PROMPT: %s ", qPrintable(msg));
+
+            QFile qfile;
+            if (qfile.open(stdin, QIODevice::ReadOnly)) {
+                QTextStream t(&qfile);
+                ret = split_value_list(t.readLine());
+            }
+        }
+        break; }
+#endif
     case E_REPLACE:
         if (args.count() != 3 ) {
             evalError(fL1S("replace(var, before, after) requires three arguments."));
