@@ -35,14 +35,18 @@
 #ifndef AUTOTOOLSPROJECT_H
 #define AUTOTOOLSPROJECT_H
 
-#include <coreplugin/editormanager/ieditor.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectnodes.h>
-#include <utils/filesystemwatcher.h>
 
-#include <QPointer>
-#include <QDir>
+QT_FORWARD_DECLARE_CLASS(QDir)
+
+namespace Utils {
+class FileSystemWatcher;
+}
+
+namespace ProjectExplorer {
+class Node;
+class FolderNode;
+}
 
 namespace AutotoolsProjectManager {
 namespace Internal {

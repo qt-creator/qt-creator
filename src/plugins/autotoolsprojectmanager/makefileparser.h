@@ -36,12 +36,11 @@
 #define MAKEFILEPARSER_H
 
 #include <QMutex>
-#include <QString>
 #include <QStringList>
 #include <QTextStream>
 #include <QObject>
-#include <QDir>
-#include <QFileInfo>
+
+QT_FORWARD_DECLARE_CLASS(QDir)
 
 namespace AutotoolsProjectManager {
 namespace Internal {

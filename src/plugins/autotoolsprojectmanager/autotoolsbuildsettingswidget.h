@@ -35,16 +35,15 @@
 #ifndef AUTOTOOLSBUILDSETTINGSWIDGET_H
 #define AUTOTOOLSBUILDSETTINGSWIDGET_H
 
-#include "autotoolsbuildconfiguration.h"
-
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/buildstep.h>
-#include <utils/pathchooser.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
 QT_END_NAMESPACE
+
+namespace Utils {
+class PathChooser;
+}
 
 namespace AutotoolsProjectManager {
 namespace Internal {

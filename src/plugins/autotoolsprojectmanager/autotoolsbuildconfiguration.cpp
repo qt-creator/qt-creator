@@ -33,6 +33,7 @@
 **************************************************************************/
 
 #include "autotoolsbuildconfiguration.h"
+#include "autotoolsbuildsettingswidget.h"
 #include "makestep.h"
 #include "autotoolsproject.h"
 #include "autotoolsprojectconstants.h"

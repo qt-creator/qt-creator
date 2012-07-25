@@ -36,7 +36,10 @@
 #define AUTOTOOLSPROJECTNODE_H
 
 #include <projectexplorer/projectnodes.h>
-#include <coreplugin/idocument.h>
+
+namespace Core {
+class IDocument;
+}
 
 namespace AutotoolsProjectManager {
 namespace Internal {

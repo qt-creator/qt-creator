@@ -54,6 +54,7 @@
 #include <cpptools/ModelManagerInterface.h>
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
+#include <utils/filesystemwatcher.h>
 
 #include <QFileInfo>
 #include <QTimer>

@@ -34,6 +34,8 @@
 
 #include "autotoolsopenprojectwizard.h"
 
+#include <utils/pathchooser.h>
+
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QLabel>

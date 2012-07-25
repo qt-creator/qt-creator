@@ -39,6 +39,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
+#include <utils/pathchooser.h>
+
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
