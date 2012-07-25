@@ -117,14 +117,6 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
         params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
         params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
-
-        // TODO: This functionality should be inside the debugger.
-        ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
-        if (tc) {
-            const Abi &abi = tc->targetAbi();
-            params.gnuTarget = QLatin1String(abi.architecture() == Abi::ArmArchitecture
-                                             ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
-        }
     } else {
         params.startMode = AttachToRemoteServer;
     }

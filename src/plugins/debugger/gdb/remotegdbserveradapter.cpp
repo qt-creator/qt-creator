@@ -181,13 +181,10 @@ void GdbRemoteServerEngine::setupInferior()
 
     //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
     //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
-    //const QByteArray gnuTarget = sp.gnuTarget.toLatin1();
     const QString args = sp.processArgs;
 
 //    if (!remoteArch.isEmpty())
 //        postCommand("set architecture " + remoteArch);
-//    if (!gnuTarget.isEmpty())
-//        postCommand("set gnutarget " + gnuTarget);
     const QString solibSearchPath = sp.solibSearchPath.join(QLatin1String(PATHSEP));
     if (!solibSearchPath.isEmpty())
         postCommand("set solib-search-path " + solibSearchPath.toLocal8Bit());

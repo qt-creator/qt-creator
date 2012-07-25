@@ -2724,8 +2724,6 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
             str << "Remote mount point: " << sp.remoteMountPoint
                 << " Local: " << sp.localMountDir << '\n';
     }
-    if (!sp.gnuTarget.isEmpty())
-        str << "Gnu target: " << sp.gnuTarget << '\n';
     str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1String(":")) << '\n';
     str << "Symbol file: " << sp.symbolFileName << '\n';
