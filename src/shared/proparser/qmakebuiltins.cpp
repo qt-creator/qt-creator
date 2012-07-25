@@ -77,7 +77,7 @@ enum ExpandFunc {
     E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
     E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE, E_VAL_ESCAPE,
     E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS, E_ENUMERATE_VARS,
-    E_SHADOWED
+    E_SHADOWED, E_ABSOLUTE_PATH, E_RELATIVE_PATH
 };
 
 enum TestFunc {
@@ -125,6 +125,8 @@ void QMakeEvaluator::initFunctionStatics()
         { "resolve_depends", E_RESOLVE_DEPENDS },
         { "enumerate_vars", E_ENUMERATE_VARS },
         { "shadowed", E_SHADOWED },
+        { "absolute_path", E_ABSOLUTE_PATH },
+        { "relative_path", E_RELATIVE_PATH },
     };
     for (unsigned i = 0; i < sizeof(expandInits)/sizeof(expandInits[0]); ++i)
         statics.expands.insert(ProString(expandInits[i].name), expandInits[i].func);
@@ -835,6 +837,22 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                                  NoHash).setSource(args.at(0));
             }
         }
+        break;
+    case E_ABSOLUTE_PATH:
+        if (args.count() > 2)
+            evalError(fL1S("absolute_path(path[, base]) requires one or two arguments."));
+        else
+            ret << ProString(QDir::cleanPath(
+                    QDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory())
+                    .absoluteFilePath(args.at(0).toQString(m_tmp1))), NoHash).setSource(args.at(0));
+        break;
+    case E_RELATIVE_PATH:
+        if (args.count() > 2)
+            evalError(fL1S("relative_path(path[, base]) requires one or two arguments."));
+        else
+            ret << ProString(QDir::cleanPath(
+                    QDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory())
+                    .relativeFilePath(args.at(0).toQString(m_tmp1))), NoHash).setSource(args.at(0));
         break;
     case E_INVALID:
         evalError(fL1S("'%1' is not a recognized replace function.")
