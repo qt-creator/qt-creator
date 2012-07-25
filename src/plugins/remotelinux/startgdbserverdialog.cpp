@@ -37,8 +37,7 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/profilechooser.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/devicesupport/devicemanagermodel.h>
+#include <projectexplorer/profileinformation.h>
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -87,17 +86,16 @@ public:
 
     LinuxDeviceConfiguration::ConstPtr currentDevice() const
     {
-        return deviceManagerModel->device(deviceComboBox->currentIndex())
-            .dynamicCast<const LinuxDeviceConfiguration>();
+        Profile *profile = profileChooser->currentProfile();
+        IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+        return device.dynamicCast<const LinuxDeviceConfiguration>();
     }
 
     StartGdbServerDialog *q;
     bool startServerOnly;
     AbstractRemoteLinuxProcessList *processList;
     QSortFilterProxyModel proxyModel;
-    DeviceManagerModel *deviceManagerModel;
 
-    QComboBox *deviceComboBox;
     QLineEdit *processFilterLineEdit;
     QTableView *tableView;
     QPushButton *attachProcessButton;
@@ -117,13 +115,7 @@ StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q
 {
     settings = ICore::settings();
 
-    deviceComboBox = new QComboBox(q);
-
     profileChooser = new ProfileChooser(q, ProfileChooser::RemoteDebugging);
-//    sysrootPathChooser = new PathChooser(q);
-//    sysrootPathChooser->setExpectedKind(PathChooser::Directory);
-//    sysrootPathChooser->setPromptDialogTitle(StartGdbServerDialog::tr("Select Sysroot"));
-//    sysrootPathChooser->setPath(settings->value(LastSysroot).toString());
 
     //executablePathChooser = new PathChooser(q);
     //executablePathChooser->setExpectedKind(PathChooser::File);
@@ -152,7 +144,6 @@ StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q
     textBrowser->setEnabled(false);
 
     QFormLayout *formLayout = new QFormLayout();
-    formLayout->addRow(StartGdbServerDialog::tr("Device:"), deviceComboBox);
     formLayout->addRow(StartGdbServerDialog::tr("Target:"), profileChooser);
     formLayout->addRow(StartGdbServerDialog::tr("&Filter entries:"), processFilterLineEdit);
 
@@ -176,39 +167,32 @@ StartGdbServerDialog::StartGdbServerDialog(QWidget *parent) :
 {
     setWindowTitle(tr("List of Remote Processes"));
 
-    d->deviceManagerModel = new DeviceManagerModel(DeviceManager::instance(), this);
-
     QObject::connect(d->closeButton, SIGNAL(clicked()), this, SLOT(reject()));
 
-    d->deviceComboBox->setModel(d->deviceManagerModel);
-    d->deviceComboBox->setCurrentIndex(d->settings->value(LastDevice).toInt());
     connect(&d->gatherer, SIGNAL(error(QString)), SLOT(portGathererError(QString)));
     connect(&d->gatherer, SIGNAL(portListReady()), SLOT(portListReady()));
-    if (d->deviceManagerModel->rowCount() == 0) {
-        d->tableView->setEnabled(false);
-    } else {
-        d->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-        d->proxyModel.setDynamicSortFilter(true);
-        d->proxyModel.setFilterKeyColumn(-1);
-        d->tableView->setModel(&d->proxyModel);
-        connect(d->processFilterLineEdit, SIGNAL(textChanged(QString)),
-            &d->proxyModel, SLOT(setFilterRegExp(QString)));
 
-        connect(d->tableView->selectionModel(),
-            SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+    d->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    d->proxyModel.setDynamicSortFilter(true);
+    d->proxyModel.setFilterKeyColumn(-1);
+    d->tableView->setModel(&d->proxyModel);
+    connect(d->processFilterLineEdit, SIGNAL(textChanged(QString)),
+        &d->proxyModel, SLOT(setFilterRegExp(QString)));
+
+    connect(d->tableView->selectionModel(),
+        SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+        SLOT(updateButtons()));
+    connect(d->profileChooser, SIGNAL(activated(int)),
             SLOT(updateButtons()));
-        connect(d->profileChooser, SIGNAL(activated(int)),
-                SLOT(updateButtons()));
-        //connect(d->updateListButton, SIGNAL(clicked()),
-        //    SLOT(updateProcessList()));
-        connect(d->attachProcessButton, SIGNAL(clicked()), SLOT(attachToProcess()));
-        connect(&d->proxyModel, SIGNAL(layoutChanged()),
-            SLOT(handleProcessListUpdated()));
-        connect(d->deviceComboBox, SIGNAL(currentIndexChanged(int)),
-            SLOT(attachToDevice(int)));
-        updateButtons();
-        attachToDevice(d->deviceComboBox->currentIndex());
-    }
+    //connect(d->updateListButton, SIGNAL(clicked()),
+    //    SLOT(updateProcessList()));
+    connect(d->attachProcessButton, SIGNAL(clicked()), SLOT(attachToProcess()));
+    connect(&d->proxyModel, SIGNAL(layoutChanged()),
+        SLOT(handleProcessListUpdated()));
+    connect(d->profileChooser, SIGNAL(currentIndexChanged(int)),
+        SLOT(attachToDevice()));
+    updateButtons();
+    attachToDevice();
 }
 
 StartGdbServerDialog::~StartGdbServerDialog()
@@ -217,11 +201,9 @@ StartGdbServerDialog::~StartGdbServerDialog()
     delete d;
 }
 
-void StartGdbServerDialog::attachToDevice(int modelIndex)
+void StartGdbServerDialog::attachToDevice()
 {
-    LinuxDeviceConfiguration::ConstPtr device
-        = d->deviceManagerModel->device(modelIndex)
-            .dynamicCast<const LinuxDeviceConfiguration>();
+    LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
     // TODO: display error on non-matching device.
     if (!device)
         return;
@@ -282,7 +264,6 @@ void StartGdbServerDialog::attachToProcess()
     }
 
     d->settings->setValue(LastProfile, d->profileChooser->currentProfileId().toString());
-    d->settings->setValue(LastDevice, d->deviceComboBox->currentIndex());
     d->settings->setValue(LastProcessName, d->processFilterLineEdit->text());
 
     startGdbServerOnPort(port, process.pid);
