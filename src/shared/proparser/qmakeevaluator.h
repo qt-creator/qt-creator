@@ -180,8 +180,6 @@ public:
             QHash<ProString, QSet<ProString> > &dependencies,
             ProValueMap &dependees, ProStringList &rootSet) const;
 
-    QString fixPathToLocalOS(const QString &str) const;
-
 #ifndef QT_BOOTSTRAPPED
     void runProcess(QProcess *proc, const QString &command, QProcess::ProcessChannel chan) const;
 #endif

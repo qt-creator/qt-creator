@@ -554,14 +554,15 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             if (args.count() == 2)
                 recursive = isTrue(args.at(1), m_tmp2);
             QStringList dirs;
-            QString r = fixPathToLocalOS(args.at(0).toQString(m_tmp1));
+            QString r = m_option->expandEnvVars(args.at(0).toQString(m_tmp1))
+                        .replace(QLatin1Char('\\'), QLatin1Char('/'));
             QString pfx;
             if (IoUtils::isRelativePath(r)) {
                 pfx = currentDirectory();
                 if (!pfx.endsWith(QLatin1Char('/')))
                     pfx += QLatin1Char('/');
             }
-            int slash = r.lastIndexOf(QDir::separator());
+            int slash = r.lastIndexOf(QLatin1Char('/'));
             if (slash != -1) {
                 dirs.append(r.left(slash+1));
                 r = r.mid(slash+1);
@@ -580,7 +581,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                     QString fname = dir + qdir[i];
                     if (IoUtils::fileType(pfx + fname) == IoUtils::FileIsDir) {
                         if (recursive)
-                            dirs.append(fname + QDir::separator());
+                            dirs.append(fname + QLatin1Char('/'));
                     }
                     if (regex.exactMatch(qdir[i]))
                         ret += ProString(fname, NoHash).setSource(currentProFile());

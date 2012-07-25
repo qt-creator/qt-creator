@@ -340,22 +340,6 @@ static void replaceInList(ProStringList *varlist,
     }
 }
 
-// This is braindead, but we want qmake compat
-QString QMakeEvaluator::fixPathToLocalOS(const QString &str) const
-{
-    QString string = m_option->expandEnvVars(str);
-
-    if (string.length() > 2 && string.at(0).isLetter() && string.at(1) == QLatin1Char(':'))
-        string[0] = string[0].toLower();
-
-#if defined(Q_OS_WIN32)
-    string.replace(QLatin1Char('/'), QLatin1Char('\\'));
-#else
-    string.replace(QLatin1Char('\\'), QLatin1Char('/'));
-#endif
-    return string;
-}
-
 //////// Evaluator /////////
 
 static ALWAYS_INLINE void addStr(
