@@ -77,7 +77,8 @@ enum ExpandFunc {
     E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
     E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE, E_VAL_ESCAPE,
     E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS, E_ENUMERATE_VARS,
-    E_SHADOWED, E_ABSOLUTE_PATH, E_RELATIVE_PATH, E_CLEAN_PATH
+    E_SHADOWED, E_ABSOLUTE_PATH, E_RELATIVE_PATH, E_CLEAN_PATH,
+    E_SYSTEM_PATH, E_SHELL_PATH
 };
 
 enum TestFunc {
@@ -128,6 +129,8 @@ void QMakeEvaluator::initFunctionStatics()
         { "absolute_path", E_ABSOLUTE_PATH },
         { "relative_path", E_RELATIVE_PATH },
         { "clean_path", E_CLEAN_PATH },
+        { "system_path", E_SYSTEM_PATH },
+        { "shell_path", E_SHELL_PATH },
     };
     for (unsigned i = 0; i < sizeof(expandInits)/sizeof(expandInits[0]); ++i)
         statics.expands.insert(ProString(expandInits[i].name), expandInits[i].func);
@@ -861,6 +864,31 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         else
             ret << ProString(QDir::cleanPath(args.at(0).toQString(m_tmp1)),
                              NoHash).setSource(args.at(0));
+        break;
+    case E_SYSTEM_PATH:
+        if (args.count() != 1) {
+            evalError(fL1S("system_path(path) requires one argument."));
+        } else {
+            QString rstr = args.at(0).toQString(m_tmp1);
+#ifdef Q_OS_WIN
+            rstr.replace(QLatin1Char('/'), QLatin1Char('\\'));
+#else
+            rstr.replace(QLatin1Char('\\'), QLatin1Char('/'));
+#endif
+            ret << ProString(rstr, NoHash).setSource(args.at(0));
+        }
+        break;
+    case E_SHELL_PATH:
+        if (args.count() != 1) {
+            evalError(fL1S("shell_path(path) requires one argument."));
+        } else {
+            QString rstr = args.at(0).toQString(m_tmp1);
+            if (m_option->dir_sep.at(0) != QLatin1Char('/'))
+                rstr.replace(QLatin1Char('/'), QLatin1Char('\\'));
+            else
+                rstr.replace(QLatin1Char('\\'), QLatin1Char('/'));
+            ret << ProString(rstr, NoHash).setSource(args.at(0));
+        }
         break;
     case E_INVALID:
         evalError(fL1S("'%1' is not a recognized replace function.")
