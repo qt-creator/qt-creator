@@ -35,13 +35,10 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <QVariantMap>
-QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace QSsh { class SshConnection; }
-
-namespace Qt4ProjectManager {
-class Qt4BuildConfiguration;
-}
+namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
+namespace ProjectExplorer { class Profile; }
 
 namespace RemoteLinux {
 class DeployableFile;
@@ -79,6 +76,7 @@ signals:
 
 protected:
     const Qt4ProjectManager::Qt4BuildConfiguration *qt4BuildConfiguration() const;
+    const ProjectExplorer::Profile *profile() const;
     QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
     QSsh::SshConnection *connection() const;
 

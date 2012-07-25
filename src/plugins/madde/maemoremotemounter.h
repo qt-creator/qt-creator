@@ -49,9 +49,9 @@ class SshConnection;
 class SshRemoteProcess;
 }
 
-namespace Utils { class PortList; }
-namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
+namespace ProjectExplorer { class Profile; }
 namespace RemoteLinux { class RemoteLinuxUsedPortsGatherer; }
+namespace Utils { class PortList; }
 
 namespace Madde {
 namespace Internal {
@@ -67,7 +67,7 @@ public:
     void setConnection(QSsh::SshConnection *connection,
         const ProjectExplorer::IDevice::ConstPtr &devConf);
 
-    void setBuildConfiguration(const Qt4ProjectManager::Qt4BuildConfiguration *bc);
+    void setProfile(const ProjectExplorer::Profile *profile);
     void addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
     bool hasValidMountSpecifications() const;

@@ -40,7 +40,7 @@
 #include <QSharedPointer>
 
 namespace QSsh { class SshConnection; }
-namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
+namespace ProjectExplorer { class Profile; }
 
 namespace RemoteLinux {
 class LinuxDeviceConfiguration;
@@ -62,7 +62,7 @@ public:
     void setupMounts(QSsh::SshConnection *connection,
         const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf,
         const QList<MaemoMountSpecification> &mountSpecs,
-        const Qt4ProjectManager::Qt4BuildConfiguration *bc);
+        const ProjectExplorer::Profile *profile);
     void tearDownMounts();
 
 signals:
@@ -97,7 +97,7 @@ private:
     RemoteLinux::RemoteLinuxUsedPortsGatherer * const m_portsGatherer;
     Utils::PortList m_freePorts;
     QList<MaemoMountSpecification> m_mountSpecs;
-    const Qt4ProjectManager::Qt4BuildConfiguration *m_buildConfig;
+    const ProjectExplorer::Profile *m_profile;
 };
 
 } // namespace Internal

@@ -199,8 +199,7 @@ void AbstractMaemoDeployByMountService::doDeploy()
     }
 
     m_state = Mounting;
-    m_mounter->setupMounts(connection(), deviceConfiguration(), mountSpecifications(),
-        qt4BuildConfiguration());
+    m_mounter->setupMounts(connection(), deviceConfiguration(), mountSpecifications(), profile());
 }
 
 void AbstractMaemoDeployByMountService::stopDeployment()

@@ -40,6 +40,7 @@
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 
+using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
 using namespace QSsh;
@@ -53,9 +54,10 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig
       m_mountSpecs(runConfig->remoteMounts()->mountSpecs()),
       m_mountState(InactiveMountState)
 {
-    const Qt4BuildConfiguration * const bc = runConfig->activeQt4BuildConfiguration();
-    m_qtId = bc ? QtSupport::QtProfileInformation::qtVersionId(bc->target()->profile()) : -1;
-    m_mounter->setBuildConfiguration(bc);
+    const BuildConfiguration * const bc = runConfig->target()->activeBuildConfiguration();
+    Profile *profile  = bc ? bc->target()->profile() : 0;
+    m_qtId = QtSupport::QtProfileInformation::qtVersionId(profile);
+    m_mounter->setProfile(profile);
     connect(m_mounter, SIGNAL(mounted()), this, SLOT(handleMounted()));
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), this,

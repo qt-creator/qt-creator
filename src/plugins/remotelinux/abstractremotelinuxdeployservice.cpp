@@ -84,10 +84,11 @@ class AbstractRemoteLinuxDeployServicePrivate
 {
 public:
     AbstractRemoteLinuxDeployServicePrivate()
-        : connection(0), state(Inactive), stopRequested(false) {}
+        : profile(0), connection(0), state(Inactive), stopRequested(false) {}
 
     LinuxDeviceConfiguration::ConstPtr deviceConfiguration;
     QPointer<Qt4BuildConfiguration> buildConfiguration;
+    ProjectExplorer::Profile *profile;
     SshConnection *connection;
     State state;
     bool stopRequested;
@@ -113,6 +114,11 @@ const Qt4BuildConfiguration *AbstractRemoteLinuxDeployService::qt4BuildConfigura
     return d->buildConfiguration;
 }
 
+const ProjectExplorer::Profile *AbstractRemoteLinuxDeployService::profile() const
+{
+    return d->profile;
+}
+
 LinuxDeviceConfiguration::ConstPtr AbstractRemoteLinuxDeployService::deviceConfiguration() const
 {
     return d->deviceConfiguration;
@@ -128,10 +134,10 @@ void AbstractRemoteLinuxDeployService::saveDeploymentTimeStamp(const DeployableF
     if (!d->buildConfiguration)
         return;
     const QtSupport::BaseQtVersion *const qtVersion
-            = QtSupport::QtProfileInformation::qtVersion(d->buildConfiguration->target()->profile());
+            = QtSupport::QtProfileInformation::qtVersion(d->profile);
     QString systemRoot;
-    if (ProjectExplorer::SysRootProfileInformation::hasSysRoot(d->buildConfiguration->target()->profile()))
-        systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(d->buildConfiguration->target()->profile()).toString();
+    if (ProjectExplorer::SysRootProfileInformation::hasSysRoot(d->profile))
+        systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(d->profile).toString();
     if (!qtVersion || !qtVersion->isValid())
         return;
     d->lastDeployed.insert(DeployParameters(deployableFile,
@@ -145,12 +151,12 @@ bool AbstractRemoteLinuxDeployService::hasChangedSinceLastDeployment(const Deplo
     if (!d->buildConfiguration)
         return true;
     const QtSupport::BaseQtVersion *const qtVersion
-            = QtSupport::QtProfileInformation::qtVersion(d->buildConfiguration->target()->profile());
+            = QtSupport::QtProfileInformation::qtVersion(d->profile);
     if (!qtVersion || !qtVersion->isValid())
         return true;
     QString systemRoot;
-    if (ProjectExplorer::SysRootProfileInformation::hasSysRoot(d->buildConfiguration->target()->profile()))
-        systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(d->buildConfiguration->target()->profile()).toString();
+    if (ProjectExplorer::SysRootProfileInformation::hasSysRoot(d->profile))
+        systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(d->profile).toString();
     const QDateTime &lastDeployed = d->lastDeployed.value(DeployParameters(deployableFile,
         deviceConfiguration()->sshParameters().host, systemRoot));
     return !lastDeployed.isValid()
@@ -165,6 +171,10 @@ void AbstractRemoteLinuxDeployService::setDeviceConfiguration(const LinuxDeviceC
 void AbstractRemoteLinuxDeployService::setBuildConfiguration(Qt4BuildConfiguration *bc)
 {
     d->buildConfiguration = bc;
+    if (bc && bc->target())
+        d->profile = bc->target()->profile();
+    else
+        d->profile = 0;
 }
 
 void AbstractRemoteLinuxDeployService::start()
