@@ -55,8 +55,13 @@ public:
     static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
     static QStringRef fileName(const QString &fileName); // Requires normalized path
     static QString resolvePath(const QString &baseDir, const QString &fileName);
-#ifdef QT_BOOTSTRAPPED
-    static QString shellQuote(const QString &arg);
+    static QString shellQuoteUnix(const QString &arg);
+    static QString shellQuoteWin(const QString &arg);
+    static QString shellQuote(const QString &arg)
+#ifdef Q_OS_UNIX
+        { return shellQuoteUnix(arg); }
+#else
+        { return shellQuoteWin(arg); }
 #endif
 };
 
