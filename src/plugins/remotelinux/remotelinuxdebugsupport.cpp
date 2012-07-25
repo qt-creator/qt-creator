@@ -26,9 +26,9 @@
 **
 **
 **************************************************************************/
+
 #include "remotelinuxdebugsupport.h"
 
-#include "linuxdeviceconfiguration.h"
 #include "remotelinuxapplicationrunner.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxusedportsgatherer.h"
@@ -37,12 +37,11 @@
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerprofileinformation.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/profile.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qtsupport/qtprofileinformation.h>
 #include <utils/qtcassert.h>
 
 #include <QPointer>
@@ -97,9 +96,7 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
     DebuggerStartParameters params;
     Target *target = runConfig->target();
     Profile *profile = target->profile();
-    const LinuxDeviceConfiguration::ConstPtr devConf
-            = DeviceProfileInformation::device(profile)
-              .dynamicCast<const RemoteLinux::LinuxDeviceConfiguration>();
+    const IDevice::ConstPtr devConf = DeviceProfileInformation::device(profile);
 
     params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
     params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();

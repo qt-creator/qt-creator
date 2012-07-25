@@ -33,25 +33,22 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/environment.h>
 
-#include <QObject>
-
-
-namespace QSsh {
-class SshRemoteProcessRunner;
+namespace ProjectExplorer {
+class RunConfiguration;
+class Profile;
 }
 
-namespace RemoteLinux {
-class LinuxDeviceConfiguration;
-class RemoteLinuxRunConfiguration;
+namespace QSsh { class SshRemoteProcessRunner; }
 
+namespace RemoteLinux {
 namespace Internal {
 
 class RemoteLinuxEnvironmentReader : public QObject
 {
     Q_OBJECT
+
 public:
-    RemoteLinuxEnvironmentReader(RemoteLinuxRunConfiguration *config, QObject *parent = 0);
-    ~RemoteLinuxEnvironmentReader();
+    RemoteLinuxEnvironmentReader(ProjectExplorer::RunConfiguration *config, QObject *parent = 0);
 
     void start(const QString &environmentSetupCommand);
     void stop();
@@ -73,8 +70,7 @@ private:
 
     bool m_stop;
     Utils::Environment m_env;
-    ProjectExplorer::IDevice::ConstPtr m_devConfig;
-    RemoteLinuxRunConfiguration *m_runConfig;
+    ProjectExplorer::Profile *m_profile;
     QSsh::SshRemoteProcessRunner *m_remoteProcessRunner;
 };
 

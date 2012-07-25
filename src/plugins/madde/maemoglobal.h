@@ -41,11 +41,8 @@
 
 QT_BEGIN_NAMESPACE
 class QProcess;
-class QString;
 QT_END_NAMESPACE
 
-namespace QtSupport { class BaseQtVersion; }
-namespace RemoteLinux { class LinuxDeviceConfiguration; }
 namespace ProjectExplorer {
 class Profile;
 class Target;
@@ -96,8 +93,7 @@ public:
     static int applicationIconSize(const ProjectExplorer::Target *target);
     static QString remoteSudo(Core::Id deviceType, const QString &uname);
     static QString remoteSourceProfilesCommand();
-    static Utils::PortList freePorts(const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf,
-        const QtSupport::BaseQtVersion *qtVersion);
+    static Utils::PortList freePorts(const ProjectExplorer::Profile *profile);
 
     static void addMaddeEnvironment(Utils::Environment &env, const QString &qmakePath);
     static void transformMaddeCall(QString &command, QStringList &args, const QString &qmakePath);

@@ -45,27 +45,58 @@
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerprofileinformation.h>
+#include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/qtprofileinformation.h>
 #include <utils/portlist.h>
 
+using namespace Debugger;
+using namespace ProjectExplorer;
 using namespace Qnx;
 using namespace Qnx::Internal;
+
+DebuggerStartParameters createStartParameters(const QnxRunConfiguration *runConfig)
+{
+    DebuggerStartParameters params;
+    Target *target = runConfig->target();
+    Profile *profile = target->profile();
+
+    const IDevice::ConstPtr devConf = DeviceProfileInformation::device(profile);
+    if (devConf.isNull())
+        return params;
+
+    params.startMode = AttachToRemoteServer;
+    params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
+    params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
+
+    if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
+        params.toolChainAbi = tc->targetAbi();
+
+    params.symbolFileName = runConfig->localExecutableFilePath();
+    params.remoteExecutable = runConfig->remoteExecutableFilePath();
+    params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
+    params.displayName = runConfig->displayName();
+    params.remoteSetupNeeded = true;
+    params.closeMode = DetachAtClose;
+
+    QnxQtVersion *qtVersion =
+            dynamic_cast<QnxQtVersion *>(QtSupport::QtProfileInformation::qtVersion(profile));
+    if (qtVersion)
+        params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
+
+    return params;
+}
+
 
 QnxRunControlFactory::QnxRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {
 }
 
-QnxRunControlFactory::~QnxRunControlFactory()
+bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
-}
-
-bool QnxRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const
-{
-    if (mode != ProjectExplorer::NormalRunMode && mode != ProjectExplorer::DebugRunMode)
+    if (mode != NormalRunMode && mode != DebugRunMode)
         return false;
 
     if (!runConfiguration->isEnabled()
@@ -75,8 +106,8 @@ bool QnxRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfigur
 
 
     const QnxRunConfiguration * const rc = qobject_cast<QnxRunConfiguration *>(runConfiguration);
-    if (mode == ProjectExplorer::DebugRunMode) {
-        const QnxDeviceConfiguration::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(runConfiguration->target()->profile())
+    if (mode == DebugRunMode) {
+        const QnxDeviceConfiguration::ConstPtr dev = DeviceProfileInformation::device(runConfiguration->target()->profile())
                   .dynamicCast<const QnxDeviceConfiguration>();
         if (dev.isNull())
             return false;
@@ -85,17 +116,17 @@ bool QnxRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runConfigur
     return true;
 }
 
-ProjectExplorer::RunControl *QnxRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfig, ProjectExplorer::RunMode mode)
+RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode)
 {
     Q_ASSERT(canRun(runConfig, mode));
 
     QnxRunConfiguration *rc = qobject_cast<QnxRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
-    if (mode == ProjectExplorer::NormalRunMode)
+    if (mode == NormalRunMode)
         return new QnxRunControl(rc);
 
-    const Debugger::DebuggerStartParameters params = startParameters(rc);
-    Debugger::DebuggerRunControl * const runControl = Debugger::DebuggerPlugin::createDebugger(params, rc);
+    const DebuggerStartParameters params = createStartParameters(rc);
+    DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc);
     if (!runControl)
         return 0;
 
@@ -110,42 +141,8 @@ QString QnxRunControlFactory::displayName() const
     return tr("Run on remote QNX device");
 }
 
-ProjectExplorer::RunConfigWidget *QnxRunControlFactory::createConfigurationWidget(ProjectExplorer::RunConfiguration *config)
+RunConfigWidget *QnxRunControlFactory::createConfigurationWidget(RunConfiguration *config)
 {
     Q_UNUSED(config)
     return 0;
-}
-
-Debugger::DebuggerStartParameters QnxRunControlFactory::startParameters(
-        const QnxRunConfiguration *runConfig)
-{
-    Debugger::DebuggerStartParameters params;
-    ProjectExplorer::Target *target = runConfig->target();
-    ProjectExplorer::Profile *profile = target->profile();
-
-    const QnxDeviceConfiguration::ConstPtr devConf = ProjectExplorer::DeviceProfileInformation::device(runConfig->target()->profile())
-              .dynamicCast<const QnxDeviceConfiguration>();
-    if (devConf.isNull())
-        return params;
-
-    params.startMode = Debugger::AttachToRemoteServer;
-    params.debuggerCommand = Debugger::DebuggerProfileInformation::debuggerCommand(profile).toString();
-    params.sysRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(profile).toString();
-
-    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(profile))
-        params.toolChainAbi = tc->targetAbi();
-
-    params.symbolFileName = runConfig->localExecutableFilePath();
-    params.remoteExecutable = runConfig->remoteExecutableFilePath();
-    params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
-    params.displayName = runConfig->displayName();
-    params.remoteSetupNeeded = true;
-    params.closeMode = Debugger::DetachAtClose;
-
-    QnxQtVersion *qtVersion =
-            dynamic_cast<QnxQtVersion *>(QtSupport::QtProfileInformation::qtVersion(profile));
-    if (qtVersion)
-        params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
-
-    return params;
 }

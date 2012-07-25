@@ -44,6 +44,7 @@
 #include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <ssh/sshconnection.h>
 
+using namespace ProjectExplorer;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
@@ -60,7 +61,7 @@ QnxDeviceConfigurationWizard::QnxDeviceConfigurationWizard(QWidget *parent) :
     m_finalPage->setCommitPage(true);
 }
 
-ProjectExplorer::IDevice::Ptr QnxDeviceConfigurationWizard::device()
+IDevice::Ptr QnxDeviceConfigurationWizard::device()
 {
     QSsh::SshConnectionParameters sshParams;
     sshParams.proxyType = QSsh::SshConnectionParameters::NoProxy;
@@ -76,7 +77,7 @@ ProjectExplorer::IDevice::Ptr QnxDeviceConfigurationWizard::device()
     }
 
     QnxDeviceConfiguration::Ptr devConf = QnxDeviceConfiguration::create(m_setupPage->configurationName(),
-        Core::Id(Constants::QNX_QNX_OS_TYPE), RemoteLinux::LinuxDeviceConfiguration::Hardware);
+        Core::Id(Constants::QNX_QNX_OS_TYPE), IDevice::Hardware);
     devConf->setSshParameters(sshParams);
     devConf->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
 

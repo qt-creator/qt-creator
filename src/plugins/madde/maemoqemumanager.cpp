@@ -50,8 +50,6 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtversionmanager.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
 #include <utils/filesystemwatcher.h>
 
@@ -68,7 +66,6 @@
 #include <limits.h>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
 
 namespace Madde {
@@ -516,10 +513,8 @@ bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
 
     if (qtVersion)
         *qtVersion = version;
-    const LinuxDeviceConfiguration::ConstPtr &config
-            = ProjectExplorer::DeviceProfileInformation::device(target->profile())
-            .dynamicCast<const LinuxDeviceConfiguration>();
-    return !config.isNull() && config->machineType() == LinuxDeviceConfiguration::Emulator;
+    const IDevice::ConstPtr config = DeviceProfileInformation::device(target->profile());
+    return !config.isNull() && config->machineType() == IDevice::Emulator;
 }
 
 void MaemoQemuManager::notify(const QList<int> uniqueIds)

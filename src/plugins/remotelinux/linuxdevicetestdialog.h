@@ -43,10 +43,10 @@ class LinuxDeviceTestDialogPrivate;
 class REMOTELINUX_EXPORT LinuxDeviceTestDialog : public QDialog
 {
     Q_OBJECT
-public:
 
+public:
     // Note: The dialog takes ownership of deviceTester
-    explicit LinuxDeviceTestDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration,
+    LinuxDeviceTestDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration,
         AbstractLinuxDeviceTester * deviceTester, QWidget *parent = 0);
     ~LinuxDeviceTestDialog();
 

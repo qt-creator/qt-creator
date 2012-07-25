@@ -35,7 +35,6 @@
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qtsupport/qtprofileinformation.h>
 

@@ -29,7 +29,6 @@
 **************************************************************************/
 #include "remotelinuxrunconfigurationwidget.h"
 
-#include "linuxdeviceconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxenvironmentreader.h"
 #include "remotelinuxutils.h"
@@ -38,7 +37,6 @@
 #include <coreplugin/icore.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <utils/detailswidget.h>
 
 #include <QCoreApplication>
@@ -52,8 +50,6 @@
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-
-using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
 namespace Internal {

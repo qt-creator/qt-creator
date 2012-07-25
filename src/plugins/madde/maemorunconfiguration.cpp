@@ -33,14 +33,13 @@
 #include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfigurationwidget.h"
-#include "qt4maemodeployconfiguration.h"
 
 #include <debugger/debuggerconstants.h>
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qtsupport/qtprofileinformation.h>
 #include <utils/portlist.h>
 #include <ssh/sshconnection.h>
 
@@ -48,7 +47,6 @@
 #include <QFileInfo>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
 
 namespace Madde {
@@ -121,9 +119,7 @@ QString MaemoRunConfiguration::environmentPreparationCommand() const
 
 QString MaemoRunConfiguration::commandPrefix() const
 {
-    LinuxDeviceConfiguration::ConstPtr dev =
-            ProjectExplorer::DeviceProfileInformation::device(target()->profile())
-            .dynamicCast<const LinuxDeviceConfiguration>();
+    IDevice::ConstPtr dev = DeviceProfileInformation::device(target()->profile());
     if (!dev)
         return QString();
 
@@ -136,9 +132,7 @@ QString MaemoRunConfiguration::commandPrefix() const
 
 Utils::PortList MaemoRunConfiguration::freePorts() const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
-    return MaemoGlobal::freePorts(ProjectExplorer::DeviceProfileInformation::device(target()->profile())
-                                  .staticCast<const LinuxDeviceConfiguration>(), version);
+    return MaemoGlobal::freePorts(target()->profile());
 }
 
 QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
@@ -162,7 +156,7 @@ QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
 
 QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
 {
-    return MaemoGlobal::homeDirOnDevice(ProjectExplorer::DeviceProfileInformation::device(target()->profile())->sshParameters().userName)
+    return MaemoGlobal::homeDirOnDevice(DeviceProfileInformation::device(target()->profile())->sshParameters().userName)
         + QLatin1String("/gdbSourcesDir_")
         + QFileInfo(localExecutableFilePath()).fileName();
 }
@@ -170,7 +164,7 @@ QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
 bool MaemoRunConfiguration::hasEnoughFreePorts(RunMode mode) const
 {
     const int freePortCount = freePorts().count();
-    Core::Id typeId = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    Core::Id typeId = DeviceTypeProfileInformation::deviceTypeId(target()->profile());
     const bool remoteMountsAllowed = MaddeDevice::allowsRemoteMounts(typeId);
     const int mountDirCount = remoteMountsAllowed
         ? remoteMounts()->validMountSpecificationCount() : 0;

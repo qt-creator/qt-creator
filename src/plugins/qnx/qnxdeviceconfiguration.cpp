@@ -57,7 +57,7 @@ QnxDeviceConfiguration::Ptr QnxDeviceConfiguration::create()
     return Ptr(new QnxDeviceConfiguration);
 }
 
-QnxDeviceConfiguration::Ptr QnxDeviceConfiguration::create(const QString &name, Core::Id type, RemoteLinux::LinuxDeviceConfiguration::MachineType machineType, ProjectExplorer::IDevice::Origin origin, Core::Id id)
+QnxDeviceConfiguration::Ptr QnxDeviceConfiguration::create(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
 {
     return Ptr(new QnxDeviceConfiguration(name, type, machineType, origin, id));
 }

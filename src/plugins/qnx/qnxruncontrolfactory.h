@@ -34,20 +34,17 @@
 #ifndef QNX_INTERNAL_QNXRUNCONTROLFACTORY_H
 #define QNX_INTERNAL_QNXRUNCONTROLFACTORY_H
 
-#include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/runconfiguration.h>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxRunConfiguration;
-
 class QnxRunControlFactory : public ProjectExplorer::IRunControlFactory
 {
     Q_OBJECT
+
 public:
     explicit QnxRunControlFactory(QObject *parent = 0);
-    ~QnxRunControlFactory();
 
     QString displayName() const;
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(ProjectExplorer::RunConfiguration *runConfiguration);
@@ -56,9 +53,6 @@ public:
                 ProjectExplorer::RunMode mode) const;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
                                         ProjectExplorer::RunMode mode);
-
-private:
-    static Debugger::DebuggerStartParameters startParameters( const QnxRunConfiguration *runConfig);
 };
 
 } // namespace Internal

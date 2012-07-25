@@ -33,8 +33,8 @@
 #include "remotelinuxdeployconfigurationwidget.h"
 #include "typespecificdeviceconfigurationlistmodel.h"
 
-#include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4project.h>
 

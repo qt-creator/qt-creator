@@ -34,10 +34,8 @@
 #include "maemopublishingwizardfremantlefree.h"
 
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qmakestep.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtsupportconstants.h>

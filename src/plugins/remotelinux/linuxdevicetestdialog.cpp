@@ -54,7 +54,7 @@ public:
 
 using namespace Internal;
 
-LinuxDeviceTestDialog::LinuxDeviceTestDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration,
+LinuxDeviceTestDialog::LinuxDeviceTestDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration,
         AbstractLinuxDeviceTester *deviceTester, QWidget *parent)
     : QDialog(parent), d(new LinuxDeviceTestDialogPrivate(deviceTester))
 {

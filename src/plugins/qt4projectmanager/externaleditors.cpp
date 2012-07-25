@@ -31,7 +31,6 @@
 #include "externaleditors.h"
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
-#include "qt4buildconfiguration.h"
 
 #include <utils/synchronousprocess.h>
 #include <projectexplorer/projectexplorer.h>

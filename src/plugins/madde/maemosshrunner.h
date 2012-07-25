@@ -42,9 +42,9 @@ class MaemoRunConfiguration;
 class MaemoSshRunner : public RemoteLinux::AbstractRemoteLinuxApplicationRunner
 {
     Q_OBJECT
+
 public:
     MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig);
-    ~MaemoSshRunner();
 
 signals:
     void mountDebugOutput(const QString &output);

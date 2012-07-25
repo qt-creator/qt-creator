@@ -38,18 +38,13 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtprofileinformation.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4project.h>
 
 #include <utils/qtcassert.h>
 
-
-using namespace Qt4ProjectManager;
+using namespace ProjectExplorer;
 
 namespace Android {
 namespace Internal {
-
-using namespace ProjectExplorer;
 
 AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, Core::Id id, const QString &path)
     : RunConfiguration(parent, id)
@@ -58,8 +53,7 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, Core::Id id, co
     init();
 }
 
-AndroidRunConfiguration::AndroidRunConfiguration(ProjectExplorer::Target *parent,
-                                                 AndroidRunConfiguration *source)
+AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, AndroidRunConfiguration *source)
     : RunConfiguration(parent, source)
     , m_proFilePath(source->m_proFilePath)
 {
@@ -69,15 +63,6 @@ AndroidRunConfiguration::AndroidRunConfiguration(ProjectExplorer::Target *parent
 void AndroidRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
-}
-
-AndroidRunConfiguration::~AndroidRunConfiguration()
-{
-}
-
-Qt4BuildConfiguration *AndroidRunConfiguration::activeQt4BuildConfiguration() const
-{
-    return static_cast<Qt4BuildConfiguration *>(activeBuildConfiguration());
 }
 
 QWidget *AndroidRunConfiguration::createConfigurationWidget()

@@ -59,7 +59,7 @@ MaddeDeviceTester::~MaddeDeviceTester()
 {
 }
 
-void MaddeDeviceTester::testDevice(const LinuxDeviceConfiguration::ConstPtr &deviceConfiguration)
+void MaddeDeviceTester::testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration)
 {
     QTC_ASSERT(m_state == Inactive, return);
 

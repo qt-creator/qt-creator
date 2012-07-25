@@ -71,8 +71,8 @@ bool GenericLinuxDeviceConfigurationFactory::canRestore(const QVariantMap &map) 
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::restore(const QVariantMap &map) const
 {
-    QTC_ASSERT(canRestore(map), return LinuxDeviceConfiguration::Ptr());
-    const LinuxDeviceConfiguration::Ptr device = LinuxDeviceConfiguration::create();
+    QTC_ASSERT(canRestore(map), return IDevice::Ptr());
+    const IDevice::Ptr device = LinuxDeviceConfiguration::create();
     device->fromMap(map);
     return device;
 }

@@ -40,6 +40,7 @@
 
 using namespace Qnx;
 using namespace Qnx::Internal;
+using namespace ProjectExplorer;
 
 BlackBerryDeviceConfiguration::BlackBerryDeviceConfiguration()
     : RemoteLinux::LinuxDeviceConfiguration()
@@ -47,8 +48,8 @@ BlackBerryDeviceConfiguration::BlackBerryDeviceConfiguration()
 }
 
 BlackBerryDeviceConfiguration::BlackBerryDeviceConfiguration(const QString &name, Core::Id type,
-                                                             RemoteLinux::LinuxDeviceConfiguration::MachineType machineType,
-                                                             ProjectExplorer::IDevice::Origin origin, Core::Id id)
+                                                             IDevice::MachineType machineType,
+                                                             IDevice::Origin origin, Core::Id id)
     : RemoteLinux::LinuxDeviceConfiguration(name, type, machineType, origin, id)
 {
 }
@@ -65,8 +66,8 @@ BlackBerryDeviceConfiguration::Ptr BlackBerryDeviceConfiguration::create()
 }
 
 BlackBerryDeviceConfiguration::Ptr BlackBerryDeviceConfiguration::create(const QString &name, Core::Id type,
-                                                                         RemoteLinux::LinuxDeviceConfiguration::MachineType machineType,
-                                                                         ProjectExplorer::IDevice::Origin origin, Core::Id id)
+                                                                         IDevice::MachineType machineType,
+                                                                         IDevice::Origin origin, Core::Id id)
 {
     return Ptr(new BlackBerryDeviceConfiguration(name, type, machineType, origin, id));
 }
@@ -87,14 +88,14 @@ void BlackBerryDeviceConfiguration::fromMap(const QVariantMap &map)
     m_debugToken = map.value(QLatin1String(Constants::QNX_DEBUG_TOKEN_KEY)).toString();
 }
 
-ProjectExplorer::IDevice::Ptr BlackBerryDeviceConfiguration::clone() const
+IDevice::Ptr BlackBerryDeviceConfiguration::clone() const
 {
     return Ptr(new BlackBerryDeviceConfiguration(*this));
 }
 
-BlackBerryDeviceConfiguration::ConstPtr BlackBerryDeviceConfiguration::device(const ProjectExplorer::Profile *p)
+BlackBerryDeviceConfiguration::ConstPtr BlackBerryDeviceConfiguration::device(const Profile *p)
 {
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(p);
+    IDevice::ConstPtr dev = DeviceProfileInformation::device(p);
     return dev.dynamicCast<const BlackBerryDeviceConfiguration>();
 }
 
@@ -103,7 +104,7 @@ QString BlackBerryDeviceConfiguration::displayType() const
     return tr("BlackBerry");
 }
 
-ProjectExplorer::IDeviceWidget *BlackBerryDeviceConfiguration::createWidget()
+IDeviceWidget *BlackBerryDeviceConfiguration::createWidget()
 {
     return new BlackBerryDeviceConfigurationWidget(sharedFromThis()
                                                    .staticCast<BlackBerryDeviceConfiguration>());

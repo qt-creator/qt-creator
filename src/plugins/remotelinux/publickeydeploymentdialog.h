@@ -31,16 +31,11 @@
 
 #include "remotelinux_export.h"
 
-#include <QSharedPointer>
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <QProgressDialog>
 
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
-
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
-
 namespace Internal {
 class PublicKeyDeploymentDialogPrivate;
 } // namespace Internal
@@ -50,7 +45,7 @@ class REMOTELINUX_EXPORT PublicKeyDeploymentDialog : public QProgressDialog
     Q_OBJECT
 public:
     // Asks for public key and returns null if the file dialog is canceled.
-    static PublicKeyDeploymentDialog *createDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig,
+    static PublicKeyDeploymentDialog *createDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
         QWidget *parent = 0);
 
     ~PublicKeyDeploymentDialog();
@@ -61,7 +56,7 @@ private slots:
     void handleCanceled();
 
 private:
-    explicit PublicKeyDeploymentDialog(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig,
+    explicit PublicKeyDeploymentDialog(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
         const QString &publicKeyFileName, QWidget *parent = 0);
     void handleDeploymentFinished(const QString &errorMsg);
 

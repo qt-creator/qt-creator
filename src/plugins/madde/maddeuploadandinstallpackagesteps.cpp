@@ -33,16 +33,15 @@
 #include "maemopackagecreationstep.h"
 #include "maemopackageinstaller.h"
 #include "maemoqemumanager.h"
-#include "qt4maemodeployconfiguration.h"
 
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtprofileinformation.h>
 #include <remotelinux/abstractuploadandinstallpackageservice.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/remotelinuxdeployconfiguration.h>
 #include <ssh/sshconnection.h>
 
+using namespace ProjectExplorer;
 using namespace RemoteLinux;
 
 namespace Madde {
@@ -60,7 +59,7 @@ protected:
 
     void doDeviceSetup()
     {
-        if (deviceConfiguration()->machineType() == LinuxDeviceConfiguration::Hardware) {
+        if (deviceConfiguration()->machineType() == IDevice::Hardware) {
             handleDeviceSetupDone(true);
             return;
         }
@@ -71,8 +70,7 @@ protected:
         }
 
         MaemoQemuRuntime rt;
-        const int qtId = qt4BuildConfiguration()
-                ? QtSupport::QtProfileInformation::qtVersionId(qt4BuildConfiguration()->target()->profile()) : -1;
+        const int qtId = QtSupport::QtProfileInformation::qtVersionId(profile());
         if (MaemoQemuManager::instance().runtimeForQtVersion(qtId, &rt)) {
             MaemoQemuManager::instance().startRuntime();
             emit errorMessage(tr("Cannot deploy: Qemu was not running. "

@@ -33,13 +33,10 @@
 
 #include "remotelinux_export.h"
 
-#include "linuxdeviceconfiguration.h"
-
 #include <projectexplorer/runconfiguration.h>
 #include <utils/environment.h>
 
 namespace Qt4ProjectManager {
-class Qt4BuildConfiguration;
 class Qt4ProFileNode;
 } // namespace Qt4ProjectManager
 
@@ -77,10 +74,8 @@ public:
     QString disabledReason() const;
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
-    Qt4ProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     RemoteLinuxDeployConfiguration *deployConfig() const;
-    LinuxDeviceConfiguration::ConstPtr device() const;
 
     virtual QString environmentPreparationCommand() const;
     virtual QString commandPrefix() const;

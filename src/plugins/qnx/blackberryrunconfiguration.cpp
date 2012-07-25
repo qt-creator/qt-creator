@@ -142,11 +142,6 @@ BlackBerryDeployConfiguration *BlackBerryRunConfiguration::deployConfiguration()
     return qobject_cast<BlackBerryDeployConfiguration *>(target()->activeDeployConfiguration());
 }
 
-Qt4ProjectManager::Qt4BuildConfiguration *BlackBerryRunConfiguration::activeQt4BuildConfiguration() const
-{
-    return static_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(activeBuildConfiguration());
-}
-
 QString BlackBerryRunConfiguration::key() const
 {
     return barPackage() + QLatin1Char('_') + BlackBerryDeviceConfiguration::device(target()->profile())->sshParameters().host;

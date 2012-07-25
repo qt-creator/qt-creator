@@ -33,17 +33,15 @@
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/qtprofileinformation.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
-using namespace RemoteLinux;
 using namespace QSsh;
+using namespace RemoteLinux;
 
 namespace Madde {
 namespace Internal {
@@ -68,14 +66,12 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig
         SIGNAL(mountDebugOutput(QString)));
 }
 
-MaemoSshRunner::~MaemoSshRunner() {}
-
 bool MaemoSshRunner::canRun(QString &whyNot) const
 {
     if (!AbstractRemoteLinuxApplicationRunner::canRun(whyNot))
         return false;
 
-    if (devConfig()->machineType() == LinuxDeviceConfiguration::Emulator
+    if (devConfig()->machineType() == IDevice::Emulator
             && !MaemoQemuManager::instance().qemuIsRunning()) {
         MaemoQemuRuntime rt;
         if (MaemoQemuManager::instance().runtimeForQtVersion(m_qtId, &rt)) {

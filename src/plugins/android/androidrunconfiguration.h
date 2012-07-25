@@ -34,18 +34,7 @@
 #include "androidconstants.h"
 #include "androidconfigurations.h"
 
-#include <utils/environment.h>
-
 #include <projectexplorer/runconfiguration.h>
-
-QT_FORWARD_DECLARE_CLASS(QWidget)
-
-namespace Qt4ProjectManager {
-
-class Qt4BuildConfiguration;
-class Qt4Project;
-class Qt4ProFileNode;
-}
 
 namespace Android {
 namespace Internal {
@@ -69,11 +58,9 @@ public:
     enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
 
     AndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path);
-    virtual ~AndroidRunConfiguration();
 
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
-    Qt4ProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     AndroidDeployStep *deployStep() const;
 
@@ -95,7 +82,6 @@ private:
     void init();
 
     QString m_proFilePath;
-
 };
 
 } // namespace Internal

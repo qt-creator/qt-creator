@@ -29,34 +29,32 @@
 #include "remotelinuxenvironmentreader.h"
 
 #include "linuxdeviceconfiguration.h"
-#include "remotelinuxrunconfiguration.h"
 
 #include <ssh/sshremoteprocessrunner.h>
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/profileinformation.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+
+using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
 
-RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(RemoteLinuxRunConfiguration *config,
-        QObject *parent)
+RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(RunConfiguration *config, QObject *parent)
     : QObject(parent)
     , m_stop(false)
-    , m_devConfig(ProjectExplorer::DeviceProfileInformation::device(config->target()->profile()))
-    , m_runConfig(config)
+    , m_profile(config->target()->profile())
     , m_remoteProcessRunner(0)
 {
     connect(config->target(), SIGNAL(profileChanged()),
         this, SLOT(handleCurrentDeviceConfigChanged()));
 }
 
-RemoteLinuxEnvironmentReader::~RemoteLinuxEnvironmentReader()
-{
-}
-
 void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
 {
-    if (!m_devConfig)
+    IDevice::ConstPtr devConfig = DeviceProfileInformation::device(m_profile);
+    if (!devConfig)
         return;
     m_stop = false;
     if (!m_remoteProcessRunner)
@@ -65,7 +63,7 @@ void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
     connect(m_remoteProcessRunner, SIGNAL(processClosed(int)), SLOT(remoteProcessFinished(int)));
     const QByteArray remoteCall
         = QString(environmentSetupCommand + QLatin1String("; env")).toUtf8();
-    m_remoteProcessRunner->run(remoteCall, m_devConfig->sshParameters());
+    m_remoteProcessRunner->run(remoteCall, devConfig->sshParameters());
 }
 
 void RemoteLinuxEnvironmentReader::stop()
@@ -87,8 +85,6 @@ void RemoteLinuxEnvironmentReader::handleConnectionFailure()
 
 void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
 {
-    m_devConfig = ProjectExplorer::DeviceProfileInformation::device(m_runConfig->target()->profile());
-
     if (m_remoteProcessRunner)
         disconnect(m_remoteProcessRunner, 0, this, 0);
     m_env.clear();

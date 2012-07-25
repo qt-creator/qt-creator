@@ -31,23 +31,18 @@
 #ifndef REMOTELINUXDEPLOYCONFIGURATION_H
 #define REMOTELINUXDEPLOYCONFIGURATION_H
 
-#include "linuxdeviceconfiguration.h"
-
 #include "remotelinux_export.h"
 
-#include <coreplugin/id.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
 
 namespace RemoteLinux {
 class AbstractEmbeddedLinuxTarget;
 class DeploymentInfo;
 
-namespace Internal {
-class RemoteLinuxDeployConfigurationFactory;
-class TypeSpecificDeviceConfigurationListModel;
-} // namespace Internal
+namespace Internal { class RemoteLinuxDeployConfigurationFactory; }
 
 class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
     : public ProjectExplorer::DeployConfiguration

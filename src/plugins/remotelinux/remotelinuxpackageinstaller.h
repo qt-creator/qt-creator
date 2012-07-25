@@ -27,17 +27,17 @@
 **
 **
 **************************************************************************/
+
 #ifndef REMOTELINUXPACKAGEINSTALLER_H
 #define REMOTELINUXPACKAGEINSTALLER_H
 
 #include "remotelinux_export.h"
 
-#include <QObject>
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <QSharedPointer>
-#include <QString>
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
 
 namespace Internal {
 class AbstractRemoteLinuxPackageInstallerPrivate;
@@ -50,7 +50,7 @@ class REMOTELINUX_EXPORT AbstractRemoteLinuxPackageInstaller : public QObject
 public:
     ~AbstractRemoteLinuxPackageInstaller();
 
-    void installPackage(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig,
+    void installPackage(const ProjectExplorer::IDevice::ConstPtr &deviceConfig,
         const QString &packageFilePath, bool removePackageFile);
     void cancelInstallation();
 

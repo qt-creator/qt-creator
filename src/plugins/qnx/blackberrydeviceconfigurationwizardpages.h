@@ -63,7 +63,7 @@ public:
     QString hostName() const;
     QString password() const;
     QString debugToken() const;
-    RemoteLinux::LinuxDeviceConfiguration::MachineType machineType() const;
+    ProjectExplorer::IDevice::MachineType machineType() const;
 
 private:
     Ui::BlackBerryDeviceConfigurationWizardSetupPage *m_ui;
