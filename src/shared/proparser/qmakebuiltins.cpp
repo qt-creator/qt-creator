@@ -75,7 +75,7 @@ enum ExpandFunc {
     E_INVALID = 0, E_MEMBER, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
     E_SPRINTF, E_FORMAT_NUMBER, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
     E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
-    E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE,
+    E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE, E_VAL_ESCAPE,
     E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS
 };
 
@@ -116,6 +116,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "upper", E_UPPER },
         { "lower", E_LOWER },
         { "re_escape", E_RE_ESCAPE },
+        { "val_escape", E_VAL_ESCAPE },
         { "files", E_FILES },
         { "prompt", E_PROMPT }, // interactive, so cannot be implemented
         { "replace", E_REPLACE },
@@ -166,6 +167,75 @@ static bool isTrue(const ProString &_str, QString &tmp)
 {
     const QString &str = _str.toQString(tmp);
     return !str.compare(statics.strtrue, Qt::CaseInsensitive) || str.toInt();
+}
+
+static QString
+quoteValue(const ProString &val)
+{
+    QString ret;
+    ret.reserve(val.size());
+    const QChar *chars = val.constData();
+    bool quote = val.isEmpty();
+    bool escaping = false;
+    for (int i = 0, l = val.size(); i < l; i++) {
+        QChar c = chars[i];
+        ushort uc = c.unicode();
+        if (uc < 32) {
+            if (!escaping) {
+                escaping = true;
+                ret += QLatin1String("$$escape_expand(");
+            }
+            switch (uc) {
+            case '\r':
+                ret += QLatin1String("\\\\r");
+                break;
+            case '\n':
+                ret += QLatin1String("\\\\n");
+                break;
+            case '\t':
+                ret += QLatin1String("\\\\t");
+                break;
+            default:
+                ret += QString::fromLatin1("\\\\x%1").arg(uc, 2, 16, QLatin1Char('0'));
+                break;
+            }
+        } else {
+            if (escaping) {
+                escaping = false;
+                ret += QLatin1Char(')');
+            }
+            switch (uc) {
+            case '\\':
+                ret += QLatin1String("\\\\");
+                break;
+            case '"':
+                ret += QLatin1String("\\\"");
+                break;
+            case '\'':
+                ret += QLatin1String("\\'");
+                break;
+            case '$':
+                ret += QLatin1String("\\$");
+                break;
+            case '#':
+                ret += QLatin1String("$${LITERAL_HASH}");
+                break;
+            case 32:
+                quote = true;
+                // fallthrough
+            default:
+                ret += c;
+                break;
+            }
+        }
+    }
+    if (escaping)
+        ret += QLatin1Char(')');
+    if (quote) {
+        ret.prepend(QLatin1Char('"'));
+        ret.append(QLatin1Char('"'));
+    }
+    return ret;
 }
 
 #ifndef QT_BOOTSTRAPPED
@@ -618,6 +688,16 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         for (int i = 0; i < args.size(); ++i) {
             const QString &rstr = QRegExp::escape(args.at(i).toQString(m_tmp1));
             ret << (rstr.isSharedWith(m_tmp1) ? args.at(i) : ProString(rstr, NoHash).setSource(args.at(i)));
+        }
+        break;
+    case E_VAL_ESCAPE:
+        if (args.count() != 1) {
+            evalError(fL1S("val_escape(var) requires one argument."));
+        } else {
+            const ProStringList &vals = values(args.at(0));
+            ret.reserve(vals.size());
+            foreach (const ProString &str, vals)
+                ret += ProString(quoteValue(str), NoHash);
         }
         break;
     case E_UPPER:
