@@ -784,7 +784,6 @@ public slots:
     Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
     void runScheduled();
     void attachCore();
-    void attachToRemoteServer(const QString &spec);
 
     void enableReverseDebuggingTriggered(const QVariant &value);
     void languagesChanged();
@@ -1315,7 +1314,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
 {
     const QString &option = *it;
     // '-debug <pid>'
-    // '-debug <exe>[,server=<server:port>|,core=<core>][,arch=<arch>][,profile=<profile>]'
+    // '-debug <exe>[,server=<server:port>][,core=<core>][,profile=<profile>]'
     if (*it == _("-debug")) {
         ++it;
         if (it == cend) {
@@ -1353,8 +1352,6 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
                     sp.startMessage = tr("Attaching to remote server %1.").arg(sp.remoteChannel);
                 }
-                else if (key == QLatin1String("arch"))
-                    sp.remoteArchitecture = val;
                 else if (key == QLatin1String("core")) {
                     sp.startMode = AttachCore;
                     sp.closeMode = DetachAtClose;
@@ -1594,22 +1591,6 @@ void DebuggerPluginPrivate::attachCore()
     sp.startMode = AttachCore;
     sp.closeMode = DetachAtClose;
     sp.overrideStartScript = dlg.overrideStartScript();
-    if (DebuggerRunControl *rc = createDebugger(sp))
-        startDebugger(rc);
-}
-
-void DebuggerPluginPrivate::attachToRemoteServer(const QString &spec)
-{
-    // spec is: profile@server:port@executable@architecture
-    const QChar delim(QLatin1Char('@'));
-    DebuggerStartParameters sp;
-    fillParameters(&sp, Id(spec.section(delim, 0, 0)));
-    sp.remoteChannel = spec.section(delim, 1, 1);
-    sp.executable = spec.section(delim, 2, 2);
-    sp.remoteArchitecture = spec.section(delim, 3, 3);
-    sp.displayName = tr("Remote: \"%1\"").arg(sp.remoteChannel);
-    sp.startMode = AttachToRemoteServer;
-    sp.closeMode = KillAtClose;
     if (DebuggerRunControl *rc = createDebugger(sp))
         startDebugger(rc);
 }
@@ -2734,8 +2715,7 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
         str << "QML server: " << sp.qmlServerAddress << ':'
             << sp.qmlServerPort << '\n';
     if (!sp.remoteChannel.isEmpty()) {
-        str << "Remote: " << sp.remoteChannel << ", "
-            << sp.remoteArchitecture << '\n';
+        str << "Remote: " << sp.remoteChannel << '\n';
         if (!sp.remoteDumperLib.isEmpty())
             str << "Remote dumpers: " << sp.remoteDumperLib << '\n';
         if (!sp.remoteSourcesDir.isEmpty())

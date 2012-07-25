@@ -711,12 +711,11 @@ public:
     void toSettings(QSettings *) const;
     void fromSettings(const QSettings *settings);
 
+    Id profileId;
     QString localExecutable;
-    QString remoteArchitecture;
     QString overrideStartScript;
     bool useServerStartScript;
     QString serverStartScript;
-    Id profileId;
     QString debugInfoLocation;
 };
 
@@ -746,7 +745,6 @@ StartRemoteParameters::StartRemoteParameters() :
 bool StartRemoteParameters::equals(const StartRemoteParameters &rhs) const
 {
     return localExecutable == rhs.localExecutable
-            && remoteArchitecture == rhs.remoteArchitecture
             && overrideStartScript == rhs.overrideStartScript
             && useServerStartScript == rhs.useServerStartScript
             && serverStartScript == rhs.serverStartScript
@@ -763,7 +761,6 @@ QString StartRemoteParameters::displayName() const
 void StartRemoteParameters::toSettings(QSettings *settings) const
 {
     settings->setValue(_("LastLocalExecutable"), localExecutable);
-    settings->setValue(_("LastRemoteArchitecture"), remoteArchitecture);
     settings->setValue(_("LastServerStartScript"), serverStartScript);
     settings->setValue(_("LastUseServerStartScript"), useServerStartScript);
     settings->setValue(_("LastRemoteStartScript"), overrideStartScript);
@@ -780,7 +777,6 @@ void StartRemoteParameters::fromSettings(const QSettings *settings)
     } else {
         profileId = Id(profileIdString);
     }
-    remoteArchitecture = settings->value(_("LastRemoteArchitecture")).toString();
     serverStartScript = settings->value(_("LastServerStartScript")).toString();
     useServerStartScript = settings->value(_("LastUseServerStartScript")).toBool();
     overrideStartScript = settings->value(_("LastRemoteStartScript")).toString();
@@ -793,7 +789,6 @@ class StartRemoteDialogPrivate
 public:
     ProfileChooser *profileChooser;
     PathChooser *executablePathChooser;
-    QComboBox *architectureComboBox;
     PathChooser *debuginfoPathChooser;
     PathChooser *overrideStartScriptPathChooser;
     QCheckBox *useServerStartScriptCheckBox;
@@ -815,9 +810,6 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     d->executablePathChooser = new PathChooser(this);
     d->executablePathChooser->setExpectedKind(PathChooser::File);
     d->executablePathChooser->setPromptDialogTitle(tr("Select Executable"));
-
-    d->architectureComboBox = new QComboBox(this);
-    d->architectureComboBox->setEditable(true);
 
     d->debuginfoPathChooser = new PathChooser(this);
     d->debuginfoPathChooser->setPromptDialogTitle(tr("Select Location of Debugging Information"));
@@ -855,7 +847,6 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent, bool enableStartScript)
     formLayout->addRow(tr("Target:"), d->profileChooser);
     formLayout->addRow(tr("Local &executable:"), d->executablePathChooser);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    formLayout->addRow(tr("&Architecture:"), d->architectureComboBox);
     formLayout->addRow(tr("Location of debugging &information:"), d->debuginfoPathChooser);
     formLayout->addRow(tr("Override host GDB s&tart script:"), d->overrideStartScriptPathChooser);
     formLayout->addRow(d->serverStartScriptLabel, d->useServerStartScriptCheckBox);
@@ -890,19 +881,11 @@ bool StartRemoteDialog::run(QWidget *parent, QSettings *settings,
     const QString arrayName = useScript ?
         _("StartRemoteScript") : _("StartRemote");
 
-    QStringList arches;
-    arches << _("i386:x86-64:intel") << _("i386") << _("arm");
-
     QList<StartRemoteParameters> history =
         readParameterHistory<StartRemoteParameters>(settings, settingsGroup, arrayName);
     QTC_ASSERT(!history.isEmpty(), return false);
 
-    foreach (const StartRemoteParameters &h, history)
-        if (!arches.contains(h.remoteArchitecture))
-            arches.prepend(h.remoteArchitecture);
-
     StartRemoteDialog dialog(parent, useScript);
-    dialog.setRemoteArchitectures(arches);
     dialog.setHistory(history);
     dialog.setParameters(history.back());
     if (dialog.exec() != QDialog::Accepted)
@@ -917,7 +900,6 @@ bool StartRemoteDialog::run(QWidget *parent, QSettings *settings,
     }
 
     fillParameters(sp, dialog.profileId());
-    sp->remoteArchitecture = newParameters.remoteArchitecture;
     sp->executable = newParameters.localExecutable;
     sp->displayName = tr("Remote: \"%1\"").arg(sp->remoteChannel);
     sp->overrideStartScript = newParameters.overrideStartScript;
@@ -931,7 +913,6 @@ StartRemoteParameters StartRemoteDialog::parameters() const
 {
     StartRemoteParameters result;
     result.localExecutable = d->executablePathChooser->path();
-    result.remoteArchitecture = d->architectureComboBox->currentText();
     result.overrideStartScript = d->overrideStartScriptPathChooser->path();
     result.useServerStartScript = d->useServerStartScriptCheckBox->isChecked();
     result.serverStartScript = d->serverStartScriptPathChooser->path();
@@ -943,9 +924,6 @@ StartRemoteParameters StartRemoteDialog::parameters() const
 void StartRemoteDialog::setParameters(const StartRemoteParameters &p)
 {
     d->executablePathChooser->setPath(p.localExecutable);
-    const int index = d->architectureComboBox->findText(p.remoteArchitecture);
-    if (index != -1)
-        d->architectureComboBox->setCurrentIndex(index);
     d->overrideStartScriptPathChooser->setPath(p.overrideStartScript);
     d->useServerStartScriptCheckBox->setChecked(p.useServerStartScript);
     d->serverStartScriptPathChooser->setPath(p.serverStartScript);
@@ -972,15 +950,6 @@ void StartRemoteDialog::historyIndexChanged(int index)
 Id StartRemoteDialog::profileId() const
 {
     return d->profileChooser->currentProfileId();
-}
-
-void StartRemoteDialog::setRemoteArchitectures(const QStringList &list)
-{
-    d->architectureComboBox->clear();
-    if (!list.isEmpty()) {
-        d->architectureComboBox->insertItems(0, list);
-        d->architectureComboBox->setCurrentIndex(0);
-    }
 }
 
 void StartRemoteDialog::updateState()

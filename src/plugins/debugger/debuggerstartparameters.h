@@ -111,7 +111,6 @@ public:
     QString qtInstallPath;
     // Used by remote debugging.
     QString remoteChannel;
-    QString remoteArchitecture;
     QString gnuTarget;
     QString symbolFileName;
     bool useServerStartScript;

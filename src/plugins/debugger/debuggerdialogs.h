@@ -140,8 +140,6 @@ private:
     void setParameters(const StartRemoteParameters &);
     void setHistory(const QList<StartRemoteParameters> &);
 
-    void setRemoteArchitectures(const QStringList &list);
-
     Core::Id profileId() const;
 
     StartRemoteDialogPrivate *d;

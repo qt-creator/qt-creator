@@ -122,7 +122,6 @@ DebuggerStartParameters AbstractRemoteLinuxDebugSupport::startParameters(const R
         ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
         if (tc) {
             const Abi &abi = tc->targetAbi();
-            params.remoteArchitecture = abi.toString();
             params.gnuTarget = QLatin1String(abi.architecture() == Abi::ArmArchitecture
                                              ? "arm-none-linux-gnueabi": "i386-unknown-linux-gnu");
         }

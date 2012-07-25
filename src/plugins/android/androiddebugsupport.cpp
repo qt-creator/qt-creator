@@ -82,7 +82,6 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.dumperLibrary = runConfig->dumperLib();
         params.executable = project(runConfig)->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
         params.remoteChannel = runConfig->remoteChannel();
-        params.remoteArchitecture = QLatin1String("arm");
         params.useServerStartScript = true;
 
         params.solibSearchPath.clear();
