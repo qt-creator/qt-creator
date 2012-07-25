@@ -57,6 +57,7 @@ public:
     typedef QSharedPointer<const IDevice> ConstPtr;
 
     enum Origin { ManuallyAdded, AutoDetected };
+    enum MachineType { Hardware, Emulator };
 
     virtual ~IDevice();
 
@@ -108,9 +109,11 @@ public:
     Utils::PortList freePorts() const;
     void setFreePorts(const Utils::PortList &freePorts);
 
+    MachineType machineType() const;
+
 protected:
     IDevice();
-    IDevice(Core::Id type, Origin origin, Core::Id id = Core::Id());
+    IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id = Core::Id());
     IDevice(const IDevice &other);
 
     Ptr sharedFromThis();

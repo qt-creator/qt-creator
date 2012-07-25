@@ -71,7 +71,9 @@ IDevice::Ptr DesktopDevice::clone() const
     return Ptr(new DesktopDevice(*this));
 }
 
-DesktopDevice::DesktopDevice() : IDevice(Core::Id(Constants::DESKTOP_DEVICE_TYPE), IDevice::AutoDetected,
+DesktopDevice::DesktopDevice() : IDevice(Core::Id(Constants::DESKTOP_DEVICE_TYPE),
+                                         IDevice::AutoDetected,
+                                         IDevice::Hardware,
                                          Core::Id(Constants::DESKTOP_DEVICE_ID))
 {
     setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Run locally"));

@@ -37,7 +37,9 @@ namespace Android {
 namespace Internal {
 
 AndroidDevice::AndroidDevice():
-    ProjectExplorer::IDevice(Core::Id(Constants::ANDROID_DEVICE_TYPE), IDevice::AutoDetected,
+    ProjectExplorer::IDevice(Core::Id(Constants::ANDROID_DEVICE_TYPE),
+                             IDevice::AutoDetected,
+                             IDevice::Hardware,
                              Core::Id(Constants::ANDROID_DEVICE_ID))
 {
     setDisplayName(QCoreApplication::translate("ProjectExplorer::AndroidDevice", "Run on Android"));
