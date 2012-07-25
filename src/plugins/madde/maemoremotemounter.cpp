@@ -45,9 +45,10 @@
 
 #include <QTimer>
 
+using namespace ProjectExplorer;
+using namespace QSsh;
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
-using namespace QSsh;
 using namespace Utils;
 
 namespace Madde {
@@ -67,7 +68,7 @@ MaemoRemoteMounter::~MaemoRemoteMounter()
 }
 
 void MaemoRemoteMounter::setConnection(SshConnection *connection,
-    const LinuxDeviceConfiguration::ConstPtr &devConf)
+    const IDevice::ConstPtr &devConf)
 {
     QTC_ASSERT(m_state == Inactive, return);
 
