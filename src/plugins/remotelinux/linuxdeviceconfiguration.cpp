@@ -33,15 +33,16 @@
 #include "genericlinuxdeviceconfigurationwidget.h"
 #include "linuxdevicetestdialog.h"
 #include "publickeydeploymentdialog.h"
-#include "remotelinuxprocessesdialog.h"
-#include "remotelinuxprocesslist.h"
 #include "remotelinux_constants.h"
 
 #include <coreplugin/id.h>
-
-#include <utils/portlist.h>
+#include <projectexplorer/devicesupport/deviceprocesslist.h>
+#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <ssh/sshconnection.h>
+#include <utils/portlist.h>
 #include <utils/qtcassert.h>
+
+using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 
@@ -92,7 +93,7 @@ void LinuxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
     if (actionId == Core::Id(Constants::GenericTestDeviceActionId))
         d = new LinuxDeviceTestDialog(device, new GenericLinuxDeviceTester, parent);
     else if (actionId == Core::Id(Constants::GenericRemoteProcessesActionId))
-        d = new RemoteLinuxProcessesDialog(new GenericRemoteLinuxProcessList(device, parent));
+        d = new DeviceProcessesDialog(new GenericLinuxProcessList(device, parent));
     else if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
     if (d)

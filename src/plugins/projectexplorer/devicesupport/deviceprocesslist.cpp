@@ -27,41 +27,36 @@
 **
 **************************************************************************/
 
-#include "remotelinuxprocesslist.h"
+#include "deviceprocesslist.h"
 
 #include <utils/qtcassert.h>
 #include <ssh/sshremoteprocessrunner.h>
 
-using namespace ProjectExplorer;
 using namespace QSsh;
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
-namespace {
+
 enum State { Inactive, Listing, Killing };
 const char Delimiter0[] = "x--";
 const char Delimiter1[] = "---";
-} // anonymous namespace
 
 static QString visualizeNull(QString s)
 {
     return s.replace(QLatin1Char('\0'), QLatin1String("<null>"));
 }
 
-
-class AbstractRemoteLinuxProcessListPrivate
+class DeviceProcessListPrivate
 {
 public:
-    AbstractRemoteLinuxProcessListPrivate(const IDevice::ConstPtr &devConf)
+    DeviceProcessListPrivate(const IDevice::ConstPtr &devConf)
         : deviceConfiguration(devConf),
           state(Inactive)
-    {
-    }
-
+    { }
 
     const IDevice::ConstPtr deviceConfiguration;
     SshRemoteProcessRunner process;
-    QList<RemoteProcess> remoteProcesses;
+    QList<DeviceProcess> remoteProcesses;
     QString errorMsg;
     State state;
 };
@@ -70,18 +65,17 @@ public:
 
 using namespace Internal;
 
-AbstractRemoteLinuxProcessList::AbstractRemoteLinuxProcessList(const IDevice::ConstPtr &devConfig,
-        QObject *parent)
-    : QAbstractTableModel(parent), d(new AbstractRemoteLinuxProcessListPrivate(devConfig))
+DeviceProcessList::DeviceProcessList(const IDevice::ConstPtr &devConfig, QObject *parent)
+    : QAbstractTableModel(parent), d(new DeviceProcessListPrivate(devConfig))
 {
 }
 
-AbstractRemoteLinuxProcessList::~AbstractRemoteLinuxProcessList()
+DeviceProcessList::~DeviceProcessList()
 {
     delete d;
 }
 
-void AbstractRemoteLinuxProcessList::update()
+void DeviceProcessList::update()
 {
     QTC_ASSERT(d->state == Inactive, return);
 
@@ -94,7 +88,7 @@ void AbstractRemoteLinuxProcessList::update()
     startProcess(listProcessesCommandLine());
 }
 
-void AbstractRemoteLinuxProcessList::killProcess(int row)
+void DeviceProcessList::killProcess(int row)
 {
     QTC_ASSERT(row >= 0 && row < d->remoteProcesses.count(), return);
     QTC_ASSERT(d->state == Inactive, return);
@@ -103,19 +97,19 @@ void AbstractRemoteLinuxProcessList::killProcess(int row)
     startProcess(killProcessCommandLine(d->remoteProcesses.at(row)));
 }
 
-RemoteProcess AbstractRemoteLinuxProcessList::at(int row) const
+DeviceProcess DeviceProcessList::at(int row) const
 {
     return d->remoteProcesses.at(row);
 }
 
-int AbstractRemoteLinuxProcessList::rowCount(const QModelIndex &parent) const
+int DeviceProcessList::rowCount(const QModelIndex &parent) const
 {
     return parent.isValid() ? 0 : d->remoteProcesses.count();
 }
 
-int AbstractRemoteLinuxProcessList::columnCount(const QModelIndex &) const { return 2; }
+int DeviceProcessList::columnCount(const QModelIndex &) const { return 2; }
 
-QVariant AbstractRemoteLinuxProcessList::headerData(int section, Qt::Orientation orientation,
+QVariant DeviceProcessList::headerData(int section, Qt::Orientation orientation,
     int role) const
 {
     if (orientation != Qt::Horizontal || role != Qt::DisplayRole || section < 0
@@ -124,14 +118,14 @@ QVariant AbstractRemoteLinuxProcessList::headerData(int section, Qt::Orientation
     return section == 0? tr("PID") : tr("Command Line");
 }
 
-QVariant AbstractRemoteLinuxProcessList::data(const QModelIndex &index, int role) const
+QVariant DeviceProcessList::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= rowCount(index.parent())
             || index.column() >= columnCount())
         return QVariant();
 
     if (role == Qt::DisplayRole || role == Qt::ToolTipRole) {
-        const RemoteProcess &proc = d->remoteProcesses.at(index.row());
+        const DeviceProcess &proc = d->remoteProcesses.at(index.row());
         if (index.column() == 0)
             return proc.pid;
         else
@@ -140,7 +134,7 @@ QVariant AbstractRemoteLinuxProcessList::data(const QModelIndex &index, int role
     return QVariant();
 }
 
-void AbstractRemoteLinuxProcessList::handleConnectionError()
+void DeviceProcessList::handleConnectionError()
 {
     QTC_ASSERT(d->state != Inactive, return);
 
@@ -151,7 +145,7 @@ void AbstractRemoteLinuxProcessList::handleConnectionError()
     setFinished();
 }
 
-void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
+void DeviceProcessList::handleRemoteProcessFinished(int exitStatus)
 {
     QTC_ASSERT(d->state != Inactive, return);
 
@@ -169,7 +163,7 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
             if (d->state == Listing) {
                 beginResetModel();
                 const QByteArray remoteStdout = d->process.readAllStandardOutput();
-                QList<RemoteProcess> processes = buildProcessList(QString::fromUtf8(remoteStdout.data(),
+                QList<DeviceProcess> processes = buildProcessList(QString::fromUtf8(remoteStdout.data(),
                     remoteStdout.count()));
                 if (!processes.isEmpty()) {
                     beginInsertRows(QModelIndex(), 0, processes.count()-1);
@@ -200,7 +194,7 @@ void AbstractRemoteLinuxProcessList::handleRemoteProcessFinished(int exitStatus)
     setFinished();
 }
 
-void AbstractRemoteLinuxProcessList::startProcess(const QString &cmdLine)
+void DeviceProcessList::startProcess(const QString &cmdLine)
 {
     connect(&d->process, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(&d->process, SIGNAL(processClosed(int)),
@@ -209,20 +203,20 @@ void AbstractRemoteLinuxProcessList::startProcess(const QString &cmdLine)
     d->process.run(cmdLine.toUtf8(), d->deviceConfiguration->sshParameters());
 }
 
-void AbstractRemoteLinuxProcessList::setFinished()
+void DeviceProcessList::setFinished()
 {
     disconnect(&d->process, 0, this, 0);
     d->state = Inactive;
 }
 
 
-GenericRemoteLinuxProcessList::GenericRemoteLinuxProcessList(const IDevice::ConstPtr &devConfig,
+GenericLinuxProcessList::GenericLinuxProcessList(const IDevice::ConstPtr &devConfig,
         QObject *parent)
-    : AbstractRemoteLinuxProcessList(devConfig, parent)
+    : DeviceProcessList(devConfig, parent)
 {
 }
 
-QString GenericRemoteLinuxProcessList::listProcessesCommandLine() const
+QString GenericLinuxProcessList::listProcessesCommandLine() const
 {
     return QString::fromLatin1(
         "for dir in `ls -d /proc/[0123456789]*`; do "
@@ -235,14 +229,14 @@ QString GenericRemoteLinuxProcessList::listProcessesCommandLine() const
         "done").arg(Delimiter0).arg(Delimiter1);
 }
 
-QString GenericRemoteLinuxProcessList::killProcessCommandLine(const RemoteProcess &process) const
+QString GenericLinuxProcessList::killProcessCommandLine(const DeviceProcess &process) const
 {
     return QLatin1String("kill -9 ") + QString::number(process.pid);
 }
 
-QList<RemoteProcess> GenericRemoteLinuxProcessList::buildProcessList(const QString &listProcessesReply) const
+QList<DeviceProcess> GenericLinuxProcessList::buildProcessList(const QString &listProcessesReply) const
 {
-    QList<RemoteProcess> processes;
+    QList<DeviceProcess> processes;
     const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)
             + QString::fromLatin1(Delimiter1), QString::SkipEmptyParts);
     foreach (const QString &line, lines) {
@@ -272,7 +266,7 @@ QList<RemoteProcess> GenericRemoteLinuxProcessList::buildProcessList(const QStri
                 + QLatin1Char(']');
         }
 
-        RemoteProcess process;
+        DeviceProcess process;
         process.pid = pid;
         process.cmdLine = command;
         process.exe = elements.at(3);
@@ -283,7 +277,7 @@ QList<RemoteProcess> GenericRemoteLinuxProcessList::buildProcessList(const QStri
     return processes;
 }
 
-bool RemoteProcess::operator <(const RemoteProcess &other) const
+bool DeviceProcess::operator <(const DeviceProcess &other) const
 {
     if (pid != other.pid)
         return pid < other.pid;
@@ -292,4 +286,4 @@ bool RemoteProcess::operator <(const RemoteProcess &other) const
     return cmdLine < other.cmdLine;
 }
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

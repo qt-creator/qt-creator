@@ -30,13 +30,13 @@
 
 #include "startgdbserverdialog.h"
 
-#include "remotelinuxprocesslist.h"
 #include "remotelinuxusedportsgatherer.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/profilechooser.h>
 #include <projectexplorer/profileinformation.h>
+#include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -91,7 +91,7 @@ public:
 
     StartGdbServerDialog *q;
     bool startServerOnly;
-    AbstractRemoteLinuxProcessList *processList;
+    DeviceProcessList *processList;
     QSortFilterProxyModel proxyModel;
 
     QLineEdit *processFilterLineEdit;
@@ -206,7 +206,7 @@ void StartGdbServerDialog::attachToDevice()
     if (!device)
         return;
     delete d->processList;
-    d->processList = new GenericRemoteLinuxProcessList(device);
+    d->processList = new GenericLinuxProcessList(device);
     d->proxyModel.setSourceModel(d->processList);
     connect(d->processList, SIGNAL(error(QString)),
         SLOT(handleRemoteError(QString)));
@@ -253,7 +253,7 @@ void StartGdbServerDialog::attachToProcess()
     const int port = d->gatherer.getNextFreePort(&ports);
     const int row = d->proxyModel.mapToSource(indexes.first()).row();
     QTC_ASSERT(row >= 0, return);
-    RemoteProcess process = d->processList->at(row);
+    DeviceProcess process = d->processList->at(row);
     d->remoteCommandLine = process.cmdLine;
     d->remoteExecutable = process.exe;
     if (port == -1) {

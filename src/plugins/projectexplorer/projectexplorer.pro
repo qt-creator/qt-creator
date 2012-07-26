@@ -121,6 +121,8 @@ HEADERS += projectexplorer.h \
     devicesupport/devicemanager.h \
     devicesupport/devicemanagermodel.h \
     devicesupport/devicefactoryselectiondialog.h \
+    devicesupport/deviceprocesslist.h \
+    devicesupport/deviceprocessesdialog.h \
     devicesupport/devicesettingswidget.h \
     devicesupport/devicesettingspage.h
 
@@ -220,6 +222,8 @@ SOURCES += projectexplorer.cpp \
     devicesupport/devicemanager.cpp \
     devicesupport/devicemanagermodel.cpp \
     devicesupport/devicefactoryselectiondialog.cpp \
+    devicesupport/deviceprocesslist.cpp \
+    devicesupport/deviceprocessesdialog.cpp \
     devicesupport/devicesettingswidget.cpp \
     devicesupport/devicesettingspage.cpp
 
@@ -233,6 +237,7 @@ FORMS += processstep.ui \
     publishing/publishingwizardselectiondialog.ui \
     codestylesettingspropertiespage.ui \
     devicesupport/devicefactoryselectiondialog.ui \
+    devicesupport/deviceprocessesdialog.ui \
     devicesupport/devicesettingswidget.ui
 
 WINSOURCES += \
