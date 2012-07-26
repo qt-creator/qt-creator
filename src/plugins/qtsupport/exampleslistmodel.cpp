@@ -326,7 +326,7 @@ QStringList ExamplesListModel::exampleSources(QString *examplesFallback, QString
         return sources;
 
     // try to find a suitable Qt version
-    m_updateOnQtVersionsChanged = true; // this must be updated when the qt versions change
+    m_updateOnQtVersionsChanged = true; // this must be updated when the Qt versions change
     // fallbacks are passed back if no example manifest is found
     // and we fallback to Qt Creator's shipped manifest (e.g. only old Qt Versions found)
     QString potentialExamplesFallback;

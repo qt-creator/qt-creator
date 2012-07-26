@@ -925,7 +925,7 @@ void HelpPlugin::activateContext()
             QUrl source = *links.begin();
             const QLatin1String qtRefDoc = QLatin1String("com.trolltech.qt");
 
-            // workaround to show the latest qt version
+            // workaround to show the latest Qt version
             foreach (const QUrl &tmp, links) {
                 const QString &authority = tmp.authority();
                 if (authority.startsWith(qtRefDoc)) {

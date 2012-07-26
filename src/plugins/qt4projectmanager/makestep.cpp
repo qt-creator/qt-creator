@@ -153,7 +153,7 @@ bool MakeStep::init()
 
     ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
     if (!tc) {
-        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a tool chain set up to build. Configure a tool chain the profile options."),
+        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a tool chain set up to build. Configure a tool chain the target options."),
                                              Utils::FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return false;
@@ -418,7 +418,7 @@ void MakeStepConfigWidget::updateDetails()
         m_ui->makeLabel->setText(tr("Make:"));
 
     if (!tc) {
-        setSummaryText(tr("<b>Make:</b> No tool chain set in profile."));
+        setSummaryText(tr("<b>Make:</b> No tool chain set in target."));
         return;
     }
     Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();

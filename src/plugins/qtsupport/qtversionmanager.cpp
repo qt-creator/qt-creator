@@ -141,7 +141,7 @@ void QtVersionManager::extensionsInitialized()
     if (!success) {
         // We did neither restore our settings or upgraded
         // in that case figure out if there's a qt in path
-        // and add it to the qt versions
+        // and add it to the Qt versions
         findSystemQt();
     }
 
@@ -288,7 +288,7 @@ void QtVersionManager::updateFromInstaller()
                 qDebug("Warning: Unable to find factory for type '%s'", qPrintable(type));
             continue;
         }
-        // First try to find a existing qt version to update
+        // First try to find a existing Qt version to update
         bool restored = false;
         foreach (BaseQtVersion *v, m_versions) {
             if (v->autodetectionSource() == autoDetectionSource) {

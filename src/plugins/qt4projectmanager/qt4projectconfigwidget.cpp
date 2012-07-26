@@ -111,7 +111,7 @@ Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
 void Qt4ProjectConfigWidget::updateDetails()
 {
     m_detailsContainer->setSummaryText(
-                tr("building in <b>%3</b>")
+                tr("building in <b>%1</b>")
                 .arg(QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
 }
 
@@ -245,7 +245,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
 
     QString shadowBuildWarning;
     if (!version->supportsShadowBuilds() && m_buildConfiguration->shadowBuild()) {
-        shadowBuildWarning =tr("The qt version %1 does not support shadow builds, building might fail.")
+        shadowBuildWarning =tr("The Qt version %1 does not support shadow builds, building might fail.")
                 .arg(version->displayName())
                 + QLatin1String("<br>");
     }

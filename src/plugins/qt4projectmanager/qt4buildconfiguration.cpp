@@ -151,7 +151,7 @@ void Qt4BuildConfiguration::profileChanged()
 
 void Qt4BuildConfiguration::emitBuildDirectoryChanged()
 {
-    // We also emit buildDirectoryChanged if the the qt version's supportShadowBuild changed
+    // We also emit buildDirectoryChanged if the the Qt version's supportShadowBuild changed
     if (buildDirectory() != m_lastEmmitedBuildDirectory
             || supportsShadowBuilds() != m_qtVersionSupportsShadowBuilds) {
         m_lastEmmitedBuildDirectory = buildDirectory();
@@ -442,7 +442,7 @@ Qt4BuildConfiguration::MakefileState Qt4BuildConfiguration::compareToImportFrom(
             }
         } else {
             if (debug)
-                qDebug()<<"diffrent qt versions, buildconfiguration:"<<version->qmakeCommand().toString()<<" Makefile:"<<qmakePath.toString();
+                qDebug() << "different Qt versions, buildconfiguration:" << version->qmakeCommand().toString() << " Makefile:"<< qmakePath.toString();
             return MakefileForWrongProject;
         }
     }

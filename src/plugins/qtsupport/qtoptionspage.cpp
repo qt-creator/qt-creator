@@ -700,7 +700,7 @@ void QtOptionsPageWidget::editPath()
     if (current->type() != version->type()) {
         // not the same type, error out
         QMessageBox::critical(this, tr("Qt versions incompatible"),
-                              tr("The qt version selected must be for the same target."),
+                              tr("The Qt version selected must be for the same target."),
                               QMessageBox::Ok);
         delete version;
         return;
@@ -911,7 +911,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
     }
 }
 
-// To be called if a qt version was removed or added
+// To be called if a Qt version was removed or added
 void QtOptionsPageWidget::updateCleanUpButton()
 {
     bool hasInvalidVersion = false;
@@ -1057,7 +1057,7 @@ void QtOptionsPageWidget::apply()
             this, SLOT(updateQtVersions(QList<int>,QList<int>,QList<int>)));
 }
 
-/* Checks that the qt version name is unique
+/* Checks that the Qt version name is unique
  * and otherwise changes the name
  *
  */
@@ -1115,7 +1115,7 @@ QString QtOptionsPageWidget::searchKeywords() const
 
     // Symbian specific, could be factored out to the factory
     // checking m_configurationWidget is not enough, we want them to be a keyword
-    // regardless of which qt versions configuration widget is currently active
+    // regardless of which Qt versions configuration widget is currently active
     ts << sep << tr("S60 SDK:")
        << sep << tr("SBS v2 directory:");
 
