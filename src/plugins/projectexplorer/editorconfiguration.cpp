@@ -239,7 +239,8 @@ void EditorConfiguration::fromMap(const QVariantMap &map)
 void EditorConfiguration::configureEditor(ITextEditor *textEditor) const
 {
     BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(textEditor->widget());
-    baseTextEditor->setCodeStyle(codeStyle(baseTextEditor->languageSettingsId()));
+    if (baseTextEditor)
+        baseTextEditor->setCodeStyle(codeStyle(baseTextEditor->languageSettingsId()));
     if (!d->m_useGlobal) {
         textEditor->setTextCodec(d->m_textCodec, ITextEditor::TextCodecFromProjectSetting);
         if (baseTextEditor)
