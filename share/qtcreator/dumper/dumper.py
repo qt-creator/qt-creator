@@ -117,7 +117,7 @@ def dynamicTypeName(value):
             pass
     return str(value.type)
 
-def upcast(value):
+def downcast(value):
     try:
         return value.cast(value.dynamic_type)
     except:
@@ -128,7 +128,7 @@ def upcast(value):
     #    pass
     return value
 
-def expensiveUpcast(value):
+def expensiveDowncast(value):
     try:
         return value.cast(value.dynamic_type)
     except:
@@ -1054,7 +1054,7 @@ class Dumper:
                 pass
 
         for item in locals:
-            value = upcast(item.value)
+            value = downcast(item.value)
             with OutputSafer(self):
                 self.anonNumber = -1
 
@@ -1639,7 +1639,7 @@ class Dumper:
 
 
         if self.useDynamicType and tryDynamic:
-            self.putItem(expensiveUpcast(value), False)
+            self.putItem(expensiveDowncast(value), False)
             return
 
         format = self.formats.get(self.currentIName)
@@ -1669,7 +1669,7 @@ class Dumper:
             dumper = qqDumpers.get(nsStrippedType, None)
             if not dumper is None:
                 if tryDynamic:
-                    dumper(self, expensiveUpcast(value))
+                    dumper(self, expensiveDowncast(value))
                 else:
                     dumper(self, value)
                 return
@@ -1789,7 +1789,7 @@ class Dumper:
                         #if not bitsize is None:
                         #    self.put("bitsize=\"%s\",bitpos=\"%s\","
                         #            % (bitsize, bitpos))
-                        self.putItem(upcast(value[field.name]))
+                        self.putItem(downcast(value[field.name]))
 
 
     def listAnonymous(self, value, name, type):
