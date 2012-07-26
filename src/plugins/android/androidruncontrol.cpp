@@ -67,8 +67,8 @@ void AndroidRunControl::start()
         SLOT(handleRemoteErrorOutput(QByteArray)));
     connect(m_runner, SIGNAL(remoteOutput(QByteArray)),
         SLOT(handleRemoteOutput(QByteArray)));
-    connect(m_runner, SIGNAL(remoteProcessFinished(const QString &)),
-        SLOT(handleRemoteProcessFinished(const QString &)));
+    connect(m_runner, SIGNAL(remoteProcessFinished(QString)),
+        SLOT(handleRemoteProcessFinished(QString)));
     appendMessage(tr("Starting remote process ..."), Utils::NormalMessageFormat);
     m_runner->start();
 }
