@@ -41,17 +41,19 @@ namespace Internal {
 class AndroidDevice : public ProjectExplorer::IDevice
 {
 public:
-
     ProjectExplorer::IDevice::DeviceInfo deviceInformation() const;
 
-    virtual QString displayType() const;
-    virtual ProjectExplorer::IDeviceWidget *createWidget();
-    virtual QList<Core::Id> actionIds() const;
-    virtual QString displayNameForActionId(Core::Id actionId) const;
-    virtual void executeAction(Core::Id actionId, QWidget *parent = 0) const;
+    QString displayType() const;
+    ProjectExplorer::IDeviceWidget *createWidget();
+    QList<Core::Id> actionIds() const;
+    QString displayNameForActionId(Core::Id actionId) const;
+    void executeAction(Core::Id actionId, QWidget *parent = 0) const;
 
-    virtual ProjectExplorer::IDevice::Ptr clone() const;
+    ProjectExplorer::IDevice::Ptr clone() const;
 
+    QString listProcessesCommandLine() const;
+    QString killProcessCommandLine(const ProjectExplorer::DeviceProcess &process) const;
+    QList<ProjectExplorer::DeviceProcess> buildProcessList(const QString &listProcessesReply) const;
 
 protected:
     friend class AndroidDeviceFactory;

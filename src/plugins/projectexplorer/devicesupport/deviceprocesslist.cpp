@@ -38,23 +38,16 @@ namespace ProjectExplorer {
 namespace Internal {
 
 enum State { Inactive, Listing, Killing };
-const char Delimiter0[] = "x--";
-const char Delimiter1[] = "---";
-
-static QString visualizeNull(QString s)
-{
-    return s.replace(QLatin1Char('\0'), QLatin1String("<null>"));
-}
 
 class DeviceProcessListPrivate
 {
 public:
     DeviceProcessListPrivate(const IDevice::ConstPtr &devConf)
-        : deviceConfiguration(devConf),
+        : device(devConf),
           state(Inactive)
     { }
 
-    const IDevice::ConstPtr deviceConfiguration;
+    const IDevice::ConstPtr device;
     SshRemoteProcessRunner process;
     QList<DeviceProcess> remoteProcesses;
     QString errorMsg;
@@ -85,7 +78,7 @@ void DeviceProcessList::update()
         endRemoveRows();
     }
     d->state = Listing;
-    startProcess(listProcessesCommandLine());
+    startProcess(d->device->listProcessesCommandLine());
 }
 
 void DeviceProcessList::killProcess(int row)
@@ -94,12 +87,17 @@ void DeviceProcessList::killProcess(int row)
     QTC_ASSERT(d->state == Inactive, return);
 
     d->state = Killing;
-    startProcess(killProcessCommandLine(d->remoteProcesses.at(row)));
+    startProcess(d->device->killProcessCommandLine(d->remoteProcesses.at(row)));
 }
 
 DeviceProcess DeviceProcessList::at(int row) const
 {
     return d->remoteProcesses.at(row);
+}
+
+IDevice::ConstPtr DeviceProcessList::device() const
+{
+    return d->device;
 }
 
 int DeviceProcessList::rowCount(const QModelIndex &parent) const
@@ -163,7 +161,7 @@ void DeviceProcessList::handleRemoteProcessFinished(int exitStatus)
             if (d->state == Listing) {
                 beginResetModel();
                 const QByteArray remoteStdout = d->process.readAllStandardOutput();
-                QList<DeviceProcess> processes = buildProcessList(QString::fromUtf8(remoteStdout.data(),
+                QList<DeviceProcess> processes = d->device->buildProcessList(QString::fromUtf8(remoteStdout.data(),
                     remoteStdout.count()));
                 if (!processes.isEmpty()) {
                     beginInsertRows(QModelIndex(), 0, processes.count()-1);
@@ -200,7 +198,7 @@ void DeviceProcessList::startProcess(const QString &cmdLine)
     connect(&d->process, SIGNAL(processClosed(int)),
         SLOT(handleRemoteProcessFinished(int)));
     d->errorMsg.clear();
-    d->process.run(cmdLine.toUtf8(), d->deviceConfiguration->sshParameters());
+    d->process.run(cmdLine.toUtf8(), d->device->sshParameters());
 }
 
 void DeviceProcessList::setFinished()
@@ -209,73 +207,6 @@ void DeviceProcessList::setFinished()
     d->state = Inactive;
 }
 
-
-GenericLinuxProcessList::GenericLinuxProcessList(const IDevice::ConstPtr &devConfig,
-        QObject *parent)
-    : DeviceProcessList(devConfig, parent)
-{
-}
-
-QString GenericLinuxProcessList::listProcessesCommandLine() const
-{
-    return QString::fromLatin1(
-        "for dir in `ls -d /proc/[0123456789]*`; do "
-            "test -d $dir || continue;" // Decrease the likelihood of a race condition.
-            "echo $dir;"
-            "cat $dir/cmdline;echo;" // cmdline does not end in newline
-            "cat $dir/stat;"
-            "readlink $dir/exe;"
-            "printf '%1''%2';"
-        "done").arg(Delimiter0).arg(Delimiter1);
-}
-
-QString GenericLinuxProcessList::killProcessCommandLine(const DeviceProcess &process) const
-{
-    return QLatin1String("kill -9 ") + QString::number(process.pid);
-}
-
-QList<DeviceProcess> GenericLinuxProcessList::buildProcessList(const QString &listProcessesReply) const
-{
-    QList<DeviceProcess> processes;
-    const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)
-            + QString::fromLatin1(Delimiter1), QString::SkipEmptyParts);
-    foreach (const QString &line, lines) {
-        const QStringList elements = line.split(QLatin1Char('\n'));
-        if (elements.count() < 4) {
-            qDebug("%s: Expected four list elements, got %d. Line was '%s'.", Q_FUNC_INFO,
-                    elements.count(), qPrintable(visualizeNull(line)));
-            continue;
-        }
-        bool ok;
-        const int pid = elements.first().mid(6).toInt(&ok);
-        if (!ok) {
-            qDebug("%s: Expected number in %s. Line was '%s'.", Q_FUNC_INFO,
-                   qPrintable(elements.first()), qPrintable(visualizeNull(line)));
-            continue;
-        }
-        QString command = elements.at(1);
-        command.replace(QLatin1Char('\0'), QLatin1Char(' '));
-        if (command.isEmpty()) {
-            const QString &statString = elements.at(2);
-            const int openParenPos = statString.indexOf(QLatin1Char('('));
-            const int closedParenPos = statString.indexOf(QLatin1Char(')'), openParenPos);
-            if (openParenPos == -1 || closedParenPos == -1)
-                continue;
-            command = QLatin1Char('[')
-                + statString.mid(openParenPos + 1, closedParenPos - openParenPos - 1)
-                + QLatin1Char(']');
-        }
-
-        DeviceProcess process;
-        process.pid = pid;
-        process.cmdLine = command;
-        process.exe = elements.at(3);
-        processes.append(process);
-    }
-
-    qSort(processes);
-    return processes;
-}
 
 bool DeviceProcess::operator <(const DeviceProcess &other) const
 {

@@ -38,39 +38,25 @@
 
 namespace ProjectExplorer {
 
-namespace Internal {
-class DeviceProcessListPrivate;
-}
-
-class PROJECTEXPLORER_EXPORT DeviceProcess
-{
-public:
-    DeviceProcess() : pid(0) {}
-    bool operator<(const DeviceProcess &other) const;
-
-    int pid;
-    QString cmdLine;
-    QString exe;
-};
+namespace Internal { class DeviceProcessListPrivate; }
 
 class PROJECTEXPLORER_EXPORT DeviceProcessList : public QAbstractTableModel
 {
     Q_OBJECT
-    friend class Internal::DeviceProcessListPrivate;
+
 public:
+    DeviceProcessList(const IDevice::ConstPtr &devConfig, QObject *parent = 0);
     ~DeviceProcessList();
 
     void update();
     void killProcess(int row);
     DeviceProcess at(int row) const;
+    IDevice::ConstPtr device() const;
 
 signals:
     void processListUpdated();
     void error(const QString &errorMsg);
     void processKilled();
-
-protected:
-    DeviceProcessList(const IDevice::ConstPtr &devConfig, QObject *parent = 0);
 
 private slots:
     void handleConnectionError();
@@ -83,29 +69,10 @@ private:
         int role = Qt::DisplayRole) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    virtual QString listProcessesCommandLine() const = 0;
-    virtual QString killProcessCommandLine(const DeviceProcess &process) const = 0;
-    virtual QList<DeviceProcess> buildProcessList(const QString &listProcessesReply) const = 0;
-
     void startProcess(const QString &cmdLine);
     void setFinished();
 
     Internal::DeviceProcessListPrivate * const d;
-};
-
-
-class PROJECTEXPLORER_EXPORT GenericLinuxProcessList : public DeviceProcessList
-{
-    Q_OBJECT
-
-public:
-    GenericLinuxProcessList(const IDevice::ConstPtr &devConfig,
-        QObject *parent = 0);
-
-protected:
-    QString listProcessesCommandLine() const;
-    QString killProcessCommandLine(const DeviceProcess &process) const;
-    QList<DeviceProcess> buildProcessList(const QString &listProcessesReply) const;
 };
 
 } // namespace ProjectExplorer

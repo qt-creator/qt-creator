@@ -62,6 +62,10 @@ public:
     void executeAction(Core::Id actionId, QWidget *parent) const;
     ProjectExplorer::IDevice::Ptr clone() const;
 
+    QString listProcessesCommandLine() const;
+    QString killProcessCommandLine(const ProjectExplorer::DeviceProcess &process) const;
+    QList<ProjectExplorer::DeviceProcess> buildProcessList(const QString &listProcessesReply) const;
+
 protected:
     LinuxDeviceConfiguration() {}
     LinuxDeviceConfiguration(const QString &name, Core::Id type,

@@ -46,6 +46,14 @@ using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 
+const char Delimiter0[] = "x--";
+const char Delimiter1[] = "---";
+
+static QString visualizeNull(QString s)
+{
+    return s.replace(QLatin1Char('\0'), QLatin1String("<null>"));
+}
+
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &name,
        Core::Id type, MachineType machineType, Origin origin, Core::Id id)
 {
@@ -59,8 +67,7 @@ QString LinuxDeviceConfiguration::displayType() const
 
 ProjectExplorer::IDeviceWidget *LinuxDeviceConfiguration::createWidget()
 {
-    return new GenericLinuxDeviceConfigurationWidget(sharedFromThis()
-            .staticCast<LinuxDeviceConfiguration>());
+    return new GenericLinuxDeviceConfigurationWidget(sharedFromThis());
 }
 
 QList<Core::Id> LinuxDeviceConfiguration::actionIds() const
@@ -93,7 +100,7 @@ void LinuxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
     if (actionId == Core::Id(Constants::GenericTestDeviceActionId))
         d = new LinuxDeviceTestDialog(device, new GenericLinuxDeviceTester, parent);
     else if (actionId == Core::Id(Constants::GenericRemoteProcessesActionId))
-        d = new DeviceProcessesDialog(new GenericLinuxProcessList(device, parent));
+        d = new DeviceProcessesDialog(new DeviceProcessList(device, parent));
     else if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
     if (d)
@@ -120,6 +127,67 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create()
 ProjectExplorer::IDevice::Ptr LinuxDeviceConfiguration::clone() const
 {
     return Ptr(new LinuxDeviceConfiguration(*this));
+}
+
+QString LinuxDeviceConfiguration::listProcessesCommandLine() const
+{
+    return QString::fromLatin1(
+        "for dir in `ls -d /proc/[0123456789]*`; do "
+            "test -d $dir || continue;" // Decrease the likelihood of a race condition.
+            "echo $dir;"
+            "cat $dir/cmdline;echo;" // cmdline does not end in newline
+            "cat $dir/stat;"
+            "readlink $dir/exe;"
+            "printf '%1''%2';"
+        "done").arg(Delimiter0).arg(Delimiter1);
+}
+
+QString LinuxDeviceConfiguration::killProcessCommandLine(const DeviceProcess &process) const
+{
+    return QLatin1String("kill -9 ") + QString::number(process.pid);
+}
+
+QList<DeviceProcess> LinuxDeviceConfiguration::buildProcessList(const QString &listProcessesReply) const
+{
+    QList<DeviceProcess> processes;
+    const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)
+            + QString::fromLatin1(Delimiter1), QString::SkipEmptyParts);
+    foreach (const QString &line, lines) {
+        const QStringList elements = line.split(QLatin1Char('\n'));
+        if (elements.count() < 4) {
+            qDebug("%s: Expected four list elements, got %d. Line was '%s'.", Q_FUNC_INFO,
+                    elements.count(), qPrintable(visualizeNull(line)));
+            continue;
+        }
+        bool ok;
+        const int pid = elements.first().mid(6).toInt(&ok);
+        if (!ok) {
+            qDebug("%s: Expected number in %s. Line was '%s'.", Q_FUNC_INFO,
+                   qPrintable(elements.first()), qPrintable(visualizeNull(line)));
+            continue;
+        }
+        QString command = elements.at(1);
+        command.replace(QLatin1Char('\0'), QLatin1Char(' '));
+        if (command.isEmpty()) {
+            const QString &statString = elements.at(2);
+            const int openParenPos = statString.indexOf(QLatin1Char('('));
+            const int closedParenPos = statString.indexOf(QLatin1Char(')'), openParenPos);
+            if (openParenPos == -1 || closedParenPos == -1)
+                continue;
+            command = QLatin1Char('[')
+                + statString.mid(openParenPos + 1, closedParenPos - openParenPos - 1)
+                + QLatin1Char(']');
+        }
+
+        DeviceProcess process;
+        process.pid = pid;
+        process.cmdLine = command;
+        process.exe = elements.at(3);
+        processes.append(process);
+    }
+
+    qSort(processes);
+    return processes;
 }
 
 } // namespace RemoteLinux

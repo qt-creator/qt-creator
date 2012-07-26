@@ -111,7 +111,7 @@ void MaddeDevice::executeAction(Core::Id actionId, QWidget *parent) const
     if (actionId == Core::Id(MaddeDeviceTestActionId))
         d = new LinuxDeviceTestDialog(device, new MaddeDeviceTester, parent);
     else if (actionId == Core::Id(MaddeRemoteProcessesActionId))
-        d = new DeviceProcessesDialog(new GenericLinuxProcessList(device), parent);
+        d = new DeviceProcessesDialog(new DeviceProcessList(device), parent);
     else if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
     // FIXME: Leak?

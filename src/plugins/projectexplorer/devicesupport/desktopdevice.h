@@ -54,6 +54,10 @@ public:
 
     IDevice::Ptr clone() const;
 
+    QString listProcessesCommandLine() const;
+    QString killProcessCommandLine(const DeviceProcess &process) const;
+    QList<DeviceProcess> buildProcessList(const QString &listProcessesReply) const;
+
 protected:
     DesktopDevice();
     DesktopDevice(const DesktopDevice &other);

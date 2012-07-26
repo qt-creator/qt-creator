@@ -46,8 +46,21 @@ namespace QSsh { class SshConnectionParameters; }
 namespace Utils { class PortList; }
 
 namespace ProjectExplorer {
+
 namespace Internal { class IDevicePrivate; }
+
 class IDeviceWidget;
+
+class PROJECTEXPLORER_EXPORT DeviceProcess
+{
+public:
+    DeviceProcess() : pid(0) {}
+    bool operator<(const DeviceProcess &other) const;
+
+    int pid;
+    QString cmdLine;
+    QString exe;
+};
 
 // See cpp file for documentation.
 class PROJECTEXPLORER_EXPORT IDevice
@@ -85,6 +98,10 @@ public:
     virtual QList<Core::Id> actionIds() const = 0;
     virtual QString displayNameForActionId(Core::Id actionId) const = 0;
     virtual void executeAction(Core::Id actionId, QWidget *parent = 0) const = 0;
+
+    virtual QString listProcessesCommandLine() const = 0;
+    virtual QString killProcessCommandLine(const DeviceProcess &process) const = 0;
+    virtual QList<DeviceProcess> buildProcessList(const QString &listProcessesReply) const = 0;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;
