@@ -78,7 +78,7 @@ void MaemoRemoteMounter::setProfile(const Profile *profile)
 
     Core::Id typeId = DeviceTypeProfileInformation::deviceTypeId(profile);
     m_remoteMountsAllowed = MaddeDevice::allowsRemoteMounts(typeId);
-    m_maddeRoot = SysRootProfileInformation::sysRoot(profile);
+    m_maddeRoot = SysRootProfileInformation::sysRoot(profile).parentDir().parentDir();
 }
 
 void MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
