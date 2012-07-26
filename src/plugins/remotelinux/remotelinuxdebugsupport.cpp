@@ -31,13 +31,13 @@
 
 #include "remotelinuxapplicationrunner.h"
 #include "remotelinuxrunconfiguration.h"
-#include "remotelinuxusedportsgatherer.h"
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerprofileinformation.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/profile.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>

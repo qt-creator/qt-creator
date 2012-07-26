@@ -26,26 +26,22 @@
 **
 **
 **************************************************************************/
+
 #ifndef REMOTELINUXAPPLICATIONRUNNER_H
 #define REMOTELINUXAPPLICATIONRUNNER_H
 
 #include "remotelinux_export.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-
-#include <QObject>
-#include <QSharedPointer>
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 
 namespace QSsh { class SshConnection; }
 namespace Utils { class PortList; }
 
 namespace RemoteLinux {
 class RemoteLinuxRunConfiguration;
-class RemoteLinuxUsedPortsGatherer;
 
-namespace Internal {
-class AbstractRemoteLinuxApplicationRunnerPrivate;
-}
+namespace Internal { class AbstractRemoteLinuxApplicationRunnerPrivate; }
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxApplicationRunner : public QObject
 {
@@ -63,7 +59,7 @@ public:
 
     ProjectExplorer::IDevice::ConstPtr devConfig() const;
     QSsh::SshConnection *connection() const;
-    RemoteLinuxUsedPortsGatherer *usedPortsGatherer() const;
+    ProjectExplorer::DeviceUsedPortsGatherer *usedPortsGatherer() const;
     Utils::PortList *freePorts();
     QString remoteExecutable() const;
     QString arguments() const;

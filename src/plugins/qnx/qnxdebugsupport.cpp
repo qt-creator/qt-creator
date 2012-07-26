@@ -36,7 +36,6 @@
 #include "qnxconstants.h"
 
 #include <debugger/debuggerengine.h>
-#include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
 
 using namespace Qnx;

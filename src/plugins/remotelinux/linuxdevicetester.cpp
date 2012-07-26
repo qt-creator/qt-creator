@@ -27,10 +27,10 @@
 **
 **
 **************************************************************************/
+
 #include "linuxdevicetester.h"
 
-#include "remotelinuxusedportsgatherer.h"
-
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
@@ -54,7 +54,7 @@ public:
     IDevice::ConstPtr deviceConfiguration;
     SshConnection *connection;
     SshRemoteProcess::Ptr process;
-    RemoteLinuxUsedPortsGatherer portsGatherer;
+    DeviceUsedPortsGatherer portsGatherer;
     State state;
 };
 
@@ -113,7 +113,7 @@ void GenericLinuxDeviceTester::stopTest()
     setFinished(TestFailure);
 }
 
-RemoteLinuxUsedPortsGatherer *GenericLinuxDeviceTester::usedPortsGatherer() const
+DeviceUsedPortsGatherer *GenericLinuxDeviceTester::usedPortsGatherer() const
 {
     return &d->portsGatherer;
 }

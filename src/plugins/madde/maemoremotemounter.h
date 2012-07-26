@@ -45,8 +45,7 @@
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace QSsh { class SshRemoteProcessRunner; }
-
-namespace RemoteLinux { class RemoteLinuxUsedPortsGatherer; }
+namespace ProjectExplorer { class DeviceUsedPortsGatherer; }
 
 namespace Madde {
 namespace Internal {
@@ -54,6 +53,7 @@ namespace Internal {
 class MaemoRemoteMounter : public QObject
 {
     Q_OBJECT
+
 public:
     MaemoRemoteMounter(QObject *parent = 0);
     ~MaemoRemoteMounter();
@@ -120,7 +120,7 @@ private:
     typedef QSharedPointer<QProcess> ProcPtr;
     QList<ProcPtr> m_utfsServers;
 
-    RemoteLinux::RemoteLinuxUsedPortsGatherer * const m_portsGatherer;
+    ProjectExplorer::DeviceUsedPortsGatherer *m_portsGatherer;
     Utils::FileName m_maddeRoot;
 
     State m_state;

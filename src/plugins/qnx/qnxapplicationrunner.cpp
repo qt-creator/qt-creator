@@ -35,8 +35,6 @@
 #include "qnxrunconfiguration.h"
 #include "qnxconstants.h"
 
-#include <remotelinux/remotelinuxusedportsgatherer.h>
-
 using namespace Qnx;
 using namespace Qnx::Internal;
 

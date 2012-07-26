@@ -36,8 +36,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/portlist.h>
 
-#include <QSharedPointer>
-
 namespace ProjectExplorer { class Profile; }
 namespace QSsh { class SshConnection; }
 namespace Utils { class FileName; }
@@ -49,6 +47,7 @@ class MaemoRemoteMounter;
 class MaemoDeploymentMounter : public QObject
 {
     Q_OBJECT
+
 public:
     explicit MaemoDeploymentMounter(QObject *parent = 0);
     ~MaemoDeploymentMounter();

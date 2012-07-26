@@ -26,34 +26,25 @@
 **
 **
 **************************************************************************/
-#ifndef REMOTELINUXUSEDPORTSGATHERER_H
-#define REMOTELINUXUSEDPORTSGATHERER_H
 
-#include "remotelinux_export.h"
+#ifndef DEVICEUSEDPORTSGATHERER_H
+#define DEVICEUSEDPORTSGATHERER_H
 
-#include <projectexplorer/devicesupport/idevice.h>
-
-#include <QList>
-#include <QObject>
-#include <QSharedPointer>
-
-QT_FORWARD_DECLARE_CLASS(QString)
+#include "idevice.h"
 
 namespace Utils { class PortList; }
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
+namespace Internal { class DeviceUsedPortsGathererPrivate; }
 
-namespace Internal {
-class RemoteLinuxUsedPortsGathererPrivate;
-} // namespace Internal
-
-class REMOTELINUX_EXPORT RemoteLinuxUsedPortsGatherer : public QObject
+class PROJECTEXPLORER_EXPORT DeviceUsedPortsGatherer : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(RemoteLinuxUsedPortsGatherer)
+
 public:
-    explicit RemoteLinuxUsedPortsGatherer(QObject *parent = 0);
-    ~RemoteLinuxUsedPortsGatherer();
+    explicit DeviceUsedPortsGatherer(QObject *parent = 0);
+    ~DeviceUsedPortsGatherer();
+
     void start(const ProjectExplorer::IDevice::ConstPtr &devConf);
     void stop();
     int getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
@@ -75,9 +66,9 @@ private slots:
 private:
     void setupUsedPorts();
 
-    Internal::RemoteLinuxUsedPortsGathererPrivate * const d;
+    Internal::DeviceUsedPortsGathererPrivate * const d;
 };
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
-#endif // REMOTELINUXUSEDPORTSGATHERER_H
+#endif // DEVICEUSEDPORTSGATHERER_H

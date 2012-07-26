@@ -44,7 +44,6 @@ HEADERS += \
     remotelinuxenvironmentreader.h \
     sshkeydeployer.h \
     typespecificdeviceconfigurationlistmodel.h \
-    remotelinuxusedportsgatherer.h \
     remotelinuxutils.h \
     deploymentsettingsassistant.h \
     remotelinuxdeployconfigurationwidget.h \
@@ -92,7 +91,6 @@ SOURCES += \
     remotelinuxenvironmentreader.cpp \
     sshkeydeployer.cpp \
     typespecificdeviceconfigurationlistmodel.cpp \
-    remotelinuxusedportsgatherer.cpp \
     remotelinuxutils.cpp \
     deploymentsettingsassistant.cpp \
     remotelinuxdeployconfigurationwidget.cpp \

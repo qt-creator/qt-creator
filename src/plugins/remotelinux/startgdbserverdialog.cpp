@@ -30,13 +30,13 @@
 
 #include "startgdbserverdialog.h"
 
-#include "remotelinuxusedportsgatherer.h"
-
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/profilechooser.h>
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -101,7 +101,7 @@ public:
     QPushButton *closeButton;
     ProfileChooser *profileChooser;
 
-    RemoteLinuxUsedPortsGatherer gatherer;
+    DeviceUsedPortsGatherer gatherer;
     SshRemoteProcessRunner runner;
     QSettings *settings;
     QString remoteCommandLine;

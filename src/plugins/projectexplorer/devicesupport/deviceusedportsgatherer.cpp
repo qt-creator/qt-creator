@@ -27,7 +27,7 @@
 **
 **************************************************************************/
 
-#include "remotelinuxusedportsgatherer.h"
+#include "deviceusedportsgatherer.h"
 
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -35,16 +35,13 @@
 #include <ssh/sshconnectionmanager.h>
 #include <ssh/sshremoteprocess.h>
 
-#include <QString>
-
-using namespace ProjectExplorer;
 using namespace QSsh;
 using namespace Utils;
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
 
-class RemoteLinuxUsedPortsGathererPrivate
+class DeviceUsedPortsGathererPrivate
 {
  public:
     SshConnection *connection;
@@ -58,21 +55,19 @@ class RemoteLinuxUsedPortsGathererPrivate
 
 } // namespace Internal
 
-using namespace Internal;
-
-RemoteLinuxUsedPortsGatherer::RemoteLinuxUsedPortsGatherer(QObject *parent) :
-    QObject(parent), d(new RemoteLinuxUsedPortsGathererPrivate)
+DeviceUsedPortsGatherer::DeviceUsedPortsGatherer(QObject *parent) :
+    QObject(parent), d(new Internal::DeviceUsedPortsGathererPrivate)
 {
     d->connection = 0;
 }
 
-RemoteLinuxUsedPortsGatherer::~RemoteLinuxUsedPortsGatherer()
+DeviceUsedPortsGatherer::~DeviceUsedPortsGatherer()
 {
     stop();
     delete d;
 }
 
-void RemoteLinuxUsedPortsGatherer::start(const IDevice::ConstPtr &devConf)
+void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &devConf)
 {
     QTC_ASSERT(!d->connection, return);
     d->portsToCheck = devConf->freePorts();
@@ -87,7 +82,7 @@ void RemoteLinuxUsedPortsGatherer::start(const IDevice::ConstPtr &devConf)
         d->connection->connectToHost();
 }
 
-void RemoteLinuxUsedPortsGatherer::handleConnectionEstablished()
+void DeviceUsedPortsGatherer::handleConnectionEstablished()
 {
     QString command = d->command;
     if (command.isEmpty()) {
@@ -113,7 +108,7 @@ void RemoteLinuxUsedPortsGatherer::handleConnectionEstablished()
     d->process->start();
 }
 
-void RemoteLinuxUsedPortsGatherer::stop()
+void DeviceUsedPortsGatherer::stop()
 {
     if (!d->connection)
         return;
@@ -128,7 +123,7 @@ void RemoteLinuxUsedPortsGatherer::stop()
     d->connection = 0;
 }
 
-int RemoteLinuxUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
+int DeviceUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
 {
     while (freePorts->hasMore()) {
         const int port = freePorts->getNext();
@@ -138,17 +133,17 @@ int RemoteLinuxUsedPortsGatherer::getNextFreePort(PortList *freePorts) const
     return -1;
 }
 
-QList<int> RemoteLinuxUsedPortsGatherer::usedPorts() const
+QList<int> DeviceUsedPortsGatherer::usedPorts() const
 {
     return d->usedPorts;
 }
 
-void RemoteLinuxUsedPortsGatherer::setCommand(const QString &command)
+void DeviceUsedPortsGatherer::setCommand(const QString &command)
 {
     d->command = command;
 }
 
-void RemoteLinuxUsedPortsGatherer::setupUsedPorts()
+void DeviceUsedPortsGatherer::setupUsedPorts()
 {
     QList<QByteArray> portStrings = d->remoteStdout.split('\n');
     portStrings.removeFirst();
@@ -168,7 +163,7 @@ void RemoteLinuxUsedPortsGatherer::setupUsedPorts()
     emit portListReady();
 }
 
-void RemoteLinuxUsedPortsGatherer::handleConnectionError()
+void DeviceUsedPortsGatherer::handleConnectionError()
 {
     if (!d->connection)
         return;
@@ -176,7 +171,7 @@ void RemoteLinuxUsedPortsGatherer::handleConnectionError()
     stop();
 }
 
-void RemoteLinuxUsedPortsGatherer::handleProcessClosed(int exitStatus)
+void DeviceUsedPortsGatherer::handleProcessClosed(int exitStatus)
 {
     if (!d->connection)
         return;
@@ -208,16 +203,16 @@ void RemoteLinuxUsedPortsGatherer::handleProcessClosed(int exitStatus)
     stop();
 }
 
-void RemoteLinuxUsedPortsGatherer::handleRemoteStdOut()
+void DeviceUsedPortsGatherer::handleRemoteStdOut()
 {
     if (d->process)
         d->remoteStdout += d->process->readAllStandardOutput();
 }
 
-void RemoteLinuxUsedPortsGatherer::handleRemoteStdErr()
+void DeviceUsedPortsGatherer::handleRemoteStdErr()
 {
     if (d->process)
         d->remoteStderr += d->process->readAllStandardError();
 }
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer

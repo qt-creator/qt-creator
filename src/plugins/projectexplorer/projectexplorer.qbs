@@ -304,6 +304,8 @@ QtcPlugin {
         "devicesupport/devicesettingswidget.cpp",
         "devicesupport/devicesettingswidget.h",
         "devicesupport/devicesettingswidget.ui",
+        "devicesupport/deviceusedportsgatherer.cpp",
+        "devicesupport/deviceusedportsgatherer.h",
         "devicesupport/idevicewidget.h",
         "devicesupport/idevicefactory.cpp",
         "devicesupport/idevicefactory.h"

@@ -37,11 +37,11 @@
 #include "qnxdeviceconfigurationwizardpages.h"
 #include "qnxdeviceconfiguration.h"
 
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/linuxdevicetester.h>
 #include <utils/portlist.h>
-#include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <ssh/sshconnection.h>
 
 using namespace ProjectExplorer;

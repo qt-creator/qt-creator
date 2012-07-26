@@ -31,10 +31,10 @@
 
 #include "linuxdeviceconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
-#include "remotelinuxusedportsgatherer.h"
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/profileinformation.h>
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -74,7 +74,7 @@ public:
           state(Inactive)
     { }
 
-    RemoteLinuxUsedPortsGatherer portsGatherer;
+    DeviceUsedPortsGatherer portsGatherer;
     IDevice::ConstPtr devConfig;
     const QString remoteExecutable;
     const QString appArguments;
@@ -119,7 +119,7 @@ IDevice::ConstPtr AbstractRemoteLinuxApplicationRunner::devConfig() const
     return d->devConfig;
 }
 
-RemoteLinuxUsedPortsGatherer *AbstractRemoteLinuxApplicationRunner::usedPortsGatherer() const
+DeviceUsedPortsGatherer *AbstractRemoteLinuxApplicationRunner::usedPortsGatherer() const
 {
     return &d->portsGatherer;
 }
