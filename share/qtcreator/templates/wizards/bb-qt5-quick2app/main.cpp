@@ -14,8 +14,8 @@ int main( int argc, char** argv )
     view->setSource( QUrl( "app/native/qml/main.qml" ) );
 
     QDeclarativeEngine* engine = view->engine();
-    QObject::connect( engine, SIGNAL( quit() ),
-                      QCoreApplication::instance(), SLOT( quit() ) );
+    QObject::connect( engine, SIGNAL(quit()),
+                      QCoreApplication::instance(), SLOT(quit()) );
     window = view;
     window->showMaximized();
 

@@ -84,8 +84,8 @@ IDevice::Ptr GenericLinuxDeviceConfigurationWizard::device()
         sshParams.password = d->setupPage.password();
     else
         sshParams.privateKeyFile = d->setupPage.privateKeyFilePath();
-    LinuxDeviceConfiguration::Ptr devConf = LinuxDeviceConfiguration::create(d->setupPage.configurationName(),
-        Core::Id(Constants::GenericLinuxOsType), LinuxDeviceConfiguration::Hardware);
+    IDevice::Ptr devConf = LinuxDeviceConfiguration::create(d->setupPage.configurationName(),
+        Core::Id(Constants::GenericLinuxOsType), IDevice::Hardware);
     devConf->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
     devConf->setSshParameters(sshParams);
     LinuxDeviceTestDialog dlg(devConf, new GenericLinuxDeviceTester(this), this);

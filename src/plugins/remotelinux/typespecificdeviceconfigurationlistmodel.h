@@ -30,10 +30,9 @@
 #ifndef TYPESPECIFICDEVICECONFIGURATIONLISTMODEL_H
 #define TYPESPECIFICDEVICECONFIGURATIONLISTMODEL_H
 
-#include "linuxdeviceconfiguration.h"
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <QAbstractListModel>
-#include <QSharedPointer>
 
 namespace ProjectExplorer { class Target; }
 
@@ -43,20 +42,18 @@ namespace Internal {
 class TypeSpecificDeviceConfigurationListModel : public QAbstractListModel
 {
     Q_OBJECT
+
 public:
     explicit TypeSpecificDeviceConfigurationListModel(ProjectExplorer::Target *target);
-    ~TypeSpecificDeviceConfigurationListModel();
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index,
-        int role = Qt::DisplayRole) const;
-
-    QSharedPointer<const LinuxDeviceConfiguration> deviceAt(int idx) const;
-    QSharedPointer<const LinuxDeviceConfiguration> defaultDeviceConfig() const;
-    QSharedPointer<const LinuxDeviceConfiguration> find(Core::Id id) const;
-    int indexForId(Core::Id id) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
 private:
+    int indexForId(Core::Id id) const;
+    ProjectExplorer::IDevice::ConstPtr deviceAt(int idx) const;
+    ProjectExplorer::IDevice::ConstPtr defaultDeviceConfig() const;
+    ProjectExplorer::IDevice::ConstPtr find(Core::Id id) const;
     ProjectExplorer::Target *target() const;
     bool deviceMatches(ProjectExplorer::IDevice::ConstPtr dev) const;
 };

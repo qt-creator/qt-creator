@@ -51,25 +51,25 @@
 #include <QFileInfo>
 
 using ExtensionSystem::PluginManager;
+using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 namespace {
-const char * const MAKESTEP_BS_ID("Qt4ProjectManager.MakeStep");
-
-const char * const MAKE_ARGUMENTS_KEY("Qt4ProjectManager.MakeStep.MakeArguments");
-const char * const MAKE_COMMAND_KEY("Qt4ProjectManager.MakeStep.MakeCommand");
-const char * const CLEAN_KEY("Qt4ProjectManager.MakeStep.Clean");
+const char MAKESTEP_BS_ID[] = "Qt4ProjectManager.MakeStep";
+const char MAKE_ARGUMENTS_KEY[] = "Qt4ProjectManager.MakeStep.MakeArguments";
+const char MAKE_COMMAND_KEY[] = "Qt4ProjectManager.MakeStep.MakeCommand";
+const char CLEAN_KEY[] = "Qt4ProjectManager.MakeStep.Clean";
 }
 
-MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl) :
+MakeStep::MakeStep(BuildStepList *bsl) :
     AbstractProcessStep(bsl, Core::Id(MAKESTEP_BS_ID)),
     m_clean(false)
 {
     ctor();
 }
 
-MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs) :
+MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
     AbstractProcessStep(bsl, bs),
     m_clean(bs->m_clean),
     m_userArgs(bs->m_userArgs),
@@ -78,7 +78,7 @@ MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs) :
     ctor();
 }
 
-MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, const Core::Id id) :
+MakeStep::MakeStep(BuildStepList *bsl, const Core::Id id) :
     AbstractProcessStep(bsl, id),
     m_clean(false)
 {
@@ -121,7 +121,7 @@ QString MakeStep::makeCommand() const
 
 QVariantMap MakeStep::toMap() const
 {
-    QVariantMap map(ProjectExplorer::AbstractProcessStep::toMap());
+    QVariantMap map(AbstractProcessStep::toMap());
     map.insert(QLatin1String(MAKE_ARGUMENTS_KEY), m_userArgs);
     map.insert(QLatin1String(MAKE_COMMAND_KEY), m_makeCmd);
     map.insert(QLatin1String(CLEAN_KEY), m_clean);
@@ -134,7 +134,7 @@ bool MakeStep::fromMap(const QVariantMap &map)
     m_userArgs = map.value(QLatin1String(MAKE_ARGUMENTS_KEY)).toString();
     m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
 
-    return ProjectExplorer::AbstractProcessStep::fromMap(map);
+    return AbstractProcessStep::fromMap(map);
 }
 
 bool MakeStep::init()
@@ -145,23 +145,21 @@ bool MakeStep::init()
 
     m_tasks.clear();
     if (!bc) {
-        m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                             tr("Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode."),
+        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode."),
                                              Utils::FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return false;
     }
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
+    ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
     if (!tc) {
-        m_tasks.append(ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                             tr("Qt Creator needs a tool chain set up to build. Configure a tool chain the profile options."),
+        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a tool chain set up to build. Configure a tool chain the target options."),
                                              Utils::FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return false;
     }
 
-    ProjectExplorer::ProcessParameters *pp = processParameters();
+    ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
 
     QString workingDirectory;
@@ -246,10 +244,10 @@ bool MakeStep::init()
     // but for now this is the least invasive change
     // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
     if (tc && m_makeCmd.isEmpty()) {
-        if (tc->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat )
+        if (tc->targetAbi().binaryFormat() != Abi::PEFormat )
             Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
-        if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
-                && tc->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
+        if (tc->targetAbi().os() == Abi::WindowsOS
+                && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
             const QString makeFlags = QLatin1String("MAKEFLAGS");
             env.set(makeFlags, QLatin1Char('L') + env.value(makeFlags));
         }
@@ -258,7 +256,7 @@ bool MakeStep::init()
     pp->setEnvironment(env);
     pp->setArguments(args);
 
-    ProjectExplorer::IOutputParser *parser = 0;
+    IOutputParser *parser = 0;
     QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
     if (version)
         parser = version->createOutputParser();
@@ -294,9 +292,9 @@ void MakeStep::run(QFutureInterface<bool> & fi)
 
     // Warn on common error conditions:
     bool canContinue = true;
-    foreach (const ProjectExplorer::Task &t, m_tasks) {
+    foreach (const Task &t, m_tasks) {
         addTask(t);
-        if (t.type == ProjectExplorer::Task::Error)
+        if (t.type == Task::Error)
             canContinue = false;
     }
     if (!canContinue) {
@@ -322,7 +320,7 @@ bool MakeStep::immutable() const
     return false;
 }
 
-ProjectExplorer::BuildStepConfigWidget *MakeStep::createConfigWidget()
+BuildStepConfigWidget *MakeStep::createConfigWidget()
 {
     return new MakeStepConfigWidget(this);
 }
@@ -361,13 +359,13 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(makeStep, SIGNAL(userArgumentsChanged()),
             this, SLOT(userArgumentsChanged()));
 
-    ProjectExplorer::BuildConfiguration *bc = makeStep->buildConfiguration();
+    BuildConfiguration *bc = makeStep->buildConfiguration();
     if (!bc) {
         // That means the step is in the deploylist, so we listen to the active build config
         // changed signal and react to the buildDirectoryChanged() signal of the buildconfiguration
         bc = makeStep->target()->activeBuildConfiguration();
         m_bc = bc;
-        connect (makeStep->target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+        connect (makeStep->target(), SIGNAL(activeBuildConfigurationChanged(BuildConfiguration*)),
                  this, SLOT(activeBuildConfigurationChanged()));
     }
 
@@ -376,7 +374,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
                 this, SLOT(updateDetails()));
     }
 
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
     connect(m_makeStep->target(), SIGNAL(profileChanged()), this, SLOT(updateDetails()));
 }
@@ -412,15 +410,15 @@ MakeStepConfigWidget::~MakeStepConfigWidget()
 
 void MakeStepConfigWidget::updateDetails()
 {
-    ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainProfileInformation::toolChain(m_makeStep->target()->profile());
+    ToolChain *tc
+            = ToolChainProfileInformation::toolChain(m_makeStep->target()->profile());
     if (tc)
         m_ui->makeLabel->setText(tr("Override %1:").arg(tc->makeCommand()));
     else
         m_ui->makeLabel->setText(tr("Make:"));
 
     if (!tc) {
-        setSummaryText(tr("<b>Make:</b> No tool chain set in profile."));
+        setSummaryText(tr("<b>Make:</b> No tool chain set in target."));
         return;
     }
     Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
@@ -431,7 +429,7 @@ void MakeStepConfigWidget::updateDetails()
         return;
     }
 
-    ProjectExplorer::ProcessParameters param;
+    ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
     QString makeCmd = tc->makeCommand();
@@ -456,10 +454,10 @@ void MakeStepConfigWidget::updateDetails()
     // but for now this is the least invasive change
     // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
     if (tc && m_makeStep->makeCommand().isEmpty()) {
-        if (tc->targetAbi().binaryFormat() != ProjectExplorer::Abi::PEFormat )
+        if (tc->targetAbi().binaryFormat() != Abi::PEFormat )
             Utils::QtcProcess::addArg(&args, QLatin1String("-w"));
-        if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
-                && tc->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
+        if (tc->targetAbi().os() == Abi::WindowsOS
+                && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
             const QString makeFlags = QLatin1String("MAKEFLAGS");
             env.set(makeFlags, QLatin1Char('L') + env.value(makeFlags));
         }
@@ -510,7 +508,7 @@ void MakeStepConfigWidget::makeArgumentsLineEdited()
 ///
 
 MakeStepFactory::MakeStepFactory(QObject *parent) :
-    ProjectExplorer::IBuildStepFactory(parent)
+    IBuildStepFactory(parent)
 {
 }
 
@@ -518,14 +516,14 @@ MakeStepFactory::~MakeStepFactory()
 {
 }
 
-bool MakeStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
+bool MakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
     if (parent->target()->project()->id() != Core::Id(Constants::QT4PROJECT_ID))
         return false;
     return (id == Core::Id(MAKESTEP_BS_ID));
 }
 
-ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
+BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -537,24 +535,24 @@ ProjectExplorer::BuildStep *MakeStepFactory::create(ProjectExplorer::BuildStepLi
     return step;
 }
 
-bool MakeStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source) const
+bool MakeStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
 {
     return canCreate(parent, source->id());
 }
 
-ProjectExplorer::BuildStep *MakeStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *source)
+BuildStep *MakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
 {
     if (!canClone(parent, source))
         return 0;
     return new MakeStep(parent, static_cast<MakeStep *>(source));
 }
 
-bool MakeStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
+bool MakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    return canCreate(parent, idFromMap(map));
 }
 
-ProjectExplorer::BuildStep *MakeStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
+BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -565,7 +563,7 @@ ProjectExplorer::BuildStep *MakeStepFactory::restore(ProjectExplorer::BuildStepL
     return 0;
 }
 
-QList<Core::Id> MakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<Core::Id> MakeStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     if (parent->target()->project()->id() == Core::Id(Constants::QT4PROJECT_ID))
         return QList<Core::Id>() << Core::Id(MAKESTEP_BS_ID);

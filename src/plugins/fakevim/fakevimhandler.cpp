@@ -3920,11 +3920,6 @@ static QRegExp vimPatternToQtPattern(QString needle, QTextDocument::FindFlags *f
     // FIXME: Rough mapping of a common case.
     if (needle.startsWith(_("\\<")) && needle.endsWith(_("\\>")))
         (*flags) |= QTextDocument::FindWholeWords;
-    // Half-hearted attempt at removing pitfalls.
-    if (needle.startsWith(_(".*")))
-        needle = needle.mid(2);
-    if (needle.endsWith(_(".*")))
-        needle = needle.left(needle.size() - 2);
     needle.remove(_("\\<")); // start of word
     needle.remove(_("\\>")); // end of word
 
@@ -4046,6 +4041,8 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle)
             tc = tc.document()->find(needleExp, tc.position(), flags);
             if (tc.isNull())
                 break;
+            if (!tc.hasSelection())
+                tc.movePosition(Right, KeepAnchor, 1);
             QTextEdit::ExtraSelection sel;
             sel.cursor = tc;
             sel.format = tc.blockCharFormat();

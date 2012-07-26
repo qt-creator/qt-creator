@@ -29,13 +29,13 @@
 **************************************************************************/
 #include "linuxdevicetester.h"
 
-#include "linuxdeviceconfiguration.h"
 #include "remotelinuxusedportsgatherer.h"
 
 #include <utils/qtcassert.h>
 #include <ssh/sshremoteprocess.h>
 #include <ssh/sshconnection.h>
 
+using namespace ProjectExplorer;
 using namespace QSsh;
 
 namespace RemoteLinux {
@@ -51,7 +51,7 @@ class GenericLinuxDeviceTesterPrivate
 public:
     GenericLinuxDeviceTesterPrivate() : connection(0), state(Inactive) {}
 
-    LinuxDeviceConfiguration::ConstPtr deviceConfiguration;
+    IDevice::ConstPtr deviceConfiguration;
     SshConnection *connection;
     SshRemoteProcess::Ptr process;
     RemoteLinuxUsedPortsGatherer portsGatherer;
@@ -77,7 +77,7 @@ GenericLinuxDeviceTester::~GenericLinuxDeviceTester()
     delete d;
 }
 
-void GenericLinuxDeviceTester::testDevice(const LinuxDeviceConfiguration::ConstPtr &deviceConfiguration)
+void GenericLinuxDeviceTester::testDevice(const IDevice::ConstPtr &deviceConfiguration)
 {
     QTC_ASSERT(d->state == Inactive, return);
 

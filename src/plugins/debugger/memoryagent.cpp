@@ -154,8 +154,8 @@ void MemoryAgent::connectBinEditorWidget(QWidget *w)
         SIGNAL(dataChanged(Core::IEditor*,quint64,QByteArray)),
         SLOT(handleDataChanged(Core::IEditor*,quint64,QByteArray)));
     connect(w,
-        SIGNAL(addWatchpointRequested(quint64, uint)),
-        SLOT(handleWatchpointRequest(quint64, uint)));
+        SIGNAL(addWatchpointRequested(quint64,uint)),
+        SLOT(handleWatchpointRequest(quint64,uint)));
 }
 
 bool MemoryAgent::doCreateBinEditor(quint64 addr, unsigned flags,

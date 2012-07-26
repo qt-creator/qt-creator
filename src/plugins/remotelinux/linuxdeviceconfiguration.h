@@ -51,10 +51,6 @@ public:
     typedef QSharedPointer<LinuxDeviceConfiguration> Ptr;
     typedef QSharedPointer<const LinuxDeviceConfiguration> ConstPtr;
 
-    enum MachineType { Hardware, Emulator };
-
-    MachineType machineType() const;
-
     static Ptr create();
     static Ptr create(const QString &name, Core::Id type, MachineType machineType,
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
@@ -64,20 +60,16 @@ public:
     QList<Core::Id> actionIds() const;
     QString displayNameForActionId(Core::Id actionId) const;
     void executeAction(Core::Id actionId, QWidget *parent) const;
-    void fromMap(const QVariantMap &map);
     ProjectExplorer::IDevice::Ptr clone() const;
 
 protected:
     LinuxDeviceConfiguration() {}
-    LinuxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType,
-                             Origin origin, Core::Id id);
+    LinuxDeviceConfiguration(const QString &name, Core::Id type,
+                             MachineType machineType, Origin origin, Core::Id id);
     LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other);
-
-    QVariantMap toMap() const;
 
 private:
     LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);
-    LinuxDeviceConfiguration::MachineType m_machineType;
 };
 
 } // namespace RemoteLinux

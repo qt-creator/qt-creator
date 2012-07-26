@@ -28,7 +28,6 @@
 **************************************************************************/
 #include "publickeydeploymentdialog.h"
 
-#include "linuxdeviceconfiguration.h"
 #include "sshkeydeployer.h"
 
 #include <coreplugin/icore.h>
@@ -36,6 +35,8 @@
 
 #include <QTimer>
 #include <QFileDialog>
+
+using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -49,7 +50,7 @@ public:
 
 using namespace Internal;
 
-PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(const LinuxDeviceConfiguration::ConstPtr &deviceConfig,
+PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(const IDevice::ConstPtr &deviceConfig,
     QWidget *parent)
 {
     const QString &dir = QFileInfo(deviceConfig->sshParameters().privateKeyFile).path();
@@ -62,7 +63,7 @@ PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(const LinuxDe
     return new PublicKeyDeploymentDialog(deviceConfig, publicKeyFileName, parent);
 }
 
-PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const LinuxDeviceConfiguration::ConstPtr &deviceConfig,
+PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &deviceConfig,
         const QString &publicKeyFileName, QWidget *parent)
     : QProgressDialog(parent), d(new PublicKeyDeploymentDialogPrivate)
 {

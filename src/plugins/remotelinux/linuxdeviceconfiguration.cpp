@@ -45,9 +45,6 @@
 
 namespace RemoteLinux {
 
-const QLatin1String MachineTypeKey("Type");
-const LinuxDeviceConfiguration::MachineType DefaultMachineType = LinuxDeviceConfiguration::Hardware;
-
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &name,
        Core::Id type, MachineType machineType, Origin origin, Core::Id id)
 {
@@ -102,18 +99,16 @@ void LinuxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
         d->exec();
 }
 
-LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, Core::Id type,
-        MachineType machineType, Origin origin, Core::Id id)
-    : IDevice(type, origin, id)
+LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType,
+        Origin origin, Core::Id id)
+    : IDevice(type, origin, machineType, id)
 {
     setDisplayName(name);
-    m_machineType = machineType;
 }
 
 LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other)
     : IDevice(other)
 {
-    m_machineType = other.machineType();
 }
 
 LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create()
@@ -121,27 +116,9 @@ LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create()
     return Ptr(new LinuxDeviceConfiguration);
 }
 
-void LinuxDeviceConfiguration::fromMap(const QVariantMap &map)
-{
-    IDevice::fromMap(map);
-    m_machineType = static_cast<MachineType>(map.value(MachineTypeKey, DefaultMachineType).toInt());
-}
-
-QVariantMap LinuxDeviceConfiguration::toMap() const
-{
-    QVariantMap map = IDevice::toMap();
-    map.insert(MachineTypeKey, m_machineType);
-    return map;
-}
-
 ProjectExplorer::IDevice::Ptr LinuxDeviceConfiguration::clone() const
 {
     return Ptr(new LinuxDeviceConfiguration(*this));
-}
-
-LinuxDeviceConfiguration::MachineType LinuxDeviceConfiguration::machineType() const
-{
-    return m_machineType;
 }
 
 } // namespace RemoteLinux

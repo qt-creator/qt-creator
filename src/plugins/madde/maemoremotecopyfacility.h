@@ -32,19 +32,14 @@
 #define MAEMOREMOTECOPYFACILITY_H
 
 #include <remotelinux/deployablefile.h>
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <QList>
-#include <QObject>
 #include <QSharedPointer>
-#include <QString>
 
 namespace QSsh {
 class SshConnection;
 class SshRemoteProcessRunner;
-}
-
-namespace RemoteLinux {
-class LinuxDeviceConfiguration;
 }
 
 namespace Madde {
@@ -58,7 +53,7 @@ public:
     ~MaemoRemoteCopyFacility();
 
     void copyFiles(QSsh::SshConnection *connection,
-        const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf,
+        const ProjectExplorer::IDevice::ConstPtr &devConf,
         const QList<RemoteLinux::DeployableFile> &deployables, const QString &mountPoint);
     void cancel();
 
@@ -81,7 +76,7 @@ private:
 
     QSsh::SshRemoteProcessRunner *m_copyRunner;
     QSsh::SshRemoteProcessRunner *m_killProcess;
-    QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
+    ProjectExplorer::IDevice::ConstPtr m_devConf;
     QList<RemoteLinux::DeployableFile> m_deployables;
     QString m_mountPoint;
     bool m_isCopying; // TODO: Redundant due to being in sync with m_copyRunner?

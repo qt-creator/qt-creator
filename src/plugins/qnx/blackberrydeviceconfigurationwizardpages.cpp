@@ -41,6 +41,7 @@
 #include <QFormLayout>
 #include <QMessageBox>
 
+using namespace ProjectExplorer;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
@@ -110,12 +111,9 @@ QString BlackBerryDeviceConfigurationWizardSetupPage::debugToken() const
     return m_ui->debugToken->fileName().toString();
 }
 
-RemoteLinux::LinuxDeviceConfiguration::MachineType BlackBerryDeviceConfigurationWizardSetupPage::machineType() const
+IDevice::MachineType BlackBerryDeviceConfigurationWizardSetupPage::machineType() const
 {
-    if (m_ui->physicalDevice->isChecked())
-        return RemoteLinux::LinuxDeviceConfiguration::Hardware;
-    else
-        return RemoteLinux::LinuxDeviceConfiguration::Emulator;
+    return m_ui->physicalDevice->isChecked() ? IDevice::Hardware : IDevice::Emulator;
 }
 
 

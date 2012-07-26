@@ -33,6 +33,7 @@
 
 #include "maemomountspecification.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/fileutils.h>
 
 #include <QList>
@@ -44,18 +45,13 @@
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace QSsh {
-class SftpChannel;
 class SshConnection;
 class SshRemoteProcess;
 }
 
+namespace ProjectExplorer { class Profile; }
+namespace RemoteLinux { class RemoteLinuxUsedPortsGatherer; }
 namespace Utils { class PortList; }
-namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
-
-namespace RemoteLinux {
-class LinuxDeviceConfiguration;
-class RemoteLinuxUsedPortsGatherer;
-}
 
 namespace Madde {
 namespace Internal {
@@ -69,9 +65,9 @@ public:
 
     // Must already be connected.
     void setConnection(QSsh::SshConnection *connection,
-        const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf);
+        const ProjectExplorer::IDevice::ConstPtr &devConf);
 
-    void setBuildConfiguration(const Qt4ProjectManager::Qt4BuildConfiguration *bc);
+    void setProfile(const ProjectExplorer::Profile *profile);
     void addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
     bool hasValidMountSpecifications() const;
@@ -124,7 +120,7 @@ private:
     };
 
     QSsh::SshConnection *m_connection;
-    QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
+    ProjectExplorer::IDevice::ConstPtr m_devConf;
     QList<MountInfo> m_mountSpecs;
     QSharedPointer<QSsh::SshRemoteProcess> m_mountProcess;
     QSharedPointer<QSsh::SshRemoteProcess> m_unmountProcess;

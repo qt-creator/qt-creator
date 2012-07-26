@@ -31,6 +31,8 @@
 
 #include "remotelinux_export.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <QObject>
 #include <QSharedPointer>
 
@@ -38,7 +40,6 @@ namespace QSsh { class SshConnection; }
 namespace Utils { class PortList; }
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
 class RemoteLinuxRunConfiguration;
 class RemoteLinuxUsedPortsGatherer;
 
@@ -60,7 +61,7 @@ public:
 
     void startExecution(const QByteArray &remoteCall);
 
-    QSharedPointer<const LinuxDeviceConfiguration> devConfig() const;
+    ProjectExplorer::IDevice::ConstPtr devConfig() const;
     QSsh::SshConnection *connection() const;
     RemoteLinuxUsedPortsGatherer *usedPortsGatherer() const;
     Utils::PortList *freePorts();
@@ -82,8 +83,6 @@ signals:
 protected:
     // Override to to additional checks.
     virtual bool canRun(QString &whyNot) const;
-
-    void setDeviceConfiguration(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfig);
 
     void handleDeviceSetupDone(bool success);
     void handleInitialCleanupDone(bool success);

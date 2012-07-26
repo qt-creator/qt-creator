@@ -31,6 +31,8 @@
 
 #include "remotelinux_export.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <QList>
 #include <QObject>
 #include <QSharedPointer>
@@ -40,7 +42,6 @@ QT_FORWARD_DECLARE_CLASS(QString)
 namespace Utils { class PortList; }
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
 
 namespace Internal {
 class RemoteLinuxUsedPortsGathererPrivate;
@@ -53,7 +54,7 @@ class REMOTELINUX_EXPORT RemoteLinuxUsedPortsGatherer : public QObject
 public:
     explicit RemoteLinuxUsedPortsGatherer(QObject *parent = 0);
     ~RemoteLinuxUsedPortsGatherer();
-    void start(const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
+    void start(const ProjectExplorer::IDevice::ConstPtr &devConf);
     void stop();
     int getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
     QList<int> usedPorts() const;

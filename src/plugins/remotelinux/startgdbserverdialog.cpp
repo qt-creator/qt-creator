@@ -31,7 +31,6 @@
 #include "startgdbserverdialog.h"
 
 #include "remotelinuxprocesslist.h"
-#include "linuxdeviceconfiguration.h"
 #include "remotelinuxusedportsgatherer.h"
 
 #include <coreplugin/icore.h>
@@ -84,11 +83,10 @@ class StartGdbServerDialogPrivate
 public:
     StartGdbServerDialogPrivate(StartGdbServerDialog *q);
 
-    LinuxDeviceConfiguration::ConstPtr currentDevice() const
+    IDevice::ConstPtr currentDevice() const
     {
         Profile *profile = profileChooser->currentProfile();
-        IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
-        return device.dynamicCast<const LinuxDeviceConfiguration>();
+        return DeviceProfileInformation::device(profile);
     }
 
     StartGdbServerDialog *q;
@@ -203,7 +201,7 @@ StartGdbServerDialog::~StartGdbServerDialog()
 
 void StartGdbServerDialog::attachToDevice()
 {
-    LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
+    IDevice::ConstPtr device = d->currentDevice();
     // TODO: display error on non-matching device.
     if (!device)
         return;
@@ -248,7 +246,7 @@ void StartGdbServerDialog::attachToProcess()
         return;
     d->attachProcessButton->setEnabled(false);
 
-    LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
+    IDevice::ConstPtr device = d->currentDevice();
     if (!device)
         return;
     PortList ports = device->freePorts();
@@ -352,7 +350,7 @@ void StartGdbServerDialog::handleProcessErrorOutput()
 void StartGdbServerDialog::reportOpenPort(int port)
 {
     logMessage(tr("Port %1 is now accessible.").arg(port));
-    LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
+    IDevice::ConstPtr device = d->currentDevice();
     QString channel = QString("%1:%2").arg(device->sshParameters().host).arg(port);
     logMessage(tr("Server started on %1").arg(channel));
 
@@ -375,7 +373,7 @@ void StartGdbServerDialog::handleProcessClosed(int status)
 
 void StartGdbServerDialog::startGdbServerOnPort(int port, int pid)
 {
-    LinuxDeviceConfiguration::ConstPtr device = d->currentDevice();
+    IDevice::ConstPtr device = d->currentDevice();
     connect(&d->runner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(&d->runner, SIGNAL(processStarted()), SLOT(handleProcessStarted()));
     connect(&d->runner, SIGNAL(readyReadStandardOutput()), SLOT(handleProcessOutputAvailable()));

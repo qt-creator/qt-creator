@@ -31,14 +31,14 @@
 
 #include "maemoglobal.h"
 
-#include <remotelinux/linuxdeviceconfiguration.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocessrunner.h>
 
 #include <QDir>
 
-using namespace RemoteLinux;
+using namespace ProjectExplorer;
 using namespace QSsh;
+using namespace RemoteLinux;
 
 namespace Madde {
 namespace Internal {
@@ -51,7 +51,7 @@ MaemoRemoteCopyFacility::MaemoRemoteCopyFacility(QObject *parent) :
 MaemoRemoteCopyFacility::~MaemoRemoteCopyFacility() {}
 
 void MaemoRemoteCopyFacility::copyFiles(SshConnection *connection,
-    const LinuxDeviceConfiguration::ConstPtr &devConf,
+    const IDevice::ConstPtr &devConf,
     const QList<DeployableFile> &deployables, const QString &mountPoint)
 {
     Q_ASSERT(connection->state() == SshConnection::Connected);

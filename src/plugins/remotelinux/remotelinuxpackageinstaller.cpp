@@ -29,13 +29,10 @@
 **************************************************************************/
 #include "remotelinuxpackageinstaller.h"
 
-#include "linuxdeviceconfiguration.h"
-
 #include <utils/qtcassert.h>
 #include <ssh/sshremoteprocessrunner.h>
 
-#include <QByteArray>
-
+using namespace ProjectExplorer;
 using namespace QSsh;
 
 namespace RemoteLinux {
@@ -47,7 +44,7 @@ public:
     AbstractRemoteLinuxPackageInstallerPrivate() : isRunning(false), installer(0), killProcess(0) {}
 
     bool isRunning;
-    LinuxDeviceConfiguration::ConstPtr deviceConfig;
+    IDevice::ConstPtr deviceConfig;
     QSsh::SshRemoteProcessRunner *installer;
     QSsh::SshRemoteProcessRunner *killProcess;
 };
@@ -64,7 +61,7 @@ AbstractRemoteLinuxPackageInstaller::~AbstractRemoteLinuxPackageInstaller()
     delete d;
 }
 
-void AbstractRemoteLinuxPackageInstaller::installPackage(const LinuxDeviceConfiguration::ConstPtr &deviceConfig,
+void AbstractRemoteLinuxPackageInstaller::installPackage(const IDevice::ConstPtr &deviceConfig,
     const QString &packageFilePath, bool removePackageFile)
 {
     QTC_ASSERT(!d->isRunning, return);

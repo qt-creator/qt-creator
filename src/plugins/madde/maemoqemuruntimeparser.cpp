@@ -40,8 +40,6 @@
 #include <QStringList>
 #include <QTextStream>
 
-using namespace RemoteLinux;
-
 namespace Madde {
 namespace Internal {
 

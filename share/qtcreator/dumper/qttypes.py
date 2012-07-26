@@ -2003,7 +2003,7 @@ def qdump__std__shared_ptr(d, value):
     if isSimpleType(templateArgument(value.type, 0)):
         d.putValue("%s @0x%x" % (i.dereference(), long(i)))
     else:
-        i = expensiveUpcast(i)
+        i = expensiveDowncast(i)
         d.putValue("@0x%x" % long(i))
 
     d.putNumChild(3)
@@ -2024,7 +2024,7 @@ def qdump__std__unique_ptr(d, value):
     if isSimpleType(templateArgument(value.type, 0)):
         d.putValue("%s @0x%x" % (i.dereference(), long(i)))
     else:
-        i = expensiveUpcast(i)
+        i = expensiveDowncast(i)
         d.putValue("@0x%x" % long(i))
 
     d.putNumChild(1)

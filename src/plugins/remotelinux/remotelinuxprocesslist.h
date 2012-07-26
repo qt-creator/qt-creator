@@ -31,12 +31,13 @@
 
 #include "remotelinux_export.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <QAbstractTableModel>
 #include <QList>
 #include <QSharedPointer>
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
 
 namespace Internal {
 class AbstractRemoteLinuxProcessListPrivate;
@@ -70,10 +71,8 @@ signals:
     void processKilled();
 
 protected:
-    AbstractRemoteLinuxProcessList(const QSharedPointer<const LinuxDeviceConfiguration> &devConfig,
+    AbstractRemoteLinuxProcessList(const ProjectExplorer::IDevice::ConstPtr &devConfig,
         QObject *parent = 0);
-
-    QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
 
 private slots:
     void handleConnectionError();
@@ -101,7 +100,7 @@ class REMOTELINUX_EXPORT GenericRemoteLinuxProcessList : public AbstractRemoteLi
 {
     Q_OBJECT
 public:
-    GenericRemoteLinuxProcessList(const QSharedPointer<const LinuxDeviceConfiguration> &devConfig,
+    GenericRemoteLinuxProcessList(const ProjectExplorer::IDevice::ConstPtr &devConfig,
         QObject *parent = 0);
 
 protected:

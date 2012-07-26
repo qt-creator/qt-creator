@@ -245,7 +245,7 @@ private:
     QString findQtBinary(Binaries binary) const;
     void updateMkspec() const;
     void setId(int id); // used by the qtversionmanager for legacy restore
-                        // and by the qtoptionspage to replace qt versions
+                        // and by the qtoptionspage to replace Qt versions
     QString m_displayName;
     int m_id;
     bool m_isAutodetected;

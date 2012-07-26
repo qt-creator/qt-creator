@@ -123,14 +123,14 @@ public:
                                         QString additionalArguments,
                                         QString directory,
                                         bool importing);
-    /// returns whether the qt version in the profile supports shadow building (also true for no qt version)
+    /// returns whether the Qt version in the profile supports shadow building (also true for no Qt version)
     bool supportsShadowBuilds();
 
 public slots:
     void emitEvaluateBuildSystem();
 
 signals:
-    /// emitted for setQMakeBuildConfig, not emitted for qt version changes, even
+    /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even
     /// if those change the qmakebuildconfig
     void qmakeBuildConfigurationChanged();
     /// emitted when smart installer property of S60 create package step changes

@@ -32,21 +32,22 @@
 
 #include "remotelinux_export.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <QObject>
 #include <QSharedPointer>
 #include <QVariantMap>
-QT_FORWARD_DECLARE_CLASS(QString)
 
 namespace QSsh { class SshConnection; }
 
-namespace Qt4ProjectManager {
-class Qt4BuildConfiguration;
+namespace ProjectExplorer {
+class BuildConfiguration;
+class Profile;
 }
 
 namespace RemoteLinux {
 class DeployableFile;
 class DeploymentInfo;
-class LinuxDeviceConfiguration;
 
 namespace Internal {
 class AbstractRemoteLinuxDeployServicePrivate;
@@ -60,8 +61,7 @@ public:
     explicit AbstractRemoteLinuxDeployService(QObject *parent = 0);
     ~AbstractRemoteLinuxDeployService();
 
-    void setDeviceConfiguration(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration);
-    void setBuildConfiguration(Qt4ProjectManager::Qt4BuildConfiguration *bc);
+    void setBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void start();
     void stop();
 
@@ -78,8 +78,9 @@ signals:
     void stdErrData(const QString &data);
 
 protected:
-    const Qt4ProjectManager::Qt4BuildConfiguration *qt4BuildConfiguration() const;
-    QSharedPointer<const LinuxDeviceConfiguration> deviceConfiguration() const;
+    const ProjectExplorer::BuildConfiguration *buildConfiguration() const;
+    const ProjectExplorer::Profile *profile() const;
+    ProjectExplorer::IDevice::ConstPtr deviceConfiguration() const;
     QSsh::SshConnection *connection() const;
 
     void saveDeploymentTimeStamp(const DeployableFile &deployableFile);

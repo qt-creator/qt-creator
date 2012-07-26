@@ -33,19 +33,14 @@
 
 #include "maemomountspecification.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/portlist.h>
 
-#include <QList>
-#include <QObject>
 #include <QSharedPointer>
 
+namespace ProjectExplorer { class Profile; }
 namespace QSsh { class SshConnection; }
-namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
-
-namespace RemoteLinux {
-class LinuxDeviceConfiguration;
-class RemoteLinuxUsedPortsGatherer;
-}
+namespace RemoteLinux { class RemoteLinuxUsedPortsGatherer; }
 
 namespace Madde {
 namespace Internal {
@@ -60,9 +55,8 @@ public:
 
     // Connection must be in connected state.
     void setupMounts(QSsh::SshConnection *connection,
-        const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &devConf,
         const QList<MaemoMountSpecification> &mountSpecs,
-        const Qt4ProjectManager::Qt4BuildConfiguration *bc);
+        const ProjectExplorer::Profile *profile);
     void tearDownMounts();
 
 signals:
@@ -92,12 +86,12 @@ private:
 
     State m_state;
     QSsh::SshConnection *m_connection;
-    QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_devConf;
+    ProjectExplorer::IDevice::ConstPtr m_devConf;
     MaemoRemoteMounter * const m_mounter;
     RemoteLinux::RemoteLinuxUsedPortsGatherer * const m_portsGatherer;
     Utils::PortList m_freePorts;
     QList<MaemoMountSpecification> m_mountSpecs;
-    const Qt4ProjectManager::Qt4BuildConfiguration *m_buildConfig;
+    const ProjectExplorer::Profile *m_profile;
 };
 
 } // namespace Internal

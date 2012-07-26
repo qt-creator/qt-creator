@@ -33,16 +33,15 @@
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/qtprofileinformation.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 
-using namespace Qt4ProjectManager;
-using namespace RemoteLinux;
+using namespace ProjectExplorer;
 using namespace QSsh;
+using namespace RemoteLinux;
 
 namespace Madde {
 namespace Internal {
@@ -53,9 +52,10 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig
       m_mountSpecs(runConfig->remoteMounts()->mountSpecs()),
       m_mountState(InactiveMountState)
 {
-    const Qt4BuildConfiguration * const bc = runConfig->activeQt4BuildConfiguration();
-    m_qtId = bc ? QtSupport::QtProfileInformation::qtVersionId(bc->target()->profile()) : -1;
-    m_mounter->setBuildConfiguration(bc);
+    const BuildConfiguration * const bc = runConfig->target()->activeBuildConfiguration();
+    Profile *profile  = bc ? bc->target()->profile() : 0;
+    m_qtId = QtSupport::QtProfileInformation::qtVersionId(profile);
+    m_mounter->setProfile(profile);
     connect(m_mounter, SIGNAL(mounted()), this, SLOT(handleMounted()));
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), this,
@@ -66,14 +66,12 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig
         SIGNAL(mountDebugOutput(QString)));
 }
 
-MaemoSshRunner::~MaemoSshRunner() {}
-
 bool MaemoSshRunner::canRun(QString &whyNot) const
 {
     if (!AbstractRemoteLinuxApplicationRunner::canRun(whyNot))
         return false;
 
-    if (devConfig()->machineType() == LinuxDeviceConfiguration::Emulator
+    if (devConfig()->machineType() == IDevice::Emulator
             && !MaemoQemuManager::instance().qemuIsRunning()) {
         MaemoQemuRuntime rt;
         if (MaemoQemuManager::instance().runtimeForQtVersion(m_qtId, &rt)) {

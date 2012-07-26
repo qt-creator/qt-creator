@@ -37,17 +37,14 @@
 #include <projectexplorer/target.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocess.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qtsupport/baseqtversion.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
 #include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>
 
-using namespace Qt4ProjectManager;
-using namespace RemoteLinux;
+using namespace ProjectExplorer;
 using namespace QSsh;
+using namespace RemoteLinux;
 using namespace Utils;
 
 namespace Madde {
@@ -67,7 +64,7 @@ MaemoRemoteMounter::~MaemoRemoteMounter()
 }
 
 void MaemoRemoteMounter::setConnection(SshConnection *connection,
-    const LinuxDeviceConfiguration::ConstPtr &devConf)
+    const IDevice::ConstPtr &devConf)
 {
     QTC_ASSERT(m_state == Inactive, return);
 
@@ -75,13 +72,13 @@ void MaemoRemoteMounter::setConnection(SshConnection *connection,
     m_devConf = devConf;
 }
 
-void MaemoRemoteMounter::setBuildConfiguration(const Qt4BuildConfiguration *bc)
+void MaemoRemoteMounter::setProfile(const Profile *profile)
 {
     QTC_ASSERT(m_state == Inactive, return);
 
-    Core::Id typeId = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(bc->target()->profile());
+    Core::Id typeId = DeviceTypeProfileInformation::deviceTypeId(profile);
     m_remoteMountsAllowed = MaddeDevice::allowsRemoteMounts(typeId);
-    m_maddeRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(bc->target()->profile());
+    m_maddeRoot = SysRootProfileInformation::sysRoot(profile);
 }
 
 void MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,

@@ -79,6 +79,7 @@ bool parseRunningState(const QString &line)
 }
 }
 
+using namespace ProjectExplorer;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
@@ -97,18 +98,16 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
 {
     QTC_ASSERT(runConfiguration, return);
 
-    Qt4ProjectManager::Qt4BuildConfiguration *qt4BuildConfig = runConfiguration->activeQt4BuildConfiguration();
-    m_environment = qt4BuildConfig->environment();
+    Target *target = runConfiguration->target();
+    BuildConfiguration *buildConfig = target->activeBuildConfiguration();
+    m_environment = buildConfig->environment();
     m_deployCmd = m_environment.searchInPath(QLatin1String(DEPLOY_CMD));
 
     m_deviceHost = runConfiguration->deployConfiguration()->deviceHost();
     m_password = runConfiguration->deployConfiguration()->password();
+    m_barPackage = runConfiguration->barPackage();
 
-    BlackBerryRunConfiguration *blackberryRunConfiguration = qobject_cast<BlackBerryRunConfiguration *>(runConfiguration);
-    if (blackberryRunConfiguration)
-        m_barPackage = blackberryRunConfiguration->barPackage();
-
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(runConfiguration->target()->profile());
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target->profile());
     m_sshParams = device->sshParameters();
     // The BlackBerry device always uses key authentication
     m_sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;

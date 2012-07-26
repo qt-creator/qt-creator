@@ -32,8 +32,6 @@
 
 #include <remotelinux/linuxdevicetester.h>
 
-#include <QByteArray>
-
 namespace QSsh {
 class SshRemoteProcessRunner;
 }
@@ -44,11 +42,12 @@ namespace Internal {
 class MaddeDeviceTester : public RemoteLinux::AbstractLinuxDeviceTester
 {
     Q_OBJECT
+
 public:
     explicit MaddeDeviceTester(QObject *parent = 0);
     ~MaddeDeviceTester();
 
-    void testDevice(const QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> &deviceConfiguration);
+    void testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration);
     void stopTest();
 
 private slots:
@@ -70,7 +69,7 @@ private:
     State m_state;
     TestResult m_result;
     QSsh::SshRemoteProcessRunner *m_processRunner;
-    QSharedPointer<const RemoteLinux::LinuxDeviceConfiguration> m_deviceConfiguration;
+    ProjectExplorer::IDevice::ConstPtr m_deviceConfiguration;
 };
 
 } // namespace Internal

@@ -35,15 +35,14 @@
 #include "ui_blackberrydeviceconfigurationwidget.h"
 #include "qnxconstants.h"
 
-#include <remotelinux/linuxdeviceconfiguration.h>
-
 #include <ssh/sshconnection.h>
 #include <utils/pathchooser.h>
 
+using namespace ProjectExplorer;
 using namespace Qnx::Internal;
 
-BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent) :
-    ProjectExplorer::IDeviceWidget(device, parent),
+BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const IDevice::Ptr &device, QWidget *parent) :
+    IDeviceWidget(device, parent),
     ui(new Ui::BlackBerryDeviceConfigurationWidget)
 {
     ui->setupUi(this);
@@ -112,7 +111,7 @@ void BlackBerryDeviceConfigurationWidget::initGui()
     ui->showPasswordCheckBox->setChecked(false);
     ui->debugToken->setPath(deviceConfiguration()->debugToken());
 
-    if (deviceConfiguration()->machineType() == RemoteLinux::LinuxDeviceConfiguration::Emulator) {
+    if (deviceConfiguration()->machineType() == IDevice::Emulator) {
         ui->debugToken->setEnabled(false);
         ui->debugTokenLabel->setEnabled(false);
     }

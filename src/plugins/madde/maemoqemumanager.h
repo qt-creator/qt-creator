@@ -83,7 +83,7 @@ private slots:
     void targetChanged(ProjectExplorer::Target *target);
     void systemChanged();
 
-    void environmentChanged();  // needed to check for qt version
+    void environmentChanged();  // needed to check for Qt version
     void deviceConfigurationChanged(ProjectExplorer::Target *target);
 
     void terminateRuntime();

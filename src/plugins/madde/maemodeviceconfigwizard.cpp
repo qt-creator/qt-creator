@@ -68,9 +68,9 @@ QString defaultUser(Core::Id deviceType)
     return QLatin1String("developer");
 }
 
-QString defaultHost(LinuxDeviceConfiguration::MachineType type)
+QString defaultHost(IDevice::MachineType type)
 {
-    return QLatin1String(type == LinuxDeviceConfiguration::Hardware ? "192.168.2.15" : "localhost");
+    return QLatin1String(type == IDevice::Hardware ? "192.168.2.15" : "localhost");
 }
 
 struct WizardData
@@ -79,7 +79,7 @@ struct WizardData
     QString hostName;
     Core::Id deviceType;
     SshConnectionParameters::AuthenticationType authType;
-    LinuxDeviceConfiguration::MachineType machineType;
+    IDevice::MachineType machineType;
     QString privateKeyFilePath;
     QString publicKeyFilePath;
     QString userName;
@@ -138,8 +138,8 @@ public:
 
     QString hostName() const
     {
-        return machineType() == LinuxDeviceConfiguration::Emulator
-            ? defaultHost(LinuxDeviceConfiguration::Emulator)
+        return machineType() == IDevice::Emulator
+            ? defaultHost(IDevice::Emulator)
             : m_ui->hostNameLineEdit->text().trimmed();
     }
 
@@ -148,22 +148,20 @@ public:
         return m_deviceType;
     }
 
-    LinuxDeviceConfiguration::MachineType machineType() const
+    IDevice::MachineType machineType() const
     {
-        return m_ui->hwButton->isChecked()
-            ? LinuxDeviceConfiguration::Hardware : LinuxDeviceConfiguration::Emulator;
+        return m_ui->hwButton->isChecked() ? IDevice::Hardware : IDevice::Emulator;
     }
 
     int sshPort() const
     {
-        return machineType() == LinuxDeviceConfiguration::Emulator
-            ? 6666 : m_ui->sshPortSpinBox->value();
+        return machineType() == IDevice::Emulator ? 6666 : m_ui->sshPortSpinBox->value();
     }
 
 private slots:
     void handleMachineTypeChanged()
     {
-        const bool enable = machineType() == LinuxDeviceConfiguration::Hardware;
+        const bool enable = machineType() == IDevice::Hardware;
         m_ui->hostNameLabel->setEnabled(enable);
         m_ui->hostNameLineEdit->setEnabled(enable);
         m_ui->sshPortLabel->setEnabled(enable);
@@ -206,7 +204,7 @@ public:
     virtual void initializePage()
     {
         m_ui->keyWasNotSetUpButton->setChecked(true);
-        m_ui->privateKeyFilePathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
+        m_ui->privateKeyFilePathChooser->setPath(IDevice::defaultPrivateKeyFilePath());
         handleSelectionChanged();
     }
 
@@ -262,8 +260,8 @@ public:
     virtual void initializePage()
     {
         m_ui->dontReuseButton->setChecked(true);
-        m_ui->privateKeyFilePathChooser->setPath(LinuxDeviceConfiguration::defaultPrivateKeyFilePath());
-        m_ui->publicKeyFilePathChooser->setPath(LinuxDeviceConfiguration::defaultPublicKeyFilePath());
+        m_ui->privateKeyFilePathChooser->setPath(IDevice::defaultPrivateKeyFilePath());
+        m_ui->publicKeyFilePathChooser->setPath(IDevice::defaultPublicKeyFilePath());
         handleSelectionChanged();
     }
 
@@ -504,7 +502,7 @@ public:
 private:
     QString infoText() const
     {
-        if (m_wizardData.machineType == LinuxDeviceConfiguration::Emulator)
+        if (m_wizardData.machineType == IDevice::Emulator)
             return tr("The new device configuration will now be created.");
         return GenericLinuxDeviceConfigurationWizardFinalPage::infoText();
     }
@@ -563,7 +561,7 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
     sshParams.userName = defaultUser(d->wizardData.deviceType);
     sshParams.host = d->wizardData.hostName;
     sshParams.port = d->wizardData.sshPort;
-    if (d->wizardData.machineType == LinuxDeviceConfiguration::Emulator) {
+    if (d->wizardData.machineType == IDevice::Emulator) {
         sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
         sshParams.password = d->wizardData.deviceType == Core::Id(MeeGoOsType)
             ? QLatin1String("meego") : QString();
@@ -597,7 +595,7 @@ int MaemoDeviceConfigWizard::nextId() const
         d->wizardData.machineType = d->startPage.machineType();
         d->wizardData.hostName = d->startPage.hostName();
         d->wizardData.sshPort = d->startPage.sshPort();
-        if (d->wizardData.machineType == LinuxDeviceConfiguration::Emulator)
+        if (d->wizardData.machineType == IDevice::Emulator)
             return FinalPageId;
         return PreviousKeySetupCheckPageId;
     case PreviousKeySetupCheckPageId:

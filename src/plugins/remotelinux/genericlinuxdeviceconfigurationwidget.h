@@ -32,7 +32,6 @@
 
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
-#include "linuxdeviceconfiguration.h"
 #include "remotelinux_export.h"
 
 namespace RemoteLinux {
@@ -48,7 +47,7 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
 
 public:
     explicit GenericLinuxDeviceConfigurationWidget(
-        const LinuxDeviceConfiguration::Ptr &deviceConfig, QWidget *parent = 0);
+        const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent = 0);
     ~GenericLinuxDeviceConfigurationWidget();
 
 private slots:
@@ -67,7 +66,6 @@ private slots:
 private:
     void updatePortsWarningLabel();
     void initGui();
-    LinuxDeviceConfiguration::Ptr deviceConfiguration() const;
 
     Ui::GenericLinuxDeviceConfigurationWidget *m_ui;
 };

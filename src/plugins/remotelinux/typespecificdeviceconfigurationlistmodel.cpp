@@ -39,16 +39,12 @@ using namespace ProjectExplorer;
 namespace RemoteLinux {
 namespace Internal {
 
-TypeSpecificDeviceConfigurationListModel::TypeSpecificDeviceConfigurationListModel(ProjectExplorer::Target *target)
+TypeSpecificDeviceConfigurationListModel::TypeSpecificDeviceConfigurationListModel(Target *target)
     : QAbstractListModel(target)
 {
     const DeviceManager * const devConfs = DeviceManager::instance();
     connect(devConfs, SIGNAL(updated()), this, SIGNAL(modelReset()));
     connect(target, SIGNAL(profileChanged()), this, SIGNAL(modelReset()));
-}
-
-TypeSpecificDeviceConfigurationListModel::~TypeSpecificDeviceConfigurationListModel()
-{
 }
 
 int TypeSpecificDeviceConfigurationListModel::rowCount(const QModelIndex &parent) const
@@ -70,7 +66,7 @@ QVariant TypeSpecificDeviceConfigurationListModel::data(const QModelIndex &index
 {
     if (!index.isValid() || index.row() >= rowCount() || role != Qt::DisplayRole)
         return QVariant();
-    const LinuxDeviceConfiguration::ConstPtr &devConf = deviceAt(index.row());
+    const IDevice::ConstPtr &devConf = deviceAt(index.row());
     Q_ASSERT(devConf);
     QString displayedName = devConf->displayName();
     if (deviceMatches(devConf)
@@ -80,7 +76,7 @@ QVariant TypeSpecificDeviceConfigurationListModel::data(const QModelIndex &index
     return displayedName;
 }
 
-LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::deviceAt(int idx) const
+IDevice::ConstPtr TypeSpecificDeviceConfigurationListModel::deviceAt(int idx) const
 {
     int currentRow = -1;
     const DeviceManager * const devConfs = DeviceManager::instance();
@@ -88,13 +84,13 @@ LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::dev
     for (int i = 0; i < devConfsCount; ++i) {
         const IDevice::ConstPtr device = devConfs->deviceAt(i);
         if (deviceMatches(device) && ++currentRow == idx)
-            return device.staticCast<const LinuxDeviceConfiguration>();
+            return device;
     }
     QTC_CHECK(false);
-    return LinuxDeviceConfiguration::ConstPtr();
+    return IDevice::ConstPtr();
 }
 
-LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::defaultDeviceConfig() const
+IDevice::ConstPtr TypeSpecificDeviceConfigurationListModel::defaultDeviceConfig() const
 {
     const DeviceManager * const deviceManager = DeviceManager::instance();
     const int deviceCount = deviceManager->deviceCount();
@@ -102,17 +98,17 @@ LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::def
         const IDevice::ConstPtr device = deviceManager->deviceAt(i);
         if (deviceMatches(device)
                 && deviceManager->defaultDevice(device->type()) == device) {
-            return device.staticCast<const LinuxDeviceConfiguration>();
+            return device;
         }
     }
-    return LinuxDeviceConfiguration::ConstPtr();
+    return IDevice::ConstPtr();
 }
 
-LinuxDeviceConfiguration::ConstPtr TypeSpecificDeviceConfigurationListModel::find(Core::Id id) const
+IDevice::ConstPtr TypeSpecificDeviceConfigurationListModel::find(Core::Id id) const
 {
     const IDevice::ConstPtr &devConf = DeviceManager::instance()->find(id);
     if (deviceMatches(devConf))
-        return devConf.staticCast<const LinuxDeviceConfiguration>();
+        return devConf;
     return defaultDeviceConfig();
 }
 
@@ -126,12 +122,12 @@ int TypeSpecificDeviceConfigurationListModel::indexForId(Core::Id id) const
     return -1;
 }
 
-ProjectExplorer::Target *TypeSpecificDeviceConfigurationListModel::target() const
+Target *TypeSpecificDeviceConfigurationListModel::target() const
 {
-    return qobject_cast<ProjectExplorer::Target *>(QObject::parent());
+    return qobject_cast<Target *>(QObject::parent());
 }
 
-bool TypeSpecificDeviceConfigurationListModel::deviceMatches(ProjectExplorer::IDevice::ConstPtr dev) const
+bool TypeSpecificDeviceConfigurationListModel::deviceMatches(IDevice::ConstPtr dev) const
 {
     if (dev.isNull())
         return false;

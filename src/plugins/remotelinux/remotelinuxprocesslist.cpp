@@ -26,16 +26,13 @@
 **
 **
 **************************************************************************/
-#include "remotelinuxprocesslist.h"
 
-#include "linuxdeviceconfiguration.h"
+#include "remotelinuxprocesslist.h"
 
 #include <utils/qtcassert.h>
 #include <ssh/sshremoteprocessrunner.h>
 
-#include <QByteArray>
-#include <QString>
-
+using namespace ProjectExplorer;
 using namespace QSsh;
 
 namespace RemoteLinux {
@@ -55,14 +52,14 @@ static QString visualizeNull(QString s)
 class AbstractRemoteLinuxProcessListPrivate
 {
 public:
-    AbstractRemoteLinuxProcessListPrivate(const LinuxDeviceConfiguration::ConstPtr &devConf)
+    AbstractRemoteLinuxProcessListPrivate(const IDevice::ConstPtr &devConf)
         : deviceConfiguration(devConf),
           state(Inactive)
     {
     }
 
 
-    const LinuxDeviceConfiguration::ConstPtr deviceConfiguration;
+    const IDevice::ConstPtr deviceConfiguration;
     SshRemoteProcessRunner process;
     QList<RemoteProcess> remoteProcesses;
     QString errorMsg;
@@ -73,15 +70,10 @@ public:
 
 using namespace Internal;
 
-AbstractRemoteLinuxProcessList::AbstractRemoteLinuxProcessList(const LinuxDeviceConfiguration::ConstPtr &devConfig,
+AbstractRemoteLinuxProcessList::AbstractRemoteLinuxProcessList(const IDevice::ConstPtr &devConfig,
         QObject *parent)
     : QAbstractTableModel(parent), d(new AbstractRemoteLinuxProcessListPrivate(devConfig))
 {
-}
-
-LinuxDeviceConfiguration::ConstPtr AbstractRemoteLinuxProcessList::deviceConfiguration() const
-{
-    return d->deviceConfiguration;
 }
 
 AbstractRemoteLinuxProcessList::~AbstractRemoteLinuxProcessList()
@@ -224,7 +216,7 @@ void AbstractRemoteLinuxProcessList::setFinished()
 }
 
 
-GenericRemoteLinuxProcessList::GenericRemoteLinuxProcessList(const LinuxDeviceConfiguration::ConstPtr &devConfig,
+GenericRemoteLinuxProcessList::GenericRemoteLinuxProcessList(const IDevice::ConstPtr &devConfig,
         QObject *parent)
     : AbstractRemoteLinuxProcessList(devConfig, parent)
 {

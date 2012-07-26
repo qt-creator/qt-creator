@@ -156,7 +156,7 @@ void AbstractMaemoDeployByMountService::doDeviceSetup()
 {
     QTC_ASSERT(m_state == Inactive, return);
 
-    if (deviceConfiguration()->machineType() == LinuxDeviceConfiguration::Hardware) {
+    if (deviceConfiguration()->machineType() == IDevice::Hardware) {
         handleDeviceSetupDone(true);
         return;
     }
@@ -167,8 +167,7 @@ void AbstractMaemoDeployByMountService::doDeviceSetup()
     }
 
     MaemoQemuRuntime rt;
-    const int qtId = qt4BuildConfiguration()
-            ? QtSupport::QtProfileInformation::qtVersionId(qt4BuildConfiguration()->target()->profile()) : -1;
+    const int qtId = QtSupport::QtProfileInformation::qtVersionId(profile());
     if (MaemoQemuManager::instance().runtimeForQtVersion(qtId, &rt)) {
         MaemoQemuManager::instance().startRuntime();
         emit errorMessage(tr("Cannot deploy: Qemu was not running. "
@@ -192,15 +191,14 @@ void AbstractMaemoDeployByMountService::doDeploy()
 {
     QTC_ASSERT(m_state == Inactive, return);
 
-    if (!qt4BuildConfiguration()) {
+    if (!buildConfiguration()) {
         emit errorMessage(tr("Missing build configuration."));
         setFinished();
         return;
     }
 
     m_state = Mounting;
-    m_mounter->setupMounts(connection(), deviceConfiguration(), mountSpecifications(),
-        qt4BuildConfiguration());
+    m_mounter->setupMounts(connection(), mountSpecifications(), profile());
 }
 
 void AbstractMaemoDeployByMountService::stopDeployment()
@@ -280,7 +278,7 @@ QString AbstractMaemoDeployByMountService::deployMountPoint() const
 {
     return MaemoGlobal::homeDirOnDevice(deviceConfiguration()->sshParameters().userName)
         + QLatin1String("/deployMountPoint_")
-        + qt4BuildConfiguration()->target()->project()->displayName();
+        + buildConfiguration()->target()->project()->displayName();
 }
 
 

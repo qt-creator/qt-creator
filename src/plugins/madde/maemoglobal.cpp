@@ -32,11 +32,12 @@
 #include "maemoconstants.h"
 #include "maemoqemumanager.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <qtsupport/qtprofileinformation.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <utils/environment.h>
 
@@ -46,6 +47,7 @@
 #include <QString>
 #include <QDesktopServices>
 
+using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Constants;
 using namespace RemoteLinux;
@@ -56,9 +58,9 @@ namespace {
 static const QLatin1String binQmake("/bin/qmake" EXEC_SUFFIX);
 } // namespace
 
-bool MaemoGlobal::hasMaemoDevice(const ProjectExplorer::Profile *p)
+bool MaemoGlobal::hasMaemoDevice(const Profile *p)
 {
-    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(p);
+    IDevice::ConstPtr dev = DeviceProfileInformation::device(p);
     if (dev.isNull())
         return false;
 
@@ -67,9 +69,9 @@ bool MaemoGlobal::hasMaemoDevice(const ProjectExplorer::Profile *p)
             || type == Core::Id(MeeGoOsType);
 }
 
-bool MaemoGlobal::supportsMaemoDevice(const ProjectExplorer::Profile *p)
+bool MaemoGlobal::supportsMaemoDevice(const Profile *p)
 {
-    const Core::Id type = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(p);
+    const Core::Id type = DeviceTypeProfileInformation::deviceTypeId(p);
     return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType)
             || type == Core::Id(MeeGoOsType);
 }
@@ -124,9 +126,9 @@ QString MaemoGlobal::devrootshPath()
     return QLatin1String("/usr/lib/mad-developer/devrootsh");
 }
 
-int MaemoGlobal::applicationIconSize(const ProjectExplorer::Target *target)
+int MaemoGlobal::applicationIconSize(const Target *target)
 {
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target->profile());
+    Core::Id deviceType = DeviceTypeProfileInformation::deviceTypeId(target->profile());
     return deviceType == Core::Id(HarmattanOsType) ? 80 : 64;
 }
 
@@ -151,12 +153,14 @@ QString MaemoGlobal::remoteSourceProfilesCommand()
     return QString::fromAscii(remoteCall);
 }
 
-Utils::PortList MaemoGlobal::freePorts(const LinuxDeviceConfiguration::ConstPtr &devConf,
-    const QtSupport::BaseQtVersion *qtVersion)
+Utils::PortList MaemoGlobal::freePorts(const Profile *profile)
 {
+    IDevice::ConstPtr devConf = DeviceProfileInformation::device(profile);
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(profile);
+
     if (!devConf || !qtVersion)
         return Utils::PortList();
-    if (devConf->machineType() == LinuxDeviceConfiguration::Emulator) {
+    if (devConf->machineType() == IDevice::Emulator) {
         MaemoQemuRuntime rt;
         const int id = qtVersion->uniqueId();
         if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))

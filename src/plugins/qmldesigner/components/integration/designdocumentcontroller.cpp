@@ -35,10 +35,6 @@
 #include "subcomponentmanager.h"
 #include "model/viewlogger.h"
 
-#include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qtsupport/qtprofileinformation.h>
-
 #include <itemlibraryview.h>
 #include <itemlibrarywidget.h>
 #include <navigatorview.h>
@@ -62,8 +58,15 @@
 #include <model/modelnodecontextmenu.h>
 #include <designmodewidget.h>
 
-#include <utils/fileutils.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/target.h>
+#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
+#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtsupportconstants.h>
+#include <qtsupport/qtversionmanager.h>
 #include <utils/crumblepath.h>
+#include <utils/fileutils.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -86,12 +89,6 @@
 #include <QUndoStack>
 #include <QPlainTextEdit>
 #include <QApplication>
-
-#include <projectexplorer/projectexplorer.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qtsupport/qtversionmanager.h>
-#include <qtsupport/qtsupportconstants.h>
-#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 
 enum {
     debug = false

@@ -35,7 +35,7 @@
 #include "blackberryrunconfiguration.h"
 #include "blackberrydeployconfiguration.h"
 
-#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
 #include <ssh/sshconnection.h>
 #include <utils/qtcassert.h>
@@ -43,6 +43,7 @@
 #include <QProcess>
 #include <QApplication>
 
+using namespace ProjectExplorer;
 using namespace Qnx;
 using namespace Qnx::Internal;
 
@@ -90,8 +91,9 @@ BlackBerryConnect::BlackBerryConnect(BlackBerryRunConfiguration *runConfig)
     m_process = new QProcess(this);
 
     Utils::Environment env;
-    if (runConfig->activeQt4BuildConfiguration())
-        env = runConfig->activeQt4BuildConfiguration()->environment();
+    Target *target = runConfig->target();
+    if (target->activeBuildConfiguration())
+        env = target->activeBuildConfiguration()->environment();
 
     m_process->setEnvironment(env.toStringList());
     m_connectCmd = env.searchInPath(QLatin1String(CONNECT_CMD));
@@ -101,7 +103,7 @@ BlackBerryConnect::BlackBerryConnect(BlackBerryRunConfiguration *runConfig)
     m_deviceHost = deployConfig->deviceHost();
     m_password = deployConfig->password();
 
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(runConfig->target()->profile());
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target->profile());
     m_publicKeyFile = device->sshParameters().privateKeyFile + QLatin1String(".pub");
 
     connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));

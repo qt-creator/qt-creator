@@ -44,7 +44,7 @@
 
 #include <limits>
 
-using namespace Qt4ProjectManager;
+using namespace ProjectExplorer;
 using namespace QSsh;
 using namespace Utils;
 
@@ -64,8 +64,7 @@ class AbstractRemoteLinuxApplicationRunnerPrivate
 {
 public:
     AbstractRemoteLinuxApplicationRunnerPrivate(const RemoteLinuxRunConfiguration *runConfig)
-        : devConfig(ProjectExplorer::DeviceProfileInformation::device(runConfig->target()->profile())
-                    .dynamicCast<const LinuxDeviceConfiguration>()),
+        : devConfig(DeviceProfileInformation::device(runConfig->target()->profile())),
           remoteExecutable(runConfig->remoteExecutableFilePath()),
           appArguments(runConfig->arguments()),
           commandPrefix(runConfig->commandPrefix()),
@@ -76,7 +75,7 @@ public:
     { }
 
     RemoteLinuxUsedPortsGatherer portsGatherer;
-    LinuxDeviceConfiguration::ConstPtr devConfig;
+    IDevice::ConstPtr devConfig;
     const QString remoteExecutable;
     const QString appArguments;
     const QString commandPrefix;
@@ -115,7 +114,7 @@ SshConnection *AbstractRemoteLinuxApplicationRunner::connection() const
     return d->connection;
 }
 
-LinuxDeviceConfiguration::ConstPtr AbstractRemoteLinuxApplicationRunner::devConfig() const
+IDevice::ConstPtr AbstractRemoteLinuxApplicationRunner::devConfig() const
 {
     return d->devConfig;
 }
@@ -381,11 +380,6 @@ bool AbstractRemoteLinuxApplicationRunner::canRun(QString &whyNot) const
     }
 
     return true;
-}
-
-void AbstractRemoteLinuxApplicationRunner::setDeviceConfiguration(const LinuxDeviceConfiguration::ConstPtr &deviceConfig)
-{
-    d->devConfig = deviceConfig;
 }
 
 void AbstractRemoteLinuxApplicationRunner::handleDeviceSetupDone(bool success)

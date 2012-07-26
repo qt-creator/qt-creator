@@ -50,8 +50,6 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtversionmanager.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
 #include <utils/filesystemwatcher.h>
 
@@ -68,7 +66,6 @@
 #include <limits.h>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
 
 namespace Madde {
@@ -105,7 +102,7 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
     m_qemuAction->setEnabled(false);
     m_qemuAction->setVisible(false);
 
-    // listen to qt version changes to update the start button
+    // listen to Qt version changes to update the start button
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
         this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 
@@ -198,7 +195,7 @@ void MaemoQemuManager::qtVersionsChanged(const QList<int> &added, const QList<in
                 }
             }
         } else {
-            // this qt version has been removed from the settings
+            // this Qt version has been removed from the settings
             m_runtimes.remove(uniqueId);
             if (uniqueId == m_runningQtId) {
                 terminateRuntime();
@@ -252,7 +249,7 @@ void MaemoQemuManager::targetAdded(ProjectExplorer::Target *target)
     if (!target || !MaemoGlobal::hasMaemoDevice(target->profile()))
         return;
 
-    // handle the qt version changes the build configuration uses
+    // handle the Qt version changes the build configuration uses
     connect(target, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
     connect(target, SIGNAL(profileChanged()), this, SLOT(systemChanged()));
 
@@ -286,7 +283,7 @@ void MaemoQemuManager::systemChanged()
 
 void MaemoQemuManager::environmentChanged()
 {
-    // likely to happen when the qt version changes the build config is using
+    // likely to happen when the Qt version changes the build config is using
     if (ProjectExplorerPlugin *explorer = ProjectExplorerPlugin::instance()) {
         if (Project *project = explorer->session()->startupProject())
             toggleStarterButton(project->activeTarget());
@@ -516,10 +513,8 @@ bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
 
     if (qtVersion)
         *qtVersion = version;
-    const LinuxDeviceConfiguration::ConstPtr &config
-            = ProjectExplorer::DeviceProfileInformation::device(target->profile())
-            .dynamicCast<const LinuxDeviceConfiguration>();
-    return !config.isNull() && config->machineType() == LinuxDeviceConfiguration::Emulator;
+    const IDevice::ConstPtr config = DeviceProfileInformation::device(target->profile());
+    return !config.isNull() && config->machineType() == IDevice::Emulator;
 }
 
 void MaemoQemuManager::notify(const QList<int> uniqueIds)

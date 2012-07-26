@@ -150,6 +150,7 @@ const char DisplayNameKey[] = "Name";
 const char TypeKey[] = "OsType";
 const char IdKey[] = "InternalId";
 const char OriginKey[] = "Origin";
+const char MachineTypeKey[] = "Type";
 
 // Connection
 const char HostKey[] = "Host";
@@ -163,6 +164,7 @@ const char TimeoutKey[] = "Timeout";
 
 typedef QSsh::SshConnectionParameters::AuthenticationType AuthType;
 const AuthType DefaultAuthType = QSsh::SshConnectionParameters::AuthenticationByKey;
+const IDevice::MachineType DefaultMachineType = IDevice::Hardware;
 
 const int DefaultTimeout = 10;
 
@@ -172,7 +174,8 @@ class IDevicePrivate
 public:
     IDevicePrivate() :
         origin(IDevice::AutoDetected),
-        deviceState(IDevice::DeviceStateUnknown)
+        deviceState(IDevice::DeviceStateUnknown),
+        machineType(IDevice::Hardware)
     { }
 
     QString displayName;
@@ -180,6 +183,7 @@ public:
     IDevice::Origin origin;
     Core::Id id;
     IDevice::DeviceState deviceState;
+    IDevice::MachineType machineType;
 
     QSsh::SshConnectionParameters sshParameters;
     Utils::PortList freePorts;
@@ -189,10 +193,12 @@ public:
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
 { }
 
-IDevice::IDevice(Core::Id type, Origin origin, Core::Id id) : d(new Internal::IDevicePrivate)
+IDevice::IDevice(Core::Id type, Origin origin, MachineType machineType, Core::Id id)
+    : d(new Internal::IDevicePrivate)
 {
     d->type = type;
     d->origin = origin;
+    d->machineType = machineType;
     QTC_CHECK(origin == ManuallyAdded || id.isValid());
     d->id = id.isValid() ? id : newId();
 }
@@ -288,6 +294,7 @@ void IDevice::fromMap(const QVariantMap &map)
 
     d->freePorts = Utils::PortList::fromString(map.value(PortsSpecKey,
         QLatin1String("10000-10100")).toString());
+    d->machineType = static_cast<MachineType>(map.value(MachineTypeKey, DefaultMachineType).toInt());
 }
 
 QVariantMap IDevice::toMap() const
@@ -298,6 +305,7 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(IdKey), d->id.name());
     map.insert(QLatin1String(OriginKey), d->origin);
 
+    map.insert(MachineTypeKey, d->machineType);
     map.insert(HostKey, d->sshParameters.host);
     map.insert(SshPortKey, d->sshParameters.port);
     map.insert(UserNameKey, d->sshParameters.userName);
@@ -351,6 +359,11 @@ void IDevice::setFreePorts(const Utils::PortList &freePorts)
 Utils::PortList IDevice::freePorts() const
 {
     return d->freePorts;
+}
+
+IDevice::MachineType IDevice::machineType() const
+{
+    return d->machineType;
 }
 
 QString IDevice::defaultPrivateKeyFilePath()

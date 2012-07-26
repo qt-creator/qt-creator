@@ -27,36 +27,33 @@
 **
 **
 **************************************************************************/
+
 #ifndef LINUXDEVICETESTER_H
 #define LINUXDEVICETESTER_H
 
 #include "remotelinux_export.h"
 
-#include <QObject>
-#include <QSharedPointer>
-
-QT_FORWARD_DECLARE_CLASS(QString)
+#include <projectexplorer/devicesupport/idevice.h>
 
 namespace QSsh {
 class SshConnection;
 }
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
 class RemoteLinuxUsedPortsGatherer;
 
 namespace Internal {
 class GenericLinuxDeviceTesterPrivate;
-} // namespace Internal
+}
 
 class REMOTELINUX_EXPORT AbstractLinuxDeviceTester : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(AbstractLinuxDeviceTester)
+
 public:
     enum TestResult { TestSuccess, TestFailure };
 
-    virtual void testDevice(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration) = 0;
+    virtual void testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration) = 0;
     virtual void stopTest() = 0;
 
 signals:
@@ -72,11 +69,12 @@ protected:
 class REMOTELINUX_EXPORT GenericLinuxDeviceTester : public AbstractLinuxDeviceTester
 {
     Q_OBJECT
+
 public:
     explicit GenericLinuxDeviceTester(QObject *parent = 0);
     ~GenericLinuxDeviceTester();
 
-    void testDevice(const QSharedPointer<const LinuxDeviceConfiguration> &deviceConfiguration);
+    void testDevice(const ProjectExplorer::IDevice::ConstPtr &deviceConfiguration);
     void stopTest();
 
     RemoteLinuxUsedPortsGatherer *usedPortsGatherer() const;

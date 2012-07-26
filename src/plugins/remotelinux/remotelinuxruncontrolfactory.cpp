@@ -72,9 +72,7 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
     const RemoteLinuxRunConfiguration * const remoteRunConfig
             = qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration);
     if (mode == DebugRunMode) {
-        LinuxDeviceConfiguration::ConstPtr dev =
-                ProjectExplorer::DeviceProfileInformation::device(runConfiguration->target()->profile())
-                .dynamicCast<const LinuxDeviceConfiguration>();
+        IDevice::ConstPtr dev = DeviceProfileInformation::device(runConfiguration->target()->profile());
         if (dev.isNull())
             return false;
         return remoteRunConfig->portsUsedByDebuggers() <= dev->freePorts().count();

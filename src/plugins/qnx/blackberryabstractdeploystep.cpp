@@ -143,7 +143,7 @@ void BlackBerryAbstractDeployStep::runCommands()
     m_process->setEnvironment(m_environment);
     m_process->setWorkingDirectory(m_buildDirectory);
 
-    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(handleProcessFinished(int, QProcess::ExitStatus)), Qt::DirectConnection);
+    connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(handleProcessFinished(int,QProcess::ExitStatus)), Qt::DirectConnection);
 
     runNextCommand();
 }

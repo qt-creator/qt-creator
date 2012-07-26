@@ -69,7 +69,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 
-#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
 #include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
 #include <qt4projectmanager/qt-s60/s60deployconfiguration.h>

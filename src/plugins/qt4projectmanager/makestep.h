@@ -39,9 +39,7 @@
 
 namespace ProjectExplorer {
 class BuildStep;
-class GnuMakeParser;
 class IBuildStepFactory;
-class Project;
 }
 
 namespace Qt4ProjectManager {

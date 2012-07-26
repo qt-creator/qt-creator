@@ -34,14 +34,12 @@
 #include "maemoremotemounter.h"
 
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qtsupport/qtprofileinformation.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <projectexplorer/profileinformation.h>
 #include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 
-using namespace Qt4ProjectManager;
+using namespace ProjectExplorer;
 using namespace RemoteLinux;
 using namespace QSsh;
 
@@ -71,17 +69,16 @@ MaemoDeploymentMounter::MaemoDeploymentMounter(QObject *parent)
 MaemoDeploymentMounter::~MaemoDeploymentMounter() {}
 
 void MaemoDeploymentMounter::setupMounts(SshConnection *connection,
-    const LinuxDeviceConfiguration::ConstPtr &devConf,
     const QList<MaemoMountSpecification> &mountSpecs,
-    const Qt4BuildConfiguration *bc)
+    const Profile *profile)
 {
     QTC_ASSERT(m_state == Inactive, return);
 
     m_mountSpecs = mountSpecs;
     m_connection = connection;
-    m_devConf = devConf;
+    m_profile = profile;
+    m_devConf = DeviceProfileInformation::device(profile);
     m_mounter->setConnection(m_connection, m_devConf);
-    m_buildConfig = bc;
     connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
     setState(UnmountingOldDirs);
     unmount();
@@ -102,7 +99,7 @@ void MaemoDeploymentMounter::setupMounter()
     setState(UnmountingCurrentDirs);
 
     m_mounter->resetMountSpecifications();
-    m_mounter->setBuildConfiguration(m_buildConfig);
+    m_mounter->setProfile(m_profile);
     foreach (const MaemoMountSpecification &mountSpec, m_mountSpecs)
         m_mounter->addMountSpecification(mountSpec, true);
     unmount();
@@ -173,7 +170,7 @@ void MaemoDeploymentMounter::handlePortListReady()
         return;
 
     setState(Mounting);
-    m_freePorts = MaemoGlobal::freePorts(m_devConf, QtSupport::QtProfileInformation::qtVersion(m_buildConfig->target()->profile()));
+    m_freePorts = MaemoGlobal::freePorts(m_profile);
     m_mounter->mount(&m_freePorts, m_portsGatherer);
 }
 

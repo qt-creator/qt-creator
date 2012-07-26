@@ -40,7 +40,6 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtoutputformatter.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
 
@@ -141,16 +140,11 @@ void RemoteLinuxRunConfiguration::init()
         this, SLOT(handleDeployConfigChanged()));
     handleDeployConfigChanged();
 
-    Qt4Project *pro = static_cast<Qt4Project *>(target()->project());
+    Project *pro = target()->project();
     connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
     connect(target(), SIGNAL(profileChanged()),
             this, SLOT(handleDeployablesUpdated())); // Handles device changes, etc.
-}
-
-Qt4BuildConfiguration *RemoteLinuxRunConfiguration::activeQt4BuildConfiguration() const
-{
-    return static_cast<Qt4BuildConfiguration *>(activeBuildConfiguration());
 }
 
 bool RemoteLinuxRunConfiguration::isEnabled() const
@@ -165,7 +159,7 @@ bool RemoteLinuxRunConfiguration::isEnabled() const
         d->disabledReason = project->disabledReasonForRunConfiguration(d->proFilePath);
         return false;
     }
-    if (!activeQt4BuildConfiguration()) {
+    if (!activeBuildConfiguration()) {
         d->disabledReason = tr("No active build configuration.");
         return false;
     }
