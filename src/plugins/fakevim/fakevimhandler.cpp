@@ -74,6 +74,7 @@
 #include <QStack>
 
 #include <QApplication>
+#include <QClipboard>
 #include <QInputMethodEvent>
 #include <QKeyEvent>
 #include <QLineEdit>
@@ -5267,11 +5268,41 @@ RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const
 
 void FakeVimHandler::Private::setRegisterContents(int reg, const QString &contents)
 {
-    g.registers[reg].contents = contents;
+    bool copyToClipboard = false;
+    bool copyToSelection = false;
+    if (reg == '"') {
+        QStringList list = config(ConfigClipboard).toStringList();
+        copyToClipboard = list.contains(QString("unnamedplus"));
+        copyToSelection = list.contains(QString("unnamed"));
+    } else if (reg == '+') {
+        copyToClipboard = true;
+    } else if (reg == '*') {
+        copyToSelection = true;
+    }
+
+    if (copyToClipboard || copyToSelection) {
+        QClipboard *clipboard = QApplication::clipboard();
+        bool hasSelection = clipboard->supportsSelection();
+        if (copyToClipboard || (copyToSelection && !hasSelection))
+            clipboard->setText(contents, QClipboard::Clipboard);
+        if (copyToSelection && hasSelection)
+            clipboard->setText(contents, QClipboard::Selection);
+    } else {
+        g.registers[reg].contents = contents;
+    }
 }
 
 QString FakeVimHandler::Private::registerContents(int reg) const
 {
+    if (reg == '+')
+        return QApplication::clipboard()->text(QClipboard::Clipboard);
+
+    if (reg == '*') {
+        QClipboard *clipboard = QApplication::clipboard();
+        return clipboard->text(clipboard->supportsSelection() ?
+            QClipboard::Selection : QClipboard::Clipboard);
+    }
+
     return g.registers[reg].contents;
 }
 

@@ -236,6 +236,13 @@ FakeVimSettings *theFakeVimSettings()
     item->setCheckable(true);
     instance->insertItem(ConfigPassControlKey, item, _("passcontrolkey"), _("pck"));
 
+    item = new SavedAction(instance);
+    item->setDefaultValue(QString());
+    item->setValue(QString());
+    item->setSettingsKey(group, _("Clipboard"));
+    item->setCheckable(true);
+    instance->insertItem(ConfigClipboard, item, _("clipboard"), _("cb"));
+
     return instance;
 }
 
