@@ -1,4 +1,4 @@
-/**************************************************************************
+/*************DeviceUsedPortsGatherer*********************************
 **
 ** This file is part of Qt Creator
 **
@@ -42,7 +42,7 @@ class PROJECTEXPLORER_EXPORT DeviceUsedPortsGatherer : public QObject
     Q_OBJECT
 
 public:
-    explicit DeviceUsedPortsGatherer(QObject *parent = 0);
+    DeviceUsedPortsGatherer(QObject *parent = 0);
     ~DeviceUsedPortsGatherer();
 
     void start(const ProjectExplorer::IDevice::ConstPtr &devConf);

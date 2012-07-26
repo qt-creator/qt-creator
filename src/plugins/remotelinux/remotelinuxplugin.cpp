@@ -38,14 +38,11 @@
 #include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxrunconfigurationfactory.h"
 #include "remotelinuxruncontrolfactory.h"
-#include "startgdbserverdialog.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-
-#include <debugger/debuggerconstants.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -87,18 +84,6 @@ RemoteLinuxPlugin::~RemoteLinuxPlugin()
 
 void RemoteLinuxPlugin::extensionsInitialized()
 {
-}
-
-void RemoteLinuxPlugin::startGdbServer()
-{
-    StartGdbServerDialog dlg;
-    dlg.startGdbServer();
-}
-
-void RemoteLinuxPlugin::attachToRemoteProcess()
-{
-    StartGdbServerDialog dlg;
-    dlg.attachToRemoteProcess();
 }
 
 } // namespace Internal

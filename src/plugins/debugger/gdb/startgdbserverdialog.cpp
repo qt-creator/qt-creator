@@ -30,18 +30,23 @@
 
 #include "startgdbserverdialog.h"
 
+#include "debuggercore.h"
+#include "debuggermainwindow.h"
+#include "debuggerplugin.h"
+#include "debuggerprofileinformation.h"
+#include "debuggerrunner.h"
+#include "debuggerstartparameters.h"
+
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/profilechooser.h>
-#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-
+#include <ssh/sshconnection.h>
+#include <ssh/sshremoteprocessrunner.h>
 #include <utils/pathchooser.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
-#include <ssh/sshconnection.h>
-#include <ssh/sshremoteprocessrunner.h>
 
 #include <QVariant>
 #include <QSettings>
@@ -70,12 +75,12 @@ using namespace ProjectExplorer;
 using namespace QSsh;
 using namespace Utils;
 
-const char LastProfile[] = "RemoteLinux/LastProfile";
-const char LastDevice[] = "RemoteLinux/LastDevice";
-const char LastProcessName[] = "RemoteLinux/LastProcessName";
-//const char LastLocalExecutable[] = "RemoteLinux/LastLocalExecutable";
+const char LastProfile[] = "Debugger/LastProfile";
+const char LastDevice[] = "Debugger/LastDevice";
+const char LastProcessName[] = "Debugger/LastProcessName";
+//const char LastLocalExecutable[] = "Debugger/LastLocalExecutable";
 
-namespace RemoteLinux {
+namespace Debugger {
 namespace Internal {
 
 class StartGdbServerDialogPrivate
@@ -103,7 +108,6 @@ public:
 
     DeviceUsedPortsGatherer gatherer;
     SshRemoteProcessRunner runner;
-    QSettings *settings;
     QString remoteCommandLine;
     QString remoteExecutable;
 };
@@ -111,7 +115,7 @@ public:
 StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q)
     : q(q), startServerOnly(true), processList(0)
 {
-    settings = ICore::settings();
+    QSettings *settings = ICore::settings();
 
     profileChooser = new ProfileChooser(q, ProfileChooser::RemoteDebugging);
 
@@ -261,8 +265,9 @@ void StartGdbServerDialog::attachToProcess()
         return;
     }
 
-    d->settings->setValue(LastProfile, d->profileChooser->currentProfileId().toString());
-    d->settings->setValue(LastProcessName, d->processFilterLineEdit->text());
+    QSettings *settings = ICore::settings();
+    settings->setValue(LastProfile, d->profileChooser->currentProfileId().toString());
+    settings->setValue(LastProcessName, d->processFilterLineEdit->text());
 
     startGdbServerOnPort(port, process.pid);
 }
@@ -349,21 +354,73 @@ void StartGdbServerDialog::handleProcessErrorOutput()
 
 void StartGdbServerDialog::reportOpenPort(int port)
 {
+    close();
     logMessage(tr("Port %1 is now accessible.").arg(port));
     IDevice::ConstPtr device = d->currentDevice();
     QString channel = QString("%1:%2").arg(device->sshParameters().host).arg(port);
     logMessage(tr("Server started on %1").arg(channel));
 
-    const char *member = d->startServerOnly ? "gdbServerStarted" : "attachedToProcess";
-    QObject *ob = ExtensionSystem::PluginManager::getObjectByName("DebuggerCore");
-    if (ob) {
-        QMetaObject::invokeMethod(ob, member, Qt::QueuedConnection,
-            Q_ARG(QString, channel),
-            Q_ARG(QString, d->profileChooser->currentProfileId().toString()),
-            Q_ARG(QString, d->remoteCommandLine),
-            Q_ARG(QString, d->remoteExecutable));
+    const Profile *profile = d->profileChooser->currentProfile();
+    QTC_ASSERT(profile, return);
+
+    if (d->startServerOnly) {
+        //showStatusMessage(tr("gdbserver is now listening at %1").arg(channel));
+    } else {
+        QString sysroot = SysRootProfileInformation::sysRoot(profile).toString();
+        QString binary;
+        QString localExecutable;
+        QString candidate = sysroot + d->remoteExecutable;
+        if (QFileInfo(candidate).exists())
+            localExecutable = candidate;
+        if (localExecutable.isEmpty()) {
+            binary = d->remoteCommandLine.section(QLatin1Char(' '), 0, 0);
+            candidate = sysroot + QLatin1Char('/') + binary;
+            if (QFileInfo(candidate).exists())
+                localExecutable = candidate;
+        }
+        if (localExecutable.isEmpty()) {
+            candidate = sysroot + QLatin1String("/usr/bin/") + binary;
+            if (QFileInfo(candidate).exists())
+                localExecutable = candidate;
+        }
+        if (localExecutable.isEmpty()) {
+            candidate = sysroot + QLatin1String("/bin/") + binary;
+            if (QFileInfo(candidate).exists())
+                localExecutable = candidate;
+        }
+        if (localExecutable.isEmpty()) {
+            QMessageBox::warning(DebuggerPlugin::mainWindow(), tr("Warning"),
+                tr("Cannot find local executable for remote process \"%1\".")
+                    .arg(d->remoteCommandLine));
+            return;
+        }
+
+        QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(localExecutable));
+        if (abis.isEmpty()) {
+            QMessageBox::warning(DebuggerPlugin::mainWindow(), tr("Warning"),
+                tr("Cannot find ABI for remote process \"%1\".")
+                    .arg(d->remoteCommandLine));
+            return;
+        }
+
+        DebuggerStartParameters sp;
+        sp.displayName = tr("Remote: \"%1\"").arg(channel);
+        sp.remoteChannel = channel;
+        sp.executable = localExecutable;
+        sp.startMode = AttachToRemoteServer;
+        sp.closeMode = KillAtClose;
+        sp.overrideStartScript.clear();
+        sp.useServerStartScript = false;
+        sp.serverStartScript.clear();
+        sp.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
+        sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
+        sp.connParams = device->sshParameters();
+        if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
+            sp.toolChainAbi = tc->targetAbi();
+
+        if (RunControl *rc = DebuggerPlugin::createDebugger(sp))
+            DebuggerPlugin::startDebugger(rc);
     }
-    close();
 }
 
 void StartGdbServerDialog::handleProcessClosed(int status)
@@ -386,4 +443,4 @@ void StartGdbServerDialog::startGdbServerOnPort(int port, int pid)
     d->runner.run(cmd, device->sshParameters());
 }
 
-} // namespace RemoteLinux
+} // namespace Debugger

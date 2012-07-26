@@ -89,8 +89,6 @@ QtcPlugin {
         "remotelinuxruncontrol.h",
         "remotelinuxutils.cpp",
         "remotelinuxutils.h",
-        "startgdbserverdialog.cpp",
-        "startgdbserverdialog.h",
         "tarpackagecreationstep.h",
         "uploadandinstalltarpackagestep.h",
         "genericdirectuploadservice.h",

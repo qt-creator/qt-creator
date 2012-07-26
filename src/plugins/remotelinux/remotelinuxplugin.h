@@ -47,10 +47,6 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
-
-private slots:
-    void startGdbServer();
-    void attachToRemoteProcess();
 };
 
 } // namespace Internal

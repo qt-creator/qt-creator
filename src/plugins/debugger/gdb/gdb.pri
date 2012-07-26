@@ -13,6 +13,7 @@ HEADERS += \
     $$PWD/remotegdbprocess.h \
     $$PWD/remoteplaingdbadapter.h \
     $$PWD/abstractplaingdbadapter.h \
+    $$PWD/startgdbserverdialog.h \
     $$PWD/symbian.h
 
 SOURCES += \
@@ -32,6 +33,7 @@ SOURCES += \
     $$PWD/remotegdbprocess.cpp \
     $$PWD/remoteplaingdbadapter.cpp \
     $$PWD/abstractplaingdbadapter.cpp \
+    $$PWD/startgdbserverdialog.cpp \
     $$PWD/symbian.cpp
 
 RESOURCES += $$PWD/gdb.qrc

@@ -42,7 +42,6 @@
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/linuxdevicetester.h>
 #include <utils/portlist.h>
-#include <ssh/sshconnection.h>
 
 using namespace ProjectExplorer;
 using namespace Qnx;

@@ -31,20 +31,20 @@
 #ifndef STARTGDBSERVERDIALOG_H
 #define STARTGDBSERVERDIALOG_H
 
-#include "remotelinux_export.h"
+#include "debugger_global.h"
 
 #include <QDialog>
 
-namespace RemoteLinux {
+namespace Debugger {
 
 namespace Internal { class StartGdbServerDialogPrivate; }
 
-class REMOTELINUX_EXPORT StartGdbServerDialog : public QDialog
+class DEBUGGER_EXPORT StartGdbServerDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit StartGdbServerDialog(QWidget *parent = 0);
+    StartGdbServerDialog(QWidget *parent);
     ~StartGdbServerDialog();
 
     void startGdbServer();
@@ -78,6 +78,6 @@ private:
     Internal::StartGdbServerDialogPrivate *d;
 };
 
-} // namespace RemoteLinux
+} // namespace Debugger
 
 #endif // STARTGDBSERVERDIALOG_H

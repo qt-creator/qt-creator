@@ -38,7 +38,6 @@
 #include <debugger/debuggerengine.h>
 #include <utils/qtcassert.h>
 
-using namespace Qnx;
 using namespace Qnx::Internal;
 
 QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::DebuggerEngine *engine)

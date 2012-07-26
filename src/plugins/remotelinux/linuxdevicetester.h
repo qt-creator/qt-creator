@@ -37,10 +37,13 @@
 
 namespace ProjectExplorer { class DeviceUsedPortsGatherer; }
 namespace QSsh { class SshConnection; }
+namespace ProjectExplorer { class DeviceUsedPortsGatherer; }
 
 namespace RemoteLinux {
 
-namespace Internal { class GenericLinuxDeviceTesterPrivate; }
+namespace Internal {
+class GenericLinuxDeviceTesterPrivate;
+}
 
 class REMOTELINUX_EXPORT AbstractLinuxDeviceTester : public QObject
 {
