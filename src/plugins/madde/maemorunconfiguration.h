@@ -53,8 +53,6 @@ public:
 
     Internal::MaemoRemoteMountsModel *remoteMounts() const { return m_remoteMounts; }
     bool hasEnoughFreePorts(ProjectExplorer::RunMode mode) const;
-    QString localDirToMountForRemoteGdb() const;
-    QString remoteProjectSourcesMountPoint() const;
 
 signals:
     void remoteMountsChanged();

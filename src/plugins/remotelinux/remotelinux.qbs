@@ -64,8 +64,6 @@ QtcPlugin {
         "remotelinux.qrc",
         "remotelinux_constants.h",
         "remotelinux_export.h",
-        "remotelinuxapplicationrunner.cpp",
-        "remotelinuxapplicationrunner.h",
         "remotelinuxcustomcommanddeploymentstep.h",
         "remotelinuxcustomcommanddeployservice.cpp",
         "remotelinuxcustomcommanddeployservice.h",

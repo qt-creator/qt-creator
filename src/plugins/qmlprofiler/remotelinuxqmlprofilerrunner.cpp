@@ -27,15 +27,18 @@
 **
 **
 **************************************************************************/
-
 #include "remotelinuxqmlprofilerrunner.h"
-#include <extensionsystem/pluginmanager.h>
+
+#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <remotelinux/remotelinuxapplicationrunner.h>
+#include <projectexplorer/target.h>
+#include <remotelinux/remotelinuxrunconfiguration.h>
+#include <remotelinux/remotelinuxutils.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
-using namespace ExtensionSystem;
 using namespace ProjectExplorer;
 using namespace QmlProfiler::Internal;
 using namespace RemoteLinux;
@@ -43,55 +46,43 @@ using namespace RemoteLinux;
 RemoteLinuxQmlProfilerRunner::RemoteLinuxQmlProfilerRunner(
     RemoteLinuxRunConfiguration *runConfiguration, QObject *parent)
     : AbstractQmlProfilerRunner(parent)
+    , m_portsGatherer(new DeviceUsedPortsGatherer(this))
+    , m_runner(new DeviceApplicationRunner(this))
+    , m_device(DeviceProfileInformation::device(runConfiguration->target()->profile()))
+    , m_remoteExecutable(runConfiguration->remoteExecutableFilePath())
+    , m_arguments(runConfiguration->arguments())
+    , m_commandPrefix(runConfiguration->commandPrefix())
     , m_port(0)
-    , m_runControl(0)
 {
-    // find run control factory
-    IRunControlFactory *runControlFactory = 0;
-    QList<IRunControlFactory*> runControlFactories
-            = PluginManager::getObjects<IRunControlFactory>();
-
-    foreach (IRunControlFactory *factory, runControlFactories) {
-        if (factory->canRun(runConfiguration, NormalRunMode)) {
-            runControlFactory = factory;
-            break;
-        }
-    }
-
-    QTC_ASSERT(runControlFactory, return);
-
-    // create run control
-    RunControl *runControl = runControlFactory->create(runConfiguration, NormalRunMode);
-
-    m_runControl = qobject_cast<AbstractRemoteLinuxRunControl*>(runControl);
-    QTC_ASSERT(m_runControl, return);
-
-    connect(runner(), SIGNAL(readyForExecution()), this, SLOT(getPorts()));
-    connect(runner(), SIGNAL(error(QString)), this, SLOT(handleError(QString)));
-    connect(runner(), SIGNAL(remoteErrorOutput(QByteArray)), this, SLOT(handleStdErr(QByteArray)));
-    connect(runner(), SIGNAL(remoteOutput(QByteArray)), this, SLOT(handleStdOut(QByteArray)));
-
-    connect(runner(), SIGNAL(remoteProcessStarted()), this, SLOT(handleRemoteProcessStarted()));
-    connect(runner(), SIGNAL(remoteProcessFinished(qint64)),
-            this, SLOT(handleRemoteProcessFinished(qint64)));
-    connect(runner(), SIGNAL(reportProgress(QString)), this, SLOT(handleProgressReport(QString)));
+    connect(m_runner, SIGNAL(reportError(QString)), this, SLOT(handleError(QString)));
+    connect(m_runner, SIGNAL(remoteStderr(QByteArray)), this, SLOT(handleStdErr(QByteArray)));
+    connect(m_runner, SIGNAL(remoteStdout(QByteArray)), this, SLOT(handleStdOut(QByteArray)));
+    connect(m_runner, SIGNAL(finished(bool)), SLOT(handleRemoteProcessFinished(bool)));
+    connect(m_runner, SIGNAL(reportProgress(QString)), this, SLOT(handleProgressReport(QString)));
+    connect(m_portsGatherer, SIGNAL(error(QString)), SLOT(handlePortsGathererError(QString)));
+    connect(m_portsGatherer, SIGNAL(portListReady()), SLOT(handlePortListReady()));
 }
 
 RemoteLinuxQmlProfilerRunner::~RemoteLinuxQmlProfilerRunner()
 {
-    delete m_runControl;
+    stop();
 }
 
 void RemoteLinuxQmlProfilerRunner::start()
 {
-    QTC_ASSERT(runner(), return);
-    runner()->start();
+    QTC_ASSERT(m_port == 0, return);
+
+    m_portsGatherer->start(m_device);
+    emit started();
 }
 
 void RemoteLinuxQmlProfilerRunner::stop()
 {
-    QTC_ASSERT(runner(), return);
-    runner()->stop();
+    if (m_port == 0)
+        m_portsGatherer->stop();
+    else
+        m_runner->stop(RemoteLinuxUtils::killApplicationCommandLine(m_remoteExecutable).toUtf8());
+    m_port = 0;
 }
 
 quint16 RemoteLinuxQmlProfilerRunner::debugPort() const
@@ -99,26 +90,37 @@ quint16 RemoteLinuxQmlProfilerRunner::debugPort() const
     return m_port;
 }
 
+void RemoteLinuxQmlProfilerRunner::handlePortsGathererError(const QString &message)
+{
+    emit appendMessage(tr("Gathering ports failed: %1").arg(message), Utils::ErrorMessageFormat);
+    m_port = 0;
+    emit stopped();
+}
+
+void RemoteLinuxQmlProfilerRunner::handlePortListReady()
+{
+    getPorts();
+}
+
 void RemoteLinuxQmlProfilerRunner::getPorts()
 {
-    QTC_ASSERT(runner(), return);
-    m_port = runner()->freePorts()->getNext();
-    if (m_port == 0) {
+    Utils::PortList portList = m_device->freePorts();
+    m_port = m_portsGatherer->getNextFreePort(&portList);
+
+    if (m_port == -1) {
         emit appendMessage(tr("Not enough free ports on device for analyzing.\n"),
                            Utils::ErrorMessageFormat);
-        runner()->stop();
+        m_port = 0;
+        emit stopped();
     } else {
         emit appendMessage(tr("Starting remote process ...\n"), Utils::NormalMessageFormat);
-
-        QString arguments = runner()->arguments();
+        QString arguments = m_arguments;
         if (!arguments.isEmpty())
             arguments.append(QLatin1Char(' '));
         arguments.append(QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(m_port));
-
-        runner()->startExecution(QString::fromLatin1("%1 %2 %3")
-                                 .arg(runner()->commandPrefix())
-                                 .arg(runner()->remoteExecutable())
-                                 .arg(arguments).toUtf8());
+        const QString commandLine = QString::fromLatin1("%1 %2 %3")
+                .arg(m_commandPrefix, m_remoteExecutable, arguments);
+        m_runner->start(m_device, commandLine.toUtf8());
     }
 }
 
@@ -137,18 +139,11 @@ void RemoteLinuxQmlProfilerRunner::handleStdOut(const QByteArray &msg)
     emit appendMessage(QString::fromUtf8(msg), Utils::StdOutFormat);
 }
 
-void RemoteLinuxQmlProfilerRunner::handleRemoteProcessStarted()
+void RemoteLinuxQmlProfilerRunner::handleRemoteProcessFinished(bool success)
 {
-    emit started();
-}
-
-void RemoteLinuxQmlProfilerRunner::handleRemoteProcessFinished(qint64 exitCode)
-{
-    if (exitCode != AbstractRemoteLinuxApplicationRunner::InvalidExitCode) {
-        appendMessage(tr("Finished running remote process. Exit code was %1.\n")
-                      .arg(exitCode), Utils::NormalMessageFormat);
-    }
-
+    if (!success)
+        appendMessage(tr("Failure running remote process."), Utils::NormalMessageFormat);
+    m_port = 0;
     emit stopped();
 }
 
@@ -156,11 +151,3 @@ void RemoteLinuxQmlProfilerRunner::handleProgressReport(const QString &progressS
 {
     appendMessage(progressString + QLatin1Char('\n'), Utils::NormalMessageFormat);
 }
-
-AbstractRemoteLinuxApplicationRunner *RemoteLinuxQmlProfilerRunner::runner() const
-{
-    if (!m_runControl)
-        return 0;
-    return m_runControl->runner();
-}
-

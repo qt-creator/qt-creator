@@ -32,8 +32,16 @@
 #define REMOTELINUXQMLPROFILERRUNNER_H
 
 #include "abstractqmlprofilerrunner.h"
-#include <remotelinux/remotelinuxrunconfiguration.h>
-#include <remotelinux/remotelinuxruncontrol.h>
+
+#include <projectexplorer/devicesupport/idevice.h>
+
+#include <QString>
+
+namespace ProjectExplorer {
+class DeviceApplicationRunner;
+class DeviceUsedPortsGatherer;
+}
+namespace RemoteLinux { class RemoteLinuxRunConfiguration; }
 
 namespace QmlProfiler {
 namespace Internal {
@@ -54,19 +62,24 @@ public:
     virtual quint16 debugPort() const;
 
 private slots:
-    void getPorts();
     void handleError(const QString &msg);
     void handleStdErr(const QByteArray &msg);
     void handleStdOut(const QByteArray &msg);
-    void handleRemoteProcessStarted();
-    void handleRemoteProcessFinished(qint64);
+    void handleRemoteProcessFinished(bool success);
     void handleProgressReport(const QString &progressString);
+    void handlePortsGathererError(const QString &message);
+    void handlePortListReady();
 
 private:
-    RemoteLinux::AbstractRemoteLinuxApplicationRunner *runner() const;
+    void getPorts();
 
-    quint16 m_port;
-    RemoteLinux::AbstractRemoteLinuxRunControl *m_runControl;
+    ProjectExplorer::DeviceUsedPortsGatherer * const m_portsGatherer;
+    ProjectExplorer::DeviceApplicationRunner * const m_runner;
+    const ProjectExplorer::IDevice::ConstPtr m_device;
+    const QString m_remoteExecutable;
+    const QString m_arguments;
+    const QString m_commandPrefix;
+    int m_port;
 };
 
 } // namespace Internal

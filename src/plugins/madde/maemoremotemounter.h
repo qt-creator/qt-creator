@@ -59,7 +59,7 @@ public:
     ~MaemoRemoteMounter();
 
     void setParameters(const ProjectExplorer::IDevice::ConstPtr &devConf,
-            const Utils::FileName &fileName);
+            const Utils::FileName &maddeRoot);
     void addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
     bool hasValidMountSpecifications() const;

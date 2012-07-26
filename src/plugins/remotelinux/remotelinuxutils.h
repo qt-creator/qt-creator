@@ -40,7 +40,7 @@ class LinuxDeviceConfiguration;
 class REMOTELINUX_EXPORT RemoteLinuxUtils
 {
 public:
-    static QString deviceConfigurationName(const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
+    static QString killApplicationCommandLine(const QString &applicationFilePath);
 };
 
 } // namespace RemoteLinux

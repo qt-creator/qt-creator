@@ -49,6 +49,7 @@ public:
     static QString addQuotes(const QString &string);
     static Qnx::QnxArchitecture cpudirToArch(const QString &cpuDir);
     static QStringList searchPaths(QnxAbstractQtVersion *qtVersion);
+    static QString applicationKillCommand(const QString &applicationFilePath);
 };
 
 } // namespace Internal

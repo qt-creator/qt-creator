@@ -45,6 +45,7 @@
 #include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
 #include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
 #include <qmldebug/qmloutputparser.h>
+#include <remotelinux/remotelinuxrunconfiguration.h>
 
 #include <QMainWindow>
 #include <QMessageBox>
@@ -370,6 +371,7 @@ void QmlProfilerEngine::profilerStateChanged()
     case QmlProfilerStateManager::Idle : {
         // When all the profiling is done, delete the profiler runner
         // (a new one will be created at start)
+        d->m_noDebugOutputTimer.stop();
         if (d->m_runner) {
             delete d->m_runner;
             d->m_runner = 0;

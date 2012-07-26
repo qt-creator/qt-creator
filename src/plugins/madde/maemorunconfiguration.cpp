@@ -135,32 +135,6 @@ Utils::PortList MaemoRunConfiguration::freePorts() const
     return MaemoGlobal::freePorts(target()->profile());
 }
 
-QString MaemoRunConfiguration::localDirToMountForRemoteGdb() const
-{
-    const QString projectDir
-        = QDir::fromNativeSeparators(QDir::cleanPath(activeBuildConfiguration()
-            ->target()->project()->projectDirectory()));
-    const QString execDir
-        = QDir::fromNativeSeparators(QFileInfo(localExecutableFilePath()).path());
-    const int length = qMin(projectDir.length(), execDir.length());
-    int lastSeparatorPos = 0;
-    for (int i = 0; i < length; ++i) {
-        if (projectDir.at(i) != execDir.at(i))
-            return projectDir.left(lastSeparatorPos);
-        if (projectDir.at(i) == QLatin1Char('/'))
-            lastSeparatorPos = i;
-    }
-    return projectDir.length() == execDir.length()
-        ? projectDir : projectDir.left(lastSeparatorPos);
-}
-
-QString MaemoRunConfiguration::remoteProjectSourcesMountPoint() const
-{
-    return MaemoGlobal::homeDirOnDevice(DeviceProfileInformation::device(target()->profile())->sshParameters().userName)
-        + QLatin1String("/gdbSourcesDir_")
-        + QFileInfo(localExecutableFilePath()).fileName();
-}
-
 bool MaemoRunConfiguration::hasEnoughFreePorts(RunMode mode) const
 {
     const int freePortCount = freePorts().count();

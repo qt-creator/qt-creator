@@ -11,7 +11,6 @@ HEADERS += \
     debianmanager.h \
     maemoconstants.h \
     maemorunconfigurationwidget.h \
-    maemoruncontrol.h \
     maemorunfactories.h \
     maemosettingspages.h \
     maemopackagecreationstep.h \
@@ -20,8 +19,6 @@ HEADERS += \
     maemoqemumanager.h \
     maemodeploystepfactory.h \
     maemoglobal.h \
-    maemosshrunner.h \
-    maemodebugsupport.h \
     maemoremotemountsmodel.h \
     maemomountspecification.h \
     maemoremotemounter.h \
@@ -52,13 +49,13 @@ HEADERS += \
     maddedevicetester.h \
     maddedeviceconfigurationfactory.h \
     maddedevice.h \
-    rpmmanager.h
+    rpmmanager.h \
+    maemoapplicationrunnerhelperactions.h
 
 SOURCES += \
     maddeplugin.cpp \
     debianmanager.cpp \
     maemorunconfigurationwidget.cpp \
-    maemoruncontrol.cpp \
     maemorunfactories.cpp \
     maemosettingspages.cpp \
     maemopackagecreationstep.cpp \
@@ -67,8 +64,6 @@ SOURCES += \
     maemoqemumanager.cpp \
     maemodeploystepfactory.cpp \
     maemoglobal.cpp \
-    maemosshrunner.cpp \
-    maemodebugsupport.cpp \
     maemoremotemountsmodel.cpp \
     maemomountspecification.cpp \
     maemoremotemounter.cpp \
@@ -98,7 +93,8 @@ SOURCES += \
     maddedevicetester.cpp \
     maemorunconfiguration.cpp \
     maddedevice.cpp \
-    rpmmanager.cpp
+    rpmmanager.cpp \
+    maemoapplicationrunnerhelperactions.cpp
 
 FORMS += \
     maemopackagecreationwidget.ui \
