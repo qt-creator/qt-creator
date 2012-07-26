@@ -74,7 +74,7 @@ LldbOptionsPage::LldbOptionsPage()
     setId(QLatin1String("F.Lldb"));
     setDisplayName(tr("LLDB"));
     setCategory(QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY));
-    setDisplayCategory(QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY);
+    setDisplayCategory(QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QIcon(QLatin1String(Constants::DEBUGGER_COMMON_SETTINGS_CATEGORY_ICON)));
 }
 
