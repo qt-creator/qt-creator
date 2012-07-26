@@ -147,7 +147,7 @@ bool MakeStep::init()
     if (!bc) {
         m_tasks.append(Task(Task::Error, tr("Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode."),
                                              Utils::FileName(), -1,
-                                             Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                                             Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return false;
     }
 
@@ -155,7 +155,7 @@ bool MakeStep::init()
     if (!tc) {
         m_tasks.append(Task(Task::Error, tr("Qt Creator needs a tool chain set up to build. Configure a tool chain the profile options."),
                                              Utils::FileName(), -1,
-                                             Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+                                             Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return false;
     }
 
@@ -528,7 +528,7 @@ BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)
     if (!canCreate(parent, id))
         return 0;
     MakeStep *step = new MakeStep(parent);
-    if (parent->id() == Core::Id(Constants::BUILDSTEPS_CLEAN)) {
+    if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)) {
         step->setClean(true);
         step->setUserArguments(QLatin1String("clean"));
     }
