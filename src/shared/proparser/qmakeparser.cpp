@@ -169,6 +169,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, bool cache)
                 delete pro;
                 pro = 0;
             } else {
+                pro->itemsRef()->squeeze();
                 pro->ref();
             }
             ent->pro = pro;
@@ -807,8 +808,8 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
     }
     while (m_blockstack.size())
         leaveScope(tokPtr);
-    xprBuff.clear();
-    *pro->itemsRef() = QString(tokBuff.constData(), tokPtr - (ushort *)tokBuff.constData());
+    tokBuff.resize(tokPtr - (ushort *)tokBuff.constData()); // Reserved capacity stays
+    *pro->itemsRef() = tokBuff;
     return true;
 
 #undef FLUSH_VALUE_LIST
