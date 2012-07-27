@@ -490,8 +490,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
     ProStringList curr;
     bool okey = true, or_op = false, invert = false;
     uint blockLen;
-    VisitReturn ret = ReturnTrue;
     while (ushort tok = *tokPtr++) {
+        VisitReturn ret;
         switch (tok) {
         case TokLine:
             m_current.line = *tokPtr++;
@@ -630,9 +630,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
             Q_ASSERT_X(false, "visitProBlock", "unexpected item type");
         }
         if (ret != ReturnTrue && ret != ReturnFalse)
-            break;
+            return ret;
     }
-    return ret;
+    return returnBool(okey);
 }
 
 

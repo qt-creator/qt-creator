@@ -1017,10 +1017,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             if (!pro)
                 return ReturnFalse;
             m_locationStack.push(m_current);
-            VisitReturn ret = visitProBlock(pro, pro->tokPtr());
+            visitProBlock(pro, pro->tokPtr());
             m_current = m_locationStack.pop();
             pro->deref();
-            return ret;
+            return ReturnTrue; // This return value is not too useful, but that's qmake
         }
     case T_BREAK:
         if (m_skipLevel)
