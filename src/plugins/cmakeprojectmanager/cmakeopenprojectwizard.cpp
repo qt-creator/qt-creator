@@ -413,7 +413,8 @@ void CMakeRunPage::initializePage()
         if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
             if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor) {
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor) {
                 if (hasCodeBlocksGenerator && (cachedGenerator.isEmpty() || cachedGenerator == "NMake Makefiles"))
                     m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(p->displayName()), profileVariant);
              } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {

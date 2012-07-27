@@ -151,8 +151,11 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
             case 10:
                 flavor = Abi::WindowsMsvc2010Flavor;
                 break;
-            default:
-                // Keep unknown flavor
+            case 11:
+                flavor = Abi::WindowsMsvc2012Flavor;
+                break;
+            default: // Keep unknown flavor
+                qWarning("%s: Unknown MSVC flavour encountered.", Q_FUNC_INFO);
                 break;
             }
         }
@@ -403,6 +406,8 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = WindowsMsvc2008Flavor;
         else if (abiParts.at(2) == QLatin1String("msvc2010") && m_os == WindowsOS)
             m_osFlavor = WindowsMsvc2010Flavor;
+        else if (abiParts.at(2) == QLatin1String("msvc2012") && m_os == WindowsOS)
+            m_osFlavor = WindowsMsvc2012Flavor;
         else if (abiParts.at(2) == QLatin1String("msys") && m_os == WindowsOS)
             m_osFlavor = WindowsMSysFlavor;
         else if (abiParts.at(2) == QLatin1String("ce") && m_os == WindowsOS)
@@ -585,6 +590,8 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("msvc2008");
     case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
         return QLatin1String("msvc2010");
+    case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
+        return QLatin1String("msvc2012");
     case ProjectExplorer::Abi::WindowsMSysFlavor:
         return QLatin1String("msys");
     case ProjectExplorer::Abi::WindowsCEFlavor:
@@ -626,7 +633,8 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
     case BsdOS:
         return result << FreeBsdFlavor << OpenBsdFlavor << NetBsdFlavor;
     case LinuxOS:
-        return result << GenericLinuxFlavor << HarmattanLinuxFlavor << MaemoLinuxFlavor << MeegoLinuxFlavor;
+        return result << GenericLinuxFlavor << HarmattanLinuxFlavor << MaemoLinuxFlavor << MeegoLinuxFlavor
+                      << AndroidLinuxFlavor;
     case MacOS:
         return result << GenericMacFlavor;
     case SymbianOS:
@@ -635,7 +643,7 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
         return result << GenericUnixFlavor << SolarisUnixFlavor;
     case WindowsOS:
         return result << WindowsMsvc2005Flavor << WindowsMsvc2008Flavor << WindowsMsvc2010Flavor
-                      << WindowsMSysFlavor << WindowsCEFlavor;
+                      << WindowsMsvc2012Flavor << WindowsMSysFlavor << WindowsCEFlavor;
     case UnknownOS:
         return result << UnknownFlavor;
     default:
@@ -653,7 +661,9 @@ Abi Abi::hostAbi()
 
 #if defined (Q_OS_WIN)
     os = WindowsOS;
-#if _MSC_VER == 1600
+#if _MSC_VER == 1700
+    subos = WindowsMsvc2012Flavor;
+#elif _MSC_VER == 1600
     subos = WindowsMsvc2010Flavor;
 #elif _MSC_VER == 1500
     subos = WindowsMsvc2008Flavor;
@@ -673,7 +683,11 @@ Abi Abi::hostAbi()
     format = MachOFormat;
 #endif
 
-    return Abi(arch, os, subos, format, QSysInfo::WordSize);
+    const Abi result(arch, os, subos, format, QSysInfo::WordSize);
+    if (!result.isValid())
+        qWarning("Unable to completely determine the host ABI (%s).",
+                 qPrintable(result.toString()));
+    return result;
 }
 
 QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
@@ -806,6 +820,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("dynamic QtCore: symbian")
             << QString::fromLatin1("%1/dynamic/symbian.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("arm-symbian-device-elf-32bit"));
+    QTest::newRow("dynamic QtCore: win msvc2012 64bit")
+            << QString::fromLatin1("/tmp/win-msvc2012-64bit.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msvc2012-pe-64bit"));
     QTest::newRow("dynamic QtCore: win msvc2010 64bit")
             << QString::fromLatin1("%1/dynamic/win-msvc2010-64bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2010-pe-64bit"));

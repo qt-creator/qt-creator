@@ -363,7 +363,8 @@ static inline bool isMsvcFlavor(Abi::OSFlavor osf)
 {
   return osf == Abi::WindowsMsvc2005Flavor
       || osf == Abi::WindowsMsvc2008Flavor
-      || osf == Abi::WindowsMsvc2010Flavor;
+      || osf == Abi::WindowsMsvc2010Flavor
+      || osf == Abi::WindowsMsvc2012Flavor;
 }
 
 bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)

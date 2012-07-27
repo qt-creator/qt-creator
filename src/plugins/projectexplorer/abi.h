@@ -94,6 +94,7 @@ public:
         WindowsMsvc2005Flavor,
         WindowsMsvc2008Flavor,
         WindowsMsvc2010Flavor,
+        WindowsMsvc2012Flavor,
         WindowsMSysFlavor,
         WindowsCEFlavor,
 

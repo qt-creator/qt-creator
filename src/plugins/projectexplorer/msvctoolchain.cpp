@@ -109,14 +109,19 @@ static Abi findAbiOfMsvc(MsvcToolChain::Type type, MsvcToolChain::Platform platf
         else
             msvcVersionString = QLatin1String("8.0");
     }
-    if (msvcVersionString.startsWith(QLatin1String("10.")))
+    if (msvcVersionString.startsWith(QLatin1String("11.")))
+        flavor = Abi::WindowsMsvc2012Flavor;
+    else if (msvcVersionString.startsWith(QLatin1String("10.")))
         flavor = Abi::WindowsMsvc2010Flavor;
     else if (msvcVersionString.startsWith(QLatin1String("9.")))
         flavor = Abi::WindowsMsvc2008Flavor;
     else
         flavor = Abi::WindowsMsvc2005Flavor;
-
-    return Abi(arch, Abi::WindowsOS, flavor, Abi::PEFormat, wordWidth);
+    const Abi result = Abi(arch, Abi::WindowsOS, flavor, Abi::PEFormat, wordWidth);
+    if (!result.isValid())
+        qWarning("Unable to completely determine the ABI of MSVC version %s (%s).",
+                 qPrintable(version), qPrintable(result.toString()));
+    return result;
 }
 
 static QString generateDisplayName(const QString &name,
@@ -341,12 +346,21 @@ QString MsvcToolChain::typeDisplayName() const
 
 QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
 {
-    if (m_abi.osFlavor() == Abi::WindowsMsvc2005Flavor)
+    switch (m_abi.osFlavor()) {
+    case ProjectExplorer::Abi::WindowsMsvc2005Flavor:
         return QList<Utils::FileName>() << Utils::FileName::fromString(QLatin1String("win32-msvc2005"));
-    if (m_abi.osFlavor() == Abi::WindowsMsvc2008Flavor)
+    case ProjectExplorer::Abi::WindowsMsvc2008Flavor:
         return QList<Utils::FileName>() << Utils::FileName::fromString(QLatin1String("win32-msvc2008"));
-    if (m_abi.osFlavor() == Abi::WindowsMsvc2010Flavor)
+    case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
         return QList<Utils::FileName>() << Utils::FileName::fromString(QLatin1String("win32-msvc2010"));
+    case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
+        QList<Utils::FileName>()
+            << Utils::FileName::fromString(QLatin1String("win32-msvc2012"))
+            << Utils::FileName::fromString(QLatin1String("win32-msvc2010"));
+        break;
+    default:
+        break;
+    }
     return QList<Utils::FileName>();
 }
 
