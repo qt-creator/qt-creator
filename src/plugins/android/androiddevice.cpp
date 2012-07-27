@@ -44,7 +44,7 @@ AndroidDevice::AndroidDevice()
                              IDevice::Hardware,
                              Core::Id(Constants::ANDROID_DEVICE_ID))
 {
-    setDisplayName(QCoreApplication::translate("ProjectExplorer::AndroidDevice", "Run on Android"));
+    setDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice", "Run on Android"));
     setDeviceState(DeviceReadyToUse);
 }
 
@@ -60,7 +60,7 @@ IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 
 QString AndroidDevice::displayType() const
 {
-    return QCoreApplication::translate("ProjectExplorer::AndroidDevice", "Android");
+    return QCoreApplication::translate("Android::Internal::AndroidDevice", "Android");
 }
 
 IDeviceWidget *AndroidDevice::createWidget()

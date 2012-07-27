@@ -67,8 +67,7 @@ QList<Core::Id> AndroidPackageCreationFactory::availableCreationIds(ProjectExplo
 QString AndroidPackageCreationFactory::displayNameForId(const Core::Id id) const
 {
     if (id == AndroidPackageCreationStep::CreatePackageId)
-        return QCoreApplication::translate("Qt4ProjectManager::Internal::AndroidPackageCreationFactory",
-                                           "Create Android (.apk) Package");
+        return tr("Create Android (.apk) Package");
     return QString();
 }
 

@@ -423,7 +423,7 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
         Core::ICore::helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
     }
     if (!errorMessage.isEmpty())
-        QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errorMessage);
+        QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);
 }
 
 void ExamplesWelcomePage::updateTagsModel()

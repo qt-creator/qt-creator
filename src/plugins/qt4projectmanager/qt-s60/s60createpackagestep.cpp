@@ -192,11 +192,11 @@ bool S60CreatePackageStep::init()
     SymbianQtVersion *sqv
             = dynamic_cast<SymbianQtVersion *>(QtSupport::QtProfileInformation::qtVersion(target()->profile()));
     if (!sqv) {
-        emit addOutput(tr("The selected profile is not configured with a Symbian Qt"), BuildStep::ErrorOutput);
+        emit addOutput(tr("The selected target is not configured with a Symbian Qt"), BuildStep::ErrorOutput);
         return false;
     }
     if (!tc) {
-        emit addOutput(tr("The selected profile has no toolchain"), BuildStep::ErrorOutput);
+        emit addOutput(ProjectExplorer::ToolChainProfileInformation::msgNoToolChainInTarget(), BuildStep::ErrorOutput);
         return false;
     }
     m_isBuildWithSymbianSbsV2 = sqv->isBuildWithSymbianSbsV2();

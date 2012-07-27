@@ -81,9 +81,10 @@ QList<Task> SysRootProfileInformation::validate(Profile *p) const
 {
     QList<Task> result;
     const Utils::FileName dir = SysRootProfileInformation::sysRoot(p);
-    if (!dir.toFileInfo().isDir() && SysRootProfileInformation::hasSysRoot(p))
-        result << Task(Task::Error, QObject::tr("Sys Root \"%1\" is not a directory.").arg(dir.toUserOutput()),
+    if (!dir.toFileInfo().isDir() && SysRootProfileInformation::hasSysRoot(p)) {
+        result << Task(Task::Error, tr("Sys Root \"%1\" is not a directory.").arg(dir.toUserOutput()),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+    }
     return result;
 }
 
@@ -165,7 +166,7 @@ QList<Task> ToolChainProfileInformation::validate(Profile *p) const
     QList<Task> result;
     if (!toolChain(p)) {
         setToolChain(p, 0); // make sure to clear out no longer known tool chains
-        result << Task(Task::Error, QObject::tr("No tool chain set up."),
+        result << Task(Task::Error, ToolChainProfileInformation::msgNoToolChainInTarget(),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     return result;
@@ -203,6 +204,11 @@ void ToolChainProfileInformation::setToolChain(Profile *p, ToolChain *tc)
     p->setValue(Core::Id(TOOLCHAIN_INFORMATION), tc ? tc->id() : QString());
 }
 
+QString ToolChainProfileInformation::msgNoToolChainInTarget()
+{
+    return tr("No tool chain set in target.");
+}
+
 // --------------------------------------------------------------------------
 // DeviceTypeInformation:
 // --------------------------------------------------------------------------
@@ -236,7 +242,7 @@ QList<Task> DeviceTypeProfileInformation::validate(Profile *p) const
     IDevice::ConstPtr dev = DeviceProfileInformation::device(p);
     QList<Task> result;
     if (!dev.isNull() && dev->type() != DeviceTypeProfileInformation::deviceTypeId(p))
-        result.append(Task(Task::Error, QObject::tr("Device does not match device type."),
+        result.append(Task(Task::Error, tr("Device does not match device type."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
     return result;
 }

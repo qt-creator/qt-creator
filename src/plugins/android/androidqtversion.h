@@ -30,13 +30,17 @@
 
 #ifndef ANDROIDQTVERSION_H
 #define ANDROIDQTVERSION_H
+
 #include <qtsupport/baseqtversion.h>
+
+#include <QCoreApplication>
 
 namespace Android {
 namespace Internal {
 
 class AndroidQtVersion : public QtSupport::BaseQtVersion
 {
+    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidQtVersion)
 public:
     AndroidQtVersion();
     AndroidQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());

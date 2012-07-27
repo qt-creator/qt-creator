@@ -87,6 +87,12 @@ public:
     // added to revision control. Calls vcsAdd for each file.
     void promptToAdd(const QString &directory, const QStringList &fileNames);
 
+    // Utility messages for adding files
+    static QString msgAddToVcsTitle();
+    static QString msgPromptToAddToVcs(const QStringList &files, const IVersionControl *vc);
+    static QString msgAddToVcsFailedTitle();
+    static QString msgToAddToVcsFailed(const QStringList &files, const IVersionControl *vc);
+
 signals:
     void repositoryChanged(const QString &repository);
 

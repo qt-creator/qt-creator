@@ -45,7 +45,7 @@ namespace Internal {
 
 class BlackBerryDeviceConfiguration : public RemoteLinux::LinuxDeviceConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(BlackBerryDeviceConfiguration)
+    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::BlackBerryDeviceConfiguration)
 public:
     typedef QSharedPointer<BlackBerryDeviceConfiguration> Ptr;
     typedef QSharedPointer<const BlackBerryDeviceConfiguration> ConstPtr;

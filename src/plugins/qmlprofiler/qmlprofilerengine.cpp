@@ -217,8 +217,11 @@ void QmlProfilerEngine::stop()
     case QmlProfilerStateManager::AppDying :
         // valid, but no further action is needed
         break;
-    default:
-        qDebug() << tr("Unexpected engine stop from state %1 in %2:%3").arg(d->m_profilerState->currentStateAsString(), QString(__FILE__), QString::number(__LINE__));
+    default: {
+        const QString message = QString::fromLatin1("Unexpected engine stop from state %1 in %2:%3")
+            .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
+        qWarning("%s", qPrintable(message));
+    }
         break;
     }
 }
@@ -239,8 +242,11 @@ void QmlProfilerEngine::processEnded()
     case QmlProfilerStateManager::AppKilled :
         d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
         break;
-    default:
-        qDebug() << tr("Process died unexpectedly from state %1 in %2:%3").arg(d->m_profilerState->currentStateAsString(), QString(__FILE__), QString::number(__LINE__));
+    default: {
+        const QString message = QString::fromLatin1("Process died unexpectedly from state %1 in %2:%3")
+            .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
+        qWarning("%s", qPrintable(message));
+}
         break;
     }
 }
@@ -259,7 +265,9 @@ void QmlProfilerEngine::cancelProcess()
         break;
     }
     default: {
-        qDebug() << tr("Unexpected process termination requested with state %1 in %2:%3").arg(d->m_profilerState->currentStateAsString(), QString(__FILE__), QString::number(__LINE__));
+        const QString message = QString::fromLatin1("Unexpected process termination requested with state %1 in %2:%3")
+            .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
+        qWarning("%s", qPrintable(message));
         return;
     }
     }

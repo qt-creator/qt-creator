@@ -46,7 +46,7 @@ class LinuxDeviceConfigurationPrivate;
 
 class REMOTELINUX_EXPORT LinuxDeviceConfiguration : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(LinuxDeviceConfiguration)
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::LinuxDeviceConfiguration)
 public:
     typedef QSharedPointer<LinuxDeviceConfiguration> Ptr;
     typedef QSharedPointer<const LinuxDeviceConfiguration> ConstPtr;

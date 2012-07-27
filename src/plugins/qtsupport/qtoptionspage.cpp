@@ -274,7 +274,7 @@ void QtOptionsPageWidget::cleanUpQtVersions()
     if (toRemove.isEmpty())
         return;
 
-    if (QMessageBox::warning(0, tr("Remove invalid Qt Versions"),
+    if (QMessageBox::warning(0, tr("Remove Invalid Qt Versions"),
                              tr("Do you want to remove all invalid Qt Versions?<br>"
                                 "<ul><li>%1</li></ul><br>"
                                 "will be removed.").arg(toRemove.join(QLatin1String("</li><li>"))),
@@ -699,7 +699,7 @@ void QtOptionsPageWidget::editPath()
     // Same type? then replace!
     if (current->type() != version->type()) {
         // not the same type, error out
-        QMessageBox::critical(this, tr("Qt versions incompatible"),
+        QMessageBox::critical(this, tr("Incompatible Qt Versions"),
                               tr("The Qt version selected must be for the same target."),
                               QMessageBox::Ok);
         delete version;

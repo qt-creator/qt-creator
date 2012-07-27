@@ -136,7 +136,7 @@ QString BlackBerryQtVersion::type() const
 
 QString BlackBerryQtVersion::description() const
 {
-    return QCoreApplication::translate("QtVersion", "BlackBerry %1", "Qt Version is meant for BlackBerry").arg(archString());
+    return tr("BlackBerry %1", "Qt Version is meant for BlackBerry").arg(archString());
 }
 
 QMultiMap<QString, QString> BlackBerryQtVersion::environment() const
@@ -167,10 +167,10 @@ QString BlackBerryQtVersion::platformName() const
 
 QString BlackBerryQtVersion::platformDisplayName() const
 {
-    return QCoreApplication::tr("BlackBerry");
+    return tr("BlackBerry");
 }
 
 QString BlackBerryQtVersion::sdkDescription() const
 {
-    return QCoreApplication::tr("BlackBerry Native SDK:");
+    return tr("BlackBerry Native SDK:");
 }

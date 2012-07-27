@@ -141,8 +141,10 @@ void QmlProfilerStateManager::setCurrentState(QmlProfilerState newState)
         QTC_ASSERT(d->m_currentState == AppDying,
                    qDebug() << "from" << stringForState(d->m_currentState));
         break;
-    default:
-        qDebug() << tr("Switching to unknown state in %1:%2").arg(QString(__FILE__), QString::number(__LINE__));
+    default: {
+        const QString message = QString::fromLatin1("Switching to unknown state in %1:%2").arg(QString::fromLatin1(__FILE__), QString::number(__LINE__));
+        qWarning("%s", qPrintable(message));
+    }
         break;
     }
 

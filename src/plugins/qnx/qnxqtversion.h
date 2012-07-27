@@ -42,6 +42,7 @@ namespace Internal {
 
 class QnxQtVersion : public QnxAbstractQtVersion
 {
+    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxQtVersion)
 public:
     QnxQtVersion();
     QnxQtVersion(QnxArchitecture arch, const Utils::FileName &path,

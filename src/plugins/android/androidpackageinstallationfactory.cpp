@@ -65,8 +65,7 @@ QList<Core::Id> AndroidPackageInstallationFactory::availableCreationIds(BuildSte
 QString AndroidPackageInstallationFactory::displayNameForId(const Core::Id id) const
 {
     if (id == AndroidPackageInstallationStep::Id)
-        return QCoreApplication::translate("Qt4ProjectManager::Internal::AndroidPackageInstallationFactory",
-                                           "Deploy to device");
+        return tr("Deploy to device");
     return QString();
 }
 

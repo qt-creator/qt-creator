@@ -418,7 +418,7 @@ void MakeStepConfigWidget::updateDetails()
         m_ui->makeLabel->setText(tr("Make:"));
 
     if (!tc) {
-        setSummaryText(tr("<b>Make:</b> No tool chain set in target."));
+        setSummaryText(tr("<b>Make:</b> %1").arg(ProjectExplorer::ToolChainProfileInformation::msgNoToolChainInTarget()));
         return;
     }
     Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();

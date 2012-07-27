@@ -34,8 +34,6 @@
 
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QCoreApplication>
-
 using namespace Android::Internal;
 
 AndroidQtVersion::AndroidQtVersion()
@@ -77,7 +75,7 @@ QString AndroidQtVersion::invalidReason() const
 {
     QString tmp = BaseQtVersion::invalidReason();
     if (tmp.isEmpty() && qtAbis().isEmpty())
-        return QCoreApplication::translate("QtVersion", "Failed to detect the ABI(s) used by the Qt version.");
+        return tr("Failed to detect the ABI(s) used by the Qt version.");
     return tmp;
 }
 
@@ -90,7 +88,7 @@ QList<ProjectExplorer::Abi> AndroidQtVersion::detectQtAbis() const
 
 QString AndroidQtVersion::description() const
 {
-    return QCoreApplication::translate("QtVersion", "Android", "Qt Version is meant for Android");
+    return tr("Android::Internal::AndroidQtVersion", "Qt Version is meant for Android");
 }
 
 Core::FeatureSet AndroidQtVersion::availableFeatures() const

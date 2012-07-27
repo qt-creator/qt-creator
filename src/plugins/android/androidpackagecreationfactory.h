@@ -38,6 +38,7 @@ namespace Internal {
 
 class AndroidPackageCreationFactory : public ProjectExplorer::IBuildStepFactory
 {
+    Q_OBJECT
 public:
     explicit AndroidPackageCreationFactory(QObject *parent = 0);
 

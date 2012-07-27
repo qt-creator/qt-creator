@@ -38,12 +38,15 @@
 
 #include <qtsupport/baseqtversion.h>
 
+#include <QCoreApplication>
+
 namespace Qnx {
 namespace Internal {
 
 class QnxAbstractQtVersion : public QtSupport::BaseQtVersion
 {
     friend class QnxBaseQtConfigWidget;
+    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxAbstractQtVersion)
 public:
     QnxAbstractQtVersion();
     QnxAbstractQtVersion(QnxArchitecture arch, const Utils::FileName &path,

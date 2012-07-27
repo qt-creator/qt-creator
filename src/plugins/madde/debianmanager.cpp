@@ -127,8 +127,7 @@ QByteArray section(Core::Id deviceType) {
 
 void raiseError(const QString &reason)
 {
-    QMessageBox::critical(0, QCoreApplication::translate("Madde::DebianManager",
-                                                         "Error creating debian project templates"), reason);
+    QMessageBox::critical(0, Madde::Internal::DebianManager::tr("Error Creating Debian Project Templates"), reason);
 }
 
 QString defaultPackageFileName(ProjectExplorer::Project *project)
