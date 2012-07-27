@@ -219,8 +219,7 @@ void CleanDialog::addFile(const QString &workingDirectory, QString fileName, boo
     // Tooltip with size information
     if (fi.isFile()) {
         const QString lastModified = fi.lastModified().toString(Qt::DefaultLocaleShortDate);
-        nameItem->setToolTip(tr("%1 bytes, last modified %2")
-                             .arg(fi.size()).arg(lastModified));
+        nameItem->setToolTip(tr("%n bytes, last modified %1", 0, fi.size()).arg(lastModified));
     }
     d->m_filesModel->appendRow(nameItem);
 }
