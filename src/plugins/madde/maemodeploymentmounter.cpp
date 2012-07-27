@@ -35,7 +35,6 @@
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/profileinformation.h>
-#include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 
@@ -49,8 +48,7 @@ namespace Internal {
 MaemoDeploymentMounter::MaemoDeploymentMounter(QObject *parent)
     : QObject(parent),
       m_state(Inactive),
-      m_mounter(new MaemoRemoteMounter(this)),
-      m_portsGatherer(new RemoteLinuxUsedPortsGatherer(this))
+      m_mounter(new MaemoRemoteMounter(this))
 {
     connect(m_mounter, SIGNAL(error(QString)), SLOT(handleMountError(QString)));
     connect(m_mounter, SIGNAL(mounted()), SLOT(handleMounted()));
@@ -59,11 +57,6 @@ MaemoDeploymentMounter::MaemoDeploymentMounter(QObject *parent)
         SIGNAL(reportProgress(QString)));
     connect(m_mounter, SIGNAL(debugOutput(QString)),
         SIGNAL(debugOutput(QString)));
-
-    connect(m_portsGatherer, SIGNAL(error(QString)),
-        SLOT(handlePortsGathererError(QString)));
-    connect(m_portsGatherer, SIGNAL(portListReady()),
-        SLOT(handlePortListReady()));
 }
 
 MaemoDeploymentMounter::~MaemoDeploymentMounter() {}
@@ -78,7 +71,7 @@ void MaemoDeploymentMounter::setupMounts(SshConnection *connection,
     m_connection = connection;
     m_profile = profile;
     m_devConf = DeviceProfileInformation::device(profile);
-    m_mounter->setConnection(m_connection, m_devConf);
+    m_mounter->setParameters(m_devConf, MaemoGlobal::maddeRoot(profile));
     connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
     setState(UnmountingOldDirs);
     unmount();
@@ -99,7 +92,6 @@ void MaemoDeploymentMounter::setupMounter()
     setState(UnmountingCurrentDirs);
 
     m_mounter->resetMountSpecifications();
-    m_mounter->setProfile(m_profile);
     foreach (const MaemoMountSpecification &mountSpec, m_mountSpecs)
         m_mounter->addMountSpecification(mountSpec, true);
     unmount();
@@ -137,8 +129,8 @@ void MaemoDeploymentMounter::handleUnmounted()
         setupMounter();
         break;
     case UnmountingCurrentDirs:
-        setState(GatheringPorts);
-        m_portsGatherer->start(m_devConf);
+        setState(Mounting);
+        m_mounter->mount();
         break;
     case UnmountingCurrentMounts:
         setState(Inactive);
@@ -148,30 +140,6 @@ void MaemoDeploymentMounter::handleUnmounted()
     default:
         break;
     }
-}
-
-void MaemoDeploymentMounter::handlePortsGathererError(const QString &errorMsg)
-{
-    QTC_ASSERT(m_state == GatheringPorts || m_state == Inactive, return);
-
-    if (m_state == Inactive)
-        return;
-
-    setState(Inactive);
-    m_mounter->resetMountSpecifications();
-    emit error(errorMsg);
-}
-
-void MaemoDeploymentMounter::handlePortListReady()
-{
-    QTC_ASSERT(m_state == GatheringPorts || m_state == Inactive, return);
-
-    if (m_state == Inactive)
-        return;
-
-    setState(Mounting);
-    m_freePorts = MaemoGlobal::freePorts(m_profile);
-    m_mounter->mount(&m_freePorts, m_portsGatherer);
 }
 
 void MaemoDeploymentMounter::handleMountError(const QString &errorMsg)

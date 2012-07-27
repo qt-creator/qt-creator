@@ -33,6 +33,7 @@
 
 #include <coreplugin/id.h>
 #include <coreplugin/idocument.h>
+#include <utils/fileutils.h>
 #include <utils/portlist.h>
 #include <utils/environment.h>
 
@@ -98,6 +99,7 @@ public:
     static void addMaddeEnvironment(Utils::Environment &env, const QString &qmakePath);
     static void transformMaddeCall(QString &command, QStringList &args, const QString &qmakePath);
     static QString maddeRoot(const QString &qmakePath);
+    static Utils::FileName maddeRoot(const ProjectExplorer::Profile *profile);
     static QString targetRoot(const QString &qmakePath);
     static QString targetName(const QString &qmakePath);
     static QString madCommand(const QString &qmakePath);

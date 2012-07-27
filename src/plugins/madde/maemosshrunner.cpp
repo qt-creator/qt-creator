@@ -28,6 +28,7 @@
 **************************************************************************/
 #include "maemosshrunner.h"
 
+#include "maemoglobal.h"
 #include "maemoqemumanager.h"
 #include "maemoremotemounter.h"
 #include "maemoremotemountsmodel.h"
@@ -55,7 +56,7 @@ MaemoSshRunner::MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig
     const BuildConfiguration * const bc = runConfig->target()->activeBuildConfiguration();
     Profile *profile  = bc ? bc->target()->profile() : 0;
     m_qtId = QtSupport::QtProfileInformation::qtVersionId(profile);
-    m_mounter->setProfile(profile);
+    m_mounter->setParameters(devConfig(), MaemoGlobal::maddeRoot(profile));
     connect(m_mounter, SIGNAL(mounted()), this, SLOT(handleMounted()));
     connect(m_mounter, SIGNAL(unmounted()), this, SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), this,
@@ -98,7 +99,6 @@ void MaemoSshRunner::doAdditionalInitialCleanup()
 {
     QTC_ASSERT(m_mountState == InactiveMountState, return);
 
-    m_mounter->setConnection(connection(), devConfig());
     m_mounter->resetMountSpecifications();
     for (int i = 0; i < m_mountSpecs.count(); ++i)
         m_mounter->addMountSpecification(m_mountSpecs.at(i), false);
@@ -181,7 +181,7 @@ void MaemoSshRunner::mount()
     m_mountState = Mounting;
     if (m_mounter->hasValidMountSpecifications()) {
         emit reportProgress(tr("Mounting host directories..."));
-        m_mounter->mount(freePorts(), usedPortsGatherer());
+        m_mounter->mount();
     } else {
         handleMounted();
     }

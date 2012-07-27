@@ -176,6 +176,11 @@ QString MaemoGlobal::maddeRoot(const QString &qmakePath)
     return dir.absolutePath();
 }
 
+Utils::FileName MaemoGlobal::maddeRoot(const Profile *profile)
+{
+    return SysRootProfileInformation::sysRoot(profile).parentDir().parentDir();
+}
+
 QString MaemoGlobal::targetRoot(const QString &qmakePath)
 {
 #ifdef Q_OS_WIN
