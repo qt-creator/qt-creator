@@ -31,7 +31,6 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include "deploymentinfo.h"
-#include "linuxdeviceconfiguration.h"
 #include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxrunconfigurationwidget.h"
 

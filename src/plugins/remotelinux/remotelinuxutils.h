@@ -35,7 +35,7 @@
 #include <QSharedPointer>
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
+class LinuxDevice;
 
 class REMOTELINUX_EXPORT RemoteLinuxUtils
 {

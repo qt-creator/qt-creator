@@ -27,10 +27,11 @@
 **
 **
 **************************************************************************/
+
 #include "devicemanagertest.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/linuxdevice.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -59,8 +60,8 @@ void DeviceManagerTest::run()
 
     std::cout << "Initial add." << std::endl;
     m_currentId = m_currentUpdateId = Core::Id("id1");
-    LinuxDeviceConfiguration::Ptr device = LinuxDeviceConfiguration::create("blubb", "mytype",
-        LinuxDeviceConfiguration::Hardware, IDevice::AutoDetected, m_currentId);
+    LinuxDevice::Ptr device = LinuxDevice::create("blubb", "mytype",
+        LinuxDevice::Hardware, IDevice::AutoDetected, m_currentId);
     devMgr->addDevice(device);
     DEV_MGR_CHECK(devMgr->deviceCount() == 1);
     DEV_MGR_CHECK(devMgr->defaultDevice("mytype") == device);
@@ -72,8 +73,8 @@ void DeviceManagerTest::run()
     m_slotsCalled.clear();
     m_currentId = Core::Id("id2");
     m_currentUpdateId = Core::Id("doesnotexist");
-    device = LinuxDeviceConfiguration::create("blubb", "mytype",
-        LinuxDeviceConfiguration::Hardware, IDevice::AutoDetected, m_currentId);
+    device = LinuxDevice::create("blubb", "mytype",
+        LinuxDevice::Hardware, IDevice::AutoDetected, m_currentId);
     devMgr->addDevice(device);
     DEV_MGR_CHECK(devMgr->deviceCount() == 2);
     DEV_MGR_CHECK(devMgr->defaultDevice("mytype")->id() == Core::Id("id1"));
@@ -85,8 +86,8 @@ void DeviceManagerTest::run()
     std::cout << "Add with same id." << std::endl;
     m_slotsCalled.clear();
     m_currentId = m_currentUpdateId = Core::Id("id1");
-    device = LinuxDeviceConfiguration::create("blubbblubb", "mytype",
-        LinuxDeviceConfiguration::Hardware, IDevice::AutoDetected, m_currentId);
+    device = LinuxDevice::create("blubbblubb", "mytype",
+        LinuxDevice::Hardware, IDevice::AutoDetected, m_currentId);
     devMgr->addDevice(device);
     DEV_MGR_CHECK(devMgr->deviceCount() == 2);
     DEV_MGR_CHECK(devMgr->defaultDevice("mytype")->id() == Core::Id("id1"));

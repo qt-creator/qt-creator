@@ -45,7 +45,7 @@ class PROJECTEXPLORER_EXPORT DeviceProcessList : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    DeviceProcessList(const IDevice::ConstPtr &devConfig, QObject *parent = 0);
+    DeviceProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
     ~DeviceProcessList();
 
     void update();

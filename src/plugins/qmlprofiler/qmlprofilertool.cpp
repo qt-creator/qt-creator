@@ -56,7 +56,7 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 
 #include <remotelinux/remotelinuxrunconfiguration.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/linuxdevice.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>

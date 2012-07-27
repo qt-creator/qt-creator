@@ -29,15 +29,9 @@
 **************************************************************************/
 #include "remotelinuxutils.h"
 
-#include "linuxdeviceconfiguration.h"
-
-#include <extensionsystem/pluginmanager.h>
+#include "linuxdevice.h"
 
 #include <QCoreApplication>
-#include <QList>
-#include <QString>
-
-using namespace ExtensionSystem;
 
 namespace RemoteLinux {
 

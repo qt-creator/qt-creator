@@ -101,7 +101,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const RemoteLin
     DebuggerStartParameters params;
     Target *target = runConfig->target();
     Profile *profile = target->profile();
-    const IDevice::ConstPtr devConf = DeviceProfileInformation::device(profile);
+    const IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
 
     params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
     params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
@@ -110,7 +110,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const RemoteLin
 
     if (runConfig->debuggerAspect()->useQmlDebugger()) {
         params.languages |= QmlLanguage;
-        params.qmlServerAddress = devConf->sshParameters().host;
+        params.qmlServerAddress = device->sshParameters().host;
         params.qmlServerPort = 0; // port is selected later on
     }
     if (runConfig->debuggerAspect()->useCppDebugger()) {
@@ -118,7 +118,7 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const RemoteLin
         params.processArgs = runConfig->arguments();
         params.startMode = AttachToRemoteServer;
         params.executable = runConfig->localExecutableFilePath();
-        params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
+        params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
     } else {
         params.startMode = AttachToRemoteServer;
     }

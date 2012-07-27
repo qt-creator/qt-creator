@@ -64,11 +64,11 @@ MaddeDevice::MaddeDevice()
 
 MaddeDevice::MaddeDevice(const QString &name, Core::Id type, MachineType machineType,
         Origin origin, Core::Id id)
-    : LinuxDeviceConfiguration(name, type, machineType, origin, id)
+    : LinuxDevice(name, type, machineType, origin, id)
 {
 }
 
-MaddeDevice::MaddeDevice(const MaddeDevice &other) : LinuxDeviceConfiguration(other)
+MaddeDevice::MaddeDevice(const MaddeDevice &other) : LinuxDevice(other)
 {
 }
 

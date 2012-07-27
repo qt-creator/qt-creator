@@ -572,15 +572,15 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
         freePortsSpec = QLatin1String("10000-10100");
         doTest = true;
     }
-    const MaddeDevice::Ptr devConf = MaddeDevice::create(d->wizardData.configName,
+    const MaddeDevice::Ptr device = MaddeDevice::create(d->wizardData.configName,
         d->wizardData.deviceType, d->wizardData.machineType);
-    devConf->setFreePorts(PortList::fromString(freePortsSpec));
-    devConf->setSshParameters(sshParams);
+    device->setFreePorts(PortList::fromString(freePortsSpec));
+    device->setSshParameters(sshParams);
     if (doTest) {
-        LinuxDeviceTestDialog dlg(devConf, new MaddeDeviceTester(this), this);
+        LinuxDeviceTestDialog dlg(device, new MaddeDeviceTester(this), this);
         dlg.exec();
     }
-    return devConf;
+    return device;
 }
 
 int MaemoDeviceConfigWizard::nextId() const

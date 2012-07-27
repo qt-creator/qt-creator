@@ -33,7 +33,6 @@
 #include "valgrindtool.h"
 
 #include <remotelinux/remotelinuxrunconfiguration.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
 
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/profileinformation.h>

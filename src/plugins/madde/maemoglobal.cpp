@@ -146,18 +146,18 @@ QString MaemoGlobal::remoteSourceProfilesCommand()
 
 Utils::PortList MaemoGlobal::freePorts(const Profile *profile)
 {
-    IDevice::ConstPtr devConf = DeviceProfileInformation::device(profile);
+    IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(profile);
 
-    if (!devConf || !qtVersion)
+    if (!device || !qtVersion)
         return Utils::PortList();
-    if (devConf->machineType() == IDevice::Emulator) {
+    if (device->machineType() == IDevice::Emulator) {
         MaemoQemuRuntime rt;
         const int id = qtVersion->uniqueId();
         if (MaemoQemuManager::instance().runtimeForQtVersion(id, &rt))
             return rt.m_freePorts;
     }
-    return devConf->freePorts();
+    return device->freePorts();
 }
 
 QString MaemoGlobal::maddeRoot(const QString &qmakePath)

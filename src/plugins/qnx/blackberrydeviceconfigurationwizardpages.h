@@ -34,7 +34,7 @@
 #ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARDPAGES_H
 #define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARDPAGES_H
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <QWizardPage>
 

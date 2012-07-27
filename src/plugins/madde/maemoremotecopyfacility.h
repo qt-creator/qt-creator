@@ -53,7 +53,7 @@ public:
     ~MaemoRemoteCopyFacility();
 
     void copyFiles(QSsh::SshConnection *connection,
-        const ProjectExplorer::IDevice::ConstPtr &devConf,
+        const ProjectExplorer::IDevice::ConstPtr &device,
         const QList<RemoteLinux::DeployableFile> &deployables, const QString &mountPoint);
     void cancel();
 

@@ -67,11 +67,11 @@ DeviceUsedPortsGatherer::~DeviceUsedPortsGatherer()
     delete d;
 }
 
-void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &devConf)
+void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
 {
     QTC_ASSERT(!d->connection, return);
-    d->portsToCheck = devConf->freePorts();
-    d->connection = SshConnectionManager::instance().acquireConnection(devConf->sshParameters());
+    d->portsToCheck = device->freePorts();
+    d->connection = SshConnectionManager::instance().acquireConnection(device->sshParameters());
     connect(d->connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
     if (d->connection->state() == SshConnection::Connected) {
         handleConnectionEstablished();

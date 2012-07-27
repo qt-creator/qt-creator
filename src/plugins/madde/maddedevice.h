@@ -31,14 +31,14 @@
 #ifndef MADDEDEVICE_H
 #define MADDEDEVICE_H
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/linuxdevice.h>
 
 #include <QCoreApplication>
 
 namespace Madde {
 namespace Internal {
 
-class MaddeDevice : public RemoteLinux::LinuxDeviceConfiguration
+class MaddeDevice : public RemoteLinux::LinuxDevice
 {
     Q_DECLARE_TR_FUNCTIONS(Madde::Internal::MaddeDevice)
 public:

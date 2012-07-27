@@ -43,19 +43,19 @@ using namespace Qnx::Internal;
 using namespace ProjectExplorer;
 
 BlackBerryDeviceConfiguration::BlackBerryDeviceConfiguration()
-    : RemoteLinux::LinuxDeviceConfiguration()
+    : RemoteLinux::LinuxDevice()
 {
 }
 
 BlackBerryDeviceConfiguration::BlackBerryDeviceConfiguration(const QString &name, Core::Id type,
                                                              IDevice::MachineType machineType,
                                                              IDevice::Origin origin, Core::Id id)
-    : RemoteLinux::LinuxDeviceConfiguration(name, type, machineType, origin, id)
+    : RemoteLinux::LinuxDevice(name, type, machineType, origin, id)
 {
 }
 
 BlackBerryDeviceConfiguration::BlackBerryDeviceConfiguration(const BlackBerryDeviceConfiguration &other)
-    : RemoteLinux::LinuxDeviceConfiguration(other)
+    : RemoteLinux::LinuxDevice(other)
     , m_debugToken(other.m_debugToken)
 {
 }
@@ -84,7 +84,7 @@ void BlackBerryDeviceConfiguration::setDebugToken(const QString &debugToken)
 
 void BlackBerryDeviceConfiguration::fromMap(const QVariantMap &map)
 {
-    RemoteLinux::LinuxDeviceConfiguration::fromMap(map);
+    RemoteLinux::LinuxDevice::fromMap(map);
     m_debugToken = map.value(QLatin1String(Constants::QNX_DEBUG_TOKEN_KEY)).toString();
 }
 
@@ -129,7 +129,7 @@ void BlackBerryDeviceConfiguration::executeAction(Core::Id actionId, QWidget *pa
 
 QVariantMap BlackBerryDeviceConfiguration::toMap() const
 {
-    QVariantMap map = RemoteLinux::LinuxDeviceConfiguration::toMap();
+    QVariantMap map = RemoteLinux::LinuxDevice::toMap();
     map.insert(QLatin1String(Constants::QNX_DEBUG_TOKEN_KEY), m_debugToken);
     return map;
 }

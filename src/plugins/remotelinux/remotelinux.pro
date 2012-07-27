@@ -10,7 +10,7 @@ HEADERS += \
     embeddedlinuxqtversionfactory.h \
     remotelinuxplugin.h \
     remotelinux_export.h \
-    linuxdeviceconfiguration.h \
+    linuxdevice.h \
     remotelinuxrunconfiguration.h \
     publickeydeploymentdialog.h \
     genericlinuxdeviceconfigurationwizard.h \
@@ -57,7 +57,7 @@ SOURCES += \
     embeddedlinuxqtversion.cpp \
     embeddedlinuxqtversionfactory.cpp \
     remotelinuxplugin.cpp \
-    linuxdeviceconfiguration.cpp \
+    linuxdevice.cpp \
     remotelinuxrunconfiguration.cpp \
     publickeydeploymentdialog.cpp \
     genericlinuxdeviceconfigurationwizard.cpp \

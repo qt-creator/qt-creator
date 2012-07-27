@@ -27,10 +27,10 @@
 **
 **
 **************************************************************************/
+
 #include "abstractremotelinuxdeployservice.h"
 
 #include "deployablefile.h"
-#include "linuxdeviceconfiguration.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>

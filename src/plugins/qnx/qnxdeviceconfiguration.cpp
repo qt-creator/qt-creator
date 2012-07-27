@@ -37,17 +37,17 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 QnxDeviceConfiguration::QnxDeviceConfiguration()
-    : RemoteLinux::LinuxDeviceConfiguration()
+    : RemoteLinux::LinuxDevice()
 {
 }
 
 QnxDeviceConfiguration::QnxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
-    : RemoteLinux::LinuxDeviceConfiguration(name, type, machineType, origin, id)
+    : RemoteLinux::LinuxDevice(name, type, machineType, origin, id)
 {
 }
 
 QnxDeviceConfiguration::QnxDeviceConfiguration(const QnxDeviceConfiguration &other)
-    : RemoteLinux::LinuxDeviceConfiguration(other)
+    : RemoteLinux::LinuxDevice(other)
 {
 }
 

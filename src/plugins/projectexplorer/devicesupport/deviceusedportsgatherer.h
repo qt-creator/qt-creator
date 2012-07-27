@@ -45,7 +45,7 @@ public:
     DeviceUsedPortsGatherer(QObject *parent = 0);
     ~DeviceUsedPortsGatherer();
 
-    void start(const ProjectExplorer::IDevice::ConstPtr &devConf);
+    void start(const ProjectExplorer::IDevice::ConstPtr &device);
     void stop();
     int getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
     QList<int> usedPorts() const;

@@ -34,7 +34,7 @@
 #ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATION_H
 #define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATION_H
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/linuxdevice.h>
 
 namespace ProjectExplorer {
 class Profile;
@@ -43,7 +43,7 @@ class Profile;
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDeviceConfiguration : public RemoteLinux::LinuxDeviceConfiguration
+class BlackBerryDeviceConfiguration : public RemoteLinux::LinuxDevice
 {
     Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::BlackBerryDeviceConfiguration)
 public:

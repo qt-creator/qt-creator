@@ -32,7 +32,7 @@
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/linuxdevice.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshremoteprocessrunner.h>
 
