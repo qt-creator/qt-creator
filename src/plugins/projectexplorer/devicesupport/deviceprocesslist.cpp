@@ -159,7 +159,6 @@ void DeviceProcessList::handleRemoteProcessFinished(int exitStatus)
     case SshRemoteProcess::NormalExit:
         if (d->process.processExitCode() == 0) {
             if (d->state == Listing) {
-                beginResetModel();
                 const QByteArray remoteStdout = d->process.readAllStandardOutput();
                 QList<DeviceProcess> processes = d->device->buildProcessList(QString::fromUtf8(remoteStdout.data(),
                     remoteStdout.count()));
