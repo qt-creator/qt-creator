@@ -1128,9 +1128,11 @@ void QMakeEvaluator::visitCmdLine(const QString &cmds)
 {
     if (!cmds.isEmpty()) {
         if (ProFile *pro = m_parser->parsedProBlock(fL1S("(command line)"), cmds)) {
-            m_locationStack.push(m_current);
-            visitProBlock(pro, pro->tokPtr());
-            m_current = m_locationStack.pop();
+            if (pro->isOk()) {
+                m_locationStack.push(m_current);
+                visitProBlock(pro, pro->tokPtr());
+                m_current = m_locationStack.pop();
+            }
             pro->deref();
         }
     }

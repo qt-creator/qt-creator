@@ -1012,15 +1012,19 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
     case T_REQUIRES:
 #endif
     case T_EVAL: {
+            VisitReturn ret = ReturnFalse;
             ProFile *pro = m_parser->parsedProBlock(fL1S("(eval)"),
                                                     args.join(statics.field_sep));
-            if (!pro)
-                return ReturnFalse;
-            m_locationStack.push(m_current);
-            visitProBlock(pro, pro->tokPtr());
-            m_current = m_locationStack.pop();
-            pro->deref();
-            return ReturnTrue; // This return value is not too useful, but that's qmake
+            if (pro) {
+                if (m_cumulative || pro->isOk()) {
+                    m_locationStack.push(m_current);
+                    visitProBlock(pro, pro->tokPtr());
+                    ret = ReturnTrue; // This return value is not too useful, but that's qmake
+                    m_current = m_locationStack.pop();
+                }
+                pro->deref();
+            }
+            return ret;
         }
     case T_BREAK:
         if (m_skipLevel)
