@@ -156,19 +156,16 @@ public:
             { message(QMakeHandler::EvalWarnDeprecated, msg); }
 
     QList<ProStringList> prepareFunctionArgs(const ushort *&tokPtr);
-    QList<ProStringList> prepareFunctionArgs(const ProString &arguments);
     ProStringList evaluateFunction(const ProFunctionDef &func,
                                    const QList<ProStringList> &argumentsList, bool *ok);
     VisitReturn evaluateBoolFunction(const ProFunctionDef &func,
                                      const QList<ProStringList> &argumentsList,
                                      const ProString &function);
 
-    ProStringList evaluateExpandFunction(const ProString &function, const ProString &arguments);
     ProStringList evaluateExpandFunction(const ProString &function, const ushort *&tokPtr);
-    ProStringList evaluateExpandFunction(const ProString &function, const ProStringList &args);
-    VisitReturn evaluateConditionalFunction(const ProString &function, const ProString &arguments);
     VisitReturn evaluateConditionalFunction(const ProString &function, const ushort *&tokPtr);
-    VisitReturn evaluateConditionalFunction(const ProString &function, const ProStringList &args);
+
+    bool evaluateConditional(const QString &cond, const QString &context);
 
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;

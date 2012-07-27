@@ -76,9 +76,11 @@ public:
 
     QMakeParser(ProFileCache *cache, QMakeParserHandler *handler);
 
+    enum SubGrammar { FullGrammar, TestGrammar };
     // fileName is expected to be absolute and cleanPath()ed.
     ProFile *parsedProFile(const QString &fileName, bool cache = false);
-    ProFile *parsedProBlock(const QString &name, const QString &contents);
+    ProFile *parsedProBlock(const QString &name, const QString &contents,
+                            SubGrammar grammar = FullGrammar);
 
 private:
     struct BlockScope {
@@ -107,7 +109,7 @@ private:
     };
 
     bool read(ProFile *pro);
-    bool read(ProFile *pro, const QString &content);
+    bool read(ProFile *pro, const QString &content, SubGrammar grammar);
 
     ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);
     ALWAYS_INLINE void putBlockLen(ushort *&tokPtr, uint len);

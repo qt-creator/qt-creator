@@ -194,10 +194,10 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, bool cache)
     return pro;
 }
 
-ProFile *QMakeParser::parsedProBlock(const QString &name, const QString &contents)
+ProFile *QMakeParser::parsedProBlock(const QString &name, const QString &contents, SubGrammar grammar)
 {
     ProFile *pro = new ProFile(name);
-    if (!read(pro, contents)) {
+    if (!read(pro, contents, grammar)) {
         delete pro;
         pro = 0;
     }
@@ -216,7 +216,7 @@ bool QMakeParser::read(ProFile *pro)
 
     QString content(QString::fromLocal8Bit(file.readAll()));
     file.close();
-    return read(pro, content);
+    return read(pro, content, FullGrammar);
 }
 
 void QMakeParser::putTok(ushort *&tokPtr, ushort tok)
@@ -256,7 +256,7 @@ void QMakeParser::finalizeHashStr(ushort *buf, uint len)
     buf[-2] = (ushort)(hash >> 16);
 }
 
-bool QMakeParser::read(ProFile *pro, const QString &in)
+bool QMakeParser::read(ProFile *pro, const QString &in, SubGrammar grammar)
 {
     m_proFile = pro;
     m_lineNo = 1;
@@ -670,6 +670,10 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                         finalizeCond(tokPtr, buf, ptr, wordCount);
                         flushCond(tokPtr);
                         ++m_blockstack.top().braceLevel;
+                        if (grammar == TestGrammar) {
+                            parseError(fL1S("Opening scope not permitted in this context."));
+                            pro->setOk(false);
+                        }
                         goto nextItem;
                     } else if (c == '}') {
                         FLUSH_LHS_LITERAL();
@@ -708,7 +712,10 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                         FLUSH_LHS_LITERAL();
                         flushCond(tokPtr);
                         putLineMarker(tokPtr);
-                        if (wordCount != 1) {
+                        if (grammar == TestGrammar) {
+                            parseError(fL1S("Assignment not permitted in this context."));
+                            pro->setOk(false);
+                        } else if (wordCount != 1) {
                             parseError(fL1S("Assignment needs exactly one word on the left hand side."));
                             pro->setOk(false);
                             // Put empty variable name.

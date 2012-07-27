@@ -293,8 +293,13 @@ void QMakeEvaluator::populateDeps(
 }
 
 ProStringList QMakeEvaluator::evaluateExpandFunction(
-        const ProString &func, const ProStringList &args)
+        const ProString &func, const ushort *&tokPtr)
 {
+    QHash<ProString, ProFunctionDef>::ConstIterator it =
+            m_functionDefs.replaceFunctions.constFind(func);
+    if (it != m_functionDefs.replaceFunctions.constEnd())
+        return evaluateFunction(*it, prepareFunctionArgs(tokPtr), 0);
+
     ExpandFunc func_t = ExpandFunc(statics.expands.value(func));
     if (func_t == 0) {
         const QString &fn = func.toQString(m_tmp1);
@@ -306,6 +311,8 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         }
     }
 
+    //why don't the builtin functions just use args_list? --Sam
+    const ProStringList &args = expandVariableReferences(tokPtr, 5, true);
     ProStringList ret;
 
     switch (func_t) {
@@ -924,9 +931,17 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
 }
 
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
-        const ProString &function, const ProStringList &args)
+        const ProString &function, const ushort *&tokPtr)
 {
+    QHash<ProString, ProFunctionDef>::ConstIterator it =
+            m_functionDefs.testFunctions.constFind(function);
+    if (it != m_functionDefs.testFunctions.constEnd())
+        return evaluateBoolFunction(*it, prepareFunctionArgs(tokPtr), function);
+
     TestFunc func_t = (TestFunc)statics.functions.value(function);
+
+    //why don't the builtin functions just use args_list? --Sam
+    const ProStringList &args = expandVariableReferences(tokPtr, 5, true);
 
     switch (func_t) {
     case T_DEFINED:
@@ -1047,67 +1062,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             evalError(fL1S("if(condition) requires one argument."));
             return ReturnFalse;
         }
-        const ProString &cond = args.at(0);
-        bool quoted = false;
-        bool ret = true;
-        bool orOp = false;
-        bool invert = false;
-        bool isFunc = false;
-        int parens = 0;
-        QString test;
-        test.reserve(20);
-        QString argsString;
-        argsString.reserve(50);
-        const QChar *d = cond.constData();
-        const QChar *ed = d + cond.size();
-        while (d < ed) {
-            ushort c = (d++)->unicode();
-            bool isOp = false;
-            if (quoted) {
-                if (c == '"')
-                    quoted = false;
-                else if (c == '!' && test.isEmpty())
-                    invert = true;
-                else
-                    test += c;
-            } else if (c == '(') {
-                isFunc = true;
-                if (parens)
-                    argsString += c;
-                ++parens;
-            } else if (c == ')') {
-                --parens;
-                if (parens)
-                    argsString += c;
-            } else if (!parens) {
-                if (c == '"')
-                    quoted = true;
-                else if (c == ':' || c == '|')
-                    isOp = true;
-                else if (c == '!' && test.isEmpty())
-                    invert = true;
-                else
-                    test += c;
-            } else {
-                argsString += c;
-            }
-            if (!quoted && !parens && (isOp || d == ed)) {
-                if (m_cumulative || (orOp != ret)) {
-                    test = test.trimmed();
-                    if (isFunc)
-                        ret = evaluateConditionalFunction(ProString(test), ProString(argsString, NoHash));
-                    else
-                        ret = isActiveConfig(test, true);
-                    ret ^= invert;
-                }
-                orOp = (c == '|');
-                invert = false;
-                isFunc = false;
-                test.clear();
-                argsString.clear();
-            }
-        }
-        return returnBool(ret);
+        return returnBool(evaluateConditional(args.at(0).toQString(), fL1S("(if)")));
     }
     case T_CONFIG: {
         if (args.count() < 1 || args.count() > 2) {
