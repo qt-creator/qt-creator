@@ -337,26 +337,29 @@ void ChangeTextCursorHandler::handleCurrentContents()
 
 void ChangeTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) const
 {
+    VcsBaseEditorWidget *widget = editorWidget();
     switch (type) {
     case LogOutput: { // Describe current / Annotate file of current
         menu->addSeparator();
         menu->addAction(createCopyRevisionAction(m_currentChange));
         menu->addAction(createDescribeAction(m_currentChange));
-        if (editorWidget()->isFileLogAnnotateEnabled())
+        if (widget->isFileLogAnnotateEnabled())
             menu->addAction(createAnnotateAction(m_currentChange, false));
         break;
     }
     case AnnotateOutput: { // Describe current / annotate previous
+        bool currentValid = widget->isValidRevision(m_currentChange);
         menu->addSeparator();
         menu->addAction(createCopyRevisionAction(m_currentChange));
-        menu->addAction(createDescribeAction(m_currentChange));
+        if (currentValid)
+            menu->addAction(createDescribeAction(m_currentChange));
         menu->addSeparator();
-        if (editorWidget()->isValidRevision(m_currentChange))
-            menu->addAction(createAnnotateAction(editorWidget()->decorateVersion(m_currentChange), false));
-        const QStringList previousVersions = editorWidget()->annotationPreviousVersions(m_currentChange);
+        if (currentValid)
+            menu->addAction(createAnnotateAction(widget->decorateVersion(m_currentChange), false));
+        const QStringList previousVersions = widget->annotationPreviousVersions(m_currentChange);
         if (!previousVersions.isEmpty()) {
             foreach (const QString &pv, previousVersions)
-                menu->addAction(createAnnotateAction(editorWidget()->decorateVersion(pv), true));
+                menu->addAction(createAnnotateAction(widget->decorateVersion(pv), true));
         }
         break;
     }
