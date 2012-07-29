@@ -14,7 +14,7 @@
     version 1.1, included in the file LGPL_EXCEPTION.txt in this package.</license>
     <category>Build Systems</category>
     <description>Autotools project integration.</description>
-    <url>http://qt.nokia.com</url>
+    <url>http://www.qt-project.org</url>
     <dependencyList>
         <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"ProjectExplorer\" version=\"$$QTCREATOR_VERSION\"/>

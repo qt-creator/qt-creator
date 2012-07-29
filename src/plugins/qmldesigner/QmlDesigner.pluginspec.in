@@ -1,6 +1,6 @@
 <plugin name=\"QmlDesigner\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>Nokia Corporation</vendor>
-    <copyright>(C) 2011 Nokia Corporation</copyright>
+    <copyright>(C) 2012 Nokia Corporation</copyright>
     <license>
 Commercial Usage
 
@@ -18,7 +18,7 @@ ensure the GNU Lesser General Public License version 2.1 requirements
 will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.</license>
     <category>Qt Quick</category>
     <description>Visual Designer for QML files.</description>
-    <url>http://qt.nokia.com</url>
+    <url>http://www.qt-project.org</url>
     <dependencyList>
         <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"TextEditor\" version=\"$$QTCREATOR_VERSION\"/>

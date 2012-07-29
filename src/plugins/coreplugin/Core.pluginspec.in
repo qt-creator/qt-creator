@@ -1,6 +1,6 @@
 <plugin name=\"Core\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>Nokia Corporation</vendor>
-    <copyright>(C) 2011 Nokia Corporation</copyright>
+    <copyright>(C) 2012 Nokia Corporation</copyright>
     <license>
 Commercial Usage
 
@@ -12,7 +12,7 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     </license>
     <category>Qt Creator</category>
     <description>The core plugin for the Qt IDE.</description>
-    <url>http://qt.nokia.com</url>
+    <url>http://www.qt-project.org</url>
     <argumentList>
         <argument name=\"-color\" parameter=\"color\">Override selected UI color</argument>
         <argument name=\"-presentationMode\">Enable presentation mode with pop-ups for key combos</argument>
