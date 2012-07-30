@@ -153,7 +153,7 @@ bool MakeStep::init()
 
     ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
     if (!tc) {
-        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a tool chain set up to build. Configure a tool chain the target options."),
+        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a tool chain set up to build. Configure a tool chain in the target options."),
                                              Utils::FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return false;
