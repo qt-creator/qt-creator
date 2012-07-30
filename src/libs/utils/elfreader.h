@@ -47,6 +47,7 @@
 #include <qendian.h>
 #include <qstring.h>
 #include <qvector.h>
+#include <qcoreapplication.h>
 
 namespace Utils {
 
@@ -167,6 +168,7 @@ public:
 
 class QTCREATOR_UTILS_EXPORT ElfReader
 {
+    Q_DECLARE_TR_FUNCTIONS(Utils::ElfReader)
 public:
     explicit ElfReader(const QString &binary);
     enum Result { Ok, NotElf, Corrupt };

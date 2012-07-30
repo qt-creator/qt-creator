@@ -204,7 +204,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     d(new AttachExternalDialogPrivate)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setWindowTitle(tr("Start Debugger", 0, QApplication::UnicodeUTF8));
+    setWindowTitle(tr("Start Debugger"));
     setMinimumHeight(500);
 
     d->selfPid = QString::number(QCoreApplication::applicationPid());
