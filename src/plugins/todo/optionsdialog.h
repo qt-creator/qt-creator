@@ -34,7 +34,9 @@
 
 #include <QWidget>
 
+QT_BEGIN_NAMESPACE
 class QListWidgetItem;
+QT_END_NAMESPACE
 
 namespace Todo {
 namespace Internal {
