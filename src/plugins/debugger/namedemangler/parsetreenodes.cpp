@@ -1334,6 +1334,7 @@ QByteArray LocalNameNode::toByteArray() const
         name = encodingNode->toByteArray();
         name.append("::{default arg#").append(QByteArray::number(argNumber)).append("}::")
                 .append(MY_CHILD_AT(childCount() - 1)->toByteArray());
+        hasDiscriminator = false;
     } else if (m_isStringLiteral) {
         name = CHILD_TO_BYTEARRAY(0) + "::{string literal}";
         hasDiscriminator = childCount() == 2;
