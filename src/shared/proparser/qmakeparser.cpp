@@ -385,6 +385,7 @@ bool QMakeParser::read(ProFile *pro, const QString &in, SubGrammar grammar)
                 ++cur;
                 goto flushLine;
             } else if (!c) {
+                cur = 0;
                 goto flushLine;
             } else if (c != ' ' && c != '\t' && c != '\r') {
                 break;
@@ -765,7 +766,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, SubGrammar grammar)
                     xprPtr = ptr;
                 }
             } else {
-                c = '\n';
                 cur = cptr;
               flushLine:
                 FLUSH_LITERAL();
@@ -795,7 +795,7 @@ bool QMakeParser::read(ProFile *pro, const QString &in, SubGrammar grammar)
                 } else {
                     finalizeCond(tokPtr, buf, ptr, wordCount);
                 }
-                if (!c)
+                if (!cur)
                     break;
                 ++m_lineNo;
                 goto freshLine;
