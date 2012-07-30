@@ -210,7 +210,7 @@ RESOURCES += core.qrc \
 
 win32 {
     SOURCES += progressmanager/progressmanager_win.cpp
-    LIBS += -lole32
+    LIBS += -lole32 -luser32
 }
 else:macx {
     OBJECTIVE_SOURCES += progressmanager/progressmanager_mac.mm
