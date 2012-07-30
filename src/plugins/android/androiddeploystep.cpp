@@ -250,12 +250,12 @@ bool AndroidDeployStep::deployPackage()
         SLOT(handleBuildError()));
 
     if (m_runDeployAction == DeployLocal) {
-        writeOutput(tr("Clean old qt libs"));
+        writeOutput(tr("Clean old Qt libs"));
         runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
                    QStringList() << QLatin1String("-s") << m_deviceSerialNumber
                    << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/qt"));
 
-        writeOutput(tr("Deploy qt libs ... this may take some time, please wait"));
+        writeOutput(tr("Deploy Qt libs ... this may take some time, please wait"));
         const QString tempPath = QDir::tempPath() + QLatin1String("/android_qt_libs_") + m_packageName;
         AndroidPackageCreationStep::removeDirectory(tempPath);
         QStringList stripFiles;
