@@ -120,7 +120,6 @@ private:
     AssistKind m_assistKind;
     IAssistProposalWidget *m_proposalWidget;
     QScopedPointer<IAssistProposal> m_proposal;
-    bool m_proposalApplied;
     bool m_receivedContentWhileWaiting;
     QTimer m_automaticProposalTimer;
     CompletionSettings m_settings;
@@ -140,7 +139,6 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     , m_requestRunner(0)
     , m_requestProvider(0)
     , m_proposalWidget(0)
-    , m_proposalApplied(false)
     , m_receivedContentWhileWaiting(false)
     , m_settings(TextEditorSettings::instance()->completionSettings())
 {
