@@ -133,6 +133,7 @@ void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &
         Q_UNIMPLEMENTED();
 #else
         pITask->SetOverlayIcon(winId, pix.toWinHICON(), (wchar_t*)text.utf16());
+        DestroyIcon(icon);
 #endif
     }
 }
