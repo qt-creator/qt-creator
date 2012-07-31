@@ -396,8 +396,8 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
                            globalcontext, true, &GitClient::status);
 
     createRepositoryAction(gitContainer,
-                           tr("Undo Uncommitted Changes..."), Core::Id("Git.UndoRepository"),
-                           globalcontext, false, SLOT(undoRepositoryChanges()));
+                           tr("Reset..."), Core::Id("Git.Reset"),
+                           globalcontext, false, SLOT(resetRepository()));
 
 
     createRepositoryAction(gitContainer,
@@ -623,7 +623,7 @@ void GitPlugin::undoUnstagedFileChanges()
     undoFileChanges(false);
 }
 
-void GitPlugin::undoRepositoryChanges()
+void GitPlugin::resetRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);

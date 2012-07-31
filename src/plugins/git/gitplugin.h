@@ -112,7 +112,7 @@ private slots:
     void logProject();
     void undoFileChanges(bool revertStaging = true);
     void undoUnstagedFileChanges();
-    void undoRepositoryChanges();
+    void resetRepository();
     void stageFile();
     void unstageFile();
     void cleanProject();
