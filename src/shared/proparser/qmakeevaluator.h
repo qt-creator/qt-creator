@@ -185,12 +185,13 @@ public:
     void runProcess(QProcess *proc, const QString &command, QProcess::ProcessChannel chan) const;
 #endif
 
-    int m_skipLevel;
     int m_loopLevel; // To report unexpected break() and next()s
 #ifdef PROEVALUATOR_CUMULATIVE
     bool m_cumulative;
+    int m_skipLevel;
 #else
     enum { m_cumulative = 0 };
+    enum { m_skipLevel = 0 };
 #endif
 
     struct Location {

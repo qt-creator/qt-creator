@@ -971,7 +971,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         m_returnValue = args;
         // It is "safe" to ignore returns - due to qmake brokeness
         // they cannot be used to terminate loops anyway.
-        if (m_skipLevel || m_cumulative)
+        if (m_cumulative)
             return ReturnTrue;
         if (m_valuemapStack.isEmpty()) {
             evalError(fL1S("unexpected return()."));
@@ -979,8 +979,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         }
         return ReturnReturn;
     case T_EXPORT: {
-        if (m_skipLevel && !m_cumulative)
-            return ReturnTrue;
         if (args.count() != 1) {
             evalError(fL1S("export(variable) requires one argument."));
             return ReturnFalse;
@@ -1064,8 +1062,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         evalError(fL1S("Unexpected next()."));
         return ReturnFalse;
     case T_IF: {
-        if (m_skipLevel && !m_cumulative)
-            return ReturnFalse;
         if (args.count() != 1) {
             evalError(fL1S("if(condition) requires one argument."));
             return ReturnFalse;
@@ -1187,8 +1183,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         return returnBool(values(map(args.at(0))).join(statics.field_sep)
                           == args.at(1).toQString(m_tmp1));
     case T_CLEAR: {
-        if (m_skipLevel && !m_cumulative)
-            return ReturnFalse;
         if (args.count() != 1) {
             evalError(fL1S("%1(variable) requires one argument.")
                       .arg(function.toQString(m_tmp1)));
@@ -1206,8 +1200,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         return ReturnTrue;
     }
     case T_UNSET: {
-        if (m_skipLevel && !m_cumulative)
-            return ReturnFalse;
         if (args.count() != 1) {
             evalError(fL1S("%1(variable) requires one argument.")
                       .arg(function.toQString(m_tmp1)));
@@ -1227,8 +1219,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         return ReturnTrue;
     }
     case T_INCLUDE: {
-        if (m_skipLevel && !m_cumulative)
-            return ReturnFalse;
         if (args.count() < 1 || args.count() > 3) {
             evalError(fL1S("include(file, [into, [silent]]) requires one, two or three arguments."));
             return ReturnFalse;
@@ -1271,8 +1261,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         return returnBool(ok || (flags & LoadSilent));
     }
     case T_LOAD: {
-        if (m_skipLevel && !m_cumulative)
-            return ReturnFalse;
         bool ignore_error = false;
         if (args.count() == 2) {
             ignore_error = isTrue(args.at(1), m_tmp2);

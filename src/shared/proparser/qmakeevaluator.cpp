@@ -179,7 +179,9 @@ QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
     m_hostBuild = false;
 
     // Evaluator state
+#ifdef PROEVALUATOR_CUMULATIVE
     m_skipLevel = 0;
+#endif
     m_loopLevel = 0;
     m_listCount = 0;
     m_valuemapStack.push(ProValueMap());
@@ -510,6 +512,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
         case TokBranch:
             blockLen = getBlockLen(tokPtr);
             if (m_cumulative) {
+#ifdef PROEVALUATOR_CUMULATIVE
                 if (!okey)
                     m_skipLevel++;
                 ret = blockLen ? visitProBlock(tokPtr) : ReturnTrue;
@@ -523,6 +526,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
                     ret = visitProBlock(tokPtr);
                 if (okey)
                     m_skipLevel--;
+#endif
             } else {
                 if (okey)
                     ret = blockLen ? visitProBlock(tokPtr) : ReturnTrue;
@@ -611,12 +615,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
                     okey ^= invert;
                 }
             } else if (m_cumulative) {
+#ifdef PROEVALUATOR_CUMULATIVE
                 m_skipLevel++;
                 if (curr.size() != 1)
                     skipExpression(tokPtr);
                 else
                     evaluateConditionalFunction(curr.at(0), tokPtr);
                 m_skipLevel--;
+#endif
             } else {
                 skipExpression(tokPtr);
             }
@@ -778,25 +784,20 @@ void QMakeEvaluator::visitProVariable(
 
         QRegExp regexp(pattern, case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
-        if (!m_skipLevel || m_cumulative) {
-            // We could make a union of modified and unmodified values,
-            // but this will break just as much as it fixes, so leave it as is.
-            replaceInList(&valuesRef(varName), regexp, replace, global, m_tmp2);
-        }
+        // We could make a union of modified and unmodified values,
+        // but this will break just as much as it fixes, so leave it as is.
+        replaceInList(&valuesRef(varName), regexp, replace, global, m_tmp2);
     } else {
         ProStringList varVal = expandVariableReferences(tokPtr, sizeHint);
         switch (tok) {
         default: // whatever - cannot happen
         case TokAssign:          // =
+            zipEmpty(&varVal);
             if (!m_cumulative) {
-                if (!m_skipLevel) {
-                    zipEmpty(&varVal);
-                    // FIXME: add check+warning about accidental value removal.
-                    // This may be a bit too noisy, though.
-                    m_valuemapStack.top()[varName] = varVal;
-                }
+                // FIXME: add check+warning about accidental value removal.
+                // This may be a bit too noisy, though.
+                m_valuemapStack.top()[varName] = varVal;
             } else {
-                zipEmpty(&varVal);
                 if (!varVal.isEmpty()) {
                     // We are greedy for values. But avoid exponential growth.
                     ProStringList &v = valuesRef(varName);
@@ -818,19 +819,15 @@ void QMakeEvaluator::visitProVariable(
             }
             break;
         case TokAppendUnique:    // *=
-            if (!m_skipLevel || m_cumulative)
-                insertUnique(&valuesRef(varName), varVal);
+            insertUnique(&valuesRef(varName), varVal);
             break;
         case TokAppend:          // +=
-            if (!m_skipLevel || m_cumulative) {
-                zipEmpty(&varVal);
-                valuesRef(varName) += varVal;
-            }
+            zipEmpty(&varVal);
+            valuesRef(varName) += varVal;
             break;
         case TokRemove:       // -=
             if (!m_cumulative) {
-                if (!m_skipLevel)
-                    removeEach(&valuesRef(varName), varVal);
+                removeEach(&valuesRef(varName), varVal);
             } else {
                 // We are stingy with our values, too.
             }
