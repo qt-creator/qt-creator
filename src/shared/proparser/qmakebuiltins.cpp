@@ -85,7 +85,7 @@ enum TestFunc {
     T_INVALID = 0, T_REQUIRES, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
     T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
-    T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_WARNING, T_ERROR, T_IF
+    T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_LOG, T_MESSAGE, T_WARNING, T_ERROR, T_IF
 };
 
 void QMakeEvaluator::initFunctionStatics()
@@ -166,6 +166,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "load", T_LOAD },
         { "include", T_INCLUDE },
         { "debug", T_DEBUG },
+        { "log", T_LOG },
         { "message", T_MESSAGE },
         { "warning", T_WARNING },
         { "error", T_ERROR },
@@ -1274,6 +1275,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
     case T_DEBUG:
         // Yup - do nothing. Nothing is going to enable debug output anyway.
         return ReturnFalse;
+    case T_LOG:
     case T_ERROR:
     case T_WARNING:
     case T_MESSAGE: {
@@ -1283,9 +1285,16 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             return ReturnFalse;
         }
         const QString &msg = m_option->expandEnvVars(args.at(0).toQString(m_tmp2));
-        if (!m_skipLevel)
-            m_handler->fileMessage(fL1S("Project %1: %2")
-                                   .arg(function.toQString(m_tmp1).toUpper(), msg));
+        if (!m_skipLevel) {
+            if (func_t == T_LOG) {
+#ifdef PROEVALUATOR_FULL
+                fputs(msg.toLatin1().constData(), stderr);
+#endif
+            } else {
+                m_handler->fileMessage(fL1S("Project %1: %2")
+                                       .arg(function.toQString(m_tmp1).toUpper(), msg));
+            }
+        }
         return (func_t == T_ERROR && !m_cumulative) ? ReturnError : ReturnTrue;
     }
 #ifdef PROEVALUATOR_FULL
