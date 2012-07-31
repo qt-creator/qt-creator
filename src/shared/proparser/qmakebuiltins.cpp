@@ -85,7 +85,7 @@ enum TestFunc {
     T_INVALID = 0, T_REQUIRES, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
     T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
-    T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_IF
+    T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_MESSAGE, T_WARNING, T_ERROR, T_IF
 };
 
 void QMakeEvaluator::initFunctionStatics()
@@ -167,8 +167,8 @@ void QMakeEvaluator::initFunctionStatics()
         { "include", T_INCLUDE },
         { "debug", T_DEBUG },
         { "message", T_MESSAGE },
-        { "warning", T_MESSAGE },
-        { "error", T_MESSAGE },
+        { "warning", T_WARNING },
+        { "error", T_ERROR },
     };
     for (unsigned i = 0; i < sizeof(testInits)/sizeof(testInits[0]); ++i)
         statics.functions.insert(ProString(testInits[i].name), testInits[i].func);
@@ -1284,6 +1284,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
     case T_DEBUG:
         // Yup - do nothing. Nothing is going to enable debug output anyway.
         return ReturnFalse;
+    case T_ERROR:
+    case T_WARNING:
     case T_MESSAGE: {
         if (args.count() != 1) {
             evalError(fL1S("%1(message) requires one argument.")
@@ -1295,7 +1297,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             m_handler->fileMessage(fL1S("Project %1: %2")
                                    .arg(function.toQString(m_tmp1).toUpper(), msg));
         // ### Consider real termination in non-cumulative mode
-        return returnBool(function != QLatin1String("error"));
+        return returnBool(func_t != T_ERROR);
     }
 #ifdef PROEVALUATOR_FULL
     case T_SYSTEM: {
