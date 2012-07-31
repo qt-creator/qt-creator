@@ -90,7 +90,7 @@ enum TestFunc {
     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
     T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
     T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_LOG, T_MESSAGE, T_WARNING, T_ERROR, T_IF,
-    T_MKPATH, T_TOUCH
+    T_MKPATH, T_WRITE_FILE, T_TOUCH
 };
 
 void QMakeEvaluator::initFunctionStatics()
@@ -176,6 +176,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "warning", T_WARNING },
         { "error", T_ERROR },
         { "mkpath", T_MKPATH },
+        { "write_file", T_WRITE_FILE },
         { "touch", T_TOUCH },
     };
     for (unsigned i = 0; i < sizeof(testInits)/sizeof(testInits[0]); ++i)
@@ -272,6 +273,48 @@ quoteValue(const ProString &val)
         ret.append(QLatin1Char('"'));
     }
     return ret;
+}
+
+static bool
+doWriteFile(const QString &name, QIODevice::OpenMode mode, const QString &contents, QString *errStr)
+{
+    QByteArray bytes = contents.toLocal8Bit();
+    QFile cfile(name);
+    if (!(mode & QIODevice::Append) && cfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        if (cfile.readAll() == bytes)
+            return true;
+        cfile.close();
+    }
+    if (!cfile.open(mode | QIODevice::WriteOnly | QIODevice::Text)) {
+        *errStr = cfile.errorString();
+        return false;
+    }
+    cfile.write(bytes);
+    cfile.close();
+    if (cfile.error() != QFile::NoError) {
+        *errStr = cfile.errorString();
+        return false;
+    }
+    return true;
+}
+
+QMakeEvaluator::VisitReturn
+QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
+                          const QString &contents)
+{
+    QFileInfo qfi(fn);
+    if (!QDir::current().mkpath(qfi.path())) {
+        evalError(fL1S("Cannot create %1directory %2.")
+                  .arg(ctx, QDir::toNativeSeparators(qfi.path())));
+        return ReturnFalse;
+    }
+    QString errStr;
+    if (!doWriteFile(qfi.filePath(), mode, contents, &errStr)) {
+        evalError(fL1S("Cannot write %1file %2: %3.")
+                  .arg(ctx, QDir::toNativeSeparators(qfi.filePath()), errStr));
+        return ReturnFalse;
+    }
+    return ReturnTrue;
 }
 
 #ifndef QT_BOOTSTRAPPED
@@ -1380,6 +1423,23 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             return ReturnFalse;
         }
         return ReturnTrue;
+    }
+    case T_WRITE_FILE: {
+        if (args.count() > 3) {
+            evalError(fL1S("write_file(name, [content var, [append]]) requires one to three arguments."));
+            return ReturnFalse;
+        }
+        QIODevice::OpenMode mode = QIODevice::Truncate;
+        QString contents;
+        if (args.count() >= 2) {
+            const ProStringList &vals = values(args.at(1));
+            if (!vals.isEmpty())
+                contents = vals.join(fL1S("\n")) + QLatin1Char('\n');
+            if (args.count() >= 3)
+                if (!args.at(2).toQString(m_tmp1).compare(fL1S("append"), Qt::CaseInsensitive))
+                    mode = QIODevice::Append;
+        }
+        return writeFile(QString(), resolvePath(args.at(0).toQString(m_tmp1)), mode, contents);
     }
     case T_TOUCH: {
         if (args.count() != 2) {
