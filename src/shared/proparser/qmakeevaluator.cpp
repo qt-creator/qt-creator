@@ -697,7 +697,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
             if (!variable.isEmpty())
                 m_valuemapStack.top()[variable] = ProStringList(ProString(QString::number(index++), NoHash));
             if (index > 1000) {
-                evalError(fL1S("ran into infinite loop (> 1000 iterations)."));
+                evalError(fL1S("Ran into infinite loop (> 1000 iterations)."));
                 break;
             }
         } else {
@@ -752,13 +752,13 @@ void QMakeEvaluator::visitProVariable(
         const ProStringList &varVal = expandVariableReferences(tokPtr, sizeHint, true);
         const QString &val = varVal.at(0).toQString(m_tmp1);
         if (val.length() < 4 || val.at(0) != QLatin1Char('s')) {
-            evalError(fL1S("the ~= operator can handle only the s/// function."));
+            evalError(fL1S("The ~= operator can handle only the s/// function."));
             return;
         }
         QChar sep = val.at(1);
         QStringList func = val.split(sep);
         if (func.count() < 3 || func.count() > 4) {
-            evalError(fL1S("the s/// function expects 3 or 4 arguments."));
+            evalError(fL1S("The s/// function expects 3 or 4 arguments."));
             return;
         }
 
@@ -1071,7 +1071,7 @@ bool QMakeEvaluator::loadSpec()
                 goto cool;
             }
         }
-        evalError(fL1S("Could not find qmake configuration file %1").arg(qmakespec));
+        evalError(fL1S("Could not find qmake configuration file %1.").arg(qmakespec));
         return false;
     }
   cool:
@@ -1085,7 +1085,7 @@ bool QMakeEvaluator::loadSpec()
         return false;
     QString spec = m_qmakespec + QLatin1String("/qmake.conf");
     if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
-        evalError(fL1S("Could not read qmake configuration file %1").arg(spec));
+        evalError(fL1S("Could not read qmake configuration file %1.").arg(spec));
         return false;
     }
 #ifdef Q_OS_UNIX
@@ -1735,7 +1735,7 @@ ProStringList QMakeEvaluator::evaluateFunction(
     ProStringList ret;
 
     if (m_valuemapStack.count() >= 100) {
-        evalError(fL1S("ran into infinite recursion (depth > 100)."));
+        evalError(fL1S("Ran into infinite recursion (depth > 100)."));
         oki = false;
     } else {
         m_valuemapStack.push(ProValueMap());
@@ -1781,7 +1781,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBoolFunction(
                 if (val)
                     return ReturnTrue;
             } else {
-                evalError(fL1S("Unexpected return value from test '%1': %2")
+                evalError(fL1S("Unexpected return value from test '%1': %2.")
                           .arg(function.toQString(m_tmp1))
                           .arg(ret.join(QLatin1String(" :: "))));
             }
@@ -1926,7 +1926,7 @@ bool QMakeEvaluator::evaluateFile(
         return false;
     foreach (const ProFile *pf, m_profileStack)
         if (pf->fileName() == fileName) {
-            evalError(fL1S("circular inclusion of %1").arg(fileName));
+            evalError(fL1S("Circular inclusion of %1.").arg(fileName));
             return false;
         }
     return evaluateFileDirect(fileName, type, flags);

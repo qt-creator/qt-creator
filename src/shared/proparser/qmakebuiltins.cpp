@@ -276,7 +276,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
     }
     case E_SPRINTF:
         if (args.count() < 1) {
-            evalError(fL1S("sprintf(format, ...) requires at least one argument"));
+            evalError(fL1S("sprintf(format, ...) requires at least one argument."));
         } else {
             QString tmp = args.at(0).toQString(m_tmp1);
             for (int i = 1; i < args.count(); ++i)
@@ -312,7 +312,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
     }
     case E_SPLIT:
         if (args.count() < 1 || args.count() > 2) {
-            evalError(fL1S("split(var, sep) requires one or two arguments"));
+            evalError(fL1S("split(var, sep) requires one or two arguments."));
         } else {
             const QString &sep = (args.count() == 2) ? args.at(1).toQString(m_tmp1) : statics.field_sep;
             foreach (const ProString &var, values(map(args.at(0))))
@@ -347,7 +347,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                     if (args.count() == 3)
                         end = args.at(2).toQString(m_tmp1).toInt(&ok);
                     if (!ok)
-                        evalError(fL1S("member() argument 3 (end) '%2' invalid.\n")
+                        evalError(fL1S("member() argument 3 (end) '%2' invalid.")
                                   .arg(args.at(2).toQString(m_tmp1)));
                 }
             }
@@ -423,7 +423,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         break;
     case E_EVAL:
         if (args.count() != 1) {
-            evalError(fL1S("eval(variable) requires one argument"));
+            evalError(fL1S("eval(variable) requires one argument."));
         } else {
             ret += values(map(args.at(0)));
         }
@@ -548,7 +548,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         break;
     case E_FILES:
         if (args.count() != 1 && args.count() != 2) {
-            evalError(fL1S("files(pattern, recursive=false) requires one or two arguments"));
+            evalError(fL1S("files(pattern, recursive=false) requires one or two arguments."));
         } else {
             bool recursive = false;
             if (args.count() == 2)
@@ -591,7 +591,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         break;
     case E_REPLACE:
         if (args.count() != 3 ) {
-            evalError(fL1S("replace(var, before, after) requires three arguments"));
+            evalError(fL1S("replace(var, before, after) requires three arguments."));
         } else {
             const QRegExp before(args.at(1).toQString());
             const QString &after(args.at(2).toQString(m_tmp2));
@@ -606,7 +606,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
     case E_SORT_DEPENDS:
     case E_RESOLVE_DEPENDS:
         if (args.count() < 1 || args.count() > 2) {
-            evalError(fL1S("%1(var, prefix) requires one or two arguments").arg(func.toQString(m_tmp1)));
+            evalError(fL1S("%1(var, prefix) requires one or two arguments.").arg(func.toQString(m_tmp1)));
         } else {
             QHash<ProString, QSet<ProString> > dependencies;
             ProValueMap dependees;
@@ -628,11 +628,11 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         }
         break;
     case E_INVALID:
-        evalError(fL1S("'%1' is not a recognized replace function")
+        evalError(fL1S("'%1' is not a recognized replace function.")
                   .arg(func.toQString(m_tmp1)));
         break;
     default:
-        evalError(fL1S("Function '%1' is not implemented").arg(func.toQString(m_tmp1)));
+        evalError(fL1S("Function '%1' is not implemented.").arg(func.toQString(m_tmp1)));
         break;
     }
 
@@ -656,7 +656,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
                 return returnBool(m_functionDefs.testFunctions.contains(args[0]));
             else if (args[1] == QLatin1String("replace"))
                 return returnBool(m_functionDefs.replaceFunctions.contains(args[0]));
-            evalError(fL1S("defined(function, type): unexpected type [%1].\n")
+            evalError(fL1S("defined(function, type): unexpected type [%1].")
                       .arg(args.at(1).toQString(m_tmp1)));
             return ReturnFalse;
         }
@@ -743,14 +743,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             return ReturnFalse;
         if (m_loopLevel)
             return ReturnBreak;
-        evalError(fL1S("unexpected break()."));
+        evalError(fL1S("Unexpected break()."));
         return ReturnFalse;
     case T_NEXT:
         if (m_skipLevel)
             return ReturnFalse;
         if (m_loopLevel)
             return ReturnNext;
-        evalError(fL1S("unexpected next()."));
+        evalError(fL1S("Unexpected next()."));
         return ReturnFalse;
     case T_IF: {
         if (m_skipLevel && !m_cumulative)
@@ -898,7 +898,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
                        || comp == QLatin1String("=") || comp == QLatin1String("==")) {
                 return returnBool(cnt == val);
             } else {
-                evalError(fL1S("unexpected modifier to count(%2)").arg(comp.toQString(m_tmp1)));
+                evalError(fL1S("Unexpected modifier to count(%2).").arg(comp.toQString(m_tmp1)));
                 return ReturnFalse;
             }
         }
@@ -1104,11 +1104,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         return ReturnFalse;
     }
     case T_INVALID:
-        evalError(fL1S("'%1' is not a recognized test function")
+        evalError(fL1S("'%1' is not a recognized test function.")
                   .arg(function.toQString(m_tmp1)));
         return ReturnFalse;
     default:
-        evalError(fL1S("Function '%1' is not implemented").arg(function.toQString(m_tmp1)));
+        evalError(fL1S("Function '%1' is not implemented.").arg(function.toQString(m_tmp1)));
         return ReturnFalse;
     }
 }
