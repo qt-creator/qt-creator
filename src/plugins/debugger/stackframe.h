@@ -62,7 +62,7 @@ public:
     quint64 address;
     bool usable;
 
-    Q_DECLARE_TR_FUNCTIONS(StackHandler)
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::StackHandler)
 };
 
 QDebug operator<<(QDebug d, const StackFrame &frame);

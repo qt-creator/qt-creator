@@ -110,8 +110,8 @@ void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
         return;
     }
 
-    emit progressMessage(tr("The remote file system has %1 bytes of free space, going ahead.")
-            .arg(freeSpace));
+    emit progressMessage(tr("The remote file system has %n bytes of free space, going ahead.",
+                            0, freeSpace));
     stopDeployment();
 }
 

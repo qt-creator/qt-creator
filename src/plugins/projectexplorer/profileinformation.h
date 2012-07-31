@@ -113,6 +113,8 @@ public:
 
     static ToolChain *toolChain(const Profile *p);
     static void setToolChain(Profile *p, ToolChain *tc);
+
+    static QString msgNoToolChainInTarget();
 };
 
 class PROJECTEXPLORER_EXPORT ToolChainMatcher : public ProfileMatcher

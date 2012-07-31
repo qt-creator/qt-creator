@@ -32,13 +32,14 @@
 #include "maddedevicetester.h"
 #include "maemoconstants.h"
 
+#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
+#include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/publickeydeploymentdialog.h>
-#include <remotelinux/remotelinuxprocessesdialog.h>
-#include <remotelinux/remotelinuxprocesslist.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <utils/qtcassert.h>
 
+using namespace ProjectExplorer;
 using namespace RemoteLinux;
 
 namespace Madde {
@@ -106,14 +107,14 @@ void MaddeDevice::executeAction(Core::Id actionId, QWidget *parent) const
     QTC_ASSERT(actionIds().contains(actionId), return);
 
     QDialog *d = 0;
-    const LinuxDeviceConfiguration::ConstPtr device
-        = sharedFromThis().staticCast<const LinuxDeviceConfiguration>();
+    const IDevice::ConstPtr device = sharedFromThis();
     if (actionId == Core::Id(MaddeDeviceTestActionId))
         d = new LinuxDeviceTestDialog(device, new MaddeDeviceTester, parent);
     else if (actionId == Core::Id(MaddeRemoteProcessesActionId))
-        d = new RemoteLinuxProcessesDialog(new GenericRemoteLinuxProcessList(device), parent);
+        d = new DeviceProcessesDialog(new DeviceProcessList(device), parent);
     else if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
+    // FIXME: Leak?
     if (d)
         d->exec();
 }

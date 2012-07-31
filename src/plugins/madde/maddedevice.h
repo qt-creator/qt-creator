@@ -39,7 +39,7 @@ namespace Internal {
 
 class MaddeDevice : public RemoteLinux::LinuxDeviceConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(MaddeDevice)
+    Q_DECLARE_TR_FUNCTIONS(Madde::Internal::MaddeDevice)
 public:
     typedef QSharedPointer<MaddeDevice> Ptr;
     typedef QSharedPointer<const MaddeDevice> ConstPtr;

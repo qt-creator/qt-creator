@@ -42,6 +42,7 @@ namespace Internal {
 
 class BlackBerryQtVersion : public QnxAbstractQtVersion
 {
+    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::BlackBerryQtVersion)
 public:
     BlackBerryQtVersion();
     BlackBerryQtVersion(QnxArchitecture arch, const Utils::FileName &path,

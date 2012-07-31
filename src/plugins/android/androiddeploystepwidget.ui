@@ -26,7 +26,7 @@
       <string>Use devices qt libs</string>
      </property>
      <property name="text">
-      <string>Use devices qt libs</string>
+      <string>Use device's Qt libs</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -42,7 +42,7 @@
 You must have Qt libs compiled for that platform</string>
        </property>
        <property name="text">
-        <string>Deploy local qt libs</string>
+        <string>Deploy local Qt libs</string>
        </property>
       </widget>
      </item>
@@ -52,7 +52,7 @@ You must have Qt libs compiled for that platform</string>
         <string>Check this option to force the application to use local qt libs instead of system libs.</string>
        </property>
        <property name="text">
-        <string>Use local qt libs</string>
+        <string>Use local Qt libs</string>
        </property>
       </widget>
      </item>
@@ -74,7 +74,7 @@ You must have Qt libs compiled for that platform</string>
 This option is useful when you want to try your application on devices which don't have Android Market (e.g. Android Emulator).</string>
        </property>
        <property name="text">
-        <string>Install Ministro system wide qt shared libraries installer</string>
+        <string>Install Ministro system wide Qt shared libraries installer</string>
        </property>
       </widget>
      </item>

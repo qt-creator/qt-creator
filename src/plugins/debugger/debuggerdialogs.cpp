@@ -204,7 +204,7 @@ AttachExternalDialog::AttachExternalDialog(QWidget *parent)
     d(new AttachExternalDialogPrivate)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setWindowTitle(tr("Start Debugger", 0, QApplication::UnicodeUTF8));
+    setWindowTitle(tr("Start Debugger"));
     setMinimumHeight(500);
 
     d->selfPid = QString::number(QCoreApplication::applicationPid());
@@ -1243,7 +1243,7 @@ StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent)
 
     QFormLayout *formLayout = new QFormLayout();
     formLayout->addRow(tr("&Host:"), d->host);
-    formLayout->addRow(tr("&Usename:"), d->username);
+    formLayout->addRow(tr("&Username:"), d->username);
     formLayout->addRow(tr("&Password:"), d->password);
     formLayout->addRow(tr("&Engine path:"), d->enginePath);
     formLayout->addRow(tr("&Inferior path:"), d->inferiorPath);

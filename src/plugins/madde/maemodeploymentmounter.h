@@ -40,7 +40,7 @@
 
 namespace ProjectExplorer { class Profile; }
 namespace QSsh { class SshConnection; }
-namespace RemoteLinux { class RemoteLinuxUsedPortsGatherer; }
+namespace Utils { class FileName; }
 
 namespace Madde {
 namespace Internal {
@@ -70,13 +70,11 @@ private slots:
     void handleMounted();
     void handleUnmounted();
     void handleMountError(const QString &errorMsg);
-    void handlePortsGathererError(const QString &errorMsg);
-    void handlePortListReady();
     void handleConnectionError();
 
 private:
     enum State {
-        Inactive, UnmountingOldDirs, UnmountingCurrentDirs, GatheringPorts,
+        Inactive, UnmountingOldDirs, UnmountingCurrentDirs,
         Mounting, Mounted, UnmountingCurrentMounts
     };
 
@@ -88,8 +86,6 @@ private:
     QSsh::SshConnection *m_connection;
     ProjectExplorer::IDevice::ConstPtr m_devConf;
     MaemoRemoteMounter * const m_mounter;
-    RemoteLinux::RemoteLinuxUsedPortsGatherer * const m_portsGatherer;
-    Utils::PortList m_freePorts;
     QList<MaemoMountSpecification> m_mountSpecs;
     const ProjectExplorer::Profile *m_profile;
 };

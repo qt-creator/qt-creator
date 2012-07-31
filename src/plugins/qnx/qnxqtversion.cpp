@@ -64,7 +64,7 @@ QString QnxQtVersion::type() const
 
 QString QnxQtVersion::description() const
 {
-    return QCoreApplication::translate("QtVersion", "QNX %1", "Qt Version is meant for QNX").arg(archString());
+    return tr("QNX %1", "Qt Version is meant for QNX").arg(archString());
 }
 
 Core::FeatureSet QnxQtVersion::availableFeatures() const

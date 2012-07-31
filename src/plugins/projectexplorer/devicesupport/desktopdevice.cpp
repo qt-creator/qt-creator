@@ -30,10 +30,23 @@
 
 #include "desktopdevice.h"
 #include "projectexplorerconstants.h"
+#include "deviceprocesslist.h"
 
 #include <QCoreApplication>
 
 namespace ProjectExplorer {
+
+DesktopDevice::DesktopDevice() : IDevice(Core::Id(Constants::DESKTOP_DEVICE_TYPE),
+                                         IDevice::AutoDetected,
+                                         IDevice::Hardware,
+                                         Core::Id(Constants::DESKTOP_DEVICE_ID))
+{
+    setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Run locally"));
+}
+
+DesktopDevice::DesktopDevice(const DesktopDevice &other) :
+    IDevice(other)
+{ }
 
 IDevice::DeviceInfo DesktopDevice::deviceInformation() const
 {
@@ -44,6 +57,7 @@ QString DesktopDevice::displayType() const
 {
     return QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Desktop");
 }
+
 IDeviceWidget *DesktopDevice::createWidget()
 {
     return 0;
@@ -71,16 +85,21 @@ IDevice::Ptr DesktopDevice::clone() const
     return Ptr(new DesktopDevice(*this));
 }
 
-DesktopDevice::DesktopDevice() : IDevice(Core::Id(Constants::DESKTOP_DEVICE_TYPE),
-                                         IDevice::AutoDetected,
-                                         IDevice::Hardware,
-                                         Core::Id(Constants::DESKTOP_DEVICE_ID))
+QString DesktopDevice::listProcessesCommandLine() const
 {
-    setDisplayName(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Run locally"));
+    return QString();
 }
 
-DesktopDevice::DesktopDevice(const DesktopDevice &other) :
-    IDevice(other)
-{ }
+QString DesktopDevice::killProcessCommandLine(const DeviceProcess &process) const
+{
+    Q_UNUSED(process);
+    return QString();
+}
+
+QList<DeviceProcess> DesktopDevice::buildProcessList(const QString &listProcessesReply) const
+{
+    Q_UNUSED(listProcessesReply);
+    return QList<DeviceProcess>();
+}
 
 } // namespace ProjectExplorer

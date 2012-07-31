@@ -46,7 +46,7 @@ class LinuxDeviceConfigurationPrivate;
 
 class REMOTELINUX_EXPORT LinuxDeviceConfiguration : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(LinuxDeviceConfiguration)
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::LinuxDeviceConfiguration)
 public:
     typedef QSharedPointer<LinuxDeviceConfiguration> Ptr;
     typedef QSharedPointer<const LinuxDeviceConfiguration> ConstPtr;
@@ -61,6 +61,10 @@ public:
     QString displayNameForActionId(Core::Id actionId) const;
     void executeAction(Core::Id actionId, QWidget *parent) const;
     ProjectExplorer::IDevice::Ptr clone() const;
+
+    QString listProcessesCommandLine() const;
+    QString killProcessCommandLine(const ProjectExplorer::DeviceProcess &process) const;
+    QList<ProjectExplorer::DeviceProcess> buildProcessList(const QString &listProcessesReply) const;
 
 protected:
     LinuxDeviceConfiguration() {}

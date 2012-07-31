@@ -221,6 +221,7 @@ int main()
         systemError("Wait for debugee failed, error %d\n");
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
+    free(env);
     doExit(0);
     return 0;
 }

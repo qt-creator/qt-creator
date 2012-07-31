@@ -93,7 +93,7 @@ ProfileManagerConfigWidget::ProfileManagerConfigWidget(Profile *p, QWidget *pare
 
 QString ProfileManagerConfigWidget::displayName() const
 {
-    return tr("Profiles");
+    return tr("Targets");
 }
 
 void ProfileManagerConfigWidget::apply()

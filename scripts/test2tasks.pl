@@ -110,7 +110,8 @@ while (my $line = <STDIN> ) {
             $fullFileName = $fileHash{$fileName};
             $fullFileName = $fileName unless defined $fullFileName;
         }
-        my $type = index($lastLine, 'FAIL') == 0 ? 'err' : 'unknown';
+        my $type = index($lastLine, 'FAIL') == 0 || index($lastLine, 'XPASS') == 0 ?
+                   'err' : 'unknown';
         print $fullFileName, "\t", $line, "\t", $type, "\t", $lastLine,"\n";
         $failCount++;
     } else {

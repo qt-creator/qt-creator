@@ -200,7 +200,8 @@ void BoundingRectHighlighter::itemDestroyed(QObject *obj)
 void BoundingRectHighlighter::highlightAll()
 {
     foreach (BoundingBox *box, m_boxes) {
-        if (box && box->highlightedObject.isNull()) {
+        Q_ASSERT(box);
+        if (box->highlightedObject.isNull()) {
             // clear all highlights
             clear();
             return;

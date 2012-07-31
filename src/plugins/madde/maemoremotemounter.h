@@ -44,14 +44,9 @@
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
-namespace QSsh {
-class SshConnection;
-class SshRemoteProcess;
-}
+namespace QSsh { class SshRemoteProcessRunner; }
 
-namespace ProjectExplorer { class Profile; }
 namespace RemoteLinux { class RemoteLinuxUsedPortsGatherer; }
-namespace Utils { class PortList; }
 
 namespace Madde {
 namespace Internal {
@@ -60,20 +55,16 @@ class MaemoRemoteMounter : public QObject
 {
     Q_OBJECT
 public:
-    MaemoRemoteMounter(QObject *parent);
+    MaemoRemoteMounter(QObject *parent = 0);
     ~MaemoRemoteMounter();
 
-    // Must already be connected.
-    void setConnection(QSsh::SshConnection *connection,
-        const ProjectExplorer::IDevice::ConstPtr &devConf);
-
-    void setProfile(const ProjectExplorer::Profile *profile);
+    void setParameters(const ProjectExplorer::IDevice::ConstPtr &devConf,
+            const Utils::FileName &fileName);
     void addMountSpecification(const MaemoMountSpecification &mountSpec,
         bool mountAsRoot);
     bool hasValidMountSpecifications() const;
     void resetMountSpecifications() { m_mountSpecs.clear(); }
-    void mount(Utils::PortList *freePorts,
-        const RemoteLinux::RemoteLinuxUsedPortsGatherer *portsGatherer);
+    void mount();
     void unmount();
     void stop();
 
@@ -94,11 +85,13 @@ private slots:
     void handleUtfsServerTimeout();
     void handleUtfsServerStderr();
     void startUtfsServers();
+    void handlePortsGathererError(const QString &errorMsg);
+    void handlePortListReady();
 
 private:
     enum State {
         Inactive, Unmounting, UtfsClientsStarting, UtfsClientsStarted,
-            UtfsServersStarted
+            UtfsServersStarted, GatheringPorts
     };
 
     void setState(State newState);
@@ -119,18 +112,15 @@ private:
         int remotePort;
     };
 
-    QSsh::SshConnection *m_connection;
     ProjectExplorer::IDevice::ConstPtr m_devConf;
     QList<MountInfo> m_mountSpecs;
-    QSharedPointer<QSsh::SshRemoteProcess> m_mountProcess;
-    QSharedPointer<QSsh::SshRemoteProcess> m_unmountProcess;
+    QSsh::SshRemoteProcessRunner * const m_mountProcess;
+    QSsh::SshRemoteProcessRunner * const m_unmountProcess;
 
     typedef QSharedPointer<QProcess> ProcPtr;
     QList<ProcPtr> m_utfsServers;
 
-    Utils::PortList *m_freePorts;
-    const RemoteLinux::RemoteLinuxUsedPortsGatherer *m_portsGatherer;
-    bool m_remoteMountsAllowed;
+    RemoteLinux::RemoteLinuxUsedPortsGatherer * const m_portsGatherer;
     Utils::FileName m_maddeRoot;
 
     State m_state;

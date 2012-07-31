@@ -1604,11 +1604,15 @@ struct RemoteCdbMatcher : ProfileMatcher
         ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
         QTC_ASSERT(tc, return false);
         Abi abi = tc->targetAbi();
-        return abi.architecture() == m_hostAbi.architecture()
-                && abi.os() == Abi::WindowsOS
-                && abi.osFlavor() == Abi::WindowsMsvc2010Flavor
-                && abi.binaryFormat() == Abi::PEFormat
-                && abi.wordWidth() == m_hostAbi.wordWidth();
+        if (abi.architecture() != m_hostAbi.architecture()
+                || abi.os() != Abi::WindowsOS
+                || abi.binaryFormat() != Abi::PEFormat
+                || abi.wordWidth() != m_hostAbi.wordWidth())
+            return false;
+        if (abi.osFlavor() == Abi::WindowsMSysFlavor
+                || abi.osFlavor() == Abi::WindowsCEFlavor)
+            return false;
+        return true;
     }
 
     Abi m_hostAbi;

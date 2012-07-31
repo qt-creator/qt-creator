@@ -1518,7 +1518,7 @@ void ServiceBrowserPrivate::startBrowsing(quint32 interfaceIndex)
     if (failed || browsing)
         return;
     if (mainConnection.isNull()) {
-        startupPhase(1, q->tr("Starting Zeroconf Browsing"));
+        startupPhase(1, ServiceBrowser::tr("Starting Zeroconf Browsing"));
         mainConnection = MainConnectionPtr(new MainConnection(this));
     } else {
         mainConnection->addBrowser(this);

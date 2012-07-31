@@ -41,7 +41,7 @@ namespace Internal {
 
 class QnxDeviceConfiguration : public RemoteLinux::LinuxDeviceConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(QnxDeviceConfiguration)
+    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxDeviceConfiguration)
 public:
     typedef QSharedPointer<QnxDeviceConfiguration> Ptr;
     typedef QSharedPointer<const QnxDeviceConfiguration> ConstPtr;

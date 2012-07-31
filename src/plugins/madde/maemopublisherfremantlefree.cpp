@@ -312,8 +312,10 @@ void MaemoPublisherFremantleFree::handleProcessFinished(bool failedToStart)
             // Toolchain might be null! (yes because this sucks)
             ProjectExplorer::ToolChain *tc
                     = ProjectExplorer::ToolChainProfileInformation::toolChain(m_buildConfig->target()->profile());
-            if (!tc)
-                finishWithFailure(QString(), tr("Make distclean failed. No toolchain in profile."));
+            if (!tc) {
+                finishWithFailure(QString(), tr("Make distclean failed: %1")
+                                  .arg(ProjectExplorer::ToolChainProfileInformation::msgNoToolChainInTarget()));
+            }
             m_process->start(tc->makeCommand(), QStringList() << QLatin1String("distclean"));
         }
         break;

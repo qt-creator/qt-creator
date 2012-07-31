@@ -47,8 +47,8 @@
     class, and header and source files for the class.
 
     To see how this works, rename wizard_sample.xml as wizard.xml in the
-    \c {\share\qtcreator\templates\wizards\listmodel\helloworld} and
-    \c {\share\qtcreator\templates\wizards\listmodel\listmodels} folders. After
+    \c {\share\qtcreator\templates\wizards\helloworld} and
+    \c {\share\qtcreator\templates\wizards\listmodel} folders. After
     you restart \QC, the \gui {Custom Classes}
     and \gui {Custom Projects} categories (1) appear in the \gui New dialog. For
     each category, an icon (2), a display name (3), and a description (4) are

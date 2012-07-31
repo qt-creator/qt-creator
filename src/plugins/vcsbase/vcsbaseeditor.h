@@ -252,6 +252,8 @@ private:
     // Implement to return the previous version[s] of an annotation change
     // for "Annotate previous version"
     virtual QStringList annotationPreviousVersions(const QString &revision) const;
+    // Implement to validate revisions
+    virtual bool isValidRevision(const QString &revision) const;
     // cut out chunk and determine file name.
     DiffChunk diffChunk(QTextCursor cursor) const;
 

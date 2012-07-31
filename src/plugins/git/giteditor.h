@@ -63,6 +63,7 @@ private:
     virtual QString fileNameFromDiffSpecification(const QTextBlock &diffFileName) const;
     virtual QString decorateVersion(const QString &revision) const;
     virtual QStringList annotationPreviousVersions(const QString &revision) const;
+    virtual bool isValidRevision(const QString &revision) const;
 
     mutable QRegExp m_changeNumberPattern8;
     mutable QRegExp m_changeNumberPattern40;

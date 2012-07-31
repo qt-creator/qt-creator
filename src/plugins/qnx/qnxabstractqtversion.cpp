@@ -167,7 +167,6 @@ bool QnxAbstractQtVersion::isValid() const
 QString QnxAbstractQtVersion::invalidReason() const
 {
     if (sdkPath().isEmpty())
-        return QCoreApplication::translate("QtVersion", "No SDK path set");
-
+        return tr("No SDK path set");
     return QtSupport::BaseQtVersion::invalidReason();
 }

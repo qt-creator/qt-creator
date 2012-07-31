@@ -216,7 +216,7 @@ RESOURCES += core.qrc \
 win32 {
     SOURCES += progressmanager/progressmanager_win.cpp
     greaterThan(QT_MAJOR_VERSION, 4): QT += gui-private # Uses QPlatformNativeInterface.
-    LIBS += -lole32
+    LIBS += -lole32 -luser32
 }
 else:macx {
     HEADERS += macfullscreen.h

@@ -189,6 +189,7 @@ int GerritPatchSet::approvalLevel() const
 
 QString GerritChange::toHtml() const
 {
+    // Keep in sync with list model headers.
     static const QString format = GerritModel::tr(
        "<html><head/><body><table>"
        "<tr><td>Subject</td><td>%1</td></tr>"
@@ -381,9 +382,9 @@ GerritModel::GerritModel(const QSharedPointer<GerritParameters> &p, QObject *par
     , m_parameters(p)
     , m_query(0)
 {
-    QStringList headers;
-    headers << QLatin1String("#") << tr("Title") << tr("Owner")
-            << tr("Date") << tr("Project")
+    QStringList headers; // Keep in sync with GerritChange::toHtml()
+    headers << QLatin1String("#") << tr("Subject") << tr("Owner")
+            << tr("Updated") << tr("Project")
             << tr("Approvals") << tr("Status");
     setHorizontalHeaderLabels(headers);
 }

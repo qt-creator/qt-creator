@@ -302,7 +302,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateProfile(const ProjectExplore
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
     if (!tc)
         result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                        QCoreApplication::translate("BaseQtVersion", "No tool chain set up in profile."),
+                                        ProjectExplorer::ToolChainProfileInformation::msgNoToolChainInTarget(),
                                         Utils::FileName(), -1,
                                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 

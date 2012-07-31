@@ -80,7 +80,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 
     QFormLayout *formLayout = new QFormLayout;
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    formLayout->addRow(tr("Profile:"), d->profileChooser);
+    formLayout->addRow(tr("Target:"), d->profileChooser);
     formLayout->addRow(tr("Executable:"), d->executable);
     formLayout->addRow(tr("Arguments:"), d->arguments);
     formLayout->addRow(tr("Working directory:"), d->workingDirectory);

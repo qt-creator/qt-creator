@@ -33,10 +33,7 @@
 #include "maemoglobal.h"
 #include "maddedevice.h"
 
-#include <projectexplorer/profileinformation.h>
-#include <projectexplorer/target.h>
-#include <ssh/sshconnection.h>
-#include <ssh/sshremoteprocess.h>
+#include <ssh/sshremoteprocessrunner.h>
 #include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
 
@@ -51,10 +48,19 @@ namespace Madde {
 namespace Internal {
 
 MaemoRemoteMounter::MaemoRemoteMounter(QObject *parent)
-    : QObject(parent), m_utfsServerTimer(new QTimer(this)), m_state(Inactive)
+    : QObject(parent),
+      m_utfsServerTimer(new QTimer(this)),
+      m_mountProcess(new SshRemoteProcessRunner(this)),
+      m_unmountProcess(new SshRemoteProcessRunner(this)),
+      m_portsGatherer(new RemoteLinuxUsedPortsGatherer(this)),
+      m_state(Inactive)
 {
-    connect(m_utfsServerTimer, SIGNAL(timeout()), this,
-        SLOT(handleUtfsServerTimeout()));
+    connect(m_utfsServerTimer, SIGNAL(timeout()), SLOT(handleUtfsServerTimeout()));
+    connect(m_portsGatherer, SIGNAL(error(QString)),
+        SLOT(handlePortsGathererError(QString)));
+    connect(m_portsGatherer, SIGNAL(portListReady()),
+        SLOT(handlePortListReady()));
+
     m_utfsServerTimer->setSingleShot(true);
 }
 
@@ -63,22 +69,12 @@ MaemoRemoteMounter::~MaemoRemoteMounter()
     killAllUtfsServers();
 }
 
-void MaemoRemoteMounter::setConnection(SshConnection *connection,
-    const IDevice::ConstPtr &devConf)
+void MaemoRemoteMounter::setParameters(const IDevice::ConstPtr &devConf, const FileName &maddeRoot)
 {
     QTC_ASSERT(m_state == Inactive, return);
 
-    m_connection = connection;
     m_devConf = devConf;
-}
-
-void MaemoRemoteMounter::setProfile(const Profile *profile)
-{
-    QTC_ASSERT(m_state == Inactive, return);
-
-    Core::Id typeId = DeviceTypeProfileInformation::deviceTypeId(profile);
-    m_remoteMountsAllowed = MaddeDevice::allowsRemoteMounts(typeId);
-    m_maddeRoot = SysRootProfileInformation::sysRoot(profile);
+    m_maddeRoot = maddeRoot;
 }
 
 void MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mountSpec,
@@ -86,7 +82,7 @@ void MaemoRemoteMounter::addMountSpecification(const MaemoMountSpecification &mo
 {
     QTC_ASSERT(m_state == Inactive, return);
 
-    if (m_remoteMountsAllowed && mountSpec.isValid())
+    if (MaddeDevice::allowsRemoteMounts(m_devConf->type()) && mountSpec.isValid())
         m_mountSpecs << MountInfo(mountSpec, mountAsRoot);
 }
 
@@ -95,22 +91,18 @@ bool MaemoRemoteMounter::hasValidMountSpecifications() const
     return !m_mountSpecs.isEmpty();
 }
 
-void MaemoRemoteMounter::mount(PortList *freePorts,
-    const RemoteLinuxUsedPortsGatherer *portsGatherer)
+void MaemoRemoteMounter::mount()
 {
     QTC_ASSERT(m_state == Inactive, return);
 
     Q_ASSERT(m_utfsServers.isEmpty());
-    Q_ASSERT(m_connection);
 
     if (m_mountSpecs.isEmpty()) {
         setState(Inactive);
         emit reportProgress(tr("No directories to mount"));
         emit mounted();
     } else {
-        m_freePorts = freePorts;
-        m_portsGatherer = portsGatherer;
-        startUtfsClients();
+        m_portsGatherer->start(m_devConf);
     }
 }
 
@@ -126,17 +118,15 @@ void MaemoRemoteMounter::unmount()
 
     QString remoteCall;
     const QString remoteSudo = MaemoGlobal::remoteSudo(m_devConf->type(),
-        m_connection->connectionParameters().userName);
+        m_devConf->sshParameters().userName);
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
         remoteCall += QString::fromLatin1("%1 umount %2 && %1 rmdir %2;")
             .arg(remoteSudo, m_mountSpecs.at(i).mountSpec.remoteMountPoint);
     }
 
-    m_unmountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
-    connect(m_unmountProcess.data(), SIGNAL(closed(int)), this,
-        SLOT(handleUnmountProcessFinished(int)));
     setState(Unmounting);
-    m_unmountProcess->start();
+    connect(m_unmountProcess, SIGNAL(processClosed(int)), SLOT(handleUnmountProcessFinished(int)));
+    m_unmountProcess->run(remoteCall.toUtf8(), m_devConf->sshParameters());
 }
 
 void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
@@ -153,8 +143,7 @@ void MaemoRemoteMounter::handleUnmountProcessFinished(int exitStatus)
         errorMsg = tr("Could not execute unmount request.");
         break;
     case SshRemoteProcess::CrashExit:
-        errorMsg = tr("Failure unmounting: %1")
-            .arg(m_unmountProcess->errorString());
+        errorMsg = tr("Failure unmounting: %1").arg(m_unmountProcess->processErrorString());
         break;
     case SshRemoteProcess::NormalExit:
         break;
@@ -183,17 +172,19 @@ void MaemoRemoteMounter::stop()
 
 void MaemoRemoteMounter::startUtfsClients()
 {
-    const QString userName = m_connection->connectionParameters().userName;
+    QTC_ASSERT(m_state == GatheringPorts, return);
+
+    const QString userName = m_devConf->sshParameters().userName;
     const QString chmodFuse = MaemoGlobal::remoteSudo(m_devConf->type(),
         userName) + QLatin1String(" chmod a+r+w /dev/fuse");
     const QString chmodUtfsClient
         = QLatin1String("chmod a+x ") + utfsClientOnDevice();
     const QLatin1String andOp(" && ");
     QString remoteCall = chmodFuse + andOp + chmodUtfsClient;
+    PortList ports = m_devConf->freePorts();
     for (int i = 0; i < m_mountSpecs.count(); ++i) {
         MountInfo &mountInfo = m_mountSpecs[i];
-        mountInfo.remotePort
-            = m_portsGatherer->getNextFreePort(m_freePorts);
+        mountInfo.remotePort = m_portsGatherer->getNextFreePort(&ports);
         if (mountInfo.remotePort == -1) {
             setState(Inactive);
             emit error(tr("Error: Not enough free ports on device to fulfill all mount requests."));
@@ -221,14 +212,10 @@ void MaemoRemoteMounter::startUtfsClients()
     }
 
     emit reportProgress(tr("Starting remote UTFS clients..."));
-    m_mountProcess = m_connection->createRemoteProcess(remoteCall.toUtf8());
-    connect(m_mountProcess.data(), SIGNAL(started()), this,
-        SLOT(handleUtfsClientsStarted()));
-    connect(m_mountProcess.data(), SIGNAL(closed(int)), this,
-        SLOT(handleUtfsClientsFinished(int)));
-    m_mountProcess->start();
-
     setState(UtfsClientsStarting);
+    connect(m_mountProcess, SIGNAL(processStarted()), SLOT(handleUtfsClientsStarted()));
+    connect(m_mountProcess, SIGNAL(processClosed(int)), SLOT(handleUtfsClientsFinished(int)));
+    m_mountProcess->run(remoteCall.toUtf8(), m_devConf->sshParameters());
 }
 
 void MaemoRemoteMounter::handleUtfsClientsStarted()
@@ -250,13 +237,12 @@ void MaemoRemoteMounter::handleUtfsClientsFinished(int exitStatus)
         return;
 
     setState(Inactive);
-    if (exitStatus == SshRemoteProcess::NormalExit
-            && m_mountProcess->exitCode() == 0) {
+    if (exitStatus == SshRemoteProcess::NormalExit && m_mountProcess->processExitCode() == 0) {
         emit reportProgress(tr("Mount operation succeeded."));
         emit mounted();
     } else {
         QString errMsg = tr("Failure running UTFS client: %1")
-            .arg(m_mountProcess->errorString());
+            .arg(m_mountProcess->processErrorString());
         const QByteArray &mountStderr = m_mountProcess->readAllStandardError();
         if (!mountStderr.isEmpty())
             errMsg += tr("\nstderr was: '%1'").arg(QString::fromUtf8(mountStderr));
@@ -282,7 +268,7 @@ void MaemoRemoteMounter::startUtfsServers()
         const QString remoteSecretOpt = QLatin1String("-r");
         const QStringList utfsServerArgs = QStringList() << localSecretOpt
             << port << remoteSecretOpt << port << QLatin1String("-c")
-            << (m_connection->connectionParameters().host + QLatin1Char(':') + port)
+            << (m_devConf->sshParameters().host + QLatin1Char(':') + port)
             << mountSpec.localDir;
         connect(utfsServerProc.data(),
             SIGNAL(finished(int,QProcess::ExitStatus)), this,
@@ -296,6 +282,21 @@ void MaemoRemoteMounter::startUtfsServers()
     }
 
     setState(UtfsServersStarted);
+}
+
+void MaemoRemoteMounter::handlePortsGathererError(const QString &errorMsg)
+{
+    QTC_ASSERT(m_state == GatheringPorts, return);
+
+    setState(Inactive);
+    emit error(errorMsg);
+}
+
+void MaemoRemoteMounter::handlePortListReady()
+{
+    QTC_ASSERT(m_state == GatheringPorts, return);
+
+    startUtfsClients();
 }
 
 void MaemoRemoteMounter::handleUtfsServerStderr()
@@ -373,16 +374,14 @@ void MaemoRemoteMounter::handleUtfsServerTimeout()
 
 void MaemoRemoteMounter::setState(State newState)
 {
+    if (newState == m_state)
+        return;
     if (newState == Inactive) {
         m_utfsServerTimer->stop();
-        if (m_mountProcess) {
-            disconnect(m_mountProcess.data(), 0, this, 0);
-            m_mountProcess->close();
-        }
-        if (m_unmountProcess) {
-            disconnect(m_unmountProcess.data(), 0, this, 0);
-            m_unmountProcess->close();
-        }
+        disconnect(m_mountProcess, 0, this, 0);
+        m_mountProcess->cancel();
+        disconnect(m_unmountProcess, 0, this, 0);
+        m_unmountProcess->cancel();
     }
     m_state = newState;
 }

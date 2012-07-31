@@ -30,7 +30,8 @@ QtcPlugin {
 
     cpp.dynamicLibraries: {
         if (qbs.targetOS == "windows") return [
-            "ole32"
+            "ole32",
+            "user32"
         ]
     }
 

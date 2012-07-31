@@ -1040,9 +1040,8 @@ bool GitClient::synchronousParentRevisions(const QString &workingDirectory,
     QByteArray outputTextData;
     QByteArray errorText;
     QStringList arguments;
-    if (parents && (revision == QLatin1String("00000000"))) { // Not Committed Yet
-        parents->clear();
-        parents->append(QLatin1String("HEAD"));
+    if (parents && !isValidRevision(revision)) { // Not Committed Yet
+        *parents = QStringList(QLatin1String("HEAD"));
         return true;
     }
     arguments << QLatin1String("rev-list") << QLatin1String(GitClient::noColorOption)
@@ -1448,6 +1447,16 @@ QProcessEnvironment GitClient::processEnvironment() const
     // Set up SSH and C locale (required by git using perl).
     VcsBase::VcsBasePlugin::setProcessEnvironment(&environment, false);
     return environment;
+}
+
+bool GitClient::isValidRevision(const QString &revision) const
+{
+    if (revision.length() < 1)
+        return false;
+    for (int i = 0; i < revision.length(); ++i)
+        if (revision.at(i) != QLatin1Char('0'))
+            return true;
+    return false;
 }
 
 // Synchronous git execution using Utils::SynchronousProcess, with

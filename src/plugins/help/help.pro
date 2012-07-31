@@ -3,8 +3,10 @@ TARGET = Help
 
 QT += network
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += printsupport
+    QT += printsupport help
     DEFINES += QT_NO_WEBKIT
+} else {
+   CONFIG += help
 }
 
 INCLUDEPATH += $$PWD
@@ -12,7 +14,6 @@ INCLUDEPATH += $$PWD
 include(../../qtcreatorplugin.pri)
 include(help_dependencies.pri)
 
-CONFIG += help
 DEFINES += QT_CLUCENE_SUPPORT HELP_LIBRARY
 
 HEADERS += \

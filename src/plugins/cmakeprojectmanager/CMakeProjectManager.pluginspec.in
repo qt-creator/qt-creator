@@ -1,6 +1,6 @@
 <plugin name=\"CMakeProjectManager\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
     <vendor>Nokia Corporation</vendor>
-    <copyright>(C) 2011 Nokia Corporation</copyright>
+    <copyright>(C) 2012 Nokia Corporation</copyright>
     <license>
 Commercial Usage
 
@@ -12,7 +12,7 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     </license>
     <category>Build Systems</category>
     <description>CMake support</description>
-    <url>http://qt.nokia.com</url>
+    <url>http://www.qt-project.org</url>
     <dependencyList>
         <dependency name=\"TextEditor\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"ProjectExplorer\" version=\"$$QTCREATOR_VERSION\"/>

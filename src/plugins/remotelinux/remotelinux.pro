@@ -41,8 +41,6 @@ HEADERS += \
     linuxdevicetester.h \
     remotelinux_constants.h \
     linuxdevicetestdialog.h \
-    remotelinuxprocesslist.h \
-    remotelinuxprocessesdialog.h \
     remotelinuxenvironmentreader.h \
     sshkeydeployer.h \
     typespecificdeviceconfigurationlistmodel.h \
@@ -91,8 +89,6 @@ SOURCES += \
     packageuploader.cpp \
     linuxdevicetester.cpp \
     linuxdevicetestdialog.cpp \
-    remotelinuxprocesslist.cpp \
-    remotelinuxprocessesdialog.cpp \
     remotelinuxenvironmentreader.cpp \
     sshkeydeployer.cpp \
     typespecificdeviceconfigurationlistmodel.cpp \
@@ -111,7 +107,6 @@ SOURCES += \
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \
     linuxdevicetestdialog.ui \
-    remotelinuxprocessesdialog.ui \
     remotelinuxdeployconfigurationwidget.ui \
     profilesupdatedialog.ui \
     genericlinuxdeviceconfigurationwidget.ui \

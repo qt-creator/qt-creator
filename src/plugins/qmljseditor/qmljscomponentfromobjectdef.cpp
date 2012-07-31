@@ -110,21 +110,15 @@ public:
         Core::IVersionControl *versionControl = Core::ICore::vcsManager()->findVersionControlForDirectory(path);
         if (versionControl
                 && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
-            QString title = QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                        "Add to Version Control");
-            QString question = QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                           "Add file\n%1\nto version control (%2)?")
-                    .arg(newFileName, versionControl->displayName());
-            QString error = QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                        "Could not add file\n%1\nto version control (%2).")
-                    .arg(newFileName, versionControl->displayName());
-
-            QMessageBox::StandardButton button =
-                    QMessageBox::question(Core::ICore::mainWindow(), title,
-                                           question, QMessageBox::Yes | QMessageBox::No);
-            if (button == QMessageBox::Yes) {
-                if (!versionControl->vcsAdd(newFileName))
-                    QMessageBox::warning(Core::ICore::mainWindow(), title, error);
+            const QMessageBox::StandardButton button =
+                    QMessageBox::question(Core::ICore::mainWindow(),
+                                          Core::VcsManager::msgAddToVcsTitle(),
+                                          Core::VcsManager::msgPromptToAddToVcs(QStringList(newFileName), versionControl),
+                                          QMessageBox::Yes | QMessageBox::No);
+            if (button == QMessageBox::Yes && !versionControl->vcsAdd(newFileName)) {
+                QMessageBox::warning(Core::ICore::mainWindow(),
+                                     Core::VcsManager::msgAddToVcsFailedTitle(),
+                                     Core::VcsManager::msgToAddToVcsFailed(QStringList(newFileName), versionControl));
             }
         }
         QString replacement = componentName + QLatin1String(" {\n");

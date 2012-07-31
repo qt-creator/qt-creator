@@ -1288,7 +1288,7 @@ void ProjectExplorerPlugin::openProjectWelcomePage(const QString &fileName)
     QString errorMessage;
     openProject(fileName, &errorMessage);
     if (!errorMessage.isEmpty())
-        QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to open project"), errorMessage);
+        QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);
 }
 
 Project *ProjectExplorerPlugin::openProject(const QString &fileName, QString *errorString)

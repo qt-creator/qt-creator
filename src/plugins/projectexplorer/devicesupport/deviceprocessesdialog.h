@@ -26,28 +26,28 @@
 **
 **
 **************************************************************************/
-#ifndef REMOTELINUXPROCESSESDIALOG_H
-#define REMOTELINUXPROCESSESDIALOG_H
 
-#include "remotelinux_export.h"
+#ifndef DEVICEPROCESSESDIALOG_H
+#define DEVICEPROCESSESDIALOG_H
+
+#include "../projectexplorer_export.h"
 
 #include <QDialog>
 
-namespace RemoteLinux {
-class AbstractRemoteLinuxProcessList;
+namespace ProjectExplorer {
 
-namespace Internal {
-class RemoteLinuxProcessesDialogPrivate;
-} // namespace Internal
+class DeviceProcessList;
 
-class REMOTELINUX_EXPORT RemoteLinuxProcessesDialog : public QDialog
+namespace Internal { class DeviceProcessesDialogPrivate; }
+
+class PROJECTEXPLORER_EXPORT DeviceProcessesDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     // Note: The dialog takes ownership of processList.
-    explicit RemoteLinuxProcessesDialog(AbstractRemoteLinuxProcessList *processList,
-        QWidget *parent = 0);
-    ~RemoteLinuxProcessesDialog();
+    explicit DeviceProcessesDialog(DeviceProcessList *processList, QWidget *parent = 0);
+    ~DeviceProcessesDialog();
 
 private slots:
     void updateProcessList();
@@ -58,7 +58,7 @@ private slots:
     void handleSelectionChanged();
 
 private:
-    Internal::RemoteLinuxProcessesDialogPrivate * const d;
+    Internal::DeviceProcessesDialogPrivate * const d;
 };
 
 } // namespace RemoteLinux

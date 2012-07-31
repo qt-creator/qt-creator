@@ -27,26 +27,26 @@
 **
 **************************************************************************/
 
-#include "remotelinuxprocessesdialog.h"
-#include "ui_remotelinuxprocessesdialog.h"
-
-#include "remotelinuxprocesslist.h"
+#include "devicesupport/deviceprocessesdialog.h"
+#include "devicesupport/deviceprocesslist.h"
+#include "ui_deviceprocessesdialog.h"
 
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 namespace Internal {
-class RemoteLinuxProcessesDialogPrivate
+
+class DeviceProcessesDialogPrivate
 {
 public:
-    RemoteLinuxProcessesDialogPrivate(AbstractRemoteLinuxProcessList *processList)
+    DeviceProcessesDialogPrivate(DeviceProcessList *processList)
         : processList(processList)
     {
     }
 
-    Ui::RemoteLinuxProcessesDialog ui;
-    AbstractRemoteLinuxProcessList * const processList;
+    Ui::DeviceProcessesDialog ui;
+    DeviceProcessList * const processList;
     QSortFilterProxyModel proxyModel;
 };
 
@@ -54,9 +54,8 @@ public:
 
 using namespace Internal;
 
-RemoteLinuxProcessesDialog::RemoteLinuxProcessesDialog(AbstractRemoteLinuxProcessList *processList,
-        QWidget *parent)
-    : QDialog(parent), d(new RemoteLinuxProcessesDialogPrivate(processList))
+DeviceProcessesDialog::DeviceProcessesDialog(DeviceProcessList *processList, QWidget *parent)
+    : QDialog(parent), d(new DeviceProcessesDialogPrivate(processList))
 {
     processList->setParent(this);
 
@@ -88,32 +87,32 @@ RemoteLinuxProcessesDialog::RemoteLinuxProcessesDialog(AbstractRemoteLinuxProces
     updateProcessList();
 }
 
-RemoteLinuxProcessesDialog::~RemoteLinuxProcessesDialog()
+DeviceProcessesDialog::~DeviceProcessesDialog()
 {
     delete d;
 }
 
-void RemoteLinuxProcessesDialog::handleRemoteError(const QString &errorMsg)
+void DeviceProcessesDialog::handleRemoteError(const QString &errorMsg)
 {
     QMessageBox::critical(this, tr("Remote Error"), errorMsg);
     d->ui.updateListButton->setEnabled(true);
     handleSelectionChanged();
 }
 
-void RemoteLinuxProcessesDialog::handleProcessListUpdated()
+void DeviceProcessesDialog::handleProcessListUpdated()
 {
     d->ui.updateListButton->setEnabled(true);
     handleSelectionChanged();
 }
 
-void RemoteLinuxProcessesDialog::updateProcessList()
+void DeviceProcessesDialog::updateProcessList()
 {
     d->ui.updateListButton->setEnabled(false);
     d->ui.killProcessButton->setEnabled(false);
     d->processList->update();
 }
 
-void RemoteLinuxProcessesDialog::killProcess()
+void DeviceProcessesDialog::killProcess()
 {
     const QModelIndexList &indexes
         = d->ui.treeView->selectionModel()->selectedIndexes();
@@ -124,12 +123,12 @@ void RemoteLinuxProcessesDialog::killProcess()
     d->processList->killProcess(d->proxyModel.mapToSource(indexes.first()).row());
 }
 
-void RemoteLinuxProcessesDialog::handleProcessKilled()
+void DeviceProcessesDialog::handleProcessKilled()
 {
     updateProcessList();
 }
 
-void RemoteLinuxProcessesDialog::handleSelectionChanged()
+void DeviceProcessesDialog::handleSelectionChanged()
 {
     d->ui.killProcessButton->setEnabled(d->ui.treeView->selectionModel()->hasSelection());
 }

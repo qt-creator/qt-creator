@@ -304,7 +304,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {
-        m_summaryText = tr("<b>No tool chain set up for this profile</b>");
+        m_summaryText = QLatin1String("<b>") + ProjectExplorer::ToolChainProfileInformation::msgNoToolChainInTarget()  + QLatin1String("</b>");
     }
 
     emit updateSummary();

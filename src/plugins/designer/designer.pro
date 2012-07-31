@@ -9,11 +9,8 @@ include(designer_dependencies.pri)
 
 INCLUDEPATH += ../../tools/utils
 
-minQtVersion(5, 0, 0) {
-    CONFIG += designer
-#   -- Fixme: Make tools available
-    INCLUDEPATH += $$QMAKE_INCDIR_QT/../../qttools/include
-    QT += printsupport
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += printsupport designer
 } else {
     # -- figure out shared dir location
     !exists($$[QT_INSTALL_HEADERS]/QtDesigner/private/qdesigner_integration_p.h) {

@@ -336,16 +336,15 @@ void ProfileModel::apply()
 
     if (removedSts.count() == 1) {
         QMessageBox::warning(0,
-                             tr("Duplicate profiles detected"),
-                             tr("The following profile was already configured:<br>"
-                                "&nbsp;%1<br>"
-                                "It was not configured again.")
+                             tr("Duplicate Target Detected"),
+                             tr("The target<br>&nbsp;%1<br>"
+                                " was already configured. It was not configured again.")
                              .arg(removedSts.at(0)));
 
     } else if (!removedSts.isEmpty()) {
         QMessageBox::warning(0,
-                             tr("Duplicate profile detected"),
-                             tr("The following profiles were already configured:<br>"
+                             tr("Duplicate Targets Detected"),
+                             tr("The following targets were already configured:<br>"
                                 "&nbsp;%1<br>"
                                 "They were not configured again.")
                              .arg(removedSts.join(QLatin1String(",<br>&nbsp;"))));

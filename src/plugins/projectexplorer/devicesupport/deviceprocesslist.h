@@ -26,53 +26,37 @@
 **
 **
 **************************************************************************/
-#ifndef REMOTELINUXPROCESSLIST_H
-#define REMOTELINUXPROCESSLIST_H
 
-#include "remotelinux_export.h"
+#ifndef DEVICEPROCESSLIST_H
+#define DEVICEPROCESSLIST_H
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include "idevice.h"
 
 #include <QAbstractTableModel>
 #include <QList>
 #include <QSharedPointer>
 
-namespace RemoteLinux {
+namespace ProjectExplorer {
 
-namespace Internal {
-class AbstractRemoteLinuxProcessListPrivate;
-}
+namespace Internal { class DeviceProcessListPrivate; }
 
-class REMOTELINUX_EXPORT RemoteProcess
-{
-public:
-    RemoteProcess() : pid(0) {}
-    bool operator<(const RemoteProcess &other) const;
-
-    int pid;
-    QString cmdLine;
-    QString exe;
-};
-
-class REMOTELINUX_EXPORT AbstractRemoteLinuxProcessList : public QAbstractTableModel
+class PROJECTEXPLORER_EXPORT DeviceProcessList : public QAbstractTableModel
 {
     Q_OBJECT
-    friend class Internal::AbstractRemoteLinuxProcessListPrivate;
+
 public:
-    ~AbstractRemoteLinuxProcessList();
+    DeviceProcessList(const IDevice::ConstPtr &devConfig, QObject *parent = 0);
+    ~DeviceProcessList();
 
     void update();
     void killProcess(int row);
-    RemoteProcess at(int row) const;
+    DeviceProcess at(int row) const;
+    IDevice::ConstPtr device() const;
 
 signals:
     void processListUpdated();
     void error(const QString &errorMsg);
     void processKilled();
-
-protected:
-    AbstractRemoteLinuxProcessList(const ProjectExplorer::IDevice::ConstPtr &devConfig,
-        QObject *parent = 0);
 
 private slots:
     void handleConnectionError();
@@ -85,30 +69,12 @@ private:
         int role = Qt::DisplayRole) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    virtual QString listProcessesCommandLine() const = 0;
-    virtual QString killProcessCommandLine(const RemoteProcess &process) const = 0;
-    virtual QList<RemoteProcess> buildProcessList(const QString &listProcessesReply) const = 0;
-
     void startProcess(const QString &cmdLine);
     void setFinished();
 
-    Internal::AbstractRemoteLinuxProcessListPrivate * const d;
+    Internal::DeviceProcessListPrivate * const d;
 };
 
+} // namespace ProjectExplorer
 
-class REMOTELINUX_EXPORT GenericRemoteLinuxProcessList : public AbstractRemoteLinuxProcessList
-{
-    Q_OBJECT
-public:
-    GenericRemoteLinuxProcessList(const ProjectExplorer::IDevice::ConstPtr &devConfig,
-        QObject *parent = 0);
-
-protected:
-    QString listProcessesCommandLine() const;
-    QString killProcessCommandLine(const RemoteProcess &process) const;
-    QList<RemoteProcess> buildProcessList(const QString &listProcessesReply) const;
-};
-
-} // namespace RemoteLinux
-
-#endif // REMOTELINUXPROCESSLIST_H
+#endif // DEVICEPROCESSLIST_H

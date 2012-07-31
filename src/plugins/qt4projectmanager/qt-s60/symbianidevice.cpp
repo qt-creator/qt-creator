@@ -37,6 +37,8 @@
 
 #include <QCoreApplication>
 
+using namespace ProjectExplorer;
+
 namespace {
 const char SERIAL_PORT_NAME_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.SerialPortName";
 const char DEVICE_ADDRESS_KEY[] = "Qt4ProjectManager.S60DeployConfiguration.DeviceAddress";
@@ -49,9 +51,9 @@ const char DEFAULT_CODA_TCP_PORT[] = "65029";
 namespace Qt4ProjectManager {
 
 SymbianIDevice::SymbianIDevice() :
-    ProjectExplorer::IDevice(Internal::SymbianIDeviceFactory::deviceType(),
-                             ProjectExplorer::IDevice::AutoDetected,
-                             ProjectExplorer::IDevice::Hardware,
+    IDevice(Internal::SymbianIDeviceFactory::deviceType(),
+                             IDevice::AutoDetected,
+                             IDevice::Hardware,
                              Core::Id("Symbian Device")),
     m_port(QLatin1String(DEFAULT_CODA_TCP_PORT)),
     m_communicationChannel(CommunicationCodaSerialConnection)
@@ -65,21 +67,21 @@ SymbianIDevice::SymbianIDevice(const QVariantMap &map)
     fromMap(map);
 }
 
-ProjectExplorer::IDevice::DeviceInfo SymbianIDevice::deviceInformation() const
+IDevice::DeviceInfo SymbianIDevice::deviceInformation() const
 {
-    ProjectExplorer::IDevice::DeviceInfo result;
+    IDevice::DeviceInfo result;
     switch (communicationChannel()) {
     case SymbianIDevice::CommunicationCodaSerialConnection: {
             const SymbianUtils::SymbianDeviceManager *sdm = SymbianUtils::SymbianDeviceManager::instance();
             const int deviceIndex = sdm->findByPortName(serialPortName());
             if (deviceIndex == -1) {
-                result << ProjectExplorer::IDevice::DeviceInfoItem(
+                result << IDevice::DeviceInfoItem(
                               QCoreApplication::translate("Qt4ProjectManager::SymbianIDevice", "Device"),
                               QCoreApplication::translate("Qt4ProjectManager::SymbianIDevice", "Not connected"));
             } else {
                 // device connected
                 const SymbianUtils::SymbianDevice device = sdm->devices().at(deviceIndex);
-                result << ProjectExplorer::IDevice::DeviceInfoItem(
+                result << IDevice::DeviceInfoItem(
                               QCoreApplication::translate("Qt4ProjectManager::SymbianIDevice", "Device"),
                               //: %1 device friendly name, %2 additional information
                               QCoreApplication::translate("Qt4ProjectManager::SymbianIDevice", "%1, %2")
@@ -89,7 +91,7 @@ ProjectExplorer::IDevice::DeviceInfo SymbianIDevice::deviceInformation() const
         break;
     case SymbianIDevice::CommunicationCodaTcpConnection: {
             if (!address().isEmpty() && !port().isEmpty()) {
-                result << ProjectExplorer::IDevice::DeviceInfoItem(
+                result << IDevice::DeviceInfoItem(
                               QCoreApplication::translate("Qt4ProjectManager::SymbianIDevice", "IP address"),
                               QCoreApplication::translate("Qt4ProjectManager::SymbianIDevice", "%1:%2")
                               .arg(address(), port()));
@@ -103,7 +105,7 @@ ProjectExplorer::IDevice::DeviceInfo SymbianIDevice::deviceInformation() const
 }
 
 SymbianIDevice::SymbianIDevice(const SymbianIDevice &other) :
-    ProjectExplorer::IDevice(other)
+    IDevice(other)
 {
     m_address = other.m_address;
     m_communicationChannel = other.m_communicationChannel;
@@ -111,7 +113,7 @@ SymbianIDevice::SymbianIDevice(const SymbianIDevice &other) :
     m_serialPortName = other.m_serialPortName;
 }
 
-ProjectExplorer::IDevice::Ptr SymbianIDevice::clone() const
+IDevice::Ptr SymbianIDevice::clone() const
 {
     return Ptr(new SymbianIDevice(*this));
 }
@@ -176,7 +178,7 @@ void SymbianIDevice::setCommunicationChannel(CommunicationChannel channel)
 
 void SymbianIDevice::fromMap(const QVariantMap &map)
 {
-    ProjectExplorer::IDevice::fromMap(map);
+    IDevice::fromMap(map);
     m_serialPortName = map.value(QLatin1String(SERIAL_PORT_NAME_KEY)).toString().trimmed();
     m_address = map.value(QLatin1String(DEVICE_ADDRESS_KEY)).toString();
     m_port = map.value(QLatin1String(DEVICE_PORT_KEY), QString(QLatin1String(DEFAULT_CODA_TCP_PORT))).toString();
@@ -190,7 +192,7 @@ QString SymbianIDevice::displayType() const
     return QCoreApplication::translate("Qt4ProjectManager::SymbianIDevice", "Symbian Device");
 }
 
-ProjectExplorer::IDeviceWidget *SymbianIDevice::createWidget()
+IDeviceWidget *SymbianIDevice::createWidget()
 {
     return new Internal::SymbianIDeviceConfigurationWidget(sharedFromThis());
 }
@@ -214,7 +216,7 @@ void SymbianIDevice::executeAction(Core::Id actionId, QWidget *parent) const
 
 QVariantMap SymbianIDevice::toMap() const
 {
-    QVariantMap map(ProjectExplorer::IDevice::toMap());
+    QVariantMap map = IDevice::toMap();
     map.insert(QLatin1String(SERIAL_PORT_NAME_KEY), m_serialPortName);
     map.insert(QLatin1String(DEVICE_ADDRESS_KEY), QVariant(m_address));
     map.insert(QLatin1String(DEVICE_PORT_KEY), m_port);
@@ -240,11 +242,28 @@ void SymbianIDevice::updateState()
         }
 
         setDeviceState(sdm->findByPortName(m_serialPortName) >= 0
-                        ? ProjectExplorer::IDevice::DeviceReadyToUse
-                        : ProjectExplorer::IDevice::DeviceDisconnected);
+                        ? IDevice::DeviceReadyToUse
+                        : IDevice::DeviceDisconnected);
     } else {
-        setDeviceState(ProjectExplorer::IDevice::DeviceStateUnknown);
+        setDeviceState(IDevice::DeviceStateUnknown);
     }
+}
+
+QString SymbianIDevice::listProcessesCommandLine() const
+{
+    return QString();
+}
+
+QString SymbianIDevice::killProcessCommandLine(const DeviceProcess &process) const
+{
+    Q_UNUSED(process);
+    return QString();
+}
+
+QList<DeviceProcess> SymbianIDevice::buildProcessList(const QString &listProcessesReply) const
+{
+    Q_UNUSED(listProcessesReply);
+    return QList<DeviceProcess>();
 }
 
 } // namespace qt4projectmanager

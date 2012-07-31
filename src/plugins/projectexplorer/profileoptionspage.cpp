@@ -122,7 +122,7 @@ QWidget *ProfileOptionsPage::createPage(QWidget *parent)
     connect(m_delButton, SIGNAL(clicked()), this, SLOT(removeProfile()));
     connect(m_makeDefaultButton, SIGNAL(clicked()), this, SLOT(makeDefaultProfile()));
 
-    m_searchKeywords = tr("Profiles");
+    m_searchKeywords = tr("Targets");
 
     updateState();
 

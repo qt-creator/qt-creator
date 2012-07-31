@@ -394,7 +394,7 @@ QString WatchData::toToolTip() const
         formatToolTipRow(str, tr("Referencing Address"),
                          QString::fromLatin1(hexReferencingAddress()));
     if (size)
-        formatToolTipRow(str, tr("Static Object Size"), tr("%1 bytes").arg(size));
+        formatToolTipRow(str, tr("Static Object Size"), tr("%n bytes", 0, size));
     formatToolTipRow(str, tr("Internal ID"), QLatin1String(iname));
     str << "</table></body></html>";
     return res;

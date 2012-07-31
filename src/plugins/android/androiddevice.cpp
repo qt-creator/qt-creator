@@ -33,35 +33,37 @@
 
 #include <QCoreApplication>
 
+using namespace ProjectExplorer;
+
 namespace Android {
 namespace Internal {
 
-AndroidDevice::AndroidDevice():
-    ProjectExplorer::IDevice(Core::Id(Constants::ANDROID_DEVICE_TYPE),
+AndroidDevice::AndroidDevice()
+    : IDevice(Core::Id(Constants::ANDROID_DEVICE_TYPE),
                              IDevice::AutoDetected,
                              IDevice::Hardware,
                              Core::Id(Constants::ANDROID_DEVICE_ID))
 {
-    setDisplayName(QCoreApplication::translate("ProjectExplorer::AndroidDevice", "Run on Android"));
+    setDisplayName(QCoreApplication::translate("Android::Internal::AndroidDevice", "Run on Android"));
     setDeviceState(DeviceReadyToUse);
 }
 
-AndroidDevice::AndroidDevice(const AndroidDevice &other):
-    ProjectExplorer::IDevice(other)
+AndroidDevice::AndroidDevice(const AndroidDevice &other)
+    : ProjectExplorer::IDevice(other)
 { }
 
 
-ProjectExplorer::IDevice::DeviceInfo AndroidDevice::deviceInformation() const
+IDevice::DeviceInfo AndroidDevice::deviceInformation() const
 {
-    return ProjectExplorer::IDevice::DeviceInfo();
+    return IDevice::DeviceInfo();
 }
 
 QString AndroidDevice::displayType() const
 {
-    return QCoreApplication::translate("ProjectExplorer::AndroidDevice", "Android");
+    return QCoreApplication::translate("Android::Internal::AndroidDevice", "Android");
 }
 
-ProjectExplorer::IDeviceWidget *AndroidDevice::createWidget()
+IDeviceWidget *AndroidDevice::createWidget()
 {
     return 0;
 }
@@ -83,9 +85,26 @@ void AndroidDevice::executeAction(Core::Id actionId, QWidget *parent) const
     Q_UNUSED(parent)
 }
 
-ProjectExplorer::IDevice::Ptr AndroidDevice::clone() const
+IDevice::Ptr AndroidDevice::clone() const
 {
-    return ProjectExplorer::IDevice::Ptr(new AndroidDevice(*this));
+    return IDevice::Ptr(new AndroidDevice(*this));
+}
+
+QString AndroidDevice::listProcessesCommandLine() const
+{
+    return QString();
+}
+
+QString AndroidDevice::killProcessCommandLine(const DeviceProcess &process) const
+{
+    Q_UNUSED(process);
+    return QString();
+}
+
+QList<DeviceProcess> AndroidDevice::buildProcessList(const QString &listProcessesReply) const
+{
+    Q_UNUSED(listProcessesReply);
+    return QList<DeviceProcess>();
 }
 
 } // namespace Internal

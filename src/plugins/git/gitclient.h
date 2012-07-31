@@ -220,6 +220,8 @@ public:
 
     QProcessEnvironment processEnvironment() const;
 
+    bool isValidRevision(const QString &revision) const;
+
     static QString msgNoChangedFiles();
 
     static const char *noColorOption;
