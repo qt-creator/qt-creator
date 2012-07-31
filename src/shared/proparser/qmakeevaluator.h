@@ -166,6 +166,9 @@ public:
     VisitReturn evaluateConditionalFunction(const ProString &function, const ushort *&tokPtr);
 
     bool evaluateConditional(const QString &cond, const QString &context);
+#ifdef PROEVALUATOR_FULL
+    void checkRequirements(const ProStringList &deps);
+#endif
 
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;

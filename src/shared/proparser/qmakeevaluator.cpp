@@ -117,6 +117,9 @@ void QMakeEvaluator::initStatics()
     statics.strforever = QLatin1String("forever");
     statics.strhost_build = QLatin1String("host_build");
     statics.strTEMPLATE = ProString("TEMPLATE");
+#ifdef PROEVALUATOR_FULL
+    statics.strREQUIRES = ProString("REQUIRES");
+#endif
 
     statics.fakeValue = ProStringList(ProString("_FAKE_")); // It has to have a unique begin() value
 
@@ -837,6 +840,10 @@ void QMakeEvaluator::visitProVariable(
 
     if (varName == statics.strTEMPLATE)
         setTemplate();
+#ifdef PROEVALUATOR_FULL
+    else if (varName == statics.strREQUIRES)
+        checkRequirements(values(varName));
+#endif
 }
 
 void QMakeEvaluator::setTemplate()
@@ -1526,6 +1533,16 @@ bool QMakeEvaluator::evaluateConditional(const QString &cond, const QString &con
     }
     return ret;
 }
+
+#ifdef PROEVALUATOR_FULL
+void QMakeEvaluator::checkRequirements(const ProStringList &deps)
+{
+    ProStringList &failed = valuesRef(ProString("QMAKE_FAILED_REQUIREMENTS"));
+    foreach (const ProString &dep, deps)
+        if (!evaluateConditional(dep.toQString(), fL1S("(requires)")))
+            failed << dep;
+}
+#endif
 
 ProValueMap *QMakeEvaluator::findValues(const ProString &variableName, ProValueMap::Iterator *rit)
 {

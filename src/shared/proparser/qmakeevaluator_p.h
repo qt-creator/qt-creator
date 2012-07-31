@@ -51,6 +51,9 @@ struct QMakeStatics {
     QString strforever;
     QString strhost_build;
     ProString strTEMPLATE;
+#ifdef PROEVALUATOR_FULL
+    ProString strREQUIRES;
+#endif
     QHash<ProString, int> expands;
     QHash<ProString, int> functions;
     QHash<ProString, ProString> varMap;

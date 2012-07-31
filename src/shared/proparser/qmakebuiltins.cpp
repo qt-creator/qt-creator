@@ -1023,8 +1023,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             }
         }
         return ReturnFalse;
-#if 0
+#ifdef PROEVALUATOR_FULL
     case T_REQUIRES:
+        checkRequirements(args);
+        return ReturnFalse; // Another qmake breakage
 #endif
     case T_EVAL: {
             VisitReturn ret = ReturnFalse;
