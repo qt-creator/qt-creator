@@ -46,10 +46,14 @@
 #include <QTextStream>
 
 #ifdef Q_OS_UNIX
+#include <time.h>
+#include <utime.h>
+#include <errno.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <sys/utsname.h>
 #else
-#include <Windows.h>
+#include <windows.h>
 #endif
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,7 +90,7 @@ enum TestFunc {
     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
     T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
     T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_LOG, T_MESSAGE, T_WARNING, T_ERROR, T_IF,
-    T_MKPATH
+    T_MKPATH, T_TOUCH
 };
 
 void QMakeEvaluator::initFunctionStatics()
@@ -172,6 +176,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "warning", T_WARNING },
         { "error", T_ERROR },
         { "mkpath", T_MKPATH },
+        { "touch", T_TOUCH },
     };
     for (unsigned i = 0; i < sizeof(testInits)/sizeof(testInits[0]); ++i)
         statics.functions.insert(ProString(testInits[i].name), testInits[i].func);
@@ -182,6 +187,23 @@ static bool isTrue(const ProString &_str, QString &tmp)
     const QString &str = _str.toQString(tmp);
     return !str.compare(statics.strtrue, Qt::CaseInsensitive) || str.toInt();
 }
+
+#ifdef Q_OS_WIN
+static QString windowsErrorCode()
+{
+    wchar_t *string = 0;
+    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+                  NULL,
+                  GetLastError(),
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                  (LPWSTR)&string,
+                  0,
+                  NULL);
+    QString ret = QString::fromWCharArray(string);
+    LocalFree((HLOCAL)string);
+    return ret;
+}
+#endif
 
 static QString
 quoteValue(const ProString &val)
@@ -1357,6 +1379,49 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             evalError(fL1S("Cannot create directory %1.").arg(QDir::toNativeSeparators(fn)));
             return ReturnFalse;
         }
+        return ReturnTrue;
+    }
+    case T_TOUCH: {
+        if (args.count() != 2) {
+            evalError(fL1S("touch(file, reffile) requires two arguments."));
+            return ReturnFalse;
+        }
+        const QString &tfn = resolvePath(args.at(0).toQString(m_tmp1));
+        const QString &rfn = resolvePath(args.at(1).toQString(m_tmp2));
+#ifdef Q_OS_UNIX
+        struct stat st;
+        if (stat(rfn.toLocal8Bit().constData(), &st)) {
+            evalError(fL1S("Cannot stat() reference file %1: %2.").arg(rfn, fL1S(strerror(errno))));
+            return ReturnFalse;
+        }
+        struct utimbuf utb;
+        utb.actime = time(0);
+        utb.modtime = st.st_mtime;
+        if (utime(tfn.toLocal8Bit().constData(), &utb)) {
+            evalError(fL1S("Cannot touch %1: %2.").arg(tfn, fL1S(strerror(errno))));
+            return ReturnFalse;
+        }
+#else
+        HANDLE rHand = CreateFile((wchar_t*)rfn.utf16(),
+                                  GENERIC_READ, FILE_SHARE_READ,
+                                  NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (rHand == INVALID_HANDLE_VALUE) {
+            evalError(fL1S("Cannot open() reference file %1: %2.").arg(rfn, windowsErrorCode()));
+            return ReturnFalse;
+        }
+        FILETIME ft;
+        GetFileTime(rHand, 0, 0, &ft);
+        CloseHandle(rHand);
+        HANDLE wHand = CreateFile((wchar_t*)tfn.utf16(),
+                                  GENERIC_WRITE, FILE_SHARE_READ,
+                                  NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (wHand == INVALID_HANDLE_VALUE) {
+            evalError(fL1S("Cannot open() %1: %2.").arg(tfn, windowsErrorCode()));
+            return ReturnFalse;
+        }
+        SetFileTime(wHand, 0, 0, &ft);
+        CloseHandle(wHand);
+#endif
         return ReturnTrue;
     }
 #endif
