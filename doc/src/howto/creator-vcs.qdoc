@@ -258,6 +258,10 @@
             index. This returns your working copy to the state it was in right
             after the last commit.
 
+        \o  \gui{Reset...} opens a dialog where you can select the SHA1 to reset
+            the working directory to. This is useful after applying patches for
+            review, for example.
+
     \endlist
 
     \section2 Viewing Status
@@ -327,6 +331,10 @@
     Git is a fast decentralized version control system. Git is available
     for Windows, Linux and Mac.
 
+    You can use the \l{http://code.google.com/p/gerrit/}{Gerrit} code review
+    tool for projects that use Git. You can apply and check out changes from
+    Gerrit in \QC 2.6 and later.
+
     The \gui Git submenu contains the following additional items:
 
     \table
@@ -375,6 +383,9 @@
         \row
             \o  \gui{Amend Last Commit}
             \o  Revert the last commit.
+        \row
+            \o  \gui Gerrit
+            \o  View, apply, and check out changes from Gerrit.
 
     \endtable
 
@@ -474,6 +485,32 @@
             \o  Remove a single stashed state from the stash list and apply it
                 on top of the current working tree state.
     \endtable
+
+    \section3 Reviewing Code with Gerrit
+
+    If your Git project uses Gerrit for code reviews, you can view your changes
+    in \QC.
+
+    Select \gui Tools > \gui Options > \gui {Version Control} > \gui Gerrit to
+    specify the connection to the Gerrit server.
+
+    \image qtcreator-gerrit-options.png
+
+    You can see the same information about each change as in the Gerrit
+    web interface.
+
+    \image qtcreator-gerrit.png
+
+    To view details of the selected change, select \gui Diff.
+
+    To apply the selected change to the top of your local repository, select
+    \gui Apply. To remove the change after testing it, select \gui Tools >
+    \gui Git > \gui {Reset}. In the \gui {Undo Changes to} dialog, select the
+    state to reset the working directory to, and then select \gui OK.
+
+    To check out the change in a headless state, select \gui Checkout.
+
+    To refresh the list of changes, select \gui Refresh.
 
     \section2 Using Additional Mercurial Functionality
 
