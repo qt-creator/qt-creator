@@ -951,10 +951,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             return ReturnFalse;
         }
         if (args.count() > 1) {
-            if (args[1] == QLatin1String("test"))
+            if (args[1] == QLatin1String("test")) {
                 return returnBool(m_functionDefs.testFunctions.contains(args[0]));
-            else if (args[1] == QLatin1String("replace"))
+            } else if (args[1] == QLatin1String("replace")) {
                 return returnBool(m_functionDefs.replaceFunctions.contains(args[0]));
+            } else if (args[1] == QLatin1String("var")) {
+                ProValueMap::Iterator it;
+                return returnBool(findValues(args[0], &it));
+            }
             evalError(fL1S("defined(function, type): unexpected type [%1].")
                       .arg(args.at(1).toQString(m_tmp1)));
             return ReturnFalse;
