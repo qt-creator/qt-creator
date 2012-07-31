@@ -85,7 +85,8 @@ enum TestFunc {
     T_INVALID = 0, T_REQUIRES, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
     T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
-    T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_LOG, T_MESSAGE, T_WARNING, T_ERROR, T_IF
+    T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_LOG, T_MESSAGE, T_WARNING, T_ERROR, T_IF,
+    T_MKPATH
 };
 
 void QMakeEvaluator::initFunctionStatics()
@@ -170,6 +171,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "message", T_MESSAGE },
         { "warning", T_WARNING },
         { "error", T_ERROR },
+        { "mkpath", T_MKPATH },
     };
     for (unsigned i = 0; i < sizeof(testInits)/sizeof(testInits[0]); ++i)
         statics.functions.insert(ProString(testInits[i].name), testInits[i].func);
@@ -1344,6 +1346,20 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
 
         return ReturnFalse;
     }
+#ifdef PROEVALUATOR_FULL
+    case T_MKPATH: {
+        if (args.count() != 1) {
+            evalError(fL1S("mkpath(file) requires one argument."));
+            return ReturnFalse;
+        }
+        const QString &fn = resolvePath(args.at(0).toQString(m_tmp1));
+        if (!QDir::current().mkpath(fn)) {
+            evalError(fL1S("Cannot create directory %1.").arg(QDir::toNativeSeparators(fn)));
+            return ReturnFalse;
+        }
+        return ReturnTrue;
+    }
+#endif
     case T_INVALID:
         evalError(fL1S("'%1' is not a recognized test function.")
                   .arg(function.toQString(m_tmp1)));
