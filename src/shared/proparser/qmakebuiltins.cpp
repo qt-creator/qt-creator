@@ -1296,8 +1296,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         if (!m_skipLevel)
             m_handler->fileMessage(fL1S("Project %1: %2")
                                    .arg(function.toQString(m_tmp1).toUpper(), msg));
-        // ### Consider real termination in non-cumulative mode
-        return returnBool(func_t != T_ERROR);
+        return (func_t == T_ERROR && !m_cumulative) ? ReturnError : ReturnTrue;
     }
 #ifdef PROEVALUATOR_FULL
     case T_SYSTEM: {

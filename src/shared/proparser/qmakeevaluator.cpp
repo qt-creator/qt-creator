@@ -1478,7 +1478,8 @@ ProStringList QMakeEvaluator::evaluateFunction(
             m_valuemapStack.top()[ProString(QString::number(i+1))] = argumentsList[i];
         }
         m_valuemapStack.top()[statics.strARGS] = args;
-        oki = (visitProBlock(func.pro(), func.tokPtr()) != ReturnFalse); // True || Return
+        VisitReturn vr = visitProBlock(func.pro(), func.tokPtr());
+        oki = (vr != ReturnFalse && vr != ReturnError); // True || Return
         ret = m_returnValue;
         m_returnValue.clear();
 

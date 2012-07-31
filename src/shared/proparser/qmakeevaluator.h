@@ -93,6 +93,7 @@ public:
     enum VisitReturn {
         ReturnFalse,
         ReturnTrue,
+        ReturnError,
         ReturnBreak,
         ReturnNext,
         ReturnReturn
