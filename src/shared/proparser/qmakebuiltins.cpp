@@ -1322,15 +1322,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             evalError(fL1S("isEmpty(var) requires one argument."));
             return ReturnFalse;
         }
-        const ProStringList &sl = values(map(args.at(0)));
-        if (sl.count() == 0) {
-            return ReturnTrue;
-        } else if (sl.count() > 0) {
-            const ProString &var = sl.first();
-            if (var.isEmpty())
-                return ReturnTrue;
-        }
-        return ReturnFalse;
+        return returnBool(values(map(args.at(0))).isEmpty());
     }
     case T_EXISTS: {
         if (args.count() != 1) {
