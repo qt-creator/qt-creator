@@ -77,7 +77,7 @@ public:
 
     QMakeParser(ProFileCache *cache, QMakeParserHandler *handler);
 
-    enum SubGrammar { FullGrammar, TestGrammar };
+    enum SubGrammar { FullGrammar, TestGrammar, ValueGrammar };
     // fileName is expected to be absolute and cleanPath()ed.
     ProFile *parsedProFile(const QString &fileName, bool cache = false);
     ProFile *parsedProBlock(const QString &contents, const QString &name, int line = 0,
@@ -99,7 +99,7 @@ private:
         StCond  // Conditionals met on current line
     };
 
-    enum Context { CtxTest, CtxValue, CtxArgs };
+    enum Context { CtxTest, CtxValue, CtxPureValue, CtxArgs };
     struct ParseCtx {
         int parens; // Nesting of non-functional parentheses
         int argc; // Number of arguments in current function call

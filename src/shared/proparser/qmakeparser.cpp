@@ -319,7 +319,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     m_operator = NoOperator;
     m_markLine = m_lineNo;
     m_inError = false;
-    Context context = CtxTest;
     int parens = 0; // Braces in value context
     int argc = 0;
     int wordCount = 0; // Number of words in currently accumulated expression
@@ -330,8 +329,15 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     ushort quote = 0;
     ushort term = 0;
 
-    ushort *ptr = buf;
-    ptr += 4;
+    Context context;
+    ushort *ptr;
+    if (grammar == ValueGrammar) {
+        context = CtxPureValue;
+        ptr = tokPtr + 2;
+    } else {
+        context = CtxTest;
+        ptr = buf + 4;
+    }
     ushort *xprPtr = ptr;
 
 #define FLUSH_LHS_LITERAL() \
@@ -383,11 +389,23 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
         putTok(tokPtr, TokValueTerminator); \
     } while (0)
 
+    const ushort *end; // End of this line
+    const ushort *cptr; // Start of next line
+    bool lineCont;
+    int indent;
+
+    if (context == CtxPureValue) {
+        end = (const ushort *)in.unicode() + in.length();
+        cptr = 0;
+        lineCont = false;
+        indent = 0; // just gcc being stupid
+        goto nextChr;
+    }
+
     forever {
         ushort c;
 
         // First, skip leading whitespace
-        int indent;
         for (indent = 0; ; ++cur, ++indent) {
             c = *cur;
             if (c == '\n') {
@@ -402,8 +420,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
         }
 
         // Then strip comments. Yep - no escaping is possible.
-        const ushort *end; // End of this line
-        const ushort *cptr; // Start of next line
         for (cptr = cur;; ++cptr) {
             c = *cptr;
             if (c == '#') {
@@ -432,7 +448,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
         }
 
         // Then look for line continuations. Yep - no escaping here as well.
-        bool lineCont;
         forever {
             // We don't have to check for underrun here, as we already determined
             // that the line is non-empty.
@@ -592,7 +607,7 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                             *ptr++ = ' ';
                         }
                         goto nextChr;
-                    } else if (c == ' ' || c == '\t') {
+                    } else if ((c == ' ' || c == '\t') && context != CtxPureValue) {
                         putSpace = true;
                         goto nextChr;
                     } else if (c == '!' && ptr == xprPtr && context == CtxTest) {
@@ -602,12 +617,12 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                 } else if (c == '\'' || c == '"') {
                     quote = c;
                     goto nextChr;
-                } else if (c == ' ' || c == '\t') {
-                    FLUSH_LITERAL();
-                    goto nextWord;
                 } else if (context == CtxArgs) {
                     // Function arg context
-                    if (c == '(') {
+                    if (c == ' ' || c == '\t') {
+                        FLUSH_RHS_LITERAL();
+                        goto nextWord;
+                    } else if (c == '(') {
                         ++parens;
                     } else if (c == ')') {
                         if (--parens < 0) {
@@ -643,7 +658,10 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     }
                 } else if (context == CtxTest) {
                     // Test or LHS context
-                    if (c == '(') {
+                    if (c == ' ' || c == '\t') {
+                        FLUSH_LHS_LITERAL();
+                        goto nextWord;
+                    } else if (c == '(') {
                         FLUSH_LHS_LITERAL();
                         if (wordCount != 1) {
                             if (wordCount)
@@ -739,8 +757,11 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                         ptr = ++tokPtr;
                         goto nextToken;
                     }
-                } else { // context == CtxValue
-                    if (c == '{') {
+                } else if (context == CtxValue) {
+                    if (c == ' ' || c == '\t') {
+                        FLUSH_RHS_LITERAL();
+                        goto nextWord;
+                    } else if (c == '{') {
                         ++parens;
                     } else if (c == '}') {
                         if (!parens) {
@@ -796,6 +817,8 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     if (context == CtxValue) {
                         tokPtr[-1] = 0; // sizehint
                         putTok(tokPtr, TokValueTerminator);
+                    } else if (context == CtxPureValue) {
+                        putTok(tokPtr, TokValueTerminator);
                     } else {
                         bogusTest(tokPtr);
                     }
@@ -803,6 +826,9 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                     FLUSH_VALUE_LIST();
                     if (parens)
                         languageWarning(fL1S("Possible braces mismatch"));
+                } else if (context == CtxPureValue) {
+                    tokPtr = ptr;
+                    putTok(tokPtr, TokValueTerminator);
                 } else {
                     finalizeCond(tokPtr, buf, ptr, wordCount);
                 }
