@@ -474,8 +474,7 @@ static bool findNewQmlLibraryInPath(const QString &path,
     QString qmldirData = QString::fromUtf8(qmldirFile.readAll());
 
     QmlDirParser qmldirParser;
-    qmldirParser.setSource(qmldirData);
-    qmldirParser.parse();
+    qmldirParser.parse(qmldirData);
 
     const QString libraryPath = QFileInfo(qmldirFile).absolutePath();
     newLibraries->insert(libraryPath);

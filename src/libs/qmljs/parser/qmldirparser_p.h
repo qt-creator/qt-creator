@@ -28,8 +28,8 @@
 **
 **************************************************************************/
 
-#ifndef QMLDIRPARSER_P_H
-#define QMLDIRPARSER_P_H
+#ifndef QQMLDIRPARSER_P_H
+#define QQMLDIRPARSER_P_H
 
 //
 //  W A R N I N G
@@ -42,15 +42,16 @@
 // We mean it.
 //
 
-#include <QUrl>
-#include <QHash>
+#include <QtCore/QUrl>
+#include <QtCore/QHash>
+#include <QtCore/QDebug>
 
-#include "qmljsglobal_p.h"
 
 QT_BEGIN_NAMESPACE
 
 class QmlError;
-class QML_PARSER_EXPORT QmlDirParser
+class QmlEngine;
+class Q_AUTOTEST_EXPORT QmlDirParser
 {
     Q_DISABLE_COPY(QmlDirParser)
 
@@ -58,20 +59,14 @@ public:
     QmlDirParser();
     ~QmlDirParser();
 
-    QUrl url() const;
-    void setUrl(const QUrl &url);
-
-    QString fileSource() const;
-    void setFileSource(const QString &filePath);
-
-    QString source() const;
-    void setSource(const QString &source);
-
-    bool isParsed() const;
-    bool parse();
+    bool parse(const QString &source);
 
     bool hasError() const;
+    void setError(const QmlError &);
     QList<QmlError> errors(const QString &uri) const;
+
+    QString typeNamespace() const;
+    void setTypeNamespace(const QString &s);
 
     struct Plugin
     {
@@ -100,7 +95,22 @@ public:
         bool internal;
     };
 
-    QList<Component> components() const;
+    struct Script
+    {
+        Script()
+            : majorVersion(0), minorVersion(0) {}
+
+        Script(const QString &nameSpace, const QString &fileName, int majorVersion, int minorVersion)
+            : nameSpace(nameSpace), fileName(fileName), majorVersion(majorVersion), minorVersion(minorVersion) {}
+
+        QString nameSpace;
+        QString fileName;
+        int majorVersion;
+        int minorVersion;
+    };
+
+    QHash<QString,Component> components() const;
+    QList<Script> scripts() const;
     QList<Plugin> plugins() const;
 
 #ifdef QT_CREATOR
@@ -121,20 +131,22 @@ private:
 
 private:
     QList<QmlError> _errors;
-    QUrl _url;
-    QString _source;
-    QString _filePathSouce;
-    QList<Component> _components;
+    QString _typeNamespace;
+    QHash<QString,Component> _components; // multi hash
+    QList<Script> _scripts;
     QList<Plugin> _plugins;
 #ifdef QT_CREATOR
     QList<TypeInfo> _typeInfos;
 #endif
-    unsigned _isParsed: 1;
 };
 
-typedef QList<QmlDirParser::Component> QmlDirComponents;
+typedef QHash<QString,QmlDirParser::Component> QmlDirComponents;
+typedef QList<QmlDirParser::Script> QmlDirScripts;
+typedef QList<QmlDirParser::Plugin> QmlDirPlugins;
 
+QDebug &operator<< (QDebug &, const QmlDirParser::Component &);
+QDebug &operator<< (QDebug &, const QmlDirParser::Script &);
 
 QT_END_NAMESPACE
 
-#endif // QMLDIRPARSER_P_H
+#endif // QQMLDIRPARSER_P_H

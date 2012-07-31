@@ -30,15 +30,16 @@
 
 #include "qmlerror.h"
 
-#include <qdebug.h>
-#include <qfile.h>
-#include <qstringlist.h>
+#include <QtCore/qdebug.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qstringlist.h>
 
 QT_BEGIN_NAMESPACE
 
 /*!
     \class QmlError
-    \since 4.7
+    \since 5.0
+    \inmodule QtQml
     \brief The QmlError class encapsulates a QML error.
 
     QmlError includes a textual description of the error, as well
@@ -58,7 +59,9 @@ QT_BEGIN_NAMESPACE
                ^
     \endcode
 
-    \sa QmlView::errors(), QmlComponent::errors()
+    Note that the QtQuick 1 version is named QDeclarativeError
+
+    \sa QQuickView::errors(), QmlComponent::errors()
 */
 class QmlErrorPrivate
 {

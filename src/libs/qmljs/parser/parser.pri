@@ -10,7 +10,7 @@ HEADERS += \
     $$PWD/qmljsglobal_p.h \
     $$PWD/qmldirparser_p.h \
     $$PWD/qmlerror.h \
-    $$PWD/qmljskeywords_p.h
+    $$PWD/qmljskeywords_p.h \
 
 SOURCES += \
     $$PWD/qmljsast.cpp \
@@ -20,4 +20,4 @@ SOURCES += \
     $$PWD/qmljslexer.cpp \
     $$PWD/qmljsparser.cpp \
     $$PWD/qmldirparser.cpp \
-    $$PWD/qmlerror.cpp
+    $$PWD/qmlerror.cpp \

@@ -44,9 +44,9 @@
 
 #include "qmljsglobal_p.h"
 
-#include <qglobal.h>
-#include <qshareddata.h>
-#include <qdebug.h>
+#include <QtCore/qglobal.h>
+#include <QtCore/qshareddata.h>
+#include <QtCore/qdebug.h>
 
 #include <cstring>
 
@@ -73,10 +73,10 @@ public:
         if (_blocks) {
             for (int i = 0; i < _allocatedBlocks; ++i) {
                 if (char *b = _blocks[i])
-                    qFree(b);
+                    free(b);
             }
 
-            qFree(_blocks);
+            free(_blocks);
         }
     }
 
@@ -108,7 +108,7 @@ private:
             else
                 _allocatedBlocks *= 2;
 
-            _blocks = (char **) qRealloc(_blocks, sizeof(char *) * _allocatedBlocks);
+            _blocks = (char **) realloc(_blocks, sizeof(char *) * _allocatedBlocks);
 
             for (int index = _blockCount; index < _allocatedBlocks; ++index)
                 _blocks[index] = 0;
@@ -117,7 +117,7 @@ private:
         char *&block = _blocks[_blockCount];
 
         if (! block)
-            block = (char *) qMalloc(BLOCK_SIZE);
+            block = (char *) malloc(BLOCK_SIZE);
 
         _ptr = block;
         _end = _ptr + BLOCK_SIZE;
