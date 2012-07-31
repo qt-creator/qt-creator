@@ -244,10 +244,6 @@ static QList<ProjectExplorer::Abi> guessGccAbi(const QString &m)
             if (flavor == Abi::UnknownFlavor)
                 flavor = ProjectExplorer::Abi::FreeBsdFlavor;
             format = ProjectExplorer::Abi::ElfFormat;
-        } else if (p == QLatin1String("meego")) {
-            os = ProjectExplorer::Abi::LinuxOS;
-            flavor = ProjectExplorer::Abi::MeegoLinuxFlavor;
-            format = ProjectExplorer::Abi::ElfFormat;
         } else if (p == QLatin1String("symbianelf")) {
             os = ProjectExplorer::Abi::SymbianOS;
             flavor = ProjectExplorer::Abi::SymbianDeviceFlavor;
@@ -1093,13 +1089,10 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
             << QString::fromLatin1("x86_64-redhat-linux")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
                               << QLatin1String("x86-linux-generic-elf-32bit"));
-    QTest::newRow("Linux 7") // Meego
-                << QString::fromLatin1("armv5tel-meego-linux-gnueabi")
-                << (QStringList() << QLatin1String("arm-linux-meego-elf-32bit"));
-    QTest::newRow("Linux 8")
+    QTest::newRow("Linux 7")
                 << QString::fromLatin1("armv5tl-montavista-linux-gnueabi")
                 << (QStringList() << QLatin1String("arm-linux-generic-elf-32bit"));
-    QTest::newRow("Linux 9")
+    QTest::newRow("Linux 8")
                 << QString::fromLatin1("arm-angstrom-linux-gnueabi")
                 << (QStringList() << QLatin1String("arm-linux-generic-elf-32bit"));
 

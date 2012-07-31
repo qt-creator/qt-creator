@@ -89,22 +89,6 @@ private:
     virtual QStringList madArguments() const;
 };
 
-class MaemoInstallRpmPackageToSysrootStep : public AbstractMaemoInstallPackageToSysrootStep
-{
-    Q_OBJECT
-public:
-    explicit MaemoInstallRpmPackageToSysrootStep(ProjectExplorer::BuildStepList *bsl);
-    MaemoInstallRpmPackageToSysrootStep(ProjectExplorer::BuildStepList *bsl,
-        MaemoInstallRpmPackageToSysrootStep *other);
-
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-
-    static const Core::Id Id;
-    static QString displayName();
-private:
-    virtual QStringList madArguments() const;
-};
-
 class MaemoCopyToSysrootStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT

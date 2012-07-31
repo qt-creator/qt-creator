@@ -125,7 +125,8 @@ QString MaddeDevice::maddeDisplayType(Core::Id type)
         return tr("Maemo5/Fremantle");
     if (type == Core::Id(HarmattanOsType))
         return tr("MeeGo 1.2 Harmattan");
-    return tr("Other MeeGo OS");
+    QTC_ASSERT(false, return QString());
+    return QString(); // For crappy compilers.
 }
 
 bool MaddeDevice::allowsRemoteMounts(Core::Id type)
@@ -141,11 +142,6 @@ bool MaddeDevice::allowsPackagingDisabling(Core::Id type)
 bool MaddeDevice::allowsQmlDebugging(Core::Id type)
 {
     return type == Core::Id(HarmattanOsType);
-}
-
-bool MaddeDevice::isDebianBased(Core::Id type)
-{
-    return type != Core::Id(MeeGoOsType);
 }
 
 QSize MaddeDevice::packageManagerIconSize(Core::Id type)

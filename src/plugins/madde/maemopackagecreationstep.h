@@ -45,9 +45,6 @@ namespace RemoteLinux { class RemoteLinuxDeployConfiguration; }
 
 namespace Madde {
 namespace Internal {
-class AbstractQt4MaemoTarget;
-class AbstractDebBasedQt4MaemoTarget;
-class AbstractRpmBasedQt4MaemoTarget;
 
 class AbstractMaemoPackageCreationStep : public RemoteLinux::AbstractPackagingStep
 {
@@ -126,30 +123,6 @@ private:
     QString m_packageName;
     QString m_templatesDirPath;
     bool m_debugBuild;
-
-    static const Core::Id CreatePackageId;
-};
-
-class MaemoRpmPackageCreationStep : public AbstractMaemoPackageCreationStep
-{
-    Q_OBJECT
-    friend class MaemoPackageCreationFactory;
-public:
-    MaemoRpmPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
-
-private:
-    bool init();
-    virtual bool createPackage(QProcess *buildProc, const QFutureInterface<bool> &fi);
-    virtual bool isMetaDataNewerThan(const QDateTime &packageDate) const;
-
-    MaemoRpmPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
-        MaemoRpmPackageCreationStep *other);
-
-    void ctor();
-    QString rpmBuildDir() const;
-
-    Utils::FileName m_specFile;
-    Utils::FileName m_packageFileName;
 
     static const Core::Id CreatePackageId;
 };

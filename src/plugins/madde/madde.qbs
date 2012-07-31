@@ -117,8 +117,6 @@ QtcPlugin {
         "maddedevice.h",
         "debianmanager.h",
         "debianmanager.cpp",
-        "rpmmanager.h",
-        "rpmmanager.cpp",
         "maemoapplicationrunnerhelperactions.h",
         "maemoapplicationrunnerhelperactions.cpp"
     ]

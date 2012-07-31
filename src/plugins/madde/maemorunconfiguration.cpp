@@ -123,9 +123,7 @@ QString MaemoRunConfiguration::commandPrefix() const
     if (!dev)
         return QString();
 
-    QString prefix = environmentPreparationCommand() + QLatin1Char(';');
-    if (dev->type() == Core::Id(MeeGoOsType))
-        prefix += QLatin1String("DISPLAY=:0.0 ");
+    const QString prefix = environmentPreparationCommand() + QLatin1Char(';');
 
     return QString::fromLatin1("%1 %2").arg(prefix, userEnvironmentChangesAsString());
 }

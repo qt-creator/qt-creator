@@ -157,8 +157,7 @@ bool MaemoRunConfigurationFactory::canHandle(Target *t) const
     if (!qobject_cast<Qt4Project *>(t->project()))
         return false;
     Core::Id devType = DeviceTypeProfileInformation::deviceTypeId(t->profile());
-    return devType == Core::Id(Maemo5OsType) || devType == Core::Id(HarmattanOsType)
-            || devType == Core::Id(MeeGoOsType);
+    return devType == Core::Id(Maemo5OsType) || devType == Core::Id(HarmattanOsType);
 }
 
 QList<RunConfiguration *> MaemoRunConfigurationFactory::runConfigurationsForNode(Target *t, Node *n)

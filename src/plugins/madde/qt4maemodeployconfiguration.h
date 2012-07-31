@@ -76,7 +76,6 @@ public:
     static Core::Id fremantleWithPackagingId();
     static Core::Id fremantleWithoutPackagingId();
     static Core::Id harmattanId();
-    static Core::Id meegoId();
 
     RemoteLinux::DeploymentSettingsAssistant *deploymentSettingsAssistant();
 

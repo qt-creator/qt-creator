@@ -65,15 +65,13 @@ bool MaemoGlobal::hasMaemoDevice(const Profile *p)
         return false;
 
     const Core::Id type = dev->type();
-    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType)
-            || type == Core::Id(MeeGoOsType);
+    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType);
 }
 
 bool MaemoGlobal::supportsMaemoDevice(const Profile *p)
 {
     const Core::Id type = DeviceTypeProfileInformation::deviceTypeId(p);
-    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType)
-            || type == Core::Id(MeeGoOsType);
+    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType);
 }
 
 bool MaemoGlobal::isValidMaemo5QtVersion(const QString &qmakePath)
@@ -84,11 +82,6 @@ bool MaemoGlobal::isValidMaemo5QtVersion(const QString &qmakePath)
 bool MaemoGlobal::isValidHarmattanQtVersion(const QString &qmakePath)
 {
     return isValidMaemoQtVersion(qmakePath, Core::Id(HarmattanOsType));
-}
-
-bool MaemoGlobal::isValidMeegoQtVersion(const QString &qmakePath)
-{
-    return isValidMaemoQtVersion(qmakePath, Core::Id(MeeGoOsType));
 }
 
 bool MaemoGlobal::isValidMaemoQtVersion(const QString &qmakePath, Core::Id deviceType)
@@ -136,10 +129,8 @@ QString MaemoGlobal::remoteSudo(Core::Id deviceType, const QString &uname)
 {
     if (uname == QLatin1String("root"))
         return QString();
-    if (deviceType == Core::Id(Maemo5OsType) || deviceType == Core::Id(HarmattanOsType)
-            || deviceType == Core::Id(MeeGoOsType)) {
+    if (deviceType == Core::Id(Maemo5OsType) || deviceType == Core::Id(HarmattanOsType))
         return devrootshPath();
-    }
     return QString(); // Using sudo would open a can of worms.
 }
 
@@ -219,8 +210,6 @@ Core::Id MaemoGlobal::deviceType(const QString &qmakePath)
         return Core::Id(Maemo5OsType);
     if (name.startsWith(QLatin1String("harmattan")))
         return Core::Id(HarmattanOsType);
-    if (name.startsWith(QLatin1String("meego")))
-        return Core::Id(MeeGoOsType);
     return Core::Id(RemoteLinux::Constants::GenericLinuxOsType);
 }
 

@@ -49,7 +49,6 @@ HEADERS += \
     maddedevicetester.h \
     maddedeviceconfigurationfactory.h \
     maddedevice.h \
-    rpmmanager.h \
     maemoapplicationrunnerhelperactions.h
 
 SOURCES += \
@@ -93,7 +92,6 @@ SOURCES += \
     maddedevicetester.cpp \
     maemorunconfiguration.cpp \
     maddedevice.cpp \
-    rpmmanager.cpp \
     maemoapplicationrunnerhelperactions.cpp
 
 FORMS += \

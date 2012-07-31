@@ -60,27 +60,6 @@ private:
     RemoteLinux::AbstractUploadAndInstallPackageService *m_deployService;
 };
 
-class MeegoUploadAndInstallPackageStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
-{
-    Q_OBJECT
-public:
-    MeegoUploadAndInstallPackageStep(ProjectExplorer::BuildStepList *bsl);
-    MeegoUploadAndInstallPackageStep(ProjectExplorer::BuildStepList *bsl,
-        MeegoUploadAndInstallPackageStep *other);
-
-    bool initInternal(QString *error);
-
-    static Core::Id stepId();
-    static QString displayName();
-
-private:
-    RemoteLinux::AbstractRemoteLinuxDeployService *deployService() const;
-
-    void ctor();
-
-    RemoteLinux::AbstractUploadAndInstallPackageService *m_deployService;
-};
-
 } // namespace Internal
 } // namespace Madde
 

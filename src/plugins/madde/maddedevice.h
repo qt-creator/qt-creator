@@ -60,7 +60,6 @@ public:
     static bool allowsPackagingDisabling(Core::Id type);
     static bool allowsQmlDebugging(Core::Id type);
 
-    static bool isDebianBased(Core::Id type);
     static QSize packageManagerIconSize(Core::Id type);
 
 private:

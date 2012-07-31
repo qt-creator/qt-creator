@@ -110,10 +110,6 @@ QList<ProjectExplorer::Abi> MaemoQtVersion::detectQtAbis() const
                                            ProjectExplorer::Abi::HarmattanLinuxFlavor,
                                            ProjectExplorer::Abi::ElfFormat,
                                            32));
-    } else if (m_deviceType == Core::Id(MeeGoOsType)) {
-        result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
-                                           ProjectExplorer::Abi::MeegoLinuxFlavor,
-                                           ProjectExplorer::Abi::ElfFormat, 32));
     }
     return result;
 }
@@ -124,8 +120,6 @@ QString MaemoQtVersion::description() const
         return QCoreApplication::translate("QtVersion", "Maemo", "Qt Version is meant for Maemo5");
     else if (m_deviceType == Core::Id(HarmattanOsType))
         return QCoreApplication::translate("QtVersion", "Harmattan ", "Qt Version is meant for Harmattan");
-    else if (m_deviceType == Core::Id(MeeGoOsType))
-        return QCoreApplication::translate("QtVersion", "MeeGo", "Qt Version is meant for MeeGo");
     return QString();
 }
 
@@ -159,8 +153,6 @@ QString MaemoQtVersion::platformName() const
 {
     if (m_deviceType == Maemo5OsType)
         return QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM);
-    if (m_deviceType == MeeGoOsType)
-        return QLatin1String(QtSupport::Constants::MEEGO_PLATFORM);
     return QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM);
 }
 
@@ -168,8 +160,6 @@ QString MaemoQtVersion::platformDisplayName() const
 {
     if (m_deviceType == Maemo5OsType)
         return QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM_TR);
-    if (m_deviceType == MeeGoOsType)
-        return QLatin1String(QtSupport::Constants::MEEGO_PLATFORM_TR);
     return QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM_TR);
 }
 

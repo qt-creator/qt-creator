@@ -106,15 +106,6 @@ public:
     virtual QString displayName() const { return MaemoInstallDebianPackageToSysrootStep::displayName(); }
 };
 
-class MaemoInstallRpmPackageToSysrootWidget : public AbstractMaemoInstallPackageToSysrootWidget
-{
-    Q_OBJECT
-public:
-    MaemoInstallRpmPackageToSysrootWidget(AbstractMaemoInstallPackageToSysrootStep *step)
-        : AbstractMaemoInstallPackageToSysrootWidget(step) {}
-
-    virtual QString displayName() const { return MaemoInstallRpmPackageToSysrootStep::displayName(); }
-};
 
 class MaemoCopyFilesToSysrootWidget : public BuildStepConfigWidget
 {
@@ -257,37 +248,6 @@ const Core::Id MaemoInstallDebianPackageToSysrootStep::Id
 QString MaemoInstallDebianPackageToSysrootStep::displayName()
 {
     return tr("Install Debian package to sysroot");
-}
-
-MaemoInstallRpmPackageToSysrootStep::MaemoInstallRpmPackageToSysrootStep(BuildStepList *bsl)
-    : AbstractMaemoInstallPackageToSysrootStep(bsl, Id)
-{
-    setDisplayName(displayName());
-}
-
-MaemoInstallRpmPackageToSysrootStep::MaemoInstallRpmPackageToSysrootStep(BuildStepList *bsl,
-    MaemoInstallRpmPackageToSysrootStep *other)
-        : AbstractMaemoInstallPackageToSysrootStep(bsl, other)
-{
-    setDisplayName(displayName());
-}
-
-BuildStepConfigWidget *MaemoInstallRpmPackageToSysrootStep::createConfigWidget()
-{
-    return new MaemoInstallRpmPackageToSysrootWidget(this);
-}
-
-QStringList MaemoInstallRpmPackageToSysrootStep::madArguments() const
-{
-    return QStringList() << QLatin1String("xrpm") << QLatin1String("-i");
-}
-
-const Core::Id MaemoInstallRpmPackageToSysrootStep::Id
-    = Core::Id("MaemoInstallRpmPackageToSysrootStep");
-
-QString MaemoInstallRpmPackageToSysrootStep::displayName()
-{
-    return tr("Install RPM package to sysroot");
 }
 
 MaemoCopyToSysrootStep::MaemoCopyToSysrootStep(BuildStepList *bsl)

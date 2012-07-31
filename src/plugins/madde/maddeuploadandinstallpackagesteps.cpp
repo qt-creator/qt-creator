@@ -126,23 +126,6 @@ private:
     HarmattanPackageInstaller * const m_installer;
 };
 
-class MeegoUploadAndInstallPackageAction : public AbstractMaddeUploadAndInstallPackageAction
-{
-    Q_OBJECT
-
-public:
-    MeegoUploadAndInstallPackageAction(AbstractRemoteLinuxDeployStep *step)
-        : AbstractMaddeUploadAndInstallPackageAction(step),
-          m_installer(new MaemoRpmPackageInstaller(this))
-    {
-    }
-
-    AbstractRemoteLinuxPackageInstaller *packageInstaller() const { return m_installer; }
-
-private:
-    MaemoRpmPackageInstaller * const m_installer;
-};
-
 } // anonymous namespace
 
 
@@ -194,53 +177,6 @@ Core::Id MaemoUploadAndInstallPackageStep::stepId()
 QString MaemoUploadAndInstallPackageStep::displayName()
 {
     return tr("Deploy Debian package via SFTP upload");
-}
-
-
-MeegoUploadAndInstallPackageStep::MeegoUploadAndInstallPackageStep(ProjectExplorer::BuildStepList *bsl)
-    : AbstractRemoteLinuxDeployStep(bsl, stepId())
-{
-    ctor();
-}
-
-MeegoUploadAndInstallPackageStep::MeegoUploadAndInstallPackageStep(ProjectExplorer::BuildStepList *bsl,
-    MeegoUploadAndInstallPackageStep *other) : AbstractRemoteLinuxDeployStep(bsl, other)
-{
-    ctor();
-}
-
-void MeegoUploadAndInstallPackageStep::ctor()
-{
-    setDefaultDisplayName(displayName());
-    m_deployService = new MeegoUploadAndInstallPackageAction(this);
-}
-
-AbstractRemoteLinuxDeployService *MeegoUploadAndInstallPackageStep::deployService() const
-{
-    return m_deployService;
-}
-
-bool MeegoUploadAndInstallPackageStep::initInternal(QString *error)
-{
-    const AbstractMaemoPackageCreationStep * const pStep
-        = deployConfiguration()->earlierBuildStep<MaemoRpmPackageCreationStep>(this);
-    if (!pStep) {
-        if (error)
-            *error = tr("No RPM package creation step found.");
-        return false;
-    }
-    m_deployService->setPackageFilePath(pStep->packageFilePath());
-    return deployService()->isDeploymentPossible(error);
-}
-
-Core::Id MeegoUploadAndInstallPackageStep::stepId()
-{
-    return Core::Id("MaemoUploadAndInstallRpmPackageStep");
-}
-
-QString MeegoUploadAndInstallPackageStep::displayName()
-{
-    return tr("Deploy RPM package via SFTP upload");
 }
 
 } // namespace Internal

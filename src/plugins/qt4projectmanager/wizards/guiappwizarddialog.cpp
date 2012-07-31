@@ -117,7 +117,6 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
     rc.isMobileApplication = true;
     if (isQtPlatformSelected(QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
             || isQtPlatformSelected(QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
-            || isQtPlatformSelected(QLatin1String(QtSupport::Constants::MEEGO_PLATFORM))
             || isQtPlatformSelected(QLatin1String(QtSupport::Constants::ANDROID_PLATFORM))) {
         rc.widgetWidth = 800;
         rc.widgetHeight = 480;

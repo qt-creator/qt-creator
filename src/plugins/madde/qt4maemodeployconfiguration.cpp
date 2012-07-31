@@ -37,7 +37,6 @@
 #include "maemoglobal.h"
 #include "maemoinstalltosysrootstep.h"
 #include "maemopackagecreationstep.h"
-#include "rpmmanager.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
@@ -116,11 +115,6 @@ Core::Id Qt4MaemoDeployConfiguration::harmattanId()
     return Core::Id("DeployToHarmattan");
 }
 
-Core::Id Qt4MaemoDeployConfiguration::meegoId()
-{
-    return Core::Id("DeployToMeego");
-}
-
 DeploymentSettingsAssistant *Qt4MaemoDeployConfiguration::deploymentSettingsAssistant()
 {
     return static_cast<DeploymentSettingsAssistant *>(target()->project()->namedSettings(QLatin1String(DEPLOYMENT_ASSISTANT_SETTING)).value<QObject *>());
@@ -134,8 +128,6 @@ QString Qt4MaemoDeployConfiguration::qmakeScope() const
         return QLatin1String("maemo5");
     else if (deviceType == Core::Id(HarmattanOsType))
         return QLatin1String("contains(MEEGO_EDITION,harmattan)");
-    else if (deviceType == Core::Id(MeeGoOsType))
-        return QLatin1String("!isEmpty(MEEGO_VERSION_MAJOR):!contains(MEEGO_EDITION,harmattan)");
     return QString("unix");
 }
 
@@ -147,9 +139,7 @@ QString Qt4MaemoDeployConfiguration::installPrefix() const
         return QLatin1String("/opt");
     else if (deviceType == Core::Id(HarmattanOsType))
         return QLatin1String("/opt");
-    else if (deviceType == Core::Id(MeeGoOsType))
-        return QLatin1String("/opt");
-    return QString("unix");
+    return QLatin1String("/usr/local");
 }
 
 void Qt4MaemoDeployConfiguration::debianDirChanged(const Utils::FileName &dir)
@@ -164,11 +154,7 @@ void Qt4MaemoDeployConfiguration::setupPackaging()
         return;
 
     disconnect(target()->project(), SIGNAL(fileListChanged()), this, SLOT(setupPackaging()));
-
-    if (id() == Qt4MaemoDeployConfiguration::meegoId())
-        ;
-    else
-        setupDebianPackaging();
+    setupDebianPackaging();
 }
 
 void Qt4MaemoDeployConfiguration::setupDebianPackaging()
@@ -289,9 +275,6 @@ QList<Core::Id> Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target 
             << Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId();
     else if (deviceType == Core::Id(HarmattanOsType))
         ids << Qt4MaemoDeployConfiguration::harmattanId();
-    else if (deviceType == Core::Id(MeeGoOsType))
-        ids << Qt4MaemoDeployConfiguration::meegoId();
-
     return ids;
 }
 
@@ -303,8 +286,6 @@ QString Qt4MaemoDeployConfigurationFactory::displayNameForId(const Core::Id id) 
         return tr("Build Debian Package and Install to Maemo5 Device");
     else if (id == Qt4MaemoDeployConfiguration::harmattanId())
         return tr("Build Debian Package and Install to Harmattan Device");
-    else if (id == Qt4MaemoDeployConfiguration::meegoId())
-        return tr("Build RPM Package and Install to MeeGo Device");
     return QString();
 }
 
@@ -335,11 +316,6 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
         dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
         dc->stepList()->insertStep(3, new MaemoUploadAndInstallPackageStep(dc->stepList()));
-    } else if (id == Qt4MaemoDeployConfiguration::meegoId()) {
-        dc->stepList()->insertStep(0, new MaemoRpmPackageCreationStep(dc->stepList()));
-        dc->stepList()->insertStep(1, new MaemoInstallRpmPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
-        dc->stepList()->insertStep(3, new MeegoUploadAndInstallPackageStep(dc->stepList()));
     }
     return dc;
 }
@@ -363,8 +339,6 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::restore(Target *parent,
             id = Qt4MaemoDeployConfiguration::fremantleWithPackagingId();
         else if (deviceType == Core::Id(HarmattanOsType))
             id = Qt4MaemoDeployConfiguration::harmattanId();
-        else if (deviceType == Core::Id(MeeGoOsType))
-            id = Qt4MaemoDeployConfiguration::meegoId();
     }
     Qt4MaemoDeployConfiguration * const dc
         = qobject_cast<Qt4MaemoDeployConfiguration *>(create(parent, id));
