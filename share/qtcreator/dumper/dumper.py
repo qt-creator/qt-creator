@@ -1350,6 +1350,7 @@ class Dumper:
 
         type = value.type.unqualified()
         typeName = str(type)
+        tryDynamic &= self.useDynamicType
 
         # FIXME: Gui shows references stripped?
         #warn(" ")
@@ -1638,7 +1639,7 @@ class Dumper:
             check(False)
 
 
-        if self.useDynamicType and tryDynamic:
+        if tryDynamic:
             self.putItem(expensiveDowncast(value), False)
             return
 
