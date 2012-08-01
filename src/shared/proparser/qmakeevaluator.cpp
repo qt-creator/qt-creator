@@ -1034,8 +1034,6 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
 
 bool QMakeEvaluator::loadSpec()
 {
-    loadDefaults();
-
     QString qmakespec = m_option->expandEnvVars(
                 m_hostBuild ? m_option->qmakespec : m_option->xqmakespec);
 
@@ -1206,6 +1204,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 #endif
 
         initFrom(*baseEnv->evaluator);
+    } else {
+        if (m_valuemapStack.at(0).isEmpty())
+            loadDefaults();
     }
 
     m_handler->aboutToEval(currentProFile(), pro, type);
