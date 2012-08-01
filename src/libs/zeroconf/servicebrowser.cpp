@@ -1951,8 +1951,9 @@ void  MainConnection::handleEvents()
         QString browsersNames = (m_browsers.isEmpty() ? QString() : m_browsers.at(0)->serviceType)
                 + ((m_browsers.count() > 1) ? QString::fromLatin1(",...") : QString());
         if (isOk())
-            appendError(ErrorMessage::FailureLevel, tr("Zeroconf for [%1] accumulated %2 consecutive errors, aborting.")
-                        .arg(browsersNames).arg(m_nErrs));
+            appendError(ErrorMessage::FailureLevel,
+                        tr("Zeroconf for [%1] accumulated %n consecutive errors, aborting.", 0, m_nErrs)
+                            .arg(browsersNames));
     }
     increaseStatusTo(Stopped);
 }
