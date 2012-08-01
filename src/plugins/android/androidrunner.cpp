@@ -196,7 +196,7 @@ void AndroidRunner::asyncStart()
 
     adbStarProc.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
     if (!adbStarProc.waitForStarted()) {
-        emit remoteProcessFinished(tr("Failed to start the activity. Reason: $1").arg(adbStarProc.errorString()));
+        emit remoteProcessFinished(tr("Failed to start the activity. Reason: %1").arg(adbStarProc.errorString()));
         return;
     }
     if (!adbStarProc.waitForFinished(-1)) {
