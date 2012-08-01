@@ -100,8 +100,8 @@ void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
 
     freeSpace *= 1024;
     if (freeSpace < d->requiredSpaceInBytes) {
-        emit errorMessage(tr("The remote file system has only %1 bytes of free space, "
-                "but %2 bytes are required.").arg(freeSpace).arg(d->requiredSpaceInBytes));
+        emit errorMessage(tr("The remote file system has only %n bytes of free space, "
+                "but %1 bytes are required.", 0, freeSpace).arg(d->requiredSpaceInBytes));
         stopDeployment();
         return;
     }

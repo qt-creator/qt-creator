@@ -113,7 +113,7 @@ void RemoteLinuxQmlProfilerRunner::getPorts()
         m_port = 0;
         emit stopped();
     } else {
-        emit appendMessage(tr("Starting remote process ...\n"), Utils::NormalMessageFormat);
+        emit appendMessage(tr("Starting remote process...\n"), Utils::NormalMessageFormat);
         QString arguments = m_arguments;
         if (!arguments.isEmpty())
             arguments.append(QLatin1Char(' '));
