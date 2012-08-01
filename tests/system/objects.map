@@ -63,13 +63,13 @@
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='QtSupport__Internal__QtVersionManager' type='QtSupport::Internal::QtOptionsPageWidget' visible='1'}
 :scrollArea.Create Build Configurations:_QComboBox_2	{container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Create Build Configurations:_QLabel_2' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Create Build Configurations:_QLabel_2	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Create build configurations:' type='QLabel' unnamed='1' visible='1'}
-:scrollArea.Details_Utils::DetailsButton	{container=':Qt Creator.scrollArea_QScrollArea' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1'}
+:scrollArea.Details_Utils::DetailsButton	{text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :scrollArea.Edit build configuration:_QComboBox	{leftWidget=':scrollArea.Edit build configuration:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Edit build configuration:_QLabel	{text='Edit build configuration:' type='QLabel' unnamed='1' visible='1'}
-:scrollArea.Library not available_QLabel	{container=':Qt Creator.scrollArea_QScrollArea' name='qmlDebuggingWarningText' text?='Library not available*' type='QLabel' visible='1'}
+:scrollArea.Library not available_QLabel	{name='qmlDebuggingWarningText' text?='Library not available*' type='QLabel' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' occurrence='1' text='Debug' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' occurrence='1' text='Release' type='QCheckBox' unnamed='1' visible='1'}
 :scrollArea.Use Shadow Building_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' text='Shadow build' type='QCheckBox' unnamed='1' visible='1'}
-:scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox	{container=':Qt Gui Application.scrollArea_QScrollArea' name='qmlDebuggingLibraryCheckBox' type='QCheckBox' visible='1'}
+:scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox	{name='qmlDebuggingLibraryCheckBox' type='QCheckBox' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :scrollArea_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :sourceFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Source file:_QLabel' name='sourceFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
