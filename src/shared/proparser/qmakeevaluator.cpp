@@ -159,7 +159,7 @@ const ProString &QMakeEvaluator::map(const ProString &var)
     QHash<ProString, ProString>::ConstIterator it = statics.varMap.constFind(var);
     if (it == statics.varMap.constEnd())
         return var;
-    deprecationWarning(fL1S("Variable %s is deprecated; use %s instead.")
+    deprecationWarning(fL1S("Variable %1 is deprecated; use %2 instead.")
                        .arg(var.toQString(), it.value().toQString()));
     return it.value();
 }
