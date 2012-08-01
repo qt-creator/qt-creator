@@ -92,8 +92,6 @@ public:
 
     virtual ITextMarkable *markableInterface() = 0;
 
-    virtual void setContextHelpId(const QString &) = 0;
-
     enum TextCodecReason {
         TextCodecOtherReason,
         TextCodecFromSystemSetting,

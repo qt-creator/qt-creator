@@ -634,7 +634,6 @@ public:
 
     inline ITextMarkable *markableInterface() { return e->markableInterface(); }
 
-    void setContextHelpId(const QString &id) { m_contextHelpId = id; }
     QString contextHelpId() const; // from IContext
 
     inline void setTextCodec(QTextCodec *codec, TextCodecReason = TextCodecOtherReason) { e->setTextCodec(codec); }
@@ -653,7 +652,6 @@ private slots:
 
 private:
     BaseTextEditorWidget *e;
-    mutable QString m_contextHelpId;
     QToolBar *m_toolBar;
     QWidget *m_stretchWidget;
     QAction *m_cursorPositionLabelAction;
