@@ -178,7 +178,7 @@ void AndroidToolChain::setQtVersionId(int id)
     setTargetAbi(version->qtAbis().at(0));
 
     toolChainUpdated();
-    setDisplayName(AndroidToolChainFactory::tr("Android Gcc for %1").arg(version->displayName()));
+    setDisplayName(AndroidToolChainFactory::tr("Android GCC for %1").arg(version->displayName()));
 }
 
 int AndroidToolChain::qtVersionId() const

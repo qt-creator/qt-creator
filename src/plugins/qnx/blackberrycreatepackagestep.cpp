@@ -87,7 +87,7 @@ bool BlackBerryCreatePackageStep::init()
 
     const QString packageCmd = target()->activeBuildConfiguration()->environment().searchInPath(QLatin1String(PACKAGER_CMD));
     if (packageCmd.isEmpty()) {
-        raiseError(tr("Could not find packager command '%s' in the build environment")
+        raiseError(tr("Could not find packager command '%1' in the build environment")
                    .arg(QLatin1String(PACKAGER_CMD)));
         return false;
     }

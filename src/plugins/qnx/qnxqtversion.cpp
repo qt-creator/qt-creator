@@ -64,7 +64,8 @@ QString QnxQtVersion::type() const
 
 QString QnxQtVersion::description() const
 {
-    return tr("QNX %1", "Qt Version is meant for QNX").arg(archString());
+    //: Qt Version is meant for QNX
+    return tr("QNX %1").arg(archString());
 }
 
 Core::FeatureSet QnxQtVersion::availableFeatures() const
@@ -81,12 +82,12 @@ QString QnxQtVersion::platformName() const
 
 QString QnxQtVersion::platformDisplayName() const
 {
-    return QCoreApplication::tr("QNX");
+    return tr("QNX");
 }
 
 QString QnxQtVersion::sdkDescription() const
 {
-    return QCoreApplication::tr("QNX Software Development Platform:");
+    return tr("QNX Software Development Platform:");
 }
 
 QMultiMap<QString, QString> QnxQtVersion::environment() const
