@@ -265,9 +265,11 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command,
     proc->waitForFinished(-1);
     proc->setReadChannel(chan);
     QByteArray errout = proc->readAll();
-    if (errout.endsWith('\n'))
-        errout.chop(1);
-    m_handler->message(QMakeHandler::EvalError, QString::fromLocal8Bit(errout));
+    if (!errout.isEmpty()) {
+        if (errout.endsWith('\n'))
+            errout.chop(1);
+        m_handler->message(QMakeHandler::EvalError, QString::fromLocal8Bit(errout));
+    }
 }
 #endif
 
