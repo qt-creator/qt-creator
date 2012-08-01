@@ -928,6 +928,8 @@ static inline void formatMilliSeconds(std::wostream &str, int milliSecs)
 
 static const char stdStringTypeC[] = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
 static const char stdWStringTypeC[] = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
+// Compiler option:  -Zc:wchar_t-:
+static const char stdWStringWCharTypeC[] = "std::basic_string<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t> >";
 
 static KnownType knownPODTypeHelper(const std::string &type, std::string::size_type endPos)
 {
@@ -1028,7 +1030,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
         // STL strings
         if (!type.compare(pos, endPos - pos, stdStringTypeC))
             return KT_StdString;
-        if (!type.compare(pos, endPos - pos, stdWStringTypeC))
+        if (!type.compare(pos, endPos - pos, stdWStringTypeC)
+            || !type.compare(pos, endPos - pos, stdWStringWCharTypeC))
             return KT_StdWString;
         return KT_Unknown;
     } // std::sth
