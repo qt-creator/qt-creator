@@ -11,7 +11,7 @@ for i in $QTDIR/src/qml/qml/qqml{error.{h,cpp},dirparser{_p.h,.cpp}}; do
 done
 
 # export QmlDirParser
-perl -p -0777 -i -e 's/QT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QmlDirParser/#include "qmljsglobal_p.h"\n\nQT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QML_PARSER_EXPORT QmlDirParser/' qmldirparser_p.h
+perl -p -0777 -i -e 's/QT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QmlEngine;\nclass Q_AUTOTEST_EXPORT QmlDirParser/#include "qmljsglobal_p.h"\n\nQT_BEGIN_NAMESPACE\n\nclass QmlError;\nclass QmlEngine;\nclass QML_PARSER_EXPORT QmlDirParser/' qmldirparser_p.h
 # export QmlJSGrammar
 perl -p -0777 -i -e 's/#include <QtCore\/qglobal.h>\n\nQT_BEGIN_NAMESPACE\n\nclass QmlJSGrammar\n/#include "qmljsglobal_p.h"\n#include <QtCore\/qglobal.h>\n\nQT_BEGIN_NAMESPACE\n\nclass QML_PARSER_EXPORT QmlJSGrammar\n/' qmljsgrammar_p.h
 # remove qmlglobal_p.h include

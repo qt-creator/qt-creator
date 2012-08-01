@@ -47,11 +47,13 @@
 #include <QtCore/QDebug>
 
 
+#include "qmljsglobal_p.h"
+
 QT_BEGIN_NAMESPACE
 
 class QmlError;
 class QmlEngine;
-class Q_AUTOTEST_EXPORT QmlDirParser
+class QML_PARSER_EXPORT QmlDirParser
 {
     Q_DISABLE_COPY(QmlDirParser)
 
