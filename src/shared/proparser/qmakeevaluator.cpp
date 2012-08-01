@@ -868,9 +868,6 @@ void QMakeEvaluator::loadDefaults()
 {
     ProValueMap &vars = m_valuemapStack.top();
 
-    vars[ProString("LITERAL_WHITESPACE")] << ProString("\t", NoHash);
-    vars[ProString("LITERAL_DOLLAR")] << ProString("$", NoHash);
-    vars[ProString("LITERAL_HASH")] << ProString("#", NoHash);
     vars[ProString("DIR_SEPARATOR")] << ProString(m_option->dir_sep, NoHash);
     vars[ProString("DIRLIST_SEPARATOR")] << ProString(m_option->dirlist_sep, NoHash);
     vars[ProString("_DATE_")] << ProString(QDateTime::currentDateTime().toString(), NoHash);
