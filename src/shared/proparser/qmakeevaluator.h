@@ -172,7 +172,7 @@ public:
 #endif
 
     QStringList qmakeMkspecPaths() const;
-    QStringList qmakeFeaturePaths() const;
+    void updateFeaturePaths();
 
     bool isActiveConfig(const QString &config, bool regex = false);
 

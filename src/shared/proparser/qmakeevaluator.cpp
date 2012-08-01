@@ -200,7 +200,6 @@ void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
     m_qmakespecFull = other.m_qmakespecFull;
     m_qmakespecName = other.m_qmakespecName;
     m_qmakepath = other.m_qmakepath;
-    m_qmakefeatures = other.m_qmakefeatures;
     m_featureRoots = other.m_featureRoots;
 }
 
@@ -1101,8 +1100,7 @@ bool QMakeEvaluator::loadSpec()
     m_qmakespecName = IoUtils::fileName(m_qmakespecFull).toString();
     if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
         return false;
-    // The spec extends the feature search path, so invalidate the cache.
-    m_featureRoots.clear();
+    updateFeaturePaths(); // The spec extends the feature search path, so rebuild the cache.
     if (!m_conffile.isEmpty()
         && !evaluateFileDirect(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
@@ -1273,7 +1271,7 @@ QStringList QMakeEvaluator::qmakeMkspecPaths() const
     return ret;
 }
 
-QStringList QMakeEvaluator::qmakeFeaturePaths() const
+void QMakeEvaluator::updateFeaturePaths()
 {
     QString mkspecs_concat = QLatin1String("/mkspecs");
     QString features_concat = QLatin1String("/features/");
@@ -1335,7 +1333,7 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     foreach (const QString &root, feature_roots)
         if (IoUtils::exists(root))
             ret << root;
-    return ret;
+    m_featureRoots = ret;
 }
 
 ProString QMakeEvaluator::propertyValue(const ProString &name) const
@@ -1640,7 +1638,7 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName, bool silent)
         fn += QLatin1String(".prf");
 
     if (m_featureRoots.isEmpty())
-        m_featureRoots = qmakeFeaturePaths();
+        updateFeaturePaths();
     int start_root = 0;
     QString currFn = currentFileName();
     if (IoUtils::fileName(currFn) == IoUtils::fileName(fn)) {
