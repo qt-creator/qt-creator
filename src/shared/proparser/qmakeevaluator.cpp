@@ -199,7 +199,7 @@ void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
     m_qmakespec = other.m_qmakespec;
     m_qmakespecFull = other.m_qmakespecFull;
     m_qmakespecName = other.m_qmakespecName;
-    m_qmakepath = other.m_qmakepath;
+    m_mkspecPaths = other.m_mkspecPaths;
     m_featureRoots = other.m_featureRoots;
 }
 
@@ -1060,10 +1060,11 @@ bool QMakeEvaluator::loadSpec()
         m_qmakefeatures = evaluator.values(ProString("QMAKEFEATURES")).toQStringList();
     }
 
+    updateMkspecPaths();
     if (qmakespec.isEmpty())
         qmakespec = m_hostBuild ? QLatin1String("default-host") : QLatin1String("default");
     if (IoUtils::isRelativePath(qmakespec)) {
-        foreach (const QString &root, qmakeMkspecPaths()) {
+        foreach (const QString &root, m_mkspecPaths) {
             QString mkspec = root + QLatin1Char('/') + qmakespec;
             if (IoUtils::exists(mkspec)) {
                 qmakespec = mkspec;
@@ -1249,7 +1250,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 }
 
 
-QStringList QMakeEvaluator::qmakeMkspecPaths() const
+void QMakeEvaluator::updateMkspecPaths()
 {
     QStringList ret;
     const QString concat = QLatin1String("/mkspecs");
@@ -1268,7 +1269,7 @@ QStringList QMakeEvaluator::qmakeMkspecPaths() const
     ret << m_option->propertyValue(ProString("QT_HOST_DATA/get")) + concat;
 
     ret.removeDuplicates();
-    return ret;
+    m_mkspecPaths = ret;
 }
 
 void QMakeEvaluator::updateFeaturePaths()
@@ -1339,7 +1340,7 @@ void QMakeEvaluator::updateFeaturePaths()
 ProString QMakeEvaluator::propertyValue(const ProString &name) const
 {
     if (name == QLatin1String("QMAKE_MKSPECS"))
-        return ProString(qmakeMkspecPaths().join(m_option->dirlist_sep), NoHash);
+        return ProString(m_mkspecPaths.join(m_option->dirlist_sep), NoHash);
     ProString ret = m_option->propertyValue(name);
 //    if (ret.isNull())
 //        evalError(fL1S("Querying unknown property %1").arg(name.toQString(m_mtmp)));

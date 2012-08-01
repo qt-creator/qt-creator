@@ -171,7 +171,7 @@ public:
     void checkRequirements(const ProStringList &deps);
 #endif
 
-    QStringList qmakeMkspecPaths() const;
+    void updateMkspecPaths();
     void updateFeaturePaths();
 
     bool isActiveConfig(const QString &config, bool regex = false);
@@ -222,6 +222,7 @@ public:
     QString m_buildRoot;
     QStringList m_qmakepath;
     QStringList m_qmakefeatures;
+    QStringList m_mkspecPaths;
     QStringList m_featureRoots;
     ProFunctionDefs m_functionDefs;
     ProStringList m_returnValue;
