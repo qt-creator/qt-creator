@@ -4,9 +4,13 @@ DEFINES += CORE_LIBRARY
 QT += network \
     script \
     sql
-greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
 
-CONFIG += help
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += help printsupport
+} else {
+    CONFIG += help
+}
+
 include(../../qtcreatorplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
