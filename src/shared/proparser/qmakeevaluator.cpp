@@ -986,7 +986,8 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
                 if (!IoUtils::exists(cachefile))
                     cachefile.clear();
                 if (!conffile.isEmpty() || !cachefile.isEmpty()) {
-                    m_sourceRoot = sdir;
+                    if (dir != sdir)
+                        m_sourceRoot = sdir;
                     m_buildRoot = dir;
                     break;
                 }
