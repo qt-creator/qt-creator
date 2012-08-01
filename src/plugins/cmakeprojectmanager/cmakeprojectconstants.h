@@ -35,7 +35,7 @@ namespace CMakeProjectManager {
 namespace Constants {
 
 const char PROJECTCONTEXT[] = "CMakeProject.ProjectContext";
-const char CMAKEMIMETYPE[]  = "text/x-cmake"; // TODO check that this is correct
+const char CMAKEMIMETYPE[]  = "text/x-cmake";
 const char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
 const char CMAKE_EDITOR_DISPLAY_NAME[] = "CMake Editor";
 const char C_CMAKEEDITOR[] = "CMakeProject.Context.CMakeEditor";
