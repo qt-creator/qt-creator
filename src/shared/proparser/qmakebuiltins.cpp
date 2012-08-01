@@ -318,8 +318,7 @@ QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::Open
 }
 
 #ifndef QT_BOOTSTRAPPED
-void QMakeEvaluator::runProcess(QProcess *proc, const QString &command,
-                                           QProcess::ProcessChannel chan) const
+void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
 {
     proc->setWorkingDirectory(currentDirectory());
     if (!m_option->environment.isEmpty())
@@ -331,13 +330,6 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command,
     proc->start(QLatin1String("/bin/sh"), QStringList() << QLatin1String("-c") << command);
 # endif
     proc->waitForFinished(-1);
-    proc->setReadChannel(chan);
-    QByteArray errout = proc->readAll();
-    if (!errout.isEmpty()) {
-        if (errout.endsWith('\n'))
-            errout.chop(1);
-        m_handler->message(QMakeHandler::EvalError, QString::fromLocal8Bit(errout));
-    }
 }
 #endif
 
@@ -1374,8 +1366,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         }
 #ifndef QT_BOOTSTRAPPED
         QProcess proc;
-        proc.setProcessChannelMode(QProcess::MergedChannels);
-        runProcess(&proc, args.at(0).toQString(m_tmp2), QProcess::StandardOutput);
+        proc.setProcessChannelMode(QProcess::ForwardedChannels);
+        runProcess(&proc, args.at(0).toQString(m_tmp2));
         return returnBool(proc.exitStatus() == QProcess::NormalExit && proc.exitCode() == 0);
 #else
         return returnBool(system((QLatin1String("cd ")

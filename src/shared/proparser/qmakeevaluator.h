@@ -184,7 +184,7 @@ public:
     VisitReturn writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
                           const QString &contents);
 #ifndef QT_BOOTSTRAPPED
-    void runProcess(QProcess *proc, const QString &command, QProcess::ProcessChannel chan) const;
+    void runProcess(QProcess *proc, const QString &command) const;
 #endif
 
     int m_loopLevel; // To report unexpected break() and next()s
