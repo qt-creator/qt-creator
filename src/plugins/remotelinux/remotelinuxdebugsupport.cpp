@@ -30,7 +30,6 @@
 #include "remotelinuxdebugsupport.h"
 
 #include "remotelinuxrunconfiguration.h"
-#include "remotelinuxutils.h"
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
@@ -306,8 +305,11 @@ void LinuxDeviceDebugSupport::setFinished()
         return;
     d->portsGatherer.disconnect(this);
     d->appRunner.disconnect(this);
-    if (d->state == StartingRunner)
-        d->appRunner.stop(RemoteLinuxUtils::killApplicationCommandLine(d->remoteFilePath).toUtf8());
+    if (d->state == StartingRunner) {
+        const QString stopCommand
+                = d->device->processSupport()->killProcessByNameCommandLine(d->remoteFilePath);
+        d->appRunner.stop(stopCommand.toUtf8());
+    }
     d->state = Inactive;
 }
 

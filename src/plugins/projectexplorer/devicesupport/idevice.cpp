@@ -190,6 +190,9 @@ public:
 };
 } // namespace Internal
 
+PortsGatheringMethod::~PortsGatheringMethod() { }
+DeviceProcessSupport::~DeviceProcessSupport() { }
+
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
 { }
 
@@ -244,6 +247,16 @@ bool IDevice::isAutoDetected() const
 Core::Id IDevice::id() const
 {
     return d->id;
+}
+
+DeviceProcessSupport::Ptr IDevice::processSupport() const
+{
+    return DeviceProcessSupport::Ptr();
+}
+
+PortsGatheringMethod::Ptr IDevice::portsGatheringMethod() const
+{
+    return PortsGatheringMethod::Ptr();
 }
 
 IDevice::DeviceState IDevice::deviceState() const

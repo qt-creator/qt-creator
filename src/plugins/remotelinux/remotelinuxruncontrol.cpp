@@ -30,7 +30,6 @@
 #include "remotelinuxruncontrol.h"
 
 #include "remotelinuxrunconfiguration.h"
-#include "remotelinuxutils.h"
 
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/profileinformation.h>
@@ -54,7 +53,6 @@ public:
     QString remoteExecutable;
     QString arguments;
     QString prefix;
-    QByteArray stopCommand;
 };
 
 RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
@@ -66,7 +64,6 @@ RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
     d->remoteExecutable = lrc->remoteExecutableFilePath();
     d->arguments = lrc->arguments();
     d->prefix = lrc->commandPrefix();
-    d->stopCommand = RemoteLinuxUtils::killApplicationCommandLine(d->remoteExecutable).toUtf8();
 }
 
 RemoteLinuxRunControl::~RemoteLinuxRunControl()
@@ -92,7 +89,9 @@ void RemoteLinuxRunControl::start()
 
 RunControl::StopResult RemoteLinuxRunControl::stop()
 {
-    d->runner.stop(d->stopCommand);
+    const QString stopCommandLine
+            = d->device->processSupport()->killProcessByNameCommandLine(d->remoteExecutable);
+    d->runner.stop(stopCommandLine.toUtf8());
     return AsynchronousStop;
 }
 
@@ -139,11 +138,6 @@ void RemoteLinuxRunControl::setApplicationRunnerPreRunAction(DeviceApplicationHe
 void RemoteLinuxRunControl::setApplicationRunnerPostRunAction(DeviceApplicationHelperAction *action)
 {
     d->runner.setPostRunAction(action);
-}
-
-void RemoteLinuxRunControl::overrideStopCommandLine(const QByteArray &commandLine)
-{
-    d->stopCommand = commandLine;
 }
 
 void RemoteLinuxRunControl::setFinished()

@@ -35,7 +35,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
-#include <remotelinux/remotelinuxutils.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 
@@ -81,7 +80,8 @@ void RemoteLinuxQmlProfilerRunner::stop()
     if (m_port == 0)
         m_portsGatherer->stop();
     else
-        m_runner->stop(RemoteLinuxUtils::killApplicationCommandLine(m_remoteExecutable).toUtf8());
+        m_runner->stop(m_device->processSupport()
+                ->killProcessByNameCommandLine(m_remoteExecutable).toUtf8());
     m_port = 0;
 }
 

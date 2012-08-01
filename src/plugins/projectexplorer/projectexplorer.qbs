@@ -328,5 +328,10 @@ QtcPlugin {
            "abstractmsvctoolchain.h"
         ]
     }
-}
 
+    ProductModule {
+        Depends { name: "cpp" }
+        Depends { name: "Qt"; submodules: ["network"] }
+        cpp.includePaths: [".."]
+    }
+}

@@ -32,15 +32,11 @@
 
 #include "remotelinux_export.h"
 
-#include <QSharedPointer>
-
 namespace RemoteLinux {
-class LinuxDevice;
 
 class REMOTELINUX_EXPORT RemoteLinuxUtils
 {
 public:
-    static QString killApplicationCommandLine(const QString &applicationFilePath);
 };
 
 } // namespace RemoteLinux

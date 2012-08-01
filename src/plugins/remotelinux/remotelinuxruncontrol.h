@@ -52,7 +52,6 @@ public:
 
     void setApplicationRunnerPreRunAction(ProjectExplorer::DeviceApplicationHelperAction *action);
     void setApplicationRunnerPostRunAction(ProjectExplorer::DeviceApplicationHelperAction *action);
-    void overrideStopCommandLine(const QByteArray &commandLine);
 
 private slots:
     void handleErrorMessage(const QString &error);

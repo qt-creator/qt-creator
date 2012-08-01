@@ -52,6 +52,9 @@ public:
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
     ProjectExplorer::IDevice::Ptr clone() const;
 
+    ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
+    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
+
     QString displayType() const;
 
 protected:

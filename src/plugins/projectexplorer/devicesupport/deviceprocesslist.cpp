@@ -71,6 +71,7 @@ DeviceProcessList::~DeviceProcessList()
 void DeviceProcessList::update()
 {
     QTC_ASSERT(d->state == Inactive, return);
+    QTC_ASSERT(d->device && d->device->processSupport(), return);
 
     if (!d->remoteProcesses.isEmpty()) {
         beginRemoveRows(QModelIndex(), 0, d->remoteProcesses.count() - 1);
@@ -78,7 +79,7 @@ void DeviceProcessList::update()
         endRemoveRows();
     }
     d->state = Listing;
-    startProcess(d->device->listProcessesCommandLine());
+    startProcess(d->device->processSupport()->listProcessesCommandLine());
 }
 
 void DeviceProcessList::killProcess(int row)
@@ -87,7 +88,8 @@ void DeviceProcessList::killProcess(int row)
     QTC_ASSERT(d->state == Inactive, return);
 
     d->state = Killing;
-    startProcess(d->device->killProcessCommandLine(d->remoteProcesses.at(row)));
+    const int pid = d->remoteProcesses.at(row).pid;
+    startProcess(d->device->processSupport()->killProcessByPidCommandLine(pid));
 }
 
 DeviceProcess DeviceProcessList::at(int row) const
@@ -160,8 +162,10 @@ void DeviceProcessList::handleRemoteProcessFinished(int exitStatus)
         if (d->process.processExitCode() == 0) {
             if (d->state == Listing) {
                 const QByteArray remoteStdout = d->process.readAllStandardOutput();
-                QList<DeviceProcess> processes = d->device->buildProcessList(QString::fromUtf8(remoteStdout.data(),
-                    remoteStdout.count()));
+                const QString stdoutString
+                        = QString::fromUtf8(remoteStdout.data(), remoteStdout.count());
+                QList<DeviceProcess> processes
+                        = d->device->processSupport()->buildProcessList(stdoutString);
                 if (!processes.isEmpty()) {
                     beginInsertRows(QModelIndex(), 0, processes.count()-1);
                     d->remoteProcesses = processes;

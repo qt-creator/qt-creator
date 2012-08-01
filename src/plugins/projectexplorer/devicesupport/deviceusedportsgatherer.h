@@ -50,8 +50,6 @@ public:
     int getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
     QList<int> usedPorts() const;
 
-    void setCommand(const QString &command); // Will use default command if not set
-
 signals:
     void error(const QString &errMsg);
     void portListReady();

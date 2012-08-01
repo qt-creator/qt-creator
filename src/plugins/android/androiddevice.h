@@ -51,10 +51,6 @@ public:
 
     ProjectExplorer::IDevice::Ptr clone() const;
 
-    QString listProcessesCommandLine() const;
-    QString killProcessCommandLine(const ProjectExplorer::DeviceProcess &process) const;
-    QList<ProjectExplorer::DeviceProcess> buildProcessList(const QString &listProcessesReply) const;
-
 protected:
     friend class AndroidDeviceFactory;
     friend class Android::AndroidPlugin;

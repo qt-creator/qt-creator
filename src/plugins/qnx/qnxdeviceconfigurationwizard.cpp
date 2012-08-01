@@ -81,8 +81,6 @@ IDevice::Ptr QnxDeviceConfigurationWizard::device()
     device->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
 
     RemoteLinux::GenericLinuxDeviceTester *devTester = new RemoteLinux::GenericLinuxDeviceTester(this);
-    devTester->usedPortsGatherer()->setCommand(QLatin1String(Constants::QNX_PORT_GATHERER_COMMAND));
-
     RemoteLinux::LinuxDeviceTestDialog dlg(device, devTester, this);
     dlg.exec();
 

@@ -33,7 +33,6 @@
 
 #include "qnxruncontrol.h"
 #include "qnxrunconfiguration.h"
-#include "qnxutils.h"
 
 #include <projectexplorer/runconfiguration.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
@@ -45,9 +44,4 @@ using namespace RemoteLinux;
 QnxRunControl::QnxRunControl(ProjectExplorer::RunConfiguration *runConfig)
         : RemoteLinuxRunControl(runConfig)
 {
-    const RemoteLinuxRunConfiguration * const rc
-            = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig);
-    QString executable = rc->remoteExecutableFilePath();
-    executable.replace(QLatin1String("/"), QLatin1String("\\/"));
-    overrideStopCommandLine(QnxUtils::applicationKillCommand(executable).toUtf8());
 }
