@@ -315,7 +315,7 @@ static void removeAll(ProStringList *varlist, const ProString &value)
             varlist->remove(i);
 }
 
-static void removeEach(ProStringList *varlist, const ProStringList &value)
+void QMakeEvaluator::removeEach(ProStringList *varlist, const ProStringList &value)
 {
     foreach (const ProString &str, value)
         if (!str.isEmpty())

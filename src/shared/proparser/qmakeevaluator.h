@@ -31,6 +31,10 @@
 #ifndef QMAKEEVALUATOR_H
 #define QMAKEEVALUATOR_H
 
+#if defined(PROEVALUATOR_FULL) && defined(PROEVALUATOR_THREAD_SAFE)
+#  error PROEVALUATOR_FULL is incompatible with PROEVALUATOR_THREAD_SAFE due to cache() implementation
+#endif
+
 #include "qmakeparser.h"
 #include "ioutils.h"
 
@@ -187,6 +191,8 @@ public:
     void runProcess(QProcess *proc, const QString &command) const;
 #endif
     QByteArray getCommandOutput(const QString &args) const;
+
+    static void removeEach(ProStringList *varlist, const ProStringList &value);
 
     int m_loopLevel; // To report unexpected break() and next()s
 #ifdef PROEVALUATOR_CUMULATIVE
