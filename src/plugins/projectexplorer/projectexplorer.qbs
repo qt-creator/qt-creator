@@ -298,6 +298,8 @@ QtcPlugin {
         "devicesupport/devicefactoryselectiondialog.ui",
         "devicesupport/deviceprocesslist.cpp",
         "devicesupport/deviceprocesslist.h",
+        "devicesupport/sshdeviceprocesslist.cpp",
+        "devicesupport/sshdeviceprocesslist.h",
         "devicesupport/deviceprocessesdialog.cpp",
         "devicesupport/deviceprocessesdialog.h",
         "devicesupport/deviceprocessesdialog.ui",

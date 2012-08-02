@@ -46,8 +46,6 @@ namespace Internal { class LinuxDevicePrivate; }
 class REMOTELINUX_EXPORT LinuxDeviceProcessSupport : public ProjectExplorer::DeviceProcessSupport
 {
 public:
-    QString listProcessesCommandLine() const;
-    QList<ProjectExplorer::DeviceProcess> buildProcessList(const QString &listProcessesReply) const;
     QString killProcessByPidCommandLine(int pid) const;
     QString killProcessByNameCommandLine(const QString &filePath) const;
 };
@@ -73,6 +71,7 @@ public:
 
     ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
+    ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
 
 protected:
     LinuxDevice() {}

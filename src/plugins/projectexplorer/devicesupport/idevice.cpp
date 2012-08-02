@@ -30,6 +30,7 @@
 #include "idevice.h"
 
 #include "devicemanager.h"
+#include "deviceprocesslist.h"
 
 #include <coreplugin/id.h>
 #include <ssh/sshconnection.h>
@@ -257,6 +258,11 @@ DeviceProcessSupport::Ptr IDevice::processSupport() const
 PortsGatheringMethod::Ptr IDevice::portsGatheringMethod() const
 {
     return PortsGatheringMethod::Ptr();
+}
+
+DeviceProcessList *IDevice::createProcessListModel(QObject *parent) const
+{
+    return new DeviceProcessList(sharedFromThis(), parent);
 }
 
 IDevice::DeviceState IDevice::deviceState() const

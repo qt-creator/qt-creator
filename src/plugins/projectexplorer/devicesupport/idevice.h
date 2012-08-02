@@ -40,6 +40,7 @@
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
+class QObject;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -47,21 +48,11 @@ namespace QSsh { class SshConnectionParameters; }
 namespace Utils { class PortList; }
 
 namespace ProjectExplorer {
+class DeviceProcessList;
 
 namespace Internal { class IDevicePrivate; }
 
 class IDeviceWidget;
-
-class PROJECTEXPLORER_EXPORT DeviceProcess
-{
-public:
-    DeviceProcess() : pid(0) {}
-    bool operator<(const DeviceProcess &other) const;
-
-    int pid;
-    QString cmdLine;
-    QString exe;
-};
 
 class PROJECTEXPLORER_EXPORT DeviceProcessSupport
 {
@@ -69,8 +60,6 @@ public:
     typedef QSharedPointer<const DeviceProcessSupport> Ptr;
 
     virtual ~DeviceProcessSupport();
-    virtual QString listProcessesCommandLine() const = 0;
-    virtual QList<DeviceProcess> buildProcessList(const QString &listProcessesReply) const = 0;
     virtual QString killProcessByPidCommandLine(int pid) const = 0;
     virtual QString killProcessByNameCommandLine(const QString &filePath) const = 0;
 };
@@ -125,6 +114,7 @@ public:
 
     virtual DeviceProcessSupport::Ptr processSupport() const;
     virtual PortsGatheringMethod::Ptr portsGatheringMethod() const;
+    virtual DeviceProcessList *createProcessListModel(QObject *parent = 0) const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;

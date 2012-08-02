@@ -210,7 +210,7 @@ void StartGdbServerDialog::attachToDevice()
     if (!device)
         return;
     delete d->processList;
-    d->processList = new DeviceProcessList(device);
+    d->processList = device->createProcessListModel();
     d->proxyModel.setSourceModel(d->processList);
     connect(d->processList, SIGNAL(error(QString)),
         SLOT(handleRemoteError(QString)));
