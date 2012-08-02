@@ -1144,6 +1144,7 @@ public:
     void setRegisterContents(int reg, const QString &contents);
     RangeMode registerRangeMode(int reg) const;
     void setRegisterRangeMode(int reg, RangeMode mode);
+    void getRegisterType(int reg, bool *isClipboard, bool *isSelection) const;
 
     void recordJump();
     QVector<CursorPosition> m_jumpListUndo;
@@ -5372,17 +5373,9 @@ RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const
 
 void FakeVimHandler::Private::setRegisterContents(int reg, const QString &contents)
 {
-    bool copyToClipboard = false;
-    bool copyToSelection = false;
-    if (reg == '"') {
-        QStringList list = config(ConfigClipboard).toStringList();
-        copyToClipboard = list.contains(QString("unnamedplus"));
-        copyToSelection = list.contains(QString("unnamed"));
-    } else if (reg == '+') {
-        copyToClipboard = true;
-    } else if (reg == '*') {
-        copyToSelection = true;
-    }
+    bool copyToClipboard;
+    bool copyToSelection;
+    getRegisterType(reg, &copyToClipboard, &copyToSelection);
 
     if (copyToClipboard || copyToSelection) {
         QClipboard *clipboard = QApplication::clipboard();
@@ -5398,16 +5391,41 @@ void FakeVimHandler::Private::setRegisterContents(int reg, const QString &conten
 
 QString FakeVimHandler::Private::registerContents(int reg) const
 {
-    if (reg == '+')
-        return QApplication::clipboard()->text(QClipboard::Clipboard);
+    bool copyFromClipboard;
+    bool copyFromSelection;
+    getRegisterType(reg, &copyFromClipboard, &copyFromSelection);
 
-    if (reg == '*') {
+    if (copyFromClipboard || copyFromSelection) {
         QClipboard *clipboard = QApplication::clipboard();
-        return clipboard->text(clipboard->supportsSelection() ?
-            QClipboard::Selection : QClipboard::Clipboard);
+        bool hasSelection = clipboard->supportsSelection();
+        if (copyFromClipboard || (copyFromSelection && !hasSelection))
+            return clipboard->text(QClipboard::Clipboard);
+        if (copyFromSelection && hasSelection)
+            return clipboard->text(QClipboard::Selection);
     }
 
     return g.registers[reg].contents;
+}
+
+void FakeVimHandler::Private::getRegisterType(int reg, bool *isClipboard, bool *isSelection) const
+{
+    bool clipboard = false;
+    bool selection = false;
+
+    if (reg == '"') {
+        QStringList list = config(ConfigClipboard).toString().split(',');
+        clipboard = list.contains(QString("unnamedplus"));
+        selection = list.contains(QString("unnamed"));
+    } else if (reg == '+') {
+        clipboard = true;
+    } else if (reg == '*') {
+        selection = true;
+    }
+
+    if (isClipboard != 0)
+        *isClipboard = clipboard;
+    if (isSelection != 0)
+        *isSelection = selection;
 }
 
 ///////////////////////////////////////////////////////////////////////
