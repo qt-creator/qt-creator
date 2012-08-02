@@ -126,6 +126,22 @@ SymbolGroupValue SymbolGroupValue::operator[](unsigned index) const
     return SymbolGroupValue(m_errorMessage);
 }
 
+unsigned SymbolGroupValue::childCount() const
+{
+    if (ensureExpanded())
+        return unsigned(m_node->children().size());
+    return 0;
+}
+
+SymbolGroupValue SymbolGroupValue::parent() const
+{
+    if (isValid())
+        if (AbstractSymbolGroupNode *aParent = m_node->parent())
+            if (SymbolGroupNode *parent = aParent->asSymbolGroupNode())
+                return SymbolGroupValue(parent, m_context);
+    return SymbolGroupValue("parent() invoked on invalid value.");
+}
+
 bool SymbolGroupValue::ensureExpanded() const
 {
     if (!isValid() || !m_node->canExpand())
@@ -205,7 +221,7 @@ int SymbolGroupValue::intValue(int defaultValue) const
             return rc;
     }
     if (SymbolGroupValue::verbose)
-        DebugPrint() << name() << "::intValue() fails";
+        DebugPrint() << name() << '/' << type() << '/'<< m_errorMessage << ": intValue() fails";
     return defaultValue;
 }
 
@@ -217,7 +233,7 @@ ULONG64 SymbolGroupValue::pointerValue(ULONG64 defaultValue) const
             return rc;
     }
     if (SymbolGroupValue::verbose)
-        DebugPrint() << name() << "::pointerValue() fails";
+        DebugPrint() << name() << '/'<< type() << '/' << m_errorMessage << ": pointerValue() fails";
     return defaultValue;
 }
 
@@ -380,6 +396,30 @@ SymbolGroupValue SymbolGroupValue::typeCastedValue(ULONG64 address, const char *
                                               additionalSymbolIname(sg),
                                               &m_errorMessage))
         return SymbolGroupValue(node, m_context);
+    return SymbolGroupValue();
+}
+
+SymbolGroupValue SymbolGroupValue::findMember(const SymbolGroupValue &start,
+                                              const std::string &symbolName)
+{
+    const unsigned count = start.childCount();
+    for (unsigned i = 0; i < count ; ++i) { // check members
+        const SymbolGroupValue child = start[i];
+        if (child.name() == symbolName)
+            return child;
+    }
+    // Recurse down base classes at the beginning that have class names
+    // as value.
+    for (unsigned i = 0; i < count; ++i) {
+        const SymbolGroupValue child = start[i];
+        const std::wstring value = child.value();
+        if (value.compare(0, 6, L"class ") && value.compare(0, 7, L"struct ")) {
+           break;
+        } else {
+            if (SymbolGroupValue r = findMember(child, symbolName))
+                return r;
+        }
+    }
     return SymbolGroupValue();
 }
 
@@ -2047,14 +2087,10 @@ static inline bool dumpQWindow(const SymbolGroupValue &v, std::wostream &str, vo
 // Dump a std::string.
 static bool dumpStd_W_String(const SymbolGroupValue &v, int type, std::wostream &str)
 {
-    SymbolGroupValue bx = v[unsigned(0)]["_Bx"];
-    int reserved = 0;
-    if (bx) { // MSVC 2010
-        reserved = v[unsigned(0)]["_Myres"].intValue();
-    } else {  // MSVC2008
-        bx = v["_Bx"];
-        reserved = v["_Myres"].intValue();
-    }
+    // Find 'bx'. MSVC 2012 has 2 base classes, MSVC 2010 1,
+    // and MSVC2008 none
+    const SymbolGroupValue bx = SymbolGroupValue::findMember(v, "_Bx");
+    const int reserved = bx.parent()["_Myres"].intValue();
     if (!bx || reserved < 0)
         return false;
     // 'Buf' array for small strings, else pointer 'Ptr'.
