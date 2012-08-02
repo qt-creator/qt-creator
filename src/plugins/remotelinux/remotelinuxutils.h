@@ -35,12 +35,12 @@
 #include <QSharedPointer>
 
 namespace RemoteLinux {
-class LinuxDeviceConfiguration;
+class LinuxDevice;
 
 class REMOTELINUX_EXPORT RemoteLinuxUtils
 {
 public:
-    static QString deviceConfigurationName(const QSharedPointer<const LinuxDeviceConfiguration> &devConf);
+    static QString killApplicationCommandLine(const QString &applicationFilePath);
 };
 
 } // namespace RemoteLinux

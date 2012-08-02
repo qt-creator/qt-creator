@@ -28,7 +28,7 @@
 **************************************************************************/
 #include "remotelinuxenvironmentreader.h"
 
-#include "linuxdeviceconfiguration.h"
+#include "linuxdevice.h"
 
 #include <ssh/sshremoteprocessrunner.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -53,8 +53,8 @@ RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(RunConfiguration *con
 
 void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
 {
-    IDevice::ConstPtr devConfig = DeviceProfileInformation::device(m_profile);
-    if (!devConfig)
+    IDevice::ConstPtr device = DeviceProfileInformation::device(m_profile);
+    if (!device)
         return;
     m_stop = false;
     if (!m_remoteProcessRunner)
@@ -63,7 +63,7 @@ void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
     connect(m_remoteProcessRunner, SIGNAL(processClosed(int)), SLOT(remoteProcessFinished(int)));
     const QByteArray remoteCall
         = QString(environmentSetupCommand + QLatin1String("; env")).toUtf8();
-    m_remoteProcessRunner->run(remoteCall, devConfig->sshParameters());
+    m_remoteProcessRunner->run(remoteCall, device->sshParameters());
 }
 
 void RemoteLinuxEnvironmentReader::stop()

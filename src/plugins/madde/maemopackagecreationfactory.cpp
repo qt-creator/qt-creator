@@ -39,6 +39,7 @@
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 
@@ -61,13 +62,8 @@ QList<Core::Id> MaemoPackageCreationFactory::availableCreationIds(ProjectExplore
     QList<Core::Id> ids;
     if (!qobject_cast<Qt4MaemoDeployConfiguration *>(parent->parent()))
         return ids;
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
-    if (MaddeDevice::isDebianBased(deviceType)
-            && !parent->contains(MaemoDebianPackageCreationStep::CreatePackageId))
+    if (!parent->contains(MaemoDebianPackageCreationStep::CreatePackageId))
         ids << MaemoDebianPackageCreationStep::CreatePackageId;
-    else if (!MaddeDevice::isDebianBased(deviceType)
-               && !parent->contains(MaemoRpmPackageCreationStep::CreatePackageId))
-        ids << MaemoRpmPackageCreationStep::CreatePackageId;
     return ids;
 }
 
@@ -76,9 +72,6 @@ QString MaemoPackageCreationFactory::displayNameForId(const Core::Id id) const
     if (id == MaemoDebianPackageCreationStep::CreatePackageId) {
         return QCoreApplication::translate("RemoteLinux::Internal::MaemoPackageCreationFactory",
             "Create Debian Package");
-    } else if (id == MaemoRpmPackageCreationStep::CreatePackageId) {
-        return QCoreApplication::translate("RemoteLinux::Internal::MaemoPackageCreationFactory",
-            "Create RPM Package");
     }
     return QString();
 }
@@ -93,8 +86,6 @@ BuildStep *MaemoPackageCreationFactory::create(ProjectExplorer::BuildStepList *p
     Q_ASSERT(canCreate(parent, id));
     if (id == MaemoDebianPackageCreationStep::CreatePackageId)
         return new MaemoDebianPackageCreationStep(parent);
-    else if (id == MaemoRpmPackageCreationStep::CreatePackageId)
-        return new MaemoRpmPackageCreationStep(parent);
     return 0;
 }
 
@@ -110,19 +101,10 @@ BuildStep *MaemoPackageCreationFactory::restore(ProjectExplorer::BuildStepList *
 {
     Q_ASSERT(canRestore(parent, map));
     BuildStep * step = 0;
-    Core::Id deviceType
-            = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
     const Core::Id id = ProjectExplorer::idFromMap(map);
-    if (id == MaemoDebianPackageCreationStep::CreatePackageId
-            || (id == Core::Id(OldCreatePackageId)
-                && MaddeDevice::isDebianBased(deviceType))) {
+    if (id == MaemoDebianPackageCreationStep::CreatePackageId)
         step = new MaemoDebianPackageCreationStep(parent);
-    } else if (id == MaemoRpmPackageCreationStep::CreatePackageId
-               || (id == Core::Id(OldCreatePackageId)
-                   && !MaddeDevice::isDebianBased(deviceType))) {
-        step = new MaemoRpmPackageCreationStep(parent);
-    }
-    Q_ASSERT(step);
+    QTC_ASSERT(step, return 0);
 
     if (!step->fromMap(map)) {
         delete step;
@@ -144,10 +126,6 @@ BuildStep *MaemoPackageCreationFactory::clone(ProjectExplorer::BuildStepList *pa
     if (MaemoDebianPackageCreationStep * const debianStep
             = qobject_cast<MaemoDebianPackageCreationStep *>(product)) {
         return new MaemoDebianPackageCreationStep(parent, debianStep);
-    }
-    if (MaemoRpmPackageCreationStep * const rpmStep
-            = qobject_cast<MaemoRpmPackageCreationStep *>(product)) {
-        return new MaemoRpmPackageCreationStep(parent, rpmStep);
     }
     return 0;
 }

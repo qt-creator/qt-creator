@@ -31,8 +31,6 @@ QtcPlugin {
         "maddeuploadandinstallpackagesteps.cpp",
         "maddeuploadandinstallpackagesteps.h",
         "maemoconstants.h",
-        "maemodebugsupport.cpp",
-        "maemodebugsupport.h",
         "maemodeploybymountsteps.cpp",
         "maemodeploybymountsteps.h",
         "maemodeployconfigurationwidget.cpp",
@@ -108,14 +106,10 @@ QtcPlugin {
         "maemorunconfiguration.h",
         "maemorunconfigurationwidget.cpp",
         "maemorunconfigurationwidget.h",
-        "maemoruncontrol.cpp",
-        "maemoruncontrol.h",
         "maemorunfactories.cpp",
         "maemorunfactories.h",
         "maemosettingspages.cpp",
         "maemosettingspages.h",
-        "maemosshrunner.cpp",
-        "maemosshrunner.h",
         "qt-maemo.qrc",
         "qt4maemodeployconfiguration.cpp",
         "qt4maemodeployconfiguration.h",
@@ -123,7 +117,7 @@ QtcPlugin {
         "maddedevice.h",
         "debianmanager.h",
         "debianmanager.cpp",
-        "rpmmanager.h",
-        "rpmmanager.cpp"
+        "maemoapplicationrunnerhelperactions.h",
+        "maemoapplicationrunnerhelperactions.cpp"
     ]
 }

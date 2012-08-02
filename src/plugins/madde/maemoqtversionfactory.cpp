@@ -80,9 +80,9 @@ QtSupport::BaseQtVersion *MaemoQtVersionFactory::create(const Utils::FileName &q
 
     QString qmakePath = qmakeCommand.toString();
     if (MaemoGlobal::isValidMaemo5QtVersion(qmakePath)
-            || MaemoGlobal::isValidHarmattanQtVersion(qmakePath)
-            || MaemoGlobal::isValidMeegoQtVersion(qmakePath))
+            || MaemoGlobal::isValidHarmattanQtVersion(qmakePath)) {
         return new MaemoQtVersion(qmakeCommand, isAutoDetected, autoDetectionSource);
+    }
     return 0;
 }
 

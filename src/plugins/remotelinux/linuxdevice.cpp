@@ -28,7 +28,7 @@
 **
 **************************************************************************/
 
-#include "linuxdeviceconfiguration.h"
+#include "linuxdevice.h"
 
 #include "genericlinuxdeviceconfigurationwidget.h"
 #include "linuxdevicetestdialog.h"
@@ -54,30 +54,30 @@ static QString visualizeNull(QString s)
     return s.replace(QLatin1Char('\0'), QLatin1String("<null>"));
 }
 
-LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create(const QString &name,
+LinuxDevice::Ptr LinuxDevice::create(const QString &name,
        Core::Id type, MachineType machineType, Origin origin, Core::Id id)
 {
-    return Ptr(new LinuxDeviceConfiguration(name, type, machineType, origin, id));
+    return Ptr(new LinuxDevice(name, type, machineType, origin, id));
 }
 
-QString LinuxDeviceConfiguration::displayType() const
+QString LinuxDevice::displayType() const
 {
     return tr("Generic Linux");
 }
 
-ProjectExplorer::IDeviceWidget *LinuxDeviceConfiguration::createWidget()
+ProjectExplorer::IDeviceWidget *LinuxDevice::createWidget()
 {
     return new GenericLinuxDeviceConfigurationWidget(sharedFromThis());
 }
 
-QList<Core::Id> LinuxDeviceConfiguration::actionIds() const
+QList<Core::Id> LinuxDevice::actionIds() const
 {
     return QList<Core::Id>() << Core::Id(Constants::GenericTestDeviceActionId)
         << Core::Id(Constants::GenericDeployKeyToDeviceActionId)
         << Core::Id(Constants::GenericRemoteProcessesActionId);
 }
 
-QString LinuxDeviceConfiguration::displayNameForActionId(Core::Id actionId) const
+QString LinuxDevice::displayNameForActionId(Core::Id actionId) const
 {
     QTC_ASSERT(actionIds().contains(actionId), return QString());
 
@@ -90,13 +90,12 @@ QString LinuxDeviceConfiguration::displayNameForActionId(Core::Id actionId) cons
     return QString(); // Can't happen.
 }
 
-void LinuxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent) const
+void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent) const
 {
     QTC_ASSERT(actionIds().contains(actionId), return);
 
     QDialog *d = 0;
-    const LinuxDeviceConfiguration::ConstPtr device
-            = sharedFromThis().staticCast<const LinuxDeviceConfiguration>();
+    const LinuxDevice::ConstPtr device = sharedFromThis().staticCast<const LinuxDevice>();
     if (actionId == Core::Id(Constants::GenericTestDeviceActionId))
         d = new LinuxDeviceTestDialog(device, new GenericLinuxDeviceTester, parent);
     else if (actionId == Core::Id(Constants::GenericRemoteProcessesActionId))
@@ -107,29 +106,29 @@ void LinuxDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
         d->exec();
 }
 
-LinuxDeviceConfiguration::LinuxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType,
+LinuxDevice::LinuxDevice(const QString &name, Core::Id type, MachineType machineType,
         Origin origin, Core::Id id)
     : IDevice(type, origin, machineType, id)
 {
     setDisplayName(name);
 }
 
-LinuxDeviceConfiguration::LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other)
+LinuxDevice::LinuxDevice(const LinuxDevice &other)
     : IDevice(other)
 {
 }
 
-LinuxDeviceConfiguration::Ptr LinuxDeviceConfiguration::create()
+LinuxDevice::Ptr LinuxDevice::create()
 {
-    return Ptr(new LinuxDeviceConfiguration);
+    return Ptr(new LinuxDevice);
 }
 
-ProjectExplorer::IDevice::Ptr LinuxDeviceConfiguration::clone() const
+ProjectExplorer::IDevice::Ptr LinuxDevice::clone() const
 {
-    return Ptr(new LinuxDeviceConfiguration(*this));
+    return Ptr(new LinuxDevice(*this));
 }
 
-QString LinuxDeviceConfiguration::listProcessesCommandLine() const
+QString LinuxDevice::listProcessesCommandLine() const
 {
     return QString::fromLatin1(
         "for dir in `ls -d /proc/[0123456789]*`; do "
@@ -142,12 +141,12 @@ QString LinuxDeviceConfiguration::listProcessesCommandLine() const
         "done").arg(Delimiter0).arg(Delimiter1);
 }
 
-QString LinuxDeviceConfiguration::killProcessCommandLine(const DeviceProcess &process) const
+QString LinuxDevice::killProcessCommandLine(const DeviceProcess &process) const
 {
     return QLatin1String("kill -9 ") + QString::number(process.pid);
 }
 
-QList<DeviceProcess> LinuxDeviceConfiguration::buildProcessList(const QString &listProcessesReply) const
+QList<DeviceProcess> LinuxDevice::buildProcessList(const QString &listProcessesReply) const
 {
     QList<DeviceProcess> processes;
     const QStringList lines = listProcessesReply.split(QString::fromLatin1(Delimiter0)

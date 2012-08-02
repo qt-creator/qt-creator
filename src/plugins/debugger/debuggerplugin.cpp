@@ -67,6 +67,7 @@
 #include "snapshothandler.h"
 #include "threadshandler.h"
 #include "commonoptionspage.h"
+#include "gdb/startgdbserverdialog.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -1093,15 +1094,10 @@ public slots:
         unsigned *enabledEngines, QString *errorMessage);
 
     DebuggerToolTipManager *toolTipManager() const { return m_toolTipManager; }
-    virtual QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const { return m_globalDebuggerOptions; }
+    QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const { return m_globalDebuggerOptions; }
 
     // FIXME: Remove.
     void maybeEnrichParameters(DebuggerStartParameters *sp);
-
-    void gdbServerStarted(const QString &channel, const QString &profile,
-        const QString &remoteCommandLine, const QString &remoteExecutable);
-    void attachedToProcess(const QString &channel, const QString &profile,
-        const QString &remoteCommandLine, const QString &remoteExecutable);
 
     void updateQmlActions() {
         action(QmlUpdateOnSave)->setEnabled(boolSetting(ShowQmlObjectTree));
@@ -1671,88 +1667,14 @@ void DebuggerPluginPrivate::attachToRemoteServer()
 
 void DebuggerPluginPrivate::startRemoteServer()
 {
-    QObject *rl = PluginManager::getObjectByName(_("RemoteLinuxPlugin"));
-    QTC_ASSERT(rl, return);
-    QMetaObject::invokeMethod(rl, "startGdbServer", Qt::QueuedConnection);
-    // Will call back gdbServerStarted() below.
-}
-
-void DebuggerPluginPrivate::gdbServerStarted(const QString &channel,
-    const QString &profileId,
-    const QString &remoteCommandLine,
-    const QString &remoteExecutable)
-{
-    Q_UNUSED(remoteCommandLine);
-    Q_UNUSED(remoteExecutable);
-    Q_UNUSED(profileId);
-    showStatusMessage(tr("gdbserver is now listening at %1").arg(channel));
+    StartGdbServerDialog dlg(mainWindow());
+    dlg.startGdbServer();
 }
 
 void DebuggerPluginPrivate::attachToRemoteProcess()
 {
-    QObject *rl = PluginManager::getObjectByName(_("RemoteLinuxPlugin"));
-    QTC_ASSERT(rl, return);
-    QMetaObject::invokeMethod(rl, "attachToRemoteProcess", Qt::QueuedConnection);
-    // This will call back attachedToProcess() below.
-}
-
-void DebuggerPluginPrivate::attachedToProcess(const QString &channel,
-    const QString &profileId,
-    const QString &remoteCommandLine,
-    const QString &remoteExecutable)
-{
-    Profile *profile = ProfileManager::instance()->find(Id(profileId));
-    QTC_ASSERT(profile, return);
-    QString sysroot = SysRootProfileInformation::sysRoot(profile).toString();
-    QString binary;
-    QString localExecutable;
-    QString candidate = sysroot + remoteExecutable;
-    if (QFileInfo(candidate).exists())
-        localExecutable = candidate;
-    if (localExecutable.isEmpty()) {
-        binary = remoteCommandLine.section(QLatin1Char(' '), 0, 0);
-        candidate = sysroot + QLatin1Char('/') + binary;
-        if (QFileInfo(candidate).exists())
-            localExecutable = candidate;
-    }
-    if (localExecutable.isEmpty()) {
-        candidate = sysroot + QLatin1String("/usr/bin/") + binary;
-        if (QFileInfo(candidate).exists())
-            localExecutable = candidate;
-    }
-    if (localExecutable.isEmpty()) {
-        candidate = sysroot + QLatin1String("/bin/") + binary;
-        if (QFileInfo(candidate).exists())
-            localExecutable = candidate;
-    }
-    if (localExecutable.isEmpty()) {
-        QMessageBox::warning(mainWindow(), tr("Warning"),
-            tr("Cannot find local executable for remote process \"%1\".")
-                .arg(remoteCommandLine));
-        return;
-    }
-
-    QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(localExecutable));
-    if (abis.isEmpty()) {
-        QMessageBox::warning(mainWindow(), tr("Warning"),
-            tr("Cannot find ABI for remote process \"%1\".")
-                .arg(remoteCommandLine));
-        return;
-    }
-
-    DebuggerStartParameters sp;
-    fillParameters(&sp, Id(profileId));
-    sp.displayName = tr("Remote: \"%1\"").arg(channel);
-    sp.remoteChannel = channel;
-    sp.executable = localExecutable;
-    sp.startMode = AttachToRemoteServer;
-    sp.closeMode = KillAtClose;
-    sp.overrideStartScript.clear();
-    sp.useServerStartScript = false;
-    sp.serverStartScript.clear();
-    //sp.debugInfoLocation = dlg.debugInfoLocation();
-    if (RunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    StartGdbServerDialog dlg(mainWindow());
+    dlg.attachToRemoteProcess();
 }
 
 void DebuggerPluginPrivate::attachToQmlPort()

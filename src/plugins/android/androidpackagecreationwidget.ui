@@ -36,14 +36,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="editDebianFileLabel_4">
          <property name="text">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Android target SDK:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;b&gt;Android target SDK:&lt;/b&gt;</string>
          </property>
         </widget>
        </item>
@@ -53,14 +46,7 @@ p, li { white-space: pre-wrap; }
        <item row="1" column="0">
         <widget class="QLabel" name="editDebianFileLabel_2">
          <property name="text">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Package name:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;b&gt;Package name:&lt;/b&gt;</string>
          </property>
         </widget>
        </item>
@@ -99,14 +85,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="text">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:9pt; font-weight:600; font-style:normal;&quot;&gt;
-&lt;table style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Version code:&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;b&gt;Version code:&lt;/b&gt;</string>
          </property>
         </widget>
        </item>
@@ -141,14 +120,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="text">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:9pt; font-weight:600; font-style:normal;&quot;&gt;
-&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Version name:&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;b&gt;Version name:&lt;/b&gt;</string>
          </property>
         </widget>
        </item>
@@ -169,14 +141,7 @@ p, li { white-space: pre-wrap; }
        <item row="0" column="0">
         <widget class="QLabel" name="editDebianFileLabel_3">
          <property name="text">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Application name:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;b&gt;Application name:&lt;/b&gt;</string>
          </property>
         </widget>
        </item>
@@ -186,14 +151,7 @@ p, li { white-space: pre-wrap; }
        <item row="1" column="0">
         <widget class="QLabel" name="editDebianFileLabel_5">
          <property name="text">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table border=&quot;0&quot; style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Run:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;b&gt;Run:&lt;/b&gt;</string>
          </property>
          <property name="textFormat">
           <enum>Qt::AutoText</enum>
@@ -212,14 +170,7 @@ p, li { white-space: pre-wrap; }
           </size>
          </property>
          <property name="text">
-          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Application icon:&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;b&gt;Application icon:&lt;/b&gt;</string>
          </property>
         </widget>
        </item>
@@ -425,592 +376,592 @@ p, li { white-space: pre-wrap; }
            </property>
            <item>
             <property name="text">
-             <string>android.permission.ACCESS_CHECKIN_PROPERTIES</string>
+             <string notr="true">android.permission.ACCESS_CHECKIN_PROPERTIES</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.ACCESS_COARSE_LOCATION</string>
+             <string notr="true">android.permission.ACCESS_COARSE_LOCATION</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.ACCESS_FINE_LOCATION</string>
+             <string notr="true">android.permission.ACCESS_FINE_LOCATION</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.ACCESS_LOCATION_EXTRA_COMMANDS</string>
+             <string notr="true">android.permission.ACCESS_LOCATION_EXTRA_COMMANDS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.ACCESS_MOCK_LOCATION</string>
+             <string notr="true">android.permission.ACCESS_MOCK_LOCATION</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.ACCESS_NETWORK_STATE</string>
+             <string notr="true">android.permission.ACCESS_NETWORK_STATE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.ACCESS_SURFACE_FLINGER</string>
+             <string notr="true">android.permission.ACCESS_SURFACE_FLINGER</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.ACCESS_WIFI_STATE</string>
+             <string notr="true">android.permission.ACCESS_WIFI_STATE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.ACCOUNT_MANAGER</string>
+             <string notr="true">android.permission.ACCOUNT_MANAGER</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.AUTHENTICATE_ACCOUNTS</string>
+             <string notr="true">android.permission.AUTHENTICATE_ACCOUNTS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BATTERY_STATS</string>
+             <string notr="true">android.permission.BATTERY_STATS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BIND_APPWIDGET</string>
+             <string notr="true">android.permission.BIND_APPWIDGET</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BIND_DEVICE_ADMIN</string>
+             <string notr="true">android.permission.BIND_DEVICE_ADMIN</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BIND_INPUT_METHOD</string>
+             <string notr="true">android.permission.BIND_INPUT_METHOD</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BIND_REMOTEVIEWS</string>
+             <string notr="true">android.permission.BIND_REMOTEVIEWS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BIND_WALLPAPER</string>
+             <string notr="true">android.permission.BIND_WALLPAPER</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BLUETOOTH</string>
+             <string notr="true">android.permission.BLUETOOTH</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BLUETOOTH_ADMIN</string>
+             <string notr="true">android.permission.BLUETOOTH_ADMIN</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BRICK</string>
+             <string notr="true">android.permission.BRICK</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BROADCAST_PACKAGE_REMOVED</string>
+             <string notr="true">android.permission.BROADCAST_PACKAGE_REMOVED</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BROADCAST_SMS</string>
+             <string notr="true">android.permission.BROADCAST_SMS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BROADCAST_STICKY</string>
+             <string notr="true">android.permission.BROADCAST_STICKY</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.BROADCAST_WAP_PUSH</string>
+             <string notr="true">android.permission.BROADCAST_WAP_PUSH</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CALL_PHONE</string>
+             <string notr="true">android.permission.CALL_PHONE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CALL_PRIVILEGED</string>
+             <string notr="true">android.permission.CALL_PRIVILEGED</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CAMERA</string>
+             <string notr="true">android.permission.CAMERA</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CHANGE_COMPONENT_ENABLED_STATE</string>
+             <string notr="true">android.permission.CHANGE_COMPONENT_ENABLED_STATE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CHANGE_CONFIGURATION</string>
+             <string notr="true">android.permission.CHANGE_CONFIGURATION</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CHANGE_NETWORK_STATE</string>
+             <string notr="true">android.permission.CHANGE_NETWORK_STATE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CHANGE_WIFI_MULTICAST_STATE</string>
+             <string notr="true">android.permission.CHANGE_WIFI_MULTICAST_STATE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CHANGE_WIFI_STATE</string>
+             <string notr="true">android.permission.CHANGE_WIFI_STATE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CLEAR_APP_CACHE</string>
+             <string notr="true">android.permission.CLEAR_APP_CACHE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CLEAR_APP_USER_DATA</string>
+             <string notr="true">android.permission.CLEAR_APP_USER_DATA</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.CONTROL_LOCATION_UPDATES</string>
+             <string notr="true">android.permission.CONTROL_LOCATION_UPDATES</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.DELETE_CACHE_FILES</string>
+             <string notr="true">android.permission.DELETE_CACHE_FILES</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.DELETE_PACKAGES</string>
+             <string notr="true">android.permission.DELETE_PACKAGES</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.DEVICE_POWER</string>
+             <string notr="true">android.permission.DEVICE_POWER</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.DIAGNOSTIC</string>
+             <string notr="true">android.permission.DIAGNOSTIC</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.DISABLE_KEYGUARD</string>
+             <string notr="true">android.permission.DISABLE_KEYGUARD</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.DUMP</string>
+             <string notr="true">android.permission.DUMP</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.EXPAND_STATUS_BAR</string>
+             <string notr="true">android.permission.EXPAND_STATUS_BAR</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.FACTORY_TEST</string>
+             <string notr="true">android.permission.FACTORY_TEST</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.FLASHLIGHT</string>
+             <string notr="true">android.permission.FLASHLIGHT</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.FORCE_BACK</string>
+             <string notr="true">android.permission.FORCE_BACK</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.GET_ACCOUNTS</string>
+             <string notr="true">android.permission.GET_ACCOUNTS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.GET_PACKAGE_SIZE</string>
+             <string notr="true">android.permission.GET_PACKAGE_SIZE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.GET_TASKS</string>
+             <string notr="true">android.permission.GET_TASKS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.GLOBAL_SEARCH</string>
+             <string notr="true">android.permission.GLOBAL_SEARCH</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.HARDWARE_TEST</string>
+             <string notr="true">android.permission.HARDWARE_TEST</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.INJECT_EVENTS</string>
+             <string notr="true">android.permission.INJECT_EVENTS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.INSTALL_LOCATION_PROVIDER</string>
+             <string notr="true">android.permission.INSTALL_LOCATION_PROVIDER</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.INSTALL_PACKAGES</string>
+             <string notr="true">android.permission.INSTALL_PACKAGES</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.INTERNAL_SYSTEM_WINDOW</string>
+             <string notr="true">android.permission.INTERNAL_SYSTEM_WINDOW</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.INTERNET</string>
+             <string notr="true">android.permission.INTERNET</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.KILL_BACKGROUND_PROCESSES</string>
+             <string notr="true">android.permission.KILL_BACKGROUND_PROCESSES</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.MANAGE_ACCOUNTS</string>
+             <string notr="true">android.permission.MANAGE_ACCOUNTS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.MANAGE_APP_TOKENS</string>
+             <string notr="true">android.permission.MANAGE_APP_TOKENS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.MASTER_CLEAR</string>
+             <string notr="true">android.permission.MASTER_CLEAR</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.MODIFY_AUDIO_SETTINGS</string>
+             <string notr="true">android.permission.MODIFY_AUDIO_SETTINGS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.MODIFY_PHONE_STATE</string>
+             <string notr="true">android.permission.MODIFY_PHONE_STATE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.MOUNT_FORMAT_FILESYSTEMS</string>
+             <string notr="true">android.permission.MOUNT_FORMAT_FILESYSTEMS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.MOUNT_UNMOUNT_FILESYSTEMS</string>
+             <string notr="true">android.permission.MOUNT_UNMOUNT_FILESYSTEMS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.NFC</string>
+             <string notr="true">android.permission.NFC</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.PERSISTENT_ACTIVITY</string>
+             <string notr="true">android.permission.PERSISTENT_ACTIVITY</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.PROCESS_OUTGOING_CALLS</string>
+             <string notr="true">android.permission.PROCESS_OUTGOING_CALLS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.READ_CALENDAR</string>
+             <string notr="true">android.permission.READ_CALENDAR</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.READ_CONTACTS</string>
+             <string notr="true">android.permission.READ_CONTACTS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.READ_FRAME_BUFFER</string>
+             <string notr="true">android.permission.READ_FRAME_BUFFER</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>com.android.browser.permission.READ_HISTORY_BOOKMARKS</string>
+             <string notr="true">com.android.browser.permission.READ_HISTORY_BOOKMARKS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.READ_INPUT_STATE</string>
+             <string notr="true">android.permission.READ_INPUT_STATE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.READ_LOGS</string>
+             <string notr="true">android.permission.READ_LOGS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.READ_OWNER_DATA</string>
+             <string notr="true">android.permission.READ_OWNER_DATA</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.READ_PHONE_STATE</string>
+             <string notr="true">android.permission.READ_PHONE_STATE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.READ_SMS</string>
+             <string notr="true">android.permission.READ_SMS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.READ_SYNC_SETTINGS</string>
+             <string notr="true">android.permission.READ_SYNC_SETTINGS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.READ_SYNC_STATS</string>
+             <string notr="true">android.permission.READ_SYNC_STATS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.REBOOT</string>
+             <string notr="true">android.permission.REBOOT</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.RECEIVE_BOOT_COMPLETED</string>
+             <string notr="true">android.permission.RECEIVE_BOOT_COMPLETED</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.RECEIVE_MMS</string>
+             <string notr="true">android.permission.RECEIVE_MMS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.RECEIVE_SMS</string>
+             <string notr="true">android.permission.RECEIVE_SMS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.RECEIVE_WAP_PUSH</string>
+             <string notr="true">android.permission.RECEIVE_WAP_PUSH</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.RECORD_AUDIO</string>
+             <string notr="true">android.permission.RECORD_AUDIO</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.REORDER_TASKS</string>
+             <string notr="true">android.permission.REORDER_TASKS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.RESTART_PACKAGES</string>
+             <string notr="true">android.permission.RESTART_PACKAGES</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SEND_SMS</string>
+             <string notr="true">android.permission.SEND_SMS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_ACTIVITY_WATCHER</string>
+             <string notr="true">android.permission.SET_ACTIVITY_WATCHER</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>com.android.alarm.permission.SET_ALARM</string>
+             <string notr="true">com.android.alarm.permission.SET_ALARM</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_ALWAYS_FINISH</string>
+             <string notr="true">android.permission.SET_ALWAYS_FINISH</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_ANIMATION_SCALE</string>
+             <string notr="true">android.permission.SET_ANIMATION_SCALE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_DEBUG_APP</string>
+             <string notr="true">android.permission.SET_DEBUG_APP</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_ORIENTATION</string>
+             <string notr="true">android.permission.SET_ORIENTATION</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_PREFERRED_APPLICATIONS</string>
+             <string notr="true">android.permission.SET_PREFERRED_APPLICATIONS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_PROCESS_LIMIT</string>
+             <string notr="true">android.permission.SET_PROCESS_LIMIT</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_TIME</string>
+             <string notr="true">android.permission.SET_TIME</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_TIME_ZONE</string>
+             <string notr="true">android.permission.SET_TIME_ZONE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_WALLPAPER</string>
+             <string notr="true">android.permission.SET_WALLPAPER</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SET_WALLPAPER_HINTS</string>
+             <string notr="true">android.permission.SET_WALLPAPER_HINTS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SIGNAL_PERSISTENT_PROCESSES</string>
+             <string notr="true">android.permission.SIGNAL_PERSISTENT_PROCESSES</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.STATUS_BAR</string>
+             <string notr="true">android.permission.STATUS_BAR</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SUBSCRIBED_FEEDS_READ</string>
+             <string notr="true">android.permission.SUBSCRIBED_FEEDS_READ</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SUBSCRIBED_FEEDS_WRITE</string>
+             <string notr="true">android.permission.SUBSCRIBED_FEEDS_WRITE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.SYSTEM_ALERT_WINDOW</string>
+             <string notr="true">android.permission.SYSTEM_ALERT_WINDOW</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.UPDATE_DEVICE_STATS</string>
+             <string notr="true">android.permission.UPDATE_DEVICE_STATS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.USE_CREDENTIALS</string>
+             <string notr="true">android.permission.USE_CREDENTIALS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.USE_SIP</string>
+             <string notr="true">android.permission.USE_SIP</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.VIBRATE</string>
+             <string notr="true">android.permission.VIBRATE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WAKE_LOCK</string>
+             <string notr="true">android.permission.WAKE_LOCK</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WRITE_APN_SETTINGS</string>
+             <string notr="true">android.permission.WRITE_APN_SETTINGS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WRITE_CALENDAR</string>
+             <string notr="true">android.permission.WRITE_CALENDAR</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WRITE_CONTACTS</string>
+             <string notr="true">android.permission.WRITE_CONTACTS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WRITE_EXTERNAL_STORAGE</string>
+             <string notr="true">android.permission.WRITE_EXTERNAL_STORAGE</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WRITE_GSERVICES</string>
+             <string notr="true">android.permission.WRITE_GSERVICES</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>com.android.browser.permission.WRITE_HISTORY_BOOKMARKS</string>
+             <string notr="true">com.android.browser.permission.WRITE_HISTORY_BOOKMARKS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WRITE_OWNER_DATA</string>
+             <string notr="true">android.permission.WRITE_OWNER_DATA</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WRITE_SECURE_SETTINGS</string>
+             <string notr="true">android.permission.WRITE_SECURE_SETTINGS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WRITE_SETTINGS</string>
+             <string notr="true">android.permission.WRITE_SETTINGS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WRITE_SMS</string>
+             <string notr="true">android.permission.WRITE_SMS</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>android.permission.WRITE_SYNC_SETTINGS</string>
+             <string notr="true">android.permission.WRITE_SYNC_SETTINGS</string>
             </property>
            </item>
           </widget>

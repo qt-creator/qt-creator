@@ -61,10 +61,8 @@ namespace Madde {
 namespace Internal {
 namespace {
 
-QString defaultUser(Core::Id deviceType)
+QString defaultUser()
 {
-    if (deviceType == Core::Id(MeeGoOsType))
-        return QLatin1String("meego");
     return QLatin1String("developer");
 }
 
@@ -448,7 +446,7 @@ private:
         sshParams.port = m_wizardData.sshPort;
         sshParams.password = password();
         sshParams.timeout = 10;
-        sshParams.userName = defaultUser(m_wizardData.deviceType);
+        sshParams.userName = defaultUser();
         m_ui->statusLabel->setText(tr("Deploying... "));
         m_keyDeployer->deployPublicKey(sshParams, m_wizardData.publicKeyFilePath);
     }
@@ -558,13 +556,12 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
     bool doTest;
     QString freePortsSpec;
     QSsh::SshConnectionParameters sshParams;
-    sshParams.userName = defaultUser(d->wizardData.deviceType);
+    sshParams.userName = defaultUser();
     sshParams.host = d->wizardData.hostName;
     sshParams.port = d->wizardData.sshPort;
     if (d->wizardData.machineType == IDevice::Emulator) {
         sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
-        sshParams.password = d->wizardData.deviceType == Core::Id(MeeGoOsType)
-            ? QLatin1String("meego") : QString();
+        sshParams.password = QString();
         sshParams.timeout = 30;
         freePortsSpec = QLatin1String("13219,14168");
         doTest = false;
@@ -575,15 +572,15 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
         freePortsSpec = QLatin1String("10000-10100");
         doTest = true;
     }
-    const MaddeDevice::Ptr devConf = MaddeDevice::create(d->wizardData.configName,
+    const MaddeDevice::Ptr device = MaddeDevice::create(d->wizardData.configName,
         d->wizardData.deviceType, d->wizardData.machineType);
-    devConf->setFreePorts(PortList::fromString(freePortsSpec));
-    devConf->setSshParameters(sshParams);
+    device->setFreePorts(PortList::fromString(freePortsSpec));
+    device->setSshParameters(sshParams);
     if (doTest) {
-        LinuxDeviceTestDialog dlg(devConf, new MaddeDeviceTester(this), this);
+        LinuxDeviceTestDialog dlg(device, new MaddeDeviceTester(this), this);
         dlg.exec();
     }
-    return devConf;
+    return device;
 }
 
 int MaemoDeviceConfigWizard::nextId() const

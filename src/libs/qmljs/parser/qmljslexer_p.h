@@ -44,7 +44,7 @@
 
 #include "qmljsglobal_p.h"
 #include "qmljsgrammar_p.h"
-#include <QString>
+#include <QtCore/QString>
 
 QT_QML_BEGIN_NAMESPACE
 
@@ -147,18 +147,18 @@ public:
     int regExpFlags() const { return _patternFlags; }
     QString regExpPattern() const { return _tokenText; }
 
-    int tokenKind() const;
-    int tokenOffset() const;
-    int tokenLength() const;
+    int tokenKind() const { return _tokenKind; }
+    int tokenOffset() const { return _tokenStartPtr - _code.unicode(); }
+    int tokenLength() const { return _tokenLength; }
 
-    int tokenStartLine() const;
-    int tokenStartColumn() const;
+    int tokenStartLine() const { return _tokenLine; }
+    int tokenStartColumn() const { return _tokenStartPtr - _tokenLinePtr + 1; }
 
     int tokenEndLine() const;
     int tokenEndColumn() const;
 
-    QStringRef tokenSpell() const;
-    double tokenValue() const;
+    inline QStringRef tokenSpell() const { return _tokenSpell; }
+    double tokenValue() const { return _tokenValue; }
     QString tokenText() const;
 
     Error errorCode() const;
@@ -180,6 +180,7 @@ protected:
 private:
     inline void scanChar();
     int scanToken();
+    int scanNumber(QChar ch);
 
     bool isLineTerminator() const;
     static bool isIdentLetter(QChar c);

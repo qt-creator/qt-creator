@@ -6,6 +6,7 @@
 **
 ** Contact: http://www.qt-project.org/
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -26,54 +27,65 @@
 **
 **
 **************************************************************************/
+#ifndef MAEMOAPPLICATIONRUNNERHELPERACTIONS_H
+#define MAEMOAPPLICATIONRUNNERHELPERACTIONS_H
 
-#ifndef MAEMOSSHRUNNER_H
-#define MAEMOSSHRUNNER_H
+#include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 
-#include "maemomountspecification.h"
+#include <QList>
 
-#include <remotelinux/remotelinuxapplicationrunner.h>
+namespace Utils { class FileName; }
 
 namespace Madde {
 namespace Internal {
+class MaemoMountSpecification;
 class MaemoRemoteMounter;
-class MaemoRunConfiguration;
 
-class MaemoSshRunner : public RemoteLinux::AbstractRemoteLinuxApplicationRunner
+class MaemoPreRunAction : public ProjectExplorer::DeviceApplicationHelperAction
 {
     Q_OBJECT
-
 public:
-    MaemoSshRunner(QObject *parent, MaemoRunConfiguration *runConfig);
+    MaemoPreRunAction(const ProjectExplorer::IDevice::ConstPtr &device,
+            const Utils::FileName &maddeRoot, const QList<MaemoMountSpecification> &mountSpecs,
+            QObject *parent = 0);
 
-signals:
-    void mountDebugOutput(const QString &output);
+    MaemoRemoteMounter *mounter() const { return m_mounter; }
 
 private slots:
     void handleMounted();
-    void handleUnmounted();
-    void handleMounterError(const QString &errorMsg);
+    void handleError(const QString &message);
 
 private:
-    enum MountState { InactiveMountState, InitialUnmounting, Mounting, Mounted, PostRunUnmounting };
+    void start();
+    void stop();
 
-    bool canRun(QString &whyNot) const;
-    void doDeviceSetup();
-    void doAdditionalInitialCleanup();
-    void doAdditionalInitializations();
-    void doPostRunCleanup();
-    void doAdditionalConnectionErrorHandling();
-
-    void mount();
-    void unmount();
+    void setFinished(bool success);
 
     MaemoRemoteMounter * const m_mounter;
-    QList<MaemoMountSpecification> m_mountSpecs;
-    MountState m_mountState;
-    int m_qtId;
+    bool m_isRunning;
+};
+
+class MaemoPostRunAction : public ProjectExplorer::DeviceApplicationHelperAction
+{
+    Q_OBJECT
+public:
+    MaemoPostRunAction(MaemoRemoteMounter *mounter, QObject *parent = 0);
+
+private slots:
+    void handleUnmounted();
+    void handleError(const QString &message);
+
+private:
+    void start();
+    void stop();
+
+    void setFinished(bool success);
+
+    MaemoRemoteMounter * const m_mounter;
+    bool m_isRunning;
 };
 
 } // namespace Internal
 } // namespace Madde
 
-#endif // MAEMOSSHRUNNER_H
+#endif // MAEMOAPPLICATIONRUNNERHELPERACTIONS_H

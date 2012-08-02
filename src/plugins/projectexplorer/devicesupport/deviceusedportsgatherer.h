@@ -1,4 +1,4 @@
-/**************************************************************************
+/*************DeviceUsedPortsGatherer*********************************
 **
 ** This file is part of Qt Creator
 **
@@ -27,38 +27,48 @@
 **
 **************************************************************************/
 
-#ifndef MAEMORUNCONTROL_H
-#define MAEMORUNCONTROL_H
+#ifndef DEVICEUSEDPORTSGATHERER_H
+#define DEVICEUSEDPORTSGATHERER_H
 
-#include <remotelinux/remotelinuxruncontrol.h>
+#include "idevice.h"
 
-namespace RemoteLinux {
-class RemoteLinuxRunConfiguration;
-}
+namespace Utils { class PortList; }
 
-namespace Madde {
-namespace Internal {
-class MaemoSshRunner;
+namespace ProjectExplorer {
+namespace Internal { class DeviceUsedPortsGathererPrivate; }
 
-class MaemoRunControl : public RemoteLinux::AbstractRemoteLinuxRunControl
+class PROJECTEXPLORER_EXPORT DeviceUsedPortsGatherer : public QObject
 {
     Q_OBJECT
-public:
-    explicit MaemoRunControl(ProjectExplorer::RunConfiguration *runConfig);
-    virtual ~MaemoRunControl();
 
-    void start();
+public:
+    DeviceUsedPortsGatherer(QObject *parent = 0);
+    ~DeviceUsedPortsGatherer();
+
+    void start(const ProjectExplorer::IDevice::ConstPtr &device);
+    void stop();
+    int getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
+    QList<int> usedPorts() const;
+
+    void setCommand(const QString &command); // Will use default command if not set
+
+signals:
+    void error(const QString &errMsg);
+    void portListReady();
 
 private slots:
-    void handleMountDebugOutput(const QString &output);
+    void handleConnectionEstablished();
+    void handleConnectionError();
+    void handleProcessClosed(int exitStatus);
+    void handleRemoteStdOut();
+    void handleRemoteStdErr();
 
 private:
-    virtual RemoteLinux::AbstractRemoteLinuxApplicationRunner *runner() const;
+    void setupUsedPorts();
 
-    MaemoSshRunner * const m_runner;
+    Internal::DeviceUsedPortsGathererPrivate * const d;
 };
 
-} // namespace Internal
-} // namespace Madde
+} // namespace ProjectExplorer
 
-#endif // MAEMORUNCONTROL_H
+#endif // DEVICEUSEDPORTSGATHERER_H

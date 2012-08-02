@@ -34,14 +34,15 @@
 #ifndef QNX_INTERNAL_QNXDEVICECONFIGURATION_H
 #define QNX_INTERNAL_QNXDEVICECONFIGURATION_H
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/linuxdevice.h>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxDeviceConfiguration : public RemoteLinux::LinuxDeviceConfiguration
+class QnxDeviceConfiguration : public RemoteLinux::LinuxDevice
 {
     Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxDeviceConfiguration)
+
 public:
     typedef QSharedPointer<QnxDeviceConfiguration> Ptr;
     typedef QSharedPointer<const QnxDeviceConfiguration> ConstPtr;
@@ -52,7 +53,6 @@ public:
     ProjectExplorer::IDevice::Ptr clone() const;
 
     QString displayType() const;
-
 
 protected:
     QnxDeviceConfiguration();

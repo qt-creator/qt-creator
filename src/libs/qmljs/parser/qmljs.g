@@ -30,7 +30,7 @@
 
 %parser         QmlJSGrammar
 %decl           qmljsparser_p.h
-%impl           qmljsparser.cpp
+%impl           qdeclarativejsparser.cpp
 %expect         2
 %expect-rr      2
 
@@ -120,6 +120,7 @@
 **
 **************************************************************************/
 
+
 #include <QtCore/QtDebug>
 #include <QtCore/QCoreApplication>
 
@@ -161,6 +162,7 @@
 **
 **
 **************************************************************************/
+
 
 
 //
@@ -383,10 +385,10 @@ void Parser::reallocateStack()
     else
         stack_size <<= 1;
 
-    sym_stack = reinterpret_cast<Value*> (qRealloc(sym_stack, stack_size * sizeof(Value)));
-    state_stack = reinterpret_cast<int*> (qRealloc(state_stack, stack_size * sizeof(int)));
-    location_stack = reinterpret_cast<AST::SourceLocation*> (qRealloc(location_stack, stack_size * sizeof(AST::SourceLocation)));
-    string_stack = reinterpret_cast<QStringRef*> (qRealloc(string_stack, stack_size * sizeof(QStringRef)));
+    sym_stack = reinterpret_cast<Value*> (realloc(sym_stack, stack_size * sizeof(Value)));
+    state_stack = reinterpret_cast<int*> (realloc(state_stack, stack_size * sizeof(int)));
+    location_stack = reinterpret_cast<AST::SourceLocation*> (realloc(location_stack, stack_size * sizeof(AST::SourceLocation)));
+    string_stack = reinterpret_cast<QStringRef*> (realloc(string_stack, stack_size * sizeof(QStringRef)));
 }
 
 Parser::Parser(Engine *engine):
@@ -406,10 +408,10 @@ Parser::Parser(Engine *engine):
 Parser::~Parser()
 {
     if (stack_size) {
-        qFree(sym_stack);
-        qFree(state_stack);
-        qFree(location_stack);
-        qFree(string_stack);
+        free(sym_stack);
+        free(state_stack);
+        free(location_stack);
+        free(string_stack);
     }
 }
 

@@ -27,17 +27,18 @@
 **
 **
 **************************************************************************/
+
 #ifndef MADDEDEVICE_H
 #define MADDEDEVICE_H
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/linuxdevice.h>
 
 #include <QCoreApplication>
 
 namespace Madde {
 namespace Internal {
 
-class MaddeDevice : public RemoteLinux::LinuxDeviceConfiguration
+class MaddeDevice : public RemoteLinux::LinuxDevice
 {
     Q_DECLARE_TR_FUNCTIONS(Madde::Internal::MaddeDevice)
 public:
@@ -59,7 +60,6 @@ public:
     static bool allowsPackagingDisabling(Core::Id type);
     static bool allowsQmlDebugging(Core::Id type);
 
-    static bool isDebianBased(Core::Id type);
     static QSize packageManagerIconSize(Core::Id type);
 
 private:

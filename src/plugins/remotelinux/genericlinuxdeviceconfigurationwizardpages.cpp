@@ -26,10 +26,11 @@
 **
 **
 **************************************************************************/
+
 #include "genericlinuxdeviceconfigurationwizardpages.h"
 #include "ui_genericlinuxdeviceconfigurationwizardsetuppage.h"
 
-#include "linuxdeviceconfiguration.h"
+#include <projectexplorer/devicesupport/idevice.h>
 
 namespace RemoteLinux {
 namespace Internal {

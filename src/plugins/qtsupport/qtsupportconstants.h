@@ -63,7 +63,6 @@ const char FEATURE_DESKTOP[] = "QtSupport.Wizards.FeatureDesktop";
 // Platforms
 const char MEEGO_HARMATTAN_PLATFORM[] = "MeeGo/Harmattan";
 const char MAEMO_FREMANTLE_PLATFORM[] = "Maemo/Fremantle";
-const char MEEGO_PLATFORM[] = "Meego";
 const char SYMBIAN_PLATFORM[] = "Symbian";
 const char DESKTOP_PLATFORM[] = "Desktop";
 const char EMBEDDED_LINUX_PLATFORM[] = "Embedded Linux";
@@ -72,7 +71,6 @@ const char ANDROID_PLATFORM[] = "Android";
 
 const char MEEGO_HARMATTAN_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "MeeGo/Harmattan");
 const char MAEMO_FREMANTLE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Maemo/Fremantle");
-const char MEEGO_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Meego");
 const char SYMBIAN_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Symbian");
 const char DESKTOP_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Desktop");
 const char EMBEDDED_LINUX_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Embedded Linux");

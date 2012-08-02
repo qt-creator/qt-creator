@@ -28,11 +28,11 @@
 **************************************************************************/
 #include "maemorunfactories.h"
 
+#include "maemoapplicationrunnerhelperactions.h"
 #include "maemoconstants.h"
-#include "maemodebugsupport.h"
+#include "maemoglobal.h"
 #include "maemoremotemountsmodel.h"
 #include "maemorunconfiguration.h"
-#include "maemoruncontrol.h"
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerstartparameters.h>
@@ -44,6 +44,8 @@
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
+#include <remotelinux/remotelinuxdebugsupport.h>
+#include <remotelinux/remotelinuxruncontrol.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -155,8 +157,7 @@ bool MaemoRunConfigurationFactory::canHandle(Target *t) const
     if (!qobject_cast<Qt4Project *>(t->project()))
         return false;
     Core::Id devType = DeviceTypeProfileInformation::deviceTypeId(t->profile());
-    return devType == Core::Id(Maemo5OsType) || devType == Core::Id(HarmattanOsType)
-            || devType == Core::Id(MeeGoOsType);
+    return devType == Core::Id(Maemo5OsType) || devType == Core::Id(HarmattanOsType);
 }
 
 QList<RunConfiguration *> MaemoRunConfigurationFactory::runConfigurationsForNode(Target *t, Node *n)
@@ -169,7 +170,6 @@ QList<RunConfiguration *> MaemoRunConfigurationFactory::runConfigurationsForNode
     return result;
 }
 
-// #pragma mark -- MaemoRunControlFactory
 
 MaemoRunControlFactory::MaemoRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
@@ -197,14 +197,21 @@ RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode 
     Q_ASSERT(rc);
 
     if (mode == NormalRunMode)
-        return new MaemoRunControl(rc);
+        return new RemoteLinuxRunControl(rc);
 
-    const DebuggerStartParameters params
-        = AbstractRemoteLinuxDebugSupport::startParameters(rc);
+    const DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
     DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc);
     if (!runControl)
         return 0;
-    MaemoDebugSupport *debugSupport = new MaemoDebugSupport(rc, runControl->engine());
+    LinuxDeviceDebugSupport * const debugSupport
+            = new LinuxDeviceDebugSupport(rc, runControl->engine());
+    const Profile * const profile = runConfig->target()->profile();
+    MaemoPreRunAction * const preRunAction = new MaemoPreRunAction(
+            DeviceProfileInformation::device(profile), MaemoGlobal::maddeRoot(profile),
+            rc->remoteMounts()->mountSpecs(), rc);
+    MaemoPostRunAction * const postRunAction = new MaemoPostRunAction(preRunAction->mounter(), rc);
+    debugSupport->setApplicationRunnerPreRunAction(preRunAction);
+    debugSupport->setApplicationRunnerPostRunAction(postRunAction);
     connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
     return runControl;
 }

@@ -27,14 +27,11 @@
 **
 **
 **************************************************************************/
-#include "remotelinuxcustomcommanddeployservice.h"
 
-#include "linuxdeviceconfiguration.h"
+#include "remotelinuxcustomcommanddeployservice.h"
 
 #include <utils/qtcassert.h>
 #include <ssh/sshremoteprocessrunner.h>
-
-#include <QString>
 
 using namespace QSsh;
 

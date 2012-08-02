@@ -88,7 +88,8 @@ QList<ProjectExplorer::Abi> AndroidQtVersion::detectQtAbis() const
 
 QString AndroidQtVersion::description() const
 {
-    return tr("Android::Internal::AndroidQtVersion", "Qt Version is meant for Android");
+    //: Qt Version is meant for Android
+    return tr("Android");
 }
 
 Core::FeatureSet AndroidQtVersion::availableFeatures() const

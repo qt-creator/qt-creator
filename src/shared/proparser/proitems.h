@@ -213,12 +213,16 @@ public:
     bool isOk() const { return m_ok; }
     void setOk(bool ok) { m_ok = ok; }
 
+    bool isHostBuild() const { return m_hostBuild; }
+    void setHostBuild(bool host_build) { m_hostBuild = host_build; }
+
 private:
     ProItemRefCount m_refCount;
     QString m_proitems;
     QString m_fileName;
     QString m_directoryName;
     bool m_ok;
+    bool m_hostBuild;
 };
 
 class ProFunctionDef {

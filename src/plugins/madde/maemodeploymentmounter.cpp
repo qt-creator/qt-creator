@@ -35,11 +35,11 @@
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/profileinformation.h>
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 
 using namespace ProjectExplorer;
-using namespace RemoteLinux;
 using namespace QSsh;
 
 namespace Madde {

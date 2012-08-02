@@ -53,7 +53,7 @@ QString MaddeDeviceConfigurationFactory::displayNameForId(Core::Id type) const
 
 QList<Core::Id> MaddeDeviceConfigurationFactory::availableCreationIds() const
 {
-    return QList<Core::Id>() << Core::Id(Maemo5OsType) << Core::Id(HarmattanOsType) << Core::Id(MeeGoOsType);
+    return QList<Core::Id>() << Core::Id(Maemo5OsType) << Core::Id(HarmattanOsType);
 }
 
 IDevice::Ptr MaddeDeviceConfigurationFactory::create(Core::Id id) const
@@ -67,8 +67,7 @@ IDevice::Ptr MaddeDeviceConfigurationFactory::create(Core::Id id) const
 bool MaddeDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
 {
     const Core::Id type = IDevice::typeFromMap(map);
-    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType)
-        || type == Core::Id(MeeGoOsType);
+    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType);
 }
 
 IDevice::Ptr MaddeDeviceConfigurationFactory::restore(const QVariantMap &map) const

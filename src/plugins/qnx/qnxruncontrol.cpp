@@ -32,21 +32,22 @@
 **************************************************************************/
 
 #include "qnxruncontrol.h"
-#include "qnxapplicationrunner.h"
 #include "qnxrunconfiguration.h"
+#include "qnxutils.h"
 
 #include <projectexplorer/runconfiguration.h>
+#include <remotelinux/remotelinuxrunconfiguration.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
+using namespace RemoteLinux;
 
 QnxRunControl::QnxRunControl(ProjectExplorer::RunConfiguration *runConfig)
-    : RemoteLinux::AbstractRemoteLinuxRunControl(runConfig)
-    , m_runner(new QnxApplicationRunner(qobject_cast<QnxRunConfiguration *>(runConfig), this))
+        : RemoteLinuxRunControl(runConfig)
 {
-}
-
-RemoteLinux::AbstractRemoteLinuxApplicationRunner *QnxRunControl::runner() const
-{
-    return m_runner;
+    const RemoteLinuxRunConfiguration * const rc
+            = qobject_cast<RemoteLinuxRunConfiguration *>(runConfig);
+    QString executable = rc->remoteExecutableFilePath();
+    executable.replace(QLatin1String("/"), QLatin1String("\\/"));
+    overrideStopCommandLine(QnxUtils::applicationKillCommand(executable).toUtf8());
 }

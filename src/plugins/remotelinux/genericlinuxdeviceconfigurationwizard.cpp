@@ -26,13 +26,15 @@
 **
 **
 **************************************************************************/
+
 #include "genericlinuxdeviceconfigurationwizard.h"
 
 #include "genericlinuxdeviceconfigurationwizardpages.h"
-#include "linuxdeviceconfiguration.h"
+#include "linuxdevice.h"
 #include "linuxdevicetestdialog.h"
 #include "linuxdevicetester.h"
 #include "remotelinux_constants.h"
+
 #include <utils/portlist.h>
 
 using namespace ProjectExplorer;
@@ -84,13 +86,13 @@ IDevice::Ptr GenericLinuxDeviceConfigurationWizard::device()
         sshParams.password = d->setupPage.password();
     else
         sshParams.privateKeyFile = d->setupPage.privateKeyFilePath();
-    IDevice::Ptr devConf = LinuxDeviceConfiguration::create(d->setupPage.configurationName(),
+    IDevice::Ptr device = LinuxDevice::create(d->setupPage.configurationName(),
         Core::Id(Constants::GenericLinuxOsType), IDevice::Hardware);
-    devConf->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
-    devConf->setSshParameters(sshParams);
-    LinuxDeviceTestDialog dlg(devConf, new GenericLinuxDeviceTester(this), this);
+    device->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
+    device->setSshParameters(sshParams);
+    LinuxDeviceTestDialog dlg(device, new GenericLinuxDeviceTester(this), this);
     dlg.exec();
-    return devConf;
+    return device;
 }
 
 } // namespace RemoteLinux

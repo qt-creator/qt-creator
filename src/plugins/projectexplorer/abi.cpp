@@ -302,7 +302,7 @@ Abi::Abi(const Architecture &a, const OS &o,
         m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::LinuxOS:
-        if (m_osFlavor < GenericLinuxFlavor || m_osFlavor > MeegoLinuxFlavor)
+        if (m_osFlavor < GenericLinuxFlavor || m_osFlavor > MaemoLinuxFlavor)
             m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::BsdOS:
@@ -388,8 +388,6 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = MaemoLinuxFlavor;
         else if (abiParts.at(2) == QLatin1String("harmattan") && m_os == LinuxOS)
             m_osFlavor = HarmattanLinuxFlavor;
-        else if (abiParts.at(2) == QLatin1String("meego") && m_os == LinuxOS)
-            m_osFlavor = MeegoLinuxFlavor;
         else if (abiParts.at(2) == QLatin1String("generic") && m_os == MacOS)
             m_osFlavor = GenericMacFlavor;
         else if (abiParts.at(2) == QLatin1String("device") && m_os == SymbianOS)
@@ -572,8 +570,6 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("maemo");
     case ProjectExplorer::Abi::HarmattanLinuxFlavor:
         return QLatin1String("harmattan");
-    case ProjectExplorer::Abi::MeegoLinuxFlavor:
-        return QLatin1String("meego");
     case ProjectExplorer::Abi::GenericMacFlavor:
         return QLatin1String("generic");
     case ProjectExplorer::Abi::SymbianDeviceFlavor:
@@ -633,8 +629,8 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
     case BsdOS:
         return result << FreeBsdFlavor << OpenBsdFlavor << NetBsdFlavor;
     case LinuxOS:
-        return result << GenericLinuxFlavor << HarmattanLinuxFlavor << MaemoLinuxFlavor << MeegoLinuxFlavor
-                      << AndroidLinuxFlavor;
+        return result << GenericLinuxFlavor << HarmattanLinuxFlavor << MaemoLinuxFlavor
+                      << AndroidLinuxFlavor;;
     case MacOS:
         return result << GenericMacFlavor;
     case SymbianOS:

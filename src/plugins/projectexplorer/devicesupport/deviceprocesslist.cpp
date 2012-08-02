@@ -42,8 +42,8 @@ enum State { Inactive, Listing, Killing };
 class DeviceProcessListPrivate
 {
 public:
-    DeviceProcessListPrivate(const IDevice::ConstPtr &devConf)
-        : device(devConf),
+    DeviceProcessListPrivate(const IDevice::ConstPtr &device)
+        : device(device),
           state(Inactive)
     { }
 
@@ -58,8 +58,8 @@ public:
 
 using namespace Internal;
 
-DeviceProcessList::DeviceProcessList(const IDevice::ConstPtr &devConfig, QObject *parent)
-    : QAbstractTableModel(parent), d(new DeviceProcessListPrivate(devConfig))
+DeviceProcessList::DeviceProcessList(const IDevice::ConstPtr &device, QObject *parent)
+    : QAbstractTableModel(parent), d(new DeviceProcessListPrivate(device))
 {
 }
 

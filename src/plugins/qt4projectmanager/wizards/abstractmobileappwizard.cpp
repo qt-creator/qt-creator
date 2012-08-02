@@ -96,8 +96,7 @@ void AbstractMobileAppWizardDialog::addMobilePages()
     const bool shouldAddSymbianPage = m_targetsPage
             || isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM);
     const bool shouldAddMaemoPage = m_targetsPage
-            || isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM)
-            || isQtPlatformSelected(QtSupport::Constants::MEEGO_PLATFORM);
+            || isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM);
     const bool shouldAddHarmattanPage = m_targetsPage
             || isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM);
 
@@ -151,8 +150,6 @@ int AbstractMobileAppWizardDialog::nextId() const
             // If Symbian target and Qt Quick components for Symbian, skip the mobile options page.
             else if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM) && m_ignoreGeneralOptions)
                 return m_symbianOptionsPageId;
-            else if (isQtPlatformSelected(QtSupport::Constants::MEEGO_PLATFORM))
-                return m_maemoOptionsPageId;
             else if (isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
                 return m_harmattanOptionsPageId;
             else
@@ -160,16 +157,14 @@ int AbstractMobileAppWizardDialog::nextId() const
         } else if (currentPage() == m_genericOptionsPage) {
             if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM))
                 return m_symbianOptionsPageId;
-            else if (isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM)
-                     || isQtPlatformSelected(QtSupport::Constants::MEEGO_PLATFORM))
+            else if (isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
                 return m_maemoOptionsPageId;
             else if (isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
                 return m_harmattanOptionsPageId;
             else
                 return idOfNextGenericPage();
         } else if (currentPage() == m_symbianOptionsPage) {
-            if (isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM)
-                    || isQtPlatformSelected(QtSupport::Constants::MEEGO_PLATFORM))
+            if (isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
                 return m_maemoOptionsPageId;
             else if (isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
                 return m_harmattanOptionsPageId;
@@ -204,8 +199,7 @@ void AbstractMobileAppWizardDialog::initializePage(int id)
             order << m_genericItem;
             if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM))
                 order << m_symbianItem;
-            if (isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM)
-                   || isQtPlatformSelected(QtSupport::Constants::MEEGO_PLATFORM))
+            if (isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
                 order << m_maemoItem;
             if (isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
                 order << m_harmattanItem;

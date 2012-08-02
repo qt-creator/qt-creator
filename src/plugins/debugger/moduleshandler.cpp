@@ -169,7 +169,7 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
                     case LinkedSymbols:
                     case BuildIdSymbols:
                         return ModulesHandler::tr(
-                        "This module does not contains debug information "
+                        "This module does not contain debug information "
                         "itself, but contains a reference to external "
                         "debug information.");
                 }

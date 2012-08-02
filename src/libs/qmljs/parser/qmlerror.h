@@ -28,17 +28,18 @@
 **
 **************************************************************************/
 
-#ifndef QMLERROR_H
-#define QMLERROR_H
+#ifndef QQMLERROR_H
+#define QQMLERROR_H
 
-#include <qurl.h>
-#include <qstring.h>
+
+
+#include <QtCore/qurl.h>
+#include <QtCore/qstring.h>
 
 QT_BEGIN_HEADER
 
 QT_BEGIN_NAMESPACE
 
-QT_MODULE(Declarative)
 
 class QDebug;
 class QmlErrorPrivate;
@@ -68,8 +69,10 @@ private:
 
 QDebug operator<<(QDebug debug, const QmlError &error);
 
+Q_DECLARE_TYPEINFO(QmlError, Q_MOVABLE_TYPE);
+
 QT_END_NAMESPACE
 
 QT_END_HEADER
 
-#endif // QMLERROR_H
+#endif // QQMLERROR_H

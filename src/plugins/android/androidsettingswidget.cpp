@@ -78,6 +78,7 @@ QVariant AVDModel::headerData(int section, Qt::Orientation orientation, int role
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
             case 0:
+                //: AVD - Android Virtual Device
                 return tr("AVD Name");
             case 1:
                 return tr("AVD Target");
@@ -356,7 +357,7 @@ void AndroidSettingsWidget::browseAntLocation()
 void AndroidSettingsWidget::browseGdbLocation()
 {
     Utils::FileName gdbPath = AndroidConfigurations::instance().gdbPath(ProjectExplorer::Abi::ArmArchitecture);
-    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select gdb executable"), gdbPath.toString()));
+    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select GDB Executable"), gdbPath.toString()));
     if (file.isEmpty())
         return;
     m_ui->GdbLocationLineEdit->setText(file.toUserOutput());
@@ -366,7 +367,7 @@ void AndroidSettingsWidget::browseGdbLocation()
 void AndroidSettingsWidget::browseGdbserverLocation()
 {
     Utils::FileName gdbserverPath = AndroidConfigurations::instance().gdbServerPath(ProjectExplorer::Abi::ArmArchitecture);
-    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select gdbserver android executable"), gdbserverPath.toString()));
+    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select GDB Server Android Executable"), gdbserverPath.toString()));
     if (file.isEmpty())
         return;
     m_ui->GdbserverLocationLineEdit->setText(file.toUserOutput());
@@ -376,7 +377,7 @@ void AndroidSettingsWidget::browseGdbserverLocation()
 void AndroidSettingsWidget::browseGdbLocationX86()
 {
     Utils::FileName gdbPath = AndroidConfigurations::instance().gdbPath(ProjectExplorer::Abi::X86Architecture);
-    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select gdb executable"), gdbPath.toString()));
+    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select GDB Executable"), gdbPath.toString()));
     if (file.isEmpty())
         return;
     m_ui->GdbLocationLineEditx86->setText(file.toUserOutput());
@@ -386,7 +387,7 @@ void AndroidSettingsWidget::browseGdbLocationX86()
 void AndroidSettingsWidget::browseGdbserverLocationX86()
 {
     Utils::FileName gdbserverPath = AndroidConfigurations::instance().gdbServerPath(ProjectExplorer::Abi::X86Architecture);
-    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select gdbserver android executable"), gdbserverPath.toString()));
+    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select GDB Server Android Executable"), gdbserverPath.toString()));
     if (file.isEmpty())
         return;
     m_ui->GdbserverLocationLineEditx86->setText(file.toUserOutput());
@@ -396,7 +397,7 @@ void AndroidSettingsWidget::browseGdbserverLocationX86()
 void AndroidSettingsWidget::browseOpenJDKLocation()
 {
     Utils::FileName openJDKPath = AndroidConfigurations::instance().openJDKPath();
-    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select OpenJDK path"), openJDKPath.toString()));
+    Utils::FileName file = Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Select OpenJDK Path"), openJDKPath.toString()));
     if (file.isEmpty())
         return;
     m_ui->OpenJDKLocationLineEdit->setText(file.toUserOutput());

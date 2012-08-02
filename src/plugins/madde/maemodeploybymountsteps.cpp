@@ -45,7 +45,7 @@
 #include <remotelinux/abstractremotelinuxdeployservice.h>
 #include <remotelinux/deployablefile.h>
 #include <remotelinux/deploymentinfo.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/linuxdevice.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 

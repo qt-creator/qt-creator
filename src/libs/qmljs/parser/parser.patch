@@ -1,19 +1,18 @@
-diff --git b/src/libs/qmljs/parser/qmljs.g a/src/libs/qmljs/parser/qmljs.g
-index 6888b65..784e47f 100644
---- b/src/libs/qmljs/parser/qmljs.g
-+++ a/src/libs/qmljs/parser/qmljs.g
-@@ -1,23 +1,32 @@
+diff --git a/src/libs/qmljs/parser/qmljs.g b/src/libs/qmljs/parser/qmljs.g
+index 069be3c..9cbdc23 100644
+--- a/src/libs/qmljs/parser/qmljs.g
++++ b/src/libs/qmljs/parser/qmljs.g
+@@ -1,23 +1,30 @@
  ----------------------------------------------------------------------------
  --
 --- Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
---- All rights reserved.
 +-- This file is part of Qt Creator
 +--
 +-- Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
 +--
  -- Contact: http://www.qt-project.org/
  --
---- This file is part of the QtDeclarative module of the Qt Toolkit.
+--- This file is part of the QtQml module of the Qt Toolkit.
  --
 --- $QT_BEGIN_LICENSE:LGPL-ONLY$
  -- GNU Lesser General Public License Usage
@@ -23,7 +22,9 @@ index 6888b65..784e47f 100644
 --- packaging of this file.  Please review the following information to
 --- ensure the GNU Lesser General Public License version 2.1 requirements
 --- will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
-+--
+ --
+--- If you have questions regarding the use of this file, please contact
+--- us via http://www.qt-project.org/.
 +-- This file may be used under the terms of the GNU Lesser General Public
 +-- License version 2.1 as published by the Free Software Foundation and
 +-- appearing in the file LICENSE.LGPL included in the packaging of this file.
@@ -43,11 +44,11 @@ index 6888b65..784e47f 100644
 --- $QT_END_LICENSE$
  --
  ----------------------------------------------------------------------------
- 
-@@ -83,46 +92,37 @@
- 
+
+@@ -83,46 +90,36 @@
+
  %start TopLevel
- 
+
 -/./****************************************************************************
 +/./**************************************************************************
 +**
@@ -56,10 +57,9 @@ index 6888b65..784e47f 100644
 +** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
  **
 -** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
--** All rights reserved.
  ** Contact: http://www.qt-project.org/
  **
--** This file is part of the QtDeclarative module of the Qt Toolkit.
+-** This file is part of the QtQml module of the Qt Toolkit.
  **
 -** $QT_BEGIN_LICENSE:LGPL$
  ** GNU Lesser General Public License Usage
@@ -95,17 +95,19 @@ index 6888b65..784e47f 100644
 -**
 -**
 -**
+-**
 -** $QT_END_LICENSE$
 -**
 -****************************************************************************/
 +**************************************************************************/
- 
++
+
  #include <QtCore/QtDebug>
  #include <QtCore/QCoreApplication>
-@@ -136,46 +136,37 @@
- 
+@@ -136,46 +133,36 @@
+
  ./
- 
+
 -/:/****************************************************************************
 +/:/**************************************************************************
 +**
@@ -114,10 +116,9 @@ index 6888b65..784e47f 100644
 +** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
  **
 -** Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
--** All rights reserved.
  ** Contact: http://www.qt-project.org/
  **
--** This file is part of the QtDeclarative module of the Qt Toolkit.
+-** This file is part of the QtQml module of the Qt Toolkit.
  **
 -** $QT_BEGIN_LICENSE:LGPL$
  ** GNU Lesser General Public License Usage
@@ -153,18 +154,20 @@ index 6888b65..784e47f 100644
 -**
 -**
 -**
+-**
 -** $QT_END_LICENSE$
 -**
 -****************************************************************************/
 +**************************************************************************/
- 
- 
++
+
+
  //
 diff --git b/src/libs/qmljs/parser/qmljsengine_p.cpp a/src/libs/qmljs/parser/qmljsengine_p.cpp
 index 5b204c9..10e39ab 100644
 --- b/src/libs/qmljs/parser/qmljsengine_p.cpp
 +++ a/src/libs/qmljs/parser/qmljsengine_p.cpp
-@@ -113,7 +113,7 @@ double integerFromString(const QString &str, int radix)
+@@ -111,7 +111,7 @@ double integerFromString(const QString &str, int radix)
  
  
  Engine::Engine()
@@ -173,7 +176,7 @@ index 5b204c9..10e39ab 100644
  { }
  
  Engine::~Engine()
-@@ -134,6 +134,12 @@ Lexer *Engine::lexer() const
+@@ -132,6 +132,12 @@ Lexer *Engine::lexer() const
  void Engine::setLexer(Lexer *lexer)
  { _lexer = lexer; }
  
@@ -190,7 +193,7 @@ diff --git b/src/libs/qmljs/parser/qmljsengine_p.h a/src/libs/qmljs/parser/qmljs
 index 5057ea0..487619e 100644
 --- b/src/libs/qmljs/parser/qmljsengine_p.h
 +++ a/src/libs/qmljs/parser/qmljsengine_p.h
-@@ -56,6 +56,7 @@ QT_QML_BEGIN_NAMESPACE
+@@ -54,6 +54,7 @@ QT_QML_BEGIN_NAMESPACE
  namespace QmlJS {
  
  class Lexer;
@@ -198,7 +201,7 @@ index 5057ea0..487619e 100644
  class MemoryPool;
  
  class QML_PARSER_EXPORT DiagnosticMessage
-@@ -83,6 +84,7 @@ public:
+@@ -81,6 +82,7 @@ public:
  class QML_PARSER_EXPORT Engine
  {
      Lexer *_lexer;
@@ -206,7 +209,7 @@ index 5057ea0..487619e 100644
      MemoryPool _pool;
      QList<AST::SourceLocation> _comments;
      QString _extraCode;
-@@ -100,6 +102,9 @@ public:
+@@ -98,6 +100,9 @@ public:
      Lexer *lexer() const;
      void setLexer(Lexer *lexer);
  
@@ -220,7 +223,7 @@ diff --git b/src/libs/qmljs/parser/qmljsparser.cpp a/src/libs/qmljs/parser/qmljs
 index a731c1a..e986534 100644
 --- b/src/libs/qmljs/parser/qmljsparser.cpp
 +++ a/src/libs/qmljs/parser/qmljsparser.cpp
-@@ -138,7 +138,20 @@ bool Parser::parse(int startToken)
+@@ -137,7 +137,20 @@ bool Parser::parse(int startToken)
  
      token_buffer[0].token = startToken;
      first_token = &token_buffer[0];

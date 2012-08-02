@@ -29,7 +29,6 @@
 **************************************************************************/
 
 #include "hostutils.h"
-#include "breakpoint.h"
 
 #include <utils/synchronousprocess.h>
 

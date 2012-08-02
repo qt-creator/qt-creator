@@ -23,10 +23,10 @@
    <item row="0" column="0">
     <widget class="QRadioButton" name="devicesQtLibs">
      <property name="toolTip">
-      <string>Use devices qt libs</string>
+      <string>Use Qt libraries from device</string>
      </property>
      <property name="text">
-      <string>Use device's Qt libs</string>
+      <string>Use Qt libraries from device</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -38,21 +38,21 @@
      <item>
       <widget class="QRadioButton" name="deployQtLibs">
        <property name="toolTip">
-        <string>Push local qt libs to device.
-You must have Qt libs compiled for that platform</string>
+        <string>Push local Qt libraries to device.
+You must have Qt libraries compiled for that platform</string>
        </property>
        <property name="text">
-        <string>Deploy local Qt libs</string>
+        <string>Deploy local Qt libraries</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="useLocalQtLibs">
        <property name="toolTip">
-        <string>Check this option to force the application to use local qt libs instead of system libs.</string>
+        <string>Check this option to force the application to use local Qt libraries instead of system libraries.</string>
        </property>
        <property name="text">
-        <string>Use local Qt libs</string>
+        <string>Use local Qt libraries</string>
        </property>
       </widget>
      </item>
@@ -70,7 +70,7 @@ You must have Qt libs compiled for that platform</string>
      <item>
       <widget class="QRadioButton" name="installQASI">
        <property name="toolTip">
-        <string>Choose and install Ministro system wide qt shared libraries.
+        <string>Choose and install Ministro system wide Qt shared libraries.
 This option is useful when you want to try your application on devices which don't have Android Market (e.g. Android Emulator).</string>
        </property>
        <property name="text">

@@ -40,7 +40,6 @@
 #include "maemorunfactories.h"
 #include "maemosettingspages.h"
 #include "qt4maemodeployconfiguration.h"
-#include "rpmmanager.h"
 #include "maemoqtversionfactory.h"
 
 #include <QtPlugin>
@@ -74,7 +73,6 @@ bool MaddePlugin::initialize(const QStringList &arguments, QString *error_messag
     addAutoReleasedObject(new MaddeDeviceConfigurationFactory);
 
     new DebianManager(this);
-    new RpmManager(this);
 
     return true;
 }

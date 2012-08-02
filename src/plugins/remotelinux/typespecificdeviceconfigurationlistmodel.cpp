@@ -66,11 +66,11 @@ QVariant TypeSpecificDeviceConfigurationListModel::data(const QModelIndex &index
 {
     if (!index.isValid() || index.row() >= rowCount() || role != Qt::DisplayRole)
         return QVariant();
-    const IDevice::ConstPtr &devConf = deviceAt(index.row());
-    Q_ASSERT(devConf);
-    QString displayedName = devConf->displayName();
-    if (deviceMatches(devConf)
-            && DeviceManager::instance()->defaultDevice(devConf->type()) == devConf) {
+    const IDevice::ConstPtr &device = deviceAt(index.row());
+    Q_ASSERT(device);
+    QString displayedName = device->displayName();
+    if (deviceMatches(device)
+            && DeviceManager::instance()->defaultDevice(device->type()) == device) {
         displayedName = tr("%1 (default)").arg(displayedName);
     }
     return displayedName;
@@ -106,9 +106,9 @@ IDevice::ConstPtr TypeSpecificDeviceConfigurationListModel::defaultDeviceConfig(
 
 IDevice::ConstPtr TypeSpecificDeviceConfigurationListModel::find(Core::Id id) const
 {
-    const IDevice::ConstPtr &devConf = DeviceManager::instance()->find(id);
-    if (deviceMatches(devConf))
-        return devConf;
+    const IDevice::ConstPtr &device = DeviceManager::instance()->find(id);
+    if (deviceMatches(device))
+        return device;
     return defaultDeviceConfig();
 }
 

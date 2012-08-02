@@ -250,12 +250,12 @@ bool AndroidDeployStep::deployPackage()
         SLOT(handleBuildError()));
 
     if (m_runDeployAction == DeployLocal) {
-        writeOutput(tr("Clean old Qt libs"));
+        writeOutput(tr("Clean old Qt libraries"));
         runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
                    QStringList() << QLatin1String("-s") << m_deviceSerialNumber
                    << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/qt"));
 
-        writeOutput(tr("Deploy Qt libs ... this may take some time, please wait"));
+        writeOutput(tr("Deploy Qt libraries ... this may take some time, please wait"));
         const QString tempPath = QDir::tempPath() + QLatin1String("/android_qt_libs_") + m_packageName;
         AndroidPackageCreationStep::removeDirectory(tempPath);
         QStringList stripFiles;
@@ -279,7 +279,7 @@ bool AndroidDeployStep::deployPackage()
         if (!runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
                         QStringList() << QLatin1String("-s") << m_deviceSerialNumber
                         << QLatin1String("install") << QLatin1String("-r ") << m_runQASIPackagePath)) {
-            raiseError(tr("Qt Android smart installer instalation failed"));
+            raiseError(tr("Qt Android smart installer installation failed"));
             disconnect(deployProc, 0, this, 0);
             deployProc->deleteLater();
             return false;
@@ -299,7 +299,7 @@ bool AndroidDeployStep::deployPackage()
 
     if (!runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
                     QStringList() << QLatin1String("-s") << m_deviceSerialNumber << QLatin1String("install") << package)) {
-        raiseError(tr("Package instalation failed"));
+        raiseError(tr("Package installation failed"));
         disconnect(deployProc, 0, this, 0);
         deployProc->deleteLater();
         return false;

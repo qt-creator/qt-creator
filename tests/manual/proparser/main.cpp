@@ -43,23 +43,21 @@
 #include <QStringList>
 #include <QTextCodec>
 
-static void print(const QString &fileName, int lineNo, const QString &msg)
+static void print(const QString &fileName, int lineNo, int type, const QString &msg)
 {
+    QString pfx = ((type & QMakeHandler::CategoryMask) == QMakeHandler::WarningMessage)
+                  ? QString::fromLatin1("WARNING: ") : QString();
     if (lineNo)
-        qWarning("%s(%d): %s", qPrintable(fileName), lineNo, qPrintable(msg));
+        qWarning("%s%s:%d: %s", qPrintable(pfx), qPrintable(fileName), lineNo, qPrintable(msg));
     else
-        qWarning("%s", qPrintable(msg));
+        qWarning("%s%s", qPrintable(pfx), qPrintable(msg));
 }
 
 class EvalHandler : public QMakeHandler {
 public:
-    virtual void parseError(const QString &fileName, int lineNo, const QString &msg)
-        { print(fileName, lineNo, msg); }
+    virtual void message(int type, const QString &msg, const QString &fileName, int lineNo)
+        { print(fileName, lineNo, type, msg); }
 
-    virtual void configError(const QString &msg)
-        { qWarning("%s", qPrintable(msg)); }
-    virtual void evalError(const QString &fileName, int lineNo, const QString &msg)
-        { print(fileName, lineNo, msg); }
     virtual void fileMessage(const QString &msg)
         { qWarning("%s", qPrintable(msg)); }
 
@@ -156,8 +154,10 @@ int main(int argc, char **argv)
         qFatal("need at least two arguments: [-v] <cumulative?> <filenme> [<out_pwd> [<qmake options>]]");
 
     QMakeGlobals option;
-    option.qmake_abslocation =
-            QDir::cleanPath(QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/qmake"));
+    QString qmake = QString::fromLocal8Bit(qgetenv("TESTREADER_QMAKE"));
+    if (qmake.isEmpty())
+        qmake = QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/qmake");
+    option.qmake_abslocation = QDir::cleanPath(qmake);
     option.initProperties();
     if (args.count() >= 4)
         option.setCommandLineArguments(args.mid(3));
@@ -168,6 +168,7 @@ int main(int argc, char **argv)
     QString file = infi.absoluteFilePath();
     QString in_pwd = infi.absolutePath();
     QString out_pwd = (args.count() > 2) ? QFileInfo(args[2]).absoluteFilePath() : in_pwd;
+    option.setDirectories(in_pwd, out_pwd);
 
     return evaluate(file, in_pwd, out_pwd, cumulative, &option, &parser, level);
 }

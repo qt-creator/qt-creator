@@ -18,7 +18,7 @@
 **
 ** In addition, as a special exception, Nokia gives you certain additional
 ** rights. These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+* version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** Other Usage
 **

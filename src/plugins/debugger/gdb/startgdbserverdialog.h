@@ -6,6 +6,7 @@
 **
 ** Contact: http://www.qt-project.org/
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -27,30 +28,56 @@
 **
 **************************************************************************/
 
-#ifndef MAEMODEBUGSUPPORT_H
-#define MAEMODEBUGSUPPORT_H
+#ifndef STARTGDBSERVERDIALOG_H
+#define STARTGDBSERVERDIALOG_H
 
-#include <remotelinux/remotelinuxdebugsupport.h>
+#include "debugger_global.h"
 
-namespace Madde {
-namespace Internal {
-class MaemoRunConfiguration;
-class MaemoSshRunner;
+#include <QDialog>
 
-class MaemoDebugSupport : public RemoteLinux::AbstractRemoteLinuxDebugSupport
+namespace Debugger {
+
+namespace Internal { class StartGdbServerDialogPrivate; }
+
+class DEBUGGER_EXPORT StartGdbServerDialog : public QDialog
 {
     Q_OBJECT
+
 public:
-    MaemoDebugSupport(MaemoRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
-    ~MaemoDebugSupport();
+    StartGdbServerDialog(QWidget *parent);
+    ~StartGdbServerDialog();
+
+    void startGdbServer();
+    void attachToRemoteProcess();
+
+signals:
+    void processAborted();
+
+private slots:
+    void attachToDevice();
+    void handleRemoteError(const QString &errorMessage);
+    void handleProcessListUpdated();
+    void updateProcessList();
+    void attachToProcess();
+    void handleProcessKilled();
+    void updateButtons();
+    void portGathererError(const QString &errorMessage);
+    void portListReady();
+
+    void handleProcessClosed(int);
+    void handleProcessErrorOutput();
+    void handleProcessOutputAvailable();
+    void handleProcessStarted();
+    void handleConnectionError();
 
 private:
-    RemoteLinux::AbstractRemoteLinuxApplicationRunner *runner() const;
-
-    MaemoSshRunner * const m_runner;
+    void startGdbServerOnPort(int port, int pid);
+    void reportOpenPort(int port);
+    void reportFailure();
+    void logMessage(const QString &line);
+    Internal::StartGdbServerDialogPrivate *d;
 };
 
-} // namespace Internal
-} // namespace Madde
+} // namespace Debugger
 
-#endif // MAEMODEBUGSUPPORT_H
+#endif // STARTGDBSERVERDIALOG_H

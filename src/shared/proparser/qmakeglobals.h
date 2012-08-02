@@ -48,7 +48,17 @@ QT_BEGIN_NAMESPACE
 
 class QMakeEvaluator;
 
-typedef QString QMakeBaseKey;
+class QMakeBaseKey
+{
+public:
+    QMakeBaseKey(const QString &_root, bool _hostBuild);
+
+    QString root;
+    bool hostBuild;
+};
+
+uint qHash(const QMakeBaseKey &key);
+bool operator==(const QMakeBaseKey &one, const QMakeBaseKey &two);
 
 class QMakeBaseEnv
 {
@@ -77,6 +87,7 @@ public:
     QString dir_sep;
     QString dirlist_sep;
     QString qmakespec;
+    QString xqmakespec;
     QString cachefile;
 #ifndef QT_BOOTSTRAPPED
     QProcessEnvironment environment;
@@ -88,6 +99,7 @@ public:
     // -nocache, -cache, -spec, QMAKESPEC
     // -set persistent value
     void setCommandLineArguments(const QStringList &args);
+    void setDirectories(const QString &input_dir, const QString &output_dir);
 #ifdef PROEVALUATOR_INIT_PROPS
     bool initProperties();
 #else
@@ -100,6 +112,8 @@ public:
 private:
     QString getEnv(const QString &) const;
     QStringList getPathListEnv(const QString &var) const;
+
+    QString source_root, build_root;
 
     QString precmds, postcmds;
     QHash<ProString, ProString> properties;

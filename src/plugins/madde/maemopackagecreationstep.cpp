@@ -32,7 +32,6 @@
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 #include "debianmanager.h"
-#include "rpmmanager.h"
 #include "maemopackagecreationwidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -478,70 +477,6 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
     rulesFile.setPermissions(rulesFile.permissions() | QFile::ExeUser);
     return true;
 }
-
-/////////////////
-// MaemoRpmPackageCreationStep
-/////////////////
-
-MaemoRpmPackageCreationStep::MaemoRpmPackageCreationStep(BuildStepList *bsl)
-    : AbstractMaemoPackageCreationStep(bsl, CreatePackageId)
-{
-    ctor();
-}
-
-MaemoRpmPackageCreationStep::MaemoRpmPackageCreationStep(BuildStepList *buildConfig,
-    MaemoRpmPackageCreationStep *other)
-        : AbstractMaemoPackageCreationStep(buildConfig, other)
-{
-    ctor();
-}
-
-void MaemoRpmPackageCreationStep::ctor()
-{
-    setDefaultDisplayName(tr("Create RPM Package"));
-}
-
-bool MaemoRpmPackageCreationStep::init()
-{
-    m_specFile = RpmManager::specFile(target());
-    m_packageFileName = RpmManager::packageFileName(m_specFile, target());
-    return AbstractMaemoPackageCreationStep::init();
-}
-
-bool MaemoRpmPackageCreationStep::createPackage(QProcess *buildProc,
-    const QFutureInterface<bool> &fi)
-{
-    Q_UNUSED(fi);
-    const QStringList args = QStringList() << QLatin1String("rrpmbuild")
-        << QLatin1String("-bb") << m_specFile.toString();
-    if (!callPackagingCommand(buildProc, args))
-        return false;
-    QFile::remove(cachedPackageFilePath());
-    const QString packageSourceFilePath = rpmBuildDir() + QLatin1Char('/')
-        + m_packageFileName.toString();
-    if (!QFile::rename(packageSourceFilePath, cachedPackageFilePath())) {
-        raiseError(tr("Packaging failed: Could not move package file from %1 to %2.")
-            .arg(packageSourceFilePath, cachedPackageFilePath()));
-        return false;
-    }
-
-    return true;
-}
-
-bool MaemoRpmPackageCreationStep::isMetaDataNewerThan(const QDateTime &packageDate) const
-{
-    QTC_ASSERT(!m_specFile.isEmpty(), return false);
-    const QDateTime specFileChangeDate = m_specFile.toFileInfo().lastModified();
-    return packageDate <= specFileChangeDate;
-}
-
-QString MaemoRpmPackageCreationStep::rpmBuildDir() const
-{
-    return cachedPackageDirectory() + QLatin1String("/rrpmbuild");
-}
-
-const Core::Id MaemoRpmPackageCreationStep::CreatePackageId
-    = Core::Id("MaemoRpmPackageCreationStep");
 
 } // namespace Internal
 } // namespace Madde

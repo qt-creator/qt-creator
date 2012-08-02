@@ -1,8 +1,9 @@
 s/private\/qdeclarative/qml/g
-s/qdeclarative/qml/g
+s/qqml/qml/g
 s/QDECLARATIVE/QML/g
-s/QDeclarative/Qml/g
-s/Q_DECLARATIVE_EXPORT //g
+s/QQml/Qml/g
+s/QQMLJS/QMLJS/g
+s/Q_QML_EXPORT //g
 
 # adjust pri file
 s/    \$\$PWD\/qmljsglobal_p.h/    $$PWD\/qmljsglobal_p.h \\\

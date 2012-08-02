@@ -77,7 +77,6 @@ public:
         AndroidLinuxFlavor,
         HarmattanLinuxFlavor,
         MaemoLinuxFlavor,
-        MeegoLinuxFlavor,
 
         // Mac
         GenericMacFlavor,

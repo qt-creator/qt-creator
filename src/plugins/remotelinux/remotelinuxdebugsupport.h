@@ -40,65 +40,49 @@ class DebuggerStartParameters;
 }
 
 namespace ProjectExplorer {
-class RunControl;
+class DeviceApplicationHelperAction;
 class RunConfiguration;
 }
 
 namespace RemoteLinux {
 class RemoteLinuxRunConfiguration;
-class AbstractRemoteLinuxApplicationRunner;
 
-namespace Internal {
-class AbstractRemoteLinuxDebugSupportPrivate;
-class RemoteLinuxDebugSupportPrivate;
-} // namespace Internal
+namespace Internal { class LinuxDeviceDebugSupportPrivate; }
 
-class REMOTELINUX_EXPORT AbstractRemoteLinuxDebugSupport : public QObject
+class REMOTELINUX_EXPORT LinuxDeviceDebugSupport : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(AbstractRemoteLinuxDebugSupport)
 public:
     static Debugger::DebuggerStartParameters startParameters(const RemoteLinuxRunConfiguration *runConfig);
 
-    AbstractRemoteLinuxDebugSupport(ProjectExplorer::RunConfiguration *runConfig,
-                                    Debugger::DebuggerEngine *engine);
-    ~AbstractRemoteLinuxDebugSupport();
+    LinuxDeviceDebugSupport(ProjectExplorer::RunConfiguration *runConfig,
+            Debugger::DebuggerEngine *engine);
+    ~LinuxDeviceDebugSupport();
+
+    void setApplicationRunnerPreRunAction(ProjectExplorer::DeviceApplicationHelperAction *action);
+    void setApplicationRunnerPostRunAction(ProjectExplorer::DeviceApplicationHelperAction *action);
 
 private slots:
     void handleRemoteSetupRequested();
-    void handleSshError(const QString &error);
+    void handleAppRunnerError(const QString &error);
     void startExecution();
     void handleDebuggingFinished();
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
     void handleProgressReport(const QString &progressOutput);
     void handleRemoteProcessStarted();
-    void handleRemoteProcessFinished(qint64 exitCode);
+    void handleAppRunnerFinished(bool success);
+    void handlePortsGathererError(const QString &message);
+    void handlePortListReady();
 
 private:
-    virtual AbstractRemoteLinuxApplicationRunner *runner() const = 0;
-
     void handleAdapterSetupFailed(const QString &error);
     void handleAdapterSetupDone();
     void setFinished();
     bool setPort(int &port);
     void showMessage(const QString &msg, int channel);
 
-    Internal::AbstractRemoteLinuxDebugSupportPrivate * const d;
-};
-
-
-class REMOTELINUX_EXPORT RemoteLinuxDebugSupport : public AbstractRemoteLinuxDebugSupport
-{
-    Q_OBJECT
-public:
-    RemoteLinuxDebugSupport(RemoteLinuxRunConfiguration *runConfig, Debugger::DebuggerEngine *engine);
-    ~RemoteLinuxDebugSupport();
-
-private:
-    AbstractRemoteLinuxApplicationRunner *runner() const;
-
-    Internal::RemoteLinuxDebugSupportPrivate * const d;
+    Internal::LinuxDeviceDebugSupportPrivate * const d;
 };
 
 } // namespace RemoteLinux

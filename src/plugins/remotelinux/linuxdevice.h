@@ -27,6 +27,7 @@
 **
 **
 **************************************************************************/
+
 #ifndef LINUXDEVICECONFIGURATION_H
 #define LINUXDEVICECONFIGURATION_H
 
@@ -40,16 +41,15 @@ namespace QSsh { class SshConnectionParameters; }
 namespace Utils { class PortList; }
 
 namespace RemoteLinux {
-namespace Internal {
-class LinuxDeviceConfigurationPrivate;
-} // namespace Internal
+namespace Internal { class LinuxDevicePrivate; }
 
-class REMOTELINUX_EXPORT LinuxDeviceConfiguration : public ProjectExplorer::IDevice
+class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::LinuxDeviceConfiguration)
+    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::LinuxDevice)
+
 public:
-    typedef QSharedPointer<LinuxDeviceConfiguration> Ptr;
-    typedef QSharedPointer<const LinuxDeviceConfiguration> ConstPtr;
+    typedef QSharedPointer<LinuxDevice> Ptr;
+    typedef QSharedPointer<const LinuxDevice> ConstPtr;
 
     static Ptr create();
     static Ptr create(const QString &name, Core::Id type, MachineType machineType,
@@ -67,13 +67,13 @@ public:
     QList<ProjectExplorer::DeviceProcess> buildProcessList(const QString &listProcessesReply) const;
 
 protected:
-    LinuxDeviceConfiguration() {}
-    LinuxDeviceConfiguration(const QString &name, Core::Id type,
+    LinuxDevice() {}
+    LinuxDevice(const QString &name, Core::Id type,
                              MachineType machineType, Origin origin, Core::Id id);
-    LinuxDeviceConfiguration(const LinuxDeviceConfiguration &other);
+    LinuxDevice(const LinuxDevice &other);
 
 private:
-    LinuxDeviceConfiguration &operator=(const LinuxDeviceConfiguration &);
+    LinuxDevice &operator=(const LinuxDevice &);
 };
 
 } // namespace RemoteLinux

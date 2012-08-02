@@ -33,8 +33,9 @@
 #include "maemoglobal.h"
 #include "maddedevice.h"
 
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocessrunner.h>
-#include <remotelinux/remotelinuxusedportsgatherer.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>
@@ -52,7 +53,7 @@ MaemoRemoteMounter::MaemoRemoteMounter(QObject *parent)
       m_utfsServerTimer(new QTimer(this)),
       m_mountProcess(new SshRemoteProcessRunner(this)),
       m_unmountProcess(new SshRemoteProcessRunner(this)),
-      m_portsGatherer(new RemoteLinuxUsedPortsGatherer(this)),
+      m_portsGatherer(new DeviceUsedPortsGatherer(this)),
       m_state(Inactive)
 {
     connect(m_utfsServerTimer, SIGNAL(timeout()), SLOT(handleUtfsServerTimeout()));

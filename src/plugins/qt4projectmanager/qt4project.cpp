@@ -945,6 +945,7 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
             m_qmakeGlobals->qmake_abslocation = QDir::cleanPath(qtVersion->qmakeCommand().toString());
             m_qmakeGlobals->setProperties(qtVersion->versionInfo());
         }
+        m_qmakeGlobals->setDirectories(m_rootProjectNode->sourceDir(), m_rootProjectNode->buildDir());
         m_qmakeGlobals->sysroot = systemRoot;
 
         Utils::Environment::const_iterator eit = env.constBegin(), eend = env.constEnd();

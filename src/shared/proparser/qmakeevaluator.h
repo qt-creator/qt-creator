@@ -50,11 +50,16 @@ class QMakeGlobals;
 class QMAKE_EXPORT QMakeHandler : public QMakeParserHandler
 {
 public:
-    // qmake/project configuration error
-    virtual void configError(const QString &msg) = 0;
-    // Some error during evaluation
-    virtual void evalError(const QString &filename, int lineNo, const QString &msg) = 0;
-    // error() and message() from .pro file
+    enum {
+        SourceEvaluator = 0x10,
+
+        EvalWarnLanguage = SourceEvaluator |  WarningMessage | WarnLanguage,
+        EvalWarnDeprecated = SourceEvaluator | WarningMessage | WarnDeprecated,
+
+        EvalError = ErrorMessage | SourceEvaluator
+    };
+
+    // error(), warning() and message() from .pro file
     virtual void fileMessage(const QString &msg) = 0;
 
     enum EvalFileType { EvalProjectFile, EvalIncludeFile, EvalConfigFile, EvalFeatureFile, EvalAuxFile };
@@ -69,7 +74,8 @@ public:
         LoadProOnly = 0,
         LoadPreFiles = 1,
         LoadPostFiles = 2,
-        LoadAll = LoadPreFiles|LoadPostFiles
+        LoadAll = LoadPreFiles|LoadPostFiles,
+        LoadSilent = 0x10
     };
     Q_DECLARE_FLAGS(LoadFlags, LoadFlag)
 
@@ -87,6 +93,7 @@ public:
     enum VisitReturn {
         ReturnFalse,
         ReturnTrue,
+        ReturnError,
         ReturnBreak,
         ReturnNext,
         ReturnReturn
@@ -118,7 +125,7 @@ public:
     void visitProFunctionDef(ushort tok, const ProString &name, const ushort *tokPtr);
     void visitProVariable(ushort tok, const ProStringList &curr, const ushort *&tokPtr);
 
-    static const ProString &map(const ProString &var);
+    const ProString &map(const ProString &var);
     ProValueMap *findValues(const ProString &variableName, ProValueMap::Iterator *it);
 
     void setTemplate();
@@ -137,26 +144,32 @@ public:
                             LoadFlags flags);
     bool evaluateFile(const QString &fileName, QMakeHandler::EvalFileType type,
                       LoadFlags flags);
-    bool evaluateFeatureFile(const QString &fileName);
+    bool evaluateFeatureFile(const QString &fileName, bool silent = false);
     bool evaluateFileInto(const QString &fileName, QMakeHandler::EvalFileType type,
                           ProValueMap *values, // output-only
                           LoadFlags flags);
-    void evalError(const QString &msg) const;
+    void message(int type, const QString &msg) const;
+    void evalError(const QString &msg) const
+            { message(QMakeHandler::EvalError, msg); }
+    void languageWarning(const QString &msg) const
+            { message(QMakeHandler::EvalWarnLanguage, msg); }
+    void deprecationWarning(const QString &msg) const
+            { message(QMakeHandler::EvalWarnDeprecated, msg); }
 
     QList<ProStringList> prepareFunctionArgs(const ushort *&tokPtr);
-    QList<ProStringList> prepareFunctionArgs(const ProString &arguments);
     ProStringList evaluateFunction(const ProFunctionDef &func,
                                    const QList<ProStringList> &argumentsList, bool *ok);
     VisitReturn evaluateBoolFunction(const ProFunctionDef &func,
                                      const QList<ProStringList> &argumentsList,
                                      const ProString &function);
 
-    ProStringList evaluateExpandFunction(const ProString &function, const ProString &arguments);
     ProStringList evaluateExpandFunction(const ProString &function, const ushort *&tokPtr);
-    ProStringList evaluateExpandFunction(const ProString &function, const ProStringList &args);
-    VisitReturn evaluateConditionalFunction(const ProString &function, const ProString &arguments);
     VisitReturn evaluateConditionalFunction(const ProString &function, const ushort *&tokPtr);
-    VisitReturn evaluateConditionalFunction(const ProString &function, const ProStringList &args);
+
+    bool evaluateConditional(const QString &cond, const QString &context);
+#ifdef PROEVALUATOR_FULL
+    void checkRequirements(const ProStringList &deps);
+#endif
 
     QStringList qmakeMkspecPaths() const;
     QStringList qmakeFeaturePaths() const;
@@ -168,18 +181,19 @@ public:
             QHash<ProString, QSet<ProString> > &dependencies,
             ProValueMap &dependees, ProStringList &rootSet) const;
 
-    QString fixPathToLocalOS(const QString &str) const;
-
+    VisitReturn writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
+                          const QString &contents);
 #ifndef QT_BOOTSTRAPPED
     void runProcess(QProcess *proc, const QString &command, QProcess::ProcessChannel chan) const;
 #endif
 
-    int m_skipLevel;
     int m_loopLevel; // To report unexpected break() and next()s
 #ifdef PROEVALUATOR_CUMULATIVE
     bool m_cumulative;
+    int m_skipLevel;
 #else
     enum { m_cumulative = 0 };
+    enum { m_skipLevel = 0 };
 #endif
 
     struct Location {
@@ -196,6 +210,7 @@ public:
     QString m_outputDir;
 
     int m_listCount;
+    bool m_hostBuild;
     QString m_qmakespec;
     QString m_qmakespecFull;
     QString m_qmakespecName;

@@ -192,6 +192,8 @@ QtcPlugin {
         "gdb/gdbengine.h",
         "gdb/gdboptionspage.cpp",
         "gdb/termgdbadapter.cpp",
+        "gdb/startgdbserverdialog.cpp",
+        "gdb/startgdbserverdialog.h",
         "images/breakpoint_16.png",
         "images/breakpoint_24.png",
         "images/breakpoint_disabled_16.png",

@@ -596,7 +596,7 @@ void SftpChannelPrivate::handleGetStatus(const JobMap::Iterator &it,
     case SftpDownload::Open:
         if (op->statRequested) {
             reportRequestError(op, errorMessage(response.errorString,
-                tr("Failed retrieve information on the remote file ('stat' failed).")));
+                tr("Failed to retrieve information on the remote file ('stat' failed).")));
             sendTransferCloseHandle(op, response.requestId);
         } else {
             if ((response.status != SSH_FX_EOF || response.requestId != op->eofId)

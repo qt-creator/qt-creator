@@ -33,7 +33,6 @@
 #include "valgrindtool.h"
 
 #include <remotelinux/remotelinuxrunconfiguration.h>
-#include <remotelinux/linuxdeviceconfiguration.h>
 
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/profileinformation.h>
@@ -62,6 +61,7 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
     Q_UNUSED(mode);
 
     Analyzer::AnalyzerStartParameters sp;
+    sp.displayName = runConfiguration->displayName();
     if (LocalApplicationRunConfiguration *rc1 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
         sp.startMode = Analyzer::StartLocal;
@@ -69,17 +69,15 @@ Analyzer::AnalyzerStartParameters ValgrindTool::createStartParameters(
         sp.workingDirectory = rc1->workingDirectory();
         sp.debuggee = rc1->executable();
         sp.debuggeeArgs = rc1->commandLineArguments();
-        sp.displayName = rc1->displayName();
         sp.connParams.host = QLatin1String("localhost");
         sp.connParams.port = rc1->debuggerAspect()->qmlDebugServerPort();
     } else if (RemoteLinuxRunConfiguration *rc2 =
                qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.startMode = Analyzer::StartRemote;
         sp.debuggee = rc2->remoteExecutableFilePath();
-        sp.debuggeeArgs = rc2->arguments();
         sp.connParams = ProjectExplorer::DeviceProfileInformation::device(rc2->target()->profile())->sshParameters();
         sp.analyzerCmdPrefix = rc2->commandPrefix();
-        sp.displayName = rc2->displayName();
+        sp.debuggeeArgs = rc2->arguments();
     } else {
         // Might be S60DeviceRunfiguration, or something else ...
         //sp.startMode = StartRemote;

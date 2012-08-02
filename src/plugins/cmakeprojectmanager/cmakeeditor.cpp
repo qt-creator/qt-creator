@@ -73,11 +73,6 @@ Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
     return ret->editor();
 }
 
-Core::Context CMakeEditor::context() const
-{
-    return Core::Context(Constants::C_CMAKEEDITOR);
-}
-
 Core::Id CMakeEditor::id() const
 {
     return CMakeProjectManager::Constants::CMAKE_EDITOR_ID;

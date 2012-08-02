@@ -44,8 +44,26 @@ QT_BEGIN_NAMESPACE
 class QMAKE_EXPORT QMakeParserHandler
 {
 public:
-    // Some error during parsing
-    virtual void parseError(const QString &filename, int lineNo, const QString &msg) = 0;
+    enum {
+        CategoryMask = 0xf00,
+        WarningMessage = 0x000,
+        ErrorMessage = 0x100,
+
+        SourceMask = 0xf0,
+        SourceParser = 0,
+
+        CodeMask = 0xf,
+        WarnLanguage = 0,
+        WarnDeprecated,
+
+        ParserWarnLanguage = SourceParser | WarningMessage | WarnLanguage,
+        ParserWarnDeprecated = SourceParser | WarningMessage | WarnDeprecated,
+
+        ParserIoError = ErrorMessage | SourceParser,
+        ParserError
+    };
+    virtual void message(int type, const QString &msg,
+                         const QString &fileName = QString(), int lineNo = 0) = 0;
 };
 
 class ProFileCache;
@@ -58,9 +76,11 @@ public:
 
     QMakeParser(ProFileCache *cache, QMakeParserHandler *handler);
 
+    enum SubGrammar { FullGrammar, TestGrammar };
     // fileName is expected to be absolute and cleanPath()ed.
     ProFile *parsedProFile(const QString &fileName, bool cache = false);
-    ProFile *parsedProBlock(const QString &name, const QString &contents);
+    ProFile *parsedProBlock(const QString &name, const QString &contents,
+                            SubGrammar grammar = FullGrammar);
 
 private:
     struct BlockScope {
@@ -89,7 +109,7 @@ private:
     };
 
     bool read(ProFile *pro);
-    bool read(ProFile *pro, const QString &content);
+    bool read(ProFile *pro, const QString &content, SubGrammar grammar);
 
     ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);
     ALWAYS_INLINE void putBlockLen(ushort *&tokPtr, uint len);
@@ -110,7 +130,13 @@ private:
     void flushCond(ushort *&tokPtr);
     void flushScopes(ushort *&tokPtr);
 
-    void parseError(const QString &msg) const;
+    void message(int type, const QString &msg) const;
+    void parseError(const QString &msg) const
+            { message(QMakeParserHandler::ParserError, msg); }
+    void languageWarning(const QString &msg) const
+            { message(QMakeParserHandler::ParserWarnLanguage, msg); }
+    void deprecationWarning(const QString &msg) const
+            { message(QMakeParserHandler::ParserWarnDeprecated, msg); }
 
     // Current location
     ProFile *m_proFile;

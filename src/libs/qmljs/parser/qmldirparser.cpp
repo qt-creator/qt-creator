@@ -30,16 +30,31 @@
 
 #include "qmldirparser_p.h"
 #include "qmlerror.h"
-bool Qml_isFileCaseCorrect(const QString &) { return true; }
 
-#include <QTextStream>
-#include <QFile>
-#include <QtDebug>
+
+
+#include <QtCore/QtDebug>
 
 QT_BEGIN_NAMESPACE
 
+static int parseInt(const QStringRef &str, bool *ok)
+{
+    int pos = 0;
+    int number = 0;
+    while (pos < str.length() && str.at(pos).isDigit()) {
+        if (pos != 0)
+            number *= 10;
+        number += str.at(pos).unicode() - '0';
+        ++pos;
+    }
+    if (pos != str.length())
+        *ok = false;
+    else
+        *ok = true;
+    return number;
+}
+
 QmlDirParser::QmlDirParser()
-    : _isParsed(false)
 {
 }
 
@@ -47,115 +62,98 @@ QmlDirParser::~QmlDirParser()
 {
 }
 
-QUrl QmlDirParser::url() const
-{
-    return _url;
+inline static void scanSpace(const QChar *&ch) {
+    while (ch->isSpace() && !ch->isNull() && *ch != QLatin1Char('\n'))
+        ++ch;
 }
 
-void QmlDirParser::setUrl(const QUrl &url)
-{
-    _url = url;
+inline static void scanToEnd(const QChar *&ch) {
+    while (*ch != QLatin1Char('\n') && !ch->isNull())
+        ++ch;
 }
 
-QString QmlDirParser::fileSource() const
-{
-    return _filePathSouce;
+inline static void scanWord(const QChar *&ch) {
+    while (!ch->isSpace() && !ch->isNull())
+        ++ch;
 }
 
-void QmlDirParser::setFileSource(const QString &filePath)
+/*!
+\a url is used for generating errors.
+*/
+bool QmlDirParser::parse(const QString &source)
 {
-    _filePathSouce = filePath;
-}
-
-QString QmlDirParser::source() const
-{
-    return _source;
-}
-
-void QmlDirParser::setSource(const QString &source)
-{
-    _isParsed = false;
-    _source = source;
-}
-
-bool QmlDirParser::isParsed() const
-{
-    return _isParsed;
-}
-
-bool QmlDirParser::parse()
-{
-    if (_isParsed)
-        return true;
-
-    _isParsed = true;
     _errors.clear();
     _plugins.clear();
     _components.clear();
+    _scripts.clear();
 
-    if (_source.isEmpty() && !_filePathSouce.isEmpty()) {
-        QFile file(_filePathSouce);
-        if (!Qml_isFileCaseCorrect(_filePathSouce)) {
-            QmlError error;
-            error.setDescription(QString::fromUtf8("cannot load module \"$$URI$$\": File name case mismatch for \"%1\"").arg(_filePathSouce));
-            _errors.prepend(error);
-            return false;
-        } else if (file.open(QFile::ReadOnly)) {
-            _source = QString::fromUtf8(file.readAll());
-        } else {
-            QmlError error;
-            error.setDescription(QString::fromUtf8("module \"$$URI$$\" definition \"%1\" not readable").arg(_filePathSouce));
-            _errors.prepend(error);
-            return false;
-        }
-    }
-
-    QTextStream stream(&_source);
     int lineNumber = 0;
+    bool firstLine = true;
 
-    forever {
+    const QChar *ch = source.constData();
+    while (!ch->isNull()) {
         ++lineNumber;
 
-        const QString line = stream.readLine();
-        if (line.isNull())
+        bool invalidLine = false;
+        const QChar *lineStart = ch;
+
+        scanSpace(ch);
+        if (*ch == QLatin1Char('\n')) {
+            ++ch;
+            continue;
+        }
+        if (ch->isNull())
             break;
 
         QString sections[3];
         int sectionCount = 0;
 
-        int index = 0;
-        const int length = line.length();
-
-        while (index != length) {
-            const QChar ch = line.at(index);
-
-            if (ch.isSpace()) {
-                do { ++index; }
-                while (index != length && line.at(index).isSpace());
-
-            } else if (ch == QLatin1Char('#')) {
-                // recognized a comment
+        do {
+            if (*ch == QLatin1Char('#')) {
+                scanToEnd(ch);
                 break;
-
-            } else {
-                const int start = index;
-
-                do { ++index; }
-                while (index != length && !line.at(index).isSpace());
-
-                const QString lexeme = line.mid(start, index - start);
-
-                if (sectionCount >= 3) {
-                    reportError(lineNumber, start, QLatin1String("unexpected token"));
-
-                } else {
-                    sections[sectionCount++] = lexeme;
-                }
             }
-        }
+            const QChar *start = ch;
+            scanWord(ch);
+            if (sectionCount < 3) {
+                sections[sectionCount++] = source.mid(start-source.constData(), ch-start);
+            } else {
+                reportError(lineNumber, start-lineStart, QLatin1String("unexpected token"));
+                scanToEnd(ch);
+                invalidLine = true;
+                break;
+            }
+            scanSpace(ch);
+        } while (*ch != QLatin1Char('\n') && !ch->isNull());
 
-        if (sectionCount == 0) {
+        if (!ch->isNull())
+            ++ch;
+
+        if (invalidLine) {
+            reportError(lineNumber, -1,
+                        QString::fromUtf8("invalid qmldir directive contains too many tokens"));
+            continue;
+        } else if (sectionCount == 0) {
             continue; // no sections, no party.
+
+        } else if (sections[0] == QLatin1String("module")) {
+            if (sectionCount != 2) {
+                reportError(lineNumber, -1,
+                            QString::fromUtf8("module directive requires one argument, but %1 were provided").arg(sectionCount - 1));
+                continue;
+            }
+            if (!_typeNamespace.isEmpty()) {
+                reportError(lineNumber, -1,
+                            QString::fromUtf8("only one module directive may be defined in a qmldir file"));
+                continue;
+            }
+            if (!firstLine) {
+                reportError(lineNumber, -1,
+                            QString::fromUtf8("module directive must be the first directive in a qmldir file"));
+                continue;
+            }
+
+            _typeNamespace = sections[1];
 
         } else if (sections[0] == QLatin1String("plugin")) {
             if (sectionCount < 2) {
@@ -177,7 +175,7 @@ bool QmlDirParser::parse()
             }
             Component entry(sections[1], sections[2], -1, -1);
             entry.internal = true;
-            _components.append(entry);
+            _components.insertMulti(entry.typeName, entry);
         } else if (sections[0] == QLatin1String("typeinfo")) {
             if (sectionCount != 2) {
                 reportError(lineNumber, -1,
@@ -192,7 +190,7 @@ bool QmlDirParser::parse()
         } else if (sectionCount == 2) {
             // No version specified (should only be used for relative qmldir files)
             const Component entry(sections[0], sections[1], -1, -1);
-            _components.append(entry);
+            _components.insertMulti(entry.typeName, entry);
         } else if (sectionCount == 3) {
             const QString &version = sections[1];
             const int dotIndex = version.indexOf(QLatin1Char('.'));
@@ -203,15 +201,22 @@ bool QmlDirParser::parse()
                 reportError(lineNumber, -1, QLatin1String("unexpected '.'"));
             } else {
                 bool validVersionNumber = false;
-                const int majorVersion = version.left(dotIndex).toInt(&validVersionNumber);
+                const int majorVersion = parseInt(QStringRef(&version, 0, dotIndex), &validVersionNumber);
 
                 if (validVersionNumber) {
-                    const int minorVersion = version.mid(dotIndex + 1).toInt(&validVersionNumber);
+                    const int minorVersion = parseInt(QStringRef(&version, dotIndex+1, version.length()-dotIndex-1), &validVersionNumber);
 
                     if (validVersionNumber) {
-                        const Component entry(sections[0], sections[2], majorVersion, minorVersion);
+                        const QString &fileName = sections[2];
 
-                        _components.append(entry);
+                        if (fileName.endsWith(QLatin1String(".js"))) {
+                            // A 'js' extension indicates a namespaced script import
+                            const Script entry(sections[0], fileName, majorVersion, minorVersion);
+                            _scripts.append(entry);
+                        } else {
+                            const Component entry(sections[0], fileName, majorVersion, minorVersion);
+                            _components.insertMulti(entry.typeName, entry);
+                        }
                     }
                 }
             }
@@ -219,6 +224,8 @@ bool QmlDirParser::parse()
             reportError(lineNumber, -1, 
                         QString::fromUtf8("a component declaration requires two or three arguments, but %1 were provided").arg(sectionCount));
         }
+
+        firstLine = false;
     }
 
     return hasError();
@@ -227,7 +234,6 @@ bool QmlDirParser::parse()
 void QmlDirParser::reportError(int line, int column, const QString &description)
 {
     QmlError error;
-    error.setUrl(_url);
     error.setLine(line);
     error.setColumn(column);
     error.setDescription(description);
@@ -242,16 +248,34 @@ bool QmlDirParser::hasError() const
     return false;
 }
 
+void QmlDirParser::setError(const QmlError &e)
+{
+    _errors.clear();
+    _errors.append(e);
+}
+
 QList<QmlError> QmlDirParser::errors(const QString &uri) const
 {
+    QUrl url(uri);
     QList<QmlError> errors = _errors;
     for (int i = 0; i < errors.size(); ++i) {
         QmlError &e = errors[i];
         QString description = e.description();
         description.replace(QLatin1String("$$URI$$"), uri);
         e.setDescription(description);
+        e.setUrl(url);
     }
     return errors;
+}
+
+QString QmlDirParser::typeNamespace() const
+{
+    return _typeNamespace;
+}
+
+void QmlDirParser::setTypeNamespace(const QString &s)
+{
+    _typeNamespace = s;
 }
 
 QList<QmlDirParser::Plugin> QmlDirParser::plugins() const
@@ -259,9 +283,14 @@ QList<QmlDirParser::Plugin> QmlDirParser::plugins() const
     return _plugins;
 }
 
-QList<QmlDirParser::Component> QmlDirParser::components() const
+QHash<QString,QmlDirParser::Component> QmlDirParser::components() const
 {
     return _components;
+}
+
+QList<QmlDirParser::Script> QmlDirParser::scripts() const
+{
+    return _scripts;
 }
 
 #ifdef QT_CREATOR
@@ -270,5 +299,19 @@ QList<QmlDirParser::TypeInfo> QmlDirParser::typeInfos() const
     return _typeInfos;
 }
 #endif
+
+QDebug &operator<< (QDebug &debug, const QmlDirParser::Component &component)
+{
+    const QString output = QString::fromLatin1("{%1 %2.%3}").
+        arg(component.typeName).arg(component.majorVersion).arg(component.minorVersion);
+    return debug << qPrintable(output);
+}
+
+QDebug &operator<< (QDebug &debug, const QmlDirParser::Script &script)
+{
+    const QString output = QString::fromLatin1("{%1 %2.%3}").
+        arg(script.nameSpace).arg(script.majorVersion).arg(script.minorVersion);
+    return debug << qPrintable(output);
+}
 
 QT_END_NAMESPACE

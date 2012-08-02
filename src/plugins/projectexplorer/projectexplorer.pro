@@ -124,7 +124,9 @@ HEADERS += projectexplorer.h \
     devicesupport/deviceprocesslist.h \
     devicesupport/deviceprocessesdialog.h \
     devicesupport/devicesettingswidget.h \
-    devicesupport/devicesettingspage.h
+    devicesupport/devicesettingspage.h \
+    devicesupport/deviceusedportsgatherer.h \
+    devicesupport/deviceapplicationrunner.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -225,7 +227,9 @@ SOURCES += projectexplorer.cpp \
     devicesupport/deviceprocesslist.cpp \
     devicesupport/deviceprocessesdialog.cpp \
     devicesupport/devicesettingswidget.cpp \
-    devicesupport/devicesettingspage.cpp
+    devicesupport/devicesettingspage.cpp \
+    devicesupport/deviceusedportsgatherer.cpp \
+    devicesupport/deviceapplicationrunner.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

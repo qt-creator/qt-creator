@@ -52,13 +52,11 @@ public:
 
 private slots:
     void editDebianFile();
-    void editSpecFile();
     void versionInfoChanged();
     void initGui();
     void updateDebianFileList(const Utils::FileName &debianDir);
     void updateVersionInfo();
     void handleControlFileUpdate(const Utils::FileName &debianDir);
-    void handleSpecFileUpdate(const Utils::FileName &spec);
     void setPackageManagerIcon();
     void setPackageManagerName();
     void setPackageName();

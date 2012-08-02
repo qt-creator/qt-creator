@@ -27,14 +27,10 @@
 **
 **
 **************************************************************************/
+
 #include "remotelinuxcheckforfreediskspaceservice.h"
 
-#include "linuxdeviceconfiguration.h"
-
 #include <ssh/sshremoteprocessrunner.h>
-
-#include <QByteArray>
-#include <QString>
 
 namespace RemoteLinux {
 namespace Internal {

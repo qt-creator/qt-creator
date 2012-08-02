@@ -96,6 +96,8 @@ static struct {
     QString strfor;
     QString strdefineTest;
     QString strdefineReplace;
+    QString stroption;
+    QString strhost_build;
     QString strLINE;
     QString strFILE;
     QString strLITERAL_HASH;
@@ -114,6 +116,8 @@ void QMakeParser::initialize()
     statics.strfor = QLatin1String("for");
     statics.strdefineTest = QLatin1String("defineTest");
     statics.strdefineReplace = QLatin1String("defineReplace");
+    statics.stroption = QLatin1String("option");
+    statics.strhost_build = QLatin1String("host_build");
     statics.strLINE = QLatin1String("_LINE_");
     statics.strFILE = QLatin1String("_FILE_");
     statics.strLITERAL_HASH = QLatin1String("LITERAL_HASH");
@@ -165,6 +169,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, bool cache)
                 delete pro;
                 pro = 0;
             } else {
+                pro->itemsRef()->squeeze();
                 pro->ref();
             }
             ent->pro = pro;
@@ -189,10 +194,10 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, bool cache)
     return pro;
 }
 
-ProFile *QMakeParser::parsedProBlock(const QString &name, const QString &contents)
+ProFile *QMakeParser::parsedProBlock(const QString &name, const QString &contents, SubGrammar grammar)
 {
     ProFile *pro = new ProFile(name);
-    if (!read(pro, contents)) {
+    if (!read(pro, contents, grammar)) {
         delete pro;
         pro = 0;
     }
@@ -204,14 +209,14 @@ bool QMakeParser::read(ProFile *pro)
     QFile file(pro->fileName());
     if (!file.open(QIODevice::ReadOnly)) {
         if (m_handler && IoUtils::exists(pro->fileName()))
-            m_handler->parseError(QString(), 0, fL1S("Cannot read %1: %2")
-                                  .arg(pro->fileName(), file.errorString()));
+            m_handler->message(QMakeParserHandler::ParserIoError,
+                               fL1S("Cannot read %1: %2").arg(pro->fileName(), file.errorString()));
         return false;
     }
 
     QString content(QString::fromLocal8Bit(file.readAll()));
     file.close();
-    return read(pro, content);
+    return read(pro, content, FullGrammar);
 }
 
 void QMakeParser::putTok(ushort *&tokPtr, ushort tok)
@@ -251,7 +256,7 @@ void QMakeParser::finalizeHashStr(ushort *buf, uint len)
     buf[-2] = (ushort)(hash >> 16);
 }
 
-bool QMakeParser::read(ProFile *pro, const QString &in)
+bool QMakeParser::read(ProFile *pro, const QString &in, SubGrammar grammar)
 {
     m_proFile = pro;
     m_lineNo = 1;
@@ -309,6 +314,7 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
     int parens = 0; // Braces in value context
     int argc = 0;
     int wordCount = 0; // Number of words in currently accumulated expression
+    int lastIndent = 0; // Previous line's indentation, to detect accidental continuation abuse
     bool putSpace = false; // Only ever true inside quoted string
     bool lineMarked = true; // For in-expression markers
     ushort needSep = TokNewStr; // Complementary to putSpace: separator outside quotes
@@ -372,12 +378,14 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
         ushort c;
 
         // First, skip leading whitespace
-        for (;; ++cur) {
+        int indent;
+        for (indent = 0; ; ++cur, ++indent) {
             c = *cur;
             if (c == '\n') {
                 ++cur;
                 goto flushLine;
             } else if (!c) {
+                cur = 0;
                 goto flushLine;
             } else if (c != ' ' && c != '\t' && c != '\r') {
                 break;
@@ -556,12 +564,14 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                         needSep = 0;
                         goto nextChr;
                     }
-                } else if (c == '\\' && cur != end) {
+                } else if (c == '\\') {
                     static const char symbols[] = "[]{}()$\\'\"";
-                    ushort c2 = *cur;
-                    if (!(c2 & 0xff00) && strchr(symbols, c2)) {
+                    ushort c2;
+                    if (cur != end && !((c2 = *cur) & 0xff00) && strchr(symbols, c2)) {
                         c = c2;
                         cur++;
+                    } else {
+                        deprecationWarning(fL1S("Unescaped backslashes are deprecated"));
                     }
                 } else if (quote) {
                     if (c == quote) {
@@ -661,6 +671,10 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                         finalizeCond(tokPtr, buf, ptr, wordCount);
                         flushCond(tokPtr);
                         ++m_blockstack.top().braceLevel;
+                        if (grammar == TestGrammar) {
+                            parseError(fL1S("Opening scope not permitted in this context."));
+                            pro->setOk(false);
+                        }
                         goto nextItem;
                     } else if (c == '}') {
                         FLUSH_LHS_LITERAL();
@@ -699,7 +713,10 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                         FLUSH_LHS_LITERAL();
                         flushCond(tokPtr);
                         putLineMarker(tokPtr);
-                        if (wordCount != 1) {
+                        if (grammar == TestGrammar) {
+                            parseError(fL1S("Assignment not permitted in this context."));
+                            pro->setOk(false);
+                        } else if (wordCount != 1) {
                             parseError(fL1S("Assignment needs exactly one word on the left hand side."));
                             pro->setOk(false);
                             // Put empty variable name.
@@ -722,6 +739,9 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                             goto closeScope;
                         }
                         --parens;
+                    } else if (c == '=') {
+                        if (indent < lastIndent)
+                            languageWarning(fL1S("Possible accidental line continuation"));
                     }
                 }
                 if (putSpace) {
@@ -746,7 +766,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                     xprPtr = ptr;
                 }
             } else {
-                c = '\n';
                 cur = cptr;
               flushLine:
                 FLUSH_LITERAL();
@@ -771,15 +790,18 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
                     }
                 } else if (context == CtxValue) {
                     FLUSH_VALUE_LIST();
+                    if (parens)
+                        languageWarning(fL1S("Possible braces mismatch"));
                 } else {
                     finalizeCond(tokPtr, buf, ptr, wordCount);
                 }
-                if (!c)
+                if (!cur)
                     break;
                 ++m_lineNo;
                 goto freshLine;
             }
 
+        lastIndent = indent;
         lineMarked = false;
       ignore:
         cur = cptr;
@@ -793,8 +815,8 @@ bool QMakeParser::read(ProFile *pro, const QString &in)
     }
     while (m_blockstack.size())
         leaveScope(tokPtr);
-    xprBuff.clear();
-    *pro->itemsRef() = QString(tokBuff.constData(), tokPtr - (ushort *)tokBuff.constData());
+    tokBuff.resize(tokPtr - (ushort *)tokBuff.constData()); // Reserved capacity stays
+    *pro->itemsRef() = tokBuff;
     return true;
 
 #undef FLUSH_VALUE_LIST
@@ -1027,6 +1049,26 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 }
                 parseError(fL1S("%1(function) requires one literal argument.").arg(*defName));
                 return;
+            } else if (m_tmp == statics.stroption) {
+                if (m_state != StNew || m_blockstack.top().braceLevel || m_blockstack.size() > 1
+                        || m_invert || m_operator != NoOperator) {
+                    parseError(fL1S("option() must appear outside any control structures."));
+                    return;
+                }
+                if (*uce == (TokLiteral|TokNewStr)) {
+                    uint nlen = uce[1];
+                    if (uce[nlen + 2] == TokFuncTerminator) {
+                        m_tmp.setRawData((QChar *)uce + 2, nlen);
+                        if (m_tmp == statics.strhost_build) {
+                            m_proFile->setHostBuild(true);
+                        } else {
+                            parseError(fL1S("Unknown option() %1.").arg(m_tmp));
+                        }
+                        return;
+                    }
+                }
+                parseError(fL1S("option() requires one literal argument."));
+                return;
             }
         }
     }
@@ -1086,10 +1128,10 @@ bool QMakeParser::resolveVariable(ushort *xprPtr, int tlen, int needSep, ushort 
     return true;
 }
 
-void QMakeParser::parseError(const QString &msg) const
+void QMakeParser::message(int type, const QString &msg) const
 {
     if (!m_inError && m_handler)
-        m_handler->parseError(m_proFile->fileName(), m_lineNo, msg);
+        m_handler->message(type, msg, m_proFile->fileName(), m_lineNo);
 }
 
 QT_END_NAMESPACE

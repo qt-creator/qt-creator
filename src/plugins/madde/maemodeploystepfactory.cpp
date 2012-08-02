@@ -84,10 +84,6 @@ QList<Core::Id> MaemoDeployStepFactory::availableCreationIds(BuildStepList *pare
             << Core::Id(MaemoInstallDebianPackageToSysrootStep::Id)
             << Core::Id(MaemoUploadAndInstallPackageStep::stepId())
             << Core::Id(GenericDirectUploadStep::stepId());
-    } else if (platform == QtSupport::Constants::MEEGO_PLATFORM) {
-        ids << Core::Id(MaemoMakeInstallToSysrootStep::Id)
-            << Core::Id(MaemoInstallRpmPackageToSysrootStep::Id)
-            << Core::Id(MeegoUploadAndInstallPackageStep::stepId());
     }
 
     return ids;
@@ -101,12 +97,8 @@ QString MaemoDeployStepFactory::displayNameForId(const Core::Id id) const
         return MaemoCopyFilesViaMountStep::displayName();
     else if (id == MaemoUploadAndInstallPackageStep::stepId())
         return MaemoUploadAndInstallPackageStep::displayName();
-    else if (id == MeegoUploadAndInstallPackageStep::stepId())
-        return MeegoUploadAndInstallPackageStep::displayName();
     else if (id == MaemoInstallDebianPackageToSysrootStep::Id)
         return MaemoInstallDebianPackageToSysrootStep::displayName();
-    else if (id == MaemoInstallRpmPackageToSysrootStep::Id)
-        return MaemoInstallRpmPackageToSysrootStep::displayName();
     else if (id == MaemoCopyToSysrootStep::Id)
         return MaemoCopyToSysrootStep::displayName();
     else if (id == MaemoMakeInstallToSysrootStep::Id)
@@ -130,8 +122,6 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const Core::Id 
 
     if (id == MaemoInstallDebianPackageToSysrootStep::Id) {
         return new MaemoInstallDebianPackageToSysrootStep(parent);
-    } else if (id == MaemoInstallRpmPackageToSysrootStep::Id) {
-        return new MaemoInstallRpmPackageToSysrootStep(parent);
     } else if (id == MaemoCopyToSysrootStep::Id) {
         return new MaemoCopyToSysrootStep(parent);
     } else if (id == MaemoMakeInstallToSysrootStep::Id) {
@@ -144,9 +134,6 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const Core::Id 
     } else if (id == MaemoUploadAndInstallPackageStep::stepId()
         || (id == Core::Id(OldMaemoDeployStepId) && deviceType == Core::Id(HarmattanOsType))) {
         return new MaemoUploadAndInstallPackageStep(parent);
-    } else if (id == MeegoUploadAndInstallPackageStep::stepId()
-        || (id == Core::Id(OldMaemoDeployStepId) && deviceType == Core::Id(MeeGoOsType))) {
-        return new MeegoUploadAndInstallPackageStep(parent);
     } else if (id == GenericDirectUploadStep::stepId()) {
         return new GenericDirectUploadStep(parent, id);
     } else if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId()) {
@@ -190,15 +177,9 @@ BuildStep *MaemoDeployStepFactory::clone(BuildStepList *parent, BuildStep *produ
     } else if (product->id() == MaemoUploadAndInstallPackageStep::stepId()) {
         return new MaemoUploadAndInstallPackageStep(parent,
             qobject_cast<MaemoUploadAndInstallPackageStep*>(product));
-    } else if (product->id() == MeegoUploadAndInstallPackageStep::stepId()) {
-        return new MeegoUploadAndInstallPackageStep(parent,
-            qobject_cast<MeegoUploadAndInstallPackageStep*>(product));
     } else if (product->id() == MaemoInstallDebianPackageToSysrootStep::Id) {
         return new MaemoInstallDebianPackageToSysrootStep(parent,
             qobject_cast<MaemoInstallDebianPackageToSysrootStep *>(product));
-    } else if (product->id() == MaemoInstallRpmPackageToSysrootStep::Id) {
-        return new MaemoInstallRpmPackageToSysrootStep(parent,
-            qobject_cast<MaemoInstallRpmPackageToSysrootStep *>(product));
     } else if (product->id() == MaemoCopyToSysrootStep::Id) {
         return new MaemoCopyToSysrootStep(parent,
             qobject_cast<MaemoCopyToSysrootStep *>(product));

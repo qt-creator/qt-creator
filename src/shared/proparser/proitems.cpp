@@ -359,7 +359,8 @@ QStringList ProStringList::toQStringList() const
 ProFile::ProFile(const QString &fileName)
     : m_refCount(1),
       m_fileName(fileName),
-      m_ok(true)
+      m_ok(true),
+      m_hostBuild(false)
 {
     if (!fileName.startsWith(QLatin1Char('(')))
         m_directoryName = QFileInfo( // qmake sickness: canonicalize only the directory!

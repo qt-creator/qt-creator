@@ -34,7 +34,6 @@
 #include "maddedevice.h"
 #include "maemoglobal.h"
 #include "maemopackagecreationstep.h"
-#include "rpmmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/profileinformation.h>
@@ -53,7 +52,6 @@ using namespace ProjectExplorer;
 namespace Madde {
 namespace Internal {
 
-// TODO: Split up into dedicated widgets for Debian and RPM steps.
 MaemoPackageCreationWidget::MaemoPackageCreationWidget(AbstractMaemoPackageCreationStep *step)
     : ProjectExplorer::BuildStepConfigWidget(),
       m_step(step),
@@ -74,47 +72,24 @@ void MaemoPackageCreationWidget::initGui()
     m_ui->shortDescriptionLineEdit->setMaxLength(60);
     updateVersionInfo();
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(m_step->target()->profile());
-    if (MaddeDevice::isDebianBased(deviceType)) {
-        const Utils::FileName path = DebianManager::debianDirectory(m_step->target());
-        const QSize iconSize = MaddeDevice::packageManagerIconSize(deviceType);
-        m_ui->packageManagerIconButton->setFixedSize(iconSize);
-        m_ui->packageManagerIconButton->setToolTip(tr("Size should be %1x%2 pixels")
-            .arg(iconSize.width()).arg(iconSize.height()));
-        m_ui->editSpecFileButton->setVisible(false);
-        updateDebianFileList(path);
-        handleControlFileUpdate(path);
-        DebianManager *dm = DebianManager::instance();
-        connect(m_ui->packageManagerNameLineEdit, SIGNAL(editingFinished()),
+    const Utils::FileName path = DebianManager::debianDirectory(m_step->target());
+    const QSize iconSize = MaddeDevice::packageManagerIconSize(deviceType);
+    m_ui->packageManagerIconButton->setFixedSize(iconSize);
+    m_ui->packageManagerIconButton->setToolTip(tr("Size should be %1x%2 pixels")
+                                               .arg(iconSize.width()).arg(iconSize.height()));
+    m_ui->editSpecFileButton->setVisible(false);
+    updateDebianFileList(path);
+    handleControlFileUpdate(path);
+    DebianManager *dm = DebianManager::instance();
+    connect(m_ui->packageManagerNameLineEdit, SIGNAL(editingFinished()),
             SLOT(setPackageManagerName()));
-        connect(dm, SIGNAL(debianDirectoryChanged(Utils::FileName)),
+    connect(dm, SIGNAL(debianDirectoryChanged(Utils::FileName)),
             SLOT(updateDebianFileList(Utils::FileName)));
-        connect(dm, SIGNAL(changelogChanged(Utils::FileName)),
+    connect(dm, SIGNAL(changelogChanged(Utils::FileName)),
             SLOT(updateVersionInfo()));
-        connect(dm, SIGNAL(controlChanged(Utils::FileName)),
+    connect(dm, SIGNAL(controlChanged(Utils::FileName)),
             SLOT(handleControlFileUpdate(Utils::FileName)));
-    } else {
-        const Utils::FileName path = RpmManager::specFile(m_step->target());
-        m_ui->packageManagerNameLabel->hide();
-        m_ui->packageManagerNameLineEdit->hide();
-        m_ui->packageManagerIconLabel->hide();
-        m_ui->packageManagerIconButton->hide();
-        m_ui->editDebianFileLabel->hide();
-        m_ui->debianFilesComboBox->hide();
-        m_ui->editDebianFileButton->hide();
 
-        // This is fragile; be careful when editing the UI file.
-        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(4, QFormLayout::LabelRole));
-        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(4, QFormLayout::FieldRole));
-        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(5, QFormLayout::LabelRole));
-        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(5, QFormLayout::FieldRole));
-        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(6, QFormLayout::LabelRole));
-        m_ui->formLayout->removeItem(m_ui->formLayout->itemAt(6, QFormLayout::FieldRole));
-        handleSpecFileUpdate(path);
-        connect(RpmManager::instance(), SIGNAL(specFileChanged(Utils::FileName)),
-            SLOT(handleSpecFileUpdate(Utils::FileName)));
-        connect(m_ui->editSpecFileButton, SIGNAL(clicked()),
-            SLOT(editSpecFile()));
-    }
     connect(m_step, SIGNAL(packageFilePathChanged()), this,
         SIGNAL(updateSummary()));
     connect(m_ui->packageNameLineEdit, SIGNAL(editingFinished()),
@@ -169,17 +144,6 @@ void MaemoPackageCreationWidget::handleControlFileUpdate(const Utils::FileName &
     updateShortDescription();
     updatePackageManagerName();
     updatePackageManagerIcon();
-    updateSummary();
-}
-
-void MaemoPackageCreationWidget::handleSpecFileUpdate(const Utils::FileName &spec)
-{
-    if (spec != RpmManager::specFile(m_step->target()))
-        return;
-
-    updatePackageName();
-    updateShortDescription();
-    updateVersionInfo();
     updateSummary();
 }
 
@@ -295,11 +259,6 @@ void MaemoPackageCreationWidget::editDebianFile()
     Utils::FileName path = DebianManager::debianDirectory(m_step->target());
     path.appendPath(m_ui->debianFilesComboBox->currentText());
     editFile(path.toString());
-}
-
-void MaemoPackageCreationWidget::editSpecFile()
-{
-    editFile(RpmManager::specFile(m_step->target()).toString());
 }
 
 void MaemoPackageCreationWidget::editFile(const QString &filePath)

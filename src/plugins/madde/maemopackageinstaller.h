@@ -55,18 +55,6 @@ private:
 };
 
 
-class MaemoRpmPackageInstaller : public RemoteLinux::AbstractRemoteLinuxPackageInstaller
-{
-    Q_OBJECT
-public:
-    MaemoRpmPackageInstaller(QObject *parent);
-
-private:
-    QString installCommandLine(const QString &packageFilePath) const;
-    QString cancelInstallationCommandLine() const;
-};
-
-
 class HarmattanPackageInstaller: public RemoteLinux::AbstractRemoteLinuxPackageInstaller
 {
     Q_OBJECT

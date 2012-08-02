@@ -27,10 +27,10 @@
 **
 **
 **************************************************************************/
+
 #include "abstractuploadandinstallpackageservice.h"
 
 #include "deployablefile.h"
-#include "linuxdeviceconfiguration.h"
 #include "packageuploader.h"
 #include "remotelinuxpackageinstaller.h"
 

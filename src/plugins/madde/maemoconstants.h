@@ -37,7 +37,6 @@ namespace Internal {
 
 const char Maemo5OsType[] = "Maemo5OsType";
 const char HarmattanOsType[] = "HarmattanOsType";
-const char MeeGoOsType[] = "MeeGoOsType";
 
 #define PREFIX "Qt4ProjectManager.MaemoRunConfiguration"
 

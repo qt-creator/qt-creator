@@ -81,13 +81,10 @@ class MaemoGlobal
 {
     Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::MaemoGlobal)
 public:
-    enum PackagingSystem { Dpkg, Rpm, Tar };
-
     static bool hasMaemoDevice(const ProjectExplorer::Profile *p);
     static bool supportsMaemoDevice(const ProjectExplorer::Profile *p);
     static bool isValidMaemo5QtVersion(const QString &qmakePath);
     static bool isValidHarmattanQtVersion(const QString &qmakePath);
-    static bool isValidMeegoQtVersion(const QString &qmakePath);
 
     static QString homeDirOnDevice(const QString &uname);
     static QString devrootshPath();

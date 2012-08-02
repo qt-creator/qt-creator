@@ -142,7 +142,7 @@ bool AndroidPackageCreationStep::init()
 {
     const Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc) {
-        raiseError(tr("Cannot create android package: current build configuration is not Qt4."));
+        raiseError(tr("Cannot create Android package: current build configuration is not Qt 4."));
         return false;
     }
     Qt4Project *project = static_cast<Qt4Project *>(target()->project());
@@ -188,15 +188,24 @@ BuildStepConfigWidget *AndroidPackageCreationStep::createConfigWidget()
     return new AndroidPackageCreationWidget(this);
 }
 
+static inline QString msgCannotFindElfInformation()
+{
+    return AndroidPackageCreationStep::tr("Cannot find ELF information");
+}
+
+static inline QString msgCannotFindExecutable(const QString &appPath)
+{
+    return AndroidPackageCreationStep::tr("Cannot find '%1'.\n"
+        "Please make sure your application is "
+        "built successfully and is selected in Application tab ('Run option').").arg(appPath);
+}
+
 void AndroidPackageCreationStep::checkRequiredLibraries()
 {
     QProcess readelfProc;
     QString appPath = AndroidManager::targetApplicationPath(target());
     if (!QFile::exists(appPath)) {
-        raiseError(tr("Cannot find read elf information"),
-                   tr("Cannot find '%1'.\n"
-                      "Please make sure your application is "
-                      "built successfully and is selected in Application tab ('Run option') ").arg(appPath));
+        raiseError(msgCannotFindElfInformation(), msgCannotFindExecutable(appPath));
         return;
     }
     readelfProc.start(AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture()).toString(),
@@ -244,10 +253,7 @@ void AndroidPackageCreationStep::checkRequiredLibrariesForRun()
 {
     QProcess readelfProc;
     if (!m_appPath.toFileInfo().exists()) {
-        raiseError(tr("Can't find read elf information"),
-                   tr("Can't find '%1'.\n"
-                      "Please make sure your application is "
-                      "built successfully and is selected in Application tab ('Run option') ").arg(m_appPath.toUserOutput()));
+        raiseError(msgCannotFindElfInformation(), msgCannotFindExecutable(m_appPath.toUserOutput()));
         return;
     }
     readelfProc.start(m_readElf.toString(), QStringList() << QLatin1String("-d") << QLatin1String("-W") << m_appPath.toUserOutput());

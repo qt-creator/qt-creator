@@ -37,12 +37,11 @@
 #include "qnxdeviceconfigurationwizardpages.h"
 #include "qnxdeviceconfiguration.h"
 
+#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <remotelinux/genericlinuxdeviceconfigurationwizardpages.h>
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/linuxdevicetester.h>
 #include <utils/portlist.h>
-#include <remotelinux/remotelinuxusedportsgatherer.h>
-#include <ssh/sshconnection.h>
 
 using namespace ProjectExplorer;
 using namespace Qnx;
@@ -76,16 +75,16 @@ IDevice::Ptr QnxDeviceConfigurationWizard::device()
         sshParams.privateKeyFile = m_setupPage->privateKeyFilePath();
     }
 
-    QnxDeviceConfiguration::Ptr devConf = QnxDeviceConfiguration::create(m_setupPage->configurationName(),
+    QnxDeviceConfiguration::Ptr device = QnxDeviceConfiguration::create(m_setupPage->configurationName(),
         Core::Id(Constants::QNX_QNX_OS_TYPE), IDevice::Hardware);
-    devConf->setSshParameters(sshParams);
-    devConf->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
+    device->setSshParameters(sshParams);
+    device->setFreePorts(Utils::PortList::fromString(QLatin1String("10000-10100")));
 
     RemoteLinux::GenericLinuxDeviceTester *devTester = new RemoteLinux::GenericLinuxDeviceTester(this);
     devTester->usedPortsGatherer()->setCommand(QLatin1String(Constants::QNX_PORT_GATHERER_COMMAND));
 
-    RemoteLinux::LinuxDeviceTestDialog dlg(devConf, devTester, this);
+    RemoteLinux::LinuxDeviceTestDialog dlg(device, devTester, this);
     dlg.exec();
 
-    return devConf;
+    return device;
 }

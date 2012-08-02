@@ -34,16 +34,20 @@
 #ifndef QNX_INTERNAL_QNXDEBUGSUPPORT_H
 #define QNX_INTERNAL_QNXDEBUGSUPPORT_H
 
-#include <QObject>
+#include <projectexplorer/devicesupport/idevice.h>
 
-namespace Debugger {
-class DebuggerEngine;
+#include <QObject>
+#include <QString>
+
+namespace Debugger { class DebuggerEngine; }
+namespace ProjectExplorer {
+class DeviceApplicationRunner;
+class DeviceUsedPortsGatherer;
 }
 
 namespace Qnx {
 namespace Internal {
 
-class QnxApplicationRunner;
 class QnxRunConfiguration;
 
 class QnxDebugSupport : public QObject
@@ -59,25 +63,30 @@ public slots:
 private slots:
     void handleAdapterSetupRequested();
 
-    void startExecution();
     void handleRemoteProcessStarted();
-    void handleRemoteProcessFinished(qint64 exitCode);
+    void handleRemoteProcessFinished(bool success);
     void handleProgressReport(const QString &progressOutput);
     void handleRemoteOutput(const QByteArray &output);
-    void handleSshError(const QString &error);
+    void handleError(const QString &error);
+    void handlePortListReady();
 
 private:
+    void startExecution();
     void setFinished();
 
     enum State {
         Inactive,
-        StartingRunner,
+        GatheringPorts,
         StartingRemoteProcess,
         Debugging
     };
 
-    QnxApplicationRunner *m_runner;
-
+    const QString m_executable;
+    const QString m_commandPrefix;
+    const QString m_arguments;
+    ProjectExplorer::IDevice::ConstPtr m_device;
+    ProjectExplorer::DeviceApplicationRunner *m_runner;
+    ProjectExplorer::DeviceUsedPortsGatherer * m_portsGatherer;
     Debugger::DebuggerEngine *m_engine;
     int m_port;
 

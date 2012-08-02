@@ -114,6 +114,6 @@ def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings, i
 def setRunInTerminal(targetCount, currentTarget, runInTerminal=True):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.RUN)
-    ensureChecked("{container=':Qt Creator.scrollArea_QScrollArea' text='Run in terminal'\
+    ensureChecked("{window=':Qt Creator_Core::Internal::MainWindow' text='Run in terminal'\
                     type='QCheckBox' unnamed='1' visible='1'}", runInTerminal)
     switchViewTo(ViewConstants.EDIT)

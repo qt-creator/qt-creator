@@ -148,6 +148,26 @@ void QMakeGlobals::setCommandLineArguments(const QStringList &args)
     postcmds = _postcmds.join(fL1S("\n"));
 }
 
+void QMakeGlobals::setDirectories(const QString &input_dir, const QString &output_dir)
+{
+    if (input_dir != output_dir && !output_dir.isEmpty()) {
+        QString srcpath = input_dir;
+        if (!srcpath.endsWith(QLatin1Char('/')))
+            srcpath += QLatin1Char('/');
+        QString dstpath = output_dir;
+        if (!dstpath.endsWith(QLatin1Char('/')))
+            dstpath += QLatin1Char('/');
+        int srcLen = srcpath.length();
+        int dstLen = dstpath.length();
+        int lastSl = -1;
+        while (++lastSl, srcpath.at(--srcLen) == dstpath.at(--dstLen))
+            if (srcpath.at(srcLen) == QLatin1Char('/'))
+                lastSl = 0;
+        source_root = srcpath.left(srcLen + lastSl);
+        build_root = dstpath.left(dstLen + lastSl);
+    }
+}
+
 QString QMakeGlobals::getEnv(const QString &var) const
 {
 #ifndef QT_BOOTSTRAPPED

@@ -29,21 +29,20 @@
 **************************************************************************/
 #include "remotelinuxutils.h"
 
-#include "linuxdeviceconfiguration.h"
-
-#include <extensionsystem/pluginmanager.h>
+#include "linuxdevice.h"
 
 #include <QCoreApplication>
-#include <QList>
-#include <QString>
-
-using namespace ExtensionSystem;
 
 namespace RemoteLinux {
 
-QString RemoteLinuxUtils::deviceConfigurationName(const LinuxDeviceConfiguration::ConstPtr &devConf)
+QString RemoteLinuxUtils::killApplicationCommandLine(const QString &applicationFilePath)
 {
-    return devConf ? devConf->displayName() : QCoreApplication::translate("RemoteLinux", "(No device)");
+    return QString::fromLatin1("cd /proc; for pid in `ls -d [0123456789]*`; "
+        "do "
+            "if [ \"`readlink /proc/$pid/exe`\" = \"%1\" ]; then "
+            "    kill $pid; sleep 1; kill -9 $pid; "
+            "fi; "
+        "done").arg(applicationFilePath);
 }
 
 } // namespace RemoteLinux

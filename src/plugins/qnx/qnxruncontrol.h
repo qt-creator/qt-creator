@@ -39,18 +39,11 @@
 namespace Qnx {
 namespace Internal {
 
-class QnxApplicationRunner;
-
-class QnxRunControl : public RemoteLinux::AbstractRemoteLinuxRunControl
+class QnxRunControl : public RemoteLinux::RemoteLinuxRunControl
 {
     Q_OBJECT
 public:
     explicit QnxRunControl(ProjectExplorer::RunConfiguration *runConfig);
-
-    RemoteLinux::AbstractRemoteLinuxApplicationRunner *runner() const;
-
-private:
-    QnxApplicationRunner * const m_runner;
 };
 
 } // namespace Internal

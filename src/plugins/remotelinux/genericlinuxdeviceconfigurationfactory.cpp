@@ -30,7 +30,7 @@
 #include "genericlinuxdeviceconfigurationfactory.h"
 
 #include "genericlinuxdeviceconfigurationwizard.h"
-#include "linuxdeviceconfiguration.h"
+#include "linuxdevice.h"
 #include "remotelinux_constants.h"
 
 #include <utils/qtcassert.h>
@@ -72,7 +72,7 @@ bool GenericLinuxDeviceConfigurationFactory::canRestore(const QVariantMap &map) 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::restore(const QVariantMap &map) const
 {
     QTC_ASSERT(canRestore(map), return IDevice::Ptr());
-    const IDevice::Ptr device = LinuxDeviceConfiguration::create();
+    const IDevice::Ptr device = LinuxDevice::create();
     device->fromMap(map);
     return device;
 }

@@ -32,7 +32,7 @@
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 
-#include <remotelinux/linuxdeviceconfiguration.h>
+#include <remotelinux/linuxdevice.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshremoteprocessrunner.h>
 
@@ -110,14 +110,8 @@ void MaddeDeviceTester::handleGenericTestFinished(TestResult result)
     connect(m_processRunner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(m_processRunner, SIGNAL(processClosed(int)), SLOT(handleProcessFinished(int)));
 
-    QString qtInfoCmd;
-    if (m_deviceConfiguration->type() == Core::Id(MeeGoOsType)) {
-        qtInfoCmd = QLatin1String("rpm -qa 'libqt*' --queryformat '%{NAME} %{VERSION}\\n'");
-    } else {
-        qtInfoCmd = QLatin1String("dpkg-query -W -f "
+    const QString qtInfoCmd = QLatin1String("dpkg-query -W -f "
             "'${Package} ${Version} ${Status}\n' 'libqt*' |grep ' installed$'");
-    }
-
     emit progressMessage(tr("Checking for Qt libraries..."));
     m_state = QtTest;
     m_processRunner->run(qtInfoCmd.toUtf8(), m_deviceConfiguration->sshParameters());
@@ -234,11 +228,8 @@ QString MaddeDeviceTester::processedQtLibsList()
 {
     QString unfilteredLibs = QString::fromUtf8(m_processRunner->readAllStandardOutput());
     QString filteredLibs;
-    QString patternString;
-    if (m_deviceConfiguration->type() == Core::Id(MeeGoOsType))
-        patternString = QLatin1String("(libqt\\S+) ((\\d+)\\.(\\d+)\\.(\\d+))");
-    else
-        patternString = QLatin1String("(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+");
+    const QString patternString
+            = QLatin1String("(\\S+) (\\S*(\\d+)\\.(\\d+)\\.(\\d+)\\S*) \\S+ \\S+ \\S+");
     QRegExp packagePattern(patternString);
     int index = packagePattern.indexIn(unfilteredLibs);
     if (index == -1)

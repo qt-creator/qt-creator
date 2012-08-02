@@ -62,8 +62,8 @@ DebuggerStartParameters createStartParameters(const QnxRunConfiguration *runConf
     Target *target = runConfig->target();
     Profile *profile = target->profile();
 
-    const IDevice::ConstPtr devConf = DeviceProfileInformation::device(profile);
-    if (devConf.isNull())
+    const IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    if (device.isNull())
         return params;
 
     params.startMode = AttachToRemoteServer;
@@ -75,7 +75,7 @@ DebuggerStartParameters createStartParameters(const QnxRunConfiguration *runConf
 
     params.symbolFileName = runConfig->localExecutableFilePath();
     params.remoteExecutable = runConfig->remoteExecutableFilePath();
-    params.remoteChannel = devConf->sshParameters().host + QLatin1String(":-1");
+    params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
     params.displayName = runConfig->displayName();
     params.remoteSetupNeeded = true;
     params.closeMode = DetachAtClose;
