@@ -118,6 +118,7 @@ Item {
                 //y: parent.margin
                 id: innerColumn
                 spacing: 12
+                width: parent.width - 16
 
                 Repeater {
                     model: projectsPath
@@ -172,8 +173,9 @@ Item {
                     }
                 }
 
-                Row {
+                Flow {
                     x: 6
+                    width: parent.width -12
                     spacing: 4
                     visible: !defaultSession
 
@@ -194,7 +196,7 @@ Item {
                         }
                     }
 
-                    Text { width: 16; text: " "; }
+                    Text { width: 16; text: " "; visible: y === 0}
                     Image { source: "images/icons/delete.png" }
                     LinkedText {
                         text: qsTr("Delete")
