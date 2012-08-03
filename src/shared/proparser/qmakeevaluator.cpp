@@ -635,6 +635,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
                     continue;
             }
             Q_ASSERT_X(false, "visitProBlock", "unexpected item type");
+            continue;
         }
         if (ret != ReturnTrue && ret != ReturnFalse)
             return ret;
