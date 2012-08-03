@@ -152,7 +152,7 @@ QList<Core::Id> CMakeBuildConfigurationFactory::availableCreationIds(const Proje
 
 QString CMakeBuildConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(CMAKE_BC_ID))
+    if (id == CMAKE_BC_ID)
         return tr("Build");
     return QString();
 }
@@ -161,7 +161,7 @@ bool CMakeBuildConfigurationFactory::canCreate(const ProjectExplorer::Target *pa
 {
     if (!canHandle(parent))
         return false;
-    if (id == Core::Id(CMAKE_BC_ID))
+    if (id == CMAKE_BC_ID)
         return true;
     return false;
 }

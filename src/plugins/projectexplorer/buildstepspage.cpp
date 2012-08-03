@@ -514,9 +514,9 @@ BuildStepsPage::~BuildStepsPage()
 
 QString BuildStepsPage::displayName() const
 {
-    if (m_id == Core::Id(Constants::BUILDSTEPS_BUILD))
+    if (m_id == Constants::BUILDSTEPS_BUILD)
         return tr("Build Steps");
-    if (m_id == Core::Id(Constants::BUILDSTEPS_CLEAN))
+    if (m_id == Constants::BUILDSTEPS_CLEAN)
         return tr("Clean Steps");
     return QString();
 }

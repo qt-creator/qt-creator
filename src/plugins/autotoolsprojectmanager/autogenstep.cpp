@@ -74,7 +74,7 @@ QList<Core::Id> AutogenStepFactory::availableCreationIds(BuildStepList *parent) 
 
 QString AutogenStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(AUTOGEN_STEP_ID))
+    if (id == AUTOGEN_STEP_ID)
         return tr("Autogen", "Display name for AutotoolsProjectManager::AutogenStep id.");
     return QString();
 }
@@ -121,9 +121,9 @@ BuildStep *AutogenStepFactory::restore(BuildStepList *parent, const QVariantMap 
 
 bool AutogenStepFactory::canHandle(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() != Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
-        return false;
-    return parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    if (parent->target()->project()->id() == Constants::AUTOTOOLS_PROJECT_ID)
+        return parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD;
+    return false;
 }
 
 ////////////////////////

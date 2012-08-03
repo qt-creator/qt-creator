@@ -93,7 +93,7 @@ bool MaemoPackageCreationFactory::canRestore(ProjectExplorer::BuildStepList *par
                                              const QVariantMap &map) const
 {
     const Core::Id id = ProjectExplorer::idFromMap(map);
-    return canCreate(parent, id) || id == Core::Id(OldCreatePackageId);
+    return canCreate(parent, id) || id == OldCreatePackageId;
 }
 
 BuildStep *MaemoPackageCreationFactory::restore(ProjectExplorer::BuildStepList *parent,

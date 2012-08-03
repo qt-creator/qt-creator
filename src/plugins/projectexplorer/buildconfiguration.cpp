@@ -173,9 +173,9 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
             delete list;
             return false;
         }
-        if (list->id() == Core::Id(Constants::BUILDSTEPS_BUILD))
+        if (list->id() == Constants::BUILDSTEPS_BUILD)
             list->setDefaultDisplayName(tr("Build"));
-        else if (list->id() == Core::Id(Constants::BUILDSTEPS_CLEAN))
+        else if (list->id() == Constants::BUILDSTEPS_CLEAN)
             list->setDefaultDisplayName(tr("Clean"));
         m_stepLists.append(list);
     }

@@ -238,7 +238,7 @@ QString AbstractMaemoPackageCreationStep::replaceDots(const QString &name) const
 {
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
     // Idiotic OVI store requirement for N900 (but not allowed for N9 ...).
-    if (deviceType == Core::Id(Maemo5OsType)) {
+    if (deviceType == Maemo5OsType) {
         QString adaptedName = name;
         return adaptedName.replace(QLatin1Char('.'), QLatin1Char('_'));
     }

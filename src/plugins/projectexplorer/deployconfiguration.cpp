@@ -130,7 +130,7 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
     }
 
     // We assume that we hold the deploy list
-    Q_ASSERT(m_stepList && m_stepList->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY));
+    Q_ASSERT(m_stepList && m_stepList->id() == ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 
     return true;
 }
@@ -169,7 +169,7 @@ QList<Core::Id> DeployConfigurationFactory::availableCreationIds(Target *parent)
 
 QString DeployConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID))
+    if (id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID)
         //: Display name of the default deploy configuration
         return tr("Deploy Configuration");
     return QString();
@@ -179,7 +179,7 @@ bool DeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) co
 {
     if (!canHandle(parent))
         return false;
-    return id == Core::Id(Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
+    return id == Constants::DEFAULT_DEPLOYCONFIGURATION_ID;
 }
 
 DeployConfiguration *DeployConfigurationFactory::create(Target *parent, const Core::Id id)
@@ -244,7 +244,7 @@ bool DeployConfigurationFactory::canHandle(Target *parent) const
 {
     if (!parent->project()->supportsProfile(parent->profile()))
         return false;
-    return DeviceTypeProfileInformation::deviceTypeId(parent->profile()) == Core::Id(Constants::DESKTOP_DEVICE_TYPE);
+    return DeviceTypeProfileInformation::deviceTypeId(parent->profile()) == Constants::DESKTOP_DEVICE_TYPE;
 }
 
 ///

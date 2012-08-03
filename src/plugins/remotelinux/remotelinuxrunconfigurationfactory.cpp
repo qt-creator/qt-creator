@@ -144,7 +144,7 @@ bool RemoteLinuxRunConfigurationFactory::canHandle(Target *t) const
         return false;
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(t->profile());
-    return deviceType == Core::Id(RemoteLinux::Constants::GenericLinuxOsType);
+    return deviceType == RemoteLinux::Constants::GenericLinuxOsType;
 }
 
 QList<RunConfiguration *> RemoteLinuxRunConfigurationFactory::runConfigurationsForNode(Target *t, ProjectExplorer::Node *n)

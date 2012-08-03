@@ -42,7 +42,7 @@ using namespace CppTools;
 // ---------------------------
 bool CppCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
-    return editorId == Core::Id(CppEditor::Constants::CPPEDITOR_ID);
+    return editorId == CppEditor::Constants::CPPEDITOR_ID;
 }
 
 int CppCompletionAssistProvider::activationCharSequenceLength() const

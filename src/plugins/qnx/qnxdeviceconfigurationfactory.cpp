@@ -77,7 +77,7 @@ ProjectExplorer::IDevice::Ptr QnxDeviceConfigurationFactory::create(Core::Id id)
 
 bool QnxDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
 {
-    return ProjectExplorer::IDevice::typeFromMap(map) == Core::Id(Constants::QNX_QNX_OS_TYPE);
+    return ProjectExplorer::IDevice::typeFromMap(map) == Constants::QNX_QNX_OS_TYPE;
 }
 
 ProjectExplorer::IDevice::Ptr QnxDeviceConfigurationFactory::restore(const QVariantMap &map) const

@@ -109,7 +109,7 @@ ProFileCompletionAssistProvider::~ProFileCompletionAssistProvider()
 
 bool ProFileCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
-    return editorId == Core::Id(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
+    return editorId == Qt4ProjectManager::Constants::PROFILE_EDITOR_ID;
 }
 
 bool ProFileCompletionAssistProvider::isAsynchronous() const

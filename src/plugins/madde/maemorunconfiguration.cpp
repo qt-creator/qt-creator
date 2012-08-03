@@ -77,7 +77,7 @@ void MaemoRunConfiguration::init()
         SLOT(handleRemoteMountsChanged()));
     connect(m_remoteMounts, SIGNAL(modelReset()), SLOT(handleRemoteMountsChanged()));
 
-    if (DeviceTypeProfileInformation::deviceTypeId(target()->profile()) != Core::Id(HarmattanOsType))
+    if (DeviceTypeProfileInformation::deviceTypeId(target()->profile()) != HarmattanOsType)
         debuggerAspect()->suppressQmlDebuggingOptions();
 }
 

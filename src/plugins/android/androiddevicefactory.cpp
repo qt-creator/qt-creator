@@ -44,7 +44,7 @@ AndroidDeviceFactory::AndroidDeviceFactory()
 
 QString AndroidDeviceFactory::displayNameForId(Core::Id type) const
 {
-    if (type == Core::Id(Constants::ANDROID_DEVICE_TYPE))
+    if (type == Constants::ANDROID_DEVICE_TYPE)
         return tr("Android Device");
     return QString();
 }
@@ -67,7 +67,7 @@ ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::create(Core::Id id) const
 
 bool AndroidDeviceFactory::canRestore(const QVariantMap &map) const
 {
-    return ProjectExplorer::IDevice::typeFromMap(map) == Core::Id(Constants::ANDROID_DEVICE_TYPE);
+    return ProjectExplorer::IDevice::typeFromMap(map) == Constants::ANDROID_DEVICE_TYPE;
 }
 
 ProjectExplorer::IDevice::Ptr AndroidDeviceFactory::restore(const QVariantMap &map) const

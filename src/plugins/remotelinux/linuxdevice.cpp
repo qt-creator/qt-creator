@@ -203,9 +203,9 @@ QString LinuxDevice::displayNameForActionId(Core::Id actionId) const
 {
     QTC_ASSERT(actionIds().contains(actionId), return QString());
 
-    if (actionId == Core::Id(Constants::GenericTestDeviceActionId))
+    if (actionId == Constants::GenericTestDeviceActionId)
         return tr("Test");
-    if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
+    if (actionId == Constants::GenericDeployKeyToDeviceActionId)
         return tr("Deploy Public Key...");
     return QString(); // Can't happen.
 }
@@ -216,9 +216,9 @@ void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent) const
 
     QDialog *d = 0;
     const LinuxDevice::ConstPtr device = sharedFromThis().staticCast<const LinuxDevice>();
-    if (actionId == Core::Id(Constants::GenericTestDeviceActionId))
+    if (actionId == Constants::GenericTestDeviceActionId)
         d = new LinuxDeviceTestDialog(device, new GenericLinuxDeviceTester, parent);
-    else if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
+    else if (actionId == Constants::GenericDeployKeyToDeviceActionId)
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
     if (d)
         d->exec();

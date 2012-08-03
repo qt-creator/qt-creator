@@ -70,24 +70,23 @@ MakeStepFactory::MakeStepFactory(QObject *parent) :
 
 QList<Core::Id> MakeStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == Core::Id(AUTOTOOLS_PROJECT_ID))
+    if (parent->target()->project()->id() == AUTOTOOLS_PROJECT_ID)
         return QList<Core::Id>() << Core::Id(MAKE_STEP_ID);
     return QList<Core::Id>();
 }
 
 QString MakeStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(MAKE_STEP_ID))
+    if (id == MAKE_STEP_ID)
         return tr("Make", "Display name for AutotoolsProjectManager::MakeStep id.");
     return QString();
 }
 
 bool MakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() != Core::Id(AUTOTOOLS_PROJECT_ID))
-        return false;
-
-    return Core::Id(MAKE_STEP_ID) == id;
+    if (parent->target()->project()->id() == AUTOTOOLS_PROJECT_ID)
+        return id == MAKE_STEP_ID;
+    return false;
 }
 
 BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)

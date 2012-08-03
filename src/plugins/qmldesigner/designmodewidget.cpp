@@ -666,19 +666,18 @@ void DesignModeWidget::setup()
     QWidget *projectsExplorer = 0;
     QWidget *fileSystemExplorer = 0;
 
-
     foreach (Core::INavigationWidgetFactory *factory, factories) {
         Core::NavigationView navigationView;
         navigationView.widget = 0;
-        if (factory->id() == Core::Id("Projects")) {
+        if (factory->id() == "Projects") {
             navigationView = factory->createWidget();
             projectsExplorer = navigationView.widget;
             projectsExplorer->setWindowTitle(tr("Projects"));
-        } else if (factory->id() == Core::Id("File System")) {
+        } else if (factory->id() == "File System") {
             navigationView = factory->createWidget();
             fileSystemExplorer = navigationView.widget;
             fileSystemExplorer->setWindowTitle(tr("File System"));
-        } else if (factory->id() == Core::Id("Open Documents")) {
+        } else if (factory->id() == "Open Documents") {
             navigationView = factory->createWidget();
             openDocumentsWidget = navigationView.widget;
             openDocumentsWidget->setWindowTitle(tr("Open Documents"));

@@ -76,7 +76,7 @@ ProjectExplorer::IDevice::Ptr BlackBerryDeviceConfigurationFactory::create(Core:
 
 bool BlackBerryDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
 {
-    return ProjectExplorer::IDevice::typeFromMap(map) == Core::Id(Constants::QNX_BB_OS_TYPE);
+    return ProjectExplorer::IDevice::typeFromMap(map) == Constants::QNX_BB_OS_TYPE;
 }
 
 ProjectExplorer::IDevice::Ptr BlackBerryDeviceConfigurationFactory::restore(const QVariantMap &map) const

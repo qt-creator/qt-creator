@@ -74,14 +74,14 @@ QList<Core::Id> ConfigureStepFactory::availableCreationIds(BuildStepList *parent
 
 QString ConfigureStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(CONFIGURE_STEP_ID))
+    if (id == CONFIGURE_STEP_ID)
         return tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id.");
     return QString();
 }
 
 bool ConfigureStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    return canHandle(parent) && Core::Id(CONFIGURE_STEP_ID) == id;
+    return canHandle(parent) && id == CONFIGURE_STEP_ID;
 }
 
 BuildStep *ConfigureStepFactory::create(BuildStepList *parent, const Core::Id id)
@@ -121,9 +121,9 @@ BuildStep *ConfigureStepFactory::restore(BuildStepList *parent, const QVariantMa
 
 bool ConfigureStepFactory::canHandle(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() != Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
-        return false;
-    return parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    if (parent->target()->project()->id() == Constants::AUTOTOOLS_PROJECT_ID)
+        return parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD;
+    return false;
 }
 
 ////////////////////////

@@ -379,7 +379,7 @@ bool S60DeviceRunConfigurationFactory::canRestore(Target *parent, const QVariant
         return false;
 
     const Core::Id id = ProjectExplorer::idFromMap(map);
-    return id == Core::Id(S60_DEVICE_RC_ID);
+    return id == S60_DEVICE_RC_ID;
 }
 
 RunConfiguration *S60DeviceRunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
@@ -398,7 +398,7 @@ bool S60DeviceRunConfigurationFactory::canClone(Target *parent, RunConfiguration
 {
     if (!canHandle(parent))
         return false;
-    return source->id() == Core::Id(S60_DEVICE_RC_ID);
+    return source->id() == S60_DEVICE_RC_ID;
 }
 
 RunConfiguration *S60DeviceRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
