@@ -185,6 +185,7 @@ QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
     m_loopLevel = 0;
     m_listCount = 0;
     m_valuemapStack.push(ProValueMap());
+    m_valuemapInited = false;
 }
 
 QMakeEvaluator::~QMakeEvaluator()
@@ -196,6 +197,7 @@ void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
     Q_ASSERT_X(&other, "QMakeEvaluator::visitProFile", "Project not prepared");
     m_functionDefs = other.m_functionDefs;
     m_valuemapStack = other.m_valuemapStack;
+    m_valuemapInited = true;
     m_qmakespec = other.m_qmakespec;
     m_qmakespecFull = other.m_qmakespecFull;
     m_qmakespecName = other.m_qmakespecName;
@@ -947,6 +949,8 @@ void QMakeEvaluator::loadDefaults()
         vars[ProString("QMAKE_HOST.arch")] << ProString(name.machine, NoHash);
     }
 #endif
+
+    m_valuemapInited = true;
 }
 
 bool QMakeEvaluator::prepareProject(const QString &inDir)
@@ -1201,7 +1205,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
         initFrom(*baseEnv->evaluator);
     } else {
-        if (m_valuemapStack.at(0).isEmpty())
+        if (!m_valuemapInited)
             loadDefaults();
     }
 
