@@ -129,7 +129,12 @@ QByteArray Id::name() const
 
 QString Id::toString() const
 {
-    return QString::fromUtf8(stringFromId[m_id]);
+    return QString::fromUtf8(stringFromId.at(m_id));
+}
+
+bool Id::operator==(const char *name) const
+{
+    return strcmp(stringFromId.at(m_id).constData(), name) == 0;
 }
 
 // For debugging purposes
