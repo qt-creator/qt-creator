@@ -26,43 +26,40 @@
 **
 **
 **************************************************************************/
+#ifndef LOCALUNIXPROCESSLIST_H
+#define LOCALUNIXPROCESSLIST_H
 
-#ifndef DEVICEPROCESSESDIALOG_H
-#define DEVICEPROCESSESDIALOG_H
+#include "deviceprocesslist.h"
 
-#include "../projectexplorer_export.h"
+#include <QString>
 
-#include <QDialog>
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-
-class DeviceProcessList;
-
 namespace Internal {
-class DeviceProcessesDialogPrivate;
 
-class DeviceProcessesDialog : public QDialog
+class LocalUnixProcessList : public DeviceProcessList
 {
-    Q_OBJECT
-
+Q_OBJECT
 public:
-    // Note: The dialog takes ownership of processList.
-    explicit DeviceProcessesDialog(DeviceProcessList *processList, QWidget *parent = 0);
-    ~DeviceProcessesDialog();
+    LocalUnixProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
 
 private slots:
-    void updateProcessList();
-    void killProcess();
-    void handleRemoteError(const QString &errorMsg);
-    void handleProcessListUpdated();
-    void handleProcessKilled();
-    void handleSelectionChanged();
+    void handlePsError();
+    void handlePsFinished();
+    void reportDelayedKillStatus();
 
 private:
-    Internal::DeviceProcessesDialogPrivate * const d;
+    void doUpdate();
+    void doKillProcess(const DeviceProcess &process);
+
+    QProcess * const m_psProcess;
+    QString m_error;
 };
 
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // REMOTELINUXPROCESSESDIALOG_H
+#endif // LOCALUNIXPROCESSLIST_H

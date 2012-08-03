@@ -50,9 +50,6 @@ public:
     QSortFilterProxyModel proxyModel;
 };
 
-} // namespace Internal
-
-using namespace Internal;
 
 DeviceProcessesDialog::DeviceProcessesDialog(DeviceProcessList *processList, QWidget *parent)
     : QDialog(parent), d(new DeviceProcessesDialogPrivate(processList))
@@ -133,4 +130,5 @@ void DeviceProcessesDialog::handleSelectionChanged()
     d->ui.killProcessButton->setEnabled(d->ui.treeView->selectionModel()->hasSelection());
 }
 
+} // namespace Internal
 } // namespace RemoteLinux

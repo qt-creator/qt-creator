@@ -331,6 +331,11 @@ QtcPlugin {
         ]
     }
 
+    Group {
+        condition: qbs.targetOS === "linux" || qbs.targetOS === "mac"
+        files: [ "devicesupport/localunixprocesslist.h", "devicesupport/localunixprocesslist.cpp" ]
+    }
+
     ProductModule {
         Depends { name: "cpp" }
         Depends { name: "Qt"; submodules: ["network"] }

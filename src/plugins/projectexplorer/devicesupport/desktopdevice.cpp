@@ -32,9 +32,18 @@
 #include "projectexplorerconstants.h"
 #include "deviceprocesslist.h"
 
+#ifdef Q_OS_UNIX
+#include "localunixprocesslist.h"
+#endif
+
 #include <QCoreApplication>
 
 namespace ProjectExplorer {
+namespace Internal {
+
+} // namespace Internal
+
+using namespace Internal;
 
 DesktopDevice::DesktopDevice() : IDevice(Core::Id(Constants::DESKTOP_DEVICE_TYPE),
                                          IDevice::AutoDetected,
@@ -78,6 +87,24 @@ void DesktopDevice::executeAction(Core::Id actionId, QWidget *parent) const
 {
     Q_UNUSED(actionId);
     Q_UNUSED(parent);
+}
+
+bool DesktopDevice::canCreateProcessModel() const
+{
+#ifdef Q_OS_UNIX
+    return true;
+#else
+return false;
+#endif
+}
+
+DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
+{
+#ifdef Q_OS_UNIX
+        return new Internal::LocalUnixProcessList(sharedFromThis(), parent);
+#else
+        return 0;
+#endif
 }
 
 IDevice::Ptr DesktopDevice::clone() const

@@ -272,6 +272,11 @@ equals(TEST, 1) {
         outputparser_test.h
 }
 
+unix {
+    SOURCES += devicesupport/localunixprocesslist.cpp
+    HEADERS += devicesupport/localunixprocesslist.h
+}
+
 macx:LIBS += -framework Carbon
 
 RESOURCES += projectexplorer.qrc
