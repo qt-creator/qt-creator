@@ -1121,7 +1121,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             if (!evaluateFileInto(fn, QMakeHandler::EvalAuxFile, &vars, LoadProOnly))
                 return ReturnFalse;
             if (args.count() == 2)
-                return returnBool(vars.contains(args.at(1)));
+                return returnBool(vars.contains(map(args.at(1))));
             QRegExp regx;
             const QString &qry = args.at(2).toQString(m_tmp1);
             if (qry != QRegExp::escape(qry)) {
