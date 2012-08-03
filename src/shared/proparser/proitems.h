@@ -52,10 +52,7 @@ private:
 };
 #endif
 
-namespace ProStringConstants {
-enum OmitPreHashing { NoHash };
-}
-
+class ProKey;
 class ProStringList;
 class ProFile;
 
@@ -63,16 +60,10 @@ class ProString {
 public:
     ProString();
     ProString(const ProString &other);
-    ProString(const ProString &other, ProStringConstants::OmitPreHashing);
     explicit ProString(const QString &str);
-    ProString(const QString &str, ProStringConstants::OmitPreHashing);
     explicit ProString(const char *str);
-    ProString(const char *str, ProStringConstants::OmitPreHashing);
     ProString(const QString &str, int offset, int length);
-    ProString(const QString &str, int offset, int length, uint hash);
-    ProString(const QString &str, int offset, int length, ProStringConstants::OmitPreHashing);
     void setValue(const QString &str);
-    void setValue(const QString &str, ProStringConstants::OmitPreHashing);
     ProString &setSource(const ProString &other) { m_file = other.m_file; return *this; }
     ProString &setSource(const ProFile *pro) { m_file = pro; return *this; }
     const ProFile *sourceFile() const { return m_file; }
@@ -99,7 +90,22 @@ public:
 
     static uint hash(const QChar *p, int n);
 
+    ALWAYS_INLINE ProKey &toKey() { return *(ProKey *)this; }
+    ALWAYS_INLINE const ProKey &toKey() const { return *(const ProKey *)this; }
+
 private:
+    ProString(const ProKey &other);
+    ProString &operator=(const ProKey &other);
+
+    enum OmitPreHashing { NoHash };
+    ProString(const ProString &other, OmitPreHashing);
+
+    enum DoPreHashing { DoHash };
+    ALWAYS_INLINE ProString(const QString &str, DoPreHashing);
+    ALWAYS_INLINE ProString(const char *str, DoPreHashing);
+    ALWAYS_INLINE ProString(const QString &str, int offset, int length, DoPreHashing);
+    ALWAYS_INLINE ProString(const QString &str, int offset, int length, uint hash);
+
     QString m_string;
     int m_offset, m_length;
     const ProFile *m_file;
@@ -108,15 +114,33 @@ private:
     uint updatedHash() const;
     friend uint qHash(const ProString &str);
     friend QString operator+(const ProString &one, const ProString &two);
+    friend class ProKey;
 };
 Q_DECLARE_TYPEINFO(ProString, Q_MOVABLE_TYPE);
+
+class ProKey : public ProString {
+public:
+    ALWAYS_INLINE ProKey() : ProString() {}
+    explicit ProKey(const QString &str);
+    explicit ProKey(const char *str);
+    ProKey(const QString &str, int off, int len);
+    ProKey(const QString &str, int off, int len, uint hash);
+    void setValue(const QString &str);
+
+    ALWAYS_INLINE ProString &toString() { return *(ProString *)this; }
+    ALWAYS_INLINE const ProString &toString() const { return *(const ProString *)this; }
+
+private:
+    ProKey(const ProString &other);
+};
+Q_DECLARE_TYPEINFO(ProKey, Q_MOVABLE_TYPE);
 
 uint qHash(const ProString &str);
 QString operator+(const ProString &one, const ProString &two);
 inline QString operator+(const ProString &one, const QString &two)
-    { return one + ProString(two, ProStringConstants::NoHash); }
+    { return one + ProString(two); }
 inline QString operator+(const QString &one, const ProString &two)
-    { return ProString(one, ProStringConstants::NoHash) + two; }
+    { return ProString(one) + two; }
 
 class ProStringList : public QVector<ProString> {
 public:
@@ -127,7 +151,7 @@ public:
     QStringList toQStringList() const;
 };
 
-typedef QHash<ProString, ProStringList> ProValueMap;
+typedef QHash<ProKey, ProStringList> ProValueMap;
 
 // These token definitions affect both ProFileEvaluator and ProWriter
 enum ProToken {
@@ -250,8 +274,8 @@ private:
 Q_DECLARE_TYPEINFO(ProFunctionDef, Q_MOVABLE_TYPE);
 
 struct ProFunctionDefs {
-    QHash<ProString, ProFunctionDef> testFunctions;
-    QHash<ProString, ProFunctionDef> replaceFunctions;
+    QHash<ProKey, ProFunctionDef> testFunctions;
+    QHash<ProKey, ProFunctionDef> replaceFunctions;
 };
 
 QT_END_NAMESPACE

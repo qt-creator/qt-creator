@@ -70,9 +70,6 @@ using namespace ProFileEvaluatorInternal;
 
 QT_BEGIN_NAMESPACE
 
-using namespace ProStringConstants;
-
-
 #define fL1S(s) QString::fromLatin1(s)
 
 enum ExpandFunc {
@@ -140,7 +137,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "shell_quote", E_SHELL_QUOTE },
     };
     for (unsigned i = 0; i < sizeof(expandInits)/sizeof(expandInits[0]); ++i)
-        statics.expands.insert(ProString(expandInits[i].name), expandInits[i].func);
+        statics.expands.insert(ProKey(expandInits[i].name), expandInits[i].func);
 
     static const struct {
         const char * const name;
@@ -181,7 +178,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "cache", T_CACHE },
     };
     for (unsigned i = 0; i < sizeof(testInits)/sizeof(testInits[0]); ++i)
-        statics.functions.insert(ProString(testInits[i].name), testInits[i].func);
+        statics.functions.insert(ProKey(testInits[i].name), testInits[i].func);
 }
 
 static bool isTrue(const ProString &_str, QString &tmp)
@@ -371,19 +368,19 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
 
 void QMakeEvaluator::populateDeps(
         const ProStringList &deps, const ProString &prefix,
-        QHash<ProString, QSet<ProString> > &dependencies, ProValueMap &dependees,
+        QHash<ProKey, QSet<ProKey> > &dependencies, ProValueMap &dependees,
         ProStringList &rootSet) const
 {
     foreach (const ProString &item, deps)
-        if (!dependencies.contains(item)) {
-            QSet<ProString> &dset = dependencies[item]; // Always create entry
-            ProStringList depends = values(ProString(prefix + item + QString::fromLatin1(".depends")));
+        if (!dependencies.contains(item.toKey())) {
+            QSet<ProKey> &dset = dependencies[item.toKey()]; // Always create entry
+            ProStringList depends = values(ProKey(prefix + item + QString::fromLatin1(".depends")));
             if (depends.isEmpty()) {
                 rootSet << item;
             } else {
                 foreach (const ProString &dep, depends) {
-                    dset.insert(dep);
-                    dependees[dep] << item;
+                    dset.insert(dep.toKey());
+                    dependees[dep.toKey()] << item;
                 }
                 populateDeps(depends, prefix, dependencies, dependees, rootSet);
             }
@@ -391,9 +388,9 @@ void QMakeEvaluator::populateDeps(
 }
 
 ProStringList QMakeEvaluator::evaluateExpandFunction(
-        const ProString &func, const ushort *&tokPtr)
+        const ProKey &func, const ushort *&tokPtr)
 {
-    QHash<ProString, ProFunctionDef>::ConstIterator it =
+    QHash<ProKey, ProFunctionDef>::ConstIterator it =
             m_functionDefs.replaceFunctions.constFind(func);
     if (it != m_functionDefs.replaceFunctions.constEnd())
         return evaluateFunction(*it, prepareFunctionArgs(tokPtr), 0);
@@ -403,7 +400,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         const QString &fn = func.toQString(m_tmp1);
         const QString &lfn = fn.toLower();
         if (!fn.isSharedWith(lfn)) {
-            func_t = ExpandFunc(statics.expands.value(ProString(lfn)));
+            func_t = ExpandFunc(statics.expands.value(ProKey(lfn)));
             if (func_t)
                 deprecationWarning(fL1S("Using uppercased builtin functions is deprecated."));
         }
@@ -451,12 +448,12 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                 QRegExp sepRx(sep);
                 foreach (const ProString &str, values(map(var))) {
                     const QString &rstr = str.toQString(m_tmp1).section(sepRx, beg, end);
-                    ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr, NoHash).setSource(str));
+                    ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr).setSource(str));
                 }
             } else {
                 foreach (const ProString &str, values(map(var))) {
                     const QString &rstr = str.toQString(m_tmp1).section(sep, beg, end);
-                    ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr, NoHash).setSource(str));
+                    ret << (rstr.isSharedWith(m_tmp1) ? str : ProString(rstr).setSource(str));
                 }
             }
         }
@@ -539,7 +536,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                 outstr.prepend(QString(space, QLatin1Char(' ')));
                 outstr += numstr;
             }
-            ret += ProString(outstr, NoHash);
+            ret += ProString(outstr);
         }
       formfail:
         break;
@@ -575,7 +572,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             const QString &sep = (args.count() == 2) ? args.at(1).toQString(m_tmp1) : statics.field_sep;
             foreach (const ProString &var, values(map(args.at(0))))
                 foreach (const QString &splt, var.toQString(m_tmp2).split(sep))
-                    ret << (splt.isSharedWith(m_tmp2) ? var : ProString(splt, NoHash).setSource(var));
+                    ret << (splt.isSharedWith(m_tmp2) ? var : ProString(splt).setSource(var));
         }
         break;
     case E_MEMBER:
@@ -644,7 +641,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         if (args.count() != 1)
             evalError(fL1S("size(var) requires one argument."));
         else
-            ret.append(ProString(QString::number(values(map(args.at(0))).size()), NoHash));
+            ret.append(ProString(QString::number(values(map(args.at(0))).size())));
         break;
     case E_CAT:
         if (args.count() < 1 || args.count() > 2) {
@@ -669,15 +666,15 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             if (qfile.open(QIODevice::ReadOnly)) {
                 QTextStream stream(&qfile);
                 if (blob) {
-                    ret += ProString(stream.readAll(), NoHash);
+                    ret += ProString(stream.readAll());
                 } else {
                     while (!stream.atEnd()) {
                         if (lines) {
-                            ret += ProString(stream.readLine(), NoHash);
+                            ret += ProString(stream.readLine());
                         } else {
                             ret += split_value_list(stream.readLine().trimmed());
                             if (!singleLine)
-                                ret += ProString("\n", NoHash);
+                                ret += ProString("\n");
                         }
                     }
                 }
@@ -705,11 +702,11 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
     case E_LIST: {
         QString tmp;
         tmp.sprintf(".QMAKE_INTERNAL_TMP_variableName_%d", m_listCount++);
-        ret = ProStringList(ProString(tmp, NoHash));
+        ret = ProStringList(ProString(tmp));
         ProStringList lst;
         foreach (const ProString &arg, args)
             lst += split_value_list(arg.toQString(m_tmp1), arg.sourceFile()); // Relies on deep copy
-        m_valuemapStack.top()[ret.at(0)] = lst;
+        m_valuemapStack.top()[ret.at(0).toKey()] = lst;
         break; }
     case E_FIND:
         if (args.count() != 2) {
@@ -745,11 +742,11 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                 if (lines) {
                     QTextStream stream(bytes);
                     while (!stream.atEnd())
-                        ret += ProString(stream.readLine(), NoHash);
+                        ret += ProString(stream.readLine());
                 } else {
                     QString output = QString::fromLocal8Bit(bytes);
                     if (blob) {
-                        ret += ProString(output, NoHash);
+                        ret += ProString(output);
                     } else {
                         output.replace(QLatin1Char('\t'), QLatin1Char(' '));
                         if (singleLine)
@@ -772,7 +769,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         if (args.count() != 1) {
             evalError(fL1S("reverse(var) requires one argument."));
         } else {
-            ProStringList var = values(args.at(0));
+            ProStringList var = values(args.at(0).toKey());
             for (int i = 0; i < var.size() / 2; i++)
                 qSwap(var[i], var[var.size() - i - 1]);
             ret += var;
@@ -811,23 +808,23 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                     }
                 }
             }
-            ret.append(ProString(QString(i_data, i_len), NoHash).setSource(args.at(i)));
+            ret.append(ProString(QString(i_data, i_len)).setSource(args.at(i)));
         }
         break;
     case E_RE_ESCAPE:
         for (int i = 0; i < args.size(); ++i) {
             const QString &rstr = QRegExp::escape(args.at(i).toQString(m_tmp1));
-            ret << (rstr.isSharedWith(m_tmp1) ? args.at(i) : ProString(rstr, NoHash).setSource(args.at(i)));
+            ret << (rstr.isSharedWith(m_tmp1) ? args.at(i) : ProString(rstr).setSource(args.at(i)));
         }
         break;
     case E_VAL_ESCAPE:
         if (args.count() != 1) {
             evalError(fL1S("val_escape(var) requires one argument."));
         } else {
-            const ProStringList &vals = values(args.at(0));
+            const ProStringList &vals = values(args.at(0).toKey());
             ret.reserve(vals.size());
             foreach (const ProString &str, vals)
-                ret += ProString(quoteValue(str), NoHash);
+                ret += ProString(quoteValue(str));
         }
         break;
     case E_UPPER:
@@ -835,7 +832,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         for (int i = 0; i < args.count(); ++i) {
             QString rstr = args.at(i).toQString(m_tmp1);
             rstr = (func_t == E_UPPER) ? rstr.toUpper() : rstr.toLower();
-            ret << (rstr.isSharedWith(m_tmp1) ? args.at(i) : ProString(rstr, NoHash).setSource(args.at(i)));
+            ret << (rstr.isSharedWith(m_tmp1) ? args.at(i) : ProString(rstr).setSource(args.at(i)));
         }
         break;
     case E_FILES:
@@ -876,7 +873,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                             dirs.append(fname + QLatin1Char('/'));
                     }
                     if (regex.exactMatch(qdir[i]))
-                        ret += ProString(fname, NoHash).setSource(currentProFile());
+                        ret += ProString(fname).setSource(currentProFile());
                 }
             }
         }
@@ -911,7 +908,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                 QString rstr = val.toQString(m_tmp1);
                 QString copy = rstr; // Force a detach on modify
                 rstr.replace(before, after);
-                ret << (rstr.isSharedWith(m_tmp1) ? val : ProString(rstr, NoHash).setSource(val));
+                ret << (rstr.isSharedWith(m_tmp1) ? val : ProString(rstr).setSource(val));
             }
         }
         break;
@@ -920,19 +917,19 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         if (args.count() < 1 || args.count() > 2) {
             evalError(fL1S("%1(var, prefix) requires one or two arguments.").arg(func.toQString(m_tmp1)));
         } else {
-            QHash<ProString, QSet<ProString> > dependencies;
+            QHash<ProKey, QSet<ProKey> > dependencies;
             ProValueMap dependees;
             ProStringList rootSet;
-            ProStringList orgList = values(args.at(0));
+            ProStringList orgList = values(args.at(0).toKey());
             populateDeps(orgList, (args.count() < 2 ? ProString() : args.at(1)),
                          dependencies, dependees, rootSet);
             for (int i = 0; i < rootSet.size(); ++i) {
                 const ProString &item = rootSet.at(i);
                 if ((func_t == E_RESOLVE_DEPENDS) || orgList.contains(item))
                     ret.prepend(item);
-                foreach (const ProString &dep, dependees[item]) {
-                    QSet<ProString> &dset = dependencies[dep];
-                    dset.remove(rootSet.at(i)); // *Don't* use 'item' - rootSet may have changed!
+                foreach (const ProString &dep, dependees[item.toKey()]) {
+                    QSet<ProKey> &dset = dependencies[dep.toKey()];
+                    dset.remove(rootSet.at(i).toKey()); // *Don't* use 'item' - rootSet may have changed!
                     if (dset.isEmpty())
                         rootSet << dep;
                 }
@@ -954,12 +951,12 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         } else {
             QString val = resolvePath(args.at(0).toQString(m_tmp1));
             if (m_option->source_root.isEmpty()) {
-                ret += ProString(val, NoHash);
+                ret += ProString(val);
             } else if (val.startsWith(m_option->source_root)
                        && (val.length() == m_option->source_root.length()
                            || val.at(m_option->source_root.length()) == QLatin1Char('/'))) {
-                ret += ProString(m_option->build_root + val.mid(m_option->source_root.length()),
-                                 NoHash).setSource(args.at(0));
+                ret += ProString(m_option->build_root + val.mid(m_option->source_root.length()))
+                       .setSource(args.at(0));
             }
         }
         break;
@@ -969,7 +966,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         else
             ret << ProString(QDir::cleanPath(
                     QDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory())
-                    .absoluteFilePath(args.at(0).toQString(m_tmp1))), NoHash).setSource(args.at(0));
+                    .absoluteFilePath(args.at(0).toQString(m_tmp1)))).setSource(args.at(0));
         break;
     case E_RELATIVE_PATH:
         if (args.count() > 2)
@@ -977,14 +974,13 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         else
             ret << ProString(QDir::cleanPath(
                     QDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory())
-                    .relativeFilePath(args.at(0).toQString(m_tmp1))), NoHash).setSource(args.at(0));
+                    .relativeFilePath(args.at(0).toQString(m_tmp1)))).setSource(args.at(0));
         break;
     case E_CLEAN_PATH:
         if (args.count() != 1)
             evalError(fL1S("clean_path(path) requires one argument."));
         else
-            ret << ProString(QDir::cleanPath(args.at(0).toQString(m_tmp1)),
-                             NoHash).setSource(args.at(0));
+            ret << ProString(QDir::cleanPath(args.at(0).toQString(m_tmp1))).setSource(args.at(0));
         break;
     case E_SYSTEM_PATH:
         if (args.count() != 1) {
@@ -996,7 +992,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
 #else
             rstr.replace(QLatin1Char('\\'), QLatin1Char('/'));
 #endif
-            ret << ProString(rstr, NoHash).setSource(args.at(0));
+            ret << ProString(rstr).setSource(args.at(0));
         }
         break;
     case E_SHELL_PATH:
@@ -1008,15 +1004,14 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                 rstr.replace(QLatin1Char('/'), QLatin1Char('\\'));
             else
                 rstr.replace(QLatin1Char('\\'), QLatin1Char('/'));
-            ret << ProString(rstr, NoHash).setSource(args.at(0));
+            ret << ProString(rstr).setSource(args.at(0));
         }
         break;
     case E_SYSTEM_QUOTE:
         if (args.count() != 1)
             evalError(fL1S("system_quote(arg) requires one argument."));
         else
-            ret << ProString(IoUtils::shellQuote(args.at(0).toQString(m_tmp1)),
-                             NoHash).setSource(args.at(0));
+            ret << ProString(IoUtils::shellQuote(args.at(0).toQString(m_tmp1))).setSource(args.at(0));
         break;
     case E_SHELL_QUOTE:
         if (args.count() != 1) {
@@ -1027,7 +1022,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                 rstr = IoUtils::shellQuoteWin(rstr);
             else
                 rstr = IoUtils::shellQuoteUnix(rstr);
-            ret << ProString(rstr, NoHash).setSource(args.at(0));
+            ret << ProString(rstr).setSource(args.at(0));
         }
         break;
     case E_INVALID:
@@ -1043,9 +1038,9 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
 }
 
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
-        const ProString &function, const ushort *&tokPtr)
+        const ProKey &function, const ushort *&tokPtr)
 {
-    QHash<ProString, ProFunctionDef>::ConstIterator it =
+    QHash<ProKey, ProFunctionDef>::ConstIterator it =
             m_functionDefs.testFunctions.constFind(function);
     if (it != m_functionDefs.testFunctions.constEnd())
         return evaluateBoolFunction(*it, prepareFunctionArgs(tokPtr), function);
@@ -1056,27 +1051,29 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
     const ProStringList &args = expandVariableReferences(tokPtr, 5, true);
 
     switch (func_t) {
-    case T_DEFINED:
+    case T_DEFINED: {
         if (args.count() < 1 || args.count() > 2) {
             evalError(fL1S("defined(function, [\"test\"|\"replace\"])"
                            " requires one or two arguments."));
             return ReturnFalse;
         }
+        const ProKey &var = args.at(0).toKey();
         if (args.count() > 1) {
             if (args[1] == QLatin1String("test")) {
-                return returnBool(m_functionDefs.testFunctions.contains(args[0]));
+                return returnBool(m_functionDefs.testFunctions.contains(var));
             } else if (args[1] == QLatin1String("replace")) {
-                return returnBool(m_functionDefs.replaceFunctions.contains(args[0]));
+                return returnBool(m_functionDefs.replaceFunctions.contains(var));
             } else if (args[1] == QLatin1String("var")) {
                 ProValueMap::Iterator it;
-                return returnBool(findValues(args[0], &it));
+                return returnBool(findValues(var, &it));
             }
             evalError(fL1S("defined(function, type): unexpected type [%1].")
                       .arg(args.at(1).toQString(m_tmp1)));
             return ReturnFalse;
         }
-        return returnBool(m_functionDefs.replaceFunctions.contains(args[0])
-                          || m_functionDefs.testFunctions.contains(args[0]));
+        return returnBool(m_functionDefs.replaceFunctions.contains(var)
+                          || m_functionDefs.testFunctions.contains(var));
+    }
     case T_RETURN:
         m_returnValue = args;
         // It is "safe" to ignore returns - due to qmake brokeness
@@ -1093,7 +1090,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             evalError(fL1S("export(variable) requires one argument."));
             return ReturnFalse;
         }
-        const ProString &var = map(args.at(0));
+        const ProKey &var = map(args.at(0));
         for (int i = m_valuemapStack.size(); --i > 0; ) {
             ProValueMap::Iterator it = m_valuemapStack[i].find(var);
             if (it != m_valuemapStack.at(i).end()) {
@@ -1300,7 +1297,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         }
         ProValueMap *hsh;
         ProValueMap::Iterator it;
-        const ProString &var = map(args.at(0));
+        const ProKey &var = map(args.at(0));
         if (!(hsh = findValues(var, &it)))
             return ReturnFalse;
         if (hsh == &m_valuemapStack.top())
@@ -1317,7 +1314,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         }
         ProValueMap *hsh;
         ProValueMap::Iterator it;
-        const ProString &var = map(args.at(0));
+        const ProKey &var = map(args.at(0));
         if (!(hsh = findValues(var, &it)))
             return ReturnFalse;
         if (m_valuemapStack.size() == 1)
@@ -1363,7 +1360,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
                      it != symbols.constEnd(); ++it) {
                     const QString &ky = it.key().toQString(m_tmp1);
                     if (!ky.startsWith(QLatin1Char('.')))
-                        newMap.insert(ProString(parseInto + QLatin1Char('.') + ky), it.value());
+                        newMap.insert(ProKey(parseInto + QLatin1Char('.') + ky), it.value());
                 }
                 m_valuemapStack.top() = newMap;
             }
@@ -1474,7 +1471,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         QIODevice::OpenMode mode = QIODevice::Truncate;
         QString contents;
         if (args.count() >= 2) {
-            const ProStringList &vals = values(args.at(1));
+            const ProStringList &vals = values(args.at(1).toKey());
             if (!vals.isEmpty())
                 contents = vals.join(fL1S("\n")) + QLatin1Char('\n');
             if (args.count() >= 3)
@@ -1534,7 +1531,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         bool persist = true;
         bool super = false;
         enum { CacheSet, CacheAdd, CacheSub } mode = CacheSet;
-        ProString srcvar;
+        ProKey srcvar;
         if (args.count() >= 2) {
             foreach (const ProString &opt, split_value_list(args.at(1).toQString(m_tmp2))) {
                 opt.toQString(m_tmp3);
@@ -1554,14 +1551,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
                 }
             }
             if (args.count() >= 3) {
-                srcvar = args.at(2);
+                srcvar = args.at(2).toKey();
             } else if (mode != CacheSet) {
                 evalError(fL1S("cache(): modes other than 'set' require a source variable."));
                 return ReturnFalse;
             }
         }
         QString varstr;
-        ProString dstvar = args.at(0);
+        ProKey dstvar = args.at(0).toKey();
         if (!dstvar.isEmpty()) {
             if (srcvar.isEmpty())
                 srcvar = dstvar;
@@ -1639,14 +1636,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             if (m_superfile.isEmpty()) {
                 m_superfile = m_outputDir + QLatin1String("/.qmake.super");
                 printf("Info: creating super cache file %s\n", qPrintable(m_superfile));
-                valuesRef(ProString("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile, NoHash);
+                valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
             }
             fn = m_superfile;
         } else {
             if (m_cachefile.isEmpty()) {
                 m_cachefile = m_outputDir + QLatin1String("/.qmake.cache");
                 printf("Info: creating cache file %s\n", qPrintable(m_cachefile));
-                valuesRef(ProString("_QMAKE_CACHE_")) << ProString(m_cachefile, NoHash);
+                valuesRef(ProKey("_QMAKE_CACHE_")) << ProString(m_cachefile);
                 // We could update m_{source,build}Root and m_featureRoots here, or even
                 // "re-home" our rootEnv, but this doesn't sound too useful - if somebody
                 // wanted qmake to find something in the build directory, he could have

@@ -105,7 +105,7 @@ public:
 #else
     void setProperties(const QHash<QString, QString> &props);
 #endif
-    ProString propertyValue(const ProString &name) const { return properties.value(name); }
+    ProString propertyValue(const ProKey &name) const { return properties.value(name); }
 
     QString expandEnvVars(const QString &str) const;
 
@@ -116,7 +116,7 @@ private:
     QString source_root, build_root;
 
     QString precmds, postcmds;
-    QHash<ProString, ProString> properties;
+    QHash<ProKey, ProString> properties;
 
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutex mutex;

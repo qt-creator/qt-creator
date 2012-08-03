@@ -36,8 +36,6 @@
 
 QT_BEGIN_NAMESPACE
 
-using namespace ProStringConstants;
-
 // from qhash.cpp
 uint ProString::hash(const QChar *p, int n)
 {
@@ -66,29 +64,29 @@ ProString::ProString(const ProString &other, OmitPreHashing) :
 {
 }
 
-ProString::ProString(const QString &str) :
+ProString::ProString(const QString &str, DoPreHashing) :
     m_string(str), m_offset(0), m_length(str.length()), m_file(0)
 {
     updatedHash();
 }
 
-ProString::ProString(const QString &str, OmitPreHashing) :
+ProString::ProString(const QString &str) :
     m_string(str), m_offset(0), m_length(str.length()), m_file(0), m_hash(0x80000000)
 {
 }
 
-ProString::ProString(const char *str) :
+ProString::ProString(const char *str, DoPreHashing) :
     m_string(QString::fromLatin1(str)), m_offset(0), m_length(qstrlen(str)), m_file(0)
 {
     updatedHash();
 }
 
-ProString::ProString(const char *str, OmitPreHashing) :
+ProString::ProString(const char *str) :
     m_string(QString::fromLatin1(str)), m_offset(0), m_length(qstrlen(str)), m_file(0), m_hash(0x80000000)
 {
 }
 
-ProString::ProString(const QString &str, int offset, int length) :
+ProString::ProString(const QString &str, int offset, int length, DoPreHashing) :
     m_string(str), m_offset(offset), m_length(length), m_file(0)
 {
     updatedHash();
@@ -99,18 +97,12 @@ ProString::ProString(const QString &str, int offset, int length, uint hash) :
 {
 }
 
-ProString::ProString(const QString &str, int offset, int length, ProStringConstants::OmitPreHashing) :
+ProString::ProString(const QString &str, int offset, int length) :
     m_string(str), m_offset(offset), m_length(length), m_file(0), m_hash(0x80000000)
 {
 }
 
 void ProString::setValue(const QString &str)
-{
-    m_string = str, m_offset = 0, m_length = str.length();
-    updatedHash();
-}
-
-void ProString::setValue(const QString &str, OmitPreHashing)
 {
     m_string = str, m_offset = 0, m_length = str.length(), m_hash = 0x80000000;
 }
@@ -125,6 +117,32 @@ uint qHash(const ProString &str)
     if (!(str.m_hash & 0x80000000))
         return str.m_hash;
     return str.updatedHash();
+}
+
+ProKey::ProKey(const QString &str) :
+    ProString(str, DoHash)
+{
+}
+
+ProKey::ProKey(const char *str) :
+    ProString(str, DoHash)
+{
+}
+
+ProKey::ProKey(const QString &str, int off, int len) :
+    ProString(str, off, len, DoHash)
+{
+}
+
+ProKey::ProKey(const QString &str, int off, int len, uint hash) :
+    ProString(str, off, len, hash)
+{
+}
+
+void ProKey::setValue(const QString &str)
+{
+    m_string = str, m_offset = 0, m_length = str.length();
+    updatedHash();
 }
 
 QString ProString::toQString() const
@@ -188,7 +206,7 @@ QChar *ProString::prepareAppend(int extraLen)
         QChar *ptr = (QChar *)neu.constData();
         memcpy(ptr, m_string.constData() + m_offset, m_length * 2);
         ptr += m_length;
-        *this = ProString(neu, NoHash);
+        *this = ProString(neu);
         return ptr;
     }
 }
