@@ -82,9 +82,8 @@ private:
         int role = Qt::DisplayRole) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    // No-op implementations for devices without process listing abilities.
-    virtual void doUpdate();
-    virtual void doKillProcess(const DeviceProcess &process);
+    virtual void doUpdate() = 0;
+    virtual void doKillProcess(const DeviceProcess &process) = 0;
 
     void setFinished();
 

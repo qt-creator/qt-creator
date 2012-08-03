@@ -37,7 +37,6 @@ const char GenericLinuxOsType[] = "GenericLinuxOsType";
 
 const char GenericTestDeviceActionId[] = "RemoteLinux.GenericTestDeviceAction";
 const char GenericDeployKeyToDeviceActionId[] = "RemoteLinux.GenericDeployKeyToDeviceAction";
-const char GenericRemoteProcessesActionId[] = "RemoteLinux.GenericRemoteProcessesAction";
 
 const char EMBEDDED_LINUX_QT[] = "RemoteLinux.EmbeddedLinuxQt";
 

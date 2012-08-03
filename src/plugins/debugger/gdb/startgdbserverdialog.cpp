@@ -207,7 +207,7 @@ void StartGdbServerDialog::attachToDevice()
 {
     IDevice::ConstPtr device = d->currentDevice();
     // TODO: display error on non-matching device.
-    if (!device)
+    if (!device || !device->canCreateProcessModel())
         return;
     delete d->processList;
     d->processList = device->createProcessListModel();

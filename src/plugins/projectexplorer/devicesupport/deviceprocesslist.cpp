@@ -77,11 +77,6 @@ void DeviceProcessList::update()
     doUpdate();
 }
 
-void DeviceProcessList::doUpdate()
-{
-    reportProcessListUpdated(QList<DeviceProcess>());
-}
-
 void DeviceProcessList::reportProcessListUpdated(const QList<DeviceProcess> &processes)
 {
     QTC_ASSERT(d->state == Listing, return);
@@ -102,11 +97,6 @@ void DeviceProcessList::killProcess(int row)
 
     d->state = Killing;
     doKillProcess(d->remoteProcesses.at(row));
-}
-
-void DeviceProcessList::doKillProcess(const DeviceProcess &)
-{
-    QTC_ASSERT(false, qDebug("Process list should be empty"); return);
 }
 
 void DeviceProcessList::reportProcessKilled()

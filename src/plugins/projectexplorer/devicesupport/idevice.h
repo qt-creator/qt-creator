@@ -114,6 +114,7 @@ public:
 
     virtual DeviceProcessSupport::Ptr processSupport() const;
     virtual PortsGatheringMethod::Ptr portsGatheringMethod() const;
+    virtual bool canCreateProcessModel() const { return false; }
     virtual DeviceProcessList *createProcessListModel(QObject *parent = 0) const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };

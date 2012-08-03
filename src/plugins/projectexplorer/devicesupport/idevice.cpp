@@ -262,7 +262,9 @@ PortsGatheringMethod::Ptr IDevice::portsGatheringMethod() const
 
 DeviceProcessList *IDevice::createProcessListModel(QObject *parent) const
 {
-    return new DeviceProcessList(sharedFromThis(), parent);
+    Q_UNUSED(parent);
+    QTC_ASSERT(false, qDebug("This should not have been called..."); return 0);
+    return 0;
 }
 
 IDevice::DeviceState IDevice::deviceState() const

@@ -71,6 +71,7 @@ public:
 
     ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
+    bool canCreateProcessModel() const { return true; }
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
 
 protected:

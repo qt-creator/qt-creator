@@ -54,6 +54,7 @@ public:
 
     ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
+    bool canCreateProcessModel() const { return false; } // Override LinuxDevice implementation.
 
     QString displayType() const;
 

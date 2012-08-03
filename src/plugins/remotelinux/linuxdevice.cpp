@@ -37,7 +37,6 @@
 
 #include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
-#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <ssh/sshconnection.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -197,8 +196,7 @@ ProjectExplorer::IDeviceWidget *LinuxDevice::createWidget()
 QList<Core::Id> LinuxDevice::actionIds() const
 {
     return QList<Core::Id>() << Core::Id(Constants::GenericTestDeviceActionId)
-        << Core::Id(Constants::GenericDeployKeyToDeviceActionId)
-        << Core::Id(Constants::GenericRemoteProcessesActionId);
+            << Core::Id(Constants::GenericDeployKeyToDeviceActionId);
 }
 
 QString LinuxDevice::displayNameForActionId(Core::Id actionId) const
@@ -207,8 +205,6 @@ QString LinuxDevice::displayNameForActionId(Core::Id actionId) const
 
     if (actionId == Core::Id(Constants::GenericTestDeviceActionId))
         return tr("Test");
-    if (actionId == Core::Id(Constants::GenericRemoteProcessesActionId))
-        return tr("Remote Processes...");
     if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
         return tr("Deploy Public Key...");
     return QString(); // Can't happen.
@@ -222,8 +218,6 @@ void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent) const
     const LinuxDevice::ConstPtr device = sharedFromThis().staticCast<const LinuxDevice>();
     if (actionId == Core::Id(Constants::GenericTestDeviceActionId))
         d = new LinuxDeviceTestDialog(device, new GenericLinuxDeviceTester, parent);
-    else if (actionId == Core::Id(Constants::GenericRemoteProcessesActionId))
-        d = new DeviceProcessesDialog(createProcessListModel(parent));
     else if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
     if (d)
