@@ -157,6 +157,7 @@ Project {
         ]
 
         Group {
+            condition: qbs.targetOS == "linux" || qbs.targetOS == "macx"
             files: "bin/qtcreator.sh"
             fileTags: "install"
             qbs.installDir: "bin"
