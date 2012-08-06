@@ -53,9 +53,8 @@ using namespace RemoteLinux;
 
 namespace Madde {
 namespace Internal {
-namespace {
-const QString OldMaemoDeployStepId(QLatin1String("Qt4ProjectManager.MaemoDeployStep"));
-} // anonymous namespace
+
+const char OldMaemoDeployStepId[] = "Qt4ProjectManager.MaemoDeployStep";
 
 MaemoDeployStepFactory::MaemoDeployStepFactory(QObject *parent)
     : IBuildStepFactory(parent)
@@ -93,17 +92,17 @@ QString MaemoDeployStepFactory::displayNameForId(const Core::Id id) const
 {
     if (id == MaemoInstallPackageViaMountStep::stepId())
         return MaemoInstallPackageViaMountStep::displayName();
-    else if (id == MaemoCopyFilesViaMountStep::stepId())
+    if (id == MaemoCopyFilesViaMountStep::stepId())
         return MaemoCopyFilesViaMountStep::displayName();
-    else if (id == MaemoUploadAndInstallPackageStep::stepId())
+    if (id == MaemoUploadAndInstallPackageStep::stepId())
         return MaemoUploadAndInstallPackageStep::displayName();
-    else if (id == MaemoInstallDebianPackageToSysrootStep::Id)
+    if (id == MaemoInstallDebianPackageToSysrootStep::Id)
         return MaemoInstallDebianPackageToSysrootStep::displayName();
-    else if (id == MaemoCopyToSysrootStep::Id)
+    if (id == MaemoCopyToSysrootStep::Id)
         return MaemoCopyToSysrootStep::displayName();
-    else if (id == MaemoMakeInstallToSysrootStep::Id)
+    if (id == MaemoMakeInstallToSysrootStep::Id)
         return MaemoMakeInstallToSysrootStep::displayName();
-    else if (id == GenericDirectUploadStep::stepId())
+    if (id == GenericDirectUploadStep::stepId())
         return GenericDirectUploadStep::displayName();
     if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
         return RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName();
@@ -117,36 +116,33 @@ bool MaemoDeployStepFactory::canCreate(BuildStepList *parent, const Core::Id id)
 
 BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
-    Core::Id deviceType
-            = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
+    Core::Id deviceType = DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
 
-    if (id == MaemoInstallDebianPackageToSysrootStep::Id) {
+    if (id == MaemoInstallDebianPackageToSysrootStep::Id)
         return new MaemoInstallDebianPackageToSysrootStep(parent);
-    } else if (id == MaemoCopyToSysrootStep::Id) {
+    if (id == MaemoCopyToSysrootStep::Id)
         return new MaemoCopyToSysrootStep(parent);
-    } else if (id == MaemoMakeInstallToSysrootStep::Id) {
+    if (id == MaemoMakeInstallToSysrootStep::Id)
         return new MaemoMakeInstallToSysrootStep(parent);
-    } else if (id == MaemoInstallPackageViaMountStep::stepId()
-        || (id == Core::Id(OldMaemoDeployStepId) && deviceType == Core::Id(Maemo5OsType))) {
+    if (id == MaemoInstallPackageViaMountStep::stepId()
+        || (id == OldMaemoDeployStepId && deviceType == Maemo5OsType))
         return new MaemoInstallPackageViaMountStep(parent);
-    } else if (id == MaemoCopyFilesViaMountStep::stepId()) {
+    if (id == MaemoCopyFilesViaMountStep::stepId())
         return new MaemoCopyFilesViaMountStep(parent);
-    } else if (id == MaemoUploadAndInstallPackageStep::stepId()
-        || (id == Core::Id(OldMaemoDeployStepId) && deviceType == Core::Id(HarmattanOsType))) {
+    if (id == MaemoUploadAndInstallPackageStep::stepId()
+        || (id == OldMaemoDeployStepId && deviceType == HarmattanOsType))
         return new MaemoUploadAndInstallPackageStep(parent);
-    } else if (id == GenericDirectUploadStep::stepId()) {
+    if (id == GenericDirectUploadStep::stepId())
         return new GenericDirectUploadStep(parent, id);
-    } else if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId()) {
+    if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
         return new RemoteLinuxCheckForFreeDiskSpaceStep(parent);
-    }
 
     return 0;
 }
 
 bool MaemoDeployStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, idFromMap(map))
-        || idFromMap(map) == Core::Id(OldMaemoDeployStepId);
+    return canCreate(parent, idFromMap(map)) || idFromMap(map) == OldMaemoDeployStepId;
 }
 
 BuildStep *MaemoDeployStepFactory::restore(BuildStepList *parent, const QVariantMap &map)

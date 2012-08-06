@@ -31,6 +31,7 @@
 #include "desktopdevice.h"
 #include "projectexplorerconstants.h"
 #include "deviceprocesslist.h"
+#include "localprocesslist.h"
 
 #include <QCoreApplication>
 
@@ -78,6 +79,16 @@ void DesktopDevice::executeAction(Core::Id actionId, QWidget *parent) const
 {
     Q_UNUSED(actionId);
     Q_UNUSED(parent);
+}
+
+bool DesktopDevice::canCreateProcessModel() const
+{
+    return true;
+}
+
+DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
+{
+    return new Internal::LocalProcessList(sharedFromThis(), parent);
 }
 
 IDevice::Ptr DesktopDevice::clone() const

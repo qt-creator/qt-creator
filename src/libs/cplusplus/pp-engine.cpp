@@ -56,7 +56,7 @@
 #include <Literals.h>
 #include <cctype>
 
-#include <QtDebug>
+#include <QDebug>
 #include <QList>
 #include <QDate>
 #include <QTime>

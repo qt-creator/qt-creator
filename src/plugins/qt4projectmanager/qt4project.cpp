@@ -1399,9 +1399,7 @@ Target *Qt4Project::createTarget(Profile *p, const QList<BuildConfigurationInfo>
 
     // Deploy Configurations:
     t->updateDefaultDeployConfigurations();
-
-    // Run Configurations:
-    t->updateDefaultRunConfigurations();
+    // Do not create Run Configurations: Those will be generated later anyway.
 
     return t;
 }

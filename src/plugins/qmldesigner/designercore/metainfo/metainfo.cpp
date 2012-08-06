@@ -40,7 +40,7 @@
 #include "model/variantparser.h"
 #include "pluginmanager/widgetpluginmanager.h"
 
-#include <QtDebug>
+#include <QDebug>
 #include <QPair>
 #include <QtAlgorithms>
 

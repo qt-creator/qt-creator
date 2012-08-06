@@ -38,7 +38,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlProjectManager {
 namespace Internal {

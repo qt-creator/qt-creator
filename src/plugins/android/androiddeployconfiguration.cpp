@@ -107,7 +107,7 @@ bool AndroidDeployConfigurationFactory::canClone(ProjectExplorer::Target *parent
 {
     if (!AndroidManager::supportsAndroid(parent))
         return false;
-    return source->id() == Core::Id(ANDROID_DEPLOYCONFIGURATION_ID);
+    return source->id() == ANDROID_DEPLOYCONFIGURATION_ID;
 }
 
 ProjectExplorer::DeployConfiguration *AndroidDeployConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *source)

@@ -101,11 +101,11 @@ QList<ProjectExplorer::Abi> MaemoQtVersion::detectQtAbis() const
     QList<ProjectExplorer::Abi> result;
     if (!isValid())
         return result;
-    if (m_deviceType == Core::Id(Maemo5OsType)) {
+    if (m_deviceType == Maemo5OsType) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::MaemoLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
                                            32));
-    } else if (m_deviceType == Core::Id(HarmattanOsType)) {
+    } else if (m_deviceType == HarmattanOsType) {
         result.append(ProjectExplorer::Abi(ProjectExplorer::Abi::ArmArchitecture, ProjectExplorer::Abi::LinuxOS,
                                            ProjectExplorer::Abi::HarmattanLinuxFlavor,
                                            ProjectExplorer::Abi::ElfFormat,
@@ -116,9 +116,9 @@ QList<ProjectExplorer::Abi> MaemoQtVersion::detectQtAbis() const
 
 QString MaemoQtVersion::description() const
 {
-    if (m_deviceType == Core::Id(Maemo5OsType))
+    if (m_deviceType == Maemo5OsType)
         return QCoreApplication::translate("QtVersion", "Maemo", "Qt Version is meant for Maemo5");
-    else if (m_deviceType == Core::Id(HarmattanOsType))
+    if (m_deviceType == HarmattanOsType)
         return QCoreApplication::translate("QtVersion", "Harmattan ", "Qt Version is meant for Harmattan");
     return QString();
 }
@@ -143,7 +143,7 @@ Core::FeatureSet MaemoQtVersion::availableFeatures() const
         features |= Core::FeatureSet(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO);
     features |= Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
 
-    if (deviceType() != Core::Id(Maemo5OsType)) //Only Maemo5 has proper support for Widgets
+    if (deviceType() != Maemo5OsType) //Only Maemo5 has proper support for Widgets
         features.remove(Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS));
 
     return features;

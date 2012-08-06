@@ -1809,11 +1809,11 @@ void ProjectExplorerPlugin::deploy(QList<Project *> projects)
 
 QString ProjectExplorerPlugin::displayNameForStepId(Core::Id stepId)
 {
-    if (stepId == Core::Id(Constants::BUILDSTEPS_CLEAN))
+    if (stepId == Constants::BUILDSTEPS_CLEAN)
         return tr("Clean");
-    else if (stepId == Core::Id(Constants::BUILDSTEPS_BUILD))
+    if (stepId == Constants::BUILDSTEPS_BUILD)
         return tr("Build");
-    else if (stepId == Core::Id(Constants::BUILDSTEPS_DEPLOY))
+    if (stepId == Constants::BUILDSTEPS_DEPLOY)
         return tr("Deploy");
     return tr("Build");
 }
@@ -1845,7 +1845,7 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QList<Core::Id> step
             if (!pro || !pro->activeTarget())
                 continue;
             BuildStepList *bsl = 0;
-            if (id == Core::Id(Constants::BUILDSTEPS_DEPLOY)
+            if (id == Constants::BUILDSTEPS_DEPLOY
                 && pro->activeTarget()->activeDeployConfiguration())
                 bsl = pro->activeTarget()->activeDeployConfiguration()->stepList();
             else if (pro->activeTarget()->activeBuildConfiguration())

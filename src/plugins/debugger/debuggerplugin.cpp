@@ -778,7 +778,7 @@ public slots:
     void startRemoteServer();
     //bool queryRemoteParameters(DebuggerStartParameters &sp, bool useScript);
     void attachToRemoteServer();
-    void attachToRemoteProcess();
+    void attachToRunningApplication();
     void attachToQmlPort();
     void startRemoteEngine();
     void attachExternalApplication();
@@ -1117,7 +1117,7 @@ public:
     QAction *m_startLocalProcessAction;
     QAction *m_startRemoteProcessAction;
     QAction *m_startRemoteServerAction;
-    QAction *m_attachToRemoteProcessAction;
+    QAction *m_attachToRunningApplication;
     QAction *m_attachToQmlPortAction;
     QAction *m_attachToRemoteServerAction;
     QAction *m_startRemoteCdbAction;
@@ -1241,7 +1241,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_startLocalProcessAction = 0;
     m_startRemoteProcessAction = 0;
     m_attachToRemoteServerAction = 0;
-    m_attachToRemoteProcessAction = 0;
+    m_attachToRunningApplication = 0;
     m_attachToQmlPortAction = 0;
     m_startRemoteCdbAction = 0;
     m_startRemoteLldbAction = 0;
@@ -1671,7 +1671,7 @@ void DebuggerPluginPrivate::startRemoteServer()
     dlg.startGdbServer();
 }
 
-void DebuggerPluginPrivate::attachToRemoteProcess()
+void DebuggerPluginPrivate::attachToRunningApplication()
 {
     StartGdbServerDialog dlg(mainWindow());
     dlg.attachToRemoteProcess();
@@ -2142,7 +2142,7 @@ void DebuggerPluginPrivate::setInitialState()
     m_attachToCoreAction->setEnabled(true);
     m_startRemoteProcessAction->setEnabled(true);
     m_attachToRemoteServerAction->setEnabled(true);
-    m_attachToRemoteProcessAction->setEnabled(true);
+    m_attachToRunningApplication->setEnabled(true);
     m_detachAction->setEnabled(false);
 
     m_watchAction1->setEnabled(true);
@@ -2268,7 +2268,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     m_attachToCoreAction->setEnabled(true);
     m_startRemoteProcessAction->setEnabled(true);
     m_attachToRemoteServerAction->setEnabled(true);
-    m_attachToRemoteProcessAction->setEnabled(true);
+    m_attachToRunningApplication->setEnabled(true);
 
     m_threadBox->setEnabled(state == InferiorStopOk);
 
@@ -2982,9 +2982,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Start Remote Debug Server Attached to Process..."));
     connect(act, SIGNAL(triggered()), SLOT(startRemoteServer()));
 
-    act = m_attachToRemoteProcessAction = new QAction(this);
-    act->setText(tr("Attach to Running Remote Process..."));
-    connect(act, SIGNAL(triggered()), SLOT(attachToRemoteProcess()));
+    act = m_attachToRunningApplication = new QAction(this);
+    act->setText(tr("Attach to Running Application..."));
+    connect(act, SIGNAL(triggered()), SLOT(attachToRunningApplication()));
 
     act = m_attachToQmlPortAction = new QAction(this);
     act->setText(tr("Attach to QML Port..."));
@@ -3028,10 +3028,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
 
-    cmd = ActionManager::registerAction(m_attachToLocalProcessAction,
-        "Debugger.AttachToLocalProcess", globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_LOCAL);
+    cmd = ActionManager::registerAction(m_attachToRunningApplication,
+         "Debugger.AttachToRemoteProcess", globalcontext);
+    cmd->setDescription(tr("Attach to Running Application"));
+    mstart->addAction(cmd, Debugger::Constants::G_START_LOCAL);
 
     cmd = ActionManager::registerAction(m_startLocalProcessAction,
         "Debugger.StartLocalProcess", globalcontext);
@@ -3065,10 +3065,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDescription(tr("Start Gdbserver"));
     mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
 
-    cmd = ActionManager::registerAction(m_attachToRemoteProcessAction,
-         "Debugger.AttachToRemoteProcess", globalcontext);
-    cmd->setDescription(tr("Attach to Remote Process"));
-    mstart->addAction(cmd, Debugger::Constants::G_AUTOMATIC_REMOTE);
+    cmd = ActionManager::registerAction(m_attachToLocalProcessAction,
+        "Debugger.AttachToLocalProcess", globalcontext);
+    cmd->setAttribute(Command::CA_Hide);
+    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
 
 #ifdef WITH_LLDB
     cmd = ActionManager::registerAction(m_startRemoteLldbAction,

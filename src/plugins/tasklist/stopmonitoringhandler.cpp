@@ -48,7 +48,7 @@ using namespace TaskList::Internal;
 
 bool StopMonitoringHandler::canHandle(const ProjectExplorer::Task &task) const
 {
-    return task.category == Core::Id(Constants::TASKLISTTASK_ID);
+    return task.category == Constants::TASKLISTTASK_ID;
 }
 
 void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)

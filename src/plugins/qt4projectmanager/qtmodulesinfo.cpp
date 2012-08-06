@@ -30,7 +30,7 @@
 
 #include "qtmodulesinfo.h"
 #include "qglobal.h"
-#include <QtDebug>
+#include <QDebug>
 #include <QString>
 #include <QHash>
 #include <QCoreApplication>

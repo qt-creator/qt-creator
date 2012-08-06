@@ -122,7 +122,7 @@ bool checkStartOfIdentifier(const QString &word)
 // ----------------------------
 bool GLSLCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
-    return editorId == Core::Id(Constants::C_GLSLEDITOR_ID);
+    return editorId == Constants::C_GLSLEDITOR_ID;
 }
 
 IAssistProcessor *GLSLCompletionAssistProvider::createProcessor() const

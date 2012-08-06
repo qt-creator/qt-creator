@@ -812,7 +812,7 @@ bool Qt4RunConfigurationFactory::canHandle(ProjectExplorer::Target *t) const
     if (!qobject_cast<Qt4Project *>(t->project()))
         return false;
     Core::Id devType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(t->profile());
-    return devType == Core::Id(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    return devType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
 QList<ProjectExplorer::RunConfiguration *> Qt4RunConfigurationFactory::runConfigurationsForNode(ProjectExplorer::Target *t, ProjectExplorer::Node *n)

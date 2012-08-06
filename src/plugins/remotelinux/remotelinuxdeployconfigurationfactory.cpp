@@ -68,7 +68,7 @@ QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Targ
     if (!tc || tc->targetAbi().os() != ProjectExplorer::Abi::LinuxOS)
         return ids;
     const Core::Id devType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
-    if (devType == Core::Id(Constants::GenericLinuxOsType))
+    if (devType == Constants::GenericLinuxOsType)
         ids << genericDeployConfigurationId();
     return ids;
 }

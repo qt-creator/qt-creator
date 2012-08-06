@@ -43,20 +43,20 @@ struct QMakeStatics {
     QString field_sep;
     QString strtrue;
     QString strfalse;
-    ProString strCONFIG;
-    ProString strARGS;
+    ProKey strCONFIG;
+    ProKey strARGS;
     QString strDot;
     QString strDotDot;
     QString strever;
     QString strforever;
     QString strhost_build;
-    ProString strTEMPLATE;
+    ProKey strTEMPLATE;
 #ifdef PROEVALUATOR_FULL
-    ProString strREQUIRES;
+    ProKey strREQUIRES;
 #endif
-    QHash<ProString, int> expands;
-    QHash<ProString, int> functions;
-    QHash<ProString, ProString> varMap;
+    QHash<ProKey, int> expands;
+    QHash<ProKey, int> functions;
+    QHash<ProKey, ProKey> varMap;
     ProStringList fakeValue;
 };
 

@@ -67,7 +67,7 @@ IDevice::Ptr MaddeDeviceConfigurationFactory::create(Core::Id id) const
 bool MaddeDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
 {
     const Core::Id type = IDevice::typeFromMap(map);
-    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType);
+    return type == Maemo5OsType || type == HarmattanOsType;
 }
 
 IDevice::Ptr MaddeDeviceConfigurationFactory::restore(const QVariantMap &map) const

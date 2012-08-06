@@ -29,7 +29,7 @@
 **************************************************************************/
 
 #include <QApplication>
-#include <QtDebug>
+#include <QDebug>
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])

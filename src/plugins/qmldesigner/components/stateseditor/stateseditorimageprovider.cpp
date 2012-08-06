@@ -31,7 +31,7 @@
 #include "stateseditorview.h"
 #include "nodeinstanceview.h"
 
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 

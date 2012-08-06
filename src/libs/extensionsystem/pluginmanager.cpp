@@ -44,7 +44,7 @@
 #include <QTextStream>
 #include <QTime>
 #include <QWriteLocker>
-#include <QtDebug>
+#include <QDebug>
 #include <QTimer>
 
 #ifdef WITH_TESTS

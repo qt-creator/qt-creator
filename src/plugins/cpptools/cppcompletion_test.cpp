@@ -53,7 +53,7 @@
 #include <utils/fileutils.h>
 
 #include <QtTest>
-#include <QtDebug>
+#include <QDebug>
 #include <QTextDocument>
 #include <QDir>
 

@@ -360,7 +360,7 @@ bool CustomExecutableRunConfigurationFactory::canCreate(ProjectExplorer::Target 
 {
     if (!canHandle(parent))
         return false;
-    return id == Core::Id(CUSTOM_EXECUTABLE_ID);
+    return id == CUSTOM_EXECUTABLE_ID;
 }
 
 ProjectExplorer::RunConfiguration *
@@ -422,7 +422,7 @@ QList<Core::Id> CustomExecutableRunConfigurationFactory::availableCreationIds(Pr
 
 QString CustomExecutableRunConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(CUSTOM_EXECUTABLE_ID))
+    if (id == CUSTOM_EXECUTABLE_ID)
         return tr("Custom Executable");
     return QString();
 }

@@ -37,7 +37,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 
-#include <QtDebug>
+#include <QDebug>
 
 using namespace GenericProjectManager::Internal;
 

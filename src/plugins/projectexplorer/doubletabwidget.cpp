@@ -40,7 +40,7 @@
 #include <QMenu>
 #include <QToolTip>
 
-#include <QtDebug>
+#include <QDebug>
 
 using namespace ProjectExplorer::Internal;
 

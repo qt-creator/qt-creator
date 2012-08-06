@@ -57,7 +57,7 @@ BlackBerryCreatePackageStepFactory::~BlackBerryCreatePackageStepFactory()
 QList<Core::Id> BlackBerryCreatePackageStepFactory::availableCreationIds(
         ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return QList<Core::Id>();
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
@@ -69,7 +69,7 @@ QList<Core::Id> BlackBerryCreatePackageStepFactory::availableCreationIds(
 
 QString BlackBerryCreatePackageStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(Constants::QNX_CREATE_PACKAGE_BS_ID))
+    if (id == Constants::QNX_CREATE_PACKAGE_BS_ID)
         return tr("Create BAR Packages");
     return QString();
 }

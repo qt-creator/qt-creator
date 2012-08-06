@@ -6,7 +6,6 @@
 **
 ** Contact: http://www.qt-project.org/
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,33 +27,42 @@
 **
 **************************************************************************/
 
-#include "qmlmodelnodefacade.h"
-#include "qmlmodelview.h"
-#include <QDebug>
-namespace QmlDesigner {
+#ifndef LOCALPROCESSLIST_H
+#define LOCALPROCESSLIST_H
 
-QmlModelNodeFacade::QmlModelNodeFacade() : m_modelNode(ModelNode())
-{}
+#include "deviceprocesslist.h"
 
+#include <QString>
 
-QmlModelNodeFacade::QmlModelNodeFacade(const ModelNode &modelNode) : m_modelNode(modelNode)
-{}
+QT_BEGIN_NAMESPACE
+class QProcess;
+QT_END_NAMESPACE
 
-QmlModelNodeFacade::~QmlModelNodeFacade()
-{}
+namespace ProjectExplorer {
+namespace Internal {
 
-bool QmlModelNodeFacade::isValid() const
+class LocalProcessList : public DeviceProcessList
 {
-    return modelNode().isValid() && qmlModelView() && qmlModelView()->nodeInstanceView() && qmlModelView()->hasInstanceForModelNode(modelNode()) && qmlModelView()->instanceForModelNode(modelNode()).isValid();
-}
+    Q_OBJECT
 
-QmlModelView* QmlModelNodeFacade::qmlModelView() const
-{
-    return modelNode().view()->toQmlModelView();
-}
+public:
+    LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
 
-bool QmlModelNodeFacade::isRootNode() const
-{
-    return modelNode().isRootNode();
-}
-} //QmlDesigner
+private slots:
+    void handlePsError();
+    void handlePsFinished();
+    void handleWindowsUpdate();
+    void reportDelayedKillStatus();
+
+private:
+    void doUpdate();
+    void doKillProcess(const DeviceProcess &process);
+
+    QProcess * const m_psProcess;
+    QString m_error;
+};
+
+} // namespace Internal
+} // namespace RemoteLinux
+
+#endif // LOCALPROCESSLIST_H

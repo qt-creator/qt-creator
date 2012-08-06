@@ -43,7 +43,9 @@ namespace Internal {
 
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
-{ setObjectName(QLatin1String("QmlProjectRunConfigurationFactory")); }
+{
+    setObjectName(QLatin1String("QmlProjectRunConfigurationFactory"));
+}
 
 QmlProjectRunConfigurationFactory::~QmlProjectRunConfigurationFactory()
 {
@@ -58,7 +60,7 @@ QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectE
 
 QString QmlProjectRunConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(Constants::QML_RC_ID))
+    if (id == Constants::QML_RC_ID)
         return tr("Run QML Script");
     return QString();
 }
@@ -67,7 +69,7 @@ bool QmlProjectRunConfigurationFactory::canCreate(ProjectExplorer::Target *paren
 {
     if (!canHandle(parent))
         return false;
-    return id == Core::Id(Constants::QML_RC_ID);
+    return id == Constants::QML_RC_ID;
 }
 
 ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
@@ -113,7 +115,7 @@ bool QmlProjectRunConfigurationFactory::canHandle(ProjectExplorer::Target *paren
     if (!qobject_cast<QmlProject *>(parent->project()))
         return false;
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
-    return deviceType == Core::Id(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    return deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
 } // namespace Internal

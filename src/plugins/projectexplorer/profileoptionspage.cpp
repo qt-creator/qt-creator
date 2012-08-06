@@ -64,19 +64,15 @@ ProfileOptionsPage::ProfileOptionsPage() :
     setCategoryIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
-struct SmallTreeView : QTreeView
-{
-    explicit SmallTreeView(QWidget *parent) : QTreeView(parent) {}
-    QSize sizeHint() const { return QSize(256, 150); }
-};
-
 QWidget *ProfileOptionsPage::createPage(QWidget *parent)
 {
     m_configWidget = new QWidget(parent);
 
-    m_profilesView = new SmallTreeView(m_configWidget);
+    m_profilesView = new QTreeView(m_configWidget);
     m_profilesView->setUniformRowHeights(true);
     m_profilesView->header()->setStretchLastSection(true);
+    m_profilesView->setSizePolicy(m_profilesView->sizePolicy().horizontalPolicy(),
+                                  QSizePolicy::Ignored);
 
     m_addButton = new QPushButton(tr("Add"), m_configWidget);
     m_cloneButton = new QPushButton(tr("Clone"), m_configWidget);
@@ -89,14 +85,14 @@ QWidget *ProfileOptionsPage::createPage(QWidget *parent)
     buttonLayout->addWidget(m_cloneButton);
     buttonLayout->addWidget(m_delButton);
     buttonLayout->addWidget(m_makeDefaultButton);
-    buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout();
-    verticalLayout->addWidget(m_profilesView);
-
-    QHBoxLayout *horizontalLayout = new QHBoxLayout(m_configWidget);
-    horizontalLayout->addLayout(verticalLayout);
+    QHBoxLayout *horizontalLayout = new QHBoxLayout();
+    horizontalLayout->addWidget(m_profilesView);
     horizontalLayout->addLayout(buttonLayout);
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout(m_configWidget);
+    verticalLayout->addLayout(horizontalLayout);
 
     Q_ASSERT(!m_model);
     m_model = new Internal::ProfileModel(verticalLayout);

@@ -50,7 +50,9 @@ public:
     QString toString() const;
     bool isValid() const { return m_id; }
     bool operator==(Id id) const { return m_id == id.m_id; }
+    bool operator==(const char *name) const;
     bool operator!=(Id id) const { return m_id != id.m_id; }
+    bool operator!=(const char *name) const { return !operator==(name); }
     bool operator<(Id id) const { return m_id < id.m_id; }
     bool operator>(Id id) const { return m_id > id.m_id; }
     int uniqueIdentifier() const { return m_id; }

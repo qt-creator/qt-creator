@@ -45,7 +45,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QWidget>
-#include <QtDebug>
+#include <QDebug>
 
 namespace ImageViewer {
 namespace Internal {

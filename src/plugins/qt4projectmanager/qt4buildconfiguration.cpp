@@ -599,17 +599,16 @@ QList<Core::Id> Qt4BuildConfigurationFactory::availableCreationIds(const Target 
 
 QString Qt4BuildConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id != Core::Id(QT4_BC_ID))
-        return QString();
-
-    return tr("Qmake based build");
+    if (id == QT4_BC_ID)
+        return tr("Qmake based build");
+    return QString();
 }
 
 bool Qt4BuildConfigurationFactory::canCreate(const Target *parent, const Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
-    return id == Core::Id(QT4_BC_ID);
+    return id == QT4_BC_ID;
 }
 
 BuildConfiguration *Qt4BuildConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name)
@@ -676,7 +675,7 @@ bool Qt4BuildConfigurationFactory::canRestore(const Target *parent, const QVaria
 {
     if (!canHandle(parent))
         return false;
-    return ProjectExplorer::idFromMap(map) == Core::Id(QT4_BC_ID);
+    return ProjectExplorer::idFromMap(map) == QT4_BC_ID;
 }
 
 BuildConfiguration *Qt4BuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)

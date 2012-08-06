@@ -31,7 +31,7 @@
 #include <CppDocument.h>
 
 #include <QtTest>
-#include <QtDebug>
+#include <QDebug>
 
 #include <findcdbbreakpoint.h>
 

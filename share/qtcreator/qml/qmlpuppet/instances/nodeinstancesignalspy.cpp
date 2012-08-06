@@ -33,7 +33,7 @@
 
 #include <QMetaProperty>
 #include <QMetaObject>
-#include <QtDebug>
+#include <QDebug>
 #include <QSharedPointer>
 #include <private/qdeclarativemetatype_p.h>
 

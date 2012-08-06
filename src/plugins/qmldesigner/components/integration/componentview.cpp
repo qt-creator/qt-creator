@@ -30,7 +30,7 @@
 
 #include "componentview.h"
 #include "componentaction.h"
-#include <QtDebug>
+#include <QDebug>
 
 #include <nodemetainfo.h>
 #include <nodeabstractproperty.h>

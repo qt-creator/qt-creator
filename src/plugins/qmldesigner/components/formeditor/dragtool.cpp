@@ -42,7 +42,7 @@
 
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
-#include <QtDebug>
+#include <QDebug>
 #include <QMessageBox>
 #include <QTimer>
 

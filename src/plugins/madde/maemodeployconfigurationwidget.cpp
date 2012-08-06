@@ -131,7 +131,7 @@ void MaemoDeployConfigurationWidget::addDesktopFile()
     d.remoteDir = QLatin1String("/usr/share/applications");
     Core::Id deviceType
             = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(deployConfiguration()->target()->profile());
-    if (deviceType == Core::Id(Maemo5OsType))
+    if (deviceType == Maemo5OsType)
         d.remoteDir += QLatin1String("/hildon");
     d.localFilePath = desktopFilePath;
     if (!deployConfiguration()->deploymentSettingsAssistant()

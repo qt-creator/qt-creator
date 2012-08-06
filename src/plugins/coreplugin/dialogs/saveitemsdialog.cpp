@@ -41,7 +41,7 @@
 #include <QTreeWidget>
 #include <QHeaderView>
 #include <QCheckBox>
-#include <QtDebug>
+#include <QDebug>
 
 Q_DECLARE_METATYPE(Core::IDocument*)
 

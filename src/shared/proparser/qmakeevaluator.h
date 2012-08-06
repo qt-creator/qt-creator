@@ -89,10 +89,10 @@ public:
                    QMakeHandler *handler);
     ~QMakeEvaluator();
 
-    ProStringList values(const ProString &variableName) const;
-    ProStringList &valuesRef(const ProString &variableName);
-    ProString first(const ProString &variableName) const;
-    ProString propertyValue(const ProString &val) const;
+    ProStringList values(const ProKey &variableName) const;
+    ProStringList &valuesRef(const ProKey &variableName);
+    ProString first(const ProKey &variableName) const;
+    ProString propertyValue(const ProKey &val) const;
 
     enum VisitReturn {
         ReturnFalse,
@@ -108,7 +108,7 @@ public:
 
     static ALWAYS_INLINE uint getBlockLen(const ushort *&tokPtr);
     ProString getStr(const ushort *&tokPtr);
-    ProString getHashStr(const ushort *&tokPtr);
+    ProKey getHashStr(const ushort *&tokPtr);
     void evaluateExpression(const ushort *&tokPtr, ProStringList *ret, bool joined);
     static ALWAYS_INLINE void skipStr(const ushort *&tokPtr);
     static ALWAYS_INLINE void skipHashStr(const ushort *&tokPtr);
@@ -124,13 +124,14 @@ public:
                              LoadFlags flags);
     VisitReturn visitProBlock(ProFile *pro, const ushort *tokPtr);
     VisitReturn visitProBlock(const ushort *tokPtr);
-    VisitReturn visitProLoop(const ProString &variable, const ushort *exprPtr,
+    VisitReturn visitProLoop(const ProKey &variable, const ushort *exprPtr,
                              const ushort *tokPtr);
-    void visitProFunctionDef(ushort tok, const ProString &name, const ushort *tokPtr);
+    void visitProFunctionDef(ushort tok, const ProKey &name, const ushort *tokPtr);
     void visitProVariable(ushort tok, const ProStringList &curr, const ushort *&tokPtr);
 
-    const ProString &map(const ProString &var);
-    ProValueMap *findValues(const ProString &variableName, ProValueMap::Iterator *it);
+    ALWAYS_INLINE const ProKey &map(const ProString &var) { return map(var.toKey()); }
+    const ProKey &map(const ProKey &var);
+    ProValueMap *findValues(const ProKey &variableName, ProValueMap::Iterator *it);
 
     void setTemplate();
 
@@ -167,8 +168,8 @@ public:
                                      const QList<ProStringList> &argumentsList,
                                      const ProString &function);
 
-    ProStringList evaluateExpandFunction(const ProString &function, const ushort *&tokPtr);
-    VisitReturn evaluateConditionalFunction(const ProString &function, const ushort *&tokPtr);
+    ProStringList evaluateExpandFunction(const ProKey &function, const ushort *&tokPtr);
+    VisitReturn evaluateConditionalFunction(const ProKey &function, const ushort *&tokPtr);
 
     bool evaluateConditional(const QString &cond, const QString &context);
 #ifdef PROEVALUATOR_FULL
@@ -182,7 +183,7 @@ public:
 
     void populateDeps(
             const ProStringList &deps, const ProString &prefix,
-            QHash<ProString, QSet<ProString> > &dependencies,
+            QHash<ProKey, QSet<ProKey> > &dependencies,
             ProValueMap &dependees, ProStringList &rootSet) const;
 
     VisitReturn writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,

@@ -50,7 +50,7 @@
 #include <QProcess>
 #include <QSignalMapper>
 #include <QTextCodec>
-#include <QtDebug>
+#include <QDebug>
 #include <QFileInfo>
 #include <QByteArray>
 #include <QMetaType>

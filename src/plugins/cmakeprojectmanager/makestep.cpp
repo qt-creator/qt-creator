@@ -56,11 +56,10 @@ using namespace CMakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
 namespace {
-const char * const MS_ID("CMakeProjectManager.MakeStep");
-
-const char * const CLEAN_KEY("CMakeProjectManager.MakeStep.Clean");
-const char * const BUILD_TARGETS_KEY("CMakeProjectManager.MakeStep.BuildTargets");
-const char * const ADDITIONAL_ARGUMENTS_KEY("CMakeProjectManager.MakeStep.AdditionalArguments");
+const char MS_ID[] = "CMakeProjectManager.MakeStep";
+const char CLEAN_KEY[] = "CMakeProjectManager.MakeStep.Clean";
+const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
+const char ADDITIONAL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
 }
 
 MakeStep::MakeStep(BuildStepList *bsl) :
@@ -347,9 +346,9 @@ MakeStepFactory::~MakeStepFactory()
 
 bool MakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() != Core::Id(Constants::CMAKEPROJECT_ID))
-        return false;
-    return Core::Id(MS_ID) == id;
+    if (parent->target()->project()->id() == Constants::CMAKEPROJECT_ID)
+        return id == MS_ID;
+    return false;
 }
 
 BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)
@@ -357,7 +356,7 @@ BuildStep *MakeStepFactory::create(BuildStepList *parent, const Core::Id id)
     if (!canCreate(parent, id))
         return 0;
     MakeStep *step = new MakeStep(parent);
-    if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)) {
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         step->setClean(true);
         step->setAdditionalArguments("clean");
     }
@@ -394,14 +393,14 @@ BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &ma
 
 QList<Core::Id> MakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == Core::Id(Constants::CMAKEPROJECT_ID))
+    if (parent->target()->project()->id() == Constants::CMAKEPROJECT_ID)
         return QList<Core::Id>() << Core::Id(MS_ID);
     return QList<Core::Id>();
 }
 
 QString MakeStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(MS_ID))
+    if (id == MS_ID)
         return tr("Make", "Display name for CMakeProjectManager::MakeStep id.");
     return QString();
 }

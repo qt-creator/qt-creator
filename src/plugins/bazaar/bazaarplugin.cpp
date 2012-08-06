@@ -66,7 +66,7 @@
 #include <QAction>
 #include <QMenu>
 #include <QMainWindow>
-#include <QtDebug>
+#include <QDebug>
 #include <QtGlobal>
 #include <QDir>
 #include <QDialog>

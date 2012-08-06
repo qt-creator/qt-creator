@@ -57,7 +57,7 @@ ProFileEvaluator::~ProFileEvaluator()
 
 bool ProFileEvaluator::contains(const QString &variableName) const
 {
-    return d->m_valuemapStack.top().contains(ProString(variableName));
+    return d->m_valuemapStack.top().contains(ProKey(variableName));
 }
 
 QString ProFileEvaluator::value(const QString &variable) const
@@ -71,7 +71,7 @@ QString ProFileEvaluator::value(const QString &variable) const
 
 QStringList ProFileEvaluator::values(const QString &variableName) const
 {
-    const ProStringList &values = d->values(ProString(variableName));
+    const ProStringList &values = d->values(ProKey(variableName));
     QStringList ret;
     ret.reserve(values.size());
     foreach (const ProString &str, values)
@@ -82,7 +82,7 @@ QStringList ProFileEvaluator::values(const QString &variableName) const
 QStringList ProFileEvaluator::values(const QString &variableName, const ProFile *pro) const
 {
     // It makes no sense to put any kind of magic into expanding these
-    const ProStringList &values = d->m_valuemapStack.at(0).value(ProString(variableName));
+    const ProStringList &values = d->m_valuemapStack.at(0).value(ProKey(variableName));
     QStringList ret;
     ret.reserve(values.size());
     foreach (const ProString &str, values)
@@ -167,7 +167,7 @@ QStringList ProFileEvaluator::absoluteFileValues(
 
 ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
 {
-    const ProStringList &templ = d->values(ProString("TEMPLATE"));
+    const ProStringList &templ = d->values(ProKey("TEMPLATE"));
     if (templ.count() >= 1) {
         const QString &t = templ.at(0).toQString();
         if (!t.compare(QLatin1String("app"), Qt::CaseInsensitive))
@@ -191,7 +191,7 @@ bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
 
 QString ProFileEvaluator::propertyValue(const QString &name) const
 {
-    return d->m_option->propertyValue(ProString(name)).toQString();
+    return d->m_option->propertyValue(ProKey(name)).toQString();
 }
 
 #ifdef PROEVALUATOR_CUMULATIVE

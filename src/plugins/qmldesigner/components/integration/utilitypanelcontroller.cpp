@@ -28,7 +28,7 @@
 **
 **************************************************************************/
 
-#include <QtDebug>
+#include <QDebug>
 #include <QEvent>
 #include <QDockWidget>
 #include <QVBoxLayout>

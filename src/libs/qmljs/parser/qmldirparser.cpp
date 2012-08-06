@@ -33,7 +33,7 @@
 
 
 
-#include <QtCore/QtDebug>
+#include <QtCore/QDebug>
 
 QT_BEGIN_NAMESPACE
 

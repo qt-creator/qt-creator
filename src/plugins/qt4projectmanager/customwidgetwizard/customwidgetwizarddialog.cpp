@@ -51,7 +51,7 @@ public:
     bool matches(const ProjectExplorer::Profile *p) const
     {
         ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(p);
-        if (dev.isNull() || dev->id() != Core::Id(ProjectExplorer::Constants::DESKTOP_DEVICE_ID))
+        if (dev.isNull() || dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
             return false;
         QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
         return version && version->type() == QtSupport::Constants::DESKTOPQT;

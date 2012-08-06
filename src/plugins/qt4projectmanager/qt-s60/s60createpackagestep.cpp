@@ -750,7 +750,7 @@ S60CreatePackageStepFactory::~S60CreatePackageStepFactory()
 
 bool S60CreatePackageStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
-    return canHandle(parent) &&  id == Core::Id(SIGN_BS_ID);
+    return canHandle(parent) &&  id == SIGN_BS_ID;
 }
 
 ProjectExplorer::BuildStep *S60CreatePackageStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
@@ -774,7 +774,7 @@ ProjectExplorer::BuildStep *S60CreatePackageStepFactory::clone(ProjectExplorer::
 
 bool S60CreatePackageStepFactory::canHandle(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return false;
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
     if (deviceType != SymbianIDeviceFactory::deviceType())
@@ -808,7 +808,7 @@ QList<Core::Id> S60CreatePackageStepFactory::availableCreationIds(ProjectExplore
 
 QString S60CreatePackageStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(SIGN_BS_ID))
+    if (id == SIGN_BS_ID)
         return tr("Create SIS Package");
     return QString();
 }

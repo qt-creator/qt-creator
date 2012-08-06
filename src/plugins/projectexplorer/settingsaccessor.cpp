@@ -955,11 +955,11 @@ QVariantMap Version0Handler::convertBuildConfigurations(Project *project, const 
 
     // Find a valid Id to use:
     QString id;
-    if (project->id() == Core::Id("GenericProjectManager.GenericProject")) {
+    if (project->id() == "GenericProjectManager.GenericProject") {
         id = QLatin1String("GenericProjectManager.GenericBuildConfiguration");
-    } else if (project->id() == Core::Id("CMakeProjectManager.CMakeProject")) {
+    } else if (project->id() == "CMakeProjectManager.CMakeProject") {
         id = QLatin1String("CMakeProjectManager.CMakeBuildConfiguration");
-    } else if (project->id() == Core::Id("Qt4ProjectManager.Qt4Project")) {
+    } else if (project->id() == "Qt4ProjectManager.Qt4Project") {
         result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.NeedsV0Update"), QVariant());
         id = QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration");
     } else {
@@ -1403,17 +1403,17 @@ QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
 
     // Generate a list of all possible targets for the project:
     QList<TargetDescription> targets;
-    if (project->id() == Core::Id("GenericProjectManager.GenericProject"))
+    if (project->id() == "GenericProjectManager.GenericProject")
         targets << TargetDescription(QString::fromLatin1("GenericProjectManager.GenericTarget"),
                                      QCoreApplication::translate("GenericProjectManager::GenericTarget",
                                                                  "Desktop",
                                                                  "Generic desktop target display name"));
-    else if (project->id() == Core::Id("CMakeProjectManager.CMakeProject"))
+    else if (project->id() == "CMakeProjectManager.CMakeProject")
         targets << TargetDescription(QString::fromLatin1("CMakeProjectManager.DefaultCMakeTarget"),
                                      QCoreApplication::translate("CMakeProjectManager::Internal::CMakeTarget",
                                                                  "Desktop",
                                                                  "CMake Default target display name"));
-    else if (project->id() == Core::Id("Qt4ProjectManager.Qt4Project"))
+    else if (project->id() == "Qt4ProjectManager.Qt4Project")
         targets << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.DesktopTarget"),
                                      QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
                                                                  "Desktop",
@@ -1434,7 +1434,7 @@ QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
                                      QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
                                                                  "Maemo Device",
                                                                  "Qt4 Maemo Device target display name"));
-    else if (project->id() == Core::Id("QmlProjectManager.QmlProject"))
+    else if (project->id() == "QmlProjectManager.QmlProject")
         targets << TargetDescription(QString::fromLatin1("QmlProjectManager.QmlTarget"),
                                      QCoreApplication::translate("QmlProjectManager::QmlTarget",
                                                                  "QML Viewer",

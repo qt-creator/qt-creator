@@ -53,7 +53,7 @@
 #include <QByteArray>
 #include <QBitArray>
 #include <QDir>
-#include <QtDebug>
+#include <QDebug>
 
 /*!
     \namespace CPlusPlus

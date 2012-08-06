@@ -29,7 +29,7 @@
 **************************************************************************/
 
 #include <QSet>
-#include <QtDebug>
+#include <QDebug>
 #include <QWidget>
 #include <QApplication>
 

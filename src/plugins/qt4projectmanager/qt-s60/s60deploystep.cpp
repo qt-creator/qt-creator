@@ -678,7 +678,7 @@ S60DeployStepFactory::~S60DeployStepFactory()
 
 bool S60DeployStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
-    return canHandle(parent) && id == Core::Id(S60_DEPLOY_STEP_ID);
+    return canHandle(parent) && id == S60_DEPLOY_STEP_ID;
 }
 
 ProjectExplorer::BuildStep *S60DeployStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
@@ -706,7 +706,7 @@ ProjectExplorer::BuildStep *S60DeployStepFactory::clone(ProjectExplorer::BuildSt
 
 bool S60DeployStepFactory::canHandle(BuildStepList *parent) const
 {
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return false;
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
     if (deviceType != SymbianIDeviceFactory::deviceType())
@@ -739,7 +739,7 @@ QList<Core::Id> S60DeployStepFactory::availableCreationIds(ProjectExplorer::Buil
 
 QString S60DeployStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(S60_DEPLOY_STEP_ID))
+    if (id == S60_DEPLOY_STEP_ID)
         return tr("Deploy SIS Package");
     return QString();
 }

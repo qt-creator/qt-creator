@@ -50,7 +50,7 @@ BlackBerryDeployStepFactory::BlackBerryDeployStepFactory()
 
 QList<Core::Id> BlackBerryDeployStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return QList<Core::Id>();
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
@@ -62,7 +62,7 @@ QList<Core::Id> BlackBerryDeployStepFactory::availableCreationIds(ProjectExplore
 
 QString BlackBerryDeployStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(Constants::QNX_DEPLOY_PACKAGE_BS_ID))
+    if (id == Constants::QNX_DEPLOY_PACKAGE_BS_ID)
         return tr("Deploy Package");
     return QString();
 }

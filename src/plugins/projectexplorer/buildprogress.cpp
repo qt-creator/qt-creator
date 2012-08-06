@@ -37,7 +37,7 @@
 #include <QHBoxLayout>
 #include <QFont>
 #include <QPixmap>
-#include <QtDebug>
+#include <QDebug>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;

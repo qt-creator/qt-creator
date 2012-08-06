@@ -102,7 +102,7 @@ index 069be3c..9cbdc23 100644
 +**************************************************************************/
 +
 
- #include <QtCore/QtDebug>
+ #include <QtCore/QDebug>
  #include <QtCore/QCoreApplication>
 @@ -136,46 +133,36 @@
 

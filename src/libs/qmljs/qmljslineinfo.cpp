@@ -69,7 +69,7 @@
 #include <qmljs/qmljslineinfo.h>
 #include <qmljs/qmljsscanner.h>
 
-#include <QtDebug>
+#include <QDebug>
 
 using namespace QmlJS;
 

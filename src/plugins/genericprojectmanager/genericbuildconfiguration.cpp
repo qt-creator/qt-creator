@@ -147,7 +147,7 @@ QList<Core::Id> GenericBuildConfigurationFactory::availableCreationIds(const Pro
 
 QString GenericBuildConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(GENERIC_BC_ID))
+    if (id == GENERIC_BC_ID)
         return tr("Build");
     return QString();
 }
@@ -156,7 +156,7 @@ bool GenericBuildConfigurationFactory::canCreate(const ProjectExplorer::Target *
 {
     if (!canHandle(parent))
         return false;
-    if (id == Core::Id(GENERIC_BC_ID))
+    if (id == GENERIC_BC_ID)
         return true;
     return false;
 }

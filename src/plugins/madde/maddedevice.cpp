@@ -89,9 +89,9 @@ QString MaddeDevice::displayNameForActionId(Core::Id actionId) const
 {
     QTC_ASSERT(actionIds().contains(actionId), return QString());
 
-    if (actionId == Core::Id(MaddeDeviceTestActionId))
+    if (actionId == MaddeDeviceTestActionId)
         return tr("Test");
-    if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
+    if (actionId == Constants::GenericDeployKeyToDeviceActionId)
         return tr("Deploy Public Key...");
     return QString(); // Can't happen.
 }
@@ -102,9 +102,9 @@ void MaddeDevice::executeAction(Core::Id actionId, QWidget *parent) const
 
     QDialog *d = 0;
     const IDevice::ConstPtr device = sharedFromThis();
-    if (actionId == Core::Id(MaddeDeviceTestActionId))
+    if (actionId == MaddeDeviceTestActionId)
         d = new LinuxDeviceTestDialog(device, new MaddeDeviceTester, parent);
-    else if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
+    else if (actionId == Constants::GenericDeployKeyToDeviceActionId)
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
     if (d)
         d->exec();
@@ -113,9 +113,9 @@ void MaddeDevice::executeAction(Core::Id actionId, QWidget *parent) const
 
 QString MaddeDevice::maddeDisplayType(Core::Id type)
 {
-    if (type == Core::Id(Maemo5OsType))
+    if (type == Maemo5OsType)
         return tr("Maemo5/Fremantle");
-    if (type == Core::Id(HarmattanOsType))
+    if (type == HarmattanOsType)
         return tr("MeeGo 1.2 Harmattan");
     QTC_ASSERT(false, return QString());
     return QString(); // For crappy compilers.
@@ -123,24 +123,24 @@ QString MaddeDevice::maddeDisplayType(Core::Id type)
 
 bool MaddeDevice::allowsRemoteMounts(Core::Id type)
 {
-    return type == Core::Id(Maemo5OsType);
+    return type == Maemo5OsType;
 }
 
 bool MaddeDevice::allowsPackagingDisabling(Core::Id type)
 {
-    return type == Core::Id(Maemo5OsType);
+    return type == Maemo5OsType;
 }
 
 bool MaddeDevice::allowsQmlDebugging(Core::Id type)
 {
-    return type == Core::Id(HarmattanOsType);
+    return type == HarmattanOsType;
 }
 
 QSize MaddeDevice::packageManagerIconSize(Core::Id type)
 {
-    if (type == Core::Id(Maemo5OsType))
+    if (type == Maemo5OsType)
         return QSize(48, 48);
-    if (type == Core::Id(HarmattanOsType))
+    if (type == HarmattanOsType)
         return QSize(64, 64);
     return QSize();
 }

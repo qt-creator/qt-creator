@@ -32,7 +32,7 @@
 
 
 #include <QTimer>
-#include <QtDebug>
+#include <QDebug>
 #include <QEvent>
 
 namespace QmlDesigner {

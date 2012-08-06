@@ -37,7 +37,7 @@
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 #include <bindingproperty.h>
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 class NodeInstanceView;

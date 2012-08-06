@@ -31,7 +31,7 @@
 #include "numberseriesaction.h"
 #include <QStandardItemModel>
 #include <QComboBox>
-#include <QtDebug>
+#include <QDebug>
 
 
 namespace QmlDesigner {

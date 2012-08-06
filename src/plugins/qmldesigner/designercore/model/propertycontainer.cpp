@@ -37,7 +37,7 @@
 #include <QSizeF>
 #include <QPoint>
 #include <QPointF>
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 

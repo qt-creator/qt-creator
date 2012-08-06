@@ -69,7 +69,7 @@
 #include <qmljs/qmljsindenter.h>
 #include <qmljs/qmljsscanner.h>
 
-#include <QtDebug>
+#include <QDebug>
 #include <QTextBlock>
 
 using namespace QmlJS;

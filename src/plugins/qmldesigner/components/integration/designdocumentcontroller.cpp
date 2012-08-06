@@ -75,7 +75,7 @@
 #include <QUrl>
 #include <QProcess>
 #include <QTemporaryFile>
-#include <QtDebug>
+#include <QDebug>
 #include <QEvent>
 
 #include <QBoxLayout>

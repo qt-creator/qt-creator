@@ -140,7 +140,7 @@ QList<Core::Id> AutotoolsBuildConfigurationFactory::availableCreationIds(const T
 
 QString AutotoolsBuildConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(AUTOTOOLS_BC_ID))
+    if (id == AUTOTOOLS_BC_ID)
         return tr("Build");
     return QString();
 }
@@ -149,7 +149,7 @@ bool AutotoolsBuildConfigurationFactory::canCreate(const Target *parent, const C
 {
     if (!canHandle(parent))
         return false;
-    if (id == Core::Id(AUTOTOOLS_BC_ID))
+    if (id == AUTOTOOLS_BC_ID)
         return true;
     return false;
 }
@@ -216,7 +216,7 @@ bool AutotoolsBuildConfigurationFactory::canHandle(const Target *t) const
 {
     if (!t->project()->supportsProfile(t->profile()))
         return false;
-    return t->project()->id() == Core::Id(Constants::AUTOTOOLS_PROJECT_ID);
+    return t->project()->id() == Constants::AUTOTOOLS_PROJECT_ID;
 }
 
 bool AutotoolsBuildConfigurationFactory::canClone(const Target *parent, BuildConfiguration *source) const

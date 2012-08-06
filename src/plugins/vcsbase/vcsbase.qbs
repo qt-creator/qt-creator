@@ -84,7 +84,6 @@ QtcPlugin {
         "vcsbasesubmiteditor.h",
         "vcsconfigurationpage.cpp",
         "vcsconfigurationpage.h",
-        "vcsconfigurationpage.ui",
         "vcsplugin.cpp",
         "vcsplugin.h",
         "images/diff.png",

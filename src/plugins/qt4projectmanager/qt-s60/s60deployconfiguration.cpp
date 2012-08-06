@@ -412,7 +412,7 @@ bool S60DeployConfigurationFactory::canCreate(Target *parent, const Core::Id id)
     ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(parent->profile());
     if (dev.isNull() || dev->type() != SymbianIDeviceFactory::deviceType())
         return false;
-    return id == Core::Id(S60_DEPLOYCONFIGURATION_ID);
+    return id == S60_DEPLOYCONFIGURATION_ID;
 }
 
 bool S60DeployConfigurationFactory::canRestore(Target *parent, const QVariantMap& map) const
@@ -436,7 +436,7 @@ bool S60DeployConfigurationFactory::canClone(Target *parent, DeployConfiguration
 {
     if (!qobject_cast<Qt4Project *>(parent->project()))
         return false;
-    return source->id() == Core::Id(S60_DEPLOYCONFIGURATION_ID);
+    return source->id() == S60_DEPLOYCONFIGURATION_ID;
 }
 
 DeployConfiguration *S60DeployConfigurationFactory::clone(Target *parent, DeployConfiguration *source)

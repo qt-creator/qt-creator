@@ -34,7 +34,7 @@
 #include <modelnode.h>
 #include "commondefines.h"
 
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 

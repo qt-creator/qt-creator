@@ -43,7 +43,7 @@
 #include <QTime>
 #include <QIcon>
 
-#include <QtDebug>
+#include <QDebug>
 
 using namespace Core;
 using namespace Core::Internal;

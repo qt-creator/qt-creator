@@ -145,7 +145,7 @@ void MaemoUploadAndInstallPackageStep::ctor()
 {
     setDefaultDisplayName(displayName());
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
-    if (deviceType == Core::Id(HarmattanOsType))
+    if (deviceType == HarmattanOsType)
         m_deployService = new HarmattanUploadAndInstallPackageAction(this);
     else
         m_deployService = new MaemoUploadAndInstallPackageAction(this);

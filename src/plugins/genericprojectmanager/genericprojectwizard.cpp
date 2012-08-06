@@ -47,7 +47,7 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QtDebug>
+#include <QDebug>
 #include <QCoreApplication>
 
 using namespace GenericProjectManager::Internal;

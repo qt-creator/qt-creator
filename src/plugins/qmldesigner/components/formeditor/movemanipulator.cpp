@@ -35,7 +35,7 @@
 #include "formeditorscene.h"
 
 #include <QPointF>
-#include <QtDebug>
+#include <QDebug>
 #include <QColor>
 #include <QPen>
 #include <QApplication>

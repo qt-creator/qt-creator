@@ -62,10 +62,8 @@ using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
 
-namespace {
-const QString OldDeployConfigId = QLatin1String("2.2MaemoDeployConfig");
+const char OldDeployConfigId[] = "2.2MaemoDeployConfig";
 const char DEPLOYMENT_ASSISTANT_SETTING[] = "RemoteLinux.DeploymentAssistant";
-} // namespace
 
 namespace Madde {
 namespace Internal {
@@ -124,9 +122,9 @@ QString Qt4MaemoDeployConfiguration::qmakeScope() const
 {
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
 
-    if (deviceType == Core::Id(Maemo5OsType))
+    if (deviceType == Maemo5OsType)
         return QLatin1String("maemo5");
-    else if (deviceType == Core::Id(HarmattanOsType))
+    if (deviceType == HarmattanOsType)
         return QLatin1String("contains(MEEGO_EDITION,harmattan)");
     return QString("unix");
 }
@@ -135,9 +133,9 @@ QString Qt4MaemoDeployConfiguration::installPrefix() const
 {
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
 
-    if (deviceType == Core::Id(Maemo5OsType))
+    if (deviceType == Maemo5OsType)
         return QLatin1String("/opt");
-    else if (deviceType == Core::Id(HarmattanOsType))
+    if (deviceType == HarmattanOsType)
         return QLatin1String("/opt");
     return QLatin1String("/usr/local");
 }
@@ -188,7 +186,7 @@ void Qt4MaemoDeployConfiguration::setupDebianPackaging()
     connect(dm, SIGNAL(debianDirectoryChanged(Utils::FileName)), this, SLOT(debianDirChanged(Utils::FileName)));
 
     // Set up aegis manifest on harmattan:
-    if (deviceType == Core::Id(HarmattanOsType)) {
+    if (deviceType == HarmattanOsType) {
         Utils::FileName manifest = debianDir;
         const QString manifestName = QLatin1String("manifest.aegis");
         manifest.appendPath(manifestName);
@@ -270,10 +268,10 @@ QList<Core::Id> Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target 
         return ids;
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
-    if (deviceType == Core::Id(Maemo5OsType))
+    if (deviceType == Maemo5OsType)
         ids << Qt4MaemoDeployConfiguration::fremantleWithPackagingId()
             << Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId();
-    else if (deviceType == Core::Id(HarmattanOsType))
+    else if (deviceType == HarmattanOsType)
         ids << Qt4MaemoDeployConfiguration::harmattanId();
     return ids;
 }
@@ -324,7 +322,7 @@ bool Qt4MaemoDeployConfigurationFactory::canRestore(Target *parent, const QVaria
 {
     Core::Id id = idFromMap(map);
     return canHandle(parent)
-            && (availableCreationIds(parent).contains(id) || id == Core::Id(OldDeployConfigId))
+            && (availableCreationIds(parent).contains(id) || id == OldDeployConfigId)
             && MaemoGlobal::supportsMaemoDevice(parent->profile());
 }
 
@@ -334,10 +332,10 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::restore(Target *parent,
         return 0;
     Core::Id id = idFromMap(map);
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
-    if (id == Core::Id(OldDeployConfigId)) {
-        if (deviceType == Core::Id(Maemo5OsType))
+    if (id == OldDeployConfigId) {
+        if (deviceType == Maemo5OsType)
             id = Qt4MaemoDeployConfiguration::fremantleWithPackagingId();
-        else if (deviceType == Core::Id(HarmattanOsType))
+        else if (deviceType == HarmattanOsType)
             id = Qt4MaemoDeployConfiguration::harmattanId();
     }
     Qt4MaemoDeployConfiguration * const dc

@@ -36,7 +36,7 @@
 #include <QGraphicsObject>
 #include <QGraphicsScene>
 
-#include <QtDebug>
+#include <QDebug>
 
 #include <cmath>
 

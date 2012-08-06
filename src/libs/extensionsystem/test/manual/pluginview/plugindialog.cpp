@@ -39,7 +39,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QApplication>
-#include <QtDebug>
+#include <QDebug>
 
 PluginDialog::PluginDialog(ExtensionSystem::PluginManager *manager)
     : m_view(new ExtensionSystem::PluginView(manager, this))

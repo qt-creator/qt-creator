@@ -34,7 +34,7 @@
 #include <QGraphicsRectItem>
 #include <QBrush>
 #include "layeritem.h"
-#include <QtDebug>
+#include <QDebug>
 
 
 namespace QmlDesigner {

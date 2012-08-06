@@ -40,7 +40,7 @@ DesktopDeviceFactory::DesktopDeviceFactory(QObject *parent) : IDeviceFactory(par
 
 QString DesktopDeviceFactory::displayNameForId(Core::Id type) const
 {
-    if (type == Core::Id(Constants::DESKTOP_DEVICE_TYPE))
+    if (type == Constants::DESKTOP_DEVICE_TYPE)
         return tr("Desktop");
     return QString();
 }
@@ -63,7 +63,7 @@ IDevice::Ptr DesktopDeviceFactory::create(Core::Id id) const
 
 bool DesktopDeviceFactory::canRestore(const QVariantMap &map) const
 {
-    return IDevice::idFromMap(map) == Core::Id(Constants::DESKTOP_DEVICE_ID);
+    return IDevice::idFromMap(map) == Constants::DESKTOP_DEVICE_ID;
 }
 
 IDevice::Ptr DesktopDeviceFactory::restore(const QVariantMap &map) const

@@ -607,7 +607,7 @@ QStringList MaemoPublisherFremantleFree::findProblems() const
     ProjectExplorer::Target *target = m_buildConfig->target();
     Core::Id deviceType
             = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target->profile());
-    if (deviceType != Core::Id(Maemo5OsType))
+    if (deviceType != Maemo5OsType)
         return QStringList();
 
     const QString &description = DebianManager::shortDescription(DebianManager::debianDirectory(target));

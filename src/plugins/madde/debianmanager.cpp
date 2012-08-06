@@ -99,7 +99,7 @@ QString shortDayOfWeekName(const QDateTime &dt)
 
 QByteArray packageManagerNameFieldName(Core::Id deviceType)
 {
-    if (deviceType == Core::Id(Madde::Internal::Maemo5OsType))
+    if (deviceType == Madde::Internal::Maemo5OsType)
         return QByteArray("XB-Maemo-Display-Name");
     return QByteArray("XSBC-Maemo-Display-Name");
 }
@@ -107,7 +107,7 @@ QByteArray packageManagerNameFieldName(Core::Id deviceType)
 QList<QPair<QByteArray, QByteArray> > additionalFields(Core::Id deviceType, const QString &projectName)
 {
     QList<QPair<QByteArray, QByteArray> > fields;
-    if (deviceType == Core::Id(Madde::Internal::HarmattanOsType))
+    if (deviceType == Madde::Internal::HarmattanOsType)
         fields << qMakePair(QByteArray("XB-Maemo-Flags"), QByteArray("visible"))
                << qMakePair(QByteArray("XB-MeeGo-Desktop-Entry-Filename"),
                             QString::fromLatin1("%1_harmattan").arg(projectName).toUtf8())
@@ -117,10 +117,11 @@ QList<QPair<QByteArray, QByteArray> > additionalFields(Core::Id deviceType, cons
     return fields;
 }
 
-QByteArray section(Core::Id deviceType) {
-    if (deviceType == Core::Id(Madde::Internal::Maemo5OsType))
+QByteArray section(Core::Id deviceType)
+{
+    if (deviceType == Madde::Internal::Maemo5OsType)
         return "user/hidden";
-    else if (deviceType == Core::Id(Madde::Internal::HarmattanOsType))
+    if (deviceType == Madde::Internal::HarmattanOsType)
         return "user/other";
     return QByteArray();
 }
@@ -671,9 +672,9 @@ Utils::FileName DebianManager::debianDirectory(ProjectExplorer::Target *target)
     Utils::FileName path = Utils::FileName::fromString(target->project()->projectDirectory());
     path.appendPath(PackagingDirName);
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target->profile());
-    if (deviceType == Core::Id(HarmattanOsType))
+    if (deviceType == HarmattanOsType)
         path.appendPath(QLatin1String("debian_harmattan"));
-    else if (deviceType == Core::Id(Maemo5OsType))
+    else if (deviceType == Maemo5OsType)
         path.appendPath(QLatin1String("debian_fremantle"));
     else
         path.clear();

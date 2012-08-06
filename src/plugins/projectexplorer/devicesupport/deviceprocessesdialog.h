@@ -38,7 +38,8 @@ namespace ProjectExplorer {
 
 class DeviceProcessList;
 
-namespace Internal { class DeviceProcessesDialogPrivate; }
+namespace Internal {
+class DeviceProcessesDialogPrivate;
 
 class DeviceProcessesDialog : public QDialog
 {
@@ -61,6 +62,7 @@ private:
     Internal::DeviceProcessesDialogPrivate * const d;
 };
 
+} // namespace Internal
 } // namespace RemoteLinux
 
 #endif // REMOTELINUXPROCESSESDIALOG_H

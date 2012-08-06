@@ -33,7 +33,7 @@
 #include <QComboBox>
 #include "componentview.h"
 #include <QStandardItemModel>
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 

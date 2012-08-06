@@ -30,7 +30,7 @@
 
 #include "onedimensionalcluster.h"
 
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 

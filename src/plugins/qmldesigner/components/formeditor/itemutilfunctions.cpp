@@ -32,7 +32,7 @@
 #include <formeditorscene.h>
 
 #include <QRectF>
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 

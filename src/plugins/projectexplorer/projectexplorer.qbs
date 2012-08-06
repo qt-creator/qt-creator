@@ -312,7 +312,9 @@ QtcPlugin {
         "devicesupport/idevicefactory.cpp",
         "devicesupport/idevicefactory.h",
         "devicesupport/deviceapplicationrunner.cpp",
-        "devicesupport/deviceapplicationrunner.h"
+        "devicesupport/deviceapplicationrunner.h",
+        "devicesupport/localprocesslist.h",
+        "devicesupport/localprocesslist.cpp"
     ]
 
     Group {

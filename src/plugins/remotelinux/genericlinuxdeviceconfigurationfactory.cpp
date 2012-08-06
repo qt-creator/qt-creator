@@ -46,7 +46,7 @@ GenericLinuxDeviceConfigurationFactory::GenericLinuxDeviceConfigurationFactory(Q
 
 QString GenericLinuxDeviceConfigurationFactory::displayNameForId(Core::Id type) const
 {
-    QTC_ASSERT(type == Core::Id(Constants::GenericLinuxOsType), return QString());
+    QTC_ASSERT(type == Constants::GenericLinuxOsType, return QString());
     return tr("Generic Linux Device");
 }
 
@@ -57,7 +57,7 @@ QList<Core::Id> GenericLinuxDeviceConfigurationFactory::availableCreationIds() c
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create(Core::Id id) const
 {
-    QTC_ASSERT(id == Core::Id(Constants::GenericLinuxOsType), return IDevice::Ptr());
+    QTC_ASSERT(id == Constants::GenericLinuxOsType, return IDevice::Ptr());
     GenericLinuxDeviceConfigurationWizard wizard;
     if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
@@ -66,7 +66,7 @@ IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create(Core::Id id) const
 
 bool GenericLinuxDeviceConfigurationFactory::canRestore(const QVariantMap &map) const
 {
-    return IDevice::typeFromMap(map) == Core::Id(Constants::GenericLinuxOsType);
+    return IDevice::typeFromMap(map) == Constants::GenericLinuxOsType;
 }
 
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::restore(const QVariantMap &map) const

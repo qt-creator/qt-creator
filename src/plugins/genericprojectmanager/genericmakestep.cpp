@@ -323,9 +323,9 @@ GenericMakeStepFactory::~GenericMakeStepFactory()
 bool GenericMakeStepFactory::canCreate(ProjectExplorer::BuildStepList *parent,
                                        const Core::Id id) const
 {
-    if (parent->target()->project()->id() != Core::Id(Constants::GENERICPROJECT_ID))
-        return false;
-    return id == Core::Id(GENERIC_MS_ID);
+    if (parent->target()->project()->id() == Constants::GENERICPROJECT_ID)
+        return id == GENERIC_MS_ID;
+    return false;
 }
 
 ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::BuildStepList *parent,
@@ -334,10 +334,10 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::Buil
     if (!canCreate(parent, id))
         return 0;
     GenericMakeStep *step = new GenericMakeStep(parent);
-    if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)) {
+    if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
         step->setClean(true);
         step->setBuildTarget(QLatin1String("clean"), /* on = */ true);
-    } else if (parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD)) {
+    } else if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD) {
         step->setBuildTarget(QLatin1String("all"), /* on = */ true);
     }
     return step;
@@ -379,14 +379,14 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::restore(ProjectExplorer::Bui
 
 QList<Core::Id> GenericMakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() != Core::Id(Constants::GENERICPROJECT_ID))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(GENERIC_MS_ID);
+    if (parent->target()->project()->id() == Constants::GENERICPROJECT_ID)
+        return QList<Core::Id>() << Core::Id(GENERIC_MS_ID);
+    return QList<Core::Id>();
 }
 
 QString GenericMakeStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(GENERIC_MS_ID))
+    if (id == GENERIC_MS_ID)
         return QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
                                            GENERIC_MS_DISPLAY_NAME);
     return QString();

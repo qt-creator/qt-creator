@@ -37,7 +37,7 @@
 #include <QCoreApplication>
 #include <QMap>
 #include <QImageReader>
-#include <QtDebug>
+#include <QDebug>
 
 namespace ImageViewer {
 namespace Internal {

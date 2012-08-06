@@ -37,7 +37,7 @@
 #include <QSettings>
 #include <QStringList>
 #include <QFileInfo>
-#include <QtDebug>
+#include <QDebug>
 #include <QTextStream>
 #include <QSharedData>
 #include <QScopedPointer>

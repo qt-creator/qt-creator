@@ -181,7 +181,7 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
     } else if (m_processRunner->processExitCode() != 0) {
         QString message = tr("Connectivity tool not installed on device. "
             "Deployment currently not possible.");
-        if (m_deviceConfiguration->type() == Core::Id(HarmattanOsType)) {
+        if (m_deviceConfiguration->type() == HarmattanOsType) {
             message += tr("Please switch the device to developer mode "
                 "via Settings -> Security.");
         }
@@ -191,7 +191,7 @@ void MaddeDeviceTester::handleMadDeveloperTestFinished(int exitStatus)
         emit progressMessage(tr("Connectivity tool present.\n"));
     }
 
-    if (m_deviceConfiguration->type() != Core::Id(HarmattanOsType)) {
+    if (m_deviceConfiguration->type() != HarmattanOsType) {
         setFinished();
         return;
     }

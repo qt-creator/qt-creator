@@ -236,7 +236,7 @@ QStringList MaemoInstallDebianPackageToSysrootStep::madArguments() const
     QStringList args;
     args << QLatin1String("xdpkg");
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
-    if (deviceType == Core::Id(HarmattanOsType))
+    if (deviceType == HarmattanOsType)
         args << QLatin1String("--no-force-downgrade");
     args << QLatin1String("-i");
     return args;

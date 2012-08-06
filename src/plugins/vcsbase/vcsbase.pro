@@ -67,6 +67,5 @@ FORMS += commonsettingspage.ui \
     nicknamedialog.ui \
     checkoutprogresswizardpage.ui \
     basecheckoutwizardpage.ui \
-    cleandialog.ui \
-    vcsconfigurationpage.ui \
+    cleandialog.ui
 

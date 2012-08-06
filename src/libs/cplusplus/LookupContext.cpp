@@ -43,7 +43,7 @@
 #include <QStack>
 #include <QHash>
 #include <QVarLengthArray>
-#include <QtDebug>
+#include <QDebug>
 
 using namespace CPlusPlus;
 

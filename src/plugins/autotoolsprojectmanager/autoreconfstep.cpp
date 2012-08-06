@@ -73,7 +73,7 @@ QList<Core::Id> AutoreconfStepFactory::availableCreationIds(BuildStepList *paren
 
 QString AutoreconfStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Core::Id(AUTORECONF_STEP_ID))
+    if (id == AUTORECONF_STEP_ID)
         return tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id.");
     return QString();
 }
@@ -120,9 +120,9 @@ BuildStep *AutoreconfStepFactory::restore(BuildStepList *parent, const QVariantM
 
 bool AutoreconfStepFactory::canHandle(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() != Core::Id(Constants::AUTOTOOLS_PROJECT_ID))
-        return false;
-    return parent->id() == Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    if (parent->target()->project()->id() == Constants::AUTOTOOLS_PROJECT_ID)
+        return parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD;
+    return false;
 }
 
 /////////////////////////

@@ -51,7 +51,7 @@ QnxDeployStepFactory::QnxDeployStepFactory()
 
 QList<Core::Id> QnxDeployStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return QList<Core::Id>();
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());

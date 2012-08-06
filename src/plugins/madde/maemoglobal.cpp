@@ -65,13 +65,13 @@ bool MaemoGlobal::hasMaemoDevice(const Profile *p)
         return false;
 
     const Core::Id type = dev->type();
-    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType);
+    return type == Maemo5OsType || type == HarmattanOsType;
 }
 
 bool MaemoGlobal::supportsMaemoDevice(const Profile *p)
 {
     const Core::Id type = DeviceTypeProfileInformation::deviceTypeId(p);
-    return type == Core::Id(Maemo5OsType) || type == Core::Id(HarmattanOsType);
+    return type == Maemo5OsType || type == HarmattanOsType;
 }
 
 bool MaemoGlobal::isValidMaemo5QtVersion(const QString &qmakePath)
@@ -122,14 +122,14 @@ QString MaemoGlobal::devrootshPath()
 int MaemoGlobal::applicationIconSize(const Target *target)
 {
     Core::Id deviceType = DeviceTypeProfileInformation::deviceTypeId(target->profile());
-    return deviceType == Core::Id(HarmattanOsType) ? 80 : 64;
+    return deviceType == HarmattanOsType ? 80 : 64;
 }
 
 QString MaemoGlobal::remoteSudo(Core::Id deviceType, const QString &uname)
 {
     if (uname == QLatin1String("root"))
         return QString();
-    if (deviceType == Core::Id(Maemo5OsType) || deviceType == Core::Id(HarmattanOsType))
+    if (deviceType == Maemo5OsType || deviceType == HarmattanOsType)
         return devrootshPath();
     return QString(); // Using sudo would open a can of worms.
 }
@@ -199,7 +199,7 @@ QString MaemoGlobal::madCommand(const QString &qmakePath)
 
 QString MaemoGlobal::madDeveloperUiName(Core::Id deviceType)
 {
-    return deviceType == Core::Id(HarmattanOsType)
+    return deviceType == HarmattanOsType
         ? tr("SDK Connectivity") : tr("Mad Developer");
 }
 

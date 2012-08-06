@@ -42,7 +42,7 @@
 #include <QDialogButtonBox>
 #include <QPushButton>
 #include <QLabel>
-#include <QtDebug>
+#include <QDebug>
 
 using namespace Core::Internal;
 

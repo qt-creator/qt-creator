@@ -44,7 +44,7 @@
 #include <QSet>
 #include <QStringList>
 
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 

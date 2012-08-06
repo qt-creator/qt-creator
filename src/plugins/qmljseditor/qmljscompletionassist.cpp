@@ -471,7 +471,7 @@ int FunctionHintProposalModel::activeArgument(const QString &prefix) const
 // -----------------------------
 bool QmlJSCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
-    return editorId == Core::Id(Constants::C_QMLJSEDITOR_ID);
+    return editorId == Constants::C_QMLJSEDITOR_ID;
 }
 
 int QmlJSCompletionAssistProvider::activationCharSequenceLength() const

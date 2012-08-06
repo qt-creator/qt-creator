@@ -55,7 +55,7 @@ AndroidPackageCreationFactory::AndroidPackageCreationFactory(QObject *parent)
 
 QList<Core::Id> AndroidPackageCreationFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
-    if (parent->id() != Core::Id(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY))
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return QList<Core::Id>();
     if (!AndroidManager::supportsAndroid(parent->target()))
         return QList<Core::Id>();
