@@ -16,7 +16,7 @@ Application {
 
     Properties {
         condition: qbs.targetOS == "windows"
-        cpp.dynamicLibraries: [ "iphlpapi.lib", "Ws2_32.lib" ]
+        cpp.dynamicLibraries: [ "iphlpapi.lib", "ws2_32.lib" ]
     }
 
     Depends { name: "cpp" }

@@ -24,5 +24,5 @@ SOURCES += \
     $${UTILSDIR}/portlist.cpp \
     $${UTILSDIR}/tcpportsgatherer.cpp
 
-win32:LIBS += -liphlpapi -lWs2_32
+win32:LIBS += -liphlpapi -lws2_32
 SOURCES += main.cpp
