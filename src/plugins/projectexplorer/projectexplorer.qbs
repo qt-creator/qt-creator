@@ -312,7 +312,9 @@ QtcPlugin {
         "devicesupport/idevicefactory.cpp",
         "devicesupport/idevicefactory.h",
         "devicesupport/deviceapplicationrunner.cpp",
-        "devicesupport/deviceapplicationrunner.h"
+        "devicesupport/deviceapplicationrunner.h",
+        "devicesupport/localprocesslist.h",
+        "devicesupport/localprocesslist.cpp"
     ]
 
     Group {
@@ -329,11 +331,6 @@ QtcPlugin {
            "abstractmsvctoolchain.cpp",
            "abstractmsvctoolchain.h"
         ]
-    }
-
-    Group {
-        condition: qbs.targetOS === "linux" || qbs.targetOS === "mac"
-        files: [ "devicesupport/localunixprocesslist.h", "devicesupport/localunixprocesslist.cpp" ]
     }
 
     ProductModule {

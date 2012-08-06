@@ -127,6 +127,7 @@ HEADERS += projectexplorer.h \
     devicesupport/devicesettingspage.h \
     devicesupport/deviceusedportsgatherer.h \
     devicesupport/deviceapplicationrunner.h \
+    devicesupport/localprocesslist.h \
     devicesupport/sshdeviceprocesslist.h
 
 SOURCES += projectexplorer.cpp \
@@ -231,6 +232,7 @@ SOURCES += projectexplorer.cpp \
     devicesupport/devicesettingspage.cpp \
     devicesupport/deviceusedportsgatherer.cpp \
     devicesupport/deviceapplicationrunner.cpp \
+    devicesupport/localprocesslist.cpp \
     devicesupport/sshdeviceprocesslist.cpp
 
 FORMS += processstep.ui \
@@ -270,11 +272,6 @@ equals(TEST, 1) {
         outputparser_test.cpp
     HEADERS += \
         outputparser_test.h
-}
-
-unix {
-    SOURCES += devicesupport/localprocesslist.cpp
-    HEADERS += devicesupport/localprocesslist.h
 }
 
 macx:LIBS += -framework Carbon
