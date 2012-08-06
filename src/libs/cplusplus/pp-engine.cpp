@@ -593,7 +593,7 @@ void Preprocessor::State::popTokenBuffer()
 Preprocessor::Preprocessor(Client *client, Environment *env)
     : m_client(client)
     , m_env(env)
-    , m_expandMacros(true)
+    , m_expandFunctionlikeMacros(true)
     , m_keepComments(false)
 {
 }
@@ -615,14 +615,14 @@ QByteArray Preprocessor::run(const QString &fileName,
     return preprocessed;
 }
 
-bool Preprocessor::expandMacros() const
+bool Preprocessor::expandFunctionlikeMacros() const
 {
-    return m_expandMacros;
+    return m_expandFunctionlikeMacros;
 }
 
-void Preprocessor::setExpandMacros(bool expandMacros)
+void Preprocessor::setExpandFunctionlikeMacros(bool expandMacros)
 {
-    m_expandMacros = expandMacros;
+    m_expandFunctionlikeMacros = expandMacros;
 }
 
 bool Preprocessor::keepComments() const
@@ -741,9 +741,6 @@ void Preprocessor::skipPreprocesorDirective(PPToken *tk)
 
 bool Preprocessor::handleIdentifier(PPToken *tk)
 {
-    if (!expandMacros())
-        return false;
-
     ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
 
     static const QByteArray ppLine("__LINE__");
@@ -813,6 +810,9 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
     PPToken oldMarkerTk;
 
     if (macro->isFunctionLike()) {
+        if (!expandFunctionlikeMacros())
+            return false;
+
         // Collect individual tokens that form the macro arguments.
         QVector<QVector<PPToken> > allArgTks;
         bool hasArgs = collectActualArguments(tk, &allArgTks);
