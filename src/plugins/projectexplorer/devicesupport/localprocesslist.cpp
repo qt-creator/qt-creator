@@ -26,7 +26,8 @@
 **
 **
 **************************************************************************/
-#include "localunixprocesslist.h"
+
+#include "localprocesslist.h"
 
 #include <QProcess>
 #include <QTimer>
@@ -34,14 +35,16 @@
 #include <errno.h>
 #include <string.h>
 
-#include <sys/types.h>
+#ifdef Q_OS_UNIX
+//#include <sys/types.h>
 #include <signal.h>
+#endif
 
 namespace ProjectExplorer {
 namespace Internal {
 const int PsFieldWidth = 50;
 
-LocalUnixProcessList::LocalUnixProcessList(const IDevice::ConstPtr &device, QObject *parent)
+LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *parent)
         : DeviceProcessList(device, parent),
           m_psProcess(new QProcess(this))
 {
@@ -49,7 +52,7 @@ LocalUnixProcessList::LocalUnixProcessList(const IDevice::ConstPtr &device, QObj
     connect(m_psProcess, SIGNAL(finished(int)), SLOT(handlePsFinished()));
 }
 
-void LocalUnixProcessList::doUpdate()
+void LocalProcessList::doUpdate()
 {
     // We assume Desktop Unix systems to have a POSIX-compliant ps.
     // We need the padding because the command field can contain spaces, so we cannot split on those.
@@ -57,7 +60,7 @@ void LocalUnixProcessList::doUpdate()
                        .arg(QString(PsFieldWidth, QChar('x'))));
 }
 
-void LocalUnixProcessList::handlePsFinished()
+void LocalProcessList::handlePsFinished()
 {
     QString errorString;
     if (m_psProcess->exitStatus() == QProcess::CrashExit) {
@@ -84,7 +87,7 @@ void LocalUnixProcessList::handlePsFinished()
         return;
     }
 
-    const QByteArray &stderrData = m_psProcess->readAllStandardError();
+    const QByteArray stderrData = m_psProcess->readAllStandardError();
     if (!stderrData.isEmpty()) {
         errorString += QLatin1Char('\n') + tr("The stderr output was: '%1'")
             .arg(QString::fromLocal8Bit(stderrData));
@@ -92,23 +95,25 @@ void LocalUnixProcessList::handlePsFinished()
     reportError(errorString);
 }
 
-void LocalUnixProcessList::handlePsError()
+void LocalProcessList::handlePsError()
 {
     // Other errors are handled in the finished() handler.
     if (m_psProcess->error() == QProcess::FailedToStart)
         reportError(m_psProcess->errorString());
 }
 
-void LocalUnixProcessList::doKillProcess(const DeviceProcess &process)
+void LocalProcessList::doKillProcess(const DeviceProcess &process)
 {
+#ifdef Q_OS_UNIX
     if (kill(process.pid, SIGKILL) == -1)
         m_error = QString::fromLocal8Bit(strerror(errno));
     else
         m_error.clear();
     QTimer::singleShot(0, this, SLOT(reportDelayedKillStatus()));
+#endif
 }
 
-void LocalUnixProcessList::reportDelayedKillStatus()
+void LocalProcessList::reportDelayedKillStatus()
 {
     if (m_error.isEmpty())
         reportProcessKilled();

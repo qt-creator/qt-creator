@@ -273,8 +273,8 @@ equals(TEST, 1) {
 }
 
 unix {
-    SOURCES += devicesupport/localunixprocesslist.cpp
-    HEADERS += devicesupport/localunixprocesslist.h
+    SOURCES += devicesupport/localprocesslist.cpp
+    HEADERS += devicesupport/localprocesslist.h
 }
 
 macx:LIBS += -framework Carbon

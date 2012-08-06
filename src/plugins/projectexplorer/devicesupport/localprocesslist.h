@@ -26,8 +26,9 @@
 **
 **
 **************************************************************************/
-#ifndef LOCALUNIXPROCESSLIST_H
-#define LOCALUNIXPROCESSLIST_H
+
+#ifndef LOCALPROCESSLIST_H
+#define LOCALPROCESSLIST_H
 
 #include "deviceprocesslist.h"
 
@@ -40,11 +41,12 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 namespace Internal {
 
-class LocalUnixProcessList : public DeviceProcessList
+class LocalProcessList : public DeviceProcessList
 {
-Q_OBJECT
+    Q_OBJECT
+
 public:
-    LocalUnixProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
+    LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
 
 private slots:
     void handlePsError();
@@ -62,4 +64,4 @@ private:
 } // namespace Internal
 } // namespace RemoteLinux
 
-#endif // LOCALUNIXPROCESSLIST_H
+#endif // LOCALPROCESSLIST_H
