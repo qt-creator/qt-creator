@@ -142,6 +142,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_treeView->setUniformRowHeights(true);
     m_treeView->setRootIsDecorated(false);
     m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_treeView->setSortingEnabled(true);
 
     QItemSelectionModel *selectionModel = m_treeView->selectionModel();
     connect(selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
@@ -245,6 +246,7 @@ void GerritDialog::slotRefresh()
     const QString &query = m_queryLineEdit->text().trimmed();
     updateCompletions(query);
     m_model->refresh(query);
+    m_treeView->sortByColumn(-1);
 }
 
 const QStandardItem *GerritDialog::itemAt(const QModelIndex &i, int column) const
