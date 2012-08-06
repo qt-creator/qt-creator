@@ -40,7 +40,7 @@ class DeviceProcessList;
 
 namespace Internal { class DeviceProcessesDialogPrivate; }
 
-class PROJECTEXPLORER_EXPORT DeviceProcessesDialog : public QDialog
+class DeviceProcessesDialog : public QDialog
 {
     Q_OBJECT
 

@@ -75,11 +75,3 @@ QStringList QnxUtils::searchPaths(QnxAbstractQtVersion *qtVersion)
 
     return searchPaths;
 }
-
-QString QnxUtils::applicationKillCommand(const QString &applicationFilePath)
-{
-    return QString::fromLatin1("for PID in $(ps -f -o pid,comm | grep %1 | awk '/%1/ {print $1}'); "
-            "do "
-            "kill $PID; sleep 1; kill -9 $PID; "
-            "done").arg(applicationFilePath);
-}

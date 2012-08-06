@@ -85,21 +85,4 @@ IDevice::Ptr DesktopDevice::clone() const
     return Ptr(new DesktopDevice(*this));
 }
 
-QString DesktopDevice::listProcessesCommandLine() const
-{
-    return QString();
-}
-
-QString DesktopDevice::killProcessCommandLine(const DeviceProcess &process) const
-{
-    Q_UNUSED(process);
-    return QString();
-}
-
-QList<DeviceProcess> DesktopDevice::buildProcessList(const QString &listProcessesReply) const
-{
-    Q_UNUSED(listProcessesReply);
-    return QList<DeviceProcess>();
-}
-
 } // namespace ProjectExplorer

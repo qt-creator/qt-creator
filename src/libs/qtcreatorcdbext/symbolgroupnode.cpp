@@ -386,7 +386,7 @@ DumpParameters::checkRecode(const std::string &type,
     DumpParameterRecodeResult result;
     if (SymbolGroupValue::verbose > 2) {
         DebugPrint debugPrint;
-        debugPrint << '>' << __FUNCTION__ << ' ' << iname << '/' << iname;
+        debugPrint << '>' << __FUNCTION__ << ' ' << iname << '/' << type;
         if (dp)
             debugPrint << " option format: " << dp->format(type, iname);
     }
@@ -472,6 +472,9 @@ DumpParameters::checkRecode(const std::string &type,
     ULONG obtained = 0;
     if (FAILED(ctx.dataspaces->ReadVirtual(address, result.buffer, ULONG(result.size), &obtained))) {
         delete [] result.buffer;
+        DebugPrint() << __FUNCTION__ << " ReadVirtual() failed to read "
+                     << result.size << " bytes from 0x" << std::hex
+                     << address << std::dec << " for " << iname << '.';
         result = DumpParameterRecodeResult();
     }
     if (SymbolGroupValue::verbose > 2)

@@ -31,6 +31,10 @@
 #ifndef QMAKEEVALUATOR_H
 #define QMAKEEVALUATOR_H
 
+#if defined(PROEVALUATOR_FULL) && defined(PROEVALUATOR_THREAD_SAFE)
+#  error PROEVALUATOR_FULL is incompatible with PROEVALUATOR_THREAD_SAFE due to cache() implementation
+#endif
+
 #include "qmakeparser.h"
 #include "ioutils.h"
 
@@ -171,8 +175,8 @@ public:
     void checkRequirements(const ProStringList &deps);
 #endif
 
-    QStringList qmakeMkspecPaths() const;
-    QStringList qmakeFeaturePaths() const;
+    void updateMkspecPaths();
+    void updateFeaturePaths();
 
     bool isActiveConfig(const QString &config, bool regex = false);
 
@@ -184,8 +188,11 @@ public:
     VisitReturn writeFile(const QString &ctx, const QString &fn, QIODevice::OpenMode mode,
                           const QString &contents);
 #ifndef QT_BOOTSTRAPPED
-    void runProcess(QProcess *proc, const QString &command, QProcess::ProcessChannel chan) const;
+    void runProcess(QProcess *proc, const QString &command) const;
 #endif
+    QByteArray getCommandOutput(const QString &args) const;
+
+    static void removeEach(ProStringList *varlist, const ProStringList &value);
 
     int m_loopLevel; // To report unexpected break() and next()s
 #ifdef PROEVALUATOR_CUMULATIVE
@@ -210,6 +217,7 @@ public:
     QString m_outputDir;
 
     int m_listCount;
+    bool m_valuemapInited;
     bool m_hostBuild;
     QString m_qmakespec;
     QString m_qmakespecFull;
@@ -221,6 +229,7 @@ public:
     QString m_buildRoot;
     QStringList m_qmakepath;
     QStringList m_qmakefeatures;
+    QStringList m_mkspecPaths;
     QStringList m_featureRoots;
     ProFunctionDefs m_functionDefs;
     ProStringList m_returnValue;

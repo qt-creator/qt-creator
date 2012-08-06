@@ -207,10 +207,10 @@ void StartGdbServerDialog::attachToDevice()
 {
     IDevice::ConstPtr device = d->currentDevice();
     // TODO: display error on non-matching device.
-    if (!device)
+    if (!device || !device->canCreateProcessModel())
         return;
     delete d->processList;
-    d->processList = new DeviceProcessList(device);
+    d->processList = device->createProcessListModel();
     d->proxyModel.setSourceModel(d->processList);
     connect(d->processList, SIGNAL(error(QString)),
         SLOT(handleRemoteError(QString)));

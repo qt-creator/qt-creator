@@ -52,6 +52,10 @@ public:
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
     ProjectExplorer::IDevice::Ptr clone() const;
 
+    ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
+    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
+    bool canCreateProcessModel() const { return false; } // Override LinuxDevice implementation.
+
     QString displayType() const;
 
 protected:

@@ -68,11 +68,17 @@ public:
     // Access children by name or index (0-based)
     SymbolGroupValue operator[](const char *name) const;
     SymbolGroupValue operator[](unsigned) const;
+    unsigned childCount() const;
+    SymbolGroupValue parent() const;
     // take address and cast to desired (pointer) type
     SymbolGroupValue typeCast(const char *type) const;
     // take pointer value and cast to desired (pointer) type
     SymbolGroupValue pointerTypeCast(const char *type) const;
-
+    // Find a member variable traversing the list of base classes. This useful
+    // for skipping template base classes of STL containers whose number varies
+    // by MSVC version.
+    static SymbolGroupValue findMember(const SymbolGroupValue &start,
+                                       const std::string &symbolName);
     std::string name() const;
     std::string type() const;
     std::vector<std::string>  innerTypes() const { return innerTypesOf(type()); }

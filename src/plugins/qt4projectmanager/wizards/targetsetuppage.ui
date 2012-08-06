@@ -54,7 +54,7 @@
       <item>
        <widget class="QLabel" name="noValidProfileLabel">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;No valid Targets found.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Please add a target in &lt;span style=&quot; font-style:italic;&quot;&gt;Tools &amp;gt; Options &amp;gt; Build &amp;amp; Run&lt;/span&gt; (&lt;span style=&quot; font-style:italic;&quot;&gt;Qt Creator &amp;gt; Preferences &amp;gt; Build &amp;amp; Run&lt;/span&gt; on Mac OS) or via the maintenance tool of the SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;No valid Targets found.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Please add a target in &lt;a href=&quot;buildandrun&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Tools &amp;gt; Options &amp;gt; Build &amp;amp; Run&lt;/span&gt;&lt;/a&gt; (&lt;a href=&quot;buildandrun&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Qt Creator &amp;gt; Preferences &amp;gt; Build &amp;amp; Run&lt;/span&gt;&lt;/a&gt; on Mac OS) or via the maintenance tool of the SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -90,8 +90,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>242</width>
-              <height>147</height>
+              <width>230</width>
+              <height>81</height>
              </rect>
             </property>
            </widget>

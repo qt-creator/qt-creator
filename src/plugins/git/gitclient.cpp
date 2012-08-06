@@ -390,6 +390,15 @@ QString GitClient::findRepositoryForDirectory(const QString &dir)
     }
 }
 
+QString GitClient::findGitDirForRepository(const QString &repositoryDir)
+{
+    QByteArray outputText;
+    QStringList arguments;
+    arguments << QLatin1String("rev-parse") << QLatin1String("--git-dir");
+    fullySynchronousGit(repositoryDir, arguments, &outputText, 0, false);
+    return QString::fromLocal8Bit(outputText.trimmed());
+}
+
 VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynamicProperty,
                                                                const QString &dynamicPropertyValue) const
 {
@@ -1712,14 +1721,14 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 
     commitData->panelInfo.repository = repoDirectory;
 
-    QDir gitDir(repoDirectory);
-    if (!gitDir.cd(QLatin1String(GIT_DIRECTORY))) {
+    QString gitDir = GitClient::findGitDirForRepository(repoDirectory);
+    if (gitDir.isEmpty()) {
         *errorMessage = tr("The repository \"%1\" is not initialized.").arg(repoDirectory);
         return false;
     }
 
     // Read description
-    const QString descriptionFile = gitDir.absoluteFilePath(QLatin1String("description"));
+    const QString descriptionFile = QDir(gitDir).absoluteFilePath(QLatin1String("description"));
     if (QFileInfo(descriptionFile).isFile()) {
         Utils::FileReader reader;
         if (!reader.fetch(descriptionFile, QIODevice::Text, errorMessage))
@@ -1798,7 +1807,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         commitData->panelData.author = readConfigValue(workingDirectory, QLatin1String("user.name"));
         commitData->panelData.email = readConfigValue(workingDirectory, QLatin1String("user.email"));
         // Commit: Get the commit template
-        QString templateFilename = gitDir.absoluteFilePath(QLatin1String("MERGE_MSG"));
+        QString templateFilename = QDir(gitDir).absoluteFilePath(QLatin1String("MERGE_MSG"));
         if (!QFileInfo(templateFilename).isFile())
             templateFilename = readConfigValue(workingDirectory, QLatin1String("commit.template"));
         if (!templateFilename.isEmpty()) {

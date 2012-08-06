@@ -34,7 +34,6 @@
 #include "qnxdebugsupport.h"
 #include "qnxconstants.h"
 #include "qnxrunconfiguration.h"
-#include "qnxutils.h"
 
 #include <debugger/debuggerengine.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
@@ -62,7 +61,6 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
 {
     m_runner = new DeviceApplicationRunner(this);
     m_portsGatherer = new DeviceUsedPortsGatherer(this);
-    m_portsGatherer->setCommand(QLatin1String(Constants::QNX_PORT_GATHERER_COMMAND));
 
     connect(m_portsGatherer, SIGNAL(error(QString)), SLOT(handleError(QString)));
     connect(m_portsGatherer, SIGNAL(portListReady()), SLOT(handlePortListReady()));
@@ -135,7 +133,7 @@ void QnxDebugSupport::handleDebuggingFinished()
 void QnxDebugSupport::setFinished()
 {
     m_state = Inactive;
-    m_runner->stop(QnxUtils::applicationKillCommand(m_executable).toUtf8());
+    m_runner->stop(m_device->processSupport()->killProcessByNameCommandLine(m_executable).toUtf8());
 }
 
 void QnxDebugSupport::handleProgressReport(const QString &progressOutput)

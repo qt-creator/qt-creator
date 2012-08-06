@@ -55,7 +55,7 @@
 #include <unistd.h>
 #include <sys/utsname.h>
 #else
-#include <Windows.h>
+#include <windows.h>
 #endif
 #include <stdio.h>
 #include <stdlib.h>
@@ -159,7 +159,7 @@ const ProString &QMakeEvaluator::map(const ProString &var)
     QHash<ProString, ProString>::ConstIterator it = statics.varMap.constFind(var);
     if (it == statics.varMap.constEnd())
         return var;
-    deprecationWarning(fL1S("Variable %s is deprecated; use %s instead.")
+    deprecationWarning(fL1S("Variable %1 is deprecated; use %2 instead.")
                        .arg(var.toQString(), it.value().toQString()));
     return it.value();
 }
@@ -185,6 +185,7 @@ QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
     m_loopLevel = 0;
     m_listCount = 0;
     m_valuemapStack.push(ProValueMap());
+    m_valuemapInited = false;
 }
 
 QMakeEvaluator::~QMakeEvaluator()
@@ -196,11 +197,11 @@ void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
     Q_ASSERT_X(&other, "QMakeEvaluator::visitProFile", "Project not prepared");
     m_functionDefs = other.m_functionDefs;
     m_valuemapStack = other.m_valuemapStack;
+    m_valuemapInited = true;
     m_qmakespec = other.m_qmakespec;
     m_qmakespecFull = other.m_qmakespecFull;
     m_qmakespecName = other.m_qmakespecName;
-    m_qmakepath = other.m_qmakepath;
-    m_qmakefeatures = other.m_qmakefeatures;
+    m_mkspecPaths = other.m_mkspecPaths;
     m_featureRoots = other.m_featureRoots;
 }
 
@@ -316,7 +317,7 @@ static void removeAll(ProStringList *varlist, const ProString &value)
             varlist->remove(i);
 }
 
-static void removeEach(ProStringList *varlist, const ProStringList &value)
+void QMakeEvaluator::removeEach(ProStringList *varlist, const ProStringList &value)
 {
     foreach (const ProString &str, value)
         if (!str.isEmpty())
@@ -868,9 +869,6 @@ void QMakeEvaluator::loadDefaults()
 {
     ProValueMap &vars = m_valuemapStack.top();
 
-    vars[ProString("LITERAL_WHITESPACE")] << ProString("\t", NoHash);
-    vars[ProString("LITERAL_DOLLAR")] << ProString("$", NoHash);
-    vars[ProString("LITERAL_HASH")] << ProString("#", NoHash);
     vars[ProString("DIR_SEPARATOR")] << ProString(m_option->dir_sep, NoHash);
     vars[ProString("DIRLIST_SEPARATOR")] << ProString(m_option->dirlist_sep, NoHash);
     vars[ProString("_DATE_")] << ProString(QDateTime::currentDateTime().toString(), NoHash);
@@ -951,6 +949,8 @@ void QMakeEvaluator::loadDefaults()
         vars[ProString("QMAKE_HOST.arch")] << ProString(name.machine, NoHash);
     }
 #endif
+
+    m_valuemapInited = true;
 }
 
 bool QMakeEvaluator::prepareProject(const QString &inDir)
@@ -1034,8 +1034,6 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
 
 bool QMakeEvaluator::loadSpec()
 {
-    loadDefaults();
-
     QString qmakespec = m_option->expandEnvVars(
                 m_hostBuild ? m_option->qmakespec : m_option->xqmakespec);
 
@@ -1066,10 +1064,11 @@ bool QMakeEvaluator::loadSpec()
         m_qmakefeatures = evaluator.values(ProString("QMAKEFEATURES")).toQStringList();
     }
 
+    updateMkspecPaths();
     if (qmakespec.isEmpty())
         qmakespec = m_hostBuild ? QLatin1String("default-host") : QLatin1String("default");
     if (IoUtils::isRelativePath(qmakespec)) {
-        foreach (const QString &root, qmakeMkspecPaths()) {
+        foreach (const QString &root, m_mkspecPaths) {
             QString mkspec = root + QLatin1Char('/') + qmakespec;
             if (IoUtils::exists(mkspec)) {
                 qmakespec = mkspec;
@@ -1106,8 +1105,7 @@ bool QMakeEvaluator::loadSpec()
     m_qmakespecName = IoUtils::fileName(m_qmakespecFull).toString();
     if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
         return false;
-    // The spec extends the feature search path, so invalidate the cache.
-    m_featureRoots.clear();
+    updateFeaturePaths(); // The spec extends the feature search path, so rebuild the cache.
     if (!m_conffile.isEmpty()
         && !evaluateFileDirect(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
@@ -1206,6 +1204,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 #endif
 
         initFrom(*baseEnv->evaluator);
+    } else {
+        if (!m_valuemapInited)
+            loadDefaults();
     }
 
     m_handler->aboutToEval(currentProFile(), pro, type);
@@ -1253,7 +1254,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 }
 
 
-QStringList QMakeEvaluator::qmakeMkspecPaths() const
+void QMakeEvaluator::updateMkspecPaths()
 {
     QStringList ret;
     const QString concat = QLatin1String("/mkspecs");
@@ -1272,10 +1273,10 @@ QStringList QMakeEvaluator::qmakeMkspecPaths() const
     ret << m_option->propertyValue(ProString("QT_HOST_DATA/get")) + concat;
 
     ret.removeDuplicates();
-    return ret;
+    m_mkspecPaths = ret;
 }
 
-QStringList QMakeEvaluator::qmakeFeaturePaths() const
+void QMakeEvaluator::updateFeaturePaths()
 {
     QString mkspecs_concat = QLatin1String("/mkspecs");
     QString features_concat = QLatin1String("/features/");
@@ -1337,13 +1338,13 @@ QStringList QMakeEvaluator::qmakeFeaturePaths() const
     foreach (const QString &root, feature_roots)
         if (IoUtils::exists(root))
             ret << root;
-    return ret;
+    m_featureRoots = ret;
 }
 
 ProString QMakeEvaluator::propertyValue(const ProString &name) const
 {
     if (name == QLatin1String("QMAKE_MKSPECS"))
-        return ProString(qmakeMkspecPaths().join(m_option->dirlist_sep), NoHash);
+        return ProString(m_mkspecPaths.join(m_option->dirlist_sep), NoHash);
     ProString ret = m_option->propertyValue(name);
 //    if (ret.isNull())
 //        evalError(fL1S("Querying unknown property %1").arg(name.toQString(m_mtmp)));
@@ -1642,7 +1643,7 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName, bool silent)
         fn += QLatin1String(".prf");
 
     if (m_featureRoots.isEmpty())
-        m_featureRoots = qmakeFeaturePaths();
+        updateFeaturePaths();
     int start_root = 0;
     QString currFn = currentFileName();
     if (IoUtils::fileName(currFn) == IoUtils::fileName(fn)) {

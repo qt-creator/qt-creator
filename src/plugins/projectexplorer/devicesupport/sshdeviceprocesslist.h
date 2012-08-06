@@ -1,4 +1,4 @@
-/*************DeviceUsedPortsGatherer*********************************
+/**************************************************************************
 **
 ** This file is part of Qt Creator
 **
@@ -26,47 +26,39 @@
 **
 **
 **************************************************************************/
+#ifndef SSHDEVICEPROCESSLIST_H
+#define SSHDEVICEPROCESSLIST_H
 
-#ifndef DEVICEUSEDPORTSGATHERER_H
-#define DEVICEUSEDPORTSGATHERER_H
-
-#include "idevice.h"
-
-namespace Utils { class PortList; }
+#include "deviceprocesslist.h"
 
 namespace ProjectExplorer {
-namespace Internal { class DeviceUsedPortsGathererPrivate; }
 
-class PROJECTEXPLORER_EXPORT DeviceUsedPortsGatherer : public QObject
+class PROJECTEXPLORER_EXPORT SshDeviceProcessList : public DeviceProcessList
 {
     Q_OBJECT
-
 public:
-    DeviceUsedPortsGatherer(QObject *parent = 0);
-    ~DeviceUsedPortsGatherer();
-
-    void start(const ProjectExplorer::IDevice::ConstPtr &device);
-    void stop();
-    int getNextFreePort(Utils::PortList *freePorts) const; // returns -1 if no more are left
-    QList<int> usedPorts() const;
-
-signals:
-    void error(const QString &errMsg);
-    void portListReady();
+    explicit SshDeviceProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
+    ~SshDeviceProcessList();
 
 private slots:
-    void handleConnectionEstablished();
     void handleConnectionError();
-    void handleProcessClosed(int exitStatus);
-    void handleRemoteStdOut();
-    void handleRemoteStdErr();
+    void handleListProcessFinished(int exitStatus);
+    void handleKillProcessFinished(int exitStatus);
 
 private:
-    void setupUsedPorts();
+    virtual QString listProcessesCommandLine() const = 0;
+    virtual QList<DeviceProcess> buildProcessList(const QString &listProcessesReply) const = 0;
 
-    Internal::DeviceUsedPortsGathererPrivate * const d;
+    void doUpdate();
+    void doKillProcess(const DeviceProcess &process);
+
+    void handleProcessError(const QString &errorMessage);
+    void setFinished();
+
+    class SshDeviceProcessListPrivate;
+    SshDeviceProcessListPrivate * const d;
 };
 
 } // namespace ProjectExplorer
 
-#endif // DEVICEUSEDPORTSGATHERER_H
+#endif // SSHDEVICEPROCESSLIST_H

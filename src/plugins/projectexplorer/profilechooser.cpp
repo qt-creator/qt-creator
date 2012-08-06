@@ -36,24 +36,27 @@
 
 #include <utils/qtcassert.h>
 
-#include <QFileInfo>
-#include <QDir>
-#include <QPair>
-#include <QtEvents>
-
 namespace ProjectExplorer {
 
 ProfileChooser::ProfileChooser(QWidget *parent, unsigned flags) :
     QComboBox(parent)
 {
     populate(flags);
+    onCurrentIndexChanged(currentIndex());
+    connect(this, SIGNAL(currentIndexChanged(int)), SLOT(onCurrentIndexChanged(int)));
+}
+
+void ProfileChooser::onCurrentIndexChanged(int index)
+{
+    if (Profile *profile = profileAt(index))
+        setToolTip(profile->toHtml());
 }
 
 void ProfileChooser::populate(unsigned flags)
 {
     clear();
     const Abi hostAbi = Abi::hostAbi();
-    foreach (const Profile *profile, ProfileManager::instance()->profiles()) {
+    foreach (Profile *profile, ProfileManager::instance()->profiles()) {
         if (!profile->isValid() && !(flags & IncludeInvalidProfiles))
             continue;
         ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
@@ -68,13 +71,7 @@ void ProfileChooser::populate(unsigned flags)
         const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();
         const QString name = tr("%1 (%2)").arg(profile->displayName(), completeBase);
         addItem(name, qVariantFromValue(profile->id()));
-        QString debugger = QDir::toNativeSeparators(debuggerCommand);
-        debugger.replace(QString(QLatin1Char(' ')), QLatin1String("&nbsp;"));
-        QString toolTip = tr("<html><head/><body><table>"
-            "<tr><td>ABI:</td><td><i>%1</i></td></tr>"
-            "<tr><td>Debugger:</td><td>%2</td></tr>")
-                .arg(profile->displayName(), QDir::toNativeSeparators(debugger));
-        setItemData(count() - 1, toolTip, Qt::ToolTipRole);
+        setItemData(count() - 1, profile->toHtml(), Qt::ToolTipRole);
     }
     setEnabled(count() > 1);
 }

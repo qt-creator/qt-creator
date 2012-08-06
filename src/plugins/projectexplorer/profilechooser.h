@@ -63,6 +63,7 @@ public:
     Profile *currentProfile() const;
 
 private:
+    Q_SLOT void onCurrentIndexChanged(int index);
     void populate(unsigned flags);
     Profile *profileAt(int index) const;
 };

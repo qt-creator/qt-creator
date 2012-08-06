@@ -90,7 +90,7 @@ enum TestFunc {
     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
     T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
     T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_LOG, T_MESSAGE, T_WARNING, T_ERROR, T_IF,
-    T_MKPATH, T_WRITE_FILE, T_TOUCH
+    T_MKPATH, T_WRITE_FILE, T_TOUCH, T_CACHE
 };
 
 void QMakeEvaluator::initFunctionStatics()
@@ -178,6 +178,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "mkpath", T_MKPATH },
         { "write_file", T_WRITE_FILE },
         { "touch", T_TOUCH },
+        { "cache", T_CACHE },
     };
     for (unsigned i = 0; i < sizeof(testInits)/sizeof(testInits[0]); ++i)
         statics.functions.insert(ProString(testInits[i].name), testInits[i].func);
@@ -318,8 +319,7 @@ QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::Open
 }
 
 #ifndef QT_BOOTSTRAPPED
-void QMakeEvaluator::runProcess(QProcess *proc, const QString &command,
-                                           QProcess::ProcessChannel chan) const
+void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
 {
     proc->setWorkingDirectory(currentDirectory());
     if (!m_option->environment.isEmpty())
@@ -331,15 +331,43 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command,
     proc->start(QLatin1String("/bin/sh"), QStringList() << QLatin1String("-c") << command);
 # endif
     proc->waitForFinished(-1);
-    proc->setReadChannel(chan);
-    QByteArray errout = proc->readAll();
+}
+#endif
+
+QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
+{
+#ifndef QT_BOOTSTRAPPED
+    QProcess proc;
+    runProcess(&proc, args);
+    QByteArray errout = proc.readAllStandardError();
+# ifdef PROEVALUATOR_FULL
+    // FIXME: Qt really should have the option to set forwarding per channel
+    fputs(errout.constData(), stderr);
+# else
     if (!errout.isEmpty()) {
         if (errout.endsWith('\n'))
             errout.chop(1);
         m_handler->message(QMakeHandler::EvalError, QString::fromLocal8Bit(errout));
     }
-}
+# endif
+    return proc.readAllStandardOutput();
+#else
+    QByteArray out;
+    if (FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
+                               + IoUtils::shellQuote(currentDirectory())
+                               + QLatin1String(" && ") + args[0]).toLocal8Bit().constData(), "r")) {
+        while (!feof(proc)) {
+            char buff[10 * 1024];
+            int read_in = int(fread(buff, 1, sizeof(buff), proc));
+            if (!read_in)
+                break;
+            out += QByteArray(buff, read_in);
+        }
+        QT_PCLOSE(proc);
+    }
+    return out;
 #endif
+}
 
 void QMakeEvaluator::populateDeps(
         const ProStringList &deps, const ProString &prefix,
@@ -624,19 +652,35 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         } else {
             const QString &file = args.at(0).toQString(m_tmp1);
 
+            bool blob = false;
+            bool lines = false;
             bool singleLine = true;
-            if (args.count() > 1)
-                singleLine = isTrue(args.at(1), m_tmp2);
+            if (args.count() > 1) {
+                args.at(1).toQString(m_tmp2);
+                if (!m_tmp2.compare(QLatin1String("false"), Qt::CaseInsensitive))
+                    singleLine = false;
+                else if (!m_tmp2.compare(QLatin1String("blob"), Qt::CaseInsensitive))
+                    blob = true;
+                else if (!m_tmp2.compare(QLatin1String("lines"), Qt::CaseInsensitive))
+                    lines = true;
+            }
 
             QFile qfile(resolvePath(m_option->expandEnvVars(file)));
             if (qfile.open(QIODevice::ReadOnly)) {
                 QTextStream stream(&qfile);
-                while (!stream.atEnd()) {
-                    ret += split_value_list(stream.readLine().trimmed());
-                    if (!singleLine)
-                        ret += ProString("\n", NoHash);
+                if (blob) {
+                    ret += ProString(stream.readAll(), NoHash);
+                } else {
+                    while (!stream.atEnd()) {
+                        if (lines) {
+                            ret += ProString(stream.readLine(), NoHash);
+                        } else {
+                            ret += split_value_list(stream.readLine().trimmed());
+                            if (!singleLine)
+                                ret += ProString("\n", NoHash);
+                        }
+                    }
                 }
-                qfile.close();
             }
         }
         break;
@@ -685,36 +729,34 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             if (args.count() < 1 || args.count() > 2) {
                 evalError(fL1S("system(execute) requires one or two arguments."));
             } else {
+                bool blob = false;
+                bool lines = false;
                 bool singleLine = true;
-                if (args.count() > 1)
-                    singleLine = isTrue(args.at(1), m_tmp2);
-                QByteArray output;
-#ifndef QT_BOOTSTRAPPED
-                QProcess proc;
-                runProcess(&proc, args.at(0).toQString(m_tmp2), QProcess::StandardError);
-                output = proc.readAllStandardOutput();
-                output.replace('\t', ' ');
-                if (singleLine)
-                    output.replace('\n', ' ');
-#else
-                char buff[256];
-                FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
-                                       + IoUtils::shellQuote(currentDirectory())
-                                       + QLatin1String(" && ") + args[0]).toLocal8Bit(), "r");
-                while (proc && !feof(proc)) {
-                    int read_in = int(fread(buff, 1, 255, proc));
-                    if (!read_in)
-                        break;
-                    for (int i = 0; i < read_in; i++) {
-                        if ((singleLine && buff[i] == '\n') || buff[i] == '\t')
-                            buff[i] = ' ';
-                    }
-                    output.append(buff, read_in);
+                if (args.count() > 1) {
+                    args.at(1).toQString(m_tmp2);
+                    if (!m_tmp2.compare(QLatin1String("false"), Qt::CaseInsensitive))
+                        singleLine = false;
+                    else if (!m_tmp2.compare(QLatin1String("blob"), Qt::CaseInsensitive))
+                        blob = true;
+                    else if (!m_tmp2.compare(QLatin1String("lines"), Qt::CaseInsensitive))
+                        lines = true;
                 }
-                if (proc)
-                    QT_PCLOSE(proc);
-#endif
-                ret += split_value_list(QString::fromLocal8Bit(output));
+                QByteArray bytes = getCommandOutput(args.at(0).toQString(m_tmp2));
+                if (lines) {
+                    QTextStream stream(bytes);
+                    while (!stream.atEnd())
+                        ret += ProString(stream.readLine(), NoHash);
+                } else {
+                    QString output = QString::fromLocal8Bit(bytes);
+                    if (blob) {
+                        ret += ProString(output, NoHash);
+                    } else {
+                        output.replace(QLatin1Char('\t'), QLatin1Char(' '));
+                        if (singleLine)
+                            output.replace(QLatin1Char('\n'), QLatin1Char(' '));
+                        ret += split_value_list(output);
+                    }
+                }
             }
         }
         break;
@@ -1374,8 +1416,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         }
 #ifndef QT_BOOTSTRAPPED
         QProcess proc;
-        proc.setProcessChannelMode(QProcess::MergedChannels);
-        runProcess(&proc, args.at(0).toQString(m_tmp2), QProcess::StandardOutput);
+        proc.setProcessChannelMode(QProcess::ForwardedChannels);
+        runProcess(&proc, args.at(0).toQString(m_tmp2));
         return returnBool(proc.exitStatus() == QProcess::NormalExit && proc.exitCode() == 0);
 #else
         return returnBool(system((QLatin1String("cd ")
@@ -1483,6 +1525,137 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         CloseHandle(wHand);
 #endif
         return ReturnTrue;
+    }
+    case T_CACHE: {
+        if (args.count() > 3) {
+            evalError(fL1S("cache(var, [set|add|sub] [transient] [super], [srcvar]) requires one to three arguments."));
+            return ReturnFalse;
+        }
+        bool persist = true;
+        bool super = false;
+        enum { CacheSet, CacheAdd, CacheSub } mode = CacheSet;
+        ProString srcvar;
+        if (args.count() >= 2) {
+            foreach (const ProString &opt, split_value_list(args.at(1).toQString(m_tmp2))) {
+                opt.toQString(m_tmp3);
+                if (m_tmp3 == QLatin1String("transient")) {
+                    persist = false;
+                } else if (m_tmp3 == QLatin1String("super")) {
+                    super = true;
+                } else if (m_tmp3 == QLatin1String("set")) {
+                    mode = CacheSet;
+                } else if (m_tmp3 == QLatin1String("add")) {
+                    mode = CacheAdd;
+                } else if (m_tmp3 == QLatin1String("sub")) {
+                    mode = CacheSub;
+                } else {
+                    evalError(fL1S("cache(): invalid flag %1.").arg(m_tmp3));
+                    return ReturnFalse;
+                }
+            }
+            if (args.count() >= 3) {
+                srcvar = args.at(2);
+            } else if (mode != CacheSet) {
+                evalError(fL1S("cache(): modes other than 'set' require a source variable."));
+                return ReturnFalse;
+            }
+        }
+        QString varstr;
+        ProString dstvar = args.at(0);
+        if (!dstvar.isEmpty()) {
+            if (srcvar.isEmpty())
+                srcvar = dstvar;
+            ProValueMap::Iterator srcvarIt;
+            if (!findValues(srcvar, &srcvarIt)) {
+                evalError(fL1S("Variable %1 is not defined.").arg(srcvar.toQString(m_tmp1)));
+                return ReturnFalse;
+            }
+            // The caches for the host and target may differ (e.g., when we are manipulating
+            // CONFIG), so we cannot compute a common new value for both.
+            const ProStringList &diffval = *srcvarIt;
+            ProStringList newval;
+            bool changed = false;
+            for (bool hostBuild = false; ; hostBuild = true) {
+                if (QMakeBaseEnv *baseEnv = m_option->baseEnvs.value(
+                            QMakeBaseKey(m_buildRoot, hostBuild))) {
+                    QMakeEvaluator *baseEval = baseEnv->evaluator;
+                    const ProStringList &oldval = baseEval->values(dstvar);
+                    if (mode == CacheSet) {
+                        newval = diffval;
+                    } else {
+                        newval = oldval;
+                        if (mode == CacheAdd)
+                            newval += diffval;
+                        else
+                            removeEach(&newval, diffval);
+                    }
+                    if (oldval != newval) {
+                        baseEval->valuesRef(dstvar) = newval;
+                        if (super) {
+                            do {
+                                if (dstvar == QLatin1String("QMAKEPATH")) {
+                                    baseEval->m_qmakepath = newval.toQStringList();
+                                    baseEval->updateMkspecPaths();
+                                } else if (dstvar == QLatin1String("QMAKEFEATURES")) {
+                                    baseEval->m_qmakefeatures = newval.toQStringList();
+                                } else {
+                                    break;
+                                }
+                                baseEval->updateFeaturePaths();
+                                if (hostBuild == m_hostBuild)
+                                    m_featureRoots = baseEval->m_featureRoots;
+                            } while (false);
+                        }
+                        changed = true;
+                    }
+                }
+                if (hostBuild)
+                    break;
+            }
+            // We assume that whatever got the cached value to be what it is now will do so
+            // the next time as well, so we just skip the persisting if nothing changed.
+            if (!persist || !changed)
+                return ReturnTrue;
+            varstr = dstvar.toQString();
+            if (mode == CacheAdd)
+                varstr += QLatin1String(" +=");
+            else if (mode == CacheSub)
+                varstr += QLatin1String(" -=");
+            else
+                varstr += QLatin1String(" =");
+            if (diffval.count() == 1) {
+                varstr += QLatin1Char(' ');
+                varstr += quoteValue(diffval.at(0));
+            } else if (!diffval.isEmpty()) {
+                foreach (const ProString &vval, diffval) {
+                    varstr += QLatin1String(" \\\n    ");
+                    varstr += quoteValue(vval);
+                }
+            }
+            varstr += QLatin1Char('\n');
+        }
+        QString fn;
+        if (super) {
+            if (m_superfile.isEmpty()) {
+                m_superfile = m_outputDir + QLatin1String("/.qmake.super");
+                printf("Info: creating super cache file %s\n", qPrintable(m_superfile));
+                valuesRef(ProString("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile, NoHash);
+            }
+            fn = m_superfile;
+        } else {
+            if (m_cachefile.isEmpty()) {
+                m_cachefile = m_outputDir + QLatin1String("/.qmake.cache");
+                printf("Info: creating cache file %s\n", qPrintable(m_cachefile));
+                valuesRef(ProString("_QMAKE_CACHE_")) << ProString(m_cachefile, NoHash);
+                // We could update m_{source,build}Root and m_featureRoots here, or even
+                // "re-home" our rootEnv, but this doesn't sound too useful - if somebody
+                // wanted qmake to find something in the build directory, he could have
+                // done so "from the outside".
+                // The sub-projects will find the new cache all by themselves.
+            }
+            fn = m_cachefile;
+        }
+        return writeFile(fL1S("cache "), fn, QIODevice::Append, varstr);
     }
 #endif
     case T_INVALID:

@@ -69,6 +69,7 @@ private slots:
     void deviceNameEditingFinished();
     void setDefaultDevice();
     void handleAdditionalActionRequest(int actionId);
+    void handleProcessListRequested();
 
 private:
     void initGui();

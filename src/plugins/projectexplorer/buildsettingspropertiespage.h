@@ -77,8 +77,6 @@ public:
     void addSubWidget(BuildConfigWidget *widget);
     QList<BuildConfigWidget *> subWidgets() const;
 
-    void setupUi();
-
 private slots:
     void updateBuildSettings();
     void currentIndexChanged(int index);

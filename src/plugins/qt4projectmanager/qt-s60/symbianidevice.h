@@ -78,10 +78,6 @@ public:
     QString displayNameForActionId(Core::Id actionId) const;
     void executeAction(Core::Id actionId, QWidget*parent) const;
 
-    QString listProcessesCommandLine() const;
-    QString killProcessCommandLine(const ProjectExplorer::DeviceProcess &process) const;
-    QList<ProjectExplorer::DeviceProcess> buildProcessList(const QString &listProcessesReply) const;
-
 protected:
     SymbianIDevice(const SymbianIDevice &other);
     SymbianIDevice &operator=(const SymbianIDevice &); // no impl.

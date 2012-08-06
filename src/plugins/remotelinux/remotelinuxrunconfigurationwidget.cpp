@@ -31,7 +31,6 @@
 
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxenvironmentreader.h"
-#include "remotelinuxutils.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

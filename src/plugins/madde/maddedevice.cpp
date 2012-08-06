@@ -32,8 +32,6 @@
 #include "maddedevicetester.h"
 #include "maemoconstants.h"
 
-#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
-#include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <remotelinux/linuxdevicetestdialog.h>
 #include <remotelinux/publickeydeploymentdialog.h>
 #include <remotelinux/remotelinux_constants.h>
@@ -45,7 +43,6 @@ using namespace RemoteLinux;
 namespace Madde {
 namespace Internal {
 const char MaddeDeviceTestActionId[] = "Madde.DeviceTestAction";
-const char MaddeRemoteProcessesActionId[] = "Madde.RemoteProcessesAction";
 
 MaddeDevice::Ptr MaddeDevice::create()
 {
@@ -85,8 +82,7 @@ QString MaddeDevice::displayType() const
 QList<Core::Id> MaddeDevice::actionIds() const
 {
     return QList<Core::Id>() << Core::Id(MaddeDeviceTestActionId)
-        << Core::Id(Constants::GenericDeployKeyToDeviceActionId)
-        << Core::Id(MaddeRemoteProcessesActionId);
+        << Core::Id(Constants::GenericDeployKeyToDeviceActionId);
 }
 
 QString MaddeDevice::displayNameForActionId(Core::Id actionId) const
@@ -95,8 +91,6 @@ QString MaddeDevice::displayNameForActionId(Core::Id actionId) const
 
     if (actionId == Core::Id(MaddeDeviceTestActionId))
         return tr("Test");
-    if (actionId == Core::Id(MaddeRemoteProcessesActionId))
-        return tr("Remote Processes...");
     if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
         return tr("Deploy Public Key...");
     return QString(); // Can't happen.
@@ -110,13 +104,11 @@ void MaddeDevice::executeAction(Core::Id actionId, QWidget *parent) const
     const IDevice::ConstPtr device = sharedFromThis();
     if (actionId == Core::Id(MaddeDeviceTestActionId))
         d = new LinuxDeviceTestDialog(device, new MaddeDeviceTester, parent);
-    else if (actionId == Core::Id(MaddeRemoteProcessesActionId))
-        d = new DeviceProcessesDialog(new DeviceProcessList(device), parent);
     else if (actionId == Core::Id(Constants::GenericDeployKeyToDeviceActionId))
         d = PublicKeyDeploymentDialog::createDialog(device, parent);
-    // FIXME: Leak?
     if (d)
         d->exec();
+    delete d;
 }
 
 QString MaddeDevice::maddeDisplayType(Core::Id type)

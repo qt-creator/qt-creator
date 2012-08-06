@@ -30,9 +30,6 @@
 #include "deviceprocesslist.h"
 
 #include <utils/qtcassert.h>
-#include <ssh/sshremoteprocessrunner.h>
-
-using namespace QSsh;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -48,9 +45,7 @@ public:
     { }
 
     const IDevice::ConstPtr device;
-    SshRemoteProcessRunner process;
     QList<DeviceProcess> remoteProcesses;
-    QString errorMsg;
     State state;
 };
 
@@ -71,6 +66,7 @@ DeviceProcessList::~DeviceProcessList()
 void DeviceProcessList::update()
 {
     QTC_ASSERT(d->state == Inactive, return);
+    QTC_ASSERT(device(), return);
 
     if (!d->remoteProcesses.isEmpty()) {
         beginRemoveRows(QModelIndex(), 0, d->remoteProcesses.count() - 1);
@@ -78,26 +74,41 @@ void DeviceProcessList::update()
         endRemoveRows();
     }
     d->state = Listing;
-    startProcess(d->device->listProcessesCommandLine());
+    doUpdate();
+}
+
+void DeviceProcessList::reportProcessListUpdated(const QList<DeviceProcess> &processes)
+{
+    QTC_ASSERT(d->state == Listing, return);
+    setFinished();
+    if (!processes.isEmpty()) {
+        beginInsertRows(QModelIndex(), 0, processes.count() - 1);
+        d->remoteProcesses = processes;
+        endInsertRows();
+    }
+    emit processListUpdated();
 }
 
 void DeviceProcessList::killProcess(int row)
 {
     QTC_ASSERT(row >= 0 && row < d->remoteProcesses.count(), return);
     QTC_ASSERT(d->state == Inactive, return);
+    QTC_ASSERT(device(), return);
 
     d->state = Killing;
-    startProcess(d->device->killProcessCommandLine(d->remoteProcesses.at(row)));
+    doKillProcess(d->remoteProcesses.at(row));
+}
+
+void DeviceProcessList::reportProcessKilled()
+{
+    QTC_ASSERT(d->state == Killing, return);
+    setFinished();
+    emit processKilled();
 }
 
 DeviceProcess DeviceProcessList::at(int row) const
 {
     return d->remoteProcesses.at(row);
-}
-
-IDevice::ConstPtr DeviceProcessList::device() const
-{
-    return d->device;
 }
 
 int DeviceProcessList::rowCount(const QModelIndex &parent) const
@@ -132,78 +143,21 @@ QVariant DeviceProcessList::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void DeviceProcessList::handleConnectionError()
-{
-    QTC_ASSERT(d->state != Inactive, return);
-
-    emit error(tr("Connection failure: %1").arg(d->process.lastConnectionErrorString()));
-    beginResetModel();
-    d->remoteProcesses.clear();
-    endResetModel();
-    setFinished();
-}
-
-void DeviceProcessList::handleRemoteProcessFinished(int exitStatus)
-{
-    QTC_ASSERT(d->state != Inactive, return);
-
-    switch (exitStatus) {
-    case SshRemoteProcess::FailedToStart:
-        d->errorMsg = tr("Error: Remote process failed to start: %1")
-            .arg(d->process.processErrorString());
-        break;
-    case SshRemoteProcess::CrashExit:
-        d->errorMsg = tr("Error: Remote process crashed: %1")
-            .arg(d->process.processErrorString());
-        break;
-    case SshRemoteProcess::NormalExit:
-        if (d->process.processExitCode() == 0) {
-            if (d->state == Listing) {
-                const QByteArray remoteStdout = d->process.readAllStandardOutput();
-                QList<DeviceProcess> processes = d->device->buildProcessList(QString::fromUtf8(remoteStdout.data(),
-                    remoteStdout.count()));
-                if (!processes.isEmpty()) {
-                    beginInsertRows(QModelIndex(), 0, processes.count()-1);
-                    d->remoteProcesses = processes;
-                    endInsertRows();
-                }
-            }
-        } else {
-            d->errorMsg = tr("Remote process failed.");
-        }
-        break;
-    default:
-        Q_ASSERT_X(false, Q_FUNC_INFO, "Invalid exit status");
-    }
-
-    if (d->state == Listing)
-        emit processListUpdated();
-
-    if (!d->errorMsg.isEmpty()) {
-        const QByteArray remoteStderr = d->process.readAllStandardError();
-        if (!remoteStderr.isEmpty())
-            d->errorMsg += tr("\nRemote stderr was: %1").arg(QString::fromUtf8(remoteStderr));
-        emit error(d->errorMsg);
-    } else if (d->state == Killing) {
-        emit processKilled();
-    }
-
-    setFinished();
-}
-
-void DeviceProcessList::startProcess(const QString &cmdLine)
-{
-    connect(&d->process, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(&d->process, SIGNAL(processClosed(int)),
-        SLOT(handleRemoteProcessFinished(int)));
-    d->errorMsg.clear();
-    d->process.run(cmdLine.toUtf8(), d->device->sshParameters());
-}
-
 void DeviceProcessList::setFinished()
 {
-    disconnect(&d->process, 0, this, 0);
     d->state = Inactive;
+}
+
+IDevice::ConstPtr DeviceProcessList::device() const
+{
+    return d->device;
+}
+
+void DeviceProcessList::reportError(const QString &message)
+{
+    QTC_ASSERT(d->state != Inactive, return);
+    setFinished();
+    emit error(message);
 }
 
 

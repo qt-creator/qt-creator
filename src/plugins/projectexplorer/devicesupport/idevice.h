@@ -34,11 +34,13 @@
 
 #include <coreplugin/id.h>
 
+#include <QAbstractSocket>
 #include <QList>
 #include <QSharedPointer>
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
+class QObject;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -46,21 +48,32 @@ namespace QSsh { class SshConnectionParameters; }
 namespace Utils { class PortList; }
 
 namespace ProjectExplorer {
+class DeviceProcessList;
 
 namespace Internal { class IDevicePrivate; }
 
 class IDeviceWidget;
 
-class PROJECTEXPLORER_EXPORT DeviceProcess
+class PROJECTEXPLORER_EXPORT DeviceProcessSupport
 {
 public:
-    DeviceProcess() : pid(0) {}
-    bool operator<(const DeviceProcess &other) const;
+    typedef QSharedPointer<const DeviceProcessSupport> Ptr;
 
-    int pid;
-    QString cmdLine;
-    QString exe;
+    virtual ~DeviceProcessSupport();
+    virtual QString killProcessByPidCommandLine(int pid) const = 0;
+    virtual QString killProcessByNameCommandLine(const QString &filePath) const = 0;
 };
+
+class PROJECTEXPLORER_EXPORT PortsGatheringMethod
+{
+public:
+    typedef QSharedPointer<const PortsGatheringMethod> Ptr;
+
+    virtual ~PortsGatheringMethod();
+    virtual QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const = 0;
+    virtual QList<int> usedPorts(const QByteArray &commandOutput) const = 0;
+};
+
 
 // See cpp file for documentation.
 class PROJECTEXPLORER_EXPORT IDevice
@@ -99,9 +112,10 @@ public:
     virtual QString displayNameForActionId(Core::Id actionId) const = 0;
     virtual void executeAction(Core::Id actionId, QWidget *parent = 0) const = 0;
 
-    virtual QString listProcessesCommandLine() const = 0;
-    virtual QString killProcessCommandLine(const DeviceProcess &process) const = 0;
-    virtual QList<DeviceProcess> buildProcessList(const QString &listProcessesReply) const = 0;
+    virtual DeviceProcessSupport::Ptr processSupport() const;
+    virtual PortsGatheringMethod::Ptr portsGatheringMethod() const;
+    virtual bool canCreateProcessModel() const { return false; }
+    virtual DeviceProcessList *createProcessListModel(QObject *parent = 0) const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
     DeviceState deviceState() const;

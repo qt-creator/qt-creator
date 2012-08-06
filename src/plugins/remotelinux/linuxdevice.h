@@ -43,6 +43,13 @@ namespace Utils { class PortList; }
 namespace RemoteLinux {
 namespace Internal { class LinuxDevicePrivate; }
 
+class REMOTELINUX_EXPORT LinuxDeviceProcessSupport : public ProjectExplorer::DeviceProcessSupport
+{
+public:
+    QString killProcessByPidCommandLine(int pid) const;
+    QString killProcessByNameCommandLine(const QString &filePath) const;
+};
+
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
 {
     Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::LinuxDevice)
@@ -62,9 +69,10 @@ public:
     void executeAction(Core::Id actionId, QWidget *parent) const;
     ProjectExplorer::IDevice::Ptr clone() const;
 
-    QString listProcessesCommandLine() const;
-    QString killProcessCommandLine(const ProjectExplorer::DeviceProcess &process) const;
-    QList<ProjectExplorer::DeviceProcess> buildProcessList(const QString &listProcessesReply) const;
+    ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
+    ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
+    bool canCreateProcessModel() const { return true; }
+    ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
 
 protected:
     LinuxDevice() {}

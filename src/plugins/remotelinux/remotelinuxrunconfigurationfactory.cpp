@@ -32,7 +32,6 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxrunconfiguration.h"
-#include "remotelinuxutils.h"
 
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/target.h>

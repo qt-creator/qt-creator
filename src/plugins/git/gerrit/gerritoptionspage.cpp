@@ -95,14 +95,14 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
 {
     QFormLayout *formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    formLayout->addRow(tr("&Host: "), m_hostLineEdit);
-    formLayout->addRow(tr("&User: "), m_userLineEdit);
+    formLayout->addRow(tr("&Host:"), m_hostLineEdit);
+    formLayout->addRow(tr("&User:"), m_userLineEdit);
     m_sshChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_sshChooser->setCommandVersionArguments(QStringList(QLatin1String("-V")));
-    formLayout->addRow(tr("&ssh: "), m_sshChooser);
+    formLayout->addRow(tr("&ssh:"), m_sshChooser);
     m_portSpinBox->setMinimum(1);
     m_portSpinBox->setMaximum(65535);
-    formLayout->addRow(tr("&Port: "), m_portSpinBox);
+    formLayout->addRow(tr("&Port:"), m_portSpinBox);
     formLayout->addRow(tr("P&rotocol:"), m_httpsCheckBox);
     m_httpsCheckBox->setToolTip(tr(
     "Determines the protocol used to form a URL in case\n"

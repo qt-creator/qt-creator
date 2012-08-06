@@ -46,11 +46,10 @@ class DeviceUsedPortsGathererPrivate
  public:
     SshConnection *connection;
     SshRemoteProcess::Ptr process;
-    PortList portsToCheck;
     QList<int> usedPorts;
     QByteArray remoteStdout;
     QByteArray remoteStderr;
-    QString command;
+    IDevice::ConstPtr device;
 };
 
 } // namespace Internal
@@ -70,7 +69,9 @@ DeviceUsedPortsGatherer::~DeviceUsedPortsGatherer()
 void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
 {
     QTC_ASSERT(!d->connection, return);
-    d->portsToCheck = device->freePorts();
+    QTC_ASSERT(device && device->portsGatheringMethod(), return);
+
+    d->device = device;
     d->connection = SshConnectionManager::instance().acquireConnection(device->sshParameters());
     connect(d->connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
     if (d->connection->state() == SshConnection::Connected) {
@@ -84,22 +85,10 @@ void DeviceUsedPortsGatherer::start(const IDevice::ConstPtr &device)
 
 void DeviceUsedPortsGatherer::handleConnectionEstablished()
 {
-    QString command = d->command;
-    if (command.isEmpty()) {
-        QString procFilePath;
-        int addressLength;
-        if (d->connection->connectionInfo().localAddress.protocol() == QAbstractSocket::IPv4Protocol) {
-            procFilePath = QLatin1String("/proc/net/tcp");
-            addressLength = 8;
-        } else {
-            procFilePath = QLatin1String("/proc/net/tcp6");
-            addressLength = 32;
-        }
-        command = QString::fromLatin1("sed "
-            "'s/.*: [[:xdigit:]]\\{%1\\}:\\([[:xdigit:]]\\{4\\}\\).*/\\1/g' %2")
-            .arg(addressLength).arg(procFilePath);
-    }
-    d->process = d->connection->createRemoteProcess(command.toUtf8());
+    const QAbstractSocket::NetworkLayerProtocol protocol
+            = d->connection->connectionInfo().localAddress.protocol();
+    const QByteArray commandLine = d->device->portsGatheringMethod()->commandLine(protocol);
+    d->process = d->connection->createRemoteProcess(commandLine);
 
     connect(d->process.data(), SIGNAL(closed(int)), SLOT(handleProcessClosed(int)));
     connect(d->process.data(), SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdOut()));
@@ -138,27 +127,13 @@ QList<int> DeviceUsedPortsGatherer::usedPorts() const
     return d->usedPorts;
 }
 
-void DeviceUsedPortsGatherer::setCommand(const QString &command)
-{
-    d->command = command;
-}
-
 void DeviceUsedPortsGatherer::setupUsedPorts()
 {
-    QList<QByteArray> portStrings = d->remoteStdout.split('\n');
-    portStrings.removeFirst();
-    foreach (const QByteArray &portString, portStrings) {
-        if (portString.isEmpty())
-            continue;
-        bool ok;
-        const int port = portString.toInt(&ok, 16);
-        if (ok) {
-            if (d->portsToCheck.contains(port) && !d->usedPorts.contains(port))
-                d->usedPorts << port;
-        } else {
-            qWarning("%s: Unexpected string '%s' is not a port.",
-                Q_FUNC_INFO, portString.data());
-        }
+    d->usedPorts.clear();
+    const QList<int> usedPorts = d->device->portsGatheringMethod()->usedPorts(d->remoteStdout);
+    foreach (const int port, usedPorts) {
+        if (d->device->freePorts().contains(port))
+            d->usedPorts << port;
     }
     emit portListReady();
 }

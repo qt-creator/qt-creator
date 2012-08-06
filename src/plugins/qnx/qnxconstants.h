@@ -77,14 +77,6 @@ const char QNX_QNX_OS_TYPE[] = "QnxOsType";
 
 const char QNX_DEBUG_TOKEN_KEY[] = "debugToken";
 
-const char QNX_PORT_GATHERER_COMMAND[] = "netstat -na "
-                                         "| sed 's/[a-z]\\+\\s\\+[0-9]\\+\\s\\+[0-9]\\+\\s\\+\\(\\*\\|[0-9\\.]\\+\\)\\.\\([0-9]\\+\\).*/\\2/g' "
-                                         "| while read line; do "
-                                             "if [[ $line != udp* ]] && [[ $line != Active* ]]; then "
-                                                 "printf '%x\n' $line; "
-                                             "fi; "
-                                         "done";
-
 const char QNX_BAR_DESCRIPTOR_WIZARD_ID[]          = "Q.QnxBlackBerryBarDescriptor";
 const char QNX_BLACKBERRY_QTQUICK_APP_WIZARD_ID[]  = "Q.QnxBlackBerryQQApp";
 const char QNX_BLACKBERRY_QTQUICK2_APP_WIZARD_ID[] = "Q.QnxBlackBerryQQ2App";

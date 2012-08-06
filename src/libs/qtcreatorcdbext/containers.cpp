@@ -98,8 +98,9 @@ static inline std::string fixInnerType(std::string type,
 // Return size from an STL vector (last/first iterators).
 static inline int msvcStdVectorSize(const SymbolGroupValue &v)
 {
-    if (const SymbolGroupValue myFirstPtrV = v["_Myfirst"]) {
-        if (const SymbolGroupValue myLastPtrV = v["_Mylast"]) {
+    // MSVC2012 has 2 base classes, MSVC2010 1, MSVC2008 none
+    if (const SymbolGroupValue myFirstPtrV = SymbolGroupValue::findMember(v, "_Myfirst")) {
+        if (const SymbolGroupValue myLastPtrV = myFirstPtrV.parent()["_Mylast"]) {
             const ULONG64 firstPtr = myFirstPtrV.pointerValue();
             const ULONG64 lastPtr = myLastPtrV.pointerValue();
             if (!firstPtr || lastPtr < firstPtr)
@@ -182,45 +183,19 @@ int containerSize(KnownType kt, const SymbolGroupValue &v)
         if (const SymbolGroupValue base = v[unsigned(0)])
             return containerSize(KT_QMap, base);
         break;
-    case KT_StdVector: {
-        if (const SymbolGroupValue base = v[unsigned(0)]) {
-            const int msvc10Size = msvcStdVectorSize(base);
-            if (msvc10Size >= 0)
-                return msvc10Size;
-        }
-        const int msvc8Size = msvcStdVectorSize(v);
-        if (msvc8Size >= 0)
-            return msvc8Size;
-    }
-        break;
+    case KT_StdVector:
+        return msvcStdVectorSize(v);
+    case KT_StdDeque: // MSVC2012 has many base classes, MSVC2010 1, MSVC2008 none
+    case KT_StdSet:
+    case KT_StdMap:
+    case KT_StdMultiMap:
     case KT_StdList:
-        if (const SymbolGroupValue sizeV =  v["_Mysize"]) // VS 8
-            return sizeV.intValue();
-        if (const SymbolGroupValue sizeV = v[unsigned(0)][unsigned(0)]["_Mysize"]) // VS10
-            return sizeV.intValue();
-        break;
-    case KT_StdDeque: {
-        const SymbolGroupValue msvc10sizeV =  v[unsigned(0)]["_Mysize"]; // VS10
-        if (msvc10sizeV)
-            return msvc10sizeV.intValue();
-        const SymbolGroupValue msvc8sizeV =  v["_Mysize"]; // VS8
-        if (msvc8sizeV)
-            return msvc8sizeV.intValue();
-    }
+        if (const SymbolGroupValue size = SymbolGroupValue::findMember(v, "_Mysize"))
+            return size.intValue();
         break;
     case KT_StdStack:
         if (const SymbolGroupValue deque =  v[unsigned(0)])
             return containerSize(KT_StdDeque, deque);
-        break;
-    case KT_StdSet:
-    case KT_StdMap:
-    case KT_StdMultiMap:
-        if (const SymbolGroupValue baseV = v[unsigned(0)]) {
-            if (const SymbolGroupValue sizeV = baseV["_Mysize"]) // VS 8
-                return sizeV.intValue();
-            if (const SymbolGroupValue sizeV = baseV[unsigned(0)][unsigned(0)]["_Mysize"]) // VS 10
-                return sizeV.intValue();
-        }
         break;
     }
     return -1;
@@ -258,19 +233,18 @@ private:
     const char *m_name;
 };
 
-// std::list<T>: Dummy head node and then a linked list of "_Next", "_Myval".
+// std::list<T>: Skip dummy head node and then a linked list of "_Next", "_Myval".
 static inline AbstractSymbolGroupNodePtrVector stdListChildList(SymbolGroupNode *n, int count,
                                                         const SymbolGroupValueContext &ctx)
 {
     if (!count)
         return AbstractSymbolGroupNodePtrVector();
-    const SymbolGroupValue head = SymbolGroupValue(n, ctx)[unsigned(0)][unsigned(0)]["_Myhead"]["_Next"];
-    if (!head) {
-        if (SymbolGroupValue::verbose)
-            DebugPrint() << "std::list failure: " << head;
-        return AbstractSymbolGroupNodePtrVector();
-    }
-    return linkedListChildList(head, count, MemberByName("_Myval"), MemberByName("_Next"));
+    const SymbolGroupValue head = SymbolGroupValue::findMember(SymbolGroupValue(n, ctx), "_Myhead")["_Next"];
+    if (head)
+        return linkedListChildList(head, count, MemberByName("_Myval"), MemberByName("_Next"));
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << "std::list failure: " << head;
+    return AbstractSymbolGroupNodePtrVector();
 }
 
 // QLinkedList<T>: Dummy head node and then a linked list of "n", "t".
@@ -346,24 +320,23 @@ static inline AbstractSymbolGroupNodePtrVector
 static inline AbstractSymbolGroupNodePtrVector
     stdVectorChildList(SymbolGroupNode *n, int count, const SymbolGroupValueContext &ctx)
 {
-    if (count) {
-        // std::vector<T>: _Myfirst is a pointer of T*. Get address
-        // element to obtain address.
-        const SymbolGroupValue vec(n, ctx);
-        SymbolGroupValue myFirst = vec[unsigned(0)]["_Myfirst"]; // MSVC2010
-        if (!myFirst)
-            myFirst = vec["_Myfirst"]; // MSVC2008
-        if (myFirst) {
-            if (const ULONG64 address = myFirst.pointerValue()) {
-                const std::string firstType = myFirst.type();
-                const std::string innerType = fixInnerType(SymbolGroupValue::stripPointerType(firstType), vec);
-                if (SymbolGroupValue::verbose)
-                    DebugPrint() << n->name() << " inner type: '" << innerType << "' from '" << firstType << '\'';
-                return arrayChildList(n->symbolGroup(), address, n->module(), innerType, count);
-            }
-        }
-    }
-    return AbstractSymbolGroupNodePtrVector();
+    if (!count)
+        return AbstractSymbolGroupNodePtrVector();
+    // MSVC2012 has 2 base classes, MSVC2010 1, MSVC2008 none
+    const SymbolGroupValue vec = SymbolGroupValue(n, ctx);
+    SymbolGroupValue myFirst = SymbolGroupValue::findMember(vec, "_Myfirst");
+    if (!myFirst)
+        return AbstractSymbolGroupNodePtrVector();
+    // std::vector<T>: _Myfirst is a pointer of T*. Get address
+    // element to obtain address.
+    const ULONG64 address = myFirst.pointerValue();
+    if (!address)
+        return AbstractSymbolGroupNodePtrVector();
+    const std::string firstType = myFirst.type();
+    const std::string innerType = fixInnerType(SymbolGroupValue::stripPointerType(firstType), vec);
+    if (SymbolGroupValue::verbose)
+        DebugPrint() << n->name() << " inner type: '" << innerType << "' from '" << firstType << '\'';
+    return arrayChildList(n->symbolGroup(), address, n->module(), innerType, count);
 }
 
 // Helper for std::deque<>: From the array of deque blocks, read out the values.
@@ -399,17 +372,21 @@ AbstractSymbolGroupNodePtrVector
 
 // std::deque<>
 static inline AbstractSymbolGroupNodePtrVector
-    stdDequeDirectChildList(const SymbolGroupValue &deque, int count)
+    stdDequeChildList(const SymbolGroupValue &dequeIn, int count)
 {
     if (!count)
         return AbstractSymbolGroupNodePtrVector();
-    // From MSVC10 on, there is an additional base class
-    const ULONG64 arrayAddress = deque["_Map"].pointerValue();
+    // From MSVC10 on, there is an additional base class, MSVC2012 more.
+    const SymbolGroupValue map = SymbolGroupValue::findMember(dequeIn, "_Map");
+    if (!map)
+        return AbstractSymbolGroupNodePtrVector();
+    const SymbolGroupValue deque = map.parent();
+    const ULONG64 arrayAddress = map.pointerValue();
     const int startOffset = deque["_Myoff"].intValue();
     const int mapSize  = deque["_Mapsize"].intValue();
     if (!arrayAddress || startOffset < 0 || mapSize <= 0)
         return AbstractSymbolGroupNodePtrVector();
-    const std::vector<std::string> innerTypes = deque.innerTypes();
+    const std::vector<std::string> innerTypes = dequeIn.innerTypes();
     if (innerTypes.empty())
         return AbstractSymbolGroupNodePtrVector();
     const std::string innerType = fixInnerType(innerTypes.front(), deque);
@@ -433,15 +410,6 @@ static inline AbstractSymbolGroupNodePtrVector
                                deque.module(), innerType, innerTypeSize, startOffset, dequeSize, count);
     delete [] mapArray;
     return rc;
-}
-
-// std::deque<>
-static inline AbstractSymbolGroupNodePtrVector
-    stdDequeChildList(const SymbolGroupValue &v, int count)
-{
-    // MSVC10 has a base class. If that fails, try direct (MSVC2008)
-    const AbstractSymbolGroupNodePtrVector msvc10rc = stdDequeDirectChildList(v[unsigned(0)], count);
-    return msvc10rc.empty() ? stdDequeDirectChildList(v, count) : msvc10rc;
 }
 
 /* Helper class for std::map<>,std::set<> based on std::__Tree:
@@ -579,21 +547,20 @@ void StdMapNode::debug(std::ostream &os, unsigned depth) const
 // Helper for std::map<>,std::set<> based on std::__Tree:
 // Return the list of children (pair for maps, direct children for set)
 static inline SymbolGroupValueVector
-    stdTreeChildList(const SymbolGroupValue &tree, int count, bool *isMSVC2010In = 0)
+    stdTreeChildList(const SymbolGroupValue &treeIn, int count)
 {
     if (!count)
         return SymbolGroupValueVector();
+    // MSVC2012: many base classes.
     // MSVC2010: "class _Tree : public _Tree_val: public _Tree_nod".
     // MSVC2008: Direct class
-    const int size = tree[unsigned(0)][unsigned(0)]["_Mysize"].intValue();
-    const bool isMSVC2010 = size >= 0 && size <= count; // Count may be limited
-    if (isMSVC2010In)
-        *isMSVC2010In = isMSVC2010;
-    const SymbolGroupValue treeNode = isMSVC2010 ? tree[unsigned(0)][unsigned(0)] : tree;
-    if (!treeNode)
+    const SymbolGroupValue sizeV = SymbolGroupValue::findMember(treeIn, "_Mysize");
+    const SymbolGroupValue tree = sizeV.parent();
+    const int size = sizeV.intValue();
+    if (!tree|| size <= 0)
         return SymbolGroupValueVector();
     // Build the tree and iterate it.
-    const StdMapNode *nodeTree = StdMapNode::buildMap(treeNode);
+    const StdMapNode *nodeTree = StdMapNode::buildMap(tree);
     if (!nodeTree)
         return SymbolGroupValueVector();
     SymbolGroupValueVector rc;
@@ -611,7 +578,7 @@ static inline SymbolGroupValueVector
 static inline AbstractSymbolGroupNodePtrVector
     stdSetChildList(const SymbolGroupValue &set, int count)
 {
-    const SymbolGroupValueVector children = stdTreeChildList(set[unsigned(0)], count);
+    const SymbolGroupValueVector children = stdTreeChildList(set, count);
     if (int(children.size()) != count)
         return AbstractSymbolGroupNodePtrVector();
     AbstractSymbolGroupNodePtrVector rc;
@@ -625,17 +592,16 @@ static inline AbstractSymbolGroupNodePtrVector
 static inline AbstractSymbolGroupNodePtrVector
     stdMapChildList(const SymbolGroupValue &map, int count)
 {
-    bool isMSVC2010 = true;
-    const SymbolGroupValueVector children = stdTreeChildList(map[unsigned(0)], count, &isMSVC2010);
+    const SymbolGroupValueVector children = stdTreeChildList(map[unsigned(0)], count);
     if (int(children.size()) != count)
         return AbstractSymbolGroupNodePtrVector();
     AbstractSymbolGroupNodePtrVector rc;
     rc.reserve(count);
+    const std::string firstName = "first";
     for (int i = 0; i < count; i++) {
-        // MSVC2010 introduces a std::pair_base.
-        const SymbolGroupValue pairBase = isMSVC2010?
-                    children.at(i)[unsigned(0)] : children.at(i);
-        const SymbolGroupValue key = pairBase["first"];
+        // MSVC2010 (only) has a std::pair_base class.
+        const SymbolGroupValue key = SymbolGroupValue::findMember(children.at(i), firstName);
+        const SymbolGroupValue pairBase = key.parent();
         const SymbolGroupValue value = pairBase["second"];
         if (key && value) {
             rc.push_back(MapNodeSymbolGroupNode::create(i, pairBase.address(),

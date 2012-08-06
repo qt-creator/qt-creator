@@ -36,6 +36,57 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
+class QnxDeviceProcessSupport : public RemoteLinux::LinuxDeviceProcessSupport
+{
+    QString killProcessByNameCommandLine(const QString &filePath) const
+    {
+        QString executable = filePath;
+        return QString::fromLatin1("for PID in $(ps -f -o pid,comm | grep %1 | awk '/%1/ {print $1}'); "
+            "do "
+                "kill $PID; sleep 1; kill -9 $PID; "
+            "done").arg(executable.replace(QLatin1String("/"), QLatin1String("\\/")));
+    }
+};
+
+
+class QnxPortsGatheringMethod : public ProjectExplorer::PortsGatheringMethod
+{
+    // TODO: The command is probably needlessly complicated because the parsing method
+    // used to be fixed. These two can now be matched to each other.
+    QByteArray commandLine(QAbstractSocket::NetworkLayerProtocol protocol) const
+    {
+        Q_UNUSED(protocol);
+        return "netstat -na "
+                "| sed 's/[a-z]\\+\\s\\+[0-9]\\+\\s\\+[0-9]\\+\\s\\+\\(\\*\\|[0-9\\.]\\+\\)\\.\\([0-9]\\+\\).*/\\2/g' "
+                "| while read line; do "
+                    "if [[ $line != udp* ]] && [[ $line != Active* ]]; then "
+                        "printf '%x\n' $line; "
+                    "fi; "
+                "done";
+    }
+
+    QList<int> usedPorts(const QByteArray &output) const
+    {
+        QList<int> ports;
+        QList<QByteArray> portStrings = output.split('\n');
+        portStrings.removeFirst();
+        foreach (const QByteArray &portString, portStrings) {
+            if (portString.isEmpty())
+                continue;
+            bool ok;
+            const int port = portString.toInt(&ok, 16);
+            if (ok) {
+                if (!ports.contains(port))
+                    ports << port;
+            } else {
+                qWarning("%s: Unexpected string '%s' is not a port.",
+                         Q_FUNC_INFO, portString.data());
+            }
+        }
+        return ports;
+    }
+};
+
 QnxDeviceConfiguration::QnxDeviceConfiguration()
     : RemoteLinux::LinuxDevice()
 {
@@ -72,3 +123,12 @@ ProjectExplorer::IDevice::Ptr QnxDeviceConfiguration::clone() const
     return Ptr(new QnxDeviceConfiguration(*this));
 }
 
+ProjectExplorer::DeviceProcessSupport::Ptr QnxDeviceConfiguration::processSupport() const
+{
+    return ProjectExplorer::DeviceProcessSupport::Ptr(new QnxDeviceProcessSupport);
+}
+
+ProjectExplorer::PortsGatheringMethod::Ptr QnxDeviceConfiguration::portsGatheringMethod() const
+{
+    return ProjectExplorer::PortsGatheringMethod::Ptr(new QnxPortsGatheringMethod);
+}

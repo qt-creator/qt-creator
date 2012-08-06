@@ -40,6 +40,17 @@ namespace ProjectExplorer {
 
 namespace Internal { class DeviceProcessListPrivate; }
 
+class PROJECTEXPLORER_EXPORT DeviceProcess
+{
+public:
+    DeviceProcess() : pid(0) {}
+    bool operator<(const DeviceProcess &other) const;
+
+    int pid;
+    QString cmdLine;
+    QString exe;
+};
+
 class PROJECTEXPLORER_EXPORT DeviceProcessList : public QAbstractTableModel
 {
     Q_OBJECT
@@ -51,16 +62,18 @@ public:
     void update();
     void killProcess(int row);
     DeviceProcess at(int row) const;
-    IDevice::ConstPtr device() const;
 
 signals:
     void processListUpdated();
     void error(const QString &errorMsg);
     void processKilled();
 
-private slots:
-    void handleConnectionError();
-    void handleRemoteProcessFinished(int exitStatus);
+protected:
+    void reportError(const QString &message);
+    void reportProcessKilled();
+    void reportProcessListUpdated(const QList<DeviceProcess> &processes);
+
+    IDevice::ConstPtr device() const;
 
 private:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -69,7 +82,9 @@ private:
         int role = Qt::DisplayRole) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    void startProcess(const QString &cmdLine);
+    virtual void doUpdate() = 0;
+    virtual void doKillProcess(const DeviceProcess &process) = 0;
+
     void setFinished();
 
     Internal::DeviceProcessListPrivate * const d;

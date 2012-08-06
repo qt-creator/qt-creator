@@ -38,6 +38,8 @@
 #include "qt4projectmanagerconstants.h"
 #include "qmakeprofileinformation.h"
 
+#include <coreplugin/icore.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtprofileinformation.h>
@@ -92,6 +94,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
             this, SLOT(handleProfileUpdate(ProjectExplorer::Profile*)));
     connect(m_importWidget, SIGNAL(importFrom(Utils::FileName)),
             this, SLOT(import(Utils::FileName)));
+    connect(m_ui->noValidProfileLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(openTargetPreferences()));
 }
 
 void TargetSetupPage::initializePage()
@@ -499,6 +503,12 @@ void TargetSetupPage::updateVisibility()
     }
 
     emit completeChanged();
+}
+
+void TargetSetupPage::openTargetPreferences()
+{
+    Core::ICore::showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+            ProjectExplorer::Constants::PROFILE_SETTINGS_PAGE_ID);
 }
 
 void TargetSetupPage::removeWidget(ProjectExplorer::Profile *p)

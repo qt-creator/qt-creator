@@ -33,6 +33,8 @@
 #include "devicefactoryselectiondialog.h"
 #include "devicemanager.h"
 #include "devicemanagermodel.h"
+#include "deviceprocessesdialog.h"
+#include "deviceprocesslist.h"
 #include "idevice.h"
 #include "idevicefactory.h"
 #include "idevicewidget.h"
@@ -288,23 +290,32 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
         m_ui->removeConfigButton->setEnabled(false);
         clearDetails();
         m_ui->defaultDeviceButton->setEnabled(false);
-    } else {
-        setDeviceInfoWidgetsEnabled(true);
-        m_ui->removeConfigButton->setEnabled(true);
-        foreach (const Core::Id actionId, device->actionIds()) {
-            QPushButton * const button = new QPushButton(device->displayNameForActionId(actionId));
-            m_additionalActionButtons << button;
-            connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
-            m_additionalActionsMapper->setMapping(button, actionId.uniqueIdentifier());
-            m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
-        }
-        if (!m_ui->osSpecificGroupBox->layout())
-            new QVBoxLayout(m_ui->osSpecificGroupBox);
-        m_configWidget = m_deviceManager->mutableDevice(device->id())->createWidget();
-        if (m_configWidget)
-            m_ui->osSpecificGroupBox->layout()->addWidget(m_configWidget);
-        displayCurrent();
+        return;
     }
+    setDeviceInfoWidgetsEnabled(true);
+    m_ui->removeConfigButton->setEnabled(true);
+
+    if (device->canCreateProcessModel()) {
+        QPushButton * const button = new QPushButton(tr("Remote Processes"));
+        m_additionalActionButtons << button;
+        connect(button, SIGNAL(clicked()), SLOT(handleProcessListRequested()));
+        m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
+    }
+
+    foreach (const Core::Id actionId, device->actionIds()) {
+        QPushButton * const button = new QPushButton(device->displayNameForActionId(actionId));
+        m_additionalActionButtons << button;
+        connect(button, SIGNAL(clicked()), m_additionalActionsMapper, SLOT(map()));
+        m_additionalActionsMapper->setMapping(button, actionId.uniqueIdentifier());
+        m_ui->buttonsLayout->insertWidget(m_ui->buttonsLayout->count() - 1, button);
+    }
+
+    if (!m_ui->osSpecificGroupBox->layout())
+        new QVBoxLayout(m_ui->osSpecificGroupBox);
+    m_configWidget = m_deviceManager->mutableDevice(device->id())->createWidget();
+    if (m_configWidget)
+        m_ui->osSpecificGroupBox->layout()->addWidget(m_configWidget);
+    displayCurrent();
 }
 
 void DeviceSettingsWidget::clearDetails()
@@ -319,6 +330,13 @@ void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
     const IDevice::ConstPtr device = m_deviceManager->find(currentDevice()->id());
     QTC_ASSERT(device, return);
     device->executeAction(Core::Id::fromUniqueIdentifier(actionId), this);
+}
+
+void DeviceSettingsWidget::handleProcessListRequested()
+{
+    QTC_ASSERT(currentDevice()->canCreateProcessModel(), return);
+    DeviceProcessesDialog d(currentDevice()->createProcessListModel());
+    d.exec();
 }
 
 } // namespace Internal

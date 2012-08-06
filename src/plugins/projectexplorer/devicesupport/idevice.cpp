@@ -30,6 +30,7 @@
 #include "idevice.h"
 
 #include "devicemanager.h"
+#include "deviceprocesslist.h"
 
 #include <coreplugin/id.h>
 #include <ssh/sshconnection.h>
@@ -190,6 +191,9 @@ public:
 };
 } // namespace Internal
 
+PortsGatheringMethod::~PortsGatheringMethod() { }
+DeviceProcessSupport::~DeviceProcessSupport() { }
+
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
 { }
 
@@ -244,6 +248,23 @@ bool IDevice::isAutoDetected() const
 Core::Id IDevice::id() const
 {
     return d->id;
+}
+
+DeviceProcessSupport::Ptr IDevice::processSupport() const
+{
+    return DeviceProcessSupport::Ptr();
+}
+
+PortsGatheringMethod::Ptr IDevice::portsGatheringMethod() const
+{
+    return PortsGatheringMethod::Ptr();
+}
+
+DeviceProcessList *IDevice::createProcessListModel(QObject *parent) const
+{
+    Q_UNUSED(parent);
+    QTC_ASSERT(false, qDebug("This should not have been called..."); return 0);
+    return 0;
 }
 
 IDevice::DeviceState IDevice::deviceState() const

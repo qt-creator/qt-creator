@@ -110,11 +110,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     m_buildConfiguration(0)
 {
     Q_ASSERT(m_target);
-    setupUi();
-}
 
-void BuildSettingsWidget::setupUi()
-{
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
 

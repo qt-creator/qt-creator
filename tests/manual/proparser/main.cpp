@@ -67,15 +67,6 @@ public:
 
 static EvalHandler evalHandler;
 
-static QString value(ProFileEvaluator &reader, const QString &variable)
-{
-    QStringList vals = reader.values(variable);
-    if (!vals.isEmpty())
-        return vals.first();
-
-    return QString();
-}
-
 static int evaluate(const QString &fileName, const QString &in_pwd, const QString &out_pwd,
                     bool cumulative, QMakeGlobals *option, QMakeParser *parser, int level)
 {
@@ -106,9 +97,9 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
             const QString subDirKey = subDirVar + QLatin1String(".subdir");
             const QString subDirFileKey = subDirVar + QLatin1String(".file");
             if (visitor.contains(subDirKey))
-                realDir = QFileInfo(value(visitor, subDirKey)).filePath();
+                realDir = QFileInfo(visitor.value(subDirKey)).filePath();
             else if (visitor.contains(subDirFileKey))
-                realDir = QFileInfo(value(visitor, subDirFileKey)).filePath();
+                realDir = QFileInfo(visitor.value(subDirFileKey)).filePath();
             else
                 realDir = subDirVar;
             QFileInfo info(realDir);

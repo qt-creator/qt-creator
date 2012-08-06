@@ -126,7 +126,8 @@ HEADERS += projectexplorer.h \
     devicesupport/devicesettingswidget.h \
     devicesupport/devicesettingspage.h \
     devicesupport/deviceusedportsgatherer.h \
-    devicesupport/deviceapplicationrunner.h
+    devicesupport/deviceapplicationrunner.h \
+    devicesupport/sshdeviceprocesslist.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -229,7 +230,8 @@ SOURCES += projectexplorer.cpp \
     devicesupport/devicesettingswidget.cpp \
     devicesupport/devicesettingspage.cpp \
     devicesupport/deviceusedportsgatherer.cpp \
-    devicesupport/deviceapplicationrunner.cpp
+    devicesupport/deviceapplicationrunner.cpp \
+    devicesupport/sshdeviceprocesslist.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

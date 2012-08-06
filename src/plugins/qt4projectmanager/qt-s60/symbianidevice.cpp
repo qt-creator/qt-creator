@@ -249,21 +249,4 @@ void SymbianIDevice::updateState()
     }
 }
 
-QString SymbianIDevice::listProcessesCommandLine() const
-{
-    return QString();
-}
-
-QString SymbianIDevice::killProcessCommandLine(const DeviceProcess &process) const
-{
-    Q_UNUSED(process);
-    return QString();
-}
-
-QList<DeviceProcess> SymbianIDevice::buildProcessList(const QString &listProcessesReply) const
-{
-    Q_UNUSED(listProcessesReply);
-    return QList<DeviceProcess>();
-}
-
 } // namespace qt4projectmanager

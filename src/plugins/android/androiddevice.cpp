@@ -90,22 +90,5 @@ IDevice::Ptr AndroidDevice::clone() const
     return IDevice::Ptr(new AndroidDevice(*this));
 }
 
-QString AndroidDevice::listProcessesCommandLine() const
-{
-    return QString();
-}
-
-QString AndroidDevice::killProcessCommandLine(const DeviceProcess &process) const
-{
-    Q_UNUSED(process);
-    return QString();
-}
-
-QList<DeviceProcess> AndroidDevice::buildProcessList(const QString &listProcessesReply) const
-{
-    Q_UNUSED(listProcessesReply);
-    return QList<DeviceProcess>();
-}
-
 } // namespace Internal
 } // namespace Android
