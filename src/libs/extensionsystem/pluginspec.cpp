@@ -41,7 +41,7 @@
 #include <QXmlStreamReader>
 #include <QRegExp>
 #include <QCoreApplication>
-#include <QtDebug>
+#include <QDebug>
 
 #ifdef Q_OS_LINUX
 // Using the patched version breaks on Fedora 10, KDE4.2.2/Qt4.5.

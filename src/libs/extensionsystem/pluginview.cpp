@@ -39,7 +39,7 @@
 #include <QTreeWidgetItem>
 #include <QPalette>
 
-#include <QtDebug>
+#include <QDebug>
 
 /*!
     \class ExtensionSystem::PluginView

@@ -38,7 +38,7 @@
 
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
-#include <QtDebug>
+#include <QDebug>
 #include <QClipboard>
 
 namespace QmlDesigner {

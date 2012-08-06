@@ -45,7 +45,7 @@
 #include <metainfo.h>
 #include <model.h>
 #include <QApplication>
-#include <QtDebug>
+#include <QDebug>
 #include <QPair>
 #include <QString>
 #include <QDir>

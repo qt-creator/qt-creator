@@ -32,7 +32,7 @@
 
 #include <QProcess>
 #include <QTextStream>
-#include <QtDebug>
+#include <QDebug>
 
 using namespace GenericProjectManager::Internal;
 

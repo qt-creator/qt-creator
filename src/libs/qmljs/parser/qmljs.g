@@ -121,7 +121,7 @@
 **************************************************************************/
 
 
-#include <QtCore/QtDebug>
+#include <QtCore/QDebug>
 #include <QtCore/QCoreApplication>
 
 #include <string.h>

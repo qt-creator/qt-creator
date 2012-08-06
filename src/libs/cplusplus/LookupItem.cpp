@@ -33,7 +33,7 @@
 #include <Symbol.h>
 #include <Control.h>
 
-#include <QtDebug>
+#include <QDebug>
 
 using namespace CPlusPlus;
 

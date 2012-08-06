@@ -33,7 +33,7 @@
 #include "formeditoritem.h"
 #include "formeditorscene.h"
 #include "qmlanchors.h"
-#include <QtDebug>
+#include <QDebug>
 #include <model.h>
 #include "mathutils.h"
 

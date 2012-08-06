@@ -29,7 +29,7 @@
 **************************************************************************/
 
 #include <QtTest>
-#include <QtDebug>
+#include <QDebug>
 
 #include <Control.h>
 #include <Literals.h>

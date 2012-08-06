@@ -34,7 +34,7 @@
 #include <QPen>
 #include <QPainterPathStroker>
 #include <cmath>
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 

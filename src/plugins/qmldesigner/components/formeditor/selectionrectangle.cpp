@@ -32,7 +32,7 @@
 
 #include <QPen>
 #include <QGraphicsScene>
-#include <QtDebug>
+#include <QDebug>
 #include <cmath>
 #include <QGraphicsScene>
 

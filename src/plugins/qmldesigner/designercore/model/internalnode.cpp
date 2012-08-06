@@ -36,7 +36,7 @@
 #include "invalidmodelnodeexception.h"
 #include "invalidpropertyexception.h"
 
-#include <QtDebug>
+#include <QDebug>
 #include <corelib_global.h>
 
 namespace QmlDesigner {

@@ -35,7 +35,7 @@
 #include <QToolBar>
 #include <QHBoxLayout>
 #include <QPainter>
-#include <QtDebug>
+#include <QDebug>
 #include <QFile>
 #include <QFrame>
 #include <QVariant>

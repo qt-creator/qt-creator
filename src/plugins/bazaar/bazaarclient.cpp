@@ -41,7 +41,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QTextStream>
-#include <QtDebug>
+#include <QDebug>
 
 namespace Bazaar {
 namespace Internal {

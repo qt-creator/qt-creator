@@ -54,7 +54,7 @@
 
 #include <QTextStream>
 #include <QDeclarativeComponent>
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlProjectManager {
 

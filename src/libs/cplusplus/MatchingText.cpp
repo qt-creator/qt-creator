@@ -36,7 +36,7 @@
 #include <QTextCursor>
 
 #include <QChar>
-#include <QtDebug>
+#include <QDebug>
 
 using namespace CPlusPlus;
 

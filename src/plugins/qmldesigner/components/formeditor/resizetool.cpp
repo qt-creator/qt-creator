@@ -39,7 +39,7 @@
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
 #include <QAction>
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 

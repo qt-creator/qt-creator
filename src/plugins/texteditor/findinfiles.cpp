@@ -32,7 +32,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtDebug>
+#include <QDebug>
 #include <QSettings>
 #include <QDir>
 #include <QDirIterator>

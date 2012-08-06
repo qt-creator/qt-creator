@@ -34,7 +34,7 @@
 #include <corelib_global.h>
 
 #include <QString>
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 

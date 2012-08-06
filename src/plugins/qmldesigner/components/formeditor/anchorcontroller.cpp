@@ -34,7 +34,7 @@
 #include "layeritem.h"
 #include "formeditorscene.h"
 #include "anchorhandleitem.h"
-#include <QtDebug>
+#include <QDebug>
 #include <cmath>
 namespace QmlDesigner {
 

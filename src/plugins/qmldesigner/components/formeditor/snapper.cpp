@@ -30,7 +30,7 @@
 
 #include "snapper.h"
 
-#include <QtDebug>
+#include <QDebug>
 
 #include <limits>
 #include <cmath>

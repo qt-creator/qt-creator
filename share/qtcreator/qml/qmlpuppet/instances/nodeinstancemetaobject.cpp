@@ -34,7 +34,7 @@
 #include <QSharedPointer>
 #include <QMetaProperty>
 #include <qnumeric.h>
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 namespace Internal {

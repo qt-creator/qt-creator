@@ -47,7 +47,7 @@
 #include <QStringList>
 #include <QFileInfo>
 #include <QTime>
-#include <QtDebug>
+#include <QDebug>
 
 #include <cstdio>
 #include <cstdlib>

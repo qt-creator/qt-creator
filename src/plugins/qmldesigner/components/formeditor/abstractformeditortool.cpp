@@ -34,7 +34,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <QtDebug>
+#include <QDebug>
 #include <QGraphicsSceneDragDropEvent>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>

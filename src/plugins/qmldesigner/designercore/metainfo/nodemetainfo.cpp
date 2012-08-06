@@ -38,7 +38,7 @@
 #include <rewriterview.h>
 
 #include <QSharedData>
-#include <QtDebug>
+#include <QDebug>
 #include <QIcon>
 #include <QDeclarativeContext>
 #include <QDeclarativeEngine>

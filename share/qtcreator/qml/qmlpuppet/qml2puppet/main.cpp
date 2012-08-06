@@ -28,7 +28,7 @@
 **
 **************************************************************************/
 
-#include <QtDebug>
+#include <QDebug>
 
 #include <QApplication>
 #include <QStringList>

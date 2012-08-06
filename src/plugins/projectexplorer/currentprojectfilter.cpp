@@ -32,7 +32,7 @@
 #include "projectexplorer.h"
 #include "project.h"
 
-#include <QtDebug>
+#include <QDebug>
 
 using namespace Core;
 using namespace Locator;

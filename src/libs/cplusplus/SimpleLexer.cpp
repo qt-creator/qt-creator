@@ -34,7 +34,7 @@
 
 #include <Lexer.h>
 #include <Token.h>
-#include <QtDebug>
+#include <QDebug>
 
 using namespace CPlusPlus;
 

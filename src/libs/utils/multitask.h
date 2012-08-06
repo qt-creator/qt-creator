@@ -41,7 +41,7 @@
 #include <QtConcurrentRun>
 #include <QThreadPool>
 
-#include <QtDebug>
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 

@@ -30,7 +30,7 @@
 
 #include "pixmapchangedcommand.h"
 
-#include <QtDebug>
+#include <QDebug>
 
 #include <QVarLengthArray>
 

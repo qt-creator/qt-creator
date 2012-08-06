@@ -32,7 +32,7 @@
 
 #include <QWheelEvent>
 #include <QApplication>
-#include <QtDebug>
+#include <QDebug>
 
 #include <qmlanchors.h>
 

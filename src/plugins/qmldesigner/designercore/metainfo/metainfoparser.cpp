@@ -35,7 +35,7 @@
 #include <QXmlStreamReader>
 #include <QString>
 #include <QFile>
-#include <QtDebug>
+#include <QDebug>
 #include <QIcon>
 
 namespace QmlDesigner {

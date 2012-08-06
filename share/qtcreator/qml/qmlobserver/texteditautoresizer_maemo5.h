@@ -31,7 +31,7 @@
 #include <qtextedit.h>
 #include <qabstractkineticscroller.h>
 #include <qscrollarea.h>
-#include <QtDebug>
+#include <QDebug>
 
 #ifndef TEXTEDITAUTORESIZER_H
 #define TEXTEDITAUTORESIZER_H

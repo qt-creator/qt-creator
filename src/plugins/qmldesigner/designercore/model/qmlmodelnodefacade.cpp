@@ -30,7 +30,7 @@
 
 #include "qmlmodelnodefacade.h"
 #include "qmlmodelview.h"
-#include <QtDebug>
+#include <QDebug>
 namespace QmlDesigner {
 
 QmlModelNodeFacade::QmlModelNodeFacade() : m_modelNode(ModelNode())

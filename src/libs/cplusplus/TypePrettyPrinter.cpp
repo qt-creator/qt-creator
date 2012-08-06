@@ -37,7 +37,7 @@
 #include <Symbols.h>
 #include <Scope.h>
 #include <QStringList>
-#include <QtDebug>
+#include <QDebug>
 
 using namespace CPlusPlus;
 

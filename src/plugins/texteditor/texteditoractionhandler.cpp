@@ -47,7 +47,7 @@
 #include <utils/qtcassert.h>
 
 #include <QSet>
-#include <QtDebug>
+#include <QDebug>
 #include <QAction>
 #include <QTextCursor>
 

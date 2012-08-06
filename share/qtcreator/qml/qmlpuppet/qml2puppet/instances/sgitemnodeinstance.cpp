@@ -38,7 +38,7 @@
 
 #include <QHash>
 
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 namespace Internal {

@@ -33,7 +33,7 @@
 #include <QDeclarativeComponent>
 #include <QDeclarativeContext>
 
-#include <QtDebug>
+#include <QDebug>
 
 namespace QmlDesigner {
 namespace Internal {

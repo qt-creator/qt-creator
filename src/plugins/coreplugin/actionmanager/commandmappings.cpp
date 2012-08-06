@@ -45,7 +45,7 @@
 #include <QTreeWidgetItem>
 #include <QFileDialog>
 #include <QCoreApplication>
-#include <QtDebug>
+#include <QDebug>
 
 Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*)
 

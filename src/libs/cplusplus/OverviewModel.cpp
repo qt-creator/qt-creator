@@ -36,7 +36,7 @@
 #include <Symbols.h>
 
 #include <QFile>
-#include <QtDebug>
+#include <QDebug>
 
 using namespace CPlusPlus;
 

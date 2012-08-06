@@ -47,7 +47,7 @@
 #include <Templates.h>
 
 #include <QList>
-#include <QtDebug>
+#include <QDebug>
 #include <QSet>
 
 using namespace CPlusPlus;

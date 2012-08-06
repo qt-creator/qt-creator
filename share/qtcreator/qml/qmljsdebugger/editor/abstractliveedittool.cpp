@@ -34,7 +34,7 @@
 
 #include <QDeclarativeEngine>
 
-#include <QtDebug>
+#include <QDebug>
 #include <QGraphicsItem>
 #include <QDeclarativeItem>
 
