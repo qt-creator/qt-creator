@@ -66,8 +66,8 @@
 #include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QSpacerItem>
-#include <QTableView>
 #include <QTextBrowser>
+#include <QTreeView>
 #include <QVBoxLayout>
 
 using namespace Core;
@@ -100,7 +100,7 @@ public:
     QSortFilterProxyModel proxyModel;
 
     QLineEdit *processFilterLineEdit;
-    QTableView *tableView;
+    QTreeView *processView;
     QPushButton *attachProcessButton;
     QTextBrowser *textBrowser;
     QPushButton *closeButton;
@@ -128,13 +128,13 @@ StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q
     processFilterLineEdit->setText(settings->value(LastProcessName).toString());
     processFilterLineEdit->selectAll();
 
-    tableView = new QTableView(q);
-    tableView->setShowGrid(false);
-    tableView->setSortingEnabled(true);
-    tableView->horizontalHeader()->setDefaultSectionSize(100);
-    tableView->horizontalHeader()->setStretchLastSection(true);
-    tableView->verticalHeader()->setVisible(false);
-    tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    processView = new QTreeView(q);
+    processView->setSortingEnabled(true);
+    processView->header()->setDefaultSectionSize(100);
+    processView->header()->setStretchLastSection(true);
+    processView->setAlternatingRowColors(true);
+    processView->setSelectionMode(QAbstractItemView::SingleSelection);
+    processView->setRootIsDecorated(false);
 
     attachProcessButton = new QPushButton(q);
     attachProcessButton->setText(StartGdbServerDialog::tr("&Attach to Selected Process"));
@@ -154,7 +154,7 @@ StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q
     horizontalLayout2->addWidget(attachProcessButton);
     horizontalLayout2->addWidget(closeButton);
 
-    formLayout->addRow(tableView);
+    formLayout->addRow(processView);
     formLayout->addRow(textBrowser);
     formLayout->addRow(horizontalLayout2);
     q->setLayout(formLayout);
@@ -174,14 +174,14 @@ StartGdbServerDialog::StartGdbServerDialog(QWidget *parent) :
     connect(&d->gatherer, SIGNAL(error(QString)), SLOT(portGathererError(QString)));
     connect(&d->gatherer, SIGNAL(portListReady()), SLOT(portListReady()));
 
-    d->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    d->processView->setSelectionBehavior(QAbstractItemView::SelectRows);
     d->proxyModel.setDynamicSortFilter(true);
     d->proxyModel.setFilterKeyColumn(-1);
-    d->tableView->setModel(&d->proxyModel);
+    d->processView->setModel(&d->proxyModel);
     connect(d->processFilterLineEdit, SIGNAL(textChanged(QString)),
         &d->proxyModel, SLOT(setFilterRegExp(QString)));
 
-    connect(d->tableView->selectionModel(),
+    connect(d->processView->selectionModel(),
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
         SLOT(updateButtons()));
     connect(d->profileChooser, SIGNAL(activated(int)),
@@ -229,7 +229,6 @@ void StartGdbServerDialog::handleRemoteError(const QString &errorMsg)
 
 void StartGdbServerDialog::handleProcessListUpdated()
 {
-    d->tableView->resizeRowsToContents();
     updateButtons();
 }
 
@@ -244,8 +243,8 @@ void StartGdbServerDialog::updateProcessList()
 
 void StartGdbServerDialog::attachToProcess()
 {
-    const QModelIndexList &indexes =
-            d->tableView->selectionModel()->selectedIndexes();
+    const QModelIndexList indexes =
+            d->processView->selectionModel()->selectedIndexes();
     if (indexes.empty())
         return;
     d->attachProcessButton->setEnabled(false);
@@ -290,7 +289,7 @@ void StartGdbServerDialog::handleProcessKilled()
 
 void StartGdbServerDialog::updateButtons()
 {
-    d->attachProcessButton->setEnabled(d->tableView->selectionModel()->hasSelection()
+    d->attachProcessButton->setEnabled(d->processView->selectionModel()->hasSelection()
         || d->proxyModel.rowCount() == 1);
 }
 

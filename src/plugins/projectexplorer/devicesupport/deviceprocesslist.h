@@ -32,7 +32,7 @@
 
 #include "idevice.h"
 
-#include <QAbstractTableModel>
+#include <QAbstractItemModel>
 #include <QList>
 #include <QSharedPointer>
 
@@ -51,7 +51,7 @@ public:
     QString exe;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceProcessList : public QAbstractTableModel
+class PROJECTEXPLORER_EXPORT DeviceProcessList : public QAbstractItemModel
 {
     Q_OBJECT
 
@@ -76,11 +76,14 @@ protected:
     IDevice::ConstPtr device() const;
 
 private:
+    QModelIndex index(int row, int column, const QModelIndex &parent) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QModelIndex parent(const QModelIndex &) const;
+    bool hasChildren(const QModelIndex &parent) const;
 
     virtual void doUpdate() = 0;
     virtual void doKillProcess(const DeviceProcess &process) = 0;

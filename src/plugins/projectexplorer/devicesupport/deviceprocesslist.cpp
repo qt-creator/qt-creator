@@ -54,7 +54,7 @@ public:
 using namespace Internal;
 
 DeviceProcessList::DeviceProcessList(const IDevice::ConstPtr &device, QObject *parent)
-    : QAbstractTableModel(parent), d(new DeviceProcessListPrivate(device))
+    : QAbstractItemModel(parent), d(new DeviceProcessListPrivate(device))
 {
 }
 
@@ -62,6 +62,24 @@ DeviceProcessList::~DeviceProcessList()
 {
     delete d;
 }
+
+QModelIndex DeviceProcessList::parent(const QModelIndex &) const
+{
+    return QModelIndex();
+}
+
+bool DeviceProcessList::hasChildren(const QModelIndex &parent) const
+{
+    if (!parent.isValid())
+        return rowCount(parent) > 0 && columnCount(parent) > 0;
+    return false;
+}
+
+QModelIndex DeviceProcessList::index(int row, int column, const QModelIndex &parent) const
+{
+    return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex();
+}
+
 
 void DeviceProcessList::update()
 {
