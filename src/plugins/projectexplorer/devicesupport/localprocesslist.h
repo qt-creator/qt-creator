@@ -51,6 +51,7 @@ public:
 private slots:
     void handlePsError();
     void handlePsFinished();
+    void handleWindowsUpdate();
     void reportDelayedKillStatus();
 
 private:
