@@ -354,6 +354,11 @@ void QrcEditor::editCurrentItem()
         m_treeview->edit(m_treeview->selectionModel()->currentIndex());
 }
 
+QString QrcEditor::currentResourcePath() const
+{
+    return m_treeview->currentResourcePath();
+}
+
 // Slot for change of line edit content 'alias'
 void QrcEditor::onAliasChanged(const QString &alias)
 {

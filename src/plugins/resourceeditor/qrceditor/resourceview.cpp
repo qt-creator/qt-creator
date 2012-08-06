@@ -438,6 +438,19 @@ QString ResourceView::currentLanguage() const
     return m_qrcModel->lang(preindex);
 }
 
+QString ResourceView::currentResourcePath() const
+{
+    const QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return QString();
+
+    const QString alias = m_qrcModel->alias(current);
+    if (!alias.isEmpty())
+        return QLatin1Char(':') + currentPrefix() + QLatin1Char('/') + alias;
+
+    return QLatin1Char(':') + currentPrefix() + QLatin1Char('/') + m_qrcModel->relativePath(m_qrcModel->file(current));
+}
+
 QString ResourceView::getCurrentValue(NodeProperty property) const
 {
     switch (property) {
