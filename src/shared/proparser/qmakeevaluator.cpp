@@ -1096,7 +1096,7 @@ bool QMakeEvaluator::loadSpec()
     // We can't resolve symlinks as they do on Unix, so configure.exe puts
     // the source of the qmake.conf at the end of the default/qmake.conf in
     // the QMAKESPEC_ORIGINAL variable.
-    const ProString &orig_spec = first(ProString("QMAKESPEC_ORIGINAL"));
+    const ProString &orig_spec = first(ProKey("QMAKESPEC_ORIGINAL"));
     m_qmakespecFull = orig_spec.isEmpty() ? m_qmakespec : orig_spec.toQString();
 #endif
     valuesRef(ProKey("QMAKESPEC")) << ProString(m_qmakespecFull);
