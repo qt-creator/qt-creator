@@ -1061,7 +1061,7 @@ static QString cdbRemoteHelp()
                 "(<code>%1</code> or <code>%2</code>, respectively).</p><p>Copy it onto the remote machine and set the "
                 "environment variable <code>%3</code> to point to its folder.</p><p>"
                 "Launch the remote CDB as <code>%4 &lt;executable&gt;</code> "
-                " to use TCP/IP as communication protocol.</p><p>Enter the connection parameters as:</p>"
+                "to use TCP/IP as communication protocol.</p><p>Enter the connection parameters as:</p>"
                 "<pre>%5</pre></body></html>").
             arg(ext32, ext64, QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
                 QLatin1String("cdb.exe -server tcp:port=1234"),
