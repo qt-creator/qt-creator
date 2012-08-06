@@ -153,6 +153,7 @@ void LocalProcessList::handlePsFinished()
 
 void LocalProcessList::handleWindowsUpdate()
 {
+#ifdef Q_OS_WIN
     QList<DeviceProcess> processes;
 
     PROCESSENTRY32 pe;
@@ -173,6 +174,7 @@ void LocalProcessList::handleWindowsUpdate()
     CloseHandle(snapshot);
 
     reportProcessListUpdated(processes);
+#endif //Q_OS_WIN
 }
 
 void LocalProcessList::handlePsError()
