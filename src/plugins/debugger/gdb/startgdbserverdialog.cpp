@@ -94,7 +94,6 @@ public:
         return DeviceProfileInformation::device(profile);
     }
 
-    StartGdbServerDialog *q;
     bool startServerOnly;
     DeviceProcessList *processList;
     QSortFilterProxyModel proxyModel;
@@ -113,7 +112,7 @@ public:
 };
 
 StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q)
-    : q(q), startServerOnly(true), processList(0)
+    : startServerOnly(true), processList(0)
 {
     QSettings *settings = ICore::settings();
 
