@@ -1,7 +1,7 @@
 !isEmpty(QTCREATOR_PRI_INCLUDED):error("qtcreator.pri already included")
 QTCREATOR_PRI_INCLUDED = 1
 
-QTCREATOR_VERSION = 2.5.1
+QTCREATOR_VERSION = 2.5.2
 
 defineReplace(cleanPath) {
     win32:1 ~= s|\\\\|/|g
