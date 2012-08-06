@@ -92,7 +92,7 @@ private:
 
     Internal::ProfileModel *m_model;
     QItemSelectionModel *m_selectionModel;
-    ProfileConfigWidget *m_currentWidget;
+    QWidget *m_currentWidget;
 
     Profile *m_toShow;
 };

@@ -425,7 +425,8 @@ ProfileNode *ProfileModel::createNode(ProfileNode *parent, Profile *p, bool chan
 {
     ProfileNode *node = new ProfileNode(parent, p, changed);
     if (node->widget) {
-        m_parentLayout->addWidget(node->widget);
+        node->widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        m_parentLayout->addWidget(node->widget, 10);
         connect(node->widget, SIGNAL(dirty()),
                 this, SLOT(setDirty()));
     }
