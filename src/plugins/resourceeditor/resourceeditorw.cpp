@@ -52,7 +52,7 @@
 #include <QMenu>
 #include <QToolBar>
 #include <QInputDialog>
-#include <QMessageBox>
+#include <QClipboard>
 
 namespace ResourceEditor {
 namespace Internal {
@@ -102,7 +102,9 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
     m_resourceEditor->setResourceDragEnabled(true);
     m_contextMenu->addAction(tr("Open File"), this, SLOT(openCurrentFile()));
     m_openWithMenu = m_contextMenu->addMenu(tr("Open With"));
-    m_renameAction = m_contextMenu->addAction(tr("Rename File..."), this, SLOT(renameCurrentFile()), Qt::Key_F2);
+    m_renameAction = m_contextMenu->addAction(tr("Rename File..."), this, SLOT(renameCurrentFile()));
+    m_copyFileNameAction = m_contextMenu->addAction(tr("Copy Resource Path to Clipboard"), this, SLOT(copyCurrentResourcePath()));
+
     // Below we need QueuedConnection because otherwise, if this qrc file
     // is inside of the qrc file, crashes happen when using "Open With" on it.
     // (That is because this editor instance is deleted in executeOpenWithMenuAction
@@ -321,6 +323,11 @@ void ResourceEditorW::onRefresh()
 void ResourceEditorW::renameCurrentFile()
 {
     m_resourceEditor->editCurrentItem();
+}
+
+void ResourceEditorW::copyCurrentResourcePath()
+{
+    QApplication::clipboard()->setText(m_resourceEditor->currentResourcePath());
 }
 
 void ResourceEditorW::onUndo()

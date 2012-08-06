@@ -244,10 +244,10 @@ public:
 
     QString absolutePath(const QString &path) const
         { return m_resource_file.absolutePath(path); }
-
-private:
     QString relativePath(const QString &path) const
         { return m_resource_file.relativePath(path); }
+
+private:
     QString lastResourceOpenDirectory() const;
     bool renameFile(const QString &fileName, const QString &newFileName);
 

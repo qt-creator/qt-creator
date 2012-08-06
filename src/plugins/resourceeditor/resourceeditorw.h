@@ -105,6 +105,7 @@ private slots:
     void openCurrentFile();
     void openFile(const QString &fileName);
     void renameCurrentFile();
+    void copyCurrentResourcePath();
 
 private:
     const QString m_extension;
@@ -121,6 +122,7 @@ private:
     QString m_currentFileName;
     QToolBar *m_toolBar;
     QAction *m_renameAction;
+    QAction *m_copyFileNameAction;
 
 public slots:
     void onRefresh();

@@ -100,6 +100,7 @@ public:
     QString currentAlias() const;
     QString currentPrefix() const;
     QString currentLanguage() const;
+    QString currentResourcePath() const;
 
     void setResourceDragEnabled(bool e);
     bool resourceDragEnabled() const;

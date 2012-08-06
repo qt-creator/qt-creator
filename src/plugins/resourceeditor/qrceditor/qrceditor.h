@@ -68,6 +68,8 @@ public:
     void refresh();
     void editCurrentItem();
 
+    QString currentResourcePath() const;
+
 signals:
     void dirtyChanged(bool dirty);
     void itemActivated(const QString &fileName);
