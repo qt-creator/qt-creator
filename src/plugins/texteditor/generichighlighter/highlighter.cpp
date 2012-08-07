@@ -181,7 +181,12 @@ void Highlighter::setupDefault()
 void Highlighter::setupFromWillContinue()
 {
     BlockData *previousData = blockData(currentBlock().previous().userData());
-    m_contexts.push_back(previousData->m_contextToContinue);
+    if (previousData->m_originalObservableState == Default ||
+        previousData->m_originalObservableState == -1) {
+        m_contexts.push_back(previousData->m_contextToContinue);
+    } else {
+        pushContextSequence(previousData->m_originalObservableState);
+    }
 
     BlockData *data = blockData(currentBlock().userData());
     data->m_originalObservableState = previousData->m_originalObservableState;
