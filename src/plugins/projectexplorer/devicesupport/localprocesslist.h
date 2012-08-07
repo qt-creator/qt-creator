@@ -48,18 +48,27 @@ class LocalProcessList : public DeviceProcessList
 public:
     LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
 
-private slots:
-    void handlePsError();
-    void handlePsFinished();
-    void handleWindowsUpdate();
-    void reportDelayedKillStatus();
-
 private:
     void doUpdate();
     void doKillProcess(const DeviceProcess &process);
 
+#ifdef Q_OS_WIN
+private slots:
+    void handleWindowsUpdate();
+#endif
+
+#ifdef Q_OS_UNIX
+private slots:
+    void handlePsError();
+    void handlePsFinished();
+    void reportDelayedKillStatus();
+    void updateUsingProc();
+    void updateUsingPs();
+
+private:
     QProcess * const m_psProcess;
     QString m_error;
+#endif
 };
 
 } // namespace Internal
