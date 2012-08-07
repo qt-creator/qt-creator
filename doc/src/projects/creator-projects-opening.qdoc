@@ -40,45 +40,26 @@
     and enter the information again in the \gui {Configure Project} tab.
 
     The \gui {Configure Project} tab displays a list of development environments
-    for target platforms that are installed on the development PC. Select the Qt
-    versions that you want to use to build the project for each target.
+    for target platforms that are installed on the development PC and
+    configured in \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets.
+    Select the targets that you want to build the project for.
 
     \image qtcreator-open-project-targets.png "Configure Project tab"
 
     Even if you do not intend to build the project, the C++ and QML code models
     need a Qt version and tool chain to offer code completion. To specify them,
-    select the \gui options link, or select \gui {Tools > Options > Build & Run
-    > Unconfigured Project}.
+    select the \gui Options link, or select \gui {Tools > Options > Build & Run
+    > Targets}.
 
-    If \QC cannot find an existing build for a particular development
-    environment (Qt version) and target, it starts out from a clean slate, and
-    creates a new build in the specified directory. \QC suggests a name
+    If \QC cannot find an existing build for a particular target, it starts out
+    from a clean slate, and creates new debug and release build configurations
+    in the specified directory. \QC suggests a name
     and location for the directory that you can change.
-
-    By default, \QC does a \l{glossary-shadow-build}{shadow build} and also
-    creates the directory. However, shadow building is not supported for the
-    following targets on Windows:
-
-    \list
-
-        \o  Maemo5
-
-        \o  MeeGo Harmattan
-
-        \if defined(qcmanual)
-        \o  Symbian Devices
-        \endif
-
-    \endlist
 
     If you have built the project before, \QC can use the existing build
     configuration to make the exact same build as found in the directory
-    available to \QC.
-
-    If you know you have a build, but it is not listed, click \gui {Add Build}
-    to locate it. Select a directory, and \QC scans it (including
-    subdirectories) for additional builds of the project. \QC adds the found
-    builds to the target list.
+    available to \QC. To import a build, specify a directory in the
+    \gui {Import Build from} section and select \gui {Import}.
 
     You can edit the build configuration later. For more information, see
     \l{Editing Build Configurations}.
@@ -90,11 +71,8 @@
         \o  Select \gui File > \gui{Open File or Project} and select the project
             to open.
 
-        \o  In the \gui {Project Setup} dialog, select the Qt versions to use as
-            build targets for your project, and click \gui{Finish}.
-
-            \note If you have only one development environment installed, this
-            dialog is skipped.
+        \o  In the \gui {Configure Project} tab, select build targets for your
+            project, and click \gui {Configure Project}.
 
     \endlist
 
