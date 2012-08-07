@@ -6374,6 +6374,45 @@ namespace valgrind {
 } // namespace valgrind
 
 
+namespace tmplate {
+
+    template<typename T>  struct Template
+    {
+        Template() : t() {}
+
+        // This serves as a manual test that multiple breakpoints work.
+        // Each of the two '// BREAK_HERE' below is in a function that
+        // is instantiated three times, so both should be reported as
+        // breakpoints with three subbreakpoints each.
+        template <typename S> void fooS(S s)
+        {
+            t = s;
+            // BREAK_HERE;
+        }
+        template <int N> void fooN()
+        {
+            t = N;
+            // BREAK_HERE;
+        }
+
+        T t;
+    };
+
+    void testTemplate()
+    {
+        Template<double> t;
+        t.fooS(1);
+        t.fooS(1.);
+        t.fooS('a');
+        t.fooN<2>();
+        t.fooN<3>();
+        t.fooN<4>();
+        dummyStatement(&t, &t.t);
+    }
+
+} // namespace tmplate
+
+
 namespace sanity {
 
     // A very quick check.
@@ -6456,6 +6495,7 @@ int main(int argc, char *argv[])
     plugin::testPlugin();
     valgrind::testValgrind();
     namespc::testNamespace();
+    tmplate::testTemplate();
     painting::testPainting();
     webkit::testWebKit();
 
