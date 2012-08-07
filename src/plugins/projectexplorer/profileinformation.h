@@ -107,6 +107,8 @@ public:
 
     ProfileConfigWidget *createConfigWidget(Profile *p) const;
 
+    QString displayNamePostfix(const Profile *p) const;
+
     ItemList toUserOutput(Profile *p) const;
 
     void addToEnvironment(const Profile *p, Utils::Environment &env) const;
@@ -195,6 +197,8 @@ public:
     QList<Task> validate(Profile *p) const;
 
     ProfileConfigWidget *createConfigWidget(Profile *p) const;
+
+    QString displayNamePostfix(const Profile *p) const;
 
     ItemList toUserOutput(Profile *p) const;
 

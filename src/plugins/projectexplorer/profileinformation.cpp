@@ -178,6 +178,12 @@ ProfileConfigWidget *ToolChainProfileInformation::createConfigWidget(Profile *p)
     return new Internal::ToolChainInformationConfigWidget(p);
 }
 
+QString ToolChainProfileInformation::displayNamePostfix(const Profile *p) const
+{
+    ToolChain *tc = toolChain(p);
+    return tc ? tc->displayName() : QString();
+}
+
 ProfileInformation::ItemList ToolChainProfileInformation::toUserOutput(Profile *p) const
 {
     ToolChain *tc = toolChain(p);
@@ -325,6 +331,12 @@ ProfileConfigWidget *DeviceProfileInformation::createConfigWidget(Profile *p) co
 {
     Q_ASSERT(p);
     return new Internal::DeviceInformationConfigWidget(p);
+}
+
+QString DeviceProfileInformation::displayNamePostfix(const Profile *p) const
+{
+    IDevice::ConstPtr dev = device(p);
+    return dev.isNull() ? QString() : dev->displayName();
 }
 
 ProfileInformation::ItemList DeviceProfileInformation::toUserOutput(Profile *p) const

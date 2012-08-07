@@ -82,6 +82,8 @@ public:
 
     virtual void addToEnvironment(const Profile *p, Utils::Environment &env) const;
 
+    virtual QString displayNamePostfix(const Profile *p) const;
+
 signals:
     void validationNeeded();
 };

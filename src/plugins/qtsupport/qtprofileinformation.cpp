@@ -98,6 +98,12 @@ QtProfileInformation::createConfigWidget(ProjectExplorer::Profile *p) const
     return new Internal::QtProfileConfigWidget(p);
 }
 
+QString QtProfileInformation::displayNamePostfix(const ProjectExplorer::Profile *p) const
+{
+    BaseQtVersion *version = qtVersion(p);
+    return version ? version->displayName() : QString();
+}
+
 ProjectExplorer::ProfileInformation::ItemList
 QtProfileInformation::toUserOutput(ProjectExplorer::Profile *p) const
 {

@@ -82,7 +82,7 @@ public:
     void addToEnvironment(Utils::Environment &env) const;
 
     QString toHtml();
-    Profile *clone() const;
+    Profile *clone(bool keepName = false) const;
 
 private:
     // Unimplemented.
