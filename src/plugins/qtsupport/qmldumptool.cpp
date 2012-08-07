@@ -360,6 +360,6 @@ void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, BaseQtVe
     }
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QtSupport
 
 #include "qmldumptool.moc"
