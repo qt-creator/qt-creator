@@ -168,18 +168,17 @@ def selectBuildConfig(targetCount, currentTarget, configName):
 def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableShadowBuild=False, enableQmlDebug=False):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(targetCount, currentTarget, ProjectSettings.BUILD)
-    detailsButton = waitForObject(":scrollArea.Details_Utils::DetailsButton")
-    ensureChecked(detailsButton)
+    ensureChecked(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     ensureChecked("{name='shadowBuildCheckBox' type='QCheckBox' visible='1'}", enableShadowBuild)
     buildCfCombo = waitForObject("{type='QComboBox' name='buildConfigurationComboBox' visible='1' "
-                                 "container=':Qt Creator.scrollArea_QScrollArea'}")
+                                 "window=':Qt Creator_Core::Internal::MainWindow'}")
     if shouldBeDebug:
         test.compare(buildCfCombo.currentText, 'Debug', "Verifying whether it's a debug build")
     else:
         test.compare(buildCfCombo.currentText, 'Release', "Verifying whether it's a release build")
     try:
         libLabel = waitForObject(":scrollArea.Library not available_QLabel", 2000)
-        mouseClick(libLabel, libLabel.width - 5, 5, 0, Qt.LeftButton)
+        mouseClick(libLabel, libLabel.width - 10, libLabel.height / 2, 0, Qt.LeftButton)
     except:
         pass
     # Since waitForObject waits for the object to be enabled,
@@ -190,11 +189,11 @@ def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableSha
         # Don't rebuild now
         clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
     try:
-        problemFound = waitForObject("{container=':Qt Creator.scrollArea_QScrollArea' type='QLabel' "
-                                     "name='problemLabel' visible='1'}", 1000)
+        problemFound = waitForObject("{window=':Qt Creator_Core::Internal::MainWindow' "
+                                     "type='QLabel' name='problemLabel' visible='1'}", 1000)
         if problemFound:
             test.warning('%s' % problemFound.text)
     except:
         pass
-    clickButton(detailsButton)
+    clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)

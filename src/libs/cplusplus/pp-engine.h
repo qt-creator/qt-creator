@@ -81,8 +81,8 @@ public:
     QByteArray run(const QString &filename, const QString &source);
     QByteArray run(const QString &filename, const QByteArray &source, bool noLines = false, bool markGeneratedTokens = true);
 
-    bool expandMacros() const;
-    void setExpandMacros(bool expandMacros);
+    bool expandFunctionlikeMacros() const;
+    void setExpandFunctionlikeMacros(bool expandFunctionlikeMacros);
 
     bool keepComments() const;
     void setKeepComments(bool keepComments);
@@ -197,7 +197,7 @@ private:
     Environment *m_env;
     QByteArray m_scratchBuffer;
 
-    bool m_expandMacros;
+    bool m_expandFunctionlikeMacros;
     bool m_keepComments;
 
     State m_state;

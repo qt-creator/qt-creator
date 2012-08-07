@@ -122,3 +122,7 @@ class SubprocessType:
         test.fatal("Could not determine the WindowType for SubprocessType %s" % subprocessType)
         return None
 
+class QtInformation:
+    QT_VERSION = 0
+    QT_BINPATH = 1
+    QT_LIBPATH = 2

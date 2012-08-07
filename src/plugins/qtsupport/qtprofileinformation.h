@@ -56,6 +56,8 @@ public:
 
     ProjectExplorer::ProfileConfigWidget *createConfigWidget(ProjectExplorer::Profile *p) const;
 
+    QString displayNamePostfix(const ProjectExplorer::Profile *p) const;
+
     ItemList toUserOutput(ProjectExplorer::Profile *p) const;
 
     void addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const;

@@ -811,6 +811,9 @@ bool Semantic::visit(ParameterDeclarationAST *ast)
 
 bool Semantic::visit(VariableDeclarationAST *ast)
 {
+    if (!ast->type)
+        return false;
+
     const Type *ty = type(ast->type);
     ExprResult initializer = expression(ast->initializer);
     if (ast->name) {

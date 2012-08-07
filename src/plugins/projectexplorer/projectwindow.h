@@ -93,14 +93,14 @@ private slots:
     void removedTarget(ProjectExplorer::Target*);
 
 private:
-    bool useTargetPage(ProjectExplorer::Project *project);
+    bool hasTarget(ProjectExplorer::Project *project);
     void removeCurrentWidget();
 
     DoubleTabWidget *m_tabWidget;
     QStackedWidget *m_centralWidget;
     QWidget *m_currentWidget;
     QList<ProjectExplorer::Project *> m_tabIndexToProject;
-    QMap<ProjectExplorer::Project *, bool> m_usesTargetPage;
+    QMap<ProjectExplorer::Project *, bool> m_hasTarget;
     int m_previousTargetSubIndex;
 };
 

@@ -127,6 +127,16 @@ public:
     ProKey(const QString &str, int off, int len, uint hash);
     void setValue(const QString &str);
 
+#ifdef Q_CC_MSVC
+    // Workaround strange MSVC behaviour when exporting classes with ProKey members.
+    ALWAYS_INLINE ProKey(const ProKey &other) : ProString(other.toString()) {}
+    ALWAYS_INLINE ProKey &operator=(const ProKey &other)
+    {
+        toString() = other.toString();
+        return *this;
+    }
+#endif
+
     ALWAYS_INLINE ProString &toString() { return *(ProString *)this; }
     ALWAYS_INLINE const ProString &toString() const { return *(const ProString *)this; }
 

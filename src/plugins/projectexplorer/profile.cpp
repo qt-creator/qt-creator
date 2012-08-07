@@ -101,11 +101,14 @@ Profile::~Profile()
     delete d;
 }
 
-Profile *Profile::clone() const
+Profile *Profile::clone(bool keepName) const
 {
     Profile *p = new Profile;
-    p->d->m_displayName = QCoreApplication::translate("ProjectExplorer::Profile", "Clone of %1")
-            .arg(d->m_displayName);
+    if (keepName)
+        p->d->m_displayName = d->m_displayName;
+    else
+        p->d->m_displayName = QCoreApplication::translate("ProjectExplorer::Profile", "Clone of %1")
+                .arg(d->m_displayName);
     p->d->m_autodetected = false;
     p->d->m_data = d->m_data;
     p->d->m_isValid = d->m_isValid;
@@ -133,20 +136,45 @@ QString Profile::displayName() const
     return d->m_displayName;
 }
 
+static QString candidateName(const QString &name, const QString &postfix)
+{
+    if (name.contains(postfix))
+        return QString();
+    return name + QLatin1Char('-') + postfix;
+}
+
 void Profile::setDisplayName(const QString &name)
 {
-    // make name unique:
+    ProfileManager *pm = ProfileManager::instance();
+    QList<ProfileInformation *> profileInfo = pm->profileInformation();
+
     QStringList nameList;
-    foreach (Profile *p, ProfileManager::instance()->profiles())
+    foreach (Profile *p, pm->profiles()) {
         nameList << p->displayName();
+        foreach (ProfileInformation *pi, profileInfo) {
+            const QString postfix = pi->displayNamePostfix(p);
+            if (!postfix.isEmpty())
+                nameList << candidateName(p->displayName(), postfix);
+        }
+    }
+
+    QStringList candidateNames;
+    candidateNames << name;
+
+    foreach (ProfileInformation *pi, profileInfo) {
+        const QString postfix = pi->displayNamePostfix(this);
+        if (!postfix.isEmpty())
+            candidateNames << candidateName(name, postfix);
+    }
 
     QString uniqueName = Project::makeUnique(name, nameList);
     if (uniqueName != name) {
-        ToolChain *tc = ToolChainProfileInformation::toolChain(this);
-        if (tc) {
-            const QString tcPostfix = QString::fromLatin1("-%1").arg(tc->displayName());
-            if (!name.contains(tcPostfix))
-                uniqueName = Project::makeUnique(name + tcPostfix, nameList);
+        foreach (const QString &candidate, candidateNames) {
+            const QString tmp = Project::makeUnique(candidate, nameList);
+            if (tmp == candidate) {
+                uniqueName = tmp;
+                break;
+            }
         }
     }
 

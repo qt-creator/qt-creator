@@ -223,11 +223,10 @@ class JIRA:
             if args[0] in ('Mobile Qt Application', 'Qt Gui Application', 'Qt Custom Designer Widget'):
                 if QtQuickConstants.Targets.HARMATTAN in args[1]:
                     args[1].remove(QtQuickConstants.Targets.HARMATTAN)
+                elif QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.HARMATTAN) in args[1]:
+                    args[1].remove(QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.HARMATTAN))
                 else:
-                    if args[1] and isinstance(args[1][0], (str, unicode)):
-                        args[1].remove(QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.HARMATTAN))
-                    else:
-                        test.warning('Expected Harmattan in targets, failed to find, but bug still marked as open')
+                    test.warning('Expected Harmattan in targets, failed to find, but bug still marked as open')
                 test.xverify(False, "Removed Harmattan from expected targets.")
 
         def _workaroundCreator6853_(self, *args):

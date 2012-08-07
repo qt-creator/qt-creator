@@ -452,6 +452,7 @@ void ProfileManager::addProfile(Profile *p)
 {
     if (!p)
         return;
+    p->setDisplayName(p->displayName()); // make name unique
     d->validateProfile(p);
     d->m_profileList.append(p);
     if (!d->m_defaultProfile ||
@@ -464,6 +465,12 @@ void ProfileInformation::addToEnvironment(const Profile *p, Utils::Environment &
 {
     Q_UNUSED(p);
     Q_UNUSED(env);
+}
+
+QString ProfileInformation::displayNamePostfix(const Profile *p) const
+{
+    Q_UNUSED(p);
+    return QString();
 }
 
 } // namespace ProjectExplorer
