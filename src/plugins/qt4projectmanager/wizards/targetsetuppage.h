@@ -94,7 +94,6 @@ private slots:
     void handleProfileRemoval(ProjectExplorer::Profile *p);
     void handleProfileUpdate(ProjectExplorer::Profile *p);
     void updateVisibility();
-    void openTargetPreferences();
 
 private:
     void selectAtLeastOneTarget();
