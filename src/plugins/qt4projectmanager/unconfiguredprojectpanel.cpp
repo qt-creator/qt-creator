@@ -152,20 +152,20 @@ void TargetSetupPageWrapper::updateNoteText()
         text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
                   "<p>Qt Creator cannot parse the project, because no target "
                   "has been set up. You can set up targets "
-                  "in the <b><a href=\"edit\">settings.</a></b></p>")
+                  "in the <b><a href=\"edit\">options.</a></b></p>")
                 .arg(m_project->displayName());
     else if (p->isValid())
         text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
-                  "<p>Qt Creator uses the target: <b>%2</b> "
+                  "<p>Qt Creator uses the target <b>%2</b> "
                   "to parse the project. You can edit "
-                  "these in the <b><a href=\"edit\">settings.</a></b></p>")
+                  "targets in the <b><a href=\"edit\">options.</a></b></p>")
                 .arg(m_project->displayName())
                 .arg(p->displayName());
     else
         text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
-                  "<p>Qt Creator uses the <b>invalid</b> target: <b>%2</b> "
+                  "<p>Qt Creator uses the <b>invalid</b> target <b>%2</b> "
                   "to parse the project. You can edit "
-                  "these in the <b><a href=\"edit\">settings</a></b></p>")
+                  "targets in the <b><a href=\"edit\">options</a></b></p>")
                 .arg(m_project->displayName())
                 .arg(p->displayName());
 
