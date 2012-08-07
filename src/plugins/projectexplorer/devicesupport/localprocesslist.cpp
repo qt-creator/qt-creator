@@ -192,6 +192,8 @@ void LocalProcessList::doKillProcess(const DeviceProcess &process)
     else
         m_error.clear();
     QTimer::singleShot(0, this, SLOT(reportDelayedKillStatus()));
+#else
+    Q_UNUSED(process);
 #endif
 }
 

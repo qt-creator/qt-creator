@@ -222,8 +222,7 @@ QVariantMap DeviceManager::toMap() const
 
 QString DeviceManager::settingsFilePath(const QString &extension)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    return QFileInfo(pm->settings()->fileName()).absolutePath() + extension;
+    return QFileInfo(ExtensionSystem::PluginManager::settings()->fileName()).absolutePath() + extension;
 }
 
 void DeviceManager::addDevice(const IDevice::Ptr &_device)

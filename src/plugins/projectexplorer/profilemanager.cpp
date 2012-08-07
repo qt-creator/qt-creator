@@ -61,8 +61,7 @@ using Utils::PersistentSettingsReader;
 
 static QString settingsFileName()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QFileInfo settingsLocation(pm->settings()->fileName());
+    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
     return settingsLocation.absolutePath() + QLatin1String(PROFILE_FILENAME);
 }
 
