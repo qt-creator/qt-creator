@@ -1137,10 +1137,17 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
     }
 }
 
+static void adjustForCommentNewlines(unsigned *currentLine, const PPToken &tk)
+{
+    if (tk.is(T_COMMENT) || tk.is(T_DOXY_COMMENT))
+        (*currentLine) += tk.asByteArrayRef().count('\n');
+}
+
 void Preprocessor::synchronizeOutputLines(const PPToken &tk, bool forceLine)
 {
     if (m_state.m_expansionStatus != NotExpanding
             || (!forceLine && m_env->currentLine == tk.lineno)) {
+        adjustForCommentNewlines(&m_env->currentLine, tk);
         return;
     }
 
@@ -1157,8 +1164,7 @@ void Preprocessor::synchronizeOutputLines(const PPToken &tk, bool forceLine)
     }
 
     m_env->currentLine = tk.lineno;
-    if (tk.is(T_COMMENT) || tk.is(T_DOXY_COMMENT))
-        m_env->currentLine += tk.asByteArrayRef().count('\n');
+    adjustForCommentNewlines(&m_env->currentLine, tk);
 }
 
 void Preprocessor::removeTrailingOutputLines()

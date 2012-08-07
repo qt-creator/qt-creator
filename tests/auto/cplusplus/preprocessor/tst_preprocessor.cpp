@@ -306,7 +306,7 @@ protected:
     static QString simplified(QByteArray buf);
 
 private:
-    void compare_input_output();
+    void compare_input_output(bool keepComments = false);
 
 private slots:
     void va_args();
@@ -332,6 +332,8 @@ private slots:
     void comparisons();
     void comments_within();
     void comments_within_data();
+    void comments_within2();
+    void comments_within2_data();
     void multitokens_argument();
     void multitokens_argument_data();
 };
@@ -1179,13 +1181,131 @@ void tst_Preprocessor::comments_within_data()
     QTest::newRow("case 4") << original << expected;
 }
 
-void tst_Preprocessor::compare_input_output()
+void tst_Preprocessor::comments_within2()
+{
+    compare_input_output(true);
+}
+
+void tst_Preprocessor::comments_within2_data()
+{
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QByteArray>("output");
+
+    QByteArray original;
+    QByteArray expected;
+
+    original = "#define FOO int x;\n"
+               "\n"
+               "   // comment\n"
+               "   // comment\n"
+               "   // comment\n"
+               "   // comment\n"
+               "FOO\n"
+               "x = 10\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "   // comment\n"
+            "   // comment\n"
+            "   // comment\n"
+            "   // comment\n"
+            "# expansion begin 76,3 ~3\n"
+            "int x;\n"
+            "# expansion end\n"
+            "# 8 \"<stdin>\"\n"
+            "x = 10\n";
+    QTest::newRow("case 1") << original << expected;
+
+
+    original = "#define FOO int x;\n"
+               "\n"
+               "   /* comment\n"
+               "      comment\n"
+               "      comment\n"
+               "      comment */\n"
+               "FOO\n"
+               "x = 10\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "   /* comment\n"
+            "      comment\n"
+            "      comment\n"
+            "      comment */\n"
+            "# expansion begin 79,3 ~3\n"
+            "int x;\n"
+            "# expansion end\n"
+            "# 8 \"<stdin>\"\n"
+            "x = 10\n";
+    QTest::newRow("case 2") << original << expected;
+
+
+    original = "#define FOO int x;\n"
+               "\n"
+               "   // comment\n"
+               "   // comment\n"
+               "   // comment\n"
+               "   // comment\n"
+               "FOO\n"
+               "// test\n"
+               "// test again\n"
+               "x = 10\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "   // comment\n"
+            "   // comment\n"
+            "   // comment\n"
+            "   // comment\n"
+            "# expansion begin 76,3 ~3\n"
+            "int x;\n"
+            "# expansion end\n"
+            "# 8 \"<stdin>\"\n"
+            "// test\n"
+            "// test again\n"
+            "x = 10\n";
+    QTest::newRow("case 3") << original << expected;
+
+
+    original = "#define FOO int x;\n"
+               "\n"
+               "void foo() {   /* comment\n"
+               "      comment\n"
+               "      comment\n"
+               "      comment */\n"
+               "FOO\n"
+               "/*  \n"
+               "*/\n"
+               "x = 10\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "void foo() {   /* comment\n"
+            "      comment\n"
+            "      comment\n"
+            "      comment */\n"
+            "# expansion begin 91,3 ~3\n"
+            "int x;\n"
+            "# expansion end\n"
+            "# 8 \"<stdin>\"\n"
+            "/*  \n"
+            "*/\n"
+            "x = 10\n";
+    QTest::newRow("case 4") << original << expected;
+}
+
+void tst_Preprocessor::compare_input_output(bool keepComments)
 {
     QFETCH(QByteArray, input);
     QFETCH(QByteArray, output);
 
     Environment env;
     Preprocessor preprocess(0, &env);
+    preprocess.setKeepComments(keepComments);
     QByteArray prep = preprocess.run(QLatin1String("<stdin>"), input);
     QCOMPARE(output, prep);
 }
