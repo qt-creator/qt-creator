@@ -18,7 +18,7 @@ def handleDebuggerWarnings(config):
         except LookupError:
             pass # No warning. Fine.
     else:
-        if "Release" in config and platform.system() != "Darwin":
+        if "Release" in config and not platform.system() in ("Darwin", "Microsoft", "Windows"):
             message = waitForObject("{container=':Qt Creator.DebugModeWidget_QSplitter' name='qt_msgbox_label' type='QLabel' visible='1'}", 20000)
             messageText = str(message.text)
             test.verify(messageText.startswith('This does not seem to be a "Debug" build.\nSetting breakpoints by file name and line number may fail.'),
