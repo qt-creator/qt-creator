@@ -1942,6 +1942,8 @@ bool FindUsages::visit(QualifiedNameAST *ast)
 
         if (SimpleNameAST *simple_name = unqualified_name->asSimpleName())
             identifier_token = simple_name->identifier_token;
+        else if (DestructorNameAST *dtor = unqualified_name->asDestructorName())
+            identifier_token = dtor->unqualified_name->firstToken();
 
         TemplateIdAST *template_id = 0;
         if (! identifier_token) {
