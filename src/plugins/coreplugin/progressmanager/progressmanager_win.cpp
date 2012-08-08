@@ -132,7 +132,8 @@ void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &
         // See pixmaputils.cpp in the Windows plugin.
         Q_UNIMPLEMENTED();
 #else
-        pITask->SetOverlayIcon(winId, pix.toWinHICON(), (wchar_t*)text.utf16());
+        const HICON icon = pix.toWinHICON();
+        pITask->SetOverlayIcon(winId, icon, (wchar_t*)text.utf16());
         DestroyIcon(icon);
 #endif
     }
