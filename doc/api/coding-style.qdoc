@@ -769,7 +769,7 @@
 
             // Use Q_GLOBAL_STATIC to create static global objects instead:
 
-            Q_STATIC_GLOBAL(QString, s)
+            Q_GLOBAL_STATIC(QString, s)
 
             void foo()
             {
