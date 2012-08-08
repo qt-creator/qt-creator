@@ -168,6 +168,7 @@ void LocalProcessList::updateUsingProc()
         DeviceProcess proc;
         proc.pid = procId.toInt();
         proc.exe = data.at(1);
+        proc.cmdLine = data.at(1);
         if (proc.exe.startsWith(QLatin1Char('(')) && proc.exe.endsWith(QLatin1Char(')'))) {
             proc.exe.truncate(proc.exe.size() - 1);
             proc.exe.remove(0, 1);
