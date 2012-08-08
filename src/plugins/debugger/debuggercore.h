@@ -101,7 +101,6 @@ public:
     virtual void runControlFinished(DebuggerEngine *engine) = 0;
     virtual void displayDebugger(DebuggerEngine *engine, bool updateEngine) = 0;
     virtual DebuggerLanguages activeLanguages() const = 0;
-    virtual unsigned enabledEngines() const = 0;
     virtual void synchronizeBreakpoints() = 0;
 
     virtual bool initialize(const QStringList &arguments, QString *errorMessage) = 0;

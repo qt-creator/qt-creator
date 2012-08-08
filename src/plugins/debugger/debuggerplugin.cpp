@@ -804,7 +804,6 @@ public slots:
     void runControlStarted(DebuggerEngine *engine);
     void runControlFinished(DebuggerEngine *engine);
     DebuggerLanguages activeLanguages() const;
-    unsigned enabledEngines() const { return m_cmdLineEnabledEngines; }
 //    QString debuggerForAbi(const Abi &abi, DebuggerEngineType et = NoEngineType) const;
     void remoteCommand(const QStringList &options, const QStringList &);
 
@@ -1088,10 +1087,8 @@ public slots:
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
 
     bool parseArgument(QStringList::const_iterator &it,
-        const QStringList::const_iterator &cend,
-        unsigned *enabledEngines, QString *errorMessage);
-    bool parseArguments(const QStringList &args,
-        unsigned *enabledEngines, QString *errorMessage);
+        const QStringList::const_iterator &cend, QString *errorMessage);
+    bool parseArguments(const QStringList &args, QString *errorMessage);
 
     DebuggerToolTipManager *toolTipManager() const { return m_toolTipManager; }
     QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const { return m_globalDebuggerOptions; }
@@ -1179,8 +1176,6 @@ public:
     DebuggerEngine *m_currentEngine;
     DebuggerSettings *m_debuggerSettings;
     QSettings *m_coreSettings;
-    bool m_gdbBinariesChanged;
-    uint m_cmdLineEnabledEngines;
     QStringList m_arguments;
     DebuggerToolTipManager *m_toolTipManager;
     CommonOptionsPage *m_commonOptionsPage;
@@ -1228,9 +1223,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_snapshotHandler = 0;
     m_currentEngine = 0;
     m_debuggerSettings = 0;
-
-    m_gdbBinariesChanged = true;
-    m_cmdLineEnabledEngines = AllEngineTypes;
 
     m_reverseToolButton = 0;
     m_startAction = 0;
@@ -1299,8 +1291,7 @@ void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
 }
 
 bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
-    const QStringList::const_iterator &cend,
-    unsigned *enabledEngines, QString *errorMessage)
+    const QStringList::const_iterator &cend, QString *errorMessage)
 {
     const QString &option = *it;
     // '-debug <pid>'
@@ -1387,42 +1378,18 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         m_scheduledStarts.append(sp);
         return true;
     }
-    // Engine disabling.
-    if (option == _("-disable-cdb")) {
-        *enabledEngines &= ~CdbEngineType;
-        return true;
-    }
-    if (option == _("-disable-gdb")) {
-        *enabledEngines &= ~GdbEngineType;
-        return true;
-    }
-    if (option == _("-disable-qmldb")) {
-        *enabledEngines &= ~QmlEngineType;
-        return true;
-    }
-    if (option == _("-disable-sdb")) {
-        *enabledEngines &= ~ScriptEngineType;
-        return true;
-    }
-    if (option == _("-disable-lldb")) {
-        *enabledEngines &= ~LldbEngineType;
-        return true;
-    }
 
     *errorMessage = DebuggerPlugin::tr("Invalid debugger option: %1").arg(option);
     return false;
 }
 
 bool DebuggerPluginPrivate::parseArguments(const QStringList &args,
-   unsigned *enabledEngines, QString *errorMessage)
+    QString *errorMessage)
 {
     const QStringList::const_iterator cend = args.constEnd();
     for (QStringList::const_iterator it = args.constBegin(); it != cend; ++it)
-        if (!parseArgument(it, cend, enabledEngines, errorMessage))
+        if (!parseArgument(it, cend, errorMessage))
             return false;
-    if (Constants::Internal::debug)
-        qDebug().nospace() << args << "engines=0x"
-            << QString::number(*enabledEngines, 16) << '\n';
     return true;
 }
 
@@ -2653,10 +2620,9 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
     if (options.isEmpty())
         return;
 
-    unsigned enabledEngines = 0;
     QString errorMessage;
 
-    if (!parseArguments(options, &enabledEngines, &errorMessage)) {
+    if (!parseArguments(options, &errorMessage)) {
         qWarning("%s", qPrintable(errorMessage));
         return;
     }
@@ -2885,7 +2851,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // Do not fail to load the whole plugin if something goes wrong here.
     QString errorMessage;
-    if (!parseArguments(m_arguments, &m_cmdLineEnabledEngines, &errorMessage)) {
+    if (!parseArguments(m_arguments, &errorMessage)) {
         errorMessage = tr("Error evaluating command line arguments: %1")
             .arg(errorMessage);
         qWarning("%s\n", qPrintable(errorMessage));
@@ -3148,18 +3114,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     }
 
     QList<IOptionsPage *> engineOptionPages;
-    if (m_cmdLineEnabledEngines & GdbEngineType)
-        addGdbOptionPages(&engineOptionPages);
-   addCdbOptionPages(&engineOptionPages);
+    addGdbOptionPages(&engineOptionPages);
+    addCdbOptionPages(&engineOptionPages);
 #ifdef WITH_LLDB
-    if (m_cmdLineEnabledEngines & LldbEngineType)
-        addLldbOptionPages(&engineOptionPages);
+    addLldbOptionPages(&engineOptionPages);
 #endif
 
-    //if (m_cmdLineEnabledEngines & ScriptEngineType)
-    //    addScriptOptionPages(&engineOptionPages);
-    //if (m_cmdLineEnabledEngines & TcfEngineType)
-    //    addTcfOptionPages(&engineOptionPages);
+    // addScriptOptionPages(&engineOptionPages);
+    // addTcfOptionPages(&engineOptionPages);
 
     foreach (IOptionsPage *op, engineOptionPages)
         m_plugin->addAutoReleasedObject(op);

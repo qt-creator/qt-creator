@@ -701,18 +701,10 @@ QString ConfigurationCheck::errorDetailsString() const
 
 // Convenience helper to check whether an engine is enabled and configured
 // correctly.
-static inline bool canUseEngine(DebuggerEngineType et,
+static bool canUseEngine(DebuggerEngineType et,
                                 const DebuggerStartParameters &sp,
-                                unsigned cmdLineEnabledEngines,
                                 ConfigurationCheck *result)
 {
-    // Enabled?
-    if ((et & cmdLineEnabledEngines) == 0) {
-        result->errorDetails.push_back(DebuggerPlugin::tr("The debugger engine '%1' is disabled.").
-                                       arg(QLatin1String(engineTypeName(et))));
-        return false;
-    }
-    // Configured.
     switch (et) {
     case CdbEngineType:
         return checkCdbConfiguration(sp, result);
@@ -749,19 +741,11 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
     }
     if (debug)
         qDebug() << " Required: " << engineTypeNames(requiredTypes);
-    // Filter out disabled types, command line + current settings.
-    unsigned cmdLineEnabledEngines = debuggerCore()->enabledEngines();
-#ifdef WITH_LLDB
-    if (!Core::ICore::settings()->value(QLatin1String("LLDB/enabled")).toBool())
-        cmdLineEnabledEngines &= ~LldbEngineType;
-#else
-     cmdLineEnabledEngines &= ~LldbEngineType;
-#endif
 
     DebuggerEngineType usableType = NoEngineType;
     QList<DebuggerEngineType> unavailableTypes;
     foreach (DebuggerEngineType et, requiredTypes) {
-        if (canUseEngine(et, sp, cmdLineEnabledEngines, &result)) {
+        if (canUseEngine(et, sp, &result)) {
             result.errorDetails.clear();
             usableType = et;
             break;

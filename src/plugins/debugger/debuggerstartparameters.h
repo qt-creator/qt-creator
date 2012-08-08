@@ -56,7 +56,8 @@ public:
     };
 
     DebuggerStartParameters()
-      : isSnapshot(false),
+      : engineType(NoEngineType),
+        isSnapshot(false),
         attachPID(-1),
         useTerminal(false),
         breakOnMain(false),
@@ -78,6 +79,7 @@ public:
 
     //Core::Id profileId;
 
+    DebuggerEngineType engineType;
     QString sysRoot;
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
