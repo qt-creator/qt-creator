@@ -134,7 +134,10 @@ int DeviceProcessList::rowCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : d->remoteProcesses.count();
 }
 
-int DeviceProcessList::columnCount(const QModelIndex &) const { return 2; }
+int DeviceProcessList::columnCount(const QModelIndex &) const
+{
+    return 2;
+}
 
 QVariant DeviceProcessList::headerData(int section, Qt::Orientation orientation,
     int role) const
@@ -142,7 +145,7 @@ QVariant DeviceProcessList::headerData(int section, Qt::Orientation orientation,
     if (orientation != Qt::Horizontal || role != Qt::DisplayRole || section < 0
             || section >= columnCount())
         return QVariant();
-    return section == 0? tr("PID") : tr("Command Line");
+    return section == 0? tr("Process ID") : tr("Command Line");
 }
 
 QVariant DeviceProcessList::data(const QModelIndex &index, int role) const

@@ -63,6 +63,7 @@
 #include "debuggertooltipmanager.h"
 #include "localsandexpressionswindow.h"
 #include "loadcoredialog.h"
+#include "hostutils.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
@@ -94,11 +95,13 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/profilechooser.h>
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/profilemanager.h>
 #include <projectexplorer/target.h>
@@ -776,13 +779,12 @@ public slots:
     void startRemoteCdbSession();
     void startRemoteProcess();
     void startRemoteServer();
-    //bool queryRemoteParameters(DebuggerStartParameters &sp, bool useScript);
     void attachToRemoteServer();
+    void attachToProcess(bool startServerOnly);
     void attachToRunningApplication();
     void attachToQmlPort();
     void startRemoteEngine();
-    void attachExternalApplication();
-    Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
+    //Q_SLOT void attachToLocalProcess(ProjectExplorer::RunControl *rc);
     void runScheduled();
     void attachCore();
 
@@ -1122,7 +1124,6 @@ public:
     QAction *m_attachToRemoteServerAction;
     QAction *m_startRemoteCdbAction;
     QAction *m_startRemoteLldbAction;
-    QAction *m_attachToLocalProcessAction;
     QAction *m_attachToCoreAction;
     QAction *m_detachAction;
     QAction *m_continueAction;
@@ -1245,7 +1246,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_attachToQmlPortAction = 0;
     m_startRemoteCdbAction = 0;
     m_startRemoteLldbAction = 0;
-    m_attachToLocalProcessAction = 0;
     m_attachToCoreAction = 0;
     m_detachAction = 0;
 
@@ -1520,44 +1520,44 @@ void DebuggerPluginPrivate::startExternalApplication()
             startDebugger(rc);
 }
 
-void DebuggerPluginPrivate::attachExternalApplication()
-{
-    AttachExternalDialog dlg(mainWindow());
-    dlg.setProfileIndex(configValue(_("LastAttachExternalProfileIndex")).toInt());
+//void DebuggerPluginPrivate::attachToLocalProcessHelper()
+//{
+//    AttachExternalDialog dlg(mainWindow());
+//    dlg.setProfileIndex(configValue(_("LastAttachExternalProfileIndex")).toInt());
 
-    if (dlg.exec() != QDialog::Accepted)
-        return;
+//    if (dlg.exec() != QDialog::Accepted)
+//        return;
 
-    if (dlg.attachPID() == 0) {
-        QMessageBox::warning(mainWindow(), tr("Warning"),
-            tr("Cannot attach to process with PID 0"));
-        return;
-    }
+//    if (dlg.attachPID() == 0) {
+//        QMessageBox::warning(mainWindow(), tr("Warning"),
+//            tr("Cannot attach to process with PID 0"));
+//        return;
+//    }
 
-    setConfigValue(_("LastAttachExternalProfileIndex"), QVariant(dlg.profileIndex()));
+//    setConfigValue(_("LastAttachExternalProfileIndex"), QVariant(dlg.profileIndex()));
 
-    DebuggerStartParameters sp;
-    fillParameters(&sp, dlg.profileId());
-    sp.attachPID = dlg.attachPID();
-    sp.displayName = tr("Process %1").arg(dlg.attachPID());
-    sp.executable = dlg.executable();
-    sp.startMode = AttachExternal;
-    sp.closeMode = DetachAtClose;
-    if (DebuggerRunControl *rc = createDebugger(sp))
-        startDebugger(rc);
-}
+//    DebuggerStartParameters sp;
+//    fillParameters(&sp, dlg.profileId());
+//    sp.attachPID = dlg.attachPID();
+//    sp.displayName = tr("Process %1").arg(dlg.attachPID());
+//    sp.executable = dlg.executable();
+//    sp.startMode = AttachExternal;
+//    sp.closeMode = DetachAtClose;
+//    if (DebuggerRunControl *rc = createDebugger(sp))
+//        startDebugger(rc);
+//}
 
-void DebuggerPluginPrivate::attachExternalApplication(RunControl *rc)
-{
-    DebuggerStartParameters sp;
-    fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id()); // FIXME: Extract from rc.
-    sp.attachPID = rc->applicationProcessHandle().pid();
-    sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
-    sp.startMode = AttachExternal;
-    sp.closeMode = DetachAtClose;
-    if (DebuggerRunControl *rc = createDebugger(sp))
-        startDebugger(rc);
-}
+//void DebuggerPluginPrivate::attachToLocalProcess(RunControl *rc)
+//{
+//    DebuggerStartParameters sp;
+//    fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id()); // FIXME: Extract from rc.
+//    sp.attachPID = rc->applicationProcessHandle().pid();
+//    sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
+//    sp.startMode = AttachExternal;
+//    sp.closeMode = DetachAtClose;
+//    if (DebuggerRunControl *rc = createDebugger(sp))
+//        startDebugger(rc);
+//}
 
 void DebuggerPluginPrivate::attachCore()
 {
@@ -1637,11 +1637,6 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
         startDebugger(rc);
 }
 
-//bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, bool useScript)
-//{
-//    return StartRemoteDialog::run(mainWindow(), m_coreSettings, useScript, &sp);
-//}
-
 void DebuggerPluginPrivate::startRemoteProcess()
 {
     DebuggerStartParameters sp;
@@ -1665,16 +1660,68 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     }
 }
 
+//const char LastProfile[] = "Debugger/LastProfile";
+//const char LastDevice[] = "Debugger/LastDevice";
+//const char LastProcessName[] = "Debugger/LastProcessName";
+//const char LastLocalExecutable[] = "Debugger/LastLocalExecutable";
+
 void DebuggerPluginPrivate::startRemoteServer()
 {
-    StartGdbServerDialog dlg(mainWindow());
-    dlg.startGdbServer();
+    attachToProcess(true);
 }
 
 void DebuggerPluginPrivate::attachToRunningApplication()
 {
-    StartGdbServerDialog dlg(mainWindow());
-    dlg.attachToRemoteProcess();
+    attachToProcess(false);
+}
+
+void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
+{
+    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(mainWindow());
+    dlg->showAllDevices();
+    if (dlg->exec() == QDialog::Rejected) {
+        delete dlg;
+        return;
+    }
+
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    ProfileChooser *profileChooser = dlg->profileChooser();
+    Profile *profile = profileChooser->currentProfile();
+    QTC_ASSERT(profile, return);
+    IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    QTC_ASSERT(device, return);
+    DeviceProcess process = dlg->currentProcess();
+    if (process.pid == 0) {
+        QMessageBox::warning(mainWindow(), tr("Warning"),
+            tr("Cannot attach to process with PID 0"));
+        return;
+    }
+
+    #ifdef Q_OS_WIN
+    if (isWinProcessBeingDebugged(process.pid)) {
+        QMessageBox::warning(ICore::mainWindow(), tr("Process Already Under Debugger Control"),
+                             tr("The process %1 is already under the control of a debugger.\n"
+                                "Qt Creator cannot attach to it.").arg(process.pid));
+        return;
+    }
+    #endif
+
+    //setConfigValue(_("LastAttachExternalProfileIndex"), QVariant(dlg->profileChooser()->currentProfileId()));
+
+    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        DebuggerStartParameters sp;
+        fillParameters(&sp, profile->id());
+        sp.attachPID = process.pid;
+        sp.displayName = tr("Process %1").arg(process.pid);
+        sp.executable = process.exe;
+        sp.startMode = AttachExternal;
+        sp.closeMode = DetachAtClose;
+        if (DebuggerRunControl *rc = createDebugger(sp))
+            startDebugger(rc);
+    } else {
+        GdbServerStarter *starter = new GdbServerStarter(dlg, startServerOnly);
+        starter->run();
+    }
 }
 
 void DebuggerPluginPrivate::attachToQmlPort()
@@ -2137,7 +2184,6 @@ void DebuggerPluginPrivate::setInitialState()
     m_toolTipManager->closeAllToolTips();
 
     m_startLocalProcessAction->setEnabled(true);
-    m_attachToLocalProcessAction->setEnabled(true);
     m_attachToQmlPortAction->setEnabled(true);
     m_attachToCoreAction->setEnabled(true);
     m_startRemoteProcessAction->setEnabled(true);
@@ -2264,7 +2310,6 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
 
     m_startLocalProcessAction->setEnabled(true);
     m_attachToQmlPortAction->setEnabled(true);
-    m_attachToLocalProcessAction->setEnabled(true);
     m_attachToCoreAction->setEnabled(true);
     m_startRemoteProcessAction->setEnabled(true);
     m_attachToRemoteServerAction->setEnabled(true);
@@ -2962,10 +3007,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(act, SIGNAL(triggered()), SLOT(startRemoteEngine()));
 #endif
 
-    act = m_attachToLocalProcessAction = new QAction(this);
-    act->setText(tr("Attach to Running Local Application..."));
-    connect(act, SIGNAL(triggered()), SLOT(attachExternalApplication()));
-
     act = m_attachToCoreAction = new QAction(this);
     act->setText(tr("Load Core File..."));
     connect(act, SIGNAL(triggered()), SLOT(attachCore()));
@@ -3063,11 +3104,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = ActionManager::registerAction(m_startRemoteServerAction,
          "Debugger.StartRemoteServer", globalcontext);
     cmd->setDescription(tr("Start Gdbserver"));
-    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
-
-    cmd = ActionManager::registerAction(m_attachToLocalProcessAction,
-        "Debugger.AttachToLocalProcess", globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
 
 #ifdef WITH_LLDB

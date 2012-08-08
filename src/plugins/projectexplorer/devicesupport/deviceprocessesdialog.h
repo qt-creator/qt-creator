@@ -32,37 +32,36 @@
 
 #include "../projectexplorer_export.h"
 
+#include <projectexplorer/profile.h>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/deviceprocesslist.h>
+
 #include <QDialog>
 
 namespace ProjectExplorer {
 
-class DeviceProcessList;
+class ProfileChooser;
 
-namespace Internal {
-class DeviceProcessesDialogPrivate;
+namespace Internal { class DeviceProcessesDialogPrivate; }
 
-class DeviceProcessesDialog : public QDialog
+class PROJECTEXPLORER_EXPORT DeviceProcessesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    // Note: The dialog takes ownership of processList.
-    explicit DeviceProcessesDialog(DeviceProcessList *processList, QWidget *parent = 0);
+    explicit DeviceProcessesDialog(QWidget *parent = 0);
     ~DeviceProcessesDialog();
 
-private slots:
-    void updateProcessList();
-    void killProcess();
-    void handleRemoteError(const QString &errorMsg);
-    void handleProcessListUpdated();
-    void handleProcessKilled();
-    void handleSelectionChanged();
+    void setDevice(const IDevice::ConstPtr &device);
+    void showAllDevices();
+    DeviceProcess currentProcess() const;
+    ProfileChooser *profileChooser() const;
+    void logMessage(const QString &line);
 
 private:
     Internal::DeviceProcessesDialogPrivate * const d;
 };
 
-} // namespace Internal
 } // namespace RemoteLinux
 
 #endif // REMOTELINUXPROCESSESDIALOG_H

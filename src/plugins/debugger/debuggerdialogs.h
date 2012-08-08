@@ -52,7 +52,6 @@ class DebuggerStartParameters;
 namespace Internal {
 
 class AttachCoreDialogPrivate;
-class AttachExternalDialogPrivate;
 class AttachToQmlPortDialogPrivate;
 class ProcessListFilterModel;
 class StartExternalDialogPrivate;
@@ -60,37 +59,6 @@ class StartExternalParameters;
 class StartRemoteDialogPrivate;
 class StartRemoteEngineDialogPrivate;
 class StartRemoteParameters;
-
-class AttachExternalDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit AttachExternalDialog(QWidget *parent);
-    ~AttachExternalDialog();
-
-    qint64 attachPID() const;
-    QString executable() const;
-
-    int profileIndex() const;
-    void setProfileIndex(int);
-    Core::Id profileId() const;
-
-    void accept();
-
-private slots:
-    void rebuildProcessList();
-    void procSelected(const QModelIndex &index);
-    void procClicked(const QModelIndex &index);
-    void pidChanged(const QString &index);
-    void setFilterString(const QString &filter);
-
-private:
-    inline QPushButton *okButton() const;
-    inline QString attachPIDText() const;
-
-    AttachExternalDialogPrivate *d;
-};
 
 class StartExternalDialog : public QDialog
 {

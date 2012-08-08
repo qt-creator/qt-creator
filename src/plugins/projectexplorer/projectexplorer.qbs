@@ -302,7 +302,6 @@ QtcPlugin {
         "devicesupport/sshdeviceprocesslist.h",
         "devicesupport/deviceprocessesdialog.cpp",
         "devicesupport/deviceprocessesdialog.h",
-        "devicesupport/deviceprocessesdialog.ui",
         "devicesupport/devicesettingswidget.cpp",
         "devicesupport/devicesettingswidget.h",
         "devicesupport/devicesettingswidget.ui",

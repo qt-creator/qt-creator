@@ -174,7 +174,7 @@ void LocalProcessList::handleWindowsUpdate()
     CloseHandle(snapshot);
 
     reportProcessListUpdated(processes);
-#endif //Q_OS_WIN
+#endif
 }
 
 void LocalProcessList::handlePsError()

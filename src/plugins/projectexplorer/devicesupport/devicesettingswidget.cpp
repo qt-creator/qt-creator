@@ -248,7 +248,7 @@ int DeviceSettingsWidget::currentIndex() const
     return m_ui->configurationComboBox->currentIndex();
 }
 
-QSharedPointer<const IDevice> DeviceSettingsWidget::currentDevice() const
+IDevice::ConstPtr DeviceSettingsWidget::currentDevice() const
 {
     Q_ASSERT(currentIndex() != -1);
     return m_deviceManagerModel->device(currentIndex());
@@ -335,8 +335,9 @@ void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
 void DeviceSettingsWidget::handleProcessListRequested()
 {
     QTC_ASSERT(currentDevice()->canCreateProcessModel(), return);
-    DeviceProcessesDialog d(currentDevice()->createProcessListModel());
-    d.exec();
+    DeviceProcessesDialog dlg;
+    dlg.setDevice(currentDevice());
+    dlg.exec();
 }
 
 } // namespace Internal

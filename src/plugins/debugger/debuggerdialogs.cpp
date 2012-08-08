@@ -41,7 +41,6 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/profilechooser.h>
 #include <projectexplorer/profileinformation.h>
-#include <utils/filterlineedit.h>
 #include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -51,7 +50,6 @@
 #include <QApplication>
 #include <QButtonGroup>
 #include <QCheckBox>
-#include <QCoreApplication>
 #include <QDebug>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -68,7 +66,6 @@
 #include <QRadioButton>
 #include <QRegExp>
 #include <QScrollArea>
-#include <QSortFilterProxyModel>
 #include <QSpinBox>
 #include <QStandardItemModel>
 #include <QTreeView>
@@ -79,300 +76,14 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Debugger {
-namespace Internal {
-
-bool operator<(const ProcData &p1, const ProcData &p2)
-{
-    return p1.name < p2.name;
-}
-
-// A filterable process list model
-class ProcessListFilterModel : public QSortFilterProxyModel
-{
-public:
-    explicit ProcessListFilterModel(QObject *parent);
-    QString processIdAt(const QModelIndex &index) const;
-    QString executableForPid(const QString& pid) const;
-
-    void populate(QList<ProcData> processes, const QString &excludePid);
-
-private:
-    enum { ProcessImageRole = Qt::UserRole, ProcessNameRole };
-
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
-
-    QStandardItemModel *m_model;
-};
-
-ProcessListFilterModel::ProcessListFilterModel(QObject *parent)
-  : QSortFilterProxyModel(parent),
-    m_model(new QStandardItemModel(this))
-{
-    QStringList columns;
-    columns << AttachExternalDialog::tr("Process ID")
-            << AttachExternalDialog::tr("Name")
-            << AttachExternalDialog::tr("State");
-    m_model->setHorizontalHeaderLabels(columns);
-    setSourceModel(m_model);
-    setFilterCaseSensitivity(Qt::CaseInsensitive);
-    setFilterKeyColumn(1);
-}
-
-bool ProcessListFilterModel::lessThan(const QModelIndex &left,
-    const QModelIndex &right) const
-{
-    const QString l = sourceModel()->data(left).toString();
-    const QString r = sourceModel()->data(right).toString();
-    if (left.column() == 0)
-        return l.toInt() < r.toInt();
-    return l < r;
-}
-
-QString ProcessListFilterModel::processIdAt(const QModelIndex &index) const
-{
-    if (index.isValid()) {
-        const QModelIndex index0 = mapToSource(index);
-        QModelIndex siblingIndex = index0.sibling(index0.row(), 0);
-        if (const QStandardItem *item = m_model->itemFromIndex(siblingIndex))
-            return item->text();
-    }
-    return QString();
-}
-
-QString ProcessListFilterModel::executableForPid(const QString &pid) const
-{
-    const int rowCount = m_model->rowCount();
-    for (int r = 0; r < rowCount; r++) {
-        const QStandardItem *item = m_model->item(r, 0);
-        if (item->text() == pid) {
-            QString name = item->data(ProcessImageRole).toString();
-            if (name.isEmpty())
-                name = item->data(ProcessNameRole).toString();
-            return name;
-        }
-    }
-    return QString();
-}
-
-void ProcessListFilterModel::populate
-    (QList<ProcData> processes, const QString &excludePid)
-{
-    qStableSort(processes);
-
-    if (const int rowCount = m_model->rowCount())
-        m_model->removeRows(0, rowCount);
-
-    QStandardItem *root  = m_model->invisibleRootItem();
-    foreach (const ProcData &proc, processes) {
-        QList<QStandardItem *> row;
-        row.append(new QStandardItem(proc.ppid));
-        QString name = proc.image.isEmpty() ? proc.name : proc.image;
-        row.back()->setData(name, ProcessImageRole);
-        row.append(new QStandardItem(proc.name));
-        row.back()->setToolTip(proc.image);
-        row.append(new QStandardItem(proc.state));
-
-        if (proc.ppid == excludePid)
-            foreach (QStandardItem *item, row)
-                item->setEnabled(false);
-        root->appendRow(row);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////
-//
-// AttachExternalDialog
-//
-///////////////////////////////////////////////////////////////////////
-
-class AttachExternalDialogPrivate
-{
-public:
-    QLineEdit *pidLineEdit;
-    FilterLineEdit *filterWidget;
-    ProfileChooser *profileComboBox;
-    QTreeView *procView;
-    QDialogButtonBox *buttonBox;
-
-    QString selfPid;
-    ProcessListFilterModel *model;
-};
-
-AttachExternalDialog::AttachExternalDialog(QWidget *parent)
-  : QDialog(parent),
-    d(new AttachExternalDialogPrivate)
-{
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setWindowTitle(tr("Start Debugger"));
-    setMinimumHeight(500);
-
-    d->selfPid = QString::number(QCoreApplication::applicationPid());
-
-    d->model = new ProcessListFilterModel(this);
-
-    d->pidLineEdit = new QLineEdit(this);
-
-    d->filterWidget = new FilterLineEdit(this);
-    d->filterWidget->setFocus(Qt::TabFocusReason);
-
-    d->profileComboBox = new ProfileChooser(this, ProfileChooser::LocalDebugging);
-
-    d->procView = new QTreeView(this);
-    d->procView->setAlternatingRowColors(true);
-    d->procView->setRootIsDecorated(false);
-    d->procView->setUniformRowHeights(true);
-    d->procView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    d->procView->setModel(d->model);
-    d->procView->setSortingEnabled(true);
-    d->procView->sortByColumn(1, Qt::AscendingOrder);
-
-    QPushButton *refreshButton = new QPushButton(tr("Refresh"));
-
-    d->buttonBox = new QDialogButtonBox(this);
-    d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-    d->buttonBox->addButton(refreshButton, QDialogButtonBox::ActionRole);
-
-    QFrame *line = new QFrame(this);
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
-    QFormLayout *formLayout = new QFormLayout();
-    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    formLayout->addRow(tr("Attach to &process ID:"), d->pidLineEdit);
-    formLayout->addRow(tr("&Target:"), d->profileComboBox);
-    formLayout->addRow(d->filterWidget);
-
-    QVBoxLayout *vboxLayout = new QVBoxLayout(this);
-    vboxLayout->addLayout(formLayout);
-    vboxLayout->addWidget(d->procView);
-    vboxLayout->addWidget(line);
-    vboxLayout->addWidget(d->buttonBox);
-
-    okButton()->setDefault(true);
-    okButton()->setEnabled(false);
-
-    connect(refreshButton, SIGNAL(clicked()), SLOT(rebuildProcessList()));
-    connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
-    connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
-    // Do not use activated, will be single click in Oxygen
-    connect(d->procView, SIGNAL(doubleClicked(QModelIndex)),
-        SLOT(procSelected(QModelIndex)));
-    connect(d->procView, SIGNAL(clicked(QModelIndex)),
-        SLOT(procClicked(QModelIndex)));
-    connect(d->pidLineEdit, SIGNAL(textChanged(QString)),
-        SLOT(pidChanged(QString)));
-    connect(d->filterWidget, SIGNAL(filterChanged(QString)),
-        SLOT(setFilterString(QString)));
-
-    rebuildProcessList();
-}
-
-AttachExternalDialog::~AttachExternalDialog()
-{
-    delete d;
-}
-
-void AttachExternalDialog::setFilterString(const QString &filter)
-{
-    d->model->setFilterFixedString(filter);
-    // Activate the line edit if there's a unique filtered process.
-    QString processId;
-    if (d->model->rowCount(QModelIndex()) == 1)
-        processId = d->model->processIdAt(d->model->index(0, 0, QModelIndex()));
-    d->pidLineEdit->setText(processId);
-    pidChanged(processId);
-}
-
-QPushButton *AttachExternalDialog::okButton() const
-{
-    return d->buttonBox->button(QDialogButtonBox::Ok);
-}
-
-void AttachExternalDialog::rebuildProcessList()
-{
-    d->model->populate(hostProcessList(), d->selfPid);
-    d->procView->expandAll();
-    d->procView->resizeColumnToContents(0);
-    d->procView->resizeColumnToContents(1);
-}
-
-void AttachExternalDialog::procSelected(const QModelIndex &proxyIndex)
-{
-    const QString processId = d->model->processIdAt(proxyIndex);
-    if (!processId.isEmpty()) {
-        d->pidLineEdit->setText(processId);
-        if (okButton()->isEnabled())
-            okButton()->animateClick();
-    }
-}
-
-void AttachExternalDialog::procClicked(const QModelIndex &proxyIndex)
-{
-    const QString processId = d->model->processIdAt(proxyIndex);
-    if (!processId.isEmpty())
-        d->pidLineEdit->setText(processId);
-}
-
-QString AttachExternalDialog::attachPIDText() const
-{
-    return d->pidLineEdit->text().trimmed();
-}
-
-qint64 AttachExternalDialog::attachPID() const
-{
-    return attachPIDText().toLongLong();
-}
-
-QString AttachExternalDialog::executable() const
-{
-    // Search pid in model in case the user typed in the PID.
-    return d->model->executableForPid(attachPIDText());
-}
-
-Id AttachExternalDialog::profileId() const
-{
-    return d->profileComboBox->currentProfileId();
-}
-
-void AttachExternalDialog::setProfileIndex(int i)
-{
-    if (i >= 0 && i < d->profileComboBox->count())
-        d->profileComboBox->setCurrentIndex(i);
-}
-
-int AttachExternalDialog::profileIndex() const
-{
-    return d->profileComboBox->currentIndex();
-}
-
-void AttachExternalDialog::pidChanged(const QString &pid)
-{
-    const bool enabled = !pid.isEmpty() && pid != QLatin1String("0") && pid != d->selfPid
-            && d->profileComboBox->currentIndex() >= 0;
-    okButton()->setEnabled(enabled);
-}
-
-void AttachExternalDialog::accept()
-{
-#ifdef Q_OS_WIN
-    const qint64 pid = attachPID();
-    if (pid && isWinProcessBeingDebugged(pid)) {
-        QMessageBox::warning(this, tr("Process Already Under Debugger Control"),
-                             tr("The process %1 is already under the control of a debugger.\n"
-                                "Qt Creator cannot attach to it.").arg(pid));
-        return;
-    }
-#endif
-    QDialog::accept();
-}
-
-
 ///////////////////////////////////////////////////////////////////////
 //
 // StartExternalDialog
 //
 ///////////////////////////////////////////////////////////////////////
+
+namespace Debugger {
+namespace Internal {
 
 class StartExternalParameters
 {
