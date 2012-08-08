@@ -12,7 +12,7 @@
     If you have built your own version of Qt for QNX you need to add this manually to Qt Creator
     using the above dialog:
 
-    \list
+    \list 1
         \o Select \gui {Tools > Options > Build & Run > Qt Versions > Add}.
         \o Navigate to and select the qmake application that is part of your Qt for QNX build and select
         \gui {Open}.
