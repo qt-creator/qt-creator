@@ -63,9 +63,10 @@ bool checkPackageName(const QString &packageName)
 }
 
 ///////////////////////////// CheckModel /////////////////////////////
-CheckModel::CheckModel(QObject *parent) : QAbstractListModel(parent)
-{
 
+CheckModel::CheckModel(QObject *parent)
+    : QAbstractListModel(parent)
+{
 }
 
 void CheckModel::setAvailableItems(const QStringList &items)
@@ -136,11 +137,12 @@ Qt::ItemFlags CheckModel::flags(const QModelIndex &/*index*/) const
 {
     return Qt::ItemIsSelectable|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled;
 }
-///////////////////////////// CheckModel /////////////////////////////
 
 
 ///////////////////////////// PermissionsModel /////////////////////////////
-PermissionsModel::PermissionsModel(QObject *parent):QAbstractListModel(parent)
+
+PermissionsModel::PermissionsModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
 }
 
@@ -149,6 +151,7 @@ void PermissionsModel::setPermissions(const QStringList &permissions)
     m_permissions = permissions;
     reset();
 }
+
 const QStringList &PermissionsModel::permissions()
 {
     return m_permissions;
@@ -195,10 +198,10 @@ int PermissionsModel::rowCount(const QModelIndex &parent) const
     Q_UNUSED(parent)
     return m_permissions.count();
 }
-///////////////////////////// PermissionsModel /////////////////////////////
 
 
 ///////////////////////////// AndroidPackageCreationWidget /////////////////////////////
+
 AndroidPackageCreationWidget::AndroidPackageCreationWidget(AndroidPackageCreationStep *step)
     : ProjectExplorer::BuildStepConfigWidget(),
       m_step(step),
@@ -214,7 +217,6 @@ AndroidPackageCreationWidget::AndroidPackageCreationWidget(AndroidPackageCreatio
     QTimer::singleShot(50, this, SLOT(initGui()));
     connect(m_step, SIGNAL(updateRequiredLibrariesModels()), SLOT(updateRequiredLibrariesModels()));
 }
-
 
 void AndroidPackageCreationWidget::initGui()
 {

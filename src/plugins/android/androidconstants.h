@@ -31,7 +31,7 @@
 #ifndef ANDROIDCONSTANTS_H
 #define ANDROIDCONSTANTS_H
 
-#include <QLatin1String>
+#include <QtGlobal>
 
 namespace Android {
 namespace Internal {
@@ -44,8 +44,6 @@ enum AndroidQemuStatus {
     AndroidQemuUserReason
 };
 
-#define ANDROID_PREFIX "Qt4ProjectManager.AndroidRunConfiguration"
-
 #ifdef Q_OS_WIN32
 #define ANDROID_EXE_SUFFIX ".exe"
 #define ANDROID_BAT_SUFFIX ".bat"
@@ -53,8 +51,6 @@ enum AndroidQemuStatus {
 #define ANDROID_EXE_SUFFIX ""
 #define ANDROID_BAT_SUFFIX ""
 #endif
-
-static const QLatin1String ANDROID_RC_ID_PREFIX(ANDROID_PREFIX ":");
 
 } // namespace Internal
 
@@ -68,8 +64,7 @@ const char ANDROIDQT[] = "Qt4ProjectManager.QtVersion.Android";
 
 const char ANDROID_DEVICE_TYPE[] = "Android.Device.Type";
 const char ANDROID_DEVICE_ID[] = "Android Device";
-
-}
+} // namespace Constants;
 } // namespace Android
 
 #endif  // ANDROIDCONSTANTS_H

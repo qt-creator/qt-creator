@@ -42,40 +42,36 @@
 #include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
-using namespace Android::Internal;
+using namespace ProjectExplorer;
 
-AndroidDeployConfiguration::AndroidDeployConfiguration(ProjectExplorer::Target *parent, Core::Id id)
-    :DeployConfiguration(parent, id)
+namespace Android {
+namespace Internal {
+
+AndroidDeployConfiguration::AndroidDeployConfiguration(Target *parent, Core::Id id)
+    : DeployConfiguration(parent, id)
 {
     setDisplayName(tr("Deploy to Android device"));
     setDefaultDisplayName(displayName());
 }
 
-AndroidDeployConfiguration::~AndroidDeployConfiguration()
+AndroidDeployConfiguration::AndroidDeployConfiguration(Target *parent, DeployConfiguration *source)
+    : DeployConfiguration(parent, source)
 {
-
 }
 
-AndroidDeployConfiguration::AndroidDeployConfiguration(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *source)
-    :DeployConfiguration(parent, source)
-{
-
-}
-
-AndroidDeployConfigurationFactory::AndroidDeployConfigurationFactory(QObject *parent) :
-    ProjectExplorer::DeployConfigurationFactory(parent)
+AndroidDeployConfigurationFactory::AndroidDeployConfigurationFactory(QObject *parent)
+    : DeployConfigurationFactory(parent)
 {
     setObjectName(QLatin1String("AndroidDeployConfigurationFactory"));
 }
 
-bool AndroidDeployConfigurationFactory::canCreate(ProjectExplorer::Target *parent, const Core::Id id) const
+bool AndroidDeployConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-ProjectExplorer::DeployConfiguration *AndroidDeployConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id)
+DeployConfiguration *AndroidDeployConfigurationFactory::create(Target *parent, const Core::Id id)
 {
-    Q_UNUSED(id);
     AndroidDeployConfiguration *dc = new AndroidDeployConfiguration(parent, id);
     if (!dc)
         return 0;
@@ -85,17 +81,17 @@ ProjectExplorer::DeployConfiguration *AndroidDeployConfigurationFactory::create(
     return dc;
 }
 
-bool AndroidDeployConfigurationFactory::canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const
+bool AndroidDeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    return canCreate(parent, idFromMap(map));
 }
 
-ProjectExplorer::DeployConfiguration *AndroidDeployConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+DeployConfiguration *AndroidDeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
 
-    AndroidDeployConfiguration *dc = new AndroidDeployConfiguration(parent, ProjectExplorer::idFromMap(map));
+    AndroidDeployConfiguration *dc = new AndroidDeployConfiguration(parent, idFromMap(map));
     if (dc->fromMap(map))
         return dc;
 
@@ -103,21 +99,21 @@ ProjectExplorer::DeployConfiguration *AndroidDeployConfigurationFactory::restore
     return 0;
 }
 
-bool AndroidDeployConfigurationFactory::canClone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *source) const
+bool AndroidDeployConfigurationFactory::canClone(Target *parent, DeployConfiguration *source) const
 {
     if (!AndroidManager::supportsAndroid(parent))
         return false;
     return source->id() == ANDROID_DEPLOYCONFIGURATION_ID;
 }
 
-ProjectExplorer::DeployConfiguration *AndroidDeployConfigurationFactory::clone(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *source)
+DeployConfiguration *AndroidDeployConfigurationFactory::clone(Target *parent, DeployConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
     return new AndroidDeployConfiguration(parent, source);
 }
 
-QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
+QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> ids;
     if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
@@ -126,10 +122,9 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(ProjectE
     if (!parent->project()->supportsProfile(parent->profile()))
         return ids;
 
-    ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainProfileInformation::toolChain(parent->profile());
+    ToolChain *tc = ToolChainProfileInformation::toolChain(parent->profile());
 
-    if (!tc || tc->targetAbi().osFlavor() != ProjectExplorer::Abi::AndroidLinuxFlavor)
+    if (!tc || tc->targetAbi().osFlavor() != Abi::AndroidLinuxFlavor)
         return ids;
 
     if (QtSupport::QtProfileInformation::qtVersion(parent->profile())->type() != QLatin1String(Constants::ANDROIDQT))
@@ -141,12 +136,15 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(ProjectE
 
 QString AndroidDeployConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id.toString().startsWith(QLatin1String(ANDROID_DC_PREFIX)))
+    if (id.name().startsWith(ANDROID_DC_PREFIX))
         return tr("Deploy on Android");
     return QString();
 }
 
-bool AndroidDeployConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const
+bool AndroidDeployConfigurationFactory::canHandle(Target *parent) const
 {
     return AndroidManager::supportsAndroid(parent);
 }
+
+} // namespace Internal
+} // namespace Android

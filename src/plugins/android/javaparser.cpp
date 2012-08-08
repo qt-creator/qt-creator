@@ -37,8 +37,7 @@ using namespace Android::Internal;
 using namespace ProjectExplorer;
 
 JavaParser::JavaParser() :
-    ProjectExplorer::IOutputParser()
-  , m_javaRegExp(QLatin1String("^(.*\\[javac\\]\\s)(.*\\.java):(\\d+):(.*)$"))
+  m_javaRegExp(QLatin1String("^(.*\\[javac\\]\\s)(.*\\.java):(\\d+):(.*)$"))
 {
 }
 
@@ -65,7 +64,7 @@ void JavaParser::stdError(const QString &line)
                   m_javaRegExp.cap(4).trimmed(),
                   Utils::FileName::fromString(file) /* filename */,
                   lineno,
-                  ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+                  Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task);
         return;
     }

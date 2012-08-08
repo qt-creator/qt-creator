@@ -30,6 +30,7 @@
 
 #ifndef JAVAPARSER_H
 #define JAVAPARSER_H
+
 #include <projectexplorer/ioutputparser.h>
 
 namespace Android {
@@ -38,11 +39,13 @@ namespace Internal {
 class JavaParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
+
 public:
     JavaParser();
-    virtual void stdOutput(const QString &line);
-    virtual void stdError(const QString &line);
+    void stdOutput(const QString &line);
+    void stdError(const QString &line);
     void setProjectFileList(const QStringList &fileList);
+
 private:
     QRegExp m_javaRegExp;
     QStringList m_fileList;

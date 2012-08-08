@@ -36,26 +36,20 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qtsupport/qtprofileinformation.h>
-#include <qtsupport/qtsupportconstants.h>
 
-#include <QCoreApplication>
-
-using ProjectExplorer::BuildStepList;
-using ProjectExplorer::BuildStep;
+using namespace ProjectExplorer;
 
 namespace Android {
 namespace Internal {
 
 AndroidPackageCreationFactory::AndroidPackageCreationFactory(QObject *parent)
-    : ProjectExplorer::IBuildStepFactory(parent)
+    : IBuildStepFactory(parent)
 {
 }
 
-QList<Core::Id> AndroidPackageCreationFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<Core::Id> AndroidPackageCreationFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+    if (parent->id() != Constants::BUILDSTEPS_DEPLOY)
         return QList<Core::Id>();
     if (!AndroidManager::supportsAndroid(parent->target()))
         return QList<Core::Id>();
@@ -71,29 +65,27 @@ QString AndroidPackageCreationFactory::displayNameForId(const Core::Id id) const
     return QString();
 }
 
-bool AndroidPackageCreationFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
+bool AndroidPackageCreationFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-BuildStep *AndroidPackageCreationFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
+BuildStep *AndroidPackageCreationFactory::create(BuildStepList *parent, const Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
+    Q_UNUSED(id);
     return new AndroidPackageCreationStep(parent);
 }
 
-bool AndroidPackageCreationFactory::canRestore(ProjectExplorer::BuildStepList *parent,
-                                               const QVariantMap &map) const
+bool AndroidPackageCreationFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    return canCreate(parent, idFromMap(map));
 }
 
-BuildStep *AndroidPackageCreationFactory::restore(ProjectExplorer::BuildStepList *parent,
-                                                  const QVariantMap &map)
+BuildStep *AndroidPackageCreationFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
     Q_ASSERT(canRestore(parent, map));
-    AndroidPackageCreationStep *const step
-        = new AndroidPackageCreationStep(parent);
+    AndroidPackageCreationStep *const step = new AndroidPackageCreationStep(parent);
     if (!step->fromMap(map)) {
         delete step;
         return 0;
@@ -101,14 +93,12 @@ BuildStep *AndroidPackageCreationFactory::restore(ProjectExplorer::BuildStepList
     return step;
 }
 
-bool AndroidPackageCreationFactory::canClone(ProjectExplorer::BuildStepList *parent,
-                                             ProjectExplorer::BuildStep *product) const
+bool AndroidPackageCreationFactory::canClone(BuildStepList *parent, BuildStep *product) const
 {
     return canCreate(parent, product->id());
 }
 
-BuildStep *AndroidPackageCreationFactory::clone(ProjectExplorer::BuildStepList *parent,
-                                                ProjectExplorer::BuildStep *product)
+BuildStep *AndroidPackageCreationFactory::clone(BuildStepList *parent, BuildStep *product)
 {
     Q_ASSERT(canClone(parent, product));
     return new AndroidPackageCreationStep(parent, static_cast<AndroidPackageCreationStep *>(product));

@@ -35,12 +35,7 @@
 #include <projectexplorer/toolchainconfigwidget.h>
 
 namespace Android {
-
 namespace Internal {
-
-// --------------------------------------------------------------------------
-// MaemoToolChain
-// --------------------------------------------------------------------------
 
 class AndroidToolChain : public ProjectExplorer::GccToolChain
 {
@@ -61,13 +56,13 @@ public:
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &data);
     QList<Utils::FileName> suggestedMkspecList() const;
-    virtual QString makeCommand() const;
+    QString makeCommand() const;
 
     void setQtVersionId(int);
     int qtVersionId() const;
 
 protected:
-    virtual QList<ProjectExplorer::Abi> detectSupportedAbis() const;
+    QList<ProjectExplorer::Abi> detectSupportedAbis() const;
 
 private:
     explicit AndroidToolChain(bool);

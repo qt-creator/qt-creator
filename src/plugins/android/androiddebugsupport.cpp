@@ -191,4 +191,4 @@ QStringList AndroidDebugSupport::qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Android

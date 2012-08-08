@@ -31,30 +31,22 @@
 #include "androidpackageinstallationstep.h"
 #include "androidmanager.h"
 
-#include <QFileInfo>
-#include <QDir>
 #include <projectexplorer/buildsteplist.h>
 
 using namespace Android::Internal;
 
-const Core::Id AndroidPackageInstallationStep::Id("Qt4ProjectManager.AndroidPackageInstallationStep");
+const Core::Id AndroidPackageInstallationStep::Id = Core::Id("Qt4ProjectManager.AndroidPackageInstallationStep");
 
-static inline QString stepDisplayName()
+AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl)
+    : MakeStep(bsl, Id)
 {
-    return AndroidPackageInstallationStep::tr("Copy application data");
-}
-
-AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl) : MakeStep(bsl, Id)
-{
-    const QString name = stepDisplayName();
+    const QString name = tr("Copy application data");
     setDefaultDisplayName(name);
     setDisplayName(name);
 }
 
-AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc, AndroidPackageInstallationStep *other): MakeStep(bc, other)
-{ }
-
-AndroidPackageInstallationStep::~AndroidPackageInstallationStep()
+AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc, AndroidPackageInstallationStep *other)
+    : MakeStep(bc, other)
 { }
 
 bool AndroidPackageInstallationStep::init()

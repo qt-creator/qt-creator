@@ -32,6 +32,7 @@
 #define ANDROIDPACKAGECREATIONWIDGET_H
 
 #include <projectexplorer/buildstep.h>
+
 #include <QAbstractListModel>
 #include <QStringList>
 

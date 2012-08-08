@@ -30,6 +30,7 @@
 
 #ifndef ANDROIDQTVERSIONFACTORY_H
 #define ANDROIDQTVERSIONFACTORY_H
+
 #include <qtsupport/qtversionfactory.h>
 
 namespace Android {
@@ -39,14 +40,13 @@ class AndroidQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
     explicit AndroidQtVersionFactory(QObject *parent = 0);
-    ~AndroidQtVersionFactory();
 
-    virtual bool canRestore(const QString &type);
-    virtual QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
+    bool canRestore(const QString &type);
+    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
-    virtual int priority() const;
-    virtual QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
-                                             bool isAutoDetected = false, const QString &autoDetectionSource = QString());
+    int priority() const;
+    QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
+                                     bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
 
 } // namespace Internal

@@ -33,25 +33,25 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QString>
-
 namespace Android {
 namespace Internal {
+
 class AndroidRunConfiguration;
 class AndroidRunner;
 
 class AndroidRunControl : public ProjectExplorer::RunControl
 {
     Q_OBJECT
+
 public:
     explicit AndroidRunControl(AndroidRunConfiguration *runConfig);
-    virtual ~AndroidRunControl();
+    ~AndroidRunControl();
 
-    virtual void start();
-    virtual StopResult stop();
-    virtual bool isRunning() const;
-    virtual QString displayName() const;
-    virtual QIcon icon() const;
+    void start();
+    StopResult stop();
+    bool isRunning() const;
+    QString displayName() const;
+    QIcon icon() const;
 
 private slots:
     void handleRemoteProcessFinished(const QString &error);

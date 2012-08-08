@@ -34,16 +34,12 @@
 #include "androidrunconfiguration.h"
 
 #include <QObject>
-#include <QPointer>
 
-namespace Debugger {
-class DebuggerRunControl;
-}
+namespace Debugger { class DebuggerRunControl; }
 namespace QtSupport {class BaseQtVersion; }
 namespace ProjectExplorer { class RunControl; }
 
 namespace Android {
-
 namespace Internal {
 
 class AndroidRunConfiguration;
@@ -52,6 +48,7 @@ class AndroidRunner;
 class AndroidDebugSupport : public QObject
 {
     Q_OBJECT
+
 public:
     static ProjectExplorer::RunControl *createDebugRunControl(AndroidRunConfiguration *runConfig);
 

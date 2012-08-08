@@ -34,15 +34,14 @@
 #include "androidconfigurations.h"
 
 #include <QObject>
-#include <QStringList>
 #include <QTimer>
 #include <QThread>
 #include <QProcess>
 #include <QMutex>
 
-
 namespace Android {
 namespace Internal {
+
 class AndroidRunConfiguration;
 
 class AndroidRunner : public QThread

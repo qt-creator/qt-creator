@@ -47,15 +47,16 @@
 #include <qtsupport/qtsupportconstants.h>
 
 
-namespace Android {
-namespace Internal {
-
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 
-namespace {
+namespace Android {
+namespace Internal {
 
-QString pathFromId(const Core::Id id)
+#define ANDROID_PREFIX "Qt4ProjectManager.AndroidRunConfiguration"
+static QLatin1String ANDROID_RC_ID_PREFIX(ANDROID_PREFIX ":");
+
+static QString pathFromId(const Core::Id id)
 {
     QString pathStr = id.toString();
     const QString prefix = QLatin1String(ANDROID_RC_ID_PREFIX);
@@ -64,14 +65,11 @@ QString pathFromId(const Core::Id id)
     return pathStr.mid(prefix.size());
 }
 
-} // namespace
-
 AndroidRunConfigurationFactory::AndroidRunConfigurationFactory(QObject *parent)
     : QmakeRunConfigurationFactory(parent)
-{ setObjectName(QLatin1String("AndroidRunConfigurationFactory")); }
-
-AndroidRunConfigurationFactory::~AndroidRunConfigurationFactory()
-{ }
+{
+    setObjectName(QLatin1String("AndroidRunConfigurationFactory"));
+}
 
 bool AndroidRunConfigurationFactory::canCreate(Target *parent, const Core::Id id) const
 {
@@ -88,8 +86,7 @@ bool AndroidRunConfigurationFactory::canRestore(Target *parent, const QVariantMa
     return id.startsWith(QLatin1String(ANDROID_RC_ID_PREFIX));
 }
 
-bool AndroidRunConfigurationFactory::canClone(Target *parent,
-    RunConfiguration *source) const
+bool AndroidRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
 {
     return canCreate(parent, source->id());
 }
@@ -162,10 +159,6 @@ QList<RunConfiguration *> AndroidRunConfigurationFactory::runConfigurationsForNo
 
 AndroidRunControlFactory::AndroidRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
-{
-}
-
-AndroidRunControlFactory::~AndroidRunControlFactory()
 {
 }
 

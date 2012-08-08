@@ -78,7 +78,8 @@ public:
     unsigned partitionSize;
 };
 
-struct AndroidDeviceInfo {
+struct AndroidDeviceInfo
+{
     QString serialNumber;
     QString cpuABI;
     int sdk;
@@ -87,9 +88,8 @@ struct AndroidDeviceInfo {
 class AndroidConfigurations : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(AndroidConfigurations)
-public:
 
+public:
     static AndroidConfigurations &instance(QObject *parent = 0);
     AndroidConfig config() const { return m_config; }
     void setConfig(const AndroidConfig &config);
