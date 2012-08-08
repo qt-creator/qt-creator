@@ -59,14 +59,11 @@ private slots:
 
 #ifdef Q_OS_UNIX
 private slots:
-    void handlePsError();
-    void handlePsFinished();
     void reportDelayedKillStatus();
     void updateUsingProc();
     void updateUsingPs();
 
 private:
-    QProcess * const m_psProcess;
     QString m_error;
 #endif
 };

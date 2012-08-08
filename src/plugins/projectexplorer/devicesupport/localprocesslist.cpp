@@ -29,6 +29,8 @@
 
 #include "localprocesslist.h"
 
+#include <utils/synchronousprocess.h>
+
 #include <QLibrary>
 #include <QTimer>
 
@@ -132,12 +134,8 @@ void LocalProcessList::doKillProcess(const DeviceProcess &process)
 
 #ifdef Q_OS_UNIX
 LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *parent)
-        : DeviceProcessList(device, parent),
-          m_psProcess(new QProcess(this))
-{
-    connect(m_psProcess, SIGNAL(error(QProcess::ProcessError)), SLOT(handlePsError()));
-    connect(m_psProcess, SIGNAL(finished(int)), SLOT(handlePsFinished()));
-}
+    : DeviceProcessList(device, parent)
+{}
 
 static bool isUnixProcessId(const QString &procname)
 {
@@ -179,42 +177,42 @@ void LocalProcessList::updateUsingProc()
     reportProcessListUpdated(processes);
 }
 
-//// Determine UNIX processes by running ps
-//void updateUsingPs()
-//{
-//#ifdef Q_OS_MAC
-//    static const char formatC[] = "pid state command";
-//#else
-//    static const char formatC[] = "pid,state,cmd";
-//#endif
-//    QList<DeviceProcess> processes;
-//    QProcess psProcess;
-//    QStringList args;
-//    args << QLatin1String("-e") << QLatin1String("-o") << QLatin1String(formatC);
-//    psProcess.start(QLatin1String("ps"), args);
-//    if (psProcess.waitForStarted()) {
-//        QByteArray output;
-//        if (!Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, 0, false))
-//            return rc;
-//        // Split "457 S+   /Users/foo.app"
-//        const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
-//        const int lineCount = lines.size();
-//        const QChar blank = QLatin1Char(' ');
-//        for (int l = 1; l < lineCount; l++) { // Skip header
-//            const QString line = lines.at(l).simplified();
-//            const int pidSep = line.indexOf(blank);
-//            const int cmdSep = pidSep != -1 ? line.indexOf(blank, pidSep + 1) : -1;
-//            if (cmdSep > 0) {
-//                DeviceProcess procData;
-//                procData.pid = line.left(pidSep);
-//                procData.exe = line.mid(cmdSep + 1);
-//                procData.cmdLine = line.mid(cmdSep + 1);
-//                processes.push_back(procData);
-//            }
-//        }
-//    }
-//    reportProcessListUpdated(processes);
-//}
+// Determine UNIX processes by running ps
+void LocalProcessList::updateUsingPs()
+{
+#ifdef Q_OS_MAC
+    static const char formatC[] = "pid state command";
+#else
+    static const char formatC[] = "pid,state,cmd";
+#endif
+    QList<DeviceProcess> processes;
+    QProcess psProcess;
+    QStringList args;
+    args << QLatin1String("-e") << QLatin1String("-o") << QLatin1String(formatC);
+    psProcess.start(QLatin1String("ps"), args);
+    if (psProcess.waitForStarted()) {
+        QByteArray output;
+        if (Utils::SynchronousProcess::readDataFromProcess(psProcess, 30000, &output, 0, false)) {
+            // Split "457 S+   /Users/foo.app"
+            const QStringList lines = QString::fromLocal8Bit(output).split(QLatin1Char('\n'));
+            const int lineCount = lines.size();
+            const QChar blank = QLatin1Char(' ');
+            for (int l = 1; l < lineCount; l++) { // Skip header
+                const QString line = lines.at(l).simplified();
+                const int pidSep = line.indexOf(blank);
+                const int cmdSep = pidSep != -1 ? line.indexOf(blank, pidSep + 1) : -1;
+                if (cmdSep > 0) {
+                    DeviceProcess procData;
+                    procData.pid = line.left(pidSep).toInt();
+                    procData.exe = line.mid(cmdSep + 1);
+                    procData.cmdLine = line.mid(cmdSep + 1);
+                    processes.push_back(procData);
+                }
+            }
+        }
+    }
+    reportProcessListUpdated(processes);
+}
 
 void LocalProcessList::doUpdate()
 {
@@ -222,59 +220,7 @@ void LocalProcessList::doUpdate()
     if (procDir.exists())
         QTimer::singleShot(0, this, SLOT(updateUsingProc()));
     else
-        updateUsingPs();
-}
-
-const int PsFieldWidth = 50;
-
-void LocalProcessList::updateUsingPs()
-{
-    // We assume Desktop Unix systems to have a POSIX-compliant ps.
-    // We need the padding because the command field can contain spaces, so we cannot split on those.
-    m_psProcess->start(QString::fromLocal8Bit("ps -e -o pid=%1 -o comm=%1 -o args=%1")
-                       .arg(QString(PsFieldWidth, QChar('x'))));
-}
-
-void LocalProcessList::handlePsFinished()
-{
-    QString errorString;
-    if (m_psProcess->exitStatus() == QProcess::CrashExit) {
-        errorString = tr("The ps process crashed.");
-    } else if (m_psProcess->exitCode() != 0) {
-        errorString = tr("The ps process failed with exit code %1.").arg(m_psProcess->exitCode());
-    } else {
-        const QString output = QString::fromLocal8Bit(m_psProcess->readAllStandardOutput());
-        QStringList lines = output.split(QLatin1Char('\n'), QString::SkipEmptyParts);
-        lines.removeFirst(); // Headers
-        QList<DeviceProcess> processes;
-        foreach (const QString &line, lines) {
-            if (line.count() < 2*PsFieldWidth) {
-                qDebug("%s: Ignoring malformed line", Q_FUNC_INFO);
-                continue;
-            }
-            DeviceProcess p;
-            p.pid = line.mid(0, PsFieldWidth).trimmed().toInt();
-            p.exe = line.mid(PsFieldWidth, PsFieldWidth).trimmed();
-            p.cmdLine = line.mid(2*PsFieldWidth).trimmed();
-            processes << p;
-        }
-        reportProcessListUpdated(processes);
-        return;
-    }
-
-    const QByteArray stderrData = m_psProcess->readAllStandardError();
-    if (!stderrData.isEmpty()) {
-        errorString += QLatin1Char('\n') + tr("The stderr output was: '%1'")
-            .arg(QString::fromLocal8Bit(stderrData));
-    }
-    reportError(errorString);
-}
-
-void LocalProcessList::handlePsError()
-{
-    // Other errors are handled in the finished() handler.
-    if (m_psProcess->error() == QProcess::FailedToStart)
-        reportError(m_psProcess->errorString());
+        QTimer::singleShot(0, this, SLOT(updateUsingPs()));
 }
 
 void LocalProcessList::doKillProcess(const DeviceProcess &process)
