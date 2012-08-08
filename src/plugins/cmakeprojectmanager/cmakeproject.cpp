@@ -539,8 +539,9 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    if (!activeTarget())
-        addTarget(createTarget(ProfileManager::instance()->defaultProfile()));
+    Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
+    if (!activeTarget() && defaultProfile)
+        addTarget(createTarget(defaultProfile));
 
     // We have a user file, but we could still be missing the cbp file
     // or simply run createXml with the saved settings

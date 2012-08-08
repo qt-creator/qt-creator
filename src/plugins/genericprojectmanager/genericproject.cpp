@@ -429,8 +429,9 @@ bool GenericProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    if (!activeTarget())
-        addTarget(createTarget(ProfileManager::instance()->defaultProfile()));
+    Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
+    if (!activeTarget() && defaultProfile)
+        addTarget(createTarget(defaultProfile));
 
     // Sanity check: We need both a buildconfiguration and a runconfiguration!
     QList<Target *> targetList = targets();

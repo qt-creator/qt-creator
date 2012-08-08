@@ -248,7 +248,7 @@ bool Project::supportsProfile(Profile *p) const
 
 Target *Project::createTarget(Profile *p)
 {
-    if (target(p))
+    if (!p || target(p))
         return 0;
 
     Target *t = new Target(this, p);

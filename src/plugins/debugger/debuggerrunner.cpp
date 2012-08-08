@@ -877,7 +877,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 
     Target *target = runConfiguration->target();
     Profile *profile = target ? target->profile() : ProfileManager::instance()->defaultProfile();
-    fillParameters(&sp, profile->id());
+    fillParameters(&sp, profile ? profile->id() : Core::Id());
     sp.environment = rc->environment();
     sp.workingDirectory = rc->workingDirectory();
 

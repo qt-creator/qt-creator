@@ -1317,7 +1317,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
-        fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id());
+        Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
+        fillParameters(&sp, defaultProfile ? defaultProfile->id() : Core::Id());
         qulonglong pid = it->toULongLong();
         if (pid) {
             sp.startMode = AttachExternal;
