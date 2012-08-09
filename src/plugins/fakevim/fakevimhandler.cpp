@@ -141,6 +141,10 @@ enum {
 const int ParagraphSeparator = 0x00002029;
 typedef QLatin1String _;
 
+/* Clipboard MIME types used by Vim. */
+static const QString vimMimeText = "_VIM_TEXT";
+static const QString vimMimeTextEncoded = "_VIMENC_TEXT";
+
 using namespace Qt;
 
 /*! A \e Mode represents one of the basic modes of operation of FakeVim.
@@ -404,6 +408,29 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
         pattern.append('[');
 
     return QRegExp(pattern);
+}
+
+static void setClipboardData(const QString &content, RangeMode mode,
+    QClipboard::Mode clipboardMode)
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    char vimRangeMode = mode;
+
+    QByteArray bytes1;
+    bytes1.append(vimRangeMode);
+    bytes1.append(content.toUtf8());
+
+    QByteArray bytes2;
+    bytes2.append(vimRangeMode);
+    bytes2.append("utf-8");
+    bytes2.append('\0');
+    bytes2.append(content.toUtf8());
+
+    QMimeData *data = new QMimeData;
+    data->setText(content);
+    data->setData(vimMimeText, bytes1);
+    data->setData(vimMimeTextEncoded, bytes2);
+    clipboard->setMimeData(data, clipboardMode);
 }
 
 
@@ -1141,9 +1168,8 @@ public:
 
     // register handling
     QString registerContents(int reg) const;
-    void setRegisterContents(int reg, const QString &contents);
+    void setRegister(int reg, const QString &contents, RangeMode mode);
     RangeMode registerRangeMode(int reg) const;
-    void setRegisterRangeMode(int reg, RangeMode mode);
     void getRegisterType(int reg, bool *isClipboard, bool *isSelection) const;
 
     void recordJump();
@@ -1710,7 +1736,7 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         if (m_submode != TransformSubMode) {
             yankText(currentRange(), m_register);
             if (m_movetype == MoveLineWise)
-                setRegisterRangeMode(m_register, RangeLineMode);
+                setRegister(m_register, registerContents(m_register), RangeLineMode);
         }
 
         m_positionPastEnd = m_anchorPastEnd = false;
@@ -3744,8 +3770,7 @@ bool FakeVimHandler::Private::handleExDeleteCommand(const ExCommand &cmd)
     removeText(currentRange());
     if (!reg.isEmpty()) {
         const int r = reg.at(0).unicode();
-        setRegisterContents(r, text);
-        setRegisterRangeMode(r, RangeLineMode);
+        setRegister(r, text, RangeLineMode);
     }
     return true;
 }
@@ -4648,8 +4673,7 @@ QString FakeVimHandler::Private::selectText(const Range &range) const
 
 void FakeVimHandler::Private::yankText(const Range &range, int reg)
 {
-    setRegisterContents(reg, selectText(range));
-    setRegisterRangeMode(reg, range.rangemode);
+    setRegister(reg, selectText(range), range.rangemode);
 }
 
 void FakeVimHandler::Private::transformText(const Range &range,
@@ -5387,43 +5411,48 @@ void FakeVimHandler::Private::setMark(int code, int position)
     m_marks[code] = tc;
 }
 
-void FakeVimHandler::Private::setRegisterRangeMode(int reg, RangeMode mode)
-{
-    g.registers[reg].rangemode = mode;
-}
-
 RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const
 {
     bool isClipboard;
     bool isSelection;
     getRegisterType(reg, &isClipboard, &isSelection);
 
-    // If register content is clipboard:
-    //  - return RangeLineMode if text ends with new line char,
-    //  - return RangeCharMode otherwise.
     if (isClipboard || isSelection) {
-        QString text = QApplication::clipboard()->text(
-            isClipboard ? QClipboard::Clipboard : QClipboard::Selection);
+        QClipboard *clipboard = QApplication::clipboard();
+        QClipboard::Mode mode = isClipboard ? QClipboard::Clipboard : QClipboard::Selection;
+
+        // Use range mode from Vim's clipboard data if available.
+        const QMimeData *data = clipboard->mimeData(mode);
+        if (data != 0 && data->hasFormat(vimMimeText)) {
+            QByteArray bytes = data->data(vimMimeText);
+            if (bytes.length() > 0)
+                return static_cast<RangeMode>(bytes.at(0));
+        }
+
+        // If register content is clipboard:
+        //  - return RangeLineMode if text ends with new line char,
+        //  - return RangeCharMode otherwise.
+        QString text = clipboard->text(mode);
         return (text.endsWith('\n') || text.endsWith('\r')) ? RangeLineMode : RangeCharMode;
     }
 
     return g.registers[reg].rangemode;
 }
 
-void FakeVimHandler::Private::setRegisterContents(int reg, const QString &contents)
+void FakeVimHandler::Private::setRegister(int reg, const QString &contents, RangeMode mode)
 {
     bool copyToClipboard;
     bool copyToSelection;
     getRegisterType(reg, &copyToClipboard, &copyToSelection);
 
     if (copyToClipboard || copyToSelection) {
-        QClipboard *clipboard = QApplication::clipboard();
         if (copyToClipboard)
-            clipboard->setText(contents, QClipboard::Clipboard);
+            setClipboardData(contents, mode, QClipboard::Clipboard);
         if (copyToSelection)
-            clipboard->setText(contents, QClipboard::Selection);
+            setClipboardData(contents, mode, QClipboard::Selection);
     } else {
         g.registers[reg].contents = contents;
+        g.registers[reg].rangemode = mode;
     }
 }
 
