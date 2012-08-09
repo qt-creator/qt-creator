@@ -107,14 +107,11 @@ public:
     QString projectBuildDirectory;
     QStringList projectSourceFiles;
 
-
-    QString qtInstallPath;
     // Used by remote debugging.
     QString remoteChannel;
     QString symbolFileName;
     bool useServerStartScript;
     QString serverStartScript;
-    //QString sysroot;
     QString searchPath; // Gdb "set solib-search-path"
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
@@ -124,9 +121,6 @@ public:
     QString localMountDir;
     QSsh::SshConnectionParameters connParams;
     bool remoteSetupNeeded;
-
-    //QString debuggerCommand;
-    //ProjectExplorer::Abi toolChainAbi;
 
     QString dumperLibrary;
     QStringList solibSearchPath;

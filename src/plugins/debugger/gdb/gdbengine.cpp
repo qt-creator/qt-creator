@@ -4797,8 +4797,9 @@ void GdbEngine::startGdb(const QStringList &args)
     modulesHandler()->updateModule(module);
 
     // Apply source path mappings from global options.
+    //showMessage(_("Assuming Qt is installed at %1").arg(qtInstallPath));
     const SourcePathMap sourcePathMap =
-        DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp.qtInstallPath,
+        DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp,
                 debuggerCore()->globalDebuggerOptions()->sourcePathMap);
     const SourcePathMapIterator cend = sourcePathMap.constEnd();
     SourcePathMapIterator it = sourcePathMap.constBegin();

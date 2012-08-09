@@ -2641,8 +2641,6 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
                 << ')';
         str << '\n';
     }
-    if (!sp.qtInstallPath.isEmpty())
-        str << "Qt: " << QDir::toNativeSeparators(sp.qtInstallPath) << '\n';
     if (!sp.qmlServerAddress.isEmpty())
         str << "QML server: " << sp.qmlServerAddress << ':'
             << sp.qmlServerPort << '\n';

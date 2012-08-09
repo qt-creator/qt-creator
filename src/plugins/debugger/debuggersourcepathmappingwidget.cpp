@@ -29,9 +29,12 @@
 **************************************************************************/
 
 #include "debuggersourcepathmappingwidget.h"
+#include "debuggerstartparameters.h"
 
+#include <utils/buildablehelperlibrary.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/synchronousprocess.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -48,11 +51,11 @@
 #include <QDir>
 #include <QPair>
 
+using namespace Utils;
+
 // Qt's various build paths for unpatched versions.
 #if defined(Q_OS_WIN)
 static const char* qtBuildPaths[] = {
-    "C:/qt-greenhouse/Trolltech/Code_less_create_more/"
-        "Trolltech/Code_less_create_more/Troll/4.6/qt",
     "C:/iwmake/build_mingw_opensource",
     "C:/ndk_buildrepos/qt-desktop/src"};
 #elif defined(Q_OS_MAC)
@@ -206,7 +209,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     m_addQtButton(new QPushButton(tr("Add Qt sources..."), this)),
     m_removeButton(new QPushButton(tr("Remove"), this)),
     m_sourceLineEdit(new QLineEdit(this)),
-    m_targetChooser(new Utils::PathChooser(this))
+    m_targetChooser(new PathChooser(this))
 {
     setTitle(tr("Source Paths Mapping"));
     setToolTip(tr("<html><head/><body><p>Mappings of source file folders to "
@@ -245,7 +248,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
     treeHLayout->addLayout(buttonLayout);
 
     // Edit part
-    m_targetChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_targetChooser->setExpectedKind(PathChooser::ExistingDirectory);
     connect(m_sourceLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(slotEditSourceFieldChanged()));
     connect(m_targetChooser, SIGNAL(changed(QString)),
@@ -390,12 +393,52 @@ void DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged()
     }
 }
 
+// Find Qt installation by running qmake
+static QString findQtInstallPath(const FileName &qmakePath)
+{
+    if (qmakePath.isEmpty())
+        return QString();
+    QProcess proc;
+    QStringList args;
+    args.append(QLatin1String("-query"));
+    args.append(QLatin1String("QT_INSTALL_HEADERS"));
+    proc.start(qmakePath.toString(), args);
+    if (!proc.waitForStarted()) {
+        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(qmakePath.toString()),
+           qPrintable(proc.errorString()));
+        return QString();
+    }
+    proc.closeWriteChannel();
+    if (!proc.waitForFinished()) {
+        SynchronousProcess::stopProcess(proc);
+        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
+        return QString();
+    }
+    if (proc.exitStatus() != QProcess::NormalExit) {
+        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
+        return QString();
+    }
+    const QByteArray ba = proc.readAllStandardOutput().trimmed();
+    QDir dir(QString::fromLocal8Bit(ba));
+    if (dir.exists() && dir.cdUp())
+        return dir.absolutePath();
+    return QString();
+}
+
 /* Merge settings for an installed Qt (unless another setting
  * is already in the map. */
 DebuggerSourcePathMappingWidget::SourcePathMap
-    DebuggerSourcePathMappingWidget::mergePlatformQtPath(const QString &qtInstallPath,
+    DebuggerSourcePathMappingWidget::mergePlatformQtPath(const DebuggerStartParameters &sp,
                                                          const SourcePathMap &in)
 {
+    const FileName qmake = BuildableHelperLibrary::findSystemQt(sp.environment);
+    // FIXME: Get this from the profile?
+    //        We could query the QtVersion for this information directly, but then we
+    //        will need to add a dependency on QtSupport to the debugger.
+    //
+    //        The profile could also get a method to extract the required information from
+    //        its information to avoid this dependency (as we do for the environment).
+    const QString qtInstallPath = findQtInstallPath(qmake);
     SourcePathMap rc = in;
     const size_t buildPathCount = sizeof(qtBuildPaths)/sizeof(const char *);
     if (qtInstallPath.isEmpty() || buildPathCount == 0)

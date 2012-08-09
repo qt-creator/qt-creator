@@ -64,7 +64,6 @@
 #include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
-#include <utils/buildablehelperlibrary.h>
 
 #include <QDir>
 #include <QCheckBox>
@@ -897,17 +896,6 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
 
     if (target) {
-        if (QByteArray(target->metaObject()->className()).contains("Qt4")) {
-            // FIXME: Get this from the profile?
-            //        We could query the QtVersion for this information directly, but then we
-            //        will need to add a dependency on QtSupport to the debugger.
-            //
-            //        The profile could also get a method to extract the required information from
-            //        its information to avoid this dependecy (as we do for the environment).
-            const FileName qmake = BuildableHelperLibrary::findSystemQt(sp.environment);
-            if (!qmake.isEmpty())
-                sp.qtInstallPath = findQtInstallPath(qmake);
-        }
         if (const Project *project = target->project()) {
             sp.projectSourceDirectory = project->projectDirectory();
             if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
