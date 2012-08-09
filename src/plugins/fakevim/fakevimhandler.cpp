@@ -5368,6 +5368,19 @@ void FakeVimHandler::Private::setRegisterRangeMode(int reg, RangeMode mode)
 
 RangeMode FakeVimHandler::Private::registerRangeMode(int reg) const
 {
+    bool isClipboard;
+    bool isSelection;
+    getRegisterType(reg, &isClipboard, &isSelection);
+
+    // If register content is clipboard:
+    //  - return RangeLineMode if text ends with new line char,
+    //  - return RangeCharMode otherwise.
+    if (isClipboard || isSelection) {
+        QString text = QApplication::clipboard()->text(
+            isClipboard ? QClipboard::Clipboard : QClipboard::Selection);
+        return (text.endsWith('\n') || text.endsWith('\r')) ? RangeLineMode : RangeCharMode;
+    }
+
     return g.registers[reg].rangemode;
 }
 
@@ -5379,10 +5392,9 @@ void FakeVimHandler::Private::setRegisterContents(int reg, const QString &conten
 
     if (copyToClipboard || copyToSelection) {
         QClipboard *clipboard = QApplication::clipboard();
-        bool hasSelection = clipboard->supportsSelection();
-        if (copyToClipboard || (copyToSelection && !hasSelection))
+        if (copyToClipboard)
             clipboard->setText(contents, QClipboard::Clipboard);
-        if (copyToSelection && hasSelection)
+        if (copyToSelection)
             clipboard->setText(contents, QClipboard::Selection);
     } else {
         g.registers[reg].contents = contents;
@@ -5397,10 +5409,9 @@ QString FakeVimHandler::Private::registerContents(int reg) const
 
     if (copyFromClipboard || copyFromSelection) {
         QClipboard *clipboard = QApplication::clipboard();
-        bool hasSelection = clipboard->supportsSelection();
-        if (copyFromClipboard || (copyFromSelection && !hasSelection))
+        if (copyFromClipboard)
             return clipboard->text(QClipboard::Clipboard);
-        if (copyFromSelection && hasSelection)
+        if (copyFromSelection)
             return clipboard->text(QClipboard::Selection);
     }
 
@@ -5420,6 +5431,12 @@ void FakeVimHandler::Private::getRegisterType(int reg, bool *isClipboard, bool *
         clipboard = true;
     } else if (reg == '*') {
         selection = true;
+    }
+
+    // selection (primary) is clipboard on systems without selection support
+    if (selection && !QApplication::clipboard()->supportsSelection()) {
+        clipboard = true;
+        selection = false;
     }
 
     if (isClipboard != 0)
