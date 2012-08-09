@@ -77,13 +77,12 @@ BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
 
 void BehaviorSettingsPage::BehaviorSettingsPagePrivate::init()
 {
-    if (const QSettings *s = Core::ICore::settings()) {
-        m_codeStyle->fromSettings(m_parameters.settingsPrefix, s);
-        m_typingSettings.fromSettings(m_parameters.settingsPrefix, s);
-        m_storageSettings.fromSettings(m_parameters.settingsPrefix, s);
-        m_behaviorSettings.fromSettings(m_parameters.settingsPrefix, s);
-        m_extraEncodingSettings.fromSettings(m_parameters.settingsPrefix, s);
-    }
+    const QSettings *s = Core::ICore::settings();
+    m_codeStyle->fromSettings(m_parameters.settingsPrefix, s);
+    m_typingSettings.fromSettings(m_parameters.settingsPrefix, s);
+    m_storageSettings.fromSettings(m_parameters.settingsPrefix, s);
+    m_behaviorSettings.fromSettings(m_parameters.settingsPrefix, s);
+    m_extraEncodingSettings.fromSettings(m_parameters.settingsPrefix, s);
 }
 
 BehaviorSettingsPage::BehaviorSettingsPage(const BehaviorSettingsPageParameters &p,

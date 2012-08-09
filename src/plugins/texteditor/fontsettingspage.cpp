@@ -623,8 +623,7 @@ void FontSettingsPage::saveSettings()
 {
     if (d_ptr->m_value != d_ptr->m_lastValue) {
         d_ptr->m_lastValue = d_ptr->m_value;
-        if (QSettings *settings = Core::ICore::settings())
-            d_ptr->m_value.toSettings(d_ptr->m_settingsGroup, settings);
+        d_ptr->m_value.toSettings(d_ptr->m_settingsGroup, Core::ICore::settings());
 
         QTimer::singleShot(0, this, SLOT(delayedChange()));
     }

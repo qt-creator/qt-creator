@@ -53,9 +53,7 @@ DisplaySettingsPage::DisplaySettingsPagePrivate::DisplaySettingsPagePrivate
     (const DisplaySettingsPageParameters &p)
     : m_parameters(p), m_page(0)
 {
-    if (const QSettings *s = Core::ICore::settings()) {
-        m_displaySettings.fromSettings(m_parameters.settingsPrefix, s);
-    }
+    m_displaySettings.fromSettings(m_parameters.settingsPrefix, Core::ICore::settings());
 }
 
 DisplaySettingsPage::DisplaySettingsPage(const DisplaySettingsPageParameters &p,
@@ -153,8 +151,7 @@ void DisplaySettingsPage::setDisplaySettings(const DisplaySettings &newDisplaySe
 {
     if (newDisplaySettings != d->m_displaySettings) {
         d->m_displaySettings = newDisplaySettings;
-        if (QSettings *s = Core::ICore::settings())
-            d->m_displaySettings.toSettings(d->m_parameters.settingsPrefix, s);
+        d->m_displaySettings.toSettings(d->m_parameters.settingsPrefix, Core::ICore::settings());
 
         emit displaySettingsChanged(newDisplaySettings);
     }

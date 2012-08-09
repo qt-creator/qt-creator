@@ -419,15 +419,13 @@ void SnippetsSettingsPagePrivate::loadSettings()
     if (m_ui.groupCombo->count() == 0)
         return;
 
-    if (QSettings *s = Core::ICore::settings()) {
-        m_settings.fromSettings(m_settingsPrefix, s);
-        const QString &lastGroupName = m_settings.lastUsedSnippetGroup();
-        const int index = m_ui.groupCombo->findText(lastGroupName);
-        if (index != -1)
-            m_ui.groupCombo->setCurrentIndex(index);
-        else
-            m_ui.groupCombo->setCurrentIndex(0);
-    }
+    m_settings.fromSettings(m_settingsPrefix, Core::ICore::settings());
+    const QString &lastGroupName = m_settings.lastUsedSnippetGroup();
+    const int index = m_ui.groupCombo->findText(lastGroupName);
+    if (index != -1)
+        m_ui.groupCombo->setCurrentIndex(index);
+    else
+        m_ui.groupCombo->setCurrentIndex(0);
 }
 
 void SnippetsSettingsPagePrivate::writeSettings()
@@ -435,10 +433,8 @@ void SnippetsSettingsPagePrivate::writeSettings()
     if (m_ui.groupCombo->count() == 0)
         return;
 
-    if (QSettings *s = Core::ICore::settings()) {
-        m_settings.setLastUsedSnippetGroup(m_ui.groupCombo->currentText());
-        m_settings.toSettings(m_settingsPrefix, s);
-    }
+    m_settings.setLastUsedSnippetGroup(m_ui.groupCombo->currentText());
+    m_settings.toSettings(m_settingsPrefix, Core::ICore::settings());
 }
 
 bool SnippetsSettingsPagePrivate::settingsChanged() const

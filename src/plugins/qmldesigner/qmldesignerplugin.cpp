@@ -387,8 +387,7 @@ void BauhausPlugin::setSettings(const DesignerSettings &s)
 {
     if (s != m_settings) {
         m_settings = s;
-        if (QSettings *settings = Core::ICore::settings())
-            m_settings.toSettings(settings);
+        m_settings.toSettings(Core::ICore::settings());
     }
 }
 

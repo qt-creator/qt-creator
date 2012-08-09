@@ -226,8 +226,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
         return false;
     m_perforcePluginInstance = this;
 
-    if (QSettings *settings = Core::ICore::settings())
-        m_settings.fromSettings(settings);
+    m_settings.fromSettings(Core::ICore::settings());
 
     addAutoReleasedObject(new SettingsPage);
 
