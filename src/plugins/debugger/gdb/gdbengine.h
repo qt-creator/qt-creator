@@ -646,7 +646,6 @@ protected:
     bool checkDebuggingHelpersClassic();
     void setDebuggingHelperStateClassic(DebuggingHelperState);
     void tryLoadDebuggingHelpersClassic();
-    void tryQueryDebuggingHelpersClassic();
 
     DebuggingHelperState m_debuggingHelperState;
     DumperHelper m_dumperHelper;

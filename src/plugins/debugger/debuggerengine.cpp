@@ -686,36 +686,6 @@ DebuggerStartParameters &DebuggerEngine::startParameters()
     return d->m_startParameters;
 }
 
-
-//////////////////////////////////////////////////////////////////////
-//
-// Dumpers. "Custom dumpers" are a library compiled against the current
-// Qt containing functions to evaluate values of Qt classes
-// (such as QString, taking pointers to their addresses).
-// The library must be loaded into the debuggee.
-//
-//////////////////////////////////////////////////////////////////////
-
-bool DebuggerEngine::qtDumperLibraryEnabled() const
-{
-    return debuggerCore()->boolSetting(UseDebuggingHelpers);
-}
-
-QStringList DebuggerEngine::qtDumperLibraryLocations() const
-{
-    return d->m_startParameters.dumperLibraryLocations;
-}
-
-void DebuggerEngine::showQtDumperLibraryWarning(const QString &details)
-{
-    debuggerCore()->showQtDumperLibraryWarning(details);
-}
-
-QString DebuggerEngine::qtDumperLibraryName() const
-{
-    return startParameters().dumperLibrary;
-}
-
 DebuggerState DebuggerEngine::state() const
 {
     return d->m_state;

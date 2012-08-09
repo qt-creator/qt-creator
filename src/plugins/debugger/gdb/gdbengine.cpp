@@ -1851,10 +1851,8 @@ void GdbEngine::pythonDumpersFailed()
         else
             cmd += "LD_PRELOAD";
         cmd += ' ';
-        if (sp.startMode == StartRemoteGdb)
-            cmd += sp.remoteDumperLib;
-        else
-            cmd += qtDumperLibraryName().toLocal8Bit();
+        if (sp.startMode != StartRemoteGdb)
+            cmd += sp.dumperLibrary.toLocal8Bit();
         postCommand(cmd);
         m_debuggingHelperState = DebuggingHelperLoadTried;
     }

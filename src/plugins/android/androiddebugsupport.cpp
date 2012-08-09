@@ -79,7 +79,6 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
         if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
             params.toolChainAbi = tc->targetAbi();
-        params.dumperLibrary = runConfig->dumperLib();
         params.executable = project(runConfig)->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
         params.remoteChannel = runConfig->remoteChannel();
         params.useServerStartScript = true;

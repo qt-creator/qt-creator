@@ -795,7 +795,6 @@ public slots:
 
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
 
-    void showQtDumperLibraryWarning(const QString &details);
     DebuggerMainWindow *mainWindow() const { return m_mainWindow; }
     bool isDockVisible(const QString &objectName) const
         { return mainWindow()->isDockVisible(objectName); }
@@ -2558,36 +2557,6 @@ void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int tim
     }
 }
 
-void DebuggerPluginPrivate::showQtDumperLibraryWarning(const QString &details)
-{
-    QMessageBox dialog(mainWindow());
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt Options"),
-        QMessageBox::ActionRole);
-    QPushButton *helperOff = dialog.addButton(tr("Turn off Helper Usage"),
-        QMessageBox::ActionRole);
-    QPushButton *justContinue = dialog.addButton(tr("Continue Anyway"),
-        QMessageBox::AcceptRole);
-    dialog.setDefaultButton(justContinue);
-    dialog.setWindowTitle(tr("Debugging Helper Missing"));
-    dialog.setText(tr("The debugger could not load the debugging helper library."));
-    dialog.setInformativeText(tr(
-        "The debugging helper is used to nicely format the values of some Qt "
-        "and Standard Library data types. "
-        "It must be compiled for each used Qt version separately. "
-        "In the Qt Creator Build and Run preferences page, select a Qt version, "
-        "expand the Details section and click Build All."));
-    if (!details.isEmpty())
-        dialog.setDetailedText(details);
-    dialog.exec();
-    if (dialog.clickedButton() == qtPref) {
-        ICore::showOptionsDialog(
-            _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-            _(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
-    } else if (dialog.clickedButton() == helperOff) {
-        action(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);
-    }
-}
-
 void DebuggerPluginPrivate::createNewDock(QWidget *widget)
 {
     QDockWidget *dockWidget =
@@ -2646,8 +2615,6 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
             << sp.qmlServerPort << '\n';
     if (!sp.remoteChannel.isEmpty()) {
         str << "Remote: " << sp.remoteChannel << '\n';
-        if (!sp.remoteDumperLib.isEmpty())
-            str << "Remote dumpers: " << sp.remoteDumperLib << '\n';
         if (!sp.remoteSourcesDir.isEmpty())
             str << "Remote sources: " << sp.remoteSourcesDir << '\n';
         if (!sp.remoteMountPoint.isEmpty())
