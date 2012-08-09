@@ -4799,99 +4799,107 @@ void FakeVimHandler::Private::replaceByCharTransform(TransformationData *td)
 void FakeVimHandler::Private::pasteText(bool afterCursor)
 {
     const QString text = registerContents(m_register);
-    const QStringList lines = text.split(QChar('\n'));
+    const RangeMode rangeMode = registerRangeMode(m_register);
 
     beginEditBlock();
 
-    if (isVisualCharMode()) {
+    // In visual mode paste text only inside selection.
+    bool pasteAfter = isVisualMode() ? false : afterCursor;
+
+    bool visualCharMode = isVisualCharMode();
+    if (visualCharMode) {
         leaveVisualMode();
-        m_submode = DeleteSubMode;
-        finishMovement();
+        m_rangemode = RangeCharMode;
+        Range range = currentRange();
+        range.endPos++;
+        yankText(range, m_register);
+        removeText(range);
     } else if (isVisualLineMode()) {
         leaveVisualMode();
         m_rangemode = RangeLineMode;
-        yankText(currentRange(), m_register);
-        removeText(currentRange());
+        Range range = currentRange();
+        range.endPos++;
+        yankText(range, m_register);
+        removeText(range);
         handleStartOfLine();
     } else if (isVisualBlockMode()) {
         leaveVisualMode();
         m_rangemode = RangeBlockMode;
-        yankText(currentRange(), m_register);
-        removeText(currentRange());
+        Range range = currentRange();
+        yankText(range, m_register);
+        removeText(range);
         setPosition(qMin(position(), anchor()));
     }
 
-    switch (registerRangeMode(m_register)) {
+    switch (rangeMode) {
         case RangeCharMode: {
             m_targetColumn = 0;
-            for (int i = count(); --i >= 0; ) {
-                if (afterCursor && rightDist() > 0)
-                    moveRight();
-                setAnchor();
-                insertText(text);
-                if (!afterCursor && atEndOfLine())
-                    moveLeft();
+            if (pasteAfter && rightDist() > 0)
+                moveRight();
+            insertText(text.repeated(count()));
+            if (!pasteAfter && atEndOfLine())
                 moveLeft();
-            }
+            moveLeft();
             break;
         }
         case RangeLineMode:
         case RangeLineModeExclusive: {
-            moveToStartOfLine();
-            m_targetColumn = 0;
             QTextCursor tc = cursor();
-            for (int i = count(); --i >= 0; ) {
+            if (visualCharMode)
+                tc.insertBlock();
+            else
+                moveToStartOfLine();
+            m_targetColumn = 0;
+            if (pasteAfter) {
                 bool lastLine = document()->lastBlock() == this->block();
-                if (afterCursor) {
-                    if (lastLine) {
-                        tc.movePosition(EndOfLine, MoveAnchor);
-                        tc.insertBlock();
-                    }
-                    moveDown();
+                if (lastLine) {
+                    tc.movePosition(EndOfLine, MoveAnchor);
+                    tc.insertBlock();
                 }
-                setAnchor();
-                insertText(text);
-                if (afterCursor && lastLine) {
-                    tc.movePosition(Left, KeepAnchor);
-                    tc.removeSelectedText();
-                    setAnchor();
-                    moveUp(lines.size() - 2);
-                } else {
-                    moveUp(lines.size() - 1);
-                }
+                moveDown();
             }
+            const int pos = position();
+            insertText(text.repeated(count()));
+            setPosition(pos);
             moveToFirstNonBlankOnLine();
             break;
         }
         case RangeBlockAndTailMode:
         case RangeBlockMode: {
-            QTextBlock block = this->block();
-            if (afterCursor)
+            const int pos = position();
+            if (pasteAfter && rightDist() > 0)
                 moveRight();
             QTextCursor tc = cursor();
-            const int col = tc.position() - block.position();
-            //for (int i = lines.size(); --i >= 0; ) {
-            for (int i = 0; i < lines.size(); ++i) {
-                const QString line = lines.at(i);
-                tc.movePosition(StartOfLine, MoveAnchor);
-                if (col >= block.length()) {
-                    tc.movePosition(EndOfLine, MoveAnchor);
-                    tc.insertText(QString(col - line.size() + 1, QChar(' ')));
+            const int col = tc.columnNumber();
+            QTextBlock block = tc.block();
+            const QStringList lines = text.split(QChar('\n'));
+            for (int i = 0; i < lines.size() - 1; ++i) {
+                if (!block.isValid()) {
+                    tc.movePosition(EndOfDocument);
+                    tc.insertBlock();
+                    block = tc.block();
+                }
+
+                // resize line
+                int length = block.length();
+                int begin = block.position();
+                if (col >= length) {
+                    tc.setPosition(begin + length - 1);
+                    tc.insertText(QString(col - length + 1, QChar(' ')));
                 } else {
-                    tc.movePosition(Right, MoveAnchor, col - 1 + afterCursor);
+                    tc.setPosition(begin + col);
                 }
-                //qDebug() << "INSERT " << line << " AT " << tc.position()
-                //    << "COL: " << col;
+
+                // insert text
+                const QString line = lines.at(i).repeated(count());
                 tc.insertText(line);
-                tc.movePosition(StartOfLine, MoveAnchor);
-                tc.movePosition(Down, MoveAnchor, 1);
-                if (tc.position() >= lastPositionInDocument() - 1) {
-                    tc.insertText(QString(QChar('\n')));
-                    tc.movePosition(Up, MoveAnchor, 1);
-                }
+
+                // next line
                 block = block.next();
             }
-            moveLeft();
+            setPosition(pos);
+            if (pasteAfter)
+                moveRight();
             break;
         }
     }
