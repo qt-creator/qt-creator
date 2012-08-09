@@ -43,6 +43,7 @@ class QStandardItem;
 class QModelIndex;
 class QLabel;
 template <class> class QVector;
+template <class> class QList;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -77,8 +78,8 @@ private slots:
     void onItemClicked(const QModelIndex &index);
 
 private:
-    void buildDerivedHierarchy(const CppClass &cppClass, QStandardItem *parent);
-    void buildBaseHierarchy(QVector<CppClass> *s);
+    typedef const QList<CppClass> &(CppClass::* HierarchyFunc)() const;
+    void buildHierarchy(const CppClass &cppClass, QStandardItem *parent, bool isRoot, HierarchyFunc func);
 
     CPPEditorWidget *m_cppEditor;
     Utils::NavigationTreeView *m_treeView;
