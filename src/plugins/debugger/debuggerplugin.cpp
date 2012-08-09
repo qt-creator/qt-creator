@@ -1520,45 +1520,6 @@ void DebuggerPluginPrivate::startExternalApplication()
             startDebugger(rc);
 }
 
-//void DebuggerPluginPrivate::attachToLocalProcessHelper()
-//{
-//    AttachExternalDialog dlg(mainWindow());
-//    dlg.setProfileIndex(configValue(_("LastAttachExternalProfileIndex")).toInt());
-
-//    if (dlg.exec() != QDialog::Accepted)
-//        return;
-
-//    if (dlg.attachPID() == 0) {
-//        QMessageBox::warning(mainWindow(), tr("Warning"),
-//            tr("Cannot attach to process with PID 0"));
-//        return;
-//    }
-
-//    setConfigValue(_("LastAttachExternalProfileIndex"), QVariant(dlg.profileIndex()));
-
-//    DebuggerStartParameters sp;
-//    fillParameters(&sp, dlg.profileId());
-//    sp.attachPID = dlg.attachPID();
-//    sp.displayName = tr("Process %1").arg(dlg.attachPID());
-//    sp.executable = dlg.executable();
-//    sp.startMode = AttachExternal;
-//    sp.closeMode = DetachAtClose;
-//    if (DebuggerRunControl *rc = createDebugger(sp))
-//        startDebugger(rc);
-//}
-
-//void DebuggerPluginPrivate::attachToLocalProcess(RunControl *rc)
-//{
-//    DebuggerStartParameters sp;
-//    fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id()); // FIXME: Extract from rc.
-//    sp.attachPID = rc->applicationProcessHandle().pid();
-//    sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
-//    sp.startMode = AttachExternal;
-//    sp.closeMode = DetachAtClose;
-//    if (DebuggerRunControl *rc = createDebugger(sp))
-//        startDebugger(rc);
-//}
-
 void DebuggerPluginPrivate::attachCore()
 {
     AttachCoreDialog dlg(mainWindow());
