@@ -16,3 +16,7 @@ HEADERS += fakevimactions.h \
     fakevimhandler.h \
     fakevimplugin.h
 FORMS += fakevimoptions.ui
+
+equals(TEST, 1) {
+    SOURCES += fakevim_test.cpp
+}

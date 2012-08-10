@@ -57,6 +57,23 @@ private:
 private:
     friend class FakeVimPluginPrivate;
     FakeVimPluginPrivate *d;
+
+#ifdef WITH_TESTS
+private slots:
+    void test_vim_movement();
+    void test_vim_fFtT();
+    void test_vim_delete();
+    void test_vim_delete_inner_word();
+    void test_vim_delete_a_word();
+    void test_vim_change_a_word();
+    void test_vim_block_selection();
+    void test_vim_repeat();
+    void test_vim_search();
+    void test_vim_indent();
+    void test_vim_marks();
+    void test_vim_copy_paste();
+    void test_vim_undo_redo();
+#endif
 };
 
 } // namespace Internal

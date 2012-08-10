@@ -78,6 +78,8 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QAbstractTableModel>
 #include <QDebug>
 #include <QFile>
@@ -991,7 +993,10 @@ bool FakeVimPluginPrivate::initialize()
         this, SLOT(handleDelayedQuit(bool,Core::IEditor*)), Qt::QueuedConnection);
     connect(this, SIGNAL(delayedQuitAllRequested(bool)),
         this, SLOT(handleDelayedQuitAll(bool)), Qt::QueuedConnection);
-    maybeReadVimRc();
+
+    // Vimrc can break test so don't source it if running tests.
+    if (!ExtensionSystem::PluginManager::runningTests())
+        maybeReadVimRc();
     //    << "MODE: " << theFakeVimSetting(ConfigUseFakeVim)->value();
 
     return true;
