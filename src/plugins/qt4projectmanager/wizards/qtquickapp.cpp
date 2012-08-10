@@ -463,7 +463,7 @@ QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
     }
 }
 
-const int QtQuickApp::StubVersion = 21;
+const int QtQuickApp::StubVersion = 22;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager
