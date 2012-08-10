@@ -35,6 +35,7 @@
 
 QT_BEGIN_NAMESPACE
 class QMenu;
+class QPushButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -58,9 +59,6 @@ public:
     int currentIndex() const;
     int currentSubIndex() const;
 
-    bool isAddButtonEnabled() const;
-    bool isRemoveButtonEnabled() const;
-
 public:
     void insertTarget(int index, const QString &name);
     void renameTarget(int index, const QString &name);
@@ -69,22 +67,21 @@ public:
     void setCurrentSubIndex(int index);
     void setAddButtonEnabled(bool enabled);
     void setAddButtonMenu(QMenu *menu);
-    void setRemoveButtonEnabled(bool enabled);
 
 signals:
-    void removeButtonClicked();
+    void removeButtonClicked(int targetIndex);
     void currentChanged(int targetIndex, int subIndex);
+    void manageButtonClicked();
 
 protected:
-    void resizeEvent(QResizeEvent *);
     void changeEvent(QEvent *e);
 
 private:
-    void updateTargetSelector();
     Ui::TargetSettingsWidget *ui;
 
     TargetSelector *m_targetSelector;
-    QWidget *m_shadow;
+    QPushButton *m_addButton;
+    QPushButton *m_manageButton;
 };
 
 } // namespace Internal

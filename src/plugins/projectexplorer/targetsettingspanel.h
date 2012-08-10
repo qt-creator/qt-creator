@@ -63,13 +63,14 @@ public:
 
 private slots:
     void currentTargetChanged(int targetIndex, int subIndex);
-    void removeTarget();
+    void removeTarget(int targetIndex);
     void addTarget(QAction *);
     void targetAdded(ProjectExplorer::Target *target);
     void removedTarget(ProjectExplorer::Target *target);
     void activeTargetChanged(ProjectExplorer::Target *target);
     void updateTargetAddAndRemoveButtons();
     void renameTarget();
+    void openTargetPreferences();
 
 private:
     Target *m_currentTarget;

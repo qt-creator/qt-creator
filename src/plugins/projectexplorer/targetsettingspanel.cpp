@@ -37,11 +37,13 @@
 #include "target.h"
 #include "targetsettingswidget.h"
 
+#include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/profile.h>
 #include <projectexplorer/profilemanager.h>
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -136,9 +138,10 @@ void TargetSettingsPanelWidget::setupUi()
 
     connect(m_selector, SIGNAL(currentChanged(int,int)),
             this, SLOT(currentTargetChanged(int,int)));
-
-    connect(m_selector, SIGNAL(removeButtonClicked()),
-            this, SLOT(removeTarget()));
+    connect(m_selector, SIGNAL(removeButtonClicked(int)),
+            this, SLOT(removeTarget(int)));
+    connect(m_selector, SIGNAL(manageButtonClicked()),
+            this, SLOT(openTargetPreferences()));
 
     m_selector->setAddButtonMenu(m_addMenu);
     connect(m_addMenu, SIGNAL(triggered(QAction*)),
@@ -218,10 +221,9 @@ void TargetSettingsPanelWidget::addTarget(QAction *action)
     m_project->addTarget(target);
 }
 
-void TargetSettingsPanelWidget::removeTarget()
+void TargetSettingsPanelWidget::removeTarget(int targetIndex)
 {
-    int index = m_selector->currentIndex();
-    Target *t = m_targets.at(index);
+    Target *t = m_targets.at(targetIndex);
 
     ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
     if (bm->isBuilding(t)) {
@@ -321,7 +323,6 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
     }
 
     m_selector->setAddButtonEnabled(!m_addMenu->actions().isEmpty());
-    m_selector->setRemoveButtonEnabled(m_project->targets().count() > 1);
 }
 
 void TargetSettingsPanelWidget::renameTarget()
@@ -333,6 +334,12 @@ void TargetSettingsPanelWidget::renameTarget()
     if (pos < 0)
         return;
     m_selector->renameTarget(pos, t->displayName());
+}
+
+void TargetSettingsPanelWidget::openTargetPreferences()
+{
+    Core::ICore::showOptionsDialog(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
+                                   QLatin1String(Constants::PROFILE_SETTINGS_PAGE_ID));
 }
 
 int TargetSettingsPanelWidget::currentSubIndex() const
