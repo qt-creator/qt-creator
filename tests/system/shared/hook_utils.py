@@ -59,79 +59,80 @@ def modifyRunSettingsForHookIntoQtQuickUI(projectName, port):
     global workingDir
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(1, 0, ProjectSettings.RUN, True)
-    qtVersionCombo = waitForObject("{leftWidget={type='QLabel' text='Qt version:' unnamed='1' visible='1'} "
-                                   "type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 5000)
-    currentQtVersion = qtVersionCombo.currentText
-    qmake = getQMakeFromQtVersion(currentQtVersion)
-    if qmake != None:
-        mkspec = __getMkspecFromQmake__(qmake)
-        if mkspec != None:
-            qtVer = getOutputFromCmdline("%s -query QT_VERSION" % qmake).strip()
-            squishPath = getSquishPath(mkspec, qtVer)
-            if squishPath == None:
-                test.warning("Could not determine the Squish path for %s/%s" % (qtVer, mkspec),
-                             "Using fallback of pushing STOP inside Creator.")
-                return None
-            test.log("Using (QtVersion/mkspec) %s/%s with SquishPath %s" % (qtVer, mkspec, squishPath))
-            if platform.system() == "Darwin":
-                qmlViewer = os.path.abspath(os.path.dirname(qmake) + "/QMLViewer.app")
-            else:
-                qmlViewer = os.path.abspath(os.path.dirname(qmake) + "/qmlviewer")
-            if platform.system() in ('Microsoft', 'Windows'):
-                qmlViewer = qmlViewer + ".exe"
-            addRunConfig = waitForObject("{type='QPushButton' text='Add' unnamed='1' visible='1' "
-                                         "window=':Qt Creator_Core::Internal::MainWindow' occurrence='2'}")
-            clickButton(addRunConfig)
-            activateItem(waitForObject("{type='QMenu' visible='1' unnamed='1'}"), "Custom Executable")
-            exePathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' text='Command:' "
-                                           "type='QLabel' unnamed='1' visible='1'} type='Utils::PathChooser' "
-                                           "unnamed='1' visible='1'}")
-            exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
-            argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' type='QLabel' "
-                                      "text='Arguments:' visible='1'} type='QLineEdit' unnamed='1' visible='1'}")
-            wdPathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' text='Working directory:' "
-                                          "type='QLabel'} type='Utils::PathChooser' unnamed='1' visible='1'}")
-            wdLineEd = getChildByClass(wdPathChooser, "Utils::BaseValidatingLineEdit")
-            startAUT = os.path.abspath(squishPath + "/bin/startaut")
-            if platform.system() in ('Microsoft', 'Windows'):
-                startAUT = startAUT + ".exe"
-            projectPath = os.path.abspath("%s/%s" % (workingDir, projectName))
-            replaceEditorContent(exeLineEd, startAUT)
-            replaceEditorContent(argLineEd, "--verbose --port=%d %s %s.qml" % (port, qmlViewer, projectName))
-            replaceEditorContent(wdLineEd, projectPath)
-            clickButton(waitForObject("{text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' "
-                                      "window=':Qt Creator_Core::Internal::MainWindow' "
-                                      "leftWidget={type='QLabel' text~='Us(e|ing) <b>Build Environment</b>' unnamed='1' visible='1'}}"))
-            qtLibPath = os.path.abspath(os.path.dirname(qmake))
-            if not platform.system() in ('Microsoft', 'Windows'):
-                qtLibPath = os.path.abspath(qtLibPath+"/../lib")
-            row = 0
-            for varName in ("PATH", "SQUISH_LIBQTDIR"):
-                __addVariableToRunEnvironment__(varName, qtLibPath, row)
-                row = row + 1
-            if not platform.system() in ('Microsoft', 'Windows', 'Darwin'):
-                __addVariableToRunEnvironment__("LD_LIBRARY_PATH", qtLibPath, 0)
-            if platform.system() == "Darwin":
-                __addVariableToRunEnvironment__("DYLD_FRAMEWORK_PATH", qtLibPath, 0)
-            if not platform.system() in ('Microsoft', 'Windows'):
-                __addVariableToRunEnvironment__("DISPLAY", ":0.0", 0)
-            result = qmlViewer
-        else:
-            result = None
+
+    qtVersion, mkspec, qtLibPath, qmake = getQtInformationForQmlProject()
+    if None in (qtVersion, mkspec, qtLibPath, qmake):
+        test.fatal("At least one of the Qt information returned None - leaving...",
+                   "Qt version: %s, mkspec: %s, Qt LibPath: %s, qmake: '%s'"
+                   % (qtVersion, mkspec, qtLibPath, qmake))
+        return None
+
+    squishPath = getSquishPath(mkspec, qtVersion)
+    if squishPath == None:
+        test.warning("Could not determine the Squish path for %s/%s" % (qtVersion, mkspec),
+                     "Using fallback of pushing STOP inside Creator.")
+        return None
+    test.log("Using (QtVersion/mkspec) %s/%s with SquishPath %s" % (qtVersion, mkspec, squishPath))
+    if platform.system() == "Darwin":
+        qmlViewer = os.path.abspath(os.path.dirname(qmake) + "/QMLViewer.app")
     else:
-        result = None
+        qmlViewer = os.path.abspath(os.path.dirname(qmake) + "/qmlviewer")
+    if platform.system() in ('Microsoft', 'Windows'):
+        qmlViewer = qmlViewer + ".exe"
+    addRunConfig = waitForObject("{container={window=':Qt Creator_Core::Internal::MainWindow' "
+                              "type='ProjectExplorer::Internal::RunSettingsWidget' unnamed='1' "
+                              "visible='1'} occurrence='2' text='Add' type='QPushButton' "
+                              "unnamed='1' visible='1'}")
+    clickButton(addRunConfig)
+    activateItem(waitForObject("{type='QMenu' visible='1' unnamed='1'}"), "Custom Executable")
+    exePathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
+                                   "text='Command:' type='QLabel' unnamed='1' visible='1'} "
+                                   "type='Utils::PathChooser' unnamed='1' visible='1'}")
+    exeLineEd = getChildByClass(exePathChooser, "Utils::BaseValidatingLineEdit")
+    argLineEd = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
+                              "type='QLabel' text='Arguments:' visible='1'} type='QLineEdit' "
+                              "unnamed='1' visible='1'}")
+    wdPathChooser = waitForObject("{buddy={window=':Qt Creator_Core::Internal::MainWindow' "
+                                  "text='Working directory:' type='QLabel'} "
+                                  "type='Utils::PathChooser' unnamed='1' visible='1'}")
+    wdLineEd = getChildByClass(wdPathChooser, "Utils::BaseValidatingLineEdit")
+    startAUT = os.path.abspath(squishPath + "/bin/startaut")
+    if platform.system() in ('Microsoft', 'Windows'):
+        startAUT = startAUT + ".exe"
+    projectPath = os.path.abspath("%s/%s" % (workingDir, projectName))
+    replaceEditorContent(exeLineEd, startAUT)
+    replaceEditorContent(argLineEd, "--verbose --port=%d %s %s.qml"
+                         % (port, qmlViewer, projectName))
+    replaceEditorContent(wdLineEd, projectPath)
+    clickButton(waitForObject("{text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' "
+                              "window=':Qt Creator_Core::Internal::MainWindow' "
+                              "leftWidget={type='QLabel' text~='Us(e|ing) <b>Build Environment</b>'"
+                              " unnamed='1' visible='1'}}"))
+    row = 0
+    for varName in ("PATH", "SQUISH_LIBQTDIR"):
+        __addVariableToRunEnvironment__(varName, qtLibPath, row)
+        row = row + 1
+    if not platform.system() in ('Microsoft', 'Windows', 'Darwin'):
+        __addVariableToRunEnvironment__("LD_LIBRARY_PATH", qtLibPath, 0)
+    if platform.system() == "Darwin":
+        __addVariableToRunEnvironment__("DYLD_FRAMEWORK_PATH", qtLibPath, 0)
+    if not platform.system() in ('Microsoft', 'Windows'):
+        __addVariableToRunEnvironment__("DISPLAY", ":0.0", 0)
+    result = qmlViewer
     switchViewTo(ViewConstants.EDIT)
     return result
 
 # this helper method must be called on the run settings page of a Qt Quick UI with DetailsWidget
 # for the run settings already opened - it won't work on other views because of a different layout
 def __addVariableToRunEnvironment__(name, value, row):
-    clickButton(waitForObject("{occurrence='3' text='Add' type='QPushButton' unnamed='1' visible='1' "
-                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
+    clickButton(waitForObject("{text='Add' type='QPushButton' unnamed='1' visible='1' "
+                              "container={window=':Qt Creator_Core::Internal::MainWindow' "
+                              "type='Utils::DetailsWidget' unnamed='1' visible='1' occurrence='2'}}"))
     varNameLineEd = waitForObject("{type='QExpandingLineEdit' visible='1' unnamed='1'}")
     replaceEditorContent(varNameLineEd, name)
     valueLineEd = __doubleClickQTableView__(":Qt Creator_QTableView", row, 1)
     replaceEditorContent(valueLineEd, value)
+    type(valueLineEd, "<Return>")
 
 def __getMkspecFromQMakeConf__(qmakeConf):
     if qmakeConf==None or not os.path.exists(qmakeConf):

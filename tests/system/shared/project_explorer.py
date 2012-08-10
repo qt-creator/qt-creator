@@ -144,6 +144,75 @@ def getQtInformationForBuildSettings(alreadyOnProjectsBuildSettings=False, after
             test.warning("Don't know where you trying to switch to (%s)" % afterSwitchTo)
     return qtVersion, mkspec, qtBinPath, qtLibPath
 
+def getQtInformationForQmlProject():
+    fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
+    target = __getTargetFromToolTip__(str(fancyToolButton.toolTip))
+    if not target:
+        test.fatal("Could not figure out which target you're using...")
+        return None, None, None, None
+    test.log("Searching for Qt information for target '%s'" % target)
+    invokeMenuItem("Tools", "Options...")
+    waitForObjectItem(":Options_QListView", "Build & Run")
+    clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
+    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Targets")
+    targetsTreeView = waitForObject(":Targets_QTreeView")
+    if not __selectTreeItemOnBuildAndRun__(targetsTreeView, "%s(\s\(default\))?" % target, True):
+        test.fatal("Found no matching target - this shouldn't happen.")
+        clickButton(waitForObject(":Options.Cancel_QPushButton"))
+        return None, None, None, None
+    qtVersionStr = str(waitForObject(":Targets_QtVersion_QComboBox").currentText)
+    test.log("Target '%s' uses Qt Version '%s'" % (target, qtVersionStr))
+    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Qt Versions")
+    treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
+    if not __selectTreeItemOnBuildAndRun__(treeWidget, qtVersionStr):
+        test.fatal("Found no matching Qt Version for target - this shouldn't happen.")
+        clickButton(waitForObject(":Options.Cancel_QPushButton"))
+        return None, None, None, None
+    qmake = str(waitForObject(":QtSupport__Internal__QtVersionManager.qmake_QLabel").text)
+    test.log("Qt Version '%s' uses qmake at '%s'" % (qtVersionStr, qmake))
+    qtDir = os.path.dirname(os.path.dirname(qmake))
+    qtVersion = getQtInformationByQMakeCall(qtDir, QtInformation.QT_VERSION)
+    qtLibPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_LIBPATH)
+    mkspec = __getMkspecFromQmake__(qmake)
+    clickButton(waitForObject(":Options.Cancel_QPushButton"))
+    return qtVersion, mkspec, qtLibPath, qmake
+
+def __selectTreeItemOnBuildAndRun__(treeViewOrWidget, itemText, isRegex=False):
+    model = treeViewOrWidget.model()
+    test.compare(model.rowCount(), 2, "Verifying expected target section count")
+    autoDetected = model.index(0, 0)
+    test.compare(autoDetected.data().toString(), "Auto-detected",
+                 "Verifying label for target section")
+    manual = model.index(1, 0)
+    test.compare(manual.data().toString(), "Manual", "Verifying label for target section")
+    if isRegex:
+        pattern = re.compile(itemText)
+    found = False
+    for section in [autoDetected, manual]:
+        for index in [section.child(i, 0) for i in range(model.rowCount(section))]:
+            if (isRegex and pattern.match(str(index.data().toString()))
+                or itemText == (str(index.data().toString()))):
+                found = True
+                item = ".".join([str(section.data().toString()),
+                                 str(index.data().toString()).replace(".", "\\.")])
+                clickItem(treeViewOrWidget, item, 5, 5, 0, Qt.LeftButton)
+                break
+        if found:
+            break
+    return found
+
+def __getTargetFromToolTip__(toolTip):
+    if toolTip == None or not isinstance(toolTip, (str, unicode)):
+        test.warning("Parameter toolTip must be of type str or unicode and can't be None!")
+        return None
+    pattern = re.compile(".*<b>Target:</b>(.*)<b>Deploy.*")
+    target = pattern.match(toolTip)
+    if target == None:
+        test.fatal("UI seems to have changed - expected ToolTip does not match.",
+                   "ToolTip: '%s'" % toolTip)
+        return None
+    return target.group(1).split("<br/>")[0].strip()
+
 def __getMkspecFromQMakeCall__(qmakeCall):
     qCall = qmakeCall.split("</b>")[1].strip()
     tmp = qCall.split()
