@@ -148,7 +148,7 @@ bool MakeStep::init()
         m_tasks.append(Task(Task::Error, tr("Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode."),
                                              Utils::FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-        return false;
+        return true; // otherwise the tasks will not get reported
     }
 
     ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
@@ -156,7 +156,7 @@ bool MakeStep::init()
         m_tasks.append(Task(Task::Error, tr("Qt Creator needs a tool chain set up to build. Configure a tool chain in the target options."),
                                              Utils::FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-        return false;
+        return true; // otherwise the tasks will not get reported
     }
 
     ProcessParameters *pp = processParameters();
@@ -278,18 +278,6 @@ bool MakeStep::init()
 
 void MakeStep::run(QFutureInterface<bool> & fi)
 {
-    if (m_scriptTarget) {
-        fi.reportResult(true);
-        return;
-    }
-
-    if (!QFileInfo(m_makeFileToCheck).exists()) {
-        if (!ignoreReturnValue())
-            emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::MessageOutput);
-        fi.reportResult(ignoreReturnValue());
-        return;
-    }
-
     // Warn on common error conditions:
     bool canContinue = true;
     foreach (const Task &t, m_tasks) {
@@ -300,6 +288,18 @@ void MakeStep::run(QFutureInterface<bool> & fi)
     if (!canContinue) {
         emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
         fi.reportResult(false);
+        return;
+    }
+
+    if (m_scriptTarget) {
+        fi.reportResult(true);
+        return;
+    }
+
+    if (!QFileInfo(m_makeFileToCheck).exists()) {
+        if (!ignoreReturnValue())
+            emit addOutput(tr("Cannot find Makefile. Check your build settings."), BuildStep::MessageOutput);
+        fi.reportResult(ignoreReturnValue());
         return;
     }
 
