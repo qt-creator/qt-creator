@@ -31,6 +31,7 @@
 #define DEMANGLEREXCEPTIONS_H
 
 #include <QtGlobal>
+#include <QSharedPointer>
 #include <QString>
 
 namespace Debugger {
@@ -64,10 +65,10 @@ public:
         } \
     } while (0)
 
-template <typename T> T *demanglerCast(ParseTreeNode *node, const QString &func,
-        const QString &file, int line)
+template <typename T> QSharedPointer<T> demanglerCast(const QSharedPointer<ParseTreeNode> &node,
+        const QString &func, const QString &file, int line)
 {
-    T * const out = dynamic_cast<T *>(node);
+    const QSharedPointer<T> out = node.dynamicCast<T>();
     if (!out)
         throw InternalDemanglerException(func, file, line);
     return out;

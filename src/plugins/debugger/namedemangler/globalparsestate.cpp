@@ -64,15 +64,9 @@ QByteArray GlobalParseState::readAhead(int charCount) const
     return str;
 }
 
-void GlobalParseState::addSubstitution(const ParseTreeNode *node)
+void GlobalParseState::addSubstitution(const QSharedPointer<ParseTreeNode> &node)
 {
-    addSubstitution(node->toByteArray());
-}
-
-void GlobalParseState::addSubstitution(const QByteArray &symbol)
-{
-    if (!symbol.isEmpty())
-        m_substitutions.append(symbol);
+    m_substitutions << node->clone();
 }
 
 } // namespace Internal
