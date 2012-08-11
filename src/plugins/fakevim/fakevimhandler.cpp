@@ -1157,6 +1157,8 @@ public:
     QString m_lastSubstituteFlags;
     QRegExp m_lastSubstitutePattern;
     QString m_lastSubstituteReplacement;
+    QTextCursor m_lastSelectionCursor;
+    VisualMode m_lastSelectionMode;
 
     bool handleExCommandHelper(const ExCommand &cmd); // Returns success.
     bool handleExPluginCommand(const ExCommand &cmd); // Handled by plugin?
@@ -2653,7 +2655,6 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
     } else if (isVisualMode() && (input.is('o') || input.is('O'))) {
         int pos = position();
         setAnchorAndPosition(pos, anchor());
-        std::swap(m_marks['<'], m_marks['>']);
         std::swap(m_positionPastEnd, m_anchorPastEnd);
         setTargetColumn();
         if (m_positionPastEnd)
@@ -2770,6 +2771,11 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         handleStartOfLine();
         scrollToLine(cursorLine() - sline);
         finishMovement();
+    } else if (m_gflag && input.is('v')) {
+        if (m_lastSelectionCursor.hasSelection()) {
+            toggleVisualMode(m_lastSelectionMode);
+            setCursor(m_lastSelectionCursor);
+        }
     } else if (input.is('v')) {
         toggleVisualMode(VisualCharMode);
     } else if (input.is('V')) {
@@ -5007,8 +5013,6 @@ void FakeVimHandler::Private::toggleVisualMode(VisualMode visualMode)
         m_anchorPastEnd = false;
         m_visualMode = visualMode;
         const int pos = position();
-        //setMark('<', pos);
-        //setMark('>', pos + 1);
         setAnchorAndPosition(pos, pos);
         updateMiniBuffer();
         updateSelection();
@@ -5017,10 +5021,20 @@ void FakeVimHandler::Private::toggleVisualMode(VisualMode visualMode)
 
 void FakeVimHandler::Private::leaveVisualMode()
 {
-    if (isVisualLineMode())
-        m_movetype = MoveLineWise;
-    else if (isVisualCharMode())
-        m_movetype = MoveInclusive;
+    if (isVisualMode()) {
+        m_lastSelectionCursor = cursor();
+        m_lastSelectionMode = m_visualMode;
+        int from = m_lastSelectionCursor.anchor();
+        int to = m_lastSelectionCursor.position();
+        if (from > to)
+            qSwap(from, to);
+        setMark('<', from);
+        setMark('>', to);
+        if (isVisualLineMode())
+            m_movetype = MoveLineWise;
+        else if (isVisualCharMode())
+            m_movetype = MoveInclusive;
+    }
 
     m_visualMode = NoVisualMode;
     updateMiniBuffer();
