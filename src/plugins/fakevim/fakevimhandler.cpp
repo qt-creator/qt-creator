@@ -1197,8 +1197,9 @@ public:
     void getRegisterType(int reg, bool *isClipboard, bool *isSelection) const;
 
     void recordJump();
-    QVector<CursorPosition> m_jumpListUndo;
-    QVector<CursorPosition> m_jumpListRedo;
+    void jump(int distance);
+    QStack<CursorPosition> m_jumpListUndo;
+    QStack<CursorPosition> m_jumpListRedo;
     int m_lastChangePosition;
 
     QList<QTextEdit::ExtraSelection> m_searchSelections;
@@ -1412,12 +1413,11 @@ EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 
     QTextCursor tc = cursor();
     tc.setVisualNavigation(true);
-    setCursor(tc);
-
     if (m_firstKeyPending) {
         m_firstKeyPending = false;
         recordJump();
     }
+    setCursor(tc);
 
     if (m_fakeEnd)
         moveRight();
@@ -1896,18 +1896,18 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
             handleStartOfLine();
         endEditBlock();
     } else if (m_submode == IndentSubMode) {
-        setUndoPosition();
         recordJump();
+        setUndoPosition();
         indentSelectedText();
         m_submode = NoSubMode;
     } else if (m_submode == ShiftRightSubMode) {
-        setUndoPosition();
         recordJump();
+        setUndoPosition();
         shiftRegionRight(1);
         m_submode = NoSubMode;
     } else if (m_submode == ShiftLeftSubMode) {
-        setUndoPosition();
         recordJump();
+        setUndoPosition();
         shiftRegionLeft(1);
         m_submode = NoSubMode;
     }
@@ -2095,8 +2095,12 @@ EventResult FakeVimHandler::Private::handleCommandSubSubMode(const Input &input)
         m_subsubmode = NoSubSubMode;
     } else if (m_subsubmode == BackTickSubSubMode
             || m_subsubmode == TickSubSubMode) {
-        int m = mark(input.asChar().unicode());
+        ushort markChar = input.asChar().unicode();
+        int m = mark(markChar);
         if (m != -1) {
+            if (markChar == '\'' && !m_jumpListUndo.isEmpty())
+                m_jumpListUndo.pop();
+            recordJump();
             setPosition(m);
             if (m_subsubmode == TickSubSubMode)
                 moveToFirstNonBlankOnLine();
@@ -2700,11 +2704,7 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         breakEditBlock();
         enterInsertMode();
     } else if (input.isControl('i')) {
-        if (!m_jumpListRedo.isEmpty()) {
-            m_jumpListUndo.append(cursorPosition());
-            setCursorPosition(m_jumpListRedo.last());
-            m_jumpListRedo.pop_back();
-        }
+        jump(count());
     } else if (input.is('j') || input.isKey(Key_Down)
             || input.isControl('j') || input.isControl('n')) {
         m_movetype = MoveLineWise;
@@ -2817,11 +2817,7 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         insertAutomaticIndentation(false);
         endEditBlock();
     } else if (input.isControl('o')) {
-        if (!m_jumpListUndo.isEmpty()) {
-            m_jumpListRedo.append(cursorPosition());
-            setCursorPosition(m_jumpListUndo.last());
-            m_jumpListUndo.pop_back();
-        }
+        jump(-count());
     } else if (input.is('p') || input.is('P')) {
         pasteText(input.is('p'));
         setTargetColumn();
@@ -4192,10 +4188,10 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
             // Making this unconditional feels better, but is not "vim like".
             if (oldLine != cursorLine() - cursorLineOnScreen())
                 scrollToLine(cursorLine() - linesOnScreen() / 2);
+            recordJump();
             setPosition(pos);
             setTargetColumn();
             updateSelection();
-            recordJump();
             return;
         }
     }
@@ -4241,6 +4237,8 @@ void FakeVimHandler::Private::search(const SearchData &sd)
         }
     }
 
+    recordJump();
+
     // Set Cursor. In contrast to the main editor we have the cursor
     // position before the anchor position.
     setAnchorAndPosition(tc.position(), tc.anchor());
@@ -4257,7 +4255,6 @@ void FakeVimHandler::Private::search(const SearchData &sd)
     if (sd.highlightMatches)
         highlightMatches(sd.needle);
     updateSelection();
-    recordJump();
 }
 
 void FakeVimHandler::Private::highlightMatches(const QString &needle)
@@ -5299,9 +5296,25 @@ void FakeVimHandler::Private::enterExMode()
 
 void FakeVimHandler::Private::recordJump()
 {
-    m_jumpListUndo.append(cursorPosition());
+    CursorPosition pos = cursorPosition();
+    setMark('\'', pos.position);
+    if (m_jumpListUndo.isEmpty() || m_jumpListUndo.top().position != pos.position)
+        m_jumpListUndo.push(pos);
     m_jumpListRedo.clear();
     UNDO_DEBUG("jumps: " << m_jumpListUndo);
+}
+
+void FakeVimHandler::Private::jump(int distance)
+{
+    QStack<CursorPosition> &from = (distance > 0) ? m_jumpListRedo : m_jumpListUndo;
+    QStack<CursorPosition> &to   = (distance > 0) ? m_jumpListUndo : m_jumpListRedo;
+    int len = qMin(qAbs(distance), from.size());
+    setMark('\'', position());
+    for (int i = 0; i < len; ++i) {
+        to.push(cursorPosition());
+        setCursorPosition(from.top());
+        from.pop();
+    }
 }
 
 Column FakeVimHandler::Private::indentation(const QString &line) const
