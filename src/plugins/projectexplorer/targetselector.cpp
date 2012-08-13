@@ -143,7 +143,7 @@ int TargetSelector::targetWidth() const
     if (width < 0) {
         QFontMetrics fm = fontMetrics();
         width = qMax(fm.width(runButtonString()), fm.width(buildButtonString()));
-        width = qMax(129, width * 2 + 31);
+        width = qMax(149, width * 2 + 31);
     }
     return width;
 }
@@ -304,8 +304,10 @@ void TargetSelector::paintEvent(QPaintEvent *event)
 
         QRect buttonRect(x, 1, targetWidth() , image.height());
         Utils::StyleHelper::drawCornerImage(image, &p, buttonRect, 16, 0, 16, 0);
-        p.drawText(x + (targetWidth()- fm.width(target.name))/2 + 1, 7 + fm.ascent(),
-            target.name);
+        const QString nameText = QFontMetrics(font()).elidedText(target.name, Qt::ElideRight,
+                                                                 targetWidth() - 6);
+        p.drawText(x + (targetWidth()- fm.width(nameText))/2 + 1, 7 + fm.ascent(),
+            nameText);
 
 //        // remove button
 //        if (m_currentHoveredTargetIndex == index) {
