@@ -41,6 +41,9 @@
 #include <QDir>
 #include <QPair>
 
+using namespace ProjectExplorer;
+using namespace Utils;
+
 // --------------------------------------------------------------------------
 // Helpers:
 // --------------------------------------------------------------------------
@@ -48,7 +51,7 @@
 static QPair<QString, QString> autoDetectCdbDebugger()
 {
     QPair<QString, QString> result;
-    QList<Utils::FileName> cdbs;
+    QList<FileName> cdbs;
 
     QStringList programDirs;
     programDirs.append(QString::fromLocal8Bit(qgetenv("ProgramFiles")));
@@ -73,10 +76,10 @@ static QPair<QString, QString> autoDetectCdbDebugger()
                     const QString path = kitFolderFi.absoluteFilePath();
                     const QFileInfo cdb32(path + QLatin1String("/Debuggers/x86/cdb.exe"));
                     if (cdb32.isExecutable())
-                        cdbs.push_back(Utils::FileName::fromString(cdb32.absoluteFilePath()));
+                        cdbs.push_back(FileName::fromString(cdb32.absoluteFilePath()));
                     const QFileInfo cdb64(path + QLatin1String("/Debuggers/x64/cdb.exe"));
                     if (cdb64.isExecutable())
-                        cdbs.push_back(Utils::FileName::fromString(cdb64.absoluteFilePath()));
+                        cdbs.push_back(FileName::fromString(cdb64.absoluteFilePath()));
                 } // for Kits
             } // can cd to "Windows Kits"
         } // "Windows Kits" exists
@@ -84,15 +87,15 @@ static QPair<QString, QString> autoDetectCdbDebugger()
         // Pre Windows SDK 8: Check 'Debugging Tools for Windows'
         foreach (const QFileInfo &fi, dir.entryInfoList(QStringList(QLatin1String("Debugging Tools for Windows*")),
                                                         QDir::Dirs | QDir::NoDotAndDotDot)) {
-            Utils::FileName filePath(fi);
+            FileName filePath(fi);
             filePath.appendPath(QLatin1String("cdb.exe"));
             if (!cdbs.contains(filePath))
                 cdbs.append(filePath);
         }
     }
 
-    foreach (const Utils::FileName &cdb, cdbs) {
-        QList<ProjectExplorer::Abi> abis = ProjectExplorer::Abi::abisOfBinary(cdb);
+    foreach (const FileName &cdb, cdbs) {
+        QList<Abi> abis = Abi::abisOfBinary(cdb);
         if (abis.isEmpty())
             continue;
         if (abis.first().wordWidth() == 32)
@@ -132,16 +135,15 @@ unsigned int DebuggerProfileInformation::priority() const
     return 28000;
 }
 
-QVariant DebuggerProfileInformation::defaultValue(ProjectExplorer::Profile *p) const
+QVariant DebuggerProfileInformation::defaultValue(Profile *p) const
 {
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
-    ProjectExplorer::Abi abi = ProjectExplorer::Abi::hostAbi();
+    ToolChain *tc = ToolChainProfileInformation::toolChain(p);
+    Abi abi = Abi::hostAbi();
     if (tc)
         abi = tc->targetAbi();
 
     // CDB for windows:
-    if (abi.os() == ProjectExplorer::Abi::WindowsOS
-            && abi.osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
+    if (abi.os() == Abi::WindowsOS && abi.osFlavor() != Abi::WindowsMSysFlavor) {
         QPair<QString, QString> cdbs = autoDetectCdbDebugger();
         return (abi.wordWidth() == 32) ? cdbs.first : cdbs.second;
     }
@@ -159,51 +161,47 @@ QVariant DebuggerProfileInformation::defaultValue(ProjectExplorer::Profile *p) c
         }
     }
 
-    Utils::Environment env = Utils::Environment::systemEnvironment();
+    Environment env = Environment::systemEnvironment();
     return env.searchInPath(debugger);
 }
 
-QList<ProjectExplorer::Task> DebuggerProfileInformation::validate(ProjectExplorer::Profile *p) const
+QList<Task> DebuggerProfileInformation::validate(Profile *p) const
 {
-    QList<ProjectExplorer::Task> result;
-    Utils::FileName dbg = debuggerCommand(p);
+    QList<Task> result;
+    FileName dbg = debuggerCommand(p);
     if (dbg.isEmpty()) {
-        result << ProjectExplorer::Task(ProjectExplorer::Task::Warning,
-                                        tr("No debugger set up."), Utils::FileName(), -1,
-                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        result << Task(Task::Warning, tr("No debugger set up."), FileName(), -1,
+                                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         return result;
     }
 
     QFileInfo fi = dbg.toFileInfo();
     if (!fi.exists() || fi.isDir())
-        result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                        tr("Debugger not found."), Utils::FileName(), -1,
-                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        result << Task(Task::Error, tr("Debugger not found."), FileName(), -1,
+                                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     else if (!fi.isExecutable())
-        result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                        tr("Debugger not exectutable."), Utils::FileName(), -1,
-                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        result << Task(Task::Error, tr("Debugger not exectutable."), FileName(), -1,
+                                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
 
     return result;
 }
 
-ProjectExplorer::ProfileConfigWidget *
-DebuggerProfileInformation::createConfigWidget(ProjectExplorer::Profile *p) const
+ProfileConfigWidget *DebuggerProfileInformation::createConfigWidget(Profile *p) const
 {
     return new Internal::DebuggerProfileConfigWidget(p, this);
 }
 
-ProjectExplorer::ProfileInformation::ItemList DebuggerProfileInformation::toUserOutput(ProjectExplorer::Profile *p) const
+ProfileInformation::ItemList DebuggerProfileInformation::toUserOutput(Profile *p) const
 {
     return ItemList() << qMakePair(tr("Debugger"), debuggerCommand(p).toUserOutput());
 }
 
-Utils::FileName DebuggerProfileInformation::debuggerCommand(const ProjectExplorer::Profile *p)
+FileName DebuggerProfileInformation::debuggerCommand(const Profile *p)
 {
-    return Utils::FileName::fromString(p->value(Core::Id(DEBUGGER_INFORMATION)).toString());
+    return FileName::fromString(p->value(Core::Id(DEBUGGER_INFORMATION)).toString());
 }
 
-void DebuggerProfileInformation::setDebuggerCommand(ProjectExplorer::Profile *p, const Utils::FileName &command)
+void DebuggerProfileInformation::setDebuggerCommand(Profile *p, const FileName &command)
 {
     p->setValue(Core::Id(DEBUGGER_INFORMATION), command.toString());
 }
