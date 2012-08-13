@@ -528,6 +528,8 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
     connect(step->qt4BuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
             this, SLOT(qmakeBuildConfigChanged()));
     connect(step->target(), SIGNAL(profileChanged()), this, SLOT(qtVersionChanged()));
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
+            this, SLOT(qtVersionChanged()));
 }
 
 QMakeStepConfigWidget::~QMakeStepConfigWidget()

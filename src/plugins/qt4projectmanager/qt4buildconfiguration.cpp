@@ -143,7 +143,6 @@ void Qt4BuildConfiguration::ctor()
 
 void Qt4BuildConfiguration::profileChanged()
 {
-    // emit qtVersionChanged(); TODO what was connected to that
     emit requestBuildSystemEvaluation();
     emit environmentChanged();
     emitBuildDirectoryChanged();
