@@ -27,7 +27,7 @@
     \contentspage index.html
     \previouspage creator-configuring-projects.html
     \page creator-build-settings.html
-    \nextpage creator-project-qmake.html
+    \nextpage creator-targets.html
 
     \title Specifying Build Settings
 
@@ -194,6 +194,7 @@
 
     \list
 
+        \o  \l{Adding Targets}
         \o  \l{Adding Qt Versions}
         \o  \l{Adding Tool Chains}
 

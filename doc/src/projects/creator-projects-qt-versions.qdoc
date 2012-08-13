@@ -25,7 +25,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-build-settings.html
+    \previouspage creator-targets.html
     \page creator-project-qmake.html
     \nextpage creator-tool-chains.html
 
@@ -36,21 +36,14 @@
     For example, \QSDK contains special Qt versions for developing applications
     for mobile devices.
 
-    \QC checks the directories listed in the \c{PATH} environment
-    variable for the qmake executable. If a qmake executable is found, it is
-    referred to as \bold{Qt in PATH} and selected as the Qt version to use
-    in the \gui Projects mode in the \gui {Build Settings}. If \QC
-    cannot find qmake, the value in the \gui {Qt version} field might be
-    invalid and you might need to change it.
-
     \QC automatically detects the Qt versions that are registered by
-    your system or by \QSDK. To view the settings for each Qt version, move the
-    mouse pointer over it in the list. To add Qt versions, select
+    your system or by \QSDK. To view detailed information for each Qt
+    version, select it in the list and select \gui Details in the
+    \gui {Qt version for} section. To add Qt versions, select
     \gui {Tools > Options > Build & Run > Qt Versions}.
 
-    Typically, you select the Qt versions for a project when you use project
-    wizards to create the project. You can add Qt versions for a project in
-    \gui {Build Settings}.
+    You specify the Qt version to use for each \l{glossary-development-target}
+    {target} in \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets.
 
     \section2 Setting Up New Qt Versions
 

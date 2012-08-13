@@ -31,7 +31,7 @@
 
     \title Adding Tool Chains
 
-    A \e {tool chain} specifies a compiler and a debugger and other necessary
+    A \e {tool chain} specifies a compiler and other necessary
     tools for building an application that is \l{glossary-development-target}
     {targeted} for a particular platform. \QC automatically detects the tool
     chains that are registered by your system or by \QSDK.
@@ -53,7 +53,7 @@
             for Linux.
 
         \o  Clang is a C, C++, Objective C, and Objective C++ front-end for the
-            LLVM compiler for Windows, Linux, Mac OS X, and Symbian.
+            LLVM compiler for Windows, Linux, and Mac OS X.
 
         \o  GCCE (GNU Compiler Collection for Embedded) is an ARM-based
             compiler used in Symbian OS 9 and distributed together with \QSDK.
@@ -70,12 +70,12 @@
     \endlist
 
     To build an application using GCC, MinGW, GCCE, or Clang, specify the paths
-    to the directories where the compiler and debugger are located and select
+    to the directories where the compiler is located and select
     the application binary interface (ABI) version from the list of available
     versions. You can also create a custom ABI definition.
 
-    \QC allows you to select a tool chain that matches the Qt version
-    in the \gui Projects mode \gui {Build Settins}.
+    You specify the tool chain to use for each \l{glossary-development-target}
+    {target} in \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets.
 
     To add tool chains:
 

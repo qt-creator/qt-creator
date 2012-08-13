@@ -64,9 +64,8 @@
 
         \o  Select targets, and then click \gui{Next}.
 
-            \note Targets are listed if you installed the appropriate
-            development environment, for example, as part of the \QSDK. You can
-            add targets later in the \gui Projects mode.
+            \note Targets are listed if they have been specified in \gui Tools >
+            \gui Options > \gui {Build & Run} > \gui Targets.
 
         \o  Select \gui Next in the following dialogs to use the default
             settings.

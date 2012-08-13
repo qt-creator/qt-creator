@@ -61,10 +61,11 @@
 
             \image qtcreator-new-project-qt-versions-qt-gui.png "Target Setup dialog"
 
-        \o  Select the Qt versions to use as build targets for your project,
+        \o  Select build targets for your project,
             and click \gui{Next}.
 
-            \note If you have only one Qt version installed, this dialog is
+            \note If only one target is specified in \gui Tools > \gui Options >
+            \gui {Build & Run} > \gui Targets, this dialog is
             skipped.
 
             The \gui{Class Information} dialog opens.
