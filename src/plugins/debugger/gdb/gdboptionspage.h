@@ -32,12 +32,11 @@
 #define GDBOPTIONSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
-#include <utils/savedaction.h>
 
 namespace Debugger {
 namespace Internal {
 
-class GdbOptionsPageUi;
+class GdbOptionsPagePrivate;
 
 class GdbOptionsPage : public Core::IOptionsPage
 {
@@ -52,9 +51,7 @@ public:
     bool matches(const QString &) const;
 
 private:
-    GdbOptionsPageUi *m_ui;
-    Utils::SavedActionSet m_group;
-    QString m_searchKeywords;
+    GdbOptionsPagePrivate *d;
 };
 
 } // namespace Internal

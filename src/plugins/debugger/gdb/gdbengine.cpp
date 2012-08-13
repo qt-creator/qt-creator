@@ -80,6 +80,7 @@
 #include <utils/elfreader.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/savedaction.h>
 
 #include <QCoreApplication>
 #include <QDebug>
