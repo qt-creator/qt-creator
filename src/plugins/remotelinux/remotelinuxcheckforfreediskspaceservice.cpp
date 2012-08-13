@@ -130,7 +130,7 @@ void RemoteLinuxCheckForFreeDiskSpaceService::doDeploy()
     d->processRunner = new QSsh::SshRemoteProcessRunner;
     connect(d->processRunner, SIGNAL(processClosed(int)), SLOT(handleProcessFinished()));
     connect(d->processRunner, SIGNAL(readyReadStandardError()), SLOT(handleStdErr()));
-    const QString command = QString::fromLocal8Bit("df -k -P %1 |tail -n 1 |sed 's/  */ /g' "
+    const QString command = QString::fromLocal8Bit("df -k %1 |tail -n 1 |sed 's/  */ /g' "
             "|cut -d ' ' -f 4").arg(d->pathToCheck);
     d->processRunner->run(command.toUtf8(), deviceConfiguration()->sshParameters());
 }

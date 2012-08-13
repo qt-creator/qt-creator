@@ -66,6 +66,19 @@ QString pathFromId(Core::Id id)
     return idStr.mid(prefix.size());
 }
 
+template<class Receiver> void setHelperActions(Receiver *receiver, MaemoRunConfiguration *runConfig,
+        RunControl *runControl)
+{
+    const Profile * const profile = runConfig->target()->profile();
+    MaemoPreRunAction * const preRunAction = new MaemoPreRunAction(
+            DeviceProfileInformation::device(profile), MaemoGlobal::maddeRoot(profile),
+            runConfig->remoteMounts()->mountSpecs(), runControl);
+    MaemoPostRunAction * const postRunAction
+            = new MaemoPostRunAction(preRunAction->mounter(), runControl);
+    receiver->setApplicationRunnerPreRunAction(preRunAction);
+    receiver->setApplicationRunnerPostRunAction(postRunAction);
+}
+
 } // namespace
 
 MaemoRunConfigurationFactory::MaemoRunConfigurationFactory(QObject *parent)
@@ -196,8 +209,11 @@ RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode 
     MaemoRunConfiguration *rc = qobject_cast<MaemoRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
 
-    if (mode == NormalRunMode)
-        return new RemoteLinuxRunControl(rc);
+    if (mode == NormalRunMode) {
+        RemoteLinuxRunControl * const runControl = new RemoteLinuxRunControl(rc);
+        setHelperActions(runControl, rc, runControl);
+        return runControl;
+    }
 
     const DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
     DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc);
@@ -205,13 +221,7 @@ RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode 
         return 0;
     LinuxDeviceDebugSupport * const debugSupport
             = new LinuxDeviceDebugSupport(rc, runControl->engine());
-    const Profile * const profile = runConfig->target()->profile();
-    MaemoPreRunAction * const preRunAction = new MaemoPreRunAction(
-            DeviceProfileInformation::device(profile), MaemoGlobal::maddeRoot(profile),
-            rc->remoteMounts()->mountSpecs(), rc);
-    MaemoPostRunAction * const postRunAction = new MaemoPostRunAction(preRunAction->mounter(), rc);
-    debugSupport->setApplicationRunnerPreRunAction(preRunAction);
-    debugSupport->setApplicationRunnerPostRunAction(postRunAction);
+    setHelperActions(debugSupport, rc, runControl);
     connect(runControl, SIGNAL(finished()), debugSupport, SLOT(handleDebuggingFinished()));
     return runControl;
 }
