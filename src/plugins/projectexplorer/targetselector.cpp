@@ -54,14 +54,14 @@ TargetSelector::TargetSelector(QWidget *parent) :
     m_targetRemoveDarkButton(QLatin1String(":/projectexplorer/images/targetremovebuttondark.png")),
     m_currentTargetIndex(-1),
     m_currentHoveredTargetIndex(-1),
-    m_rightButtonEnabled(true),
-    m_leftButtonEnabled(false)
+    m_startIndex(0)
 {
     QFont f = font();
     f.setPixelSize(10);
     f.setBold(true);
     setFont(f);
     setMouseTracking(true);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
 void TargetSelector::insertTarget(int index, const QString &name)
@@ -148,9 +148,14 @@ int TargetSelector::targetWidth() const
     return width;
 }
 
-QSize TargetSelector::minimumSizeHint() const
+QSize TargetSelector::sizeHint() const
 {
     return QSize((targetWidth() + 1) * m_targets.size() + (NAVBUTTON_WIDTH + 1) * 2 + 3, TARGET_HEIGHT + 1);
+}
+
+int TargetSelector::maxVisibleTargets() const
+{
+    return (width() - ((NAVBUTTON_WIDTH + 1) * 2 + 3))/(targetWidth() + 1);
 }
 
 void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex, bool *removeButton)
@@ -165,23 +170,26 @@ void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetInd
         *removeButton = false;
 
     // left button?
-    if (x >= 0 && x < NAVBUTTON_WIDTH + 2) {
+    if (m_startIndex > 0 /* button visible */ && x >= 0 && x < NAVBUTTON_WIDTH + 2) {
         if (buttonIndex)
             *buttonIndex = 0;
         return;
     }
 
     // right button?
-    if (x < width() && x > NAVBUTTON_WIDTH + (targetWidth() + 1) * m_targets.size() + 2) {
-        if (buttonIndex)
-            *buttonIndex = 1;
+    int rightButtonStartX = NAVBUTTON_WIDTH + (targetWidth() + 1) * maxVisibleTargets() + 2;
+    if (x > rightButtonStartX) {
+        if (m_targets.size() > maxVisibleTargets() /* button visible */ && x <= rightButtonStartX + NAVBUTTON_WIDTH + 1) {
+            if (buttonIndex)
+                *buttonIndex = 1;
+        }
         return;
     }
 
     // find the clicked target button
     int tx = NAVBUTTON_WIDTH + 3;
     int index;
-    for (index = 0; index < m_targets.size(); ++index) {
+    for (index = m_startIndex; index < m_targets.size(); ++index) {
         if (x <= tx) {
             break;
         }
@@ -219,10 +227,12 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
     getControlAt(event->x(), event->y(), &buttonIndex, &targetIndex, &targetSubIndex, &removeButton);
     if (buttonIndex == 0) {
         event->accept();
-        // TODO: handle left button
+        --m_startIndex;
+        update();
     } else if (buttonIndex == 1) {
         event->accept();
-        // TODO: handle right button
+        ++m_startIndex;
+        update();
     } else if (targetIndex != -1) {
         event->accept();
         bool updateNeeded = false;
@@ -270,25 +280,30 @@ void TargetSelector::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
+    // update start index depending on available width
+    m_startIndex = qMax(0, qMin(m_startIndex, m_targets.size() - maxVisibleTargets()));
+
     QPainter p(this);
-    QSize size = minimumSizeHint();
     QColor borderColor(89, 89, 89);
 
     int x = 2;
-    int index = 0;
     QFontMetrics fm(font());
 
     //draw left button
-//    if (m_leftButtonEnabled)
-//        p.drawPixmap(x, 1, m_targetLeftButton);
+    if (m_startIndex > 0)
+        p.drawPixmap(x, 1, m_targetLeftButton);
     x += m_targetLeftButton.width();
-    p.setPen(borderColor);
-    p.drawLine(x, 1, x, TARGET_HEIGHT);
+    if (m_startIndex == 0) {
+        p.setPen(borderColor);
+        p.drawLine(x, 1, x, TARGET_HEIGHT);
+    }
     x += 1;
     // draw targets
     const QString runString = runButtonString();
     const QString buildString = buildButtonString();
-    foreach (const Target &target, m_targets) {
+    const int lastIndex = qMin(m_targets.size(), m_startIndex + maxVisibleTargets()) - 1;
+    for (int index = m_startIndex; index <= lastIndex; ++index) {
+        const Target &target = m_targets.at(index);
         QImage image = m_unselected;
         bool buildSelected = target.currentSubIndex == 0;
         if (index == m_currentTargetIndex) {
@@ -309,16 +324,16 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         p.drawText(x + (targetWidth()- fm.width(nameText))/2 + 1, 7 + fm.ascent(),
             nameText);
 
-//        // remove button
-//        if (m_currentHoveredTargetIndex == index) {
-//            p.drawPixmap(x + targetWidth() - m_targetRemoveButton.width() - 2, 3,
-//                         index == m_currentTargetIndex ? m_targetRemoveDarkButton : m_targetRemoveButton);
-//        }
+        // remove button
+        if (m_currentHoveredTargetIndex == index) {
+            p.drawPixmap(x + targetWidth() - m_targetRemoveButton.width() - 2, 3,
+                         index == m_currentTargetIndex ? m_targetRemoveDarkButton : m_targetRemoveButton);
+        }
 
         // Build
         int margin = 2; // position centered within the rounded buttons
         QFontMetrics fm = fontMetrics();
-        QRect textRect(x + margin, size.height() - fm.height() - 5, targetWidth()/2, fm.height());
+        QRect textRect(x + margin, size().height() - fm.height() - 5, targetWidth()/2, fm.height());
         if (index != m_currentTargetIndex)
             p.setPen(QColor(0x555555));
         else
@@ -339,14 +354,12 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         p.setPen(index == m_currentTargetIndex ? QColor(0x222222) : QColor(0xcccccc));
         p.drawLine(x, 1, x, TARGET_HEIGHT);
         ++x;
-        ++index;
     }
-    // draw right button
-//    if (m_rightButtonEnabled)
-//        p.drawPixmap(x, 1, m_targetRightButton);
-
-    //draw frame (left hand part already done)
+    // draw right button and frame (left hand part already done)
     p.setPen(borderColor);
     p.drawLine(2 + m_targetLeftButton.width(), 0, x - 1, 0);
-    p.drawLine(x - 1, 1, x - 1, TARGET_HEIGHT);
+    if (lastIndex < m_targets.size() - 1)
+        p.drawPixmap(x, 1, m_targetRightButton);
+    else
+        p.drawLine(x - 1, 1, x - 1, TARGET_HEIGHT);
 }

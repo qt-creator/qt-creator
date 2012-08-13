@@ -52,7 +52,7 @@ public:
 
     explicit TargetSelector(QWidget *parent = 0);
 
-    QSize minimumSizeHint() const;
+    QSize sizeHint() const;
 
     int targetWidth() const;
     QString runButtonString() const { return tr("Run"); }
@@ -84,6 +84,7 @@ protected:
 
 private:
     void getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex, bool *removeButton);
+    int maxVisibleTargets() const;
 
     const QImage m_unselected;
     const QImage m_runselected;
@@ -97,8 +98,7 @@ private:
 
     int m_currentTargetIndex;
     int m_currentHoveredTargetIndex;
-    bool m_rightButtonEnabled;
-    bool m_leftButtonEnabled;
+    int m_startIndex;
 };
 
 } // namespace Internal
