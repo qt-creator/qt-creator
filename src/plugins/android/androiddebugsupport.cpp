@@ -62,31 +62,50 @@ static const char * const qMakeVariables[] = {
          "QT_INSTALL_IMPORTS"
 };
 
-static Qt4Project *project(AndroidRunConfiguration *rc)
-{ return static_cast<Qt4Project *>(rc->target()->project()); }
+static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
+{
+    if (!qtVersion)
+        return QStringList();
+
+    QSet<QString> paths;
+    for (uint i = 0; i < sizeof qMakeVariables / sizeof qMakeVariables[0]; ++i) {
+        QString path = qtVersion->qmakeProperty(qMakeVariables[i]);
+        if (path.isNull())
+            continue;
+        QDirIterator it(path, QStringList() << QLatin1String("*.so"), QDir::Files, QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            it.next();
+            paths.insert(it.fileInfo().absolutePath());
+        }
+    }
+    return paths.toList();
+}
 
 RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig)
 {
+    Target *target = runConfig->target();
+    Qt4Project *project = static_cast<Qt4Project *>(target->project());
+
     DebuggerStartParameters params;
     params.startMode = AttachToRemoteServer;
-    params.displayName = AndroidManager::packageName(runConfig->target());
+    params.displayName = AndroidManager::packageName(target);
     params.remoteSetupNeeded = true;
 
     if (runConfig->debuggerAspect()->useCppDebugger()) {
         params.languages |= CppLanguage;
-        Profile *profile = runConfig->target()->profile();
+        Profile *profile = target->profile();
         params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
         params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
         if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
             params.toolChainAbi = tc->targetAbi();
-        params.executable = project(runConfig)->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
+        params.executable = project->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
         params.remoteChannel = runConfig->remoteChannel();
         params.solibSearchPath.clear();
-        QList<Qt4ProFileNode *> nodes = project(runConfig)->allProFiles();
+        QList<Qt4ProFileNode *> nodes = project->allProFiles();
         foreach (Qt4ProFileNode *node, nodes)
             if (node->projectType() == ApplicationTemplate)
                 params.solibSearchPath.append(node->targetInformation().buildDir);
-        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(runConfig->target()->profile());
+        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(profile);
         params.solibSearchPath.append(qtSoPaths(version));
     }
     if (runConfig->debuggerAspect()->useQmlDebugger()) {
@@ -94,9 +113,9 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.qmlServerAddress = QLatin1String("localhost");
         params.qmlServerPort = runConfig->debuggerAspect()->qmlDebugServerPort();
         //TODO: Not sure if these are the right paths.
-        params.projectSourceDirectory = project(runConfig)->projectDirectory();
-        params.projectSourceFiles = project(runConfig)->files(Qt4Project::ExcludeGeneratedFiles);
-        params.projectBuildDirectory = project(runConfig)->rootQt4ProjectNode()->buildDir();
+        params.projectSourceDirectory = project->projectDirectory();
+        params.projectSourceFiles = project->files(Qt4Project::ExcludeGeneratedFiles);
+        params.projectBuildDirectory = project->buildDir();
     }
 
     DebuggerRunControl * const debuggerRunControl
@@ -127,10 +146,6 @@ AndroidDebugSupport::AndroidDebugSupport(AndroidRunConfiguration *runConfig,
         SLOT(handleRemoteErrorOutput(QByteArray)));
     connect(m_runner, SIGNAL(remoteOutput(QByteArray)),
         SLOT(handleRemoteOutput(QByteArray)));
-}
-
-AndroidDebugSupport::~AndroidDebugSupport()
-{
 }
 
 void AndroidDebugSupport::handleRemoteProcessStarted(int gdbServerPort, int qmlPort)
@@ -165,25 +180,6 @@ void AndroidDebugSupport::handleRemoteErrorOutput(const QByteArray &output)
         else
             m_runControl->showMessage(QString::fromUtf8(output), AppError);
     }
-}
-
-QStringList AndroidDebugSupport::qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
-{
-    if (!qtVersion)
-        return QStringList();
-
-    QSet<QString> paths;
-    for (uint i = 0; i < sizeof qMakeVariables / sizeof qMakeVariables[0]; ++i) {
-        QString path = qtVersion->qmakeProperty(qMakeVariables[i]);
-        if (path.isNull())
-            continue;
-        QDirIterator it(path, QStringList() << QLatin1String("*.so"), QDir::Files, QDirIterator::Subdirectories);
-        while (it.hasNext()) {
-            it.next();
-            paths.insert(it.fileInfo().absolutePath());
-        }
-    }
-    return paths.toList();
 }
 
 } // namespace Internal

@@ -33,10 +33,7 @@
 
 #include "androidrunconfiguration.h"
 
-#include <QObject>
-
 namespace Debugger { class DebuggerRunControl; }
-namespace QtSupport {class BaseQtVersion; }
 namespace ProjectExplorer { class RunControl; }
 
 namespace Android {
@@ -54,7 +51,6 @@ public:
 
     AndroidDebugSupport(AndroidRunConfiguration *runConfig,
         Debugger::DebuggerRunControl *runControl);
-    ~AndroidDebugSupport();
 
 private slots:
     void handleRemoteProcessStarted(int gdbServerPort = -1, int qmlPort = -1);
@@ -62,9 +58,6 @@ private slots:
 
     void handleRemoteOutput(const QByteArray &output);
     void handleRemoteErrorOutput(const QByteArray &output);
-
-private:
-    static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion);
 
 private:
     Debugger::DebuggerRunControl* m_runControl;
