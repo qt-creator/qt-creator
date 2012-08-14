@@ -81,8 +81,6 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
             params.toolChainAbi = tc->targetAbi();
         params.executable = project(runConfig)->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
         params.remoteChannel = runConfig->remoteChannel();
-        params.useServerStartScript = true;
-
         params.solibSearchPath.clear();
         QList<Qt4ProFileNode *> nodes = project(runConfig)->allProFiles();
         foreach (Qt4ProFileNode *node, nodes)

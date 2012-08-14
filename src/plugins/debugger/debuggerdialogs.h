@@ -76,7 +76,7 @@ private:
     StartApplicationParameters parameters() const;
     void setParameters(const StartApplicationParameters &p);
     void setHistory(const QList<StartApplicationParameters> &l);
-    void setScriptVisible(bool on);
+    void hideStartScript();
     Core::Id profileId() const;
 
     StartApplicationDialogPrivate *d;

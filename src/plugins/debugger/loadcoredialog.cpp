@@ -290,7 +290,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 
     QVBoxLayout *vboxLayout = new QVBoxLayout(this);
     vboxLayout->addLayout(formLayout);
-    vboxLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    vboxLayout->addStretch();
     vboxLayout->addWidget(line);
     vboxLayout->addWidget(d->buttonBox);
 

@@ -95,7 +95,6 @@ public:
     QCheckBox *breakAtMainCheckBox;
     QCheckBox *runInTerminalCheckBox;
     PathChooser *debuginfoPathChooser;
-    QCheckBox *useServerStartScriptCheckBox;
     QLabel *serverStartScriptLabel;
     PathChooser *serverStartScriptPathChooser;
     QComboBox *historyComboBox;
@@ -134,13 +133,12 @@ public:
     QString workingDirectory;
     bool breakAtMain;
     bool runInTerminal;
-    bool useServerStartScript;
     QString serverStartScript;
     QString debugInfoLocation;
 };
 
 StartApplicationParameters::StartApplicationParameters() :
-    breakAtMain(false), runInTerminal(false), useServerStartScript(false)
+    breakAtMain(false), runInTerminal(false)
 {
 }
 
@@ -151,7 +149,6 @@ bool StartApplicationParameters::equals(const StartApplicationParameters &rhs) c
         && workingDirectory == rhs.workingDirectory
         && breakAtMain == rhs.breakAtMain
         && runInTerminal == rhs.runInTerminal
-        && useServerStartScript == rhs.useServerStartScript
         && serverStartScript == rhs.serverStartScript
         && profileId == rhs.profileId
         && debugInfoLocation == rhs.debugInfoLocation;
@@ -184,7 +181,6 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue(_("LastExternalWorkingDirectory"), workingDirectory);
     settings->setValue(_("LastExternalBreakAtMain"), breakAtMain);
     settings->setValue(_("LastExternalRunInTerminal"), runInTerminal);
-    settings->setValue(_("LastUseServerStartScript"), useServerStartScript);
     settings->setValue(_("LastServerStartScript"), serverStartScript);
     settings->setValue(_("LastDebugInfoLocation"), debugInfoLocation);
 }
@@ -199,7 +195,6 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     breakAtMain = settings->value(_("LastExternalBreakAtMain")).toBool();
     runInTerminal = settings->value(_("LastExternalRunInTerminal")).toBool();
     serverStartScript = settings->value(_("LastServerStartScript")).toString();
-    useServerStartScript = settings->value(_("LastUseServerStartScript")).toBool();
     debugInfoLocation = settings->value(_("LastDebugInfoLocation")).toString();
 }
 
@@ -239,15 +234,22 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->breakAtMainCheckBox = new QCheckBox(this);
     d->breakAtMainCheckBox->setText(QString());
 
-    d->debuginfoPathChooser = new PathChooser(this);
-    d->debuginfoPathChooser->setPromptDialogTitle(tr("Select Location of Debugging Information"));
-
-    d->useServerStartScriptCheckBox = new QCheckBox(this);
     d->serverStartScriptPathChooser = new PathChooser(this);
     d->serverStartScriptPathChooser->setExpectedKind(PathChooser::File);
     d->serverStartScriptPathChooser->setPromptDialogTitle(tr("Select Server Start Script"));
+    d->serverStartScriptPathChooser->setToolTip(tr(
+        "This option can be used to point to a script that will be used "
+        "to start a debug server. If the field is empty, Qt Creator's "
+        "default methods to set up debug servers will be used."));
     d->serverStartScriptLabel = new QLabel(tr("&Server start script:"), this);
     d->serverStartScriptLabel->setBuddy(d->serverStartScriptPathChooser);
+    d->serverStartScriptLabel->setToolTip(d->serverStartScriptPathChooser->toolTip());
+
+    d->debuginfoPathChooser = new PathChooser(this);
+    d->debuginfoPathChooser->setPromptDialogTitle(tr("Select Location of Debugging Information"));
+    d->debuginfoPathChooser->setToolTip(tr(
+        "Base path for external debug information and debug sources."
+        "If empty, $SYSROOT/usr/lib/debug will be chosen."));
 
     QFrame *line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);
@@ -271,21 +273,18 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     formLayout->addRow(tr("&Working directory:"), d->workingDirectory);
     formLayout->addRow(tr("Run in &terminal:"), d->runInTerminalCheckBox);
     formLayout->addRow(tr("Break at \"&main\":"), d->breakAtMainCheckBox);
-    formLayout->addRow(tr("Use external script to start debug server"), d->useServerStartScriptCheckBox);
     formLayout->addRow(d->serverStartScriptLabel, d->serverStartScriptPathChooser);
-    formLayout->addRow(tr("Location of debugging &information:"), d->debuginfoPathChooser);
-    formLayout->addRow(line);
-    formLayout->addRow(tr("&Recent:"), d->historyComboBox);
+    formLayout->addRow(tr("Debug &information:"), d->debuginfoPathChooser);
     formLayout->addRow(line2);
+    formLayout->addRow(tr("&Recent:"), d->historyComboBox);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
-    verticalLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    verticalLayout->addWidget(line);
+    verticalLayout->addStretch();
+    verticalLayout->addRow(line);
     verticalLayout->addWidget(d->buttonBox);
 
     connect(d->localExecutablePathChooser, SIGNAL(changed(QString)), SLOT(updateState()));
-    connect(d->useServerStartScriptCheckBox, SIGNAL(toggled(bool)), SLOT(updateState()));
     connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
     connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
     connect(d->historyComboBox, SIGNAL(currentIndexChanged(int)),
@@ -309,11 +308,10 @@ void StartApplicationDialog::setHistory(const QList<StartApplicationParameters> 
     }
 }
 
-void StartApplicationDialog::setScriptVisible(bool on)
+void StartApplicationDialog::hideStartScript()
 {
-    d->useServerStartScriptCheckBox->setVisible(on);
-    d->serverStartScriptPathChooser->setVisible(on);
-    d->serverStartScriptLabel->setVisible(on);
+    d->serverStartScriptPathChooser->setVisible(false);
+    d->serverStartScriptLabel->setVisible(false);
 }
 
 void StartApplicationDialog::historyIndexChanged(int index)
@@ -334,9 +332,6 @@ void StartApplicationDialog::updateState()
 {
     bool okEnabled = d->localExecutablePathChooser->isValid();
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(okEnabled);
-    bool startScriptEnabled = d->useServerStartScriptCheckBox->isChecked();
-    d->serverStartScriptLabel->setEnabled(startScriptEnabled);
-    d->serverStartScriptPathChooser->setEnabled(startScriptEnabled);
 }
 
 bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerStartParameters *sp)
@@ -362,7 +357,8 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     StartApplicationDialog dialog(parent);
     dialog.setHistory(history);
     dialog.setParameters(history.back());
-    dialog.setScriptVisible(sp->startMode != AttachToRemoteServer);
+    if (sp->startMode == AttachToRemoteServer)
+        dialog.hideStartScript();
     if (dialog.exec() != QDialog::Accepted)
         return false;
 
@@ -391,7 +387,6 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     if (!newParameters.processArgs.isEmpty())
         sp->processArgs = newParameters.processArgs;
     sp->breakOnMain = newParameters.breakAtMain;
-    sp->useServerStartScript = newParameters.useServerStartScript;
     sp->serverStartScript = newParameters.serverStartScript;
     sp->debugInfoLocation = newParameters.debugInfoLocation;
 
@@ -405,7 +400,6 @@ StartApplicationParameters StartApplicationDialog::parameters() const
 {
     StartApplicationParameters result;
     result.localExecutable = d->localExecutablePathChooser->path();
-    result.useServerStartScript = d->useServerStartScriptCheckBox->isChecked();
     result.serverStartScript = d->serverStartScriptPathChooser->path();
     result.profileId = d->profileChooser->currentProfileId();
     result.debugInfoLocation = d->debuginfoPathChooser->path();
@@ -420,7 +414,6 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
 {
     d->profileChooser->setCurrentProfileId(p.profileId);
     d->localExecutablePathChooser->setPath(p.localExecutable);
-    d->useServerStartScriptCheckBox->setChecked(p.useServerStartScript);
     d->serverStartScriptPathChooser->setPath(p.serverStartScript);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);
     d->arguments->setText(p.processArgs);

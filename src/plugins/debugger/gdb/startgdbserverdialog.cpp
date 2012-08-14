@@ -213,9 +213,6 @@ void GdbServerStarter::attach(int port)
     sp.executable = localExecutable;
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
-    sp.overrideStartScript.clear();
-    sp.useServerStartScript = false;
-    sp.serverStartScript.clear();
     sp.sysRoot = SysRootProfileInformation::sysRoot(d->profile).toString();
     sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(d->profile).toString();
     sp.connParams = d->device->sshParameters();

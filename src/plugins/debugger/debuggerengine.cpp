@@ -127,7 +127,6 @@ QDebug operator<<(QDebug str, const DebuggerStartParameters &sp)
             << " useTerminal=" << sp.useTerminal
             << " remoteChannel=" << sp.remoteChannel
             << " symbolFileName=" << sp.symbolFileName
-            << " useServerStartScript=" << sp.useServerStartScript
             << " serverStartScript=" << sp.serverStartScript
             << " abi=" << sp.toolChainAbi.toString() << '\n';
     return str;

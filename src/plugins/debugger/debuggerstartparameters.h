@@ -65,7 +65,6 @@ public:
         languages(AnyLanguage),
         qmlServerAddress(QLatin1String("127.0.0.1")),
         qmlServerPort(ProjectExplorer::Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
-        useServerStartScript(false),
         remoteSetupNeeded(false),
         startMode(NoStartMode),
         closeMode(KillAtClose),
@@ -112,7 +111,6 @@ public:
     // Used by remote debugging.
     QString remoteChannel;
     QString symbolFileName;
-    bool useServerStartScript;
     QString serverStartScript;
     QString searchPath; // Gdb "set solib-search-path"
     QString debugInfoLocation; // Gdb "set-debug-file-directory".

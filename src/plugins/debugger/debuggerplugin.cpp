@@ -1567,7 +1567,6 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     sp.startMode = AttachToRemoteServer;
     if (StartApplicationDialog::run(mainWindow(), m_coreSettings, &sp)) {
         sp.closeMode = KillAtClose;
-        sp.useServerStartScript = false;
         sp.serverStartScript.clear();
         if (RunControl *rc = createDebugger(sp))
             startDebugger(rc);
@@ -2576,8 +2575,6 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1String(":")) << '\n';
     str << "Symbol file: " << sp.symbolFileName << '\n';
-    if (sp.useServerStartScript)
-        str << "Using server start script: " << sp.serverStartScript;
     str << "Dumper libraries: " << QDir::toNativeSeparators(sp.dumperLibrary);
     foreach (const QString &dl, sp.dumperLibraryLocations)
         str << ' ' << QDir::toNativeSeparators(dl);
