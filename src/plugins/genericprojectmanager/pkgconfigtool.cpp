@@ -40,6 +40,7 @@ namespace Internal {
 QList<PkgConfigTool::Package> PkgConfigTool::packages() const
 {
     if (m_packages.isEmpty())
+        packages_helper();
 
     return m_packages;
 }
