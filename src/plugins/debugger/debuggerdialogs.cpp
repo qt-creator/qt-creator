@@ -281,7 +281,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
     verticalLayout->addStretch();
-    verticalLayout->addRow(line);
+    verticalLayout->addWidget(line);
     verticalLayout->addWidget(d->buttonBox);
 
     connect(d->localExecutablePathChooser, SIGNAL(changed(QString)), SLOT(updateState()));
