@@ -36,12 +36,13 @@
 
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/icore.h>
+
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
 
-using namespace GenericProjectManager;
-using namespace GenericProjectManager::Internal;
+namespace GenericProjectManager {
+namespace Internal {
 
 FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *genericProjectWizard, QWidget *parent)
     : QWizardPage(parent), m_genericProjectWizardDialog(genericProjectWizard), m_model(0), m_finished(false)
@@ -143,3 +144,6 @@ void FilesSelectionWizardPage::applyFilter()
     Core::ICore::settings()->setValue(Constants::FILEFILTER_SETTING, filter);
     m_model->applyFilter(filter);
 }
+
+} // namespace Internal
+} // namespace GenericProjectManager

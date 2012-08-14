@@ -49,18 +49,15 @@ class GenericBuildConfiguration : public ProjectExplorer::BuildConfiguration
 
 public:
     explicit GenericBuildConfiguration(ProjectExplorer::Target *parent);
-    virtual ~GenericBuildConfiguration();
 
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
-    virtual QString buildDirectory() const;
+    QString buildDirectory() const;
 
     QString rawBuildDirectory() const;
     void setBuildDirectory(const QString &buildDirectory);
 
     QVariantMap toMap() const;
-
     ProjectExplorer::IOutputParser *createOutputParser() const;
-
     BuildType buildType() const;
 
 protected:
@@ -115,4 +112,5 @@ private:
 
 } // namespace Internal
 } // namespace GenericProjectManager
+
 #endif // GENERICBUILDCONFIGURATION_H

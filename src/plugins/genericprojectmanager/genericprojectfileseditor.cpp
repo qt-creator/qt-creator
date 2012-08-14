@@ -39,16 +39,18 @@
 
 #include <QCoreApplication>
 
-using namespace GenericProjectManager;
-using namespace GenericProjectManager::Internal;
+using namespace TextEditor;
 
+namespace GenericProjectManager {
+namespace Internal {
 
 ////////////////////////////////////////////////////////////////////////////////////////
+//
 // ProjectFilesFactory
+//
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesFactory::ProjectFilesFactory(Manager *manager,
-                                         TextEditor::TextEditorActionHandler *handler)
+ProjectFilesFactory::ProjectFilesFactory(Manager *manager, TextEditorActionHandler *handler)
     : Core::IEditorFactory(manager),
       m_actionHandler(handler)
 {
@@ -60,7 +62,7 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager,
 Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
 {
     ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget(parent, this, m_actionHandler);
-    TextEditor::TextEditorSettings::instance()->initializeEditor(ed);
+    TextEditorSettings::instance()->initializeEditor(ed);
     return ed->editor();
 }
 
@@ -76,15 +78,17 @@ Core::Id ProjectFilesFactory::id() const
 
 QString ProjectFilesFactory::displayName() const
 {
-    return qApp->translate("OpenWith::Editors", Constants::FILES_EDITOR_DISPLAY_NAME);
+    return  QCoreApplication::translate("OpenWith::Editors", ".files Editor");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+//
 // ProjectFilesEditable
+//
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ProjectFilesEditor::ProjectFilesEditor(ProjectFilesEditorWidget *editor)
-  : TextEditor::BaseTextEditor(editor)
+  : BaseTextEditor(editor)
 {
    setContext(Core::Context(Constants::C_FILESEDITOR));
 }
@@ -105,40 +109,42 @@ Core::IEditor *ProjectFilesEditor::duplicate(QWidget *parent)
     ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget(parent,
                                                         parentEditor->factory(),
                                                         parentEditor->actionHandler());
-    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
+    TextEditorSettings::instance()->initializeEditor(editor);
     return editor->editor();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+//
 // ProjectFilesEditor
+//
 ////////////////////////////////////////////////////////////////////////////////////////
 
 ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent, ProjectFilesFactory *factory,
-                                       TextEditor::TextEditorActionHandler *handler)
-    : TextEditor::BaseTextEditorWidget(parent),
+                                       TextEditorActionHandler *handler)
+    : BaseTextEditorWidget(parent),
       m_factory(factory),
       m_actionHandler(handler)
 {
-    TextEditor::BaseTextDocument *doc = new TextEditor::BaseTextDocument();
+    BaseTextDocument *doc = new BaseTextDocument();
     setBaseTextDocument(doc);
 
     handler->setupActions(this);
 }
-
-ProjectFilesEditorWidget::~ProjectFilesEditorWidget()
-{ }
 
 ProjectFilesFactory *ProjectFilesEditorWidget::factory() const
 {
     return m_factory;
 }
 
-TextEditor::TextEditorActionHandler *ProjectFilesEditorWidget::actionHandler() const
+TextEditorActionHandler *ProjectFilesEditorWidget::actionHandler() const
 {
     return m_actionHandler;
 }
 
-TextEditor::BaseTextEditor *ProjectFilesEditorWidget::createEditor()
+BaseTextEditor *ProjectFilesEditorWidget::createEditor()
 {
     return new ProjectFilesEditor(this);
 }
+
+} // namespace Internal
+} // namespace GenericProjectManager

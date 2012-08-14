@@ -43,35 +43,29 @@
 #include <QFormLayout>
 #include <QInputDialog>
 
-using namespace GenericProjectManager;
-using namespace GenericProjectManager::Internal;
-using ProjectExplorer::BuildConfiguration;
+using namespace ProjectExplorer;
 
-namespace {
-const char * const GENERIC_BC_ID("GenericProjectManager.GenericBuildConfiguration");
+namespace GenericProjectManager {
+namespace Internal {
 
-const char * const BUILD_DIRECTORY_KEY("GenericProjectManager.GenericBuildConfiguration.BuildDirectory");
-}
+const char GENERIC_BC_ID[] = "GenericProjectManager.GenericBuildConfiguration";
+const char BUILD_DIRECTORY_KEY[] = "GenericProjectManager.GenericBuildConfiguration.BuildDirectory";
 
-GenericBuildConfiguration::GenericBuildConfiguration(ProjectExplorer::Target *parent)
+GenericBuildConfiguration::GenericBuildConfiguration(Target *parent)
     : BuildConfiguration(parent, Core::Id(GENERIC_BC_ID))
 {
 }
 
-GenericBuildConfiguration::GenericBuildConfiguration(ProjectExplorer::Target *parent, const Core::Id id)
+GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, const Core::Id id)
     : BuildConfiguration(parent, id)
 {
 }
 
-GenericBuildConfiguration::GenericBuildConfiguration(ProjectExplorer::Target *parent, GenericBuildConfiguration *source) :
+GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, GenericBuildConfiguration *source) :
     BuildConfiguration(parent, source),
     m_buildDirectory(source->m_buildDirectory)
 {
     cloneSteps(source);
-}
-
-GenericBuildConfiguration::~GenericBuildConfiguration()
-{
 }
 
 QVariantMap GenericBuildConfiguration::toMap() const
@@ -112,15 +106,14 @@ void GenericBuildConfiguration::setBuildDirectory(const QString &buildDirectory)
     emit buildDirectoryChanged();
 }
 
-ProjectExplorer::BuildConfigWidget *GenericBuildConfiguration::createConfigWidget()
+BuildConfigWidget *GenericBuildConfiguration::createConfigWidget()
 {
     return new GenericBuildSettingsWidget;
 }
 
-ProjectExplorer::IOutputParser *GenericBuildConfiguration::createOutputParser() const
+IOutputParser *GenericBuildConfiguration::createOutputParser() const
 {
-    ProjectExplorer::ToolChain *tc =
-            ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
+    ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
     return tc ? tc->outputParser() : 0;
 }
 
@@ -130,7 +123,7 @@ ProjectExplorer::IOutputParser *GenericBuildConfiguration::createOutputParser() 
 */
 
 GenericBuildConfigurationFactory::GenericBuildConfigurationFactory(QObject *parent) :
-    ProjectExplorer::IBuildConfigurationFactory(parent)
+    IBuildConfigurationFactory(parent)
 {
 }
 
@@ -138,7 +131,7 @@ GenericBuildConfigurationFactory::~GenericBuildConfigurationFactory()
 {
 }
 
-QList<Core::Id> GenericBuildConfigurationFactory::availableCreationIds(const ProjectExplorer::Target *parent) const
+QList<Core::Id> GenericBuildConfigurationFactory::availableCreationIds(const Target *parent) const
 {
     if (!canHandle(parent))
         return QList<Core::Id>();
@@ -152,7 +145,7 @@ QString GenericBuildConfigurationFactory::displayNameForId(const Core::Id id) co
     return QString();
 }
 
-bool GenericBuildConfigurationFactory::canCreate(const ProjectExplorer::Target *parent, const Core::Id id) const
+bool GenericBuildConfigurationFactory::canCreate(const Target *parent, const Core::Id id) const
 {
     if (!canHandle(parent))
         return false;
@@ -161,7 +154,7 @@ bool GenericBuildConfigurationFactory::canCreate(const ProjectExplorer::Target *
     return false;
 }
 
-BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Target *parent, const Core::Id id, const QString &name)
+BuildConfiguration *GenericBuildConfigurationFactory::create(Target *parent, const Core::Id id, const QString &name)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -183,8 +176,8 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Ta
     GenericBuildConfiguration *bc = new GenericBuildConfiguration(parent);
     bc->setDisplayName(buildConfigurationName);
 
-    ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+    BuildStepList *buildSteps = bc->stepList(Constants::BUILDSTEPS_BUILD);
+    BuildStepList *cleanSteps = bc->stepList(Constants::BUILDSTEPS_CLEAN);
 
     Q_ASSERT(buildSteps);
     GenericMakeStep *makeStep = new GenericMakeStep(buildSteps);
@@ -200,24 +193,24 @@ BuildConfiguration *GenericBuildConfigurationFactory::create(ProjectExplorer::Ta
     return bc;
 }
 
-bool GenericBuildConfigurationFactory::canClone(const ProjectExplorer::Target *parent, ProjectExplorer::BuildConfiguration *source) const
+bool GenericBuildConfigurationFactory::canClone(const Target *parent, BuildConfiguration *source) const
 {
     return canCreate(parent, source->id());
 }
 
-BuildConfiguration *GenericBuildConfigurationFactory::clone(ProjectExplorer::Target *parent, BuildConfiguration *source)
+BuildConfiguration *GenericBuildConfigurationFactory::clone(Target *parent, BuildConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
     return new GenericBuildConfiguration(parent, qobject_cast<GenericBuildConfiguration *>(source));
 }
 
-bool GenericBuildConfigurationFactory::canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const
+bool GenericBuildConfigurationFactory::canRestore(const Target *parent, const QVariantMap &map) const
 {
     return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
-BuildConfiguration *GenericBuildConfigurationFactory::restore(ProjectExplorer::Target *parent, const QVariantMap &map)
+BuildConfiguration *GenericBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -228,7 +221,7 @@ BuildConfiguration *GenericBuildConfigurationFactory::restore(ProjectExplorer::T
     return 0;
 }
 
-bool GenericBuildConfigurationFactory::canHandle(const ProjectExplorer::Target *t) const
+bool GenericBuildConfigurationFactory::canHandle(const Target *t) const
 {
     if (!t->project()->supportsProfile(t->profile()))
         return false;
@@ -258,7 +251,9 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget() : m_buildConfiguration(
 }
 
 QString GenericBuildSettingsWidget::displayName() const
-{ return tr("Generic Manager"); }
+{
+    return tr("Generic Manager");
+}
 
 void GenericBuildSettingsWidget::init(BuildConfiguration *bc)
 {
@@ -271,3 +266,6 @@ void GenericBuildSettingsWidget::buildDirectoryChanged()
 {
     m_buildConfiguration->setBuildDirectory(m_pathChooser->rawPath());
 }
+
+} // namespace Internal
+} // namespace GenericProjectManager

@@ -43,19 +43,9 @@
 
 #include <QFuture>
 
-QT_BEGIN_NAMESPACE
-class QComboBox;
-QT_END_NAMESPACE
-
-namespace ProjectExplorer { class ToolChain; }
-
 namespace GenericProjectManager {
 namespace Internal {
 
-class GenericBuildConfiguration;
-class GenericProject;
-class GenericTarget;
-class GenericMakeStep;
 class GenericProjectFile;
 
 class GenericProject : public ProjectExplorer::Project
@@ -64,7 +54,7 @@ class GenericProject : public ProjectExplorer::Project
 
 public:
     GenericProject(Manager *manager, const QString &filename);
-    virtual ~GenericProject();
+    ~GenericProject();
 
     QString filesFileName() const;
     QString includesFileName() const;
@@ -142,18 +132,17 @@ class GenericProjectFile : public Core::IDocument
 
 public:
     GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options);
-    virtual ~GenericProjectFile();
 
-    virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
-    virtual QString fileName() const;
+    bool save(QString *errorString, const QString &fileName, bool autoSave);
+    QString fileName() const;
 
-    virtual QString defaultPath() const;
-    virtual QString suggestedFileName() const;
-    virtual QString mimeType() const;
+    QString defaultPath() const;
+    QString suggestedFileName() const;
+    QString mimeType() const;
 
-    virtual bool isModified() const;
-    virtual bool isSaveAsAllowed() const;
-    virtual void rename(const QString &newName);
+    bool isModified() const;
+    bool isSaveAsAllowed() const;
+    void rename(const QString &newName);
 
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);

@@ -35,14 +35,15 @@
 #include <coreplugin/icore.h>
 
 #include <utils/QtConcurrentTools>
-#include <QHBoxLayout>
+
 #include <QDialogButtonBox>
-#include <QTreeView>
+#include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QTreeView>
 
-using namespace GenericProjectManager;
-using namespace GenericProjectManager::Internal;
+namespace GenericProjectManager {
+namespace Internal {
 
 SelectableFilesModel::SelectableFilesModel(const QString &baseDir, QObject *parent)
     : QAbstractItemModel(parent), m_root(0), m_baseDir(baseDir), m_allFiles(true)
@@ -613,3 +614,6 @@ void SelectableFilesDialog::applyFilter()
     Core::ICore::settings()->setValue(Constants::FILEFILTER_SETTING, filter);
     m_selectableFilesModel->applyFilter(filter);
 }
+
+} // namespace Internal
+} // namespace GenericProjectManager
