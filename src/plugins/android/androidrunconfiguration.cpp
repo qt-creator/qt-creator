@@ -121,15 +121,5 @@ QString AndroidRunConfiguration::proFilePath() const
     return m_proFilePath;
 }
 
-AndroidRunConfiguration::DebuggingType AndroidRunConfiguration::debuggingType() const
-{
-    if (debuggerAspect()->useCppDebugger()) {
-        if (debuggerAspect()->useQmlDebugger())
-            return DebugCppAndQml;
-        return DebugCppOnly;
-    }
-    return DebugQmlOnly;
-}
-
 } // namespace Internal
 } // namespace Android

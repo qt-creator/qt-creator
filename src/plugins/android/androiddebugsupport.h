@@ -69,7 +69,6 @@ private:
 private:
     Debugger::DebuggerRunControl* m_runControl;
     AndroidRunner * const m_runner;
-    const AndroidRunConfiguration::DebuggingType m_debuggingType;
     const QString m_dumperLib;
 
     int m_gdbServerPort;
