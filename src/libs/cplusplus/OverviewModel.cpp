@@ -35,9 +35,6 @@
 #include <Literals.h>
 #include <Symbols.h>
 
-#include <QFile>
-#include <QDebug>
-
 using namespace CPlusPlus;
 
 OverviewModel::OverviewModel(QObject *parent)
