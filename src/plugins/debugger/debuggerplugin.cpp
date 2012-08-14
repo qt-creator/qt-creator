@@ -1120,7 +1120,6 @@ public:
     QAction *m_attachToQmlPortAction;
     QAction *m_attachToRemoteServerAction;
     QAction *m_startRemoteCdbAction;
-    QAction *m_startRemoteLldbAction;
     QAction *m_attachToCoreAction;
     QAction *m_detachAction;
     QAction *m_continueAction;
@@ -1241,7 +1240,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_attachToRunningApplication = 0;
     m_attachToQmlPortAction = 0;
     m_startRemoteCdbAction = 0;
-    m_startRemoteLldbAction = 0;
     m_attachToCoreAction = 0;
     m_detachAction = 0;
 
@@ -2913,12 +2911,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Start and Debug Application..."));
     connect(act, SIGNAL(triggered()), SLOT(startAndDebugApplication()));
 
-#ifdef WITH_LLDB
-    act = m_startRemoteLldbAction = new QAction(this);
-    act->setText(tr("Start and Debug External Application with External Engine..."));
-    connect(act, SIGNAL(triggered()), SLOT(startRemoteEngine()));
-#endif
-
     act = m_attachToCoreAction = new QAction(this);
     act->setText(tr("Load Core File..."));
     connect(act, SIGNAL(triggered()), SLOT(attachCore()));
@@ -3007,13 +2999,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
          "Debugger.StartRemoteServer", globalcontext);
     cmd->setDescription(tr("Start Gdbserver"));
     mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
-
-#ifdef WITH_LLDB
-    cmd = ActionManager::registerAction(m_startRemoteLldbAction,
-        "Debugger.RemoteLldb", globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
-#endif
 
     if (m_startRemoteCdbAction) {
         cmd = ActionManager::registerAction(m_startRemoteCdbAction,
