@@ -268,7 +268,7 @@ public:
 
 QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
         DebuggerEngine *masterEngine)
-  : DebuggerEngine(startParameters, QmlLanguage, masterEngine)
+  : DebuggerEngine(startParameters, masterEngine)
   , m_adapter(this)
   , m_inspectorAdapter(&m_adapter, this)
   , m_retryOnConnectFail(false)

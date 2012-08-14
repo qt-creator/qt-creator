@@ -479,7 +479,7 @@ class DummyEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    DummyEngine() : DebuggerEngine(DebuggerStartParameters(), AnyLanguage) {}
+    DummyEngine() : DebuggerEngine(DebuggerStartParameters()) {}
     ~DummyEngine() {}
 
     void setupEngine() {}
@@ -2002,7 +2002,7 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 
     engine->watchHandler()->rebuildModel();
 
-    mainWindow()->setEngineDebugLanguages(engine->languages());
+    mainWindow()->setEngineDebugLanguages(engine->startParameters().languages);
     mainWindow()->setCurrentEngine(engine);
 }
 

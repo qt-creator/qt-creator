@@ -238,7 +238,7 @@ private:
 
 GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
         DebuggerEngine *masterEngine)
-  : DebuggerEngine(startParameters, CppLanguage, masterEngine)
+  : DebuggerEngine(startParameters, masterEngine)
 {
     setObjectName(_("GdbEngine"));
 

@@ -64,7 +64,7 @@ namespace Debugger {
 namespace Internal {
 
 IPCEngineHost::IPCEngineHost (const DebuggerStartParameters &startParameters)
-    : DebuggerEngine(startParameters, CppLanguage)
+    : DebuggerEngine(startParameters)
     , m_localGuest(0)
     , m_nextMessagePayloadSize(0)
     , m_cookie(1)

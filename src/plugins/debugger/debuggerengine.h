@@ -140,7 +140,6 @@ class DEBUGGER_EXPORT DebuggerEngine : public QObject
 
 public:
     explicit DebuggerEngine(const DebuggerStartParameters &sp,
-        DebuggerLanguages languages,
         DebuggerEngine *parentEngine = 0);
     virtual ~DebuggerEngine();
 
@@ -265,8 +264,6 @@ public:
     bool isSlaveEngine() const;
     bool isMasterEngine() const;
     DebuggerEngine *masterEngine() const;
-
-    DebuggerLanguages languages() const;
 
     virtual bool setupQmlStep(bool /*on*/) { return false; }
     virtual void readyToExecuteQmlStep() {}

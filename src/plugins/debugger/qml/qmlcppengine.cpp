@@ -110,7 +110,7 @@ QmlCppEnginePrivate::QmlCppEnginePrivate(QmlCppEngine *parent,
 QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp,
                            DebuggerEngineType slaveEngineType,
                            QString *errorMessage)
-    : DebuggerEngine(sp, DebuggerLanguages(CppLanguage) | QmlLanguage), d(new QmlCppEnginePrivate(this, sp))
+    : DebuggerEngine(sp), d(new QmlCppEnginePrivate(this, sp))
 {
     setObjectName(QLatin1String("QmlCppEngine"));
     d->m_cppEngine = DebuggerRunControlFactory::createEngine(slaveEngineType, sp, this, errorMessage);

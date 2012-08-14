@@ -428,7 +428,7 @@ static inline Utils::SavedAction *theAssemblerAction()
 
 CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
         DebuggerEngine *masterEngine, const OptionsPtr &options) :
-    DebuggerEngine(sp, CppLanguage, masterEngine),
+    DebuggerEngine(sp, masterEngine),
     m_creatorExtPrefix("<qtcreatorcdbext>|"),
     m_tokenPrefix("<token>"),
     m_options(options),
