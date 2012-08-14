@@ -2908,7 +2908,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     connect(act, SIGNAL(triggered()), this, SLOT(debugProjectWithoutDeploy()));
 
     act = m_startAndDebugApplicationAction = new QAction(this);
-    act->setText(tr("Start and Debug Application..."));
+    act->setText(tr("Start and Debug External Application..."));
     connect(act, SIGNAL(triggered()), SLOT(startAndDebugApplication()));
 
     act = m_attachToCoreAction = new QAction(this);
