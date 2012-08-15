@@ -82,8 +82,13 @@ static int evaluate(const QString &fileName, const QString &in_pwd, const QStrin
     visitor.setOutputDir(out_pwd);
 
     ProFile *pro;
-    if (!(pro = parser->parsedProFile(fileName)))
+    if (!(pro = parser->parsedProFile(fileName))) {
+        if (!QFile::exists(fileName)) {
+            qCritical("Input file %s does not exist.", qPrintable(fileName));
+            return 3;
+        }
         return 2;
+    }
     if (!visitor.accept(pro)) {
         pro->deref();
         return 2;
