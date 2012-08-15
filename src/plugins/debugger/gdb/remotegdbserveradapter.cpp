@@ -57,9 +57,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &startParameters,
-    DebuggerEngine *masterEngine)
-    : GdbEngine(startParameters, masterEngine)
+GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &startParameters)
+    : GdbEngine(startParameters)
 {
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(uploadProcError(QProcess::ProcessError)));

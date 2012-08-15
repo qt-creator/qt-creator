@@ -139,8 +139,7 @@ class DEBUGGER_EXPORT DebuggerEngine : public QObject
     Q_OBJECT
 
 public:
-    explicit DebuggerEngine(const DebuggerStartParameters &sp,
-        DebuggerEngine *parentEngine = 0);
+    explicit DebuggerEngine(const DebuggerStartParameters &sp);
     virtual ~DebuggerEngine();
 
     const DebuggerStartParameters &startParameters() const;
@@ -360,6 +359,7 @@ protected:
     virtual void frameDown();
 
     void setTargetState(DebuggerState state);
+    void setMasterEngine(DebuggerEngine *masterEngine);
 
     DebuggerRunControl *runControl() const;
 

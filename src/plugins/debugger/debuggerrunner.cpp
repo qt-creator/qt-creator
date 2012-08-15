@@ -42,7 +42,6 @@
 #include "debuggerprofileinformation.h"
 #include "lldb/lldbenginehost.h"
 #include "debuggertooltipmanager.h"
-#include "qml/qmlengine.h"
 
 #ifdef Q_OS_WIN
 #  include "peutils.h"
@@ -85,19 +84,14 @@ namespace Internal {
 
 bool isCdbEngineEnabled(); // Check the configuration page
 //bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check);
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp,
-    DebuggerEngine *masterEngine, QString *error);
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *error);
 
 //bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check);
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp,
-    DebuggerEngine *masterEngine);
-
+DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createScriptEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &sp);
-QmlEngine *createQmlEngine(const DebuggerStartParameters &sp,
-    DebuggerEngine *masterEngine);
-DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp,
-    QString *errorMessage);
+DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp);
+DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp, QString *error);
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &sp);
 
 extern QString msgNoBinaryForToolChain(const Abi &abi);
@@ -326,7 +320,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
     // Create the engine. Could arguably be moved to the factory, but
     // we still have a derived S60DebugControl. Should rarely fail, though.
     QString errorMessage;
-    d->m_engine = DebuggerRunControlFactory::createEngine(sp.masterEngineType, sp, 0, &errorMessage);
+    d->m_engine = DebuggerRunControlFactory::createEngine(sp.masterEngineType, sp, &errorMessage);
 
     if (d->m_engine) {
         DebuggerToolTipManager::instance()->registerEngine(d->m_engine);
@@ -757,23 +751,20 @@ RunConfigWidget *DebuggerRunControlFactory::createConfigurationWidget
     return new DebuggerRunConfigWidget(runConfiguration);
 }
 
-DebuggerEngine *DebuggerRunControlFactory::createEngine
-    (DebuggerEngineType et,
-     const DebuggerStartParameters &sp,
-     DebuggerEngine *masterEngine,
-     QString *errorMessage)
+DebuggerEngine *DebuggerRunControlFactory::createEngine(DebuggerEngineType et,
+    const DebuggerStartParameters &sp, QString *errorMessage)
 {
     switch (et) {
     case GdbEngineType:
-        return createGdbEngine(sp, masterEngine);
+        return createGdbEngine(sp);
     case ScriptEngineType:
         return createScriptEngine(sp);
     case CdbEngineType:
-        return createCdbEngine(sp, masterEngine, errorMessage);
+        return createCdbEngine(sp, errorMessage);
     case PdbEngineType:
         return createPdbEngine(sp);
     case QmlEngineType:
-        return createQmlEngine(sp, masterEngine);
+        return createQmlEngine(sp);
     case LldbEngineType:
         return createLldbEngine(sp);
     case QmlCppEngineType:

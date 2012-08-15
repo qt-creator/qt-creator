@@ -52,9 +52,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbAttachEngine::GdbAttachEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine)
-    : GdbEngine(startParameters, masterEngine)
+GdbAttachEngine::GdbAttachEngine(const DebuggerStartParameters &startParameters)
+    : GdbEngine(startParameters)
 {
 }
 

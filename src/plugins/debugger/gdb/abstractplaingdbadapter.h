@@ -42,8 +42,7 @@ class GdbAbstractPlainEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    GdbAbstractPlainEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine);
+    explicit GdbAbstractPlainEngine(const DebuggerStartParameters &startParameters);
 
     void setupInferior();
     void runEngine();

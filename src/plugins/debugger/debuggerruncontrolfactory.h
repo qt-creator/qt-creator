@@ -57,7 +57,6 @@ public:
 
     static DebuggerEngine *createEngine(DebuggerEngineType et,
         const DebuggerStartParameters &sp,
-        DebuggerEngine *masterEngine,
         QString *errorMessage);
 
     static DebuggerRunControl *createAndScheduleRun(

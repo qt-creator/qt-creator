@@ -49,8 +49,7 @@ class GdbLocalPlainEngine : public GdbAbstractPlainEngine
     Q_OBJECT
 
 public:
-    GdbLocalPlainEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine);
+    explicit GdbLocalPlainEngine(const DebuggerStartParameters &startParameters);
 
 private:
     void setupEngine();

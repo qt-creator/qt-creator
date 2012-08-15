@@ -80,8 +80,7 @@ public:
     typedef Coda::Callback<const Coda::CodaCommandResult &> CodaCallback;
     typedef Coda::Callback<const GdbResponse &> GdbCallback;
 
-    GdbCodaEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine);
+    explicit GdbCodaEngine(const DebuggerStartParameters &startParameters);
     ~GdbCodaEngine();
 
     void setGdbServerName(const QString &name);

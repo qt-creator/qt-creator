@@ -153,11 +153,9 @@ class DebuggerEnginePrivate : public QObject
     Q_OBJECT
 
 public:
-    DebuggerEnginePrivate(DebuggerEngine *engine,
-            DebuggerEngine *masterEngine,
-            const DebuggerStartParameters &sp)
+    DebuggerEnginePrivate(DebuggerEngine *engine, const DebuggerStartParameters &sp)
       : m_engine(engine),
-        m_masterEngine(masterEngine),
+        m_masterEngine(0),
         m_runControl(0),
         m_startParameters(sp),
         m_state(DebuggerNotReady),
@@ -330,9 +328,8 @@ public:
 //
 //////////////////////////////////////////////////////////////////////
 
-DebuggerEngine::DebuggerEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *parentEngine)
-  : d(new DebuggerEnginePrivate(this, parentEngine, startParameters))
+DebuggerEngine::DebuggerEngine(const DebuggerStartParameters &startParameters)
+  : d(new DebuggerEnginePrivate(this, startParameters))
 {}
 
 DebuggerEngine::~DebuggerEngine()
@@ -1262,6 +1259,11 @@ bool DebuggerEngine::isSlaveEngine() const
 bool DebuggerEngine::isMasterEngine() const
 {
     return d->m_masterEngine == 0;
+}
+
+void DebuggerEngine::setMasterEngine(DebuggerEngine *masterEngine)
+{
+    d->m_masterEngine = masterEngine;
 }
 
 DebuggerEngine *DebuggerEngine::masterEngine() const

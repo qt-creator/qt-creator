@@ -237,9 +237,8 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine)
-  : DebuggerEngine(startParameters, masterEngine)
+GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
+  : DebuggerEngine(startParameters)
 {
     setObjectName(_("GdbEngine"));
 
@@ -5399,27 +5398,24 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
 // Factory
 //
 
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp,
-    DebuggerEngine *masterEngine)
+DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp)
 {
-    if (sp.toolChainAbi.os() == Abi::SymbianOS) {
-        // FIXME: 1 of 3 testing hacks.
-        return new GdbCodaEngine(sp, masterEngine);
-    }
+    if (sp.toolChainAbi.os() == Abi::SymbianOS)
+        return new GdbCodaEngine(sp);
 
     switch (sp.startMode) {
     case AttachCore:
-        return new GdbCoreEngine(sp, masterEngine);
+        return new GdbCoreEngine(sp);
     case AttachToRemoteServer:
-        return new GdbRemoteServerEngine(sp, masterEngine);
+        return new GdbRemoteServerEngine(sp);
     case StartRemoteGdb:
-        return new GdbRemotePlainEngine(sp, masterEngine);
+        return new GdbRemotePlainEngine(sp);
     case AttachExternal:
-        return new GdbAttachEngine(sp, masterEngine);
+        return new GdbAttachEngine(sp);
     default:
         if (sp.useTerminal)
-            return new GdbTermEngine(sp, masterEngine);
-        return new GdbLocalPlainEngine(sp, masterEngine);
+            return new GdbTermEngine(sp);
+        return new GdbLocalPlainEngine(sp);
     }
 }
 

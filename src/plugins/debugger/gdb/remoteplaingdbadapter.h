@@ -43,8 +43,7 @@ class GdbRemotePlainEngine : public GdbAbstractPlainEngine
 
 public:
     friend class RemoteGdbProcess;
-    GdbRemotePlainEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine);
+    explicit GdbRemotePlainEngine(const DebuggerStartParameters &startParameters);
 
 private slots:
     void handleGdbStarted();

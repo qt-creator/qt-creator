@@ -327,8 +327,7 @@ static inline bool validMode(DebuggerStartMode sm)
 }
 
 // Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp,
-    DebuggerEngine *masterEngine, QString *errorMessage)
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *errorMessage)
 {
 #ifdef Q_OS_WIN
     CdbOptionsPage *op = CdbOptionsPage::instance();
@@ -336,9 +335,8 @@ DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp,
         *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thre CDB engine.");
         return 0;
     }
-    return new CdbEngine(sp, masterEngine, op->options());
+    return new CdbEngine(sp, op->options());
 #else
-    Q_UNUSED(masterEngine)
     Q_UNUSED(sp)
 #endif
     *errorMessage = QString::fromLatin1("Unsupported debug mode");
@@ -426,9 +424,8 @@ static inline Utils::SavedAction *theAssemblerAction()
     return debuggerCore()->action(OperateByInstruction);
 }
 
-CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
-        DebuggerEngine *masterEngine, const OptionsPtr &options) :
-    DebuggerEngine(sp, masterEngine),
+CdbEngine::CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &options) :
+    DebuggerEngine(sp),
     m_creatorExtPrefix("<qtcreatorcdbext>|"),
     m_tokenPrefix("<token>"),
     m_options(options),
