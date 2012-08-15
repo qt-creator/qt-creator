@@ -40,11 +40,17 @@
         <property name="gridStyle">
          <enum>Qt::NoPen</enum>
         </property>
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
         <property name="columnCount">
          <number>3</number>
         </property>
         <attribute name="horizontalHeaderHighlightSections">
          <bool>false</bool>
+        </attribute>
+        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+         <bool>true</bool>
         </attribute>
         <attribute name="verticalHeaderVisible">
          <bool>false</bool>
