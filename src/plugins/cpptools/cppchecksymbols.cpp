@@ -953,7 +953,7 @@ bool CheckSymbols::visit(GotoStatementAST *ast)
 
 bool CheckSymbols::visit(LabeledStatementAST *ast)
 {
-    if (ast->label_token)
+    if (ast->label_token && !tokenAt(ast->label_token).isKeyword())
         addUse(ast->label_token, SemanticInfo::LabelUse);
 
     accept(ast->statement);
