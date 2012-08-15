@@ -1349,7 +1349,21 @@ void Preprocessor::scanActualArgument(PPToken *tk, QVector<PPToken> *tokens)
             break;
         }
 
-        tokens->append(*tk);
+        if (m_keepComments
+                && (tk->is(T_CPP_COMMENT) || tk->is(T_CPP_DOXY_COMMENT))) {
+            // Even in keep comments mode, we cannot preserve C++ style comments inside the
+            // expansion. We stick with GCC's approach which is to replace them by C style
+            // comments (currently clang just gets rid of them) and transform internals */
+            // into *|.
+            QByteArray text = m_state.m_source.mid(tk->begin() + 2, tk->end() - tk->begin() - 2);
+            const QByteArray &comment = "/*" + text.replace("*/", "*|") + "*/";
+            tokens->append(generateToken(T_COMMENT,
+                                         comment.constData(), comment.size(),
+                                         tk->lineno, false));
+        } else {
+            tokens->append(*tk);
+        }
+
         lex(tk);
     }
 }
