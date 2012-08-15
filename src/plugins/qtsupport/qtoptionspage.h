@@ -156,7 +156,7 @@ private:
 };
 
 } //namespace Internal
-} //namespace Qt4ProjectManager
+} //namespace QtSupport
 
 
 #endif // QTOPTIONSPAGE_H

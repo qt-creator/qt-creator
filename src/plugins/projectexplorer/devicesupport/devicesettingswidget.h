@@ -30,6 +30,7 @@
 #ifndef DEVICESETTINGSWIDGET_H
 #define DEVICESETTINGSWIDGET_H
 
+#include "devicesupport/idevice.h"
 #include <coreplugin/id.h>
 
 #include <QList>
@@ -75,7 +76,7 @@ private:
     void initGui();
     void displayCurrent();
     void setDeviceInfoWidgetsEnabled(bool enable);
-    QSharedPointer<const IDevice> currentDevice() const;
+    IDevice::ConstPtr currentDevice() const;
     int currentIndex() const;
     void clearDetails();
     QString parseTestOutput();

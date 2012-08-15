@@ -887,59 +887,56 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new FolderNavigationWidgetFactory);
     addAutoReleasedObject(new DeployConfigurationFactory);
 
-    if (QSettings *s = Core::ICore::settings()) {
-        const QStringList fileNames =
-                s->value(QLatin1String("ProjectExplorer/RecentProjects/FileNames")).toStringList();
-        const QStringList displayNames =
-                s->value(QLatin1String("ProjectExplorer/RecentProjects/DisplayNames")).toStringList();
-        if (fileNames.size() == displayNames.size()) {
-            for (int i = 0; i < fileNames.size(); ++i) {
-                if (QFileInfo(fileNames.at(i)).isFile())
-                    d->m_recentProjects.append(qMakePair(fileNames.at(i), displayNames.at(i)));
-            }
+    QSettings *s = Core::ICore::settings();
+    const QStringList fileNames =
+            s->value(QLatin1String("ProjectExplorer/RecentProjects/FileNames")).toStringList();
+    const QStringList displayNames =
+            s->value(QLatin1String("ProjectExplorer/RecentProjects/DisplayNames")).toStringList();
+    if (fileNames.size() == displayNames.size()) {
+        for (int i = 0; i < fileNames.size(); ++i) {
+            if (QFileInfo(fileNames.at(i)).isFile())
+                d->m_recentProjects.append(qMakePair(fileNames.at(i), displayNames.at(i)));
         }
     }
 
-    if (QSettings *s = Core::ICore::settings()) {
-        d->m_projectExplorerSettings.buildBeforeDeploy =
-                s->value(QLatin1String("ProjectExplorer/Settings/BuildBeforeDeploy"), true).toBool();
-        d->m_projectExplorerSettings.deployBeforeRun =
-                s->value(QLatin1String("ProjectExplorer/Settings/DeployBeforeRun"), true).toBool();
-        d->m_projectExplorerSettings.saveBeforeBuild =
-                s->value(QLatin1String("ProjectExplorer/Settings/SaveBeforeBuild"), false).toBool();
-        d->m_projectExplorerSettings.showCompilerOutput =
-                s->value(QLatin1String("ProjectExplorer/Settings/ShowCompilerOutput"), false).toBool();
-        d->m_projectExplorerSettings.showRunOutput =
-                s->value(QLatin1String("ProjectExplorer/Settings/ShowRunOutput"), true).toBool();
-        d->m_projectExplorerSettings.showDebugOutput =
-                s->value(QLatin1String("ProjectExplorer/Settings/ShowDebugOutput"), false).toBool();
-        d->m_projectExplorerSettings.cleanOldAppOutput =
-                s->value(QLatin1String("ProjectExplorer/Settings/CleanOldAppOutput"), false).toBool();
-        d->m_projectExplorerSettings.mergeStdErrAndStdOut =
-                s->value(QLatin1String("ProjectExplorer/Settings/MergeStdErrAndStdOut"), false).toBool();
-        d->m_projectExplorerSettings.wrapAppOutput =
-                s->value(QLatin1String("ProjectExplorer/Settings/WrapAppOutput"), true).toBool();
+    d->m_projectExplorerSettings.buildBeforeDeploy =
+            s->value(QLatin1String("ProjectExplorer/Settings/BuildBeforeDeploy"), true).toBool();
+    d->m_projectExplorerSettings.deployBeforeRun =
+            s->value(QLatin1String("ProjectExplorer/Settings/DeployBeforeRun"), true).toBool();
+    d->m_projectExplorerSettings.saveBeforeBuild =
+            s->value(QLatin1String("ProjectExplorer/Settings/SaveBeforeBuild"), false).toBool();
+    d->m_projectExplorerSettings.showCompilerOutput =
+            s->value(QLatin1String("ProjectExplorer/Settings/ShowCompilerOutput"), false).toBool();
+    d->m_projectExplorerSettings.showRunOutput =
+            s->value(QLatin1String("ProjectExplorer/Settings/ShowRunOutput"), true).toBool();
+    d->m_projectExplorerSettings.showDebugOutput =
+            s->value(QLatin1String("ProjectExplorer/Settings/ShowDebugOutput"), false).toBool();
+    d->m_projectExplorerSettings.cleanOldAppOutput =
+            s->value(QLatin1String("ProjectExplorer/Settings/CleanOldAppOutput"), false).toBool();
+    d->m_projectExplorerSettings.mergeStdErrAndStdOut =
+            s->value(QLatin1String("ProjectExplorer/Settings/MergeStdErrAndStdOut"), false).toBool();
+    d->m_projectExplorerSettings.wrapAppOutput =
+            s->value(QLatin1String("ProjectExplorer/Settings/WrapAppOutput"), true).toBool();
 #ifdef Q_OS_WIN
-        QFileInfo jom = QFileInfo(MsvcToolChain::findInstalledJom());
-        if (!jom.exists())
-            jom.setFile(Utils::Environment::systemEnvironment().searchInPath(QLatin1String("jom.exe")));
+    QFileInfo jom = QFileInfo(MsvcToolChain::findInstalledJom());
+    if (!jom.exists())
+        jom.setFile(Utils::Environment::systemEnvironment().searchInPath(QLatin1String("jom.exe")));
 
-        d->m_projectExplorerSettings.useJom =
-                s->value(QLatin1String("ProjectExplorer/Settings/UseJom"), jom.exists()).toBool();
+    d->m_projectExplorerSettings.useJom =
+            s->value(QLatin1String("ProjectExplorer/Settings/UseJom"), jom.exists()).toBool();
 #else
-        d->m_projectExplorerSettings.useJom = true; // No need to read any settings
+    d->m_projectExplorerSettings.useJom = true; // No need to read any settings
 #endif
-        d->m_projectExplorerSettings.autorestoreLastSession =
-                s->value(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), false).toBool();
-        d->m_projectExplorerSettings.prompToStopRunControl =
-                s->value(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), false).toBool();
-        d->m_projectExplorerSettings.maxAppOutputLines =
-                s->value(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), 100000).toInt();
-        d->m_projectExplorerSettings.environmentId =
-                QUuid(s->value(QLatin1String("ProjectExplorer/Settings/EnvironmentId")).toString());
-        if (d->m_projectExplorerSettings.environmentId.isNull())
-            d->m_projectExplorerSettings.environmentId = QUuid::createUuid();
-    }
+    d->m_projectExplorerSettings.autorestoreLastSession =
+            s->value(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), false).toBool();
+    d->m_projectExplorerSettings.prompToStopRunControl =
+            s->value(QLatin1String("ProjectExplorer/Settings/PromptToStopRunControl"), false).toBool();
+    d->m_projectExplorerSettings.maxAppOutputLines =
+            s->value(QLatin1String("ProjectExplorer/Settings/MaxAppOutputLines"), 100000).toInt();
+    d->m_projectExplorerSettings.environmentId =
+            QUuid(s->value(QLatin1String("ProjectExplorer/Settings/EnvironmentId")).toString());
+    if (d->m_projectExplorerSettings.environmentId.isNull())
+        d->m_projectExplorerSettings.environmentId = QUuid::createUuid();
 
     connect(d->m_sessionManagerAction, SIGNAL(triggered()), this, SLOT(showSessionManager()));
     connect(d->m_newAction, SIGNAL(triggered()), this, SLOT(newProject()));

@@ -58,8 +58,7 @@ using Utils::PersistentSettingsReader;
 
 static QString settingsFileName(const QString &path)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QFileInfo settingsLocation(pm->settings()->fileName());
+    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
     return settingsLocation.absolutePath() + path;
 }
 

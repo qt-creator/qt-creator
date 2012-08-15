@@ -39,7 +39,8 @@
 
 #include <QDebug>
 
-using namespace GenericProjectManager::Internal;
+namespace GenericProjectManager {
+namespace Internal {
 
 Manager::Manager()
 { }
@@ -77,3 +78,6 @@ void Manager::unregisterProject(GenericProject *project)
 {
     m_projects.removeAll(project);
 }
+
+} // namespace Internal
+} // namespace GenericProjectManager

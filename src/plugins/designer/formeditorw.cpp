@@ -189,11 +189,10 @@ FormEditorW::~FormEditorW()
     if (m_context)
         Core::ICore::removeContextObject(m_context);
     if (m_initStage == FullyInitialized) {
-        if (QSettings *s = Core::ICore::settings()) {
-            s->beginGroup(QLatin1String(settingsGroupC));
-            m_editorWidget->saveSettings(s);
-            s->endGroup();
-        }
+        QSettings *s = Core::ICore::settings();
+        s->beginGroup(QLatin1String(settingsGroupC));
+        m_editorWidget->saveSettings(s);
+        s->endGroup();
 
         m_designMode->unregisterDesignWidget(m_modeWidget);
         delete m_modeWidget;

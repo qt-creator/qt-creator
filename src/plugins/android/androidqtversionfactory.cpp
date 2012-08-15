@@ -43,12 +43,6 @@ namespace Internal {
 AndroidQtVersionFactory::AndroidQtVersionFactory(QObject *parent)
     : QtSupport::QtVersionFactory(parent)
 {
-
-}
-
-AndroidQtVersionFactory::~AndroidQtVersionFactory()
-{
-
 }
 
 bool AndroidQtVersionFactory::canRestore(const QString &type)

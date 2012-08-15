@@ -31,8 +31,11 @@
 
     \title Configuring Projects
 
-    When you install the \QSDK, the build and run settings for the tool chains
+    \omit
+    When you install the \QSDK, the build and run settings for the development
+    targets
     delivered with the \QSDK are set up automatically.
+    \endomit
 
     To view and modify the settings for currently open projects, switch to the
     \gui Projects mode by pressing \key Ctrl+5.
@@ -40,7 +43,10 @@
     \image qtcreator-project-targets.png
 
     You can add a target if the development environment for the target platform
-    is installed on the development PC and the Qt version is configured. Click
+    is installed on the development PC and the target is configured in
+    \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets.
+
+    Click
     \inlineimage qtcreator-qt4-addbutton.png "Add Target button"
     and select from a list of available targets. To remove a target, select it
     and click
@@ -54,7 +60,7 @@
 
     \list
 
-        \o  \l{Running on Multiple Targets}{Targets}
+        \o  \l{Adding Targets}{Targets}
 
             \list
 

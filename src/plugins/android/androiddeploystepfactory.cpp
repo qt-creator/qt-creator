@@ -77,6 +77,7 @@ bool AndroidDeployStepFactory::canCreate(BuildStepList *parent, const Core::Id i
 BuildStep *AndroidDeployStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
+    Q_UNUSED(id);
     return new AndroidDeployStep(parent);
 }
 

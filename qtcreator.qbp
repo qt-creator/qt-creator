@@ -134,6 +134,10 @@ Project {
 
         cpp.rpaths: ["$ORIGIN/../lib/qtcreator"]
         cpp.defines: project.additionalCppDefines
+        cpp.linkerFlags: {
+            if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))
+                return ["-Wl,-s"]
+        }
         cpp.includePaths: [
             "src",
             "src/libs",
@@ -159,6 +163,7 @@ Project {
         ]
 
         Group {
+            condition: qbs.targetOS == "linux" || qbs.targetOS == "macx"
             files: "bin/qtcreator.sh"
             fileTags: "install"
             qbs.installDir: "bin"

@@ -49,7 +49,7 @@ AndroidDevice::AndroidDevice()
 }
 
 AndroidDevice::AndroidDevice(const AndroidDevice &other)
-    : ProjectExplorer::IDevice(other)
+    : IDevice(other)
 { }
 
 

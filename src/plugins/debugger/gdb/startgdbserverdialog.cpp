@@ -49,36 +49,13 @@
 #include <utils/qtcassert.h>
 
 #include <QVariant>
-#include <QSettings>
-
-#include <QAction>
-#include <QApplication>
-#include <QComboBox>
-#include <QDialog>
-#include <QDialogButtonBox>
-#include <QFormLayout>
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QHeaderView>
-#include <QLabel>
-#include <QLineEdit>
 #include <QMessageBox>
-#include <QPushButton>
-#include <QSortFilterProxyModel>
-#include <QSpacerItem>
-#include <QTextBrowser>
-#include <QTreeView>
-#include <QVBoxLayout>
 
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace QSsh;
 using namespace Utils;
 
-const char LastProfile[] = "Debugger/LastProfile";
-const char LastDevice[] = "Debugger/LastDevice";
-const char LastProcessName[] = "Debugger/LastProcessName";
-//const char LastLocalExecutable[] = "Debugger/LastLocalExecutable";
 
 namespace Debugger {
 namespace Internal {
@@ -86,257 +63,92 @@ namespace Internal {
 class StartGdbServerDialogPrivate
 {
 public:
-    StartGdbServerDialogPrivate(StartGdbServerDialog *q);
+    StartGdbServerDialogPrivate() {}
 
-    IDevice::ConstPtr currentDevice() const
-    {
-        Profile *profile = profileChooser->currentProfile();
-        return DeviceProfileInformation::device(profile);
-    }
-
+    DeviceProcessesDialog *dialog;
     bool startServerOnly;
-    DeviceProcessList *processList;
-    QSortFilterProxyModel proxyModel;
-
-    QLineEdit *processFilterLineEdit;
-    QTreeView *processView;
-    QPushButton *attachProcessButton;
-    QTextBrowser *textBrowser;
-    QPushButton *closeButton;
-    ProfileChooser *profileChooser;
+    DeviceProcess process;
+    Profile *profile;
+    IDevice::ConstPtr device;
 
     DeviceUsedPortsGatherer gatherer;
     SshRemoteProcessRunner runner;
-    QString remoteCommandLine;
-    QString remoteExecutable;
 };
 
-StartGdbServerDialogPrivate::StartGdbServerDialogPrivate(StartGdbServerDialog *q)
-    : startServerOnly(true), processList(0)
+GdbServerStarter::GdbServerStarter(DeviceProcessesDialog *dlg, bool startServerOnly)
+  : QObject(dlg)
 {
-    QSettings *settings = ICore::settings();
-
-    profileChooser = new ProfileChooser(q, ProfileChooser::RemoteDebugging);
-
-    //executablePathChooser = new PathChooser(q);
-    //executablePathChooser->setExpectedKind(PathChooser::File);
-    //executablePathChooser->setPromptDialogTitle(StartGdbServerDialog::tr("Select Executable"));
-    //executablePathChooser->setPath(settings->value(LastLocalExecutable).toString());
-
-    processFilterLineEdit = new QLineEdit(q);
-    processFilterLineEdit->setText(settings->value(LastProcessName).toString());
-    processFilterLineEdit->selectAll();
-
-    processView = new QTreeView(q);
-    processView->setSortingEnabled(true);
-    processView->header()->setDefaultSectionSize(100);
-    processView->header()->setStretchLastSection(true);
-    processView->setAlternatingRowColors(true);
-    processView->setSelectionMode(QAbstractItemView::SingleSelection);
-    processView->setRootIsDecorated(false);
-
-    attachProcessButton = new QPushButton(q);
-    attachProcessButton->setText(StartGdbServerDialog::tr("&Attach to Selected Process"));
-
-    closeButton = new QPushButton(q);
-    closeButton->setText(StartGdbServerDialog::tr("Close"));
-
-    textBrowser = new QTextBrowser(q);
-    textBrowser->setEnabled(false);
-
-    QFormLayout *formLayout = new QFormLayout();
-    formLayout->addRow(StartGdbServerDialog::tr("Target:"), profileChooser);
-    formLayout->addRow(StartGdbServerDialog::tr("&Filter entries:"), processFilterLineEdit);
-
-    QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
-    horizontalLayout2->addStretch(1);
-    horizontalLayout2->addWidget(attachProcessButton);
-    horizontalLayout2->addWidget(closeButton);
-
-    formLayout->addRow(processView);
-    formLayout->addRow(textBrowser);
-    formLayout->addRow(horizontalLayout2);
-    q->setLayout(formLayout);
+    d = new StartGdbServerDialogPrivate;
+    d->dialog = dlg;
+    d->profile = dlg->profileChooser()->currentProfile();
+    d->process = dlg->currentProcess();
+    d->device = DeviceProfileInformation::device(d->profile);
+    d->startServerOnly = startServerOnly;
 }
 
-} // namespace Internal
-
-
-StartGdbServerDialog::StartGdbServerDialog(QWidget *parent) :
-    QDialog(parent),
-    d(new Internal::StartGdbServerDialogPrivate(this))
+GdbServerStarter::~GdbServerStarter()
 {
-    setWindowTitle(tr("List of Remote Processes"));
-
-    QObject::connect(d->closeButton, SIGNAL(clicked()), this, SLOT(reject()));
-
-    connect(&d->gatherer, SIGNAL(error(QString)), SLOT(portGathererError(QString)));
-    connect(&d->gatherer, SIGNAL(portListReady()), SLOT(portListReady()));
-
-    d->processView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    d->proxyModel.setDynamicSortFilter(true);
-    d->proxyModel.setFilterKeyColumn(-1);
-    d->processView->setModel(&d->proxyModel);
-    connect(d->processFilterLineEdit, SIGNAL(textChanged(QString)),
-        &d->proxyModel, SLOT(setFilterRegExp(QString)));
-
-    connect(d->processView->selectionModel(),
-        SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-        SLOT(updateButtons()));
-    connect(d->profileChooser, SIGNAL(activated(int)),
-            SLOT(updateButtons()));
-    //connect(d->updateListButton, SIGNAL(clicked()),
-    //    SLOT(updateProcessList()));
-    connect(d->attachProcessButton, SIGNAL(clicked()), SLOT(attachToProcess()));
-    connect(&d->proxyModel, SIGNAL(layoutChanged()),
-        SLOT(handleProcessListUpdated()));
-    connect(d->profileChooser, SIGNAL(currentIndexChanged(int)),
-        SLOT(attachToDevice()));
-    updateButtons();
-    attachToDevice();
-}
-
-StartGdbServerDialog::~StartGdbServerDialog()
-{
-    delete d->processList;
     delete d;
 }
 
-void StartGdbServerDialog::attachToDevice()
+void GdbServerStarter::handleRemoteError(const QString &errorMsg)
 {
-    IDevice::ConstPtr device = d->currentDevice();
-    // TODO: display error on non-matching device.
-    if (!device || !device->canCreateProcessModel())
-        return;
-    delete d->processList;
-    d->processList = device->createProcessListModel();
-    d->proxyModel.setSourceModel(d->processList);
-    connect(d->processList, SIGNAL(error(QString)),
-        SLOT(handleRemoteError(QString)));
-    connect(d->processList, SIGNAL(modelReset()),
-        SLOT(handleProcessListUpdated()));
-    connect(d->processList, SIGNAL(processKilled()),
-        SLOT(handleProcessKilled()), Qt::QueuedConnection);
-    updateProcessList();
+    QMessageBox::critical(0, tr("Remote Error"), errorMsg);
 }
 
-void StartGdbServerDialog::handleRemoteError(const QString &errorMsg)
-{
-    QMessageBox::critical(this, tr("Remote Error"), errorMsg);
-    updateButtons();
-}
-
-void StartGdbServerDialog::handleProcessListUpdated()
-{
-    updateButtons();
-}
-
-void StartGdbServerDialog::updateProcessList()
-{
-    d->attachProcessButton->setEnabled(false);
-    d->processList->update();
-    d->proxyModel.setFilterRegExp(QString());
-    d->proxyModel.setFilterRegExp(d->processFilterLineEdit->text());
-    updateButtons();
-}
-
-void StartGdbServerDialog::attachToProcess()
-{
-    const QModelIndexList indexes =
-            d->processView->selectionModel()->selectedIndexes();
-    if (indexes.empty())
-        return;
-    d->attachProcessButton->setEnabled(false);
-
-    IDevice::ConstPtr device = d->currentDevice();
-    if (!device)
-        return;
-    PortList ports = device->freePorts();
-    const int port = d->gatherer.getNextFreePort(&ports);
-    const int row = d->proxyModel.mapToSource(indexes.first()).row();
-    QTC_ASSERT(row >= 0, return);
-    DeviceProcess process = d->processList->at(row);
-    d->remoteCommandLine = process.cmdLine;
-    d->remoteExecutable = process.exe;
-    if (port == -1) {
-        reportFailure();
-        return;
-    }
-
-    QSettings *settings = ICore::settings();
-    settings->setValue(LastProfile, d->profileChooser->currentProfileId().toString());
-    settings->setValue(LastProcessName, d->processFilterLineEdit->text());
-
-    startGdbServerOnPort(port, process.pid);
-}
-
-void StartGdbServerDialog::reportFailure()
-{
-    QTC_ASSERT(false, /**/);
-    logMessage(tr("Process aborted"));
-}
-
-void StartGdbServerDialog::logMessage(const QString &line)
-{
-    d->textBrowser->append(line);
-}
-
-void StartGdbServerDialog::handleProcessKilled()
-{
-    updateProcessList();
-}
-
-void StartGdbServerDialog::updateButtons()
-{
-    d->attachProcessButton->setEnabled(d->processView->selectionModel()->hasSelection()
-        || d->proxyModel.rowCount() == 1);
-}
-
-void StartGdbServerDialog::portGathererError(const QString &text)
+void GdbServerStarter::portGathererError(const QString &text)
 {
     logMessage(tr("Could not retrieve list of free ports:"));
     logMessage(text);
-    reportFailure();
+    logMessage(tr("Process aborted"));
 }
 
-void StartGdbServerDialog::portListReady()
+void GdbServerStarter::run()
 {
-    updateButtons();
+    QTC_ASSERT(d->device, return);
+    connect(&d->gatherer, SIGNAL(error(QString)), SLOT(portGathererError(QString)));
+    connect(&d->gatherer, SIGNAL(portListReady()), SLOT(portListReady()));
+    d->gatherer.start(d->device);
 }
 
-void StartGdbServerDialog::startGdbServer()
+void GdbServerStarter::portListReady()
 {
-    d->startServerOnly = true;
-    if (exec() == QDialog::Rejected)
+    PortList ports = d->device->freePorts();
+    const int port = d->gatherer.getNextFreePort(&ports);
+    if (port == -1) {
+        QTC_ASSERT(false, /**/);
+        emit logMessage(tr("Process aborted"));
         return;
-    d->gatherer.start(d->currentDevice());
+    }
+
+    connect(&d->runner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
+    connect(&d->runner, SIGNAL(processStarted()), SLOT(handleProcessStarted()));
+    connect(&d->runner, SIGNAL(readyReadStandardOutput()), SLOT(handleProcessOutputAvailable()));
+    connect(&d->runner, SIGNAL(readyReadStandardError()), SLOT(handleProcessErrorOutput()));
+    connect(&d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
+
+    QByteArray cmd = "/usr/bin/gdbserver --attach :"
+        + QByteArray::number(port) + " " + QByteArray::number(d->process.pid);
+    logMessage(tr("Running command: %1").arg(QString::fromLatin1(cmd)));
+    d->runner.run(cmd, d->device->sshParameters());
 }
 
-void StartGdbServerDialog::attachToRemoteProcess()
-{
-    d->startServerOnly = false;
-    if (exec() == QDialog::Rejected)
-        return;
-    d->gatherer.start(d->currentDevice());
-}
-
-void StartGdbServerDialog::handleConnectionError()
+void GdbServerStarter::handleConnectionError()
 {
     logMessage(tr("Connection error: %1").arg(d->runner.lastConnectionErrorString()));
-    emit processAborted();
 }
 
-void StartGdbServerDialog::handleProcessStarted()
+void GdbServerStarter::handleProcessStarted()
 {
     logMessage(tr("Starting gdbserver..."));
 }
 
-void StartGdbServerDialog::handleProcessOutputAvailable()
+void GdbServerStarter::handleProcessOutputAvailable()
 {
     logMessage(QString::fromUtf8(d->runner.readAllStandardOutput().trimmed()));
 }
 
-void StartGdbServerDialog::handleProcessErrorOutput()
+void GdbServerStarter::handleProcessErrorOutput()
 {
     const QByteArray ba = d->runner.readAllStandardError();
     logMessage(QString::fromUtf8(ba.trimmed()));
@@ -345,100 +157,81 @@ void StartGdbServerDialog::handleProcessErrorOutput()
     foreach (const QByteArray &line, ba.split('\n')) {
         if (line.startsWith("Listening on port")) {
             const int port = line.mid(18).trimmed().toInt();
-            reportOpenPort(port);
+            logMessage(tr("Port %1 is now accessible.").arg(port));
+            logMessage(tr("Server started on %1:%2")
+                .arg(d->device->sshParameters().host).arg(port));
+            if (!d->startServerOnly)
+                attach(port);
         }
     }
 }
 
-void StartGdbServerDialog::reportOpenPort(int port)
+void GdbServerStarter::attach(int port)
 {
-    close();
-    logMessage(tr("Port %1 is now accessible.").arg(port));
-    IDevice::ConstPtr device = d->currentDevice();
-    QString channel = QString("%1:%2").arg(device->sshParameters().host).arg(port);
-    logMessage(tr("Server started on %1").arg(channel));
-
-    const Profile *profile = d->profileChooser->currentProfile();
-    QTC_ASSERT(profile, return);
-
-    if (d->startServerOnly) {
-        //showStatusMessage(tr("gdbserver is now listening at %1").arg(channel));
-    } else {
-        QString sysroot = SysRootProfileInformation::sysRoot(profile).toString();
-        QString binary;
-        QString localExecutable;
-        QString candidate = sysroot + d->remoteExecutable;
+    QString sysroot = SysRootProfileInformation::sysRoot(d->profile).toString();
+    QString binary;
+    QString localExecutable;
+    QString candidate = sysroot + d->process.exe;
+    if (QFileInfo(candidate).exists())
+        localExecutable = candidate;
+    if (localExecutable.isEmpty()) {
+        binary = d->process.cmdLine.section(QLatin1Char(' '), 0, 0);
+        candidate = sysroot + QLatin1Char('/') + binary;
         if (QFileInfo(candidate).exists())
             localExecutable = candidate;
-        if (localExecutable.isEmpty()) {
-            binary = d->remoteCommandLine.section(QLatin1Char(' '), 0, 0);
-            candidate = sysroot + QLatin1Char('/') + binary;
-            if (QFileInfo(candidate).exists())
-                localExecutable = candidate;
-        }
-        if (localExecutable.isEmpty()) {
-            candidate = sysroot + QLatin1String("/usr/bin/") + binary;
-            if (QFileInfo(candidate).exists())
-                localExecutable = candidate;
-        }
-        if (localExecutable.isEmpty()) {
-            candidate = sysroot + QLatin1String("/bin/") + binary;
-            if (QFileInfo(candidate).exists())
-                localExecutable = candidate;
-        }
-        if (localExecutable.isEmpty()) {
-            QMessageBox::warning(DebuggerPlugin::mainWindow(), tr("Warning"),
-                tr("Cannot find local executable for remote process \"%1\".")
-                    .arg(d->remoteCommandLine));
-            return;
-        }
-
-        QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(localExecutable));
-        if (abis.isEmpty()) {
-            QMessageBox::warning(DebuggerPlugin::mainWindow(), tr("Warning"),
-                tr("Cannot find ABI for remote process \"%1\".")
-                    .arg(d->remoteCommandLine));
-            return;
-        }
-
-        DebuggerStartParameters sp;
-        sp.displayName = tr("Remote: \"%1\"").arg(channel);
-        sp.remoteChannel = channel;
-        sp.executable = localExecutable;
-        sp.startMode = AttachToRemoteServer;
-        sp.closeMode = KillAtClose;
-        sp.overrideStartScript.clear();
-        sp.useServerStartScript = false;
-        sp.serverStartScript.clear();
-        sp.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
-        sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
-        sp.connParams = device->sshParameters();
-        if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
-            sp.toolChainAbi = tc->targetAbi();
-
-        if (RunControl *rc = DebuggerPlugin::createDebugger(sp))
-            DebuggerPlugin::startDebugger(rc);
     }
+    if (localExecutable.isEmpty()) {
+        candidate = sysroot + QLatin1String("/usr/bin/") + binary;
+        if (QFileInfo(candidate).exists())
+            localExecutable = candidate;
+    }
+    if (localExecutable.isEmpty()) {
+        candidate = sysroot + QLatin1String("/bin/") + binary;
+        if (QFileInfo(candidate).exists())
+            localExecutable = candidate;
+    }
+    if (localExecutable.isEmpty()) {
+        QMessageBox::warning(DebuggerPlugin::mainWindow(), tr("Warning"),
+            tr("Cannot find local executable for remote process \"%1\".")
+                .arg(d->process.exe));
+        return;
+    }
+
+    QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(localExecutable));
+    if (abis.isEmpty()) {
+        QMessageBox::warning(DebuggerPlugin::mainWindow(), tr("Warning"),
+            tr("Cannot find ABI for remote process \"%1\".")
+                .arg(d->process.exe));
+        return;
+    }
+
+    QString channel = QString("%1:%2").arg(d->device->sshParameters().host).arg(port);
+
+    DebuggerStartParameters sp;
+    sp.displayName = tr("Remote: \"%1\"").arg(channel);
+    sp.remoteChannel = channel;
+    sp.executable = localExecutable;
+    sp.startMode = AttachToRemoteServer;
+    sp.closeMode = KillAtClose;
+    sp.sysRoot = SysRootProfileInformation::sysRoot(d->profile).toString();
+    sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(d->profile).toString();
+    sp.connParams = d->device->sshParameters();
+    if (ToolChain *tc = ToolChainProfileInformation::toolChain(d->profile))
+        sp.toolChainAbi = tc->targetAbi();
+
+    if (RunControl *rc = DebuggerPlugin::createDebugger(sp))
+        DebuggerPlugin::startDebugger(rc);
 }
 
-void StartGdbServerDialog::handleProcessClosed(int status)
+void GdbServerStarter::handleProcessClosed(int status)
 {
     logMessage(tr("Process gdbserver finished. Status: %1").arg(status));
 }
 
-void StartGdbServerDialog::startGdbServerOnPort(int port, int pid)
+void GdbServerStarter::logMessage(const QString &line)
 {
-    IDevice::ConstPtr device = d->currentDevice();
-    connect(&d->runner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(&d->runner, SIGNAL(processStarted()), SLOT(handleProcessStarted()));
-    connect(&d->runner, SIGNAL(readyReadStandardOutput()), SLOT(handleProcessOutputAvailable()));
-    connect(&d->runner, SIGNAL(readyReadStandardError()), SLOT(handleProcessErrorOutput()));
-    connect(&d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
-
-    QByteArray cmd = "/usr/bin/gdbserver --attach :"
-        + QByteArray::number(port) + " " + QByteArray::number(pid);
-    logMessage(tr("Running command: %1").arg(QString::fromLatin1(cmd)));
-    d->runner.run(cmd, device->sshParameters());
+    d->dialog->logMessage(line);
 }
 
+} // namespace Internal
 } // namespace Debugger

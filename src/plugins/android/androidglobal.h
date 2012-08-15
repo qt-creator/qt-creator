@@ -39,10 +39,6 @@
 #define ASSERT_STATE_GENERIC(State, expected, actual)                         \
     AndroidGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
 
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
-
 namespace Android {
 namespace Internal {
 

@@ -46,41 +46,36 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QFormLayout>
-#include <QGroupBox>
-#include <QCheckBox>
-#include <QLineEdit>
-#include <QListWidget>
+using namespace Core;
+using namespace ProjectExplorer;
 
-using namespace GenericProjectManager;
-using namespace GenericProjectManager::Internal;
+namespace GenericProjectManager {
+namespace Internal {
 
-namespace {
-const char * const GENERIC_MS_ID("GenericProjectManager.GenericMakeStep");
-const char * const GENERIC_MS_DISPLAY_NAME(QT_TRANSLATE_NOOP("GenericProjectManager::Internal::GenericMakeStep",
-                                                             "Make"));
+const char GENERIC_MS_ID[] = "GenericProjectManager.GenericMakeStep";
+const char GENERIC_MS_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("GenericProjectManager::Internal::GenericMakeStep",
+                                                     "Make");
 
-const char * const BUILD_TARGETS_KEY("GenericProjectManager.GenericMakeStep.BuildTargets");
-const char * const MAKE_ARGUMENTS_KEY("GenericProjectManager.GenericMakeStep.MakeArguments");
-const char * const MAKE_COMMAND_KEY("GenericProjectManager.GenericMakeStep.MakeCommand");
-const char * const CLEAN_KEY("GenericProjectManager.GenericMakeStep.Clean");
-}
+const char BUILD_TARGETS_KEY[] = "GenericProjectManager.GenericMakeStep.BuildTargets";
+const char MAKE_ARGUMENTS_KEY[] = "GenericProjectManager.GenericMakeStep.MakeArguments";
+const char MAKE_COMMAND_KEY[] = "GenericProjectManager.GenericMakeStep.MakeCommand";
+const char CLEAN_KEY[] = "GenericProjectManager.GenericMakeStep.Clean";
 
-GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildStepList *parent) :
-    AbstractProcessStep(parent, Core::Id(GENERIC_MS_ID)),
+GenericMakeStep::GenericMakeStep(BuildStepList *parent) :
+    AbstractProcessStep(parent, Id(GENERIC_MS_ID)),
     m_clean(false)
 {
     ctor();
 }
 
-GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildStepList *parent, const Core::Id id) :
+GenericMakeStep::GenericMakeStep(BuildStepList *parent, const Id id) :
     AbstractProcessStep(parent, id),
     m_clean(false)
 {
     ctor();
 }
 
-GenericMakeStep::GenericMakeStep(ProjectExplorer::BuildStepList *parent, GenericMakeStep *bs) :
+GenericMakeStep::GenericMakeStep(BuildStepList *parent, GenericMakeStep *bs) :
     AbstractProcessStep(parent, bs),
     m_buildTargets(bs->m_buildTargets),
     m_makeArguments(bs->m_makeArguments),
@@ -111,7 +106,7 @@ bool GenericMakeStep::init()
     if (!bc)
         bc = static_cast<GenericBuildConfiguration *>(target()->activeBuildConfiguration());
 
-    ProjectExplorer::ProcessParameters *pp = processParameters();
+    ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory());
     pp->setEnvironment(bc->environment());
@@ -123,9 +118,8 @@ bool GenericMakeStep::init()
     // That is mostly so that rebuild works on an already clean project
     setIgnoreReturnValue(m_clean);
 
-    setOutputParser(new ProjectExplorer::GnuMakeParser());
-    ProjectExplorer::ToolChain *tc =
-            ProjectExplorer::ToolChainProfileInformation::toolChain(bc->target()->profile());
+    setOutputParser(new GnuMakeParser());
+    ToolChain *tc = ToolChainProfileInformation::toolChain(bc->target()->profile());
     if (tc)
         appendOutputParser(tc->outputParser());
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
@@ -175,7 +169,7 @@ QString GenericMakeStep::makeCommand() const
 {
     QString command = m_makeCommand;
     if (command.isEmpty()) {
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
+        ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
         if (tc)
             command = tc->makeCommand();
         else
@@ -189,7 +183,7 @@ void GenericMakeStep::run(QFutureInterface<bool> &fi)
     AbstractProcessStep::run(fi);
 }
 
-ProjectExplorer::BuildStepConfigWidget *GenericMakeStep::createConfigWidget()
+BuildStepConfigWidget *GenericMakeStep::createConfigWidget()
 {
     return new GenericMakeStepConfigWidget(this);
 }
@@ -244,9 +238,9 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     connect(m_ui->makeArgumentsLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(makeArgumentsLineEditTextEdited()));
 
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateMakeOverrrideLabel()));
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
 
     connect(m_makeStep->target(), SIGNAL(profileChanged()),
@@ -274,7 +268,7 @@ void GenericMakeStepConfigWidget::updateDetails()
     if (!bc)
         bc = static_cast<GenericBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
 
-    ProjectExplorer::ProcessParameters param;
+    ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
     param.setEnvironment(bc->environment());
@@ -312,24 +306,18 @@ void GenericMakeStepConfigWidget::makeArgumentsLineEditTextEdited()
 //
 
 GenericMakeStepFactory::GenericMakeStepFactory(QObject *parent) :
-    ProjectExplorer::IBuildStepFactory(parent)
+    IBuildStepFactory(parent)
 {
 }
 
-GenericMakeStepFactory::~GenericMakeStepFactory()
-{
-}
-
-bool GenericMakeStepFactory::canCreate(ProjectExplorer::BuildStepList *parent,
-                                       const Core::Id id) const
+bool GenericMakeStepFactory::canCreate(BuildStepList *parent, const Id id) const
 {
     if (parent->target()->project()->id() == Constants::GENERICPROJECT_ID)
         return id == GENERIC_MS_ID;
     return false;
 }
 
-ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::BuildStepList *parent,
-                                                           const Core::Id id)
+BuildStep *GenericMakeStepFactory::create(BuildStepList *parent, const Id id)
 {
     if (!canCreate(parent, id))
         return 0;
@@ -343,14 +331,12 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::create(ProjectExplorer::Buil
     return step;
 }
 
-bool GenericMakeStepFactory::canClone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *source) const
+bool GenericMakeStepFactory::canClone(BuildStepList *parent, BuildStep *source) const
 {
     return canCreate(parent, source->id());
 }
 
-ProjectExplorer::BuildStep *GenericMakeStepFactory::clone(ProjectExplorer::BuildStepList *parent,
-                                                          ProjectExplorer::BuildStep *source)
+BuildStep *GenericMakeStepFactory::clone(BuildStepList *parent, BuildStep *source)
 {
     if (!canClone(parent, source))
         return 0;
@@ -359,14 +345,12 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::clone(ProjectExplorer::Build
     return new GenericMakeStep(parent, old);
 }
 
-bool GenericMakeStepFactory::canRestore(ProjectExplorer::BuildStepList *parent,
-                                        const QVariantMap &map) const
+bool GenericMakeStepFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, ProjectExplorer::idFromMap(map));
+    return canCreate(parent, idFromMap(map));
 }
 
-ProjectExplorer::BuildStep *GenericMakeStepFactory::restore(ProjectExplorer::BuildStepList *parent,
-                                                            const QVariantMap &map)
+BuildStep *GenericMakeStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
@@ -377,17 +361,20 @@ ProjectExplorer::BuildStep *GenericMakeStepFactory::restore(ProjectExplorer::Bui
     return 0;
 }
 
-QList<Core::Id> GenericMakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<Id> GenericMakeStepFactory::availableCreationIds(BuildStepList *parent) const
 {
     if (parent->target()->project()->id() == Constants::GENERICPROJECT_ID)
-        return QList<Core::Id>() << Core::Id(GENERIC_MS_ID);
-    return QList<Core::Id>();
+        return QList<Id>() << Id(GENERIC_MS_ID);
+    return QList<Id>();
 }
 
-QString GenericMakeStepFactory::displayNameForId(const Core::Id id) const
+QString GenericMakeStepFactory::displayNameForId(const Id id) const
 {
     if (id == GENERIC_MS_ID)
         return QCoreApplication::translate("GenericProjectManager::Internal::GenericMakeStep",
                                            GENERIC_MS_DISPLAY_NAME);
     return QString();
 }
+
+} // namespace Internal
+} // namespace GenericProjectManager

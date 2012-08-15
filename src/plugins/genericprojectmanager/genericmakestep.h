@@ -54,16 +54,15 @@ class GenericMakeStep : public ProjectExplorer::AbstractProcessStep
 
 public:
     GenericMakeStep(ProjectExplorer::BuildStepList *parent);
-    virtual ~GenericMakeStep();
+    ~GenericMakeStep();
 
     GenericBuildConfiguration *genericBuildConfiguration() const;
 
-    virtual bool init();
+    bool init();
+    void run(QFutureInterface<bool> &fi);
 
-    virtual void run(QFutureInterface<bool> &fi);
-
-    virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    virtual bool immutable() const;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    bool immutable() const;
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
     QString allArguments() const;
@@ -77,7 +76,7 @@ public:
 protected:
     GenericMakeStep(ProjectExplorer::BuildStepList *parent, GenericMakeStep *bs);
     GenericMakeStep(ProjectExplorer::BuildStepList *parent, const Core::Id id);
-    virtual bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map);
 
 private:
     void ctor();
@@ -88,20 +87,23 @@ private:
     bool m_clean;
 };
 
-class GenericMakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
+class GenericMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
+
 public:
     GenericMakeStepConfigWidget(GenericMakeStep *makeStep);
     ~GenericMakeStepConfigWidget();
-    virtual QString displayName() const;
-    virtual QString summaryText() const;
+    QString displayName() const;
+    QString summaryText() const;
+
 private slots:
-    void itemChanged(QListWidgetItem*);
+    void itemChanged(QListWidgetItem *item);
     void makeLineEditTextEdited();
     void makeArgumentsLineEditTextEdited();
     void updateMakeOverrrideLabel();
     void updateDetails();
+
 private:
     Ui::GenericMakeStep *m_ui;
     GenericMakeStep *m_makeStep;
@@ -114,7 +116,6 @@ class GenericMakeStepFactory : public ProjectExplorer::IBuildStepFactory
 
 public:
     explicit GenericMakeStepFactory(QObject *parent = 0);
-    ~GenericMakeStepFactory();
 
     bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
     ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);

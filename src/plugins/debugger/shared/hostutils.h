@@ -41,17 +41,6 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
-struct ProcData
-{
-    QString ppid;
-    QString name;
-    QString image;
-    QString state;
-};
-
-
-QList<ProcData> hostProcessList();
-
 #ifdef Q_OS_WIN
 
 // Resume a suspended thread by id.

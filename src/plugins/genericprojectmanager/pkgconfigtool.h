@@ -50,16 +50,12 @@ public:
         QStringList undefines;
     };
 
-public:
-    PkgConfigTool();
-    virtual ~PkgConfigTool();
+    PkgConfigTool() {}
 
     QList<Package> packages() const;
 
 private:
     void packages_helper() const;
-
-private:
     mutable QList<Package> m_packages;
 };
 

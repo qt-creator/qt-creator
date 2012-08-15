@@ -244,12 +244,6 @@ public:
     DebuggerState targetState() const;
     bool isDying() const;
 
-    // Dumper stuff (common to cdb and gdb).
-    bool qtDumperLibraryEnabled() const;
-    QString qtDumperLibraryName() const;
-    QStringList qtDumperLibraryLocations() const;
-    void showQtDumperLibraryWarning(const QString &details);
-
     static const char *stateName(int s);
 
     void notifyInferiorPid(qint64 pid);

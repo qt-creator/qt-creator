@@ -56,7 +56,8 @@ public:
     };
 
     DebuggerStartParameters()
-      : isSnapshot(false),
+      : engineType(NoEngineType),
+        isSnapshot(false),
         attachPID(-1),
         useTerminal(false),
         breakOnMain(false),
@@ -64,7 +65,6 @@ public:
         languages(AnyLanguage),
         qmlServerAddress(QLatin1String("127.0.0.1")),
         qmlServerPort(ProjectExplorer::Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
-        useServerStartScript(false),
         remoteSetupNeeded(false),
         startMode(NoStartMode),
         closeMode(KillAtClose),
@@ -78,6 +78,7 @@ public:
 
     //Core::Id profileId;
 
+    DebuggerEngineType engineType;
     QString sysRoot;
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
@@ -107,26 +108,18 @@ public:
     QString projectBuildDirectory;
     QStringList projectSourceFiles;
 
-
-    QString qtInstallPath;
     // Used by remote debugging.
     QString remoteChannel;
     QString symbolFileName;
-    bool useServerStartScript;
     QString serverStartScript;
-    //QString sysroot;
     QString searchPath; // Gdb "set solib-search-path"
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
-    QByteArray remoteDumperLib;
     QByteArray remoteSourcesDir;
     QString remoteMountPoint;
     QString localMountDir;
     QSsh::SshConnectionParameters connParams;
     bool remoteSetupNeeded;
-
-    //QString debuggerCommand;
-    //ProjectExplorer::Abi toolChainAbi;
 
     QString dumperLibrary;
     QStringList solibSearchPath;

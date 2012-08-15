@@ -362,12 +362,11 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 
 private:
-    void addBuildConfiguration(const QString &origTarget, Profile *p,
-                        bool targetActive,
-                        const QVariantMap &bc, bool bcActive);
-    void addOtherConfiguration(const QString &origTarget,
-                               const QList<QVariantMap> &dcs, int activeDc,
-                               const QList<QVariantMap> &rcs, int activeRc, const QString &projectDir);
+    Profile *uniqueProfile(Profile *p);
+    void addBuildConfiguration(Profile *p, const QVariantMap &bc, int bcPos, int bcCount);
+    void addDeployConfiguration(Profile *p, const QVariantMap &dc, int dcPos, int dcActive);
+    void addRunConfigurations(Profile *p,
+                              const QMap<int, QVariantMap> &rcs, int activeRc, const QString &projectDir);
 
     void parseQtversionFile();
     void parseToolChainFile();
@@ -2342,6 +2341,11 @@ Version11Handler::~Version11Handler()
     m_targets.clear();
 }
 
+static inline int targetId(const QString &targetKey)
+{
+    return targetKey.mid(targetKey.lastIndexOf(QLatin1Char('.')) + 1).toInt();
+}
+
 QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
 {
     // Read in old data to help with the transition:
@@ -2350,7 +2354,6 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
 
     QVariantMap result;
     ProfileManager *pm = ProfileManager::instance();
-
     foreach (Profile *p, pm->profiles())
         m_targets.insert(p, QVariantMap());
 
@@ -2361,6 +2364,8 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
         globalIt.next();
         const QString &globalKey = globalIt.key();
         // Keep everything but targets:
+        if (globalKey == QLatin1String("ProjectExplorer.Project.ActiveTarget"))
+            continue;
         if (!globalKey.startsWith(QLatin1String("ProjectExplorer.Project.Target."))) {
             result.insert(globalKey, globalIt.value());
             continue;
@@ -2368,14 +2373,14 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
 
         // Update Targets:
         const QVariantMap &target = globalIt.value().toMap();
-        int targetPos = globalKey.mid(globalKey.lastIndexOf(QLatin1Char('.'))).toInt();
+        int targetPos = targetId(globalKey);
 
         QVariantMap extraTargetData;
-        QList<QVariantMap> bcs;
+        QMap<int, QVariantMap> bcs;
         int activeBc = -1;
-        QList<QVariantMap> dcs;
+        QMap<int, QVariantMap> dcs;
         int activeDc = -1;
-        QList<QVariantMap> rcs;
+        QMap<int, QVariantMap> rcs;
         int activeRc = -1;
 
         // Read old target:
@@ -2390,7 +2395,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             else if (targetKey == QLatin1String("ProjectExplorer.Target.BuildConfigurationCount"))
                 continue;
             else if (targetKey.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration.")))
-                bcs.append(targetIt.value().toMap());
+                bcs.insert(targetId(targetKey), targetIt.value().toMap());
             else
 
             // DeployConfigurations:
@@ -2399,7 +2404,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             else if (targetKey == QLatin1String("ProjectExplorer.Target.DeployConfigurationCount"))
                 continue;
             else if (targetKey.startsWith(QLatin1String("ProjectExplorer.Target.DeployConfiguration.")))
-                dcs.append(targetIt.value().toMap());
+                dcs.insert(targetId(targetKey), targetIt.value().toMap());
             else
 
             // RunConfigurations:
@@ -2408,46 +2413,48 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             else if (targetKey == QLatin1String("ProjectExplorer.Target.RunConfigurationCount"))
                 continue;
             else if (targetKey.startsWith(QLatin1String("ProjectExplorer.Target.RunConfiguration.")))
-                rcs.append(targetIt.value().toMap());
+                rcs.insert(targetId(targetKey), targetIt.value().toMap());
 
             // Rest (the target's ProjectConfiguration settings only as there is nothing else):
             else
                 extraTargetData.insert(targetKey, targetIt.value());
         }
+        const QString oldTargetId = extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
 
-        const QString targetId = extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
         // Check each BCs/DCs and create profiles as needed
-        int bcPos = 0;
-        foreach (const QVariantMap &bc, bcs) {
-            const QString targetId = extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
-            Profile *tmp = new Profile;
-            tmp->setDisplayName(extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName")).toString());
+        static Profile rawProfile; // Do not needlessly use Core::Ids
+        QMapIterator<int, QVariantMap> buildIt(bcs);
+        while (buildIt.hasNext()) {
+            buildIt.next();
+            int bcPos = buildIt.key();
+            const QVariantMap &bc = buildIt.value();
+            Profile *tmpProfile = &rawProfile;
 
-            if (targetId == QLatin1String("Qt4ProjectManager.Target.AndroidDeviceTarget")) {
-                tmp->setIconPath(QLatin1String(":/android/images/QtAndroid.png"));
-                // use default device type
-            } else if (targetId == QLatin1String("RemoteLinux.EmbeddedLinuxTarget")) {
-                // use default icon
-                tmp->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("GenericLinuxOsType"));
-            } else if (targetId == QLatin1String("Qt4ProjectManager.Target.HarmattanDeviceTarget")) {
-                tmp->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
-                tmp->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("HarmattanOsType"));
-            } else if (targetId == QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")) {
-                tmp->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
-                tmp->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Maemo5OsType"));
-            } else if (targetId == QLatin1String("Qt4ProjectManager.Target.MeegoDeviceTarget")) {
-                tmp->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
-                tmp->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("MeegoOsType"));
-            } else if (targetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
-                tmp->setIconPath(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
-                tmp->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Qt4ProjectManager.SymbianDevice"));
-                tmp->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Symbian Device"));
-            } else if (targetId == QLatin1String("Qt4ProjectManager.Target.QtSimulatorTarget")) {
-                tmp->setIconPath(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
-                // use default device type
+            if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.AndroidDeviceTarget")) {
+                tmpProfile->setIconPath(QLatin1String(":/android/images/QtAndroid.png"));
+                tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
+            } else if (oldTargetId == QLatin1String("RemoteLinux.EmbeddedLinuxTarget")) {
+                tmpProfile->setIconPath(QLatin1String(":///DESKTOP///"));
+                tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("GenericLinuxOsType"));
+            } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.HarmattanDeviceTarget")) {
+                tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
+                tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("HarmattanOsType"));
+            } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")) {
+                tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
+                tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Maemo5OsType"));
+            } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MeegoDeviceTarget")) {
+                tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
+                tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("MeegoOsType"));
+            } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
+                tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
+                tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Qt4ProjectManager.SymbianDevice"));
+                tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Symbian Device"));
+            } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.QtSimulatorTarget")) {
+                tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
+                tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
             } else {
-                // use default desktop icon and device type
-                tmp->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Desktop Device"));
+                tmpProfile->setIconPath(QLatin1String(":///DESKTOP///"));
+                tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Desktop Device"));
             }
 
             // Tool chain
@@ -2457,61 +2464,67 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             const QString origTcId = tcId;
             tcId.replace(QLatin1String("Qt4ProjectManager.ToolChain.Maemo:"),
                          QLatin1String("ProjectExplorer.ToolChain.Gcc:")); // convert Maemo to GCC
-            tmp->setValue(Core::Id("PE.Profile.ToolChain"), tcId);
+            tmpProfile->setValue(Core::Id("PE.Profile.ToolChain"), tcId);
 
             // QtVersion
             int qtVersionId = bc.value(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.QtVersionId"), -1).toInt();
-            tmp->setValue(Core::Id("QtSupport.QtInformation"), qtVersionId);
+            tmpProfile->setValue(Core::Id("QtSupport.QtInformation"), qtVersionId);
 
             // Debugger + mkspec
+            QString debugger;
+            QString mkspec;
             if (m_toolChainExtras.contains(origTcId)) {
                 Utils::Environment env = Utils::Environment::systemEnvironment();
-                QString debugger = m_toolChainExtras.value(origTcId).m_debugger;
+                debugger = m_toolChainExtras.value(origTcId).m_debugger;
                 if (!debugger.isEmpty() && !QFileInfo(debugger).isAbsolute())
                     debugger = env.searchInPath(debugger);
-                tmp->setValue(Core::Id("Debugger.Information"), debugger);
-                tmp->setValue(Core::Id("QtPM4.mkSpecInformation"), m_toolChainExtras.value(origTcId).m_mkspec);
+                mkspec = m_toolChainExtras.value(origTcId).m_mkspec;
             }
+            tmpProfile->setValue(Core::Id("Debugger.Information"), debugger);
+            tmpProfile->setValue(Core::Id("QtPM4.mkSpecInformation"), mkspec);
 
             // SysRoot
-            if (m_qtVersionExtras.contains(qtVersionId))
-                tmp->setValue(Core::Id("PE.Profile.SysRoot"), m_qtVersionExtras.value(qtVersionId));
+            tmpProfile->setValue(Core::Id("PE.Profile.SysRoot"), m_qtVersionExtras.value(qtVersionId));
 
-            // Device
-            QString devId;
-            foreach (const QVariantMap &dc, dcs) {
-                devId = dc.value(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DeviceId")).toString();
-                if (!devId.isEmpty())
-                    break;
-            }
-            if (devId.isEmpty()) {
-                if (targetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget"))
-                    devId = QByteArray("Symbian Device");
-                else
-                    devId = QByteArray("Desktop Device");
-            }
-            if (!devId.isEmpty() && !DeviceManager::instance()->find(Core::Id(devId))) // We do not know that device
-                devId.clear();
-            tmp->setValue(Core::Id("PE.Profile.Device"), devId);
+            QMapIterator<int, QVariantMap> deployIt(dcs);
+            while (deployIt.hasNext()) {
+                deployIt.next();
+                int dcPos = deployIt.key();
+                const QVariantMap &dc = deployIt.value();
+                // Device
+                QString devId = dc.value(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DeviceId")).toString();
+                if (devId.isEmpty()) {
+                    if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget"))
+                        devId = QByteArray("Symbian Device");
+                    else
+                        devId = QByteArray("Desktop Device");
+                }
+                if (!devId.isEmpty() && !DeviceManager::instance()->find(Core::Id(devId))) // We do not know that device
+                    devId.clear();
+                tmpProfile->setValue(Core::Id("PE.Profile.Device"), devId);
 
-            addBuildConfiguration(targetId, tmp, activeTarget == targetPos, bc, bcPos == activeBc);
+                // Set display name last:
+                tmpProfile->setDisplayName(extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName")).toString());
 
-            ++bcPos;
+                Profile *p = uniqueProfile(tmpProfile);
+
+                addBuildConfiguration(p, bc, bcPos, activeBc);
+                addDeployConfiguration(p, dc, dcPos, activeDc);
+                addRunConfigurations(p, rcs, activeRc, project->projectDirectory());
+                if (targetPos == activeTarget && bcPos == activeBc && dcPos == activeDc)
+                    m_targets[p].insert(QLatin1String("Update.IsActive"), true);
+            } // dcs
         } // bcs
-
-        addOtherConfiguration(targetId, dcs, activeDc, rcs, activeRc, project->projectDirectory());
-    }
+    } // read in map data
 
     int newPos = 0;
-    QList<Profile *> knownProfiles = pm->profiles();
     // Generate new target data:
     foreach (Profile *p, m_targets.keys()) {
         QVariantMap data = m_targets.value(p);
         if (data.isEmpty())
             continue;
 
-        if (!knownProfiles.contains(p))
-            pm->registerProfile(p);
+        pm->registerProfile(p);
 
         data.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), p->id().name());
         data.insert(QLatin1String("ProjectExplorer.Target.Profile"), p->id().name());
@@ -2519,7 +2532,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
         data.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DefaultDisplayName"), p->displayName());
 
         result.insert(QString::fromLatin1("ProjectExplorer.Project.Target.") + QString::number(newPos), data);
-        if (data.value(QLatin1String("IsActive"), false).toBool())
+        if (data.value(QLatin1String("Update.IsActive"), false).toBool())
             result.insert(QLatin1String("ProjectExplorer.Project.ActiveTarget"), newPos);
         ++newPos;
     }
@@ -2528,79 +2541,97 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
     return result;
 }
 
-void Version11Handler::addBuildConfiguration(const QString &origTarget, Profile *p, bool targetActive,
-                                             const QVariantMap &bc, bool bcActive)
+Profile *Version11Handler::uniqueProfile(Profile *p)
 {
     foreach (Profile *i, m_targets.keys()) {
         const QString tc = i->value(Core::Id("PE.Profile.ToolChain")).toString();
         const int qt = i->value(Core::Id("QtSupport.QtInformation")).toInt();
         const QString debugger = i->value(Core::Id("Debugger.Information")).toString();
         const QString mkspec = i->value(Core::Id("QtPM4.mkSpecInformation")).toString();
+        const QString device = i->value(Core::Id("PE.Profile.Device")).toString();
+
         if ((i->value(Core::Id("PE.Profile.DeviceType")).toString() == p->value(Core::Id("PE.Profile.DeviceType")).toString())
                 && (tc.isEmpty() || (tc == p->value(Core::Id("PE.Profile.ToolChain")).toString()))
-                && (qt < 0 || (qt == p->value(Core::Id("QtSupport.QtInformation")).toInt()))
+                && (qt == p->value(Core::Id("QtSupport.QtInformation")).toInt())
                 && (debugger.isEmpty() || (debugger == p->value(Core::Id("Debugger.Information")).toString()))
                 && (mkspec.isEmpty() || (mkspec == p->value(Core::Id("QtPM4.mkSpecInformation")).toString()))
-                && (i->value(Core::Id("PE.Profile.SysRoot")).toString() == p->value(Core::Id("PE.Profile.SysRoot")).toString())) {
-            delete p;
-            p = i;
+                && (i->value(Core::Id("PE.Profile.SysRoot")).toString() == p->value(Core::Id("PE.Profile.SysRoot")).toString())
+                && (device == p->value(Core::Id("PE.Profile.Device")))) {
+            return i;
         }
     }
+
+    return p->clone(true);
+}
+
+void Version11Handler::addBuildConfiguration(Profile *p, const QVariantMap &bc, int bcPos, int bcActive)
+{
     QVariantMap merged = m_targets.value(p);
+    int internalCount = merged.value(QLatin1String("ProjectExplorer.Target.BuildConfigurationCount"), 0).toInt();
 
-    int bcCount = merged.value(QLatin1String("ProjectExplorer.Target.BuildConfigurationCount"), 0).toInt();
-    merged.insert(QString::fromLatin1("ProjectExplorer.Target.BuildConfiguration.") + QString::number(bcCount), bc);
-    if (bcActive)
-        merged.insert(QLatin1String("ProjectExplorer.Target.ActiveBuildConfiguration"), bcCount);
-    merged.insert(QLatin1String("ProjectExplorer.Target.BuildConfigurationCount"), bcCount + 1);
+    for (int i = 0; i < internalCount; ++i) {
+        QVariantMap bcData = merged.value(QString::fromLatin1("ProjectExplorer.Target.BuildConfiguration.") + QString::number(i)).toMap();
+        if (bcData.value(QLatin1String("Update.BCPos"), -1).toInt() == bcPos)
+            return;
+    }
+    QVariantMap data = bc;
+    data.insert(QLatin1String("Update.BCPos"), bcPos);
 
-    if (targetActive && bcActive)
-        merged.insert(QLatin1String("Update.IsActive"), true);
-    merged.insert(QLatin1String("Update.OriginalTarget"), origTarget);
+    merged.insert(QString::fromLatin1("ProjectExplorer.Target.BuildConfiguration.") + QString::number(internalCount), data);
+    if (bcPos == bcActive)
+        merged.insert(QLatin1String("ProjectExplorer.Target.ActiveBuildConfiguration"), internalCount);
+    merged.insert(QLatin1String("ProjectExplorer.Target.BuildConfigurationCount"), internalCount + 1);
 
     m_targets.insert(p, merged);
 }
 
-void Version11Handler::addOtherConfiguration(const QString &origTarget,
-                                             const QList<QVariantMap> &dcs, int activeDc,
-                                             const QList<QVariantMap> &rcs, int activeRc,
+void Version11Handler::addDeployConfiguration(Profile *p, const QVariantMap &dc, int dcPos, int dcActive)
+{
+    QVariantMap merged = m_targets.value(p);
+    int internalCount = merged.value(QLatin1String("ProjectExplorer.Target.DeployConfigurationCount"), 0).toInt();
+
+    for (int i = 0; i < internalCount; ++i) {
+        QVariantMap dcData = merged.value(QString::fromLatin1("ProjectExplorer.Target.DeployConfiguration.") + QString::number(i)).toMap();
+        if (dcData.value(QLatin1String("Update.DCPos"), -1).toInt() == dcPos)
+            return;
+    }
+    QVariantMap data = dc;
+    data.insert(QLatin1String("Update.DCPos"), dcPos);
+
+    merged.insert(QString::fromLatin1("ProjectExplorer.Target.DeployConfiguration.") + QString::number(internalCount), data);
+    if (dcPos == dcActive)
+        merged.insert(QLatin1String("ProjectExplorer.Target.ActiveDeployConfiguration"), internalCount);
+    merged.insert(QLatin1String("ProjectExplorer.Target.DeployConfigurationCount"), internalCount + 1);
+
+    m_targets.insert(p, merged);
+}
+
+void Version11Handler::addRunConfigurations(Profile *p,
+                                             const QMap<int, QVariantMap> &rcs, int activeRc,
                                              const QString &projectDir)
 {
-    foreach (Profile *tmp, m_targets.keys()) {
-        QVariantMap data = m_targets.value(tmp);
-        if (data.isEmpty())
-            continue;
-        const QString dataTarget = data.value(QLatin1String("Update.OriginalTarget")).toString();
-        if (dataTarget != origTarget)
-            continue;
-
-        int dcCount = dcs.count();
-        data.insert(QLatin1String("ProjectExplorer.Target.DeployConfigurationCount"), dcCount);
-        for (int i = 0; i < dcCount; ++i)
-            data.insert(QString::fromLatin1("ProjectExplorer.Target.DeployConfiguration.") + QString::number(i), dcs.at(i));
-        data.insert(QLatin1String("ProjectExplorer.Target.ActiveDeployConfiguration"), activeDc);
-
-        int rcCount = rcs.count();
-        data.insert(QLatin1String("ProjectExplorer.Target.RunConfigurationCount"), rcCount);
-        for (int i = 0; i < rcCount; ++i) {
-            QVariantMap rcData = rcs.at(i);
-            QString proFile = rcData.value(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.ProFile")).toString();
-            if (proFile.isEmpty())
-                proFile = rcData.value(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.ProFile")).toString();
-            if (!proFile.isEmpty()) {
-                QString newId = rcData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
-                newId.append(QLatin1Char(':'));
-                Utils::FileName fn = Utils::FileName::fromString(projectDir);
-                fn.appendPath(proFile);
-                newId.append(fn.toString());
-                rcData.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), newId);
-            }
-            data.insert(QString::fromLatin1("ProjectExplorer.Target.RunConfiguration.") + QString::number(i), rcData);
+    QVariantMap data = m_targets.value(p);
+    data.insert(QLatin1String("ProjectExplorer.Target.RunConfigurationCount"), rcs.count());
+    QMapIterator<int, QVariantMap> runIt(rcs);
+    while (runIt.hasNext()) {
+        runIt.next();
+        QVariantMap rcData = runIt.value();
+        QString proFile = rcData.value(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.ProFile")).toString();
+        if (proFile.isEmpty())
+            proFile = rcData.value(QLatin1String("Qt4ProjectManager.Qt4RunConfiguration.ProFile")).toString();
+        if (!proFile.isEmpty()) {
+            QString newId = rcData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
+            newId.append(QLatin1Char(':'));
+            Utils::FileName fn = Utils::FileName::fromString(projectDir);
+            fn.appendPath(proFile);
+            newId.append(fn.toString());
+            rcData.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), newId);
         }
-        data.insert(QLatin1String("ProjectExplorer.Target.ActiveRunConfiguration"), activeRc);
-
-        m_targets.insert(tmp, data);
+        data.insert(QString::fromLatin1("ProjectExplorer.Target.RunConfiguration.") + QString::number(runIt.key()), rcData);
     }
+    data.insert(QLatin1String("ProjectExplorer.Target.ActiveRunConfiguration"), activeRc);
+
+    m_targets.insert(p, data);
 }
 
 static QString targetRoot(const QString &qmakePath)
@@ -2624,8 +2655,7 @@ static QString maddeRoot(const QString &qmakePath)
 
 void Version11Handler::parseQtversionFile()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QFileInfo settingsLocation(pm->settings()->fileName());
+    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
     QString fileName = settingsLocation.absolutePath() + QLatin1String("/qtversion.xml");
     Utils::PersistentSettingsReader reader;
     if (!reader.load(fileName)) {
@@ -2669,8 +2699,7 @@ void Version11Handler::parseQtversionFile()
 
 void Version11Handler::parseToolChainFile()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QFileInfo settingsLocation(pm->settings()->fileName());
+    QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
     QString fileName = settingsLocation.absolutePath() + QLatin1String("/toolChains.xml");
     Utils::PersistentSettingsReader reader;
     if (!reader.load(fileName)) {

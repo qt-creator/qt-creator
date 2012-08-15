@@ -74,7 +74,7 @@ QMakeBaseKey::QMakeBaseKey(const QString &_root, bool _hostBuild)
 
 uint qHash(const QMakeBaseKey &key)
 {
-    return qHash(key.root) ^ key.hostBuild;
+    return qHash(key.root) ^ (uint)key.hostBuild;
 }
 
 bool operator==(const QMakeBaseKey &one, const QMakeBaseKey &two)

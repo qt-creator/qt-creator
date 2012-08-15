@@ -44,17 +44,20 @@ class QLineEdit;
 class QModelIndex;
 QT_END_NAMESPACE
 
-namespace Utils {
-class PathChooser;
-}
+namespace Utils { class PathChooser; }
 
 namespace Debugger {
+
+class DebuggerStartParameters;
+
 namespace Internal {
+
 class SourcePathMappingModel;
 
 class DebuggerSourcePathMappingWidget : public QGroupBox
 {
     Q_OBJECT
+
 public:
     typedef QMap<QString, QString> SourcePathMap;
 
@@ -65,10 +68,8 @@ public:
 
     /* Merge settings for an installed Qt (unless another setting
      * is already in the map. */
-    static SourcePathMap mergePlatformQtPath(const QString &qtInstallPath,
+    static SourcePathMap mergePlatformQtPath(const DebuggerStartParameters &sp,
                                              const SourcePathMap &in);
-
-signals:
 
 private slots:
     void slotAdd();

@@ -53,10 +53,8 @@
 #include <QtPlugin>
 #include <QDebug>
 
-#include <QTreeView>
-
-using namespace GenericProjectManager;
-using namespace GenericProjectManager::Internal;
+namespace GenericProjectManager {
+namespace Internal {
 
 GenericProjectPlugin::GenericProjectPlugin()
     : m_projectFilesEditorFactory(0)
@@ -96,7 +94,8 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     Core::ActionContainer *mproject =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
     m_editFilesAction = new QAction(tr("Edit Files..."), this);
-    Core::Command *command = Core::ActionManager::registerAction(m_editFilesAction, Constants::EDITFILESACTION, projectContext);
+
+    Core::Command *command = Core::ActionManager::registerAction(m_editFilesAction, "GenericProjectManager.EditFiles", projectContext);
     command->setAttribute(Core::Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
     connect(m_editFilesAction, SIGNAL(triggered()), this, SLOT(editFiles()));
@@ -126,4 +125,7 @@ void GenericProjectPlugin::editFiles()
     }
 }
 
-Q_EXPORT_PLUGIN(GenericProjectPlugin)
+} // namespace Internal
+} // namespace GenericProjectManager
+
+Q_EXPORT_PLUGIN(GenericProjectManager::Internal::GenericProjectPlugin)

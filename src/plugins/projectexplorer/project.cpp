@@ -248,7 +248,7 @@ bool Project::supportsProfile(Profile *p) const
 
 Target *Project::createTarget(Profile *p)
 {
-    if (target(p))
+    if (!p || target(p))
         return 0;
 
     Target *t = new Target(this, p);
@@ -356,9 +356,7 @@ bool Project::fromMap(const QVariantMap &map)
     if (!ok || maxI < 0)
         maxI = 0;
     int active(map.value(QLatin1String(ACTIVE_TARGET_KEY), 0).toInt(&ok));
-    if (!ok || active < 0)
-        active = 0;
-    if (0 > active || maxI < active)
+    if (!ok || active < 0 || active >= maxI)
         active = 0;
 
     for (int i = 0; i < maxI; ++i) {

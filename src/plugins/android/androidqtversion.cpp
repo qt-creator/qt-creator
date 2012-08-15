@@ -39,17 +39,11 @@ using namespace Android::Internal;
 AndroidQtVersion::AndroidQtVersion()
     : QtSupport::BaseQtVersion()
 {
-
 }
 
 AndroidQtVersion::AndroidQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
     : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
-}
-
-AndroidQtVersion::~AndroidQtVersion()
-{
-
 }
 
 AndroidQtVersion *AndroidQtVersion::clone() const

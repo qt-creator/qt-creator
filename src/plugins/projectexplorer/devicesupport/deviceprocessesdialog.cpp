@@ -29,59 +29,264 @@
 
 #include "devicesupport/deviceprocessesdialog.h"
 #include "devicesupport/deviceprocesslist.h"
-#include "ui_deviceprocessesdialog.h"
+#include "profilechooser.h"
+#include "profileinformation.h"
 
+#include <utils/filterlineedit.h>
+#include <utils/qtcassert.h>
+
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QSortFilterProxyModel>
+#include <QSpacerItem>
+#include <QTextBrowser>
+#include <QTextDocument>
+#include <QTreeView>
+#include <QVBoxLayout>
+
+using namespace Utils;
 
 namespace ProjectExplorer {
 namespace Internal {
 
-class DeviceProcessesDialogPrivate
+///////////////////////////////////////////////////////////////////////
+//
+// ProcessListFilterModel
+//
+///////////////////////////////////////////////////////////////////////
+
+class ProcessListFilterModel : public QSortFilterProxyModel
 {
 public:
-    DeviceProcessesDialogPrivate(DeviceProcessList *processList)
-        : processList(processList)
-    {
-    }
-
-    Ui::DeviceProcessesDialog ui;
-    DeviceProcessList * const processList;
-    QSortFilterProxyModel proxyModel;
+    ProcessListFilterModel();
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 };
 
-
-DeviceProcessesDialog::DeviceProcessesDialog(DeviceProcessList *processList, QWidget *parent)
-    : QDialog(parent), d(new DeviceProcessesDialogPrivate(processList))
+ProcessListFilterModel::ProcessListFilterModel()
 {
-    processList->setParent(this);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setDynamicSortFilter(true);
+    setFilterKeyColumn(-1);
+}
 
-    d->ui.setupUi(this);
-    d->proxyModel.setSourceModel(d->processList);
-    d->proxyModel.setDynamicSortFilter(true);
-    d->proxyModel.setFilterKeyColumn(-1);
-    d->ui.treeView->setModel(&d->proxyModel);
-    d->ui.treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    d->ui.treeView->setUniformRowHeights(true);
-    connect(d->ui.processFilterLineEdit, SIGNAL(textChanged(QString)),
-        &d->proxyModel, SLOT(setFilterRegExp(QString)));
+bool ProcessListFilterModel::lessThan(const QModelIndex &left,
+    const QModelIndex &right) const
+{
+    const QString l = sourceModel()->data(left).toString();
+    const QString r = sourceModel()->data(right).toString();
+    if (left.column() == 0)
+        return l.toInt() < r.toInt();
+    return l < r;
+}
 
-    connect(d->ui.treeView->selectionModel(),
+///////////////////////////////////////////////////////////////////////
+//
+// DeviceProcessesDialogPrivate
+//
+///////////////////////////////////////////////////////////////////////
+
+class DeviceProcessesDialogPrivate : public QObject
+{
+    Q_OBJECT
+
+public:
+    DeviceProcessesDialogPrivate(QWidget *parent);
+
+public slots:
+    void setDevice(const IDevice::ConstPtr &device);
+    void updateProcessList();
+    void updateDevice();
+    void killProcess();
+    void handleRemoteError(const QString &errorMsg);
+    void handleProcessListUpdated();
+    void handleProcessKilled();
+    void updateButtons();
+    DeviceProcess selectedProcess() const;
+
+public:
+    QWidget *q;
+    DeviceProcessList *processList;
+    ProcessListFilterModel proxyModel;
+    ProfileChooser *profileChooser;
+
+    QTreeView *procView;
+    QTextBrowser *errorText;
+    FilterLineEdit *processFilterLineEdit;
+    QPushButton *updateListButton;
+    QPushButton *killProcessButton;
+    QPushButton *attachProcessButton;
+};
+
+DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QWidget *parent)
+    : q(parent)
+{
+    processList = 0;
+
+    processFilterLineEdit = new FilterLineEdit(q);
+    processFilterLineEdit->setPlaceholderText(DeviceProcessesDialog::tr("Filter"));
+    processFilterLineEdit->setFocus(Qt::TabFocusReason);
+
+    profileChooser = new ProfileChooser(q);
+
+    procView = new QTreeView(q);
+    procView->setModel(&proxyModel);
+    procView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    procView->setSelectionMode(QAbstractItemView::SingleSelection);
+    procView->setUniformRowHeights(true);
+    procView->setRootIsDecorated(false);
+    procView->setAlternatingRowColors(true);
+    procView->setSortingEnabled(true);
+    procView->header()->setDefaultSectionSize(100);
+    procView->header()->setStretchLastSection(true);
+    procView->sortByColumn(1, Qt::AscendingOrder);
+
+    errorText = new QTextBrowser(q);
+
+    updateListButton = new QPushButton(DeviceProcessesDialog::tr("&Update List"), q);
+    killProcessButton = new QPushButton(DeviceProcessesDialog::tr("&Kill Process"), q);
+    attachProcessButton = new QPushButton(DeviceProcessesDialog::tr("&Attach to Process"), q);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(q);
+    buttonBox->setStandardButtons(QDialogButtonBox::Close);
+    buttonBox->addButton(updateListButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(killProcessButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(attachProcessButton, QDialogButtonBox::AcceptRole);
+
+    QFormLayout *leftColumn = new QFormLayout();
+    leftColumn->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    leftColumn->addRow(DeviceProcessesDialog::tr("Target:"), profileChooser);
+    leftColumn->addRow(DeviceProcessesDialog::tr("&Filter:"), processFilterLineEdit);
+
+//    QVBoxLayout *rightColumn = new QVBoxLayout();
+//    rightColumn->addWidget(updateListButton);
+//    rightColumn->addWidget(killProcessButton);
+//    rightColumn->addStretch();
+
+//    QHBoxLayout *horizontalLayout = new QHBoxLayout();
+//    horizontalLayout->addLayout(leftColumn);
+//    horizontalLayout->addLayout(rightColumn);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(q);
+    mainLayout->addLayout(leftColumn);
+    mainLayout->addWidget(procView);
+    mainLayout->addWidget(errorText);
+    mainLayout->addWidget(buttonBox);
+
+//    QFrame *line = new QFrame(this);
+//    line->setFrameShape(QFrame::HLine);
+//    line->setFrameShadow(QFrame::Sunken);
+
+    connect(processFilterLineEdit, SIGNAL(textChanged(QString)),
+        &proxyModel, SLOT(setFilterRegExp(QString)));
+    connect(procView->selectionModel(),
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-        SLOT(handleSelectionChanged()));
-    connect(d->ui.updateListButton, SIGNAL(clicked()),
-        SLOT(updateProcessList()));
-    connect(d->ui.killProcessButton, SIGNAL(clicked()), SLOT(killProcess()));
-    connect(d->processList, SIGNAL(error(QString)),
+        SLOT(updateButtons()));
+    connect(updateListButton, SIGNAL(clicked()), SLOT(updateProcessList()));
+    connect(profileChooser, SIGNAL(currentIndexChanged(int)), SLOT(updateDevice()));
+    connect(killProcessButton, SIGNAL(clicked()), SLOT(killProcess()));
+    connect(&proxyModel, SIGNAL(layoutChanged()), SLOT(handleProcessListUpdated()));
+    connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), q, SLOT(reject()));
+}
+
+void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
+{
+    delete processList;
+
+    processList = device->createProcessListModel();
+    QTC_ASSERT(processList, return);
+    proxyModel.setSourceModel(processList);
+
+    connect(processList, SIGNAL(error(QString)),
         SLOT(handleRemoteError(QString)));
-    connect(d->processList, SIGNAL(processListUpdated()),
+    connect(processList, SIGNAL(processListUpdated()),
         SLOT(handleProcessListUpdated()));
-    connect(d->processList, SIGNAL(processKilled()),
+    connect(processList, SIGNAL(processKilled()),
         SLOT(handleProcessKilled()), Qt::QueuedConnection);
-    connect(&d->proxyModel, SIGNAL(layoutChanged()),
-        SLOT(handleProcessListUpdated()));
-    handleSelectionChanged();
+
+    updateButtons();
     updateProcessList();
+}
+
+void DeviceProcessesDialogPrivate::handleRemoteError(const QString &errorMsg)
+{
+    QMessageBox::critical(q, tr("Remote Error"), errorMsg);
+    updateListButton->setEnabled(true);
+    updateButtons();
+}
+
+void DeviceProcessesDialogPrivate::handleProcessListUpdated()
+{
+    updateListButton->setEnabled(true);
+    procView->resizeColumnToContents(0);
+    procView->resizeColumnToContents(1);
+    updateButtons();
+}
+
+void DeviceProcessesDialogPrivate::updateProcessList()
+{
+    updateListButton->setEnabled(false);
+    killProcessButton->setEnabled(false);
+    if (processList)
+        processList->update();
+}
+
+void DeviceProcessesDialogPrivate::killProcess()
+{
+    const QModelIndexList indexes = procView->selectionModel()->selectedIndexes();
+    if (indexes.empty())
+        return;
+    updateListButton->setEnabled(false);
+    killProcessButton->setEnabled(false);
+    processList->killProcess(proxyModel.mapToSource(indexes.first()).row());
+}
+
+void DeviceProcessesDialogPrivate::updateDevice()
+{
+    setDevice(DeviceProfileInformation::device(profileChooser->currentProfile()));
+}
+
+void DeviceProcessesDialogPrivate::handleProcessKilled()
+{
+    updateProcessList();
+}
+
+void DeviceProcessesDialogPrivate::updateButtons()
+{
+    bool hasSelection = procView->selectionModel()->hasSelection();
+    attachProcessButton->setEnabled(hasSelection);
+    killProcessButton->setEnabled(hasSelection);
+    errorText->setVisible(!errorText->document()->isEmpty());
+}
+
+DeviceProcess DeviceProcessesDialogPrivate::selectedProcess() const
+{
+    const QModelIndexList indexes = procView->selectionModel()->selectedIndexes();
+    if (indexes.empty())
+        return DeviceProcess();
+    return processList->at(proxyModel.mapToSource(indexes.first()).row());
+}
+
+} // namespace Internal
+
+///////////////////////////////////////////////////////////////////////
+//
+// DeviceProcessesDialog
+//
+///////////////////////////////////////////////////////////////////////
+
+DeviceProcessesDialog::DeviceProcessesDialog(QWidget *parent)
+    : QDialog(parent), d(new Internal::DeviceProcessesDialogPrivate(this))
+{
+    setWindowTitle(tr("List of Processes"));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    setMinimumHeight(500);
 }
 
 DeviceProcessesDialog::~DeviceProcessesDialog()
@@ -89,46 +294,34 @@ DeviceProcessesDialog::~DeviceProcessesDialog()
     delete d;
 }
 
-void DeviceProcessesDialog::handleRemoteError(const QString &errorMsg)
+void DeviceProcessesDialog::setDevice(const IDevice::ConstPtr &device)
 {
-    QMessageBox::critical(this, tr("Remote Error"), errorMsg);
-    d->ui.updateListButton->setEnabled(true);
-    handleSelectionChanged();
+    d->profileChooser->hide();
+    d->setDevice(device);
 }
 
-void DeviceProcessesDialog::handleProcessListUpdated()
+void DeviceProcessesDialog::showAllDevices()
 {
-    d->ui.updateListButton->setEnabled(true);
-    handleSelectionChanged();
+    d->profileChooser->show();
+    d->updateDevice();
 }
 
-void DeviceProcessesDialog::updateProcessList()
+DeviceProcess DeviceProcessesDialog::currentProcess() const
 {
-    d->ui.updateListButton->setEnabled(false);
-    d->ui.killProcessButton->setEnabled(false);
-    d->processList->update();
+    return d->selectedProcess();
 }
 
-void DeviceProcessesDialog::killProcess()
+ProfileChooser *DeviceProcessesDialog::profileChooser() const
 {
-    const QModelIndexList &indexes
-        = d->ui.treeView->selectionModel()->selectedIndexes();
-    if (indexes.empty())
-        return;
-    d->ui.updateListButton->setEnabled(false);
-    d->ui.killProcessButton->setEnabled(false);
-    d->processList->killProcess(d->proxyModel.mapToSource(indexes.first()).row());
+    return d->profileChooser;
 }
 
-void DeviceProcessesDialog::handleProcessKilled()
+void DeviceProcessesDialog::logMessage(const QString &line)
 {
-    updateProcessList();
+    d->errorText->setVisible(true);
+    d->errorText->append(line);
 }
 
-void DeviceProcessesDialog::handleSelectionChanged()
-{
-    d->ui.killProcessButton->setEnabled(d->ui.treeView->selectionModel()->hasSelection());
-}
+} // namespace ProjectExplorer
 
-} // namespace Internal
-} // namespace RemoteLinux
+#include "deviceprocessesdialog.moc"

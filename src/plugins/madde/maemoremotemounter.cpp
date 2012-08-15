@@ -103,6 +103,7 @@ void MaemoRemoteMounter::mount()
         emit reportProgress(tr("No directories to mount"));
         emit mounted();
     } else {
+        setState(GatheringPorts);
         m_portsGatherer->start(m_devConf);
     }
 }

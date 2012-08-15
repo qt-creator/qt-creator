@@ -38,23 +38,21 @@
 
 #include <utils/filewizardpage.h>
 
-#include <QIcon>
-
 #include <QApplication>
-#include <QStyle>
-#include <QPainter>
-#include <QPixmap>
-
+#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QDebug>
-#include <QCoreApplication>
+#include <QPainter>
+#include <QPixmap>
+#include <QStyle>
 
-using namespace GenericProjectManager::Internal;
-using namespace Utils;
+namespace GenericProjectManager {
+namespace Internal {
 
 //////////////////////////////////////////////////////////////////////////////
+//
 // GenericProjectWizardDialog
+//
 //////////////////////////////////////////////////////////////////////////////
 
 GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
@@ -63,7 +61,7 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     setWindowTitle(tr("Import Existing Project"));
 
     // first page
-    m_firstPage = new FileWizardPage;
+    m_firstPage = new Utils::FileWizardPage;
     m_firstPage->setTitle(tr("Project Name and Location"));
     m_firstPage->setFileNameLabel(tr("Project name:"));
     m_firstPage->setPathLabel(tr("Location:"));
@@ -78,9 +76,6 @@ GenericProjectWizardDialog::GenericProjectWizardDialog(QWidget *parent)
     const int secondPageId = addPage(m_secondPage);
     wizardProgress()->item(secondPageId)->setTitle(tr("Files"));
 }
-
-GenericProjectWizardDialog::~GenericProjectWizardDialog()
-{ }
 
 QString GenericProjectWizardDialog::path() const
 {
@@ -107,11 +102,14 @@ QString GenericProjectWizardDialog::projectName() const
     return m_firstPage->fileName();
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// GenericProjectWizard
+//
+//////////////////////////////////////////////////////////////////////////////
+
 GenericProjectWizard::GenericProjectWizard()
     : Core::BaseFileWizard(parameters())
-{ }
-
-GenericProjectWizard::~GenericProjectWizard()
 { }
 
 Core::FeatureSet GenericProjectWizard::requiredFeatures() const
@@ -217,3 +215,6 @@ bool GenericProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
     Q_UNUSED(w);
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
+
+} // namespace Internal
+} // namespace GenericProjectManager

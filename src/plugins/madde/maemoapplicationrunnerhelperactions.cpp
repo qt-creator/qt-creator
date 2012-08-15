@@ -42,7 +42,9 @@ namespace Internal {
 
 MaemoPreRunAction::MaemoPreRunAction(const IDevice::ConstPtr &device, const FileName &maddeRoot,
         const QList<MaemoMountSpecification> &mountSpecs, QObject *parent)
-    : DeviceApplicationHelperAction(parent), m_mounter(new MaemoRemoteMounter(this))
+    : DeviceApplicationHelperAction(parent),
+      m_mounter(new MaemoRemoteMounter(this)),
+      m_isRunning(false)
 {
     m_mounter->setParameters(device, maddeRoot);
     foreach (const MaemoMountSpecification &m, mountSpecs)
@@ -69,11 +71,16 @@ void MaemoPreRunAction::start()
 {
     QTC_ASSERT(!m_isRunning, return);
 
+    m_isRunning = true;
+    if (!m_mounter->hasValidMountSpecifications()) {
+        setFinished(true);
+        return;
+    }
+
     connect(m_mounter, SIGNAL(debugOutput(QString)), SIGNAL(reportProgress(QString)));
     connect(m_mounter, SIGNAL(reportProgress(QString)), SIGNAL(reportProgress(QString)));
     connect(m_mounter, SIGNAL(mounted()), SLOT(handleMounted()));
     connect(m_mounter, SIGNAL(error(QString)), SLOT(handleError(QString)));
-    m_isRunning = true;
     m_mounter->mount();
 }
 
@@ -81,7 +88,8 @@ void MaemoPreRunAction::stop()
 {
     QTC_ASSERT(m_isRunning, return);
 
-    m_mounter->stop();
+    if (m_mounter->hasValidMountSpecifications())
+        m_mounter->stop();
     setFinished(false);
 }
 
@@ -95,7 +103,7 @@ void MaemoPreRunAction::setFinished(bool success)
 }
 
 MaemoPostRunAction::MaemoPostRunAction(MaemoRemoteMounter *mounter, QObject *parent)
-        : DeviceApplicationHelperAction(parent), m_mounter(mounter)
+        : DeviceApplicationHelperAction(parent), m_mounter(mounter), m_isRunning(false)
 {
 }
 
@@ -119,11 +127,16 @@ void MaemoPostRunAction::start()
 {
     QTC_ASSERT(!m_isRunning, return);
 
+    m_isRunning = true;
+    if (!m_mounter->hasValidMountSpecifications()) {
+        setFinished(true);
+        return;
+    }
+
     connect(m_mounter, SIGNAL(debugOutput(QString)), SIGNAL(reportProgress(QString)));
     connect(m_mounter, SIGNAL(reportProgress(QString)), SIGNAL(reportProgress(QString)));
     connect(m_mounter, SIGNAL(unmounted()), SLOT(handleUnmounted()));
     connect(m_mounter, SIGNAL(error(QString)), SLOT(handleError(QString)));
-    m_isRunning = true;
     m_mounter->unmount();
 }
 
@@ -139,8 +152,10 @@ void MaemoPostRunAction::setFinished(bool success)
 {
     QTC_ASSERT(m_isRunning, return);
 
-    m_mounter->disconnect(this);
-    m_isRunning = false;
+    if (m_mounter->hasValidMountSpecifications()) {
+        m_mounter->disconnect(this);
+        m_isRunning = false;
+    }
     emit finished(success);
 }
 

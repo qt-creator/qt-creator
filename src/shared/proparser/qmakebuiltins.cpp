@@ -969,12 +969,13 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                     .absoluteFilePath(args.at(0).toQString(m_tmp1)))).setSource(args.at(0));
         break;
     case E_RELATIVE_PATH:
-        if (args.count() > 2)
+        if (args.count() > 2) {
             evalError(fL1S("relative_path(path[, base]) requires one or two arguments."));
-        else
-            ret << ProString(QDir::cleanPath(
-                    QDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory())
-                    .relativeFilePath(args.at(0).toQString(m_tmp1)))).setSource(args.at(0));
+        } else {
+            QDir baseDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory());
+            ret << ProString(baseDir.relativeFilePath(baseDir.absoluteFilePath(
+                                args.at(0).toQString(m_tmp1)))).setSource(args.at(0));
+        }
         break;
     case E_CLEAN_PATH:
         if (args.count() != 1)

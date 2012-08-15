@@ -52,7 +52,7 @@ public:
 
     explicit TargetSelector(QWidget *parent = 0);
 
-    QSize minimumSizeHint() const;
+    QSize sizeHint() const;
 
     int targetWidth() const;
     QString runButtonString() const { return tr("Run"); }
@@ -63,21 +63,15 @@ public:
     int currentIndex() const { return m_currentTargetIndex; }
     int currentSubIndex() const { return m_targets.at(m_currentTargetIndex).currentSubIndex; }
 
-    bool isAddButtonEnabled() const;
-    bool isRemoveButtonEnabled() const;
-
 public:
     void insertTarget(int index, const QString &name);
     void renameTarget(int index, const QString &name);
     void removeTarget(int index);
     void setCurrentIndex(int index);
     void setCurrentSubIndex(int subindex);
-    void setAddButtonEnabled(bool enabled);
-    void setRemoveButtonEnabled(bool enabled);
-    void setAddButtonMenu(QMenu *menu);
 
 signals:
-    void removeButtonClicked();
+    void removeButtonClicked(int targetIndex);
     // This signal is emitted whenever the target pointed to by the indices
     // has changed.
     void currentChanged(int targetIndex, int subIndex);
@@ -85,23 +79,26 @@ signals:
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void leaveEvent(QEvent *event);
 
 private:
+    void getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex, bool *removeButton);
+    int maxVisibleTargets() const;
+
     const QImage m_unselected;
     const QImage m_runselected;
     const QImage m_buildselected;
-    const QPixmap m_targetaddbutton;
-    const QPixmap m_targetaddbuttondisabled;
-    const QPixmap m_targetremovebutton;
-    const QPixmap m_targetremovebuttondisabled;
+    const QPixmap m_targetRightButton;
+    const QPixmap m_targetLeftButton;
+    const QPixmap m_targetRemoveButton;
+    const QPixmap m_targetRemoveDarkButton;
 
     QList<Target> m_targets;
 
     int m_currentTargetIndex;
-    bool m_addButtonEnabled;
-    bool m_removeButtonEnabled;
-
-    QMenu *m_addButtonMenu;
+    int m_currentHoveredTargetIndex;
+    int m_startIndex;
 };
 
 } // namespace Internal

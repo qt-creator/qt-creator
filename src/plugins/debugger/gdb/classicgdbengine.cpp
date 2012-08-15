@@ -39,6 +39,8 @@
 #include "stackhandler.h"
 #include "watchhandler.h"
 
+#include <coreplugin/icore.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/fileutils.h>
@@ -46,6 +48,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QPushButton>
 
 #if !defined(Q_OS_WIN)
 #include <dlfcn.h>
@@ -1118,18 +1121,13 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
         return;
 
     m_debuggingHelperState = DebuggingHelperLoadTried;
-    QByteArray dlopenLib;
-    const DebuggerStartMode startMode = startParameters().startMode;
-    if (startMode == AttachToRemoteServer || startMode == StartRemoteGdb)
-        dlopenLib = startParameters().remoteDumperLib;
-    else
-        dlopenLib = qtDumperLibraryName().toLocal8Bit();
 
     // Do not use STRINGIFY for RTLD_NOW as we really want to expand that to a number.
 #if defined(Q_OS_WIN) || defined(Q_OS_SYMBIAN)
     // We are using Python on Windows and Symbian.
     QTC_CHECK(false);
 #elif defined(Q_OS_MAC)
+    QByteArray dlopenLib = startParameters().dumperLibrary.toLocal8Bit();
     //postCommand("sharedlibrary libc"); // for malloc
     //postCommand("sharedlibrary libdl"); // for dlopen
     const QByteArray flag = QByteArray::number(RTLD_NOW);
@@ -1138,6 +1136,7 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
         CB(handleDebuggingHelperSetup));
     //postCommand("sharedlibrary " + dotEscape(dlopenLib));
 #else
+    QByteArray dlopenLib = startParameters().dumperLibrary.toLocal8Bit();
     //postCommand("p dlopen");
     const QByteArray flag = QByteArray::number(RTLD_NOW);
     postCommand("sharedlibrary libc"); // for malloc
@@ -1151,16 +1150,10 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
         CB(handleDebuggingHelperSetup));
     postCommand("sharedlibrary " + dotEscape(dlopenLib));
 #endif
-    tryQueryDebuggingHelpersClassic();
-}
 
-void GdbEngine::tryQueryDebuggingHelpersClassic()
-{
-    PRECONDITION;
     // Retrieve list of dumpable classes.
     postCommand("call (void*)qDumpObjectData440(1,0,0,0,0,0,0,0)");
-    postCommand("p (char*)&qDumpOutBuffer",
-        CB(handleQueryDebuggingHelperClassic));
+    postCommand("p (char*)&qDumpOutBuffer", CB(handleQueryDebuggingHelperClassic));
 }
 
 // Called from CoreAdapter and AttachAdapter
@@ -1267,15 +1260,45 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
     watchHandler()->updateWatchers();
 }
 
+static void showQtDumperLibraryWarning(const QString &details)
+{
+    QMessageBox dialog(debuggerCore()->mainWindow());
+    QPushButton *qtPref = dialog.addButton(DebuggerCore::tr("Open Qt Options"),
+        QMessageBox::ActionRole);
+    QPushButton *helperOff = dialog.addButton(DebuggerCore::tr("Turn off Helper Usage"),
+        QMessageBox::ActionRole);
+    QPushButton *justContinue = dialog.addButton(DebuggerCore::tr("Continue Anyway"),
+        QMessageBox::AcceptRole);
+    dialog.setDefaultButton(justContinue);
+    dialog.setWindowTitle(DebuggerCore::tr("Debugging Helper Missing"));
+    dialog.setText(DebuggerCore::tr("The debugger could not load the debugging helper library."));
+    dialog.setInformativeText(DebuggerCore::tr(
+        "The debugging helper is used to nicely format the values of some Qt "
+        "and Standard Library data types. "
+        "It must be compiled for each used Qt version separately. "
+        "In the Qt Creator Build and Run preferences page, select a Qt version, "
+        "expand the Details section and click Build All."));
+    if (!details.isEmpty())
+        dialog.setDetailedText(details);
+    dialog.exec();
+    if (dialog.clickedButton() == qtPref) {
+        Core::ICore::showOptionsDialog(
+            _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
+            _(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
+    } else if (dialog.clickedButton() == helperOff) {
+        debuggerCore()->action(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);
+    }
+}
+
 bool GdbEngine::checkDebuggingHelpersClassic()
 {
     PRECONDITION;
-    if (!qtDumperLibraryEnabled())
+    if (!debuggerCore()->boolSetting(UseDebuggingHelpers))
         return false;
-    const QString lib = qtDumperLibraryName();
+    const QString lib = startParameters().dumperLibrary;
     if (QFileInfo(lib).exists())
         return true;
-    const QStringList &locations = qtDumperLibraryLocations();
+    const QStringList &locations = startParameters().dumperLibraryLocations;
     const QString loc = locations.join(QLatin1String(", "));
     const QString msg = tr("The debugging helper library was not found at %1.")
             .arg(loc);

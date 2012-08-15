@@ -160,6 +160,6 @@ public:
 
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QtSupport
 
 #endif // QTVERSIONMANAGER_H

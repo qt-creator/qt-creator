@@ -43,7 +43,6 @@
 namespace GenericProjectManager {
 namespace Internal {
 
-
 struct Tree
 {
     QString name;
@@ -68,6 +67,7 @@ struct Glob
 class SelectableFilesModel : public QAbstractItemModel
 {
     Q_OBJECT
+
 public:
     SelectableFilesModel(const QString &baseDir, QObject *parent);
     ~SelectableFilesModel();
@@ -92,11 +92,14 @@ public:
     void waitForFinished();
     void cancel();
     void applyFilter(const QString &filter);
+
 signals:
     void parsingFinished();
     void parsingProgress(const QString &filename);
+
 private slots:
     void buildTreeFinished();
+
 private:
     QList<Glob> parseFilter(const QString &filter);
     Qt::CheckState applyFilter(const QModelIndex &index);
@@ -124,6 +127,7 @@ private:
 class SelectableFilesDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     SelectableFilesDialog(const QString &path, const QStringList files, QWidget *parent);
     ~SelectableFilesDialog();
@@ -145,8 +149,7 @@ private:
     QLabel *m_progressLabel;
 };
 
-}
-}
-
+} // namespace Internal
+} // namespace GenericProjectManager
 
 #endif // SELECTABLEFILESMODEL_H

@@ -58,9 +58,6 @@
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Constants;
-using ProjectExplorer::BuildStepList;
-using ProjectExplorer::BuildStepConfigWidget;
-using ProjectExplorer::Task;
 
 namespace Android {
 namespace Internal {
@@ -125,10 +122,6 @@ AndroidPackageCreationStep::AndroidPackageCreationStep(BuildStepList *bsl,
     : BuildStep(bsl, other)
 {
     ctor();
-}
-
-AndroidPackageCreationStep::~AndroidPackageCreationStep()
-{
 }
 
 void AndroidPackageCreationStep::ctor()

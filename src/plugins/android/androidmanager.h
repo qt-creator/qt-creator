@@ -40,8 +40,6 @@
 namespace ProjectExplorer { class Target; }
 
 namespace Android {
-class AndroidPlugin;
-
 namespace Internal {
 
 class AndroidManager : public QObject

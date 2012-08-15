@@ -44,7 +44,6 @@ class QSettings;
 QT_END_NAMESPACE
 
 namespace Core { class Id; }
-namespace ProjectExplorer { class Profile; }
 
 namespace Debugger {
 class DebuggerStartParameters;
@@ -52,97 +51,35 @@ class DebuggerStartParameters;
 namespace Internal {
 
 class AttachCoreDialogPrivate;
-class AttachExternalDialogPrivate;
 class AttachToQmlPortDialogPrivate;
 class ProcessListFilterModel;
-class StartExternalDialogPrivate;
-class StartExternalParameters;
-class StartRemoteDialogPrivate;
+class StartApplicationParameters;
+class StartApplicationDialogPrivate;
 class StartRemoteEngineDialogPrivate;
-class StartRemoteParameters;
 
-class AttachExternalDialog : public QDialog
+class StartApplicationDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit AttachExternalDialog(QWidget *parent);
-    ~AttachExternalDialog();
-
-    qint64 attachPID() const;
-    QString executable() const;
-
-    int profileIndex() const;
-    void setProfileIndex(int);
-    Core::Id profileId() const;
-
-    void accept();
-
-private slots:
-    void rebuildProcessList();
-    void procSelected(const QModelIndex &index);
-    void procClicked(const QModelIndex &index);
-    void pidChanged(const QString &index);
-    void setFilterString(const QString &filter);
-
-private:
-    inline QPushButton *okButton() const;
-    inline QString attachPIDText() const;
-
-    AttachExternalDialogPrivate *d;
-};
-
-class StartExternalDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit StartExternalDialog(QWidget *parent);
-    ~StartExternalDialog();
-
-    static bool run(QWidget *parent, QSettings *settings, DebuggerStartParameters *sp);
-
-private slots:
-    void changed();
-    void historyIndexChanged(int);
-
-private:
-    StartExternalParameters parameters() const;
-    void setParameters(const StartExternalParameters &p);
-    void setHistory(const QList<StartExternalParameters> &l);
-
-    QString executableFile() const;
-    void setExecutableFile(const QString &executable);
-
-    Core::Id profileId() const;
-    bool isValid() const;
-
-    StartExternalDialogPrivate *d;
-};
-
-class StartRemoteDialog : public QDialog
-{
-    Q_OBJECT
-
-public:
-    explicit StartRemoteDialog(QWidget *parent, bool enableStartScript);
-    ~StartRemoteDialog();
+    explicit StartApplicationDialog(QWidget *parent);
+    ~StartApplicationDialog();
 
     static bool run(QWidget *parent, QSettings *settings,
-                    bool useScript, DebuggerStartParameters *sp);
+                    DebuggerStartParameters *sp);
 
 private slots:
-    void updateState();
     void historyIndexChanged(int);
+    void updateState();
 
 private:
-    StartRemoteParameters parameters() const;
-    void setParameters(const StartRemoteParameters &);
-    void setHistory(const QList<StartRemoteParameters> &);
-
+    StartApplicationParameters parameters() const;
+    void setParameters(const StartApplicationParameters &p);
+    void setHistory(const QList<StartApplicationParameters> &l);
+    void hideStartScript();
     Core::Id profileId() const;
 
-    StartRemoteDialogPrivate *d;
+    StartApplicationDialogPrivate *d;
 };
 
 class AttachToQmlPortDialog : public QDialog

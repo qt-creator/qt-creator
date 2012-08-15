@@ -20,9 +20,13 @@ Product {
     }
 
     Depends { name: "pluginspec" }
-    Depends { name: 'cpp' }
+    Depends { name: "cpp" }
     cpp.defines: [name.toUpperCase() + "_LIBRARY"]
     cpp.rpaths: ["$ORIGIN/../../.."]
+    cpp.linkerFlags: {
+        if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))
+            return ["-Wl,-s"]
+    }
 
     Group {
         files: [ name + ".pluginspec.in" ]

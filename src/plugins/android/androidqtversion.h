@@ -41,14 +41,13 @@ namespace Internal {
 class AndroidQtVersion : public QtSupport::BaseQtVersion
 {
     Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidQtVersion)
+
 public:
     AndroidQtVersion();
     AndroidQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
-    ~AndroidQtVersion ();
+
     AndroidQtVersion *clone() const;
-
     QString type() const;
-
     bool isValid() const;
     QString invalidReason() const;
 

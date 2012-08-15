@@ -34,28 +34,22 @@
 namespace GenericProjectManager {
 namespace Constants {
 
-const char *const PROJECTCONTEXT     = "GenericProject.ProjectContext";
-const char *const GENERICMIMETYPE    = "text/x-generic-project"; // ### FIXME
+const char PROJECTCONTEXT[]     = "GenericProject.ProjectContext";
+const char GENERICMIMETYPE[]    = "text/x-generic-project"; // ### FIXME
 
-// contexts
-const char *const C_FILESEDITOR      = ".files Editor";
+// Contexts
+const char C_FILESEDITOR[]      = ".files Editor";
+const char FILES_EDITOR_ID[]    = "QT4.FilesEditor";
 
-const char *const FILES_EDITOR_ID    = "QT4.FilesEditor";
-const char *const FILES_EDITOR_DISPLAY_NAME = QT_TRANSLATE_NOOP("OpenWith::Editors", ".files Editor");
-
-const char *const FILES_MIMETYPE     = "application/vnd.nokia.qt.generic.files";
-
-const char *const INCLUDES_MIMETYPE  = "application/vnd.nokia.qt.generic.includes";
-
-const char *const CONFIG_MIMETYPE    = "application/vnd.nokia.qt.generic.config";
+const char FILES_MIMETYPE[]     = "application/vnd.nokia.qt.generic.files";
+const char INCLUDES_MIMETYPE[]  = "application/vnd.nokia.qt.generic.includes";
+const char CONFIG_MIMETYPE[]    = "application/vnd.nokia.qt.generic.config";
 
 // Project
-const char *const GENERICPROJECT_ID  = "GenericProjectManager.GenericProject";
+const char GENERICPROJECT_ID[]  = "GenericProjectManager.GenericProject";
 
-const char *const EDITFILESACTION = "GenericProjectManager.EditFiles";
-
-const char *const FILEFILTER_SETTING = "GenericProject/FileFilter";
-const char *const FILEFILTER_DEFAULT = "Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes";
+const char FILEFILTER_SETTING[] = "GenericProject/FileFilter";
+const char FILEFILTER_DEFAULT[] = "Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes";
 
 } // namespace Constants
 } // namespace GenericProjectManager

@@ -160,12 +160,11 @@
 
             \image qmldesigner-new-project-qt-versions.png "Target Setup dialog"
 
-        \o  Select the Qt versions to use as build targets for your project,
+        \o  Select build targets for your project,
             and then click \gui{Next}.
 
-            \note Qt Quick is supported since Qt 4.7, and therefore, only Qt 4.7
-            and later versions are displayed. Further, if you have only one
-            supported Qt version installed, this dialog is skipped.
+            \note If only one target is specified in \gui Tools > \gui Options >
+            \gui {Build & Run} > \gui Targets, this dialog is skipped.
 
             The \gui {Mobile Options} dialog opens.
 

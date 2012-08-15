@@ -158,8 +158,9 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
     // Load the project tree structure.
     evaluateBuildSystem();
 
-    if (!activeTarget())
-        addTarget(createTarget(ProfileManager::instance()->defaultProfile()));
+    Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
+    if (!activeTarget() && defaultProfile)
+        addTarget(createTarget(defaultProfile));
 
     return true;
 }

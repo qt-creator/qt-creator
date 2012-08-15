@@ -37,16 +37,13 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <QIcon>
+using namespace ProjectExplorer;
 
 namespace Android {
 namespace Internal {
 
-using ProjectExplorer::RunConfiguration;
-using namespace ProjectExplorer;
-
 AndroidRunControl::AndroidRunControl(AndroidRunConfiguration *rc)
-    : RunControl(rc, ProjectExplorer::NormalRunMode)
+    : RunControl(rc, NormalRunMode)
     , m_runner(new AndroidRunner(this, rc, false))
     , m_running(false)
 {
@@ -73,7 +70,7 @@ void AndroidRunControl::start()
     m_runner->start();
 }
 
-ProjectExplorer::RunControl::StopResult AndroidRunControl::stop()
+RunControl::StopResult AndroidRunControl::stop()
 {
     m_runner->stop();
     return StoppedSynchronously;

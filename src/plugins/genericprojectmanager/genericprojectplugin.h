@@ -55,8 +55,9 @@ public:
     GenericProjectPlugin();
     ~GenericProjectPlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorString);
+    void extensionsInitialized();
+
 private slots:
     void updateContextMenu(ProjectExplorer::Project *, ProjectExplorer::Node *);
     void editFiles();

@@ -27,7 +27,7 @@
     \contentspage index.html
     \previouspage creator-configuring-projects.html
     \page creator-build-settings.html
-    \nextpage creator-project-qmake.html
+    \nextpage creator-targets.html
 
     \title Specifying Build Settings
 
@@ -48,51 +48,29 @@
 
     \section1 Editing Build Configurations
 
+    Select the build configuration to edit in the
+    \gui {Edit build configuration} field.
+
     \image qtcreator-projectpane.png
 
-    To edit a build configuration:
+    By default, \QC builds projects in a separate directory from the source
+    directory, as \l{glossary-shadow-build} {shadow builds}. This keeps the
+    files generated for each \l{glossary-development-target}{target} separate.
+    If you only build for one target, you can deselect the \gui {Shadow build}
+    checkbox.
 
-    \list 1
+    Shadow building is not supported for the following target platforms on
+    Windows:
 
-        \o  Select the build configuration you want to edit in
-            \gui{Edit Build Configuration}.
+    \list
 
-        \o  In the \gui {Qt version} field, select the Qt version to use for
-            building project. You can add Qt versions to the list if they are
-            installed on the development PC, but were not detected
-            automatically. For more information, see \l{Adding Qt Versions}.
+        \o  Maemo5
 
-        \o  In the \gui {Tool chain} field, select the tool chain required
-            to build the project. The tool chains that are compatible with the
-            selected Qt version are listed. You can add tool chains to the list
-            if they are not automatically detected. For more information, see
-            \l{Adding Tool Chains}.
+        \o  MeeGo Harmattan
 
-        \o  In the \gui {Build directory} field, specify the build directory for
-            the project. By default, projects are built in a separate directory
-            from the source directory, as \l{glossary-shadow-build}
-            {shadow builds}. This keeps the files generated for each
-            \l{glossary-development-target}{target} platform separate.
-            If you only build for one target platform, you can deselect the
-            \gui{Shadow build} checkbox.
-
-            \if defined(qcmanual)
-            \note Shadow building is not supported for Maemo or MeeGo Harmattan
-            on Windows. Also, shadow building is not supported by the Symbian
-            build system.
-            \endif
-
+        \o  Symbian Devices
 
     \endlist
-
-    \if defined(qcmanual)
-    \note The build configuration for the \gui{Symbian Device} target
-    uses the GCCE tool chain by default. If you want to build
-    for the device using RVCT, install the RVCT tool chain, and then
-    select it in the \gui {Tool chain} field. RVCT 2.2 is supported on Symbian^3
-    and earlier. RVCT 4.0 b902 or later is required for Symbian Belle.
-    \endif
-
 
     \section1 Starting External Processes
 
@@ -216,6 +194,7 @@
 
     \list
 
+        \o  \l{Adding Targets}
         \o  \l{Adding Qt Versions}
         \o  \l{Adding Tool Chains}
 

@@ -32,35 +32,26 @@
 #define STARTGDBSERVERDIALOG_H
 
 #include "debugger_global.h"
-
-#include <QDialog>
+#include <projectexplorer/profile.h>
+#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 
 namespace Debugger {
+namespace Internal {
 
-namespace Internal { class StartGdbServerDialogPrivate; }
+class StartGdbServerDialogPrivate;
 
-class DEBUGGER_EXPORT StartGdbServerDialog : public QDialog
+class GdbServerStarter : public QObject
 {
     Q_OBJECT
 
 public:
-    StartGdbServerDialog(QWidget *parent);
-    ~StartGdbServerDialog();
+    GdbServerStarter(ProjectExplorer::DeviceProcessesDialog *dlg, bool startServerOnly);
+    ~GdbServerStarter();
 
-    void startGdbServer();
-    void attachToRemoteProcess();
-
-signals:
-    void processAborted();
+    void run();
 
 private slots:
-    void attachToDevice();
     void handleRemoteError(const QString &errorMessage);
-    void handleProcessListUpdated();
-    void updateProcessList();
-    void attachToProcess();
-    void handleProcessKilled();
-    void updateButtons();
     void portGathererError(const QString &errorMessage);
     void portListReady();
 
@@ -71,13 +62,12 @@ private slots:
     void handleConnectionError();
 
 private:
-    void startGdbServerOnPort(int port, int pid);
-    void reportOpenPort(int port);
-    void reportFailure();
+    void attach(int port);
     void logMessage(const QString &line);
-    Internal::StartGdbServerDialogPrivate *d;
+    StartGdbServerDialogPrivate *d;
 };
 
+} // namespace Internal
 } // namespace Debugger
 
 #endif // STARTGDBSERVERDIALOG_H

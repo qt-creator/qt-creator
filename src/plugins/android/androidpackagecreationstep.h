@@ -31,14 +31,14 @@
 #ifndef ANDROIDPACKAGECREATIONSTEP_H
 #define ANDROIDPACKAGECREATIONSTEP_H
 
-#include <projectexplorer/abi.h>
-#include <projectexplorer/buildstep.h>
-#include <QAbstractItemModel>
 #include "javaparser.h"
 
+#include <projectexplorer/abi.h>
+#include <projectexplorer/buildstep.h>
+
+#include <QAbstractItemModel>
+
 QT_BEGIN_NAMESPACE
-class QDateTime;
-class QFile;
 class QProcess;
 QT_END_NAMESPACE
 
@@ -53,12 +53,11 @@ class AndroidPackageCreationStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
     friend class AndroidPackageCreationFactory;
+
 public:
     AndroidPackageCreationStep(ProjectExplorer::BuildStepList *bsl);
-    ~AndroidPackageCreationStep();
 
     static bool removeDirectory(const QString &dirPath);
-
     static void stripAndroidLibs(const QStringList &files, ProjectExplorer::Abi::Architecture architecture);
 
     static const QLatin1String DefaultVersionNumber;
@@ -76,8 +75,8 @@ public:
     QAbstractItemModel *keystoreCertificates();
 
 protected:
-    virtual bool fromMap(const QVariantMap &map);
-    virtual QVariantMap toMap() const;
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
 
 private slots:
     void handleBuildStdOutOutput();
@@ -87,6 +86,9 @@ private slots:
     void showInGraphicalShell();
     void setQtLibs(const QStringList &qtLibs);
     void setPrebundledLibs(const QStringList &prebundledLibs);
+
+signals:
+    void updateRequiredLibrariesModels();
 
 private:
     AndroidPackageCreationStep(ProjectExplorer::BuildStepList *buildConfig,
@@ -130,8 +132,6 @@ private:
     QStringList m_qtLibs;
     QStringList m_availableQtLibs;
     QStringList m_prebundledLibs;
-signals:
-    void updateRequiredLibrariesModels();
 };
 
 } // namespace Internal

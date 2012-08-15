@@ -84,7 +84,6 @@ public:
     virtual void setConfigValue(const QString &name, const QVariant &value) = 0;
     virtual void updateState(DebuggerEngine *engine) = 0;
     virtual void updateWatchersWindow(bool showWatch, bool showReturn) = 0;
-    virtual void showQtDumperLibraryWarning(const QString &details) = 0;
     virtual QIcon locationMarkIcon() const = 0;
     virtual const CPlusPlus::Snapshot &cppCodeModelSnapshot() const = 0;
     virtual bool hasSnapshots() const = 0;
@@ -102,7 +101,6 @@ public:
     virtual void runControlFinished(DebuggerEngine *engine) = 0;
     virtual void displayDebugger(DebuggerEngine *engine, bool updateEngine) = 0;
     virtual DebuggerLanguages activeLanguages() const = 0;
-    virtual unsigned enabledEngines() const = 0;
     virtual void synchronizeBreakpoints() = 0;
 
     virtual bool initialize(const QStringList &arguments, QString *errorMessage) = 0;

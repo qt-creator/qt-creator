@@ -181,7 +181,12 @@ void Highlighter::setupDefault()
 void Highlighter::setupFromWillContinue()
 {
     BlockData *previousData = blockData(currentBlock().previous().userData());
-    m_contexts.push_back(previousData->m_contextToContinue);
+    if (previousData->m_originalObservableState == Default ||
+        previousData->m_originalObservableState == -1) {
+        m_contexts.push_back(previousData->m_contextToContinue);
+    } else {
+        pushContextSequence(previousData->m_originalObservableState);
+    }
 
     BlockData *data = blockData(currentBlock().userData());
     data->m_originalObservableState = previousData->m_originalObservableState;
@@ -318,8 +323,11 @@ void Highlighter::changeContext(const QString &contextName,
 {
     if (contextName.startsWith(kPop)) {
         QStringList list = contextName.split(kHash, QString::SkipEmptyParts);
-        for (int i = 0; i < list.size(); ++i)
+        for (int i = 0; i < list.size(); ++i) {
+            if (m_contexts.isEmpty())
+                throw HighlighterException();
             m_contexts.pop_back();
+        }
 
         if (extractObservableState(currentBlockState()) >= PersistentsStart) {
             // One or more contexts were popped during during a persistent state.

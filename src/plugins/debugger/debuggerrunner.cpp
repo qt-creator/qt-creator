@@ -64,7 +64,6 @@
 #include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
-#include <utils/buildablehelperlibrary.h>
 
 #include <QDir>
 #include <QCheckBox>
@@ -75,8 +74,9 @@
 #include <QLabel>
 #include <QMessageBox>
 
-using namespace ProjectExplorer;
 using namespace Debugger::Internal;
+using namespace ProjectExplorer;
+using namespace Utils;
 
 enum { debug = 0 };
 
@@ -368,7 +368,7 @@ QIcon DebuggerRunControl::icon() const
     return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
 }
 
-void DebuggerRunControl::setCustomEnvironment(Utils::Environment env)
+void DebuggerRunControl::setCustomEnvironment(Environment env)
 {
     QTC_ASSERT(d->m_engine, return);
     d->m_engine->startParameters().environment = env;
@@ -380,7 +380,7 @@ void DebuggerRunControl::start()
     // User canceled input dialog asking for executable when working on library project.
     if (d->m_engine->startParameters().startMode == StartInternal
         && d->m_engine->startParameters().executable.isEmpty()) {
-        appendMessage(tr("No executable specified.\n"), Utils::ErrorMessageFormat);
+        appendMessage(tr("No executable specified.\n"), ErrorMessageFormat);
         emit started();
         emit finished();
         return;
@@ -415,12 +415,12 @@ void DebuggerRunControl::start()
     d->m_engine->startDebugger(this);
 
     if (d->m_running)
-        appendMessage(tr("Debugging starts\n"), Utils::NormalMessageFormat);
+        appendMessage(tr("Debugging starts\n"), NormalMessageFormat);
 }
 
 void DebuggerRunControl::startFailed()
 {
-    appendMessage(tr("Debugging has failed\n"), Utils::NormalMessageFormat);
+    appendMessage(tr("Debugging has failed\n"), NormalMessageFormat);
     d->m_running = false;
     emit finished();
     d->m_engine->handleStartFailed();
@@ -428,7 +428,7 @@ void DebuggerRunControl::startFailed()
 
 void DebuggerRunControl::handleFinished()
 {
-    appendMessage(tr("Debugging has finished\n"), Utils::NormalMessageFormat);
+    appendMessage(tr("Debugging has finished\n"), NormalMessageFormat);
     if (d->m_engine)
         d->m_engine->handleFinished();
     debuggerCore()->runControlFinished(d->m_engine);
@@ -438,13 +438,13 @@ void DebuggerRunControl::showMessage(const QString &msg, int channel)
 {
     switch (channel) {
         case AppOutput:
-            appendMessage(msg, Utils::StdOutFormatSameLine);
+            appendMessage(msg, StdOutFormatSameLine);
             break;
         case AppError:
-            appendMessage(msg, Utils::StdErrFormatSameLine);
+            appendMessage(msg, StdErrFormatSameLine);
             break;
         case AppStuff:
-            appendMessage(msg, Utils::DebugFormat);
+            appendMessage(msg, DebugFormat);
             break;
     }
 }
@@ -701,18 +701,10 @@ QString ConfigurationCheck::errorDetailsString() const
 
 // Convenience helper to check whether an engine is enabled and configured
 // correctly.
-static inline bool canUseEngine(DebuggerEngineType et,
+static bool canUseEngine(DebuggerEngineType et,
                                 const DebuggerStartParameters &sp,
-                                unsigned cmdLineEnabledEngines,
                                 ConfigurationCheck *result)
 {
-    // Enabled?
-    if ((et & cmdLineEnabledEngines) == 0) {
-        result->errorDetails.push_back(DebuggerPlugin::tr("The debugger engine '%1' is disabled.").
-                                       arg(QLatin1String(engineTypeName(et))));
-        return false;
-    }
-    // Configured.
     switch (et) {
     case CdbEngineType:
         return checkCdbConfiguration(sp, result);
@@ -743,24 +735,17 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
     // Get all applicable types.
     QList<DebuggerEngineType> requiredTypes = engineTypes(sp);
     if (requiredTypes.isEmpty()) {
-        result.errorMessage = QLatin1String("Internal error: Unable to determine debugger engine type for this configuration");
+        result.errorMessage = QLatin1String("Internal error: Unable to determine "
+            "debugger engine type for this configuration");
         return result;
     }
     if (debug)
         qDebug() << " Required: " << engineTypeNames(requiredTypes);
-    // Filter out disabled types, command line + current settings.
-    unsigned cmdLineEnabledEngines = debuggerCore()->enabledEngines();
-#ifdef WITH_LLDB
-    if (!Core::ICore::settings()->value(QLatin1String("LLDB/enabled")).toBool())
-        cmdLineEnabledEngines &= ~LldbEngineType;
-#else
-     cmdLineEnabledEngines &= ~LldbEngineType;
-#endif
 
     DebuggerEngineType usableType = NoEngineType;
     QList<DebuggerEngineType> unavailableTypes;
     foreach (DebuggerEngineType et, requiredTypes) {
-        if (canUseEngine(et, sp, cmdLineEnabledEngines, &result)) {
+        if (canUseEngine(et, sp, &result)) {
             result.errorDetails.clear();
             usableType = et;
             break;
@@ -809,7 +794,8 @@ DEBUGGER_EXPORT ConfigurationCheck checkDebugConfiguration(const DebuggerStartPa
      }
 
     if (debug)
-        qDebug() << engineTypeName(result.masterSlaveEngineTypes.first) << engineTypeName(result.masterSlaveEngineTypes.second);
+        qDebug() << engineTypeName(result.masterSlaveEngineTypes.first)
+                 << engineTypeName(result.masterSlaveEngineTypes.second);
     return result;
 }
 
@@ -836,7 +822,7 @@ QString DebuggerRunControlFactory::displayName() const
 }
 
 // Find Qt installation by running qmake
-static inline QString findQtInstallPath(const Utils::FileName &qmakePath)
+static inline QString findQtInstallPath(const FileName &qmakePath)
 {
     QProcess proc;
     QStringList args;
@@ -850,7 +836,7 @@ static inline QString findQtInstallPath(const Utils::FileName &qmakePath)
     }
     proc.closeWriteChannel();
     if (!proc.waitForFinished()) {
-        Utils::SynchronousProcess::stopProcess(proc);
+        SynchronousProcess::stopProcess(proc);
         qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
         return QString();
     }
@@ -875,13 +861,13 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 
     Target *target = runConfiguration->target();
     Profile *profile = target ? target->profile() : ProfileManager::instance()->defaultProfile();
-    fillParameters(&sp, profile->id());
+    fillParameters(&sp, profile ? profile->id() : Core::Id());
     sp.environment = rc->environment();
     sp.workingDirectory = rc->workingDirectory();
 
 #if defined(Q_OS_WIN)
     // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
-    sp.workingDirectory = Utils::normalizePathName(sp.workingDirectory);
+    sp.workingDirectory = normalizePathName(sp.workingDirectory);
 #endif
 
     sp.executable = rc->executable();
@@ -894,17 +880,6 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     sp.dumperLibraryLocations = rc->dumperLibraryLocations();
 
     if (target) {
-        if (QByteArray(target->metaObject()->className()).contains("Qt4")) {
-            // FIXME: Get this from the profile?
-            //        We could query the QtVersion for this information directly, but then we
-            //        will need to add a dependency on QtSupport to the debugger.
-            //
-            //        The profile could also get a method to extract the required information from
-            //        its information to avoid this dependecy (as we do for the environment).
-            const Utils::FileName qmake = Utils::BuildableHelperLibrary::findSystemQt(sp.environment);
-            if (!qmake.isEmpty())
-                sp.qtInstallPath = findQtInstallPath(qmake);
-        }
         if (const Project *project = target->project()) {
             sp.projectSourceDirectory = project->projectDirectory();
             if (const BuildConfiguration *buildConfig = target->activeBuildConfiguration())
@@ -927,12 +902,10 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
         // Makes sure that all bindings go through the JavaScript engine, so that
         // breakpoints are actually hit!
         const QString optimizerKey = _("QML_DISABLE_OPTIMIZER");
-        if (!sp.environment.hasKey(optimizerKey)) {
+        if (!sp.environment.hasKey(optimizerKey))
             sp.environment.set(optimizerKey, _("1"));
-        }
 
-        Utils::QtcProcess::addArg(&sp.processArgs,
-                                  QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(sp.qmlServerPort));
+        QtcProcess::addArg(&sp.processArgs, QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(sp.qmlServerPort));
     }
 
     // FIXME: If it's not yet build this will be empty and not filled

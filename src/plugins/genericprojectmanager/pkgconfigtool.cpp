@@ -34,13 +34,8 @@
 #include <QTextStream>
 #include <QDebug>
 
-using namespace GenericProjectManager::Internal;
-
-PkgConfigTool::PkgConfigTool()
-{ }
-
-PkgConfigTool::~PkgConfigTool()
-{ }
+namespace GenericProjectManager {
+namespace Internal {
 
 QList<PkgConfigTool::Package> PkgConfigTool::packages() const
 {
@@ -128,3 +123,6 @@ void PkgConfigTool::packages_helper() const
         m_packages.append(package);
     }
 }
+
+} // namespace Internal
+} // namespace GenericProjectManager

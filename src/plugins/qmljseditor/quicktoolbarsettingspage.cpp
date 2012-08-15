@@ -49,10 +49,8 @@ QuickToolBarSettings::QuickToolBarSettings()
 
 void QuickToolBarSettings::set()
 {
-    if (get() != *this) {
-        if (QSettings *settings = Core::ICore::settings())
-            toSettings(settings);
-    }
+    if (get() != *this)
+        toSettings(Core::ICore::settings());
 }
 
 void QuickToolBarSettings::fromSettings(QSettings *settings)

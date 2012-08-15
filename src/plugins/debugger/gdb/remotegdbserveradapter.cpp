@@ -86,13 +86,9 @@ void GdbRemoteServerEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
     showMessage(_("TRYING TO START ADAPTER"));
-    if (startParameters().useServerStartScript) {
-        if (startParameters().serverStartScript.isEmpty()) {
-            showMessage(_("No server start script given. "), StatusBar);
-        } else {
-            m_uploadProc.start(_("/bin/sh ") + startParameters().serverStartScript);
-            m_uploadProc.waitForStarted();
-        }
+    if (!startParameters().serverStartScript.isEmpty()) {
+        m_uploadProc.start(_("/bin/sh ") + startParameters().serverStartScript);
+        m_uploadProc.waitForStarted();
     }
     if (startParameters().remoteSetupNeeded)
         notifyEngineRequestRemoteSetup();

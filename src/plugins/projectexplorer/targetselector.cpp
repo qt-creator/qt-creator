@@ -39,7 +39,7 @@
 #include <QFontMetrics>
 
 static const int TARGET_HEIGHT = 43;
-static const int ADDBUTTON_WIDTH = 27;
+static const int NAVBUTTON_WIDTH = 27;
 
 using namespace ProjectExplorer::Internal;
 
@@ -48,19 +48,20 @@ TargetSelector::TargetSelector(QWidget *parent) :
     m_unselected(QLatin1String(":/projectexplorer/images/targetunselected.png")),
     m_runselected(QLatin1String(":/projectexplorer/images/targetrunselected.png")),
     m_buildselected(QLatin1String(":/projectexplorer/images/targetbuildselected.png")),
-    m_targetaddbutton(QLatin1String(":/projectexplorer/images/targetaddbutton.png")),
-    m_targetaddbuttondisabled(QLatin1String(":/projectexplorer/images/targetaddbutton_disabled.png")),
-    m_targetremovebutton(QLatin1String(":/projectexplorer/images/targetremovebutton.png")),
-    m_targetremovebuttondisabled(QLatin1String(":/projectexplorer/images/targetremovebutton_disabled.png")),
+    m_targetRightButton(QLatin1String(":/projectexplorer/images/targetrightbutton.png")),
+    m_targetLeftButton(QLatin1String(":/projectexplorer/images/targetleftbutton.png")),
+    m_targetRemoveButton(QLatin1String(":/projectexplorer/images/targetremovebutton.png")),
+    m_targetRemoveDarkButton(QLatin1String(":/projectexplorer/images/targetremovebuttondark.png")),
     m_currentTargetIndex(-1),
-    m_addButtonEnabled(true),
-    m_removeButtonEnabled(false),
-    m_addButtonMenu(0)
+    m_currentHoveredTargetIndex(-1),
+    m_startIndex(0)
 {
     QFont f = font();
     f.setPixelSize(10);
     f.setBold(true);
     setFont(f);
+    setMouseTracking(true);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
 void TargetSelector::insertTarget(int index, const QString &name)
@@ -75,6 +76,7 @@ void TargetSelector::insertTarget(int index, const QString &name)
 
     if (m_currentTargetIndex >= index)
         setCurrentIndex(m_currentTargetIndex + 1);
+    updateGeometry();
     update();
 }
 
@@ -95,6 +97,7 @@ void TargetSelector::removeTarget(int index)
         // force a signal since the index has changed
         emit currentChanged(m_currentTargetIndex, m_targets.at(m_currentTargetIndex).currentSubIndex);
     }
+    updateGeometry();
     update();
 }
 
@@ -113,23 +116,6 @@ void TargetSelector::setCurrentIndex(int index)
     update();
     emit currentChanged(m_currentTargetIndex,
                              m_currentTargetIndex >= 0 ? m_targets.at(m_currentTargetIndex).currentSubIndex : -1);
-}
-
-void TargetSelector::setAddButtonEnabled(bool enabled)
-{
-    m_addButtonEnabled = enabled;
-    update();
-}
-
-void TargetSelector::setRemoveButtonEnabled(bool enabled)
-{
-    m_removeButtonEnabled = enabled;
-    update();
-}
-
-void TargetSelector::setAddButtonMenu(QMenu *menu)
-{
-    m_addButtonMenu = menu;
 }
 
 void TargetSelector::setCurrentSubIndex(int subindex)
@@ -151,111 +137,173 @@ TargetSelector::Target TargetSelector::targetAt(int index) const
     return m_targets.at(index);
 }
 
-bool TargetSelector::isAddButtonEnabled() const
-{
-    return m_addButtonEnabled;
-}
-
-bool TargetSelector::isRemoveButtonEnabled() const
-{
-    return m_removeButtonEnabled;
-}
-
 int TargetSelector::targetWidth() const
 {
     static int width = -1;
     if (width < 0) {
         QFontMetrics fm = fontMetrics();
         width = qMax(fm.width(runButtonString()), fm.width(buildButtonString()));
-        width = qMax(129, width * 2 + 31);
+        width = qMax(149, width * 2 + 31);
     }
     return width;
 }
 
-QSize TargetSelector::minimumSizeHint() const
+QSize TargetSelector::sizeHint() const
 {
-    return QSize((targetWidth() + 1) * m_targets.size() + (ADDBUTTON_WIDTH + 1) * 2 + 3, TARGET_HEIGHT + 4);
+    return QSize((targetWidth() + 1) * m_targets.size() + (NAVBUTTON_WIDTH + 1) * 2 + 3, TARGET_HEIGHT + 1);
+}
+
+int TargetSelector::maxVisibleTargets() const
+{
+    return (width() - ((NAVBUTTON_WIDTH + 1) * 2 + 3))/(targetWidth() + 1);
+}
+
+void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex, bool *removeButton)
+{
+    if (buttonIndex)
+        *buttonIndex = -1;
+    if (targetIndex)
+        *targetIndex = -1;
+    if (targetSubIndex)
+        *targetSubIndex = -1;
+    if (removeButton)
+        *removeButton = false;
+
+    // left button?
+    if (m_startIndex > 0 /* button visible */ && x >= 0 && x < NAVBUTTON_WIDTH + 2) {
+        if (buttonIndex)
+            *buttonIndex = 0;
+        return;
+    }
+
+    // right button?
+    int rightButtonStartX = NAVBUTTON_WIDTH + (targetWidth() + 1) * maxVisibleTargets() + 2;
+    if (x > rightButtonStartX) {
+        if (m_targets.size() > maxVisibleTargets() /* button visible */ && x <= rightButtonStartX + NAVBUTTON_WIDTH + 1) {
+            if (buttonIndex)
+                *buttonIndex = 1;
+        }
+        return;
+    }
+
+    // find the clicked target button
+    int tx = NAVBUTTON_WIDTH + 3;
+    int index;
+    for (index = m_startIndex; index < m_targets.size(); ++index) {
+        if (x <= tx) {
+            break;
+        }
+        tx += targetWidth() + 1;
+    }
+    --index;
+    tx -= targetWidth() + 1;
+    if (index >= 0 && index < m_targets.size()) {
+        if (targetIndex)
+            *targetIndex = index;
+        // handle clicked target
+        // check if user clicked on Build or Run
+        if (y > TARGET_HEIGHT * 3/5) {
+            if ((x - tx) - 2 > targetWidth() / 2) {
+                if (targetSubIndex)
+                    *targetSubIndex = 1;
+            } else {
+                if (targetSubIndex)
+                    *targetSubIndex = 0;
+            }
+        } else if (y < m_targetRemoveButton.height() + 3
+                   && x >= tx + targetWidth() - m_targetRemoveButton.width() - 1) {
+            if (removeButton)
+                *removeButton = true;
+        }
+    }
 }
 
 void TargetSelector::mousePressEvent(QMouseEvent *event)
 {
-    if (event->x() < ADDBUTTON_WIDTH) {
+    int buttonIndex;
+    int targetIndex;
+    int targetSubIndex;
+    bool removeButton;
+    getControlAt(event->x(), event->y(), &buttonIndex, &targetIndex, &targetSubIndex, &removeButton);
+    if (buttonIndex == 0) {
         event->accept();
-        if (m_removeButtonEnabled)
-            emit removeButtonClicked();
-    } else if (event->x() > ADDBUTTON_WIDTH + (targetWidth() + 1) * m_targets.size()) {
-        // check for add button
+        --m_startIndex;
+        update();
+    } else if (buttonIndex == 1) {
         event->accept();
-        if (m_addButtonEnabled && m_addButtonMenu)
-            m_addButtonMenu->popup(mapToGlobal(event->pos()));
-    } else {
-        // find the clicked target button
-        int x = ADDBUTTON_WIDTH;
-        int index;
-        for (index = 0; index < m_targets.size(); ++index) {
-            if (event->x() <= x) {
-                break;
-            }
-            x += targetWidth() + 1;
+        ++m_startIndex;
+        update();
+    } else if (targetIndex != -1) {
+        event->accept();
+        bool updateNeeded = false;
+        if (targetIndex != m_currentTargetIndex && !removeButton) {
+            m_currentTargetIndex = targetIndex;
+            updateNeeded = true;
         }
-        --index;
-        if (index >= 0 && index < m_targets.size()) {
-            // handle clicked target
-            // check if user clicked on Build or Run
-            if (event->y() > TARGET_HEIGHT * 3/5) {
-                if ((event->x() - (ADDBUTTON_WIDTH + (targetWidth() + 1) * index)) - 2 > targetWidth() / 2) {
-                    m_targets[index].currentSubIndex = 1;
-                } else {
-                    m_targets[index].currentSubIndex = 0;
-                }
+        if (targetSubIndex != -1) {
+            if (targetSubIndex != m_targets[m_currentTargetIndex].currentSubIndex) {
+                m_targets[m_currentTargetIndex].currentSubIndex = targetSubIndex;
+                updateNeeded = true;
             }
-            m_currentTargetIndex = index;
-            //TODO don't emit if nothing changed!
+        } else if (removeButton) {
+            emit removeButtonClicked(targetIndex);
+        }
+        if (updateNeeded) {
             update();
             emit currentChanged(m_currentTargetIndex, m_targets.at(m_currentTargetIndex).currentSubIndex);
-        } else {
-            event->ignore();
         }
+    } else {
+        event->ignore();
     }
+}
+
+void TargetSelector::mouseMoveEvent(QMouseEvent *event)
+{
+    int targetIndex;
+    getControlAt(event->x(), event->y(), 0, &targetIndex, 0, 0);
+    if (m_currentHoveredTargetIndex != targetIndex) {
+        m_currentHoveredTargetIndex = targetIndex;
+        if (targetIndex != -1)
+            event->accept();
+        update();
+    }
+}
+
+void TargetSelector::leaveEvent(QEvent *event)
+{
+    Q_UNUSED(event)
+    m_currentHoveredTargetIndex = -1;
+    update();
 }
 
 void TargetSelector::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)
 
+    // update start index depending on available width
+    m_startIndex = qMax(0, qMin(m_startIndex, m_targets.size() - maxVisibleTargets()));
+
     QPainter p(this);
-    p.setPen(QColor(89, 89, 89));
-    QSize size = minimumSizeHint();
-    //draw frame
-    p.drawLine(1, 0, size.width() - 2, 0);
-    p.drawLine(1, size.height() - 3, size.width() - 2, size.height() - 3);
-    p.drawLine(1, 1, 1, size.height() - 4);
-    p.drawLine(size.width() - 2, 1, size.width() - 2, size.height() - 4);
+    QColor borderColor(89, 89, 89);
 
-    //draw shadow
-    p.setPen(QColor(0, 0, 0, 50));
-    p.drawLine(1, size.height() - 2, size.width() - 2, size.height() - 2);
-    p.setPen(QColor(0, 0, 0, 20));
-    p.drawLine(0, size.height() - 2, 0, size.height() - 9);
-    p.drawLine(size.width()-1, size.height() - 2, size.width()-1, size.height() - 9);
-    p.drawLine(1, size.height() - 1, size.width() - 2, size.height() - 1);
-
-    //draw targets
     int x = 2;
-    int index = 0;
     QFontMetrics fm(font());
-    if (m_removeButtonEnabled)
-        p.drawPixmap(x, 1, m_targetremovebutton);
-    else
-        p.drawPixmap(x, 1, m_targetremovebuttondisabled);
-    x += m_targetremovebutton.width();
-    p.setPen(QColor(0, 0, 0));
-    p.drawLine(x, 1, x, TARGET_HEIGHT);
-    x += 1;
 
+    //draw left button
+    if (m_startIndex > 0)
+        p.drawPixmap(x, 1, m_targetLeftButton);
+    x += m_targetLeftButton.width();
+    if (m_startIndex == 0) {
+        p.setPen(borderColor);
+        p.drawLine(x, 1, x, TARGET_HEIGHT);
+    }
+    x += 1;
+    // draw targets
     const QString runString = runButtonString();
     const QString buildString = buildButtonString();
-    foreach (const Target &target, m_targets) {
+    const int lastIndex = qMin(m_targets.size(), m_startIndex + maxVisibleTargets()) - 1;
+    for (int index = m_startIndex; index <= lastIndex; ++index) {
+        const Target &target = m_targets.at(index);
         QImage image = m_unselected;
         bool buildSelected = target.currentSubIndex == 0;
         if (index == m_currentTargetIndex) {
@@ -271,13 +319,21 @@ void TargetSelector::paintEvent(QPaintEvent *event)
 
         QRect buttonRect(x, 1, targetWidth() , image.height());
         Utils::StyleHelper::drawCornerImage(image, &p, buttonRect, 16, 0, 16, 0);
-        p.drawText(x + (targetWidth()- fm.width(target.name))/2 + 1, 7 + fm.ascent(),
-            target.name);
+        const QString nameText = QFontMetrics(font()).elidedText(target.name, Qt::ElideRight,
+                                                                 targetWidth() - 6);
+        p.drawText(x + (targetWidth()- fm.width(nameText))/2 + 1, 7 + fm.ascent(),
+            nameText);
+
+        // remove button
+        if (m_currentHoveredTargetIndex == index) {
+            p.drawPixmap(x + targetWidth() - m_targetRemoveButton.width() - 2, 3,
+                         index == m_currentTargetIndex ? m_targetRemoveDarkButton : m_targetRemoveButton);
+        }
 
         // Build
         int margin = 2; // position centered within the rounded buttons
         QFontMetrics fm = fontMetrics();
-        QRect textRect(x + margin, size.height() - fm.height() - 7, targetWidth()/2, fm.height());
+        QRect textRect(x + margin, size().height() - fm.height() - 5, targetWidth()/2, fm.height());
         if (index != m_currentTargetIndex)
             p.setPen(QColor(0x555555));
         else
@@ -298,11 +354,12 @@ void TargetSelector::paintEvent(QPaintEvent *event)
         p.setPen(index == m_currentTargetIndex ? QColor(0x222222) : QColor(0xcccccc));
         p.drawLine(x, 1, x, TARGET_HEIGHT);
         ++x;
-        ++index;
     }
-    // draw add button
-    if (m_addButtonEnabled)
-        p.drawPixmap(x, 1, m_targetaddbutton);
+    // draw right button and frame (left hand part already done)
+    p.setPen(borderColor);
+    p.drawLine(2 + m_targetLeftButton.width(), 0, x - 1, 0);
+    if (lastIndex < m_targets.size() - 1)
+        p.drawPixmap(x, 1, m_targetRightButton);
     else
-        p.drawPixmap(x, 1, m_targetaddbuttondisabled);
+        p.drawLine(x - 1, 1, x - 1, TARGET_HEIGHT);
 }

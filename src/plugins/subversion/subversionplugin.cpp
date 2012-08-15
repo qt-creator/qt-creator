@@ -257,8 +257,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
         return false;
 
-    if (QSettings *settings = Core::ICore::settings())
-        m_settings.fromSettings(settings);
+    m_settings.fromSettings(Core::ICore::settings());
 
     addAutoReleasedObject(new SettingsPage);
 
@@ -1180,8 +1179,7 @@ void SubversionPlugin::setSettings(const SubversionSettings &s)
 {
     if (s != m_settings) {
         m_settings = s;
-        if (QSettings *settings = Core::ICore::settings())
-            m_settings.toSettings(settings);
+        m_settings.toSettings(Core::ICore::settings());
         subVersionControl()->emitConfigurationChanged();
     }
 }

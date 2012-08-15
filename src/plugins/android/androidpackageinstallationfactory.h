@@ -30,6 +30,7 @@
 
 #ifndef ANDROIDPACKAGEINSTALLATIONFACTORY_H
 #define ANDROIDPACKAGEINSTALLATIONFACTORY_H
+
 #include <projectexplorer/buildstep.h>
 
 namespace Android {

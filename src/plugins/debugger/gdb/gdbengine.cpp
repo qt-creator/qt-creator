@@ -80,6 +80,7 @@
 #include <utils/elfreader.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/savedaction.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -1851,10 +1852,8 @@ void GdbEngine::pythonDumpersFailed()
         else
             cmd += "LD_PRELOAD";
         cmd += ' ';
-        if (sp.startMode == StartRemoteGdb)
-            cmd += sp.remoteDumperLib;
-        else
-            cmd += qtDumperLibraryName().toLocal8Bit();
+        if (sp.startMode != StartRemoteGdb)
+            cmd += sp.dumperLibrary.toLocal8Bit();
         postCommand(cmd);
         m_debuggingHelperState = DebuggingHelperLoadTried;
     }
@@ -4797,8 +4796,9 @@ void GdbEngine::startGdb(const QStringList &args)
     modulesHandler()->updateModule(module);
 
     // Apply source path mappings from global options.
+    //showMessage(_("Assuming Qt is installed at %1").arg(qtInstallPath));
     const SourcePathMap sourcePathMap =
-        DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp.qtInstallPath,
+        DebuggerSourcePathMappingWidget::mergePlatformQtPath(sp,
                 debuggerCore()->globalDebuggerOptions()->sourcePathMap);
     const SourcePathMapIterator cend = sourcePathMap.constEnd();
     SourcePathMapIterator it = sourcePathMap.constBegin();

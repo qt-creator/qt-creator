@@ -65,29 +65,18 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
             return true;
         }
 
-        MangledNameRule::parse(&m_parseState, 0);
+        MangledNameRule::parse(&m_parseState, ParseTreeNode::Ptr());
         if (m_parseState.m_pos != m_parseState.m_mangledName.size())
             throw ParseException(QLatin1String("Unconsumed input"));
         if (m_parseState.m_parseStack.count() != 1) {
             throw ParseException(QString::fromLocal8Bit("There are %1 elements on the parse stack; "
                     "expected one.").arg(m_parseState.m_parseStack.count()));
         }
-        m_demangledName = m_parseState.m_parseStack.top()->toByteArray();
 
-        /*
-         * FIXME: This is a hack we do because TypeNode::toByteArray() cannot catch all
-         * all nested reference due to the way substitutions are currently implented.
-         * Note that even with this hack, we do not catch things like
-         * "reference to reference to array", because the operators do not follow each other
-         * in the string.
-         * For a correct solution, we'll probably have to clone substitution nodes instead of
-         * just dumping their strings (which means adding a copy constructor and a clone function
-         * to every node).
-         */
-        m_demangledName.replace("&& &&", "&&");
-        m_demangledName.replace("&& &", "&");
-        m_demangledName.replace(" & &", "&");
+        // Uncomment for debugging.
+        //m_parseState.stackTop()->print(0);
 
+        m_demangledName = m_parseState.stackTop()->toByteArray();
         success = true;
     } catch (const ParseException &p) {
         m_errorString = QString::fromLocal8Bit("Parse error at index %1 of mangled name '%2': %3.")
@@ -99,7 +88,6 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
         success = false;
     }
 
-    qDeleteAll(m_parseState.m_parseStack);
     m_parseState.m_parseStack.clear();
     m_parseState.m_substitutions.clear();
     m_parseState.m_templateParams.clear();

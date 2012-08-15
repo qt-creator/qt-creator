@@ -94,8 +94,6 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
             this, SLOT(handleProfileUpdate(ProjectExplorer::Profile*)));
     connect(m_importWidget, SIGNAL(importFrom(Utils::FileName)),
             this, SLOT(import(Utils::FileName)));
-    connect(m_ui->noValidProfileLabel, SIGNAL(linkActivated(QString)),
-            this, SLOT(openTargetPreferences()));
 }
 
 void TargetSetupPage::initializePage()
@@ -203,11 +201,11 @@ ProjectExplorer::Profile *TargetSetupPage::createTemporaryProfile(QtSupport::Bas
                                                                   const Utils::FileName &parsedSpec)
 {
     ProjectExplorer::Profile *p = new ProjectExplorer::Profile;
-    p->setDisplayName(version->displayName());
     QtSupport::QtProfileInformation::setQtVersion(p, version);
     ProjectExplorer::ToolChainProfileInformation::setToolChain(p, version->preferredToolChain(parsedSpec));
     QmakeProfileInformation::setMkspec(p, parsedSpec);
 
+    p->setDisplayName(version->displayName());
     p->setValue(PROFILE_IS_TEMPORARY, true);
     p->setValue(TEMPORARY_OF_PROJECTS, QStringList() << m_proFilePath);
     if (temporaryVersion)
@@ -489,26 +487,11 @@ void TargetSetupPage::selectAtLeastOneTarget()
 
 void TargetSetupPage::updateVisibility()
 {
-    if (m_widgets.isEmpty()) {
-        // Oh no one can create any targets
-        m_ui->scrollAreaWidget->setVisible(false);
-        m_ui->centralWidget->setVisible(false);
-        m_ui->descriptionLabel->setVisible(false);
-        m_ui->noValidProfileLabel->setVisible(true);
-    } else {
-        m_ui->scrollAreaWidget->setVisible(m_baseLayout == m_ui->scrollArea->widget()->layout());
-        m_ui->centralWidget->setVisible(m_baseLayout == m_ui->centralWidget->layout());
-        m_ui->descriptionLabel->setVisible(true);
-        m_ui->noValidProfileLabel->setVisible(false);
-    }
+    // Always show the widgets, the import widget always makes sense to show.
+    m_ui->scrollAreaWidget->setVisible(m_baseLayout == m_ui->scrollArea->widget()->layout());
+    m_ui->centralWidget->setVisible(m_baseLayout == m_ui->centralWidget->layout());
 
     emit completeChanged();
-}
-
-void TargetSetupPage::openTargetPreferences()
-{
-    Core::ICore::showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-            ProjectExplorer::Constants::PROFILE_SETTINGS_PAGE_ID);
 }
 
 void TargetSetupPage::removeWidget(ProjectExplorer::Profile *p)

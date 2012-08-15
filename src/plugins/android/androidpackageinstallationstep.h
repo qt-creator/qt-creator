@@ -40,15 +40,14 @@ class AndroidPackageInstallationStep : public Qt4ProjectManager::MakeStep
 {
     Q_OBJECT
     friend class AndroidPackageInstallationFactory;
+
 public:
     explicit AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl);
-    virtual ~AndroidPackageInstallationStep();
-    virtual bool init();
+    bool init();
+
 private:
     AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc,
         AndroidPackageInstallationStep *other);
-
-private:
     static const Core::Id Id;
 };
 

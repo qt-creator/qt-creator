@@ -245,7 +245,6 @@ FORMS += processstep.ui \
     publishing/publishingwizardselectiondialog.ui \
     codestylesettingspropertiespage.ui \
     devicesupport/devicefactoryselectiondialog.ui \
-    devicesupport/deviceprocessesdialog.ui \
     devicesupport/devicesettingswidget.ui
 
 WINSOURCES += \

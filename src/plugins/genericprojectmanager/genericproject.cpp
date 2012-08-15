@@ -31,10 +31,14 @@
 #include "genericproject.h"
 
 #include "genericbuildconfiguration.h"
+#include "genericmakestep.h"
 #include "genericprojectconstants.h"
 
-#include "genericmakestep.h"
-
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+#include <cpptools/ModelManagerInterface.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
@@ -43,33 +47,30 @@
 #include <projectexplorer/profilemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
-#include <cpptools/ModelManagerInterface.h>
-#include <extensionsystem/pluginmanager.h>
-#include <utils/qtcassert.h>
 #include <utils/fileutils.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/documentmanager.h>
+#include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QProcessEnvironment>
 
-#include <QComboBox>
-
-using namespace GenericProjectManager;
-using namespace GenericProjectManager::Internal;
+using namespace Core;
 using namespace ProjectExplorer;
 
+namespace GenericProjectManager {
+namespace Internal {
+
 ////////////////////////////////////////////////////////////////////////////////////
+//
 // GenericProject
+//
 ////////////////////////////////////////////////////////////////////////////////////
 
 GenericProject::GenericProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName)
 {
-    setProjectContext(Core::Context(GenericProjectManager::Constants::PROJECTCONTEXT));
-    setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
+    setProjectLanguage(Context(ProjectExplorer::Constants::LANG_CXX));
 
     QFileInfo fileInfo(m_fileName);
     QDir dir = fileInfo.dir();
@@ -84,10 +85,10 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     m_includesIDocument = new GenericProjectFile(this, m_includesFileName, GenericProject::Configuration);
     m_configIDocument   = new GenericProjectFile(this, m_configFileName, GenericProject::Configuration);
 
-    Core::DocumentManager::addDocument(m_creatorIDocument);
-    Core::DocumentManager::addDocument(m_filesIDocument);
-    Core::DocumentManager::addDocument(m_includesIDocument);
-    Core::DocumentManager::addDocument(m_configIDocument);
+    DocumentManager::addDocument(m_creatorIDocument);
+    DocumentManager::addDocument(m_filesIDocument);
+    DocumentManager::addDocument(m_includesIDocument);
+    DocumentManager::addDocument(m_configIDocument);
 
     m_rootNode = new GenericProjectNode(this, m_creatorIDocument);
 
@@ -147,7 +148,7 @@ bool GenericProject::saveRawFileList(const QStringList &rawFileList)
             stream << filePath << QLatin1Char('\n');
         saver.setResult(&stream);
     }
-    if (!saver.finalize(Core::ICore::mainWindow()))
+    if (!saver.finalize(ICore::mainWindow()))
         return false;
     refresh(GenericProject::Files);
     return true;
@@ -249,7 +250,7 @@ void GenericProject::refresh(RefreshOptions options)
                     new CPlusPlus::CppModelManagerInterface::ProjectPart);
 
         ToolChain *tc = activeTarget() ?
-                    ProjectExplorer::ToolChainProfileInformation::toolChain(activeTarget()->profile()) : 0;
+                    ToolChainProfileInformation::toolChain(activeTarget()->profile()) : 0;
         if (tc) {
             part->defines = tc->predefinedMacros(QStringList());
             part->defines += '\n';
@@ -383,12 +384,12 @@ QString GenericProject::displayName() const
     return m_projectName;
 }
 
-Core::Id GenericProject::id() const
+Id GenericProject::id() const
 {
-    return Core::Id(Constants::GENERICPROJECT_ID);
+    return Id(Constants::GENERICPROJECT_ID);
 }
 
-Core::IDocument *GenericProject::document() const
+IDocument *GenericProject::document() const
 {
     return m_creatorIDocument;
 }
@@ -429,8 +430,9 @@ bool GenericProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    if (!activeTarget())
-        addTarget(createTarget(ProfileManager::instance()->defaultProfile()));
+    Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
+    if (!activeTarget() && defaultProfile)
+        addTarget(createTarget(defaultProfile));
 
     // Sanity check: We need both a buildconfiguration and a runconfiguration!
     QList<Target *> targetList = targets();
@@ -457,17 +459,16 @@ void GenericProject::evaluateBuildSystem()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
+//
 // GenericProjectFile
+//
 ////////////////////////////////////////////////////////////////////////////////////
 
 GenericProjectFile::GenericProjectFile(GenericProject *parent, QString fileName, GenericProject::RefreshOptions options)
-    : Core::IDocument(parent),
+    : IDocument(parent),
       m_project(parent),
       m_fileName(fileName),
       m_options(options)
-{ }
-
-GenericProjectFile::~GenericProjectFile()
 { }
 
 bool GenericProjectFile::save(QString *, const QString &, bool)
@@ -512,7 +513,7 @@ void GenericProjectFile::rename(const QString &newName)
     QTC_CHECK(false);
 }
 
-Core::IDocument::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
+IDocument::ReloadBehavior GenericProjectFile::reloadBehavior(ChangeTrigger state, ChangeType type) const
 {
     Q_UNUSED(state)
     Q_UNUSED(type)
@@ -528,3 +529,6 @@ bool GenericProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeTyp
     m_project->refresh(m_options);
     return true;
 }
+
+} // namespace Internal
+} // namespace GenericProjectManager

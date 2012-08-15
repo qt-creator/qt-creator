@@ -107,47 +107,46 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    if (QSettings *s = Core::ICore::settings()) {
-        d->m_globalCodeStyle->fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
+    QSettings *s = Core::ICore::settings();
+    d->m_globalCodeStyle->fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
 
-        // legacy handling start (Qt Creator Version < 2.4)
-        const bool legacyTransformed =
-                    s->value(QLatin1String("QmlJSTabPreferences/LegacyTransformed"), false).toBool();
+    // legacy handling start (Qt Creator Version < 2.4)
+    const bool legacyTransformed =
+                s->value(QLatin1String("QmlJSTabPreferences/LegacyTransformed"), false).toBool();
 
-        if (!legacyTransformed) {
-            // creator 2.4 didn't mark yet the transformation (first run of creator 2.4)
+    if (!legacyTransformed) {
+        // creator 2.4 didn't mark yet the transformation (first run of creator 2.4)
 
-            // we need to transform the settings only if at least one from
-            // below settings was already written - otherwise we use
-            // defaults like it would be the first run of creator 2.4 without stored settings
-            const QStringList groups = s->childGroups();
-            const bool needTransform = groups.contains(QLatin1String("textTabPreferences")) ||
-                                       groups.contains(QLatin1String("QmlJSTabPreferences"));
+        // we need to transform the settings only if at least one from
+        // below settings was already written - otherwise we use
+        // defaults like it would be the first run of creator 2.4 without stored settings
+        const QStringList groups = s->childGroups();
+        const bool needTransform = groups.contains(QLatin1String("textTabPreferences")) ||
+                                   groups.contains(QLatin1String("QmlJSTabPreferences"));
 
-            if (needTransform) {
-                const QString currentFallback = s->value(QLatin1String("QmlJSTabPreferences/CurrentFallback")).toString();
-                TabSettings legacyTabSettings;
-                if (currentFallback == QLatin1String("QmlJSGlobal")) {
-                    // no delegate, global overwritten
-                    Utils::fromSettings(QLatin1String("QmlJSTabPreferences"),
-                                        QString(), s, &legacyTabSettings);
-                } else {
-                    // delegating to global
-                    legacyTabSettings = textEditorSettings->codeStyle()->currentTabSettings();
-                }
-
-                // create custom code style out of old settings
-                TextEditor::ICodeStylePreferences *oldCreator = pool->createCodeStyle(
-                         QLatin1String("legacy"), legacyTabSettings,
-                         QVariant(), tr("Old Creator"));
-
-                // change the current delegate and save
-                d->m_globalCodeStyle->setCurrentDelegate(oldCreator);
-                d->m_globalCodeStyle->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
+        if (needTransform) {
+            const QString currentFallback = s->value(QLatin1String("QmlJSTabPreferences/CurrentFallback")).toString();
+            TabSettings legacyTabSettings;
+            if (currentFallback == QLatin1String("QmlJSGlobal")) {
+                // no delegate, global overwritten
+                Utils::fromSettings(QLatin1String("QmlJSTabPreferences"),
+                                    QString(), s, &legacyTabSettings);
+            } else {
+                // delegating to global
+                legacyTabSettings = textEditorSettings->codeStyle()->currentTabSettings();
             }
-            // mark old settings as transformed
-            s->setValue(QLatin1String("QmlJSTabPreferences/LegacyTransformed"), true);
+
+            // create custom code style out of old settings
+            TextEditor::ICodeStylePreferences *oldCreator = pool->createCodeStyle(
+                     QLatin1String("legacy"), legacyTabSettings,
+                     QVariant(), tr("Old Creator"));
+
+            // change the current delegate and save
+            d->m_globalCodeStyle->setCurrentDelegate(oldCreator);
+            d->m_globalCodeStyle->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID, s);
         }
+        // mark old settings as transformed
+        s->setValue(QLatin1String("QmlJSTabPreferences/LegacyTransformed"), true);
         // legacy handling stop
     }
 

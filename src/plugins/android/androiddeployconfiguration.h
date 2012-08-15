@@ -28,15 +28,14 @@
 **
 **************************************************************************/
 
-#ifndef QT4PROJECTMANAGER_QT4ANDROIDDEPLOYCONFIGURATION_H
-#define QT4PROJECTMANAGER_QT4ANDROIDDEPLOYCONFIGURATION_H
+#ifndef ANDROIDDEPLOYCONFIGURATION_H
+#define ANDROIDDEPLOYCONFIGURATION_H
 
 #include <projectexplorer/deployconfiguration.h>
 
 namespace Android {
 namespace Internal {
 
-class Target;
 const char ANDROID_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.AndroidDeployConfiguration";
 const char ANDROID_DC_PREFIX[] = "Qt4ProjectManager.AndroidDeployConfiguration.";
 
@@ -47,7 +46,7 @@ class AndroidDeployConfiguration : public ProjectExplorer::DeployConfiguration
 
 public:
     AndroidDeployConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-    virtual ~AndroidDeployConfiguration();
+
 protected:
     AndroidDeployConfiguration(ProjectExplorer::Target *parent, ProjectExplorer::DeployConfiguration *source);
 
@@ -78,4 +77,4 @@ private:
 } // namespace Internal
 } // namespace Android
 
-#endif // QT4PROJECTMANAGER_QT4ANDROIDDEPLOYCONFIGURATION_H
+#endif // ANDROIDDEPLOYCONFIGURATION_H

@@ -35,7 +35,8 @@
 namespace Madde {
 namespace Internal {
 
-struct MaemoMountSpecification {
+class MaemoMountSpecification {
+public:
     MaemoMountSpecification(const QString &localDir, const QString &remoteDir);
     bool isValid() const { return remoteMountPoint != InvalidMountPoint; }
 

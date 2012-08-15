@@ -234,7 +234,7 @@ public:
     ZConfLib::Ptr lib;
 
     MainConnection(ServiceBrowserPrivate *initialBrowser = 0);
-    ~MainConnection();
+    virtual ~MainConnection();
     QMutex *lock();
     QMutex *mainThreadLock();
     void waitStartup();

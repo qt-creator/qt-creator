@@ -31,6 +31,7 @@
 #define GLOBAL_PARSE_STATE_H
 
 #include <QByteArray>
+#include <QSharedPointer>
 #include <QStack>
 
 namespace Debugger {
@@ -47,25 +48,24 @@ public:
     QByteArray readAhead(int charCount) const;
 
     int stackElementCount() const { return m_parseStack.count(); }
-    ParseTreeNode *stackTop() const { return m_parseStack.top(); }
-    ParseTreeNode *stackElementAt(int index) const { return m_parseStack.at(index); }
-    void pushToStack(ParseTreeNode *node) { m_parseStack.push(node); }
-    ParseTreeNode *popFromStack() { return m_parseStack.pop(); }
+    QSharedPointer<ParseTreeNode> stackTop() const { return m_parseStack.top(); }
+    QSharedPointer<ParseTreeNode> stackElementAt(int index) const { return m_parseStack.at(index); }
+    void pushToStack(const QSharedPointer<ParseTreeNode> &node) { m_parseStack.push(node); }
+    QSharedPointer<ParseTreeNode> popFromStack() { return m_parseStack.pop(); }
 
     int substitutionCount() const { return m_substitutions.count(); }
-    QByteArray substitutionAt(int index) const { return m_substitutions.at(index); }
-    void addSubstitution(const ParseTreeNode *node);
-    void addSubstitution(const QByteArray &symbol);
+    QSharedPointer<ParseTreeNode> substitutionAt(int index) const { return m_substitutions.at(index); }
+    void addSubstitution(const QSharedPointer<ParseTreeNode> &node);
 
     int templateParamCount() const { return m_templateParams.count(); }
-    ParseTreeNode *templateParamAt(int index) const { return m_templateParams.at(index); }
-    void addTemplateParam(ParseTreeNode *node) { m_templateParams << node; }
+    QSharedPointer<ParseTreeNode> templateParamAt(int index) const { return m_templateParams.at(index); }
+    void addTemplateParam(const QSharedPointer<ParseTreeNode> &node) { m_templateParams << node; }
 private:
     int m_pos;
     QByteArray m_mangledName;
-    QList<QByteArray> m_substitutions;
-    QList<ParseTreeNode *> m_templateParams;
-    QStack<ParseTreeNode *> m_parseStack;
+    QList<QSharedPointer<ParseTreeNode> > m_substitutions;
+    QList<QSharedPointer<ParseTreeNode> > m_templateParams;
+    QStack<QSharedPointer<ParseTreeNode> > m_parseStack;
 
     static const char eoi = '$';
 };

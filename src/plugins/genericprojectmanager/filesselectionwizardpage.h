@@ -37,23 +37,27 @@
 
 namespace GenericProjectManager {
 namespace Internal {
+
 class GenericProjectWizardDialog;
 class SelectableFilesModel;
 
 class FilesSelectionWizardPage : public QWizardPage
 {
     Q_OBJECT
+
 public:
     FilesSelectionWizardPage(GenericProjectWizardDialog *genericProjectWizard, QWidget *parent = 0);
-    virtual bool isComplete() const;
-    virtual void initializePage();
-    virtual void cleanupPage();
+    bool isComplete() const;
+    void initializePage();
+    void cleanupPage();
     QStringList selectedFiles() const;
     QStringList selectedPaths() const;
+
 private slots:
     void applyFilter();
     void parsingProgress(const QString &text);
     void parsingFinished();
+
 private:
     GenericProjectWizardDialog *m_genericProjectWizardDialog;
     SelectableFilesModel *m_model;
@@ -65,6 +69,7 @@ private:
     bool m_finished;
 };
 
-}
-}
+} // namespace Internal
+} // namespace GenericProjectManager
+
 #endif // FILESSELECTIONWIZARDPAGE_H

@@ -41,6 +41,7 @@ QT_END_NAMESPACE
 
 namespace Android {
 namespace Internal {
+
 class AndroidCreateKeystoreCertificate : public QDialog
 {
     Q_OBJECT

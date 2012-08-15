@@ -63,6 +63,7 @@
 #include "debuggertooltipmanager.h"
 #include "localsandexpressionswindow.h"
 #include "loadcoredialog.h"
+#include "hostutils.h"
 
 #include "snapshothandler.h"
 #include "threadshandler.h"
@@ -94,11 +95,13 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/profilechooser.h>
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/profilemanager.h>
 #include <projectexplorer/target.h>
@@ -772,17 +775,15 @@ public slots:
     void debugProject();
     void debugProjectWithoutDeploy();
     void debugProjectBreakMain();
-    void startExternalApplication();
+    void startAndDebugApplication();
     void startRemoteCdbSession();
-    void startRemoteProcess();
     void startRemoteServer();
-    //bool queryRemoteParameters(DebuggerStartParameters &sp, bool useScript);
     void attachToRemoteServer();
+    void attachToProcess(bool startServerOnly);
     void attachToRunningApplication();
     void attachToQmlPort();
     void startRemoteEngine();
-    void attachExternalApplication();
-    Q_SLOT void attachExternalApplication(ProjectExplorer::RunControl *rc);
+    //Q_SLOT void attachToLocalProcess(ProjectExplorer::RunControl *rc);
     void runScheduled();
     void attachCore();
 
@@ -793,7 +794,6 @@ public slots:
 
     const CPlusPlus::Snapshot &cppCodeModelSnapshot() const;
 
-    void showQtDumperLibraryWarning(const QString &details);
     DebuggerMainWindow *mainWindow() const { return m_mainWindow; }
     bool isDockVisible(const QString &objectName) const
         { return mainWindow()->isDockVisible(objectName); }
@@ -804,7 +804,6 @@ public slots:
     void runControlStarted(DebuggerEngine *engine);
     void runControlFinished(DebuggerEngine *engine);
     DebuggerLanguages activeLanguages() const;
-    unsigned enabledEngines() const { return m_cmdLineEnabledEngines; }
 //    QString debuggerForAbi(const Abi &abi, DebuggerEngineType et = NoEngineType) const;
     void remoteCommand(const QStringList &options, const QStringList &);
 
@@ -1088,10 +1087,8 @@ public slots:
     void showModuleSymbols(const QString &moduleName, const Symbols &symbols);
 
     bool parseArgument(QStringList::const_iterator &it,
-        const QStringList::const_iterator &cend,
-        unsigned *enabledEngines, QString *errorMessage);
-    bool parseArguments(const QStringList &args,
-        unsigned *enabledEngines, QString *errorMessage);
+        const QStringList::const_iterator &cend, QString *errorMessage);
+    bool parseArguments(const QStringList &args, QString *errorMessage);
 
     DebuggerToolTipManager *toolTipManager() const { return m_toolTipManager; }
     QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const { return m_globalDebuggerOptions; }
@@ -1114,15 +1111,12 @@ public:
     Utils::ProxyAction *m_hiddenStopAction;
     QAction *m_startAction;
     QAction *m_debugWithoutDeployAction;
-    QAction *m_startLocalProcessAction;
-    QAction *m_startRemoteProcessAction;
+    QAction *m_startAndDebugApplicationAction;
     QAction *m_startRemoteServerAction;
     QAction *m_attachToRunningApplication;
     QAction *m_attachToQmlPortAction;
     QAction *m_attachToRemoteServerAction;
     QAction *m_startRemoteCdbAction;
-    QAction *m_startRemoteLldbAction;
-    QAction *m_attachToLocalProcessAction;
     QAction *m_attachToCoreAction;
     QAction *m_detachAction;
     QAction *m_continueAction;
@@ -1182,8 +1176,6 @@ public:
     DebuggerEngine *m_currentEngine;
     DebuggerSettings *m_debuggerSettings;
     QSettings *m_coreSettings;
-    bool m_gdbBinariesChanged;
-    uint m_cmdLineEnabledEngines;
     QStringList m_arguments;
     DebuggerToolTipManager *m_toolTipManager;
     CommonOptionsPage *m_commonOptionsPage;
@@ -1232,20 +1224,14 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_currentEngine = 0;
     m_debuggerSettings = 0;
 
-    m_gdbBinariesChanged = true;
-    m_cmdLineEnabledEngines = AllEngineTypes;
-
     m_reverseToolButton = 0;
     m_startAction = 0;
     m_debugWithoutDeployAction = 0;
-    m_startLocalProcessAction = 0;
-    m_startRemoteProcessAction = 0;
+    m_startAndDebugApplicationAction = 0;
     m_attachToRemoteServerAction = 0;
     m_attachToRunningApplication = 0;
     m_attachToQmlPortAction = 0;
     m_startRemoteCdbAction = 0;
-    m_startRemoteLldbAction = 0;
-    m_attachToLocalProcessAction = 0;
     m_attachToCoreAction = 0;
     m_detachAction = 0;
 
@@ -1305,8 +1291,7 @@ void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
 }
 
 bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
-    const QStringList::const_iterator &cend,
-    unsigned *enabledEngines, QString *errorMessage)
+    const QStringList::const_iterator &cend, QString *errorMessage)
 {
     const QString &option = *it;
     // '-debug <pid>'
@@ -1318,7 +1303,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
-        fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id());
+        Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
+        fillParameters(&sp, defaultProfile ? defaultProfile->id() : Core::Id());
         qulonglong pid = it->toULongLong();
         if (pid) {
             sp.startMode = AttachExternal;
@@ -1392,42 +1378,18 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
         m_scheduledStarts.append(sp);
         return true;
     }
-    // Engine disabling.
-    if (option == _("-disable-cdb")) {
-        *enabledEngines &= ~CdbEngineType;
-        return true;
-    }
-    if (option == _("-disable-gdb")) {
-        *enabledEngines &= ~GdbEngineType;
-        return true;
-    }
-    if (option == _("-disable-qmldb")) {
-        *enabledEngines &= ~QmlEngineType;
-        return true;
-    }
-    if (option == _("-disable-sdb")) {
-        *enabledEngines &= ~ScriptEngineType;
-        return true;
-    }
-    if (option == _("-disable-lldb")) {
-        *enabledEngines &= ~LldbEngineType;
-        return true;
-    }
 
     *errorMessage = DebuggerPlugin::tr("Invalid debugger option: %1").arg(option);
     return false;
 }
 
 bool DebuggerPluginPrivate::parseArguments(const QStringList &args,
-   unsigned *enabledEngines, QString *errorMessage)
+    QString *errorMessage)
 {
     const QStringList::const_iterator cend = args.constEnd();
     for (QStringList::const_iterator it = args.constBegin(); it != cend; ++it)
-        if (!parseArgument(it, cend, enabledEngines, errorMessage))
+        if (!parseArgument(it, cend, errorMessage))
             return false;
-    if (Constants::Internal::debug)
-        qDebug().nospace() << args << "engines=0x"
-            << QString::number(*enabledEngines, 16) << '\n';
     return true;
 }
 
@@ -1512,51 +1474,13 @@ void DebuggerPluginPrivate::debugProjectBreakMain()
         pe->runProject(pro, DebugRunModeWithBreakOnMain);
 }
 
-void DebuggerPluginPrivate::startExternalApplication()
+void DebuggerPluginPrivate::startAndDebugApplication()
 {
     DebuggerStartParameters sp;
-    if (StartExternalDialog::run(mainWindow(), m_coreSettings, &sp))
-        if (RunControl *rc = m_debuggerRunControlFactory->create(sp))
+    if (StartApplicationDialog::run(mainWindow(), m_coreSettings, &sp)) {
+        if (RunControl *rc = createDebugger(sp))
             startDebugger(rc);
-}
-
-void DebuggerPluginPrivate::attachExternalApplication()
-{
-    AttachExternalDialog dlg(mainWindow());
-    dlg.setProfileIndex(configValue(_("LastAttachExternalProfileIndex")).toInt());
-
-    if (dlg.exec() != QDialog::Accepted)
-        return;
-
-    if (dlg.attachPID() == 0) {
-        QMessageBox::warning(mainWindow(), tr("Warning"),
-            tr("Cannot attach to process with PID 0"));
-        return;
     }
-
-    setConfigValue(_("LastAttachExternalProfileIndex"), QVariant(dlg.profileIndex()));
-
-    DebuggerStartParameters sp;
-    fillParameters(&sp, dlg.profileId());
-    sp.attachPID = dlg.attachPID();
-    sp.displayName = tr("Process %1").arg(dlg.attachPID());
-    sp.executable = dlg.executable();
-    sp.startMode = AttachExternal;
-    sp.closeMode = DetachAtClose;
-    if (DebuggerRunControl *rc = createDebugger(sp))
-        startDebugger(rc);
-}
-
-void DebuggerPluginPrivate::attachExternalApplication(RunControl *rc)
-{
-    DebuggerStartParameters sp;
-    fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id()); // FIXME: Extract from rc.
-    sp.attachPID = rc->applicationProcessHandle().pid();
-    sp.displayName = tr("Debugger attached to %1").arg(rc->displayName());
-    sp.startMode = AttachExternal;
-    sp.closeMode = DetachAtClose;
-    if (DebuggerRunControl *rc = createDebugger(sp))
-        startDebugger(rc);
 }
 
 void DebuggerPluginPrivate::attachCore()
@@ -1637,44 +1561,80 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
         startDebugger(rc);
 }
 
-//bool DebuggerPluginPrivate::queryRemoteParameters(DebuggerStartParameters &sp, bool useScript)
-//{
-//    return StartRemoteDialog::run(mainWindow(), m_coreSettings, useScript, &sp);
-//}
-
-void DebuggerPluginPrivate::startRemoteProcess()
-{
-    DebuggerStartParameters sp;
-    if (StartRemoteDialog::run(mainWindow(), m_coreSettings, true, &sp)) {
-        sp.startMode = StartRemoteProcess;
-        if (RunControl *rc = createDebugger(sp))
-            startDebugger(rc);
-    }
-}
-
 void DebuggerPluginPrivate::attachToRemoteServer()
 {
     DebuggerStartParameters sp;
-    if (StartRemoteDialog::run(mainWindow(), m_coreSettings, false, &sp)) {
-        sp.startMode = AttachToRemoteServer;
+    sp.startMode = AttachToRemoteServer;
+    if (StartApplicationDialog::run(mainWindow(), m_coreSettings, &sp)) {
         sp.closeMode = KillAtClose;
-        sp.useServerStartScript = false;
         sp.serverStartScript.clear();
         if (RunControl *rc = createDebugger(sp))
             startDebugger(rc);
     }
 }
 
+//const char LastProfile[] = "Debugger/LastProfile";
+//const char LastDevice[] = "Debugger/LastDevice";
+//const char LastProcessName[] = "Debugger/LastProcessName";
+//const char LastLocalExecutable[] = "Debugger/LastLocalExecutable";
+
 void DebuggerPluginPrivate::startRemoteServer()
 {
-    StartGdbServerDialog dlg(mainWindow());
-    dlg.startGdbServer();
+    attachToProcess(true);
 }
 
 void DebuggerPluginPrivate::attachToRunningApplication()
 {
-    StartGdbServerDialog dlg(mainWindow());
-    dlg.attachToRemoteProcess();
+    attachToProcess(false);
+}
+
+void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
+{
+    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(mainWindow());
+    dlg->showAllDevices();
+    if (dlg->exec() == QDialog::Rejected) {
+        delete dlg;
+        return;
+    }
+
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    ProfileChooser *profileChooser = dlg->profileChooser();
+    Profile *profile = profileChooser->currentProfile();
+    QTC_ASSERT(profile, return);
+    IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    QTC_ASSERT(device, return);
+    DeviceProcess process = dlg->currentProcess();
+    if (process.pid == 0) {
+        QMessageBox::warning(mainWindow(), tr("Warning"),
+            tr("Cannot attach to process with PID 0"));
+        return;
+    }
+
+    #ifdef Q_OS_WIN
+    if (isWinProcessBeingDebugged(process.pid)) {
+        QMessageBox::warning(ICore::mainWindow(), tr("Process Already Under Debugger Control"),
+                             tr("The process %1 is already under the control of a debugger.\n"
+                                "Qt Creator cannot attach to it.").arg(process.pid));
+        return;
+    }
+    #endif
+
+    //setConfigValue(_("LastAttachExternalProfileIndex"), QVariant(dlg->profileChooser()->currentProfileId()));
+
+    if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        DebuggerStartParameters sp;
+        fillParameters(&sp, profile->id());
+        sp.attachPID = process.pid;
+        sp.displayName = tr("Process %1").arg(process.pid);
+        sp.executable = process.exe;
+        sp.startMode = AttachExternal;
+        sp.closeMode = DetachAtClose;
+        if (DebuggerRunControl *rc = createDebugger(sp))
+            startDebugger(rc);
+    } else {
+        GdbServerStarter *starter = new GdbServerStarter(dlg, startServerOnly);
+        starter->run();
+    }
 }
 
 void DebuggerPluginPrivate::attachToQmlPort()
@@ -2136,11 +2096,9 @@ void DebuggerPluginPrivate::setInitialState()
     m_reverseDirectionAction->setEnabled(false);
     m_toolTipManager->closeAllToolTips();
 
-    m_startLocalProcessAction->setEnabled(true);
-    m_attachToLocalProcessAction->setEnabled(true);
+    m_startAndDebugApplicationAction->setEnabled(true);
     m_attachToQmlPortAction->setEnabled(true);
     m_attachToCoreAction->setEnabled(true);
-    m_startRemoteProcessAction->setEnabled(true);
     m_attachToRemoteServerAction->setEnabled(true);
     m_attachToRunningApplication->setEnabled(true);
     m_detachAction->setEnabled(false);
@@ -2262,11 +2220,9 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
         m_hiddenStopAction->setAction(m_undisturbableAction);
     }
 
-    m_startLocalProcessAction->setEnabled(true);
+    m_startAndDebugApplicationAction->setEnabled(true);
     m_attachToQmlPortAction->setEnabled(true);
-    m_attachToLocalProcessAction->setEnabled(true);
     m_attachToCoreAction->setEnabled(true);
-    m_startRemoteProcessAction->setEnabled(true);
     m_attachToRemoteServerAction->setEnabled(true);
     m_attachToRunningApplication->setEnabled(true);
 
@@ -2552,36 +2508,6 @@ void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int tim
     }
 }
 
-void DebuggerPluginPrivate::showQtDumperLibraryWarning(const QString &details)
-{
-    QMessageBox dialog(mainWindow());
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt Options"),
-        QMessageBox::ActionRole);
-    QPushButton *helperOff = dialog.addButton(tr("Turn off Helper Usage"),
-        QMessageBox::ActionRole);
-    QPushButton *justContinue = dialog.addButton(tr("Continue Anyway"),
-        QMessageBox::AcceptRole);
-    dialog.setDefaultButton(justContinue);
-    dialog.setWindowTitle(tr("Debugging Helper Missing"));
-    dialog.setText(tr("The debugger could not load the debugging helper library."));
-    dialog.setInformativeText(tr(
-        "The debugging helper is used to nicely format the values of some Qt "
-        "and Standard Library data types. "
-        "It must be compiled for each used Qt version separately. "
-        "In the Qt Creator Build and Run preferences page, select a Qt version, "
-        "expand the Details section and click Build All."));
-    if (!details.isEmpty())
-        dialog.setDetailedText(details);
-    dialog.exec();
-    if (dialog.clickedButton() == qtPref) {
-        ICore::showOptionsDialog(
-            _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-            _(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
-    } else if (dialog.clickedButton() == helperOff) {
-        action(UseDebuggingHelpers)->setValue(qVariantFromValue(false), false);
-    }
-}
-
 void DebuggerPluginPrivate::createNewDock(QWidget *widget)
 {
     QDockWidget *dockWidget =
@@ -2635,15 +2561,11 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
                 << ')';
         str << '\n';
     }
-    if (!sp.qtInstallPath.isEmpty())
-        str << "Qt: " << QDir::toNativeSeparators(sp.qtInstallPath) << '\n';
     if (!sp.qmlServerAddress.isEmpty())
         str << "QML server: " << sp.qmlServerAddress << ':'
             << sp.qmlServerPort << '\n';
     if (!sp.remoteChannel.isEmpty()) {
         str << "Remote: " << sp.remoteChannel << '\n';
-        if (!sp.remoteDumperLib.isEmpty())
-            str << "Remote dumpers: " << sp.remoteDumperLib << '\n';
         if (!sp.remoteSourcesDir.isEmpty())
             str << "Remote sources: " << sp.remoteSourcesDir << '\n';
         if (!sp.remoteMountPoint.isEmpty())
@@ -2653,8 +2575,6 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1String(":")) << '\n';
     str << "Symbol file: " << sp.symbolFileName << '\n';
-    if (sp.useServerStartScript)
-        str << "Using server start script: " << sp.serverStartScript;
     str << "Dumper libraries: " << QDir::toNativeSeparators(sp.dumperLibrary);
     foreach (const QString &dl, sp.dumperLibraryLocations)
         str << ' ' << QDir::toNativeSeparators(dl);
@@ -2697,10 +2617,9 @@ void DebuggerPluginPrivate::remoteCommand(const QStringList &options,
     if (options.isEmpty())
         return;
 
-    unsigned enabledEngines = 0;
     QString errorMessage;
 
-    if (!parseArguments(options, &enabledEngines, &errorMessage)) {
+    if (!parseArguments(options, &errorMessage)) {
         qWarning("%s", qPrintable(errorMessage));
         return;
     }
@@ -2929,7 +2848,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     // Do not fail to load the whole plugin if something goes wrong here.
     QString errorMessage;
-    if (!parseArguments(m_arguments, &m_cmdLineEnabledEngines, &errorMessage)) {
+    if (!parseArguments(m_arguments, &errorMessage)) {
         errorMessage = tr("Error evaluating command line arguments: %1")
             .arg(errorMessage);
         qWarning("%s\n", qPrintable(errorMessage));
@@ -2951,28 +2870,13 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Start Debugging Without Deployment"));
     connect(act, SIGNAL(triggered()), this, SLOT(debugProjectWithoutDeploy()));
 
-    // Handling of external applications.
-    act = m_startLocalProcessAction = new QAction(this);
+    act = m_startAndDebugApplicationAction = new QAction(this);
     act->setText(tr("Start and Debug External Application..."));
-    connect(act, SIGNAL(triggered()), SLOT(startExternalApplication()));
-
-#ifdef WITH_LLDB
-    act = m_startRemoteLldbAction = new QAction(this);
-    act->setText(tr("Start and Debug External Application with External Engine..."));
-    connect(act, SIGNAL(triggered()), SLOT(startRemoteEngine()));
-#endif
-
-    act = m_attachToLocalProcessAction = new QAction(this);
-    act->setText(tr("Attach to Running Local Application..."));
-    connect(act, SIGNAL(triggered()), SLOT(attachExternalApplication()));
+    connect(act, SIGNAL(triggered()), SLOT(startAndDebugApplication()));
 
     act = m_attachToCoreAction = new QAction(this);
     act->setText(tr("Load Core File..."));
     connect(act, SIGNAL(triggered()), SLOT(attachCore()));
-
-    act = m_startRemoteProcessAction = new QAction(this);
-    act->setText(tr("Start and Debug Remote Application..."));
-    connect(act, SIGNAL(triggered()), SLOT(startRemoteProcess()));
 
     act = m_attachToRemoteServerAction = new QAction(this);
     act->setText(tr("Attach to Remote Debug Server..."));
@@ -3033,8 +2937,8 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDescription(tr("Attach to Running Application"));
     mstart->addAction(cmd, Debugger::Constants::G_START_LOCAL);
 
-    cmd = ActionManager::registerAction(m_startLocalProcessAction,
-        "Debugger.StartLocalProcess", globalcontext);
+    cmd = ActionManager::registerAction(m_startAndDebugApplicationAction,
+        "Debugger.StartAndDebugApplication", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, Debugger::Constants::G_START_LOCAL);
 
@@ -3042,7 +2946,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     // visible in the start menu, but still be "there".
     // m_startLocalProcessAction->setVisible(on);
     // m_attachToRemoteServerAction->setVisible(on);
-    // m_startRemoteProcessAction->setVisible(on);
     // m_startRemoteServerAction->setVisible(on);
 
     cmd = ActionManager::registerAction(m_attachToCoreAction,
@@ -3055,27 +2958,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
 
-    cmd = ActionManager::registerAction(m_startRemoteProcessAction,
-        "Debugger.StartRemoteProcess", globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
-
     cmd = ActionManager::registerAction(m_startRemoteServerAction,
          "Debugger.StartRemoteServer", globalcontext);
     cmd->setDescription(tr("Start Gdbserver"));
     mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
-
-    cmd = ActionManager::registerAction(m_attachToLocalProcessAction,
-        "Debugger.AttachToLocalProcess", globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
-
-#ifdef WITH_LLDB
-    cmd = ActionManager::registerAction(m_startRemoteLldbAction,
-        "Debugger.RemoteLldb", globalcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
-#endif
 
     if (m_startRemoteCdbAction) {
         cmd = ActionManager::registerAction(m_startRemoteCdbAction,
@@ -3225,18 +3111,14 @@ void DebuggerPluginPrivate::extensionsInitialized()
     }
 
     QList<IOptionsPage *> engineOptionPages;
-    if (m_cmdLineEnabledEngines & GdbEngineType)
-        addGdbOptionPages(&engineOptionPages);
-   addCdbOptionPages(&engineOptionPages);
+    addGdbOptionPages(&engineOptionPages);
+    addCdbOptionPages(&engineOptionPages);
 #ifdef WITH_LLDB
-    if (m_cmdLineEnabledEngines & LldbEngineType)
-        addLldbOptionPages(&engineOptionPages);
+    addLldbOptionPages(&engineOptionPages);
 #endif
 
-    //if (m_cmdLineEnabledEngines & ScriptEngineType)
-    //    addScriptOptionPages(&engineOptionPages);
-    //if (m_cmdLineEnabledEngines & TcfEngineType)
-    //    addTcfOptionPages(&engineOptionPages);
+    // addScriptOptionPages(&engineOptionPages);
+    // addTcfOptionPages(&engineOptionPages);
 
     foreach (IOptionsPage *op, engineOptionPages)
         m_plugin->addAutoReleasedObject(op);

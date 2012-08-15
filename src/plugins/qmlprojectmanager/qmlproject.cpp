@@ -300,8 +300,9 @@ bool QmlProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    if (!activeTarget())
-        addTarget(createTarget(ProjectExplorer::ProfileManager::instance()->defaultProfile()));
+ProjectExplorer::Profile *defaultProfile = ProjectExplorer::ProfileManager::instance()->defaultProfile();
+    if (!activeTarget() && defaultProfile)
+        addTarget(createTarget(defaultProfile));
 
     refresh(Everything);
     // FIXME workaround to guarantee that run/debug actions are enabled if a valid file exists

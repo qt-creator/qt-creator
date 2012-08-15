@@ -102,8 +102,7 @@
                 \target glossary-project-qt
             \o  \QC allows you to have multiple versions of Qt installed on your
                 development PC and use different versions to build your projects
-                for different \e targets. Select the Qt version in the \e {build
-                configuration} for the project.
+                for different \e targets.
 
         \row
             \o  Run configuration
@@ -130,11 +129,10 @@
         \row
             \o  Target
                 \target glossary-development-target
-            \o  The software platform for which you develop an
-                application. \QC groups platform specific settings (such as
-                \e {build configurations}, \e {deploy configurations},
-                compatible \e {tool chains}, and supported \e {Qt versions}) as
-                targets to make cross-platform development easier.
+            \o  \QC groups platform specific settings as targets to make
+                cross-platform development easier. Each target consists of a set
+                of values that define one environment, such as a device,
+                tool chain, Qt version, and debugger command to use.
 
          \row
             \o  Tool chain

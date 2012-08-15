@@ -54,6 +54,7 @@
 #include <unistd.h>
 #endif
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Android {
@@ -94,25 +95,24 @@ namespace {
     }
 }
 
-QLatin1String AndroidConfigurations::toolchainPrefix(ProjectExplorer::Abi::Architecture architecture)
+QLatin1String AndroidConfigurations::toolchainPrefix(Abi::Architecture architecture)
 {
     switch (architecture) {
-    case ProjectExplorer::Abi::ArmArchitecture:
+    case Abi::ArmArchitecture:
         return ArmToolchainPrefix;
-    case ProjectExplorer::Abi::X86Architecture:
+    case Abi::X86Architecture:
         return X86ToolchainPrefix;
     default:
         return Unknown;
     }
 }
 
-
-QLatin1String AndroidConfigurations::toolsPrefix(ProjectExplorer::Abi::Architecture architecture)
+QLatin1String AndroidConfigurations::toolsPrefix(Abi::Architecture architecture)
 {
     switch (architecture) {
-    case ProjectExplorer::Abi::ArmArchitecture:
+    case Abi::ArmArchitecture:
         return ArmToolsPrefix;
-    case ProjectExplorer::Abi::X86Architecture:
+    case Abi::X86Architecture:
         return X86ToolsPrefix;
     default:
         return Unknown;
@@ -122,16 +122,16 @@ QLatin1String AndroidConfigurations::toolsPrefix(ProjectExplorer::Abi::Architect
 AndroidConfig::AndroidConfig(const QSettings &settings)
 {
     // user settings
-    armGdbLocation = Utils::FileName::fromString(settings.value(ArmGdbLocationKey).toString());
-    armGdbserverLocation = Utils::FileName::fromString(settings.value(ArmGdbserverLocationKey).toString());
-    x86GdbLocation = Utils::FileName::fromString(settings.value(X86GdbLocationKey).toString());
-    x86GdbserverLocation = Utils::FileName::fromString(settings.value(X86GdbserverLocationKey).toString());
+    armGdbLocation = FileName::fromString(settings.value(ArmGdbLocationKey).toString());
+    armGdbserverLocation = FileName::fromString(settings.value(ArmGdbserverLocationKey).toString());
+    x86GdbLocation = FileName::fromString(settings.value(X86GdbLocationKey).toString());
+    x86GdbserverLocation = FileName::fromString(settings.value(X86GdbserverLocationKey).toString());
     partitionSize = settings.value(PartitionSizeKey, 1024).toInt();
-    sdkLocation = Utils::FileName::fromString(settings.value(SDKLocationKey).toString());
-    ndkLocation = Utils::FileName::fromString(settings.value(NDKLocationKey).toString());
-    antLocation = Utils::FileName::fromString(settings.value(AntLocationKey).toString());
-    openJDKLocation = Utils::FileName::fromString(settings.value(OpenJDKLocationKey).toString());
-    keystoreLocation = Utils::FileName::fromString(settings.value(KeystoreLocationKey).toString());
+    sdkLocation = FileName::fromString(settings.value(SDKLocationKey).toString());
+    ndkLocation = FileName::fromString(settings.value(NDKLocationKey).toString());
+    antLocation = FileName::fromString(settings.value(AntLocationKey).toString());
+    openJDKLocation = FileName::fromString(settings.value(OpenJDKLocationKey).toString());
+    keystoreLocation = FileName::fromString(settings.value(KeystoreLocationKey).toString());
 
     QRegExp versionRegExp(NDKGccVersionRegExp);
     const QString &value = settings.value(NDKToolchainVersionKey).toString();
@@ -145,11 +145,11 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
     if (reader.load(settingsFileName())
             && settings.value(changeTimeStamp).toInt() != QFileInfo(settingsFileName()).lastModified().toMSecsSinceEpoch() / 1000) {
         // persisten settings
-        sdkLocation = Utils::FileName::fromString(reader.restoreValue(SDKLocationKey).toString());
-        ndkLocation = Utils::FileName::fromString(reader.restoreValue(NDKLocationKey).toString());
-        antLocation = Utils::FileName::fromString(reader.restoreValue(AntLocationKey).toString());
-        openJDKLocation = Utils::FileName::fromString(reader.restoreValue(OpenJDKLocationKey).toString());
-        keystoreLocation = Utils::FileName::fromString(reader.restoreValue(KeystoreLocationKey).toString());
+        sdkLocation = FileName::fromString(reader.restoreValue(SDKLocationKey).toString());
+        ndkLocation = FileName::fromString(reader.restoreValue(NDKLocationKey).toString());
+        antLocation = FileName::fromString(reader.restoreValue(AntLocationKey).toString());
+        openJDKLocation = FileName::fromString(reader.restoreValue(OpenJDKLocationKey).toString());
+        keystoreLocation = FileName::fromString(reader.restoreValue(KeystoreLocationKey).toString());
 
         QRegExp versionRegExp(NDKGccVersionRegExp);
         const QString &value = reader.restoreValue(NDKToolchainVersionKey).toString();
@@ -159,16 +159,16 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
             ndkToolchainVersion = value.mid(versionRegExp.indexIn(value)+1);
 
         if (armGdbLocation.isEmpty())
-            armGdbLocation = Utils::FileName::fromString(reader.restoreValue(ArmGdbLocationKey).toString());
+            armGdbLocation = FileName::fromString(reader.restoreValue(ArmGdbLocationKey).toString());
 
         if (armGdbserverLocation.isEmpty())
-            armGdbserverLocation = Utils::FileName::fromString(reader.restoreValue(ArmGdbserverLocationKey).toString());
+            armGdbserverLocation = FileName::fromString(reader.restoreValue(ArmGdbserverLocationKey).toString());
 
         if (x86GdbLocation.isEmpty())
-            x86GdbLocation = Utils::FileName::fromString(reader.restoreValue(X86GdbLocationKey).toString());
+            x86GdbLocation = FileName::fromString(reader.restoreValue(X86GdbLocationKey).toString());
 
         if (x86GdbserverLocation.isEmpty())
-            x86GdbserverLocation = Utils::FileName::fromString(reader.restoreValue(X86GdbserverLocationKey).toString());
+            x86GdbserverLocation = FileName::fromString(reader.restoreValue(X86GdbserverLocationKey).toString());
         // persistent settings
     }
 
@@ -197,8 +197,6 @@ void AndroidConfig::save(QSettings &settings) const
     settings.setValue(X86GdbLocationKey, x86GdbLocation.toString());
     settings.setValue(X86GdbserverLocationKey, x86GdbserverLocation.toString());
     settings.setValue(PartitionSizeKey, partitionSize);
-    // user settings
-
 }
 
 void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
@@ -212,7 +210,7 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
 void AndroidConfigurations::updateAvailablePlatforms()
 {
     m_availablePlatforms.clear();
-    Utils::FileName path = m_config.ndkLocation;
+    FileName path = m_config.ndkLocation;
     QDirIterator it(path.appendPath(QLatin1String("platforms")).toString(), QStringList() << QLatin1String("android-*"), QDir::Dirs);
     while (it.hasNext()) {
         const QString &fileName = it.next();
@@ -246,7 +244,7 @@ QStringList AndroidConfigurations::ndkToolchainVersions() const
 {
     QRegExp versionRegExp(NDKGccVersionRegExp);
     QStringList result;
-    Utils::FileName path = m_config.ndkLocation;
+    FileName path = m_config.ndkLocation;
     QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
                     QStringList() << QLatin1String("*"), QDir::Dirs);
     while (it.hasNext()) {
@@ -261,46 +259,46 @@ QStringList AndroidConfigurations::ndkToolchainVersions() const
     return result;
 }
 
-Utils::FileName AndroidConfigurations::adbToolPath() const
+FileName AndroidConfigurations::adbToolPath() const
 {
-    Utils::FileName path = m_config.sdkLocation;
+    FileName path = m_config.sdkLocation;
     return path.appendPath(QLatin1String("platform-tools/adb" ANDROID_EXE_SUFFIX));
 }
 
-Utils::FileName AndroidConfigurations::androidToolPath() const
+FileName AndroidConfigurations::androidToolPath() const
 {
 #ifdef Q_OS_WIN32
     // I want to switch from using android.bat to using an executable. All it really does is call
     // Java and I've made some progress on it. So if android.exe exists, return that instead.
-    Utils::FileName path = m_config.sdkLocation;
+    FileName path = m_config.sdkLocation;
     path.appendPath(QLatin1String("tools/android"ANDROID_EXE_SUFFIX));
     if (path.toFileInfo().exists())
         return path;
     path = m_config.sdkLocation;
     return path.appendPath(QLatin1String("tools/android"ANDROID_BAT_SUFFIX));
 #else
-    Utils::FileName path = m_config.sdkLocation;
+    FileName path = m_config.sdkLocation;
     return path.appendPath(QLatin1String("tools/android"));
 #endif
 }
 
-Utils::FileName AndroidConfigurations::antToolPath() const
+FileName AndroidConfigurations::antToolPath() const
 {
     if (!m_config.antLocation.isEmpty())
         return m_config.antLocation;
     else
-        return Utils::FileName::fromString(QLatin1String("ant"));
+        return FileName::fromString(QLatin1String("ant"));
 }
 
-Utils::FileName AndroidConfigurations::emulatorToolPath() const
+FileName AndroidConfigurations::emulatorToolPath() const
 {
-    Utils::FileName path = m_config.sdkLocation;
+    FileName path = m_config.sdkLocation;
     return path.appendPath(QLatin1String("tools/emulator" ANDROID_EXE_SUFFIX));
 }
 
-Utils::FileName AndroidConfigurations::toolPath(ProjectExplorer::Abi::Architecture architecture) const
+FileName AndroidConfigurations::toolPath(Abi::Architecture architecture) const
 {
-    Utils::FileName path = m_config.ndkLocation;
+    FileName path = m_config.ndkLocation;
     return path.appendPath(QString::fromLatin1("toolchains/%1-%2/prebuilt/%3/bin/%4")
             .arg(toolchainPrefix(architecture))
             .arg(m_config.ndkToolchainVersion)
@@ -308,56 +306,56 @@ Utils::FileName AndroidConfigurations::toolPath(ProjectExplorer::Abi::Architectu
             .arg(toolsPrefix(architecture)));
 }
 
-Utils::FileName AndroidConfigurations::stripPath(ProjectExplorer::Abi::Architecture architecture) const
+FileName AndroidConfigurations::stripPath(Abi::Architecture architecture) const
 {
     return toolPath(architecture).append(QLatin1String("-strip" ANDROID_EXE_SUFFIX));
 }
 
-Utils::FileName AndroidConfigurations::readelfPath(ProjectExplorer::Abi::Architecture architecture) const
+FileName AndroidConfigurations::readelfPath(Abi::Architecture architecture) const
 {
     return toolPath(architecture).append(QLatin1String("-readelf" ANDROID_EXE_SUFFIX));
 }
 
-Utils::FileName AndroidConfigurations::gccPath(ProjectExplorer::Abi::Architecture architecture) const
+FileName AndroidConfigurations::gccPath(Abi::Architecture architecture) const
 {
     return toolPath(architecture).append(QLatin1String("-gcc" ANDROID_EXE_SUFFIX));
 }
 
-Utils::FileName AndroidConfigurations::gdbServerPath(ProjectExplorer::Abi::Architecture architecture) const
+FileName AndroidConfigurations::gdbServerPath(Abi::Architecture architecture) const
 {
-    Utils::FileName gdbServerPath;
+    FileName gdbServerPath;
     switch (architecture) {
-    case ProjectExplorer::Abi::ArmArchitecture:
+    case Abi::ArmArchitecture:
         gdbServerPath = m_config.armGdbserverLocation;
         break;
-    case ProjectExplorer::Abi::X86Architecture:
+    case Abi::X86Architecture:
         gdbServerPath = m_config.x86GdbserverLocation;
         break;
     default:
-        gdbServerPath = Utils::FileName::fromString(Unknown);
+        gdbServerPath = FileName::fromString(Unknown);
         break;
     }
 
     if (!gdbServerPath.isEmpty())
         return gdbServerPath;
-    Utils::FileName path = m_config.ndkLocation;
+    FileName path = m_config.ndkLocation;
     return path.appendPath(QString::fromLatin1("toolchains/%1-%2/prebuilt/gdbserver")
                            .arg(toolchainPrefix(architecture))
                            .arg(m_config.ndkToolchainVersion));
 }
 
-Utils::FileName AndroidConfigurations::gdbPath(ProjectExplorer::Abi::Architecture architecture) const
+FileName AndroidConfigurations::gdbPath(Abi::Architecture architecture) const
 {
-    Utils::FileName gdbPath;
+    FileName gdbPath;
     switch (architecture) {
-    case ProjectExplorer::Abi::ArmArchitecture:
+    case Abi::ArmArchitecture:
         gdbPath = m_config.armGdbLocation;
         break;
-    case ProjectExplorer::Abi::X86Architecture:
+    case Abi::X86Architecture:
         gdbPath = m_config.x86GdbLocation;
         break;
     default:
-        gdbPath = Utils::FileName::fromString(Unknown);
+        gdbPath = FileName::fromString(Unknown);
         break;
     }
     if (!gdbPath.isEmpty())
@@ -365,30 +363,30 @@ Utils::FileName AndroidConfigurations::gdbPath(ProjectExplorer::Abi::Architectur
     return toolPath(architecture).append(QLatin1String("-gdb" ANDROID_EXE_SUFFIX));
 }
 
-Utils::FileName AndroidConfigurations::openJDKPath() const
+FileName AndroidConfigurations::openJDKPath() const
 {
     return m_config.openJDKLocation;
 }
 
-Utils::FileName AndroidConfigurations::openJDKBinPath() const
+FileName AndroidConfigurations::openJDKBinPath() const
 {
-    Utils::FileName path = m_config.openJDKLocation;
+    FileName path = m_config.openJDKLocation;
     if (!path.isEmpty())
         return path.appendPath(QLatin1String("bin"));
     return path;
 }
 
-Utils::FileName AndroidConfigurations::keytoolPath() const
+FileName AndroidConfigurations::keytoolPath() const
 {
     return openJDKBinPath().appendPath(keytoolName);
 }
 
-Utils::FileName AndroidConfigurations::jarsignerPath() const
+FileName AndroidConfigurations::jarsignerPath() const
 {
     return openJDKBinPath().appendPath(jarsignerName);
 }
 
-Utils::FileName AndroidConfigurations::zipalignPath() const
+FileName AndroidConfigurations::zipalignPath() const
 {
     Utils::FileName path = m_config.sdkLocation;
     return path.appendPath(QLatin1String("tools/zipalign" ANDROID_EXE_SUFFIX));

@@ -34,9 +34,7 @@
 #include <projectexplorer/buildstep.h>
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-    class AndroidDeployStepWidget;
-}
+namespace Ui { class AndroidDeployStepWidget; }
 QT_END_NAMESPACE
 
 namespace Android {

@@ -62,7 +62,7 @@ QtcLibrary {
         Depends { name: "cpp" }
         cpp.linkerFlags: {
             if (qbs.toolchain == "mingw") {
-                return ["--enable-auto-import"]
+                return ["-Wl,--enable-auto-import"]
             }
         }
         cpp.includePaths: '..'

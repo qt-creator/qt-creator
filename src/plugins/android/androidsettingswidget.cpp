@@ -47,18 +47,18 @@
 namespace Android {
 namespace Internal {
 
-void AVDModel::setAvdList(QVector<AndroidDeviceInfo> list)
+void AvdModel::setAvdList(const QVector<AndroidDeviceInfo> &list)
 {
     m_list = list;
     reset();
 }
 
-QString AVDModel::avdName(const QModelIndex &index)
+QString AvdModel::avdName(const QModelIndex &index)
 {
     return m_list[index.row()].serialNumber;
 }
 
-QVariant AVDModel::data(const QModelIndex &index, int role) const
+QVariant AvdModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole || !index.isValid())
         return QVariant();
@@ -73,7 +73,7 @@ QVariant AVDModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QVariant AVDModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant AvdModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
@@ -89,12 +89,12 @@ QVariant AVDModel::headerData(int section, Qt::Orientation orientation, int role
     return QAbstractItemModel::headerData(section, orientation, role );
 }
 
-int AVDModel::rowCount(const QModelIndex &/*parent*/) const
+int AvdModel::rowCount(const QModelIndex &/*parent*/) const
 {
     return m_list.size();
 }
 
-int AVDModel::columnCount(const QModelIndex &/*parent*/) const
+int AvdModel::columnCount(const QModelIndex &/*parent*/) const
 {
     return 3;
 }

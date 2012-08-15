@@ -39,8 +39,6 @@
 #include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QCoreApplication>
-
 using namespace ProjectExplorer;
 
 namespace Android {
@@ -77,6 +75,7 @@ bool AndroidPackageInstallationFactory::canCreate(BuildStepList *parent, const C
 BuildStep *AndroidPackageInstallationFactory::create(BuildStepList *parent, const Core::Id id)
 {
     Q_ASSERT(canCreate(parent, id));
+    Q_UNUSED(id);
     return new AndroidPackageInstallationStep(parent);
 }
 

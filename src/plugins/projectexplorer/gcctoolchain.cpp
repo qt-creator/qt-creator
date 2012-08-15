@@ -438,8 +438,12 @@ QList<Utils::FileName> GccToolChain::suggestedMkspecList() const
     if (abi.os() == Abi::LinuxOS) {
         if (abi.osFlavor() != Abi::GenericLinuxFlavor)
             return QList<Utils::FileName>(); // most likely not a desktop, so leave the mkspec alone.
-        if (abi.wordWidth() == host.wordWidth())
-            return QList<Utils::FileName>() << Utils::FileName::fromString(QLatin1String("linux-g++")); // no need to explicitly set the word width
+        if (abi.wordWidth() == host.wordWidth()) {
+            // no need to explicitly set the word width, but provide that mkspec anyway to make sure
+            // that the correct compiler is picked if a mkspec with a wordwidth is given.
+            return QList<Utils::FileName>() << Utils::FileName::fromString(QLatin1String("linux-g++"))
+                                            << Utils::FileName::fromString(QLatin1String("linux-g++-") + QString::number(m_targetAbi.wordWidth()));
+        }
         return QList<Utils::FileName>() << Utils::FileName::fromString(QLatin1String("linux-g++-") + QString::number(m_targetAbi.wordWidth()));
     }
 

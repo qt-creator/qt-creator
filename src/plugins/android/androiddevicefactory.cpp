@@ -32,7 +32,6 @@
 #include "androiddevice.h"
 
 #include "androidconstants.h"
-#include <coreplugin/id.h>
 
 namespace Android {
 namespace Internal {

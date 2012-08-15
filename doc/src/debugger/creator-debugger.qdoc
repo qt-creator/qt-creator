@@ -124,41 +124,38 @@
     \section1 Launching the Debugger in Different Modes
 
     The debugger plugin can run the native debuggers in various operating
-    modes depending on where and how the process is started and run. Some
-    of the modes are only available for a particular operating system or
+    modes depending on where and how the debugged process is started and run.
+    Some of the modes are only available for a particular operating system or
     platform.
 
     In general, the \key{F5} and the \gui{Debug} button are set up in a way
-    to start operating mode that is commonly used the a given context.
+    to start the operating mode that is commonly used in a given context.
     So if the current project is set up as a C++ application using
     the MinGW toolchain targeting desktop Windows, the GDB engine will
-    be started in Start Local mode. If the current project is a
+    be started in Start Internal mode. If the current project is a
     QML application using C++ plugins targeting Meego
     a "mixed" QML/C++ engine will be started, with the C++ parts
     being handled by GDB and GDB server remote debugging.
 
-    To select other modes of operation, change the run run configuration
+    Change the run configuration
     parameters (such as \gui{Run in Terminal}) in the run settings of the
     project, or select options from the \gui{Debug} > \gui{Start Debugging}
-    menu.
+    menu to select other modes of operation.
 
     The debugger can run in the following modes:
 
     \list
 
-       \o  \bold{Start Local} to debug locally started applications, such as a
-            Qt based GUI application.
+       \o  \bold{Start Internal} to debug applications developed inside
+            \QC such as a Qt based GUI application.
 
-       \o  \bold{Terminal} to debug locally started processes that need a
-            console, typically without a GUI.
+       \o  \bold{Start External} to start and debug processes
+            without a proper \QC project setup, either locally or
+            on a remote machine.
 
-       \o  \bold{Attach Local} to debug local processes started outside \QC.
-
-       \o  \bold{Start Remote} to start and debug processes running
-            on a different machine.
-
-       \o  \bold{Attach Remote} to attach to a process running on a different
-            machine.
+       \o  \bold{Attach} to debug processes already started and
+            running outside \QC, either locally or on a
+            remote machine.
 
        \o  \bold{Core} to debug crashed processes on Unix.
 
@@ -166,48 +163,83 @@
 
     \endlist
 
-    \section2 Launching in Start Local Mode
+    \section2 Launching in Start Internal Mode
 
-    Start Local mode is the default start mode for most projects, including
+    Start Internal mode is the default start mode for most projects, including
     all projects using a desktop Qt version and plain C++ projects.
 
-    To launch the debugger in Start Local mode, click the
+    If you need a console window to operate your application, for example because
+    it accepts console input from the user, go to \gui {Projects > Run
+    Settings} and select the \gui {Run in terminal} check box.
+
+    To launch the debugger in Start Internal mode, click the
     \gui {Start Debugging} button for the active project.
 
-    To lauch Start Local mode to run any executable already present in the
-    system without using a project, select \gui{Debug > Start Debugging
+    You can specify breakpoints before or after launching the debugger.
+    For more information, see \l{Setting Breakpoints}.
+
+    \section2 Launching in Start External Mode
+
+    To run any executable already present on your local or a remote machine
+    without using a project, select \gui{Debug > Start Debugging
     > Start and Debug External Application}.
 
+    \section2 Launching in Attach Mode
 
-    \section2 Launching in Terminal Mode
-
-    Terminal mode is a variation of Start Local and creates an additional
-    console window to enable user-terminal interaction. This is mainly
-    useful for non-GUI applications using the stdin and stdout channels
-    for communication. To launch the debugger in the terminal mode,
-    go to \gui {Projects > Run
-    Settings} and select the \gui {Run in terminal} check box.
-    Then click the \gui {Start Debugging} button for the active project.
-
-    \section2 Launching in Attach Local Mode
-
-    To attach the debugger to an already running process, select
-    \gui {Debug > Start Debugging >  Attach to Running Local Application},
+    To attach the debugger to an application already running on your
+    local or a remote machine, select
+    \gui {Debug > Start Debugging > Attach to Running Application},
     and then select a process by its name or process ID to attach to.
 
     While this mode does not strictly require a project to be opened in \QC,
     it is beneficial to have open one, as it makes setting breakpoints
     and stepping throught the code easier.
 
+    You can specify breakpoints before or after attaching the
+    debugger to the application.
     For more information, see \l{Setting Breakpoints}.
 
-    \section2 Launching Remote Modes
+    \section2 Launching in Core Mode
 
-    The Remote modes allow you to debug processes that run on remote
-    machines.
+    The Core mode is used to inspect \e {core} files (crash dumps) that are
+    generated from crashed processes on Linux and Unix systems if the system
+    is set up to allow this.
 
-    In general, the setup consist of a probe running on the remote
-    machine and a counterpart running on the host side.
+    To enable the dumping of core files on a Unix system, enter the following
+    command in the shell from which the application will be launched:
+
+    \code
+    ulimit -c unlimited
+    \endcode
+
+    To launch the debugger in the core mode, select \gui{Debug > Start
+    Debugging > Attach to Core}.
+
+    Also in this mode, using a properly configured project containing
+    the sources of the crashed program is not strictly necessary, but
+    helpful.
+
+    \section2 Launching in Post-Mortem Mode
+
+    The post-mortem mode is available only on Windows, if you have installed
+    the debugging tools for Windows.
+
+    The \QC installation program asks you whether you want to
+    register \QC as a post-mortem debugger. To change the setting, select
+    \gui{Tools > Options  > Debugger > Common > Use Qt Creator for post-mortem
+    debugging}.
+
+    You can launch the debugger in the post-mortem mode if an application
+    crashes on Windows. Click the \gui {Debug in \QC} button in the error
+    message that is displayed by the Windows operating system.
+
+
+    \section1 Remote Debugging
+
+    \QC provides very easy access to remote debugging.
+
+    In general, the remote debugging setup consist of a probe running on the
+    remote machine and a counterpart running on the host side.
     The probe is either integrated into the running process (e.g. for QML
     debugging) or runs a separate process (e.g. when using GDB server
     on embedded Linux, or TRK/CODA on Symbian). The host side typically
@@ -218,11 +250,11 @@
     GDB.
     \endif
 
-
     While this setup might look daunting, it is mostly invisible to
-    the user. With a properly loaded and configured project, pressing
-    \key{F5} starts up all necessary helper processes and debugging on
-    the selected target.
+    the user of \QC. To start debugging on a remote target with the
+    necessary helper processes running, select the target in
+    \gui{Projects > Build Settings}
+    or in the \gui{Debug > Start Debugging} menu.
 
     Special use cases, such as attaching to a running process on the
     target, might still require manual setup.
@@ -325,41 +357,6 @@
             \o Click \gui{OK} to start debugging.
 
     \endlist
-
-    \section2 Launching in Core Mode
-
-    The Core mode is used to inspect \e {core} files (crash dumps) that are
-    generated from crashed processes on Linux and Unix systems if the system
-    is set up to allow this.
-
-    To enable the dumping of core files on a Unix system enter the following
-    command in the shell from which the application will be launched:
-
-    \code
-    ulimit -c unlimited
-    \endcode
-
-    To launch the debugger in the core mode, select \gui{Debug > Start
-    Debugging >  Attach to Core}.
-
-    Also in this mode, using a properly configured project containing
-    the sources of the crashed program is not strictly necessary, but
-    helpful.
-
-    \section2 Launching in Post-Mortem Mode
-
-    The post-mortem mode is available only on Windows, if you have installed
-    the debugging tools for Windows.
-
-    The \QC installation program asks you whether you want to
-    register \QC as a post-mortem debugger. To change the setting, select
-    \gui{Tools > Options  > Debugger > Common > Use Qt Creator for post-mortem
-    debugging}.
-
-    You can launch the debugger in the post-mortem mode if an application
-    crashes on Windows. Click the \gui {Debug in \QC} button in the error
-    message that is displayed by the Windows operating system.
-
 */
 
 

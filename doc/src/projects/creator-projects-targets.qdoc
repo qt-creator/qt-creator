@@ -1,0 +1,120 @@
+/****************************************************************************
+**
+** This file is part of Qt Creator
+**
+** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
+**
+** Contact: http://www.qt-project.org/
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \contentspage index.html
+    \previouspage creator-build-settings.html
+    \page creator-targets.html
+    \nextpage creator-project-qmake.html
+
+    \title Adding Targets
+
+    \QC groups platform specific settings as \e targets to make cross-platform
+    development easier. Each target consists of a set of values that define one
+    environment, such as a device, tool chain, Qt version, and debugger command
+    to use, and some metadata, such as an icon and a name for the target. Once
+    you have defined targets, you can select them to build and run projects.
+
+    \QC supports development for the desktop and for the following types of
+    devices:
+
+    \list
+
+        \o  Android Device
+
+        \o  Generic Linux Device
+
+        \o  Maemo5/Fremantle Device
+
+        \o  MeeGo 1.2 Harmattan Device
+
+        \o  QNX Device
+
+    \endlist
+
+    To add targets:
+
+    \list 1
+
+        \o  Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets
+            > \gui Add.
+
+            \image qtcreator-targets.png
+
+            To clone the selected target, select \gui Clone.
+
+        \o  In the \gui Name column, double-click the target name to change it.
+
+
+
+        \o  In the \gui{Device type} field, select the type of the device to
+            target.
+
+            Double-click the icon next to the field to select the image that is
+            displayed in the target selector for this target. You can use any
+            image in a supported file format (for example, PNG). The image is
+            scaled to the size 64x64 pixels. For example, using the compiler
+            logo as an icon allows you to easily see, which compiler is used to
+            build the project for the selected target.
+
+        \o  In the \gui Device field, select the device configuration to target.
+
+        \o  In the \gui Sysroot field, specify the directory where the device
+            image is located. If you are not cross-compiling, leave this field
+            empty.
+
+        \o  In the \gui {Tool chain} field, select the tool chain required
+            to build the project. You can add tool chains to the list
+            if they are installed on the development PC, but were not detected
+            automatically. For more information, see \l{Adding Tool Chains}.
+
+            \note The \gui {Symbian Device} target uses the GCCE tool chain by
+            default. To use RVCT for building, install the RVCT tool chain, and
+            then select it in the \gui {Tool chain} field. RVCT 2.2 is supported
+            on Symbian^3 and earlier. RVCT 4.0 b902 or later is required for
+            Symbian Belle.
+
+        \o  In the \gui {Debugger command} field, specify the path to the
+            debugger command. On Windows, specify the path to the Windows
+            Console Debugger executable (32-bit version).
+            Select \gui {Auto detect} to automatically locate the debugger
+            command.
+
+        \o  In the \gui {Qt version} field, select the Qt version to use for
+            building the project. You can add Qt versions to the list if they
+            are installed on the development PC, but were not detected
+            automatically. For more information, see \l{Adding Qt Versions}.
+
+            \QC checks the directories listed in the \c{PATH} environment
+            variable for the qmake executable. If a qmake executable is found,
+            it is referred to as \bold{Qt in PATH} and selected as the Qt
+            version to use for the \gui Desktop target.
+
+        \o  In the \gui {Qt mkspec} field, specify build instructions for qmake.
+            If you leave this field empty, the default value is used.
+
+    \endlist
+
+*/
