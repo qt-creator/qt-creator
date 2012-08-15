@@ -1152,6 +1152,51 @@ namespace qlist {
         dummyStatement(&big);
     }
 
+    void testQListIntTakeFirst()
+    {
+        QList<int> l;
+        l.append(0);
+        l.append(1);
+        l.append(2);
+        l.takeFirst();
+        BREAK_HERE;
+        // Expand l.
+        // Check l <2 items> QList<int>.
+        // Check l.0 1 int.
+        // Continue.
+        dummyStatement(&l);
+    }
+
+    void testQListStringTakeFirst()
+    {
+        QList<QString> l;
+        l.append("0");
+        l.append("1");
+        l.append("2");
+        l.takeFirst();
+        BREAK_HERE;
+        // Expand l.
+        // Check l <2 items> QList<QString>.
+        // Check l.0 "1" QString.
+        // Continue.
+        dummyStatement(&l);
+    }
+
+    void testQStringListTakeFirst()
+    {
+        QStringList l;
+        l.append("0");
+        l.append("1");
+        l.append("2");
+        l.takeFirst();
+        BREAK_HERE;
+        // Expand l.
+        // Check l <2 items> QStringList.
+        // Check l.0 "1" QString.
+        // Continue.
+        dummyStatement(&l);
+    }
+
     void testQListIntStar()
     {
         QList<int *> l;
@@ -1320,6 +1365,9 @@ namespace qlist {
         testQListStdString();
         testQListFoo();
         testQListReverse();
+        testQListIntTakeFirst();
+        testQListStringTakeFirst();
+        testQStringListTakeFirst();
     }
 
 } // namespace qlist
