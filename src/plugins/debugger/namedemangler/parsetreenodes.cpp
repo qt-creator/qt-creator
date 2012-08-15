@@ -60,7 +60,7 @@ namespace Internal {
 template<int base> static int getNonNegativeNumber(GlobalParseState *parseState)
 {
     ParseTreeNode::parseRule<NonNegativeNumberNode<base> >(parseState);
-    const NonNegativeNumberNode<base>::Ptr numberNode
+    const typename NonNegativeNumberNode<base>::Ptr numberNode
             = DEMANGLER_CAST(NonNegativeNumberNode<base>, parseState->popFromStack());
     const int value = static_cast<int>(numberNode->number());
     return value;
