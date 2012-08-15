@@ -548,10 +548,10 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-void fillParameters(DebuggerStartParameters *sp, Id id)
+void fillParameters(DebuggerStartParameters *sp, Profile *profile)
 {
-    Profile *profile = ProfileManager::instance()->find(id);
-    QTC_ASSERT(profile, return);
+    if (!profile)
+        profile = ProfileManager::instance()->defaultProfile();
     sp->sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
     sp->debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
 
@@ -1277,8 +1277,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
-        Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
-        fillParameters(&sp, defaultProfile ? defaultProfile->id() : Core::Id());
+        fillParameters(&sp, ProfileManager::instance()->defaultProfile());
         qulonglong pid = it->toULongLong();
         if (pid) {
             sp.startMode = AttachExternal;
@@ -1315,8 +1314,10 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
                     sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
                 }
-                else if (key == QLatin1String("profile"))
-                    fillParameters(&sp, Id(val));
+                else if (key == QLatin1String("profile")) {
+                    Profile *profile = ProfileManager::instance()->find(Id(val));
+                    fillParameters(&sp, profile);
+                }
             }
         }
         if (sp.startMode == StartExternal) {
@@ -1338,7 +1339,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
-        fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id());
+        fillParameters(&sp, 0);
         sp.startMode = AttachCrashedExternal;
         sp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
         sp.attachPID = it->section(QLatin1Char(':'), 1, 1).toULongLong();
@@ -1471,12 +1472,12 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue(_("LastExternalExecutableFile"), dlg.localExecutableFile());
     setConfigValue(_("LastLocalCoreFile"), dlg.localCoreFile());
     setConfigValue(_("LastRemoteCoreFile"), dlg.remoteCoreFile());
-    setConfigValue(_("LastExternalProfile"), dlg.profileId().toString());
+    setConfigValue(_("LastExternalProfile"), dlg.profile()->id().toString());
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
 
     DebuggerStartParameters sp;
     QString display = dlg.isLocal() ? dlg.localCoreFile() : dlg.remoteCoreFile();
-    fillParameters(&sp, dlg.profileId());
+    fillParameters(&sp, dlg.profile());
     sp.masterEngineType = GdbEngineType;
     sp.executable = dlg.localExecutableFile();
     sp.coreFile = dlg.localCoreFile();
@@ -1517,7 +1518,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     RemoteCdbMatcher matcher;
     Profile *profile = ProfileManager::instance()->find(&matcher);
     QTC_ASSERT(profile, return);
-    fillParameters(&sp, profile->id());
+    fillParameters(&sp, profile);
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
     StartRemoteCdbDialog dlg(mainWindow());
@@ -1586,7 +1587,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
 
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         DebuggerStartParameters sp;
-        fillParameters(&sp, profile->id());
+        fillParameters(&sp, profile);
         sp.attachPID = process.pid;
         sp.displayName = tr("Process %1").arg(process.pid);
         sp.executable = process.exe;
@@ -1627,9 +1628,9 @@ void DebuggerPluginPrivate::attachToQmlPort()
 
     setConfigValue(_("LastQmlServerAddress"), dlg.host());
     setConfigValue(_("LastQmlServerPort"), dlg.port());
-    setConfigValue(_("LastProfile"), dlg.profileId().toString());
+    setConfigValue(_("LastProfile"), dlg.profile()->id().toString());
 
-    fillParameters(&sp, dlg.profileId());
+    fillParameters(&sp, dlg.profile());
     sp.qmlServerAddress = dlg.host();
     sp.qmlServerPort = dlg.port();
 
@@ -3370,12 +3371,12 @@ static Target *activeTarget()
     return project->activeTarget();
 }
 
-static Id currentProfileId()
+static Profile *currentProfile()
 {
     Target *t = activeTarget();
     if (!t || !t->isEnabled())
         return 0;
-    return activeTarget()->profile()->id();
+    return activeTarget()->profile();
 }
 
 static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
@@ -3423,7 +3424,7 @@ void DebuggerPluginPrivate::testPythonDumpers1()
 void DebuggerPluginPrivate::testPythonDumpers2()
 {
     DebuggerStartParameters sp;
-    fillParameters(&sp, currentProfileId());
+    fillParameters(&sp, currentProfile());
     sp.executable = activeLocalRunConfiguration()->executable();
     testRunProject(sp, TestCallBack(this, "testPythonDumpers3"));
 }
@@ -3455,7 +3456,7 @@ void DebuggerPluginPrivate::testStateMachine1()
 void DebuggerPluginPrivate::testStateMachine2()
 {
     DebuggerStartParameters sp;
-    fillParameters(&sp, currentProfileId());
+    fillParameters(&sp, currentProfile());
     sp.executable = activeLocalRunConfiguration()->executable();
     sp.testCase = TestNoBoundsOfCurrentFunction;
     testRunProject(sp, TestCallBack(this, "testStateMachine3"));

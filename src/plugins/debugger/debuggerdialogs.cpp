@@ -378,7 +378,7 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     }
 
     Profile *profile = dialog.d->profileChooser->currentProfile();
-    fillParameters(sp, profile->id());
+    fillParameters(sp, profile);
 
     sp->executable = newParameters.localExecutable;
     sp->displayName = newParameters.displayName();
@@ -495,9 +495,9 @@ int AttachToQmlPortDialog::port() const
     return d->portSpinBox->value();
 }
 
-Id AttachToQmlPortDialog::profileId() const
+Profile *AttachToQmlPortDialog::profile() const
 {
-    return d->profileChooser->currentProfileId();
+    return d->profileChooser->currentProfile();
 }
 
 void AttachToQmlPortDialog::setProfileId(const Id &id)

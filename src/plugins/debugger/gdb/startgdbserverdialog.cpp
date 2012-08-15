@@ -207,7 +207,7 @@ void GdbServerStarter::attach(int port)
     }
 
     DebuggerStartParameters sp;
-    fillParameters(&sp, d->profile->id());
+    fillParameters(&sp, d->profile);
     sp.masterEngineType = GdbEngineType;
     sp.connParams.port = port;
     sp.displayName = tr("Remote: \"%1:%2\"").arg(sp.connParams.host).arg(port);

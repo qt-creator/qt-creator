@@ -38,6 +38,7 @@
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/profile.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QMetaType>
@@ -148,7 +149,7 @@ public:
 
 namespace Internal {
 
-void fillParameters(DebuggerStartParameters *sp, Core::Id id);
+void fillParameters(DebuggerStartParameters *sp, ProjectExplorer::Profile *profile);
 
 } // namespace Internal
 } // namespace Debugger
