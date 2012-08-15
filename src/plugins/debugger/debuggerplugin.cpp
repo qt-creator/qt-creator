@@ -783,7 +783,6 @@ public slots:
     void attachToRunningApplication();
     void attachToQmlPort();
     void startRemoteEngine();
-    //Q_SLOT void attachToLocalProcess(ProjectExplorer::RunControl *rc);
     void runScheduled();
     void attachCore();
 
@@ -804,7 +803,6 @@ public slots:
     void runControlStarted(DebuggerEngine *engine);
     void runControlFinished(DebuggerEngine *engine);
     DebuggerLanguages activeLanguages() const;
-//    QString debuggerForAbi(const Abi &abi, DebuggerEngineType et = NoEngineType) const;
     void remoteCommand(const QStringList &options, const QStringList &);
 
     bool isReverseDebugging() const;
@@ -815,7 +813,6 @@ public slots:
     void setConfigValue(const QString &name, const QVariant &value);
     QVariant configValue(const QString &name) const;
 
-    //void startDebugger(RunControl *runControl);
     void displayDebugger(DebuggerEngine *engine, bool updateEngine = true);
 
     void dumpLog();
@@ -1546,11 +1543,6 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     }
 }
 
-//const char LastProfile[] = "Debugger/LastProfile";
-//const char LastDevice[] = "Debugger/LastDevice";
-//const char LastProcessName[] = "Debugger/LastProcessName";
-//const char LastLocalExecutable[] = "Debugger/LastLocalExecutable";
-
 void DebuggerPluginPrivate::startRemoteServer()
 {
     attachToProcess(true);
@@ -1591,8 +1583,6 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
         return;
     }
     #endif
-
-    //setConfigValue(_("LastAttachExternalProfileIndex"), QVariant(dlg->profileChooser()->currentProfileId()));
 
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         DebuggerStartParameters sp;
@@ -1925,12 +1915,6 @@ void DebuggerPluginPrivate::displayDebugger(DebuggerEngine *engine, bool updateE
     engine->updateViews();
 }
 
-//void DebuggerPluginPrivate::startDebugger(RunControl *rc)
-//{
-//    QTC_ASSERT(rc, return);
-//    ProjectExplorerPlugin::instance()->startRunControl(rc, DebugRunMode);
-//}
-
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 {
     if (!engine)
@@ -1950,8 +1934,6 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     m_sourceFilesWindow->setModel(engine->sourceFilesModel());
     m_stackWindow->setModel(engine->stackModel());
     m_threadsWindow->setModel(engine->threadsModel());
-    //m_threadBox->setModel(engine->threadsModel());
-    //m_threadBox->setModelColumn(ThreadData::ComboNameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
     m_inspectorWindow->setModel(engine->inspectorModel());
     m_qtMessageLogWindow->setModel(engine->qtMessageLogModel());
@@ -2350,13 +2332,6 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
 {
     m_breakHandler->removeSessionData();
     m_toolTipManager->sessionAboutToChange();
-    // Stop debugging the active project when switching sessions.
-    // Note that at startup, session switches may occur, which interfere
-    // with command-line debugging startup.
-    // FIXME ABC: Still wanted? Iterate?
-    //if (d->m_engine && state() != DebuggerNotReady
-    //    && engine()->sp().startMode == StartInternal)
-    //        d->m_engine->shutdown();
 }
 
 void DebuggerPluginPrivate::aboutToSaveSession()
@@ -3317,11 +3292,6 @@ void DebuggerPlugin::remoteCommand(const QStringList &options,
 {
     theDebuggerCore->remoteCommand(options, list);
 }
-
-//void DebuggerPlugin::startDebugger(RunControl *runControl)
-//{
-//    theDebuggerCore->startDebugger(runControl);
-//}
 
 DebuggerRunControl *DebuggerPlugin::createDebugger
     (const DebuggerStartParameters &sp, RunConfiguration *rc)

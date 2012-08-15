@@ -71,7 +71,6 @@
 #include <QErrorMessage>
 #include <QFormLayout>
 #include <QLabel>
-#include <QMessageBox>
 
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -82,19 +81,13 @@ enum { debug = 0 };
 namespace Debugger {
 namespace Internal {
 
-bool isCdbEngineEnabled(); // Check the configuration page
-//bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check);
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *error);
-
-//bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check);
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createScriptEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createPdbEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp);
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp, QString *error);
 DebuggerEngine *createLldbEngine(const DebuggerStartParameters &sp);
-
-extern QString msgNoBinaryForToolChain(const Abi &abi);
 
 static const char *engineTypeName(DebuggerEngineType et)
 {
@@ -119,28 +112,6 @@ static const char *engineTypeName(DebuggerEngineType et)
         break;
     }
     return "No engine";
-}
-
-static inline QString engineTypeNames(const QList<DebuggerEngineType> &l)
-{
-    QString rc;
-    foreach (DebuggerEngineType et, l) {
-        if (!rc.isEmpty())
-            rc.append(QLatin1String(", "));
-        rc += QLatin1String(engineTypeName(et));
-    }
-    return rc;
-}
-
-static QString msgEngineNotAvailable(const char *engine)
-{
-    return DebuggerPlugin::tr("The application requires the debugger engine '%1', "
-        "which is disabled.").arg(_(engine));
-}
-
-static inline QString msgEngineNotAvailable(DebuggerEngineType et)
-{
-    return msgEngineNotAvailable(engineTypeName(et));
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -490,7 +461,6 @@ RunConfiguration *DebuggerRunControl::runConfiguration() const
 //
 ////////////////////////////////////////////////////////////////////////
 
-// A factory to create DebuggerRunControls
 DebuggerRunControlFactory::DebuggerRunControlFactory(QObject *parent)
     : IRunControlFactory(parent)
 {}
@@ -504,36 +474,6 @@ bool DebuggerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMo
 QString DebuggerRunControlFactory::displayName() const
 {
     return DebuggerPlugin::tr("Debug");
-}
-
-// Find Qt installation by running qmake
-static inline QString findQtInstallPath(const FileName &qmakePath)
-{
-    QProcess proc;
-    QStringList args;
-    args.append(_("-query"));
-    args.append(_("QT_INSTALL_HEADERS"));
-    proc.start(qmakePath.toString(), args);
-    if (!proc.waitForStarted()) {
-        qWarning("%s: Cannot start '%s': %s", Q_FUNC_INFO, qPrintable(qmakePath.toString()),
-           qPrintable(proc.errorString()));
-        return QString();
-    }
-    proc.closeWriteChannel();
-    if (!proc.waitForFinished()) {
-        SynchronousProcess::stopProcess(proc);
-        qWarning("%s: Timeout running '%s'.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
-        return QString();
-    }
-    if (proc.exitStatus() != QProcess::NormalExit) {
-        qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
-        return QString();
-    }
-    const QByteArray ba = proc.readAllStandardOutput().trimmed();
-    QDir dir(QString::fromLocal8Bit(ba));
-    if (dir.exists() && dir.cdUp())
-        return dir.absolutePath();
-    return QString();
 }
 
 static DebuggerStartParameters localStartParameters(RunConfiguration *runConfiguration)
@@ -743,7 +683,6 @@ DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun
     ProjectExplorerPlugin::instance()->startRunControl(rc, DebugRunMode);
     return rc;
 }
-
 
 RunConfigWidget *DebuggerRunControlFactory::createConfigurationWidget
     (RunConfiguration *runConfiguration)
