@@ -196,3 +196,172 @@ void CppToolsPlugin::test_completion_template_1()
     QVERIFY(!completions.contains("f"));
     QVERIFY(!completions.contains("func"));
 }
+
+void CppToolsPlugin::test_completion_template_as_base()
+{
+    QFETCH(QByteArray, code);
+    QFETCH(QStringList, expectedCompletions);
+
+    TestData data;
+    data.srcText = code;
+    setup(&data);
+
+    Utils::ChangeSet change;
+    change.insert(data.pos, "c.");
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += 2;
+
+    QStringList actualCompletions = getCompletions(data);
+    actualCompletions.sort();
+    expectedCompletions.sort();
+
+    QCOMPARE(actualCompletions, expectedCompletions);
+}
+
+void CppToolsPlugin::test_completion_template_as_base_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QByteArray code;
+    QStringList completions;
+
+    code = "\n"
+            "class Data { int dataMember; };\n"
+            "template <class T> class Other : public T { int otherMember; };\n"
+            "\n"
+            "void func() {\n"
+            "    Other<Data> c;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+    completions.append("Data");
+    completions.append("dataMember");
+    completions.append("Other");
+    completions.append("otherMember");
+    QTest::newRow("case: base as template directly") << code << completions;
+
+
+    completions.clear();
+    code = "\n"
+            "class Data { int dataMember; };\n"
+            "template <class T> class Other : public T { int otherMember; };\n"
+            "template <class T> class More : public Other<T> { int moreMember; };\n"
+            "\n"
+            "void func() {\n"
+            "    More<Data> c;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+    completions.append("Data");
+    completions.append("dataMember");
+    completions.append("Other");
+    completions.append("otherMember");
+    completions.append("More");
+    completions.append("moreMember");
+    QTest::newRow("case: base as class template") << code << completions;
+
+
+    completions.clear();
+    code = "\n"
+            "class Data { int dataMember; };\n"
+            "template <class T> class Other : public T { int otherMember; };\n"
+            "template <class T> class More : public ::Other<T> { int moreMember; };\n"
+            "\n"
+            "void func() {\n"
+            "    More<Data> c;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+    completions.append("Data");
+    completions.append("dataMember");
+    completions.append("Other");
+    completions.append("otherMember");
+    completions.append("More");
+    completions.append("moreMember");
+    QTest::newRow("case: base as globally qualified class template") << code << completions;
+
+
+    completions.clear();
+    code = "\n"
+            "class Data { int dataMember; };\n"
+            "namespace NS {\n"
+            "template <class T> class Other : public T { int otherMember; };\n"
+            "}\n"
+            "template <class T> class More : public NS::Other<T> { int moreMember; };\n"
+            "\n"
+            "void func() {\n"
+            "    More<Data> c;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+    completions.append("Data");
+    completions.append("dataMember");
+    completions.append("Other");
+    completions.append("otherMember");
+    completions.append("More");
+    completions.append("moreMember");
+    QTest::newRow("case: base as namespace qualified class template") << code << completions;
+
+
+    completions.clear();
+    code = "\n"
+            "class Data { int dataMember; };\n"
+            "namespace NS {\n"
+            "template <class T> class Delegate { typedef Data<T> Type; };\n"
+            "}\n"
+            "template <class T> class Final : public NS::Delegate<T>::Type { int finalMember; };\n"
+            "\n"
+            "void func() {\n"
+            "    Final<Data> c;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+    completions.append("Data");
+    completions.append("dataMember");
+    completions.append("Final");
+    completions.append("finalMember");
+    QTest::newRow("case: base as nested template name") << code << completions;
+
+
+    completions.clear();
+    code = "\n"
+            "class Data { int dataMember; };\n"
+            "namespace NS {\n"
+            "template <class T> class Delegate { typedef Data<T> Type; };\n"
+            "}\n"
+            "class Final : public NS::Delegate<Data>::Type { int finalMember; };\n"
+            "\n"
+            "void func() {\n"
+            "    Final c;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+    completions.append("Data");
+    completions.append("dataMember");
+    completions.append("Final");
+    completions.append("finalMember");
+    QTest::newRow("case: base as nested template name in non-template") << code << completions;
+
+    completions.clear();
+    code = "\n"
+            "class Data { int dataMember; };\n"
+            "namespace NS {\n"
+            "template <class T> class Other : public T { int otherMember; };\n"
+            "}\n"
+            "class Final : public NS::Other<Data> { int finalMember; };\n"
+            "\n"
+            "void func() {\n"
+            "    Final c;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+    completions.append("Data");
+    completions.append("dataMember");
+    completions.append("Final");
+    completions.append("finalMember");
+    completions.append("Other");
+    completions.append("otherMember");
+    QTest::newRow("case: base as template name in non-template") << code << completions;
+}

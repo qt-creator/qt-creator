@@ -92,6 +92,8 @@ private slots:
 
     void test_completion_basic_1();
     void test_completion_template_1();
+    void test_completion_template_as_base();
+    void test_completion_template_as_base_data();
 #endif
 
 private:
