@@ -60,7 +60,7 @@ namespace Internal {
 template<int base> static int getNonNegativeNumber(GlobalParseState *parseState)
 {
     ParseTreeNode::parseRule<NonNegativeNumberNode<base> >(parseState);
-    const typename NonNegativeNumberNode<base>::Ptr numberNode
+    const NonNegativeNumberNode<base>::Ptr numberNode
             = DEMANGLER_CAST(NonNegativeNumberNode<base>, parseState->popFromStack());
     const int value = static_cast<int>(numberNode->number());
     return value;
@@ -1461,7 +1461,7 @@ QByteArray LocalNameNode::toByteArray() const
                 = DEMANGLER_CAST(BareFunctionTypeNode, CHILD_AT(encodingNode, 1));
         const int functionParamCount
                 = funcNode->hasReturnType() ? funcNode->childCount() - 1 : funcNode->childCount();
-        const typename NonNegativeNumberNode<10>::Ptr numberNode
+        const NonNegativeNumberNode<10>::Ptr numberNode
                 = MY_CHILD_AT(1).dynamicCast<NonNegativeNumberNode<10> >();
 
         // "_" means last argument, "n" means (n+1)th to last.
@@ -2815,7 +2815,7 @@ QByteArray ClosureTypeNameNode::toByteArray() const
     QByteArray repr = CHILD_TO_BYTEARRAY(0) + '#';
     quint64 number;
     if (childCount() == 2) {
-        const typename NonNegativeNumberNode<10>::Ptr numberNode
+        const NonNegativeNumberNode<10>::Ptr numberNode
                 = DEMANGLER_CAST(NonNegativeNumberNode<10>, MY_CHILD_AT(1));
         number = numberNode->number() + 2;
     } else {
@@ -2853,7 +2853,7 @@ QByteArray UnnamedTypeNameNode::toByteArray() const
     if (childCount() == 0) {
         repr += "unnamed type#1";
     } else {
-        const typename NonNegativeNumberNode<10>::Ptr numberNode
+        const NonNegativeNumberNode<10>::Ptr numberNode
                 = MY_CHILD_AT(0).dynamicCast<NonNegativeNumberNode<10> >();
         if (numberNode)
             repr += "unnamed type#" + QByteArray::number(numberNode->number() + 2);
@@ -3171,7 +3171,7 @@ void FunctionParamNode::parse()
 QByteArray FunctionParamNode::toByteArray() const
 {
     // We ignore L for now.
-    const typename NonNegativeNumberNode<10>::Ptr numberNode
+    const NonNegativeNumberNode<10>::Ptr numberNode
             = MY_CHILD_AT(childCount() - 1).dynamicCast<NonNegativeNumberNode<10> >();
     const int paramNumber = numberNode ? numberNode->number() + 2 : 1;
     const int cvIndex = MY_CHILD_AT(0).dynamicCast<CvQualifiersNode>() ? 0 : 1;
