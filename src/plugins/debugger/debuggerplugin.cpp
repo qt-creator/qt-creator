@@ -381,9 +381,10 @@ sg1: }
 
 using namespace Core;
 using namespace Debugger::Constants;
+using namespace ExtensionSystem;
 using namespace ProjectExplorer;
 using namespace TextEditor;
-using namespace ExtensionSystem;
+using namespace Utils;
 
 namespace CC = Core::Constants;
 namespace PE = ProjectExplorer::Constants;
@@ -458,7 +459,7 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
-static void setProxyAction(Utils::ProxyAction *proxy, const char *id)
+static void setProxyAction(ProxyAction *proxy, const char *id)
 {
     proxy->setAction(ActionManager::command(id)->action());
 }
@@ -1075,7 +1076,7 @@ public slots:
     void openTextEditor(const QString &titlePattern0, const QString &contents);
     void showMessage(const QString &msg, int channel, int timeout = -1);
 
-    Utils::SavedAction *action(int code) const;
+    SavedAction *action(int code) const;
     bool boolSetting(int code) const;
     QString stringSetting(int code) const;
 
@@ -1099,8 +1100,8 @@ public:
     Id m_previousMode;
     QList<DebuggerStartParameters> m_scheduledStarts;
 
-    Utils::ProxyAction *m_visibleStartAction;
-    Utils::ProxyAction *m_hiddenStopAction;
+    ProxyAction *m_visibleStartAction;
+    ProxyAction *m_hiddenStopAction;
     QAction *m_startAction;
     QAction *m_debugWithoutDeployAction;
     QAction *m_startAndDebugApplicationAction;
@@ -1138,7 +1139,7 @@ public:
     QIcon m_interruptIcon;
     QIcon m_locationMarkIcon;
 
-    Utils::StatusLabel *m_statusLabel;
+    StatusLabel *m_statusLabel;
     QComboBox *m_threadBox;
 
     BaseWindow *m_breakWindow;
@@ -2293,7 +2294,7 @@ void DebuggerPluginPrivate::dumpLog()
         tr("Save Debugger Log"), QDir::tempPath());
     if (fileName.isEmpty())
         return;
-    Utils::FileSaver saver(fileName);
+    FileSaver saver(fileName);
     if (!saver.hasError()) {
         QTextStream ts(saver.file());
         ts << m_logWindow->inputContents();
@@ -2609,7 +2610,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_busy = false;
 
-    m_statusLabel = new Utils::StatusLabel;
+    m_statusLabel = new StatusLabel;
 
     m_breakHandler = new BreakHandler;
     m_breakWindow = new BreakWindow;
@@ -2851,10 +2852,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDefaultKeySequence(debugKey);
     cmd->setAttribute(Command::CA_UpdateText);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
-    m_visibleStartAction = new Utils::ProxyAction(this);
+    m_visibleStartAction = new ProxyAction(this);
     m_visibleStartAction->initialize(cmd->action());
-    m_visibleStartAction->setAttribute(Utils::ProxyAction::UpdateText);
-    m_visibleStartAction->setAttribute(Utils::ProxyAction::UpdateIcon);
+    m_visibleStartAction->setAttribute(ProxyAction::UpdateText);
+    m_visibleStartAction->setAttribute(ProxyAction::UpdateIcon);
     m_visibleStartAction->setAction(cmd->action());
 
     ModeManager::addAction(m_visibleStartAction, Constants::P_ACTION_DEBUG);
@@ -2867,39 +2868,33 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = ActionManager::registerAction(m_attachToRunningApplication,
          "Debugger.AttachToRemoteProcess", globalcontext);
     cmd->setDescription(tr("Attach to Running Application"));
-    mstart->addAction(cmd, Debugger::Constants::G_START_LOCAL);
+    mstart->addAction(cmd, Debugger::Constants::G_GENERAL);
 
     cmd = ActionManager::registerAction(m_startAndDebugApplicationAction,
         "Debugger.StartAndDebugApplication", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Debugger::Constants::G_START_LOCAL);
-
-    // FIXME: The following actions should some be less
-    // visible in the start menu, but still be "there".
-    // m_startLocalProcessAction->setVisible(on);
-    // m_attachToRemoteServerAction->setVisible(on);
-    // m_startRemoteServerAction->setVisible(on);
+    mstart->addAction(cmd, Debugger::Constants::G_GENERAL);
 
     cmd = ActionManager::registerAction(m_attachToCoreAction,
         "Debugger.AttachCore", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_LOCAL);
+    mstart->addAction(cmd, Constants::G_GENERAL);
 
     cmd = ActionManager::registerAction(m_attachToRemoteServerAction,
         "Debugger.AttachToRemoteServer", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
+    mstart->addAction(cmd, Constants::G_SPECIAL);
 
     cmd = ActionManager::registerAction(m_startRemoteServerAction,
          "Debugger.StartRemoteServer", globalcontext);
     cmd->setDescription(tr("Start Gdbserver"));
-    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
+    mstart->addAction(cmd, Constants::G_SPECIAL);
 
     if (m_startRemoteCdbAction) {
         cmd = ActionManager::registerAction(m_startRemoteCdbAction,
              "Debugger.AttachRemoteCdb", globalcontext);
         cmd->setAttribute(Command::CA_Hide);
-        mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
+        mstart->addAction(cmd, Constants::G_SPECIAL);
     }
 
     mstart->addSeparator(globalcontext, Constants::G_START_QML);
@@ -2927,10 +2922,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = ActionManager::registerAction(m_exitAction,
         Constants::STOP, globalcontext);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
-    m_hiddenStopAction = new Utils::ProxyAction(this);
+    m_hiddenStopAction = new ProxyAction(this);
     m_hiddenStopAction->initialize(cmd->action());
-    m_hiddenStopAction->setAttribute(Utils::ProxyAction::UpdateText);
-    m_hiddenStopAction->setAttribute(Utils::ProxyAction::UpdateIcon);
+    m_hiddenStopAction->setAttribute(ProxyAction::UpdateText);
+    m_hiddenStopAction->setAttribute(ProxyAction::UpdateIcon);
 
     cmd = ActionManager::registerAction(m_hiddenStopAction,
         Constants::HIDDEN_STOP, globalcontext);
@@ -3122,12 +3117,12 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->addWidget(toolButton(Constants::STEPOUT));
     hbox->addWidget(toolButton(Constants::OPERATE_BY_INSTRUCTION));
 
-    //hbox->addWidget(new Utils::StyledSeparator);
+    //hbox->addWidget(new StyledSeparator);
     m_reverseToolButton = toolButton(Constants::REVERSE);
     hbox->addWidget(m_reverseToolButton);
     //m_reverseToolButton->hide();
 
-    hbox->addWidget(new Utils::StyledSeparator);
+    hbox->addWidget(new StyledSeparator);
     hbox->addWidget(new QLabel(tr("Threads:")));
 
     m_threadBox = new QComboBox;
@@ -3145,10 +3140,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->setSpacing(0);
     hbox->addWidget(toolButton(action(QmlUpdateOnSave)));
     hbox->addWidget(toolButton(action(ShowAppOnTop)));
-    hbox->addWidget(new Utils::StyledSeparator);
+    hbox->addWidget(new StyledSeparator);
     hbox->addWidget(toolButton(Constants::QML_SELECTTOOL));
     hbox->addWidget(toolButton(Constants::QML_ZOOMTOOL));
-    hbox->addWidget(new Utils::StyledSeparator);
+    hbox->addWidget(new StyledSeparator);
     m_mainWindow->setToolBar(QmlLanguage, qmlToolbar);
 
     m_mainWindow->setToolBar(AnyLanguage, m_statusLabel);
@@ -3177,7 +3172,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
         QTimer::singleShot(0, this, SLOT(runScheduled()));
 }
 
-Utils::SavedAction *DebuggerPluginPrivate::action(int code) const
+SavedAction *DebuggerPluginPrivate::action(int code) const
 {
     return m_debuggerSettings->item(code);
 }
@@ -3267,15 +3262,13 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     ActionContainer *mstart = ActionManager::actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
-    mstart->appendGroup(Constants::G_START_LOCAL);
-    mstart->appendGroup(Constants::G_MANUAL_REMOTE);
-    mstart->appendGroup(Constants::G_AUTOMATIC_REMOTE);
+    mstart->appendGroup(Constants::G_GENERAL);
+    mstart->appendGroup(Constants::G_SPECIAL);
     mstart->appendGroup(Constants::G_START_QML);
 
     // Separators
-    mstart->addSeparator(globalcontext, Constants::G_START_LOCAL);
-    mstart->addSeparator(globalcontext, Constants::G_MANUAL_REMOTE);
-    mstart->addSeparator(globalcontext, Constants::G_AUTOMATIC_REMOTE);
+    mstart->addSeparator(globalcontext, Constants::G_GENERAL);
+    mstart->addSeparator(globalcontext, Constants::G_SPECIAL);
 
     ProfileManager::instance()->registerProfileInformation(new DebuggerProfileInformation);
 
