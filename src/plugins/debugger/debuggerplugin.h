@@ -58,14 +58,15 @@ public:
     ~DebuggerPlugin();
 
     // Used by Maemo debugging support.
-    static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *rc = 0);
-    static void startDebugger(ProjectExplorer::RunControl *runControl);
+    //static void startDebugger(ProjectExplorer::RunControl *runControl);
 
     // Used by QmlJSInspector.
     static bool isActiveDebugLanguage(int language);
     static DebuggerMainWindow *mainWindow();
     static QAction *visibleDebugAction();
+
+    static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
+                                              ProjectExplorer::RunConfiguration *rc);
 
 private:
     // IPlugin implementation.

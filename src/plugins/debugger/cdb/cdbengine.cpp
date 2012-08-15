@@ -367,48 +367,48 @@ static inline bool isMsvcFlavor(Abi::OSFlavor osf)
       || osf == Abi::WindowsMsvc2012Flavor;
 }
 
-bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
-{
-#ifdef Q_OS_WIN
-    const Abi abi = sp.toolChainAbi;
-    if (!isCdbEngineEnabled()) {
-        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
-                           arg(abi.toString()));
-        check->settingsCategory = QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
-        check->settingsPage = CdbOptionsPage::settingsId();
-        return false;
-    }
+//bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
+//{
+//#ifdef Q_OS_WIN
+//    const Abi abi = sp.toolChainAbi;
+//    if (!isCdbEngineEnabled()) {
+//        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
+//                           arg(abi.toString()));
+//        check->settingsCategory = QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
+//        check->settingsPage = CdbOptionsPage::settingsId();
+//        return false;
+//    }
 
-    if (!validMode(sp.startMode)) {
-        check->errorDetails.push_back(CdbEngine::tr("The CDB engine does not support start mode %1.").arg(sp.startMode));
-        return false;
-    }
+//    if (!validMode(sp.startMode)) {
+//        check->errorDetails.push_back(CdbEngine::tr("The CDB engine does not support start mode %1.").arg(sp.startMode));
+//        return false;
+//    }
 
-    if (abi.binaryFormat() != Abi::PEFormat || abi.os() != Abi::WindowsOS) {
-        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine does not support the %1 ABI.").
-                                      arg(abi.toString()));
-        return false;
-    }
+//    if (abi.binaryFormat() != Abi::PEFormat || abi.os() != Abi::WindowsOS) {
+//        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine does not support the %1 ABI.").
+//                                      arg(abi.toString()));
+//        return false;
+//    }
 
-    if (sp.startMode == AttachCore && !isMsvcFlavor(abi.osFlavor())) {
-        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine cannot debug gdb core files."));
-        return false;
-    }
+//    if (sp.startMode == AttachCore && !isMsvcFlavor(abi.osFlavor())) {
+//        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine cannot debug gdb core files."));
+//        return false;
+//    }
 
-    if (sp.debuggerCommand.isEmpty()) {
-        check->errorDetails.push_back(msgNoCdbBinaryForToolChain(abi));
-        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        check->settingsPage = QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        return false;
-    }
+//    if (sp.debuggerCommand.isEmpty()) {
+//        check->errorDetails.push_back(msgNoCdbBinaryForToolChain(abi));
+//        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+//        check->settingsPage = QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+//        return false;
+//    }
 
-    return true;
-#else
-    Q_UNUSED(sp);
-    check->errorDetails.push_back(QString::fromLatin1("Unsupported debug mode"));
-    return false;
-#endif
-}
+//    return true;
+//#else
+//    Q_UNUSED(sp);
+//    check->errorDetails.push_back(QString::fromLatin1("Unsupported debug mode"));
+//    return false;
+//#endif
+//}
 
 void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 {

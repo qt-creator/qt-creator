@@ -56,7 +56,9 @@ public:
     };
 
     DebuggerStartParameters()
-      : engineType(NoEngineType),
+      : masterEngineType(NoEngineType),
+        firstSlaveEngineType(NoEngineType),
+        secondSlaveEngineType(NoEngineType),
         isSnapshot(false),
         attachPID(-1),
         useTerminal(false),
@@ -78,7 +80,9 @@ public:
 
     //Core::Id profileId;
 
-    DebuggerEngineType engineType;
+    DebuggerEngineType masterEngineType;
+    DebuggerEngineType firstSlaveEngineType;
+    DebuggerEngineType secondSlaveEngineType;
     QString sysRoot;
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;

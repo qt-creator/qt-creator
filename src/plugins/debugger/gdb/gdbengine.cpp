@@ -34,6 +34,7 @@
 
 #include "debuggerstartparameters.h"
 #include "debuggerinternalconstants.h"
+#include "debuggerruncontrolfactory.h"
 #include "disassemblerlines.h"
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
@@ -3724,8 +3725,7 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
         }
         sp.displayName = function + _(": ") + QDateTime::currentDateTime().toString();
         sp.isSnapshot = true;
-        DebuggerRunControl *rc = DebuggerPlugin::createDebugger(sp);
-        DebuggerPlugin::startDebugger(rc);
+        DebuggerRunControlFactory::createAndScheduleRun(sp);
     } else {
         QByteArray msg = response.data.findChild("msg").data();
         showMessageBox(QMessageBox::Critical, tr("Snapshot Creation Error"),
@@ -4635,26 +4635,26 @@ static QString gdbBinary(const DebuggerStartParameters &sp)
     return sp.debuggerCommand;
 }
 
-bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
-{
-    const QString binary = gdbBinary(sp);
-    const Abi abi = sp.toolChainAbi;
-    if (binary.isEmpty()) {
-        check->errorDetails.push_back(msgNoGdbBinaryForToolChain(abi));
-        check->settingsCategory = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        check->settingsPage = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        return false;
-    }
-    if (abi.os() == Abi::WindowsOS &&  !QFileInfo(binary).isAbsolute()) {
-    // See initialization below, we need an absolute path to be able to locate Python on Windows.
-        check->errorDetails.push_back(GdbEngine::tr("The gdb location must be given as an "
-                "absolute path in the debugger settings (%1).").arg(binary));
-        check->settingsCategory = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        check->settingsPage = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        return false;
-    }
-    return true;
-}
+//bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
+//{
+//    const QString binary = gdbBinary(sp);
+//    const Abi abi = sp.toolChainAbi;
+//    if (binary.isEmpty()) {
+//        check->errorDetails.push_back(msgNoGdbBinaryForToolChain(abi));
+//        check->settingsCategory = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+//        check->settingsPage = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+//        return false;
+//    }
+//    if (abi.os() == Abi::WindowsOS &&  !QFileInfo(binary).isAbsolute()) {
+//    // See initialization below, we need an absolute path to be able to locate Python on Windows.
+//        check->errorDetails.push_back(GdbEngine::tr("The gdb location must be given as an "
+//                "absolute path in the debugger settings (%1).").arg(binary));
+//        check->settingsCategory = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+//        check->settingsPage = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
+//        return false;
+//    }
+//    return true;
+//}
 
 //
 // Starting up & shutting down

@@ -815,9 +815,7 @@ public slots:
     void setConfigValue(const QString &name, const QVariant &value);
     QVariant configValue(const QString &name) const;
 
-    DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
-        RunConfiguration *rc = 0);
-    void startDebugger(RunControl *runControl);
+    //void startDebugger(RunControl *runControl);
     void displayDebugger(DebuggerEngine *engine, bool updateEngine = true);
 
     void dumpLog();
@@ -1093,9 +1091,6 @@ public slots:
     DebuggerToolTipManager *toolTipManager() const { return m_toolTipManager; }
     QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const { return m_globalDebuggerOptions; }
 
-    // FIXME: Remove.
-    void maybeEnrichParameters(DebuggerStartParameters *sp);
-
     void updateQmlActions() {
         action(QmlUpdateOnSave)->setEnabled(boolSetting(ShowQmlObjectTree));
     }
@@ -1270,24 +1265,6 @@ DebuggerCore *debuggerCore()
 static QString msgParameterMissing(const QString &a)
 {
     return DebuggerPlugin::tr("Option '%1' is missing the parameter.").arg(a);
-}
-
-void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
-{
-    if (!boolSetting(AutoEnrichParameters))
-        return;
-    const QString sysroot = sp->sysRoot;
-    if (sp->debugInfoLocation.isEmpty()) {
-        sp->debugInfoLocation = sysroot + QLatin1String("/usr/lib/debug");
-    }
-    if (sp->debugSourceLocation.isEmpty()) {
-        QString base = sysroot + QLatin1String("/usr/src/debug/");
-        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/corelib"));
-        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/gui"));
-        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/network"));
-        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/v8"));
-        sp->debugSourceLocation.append(base + QLatin1String("qt5declarative/src/qml"));
-    }
 }
 
 bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
@@ -1477,10 +1454,8 @@ void DebuggerPluginPrivate::debugProjectBreakMain()
 void DebuggerPluginPrivate::startAndDebugApplication()
 {
     DebuggerStartParameters sp;
-    if (StartApplicationDialog::run(mainWindow(), m_coreSettings, &sp)) {
-        if (RunControl *rc = createDebugger(sp))
-            startDebugger(rc);
-    }
+    if (StartApplicationDialog::run(mainWindow(), m_coreSettings, &sp))
+        DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::attachCore()
@@ -1505,14 +1480,14 @@ void DebuggerPluginPrivate::attachCore()
     DebuggerStartParameters sp;
     QString display = dlg.isLocal() ? dlg.localCoreFile() : dlg.remoteCoreFile();
     fillParameters(&sp, dlg.profileId());
+    sp.masterEngineType = GdbEngineType;
     sp.executable = dlg.localExecutableFile();
     sp.coreFile = dlg.localCoreFile();
     sp.displayName = tr("Core file \"%1\"").arg(display);
     sp.startMode = AttachCore;
     sp.closeMode = DetachAtClose;
     sp.overrideStartScript = dlg.overrideStartScript();
-    if (DebuggerRunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 struct RemoteCdbMatcher : ProfileMatcher
@@ -1557,8 +1532,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
         return;
     sp.remoteChannel = dlg.connection();
     setConfigValue(connectionKey, sp.remoteChannel);
-    if (RunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::attachToRemoteServer()
@@ -1568,8 +1542,7 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     if (StartApplicationDialog::run(mainWindow(), m_coreSettings, &sp)) {
         sp.closeMode = KillAtClose;
         sp.serverStartScript.clear();
-        if (RunControl *rc = createDebugger(sp))
-            startDebugger(rc);
+        DebuggerRunControlFactory::createAndScheduleRun(sp);
     }
 }
 
@@ -1629,8 +1602,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
         sp.executable = process.exe;
         sp.startMode = AttachExternal;
         sp.closeMode = DetachAtClose;
-        if (DebuggerRunControl *rc = createDebugger(sp))
-            startDebugger(rc);
+        DebuggerRunControlFactory::createAndScheduleRun(sp);
     } else {
         GdbServerStarter *starter = new GdbServerStarter(dlg, startServerOnly);
         starter->run();
@@ -1690,9 +1662,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
         sourceFiles << project->files(Project::ExcludeGeneratedFiles);
 
     sp.projectSourceFiles = sourceFiles;
-
-    if (RunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::startRemoteEngine()
@@ -1714,8 +1684,7 @@ void DebuggerPluginPrivate::startRemoteEngine()
     sp.executable = dlg.inferiorPath();
     sp.serverStartScript = dlg.enginePath();
     sp.startMode = StartRemoteEngine;
-    if (RunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &value)
@@ -1728,12 +1697,8 @@ void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &valu
 
 void DebuggerPluginPrivate::runScheduled()
 {
-    foreach (const DebuggerStartParameters &sp, m_scheduledStarts) {
-        RunControl *rc = createDebugger(sp);
-        QTC_ASSERT(rc, qDebug() << "CANNOT CREATE RUN CONTROL"; continue);
-        showStatusMessage(sp.startMessage);
-        startDebugger(rc);
-    }
+    foreach (const DebuggerStartParameters &sp, m_scheduledStarts)
+        DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
@@ -1949,14 +1914,6 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor,
     }
 }
 
-DebuggerRunControl *DebuggerPluginPrivate::createDebugger
-    (const DebuggerStartParameters &sp0, RunConfiguration *rc)
-{
-    DebuggerStartParameters sp = sp0;
-    maybeEnrichParameters(&sp);
-    return m_debuggerRunControlFactory->create(sp, rc);
-}
-
 // If updateEngine is set, the engine will update its threads/modules and so forth.
 void DebuggerPluginPrivate::displayDebugger(DebuggerEngine *engine, bool updateEngine)
 {
@@ -1968,12 +1925,11 @@ void DebuggerPluginPrivate::displayDebugger(DebuggerEngine *engine, bool updateE
     engine->updateViews();
 }
 
-void DebuggerPluginPrivate::startDebugger(RunControl *rc)
-{
-    QTC_ASSERT(rc, return);
-    ProjectExplorerPlugin::instance()->startRunControl(rc, DebugRunMode);
-}
-
+//void DebuggerPluginPrivate::startDebugger(RunControl *rc)
+//{
+//    QTC_ASSERT(rc, return);
+//    ProjectExplorerPlugin::instance()->startRunControl(rc, DebugRunMode);
+//}
 
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 {
@@ -3362,15 +3318,15 @@ void DebuggerPlugin::remoteCommand(const QStringList &options,
     theDebuggerCore->remoteCommand(options, list);
 }
 
+//void DebuggerPlugin::startDebugger(RunControl *runControl)
+//{
+//    theDebuggerCore->startDebugger(runControl);
+//}
+
 DebuggerRunControl *DebuggerPlugin::createDebugger
     (const DebuggerStartParameters &sp, RunConfiguration *rc)
 {
-    return theDebuggerCore->createDebugger(sp, rc);
-}
-
-void DebuggerPlugin::startDebugger(RunControl *runControl)
-{
-    theDebuggerCore->startDebugger(runControl);
+    return DebuggerRunControlFactory::doCreate(sp, rc);
 }
 
 void DebuggerPlugin::extensionsInitialized()
@@ -3460,10 +3416,8 @@ static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
 void DebuggerPluginPrivate::testRunProject(const DebuggerStartParameters &sp, const TestCallBack &cb)
 {
     m_testCallbacks.append(cb);
-    RunControl *rctl = createDebugger(sp);
-    QVERIFY(rctl);
-    connect(rctl, SIGNAL(finished()), this, SLOT(testRunControlFinished()));
-    ProjectExplorerPlugin::instance()->startRunControl(rctl, DebugRunMode);
+    RunControl *rc = DebuggerRunControlFactory::createAndScheduleRun(sp);
+    connect(rc, SIGNAL(finished()), this, SLOT(testRunControlFinished()));
 }
 
 void DebuggerPluginPrivate::testRunControlFinished()

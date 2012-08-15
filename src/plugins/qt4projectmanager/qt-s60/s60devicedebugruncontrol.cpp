@@ -139,9 +139,8 @@ static Debugger::DebuggerStartParameters s60DebuggerStartParams(const S60DeviceR
 }
 
 S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc,
-                                                   const Debugger::DebuggerStartParameters &sp,
-                                                   const QPair<Debugger::DebuggerEngineType, Debugger::DebuggerEngineType> &masterSlaveEngineTypes) :
-    Debugger::DebuggerRunControl(rc, sp, masterSlaveEngineTypes),
+                                                   const Debugger::DebuggerStartParameters &sp) :
+    Debugger::DebuggerRunControl(rc, sp),
     m_codaRunControl(NULL),
     m_codaState(ENotUsingCodaRunControl)
 {
@@ -150,7 +149,7 @@ S60DeviceDebugRunControl::S60DeviceDebugRunControl(S60DeviceRunConfiguration *rc
                                arg(rc->localExecutableFileName());
         appendMessage(msg, Utils::ErrorMessageFormat);
     }
-    if (masterSlaveEngineTypes.first == Debugger::QmlEngineType) {
+    if (sp.masterEngineType == Debugger::QmlEngineType) {
         connect(engine(), SIGNAL(requestRemoteSetup()), this, SLOT(remoteSetupRequested()));
         connect(engine(), SIGNAL(stateChanged(Debugger::DebuggerState)), this, SLOT(qmlEngineStateChanged(Debugger::DebuggerState)));
     }
@@ -239,14 +238,7 @@ ProjectExplorer::RunControl* S60DeviceDebugRunControlFactory::create(RunConfigur
 {
     S60DeviceRunConfiguration *rc = qobject_cast<S60DeviceRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc && mode == DebugRunMode, return 0);
-    const Debugger::DebuggerStartParameters startParameters = s60DebuggerStartParams(rc);
-    const Debugger::ConfigurationCheck check = Debugger::checkDebugConfiguration(startParameters);
-    if (!check) {
-        Core::ICore::showWarningWithOptions(S60DeviceDebugRunControl::tr("Debugger for Symbian Platform"),
-            check.errorMessage, check.errorDetailsString(), check.settingsCategory, check.settingsPage);
-        return 0;
-    }
-    return new S60DeviceDebugRunControl(rc, startParameters, check.masterSlaveEngineTypes);
+    return new S60DeviceDebugRunControl(rc, s60DebuggerStartParams(rc));
 }
 
 QString S60DeviceDebugRunControlFactory::displayName() const
