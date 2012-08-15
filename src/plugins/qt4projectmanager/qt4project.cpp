@@ -942,12 +942,10 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
         if (bc) {
             p = bc->target()->profile();
             env = bc->environment();
-            if (bc->qmakeStep()) {
+            if (bc->qmakeStep())
                 qmakeArgs = bc->qmakeStep()->parserArguments();
-                m_qmakeGlobals->qmakespec = bc->qmakeStep()->mkspec().toString();
-            } else {
+            else
                 qmakeArgs = bc->configCommandLineArguments();
-            }
         } else {
             p = ProfileManager::instance()->defaultProfile();
         }

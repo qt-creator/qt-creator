@@ -95,15 +95,16 @@ public:
     bool do_cache;
     QString dir_sep;
     QString dirlist_sep;
-    QString qmakespec;
-    QString xqmakespec;
     QString cachefile;
 #ifndef QT_BOOTSTRAPPED
     QProcessEnvironment environment;
 #endif
     QString sysroot;
     QString qmake_abslocation;
+
+    QString qmakespec, xqmakespec;
     QString user_template, user_template_prefix;
+    QString precmds, postcmds;
 
     enum ArgumentReturn { ArgumentUnknown, ArgumentMalformed, ArgumentsOk };
     ArgumentReturn addCommandLineArguments(QMakeCmdLineParserState &state,
@@ -124,9 +125,10 @@ private:
     QString getEnv(const QString &) const;
     QStringList getPathListEnv(const QString &var) const;
 
+    QString cleanSpec(QMakeCmdLineParserState &state, const QString &spec);
+
     QString source_root, build_root;
 
-    QString precmds, postcmds;
     QHash<ProKey, ProString> properties;
 
 #ifdef PROEVALUATOR_THREAD_SAFE

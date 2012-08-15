@@ -109,10 +109,21 @@ QMakeGlobals::~QMakeGlobals()
     qDeleteAll(baseEnvs);
 }
 
+QString QMakeGlobals::cleanSpec(QMakeCmdLineParserState &state, const QString &spec)
+{
+    QString ret = QDir::cleanPath(spec);
+    if (ret.contains(QLatin1Char('/'))) {
+        QString absRet = QDir(state.pwd).absoluteFilePath(ret);
+        if (QFile::exists(absRet))
+            ret = QDir::cleanPath(absRet);
+    }
+    return ret;
+}
+
 QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
         QMakeCmdLineParserState &state, QStringList &args, int *pos)
 {
-    enum { ArgNone, ArgConfig } argState = ArgNone;
+    enum { ArgNone, ArgConfig, ArgSpec, ArgXSpec, ArgTmpl, ArgTmplPfx, ArgCache } argState = ArgNone;
     for (; *pos < args.count(); (*pos)++) {
         QString arg = args.at(*pos);
         switch (argState) {
@@ -122,12 +133,39 @@ QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
             else
                 state.preconfigs << arg;
             break;
+        case ArgSpec:
+            qmakespec = args[*pos] = cleanSpec(state, arg);
+            break;
+        case ArgXSpec:
+            xqmakespec = args[*pos] = cleanSpec(state, arg);
+            break;
+        case ArgTmpl:
+            user_template = arg;
+            break;
+        case ArgTmplPfx:
+            user_template_prefix = arg;
+            break;
+        case ArgCache:
+            cachefile = args[*pos] = QDir::cleanPath(QDir(state.pwd).absoluteFilePath(arg));
+            break;
         default:
             if (arg.startsWith(QLatin1Char('-'))) {
                 if (arg == QLatin1String("-after")) {
                     state.after = true;
                 } else if (arg == QLatin1String("-config")) {
                     argState = ArgConfig;
+                } else if (arg == QLatin1String("-nocache")) {
+                    do_cache = false;
+                } else if (arg == QLatin1String("-cache")) {
+                    argState = ArgCache;
+                } else if (arg == QLatin1String("-platform") || arg == QLatin1String("-spec")) {
+                    argState = ArgSpec;
+                } else if (arg == QLatin1String("-xplatform") || arg == QLatin1String("-xspec")) {
+                    argState = ArgXSpec;
+                } else if (arg == QLatin1String("-template") || arg == QLatin1String("-t")) {
+                    argState = ArgTmpl;
+                } else if (arg == QLatin1String("-template_prefix") || arg == QLatin1String("-tp")) {
+                    argState = ArgTmplPfx;
                 } else if (arg == QLatin1String("-win32")) {
                     dir_sep = QLatin1Char('\\');
                 } else if (arg == QLatin1String("-unix")) {
@@ -160,6 +198,9 @@ void QMakeGlobals::commitCommandLineArguments(QMakeCmdLineParserState &state)
     if (!state.postconfigs.isEmpty())
         state.postcmds << (fL1S("CONFIG += ") + state.postconfigs.join(fL1S(" ")));
     postcmds = state.postcmds.join(fL1S("\n"));
+
+    if (xqmakespec.isEmpty())
+        xqmakespec = qmakespec;
 }
 
 void QMakeGlobals::setCommandLineArguments(const QString &pwd, const QStringList &_args)
