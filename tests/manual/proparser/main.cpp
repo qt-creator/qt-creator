@@ -141,30 +141,57 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
-    QStringList args = app.arguments();
-    args.removeFirst();
-    int level = -1; // verbose
-    if (args.count() && args.first() == QLatin1String("-v"))
-        level = 0, args.removeFirst();
-    if (args.count() < 2)
-        qFatal("need at least two arguments: [-v] <cumulative?> <filenme> [<out_pwd> [<qmake options>]]");
-
     QMakeGlobals option;
     QString qmake = QString::fromLocal8Bit(qgetenv("TESTREADER_QMAKE"));
     if (qmake.isEmpty())
         qmake = QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/qmake");
     option.qmake_abslocation = QDir::cleanPath(qmake);
     option.initProperties();
-    if (args.count() >= 4)
-        option.setCommandLineArguments(args.mid(3));
-    QMakeParser parser(0, &evalHandler);
 
-    bool cumulative = args[0] == QLatin1String("true");
-    QFileInfo infi(args[1]);
-    QString file = infi.absoluteFilePath();
-    QString in_pwd = infi.absolutePath();
-    QString out_pwd = (args.count() > 2) ? QFileInfo(args[2]).absoluteFilePath() : in_pwd;
+    QStringList args = app.arguments();
+    args.removeFirst();
+    int level = -1; // verbose
+    bool cumulative = false;
+    QString file;
+    QString in_pwd;
+    QString out_pwd;
+    QMakeCmdLineParserState state(QDir::currentPath());
+    for (int pos = 0; ; ) {
+        QMakeGlobals::ArgumentReturn cmdRet = option.addCommandLineArguments(state, args, &pos);
+        if (cmdRet == QMakeGlobals::ArgumentsOk)
+            break;
+        if (cmdRet == QMakeGlobals::ArgumentMalformed) {
+            qCritical("argument %s needs a parameter", qPrintable(args.at(pos - 1)));
+            return 3;
+        }
+        Q_ASSERT(cmdRet == QMakeGlobals::ArgumentUnknown);
+        QString arg = args.at(pos++);
+        if (arg == QLatin1String("-v")) {
+            level = 0;
+        } else if (arg == QLatin1String("-c")) {
+            cumulative = true;
+        } else if (arg.startsWith(QLatin1Char('-'))) {
+            qCritical("unrecognized option %s", qPrintable(arg));
+            return 3;
+        } else if (file.isEmpty()) {
+            QFileInfo infi(arg);
+            file = QDir::cleanPath(infi.absoluteFilePath());
+            in_pwd = QDir::cleanPath(infi.absolutePath());
+        } else if (out_pwd.isEmpty()) {
+            out_pwd = QDir::cleanPath(QFileInfo(arg).absoluteFilePath());
+        } else {
+            qCritical("excess argument '%s'", qPrintable(arg));
+            return 3;
+        }
+    }
+    if (file.isEmpty()) {
+        qCritical("usage: testreader [-v] [-c] <filenme> [<out_pwd>] [<variable assignments>]");
+        return 3;
+    }
+    if (out_pwd.isEmpty())
+        out_pwd = in_pwd;
     option.setDirectories(in_pwd, out_pwd);
 
+    QMakeParser parser(0, &evalHandler);
     return evaluate(file, in_pwd, out_pwd, cumulative, &option, &parser, level);
 }

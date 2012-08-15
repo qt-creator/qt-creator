@@ -77,6 +77,15 @@ public:
     QMakeEvaluator *evaluator;
 };
 
+class QMAKE_EXPORT QMakeCmdLineParserState
+{
+public:
+    QMakeCmdLineParserState(const QString &_pwd) : pwd(_pwd), after(false) {}
+    QString pwd;
+    QStringList precmds, preconfigs, postcmds, postconfigs;
+    bool after;
+};
+
 class QMAKE_EXPORT QMakeGlobals
 {
 public:
@@ -96,9 +105,11 @@ public:
     QString qmake_abslocation;
     QString user_template, user_template_prefix;
 
-    // -nocache, -cache, -spec, QMAKESPEC
-    // -set persistent value
-    void setCommandLineArguments(const QStringList &args);
+    enum ArgumentReturn { ArgumentUnknown, ArgumentMalformed, ArgumentsOk };
+    ArgumentReturn addCommandLineArguments(QMakeCmdLineParserState &state,
+                                           QStringList &args, int *pos);
+    void commitCommandLineArguments(QMakeCmdLineParserState &state);
+    void setCommandLineArguments(const QString &pwd, const QStringList &args);
     void setDirectories(const QString &input_dir, const QString &output_dir);
 #ifdef PROEVALUATOR_INIT_PROPS
     bool initProperties();

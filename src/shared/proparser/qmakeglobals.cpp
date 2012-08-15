@@ -109,43 +109,67 @@ QMakeGlobals::~QMakeGlobals()
     qDeleteAll(baseEnvs);
 }
 
-void QMakeGlobals::setCommandLineArguments(const QStringList &args)
+QMakeGlobals::ArgumentReturn QMakeGlobals::addCommandLineArguments(
+        QMakeCmdLineParserState &state, QStringList &args, int *pos)
 {
-    QStringList _precmds, _preconfigs, _postcmds, _postconfigs;
-    bool after = false;
-
-    bool isConf = false;
-    foreach (const QString &arg, args) {
-        if (isConf) {
-            isConf = false;
-            if (after)
-                _postconfigs << arg;
+    enum { ArgNone, ArgConfig } argState = ArgNone;
+    for (; *pos < args.count(); (*pos)++) {
+        QString arg = args.at(*pos);
+        switch (argState) {
+        case ArgConfig:
+            if (state.after)
+                state.postconfigs << arg;
             else
-                _preconfigs << arg;
-        } else if (arg.startsWith(QLatin1Char('-'))) {
-            if (arg == QLatin1String("-after")) {
-                after = true;
-            } else if (arg == QLatin1String("-config")) {
-                isConf = true;
-            } else if (arg == QLatin1String("-win32")) {
-                dir_sep = QLatin1Char('\\');
-            } else if (arg == QLatin1String("-unix")) {
-                dir_sep = QLatin1Char('/');
+                state.preconfigs << arg;
+            break;
+        default:
+            if (arg.startsWith(QLatin1Char('-'))) {
+                if (arg == QLatin1String("-after")) {
+                    state.after = true;
+                } else if (arg == QLatin1String("-config")) {
+                    argState = ArgConfig;
+                } else if (arg == QLatin1String("-win32")) {
+                    dir_sep = QLatin1Char('\\');
+                } else if (arg == QLatin1String("-unix")) {
+                    dir_sep = QLatin1Char('/');
+                } else {
+                    return ArgumentUnknown;
+                }
+            } else if (arg.contains(QLatin1Char('='))) {
+                if (state.after)
+                    state.postcmds << arg;
+                else
+                    state.precmds << arg;
+            } else {
+                return ArgumentUnknown;
             }
-        } else if (arg.contains(QLatin1Char('='))) {
-            if (after)
-                _postcmds << arg;
-            else
-                _precmds << arg;
+            continue;
         }
+        argState = ArgNone;
     }
+    if (argState != ArgNone)
+        return ArgumentMalformed;
+    return ArgumentsOk;
+}
 
-    if (!_preconfigs.isEmpty())
-        _precmds << (fL1S("CONFIG += ") + _preconfigs.join(fL1S(" ")));
-    precmds = _precmds.join(fL1S("\n"));
-    if (!_postconfigs.isEmpty())
-        _postcmds << (fL1S("CONFIG += ") + _postconfigs.join(fL1S(" ")));
-    postcmds = _postcmds.join(fL1S("\n"));
+void QMakeGlobals::commitCommandLineArguments(QMakeCmdLineParserState &state)
+{
+    if (!state.preconfigs.isEmpty())
+        state.precmds << (fL1S("CONFIG += ") + state.preconfigs.join(fL1S(" ")));
+    precmds = state.precmds.join(fL1S("\n"));
+    if (!state.postconfigs.isEmpty())
+        state.postcmds << (fL1S("CONFIG += ") + state.postconfigs.join(fL1S(" ")));
+    postcmds = state.postcmds.join(fL1S("\n"));
+}
+
+void QMakeGlobals::setCommandLineArguments(const QString &pwd, const QStringList &_args)
+{
+    QStringList args = _args;
+
+    QMakeCmdLineParserState state(pwd);
+    for (int pos = 0; pos < args.size(); pos++)
+        addCommandLineArguments(state, args, &pos);
+    commitCommandLineArguments(state);
 }
 
 void QMakeGlobals::setDirectories(const QString &input_dir, const QString &output_dir)
