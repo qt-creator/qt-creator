@@ -49,16 +49,6 @@
 
 #include <QDomDocument>
 
-
-/*
-TRANSLATOR ResourceEditor::ResourceModel
-*/
-
-static QString msgFileNameEmpty()
-{
-    return QCoreApplication::translate("Designer", "The file name is empty.");
-}
-
 using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
@@ -126,7 +116,7 @@ bool ResourceFile::load()
     m_error_message.clear();
 
     if (m_file_name.isEmpty()) {
-        m_error_message = msgFileNameEmpty();
+        m_error_message = tr("The file name is empty.");
         return false;
     }
 
@@ -143,14 +133,14 @@ bool ResourceFile::load()
     QString error_msg;
     int error_line, error_col;
     if (!doc.setContent(&file, &error_msg, &error_line, &error_col)) {
-        m_error_message = QCoreApplication::translate("Designer", "XML error on line %1, col %2: %3")
+        m_error_message = tr("XML error on line %1, col %2: %3")
                     .arg(error_line).arg(error_col).arg(error_msg);
         return false;
     }
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
     if (root.isNull()) {
-        m_error_message = QCoreApplication::translate("Designer", "The <RCC> root element is missing.");
+        m_error_message = tr("The <RCC> root element is missing.");
         return false;
     }
 
@@ -189,7 +179,7 @@ bool ResourceFile::save()
     m_error_message.clear();
 
     if (m_file_name.isEmpty()) {
-        m_error_message = msgFileNameEmpty();
+        m_error_message = tr("The file name is empty.");
         return false;
     }
 
@@ -238,7 +228,7 @@ bool ResourceFile::save()
 #if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     stream.flush();
     if (stream.status() != QTextStream::Ok) {
-        m_error_message = QCoreApplication::translate("Designer", "Cannot write file. Disk full?");
+        m_error_message = tr("Cannot write file. Disk full?");
         return false;
     }
 #endif
