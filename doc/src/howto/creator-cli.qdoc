@@ -91,19 +91,6 @@
             \o Core plugin: override the selected UI color.
 
         \row
-            \o -disable-cdb
-            \o Debugger plugin: disable the Microsoft Console Debugger (CDB)
-            engine. For more information, see \l{Debugging}.
-
-        \row
-            \o -disable-gdb
-            \o Debugger plugin: disable the GNU Symbolic Debugger (GDB) engine.
-
-        \row
-            \o -disable-sdb
-            \o Debugger plugin: disable the Qt Script debugger engine.
-
-        \row
             \o -debug <PID-or-corefile>
             \o Debugger plugin: attach to process ID or core file.
 
