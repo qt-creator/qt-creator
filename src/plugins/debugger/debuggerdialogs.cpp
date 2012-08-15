@@ -432,7 +432,6 @@ void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
 class AttachToQmlPortDialogPrivate
 {
 public:
-    QLineEdit *hostLineEdit;
     QSpinBox *portSpinBox;
     ProfileChooser *profileChooser;
 };
@@ -444,10 +443,7 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->profileChooser = new ProfileChooser(this, ProfileChooser::RemoteDebugging);
-
-    d->hostLineEdit = new QLineEdit(this);
-    d->hostLineEdit->setText(QString::fromUtf8("localhost"));
+    d->profileChooser = new ProfileChooser(this);
 
     d->portSpinBox = new QSpinBox(this);
     d->portSpinBox->setMaximum(65535);
@@ -459,7 +455,6 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
 
     QFormLayout *formLayout = new QFormLayout();
     formLayout->addRow(tr("Target:"), d->profileChooser);
-    formLayout->addRow(tr("&Host:"), d->hostLineEdit);
     formLayout->addRow(tr("&Port:"), d->portSpinBox);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
@@ -473,16 +468,6 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
 AttachToQmlPortDialog::~AttachToQmlPortDialog()
 {
     delete d;
-}
-
-void AttachToQmlPortDialog::setHost(const QString &host)
-{
-    d->hostLineEdit->setText(host);
-}
-
-QString AttachToQmlPortDialog::host() const
-{
-    return d->hostLineEdit->text();
 }
 
 void AttachToQmlPortDialog::setPort(const int port)

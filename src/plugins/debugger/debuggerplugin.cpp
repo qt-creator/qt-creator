@@ -1606,19 +1606,11 @@ void DebuggerPluginPrivate::attachToQmlPort()
     DebuggerStartParameters sp;
     AttachToQmlPortDialog dlg(mainWindow());
 
-    const QVariant qmlServerAddress = configValue(_("LastQmlServerAddress"));
-    if (qmlServerAddress.isValid()) {
-        dlg.setHost(qmlServerAddress.toString());
-    } else {
-        dlg.setHost(sp.qmlServerAddress);
-    }
-
     const QVariant qmlServerPort = configValue(_("LastQmlServerPort"));
-    if (qmlServerPort.isValid()) {
+    if (qmlServerPort.isValid())
         dlg.setPort(qmlServerPort.toInt());
-    } else {
+    else
         dlg.setPort(sp.qmlServerPort);
-    }
 
     const QVariant profileId = configValue(_("LastProfile"));
     if (profileId.isValid())
@@ -1627,14 +1619,12 @@ void DebuggerPluginPrivate::attachToQmlPort()
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    setConfigValue(_("LastQmlServerAddress"), dlg.host());
     setConfigValue(_("LastQmlServerPort"), dlg.port());
     setConfigValue(_("LastProfile"), dlg.profile()->id().toString());
 
     fillParameters(&sp, dlg.profile());
-    sp.qmlServerAddress = dlg.host();
+    sp.qmlServerAddress = sp.connParams.host;
     sp.qmlServerPort = dlg.port();
-
     sp.startMode = AttachToRemoteProcess;
     sp.closeMode = KillAtClose;
     sp.languages = QmlLanguage;

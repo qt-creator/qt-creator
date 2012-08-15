@@ -91,9 +91,6 @@ public:
     explicit AttachToQmlPortDialog(QWidget *parent);
     ~AttachToQmlPortDialog();
 
-    QString host() const;
-    void setHost(const QString &host);
-
     int port() const;
     void setPort(const int port);
 
