@@ -469,11 +469,10 @@ WinCEToolChainConfigWidget::WinCEToolChainConfigWidget(ToolChain *tc) :
     WinCEToolChain *toolChain = static_cast<WinCEToolChain *>(tc);
     QTC_ASSERT(tc, return);
 
-    QFormLayout *formLayout = new QFormLayout(this);
-    formLayout->addRow(tr("SDK:"), new QLabel(toolChain->displayName()));
-    formLayout->addRow(tr("WinCE Version:"), new QLabel(toolChain->ceVer()));
-    formLayout->addRow(tr("ABI:"), new QLabel(toolChain->targetAbi().toString()));
-    addErrorLabel(formLayout);
+    m_mainLayout->addRow(tr("SDK:"), new QLabel(toolChain->displayName()));
+    m_mainLayout->addRow(tr("WinCE Version:"), new QLabel(toolChain->ceVer()));
+    m_mainLayout->addRow(tr("ABI:"), new QLabel(toolChain->targetAbi().toString()));
+    addErrorLabel();
 }
 
 } // namespace Internal

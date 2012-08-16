@@ -139,13 +139,13 @@ public:
     RvctToolChainConfigWidget(RvctToolChain *tc);
     ~RvctToolChainConfigWidget();
 
-    void apply();
-    void discard() { setFromToolChain(); }
-    bool isDirty() const;
-    void makeReadOnly();
+private:
+    void applyImpl();
+    void discardImpl() { setFromToolChain(); }
+    bool isDirtyImpl() const;
+    void makeReadOnlyImpl();
     void changeEvent(QEvent *ev);
 
-private:
     void setFromToolChain();
     QList<Utils::EnvironmentItem> environmentChanges() const;
 

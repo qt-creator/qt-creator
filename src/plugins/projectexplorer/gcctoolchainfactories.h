@@ -85,15 +85,16 @@ class GccToolChainConfigWidget : public ToolChainConfigWidget
 
 public:
     GccToolChainConfigWidget(GccToolChain *);
-    void apply();
-    void discard() { setFromToolchain(); }
-    bool isDirty() const;
-    void makeReadOnly();
 
 private slots:
     void handleCompilerCommandChange();
 
 private:
+    void applyImpl();
+    void discardImpl() { setFromToolchain(); }
+    bool isDirtyImpl() const;
+    void makeReadOnlyImpl();
+
     void setFromToolchain();
 
     Utils::PathChooser *m_compilerCommand;

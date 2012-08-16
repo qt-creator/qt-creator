@@ -405,16 +405,12 @@ MsvcToolChainConfigWidget::MsvcToolChainConfigWidget(ToolChain *tc) :
     ToolChainConfigWidget(tc),
     m_varsBatDisplayLabel(new QLabel(this))
 {
-    QFormLayout *formLayout = new QFormLayout(this);
-    formLayout->addRow(new QLabel(tc->displayName()));
+    m_mainLayout->addRow(new QLabel(tc->displayName()));
     m_varsBatDisplayLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    formLayout->addRow(tr("Initialization:"), m_varsBatDisplayLabel);
-    addErrorLabel(formLayout);
+    m_mainLayout->addRow(tr("Initialization:"), m_varsBatDisplayLabel);
+    addErrorLabel();
     setFromToolChain();
 }
-
-void MsvcToolChainConfigWidget::apply()
-{ }
 
 void MsvcToolChainConfigWidget::setFromToolChain()
 {
@@ -426,11 +422,6 @@ void MsvcToolChainConfigWidget::setFromToolChain()
         varsBatDisplay += tc->varsBatArg();
     }
     m_varsBatDisplayLabel->setText(varsBatDisplay);
-}
-
-bool MsvcToolChainConfigWidget::isDirty() const
-{
-    return false;
 }
 
 // --------------------------------------------------------------------------

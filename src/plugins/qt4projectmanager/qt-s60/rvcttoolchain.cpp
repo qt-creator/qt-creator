@@ -380,7 +380,7 @@ RvctToolChainConfigWidget::~RvctToolChainConfigWidget()
     delete m_ui;
 }
 
-void RvctToolChainConfigWidget::apply()
+void RvctToolChainConfigWidget::applyImpl()
 {
     RvctToolChain *tc = static_cast<RvctToolChain *>(toolChain());
     Q_ASSERT(tc);
@@ -404,7 +404,7 @@ void RvctToolChainConfigWidget::setFromToolChain()
     m_ui->versionComboBox->setCurrentIndex(static_cast<int>(tc->armVersion()));
 }
 
-bool RvctToolChainConfigWidget::isDirty() const
+bool RvctToolChainConfigWidget::isDirtyImpl() const
 {
     RvctToolChain *tc = static_cast<RvctToolChain *>(toolChain());
     Q_ASSERT(tc);
@@ -414,12 +414,11 @@ bool RvctToolChainConfigWidget::isDirty() const
             || tc->environmentChanges() != environmentChanges();
 }
 
-void RvctToolChainConfigWidget::makeReadOnly()
+void RvctToolChainConfigWidget::makeReadOnlyImpl()
 {
     m_ui->versionComboBox->setEnabled(false);
     m_ui->compilerPath->setEnabled(false);
     m_ui->environmentView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ProjectExplorer::ToolChainConfigWidget::makeReadOnly();
 }
 
 QList<Utils::EnvironmentItem> RvctToolChainConfigWidget::environmentChanges() const

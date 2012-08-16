@@ -44,6 +44,7 @@
 #include <utils/environment.h>
 
 #include <QDir>
+#include <QFormLayout>
 #include <QLabel>
 #include <QVBoxLayout>
 
@@ -204,25 +205,8 @@ QList<Abi> AndroidToolChain::detectSupportedAbis() const
 AndroidToolChainConfigWidget::AndroidToolChainConfigWidget(AndroidToolChain *tc) :
    ToolChainConfigWidget(tc)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    QLabel *label = new QLabel;
-    label->setText(tr("NDK Root: %1").arg(AndroidConfigurations::instance().config().ndkLocation.toUserOutput()));
-    layout->addWidget(label);
-}
-
-void AndroidToolChainConfigWidget::apply()
-{
-    // nothing to do!
-}
-
-void AndroidToolChainConfigWidget::discard()
-{
-    // nothing to do!
-}
-
-bool AndroidToolChainConfigWidget::isDirty() const
-{
-    return false;
+    QLabel *label = new QLabel(AndroidConfigurations::instance().config().ndkLocation.toUserOutput());
+    m_mainLayout->addRow(tr("NDK Root:"), label);
 }
 
 // --------------------------------------------------------------------------

@@ -43,6 +43,8 @@ class QTreeView;
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
+namespace Utils { class DetailsWidget; }
+
 namespace ProjectExplorer {
 
 class ToolChain;
@@ -62,7 +64,7 @@ class ToolChainModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit ToolChainModel(QBoxLayout *parentLayout, QObject *parent = 0);
+    explicit ToolChainModel(QObject *parent = 0);
     ~ToolChainModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -72,7 +74,6 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
@@ -107,8 +108,6 @@ private:
 
     QList<ToolChainNode *> m_toAddList;
     QList<ToolChainNode *> m_toRemoveList;
-
-    QBoxLayout *m_parentLayout;
 };
 
 // --------------------------------------------------------------------------
@@ -142,8 +141,8 @@ private:
     ToolChainModel *m_model;
     QList<ToolChainFactory *> m_factories;
     QItemSelectionModel * m_selectionModel;
-    ToolChainConfigWidget *m_currentTcWidget;
     QTreeView *m_toolChainView;
+    Utils::DetailsWidget *m_container;
     QPushButton *m_addButton;
     QPushButton *m_cloneButton;
     QPushButton *m_delButton;

@@ -40,6 +40,7 @@
 QT_BEGIN_NAMESPACE
 class QFormLayout;
 class QGridLayout;
+class QLineEdit;
 class QLabel;
 QT_END_NAMESPACE
 
@@ -58,14 +59,12 @@ class PROJECTEXPLORER_EXPORT ToolChainConfigWidget : public QWidget
 public:
     ToolChainConfigWidget(ProjectExplorer::ToolChain *);
 
-    void setDisplayName(const QString &);
-    virtual void apply() = 0;
-    virtual void discard() = 0;
-    virtual bool isDirty() const = 0;
-
     ProjectExplorer::ToolChain *toolChain() const;
 
-    virtual void makeReadOnly();
+    void apply();
+    void discard();
+    bool isDirty() const;
+    void makeReadOnly();
 
 signals:
     void dirty();
@@ -75,8 +74,14 @@ protected slots:
     void clearErrorMessage();
 
 protected:
-    void addErrorLabel(QFormLayout *lt);
-    void addErrorLabel(QGridLayout *lt, int row = 0, int column = 0, int colSpan = 1);
+    virtual void applyImpl() = 0;
+    virtual void discardImpl() = 0;
+    virtual bool isDirtyImpl() const = 0;
+    virtual void makeReadOnlyImpl() = 0;
+
+    void addErrorLabel();
+    QFormLayout *m_mainLayout;
+    QLineEdit *m_nameLineEdit;
 
 private:
     ToolChain *m_toolChain;

@@ -47,11 +47,29 @@ ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
     m_toolChain(tc), m_errorLabel(0)
 {
     QTC_CHECK(tc);
+    m_nameLineEdit = new QLineEdit(this);
+    m_nameLineEdit->setText(tc->displayName());
+    m_mainLayout = new QFormLayout(this);
+    m_mainLayout->addRow(tr("Name:"), m_nameLineEdit);
+
+    connect(m_nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(dirty()));
 }
 
-void ToolChainConfigWidget::setDisplayName(const QString &name)
+void ToolChainConfigWidget::apply()
 {
-    m_toolChain->setDisplayName(name);
+    m_toolChain->setDisplayName(m_nameLineEdit->text());
+    applyImpl();
+}
+
+void ToolChainConfigWidget::discard()
+{
+    m_nameLineEdit->setText(m_toolChain->displayName());
+    discardImpl();
+}
+
+bool ToolChainConfigWidget::isDirty() const
+{
+    return m_nameLineEdit->text() != m_toolChain->displayName() || isDirtyImpl();
 }
 
 ToolChain *ToolChainConfigWidget::toolChain() const
@@ -60,24 +78,18 @@ ToolChain *ToolChainConfigWidget::toolChain() const
 }
 
 void ToolChainConfigWidget::makeReadOnly()
-{ }
-
-void ToolChainConfigWidget::addErrorLabel(QFormLayout *lt)
 {
-    if (!m_errorLabel) {
-        m_errorLabel = new QLabel;
-        m_errorLabel->setVisible(false);
-    }
-    lt->addRow(m_errorLabel);
+    m_nameLineEdit->setEnabled(false);
+    makeReadOnlyImpl();
 }
 
-void ToolChainConfigWidget::addErrorLabel(QGridLayout *lt, int row, int column, int colSpan)
+void ToolChainConfigWidget::addErrorLabel()
 {
     if (!m_errorLabel) {
         m_errorLabel = new QLabel;
         m_errorLabel->setVisible(false);
     }
-    lt->addWidget(m_errorLabel, row, column, 1, colSpan);
+    m_mainLayout->addRow(m_errorLabel);
 }
 
 void ToolChainConfigWidget::setErrorMessage(const QString &m)
