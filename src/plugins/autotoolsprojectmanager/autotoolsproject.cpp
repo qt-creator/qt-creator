@@ -294,7 +294,7 @@ void AutotoolsProject::buildFileNodeTree(const QDir &directory,
     FolderNode *oldParentFolder = 0;
 
     foreach (const QString& file, files) {
-        if (file.contains(QLatin1String(".moc")))
+        if (file.endsWith(QLatin1String(".moc")))
             continue;
 
         QString subDir = baseDir + QLatin1Char('/') + file;
