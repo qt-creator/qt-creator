@@ -91,6 +91,7 @@ private:
     static int classifyOperator(const char *string, int length);
 
     void scanStringLiteral(Token *tok, unsigned char hint = 0);
+    void scanRawStringLiteral(Token *tok, unsigned char hint = 0);
     void scanCharLiteral(Token *tok, unsigned char hint = 0);
     void scanUntilQuote(Token *tok, unsigned char quote);
     void scanNumericLiteral(Token *tok);

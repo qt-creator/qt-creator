@@ -2815,7 +2815,12 @@ bool Parser::parseStringLiteral(ExpressionAST *&node)
            || LA() == T_WIDE_STRING_LITERAL
            || LA() == T_UTF8_STRING_LITERAL
            || LA() == T_UTF16_STRING_LITERAL
-           || LA() == T_UTF32_STRING_LITERAL)) {
+           || LA() == T_UTF32_STRING_LITERAL
+           || LA() == T_RAW_STRING_LITERAL
+           || LA() == T_RAW_WIDE_STRING_LITERAL
+           || LA() == T_RAW_UTF8_STRING_LITERAL
+           || LA() == T_RAW_UTF16_STRING_LITERAL
+           || LA() == T_RAW_UTF32_STRING_LITERAL)) {
         return false;
     }
 
@@ -2825,7 +2830,12 @@ bool Parser::parseStringLiteral(ExpressionAST *&node)
            || LA() == T_WIDE_STRING_LITERAL
            || LA() == T_UTF8_STRING_LITERAL
            || LA() == T_UTF16_STRING_LITERAL
-           || LA() == T_UTF32_STRING_LITERAL) {
+           || LA() == T_UTF32_STRING_LITERAL
+           || LA() == T_RAW_STRING_LITERAL
+           || LA() == T_RAW_WIDE_STRING_LITERAL
+           || LA() == T_RAW_UTF8_STRING_LITERAL
+           || LA() == T_RAW_UTF16_STRING_LITERAL
+           || LA() == T_RAW_UTF32_STRING_LITERAL) {
         *ast = new (_pool) StringLiteralAST;
         (*ast)->literal_token = consumeToken();
         ast = &(*ast)->next;
@@ -4054,6 +4064,11 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_UTF8_STRING_LITERAL:
     case T_UTF16_STRING_LITERAL:
     case T_UTF32_STRING_LITERAL:
+    case T_RAW_STRING_LITERAL:
+    case T_RAW_WIDE_STRING_LITERAL:
+    case T_RAW_UTF8_STRING_LITERAL:
+    case T_RAW_UTF16_STRING_LITERAL:
+    case T_RAW_UTF32_STRING_LITERAL:
         return parseStringLiteral(node);
 
     case T_NULLPTR:

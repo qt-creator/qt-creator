@@ -571,14 +571,25 @@ void Lexer::scan_helper(Token *tok)
             }
         }
 
-        if (ch == 'L' || ch == 'u' || ch == 'U') {
+        if (ch == 'L' || ch == 'u' || ch == 'U' || ch == 'R') {
             // Either a literal or still an identifier.
             if (_yychar == '"') {
                 yyinp();
-                scanStringLiteral(tok, ch);
+                if (ch == 'R')
+                    scanRawStringLiteral(tok);
+                else
+                    scanStringLiteral(tok, ch);
             } else if (_yychar == '\'') {
                 yyinp();
                 scanCharLiteral(tok, ch);
+            } else if (ch != 'R' && _yychar == 'R') {
+                yyinp();
+                if (_yychar == '"') {
+                    yyinp();
+                    scanRawStringLiteral(tok, ch);
+                } else {
+                    scanIdentifier(tok, 1);
+                }
             } else if (ch == 'u' && _yychar == '8') {
                 yyinp();
                 if (_yychar == '"') {
@@ -587,6 +598,14 @@ void Lexer::scan_helper(Token *tok)
                 } else if (_yychar == '\'') {
                     yyinp();
                     scanCharLiteral(tok, '8');
+                } else if (_yychar == 'R') {
+                    yyinp();
+                    if (_yychar == '"') {
+                        yyinp();
+                        scanRawStringLiteral(tok, '8');
+                    } else {
+                        scanIdentifier(tok, 2);
+                    }
                 } else {
                     scanIdentifier(tok, 1);
                 }
@@ -622,6 +641,67 @@ void Lexer::scanStringLiteral(Token *tok, unsigned char hint)
         tok->f.kind = T_AT_STRING_LITERAL;
     else
         tok->f.kind = T_STRING_LITERAL;
+}
+
+void Lexer::scanRawStringLiteral(Token *tok, unsigned char hint)
+{
+    const char *yytext = _currentChar;
+
+    int delimLength = -1;
+    const char *closingDelimCandidate = 0;
+    while (_yychar) {
+        if (_yychar == '(' && delimLength == -1) {
+            delimLength = _currentChar - yytext;
+            yyinp();
+        } else if (_yychar == ')') {
+            yyinp();
+            if (delimLength == -1)
+                break;
+            closingDelimCandidate = _currentChar;
+        } else {
+            if (delimLength == -1) {
+                if (_yychar == '\\' || std::isspace(_yychar))
+                    break;
+                yyinp();
+            } else {
+                if (!closingDelimCandidate) {
+                    yyinp();
+                } else {
+                    if (_yychar == '"') {
+                        if (delimLength == _currentChar - closingDelimCandidate) {
+                            // Got a matching closing delimiter.
+                            break;
+                        }
+                    }
+
+                    // Make sure this continues to be a valid candidate.
+                    if (_yychar != *(yytext + (_currentChar - closingDelimCandidate)))
+                        closingDelimCandidate = 0;
+
+                    yyinp();
+                }
+            }
+        }
+    }
+
+    int yylen = _currentChar - yytext;
+
+    if (_yychar == '"')
+        yyinp();
+
+    if (control())
+        tok->string = control()->stringLiteral(yytext, yylen);
+
+    if (hint == 'L')
+        tok->f.kind = T_RAW_WIDE_STRING_LITERAL;
+    else if (hint == 'U')
+        tok->f.kind = T_RAW_UTF32_STRING_LITERAL;
+    else if (hint == 'u')
+        tok->f.kind = T_RAW_UTF16_STRING_LITERAL;
+    else if (hint == '8')
+        tok->f.kind = T_RAW_UTF8_STRING_LITERAL;
+    else
+        tok->f.kind = T_RAW_STRING_LITERAL;
 }
 
 void Lexer::scanCharLiteral(Token *tok, unsigned char hint)

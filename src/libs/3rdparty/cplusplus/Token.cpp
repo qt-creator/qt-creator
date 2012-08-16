@@ -35,6 +35,8 @@ static const char *token_names[] = {
     ("<char literal>"), ("<wide char literal>"), ("<utf16 char literal>"), ("<utf32 char literal>"),
     ("<string literal>"), ("<wide string literal>"), ("<utf8 string literal>"),
     ("<utf16 string literal>"), ("<utf32 string literal>"),
+    ("<raw string literal>"), ("<raw wide string literal>"), ("<raw utf8 string literal>"),
+    ("<raw utf16 string literal>"), ("<raw utf32 string literal>"),
     ("<@string literal>"), ("<angle string literal>"),
 
     ("&"), ("&&"), ("&="), ("->"), ("->*"), ("^"), ("^="), (":"), ("::"),
@@ -105,6 +107,11 @@ const char *Token::spell() const
     case T_UTF8_STRING_LITERAL:
     case T_UTF16_STRING_LITERAL:
     case T_UTF32_STRING_LITERAL:
+    case T_RAW_STRING_LITERAL:
+    case T_RAW_WIDE_STRING_LITERAL:
+    case T_RAW_UTF8_STRING_LITERAL:
+    case T_RAW_UTF16_STRING_LITERAL:
+    case T_RAW_UTF32_STRING_LITERAL:
     case T_AT_STRING_LITERAL:
     case T_ANGLE_STRING_LITERAL:
         return literal->chars();
