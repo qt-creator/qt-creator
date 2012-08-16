@@ -94,7 +94,7 @@ private:
     void scanCharLiteral(Token *tok, unsigned char hint = 0);
     void scanUntilQuote(Token *tok, unsigned char quote);
     void scanNumericLiteral(Token *tok);
-    void scanIdentifier(Token *tok);
+    void scanIdentifier(Token *tok, unsigned extraProcessedChars = 0);
 
     inline void yyinp()
     {

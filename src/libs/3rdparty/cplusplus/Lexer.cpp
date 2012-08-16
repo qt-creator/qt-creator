@@ -580,19 +580,15 @@ void Lexer::scan_helper(Token *tok)
                 yyinp();
                 scanCharLiteral(tok, ch);
             } else if (ch == 'u' && _yychar == '8') {
-                unsigned char la = 0;
-                if (_currentChar + 1 != _lastChar)
-                    la = *(_currentChar + 1);
-                if (la == '"') {
-                    yyinp();
+                yyinp();
+                if (_yychar == '"') {
                     yyinp();
                     scanStringLiteral(tok, '8');
-                } else if (la == '\'') {
-                    yyinp();
+                } else if (_yychar == '\'') {
                     yyinp();
                     scanCharLiteral(tok, '8');
                 } else {
-                    scanIdentifier(tok);
+                    scanIdentifier(tok, 1);
                 }
             } else {
                 scanIdentifier(tok);
@@ -691,9 +687,9 @@ void Lexer::scanNumericLiteral(Token *tok)
         tok->number = control()->numericLiteral(yytext, yylen);
 }
 
-void Lexer::scanIdentifier(Token *tok)
+void Lexer::scanIdentifier(Token *tok, unsigned extraProcessedChars)
 {
-    const char *yytext = _currentChar - 1;
+    const char *yytext = _currentChar - 1 - extraProcessedChars;
     while (std::isalnum(_yychar) || _yychar == '_' || _yychar == '$')
         yyinp();
     int yylen = _currentChar - yytext;
