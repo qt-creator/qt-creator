@@ -579,25 +579,23 @@ void Lexer::scan_helper(Token *tok)
             } else if (_yychar == '\'') {
                 yyinp();
                 scanCharLiteral(tok, ch);
-            } else {
-                if (_yychar == '8') {
-                    unsigned char la = 0;
-                    if (_currentChar + 1 != _lastChar)
-                        la = *(_currentChar + 1);
-                    if (la == '"') {
-                        yyinp();
-                        yyinp();
-                        scanStringLiteral(tok, '8');
-                    } else if (la == '\'') {
-                        yyinp();
-                        yyinp();
-                        scanCharLiteral(tok, '8');
-                    } else {
-                        scanIdentifier(tok);
-                    }
+            } else if (ch == 'u' && _yychar == '8') {
+                unsigned char la = 0;
+                if (_currentChar + 1 != _lastChar)
+                    la = *(_currentChar + 1);
+                if (la == '"') {
+                    yyinp();
+                    yyinp();
+                    scanStringLiteral(tok, '8');
+                } else if (la == '\'') {
+                    yyinp();
+                    yyinp();
+                    scanCharLiteral(tok, '8');
                 } else {
                     scanIdentifier(tok);
                 }
+            } else {
+                scanIdentifier(tok);
             }
         } else if (std::isalpha(ch) || ch == '_' || ch == '$') {
             scanIdentifier(tok);
