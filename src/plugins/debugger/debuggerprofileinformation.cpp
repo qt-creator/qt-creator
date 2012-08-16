@@ -167,21 +167,36 @@ QVariant DebuggerProfileInformation::defaultValue(Profile *p) const
 
 QList<Task> DebuggerProfileInformation::validate(Profile *p) const
 {
+    const Core::Id id(Constants::TASK_CATEGORY_BUILDSYSTEM);
     QList<Task> result;
     FileName dbg = debuggerCommand(p);
     if (dbg.isEmpty()) {
-        result << Task(Task::Warning, tr("No debugger set up."), FileName(), -1,
-                                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        result << Task(Task::Warning, tr("No debugger set up."), FileName(), -1, id);
         return result;
     }
 
     QFileInfo fi = dbg.toFileInfo();
     if (!fi.exists() || fi.isDir())
-        result << Task(Task::Error, tr("Debugger not found."), FileName(), -1,
-                                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        result << Task(Task::Error, tr("Debugger not found."), FileName(), -1, id);
     else if (!fi.isExecutable())
-        result << Task(Task::Error, tr("Debugger not exectutable."), FileName(), -1,
-                                        Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
+        result << Task(Task::Error, tr("Debugger not exectutable."), FileName(), -1, id);
+
+    if (ToolChain *tc = ToolChainProfileInformation::toolChain(p)) {
+        // We need an absolute path to be able to locate Python on Windows.
+        const Abi abi = tc->targetAbi();
+        if (abi.os() == Abi::WindowsOS && !fi.isAbsolute()) {
+            result << Task(Task::Error, tr("The debugger location must be given as an "
+                   "absolute path (%1).").arg(dbg.toString()), FileName(), -1, id);
+        }
+        // FIXME: Make sure debugger matches toolchain.
+        // if (isCdb()) {
+        //    if (abi.binaryFormat() != Abi::PEFormat || abi.os() != Abi::WindowsOS) {
+        //        result << Task(Tas->errorDetails.push_back(CdbEngine::tr("The CDB debug engine does not support the %1 ABI.").
+        //                                      arg(abi.toString()));
+        //        return false;
+        //    }
+        // }
+    }
 
     return result;
 }
