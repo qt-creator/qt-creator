@@ -43,10 +43,7 @@ class PathChooser;
 namespace Qt4ProjectManager {
 namespace Internal {
 
-namespace Ui {
-class RvctToolChainConfigWidget;
-}
-
+class RvctToolChainConfigWidgetUi;
 class RvctToolChainFactory;
 
 // ==========================================================================
@@ -149,7 +146,7 @@ private:
     void setFromToolChain();
     QList<Utils::EnvironmentItem> environmentChanges() const;
 
-    Ui::RvctToolChainConfigWidget *m_ui;
+    RvctToolChainConfigWidgetUi *m_ui;
     Utils::EnvironmentModel *m_model;
 };
 

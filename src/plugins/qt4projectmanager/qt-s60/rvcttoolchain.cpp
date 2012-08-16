@@ -30,7 +30,6 @@
 
 #include "rvcttoolchain.h"
 #include "rvctparser.h"
-#include "ui_rvcttoolchainconfigwidget.h"
 #include "qt4projectmanager/qt4projectmanagerconstants.h"
 
 #include <projectexplorer/abi.h>
@@ -38,24 +37,30 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/environment.h>
 #include <utils/environmentmodel.h>
+#include <utils/pathchooser.h>
 #include <utils/synchronousprocess.h>
 
+#include <QComboBox>
 #include <QDir>
 #include <QFileInfo>
-#include <QProcess>
+#include <QFormLayout>
 #include <QGridLayout>
+#include <QGroupBox>
+#include <QHeaderView>
 #include <QLabel>
+#include <QProcess>
+#include <QTableView>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 #if defined Q_OS_WIN
-static const char *const RVCT_BINARY = "armcc.exe";
+static const char RVCT_BINARY[] = "armcc.exe";
 #else
-static const char *const RVCT_BINARY = "armcc";
+static const char RVCT_BINARY[] = "armcc";
 #endif
 
-static const char *const RVCT_LICENSE_KEY = "ARMLMD_LICENSE_FILE";
+static const char RVCT_LICENSE_KEY[] = "ARMLMD_LICENSE_FILE";
 
 static const char rvctPathKeyC[] = "Qt4ProjectManager.RvctToolChain.CompilerPath";
 static const char rvctEnvironmentKeyC[] = "Qt4ProjectManager.RvctToolChain.Environment";
@@ -348,29 +353,45 @@ QString RvctToolChain::varName(const QString &postFix) const
 // RvctToolChainConfigWidget
 // ==========================================================================
 
+class RvctToolChainConfigWidgetUi
+{
+public:
+    QComboBox *versionComboBox;
+    Utils::PathChooser *compilerPath;
+    QTableView *environmentView;
+};
+
 RvctToolChainConfigWidget::RvctToolChainConfigWidget(RvctToolChain *tc) :
     ProjectExplorer::ToolChainConfigWidget(tc),
-    m_ui(new Ui::RvctToolChainConfigWidget()),
+    m_ui(new RvctToolChainConfigWidgetUi),
     m_model(new Utils::EnvironmentModel(this))
 {
-    m_ui->setupUi(this);
+    m_ui->versionComboBox = new QComboBox(this);
+    m_ui->versionComboBox->addItem(tr("Version 5"));
+    m_ui->versionComboBox->addItem(tr("Version 6"));
+    m_ui->compilerPath = new Utils::PathChooser(this);
+    m_ui->environmentView = new QTableView(this);
 
-    m_ui->environmentView->setModel(m_model);
+    m_mainLayout->addRow(tr("ARM &version:"), m_ui->versionComboBox);
+    m_mainLayout->addRow(tr("&Compiler path:"), m_ui->compilerPath);
+    m_mainLayout->addRow(tr("Environment Variables"), m_ui->environmentView);
+
     m_ui->environmentView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
     m_ui->environmentView->horizontalHeader()->setStretchLastSection(true);
-    m_ui->environmentView->setGridStyle(Qt::NoPen);
     m_ui->environmentView->horizontalHeader()->setHighlightSections(false);
+    m_ui->environmentView->setGridStyle(Qt::NoPen);
     m_ui->environmentView->verticalHeader()->hide();
     QFontMetrics fm(font());
-    m_ui->environmentView->verticalHeader()->setDefaultSectionSize(qMax(static_cast<int>(fm.height() * 1.2), fm.height() + 4));
+    m_ui->environmentView->verticalHeader()->setDefaultSectionSize(qMax(int(fm.height() * 1.2), fm.height() + 4));
+    m_ui->environmentView->setModel(m_model);
 
-    connect(m_model, SIGNAL(userChangesChanged()), this, SLOT(emitDirty()));
+    connect(m_model, SIGNAL(userChangesChanged()), this, SIGNAL(dirty()));
 
     m_ui->compilerPath->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->compilerPath->setFileName(tc->compilerCommand());
-    connect(m_ui->compilerPath, SIGNAL(changed(QString)), this, SLOT(emitDirty()));
+    connect(m_ui->compilerPath, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
     m_ui->versionComboBox->setCurrentIndex(static_cast<int>(tc->armVersion()));
-    connect(m_ui->versionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(emitDirty()));
+    connect(m_ui->versionComboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(dirty()));
 
     setFromToolChain();
 }

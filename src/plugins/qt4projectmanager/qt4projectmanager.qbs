@@ -139,7 +139,6 @@ QtcPlugin {
         "qt-desktop/simulatorqtversion.h",
         "qt-desktop/simulatorqtversionfactory.cpp",
         "qt-desktop/simulatorqtversionfactory.h",
-        "qt-s60/rvcttoolchainconfigwidget.ui",
         "qt-s60/abldparser.cpp",
         "qt-s60/abldparser.h",
         "qt-s60/certificatepathchooser.cpp",
