@@ -42,14 +42,12 @@
 
     \image qtcreator-project-targets.png
 
-    You can add a target if the development environment for the target platform
-    is installed on the development PC and the target is configured in
-    \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets.
+    To add build and run targets for the project, select \gui Add. The list
+    displays targets that are configured in \gui Tools > \gui Options >
+    \gui {Build & Run} > \gui Targets. To add targets to the list, select
+    \gui Manage.
 
-    Click
-    \inlineimage qtcreator-qt4-addbutton.png "Add Target button"
-    and select from a list of available targets. To remove a target, select it
-    and click
+    To remove a target, hover the cursor over it (1) and click
     \inlineimage qtcreator-target-remove.png "Remove Target button"
     .
 
@@ -70,10 +68,7 @@
 
             \endlist
 
-                \note If you have installed the development environment for only
-                    one target, the \gui Targets tab is replaced by a \gui Build
-                    tab and a \gui Run tab.
-                    If you have not configured the project for building, the
+                \note If you have not configured the project for building, the
                     \gui Targets tab is replaced by the \l{Opening Projects}
                     {Configure Projects} tab.
 
