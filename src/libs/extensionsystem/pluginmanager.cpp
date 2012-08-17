@@ -798,6 +798,7 @@ void PluginManagerPrivate::nextDelayedInitialize()
     if (delayedInitializeQueue.isEmpty()) {
         delete delayedInitializeTimer;
         delayedInitializeTimer = 0;
+        emit q->initializationDone();
     } else {
         delayedInitializeTimer->start();
     }
