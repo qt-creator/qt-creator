@@ -613,7 +613,7 @@
     </message>
     <message>
         <source>The directory %1 contains an outdated .cbp file. Qt Creator needs to update this file by running CMake. If you want to add additional command line arguments, add them below. Note that CMake remembers command line arguments from the previous runs.</source>
-        <translation>Le répertoire %1 contient un fichier cbp obsolète. Qt Creator a besoin de mettre à jour ce fichier en exécutant CMake. Si vous voulez passer des arguments de ligne de commande supplémentaires, ajoutez les ci dessous. Notez que CMake conserve les arguments passés lors des exécutions précédentes.</translation>
+        <translation>Le répertoire %1 contient un fichier cbp obsolète. Qt Creator a besoin de mettre à jour ce fichier en exécutant CMake. Si vous voulez passer des arguments de ligne de commande supplémentaires, ajoutez les ci-dessous. Notez que CMake conserve les arguments passés lors des exécutions précédentes.</translation>
     </message>
     <message>
         <source>The directory %1 specified in a build-configuration, does not contain a cbp file. Qt Creator needs to recreate this file, by running CMake. Some projects require command line arguments to the initial CMake call. Note that CMake remembers command line arguments from the previous runs.</source>
@@ -641,11 +641,11 @@
     </message>
     <message>
         <source>CMake exited with errors. Please check CMake output.</source>
-        <translation>CMake a quitté avec des erreurs. Veuillez regarder la sortie CMake. </translation>
+        <translation>CMake s&apos;est terminé avec des erreurs. Veuillez regarder la sortie CMake. </translation>
     </message>
     <message>
         <source>CMake exited with errors. Please check cmake output.</source>
-        <translation type="obsolete">CMake s&apos;est terminé avec erreur(s). Vérifiez les messages d&apos;erreurs de sortie de CMake.</translation>
+        <translation type="obsolete">CMake s&apos;est terminé avec erreur(s). Vérifiez les messages d&apos;erreur de sortie de CMake.</translation>
     </message>
     <message>
         <source>NMake Generator</source>
@@ -719,7 +719,7 @@
     </message>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
-        <translation>Veuillez spécifier le répertoire où vous voulez compiler votre projet. Qt Creator recommande de de pas utiliser le répertoire source pour la compilation. Cela garantit que le répertoire source reste propre et permet des compilations multiples avec différents paramètres.</translation>
+        <translation>Veuillez spécifier le répertoire où vous voulez compiler votre projet. Qt Creator recommande de ne pas utiliser le répertoire source pour la compilation. Cela garantit que le répertoire source reste propre et permet des compilations multiples avec différents paramètres.</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -874,7 +874,7 @@
     </message>
     <message>
         <source>Empty snippet received for &quot;%1&quot;.</source>
-        <translation>Fragment vide recu pour &quot;%1&quot;.</translation>
+        <translation>Fragment vide reçu pour &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>This protocol supports no listing</source>
@@ -1017,7 +1017,7 @@
     <message>
         <source>Checking this will enable tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
         <translatorcomment>shunté le coup de la &quot;scope information&quot;... :/</translatorcomment>
-        <translation type="obsolete">Active les info-bulles sur les variables pendant le débogage. Comme ceci peut ralentir le débogage et ne fournit pas nécessairement des valeurs fiables, cette option est désactivée par défault.</translation>
+        <translation type="obsolete">Active les info-bulles sur les variables pendant le débogage. Comme ceci peut ralentir le débogage et ne fournit pas nécessairement des valeurs fiables, cette option est désactivée par défaut.</translation>
     </message>
     <message>
         <source>Use tooltips while debugging</source>
@@ -2299,11 +2299,11 @@ Voulez vous les écraser ?</translation>
     </message>
     <message>
         <source>Maximize Output Pane</source>
-        <translation>Maximiser le paneau de sortie</translation>
+        <translation>Maximiser le panneau de sortie</translation>
     </message>
     <message>
         <source>Output &amp;Panes</source>
-        <translation>&amp;Paneaux de sortie</translation>
+        <translation>&amp;Panneaux de sortie</translation>
     </message>
     <message>
         <source>Shift+F6</source>
@@ -2323,7 +2323,7 @@ Voulez vous les écraser ?</translation>
     </message>
     <message>
         <source>Minimize Output Pane</source>
-        <translation>Minimiser le paneau de sortie</translation>
+        <translation>Minimiser le panneau de sortie</translation>
     </message>
 </context>
 <context>
@@ -2412,7 +2412,7 @@ Voulez vous les écraser ?</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation>Rarccourcis clavier</translation>
+        <translation>Raccourcis clavier</translation>
     </message>
     <message>
         <source>Key sequence:</source>
@@ -2463,12 +2463,12 @@ Voulez vous les écraser ?</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
-        <translation>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;Basé sur Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Compilé le %4 à %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Copyright 2008-%6 %7. Tous droits réservés.&lt;br/&gt;&lt;br/&gt;Ce programme est fournit « EN L&apos;ÉTAT », SANS GARANTIE D&apos;AUCUNE SORTE, INCLUANT, SANS S&apos;Y LIMITER, LES GARANTIES D&apos;ABSENCE DE DÉFAUT, DE QUALITÉ MARCHANDE, D&apos;ADÉQUATION À UN USAGE PARTICULIER.&lt;br/&gt;</translation>
+        <translation>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;Basé sur Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Compilé le %4 à %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Copyright 2008-%6 %7. Tous droits réservés.&lt;br/&gt;&lt;br/&gt;Ce programme est fourni « EN L&apos;ÉTAT », SANS GARANTIE D&apos;AUCUNE SORTE, INCLUANT, SANS S&apos;Y LIMITER, LES GARANTIES D&apos;ABSENCE DE DÉFAUT, DE QUALITÉ MARCHANDE, D&apos;ADÉQUATION À UN USAGE PARTICULIER.&lt;br/&gt;</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translatorcomment>%4 == __DATE__ et %5 ==__TIME__. Pour les formulations légales, dans le doute, mieux vaut laisser l&apos;anglais... (legal m&apos;a l&apos;air correct, enfin chuis pas avocat !)</translatorcomment>
-        <translation type="obsolete">&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Basé sur Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Compilé le %4 à %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. Tous droits réservés.&lt;br/&gt;&lt;br/&gt;Ce programme est fournit « EN L&apos;ÉTAT », SANS GARANTIE D&apos;AUCUNE SORTE, INCLUANT, SANS S&apos;Y LIMITER, LES GARANTIES D&apos;ABSENCE DE DÉFAUT, DE QUALITÉ MARCHANDE, D&apos;ADÉQUATION À UN USAGE PARTICULIER.&lt;br/&gt;</translation>
+        <translation type="obsolete">&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Basé sur Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Compilé le %4 à %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. Tous droits réservés.&lt;br/&gt;&lt;br/&gt;Ce programme est fourni « EN L&apos;ÉTAT », SANS GARANTIE D&apos;AUCUNE SORTE, INCLUANT, SANS S&apos;Y LIMITER, LES GARANTIES D&apos;ABSENCE DE DÉFAUT, DE QUALITÉ MARCHANDE, D&apos;ADÉQUATION À UN USAGE PARTICULIER.&lt;br/&gt;</translation>
     </message>
 </context>
 <context>
@@ -16527,7 +16527,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <name>ShortcutSettings</name>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="obsolete">Rarccourcis clavier</translation>
+        <translation type="obsolete">Raccourcis clavier</translation>
     </message>
     <message>
         <source>Filter:</source>
@@ -35619,7 +35619,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
 </source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Que faire avec la sortie standard de l&apos;exécutable.
-&lt;ul&gt;&lt;li&gt;Ignorer : ne rien faire avec ; &lt;/li&gt;&lt;li&gt;Afficher dans le paneau : afficher le dans le panneau général de sortie ; &lt;/li&gt;&lt;li&gt;Remplacer la sélection : remplacer la sélection courante dans le document courant avec celui-ci.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;ul&gt;&lt;li&gt;Ignorer : ne rien faire avec ; &lt;/li&gt;&lt;li&gt;Afficher dans le panneau : afficher le dans le panneau général de sortie ; &lt;/li&gt;&lt;li&gt;Remplacer la sélection : remplacer la sélection courante dans le document courant avec celui-ci.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Output:</source>
@@ -35647,7 +35647,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
         <translation>&lt;html&gt;&lt;head&gt;&lt;body&gt;
 &lt;p &gt;Que faire avec la sortie standard de l&apos;exécutable.&lt;/p&gt;
 &lt;ul&gt;&lt;li&gt;Ignorer : ne rien faire avec ; &lt;/li&gt;
-&lt;li&gt;Afficher dans le paneau : afficher le dans le panneau général de sortie ; &lt;/li&gt;
+&lt;li&gt;Afficher dans le panneau : afficher le dans le panneau général de sortie ; &lt;/li&gt;
 &lt;li&gt;Remplacer la sélection : remplacer la sélection courante dans le document courant avec celui-ci.&lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -50724,7 +50724,7 @@ Remote error output was: %1</source>
     <name>TextEditor::CodeStyleEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
-        <translation>Éditer le prévisualisation du contenu pour voir la manière dont les paramètres actuels sont appliquer dans le snippets de code personnalisé. Les changements dans la zone de prévisualisation n&apos;affecte par les paramètres actuels.</translation>
+        <translation>Éditer le prévisualisation du contenu pour voir la manière dont les paramètres actuels sont appliqués dans le snippets de code personnalisé. Les changements dans la zone de prévisualisation n&apos;affectent pas les paramètres actuels.</translation>
     </message>
 </context>
 <context>
@@ -52572,7 +52572,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>unreachable</source>
-        <translation>inattingible</translation>
+        <translation>inatteignable</translation>
     </message>
     <message>
         <source>do not use &apos;with&apos;</source>
@@ -52612,7 +52612,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>the &apos;function&apos; keyword and the opening parenthesis should be separated by a single space</source>
-        <translation>le mot clé &apos;function&apos; et la parenthèse ouvrante doivent être séparés par une seule espace</translation>
+        <translation>le mot-clé &apos;function&apos; et la parenthèse ouvrante doivent être séparés par un seule espace</translation>
     </message>
     <message>
         <source>do not use stand-alone blocks</source>
@@ -52652,7 +52652,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>only use one statement per line</source>
-        <translation>utiliser seulement une déclration par ligne</translation>
+        <translation>utiliser seulement une déclaration par ligne</translation>
     </message>
     <message>
         <source>unknown component</source>
@@ -52680,11 +52680,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>calls of functions that start with an uppercase letter should use &apos;new&apos;</source>
-        <translation>les appels de fonctions qui commence par une lettre majuscule devrait utiliser &apos;new&apos;</translation>
+        <translation>les appels de fonctions qui commencent par une lettre majuscule devrait utiliser &apos;new&apos;</translation>
     </message>
     <message>
         <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
-        <translation>&apos;new&apos; ne devrait être utilisé qu&apos;avec des fonctions qui commence par une lettre majuscule</translation>
+        <translation>&apos;new&apos; ne devrait être utilisé qu&apos;avec des fonctions qui commencent par une lettre majuscule</translation>
     </message>
     <message>
         <source>use spaces around binary operators</source>
@@ -52841,11 +52841,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>Error: unexpected state %1 in cAvahiClientReply, ignoring it</source>
-        <translation>Erreur : état inatendu %1 dans cAvahiClientReply, état ignoré</translation>
+        <translation>Erreur : état inattendu %1 dans cAvahiClientReply, état ignoré</translation>
     </message>
     <message>
         <source>Error: unexpected state %1 in cAvahiBrowseReply, ignoring it</source>
-        <translation>Erreur : état inatendu %1 dans cAvahiBrowseReply, état ignoré</translation>
+        <translation>Erreur : état inattendu %1 dans cAvahiBrowseReply, état ignoré</translation>
     </message>
     <message>
         <source>%1 failed starting embedded daemon at %2</source>
@@ -52884,7 +52884,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>MainConnection using lib %1 daemon starting seem successful, continuing</source>
-        <translation>MainConnection utilisant la bibliothèque %1 et le démarrage du démon semble avoir réussit, le processus continue</translation>
+        <translation>MainConnection utilisant la bibliothèque %1 et le démarrage du démon semble avoir réussi, le processus continue</translation>
     </message>
     <message>
         <source>MainConnection using lib %1 failed getProperty call with error %2</source>
@@ -53031,7 +53031,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
-        <translation>Veuillez spécifier le répertoire où vous voulez compiler votre projet. Qt Creator recommande de de pas utiliser le répertoire source pour la compilation. Cela garantit que le répertoire source reste propre et permet des compilations multiples avec différents paramètres.</translation>
+        <translation>Veuillez spécifier le répertoire où vous voulez compiler votre projet. Qt Creator recommande de ne pas utiliser le répertoire source pour la compilation. Cela garantit que le répertoire source reste propre et permet des compilations multiples avec différents paramètres.</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -53652,15 +53652,15 @@ Voulez-vous la tuer ?</translation>
     </message>
     <message>
         <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator uses the Qt version: &lt;b&gt;%2&lt;/b&gt; and &lt;b&gt;no tool chain&lt;/b&gt; to parse the project. You can edit these in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;settings&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Le projet &lt;b&gt;%1&lt;/b&gt; n&apos;est pas encore configuré.&lt;/p&gt;&lt;p&gt;Qt Creator utilise la version de Qt : &lt;b&gt;%2&lt;/b&gt; et &lt;b&gt;aucune chaîne de compilation&lt;/b&gt; pour analyser le projet. Vous pouvez modifier ces paramètres dans la &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;configuration&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Le projet &lt;b&gt;%1&lt;/b&gt; n&apos;est pas encore configuré.&lt;/p&gt;&lt;p&gt;Qt Creator utilise la version de Qt : &lt;b&gt;%2&lt;/b&gt; et &lt;b&gt;n&apos;a aucune chaîne de compilation&lt;/b&gt; pour analyser le projet. Vous pouvez modifier ces paramètres dans la &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;configuration&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator uses &lt;b&gt;no Qt version&lt;/b&gt; and the tool chain: &lt;b&gt;%2&lt;/b&gt; to parse the project. You can edit these in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;settings&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Le projet &lt;b&gt;%1&lt;/b&gt; n&apos;est pas encore configuré.&lt;/p&gt;&lt;p&gt;Qt Creator utilise &lt;b&gt;aucune version de Qt&lt;/b&gt; et la chaîne de compilation :  &lt;b&gt;%2&lt;/b&gt; pour analyser le projet. Vous pouvez modifier ces paramètres dans la &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;configuration&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Le projet &lt;b&gt;%1&lt;/b&gt; n&apos;est pas encore configuré.&lt;/p&gt;&lt;p&gt;Qt Creator n&apos;utilise &lt;b&gt;aucune version de Qt&lt;/b&gt; et la chaîne de compilation :  &lt;b&gt;%2&lt;/b&gt; pour analyser le projet. Vous pouvez modifier ces paramètres dans la &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;configuration&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator uses &lt;b&gt;no Qt version&lt;/b&gt; and &lt;b&gt;no tool chain&lt;/b&gt; to parse the project. You can edit these in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;settings&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Le projet &lt;b&gt;%1&lt;/b&gt; n&apos;est pas encore configuré.&lt;/p&gt;&lt;p&gt;Qt Creator utilise &lt;b&gt;aucune version de Qt&lt;/b&gt; et &lt;b&gt;aucune chaîne de compilation&lt;/b&gt; pour analyser le projet. Vous pouvez modifier ces paramètres dans la &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;configuration&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Le projet &lt;b&gt;%1&lt;/b&gt; n&apos;est pas encore configuré.&lt;/p&gt;&lt;p&gt;Qt Creator n&apos;utilise &lt;b&gt;aucune version de Qt&lt;/b&gt; et &lt;b&gt;aucune chaîne de compilation&lt;/b&gt; pour analyser le projet. Vous pouvez modifier ces paramètres dans la &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;configuration&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -53697,7 +53697,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
     <message>
         <source>&lt;p&gt;The project you are about to open is located in the write-protected location:&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Please select a writable location below and click &quot;Copy Project and Open&quot; to open a modifiable copy of the project or click &quot;Keep Project and Open&quot; to open the project in location.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; You will not be able to alter or compile your project in the current location.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Le projet que vous vous apprêtez à ouvrir se trouve dans un emplacement accessible en lecture seule :&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Veuillez sélectionner un emplacement accessible en écriture et cliquez sur &quot;Copier le projet et l&apos;ouvrir&quot; pour ouvrir une copie modifiable. Cliquez sur &quot;Conserver le projet et l&apos;ouvrir&quot; pour ouvrir le projet à l&apos;emplacement courant.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note :&lt;/b&gt; vous ne pourrez pas modifier ou compiler votre projet à l&apos;emplacement courant.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Le projet que vous vous apprêtez à ouvrir se trouve dans un emplacement accessible en lecture seule :&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Veuillez sélectionner un emplacement accessible en écriture et cliquer sur &quot;Copier le projet et l&apos;ouvrir&quot; pour ouvrir une copie modifiable. Cliquez sur &quot;Conserver le projet et l&apos;ouvrir&quot; pour ouvrir le projet à l&apos;emplacement courant.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note :&lt;/b&gt; vous ne pourrez pas modifier ou compiler votre projet à l&apos;emplacement courant.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&amp;Location:</source>
