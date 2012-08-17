@@ -31,6 +31,11 @@
 #include "savefile.h"
 #include "qtcassert.h"
 #include "fileutils.h"
+#ifdef Q_OS_WIN
+#  include <windows.h>
+#else
+#  include <unistd.h>
+#endif
 
 namespace Utils {
 
@@ -78,6 +83,15 @@ bool SaveFile::commit()
     QTC_ASSERT(!m_finalized, return false);
     m_finalized = true;
 
+    if (!flush()) {
+        remove();
+        return false;
+    }
+#ifdef Q_OS_WIN
+    FlushFileBuffers(handle());
+#else
+    fdatasync(handle());
+#endif
     close();
     if (error() != NoError) {
         remove();

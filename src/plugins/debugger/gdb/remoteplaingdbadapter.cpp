@@ -39,9 +39,8 @@
 namespace Debugger {
 namespace Internal {
 
-GdbRemotePlainEngine::GdbRemotePlainEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine)
-    : GdbAbstractPlainEngine(startParameters, masterEngine),
+GdbRemotePlainEngine::GdbRemotePlainEngine(const DebuggerStartParameters &startParameters)
+    : GdbAbstractPlainEngine(startParameters),
       m_gdbProc(startParameters.connParams, this)
 {
     connect(&m_gdbProc, SIGNAL(started()), this, SLOT(handleGdbStarted()));

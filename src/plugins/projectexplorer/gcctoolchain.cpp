@@ -676,25 +676,13 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
 {
     Q_ASSERT(tc);
 
-    Utils::DetailsWidget *details = new Utils::DetailsWidget(this);
-    details->setState(Utils::DetailsWidget::NoSummary);
-    QVBoxLayout *box = new QVBoxLayout(this);
-    box->setMargin(0);
-    box->addWidget(details);
-
-    QWidget *widget = new QWidget(details);
-    details->setWidget(widget);
-
-    QFormLayout *layout = new QFormLayout(widget);
-
     const QStringList gnuVersionArgs = QStringList(QLatin1String("--version"));
     m_compilerCommand->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_compilerCommand->setCommandVersionArguments(gnuVersionArgs);
-    layout->addRow(tr("&Compiler path:"), m_compilerCommand);
-    layout->addRow(tr("&ABI:"), m_abiWidget);
+    m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+    m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
     m_abiWidget->setEnabled(false);
-
-    addErrorLabel(layout);
+    addErrorLabel();
 
     setFromToolchain();
 
@@ -702,7 +690,7 @@ Internal::GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     connect(m_abiWidget, SIGNAL(abiChanged()), this, SIGNAL(dirty()));
 }
 
-void Internal::GccToolChainConfigWidget::apply()
+void Internal::GccToolChainConfigWidget::applyImpl()
 {
     if (toolChain()->isAutoDetected())
         return;
@@ -727,7 +715,7 @@ void Internal::GccToolChainConfigWidget::setFromToolchain()
     blockSignals(blocked);
 }
 
-bool Internal::GccToolChainConfigWidget::isDirty() const
+bool Internal::GccToolChainConfigWidget::isDirtyImpl() const
 {
     GccToolChain *tc = static_cast<GccToolChain *>(toolChain());
     Q_ASSERT(tc);
@@ -735,12 +723,11 @@ bool Internal::GccToolChainConfigWidget::isDirty() const
             || m_abiWidget->currentAbi() != tc->targetAbi();
 }
 
-void Internal::GccToolChainConfigWidget::makeReadOnly()
+void Internal::GccToolChainConfigWidget::makeReadOnlyImpl()
 {
     m_compilerCommand->setEnabled(false);
     m_abiWidget->setEnabled(false);
     m_isReadOnly = true;
-    ToolChainConfigWidget::makeReadOnly();
 }
 
 void Internal::GccToolChainConfigWidget::handleCompilerCommandChange()

@@ -116,9 +116,8 @@ static inline QString startMsg(const Coda::Session &session)
  *       - Stop all threads once one stops?
  *       - Breakpoints do not trigger in threads other than the main thread. */
 
-GdbCodaEngine:: GdbCodaEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine)
-    : GdbEngine(startParameters, masterEngine),
+GdbCodaEngine:: GdbCodaEngine(const DebuggerStartParameters &startParameters)
+    : GdbEngine(startParameters),
     m_running(false),
     m_stopReason(0),
     m_gdbAckMode(true),

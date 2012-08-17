@@ -38,6 +38,7 @@
 #include <ssh/sshconnection.h>
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/profile.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <QMetaType>
@@ -56,7 +57,9 @@ public:
     };
 
     DebuggerStartParameters()
-      : engineType(NoEngineType),
+      : masterEngineType(NoEngineType),
+        firstSlaveEngineType(NoEngineType),
+        secondSlaveEngineType(NoEngineType),
         isSnapshot(false),
         attachPID(-1),
         useTerminal(false),
@@ -78,7 +81,9 @@ public:
 
     //Core::Id profileId;
 
-    DebuggerEngineType engineType;
+    DebuggerEngineType masterEngineType;
+    DebuggerEngineType firstSlaveEngineType;
+    DebuggerEngineType secondSlaveEngineType;
     QString sysRoot;
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
@@ -144,7 +149,7 @@ public:
 
 namespace Internal {
 
-void fillParameters(DebuggerStartParameters *sp, Core::Id id);
+void fillParameters(DebuggerStartParameters *sp, ProjectExplorer::Profile *profile);
 
 } // namespace Internal
 } // namespace Debugger

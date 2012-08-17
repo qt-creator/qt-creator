@@ -950,38 +950,46 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             evalError(fL1S("shadowed(path) requires one argument."));
         } else {
             QString val = resolvePath(args.at(0).toQString(m_tmp1));
+            QString rstr;
             if (m_option->source_root.isEmpty()) {
-                ret += ProString(val);
+                rstr = val;
             } else if (val.startsWith(m_option->source_root)
                        && (val.length() == m_option->source_root.length()
                            || val.at(m_option->source_root.length()) == QLatin1Char('/'))) {
-                ret += ProString(m_option->build_root + val.mid(m_option->source_root.length()))
-                       .setSource(args.at(0));
+                rstr = m_option->build_root + val.mid(m_option->source_root.length());
+            } else {
+                break;
             }
+            ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
         }
         break;
     case E_ABSOLUTE_PATH:
-        if (args.count() > 2)
+        if (args.count() > 2) {
             evalError(fL1S("absolute_path(path[, base]) requires one or two arguments."));
-        else
-            ret << ProString(QDir::cleanPath(
+        } else {
+            QString rstr = QDir::cleanPath(
                     QDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory())
-                    .absoluteFilePath(args.at(0).toQString(m_tmp1)))).setSource(args.at(0));
+                    .absoluteFilePath(args.at(0).toQString(m_tmp1)));
+            ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
+        }
         break;
     case E_RELATIVE_PATH:
         if (args.count() > 2) {
             evalError(fL1S("relative_path(path[, base]) requires one or two arguments."));
         } else {
             QDir baseDir(args.count() > 1 ? args.at(1).toQString(m_tmp2) : currentDirectory());
-            ret << ProString(baseDir.relativeFilePath(baseDir.absoluteFilePath(
-                                args.at(0).toQString(m_tmp1)))).setSource(args.at(0));
+            QString rstr = baseDir.relativeFilePath(baseDir.absoluteFilePath(
+                                args.at(0).toQString(m_tmp1)));
+            ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
         }
         break;
     case E_CLEAN_PATH:
-        if (args.count() != 1)
+        if (args.count() != 1) {
             evalError(fL1S("clean_path(path) requires one argument."));
-        else
-            ret << ProString(QDir::cleanPath(args.at(0).toQString(m_tmp1))).setSource(args.at(0));
+        } else {
+            QString rstr = QDir::cleanPath(args.at(0).toQString(m_tmp1));
+            ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
+        }
         break;
     case E_SYSTEM_PATH:
         if (args.count() != 1) {
@@ -993,7 +1001,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
 #else
             rstr.replace(QLatin1Char('\\'), QLatin1Char('/'));
 #endif
-            ret << ProString(rstr).setSource(args.at(0));
+            ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
         }
         break;
     case E_SHELL_PATH:
@@ -1005,14 +1013,16 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                 rstr.replace(QLatin1Char('/'), QLatin1Char('\\'));
             else
                 rstr.replace(QLatin1Char('\\'), QLatin1Char('/'));
-            ret << ProString(rstr).setSource(args.at(0));
+            ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
         }
         break;
     case E_SYSTEM_QUOTE:
-        if (args.count() != 1)
+        if (args.count() != 1) {
             evalError(fL1S("system_quote(arg) requires one argument."));
-        else
-            ret << ProString(IoUtils::shellQuote(args.at(0).toQString(m_tmp1))).setSource(args.at(0));
+        } else {
+            QString rstr = IoUtils::shellQuote(args.at(0).toQString(m_tmp1));
+            ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
+        }
         break;
     case E_SHELL_QUOTE:
         if (args.count() != 1) {
@@ -1023,7 +1033,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                 rstr = IoUtils::shellQuoteWin(rstr);
             else
                 rstr = IoUtils::shellQuoteUnix(rstr);
-            ret << ProString(rstr).setSource(args.at(0));
+            ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
         }
         break;
     case E_INVALID:

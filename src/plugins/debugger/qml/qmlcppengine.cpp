@@ -54,14 +54,10 @@ enum { debug = 0 };
 
 const int ConnectionWaitTimeMs = 5000;
 
-QmlEngine *createQmlEngine(const DebuggerStartParameters &,
-    DebuggerEngine *masterEngine);
-
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp,
-                                   DebuggerEngineType slaveEngineType,
                                    QString *errorMessage)
 {
-    QmlCppEngine *newEngine = new QmlCppEngine(sp, slaveEngineType, errorMessage);
+    QmlCppEngine *newEngine = new QmlCppEngine(sp, errorMessage);
     if (newEngine->cppEngine())
         return newEngine;
     delete newEngine;
@@ -75,31 +71,16 @@ DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp,
 //
 ////////////////////////////////////////////////////////////////////////
 
-class QmlCppEnginePrivate : public QObject
+class QmlCppEnginePrivate
 {
-    Q_OBJECT
-
 public:
-    QmlCppEnginePrivate(QmlCppEngine *parent,
-            const DebuggerStartParameters &sp);
-    ~QmlCppEnginePrivate() {}
+    QmlCppEnginePrivate() {}
 
-private:
-    friend class QmlCppEngine;
-    QmlCppEngine *q;
     QmlEngine *m_qmlEngine;
     DebuggerEngine *m_cppEngine;
     DebuggerEngine *m_activeEngine;
 };
 
-
-QmlCppEnginePrivate::QmlCppEnginePrivate(QmlCppEngine *parent,
-        const DebuggerStartParameters &sp)
-    : q(parent), m_qmlEngine(createQmlEngine(sp, q)),
-      m_cppEngine(0), m_activeEngine(0)
-{
-    setObjectName(QLatin1String("QmlCppEnginePrivate"));
-}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -107,13 +88,15 @@ QmlCppEnginePrivate::QmlCppEnginePrivate(QmlCppEngine *parent,
 //
 ////////////////////////////////////////////////////////////////////////
 
-QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp,
-                           DebuggerEngineType slaveEngineType,
-                           QString *errorMessage)
-    : DebuggerEngine(sp, DebuggerLanguages(CppLanguage) | QmlLanguage), d(new QmlCppEnginePrivate(this, sp))
+QmlCppEngine::QmlCppEngine(const DebuggerStartParameters &sp, QString *errorMessage)
+    : DebuggerEngine(sp)
 {
     setObjectName(QLatin1String("QmlCppEngine"));
-    d->m_cppEngine = DebuggerRunControlFactory::createEngine(slaveEngineType, sp, this, errorMessage);
+    d = new QmlCppEnginePrivate;
+    d->m_qmlEngine = new QmlEngine(sp);
+    d->m_qmlEngine->setMasterEngine(this);
+    d->m_cppEngine = DebuggerRunControlFactory::createEngine(sp.firstSlaveEngineType, sp, errorMessage);
+    d->m_cppEngine->setMasterEngine(this);
     if (!d->m_cppEngine) {
         *errorMessage = tr("The slave debugging engine required for combined QML/C++-Debugging could not be created: %1").arg(*errorMessage);
         return;
@@ -834,5 +817,3 @@ void QmlCppEngine::setActiveEngine(DebuggerEngine *engine)
 
 } // namespace Internal
 } // namespace Debugger
-
-#include "qmlcppengine.moc"

@@ -327,8 +327,7 @@ static inline bool validMode(DebuggerStartMode sm)
 }
 
 // Accessed by RunControlFactory
-DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp,
-    DebuggerEngine *masterEngine, QString *errorMessage)
+DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *errorMessage)
 {
 #ifdef Q_OS_WIN
     CdbOptionsPage *op = CdbOptionsPage::instance();
@@ -336,78 +335,12 @@ DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp,
         *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thre CDB engine.");
         return 0;
     }
-    return new CdbEngine(sp, masterEngine, op->options());
+    return new CdbEngine(sp, op->options());
 #else
-    Q_UNUSED(masterEngine)
     Q_UNUSED(sp)
 #endif
     *errorMessage = QString::fromLatin1("Unsupported debug mode");
     return 0;
-}
-
-bool isCdbEngineEnabled()
-{
-#ifdef Q_OS_WIN
-    return CdbOptionsPage::instance() && CdbOptionsPage::instance()->options()->isValid();
-#else
-    return false;
-#endif
-}
-
-static inline QString msgNoCdbBinaryForToolChain(const Abi &tc)
-{
-    return CdbEngine::tr("There is no CDB binary available for binaries in format '%1'").arg(tc.toString());
-}
-
-static inline bool isMsvcFlavor(Abi::OSFlavor osf)
-{
-  return osf == Abi::WindowsMsvc2005Flavor
-      || osf == Abi::WindowsMsvc2008Flavor
-      || osf == Abi::WindowsMsvc2010Flavor
-      || osf == Abi::WindowsMsvc2012Flavor;
-}
-
-bool checkCdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
-{
-#ifdef Q_OS_WIN
-    const Abi abi = sp.toolChainAbi;
-    if (!isCdbEngineEnabled()) {
-        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine required for %1 is currently disabled.").
-                           arg(abi.toString()));
-        check->settingsCategory = QLatin1String(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
-        check->settingsPage = CdbOptionsPage::settingsId();
-        return false;
-    }
-
-    if (!validMode(sp.startMode)) {
-        check->errorDetails.push_back(CdbEngine::tr("The CDB engine does not support start mode %1.").arg(sp.startMode));
-        return false;
-    }
-
-    if (abi.binaryFormat() != Abi::PEFormat || abi.os() != Abi::WindowsOS) {
-        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine does not support the %1 ABI.").
-                                      arg(abi.toString()));
-        return false;
-    }
-
-    if (sp.startMode == AttachCore && !isMsvcFlavor(abi.osFlavor())) {
-        check->errorDetails.push_back(CdbEngine::tr("The CDB debug engine cannot debug gdb core files."));
-        return false;
-    }
-
-    if (sp.debuggerCommand.isEmpty()) {
-        check->errorDetails.push_back(msgNoCdbBinaryForToolChain(abi));
-        check->settingsCategory = QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        check->settingsPage = QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        return false;
-    }
-
-    return true;
-#else
-    Q_UNUSED(sp);
-    check->errorDetails.push_back(QString::fromLatin1("Unsupported debug mode"));
-    return false;
-#endif
 }
 
 void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
@@ -426,9 +359,8 @@ static inline Utils::SavedAction *theAssemblerAction()
     return debuggerCore()->action(OperateByInstruction);
 }
 
-CdbEngine::CdbEngine(const DebuggerStartParameters &sp,
-        DebuggerEngine *masterEngine, const OptionsPtr &options) :
-    DebuggerEngine(sp, CppLanguage, masterEngine),
+CdbEngine::CdbEngine(const DebuggerStartParameters &sp, const OptionsPtr &options) :
+    DebuggerEngine(sp),
     m_creatorExtPrefix("<qtcreatorcdbext>|"),
     m_tokenPrefix("<token>"),
     m_options(options),

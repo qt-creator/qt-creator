@@ -35,6 +35,7 @@
 #include "debuggerplugin.h"
 #include "debuggerprofileinformation.h"
 #include "debuggerrunner.h"
+#include "debuggerruncontrolfactory.h"
 #include "debuggerstartparameters.h"
 
 #include <coreplugin/icore.h>
@@ -205,22 +206,15 @@ void GdbServerStarter::attach(int port)
         return;
     }
 
-    QString channel = QString("%1:%2").arg(d->device->sshParameters().host).arg(port);
-
     DebuggerStartParameters sp;
-    sp.displayName = tr("Remote: \"%1\"").arg(channel);
-    sp.remoteChannel = channel;
+    fillParameters(&sp, d->profile);
+    sp.masterEngineType = GdbEngineType;
+    sp.connParams.port = port;
+    sp.displayName = tr("Remote: \"%1:%2\"").arg(sp.connParams.host).arg(port);
     sp.executable = localExecutable;
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
-    sp.sysRoot = SysRootProfileInformation::sysRoot(d->profile).toString();
-    sp.debuggerCommand = DebuggerProfileInformation::debuggerCommand(d->profile).toString();
-    sp.connParams = d->device->sshParameters();
-    if (ToolChain *tc = ToolChainProfileInformation::toolChain(d->profile))
-        sp.toolChainAbi = tc->targetAbi();
-
-    if (RunControl *rc = DebuggerPlugin::createDebugger(sp))
-        DebuggerPlugin::startDebugger(rc);
+    DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void GdbServerStarter::handleProcessClosed(int status)

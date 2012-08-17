@@ -48,8 +48,7 @@ class GdbRemoteServerEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    GdbRemoteServerEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine);
+    explicit GdbRemoteServerEngine(const DebuggerStartParameters &startParameters);
 
 private:
     DumperHandling dumperHandling() const;

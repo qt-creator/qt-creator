@@ -56,9 +56,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbTermEngine::GdbTermEngine(const DebuggerStartParameters &startParameters,
-    DebuggerEngine *masterEngine)
-    : GdbEngine(startParameters, masterEngine)
+GdbTermEngine::GdbTermEngine(const DebuggerStartParameters &startParameters)
+    : GdbEngine(startParameters)
 {
 #ifdef Q_OS_WIN
     // Windows up to xp needs a workaround for attaching to freshly started processes. see proc_stub_win

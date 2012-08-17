@@ -51,9 +51,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbLocalPlainEngine::GdbLocalPlainEngine(const DebuggerStartParameters &startParameters,
-    DebuggerEngine *masterEngine)
-    : GdbAbstractPlainEngine(startParameters, masterEngine)
+GdbLocalPlainEngine::GdbLocalPlainEngine(const DebuggerStartParameters &startParameters)
+    : GdbAbstractPlainEngine(startParameters)
 {
     // Output
     connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),

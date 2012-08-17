@@ -34,6 +34,7 @@
 
 #include "debuggerstartparameters.h"
 #include "debuggerinternalconstants.h"
+#include "debuggerruncontrolfactory.h"
 #include "disassemblerlines.h"
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
@@ -236,9 +237,8 @@ private:
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine)
-  : DebuggerEngine(startParameters, CppLanguage, masterEngine)
+GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
+  : DebuggerEngine(startParameters)
 {
     setObjectName(_("GdbEngine"));
 
@@ -3724,8 +3724,7 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
         }
         sp.displayName = function + _(": ") + QDateTime::currentDateTime().toString();
         sp.isSnapshot = true;
-        DebuggerRunControl *rc = DebuggerPlugin::createDebugger(sp);
-        DebuggerPlugin::startDebugger(rc);
+        DebuggerRunControlFactory::createAndScheduleRun(sp);
     } else {
         QByteArray msg = response.data.findChild("msg").data();
         showMessageBox(QMessageBox::Critical, tr("Snapshot Creation Error"),
@@ -4635,27 +4634,6 @@ static QString gdbBinary(const DebuggerStartParameters &sp)
     return sp.debuggerCommand;
 }
 
-bool checkGdbConfiguration(const DebuggerStartParameters &sp, ConfigurationCheck *check)
-{
-    const QString binary = gdbBinary(sp);
-    const Abi abi = sp.toolChainAbi;
-    if (binary.isEmpty()) {
-        check->errorDetails.push_back(msgNoGdbBinaryForToolChain(abi));
-        check->settingsCategory = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        check->settingsPage = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        return false;
-    }
-    if (abi.os() == Abi::WindowsOS &&  !QFileInfo(binary).isAbsolute()) {
-    // See initialization below, we need an absolute path to be able to locate Python on Windows.
-        check->errorDetails.push_back(GdbEngine::tr("The gdb location must be given as an "
-                "absolute path in the debugger settings (%1).").arg(binary));
-        check->settingsCategory = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        check->settingsPage = _(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY);
-        return false;
-    }
-    return true;
-}
-
 //
 // Starting up & shutting down
 //
@@ -5399,27 +5377,24 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
 // Factory
 //
 
-DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp,
-    DebuggerEngine *masterEngine)
+DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp)
 {
-    if (sp.toolChainAbi.os() == Abi::SymbianOS) {
-        // FIXME: 1 of 3 testing hacks.
-        return new GdbCodaEngine(sp, masterEngine);
-    }
+    if (sp.toolChainAbi.os() == Abi::SymbianOS)
+        return new GdbCodaEngine(sp);
 
     switch (sp.startMode) {
     case AttachCore:
-        return new GdbCoreEngine(sp, masterEngine);
+        return new GdbCoreEngine(sp);
     case AttachToRemoteServer:
-        return new GdbRemoteServerEngine(sp, masterEngine);
+        return new GdbRemoteServerEngine(sp);
     case StartRemoteGdb:
-        return new GdbRemotePlainEngine(sp, masterEngine);
+        return new GdbRemotePlainEngine(sp);
     case AttachExternal:
-        return new GdbAttachEngine(sp, masterEngine);
+        return new GdbAttachEngine(sp);
     default:
         if (sp.useTerminal)
-            return new GdbTermEngine(sp, masterEngine);
-        return new GdbLocalPlainEngine(sp, masterEngine);
+            return new GdbTermEngine(sp);
+        return new GdbLocalPlainEngine(sp);
     }
 }
 

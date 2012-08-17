@@ -70,7 +70,6 @@ HEADERS += $$PWD/s60manager.h \
 
 FORMS += $$PWD/s60createpackagestep.ui \
     $$PWD/s60certificatedetailsdialog.ui \
-    $$PWD/rvcttoolchainconfigwidget.ui \
     $$PWD/s60publishingbuildsettingspageovi.ui \
     $$PWD/s60publishingresultspageovi.ui \
     $$PWD/s60publishingsissettingspageovi.ui

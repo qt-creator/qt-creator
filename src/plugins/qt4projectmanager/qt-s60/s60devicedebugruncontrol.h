@@ -46,8 +46,7 @@ class S60DeviceDebugRunControl : public Debugger::DebuggerRunControl
 
 public:
     explicit S60DeviceDebugRunControl(S60DeviceRunConfiguration *runConfiguration,
-                                      const Debugger::DebuggerStartParameters &sp,
-                                      const QPair<Debugger::DebuggerEngineType, Debugger::DebuggerEngineType> &masterSlaveEngineTypes);
+                                      const Debugger::DebuggerStartParameters &sp);
     virtual void start();
     virtual bool promptToStop(bool *optionalPrompt = 0) const;
 

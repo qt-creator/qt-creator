@@ -48,8 +48,7 @@ class GdbAttachEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    GdbAttachEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine);
+    explicit GdbAttachEngine(const DebuggerStartParameters &startParameters);
 
 private:
     DumperHandling dumperHandling() const { return DumperLoadedByGdb; }

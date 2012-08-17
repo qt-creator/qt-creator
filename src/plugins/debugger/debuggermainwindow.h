@@ -86,9 +86,6 @@ public:
 private slots:
     void raiseDebuggerWindow();
 
-signals:
-    void activeDebugLanguagesChanged(Debugger::DebuggerLanguages);
-
 private:
     friend class Internal::DebuggerMainWindowPrivate;
     Internal::DebuggerMainWindowPrivate *d;

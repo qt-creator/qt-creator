@@ -34,7 +34,11 @@
 #include <projectexplorer/runconfiguration.h>
 
 namespace Debugger {
+
 class DebuggerEngine;
+class DebuggerRunControl;
+class DebuggerStartParameters;
+
 namespace Internal {
 
 class DebuggerRunControlFactory
@@ -43,27 +47,29 @@ class DebuggerRunControlFactory
 public:
     explicit DebuggerRunControlFactory(QObject *parent);
 
-    // This is used by the "Non-Standard" scenarios, e.g. Attach to Core.
-    // FIXME: What to do in case of a 0 runConfiguration?
-    typedef ProjectExplorer::RunConfiguration RunConfiguration;
-    typedef ProjectExplorer::RunControl RunControl;
-    typedef ProjectExplorer::RunMode RunMode;
-    DebuggerRunControl *create(const DebuggerStartParameters &sp,
-        RunConfiguration *runConfiguration = 0);
-
-    // ProjectExplorer::IRunControlFactory
     // FIXME: Used by qmljsinspector.cpp:469
-    RunControl *create(RunConfiguration *runConfiguration, RunMode mode);
-    bool canRun(RunConfiguration *runConfiguration, RunMode mode) const;
+    ProjectExplorer::RunControl *create(
+        ProjectExplorer::RunConfiguration *runConfiguration,
+        ProjectExplorer::RunMode mode);
+
+    bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
+        ProjectExplorer::RunMode mode) const;
 
     static DebuggerEngine *createEngine(DebuggerEngineType et,
-                                        const DebuggerStartParameters &sp,
-                                        DebuggerEngine *masterEngine,
-                                        QString *errorMessage);
+        const DebuggerStartParameters &sp,
+        QString *errorMessage);
+
+    static DebuggerRunControl *createAndScheduleRun(
+        const DebuggerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *runConfiguration = 0);
+
+    static DebuggerRunControl *doCreate(const DebuggerStartParameters &sp,
+        ProjectExplorer::RunConfiguration *rc);
 
 private:
     QString displayName() const;
-    ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
+    ProjectExplorer::RunConfigWidget *createConfigurationWidget(
+        ProjectExplorer::RunConfiguration *runConfiguration);
 };
 
 } // namespace Internal

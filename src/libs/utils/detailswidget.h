@@ -72,6 +72,7 @@ public:
 
     void setWidget(QWidget *widget);
     QWidget *widget() const;
+    QWidget *takeWidget();
 
     void setToolWidget(Utils::FadingPanel *widget);
     QWidget *toolWidget() const;

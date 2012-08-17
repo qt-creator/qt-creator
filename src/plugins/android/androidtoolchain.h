@@ -80,9 +80,11 @@ class AndroidToolChainConfigWidget : public ProjectExplorer::ToolChainConfigWidg
 public:
     AndroidToolChainConfigWidget(AndroidToolChain *);
 
-    void apply();
-    void discard();
-    bool isDirty() const;
+private:
+    void applyImpl() {}
+    void discardImpl() {}
+    bool isDirtyImpl() const { return false; }
+    void makeReadOnlyImpl() {}
 };
 
 

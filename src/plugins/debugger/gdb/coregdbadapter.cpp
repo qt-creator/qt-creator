@@ -63,9 +63,8 @@ namespace Internal {
 //
 ///////////////////////////////////////////////////////////////////////
 
-GdbCoreEngine::GdbCoreEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine)
-    : GdbEngine(startParameters, masterEngine)
+GdbCoreEngine::GdbCoreEngine(const DebuggerStartParameters &startParameters)
+    : GdbEngine(startParameters)
 {}
 
 GdbCoreEngine::~GdbCoreEngine()

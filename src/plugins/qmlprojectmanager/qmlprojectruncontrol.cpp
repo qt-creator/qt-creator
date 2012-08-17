@@ -42,6 +42,7 @@
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerruncontrolfactory.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qmlobservertool.h>
 

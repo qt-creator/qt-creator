@@ -115,11 +115,12 @@ class MsvcToolChainConfigWidget : public ToolChainConfigWidget
 public:
     MsvcToolChainConfigWidget(ToolChain *);
 
-    void apply();
-    void discard() { setFromToolChain(); }
-    bool isDirty() const;
-
 private:
+    void applyImpl() {}
+    void discardImpl() { setFromToolChain(); }
+    bool isDirtyImpl() const { return false; }
+    void makeReadOnlyImpl() {}
+
     void setFromToolChain();
 
     QLabel *m_varsBatDisplayLabel;

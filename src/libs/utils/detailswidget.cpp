@@ -339,6 +339,16 @@ QWidget *DetailsWidget::widget() const
     return d->m_widget;
 }
 
+QWidget *DetailsWidget::takeWidget()
+{
+    QWidget *widget = d->m_widget;
+    d->m_widget = 0;
+    d->m_grid->removeWidget(widget);
+    if (widget)
+        widget->setParent(0);
+    return widget;
+}
+
 void DetailsWidget::setWidget(QWidget *widget)
 {
     if (d->m_widget == widget)

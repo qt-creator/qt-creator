@@ -385,9 +385,9 @@ void AttachCoreDialog::setProfileId(const Core::Id &id)
     changed();
 }
 
-Core::Id AttachCoreDialog::profileId() const
+Profile *AttachCoreDialog::profile() const
 {
-    return d->profileChooser->currentProfileId();
+    return d->profileChooser->currentProfile();
 }
 
 QString AttachCoreDialog::overrideStartScript() const

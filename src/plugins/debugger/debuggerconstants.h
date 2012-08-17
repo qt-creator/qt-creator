@@ -45,9 +45,8 @@ const char C_CPPDEBUGGER[]          = "Gdb Debugger";
 const char C_QMLDEBUGGER[]          = "Qml/JavaScript Debugger";
 
 // Menu Groups
-const char G_START_LOCAL[]          = "Debugger.Group.Start.Local";
-const char G_MANUAL_REMOTE[]        = "Debugger.Group.Manual.Remote";
-const char G_AUTOMATIC_REMOTE[]     = "Debugger.Group.Automatic.Remote";
+const char G_GENERAL[]              = "Debugger.Group.General";
+const char G_SPECIAL[]              = "Debugger.Group.Special";
 const char G_START_QML[]            = "Debugger.Group.Start.Qml";
 
 // Common actions

@@ -247,7 +247,6 @@ void DebuggerMainWindowPrivate::updateActiveLanguages()
     if (newLanguages != m_activeDebugLanguages) {
         m_activeDebugLanguages = newLanguages;
         debuggerCore()->languagesChanged();
-        emit q->activeDebugLanguagesChanged(m_activeDebugLanguages);
     }
 
     if (m_changingUI || !m_inDebugMode)

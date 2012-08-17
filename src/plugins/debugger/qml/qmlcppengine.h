@@ -43,9 +43,7 @@ class QmlCppEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    explicit QmlCppEngine(const DebuggerStartParameters &sp,
-                          DebuggerEngineType slaveEngineType,
-                          QString *errorMessage);
+    QmlCppEngine(const DebuggerStartParameters &sp, QString *errorMessage);
     ~QmlCppEngine();
 
     bool canDisplayTooltip() const;

@@ -84,9 +84,12 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
     if (m_binaryPath.isEmpty()) {
         const QString binary = stringValue(binaryPathKey);
         QString currentPath = stringValue(pathKey);
-        // Easy, git is assumed to be elsewhere accessible
-        if (currentPath.isEmpty())
-            currentPath = QString::fromLocal8Bit(qgetenv("PATH"));
+        QString systemPath = QString::fromLocal8Bit(qgetenv("PATH"));
+        if (!systemPath.isEmpty()) {
+            if (!currentPath.isEmpty())
+                currentPath.append(Utils::SynchronousProcess::pathSeparator());
+            currentPath.append(systemPath);
+        }
         // Search in path?
         m_binaryPath = Utils::SynchronousProcess::locateBinary(currentPath, binary);
         if (m_binaryPath.isEmpty()) {

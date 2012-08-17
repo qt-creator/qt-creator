@@ -48,8 +48,7 @@ class GdbCoreEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    GdbCoreEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine);
+    explicit GdbCoreEngine(const DebuggerStartParameters &startParameters);
     ~GdbCoreEngine();
 
 private:

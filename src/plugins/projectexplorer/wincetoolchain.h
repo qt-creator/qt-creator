@@ -99,10 +99,11 @@ class WinCEToolChainConfigWidget : public ToolChainConfigWidget
 public:
     WinCEToolChainConfigWidget(ToolChain *);
 
-    void apply() {}
-    void discard() { }
-    bool isDirty() const {return false;}
-
+private:
+    void applyImpl() {}
+    void discardImpl() { }
+    bool isDirtyImpl() const {return false;}
+    void makeReadOnlyImpl() {}
 };
 
 class WinCEToolChainFactory : public ToolChainFactory

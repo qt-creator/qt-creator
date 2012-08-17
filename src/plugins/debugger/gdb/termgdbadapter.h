@@ -50,9 +50,7 @@ class GdbTermEngine : public GdbEngine
     Q_OBJECT
 
 public:
-    GdbTermEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine);
-
+    explicit GdbTermEngine(const DebuggerStartParameters &startParameters);
     ~GdbTermEngine();
 
 private:

@@ -381,9 +381,10 @@ sg1: }
 
 using namespace Core;
 using namespace Debugger::Constants;
+using namespace ExtensionSystem;
 using namespace ProjectExplorer;
 using namespace TextEditor;
-using namespace ExtensionSystem;
+using namespace Utils;
 
 namespace CC = Core::Constants;
 namespace PE = ProjectExplorer::Constants;
@@ -458,7 +459,7 @@ static QToolButton *toolButton(QAction *action)
     return button;
 }
 
-static void setProxyAction(Utils::ProxyAction *proxy, const char *id)
+static void setProxyAction(ProxyAction *proxy, const char *id)
 {
     proxy->setAction(ActionManager::command(id)->action());
 }
@@ -479,7 +480,7 @@ class DummyEngine : public DebuggerEngine
     Q_OBJECT
 
 public:
-    DummyEngine() : DebuggerEngine(DebuggerStartParameters(), AnyLanguage) {}
+    DummyEngine() : DebuggerEngine(DebuggerStartParameters()) {}
     ~DummyEngine() {}
 
     void setupEngine() {}
@@ -548,10 +549,10 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-void fillParameters(DebuggerStartParameters *sp, Id id)
+void fillParameters(DebuggerStartParameters *sp, Profile *profile)
 {
-    Profile *profile = ProfileManager::instance()->find(id);
-    QTC_ASSERT(profile, return);
+    if (!profile)
+        profile = ProfileManager::instance()->defaultProfile();
     sp->sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
     sp->debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
 
@@ -783,7 +784,6 @@ public slots:
     void attachToRunningApplication();
     void attachToQmlPort();
     void startRemoteEngine();
-    //Q_SLOT void attachToLocalProcess(ProjectExplorer::RunControl *rc);
     void runScheduled();
     void attachCore();
 
@@ -804,7 +804,6 @@ public slots:
     void runControlStarted(DebuggerEngine *engine);
     void runControlFinished(DebuggerEngine *engine);
     DebuggerLanguages activeLanguages() const;
-//    QString debuggerForAbi(const Abi &abi, DebuggerEngineType et = NoEngineType) const;
     void remoteCommand(const QStringList &options, const QStringList &);
 
     bool isReverseDebugging() const;
@@ -815,9 +814,6 @@ public slots:
     void setConfigValue(const QString &name, const QVariant &value);
     QVariant configValue(const QString &name) const;
 
-    DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
-        RunConfiguration *rc = 0);
-    void startDebugger(RunControl *runControl);
     void displayDebugger(DebuggerEngine *engine, bool updateEngine = true);
 
     void dumpLog();
@@ -1080,7 +1076,7 @@ public slots:
     void openTextEditor(const QString &titlePattern0, const QString &contents);
     void showMessage(const QString &msg, int channel, int timeout = -1);
 
-    Utils::SavedAction *action(int code) const;
+    SavedAction *action(int code) const;
     bool boolSetting(int code) const;
     QString stringSetting(int code) const;
 
@@ -1093,9 +1089,6 @@ public slots:
     DebuggerToolTipManager *toolTipManager() const { return m_toolTipManager; }
     QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const { return m_globalDebuggerOptions; }
 
-    // FIXME: Remove.
-    void maybeEnrichParameters(DebuggerStartParameters *sp);
-
     void updateQmlActions() {
         action(QmlUpdateOnSave)->setEnabled(boolSetting(ShowQmlObjectTree));
     }
@@ -1107,8 +1100,8 @@ public:
     Id m_previousMode;
     QList<DebuggerStartParameters> m_scheduledStarts;
 
-    Utils::ProxyAction *m_visibleStartAction;
-    Utils::ProxyAction *m_hiddenStopAction;
+    ProxyAction *m_visibleStartAction;
+    ProxyAction *m_hiddenStopAction;
     QAction *m_startAction;
     QAction *m_debugWithoutDeployAction;
     QAction *m_startAndDebugApplicationAction;
@@ -1146,7 +1139,7 @@ public:
     QIcon m_interruptIcon;
     QIcon m_locationMarkIcon;
 
-    Utils::StatusLabel *m_statusLabel;
+    StatusLabel *m_statusLabel;
     QComboBox *m_threadBox;
 
     BaseWindow *m_breakWindow;
@@ -1272,24 +1265,6 @@ static QString msgParameterMissing(const QString &a)
     return DebuggerPlugin::tr("Option '%1' is missing the parameter.").arg(a);
 }
 
-void DebuggerPluginPrivate::maybeEnrichParameters(DebuggerStartParameters *sp)
-{
-    if (!boolSetting(AutoEnrichParameters))
-        return;
-    const QString sysroot = sp->sysRoot;
-    if (sp->debugInfoLocation.isEmpty()) {
-        sp->debugInfoLocation = sysroot + QLatin1String("/usr/lib/debug");
-    }
-    if (sp->debugSourceLocation.isEmpty()) {
-        QString base = sysroot + QLatin1String("/usr/src/debug/");
-        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/corelib"));
-        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/gui"));
-        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/network"));
-        sp->debugSourceLocation.append(base + QLatin1String("qt5base/src/v8"));
-        sp->debugSourceLocation.append(base + QLatin1String("qt5declarative/src/qml"));
-    }
-}
-
 bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
     const QStringList::const_iterator &cend, QString *errorMessage)
 {
@@ -1303,8 +1278,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
-        Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
-        fillParameters(&sp, defaultProfile ? defaultProfile->id() : Core::Id());
+        fillParameters(&sp, ProfileManager::instance()->defaultProfile());
         qulonglong pid = it->toULongLong();
         if (pid) {
             sp.startMode = AttachExternal;
@@ -1341,8 +1315,10 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
                     sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
                 }
-                else if (key == QLatin1String("profile"))
-                    fillParameters(&sp, Id(val));
+                else if (key == QLatin1String("profile")) {
+                    Profile *profile = ProfileManager::instance()->find(Id(val));
+                    fillParameters(&sp, profile);
+                }
             }
         }
         if (sp.startMode == StartExternal) {
@@ -1364,7 +1340,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
-        fillParameters(&sp, ProfileManager::instance()->defaultProfile()->id());
+        fillParameters(&sp, 0);
         sp.startMode = AttachCrashedExternal;
         sp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
         sp.attachPID = it->section(QLatin1Char(':'), 1, 1).toULongLong();
@@ -1477,10 +1453,8 @@ void DebuggerPluginPrivate::debugProjectBreakMain()
 void DebuggerPluginPrivate::startAndDebugApplication()
 {
     DebuggerStartParameters sp;
-    if (StartApplicationDialog::run(mainWindow(), m_coreSettings, &sp)) {
-        if (RunControl *rc = createDebugger(sp))
-            startDebugger(rc);
-    }
+    if (StartApplicationDialog::run(mainWindow(), m_coreSettings, &sp))
+        DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::attachCore()
@@ -1499,20 +1473,20 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue(_("LastExternalExecutableFile"), dlg.localExecutableFile());
     setConfigValue(_("LastLocalCoreFile"), dlg.localCoreFile());
     setConfigValue(_("LastRemoteCoreFile"), dlg.remoteCoreFile());
-    setConfigValue(_("LastExternalProfile"), dlg.profileId().toString());
+    setConfigValue(_("LastExternalProfile"), dlg.profile()->id().toString());
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
 
     DebuggerStartParameters sp;
     QString display = dlg.isLocal() ? dlg.localCoreFile() : dlg.remoteCoreFile();
-    fillParameters(&sp, dlg.profileId());
+    fillParameters(&sp, dlg.profile());
+    sp.masterEngineType = GdbEngineType;
     sp.executable = dlg.localExecutableFile();
     sp.coreFile = dlg.localCoreFile();
     sp.displayName = tr("Core file \"%1\"").arg(display);
     sp.startMode = AttachCore;
     sp.closeMode = DetachAtClose;
     sp.overrideStartScript = dlg.overrideStartScript();
-    if (DebuggerRunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 struct RemoteCdbMatcher : ProfileMatcher
@@ -1545,7 +1519,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     RemoteCdbMatcher matcher;
     Profile *profile = ProfileManager::instance()->find(&matcher);
     QTC_ASSERT(profile, return);
-    fillParameters(&sp, profile->id());
+    fillParameters(&sp, profile);
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
     StartRemoteCdbDialog dlg(mainWindow());
@@ -1557,8 +1531,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
         return;
     sp.remoteChannel = dlg.connection();
     setConfigValue(connectionKey, sp.remoteChannel);
-    if (RunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::attachToRemoteServer()
@@ -1568,15 +1541,9 @@ void DebuggerPluginPrivate::attachToRemoteServer()
     if (StartApplicationDialog::run(mainWindow(), m_coreSettings, &sp)) {
         sp.closeMode = KillAtClose;
         sp.serverStartScript.clear();
-        if (RunControl *rc = createDebugger(sp))
-            startDebugger(rc);
+        DebuggerRunControlFactory::createAndScheduleRun(sp);
     }
 }
-
-//const char LastProfile[] = "Debugger/LastProfile";
-//const char LastDevice[] = "Debugger/LastDevice";
-//const char LastProcessName[] = "Debugger/LastProcessName";
-//const char LastLocalExecutable[] = "Debugger/LastLocalExecutable";
 
 void DebuggerPluginPrivate::startRemoteServer()
 {
@@ -1619,18 +1586,15 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     }
     #endif
 
-    //setConfigValue(_("LastAttachExternalProfileIndex"), QVariant(dlg->profileChooser()->currentProfileId()));
-
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         DebuggerStartParameters sp;
-        fillParameters(&sp, profile->id());
+        fillParameters(&sp, profile);
         sp.attachPID = process.pid;
         sp.displayName = tr("Process %1").arg(process.pid);
         sp.executable = process.exe;
         sp.startMode = AttachExternal;
         sp.closeMode = DetachAtClose;
-        if (DebuggerRunControl *rc = createDebugger(sp))
-            startDebugger(rc);
+        DebuggerRunControlFactory::createAndScheduleRun(sp);
     } else {
         GdbServerStarter *starter = new GdbServerStarter(dlg, startServerOnly);
         starter->run();
@@ -1642,19 +1606,11 @@ void DebuggerPluginPrivate::attachToQmlPort()
     DebuggerStartParameters sp;
     AttachToQmlPortDialog dlg(mainWindow());
 
-    const QVariant qmlServerAddress = configValue(_("LastQmlServerAddress"));
-    if (qmlServerAddress.isValid()) {
-        dlg.setHost(qmlServerAddress.toString());
-    } else {
-        dlg.setHost(sp.qmlServerAddress);
-    }
-
     const QVariant qmlServerPort = configValue(_("LastQmlServerPort"));
-    if (qmlServerPort.isValid()) {
+    if (qmlServerPort.isValid())
         dlg.setPort(qmlServerPort.toInt());
-    } else {
+    else
         dlg.setPort(sp.qmlServerPort);
-    }
 
     const QVariant profileId = configValue(_("LastProfile"));
     if (profileId.isValid())
@@ -1663,14 +1619,12 @@ void DebuggerPluginPrivate::attachToQmlPort()
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    setConfigValue(_("LastQmlServerAddress"), dlg.host());
     setConfigValue(_("LastQmlServerPort"), dlg.port());
-    setConfigValue(_("LastProfile"), dlg.profileId().toString());
+    setConfigValue(_("LastProfile"), dlg.profile()->id().toString());
 
-    fillParameters(&sp, dlg.profileId());
-    sp.qmlServerAddress = dlg.host();
+    fillParameters(&sp, dlg.profile());
+    sp.qmlServerAddress = sp.connParams.host;
     sp.qmlServerPort = dlg.port();
-
     sp.startMode = AttachToRemoteProcess;
     sp.closeMode = KillAtClose;
     sp.languages = QmlLanguage;
@@ -1690,9 +1644,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
         sourceFiles << project->files(Project::ExcludeGeneratedFiles);
 
     sp.projectSourceFiles = sourceFiles;
-
-    if (RunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::startRemoteEngine()
@@ -1714,8 +1666,7 @@ void DebuggerPluginPrivate::startRemoteEngine()
     sp.executable = dlg.inferiorPath();
     sp.serverStartScript = dlg.enginePath();
     sp.startMode = StartRemoteEngine;
-    if (RunControl *rc = createDebugger(sp))
-        startDebugger(rc);
+    DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &value)
@@ -1728,12 +1679,8 @@ void DebuggerPluginPrivate::enableReverseDebuggingTriggered(const QVariant &valu
 
 void DebuggerPluginPrivate::runScheduled()
 {
-    foreach (const DebuggerStartParameters &sp, m_scheduledStarts) {
-        RunControl *rc = createDebugger(sp);
-        QTC_ASSERT(rc, qDebug() << "CANNOT CREATE RUN CONTROL"; continue);
-        showStatusMessage(sp.startMessage);
-        startDebugger(rc);
-    }
+    foreach (const DebuggerStartParameters &sp, m_scheduledStarts)
+        DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::editorOpened(IEditor *editor)
@@ -1951,14 +1898,6 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor,
     }
 }
 
-DebuggerRunControl *DebuggerPluginPrivate::createDebugger
-    (const DebuggerStartParameters &sp0, RunConfiguration *rc)
-{
-    DebuggerStartParameters sp = sp0;
-    maybeEnrichParameters(&sp);
-    return m_debuggerRunControlFactory->create(sp, rc);
-}
-
 // If updateEngine is set, the engine will update its threads/modules and so forth.
 void DebuggerPluginPrivate::displayDebugger(DebuggerEngine *engine, bool updateEngine)
 {
@@ -1969,13 +1908,6 @@ void DebuggerPluginPrivate::displayDebugger(DebuggerEngine *engine, bool updateE
         engine->updateAll();
     engine->updateViews();
 }
-
-void DebuggerPluginPrivate::startDebugger(RunControl *rc)
-{
-    QTC_ASSERT(rc, return);
-    ProjectExplorerPlugin::instance()->startRunControl(rc, DebugRunMode);
-}
-
 
 void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 {
@@ -1996,15 +1928,13 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     m_sourceFilesWindow->setModel(engine->sourceFilesModel());
     m_stackWindow->setModel(engine->stackModel());
     m_threadsWindow->setModel(engine->threadsModel());
-    //m_threadBox->setModel(engine->threadsModel());
-    //m_threadBox->setModelColumn(ThreadData::ComboNameColumn);
     m_watchersWindow->setModel(engine->watchersModel());
     m_inspectorWindow->setModel(engine->inspectorModel());
     m_qtMessageLogWindow->setModel(engine->qtMessageLogModel());
 
     engine->watchHandler()->rebuildModel();
 
-    mainWindow()->setEngineDebugLanguages(engine->languages());
+    mainWindow()->setEngineDebugLanguages(engine->startParameters().languages);
     mainWindow()->setCurrentEngine(engine);
 }
 
@@ -2356,7 +2286,7 @@ void DebuggerPluginPrivate::dumpLog()
         tr("Save Debugger Log"), QDir::tempPath());
     if (fileName.isEmpty())
         return;
-    Utils::FileSaver saver(fileName);
+    FileSaver saver(fileName);
     if (!saver.hasError()) {
         QTextStream ts(saver.file());
         ts << m_logWindow->inputContents();
@@ -2396,13 +2326,6 @@ void DebuggerPluginPrivate::aboutToUnloadSession()
 {
     m_breakHandler->removeSessionData();
     m_toolTipManager->sessionAboutToChange();
-    // Stop debugging the active project when switching sessions.
-    // Note that at startup, session switches may occur, which interfere
-    // with command-line debugging startup.
-    // FIXME ABC: Still wanted? Iterate?
-    //if (d->m_engine && state() != DebuggerNotReady
-    //    && engine()->sp().startMode == StartInternal)
-    //        d->m_engine->shutdown();
 }
 
 void DebuggerPluginPrivate::aboutToSaveSession()
@@ -2679,7 +2602,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
 
     m_busy = false;
 
-    m_statusLabel = new Utils::StatusLabel;
+    m_statusLabel = new StatusLabel;
 
     m_breakHandler = new BreakHandler;
     m_breakWindow = new BreakWindow;
@@ -2921,10 +2844,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd->setDefaultKeySequence(debugKey);
     cmd->setAttribute(Command::CA_UpdateText);
     mstart->addAction(cmd, CC::G_DEFAULT_ONE);
-    m_visibleStartAction = new Utils::ProxyAction(this);
+    m_visibleStartAction = new ProxyAction(this);
     m_visibleStartAction->initialize(cmd->action());
-    m_visibleStartAction->setAttribute(Utils::ProxyAction::UpdateText);
-    m_visibleStartAction->setAttribute(Utils::ProxyAction::UpdateIcon);
+    m_visibleStartAction->setAttribute(ProxyAction::UpdateText);
+    m_visibleStartAction->setAttribute(ProxyAction::UpdateIcon);
     m_visibleStartAction->setAction(cmd->action());
 
     ModeManager::addAction(m_visibleStartAction, Constants::P_ACTION_DEBUG);
@@ -2937,39 +2860,33 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = ActionManager::registerAction(m_attachToRunningApplication,
          "Debugger.AttachToRemoteProcess", globalcontext);
     cmd->setDescription(tr("Attach to Running Application"));
-    mstart->addAction(cmd, Debugger::Constants::G_START_LOCAL);
+    mstart->addAction(cmd, Debugger::Constants::G_GENERAL);
 
     cmd = ActionManager::registerAction(m_startAndDebugApplicationAction,
         "Debugger.StartAndDebugApplication", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Debugger::Constants::G_START_LOCAL);
-
-    // FIXME: The following actions should some be less
-    // visible in the start menu, but still be "there".
-    // m_startLocalProcessAction->setVisible(on);
-    // m_attachToRemoteServerAction->setVisible(on);
-    // m_startRemoteServerAction->setVisible(on);
+    mstart->addAction(cmd, Debugger::Constants::G_GENERAL);
 
     cmd = ActionManager::registerAction(m_attachToCoreAction,
         "Debugger.AttachCore", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_START_LOCAL);
+    mstart->addAction(cmd, Constants::G_GENERAL);
 
     cmd = ActionManager::registerAction(m_attachToRemoteServerAction,
         "Debugger.AttachToRemoteServer", globalcontext);
     cmd->setAttribute(Command::CA_Hide);
-    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
+    mstart->addAction(cmd, Constants::G_SPECIAL);
 
     cmd = ActionManager::registerAction(m_startRemoteServerAction,
          "Debugger.StartRemoteServer", globalcontext);
     cmd->setDescription(tr("Start Gdbserver"));
-    mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
+    mstart->addAction(cmd, Constants::G_SPECIAL);
 
     if (m_startRemoteCdbAction) {
         cmd = ActionManager::registerAction(m_startRemoteCdbAction,
              "Debugger.AttachRemoteCdb", globalcontext);
         cmd->setAttribute(Command::CA_Hide);
-        mstart->addAction(cmd, Constants::G_MANUAL_REMOTE);
+        mstart->addAction(cmd, Constants::G_SPECIAL);
     }
 
     mstart->addSeparator(globalcontext, Constants::G_START_QML);
@@ -2997,10 +2914,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     cmd = ActionManager::registerAction(m_exitAction,
         Constants::STOP, globalcontext);
     debugMenu->addAction(cmd, CC::G_DEFAULT_ONE);
-    m_hiddenStopAction = new Utils::ProxyAction(this);
+    m_hiddenStopAction = new ProxyAction(this);
     m_hiddenStopAction->initialize(cmd->action());
-    m_hiddenStopAction->setAttribute(Utils::ProxyAction::UpdateText);
-    m_hiddenStopAction->setAttribute(Utils::ProxyAction::UpdateIcon);
+    m_hiddenStopAction->setAttribute(ProxyAction::UpdateText);
+    m_hiddenStopAction->setAttribute(ProxyAction::UpdateIcon);
 
     cmd = ActionManager::registerAction(m_hiddenStopAction,
         Constants::HIDDEN_STOP, globalcontext);
@@ -3192,12 +3109,12 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->addWidget(toolButton(Constants::STEPOUT));
     hbox->addWidget(toolButton(Constants::OPERATE_BY_INSTRUCTION));
 
-    //hbox->addWidget(new Utils::StyledSeparator);
+    //hbox->addWidget(new StyledSeparator);
     m_reverseToolButton = toolButton(Constants::REVERSE);
     hbox->addWidget(m_reverseToolButton);
     //m_reverseToolButton->hide();
 
-    hbox->addWidget(new Utils::StyledSeparator);
+    hbox->addWidget(new StyledSeparator);
     hbox->addWidget(new QLabel(tr("Threads:")));
 
     m_threadBox = new QComboBox;
@@ -3215,10 +3132,10 @@ void DebuggerPluginPrivate::extensionsInitialized()
     hbox->setSpacing(0);
     hbox->addWidget(toolButton(action(QmlUpdateOnSave)));
     hbox->addWidget(toolButton(action(ShowAppOnTop)));
-    hbox->addWidget(new Utils::StyledSeparator);
+    hbox->addWidget(new StyledSeparator);
     hbox->addWidget(toolButton(Constants::QML_SELECTTOOL));
     hbox->addWidget(toolButton(Constants::QML_ZOOMTOOL));
-    hbox->addWidget(new Utils::StyledSeparator);
+    hbox->addWidget(new StyledSeparator);
     m_mainWindow->setToolBar(QmlLanguage, qmlToolbar);
 
     m_mainWindow->setToolBar(AnyLanguage, m_statusLabel);
@@ -3247,7 +3164,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
         QTimer::singleShot(0, this, SLOT(runScheduled()));
 }
 
-Utils::SavedAction *DebuggerPluginPrivate::action(int code) const
+SavedAction *DebuggerPluginPrivate::action(int code) const
 {
     return m_debuggerSettings->item(code);
 }
@@ -3337,15 +3254,13 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
 
     ActionContainer *mstart = ActionManager::actionContainer(PE::M_DEBUG_STARTDEBUGGING);
 
-    mstart->appendGroup(Constants::G_START_LOCAL);
-    mstart->appendGroup(Constants::G_MANUAL_REMOTE);
-    mstart->appendGroup(Constants::G_AUTOMATIC_REMOTE);
+    mstart->appendGroup(Constants::G_GENERAL);
+    mstart->appendGroup(Constants::G_SPECIAL);
     mstart->appendGroup(Constants::G_START_QML);
 
     // Separators
-    mstart->addSeparator(globalcontext, Constants::G_START_LOCAL);
-    mstart->addSeparator(globalcontext, Constants::G_MANUAL_REMOTE);
-    mstart->addSeparator(globalcontext, Constants::G_AUTOMATIC_REMOTE);
+    mstart->addSeparator(globalcontext, Constants::G_GENERAL);
+    mstart->addSeparator(globalcontext, Constants::G_SPECIAL);
 
     ProfileManager::instance()->registerProfileInformation(new DebuggerProfileInformation);
 
@@ -3367,12 +3282,7 @@ void DebuggerPlugin::remoteCommand(const QStringList &options,
 DebuggerRunControl *DebuggerPlugin::createDebugger
     (const DebuggerStartParameters &sp, RunConfiguration *rc)
 {
-    return theDebuggerCore->createDebugger(sp, rc);
-}
-
-void DebuggerPlugin::startDebugger(RunControl *runControl)
-{
-    theDebuggerCore->startDebugger(runControl);
+    return DebuggerRunControlFactory::doCreate(sp, rc);
 }
 
 void DebuggerPlugin::extensionsInitialized()
@@ -3446,12 +3356,12 @@ static Target *activeTarget()
     return project->activeTarget();
 }
 
-static Id currentProfileId()
+static Profile *currentProfile()
 {
     Target *t = activeTarget();
     if (!t || !t->isEnabled())
         return 0;
-    return activeTarget()->profile()->id();
+    return activeTarget()->profile();
 }
 
 static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
@@ -3462,10 +3372,8 @@ static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
 void DebuggerPluginPrivate::testRunProject(const DebuggerStartParameters &sp, const TestCallBack &cb)
 {
     m_testCallbacks.append(cb);
-    RunControl *rctl = createDebugger(sp);
-    QVERIFY(rctl);
-    connect(rctl, SIGNAL(finished()), this, SLOT(testRunControlFinished()));
-    ProjectExplorerPlugin::instance()->startRunControl(rctl, DebugRunMode);
+    RunControl *rc = DebuggerRunControlFactory::createAndScheduleRun(sp);
+    connect(rc, SIGNAL(finished()), this, SLOT(testRunControlFinished()));
 }
 
 void DebuggerPluginPrivate::testRunControlFinished()
@@ -3501,7 +3409,7 @@ void DebuggerPluginPrivate::testPythonDumpers1()
 void DebuggerPluginPrivate::testPythonDumpers2()
 {
     DebuggerStartParameters sp;
-    fillParameters(&sp, currentProfileId());
+    fillParameters(&sp, currentProfile());
     sp.executable = activeLocalRunConfiguration()->executable();
     testRunProject(sp, TestCallBack(this, "testPythonDumpers3"));
 }
@@ -3533,7 +3441,7 @@ void DebuggerPluginPrivate::testStateMachine1()
 void DebuggerPluginPrivate::testStateMachine2()
 {
     DebuggerStartParameters sp;
-    fillParameters(&sp, currentProfileId());
+    fillParameters(&sp, currentProfile());
     sp.executable = activeLocalRunConfiguration()->executable();
     sp.testCase = TestNoBoundsOfCurrentFunction;
     testRunProject(sp, TestCallBack(this, "testStateMachine3"));

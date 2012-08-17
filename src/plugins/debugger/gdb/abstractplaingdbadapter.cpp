@@ -49,9 +49,8 @@ namespace Internal {
     static_cast<GdbEngine::GdbCommandCallback>(&GdbAbstractPlainEngine::callback), \
     STRINGIFY(callback)
 
-GdbAbstractPlainEngine::GdbAbstractPlainEngine(const DebuggerStartParameters &startParameters,
-    DebuggerEngine *masterEngine)
-    : GdbEngine(startParameters, masterEngine)
+GdbAbstractPlainEngine::GdbAbstractPlainEngine(const DebuggerStartParameters &startParameters)
+    : GdbEngine(startParameters)
 {}
 
 void GdbAbstractPlainEngine::setupInferior()

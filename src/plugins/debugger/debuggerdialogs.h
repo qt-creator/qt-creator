@@ -44,6 +44,7 @@ class QSettings;
 QT_END_NAMESPACE
 
 namespace Core { class Id; }
+namespace ProjectExplorer { class Profile; }
 
 namespace Debugger {
 class DebuggerStartParameters;
@@ -90,13 +91,10 @@ public:
     explicit AttachToQmlPortDialog(QWidget *parent);
     ~AttachToQmlPortDialog();
 
-    QString host() const;
-    void setHost(const QString &host);
-
     int port() const;
     void setPort(const int port);
 
-    Core::Id profileId() const;
+    ProjectExplorer::Profile *profile() const;
     void setProfileId(const Core::Id &id);
 
 private:

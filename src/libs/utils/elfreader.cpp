@@ -327,6 +327,15 @@ QByteArray ElfReader::readSection(const QByteArray &name)
     return QByteArray(mapper.start + section.offset, section.size);
 }
 
+static QByteArray cutout(const char *s)
+{
+    QByteArray res(s, 80);
+    const int pos = res.indexOf('\0');
+    if (pos != -1)
+        res.resize(pos - 1);
+    return res;
+}
+
 QByteArray ElfReader::readCoreName(bool *isCore)
 {
     *isCore = false;
@@ -345,15 +354,13 @@ QByteArray ElfReader::readCoreName(bool *isCore)
     for (int i = 0, n = m_elfData.sectionHeaders.size(); i != n; ++i)
         if (m_elfData.sectionHeaders.at(i).type == Elf_SHT_NOTE) {
             const ElfSectionHeader &header = m_elfData.sectionHeaders.at(i);
-            const char *s = mapper.start + header.offset + 0x40;
-            return QByteArray(s);
+            return cutout(mapper.start + header.offset + 0x40);
         }
 
     for (int i = 0, n = m_elfData.programHeaders.size(); i != n; ++i)
         if (m_elfData.programHeaders.at(i).type == Elf_PT_NOTE) {
             const ElfProgramHeader &header = m_elfData.programHeaders.at(i);
-            const char *s = mapper.start + header.offset + 0xec;
-            return QByteArray(s);
+            return cutout(mapper.start + header.offset + 0xec);
         }
 
     return QByteArray();

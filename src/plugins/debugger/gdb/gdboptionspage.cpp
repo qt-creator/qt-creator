@@ -100,11 +100,11 @@ GdbOptionsPagePrivate::GdbOptionsPagePrivate(QWidget *parent)
     labelGdbWatchdogTimeout = new QLabel(groupBoxGeneral);
     labelGdbWatchdogTimeout->setText(GdbOptionsPage::tr("GDB timeout:"));
     labelGdbWatchdogTimeout->setToolTip(GdbOptionsPage::tr(
-        "This is the number of seconds Qt Creator will wait before\n"
-        "it terminates a non-responsive GDB process. The default value of 20 seconds\n"
-        "should be sufficient for most applications, but there are situations when\n"
-        "loading big libraries or listing source files takes much longer than that\n"
-        "on slow machines. In this case, the value should be increased."));
+        "The number of seconds Qt Creator will wait before it terminates\n"
+        "a non-responsive GDB process. The default value of 20 seconds should\n"
+        "be sufficient for most applications, but there are situations when\n"
+        "loading big libraries or listing source files takes much longer than\n"
+        "that on slow machines. In this case, the value should be increased."));
 
     spinBoxGdbWatchdogTimeout = new QSpinBox(groupBoxGeneral);
     spinBoxGdbWatchdogTimeout->setToolTip(labelGdbWatchdogTimeout->toolTip());
@@ -128,7 +128,7 @@ GdbOptionsPagePrivate::GdbOptionsPagePrivate(QWidget *parent)
     checkBoxUseMessageBoxForSignals->setText(GdbOptionsPage::tr(
         "Show a message box when receiving a signal"));
     checkBoxUseMessageBoxForSignals->setToolTip(GdbOptionsPage::tr(
-        "This will show a message box as soon as your application\n"
+        "Displays a message box as soon as your application\n"
         "receives a signal like SIGSEGV during debugging."));
 
     checkBoxAdjustBreakpointLocations = new QCheckBox(groupBoxGeneral);
@@ -145,13 +145,13 @@ GdbOptionsPagePrivate::GdbOptionsPagePrivate(QWidget *parent)
     checkBoxUseDynamicType->setText(GdbOptionsPage::tr(
         "Use dynamic object type for display"));
     checkBoxUseDynamicType->setToolTip(GdbOptionsPage::tr(
-        "This specifies whether the dynamic or the static type of objects will be"
+        "Specifies whether the dynamic or the static type of objects will be"
         "displayed. Choosing the dynamic type might be slower."));
 
     checkBoxLoadGdbInit = new QCheckBox(groupBoxGeneral);
     checkBoxLoadGdbInit->setText(GdbOptionsPage::tr("Load .gdbinit file on startup"));
     checkBoxLoadGdbInit->setToolTip(GdbOptionsPage::tr(
-        "This allows or inhibits reading the user's default\n"
+        "Allows or inhibits reading the user's default\n"
         ".gdbinit file on debugger startup."));
 
     checkBoxWarnOnReleaseBuilds = new QCheckBox(groupBoxGeneral);
@@ -164,7 +164,7 @@ GdbOptionsPagePrivate::GdbOptionsPagePrivate(QWidget *parent)
     labelDangerous = new QLabel(GdbOptionsPage::tr(
         "The options below should be used with care."));
     labelDangerous->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>This options below give access to advanced or "
+        "<html><head/><body>The options below give access to advanced "
         "or experimental functions of GDB. Enabling them may negatively "
         "impact your debugging experience.</body></html>"));
 
@@ -176,32 +176,32 @@ GdbOptionsPagePrivate::GdbOptionsPagePrivate(QWidget *parent)
     checkBoxAutoEnrichParameters->setText(GdbOptionsPage::tr(
         "Use common locations for debug information"));
     checkBoxAutoEnrichParameters->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>This adds common paths to locations "
+        "<html><head/><body>Add common paths to locations "
         "of debug information such as <i>/usr/src/debug</i> "
         "when starting GDB.</body></html>"));
 
     checkBoxBreakOnWarning = new QCheckBox(groupBoxGeneral);
     checkBoxBreakOnWarning->setText(GdbOptionsPage::tr("Stop when qWarning() is called"));
     checkBoxBreakOnWarning->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>This adds a breakpoint on the <i>qWarning()</i> function."
+        "<html><head/><body>Always add a breakpoint on the <i>qWarning()</i> function."
         "</body></html>"));
 
     checkBoxBreakOnFatal = new QCheckBox(groupBoxGeneral);
     checkBoxBreakOnFatal->setText(GdbOptionsPage::tr("Stop when qFatal() is called"));
     checkBoxBreakOnFatal->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>This adds a breakpoint on the <i>qFatal()</i> function."
+        "<html><head/><body>Always add a breakpoint on the <i>qFatal()</i> function."
         "/body></html>"));
 
     checkBoxBreakOnAbort = new QCheckBox(groupBoxGeneral);
     checkBoxBreakOnAbort->setText(GdbOptionsPage::tr("Stop when abort() is called"));
     checkBoxBreakOnAbort->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body><p>This adds a breakpoint on the <i>abort()</i> function."
+        "<html><head/><body><p>Always add a breakpoint on the <i>abort()</i> function."
         "</p></body></html>"));
 
     checkBoxEnableReverseDebugging = new QCheckBox(groupBoxGeneral);
     checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
     checkBoxEnableReverseDebugging->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body><p>Selecting this enables reverse debugging.</p><.p>"
+        "<html><head/><body><p>Enable stepping backwards.</p><.p>"
         "<b>Note:</b> This feature is very slow and unstable on the GDB side. "
         "It exhibits unpredictable behavior when going backwards over system "
         "calls and is very likely to destroy your debugging session.</p></body></html>"));
@@ -209,10 +209,9 @@ GdbOptionsPagePrivate::GdbOptionsPagePrivate(QWidget *parent)
     checkBoxAttemptQuickStart = new QCheckBox(groupBoxGeneral);
     checkBoxAttemptQuickStart->setText(GdbOptionsPage::tr("Attempt quick start"));
     checkBoxAttemptQuickStart->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>Checking this option "
-        "will postpone reading debug information as long as possible. This can result "
-        "in faster startup times at the price of not being able to set breakpoints "
-        "by file and number.</body></html>"));
+        "<html><head/><body>Postpone reading debug information as long as possible. "
+        "This can result in faster startup times at the price of not being able to "
+        "set breakpoints by file and number.</body></html>"));
 
     groupBoxStartupCommands = new QGroupBox(this);
     groupBoxStartupCommands->setTitle(GdbOptionsPage::tr("Additional Startup Commands"));

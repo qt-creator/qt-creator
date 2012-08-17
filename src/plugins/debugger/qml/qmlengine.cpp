@@ -266,9 +266,8 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters,
-        DebuggerEngine *masterEngine)
-  : DebuggerEngine(startParameters, QmlLanguage, masterEngine)
+QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
+  : DebuggerEngine(startParameters)
   , m_adapter(this)
   , m_inspectorAdapter(&m_adapter, this)
   , m_retryOnConnectFail(false)
@@ -1343,10 +1342,9 @@ bool QmlEngine::adjustBreakpointLineAndColumn(
     return success;
 }
 
-QmlEngine *createQmlEngine(const DebuggerStartParameters &sp,
-    DebuggerEngine *masterEngine)
+DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)
 {
-    return new QmlEngine(sp, masterEngine);
+    return new QmlEngine(sp);
 }
 
 } // namespace Internal
