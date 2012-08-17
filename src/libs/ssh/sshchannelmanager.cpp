@@ -176,14 +176,21 @@ void SshChannelManager::insertChannel(AbstractSshChannel *priv,
     m_sessions.insert(priv, pub);
 }
 
-int SshChannelManager::closeAllChannels()
+int SshChannelManager::closeAllChannels(CloseAllMode mode)
 {
     const int count = m_channels.count();
     for (ChannelIterator it = m_channels.begin(); it != m_channels.end(); ++it)
         it.value()->closeChannel();
-    m_channels.clear();
-    m_sessions.clear();
+    if (mode == CloseAllAndReset) {
+        m_channels.clear();
+        m_sessions.clear();
+    }
     return count;
+}
+
+int SshChannelManager::channelCount() const
+{
+    return m_channels.count();
 }
 
 void SshChannelManager::removeChannel(ChannelIterator it)
