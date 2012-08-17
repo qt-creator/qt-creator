@@ -332,10 +332,6 @@ bool PersistentSettingsReader::load(const Utils::FileName &fileName)
     \sa Utils::PersistentSettingsReader
 */
 
-PersistentSettingsWriter::PersistentSettingsWriter()
-{
-}
-
 static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
                               const QVariant &variant, const QString &key = QString())
 {
@@ -376,24 +372,33 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
     }
 }
 
+PersistentSettingsWriter::PersistentSettingsWriter(const FileName &fileName, const QString &docType) :
+    m_fileName(fileName), m_docType(docType), m_mustSave(false)
+{ }
+
 void PersistentSettingsWriter::saveValue(const QString &variable, const QVariant &value)
 {
+    if (m_valueMap.contains(variable) && m_valueMap.value(variable) == value)
+        return;
+    m_mustSave = true;
     m_valueMap.insert(variable, value);
 }
 
-bool PersistentSettingsWriter::save(const Utils::FileName &fileName, const QString &docType,
-                                    QWidget *parent) const
+bool PersistentSettingsWriter::save(QWidget *parent) const
 {
+    if (!m_mustSave)
+        return true;
+
     QDir tmp;
-    tmp.mkpath(fileName.toFileInfo().path());
-    Utils::FileSaver saver(fileName.toString(), QIODevice::Text);
+    tmp.mkpath(m_fileName.toFileInfo().path());
+    Utils::FileSaver saver(m_fileName.toString(), QIODevice::Text);
     if (!saver.hasError()) {
         const Context ctx;
         QXmlStreamWriter w(saver.file());
         w.setAutoFormatting(true);
         w.setAutoFormattingIndent(1); // Historical, used to be QDom.
         w.writeStartDocument();
-        w.writeDTD(QLatin1String("<!DOCTYPE ") + docType + QLatin1Char('>'));
+        w.writeDTD(QLatin1String("<!DOCTYPE ") + m_docType + QLatin1Char('>'));
         w.writeComment(QString::fromAscii(" Written by Qt Creator %1, %2. ").
                        arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
                            QDateTime::currentDateTime().toString(Qt::ISODate)));
@@ -409,6 +414,13 @@ bool PersistentSettingsWriter::save(const Utils::FileName &fileName, const QStri
 
         saver.setResult(&w);
     }
-    return saver.finalize(parent);
+    bool ok = saver.finalize(parent);
+    if (ok)
+        m_mustSave = false;
+    return ok;
 }
+
+FileName PersistentSettingsWriter::fileName() const
+{ return m_fileName; }
+
 } // namespace Utils

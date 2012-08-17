@@ -35,6 +35,8 @@
 #include <projectexplorer/projectexplorer_export.h>
 #include <utils/fileutils.h>
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 
 namespace ProjectExplorer {

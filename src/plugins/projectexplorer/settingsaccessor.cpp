@@ -450,20 +450,25 @@ static QVariantMap processHandlerNodes(const HandlerNode &node, const QVariantMa
 // -------------------------------------------------------------------------
 // UserFileAccessor
 // -------------------------------------------------------------------------
-SettingsAccessor::SettingsAccessor() :
+SettingsAccessor::SettingsAccessor(Project *project) :
     m_firstVersion(-1),
     m_lastVersion(-1),
     m_userFileAcessor(QByteArray("qtcUserFileName"),
                       QLatin1String(".user"),
                       QString::fromLocal8Bit(qgetenv("QTC_EXTENSION")),
                       true,
-                      true),
+                      true,
+                      this),
     m_sharedFileAcessor(QByteArray("qtcSharedFileName"),
                         QLatin1String(".shared"),
                         QString::fromLocal8Bit(qgetenv("QTC_SHARED_EXTENSION")),
                         false,
-                        false)
+                        false,
+                        this),
+    m_project(project)
 {
+    QTC_CHECK(m_project);
+
     addVersionHandler(new Version0Handler);
     addVersionHandler(new Version1Handler);
     addVersionHandler(new Version2Handler);
@@ -483,11 +488,8 @@ SettingsAccessor::~SettingsAccessor()
     qDeleteAll(m_handlers);
 }
 
-SettingsAccessor *SettingsAccessor::instance()
-{
-    static SettingsAccessor acessor;
-    return &acessor;
-}
+Project *SettingsAccessor::project() const
+{ return m_project; }
 
 namespace {
 
@@ -589,17 +591,21 @@ void trackUserStickySettings(QVariantMap *userMap, const QVariantMap &sharedMap)
 } // Anonymous
 
 
-QVariantMap SettingsAccessor::restoreSettings(Project *project) const
+QVariantMap SettingsAccessor::restoreSettings() const
 {
-    if (m_lastVersion < 0 || !project)
+    if (m_lastVersion < 0)
         return QVariantMap();
 
     SettingsData settings;
-    if (!m_userFileAcessor.readFile(project, &settings))
+    QString fn = project()->property(m_userFileAcessor.id()).toString();
+    if (fn.isEmpty())
+        fn = project()->document()->fileName() + m_userFileAcessor.suffix();
+    settings.m_fileName = Utils::FileName::fromString(fn);
+    if (!m_userFileAcessor.readFile(&settings))
         settings.clear(); // No user settings, but there can still be shared ones.
 
     if (settings.isValid()) {
-        if (settings.m_version > SettingsAccessor::instance()->m_lastVersion + 1) {
+        if (settings.m_version > m_lastVersion + 1) {
             QMessageBox::information(
                 Core::ICore::mainWindow(),
                 QApplication::translate("ProjectExplorer::SettingsAccessor",
@@ -652,7 +658,7 @@ QVariantMap SettingsAccessor::restoreSettings(Project *project) const
 
     // Time to consider shared settings...
     SettingsData sharedSettings;
-    if (m_sharedFileAcessor.readFile(project, &sharedSettings)) {
+    if (m_sharedFileAcessor.readFile(&sharedSettings)) {
         bool useSharedSettings = true;
         if (sharedSettings.m_version != settings.m_version) {
             int baseFileVersion;
@@ -692,20 +698,20 @@ QVariantMap SettingsAccessor::restoreSettings(Project *project) const
             if (useSharedSettings) {
                 // We now update the user and shared settings so they are compatible.
                 for (int i = sharedSettings.m_version; i < baseFileVersion; ++i)
-                    sharedSettings.m_map = m_handlers.value(i)->update(project, sharedSettings.m_map);
+                    sharedSettings.m_map = m_handlers.value(i)->update(m_project, sharedSettings.m_map);
 
                 if (!settings.isValid()) {
-                    project->setProperty(SHARED_SETTINGS, sharedSettings.m_map);
+                    m_project->setProperty(SHARED_SETTINGS, sharedSettings.m_map);
                     return sharedSettings.m_map;
                 }
                 for (int i = settings.m_version; i < baseFileVersion; ++i)
-                    settings.m_map = m_handlers.value(i)->update(project, settings.m_map);
+                    settings.m_map = m_handlers.value(i)->update(m_project, settings.m_map);
                 settings.m_version = baseFileVersion;
             }
         }
 
         if (useSharedSettings) {
-            project->setProperty(SHARED_SETTINGS, sharedSettings.m_map);
+            m_project->setProperty(SHARED_SETTINGS, sharedSettings.m_map);
             if (!settings.isValid())
                 return sharedSettings.m_map;
 
@@ -718,22 +724,26 @@ QVariantMap SettingsAccessor::restoreSettings(Project *project) const
 
     // Update from the base version to Creator's version.
     for (int i = settings.m_version; i <= m_lastVersion; ++i)
-        settings.m_map = m_handlers.value(i)->update(project, settings.m_map);
+        settings.m_map = m_handlers.value(i)->update(m_project, settings.m_map);
 
     return settings.m_map;
 }
 
-bool SettingsAccessor::saveSettings(const Project *project, const QVariantMap &map) const
+bool SettingsAccessor::saveSettings(const QVariantMap &map) const
 {
-    if (!project || map.isEmpty())
+    if (map.isEmpty())
         return false;
 
     SettingsData settings(map);
-    const QVariant &shared = project->property(SHARED_SETTINGS);
+    QString fn = project()->property(m_userFileAcessor.id()).toString();
+    if (fn.isEmpty())
+        fn = project()->document()->fileName() + m_userFileAcessor.suffix();
+    settings.m_fileName = Utils::FileName::fromString(fn);
+    const QVariant &shared = m_project->property(SHARED_SETTINGS);
     if (shared.isValid())
         trackUserStickySettings(&settings.m_map, shared.toMap());
 
-    return m_userFileAcessor.writeFile(project, &settings);
+    return m_userFileAcessor.writeFile(&settings);
 }
 
 void SettingsAccessor::addVersionHandler(UserFileVersionHandler *handler)
@@ -800,12 +810,19 @@ SettingsAccessor::FileAccessor::FileAccessor(const QByteArray &id,
                                              const QString &defaultSuffix,
                                              const QString &environmentSuffix,
                                              bool envSpecific,
-                                             bool versionStrict)
+                                             bool versionStrict, SettingsAccessor *accessor)
     : m_id(id)
     , m_environmentSpecific(envSpecific)
     , m_versionStrict(versionStrict)
+    , m_accessor(accessor)
+    , m_writer(0)
 {
     assignSuffix(defaultSuffix, environmentSuffix);
+}
+
+SettingsAccessor::FileAccessor::~FileAccessor()
+{
+    delete m_writer;
 }
 
 void SettingsAccessor::FileAccessor::assignSuffix(const QString &defaultSuffix,
@@ -820,11 +837,6 @@ void SettingsAccessor::FileAccessor::assignSuffix(const QString &defaultSuffix,
     }
 }
 
-QString SettingsAccessor::FileAccessor::assembleFileName(const Project *project) const
-{
-    return project->document()->fileName() + m_suffix;
-}
-
 bool SettingsAccessor::FileAccessor::findNewestCompatibleSetting(SettingsData *settings) const
 {
     const QString baseFileName = settings->m_fileName.toString();
@@ -833,7 +845,6 @@ bool SettingsAccessor::FileAccessor::findNewestCompatibleSetting(SettingsData *s
     settings->m_version = -1;
 
     PersistentSettingsReader reader;
-    SettingsAccessor *acessor = SettingsAccessor::instance();
 
     QFileInfo fileInfo(baseFileName);
     QStringList fileNameFilter(fileInfo.fileName() + QLatin1String(".*"));
@@ -845,10 +856,10 @@ bool SettingsAccessor::FileAccessor::findNewestCompatibleSetting(SettingsData *s
         const QString &suffix = file.mid(fileInfo.fileName().length() + 1);
         const QString &candidateFileName = baseFileName + QLatin1String(".") + suffix;
         candidates.append(candidateFileName);
-        for (int candidateVersion = acessor->m_lastVersion;
-             candidateVersion >= acessor->m_firstVersion;
+        for (int candidateVersion = m_accessor->m_lastVersion;
+             candidateVersion >= m_accessor->m_firstVersion;
              --candidateVersion) {
-            if (suffix == acessor->m_handlers.value(candidateVersion)->displayUserFileVersion()) {
+            if (suffix == m_accessor->m_handlers.value(candidateVersion)->displayUserFileVersion()) {
                 if (candidateVersion > settings->m_version) {
                     settings->m_version = candidateVersion;
                     settings->m_fileName = Utils::FileName::fromString(candidateFileName);
@@ -876,7 +887,7 @@ bool SettingsAccessor::FileAccessor::findNewestCompatibleSetting(SettingsData *s
         if (reader.load(fn)) {
             settings->m_map = reader.restoreValues();
             int candidateVersion = settings->m_map.value(QLatin1String(VERSION_KEY), 0).toInt();
-            if (candidateVersion == acessor->m_lastVersion + 1) {
+            if (candidateVersion == m_accessor->m_lastVersion + 1) {
                 settings->m_version = candidateVersion;
                 settings->m_fileName = fn;
                 return true;
@@ -890,11 +901,9 @@ bool SettingsAccessor::FileAccessor::findNewestCompatibleSetting(SettingsData *s
     return false;
 }
 
-bool SettingsAccessor::FileAccessor::readFile(Project *project,
-                                             SettingsData *settings) const
+bool SettingsAccessor::FileAccessor::readFile(SettingsData *settings) const
 {
     PersistentSettingsReader reader;
-    settings->m_fileName = Utils::FileName::fromString(assembleFileName(project));
     if (!reader.load(settings->m_fileName))
         return false;
 
@@ -905,43 +914,41 @@ bool SettingsAccessor::FileAccessor::readFile(Project *project,
     if (!m_versionStrict)
         return true;
 
-    if (settings->m_version < SettingsAccessor::instance()->m_firstVersion) {
+    if (settings->m_version < m_accessor->m_firstVersion) {
         qWarning() << "Version" << settings->m_version << "in" << m_suffix << "too old.";
         return false;
     }
 
-    if (settings->m_version > SettingsAccessor::instance()->m_lastVersion + 1) {
+    if (settings->m_version > m_accessor->m_lastVersion + 1) {
         if (!findNewestCompatibleSetting(settings))
             return false;
 
         settings->m_usingBackup = true;
-        project->setProperty(m_id.constData(), settings->m_fileName.toString());
+        m_accessor->project()->setProperty(m_id.constData(), settings->m_fileName.toString());
     }
 
     return true;
 }
 
-bool SettingsAccessor::FileAccessor::writeFile(const Project *project,
-                                              const SettingsData *settings) const
+bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings) const
 {
-    PersistentSettingsWriter writer;
+    if (!m_writer || m_writer->fileName() != settings->m_fileName) {
+        delete m_writer;
+        m_writer = new Utils::PersistentSettingsWriter(settings->m_fileName, QLatin1String("QtCreatorProject"));
+    }
+
     for (QVariantMap::const_iterator i = settings->m_map.constBegin();
          i != settings->m_map.constEnd();
          ++i) {
-        writer.saveValue(i.key(), i.value());
+        m_writer->saveValue(i.key(), i.value());
     }
 
-    writer.saveValue(QLatin1String(VERSION_KEY), SettingsAccessor::instance()->m_lastVersion + 1);
+    m_writer->saveValue(QLatin1String(VERSION_KEY), m_accessor->m_lastVersion + 1);
 
-    if (m_environmentSpecific) {
-        writer.saveValue(QLatin1String(ENVIRONMENT_ID_KEY),
-                         ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString());
-    }
-
-    const QString &fileName = project->property(m_id).toString();
-    return writer.save(Utils::FileName::fromString(fileName.isEmpty() ? assembleFileName(project) : fileName),
-                       QLatin1String("QtCreatorProject"),
-                       Core::ICore::mainWindow());
+    if (m_environmentSpecific)
+        m_writer->saveValue(QLatin1String(ENVIRONMENT_ID_KEY),
+                            ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString());
+    return m_writer->save(Core::ICore::mainWindow());
 }
 
 // -------------------------------------------------------------------------

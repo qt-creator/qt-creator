@@ -120,7 +120,8 @@ QtVersionManager *QtVersionManager::m_self = 0;
 
 QtVersionManager::QtVersionManager() :
     m_configFileWatcher(0),
-    m_fileWatcherTimer(new QTimer(this))
+    m_fileWatcherTimer(new QTimer(this)),
+    m_writer(0)
 {
     m_self = this;
     m_idcount = 1;
@@ -163,6 +164,7 @@ bool QtVersionManager::delayedInitialize()
 
 QtVersionManager::~QtVersionManager()
 {
+    delete m_writer;
     qDeleteAll(m_versions);
     m_versions.clear();
 }
@@ -233,8 +235,8 @@ void QtVersionManager::updateFromInstaller()
 {
     m_fileWatcherTimer->stop();
 
-    // Handle overwritting of data:
     const Utils::FileName path = globalSettingsFileName();
+    // Handle overwritting of data:
     if (m_configFileWatcher) {
         m_configFileWatcher->removeFile(path.toString());
         m_configFileWatcher->addFile(path.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
@@ -357,8 +359,10 @@ void QtVersionManager::updateFromInstaller()
 
 void QtVersionManager::saveQtVersions()
 {
-    Utils::PersistentSettingsWriter writer;
-    writer.saveValue(QLatin1String(QTVERSION_FILE_VERSION_KEY), 1);
+    if (!m_writer)
+        m_writer = new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(QTVERSION_FILENAME)),
+                                                       QLatin1String("QtCreatorQtVersions"));
+    m_writer->saveValue(QLatin1String(QTVERSION_FILE_VERSION_KEY), 1);
 
     int count = 0;
     foreach (BaseQtVersion *qtv, m_versions) {
@@ -366,11 +370,11 @@ void QtVersionManager::saveQtVersions()
         if (tmp.isEmpty())
             continue;
         tmp.insert(QLatin1String(QTVERSION_TYPE_KEY), qtv->type());
-        writer.saveValue(QString::fromLatin1(QTVERSION_DATA_KEY) + QString::number(count), tmp);
+        m_writer->saveValue(QString::fromLatin1(QTVERSION_DATA_KEY) + QString::number(count), tmp);
         ++count;
 
     }
-    writer.save(settingsFileName(QLatin1String(QTVERSION_FILENAME)), QLatin1String("QtCreatorQtVersions"), Core::ICore::mainWindow());
+    m_writer->save(Core::ICore::mainWindow());
 }
 
 void QtVersionManager::findSystemQt()

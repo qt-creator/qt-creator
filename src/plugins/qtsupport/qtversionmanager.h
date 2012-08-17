@@ -37,7 +37,11 @@
 #include <QSet>
 #include <QStringList>
 
-namespace Utils { class FileSystemWatcher; }
+namespace Utils {
+class FileSystemWatcher;
+class PersistentSettingsWriter;
+} // namespace Utils
+
 namespace ProjectExplorer { class ProfileInformation; }
 
 namespace QtSupport {
@@ -143,6 +147,7 @@ private:
 
     Utils::FileSystemWatcher *m_configFileWatcher;
     QTimer *m_fileWatcherTimer;
+    Utils::PersistentSettingsWriter *m_writer;
 };
 
 namespace Internal {

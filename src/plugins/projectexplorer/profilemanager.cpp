@@ -86,14 +86,19 @@ public:
     bool m_initialized;
     QList<ProfileInformation *> m_informationList;
     QList<Profile *> m_profileList;
+    Utils::PersistentSettingsWriter *m_writer;
 };
 
 ProfileManagerPrivate::ProfileManagerPrivate()
-    : m_defaultProfile(0), m_initialized(false)
+    : m_defaultProfile(0), m_initialized(false),
+      m_writer(new Utils::PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles")))
 { }
 
 ProfileManagerPrivate::~ProfileManagerPrivate()
 {
+    qDeleteAll(m_informationList);
+    qDeleteAll(m_profileList);
+    delete m_writer;
 }
 
 QList<Task> ProfileManagerPrivate::validateProfile(Profile *p) const
@@ -213,8 +218,6 @@ void ProfileManager::restoreProfiles()
 ProfileManager::~ProfileManager()
 {
     // Clean out profile information to avoid calling them during deregistration:
-    qDeleteAll(d->m_informationList);
-    qDeleteAll(d->m_profileList);
     delete d;
     m_instance = 0;
 }
@@ -224,21 +227,20 @@ void ProfileManager::saveProfiles()
     if (!d->m_initialized) // ignore save requests while we are not initialized.
         return;
 
-    PersistentSettingsWriter writer;
-    writer.saveValue(QLatin1String(PROFILE_FILE_VERSION_KEY), 1);
+    d->m_writer->saveValue(QLatin1String(PROFILE_FILE_VERSION_KEY), 1);
 
     int count = 0;
     foreach (Profile *p, profiles()) {
         QVariantMap tmp = p->toMap();
         if (tmp.isEmpty())
             continue;
-        writer.saveValue(QString::fromLatin1(PROFILE_DATA_KEY) + QString::number(count), tmp);
+        d->m_writer->saveValue(QString::fromLatin1(PROFILE_DATA_KEY) + QString::number(count), tmp);
         ++count;
     }
-    writer.saveValue(QLatin1String(PROFILE_COUNT_KEY), count);
-    writer.saveValue(QLatin1String(PROFILE_DEFAULT_KEY),
+    d->m_writer->saveValue(QLatin1String(PROFILE_COUNT_KEY), count);
+    d->m_writer->saveValue(QLatin1String(PROFILE_DEFAULT_KEY),
                      d->m_defaultProfile ? QString::fromLatin1(d->m_defaultProfile->id().name()) : QString());
-    writer.save(settingsFileName(), QLatin1String("QtCreatorProfiles"), Core::ICore::mainWindow());
+    d->m_writer->save(Core::ICore::mainWindow());
 }
 
 bool greaterPriority(ProfileInformation *a, ProfileInformation *b)

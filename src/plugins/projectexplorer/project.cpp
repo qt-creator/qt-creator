@@ -87,23 +87,28 @@ class ProjectPrivate
 {
 public:
     ProjectPrivate();
+    ~ProjectPrivate();
+
     QList<Target *> m_targets;
     Target *m_activeTarget;
     EditorConfiguration *m_editorConfiguration;
     Core::Context m_projectContext;
     Core::Context m_projectLanguage;
     QVariantMap m_pluginSettings;
+    SettingsAccessor *m_accessor;
 };
 
 ProjectPrivate::ProjectPrivate() :
     m_activeTarget(0),
-    m_editorConfiguration(new EditorConfiguration())
-{
-}
+    m_editorConfiguration(new EditorConfiguration()),
+    m_accessor(0)
+{ }
+
+ProjectPrivate::~ProjectPrivate()
+{ delete m_accessor; }
 
 Project::Project() : d(new ProjectPrivate)
-{
-}
+{ }
 
 Project::~Project()
 {
@@ -281,12 +286,16 @@ Target *Project::restoreTarget(const QVariantMap &data)
 void Project::saveSettings()
 {
     emit aboutToSaveSettings();
-    SettingsAccessor::instance()->saveSettings(this, toMap());
+    if (!d->m_accessor)
+        d->m_accessor = new SettingsAccessor(this);
+    d->m_accessor->saveSettings(toMap());
 }
 
 bool Project::restoreSettings()
 {
-    QVariantMap map(SettingsAccessor::instance()->restoreSettings(this));
+    if (!d->m_accessor)
+        d->m_accessor = new SettingsAccessor(this);
+    QVariantMap map(d->m_accessor->restoreSettings());
     bool ok = fromMap(map);
     if (ok)
         emit settingsLoaded();

@@ -182,7 +182,7 @@ AndroidConfig::AndroidConfig()
 
 void AndroidConfig::save(QSettings &settings) const
 {
-    QFileInfo fileInfo(settingsFileName().toFileInfo());
+    QFileInfo fileInfo = settingsFileName().toFileInfo();
     if (fileInfo.exists())
         settings.setValue(changeTimeStamp, fileInfo.lastModified().toMSecsSinceEpoch() / 1000);
 

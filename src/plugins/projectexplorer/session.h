@@ -176,6 +176,7 @@ private:
     QMap<QString, QStringList> m_depMap;
     QMap<QString, QVariant> m_values;
     QFutureInterface<void> m_future;
+    Utils::PersistentSettingsWriter *m_writer;
 };
 
 } // namespace ProjectExplorer

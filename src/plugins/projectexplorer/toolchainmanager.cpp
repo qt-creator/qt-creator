@@ -76,20 +76,26 @@ class ToolChainManagerPrivate
 {
 public:
     ToolChainManagerPrivate(ToolChainManager *parent);
+    ~ToolChainManagerPrivate();
 
     QList<ToolChain *> &toolChains();
 
     ToolChainManager *q;
     bool m_initialized;
     QMap<QString, Utils::FileName> m_abiToDebugger;
+    Utils::PersistentSettingsWriter *m_writer;
 
 private:
     QList<ToolChain *> m_toolChains;
 };
 
 ToolChainManagerPrivate::ToolChainManagerPrivate(ToolChainManager *parent)
-    : q(parent), m_initialized(false)
+    : q(parent), m_initialized(false),
+      m_writer(new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains")))
 { }
+
+ToolChainManagerPrivate::~ToolChainManagerPrivate()
+{ delete m_writer; }
 
 QList<ToolChain *> &ToolChainManagerPrivate::toolChains()
 {
@@ -203,8 +209,7 @@ ToolChainManager::~ToolChainManager()
 
 void ToolChainManager::saveToolChains()
 {
-    PersistentSettingsWriter writer;
-    writer.saveValue(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 1);
+    d->m_writer->saveValue(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 1);
 
     int count = 0;
     foreach (ToolChain *tc, d->toolChains()) {
@@ -212,12 +217,12 @@ void ToolChainManager::saveToolChains()
             QVariantMap tmp = tc->toMap();
             if (tmp.isEmpty())
                 continue;
-            writer.saveValue(QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(count), tmp);
+            d->m_writer->saveValue(QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(count), tmp);
             ++count;
         }
     }
-    writer.saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
-    writer.save(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains"), Core::ICore::mainWindow());
+    d->m_writer->saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
+    d->m_writer->save(Core::ICore::mainWindow());
 
     // Do not save default debuggers! Those are set by the SDK!
 }

@@ -91,7 +91,8 @@ SessionManager::SessionManager(QObject *parent)
     m_sessionName(QLatin1String("default")),
     m_virginSession(true),
     m_loadingSession(false),
-    m_startupProject(0)
+    m_startupProject(0),
+    m_writer(0)
 {
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(saveActiveMode(Core::IMode*)));
@@ -111,6 +112,7 @@ SessionManager::SessionManager(QObject *parent)
 SessionManager::~SessionManager()
 {
     emit aboutToUnloadSession(m_sessionName);
+    delete m_writer;
 }
 
 
@@ -304,12 +306,15 @@ bool SessionManager::save()
 
     emit aboutToSaveSession();
 
-    PersistentSettingsWriter writer;
+    if (!m_writer || m_writer->fileName() != sessionNameToFileName(m_sessionName)) {
+        delete m_writer;
+        m_writer = new Utils::PersistentSettingsWriter(sessionNameToFileName(m_sessionName),
+                                                       QLatin1String("QtCreatorSession"));
+    }
 
     // save the startup project
-    if (m_startupProject) {
-        writer.saveValue(QLatin1String("StartupProject"), m_startupProject->document()->fileName());
-    }
+    if (m_startupProject)
+        m_writer->saveValue(QLatin1String("StartupProject"), m_startupProject->document()->fileName());
 
     QStringList projectFiles;
     foreach (Project *pro, m_projects)
@@ -321,7 +326,7 @@ bool SessionManager::save()
         if (!projectFiles.contains(failed))
             projectFiles << failed;
 
-    writer.saveValue(QLatin1String("ProjectList"), projectFiles);
+    m_writer->saveValue(QLatin1String("ProjectList"), projectFiles);
 
     QMap<QString, QVariant> depMap;
     QMap<QString, QStringList>::const_iterator i = m_depMap.constBegin();
@@ -334,7 +339,7 @@ bool SessionManager::save()
         depMap.insert(key, values);
         ++i;
     }
-    writer.saveValue(QLatin1String("ProjectDependencies"), QVariant(depMap));
+    m_writer->saveValue(QLatin1String("ProjectDependencies"), QVariant(depMap));
 
     int editorCount = 0;
     QList<Core::IEditor *> editors = ICore::editorManager()->openedEditors();
@@ -343,25 +348,24 @@ bool SessionManager::save()
         if (!editor->isTemporary())
             ++editorCount;
     }
-    writer.saveValue(QLatin1String("OpenEditors"), editorCount);
-    writer.saveValue(QLatin1String("EditorSettings"),
-                     ICore::editorManager()->saveState().toBase64());
+    m_writer->saveValue(QLatin1String("OpenEditors"), editorCount);
+    m_writer->saveValue(QLatin1String("EditorSettings"),
+                        ICore::editorManager()->saveState().toBase64());
 
     QMap<QString, QVariant>::const_iterator it, end;
     end = m_values.constEnd();
     QStringList keys;
     for (it = m_values.constBegin(); it != end; ++it) {
-        writer.saveValue(QLatin1String("value-") + it.key(), it.value());
+        m_writer->saveValue(QLatin1String("value-") + it.key(), it.value());
         keys << it.key();
     }
 
-    writer.saveValue(QLatin1String("valueKeys"), keys);
+    m_writer->saveValue(QLatin1String("valueKeys"), keys);
 
-    Utils::FileName fileName = sessionNameToFileName(m_sessionName);
-    bool result = writer.save(fileName, QLatin1String("QtCreatorSession"), Core::ICore::mainWindow());
+    bool result = m_writer->save(Core::ICore::mainWindow());
     if (!result) {
         QMessageBox::warning(0, tr("Error while saving session"),
-                                tr("Could not save session to file %1").arg(fileName.toUserOutput()));
+                                tr("Could not save session to file %1").arg(m_writer->fileName().toUserOutput()));
     }
 
     if (debug)
