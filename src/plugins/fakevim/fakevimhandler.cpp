@@ -4627,13 +4627,13 @@ int FakeVimHandler::Private::lastPositionInDocument() const
 QString FakeVimHandler::Private::selectText(const Range &range) const
 {
     if (range.rangemode == RangeCharMode) {
-        QTextCursor tc = cursor();
+        QTextCursor tc(document());
         tc.setPosition(range.beginPos, MoveAnchor);
         tc.setPosition(range.endPos, KeepAnchor);
         return tc.selection().toPlainText();
     }
     if (range.rangemode == RangeLineMode) {
-        QTextCursor tc = cursor();
+        QTextCursor tc(document());
         int firstPos = firstPositionInLine(lineForPosition(range.beginPos));
         int lastLine = lineForPosition(range.endPos);
         bool endOfDoc = lastLine == document()->lastBlock().blockNumber() + 1;
