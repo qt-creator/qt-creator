@@ -127,6 +127,8 @@ namespace Internal {
 #define EndOfDocument   QTextCursor::End
 #define StartOfDocument QTextCursor::Start
 
+#define ParagraphSeparator QChar::ParagraphSeparator
+
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
 
 enum {
@@ -140,7 +142,6 @@ enum {
 #define MetaModifier     // Use RealControlModifier instead
 #define ControlModifier  // Use RealControlModifier instead
 
-const int ParagraphSeparator = 0x00002029;
 typedef QLatin1String _;
 
 /* Clipboard MIME types used by Vim. */
@@ -884,8 +885,19 @@ public:
     QTextBlock block() const { return cursor().block(); }
     int leftDist() const { return position() - block().position(); }
     int rightDist() const { return block().length() - leftDist() - 1; }
+    bool atBlockStart() const { return cursor().atBlockStart(); }
     bool atBlockEnd() const { return cursor().atBlockEnd(); }
     bool atEndOfLine() const { return atBlockEnd() && block().length() > 1; }
+    bool atDocumentEnd() const { return cursor().atEnd(); }
+    bool atDocumentStart() const { return cursor().atStart(); }
+
+    bool atEmptyLine(const QTextCursor &tc = QTextCursor()) const;
+    bool atBoundary(bool end, bool simple, bool onlyWords = false,
+        const QTextCursor &tc = QTextCursor()) const;
+    bool atWordBoundary(bool end, bool simple, const QTextCursor &tc = QTextCursor()) const;
+    bool atWordStart(bool simple, const QTextCursor &tc = QTextCursor()) const;
+    bool atWordEnd(bool simple, const QTextCursor &tc = QTextCursor()) const;
+    bool isFirstNonBlankOnLine(int pos);
 
     int lastPositionInDocument() const; // Returns last valid position in doc.
     int firstPositionInLine(int line) const; // 1 based line, 0 based pos
@@ -932,9 +944,18 @@ public:
         m_visualTargetColumn = m_targetColumn;
         //qDebug() << "TARGET: " << m_targetColumn;
     }
-    void moveToNextWord(bool simple, bool deleteWord = false);
     void moveToMatchingParanthesis();
-    void moveToWordBoundary(bool simple, bool forward, bool changeWord = false);
+    void moveToBoundary(bool simple, bool forward = true);
+    void moveToNextBoundary(bool end, int count, bool simple, bool forward);
+    void moveToNextBoundaryStart(int count, bool simple, bool forward = true);
+    void moveToNextBoundaryEnd(int count, bool simple, bool forward = true);
+    void moveToBoundaryStart(int count, bool simple, bool forward = true);
+    void moveToBoundaryEnd(int count, bool simple, bool forward = true);
+    void moveToNextWord(bool end, int count, bool simple, bool forward, bool emptyLines);
+    void moveToNextWordStart(int count, bool simple, bool forward = true, bool emptyLines = true);
+    void moveToNextWordEnd(int count, bool simple, bool forward = true, bool emptyLines = true);
+    void moveToWordStart(int count, bool simple, bool forward = true, bool emptyLines = true);
+    void moveToWordEnd(int count, bool simple, bool forward = true, bool emptyLines = true);
 
     // Convenience wrappers to reduce line noise.
     void moveToStartOfLine();
@@ -1027,6 +1048,7 @@ public:
     bool isVisualBlockMode() const { return m_visualMode == VisualBlockMode; }
     void updateEditor();
 
+    void selectTextObject(bool simple, bool inner);
     void selectWordTextObject(bool inner);
     void selectWORDTextObject(bool inner);
     void selectSentenceTextObject(bool inner);
@@ -1626,6 +1648,52 @@ void FakeVimHandler::Private::stopIncrementalFind()
     }
 }
 
+bool FakeVimHandler::Private::atEmptyLine(const QTextCursor &tc) const
+{
+    if (tc.isNull())
+        return atEmptyLine(cursor());
+    return tc.block().length() == 1;
+}
+
+bool FakeVimHandler::Private::atBoundary(bool end, bool simple, bool onlyWords,
+    const QTextCursor &tc) const
+{
+    if (tc.isNull())
+        return atBoundary(end, simple, onlyWords, cursor());
+    if (atEmptyLine(tc))
+        return true;
+    int pos = tc.position();
+    QChar c1 = document()->characterAt(pos);
+    QChar c2 = document()->characterAt(pos + (end ? 1 : -1));
+    int thisClass = charClass(c1, simple);
+    return (!onlyWords || thisClass != 0)
+        && (c2.isNull() || c2 == ParagraphSeparator || thisClass != charClass(c2, simple));
+}
+
+bool FakeVimHandler::Private::atWordBoundary(bool end, bool simple, const QTextCursor &tc) const
+{
+    return atBoundary(end, simple, true, tc);
+}
+
+bool FakeVimHandler::Private::atWordStart(bool simple, const QTextCursor &tc) const
+{
+    return atWordBoundary(false, simple, tc);
+}
+
+bool FakeVimHandler::Private::atWordEnd(bool simple, const QTextCursor &tc) const
+{
+    return atWordBoundary(true, simple, tc);
+}
+
+bool FakeVimHandler::Private::isFirstNonBlankOnLine(int pos)
+{
+    for (int i = document()->findBlock(pos).position(); i < pos; ++i) {
+        if (!document()->characterAt(i).isSpace())
+            return false;
+    }
+    return true;
+}
+
 void FakeVimHandler::Private::setUndoPosition()
 {
     int pos = qMin(position(), anchor());
@@ -1707,6 +1775,22 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         || m_submode == YankSubMode
         || m_submode == TransformSubMode) {
 
+        if (m_movetype == MoveExclusive) {
+            if (anchor() != position() && atBlockStart()) {
+                // Exlusive motion ending at the beginning of line
+                // becomes inclusive and end is moved to end of previous line.
+                m_movetype = MoveInclusive;
+                moveToStartOfLine();
+                moveLeft();
+
+                // Exclusive motion ending at the beginning of line and
+                // starting at or before first non-blank on a line becomes linewise.
+                if (anchor() < block().position() && isFirstNonBlankOnLine(anchor())) {
+                    m_movetype = MoveLineWise;
+                }
+            }
+        }
+
         if (m_submode != YankSubMode)
             beginEditBlock();
 
@@ -1717,8 +1801,18 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
 
         if (m_movetype == MoveInclusive) {
             if (anchor() <= position()) {
-                if (!cursor().atBlockEnd())
+                if (!atBlockEnd())
                     setPosition(position() + 1); // correction
+
+                // If more than one line is selected and all are selected completely
+                // movement becomes linewise.
+                int start = anchor();
+                if (start < block().position() && isFirstNonBlankOnLine(start) && atBlockEnd()) {
+                    moveRight();
+                    if (atEmptyLine())
+                        moveRight();
+                    m_movetype = MoveLineWise;
+                }
             } else {
                 setAnchorAndPosition(anchor() + 1, position());
             }
@@ -1756,7 +1850,8 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         enterInsertMode();
         m_submode = NoSubMode;
     } else if (m_submode == DeleteSubMode) {
-        removeText(currentRange());
+        Range range = currentRange();
+        removeText(range);
         if (!dotCommand.isEmpty())
             setDotCommand(QLatin1Char('d') + dotCommand);
         if (m_movetype == MoveLineWise)
@@ -2400,12 +2495,12 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         changeNumberTextObject(true);
     } else if (input.is('b') || input.isShift(Key_Left)) {
         m_movetype = MoveExclusive;
-        moveToWordBoundary(false, false);
+        moveToNextWordStart(count(), false, false);
         setTargetColumn();
         finishMovement();
     } else if (input.is('B')) {
         m_movetype = MoveExclusive;
-        moveToWordBoundary(true, false);
+        moveToNextWordStart(count(), true, false);
         setTargetColumn();
         finishMovement();
     } else if (input.is('c') && isNoVisualMode()) {
@@ -2500,14 +2595,24 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         handleStartOfLine();
         scrollToLine(cursorLine() - sline);
         finishMovement();
+    } else if (input.is('e') && m_gflag) {
+        m_movetype = MoveInclusive;
+        moveToNextWordEnd(count(), false, false);
+        setTargetColumn();
+        finishMovement("%1ge", count());
     } else if (input.is('e') || input.isShift(Key_Right)) {
         m_movetype = MoveInclusive;
-        moveToWordBoundary(false, true);
+        moveToNextWordEnd(count(), false, true, false);
         setTargetColumn();
         finishMovement("%1e", count());
+    } else if (input.is('E') && m_gflag) {
+        m_movetype = MoveInclusive;
+        moveToNextWordEnd(count(), true, false);
+        setTargetColumn();
+        finishMovement("%1gE", count());
     } else if (input.is('E')) {
         m_movetype = MoveInclusive;
-        moveToWordBoundary(true, true);
+        moveToNextWordEnd(count(), true, true, false);
         setTargetColumn();
         finishMovement("%1E", count());
     } else if (input.isControl('e')) {
@@ -2815,23 +2920,23 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         // cursor is on a non-blank - except if the cursor is on the last
         // character of a word: only the current word will be changed
         if (m_submode == ChangeSubMode) {
-            moveToWordBoundary(false, true, true);
-            setTargetColumn();
+            moveToWordEnd(count(), false, true);
             m_movetype = MoveInclusive;
         } else {
-            moveToNextWord(false, m_submode == DeleteSubMode);
+            moveToNextWordStart(count(), false, true);
             m_movetype = MoveExclusive;
         }
+        setTargetColumn();
         finishMovement("%1w", count());
     } else if (input.is('W')) {
         if (m_submode == ChangeSubMode) {
-            moveToWordBoundary(true, true, true);
-            setTargetColumn();
+            moveToWordEnd(count(), true, true);
             m_movetype = MoveInclusive;
         } else {
-            moveToNextWord(true, m_submode == DeleteSubMode);
+            moveToNextWordStart(count(), true, true);
             m_movetype = MoveExclusive;
         }
+        setTargetColumn();
         finishMovement("%1W", count());
     } else if (input.isControl('w')) {
         m_submode = WindowSubMode;
@@ -3077,7 +3182,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         m_ctrlVActive = true;
     } else if (input.isControl('w')) {
         int endPos = position();
-        moveToWordBoundary(false, false, false);
+        moveToNextWordStart(count(), false, false);
         setTargetColumn();
         int beginPos = position();
         Range range(beginPos, endPos, RangeCharMode);
@@ -3092,7 +3197,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         setTargetColumn();
         m_lastInsertion.clear();
     } else if (input.isControl(Key_Left)) {
-        moveToWordBoundary(false, false);
+        moveToNextWordStart(count(), false, false);
         setTargetColumn();
         m_lastInsertion.clear();
     } else if (input.isKey(Key_Down)) {
@@ -3110,7 +3215,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         setTargetColumn();
         m_lastInsertion.clear();
     } else if (input.isControl(Key_Right)) {
-        moveToWordBoundary(false, true);
+        moveToNextWordStart(count(), false, true);
         moveRight(); // we need one more move since we are in insert mode
         setTargetColumn();
         m_lastInsertion.clear();
@@ -3205,7 +3310,7 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     //    // ignore these
     } else if (input.isControl('p') || input.isControl('n')) {
         QTextCursor tc = EDITOR(textCursor());
-        moveToWordBoundary(false, false);
+        moveToNextWordStart(count(), false, false);
         QString str = selectText(Range(position(), tc.position()));
         EDITOR(setTextCursor(tc));
         emit q->simpleCompletionRequested(str, input.isControl('n'));
@@ -4186,7 +4291,7 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle)
             sel.format = tc.blockCharFormat();
             sel.format.setBackground(QColor(177, 177, 0));
             m_searchSelections.append(sel);
-            if (document()->characterAt(tc.position()) == ParagraphSeparator)
+            if (atEmptyLine(tc))
                 tc.movePosition(Right, MoveAnchor);
         }
     }
@@ -4384,34 +4489,91 @@ void FakeVimHandler::Private::setupCharClass()
     }
 }
 
-void FakeVimHandler::Private::moveToWordBoundary(bool simple, bool forward, bool changeWord)
+void FakeVimHandler::Private::moveToBoundary(bool simple, bool forward)
 {
-    int repeat = count();
     QTextDocument *doc = document();
-    int n = forward ? lastPositionInDocument() : 0;
-    int lastClass = -1;
-    if (changeWord) {
-        lastClass = charClass(characterAtCursor(), simple);
-        --repeat;
-        if (changeWord && block().length() == 1) // empty line
-            --repeat;
-    }
-    while (repeat >= 0) {
-        QChar c = doc->characterAt(position() + (forward ? 1 : -1));
+    QTextCursor tc(doc);
+    tc.setPosition(position());
+    if (forward ? tc.atBlockEnd() : tc.atBlockStart())
+        return;
+
+    QChar c = document()->characterAt(tc.position() + (forward ? -1 : 1));
+    int lastClass = tc.atStart() ? -1 : charClass(c, simple);
+    QTextCursor::MoveOperation op = forward ? Right : Left;
+    while (true) {
+        c = doc->characterAt(tc.position());
         int thisClass = charClass(c, simple);
-        if (thisClass != lastClass && (lastClass != 0 || changeWord))
-            --repeat;
-        if (repeat == -1)
+        if (thisClass != lastClass || (forward ? tc.atBlockEnd() : tc.atBlockStart())) {
+            if (tc != cursor())
+                tc.movePosition(forward ? Left : Right);
             break;
+        }
         lastClass = thisClass;
-        if (position() == n)
-            break;
-        forward ? moveRight() : moveLeft();
-        if (changeWord && block().length() == 1) // empty line
-            --repeat;
-        if (repeat == -1)
-            break;
+        tc.movePosition(op);
     }
+    setPosition(tc.position());
+}
+
+void FakeVimHandler::Private::moveToNextBoundary(bool end, int count, bool simple, bool forward)
+{
+    int repeat = count;
+    while (repeat > 0 && !(forward ? atDocumentEnd() : atDocumentStart())) {
+        setPosition(position() + (forward ? 1 : -1));
+        moveToBoundary(simple, forward);
+        if (atBoundary(end, simple))
+            --repeat;
+    }
+}
+
+void FakeVimHandler::Private::moveToNextBoundaryStart(int count, bool simple, bool forward)
+{
+    moveToNextBoundary(false, count, simple, forward);
+}
+
+void FakeVimHandler::Private::moveToNextBoundaryEnd(int count, bool simple, bool forward)
+{
+    moveToNextBoundary(true, count, simple, forward);
+}
+
+void FakeVimHandler::Private::moveToBoundaryStart(int count, bool simple, bool forward)
+{
+    moveToNextBoundaryStart(atBoundary(false, simple) ? count - 1 : count, simple, forward);
+}
+
+void FakeVimHandler::Private::moveToBoundaryEnd(int count, bool simple, bool forward)
+{
+    moveToNextBoundaryEnd(atBoundary(true, simple) ? count - 1 : count, simple, forward);
+}
+
+void FakeVimHandler::Private::moveToNextWord(bool end, int count, bool simple, bool forward, bool emptyLines)
+{
+    int repeat = count;
+    while (repeat > 0 && !(forward ? atDocumentEnd() : atDocumentStart())) {
+        setPosition(position() + (forward ? 1 : -1));
+        moveToBoundary(simple, forward);
+        if (atWordBoundary(end, simple) && (emptyLines || !atEmptyLine()) )
+            --repeat;
+    }
+}
+
+void FakeVimHandler::Private::moveToNextWordStart(int count, bool simple, bool forward, bool emptyLines)
+{
+    moveToNextWord(false, count, simple, forward, emptyLines);
+}
+
+void FakeVimHandler::Private::moveToNextWordEnd(int count, bool simple, bool forward, bool emptyLines)
+{
+    moveToNextWord(true, count, simple, forward, emptyLines);
+}
+
+void FakeVimHandler::Private::moveToWordStart(int count, bool simple, bool forward, bool emptyLines)
+{
+    moveToNextWordStart(atWordStart(simple) ? count - 1 : count, simple, forward, emptyLines);
+}
+
+void FakeVimHandler::Private::moveToWordEnd(int count, bool simple, bool forward, bool emptyLines)
+{
+    moveToNextWordEnd(atWordEnd(simple) ? count - 1 : count, simple, forward, emptyLines);
 }
 
 bool FakeVimHandler::Private::handleFfTt(QString key)
@@ -4454,35 +4616,6 @@ bool FakeVimHandler::Private::handleFfTt(QString key)
     }
     setPosition(oldPos);
     return false;
-}
-
-void FakeVimHandler::Private::moveToNextWord(bool simple, bool deleteWord)
-{
-    int repeat = count();
-    int n = lastPositionInDocument();
-    int lastClass = charClass(characterAtCursor(), simple);
-    while (true) {
-        QChar c = characterAtCursor();
-        int thisClass = charClass(c, simple);
-        if (thisClass != lastClass && thisClass != 0)
-            --repeat;
-        if (repeat == 0)
-            break;
-        lastClass = thisClass;
-        moveRight();
-        if (deleteWord) {
-            if (atBlockEnd())
-                --repeat;
-        } else {
-            if (block().length() == 1) // empty line
-                --repeat;
-        }
-        if (repeat == 0)
-            break;
-        if (position() == n)
-            break;
-    }
-    setTargetColumn();
 }
 
 void FakeVimHandler::Private::moveToMatchingParanthesis()
@@ -5254,32 +5387,77 @@ void FakeVimHandler::Private::replay(const QString &command, int n)
     }
 }
 
+void FakeVimHandler::Private::selectTextObject(bool simple, bool inner)
+{
+    bool setupAnchor = (position() == anchor());
+
+    // set anchor if not already set
+    if (setupAnchor) {
+        moveToBoundaryStart(1, simple, false);
+        setAnchor();
+    } else {
+        moveRight();
+        if (atEndOfLine())
+            moveRight();
+    }
+
+    const int repeat = count();
+    if (inner) {
+        moveToBoundaryEnd(repeat, simple);
+    } else {
+        for (int i = 0; i < repeat; ++i) {
+            // select leading spaces
+            bool leadingSpace = characterAtCursor().isSpace();
+            if (leadingSpace)
+                moveToNextBoundaryStart(1, simple);
+
+            // select word
+            moveToWordEnd(1, simple);
+
+            // select trailing spaces if no leading space
+            if (!leadingSpace && document()->characterAt(position() + 1).isSpace()
+                && !atBlockStart()) {
+                moveToNextBoundaryEnd(1, simple);
+            }
+
+            // if there are no trailing spaces in selection select all leading spaces
+            // after previous character
+            if (setupAnchor && (!characterAtCursor().isSpace() || atBlockEnd())) {
+                int min = block().position();
+                int pos = anchor();
+                while (pos >= min && document()->characterAt(--pos).isSpace()) {}
+                if (pos >= min)
+                    setAnchorAndPosition(pos + 1, position());
+            }
+
+            if (i + 1 < repeat) {
+                moveRight();
+                if (atEndOfLine())
+                    moveRight();
+            }
+        }
+    }
+
+    if (inner) {
+        m_movetype = MoveInclusive;
+    } else {
+        m_movetype = MoveExclusive;
+        moveRight();
+        if (atEndOfLine())
+            moveRight();
+    }
+
+    setTargetColumn();
+}
+
 void FakeVimHandler::Private::selectWordTextObject(bool inner)
 {
-    Q_UNUSED(inner); // FIXME
-    m_movetype = MoveExclusive;
-    moveToWordBoundary(false, false, true);
-    setAnchor();
-    // FIXME: Rework the 'anchor' concept.
-    //if (isVisualMode())
-    //    setMark('<', cursor().position());
-    moveToWordBoundary(false, true, true);
-    setTargetColumn();
-    m_movetype = MoveInclusive;
+    selectTextObject(false, inner);
 }
 
 void FakeVimHandler::Private::selectWORDTextObject(bool inner)
 {
-    Q_UNUSED(inner); // FIXME
-    m_movetype = MoveExclusive;
-    moveToWordBoundary(true, false, true);
-    setAnchor();
-    // FIXME: Rework the 'anchor' concept.
-    //if (isVisualMode())
-    //    setMark('<', cursor().position());
-    moveToWordBoundary(true, true, true);
-    setTargetColumn();
-    m_movetype = MoveInclusive;
+    selectTextObject(true, inner);
 }
 
 void FakeVimHandler::Private::selectSentenceTextObject(bool inner)
