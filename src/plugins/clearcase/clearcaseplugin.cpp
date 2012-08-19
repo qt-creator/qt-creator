@@ -212,7 +212,7 @@ QString ClearCasePlugin::findTopLevel(const QString &directory) const
     // Snapshot view
     QString topLevel =
             findRepositoryForDirectory(directory, QLatin1String(ClearCase::Constants::CLEARCASE_ROOT_FILE));
-    if (!topLevel.isEmpty())
+    if (!topLevel.isEmpty() || !clearCaseControl()->isConfigured())
         return topLevel;
     // Dynamic view
     bool isDynamic;

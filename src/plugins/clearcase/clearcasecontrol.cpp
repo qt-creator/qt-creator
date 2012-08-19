@@ -59,7 +59,11 @@ Core::Id ClearCaseControl::id() const
 
 bool ClearCaseControl::isConfigured() const
 {
-    return !Utils::SynchronousProcess::locateBinary(m_plugin->settings().ccCommand).isEmpty();
+    const QString binary = m_plugin->settings().ccBinaryPath;
+    if (binary.isEmpty())
+        return false;
+    QFileInfo fi(binary);
+    return fi.exists() && fi.isFile() && fi.isExecutable();
 }
 
 bool ClearCaseControl::supportsOperation(Operation operation) const
