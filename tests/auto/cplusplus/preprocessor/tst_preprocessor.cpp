@@ -336,6 +336,8 @@ private slots:
     void comments_within2_data();
     void multitokens_argument();
     void multitokens_argument_data();
+    void multiline_strings();
+    void multiline_strings_data();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -1296,6 +1298,27 @@ void tst_Preprocessor::comments_within2_data()
             "*/\n"
             "x = 10\n";
     QTest::newRow("case 4") << original << expected;
+}
+
+void tst_Preprocessor::multiline_strings()
+{
+    compare_input_output();
+}
+
+void tst_Preprocessor::multiline_strings_data()
+{
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QByteArray>("output");
+
+    QByteArray original;
+    QByteArray expected;
+
+    original = "const char *s = \"abc\\\n"
+               "xyz\";\n";
+    expected = "# 1 \"<stdin>\"\n"
+               "const char *s = \"abc\\\n"
+               "xyz\";\n";
+    QTest::newRow("case 1") << original << expected;
 }
 
 void tst_Preprocessor::compare_input_output(bool keepComments)
