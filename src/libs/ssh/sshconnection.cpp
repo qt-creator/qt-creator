@@ -194,11 +194,16 @@ QSharedPointer<SftpChannel> SshConnection::createSftpChannel()
 int SshConnection::closeAllChannels()
 {
     try {
-        return d->m_channelManager->closeAllChannels();
+        return d->m_channelManager->closeAllChannels(Internal::SshChannelManager::CloseAllRegular);
     } catch (const Botan::Exception &e) {
         qDebug("%s: %s", Q_FUNC_INFO, e.what());
         return -1;
     }
+}
+
+int SshConnection::channelCount() const
+{
+    return d->m_channelManager->channelCount();
 }
 
 namespace Internal {
@@ -680,7 +685,7 @@ void SshConnectionPrivate::closeConnection(SshErrorCode sshError,
     m_keepAliveTimer.stop();
     disconnect(&m_keepAliveTimer, 0, this, 0);
     try {
-        m_channelManager->closeAllChannels();
+        m_channelManager->closeAllChannels(SshChannelManager::CloseAllAndReset);
         m_sendFacility.sendDisconnectPacket(sshError, serverErrorString);
     } catch (Botan::Exception &) {}  // Nothing sensible to be done here.
     if (m_error != SshNoError)

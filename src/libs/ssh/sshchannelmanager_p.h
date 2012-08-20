@@ -55,7 +55,10 @@ public:
     QSharedPointer<SshRemoteProcess> createRemoteProcess(const QByteArray &command);
     QSharedPointer<SshRemoteProcess> createRemoteShell();
     QSharedPointer<SftpChannel> createSftpChannel();
-    int closeAllChannels();
+    int channelCount() const;
+
+    enum CloseAllMode { CloseAllRegular, CloseAllAndReset };
+    int closeAllChannels(CloseAllMode mode);
 
     void handleChannelRequest(const SshIncomingPacket &packet);
     void handleChannelOpen(const SshIncomingPacket &packet);

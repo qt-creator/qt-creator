@@ -318,9 +318,6 @@
             \o  \gui{Edit}
             \o  Open a file for editing.
         \row
-            \o  \gui{Push}
-            \o  Push changes to the remote repository.
-        \row
             \o  \gui{Unedit}
             \o  Discard the changes that you made in a file.
 

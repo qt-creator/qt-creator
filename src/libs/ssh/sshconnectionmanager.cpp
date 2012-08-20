@@ -97,6 +97,8 @@ public:
                 continue;
 
             if (connection->thread() != QThread::currentThread()) {
+                if (connection->channelCount() != 0)
+                    continue;
                 QMetaObject::invokeMethod(this, "switchToCallerThread",
                     Qt::BlockingQueuedConnection,
                     Q_ARG(SshConnection *, connection),
