@@ -59,6 +59,8 @@ SysRootInformationConfigWidget::SysRootInformationConfigWidget(Profile *p, QWidg
     ProfileConfigWidget(parent),
     m_profile(p)
 {
+    setToolTip(tr("The root directory of the system image to use.<br>"
+                  "Leave empty when building for the desktop."));
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
     m_chooser = new Utils::PathChooser;
@@ -110,6 +112,9 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Profile *p, Q
     m_isReadOnly(false), m_profile(p),
     m_comboBox(new QComboBox), m_manageButton(new QPushButton(this))
 {
+    setToolTip(tr("The tool chain to use for building.<br>"
+                  "Make sure the tool chains will produce binaries compatible with the target device, "
+                  "Qt version and other libraries used."));
     ToolChainManager *tcm = ToolChainManager::instance();
 
     QHBoxLayout *layout = new QHBoxLayout(this);
@@ -235,6 +240,7 @@ DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Profile *p,
     m_isReadOnly(false), m_profile(p),
     m_comboBox(new QComboBox)
 {
+    setToolTip(tr("The type of device to run applications on."));
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
     m_comboBox->setContentsMargins(0, 0, 0, 0);
@@ -302,6 +308,8 @@ DeviceInformationConfigWidget::DeviceInformationConfigWidget(Profile *p, QWidget
     m_comboBox(new QComboBox), m_manageButton(new QPushButton(this)),
     m_model(new DeviceManagerModel(DeviceManager::instance()))
 {
+    setToolTip(tr("The device to run the applications on."));
+
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
     m_comboBox->setContentsMargins(0, 0, 0, 0);

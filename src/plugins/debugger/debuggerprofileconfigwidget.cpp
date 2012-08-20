@@ -67,6 +67,8 @@ DebuggerProfileConfigWidget::DebuggerProfileConfigWidget(ProjectExplorer::Profil
     m_info(pi),
     m_chooser(new Utils::PathChooser)
 {
+    setToolTip(tr("The debugger to use for this target."));
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
 
