@@ -84,10 +84,6 @@
     Even if you use the Qt Quick Components, you can still write cross-platform
     applications, by using different sets of QML files for each platform.
 
-    You can dowload a set of commonly used UI-components for generic use in
-    Qt Quick projects from \l{https://projects.forum.nokia.com/QMLTemplates}
-    {QML Templates}. You can open and edit the templates in \QD.
-
     \section1 Creating Components in Qt Quick Designer
 
     \list 1

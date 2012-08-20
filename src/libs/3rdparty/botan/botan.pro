@@ -3,11 +3,11 @@ TARGET = Botan
 
 PRECOMPILED_HEADER = ../precompiled_headers/botan_pch.h
 
-include(../../../qtcreatorlibrary.pri)
 
 CONFIG += exceptions
 CONFIG += release
-CONFIG -= debug
+CONFIG -= debug debug_and_release
+include(../../../qtcreatorlibrary.pri)
 
 DEPENDPATH += .
 INCLUDEPATH += .

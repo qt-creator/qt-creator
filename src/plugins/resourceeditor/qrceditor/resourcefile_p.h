@@ -32,6 +32,7 @@
 #define RESOURCEFILE_P_H
 
 #include <QAbstractItemModel>
+#include <QCoreApplication>
 #include <QMap>
 #include <QString>
 #include <QStringList>
@@ -123,6 +124,7 @@ typedef QList<Prefix *> PrefixList;
 */
 class ResourceFile
 {
+    Q_DECLARE_TR_FUNCTIONS(ResourceFile)
 public:
     ResourceFile(const QString &file_name = QString());
     ~ResourceFile();

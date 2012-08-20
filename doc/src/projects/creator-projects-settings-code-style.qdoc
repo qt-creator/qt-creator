@@ -54,7 +54,7 @@
 
         \o  Select \gui {Projects > Code Style Settings}.
 
-        \o  In the \gui Language field, select \gui C++ or \gui Qt Quick.
+        \o  In the \gui Language field, select \gui C++ or \gui {Qt Quick}.
 
         \o  In the \gui {Current settings} field, select the settings to modify
             and click \gui Copy.

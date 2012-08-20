@@ -88,7 +88,7 @@ bool SaveFile::commit()
         return false;
     }
 #ifdef Q_OS_WIN
-    FlushFileBuffers(handle());
+    FlushFileBuffers(reinterpret_cast<HANDLE>(handle()));
 #else
     fdatasync(handle());
 #endif
