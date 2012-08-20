@@ -3177,7 +3177,7 @@ void GdbEngine::changeBreakpoint(BreakpointModelId id)
     }
     if (data.command != response.command) {
         QByteArray breakCommand = "-break-commands " + bpnr;
-        foreach (const QString &command, data.command.split(QLatin1String("\\n"))) {
+        foreach (const QString &command, data.command.split(QLatin1String("\n"))) {
             if (!command.isEmpty()) {
                 breakCommand.append(" \"");
                 breakCommand.append(command.toLatin1());

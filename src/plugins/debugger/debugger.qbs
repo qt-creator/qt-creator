@@ -33,8 +33,6 @@ QtcPlugin {
     ]
 
     files: [
-        "breakcondition.ui",
-        "breakpoint.ui",
         "debugger.qrc",
         "debuggerprofileconfigwidget.cpp",
         "debuggerprofileconfigwidget.h",
