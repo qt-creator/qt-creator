@@ -357,11 +357,11 @@ bool SessionManager::save()
 
     writer.saveValue(QLatin1String("valueKeys"), keys);
 
-    QString fileName = sessionNameToFileName(m_sessionName);
+    Utils::FileName fileName = sessionNameToFileName(m_sessionName);
     bool result = writer.save(fileName, QLatin1String("QtCreatorSession"), Core::ICore::mainWindow());
     if (!result) {
         QMessageBox::warning(0, tr("Error while saving session"),
-                                tr("Could not save session to file %1").arg(fileName));
+                                tr("Could not save session to file %1").arg(fileName.toUserOutput()));
     }
 
     if (debug)
@@ -645,9 +645,9 @@ QStringList SessionManager::sessions() const
     return m_sessions;
 }
 
-QString SessionManager::sessionNameToFileName(const QString &session) const
+Utils::FileName SessionManager::sessionNameToFileName(const QString &session) const
 {
-    return ICore::userResourcePath() + QLatin1Char('/') + session + QLatin1String(".qws");
+    return Utils::FileName::fromString(ICore::userResourcePath() + QLatin1Char('/') + session + QLatin1String(".qws"));
 }
 
 /*!
@@ -680,7 +680,7 @@ bool SessionManager::deleteSession(const QString &session)
     if (!m_sessions.contains(session))
         return false;
     m_sessions.removeOne(session);
-    QFile fi(sessionNameToFileName(session));
+    QFile fi(sessionNameToFileName(session).toString());
     if (fi.exists())
         return fi.remove();
     return false;
@@ -691,9 +691,9 @@ bool SessionManager::cloneSession(const QString &original, const QString &clone)
     if (!m_sessions.contains(original))
         return false;
 
-    QFile fi(sessionNameToFileName(original));
+    QFile fi(sessionNameToFileName(original).toString());
     // If the file does not exist, we can still clone
-    if (!fi.exists() || fi.copy(sessionNameToFileName(clone))) {
+    if (!fi.exists() || fi.copy(sessionNameToFileName(clone).toString())) {
         Q_ASSERT(m_sessions.size() > 0);
         m_sessions.insert(1, clone);
         return true;
@@ -811,12 +811,12 @@ bool SessionManager::loadSession(const QString &session)
         return false;
 
     // Try loading the file
-    QString fileName = sessionNameToFileName(session);
+    Utils::FileName fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
-    if (QFileInfo(fileName).exists()) {
+    if (fileName.toFileInfo().exists()) {
         if (!reader.load(fileName)) {
             QMessageBox::warning(0, tr("Error while restoring session"),
-                                 tr("Could not restore session %1").arg(fileName));
+                                 tr("Could not restore session %1").arg(fileName.toUserOutput()));
             return false;
         }
     }
@@ -849,7 +849,7 @@ bool SessionManager::loadSession(const QString &session)
     m_sessionName = session;
     updateWindowTitle();
 
-    if (QFileInfo(fileName).exists()) {
+    if (fileName.toFileInfo().exists()) {
         m_virginSession = false;
 
         ICore::progressManager()->addTask(m_future.future(), tr("Session"),
@@ -947,11 +947,11 @@ void SessionManager::projectDisplayNameChanged()
 
 QStringList ProjectExplorer::SessionManager::projectsForSessionName(const QString &session) const
 {
-    const QString fileName = sessionNameToFileName(session);
+    const Utils::FileName fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
-    if (QFileInfo(fileName).exists()) {
+    if (fileName.toFileInfo().exists()) {
         if (!reader.load(fileName)) {
-            qWarning() << "Could not restore session" << fileName;
+            qWarning() << "Could not restore session" << fileName.toUserOutput();
             return QStringList();
         }
     }

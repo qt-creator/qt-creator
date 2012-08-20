@@ -641,11 +641,11 @@ QVariantMap SettingsAccessor::restoreSettings(Project *project) const
 
         // Do we need to generate a backup?
         if (settings.m_version < m_lastVersion + 1 && !settings.m_usingBackup) {
-            const QString &backupFileName = settings.m_fileName
+            const QString &backupFileName = settings.m_fileName.toString()
                     + QLatin1Char('.')
                     + m_handlers.value(settings.m_version)->displayUserFileVersion();
             QFile::remove(backupFileName);  // Remove because copy doesn't overwrite
-            QFile::copy(settings.m_fileName, backupFileName);
+            QFile::copy(settings.m_fileName.toString(), backupFileName);
         }
     }
 
@@ -827,7 +827,7 @@ QString SettingsAccessor::FileAccessor::assembleFileName(const Project *project)
 
 bool SettingsAccessor::FileAccessor::findNewestCompatibleSetting(SettingsData *settings) const
 {
-    const QString baseFileName = settings->m_fileName;
+    const QString baseFileName = settings->m_fileName.toString();
     const int baseVersion = settings->m_version;
     settings->m_fileName.clear();
     settings->m_version = -1;
@@ -851,7 +851,7 @@ bool SettingsAccessor::FileAccessor::findNewestCompatibleSetting(SettingsData *s
             if (suffix == acessor->m_handlers.value(candidateVersion)->displayUserFileVersion()) {
                 if (candidateVersion > settings->m_version) {
                     settings->m_version = candidateVersion;
-                    settings->m_fileName = candidateFileName;
+                    settings->m_fileName = Utils::FileName::fromString(candidateFileName);
                 }
                 break;
             }
@@ -863,21 +863,22 @@ bool SettingsAccessor::FileAccessor::findNewestCompatibleSetting(SettingsData *s
             settings->m_map = reader.restoreValues();
             return true;
         }
-        qWarning() << "Unable to load file" << settings->m_fileName;
+        qWarning() << "Unable to load file" << settings->m_fileName.toUserOutput();
     }
 
     // If we haven't identified a valid file or if it for any reason failed to load, we
     // try a more expensive check (which is actually needed to identify our own and newer
     // versions as we don't know what extensions will be assigned in the future).
     foreach (const QString &candidateFileName, candidates) {
-        if (settings->m_fileName == candidateFileName)
+        Utils::FileName fn = Utils::FileName::fromString(candidateFileName);
+        if (settings->m_fileName == fn)
             continue; // This one has already failed to load.
-        if (reader.load(candidateFileName)) {
+        if (reader.load(fn)) {
             settings->m_map = reader.restoreValues();
             int candidateVersion = settings->m_map.value(QLatin1String(VERSION_KEY), 0).toInt();
             if (candidateVersion == acessor->m_lastVersion + 1) {
                 settings->m_version = candidateVersion;
-                settings->m_fileName = candidateFileName;
+                settings->m_fileName = fn;
                 return true;
             }
         }
@@ -893,7 +894,7 @@ bool SettingsAccessor::FileAccessor::readFile(Project *project,
                                              SettingsData *settings) const
 {
     PersistentSettingsReader reader;
-    settings->m_fileName = assembleFileName(project);
+    settings->m_fileName = Utils::FileName::fromString(assembleFileName(project));
     if (!reader.load(settings->m_fileName))
         return false;
 
@@ -914,7 +915,7 @@ bool SettingsAccessor::FileAccessor::readFile(Project *project,
             return false;
 
         settings->m_usingBackup = true;
-        project->setProperty(m_id.constData(), settings->m_fileName);
+        project->setProperty(m_id.constData(), settings->m_fileName.toString());
     }
 
     return true;
@@ -938,7 +939,7 @@ bool SettingsAccessor::FileAccessor::writeFile(const Project *project,
     }
 
     const QString &fileName = project->property(m_id).toString();
-    return writer.save(fileName.isEmpty() ? assembleFileName(project) : fileName,
+    return writer.save(Utils::FileName::fromString(fileName.isEmpty() ? assembleFileName(project) : fileName),
                        QLatin1String("QtCreatorProject"),
                        Core::ICore::mainWindow());
 }
@@ -2534,7 +2535,7 @@ static QString maddeRoot(const QString &qmakePath)
 void Version11Handler::parseQtversionFile()
 {
     QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
-    QString fileName = settingsLocation.absolutePath() + QLatin1String("/qtversion.xml");
+    Utils::FileName fileName = Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml"));
     Utils::PersistentSettingsReader reader;
     if (!reader.load(fileName)) {
         qWarning("Failed to open legacy qtversions.xml file.");
@@ -2578,7 +2579,7 @@ void Version11Handler::parseQtversionFile()
 void Version11Handler::parseToolChainFile()
 {
     QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
-    QString fileName = settingsLocation.absolutePath() + QLatin1String("/toolChains.xml");
+    Utils::FileName fileName = Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml"));
     Utils::PersistentSettingsReader reader;
     if (!reader.load(fileName)) {
         qWarning("Failed to open legacy toolChains.xml file.");

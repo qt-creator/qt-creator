@@ -312,11 +312,11 @@ QVariantMap PersistentSettingsReader::restoreValues() const
     return m_valueMap;
 }
 
-bool PersistentSettingsReader::load(const QString &fileName)
+bool PersistentSettingsReader::load(const Utils::FileName &fileName)
 {
     m_valueMap.clear();
 
-    QFile file(fileName);
+    QFile file(fileName.toString());
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
         return false;
     ParseContext ctx;
@@ -381,12 +381,12 @@ void PersistentSettingsWriter::saveValue(const QString &variable, const QVariant
     m_valueMap.insert(variable, value);
 }
 
-bool PersistentSettingsWriter::save(const QString &fileName, const QString &docType,
+bool PersistentSettingsWriter::save(const Utils::FileName &fileName, const QString &docType,
                                     QWidget *parent) const
 {
     QDir tmp;
-    tmp.mkpath(QFileInfo(fileName).path());
-    Utils::FileSaver saver(fileName, QIODevice::Text);
+    tmp.mkpath(fileName.toFileInfo().path());
+    Utils::FileSaver saver(fileName.toString(), QIODevice::Text);
     if (!saver.hasError()) {
         const Context ctx;
         QXmlStreamWriter w(saver.file());

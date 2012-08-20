@@ -97,7 +97,7 @@ public:
     bool addDependency(Project *project, Project *depProject);
     void removeDependency(Project *project, Project *depProject);
 
-    QString sessionNameToFileName(const QString &session) const;
+    Utils::FileName sessionNameToFileName(const QString &session) const;
     Project *startupProject() const;
 
     const QList<Project *> &projects() const;

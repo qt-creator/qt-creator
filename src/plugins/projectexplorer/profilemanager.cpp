@@ -59,10 +59,10 @@ static const char PROFILE_FILENAME[] = "/qtcreator/profiles.xml";
 using Utils::PersistentSettingsWriter;
 using Utils::PersistentSettingsReader;
 
-static QString settingsFileName()
+static Utils::FileName settingsFileName()
 {
     QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
-    return settingsLocation.absolutePath() + QLatin1String(PROFILE_FILENAME);
+    return Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String(PROFILE_FILENAME));
 }
 
 namespace ProjectExplorer {
@@ -148,7 +148,7 @@ void ProfileManager::restoreProfiles()
 
     // read all profiles from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    ProfileList system = restoreProfiles(systemSettingsFile.absolutePath() + QLatin1String(PROFILE_FILENAME));
+    ProfileList system = restoreProfiles(Utils::FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(PROFILE_FILENAME)));
     QList<Profile *> readProfiles = system.profiles;
     // make sure we mark these as autodetected!
     foreach (Profile *p, readProfiles)
@@ -272,7 +272,7 @@ void ProfileManager::deregisterProfileInformation(ProfileInformation *pi)
     delete pi;
 }
 
-ProfileManager::ProfileList ProfileManager::restoreProfiles(const QString &fileName)
+ProfileManager::ProfileList ProfileManager::restoreProfiles(const Utils::FileName &fileName)
 {
     ProfileList result;
 
@@ -300,7 +300,7 @@ ProfileManager::ProfileList ProfileManager::restoreProfiles(const QString &fileN
         } else {
             delete p;
             qWarning("Warning: Unable to restore profiles stored in %s at position %d.",
-                     qPrintable(QDir::toNativeSeparators(fileName)), i);
+                     qPrintable(fileName.toUserOutput()), i);
         }
     }
     const QString defaultId = data.value(QLatin1String(PROFILE_DEFAULT_KEY)).toString();

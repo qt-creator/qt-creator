@@ -92,18 +92,18 @@ static T *createToolChain(const QString &id)
     return 0;
 }
 
-static QString globalSettingsFileName()
+static Utils::FileName globalSettingsFileName()
 {
     QSettings *globalSettings = ExtensionSystem::PluginManager::globalSettings();
-    return QFileInfo(globalSettings->fileName()).absolutePath()
-            + QLatin1String(QTVERSION_SDK_FILENAME);
+    return Utils::FileName::fromString(QFileInfo(globalSettings->fileName()).absolutePath()
+                                       + QLatin1String(QTVERSION_SDK_FILENAME));
 }
 
-static QString settingsFileName(const QString &path)
+static Utils::FileName settingsFileName(const QString &path)
 {
     QSettings *settings = ExtensionSystem::PluginManager::settings();
     QFileInfo settingsLocation(settings->fileName());
-    return settingsLocation.absolutePath() + path;
+    return Utils::FileName::fromString(settingsLocation.absolutePath() + path);
 }
 
 
@@ -145,12 +145,12 @@ void QtVersionManager::extensionsInitialized()
 
     saveQtVersions();
 
-    const QString configFileName = globalSettingsFileName();
-    if (QFileInfo(configFileName).exists()) {
+    const Utils::FileName configFileName = globalSettingsFileName();
+    if (configFileName.toFileInfo().exists()) {
         m_configFileWatcher = new Utils::FileSystemWatcher(this);
         connect(m_configFileWatcher, SIGNAL(fileChanged(QString)),
                 m_fileWatcherTimer, SLOT(start()));
-        m_configFileWatcher->addFile(configFileName,
+        m_configFileWatcher->addFile(configFileName.toString(),
                                      Utils::FileSystemWatcher::WatchModifiedDate);
     } // exists
 }
@@ -177,10 +177,10 @@ bool QtVersionManager::restoreQtVersions()
     QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
 
     Utils::PersistentSettingsReader reader;
-    QString filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
+    Utils::FileName filename = settingsFileName(QLatin1String(QTVERSION_FILENAME));
 
     // Read Qt Creator 2.5 qtversions.xml once:
-    if (!QFileInfo(filename).exists())
+    if (!filename.toFileInfo().exists())
         filename = settingsFileName(QLatin1String(QTVERSION_SDK_FILENAME));
     if (!reader.load(filename))
         return false;
@@ -223,7 +223,7 @@ bool QtVersionManager::restoreQtVersions()
         if (!restored)
             qWarning("Warning: Unable to restore Qt version '%s' stored in %s.",
                      qPrintable(type),
-                     qPrintable(QDir::toNativeSeparators(filename)));
+                     qPrintable(filename.toUserOutput()));
     }
     ++m_idcount;
     return true;
@@ -234,10 +234,10 @@ void QtVersionManager::updateFromInstaller()
     m_fileWatcherTimer->stop();
 
     // Handle overwritting of data:
+    const Utils::FileName path = globalSettingsFileName();
     if (m_configFileWatcher) {
-        const QString path = globalSettingsFileName();
-        m_configFileWatcher->removeFile(path);
-        m_configFileWatcher->addFile(path, Utils::FileSystemWatcher::WatchModifiedDate);
+        m_configFileWatcher->removeFile(path.toString());
+        m_configFileWatcher->addFile(path.toString(), Utils::FileSystemWatcher::WatchModifiedDate);
     }
 
     QList<int> added;
@@ -247,7 +247,7 @@ void QtVersionManager::updateFromInstaller()
     QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
     Utils::PersistentSettingsReader reader;
     QVariantMap data;
-    if (reader.load(globalSettingsFileName()))
+    if (reader.load(path))
         data = reader.restoreValues();
 
     if (debug) {

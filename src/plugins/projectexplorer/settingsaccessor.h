@@ -31,8 +31,9 @@
 #ifndef PROJECTMANAGER_USERFILEACCESSOR_H
 #define PROJECTMANAGER_USERFILEACCESSOR_H
 
-#include <QVariantMap>
+#include <utils/fileutils.h>
 
+#include <QVariantMap>
 
 namespace ProjectExplorer {
 
@@ -71,7 +72,7 @@ private:
         int m_version;
         bool m_usingBackup;
         QVariantMap m_map;
-        QString m_fileName;
+        Utils::FileName m_fileName;
     };
 
     // The entity which actually reads/writes to the settings file.

@@ -33,6 +33,7 @@
 #include "idevice.h"
 
 #include <projectexplorer/projectexplorer_export.h>
+#include <utils/fileutils.h>
 
 #include <QObject>
 
@@ -99,7 +100,7 @@ private:
     IDevice::Ptr fromRawPointer(IDevice *device) const;
     IDevice::ConstPtr fromRawPointer(const IDevice *device) const;
 
-    static QString settingsFilePath(const QString &extension);
+    static Utils::FileName settingsFilePath(const QString &extension);
     static void copy(const DeviceManager *source, DeviceManager *target, bool deep);
 
     Internal::DeviceManagerPrivate * const d;

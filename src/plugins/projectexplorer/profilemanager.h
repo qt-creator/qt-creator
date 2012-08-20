@@ -151,7 +151,7 @@ private:
         Core::Id defaultProfile;
         QList<Profile *> profiles;
     };
-    ProfileList restoreProfiles(const QString &fileName);
+    ProfileList restoreProfiles(const Utils::FileName &fileName);
 
     void notifyAboutUpdate(ProjectExplorer::Profile *p);
     void addProfile(Profile *p);

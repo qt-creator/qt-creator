@@ -234,7 +234,7 @@ ICodeStylePreferences *CodeStylePool::loadCodeStyle(const QString &fileName)
 {
     TextEditor::ICodeStylePreferences *codeStyle = 0;
     Utils::PersistentSettingsReader reader;
-    reader.load(fileName);
+    reader.load(Utils::FileName::fromString(fileName));
     QVariantMap m = reader.restoreValues();
     if (m.contains(QLatin1String(codeStyleDataKey))) {
         const QString id = QFileInfo(fileName).completeBaseName();
@@ -287,7 +287,7 @@ void CodeStylePool::exportCodeStyle(const QString &fileName, ICodeStylePreferenc
     Utils::PersistentSettingsWriter writer;
     writer.saveValue(QLatin1String(displayNameKey), codeStyle->displayName());
     writer.saveValue(QLatin1String(codeStyleDataKey), map);
-    writer.save(fileName, QLatin1String(codeStyleDocKey), 0);
+    writer.save(Utils::FileName::fromString(fileName), QLatin1String(codeStyleDocKey), 0);
 }
 
 
