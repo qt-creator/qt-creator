@@ -1054,7 +1054,7 @@ class Dumper:
                 pass
 
         for item in locals:
-            value = downcast(item.value)
+            value = downcast(item.value) if self.useDynamicType else item.value
             with OutputSafer(self):
                 self.anonNumber = -1
 
@@ -1370,17 +1370,18 @@ class Dumper:
             except:
                 pass
 
-            try:
-                # Dynamic references are not supported by gdb, see
-                # http://sourceware.org/bugzilla/show_bug.cgi?id=14077.
-                # Find the dynamic type manually using referenced_type.
-                value = value.referenced_value()
-                value = value.cast(value.dynamic_type)
-                self.putItem(value)
-                self.putBetterType("%s &" % value.type)
-                return
-            except:
-                pass
+            if tryDynamic:
+                try:
+                    # Dynamic references are not supported by gdb, see
+                    # http://sourceware.org/bugzilla/show_bug.cgi?id=14077.
+                    # Find the dynamic type manually using referenced_type.
+                    value = value.referenced_value()
+                    value = value.cast(value.dynamic_type)
+                    self.putItem(value)
+                    self.putBetterType("%s &" % value.type)
+                    return
+                except:
+                    pass
 
             try:
                 # FIXME: This throws "RuntimeError: Attempt to dereference a
