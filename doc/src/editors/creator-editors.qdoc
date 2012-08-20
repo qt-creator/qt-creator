@@ -1148,7 +1148,7 @@
             \gui {Regular Expressions}.
             Regular expressions used in \QC are modeled on Perl regular
             expressions. For more information on using regular expressions, see
-            \l {http://doc.qt.nokia.com/4.7/qregexp.html#details}
+            \l {http://qt-project.org/doc/qt-4.8/qregexp.html#details}
             {Detailed Description} in the QRegExp Class Reference.
 
     \endlist

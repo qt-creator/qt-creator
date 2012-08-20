@@ -34,10 +34,10 @@
     \note To complete this tutorial, you must have Qt 4.7 or later installed.
 
     This tutorial uses built-in QML elements and illustrates basic concepts of
-    \l {http://doc.qt.nokia.com/4.7/qtquick.html}{Qt Quick}.
+    \l {http://qt-project.org/doc/qt-4.8/qtquick.html}{Qt Quick}.
 
     This tutorial describes how to use the \QC to implement the
-    \l{http://doc.qt.nokia.com/4.7/declarative-animation-states.html}
+    \l{http://qt-project.org/doc/qt-4.8/declarative-animation-states.html}
     {states and transitions example application}. The example application
      displays a Qt logo that moves between three rectangles on the page when you
     click them.

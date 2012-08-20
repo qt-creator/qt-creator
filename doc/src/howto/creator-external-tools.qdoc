@@ -57,7 +57,8 @@
     External > Configure}.
 
     For more information about Qt Linguist, see
-    \l{http://doc.qt.nokia.com/4.7/linguist-manual.html}{Qt Linguist Manual}.
+    \l{http://qt-project.org/doc/qt-4.8/linguist-manual.html}
+    {Qt Linguist Manual}.
 
     \section1 Using QML Viewer
 

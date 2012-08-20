@@ -121,7 +121,7 @@
     \endlist
 
     The \c import statement in the beginning of the .qml file specifies the
-    \l{http://doc.qt.nokia.com/4.7/qdeclarativemodules.html}{Qt modules} to
+    \l{http://qt-project.org/doc/qt-4.8/qdeclarativemodules.html}{Qt modules} to
     import. Each Qt module contains a set of default elements. Specify a version
     to get the features you want.
 

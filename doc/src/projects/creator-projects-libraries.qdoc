@@ -89,7 +89,7 @@
     \endlist
 
     For more information about the project file settings, see
-    \l{http://doc.qt.nokia.com/4.7/qmake-project-files.html#declaring-other-libraries}
+    \l{http://qt-project.org/doc/qt-4.8/qmake-project-files.html#declaring-other-libraries}
     {Declaring Other Libraries}.
 
     \section1 Example of Adding Internal Libraries

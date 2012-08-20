@@ -49,8 +49,8 @@
     \section1 Previewing Images
 
     The Qt Quick Toolbar for images allows you to edit the properties of
-    \l{http://doc.qt.nokia.com/latest/qml-borderimage.html}{Border Image}
-    and \l{http://doc.qt.nokia.com/latest/qml-image.html}{Image} components.
+    \l{http://qt-project.org/doc/qt-4.8/qml-borderimage.html}{Border Image}
+    and \l{http://qt-project.org/doc/qt-4.8/qml-image.html}{Image} components.
     You can scale and tile the images, replace them with other images,
     preview them, and change the image margins.
 
@@ -64,7 +64,7 @@
     \section1 Formatting Text
 
     The Qt Quick Toolbar for text allows you to edit the properties of
-    \l{http://doc.qt.nokia.com/latest/qml-text.html}{Text} components.
+    \l{http://qt-project.org/doc/qt-4.8/qml-text.html}{Text} components.
     You can change the font family and size as well as text formatting, style,
     alignment, and color.
 
@@ -80,7 +80,7 @@
     \section1 Previewing Animation
 
     The Qt Quick Toolbar for animation allows you to edit the properties of
-    \l{http://doc.qt.nokia.com/4.7/qml-propertyanimation.html}
+    \l{http://qt-project.org/doc/qt-4.8/qml-propertyanimation.html}
     {PropertyAnimation} components and the components that inherit it. You can
     change the easing curve type and duration. For some curves, you can also
     specify amplitude, period, and overshoot values.
@@ -92,7 +92,7 @@
     \section1 Editing Rectangles
 
     The Qt Quick Toolbar for rectangles allows you to edit the properties of
-    \l{http://doc.qt.nokia.com/4.7/qml-rectangle.html}{Rectangle}
+    \l{http://qt-project.org/doc/qt-4.8/qml-rectangle.html}{Rectangle}
     components. You can change the fill and border colors and add
     gradients.
 

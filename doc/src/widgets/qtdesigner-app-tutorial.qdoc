@@ -33,7 +33,7 @@
 
     This tutorial describes how to use \QC to create a small Qt application,
     Text Finder. It is a simplified version of the  QtUiTools
-    \l{http://doc.qt.nokia.com/4.7/uitools-textfinder.html}{Text Finder}
+    \l{http://qt-project.org/doc/qt-4.8/uitools-textfinder.html}{Text Finder}
     example. The application user interface is constructed from Qt widgets by
     using \QD. The application logic is written in C++ by using the code editor.
 
@@ -197,7 +197,7 @@
     \endlist
 
     For more information about designing forms with \QD, see the
-    \l{http://doc.qt.nokia.com/4.7/designer-manual.html}{Qt Designer Manual}.
+    \l{http://qt-project.org/doc/qt-4.8/designer-manual.html}{Qt Designer Manual}.
 
     \section2 Completing the Header File
 
@@ -231,7 +231,7 @@
 
         \o  Add code to load a text file using QFile, read it with QTextStream,
             and then display it on \c{textEdit} with
-            \l{http://doc.qt.nokia.com/4.7/qtextedit.html#plainText-prop}
+            \l{http://qt-project.org/doc/qt-4.8/qtextedit.html#plainText-prop}
             {setPlainText()}.
             This is illustrated by the following code snippet:
 
@@ -244,7 +244,8 @@
 
         \o  For the \c{on_findButton_clicked()} slot, add code to extract the
             search string and use the
-            \l{http://doc.qt.nokia.com/4.7/qtextedit.html#find}{find()} function
+            \l{http://qt-project.org/doc/qt-4.8/qtextedit.html#find}{find()}
+            function
             to look for the search string within the text file. This is
             illustrated by the following code snippet:
 
