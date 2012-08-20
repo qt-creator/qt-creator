@@ -484,7 +484,7 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
     horizontalLayout->addLayout(verticalLayout);
     horizontalLayout->addLayout(buttonLayout);
     Q_ASSERT(!m_model);
-    m_model = new ToolChainModel(verticalLayout);
+    m_model = new ToolChainModel(m_configWidget);
 
     connect(m_model, SIGNAL(toolChainStateChanged()), this, SLOT(updateState()));
 
@@ -548,14 +548,16 @@ void ToolChainOptionsPage::apply()
 
 void ToolChainOptionsPage::finish()
 {
-    if (m_model) {
-        m_model->deleteLater();
-        m_model = 0;
-    }
+    disconnect(ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
+               this, SLOT(toolChainSelectionChanged()));
 
-    m_configWidget = 0; // deleted by settingsdialog
-    m_selectionModel = 0; // child of m_configWidget
-    // childs of m_configWidget
+    // delete by settingsdialog;
+    m_configWidget = 0;
+
+    // children of m_configWidget
+    m_model = 0;
+    m_container = 0;
+    m_selectionModel = 0;
     m_toolChainView = 0;
     m_addButton = 0;
     m_cloneButton = 0;
