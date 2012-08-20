@@ -34,7 +34,7 @@
 #define CLEARCASESETTINGS_H
 
 #include <QHash>
-#include <QStringList>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QSettings;

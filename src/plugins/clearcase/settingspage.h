@@ -33,17 +33,9 @@
 #ifndef SETTINGSPAGE_H
 #define SETTINGSPAGE_H
 
-#include "ui_settingspage.h"
-
 #include <vcsbase/vcsbaseoptionspage.h>
 
-#include <QPointer>
-#include <QString>
-#include <QWidget>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include "ui_settingspage.h"
 
 namespace ClearCase {
 namespace Internal {

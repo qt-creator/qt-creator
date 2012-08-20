@@ -33,10 +33,9 @@
 #ifndef CLEARCASESUBMITEDITOR_H
 #define CLEARCASESUBMITEDITOR_H
 
-#include <QPair>
-#include <QStringList>
-
 #include <vcsbase/vcsbasesubmiteditor.h>
+
+QT_FORWARD_DECLARE_CLASS(QStringList)
 
 namespace ClearCase {
 namespace Internal {

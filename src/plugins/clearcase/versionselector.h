@@ -34,8 +34,6 @@
 #define VERSIONSELECTOR_H
 
 #include <QDialog>
-#include <QDateTime>
-#include <QString>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
