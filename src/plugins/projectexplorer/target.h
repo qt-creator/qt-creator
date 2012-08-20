@@ -40,6 +40,8 @@ QT_FORWARD_DECLARE_CLASS(QIcon)
 namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
+class BuildTargetInfoList;
+class DeploymentData;
 class RunConfiguration;
 class BuildConfiguration;
 class DeployConfiguration;
@@ -80,6 +82,12 @@ public:
     QList<DeployConfiguration *> deployConfigurations() const;
     DeployConfiguration *activeDeployConfiguration() const;
     void setActiveDeployConfiguration(DeployConfiguration *configuration);
+
+    void setDeploymentData(const DeploymentData &deploymentData);
+    DeploymentData deploymentData() const;
+
+    void setApplicationTargets(const BuildTargetInfoList &appTargets);
+    BuildTargetInfoList applicationTargets() const;
 
     // Running
     QList<RunConfiguration *> runConfigurations() const;

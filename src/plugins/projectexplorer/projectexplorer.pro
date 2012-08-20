@@ -113,6 +113,7 @@ HEADERS += projectexplorer.h \
     codestylesettingspropertiespage.h \
     settingsaccessor.h \
     environmentitemswidget.h \
+    deployablefile.h \
     devicesupport/idevice.h \
     devicesupport/desktopdevice.h \
     devicesupport/desktopdevicefactory.h \
@@ -128,7 +129,9 @@ HEADERS += projectexplorer.h \
     devicesupport/deviceusedportsgatherer.h \
     devicesupport/deviceapplicationrunner.h \
     devicesupport/localprocesslist.h \
-    devicesupport/sshdeviceprocesslist.h
+    devicesupport/sshdeviceprocesslist.h \
+    deploymentdata.h \
+    buildtargetinfo.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -233,7 +236,8 @@ SOURCES += projectexplorer.cpp \
     devicesupport/deviceusedportsgatherer.cpp \
     devicesupport/deviceapplicationrunner.cpp \
     devicesupport/localprocesslist.cpp \
-    devicesupport/sshdeviceprocesslist.cpp
+    devicesupport/sshdeviceprocesslist.cpp \
+    deployablefile.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

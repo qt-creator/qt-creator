@@ -1587,6 +1587,12 @@ QStringList Qt4ProFileNode::variableValue(const Qt4Variable var) const
     return m_varValues.value(var);
 }
 
+QString Qt4ProFileNode::singleVariableValue(const Qt4Variable var) const
+{
+    const QStringList &values = variableValue(var);
+    return values.isEmpty() ? QString() : values.first();
+}
+
 void Qt4ProFileNode::emitProFileUpdatedRecursive()
 {
     foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
@@ -2008,6 +2014,11 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         newVarValues[QtVar] = m_readerExact->values(QLatin1String("QT"));
         newVarValues[ObjectExt] = m_readerExact->values(QLatin1String("QMAKE_EXT_OBJ"));
         newVarValues[ObjectsDir] = m_readerExact->values(QLatin1String("OBJECTS_DIR"));
+        newVarValues[VersionVar] = m_readerExact->values(QLatin1String("VERSION"));
+        newVarValues[TargetVersionExtVar]
+                = m_readerExact->values(QLatin1String("TARGET_VERSION_EXT"));
+        newVarValues[StaticLibExtensionVar] = m_readerExact->values("QMAKE_EXTENSION_STATICLIB");
+        newVarValues[ShLibExtensionVar] = m_readerExact->values("QMAKE_EXTENSION_SHLIB");
 
         m_isDeployable = false;
         if (m_projectType == ApplicationTemplate) {

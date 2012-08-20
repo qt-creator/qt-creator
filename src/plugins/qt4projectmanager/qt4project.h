@@ -46,6 +46,7 @@ QT_BEGIN_NAMESPACE
 class QMakeGlobals;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer { class DeploymentData; }
 namespace QtSupport { class ProFileReader; }
 
 namespace Qt4ProjectManager {
@@ -60,7 +61,6 @@ class Qt4RunStep;
 
 namespace Internal {
 class CentralizedFolderWatcher;
-class DeployHelperRunStep;
 class FileItem;
 class GCCPreprocessor;
 class Qt4ProjectFiles;
@@ -162,7 +162,6 @@ private:
     void updateCppCodeModel();
     void updateQmlJSCodeModel();
 
-
     static void collectAllfProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node);
     static void collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node);
     static void findProFile(const QString& fileName, Qt4ProFileNode *root, QList<Qt4ProFileNode *> &list);
@@ -171,6 +170,11 @@ private:
     static bool equalFileList(const QStringList &a, const QStringList &b);
 
     static QString qmakeVarName(ProjectExplorer::FileType type);
+
+    void updateBuildSystemData();
+    void collectData(const Qt4ProFileNode *node, ProjectExplorer::DeploymentData &deploymentData);
+    void collectLibraryData(const Qt4ProFileNode *node,
+            ProjectExplorer::DeploymentData &deploymentData);
 
     Qt4Manager *m_manager;
     Qt4ProFileNode *m_rootProjectNode;

@@ -30,6 +30,8 @@
 
 #include "target.h"
 
+#include "buildtargetinfo.h"
+#include "deploymentdata.h"
 #include "profile.h"
 #include "profileinformation.h"
 #include "profilemanager.h"
@@ -90,6 +92,8 @@ public:
     DeployConfiguration *m_activeDeployConfiguration;
     QList<RunConfiguration *> m_runConfigurations;
     RunConfiguration* m_activeRunConfiguration;
+    DeploymentData m_deploymentData;
+    BuildTargetInfoList m_appTargets;
 
     QPixmap m_connectedPixmap;
     QPixmap m_readyToUsePixmap;
@@ -366,6 +370,26 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
         emit requestBuildSystemEvaluation();
     }
     updateDeviceState();
+}
+
+void Target::setDeploymentData(const DeploymentData &deploymentData)
+{
+    d->m_deploymentData = deploymentData;
+}
+
+DeploymentData Target::deploymentData() const
+{
+    return d->m_deploymentData;
+}
+
+void Target::setApplicationTargets(const BuildTargetInfoList &appTargets)
+{
+    d->m_appTargets = appTargets;
+}
+
+BuildTargetInfoList Target::applicationTargets() const
+{
+    return d->m_appTargets;
 }
 
 QList<RunConfiguration *> Target::runConfigurations() const
