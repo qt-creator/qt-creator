@@ -181,9 +181,9 @@ ClearCasePlugin::ClearCasePlugin() :
     m_submitUndoAction(0),
     m_submitRedoAction(0),
     m_menuAction(0),
-    m_submitActionTriggered(false),
-    activityMutex(0)
+    m_submitActionTriggered(false)
 {
+    activityMutex = new QMutex;
 }
 
 ClearCasePlugin::~ClearCasePlugin()
@@ -191,6 +191,7 @@ ClearCasePlugin::~ClearCasePlugin()
     cleanCheckInMessageFile();
     // wait for sync thread to finish reading activities
     activityMutex->lock();
+    activityMutex->unlock();
     delete activityMutex;
 }
 
@@ -252,7 +253,6 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     initializeVcs(new ClearCaseControl(this));
 
     m_clearcasePluginInstance = this;
-    activityMutex = new QMutex;
     connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(closing()));
     connect(Core::ICore::progressManager(), SIGNAL(allTasksFinished(QString)),
             this, SLOT(tasksFinished(QString)));
