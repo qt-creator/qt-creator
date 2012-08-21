@@ -33,6 +33,7 @@
 #include <QFileInfo>
 #include <QSet>
 #include <QStringList>
+#include <QTextStream>
 
 QT_BEGIN_NAMESPACE
 
@@ -289,6 +290,12 @@ ProString ProString::trimmed() const
     return ret;
 }
 
+QTextStream &operator<<(QTextStream &t, const ProString &str)
+{
+    t << str.toQString(); // XXX optimize ... somehow
+    return t;
+}
+
 QString ProStringList::join(const QString &sep) const
 {
     int totalLength = 0;
@@ -313,6 +320,20 @@ QString ProStringList::join(const QString &sep) const
     return res;
 }
 
+void ProStringList::removeAll(const ProString &str)
+{
+    for (int i = size(); --i >= 0; )
+        if (at(i) == str)
+            remove(i);
+}
+
+void ProStringList::removeAll(const char *str)
+{
+    for (int i = size(); --i >= 0; )
+        if (at(i) == str)
+            remove(i);
+}
+
 void ProStringList::removeDuplicates()
 {
     int n = size();
@@ -332,6 +353,13 @@ void ProStringList::removeDuplicates()
         erase(begin() + j, end());
 }
 
+ProStringList::ProStringList(const QStringList &list)
+{
+    reserve(list.size());
+    foreach (const QString &str, list)
+        *this << ProString(str);
+}
+
 QStringList ProStringList::toQStringList() const
 {
     QStringList ret;
@@ -339,6 +367,22 @@ QStringList ProStringList::toQStringList() const
     foreach (const ProString &str, *this)
         ret << str.toQString();
     return ret;
+}
+
+bool ProStringList::contains(const ProString &str, Qt::CaseSensitivity cs) const
+{
+    for (int i = 0; i < size(); i++)
+        if (!at(i).compare(str, cs))
+            return true;
+    return false;
+}
+
+bool ProStringList::contains(const char *str, Qt::CaseSensitivity cs) const
+{
+    for (int i = 0; i < size(); i++)
+        if (!at(i).compare(str, cs))
+            return true;
+    return false;
 }
 
 ProFile::ProFile(const QString &fileName)
