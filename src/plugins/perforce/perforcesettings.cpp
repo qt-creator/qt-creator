@@ -57,13 +57,12 @@ enum { defaultTimeOutS = 30, defaultLogCount = 1000 };
 
 static QString defaultCommand()
 {
-    Utils::Environment env = Utils::Environment::systemEnvironment();
     QString rc;
     rc = QLatin1String("p4");
 #if defined(Q_OS_WIN32)
     rc.append(QLatin1String(".exe"));
 #endif
-    return env.searchInPath(rc);
+    return rc;
 }
 
 namespace Perforce {
@@ -115,6 +114,7 @@ void PerforceSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(groupC));
     m_settings.p4Command = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
+    m_settings.p4BinaryPath = Utils::Environment::systemEnvironment().searchInPath(m_settings.p4Command);
     m_settings.defaultEnv = settings->value(QLatin1String(defaultKeyC), true).toBool();
     m_settings.p4Port = settings->value(QLatin1String(portKeyC), QString()).toString();
     m_settings.p4Client = settings->value(QLatin1String(clientKeyC), QString()).toString();
@@ -157,6 +157,11 @@ Settings PerforceSettings::settings() const
 QString PerforceSettings::p4Command() const
 {
     return m_settings.p4Command;
+}
+
+QString PerforceSettings::p4BinaryPath() const
+{
+    return m_settings.p4BinaryPath;
 }
 
 QString PerforceSettings::p4Port() const

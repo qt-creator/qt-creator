@@ -82,7 +82,7 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
         errorMessage->clear();
 
     if (m_binaryPath.isEmpty()) {
-        const QString binary = stringValue(binaryPathKey);
+        const QString binary = binaryPath();
         QString currentPath = stringValue(pathKey);
         QString systemPath = QString::fromLocal8Bit(qgetenv("PATH"));
         if (!systemPath.isEmpty()) {

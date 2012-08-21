@@ -1229,7 +1229,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
                               unsigned flags,
                               QTextCodec *outputCodec)
 {
-    const QString executable = m_settings.cvsCommand;
+    const QString executable = m_settings.cvsBinaryPath;
     CvsResponse response;
     if (executable.isEmpty()) {
         response.result = CvsResponse::OtherError;

@@ -81,6 +81,8 @@ public:
     void setValue(const QString &key, const QVariant &v);
     QVariant::Type valueType(const QString &key) const;
 
+    QString binaryPath() const;
+
 protected:
     QString settingsGroup() const;
     void setSettingsGroup(const QString &group);

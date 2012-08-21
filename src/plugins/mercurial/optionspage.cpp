@@ -52,7 +52,7 @@ OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
 MercurialSettings OptionsPageWidget::settings() const
 {
     MercurialSettings s = MercurialPlugin::instance()->settings();
-    s.setValue(MercurialSettings::binaryPathKey, m_ui.commandChooser->path());
+    s.setValue(MercurialSettings::binaryPathKey, m_ui.commandChooser->rawPath());
     s.setValue(MercurialSettings::userNameKey, m_ui.defaultUsernameLineEdit->text().trimmed());
     s.setValue(MercurialSettings::userEmailKey, m_ui.defaultEmailLineEdit->text().trimmed());
     s.setValue(MercurialSettings::logCountKey, m_ui.logEntriesCount->value());
