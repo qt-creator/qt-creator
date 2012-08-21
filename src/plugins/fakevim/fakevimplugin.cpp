@@ -96,27 +96,18 @@
 #include <QTextEdit>
 #include <QTreeWidgetItem>
 
-using namespace FakeVim::Internal;
 using namespace TextEditor;
 using namespace Core;
 
 namespace FakeVim {
-namespace Constants {
+namespace Internal {
 
 const char INSTALL_HANDLER[]                = "TextEditor.FakeVimHandler";
-const char MINI_BUFFER[]                    = "TextEditor.FakeVimMiniBuffer";
 const char SETTINGS_CATEGORY[]              = "D.FakeVim";
 const char SETTINGS_CATEGORY_FAKEVIM_ICON[] = ":/core/images/category_fakevim.png";
 const char SETTINGS_ID[]                    = "A.General";
 const char SETTINGS_EX_CMDS_ID[]            = "B.ExCommands";
 const char SETTINGS_USER_CMDS_ID[]          = "C.UserCommands";
-
-} // namespace Constants
-} // namespace FakeVim
-
-
-namespace FakeVim {
-namespace Internal {
 
 class MiniBuffer : public QLabel
 {
@@ -173,18 +164,18 @@ typedef QMap<QString, QRegExp> ExCommandMap;
 typedef QMap<int, QString> UserCommandMap;
 typedef QLatin1String _;
 
-class FakeVimOptionPage : public Core::IOptionsPage
+class FakeVimOptionPage : public IOptionsPage
 {
     Q_OBJECT
 
 public:
     FakeVimOptionPage()
     {
-        setId(_(Constants::SETTINGS_ID));
+        setId(_(SETTINGS_ID));
         setDisplayName(tr("General"));
-        setCategory(_(Constants::SETTINGS_CATEGORY));
+        setCategory(_(SETTINGS_CATEGORY));
         setDisplayCategory(tr("FakeVim"));
-        setCategoryIcon(_(Constants::SETTINGS_CATEGORY_FAKEVIM_ICON));
+        setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
     QWidget *createPage(QWidget *parent);
@@ -330,7 +321,7 @@ bool FakeVimOptionPage::matches(const QString &s) const
 
 enum { CommandRole = Qt::UserRole };
 
-class FakeVimExCommandsPage : public Core::CommandMappings
+class FakeVimExCommandsPage : public CommandMappings
 {
     Q_OBJECT
 
@@ -338,11 +329,11 @@ public:
     FakeVimExCommandsPage(FakeVimPluginPrivate *q)
         : m_q(q)
     {
-        setId(_(Constants::SETTINGS_EX_CMDS_ID));
+        setId(_(SETTINGS_EX_CMDS_ID));
         setDisplayName(tr("Ex Command Mapping"));
-        setCategory(_(Constants::SETTINGS_CATEGORY));
+        setCategory(_(SETTINGS_CATEGORY));
         setDisplayCategory(tr("FakeVim"));
-        setCategoryIcon(_(Constants::SETTINGS_CATEGORY_FAKEVIM_ICON));
+        setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
     QWidget *createPage(QWidget *parent);
@@ -376,7 +367,7 @@ void FakeVimExCommandsPage::initialize()
 {
     QMap<QString, QTreeWidgetItem *> sections;
 
-    foreach (Command *c, Core::ActionManager::commands()) {
+    foreach (Command *c, ActionManager::commands()) {
         if (c->action() && c->action()->isSeparator())
             continue;
 
@@ -552,7 +543,7 @@ public:
     }
 };
 
-class FakeVimUserCommandsPage : public Core::IOptionsPage
+class FakeVimUserCommandsPage : public IOptionsPage
 {
     Q_OBJECT
 
@@ -560,11 +551,11 @@ public:
     FakeVimUserCommandsPage(FakeVimPluginPrivate *q)
         : m_q(q)
     {
-        setId(_(Constants::SETTINGS_USER_CMDS_ID));
+        setId(_(SETTINGS_USER_CMDS_ID));
         setDisplayName(tr("User Command Mapping"));
-        setCategory(_(Constants::SETTINGS_CATEGORY));
+        setCategory(_(SETTINGS_CATEGORY));
         setDisplayCategory(tr("FakeVim"));
-        setCategoryIcon(_(Constants::SETTINGS_CATEGORY_FAKEVIM_ICON));
+        setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
     void apply();
@@ -610,15 +601,15 @@ void FakeVimUserCommandsPage::apply()
 //
 ///////////////////////////////////////////////////////////////////////
 
-class FakeVimCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+class FakeVimCompletionAssistProvider : public CompletionAssistProvider
 {
 public:
-    bool supportsEditor(const Core::Id &) const
+    bool supportsEditor(const Id &) const
     {
         return false;
     }
 
-    TextEditor::IAssistProcessor *createProcessor() const;
+    IAssistProcessor *createProcessor() const;
 
     void setActive(const QString &needle, bool forward, FakeVimHandler *handler)
     {
@@ -708,11 +699,11 @@ public:
 class FakeVimCompletionAssistProcessor : public IAssistProcessor
 {
 public:
-    FakeVimCompletionAssistProcessor(const TextEditor::IAssistProvider *provider)
+    FakeVimCompletionAssistProcessor(const IAssistProvider *provider)
         : m_provider(static_cast<const FakeVimCompletionAssistProvider *>(provider))
     {}
 
-    virtual TextEditor::IAssistProposal *perform(const IAssistInterface *interface)
+    IAssistProposal *perform(const IAssistInterface *interface)
     {
         const QString &needle = m_provider->needle();
 
@@ -825,10 +816,10 @@ private:
     FakeVimOptionPage *m_fakeVimOptionsPage;
     FakeVimExCommandsPage *m_fakeVimExCommandsPage;
     FakeVimUserCommandsPage *m_fakeVimUserCommandsPage;
-    QHash<Core::IEditor *, FakeVimHandler *> m_editorToHandler;
+    QHash<IEditor *, FakeVimHandler *> m_editorToHandler;
 
-    void triggerAction(const Core::Id &id);
-    void setActionChecked(const Core::Id &id, bool check);
+    void triggerAction(const Id &id);
+    void setActionChecked(const Id &id, bool check);
 
     typedef int (*DistFunction)(const QRect &cursor, const QRect &other);
     void moveSomewhere(DistFunction f);
@@ -843,7 +834,7 @@ private:
     UserCommandMap m_userCommandMap;
     UserCommandMap m_defaultUserCommandMap;
 
-    Core::StatusBarWidget *m_statusBar;
+    StatusBarWidget *m_statusBar;
     // @TODO: Delete
     //WordCompletion *m_wordCompletion;
     FakeVimCompletionAssistProvider *m_wordProvider;
@@ -960,13 +951,13 @@ bool FakeVimPluginPrivate::initialize()
 
     readSettings();
 
-    Core::Command *cmd = 0;
-    cmd = Core::ActionManager::registerAction(theFakeVimSetting(ConfigUseFakeVim),
-        Constants::INSTALL_HANDLER, globalcontext, true);
-    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+V,Meta+V") : tr("Alt+V,Alt+V")));
+    Command *cmd = 0;
+    cmd = ActionManager::registerAction(theFakeVimSetting(ConfigUseFakeVim),
+        INSTALL_HANDLER, globalcontext, true);
+    cmd->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+V,Meta+V") : tr("Alt+V,Alt+V")));
 
     ActionContainer *advancedMenu =
-        Core::ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
+        ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
     advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
 
     for (int i = 1; i < 10; ++i) {
@@ -974,8 +965,8 @@ bool FakeVimPluginPrivate::initialize()
         act->setText(tr("Execute User Action #%1").arg(i));
         act->setData(i);
         QString id = QString("FakeVim.UserAction%1").arg(i);
-        cmd = Core::ActionManager::registerAction(act, Core::Id(id), globalcontext);
-        cmd->setDefaultKeySequence(QKeySequence((Core::UseMacShortcuts ? tr("Meta+V,%1") : tr("Alt+V,%1")).arg(i)));
+        cmd = ActionManager::registerAction(act, Id(id), globalcontext);
+        cmd->setDefaultKeySequence(QKeySequence((UseMacShortcuts ? tr("Meta+V,%1") : tr("Alt+V,%1")).arg(i)));
         connect(act, SIGNAL(triggered()), SLOT(userActionTriggered()));
     }
 
@@ -1018,11 +1009,12 @@ void FakeVimPluginPrivate::userActionTriggered()
         handler->handleInput(cmd);
 }
 
-static const char exCommandMapGroup[] = "FakeVimExCommand";
-static const char userCommandMapGroup[] = "FakeVimUserCommand";
-static const char reKey[] = "RegEx";
-static const char cmdKey[] = "Cmd";
-static const char idKey[] = "Command";
+
+const char exCommandMapGroup[] = "FakeVimExCommand";
+const char userCommandMapGroup[] = "FakeVimUserCommand";
+const char reKey[] = "RegEx";
+const char cmdKey[] = "Cmd";
+const char idKey[] = "Command";
 
 void FakeVimPluginPrivate::writeSettings()
 {
@@ -1120,14 +1112,12 @@ void FakeVimPluginPrivate::maybeReadVimRc()
 
 void FakeVimPluginPrivate::showSettingsDialog()
 {
-    ICore::showOptionsDialog(
-        _(Constants::SETTINGS_CATEGORY),
-        _(Constants::SETTINGS_ID));
+    ICore::showOptionsDialog(_(SETTINGS_CATEGORY), _(SETTINGS_ID));
 }
 
 void FakeVimPluginPrivate::triggerAction(const Id &id)
 {
-    Core::Command *cmd = Core::ActionManager::command(id);
+    Core::Command *cmd = ActionManager::command(id);
     QTC_ASSERT(cmd, qDebug() << "UNKNOWN CODE: " << id.name(); return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
@@ -1136,7 +1126,7 @@ void FakeVimPluginPrivate::triggerAction(const Id &id)
 
 void FakeVimPluginPrivate::setActionChecked(const Id &id, bool check)
 {
-    Core::Command *cmd = Core::ActionManager::command(id);
+    Core::Command *cmd = ActionManager::command(id);
     QTC_ASSERT(cmd, return);
     QAction *action = cmd->action();
     QTC_ASSERT(action, return);
@@ -1315,7 +1305,7 @@ public:
     }
 };
 
-void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
+void FakeVimPluginPrivate::editorOpened(IEditor *editor)
 {
     if (!editor)
         return;
@@ -1380,7 +1370,7 @@ void FakeVimPluginPrivate::editorOpened(Core::IEditor *editor)
     }
 }
 
-void FakeVimPluginPrivate::editorAboutToClose(Core::IEditor *editor)
+void FakeVimPluginPrivate::editorAboutToClose(IEditor *editor)
 {
     //qDebug() << "CLOSING: " << editor << editor->widget();
     m_editorToHandler.remove(editor);
@@ -1399,18 +1389,18 @@ void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
 {
     if (on) {
         //ICore *core = ICore::instance();
-        //core->updateAdditionalContexts(Core::Context(FAKEVIM_CONTEXT),
-        // Core::Context());
-        foreach (Core::IEditor *editor, m_editorToHandler.keys())
+        //core->updateAdditionalContexts(Context(FAKEVIM_CONTEXT),
+        // Context());
+        foreach (IEditor *editor, m_editorToHandler.keys())
             m_editorToHandler[editor]->setupWidget();
     } else {
         //ICore *core = ICore::instance();
-        //core->updateAdditionalContexts(Core::Context(),
-        // Core::Context(FAKEVIM_CONTEXT));
+        //core->updateAdditionalContexts(Context(),
+        // Context(FAKEVIM_CONTEXT));
         showCommandBuffer(QString(), -1);
-        foreach (Core::IEditor *editor, m_editorToHandler.keys()) {
-            if (TextEditor::BaseTextEditorWidget *textEditor =
-                    qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget())) {
+        foreach (IEditor *editor, m_editorToHandler.keys()) {
+            if (BaseTextEditorWidget *textEditor =
+                    qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
                 m_editorToHandler[editor]->restoreWidget(textEditor->tabSettings().m_tabSize);
             }
         }
@@ -1475,7 +1465,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
     *handled = true;
     if (cmd.matches("w", "write") || cmd.cmd == "wq") {
         // :w[rite]
-        Core::IEditor *editor = m_editorToHandler.key(handler);
+        IEditor *editor = m_editorToHandler.key(handler);
         const QString fileName = handler->currentFileName();
         if (editor && editor->document()->fileName() == fileName) {
             // Handle that as a special case for nicer interaction with core
@@ -1566,7 +1556,7 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
     }
 }
 
-void FakeVimPluginPrivate::handleDelayedQuit(bool forced, Core::IEditor *editor)
+void FakeVimPluginPrivate::handleDelayedQuit(bool forced, IEditor *editor)
 {
     // This tries to simulate vim behaviour. But the models of vim and
     // Qt Creator core do not match well...
@@ -1574,7 +1564,7 @@ void FakeVimPluginPrivate::handleDelayedQuit(bool forced, Core::IEditor *editor)
     if (editorManager->hasSplitter()) {
         triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
     } else {
-        QList<Core::IEditor *> editors;
+        QList<IEditor *> editors;
         editors.append(editor);
         editorManager->closeEditors(editors, !forced);
     }
@@ -1697,7 +1687,7 @@ int FakeVimPluginPrivate::currentFile() const
 void FakeVimPluginPrivate::switchToFile(int n)
 {
     EditorManager *editorManager = ICore::editorManager();
-    Core::OpenEditorsModel *model = editorManager->openedEditorsModel();
+    OpenEditorsModel *model = editorManager->openedEditorsModel();
     int size = model->rowCount();
     QTC_ASSERT(size, return);
     n = n % size;
@@ -1756,7 +1746,7 @@ ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
 
 void FakeVimPlugin::extensionsInitialized()
 {
-    d->m_statusBar = new Core::StatusBarWidget;
+    d->m_statusBar = new StatusBarWidget;
     d->m_statusBar->setWidget(new MiniBuffer);
     d->m_statusBar->setPosition(StatusBarWidget::Last);
     addAutoReleasedObject(d->m_statusBar);
@@ -1767,4 +1757,4 @@ void FakeVimPlugin::extensionsInitialized()
 
 #include "fakevimplugin.moc"
 
-Q_EXPORT_PLUGIN(FakeVimPlugin)
+Q_EXPORT_PLUGIN(FakeVim::Internal::FakeVimPlugin)
