@@ -206,6 +206,17 @@ void QMakeGlobals::commitCommandLineArguments(QMakeCmdLineParserState &state)
         xqmakespec = qmakespec;
 }
 
+void QMakeGlobals::useEnvironment()
+{
+    if (xqmakespec.isEmpty())
+        xqmakespec = getEnv(QLatin1String("XQMAKESPEC"));
+    if (qmakespec.isEmpty()) {
+        qmakespec = getEnv(QLatin1String("QMAKESPEC"));
+        if (xqmakespec.isEmpty())
+            xqmakespec = qmakespec;
+    }
+}
+
 void QMakeGlobals::setCommandLineArguments(const QString &pwd, const QStringList &_args)
 {
     QStringList args = _args;
@@ -214,6 +225,7 @@ void QMakeGlobals::setCommandLineArguments(const QString &pwd, const QStringList
     for (int pos = 0; pos < args.size(); pos++)
         addCommandLineArguments(state, args, &pos);
     commitCommandLineArguments(state);
+    useEnvironment();
 }
 
 void QMakeGlobals::setDirectories(const QString &input_dir, const QString &output_dir)

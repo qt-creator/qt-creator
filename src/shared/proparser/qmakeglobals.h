@@ -115,6 +115,7 @@ public:
                                            QStringList &args, int *pos);
     void commitCommandLineArguments(QMakeCmdLineParserState &state);
     void setCommandLineArguments(const QString &pwd, const QStringList &args);
+    void useEnvironment();
     void setDirectories(const QString &input_dir, const QString &output_dir);
 #ifdef PROEVALUATOR_INIT_PROPS
     bool initProperties();
