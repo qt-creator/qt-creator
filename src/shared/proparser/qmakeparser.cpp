@@ -214,7 +214,15 @@ bool QMakeParser::read(ProFile *pro)
         return false;
     }
 
-    QString content(QString::fromLocal8Bit(file.readAll()));
+    QByteArray bcont = file.readAll();
+    if (bcont.startsWith(QByteArray("\xef\xbb\xbf"))) {
+        // UTF-8 BOM will cause subtle errors
+        m_handler->message(QMakeParserHandler::ParserIoError,
+                           fL1S("Unexpected UTF-8 BOM in %1").arg(pro->fileName()));
+        return false;
+    }
+    QString content(QString::fromLocal8Bit(bcont));
+    bcont.clear();
     file.close();
     return read(pro, content, FullGrammar);
 }
