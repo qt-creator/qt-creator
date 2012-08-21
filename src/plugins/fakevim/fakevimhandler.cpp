@@ -84,6 +84,7 @@
 #include <QTextCursor>
 #include <QTextDocumentFragment>
 #include <QTextEdit>
+#include <QMimeData>
 
 #include <algorithm>
 #include <climits>
