@@ -713,6 +713,7 @@ static bool isAllowedTransition(DebuggerState from, DebuggerState to)
 
     case EngineRunRequested:
         return to == EngineRunFailed
+            || to == InferiorRunRequested
             || to == InferiorRunOk
             || to == InferiorStopOk
             || to == InferiorUnrunnable;
@@ -922,6 +923,16 @@ void DebuggerEngine::notifyEngineRemoteSetupFailed(const QString &message)
                qDebug() << this << "remoteSetupState" << d->remoteSetupState());
 }
 
+void DebuggerEngine::notifyEngineRunOkAndInferiorRunRequested()
+{
+    showMessage(_("NOTE: ENGINE RUN OK AND INFERIOR RUN REQUESTED"));
+    d->m_progress.setProgressValue(1000);
+    d->m_progress.reportFinished();
+    QTC_ASSERT(state() == EngineRunRequested, qDebug() << this << state());
+    showStatusMessage(tr("Running."));
+    setState(InferiorRunRequested);
+}
+
 void DebuggerEngine::notifyEngineRunAndInferiorRunOk()
 {
     showMessage(_("NOTE: ENGINE RUN AND INFERIOR RUN OK"));
@@ -952,10 +963,15 @@ void DebuggerEngine::notifyInferiorRunRequested()
 
 void DebuggerEngine::notifyInferiorRunOk()
 {
+    if (state() == InferiorRunOk) {
+        showMessage(_("NOTE: INFERIOR RUN OK - REPEATED."));
+        return;
+    }
     showMessage(_("NOTE: INFERIOR RUN OK"));
     showStatusMessage(tr("Running."));
-    // Transition from StopRequested can happen sin remotegdbadapter.
+    // Transition from StopRequested can happen in remotegdbadapter.
     QTC_ASSERT(state() == InferiorRunRequested
+        || state() == InferiorStopOk
         || state() == InferiorStopRequested, qDebug() << this << state());
     setState(InferiorRunOk);
 }

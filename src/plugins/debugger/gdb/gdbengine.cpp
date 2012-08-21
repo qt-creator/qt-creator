@@ -469,7 +469,12 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 m_pendingLogStreamOutput.clear();
                 m_pendingConsoleStreamOutput.clear();
             } else if (asyncClass == "running") {
-                // Archer has 'thread-id="all"' here
+                if (state() == InferiorRunOk) {
+                    // We get multiple *running after thread creation.
+                    showMessage(_("NOTE: INFERIOR STILL RUNNING."));
+                } else {
+                    notifyInferiorRunOk();
+                }
             } else if (asyncClass == "library-loaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
                 // target-name="/usr/lib/libdrm.so.2",
@@ -1301,8 +1306,9 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
 void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
-        doNotifyInferiorRunOk();
-        // All is fine. Waiting for the temporary breakpoint to be hit.
+        // All is fine. Waiting for a *running
+        // and the temporary breakpoint to be hit.
+        notifyInferiorRunOk(); // Only needed for gdb < 7.0.
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb. Trigger the effect of a '*stopped'.
         showStatusMessage(tr("Jumped. Stopped"));
@@ -1314,8 +1320,8 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
 void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
-        doNotifyInferiorRunOk();
-        // All is fine. Waiting for the temporary breakpoint to be hit.
+        // All is fine. Waiting for a *running
+        // and the temporary breakpoint to be hit.
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb (Mac). gdb is not stopped yet,
         // but merely accepted the continue.
@@ -1480,7 +1486,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // be handled in the result handler.
         // -- or --
         // *stopped arriving earlier than ^done response to an -exec-step
-        doNotifyInferiorRunOk();
         notifyInferiorSpontaneousStop();
     } else if (state() == InferiorStopOk) {
         // That's expected.
@@ -1875,7 +1880,8 @@ void GdbEngine::handleExecuteContinue(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        doNotifyInferiorRunOk();
+        // All is fine. Waiting for a *running.
+        notifyInferiorRunOk(); // Only needed for gdb < 7.0.
         return;
     }
     QByteArray msg = response.data.findChild("msg").data();
@@ -2136,12 +2142,6 @@ void GdbEngine::continueInferiorInternal()
     postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
 }
 
-void GdbEngine::doNotifyInferiorRunOk()
-{
-    clearToolTip();
-    notifyInferiorRunOk();
-}
-
 void GdbEngine::autoContinueInferior()
 {
     resetLocation();
@@ -2181,7 +2181,8 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
     }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        doNotifyInferiorRunOk();
+        // All is fine. Waiting for a *running.
+        notifyInferiorRunOk(); // Only needed for gdb < 7.0.
         return;
     }
     QByteArray msg = response.data.findChild("msg").data();
@@ -2258,7 +2259,8 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
     }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        doNotifyInferiorRunOk();
+        // All is fine. Waiting for a *running.
+        notifyInferiorRunOk(); // Only needed for gdb < 7.0.
         return;
     }
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
@@ -3871,9 +3873,10 @@ QString GdbEngine::tooltipExpression() const
     return m_toolTipContext.isNull() ? QString() : m_toolTipContext->expression;
 }
 
-void GdbEngine::clearToolTip()
+void GdbEngine::resetLocation()
 {
     m_toolTipContext.reset();
+    DebuggerEngine::resetLocation();
 }
 
 bool GdbEngine::setToolTipExpression(const QPoint &mousePos,

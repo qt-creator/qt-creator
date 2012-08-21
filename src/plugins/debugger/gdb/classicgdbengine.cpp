@@ -723,11 +723,6 @@ void GdbEngine::updateLocalsClassic()
     m_pendingBreakpointRequests = 0;
     m_processedNames.clear();
 
-    if (0 && debugPending)
-        qDebug() << "\nRESET PENDING";
-    //m_toolTipCache.clear();
-    clearToolTip();
-
     QByteArray level = QByteArray::number(currentFrame());
     // '2' is 'list with type and value'
     QByteArray cmd = "-stack-list-arguments 2 " + level + ' ' + level;

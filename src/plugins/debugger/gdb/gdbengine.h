@@ -414,7 +414,6 @@ private: ////////// Inferior Management //////////
 
     protected:
     void continueInferiorInternal();
-    void doNotifyInferiorRunOk();
     void autoContinueInferior();
     void continueInferior();
     void interruptInferior();
@@ -441,6 +440,7 @@ private: ////////// View & Data Stuff //////////
 
     void selectThread(int index);
     void activateFrame(int index);
+    void resetLocation();
 
     //
     // Breakpoint specific stuff
@@ -659,7 +659,6 @@ protected:
 
     static QByteArray tooltipIName(const QString &exp);
     QString tooltipExpression() const;
-    void clearToolTip();
     QScopedPointer<GdbToolTipContext> m_toolTipContext;
 
 
