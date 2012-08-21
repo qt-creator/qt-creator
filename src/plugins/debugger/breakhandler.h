@@ -136,6 +136,7 @@ public:
     void updateLineNumberFromMarker(BreakpointModelId id, int lineNumber);
     void setMarkerFileAndLine(BreakpointModelId id,
         const QString &fileName, int lineNumber);
+    bool isOneShot(BreakpointModelId id) const;
     bool isWatchpoint(BreakpointModelId id) const;
     bool isTracepoint(BreakpointModelId id) const;
     void setTracepoint(BreakpointModelId, bool on);

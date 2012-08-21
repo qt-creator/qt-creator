@@ -633,8 +633,13 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray nr = result.findChild("id").data();
                 BreakpointResponseId rid(nr);
                 BreakpointModelId id = handler->findBreakpointByResponseId(rid);
-                if (id.isValid())
-                    handler->removeAlienBreakpoint(id);
+                if (id.isValid()) {
+                    // This also triggers when a temporary breakpoint is hit.
+                    // We do not really want that, as this loses all information.
+                    // FIXME: Use a special marker for this case?
+                    if (!handler->isOneShot(id))
+                        handler->removeAlienBreakpoint(id);
+                }
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
@@ -3140,6 +3145,10 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
     } else {
         cmd = "-break-insert ";
     }
+
+    if (handler->isOneShot(id))
+        cmd += "-t ";
+
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + ' ';
     cmd += breakpointLocation(id);

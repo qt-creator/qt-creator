@@ -128,6 +128,8 @@ private:
     QLineEdit *m_lineEditFunction;
     QLabel *m_labelTracepoint;
     QCheckBox *m_checkBoxTracepoint;
+    QLabel *m_labelOneShot;
+    QCheckBox *m_checkBoxOneShot;
     QLabel *m_labelUseFullPath;
     QLabel *m_labelModule;
     QLineEdit *m_lineEditModule;
@@ -205,6 +207,10 @@ BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
     m_checkBoxTracepoint = new QCheckBox(groupBoxAdvanced);
     m_labelTracepoint = new QLabel(tr("T&racepoint only:"), groupBoxAdvanced);
     m_labelTracepoint->setBuddy(m_checkBoxTracepoint);
+
+    m_checkBoxOneShot = new QCheckBox(groupBoxAdvanced);
+    m_labelOneShot = new QLabel(tr("&One shot only:"), groupBoxAdvanced);
+    m_labelOneShot->setBuddy(m_checkBoxOneShot);
 
     const QString pathToolTip =
         tr("<html><head/><body><p>Determines how the path is specified "
@@ -288,6 +294,7 @@ BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
     basicLayout->addRow(m_labelAddress, m_lineEditAddress);
     basicLayout->addRow(m_labelExpression, m_lineEditExpression);
     basicLayout->addRow(m_labelFunction, m_lineEditFunction);
+    basicLayout->addRow(m_labelOneShot, m_checkBoxOneShot);
 
     QFormLayout *advancedLeftLayout = new QFormLayout();
     advancedLeftLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
@@ -364,6 +371,9 @@ void BreakpointDialog::setPartsEnabled(unsigned partsMask)
     m_labelFunction->setEnabled(partsMask & FunctionPart);
     m_lineEditFunction->setEnabled(partsMask & FunctionPart);
 
+    m_labelOneShot->setEnabled(partsMask & OneShotPart);
+    m_checkBoxOneShot->setEnabled(partsMask & OneShotPart);
+
     m_labelAddress->setEnabled(partsMask & AddressPart);
     m_lineEditAddress->setEnabled(partsMask & AddressPart);
     m_labelExpression->setEnabled(partsMask & ExpressionPart);
@@ -415,6 +425,8 @@ void BreakpointDialog::clearOtherParts(unsigned partsMask)
     if (invertedPartsMask & ModulePart)
         m_lineEditModule->clear();
 
+    if (partsMask & OneShotPart)
+        m_checkBoxOneShot->setChecked(false);
     if (invertedPartsMask & TracePointPart) {
         m_checkBoxTracepoint->setChecked(false);
         m_textEditCommands->clear();
@@ -449,6 +461,8 @@ void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) 
     if (partsMask & ModulePart)
         data->module = m_lineEditModule->text();
 
+    if (partsMask & OneShotPart)
+        data->oneShot = m_checkBoxOneShot->isChecked();
     if (partsMask & TracePointPart) {
         data->tracepoint = m_checkBoxTracepoint->isChecked();
         data->command = m_textEditCommands->toPlainText().trimmed();
@@ -498,6 +512,8 @@ void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
     if (mask & ModulePart)
         m_lineEditModule->setText(data.module);
 
+    if (mask & OneShotPart)
+        m_checkBoxOneShot->setChecked(data.oneShot);
     if (mask & TracePointPart)
         m_checkBoxTracepoint->setChecked(data.tracepoint);
 }
