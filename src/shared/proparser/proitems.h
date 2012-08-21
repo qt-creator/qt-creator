@@ -52,6 +52,12 @@ private:
 };
 #endif
 
+#ifndef QT_BUILD_QMAKE
+#  define PROITEM_EXPLICIT explicit
+#else
+#  define PROITEM_EXPLICIT
+#endif
+
 class ProKey;
 class ProStringList;
 class ProFile;
@@ -60,8 +66,8 @@ class ProString {
 public:
     ProString();
     ProString(const ProString &other);
-    explicit ProString(const QString &str);
-    explicit ProString(const char *str);
+    PROITEM_EXPLICIT ProString(const QString &str);
+    PROITEM_EXPLICIT ProString(const char *str);
     ProString(const QString &str, int offset, int length);
     void setValue(const QString &str);
     ProString &setSource(const ProString &other) { m_file = other.m_file; return *this; }
@@ -122,7 +128,7 @@ class ProKey : public ProString {
 public:
     ALWAYS_INLINE ProKey() : ProString() {}
     explicit ProKey(const QString &str);
-    explicit ProKey(const char *str);
+    PROITEM_EXPLICIT ProKey(const char *str);
     ProKey(const QString &str, int off, int len);
     ProKey(const QString &str, int off, int len, uint hash);
     void setValue(const QString &str);
