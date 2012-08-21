@@ -1238,6 +1238,9 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
                                       frame.function, frame.file, frame.line,
                                       &uninitializedVariables);
     }
+    WatchHandler *handler = watchHandler();
+    insertData(*handler->findData("local"));
+
     foreach (const GdbMi &item, locals) {
         const WatchData data = localVariable(item, uninitializedVariables, &seen);
         if (data.isValid())
@@ -1252,7 +1255,7 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
         insertData(rd);
     }
 
-    watchHandler()->updateWatchers();
+    handler->updateWatchers();
 }
 
 static void showQtDumperLibraryWarning(const QString &details)
