@@ -245,6 +245,7 @@ public:
         { return contains(ProString(str), cs); }
     bool contains(const char *str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 };
+Q_DECLARE_TYPEINFO(ProStringList, Q_MOVABLE_TYPE);
 
 inline ProStringList operator+(const ProStringList &one, const ProStringList &two)
     { ProStringList ret = one; ret += two; return ret; }
