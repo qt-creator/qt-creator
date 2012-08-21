@@ -1917,7 +1917,6 @@ QString GdbEngine::fullName(const QString &fileName)
 {
     if (fileName.isEmpty())
         return QString();
-    //QTC_ASSERT(!m_sourcesListOutdated, /* */);
     QTC_ASSERT(!m_sourcesListUpdating, /* */);
     return m_shortToFullName.value(fileName, QString());
 }
@@ -4726,9 +4725,6 @@ void GdbEngine::startGdb(const QStringList &args)
     // Produces a few messages during symtab loading
     //postCommand("set verbose on");
 
-    //postCommand("set substitute-path /var/tmp/qt-x11-src-4.5.0 "
-    //    "/home/sandbox/qtsdk-2009.01/qt");
-
     // one of the following is needed to prevent crashes in gdb on code like:
     //  template <class T> T foo() { return T(0); }
     //  int main() { return foo<int>(); }
@@ -4746,9 +4742,6 @@ void GdbEngine::startGdb(const QStringList &args)
     // when Custom DebuggingHelper crash (which happen regularly when accessing
     // uninitialized variables).
     postCommand("handle SIGSEGV nopass stop print");
-
-    // This is useful to kill the inferior whenever gdb dies.
-    //postCommand(_("handle SIGTERM pass nostop print"));
 
     postCommand("set unwindonsignal on");
     postCommand("set width 0");
