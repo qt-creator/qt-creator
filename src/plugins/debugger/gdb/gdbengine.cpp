@@ -1477,13 +1477,15 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // *stopped arriving earlier than ^done response to an -exec-step
         doNotifyInferiorRunOk();
         notifyInferiorSpontaneousStop();
-    } else if (state() == InferiorStopOk && isQmlStepBreakpoint2(rid)) {
+    } else if (state() == InferiorStopOk) {
         // That's expected.
     } else {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
         m_actingOnExpectedStop = true;
         notifyInferiorStopOk();
     }
+
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
 
     if (isQmlStepBreakpoint1(rid))
         return;
@@ -1504,6 +1506,8 @@ void GdbEngine::handleStop1(const GdbResponse &response)
 
 void GdbEngine::handleStop1(const GdbMi &data)
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    QTC_ASSERT(!isDying(), return);
     const GdbMi frame = data.findChild("frame");
     const QByteArray reason = data.findChild("reason").data();
 
@@ -1593,11 +1597,8 @@ void GdbEngine::handleStop2(const GdbResponse &response)
 
 void GdbEngine::handleStop2(const GdbMi &data)
 {
-    if (isDying()) {
-        qDebug() << "HANDLING STOP WHILE DYING";
-        notifyInferiorStopOk();
-        return;
-    }
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    QTC_ASSERT(!isDying(), return);
 
     // A user initiated stop looks like the following. Note that there is
     // this extra "stopper thread" created and "properly" reported by gdb.
