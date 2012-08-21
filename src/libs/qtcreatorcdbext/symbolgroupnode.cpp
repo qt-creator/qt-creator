@@ -1066,8 +1066,25 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     const std::string watchExp = t.empty() ? aName : watchExpression(addr, t, m_dumperType, m_module);
     SymbolGroupNode::dumpBasicData(str, aName, aFullIName, t, watchExp);
 
-    if (addr)
-        str << ",addr=\"" << std::hex << std::showbase << addr << std::noshowbase << std::dec << '"';
+    std::wstring value = simpleDumpValue(ctx);
+
+    if (addr) {
+        ULONG64 referencedAddr = 0;
+        // Determine referenced address of pointers?
+        if (!value.compare(0, 2u, L"0x")) {
+            std::wistringstream str(value.substr(2u, value.size() - 2u));
+            str >> std::hex >> referencedAddr;
+        }
+        // Emulate gdb's behaviour of returning the referenced address
+        // for pointers.
+        str << std::hex << std::showbase;
+        if (referencedAddr) {
+            str << ",addr=\"" << referencedAddr << "\",origaddr=\"" << addr << '"';
+        } else {
+            str << ",addr=\"" << addr << '"';
+        }
+        str << std::noshowbase << std::dec;
+    }
     const ULONG s = size();
     if (s)
         str << ",size=\"" << s << '"';
@@ -1076,7 +1093,6 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
     bool valueEnabled = !uninitialized;
 
     // Shall it be recoded?
-    std::wstring value = simpleDumpValue(ctx);
     int encoding = 0;
     if (dumpParameters.recode(t, aFullIName, ctx, addr, &value, &encoding)) {
         str << ",valueencoded=\"" << encoding
