@@ -1,4 +1,5 @@
-INCLUDEPATH += $$PWD $$PWD/easingpane
+INCLUDEPATH *= $$PWD
+INCLUDEPATH *= $$PWD/easingpane
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += quick1
 } else {

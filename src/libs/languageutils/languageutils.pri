@@ -1,2 +1,2 @@
 LIBS *= -l$$qtLibraryName(LanguageUtils)
-DEFINES += QT_CREATOR
+DEFINES *= QT_CREATOR

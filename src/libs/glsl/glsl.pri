@@ -1,2 +1,2 @@
 LIBS *= -l$$qtLibraryName(GLSL)
-DEFINES += QT_CREATOR
+DEFINES *= QT_CREATOR
