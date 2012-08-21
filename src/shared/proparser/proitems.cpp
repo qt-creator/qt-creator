@@ -194,6 +194,29 @@ ProString &ProString::prepend(const ProString &other)
     return *this;
 }
 
+ProString &ProString::append(const QLatin1String other)
+{
+    const char *latin1 = other.latin1();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    int size = other.size();
+#else
+    int size = strlen(latin1);
+#endif
+    if (size) {
+        QChar *ptr = prepareExtend(size, 0, m_length);
+        for (int i = 0; i < size; i++)
+            *ptr++ = QLatin1Char(latin1[i]);
+    }
+    return *this;
+}
+
+ProString &ProString::append(QChar other)
+{
+    QChar *ptr = prepareExtend(1, 0, m_length);
+    *ptr = other;
+    return *this;
+}
+
 // If pending != 0, prefix with space if appending to non-empty non-pending
 ProString &ProString::append(const ProString &other, bool *pending)
 {

@@ -79,9 +79,17 @@ public:
     const ProFile *sourceFile() const { return m_file; }
 
     ProString &prepend(const ProString &other);
-    ProString &operator+=(const ProString &other);
     ProString &append(const ProString &other, bool *pending = 0);
+    ProString &append(const QString &other) { return append(ProString(other)); }
+    ProString &append(const QLatin1String other);
+    ProString &append(const char *other) { return append(QLatin1String(other)); }
+    ProString &append(QChar other);
     ProString &append(const ProStringList &other, bool *pending = 0, bool skipEmpty1st = false);
+    ProString &operator+=(const ProString &other) { return append(other); }
+    ProString &operator+=(const QString &other) { return append(other); }
+    ProString &operator+=(const QLatin1String other) { return append(other); }
+    ProString &operator+=(const char *other) { return append(other); }
+    ProString &operator+=(QChar other) { return append(other); }
 
     void chop(int n) { Q_ASSERT(n <= m_length); m_length -= n; }
     void chopFront(int n) { Q_ASSERT(n <= m_length); m_offset += n; m_length -= n; }
