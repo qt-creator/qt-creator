@@ -34,6 +34,10 @@
 #include "qmake_global.h"
 #include "proitems.h"
 
+#ifdef QT_BUILD_QMAKE
+#  include <property.h>
+#endif
+
 #include <QHash>
 #include <QStringList>
 #ifndef QT_BOOTSTRAPPED
@@ -117,12 +121,17 @@ public:
     void setCommandLineArguments(const QString &pwd, const QStringList &args);
     void useEnvironment();
     void setDirectories(const QString &input_dir, const QString &output_dir);
-#ifdef PROEVALUATOR_INIT_PROPS
-    bool initProperties();
+#ifdef QT_BUILD_QMAKE
+    void setQMakeProperty(QMakeProperty *prop) { property = prop; }
+    ProString propertyValue(const ProKey &name) const { return property->value(name); }
 #else
+#  ifdef PROEVALUATOR_INIT_PROPS
+    bool initProperties();
+#  else
     void setProperties(const QHash<QString, QString> &props);
-#endif
+#  endif
     ProString propertyValue(const ProKey &name) const { return properties.value(name); }
+#endif
 
     QString expandEnvVars(const QString &str) const;
 
@@ -134,7 +143,11 @@ private:
 
     QString source_root, build_root;
 
+#ifdef QT_BUILD_QMAKE
+    QMakeProperty *property;
+#else
     QHash<ProKey, ProString> properties;
+#endif
 
 #ifdef PROEVALUATOR_THREAD_SAFE
     QMutex mutex;

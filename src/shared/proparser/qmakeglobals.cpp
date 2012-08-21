@@ -282,6 +282,7 @@ QString QMakeGlobals::expandEnvVars(const QString &str) const
     return string;
 }
 
+#ifndef QT_BUILD_QMAKE
 #ifdef PROEVALUATOR_INIT_PROPS
 bool QMakeGlobals::initProperties()
 {
@@ -339,5 +340,6 @@ void QMakeGlobals::setProperties(const QHash<QString, QString> &props)
         properties.insert(ProKey(it.key()), ProString(it.value()));
 }
 #endif
+#endif // QT_BUILD_QMAKE
 
 QT_END_NAMESPACE
