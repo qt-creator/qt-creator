@@ -52,24 +52,14 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Core {
-    class IVersionControl;
-    class IEditor;
-}
-namespace Utils {
-    class ParameterAction;
-}
+class IVersionControl;
+class IEditor;
+} // namespace Core
 
-namespace VcsBase {
-    class VcsBaseSubmitEditor;
-}
-
-namespace Locator {
-    class CommandLocator;
-}
-
-namespace ProjectExplorer {
-    class Project;
-}
+namespace Utils { class ParameterAction; }
+namespace VcsBase { class VcsBaseSubmitEditor; }
+namespace Locator { class CommandLocator; }
+namespace ProjectExplorer { class Project; }
 
 namespace ClearCase {
 namespace Internal {
@@ -87,8 +77,9 @@ public:
     QString message;
 };
 
-struct FileStatus
+class FileStatus
 {
+public:
     enum Status
     {
         Unknown    = 0x0f,
@@ -194,9 +185,9 @@ protected:
 private:
     inline bool isCheckInEditorOpen() const;
     QString findTopLevel(const QString &directory) const;
-    Core::IEditor * showOutputInEditor(const QString& title, const QString &output,
-                                       int editorType, const QString &source,
-                                       QTextCodec *codec) const;
+    Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
+                                      int editorType, const QString &source,
+                                      QTextCodec *codec) const;
     QString runCleartoolSync(const QString &workingDir, const QStringList &arguments) const;
     ClearCaseResponse runCleartool(const QString &workingDir,
                               const QStringList &arguments, int timeOut,
@@ -257,14 +248,14 @@ private:
     QAction *m_submitUndoAction;
     QAction *m_submitRedoAction;
     QAction *m_menuAction;
-    bool    m_submitActionTriggered;
+    bool m_submitActionTriggered;
     QMutex *activityMutex;
     QList<QStringPair> m_activities;
 
     static ClearCasePlugin *m_clearcasePluginInstance;
 };
 
-} // namespace ClearCase
 } // namespace Internal
+} // namespace ClearCase
 
 #endif // CLEARCASEPLUGIN_H
