@@ -29,6 +29,7 @@
 **************************************************************************/
 
 #include "watchdata.h"
+#include "watchutils.h"
 
 #include <QTextStream>
 #include <QDebug>
@@ -388,11 +389,9 @@ QString WatchData::toToolTip() const
         val += tr(" ... <cut off>");
     }
     formatToolTipRow(str, tr("Value"), val);
-    formatToolTipRow(str, tr("Object Address"),
-                     QString::fromLatin1(hexAddress()));
-    if (referencingAddress)
-        formatToolTipRow(str, tr("Referencing Address"),
-                         QString::fromLatin1(hexReferencingAddress()));
+    formatToolTipRow(str, tr("Object Address"), formatToolTipAddress(address));
+        if (referencingAddress)
+        formatToolTipRow(str, tr("Referencing Address"), formatToolTipAddress(referencingAddress));
     if (size)
         formatToolTipRow(str, tr("Static Object Size"), tr("%n bytes", 0, size));
     formatToolTipRow(str, tr("Internal ID"), QLatin1String(iname));

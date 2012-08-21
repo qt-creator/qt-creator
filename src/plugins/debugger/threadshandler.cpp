@@ -30,6 +30,7 @@
 
 #include "threadshandler.h"
 #include "gdb/gdbmi.h"
+#include "watchutils.h"
 
 #include "debuggerconstants.h"
 #include "debuggercore.h"
@@ -75,9 +76,7 @@ static QString threadToolTip(const ThreadData &thread)
             str << thread.function << "<br>";
         if (!thread.fileName.isEmpty())
             str << thread.fileName << ':' << thread.lineNumber << "<br>";
-        str.setIntegerBase(16);
-        str << "0x" << thread.address;
-        str.setIntegerBase(10);
+        str << formatToolTipAddress(thread.address);
     }
     str << "</table></body></html>";
     return rc;

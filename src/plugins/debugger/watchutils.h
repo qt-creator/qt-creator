@@ -98,6 +98,8 @@ bool isIntOrFloatType(const QByteArray &type);
 bool isIntType(const QByteArray &type);
 bool isSymbianIntType(const QByteArray &type);
 
+QString formatToolTipAddress(quint64 a);
+
 QString quoteUnprintableLatin1(const QByteArray &ba);
 
 // Editor tooltip support

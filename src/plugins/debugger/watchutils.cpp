@@ -308,6 +308,26 @@ QByteArray stripPointerType(QByteArray type)
     return type;
 }
 
+// Format a hex address with colons as in the memory editor.
+QString formatToolTipAddress(quint64 a)
+{
+    QString rc = QString::number(a, 16);
+    if (a) {
+        if (const int remainder = rc.size() % 4)
+            rc.prepend(QString(4 - remainder, QLatin1Char('0')));
+        const QChar colon = QLatin1Char(':');
+        switch (rc.size()) {
+        case 16:
+            rc.insert(12, colon);
+        case 12:
+            rc.insert(8, colon);
+        case 8:
+            rc.insert(4, colon);
+        }
+    }
+    return QLatin1String("0x") + rc;
+}
+
 /* getUninitializedVariables(): Get variables that are not initialized
  * at a certain line of a function from the code model to be able to
  * indicate them as not in scope in the locals view.
