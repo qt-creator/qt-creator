@@ -63,6 +63,7 @@ public:
     bool equals(const ClearCaseSettings &s) const;
 
     QString ccCommand;
+    QString ccBinaryPath;
     int historyCount;
     int timeOutS;
     DiffType diffType;

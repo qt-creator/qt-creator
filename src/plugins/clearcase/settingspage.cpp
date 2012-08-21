@@ -57,7 +57,8 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 ClearCaseSettings SettingsPageWidget::settings() const
 {
     ClearCaseSettings rc;
-    rc.ccCommand = m_ui.commandPathChooser->path();
+    rc.ccCommand = m_ui.commandPathChooser->rawPath();
+    rc.ccBinaryPath = m_ui.commandPathChooser->path();
     rc.timeOutS = m_ui.timeOutSpinBox->value();
     rc.autoCheckOut = m_ui.autoCheckOutCheckBox->isChecked();
     if (m_ui.graphicalDiffRadioButton->isChecked())

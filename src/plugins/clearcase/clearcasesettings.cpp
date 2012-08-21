@@ -55,17 +55,19 @@ static const char defaultDiffArgs[] = "-ubp";
 
 enum { defaultTimeOutS = 30, defaultHistoryCount = 50 };
 
-static QString defaultCommand(const char *command)
+static QString defaultCommand()
 {
-    QString rc = QLatin1String(command);
-    QString expanded = Utils::Environment::systemEnvironment().searchInPath(rc);
-    return expanded.isEmpty() ? rc : expanded;
+    QString rc(QLatin1String("cleartool"));
+#if defined(Q_OS_WIN32)
+    rc.append(QLatin1String(".exe"));
+#endif
+    return rc;
 }
 
 using namespace ClearCase::Internal;
 
 ClearCaseSettings::ClearCaseSettings() :
-    ccCommand(defaultCommand("cleartool")),
+    ccCommand(defaultCommand()),
     historyCount(defaultHistoryCount),
     timeOutS(defaultTimeOutS),
     diffType(GraphicalDiff),
@@ -80,7 +82,8 @@ ClearCaseSettings::ClearCaseSettings() :
 void ClearCaseSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(groupC));
-    ccCommand = settings->value(QLatin1String(commandKeyC), defaultCommand("cleartool")).toString();
+    ccCommand = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
+    ccBinaryPath = Utils::Environment::systemEnvironment().searchInPath(ccCommand);
     timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     autoCheckOut = settings->value(QLatin1String(autoCheckOutKeyC), false).toBool();
     QString sDiffType = settings->value(QLatin1String(diffTypeKeyC), QLatin1String("Graphical")).toString();

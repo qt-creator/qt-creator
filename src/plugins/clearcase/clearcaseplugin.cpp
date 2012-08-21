@@ -1179,7 +1179,7 @@ ClearCaseResponse
                                  unsigned flags,
                                  QTextCodec *outputCodec) const
 {
-    const QString executable = m_settings.ccCommand;
+    const QString executable = m_settings.ccBinaryPath;
     ClearCaseResponse response;
     if (executable.isEmpty()) {
         response.error = true;
@@ -1802,7 +1802,7 @@ void ClearCasePlugin::diffGraphical(const QString &file1, const QString &file2)
     args << file1;
     if (!pred)
         args << file2;
-    QProcess::startDetached(m_settings.ccCommand, args, m_topLevel);
+    QProcess::startDetached(m_settings.ccBinaryPath, args, m_topLevel);
 }
 
 QString ClearCasePlugin::runExtDiff(const QString &workingDir,
@@ -1847,7 +1847,7 @@ void ClearCasePlugin::sync(QFutureInterface<void> &future, QString topLevel, QSt
     ClearCasePlugin *plugin = ClearCasePlugin::instance();
 
     ClearCaseSettings settings = plugin->settings();
-    QString program = settings.ccCommand;
+    QString program = settings.ccBinaryPath;
     if (program.isEmpty())
         return;
     int total = files.size();
