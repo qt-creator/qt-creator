@@ -54,7 +54,7 @@ class PROJECTEXPLORER_EXPORT DeviceManager : public QObject
 public:
     ~DeviceManager();
 
-    static DeviceManager *instance(const QString &magicTestToken = QString());
+    static DeviceManager *instance();
 
     int deviceCount() const;
     IDevice::ConstPtr deviceAt(int index) const;

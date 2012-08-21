@@ -88,9 +88,9 @@ DeviceManager *DeviceManagerPrivate::clonedInstance = 0;
 using namespace Internal;
 
 
-DeviceManager *DeviceManager::instance(const QString &magicTestToken)
+DeviceManager *DeviceManager::instance()
 {
-    static DeviceManager deviceManager(magicTestToken != QLatin1String("magicTestToken"));
+    static DeviceManager deviceManager(true);
     return &deviceManager;
 }
 
@@ -416,5 +416,104 @@ IDevice::ConstPtr DeviceManager::fromRawPointer(const IDevice *device) const
     return fromRawPointer(const_cast<IDevice *>(device));
 }
 
+} // namespace ProjectExplorer
+
+
+#ifdef WITH_TESTS
+#include "projectexplorer.h"
+#include <QSignalSpy>
+#include <QTest>
+#include <QUuid>
+
+namespace ProjectExplorer {
+
+class TestDevice : public IDevice
+{
+public:
+    TestDevice()
+        : IDevice(testTypeId(), AutoDetected, Hardware, Core::Id(QUuid::createUuid().toString())) {}
+
+    static Core::Id testTypeId() { return Core::Id("TestType"); }
+private:
+    TestDevice(const TestDevice &other) : IDevice(other) {}
+    QString displayType() const { return QLatin1String("blubb"); }
+    IDeviceWidget *createWidget() { return 0; }
+    QList<Core::Id> actionIds() const { return QList<Core::Id>(); }
+    QString displayNameForActionId(Core::Id) const { return QString(); }
+    void executeAction(Core::Id, QWidget *) const { }
+    Ptr clone() const { return Ptr(new TestDevice(*this)); }
+};
+
+void ProjectExplorerPlugin::testDeviceManager()
+{
+    TestDevice::Ptr dev = IDevice::Ptr(new TestDevice);
+    dev->setDisplayName(QLatin1String("blubbdiblubbfurz!"));
+    QVERIFY(dev->isAutoDetected());
+    QCOMPARE(dev->type(), TestDevice::testTypeId());
+
+    TestDevice::Ptr dev2 = dev->clone();
+    QCOMPARE(dev->id(), dev2->id());
+
+    DeviceManager * const mgr = DeviceManager::instance();
+    QVERIFY(!mgr->find(dev->id()));
+    const int oldDeviceCount = mgr->deviceCount();
+
+    QSignalSpy deviceAddedSpy(mgr, SIGNAL(deviceAdded(Core::Id)));
+    QSignalSpy deviceRemovedSpy(mgr, SIGNAL(deviceRemoved(Core::Id)));
+    QSignalSpy deviceUpdatedSpy(mgr, SIGNAL(deviceUpdated(Core::Id)));
+    QSignalSpy deviceListChangedSpy(mgr, SIGNAL(deviceListChanged()));
+    QSignalSpy updatedSpy(mgr, SIGNAL(updated()));
+
+    mgr->addDevice(dev);
+    QCOMPARE(mgr->deviceCount(), oldDeviceCount + 1);
+    QVERIFY(mgr->find(dev->id()));
+    QVERIFY(mgr->hasDevice(dev->displayName()));
+    QCOMPARE(deviceAddedSpy.count(), 1);
+    QCOMPARE(deviceRemovedSpy.count(), 0);
+    QCOMPARE(deviceUpdatedSpy.count(), 0);
+    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(updatedSpy.count(), 1);
+    deviceAddedSpy.clear();
+    updatedSpy.clear();
+
+    mgr->addDevice(dev2);
+    QCOMPARE(mgr->deviceCount(), oldDeviceCount + 1);
+    QVERIFY(mgr->find(dev->id()));
+    QCOMPARE(deviceAddedSpy.count(), 0);
+    QCOMPARE(deviceRemovedSpy.count(), 0);
+    QCOMPARE(deviceUpdatedSpy.count(), 1);
+    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(updatedSpy.count(), 1);
+    deviceUpdatedSpy.clear();
+    updatedSpy.clear();
+
+    TestDevice::Ptr dev3 = IDevice::Ptr(new TestDevice);
+    QVERIFY(dev->id() != dev3->id());
+
+    dev3->setDisplayName(dev->displayName());
+    mgr->addDevice(dev3);
+    QCOMPARE(mgr->deviceAt(mgr->deviceCount() - 1)->displayName(),
+             QString(dev3->displayName() + QLatin1String(" (2)")));
+    QCOMPARE(deviceAddedSpy.count(), 1);
+    QCOMPARE(deviceRemovedSpy.count(), 0);
+    QCOMPARE(deviceUpdatedSpy.count(), 0);
+    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(updatedSpy.count(), 1);
+    deviceAddedSpy.clear();
+    updatedSpy.clear();
+
+    mgr->removeDevice(dev->id());
+    mgr->removeDevice(dev3->id());
+    QCOMPARE(mgr->deviceCount(), oldDeviceCount);
+    QVERIFY(!mgr->find(dev->id()));
+    QVERIFY(!mgr->find(dev3->id()));
+    QCOMPARE(deviceAddedSpy.count(), 0);
+    QCOMPARE(deviceRemovedSpy.count(), 2);
+//    QCOMPARE(deviceUpdatedSpy.count(), 0); Uncomment once the "default" stuff is gone.
+    QCOMPARE(deviceListChangedSpy.count(), 0);
+    QCOMPARE(updatedSpy.count(), 2);
+}
 
 } // namespace ProjectExplorer
+
+#endif // WITH_TESTS
