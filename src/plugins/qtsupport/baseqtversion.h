@@ -138,6 +138,7 @@ public:
     virtual QString uicCommand() const;
     virtual QString designerCommand() const;
     virtual QString linguistCommand() const;
+    QString qmlsceneCommand() const;
     QString qmlviewerCommand() const;
 
     virtual QString qtVersionString() const;
@@ -239,7 +240,7 @@ private:
     void ctor(const Utils::FileName &qmakePath);
     void updateSourcePath() const;
     void updateVersionInfo() const;
-    enum Binaries { QmlViewer, Designer, Linguist, Uic };
+    enum Binaries { QmlViewer, QmlScene, Designer, Linguist, Uic };
     QString findQtBinary(Binaries binary) const;
     void updateMkspec() const;
     void setId(int id); // used by the qtversionmanager for legacy restore
@@ -276,6 +277,7 @@ private:
     mutable QString m_uicCommand;
     mutable QString m_designerCommand;
     mutable QString m_linguistCommand;
+    mutable QString m_qmlsceneCommand;
     mutable QString m_qmlviewerCommand;
 
     mutable bool m_qmakeIsExecutable;

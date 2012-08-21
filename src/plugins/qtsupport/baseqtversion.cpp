@@ -601,6 +601,16 @@ QString BaseQtVersion::linguistCommand() const
     return m_linguistCommand;
 }
 
+QString BaseQtVersion::qmlsceneCommand() const
+{
+    if (!isValid())
+        return QString();
+
+    if (m_qmlsceneCommand.isNull())
+        m_qmlsceneCommand = findQtBinary(QmlScene);
+    return m_qmlsceneCommand;
+}
+
 QString BaseQtVersion::qmlviewerCommand() const
 {
     if (!isValid())
@@ -619,6 +629,7 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
     } else {
         ensureMkSpecParsed();
         switch (binary) {
+        case QmlScene:
         case QmlViewer:
             baseDir = m_mkspecValues.value(QLatin1String("QT.qml.bins"));
             break;
@@ -642,22 +653,21 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
 
     QStringList possibleCommands;
     switch (binary) {
+    case QmlScene: {
+#if defined(Q_OS_WIN)
+        possibleCommands << QLatin1String("qmlscene.exe");
+#else
+        possibleCommands << QLatin1String("qmlscene");
+#endif
+    }
     case QmlViewer: {
-        if (qtVersion() < QtVersionNumber(5, 0, 0)) {
 #if defined(Q_OS_WIN)
-            possibleCommands << QLatin1String("qmlviewer.exe");
+        possibleCommands << QLatin1String("qmlviewer.exe");
 #elif defined(Q_OS_MAC)
-            possibleCommands << QLatin1String("QMLViewer.app/Contents/MacOS/QMLViewer");
+        possibleCommands << QLatin1String("QMLViewer.app/Contents/MacOS/QMLViewer");
 #else
-            possibleCommands << QLatin1String("qmlviewer");
+        possibleCommands << QLatin1String("qmlviewer");
 #endif
-        } else {
-#if defined(Q_OS_WIN)
-            possibleCommands << QLatin1String("qmlscene.exe");
-#else
-            possibleCommands << QLatin1String("qmlscene");
-#endif
-        }
     }
         break;
     case Designer:
