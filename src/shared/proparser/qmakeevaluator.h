@@ -120,7 +120,7 @@ public:
     bool loadSpec();
     void initFrom(const QMakeEvaluator &other);
     void setupProject();
-    void visitCmdLine(const QString &cmds);
+    void evaluateCommand(const QString &cmds, const QString &where);
     VisitReturn visitProFile(ProFile *pro, QMakeHandler::EvalFileType type,
                              LoadFlags flags);
     VisitReturn visitProBlock(ProFile *pro, const ushort *tokPtr);

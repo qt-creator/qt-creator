@@ -1197,10 +1197,10 @@ void QMakeEvaluator::setupProject()
     vars[ProKey("OUT_PWD")] << ProString(m_outputDir);
 }
 
-void QMakeEvaluator::visitCmdLine(const QString &cmds)
+void QMakeEvaluator::evaluateCommand(const QString &cmds, const QString &where)
 {
     if (!cmds.isEmpty()) {
-        if (ProFile *pro = m_parser->parsedProBlock(cmds, fL1S("(command line)"), -1)) {
+        if (ProFile *pro = m_parser->parsedProBlock(cmds, where, -1)) {
             if (pro->isOk()) {
                 m_locationStack.push(m_current);
                 visitProBlock(pro, pro->tokPtr());
@@ -1287,7 +1287,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
         evaluateFeatureFile(QLatin1String("default_pre.prf"));
 
-        visitCmdLine(m_option->precmds);
+        evaluateCommand(m_option->precmds, fL1S("(command line)"));
     }
 
     debugMsg(1, "visiting file %s", qPrintable(pro->fileName()));
@@ -1295,7 +1295,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
     debugMsg(1, "done visiting file %s", qPrintable(pro->fileName()));
 
     if (flags & LoadPostFiles) {
-        visitCmdLine(m_option->postcmds);
+        evaluateCommand(m_option->postcmds, fL1S("(command line -after)"));
 
         evaluateFeatureFile(QLatin1String("default_post.prf"));
 
