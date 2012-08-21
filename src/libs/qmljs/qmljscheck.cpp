@@ -510,7 +510,6 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     , _context(context)
     , _scopeChain(doc, _context)
     , _scopeBuilder(&_scopeChain)
-    , _lastValue(0)
     , _importsOk(false)
     , _inStatementBinding(false)
 {

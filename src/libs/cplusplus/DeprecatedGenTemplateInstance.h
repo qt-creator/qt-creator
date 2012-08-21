@@ -54,7 +54,6 @@ private:
     FullySpecifiedType gen(Symbol *symbol);
 
 private:
-    Symbol *_symbol;
     QSharedPointer<Control> _control;
     const Substitution _substitution;
 };

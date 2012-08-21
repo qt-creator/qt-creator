@@ -44,12 +44,10 @@ using namespace CPlusPlus;
 namespace {
 
 class DebugRule {
-    const char *name;
     static int depth;
 
 public:
     DebugRule(const char *name, const char *spell, unsigned idx, bool blocked)
-        : name(name)
     {
         for (int i = 0; i <= depth; ++i)
           fputc('-', stderr);

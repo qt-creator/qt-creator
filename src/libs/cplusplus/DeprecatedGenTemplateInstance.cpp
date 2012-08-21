@@ -385,8 +385,7 @@ FullySpecifiedType ApplySubstitution::applySubstitution(int index) const
 } // end of anonymous namespace
 
 DeprecatedGenTemplateInstance::DeprecatedGenTemplateInstance(QSharedPointer<Control> control, const Substitution &substitution)
-    : _symbol(0),
-      _control(control),
+    : _control(control),
       _substitution(substitution)
 { }
 
