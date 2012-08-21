@@ -94,15 +94,15 @@ static T *createToolChain(const QString &id)
 
 static QString globalSettingsFileName()
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    return QFileInfo(pm->globalSettings()->fileName()).absolutePath()
+    QSettings *globalSettings = ExtensionSystem::PluginManager::globalSettings();
+    return QFileInfo(globalSettings->fileName()).absolutePath()
             + QLatin1String(QTVERSION_SDK_FILENAME);
 }
 
 static QString settingsFileName(const QString &path)
 {
-    ExtensionSystem::PluginManager *pm = ExtensionSystem::PluginManager::instance();
-    QFileInfo settingsLocation(pm->settings()->fileName());
+    QSettings *settings = ExtensionSystem::PluginManager::settings();
+    QFileInfo settingsLocation(settings->fileName());
     return settingsLocation.absolutePath() + path;
 }
 
