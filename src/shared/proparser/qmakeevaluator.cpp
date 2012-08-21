@@ -1279,6 +1279,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
             loadDefaults();
     }
 
+#ifdef QT_BUILD_QMAKE
+    for (ProValueMap::ConstIterator it = m_extraVars.constBegin();
+         it != m_extraVars.constEnd(); ++it)
+        m_valuemapStack[0].insert(it.key(), it.value());
+#endif
+
     m_handler->aboutToEval(currentProFile(), pro, type);
     m_profileStack.push(pro);
     valuesRef(ProKey("PWD")) = ProStringList(ProString(currentDirectory()));
@@ -1288,6 +1294,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         evaluateFeatureFile(QLatin1String("default_pre.prf"));
 
         evaluateCommand(m_option->precmds, fL1S("(command line)"));
+
+#ifdef QT_BUILD_QMAKE
+        // After user configs, to override them
+        if (!m_extraConfigs.isEmpty())
+            evaluateCommand("CONFIG += " + m_extraConfigs.join(" "), fL1S("(extra configs)"));
+#endif
     }
 
     debugMsg(1, "visiting file %s", qPrintable(pro->fileName()));
@@ -1296,6 +1308,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
     if (flags & LoadPostFiles) {
         evaluateCommand(m_option->postcmds, fL1S("(command line -after)"));
+
+#ifdef QT_BUILD_QMAKE
+        // Again, to ensure the project does not mess with us.
+        // Specifically, do not allow a project to override debug/release within a
+        // debug_and_release build pass - it's too late for that at this point anyway.
+        if (!m_extraConfigs.isEmpty())
+            evaluateCommand("CONFIG += " + m_extraConfigs.join(" "), fL1S("(extra configs)"));
+#endif
 
         evaluateFeatureFile(QLatin1String("default_post.prf"));
 
