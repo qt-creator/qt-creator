@@ -201,6 +201,7 @@ void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
     m_qmakespecName = other.m_qmakespecName;
     m_mkspecPaths = other.m_mkspecPaths;
     m_featureRoots = other.m_featureRoots;
+    m_dirSep = other.m_dirSep;
 }
 
 //////// Evaluator tools /////////
@@ -1105,6 +1106,8 @@ bool QMakeEvaluator::loadSpec()
     if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
         return false;
     updateFeaturePaths(); // The spec extends the feature search path, so rebuild the cache.
+    // The MinGW and x-build specs may change the separator; $$shell_{path,quote}() need it
+    m_dirSep = first(ProKey("QMAKE_DIR_SEP"));
     if (!m_conffile.isEmpty()
         && !evaluateFileDirect(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;

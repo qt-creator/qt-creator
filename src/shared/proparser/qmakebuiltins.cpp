@@ -1009,7 +1009,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             evalError(fL1S("shell_path(path) requires one argument."));
         } else {
             QString rstr = args.at(0).toQString(m_tmp1);
-            if (m_option->dir_sep.at(0) != QLatin1Char('/'))
+            if (m_dirSep.startsWith(QLatin1Char('\\')))
                 rstr.replace(QLatin1Char('/'), QLatin1Char('\\'));
             else
                 rstr.replace(QLatin1Char('\\'), QLatin1Char('/'));
@@ -1029,7 +1029,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             evalError(fL1S("shell_quote(arg) requires one argument."));
         } else {
             QString rstr = args.at(0).toQString(m_tmp1);
-            if (m_option->dir_sep.at(0) != QLatin1Char('/'))
+            if (m_dirSep.startsWith(QLatin1Char('\\')))
                 rstr = IoUtils::shellQuoteWin(rstr);
             else
                 rstr = IoUtils::shellQuoteUnix(rstr);

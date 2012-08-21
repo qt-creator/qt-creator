@@ -233,6 +233,7 @@ public:
     QStringList m_qmakefeatures;
     QStringList m_mkspecPaths;
     QStringList m_featureRoots;
+    ProString m_dirSep;
     ProFunctionDefs m_functionDefs;
     ProStringList m_returnValue;
     QStack<ProValueMap> m_valuemapStack; // VariableName must be us-ascii, the content however can be non-us-ascii.
