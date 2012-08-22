@@ -67,6 +67,7 @@ public:
     , m_event(0)
     , m_verboseToolTips(true)
     , m_cycleDetection(false)
+    , m_shortenTemplates(false)
     {
     }
 
@@ -76,6 +77,7 @@ public:
     int m_event;
     bool m_verboseToolTips;
     bool m_cycleDetection;
+    bool m_shortenTemplates;
     QVector<const Function *> m_functions;
 };
 
@@ -214,6 +216,23 @@ static QString noWrap(const QString &str)
     return escapedStr.replace(QLatin1Char('-'), "&#8209;");
 }
 
+static QString shortenTemplate(QString str)
+{
+    int depth = 0;
+    int  j = 0;
+    for (int i = 0, n = str.size(); i != n; ++i) {
+        int c = str.at(i).unicode();
+        if (c == '>')
+            --depth;
+        if (depth == 0)
+            str[j++] = str.at(i);
+        if (c == '<')
+            ++depth;
+    }
+    str.truncate(j);
+    return str;
+}
+
 QVariant DataModel::data(const QModelIndex &index, int role) const
 {
     //QTC_ASSERT(index.isValid() && index.model() == this, return QVariant());
@@ -224,7 +243,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole) {
         if (index.column() == NameColumn)
-            return func->name();
+            return d->m_shortenTemplates ? shortenTemplate(func->name()) : func->name();
         if (index.column() == LocationColumn)
             return func->location();
         if (index.column() == CalledColumn)
@@ -364,6 +383,14 @@ void DataModel::enableCycleDetection(bool enabled)
 {
     beginResetModel();
     d->m_cycleDetection = enabled;
+    d->updateFunctions();
+    endResetModel();
+}
+
+void DataModel::setShortenTemplates(bool enabled)
+{
+    beginResetModel();
+    d->m_shortenTemplates = enabled;
     d->updateFunctions();
     endResetModel();
 }

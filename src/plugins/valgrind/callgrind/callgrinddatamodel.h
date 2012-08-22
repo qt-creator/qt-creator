@@ -87,6 +87,7 @@ public:
 public slots:
     /// enable/disable cycle detection
     void enableCycleDetection(bool enabled);
+    void setShortenTemplates(bool enabled);
 
     /// Only one cost event column will be shown, this decides which one it is.
     /// By default it is the first event in the @c ParseData, i.e. 0.

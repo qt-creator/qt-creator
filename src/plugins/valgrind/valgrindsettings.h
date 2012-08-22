@@ -202,17 +202,19 @@ private:
      * Global callgrind settings
      */
 public:
-
     CostDelegate::CostFormat costFormat() const;
     bool detectCycles() const;
+    bool shortenTemplates() const;
 
 public slots:
     void setCostFormat(Valgrind::Internal::CostDelegate::CostFormat format);
-    void setDetectCycles(bool detect);
+    void setDetectCycles(bool on);
+    void setShortenTemplates(bool on);
 
 private:
     CostDelegate::CostFormat m_costFormat;
     bool m_detectCycles;
+    bool m_shortenTemplates;
 };
 
 
