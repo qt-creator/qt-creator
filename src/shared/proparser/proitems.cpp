@@ -155,39 +155,6 @@ QString &ProString::toQString(QString &tmp) const
     return tmp.setRawData(m_string.constData() + m_offset, m_length);
 }
 
-bool ProString::operator==(const ProString &other) const
-{
-    if (m_length != other.m_length)
-        return false;
-    return !memcmp(m_string.constData() + m_offset,
-                   other.m_string.constData() + other.m_offset, m_length * 2);
-}
-
-bool ProString::operator==(const QString &other) const
-{
-    if (m_length != other.length())
-        return false;
-    return !memcmp(m_string.constData() + m_offset, other.constData(), m_length * 2);
-}
-
-bool ProString::operator==(const QLatin1String &other) const
-{
-    const ushort *uc = (ushort *)m_string.constData() + m_offset;
-    const ushort *e = uc + m_length;
-    const uchar *c = (uchar *)other.latin1();
-
-    if (!c)
-        return isEmpty();
-
-    while (*c) {
-        if (uc == e || *uc != *c)
-            return false;
-        ++uc;
-        ++c;
-    }
-    return (uc == e);
-}
-
 QChar *ProString::prepareAppend(int extraLen)
 {
     if (m_string.isDetached() && m_length + extraLen <= m_string.capacity()) {

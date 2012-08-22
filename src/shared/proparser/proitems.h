@@ -78,9 +78,9 @@ public:
     ProString &operator+=(const ProString &other);
     ProString &append(const ProString &other, bool *pending = 0);
     ProString &append(const ProStringList &other, bool *pending = 0, bool skipEmpty1st = false);
-    bool operator==(const ProString &other) const;
-    bool operator==(const QString &other) const;
-    bool operator==(const QLatin1String &other) const;
+    bool operator==(const ProString &other) const { return toQStringRef() == other.toQStringRef(); }
+    bool operator==(const QString &other) const { return toQStringRef() == other; }
+    bool operator==(const QLatin1String &other) const  { return toQStringRef() == other; }
     bool operator!=(const ProString &other) const { return !(*this == other); }
     bool operator!=(const QString &other) const { return !(*this == other); }
     bool operator!=(const QLatin1String &other) const { return !(*this == other); }
@@ -95,6 +95,8 @@ public:
     void clear() { m_string.clear(); m_length = 0; }
 
     static uint hash(const QChar *p, int n);
+
+    ALWAYS_INLINE QStringRef toQStringRef() const { return QStringRef(&m_string, m_offset, m_length); }
 
     ALWAYS_INLINE ProKey &toKey() { return *(ProKey *)this; }
     ALWAYS_INLINE const ProKey &toKey() const { return *(const ProKey *)this; }
