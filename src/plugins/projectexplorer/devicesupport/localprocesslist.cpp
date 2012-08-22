@@ -40,6 +40,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 #endif
 
 #ifdef Q_OS_WIN
@@ -92,6 +93,7 @@ static QString imageName(DWORD processId)
 
 LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *parent)
         : DeviceProcessList(device, parent)
+        , m_myPid(GetCurrentProcessId())
 {
 }
 
@@ -135,6 +137,7 @@ void LocalProcessList::doKillProcess(const DeviceProcess &process)
 #ifdef Q_OS_UNIX
 LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *parent)
     : DeviceProcessList(device, parent)
+    , m_myPid(getpid())
 {}
 
 static bool isUnixProcessId(const QString &procname)
@@ -240,6 +243,14 @@ void LocalProcessList::reportDelayedKillStatus()
         reportError(m_error);
 }
 #endif // QT_OS_UNIX
+
+Qt::ItemFlags LocalProcessList::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags flags = DeviceProcessList::flags(index);
+    if (index.isValid() && at(index.row()).pid == m_myPid)
+        flags &= ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    return flags;
+}
 
 } // namespace Internal
 } // namespace RemoteLinux
