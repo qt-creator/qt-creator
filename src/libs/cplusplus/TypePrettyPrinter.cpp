@@ -405,7 +405,7 @@ void TypePrettyPrinter::prependWordSeparatorSpace()
 
     const QChar ch = _text.at(0);
 
-    if (ch.isLetterOrNumber())
+    if (ch.isLetterOrNumber() || ch == QLatin1Char('_'))
         _text.prepend(" ");
 }
 
