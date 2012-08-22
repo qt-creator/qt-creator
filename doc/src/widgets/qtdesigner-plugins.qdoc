@@ -43,7 +43,7 @@
 
     For more information about how to create plugins for \QD, see
     \l{http://qt-project.org/doc/qt-4.8/designer-using-custom-widgets.html}
-    {Creating and Using Components for Qt Designer}.
+    {Using Custom Widgets with Qt Designer}.
 
     \section1 Locating Qt Designer Plugins
 
