@@ -304,9 +304,6 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
             item->update();
     }
 
-    if (selectedNodeList.count() != 1)
-        m_formEditorWidget->setFeedbackNode(QmlItemNode());
-
     m_scene->update();
 }
 
@@ -537,16 +534,11 @@ void FormEditorView::instancesChildrenChanged(const QVector<ModelNode> &nodeList
 void FormEditorView::rewriterBeginTransaction()
 {
     m_transactionCounter++;
-    if (m_transactionCounter == 1
-        && selectedModelNodes().count() == 1)
-        m_formEditorWidget->setFeedbackNode(QmlItemNode(selectedModelNodes().first()));
 }
 
 void FormEditorView::rewriterEndTransaction()
 {
     m_transactionCounter--;
-    if (m_transactionCounter == 0)
-        m_formEditorWidget->setFeedbackNode(QmlItemNode());
 }
 
 double FormEditorView::margins() const

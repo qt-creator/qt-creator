@@ -331,10 +331,6 @@ double FormEditorWidget::margins() const
     return settings.snapMargin;
 }
 
-void FormEditorWidget::setFeedbackNode(const QmlItemNode &node)
-{
-    m_graphicsView->setFeedbackNode(node);
-}
 
 QString FormEditorWidget::contextHelpId() const
 {

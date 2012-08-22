@@ -68,8 +68,6 @@ public:
     double spacing() const;
     double margins() const;
 
-    void setFeedbackNode(const QmlItemNode &node);
-
     QString contextHelpId() const;
 
     void setRootItemRect(const QRectF &rect);
