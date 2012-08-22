@@ -115,7 +115,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         //TODO: Not sure if these are the right paths.
         params.projectSourceDirectory = project->projectDirectory();
         params.projectSourceFiles = project->files(Qt4Project::ExcludeGeneratedFiles);
-        params.projectBuildDirectory = project->buildDir();
+        params.projectBuildDirectory = project->rootQt4ProjectNode()->buildDir();
     }
 
     DebuggerRunControl * const debuggerRunControl
