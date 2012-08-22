@@ -39,6 +39,7 @@
 #include <QChar>
 #include <QDebug>
 #include <QStringList>
+#include <QTextDocument>
 #include <QVector>
 
 namespace Valgrind {
@@ -250,7 +251,7 @@ QVariant DataModel::data(const QModelIndex &index, int role) const
 
         // body, function info first
         ret += "<body><dl>";
-        ret += "<dt>" + tr("Function:") + "</dt><dd>" + func->name() + "</dd>\n";
+        ret += "<dt>" + tr("Function:") + "</dt><dd>" + Qt::escape(func->name()) + "</dd>\n";
         ret += "<dt>" + tr("File:") + "</dt><dd>" + func->file() + "</dd>\n";
         if (!func->costItems().isEmpty()) {
             const CostItem *firstItem = func->costItems().first();
