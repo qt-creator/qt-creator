@@ -121,6 +121,40 @@ static void setup(TestData *data)
     data->doc = data->editor->document();
 }
 
+void CppToolsPlugin::test_completion_forward_declarations_present()
+{
+    TestData data;
+    data.srcText = "\n"
+            "class Foo\n"
+            "{\n"
+            "    struct Bar;\n"
+            "    int i;\n"
+            "};\n"
+            "\n"
+            "struct Foo::Bar \n"
+            "{\n"
+            "    Bar() {}\n"
+            "};\n"
+            "\n"
+            "@\n"
+            "// padding so we get the scope right\n";
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    change.insert(data.pos, "Foo::Bar::");
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += 10;
+
+    QStringList expected;
+    expected.append("Bar");
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions, expected);
+}
+
 void CppToolsPlugin::test_completion_basic_1()
 {
     TestData data;

@@ -416,6 +416,8 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
     QList<LookupItem> result;
 
     if (name) {
+        QSet<ClassOrNamespace *> processed;
+
         if (const QualifiedNameId *q = name->asQualifiedNameId()) {
             if (! q->base())
                 result = globalNamespace()->find(q->name());
@@ -423,10 +425,11 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
             else if (ClassOrNamespace *binding = lookupType(q->base()))
                 result = binding->find(q->name());
 
+            lookup_helper(name, this, &result, &processed, /*templateId = */ 0);
+
             return result;
         }
 
-        QSet<ClassOrNamespace *> processed;
         ClassOrNamespace *binding = this;
         do {
             lookup_helper(name, binding, &result, &processed, /*templateId = */ 0);
