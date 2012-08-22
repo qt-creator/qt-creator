@@ -98,8 +98,6 @@ void CostView::setModel(QAbstractItemModel *model)
     headerView->setStretchLastSection(false);
 
     if (qobject_cast<CallModel *>(model)) {
-        headerView->setResizeMode(CallModel::CalleeColumn, QHeaderView::Stretch);
-        headerView->setResizeMode(CallModel::CallerColumn, QHeaderView::Stretch);
         headerView->setResizeMode(CallModel::CallsColumn, QHeaderView::ResizeToContents);
         headerView->setResizeMode(CallModel::CostColumn, QHeaderView::ResizeToContents);
         setItemDelegateForColumn(CallModel::CalleeColumn, d->m_nameDelegate);
@@ -107,8 +105,6 @@ void CostView::setModel(QAbstractItemModel *model)
         setItemDelegateForColumn(CallModel::CostColumn, d->m_costDelegate);
     } else if (qobject_cast<DataModel *>(model)) {
         headerView->setResizeMode(DataModel::InclusiveCostColumn, QHeaderView::ResizeToContents);
-        headerView->setResizeMode(DataModel::LocationColumn, QHeaderView::Stretch);
-        headerView->setResizeMode(DataModel::NameColumn, QHeaderView::Stretch);
         headerView->setResizeMode(DataModel::SelfCostColumn, QHeaderView::ResizeToContents);
         setItemDelegateForColumn(DataModel::InclusiveCostColumn, d->m_costDelegate);
         setItemDelegateForColumn(DataModel::NameColumn, d->m_nameDelegate);
