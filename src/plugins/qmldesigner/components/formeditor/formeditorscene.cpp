@@ -61,7 +61,6 @@ namespace QmlDesigner {
 FormEditorScene::FormEditorScene(FormEditorWidget *view, FormEditorView *editorView)
         : QGraphicsScene(),
         m_editorView(editorView),
-        m_paintMode(NormalMode),
         m_showBoundingRects(true)
 {
     setupScene();
@@ -389,16 +388,6 @@ FormEditorItem* FormEditorScene::rootFormEditorItem() const
      if (hasItemForQmlItemNode(editorView()->rootModelNode()))
          return itemForQmlItemNode(editorView()->rootModelNode());
     return 0;
-}
-
-FormEditorScene::PaintMode FormEditorScene::paintMode() const
-{
-    return m_paintMode;
-}
-
-void FormEditorScene::setPaintMode(PaintMode paintMode)
-{
-    m_paintMode = paintMode;
 }
 
 void FormEditorScene::clearFormEditorItems()

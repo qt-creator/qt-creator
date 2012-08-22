@@ -27,14 +27,6 @@ SOURCES += formeditoritem.cpp \
     scaleitem.cpp \
     resizecontroller.cpp \
     resizehandleitem.cpp \
-    anchortool.cpp \
-    anchorlineindicator.cpp \
-    anchorlinecontroller.cpp \
-    anchorlinehandleitem.cpp \
-    anchormanipulator.cpp \
-    anchorindicator.cpp \
-    anchorcontroller.cpp \
-    anchorhandleitem.cpp \
     dragtool.cpp \
     toolbox.cpp \
     zoomaction.cpp \
@@ -66,14 +58,6 @@ HEADERS += formeditorscene.h \
     scaleitem.h \
     resizecontroller.h \
     resizehandleitem.h \
-    anchortool.h \
-    anchorlineindicator.h \
-    anchorlinecontroller.h \
-    anchorlinehandleitem.h \
-    anchormanipulator.h \
-    anchorindicator.h \
-    anchorcontroller.h \
-    anchorhandleitem.h \
     dragtool.h \
     toolbox.h \
     zoomaction.h \

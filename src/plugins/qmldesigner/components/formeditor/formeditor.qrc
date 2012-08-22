@@ -3,14 +3,13 @@
         <file>resize_handle.png</file>
     </qresource>
     <qresource prefix="/icon/tool">
-        <file>anchor.png</file>
         <file>transform.png</file>
     </qresource>
     <qresource prefix="/icon/layout">
         <file>snapping.png</file>
         <file>no_snapping.png</file>
         <file>snapping_and_anchoring.png</file>
-	<file>boundingrect.png</file>
+        <file>boundingrect.png</file>
     </qresource>
     <qresource prefix="/icon/selection">
         <file>selectonlycontentitems.png</file>

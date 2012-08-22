@@ -74,15 +74,6 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_transformToolAction->setIcon(QPixmap(":/icon/tool/transform.png"));
     connect(m_transformToolAction.data(), SIGNAL(triggered(bool)), SLOT(changeTransformTool(bool)));
 
-    m_anchorToolAction = m_toolActionGroup->addAction("Anchor Tool (Press Key W)");
-    m_anchorToolAction->setShortcut(Qt::Key_W);
-    m_anchorToolAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-    m_anchorToolAction->setCheckable(true);
-    m_anchorToolAction->setIcon(QPixmap(":/icon/tool/anchor.png"));
-    connect(m_anchorToolAction.data(), SIGNAL(triggered(bool)), SLOT(changeAnchorTool(bool)));
-
-//    addActions(m_toolActionGroup->actions());
-//    upperActions.append(m_toolActionGroup->actions());
 
     QActionGroup *layoutActionGroup = new QActionGroup(this);
     layoutActionGroup->setExclusive(false);
@@ -205,12 +196,6 @@ void FormEditorWidget::resetNodeInstanceView()
     m_formEditorView->emitCustomNotification(QLatin1String("reset QmlPuppet"));
 }
 
-void FormEditorWidget::changeAnchorTool(bool checked)
-{
-    if (checked && m_formEditorView->currentState().isBaseState())
-        m_formEditorView->changeToAnchorTool();
-}
-
 void FormEditorWidget::wheelEvent(QWheelEvent *event)
 {
     if (event->modifiers().testFlag(Qt::ControlModifier)) {
@@ -265,11 +250,6 @@ void FormEditorWidget::setFocus()
 ZoomAction *FormEditorWidget::zoomAction() const
 {
     return m_zoomAction.data();
-}
-
-QAction *FormEditorWidget::anchorToolAction() const
-{
-    return m_anchorToolAction.data();
 }
 
 QAction *FormEditorWidget::transformToolAction() const

@@ -57,11 +57,6 @@ class FormEditorScene : public QGraphicsScene
     friend class QmlDesigner::FormEditorView;
 
 public:
-    enum PaintMode {
-        NormalMode,
-        AnchorMode
-    };
-
     FormEditorScene(FormEditorWidget *widget, FormEditorView *editorView);
     ~FormEditorScene();
     FormEditorItem *addFormEditorItem(const QmlItemNode &qmlItemNode);
@@ -94,9 +89,6 @@ public:
     FormEditorItem *rootFormEditorItem() const;
 
     void reparentItem(const QmlItemNode &node, const QmlItemNode &newParent);
-
-    PaintMode paintMode() const;
-    void setPaintMode(PaintMode paintMode);
 
     void clearFormEditorItems();
 
@@ -136,7 +128,6 @@ private:
     QWeakPointer<LayerItem> m_formLayerItem;
     QWeakPointer<LayerItem> m_manipulatorLayerItem;
     ModelNode m_dragNode;
-    PaintMode m_paintMode;
     bool m_showBoundingRects;
 };
 
