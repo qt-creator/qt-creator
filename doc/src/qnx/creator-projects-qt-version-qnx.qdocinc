@@ -9,13 +9,13 @@
 
     \image qtcreator-qt4-qtversions-win-qnx.png
 
-    If you have built your own version of Qt for QNX you need to add this manually to Qt Creator
-    using the above dialog:
+    If you have built your own version of Qt for QNX or BlackBerry you need to
+    add this manually to Qt Creator using the above dialog:
 
     \list 1
         \o Select \gui {Tools > Options > Build & Run > Qt Versions > Add}.
         \o Navigate to and select the qmake application that is part of your Qt for QNX build and select
         \gui {Open}.
-        \o In the \gui {Blackberry Native SDK} field enter the path to your installed Blackberry NDK.
+        \o In the \gui {Blackberry Native SDK} or \gui{QNX SDK} field enter the path to your installed Blackberry NDK or QNX SDK respectively.
         \o Select \gui {OK}.
     \endlist

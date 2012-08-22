@@ -55,9 +55,11 @@
             Maemo 5 devices.
         \o \l{Deploying Applications to QNX Devices}
 
-            When you deploy the application on the \gui{QNX} target, \QC generates
-            a BAR package in the build directory and deploys it to the connected
-            device. You can test and debug the application on the device.
+            When you deploy the application on the \gui{QNX} target, depending
+            on your target device, \QC either generates a BAR package in the
+            build directory and deploys it to the connected device, or copies
+            the application files to the connected device. You can test and
+            debug the application on the device.
         \o  \l{Deploying Applications to Android Devices}
 
             When you deploy the application on the Android target, \QC copies

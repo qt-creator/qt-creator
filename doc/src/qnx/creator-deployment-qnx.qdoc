@@ -32,18 +32,23 @@
 
     \title Deploying Applications to QNX Devices
 
-    When you deploy the application on the \gui{QNX} target, \QC generates
-    a BAR package in the build directory and installs it on the connected
-    device. The contents of the BAR package are specified in the \gui{Application
-    Descriptor File}.
+    When you deploy the application on the \gui{QNX} target, depending on your
+    target device, \QC either generates a BAR package and installs it on the
+    connected device, or copies the application files to the device.
 
-    \image qtcreator-qnx-deployment.png "Deploy to device"
+    \section1 Deploying to BlackBerry Devices
 
-    The name of the generated BAR package is shown in the \gui{Bar package}
+    For \gui{BlackBerry} targets, \QC generates a BAR package in the build
+    directory and installs it on the connected device. The contents of the BAR
+    package are specified in the \gui{Application Descriptor File}.
+
+    \image qtcreator-playbook-deployment.png "Deploy to device"
+
+    The name of the generated BAR package is shown in the \gui{Package}
     setting. If the package already exists, it will be overwritten without
     prior notification.
 
-    \section1 Application Descriptor File
+    \section2 Application Descriptor File
 
     The application descriptor file needs to be created manually,
     or you can use the \gui{Application Descriptor} wizard to have a generic
@@ -56,4 +61,23 @@
     descriptor file. For a full reference, see
     \l{https://bdsc.webapps.blackberry.com/native/documentation/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/r_blackberry_tablet_dtd_intro.html}
     {Document Type Definition (DTD) for the application descriptor file}.
+
+    \section1 Deploying to QNX Neutrino Devices
+
+    Deploying applications to a \gui{QNX Neutrino} device is very similar to
+    \l{Deploying Applications to Linux-Based Devices}.
+
+    \image qtcreator-qnx-deployment.png "Deploy to device"
+
+    The files to be installed are listed in the \gui {Deployment} step,
+    the \gui {Files to install for subproject} field. The \gui {Local File Path}
+    field displays the location of the file on the development PC. The
+    \gui {Remote Directory} field displays the folder where the file is
+    installed on the device. Text in red color indicates that the information is
+    missing. Edit the qmake
+    \l{http://doc.qt.nokia.com/4.8/qmake-variable-reference.html#installs}
+    {INSTALLS variable} in the project .pro file to add the missing files.
+
+    When you run the application, \QC copies the necessary files to the device
+    and starts the application on it.
 */

@@ -78,8 +78,9 @@
 
             You can connect QNX devices to the development PC to deploy, run and
             debug applications on them from within \QC. This is currently only
-            supported for BlackBerry Playbook, and requires the BlackBerry NDK
-            to be installed on the development PC.
+            supported for BlackBerry Playbook and QNX Neutrino devices, and
+            requires the BlackBerry NDK or the QNX SDK to be installed on the
+            development PC.
 
         \o  \l{Connecting Android Devices}
 
