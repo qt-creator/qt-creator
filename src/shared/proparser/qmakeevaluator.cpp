@@ -1616,6 +1616,36 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBoolFunction(
     return ReturnFalse;
 }
 
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
+        const ProKey &func, const ushort *&tokPtr)
+{
+    QHash<ProKey, ProFunctionDef>::ConstIterator it =
+            m_functionDefs.testFunctions.constFind(func);
+    if (it != m_functionDefs.testFunctions.constEnd()) {
+        const QList<ProStringList> args = prepareFunctionArgs(tokPtr);
+        traceMsg("calling %s(%s)", dbgKey(func), dbgStrListList(args));
+        return evaluateBoolFunction(*it, args, func);
+    }
+
+    //why don't the builtin functions just use args_list? --Sam
+    return evaluateBuiltinConditional(func, expandVariableReferences(tokPtr, 5, true));
+}
+
+ProStringList QMakeEvaluator::evaluateExpandFunction(
+        const ProKey &func, const ushort *&tokPtr)
+{
+    QHash<ProKey, ProFunctionDef>::ConstIterator it =
+            m_functionDefs.replaceFunctions.constFind(func);
+    if (it != m_functionDefs.replaceFunctions.constEnd()) {
+        const QList<ProStringList> args = prepareFunctionArgs(tokPtr);
+        traceMsg("calling $$%s(%s)", dbgKey(func), dbgStrListList(args));
+        return evaluateFunction(*it, args, 0);
+    }
+
+    //why don't the builtin functions just use args_list? --Sam
+    return evaluateBuiltinExpand(func, expandVariableReferences(tokPtr, 5, true));
+}
+
 bool QMakeEvaluator::evaluateConditional(const QString &cond, const QString &where, int line)
 {
     bool ret = false;

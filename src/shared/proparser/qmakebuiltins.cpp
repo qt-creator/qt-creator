@@ -387,16 +387,12 @@ void QMakeEvaluator::populateDeps(
         }
 }
 
-ProStringList QMakeEvaluator::evaluateExpandFunction(
-        const ProKey &func, const ushort *&tokPtr)
+ProStringList QMakeEvaluator::evaluateBuiltinExpand(
+        const ProKey &func, const ProStringList &args)
 {
-    QHash<ProKey, ProFunctionDef>::ConstIterator it =
-            m_functionDefs.replaceFunctions.constFind(func);
-    if (it != m_functionDefs.replaceFunctions.constEnd()) {
-        const QList<ProStringList> args = prepareFunctionArgs(tokPtr);
-        traceMsg("calling $$%s(%s)", dbgKey(func), dbgStrListList(args));
-        return evaluateFunction(*it, args, 0);
-    }
+    ProStringList ret;
+
+    traceMsg("calling built-in $$%s(%s)", dbgKey(func), dbgSepStrList(args));
 
     ExpandFunc func_t = ExpandFunc(statics.expands.value(func));
     if (func_t == 0) {
@@ -408,12 +404,6 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
                 deprecationWarning(fL1S("Using uppercased builtin functions is deprecated."));
         }
     }
-
-    //why don't the builtin functions just use args_list? --Sam
-    const ProStringList &args = expandVariableReferences(tokPtr, 5, true);
-    traceMsg("calling built-in $$%s(%s)", dbgKey(func), dbgSepStrList(args));
-    ProStringList ret;
-
     switch (func_t) {
     case E_BASENAME:
     case E_DIRNAME:
@@ -1052,23 +1042,12 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
     return ret;
 }
 
-QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
-        const ProKey &function, const ushort *&tokPtr)
+QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
+        const ProKey &function, const ProStringList &args)
 {
-    QHash<ProKey, ProFunctionDef>::ConstIterator it =
-            m_functionDefs.testFunctions.constFind(function);
-    if (it != m_functionDefs.testFunctions.constEnd()) {
-        const QList<ProStringList> args = prepareFunctionArgs(tokPtr);
-        traceMsg("calling %s(%s)", dbgKey(function), dbgStrListList(args));
-        return evaluateBoolFunction(*it, args, function);
-    }
-
-    TestFunc func_t = (TestFunc)statics.functions.value(function);
-
-    //why don't the builtin functions just use args_list? --Sam
-    const ProStringList &args = expandVariableReferences(tokPtr, 5, true);
     traceMsg("calling built-in %s(%s)", dbgKey(function), dbgSepStrList(args));
 
+    TestFunc func_t = (TestFunc)statics.functions.value(function);
     switch (func_t) {
     case T_DEFINED: {
         if (args.count() < 1 || args.count() > 2) {

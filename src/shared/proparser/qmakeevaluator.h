@@ -178,6 +178,9 @@ public:
     ProStringList evaluateExpandFunction(const ProKey &function, const ushort *&tokPtr);
     VisitReturn evaluateConditionalFunction(const ProKey &function, const ushort *&tokPtr);
 
+    ProStringList evaluateBuiltinExpand(const ProKey &function, const ProStringList &args);
+    VisitReturn evaluateBuiltinConditional(const ProKey &function, const ProStringList &args);
+
     bool evaluateConditional(const QString &cond, const QString &where, int line = -1);
 #ifdef PROEVALUATOR_FULL
     void checkRequirements(const ProStringList &deps);
