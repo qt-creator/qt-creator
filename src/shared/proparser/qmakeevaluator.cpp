@@ -329,7 +329,7 @@ static void replaceInList(ProStringList *varlist,
         QString val = varit->toQString(tmp);
         QString copy = val; // Force detach and have a reference value
         val.replace(regexp, replace);
-        if (!val.isSharedWith(copy)) {
+        if (!val.isSharedWith(copy) && val != copy) {
             if (val.isEmpty()) {
                 varit = varlist->erase(varit);
             } else {
