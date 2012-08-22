@@ -40,8 +40,10 @@ using namespace QtSupport;
 
 static QString format(const QString &fileName, int lineNo, const QString &msg)
 {
-    if (lineNo)
+    if (lineNo > 0)
         return QString::fromLatin1("%1(%2): %3").arg(fileName, QString::number(lineNo), msg);
+    else if (lineNo)
+        return QString::fromLatin1("%1: %3").arg(fileName, msg);
     else
         return msg;
 }

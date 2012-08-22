@@ -1160,8 +1160,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
 #endif
     case T_EVAL: {
             VisitReturn ret = ReturnFalse;
-            ProFile *pro = m_parser->parsedProBlock(fL1S("(eval)"),
-                                                    args.join(statics.field_sep));
+            ProFile *pro = m_parser->parsedProBlock(args.join(statics.field_sep),
+                                                    m_current.pro->fileName(), m_current.line);
             if (pro) {
                 if (m_cumulative || pro->isOk()) {
                     m_locationStack.push(m_current);
@@ -1192,7 +1192,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             evalError(fL1S("if(condition) requires one argument."));
             return ReturnFalse;
         }
-        return returnBool(evaluateConditional(args.at(0).toQString(), fL1S("(if)")));
+        return returnBool(evaluateConditional(args.at(0).toQString(),
+                                              m_current.pro->fileName(), m_current.line));
     }
     case T_CONFIG: {
         if (args.count() < 1 || args.count() > 2) {

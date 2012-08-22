@@ -47,8 +47,10 @@ static void print(const QString &fileName, int lineNo, int type, const QString &
 {
     QString pfx = ((type & QMakeHandler::CategoryMask) == QMakeHandler::WarningMessage)
                   ? QString::fromLatin1("WARNING: ") : QString();
-    if (lineNo)
+    if (lineNo > 0)
         qWarning("%s%s:%d: %s", qPrintable(pfx), qPrintable(fileName), lineNo, qPrintable(msg));
+    else if (lineNo)
+        qWarning("%s%s: %s", qPrintable(pfx), qPrintable(fileName), qPrintable(msg));
     else
         qWarning("%s%s", qPrintable(pfx), qPrintable(msg));
 }

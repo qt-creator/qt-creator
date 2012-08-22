@@ -39,8 +39,10 @@
 
 static void print(const QString &fileName, int lineNo, const QString &msg)
 {
-    if (lineNo)
+    if (lineNo > 0)
         qWarning("%s(%d): %s", qPrintable(fileName), lineNo, qPrintable(msg));
+    else if (lineNo)
+        qWarning("%s: %s", qPrintable(fileName), qPrintable(msg));
     else
         qWarning("%s", qPrintable(msg));
 }

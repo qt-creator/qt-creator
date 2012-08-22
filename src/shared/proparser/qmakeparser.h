@@ -79,7 +79,7 @@ public:
     enum SubGrammar { FullGrammar, TestGrammar };
     // fileName is expected to be absolute and cleanPath()ed.
     ProFile *parsedProFile(const QString &fileName, bool cache = false);
-    ProFile *parsedProBlock(const QString &name, const QString &contents,
+    ProFile *parsedProBlock(const QString &contents, const QString &name, int line = 0,
                             SubGrammar grammar = FullGrammar);
 
 private:
@@ -109,7 +109,7 @@ private:
     };
 
     bool read(ProFile *pro);
-    bool read(ProFile *pro, const QString &content, SubGrammar grammar);
+    bool read(ProFile *pro, const QString &content, int line, SubGrammar grammar);
 
     ALWAYS_INLINE void putTok(ushort *&tokPtr, ushort tok);
     ALWAYS_INLINE void putBlockLen(ushort *&tokPtr, uint len);

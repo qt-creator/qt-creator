@@ -194,10 +194,11 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, bool cache)
     return pro;
 }
 
-ProFile *QMakeParser::parsedProBlock(const QString &name, const QString &contents, SubGrammar grammar)
+ProFile *QMakeParser::parsedProBlock(
+        const QString &contents, const QString &name, int line, SubGrammar grammar)
 {
     ProFile *pro = new ProFile(name);
-    if (!read(pro, contents, grammar)) {
+    if (!read(pro, contents, line, grammar)) {
         delete pro;
         pro = 0;
     }
@@ -224,7 +225,7 @@ bool QMakeParser::read(ProFile *pro)
     QString content(QString::fromLocal8Bit(bcont));
     bcont.clear();
     file.close();
-    return read(pro, content, FullGrammar);
+    return read(pro, content, 1, FullGrammar);
 }
 
 void QMakeParser::putTok(ushort *&tokPtr, ushort tok)
@@ -264,10 +265,10 @@ void QMakeParser::finalizeHashStr(ushort *buf, uint len)
     buf[-2] = (ushort)(hash >> 16);
 }
 
-bool QMakeParser::read(ProFile *pro, const QString &in, SubGrammar grammar)
+bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar grammar)
 {
     m_proFile = pro;
-    m_lineNo = 1;
+    m_lineNo = line;
 
     // Final precompiled token stream buffer
     QString tokBuff;
