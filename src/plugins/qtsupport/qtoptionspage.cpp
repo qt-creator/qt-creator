@@ -371,9 +371,6 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     QStringList missingToolChains;
     int abiCount = 0;
     foreach (const ProjectExplorer::Abi &a, version->qtAbis()) {
-        // Ignore symbian emulator since we do not support it.
-        if (a.osFlavor() == ProjectExplorer::Abi::SymbianEmulatorFlavor)
-            continue;
         if (ProjectExplorer::ToolChainManager::instance()->findToolChains(a).isEmpty())
             missingToolChains.append(a.toString());
         ++abiCount;
@@ -414,9 +411,6 @@ QList<ProjectExplorer::ToolChain*> QtOptionsPageWidget::toolChains(const BaseQtV
         return toolChains.values();
 
     foreach (const ProjectExplorer::Abi &a, version->qtAbis()) {
-        // Ignore symbian emulator since we do not support it.
-        if (a.osFlavor() == ProjectExplorer::Abi::SymbianEmulatorFlavor)
-            continue;
         foreach (ProjectExplorer::ToolChain *tc,
                  ProjectExplorer::ToolChainManager::instance()->findToolChains(a)) {
             toolChains.insert(tc->id(), tc);
@@ -1112,13 +1106,6 @@ QString QtOptionsPageWidget::searchKeywords() const
        << sep << m_debuggingHelperUi->gdbHelperLabel->text()
        << sep << m_debuggingHelperUi->qmlDumpLabel->text()
        << sep << m_debuggingHelperUi->qmlObserverLabel->text();
-
-    // Symbian specific, could be factored out to the factory
-    // checking m_configurationWidget is not enough, we want them to be a keyword
-    // regardless of which Qt versions configuration widget is currently active
-    ts << sep << tr("S60 SDK:")
-       << sep << tr("SBS v2 directory:");
-
 
     rc.remove(QLatin1Char('&'));
     return rc;

@@ -333,11 +333,6 @@ void BaseQtVersion::setId(int id)
     m_id = id;
 }
 
-void BaseQtVersion::restoreLegacySettings(QSettings *s)
-{
-    Q_UNUSED(s);
-}
-
 void BaseQtVersion::fromMap(const QVariantMap &map)
 {
     m_id = map.value(QLatin1String(QTVERSIONID)).toInt();

@@ -199,10 +199,7 @@ void GdbEngine::updateAllPython()
     postCommand("-stack-list-frames", CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, true)));
     stackHandler()->setCurrentIndex(0);
-    if (isCodaAdapter())
-        codaReloadThreads();
-    else
-        postCommand("-thread-info", CB(handleThreadInfo), 0);
+    postCommand("-thread-info", CB(handleThreadInfo), 0);
     reloadRegisters();
     updateLocals();
 }

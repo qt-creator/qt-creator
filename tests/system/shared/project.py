@@ -263,7 +263,6 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP, availableTargets
                      QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.EMBEDDED_LINUX,
                      QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
-            available += [QtQuickConstants.Targets.SYMBIAN]
             available.remove(QtQuickConstants.Targets.EMBEDDED_LINUX)
     for current in available:
         mustCheck = targets & current == current
@@ -426,16 +425,11 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
             result.append(QtQuickConstants.Targets.HARMATTAN)
             result.append(QtQuickConstants.Targets.MAEMO5)
             addSimulator = True
-        if 'Symbian' in supports:
-            result.append(QtQuickConstants.Targets.SYMBIAN)
-            addSimulator = True
         if len(result) == 0 or addSimulator:
             result.append(QtQuickConstants.Targets.SIMULATOR)
     elif 'Platform independent' in text:
         result = [QtQuickConstants.Targets.DESKTOP, QtQuickConstants.Targets.MAEMO5,
                   QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
-        if platform.system() in ('Microsoft', 'Windows'):
-            result.append(QtQuickConstants.Targets.SYMBIAN)
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)

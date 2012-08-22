@@ -53,28 +53,6 @@ private:
     class MobileAppWizardGenericOptionsPagePrivate *d;
 };
 
-class MobileAppWizardSymbianOptionsPage : public QWizardPage
-{
-    Q_OBJECT
-
-public:
-    explicit MobileAppWizardSymbianOptionsPage(QWidget *parent = 0);
-    virtual ~MobileAppWizardSymbianOptionsPage();
-
-    QString svgIcon() const;
-    void setSvgIcon(const QString &icon);
-    QString symbianUid() const;
-    void setNetworkEnabled(bool enableIt);
-    bool networkEnabled() const;
-    void setSymbianUid(const QString &uid);
-
-private slots:
-    void openSvgIcon(); // Via file open dialog
-
-private:
-    class MobileAppWizardSymbianOptionsPagePrivate *d;
-};
-
 class MobileAppWizardMaemoOptionsPage : public QWizardPage
 {
     Q_OBJECT

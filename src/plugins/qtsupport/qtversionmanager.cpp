@@ -135,8 +135,6 @@ QtVersionManager::QtVersionManager() :
 void QtVersionManager::extensionsInitialized()
 {
     bool success = restoreQtVersions();
-    if (!success)
-        success = legacyRestore();
     updateFromInstaller();
     if (!success) {
         // We did neither restore our settings or upgraded
@@ -384,67 +382,6 @@ void QtVersionManager::findSystemQt()
     BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(systemQMakePath);
     version->setDisplayName(BaseQtVersion::defaultDisplayName(version->qtVersionString(), systemQMakePath, true));
     m_versions.insert(version->uniqueId(), version);
-}
-
-bool QtVersionManager::legacyRestore()
-{
-    QSettings *s = Core::ICore::settings();
-    const QString qtVersionSection = QLatin1String(QtVersionsSectionName);
-    if (!s->contains(qtVersionSection + QLatin1String("/size")))
-        return false;
-    int size = s->beginReadArray(qtVersionSection);
-    for (int i = 0; i < size; ++i) {
-        s->setArrayIndex(i);
-        // Find the right id
-        // Either something saved or something generated
-        // Note: This code assumes that either all ids are read from the settings
-        // or generated on the fly.
-        int id = s->value(QLatin1String("Id"), -1).toInt();
-        if (id == -1)
-            id = getUniqueId();
-        else if (m_idcount < id)
-            m_idcount = id + 1;
-
-        Utils::FileName qmakePath = Utils::FileName::fromString(s->value(QLatin1String("QMakePath")).toString());
-        if (qmakePath.isEmpty())
-            continue; //skip this version
-
-        BaseQtVersion *version = QtVersionFactory::createQtVersionFromLegacySettings(qmakePath, id, s);
-        if (!version) // Likely to be a invalid version
-            continue;
-
-        if (m_versions.contains(version->uniqueId())) {
-            // oh uh;
-            delete version;
-        } else {
-            m_versions.insert(version->uniqueId(), version);
-        }
-        // Update from 2.1 or earlier:
-        QString mingwDir = s->value(QLatin1String("MingwDirectory")).toString();
-        if (!mingwDir.isEmpty()) {
-            QFileInfo fi(mingwDir + QLatin1String("/bin/g++.exe"));
-            if (fi.exists() && fi.isExecutable()) {
-                ProjectExplorer::MingwToolChain *tc = createToolChain<ProjectExplorer::MingwToolChain>(QLatin1String(ProjectExplorer::Constants::MINGW_TOOLCHAIN_ID));
-                if (tc) {
-                    tc->setCompilerCommand(Utils::FileName(fi));
-                    tc->setDisplayName(tr("MinGW from %1").arg(version->displayName()));
-                    // The debugger is set later in the autoDetect method of the MinGw tool chain factory
-                    // as the default debuggers are not yet registered.
-                    ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
-                }
-            }
-        }
-        const QString mwcDir = s->value(QLatin1String("MwcDirectory")).toString();
-        if (!mwcDir.isEmpty())
-            m_pendingMwcUpdates.append(mwcDir);
-        const QString gcceDir = s->value(QLatin1String("GcceDirectory")).toString();
-        if (!gcceDir.isEmpty())
-            m_pendingGcceUpdates.append(gcceDir);
-
-    }
-    s->endArray();
-    s->remove(qtVersionSection);
-    return true;
 }
 
 void QtVersionManager::addVersion(BaseQtVersion *version)

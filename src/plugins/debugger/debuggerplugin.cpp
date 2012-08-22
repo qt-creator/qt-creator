@@ -179,8 +179,8 @@
     \brief Base class of a debugger engine.
 
     Note: the Debugger process itself and any helper processes like
-    gdbserver, the CODA client etc are referred to as 'Engine',
-    whereas the debugged process is referred to as 'Inferior'.
+    gdbserver are referred to as 'Engine', whereas the debugged process
+    is referred to as 'Inferior'.
 
     Transitions marked by '---' are done in the individual engines.
     Transitions marked by '+-+' are done in the base DebuggerEngine.
@@ -2465,12 +2465,6 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
         if (!sp.workingDirectory.isEmpty())
             str << "Directory: " << QDir::toNativeSeparators(sp.workingDirectory)
                 << '\n';
-        if (sp.executableUid) {
-            str << "UID: 0x";
-            str.setIntegerBase(16);
-            str << sp.executableUid << '\n';
-            str.setIntegerBase(10);
-        }
     }
     QString cmd = sp.debuggerCommand;
     if (!cmd.isEmpty())

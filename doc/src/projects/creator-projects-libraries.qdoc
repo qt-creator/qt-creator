@@ -127,7 +127,6 @@
             \code
             win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/release/ -lmylib
             else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/debug/ -lmylib
-            else:symbian: LIBS += -lmylib
             else:unix: LIBS += -L$$OUT_PWD/../../../projects/mylib/ -lmylib
 
             INCLUDEPATH += $$PWD/../../../projects/mylib
@@ -135,7 +134,7 @@
 
             win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/release/mylib.lib
             else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/debug/mylib.lib
-            else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/libmylib.a
+            else:unix: PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/libmylib.a
             \endcode
 
     \endlist

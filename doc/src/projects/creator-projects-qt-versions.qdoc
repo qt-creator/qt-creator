@@ -73,7 +73,6 @@
         \endlist
 
     \if defined(qcmanual)
-    \input symbian/creator-projects-qt-versions-symbian.qdocinc
     \input qnx/creator-projects-qt-version-qnx.qdocinc
     \endif
 

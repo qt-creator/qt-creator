@@ -151,17 +151,6 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
     list << parameter;
 
     parameter = base;
-    parameter.setDisplayName(tr("Qt Quick Application for Symbian"));
-    parameter.setDescription(basicDescription +  tr("The Qt Quick Components for Symbian are a set of "
-                                                    "ready-made components that are designed with specific "
-                                                    "native appearance for the Symbian platform.\n\nRequires "
-                                                    "<b>Qt 4.7.4</b> or newer, and the component set installed for "
-                                                    "your Qt version."));
-    parameter.setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_SYMBIAN)
-                                  | QtSupport::Constants::FEATURE_QT_QUICK_1_1);
-    list << parameter;
-
-    parameter = base;
     parameter.setDisplayName(tr("Qt Quick Application for MeeGo Harmattan"));
     parameter.setDescription(basicDescription +  tr("The Qt Quick Components for MeeGo Harmattan are "
                                                     "a set of ready-made components that are designed "
@@ -184,7 +173,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
 
     QList<QtQuickAppWizard*> wizardList = Core::createMultipleBaseFileWizardInstances<QtQuickAppWizard>(list, plugin);
 
-    Q_ASSERT(wizardList.count() == 4);
+    Q_ASSERT(wizardList.count() == 3);
 
     for (int i = 0; i < wizardList.count(); i++) {
         wizardList.at(i)->setQtQuickKind(Kind(i));
@@ -210,10 +199,6 @@ AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWid
     switch (qtQuickKind()) {
     case QtQuick1_1:
         d->app->setComponentSet(QtQuickApp::QtQuick10Components);
-        d->app->setMainQml(QtQuickApp::ModeGenerate);
-        break;
-    case SymbianComponents:
-        d->app->setComponentSet(QtQuickApp::Symbian11Components);
         d->app->setMainQml(QtQuickApp::ModeGenerate);
         break;
     case MeegoComponents:

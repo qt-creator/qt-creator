@@ -26,11 +26,7 @@
     \previouspage creator-developing-meego.html
     \endif
     \page creator-developing-maemo.html
-    \if defined(qcmanual)
-    \nextpage creator-developing-symbian.html
-    \else
-    \nextpage smartinstaller.html
-    \endif
+    \nextpage creator-developing-qnx.html
 
     \title Connecting Maemo Devices
 

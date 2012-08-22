@@ -44,10 +44,6 @@ public:
     explicit MobileLibraryWizardOptionPage(QWidget *parent = 0);
     virtual ~MobileLibraryWizardOptionPage();
 
-    void setSymbianUid(const QString &uid);
-    QString symbianUid() const;
-    void setNetworkEnabled(bool enableIt);
-    bool networkEnabled() const;
     QString qtPluginDirectory() const;
     void setQtPluginDirectory(const QString &directory);
     void setLibraryType(int type);

@@ -36,8 +36,7 @@
     Qt 4.8, or later.
 
     To debug Qt Quick applications running on devices, you must install
-    Qt 4.7.4, or later, libraries on devices. To debug applications on Symbian
-    devices, you must install also QML Viewer on them.
+    Qt 4.7.4, or later, libraries on devices.
 
     For an example of how to debug Qt Quick Projects, see
     \l{Debugging a Qt Quick Example Application}.

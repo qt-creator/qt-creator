@@ -96,7 +96,6 @@ QByteArray gdbQuoteTypes(const QByteArray &type);
 bool isFloatType(const QByteArray &type);
 bool isIntOrFloatType(const QByteArray &type);
 bool isIntType(const QByteArray &type);
-bool isSymbianIntType(const QByteArray &type);
 
 QString formatToolTipAddress(quint64 a);
 

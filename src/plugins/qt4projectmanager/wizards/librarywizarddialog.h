@@ -57,7 +57,6 @@ public:
 
     void setSuffixes(const QString &header, const QString &source,  const QString &form= QString());
     void setLowerCaseFiles(bool);
-    void setSymbianUid(const QString &uid);
 
     QtProjectParameters parameters() const;
     LibraryParameters libraryParameters() const;

@@ -96,16 +96,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QCheckBox" name="symCheckBox">
-          <property name="text">
-           <string>Symbian</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
      </item>

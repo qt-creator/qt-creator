@@ -37,86 +37,15 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-struct SymbianCapability {
-    const char *name;
-    const int value;
-};
-
-static const SymbianCapability symbianCapability[] =
-{
-    { "LocalServices", MobileLibraryParameters::LocalServices },
-    { "Location", MobileLibraryParameters::Location },
-    { "NetworkServices", MobileLibraryParameters::NetworkServices },
-    { "ReadUserData", MobileLibraryParameters::ReadUserData },
-    { "UserEnvironment", MobileLibraryParameters::UserEnvironment },
-    { "WriteUserData", MobileLibraryParameters::WriteUserData },
-    { "PowerMgmt", MobileLibraryParameters::PowerMgmt },
-    { "ProtServ", MobileLibraryParameters::ProtServ },
-    { "ReadDeviceData", MobileLibraryParameters::ReadDeviceData },
-    { "SurroundingsDD", MobileLibraryParameters::SurroundingsDD },
-    { "SwEvent", MobileLibraryParameters::SwEvent },
-    { "TrustedUI", MobileLibraryParameters::TrustedUI },
-    { "WriteDeviceData", MobileLibraryParameters::WriteDeviceData },
-    { "CommDD", MobileLibraryParameters::CommDD },
-    { "DiskAdmin", MobileLibraryParameters::DiskAdmin },
-    { "NetworkControl", MobileLibraryParameters::NetworkControl },
-    { "MultimediaDD", MobileLibraryParameters::MultimediaDD },
-    { "AllFiles", MobileLibraryParameters::AllFiles },
-    { "DRM", MobileLibraryParameters::DRM },
-    { "TCB", MobileLibraryParameters::TCB },
-
-};
-
-QString generateCapabilitySet(uint capabilities)
-{
-    const int capabilityCount = sizeof(symbianCapability)/sizeof(symbianCapability[0]);
-    QString capabilitySet;
-    for(int i = 0; i < capabilityCount; ++i)
-        if (capabilities&symbianCapability[i].value)
-            capabilitySet += QLatin1String(symbianCapability[i].name) + QLatin1Char(' ');
-    return capabilitySet;
-}
-
 MobileLibraryParameters::MobileLibraryParameters() :
-    type(0), libraryType(TypeNone), symbianCapabilities(CapabilityNone)
+    type(0), libraryType(TypeNone)
 {
 }
 
 void MobileLibraryParameters::writeProFile(QTextStream &str) const
 {
-    if (type&Symbian)
-        writeSymbianProFile(str);
     if (type&Maemo)
         writeMaemoProFile(str);
-}
-
-void MobileLibraryParameters::writeSymbianProFile(QTextStream &str) const
-{
-    if (libraryType == QtProjectParameters::SharedLibrary) {
-        str << "\n"
-               "symbian {\n"
-               "    MMP_RULES += EXPORTUNFROZEN\n"
-               "    TARGET.UID3 = " << symbianUid << "\n"
-               "    TARGET.CAPABILITY = " << generateCapabilitySet(symbianCapabilities) << "\n"
-               "    TARGET.EPOCALLOWDLLDATA = 1\n"
-               "    addFiles.sources = " << fileName << ".dll\n"
-               "    addFiles.path = !:/sys/bin\n"
-               "    DEPLOYMENT += addFiles\n"
-               "}\n";
-    } else if (libraryType == QtProjectParameters::Qt4Plugin) {
-        str << "\n"
-               "symbian {\n"
-               "# Load predefined include paths (e.g. QT_PLUGINS_BASE_DIR) to be used in the pro-files\n"
-               "    load(data_caging_paths)\n"
-               "    MMP_RULES += EXPORTUNFROZEN\n"
-               "    TARGET.UID3 = " << symbianUid << "\n"
-               "    TARGET.CAPABILITY = " << generateCapabilitySet(symbianCapabilities) << "\n"
-               "    TARGET.EPOCALLOWDLLDATA = 1\n"
-               "    pluginDeploy.sources = " << fileName << ".dll\n"
-               "    pluginDeploy.path = $$QT_PLUGINS_BASE_DIR/" << QDir::fromNativeSeparators(qtPluginDirectory) << "\n"
-               "    DEPLOYMENT += pluginDeploy\n"
-               "}\n";
-    }
 }
 
 void MobileLibraryParameters::writeMaemoProFile(QTextStream &str) const

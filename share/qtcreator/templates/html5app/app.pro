@@ -8,20 +8,6 @@ DEPLOYMENTFOLDERS = folder_01
 # TOUCH_OPTIMIZED_NAVIGATION #
 DEFINES += TOUCH_OPTIMIZED_NAVIGATION
 
-# TARGETUID3 #
-symbian:TARGET.UID3 = 0xE1111234
-
-# Allow network access on Symbian
-# NETWORKACCESS #
-symbian:TARGET.CAPABILITY += NetworkServices
-
-# Smart Installer package's UID
-# This UID is from the protected range and therefore the package will
-# fail to install if self-signed. By default qmake uses the unprotected
-# range value if unprotected UID is defined for the application and
-# 0x2002CCCF value if protected UID is given to the application
-#symbian:DEPLOYMENT.installer_header = 0x2002CCCF
-
 # If your application uses the Qt Mobility libraries, uncomment the following
 # lines and add the respective components to the MOBILITY variable.
 # CONFIG += mobility

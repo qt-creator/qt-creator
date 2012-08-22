@@ -2213,39 +2213,6 @@ def qdump__boost__posix_time__time_duration(d, item):
 
 #######################################################################
 #
-# Symbian
-#
-#######################################################################
-
-def encodeSymbianString(base, size):
-    s = ""
-    for i in xrange(size):
-        val = int(base[i])
-        if val == 9:
-            s += "5c007400" # \t
-        else:
-            s += "%02x%02x" % (val % 256, val / 256)
-    return s
-
-def qdump__TBuf(d, value):
-    size = value["iLength"] & 0xffff
-    base = value["iBuf"]
-    max = numericTemplateArgument(value.type, 0)
-    check(0 <= size and size <= max)
-    d.putNumChild(0)
-    d.putValue(encodeSymbianString(base, size), Hex4EncodedLittleEndian)
-
-def qdump__TLitC(d, value):
-    size = value["iTypeLength"] & 0xffff
-    base = value["iBuf"]
-    max = numericTemplateArgument(value.type, 0)
-    check(0 <= size and size <= max)
-    d.putNumChild(0)
-    d.putValue(encodeSymbianString(base, size), Hex4EncodedLittleEndian)
-
-
-#######################################################################
-#
 # SSE
 #
 #######################################################################

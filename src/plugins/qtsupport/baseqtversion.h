@@ -100,8 +100,6 @@ public:
     virtual ~BaseQtVersion();
 
     virtual void fromMap(const QVariantMap &map);
-    // pre 2.3 settings, only used by SymbianQt
-    virtual void restoreLegacySettings(QSettings *s);
     virtual BaseQtVersion *clone() const = 0;
     virtual bool equals(BaseQtVersion *other);
 

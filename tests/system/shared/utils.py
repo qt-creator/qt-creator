@@ -292,8 +292,6 @@ def getCorrectlyConfiguredTargets():
          # Dialog sometimes differs from targets' names
             if target == "Maemo":
                 target = "Maemo5"
-            elif target == "Symbian":
-                target = "Symbian Device"
             implicitTargets = [target]
             if target == "Desktop" and platform.system() in ("Linux", "Darwin"):
                 implicitTargets.append("Embedded Linux")

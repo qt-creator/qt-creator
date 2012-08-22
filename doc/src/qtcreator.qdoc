@@ -107,7 +107,6 @@
             \o  \list
             \o  \bold {\l{Publishing}}
                 \list
-                    \o  \l{Publishing Qt Content for Symbian Devices}
                     \o  \l{Publishing Qt Content for MeeGo Harmattan Devices}
                     \o  \l{Publishing Qt Content for Maemo Devices}
                     \o  \l{Publishing Maemo Applications to Extras-devel}
@@ -237,7 +236,6 @@
             \o  \l{Running on Multiple Targets}
             \o  \l{Deploying to Mobile Devices}
             \list
-                \o  \l{Deploying Applications to Symbian Devices}
                 \o  \l{Deploying Applications to Linux-Based Devices}
                 \o  \l{Deploying Applications to QNX Devices}
                 \o  \l{Deploying Applications to Android Devices}
@@ -247,7 +245,6 @@
                 \o  \l{Connecting MeeGo Harmattan Devices}
                 \o  \l{Connecting Embedded Linux Devices}
                 \o  \l{Connecting Maemo Devices}
-                \o  \l{Connecting Symbian Devices}
                 \o  \l{Connecting QNX Devices}
                 \o  \l{Connecting Android Devices}
             \endlist
@@ -282,7 +279,6 @@
         \endlist
         \o  \l{Publishing}
         \list
-            \o  \l{Publishing Qt Content for Symbian Devices}
             \o  \l{Publishing Qt Content for Maemo Devices}
             \o  \l{Publishing Qt Content for MeeGo Harmattan Devices}
             \o  \l{Publishing Maemo Applications to Extras-devel}

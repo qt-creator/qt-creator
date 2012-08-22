@@ -42,7 +42,6 @@
 #include "termgdbadapter.h"
 #include "remotegdbserveradapter.h"
 #include "remoteplaingdbadapter.h"
-#include "codagdbadapter.h"
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
@@ -1756,9 +1755,7 @@ void GdbEngine::handleStop2()
     reloadStack(false); // Will trigger register reload.
 
     if (supportsThreads()) {
-        if (isCodaAdapter()) {
-            codaReloadThreads();
-        } else if (m_isMacGdb || m_gdbVersion < 70100) {
+        if (m_isMacGdb || m_gdbVersion < 70100) {
             postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds));
         } else {
             // This is only available in gdb 7.1+.
@@ -2161,8 +2158,6 @@ void GdbEngine::executeStep()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
-    if (isCodaAdapter() && stackHandler()->stackSize() > 0)
-        postCommand("sal step,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
     if (isReverseDebugging()) {
         postCommand("reverse-step", RunRequest, CB(handleExecuteStep));
     } else {
@@ -2236,8 +2231,6 @@ void GdbEngine::executeNext()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
-    if (isCodaAdapter() && stackHandler()->stackSize() > 0)
-        postCommand("sal next,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
     if (isReverseDebugging()) {
         postCommand("reverse-next", RunRequest, CB(handleExecuteNext));
     } else {
@@ -3132,8 +3125,6 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
         cmd = "-break-insert -a -f ";
     } else if (m_isMacGdb) {
         cmd = "-break-insert -l -1 -f ";
-    } else if (isCodaAdapter()) {
-        cmd = "-break-insert -h -f ";
     } else if (m_gdbVersion >= 70000) {
         int spec = handler->threadSpec(id);
         cmd = "-break-insert ";
@@ -3521,7 +3512,7 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
     PENDING_DEBUG("RELOAD STACK");
     QByteArray cmd = "-stack-list-frames";
     int stackDepth = debuggerCore()->action(MaximalStackDepth)->value().toInt();
-    if (stackDepth && !isCodaAdapter())
+    if (stackDepth)
         cmd += " 0 " + QByteArray::number(stackDepth);
     postCommand(cmd, Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
@@ -3760,17 +3751,10 @@ void GdbEngine::reloadRegisters()
     if (!m_registerNamesListed) {
         postCommand("-data-list-register-names", CB(handleRegisterListNames));
         m_registerNamesListed = true;
-        // FIXME: Maybe better completely re-do this logic in CODA adapter.
-        if (isCodaAdapter())
-            return;
     }
 
-    if (isCodaAdapter()) {
-        codaReloadRegisters();
-    } else {
-        postCommand("-data-list-register-values r",
-                    Discardable, CB(handleRegisterListValues));
-    }
+    postCommand("-data-list-register-values r",
+                Discardable, CB(handleRegisterListValues));
 }
 
 void GdbEngine::setRegisterValue(int nr, const QString &value)
@@ -3793,9 +3777,6 @@ void GdbEngine::handleRegisterListNames(const GdbResponse &response)
             registers.append(Register(item.data()));
 
     registerHandler()->setRegisters(registers);
-
-    if (isCodaAdapter())
-        codaReloadRegisters();
 }
 
 void GdbEngine::handleRegisterListValues(const GdbResponse &response)
@@ -4199,10 +4180,6 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         // pass through the insertData() machinery.
         if (isIntOrFloatType(data.type) || isPointerType(data.type))
             setWatchDataValue(data, item);
-        if (isSymbianIntType(data.type)) {
-            setWatchDataValue(data, item);
-            data.setHasChildren(false);
-        }
     }
 
     if (!watchHandler()->isExpandedIName(data.iname))
@@ -5310,11 +5287,6 @@ void GdbEngine::write(const QByteArray &data)
     gdbProc()->write(data);
 }
 
-bool GdbEngine::isCodaAdapter() const
-{
-    return false;
-}
-
 bool GdbEngine::prepareCommand()
 {
 #ifdef Q_OS_WIN
@@ -5385,9 +5357,6 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
 
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp)
 {
-    if (sp.toolChainAbi.os() == Abi::SymbianOS)
-        return new GdbCodaEngine(sp);
-
     switch (sp.startMode) {
     case AttachCore:
         return new GdbCoreEngine(sp);

@@ -79,8 +79,7 @@ public:
     enum Platform {
         LinuxPlatform   = 0x01,
         MacPlatform     = 0x02,
-        WindowsPlatform = 0x04,
-        SymbianPlatform = 0x08
+        WindowsPlatform = 0x04
         };
 
     Q_DECLARE_FLAGS(Platforms, Platform)

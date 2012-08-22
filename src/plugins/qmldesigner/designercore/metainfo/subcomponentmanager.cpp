@@ -59,7 +59,7 @@ static inline QStringList importPaths() {
     // env import paths
     QByteArray envImportPath = qgetenv("QML_IMPORT_PATH");
     if (!envImportPath.isEmpty()) {
-#if defined(Q_OS_WIN) || defined(Q_OS_SYMBIAN)
+#if defined(Q_OS_WIN)
         QLatin1Char pathSep(';');
 #else
         QLatin1Char pathSep(':');

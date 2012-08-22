@@ -7,8 +7,8 @@ DebuggerManager who is responsible for "doing the work".
 
 The DebuggerManager creates all DebuggerEngines, and has zero or one
 "current" Engine. Engines represent an interface to a "native" debugger.
-Right now there are engines for gdb (used for C++ on Linux, Mac, Windows/MinGW,
-Maemo and Symbian), for cdb (used for C++ on Windows/MSVC) and "script" (used
+Right now there are engines for gdb (used for C++ on Linux, Mac, Windows/MinGW
+and Maemo), for cdb (used for C++ on Windows/MSVC) and "script" (used
 for JavaScript on all platforms).
 
   The GdbEngine has different "Adapters" to cope with the variety of environments
@@ -28,13 +28,9 @@ for JavaScript on all platforms).
 
     RemoteGdbAdapter is used to talk to gdbserver running on Linux.
 
-    TrkGdbAdapter is used to talk to Symbian devices using the gdb protocol and
-    the gdb serial protocol between gdb and the Adapter and the TRK protocol
-    between the adapter and AppTRK running on the device.
-
   Gdb comes in main two flavours: with or without Python. The Python version
   is preferred, but it is not available on Mac and on older versions of Linux.
-  On Windows, Symbian and Maemo we only support the Python version.
+  On Windows and Maemo we only support the Python version.
 
   The non-Python versions use the compiled version of the debugging helpers,
   that needs to be enabled in the Qt4 Versions dialog, the Python version use
@@ -50,24 +46,24 @@ for JavaScript on all platforms).
 Per platform the situation for C++ debugging looks like:
 [Helper loading strategy: /i - injected, /p - preload, /- not available]
 
-          Symbian    Maemo       Linux          Mac            Windows
-                                                          MinGW       MSVC
+             Maemo       Linux          Mac            Windows
+                                                  MinGW       MSVC
 
-Engine:     gdb      gdb          gdb           gdb        gdb        cdb
+Engine:      gdb          gdb           gdb        gdb        cdb
 
-Python:     yes      yes       yes     no       no         no        (not/appl)
+Python:      yes       yes     no       no         no        (not/appl)
 
-Adapters:   trk     remote    term   term/i     term/i     term       term/i
-                              plain  plain/p    plain/i    plain      plain/i
-                              attach attach/i   attach/i   attach     attach/i
-                              remote attach/-   remote/-   remote
+Adapters:   remote    term   term/i     term/i     term       term/i
+                      plain  plain/p    plain/i    plain      plain/i
+                      attach attach/i   attach/i   attach     attach/i
+                      remote attach/-   remote/-   remote
 
 Minimum
-supported  FSF       FSF      FSF     FSF       Apple      FSF         -
-version:   7.1       7.1      7.1     6.8       1344       7.2
-                  (no python)
+supported    FSF      FSF     FSF       Apple      FSF         -
+version:     7.1      7.1     6.8       1344       7.2
+          (no python)
 
-Version    FSF       FSF          FSF           (XCode)    FSF         -
-in SDK:    7.2       7.1          7.2                      7.2
-                  (no python)
+Version      FSF          FSF           (XCode)    FSF         -
+in SDK:      7.1          7.2                      7.2
+          (no python)
 

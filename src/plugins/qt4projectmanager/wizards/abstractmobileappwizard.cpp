@@ -56,14 +56,12 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
     : ProjectExplorer::BaseProjectWizardDialog(parent, parameters)
     , m_targetsPage(0)
     , m_genericOptionsPageId(-1)
-    , m_symbianOptionsPageId(-1)
     , m_maemoOptionsPageId(-1)
     , m_harmattanOptionsPageId(-1)
     , m_targetsPageId(-1)
     , m_ignoreGeneralOptions(false)
     , m_targetItem(0)
     , m_genericItem(0)
-    , m_symbianItem(0)
     , m_maemoItem(0)
     , m_harmattanItem(0)
     , m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_PROFILE_IDS).value<QList<Core::Id> >())
@@ -78,7 +76,6 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
     }
 
     m_genericOptionsPage = new Internal::MobileAppWizardGenericOptionsPage;
-    m_symbianOptionsPage = new Internal::MobileAppWizardSymbianOptionsPage;
     m_maemoOptionsPage = new Internal::MobileAppWizardMaemoOptionsPage;
     m_harmattanOptionsPage = new Internal::MobileAppWizardHarmattanOptionsPage;
 }
@@ -91,10 +88,7 @@ void AbstractMobileAppWizardDialog::addMobilePages()
     }
 
     const bool shouldAddGenericPage = m_targetsPage
-            || (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM) && !m_ignoreGeneralOptions)
             || isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM);
-    const bool shouldAddSymbianPage = m_targetsPage
-            || isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM);
     const bool shouldAddMaemoPage = m_targetsPage
             || isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM);
     const bool shouldAddHarmattanPage = m_targetsPage
@@ -104,12 +98,6 @@ void AbstractMobileAppWizardDialog::addMobilePages()
         m_genericOptionsPageId = addPageWithTitle(m_genericOptionsPage,
                                                   tr("Mobile Options"));
         m_genericItem = wizardProgress()->item(m_genericOptionsPageId);
-    }
-
-    if (shouldAddSymbianPage) {
-        m_symbianOptionsPageId = addPageWithTitle(m_symbianOptionsPage,
-                                                  QLatin1String("    ") + tr("Symbian Specific"));
-        m_symbianItem = wizardProgress()->item(m_symbianOptionsPageId);
     }
 
     if (shouldAddMaemoPage) {
@@ -144,26 +132,13 @@ int AbstractMobileAppWizardDialog::nextId() const
 {
     if (m_targetsPage) {
         if (currentPage() == m_targetsPage) {
-            if ((isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM) && !m_ignoreGeneralOptions) ||
-                    isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
+            if (isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
                 return m_genericOptionsPageId;
-            // If Symbian target and Qt Quick components for Symbian, skip the mobile options page.
-            else if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM) && m_ignoreGeneralOptions)
-                return m_symbianOptionsPageId;
             else if (isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
                 return m_harmattanOptionsPageId;
             else
                 return idOfNextGenericPage();
         } else if (currentPage() == m_genericOptionsPage) {
-            if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM))
-                return m_symbianOptionsPageId;
-            else if (isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
-                return m_maemoOptionsPageId;
-            else if (isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
-                return m_harmattanOptionsPageId;
-            else
-                return idOfNextGenericPage();
-        } else if (currentPage() == m_symbianOptionsPage) {
             if (isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
                 return m_maemoOptionsPageId;
             else if (isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
@@ -185,20 +160,15 @@ void AbstractMobileAppWizardDialog::initializePage(int id)
     if (m_targetItem) {
         if (id == startId()) {
             m_targetItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                    << m_genericItem << m_symbianItem << m_maemoItem << m_harmattanItem << itemOfNextGenericPage());
+                    << m_genericItem << m_maemoItem << m_harmattanItem << itemOfNextGenericPage());
             m_genericItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                    << m_symbianItem << m_maemoItem);
-            m_symbianItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                    << m_maemoItem << m_harmattanItem << itemOfNextGenericPage());
+                    << m_maemoItem);
             m_maemoItem->setNextItems(QList<Utils::WizardProgressItem *>()
                     << m_harmattanItem << itemOfNextGenericPage());
         } else if (id == m_genericOptionsPageId
-                   || id == m_symbianOptionsPageId
                    || id == m_maemoOptionsPageId) {
             QList<Utils::WizardProgressItem *> order;
             order << m_genericItem;
-            if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM))
-                order << m_symbianItem;
             if (isQtPlatformSelected(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
                 order << m_maemoItem;
             if (isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
@@ -266,8 +236,6 @@ QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,
         = createWizardDialogInternal(parent, wizardDialogParameters);
     wdlg->setProjectName(ProjectExplorer::BaseProjectWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     wdlg->m_genericOptionsPage->setOrientation(app()->orientation());
-    wdlg->m_symbianOptionsPage->setSvgIcon(app()->symbianSvgIcon());
-    wdlg->m_symbianOptionsPage->setNetworkEnabled(app()->networkEnabled());
     wdlg->m_maemoOptionsPage->setPngIcon(app()->pngIcon64());
     wdlg->m_harmattanOptionsPage->setPngIcon(app()->pngIcon80());
     wdlg->m_harmattanOptionsPage->setBoosterOptionEnabled(app()->canSupportMeegoBooster());
@@ -284,9 +252,6 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
     const AbstractMobileAppWizardDialog *wdlg
         = qobject_cast<const AbstractMobileAppWizardDialog*>(wizard);
     app()->setOrientation(wdlg->m_genericOptionsPage->orientation());
-    app()->setSymbianTargetUid(wdlg->m_symbianOptionsPage->symbianUid());
-    app()->setSymbianSvgIcon(wdlg->m_symbianOptionsPage->svgIcon());
-    app()->setNetworkEnabled(wdlg->m_symbianOptionsPage->networkEnabled());
     app()->setPngIcon64(wdlg->m_maemoOptionsPage->pngIcon());
     app()->setPngIcon80(wdlg->m_harmattanOptionsPage->pngIcon());
     if (wdlg->isQtPlatformSelected(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM))
@@ -326,7 +291,6 @@ bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
 void AbstractMobileAppWizard::useProjectPath(const QString &projectName,
     const QString &projectPath)
 {
-    wizardDialog()->m_symbianOptionsPage->setSymbianUid(app()->symbianUidForPath(projectPath + projectName));
     app()->setProjectName(projectName);
     app()->setProjectPath(projectPath);
     if (wizardDialog()->m_targetsPage)

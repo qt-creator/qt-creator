@@ -74,8 +74,7 @@ GdbEngine::DumperHandling GdbRemoteServerEngine::dumperHandling() const
 {
     using namespace ProjectExplorer;
     const Abi abi = startParameters().toolChainAbi;
-    if (abi.os() == Abi::SymbianOS
-            || abi.os() == Abi::WindowsOS
+    if (abi.os() == Abi::WindowsOS
             || abi.binaryFormat() == Abi::ElfFormat)
         return DumperLoadedByGdb;
     return DumperLoadedByGdbPreload;

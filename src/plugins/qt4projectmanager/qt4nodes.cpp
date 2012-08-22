@@ -796,25 +796,6 @@ void Qt4PriFileNode::folderChanged(const QString &folder)
     contents.updateSubFolders(this, this);
     m_project->updateFileList();
     m_project->updateCodeModels();
-
-    // The files to be packaged are listed inside the symbian build system.
-    // We need to regenerate that list by running qmake
-    // Other platforms do not have a explicit list of files to package, but package
-    // directories
-    foreach (const ProjectExplorer::Target *target, m_project->targets()) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
-        if (version && version->type() == QtSupport::Constants::SYMBIANQT) {
-            foreach (ProjectExplorer::BuildConfiguration *bc, target->buildConfigurations()) {
-                Qt4BuildConfiguration *qt4bc = qobject_cast<Qt4BuildConfiguration *>(bc);
-                if (qt4bc) {
-                    QMakeStep *qmakeStep = qt4bc->qmakeStep();
-                    if (qmakeStep)
-                        qmakeStep->setForced(true);
-                }
-            }
-        }
-    }
-
 }
 
 bool Qt4PriFileNode::deploysFolder(const QString &folder) const
@@ -1414,49 +1395,6 @@ QString Qt4ProFileNode::makefile() const
     return m_varValues[Makefile].first();
 }
 
-QStringList Qt4ProFileNode::symbianCapabilities() const
-{
-    QStringList lowerCasedResult;
-
-    QStringList all;
-    all << QLatin1String("LocalServices") << QLatin1String("UserEnvironment") << QLatin1String("NetworkServices")
-        << QLatin1String("ReadUserData") << QLatin1String("WriteUserData") << QLatin1String("Location") << QLatin1String("SwEvent")
-        << QLatin1String("SurroundingsDD") << QLatin1String("ProtServ") << QLatin1String("PowerMgmt") << QLatin1String("ReadDeviceData")
-        << QLatin1String("WriteDeviceData") << QLatin1String("TrustedUI") << QLatin1String("NetworkControl")
-        << QLatin1String("MultimediaDD")<< QLatin1String("CommDD") << QLatin1String("DiskAdmin") << QLatin1String("AllFiles")
-        << QLatin1String("DRM") << QLatin1String("TCB");
-
-    foreach (const QString &cap, m_varValues[SymbianCapabilities]) {
-        QString capability = cap.toLower();
-        if (capability.startsWith(QLatin1Char('-'))) {
-            lowerCasedResult.removeAll(capability.mid(1));
-        } else if (capability == QLatin1String("all")) {
-            foreach (const QString &a, all)
-                if (!lowerCasedResult.contains(a, Qt::CaseInsensitive))
-                    lowerCasedResult << a.toLower();
-        } else {
-            lowerCasedResult << cap;
-        }
-    }
-    QStringList result; //let's make the result pretty
-    int index = -1;
-    foreach (const QString &lowerCase, lowerCasedResult) {
-        for (int i = 0; i < all.count(); ++i) {
-            index = -1;
-            if (QString::compare(lowerCase, all.at(i),
-                                 Qt::CaseInsensitive) == 0) {
-                index = i;
-                break;
-            }
-        }
-        if (index != -1)
-            result << all.at(index);
-        else
-            result << lowerCase; //strange capability!
-    }
-    return result;
-}
-
 QString Qt4ProFileNode::objectExtension() const
 {
     if (m_varValues[ObjectExt].isEmpty()) {
@@ -2004,7 +1942,6 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         newVarValues[QmlImportPathVar] = m_readerExact->absolutePathValues(
                     QLatin1String("QML_IMPORT_PATH"), m_projectDir);
         newVarValues[Makefile] = m_readerExact->values(QLatin1String("MAKEFILE"));
-        newVarValues[SymbianCapabilities] = m_readerExact->values(QLatin1String("TARGET.CAPABILITY"));
         newVarValues[QtVar] = m_readerExact->values(QLatin1String("QT"));
         newVarValues[ObjectExt] = m_readerExact->values(QLatin1String("QMAKE_EXT_OBJ"));
         newVarValues[ObjectsDir] = m_readerExact->values(QLatin1String("OBJECTS_DIR"));

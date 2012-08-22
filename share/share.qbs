@@ -226,7 +226,6 @@ Product {
             "deviceorientation.h",
             "deviceorientation_harmattan.cpp",
             "deviceorientation_maemo5.cpp",
-            "deviceorientation_symbian.cpp",
             "loggerwidget.cpp",
             "loggerwidget.h",
             "main.cpp",
@@ -919,16 +918,6 @@ Product {
     }
 
     Group {
-        qbs.installDir: "share/qtcreator/templates/qtquickapp/qml/app/symbian11"
-        fileTags: ["install"]
-        prefix: "qtcreator/templates/qtquickapp/qml/app/symbian11/"
-        files: [
-            "MainPage.qml",
-            "main.qml",
-        ]
-    }
-
-    Group {
         qbs.installDir: "share/qtcreator/templates/qtquickapp/qmlapplicationviewer"
         fileTags: ["install"]
         prefix: "qtcreator/templates/qtquickapp/qmlapplicationviewer/"
@@ -949,7 +938,6 @@ Product {
             "icon64.png",
             "icon80.png",
             "manifest.aegis",
-            "symbianicon.svg",
         ]
     }
 

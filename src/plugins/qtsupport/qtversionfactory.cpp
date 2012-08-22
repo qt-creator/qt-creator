@@ -55,17 +55,6 @@ bool sortByPriority(QtVersionFactory *a, QtVersionFactory *b)
     return a->priority() > b->priority();
 }
 
-BaseQtVersion *QtVersionFactory::createQtVersionFromLegacySettings(const Utils::FileName &qmakePath, int id, QSettings *s)
-{
-    BaseQtVersion *v = createQtVersionFromQMakePath(qmakePath);
-    if (!v)
-        return 0;
-    v->setId(id);
-    v->setDisplayName(s->value(QLatin1String("Name")).toString());
-    v->restoreLegacySettings(s);
-    return v;
-}
-
 BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileName &qmakePath, bool isAutoDetected, const QString &autoDetectionSource)
 {
     QHash<QString, QString> versionInfo;

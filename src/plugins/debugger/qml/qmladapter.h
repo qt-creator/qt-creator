@@ -63,7 +63,6 @@ public:
     virtual ~QmlAdapter();
 
     void beginConnectionTcp(const QString &address, quint16 port);
-    void beginConnectionOst(const QString &port);
     void closeConnection();
 
     QmlDebug::QmlDebugConnection *connection() const;

@@ -728,11 +728,6 @@ protected:
     virtual AbstractGdbProcess *gdbProc() = 0;
     virtual DumperHandling dumperHandling() const = 0;
 
-    // CODA specific stuff
-    virtual bool isCodaAdapter() const;
-    virtual void codaReloadRegisters() {}
-    virtual void codaReloadThreads() {}
-
 protected:
     bool prepareCommand();
     void interruptLocalInferior(qint64 pid);

@@ -419,8 +419,6 @@ void QmlEngine::beginConnection(quint16 port)
     QTC_ASSERT(state() == EngineRunRequested, return);
 
     if (port > 0) {
-        QTC_CHECK(startParameters().communicationChannel
-                  == DebuggerStartParameters::CommunicationChannelTcpIp);
         QTC_ASSERT(startParameters().connParams.port == 0
                    || startParameters().connParams.port == port,
                    qWarning() << "Port " << port << "from application output does not match"
@@ -428,16 +426,9 @@ void QmlEngine::beginConnection(quint16 port)
         m_adapter.beginConnectionTcp(startParameters().qmlServerAddress, port);
         return;
     }
-    if (startParameters().communicationChannel
-           == DebuggerStartParameters::CommunicationChannelTcpIp) {
-        // no port from application output, use the one from start parameters ...
-        m_adapter.beginConnectionTcp(startParameters().qmlServerAddress,
-                                        startParameters().qmlServerPort);
-    } else {
-        QTC_CHECK(startParameters().communicationChannel
-                  == DebuggerStartParameters::CommunicationChannelUsb);
-        m_adapter.beginConnectionOst(startParameters().remoteChannel);
-    }
+    // no port from application output, use the one from start parameters ...
+    m_adapter.beginConnectionTcp(startParameters().qmlServerAddress,
+                                 startParameters().qmlServerPort);
 }
 
 void QmlEngine::connectionStartupFailed()

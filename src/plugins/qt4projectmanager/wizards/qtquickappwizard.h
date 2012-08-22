@@ -43,9 +43,8 @@ public:
 
     enum Kind {
         QtQuick1_1 = 0,
-        SymbianComponents = 1,
-        MeegoComponents = 2,
-        ImportQml = 3
+        MeegoComponents = 1,
+        ImportQml = 2
     };
 
     QtQuickAppWizard();

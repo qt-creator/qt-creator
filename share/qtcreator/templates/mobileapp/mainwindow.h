@@ -20,7 +20,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     virtual ~MainWindow();
 
-    // Note that this will only have an effect on Symbian and Fremantle.
+    // Note that this will only have an effect on Fremantle.
     void setOrientation(ScreenOrientation orientation);
 
     void showExpanded();

@@ -14,7 +14,6 @@ QtcLibrary {
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["gui", "network"] }
-    Depends { name: "symbianutils" }
 
     files: [
         "baseenginedebugclient.cpp",
@@ -48,7 +47,6 @@ QtcLibrary {
 
     ProductModule {
         Depends { name: "cpp" }
-        Depends { name: "symbianutils" }
         cpp.includePaths: ["."]
     }
 }

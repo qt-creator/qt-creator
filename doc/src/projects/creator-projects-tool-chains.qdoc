@@ -54,23 +54,10 @@
 
         \o  Clang is a C, C++, Objective C, and Objective C++ front-end for the
             LLVM compiler for Windows, Linux, and Mac OS X.
-
-        \o  GCCE (GNU Compiler Collection for Embedded) is an ARM-based
-            compiler used in Symbian OS 9 and distributed together with \QSDK.
-
-        \if defined(qcmanual)
-        \o  RVCT is an ARM-based compiler for building applications for Symbian
-            devices (requires a license).
-
-        \o  WINSCW is a compiler for building applications that can be run or
-            debugged on the Symbian Emulator. It is distributed together with
-            Symbian SDKs (but not with the \QSDK).
-        \endif
-
     \endlist
 
-    To build an application using GCC, MinGW, GCCE, or Clang, specify the paths
-    to the directories where the compiler is located and select
+    To build an application using GCC, MinGW, or Clang, specify the paths
+    to the directories where the compiler and debugger are located and select
     the application binary interface (ABI) version from the list of available
     versions. You can also create a custom ABI definition.
 
@@ -99,12 +86,6 @@
             \endif
 
             The other settings to specify depend on the tool chain.
-
-        \if defined(qcmanual)
-        \o  For RVCT, select the ARM version to use in the \gui {ARM version}
-            field. RVCT 2.2 is supported on Symbian Anna and earlier. RVCT 4.0 b902
-            or later is required for Symbian Belle.
-        \endif
 
     \endlist
 

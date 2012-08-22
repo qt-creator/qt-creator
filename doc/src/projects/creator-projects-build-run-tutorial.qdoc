@@ -55,9 +55,8 @@
             \list 1
 
                 \o  Select at least \QS and one of the mobile
-                    \l{glossary-development-target}{targets} (1), Symbian
-                    Device, Maemo 5, or MeeGo Harmattan, depending on the device
-                    you develop for.
+                    \l{glossary-development-target}{targets} (1), Maemo 5 or
+                    MeeGo Harmattan, depending on the device you develop for.
 
                 \o  Select \gui {Configure Project} (2).
 
@@ -86,17 +85,6 @@
             various mobile device configurations in the \gui {Device} field. You
             can also simulate various mobile functions and create your own
             scripts.
-
-        \if defined(qcmanual)
-        \o  To test the application on a Symbian device, check that the required
-            Qt libraries and a debugging agent are installed on the device. For
-            more information, see \l{Connecting Symbian Devices}.
-
-        \o  Click the \gui {Target Selector} and select \gui {Symbian Device}.
-
-        \o  Click \gui Run to build the application and run it on the Symbian
-            device.
-        \endif
 
     \endlist
 

@@ -44,7 +44,6 @@ class TargetSetupPage;
 
 namespace Internal {
 class MobileAppWizardGenericOptionsPage;
-class MobileAppWizardSymbianOptionsPage;
 class MobileAppWizardMaemoOptionsPage;
 class MobileAppWizardHarmattanOptionsPage;
 }
@@ -78,20 +77,17 @@ private:
     QList<Core::Id> selectedProfiles() const;
 
     Internal::MobileAppWizardGenericOptionsPage *m_genericOptionsPage;
-    Internal::MobileAppWizardSymbianOptionsPage *m_symbianOptionsPage;
     Internal::MobileAppWizardMaemoOptionsPage *m_maemoOptionsPage;
     Internal::MobileAppWizardHarmattanOptionsPage *m_harmattanOptionsPage;
     TargetSetupPage *m_targetsPage;
 
     int m_genericOptionsPageId;
-    int m_symbianOptionsPageId;
     int m_maemoOptionsPageId;
     int m_harmattanOptionsPageId;
     int m_targetsPageId;
     bool m_ignoreGeneralOptions; // If true, do not show generic mobile options page.
     Utils::WizardProgressItem *m_targetItem;
     Utils::WizardProgressItem *m_genericItem;
-    Utils::WizardProgressItem *m_symbianItem;
     Utils::WizardProgressItem *m_maemoItem;
     Utils::WizardProgressItem *m_harmattanItem;
     QList<Core::Id> m_profileIds;

@@ -151,11 +151,6 @@
 
     \list
 
-        \if defined(qcmanual)
-        \o  \c {import com.nokia.symbian 1.0} for Symbian (Qt 4.7)
-        \o  \c {import com.nokia.symbian 1.1} for Symbian (Qt 4.8)
-        \endif
-
         \o  \c {import com.nokia.meego 1.0} for MeeGo
 
     \endlist

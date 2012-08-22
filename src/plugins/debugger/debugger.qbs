@@ -13,7 +13,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "CPlusPlus" }
-    Depends { name: "symbianutils" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtcSsh" }
@@ -163,8 +162,6 @@ QtcPlugin {
         "gdb/abstractplaingdbadapter.cpp",
         "gdb/abstractplaingdbadapter.h",
         "gdb/attachgdbadapter.h",
-        "gdb/codagdbadapter.cpp",
-        "gdb/codagdbadapter.h",
         "gdb/coregdbadapter.cpp",
         "gdb/coregdbadapter.h",
         "gdb/gdbengine.cpp",
@@ -182,8 +179,6 @@ QtcPlugin {
         "gdb/remotegdbserveradapter.h",
         "gdb/remoteplaingdbadapter.cpp",
         "gdb/remoteplaingdbadapter.h",
-        "gdb/symbian.cpp",
-        "gdb/symbian.h",
         "gdb/termgdbadapter.h",
         "gdb/attachgdbadapter.cpp",
         "gdb/classicgdbengine.cpp",

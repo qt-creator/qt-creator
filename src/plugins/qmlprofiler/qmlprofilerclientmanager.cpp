@@ -225,13 +225,8 @@ void QmlProfilerClientManager::connectToClient()
     if (!d->connection || d->connection->state() != QAbstractSocket::UnconnectedState)
         return;
 
-    if (d->connectMode == QmlProfilerClientManagerPrivate::TcpConnection) {
-        QmlProfilerTool::logStatus(QString("QML Profiler: Connecting to %1:%2 ...").arg(d->tcpHost, QString::number(d->tcpPort)));
-        d->connection->connectToHost(d->tcpHost, d->tcpPort);
-    } else {
-        QmlProfilerTool::logStatus(QString("QML Profiler: Connecting to %1 ...").arg(d->tcpHost));
-        d->connection->connectToOst(d->ostDevice);
-    }
+    QmlProfilerTool::logStatus(QString("QML Profiler: Connecting to %1:%2 ...").arg(d->tcpHost, QString::number(d->tcpPort)));
+    d->connection->connectToHost(d->tcpHost, d->tcpPort);
 }
 
 bool QmlProfilerClientManager::isConnected() const

@@ -136,10 +136,6 @@
             \o  Microsoft Visual C++ Compiler
             \o  Debugging Tools for Windows/CDB
         \row
-            \o  Symbian
-            \o  GCC
-            \o  GDB
-        \row
             \o  Maemo, MeeGo
             \o  GCC
             \o  GDB
@@ -173,11 +169,6 @@
         \o  CoreGdbAdapter debugs core files generated from crashes.
 
         \o  RemoteGdbAdapter interacts with the GDB server running on Linux.
-
-        \o  CodaGdbAdapter interacts with Symbian devices. The GDB protocol and
-            the GDB serial protocol are used between GDB and the adapter. The
-            target communication framework (TCF) protocol is used between the
-            adapter and the CODA debugging agent running on the device.
 
     \endlist
 

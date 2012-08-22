@@ -60,7 +60,6 @@ public:
         BsdOS,
         LinuxOS,
         MacOS,
-        SymbianOS,
         UnixOS,
         WindowsOS,
         UnknownOS
@@ -80,10 +79,6 @@ public:
 
         // Mac
         GenericMacFlavor,
-
-        // Symbian
-        SymbianDeviceFlavor,
-        SymbianEmulatorFlavor,
 
         // Unix
         GenericUnixFlavor,

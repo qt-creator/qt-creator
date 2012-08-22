@@ -73,7 +73,7 @@
     application wizards import Qt Quick 1.1, and therefore, you can use them
     without changes if you target only platforms that run Qt 4.7.4 (such as
     MeeGo or the desktop). If you also target platforms that run Qt 4.7.3
-    (such as Maemo and S60 5th Edition), you must change the import statement to
+    (such as Maemo), you must change the import statement to
     import Qt Quick 1.0.
     \endif
 
@@ -137,9 +137,7 @@
 
             \note We recommend that you use the \gui {Qt Quick Application for
             MeeGo Harmattan} template when you develop for MeeGo Harmattan
-            devices and the \gui {Qt Quick Application for Symbian} template
-            when you develop for Symbian devices that support Qt 4.7.4, or
-            later.
+            devices.
 
             The \gui{Introduction and Project Location} dialog opens.
 
@@ -174,24 +172,10 @@
             application behaves when the orientation of the device display
             rotates between portrait and landscape, and then click \gui Next.
 
-            \note This dialog opens only if you select \gui Maemo5 or
-            \gui {Symbian Device} target in the \gui {Target Setup} dialog. On
+            \note This dialog opens only if you select \gui Maemo5
+            target in the \gui {Target Setup} dialog. On
             Harmattan, the Qt Quick Components for MeeGo provide native-looking
             rotation.
-
-            The \gui {Symbian Specific} dialog opens.
-
-            \image qmldesigner-new-project-symbian-options.png "Symbian Specific dialog"
-
-        \o  In the \gui {Application icon (.svg)} field, select an application
-            icon for the \gui {Symbian Device} target, or use the default icon.
-
-        \o  In the \gui {Target UID3} field, specify the \l{Application UID}, or
-            use the default UID.
-
-            \note \QC generates a UID for testing the application on a device.
-            You need to change the UID when you deliver the application for
-            public use.
 
         \o  Click \gui Next.
 
@@ -217,7 +201,7 @@
     \endlist
 
     \QC creates the necessary boilerplate files. Some of the files are
-    specific to the Symbian, Maemo, or MeeGo Harmattan platform.
+    specific to the Maemo or MeeGo Harmattan platform.
 
     \section1 Importing QML Applications
 

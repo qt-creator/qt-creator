@@ -50,7 +50,6 @@ namespace Utils {
   E.g. following file paths:
   \list
   \i C:/app-build-desktop/qml/app/main.qml (shadow build directory)
-  \i C:/Private/e3026d63/qml/app/main.qml  (Application data folder on Symbian device)
   \i /Users/x/app-build-desktop/App.app/Contents/Resources/qml/App/main.qml (folder on Mac OS X)
   \endlist
 

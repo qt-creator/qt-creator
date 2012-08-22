@@ -1118,8 +1118,8 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
     m_debuggingHelperState = DebuggingHelperLoadTried;
 
     // Do not use STRINGIFY for RTLD_NOW as we really want to expand that to a number.
-#if defined(Q_OS_WIN) || defined(Q_OS_SYMBIAN)
-    // We are using Python on Windows and Symbian.
+#if defined(Q_OS_WIN)
+    // We are using Python on Windows.
     QTC_CHECK(false);
 #elif defined(Q_OS_MAC)
     QByteArray dlopenLib = startParameters().dumperLibrary.toLocal8Bit();

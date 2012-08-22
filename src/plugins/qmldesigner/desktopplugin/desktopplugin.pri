@@ -7,7 +7,6 @@ QT += script \
 
 include (../designercore/iwidgetplugin.pri)
 
-DEFINES += SYMBIAN_LIBRARY
 SOURCES += $$PWD/desktopplugin.cpp
 
 HEADERS += $$PWD/desktopplugin.h  $$PWD/../designercore/include/iwidgetplugin.h

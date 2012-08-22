@@ -22,7 +22,6 @@ Project {
         "src/libs/qmljs/qmljs.qbs",
         "src/libs/qmldebug/qmldebug.qbs",
         "src/libs/qtcomponents/styleitem/styleitem.qbs",
-        "src/libs/symbianutils/symbianutils.qbs",
         "src/libs/ssh/ssh.qbs",
         "src/libs/utils/process_stub.qbs",
         "src/libs/utils/process_ctrlc_stub.qbs",

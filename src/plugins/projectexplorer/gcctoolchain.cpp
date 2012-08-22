@@ -246,11 +246,6 @@ static QList<Abi> guessGccAbi(const QString &m)
             if (flavor == Abi::UnknownFlavor)
                 flavor = Abi::FreeBsdFlavor;
             format = Abi::ElfFormat;
-        } else if (p == QLatin1String("symbianelf")) {
-            os = Abi::SymbianOS;
-            flavor = Abi::SymbianDeviceFlavor;
-            format = Abi::ElfFormat;
-            width = 32;
         } else if (p == QLatin1String("mingw32") || p == QLatin1String("win32") || p == QLatin1String("mingw32msvc")) {
             arch = Abi::X86Architecture;
             os = Abi::WindowsOS;
@@ -1136,9 +1131,6 @@ void ProjectExplorerPlugin::testGccAbiGuessing_data()
             << QString::fromLatin1("86_64 x86_64 GNU/Linux")
             << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit")
                               << QLatin1String("x86-linux-generic-elf-32bit"));
-    QTest::newRow("Symbian 1")
-            << QString::fromLatin1("arm-none-symbianelf")
-            << (QStringList() << QLatin1String("arm-symbian-device-elf-32bit"));
     QTest::newRow("FreeBSD 1")
             << QString::fromLatin1("i386-portbld-freebsd9.0")
             << (QStringList() << QLatin1String("x86-bsd-freebsd-elf-32bit"));

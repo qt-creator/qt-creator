@@ -45,7 +45,6 @@ public:
     ~QmlDebugConnection();
 
     void connectToHost(const QString &hostName, quint16 port);
-    void connectToOst(const QString &port);
 
     qint64 bytesAvailable() const;
     bool isConnected() const;

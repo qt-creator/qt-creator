@@ -496,7 +496,6 @@ QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldi
   \row \i AIX  \i \c .a
   \row \i HP-UX       \i \c .sl, \c .so (HP-UXi)
   \row \i Mac OS X    \i \c .dylib, \c .bundle, \c .so
-  \row \i Symbian     \i \c .dll
   \endtable
 
   Version number on unix are ignored.

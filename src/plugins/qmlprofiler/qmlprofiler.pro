@@ -26,7 +26,6 @@ SOURCES += \
     qmlprofilerengine.cpp \
     qmlprofilerattachdialog.cpp \
     localqmlprofilerrunner.cpp \
-    codaqmlprofilerrunner.cpp \
     remotelinuxqmlprofilerrunner.cpp \
     qmlprofilereventview.cpp \
     qmlprofilerdetailsrewriter.cpp \
@@ -48,7 +47,6 @@ HEADERS += \
     qmlprofilerattachdialog.h \
     abstractqmlprofilerrunner.h \
     localqmlprofilerrunner.h \
-    codaqmlprofilerrunner.h \
     remotelinuxqmlprofilerrunner.h \
     qmlprofilereventview.h \
     qmlprofilerdetailsrewriter.h \

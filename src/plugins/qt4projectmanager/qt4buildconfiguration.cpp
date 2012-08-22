@@ -268,24 +268,14 @@ void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const Q
     emitEvaluateBuildSystem();
 }
 
-static inline QString symbianMakeTarget(QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfig,
-                                        const QString &type)
-{
-    QString rc = (buildConfig & QtSupport::BaseQtVersion::DebugBuild) ?
-                 QLatin1String("debug-") : QLatin1String("release-");
-    rc += type;
-    return rc;
-}
-
 QString Qt4BuildConfiguration::defaultMakeTarget() const
 {
     ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
     QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
-    if (!tc || !version || version->type() != QtSupport::Constants::SYMBIANQT)
+    if (!tc || !version)
         return QString();
 
-    const QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfig = qmakeBuildConfiguration();
-    return symbianMakeTarget(buildConfig, tc->defaultMakeTarget());
+    return tc->defaultMakeTarget();
 }
 
 QString Qt4BuildConfiguration::makefile() const
@@ -322,11 +312,6 @@ void Qt4BuildConfiguration::emitQMakeBuildConfigurationChanged()
 void Qt4BuildConfiguration::emitBuildDirectoryInitialized()
 {
     emit buildDirectoryInitialized();
-}
-
-void Qt4BuildConfiguration::emitS60CreatesSmartInstallerChanged()
-{
-    emit s60CreatesSmartInstallerChanged();
 }
 
 QStringList Qt4BuildConfiguration::configCommandLineArguments() const

@@ -265,10 +265,6 @@ static QList<Abi> abiOf(const QByteArray &data)
             result.append(macAbiForCpu(type));
             pos += 20;
         }
-    } else if (data.size() >= 20
-               && getUint8(data, 16) == 'E' && getUint8(data, 17) == 'P'
-               && getUint8(data, 18) == 'O' && getUint8(data, 19) == 'C') {
-        result.append(Abi(Abi::ArmArchitecture, Abi::SymbianOS, Abi::SymbianDeviceFlavor, Abi::ElfFormat, 32));
     } else if (data.size() >= 64){
         // Windows PE: values are LE (except for a few exceptions which we will not use here).
 
@@ -310,10 +306,6 @@ Abi::Abi(const Architecture &a, const OS &o,
         break;
     case ProjectExplorer::Abi::MacOS:
         if (m_osFlavor < GenericMacFlavor || m_osFlavor > GenericMacFlavor)
-            m_osFlavor = UnknownFlavor;
-        break;
-    case ProjectExplorer::Abi::SymbianOS:
-        if (m_osFlavor < SymbianDeviceFlavor || m_osFlavor > SymbianEmulatorFlavor)
             m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::UnixOS:
@@ -360,8 +352,6 @@ Abi::Abi(const QString &abiString) :
             m_os = BsdOS;
         else if (abiParts.at(1) == QLatin1String("macos"))
             m_os = MacOS;
-        else if (abiParts.at(1) == QLatin1String("symbian"))
-            m_os = SymbianOS;
         else if (abiParts.at(1) == QLatin1String("unix"))
             m_os = UnixOS;
         else if (abiParts.at(1) == QLatin1String("windows"))
@@ -390,10 +380,6 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = HarmattanLinuxFlavor;
         else if (abiParts.at(2) == QLatin1String("generic") && m_os == MacOS)
             m_osFlavor = GenericMacFlavor;
-        else if (abiParts.at(2) == QLatin1String("device") && m_os == SymbianOS)
-            m_osFlavor = SymbianDeviceFlavor;
-        else if (abiParts.at(2) == QLatin1String("emulator") && m_os == SymbianOS)
-            m_osFlavor = SymbianEmulatorFlavor;
         else if (abiParts.at(2) == QLatin1String("generic") && m_os == UnixOS)
             m_osFlavor = GenericUnixFlavor;
         else if (abiParts.at(2) == QLatin1String("solaris") && m_os == UnixOS)
@@ -541,8 +527,6 @@ QString Abi::toString(const OS &o)
         return QLatin1String("bsd");
     case MacOS:
         return QLatin1String("macos");
-    case SymbianOS:
-        return QLatin1String("symbian");
     case UnixOS:
         return QLatin1String("unix");
     case WindowsOS:
@@ -572,10 +556,6 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("harmattan");
     case ProjectExplorer::Abi::GenericMacFlavor:
         return QLatin1String("generic");
-    case ProjectExplorer::Abi::SymbianDeviceFlavor:
-        return QLatin1String("device");
-    case ProjectExplorer::Abi::SymbianEmulatorFlavor:
-        return QLatin1String("emulator");
     case ProjectExplorer::Abi::GenericUnixFlavor:
         return QLatin1String("generic");
     case ProjectExplorer::Abi::SolarisUnixFlavor:
@@ -633,8 +613,6 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
                       << AndroidLinuxFlavor;;
     case MacOS:
         return result << GenericMacFlavor;
-    case SymbianOS:
-        return  result << SymbianDeviceFlavor << SymbianEmulatorFlavor;
     case UnixOS:
         return result << GenericUnixFlavor << SolarisUnixFlavor;
     case WindowsOS:
@@ -813,9 +791,6 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
                               << QString::fromLatin1("ppc-macos-generic-mach_o-32bit")
                               << QString::fromLatin1("x86-macos-generic-mach_o-64bit"));
 
-    QTest::newRow("dynamic QtCore: symbian")
-            << QString::fromLatin1("%1/dynamic/symbian.dll").arg(prefix)
-            << (QStringList() << QString::fromLatin1("arm-symbian-device-elf-32bit"));
     QTest::newRow("dynamic QtCore: win msvc2012 64bit")
             << QString::fromLatin1("/tmp/win-msvc2012-64bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2012-pe-64bit"));

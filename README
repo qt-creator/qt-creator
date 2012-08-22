@@ -17,7 +17,7 @@ Compiling Qt Creator
 Prerequisites:
    * Qt 4.7.4
    * On Windows:
-     -  ActiveState Active Perl (version 5.8.9 for Symbian development)
+     -  ActiveState Active Perl
      -  MinGW 4.4 or later, Visual Studio 2008 or later
      -  jom
      The Qt SDK provides you with most of the required software.

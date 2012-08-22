@@ -514,11 +514,6 @@ QByteArray gdbQuoteTypes(const QByteArray &type)
     return result;
 }
 
-bool isSymbianIntType(const QByteArray &type)
-{
-    return type == "TInt" || type == "TBool";
-}
-
 // Utilities to decode string data returned by the dumper helpers.
 
 QString quoteUnprintableLatin1(const QByteArray &ba)

@@ -48,8 +48,7 @@ class ItemLibraryWidget : public QFrame
 
     enum FilterChangeFlag {
       QtBasic = 0x0,
-      Meego = 0x1,
-      Symbian = 0x2
+      Meego = 0x1
     };
 
 public:
@@ -77,7 +76,6 @@ public Q_SLOTS:
 
     void onQtBasicOnlyChecked(bool b);
     void onMeegoChecked(bool b);
-    void onSymbianChecked(bool b);
 
 protected:
     void wheelEvent(QWheelEvent *event);
@@ -91,7 +89,6 @@ signals:
     void resetItemsView();
     void qtBasicOnlyChecked(bool b);
     void meegoChecked(bool b);
-    void symbianChecked(bool b);
 
 private:
     ItemLibraryWidgetPrivate *d;

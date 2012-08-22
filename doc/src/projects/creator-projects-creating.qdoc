@@ -68,15 +68,6 @@
     use \QC as a code editor and to fully control the steps and commands used to
     build the project.
 
-    \if defined(qcmanual)
-    To develop applications for Symbian devices, you use qmake and the local
-    Symbian compiler (on Windows) or qmake and a compilation service at
-    Nokia Developer (on Linux and Mac OS) to build the applications for the
-    Symbian devices target. The interface to the compilation service,
-    Remote Compiler, is installed as a part of the \QSDK. For more information,
-    see \l{Building with Remote Compiler}.
-    \endif
-
     You can install mobile device \l{glossary-development-target}{targets}
     as part of the \QSDK. The build and  run settings for the
     installed targets are set up automatically. However, you might need to
@@ -128,13 +119,6 @@
                 Use built-in QML elements to design Qt Quick based user
                 interfaces with a custom look and feel and QML and C++ code to
                 implement the application logic
-
-            \o  Qt Quick Application for Symbian
-
-                Use Qt Quick Components for Symbian to design a user interface
-                with the platform look and feel. Select this template to develop
-                for Symbian devices that support Qt 4.7.4 or later and have the
-                Qt Quick Components installed
 
             \o  Qt Quick Application for MeeGo Harmattan
 

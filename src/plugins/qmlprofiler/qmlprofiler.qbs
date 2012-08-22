@@ -13,7 +13,6 @@ QtcPlugin {
     Depends { name: "RemoteLinux" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
-    Depends { name: "symbianutils" }
     Depends { name: "TextEditor" }
     Depends { name: "QmlDebug" }
     Depends { name: "QmlJS" }
@@ -23,7 +22,6 @@ QtcPlugin {
     Depends { name: "cpp" }
     cpp.includePaths: [
         "canvas",
-        "../../shared/symbianutils",
         "..",
         "../../libs",
         buildDirectory
@@ -31,8 +29,6 @@ QtcPlugin {
 
     files: [
         "abstractqmlprofilerrunner.h",
-        "codaqmlprofilerrunner.cpp",
-        "codaqmlprofilerrunner.h",
         "localqmlprofilerrunner.cpp",
         "localqmlprofilerrunner.h",
         "qmlprofilerattachdialog.cpp",
