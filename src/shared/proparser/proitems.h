@@ -78,6 +78,7 @@ public:
     ProString &setSource(const ProFile *pro) { m_file = pro; return *this; }
     const ProFile *sourceFile() const { return m_file; }
 
+    ProString &prepend(const ProString &other);
     ProString &operator+=(const ProString &other);
     ProString &append(const ProString &other, bool *pending = 0);
     ProString &append(const ProStringList &other, bool *pending = 0, bool skipEmpty1st = false);
@@ -155,7 +156,7 @@ private:
     int m_offset, m_length;
     const ProFile *m_file;
     mutable uint m_hash;
-    QChar *prepareAppend(int extraLen);
+    QChar *prepareExtend(int extraLen, int thisTarget, int extraTarget);
     uint updatedHash() const;
     friend uint qHash(const ProString &str);
     friend QString operator+(const ProString &one, const ProString &two);

@@ -156,14 +156,14 @@ QString &ProString::toQString(QString &tmp) const
     return tmp.setRawData(m_string.constData() + m_offset, m_length);
 }
 
-QChar *ProString::prepareAppend(int extraLen)
+QChar *ProString::prepareExtend(int extraLen, int thisTarget, int extraTarget)
 {
     if (m_string.isDetached() && m_length + extraLen <= m_string.capacity()) {
         m_string.reserve(0); // Prevent the resize() below from reallocating
         QChar *ptr = (QChar *)m_string.constData();
-        if (m_offset)
-            memmove(ptr, ptr + m_offset, m_length * 2);
-        ptr += m_length;
+        if (m_offset != thisTarget)
+            memmove(ptr + thisTarget, ptr + m_offset, m_length * 2);
+        ptr += extraTarget;
         m_offset = 0;
         m_length += extraLen;
         m_string.resize(m_length);
@@ -172,11 +172,26 @@ QChar *ProString::prepareAppend(int extraLen)
     } else {
         QString neu(m_length + extraLen, Qt::Uninitialized);
         QChar *ptr = (QChar *)neu.constData();
-        memcpy(ptr, m_string.constData() + m_offset, m_length * 2);
-        ptr += m_length;
+        memcpy(ptr + thisTarget, m_string.constData() + m_offset, m_length * 2);
+        ptr += extraTarget;
         *this = ProString(neu);
         return ptr;
     }
+}
+
+ProString &ProString::prepend(const ProString &other)
+{
+    if (other.m_length) {
+        if (!m_length) {
+            *this = other;
+        } else {
+            QChar *ptr = prepareExtend(other.m_length, other.m_length, 0);
+            memcpy(ptr, other.constData(), other.m_length * 2);
+            if (!m_file)
+                m_file = other.m_file;
+        }
+    }
+    return *this;
 }
 
 // If pending != 0, prefix with space if appending to non-empty non-pending
@@ -188,10 +203,10 @@ ProString &ProString::append(const ProString &other, bool *pending)
         } else {
             QChar *ptr;
             if (pending && !*pending) {
-                ptr = prepareAppend(1 + other.m_length);
+                ptr = prepareExtend(1 + other.m_length, 0, m_length);
                 *ptr++ = 32;
             } else {
-                ptr = prepareAppend(other.m_length);
+                ptr = prepareExtend(other.m_length, 0, m_length);
             }
             memcpy(ptr, other.m_string.constData() + other.m_offset, other.m_length * 2);
             if (other.m_file)
@@ -224,7 +239,7 @@ ProString &ProString::append(const ProStringList &other, bool *pending, bool ski
             else
                 totalLength--;
 
-            QChar *ptr = prepareAppend(totalLength);
+            QChar *ptr = prepareExtend(totalLength, 0, m_length);
             for (int i = startIdx; i < sz; ++i) {
                 if (putSpace)
                     *ptr++ = 32;
