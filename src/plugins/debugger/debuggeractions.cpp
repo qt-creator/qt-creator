@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
 
@@ -551,8 +553,9 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     item->setDefaultValue(true);
     insertItem(ShowQmlObjectTree, item);
 
+    const QString qmlInspectorGroup = QLatin1String("QML.Inspector");
     item = new SavedAction(this);
-    item->setSettingsKey("QML.Inspector", QLatin1String("QmlInspector.ShowAppOnTop"));
+    item->setSettingsKey(qmlInspectorGroup, QLatin1String("QmlInspector.ShowAppOnTop"));
     item->setText(tr("Show Application On Top"));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -560,7 +563,7 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(ShowAppOnTop, item);
 
     item = new SavedAction(this);
-    item->setSettingsKey("QML.Inspector", QLatin1String("QmlInspector.FromQml"));
+    item->setSettingsKey(qmlInspectorGroup, QLatin1String("QmlInspector.FromQml"));
     item->setText(tr("Apply Changes on Save"));
     item->setCheckable(true);
     item->setDefaultValue(false);
@@ -611,7 +614,7 @@ QString DebuggerSettings::dump() const
             const QString current = item->value().toString();
             const QString default_ = item->defaultValue().toString();
             ts << '\n' << key << ": " << current
-               << "  (default: " << default_ << ")";
+               << "  (default: " << default_ << ')';
             if (current != default_)
                 ts <<  "  ***";
         }

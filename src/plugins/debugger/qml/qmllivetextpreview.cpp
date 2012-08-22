@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "qmllivetextpreview.h"
 
 #include "qmlinspectoradapter.h"
@@ -602,7 +604,7 @@ void QmlLiveTextPreview::documentChanged(QmlJS::Document::Ptr doc)
         m_docWithUnappliedChanges.clear();
 
         if (doc && m_previousDoc && doc->fileName() == m_previousDoc->fileName()) {
-            if (doc->fileName().endsWith(".js")) {
+            if (doc->fileName().endsWith(QLatin1String(".js"))) {
                 showSyncWarning(JSChangeWarning, QString(), 0, 0);
                 m_previousDoc = doc;
                 return;
@@ -715,7 +717,7 @@ void QmlLiveTextPreview::showSyncWarning(
     foreach (TextEditor::BaseTextEditorWidget *editor, m_editors) {
         if (editor) {
             Core::InfoBar *infoBar = editor->editorDocument()->infoBar();
-            Core::InfoBarEntry info(INFO_OUT_OF_SYNC, errorMessage);
+            Core::InfoBarEntry info(QLatin1String(INFO_OUT_OF_SYNC), errorMessage);
             BaseToolsClient *toolsClient = m_inspectorAdapter->toolsClient();
             if (toolsClient && toolsClient->supportReload())
                 info.setCustomButtonInfo(tr("Reload QML"), this,
@@ -736,7 +738,7 @@ void QmlLiveTextPreview::removeOutofSyncInfo()
     foreach (TextEditor::BaseTextEditorWidget *editor, m_editors) {
         if (editor) {
             Core::InfoBar *infoBar = editor->editorDocument()->infoBar();
-            infoBar->removeInfo(INFO_OUT_OF_SYNC);
+            infoBar->removeInfo(QLatin1String(INFO_OUT_OF_SYNC));
         }
     }
 }

@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "qmlv8debuggerclient.h"
 #include "qmlv8debuggerclientconstants.h"
 #include "debuggerstringutils.h"
@@ -1409,7 +1411,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                     const QVariantMap breakData = resp.value(_(BODY)).toMap();
                     const QString invocationText = breakData.value(_("invocationText")).toString();
                     const QString scriptUrl = breakData.value(_("script")).toMap().value(_("name")).toString();
-                    const QString sourceLineText = breakData.value("sourceLineText").toString();
+                    const QString sourceLineText = breakData.value(_("sourceLineText")).toString();
 
                     bool inferiorStop = true;
 
@@ -1448,7 +1450,7 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                                                  params.enabled,
                                                  params.lineNumber,
                                                  newColumn,
-                                                 QString(params.condition),
+                                                 QString(QString::fromLatin1(params.condition)),
                                                  params.ignoreCount);
                                 d->breakpointsSync.insert(d->sequence, internalId);
                             }
@@ -1627,7 +1629,7 @@ StackFrame QmlV8DebuggerClient::extractStackFrame(const QVariant &bodyVal, const
     StackFrame stackFrame;
     stackFrame.level = body.value(_("index")).toInt();
     //Do not insert the frame corresponding to the internal function
-    if (body.value("sourceLineText").toByteArray() == INTERNAL_FUNCTION) {
+    if (body.value(QLatin1String("sourceLineText")) == QLatin1String(INTERNAL_FUNCTION)) {
         stackFrame.level = -1;
         return stackFrame;
     }
@@ -1827,7 +1829,7 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
             QList<WatchData> watchDataList;
             WatchData data;
             //Do we have request to evaluate a local?
-            if (exp.startsWith("local.")) {
+            if (exp.startsWith(QLatin1String("local."))) {
                 const WatchData *watch = watchHandler->findData(exp.toLatin1());
                 watchDataList << createWatchDataList(watch, body.properties, refsVal);
             } else {
@@ -1959,7 +1961,7 @@ QList<WatchData> QmlV8DebuggerClient::createWatchDataList(const WatchData *paren
         foreach (const QVariant &property, properties) {
             QmlV8ObjectData propertyData = d->extractData(property, refsVal);
             WatchData data;
-            data.name = propertyData.name;
+            data.name = QString::fromUtf8(propertyData.name);
 
             //Check for v8 specific local data
             if (data.name.startsWith(QLatin1Char('.')) || data.name.isEmpty())

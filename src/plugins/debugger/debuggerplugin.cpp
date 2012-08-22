@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "debuggerplugin.h"
 
 #include "debuggerstartparameters.h"
@@ -563,7 +565,7 @@ void fillParameters(DebuggerStartParameters *sp, Profile *profile)
     IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
     if (device) {
         sp->connParams = device->sshParameters();
-        sp->remoteChannel = QString("%1:%2").arg(sp->connParams.host).arg(sp->connParams.port);
+        sp->remoteChannel = sp->connParams.host + QLatin1Char(':') + QString::number(sp->connParams.port);
     }
 }
 
@@ -3398,7 +3400,7 @@ void DebuggerPluginPrivate::testPythonDumpers1()
 {
     m_testSuccess = true;
     QString proFile = ICore::resourcePath()
-        + "/../../tests/manual/debugger/simple/simple.pro";
+        + QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
     testLoadProject(proFile, TestCallBack(this,  "testPythonDumpers2"));
     QVERIFY(m_testSuccess);
     QTestEventLoop::instance().enterLoop(20);
@@ -3430,7 +3432,7 @@ void DebuggerPluginPrivate::testStateMachine1()
 {
     m_testSuccess = true;
     QString proFile = ICore::resourcePath()
-        + "/../../tests/manual/debugger/simple/simple.pro";
+        + QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
     testLoadProject(proFile, TestCallBack(this,  "testStateMachine2"));
     QVERIFY(m_testSuccess);
     QTestEventLoop::instance().enterLoop(20);

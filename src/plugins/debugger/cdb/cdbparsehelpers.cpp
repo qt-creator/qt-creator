@@ -182,7 +182,7 @@ QByteArray cdbAddBreakpointCommand(const BreakpointParameters &bpIn,
         break;
     case WatchpointAtAddress: { // Read/write, no space here
         const unsigned size = bp.size ? bp.size : 1;
-        str << "r" << size << ' ' << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
+        str << 'r' << size << ' ' << hex << hexPrefixOn << bp.address << hexPrefixOff << dec;
     }
         break;
     }

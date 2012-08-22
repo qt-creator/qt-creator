@@ -129,7 +129,7 @@ void GdbServerStarter::portListReady()
     connect(&d->runner, SIGNAL(processClosed(int)), SLOT(handleProcessClosed(int)));
 
     QByteArray cmd = "/usr/bin/gdbserver --attach :"
-        + QByteArray::number(port) + " " + QByteArray::number(d->process.pid);
+            + QByteArray::number(port) + ' ' + QByteArray::number(d->process.pid);
     logMessage(tr("Running command: %1").arg(QString::fromLatin1(cmd)));
     d->runner.run(cmd, d->device->sshParameters());
 }

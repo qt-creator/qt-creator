@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "watchhandler.h"
 
 #include "breakhandler.h"
@@ -1413,7 +1415,7 @@ void WatchModel::showInEditorHelper(QString *contents, WatchItem *item, int dept
     contents->append(tab);
     contents->append(item->value);
     contents->append(tab);
-    contents->append(item->type);
+    contents->append(QString::fromLatin1(item->type));
     contents->append(nl);
     foreach (WatchItem *child, item->children)
        showInEditorHelper(contents, child, depth + 1);

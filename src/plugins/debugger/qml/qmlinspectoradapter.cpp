@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "qmlinspectoradapter.h"
 
 #include "debuggeractions.h"
@@ -117,8 +119,8 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
             this, SLOT(toolsClientStatusChanged(QmlDebug::ClientStatus)));
 
     // toolbar
-    m_selectAction->setObjectName("QML Select Action");
-    m_zoomAction->setObjectName("QML Zoom Action");
+    m_selectAction->setObjectName(QLatin1String("QML Select Action"));
+    m_zoomAction->setObjectName(QLatin1String("QML Zoom Action"));
     m_selectAction->setCheckable(true);
     m_zoomAction->setCheckable(true);
 
@@ -294,14 +296,14 @@ void QmlInspectorAdapter::createPreviewForEditor(Core::IEditor *newEditor)
             QmlJS::ModelManagerInterface::instance();
     QmlJS::Document::Ptr doc = modelManager->snapshot().document(filename);
     if (!doc) {
-        if (filename.endsWith(".qml") || filename.endsWith(".js")) {
+        if (filename.endsWith(QLatin1String(".qml")) || filename.endsWith(QLatin1String(".js"))) {
             // add to list of docs that we have to update when
             // snapshot figures out that there's a new document
             m_pendingPreviewDocumentNames.append(filename);
         }
         return;
     }
-    if (!doc->qmlProgram() && !filename.endsWith(".js"))
+    if (!doc->qmlProgram() && !filename.endsWith(QLatin1String(".js")))
         return;
 
     QmlJS::Document::Ptr initdoc = m_loadedSnapshot.document(filename);
