@@ -80,6 +80,7 @@ QWidget *ProfileOptionsPage::createPage(QWidget *parent)
     m_makeDefaultButton = new QPushButton(tr("Make Default"), m_configWidget);
 
     QVBoxLayout *buttonLayout = new QVBoxLayout();
+    buttonLayout->setSpacing(6);
     buttonLayout->setContentsMargins(0, 0, 0, 0);
     buttonLayout->addWidget(m_addButton);
     buttonLayout->addWidget(m_cloneButton);

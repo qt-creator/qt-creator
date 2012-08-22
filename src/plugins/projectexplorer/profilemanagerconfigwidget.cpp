@@ -76,15 +76,12 @@ ProfileManagerConfigWidget::ProfileManagerConfigWidget(Profile *p, QWidget *pare
     iconLayout->addWidget(m_iconButton);
     iconLayout->addStretch();
 
-    QHBoxLayout *spacer = new QHBoxLayout;
-    spacer->addItem(new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
-
     QGridLayout *masterLayout = new QGridLayout(widget);
     masterLayout->setMargin(0);
     masterLayout->setContentsMargins(6, 0, 6, 0);
     masterLayout->addLayout(iconLayout, 0, 0);
     masterLayout->addLayout(m_layout, 0, 1);
-    masterLayout->addLayout(spacer, 1, 0);
+    masterLayout->setRowStretch(1, 1);
 
     discard();
 
