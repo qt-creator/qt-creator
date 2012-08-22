@@ -70,23 +70,24 @@ def main():
             except LookupError:
                 pass
         waitForObject("{type='QLabel' unnamed='1' visible='1' text='Target Setup'}")
-        availableCheckboxes = filter(visibleCheckBoxExists, QtQuickConstants.getAllTargetStrings())
+        availableCheckboxes = filter(visibleCheckBoxExists, targets.keys())
         JIRA.performWorkaroundIfStillOpen(6994, JIRA.Bug.CREATOR, template, displayedPlatforms)
         # verification whether expected, found and configured match
         for t in targets:
             if requiredVersion:
-                if max(targets[t]) < requiredVersion:
+                if targets[t][1] < requiredVersion:
                     if t in availableCheckboxes:
                         test.fail("Target '%s' found as checkbox, but required version (%s) is higher "
-                                  "than configured version(s) (%s)!" % (t, requiredVersion, str(targets[t])))
+                                  "than configured version (%s)!" % (t, requiredVersion,
+                                                                     str(targets[t][1])))
                         availableCheckboxes.remove(t)
                     else:
                         test.passes("Irrelevant target '%s' not found on 'Target setup' page - "
-                                    "required version is '%s', current version(s) are '%s'." %
-                                    (t, requiredVersion, str(targets[t])))
+                                    "required version is '%s', current version is '%s'." %
+                                    (t, requiredVersion, str(targets[t][1])))
                     continue
             found = False
-            if t in displayedPlatforms:
+            if targets[t][0] in displayedPlatforms:
                 if t in availableCheckboxes:
                     test.passes("Found expected target '%s' on 'Target setup' page." % t)
                     availableCheckboxes.remove(t)

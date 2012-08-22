@@ -286,23 +286,40 @@ def __checkParentAccess__(filePath):
 # options dialog and returns a dict holding the targets as keys
 # and a list of supported versions as value
 def getCorrectlyConfiguredTargets():
+    def __retrieveQtVersionName__(target, version):
+        treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
+        return treeWidget.currentItem().text(0)
+    targetQtVersionNames = {}
     result = {}
-    for tv in iterateQtVersions():
-        for target,version in tv.iteritems():
-         # Dialog sometimes differs from targets' names
-            if target == "Maemo":
-                target = "Maemo5"
-            implicitTargets = [target]
-            if target == "Desktop" and platform.system() in ("Linux", "Darwin"):
-                implicitTargets.append("Embedded Linux")
-            for currentTarget in implicitTargets:
-                if currentTarget in result:
-                    oldV = result[currentTarget]
-                    if version not in oldV:
-                        oldV.append(version)
-                        result.update({currentTarget:oldV})
-                else:
-                    result.update({currentTarget:[version]})
+    targetsQtVersions, qtVersionNames = iterateQtVersions(True, __retrieveQtVersionName__)
+    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Targets")
+    treeView = waitForObject(":Targets_QTreeView")
+    model = treeView.model()
+    test.compare(model.rowCount(), 2, "Verifying expected target section count")
+    autoDetected = model.index(0, 0)
+    test.compare(autoDetected.data().toString(), "Auto-detected",
+                 "Verifying label for target section")
+    manual = model.index(1, 0)
+    test.compare(manual.data().toString(), "Manual", "Verifying label for target section")
+    for section in [autoDetected, manual]:
+        for index in [section.child(i, 0) for i in range(model.rowCount(section))]:
+            targetName = str(index.data().toString())
+            if (targetName.endswith(" (default)")):
+                targetName = targetName.rstrip(" (default)")
+            item = ".".join([str(section.data().toString()),
+                             str(index.data().toString()).replace(".", "\\.")])
+            clickItem(treeView, item, 5, 5, 0, Qt.LeftButton)
+            qtVersionStr = str(waitForObject(":Targets_QtVersion_QComboBox").currentText)
+            targetQtVersionNames[targetName] = qtVersionStr
+    # merge defined target names with their configured Qt versions and devices
+    for target,qtVersion in targetQtVersionNames.iteritems():
+        result[target] = targetsQtVersions[qtVersionNames.index(qtVersion)].items()[0]
+    clickButton(waitForObject(":Options.Cancel_QPushButton"))
+    # adjust device name(s) to match getStringForTarget() - some differ from time to time
+    for targetName in result.keys():
+        targetInfo = result[targetName]
+        if targetInfo[0] == "Maemo":
+            result.update({targetName:("Maemo5", targetInfo[1])})
     test.log("Correctly configured targets: %s" % str(result))
     return result
 

@@ -423,6 +423,8 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
                 result.append(QtQuickConstants.Targets.EMBEDDED_LINUX)
         if 'MeeGo/Harmattan' in supports:
             result.append(QtQuickConstants.Targets.HARMATTAN)
+            addSimulator = True
+        if 'Maemo/Fremantle' in supports:
             result.append(QtQuickConstants.Targets.MAEMO5)
             addSimulator = True
         if len(result) == 0 or addSimulator:
