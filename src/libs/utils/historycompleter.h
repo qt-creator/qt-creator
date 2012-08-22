@@ -48,7 +48,8 @@ class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
     Q_OBJECT
 
 public:
-    HistoryCompleter(QSettings *settings, QObject *parent);
+    HistoryCompleter(QSettings *settings, QObject *parent,
+                     const QByteArray &historyKey = QByteArray());
     ~HistoryCompleter();
     int historySize() const;
     int maximalHistorySize() const;
