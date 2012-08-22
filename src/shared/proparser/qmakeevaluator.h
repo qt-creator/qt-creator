@@ -159,6 +159,7 @@ public:
     bool evaluateFileInto(const QString &fileName,
                           ProValueMap *values, // output-only
                           LoadFlags flags);
+    void evaluateConfigFeatures();
     void message(int type, const QString &msg) const;
     void evalError(const QString &msg) const
             { message(QMakeHandler::EvalError, msg); }

@@ -1211,6 +1211,28 @@ void QMakeEvaluator::evaluateCommand(const QString &cmds, const QString &where)
     }
 }
 
+void QMakeEvaluator::evaluateConfigFeatures()
+{
+    QSet<QString> processed;
+    forever {
+        bool finished = true;
+        ProStringList configs = values(statics.strCONFIG);
+        for (int i = configs.size() - 1; i >= 0; --i) {
+            QString config = configs.at(i).toQString(m_tmp1).toLower();
+            if (!processed.contains(config)) {
+                config.detach();
+                processed.insert(config);
+                if (evaluateFeatureFile(config, true)) {
+                    finished = false;
+                    break;
+                }
+            }
+        }
+        if (finished)
+            break;
+    }
+}
+
 QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         ProFile *pro, QMakeHandler::EvalFileType type, LoadFlags flags)
 {
@@ -1319,24 +1341,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 
         evaluateFeatureFile(QLatin1String("default_post.prf"));
 
-        QSet<QString> processed;
-        forever {
-            bool finished = true;
-            ProStringList configs = values(statics.strCONFIG);
-            for (int i = configs.size() - 1; i >= 0; --i) {
-                QString config = configs.at(i).toQString(m_tmp1).toLower();
-                if (!processed.contains(config)) {
-                    config.detach();
-                    processed.insert(config);
-                    if (evaluateFeatureFile(config, true)) {
-                        finished = false;
-                        break;
-                    }
-                }
-            }
-            if (finished)
-                break;
-        }
+        evaluateConfigFeatures();
     }
     m_profileStack.pop();
     valuesRef(ProKey("PWD")) = ProStringList(ProString(currentDirectory()));
