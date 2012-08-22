@@ -1361,7 +1361,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         fn.detach();
         bool ok;
         if (parseInto.isEmpty()) {
-            ok = evaluateFile(fn, QMakeHandler::EvalIncludeFile, LoadProOnly | flags);
+            ok = evaluateFileChecked(fn, QMakeHandler::EvalIncludeFile, LoadProOnly | flags);
         } else {
             ProValueMap symbols;
             if ((ok = evaluateFileInto(fn, &symbols, LoadAll | flags))) {

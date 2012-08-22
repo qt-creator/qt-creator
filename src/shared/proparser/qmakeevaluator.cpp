@@ -1098,7 +1098,7 @@ bool QMakeEvaluator::loadSpecInternal()
     if (!evaluateFeatureFile(QLatin1String("spec_pre.prf")))
         return false;
     QString spec = m_qmakespec + QLatin1String("/qmake.conf");
-    if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+    if (!evaluateFile(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         evalError(fL1S("Could not read qmake configuration file %1.").arg(spec));
         return false;
     }
@@ -1129,17 +1129,17 @@ bool QMakeEvaluator::loadSpec()
         QMakeEvaluator evaluator(m_option, m_parser, m_handler);
         if (!m_superfile.isEmpty()) {
             valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
-            if (!evaluator.evaluateFileDirect(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly))
+            if (!evaluator.evaluateFile(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly))
                 return false;
         }
         if (!m_conffile.isEmpty()) {
             valuesRef(ProKey("_QMAKE_CONF_")) << ProString(m_conffile);
-            if (!evaluator.evaluateFileDirect(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly))
+            if (!evaluator.evaluateFile(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly))
                 return false;
         }
         if (!m_cachefile.isEmpty()) {
             valuesRef(ProKey("_QMAKE_CACHE_")) << ProString(m_cachefile);
-            if (!evaluator.evaluateFileDirect(m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly))
+            if (!evaluator.evaluateFile(m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly))
                 return false;
         }
         if (qmakespec.isEmpty()) {
@@ -1170,18 +1170,18 @@ bool QMakeEvaluator::loadSpec()
     m_qmakespec = QDir::cleanPath(qmakespec);
 
     if (!m_superfile.isEmpty()
-        && !evaluateFileDirect(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+        && !evaluateFile(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
     }
     if (!loadSpecInternal())
         return false;
     updateFeaturePaths(); // The spec extends the feature search path, so rebuild the cache.
     if (!m_conffile.isEmpty()
-        && !evaluateFileDirect(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+        && !evaluateFile(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
     }
     if (!m_cachefile.isEmpty()
-        && !evaluateFileDirect(m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+        && !evaluateFile(m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
     }
     return true;
@@ -1691,7 +1691,7 @@ ProString QMakeEvaluator::first(const ProKey &variableName) const
     return ProString();
 }
 
-bool QMakeEvaluator::evaluateFileDirect(
+bool QMakeEvaluator::evaluateFile(
         const QString &fileName, QMakeHandler::EvalFileType type, LoadFlags flags)
 {
     if (ProFile *pro = m_parser->parsedProFile(fileName, true)) {
@@ -1715,7 +1715,7 @@ bool QMakeEvaluator::evaluateFileDirect(
     }
 }
 
-bool QMakeEvaluator::evaluateFile(
+bool QMakeEvaluator::evaluateFileChecked(
         const QString &fileName, QMakeHandler::EvalFileType type, LoadFlags flags)
 {
     if (fileName.isEmpty())
@@ -1728,7 +1728,7 @@ bool QMakeEvaluator::evaluateFile(
                 return false;
             }
     } while ((ref = ref->m_caller));
-    return evaluateFileDirect(fileName, type, flags);
+    return evaluateFile(fileName, type, flags);
 }
 
 bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName, bool silent)
@@ -1780,7 +1780,7 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName, bool silent)
 #endif
 
     // The path is fully normalized already.
-    bool ok = evaluateFileDirect(fn, QMakeHandler::EvalFeatureFile, LoadProOnly);
+    bool ok = evaluateFile(fn, QMakeHandler::EvalFeatureFile, LoadProOnly);
 
 #ifdef PROEVALUATOR_CUMULATIVE
     m_cumulative = cumulative;
@@ -1794,7 +1794,7 @@ bool QMakeEvaluator::evaluateFileInto(const QString &fileName, ProValueMap *valu
     visitor.m_caller = this;
     visitor.m_outputDir = m_outputDir;
     visitor.m_featureRoots = m_featureRoots;
-    if (!visitor.evaluateFile(fileName, QMakeHandler::EvalAuxFile, flags))
+    if (!visitor.evaluateFileChecked(fileName, QMakeHandler::EvalAuxFile, flags))
         return false;
     *values = visitor.m_valuemapStack.top();
 #ifdef PROEVALUATOR_FULL

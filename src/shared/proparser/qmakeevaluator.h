@@ -151,10 +151,10 @@ public:
     QString resolvePath(const QString &fileName) const
         { return ProFileEvaluatorInternal::IoUtils::resolvePath(currentDirectory(), fileName); }
 
-    bool evaluateFileDirect(const QString &fileName, QMakeHandler::EvalFileType type,
-                            LoadFlags flags);
     bool evaluateFile(const QString &fileName, QMakeHandler::EvalFileType type,
                       LoadFlags flags);
+    bool evaluateFileChecked(const QString &fileName, QMakeHandler::EvalFileType type,
+                             LoadFlags flags);
     bool evaluateFeatureFile(const QString &fileName, bool silent = false);
     bool evaluateFileInto(const QString &fileName,
                           ProValueMap *values, // output-only
