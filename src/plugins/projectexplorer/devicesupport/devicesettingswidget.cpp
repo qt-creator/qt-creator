@@ -336,6 +336,7 @@ void DeviceSettingsWidget::handleProcessListRequested()
 {
     QTC_ASSERT(currentDevice()->canCreateProcessModel(), return);
     DeviceProcessesDialog dlg;
+    dlg.addCloseButton();
     dlg.setDevice(currentDevice());
     dlg.exec();
 }

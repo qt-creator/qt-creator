@@ -1560,6 +1560,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
 void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
 {
     DeviceProcessesDialog *dlg = new DeviceProcessesDialog(mainWindow());
+    dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
         delete dlg;
