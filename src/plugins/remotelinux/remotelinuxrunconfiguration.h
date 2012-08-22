@@ -36,10 +36,6 @@
 #include <projectexplorer/runconfiguration.h>
 #include <utils/environment.h>
 
-namespace Qt4ProjectManager {
-class Qt4ProFileNode;
-} // namespace Qt4ProjectManager
-
 namespace Utils { class PortList; }
 
 namespace RemoteLinux {
@@ -67,15 +63,13 @@ public:
     enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
 
     RemoteLinuxRunConfiguration(ProjectExplorer::Target *parent, const Core::Id id,
-        const QString &proFilePath);
+        const QString &projectFilePath);
     ~RemoteLinuxRunConfiguration();
 
     bool isEnabled() const;
     QString disabledReason() const;
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
-
-    RemoteLinuxDeployConfiguration *deployConfig() const;
 
     virtual QString environmentPreparationCommand() const;
     virtual QString commandPrefix() const;
@@ -103,7 +97,7 @@ public:
 
     int portsUsedByDebuggers() const;
 
-    QString proFilePath() const;
+    QString projectFilePath() const;
 
     static const QString IdPrefix;
 
@@ -126,9 +120,7 @@ protected slots:
     void updateEnabledState() { emit enabledChanged(); }
 
 private slots:
-    void proFileUpdate(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
-    void handleDeployConfigChanged();
-    void handleDeployablesUpdated();
+    void handleBuildSystemDataUpdated();
 
 private:
     void init();

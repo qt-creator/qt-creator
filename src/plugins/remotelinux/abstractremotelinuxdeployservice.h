@@ -42,16 +42,12 @@ namespace QSsh { class SshConnection; }
 
 namespace ProjectExplorer {
 class BuildConfiguration;
+class DeployableFile;
 class Profile;
 }
 
 namespace RemoteLinux {
-class DeployableFile;
-class DeploymentInfo;
-
-namespace Internal {
-class AbstractRemoteLinuxDeployServicePrivate;
-}
+namespace Internal { class AbstractRemoteLinuxDeployServicePrivate; }
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployService : public QObject
 {
@@ -83,8 +79,8 @@ protected:
     ProjectExplorer::IDevice::ConstPtr deviceConfiguration() const;
     QSsh::SshConnection *connection() const;
 
-    void saveDeploymentTimeStamp(const DeployableFile &deployableFile);
-    bool hasChangedSinceLastDeployment(const DeployableFile &deployableFile) const;
+    void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile);
+    bool hasChangedSinceLastDeployment(const ProjectExplorer::DeployableFile &deployableFile) const;
 
     void handleDeviceSetupDone(bool success);
     void handleDeploymentDone();

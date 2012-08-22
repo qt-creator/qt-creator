@@ -37,8 +37,8 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4project.h>
 
 #include <QCoreApplication>
 
@@ -59,8 +59,6 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory(QOb
 QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> ids;
-    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
-        return ids;
     if (!parent->project()->supportsProfile(parent->profile()))
         return ids;
     ProjectExplorer::ToolChain *tc

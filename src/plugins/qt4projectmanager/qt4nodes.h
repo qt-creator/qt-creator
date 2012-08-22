@@ -381,7 +381,6 @@ public:
     TargetInformation targetInformation() const;
 
     InstallsList installsList() const;
-    ProjectVersion projectVersion() const { return m_projectVersion; }
 
     QString makefile() const;
     QString objectExtension() const;
@@ -434,7 +433,6 @@ private:
 
     TargetInformation targetInformation(QtSupport::ProFileReader *reader) const;
     void setupInstallsList(const QtSupport::ProFileReader *reader);
-    void setupProjectVersion(const QtSupport::ProFileReader *reader);
 
     Qt4ProjectType m_projectType;
     Qt4VariablesHash m_varValues;
@@ -445,7 +443,6 @@ private:
     QString m_resolvedMkspecPath;
     QStringList m_subProjectsNotToDeploy;
     InstallsList m_installsList;
-    ProjectVersion m_projectVersion;
     friend class Qt4NodeHierarchy;
 
     bool m_validParse;

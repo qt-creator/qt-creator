@@ -39,9 +39,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 
 namespace RemoteLinux {
-class AbstractEmbeddedLinuxTarget;
-class DeploymentInfo;
-
 namespace Internal { class RemoteLinuxDeployConfigurationFactory; }
 
 class REMOTELINUX_EXPORT RemoteLinuxDeployConfiguration
@@ -57,8 +54,6 @@ public:
 
     ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
-    DeploymentInfo *deploymentInfo() const;
-
     template<class T> T *earlierBuildStep(const ProjectExplorer::BuildStep *laterBuildStep) const
     {
         const QList<ProjectExplorer::BuildStep *> &buildSteps = stepList()->steps();
@@ -70,9 +65,6 @@ public:
         }
         return 0;
     }
-
-    virtual QString qmakeScope() const;
-    virtual QString installPrefix() const;
 
 signals:
     void packagingChanged();

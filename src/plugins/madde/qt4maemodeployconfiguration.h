@@ -31,14 +31,8 @@
 #ifndef QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 #define QT4PROJECTMANAGER_QT4DEPLOYCONFIGURATION_H
 
-#include <remotelinux/deploymentsettingsassistant.h>
 #include <remotelinux/remotelinuxdeployconfiguration.h>
 #include <utils/fileutils.h>
-
-namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class DeploymentSettingsAssistant;
-} // namespace RemoteLinux
 
 namespace Madde {
 namespace Internal {
@@ -71,16 +65,9 @@ public:
 
     ProjectExplorer::DeployConfigurationWidget *configurationWidget() const;
 
-    QString localDesktopFilePath(const RemoteLinux::DeployableFilesPerProFile *proFileInfo) const;
-
     static Core::Id fremantleWithPackagingId();
     static Core::Id fremantleWithoutPackagingId();
     static Core::Id harmattanId();
-
-    RemoteLinux::DeploymentSettingsAssistant *deploymentSettingsAssistant();
-
-    QString qmakeScope() const;
-    QString installPrefix() const;
 
 private slots:
     void debianDirChanged(const Utils::FileName &dir);

@@ -31,14 +31,11 @@
 #define REMOTELINUXRUNCONFIGURATIONFACTORY_H
 
 #include <projectexplorer/runconfiguration.h>
-#include <qt4projectmanager/qmakerunconfigurationfactory.h>
-
-namespace ProjectExplorer { class Node; }
 
 namespace RemoteLinux {
 namespace Internal {
 
-class RemoteLinuxRunConfigurationFactory : public Qt4ProjectManager::QmakeRunConfigurationFactory
+class RemoteLinuxRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
 
@@ -60,9 +57,8 @@ public:
     ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
         ProjectExplorer::RunConfiguration *source);
 
-    bool canHandle(ProjectExplorer::Target *t) const;
-    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                        ProjectExplorer::Node *n);
+private:
+    bool canHandle(const ProjectExplorer::Target *target) const;
 };
 
 } // namespace Internal

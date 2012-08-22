@@ -6,6 +6,7 @@
 **
 ** Contact: http://www.qt-project.org/
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -26,44 +27,32 @@
 **
 **
 **************************************************************************/
-#ifndef DEPLOYMENTSETTINGSASSISTANT_H
-#define DEPLOYMENTSETTINGSASSISTANT_H
+#ifndef REMOTELINUXDEPLOYMENTDATAMODEL_H
+#define REMOTELINUXDEPLOYMENTDATAMODEL_H
 
-#include "remotelinux_export.h"
+#include <projectexplorer/deploymentdata.h>
 
-#include <QObject>
-#include <QStringList>
-
-namespace ProjectExplorer { class Project; }
+#include <QAbstractTableModel>
 
 namespace RemoteLinux {
-class DeployableFile;
-class DeployableFilesPerProFile;
-class DeploymentInfo;
 
-namespace Internal { class DeploymentSettingsAssistantInternal; }
-
-class REMOTELINUX_EXPORT DeploymentSettingsAssistant : public QObject
+class RemoteLinuxDeploymentDataModel : public QAbstractTableModel
 {
     Q_OBJECT
-
 public:
-    DeploymentSettingsAssistant(DeploymentInfo *deploymentInfo, ProjectExplorer::Project *parent);
-    ~DeploymentSettingsAssistant();
+    explicit RemoteLinuxDeploymentDataModel(QObject *parent = 0);
 
-    bool addDeployableToProFile(const QString &qmakeScope,
-                                const DeployableFilesPerProFile *proFileInfo,
-                                const QString &variableName, const DeployableFile &deployable);
-
-private slots:
-    void handleDeploymentInfoUpdated();
+    void setDeploymentData(const ProjectExplorer::DeploymentData &deploymentData);
 
 private:
-    bool addLinesToProFile(const QString &qmakeScope, const DeployableFilesPerProFile *proFileInfo, const QStringList &lines);
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    Internal::DeploymentSettingsAssistantInternal * const d;
+    ProjectExplorer::DeploymentData m_deploymentData;
 };
 
 } // namespace RemoteLinux
 
-#endif // DEPLOYMENTSETTINGSASSISTANT_H
+#endif // REMOTELINUXDEPLOYMENTDATAMODEL_H

@@ -1918,7 +1918,6 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
         m_subProjectsNotToDeploy = subProjectsNotToDeploy;
         setupInstallsList(m_readerExact);
-        setupProjectVersion(m_readerExact);
 
         // update other variables
         QHash<Qt4Variable, QStringList> newVarValues;
@@ -2340,59 +2339,6 @@ void Qt4ProFileNode::setupInstallsList(const QtSupport::ProFileReader *reader)
             m_installsList.items << InstallsItem(itemPath, itemFiles);
         }
     }
-}
-
-void Qt4ProFileNode::setupProjectVersion(const QtSupport::ProFileReader *reader)
-{
-    m_projectVersion.major = m_projectVersion.minor = m_projectVersion.patch = -1;
-    bool ok;
-    int val = reader->value(QLatin1String("VER_MAJ")).toInt(&ok);
-    if (ok)
-        m_projectVersion.major = val;
-    val = reader->value(QLatin1String("VER_MIN")).toInt(&ok);
-    if (ok)
-        m_projectVersion.minor = val;
-    val = reader->value(QLatin1String("VER_PAT")).toInt(&ok);
-    if (ok)
-        m_projectVersion.patch = val;
-    if (m_projectVersion.major != -1 && m_projectVersion.minor != -1
-            && m_projectVersion.patch != -1) {
-        return;
-    }
-
-    const QString &version = reader->value(QLatin1String("VERSION"));
-    const QChar dot(QLatin1Char('.'));
-    int dotIndex = version.indexOf(dot);
-    if (m_projectVersion.major == -1) {
-        val = version.left(dotIndex).toInt(&ok);
-        if (ok)
-            m_projectVersion.major = val;
-    }
-    if (dotIndex != -1) {
-        int numberStartIndex = dotIndex + 1;
-        dotIndex = version.indexOf(dot, numberStartIndex);
-        if (m_projectVersion.minor == -1) {
-            val = version.mid(numberStartIndex, dotIndex - numberStartIndex).toInt(&ok);
-            if (ok)
-                m_projectVersion.minor = val;
-        }
-    }
-    if (dotIndex != -1) {
-        int numberStartIndex = dotIndex + 1;
-        dotIndex = version.indexOf(dot, numberStartIndex);
-        if (m_projectVersion.patch == -1) {
-            val = version.mid(numberStartIndex, dotIndex - numberStartIndex).toInt(&ok);
-            if (ok)
-                m_projectVersion.patch= val;
-        }
-    }
-
-    if (m_projectVersion.major == -1)
-        m_projectVersion.major = 1;
-    if (m_projectVersion.minor == -1)
-        m_projectVersion.minor = 0;
-    if (m_projectVersion.patch == -1)
-        m_projectVersion.patch = 0;
 }
 
 InstallsList Qt4ProFileNode::installsList() const

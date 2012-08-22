@@ -29,10 +29,11 @@
 **************************************************************************/
 #include "genericdirectuploadstep.h"
 
-#include "deployablefile.h"
-#include "deploymentinfo.h"
 #include "genericdirectuploadservice.h"
 #include "remotelinuxdeployconfiguration.h"
+
+#include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/target.h>
 
 #include <QCheckBox>
 #include <QVBoxLayout>
@@ -109,12 +110,7 @@ BuildStepConfigWidget *GenericDirectUploadStep::createConfigWidget()
 
 bool GenericDirectUploadStep::initInternal(QString *error)
 {
-    QList<DeployableFile> deployableFiles;
-    const DeploymentInfo * const deploymentInfo = deployConfiguration()->deploymentInfo();
-    const int deployableCount = deploymentInfo->deployableCount();
-    for (int i = 0; i < deployableCount; ++i)
-        deployableFiles << deploymentInfo->deployableAt(i);
-    deployService()->setDeployableFiles(deployableFiles);
+    deployService()->setDeployableFiles(target()->deploymentData().allFiles());
     deployService()->setIncrementalDeployment(incrementalDeployment());
     return deployService()->isDeploymentPossible(error);
 }

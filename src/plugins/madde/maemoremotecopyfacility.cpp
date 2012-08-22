@@ -38,7 +38,6 @@
 
 using namespace ProjectExplorer;
 using namespace QSsh;
-using namespace RemoteLinux;
 
 namespace Madde {
 namespace Internal {
@@ -126,18 +125,18 @@ void MaemoRemoteCopyFacility::copyNextFile()
     const DeployableFile &d = m_deployables.first();
     QString sourceFilePath = m_mountPoint;
 #ifdef Q_OS_WIN
-    const QString localFilePath = QDir::fromNativeSeparators(d.localFilePath);
+    const QString localFilePath = QDir::fromNativeSeparators(d.localFilePath().toString());
     sourceFilePath += QLatin1Char('/') + localFilePath.at(0).toLower()
         + localFilePath.mid(2);
 #else
-    sourceFilePath += d.localFilePath;
+    sourceFilePath += d.localFilePath().toString();
 #endif
 
     QString command = QString::fromLatin1("%1 mkdir -p %3 && %1 cp -a %2 %3")
         .arg(MaemoGlobal::remoteSudo(m_devConf->type(), m_devConf->sshParameters().userName),
-            sourceFilePath, d.remoteDir);
+            sourceFilePath, d.remoteDirectory());
     emit progress(tr("Copying file '%1' to directory '%2' on the device...")
-        .arg(d.localFilePath, d.remoteDir));
+        .arg(d.localFilePath().toString(), d.remoteDirectory()));
     m_copyRunner->run(command.toUtf8(), m_devConf->sshParameters());
 }
 

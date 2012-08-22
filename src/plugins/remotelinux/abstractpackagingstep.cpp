@@ -28,12 +28,12 @@
 **************************************************************************/
 #include "abstractpackagingstep.h"
 
-#include "deployablefile.h"
-#include "deploymentinfo.h"
 #include "remotelinuxdeployconfiguration.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/task.h>
 #include <utils/fileutils.h>
@@ -54,6 +54,7 @@ public:
     BuildConfiguration *currentBuildConfiguration;
     QString cachedPackageFilePath;
     QString cachedPackageDirectory;
+    bool deploymentDataModified;
 };
 
 } // namespace Internal
@@ -77,8 +78,10 @@ void AbstractPackagingStep::ctor()
         SLOT(handleBuildConfigurationChanged()));
     handleBuildConfigurationChanged();
 
-    connect(this, SIGNAL(unmodifyDeploymentInfo()),
-            this, SLOT(setDeploymentInfoUnmodified()));
+    connect(project(), SIGNAL(buildSystemEvaluated()), SLOT(setDeploymentDataModified()));
+    setDeploymentDataModified();
+
+    connect(this, SIGNAL(unmodifyDeploymentData()), this, SLOT(setDeploymentDataUnmodified()));
 }
 
 AbstractPackagingStep::~AbstractPackagingStep()
@@ -128,16 +131,16 @@ RemoteLinuxDeployConfiguration *AbstractPackagingStep::deployConfiguration() con
 
 bool AbstractPackagingStep::isPackagingNeeded() const
 {
-    const DeploymentInfo * const deploymentInfo = deployConfiguration()->deploymentInfo();
     QFileInfo packageInfo(packageFilePath());
-    if (!packageInfo.exists() || deploymentInfo->isModified())
+    if (!packageInfo.exists() || d->deploymentDataModified)
         return true;
 
-    const int deployableCount = deploymentInfo->deployableCount();
-    for (int i = 0; i < deployableCount; ++i) {
-        if (Utils::FileUtils::isFileNewerThan(deploymentInfo->deployableAt(i).localFilePath,
-                packageInfo.lastModified()))
+    const DeploymentData &dd = target()->deploymentData();
+    for (int i = 0; i < dd.fileCount(); ++i) {
+        if (Utils::FileUtils::isFileNewerThan(dd.fileAt(i).localFilePath().toString(),
+                packageInfo.lastModified())) {
             return true;
+        }
     }
 
     return false;
@@ -158,13 +161,18 @@ void AbstractPackagingStep::setPackagingStarted()
 void AbstractPackagingStep::setPackagingFinished(bool success)
 {
     if (success)
-        emit unmodifyDeploymentInfo();
+        emit unmodifyDeploymentData();
 }
 
 // called in gui thread
-void AbstractPackagingStep::setDeploymentInfoUnmodified()
+void AbstractPackagingStep::setDeploymentDataUnmodified()
 {
-    deployConfiguration()->deploymentInfo()->setUnmodified();
+    d->deploymentDataModified = false;
+}
+
+void AbstractPackagingStep::setDeploymentDataModified()
+{
+    d->deploymentDataModified = true;
 }
 
 void AbstractPackagingStep::raiseError(const QString &errorMessage)

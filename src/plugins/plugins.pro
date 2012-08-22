@@ -165,7 +165,7 @@ plugin_remotelinux.subdir = remotelinux
 plugin_remotelinux.depends += plugin_coreplugin
 plugin_remotelinux.depends += plugin_debugger
 plugin_remotelinux.depends += plugin_projectexplorer
-plugin_remotelinux.depends += plugin_qt4projectmanager
+plugin_remotelinux.depends += plugin_qtsupport
 
 plugin_android.subdir = android
 plugin_android.depends = plugin_coreplugin
@@ -175,6 +175,7 @@ plugin_android.depends += plugin_qt4projectmanager
 
 plugin_madde.subdir = madde
 plugin_madde.depends += plugin_remotelinux
+plugin_madde.depends += plugin_qt4projectmanager
 
 plugin_locator.subdir = locator
 plugin_locator.depends = plugin_coreplugin

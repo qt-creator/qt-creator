@@ -31,7 +31,7 @@
 #ifndef MAEMOREMOTECOPYFACILITY_H
 #define MAEMOREMOTECOPYFACILITY_H
 
-#include <remotelinux/deployablefile.h>
+#include <projectexplorer/deployablefile.h>
 #include <projectexplorer/devicesupport/idevice.h>
 
 #include <QList>
@@ -54,14 +54,14 @@ public:
 
     void copyFiles(QSsh::SshConnection *connection,
         const ProjectExplorer::IDevice::ConstPtr &device,
-        const QList<RemoteLinux::DeployableFile> &deployables, const QString &mountPoint);
+        const QList<ProjectExplorer::DeployableFile> &deployables, const QString &mountPoint);
     void cancel();
 
 signals:
     void stdoutData(const QString &output);
     void stderrData(const QString &output);
     void progress(const QString &message);
-    void fileCopied(const RemoteLinux::DeployableFile &deployable);
+    void fileCopied(const ProjectExplorer::DeployableFile &deployable);
     void finished(const QString &errorMsg = QString());
 
 private slots:
@@ -77,7 +77,7 @@ private:
     QSsh::SshRemoteProcessRunner *m_copyRunner;
     QSsh::SshRemoteProcessRunner *m_killProcess;
     ProjectExplorer::IDevice::ConstPtr m_devConf;
-    QList<RemoteLinux::DeployableFile> m_deployables;
+    QList<ProjectExplorer::DeployableFile> m_deployables;
     QString m_mountPoint;
     bool m_isCopying; // TODO: Redundant due to being in sync with m_copyRunner?
 };

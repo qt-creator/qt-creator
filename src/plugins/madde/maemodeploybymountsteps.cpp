@@ -37,14 +37,13 @@
 #include "maemoremotecopyfacility.h"
 #include "qt4maemodeployconfiguration.h"
 
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtprofileinformation.h>
 #include <remotelinux/abstractremotelinuxdeployservice.h>
-#include <remotelinux/deployablefile.h>
-#include <remotelinux/deploymentinfo.h>
 #include <remotelinux/linuxdevice.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
@@ -131,7 +130,7 @@ private:
     void cancelInstallation();
     void handleInstallationSuccess();
 
-    Q_SLOT void handleFileCopied(const RemoteLinux::DeployableFile&deployable);
+    Q_SLOT void handleFileCopied(const ProjectExplorer::DeployableFile &deployable);
 
     MaemoRemoteCopyFacility * const m_copyFacility;
     mutable QList<DeployableFile> m_filesToCopy;
@@ -327,8 +326,8 @@ MaemoMountAndCopyFilesService::MaemoMountAndCopyFilesService(QObject *parent)
     connect(m_copyFacility, SIGNAL(stdoutData(QString)), SIGNAL(stdOutData(QString)));
     connect(m_copyFacility, SIGNAL(stderrData(QString)), SIGNAL(stdErrData(QString)));
     connect(m_copyFacility, SIGNAL(progress(QString)), SIGNAL(progressMessage(QString)));
-    connect(m_copyFacility, SIGNAL(fileCopied(RemoteLinux::DeployableFile)),
-        SLOT(handleFileCopied(RemoteLinux::DeployableFile)));
+    connect(m_copyFacility, SIGNAL(fileCopied(ProjectExplorer::DeployableFile)),
+        SLOT(handleFileCopied(ProjectExplorer::DeployableFile)));
     connect(m_copyFacility, SIGNAL(finished(QString)), SLOT(handleInstallationFinished(QString)));
 }
 
@@ -337,7 +336,7 @@ bool MaemoMountAndCopyFilesService::isDeploymentNecessary() const
     m_filesToCopy.clear();
     for (int i = 0; i < m_deployableFiles.count(); ++i) {
         const DeployableFile &d = m_deployableFiles.at(i);
-        if (hasChangedSinceLastDeployment(d) || QFileInfo(d.localFilePath).isDir())
+        if (hasChangedSinceLastDeployment(d) || d.localFilePath().toFileInfo().isDir())
             m_filesToCopy << d;
     }
     return !m_filesToCopy.isEmpty();
@@ -350,7 +349,7 @@ QList<MaemoMountSpecification> MaemoMountAndCopyFilesService::mountSpecification
     bool drivesToMount[26];
     qFill(drivesToMount, drivesToMount + sizeof drivesToMount / sizeof drivesToMount[0], false);
     for (int i = 0; i < m_filesToCopy.count(); ++i) {
-        const QString localDir = QFileInfo(m_filesToCopy.at(i).localFilePath).canonicalPath();
+        const QString localDir = m_filesToCopy.at(i).localFilePath().toFileInfo().canonicalPath();
         const char driveLetter = localDir.at(0).toLower().toLatin1();
         if (driveLetter < 'a' || driveLetter > 'z') {
             qWarning("Weird: drive letter is '%c'.", driveLetter);
@@ -467,12 +466,7 @@ AbstractRemoteLinuxDeployService *MaemoCopyFilesViaMountStep::deployService() co
 
 bool MaemoCopyFilesViaMountStep::initInternal(QString *error)
 {
-    QList<DeployableFile> deployableFiles;
-    const DeploymentInfo * const deploymentInfo = deployConfiguration()->deploymentInfo();
-    const int deployableCount = deploymentInfo->deployableCount();
-    for (int i = 0; i < deployableCount; ++i)
-        deployableFiles << deploymentInfo->deployableAt(i);
-    m_deployService->setDeployableFiles(deployableFiles);
+    m_deployService->setDeployableFiles(target()->deploymentData().allFiles());
     return deployService()->isDeploymentPossible(error);
 }
 

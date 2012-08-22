@@ -28,10 +28,9 @@
 **************************************************************************/
 #include "tarpackagecreationstep.h"
 
-#include "deployablefile.h"
-#include "deploymentinfo.h"
 #include "remotelinuxdeployconfiguration.h"
 
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
@@ -112,13 +111,8 @@ bool TarPackageCreationStep::init()
     if (!AbstractPackagingStep::init())
         return false;
     m_packagingNeeded = isPackagingNeeded();
-    if (!m_packagingNeeded)
-        return true;
-
-    const DeploymentInfo * const deploymentInfo = deployConfiguration()->deploymentInfo();
-    for (int i = 0; i < deploymentInfo->deployableCount(); ++i)
-        m_files.append(deploymentInfo->deployableAt(i));
-
+    if (m_packagingNeeded)
+        m_files = target()->deploymentData().allFiles();
     return true;
 }
 
@@ -152,13 +146,13 @@ bool TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi)
     }
 
     foreach (const DeployableFile &d, m_files) {
-        if (d.remoteDir.isEmpty()) {
+        if (d.remoteDirectory().isEmpty()) {
             emit addOutput(tr("No remote path specified for file '%1', skipping.")
-                .arg(QDir::toNativeSeparators(d.localFilePath)), ErrorMessageOutput);
+                .arg(d.localFilePath().toUserOutput()), ErrorMessageOutput);
             continue;
         }
-        QFileInfo fileInfo(d.localFilePath);
-        if (!appendFile(tarFile, fileInfo, d.remoteDir + QLatin1Char('/')
+        QFileInfo fileInfo = d.localFilePath().toFileInfo();
+        if (!appendFile(tarFile, fileInfo, d.remoteDirectory() + QLatin1Char('/')
                 + fileInfo.fileName(), fi)) {
             return false;
         }

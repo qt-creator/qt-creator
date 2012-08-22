@@ -30,15 +30,17 @@
 
 #include "abstractuploadandinstallpackageservice.h"
 
-#include "deployablefile.h"
 #include "packageuploader.h"
 #include "remotelinuxpackageinstaller.h"
 
+#include <projectexplorer/deployablefile.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 
 #include <QFileInfo>
 #include <QString>
+
+using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace Internal {

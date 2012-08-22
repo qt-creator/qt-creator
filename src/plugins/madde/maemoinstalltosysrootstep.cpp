@@ -35,13 +35,13 @@
 #include "maemopackagecreationstep.h"
 #include "maemoqtversion.h"
 
-#include <utils/fileutils.h>
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtprofileinformation.h>
-#include <remotelinux/deploymentinfo.h>
 #include <remotelinux/remotelinuxdeployconfiguration.h>
+#include <utils/fileutils.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -282,11 +282,7 @@ bool MaemoCopyToSysrootStep::init()
     }
     m_systemRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(target()->profile()).toString();
 
-    const DeploymentInfo * const deploymentInfo
-            = static_cast<RemoteLinuxDeployConfiguration *>(deployConfiguration())->deploymentInfo();
-    m_files.clear();
-    for (int i = 0; i < deploymentInfo->deployableCount(); ++i)
-        m_files << deploymentInfo->deployableAt(i);
+    m_files = target()->deploymentData().allFiles();
 
     return true;
 }
@@ -298,13 +294,13 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
 
     const QChar sep = QLatin1Char('/');
     foreach (const DeployableFile &deployable, m_files) {
-        const QFileInfo localFileInfo(deployable.localFilePath);
+        const QFileInfo localFileInfo = deployable.localFilePath().toFileInfo();
         const QString targetFilePath = m_systemRoot + sep
-            + deployable.remoteDir + sep + localFileInfo.fileName();
-        sysrootDir.mkpath(deployable.remoteDir.mid(1));
+            + deployable.remoteDirectory() + sep + localFileInfo.fileName();
+        sysrootDir.mkpath(deployable.remoteDirectory().mid(1));
         QString errorMsg;
         Utils::FileUtils::removeRecursively(targetFilePath, &errorMsg);
-        if (!Utils::FileUtils::copyRecursively(deployable.localFilePath,
+        if (!Utils::FileUtils::copyRecursively(deployable.localFilePath().toString(),
                 targetFilePath, &errorMsg)) {
             emit addOutput(tr("Sysroot installation failed: %1\n"
                 " Continuing anyway.").arg(errorMsg), ErrorMessageOutput);

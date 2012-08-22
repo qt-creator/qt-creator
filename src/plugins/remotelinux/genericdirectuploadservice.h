@@ -39,8 +39,9 @@
 
 QT_FORWARD_DECLARE_CLASS(QString)
 
+namespace ProjectExplorer { class DeployableFile; }
+
 namespace RemoteLinux {
-class DeployableFile;
 namespace Internal { class GenericDirectUploadServicePrivate; }
 
 class REMOTELINUX_EXPORT GenericDirectUploadService : public AbstractRemoteLinuxDeployService
@@ -50,7 +51,7 @@ public:
     GenericDirectUploadService(QObject *parent = 0);
     ~GenericDirectUploadService();
 
-    void setDeployableFiles(const QList<DeployableFile> &deployableFiles);
+    void setDeployableFiles(const QList<ProjectExplorer::DeployableFile> &deployableFiles);
     void setIncrementalDeployment(bool incremental);
 
   protected:
@@ -72,7 +73,7 @@ private slots:
     void handleStdErrData();
 
 private:
-    void checkDeploymentNeeded(const DeployableFile &file) const;
+    void checkDeploymentNeeded(const ProjectExplorer::DeployableFile &file) const;
     void setFinished();
     void uploadNextFile();
 

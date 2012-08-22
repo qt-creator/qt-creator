@@ -34,9 +34,6 @@
 #include <projectexplorer/deployconfiguration.h>
 
 namespace RemoteLinux {
-class DeployableFilesPerProFile;
-class RemoteLinuxDeployConfiguration;
-
 namespace Internal {
 class RemoteLinuxDeployConfigurationWidgetPrivate;
 } // namespace Internal
@@ -52,17 +49,8 @@ public:
 
     void init(ProjectExplorer::DeployConfiguration *dc);
 
-    RemoteLinuxDeployConfiguration *deployConfiguration() const;
-    DeployableFilesPerProFile *currentModel() const;
-
-signals:
-    void currentModelChanged(const RemoteLinux::DeployableFilesPerProFile *proFileInfo);
-
 private slots:
-    void handleModelListToBeReset();
-    void handleModelListReset();
-    void setModel(int row);
-    void openProjectFile();
+    void updateDeploymentDataModel();
 
 private:
     Internal::RemoteLinuxDeployConfigurationWidgetPrivate * const d;

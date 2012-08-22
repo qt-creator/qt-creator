@@ -15,5 +15,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
     <url>http://www.qt-project.org</url>
     <dependencyList>
         <dependency name=\"RemoteLinux\" version=\"$$QTCREATOR_VERSION\"/>
+        <dependency name=\"Qt4ProjectManager\" version=\"$$QTCREATOR_VERSION\"/>
     </dependencyList>
 </plugin>

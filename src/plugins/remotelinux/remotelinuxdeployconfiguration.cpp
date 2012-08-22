@@ -29,21 +29,12 @@
 **************************************************************************/
 #include "remotelinuxdeployconfiguration.h"
 
-#include "deploymentinfo.h"
 #include "remotelinuxdeployconfigurationwidget.h"
-#include "typespecificdeviceconfigurationlistmodel.h"
 
-#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4project.h>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
-
-namespace {
-const char DEPLOYMENT_INFO_SETTING[] = "RemoteLinux.DeploymentInfo";
-} // namespace
 
 namespace RemoteLinux {
 
@@ -54,38 +45,12 @@ RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::
     : DeployConfiguration(target, id)
 {
     setDefaultDisplayName(defaultDisplayName);
-
-    // Make sure we have deploymentInfo, but create it only once:
-    DeploymentInfo *info
-            = qobject_cast<DeploymentInfo *>(target->project()->namedSettings(QLatin1String(DEPLOYMENT_INFO_SETTING)).value<QObject *>());
-    if (!info) {
-        info = new DeploymentInfo(static_cast<Qt4ProjectManager::Qt4Project *>(target->project()));
-        QVariant data = QVariant::fromValue(static_cast<QObject *>(info));
-        target->project()->setNamedSettings(QLatin1String(DEPLOYMENT_INFO_SETTING), data);
-    }
 }
 
 RemoteLinuxDeployConfiguration::RemoteLinuxDeployConfiguration(ProjectExplorer::Target *target,
         RemoteLinuxDeployConfiguration *source)
     : DeployConfiguration(target, source)
 { }
-
-DeploymentInfo *RemoteLinuxDeployConfiguration::deploymentInfo() const
-{
-    DeploymentInfo *info
-            = qobject_cast<DeploymentInfo *>(target()->project()->namedSettings(QLatin1String(DEPLOYMENT_INFO_SETTING)).value<QObject *>());
-    return info;
-}
-
-QString RemoteLinuxDeployConfiguration::qmakeScope() const
-{
-    return QLatin1String("unix");
-}
-
-QString RemoteLinuxDeployConfiguration::installPrefix() const
-{
-    return QString();
-}
 
 DeployConfigurationWidget *RemoteLinuxDeployConfiguration::configurationWidget() const
 {

@@ -105,9 +105,6 @@ private:
     void prepareToSendFile();
     void sendFile();
     void finishWithFailure(const QString &progressMsg, const QString &resultMsg);
-    bool updateDesktopFiles(QString *error = 0) const;
-    bool addOrReplaceDesktopFileValue(QByteArray &fileContent,
-        const QByteArray &key, const QByteArray &newValue) const;
     QStringList findProblems() const;
 
     const ProjectExplorer::Project * const m_project;

@@ -43,8 +43,6 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtprofileinformation.h>
-#include <remotelinux/deployablefilesperprofile.h>
-#include <remotelinux/deploymentinfo.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshremoteprocessrunner.h>
@@ -150,13 +148,6 @@ void MaemoPublisherFremantleFree::createPackage()
     if (!fixNewlines()) {
         finishWithFailure(tr("Error: Could not fix newlines."),
             tr("Publishing failed: Could not create source package."));
-        return;
-    }
-
-    QString error;
-    if (!updateDesktopFiles(&error)) {
-        finishWithFailure(error,
-            tr("Publishing failed: Could not create package."));
         return;
     }
 
@@ -540,65 +531,6 @@ void MaemoPublisherFremantleFree::finishWithFailure(const QString &progressMsg,
         emit progressReport(progressMsg, ErrorOutput);
     m_resultString = resultMsg;
     setState(Inactive);
-}
-
-bool MaemoPublisherFremantleFree::updateDesktopFiles(QString *error) const
-{
-    bool success = true;
-    const Qt4MaemoDeployConfiguration *const deployConfig
-        = qobject_cast<Qt4MaemoDeployConfiguration *>(m_buildConfig->target()->activeDeployConfiguration());
-    QTC_ASSERT(deployConfig, return false);
-    const DeploymentInfo *const deploymentInfo = deployConfig->deploymentInfo();
-    for (int i = 0; i < deploymentInfo->modelCount(); ++i) {
-        const DeployableFilesPerProFile * const model = deploymentInfo->modelAt(i);
-        QString desktopFilePath = deployConfig->localDesktopFilePath(model);
-        if (desktopFilePath.isEmpty())
-            continue;
-        desktopFilePath.replace(model->projectDir(), m_tmpProjectDir);
-        const QString executableFilePath = model->remoteExecutableFilePath();
-        if (executableFilePath.isEmpty()) {
-            qDebug("%s: Skipping subproject %s with missing deployment information.",
-                Q_FUNC_INFO, qPrintable(model->proFilePath()));
-            continue;
-        }
-        Utils::FileReader reader;
-        if (!reader.fetch(desktopFilePath, error)) {
-            success = false;
-            continue;
-        }
-        QByteArray desktopFileContents = reader.data();
-        bool fileNeedsUpdate = addOrReplaceDesktopFileValue(desktopFileContents,
-            "Exec", executableFilePath.toUtf8());
-        if (fileNeedsUpdate) {
-            Utils::FileSaver saver(desktopFilePath);
-            saver.write(desktopFileContents);
-            if (!saver.finalize(error))
-                success = false;
-        }
-    }
-    return success;
-}
-
-bool MaemoPublisherFremantleFree::addOrReplaceDesktopFileValue(QByteArray &fileContent,
-    const QByteArray &key, const QByteArray &newValue) const
-{
-    const int keyPos = fileContent.indexOf(key + '=');
-    if (keyPos == -1) {
-        if (!fileContent.endsWith('\n'))
-            fileContent += '\n';
-        fileContent += key + '=' + newValue + '\n';
-        return true;
-    }
-    int nextNewlinePos = fileContent.indexOf('\n', keyPos);
-    if (nextNewlinePos == -1)
-        nextNewlinePos = fileContent.count();
-    const int replacePos = keyPos + key.count() + 1;
-    const int replaceCount = nextNewlinePos - replacePos;
-    const QByteArray &oldValue = fileContent.mid(replacePos, replaceCount);
-    if (oldValue == newValue)
-        return false;
-    fileContent.replace(replacePos, replaceCount, newValue);
-    return true;
 }
 
 QStringList MaemoPublisherFremantleFree::findProblems() const

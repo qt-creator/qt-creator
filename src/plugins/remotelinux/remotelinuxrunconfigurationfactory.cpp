@@ -30,14 +30,12 @@
 #include "remotelinuxrunconfigurationfactory.h"
 
 #include "remotelinux_constants.h"
-#include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxrunconfiguration.h"
 
+#include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/profileinformation.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
-#include <qtsupport/customexecutablerunconfiguration.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -45,7 +43,6 @@
 #include <QStringList>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
 
 namespace RemoteLinux {
 namespace Internal {
@@ -62,8 +59,10 @@ QString pathFromId(Core::Id id)
 } // namespace
 
 RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory(QObject *parent)
-    : Qt4ProjectManager::QmakeRunConfigurationFactory(parent)
-{ setObjectName(QLatin1String("RemoteLinuxRunConfigurationFactory")); }
+    : IRunConfigurationFactory(parent)
+{
+    setObjectName(QLatin1String("RemoteLinuxRunConfigurationFactory"));
+}
 
 RemoteLinuxRunConfigurationFactory::~RemoteLinuxRunConfigurationFactory()
 {
@@ -73,14 +72,14 @@ bool RemoteLinuxRunConfigurationFactory::canCreate(Target *parent, const Core::I
 {
     if (!canHandle(parent))
         return false;
-    return static_cast<Qt4Project *>(parent->project())->hasApplicationProFile(pathFromId(id));
+    return !parent->applicationTargets().targetForProject(pathFromId(id)).isEmpty();
 }
 
 bool RemoteLinuxRunConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     if (!canHandle(parent))
         return false;
-    return ProjectExplorer::idFromMap(map).toString().startsWith(RemoteLinuxRunConfiguration::IdPrefix);
+    return idFromMap(map).toString().startsWith(RemoteLinuxRunConfiguration::IdPrefix);
 }
 
 bool RemoteLinuxRunConfigurationFactory::canClone(Target *parent, RunConfiguration *source) const
@@ -96,10 +95,8 @@ QList<Core::Id> RemoteLinuxRunConfigurationFactory::availableCreationIds(Target 
     if (!canHandle(parent))
         return result;
 
-    QStringList proFiles = static_cast<Qt4Project *>(parent->project())
-            ->applicationProFilePathes(RemoteLinuxRunConfiguration::IdPrefix);
-    foreach (const QString &pf, proFiles)
-        result << Core::Id(pf);
+    foreach (const BuildTargetInfo &bti, parent->applicationTargets().list)
+        result << (Core::Id(RemoteLinuxRunConfiguration::IdPrefix + bti.projectFilePath.toString()));
     return result;
 }
 
@@ -119,8 +116,8 @@ RunConfiguration *RemoteLinuxRunConfigurationFactory::restore(Target *parent,
     const QVariantMap &map)
 {
     QTC_ASSERT(canRestore(parent, map), return 0);
-    RemoteLinuxRunConfiguration *rc
-            = new RemoteLinuxRunConfiguration(parent, Core::Id(RemoteLinuxRunConfiguration::IdPrefix), QString());
+    RemoteLinuxRunConfiguration *rc = new RemoteLinuxRunConfiguration(parent,
+            Core::Id(RemoteLinuxRunConfiguration::IdPrefix), QString());
     if (rc->fromMap(map))
         return rc;
 
@@ -136,25 +133,12 @@ RunConfiguration *RemoteLinuxRunConfigurationFactory::clone(Target *parent,
     return new RemoteLinuxRunConfiguration(parent, old);
 }
 
-bool RemoteLinuxRunConfigurationFactory::canHandle(Target *t) const
+bool RemoteLinuxRunConfigurationFactory::canHandle(const Target *target) const
 {
-    if (!t->project()->supportsProfile(t->profile()))
+    if (!target->project()->supportsProfile(target->profile()))
         return false;
-    if (!qobject_cast<Qt4Project *>(t->project()))
-        return false;
-
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(t->profile());
+    const Core::Id deviceType = DeviceTypeProfileInformation::deviceTypeId(target->profile());
     return deviceType == RemoteLinux::Constants::GenericLinuxOsType;
-}
-
-QList<RunConfiguration *> RemoteLinuxRunConfigurationFactory::runConfigurationsForNode(Target *t, ProjectExplorer::Node *n)
-{
-    QList<ProjectExplorer::RunConfiguration *> result;
-    foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations())
-        if (RemoteLinuxRunConfiguration *qt4c = qobject_cast<RemoteLinuxRunConfiguration *>(rc))
-            if (qt4c->proFilePath() == n->path())
-                result << rc;
-    return result;
 }
 
 } // namespace Internal

@@ -36,7 +36,6 @@ HEADERS += \
     maemoqemusettings.h \
     qt4maemodeployconfiguration.h \
     maemodeviceconfigwizard.h \
-    maemodeployconfigurationwidget.h \
     maemoinstalltosysrootstep.h \
     maemodeploymentmounter.h \
     maemopackageinstaller.h \
@@ -79,7 +78,6 @@ SOURCES += \
     maemoqemusettings.cpp \
     qt4maemodeployconfiguration.cpp \
     maemodeviceconfigwizard.cpp \
-    maemodeployconfigurationwidget.cpp \
     maemoinstalltosysrootstep.cpp \
     maemodeploymentmounter.cpp \
     maemopackageinstaller.cpp \
@@ -105,8 +103,7 @@ FORMS += \
     maemodeviceconfigwizardpreviouskeysetupcheckpage.ui \
     maemodeviceconfigwizardreusekeyscheckpage.ui \
     maemodeviceconfigwizardkeycreationpage.ui \
-    maemodeviceconfigwizardkeydeploymentpage.ui \
-    maemodeployconfigurationwidget.ui
+    maemodeviceconfigwizardkeydeploymentpage.ui
 
 RESOURCES += qt-maemo.qrc
 DEFINES += QT_NO_CAST_TO_ASCII

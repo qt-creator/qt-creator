@@ -31,7 +31,8 @@
 
 #include "abstractpackagingstep.h"
 #include "remotelinux_export.h"
-#include "deployablefile.h"
+
+#include <projectexplorer/deployablefile.h>
 
 QT_BEGIN_NAMESPACE
 class QFile;
@@ -65,7 +66,7 @@ private:
         const QString &remoteFilePath);
 
     bool m_packagingNeeded;
-    QList<DeployableFile> m_files;
+    QList<ProjectExplorer::DeployableFile> m_files;
 };
 
 } // namespace RemoteLinux

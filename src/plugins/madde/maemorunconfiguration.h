@@ -40,7 +40,8 @@ class MaemoRunConfiguration : public RemoteLinux::RemoteLinuxRunConfiguration
     Q_OBJECT
 
 public:
-    MaemoRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &proFilePath);
+    MaemoRunConfiguration(ProjectExplorer::Target *parent, Core::Id id,
+            const QString &projectFilePath);
     MaemoRunConfiguration(ProjectExplorer::Target *parent, MaemoRunConfiguration *source);
 
     QVariantMap toMap() const;

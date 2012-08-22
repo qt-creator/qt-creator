@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "Qt4ProjectManager" }
     Depends { name: "QtSupport" }
     Depends { name: "QtcSsh" }
 
@@ -28,13 +27,6 @@ QtcPlugin {
         "abstractremotelinuxdeploystep.h",
         "abstractuploadandinstallpackageservice.cpp",
         "abstractuploadandinstallpackageservice.h",
-        "deployablefile.h",
-        "deployablefilesperprofile.cpp",
-        "deployablefilesperprofile.h",
-        "deploymentinfo.cpp",
-        "deploymentinfo.h",
-        "deploymentsettingsassistant.cpp",
-        "deploymentsettingsassistant.h",
         "embeddedlinuxqtversion.cpp",
         "embeddedlinuxqtversion.h",
         "embeddedlinuxqtversionfactory.cpp",
@@ -93,9 +85,6 @@ QtcPlugin {
         "linuxdevicetestdialog.ui",
         "packageuploader.cpp",
         "packageuploader.h",
-        "profilesupdatedialog.cpp",
-        "profilesupdatedialog.h",
-        "profilesupdatedialog.ui",
         "remotelinuxdeployconfigurationwidget.ui",
         "remotelinuxenvironmentreader.cpp",
         "remotelinuxenvironmentreader.h",
@@ -117,6 +106,8 @@ QtcPlugin {
         "remotelinuxcheckforfreediskspacestep.h",
         "remotelinuxcheckforfreediskspacestep.cpp",
         "remotelinuxcheckforfreediskspacestepwidget.ui",
+        "remotelinuxdeploymentdatamodel.h",
+        "remotelinuxdeploymentdatamodel.cpp",
         "images/embeddedtarget.png"
     ]
 

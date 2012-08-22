@@ -33,23 +33,21 @@
 #include "maddeuploadandinstallpackagesteps.h"
 #include "maemoconstants.h"
 #include "maemodeploybymountsteps.h"
-#include "maemodeployconfigurationwidget.h"
 #include "maemoglobal.h"
 #include "maemoinstalltosysrootstep.h"
 #include "maemopackagecreationstep.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/deployablefile.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <remotelinux/deployablefile.h>
-#include <remotelinux/deployablefilesperprofile.h>
-#include <remotelinux/deploymentinfo.h>
 #include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
+#include <remotelinux/remotelinuxdeployconfigurationwidget.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -62,38 +60,26 @@ using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
 
-const char OldDeployConfigId[] = "2.2MaemoDeployConfig";
-const char DEPLOYMENT_ASSISTANT_SETTING[] = "RemoteLinux.DeploymentAssistant";
-
 namespace Madde {
 namespace Internal {
 
 Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
         const Core::Id id, const QString &displayName)
     : RemoteLinuxDeployConfiguration(target, id, displayName)
-{ init(); }
+{
+    init();
+}
 
 Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target *target,
         Qt4MaemoDeployConfiguration *source)
     : RemoteLinuxDeployConfiguration(target, source)
-{ init(); }
-
-QString Qt4MaemoDeployConfiguration::localDesktopFilePath(const DeployableFilesPerProFile *proFileInfo) const
 {
-    QTC_ASSERT(proFileInfo->projectType() == ApplicationTemplate, return QString());
-
-    for (int i = 0; i < proFileInfo->rowCount(); ++i) {
-        const DeployableFile &d = proFileInfo->deployableAt(i);
-        if (QFileInfo(d.localFilePath).fileName().endsWith(QLatin1String(".desktop")))
-            return d.localFilePath;
-    }
-    return QString();
+    init();
 }
-
 
 DeployConfigurationWidget *Qt4MaemoDeployConfiguration::configurationWidget() const
 {
-    return new MaemoDeployConfigurationWidget;
+    return new RemoteLinuxDeployConfigurationWidget;
 }
 
 Qt4MaemoDeployConfiguration::~Qt4MaemoDeployConfiguration() {}
@@ -111,33 +97,6 @@ Core::Id Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId()
 Core::Id Qt4MaemoDeployConfiguration::harmattanId()
 {
     return Core::Id("DeployToHarmattan");
-}
-
-DeploymentSettingsAssistant *Qt4MaemoDeployConfiguration::deploymentSettingsAssistant()
-{
-    return static_cast<DeploymentSettingsAssistant *>(target()->project()->namedSettings(QLatin1String(DEPLOYMENT_ASSISTANT_SETTING)).value<QObject *>());
-}
-
-QString Qt4MaemoDeployConfiguration::qmakeScope() const
-{
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
-
-    if (deviceType == Maemo5OsType)
-        return QLatin1String("maemo5");
-    if (deviceType == HarmattanOsType)
-        return QLatin1String("contains(MEEGO_EDITION,harmattan)");
-    return QString("unix");
-}
-
-QString Qt4MaemoDeployConfiguration::installPrefix() const
-{
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
-
-    if (deviceType == Maemo5OsType)
-        return QLatin1String("/opt");
-    if (deviceType == HarmattanOsType)
-        return QLatin1String("/opt");
-    return QLatin1String("/usr/local");
 }
 
 void Qt4MaemoDeployConfiguration::debianDirChanged(const Utils::FileName &dir)
@@ -245,15 +204,6 @@ void Qt4MaemoDeployConfiguration::addFilesToProject(const QStringList &files)
 
 void Qt4MaemoDeployConfiguration::init()
 {
-    // Make sure we have deploymentInfo, but create it only once:
-    DeploymentSettingsAssistant *assistant
-            = qobject_cast<DeploymentSettingsAssistant *>(target()->project()->namedSettings(QLatin1String(DEPLOYMENT_ASSISTANT_SETTING)).value<QObject *>());
-    if (!assistant) {
-        assistant = new DeploymentSettingsAssistant(deploymentInfo(), static_cast<Qt4ProjectManager::Qt4Project *>(target()->project()));
-        QVariant data = QVariant::fromValue(static_cast<QObject *>(assistant));
-        target()->project()->setNamedSettings(QLatin1String(DEPLOYMENT_ASSISTANT_SETTING), data);
-    }
-
     connect(target()->project(), SIGNAL(fileListChanged()), this, SLOT(setupPackaging()));
 }
 
@@ -321,25 +271,16 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
 bool Qt4MaemoDeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
 {
     Core::Id id = idFromMap(map);
-    return canHandle(parent)
-            && (availableCreationIds(parent).contains(id) || id == OldDeployConfigId)
+    return canHandle(parent) && availableCreationIds(parent).contains(id)
             && MaemoGlobal::supportsMaemoDevice(parent->profile());
 }
 
 DeployConfiguration *Qt4MaemoDeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
-    if (!canRestore(parent, map))
-        return 0;
-    Core::Id id = idFromMap(map);
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
-    if (id == OldDeployConfigId) {
-        if (deviceType == Maemo5OsType)
-            id = Qt4MaemoDeployConfiguration::fremantleWithPackagingId();
-        else if (deviceType == HarmattanOsType)
-            id = Qt4MaemoDeployConfiguration::harmattanId();
-    }
+    QTC_ASSERT(canRestore(parent, map), return 0);
+
     Qt4MaemoDeployConfiguration * const dc
-        = qobject_cast<Qt4MaemoDeployConfiguration *>(create(parent, id));
+        = qobject_cast<Qt4MaemoDeployConfiguration *>(create(parent, idFromMap(map)));
     if (!dc->fromMap(map)) {
         delete dc;
         return 0;

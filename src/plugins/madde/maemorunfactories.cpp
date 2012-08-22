@@ -110,7 +110,8 @@ bool MaemoRunConfigurationFactory::canClone(Target *parent,
         return false;
     const RemoteLinuxRunConfiguration * const rlrc
             = qobject_cast<RemoteLinuxRunConfiguration *>(source);
-    QString idStr = QString::fromLatin1(source->id().name()) + QLatin1Char('.') + rlrc->proFilePath();
+    QString idStr = QString::fromLatin1(source->id().name()) + QLatin1Char('.')
+            + rlrc->projectFilePath();
     return rlrc && canCreate(parent, Core::Id(idStr));
 }
 
@@ -178,7 +179,7 @@ QList<RunConfiguration *> MaemoRunConfigurationFactory::runConfigurationsForNode
     QList<ProjectExplorer::RunConfiguration *> result;
     foreach (ProjectExplorer::RunConfiguration *rc, t->runConfigurations())
         if (MaemoRunConfiguration *mrc = qobject_cast<MaemoRunConfiguration *>(rc))
-            if (mrc->proFilePath() == n->path())
+            if (mrc->projectFilePath() == n->path())
                 result << rc;
     return result;
 }

@@ -230,13 +230,23 @@ void RemoteLinuxRunConfigurationWidget::argumentsEdited(const QString &text)
 
 void RemoteLinuxRunConfigurationWidget::updateTargetInformation()
 {
-    d->localExecutableLabel
-        .setText(QDir::toNativeSeparators(d->runConfiguration->localExecutableFilePath()));
+    setLabelText(d->localExecutableLabel,
+            QDir::toNativeSeparators(d->runConfiguration->localExecutableFilePath()),
+            tr("Unknown"));
 }
 
 void RemoteLinuxRunConfigurationWidget::handleDeploySpecsChanged()
 {
-    d->remoteExecutableLabel.setText(d->runConfiguration->defaultRemoteExecutableFilePath());
+    setLabelText(d->remoteExecutableLabel, d->runConfiguration->defaultRemoteExecutableFilePath(),
+            tr("Remote path not set"));
+}
+
+void RemoteLinuxRunConfigurationWidget::setLabelText(QLabel &label, const QString &regularText,
+        const QString &errorText)
+{
+    const QString errorMessage = QLatin1String("<font color=\"red\">") + errorText
+            + QLatin1String("</font>");
+    label.setText(regularText.isEmpty() ? errorMessage : regularText);
 }
 
 void RemoteLinuxRunConfigurationWidget::handleUseAlternateCommandChanged()

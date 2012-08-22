@@ -30,9 +30,8 @@
 
 #include "abstractremotelinuxdeployservice.h"
 
-#include "deployablefile.h"
-
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/deployablefile.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtprofileinformation.h>
 #include <utils/qtcassert.h>
@@ -160,7 +159,7 @@ bool AbstractRemoteLinuxDeployService::hasChangedSinceLastDeployment(const Deplo
     const QDateTime &lastDeployed = d->lastDeployed.value(DeployParameters(deployableFile,
         deviceConfiguration()->sshParameters().host, systemRoot));
     return !lastDeployed.isValid()
-        || QFileInfo(deployableFile.localFilePath).lastModified() > lastDeployed;
+        || deployableFile.localFilePath().toFileInfo().lastModified() > lastDeployed;
 }
 
 void AbstractRemoteLinuxDeployService::setBuildConfiguration(BuildConfiguration *bc)
@@ -236,8 +235,8 @@ QVariantMap AbstractRemoteLinuxDeployService::exportDeployTimes() const
     QVariantList timeList;
     typedef QHash<DeployParameters, QDateTime>::ConstIterator DepIt;
     for (DepIt it = d->lastDeployed.begin(); it != d->lastDeployed.end(); ++it) {
-        fileList << it.key().file.localFilePath;
-        remotePathList << it.key().file.remoteDir;
+        fileList << it.key().file.localFilePath().toString();
+        remotePathList << it.key().file.remoteDirectory();
         hostList << it.key().host;
         sysrootList << it.key().sysroot;
         timeList << it.value();

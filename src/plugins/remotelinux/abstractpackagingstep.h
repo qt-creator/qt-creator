@@ -35,11 +35,8 @@
 
 namespace RemoteLinux {
 class RemoteLinuxDeployConfiguration;
-class DeploymentInfo;
 
-namespace Internal {
-class AbstractPackagingStepPrivate;
-}
+namespace Internal { class AbstractPackagingStepPrivate; }
 
 class REMOTELINUX_EXPORT AbstractPackagingStep : public ProjectExplorer::BuildStep
 {
@@ -56,7 +53,7 @@ public:
 
 signals:
     void packageFilePathChanged();
-    void unmodifyDeploymentInfo();
+    void unmodifyDeploymentData();
 
 protected:
     void setPackagingStarted();
@@ -71,7 +68,8 @@ protected:
 
 private slots:
     void handleBuildConfigurationChanged();
-    void setDeploymentInfoUnmodified();
+    void setDeploymentDataUnmodified();
+    void setDeploymentDataModified();
 
 private:
     virtual QString packageFileName() const = 0;

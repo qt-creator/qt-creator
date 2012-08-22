@@ -21,9 +21,6 @@ HEADERS += \
     remotelinuxruncontrolfactory.h \
     remotelinuxdebugsupport.h \
     genericlinuxdeviceconfigurationwizardpages.h \
-    deployablefile.h \
-    deployablefilesperprofile.h \
-    deploymentinfo.h \
     abstractremotelinuxdeploystep.h \
     genericdirectuploadstep.h \
     uploadandinstalltarpackagestep.h \
@@ -44,14 +41,13 @@ HEADERS += \
     sshkeydeployer.h \
     typespecificdeviceconfigurationlistmodel.h \
     remotelinuxutils.h \
-    deploymentsettingsassistant.h \
     remotelinuxdeployconfigurationwidget.h \
-    profilesupdatedialog.h \
     remotelinuxcustomcommanddeployservice.h \
     remotelinuxcustomcommanddeploymentstep.h \
     genericlinuxdeviceconfigurationwidget.h \
     remotelinuxcheckforfreediskspaceservice.h \
-    remotelinuxcheckforfreediskspacestep.h
+    remotelinuxcheckforfreediskspacestep.h \
+    remotelinuxdeploymentdatamodel.h
 
 SOURCES += \
     embeddedlinuxqtversion.cpp \
@@ -68,8 +64,6 @@ SOURCES += \
     remotelinuxruncontrolfactory.cpp \
     remotelinuxdebugsupport.cpp \
     genericlinuxdeviceconfigurationwizardpages.cpp \
-    deployablefilesperprofile.cpp \
-    deploymentinfo.cpp \
     abstractremotelinuxdeploystep.cpp \
     genericdirectuploadstep.cpp \
     uploadandinstalltarpackagestep.cpp \
@@ -89,20 +83,18 @@ SOURCES += \
     sshkeydeployer.cpp \
     typespecificdeviceconfigurationlistmodel.cpp \
     remotelinuxutils.cpp \
-    deploymentsettingsassistant.cpp \
     remotelinuxdeployconfigurationwidget.cpp \
-    profilesupdatedialog.cpp \
     remotelinuxcustomcommanddeployservice.cpp \
     remotelinuxcustomcommanddeploymentstep.cpp \
     genericlinuxdeviceconfigurationwidget.cpp \
     remotelinuxcheckforfreediskspaceservice.cpp \
-    remotelinuxcheckforfreediskspacestep.cpp
+    remotelinuxcheckforfreediskspacestep.cpp \
+    remotelinuxdeploymentdatamodel.cpp
 
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \
     linuxdevicetestdialog.ui \
     remotelinuxdeployconfigurationwidget.ui \
-    profilesupdatedialog.ui \
     genericlinuxdeviceconfigurationwidget.ui \
     remotelinuxcheckforfreediskspacestepwidget.ui
 
