@@ -3131,13 +3131,12 @@ void Bind::ensureValidClassName(const Name **name, unsigned sourceLocation)
         return;
 
     const QualifiedNameId *qName = (*name)->asQualifiedNameId();
-    if (qName)
-        *name = qName->name();
+    const Name *uqName = qName ? qName->name() : *name;
 
-    if (!(*name)->isNameId() && !(*name)->isTemplateNameId()) {
+    if (!uqName->isNameId() && !uqName->isTemplateNameId()) {
         translationUnit()->error(sourceLocation, "expected a class-name");
 
-        *name = (*name)->identifier();
+        *name = uqName->identifier();
         if (qName)
             *name = control()->qualifiedNameId(qName->base(), *name);
     }
