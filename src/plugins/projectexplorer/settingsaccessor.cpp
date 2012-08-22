@@ -48,7 +48,6 @@
 #include <utils/persistentsettings.h>
 
 #include <QApplication>
-#include <QDebug>
 #include <QFile>
 #include <QMessageBox>
 
@@ -2327,23 +2326,34 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.AndroidDeviceTarget")) {
                 tmpProfile->setIconPath(QLatin1String(":/android/images/QtAndroid.png"));
                 tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
+                tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("RemoteLinux.EmbeddedLinuxTarget")) {
                 tmpProfile->setIconPath(QLatin1String(":///DESKTOP///"));
                 tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("GenericLinuxOsType"));
+                tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.HarmattanDeviceTarget")) {
                 tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
                 tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("HarmattanOsType"));
+                tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")) {
                 tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
                 tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Maemo5OsType"));
+                tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MeegoDeviceTarget")) {
                 tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
                 tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("MeegoOsType"));
+                tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString());
+            } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
+                tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
+                tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Qt4ProjectManager.SymbianDevice"));
+                tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Symbian Device"));
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.QtSimulatorTarget")) {
                 tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/Simulator.png"));
                 tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
+                tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Desktop Device"));
             } else {
                 tmpProfile->setIconPath(QLatin1String(":///DESKTOP///"));
+                tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
                 tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Desktop Device"));
             }
 
@@ -2429,24 +2439,34 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
 
 Profile *Version11Handler::uniqueProfile(Profile *p)
 {
+    const QString tc = p->value(Core::Id("PE.Profile.ToolChain")).toString();
+    const int qt = p->value(Core::Id("QtSupport.QtInformation")).toInt();
+    const QString debugger = p->value(Core::Id("Debugger.Information")).toString();
+    const QString mkspec = p->value(Core::Id("QtPM4.mkSpecInformation")).toString();
+    const QString deviceType = p->value(Core::Id("PE.Profile.DeviceType")).toString();
+    const QString device = p->value(Core::Id("PE.Profile.Device")).toString();
+    const QString sysroot = p->value(Core::Id("PE.Profile.SysRoot")).toString();
+
     foreach (Profile *i, m_targets.keys()) {
-        const QString tc = i->value(Core::Id("PE.Profile.ToolChain")).toString();
-        const int qt = i->value(Core::Id("QtSupport.QtInformation")).toInt();
-        const QString debugger = i->value(Core::Id("Debugger.Information")).toString();
-        const QString mkspec = i->value(Core::Id("QtPM4.mkSpecInformation")).toString();
-        const QString device = i->value(Core::Id("PE.Profile.Device")).toString();
+        const QString currentTc = i->value(Core::Id("PE.Profile.ToolChain")).toString();
+        const int currentQt = i->value(Core::Id("QtSupport.QtInformation")).toInt();
+        const QString currentDebugger = i->value(Core::Id("Debugger.Information")).toString();
+        const QString currentMkspec = i->value(Core::Id("QtPM4.mkSpecInformation")).toString();
+        const QString currentDeviceType = i->value(Core::Id("PE.Profile.DeviceType")).toString();
+        const QString currentDevice = i->value(Core::Id("PE.Profile.Device")).toString();
+        const QString currentSysroot = i->value(Core::Id("PE.Profile.SysRoot")).toString();
 
-        if ((i->value(Core::Id("PE.Profile.DeviceType")).toString() == p->value(Core::Id("PE.Profile.DeviceType")).toString())
-                && (tc.isEmpty() || (tc == p->value(Core::Id("PE.Profile.ToolChain")).toString()))
-                && (qt == p->value(Core::Id("QtSupport.QtInformation")).toInt())
-                && (debugger.isEmpty() || (debugger == p->value(Core::Id("Debugger.Information")).toString()))
-                && (mkspec.isEmpty() || (mkspec == p->value(Core::Id("QtPM4.mkSpecInformation")).toString()))
-                && (i->value(Core::Id("PE.Profile.SysRoot")).toString() == p->value(Core::Id("PE.Profile.SysRoot")).toString())
-                && (device == p->value(Core::Id("PE.Profile.Device")))) {
+        bool deviceTypeOk = deviceType == currentDeviceType;
+        bool deviceOk = device.isEmpty() || currentDevice == device;
+        bool tcOk = tc.isEmpty() || currentTc.isEmpty() || currentTc == tc;
+        bool qtOk = qt == -1 || currentQt == qt;
+        bool debuggerOk = debugger.isEmpty() || currentDebugger.isEmpty() || currentDebugger == debugger;
+        bool mkspecOk = mkspec.isEmpty() || currentMkspec.isEmpty() || currentMkspec == mkspec;
+        bool sysrootOk = sysroot.isEmpty() || currentSysroot == sysroot;
+
+        if (deviceTypeOk && deviceOk && tcOk && qtOk && debuggerOk && mkspecOk && sysrootOk)
             return i;
-        }
     }
-
     return p->clone(true);
 }
 
