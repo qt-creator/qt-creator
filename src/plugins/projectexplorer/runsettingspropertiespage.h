@@ -91,6 +91,8 @@ private slots:
     void activeDeployConfigurationChanged();
     void renameDeployConfiguration();
 
+    void updateRemoveToolButton();
+
 private:
     QString uniqueDCName(const QString &name);
     QString uniqueRCName(const QString &name);

@@ -251,6 +251,16 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     connect(m_renameRunButton, SIGNAL(clicked()),
             this, SLOT(renameRunConfiguration()));
 
+    connect(m_target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(updateRemoveToolButton()));
+    connect(m_target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(updateRemoveToolButton()));
+
+    connect(m_target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
+            this, SLOT(updateRemoveToolButton()));
+    connect(m_target, SIGNAL(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
+            this, SLOT(updateRemoveToolButton()));
+
     connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(activeRunConfigurationChanged()));
 }
@@ -455,6 +465,12 @@ void RunSettingsWidget::renameDeployConfiguration()
     if (name.isEmpty())
         return;
     m_target->activeDeployConfiguration()->setDisplayName(name);
+}
+
+void RunSettingsWidget::updateRemoveToolButton()
+{
+    m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().count() > 1);
+    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
 }
 
 void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
