@@ -38,8 +38,9 @@
 #include <QDateTime>
 
 #include <utils/environment.h>
-#include <utils/synchronousprocess.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
+#include <utils/synchronousprocess.h>
 
 #include <QDesktopServices>
 #include <QDebug>
@@ -121,14 +122,13 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool
 QStringList BuildableHelperLibrary::possibleQMakeCommands()
 {
     // On windows no one has renamed qmake, right?
-#ifdef Q_OS_WIN
-    return QStringList(QLatin1String("qmake.exe"));
-#else
+    if (HostOsInfo::isWindowsHost())
+        return QStringList(QLatin1String("qmake.exe"));
+
     // On unix some distributions renamed qmake to avoid clashes
     QStringList result;
     result << QLatin1String("qmake-qt4") << QLatin1String("qmake4") << QLatin1String("qmake");
     return result;
-#endif
 }
 
 // Copy helper source files to a target directory, replacing older files.

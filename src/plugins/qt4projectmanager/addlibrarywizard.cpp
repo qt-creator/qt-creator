@@ -32,6 +32,8 @@
 #include "ui_librarydetailswidget.h"
 #include "librarydetailscontroller.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QVBoxLayout>
 #include <QRadioButton>
 #include <QLabel>
@@ -176,10 +178,10 @@ LibraryTypePage::LibraryTypePage(AddLibraryWizard *parent)
     packageLabel->setAttribute(Qt::WA_MacSmallSize, true);
     layout->addWidget(packageLabel);
 
-#ifdef Q_OS_WIN
-    m_packageRadio->setVisible(false);
-    packageLabel->setVisible(false);
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        m_packageRadio->setVisible(false);
+        packageLabel->setVisible(false);
+    }
 
     // select the default
     m_internalRadio->setChecked(true);

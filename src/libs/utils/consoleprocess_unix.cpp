@@ -33,6 +33,8 @@
 #include "environment.h"
 #include "qtcprocess.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QSettings>
@@ -134,12 +136,14 @@ bool ConsoleProcess::start(const QString &program, const QString &args)
         }
     }
 
+    if (Utils::HostOsInfo::isMacHost()) {
+        xtermArgs << (QCoreApplication::applicationDirPath()
+                      + QLatin1String("/../Resources/qtcreator_process_stub"));
+    } else {
+        xtermArgs << (QCoreApplication::applicationDirPath()
+                      + QLatin1String("/qtcreator_process_stub"));
+    }
     xtermArgs
-#ifdef Q_OS_MAC
-              << (QCoreApplication::applicationDirPath() + QLatin1String("/../Resources/qtcreator_process_stub"))
-#else
-              << (QCoreApplication::applicationDirPath() + QLatin1String("/qtcreator_process_stub"))
-#endif
               << modeOption(d->m_mode)
               << d->m_stubServer.fullServerName()
               << msgPromptToClose()
@@ -279,11 +283,9 @@ void ConsoleProcess::stubExited()
 
 QString ConsoleProcess::defaultTerminalEmulator()
 {
-#ifdef Q_OS_MAC
-    return QLatin1String("/usr/X11/bin/xterm");
-#else
+    if (Utils::HostOsInfo::isMacHost())
+        return QLatin1String("/usr/X11/bin/xterm");
     return QLatin1String("xterm");
-#endif
 }
 
 QString ConsoleProcess::terminalEmulator(const QSettings *settings)

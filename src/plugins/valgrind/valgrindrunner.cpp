@@ -33,9 +33,10 @@
 #include "valgrindrunner.h"
 #include "valgrindprocess.h"
 
+#include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <utils/environment.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocess.h>
 
@@ -93,10 +94,9 @@ void ValgrindRunner::Private::run(ValgrindProcess *_process)
     QStringList valgrindArgs = valgrindArguments;
     valgrindArgs << QString("--tool=%1").arg(q->tool());
 
-#ifdef Q_OS_MAC
-    // May be slower to start but without it we get no filenames for symbols.
-    valgrindArgs << QLatin1String("--dsymutil=yes");
-#endif
+    if (Utils::HostOsInfo::isMacHost())
+        // May be slower to start but without it we get no filenames for symbols.
+        valgrindArgs << QLatin1String("--dsymutil=yes");
 
     QObject::connect(process, SIGNAL(processOutput(QByteArray,Utils::OutputFormat)),
             q, SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)));

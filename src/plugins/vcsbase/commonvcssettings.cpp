@@ -30,6 +30,8 @@
 
 #include "commonvcssettings.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QSettings>
 #include <QDebug>
 
@@ -52,11 +54,9 @@ static inline QString sshPasswordPromptDefault()
     const QByteArray envSetting = qgetenv("SSH_ASKPASS");
     if (!envSetting.isEmpty())
         return QString::fromLocal8Bit(envSetting);
-#ifdef Q_OS_WIN
-    return QLatin1String("win-ssh-askpass");
-#else
+    if (Utils::HostOsInfo::isWindowsHost())
+        return QLatin1String("win-ssh-askpass");
     return QLatin1String("ssh-askpass");
-#endif
 }
 
 namespace VcsBase {

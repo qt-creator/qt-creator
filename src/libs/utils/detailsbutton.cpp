@@ -30,6 +30,7 @@
 
 #include "detailsbutton.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 
 #include <QPropertyAnimation>
@@ -83,11 +84,9 @@ QSize DetailsButton::sizeHint() const
 {
     // TODO: Adjust this when icons become available!
     const int w = fontMetrics().width(text()) + 32;
-#ifdef Q_OS_MAC
-    return QSize(w, 34);
-#else
+    if (HostOsInfo::isMacHost())
+        return QSize(w, 34);
     return QSize(w, 22);
-#endif
 }
 
 bool DetailsButton::event(QEvent *e)
@@ -120,11 +119,10 @@ void DetailsButton::paintEvent(QPaintEvent *e)
     QWidget::paintEvent(e);
 
     QPainter p(this);
-#ifndef Q_OS_MAC
+
     // draw hover animation
-    if (!isDown() && m_fader > 0)
+    if (!HostOsInfo::isMacHost() && !isDown() && m_fader > 0)
         p.fillRect(rect().adjusted(1, 1, -2, -2), QColor(255, 255, 255, int(m_fader*180)));
-#endif
 
     if (isChecked()) {
         if (m_checkedPixmap.isNull() || m_checkedPixmap.size() != contentsRect().size())

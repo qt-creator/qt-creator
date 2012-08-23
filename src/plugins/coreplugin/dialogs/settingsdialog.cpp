@@ -33,6 +33,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include "icore.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/filterlineedit.h>
 
 #include <QSettings>
@@ -295,11 +296,10 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 
     createGui();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-#ifdef Q_OS_MAC
-    setWindowTitle(tr("Preferences"));
-#else
-    setWindowTitle(tr("Options"));
-#endif
+    if (Utils::HostOsInfo::isMacHost())
+        setWindowTitle(tr("Preferences"));
+    else
+        setWindowTitle(tr("Options"));
 
     m_model->setPages(m_pages,
         ExtensionSystem::PluginManager::getObjects<IOptionsPageProvider>());

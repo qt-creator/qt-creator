@@ -39,6 +39,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
+#include <utils/hostosinfo.h>
 
 #include <QSignalMapper>
 
@@ -54,6 +55,7 @@
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
+using namespace Utils;
 
 ToolWidget::ToolWidget(QWidget *parent)
     : Utils::FadingPanel(parent), m_buildStepEnabled(true)
@@ -68,11 +70,7 @@ ToolWidget::ToolWidget(QWidget *parent)
     hbox->setContentsMargins(0, 0, 0, 0);
     hbox->setSpacing(0);
     m_firstWidget->setLayout(hbox);
-#ifdef Q_OS_MAC
-    QSize buttonSize(20, 20);
-#else
-    QSize buttonSize(20, 26);
-#endif
+    QSize buttonSize(20, HostOsInfo::isMacHost() ? 20 : 26);
 
     m_disableButton = new QToolButton(m_firstWidget);
     m_disableButton->setAutoRaise(true);
@@ -139,17 +137,15 @@ void ToolWidget::setBuildStepEnabled(bool b)
 {
     m_buildStepEnabled = b;
     if (m_buildStepEnabled) {
-#ifdef Q_OS_MAC
-        m_firstWidget->setOpacity(m_targetOpacity);
-#else
-        m_firstWidget->fadeTo(m_targetOpacity);
-#endif
+        if (HostOsInfo::isMacHost())
+            m_firstWidget->setOpacity(m_targetOpacity);
+        else
+            m_firstWidget->fadeTo(m_targetOpacity);
     } else {
-#ifdef Q_OS_MAC
-        m_firstWidget->setOpacity(1.0);
-#else
-        m_firstWidget->fadeTo(1.0);
-#endif
+        if (HostOsInfo::isMacHost())
+            m_firstWidget->setOpacity(1.0);
+        else
+            m_firstWidget->fadeTo(1.0);
     }
     m_disableButton->setChecked(!b);
 }
@@ -462,9 +458,8 @@ void BuildStepListWidget::setupUi()
 
     hboxLayout->addStretch(10);
 
-#ifdef Q_OS_MAC
-    m_addButton->setAttribute(Qt::WA_MacSmallSize);
-#endif
+    if (HostOsInfo::isMacHost())
+        m_addButton->setAttribute(Qt::WA_MacSmallSize);
 
     m_vbox->addLayout(hboxLayout);
 

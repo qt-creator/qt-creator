@@ -34,6 +34,8 @@
 #include "icontext.h"
 #include "id.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QDebug>
 #include <QTextStream>
 
@@ -438,9 +440,8 @@ static QString msgActionWarning(QAction *newAction, int k, QAction *oldAction)
 
 void Action::addOverrideAction(QAction *action, const Core::Context &context, bool scriptable)
 {
-#ifdef Q_OS_MAC
-    action->setIconVisibleInMenu(false);
-#endif
+    if (Utils::HostOsInfo::isMacHost())
+        action->setIconVisibleInMenu(false);
     if (isEmpty())
         m_action->initialize(action);
     if (context.isEmpty()) {

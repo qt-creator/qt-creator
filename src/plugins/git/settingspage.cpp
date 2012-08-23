@@ -34,6 +34,7 @@
 #include "gitclient.h"
 
 #include <vcsbase/vcsbaseconstants.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
 #include <QCoreApplication>
@@ -51,19 +52,19 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-#ifdef Q_OS_WIN
-    const QByteArray currentHome = qgetenv("HOME");
-    const QString toolTip
-            = tr("Set the environment variable HOME to '%1'\n(%2).\n"
-                 "This causes msysgit to look for the SSH-keys in that location\n"
-                 "instead of its installation directory when run outside git bash.").
-              arg(QDir::homePath(),
-                  currentHome.isEmpty() ? tr("not currently set") :
-                                        tr("currently set to '%1'").arg(QString::fromLocal8Bit(currentHome)));
-    m_ui.winHomeCheckBox->setToolTip(toolTip);
-#else
-    m_ui.winHomeCheckBox->setVisible(false);
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        const QByteArray currentHome = qgetenv("HOME");
+        const QString toolTip
+                = tr("Set the environment variable HOME to '%1'\n(%2).\n"
+                     "This causes msysgit to look for the SSH-keys in that location\n"
+                     "instead of its installation directory when run outside git bash.").
+                arg(QDir::homePath(),
+                    currentHome.isEmpty() ? tr("not currently set") :
+                            tr("currently set to '%1'").arg(QString::fromLocal8Bit(currentHome)));
+        m_ui.winHomeCheckBox->setToolTip(toolTip);
+    } else {
+        m_ui.winHomeCheckBox->setVisible(false);
+    }
     m_ui.repBrowserCommandPathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui.repBrowserCommandPathChooser->setPromptDialogTitle(tr("Git Repository Browser Command"));
 }

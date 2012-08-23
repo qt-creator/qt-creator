@@ -51,6 +51,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/session.h>
 #include <qtsupport/baseqtversion.h>
+#include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QFile>
@@ -465,9 +466,9 @@ static bool findNewQmlLibraryInPath(const QString &path,
         return false;
     }
 
-#ifdef Q_OS_WIN
-    // QTCREATORBUG-3402 - be case sensitive even here?
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // QTCREATORBUG-3402 - be case sensitive even here?
+    }
 
     // found a new library!
     qmldirFile.open(QFile::ReadOnly);
@@ -654,11 +655,7 @@ static QStringList environmentImportPaths()
 
     QByteArray envImportPath = qgetenv("QML_IMPORT_PATH");
 
-#if defined(Q_OS_WIN)
-    QLatin1Char pathSep(';');
-#else
-    QLatin1Char pathSep(':');
-#endif
+    const QChar pathSep = Utils::HostOsInfo::isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
     foreach (const QString &path, QString::fromLatin1(envImportPath).split(pathSep, QString::SkipEmptyParts)) {
         QString canonicalPath = QDir(path).canonicalPath();
         if (!canonicalPath.isEmpty() && !paths.contains(canonicalPath))

@@ -59,6 +59,7 @@
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 #include <vcsbase/basevcseditorfactory.h>
@@ -681,11 +682,10 @@ bool ClearCasePlugin::vcsUndoHijack(const QString &workingDir, const QString &fi
     QStringList args(QLatin1String("update"));
     args << QLatin1String(keep ? "-rename" : "-overwrite");
     args << QLatin1String("-log");
-#ifdef Q_OS_WIN32
-    args << QLatin1String("NUL");
-#else
+    if (Utils::HostOsInfo::isWindowsHost())
+        args << QLatin1String("NUL");
+    else
     args << QLatin1String("/dev/null");
-#endif
     args << QDir::toNativeSeparators(fileName);
 
     const ClearCaseResponse response =

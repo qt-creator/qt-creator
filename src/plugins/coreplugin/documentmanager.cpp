@@ -42,6 +42,7 @@
 #include "vcsmanager.h"
 #include "coreconstants.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
 #include <utils/reloadpromptutils.h>
@@ -178,17 +179,17 @@ QFileSystemWatcher *DocumentManagerPrivate::fileWatcher()
 
 QFileSystemWatcher *DocumentManagerPrivate::linkWatcher()
 {
-#ifdef Q_OS_UNIX
-    if (!m_linkWatcher) {
-        m_linkWatcher = new QFileSystemWatcher(m_instance);
-        m_linkWatcher->setObjectName(QLatin1String("_qt_autotest_force_engine_poller"));
-        QObject::connect(m_linkWatcher, SIGNAL(fileChanged(QString)),
-                         m_instance, SLOT(changedFile(QString)));
+    if (Utils::HostOsInfo::isAnyUnixHost()) {
+        if (!m_linkWatcher) {
+            m_linkWatcher = new QFileSystemWatcher(m_instance);
+            m_linkWatcher->setObjectName(QLatin1String("_qt_autotest_force_engine_poller"));
+            QObject::connect(m_linkWatcher, SIGNAL(fileChanged(QString)),
+                             m_instance, SLOT(changedFile(QString)));
+        }
+        return m_linkWatcher;
     }
-    return m_linkWatcher;
-#else
+
     return fileWatcher();
-#endif
 }
 
 DocumentManagerPrivate::DocumentManagerPrivate(QMainWindow *mw) :
@@ -197,11 +198,7 @@ DocumentManagerPrivate::DocumentManagerPrivate(QMainWindow *mw) :
     m_linkWatcher(0),
     m_blockActivated(false),
     m_lastVisitedDirectory(QDir::currentPath()),
-#ifdef Q_OS_MAC  // Creator is in bizarre places when launched via finder.
-    m_useProjectsDirectory(true),
-#else
-    m_useProjectsDirectory(false),
-#endif
+    m_useProjectsDirectory(Utils::HostOsInfo::isMacHost()), // Creator is in bizarre places when launched via finder.
     m_blockedIDocument(0)
 {
 }
@@ -489,9 +486,8 @@ QString DocumentManager::fixFileName(const QString &fileName, FixMode fixmode)
         s = QDir::cleanPath(s);
     }
     s = QDir::toNativeSeparators(s);
-#ifdef Q_OS_WIN
-    s = s.toLower();
-#endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        s = s.toLower();
     return s;
 }
 

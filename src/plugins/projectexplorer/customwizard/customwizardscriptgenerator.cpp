@@ -32,6 +32,7 @@
 #include "customwizard.h"
 #include "customwizardparameters.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QProcess>
@@ -66,15 +67,16 @@ QStringList fixGeneratorScript(const QString &configFile, QString binary)
         }
     } // not absolute
     QStringList rc(binary);
-#ifdef Q_OS_WIN // Windows: Cannot run scripts by QProcess, do 'cmd /c'
-    const QString extension = binaryInfo.suffix();
-    if (!extension.isEmpty() && extension.compare(QLatin1String("exe"), Qt::CaseInsensitive) != 0) {
-        rc.push_front(QLatin1String("/C"));
-        rc.push_front(QString::fromLocal8Bit(qgetenv("COMSPEC")));
-        if (rc.front().isEmpty())
-            rc.front() = QLatin1String("cmd.exe");
+    if (Utils::HostOsInfo::isWindowsHost()) { // Windows: Cannot run scripts by QProcess, do 'cmd /c'
+        const QString extension = binaryInfo.suffix();
+        if (!extension.isEmpty() && extension.compare(QLatin1String("exe"),
+                                                      Qt::CaseInsensitive) != 0) {
+            rc.push_front(QLatin1String("/C"));
+            rc.push_front(QString::fromLocal8Bit(qgetenv("COMSPEC")));
+            if (rc.front().isEmpty())
+                rc.front() = QLatin1String("cmd.exe");
+        }
     }
-#endif
     return rc;
 }
 

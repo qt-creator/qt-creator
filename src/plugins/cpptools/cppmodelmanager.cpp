@@ -62,6 +62,7 @@
 #  include <QDir>
 #endif
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <TranslationUnit.h>
@@ -235,23 +236,23 @@ void CppPreprocessor::setIncludePaths(const QStringList &includePaths)
     for (int i = 0; i < includePaths.size(); ++i) {
         const QString &path = includePaths.at(i);
 
-#ifdef Q_OS_DARWIN
-        if (i + 1 < includePaths.size() && path.endsWith(QLatin1String(".framework/Headers"))) {
-            const QFileInfo pathInfo(path);
-            const QFileInfo frameworkFileInfo(pathInfo.path());
-            const QString frameworkName = frameworkFileInfo.baseName();
+        if (Utils::HostOsInfo::isMacHost()) {
+            if (i + 1 < includePaths.size() && path.endsWith(QLatin1String(".framework/Headers"))) {
+                const QFileInfo pathInfo(path);
+                const QFileInfo frameworkFileInfo(pathInfo.path());
+                const QString frameworkName = frameworkFileInfo.baseName();
 
-            const QFileInfo nextIncludePath = includePaths.at(i + 1);
-            if (nextIncludePath.fileName() == frameworkName) {
-                // We got a QtXXX.framework/Headers followed by $QTDIR/include/QtXXX.
-                // In this case we prefer to include files from $QTDIR/include/QtXXX.
-                continue;
+                const QFileInfo nextIncludePath = includePaths.at(i + 1);
+                if (nextIncludePath.fileName() == frameworkName) {
+                    // We got a QtXXX.framework/Headers followed by $QTDIR/include/QtXXX.
+                    // In this case we prefer to include files from $QTDIR/include/QtXXX.
+                    continue;
+                }
             }
+            m_includePaths.append(path);
+        } else {
+            m_includePaths.append(path);
         }
-        m_includePaths.append(path);
-#else
-        m_includePaths.append(path);
-#endif
     }
 }
 

@@ -31,6 +31,7 @@
 #include "externaltoolconfig.h"
 #include "ui_externaltoolconfig.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <coreplugin/coreconstants.h>
@@ -351,13 +352,13 @@ QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
     tool->setDescription(tr("This tool prints a line of useful text"));
     //: Sample external tool text
     const QString text = tr("Useful text");
-#ifdef Q_OS_WIN
-    tool->setExecutables(QStringList(QLatin1String("cmd")));
-    tool->setArguments(QLatin1String("/c echo ") + text);
-#else
-    tool->setExecutables(QStringList(QLatin1String("echo")));
-    tool->setArguments(text);
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        tool->setExecutables(QStringList(QLatin1String("cmd")));
+        tool->setArguments(QLatin1String("/c echo ") + text);
+    } else {
+        tool->setExecutables(QStringList(QLatin1String("echo")));
+        tool->setArguments(text);
+    }
 
     int pos;
     QModelIndex parent;

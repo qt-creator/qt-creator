@@ -33,6 +33,7 @@
 #include "clearcasesettings.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QSettings>
 
@@ -58,9 +59,8 @@ enum { defaultTimeOutS = 30, defaultHistoryCount = 50 };
 static QString defaultCommand()
 {
     QString rc(QLatin1String("cleartool"));
-#if defined(Q_OS_WIN32)
-    rc.append(QLatin1String(".exe"));
-#endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        rc.append(QLatin1String(".exe"));
     return rc;
 }
 

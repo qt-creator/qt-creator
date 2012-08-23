@@ -31,6 +31,7 @@
 #include "pasteselectdialog.h"
 #include "protocol.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -56,9 +57,8 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols,
     connect(m_refreshButton, SIGNAL(clicked()), this, SLOT(list()));
 
     m_ui.listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-#ifndef Q_OS_MACX
-    m_ui.listWidget->setFrameStyle(QFrame::NoFrame);
-#endif // Q_OS_MACX
+    if (!Utils::HostOsInfo::isMacHost())
+        m_ui.listWidget->setFrameStyle(QFrame::NoFrame);
     // Proportional formatting of columns for CodePaster
     QFont listFont = m_ui.listWidget->font();
     listFont.setFamily(QLatin1String("Courier"));

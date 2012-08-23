@@ -44,6 +44,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
@@ -152,10 +153,10 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_forwardButton= new QToolButton(this);
     d->m_forwardButton->setDefaultAction(d->m_goForwardAction);
 
-#ifdef Q_OS_MAC
-    d->m_horizontalSplitAction->setIconVisibleInMenu(false);
-    d->m_verticalSplitAction->setIconVisibleInMenu(false);
-#endif
+    if (Utils::HostOsInfo::isMacHost()) {
+        d->m_horizontalSplitAction->setIconVisibleInMenu(false);
+        d->m_verticalSplitAction->setIconVisibleInMenu(false);
+    }
 
     d->m_splitButton->setIcon(QIcon(QLatin1String(Constants::ICON_SPLIT_HORIZONTAL)));
     d->m_splitButton->setToolTip(tr("Split"));

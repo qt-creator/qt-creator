@@ -61,6 +61,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/consoleprocess.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
@@ -1700,9 +1701,8 @@ void EditorManager::updateActions()
             fName = curEditor->displayName();
         }
 
-#ifdef Q_OS_MAC
-        window()->setWindowModified(curEditor->document()->isModified());
-#endif
+        if (HostOsInfo::isMacHost())
+            window()->setWindowModified(curEditor->document()->isModified());
         bool ww = curEditor->document()->isModified() && curEditor->document()->isFileReadOnly();
         if (ww != curEditor->document()->hasWriteWarning()) {
             curEditor->document()->setWriteWarning(ww);
@@ -1739,10 +1739,8 @@ void EditorManager::updateActions()
                 curEditor->document()->infoBar()->removeInfo(QLatin1String("Core.EditorManager.MakeWritable"));
             }
         }
-#ifdef Q_OS_MAC
-    } else { // curEditor
+    } else /* curEditor */ if (HostOsInfo::isMacHost()) {
         window()->setWindowModified(false);
-#endif
     }
 
     setCloseSplitEnabled(d->m_splitter, d->m_splitter->isSplitter());

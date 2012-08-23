@@ -175,7 +175,7 @@ public:
     using QString::isNull;
     using QString::clear;
 private:
-    static Qt::CaseSensitivity cs;
+    static const Qt::CaseSensitivity cs;
     FileName(const QString &string);
 };
 

@@ -30,6 +30,8 @@
 
 #include "stylehelper.h"
 
+#include "hostosinfo.h"
+
 #include <QPixmapCache>
 #include <QWidget>
 #include <QRect>
@@ -69,11 +71,7 @@ QColor StyleHelper::mergedColors(const QColor &colorA, const QColor &colorB, int
 
 qreal StyleHelper::sidebarFontSize()
 {
-#if defined(Q_OS_MAC)
-    return 10;
-#else
-    return 7.5;
-#endif
+    return HostOsInfo::isMacHost() ? 10 : 7.5;
 }
 
 QPalette StyleHelper::sidebarFontPalette(const QPalette &original)

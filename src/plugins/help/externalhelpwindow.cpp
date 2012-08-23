@@ -36,6 +36,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <utils/hostosinfo.h>
 
 #include <QAction>
 #include <QHBoxLayout>
@@ -143,17 +144,17 @@ ExternalHelpWindow::ExternalHelpWindow(QWidget *parent)
         tr("Show Sidebar"), this);
     connect(action, SIGNAL(triggered()), this, SIGNAL(showHideSidebar()));
 
-#ifdef Q_OS_MAC
-    reset->setShortcut(QKeySequence(Qt::ALT + Qt::Key_0));
-    action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
-    ctrlTab->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Tab));
-    ctrlShiftTab->setShortcut(QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_Tab));
-#else
-    reset->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
-    action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_0));
-    ctrlTab->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Tab));
-    ctrlShiftTab->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Tab));
-#endif
+    if (Utils::HostOsInfo::isMacHost()) {
+        reset->setShortcut(QKeySequence(Qt::ALT + Qt::Key_0));
+        action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
+        ctrlTab->setShortcut(QKeySequence(Qt::ALT + Qt::Key_Tab));
+        ctrlShiftTab->setShortcut(QKeySequence(Qt::ALT + Qt::SHIFT + Qt::Key_Tab));
+    } else {
+        reset->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_0));
+        action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_0));
+        ctrlTab->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Tab));
+        ctrlShiftTab->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Tab));
+    }
 
     QToolButton *button = new QToolButton;
     button->setDefaultAction(action);

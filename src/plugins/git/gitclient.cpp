@@ -52,6 +52,7 @@
 #include <coreplugin/variablemanager.h>
 
 #include <texteditor/itexteditor.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
@@ -1441,7 +1442,6 @@ VcsBase::Command *GitClient::executeGit(const QString &workingDirectory,
 
 QProcessEnvironment GitClient::processEnvironment() const
 {
-
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
     QString gitPath = settings()->stringValue(GitSettings::pathKey);
     if (!gitPath.isEmpty()) {
@@ -1449,10 +1449,10 @@ QProcessEnvironment GitClient::processEnvironment() const
         gitPath += environment.value(QLatin1String("PATH"));
         environment.insert(QLatin1String("PATH"), gitPath);
     }
-#ifdef Q_OS_WIN
-    if (settings()->boolValue(GitSettings::winSetHomeEnvironmentKey))
+    if (Utils::HostOsInfo::isWindowsHost()
+            && settings()->boolValue(GitSettings::winSetHomeEnvironmentKey)) {
         environment.insert(QLatin1String("HOME"), QDir::toNativeSeparators(QDir::homePath()));
-#endif // Q_OS_WIN
+    }
     // Set up SSH and C locale (required by git using perl).
     VcsBase::VcsBasePlugin::setProcessEnvironment(&environment, false);
     return environment;
@@ -1659,15 +1659,16 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
                                 const QString &gitBinDirectory,
                                 bool silent)
 {
-#ifdef Q_OS_WIN
-    // Launch 'wish' shell from git binary directory with the gitk located there
-    const QString binary = gitBinDirectory + QLatin1String("/wish");
-    QStringList arguments(gitBinDirectory + QLatin1String("/gitk"));
-#else
-    // Simple: Run gitk from binary path
-    const QString binary = gitBinDirectory + QLatin1String("/gitk");
+    QString binary;
     QStringList arguments;
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // Launch 'wish' shell from git binary directory with the gitk located there
+        binary = gitBinDirectory + QLatin1String("/wish");
+        arguments << (gitBinDirectory + QLatin1String("/gitk"));
+    } else {
+        // Simple: Run gitk from binary path
+        binary = gitBinDirectory + QLatin1String("/gitk");
+    }
     VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
     const QString gitkOpts = settings()->stringValue(GitSettings::gitkOptionsKey);
     if (!gitkOpts.isEmpty())

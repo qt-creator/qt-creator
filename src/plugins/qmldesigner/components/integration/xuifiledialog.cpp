@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#include <utils/hostosinfo.h>
+
 #include <QDebug>
 #include <QDir>
 #include <QObject>
@@ -57,21 +59,21 @@ void XUIFileDialog::runSaveFileDialog(const QString& path, QWidget* parent, QObj
     if (dir.isNull())
         dir = XUIFileDialog::defaultFolder();
 
-#ifdef Q_OS_MAC
-    QFileDialog *dialog = new QFileDialog(parent, Qt::Sheet);
-    dialog->setFileMode(QFileDialog::AnyFile);
-    dialog->setAcceptMode(QFileDialog::AcceptSave);
-    dialog->setNameFilters(XUIFileDialog::fileNameFilters());
-    dialog->setDirectory(dir);
-    dialog->open(receiver, member);
-#else // !Q_OS_MAC
-    QString caption = QCoreApplication::translate("QmlDesigner::XUIFileDialog", "Save File");
-    QString fileName = QFileDialog::getSaveFileName(parent, caption, dir, XUIFileDialog::fileNameFilters().join(";;"));
+    if (Utils::HostOsInfo::isMacHost()) {
+        QFileDialog *dialog = new QFileDialog(parent, Qt::Sheet);
+        dialog->setFileMode(QFileDialog::AnyFile);
+        dialog->setAcceptMode(QFileDialog::AcceptSave);
+        dialog->setNameFilters(XUIFileDialog::fileNameFilters());
+        dialog->setDirectory(dir);
+        dialog->open(receiver, member);
+    } else {
+        QString caption = QCoreApplication::translate("QmlDesigner::XUIFileDialog", "Save File");
+        QString fileName = QFileDialog::getSaveFileName(parent, caption, dir, XUIFileDialog::fileNameFilters().join(";;"));
 
-    QmlDesigner::Internal::SignalEmitter emitter;
-    QObject::connect(&emitter, SIGNAL(fileNameSelected(QString)), receiver, member);
-    emitter.emitFileNameSelected(fileName);
-#endif // Q_OS_MAC
+        QmlDesigner::Internal::SignalEmitter emitter;
+        QObject::connect(&emitter, SIGNAL(fileNameSelected(QString)), receiver, member);
+        emitter.emitFileNameSelected(fileName);
+    }
 }
 
 QStringList XUIFileDialog::fileNameFilters()

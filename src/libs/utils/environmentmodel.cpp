@@ -31,6 +31,7 @@
 #include "environmentmodel.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QFont>
 
@@ -202,11 +203,8 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
 
     if (index.column() == 0) {
         //fail if a variable with the same name already exists
-#if defined(Q_OS_WIN)
-        const QString &newName = value.toString().toUpper();
-#else
-        const QString &newName = value.toString();
-#endif
+        const QString &newName = HostOsInfo::isWindowsHost()
+                ? value.toString().toUpper() : value.toString();
         // Does the new name exist already?
         if (d->m_resultEnvironment.hasKey(newName) || newName.isEmpty())
             return false;

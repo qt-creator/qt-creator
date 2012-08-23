@@ -37,6 +37,8 @@
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QDebug>
 #include <QFileInfo>
 #include <QString>
@@ -529,10 +531,8 @@ void HelpViewer::wheelEvent(QWheelEvent *event)
 
 void HelpViewer::mousePressEvent(QMouseEvent *event)
 {
-#ifdef Q_OS_LINUX
-    if (handleForwardBackwardMouseButtons(event))
+    if (Utils::HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(event))
         return;
-#endif
 
     if (HelpPage *currentPage = static_cast<HelpPage*> (page())) {
         currentPage->m_pressedButtons = event->buttons();
@@ -544,10 +544,8 @@ void HelpViewer::mousePressEvent(QMouseEvent *event)
 
 void HelpViewer::mouseReleaseEvent(QMouseEvent *event)
 {
-#ifndef Q_OS_LINUX
-    if (handleForwardBackwardMouseButtons(event))
+    if (!Utils::HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(event))
         return;
-#endif
 
     QWebView::mouseReleaseEvent(event);
 }

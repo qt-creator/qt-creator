@@ -44,6 +44,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 #include <utils/flowlayout.h>
 
@@ -285,14 +286,12 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
         }
     }
 
+    const Qt::KeyboardModifier modifier = Utils::HostOsInfo::isMacHost()
+            ? Qt::ControlModifier : Qt::MetaModifier;
     if ((obj == m_ui.findEdit || obj == m_findCompleter->popup())
                && event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-#ifdef Q_OS_MAC
-        if (ke->key() == Qt::Key_Space && (ke->modifiers() & Qt::MetaModifier)) {
-#else
-        if (ke->key() == Qt::Key_Space && (ke->modifiers() & Qt::ControlModifier)) {
-#endif
+        if (ke->key() == Qt::Key_Space && (ke->modifiers() & modifier)) {
             QString completedText = m_currentDocumentFind->completedFindString();
             if (!completedText.isEmpty()) {
                 setFindText(completedText);
@@ -309,11 +308,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
                 event->accept();
                 return true;
             }
-#ifdef Q_OS_MAC
-        } else if (ke->key() == Qt::Key_Space && (ke->modifiers() & Qt::MetaModifier)) {
-#else
-        } else if (ke->key() == Qt::Key_Space && (ke->modifiers() & Qt::ControlModifier)) {
-#endif
+        } else if (ke->key() == Qt::Key_Space && (ke->modifiers() & modifier)) {
             event->accept();
             return true;
         }

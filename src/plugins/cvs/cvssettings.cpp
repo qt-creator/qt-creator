@@ -31,6 +31,7 @@
 #include "cvssettings.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QSettings>
 #include <QTextStream>
@@ -50,9 +51,8 @@ static QString defaultCommand()
 {
     QString rc;
     rc = QLatin1String("cvs");
-#if defined(Q_OS_WIN32)
-    rc.append(QLatin1String(".exe"));
-#endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        rc.append(QLatin1String(".exe"));
     return rc;
 }
 

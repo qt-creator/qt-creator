@@ -37,6 +37,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/manhattanstyle.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <projectexplorer/projectexplorer.h>
@@ -98,36 +99,35 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     m_group->insert(dc->action(VerboseLog), 0);
     m_group->insert(dc->action(BreakOnThrow), 0);
     m_group->insert(dc->action(BreakOnCatch), 0);
-#ifdef Q_OS_WIN
-    Utils::SavedAction *registerAction = dc->action(RegisterForPostMortem);
-    m_group->insert(registerAction,
-        m_ui.checkBoxRegisterForPostMortem);
-    connect(registerAction, SIGNAL(toggled(bool)),
-            m_ui.checkBoxRegisterForPostMortem, SLOT(setChecked(bool)));
-#else
-    m_ui.checkBoxRegisterForPostMortem->setVisible(false);
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        Utils::SavedAction *registerAction = dc->action(RegisterForPostMortem);
+        m_group->insert(registerAction,
+                m_ui.checkBoxRegisterForPostMortem);
+        connect(registerAction, SIGNAL(toggled(bool)),
+                m_ui.checkBoxRegisterForPostMortem, SLOT(setChecked(bool)));
+    } else {
+        m_ui.checkBoxRegisterForPostMortem->setVisible(false);
+    }
 }
 
 QString CommonOptionsPageWidget::searchKeyWords() const
 {
     QString rc;
     const QLatin1Char sep(' ');
-    QTextStream(&rc)
-            << sep << m_ui.checkBoxUseAlternatingRowColors->text()
-            << sep << m_ui.checkBoxFontSizeFollowsEditor->text()
-            << sep << m_ui.checkBoxUseToolTipsInMainEditor->text()
-            << sep << m_ui.checkBoxListSourceFiles->text()
-            << sep << m_ui.checkBoxBreakpointsFullPath->text()
-#ifdef Q_OS_WIN
-            << sep << m_ui.checkBoxRegisterForPostMortem->text()
-#endif
-            << sep << m_ui.checkBoxCloseBuffersOnExit->text()
-            << sep << m_ui.checkBoxSwitchModeOnExit->text()
-            << sep << m_ui.labelMaximalStackDepth->text()
-            << sep << m_ui.checkBoxBringToForegroundOnInterrrupt->text()
-            << sep << m_ui.checkBoxShowQmlObjectTree->text()
-               ;
+    QTextStream stream(&rc);
+    stream << sep << m_ui.checkBoxUseAlternatingRowColors->text()
+           << sep << m_ui.checkBoxFontSizeFollowsEditor->text()
+           << sep << m_ui.checkBoxUseToolTipsInMainEditor->text()
+           << sep << m_ui.checkBoxListSourceFiles->text()
+           << sep << m_ui.checkBoxBreakpointsFullPath->text()
+           << sep << m_ui.checkBoxCloseBuffersOnExit->text()
+           << sep << m_ui.checkBoxSwitchModeOnExit->text()
+           << sep << m_ui.labelMaximalStackDepth->text()
+           << sep << m_ui.checkBoxBringToForegroundOnInterrrupt->text()
+           << sep << m_ui.checkBoxShowQmlObjectTree->text();
+    if (Utils::HostOsInfo::isWindowsHost())
+        stream << sep << m_ui.checkBoxRegisterForPostMortem->text();
+
     rc.remove(QLatin1Char('&'));
     return rc;
 }

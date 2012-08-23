@@ -46,6 +46,7 @@
 #include <utils/synchronousprocess.h>
 #include <utils/parameteraction.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
@@ -173,10 +174,9 @@ StatusList parseStatusOutput(const QString &output)
 static inline QStringList svnDirectories()
 {
     QStringList rc(QLatin1String(".svn"));
-#ifdef Q_OS_WIN
-    // Option on Windows systems to avoid hassle with some IDEs
-    rc.push_back(QLatin1String("_svn"));
-#endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        // Option on Windows systems to avoid hassle with some IDEs
+        rc.push_back(QLatin1String("_svn"));
     return rc;
 }
 
@@ -1192,11 +1192,9 @@ SubversionPlugin *SubversionPlugin::instance()
 
 bool SubversionPlugin::vcsAdd(const QString &workingDir, const QString &rawFileName)
 {
-#ifdef Q_OS_MAC // See below.
-    return vcsAdd14(workingDir, rawFileName);
-#else
+    if (Utils::HostOsInfo::isMacHost()) // See below.
+        return vcsAdd14(workingDir, rawFileName);
     return vcsAdd15(workingDir, rawFileName);
-#endif
 }
 
 // Post 1.4 add: Use "--parents" to add directories

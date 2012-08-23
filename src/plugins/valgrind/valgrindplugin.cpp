@@ -45,6 +45,7 @@
 #include <projectexplorer/applicationrunconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -93,9 +94,8 @@ void ValgrindPlugin::startValgrindTool(IAnalyzerTool *tool, StartMode mode)
 bool ValgrindPlugin::initialize(const QStringList &, QString *)
 {
     StartModes modes;
-#ifndef Q_OS_WIN
-    modes.append(StartMode(StartLocal));
-#endif
+    if (!Utils::HostOsInfo::isWindowsHost())
+        modes.append(StartMode(StartLocal));
     modes.append(StartMode(StartRemote));
 
     AnalyzerManager::addTool(new MemcheckTool(this), modes);

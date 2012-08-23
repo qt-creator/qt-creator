@@ -29,6 +29,9 @@
 **************************************************************************/
 
 #include "contextpanewidgetimage.h"
+
+#include <utils/hostosinfo.h>
+
 #include "ui_contextpanewidgetimage.h"
 #include "ui_contextpanewidgetborderimage.h"
 #include <qmljs/qmljspropertyreader.h>
@@ -611,12 +614,12 @@ PreviewLabel::PreviewLabel(QWidget *parent)
 
     // TODO: The following code should be enabled for OSX
     // when QTBUG-23205 is fixed
-#ifndef Q_OS_MAC
-    QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
-    dropShadowEffect->setBlurRadius(4);
-    dropShadowEffect->setOffset(2, 2);
-    m_hooverInfo->setGraphicsEffect(dropShadowEffect);
-#endif
+    if (!Utils::HostOsInfo::isMacHost()) {
+        QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
+        dropShadowEffect->setBlurRadius(4);
+        dropShadowEffect->setOffset(2, 2);
+        m_hooverInfo->setGraphicsEffect(dropShadowEffect);
+    }
     m_hooverInfo->setAutoFillBackground(true);
     m_hooverInfo->raise();
 }

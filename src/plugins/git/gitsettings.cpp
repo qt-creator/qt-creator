@@ -30,6 +30,7 @@
 
 #include "gitsettings.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 
 #include <QCoreApplication>
@@ -54,11 +55,7 @@ GitSettings::GitSettings()
     setSettingsGroup(QLatin1String("Git"));
 
     declareKey(binaryPathKey, QLatin1String("git"));
-#ifdef Q_OS_WIN
-    declareKey(timeoutKey, 60);
-#else
-    declareKey(timeoutKey, 30);
-#endif
+    declareKey(timeoutKey, Utils::HostOsInfo::isWindowsHost() ? 60 : 30);
     declareKey(pathKey, QString());
     declareKey(pullRebaseKey, false);
     declareKey(omitAnnotationDateKey, false);

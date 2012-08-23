@@ -48,6 +48,7 @@
 
 #include <utils/persistentsettings.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 
 #include <QDir>
@@ -58,6 +59,7 @@
 
 using namespace QtSupport;
 using namespace QtSupport::Internal;
+using namespace Utils;
 
 static const char QTVERSIONID[] = "Id";
 static const char QTVERSIONNAME[] = "Name";
@@ -164,7 +166,7 @@ int BaseQtVersion::getUniqueId()
     return QtVersionManager::instance()->getUniqueId();
 }
 
-BaseQtVersion::BaseQtVersion(const Utils::FileName &qmakeCommand, bool isAutodetected, const QString &autodetectionSource)
+BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, const QString &autodetectionSource)
     : m_id(getUniqueId()),
       m_isAutodetected(isAutodetected),
       m_autodetectionSource(autodetectionSource),
@@ -204,10 +206,10 @@ BaseQtVersion::BaseQtVersion()
     m_hasDocumentation(false),
     m_qmakeIsExecutable(true)
 {
-    ctor(Utils::FileName());
+    ctor(FileName());
 }
 
-void BaseQtVersion::ctor(const Utils::FileName &qmakePath)
+void BaseQtVersion::ctor(const FileName &qmakePath)
 {
     m_qmakeCommand = qmakePath;
     m_designerCommand.clear();
@@ -225,7 +227,7 @@ BaseQtVersion::~BaseQtVersion()
 {
 }
 
-QString BaseQtVersion::defaultDisplayName(const QString &versionString, const Utils::FileName &qmakePath,
+QString BaseQtVersion::defaultDisplayName(const QString &versionString, const FileName &qmakePath,
                                           bool fromPath)
 {
     QString location;
@@ -303,7 +305,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateProfile(const ProjectExplore
     if (!tc)
         result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
                                         ProjectExplorer::ToolChainProfileInformation::msgNoToolChainInTarget(),
-                                        Utils::FileName(), -1,
+                                        FileName(), -1,
                                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 
 
@@ -322,7 +324,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateProfile(const ProjectExplore
                                                                 version->displayName(),
                                                                 qtAbiString);
         result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                        message, Utils::FileName(), -1,
+                                        message, FileName(), -1,
                                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     } // Abi mismatch
     return result;
@@ -345,7 +347,7 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     QString string = map.value(QLatin1String(QTVERSIONQMAKEPATH)).toString();
     if (string.startsWith(QLatin1Char('~')))
         string.remove(0, 1).prepend(QDir::homePath());
-    ctor(Utils::FileName::fromUserInput(string));
+    ctor(FileName::fromUserInput(string));
 }
 
 QVariantMap BaseQtVersion::toMap() const
@@ -404,9 +406,9 @@ QStringList BaseQtVersion::warningReason() const
     return ret;
 }
 
-ProjectExplorer::ToolChain *BaseQtVersion::preferredToolChain(const Utils::FileName &ms) const
+ProjectExplorer::ToolChain *BaseQtVersion::preferredToolChain(const FileName &ms) const
 {
-    const Utils::FileName spec = ms.isEmpty() ? mkspec() : ms;
+    const FileName spec = ms.isEmpty() ? mkspec() : ms;
     QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
     ProjectExplorer::ToolChain *possibleTc = 0;
     foreach (ProjectExplorer::ToolChain *tc, tcList) {
@@ -419,7 +421,7 @@ ProjectExplorer::ToolChain *BaseQtVersion::preferredToolChain(const Utils::FileN
     return possibleTc;
 }
 
-Utils::FileName BaseQtVersion::qmakeCommand() const
+FileName BaseQtVersion::qmakeCommand() const
 {
     return m_qmakeCommand;
 }
@@ -574,10 +576,10 @@ void BaseQtVersion::updateSourcePath() const
             }
         }
     }
-    m_sourcePath = Utils::FileName::fromUserInput(sourcePath);
+    m_sourcePath = FileName::fromUserInput(sourcePath);
 }
 
-Utils::FileName BaseQtVersion::sourcePath() const
+FileName BaseQtVersion::sourcePath() const
 {
     updateSourcePath();
     return m_sourcePath;
@@ -654,46 +656,43 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
     QStringList possibleCommands;
     switch (binary) {
     case QmlScene: {
-#if defined(Q_OS_WIN)
-        possibleCommands << QLatin1String("qmlscene.exe");
-#else
-        possibleCommands << QLatin1String("qmlscene");
-#endif
+        if (HostOsInfo::isWindowsHost())
+            possibleCommands << QLatin1String("qmlscene.exe");
+        else
+            possibleCommands << QLatin1String("qmlscene");
     }
     case QmlViewer: {
-#if defined(Q_OS_WIN)
-        possibleCommands << QLatin1String("qmlviewer.exe");
-#elif defined(Q_OS_MAC)
-        possibleCommands << QLatin1String("QMLViewer.app/Contents/MacOS/QMLViewer");
-#else
-        possibleCommands << QLatin1String("qmlviewer");
-#endif
+        if (HostOsInfo::isWindowsHost())
+            possibleCommands << QLatin1String("qmlviewer.exe");
+        else if (HostOsInfo::isMacHost())
+            possibleCommands << QLatin1String("QMLViewer.app/Contents/MacOS/QMLViewer");
+        else
+            possibleCommands << QLatin1String("qmlviewer");
     }
         break;
     case Designer:
-#if defined(Q_OS_WIN)
-        possibleCommands << QLatin1String("designer.exe");
-#elif defined(Q_OS_MAC)
-        possibleCommands << QLatin1String("Designer.app/Contents/MacOS/Designer");
-#else
-        possibleCommands << QLatin1String("designer");
-#endif
+        if (HostOsInfo::isWindowsHost())
+            possibleCommands << QLatin1String("designer.exe");
+        else if (HostOsInfo::isMacHost())
+            possibleCommands << QLatin1String("Designer.app/Contents/MacOS/Designer");
+        else
+            possibleCommands << QLatin1String("designer");
         break;
     case Linguist:
-#if defined(Q_OS_WIN)
-        possibleCommands << QLatin1String("linguist.exe");
-#elif defined(Q_OS_MAC)
-        possibleCommands << QLatin1String("Linguist.app/Contents/MacOS/Linguist");
-#else
-        possibleCommands << QLatin1String("linguist");
-#endif
+        if (HostOsInfo::isWindowsHost())
+            possibleCommands << QLatin1String("linguist.exe");
+        else if (HostOsInfo::isMacHost())
+            possibleCommands << QLatin1String("Linguist.app/Contents/MacOS/Linguist");
+        else
+            possibleCommands << QLatin1String("linguist");
         break;
     case Uic:
-#ifdef Q_OS_WIN
-        possibleCommands << QLatin1String("uic.exe");
-#else
-        possibleCommands << QLatin1String("uic-qt4") << QLatin1String("uic4") << QLatin1String("uic");
-#endif
+        if (HostOsInfo::isWindowsHost()) {
+            possibleCommands << QLatin1String("uic.exe");
+        } else {
+            possibleCommands << QLatin1String("uic-qt4") << QLatin1String("uic4")
+                             << QLatin1String("uic");
+        }
         break;
     default:
         Q_ASSERT(false);
@@ -728,13 +727,13 @@ void BaseQtVersion::updateMkspec() const
     if (m_mkspecFullPath.isEmpty())
         return;
 
-    Utils::FileName baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo());
+    FileName baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo());
 
     if (m_mkspec.isChildOf(baseMkspecDir)) {
         m_mkspec = m_mkspec.relativeChildPath(baseMkspecDir);
 //        qDebug() << "Setting mkspec to"<<mkspec;
     } else {
-        Utils::FileName sourceMkSpecPath = sourcePath().appendPath(QLatin1String("mkspecs"));
+        FileName sourceMkSpecPath = sourcePath().appendPath(QLatin1String("mkspecs"));
         if (m_mkspec.isChildOf(sourceMkSpecPath)) {
             m_mkspec = m_mkspec.relativeChildPath(sourceMkSpecPath);
         } else {
@@ -786,19 +785,19 @@ void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
     m_mkspecValues.insert(declarativeBins, evaluator->value(declarativeBins));
 }
 
-Utils::FileName BaseQtVersion::mkspec() const
+FileName BaseQtVersion::mkspec() const
 {
     updateMkspec();
     return m_mkspec;
 }
 
-Utils::FileName BaseQtVersion::mkspecFor(ProjectExplorer::ToolChain *tc) const
+FileName BaseQtVersion::mkspecFor(ProjectExplorer::ToolChain *tc) const
 {
     if (!tc)
         return mkspec();
 
-    const QList<Utils::FileName> tcSpecList = tc->suggestedMkspecList();
-    foreach (const Utils::FileName &tcSpec, tcSpecList) {
+    const QList<FileName> tcSpecList = tc->suggestedMkspecList();
+    foreach (const FileName &tcSpec, tcSpecList) {
         if (hasMkspec(tcSpec))
             return tcSpec;
     }
@@ -806,13 +805,13 @@ Utils::FileName BaseQtVersion::mkspecFor(ProjectExplorer::ToolChain *tc) const
     return mkspec();
 }
 
-Utils::FileName BaseQtVersion::mkspecPath() const
+FileName BaseQtVersion::mkspecPath() const
 {
     updateMkspec();
     return m_mkspecFullPath;
 }
 
-bool BaseQtVersion::hasMkspec(const Utils::FileName &spec) const
+bool BaseQtVersion::hasMkspec(const FileName &spec) const
 {
     updateVersionInfo();
     QFileInfo fi;
@@ -965,12 +964,11 @@ QString BaseQtVersion::demosPath() const
 
 QString BaseQtVersion::frameworkInstallPath() const
 {
-#ifdef Q_OS_MAC
-    updateVersionInfo();
-    return m_versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
-#else
+    if (HostOsInfo::isMacHost()) {
+        updateVersionInfo();
+        return m_versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
+    }
     return QString();
-#endif
 }
 
 bool BaseQtVersion::hasExamples() const
@@ -993,7 +991,7 @@ QList<ProjectExplorer::HeaderPath> BaseQtVersion::systemHeaderPathes(const Proje
     return result;
 }
 
-void BaseQtVersion::addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const
+void BaseQtVersion::addToEnvironment(const ProjectExplorer::Profile *p, Environment &env) const
 {
     Q_UNUSED(p);
     env.set(QLatin1String("QTDIR"), QDir::toNativeSeparators(qmakeProperty("QT_HOST_DATA")));
@@ -1037,10 +1035,10 @@ bool BaseQtVersion::hasQmlObserver() const
     return m_hasQmlObserver;
 }
 
-Utils::Environment BaseQtVersion::qmlToolsEnvironment() const
+Environment BaseQtVersion::qmlToolsEnvironment() const
 {
     // FIXME: This seems broken!
-    Utils::Environment environment = Utils::Environment::systemEnvironment();
+    Environment environment = Environment::systemEnvironment();
 #if 0 // FIXME: Fix this!
     addToEnvironment(environment);
 #endif
@@ -1126,7 +1124,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::reportIssuesImpl(const QString &proF
     if (!isValid()) {
         //: %1: Reason for being invalid
         const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion", "The Qt version is invalid: %1").arg(invalidReason());
-        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error, msg, Utils::FileName(), -1,
+        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error, msg, FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
 
@@ -1136,7 +1134,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::reportIssuesImpl(const QString &proF
         //: %1: Path to qmake executable
         const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
                                                         "The qmake command \"%1\" was not found or is not executable.").arg(qmakeCommand().toUserOutput());
-        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error, msg, Utils::FileName(), -1,
+        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Error, msg, FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
 
@@ -1147,13 +1145,13 @@ QList<ProjectExplorer::Task> BaseQtVersion::reportIssuesImpl(const QString &proF
     if ((tmpBuildDir.startsWith(sourcePath)) && (tmpBuildDir != sourcePath)) {
         const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
                                                         "Qmake does not support build directories below the source directory.");
-        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Warning, msg, Utils::FileName(), -1,
+        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Warning, msg, FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     } else if (tmpBuildDir.count(slash) != sourcePath.count(slash) && qtVersion() < QtVersionNumber(4,8, 0)) {
         const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
                                                         "The build directory needs to be at the same level as the source directory.");
 
-        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Warning, msg, Utils::FileName(), -1,
+        results.append(ProjectExplorer::Task(ProjectExplorer::Task::Warning, msg, FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
     }
 
@@ -1178,13 +1176,13 @@ QtConfigWidget *BaseQtVersion::createConfigurationWidget() const
     return 0;
 }
 
-bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QString, QString> *versionInfo)
+bool BaseQtVersion::queryQMakeVariables(const FileName &binary, QHash<QString, QString> *versionInfo)
 {
     bool qmakeIsExecutable;
     return BaseQtVersion::queryQMakeVariables(binary, versionInfo, &qmakeIsExecutable);
 }
 
-bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QString, QString> *versionInfo,
+bool BaseQtVersion::queryQMakeVariables(const FileName &binary, QHash<QString, QString> *versionInfo,
                                         bool *qmakeIsExecutable)
 {
     const int timeOutMS = 30000; // Might be slow on some machines.
@@ -1194,14 +1192,14 @@ bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QSt
         return false;
 
     QProcess process;
-    Utils::Environment env = Utils::Environment::systemEnvironment();
+    Environment env = Environment::systemEnvironment();
 
-#ifdef Q_OS_WIN
-    // Add tool chain environments. This is necessary for non-static qmakes e.g. using mingw on windows
-    QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
-    foreach (ProjectExplorer::ToolChain *tc, tcList)
-        tc->addToEnvironment(env);
-#endif
+    if (HostOsInfo::isWindowsHost()) {
+        // Add tool chain environments. This is necessary for non-static qmakes e.g. using mingw on windows
+        QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
+        foreach (ProjectExplorer::ToolChain *tc, tcList)
+            tc->addToEnvironment(env);
+    }
 
     process.setEnvironment(env.toStringList());
     process.start(qmake.absoluteFilePath(), QStringList(QLatin1String("-query")), QIODevice::ReadOnly);
@@ -1212,7 +1210,7 @@ bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QSt
         return false;
     }
     if (!process.waitForFinished(timeOutMS)) {
-        Utils::SynchronousProcess::stopProcess(process);
+        SynchronousProcess::stopProcess(process);
         qWarning("Timeout running '%s' (%dms).", qPrintable(binary.toUserOutput()), timeOutMS);
         return false;
     }
@@ -1252,73 +1250,79 @@ bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QSt
     return true;
 }
 
-Utils::FileName BaseQtVersion::mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo)
+FileName BaseQtVersion::mkspecDirectoryFromVersionInfo(const QHash<QString, QString> &versionInfo)
 {
     QString dataDir = qmakeProperty(versionInfo, "QT_HOST_DATA");
     if (dataDir.isEmpty())
-        return Utils::FileName();
-    return Utils::FileName::fromUserInput(dataDir + QLatin1String("/mkspecs"));
+        return FileName();
+    return FileName::fromUserInput(dataDir + QLatin1String("/mkspecs"));
 }
 
-Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo)
+FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QString> &versionInfo)
 {
-    Utils::FileName baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo);
+    FileName baseMkspecDir = mkspecDirectoryFromVersionInfo(versionInfo);
     if (baseMkspecDir.isEmpty())
-        return Utils::FileName();
+        return FileName();
 
-    Utils::FileName mkspecFullPath = Utils::FileName::fromString(baseMkspecDir.toString() + QLatin1String("/default"));
+    FileName mkspecFullPath = FileName::fromString(baseMkspecDir.toString() + QLatin1String("/default"));
 
     // qDebug() << "default mkspec is located at" << mkspecFullPath;
 
-#ifdef Q_OS_WIN
-    QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
-    if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-        while (!f2.atEnd()) {
-            QByteArray line = f2.readLine();
-            if (line.startsWith("QMAKESPEC_ORIGINAL")) {
-                const QList<QByteArray> &temp = line.split('=');
-                if (temp.size() == 2) {
-                    QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
-                    // We sometimes get a mix of different slash styles here...
-                    possibleFullPath = possibleFullPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
-                    if (QFileInfo(possibleFullPath).exists()) // Only if the path exists
-                        mkspecFullPath = Utils::FileName::fromUserInput(possibleFullPath);
-                }
-                break;
-            }
-        }
-        f2.close();
-    }
-#elif defined(Q_OS_MAC)
-    QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
-    if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
-        while (!f2.atEnd()) {
-            QByteArray line = f2.readLine();
-            if (line.startsWith("MAKEFILE_GENERATOR")) {
-                const QList<QByteArray> &temp = line.split('=');
-                if (temp.size() == 2) {
-                    const QByteArray &value = temp.at(1);
-                    if (value.contains("XCODE")) {
-                        // we don't want to generate xcode projects...
-//                      qDebug() << "default mkspec is xcode, falling back to g++";
-                        mkspecFullPath = baseMkspecDir.appendPath(QLatin1String("macx-g++"));
+    switch (HostOsInfo::hostOs()) {
+    case HostOsInfo::HostOsWindows: {
+        QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
+        if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
+            while (!f2.atEnd()) {
+                QByteArray line = f2.readLine();
+                if (line.startsWith("QMAKESPEC_ORIGINAL")) {
+                    const QList<QByteArray> &temp = line.split('=');
+                    if (temp.size() == 2) {
+                        QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
+                        // We sometimes get a mix of different slash styles here...
+                        possibleFullPath = possibleFullPath.replace(QLatin1Char('\\'), QLatin1Char('/'));
+                        if (QFileInfo(possibleFullPath).exists()) // Only if the path exists
+                            mkspecFullPath = FileName::fromUserInput(possibleFullPath);
                     }
-                    //resolve mkspec link
-                    mkspecFullPath = Utils::FileName::fromString(mkspecFullPath.toFileInfo().canonicalFilePath());
+                    break;
                 }
-                break;
             }
+            f2.close();
         }
-        f2.close();
+        break;
     }
-#else
-    mkspecFullPath = Utils::FileName::fromString(mkspecFullPath.toFileInfo().canonicalFilePath());
-#endif
+    case HostOsInfo::HostOsMac: {
+        QFile f2(mkspecFullPath.toString() + QLatin1String("/qmake.conf"));
+        if (f2.exists() && f2.open(QIODevice::ReadOnly)) {
+            while (!f2.atEnd()) {
+                QByteArray line = f2.readLine();
+                if (line.startsWith("MAKEFILE_GENERATOR")) {
+                    const QList<QByteArray> &temp = line.split('=');
+                    if (temp.size() == 2) {
+                        const QByteArray &value = temp.at(1);
+                        if (value.contains("XCODE")) {
+                            // we don't want to generate xcode projects...
+                            //                      qDebug() << "default mkspec is xcode, falling back to g++";
+                            mkspecFullPath = baseMkspecDir.appendPath(QLatin1String("macx-g++"));
+                        }
+                        //resolve mkspec link
+                        mkspecFullPath = FileName::fromString(mkspecFullPath.toFileInfo().canonicalFilePath());
+                    }
+                    break;
+                }
+            }
+            f2.close();
+        }
+        break;
+    }
+    default:
+        mkspecFullPath = FileName::fromString(mkspecFullPath.toFileInfo().canonicalFilePath());
+        break;
+    }
 
     return mkspecFullPath;
 }
 
-Utils::FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString)
+FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString)
 {
     QStringList dirs;
     dirs << qmakeProperty(versionInfo, "QT_INSTALL_LIBS")
@@ -1336,7 +1340,7 @@ Utils::FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionI
                     && file.startsWith(QLatin1String("QtCore"))
                     && file.endsWith(QLatin1String(".framework"))) {
                 // handle Framework
-                Utils::FileName lib(info);
+                FileName lib(info);
                 lib.appendPath(file.left(file.lastIndexOf(QLatin1Char('.'))));
                 return lib;
             }
@@ -1350,18 +1354,18 @@ Utils::FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionI
                              || file.endsWith(QString::fromLatin1(".so.") + versionString)
                              || file.endsWith(QLatin1String(".so"))
                              || file.endsWith(QLatin1Char('.') + versionString + QLatin1String(".dylib")))
-                        return Utils::FileName(info);
+                        return FileName(info);
                 }
             }
         }
     }
     // Return path to first static library found:
     if (!staticLibs.isEmpty())
-        return Utils::FileName(staticLibs.at(0));
-    return Utils::FileName();
+        return FileName(staticLibs.at(0));
+    return FileName();
 }
 
-QList<ProjectExplorer::Abi> BaseQtVersion::qtAbisFromLibrary(const Utils::FileName &coreLibrary)
+QList<ProjectExplorer::Abi> BaseQtVersion::qtAbisFromLibrary(const FileName &coreLibrary)
 {
     return ProjectExplorer::Abi::abisOfBinary(coreLibrary);
 }

@@ -78,6 +78,7 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
+#include <utils/hostosinfo.h>
 #include <utils/parameteraction.h>
 
 #ifdef WITH_TESTS
@@ -153,11 +154,10 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new Qt4BuildConfigurationFactory);
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
 
-#ifdef Q_OS_MAC
-    addAutoReleasedObject(new MacDesignerExternalEditor);
-#else
-    addAutoReleasedObject(new DesignerExternalEditor);
-#endif
+    if (Utils::HostOsInfo::isMacHost())
+        addAutoReleasedObject(new MacDesignerExternalEditor);
+    else
+        addAutoReleasedObject(new DesignerExternalEditor);
     addAutoReleasedObject(new LinguistExternalEditor);
 
     addAutoReleasedObject(new DesktopQtVersionFactory);

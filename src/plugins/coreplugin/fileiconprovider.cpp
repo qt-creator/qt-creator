@@ -31,6 +31,7 @@
 #include "fileiconprovider.h"
 #include "mimedatabase.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -43,6 +44,8 @@
 #include <QFileIconProvider>
 #include <QIcon>
 #include <QStyle>
+
+using namespace Utils;
 
 /*!
   \class Core::FileIconProvider
@@ -139,14 +142,13 @@ QIcon FileIconProvider::icon(const QFileInfo &fileInfo) const
         }
     }
     // Get icon from OS.
-#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
-    return QFileIconProvider::icon(fileInfo);
-#else
+    if (HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
+        return QFileIconProvider::icon(fileInfo);
+
     // File icons are unknown on linux systems.
     return (fileInfo.isDir()) ?
            QFileIconProvider::icon(fileInfo) :
            d->m_unknownFileIcon;
-#endif
 }
 
 /*!

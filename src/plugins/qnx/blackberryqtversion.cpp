@@ -35,6 +35,7 @@
 
 #include "qnxconstants.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QTextStream>
@@ -72,11 +73,8 @@ QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName)
     QMapIterator<QString, QString> it(fileContent);
     while (it.hasNext()) {
         it.next();
-#if defined Q_OS_WIN
-        QStringList values = it.value().split(QLatin1Char(';'));
-#elif defined Q_OS_UNIX
-        QStringList values = it.value().split(QLatin1Char(':'));
-#endif
+        const QChar sep = Utils::HostOsInfo::isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
+        const QStringList values = it.value().split(sep);
         QString key = it.key();
         foreach (const QString &value, values) {
             const QString ownKeyAsWindowsVar = QLatin1Char('%') + key + QLatin1Char('%');
@@ -145,11 +143,11 @@ QMultiMap<QString, QString> BlackBerryQtVersion::environment() const
     if (sdkPath().isEmpty())
         return QMultiMap<QString, QString>();
 
-#if defined Q_OS_WIN
-    const QString envFile = sdkPath() + QLatin1String("/bbndk-env.bat");
-#elif defined Q_OS_UNIX
-    const QString envFile = sdkPath() + QLatin1String("/bbndk-env.sh");
-#endif
+    QString envFile;
+    if (Utils::HostOsInfo::isWindowsHost())
+        envFile = sdkPath() + QLatin1String("/bbndk-env.bat");
+    else if (Utils::HostOsInfo::isAnyUnixHost())
+        envFile = sdkPath() + QLatin1String("/bbndk-env.sh");
     return parseEnvironmentFile(envFile);
 }
 

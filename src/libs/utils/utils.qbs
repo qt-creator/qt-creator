@@ -154,6 +154,8 @@ QtcLibrary {
         "utils_global.h",
         "wizard.cpp",
         "wizard.h",
+        "hostosinfo.cpp",
+        "hostosinfo.h",
         "persistentsettings.h",
         "settingsselector.h",
         "buildablehelperlibrary.cpp",

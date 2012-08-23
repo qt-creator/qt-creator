@@ -55,6 +55,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <integrationcore.h>
@@ -128,13 +129,10 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
     m_designerCore = new QmlDesigner::IntegrationCore;
     m_pluginInstance = this;
 
-#ifdef Q_OS_MAC
-    const QString pluginPath = QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner";
-#else
-    const QString pluginPath = QCoreApplication::applicationDirPath() + "/../"
-                               + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/qmldesigner";
-#endif
-
+    const QString pluginPath = Utils::HostOsInfo::isMacHost()
+            ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
+            : QString(QCoreApplication::applicationDirPath() + "/../"
+                      + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/qmldesigner");
     m_designerCore->pluginManager()->setPluginPaths(QStringList() << pluginPath);
 
     createDesignModeWidget();
@@ -260,15 +258,14 @@ void BauhausPlugin::createDesignModeWidget()
     command = Core::ActionManager::registerAction(m_mainWidget->hideSidebarsAction(),
                                             Core::Constants::TOGGLE_SIDEBAR, qmlDesignerMainContext);
 
-#ifdef Q_OS_MACX
-    // add second shortcut to trigger delete
-    QAction *deleteAction = new QAction(m_mainWidget);
-    deleteAction->setShortcut(QKeySequence(QLatin1String("Backspace")));
-    connect(deleteAction, SIGNAL(triggered()), m_mainWidget->deleteAction(),
-            SIGNAL(triggered()));
-
-    m_mainWidget->addAction(deleteAction);
-#endif // Q_OS_MACX
+    if (Utils::HostOsInfo::isMacHost()) {
+        // add second shortcut to trigger delete
+        QAction *deleteAction = new QAction(m_mainWidget);
+        deleteAction->setShortcut(QKeySequence(QLatin1String("Backspace")));
+        connect(deleteAction, SIGNAL(triggered()), m_mainWidget->deleteAction(),
+                SIGNAL(triggered()));
+        m_mainWidget->addAction(deleteAction);
+    }
 
     connect(m_editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateEditor(Core::IEditor*)));

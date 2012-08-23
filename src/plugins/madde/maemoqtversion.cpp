@@ -35,6 +35,7 @@
 #include <projectexplorer/profileinformation.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
+#include <utils/hostosinfo.h>
 
 #include <QCoreApplication>
 #include <QFile>
@@ -125,10 +126,7 @@ QString MaemoQtVersion::description() const
 
 bool MaemoQtVersion::supportsShadowBuilds() const
 {
-#ifdef Q_OS_WIN
-    return false;
-#endif
-    return true;
+    return !Utils::HostOsInfo::isWindowsHost();
 }
 
 Core::Id MaemoQtVersion::deviceType() const

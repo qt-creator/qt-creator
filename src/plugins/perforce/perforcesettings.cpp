@@ -34,6 +34,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -57,11 +58,9 @@ enum { defaultTimeOutS = 30, defaultLogCount = 1000 };
 
 static QString defaultCommand()
 {
-    QString rc;
-    rc = QLatin1String("p4");
-#if defined(Q_OS_WIN32)
-    rc.append(QLatin1String(".exe"));
-#endif
+    QString rc = QLatin1String("p4");
+    if (Utils::HostOsInfo::isWindowsHost())
+        rc.append(QLatin1String(".exe"));
     return rc;
 }
 

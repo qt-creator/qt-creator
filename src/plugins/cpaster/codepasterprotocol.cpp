@@ -38,6 +38,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/messageoutputwindow.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QListWidget>
@@ -77,12 +78,9 @@ bool CodePasterProtocol::checkConfiguration(QString *errorMessage)
     const QString hostName = m_page->hostName();
     if (hostName.isEmpty()) {
         if (errorMessage) {
-            *errorMessage =
-#ifdef Q_OS_MAC
-                       tr("No Server defined in the CodePaster preferences.");
-#else
-                       tr("No Server defined in the CodePaster options.");
-#endif
+            *errorMessage = Utils::HostOsInfo::isMacHost()
+                    ? tr("No Server defined in the CodePaster preferences.")
+                    : tr("No Server defined in the CodePaster options.");
         }
         return false;
     }

@@ -68,6 +68,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <find/basetextfind.h>
 #include <utils/linecolumnlabel.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -117,6 +118,7 @@
 
 using namespace TextEditor;
 using namespace TextEditor::Internal;
+using namespace Utils;
 
 namespace TextEditor {
 namespace Internal {
@@ -1762,7 +1764,8 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         // fall through
     case Qt::Key_Right:
     case Qt::Key_Left:
-#ifndef Q_OS_MAC
+        if (HostOsInfo::isMacHost())
+            break;
         if ((e->modifiers()
              & (Qt::AltModifier | Qt::ShiftModifier)) == (Qt::AltModifier | Qt::ShiftModifier)) {
             int diff_row = 0;
@@ -1786,7 +1789,6 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
                 viewport()->update();
             }
         }
-#endif
         break;
     case Qt::Key_PageUp:
     case Qt::Key_PageDown:
@@ -1821,6 +1823,9 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         break;
     }
 
+    const Qt::KeyboardModifiers modifiers
+            = HostOsInfo::isMacHost() ? Qt::MetaModifier : Qt::ControlModifier;
+
     if (!ro && d->m_inBlockSelectionMode) {
         QString text = e->text();
         if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
@@ -1829,13 +1834,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    if (e->key() == Qt::Key_H && e->modifiers() ==
-#ifdef Q_OS_DARWIN
-        Qt::MetaModifier
-#else
-        Qt::ControlModifier
-#endif
-        ) {
+    if (e->key() == Qt::Key_H && e->modifiers() == modifiers) {
         universalHelper();
         e->accept();
         return;
@@ -3390,11 +3389,8 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                 cursor_pen = painter.pen();
             }
 
-#ifndef Q_OS_MAC // no visible cursor on mac
-            if (blockSelectionCursorRect.isValid())
+            if (!HostOsInfo::isMacHost() && blockSelectionCursorRect.isValid())
                 painter.fillRect(blockSelectionCursorRect, palette().text());
-#endif
-
         }
 
         offset.ry() += r.height();
@@ -4247,10 +4243,8 @@ void BaseTextEditorWidget::mousePressEvent(QMouseEvent *e)
         }
     }
 
-#ifdef Q_OS_LINUX
-    if (handleForwardBackwardMouseButtons(e))
+    if (HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(e))
         return;
-#endif
 
     QPlainTextEdit::mousePressEvent(e);
 }
@@ -4270,10 +4264,8 @@ void BaseTextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
         }
     }
 
-#ifndef Q_OS_LINUX
-    if (handleForwardBackwardMouseButtons(e))
+    if (!HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(e))
         return;
-#endif
 
     QPlainTextEdit::mouseReleaseEvent(e);
 }

@@ -38,6 +38,7 @@
 
 #include <projectexplorer/abi.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
@@ -62,11 +63,8 @@ GdbLocalPlainEngine::GdbLocalPlainEngine(const DebuggerStartParameters &startPar
 GdbEngine::DumperHandling GdbLocalPlainEngine::dumperHandling() const
 {
     // LD_PRELOAD fails for System-Qt on Mac.
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-    return DumperLoadedByGdb;
-#else
-    return DumperLoadedByGdbPreload;
-#endif
+    return Utils::HostOsInfo::isWindowsHost() || Utils::HostOsInfo::isMacHost()
+            ? DumperLoadedByGdb : DumperLoadedByGdbPreload;
 }
 
 void GdbLocalPlainEngine::setupEngine()

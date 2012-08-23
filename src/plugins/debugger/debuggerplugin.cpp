@@ -115,6 +115,7 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 #include <utils/styledbar.h>
@@ -2898,11 +2899,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
     act->setText(tr("Attach to QML Port..."));
     connect(act, SIGNAL(triggered()), SLOT(attachToQmlPort()));
 
-#ifdef Q_OS_WIN
-    m_startRemoteCdbAction = new QAction(tr("Attach to Remote CDB Session..."), this);
-    connect(m_startRemoteCdbAction, SIGNAL(triggered()),
-        SLOT(startRemoteCdbSession()));
-#endif
+    if (HostOsInfo::isWindowsHost()) {
+        m_startRemoteCdbAction = new QAction(tr("Attach to Remote CDB Session..."), this);
+        connect(m_startRemoteCdbAction, SIGNAL(triggered()),
+                SLOT(startRemoteCdbSession()));
+    }
 
     act = m_detachAction = new QAction(this);
     act->setText(tr("Detach Debugger"));

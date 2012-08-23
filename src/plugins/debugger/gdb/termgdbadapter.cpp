@@ -38,6 +38,7 @@
 #include "debuggercore.h"
 #include "shared/hostutils.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <coreplugin/icore.h>
 
@@ -80,11 +81,9 @@ GdbTermEngine::~GdbTermEngine()
 GdbEngine::DumperHandling GdbTermEngine::dumperHandling() const
 {
     // LD_PRELOAD fails for System-Qt on Mac.
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-    return DumperLoadedByGdb;
-#else
-    return DumperLoadedByAdapter; // Handles loading itself via LD_PRELOAD
-#endif
+    return Utils::HostOsInfo::isWindowsHost() || Utils::HostOsInfo::isMacHost()
+            ? DumperLoadedByGdb
+            : DumperLoadedByAdapter; // Handles loading itself via LD_PRELOAD
 }
 
 void GdbTermEngine::setupEngine()

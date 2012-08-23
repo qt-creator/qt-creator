@@ -31,6 +31,8 @@
 #include "settings.h"
 #include "pastebindotcomprotocol.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QVariant>
 #include <QSettings>
 
@@ -65,11 +67,8 @@ void Settings::toSettings(QSettings *settings) const
 void Settings::fromSettings(const QSettings *settings)
 {
     const QString rootKey = QLatin1String(groupC) + QLatin1Char('/');
-#ifdef Q_OS_WIN
-    const QString defaultUser = QString::fromLocal8Bit(qgetenv("USERNAME"));
-#else
-    const QString defaultUser = QString::fromLocal8Bit(qgetenv("USER"));
-#endif
+    const char * const envKey = Utils::HostOsInfo::isWindowsHost() ? "USERNAME" : "USER";
+    const QString defaultUser = QString::fromLocal8Bit(qgetenv(envKey));
     username = settings->value(rootKey + QLatin1String(userNameKeyC), defaultUser).toString();
     protocol = settings->value(rootKey + QLatin1String(defaultProtocolKeyC), PasteBinDotComProtocol::protocolName()).toString();
     copyToClipboard = settings->value(rootKey + QLatin1String(copyToClipboardKeyC), true).toBool();

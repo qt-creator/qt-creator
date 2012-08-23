@@ -35,6 +35,7 @@
 #include "debuggercore.h"
 #include "debuggerengine.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
@@ -133,10 +134,9 @@ void ModulesTreeView::contextMenuEvent(QContextMenuEvent *ev)
         actShowModuleSymbols->setEnabled(engine->hasCapability(ShowModuleSymbolsCapability));
         actShowDependencies = new QAction(tr("Show Dependencies of \"%1\"").arg(name), &menu);
         actShowDependencies->setEnabled(!fileName.isEmpty());
-#ifndef Q_OS_WIN
-        // FIXME: Dependencies only available on Windows, when "depends" is installed.
-        actShowDependencies->setEnabled(false);
-#endif
+        if (!Utils::HostOsInfo::isWindowsHost())
+            // FIXME: Dependencies only available on Windows, when "depends" is installed.
+            actShowDependencies->setEnabled(false);
     }
 
     menu.addAction(actUpdateModuleList);

@@ -40,6 +40,7 @@
 #include <qtsupport/qtprofileinformation.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -51,6 +52,7 @@ using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Constants;
 using namespace RemoteLinux;
+using namespace Utils;
 
 namespace Madde {
 namespace Internal {
@@ -144,13 +146,13 @@ QString MaemoGlobal::remoteSourceProfilesCommand()
     return QString::fromAscii(remoteCall);
 }
 
-Utils::PortList MaemoGlobal::freePorts(const Profile *profile)
+PortList MaemoGlobal::freePorts(const Profile *profile)
 {
     IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(profile);
 
     if (!device || !qtVersion)
-        return Utils::PortList();
+        return PortList();
     if (device->machineType() == IDevice::Emulator) {
         MaemoQemuRuntime rt;
         const int id = qtVersion->uniqueId();
@@ -167,18 +169,15 @@ QString MaemoGlobal::maddeRoot(const QString &qmakePath)
     return dir.absolutePath();
 }
 
-Utils::FileName MaemoGlobal::maddeRoot(const Profile *profile)
+FileName MaemoGlobal::maddeRoot(const Profile *profile)
 {
     return SysRootProfileInformation::sysRoot(profile).parentDir().parentDir();
 }
 
 QString MaemoGlobal::targetRoot(const QString &qmakePath)
 {
-#ifdef Q_OS_WIN
-    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
-#else
-    Qt::CaseSensitivity cs = Qt::CaseSensitive;
-#endif
+    const Qt::CaseSensitivity cs = HostOsInfo::isWindowsHost()
+            ? Qt::CaseInsensitive : Qt::CaseSensitive;
     return QDir::cleanPath(qmakePath).remove(binQmake, cs);
 }
 
@@ -227,32 +226,26 @@ QString MaemoGlobal::architecture(const QString &qmakePath)
     return arch;
 }
 
-void MaemoGlobal::addMaddeEnvironment(Utils::Environment &env, const QString &qmakePath)
+void MaemoGlobal::addMaddeEnvironment(Environment &env, const QString &qmakePath)
 {
-    Utils::Environment maddeEnv;
-#ifdef Q_OS_WIN
-    const QString root = maddeRoot(qmakePath);
-    env.prependOrSetPath(root + QLatin1String("/bin"));
-    env.prependOrSet(QLatin1String("HOME"),
-        QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
-#else
-    Q_UNUSED(qmakePath);
-#endif
-    for (Utils::Environment::const_iterator it = maddeEnv.constBegin(); it != maddeEnv.constEnd(); ++it)
+    Environment maddeEnv;
+    if (HostOsInfo::isWindowsHost()) {
+        const QString root = maddeRoot(qmakePath);
+        env.prependOrSetPath(root + QLatin1String("/bin"));
+        env.prependOrSet(QLatin1String("HOME"),
+                QDesktopServices::storageLocation(QDesktopServices::HomeLocation));
+    }
+    for (Environment::const_iterator it = maddeEnv.constBegin(); it != maddeEnv.constEnd(); ++it)
         env.prependOrSet(it.key(), it.value());
 }
 
 void MaemoGlobal::transformMaddeCall(QString &command, QStringList &args, const QString &qmakePath)
 {
-#ifdef Q_OS_WIN
-    const QString root = maddeRoot(qmakePath);
-    args.prepend(command);
-    command = root + QLatin1String("/bin/sh.exe");
-#else
-    Q_UNUSED(command);
-    Q_UNUSED(args);
-    Q_UNUSED(qmakePath);
-#endif
+    if (HostOsInfo::isWindowsHost()) {
+        const QString root = maddeRoot(qmakePath);
+        args.prepend(command);
+        command = root + QLatin1String("/bin/sh.exe");
+    }
 }
 
 bool MaemoGlobal::callMad(QProcess &proc, const QStringList &args,
@@ -277,7 +270,7 @@ bool MaemoGlobal::callMaddeShellScript(QProcess &proc,
         return false;
     QString actualCommand = command;
     QStringList actualArgs = targetArgs(qmakePath, useTarget) + args;
-    Utils::Environment env(proc.systemEnvironment());
+    Environment env(proc.systemEnvironment());
     addMaddeEnvironment(env, qmakePath);
     proc.setEnvironment(env.toStringList());
     transformMaddeCall(actualCommand, actualArgs, qmakePath);

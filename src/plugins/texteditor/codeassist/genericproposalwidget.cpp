@@ -40,6 +40,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/faketooltip.h>
+#include <utils/hostosinfo.h>
 
 #include <QRect>
 #include <QLatin1String>
@@ -56,6 +57,7 @@
 #include <QDesktopWidget>
 #include <QLabel>
 
+using namespace Utils;
 
 namespace TextEditor {
 
@@ -305,15 +307,15 @@ void GenericProposalWidgetPrivate::maybeShowInfoTip()
 GenericProposalWidget::GenericProposalWidget()
     : d(new GenericProposalWidgetPrivate(this))
 {
-#ifdef Q_OS_MAC
-    if (d->m_completionListView->horizontalScrollBar())
-        d->m_completionListView->horizontalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
-    if (d->m_completionListView->verticalScrollBar())
-        d->m_completionListView->verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
-#else
-    // This improves the look with QGTKStyle.
-    setFrameStyle(d->m_completionListView->frameStyle());
-#endif
+    if (HostOsInfo::isMacHost()) {
+        if (d->m_completionListView->horizontalScrollBar())
+            d->m_completionListView->horizontalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
+        if (d->m_completionListView->verticalScrollBar())
+            d->m_completionListView->verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
+    } else {
+        // This improves the look with QGTKStyle.
+        setFrameStyle(d->m_completionListView->frameStyle());
+    }
     d->m_completionListView->setFrameStyle(QFrame::NoFrame);
     d->m_completionListView->setAttribute(Qt::WA_MacShowFocusRect, false);
     d->m_completionListView->setUniformItemSizes(true);
@@ -492,11 +494,9 @@ void GenericProposalWidget::updatePositionAndSize()
 
     // Determine the position, keeping the popup on the screen
     const QDesktopWidget *desktop = QApplication::desktop();
-#ifdef Q_OS_MAC
-    const QRect screen = desktop->availableGeometry(desktop->screenNumber(d->m_underlyingWidget));
-#else
-    const QRect screen = desktop->screenGeometry(desktop->screenNumber(d->m_underlyingWidget));
-#endif
+    const QRect screen = HostOsInfo::isMacHost()
+            ? desktop->availableGeometry(desktop->screenNumber(d->m_underlyingWidget))
+            : desktop->screenGeometry(desktop->screenNumber(d->m_underlyingWidget));
 
     QPoint pos = d->m_displayRect.bottomLeft();
     pos.rx() -= 16 + fw;    // Space for the icons
@@ -509,6 +509,8 @@ void GenericProposalWidget::updatePositionAndSize()
 
 bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 {
+    const Qt::KeyboardModifiers modifier = HostOsInfo::isMacHost()
+            ? Qt::MetaModifier : Qt::ControlModifier;
     if (e->type() == QEvent::FocusOut) {
         abort();
 #if (QT_VERSION < 0x050000) && defined(Q_OS_DARWIN) && ! defined(QT_MAC_USE_COCOA)
@@ -529,11 +531,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         switch (ke->key()) {
         case Qt::Key_N:
         case Qt::Key_P:
-#ifdef Q_OS_MAC
-            if (ke->modifiers() == Qt::MetaModifier) {
-#else
-            if (ke->modifiers() == Qt::ControlModifier) {
-#endif
+            if (ke->modifiers() == modifier) {
                 e->accept();
                 return true;
             }
@@ -549,11 +547,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_P:
             // select next/previous completion
             d->m_explicitlySelected = true;
-#ifdef Q_OS_MAC
-            if (ke->modifiers() == Qt::MetaModifier) {
-#else
-            if (ke->modifiers() == Qt::ControlModifier) {
-#endif
+            if (ke->modifiers() == modifier) {
                 int change = (ke->key() == Qt::Key_N) ? 1 : -1;
                 int nrows = d->m_model->size();
                 int row = d->m_completionListView->currentIndex().row();

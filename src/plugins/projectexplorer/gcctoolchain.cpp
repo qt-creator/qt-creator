@@ -38,6 +38,7 @@
 
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/pathchooser.h>
@@ -132,19 +133,19 @@ static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &ar
     arguments << QLatin1String("-");
 
     QByteArray predefinedMacros = runGcc(gcc, arguments, env);
-#ifdef Q_OS_MAC
-    // Turn off flag indicating Apple's blocks support
-    const QByteArray blocksDefine("#define __BLOCKS__ 1");
-    const QByteArray blocksUndefine("#undef __BLOCKS__");
-    const int idx = predefinedMacros.indexOf(blocksDefine);
-    if (idx != -1) {
-        predefinedMacros.replace(idx, blocksDefine.length(), blocksUndefine);
-    }
+    if (Utils::HostOsInfo::isMacHost()) {
+        // Turn off flag indicating Apple's blocks support
+        const QByteArray blocksDefine("#define __BLOCKS__ 1");
+        const QByteArray blocksUndefine("#undef __BLOCKS__");
+        const int idx = predefinedMacros.indexOf(blocksDefine);
+        if (idx != -1) {
+            predefinedMacros.replace(idx, blocksDefine.length(), blocksUndefine);
+        }
 
-    // Define __strong and __weak (used for Apple's GC extension of C) to be empty
-    predefinedMacros.append("#define __strong\n");
-    predefinedMacros.append("#define __weak\n");
-#endif // Q_OS_MAC
+        // Define __strong and __weak (used for Apple's GC extension of C) to be empty
+        predefinedMacros.append("#define __strong\n");
+        predefinedMacros.append("#define __weak\n");
+    }
     return predefinedMacros;
 }
 
@@ -587,11 +588,11 @@ ToolChain *Internal::GccToolChainFactory::create()
 QList<ToolChain *> Internal::GccToolChainFactory::autoDetect()
 {
     QList<ToolChain *> tcs;
-#ifdef Q_OS_MAC
-    // Old mac compilers needed to support macx-gccXY mkspecs:
-    tcs.append(autoDetectToolchains(QLatin1String("g++-4.0"), Abi::hostAbi()));
-    tcs.append(autoDetectToolchains(QLatin1String("g++-4.2"), Abi::hostAbi()));
-#endif
+    if (Utils::HostOsInfo::isMacHost()) {
+        // Old mac compilers needed to support macx-gccXY mkspecs:
+        tcs.append(autoDetectToolchains(QLatin1String("g++-4.0"), Abi::hostAbi()));
+        tcs.append(autoDetectToolchains(QLatin1String("g++-4.2"), Abi::hostAbi()));
+    }
     tcs.append(autoDetectToolchains(QLatin1String("g++"), Abi::hostAbi()));
 
     return tcs;
@@ -764,11 +765,9 @@ QString ClangToolChain::typeDisplayName() const
 
 QString ClangToolChain::makeCommand() const
 {
-#if defined(Q_OS_WIN)
-    return QLatin1String("mingw32-make.exe");
-#else
+    if (Utils::HostOsInfo::isWindowsHost())
+        return QLatin1String("mingw32-make.exe");
     return QLatin1String("make");
-#endif
 }
 
 QList<FileName> ClangToolChain::suggestedMkspecList() const
@@ -865,29 +864,26 @@ QString MingwToolChain::typeDisplayName() const
 
 QList<FileName> MingwToolChain::suggestedMkspecList() const
 {
-#if defined(Q_OS_WIN)
-    return QList<FileName>() << FileName::fromString(QLatin1String("win32-g++"));
-#elif defined(Q_OS_LINUX)
-    if (version().startsWith("4.6."))
-        return QList<FileName>()
-                << FileName::fromString(QLatin1String("win32-g++-4.6-cross"))
-                << FileName::fromString(QLatin1String("unsupported/win32-g++-4.6-cross"));
-    else
-        return QList<FileName>()
-                << FileName::fromString(QLatin1String("win32-g++-cross"))
-                << FileName::fromString(QLatin1String("unsupported/win32-g++-cross"));
-#else
+    if (Utils::HostOsInfo::isWindowsHost())
+        return QList<FileName>() << FileName::fromString(QLatin1String("win32-g++"));
+    if (Utils::HostOsInfo::isLinuxHost()) {
+        if (version().startsWith("4.6."))
+            return QList<FileName>()
+                    << FileName::fromString(QLatin1String("win32-g++-4.6-cross"))
+                    << FileName::fromString(QLatin1String("unsupported/win32-g++-4.6-cross"));
+        else
+            return QList<FileName>()
+                    << FileName::fromString(QLatin1String("win32-g++-cross"))
+                    << FileName::fromString(QLatin1String("unsupported/win32-g++-cross"));
+    }
     return QList<FileName>();
-#endif
 }
 
 QString MingwToolChain::makeCommand() const
 {
-#ifdef Q_OS_WIN
-    return QLatin1String("mingw32-make.exe");
-#else
+    if (Utils::HostOsInfo::isWindowsHost())
+        return QLatin1String("mingw32-make.exe");
     return QLatin1String("make");
-#endif
 }
 
 ToolChain *MingwToolChain::clone() const

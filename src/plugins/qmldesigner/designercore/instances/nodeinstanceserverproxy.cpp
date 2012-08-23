@@ -70,6 +70,9 @@
 #include "nodeinstanceview.h"
 
 #include "import.h"
+
+#include <utils/hostosinfo.h>
+
 #include <QMessageBox>
 
 
@@ -445,9 +448,8 @@ QString NodeInstanceServerProxy::qmlPuppetApplicationName() const
     } else {
         appName = QLatin1String("qmlpuppet");
     }
- #ifdef Q_OS_WIN
-    appName += QLatin1String(".exe");
- #endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        appName += QLatin1String(".exe");
 
     return appName;
 }
@@ -455,9 +457,8 @@ QString NodeInstanceServerProxy::qmlPuppetApplicationName() const
 QString NodeInstanceServerProxy::macOSBundlePath(const QString &path) const
 {
     QString applicationPath = path;
-#ifdef Q_OS_MACX
-   applicationPath += QLatin1String("/qmlpuppet.app/Contents/MacOS");
-#endif
+    if (Utils::HostOsInfo::isMacHost())
+        applicationPath += QLatin1String("/qmlpuppet.app/Contents/MacOS");
    return applicationPath;
 }
 

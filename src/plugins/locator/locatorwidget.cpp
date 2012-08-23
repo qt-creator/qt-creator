@@ -45,6 +45,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/fileiconprovider.h>
 #include <utils/filterlineedit.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
@@ -221,12 +222,12 @@ CompletionList::CompletionList(QWidget *parent)
     // This is too slow when done on all results
     //header()->setResizeMode(QHeaderView::ResizeToContents);
     setWindowFlags(Qt::ToolTip);
-#ifdef Q_OS_MAC
-    if (horizontalScrollBar())
-        horizontalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
-    if (verticalScrollBar())
-        verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
-#endif
+    if (Utils::HostOsInfo::isMacHost()) {
+        if (horizontalScrollBar())
+            horizontalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
+        if (verticalScrollBar())
+            verticalScrollBar()->setAttribute(Qt::WA_MacMiniSize);
+    }
 }
 
 void CompletionList::updatePreferredSize()
@@ -408,11 +409,14 @@ bool LocatorWidget::eventFilter(QObject *obj, QEvent *event)
             }
         }
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusOut) {
-#if defined(Q_OS_WIN)
-        QFocusEvent *fev = static_cast<QFocusEvent*>(event);
-        if (fev->reason() != Qt::ActiveWindowFocusReason ||
-            (fev->reason() == Qt::ActiveWindowFocusReason && !m_completionList->isActiveWindow()))
-#endif
+        bool hideList = true;
+        if (Utils::HostOsInfo::isWindowsHost()) {
+            QFocusEvent *fev = static_cast<QFocusEvent*>(event);
+            if (fev->reason() == Qt::ActiveWindowFocusReason &&
+                    !(fev->reason() == Qt::ActiveWindowFocusReason && !m_completionList->isActiveWindow()))
+                hideList = false;
+        }
+        if (hideList)
             m_completionList->hide();
     } else if (obj == m_fileLineEdit && event->type() == QEvent::FocusIn) {
         showPopupNow();

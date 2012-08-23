@@ -76,6 +76,7 @@
 #include <projectexplorer/itaskhandler.h>
 #include <texteditor/itexteditor.h>
 #include <utils/elfreader.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/savedaction.h>
@@ -4980,11 +4981,7 @@ void GdbEngine::finishInferiorSetup()
 
 void GdbEngine::handleDebugInfoLocation(const GdbResponse &response)
 {
-#ifdef Q_OS_WIN
-    const char pathSep = ';';
-#else
-    const char pathSep = ':';
-#endif
+    const char pathSep = HostOsInfo::isWindowsHost() ? ';' : ':';
     if (response.resultClass == GdbResultDone) {
         const QByteArray debugInfoLocation = startParameters().debugInfoLocation.toLocal8Bit();
         if (QFile::exists(QString::fromLocal8Bit(debugInfoLocation))) {

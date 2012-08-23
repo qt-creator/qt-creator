@@ -54,6 +54,7 @@
 #include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/debugginghelperbuildtask.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -66,6 +67,7 @@
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace {
 const char * const QMAKE_BS_ID("QtProjectManager.QMakeBuildStep");
@@ -137,7 +139,7 @@ QString QMakeStep::allArguments(bool shorted)
 
     arguments << QLatin1String("-r");
     bool userProvidedMkspec = false;
-    for (Utils::QtcProcess::ConstArgIterator ait(m_userArgs); ait.next(); ) {
+    for (QtcProcess::ConstArgIterator ait(m_userArgs); ait.next(); ) {
         if (ait.value() == QLatin1String("-spec")) {
             if (ait.next()) {
                 userProvidedMkspec = true;
@@ -145,7 +147,7 @@ QString QMakeStep::allArguments(bool shorted)
             }
         }
     }
-    Utils::FileName specArg = mkspec();
+    FileName specArg = mkspec();
     if (!userProvidedMkspec && !specArg.isEmpty())
         arguments << QLatin1String("-spec") << specArg.toUserOutput();
 
@@ -154,12 +156,12 @@ QString QMakeStep::allArguments(bool shorted)
 
     arguments << deducedArguments();
 
-    QString args = Utils::QtcProcess::joinArgs(arguments);
+    QString args = QtcProcess::joinArgs(arguments);
     // User arguments
-    Utils::QtcProcess::addArgs(&args, m_userArgs);
+    QtcProcess::addArgs(&args, m_userArgs);
     // moreArgumentsAfter
     foreach (const QString &arg, deducedArgumentsAfter())
-        Utils::QtcProcess::addArg(&args, arg);
+        QtcProcess::addArg(&args, arg);
     return args;
 }
 
@@ -175,11 +177,11 @@ QStringList QMakeStep::deducedArguments()
     ProjectExplorer::Abi targetAbi;
     if (tc)
         targetAbi = tc->targetAbi();
-#if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-    if ((targetAbi.osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
-               || targetAbi.osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
+    if ((HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
+            && (targetAbi.osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor)) {
         arguments << QLatin1String("-unix");
-#endif
+    }
 
     // explicitly add architecture to CONFIG
     if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)
@@ -257,7 +259,7 @@ bool QMakeStep::init()
     else
         workingDirectory = qt4bc->buildDirectory();
 
-    Utils::FileName program = qtVersion->qmakeCommand();
+    FileName program = qtVersion->qmakeCommand();
 
     QString makefile = workingDirectory;
 
@@ -444,7 +446,7 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
 QStringList QMakeStep::parserArguments()
 {
     QStringList result;
-    for (Utils::QtcProcess::ConstArgIterator ait(allArguments()); ait.next(); )
+    for (QtcProcess::ConstArgIterator ait(allArguments()); ait.next(); )
         if (ait.isSimple())
             result << ait.value();
     return result;
@@ -455,13 +457,13 @@ QString QMakeStep::userArguments()
     return m_userArgs;
 }
 
-Utils::FileName QMakeStep::mkspec()
+FileName QMakeStep::mkspec()
 {
     QString additionalArguments = m_userArgs;
-    for (Utils::QtcProcess::ArgIterator ait(&additionalArguments); ait.next(); ) {
+    for (QtcProcess::ArgIterator ait(&additionalArguments); ait.next(); ) {
         if (ait.value() == QLatin1String("-spec")) {
             if (ait.next())
-                return Utils::FileName::fromUserInput(ait.value());
+                return FileName::fromUserInput(ait.value());
         }
     }
 

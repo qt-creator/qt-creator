@@ -35,6 +35,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/documentmanager.h>
+#include <utils/hostosinfo.h>
 
 #include <QLabel>
 #include <QCoreApplication>
@@ -48,9 +49,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     QWidget(parent)
 {
     m_ui.setupUi(this);
-#ifndef Q_OS_WIN
-    setJomVisible(false);
-#endif
+    setJomVisible(Utils::HostOsInfo::isWindowsHost());
     m_ui.directoryButtonGroup->setId(m_ui.currentDirectoryRadioButton, UseCurrentDirectory);
     m_ui.directoryButtonGroup->setId(m_ui.directoryRadioButton, UseProjectDirectory);
     connect(m_ui.directoryButtonGroup, SIGNAL(buttonClicked(int)),

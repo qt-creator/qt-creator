@@ -13,10 +13,12 @@ lessThan(QT_MAJOR_VERSION, 5) {
 }
 
 HEADERS += \
-    proxyaction.h
+    proxyaction.h \
+    hostosinfo.h
 
 SOURCES += \
-    proxyaction.cpp
+    proxyaction.cpp \
+    hostosinfo.cpp
 
 win32: LIBS += -lUser32
 # PortsGatherer

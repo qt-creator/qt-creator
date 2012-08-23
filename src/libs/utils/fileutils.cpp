@@ -31,6 +31,7 @@
 #include "fileutils.h"
 #include "savefile.h"
 
+#include "hostosinfo.h"
 #include "qtcassert.h"
 
 #include <QDir>
@@ -412,12 +413,8 @@ TempFileSaver::~TempFileSaver()
     On windows filenames are compared case insensitively.
 */
 
-
-#ifdef Q_OS_WIN
-Qt::CaseSensitivity FileName::cs = Qt::CaseInsensitive;
-#else
-Qt::CaseSensitivity FileName::cs = Qt::CaseSensitive;
-#endif
+const Qt::CaseSensitivity FileName::cs
+    = HostOsInfo::isWindowsHost() ? Qt::CaseInsensitive : Qt::CaseSensitive;
 
 FileName::FileName()
     : QString()
@@ -581,10 +578,8 @@ FileName &FileName::append(QChar str)
 QT_BEGIN_NAMESPACE
 uint qHash(const Utils::FileName &a)
 {
-#ifdef Q_OS_WIN
-    return qHash(a.toString().toUpper());
-#else
+    if (Utils::HostOsInfo::isWindowsHost())
+        return qHash(a.toString().toUpper());
     return qHash(a.toString());
-#endif
 }
 QT_END_NAMESPACE

@@ -35,6 +35,7 @@
 
 #include <valgrindprocess.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <ssh/sftpchannel.h>
 
@@ -135,11 +136,7 @@ void CallgrindController::run(Option option)
 #if CALLGRIND_CONTROL_DEBUG
     m_process->setProcessChannelMode(QProcess::ForwardedChannels);
 #endif
-#ifdef Q_OS_WIN
-    int pid = 0;
-#else
-    const int pid = m_valgrindProc->pid();
-#endif
+    const int pid = Utils::HostOsInfo::isWindowsHost() ? 0 : m_valgrindProc->pid();
     m_process->run(CALLGRIND_CONTROL_BINARY,
                    QStringList() << optionString << QString::number(pid),
                    QString(), QString());

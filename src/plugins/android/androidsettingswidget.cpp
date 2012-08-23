@@ -36,6 +36,8 @@
 
 #include "androidconstants.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QFile>
 #include <QTextStream>
 #include <QProcess>
@@ -336,16 +338,15 @@ void AndroidSettingsWidget::browseNDKLocation()
 
 void AndroidSettingsWidget::browseAntLocation()
 {
-    QString dir = QDir::homePath();
-#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
-    dir = QLatin1String("/usr/bin/ant");
-    QLatin1String antApp("ant");
-#elif defined(Q_OS_WIN)
-    QLatin1String antApp("ant.bat");
-#elif defined(Q_OS_DARWIN)
-    dir = QLatin1String("/opt/local/bin/ant");
-    QLatin1String antApp("ant");
-#endif
+    QString dir;
+    QString antApp;
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        dir = QDir::homePath();
+        antApp = QLatin1String("ant.bat");
+    } else {
+        dir = QLatin1String("/usr/bin/ant");
+        antApp = QLatin1String("ant");
+    }
     const QString file =
         QFileDialog::getOpenFileName(this, tr("Select ant Script"), dir, antApp);
     if (!file.length())

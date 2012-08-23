@@ -41,6 +41,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <utils/hostosinfo.h>
 
 #include <QFileInfo>
 #include <QDir>
@@ -67,27 +68,31 @@ LibraryDetailsController::LibraryDetailsController(
     m_windowsGroupVisible(true),
     m_libraryDetailsWidget(libraryDetails)
 {
-#ifdef Q_OS_MAC
-    m_creatorPlatform = CreatorMac;
-#endif
-#ifdef Q_OS_LINUX
-    m_creatorPlatform = CreatorLinux;
-#endif
-#ifdef Q_OS_WIN
-    m_creatorPlatform = CreatorWindows;
-#endif
-
-#ifndef Q_OS_LINUX
-    // project for which we are going to insert the snippet
-    const ProjectExplorer::Project *project =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile);
-    // if its tool chain is maemo behave the same as we would be on linux
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(project->activeTarget()->profile());
-    if (tc
-            && (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
-                || tc->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
+    switch (Utils::HostOsInfo::hostOs()) {
+    case Utils::HostOsInfo::HostOsMac:
+        m_creatorPlatform = CreatorMac;
+        break;
+    case Utils::HostOsInfo::HostOsLinux:
         m_creatorPlatform = CreatorLinux;
-#endif
+        break;
+    case Utils::HostOsInfo::HostOsWindows:
+        m_creatorPlatform = CreatorWindows;
+        break;
+    default:
+        break;
+    }
+
+    if (!Utils::HostOsInfo::isLinuxHost()) {
+        // project for which we are going to insert the snippet
+        const ProjectExplorer::Project *project =
+                ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile);
+        // if its tool chain is maemo behave the same as we would be on linux
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(project->activeTarget()->profile());
+        if (tc
+                && (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
+                    || tc->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
+            m_creatorPlatform = CreatorLinux;
+    }
 
     setPlatformsVisible(true);
     setLinkageGroupVisible(true);

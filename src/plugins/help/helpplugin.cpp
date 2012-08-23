@@ -67,6 +67,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <find/findplugin.h>
 #include <texteditor/texteditorconstants.h>
+#include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
 
 #include <QDir>
@@ -251,12 +252,12 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
     connect(action, SIGNAL(triggered()), this, SLOT(activateContext()));
 
-#ifndef Q_OS_MAC
-    action = new QAction(this);
-    action->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(action, Core::Id("Help.Separator"), globalcontext);
-    Core::ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-#endif
+    if (!Utils::HostOsInfo::isMacHost()) {
+        action = new QAction(this);
+        action->setSeparator(true);
+        cmd = Core::ActionManager::registerAction(action, Core::Id("Help.Separator"), globalcontext);
+        Core::ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    }
 
     action = new QAction(tr("Technical Support"), this);
     cmd = Core::ActionManager::registerAction(action, Core::Id("Help.TechSupport"), globalcontext);
@@ -268,12 +269,12 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
     Core::ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
     connect(action, SIGNAL(triggered()), this, SLOT(slotReportBug()));
 
-#ifndef Q_OS_MAC
-    action = new QAction(this);
-    action->setSeparator(true);
-    cmd = Core::ActionManager::registerAction(action, Core::Id("Help.Separator2"), globalcontext);
-    Core::ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-#endif
+    if (!Utils::HostOsInfo::isMacHost()) {
+        action = new QAction(this);
+        action->setSeparator(true);
+        cmd = Core::ActionManager::registerAction(action, Core::Id("Help.Separator2"), globalcontext);
+        Core::ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
+    }
 
     action = new QAction(this);
     Core::ActionManager::registerAction(action, Core::Constants::PRINT, modecontext);

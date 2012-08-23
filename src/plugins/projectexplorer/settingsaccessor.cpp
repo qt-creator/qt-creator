@@ -43,6 +43,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/persistentsettings.h>
@@ -1894,7 +1895,6 @@ static const char * const lameArgListKeys[] = {
     0
 };
 
-#ifdef Q_OS_UNIX
 inline static bool isSpecialChar(ushort c)
 {
     // Chars that should be quoted (TM). This includes:
@@ -1913,27 +1913,26 @@ inline static bool hasSpecialChars(const QString &arg)
             return true;
     return false;
 }
-#endif
 
 // These were split according to sane (even if a bit arcane) rules
 static QVariant version8ArgNodeHandler(const QVariant &var)
 {
     QString ret;
     foreach (const QVariant &svar, var.toList()) {
-#ifdef Q_OS_UNIX
-        // We don't just addArg, so we don't disarm existing env expansions.
-        // This is a bit fuzzy logic ...
-        QString s = svar.toString();
-        s.replace(QLatin1Char('\\'), QLatin1String("\\\\"));
-        s.replace(QLatin1Char('"'), QLatin1String("\\\""));
-        s.replace(QLatin1Char('`'), QLatin1String("\\`"));
-        if (s != svar.toString() || hasSpecialChars(s))
-            s.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
-        Utils::QtcProcess::addArgs(&ret, s);
-#else
-        // Under windows, env expansions cannot be quoted anyway.
-        Utils::QtcProcess::addArg(&ret, svar.toString());
-#endif
+        if (Utils::HostOsInfo::isAnyUnixHost()) {
+            // We don't just addArg, so we don't disarm existing env expansions.
+            // This is a bit fuzzy logic ...
+            QString s = svar.toString();
+            s.replace(QLatin1Char('\\'), QLatin1String("\\\\"));
+            s.replace(QLatin1Char('"'), QLatin1String("\\\""));
+            s.replace(QLatin1Char('`'), QLatin1String("\\`"));
+            if (s != svar.toString() || hasSpecialChars(s))
+                s.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
+            Utils::QtcProcess::addArgs(&ret, s);
+        } else {
+            // Under windows, env expansions cannot be quoted anyway.
+            Utils::QtcProcess::addArg(&ret, svar.toString());
+        }
     }
     return QVariant(ret);
 }
@@ -1988,13 +1987,13 @@ static const char * const envExpandedKeys[] = {
 static QString version8NewVar(const QString &old)
 {
     QString ret = old;
-#ifdef Q_OS_UNIX
-    ret.prepend(QLatin1String("${"));
-    ret.append(QLatin1Char('}'));
-#else
-    ret.prepend(QLatin1Char('%'));
-    ret.append(QLatin1Char('%'));
-#endif
+    if (Utils::HostOsInfo::isAnyUnixHost()) {
+        ret.prepend(QLatin1String("${"));
+        ret.append(QLatin1Char('}'));
+    } else {
+        ret.prepend(QLatin1Char('%'));
+        ret.append(QLatin1Char('%'));
+    }
     return ret;
 }
 
@@ -2008,65 +2007,65 @@ static QVariant version8EnvNodeTransform(const QVariant &var)
                    QLatin1String("%{sourceDir}"));
     result.replace(QRegExp(QLatin1String("%BUILDDIR%|\\$(BUILDDIR\\b|\\{BUILDDIR\\})")),
                    QLatin1String("%{buildDir}"));
-#ifdef Q_OS_UNIX
-    for (int vStart = -1, i = 0; i < result.length(); ) {
-        QChar c = result.at(i++);
-        if (c == QLatin1Char('%')) {
-            if (vStart > 0 && vStart < i - 1) {
-                QString nv = version8NewVar(result.mid(vStart, i - 1 - vStart));
-                result.replace(vStart - 1, i - vStart + 1, nv);
-                i = vStart - 1 + nv.length();
-                vStart = -1;
-            } else {
-                vStart = i;
+    if (Utils::HostOsInfo::isAnyUnixHost()) {
+        for (int vStart = -1, i = 0; i < result.length(); ) {
+            QChar c = result.at(i++);
+            if (c == QLatin1Char('%')) {
+                if (vStart > 0 && vStart < i - 1) {
+                    QString nv = version8NewVar(result.mid(vStart, i - 1 - vStart));
+                    result.replace(vStart - 1, i - vStart + 1, nv);
+                    i = vStart - 1 + nv.length();
+                    vStart = -1;
+                } else {
+                    vStart = i;
+                }
+            } else if (vStart > 0) {
+                // Sanity check so we don't catch too much garbage
+                if (!c.isLetterOrNumber() && c != QLatin1Char('_'))
+                    vStart = -1;
             }
-        } else if (vStart > 0) {
-            // Sanity check so we don't catch too much garbage
-            if (!c.isLetterOrNumber() && c != QLatin1Char('_'))
-                vStart = -1;
         }
-    }
-#else
-    enum { BASE, OPTIONALVARIABLEBRACE, VARIABLE, BRACEDVARIABLE } state = BASE;
-    int vStart = -1;
+    } else {
+        enum { BASE, OPTIONALVARIABLEBRACE, VARIABLE, BRACEDVARIABLE } state = BASE;
+        int vStart = -1;
 
-    for (int i = 0; i < result.length();) {
-        QChar c = result.at(i++);
-        if (state == BASE) {
-            if (c == QLatin1Char('$'))
-                state = OPTIONALVARIABLEBRACE;
-        } else if (state == OPTIONALVARIABLEBRACE) {
-            if (c == QLatin1Char('{')) {
-                state = BRACEDVARIABLE;
-                vStart = i;
-            } else if (c.isLetterOrNumber() || c == QLatin1Char('_')) {
-                state = VARIABLE;
-                vStart = i - 1;
-            } else {
-                state = BASE;
-            }
-        } else if (state == BRACEDVARIABLE) {
-            if (c == QLatin1Char('}')) {
-                QString nv = version8NewVar(result.mid(vStart, i - 1 - vStart));
-                result.replace(vStart - 2, i - vStart + 2, nv);
-                i = vStart + nv.length();
-                state = BASE;
-            }
-        } else if (state == VARIABLE) {
-            if (!c.isLetterOrNumber() && c != QLatin1Char('_')) {
-                QString nv = version8NewVar(result.mid(vStart, i - 1 - vStart));
-                result.replace(vStart - 1, i - vStart, nv);
-                i = vStart - 1 + nv.length(); // On the same char - could be next expansion.
-                state = BASE;
+        for (int i = 0; i < result.length();) {
+            QChar c = result.at(i++);
+            if (state == BASE) {
+                if (c == QLatin1Char('$'))
+                    state = OPTIONALVARIABLEBRACE;
+            } else if (state == OPTIONALVARIABLEBRACE) {
+                if (c == QLatin1Char('{')) {
+                    state = BRACEDVARIABLE;
+                    vStart = i;
+                } else if (c.isLetterOrNumber() || c == QLatin1Char('_')) {
+                    state = VARIABLE;
+                    vStart = i - 1;
+                } else {
+                    state = BASE;
+                }
+            } else if (state == BRACEDVARIABLE) {
+                if (c == QLatin1Char('}')) {
+                    QString nv = version8NewVar(result.mid(vStart, i - 1 - vStart));
+                    result.replace(vStart - 2, i - vStart + 2, nv);
+                    i = vStart + nv.length();
+                    state = BASE;
+                }
+            } else if (state == VARIABLE) {
+                if (!c.isLetterOrNumber() && c != QLatin1Char('_')) {
+                    QString nv = version8NewVar(result.mid(vStart, i - 1 - vStart));
+                    result.replace(vStart - 1, i - vStart, nv);
+                    i = vStart - 1 + nv.length(); // On the same char - could be next expansion.
+                    state = BASE;
+                }
             }
         }
+        if (state == VARIABLE) {
+            QString nv = version8NewVar(result.mid(vStart));
+            result.truncate(vStart - 1);
+            result += nv;
+        }
     }
-    if (state == VARIABLE) {
-        QString nv = version8NewVar(result.mid(vStart));
-        result.truncate(vStart - 1);
-        result += nv;
-    }
-#endif
 
     return QVariant(result);
 }
@@ -2522,13 +2521,15 @@ void Version11Handler::addRunConfigurations(Profile *p,
 
 static QString targetRoot(const QString &qmakePath)
 {
-#ifdef Q_OS_WIN
-    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
-    const QString binQmake = "/bin/qmake.exe";
-#else
-    Qt::CaseSensitivity cs = Qt::CaseSensitive;
-    const QString binQmake = "/bin/qmake";
-#endif
+    Qt::CaseSensitivity cs;
+    QString binQmake;
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        cs = Qt::CaseInsensitive;
+        binQmake = "/bin/qmake.exe";
+    } else {
+        cs = Qt::CaseSensitive;
+        binQmake = "/bin/qmake";
+    }
     return QDir::cleanPath(qmakePath).remove(binQmake, cs);
 }
 

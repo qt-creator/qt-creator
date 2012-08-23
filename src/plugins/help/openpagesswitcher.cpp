@@ -34,6 +34,8 @@
 #include "openpagesmodel.h"
 #include "openpageswidget.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QEvent>
 
 #include <QKeyEvent>
@@ -54,9 +56,8 @@ OpenPagesSwitcher::OpenPagesSwitcher(OpenPagesModel *model)
 
     // We disable the frame on this list view and use a QFrame around it instead.
     // This improves the look with QGTKStyle.
-#ifndef Q_OS_MAC
-    setFrameStyle(m_openPagesWidget->frameStyle());
-#endif
+    if (!Utils::HostOsInfo::isMacHost())
+        setFrameStyle(m_openPagesWidget->frameStyle());
     m_openPagesWidget->setFrameStyle(QFrame::NoFrame);
 
     m_openPagesWidget->allowContextMenu(false);
@@ -125,11 +126,8 @@ bool OpenPagesSwitcher::eventFilter(QObject *object, QEvent *event)
                 emit setCurrentPage(m_openPagesWidget->currentIndex());
                 return true;
             }
-#ifdef Q_OS_MAC
-            const Qt::KeyboardModifier modifier = Qt::AltModifier;
-#else
-            const Qt::KeyboardModifier modifier = Qt::ControlModifier;
-#endif
+            const Qt::KeyboardModifiers modifier = Utils::HostOsInfo::isMacHost()
+                    ? Qt::AltModifier : Qt::ControlModifier;
             if (key == Qt::Key_Backtab
                 && (ke->modifiers() == (modifier | Qt::ShiftModifier)))
                 gotoNextPage();

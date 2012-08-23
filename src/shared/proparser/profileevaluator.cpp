@@ -33,6 +33,8 @@
 #include "qmakeglobals.h"
 #include "ioutils.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QDir>
 
 using namespace ProFileEvaluatorInternal;
@@ -93,11 +95,8 @@ QStringList ProFileEvaluator::values(const QString &variableName, const ProFile 
 
 QString ProFileEvaluator::sysrootify(const QString &path, const QString &baseDir) const
 {
-#ifdef Q_OS_WIN
-    Qt::CaseSensitivity cs = Qt::CaseInsensitive;
-#else
-    Qt::CaseSensitivity cs = Qt::CaseSensitive;
-#endif
+    const Qt::CaseSensitivity cs = Utils::HostOsInfo::isWindowsHost()
+            ? Qt::CaseInsensitive : Qt::CaseSensitive;
     const bool isHostSystemPath =
         d->m_option->sysroot.isEmpty() || path.startsWith(d->m_option->sysroot, cs)
         || path.startsWith(baseDir, cs) || path.startsWith(d->m_outputDir, cs);

@@ -42,6 +42,7 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QFormLayout>
@@ -53,6 +54,7 @@ namespace Internal {
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
+using namespace Utils;
 
 static const char ANDROID_QT_VERSION_KEY[] = "Qt4ProjectManager.Android.QtVersion";
 
@@ -85,7 +87,7 @@ bool AndroidToolChain::isValid() const
     return GccToolChain::isValid() && m_qtVersionId >= 0 && targetAbi().isValid();
 }
 
-void AndroidToolChain::addToEnvironment(Utils::Environment &env) const
+void AndroidToolChain::addToEnvironment(Environment &env) const
 {
 
 // TODO this vars should be configurable in projects -> build tab
@@ -96,18 +98,23 @@ void AndroidToolChain::addToEnvironment(Utils::Environment &env) const
             || QtSupport::QtProfileInformation::qtVersion(qt4pro->activeTarget()->profile())->type() != QLatin1String(Constants::ANDROIDQT))
         return;
 
-    QString ndk_host = QLatin1String(
-#if defined(Q_OS_LINUX)
-        "linux-x86"
-#elif defined(Q_OS_WIN)
-        "windows"
-#elif defined(Q_OS_MAC)
-        "darwin-x86"
-#endif
-    );
+    QString ndkHost;
+    switch (HostOsInfo::hostOs()) {
+    case HostOsInfo::HostOsLinux:
+        ndkHost = QLatin1String("linux-x86");
+        break;
+    case HostOsInfo::HostOsWindows:
+        ndkHost = QLatin1String("windows");
+        break;
+    case HostOsInfo::HostOsMac:
+        ndkHost = QLatin1String("darwin-x86");
+        break;
+    default:
+        break;
+    }
 
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
-    env.set(QLatin1String("ANDROID_NDK_HOST"), ndk_host);
+    env.set(QLatin1String("ANDROID_NDK_HOST"), ndkHost);
     env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::instance().config().ndkLocation.toUserOutput());
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_PREFIX"), AndroidConfigurations::toolchainPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLS_PREFIX"), AndroidConfigurations::toolsPrefix(targetAbi().architecture()));
@@ -147,18 +154,14 @@ bool AndroidToolChain::fromMap(const QVariantMap &data)
     return isValid();
 }
 
-QList<Utils::FileName> AndroidToolChain::suggestedMkspecList() const
+QList<FileName> AndroidToolChain::suggestedMkspecList() const
 {
-    return QList<Utils::FileName>()<< Utils::FileName::fromString(QLatin1String("android-g++"));
+    return QList<FileName>()<< FileName::fromString(QLatin1String("android-g++"));
 }
 
 QString AndroidToolChain::makeCommand() const
 {
-#if defined(Q_OS_WIN)
-    return QLatin1String("ma-make.exe");
-#else
-    return QLatin1String("make");
-#endif
+    return HostOsInfo::isWindowsHost() ? QLatin1String("ma-make.exe") : QLatin1String("make");
 }
 
 void AndroidToolChain::setQtVersionId(int id)

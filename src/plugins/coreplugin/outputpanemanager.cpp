@@ -48,6 +48,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 
@@ -198,11 +199,7 @@ QWidget *OutputPaneManager::buttonsWidget()
 // Return shortcut as Ctrl+<number>
 static inline int paneShortCut(int number)
 {
-#ifdef Q_OS_MAC
-    int modifier = Qt::CTRL;
-#else
-    int modifier = Qt::ALT;
-#endif
+    const int modifier = Utils::HostOsInfo::isMacHost() ? Qt::CTRL : Qt::ALT;
     return modifier | (Qt::Key_0 + number);
 }
 

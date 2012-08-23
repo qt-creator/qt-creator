@@ -19,6 +19,7 @@ QtcLibrary {
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "quick1", "script"] }
     Depends { name: "QmlJS" }
+    Depends { name: "Utils" }
 
     files: [
         "resources.qrc",

@@ -31,6 +31,7 @@
 #include "subversionsettings.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 
 #include <QSettings>
 
@@ -49,11 +50,9 @@ enum { defaultTimeOutS = 30, defaultLogCount = 1000 };
 
 static QString defaultCommand()
 {
-    QString rc;
-    rc = QLatin1String("svn");
-#if defined(Q_OS_WIN32)
-    rc.append(QLatin1String(".exe"));
-#endif
+    QString rc = QLatin1String("svn");
+    if (Utils::HostOsInfo::isWindowsHost())
+        rc.append(QLatin1String(".exe"));
     return rc;
 }
 

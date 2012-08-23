@@ -30,6 +30,8 @@
 
 #include "pathlisteditor.h"
 
+#include "hostosinfo.h"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPlainTextEdit>
@@ -254,12 +256,7 @@ void PathListEditor::slotInsert()
 
 QChar PathListEditor::separator()
 {
-#ifdef Q_OS_WIN
-    static const QChar rc(QLatin1Char(';'));
-#else
-    static const QChar rc(QLatin1Char(':'));
-#endif
-    return rc;
+    return HostOsInfo::isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
 }
 
 // Add a button "Import from 'Path'"

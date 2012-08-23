@@ -42,6 +42,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <utils/runextensions.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <QDesktopServices>
 #include <QCoreApplication>
@@ -245,9 +246,8 @@ static QStringList sourceFileNames()
     files << QLatin1String("main.cpp") << QLatin1String("qmldump.pro")
           << QLatin1String("qmlstreamwriter.cpp") << QLatin1String("qmlstreamwriter.h")
           << QLatin1String("LICENSE.LGPL") << QLatin1String("LGPL_EXCEPTION.TXT");
-#ifdef Q_OS_MAC
-    files << QLatin1String("Info.plist");
-#endif
+    if (Utils::HostOsInfo::isMacHost())
+        files << QLatin1String("Info.plist");
     return files;
 }
 

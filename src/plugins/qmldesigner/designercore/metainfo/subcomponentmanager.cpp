@@ -32,6 +32,8 @@
 #include "model.h"
 #include "metainfo.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QDir>
 #include <QMetaType>
 #include <QUrl>
@@ -56,12 +58,8 @@ static inline QStringList importPaths() {
     // env import paths
     QByteArray envImportPath = qgetenv("QML_IMPORT_PATH");
     if (!envImportPath.isEmpty()) {
-#if defined(Q_OS_WIN)
-        QLatin1Char pathSep(';');
-#else
-        QLatin1Char pathSep(':');
-#endif
-        paths = QString::fromLatin1(envImportPath).split(pathSep, QString::SkipEmptyParts);
+        const QChar sep = Utils::HostOsInfo::isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
+        paths = QString::fromLatin1(envImportPath).split(sep, QString::SkipEmptyParts);
     }
 
     return paths;

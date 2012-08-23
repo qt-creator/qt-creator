@@ -42,6 +42,7 @@
 #include <qtsupport/qtprofileinformation.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
@@ -57,6 +58,7 @@ using ProjectExplorer::BuildStepList;
 using ProjectExplorer::BuildStepConfigWidget;
 using ProjectExplorer::Task;
 using namespace Qt4ProjectManager;
+using namespace Utils;
 
 namespace Madde {
 namespace Internal {
@@ -225,7 +227,7 @@ bool AbstractMaemoPackageCreationStep::callPackagingCommand(QProcess *proc,
 void AbstractMaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
     const Qt4BuildConfiguration *bc, const QString &workingDir)
 {
-    Utils::Environment env = bc->environment();
+    Environment env = bc->environment();
     if (bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild) {
         env.appendOrSet(QLatin1String("DEB_BUILD_OPTIONS"),
             QLatin1String("nostrip"), QLatin1String(" "));
@@ -329,12 +331,12 @@ bool MaemoDebianPackageCreationStep::createPackage(QProcess *buildProc,
 
 bool MaemoDebianPackageCreationStep::isMetaDataNewerThan(const QDateTime &packageDate) const
 {
-    const Utils::FileName debianPath = DebianManager::debianDirectory(target());
+    const FileName debianPath = DebianManager::debianDirectory(target());
     if (packageDate <= debianPath.toFileInfo().lastModified())
         return true;
     const QStringList debianFiles = DebianManager::debianFiles(debianPath);
     foreach (const QString &debianFile, debianFiles) {
-        Utils::FileName absFilePath = debianPath;
+        FileName absFilePath = debianPath;
         absFilePath.appendPath(debianFile);
         if (packageDate <= absFilePath.toFileInfo().lastModified())
             return true;
@@ -351,7 +353,7 @@ void MaemoDebianPackageCreationStep::checkProjectName()
                "Debian packages.\nThey must only use lower-case letters, "
                "numbers, '-', '+' and '.'.\n""We will try to work around that, "
                "but you may experience problems."),
-            Utils::FileName(), -1, Core::Id(TASK_CATEGORY_BUILDSYSTEM)));
+            FileName(), -1, Core::Id(TASK_CATEGORY_BUILDSYSTEM)));
     }
 }
 
@@ -370,7 +372,7 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
         return false;
     }
     QString error;
-    if (!Utils::FileUtils::removeRecursively(debianDirPath, &error)) {
+    if (!FileUtils::removeRecursively(debianDirPath, &error)) {
         raiseError(tr("Packaging failed: Could not remove directory '%1': %2")
             .arg(debianDirPath, error));
         return false;
@@ -396,7 +398,7 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
         }
 
         if (newFileName == DebianManager::packageName(DebianManager::debianDirectory(target())) + QLatin1String(".aegis")) {
-            Utils::FileReader reader;
+            FileReader reader;
             if (!reader.fetch(srcFile)) {
                 raiseError(tr("Could not read manifest file '%1': %2.")
                     .arg(QDir::toNativeSeparators(srcFile), reader.errorString()));
@@ -436,9 +438,8 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
 QString MaemoDebianPackageCreationStep::packagingCommand(const QString &maddeRoot, const QString &commandName)
 {
     QString perl;
-#ifdef Q_OS_WIN
-    perl = maddeRoot + QLatin1String("/bin/perl.exe ");
-#endif
+    if (HostOsInfo::isWindowsHost())
+        perl = maddeRoot + QLatin1String("/bin/perl.exe ");
     return perl + maddeRoot + QLatin1String("/madbin/") + commandName;
 }
 
@@ -457,7 +458,7 @@ void MaemoDebianPackageCreationStep::ensureShlibdeps(QByteArray &rulesContent)
 bool MaemoDebianPackageCreationStep::adaptRulesFile(
     const QString &templatePath, const QString &rulesFilePath)
 {
-    Utils::FileReader reader;
+    FileReader reader;
     if (!reader.fetch(templatePath)) {
         raiseError(reader.errorString());
         return false;
@@ -467,7 +468,7 @@ bool MaemoDebianPackageCreationStep::adaptRulesFile(
     if (!m_debugBuild)
         ensureShlibdeps(content);
 
-    Utils::FileSaver saver(rulesFilePath);
+    FileSaver saver(rulesFilePath);
     saver.write(content);
     if (!saver.finalize()) {
         raiseError(saver.errorString());

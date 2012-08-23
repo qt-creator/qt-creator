@@ -59,6 +59,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtprofileinformation.h>
+#include <utils/hostosinfo.h>
 
 #include <QFormLayout>
 #include <QInputDialog>
@@ -262,13 +263,13 @@ Qt4RunConfigurationWidget::Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4Run
     toplayout->addRow(QString(), m_useTerminalCheck);
     m_useTerminalCheck->setVisible(!m_qt4RunConfiguration->forcedGuiMode());
 
-#ifdef Q_OS_MAC
-    m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"), this);
-    m_usingDyldImageSuffix->setChecked(m_qt4RunConfiguration->isUsingDyldImageSuffix());
-    toplayout->addRow(QString(), m_usingDyldImageSuffix);
-    connect(m_usingDyldImageSuffix, SIGNAL(toggled(bool)),
-            this, SLOT(usingDyldImageSuffixToggled(bool)));
-#endif
+    if (Utils::HostOsInfo::isMacHost()) {
+        m_usingDyldImageSuffix = new QCheckBox(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"), this);
+        m_usingDyldImageSuffix->setChecked(m_qt4RunConfiguration->isUsingDyldImageSuffix());
+        toplayout->addRow(QString(), m_usingDyldImageSuffix);
+        connect(m_usingDyldImageSuffix, SIGNAL(toggled(bool)),
+                this, SLOT(usingDyldImageSuffixToggled(bool)));
+    }
 
     QLabel *environmentLabel = new QLabel(this);
     environmentLabel->setText(tr("Run Environment"));

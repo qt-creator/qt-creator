@@ -49,6 +49,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <utils/hostosinfo.h>
 #include <utils/runextensions.h>
 
 #include <QDir>
@@ -617,10 +618,9 @@ static QString filterForQmakeFileDialog()
     for (int i = 0; i < commands.size(); ++i) {
         if (i)
             filter += QLatin1Char(' ');
-#ifdef Q_OS_MAC
-        // work around QTBUG-7739 that prohibits filters that don't start with *
-        filter += QLatin1Char('*');
-#endif
+        if (Utils::HostOsInfo::isMacHost())
+            // work around QTBUG-7739 that prohibits filters that don't start with *
+            filter += QLatin1Char('*');
         filter += commands.at(i);
     }
     filter += QLatin1Char(')');

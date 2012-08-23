@@ -45,6 +45,7 @@
 #include <qtsupport/qtprofileinformation.h>
 #include <remotelinux/abstractremotelinuxdeployservice.h>
 #include <remotelinux/linuxdevice.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
 
@@ -345,29 +346,31 @@ bool MaemoMountAndCopyFilesService::isDeploymentNecessary() const
 QList<MaemoMountSpecification> MaemoMountAndCopyFilesService::mountSpecifications() const
 {
     QList<MaemoMountSpecification> mountSpecs;
-#ifdef Q_OS_WIN
-    bool drivesToMount[26];
-    qFill(drivesToMount, drivesToMount + sizeof drivesToMount / sizeof drivesToMount[0], false);
-    for (int i = 0; i < m_filesToCopy.count(); ++i) {
-        const QString localDir = m_filesToCopy.at(i).localFilePath().toFileInfo().canonicalPath();
-        const char driveLetter = localDir.at(0).toLower().toLatin1();
-        if (driveLetter < 'a' || driveLetter > 'z') {
-            qWarning("Weird: drive letter is '%c'.", driveLetter);
-            continue;
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        bool drivesToMount[26];
+        qFill(drivesToMount, drivesToMount + sizeof drivesToMount / sizeof drivesToMount[0], false);
+        for (int i = 0; i < m_filesToCopy.count(); ++i) {
+            const QString localDir
+                    = m_filesToCopy.at(i).localFilePath().toFileInfo().canonicalPath();
+            const char driveLetter = localDir.at(0).toLower().toLatin1();
+            if (driveLetter < 'a' || driveLetter > 'z') {
+                qWarning("Weird: drive letter is '%c'.", driveLetter);
+                continue;
+            }
+
+            const int index = driveLetter - 'a';
+            if (drivesToMount[index])
+                continue;
+
+            const QString mountPoint = deployMountPoint() + QLatin1Char('/')
+                    + QLatin1Char(driveLetter);
+            const MaemoMountSpecification mountSpec(localDir.left(3), mountPoint);
+            mountSpecs << mountSpec;
+            drivesToMount[index] = true;
         }
-
-        const int index = driveLetter - 'a';
-        if (drivesToMount[index])
-            continue;
-
-        const QString mountPoint = deployMountPoint() + QLatin1Char('/') + QLatin1Char(driveLetter);
-        const MaemoMountSpecification mountSpec(localDir.left(3), mountPoint);
-        mountSpecs << mountSpec;
-        drivesToMount[index] = true;
+    } else {
+        mountSpecs << MaemoMountSpecification(QLatin1String("/"), deployMountPoint());
     }
-#else
-    mountSpecs << MaemoMountSpecification(QLatin1String("/"), deployMountPoint());
-#endif
     return mountSpecs;
 }
 

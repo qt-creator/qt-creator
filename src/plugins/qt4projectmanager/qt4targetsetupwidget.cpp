@@ -42,6 +42,7 @@
 
 #include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
 #include <QCheckBox>
@@ -93,9 +94,8 @@ Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Profile *p,
     QWidget *w = new QWidget;
     m_newBuildsLayout = new QGridLayout;
     m_newBuildsLayout->setMargin(0);
-#ifdef Q_OS_MAC
-    m_newBuildsLayout->setSpacing(0);
-#endif
+    if (Utils::HostOsInfo::isMacHost())
+        m_newBuildsLayout->setSpacing(0);
     w->setLayout(m_newBuildsLayout);
     layout->addWidget(w);
 

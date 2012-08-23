@@ -33,6 +33,7 @@
 #include "ui_addnewavddialog.h"
 
 #include <coreplugin/icore.h>
+#include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
 
 #include <QDateTime>
@@ -268,19 +269,19 @@ FileName AndroidConfigurations::adbToolPath() const
 
 FileName AndroidConfigurations::androidToolPath() const
 {
-#ifdef Q_OS_WIN32
-    // I want to switch from using android.bat to using an executable. All it really does is call
-    // Java and I've made some progress on it. So if android.exe exists, return that instead.
-    FileName path = m_config.sdkLocation;
-    path.appendPath(QLatin1String("tools/android"ANDROID_EXE_SUFFIX));
-    if (path.toFileInfo().exists())
-        return path;
-    path = m_config.sdkLocation;
-    return path.appendPath(QLatin1String("tools/android"ANDROID_BAT_SUFFIX));
-#else
-    FileName path = m_config.sdkLocation;
-    return path.appendPath(QLatin1String("tools/android"));
-#endif
+    if (HostOsInfo::isWindowsHost()) {
+        // I want to switch from using android.bat to using an executable. All it really does is call
+        // Java and I've made some progress on it. So if android.exe exists, return that instead.
+        FileName path = m_config.sdkLocation;
+        path.appendPath(QLatin1String("tools/android"ANDROID_EXE_SUFFIX));
+        if (path.toFileInfo().exists())
+            return path;
+        path = m_config.sdkLocation;
+        return path.appendPath(QLatin1String("tools/android"ANDROID_BAT_SUFFIX));
+    } else {
+        FileName path = m_config.sdkLocation;
+        return path.appendPath(QLatin1String("tools/android"));
+    }
 }
 
 FileName AndroidConfigurations::antToolPath() const

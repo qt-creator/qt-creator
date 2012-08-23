@@ -32,6 +32,8 @@
 #include "huecontrol.h"
 #include "colorbox.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPainter>
@@ -40,6 +42,8 @@
 #include <QPushButton>
 #include <QDialogButtonBox>
 #include <QGraphicsEffect>
+
+using namespace Utils;
 
 namespace QmlEditorWidgets {
 
@@ -52,12 +56,12 @@ CustomColorDialog::CustomColorDialog(QWidget *parent) : QFrame(parent )
 
     // TODO: The following code should be enabled for OSX
     // when QTBUG-23205 is fixed
-#ifndef Q_OS_MAC
-    QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
-    dropShadowEffect->setBlurRadius(6);
-    dropShadowEffect->setOffset(2, 2);
-    setGraphicsEffect(dropShadowEffect);
-#endif
+    if (!HostOsInfo::isMacHost()) {
+        QGraphicsDropShadowEffect *dropShadowEffect = new QGraphicsDropShadowEffect;
+        dropShadowEffect->setBlurRadius(6);
+        dropShadowEffect->setOffset(2, 2);
+        setGraphicsEffect(dropShadowEffect);
+    }
     setAutoFillBackground(true);
 
     m_hueControl = new HueControl(this);
@@ -184,16 +188,14 @@ void CustomColorDialog::setupWidgets()
 
 void CustomColorDialog::leaveEvent(QEvent *)
 {
-#ifdef Q_OS_MAC
-    unsetCursor();
-#endif
+    if (HostOsInfo::isMacHost())
+        unsetCursor();
 }
 
 void CustomColorDialog::enterEvent(QEvent *)
 {
-#ifdef Q_OS_MAC
-    setCursor(Qt::ArrowCursor);
-#endif
+    if (HostOsInfo::isMacHost())
+        setCursor(Qt::ArrowCursor);
 }
 
 

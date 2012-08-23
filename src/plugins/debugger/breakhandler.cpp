@@ -38,6 +38,7 @@
 #include "debuggerstringutils.h"
 #include "stackframe.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #if USE_BREAK_MODEL_TEST
@@ -181,11 +182,9 @@ QIcon BreakHandler::emptyIcon()
 
 static inline bool fileNameMatch(const QString &f1, const QString &f2)
 {
-#ifdef Q_OS_WIN
-    return f1.compare(f2, Qt::CaseInsensitive) == 0;
-#else
+    if (Utils::HostOsInfo::isWindowsHost())
+        return f1.compare(f2, Qt::CaseInsensitive) == 0;
     return f1 == f2;
-#endif
 }
 
 static bool isSimilarTo(const BreakpointParameters &data, const BreakpointResponse &needle)

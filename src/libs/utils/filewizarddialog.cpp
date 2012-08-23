@@ -31,6 +31,8 @@
 #include "filewizarddialog.h"
 #include "filewizardpage.h"
 
+#include "hostosinfo.h"
+
 #include <QAbstractButton>
 
 /*!
@@ -49,15 +51,15 @@ FileWizardDialog::FileWizardDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setOption(QWizard::NoCancelButton, false);
     setOption(QWizard::NoDefaultButton, false);
-#ifdef Q_OS_MAC
-    setButtonLayout(QList<QWizard::WizardButton>()
-                    << QWizard::CancelButton
-                    << QWizard::Stretch
-                    << QWizard::BackButton
-                    << QWizard::NextButton
-                    << QWizard::CommitButton
-                    << QWizard::FinishButton);
-#endif
+    if (HostOsInfo::isMacHost()) {
+        setButtonLayout(QList<QWizard::WizardButton>()
+                        << QWizard::CancelButton
+                        << QWizard::Stretch
+                        << QWizard::BackButton
+                        << QWizard::NextButton
+                        << QWizard::CommitButton
+                        << QWizard::FinishButton);
+    }
     const int filePageId = addPage(m_filePage);
     wizardProgress()->item(filePageId)->setTitle(tr("Location"));
     connect(m_filePage, SIGNAL(activated()), button(QWizard::FinishButton), SLOT(animateClick()));

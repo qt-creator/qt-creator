@@ -33,6 +33,7 @@
 
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocessrunner.h>
+#include <utils/hostosinfo.h>
 
 #include <QDir>
 
@@ -124,13 +125,13 @@ void MaemoRemoteCopyFacility::copyNextFile()
 
     const DeployableFile &d = m_deployables.first();
     QString sourceFilePath = m_mountPoint;
-#ifdef Q_OS_WIN
-    const QString localFilePath = QDir::fromNativeSeparators(d.localFilePath().toString());
-    sourceFilePath += QLatin1Char('/') + localFilePath.at(0).toLower()
-        + localFilePath.mid(2);
-#else
-    sourceFilePath += d.localFilePath().toString();
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        const QString localFilePath = QDir::fromNativeSeparators(d.localFilePath().toString());
+        sourceFilePath += QLatin1Char('/') + localFilePath.at(0).toLower()
+                + localFilePath.mid(2);
+    } else {
+        sourceFilePath += d.localFilePath().toString();
+    }
 
     QString command = QString::fromLatin1("%1 mkdir -p %3 && %1 cp -a %2 %3")
         .arg(MaemoGlobal::remoteSudo(m_devConf->type(), m_devConf->sshParameters().userName),

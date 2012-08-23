@@ -36,6 +36,8 @@
 #include "helpviewer_p.h"
 #include "localhelpmanager.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QApplication>
 #include <QClipboard>
 #include <QContextMenuEvent>
@@ -286,19 +288,15 @@ void HelpViewer::wheelEvent(QWheelEvent *e)
 
 void HelpViewer::mousePressEvent(QMouseEvent *e)
 {
-#ifdef Q_OS_LINUX
-    if (handleForwardBackwardMouseButtons(e))
+    if (Utils::HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(e))
         return;
-#endif
     QTextBrowser::mousePressEvent(e);
 }
 
 void HelpViewer::mouseReleaseEvent(QMouseEvent *e)
 {
-#ifndef Q_OS_LINUX
-    if (handleForwardBackwardMouseButtons(e))
+    if (!Utils::HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(e))
         return;
-#endif
 
     bool controlPressed = e->modifiers() & Qt::ControlModifier;
     if ((controlPressed && d->hasAnchorAt(this, e->pos())) ||

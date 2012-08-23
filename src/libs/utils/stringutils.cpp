@@ -30,6 +30,8 @@
 
 #include "stringutils.h"
 
+#include "hostosinfo.h"
+
 #include <QString>
 #include <QStringList>
 #include <QFileInfo>
@@ -95,19 +97,17 @@ QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files)
         lastSeparatorPos = common.lastIndexOf(QLatin1Char('\\'));
     if (lastSeparatorPos == -1)
         return QString();
-#ifdef Q_OS_UNIX
-    if (lastSeparatorPos == 0) // Unix: "/a", "/b" -> '/'
+    if (HostOsInfo::isAnyUnixHost() && lastSeparatorPos == 0) // Unix: "/a", "/b" -> '/'
         lastSeparatorPos = 1;
-#endif
     common.truncate(lastSeparatorPos);
     return common;
 }
 
 QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
 {
-#ifdef Q_OS_WIN
-    QString outPath = path;
-#else
+    if (HostOsInfo::isWindowsHost())
+        return path;
+
     static const QString homePath = QDir::homePath();
 
     QFileInfo fi(QDir::cleanPath(path));
@@ -116,7 +116,6 @@ QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
         outPath = QLatin1Char('~') + outPath.mid(homePath.size());
     else
         outPath = path;
-#endif
     return outPath;
 }
 

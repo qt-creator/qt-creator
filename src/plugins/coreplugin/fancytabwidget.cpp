@@ -29,6 +29,7 @@
 **************************************************************************/
 
 #include "fancytabwidget.h"
+#include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
 #include <utils/styledbar.h>
 
@@ -289,8 +290,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     } else {
         painter->setPen(selected ? Utils::StyleHelper::panelTextColor() : QColor(255, 255, 255, 120));
     }
-#ifndef Q_OS_MAC
-    if (!selected && enabled) {
+    if (!Utils::HostOsInfo::isMacHost() && !selected && enabled) {
         painter->save();
         int fader = int(m_tabs[tabIndex]->fader());
         QLinearGradient grad(rect.topLeft(), rect.topRight());
@@ -303,7 +303,6 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->drawLine(rect.bottomLeft(), rect.bottomRight());
         painter->restore();
     }
-#endif
 
     if (!enabled)
         painter->setOpacity(0.7);

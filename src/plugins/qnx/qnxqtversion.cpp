@@ -35,6 +35,8 @@
 
 #include "qnxconstants.h"
 
+#include <utils/hostosinfo.h>
+
 using namespace Qnx;
 using namespace Qnx::Internal;
 
@@ -96,26 +98,26 @@ QMultiMap<QString, QString> QnxQtVersion::environment() const
 
     QMultiMap<QString, QString> environment;
 
-#if defined Q_OS_WIN
-    // TODO:
-    //environment.insert(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx"));
-    environment.insert(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath() + QLatin1String("/target/qnx6"));
-    environment.insert(QLatin1String(Constants::QNX_HOST_KEY), sdkPath() + QLatin1String("/host/win32/x86"));
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // TODO:
+        //environment.insert(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx"));
+        environment.insert(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath() + QLatin1String("/target/qnx6"));
+        environment.insert(QLatin1String(Constants::QNX_HOST_KEY), sdkPath() + QLatin1String("/host/win32/x86"));
 
-    environment.insert(QLatin1String("PATH"), sdkPath() + QLatin1String("/host/win32/x86/usr/bin"));
+        environment.insert(QLatin1String("PATH"), sdkPath() + QLatin1String("/host/win32/x86/usr/bin"));
 
-    // TODO:
-    //environment.insert(QLatin1String("PATH"), QLatin1String("/etc/qnx/bin"));
-#elif defined Q_OS_UNIX
-    environment.insert(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx"));
-    environment.insert(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath() + QLatin1String("/target/qnx6"));
-    environment.insert(QLatin1String(Constants::QNX_HOST_KEY), sdkPath() + QLatin1String("/host/linux/x86"));
+        // TODO:
+        //environment.insert(QLatin1String("PATH"), QLatin1String("/etc/qnx/bin"));
+    } else if (Utils::HostOsInfo::isAnyUnixHost()) {
+        environment.insert(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx"));
+        environment.insert(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath() + QLatin1String("/target/qnx6"));
+        environment.insert(QLatin1String(Constants::QNX_HOST_KEY), sdkPath() + QLatin1String("/host/linux/x86"));
 
-    environment.insert(QLatin1String("PATH"), sdkPath() + QLatin1String("/host/linux/x86/usr/bin"));
-    environment.insert(QLatin1String("PATH"), QLatin1String("/etc/qnx/bin"));
+        environment.insert(QLatin1String("PATH"), sdkPath() + QLatin1String("/host/linux/x86/usr/bin"));
+        environment.insert(QLatin1String("PATH"), QLatin1String("/etc/qnx/bin"));
 
-    environment.insert(QLatin1String("LD_LIBRARY_PATH"), sdkPath() + QLatin1String("/host/linux/x86/usr/lib"));
-#endif
+        environment.insert(QLatin1String("LD_LIBRARY_PATH"), sdkPath() + QLatin1String("/host/linux/x86/usr/lib"));
+    }
 
     environment.insert(QLatin1String("QNX_JAVAHOME"), sdkPath() + QLatin1String("/_jvm"));
     environment.insert(QLatin1String("MAKEFLAGS"), QLatin1String("-I") + sdkPath() + QLatin1String("/target/qnx6/usr/include"));

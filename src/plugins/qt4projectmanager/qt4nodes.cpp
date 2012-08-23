@@ -58,6 +58,7 @@
 #include <qtsupport/qtprofileinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/fileutils.h>
@@ -338,10 +339,8 @@ struct InternalNode
                 fileWithoutPrefix = file;
             }
             QStringList parts = fileWithoutPrefix.toString().split(separator, QString::SkipEmptyParts);
-#ifndef Q_OS_WIN
-            if (!isRelative && parts.count() > 0)
+            if (!Utils::HostOsInfo::isWindowsHost() && !isRelative && parts.count() > 0)
                 parts[0].prepend(separator);
-#endif
             QStringListIterator it(parts);
             InternalNode *currentNode = this;
             QString path = (isRelative ? (projectDirFileName.toString() + QLatin1Char('/')) : QString());
@@ -1397,13 +1396,8 @@ QString Qt4ProFileNode::makefile() const
 
 QString Qt4ProFileNode::objectExtension() const
 {
-    if (m_varValues[ObjectExt].isEmpty()) {
-#ifdef Q_OS_WIN
-        return QLatin1String(".obj");
-#else
-        return QLatin1String(".o");
-#endif
-    }
+    if (m_varValues[ObjectExt].isEmpty())
+        return Utils::HostOsInfo::isWindowsHost() ? QLatin1String(".obj") : QLatin1String(".o");
     return m_varValues[ObjectExt].first();
 }
 
@@ -2248,13 +2242,12 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
     if (result.target.isEmpty())
         result.target = QFileInfo(m_projectFilePath).baseName();
 
-#if defined (Q_OS_MAC)
-    if (reader->values(QLatin1String("CONFIG")).contains(QLatin1String("app_bundle"))) {
+    if (Utils::HostOsInfo::isMacHost()
+            && reader->values(QLatin1String("CONFIG")).contains(QLatin1String("app_bundle"))) {
         result.workingDir += QLatin1Char('/')
                            + result.target
                            + QLatin1String(".app/Contents/MacOS");
     }
-#endif
 
     result.workingDir = QDir::cleanPath(result.workingDir);
 
@@ -2281,9 +2274,8 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
     result.executable = QDir::cleanPath(wd + QLatin1Char('/') + result.target);
     //qDebug() << "##### updateTarget sets:" << result.workingDir << result.executable;
 
-#if defined (Q_OS_WIN)
-    result.executable += QLatin1String(".exe");
-#endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        result.executable += QLatin1String(".exe");
     result.valid = true;
     return result;
 }

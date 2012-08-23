@@ -41,6 +41,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
 #include <utils/iwelcomepage.h>
 #include <utils/networkaccessmanager.h>
@@ -65,6 +66,7 @@
 enum { debug = 0 };
 
 using namespace ExtensionSystem;
+using namespace Utils;
 
 static const char currentPageSettingsKeyC[] = "WelcomeTab";
 
@@ -240,11 +242,10 @@ void WelcomeMode::initPlugins()
         engine->setOutputWarningsToStandardError(false);
     engine->setNetworkAccessManagerFactory(m_networkAccessManagerFactory);
     QString pluginPath = QCoreApplication::applicationDirPath();
-#ifdef Q_OS_MAC
-    pluginPath += QLatin1String("/../PlugIns");
-#else
-    pluginPath += QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator");
-#endif
+    if (HostOsInfo::isMacHost())
+        pluginPath += QLatin1String("/../PlugIns");
+    else
+        pluginPath += QLatin1String("/../" IDE_LIBRARY_BASENAME "/qtcreator");
     engine->addImportPath(QDir::cleanPath(pluginPath));
     facilitateQml(engine);
     foreach (Utils::IWelcomePage *plugin, plugins) {
@@ -261,17 +262,13 @@ void WelcomeMode::initPlugins()
 
 QString WelcomeMode::platform() const
 {
-#if defined(Q_OS_WIN)
-    return QLatin1String("windows");
-#elif defined(Q_OS_MAC)
-    return QLatin1String("mac");
-#elif defined(Q_OS_LINUX)
-    return QLatin1String("linux");
-#elif defined(Q_OS_UNIX)
-    return QLatin1String("unix");
-#else
-    return QLatin1String("other")
-#endif
+    switch (HostOsInfo::hostOs()) {
+    case HostOsInfo::HostOsWindows: return QLatin1String("windows");
+    case HostOsInfo::HostOsMac: return QLatin1String("mac");
+    case HostOsInfo::HostOsLinux: return QLatin1String("linux");
+    case HostOsInfo::HostOsOtherUnix: return QLatin1String("unix");
+    default: return QLatin1String("other");
+    }
 }
 
 void WelcomeMode::welcomePluginAdded(QObject *obj)

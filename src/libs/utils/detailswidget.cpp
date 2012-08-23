@@ -30,6 +30,7 @@
 
 #include "detailswidget.h"
 #include "detailsbutton.h"
+#include "hostosinfo.h"
 
 #include <QStack>
 #include <QPropertyAnimation>
@@ -143,10 +144,10 @@ QPixmap DetailsWidgetPrivate::cacheBackground(const QSize &size)
 
     QRect topRect(0, 0, size.width(), topHeight);
     QRect fullRect(0, 0, size.width(), size.height());
-#ifdef Q_OS_MAC
-    p.fillRect(fullRect, qApp->palette().window().color());
-#endif
-    p.fillRect(fullRect, QColor(255, 255, 255, 40));
+    if (HostOsInfo::isMacHost())
+        p.fillRect(fullRect, qApp->palette().window().color());
+    else
+        p.fillRect(fullRect, QColor(255, 255, 255, 40));
 
     QLinearGradient lg(topRect.topLeft(), topRect.bottomLeft());
     lg.setColorAt(0, QColor(255, 255, 255, 130));
@@ -188,11 +189,10 @@ void DetailsWidgetPrivate::changeHoverState(bool hovered)
 {
     if (!m_toolWidget)
         return;
-#ifdef Q_OS_MAC
-    m_toolWidget->setOpacity(hovered ? 1.0 : 0);
-#else
-    m_toolWidget->fadeTo(hovered ? 1.0 : 0);
-#endif
+    if (HostOsInfo::isMacHost())
+        m_toolWidget->setOpacity(hovered ? 1.0 : 0);
+    else
+        m_toolWidget->fadeTo(hovered ? 1.0 : 0);
     m_hovered = hovered;
 }
 
@@ -381,9 +381,8 @@ void DetailsWidget::setToolWidget(Utils::FadingPanel *widget)
     d->m_toolWidget->adjustSize();
     d->m_grid->addWidget(d->m_toolWidget, 0, 1, 1, 1, Qt::AlignRight);
 
-#ifdef Q_OS_MAC
-    d->m_toolWidget->setOpacity(1.0);
-#endif
+    if (HostOsInfo::isMacHost())
+        d->m_toolWidget->setOpacity(1.0);
     d->changeHoverState(d->m_hovered);
 }
 

@@ -33,6 +33,7 @@
 #include "maemoqemusettings.h"
 
 #include <qtsupport/baseqtversion.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -199,17 +200,17 @@ void MaemoQemuRuntimeParserV1::fillRuntimeInformation(MaemoQemuRuntime *runtime)
             // This is complex because of extreme MADDE weirdness.
             const QString root = m_maddeRoot + QLatin1Char('/');
             const bool pathIsRelative = QFileInfo(runtime->m_bin).isRelative();
-            runtime->m_bin =
-        #ifdef Q_OS_WIN
-                root + (pathIsRelative
-                    ? QLatin1String("madlib/") + runtime->m_bin // Fremantle.
-                    : runtime->m_bin)                           // Harmattan.
-                    + QLatin1String(".exe");
-        #else
-                pathIsRelative
-                    ? root + QLatin1String("madlib/") + runtime->m_bin // Fremantle.
-                    : runtime->m_bin;                                  // Harmattan.
-        #endif
+            if (Utils::HostOsInfo::isWindowsHost()) {
+                runtime->m_bin =
+                        root + (pathIsRelative
+                                ? QLatin1String("madlib/") + runtime->m_bin // Fremantle.
+                                : runtime->m_bin)                           // Harmattan.
+                        + QLatin1String(".exe");
+            } else {
+                runtime->m_bin = pathIsRelative
+                        ? root + QLatin1String("madlib/") + runtime->m_bin // Fremantle.
+                        : runtime->m_bin;                                  // Harmattan.
+            }
         }
     }
 }
@@ -336,17 +337,17 @@ void MaemoQemuRuntimeParserV2::handleEnvironmentTag(MaemoQemuRuntime &runtime)
     while (m_madInfoReader.readNextStartElement())
         handleVariableTag(runtime);
 
-#ifdef Q_OS_WIN
-    const QString root = QDir::toNativeSeparators(m_maddeRoot)
-        + QLatin1Char('/');
-    const QLatin1Char colon(';');
-    const QLatin1String key("PATH");
-    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    runtime.m_normalVars << MaemoQemuRuntime::Variable(key,
-        root + QLatin1String("bin") + colon + env.value(key));
-    runtime.m_normalVars << MaemoQemuRuntime::Variable(key,
-        root + QLatin1String("madlib") + colon + env.value(key));
-#endif
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        const QString root = QDir::toNativeSeparators(m_maddeRoot)
+                + QLatin1Char('/');
+        const QLatin1Char colon(';');
+        const QLatin1String key("PATH");
+        QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+        runtime.m_normalVars << MaemoQemuRuntime::Variable(key,
+                root + QLatin1String("bin") + colon + env.value(key));
+        runtime.m_normalVars << MaemoQemuRuntime::Variable(key,
+                root + QLatin1String("madlib") + colon + env.value(key));
+    }
 }
 
 void MaemoQemuRuntimeParserV2::handleVariableTag(MaemoQemuRuntime &runtime)

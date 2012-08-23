@@ -60,6 +60,7 @@
 
 #include "fakevimhandler.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -3870,9 +3871,8 @@ bool FakeVimHandler::Private::handleExBangCommand(const ExCommand &cmd) // :!
     QProcess proc;
     proc.start(command);
     proc.waitForStarted();
-#ifdef Q_OS_WIN
-    text.replace(_("\n"), _("\r\n"));
-#endif
+    if (Utils::HostOsInfo::isWindowsHost())
+        text.replace(_("\n"), _("\r\n"));
     proc.write(text.toUtf8());
     proc.closeWriteChannel();
     proc.waitForFinished();
