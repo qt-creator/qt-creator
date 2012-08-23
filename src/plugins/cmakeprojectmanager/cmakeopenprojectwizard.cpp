@@ -296,9 +296,8 @@ void CMakeRunPage::initWidgets()
 
     // Run CMake Line (with arguments)
     m_argumentsLineEdit = new QLineEdit(this);
-    m_argumentsLineEdit->setObjectName(QLatin1String("CMakeArgumentsLineEdit"));
     m_argumentsLineEdit->setCompleter(
-        new Utils::HistoryCompleter(Core::ICore::settings(), m_argumentsLineEdit));
+        new Utils::HistoryCompleter(m_argumentsLineEdit, QLatin1String("CMakeArgumentsLineEdit")));
 
     connect(m_argumentsLineEdit,SIGNAL(returnPressed()), this, SLOT(runCMake()));
     fl->addRow(tr("Arguments:"), m_argumentsLineEdit);

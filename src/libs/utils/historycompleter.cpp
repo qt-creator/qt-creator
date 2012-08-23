@@ -44,6 +44,8 @@
 namespace Utils {
 namespace Internal {
 
+static QSettings *theSettings = 0;
+
 class HistoryCompleterPrivate : public QAbstractListModel
 {
 public:
@@ -61,7 +63,6 @@ public:
     QString historyKey;
     HistoryCompleter *completer;
     QWidget *lastSeenWidget;
-    QSettings *settings;
     int maxLines;
 };
 
@@ -114,20 +115,19 @@ HistoryCompleterPrivate::HistoryCompleterPrivate(HistoryCompleter *parent)
     : QAbstractListModel(parent)
     , completer(parent)
     , lastSeenWidget(0)
-    , settings(0)
     , maxLines(30)
 {
 }
 
 void HistoryCompleterPrivate::fetchHistory()
 {
-    QTC_ASSERT(settings, return);
+    QTC_ASSERT(theSettings, return);
     if (!completer->widget()) {
         list.clear();
         reset();
         return;
     }
-    list = settings->value(historyKey).toStringList();
+    list = theSettings->value(historyKey).toStringList();
     reset();
 }
 
@@ -165,7 +165,7 @@ bool HistoryCompleterPrivate::removeRows(int row, int count, const QModelIndex &
 {
     beginRemoveRows (parent, row, row + count);
     list.removeAt(row);
-    settings->setValue(historyKey, list);
+    theSettings->setValue(historyKey, list);
     endRemoveRows();
     return true;
 }
@@ -178,6 +178,7 @@ void HistoryCompleterPrivate::clearHistory()
 
 void HistoryCompleterPrivate::saveEntry(const QString &str)
 {
+    QTC_ASSERT(theSettings, return);
     if (str.isEmpty())
         return;
     if (list.contains(str))
@@ -195,7 +196,7 @@ void HistoryCompleterPrivate::saveEntry(const QString &str)
     list.prepend(str);
     list = list.mid(0, maxLines);
     endInsertRows();
-    settings->setValue(historyKey, list);
+    theSettings->setValue(historyKey, list);
 }
 
 bool HistoryCompleterPrivate::eventFilter(QObject *obj, QEvent *event)
@@ -207,26 +208,21 @@ bool HistoryCompleterPrivate::eventFilter(QObject *obj, QEvent *event)
     return QAbstractListModel::eventFilter(obj,event);
 }
 
-HistoryCompleter::HistoryCompleter(QSettings *settings, QObject *parent, const QString &historyKey)
+HistoryCompleter::HistoryCompleter(QObject *parent, const QString &historyKey)
     : QCompleter(parent)
     , d(new HistoryCompleterPrivate(this))
 {
-    QTC_ASSERT(settings, return);
-    d->settings = settings;
+    QTC_ASSERT(!historyKey.isEmpty(), return);
+
     // make an assumption to allow pressing of the down
     // key, before the first model run:
     // parent is likely the lineedit
-    if (historyKey.isEmpty())
-        d->historyKey = parent->objectName();
-    else
-        d->historyKey = historyKey;
 
-    if (d->historyKey.isEmpty())
-        return;
-    d->historyKey = QLatin1String("CompleterHistory/") + d->historyKey;
+    d->historyKey = QLatin1String("CompleterHistory/") + historyKey;
 
     parent->installEventFilter(d);
-    d->list = d->settings->value(d->historyKey).toStringList();
+    QTC_ASSERT(theSettings, return);
+    d->list = theSettings->value(d->historyKey).toStringList();
 
     QLineEdit *l = qobject_cast<QLineEdit *>(parent);
     if (l && d->list.count())
@@ -267,6 +263,11 @@ void HistoryCompleter::clearHistory()
 void HistoryCompleter::saveHistory()
 {
     d->saveEntry(completionPrefix());
+}
+
+void HistoryCompleter::setSettings(QSettings *settings)
+{
+    Internal::theSettings = settings;
 }
 
 } // namespace Utils

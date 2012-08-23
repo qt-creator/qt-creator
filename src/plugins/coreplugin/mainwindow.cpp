@@ -82,6 +82,7 @@
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/settingsdatabase.h>
+#include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
 #include <utils/stylehelper.h>
 #include <utils/stringutils.h>
@@ -174,6 +175,8 @@ MainWindow::MainWindow() :
 {
     (void) new DocumentManager(this);
     OutputPaneManager::create();
+
+    Utils::HistoryCompleter::setSettings(m_settings);
 
     setWindowTitle(tr("Qt Creator"));
 #ifndef Q_OS_MAC

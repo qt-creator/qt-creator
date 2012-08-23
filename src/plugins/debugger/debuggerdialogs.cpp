@@ -210,22 +210,21 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    QSettings *settings = ICore::settings();
-
     d->localExecutablePathChooser = new PathChooser(this);
     d->localExecutablePathChooser->setExpectedKind(PathChooser::File);
     d->localExecutablePathChooser->setPromptDialogTitle(tr("Select Executable"));
     d->localExecutablePathChooser->lineEdit()->setCompleter(
-        new HistoryCompleter(settings, d->localExecutablePathChooser->lineEdit()));
+        new HistoryCompleter(d->localExecutablePathChooser->lineEdit(), QLatin1String("LocalExecutable")));
 
     d->arguments = new QLineEdit(this);
-    d->arguments->setCompleter(new HistoryCompleter(settings, d->arguments));
+    d->arguments->setCompleter(
+        new HistoryCompleter(d->arguments, QLatin1String("CommandlineArguments")));
 
     d->workingDirectory = new PathChooser(this);
     d->workingDirectory->setExpectedKind(PathChooser::ExistingDirectory);
     d->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
     d->workingDirectory->lineEdit()->setCompleter(
-        new HistoryCompleter(settings, d->workingDirectory->lineEdit()));
+        new HistoryCompleter(d->workingDirectory->lineEdit(), QLatin1String("WorkingDirectory")));
 
     d->runInTerminalCheckBox = new QCheckBox(this);
 
@@ -667,25 +666,24 @@ public:
 StartRemoteEngineDialog::StartRemoteEngineDialog(QWidget *parent)
     : QDialog(parent), d(new StartRemoteEngineDialogPrivate)
 {
-    QSettings *settings = ICore::settings();
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Remote Engine"));
 
     d->host = new QLineEdit(this);
     d->host->setText(QString());
-    d->host->setCompleter(new HistoryCompleter(settings, d->host));
+    d->host->setCompleter(new HistoryCompleter(d->host, QLatin1String("HostName")));
 
     d->username = new QLineEdit(this);
-    d->username->setCompleter(new HistoryCompleter(settings, d->username));
+    d->username->setCompleter(new HistoryCompleter(d->username, QLatin1String("UserName")));
 
     d->password = new QLineEdit(this);
     d->password->setEchoMode(QLineEdit::Password);
 
     d->enginePath = new QLineEdit(this);
-    d->enginePath->setCompleter(new HistoryCompleter(settings, d->enginePath));
+    d->enginePath->setCompleter(new HistoryCompleter(d->enginePath, QLatin1String("EnginePath")));
 
     d->inferiorPath = new QLineEdit(this);
-    d->inferiorPath->setCompleter(new HistoryCompleter(settings, d->inferiorPath));
+    d->inferiorPath->setCompleter(new HistoryCompleter(d->inferiorPath, QLatin1String("InferiorPath")));
 
     d->buttonBox = new QDialogButtonBox(this);
     d->buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
