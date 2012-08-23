@@ -64,7 +64,7 @@ class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplor
     friend class Internal::QmlProjectRunConfigurationWidget;
 
 public:
-    QmlProjectRunConfiguration(ProjectExplorer::Target *parent);
+    QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
     virtual ~QmlProjectRunConfiguration();
 
     QString viewerPath() const;
