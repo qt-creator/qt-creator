@@ -41,7 +41,6 @@ namespace QmlDesigner {
 namespace Internal {
 
 class ItemLibraryEntryData;
-class ItemLibraryInfoPrivate;
 class MetaInfoPrivate;
 }
 
@@ -101,7 +100,6 @@ class CORESHARED_EXPORT ItemLibraryInfo : public QObject
 
     friend class Internal::MetaInfoPrivate;
 public:
-    ~ItemLibraryInfo();
 
     QList<ItemLibraryEntry> entries() const;
     QList<ItemLibraryEntry> entriesForType(const QString &typeName, int majorVersion, int minorVersion) const;
@@ -114,10 +112,13 @@ public:
 signals:
     void entriesChanged();
 
-private:
+private: // functions
     ItemLibraryInfo(QObject *parent = 0);
-    void setBaseInfo(ItemLibraryInfo *baseInfo);
-    Internal::ItemLibraryInfoPrivate *d;
+    void setBaseInfo(ItemLibraryInfo *m_baseInfo);
+
+private: // variables
+    QHash<QString, ItemLibraryEntry> m_nameToEntryHash;
+    QWeakPointer<ItemLibraryInfo> m_baseInfo;
 };
 
 } // namespace QmlDesigner

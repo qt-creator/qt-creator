@@ -56,14 +56,6 @@ public:
     bool forceImport;
 };
 
-class ItemLibraryInfoPrivate
-{
-public:
-    QHash<QString, ItemLibraryEntry> nameToEntryHash;
-
-    QWeakPointer<ItemLibraryInfo> baseInfo;
-};
-
 } // namespace Internal
 
 //
@@ -253,50 +245,46 @@ QDataStream& operator>>(QDataStream& stream, ItemLibraryEntry &itemLibraryEntry)
 // ItemLibraryInfo
 //
 
-ItemLibraryInfo::ItemLibraryInfo(QObject *parent) :
-        QObject(parent),
-        d(new Internal::ItemLibraryInfoPrivate())
+ItemLibraryInfo::ItemLibraryInfo(QObject *parent)
+    : QObject(parent)
 {
 }
 
-ItemLibraryInfo::~ItemLibraryInfo()
-{
-    delete d;
-}
+
 
 QList<ItemLibraryEntry> ItemLibraryInfo::entriesForType(const QString &typeName, int majorVersion, int minorVersion) const
 {
     QList<ItemLibraryEntry> entries;
 
-    foreach (const ItemLibraryEntry &entry, d->nameToEntryHash) {
+    foreach (const ItemLibraryEntry &entry, m_nameToEntryHash) {
         if (entry.typeName() == typeName
             && entry.majorVersion() >= majorVersion
             && entry.minorVersion() >= minorVersion)
             entries += entry;
     }
 
-    if (d->baseInfo)
-        entries += d->baseInfo->entriesForType(typeName, majorVersion, minorVersion);
+    if (m_baseInfo)
+        entries += m_baseInfo->entriesForType(typeName, majorVersion, minorVersion);
 
     return entries;
 }
 
 ItemLibraryEntry ItemLibraryInfo::entry(const QString &name) const
 {
-    if (d->nameToEntryHash.contains(name))
-        return d->nameToEntryHash.value(name);
+    if (m_nameToEntryHash.contains(name))
+        return m_nameToEntryHash.value(name);
 
-    if (d->baseInfo)
-        return d->baseInfo->entry(name);
+    if (m_baseInfo)
+        return m_baseInfo->entry(name);
 
     return ItemLibraryEntry();
 }
 
 QList<ItemLibraryEntry> ItemLibraryInfo::entries() const
 {
-    QList<ItemLibraryEntry> list = d->nameToEntryHash.values();
-    if (d->baseInfo)
-        list += d->baseInfo->entries();
+    QList<ItemLibraryEntry> list = m_nameToEntryHash.values();
+    if (m_baseInfo)
+        list += m_baseInfo->entries();
     return list;
 }
 
@@ -308,9 +296,9 @@ static inline QString keyForEntry(const ItemLibraryEntry &entry)
 void ItemLibraryInfo::addEntry(const ItemLibraryEntry &entry)
 {
     const QString key = keyForEntry(entry);
-    if (d->nameToEntryHash.contains(key))
+    if (m_nameToEntryHash.contains(key))
         throw InvalidMetaInfoException(__LINE__, __FUNCTION__, __FILE__);
-    d->nameToEntryHash.insert(key, entry);
+    m_nameToEntryHash.insert(key, entry);
 
     emit entriesChanged();
 }
@@ -318,18 +306,18 @@ void ItemLibraryInfo::addEntry(const ItemLibraryEntry &entry)
 bool ItemLibraryInfo::containsEntry(const ItemLibraryEntry &entry)
 {
     const QString key = keyForEntry(entry);
-    return d->nameToEntryHash.contains(key);
+    return m_nameToEntryHash.contains(key);
 }
 
 void ItemLibraryInfo::clearEntries()
 {
-    d->nameToEntryHash.clear();
+    m_nameToEntryHash.clear();
     emit entriesChanged();
 }
 
 void ItemLibraryInfo::setBaseInfo(ItemLibraryInfo *baseInfo)
 {
-    d->baseInfo = baseInfo;
+    baseInfo = baseInfo;
 }
 
 } // namespace QmlDesigner
