@@ -371,8 +371,10 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
 
 void RunSettingsWidget::currentDeployConfigurationChanged(int index)
 {
+    if (m_ignoreChange)
+        return;
     if (index == -1)
-        updateDeployConfiguration(0);
+        m_target->setActiveDeployConfiguration(0);
     else
         m_target->setActiveDeployConfiguration(m_deployConfigurationModel->deployConfigurationAt(index));
 }
@@ -481,7 +483,9 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     delete m_deploySteps;
     m_deploySteps = 0;
 
+    m_ignoreChange = true;
     m_deployConfigurationCombo->setCurrentIndex(-1);
+    m_ignoreChange = false;
 
     m_renameDeployButton->setEnabled(dc);
 
@@ -489,7 +493,9 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
         return;
 
     QModelIndex actDc = m_deployConfigurationModel->indexFor(dc);
+    m_ignoreChange = true;
     m_deployConfigurationCombo->setCurrentIndex(actDc.row());
+    m_ignoreChange = false;
 
     m_deployConfigurationWidget = dc->configurationWidget();
     if (m_deployConfigurationWidget) {
