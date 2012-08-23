@@ -43,6 +43,8 @@ class QLineEdit;
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
+namespace Utils { class FancyLineEdit; }
+
 namespace Debugger {
 namespace Internal {
 
@@ -84,7 +86,7 @@ private:
     DebuggerPane *m_inputText;     // scriptable input alone
     QTimer m_outputTimer;
     QString m_queuedOutput;
-    QLineEdit *m_commandEdit;
+    Utils::FancyLineEdit *m_commandEdit;
     QLabel *m_commandLabel;
     bool m_ignoreNextInputEcho;
 };

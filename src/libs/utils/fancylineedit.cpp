@@ -114,7 +114,6 @@ public:
     bool m_iconEnabled[2];
 
     HistoryCompleter *m_completer;
-    QString m_historyKey;
 };
 
 
@@ -306,8 +305,8 @@ bool FancyLineEdit::hasAutoHideButton(Side side) const
 void FancyLineEdit::setHistoryKey(const QString &historyKey)
 {
     QTC_ASSERT(!d->m_completer, return);
-    d->m_historyKey = historyKey;
     d->m_completer = new HistoryCompleter(this, historyKey);
+    QLineEdit::setCompleter(d->m_completer);
 }
 
 void FancyLineEdit::setSpecialCompleter(QCompleter *completer)
