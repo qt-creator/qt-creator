@@ -74,7 +74,7 @@ namespace QmlDesigner {
 
 namespace Internal {
 
-static const QString QMLFILEPATTERN = QString(QLatin1String("*.qml"));
+static const QString s_qmlFilePattern = QString(QLatin1String("*.qml"));
 
 
 class SubComponentManagerPrivate : QObject {
@@ -209,7 +209,7 @@ void SubComponentManagerPrivate::parseDirectory(const QString &canonicalDirPath,
 
     QDir dir(canonicalDirPath);
 
-    dir.setNameFilters(QStringList(QMLFILEPATTERN));
+    dir.setNameFilters(QStringList(s_qmlFilePattern));
     dir.setFilter(QDir::Files | QDir::Readable | QDir::CaseSensitive);
 
     QList<QFileInfo> monitoredList = watchedFiles(canonicalDirPath);
