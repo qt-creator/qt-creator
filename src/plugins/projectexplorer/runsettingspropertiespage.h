@@ -121,7 +121,6 @@ private:
     QComboBox *m_runConfigurationCombo;
     QPushButton *m_addDeployToolButton;
     QPushButton *m_removeDeployToolButton;
-    QPushButton *m_renameDeployToolButton;
     QPushButton *m_addRunToolButton;
     QPushButton *m_removeRunToolButton;
     QPushButton *m_renameRunButton;
