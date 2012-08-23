@@ -213,8 +213,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->localExecutablePathChooser = new PathChooser(this);
     d->localExecutablePathChooser->setExpectedKind(PathChooser::File);
     d->localExecutablePathChooser->setPromptDialogTitle(tr("Select Executable"));
-    d->localExecutablePathChooser->lineEdit()->setCompleter(
-        new HistoryCompleter(d->localExecutablePathChooser->lineEdit(), QLatin1String("LocalExecutable")));
+    d->localExecutablePathChooser->lineEdit()->setHistoryKey(QLatin1String("LocalExecutable"));
 
     d->arguments = new QLineEdit(this);
     d->arguments->setCompleter(
@@ -223,8 +222,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->workingDirectory = new PathChooser(this);
     d->workingDirectory->setExpectedKind(PathChooser::ExistingDirectory);
     d->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
-    d->workingDirectory->lineEdit()->setCompleter(
-        new HistoryCompleter(d->workingDirectory->lineEdit(), QLatin1String("WorkingDirectory")));
+    d->workingDirectory->lineEdit()->setHistoryKey(QLatin1String("WorkingDirectory"));
 
     d->runInTerminalCheckBox = new QCheckBox(this);
 
