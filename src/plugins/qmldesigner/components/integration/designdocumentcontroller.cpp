@@ -32,25 +32,14 @@
 #include "designdocumentcontrollerview.h"
 #include "xuifiledialog.h"
 #include "componentview.h"
-#include "subcomponentmanager.h"
-#include "model/viewlogger.h"
 
-#include <itemlibraryview.h>
 #include <itemlibrarywidget.h>
-#include <navigatorview.h>
-#include <stateseditorview.h>
-#include <formeditorview.h>
-#include <propertyeditor.h>
 #include <formeditorwidget.h>
 #include <toolbox.h>
-#include <basetexteditmodifier.h>
-#include <componenttextmodifier.h>
 #include <metainfo.h>
 #include <invalidargumentexception.h>
-#include <componentview.h>
 #include <componentaction.h>
 #include <qmlobjectnode.h>
-#include <rewriterview.h>
 #include <rewritingexception.h>
 #include <nodelistproperty.h>
 #include <variantproperty.h>
@@ -96,41 +85,9 @@ enum {
 
 namespace QmlDesigner {
 
-class DesignDocumentControllerPrivate {
-public:
-    QWeakPointer<FormEditorView> formEditorView;
 
-    QWeakPointer<ItemLibraryView> itemLibraryView;
-    QWeakPointer<NavigatorView> navigator;
-    QWeakPointer<PropertyEditor> propertyEditorView;
-    QWeakPointer<StatesEditorView> statesEditorView;
-    QWeakPointer<QStackedWidget> stackedWidget;
-    QWeakPointer<NodeInstanceView> nodeInstanceView;
-    QWeakPointer<ComponentView> componentView;
-
-    QWeakPointer<QmlDesigner::Model> model;
-    QWeakPointer<QmlDesigner::Model> subComponentModel;
-    QWeakPointer<QmlDesigner::Model> masterModel;
-    QWeakPointer<QPlainTextEdit> textEdit;
-    QWeakPointer<RewriterView> rewriterView;
-    QmlDesigner::BaseTextEditModifier *textModifier;
-    QmlDesigner::ComponentTextModifier *componentTextModifier;
-    QWeakPointer<SubComponentManager> subComponentManager;
-    QWeakPointer<Internal::ViewLogger> viewLogger;
-    ModelNode componentNode;
-
-    QString fileName;
-    QUrl searchPath;
-    bool documentLoaded;
-    bool syncBlocked;
-    int qt_versionId;
-    static bool clearCrumblePath;
-    static bool pushCrumblePath;
-};
-
-
-bool DesignDocumentControllerPrivate::clearCrumblePath = true;
-bool DesignDocumentControllerPrivate::pushCrumblePath = true;
+bool DesignDocumentController::s_clearCrumblePath = true;
+bool DesignDocumentController::s_pushCrumblePath = true;
 
 
 /**
@@ -140,11 +97,10 @@ bool DesignDocumentControllerPrivate::pushCrumblePath = true;
   and the different views/widgets accessing it.
   */
 DesignDocumentController::DesignDocumentController(QObject *parent) :
-        QObject(parent),
-        d(new DesignDocumentControllerPrivate)
+        QObject(parent)
 {
-    d->documentLoaded = false;
-    d->syncBlocked = false;
+    m_documentLoaded = false;
+    m_syncBlocked = false;
 
     ProjectExplorer::ProjectExplorerPlugin *projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     connect(projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)), this, SLOT(activeQtVersionChanged()));
@@ -153,58 +109,56 @@ DesignDocumentController::DesignDocumentController(QObject *parent) :
 
 DesignDocumentController::~DesignDocumentController()
 {
-    delete d->model.data();
-    delete d->subComponentModel.data();
+    delete m_model.data();
+    delete m_subComponentModel.data();
 
-    delete d->rewriterView.data();
+    delete m_rewriterView.data();
 
-    if (d->componentTextModifier) //componentTextModifier might not be created
-        delete d->componentTextModifier;
-
-    delete d;
+    if (m_componentTextModifier) //componentTextModifier might not be created
+        delete m_componentTextModifier;
 }
 
 Model *DesignDocumentController::model() const
 {
-    return d->model.data();
+    return m_model.data();
 }
 
 Model *DesignDocumentController::masterModel() const
 {
-    return d->masterModel.data();
+    return m_masterModel.data();
 }
 
 
 void DesignDocumentController::detachNodeInstanceView()
 {
-    if (d->nodeInstanceView)
-        model()->detachView(d->nodeInstanceView.data());
+    if (m_nodeInstanceView)
+        model()->detachView(m_nodeInstanceView.data());
 }
 
 void DesignDocumentController::attachNodeInstanceView()
 {
-    if (d->nodeInstanceView) {
-        model()->attachView(d->nodeInstanceView.data());
+    if (m_nodeInstanceView) {
+        model()->attachView(m_nodeInstanceView.data());
     }
-    if (d->formEditorView) {
-        d->formEditorView->resetView();
+    if (m_formEditorView) {
+        m_formEditorView->resetView();
     }
 }
 
 void DesignDocumentController::changeToMasterModel()
 {
-    d->model->detachView(d->rewriterView.data());
-    d->rewriterView->setTextModifier(d->textModifier);
-    d->model = d->masterModel;
-    d->model->attachView(d->rewriterView.data());
-    d->componentNode = d->rewriterView->rootModelNode();
+    m_model->detachView(m_rewriterView.data());
+    m_rewriterView->setTextModifier(m_textModifier);
+    m_model = m_masterModel;
+    m_model->attachView(m_rewriterView.data());
+    m_componentNode = m_rewriterView->rootModelNode();
 }
 
 QVariant DesignDocumentController::createCrumbleBarInfo()
 {
     CrumbleBarInfo info;
     info.fileName = fileName();
-    info.modelNode = d->componentNode;
+    info.modelNode = m_componentNode;
     return QVariant::fromValue<CrumbleBarInfo>(info);
 }
 
@@ -215,7 +169,7 @@ QWidget *DesignDocumentController::centralWidget() const
 
 QString DesignDocumentController::pathToQt() const
 {
-    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::instance()->version(d->qt_versionId);
+    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::instance()->version(m_qt_versionId);
     if (activeQtVersion && (activeQtVersion->qtVersion().majorVersion > 3)
             && (activeQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
                 || activeQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))
@@ -228,7 +182,7 @@ QString DesignDocumentController::pathToQt() const
   */
 bool DesignDocumentController::isModelSyncBlocked() const
 {
-    return d->syncBlocked;
+    return m_syncBlocked;
 }
 
 /*!
@@ -240,35 +194,35 @@ bool DesignDocumentController::isModelSyncBlocked() const
   */
 void DesignDocumentController::blockModelSync(bool block)
 {
-    if (d->syncBlocked == block)
+    if (m_syncBlocked == block)
         return;
 
-    d->syncBlocked = block;
+    m_syncBlocked = block;
 
-    if (d->textModifier) {
-        if (d->syncBlocked) {
+    if (m_textModifier) {
+        if (m_syncBlocked) {
             detachNodeInstanceView();
-            d->textModifier->deactivateChangeSignals();
+            m_textModifier->deactivateChangeSignals();
         } else {
             activeQtVersionChanged();
             changeToMasterModel();
             QmlModelState state;
             //We go back to base state (and back again) to avoid side effects from text editing.
-            if (d->statesEditorView && d->statesEditorView->model()) {
-                state = d->statesEditorView->currentState();
-                d->statesEditorView->setCurrentState(d->statesEditorView->baseState());
+            if (m_statesEditorView && m_statesEditorView->model()) {
+                state = m_statesEditorView->currentState();
+                m_statesEditorView->setCurrentState(m_statesEditorView->baseState());
 
             }
 
-            d->textModifier->reactivateChangeSignals();
+            m_textModifier->reactivateChangeSignals();
 
-            if (state.isValid() && d->statesEditorView)
-                d->statesEditorView->setCurrentState(state);
+            if (state.isValid() && m_statesEditorView)
+                m_statesEditorView->setCurrentState(state);
             attachNodeInstanceView();
-            if (d->propertyEditorView)
-                d->propertyEditorView->resetView();
-            if (d->formEditorView)
-                d->formEditorView->resetView();
+            if (m_propertyEditorView)
+                m_propertyEditorView->resetView();
+            if (m_formEditorView)
+                m_formEditorView->resetView();
         }
     }
 }
@@ -278,43 +232,43 @@ void DesignDocumentController::blockModelSync(bool block)
   */
 QList<RewriterView::Error> DesignDocumentController::qmlErrors() const
 {
-    return d->rewriterView->errors();
+    return m_rewriterView->errors();
 }
 
 void DesignDocumentController::setItemLibraryView(ItemLibraryView* itemLibraryView)
 {
-    d->itemLibraryView = itemLibraryView;
+    m_itemLibraryView = itemLibraryView;
 }
 
 void DesignDocumentController::setNavigator(NavigatorView* navigatorView)
 {
-    d->navigator = navigatorView;
+    m_navigator = navigatorView;
 }
 
 void DesignDocumentController::setPropertyEditorView(PropertyEditor *propertyEditor)
 {
-    d->propertyEditorView = propertyEditor;
+    m_propertyEditorView = propertyEditor;
 }
 
 void DesignDocumentController::setStatesEditorView(StatesEditorView* statesEditorView)
 {
-    d->statesEditorView = statesEditorView;
+    m_statesEditorView = statesEditorView;
 }
 
 void DesignDocumentController::setFormEditorView(FormEditorView *formEditorView)
 {
-    d->formEditorView = formEditorView;
+    m_formEditorView = formEditorView;
 }
 
 void DesignDocumentController::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
 {
-    d->nodeInstanceView = nodeInstanceView;
+    m_nodeInstanceView = nodeInstanceView;
 }
 
 void DesignDocumentController::setComponentView(ComponentView *componentView)
 {
-    d->componentView = componentView;
-    connect(d->componentView->action(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));
+    m_componentView = componentView;
+    connect(componentView->action(), SIGNAL(currentComponentChanged(ModelNode)), SLOT(changeCurrentModelTo(ModelNode)));
 }
 
 static inline bool compareCrumbleBarInfo(const CrumbleBarInfo &crumbleBarInfo1, const CrumbleBarInfo &crumbleBarInfo2)
@@ -324,20 +278,20 @@ static inline bool compareCrumbleBarInfo(const CrumbleBarInfo &crumbleBarInfo1, 
 
 void DesignDocumentController::setCrumbleBarInfo(const CrumbleBarInfo &crumbleBarInfo)
 {
-    DesignDocumentControllerPrivate::clearCrumblePath = false;
-    DesignDocumentControllerPrivate::pushCrumblePath = false;
-    while (!compareCrumbleBarInfo(d->formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(), crumbleBarInfo))
-        d->formEditorView->crumblePath()->popElement();
+    s_clearCrumblePath = false;
+    s_pushCrumblePath = false;
+    while (!compareCrumbleBarInfo(m_formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(), crumbleBarInfo))
+        m_formEditorView->crumblePath()->popElement();
     Core::EditorManager::openEditor(crumbleBarInfo.fileName);
-    DesignDocumentControllerPrivate::pushCrumblePath = true;
+    s_pushCrumblePath = true;
     Internal::DesignModeWidget::instance()->currentDesignDocumentController()->changeToSubComponent(crumbleBarInfo.modelNode);
-    DesignDocumentControllerPrivate::clearCrumblePath = true;
+    s_clearCrumblePath = true;
 }
 
 void DesignDocumentController::setBlockCrumbleBar(bool b)
 {
-    DesignDocumentControllerPrivate::clearCrumblePath = !b;
-    DesignDocumentControllerPrivate::pushCrumblePath = !b;
+    s_clearCrumblePath = !b;
+    s_pushCrumblePath = !b;
 }
 
 QString DesignDocumentController::displayName() const
@@ -350,14 +304,14 @@ QString DesignDocumentController::displayName() const
 
 QString DesignDocumentController::simplfiedDisplayName() const
 {
-    if (!d->componentNode.isRootNode()) {
-        if (d->componentNode.id().isEmpty()) {
-            if (d->formEditorView->rootModelNode().id().isEmpty()) {
-                return d->formEditorView->rootModelNode().simplifiedTypeName();
+    if (!m_componentNode.isRootNode()) {
+        if (m_componentNode.id().isEmpty()) {
+            if (m_formEditorView->rootModelNode().id().isEmpty()) {
+                return m_formEditorView->rootModelNode().simplifiedTypeName();
             }
-            return d->formEditorView->rootModelNode().id();
+            return m_formEditorView->rootModelNode().id();
         }
-        return d->componentNode.id();
+        return m_componentNode.id();
     }
 
     QStringList list = displayName().split(QLatin1Char('/'));
@@ -366,24 +320,24 @@ QString DesignDocumentController::simplfiedDisplayName() const
 
 QString DesignDocumentController::fileName() const
 {
-    return d->fileName;
+    return m_fileName;
 }
 
 void DesignDocumentController::setFileName(const QString &fileName)
 {
-    d->fileName = fileName;
+    m_fileName = fileName;
 
     if (QFileInfo(fileName).exists()) {
-        d->searchPath = QUrl::fromLocalFile(fileName);
+        m_searchPath = QUrl::fromLocalFile(fileName);
     } else {
-        d->searchPath = QUrl(fileName);
+        m_searchPath = QUrl(fileName);
     }
 
-    if (d->model)
-        d->model->setFileUrl(d->searchPath);
+    if (m_model)
+        m_model->setFileUrl(m_searchPath);
 
-    if (d->itemLibraryView)
-        d->itemLibraryView->widget()->setResourcePath(QFileInfo(fileName).absolutePath());
+    if (m_itemLibraryView)
+        m_itemLibraryView->widget()->setResourcePath(QFileInfo(fileName).absolutePath());
     emit displayNameChanged(displayName());
 }
 
@@ -391,7 +345,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
 {
     Q_CHECK_PTR(edit);
 
-    d->textEdit = edit;
+    m_textEdit = edit;
 
     connect(edit, SIGNAL(undoAvailable(bool)),
             this, SIGNAL(undoAvailable(bool)));
@@ -400,70 +354,70 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(QPlainTextEdit *
     connect(edit, SIGNAL(modificationChanged(bool)),
             this, SIGNAL(dirtyStateChanged(bool)));
 
-    d->textModifier = new BaseTextEditModifier(dynamic_cast<TextEditor::BaseTextEditorWidget*>(d->textEdit.data()));
+    m_textModifier = new BaseTextEditModifier(dynamic_cast<TextEditor::BaseTextEditorWidget*>(m_textEdit.data()));
 
-    d->componentTextModifier = 0;
+    m_componentTextModifier = 0;
 
-    //d->masterModel = Model::create(d->textModifier, d->searchPath, errors);
+    //masterModel = Model::create(textModifier, searchPath, errors);
 
-    d->masterModel = Model::create("QtQuick.Rectangle", 1, 0);
+    m_masterModel = Model::create("QtQuick.Rectangle", 1, 0);
 
 #if defined(VIEWLOGGER)
-    d->viewLogger = new Internal::ViewLogger(d->model.data());
-    d->masterModel->attachView(d->viewLogger.data());
+    m_viewLogger = new Internal::ViewLogger(m_model.data());
+    m_masterModel->attachView(m_viewLogger.data());
 #endif
 
-    d->masterModel->setFileUrl(d->searchPath);
+    m_masterModel->setFileUrl(m_searchPath);
 
-    d->subComponentModel = Model::create("QtQuick.Rectangle", 1, 0);
-    d->subComponentModel->setFileUrl(d->searchPath);
+    m_subComponentModel = Model::create("QtQuick.Rectangle", 1, 0);
+    m_subComponentModel->setFileUrl(m_searchPath);
 
-    d->rewriterView = new RewriterView(RewriterView::Amend, d->masterModel.data());
-    d->rewriterView->setTextModifier( d->textModifier);
-    connect(d->rewriterView.data(), SIGNAL(errorsChanged(QList<RewriterView::Error>)),
+    m_rewriterView = new RewriterView(RewriterView::Amend, m_masterModel.data());
+    m_rewriterView->setTextModifier( m_textModifier);
+    connect(m_rewriterView.data(), SIGNAL(errorsChanged(QList<RewriterView::Error>)),
             this, SIGNAL(qmlErrorsChanged(QList<RewriterView::Error>)));
 
-    d->masterModel->attachView(d->rewriterView.data());
-    d->model = d->masterModel;
-    d->componentNode = d->rewriterView->rootModelNode();
+    m_masterModel->attachView(m_rewriterView.data());
+    m_model = m_masterModel;
+    m_componentNode = m_rewriterView->rootModelNode();
 
-    d->subComponentManager = new SubComponentManager(d->masterModel.data(), this);
-    d->subComponentManager->update(d->searchPath, d->model->imports());
+    m_subComponentManager = new SubComponentManager(m_masterModel.data(), this);
+    m_subComponentManager->update(m_searchPath, m_model->imports());
 
     loadCurrentModel();
 
-    d->masterModel->attachView(d->componentView.data());
+    m_masterModel->attachView(m_componentView.data());
 
-    return d->rewriterView->errors();
+    return m_rewriterView->errors();
 }
 
 void DesignDocumentController::changeCurrentModelTo(const ModelNode &node)
 {
-    if (d->componentNode == node)
+    if (m_componentNode == node)
         return;
     if (Internal::DesignModeWidget::instance()->currentDesignDocumentController() != this)
         return;
-    DesignDocumentControllerPrivate::clearCrumblePath = false;
-    while (d->formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isValid() &&
-        !d->formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isRootNode())
-        d->formEditorView->crumblePath()->popElement();
-    if (node.isRootNode() && d->formEditorView->crumblePath()->dataForLastIndex().isValid())
-        d->formEditorView->crumblePath()->popElement();
+    s_clearCrumblePath = false;
+    while (m_formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isValid() &&
+        !m_formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>().modelNode.isRootNode())
+        m_formEditorView->crumblePath()->popElement();
+    if (node.isRootNode() && m_formEditorView->crumblePath()->dataForLastIndex().isValid())
+        m_formEditorView->crumblePath()->popElement();
     changeToSubComponent(node);
-    DesignDocumentControllerPrivate::clearCrumblePath = true;
+    s_clearCrumblePath = true;
 }
 
 void DesignDocumentController::changeToSubComponent(const ModelNode &componentNode)
 {
-    Q_ASSERT(d->masterModel);
-    QWeakPointer<Model> oldModel = d->model;
+    Q_ASSERT(m_masterModel);
+    QWeakPointer<Model> oldModel = m_model;
     Q_ASSERT(oldModel.data());
 
-    if (d->model == d->subComponentModel) {
+    if (m_model == m_subComponentModel) {
         changeToMasterModel();
     }
 
-    QString componentText = d->rewriterView->extractText(QList<ModelNode>() << componentNode).value(componentNode);
+    QString componentText = m_rewriterView->extractText(QList<ModelNode>() << componentNode).value(componentNode);
 
     if (componentText.isEmpty())
         return;
@@ -473,110 +427,110 @@ void DesignDocumentController::changeToSubComponent(const ModelNode &componentNo
         explicitComponent = true;
     }
 
-    d->componentNode = componentNode;
+    m_componentNode = componentNode;
     if (!componentNode.isRootNode()) {
-        Q_ASSERT(d->model == d->masterModel);
+        Q_ASSERT(m_model == m_masterModel);
         Q_ASSERT(componentNode.isValid());
         //change to subcomponent model
         ModelNode rootModelNode = componentNode.view()->rootModelNode();
         Q_ASSERT(rootModelNode.isValid());
-        if (d->componentTextModifier)
-            delete d->componentTextModifier;
+        if (m_componentTextModifier)
+            delete m_componentTextModifier;
 
 
         int componentStartOffset;
         int componentEndOffset;
 
-        int rootStartOffset = d->rewriterView->nodeOffset(rootModelNode);
+        int rootStartOffset = m_rewriterView->nodeOffset(rootModelNode);
 
         if (explicitComponent) { //the component is explciit we have to find the first definition inside
-            componentStartOffset = d->rewriterView->firstDefinitionInsideOffset(componentNode);
-            componentEndOffset = componentStartOffset + d->rewriterView->firstDefinitionInsideLength(componentNode);
+            componentStartOffset = m_rewriterView->firstDefinitionInsideOffset(componentNode);
+            componentEndOffset = componentStartOffset + m_rewriterView->firstDefinitionInsideLength(componentNode);
         } else { //the component is implicit
-            componentStartOffset = d->rewriterView->nodeOffset(componentNode);
-            componentEndOffset = componentStartOffset + d->rewriterView->nodeLength(componentNode);
+            componentStartOffset = m_rewriterView->nodeOffset(componentNode);
+            componentEndOffset = componentStartOffset + m_rewriterView->nodeLength(componentNode);
         }
 
-        d->componentTextModifier = new ComponentTextModifier (d->textModifier, componentStartOffset, componentEndOffset, rootStartOffset);
+        m_componentTextModifier = new ComponentTextModifier (m_textModifier, componentStartOffset, componentEndOffset, rootStartOffset);
 
 
-        d->model->detachView(d->rewriterView.data());
+        m_model->detachView(m_rewriterView.data());
 
-        d->rewriterView->setTextModifier(d->componentTextModifier);
+        m_rewriterView->setTextModifier(m_componentTextModifier);
 
-        d->subComponentModel->attachView(d->rewriterView.data());
+        m_subComponentModel->attachView(m_rewriterView.data());
 
-        Q_ASSERT(d->rewriterView->rootModelNode().isValid());
+        Q_ASSERT(m_rewriterView->rootModelNode().isValid());
 
-        d->model = d->subComponentModel;
+        m_model = m_subComponentModel;
     }
 
-    Q_ASSERT(d->masterModel);
-    Q_ASSERT(d->model);
+    Q_ASSERT(m_masterModel);
+    Q_ASSERT(m_model);
 
     loadCurrentModel();
-    d->componentView->setComponentNode(componentNode);
+    m_componentView->setComponentNode(componentNode);
 }
 
 void DesignDocumentController::changeToExternalSubComponent(const QString &fileName)
 {
-    DesignDocumentControllerPrivate::clearCrumblePath = false;
+    s_clearCrumblePath = false;
     Core::EditorManager::openEditor(fileName);
-    DesignDocumentControllerPrivate::clearCrumblePath = true;
+    s_clearCrumblePath = true;
 }
 
 void DesignDocumentController::goIntoComponent()
 {
-    if (!d->model)
+    if (!m_model)
         return;
 
     QList<ModelNode> selectedNodes;
-    if (d->formEditorView)
-        selectedNodes = d->formEditorView->selectedModelNodes();
+    if (m_formEditorView)
+        selectedNodes = m_formEditorView->selectedModelNodes();
 
-    DesignDocumentControllerPrivate::clearCrumblePath = false;
+    s_clearCrumblePath = false;
     if (selectedNodes.count() == 1)
         ModelNodeAction::goIntoComponent(selectedNodes.first());
-    DesignDocumentControllerPrivate::clearCrumblePath = true;
+    s_clearCrumblePath = true;
 }
 
 void DesignDocumentController::loadCurrentModel()
 {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-    Q_ASSERT(d->masterModel);
-    Q_ASSERT(d->model);
-    d->model->setMasterModel(d->masterModel.data());
-    d->masterModel->attachView(d->componentView.data());
+    Q_ASSERT(m_masterModel);
+    Q_ASSERT(m_model);
+    m_model->setMasterModel(m_masterModel.data());
+    m_masterModel->attachView(m_componentView.data());
 
-    d->nodeInstanceView->setPathToQt(pathToQt());
-    d->model->attachView(d->nodeInstanceView.data());
-    d->model->attachView(d->navigator.data());
-    d->itemLibraryView->widget()->setResourcePath(QFileInfo(d->fileName).absolutePath());
+    m_nodeInstanceView->setPathToQt(pathToQt());
+    m_model->attachView(m_nodeInstanceView.data());
+    m_model->attachView(m_navigator.data());
+    m_itemLibraryView->widget()->setResourcePath(QFileInfo(m_fileName).absolutePath());
 
-    d->model->attachView(d->formEditorView.data());
-    d->model->attachView(d->itemLibraryView.data());
+    m_model->attachView(m_formEditorView.data());
+    m_model->attachView(m_itemLibraryView.data());
 
-    if (!d->textEdit->parent()) // hack to prevent changing owner of external text edit
-        d->stackedWidget->addWidget(d->textEdit.data());
+    if (!m_textEdit->parent()) // hack to prevent changing owner of external text edit
+        m_stackedWidget->addWidget(m_textEdit.data());
 
     // Will call setCurrentState (formEditorView etc has to be constructed first)
-    d->model->attachView(d->statesEditorView.data());
+    m_model->attachView(m_statesEditorView.data());
 
-    d->model->attachView(d->propertyEditorView.data());
+    m_model->attachView(m_propertyEditorView.data());
 
 
-    if (DesignDocumentControllerPrivate::clearCrumblePath)
-        d->formEditorView->crumblePath()->clear();
+    if (s_clearCrumblePath)
+        m_formEditorView->crumblePath()->clear();
 
-    if (DesignDocumentControllerPrivate::pushCrumblePath &&
-            !compareCrumbleBarInfo(d->formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(),
+    if (s_pushCrumblePath &&
+            !compareCrumbleBarInfo(m_formEditorView->crumblePath()->dataForLastIndex().value<CrumbleBarInfo>(),
                                    createCrumbleBarInfo().value<CrumbleBarInfo>()))
-        d->formEditorView->crumblePath()->pushElement(simplfiedDisplayName(), createCrumbleBarInfo());
+        m_formEditorView->crumblePath()->pushElement(simplfiedDisplayName(), createCrumbleBarInfo());
 
-    d->documentLoaded = true;
-    d->subComponentManager->update(d->searchPath, d->model->imports());
-    Q_ASSERT(d->masterModel);
+    m_documentLoaded = true;
+    m_subComponentManager->update(m_searchPath, m_model->imports());
+    Q_ASSERT(m_masterModel);
     QApplication::restoreOverrideCursor();
 }
 
@@ -590,7 +544,7 @@ QList<RewriterView::Error> DesignDocumentController::loadMaster(const QByteArray
 
 void DesignDocumentController::saveAs(QWidget *parent)
 {
-    QFileInfo oldFileInfo(d->fileName);
+    QFileInfo oldFileInfo(m_fileName);
     XUIFileDialog::runSaveFileDialog(oldFileInfo.path(), parent, this, SLOT(doRealSaveAs(QString)));
 }
 
@@ -622,8 +576,8 @@ void DesignDocumentController::doRealSaveAs(const QString &fileName)
 
 bool DesignDocumentController::isDirty() const
 {
-    if (d->textEdit)
-        return d->textEdit->document()->isModified();
+    if (m_textEdit)
+        return m_textEdit->document()->isModified();
     else
         return false;
 }
@@ -631,33 +585,33 @@ bool DesignDocumentController::isDirty() const
 bool DesignDocumentController::isUndoAvailable() const
 {
 
-    if (d->textEdit)
-        return d->textEdit->document()->isUndoAvailable();
+    if (m_textEdit)
+        return m_textEdit->document()->isUndoAvailable();
     return false;
 }
 
 bool DesignDocumentController::isRedoAvailable() const
 {
-    if (d->textEdit)
-        return d->textEdit->document()->isRedoAvailable();
+    if (m_textEdit)
+        return m_textEdit->document()->isRedoAvailable();
     return false;
 }
 
 void DesignDocumentController::close()
 {
-    d->documentLoaded = false;
+    m_documentLoaded = false;
     emit designDocumentClosed();
 }
 
 void DesignDocumentController::deleteSelected()
 {
-    if (!d->model)
+    if (!m_model)
         return;
 
     try {
-        if (d->formEditorView) {
-            RewriterTransaction transaction(d->formEditorView.data());
-            QList<ModelNode> toDelete = d->formEditorView->selectedModelNodes();
+        if (m_formEditorView) {
+            RewriterTransaction transaction(m_formEditorView.data());
+            QList<ModelNode> toDelete = m_formEditorView->selectedModelNodes();
             foreach (ModelNode node, toDelete) {
                 if (node.isValid() && !node.isRootNode() && QmlObjectNode(node).isValid())
                     QmlObjectNode(node).destroy();
@@ -670,15 +624,15 @@ void DesignDocumentController::deleteSelected()
 
 void DesignDocumentController::copySelected()
 {
-    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 1, 0, this->model()));
-    model->setFileUrl(d->model->fileUrl());
-    model->changeImports(d->model->imports(), QList<Import>());
+    QScopedPointer<Model> copyModel(Model::create("QtQuick.Rectangle", 1, 0, model()));
+    copyModel->setFileUrl(model()->fileUrl());
+    copyModel->changeImports(model()->imports(), QList<Import>());
 
-    Q_ASSERT(model);
+    Q_ASSERT(copyModel);
 
     DesignDocumentControllerView view;
 
-    d->model->attachView(&view);
+    copyModel->attachView(&view);
 
     if (view.selectedModelNodes().isEmpty())
         return;
@@ -698,9 +652,9 @@ void DesignDocumentController::copySelected()
         if (!selectedNode.isValid())
             return;
 
-        d->model->detachView(&view);
+        copyModel->detachView(&view);
 
-        model->attachView(&view);
+        copyModel->attachView(&view);
         view.replaceModel(selectedNode);
 
         Q_ASSERT(view.rootModelNode().isValid());
@@ -708,8 +662,8 @@ void DesignDocumentController::copySelected()
 
         view.toClipboard();
     } else { //multi items selected
-        d->model->detachView(&view);
-        model->attachView(&view);
+        copyModel->detachView(&view);
+        copyModel->attachView(&view);
 
         foreach (ModelNode node, view.rootModelNode().allDirectSubModelNodes()) {
             node.destroy();
@@ -765,17 +719,17 @@ static void scatterItem(ModelNode pastedNode, const ModelNode targetNode, int of
 
 void DesignDocumentController::paste()
 {
-    QScopedPointer<Model> model(Model::create("empty", 1, 0, this->model()));
-    model->setFileUrl(d->model->fileUrl());
-    model->changeImports(d->model->imports(), QList<Import>());
+    QScopedPointer<Model> pasteModel(Model::create("empty", 1, 0, model()));
+    pasteModel->setFileUrl(model()->fileUrl());
+    pasteModel->changeImports(model()->imports(), QList<Import>());
 
-    Q_ASSERT(model);
+    Q_ASSERT(pasteModel);
 
-    if (!d->model)
+    if (!pasteModel)
         return;
 
     DesignDocumentControllerView view;
-    model->attachView(&view);
+    pasteModel->attachView(&view);
 
     view.fromClipboard();
 
@@ -788,8 +742,8 @@ void DesignDocumentController::paste()
         QList<ModelNode> selectedNodes = rootNode.allDirectSubModelNodes();
         qDebug() << rootNode;
         qDebug() << selectedNodes;
-        model->detachView(&view);
-        d->model->attachView(&view);
+        pasteModel->detachView(&view);
+        pasteModel->attachView(&view);
 
         ModelNode targetNode;
 
@@ -814,7 +768,7 @@ void DesignDocumentController::paste()
         QList<ModelNode> pastedNodeList;
 
         try {
-            RewriterTransaction transaction(d->formEditorView.data());
+            RewriterTransaction transaction(m_formEditorView.data());
 
             int offset = double(qrand()) / RAND_MAX * 20 - 10;
 
@@ -832,10 +786,10 @@ void DesignDocumentController::paste()
         }
     } else {
         try {
-            RewriterTransaction transaction(d->formEditorView.data());
+            RewriterTransaction transaction(m_formEditorView.data());
 
-            model->detachView(&view);
-            d->model->attachView(&view);
+            pasteModel->detachView(&view);
+            pasteModel->attachView(&view);
             ModelNode pastedNode(view.insertModel(rootNode));
             ModelNode targetNode;
 
@@ -871,11 +825,11 @@ void DesignDocumentController::paste()
 
 void DesignDocumentController::selectAll()
 {
-    if (!d->model)
+    if (!m_model)
         return;
 
     DesignDocumentControllerView view;
-    d->model->attachView(&view);
+    m_model->attachView(&view);
 
 
     QList<ModelNode> allNodesExceptRootNode(view.allModelNodes());
@@ -885,21 +839,21 @@ void DesignDocumentController::selectAll()
 
 RewriterView *DesignDocumentController::rewriterView() const
 {
-    return d->rewriterView.data();
+    return m_rewriterView.data();
 }
 
 void DesignDocumentController::undo()
 {
-    if (d->rewriterView && !d->rewriterView->modificationGroupActive())
-        d->textEdit->undo();
-    d->propertyEditorView->resetView();
+    if (m_rewriterView && !m_rewriterView->modificationGroupActive())
+        m_textEdit->undo();
+    m_propertyEditorView->resetView();
 }
 
 void DesignDocumentController::redo()
 {
-    if (d->rewriterView && !d->rewriterView->modificationGroupActive())
-        d->textEdit->redo();
-    d->propertyEditorView->resetView();
+    if (m_rewriterView && !m_rewriterView->modificationGroupActive())
+        m_textEdit->redo();
+    m_propertyEditorView->resetView();
 }
 
 static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocumentController *controller)
@@ -930,48 +884,48 @@ void DesignDocumentController::activeQtVersionChanged()
     QtSupport::BaseQtVersion *newQtVersion = getActiveQtVersion(this);
 
     if (!newQtVersion ) {
-        d->qt_versionId = -1;
+        m_qt_versionId = -1;
         return;
     }
 
-    if (d->qt_versionId == newQtVersion->uniqueId())
+    if (m_qt_versionId == newQtVersion->uniqueId())
         return;
 
-    d->qt_versionId = newQtVersion->uniqueId();
+    m_qt_versionId = newQtVersion->uniqueId();
 
-    if (d->nodeInstanceView)
-        d->nodeInstanceView->setPathToQt(pathToQt());
+    if (m_nodeInstanceView)
+        m_nodeInstanceView->setPathToQt(pathToQt());
 }
 
 #ifdef ENABLE_TEXT_VIEW
 void DesignDocumentController::showText()
 {
-    d->stackedWidget->setCurrentWidget(d->textEdit.data());
+    m_stackedWidget->setCurrentWidget(m_textEdit.data());
 }
 #endif // ENABLE_TEXT_VIEW
 
 #ifdef ENABLE_TEXT_VIEW
 void DesignDocumentController::showForm()
 {
-    d->stackedWidget->setCurrentWidget(d->formEditorView->widget());
+    m_stackedWidget->setCurrentWidget(m_formEditorView->widget());
 }
 #endif // ENABLE_TEXT_VIEW
 
 bool DesignDocumentController::save(QWidget *parent)
 {
-    //    qDebug() << "Saving document to file \"" << d->fileName << "\"...";
+    //    qDebug() << "Saving document to file \"" << fileName << "\"...";
     //
-    if (d->fileName.isEmpty()) {
+    if (m_fileName.isEmpty()) {
         saveAs(parent);
         return true;
     }
-    Utils::FileSaver saver(d->fileName, QIODevice::Text);
-    if (d->model)
-        saver.write(d->textEdit->toPlainText().toLatin1());
-    if (!saver.finalize(parent ? parent : d->stackedWidget.data()))
+    Utils::FileSaver saver(m_fileName, QIODevice::Text);
+    if (m_model)
+        saver.write(m_textEdit->toPlainText().toLatin1());
+    if (!saver.finalize(parent ? parent : m_stackedWidget.data()))
         return false;
-    if (d->model)
-        d->textEdit->setPlainText(d->textEdit->toPlainText()); // clear undo/redo history
+    if (m_model)
+        m_textEdit->setPlainText(m_textEdit->toPlainText()); // clear undo/redo history
 
     return true;
 }
@@ -980,7 +934,7 @@ bool DesignDocumentController::save(QWidget *parent)
 QString DesignDocumentController::contextHelpId() const
 {
     DesignDocumentControllerView view;
-    d->model->attachView(&view);
+    m_model->attachView(&view);
 
     QList<ModelNode> nodes = view.selectedModelNodes();
     QString helpId;
