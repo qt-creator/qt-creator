@@ -114,6 +114,7 @@ ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::restore(Pr
     if (!canRestore(parent, map))
         return 0;
 
+    Core::Id id = ProjectExplorer::idFromMap(map);
     QmlProjectRunConfiguration *rc = new QmlProjectRunConfiguration(parent, id);
     if (rc->fromMap(map))
         return rc;
