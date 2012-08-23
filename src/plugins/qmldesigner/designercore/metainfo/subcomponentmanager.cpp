@@ -35,9 +35,6 @@
 #include <QDir>
 #include <QMetaType>
 #include <QUrl>
-#include <QFileSystemWatcher>
-#include <import.h>
-
 
 enum { debug = false };
 
@@ -71,54 +68,16 @@ static inline QStringList importPaths() {
 }
 
 namespace QmlDesigner {
-
-namespace Internal {
-
 static const QString s_qmlFilePattern = QString(QLatin1String("*.qml"));
 
-
-class SubComponentManagerPrivate : QObject {
-    Q_OBJECT
-public:
-    SubComponentManagerPrivate(Model *model, SubComponentManager *q);
-
-    void addImport(int pos, const Import &import);
-    void removeImport(int pos);
-    void parseDirectories();
-
-public slots:
-    void parseDirectory(const QString &canonicalDirPath,  bool addToLibrary = true, const QString& qualification = QString());
-    void parseFile(const QString &canonicalFilePath,  bool addToLibrary, const QString&);
-    void parseFile(const QString &canonicalFilePath);
-
-public:
-    QList<QFileInfo> watchedFiles(const QString &canonicalDirPath);
-    void unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier);
-    void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, bool addToLibrary);
-    Model *model() const;
-
-    SubComponentManager *m_q;
-
-    QWeakPointer<Model> m_model;
-
-    QFileSystemWatcher m_watcher;
-
-    // key: canonical directory path
-    QMultiHash<QString,QString> m_dirToQualifier;
-
-    QUrl m_filePath;
-
-    QList<Import> m_imports;
-};
-
-SubComponentManagerPrivate::SubComponentManagerPrivate(Model *model, SubComponentManager *q) :
-        m_q(q),
-        m_model(model)
+SubComponentManager::SubComponentManager(Model *model, QObject *parent)
+    : QObject(parent),
+      m_model(model)
 {
     connect(&m_watcher, SIGNAL(directoryChanged(QString)), this, SLOT(parseDirectory(QString)));
 }
 
-void SubComponentManagerPrivate::addImport(int pos, const Import &import)
+void SubComponentManager::addImport(int pos, const Import &import)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << pos << import.file().toAscii();
@@ -150,7 +109,7 @@ void SubComponentManagerPrivate::addImport(int pos, const Import &import)
     m_imports.insert(pos, import);
 }
 
-void SubComponentManagerPrivate::removeImport(int pos)
+void SubComponentManager::removeImport(int pos)
 {
     const Import import = m_imports.takeAt(pos);
 
@@ -172,7 +131,7 @@ void SubComponentManagerPrivate::removeImport(int pos)
     }
 }
 
-void SubComponentManagerPrivate::parseDirectories()
+void SubComponentManager::parseDirectories()
 {
     if (!m_filePath.isEmpty()) {
         const QString file = m_filePath.toLocalFile();
@@ -202,7 +161,7 @@ void SubComponentManagerPrivate::parseDirectories()
     }
 }
 
-void SubComponentManagerPrivate::parseDirectory(const QString &canonicalDirPath, bool addToLibrary, const QString& qualification)
+void SubComponentManager::parseDirectory(const QString &canonicalDirPath, bool addToLibrary, const QString& qualification)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << canonicalDirPath;
@@ -268,7 +227,7 @@ void SubComponentManagerPrivate::parseDirectory(const QString &canonicalDirPath,
     }
 }
 
-void SubComponentManagerPrivate::parseFile(const QString &canonicalFilePath, bool addToLibrary, const QString& /* qualification */)
+void SubComponentManager::parseFile(const QString &canonicalFilePath, bool addToLibrary, const QString& /* qualification */)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << canonicalFilePath;
@@ -285,13 +244,13 @@ void SubComponentManagerPrivate::parseFile(const QString &canonicalFilePath, boo
     registerQmlFile(canonicalFilePath, QString(), addToLibrary);
 }
 
-void SubComponentManagerPrivate::parseFile(const QString &canonicalFilePath)
+void SubComponentManager::parseFile(const QString &canonicalFilePath)
 {
     parseFile(canonicalFilePath, true, QString());
 }
 
 // dirInfo must already contain a canonical path
-QList<QFileInfo> SubComponentManagerPrivate::watchedFiles(const QString &canonicalDirPath)
+QList<QFileInfo> SubComponentManager::watchedFiles(const QString &canonicalDirPath)
 {
     QList<QFileInfo> files;
 
@@ -304,7 +263,7 @@ QList<QFileInfo> SubComponentManagerPrivate::watchedFiles(const QString &canonic
     return files;
 }
 
-void SubComponentManagerPrivate::unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier)
+void SubComponentManager::unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier)
 {
     QString componentName = fileInfo.baseName();
     if (!qualifier.isEmpty())
@@ -320,7 +279,7 @@ static inline bool isDepricatedQtType(const QString &typeName)
 }
 
 
-void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
+void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
                                                  bool addToLibrary)
 {
     if (!model())
@@ -354,12 +313,11 @@ void SubComponentManagerPrivate::registerQmlFile(const QFileInfo &fileInfo, cons
     }
 }
 
-Model *SubComponentManagerPrivate::model() const
+Model *SubComponentManager::model() const
 {
     return m_model.data();
 }
 
-} // namespace Internal
 
 /*!
   \class SubComponentManager
@@ -368,25 +326,14 @@ Model *SubComponentManagerPrivate::model() const
   these in the metatype system.
 */
 
-SubComponentManager::SubComponentManager(Model *model, QObject *parent) :
-        QObject(parent),
-        d(new Internal::SubComponentManagerPrivate(model, this))
-{
-}
-
-SubComponentManager::~SubComponentManager()
-{
-    delete d;
-}
-
 QStringList SubComponentManager::directories() const
 {
-    return d->m_watcher.directories();
+    return m_watcher.directories();
 }
 
 QStringList SubComponentManager::qmlFiles() const
 {
-    return d->m_watcher.files();
+    return m_watcher.files();
 }
 
 void SubComponentManager::update(const QUrl &filePath, const QList<Import> &imports)
@@ -396,8 +343,8 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
 
     QFileInfo oldDir, newDir;
 
-    if (!d->m_filePath.isEmpty()) {
-        const QString file = d->m_filePath.toLocalFile();
+    if (!m_filePath.isEmpty()) {
+        const QString file = m_filePath.toLocalFile();
         oldDir = QFileInfo(QFileInfo(file).path());
     }
     if (!filePath.isEmpty()) {
@@ -405,20 +352,20 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
         newDir = QFileInfo(QFileInfo(file).path());
     }
 
-    d->m_filePath = filePath;
+    m_filePath = filePath;
 
     //
     // (implicit) import of local directory
     //
     if (oldDir != newDir) {
         if (!oldDir.filePath().isEmpty()) {
-            d->m_dirToQualifier.remove(oldDir.canonicalFilePath(), QString());
-            if (!d->m_dirToQualifier.contains(oldDir.canonicalFilePath()))
-                d->m_watcher.removePath(oldDir.filePath());
+            m_dirToQualifier.remove(oldDir.canonicalFilePath(), QString());
+            if (!m_dirToQualifier.contains(oldDir.canonicalFilePath()))
+                m_watcher.removePath(oldDir.filePath());
         }
 
         if (!newDir.filePath().isEmpty()) {
-            d->m_dirToQualifier.insertMulti(newDir.canonicalFilePath(), QString());
+            m_dirToQualifier.insertMulti(newDir.canonicalFilePath(), QString());
         }
     }
 
@@ -428,22 +375,21 @@ void SubComponentManager::update(const QUrl &filePath, const QList<Import> &impo
 
     // skip first list items until the lists differ
     int i = 0;
-    while (i < qMin(imports.size(), d->m_imports.size())) {
-        if (!(imports.at(i) == d->m_imports.at(i)))
+    while (i < qMin(imports.size(), m_imports.size())) {
+        if (!(imports.at(i) == m_imports.at(i)))
             break;
         ++i;
     }
 
-    for (int ii = d->m_imports.size() - 1; ii >= i; --ii)
-        d->removeImport(ii);
+    for (int ii = m_imports.size() - 1; ii >= i; --ii)
+        removeImport(ii);
 
     for (int ii = i; ii < imports.size(); ++ii) {
-        d->addImport(ii, imports.at(ii));
+        addImport(ii, imports.at(ii));
     }
 
-    d->parseDirectories();
+    parseDirectories();
 }
 
 } // namespace QmlDesigner
 
-#include "subcomponentmanager.moc"
