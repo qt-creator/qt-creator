@@ -49,17 +49,16 @@ public:
     LocalProcessList(const IDevice::ConstPtr &device, QObject *parent = 0);
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
+    static QList<DeviceProcess> getLocalProcesses();
+
 private:
     void doUpdate();
     void doKillProcess(const DeviceProcess &process);
 
 private slots:
-#if defined(Q_OS_WIN)
-    void handleWindowsUpdate();
-#elif defined(Q_OS_UNIX)
+    void handleUpdate();
+#ifdef Q_OS_UNIX
     void reportDelayedKillStatus();
-    void updateUsingProc();
-    void updateUsingPs();
 #endif
 
 private:

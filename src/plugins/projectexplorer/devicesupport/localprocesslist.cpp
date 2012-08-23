@@ -97,7 +97,7 @@ LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *par
 {
 }
 
-void LocalProcessList::handleWindowsUpdate()
+QList<DeviceProcess> LocalProcessList::getLocalProcesses()
 {
     QList<DeviceProcess> processes;
 
@@ -105,30 +105,38 @@ void LocalProcessList::handleWindowsUpdate()
     pe.dwSize = sizeof(PROCESSENTRY32);
     HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (snapshot == INVALID_HANDLE_VALUE)
-        return;
+        return processes;
 
     for (bool hasNext = Process32First(snapshot, &pe); hasNext; hasNext = Process32Next(snapshot, &pe)) {
         DeviceProcess p;
         p.pid = pe.th32ProcessID;
-        p.exe = QString::fromUtf16(reinterpret_cast<ushort*>(pe.szExeFile));
-        p.cmdLine = imageName(pe.th32ProcessID);
-        if (p.cmdLine.isEmpty())
-            p.cmdLine = p.exe;
+        // Image has the absolute path, but can fail.
+        const QString image = imageName(pe.th32ProcessID);
+        p.exe = p.cmdLine = image.isEmpty() ?
+            QString::fromWCharArray(pe.szExeFile) :
+            image;
         processes << p;
     }
     CloseHandle(snapshot);
-
-    reportProcessListUpdated(processes);
-}
-
-void LocalProcessList::doUpdate()
-{
-    QTimer::singleShot(0, this, SLOT(handleWindowsUpdate()));
+    return processes;
 }
 
 void LocalProcessList::doKillProcess(const DeviceProcess &process)
 {
-    Q_UNUSED(process);
+    const DWORD rights = PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION
+            |PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ
+            |PROCESS_DUP_HANDLE|PROCESS_TERMINATE|PROCESS_CREATE_THREAD|PROCESS_SUSPEND_RESUME;
+    const HANDLE handle = OpenProcess(rights, FALSE, process.pid);
+    if (!handle) {
+        qWarning("Cannot open process %d: %s" , process.pid,
+                 qPrintable(Utils::winErrorMessage(GetLastError())));
+        return;
+    }
+    if (!TerminateProcess(handle, UINT(-1))) {
+        qWarning("Cannot terminate process %d: %s" , process.pid,
+                 qPrintable(Utils::winErrorMessage(GetLastError())));
+    }
+    CloseHandle(handle);
 }
 
 #endif //Q_OS_WIN
@@ -150,38 +158,53 @@ static bool isUnixProcessId(const QString &procname)
 
 // Determine UNIX processes by reading "/proc". Default to ps if
 // it does not exist
-void LocalProcessList::updateUsingProc()
+
+static const char procDirC[] = "/proc/";
+
+static QList<DeviceProcess> getLocalProcessesUsingProc(const QDir &procDir)
 {
     QList<DeviceProcess> processes;
-    const QDir procDir(QLatin1String("/proc/"));
+    const QString procDirPath = QLatin1String(procDirC);
     const QStringList procIds = procDir.entryList();
     foreach (const QString &procId, procIds) {
         if (!isUnixProcessId(procId))
             continue;
-        QString filename = QLatin1String("/proc/");
-        filename += procId;
-        filename += QLatin1String("/stat");
-        QFile file(filename);
-        if (!file.open(QIODevice::ReadOnly))
-            continue;           // process may have exited
-
-        const QStringList data = QString::fromLocal8Bit(file.readAll()).split(QLatin1Char(' '));
         DeviceProcess proc;
         proc.pid = procId.toInt();
-        proc.exe = data.at(1);
-        proc.cmdLine = data.at(1);
-        if (proc.exe.startsWith(QLatin1Char('(')) && proc.exe.endsWith(QLatin1Char(')'))) {
-            proc.exe.truncate(proc.exe.size() - 1);
-            proc.exe.remove(0, 1);
+        const QString root = procDirPath + procId;
+        QFile cmdLineFile(root + QLatin1String("/cmdline"));
+        if (cmdLineFile.open(QIODevice::ReadOnly)) { // process may have exited
+            QList<QByteArray> tokens = cmdLineFile.readAll().split('\0');
+            if (!tokens.isEmpty()) {
+                proc.exe =  QString::fromLocal8Bit(tokens.front());
+                foreach (const QByteArray &t,  tokens) {
+                    if (!proc.cmdLine.isEmpty())
+                        proc.cmdLine.append(QLatin1Char(' '));
+                    proc.cmdLine.append(QString::fromLocal8Bit(t));
+                }
+            }
         }
-        // PPID is element 3
-        processes.push_back(proc);
+
+        if (proc.exe.isEmpty()) {
+            QFile statFile(root + QLatin1String("/stat"));
+            if (!statFile.open(QIODevice::ReadOnly)) {
+                const QStringList data = QString::fromLocal8Bit(statFile.readAll()).split(QLatin1Char(' '));
+                proc.exe = data.at(1);
+                proc.cmdLine = data.at(1); // PPID is element 3
+                if (proc.exe.startsWith(QLatin1Char('(')) && proc.exe.endsWith(QLatin1Char(')'))) {
+                    proc.exe.truncate(proc.exe.size() - 1);
+                    proc.exe.remove(0, 1);
+                }
+            }
+        }
+        if (!proc.exe.isEmpty())
+            processes.push_back(proc);
     }
-    reportProcessListUpdated(processes);
+    return processes;
 }
 
 // Determine UNIX processes by running ps
-void LocalProcessList::updateUsingPs()
+static QList<DeviceProcess> getLocalProcessesUsingPs()
 {
 #ifdef Q_OS_MAC
     static const char formatC[] = "pid state command";
@@ -214,16 +237,13 @@ void LocalProcessList::updateUsingPs()
             }
         }
     }
-    reportProcessListUpdated(processes);
+    return processes;
 }
 
-void LocalProcessList::doUpdate()
+QList<DeviceProcess> LocalProcessList::getLocalProcesses()
 {
-    const QDir procDir(QLatin1String("/proc/"));
-    if (procDir.exists())
-        QTimer::singleShot(0, this, SLOT(updateUsingProc()));
-    else
-        QTimer::singleShot(0, this, SLOT(updateUsingPs()));
+    const QDir procDir = QDir(QLatin1String(procDirC));
+    return procDir.exists() ? getLocalProcessesUsingProc(procDir) : getLocalProcessesUsingPs();
 }
 
 void LocalProcessList::doKillProcess(const DeviceProcess &process)
@@ -250,6 +270,16 @@ Qt::ItemFlags LocalProcessList::flags(const QModelIndex &index) const
     if (index.isValid() && at(index.row()).pid == m_myPid)
         flags &= ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
     return flags;
+}
+
+void LocalProcessList::handleUpdate()
+{
+    reportProcessListUpdated(getLocalProcesses());
+}
+
+void LocalProcessList::doUpdate()
+{
+    QTimer::singleShot(0, this, SLOT(handleUpdate()));
 }
 
 } // namespace Internal

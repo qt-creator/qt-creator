@@ -63,6 +63,8 @@ public:
     void killProcess(int row);
     DeviceProcess at(int row) const;
 
+    static QList<DeviceProcess> localProcesses();
+
 signals:
     void processListUpdated();
     void error(const QString &errorMsg);
