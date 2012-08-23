@@ -1,8 +1,5 @@
 include(../../../qttest.pri)
 
-
-
-
 QTCREATOR_SOURCE=$$PWD/../../../../..
 QTCREATOR_BUILD=$$OUT_PWD/../../../../..
 # can we check that this is a valid build dir?
