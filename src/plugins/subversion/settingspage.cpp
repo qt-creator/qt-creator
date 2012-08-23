@@ -55,7 +55,8 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 SubversionSettings SettingsPageWidget::settings() const
 {
     SubversionSettings rc;
-    rc.svnCommand = m_ui.pathChooser->path();
+    rc.svnCommand = m_ui.pathChooser->rawPath();
+    rc.svnBinaryPath = m_ui.pathChooser->path();
     rc.useAuthentication = m_ui.userGroupBox->isChecked();
     rc.user =  m_ui.usernameLineEdit->text();
     rc.password = m_ui.passwordLineEdit->text();

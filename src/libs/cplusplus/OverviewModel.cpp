@@ -76,6 +76,10 @@ QModelIndex OverviewModel::index(int row, int column, const QModelIndex &parent)
         Symbol *parentSymbol = static_cast<Symbol *>(parent.internalPointer());
         Q_ASSERT(parentSymbol);
 
+        if (Template *t = parentSymbol->asTemplate())
+            if (Symbol *templateParentSymbol = t->declaration())
+                parentSymbol = templateParentSymbol;
+
         Scope *scope = parentSymbol->asScope();
         Q_ASSERT(scope != 0);
         return createIndex(row, 0, scope->memberAt(row));
@@ -89,6 +93,8 @@ QModelIndex OverviewModel::parent(const QModelIndex &child) const
         return QModelIndex();
 
     if (Scope *scope = symbol->enclosingScope()) {
+        if (scope->isTemplate() && scope->enclosingScope())
+            scope = scope->enclosingScope();
         if (scope->enclosingScope()) {
             QModelIndex index;
             if (scope->enclosingScope() && scope->enclosingScope()->enclosingScope()) // the parent doesn't have a parent
@@ -112,6 +118,10 @@ int OverviewModel::rowCount(const QModelIndex &parent) const
                 return 0;
             Symbol *parentSymbol = static_cast<Symbol *>(parent.internalPointer());
             Q_ASSERT(parentSymbol);
+
+            if (Template *t = parentSymbol->asTemplate())
+                if (Symbol *templateParentSymbol = t->declaration())
+                    parentSymbol = templateParentSymbol;
 
             if (Scope *parentScope = parentSymbol->asScope()) {
                 if (!parentScope->isFunction() && !parentScope->isObjCMethod()) {
@@ -168,6 +178,14 @@ QVariant OverviewModel::data(const QModelIndex &index, int role) const
         }
         if (symbol->isObjCPropertyDeclaration())
             name = QLatin1String("@property ") + name;
+        if (Template *t = symbol->asTemplate())
+            if (Symbol *templateDeclaration = t->declaration()) {
+                QStringList parameters;
+                for (unsigned i = 0; i < t->templateParameterCount(); ++i)
+                    parameters.append(_overview.prettyName(t->templateParameterAt(i)->name()));
+                name += QLatin1Char('<') + parameters.join(QLatin1String(", ")) + QLatin1Char('>');
+                symbol = templateDeclaration;
+            }
         if (symbol->isObjCMethod()) {
             ObjCMethod *method = symbol->asObjCMethod();
             if (method->isStatic())

@@ -7,14 +7,12 @@ HEADERS += \
     $$PWD/localplaingdbadapter.h \
     $$PWD/termgdbadapter.h \
     $$PWD/remotegdbserveradapter.h \
-    $$PWD/codagdbadapter.h \
     $$PWD/abstractgdbprocess.h \
     $$PWD/localgdbprocess.h \
     $$PWD/remotegdbprocess.h \
     $$PWD/remoteplaingdbadapter.h \
     $$PWD/abstractplaingdbadapter.h \
-    $$PWD/startgdbserverdialog.h \
-    $$PWD/symbian.h
+    $$PWD/startgdbserverdialog.h
 
 SOURCES += \
     $$PWD/gdbmi.cpp \
@@ -27,13 +25,11 @@ SOURCES += \
     $$PWD/localplaingdbadapter.cpp \
     $$PWD/termgdbadapter.cpp \
     $$PWD/remotegdbserveradapter.cpp \
-    $$PWD/codagdbadapter.cpp \
     $$PWD/abstractgdbprocess.cpp \
     $$PWD/localgdbprocess.cpp \
     $$PWD/remotegdbprocess.cpp \
     $$PWD/remoteplaingdbadapter.cpp \
     $$PWD/abstractplaingdbadapter.cpp \
-    $$PWD/startgdbserverdialog.cpp \
-    $$PWD/symbian.cpp
+    $$PWD/startgdbserverdialog.cpp
 
 RESOURCES += $$PWD/gdb.qrc

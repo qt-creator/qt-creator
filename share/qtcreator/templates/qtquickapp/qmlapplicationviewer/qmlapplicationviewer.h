@@ -31,7 +31,7 @@ public:
     void setMainQmlFile(const QString &file);
     void addImportPath(const QString &path);
 
-    // Note that this will only have an effect on Symbian and Fremantle.
+    // Note that this will only have an effect on Fremantle.
     void setOrientation(ScreenOrientation orientation);
 
     void showExpanded();

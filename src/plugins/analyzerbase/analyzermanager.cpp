@@ -515,7 +515,10 @@ void AnalyzerManagerPrivate::startLocalTool(IAnalyzerTool *tool)
             const QString message = tr("<html><head/><body><p>You are trying "
                 "to run the tool \"%1\" on an application in %2 mode. "
                 "The tool is designed to be used in %3 mode.</p><p>"
-                "Do you want to continue and run it in %2 mode?</p></body></html>")
+                "Debug and Release mode run-time characteristics differ "
+                "significantly, analytical findings for one mode may or "
+                "may not be relevant for the other.</p><p>"
+                "Do you want to continue and run the tool in %2 mode?</p></body></html>")
                     .arg(toolName).arg(currentMode).arg(toolModeString);
             const QString checkBoxText = tr("&Do not ask again");
             bool checkBoxSetting = false;

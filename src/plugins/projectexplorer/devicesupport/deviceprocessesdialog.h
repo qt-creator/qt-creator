@@ -51,6 +51,8 @@ class PROJECTEXPLORER_EXPORT DeviceProcessesDialog : public QDialog
 public:
     explicit DeviceProcessesDialog(QWidget *parent = 0);
     ~DeviceProcessesDialog();
+    void addAcceptButton(const QString &label);
+    void addCloseButton();
 
     void setDevice(const IDevice::ConstPtr &device);
     void showAllDevices();

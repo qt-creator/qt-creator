@@ -11,7 +11,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "RemoteLinux" }
-    Depends { name: "symbianutils"}
     Depends { name: "CPlusPlus"}
 
     Depends { name: "cpp" }

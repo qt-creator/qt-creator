@@ -30,7 +30,6 @@
 
 #include "qmlprofilerengine.h"
 
-#include "codaqmlprofilerrunner.h"
 #include "localqmlprofilerrunner.h"
 #include "remotelinuxqmlprofilerrunner.h"
 
@@ -42,8 +41,6 @@
 #include <qmlprojectmanager/qmlprojectplugin.h>
 #include <projectexplorer/localapplicationruncontrol.h>
 #include <projectexplorer/applicationrunconfiguration.h>
-#include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
-#include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
 #include <qmldebug/qmloutputparser.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
 
@@ -107,9 +104,6 @@ QmlProfilerEngine::QmlProfilerEnginePrivate::createRunner(ProjectExplorer::RunCo
         conf.environment = rc2->environment();
         conf.port = rc2->debuggerAspect()->qmlDebugServerPort();
         runner = new LocalQmlProfilerRunner(conf, parent);
-    } else if (Qt4ProjectManager::S60DeviceRunConfiguration *s60Config =
-            qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration*>(runConfiguration)) {
-        runner = new CodaQmlProfilerRunner(s60Config, parent);
     } else if (RemoteLinux::RemoteLinuxRunConfiguration *rmConfig =
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
         runner = new RemoteLinuxQmlProfilerRunner(rmConfig, parent);

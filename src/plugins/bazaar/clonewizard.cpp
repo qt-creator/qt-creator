@@ -113,6 +113,6 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CloneWizard::createJob(const QList<
          << extraOptions << page->repository() << page->directory();
 
     VcsBase::ProcessCheckoutJob *job = new VcsBase::ProcessCheckoutJob;
-    job->addStep(settings.stringValue(BazaarSettings::binaryPathKey), args, page->path());
+    job->addStep(settings.binaryPath(), args, page->path());
     return QSharedPointer<VcsBase::AbstractCheckoutJob>(job);
 }

@@ -35,24 +35,26 @@
 
 #include <QCompleter>
 
-QT_FORWARD_DECLARE_CLASS(QSettings)
+QT_BEGIN_NAMESPACE
+class QSettings;
+QT_END_NAMESPACE
 
 namespace Utils {
 
-namespace Internal {
-    class HistoryCompleterPrivate;
-}
+namespace Internal { class HistoryCompleterPrivate; }
 
 class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
 {
     Q_OBJECT
 
 public:
-    HistoryCompleter(QSettings *settings, QObject *parent);
+    HistoryCompleter(QObject *parent, const QString &historyKey);
     ~HistoryCompleter();
     int historySize() const;
     int maximalHistorySize() const;
     void setMaximalHistorySize(int numberOfEntries);
+
+    static void setSettings(QSettings *settings);
 
 public Q_SLOTS:
     void clearHistory();
@@ -60,7 +62,6 @@ public Q_SLOTS:
 
 private:
     Internal::HistoryCompleterPrivate *d;
-
 };
 
 } // namespace Utils

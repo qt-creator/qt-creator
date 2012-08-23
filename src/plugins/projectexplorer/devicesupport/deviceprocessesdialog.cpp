@@ -120,11 +120,12 @@ public:
     FilterLineEdit *processFilterLineEdit;
     QPushButton *updateListButton;
     QPushButton *killProcessButton;
-    QPushButton *attachProcessButton;
+    QPushButton *acceptButton;
+    QDialogButtonBox *buttonBox;
 };
 
 DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QWidget *parent)
-    : q(parent)
+    : q(parent), acceptButton(0), buttonBox(new QDialogButtonBox(parent))
 {
     processList = 0;
 
@@ -150,13 +151,9 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QWidget *parent)
 
     updateListButton = new QPushButton(DeviceProcessesDialog::tr("&Update List"), q);
     killProcessButton = new QPushButton(DeviceProcessesDialog::tr("&Kill Process"), q);
-    attachProcessButton = new QPushButton(DeviceProcessesDialog::tr("&Attach to Process"), q);
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(q);
-    buttonBox->setStandardButtons(QDialogButtonBox::Close);
     buttonBox->addButton(updateListButton, QDialogButtonBox::ActionRole);
     buttonBox->addButton(killProcessButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(attachProcessButton, QDialogButtonBox::AcceptRole);
 
     QFormLayout *leftColumn = new QFormLayout();
     leftColumn->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
@@ -259,8 +256,9 @@ void DeviceProcessesDialogPrivate::handleProcessKilled()
 
 void DeviceProcessesDialogPrivate::updateButtons()
 {
-    bool hasSelection = procView->selectionModel()->hasSelection();
-    attachProcessButton->setEnabled(hasSelection);
+    const bool hasSelection = procView->selectionModel()->hasSelection();
+    if (acceptButton)
+        acceptButton->setEnabled(hasSelection);
     killProcessButton->setEnabled(hasSelection);
     errorText->setVisible(!errorText->document()->isEmpty());
 }
@@ -281,6 +279,21 @@ DeviceProcess DeviceProcessesDialogPrivate::selectedProcess() const
 //
 ///////////////////////////////////////////////////////////////////////
 
+/*!
+     \class ProjectExplorer::DeviceProcessesDialog
+
+     \brief Shows a list of processes.
+
+     The dialog can be used as a
+     \list
+     \o Non-modal dialog showing a list of processes: Call addCloseButton()
+        to add a 'Close' button.
+     \o Modal dialog with an 'Accept' button to select a process: Call
+        addAcceptButton() passing the label text. This will create a
+        'Cancel' button as well.
+     \endlist
+*/
+
 DeviceProcessesDialog::DeviceProcessesDialog(QWidget *parent)
     : QDialog(parent), d(new Internal::DeviceProcessesDialogPrivate(this))
 {
@@ -292,6 +305,20 @@ DeviceProcessesDialog::DeviceProcessesDialog(QWidget *parent)
 DeviceProcessesDialog::~DeviceProcessesDialog()
 {
     delete d;
+}
+
+void DeviceProcessesDialog::addAcceptButton(const QString &label)
+{
+    d->acceptButton = new QPushButton(label);
+    d->buttonBox->addButton(d->acceptButton, QDialogButtonBox::AcceptRole);
+    connect(d->procView, SIGNAL(doubleClicked(QModelIndex)),
+            d->acceptButton, SLOT(animateClick()));
+    d->buttonBox->addButton(QDialogButtonBox::Cancel);
+}
+
+void DeviceProcessesDialog::addCloseButton()
+{
+    d->buttonBox->addButton(QDialogButtonBox::Close);
 }
 
 void DeviceProcessesDialog::setDevice(const IDevice::ConstPtr &device)

@@ -32,7 +32,6 @@
 #include "ui_mobileappwizardgenericoptionspage.h"
 #include "ui_mobileappwizardmaemooptionspage.h"
 #include "ui_mobileappwizardharmattanoptionspage.h"
-#include "ui_mobileappwizardsymbianoptionspage.h"
 #include <coreplugin/coreconstants.h>
 #include <utils/fileutils.h>
 
@@ -49,13 +48,6 @@ class MobileAppWizardGenericOptionsPagePrivate
 {
     Ui::MobileAppWizardGenericOptionsPage ui;
     friend class MobileAppWizardGenericOptionsPage;
-};
-
-class MobileAppWizardSymbianOptionsPagePrivate
-{
-    Ui::MobileAppWizardSymbianOptionsPage ui;
-    QString svgIcon;
-    friend class MobileAppWizardSymbianOptionsPage;
 };
 
 class MobileAppWizardMaemoOptionsPagePrivate
@@ -110,69 +102,6 @@ AbstractMobileApp::ScreenOrientation MobileAppWizardGenericOptionsPage::orientat
     return static_cast<AbstractMobileApp::ScreenOrientation>(comboBox->itemData(index).toInt());
 }
 
-
-MobileAppWizardSymbianOptionsPage::MobileAppWizardSymbianOptionsPage(QWidget *parent)
-    : QWizardPage(parent)
-    , d(new MobileAppWizardSymbianOptionsPagePrivate)
-{
-    d->ui.setupUi(this);
-    const QIcon open = QApplication::style()->standardIcon(QStyle::SP_DirOpenIcon);
-    d->ui.appIconLoadToolButton->setIcon(open);
-    connect(d->ui.appIconLoadToolButton, SIGNAL(clicked()), SLOT(openSvgIcon()));
-}
-
-MobileAppWizardSymbianOptionsPage::~MobileAppWizardSymbianOptionsPage()
-{
-    delete d;
-}
-
-QString MobileAppWizardSymbianOptionsPage::svgIcon() const
-{
-    return d->svgIcon;
-}
-
-void MobileAppWizardSymbianOptionsPage::setSvgIcon(const QString &icon)
-{
-    QPixmap iconPixmap(icon);
-    if (!iconPixmap.isNull()) {
-        const int symbianIconSize = 44;
-        if (iconPixmap.height() > symbianIconSize || iconPixmap.width() > symbianIconSize)
-            iconPixmap = iconPixmap.scaledToHeight(symbianIconSize, Qt::SmoothTransformation);
-        d->ui.appIconPreview->setPixmap(iconPixmap);
-        d->svgIcon = icon;
-    }
-}
-
-QString MobileAppWizardSymbianOptionsPage::symbianUid() const
-{
-    return d->ui.uid3LineEdit->text();
-}
-
-void MobileAppWizardSymbianOptionsPage::setSymbianUid(const QString &uid)
-{
-    d->ui.uid3LineEdit->setText(uid);
-}
-
-void MobileAppWizardSymbianOptionsPage::setNetworkEnabled(bool enableIt)
-{
-    d->ui.enableNetworkCheckBox->setChecked(enableIt);
-}
-
-bool MobileAppWizardSymbianOptionsPage::networkEnabled() const
-{
-    return d->ui.enableNetworkCheckBox->isChecked();
-}
-
-void MobileAppWizardSymbianOptionsPage::openSvgIcon()
-{
-    const QString svgIcon = QFileDialog::getOpenFileName(
-            this,
-            d->ui.appIconLabel->text(),
-            QDesktopServices::storageLocation(QDesktopServices::PicturesLocation),
-            QLatin1String("*.svg"));
-    if (!svgIcon.isEmpty())
-        setSvgIcon(svgIcon);
-}
 
 MobileAppWizardMaemoOptionsPage::MobileAppWizardMaemoOptionsPage(QWidget *parent)
     : QWizardPage(parent)

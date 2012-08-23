@@ -32,7 +32,7 @@
     \title Debugging a Qt Quick Example Application
 
     This section uses the
-    \l{http://doc.qt.nokia.com/4.7/demos-declarative-samegame.html}{Same Game}
+    \l{http://qt-project.org/doc/qt-4.8/demos-declarative-samegame.html}{Same Game}
     demo application to illustrate how to debug Qt Quick applications in the
     \gui Debug mode.
 

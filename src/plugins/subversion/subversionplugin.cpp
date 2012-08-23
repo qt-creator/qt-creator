@@ -1120,7 +1120,7 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
                           const QStringList &arguments, int timeOut,
                           unsigned flags, QTextCodec *outputCodec)
 {
-    const QString executable = m_settings.svnCommand;
+    const QString executable = m_settings.svnBinaryPath;
     SubversionResponse response;
     if (executable.isEmpty()) {
         response.error = true;

@@ -1,13 +1,16 @@
     \section2 Specifying Run Settings for QNX Devices
 
-    To run and debug an application on a QNX device, you must create connections
-    from the development PC to the device. Click \gui {Manage device configurations}
-    to create a connection. For more information, see \l{Connecting QNX
-    Devices}.
+    To run and debug an application on a QNX or BlackBerry device, you must
+    create connections from the development PC to the device. Click
+    \gui {Manage device configurations} to create a connection. For more
+    information, see \l{Connecting QNX Devices}.
 
     \image qtcreator-qnx-run-settings.png "Run settings for QNX devices"
 
-    When you run the application on the QNX device, \QC first creates a BAR package
+    When you run the application on the BlackBerry device, \QC first creates a BAR package
     using the settings in the Application Descriptor File. The default is to create the
     BAR package in the build directory. The BAR package is then deployed onto the
     selected device. For more information, see \l{Deploying Applications to QNX Devices}.
+
+    Specifying run settings for QNX Neutrino devices is very similar to
+    \l{Specifying Run Settings for Linux-Based Devices}.

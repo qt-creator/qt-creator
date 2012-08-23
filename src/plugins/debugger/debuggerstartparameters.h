@@ -71,9 +71,6 @@ public:
         remoteSetupNeeded(false),
         startMode(NoStartMode),
         closeMode(KillAtClose),
-        executableUid(0),
-        communicationChannel(CommunicationChannelTcpIp),
-        serverPort(0),
         testReceiver(0),
         testCallback(0),
         testCase(0)
@@ -131,12 +128,6 @@ public:
     QStringList dumperLibraryLocations;
     DebuggerStartMode startMode;
     DebuggerCloseMode closeMode;
-
-    // For Symbian debugging.
-    quint32 executableUid;
-    CommunicationChannel communicationChannel;
-    QString serverAddress;
-    quint16 serverPort;
 
     // For QNX debugging
     QString remoteExecutable;

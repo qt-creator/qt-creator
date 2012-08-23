@@ -90,6 +90,8 @@ macx {
     QMAKE_RPATHDIR =
 }
 
+# put .pro file directory in INCLUDEPATH
+CONFIG += include_source_dir
 
 contains(QT_CONFIG, reduce_exports):CONFIG += hide_symbols
 

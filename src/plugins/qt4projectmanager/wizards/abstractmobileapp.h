@@ -54,7 +54,6 @@ struct
         MainCppFile,
         AppProFile,
         DeploymentPriFile,
-        SymbianSvgIconFile,
         PngIcon64File,
         PngIcon80File,
         DesktopFremantleFile,
@@ -88,7 +87,7 @@ public:
         ScreenOrientationLockLandscape,
         ScreenOrientationLockPortrait,
         ScreenOrientationAuto,
-        ScreenOrientationImplicit // Don't set in application at all (used by Symbian components)
+        ScreenOrientationImplicit // Don't set in application at all
     };
 
     enum FileType {
@@ -102,8 +101,6 @@ public:
         DesktopOrigin,
         DeploymentPri,
         DeploymentPriOrigin,
-        SymbianSvgIcon,
-        SymbianSvgIconOrigin,
         PngIcon64,
         PngIconOrigin64,
         PngIcon80,
@@ -118,16 +115,10 @@ public:
     void setProjectName(const QString &name);
     QString projectName() const;
     void setProjectPath(const QString &path);
-    void setSymbianSvgIcon(const QString &icon);
-    QString symbianSvgIcon() const;
     void setPngIcon64(const QString &icon);
     QString pngIcon64() const;
     void setPngIcon80(const QString &icon);
     QString pngIcon80() const;
-    void setSymbianTargetUid(const QString &uid);
-    QString symbianTargetUid() const;
-    void setNetworkEnabled(bool enabled);
-    bool networkEnabled() const;
     QString path(int fileType) const;
     QString error() const;
 
@@ -141,7 +132,6 @@ public:
     bool generateFiles(QString *errorMessage) const;
 #endif // CREATORLESSTEST
 
-    static QString symbianUidForPath(const QString &path);
     static int makeStubVersion(int minor);
     QList<AbstractGeneratedFileInfo> fileUpdates(const QString &mainProFile) const;
     bool updateFiles(const QList<AbstractGeneratedFileInfo> &list, QString &error) const;
@@ -192,12 +182,9 @@ private:
 
     QString m_projectName;
     QFileInfo m_projectPath;
-    QString m_symbianSvgIcon;
     QString m_pngIcon64;
     QString m_pngIcon80;
-    QString m_symbianTargetUid;
     ScreenOrientation m_orientation;
-    bool m_networkEnabled;
     bool m_supportsMeegoBooster;
 };
 

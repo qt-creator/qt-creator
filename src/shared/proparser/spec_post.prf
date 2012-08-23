@@ -15,11 +15,6 @@ isEmpty(QMAKE_PLATFORM) {
                  |equals(MAKEFILE_GENERATOR, XCODE)) {
         } else:equals(MAKEFILE_GENERATOR, GBUILD) {
             TARGET_PLATFORM = unix
-        } else:if(equals(MAKEFILE_GENERATOR, SYMBIAN_ABLD) \
-                 |equals(MAKEFILE_GENERATOR, SYMBIAN_SBSV2) \
-                 |equals(MAKEFILE_GENERATOR, SYMBIAN_UNIX) \
-                 |equals(MAKEFILE_GENERATOR, SYMBIAN_MINGW)) {
-            TARGET_PLATFORM = symbian
         } else {
             error("Qmake spec sets an invalid MAKEFILE_GENERATOR.")
         }
@@ -30,8 +25,6 @@ isEmpty(QMAKE_PLATFORM) {
         QMAKE_PLATFORM = mac macx unix
     else:equals(TARGET_PLATFORM, win32): \
         QMAKE_PLATFORM = win32
-    else:equals(TARGET_PLATFORM, symbian): \
-        QMAKE_PLATFORM = symbian unix
     else: \
         error("Qmake spec sets an invalid TARGET_PLATFORM.")
 }

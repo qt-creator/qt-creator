@@ -120,9 +120,6 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
             || isQtPlatformSelected(QLatin1String(QtSupport::Constants::ANDROID_PLATFORM))) {
         rc.widgetWidth = 800;
         rc.widgetHeight = 480;
-    } else if (isQtPlatformSelected(QtSupport::Constants::SYMBIAN_PLATFORM)) {
-        rc.widgetWidth = 360;
-        rc.widgetHeight = 640;
     } else {
         rc.isMobileApplication = false;
         rc.widgetWidth = 400;

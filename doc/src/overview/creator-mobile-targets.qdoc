@@ -65,21 +65,13 @@
             Developer) to create the device-side end point for USB and WLAN
             connections.
 
-        \o  \l{Connecting Symbian Devices}
-
-            You can run Qt applications on Symbian devices if the software
-            that Qt applications require (typically Qt, Qt Mobility, QtWebkit,
-            and Open C) is installed on the device. On Symbian Anna and later
-            devices, some version of Qt is pre-installed.
-            Install and launch the CODA on-device debugging agent on the
-            devices and connect the devices to the development PC.
-
         \o  \l{Connecting QNX Devices}
 
             You can connect QNX devices to the development PC to deploy, run and
             debug applications on them from within \QC. This is currently only
-            supported for BlackBerry Playbook, and requires the BlackBerry NDK
-            to be installed on the development PC.
+            supported for BlackBerry Playbook and QNX Neutrino devices, and
+            requires the BlackBerry NDK or the QNX SDK to be installed on the
+            development PC.
 
         \o  \l{Connecting Android Devices}
 

@@ -48,7 +48,7 @@ class QtProfileConfigWidget : public ProjectExplorer::ProfileConfigWidget
     Q_OBJECT
 
 public:
-    QtProfileConfigWidget(ProjectExplorer::Profile *p, QWidget *parent = 0);
+    explicit QtProfileConfigWidget(ProjectExplorer::Profile *p, QWidget *parent = 0);
 
     QString displayName() const;
 

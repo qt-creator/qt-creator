@@ -43,29 +43,30 @@
 
 using namespace Analyzer;
 
-static const char numCallersC[]  = "Analyzer.Valgrind.NumCallers";
-static const char trackOriginsC[] = "Analyzer.Valgrind.TrackOrigins";
-static const char suppressionFilesC[] = "Analyzer.Valgrind.SupressionFiles";
-static const char removedSuppressionFilesC[] = "Analyzer.Valgrind.RemovedSuppressionFiles";
-static const char addedSuppressionFilesC[] = "Analyzer.Valgrind.AddedSuppressionFiles";
-static const char filterExternalIssuesC[] = "Analyzer.Valgrind.FilterExternalIssues";
-static const char visibleErrorKindsC[] = "Analyzer.Valgrind.VisibleErrorKinds";
+const char numCallersC[]  = "Analyzer.Valgrind.NumCallers";
+const char trackOriginsC[] = "Analyzer.Valgrind.TrackOrigins";
+const char suppressionFilesC[] = "Analyzer.Valgrind.SupressionFiles";
+const char removedSuppressionFilesC[] = "Analyzer.Valgrind.RemovedSuppressionFiles";
+const char addedSuppressionFilesC[] = "Analyzer.Valgrind.AddedSuppressionFiles";
+const char filterExternalIssuesC[] = "Analyzer.Valgrind.FilterExternalIssues";
+const char visibleErrorKindsC[] = "Analyzer.Valgrind.VisibleErrorKinds";
 
-static const char lastSuppressionDirectoryC[] = "Analyzer.Valgrind.LastSuppressionDirectory";
-static const char lastSuppressionHistoryC[] = "Analyzer.Valgrind.LastSuppressionHistory";
+const char lastSuppressionDirectoryC[] = "Analyzer.Valgrind.LastSuppressionDirectory";
+const char lastSuppressionHistoryC[] = "Analyzer.Valgrind.LastSuppressionHistory";
 
-static const char callgrindEnableCacheSimC[] = "Analyzer.Valgrind.Callgrind.EnableCacheSim";
-static const char callgrindEnableBranchSimC[] = "Analyzer.Valgrind.Callgrind.EnableBranchSim";
-static const char callgrindCollectSystimeC[] = "Analyzer.Valgrind.Callgrind.CollectSystime";
-static const char callgrindCollectBusEventsC[] = "Analyzer.Valgrind.Callgrind.CollectBusEvents";
-static const char callgrindEnableEventToolTipsC[] = "Analyzer.Valgrind.Callgrind.EnableEventToolTips";
-static const char callgrindMinimumCostRatioC[] = "Analyzer.Valgrind.Callgrind.MinimumCostRatio";
-static const char callgrindVisualisationMinimumCostRatioC[] = "Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio";
+const char callgrindEnableCacheSimC[] = "Analyzer.Valgrind.Callgrind.EnableCacheSim";
+const char callgrindEnableBranchSimC[] = "Analyzer.Valgrind.Callgrind.EnableBranchSim";
+const char callgrindCollectSystimeC[] = "Analyzer.Valgrind.Callgrind.CollectSystime";
+const char callgrindCollectBusEventsC[] = "Analyzer.Valgrind.Callgrind.CollectBusEvents";
+const char callgrindEnableEventToolTipsC[] = "Analyzer.Valgrind.Callgrind.EnableEventToolTips";
+const char callgrindMinimumCostRatioC[] = "Analyzer.Valgrind.Callgrind.MinimumCostRatio";
+const char callgrindVisualisationMinimumCostRatioC[] = "Analyzer.Valgrind.Callgrind.VisualisationMinimumCostRatio";
 
-static const char callgrindCycleDetectionC[] = "Analyzer.Valgrind.Callgrind.CycleDetection";
-static const char callgrindCostFormatC[] = "Analyzer.Valgrind.Callgrind.CostFormat";
+const char callgrindCycleDetectionC[] = "Analyzer.Valgrind.Callgrind.CycleDetection";
+const char callgrindShortenTemplates[] = "Analyzer.Valgrind.Callgrind.ShortenTemplates";
+const char callgrindCostFormatC[] = "Analyzer.Valgrind.Callgrind.CostFormat";
 
-static const char valgrindExeC[] = "Analyzer.Valgrind.ValgrindExecutable";
+const char valgrindExeC[] = "Analyzer.Valgrind.ValgrindExecutable";
 
 namespace Valgrind {
 namespace Internal {
@@ -322,6 +323,7 @@ void ValgrindGlobalSettings::fromMap(const QVariantMap &map)
     if (map.contains(QLatin1String(callgrindCostFormatC)))
         m_costFormat = static_cast<CostDelegate::CostFormat>(map.value(QLatin1String(callgrindCostFormatC)).toInt());
     setIfPresent(map, QLatin1String(callgrindCycleDetectionC), &m_detectCycles);
+    setIfPresent(map, QLatin1String(callgrindShortenTemplates), &m_shortenTemplates);
 }
 
 QVariantMap ValgrindGlobalSettings::toMap() const
@@ -336,6 +338,7 @@ QVariantMap ValgrindGlobalSettings::toMap() const
     // Callgrind
     map.insert(QLatin1String(callgrindCostFormatC), m_costFormat);
     map.insert(QLatin1String(callgrindCycleDetectionC), m_detectCycles);
+    map.insert(QLatin1String(callgrindShortenTemplates), m_shortenTemplates);
 
     return map;
 }
@@ -401,9 +404,20 @@ bool ValgrindGlobalSettings::detectCycles() const
     return m_detectCycles;
 }
 
-void ValgrindGlobalSettings::setDetectCycles(bool detect)
+void ValgrindGlobalSettings::setDetectCycles(bool on)
 {
-    m_detectCycles = detect;
+    m_detectCycles = on;
+    AnalyzerGlobalSettings::instance()->writeSettings();
+}
+
+bool ValgrindGlobalSettings::shortenTemplates() const
+{
+    return m_shortenTemplates;
+}
+
+void ValgrindGlobalSettings::setShortenTemplates(bool on)
+{
+    m_shortenTemplates = on;
     AnalyzerGlobalSettings::instance()->writeSettings();
 }
 

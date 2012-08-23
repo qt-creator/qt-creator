@@ -1013,7 +1013,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
     if (Perforce::Constants::debug)
         qDebug() << "PerforcePlugin::run syncp actual args [" << process.workingDirectory() << ']' << args;
     process.setTimeOutMessageBoxEnabled(true);
-    const Utils::SynchronousProcessResponse sp_resp = process.run(m_settings.p4Command(), args);
+    const Utils::SynchronousProcessResponse sp_resp = process.run(m_settings.p4BinaryPath(), args);
     if (Perforce::Constants::debug)
         qDebug() << sp_resp;
 
@@ -1034,7 +1034,7 @@ PerforceResponse PerforcePlugin::synchronousProcess(const QString &workingDir,
         response.message = msgCrash();
         break;
     case Utils::SynchronousProcessResponse::StartFailed:
-        response.message = msgNotStarted(m_settings.p4Command());
+        response.message = msgNotStarted(m_settings.p4BinaryPath());
         break;
     case Utils::SynchronousProcessResponse::Hang:
         response.message = msgCrash();
@@ -1061,13 +1061,13 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
         qDebug() << "PerforcePlugin::run fully syncp actual args [" << process.workingDirectory() << ']' << args;
 
     PerforceResponse response;
-    process.start(m_settings.p4Command(), args);
+    process.start(m_settings.p4BinaryPath(), args);
     if (stdInput.isEmpty())
         process.closeWriteChannel();
 
     if (!process.waitForStarted(3000)) {
         response.error = true;
-        response.message = msgNotStarted(m_settings.p4Command());
+        response.message = msgNotStarted(m_settings.p4BinaryPath());
         return response;
     }
     if (!stdInput.isEmpty()) {
@@ -1075,7 +1075,7 @@ PerforceResponse PerforcePlugin::fullySynchronousProcess(const QString &workingD
             Utils::SynchronousProcess::stopProcess(process);
             response.error = true;
             response.message = tr("Unable to write input data to process %1: %2").
-                               arg(QDir::toNativeSeparators(m_settings.p4Command()),
+                               arg(QDir::toNativeSeparators(m_settings.p4BinaryPath()),
                                    process.errorString());
             return response;
         }
@@ -1145,7 +1145,7 @@ PerforceResponse PerforcePlugin::runP4Cmd(const QString &workingDir,
     actualArgs.append(args);
 
     if (flags & CommandToWindow)
-        outputWindow->appendCommand(workingDir, m_settings.p4Command(), actualArgs);
+        outputWindow->appendCommand(workingDir, m_settings.p4BinaryPath(), actualArgs);
 
     if (flags & ShowBusyCursor)
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1520,14 +1520,14 @@ void PerforcePlugin::slotTopLevelFailed(const QString &errorMessage)
 void PerforcePlugin::getTopLevel()
 {
     // Run a new checker
-    if (m_settings.p4Command().isEmpty())
+    if (m_settings.p4BinaryPath().isEmpty())
         return;
     PerforceChecker *checker = new PerforceChecker(this);
     connect(checker, SIGNAL(failed(QString)), this, SLOT(slotTopLevelFailed(QString)));
     connect(checker, SIGNAL(failed(QString)), checker, SLOT(deleteLater()));
     connect(checker, SIGNAL(succeeded(QString)), this, SLOT(slotTopLevelFound(QString)));
     connect(checker, SIGNAL(succeeded(QString)),checker, SLOT(deleteLater()));
-    checker->start(m_settings.p4Command(), m_settings.commonP4Arguments(QString()), 30000);
+    checker->start(m_settings.p4BinaryPath(), m_settings.commonP4Arguments(QString()), 30000);
 }
 
 }

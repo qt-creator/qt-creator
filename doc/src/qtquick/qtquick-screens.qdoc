@@ -64,23 +64,23 @@
     \section1 Using Data Models
 
     You can create the following types of views to organize items provided by
-    \l{http://doc.qt.nokia.com/4.7/qdeclarativemodels.html}{data models}:
+    \l{http://qt-project.org/doc/qt-4.8/qdeclarativemodels.html}{data models}:
 
     \list
 
-        \o  \l{http://doc.qt.nokia.com/4.7/qml-gridview.html}{Grid View}
+        \o  \l{http://qt-project.org/doc/qt-4.8/qml-gridview.html}{Grid View}
             provides a grid vizualization of a model.
 
-        \o  \l{http://doc.qt.nokia.com/4.7/qml-listview.html}{List View}
+        \o  \l{http://qt-project.org/doc/qt-4.8/qml-listview.html}{List View}
             provides a list vizualization of a model.
 
-        \o  \l{http://doc.qt.nokia.com/4.7/qml-pathview.html}{Path View}
+        \o  \l{http://qt-project.org/doc/qt-4.8/qml-pathview.html}{Path View}
             visualizes the contents of a model along a path.
 
     \endlist
 
     When you add a Grid View, List View, or Path View element, the
-    \l{http://doc.qt.nokia.com/4.7/qml-listmodel.html}{ListModel} and the
+    \l{http://qt-project.org/doc/qt-4.8/qml-listmodel.html}{ListModel} and the
     delegate component that creates an instance for each item in the model are
     added automatically. You can edit element properties
     \if defined(qcmanual)
@@ -95,17 +95,17 @@
 
     \list
 
-        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-column.html}{Column}
+        \o  \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-column.html}{Column}
             arranges its child items vertically.
 
-        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-row.html}{Row}
+        \o  \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-row.html}{Row}
             arranges its child items horizontally.
 
-        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-grid.html}{Grid}
+        \o  \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-grid.html}{Grid}
             arranges its child items so that they are aligned in a grid and
             are not overlapping.
 
-        \o  \l{http://doc.qt.nokia.com/4.7-snapshot/qml-flow.html}{Flow}
+        \o  \l{http://qt-project.org/doc/qt-4.8-snapshot/qml-flow.html}{Flow}
             arranges its child items side by side, wrapping as necessary.
 
     \endlist
@@ -211,14 +211,15 @@
     use different types of animated transitions. For example, you can animate
     changes to property values and colors. You can use rotation animation to
     control the direction of rotation. For more information, see
-    \l{http://doc.qt.nokia.com/4.7/qdeclarativeanimation.html}{QML Animation}.
+    \l{http://qt-project.org/doc/qt-4.8/qdeclarativeanimation.html}
+    {QML Animation}.
 
     You can use the \c ParallelAnimation element to start several animations at
     the same time. Or use the \c SequentialAnimation element to run them one
     after another.
 
     You can use the code editor to specify transitions. For more information,
-    see \l{http://doc.qt.nokia.com/4.7/qml-transition.html}
+    see \l{http://qt-project.org/doc/qt-4.8/qml-transition.html}
     {QML Transition Element}.
 
 */
@@ -237,18 +238,18 @@
 
     \list
 
-        \o  \l{http://doc.qt.nokia.com/4.7/qml-flickable.html}{Flickable}
+        \o  \l{http://qt-project.org/doc/qt-4.8/qml-flickable.html}{Flickable}
             items can be flicked horizontally or vertically.
 
-        \o  \l{http://doc.qt.nokia.com/4.7/qml-flipable.html}{Flipable}
+        \o  \l{http://qt-project.org/doc/qt-4.8/qml-flipable.html}{Flipable}
             items can be flipped between their front and back sides by using
             rotation, state, and transition.
 
-        \o  \l{http://doc.qt.nokia.com/4.7/qml-focusscope.html}{Focus Scope}
+        \o  \l{http://qt-project.org/doc/qt-4.8/qml-focusscope.html}{Focus Scope}
             assists in keyboard focus handling when building reusable QML
             components.
 
-        \o  \l{http://doc.qt.nokia.com/4.7/qml-mousearea.html}{Mouse Area}
+        \o  \l{http://qt-project.org/doc/qt-4.8/qml-mousearea.html}{Mouse Area}
             enables simple mouse handling.
 
     \endlist

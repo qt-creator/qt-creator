@@ -52,7 +52,6 @@
 #include "profileeditor.h"
 #include "externaleditors.h"
 #include "profilecompletionassist.h"
-#include "qt-s60/s60manager.h"
 #include "qt-desktop/qt4runconfiguration.h"
 #include "qt-desktop/desktopqtversionfactory.h"
 #include "qt-desktop/simulatorqtversionfactory.h"
@@ -160,8 +159,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new DesignerExternalEditor);
 #endif
     addAutoReleasedObject(new LinguistExternalEditor);
-
-    addAutoReleasedObject(new S60Manager);
 
     addAutoReleasedObject(new DesktopQtVersionFactory);
     addAutoReleasedObject(new SimulatorQtVersionFactory);
@@ -308,7 +305,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 void Qt4ProjectManagerPlugin::extensionsInitialized()
 {
     m_qt4ProjectManager->init();
-    S60Manager::instance()->extensionsInitialize();
 }
 
 void Qt4ProjectManagerPlugin::startupProjectChanged()

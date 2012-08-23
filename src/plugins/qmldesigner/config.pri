@@ -1,6 +1,4 @@
 # MOC_DIR = moc
-DEFINES += QT_NO_STYLE_S60
-
 debug {
   DEFINES += VIEWLOGGER
 }

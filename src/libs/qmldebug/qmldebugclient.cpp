@@ -34,7 +34,6 @@
 #include <qdebug.h>
 #include <qstringlist.h>
 #include <qnetworkproxy.h>
-#include <symbiandevicemanager.h>
 
 namespace QmlDebug {
 
@@ -60,7 +59,7 @@ public:
     QmlDebugConnectionPrivate(QmlDebugConnection *c);
     QmlDebugConnection *q;
     QPacketProtocol *protocol;
-    QIODevice *device; // Currently either a QTcpSocket or a SymbianUtils::OstChannel
+    QIODevice *device; // Currently a QTcpSocket
 
     bool gotHello;
     QHash <QString, float> serverPlugins;
@@ -295,18 +294,6 @@ QAbstractSocket::SocketState QmlDebugConnection::state() const
     if (socket)
         return socket->state();
 
-    SymbianUtils::OstChannel *ost = qobject_cast<SymbianUtils::OstChannel*>(d->device);
-    if (ost) {
-        //TODO we need some handshaking here
-        /*
-        if (ost->hasReceivedData())
-            return QAbstractSocket::ConnectedState;
-        else if (ost->isOpen())
-            return QAbstractSocket::ConnectingState;
-        */
-        if (ost->isOpen()) return QAbstractSocket::ConnectedState;
-    }
-
     return QAbstractSocket::UnconnectedState;
 }
 
@@ -315,12 +302,6 @@ void QmlDebugConnection::flush()
     QAbstractSocket *socket = qobject_cast<QAbstractSocket*>(d->device);
     if (socket) {
         socket->flush();
-        return;
-    }
-
-    SymbianUtils::OstChannel *ost = qobject_cast<SymbianUtils::OstChannel*>(d->device);
-    if (ost) {
-        ost->flush();
         return;
     }
 }
@@ -337,22 +318,6 @@ void QmlDebugConnection::connectToHost(const QString &hostName, quint16 port)
     connect(socket, SIGNAL(connected()), this, SIGNAL(connected()));
     socket->connectToHost(hostName, port);
     QIODevice::open(ReadWrite | Unbuffered);
-}
-
-void QmlDebugConnection::connectToOst(const QString &port)
-{
-    SymbianUtils::OstChannel *ost = SymbianUtils::SymbianDeviceManager::instance()->getOstChannel(port, KQmlOstProtocolId);
-    if (ost) {
-        ost->setParent(d);
-        d->device = ost;
-        d->connectDeviceSignals();
-        d->gotHello = false;
-        QIODevice::open(ReadWrite | Unbuffered);
-        emit stateChanged(QAbstractSocket::ConnectedState);
-        emit connected();
-    } else {
-        emit error(QAbstractSocket::HostNotFoundError);
-    }
 }
 
 void QmlDebugConnectionPrivate::connectDeviceSignals()

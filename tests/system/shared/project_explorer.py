@@ -82,9 +82,9 @@ def switchToBuildOrRunSettingsFor(targetCount, currentTarget, projectSettings, i
     selectorWidth = (targetSel.width - 3 - 2 * (ADD_BUTTON_WIDTH + 1)) / targetCount - 1
     yToClick = targetSel.height * 3 / 5 + 5
     if projectSettings == ProjectSettings.RUN:
-        xToClick = ADD_BUTTON_WIDTH + (selectorWidth + 1) * currentTarget - 2 + selectorWidth / 2 + 5
+        xToClick = ADD_BUTTON_WIDTH + (selectorWidth + 1) * currentTarget - 2 + selectorWidth / 2 + 15
     elif projectSettings == ProjectSettings.BUILD:
-        xToClick = ADD_BUTTON_WIDTH + (selectorWidth + 1) * currentTarget - 2 + selectorWidth / 2 - 5
+        xToClick = ADD_BUTTON_WIDTH + (selectorWidth + 1) * currentTarget - 2 + selectorWidth / 2 - 15
     else:
         test.fatal("Don't know what you're trying to switch to")
         return False

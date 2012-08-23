@@ -230,7 +230,7 @@ QStringList QMakeStep::deducedArgumentsAfter()
         // We have a target which does not allow shadow building.
         // But we really don't want to have the build artefacts in the source dir
         // so we try to hack around it, to make the common cases work.
-        // This is a HACK, remove once the symbian make generator supports
+        // This is a HACK, remove once all make generators support
         // shadow building
         return QStringList() << QLatin1String("-after")
                              << QLatin1String("OBJECTS_DIR=obj")

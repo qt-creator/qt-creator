@@ -28,6 +28,7 @@
 **************************************************************************/
 
 #include "deviceprocesslist.h"
+#include "localprocesslist.h"
 
 #include <utils/qtcassert.h>
 
@@ -181,6 +182,10 @@ void DeviceProcessList::reportError(const QString &message)
     emit error(message);
 }
 
+QList<DeviceProcess> DeviceProcessList::localProcesses()
+{
+    return LocalProcessList::getLocalProcesses();
+}
 
 bool DeviceProcess::operator <(const DeviceProcess &other) const
 {

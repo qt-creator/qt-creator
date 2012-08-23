@@ -92,6 +92,6 @@ QSharedPointer<AbstractCheckoutJob> CloneWizard::createJob(const QList<QWizardPa
     args << QLatin1String("clone") << page->repository() << directory;
     *checkoutPath = path + QLatin1Char('/') + directory;
     ProcessCheckoutJob *job = new ProcessCheckoutJob;
-    job->addStep(settings.stringValue(MercurialSettings::binaryPathKey), args, path);
+    job->addStep(settings.binaryPath(), args, path);
     return QSharedPointer<AbstractCheckoutJob>(job);
 }

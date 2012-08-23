@@ -231,10 +231,6 @@
     \l{http://technet.microsoft.com/en-us/sysinternals/bb896647}{DebugView for Windows}
     to display output from GUI applications.
 
-    \if defined(qcmanual)
-    \input symbian/creator-faq-debug-output-symbian.qdocinc
-    \endif
-
     \section1 Questions about New Features
 
     \bold {Will a requested feature be implemented?}

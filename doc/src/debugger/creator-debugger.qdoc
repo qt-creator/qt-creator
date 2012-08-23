@@ -242,7 +242,7 @@
     remote machine and a counterpart running on the host side.
     The probe is either integrated into the running process (e.g. for QML
     debugging) or runs a separate process (e.g. when using GDB server
-    on embedded Linux, or TRK/CODA on Symbian). The host side typically
+    on embedded Linux). The host side typically
     consists of \QC itself, often with the help of an external process, such as
     \if defined(qcmanual)
     GDB or CDB.
@@ -846,10 +846,6 @@
         \o  There is no Python-enabled GDB for Mac OS. Mac OS continues
             injection with C++ based debugging helpers.
 
-        \o  On the Symbian platform, an on-device debugging agent restricts the
-            communication between GDB and the device. Therefore, extracting
-            QObject properties, for example, is not possible.
-
         \o  There is no GDB to communicate with MSVC compiled applications on
             Windows. So information can be displayed nicely only in a limited
             fashion by using a cdb extension DLL.
@@ -1052,10 +1048,7 @@
 
         \o  \gui{putCallItem(self, name, value, func, *args)} -
             Uses GDB to call the function \c func on the value specified by
-            \a {value} and output the resulting item. This function is
-            not available when debugging core dumps and it is not available
-            on the Symbian platform due to restrictions imposed by the on-device
-            debugging agent.
+            \a {value} and output the resulting item.
 
         \o  \gui{putItem(self, value)} - The "master function", handling
             basic types, references, pointers and enums directly, iterates

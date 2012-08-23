@@ -55,8 +55,7 @@ LibraryDetailsController::LibraryDetailsController(
     QObject(parent),
     m_platforms(AddLibraryWizard::LinuxPlatform
                 | AddLibraryWizard::MacPlatform
-                | AddLibraryWizard::WindowsPlatform
-                | AddLibraryWizard::SymbianPlatform),
+                | AddLibraryWizard::WindowsPlatform),
     m_linkageType(AddLibraryWizard::NoLinkage),
     m_macLibraryType(AddLibraryWizard::NoLibraryType),
     m_proFile(proFile),
@@ -117,8 +116,6 @@ LibraryDetailsController::LibraryDetailsController(
             this, SLOT(slotPlatformChanged()));
     connect(m_libraryDetailsWidget->winCheckBox, SIGNAL(clicked(bool)),
             this, SLOT(slotPlatformChanged()));
-    connect(m_libraryDetailsWidget->symCheckBox, SIGNAL(clicked(bool)),
-            this, SLOT(slotPlatformChanged()));
 }
 
 LibraryDetailsController::CreatorPlatform LibraryDetailsController::creatorPlatform() const
@@ -156,8 +153,6 @@ void LibraryDetailsController::updateGui()
         m_platforms |= AddLibraryWizard::MacPlatform;
     if (libraryDetailsWidget()->winCheckBox->isChecked())
         m_platforms |= AddLibraryWizard::WindowsPlatform;
-    if (libraryDetailsWidget()->symCheckBox->isChecked())
-        m_platforms |= AddLibraryWizard::SymbianPlatform;
 
     bool macLibraryTypeUpdated = false;
     if (!m_linkageRadiosVisible) {
@@ -423,16 +418,9 @@ static QString commonScopes(AddLibraryWizard::Platforms scopes,
             str << "unix";
             if (!(common & AddLibraryWizard::MacPlatform))
                 str << ":!macx";
-            if (!(common & AddLibraryWizard::SymbianPlatform))
-                str << ":!symbian";
         } else {
             if (scopes & AddLibraryWizard::MacPlatform)
                 str << "macx";
-            if (scopes & AddLibraryWizard::MacPlatform &&
-                    scopes & AddLibraryWizard::SymbianPlatform)
-                str << "|";
-            if (scopes & AddLibraryWizard::SymbianPlatform)
-                str << "symbian";
         }
     }
     if (scopes & AddLibraryWizard::WindowsPlatform) {
@@ -466,8 +454,6 @@ static QString generateLibsSnippet(AddLibraryWizard::Platforms platforms,
         commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::MacPlatform);
     if (useSubfolders || addSuffix) // we will generate a separate debug/release conditions
         commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::WindowsPlatform);
-    if (generateLibPath) // we will generate a separate line without -L
-        commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::SymbianPlatform);
 
     AddLibraryWizard::Platforms diffPlatforms = platforms ^ commonPlatforms;
     AddLibraryWizard::Platforms generatedPlatforms = 0;
@@ -495,12 +481,6 @@ static QString generateLibsSnippet(AddLibraryWizard::Platforms platforms,
         str << "mac: LIBS += " << appendSpaceIfNotEmpty(macLibraryPathSnippet)
                     << "-framework " << libName << "\n";
         generatedPlatforms |= AddLibraryWizard::MacPlatform;
-    }
-    if (diffPlatforms & AddLibraryWizard::SymbianPlatform) {
-        if (generatedPlatforms)
-            str << "else:";
-        str << "symbian: LIBS += -l" << libName << "\n";
-        generatedPlatforms |= AddLibraryWizard::SymbianPlatform;
     }
 
     if (commonPlatforms) {
@@ -559,8 +539,6 @@ static QString generatePreTargetDepsSnippet(AddLibraryWizard::Platforms platform
     }
     AddLibraryWizard::Platforms commonPlatforms = platforms;
     commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::WindowsPlatform);
-    // don't generate PRE_TARGETDEPS for symbian - relinking static lib apparently works without that
-    commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::SymbianPlatform);
     if (commonPlatforms) {
         if (generatedPlatforms)
             str << "else:";

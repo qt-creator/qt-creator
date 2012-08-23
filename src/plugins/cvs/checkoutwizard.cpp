@@ -84,7 +84,7 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
     QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>());
     const CvsSettings settings = CvsPlugin::instance()->settings();
-    const QString binary = settings.cvsCommand;
+    const QString binary = settings.cvsBinaryPath;
     QStringList args;
     const QString repository = cwp->repository();
     args << QLatin1String("checkout") << repository;

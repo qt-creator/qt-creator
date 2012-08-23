@@ -27,8 +27,7 @@
         <file>images/EditorSettings.png</file>
         <file>images/ProjectDependencies.png</file>
         <file>images/MaemoDevice.png</file>
-        <file>images/SymbianDevice.png</file>
-        <file>images/SymbianEmulator.png</file>
+        <file>images/Simulator.png</file>
         <file>images/DeviceConnected.png</file>
         <file>images/DeviceDisconnected.png</file>
         <file>images/DeviceReadyToUse.png</file>

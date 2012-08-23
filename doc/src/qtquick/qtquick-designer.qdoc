@@ -67,7 +67,7 @@
     \section1 Managing Element Hierarchy
 
     The \gui Navigator pane displays the
-    \l{http://doc.qt.nokia.com/4.7/qdeclarativeelements.html}{QML elements}
+    \l{http://qt-project.org/doc/qt-4.8/qdeclarativeelements.html}{QML elements}
     in the current QML file and their relationships. Elements (1) are listed in a
     tree structure, below their parent (2).
 
@@ -109,7 +109,7 @@
 
     \section2 Setting the Stacking Order
 
-    The \l{http://doc.qt.nokia.com/4.7/qml-item.html#z-prop}{z property} of an
+    The \l{http://qt-project.org/doc/qt-4.8/qml-item.html#z-prop}{z property} of an
     element determines its position in relation to its sibling elements in the
     element hierarchy. By default, elements with a higher stacking value are
     drawn on top of siblings with a lower stacking value. Elements with the same
@@ -150,11 +150,6 @@
     statements to the .pro file of your project. For example:
 
     \list
-
-        \if defined(qcmanual)
-        \o  \c {import com.nokia.symbian 1.0} for Symbian (Qt 4.7)
-        \o  \c {import com.nokia.symbian 1.1} for Symbian (Qt 4.8)
-        \endif
 
         \o  \c {import com.nokia.meego 1.0} for MeeGo
 
@@ -241,7 +236,7 @@
 
     \section2 Setting Expressions
 
-    \l{http://doc.qt.nokia.com/4.7/propertybinding.html}{Property binding} is a
+    \l{http://qt-project.org/doc/qt-4.8/propertybinding.html}{Property binding} is a
     declarative way of specifying the value of a property.
     Binding allows a property value to be expressed as an JavaScript expression
     that defines the value relative to other property values or data accessible
@@ -258,7 +253,7 @@
     To remove expressions, select \gui Reset in the context menu.
 
     For more information on the JavaScript environment provided by QML, see
-    \l{http://doc.qt.nokia.com/4.7/qdeclarativejavascript.html}
+    \l{http://qt-project.org/doc/qt-4.8/qdeclarativejavascript.html}
     {Integrating JavaScript}.
 
     \section2 Marking Text Elements for Translation
@@ -331,7 +326,7 @@
     \section2 Setting Anchors and Margins
 
     In addition to arranging elements in a grid, row, or column, you can use
-    \l{http://doc.qt.nokia.com/4.7/qml-anchor-layout.html}{anchors} to lay out
+    \l{http://qt-project.org/doc/qt-4.8/qml-anchor-layout.html}{anchors} to lay out
     screens. In an anchor-based layout, each item can be thought of as having a
     set of invisible \e anchor lines: top, bottom, left, right, fill, horizontal
     center, vertical center, and baseline.
@@ -389,7 +384,7 @@
     a time.
 
     For more information on Transform elements, see
-    \l {http://doc.qt.nokia.com/4.7/qml-transform.html}{QML Transform Element}.
+    \l {http://qt-project.org/doc/qt-4.8/qml-transform.html}{QML Transform Element}.
 
     \section1 Adding States
 
@@ -428,7 +423,7 @@
     \endlist
 
     The \gui State pane displays the different
-    \l{http://doc.qt.nokia.com/4.7/qdeclarativestates.html}{states}
+    \l{http://qt-project.org/doc/qt-4.8/qdeclarativestates.html}{states}
     of the component in the Qt Quick Designer.
 
     \image qmldesigner-transitions.png "State pane"

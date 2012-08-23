@@ -1417,14 +1417,6 @@ QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
                                      QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
                                                                  "Desktop",
                                                                  "Qt4 Desktop target display name"))
-        << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.S60EmulatorTarget"),
-                                     QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
-                                                                 "Symbian Emulator",
-                                                                 "Qt4 Symbian Emulator target display name"))
-        << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.S60DeviceTarget"),
-                                     QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
-                                                                 "Symbian Device",
-                                                                 "Qt4 Symbian Device target display name"))
         << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.MaemoEmulatorTarget"),
                                      QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
                                                                  "Maemo Emulator",
@@ -1559,69 +1551,7 @@ QVariantMap Version3Handler::update(Project *, const QVariantMap &map)
             continue;
         }
         const QVariantMap &originalTarget = it.value().toMap();
-        // check for symbian device target
-        if (originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
-                != QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
-            result.insert(targetKey, originalTarget);
-            continue;
-        }
-        QVariantMap newTarget;
-        // first iteration: search run configurations, get signing info, remove old signing keys
-        QString customKeyPath;
-        QString customSignaturePath;
-        int signingMode = 0; // SelfSign
-        QMapIterator<QString, QVariant> targetIt(originalTarget);
-        while (targetIt.hasNext()) {
-            targetIt.next();
-            const QString &key = targetIt.key();
-            if (key.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration."))) {
-                // build configurations are handled in second iteration
-                continue;
-            }
-            if (!key.startsWith(QLatin1String("ProjectExplorer.Target.RunConfiguration."))) {
-                newTarget.insert(key, targetIt.value());
-                continue;
-            }
-            QVariantMap runConfig = targetIt.value().toMap();
-            if (runConfig.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
-                    != QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration")) {
-                newTarget.insert(key, runConfig);
-                continue;
-            }
-            // get signing info
-            customKeyPath = runConfig.value(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CustomKeyPath")).toString();
-            customSignaturePath = runConfig.value(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CustomSignaturePath")).toString();
-            signingMode = runConfig.value(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.SigningMode")).toInt();
-            // remove old signing keys
-            runConfig.remove(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CustomKeyPath"));
-            runConfig.remove(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.CustomSignaturePath"));
-            runConfig.remove(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.SigningMode"));
-            newTarget.insert(key, runConfig);
-        }
-
-        // second iteration: add new signing build step
-        targetIt.toFront();
-        while (targetIt.hasNext()) {
-            targetIt.next();
-            const QString &key = targetIt.key();
-            if (!key.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration."))) {
-                // everything except build configs already handled
-                continue;
-            }
-            QVariantMap buildConfig = targetIt.value().toMap();
-            int stepCount = buildConfig.value(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount")).toInt();
-            QVariantMap signBuildStep;
-            signBuildStep.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName"), QLatin1String("Create SIS package"));
-            signBuildStep.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), QLatin1String("Qt4ProjectManager.S60SignBuildStep"));
-            signBuildStep.insert(QLatin1String("Qt4ProjectManager.MakeStep.Clean"), false);
-            signBuildStep.insert(QLatin1String("Qt4ProjectManager.S60CreatePackageStep.Certificate"), customSignaturePath);
-            signBuildStep.insert(QLatin1String("Qt4ProjectManager.S60CreatePackageStep.Keyfile"), customKeyPath);
-            signBuildStep.insert(QLatin1String("Qt4ProjectManager.S60CreatePackageStep.SignMode"), signingMode);
-            buildConfig.insert(QString::fromLatin1("ProjectExplorer.BuildConfiguration.BuildStep.%1").arg(stepCount), signBuildStep);
-            buildConfig.insert(QLatin1String("ProjectExplorer.BuildConfiguration.BuildStepsCount"), stepCount + 1);
-            newTarget.insert(key, buildConfig);
-        }
-        result.insert(targetKey, newTarget);
+        result.insert(targetKey, originalTarget);
     }
     return result;
 }
@@ -1645,10 +1575,8 @@ QVariantMap Version4Handler::update(Project *, const QVariantMap &map)
             continue;
         }
         const QVariantMap &originalTarget = it.value().toMap();
-        // check for symbian and maemo device target
+        // check for maemo device target
         if (originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
-                != QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")
-            && originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
                 != QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget"))
         {
             result.insert(globalKey, originalTarget);
@@ -1742,10 +1670,8 @@ QVariantMap Version5Handler::update(Project *, const QVariantMap &map)
             continue;
         }
         const QVariantMap &originalTarget = it.value().toMap();
-        // check for symbian and maemo device target
+        // check for maemo device target
         if (originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
-            != QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")
-            && originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
             != QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")) {
             result.insert(globalKey, originalTarget);
             continue;
@@ -1818,8 +1744,6 @@ QVariantMap Version6Handler::update(Project *, const QVariantMap &map)
             if (targetKey == QLatin1String("ProjectExplorer.ProjectConfiguration.Id")) {
                 if (targetIt.value().toString() == QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget"))
                     deploymentName = QCoreApplication::translate("ProjectExplorer::UserFileHandler", "Deploy to Maemo device");
-                else if (targetIt.value().toString() == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget"))
-                    deploymentName = QCoreApplication::translate("ProjectExplorer::UserFileHandler", "Deploy to Symbian device");
             }
 
             if (!targetKey.startsWith(QLatin1String("ProjectExplorer.Target.BuildConfiguration."))) {
@@ -1910,45 +1834,7 @@ QVariantMap Version7Handler::update(Project *, const QVariantMap &map)
             continue;
         }
         const QVariantMap &originalTarget = it.value().toMap();
-        // check for symbian device target
-        if (originalTarget.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"))
-                != QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget") ) {
-            result.insert(globalKey, originalTarget);
-            continue;
-        }
-
-        QVariantMap newTarget;
-        QMapIterator<QString, QVariant> targetIt(originalTarget);
-        while (targetIt.hasNext()) {
-            targetIt.next();
-            const QString &targetKey = targetIt.key();
-            if (targetKey.startsWith(QLatin1String("ProjectExplorer.Target.RunConfiguration."))) {
-                QVariantMap newRunConfiguration;
-                const QVariantMap &originalRc = targetIt.value().toMap();
-
-                QMapIterator<QString, QVariant> rcIt(originalRc);
-                while (rcIt.hasNext()) {
-                    rcIt.next();
-                    const QString &rcKey = rcIt.key();
-                    // remove installation related data from RunConfiguration
-                    if (rcKey.startsWith(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.InstallationDriveLetter"))) {
-                        continue;
-                    }
-                    if (rcKey.startsWith(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.SerialPortName"))) {
-                        continue;
-                    }
-                    if (rcKey.startsWith(QLatin1String("Qt4ProjectManager.S60DeviceRunConfiguration.SilentInstall"))) {
-                        continue;
-                    }
-                    newRunConfiguration.insert(rcKey, rcIt.value());
-                }
-                newTarget.insert(targetKey, newRunConfiguration);
-            } else {
-                newTarget.insert(targetKey, targetIt.value());
-                continue;
-            }
-        }
-        result.insert(globalKey, newTarget);
+        result.insert(globalKey, originalTarget);
     }
     return result;
 }
@@ -2445,12 +2331,8 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MeegoDeviceTarget")) {
                 tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/MaemoDevice.png"));
                 tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("MeegoOsType"));
-            } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
-                tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/SymbianDevice.png"));
-                tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Qt4ProjectManager.SymbianDevice"));
-                tmpProfile->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Symbian Device"));
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.QtSimulatorTarget")) {
-                tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/SymbianEmulator.png"));
+                tmpProfile->setIconPath(QLatin1String(":/projectexplorer/images/Simulator.png"));
                 tmpProfile->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
             } else {
                 tmpProfile->setIconPath(QLatin1String(":///DESKTOP///"));
@@ -2493,12 +2375,8 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
                 const QVariantMap &dc = deployIt.value();
                 // Device
                 QString devId = dc.value(QLatin1String("Qt4ProjectManager.MaemoRunConfiguration.DeviceId")).toString();
-                if (devId.isEmpty()) {
-                    if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget"))
-                        devId = QByteArray("Symbian Device");
-                    else
-                        devId = QByteArray("Desktop Device");
-                }
+                if (devId.isEmpty())
+                    devId = QByteArray("Desktop Device");
                 if (!devId.isEmpty() && !DeviceManager::instance()->find(Core::Id(devId))) // We do not know that device
                     devId.clear();
                 tmpProfile->setValue(Core::Id("PE.Profile.Device"), devId);

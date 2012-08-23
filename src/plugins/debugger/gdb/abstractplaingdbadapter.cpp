@@ -88,7 +88,8 @@ void GdbAbstractPlainEngine::handleExecRun(const GdbResponse &response)
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        notifyEngineRunAndInferiorRunOk();
+        //notifyEngineRunOkAndInferiorRunRequested();
+        notifyEngineRunAndInferiorRunOk(); // For gdb < 7.0
         //showStatusMessage(tr("Running..."));
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgInferiorSetupOk(), StatusBar);

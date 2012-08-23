@@ -1,4 +1,4 @@
 include(analyzerbase_dependencies.pri)
 
-INCLUDEPATH += $$PWD
+INCLUDEPATH *= $$PWD
 LIBS *= -l$$qtLibraryName(AnalyzerBase)

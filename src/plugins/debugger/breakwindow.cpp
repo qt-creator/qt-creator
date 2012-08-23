@@ -34,23 +34,44 @@
 #include "debuggerengine.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
-#include "ui_breakpoint.h"
-#include "ui_breakcondition.h"
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
 
-#include <QDebug>
-
 #include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDebug>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
 #include <QIntValidator>
 #include <QKeyEvent>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMenu>
+#include <QSpacerItem>
+#include <QSpinBox>
+#include <QTextEdit>
+#include <QVariant>
+#include <QVBoxLayout>
 
 namespace Debugger {
 namespace Internal {
 
+class SmallTextEdit : public QTextEdit
+{
+public:
+    explicit SmallTextEdit(QWidget *parent) : QTextEdit(parent) {}
+    QSize sizeHint() const { return QSize(QTextEdit::sizeHint().width(), 100); }
+    QSize minimumSizeHint() const { return sizeHint(); }
+};
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -87,28 +108,53 @@ private:
     BreakpointType type() const;
 
     unsigned m_enabledParts;
-    Ui::BreakpointDialog m_ui;
     BreakpointParameters m_savedParameters;
     BreakpointType m_previousType;
     bool m_firstTypeChange;
+
+    QLabel *m_labelType;
+    QComboBox *m_comboBoxType;
+    QLabel *m_labelFileName;
+    Utils::PathChooser *m_pathChooserFileName;
+    QLabel *m_labelLineNumber;
+    QLineEdit *m_lineEditLineNumber;
+    QLabel *m_labelEnabled;
+    QCheckBox *m_checkBoxEnabled;
+    QLabel *m_labelAddress;
+    QLineEdit *m_lineEditAddress;
+    QLabel *m_labelExpression;
+    QLineEdit *m_lineEditExpression;
+    QLabel *m_labelFunction;
+    QLineEdit *m_lineEditFunction;
+    QLabel *m_labelTracepoint;
+    QCheckBox *m_checkBoxTracepoint;
+    QLabel *m_labelOneShot;
+    QCheckBox *m_checkBoxOneShot;
+    QLabel *m_labelUseFullPath;
+    QLabel *m_labelModule;
+    QLineEdit *m_lineEditModule;
+    QLabel *m_labelCommands;
+    QTextEdit *m_textEditCommands;
+    QComboBox *m_comboBoxPathUsage;
+    QLabel *m_labelMessage;
+    QLineEdit *m_lineEditMessage;
+    QLabel *m_labelCondition;
+    QLineEdit *m_lineEditCondition;
+    QLabel *m_labelIgnoreCount;
+    QSpinBox *m_spinBoxIgnoreCount;
+    QLabel *m_labelThreadSpec;
+    QLineEdit *m_lineEditThreadSpec;
+    QDialogButtonBox *m_buttonBox;
 };
 
 BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
     : QDialog(parent), m_enabledParts(~0), m_previousType(UnknownType),
       m_firstTypeChange(true)
 {
-    m_ui.setupUi(this);
-    m_ui.comboBoxType->setMaxVisibleItems(20);
-    if (id.isValid()) {
-        if (DebuggerEngine *engine = breakHandler()->engine(id)) {
-            if (!engine->hasCapability(BreakConditionCapability))
-                m_enabledParts &= ~ConditionPart;
-            if (!engine->hasCapability(BreakModuleCapability))
-                m_enabledParts &= ~ModulePart;
-            if (!engine->hasCapability(TracePointCapability))
-                m_enabledParts &= ~TracePointPart;
-        }
-    }
+    setWindowTitle(tr("Edit Breakpoint Properties", 0, QApplication::UnicodeUTF8));
+
+    QGroupBox *groupBoxBasic = new QGroupBox(tr("Basic"), this);
+
     // Match BreakpointType (omitting unknown type).
     QStringList types;
     types << tr("File name and line number")
@@ -124,25 +170,48 @@ BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
           << tr("Break on data access at address given by expression")
           << tr("Break on QML signal emit")
           << tr("Break when JavaScript exception is thrown");
-
     QTC_ASSERT(types.size() == BreakpointAtJavaScriptThrow, return);
-    m_ui.comboBoxType->addItems(types);
-    m_ui.pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
-    connect(m_ui.comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
-    const QString moduleToolTip =
-        tr("Specifying the module (base name of the library or executable)\n"
-           "for function or file type breakpoints can significantly speed up\n"
-           "debugger start-up times (CDB, LLDB).");
-    m_ui.labelModule->setToolTip(moduleToolTip);
-    m_ui.lineEditModule->setToolTip(moduleToolTip);
-    const QString commandToolTip =
-        tr("Debugger command to be executed when the breakpoint is hit.\n"
-           "GDB allows for specifying a sequence of commands separated by "
-           "the delimiter '\\n'.");
-    m_ui.lineEditCommand->setToolTip(commandToolTip);
-    m_ui.labelCommand->setToolTip(commandToolTip);
-    m_ui.spinBoxIgnoreCount->setMinimum(0);
-    m_ui.spinBoxIgnoreCount->setMaximum(2147483647);
+    m_comboBoxType = new QComboBox(groupBoxBasic);
+    m_comboBoxType->setMaxVisibleItems(20);
+    m_comboBoxType->addItems(types);
+    m_labelType = new QLabel(tr("Breakpoint &type:"), groupBoxBasic);
+    m_labelType->setBuddy(m_comboBoxType);
+
+    m_pathChooserFileName = new Utils::PathChooser(groupBoxBasic);
+    m_pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
+    m_labelFileName = new QLabel(tr("&File name:"), groupBoxBasic);
+    m_labelFileName->setBuddy(m_pathChooserFileName);
+
+    m_lineEditLineNumber = new QLineEdit(groupBoxBasic);
+    m_labelLineNumber = new QLabel(tr("&Line number:"), groupBoxBasic);
+    m_labelLineNumber->setBuddy(m_lineEditLineNumber);
+
+    m_checkBoxEnabled = new QCheckBox(groupBoxBasic);
+    m_labelEnabled = new QLabel(tr("&Enabled:"), groupBoxBasic);
+    m_labelEnabled->setBuddy(m_checkBoxEnabled);
+
+    m_lineEditAddress = new QLineEdit(groupBoxBasic);
+    m_labelAddress = new QLabel(tr("&Address:"), groupBoxBasic);
+    m_labelAddress->setBuddy(m_lineEditAddress);
+
+    m_lineEditExpression = new QLineEdit(groupBoxBasic);
+    m_labelExpression = new QLabel(tr("&Expression:"), groupBoxBasic);
+    m_labelExpression->setBuddy(m_lineEditExpression);
+
+    m_lineEditFunction = new QLineEdit(groupBoxBasic);
+    m_labelFunction = new QLabel(tr("Fun&ction:"), groupBoxBasic);
+    m_labelFunction->setBuddy(m_lineEditFunction);
+
+    QGroupBox *groupBoxAdvanced = new QGroupBox(tr("Advanced"), this);
+
+    m_checkBoxTracepoint = new QCheckBox(groupBoxAdvanced);
+    m_labelTracepoint = new QLabel(tr("T&racepoint only:"), groupBoxAdvanced);
+    m_labelTracepoint->setBuddy(m_checkBoxTracepoint);
+
+    m_checkBoxOneShot = new QCheckBox(groupBoxAdvanced);
+    m_labelOneShot = new QLabel(tr("&One shot only:"), groupBoxAdvanced);
+    m_labelOneShot->setBuddy(m_checkBoxOneShot);
+
     const QString pathToolTip =
         tr("<html><head/><body><p>Determines how the path is specified "
                 "when setting breakpoints:</p><ul>"
@@ -157,15 +226,113 @@ BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
                 "It is the engine default for GDB as using full paths can "
                 "be slow with this engine.</li>"
            "</ul></body></html>");
-    m_ui.labelUseFullPath->setToolTip(pathToolTip);
-    m_ui.comboBoxPathUsage->setToolTip(pathToolTip);
+    m_comboBoxPathUsage = new QComboBox(groupBoxAdvanced);
+    m_comboBoxPathUsage->addItem(tr("Use Engine Default"));
+    m_comboBoxPathUsage->addItem(tr("Use Full Path"));
+    m_comboBoxPathUsage->addItem(tr("Use File Name"));
+    m_comboBoxPathUsage->setToolTip(pathToolTip);
+    m_labelUseFullPath = new QLabel(tr("Pat&h:"), groupBoxAdvanced);
+    m_labelUseFullPath->setBuddy(m_comboBoxPathUsage);
+    m_labelUseFullPath->setToolTip(pathToolTip);
+
+    const QString moduleToolTip =
+        tr("Specifying the module (base name of the library or executable)\n"
+           "for function or file type breakpoints can significantly speed up\n"
+           "debugger start-up times (CDB, LLDB).");
+    m_lineEditModule = new QLineEdit(groupBoxAdvanced);
+    m_lineEditModule->setToolTip(moduleToolTip);
+    m_labelModule = new QLabel(tr("&Module:"), groupBoxAdvanced);
+    m_labelModule->setBuddy(m_lineEditModule);
+    m_labelModule->setToolTip(moduleToolTip);
+
+    const QString commandsToolTip =
+        tr("Debugger commands to be executed when the breakpoint is hit.\n"
+           "This feature is only available for GDB.");
+    m_textEditCommands = new SmallTextEdit(groupBoxAdvanced);
+    m_textEditCommands->setToolTip(commandsToolTip);
+    m_labelCommands = new QLabel(tr("&Commands:"), groupBoxAdvanced);
+    m_labelCommands->setBuddy(m_textEditCommands);
+    m_labelCommands->setToolTip(commandsToolTip);
+
+    m_lineEditMessage = new QLineEdit(groupBoxAdvanced);
+    m_labelMessage = new QLabel(tr("&Message:"), groupBoxAdvanced);
+    m_labelMessage->setBuddy(m_lineEditMessage);
+
+    m_lineEditCondition = new QLineEdit(groupBoxAdvanced);
+    m_labelCondition = new QLabel(tr("C&ondition:"), groupBoxAdvanced);
+    m_labelCondition->setBuddy(m_lineEditCondition);
+
+    m_spinBoxIgnoreCount = new QSpinBox(groupBoxAdvanced);
+    m_spinBoxIgnoreCount->setMinimum(0);
+    m_spinBoxIgnoreCount->setMaximum(2147483647);
+    m_labelIgnoreCount = new QLabel(tr("&Ignore count:"), groupBoxAdvanced);
+    m_labelIgnoreCount->setBuddy(m_spinBoxIgnoreCount);
+
+    m_lineEditThreadSpec = new QLineEdit(groupBoxAdvanced);
+    m_labelThreadSpec = new QLabel(tr("&Thread specification:"), groupBoxAdvanced);
+    m_labelThreadSpec->setBuddy(m_lineEditThreadSpec);
+
+    m_buttonBox = new QDialogButtonBox(this);
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    if (id.isValid()) {
+        if (DebuggerEngine *engine = breakHandler()->engine(id)) {
+            if (!engine->hasCapability(BreakConditionCapability))
+                m_enabledParts &= ~ConditionPart;
+            if (!engine->hasCapability(BreakModuleCapability))
+                m_enabledParts &= ~ModulePart;
+            if (!engine->hasCapability(TracePointCapability))
+                m_enabledParts &= ~TracePointPart;
+        }
+    }
+
+    QFormLayout *basicLayout = new QFormLayout(groupBoxBasic);
+    basicLayout->addRow(m_labelType, m_comboBoxType);
+    basicLayout->addRow(m_labelFileName, m_pathChooserFileName);
+    basicLayout->addRow(m_labelLineNumber, m_lineEditLineNumber);
+    basicLayout->addRow(m_labelEnabled, m_checkBoxEnabled);
+    basicLayout->addRow(m_labelAddress, m_lineEditAddress);
+    basicLayout->addRow(m_labelExpression, m_lineEditExpression);
+    basicLayout->addRow(m_labelFunction, m_lineEditFunction);
+    basicLayout->addRow(m_labelOneShot, m_checkBoxOneShot);
+
+    QFormLayout *advancedLeftLayout = new QFormLayout();
+    advancedLeftLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+    advancedLeftLayout->addRow(m_labelCondition, m_lineEditCondition);
+    advancedLeftLayout->addRow(m_labelIgnoreCount, m_spinBoxIgnoreCount);
+    advancedLeftLayout->addRow(m_labelThreadSpec, m_lineEditThreadSpec);
+    advancedLeftLayout->addRow(m_labelUseFullPath, m_comboBoxPathUsage);
+    advancedLeftLayout->addRow(m_labelModule, m_lineEditModule);
+
+    QFormLayout *advancedRightLayout = new QFormLayout();
+    advancedRightLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    advancedRightLayout->addRow(m_labelCommands, m_textEditCommands);
+    advancedRightLayout->addRow(m_labelTracepoint, m_checkBoxTracepoint);
+    advancedRightLayout->addRow(m_labelMessage, m_lineEditMessage);
+
+    QHBoxLayout *horizontalLayout = new QHBoxLayout(groupBoxAdvanced);
+    horizontalLayout->addLayout(advancedLeftLayout);
+    horizontalLayout->addSpacing(15);
+    horizontalLayout->addLayout(advancedRightLayout);
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    verticalLayout->addWidget(groupBoxBasic);
+    verticalLayout->addSpacing(10);
+    verticalLayout->addWidget(groupBoxAdvanced);
+    verticalLayout->addSpacing(10);
+    verticalLayout->addWidget(m_buttonBox);
+    verticalLayout->setStretchFactor(groupBoxAdvanced, 10);
+
+    connect(m_comboBoxType, SIGNAL(activated(int)), SLOT(typeChanged(int)));
+    connect(m_buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    connect(m_buttonBox, SIGNAL(rejected()), SLOT(reject()));
 }
 
 void BreakpointDialog::setType(BreakpointType type)
 {
     const int comboIndex = type - 1; // Skip UnknownType.
-    if (comboIndex != m_ui.comboBoxType->currentIndex() || m_firstTypeChange) {
-        m_ui.comboBoxType->setCurrentIndex(comboIndex);
+    if (comboIndex != m_comboBoxType->currentIndex() || m_firstTypeChange) {
+        m_comboBoxType->setCurrentIndex(comboIndex);
         typeChanged(comboIndex);
         m_firstTypeChange = false;
     }
@@ -173,7 +340,7 @@ void BreakpointDialog::setType(BreakpointType type)
 
 BreakpointType BreakpointDialog::type() const
 {
-    const int type = m_ui.comboBoxType->currentIndex() + 1; // Skip unknown type.
+    const int type = m_comboBoxType->currentIndex() + 1; // Skip unknown type.
     return static_cast<BreakpointType>(type);
 }
 
@@ -194,153 +361,161 @@ BreakpointParameters BreakpointDialog::parameters() const
 void BreakpointDialog::setPartsEnabled(unsigned partsMask)
 {
     partsMask &= m_enabledParts;
-    m_ui.labelFileName->setEnabled(partsMask & FileAndLinePart);
-    m_ui.pathChooserFileName->setEnabled(partsMask & FileAndLinePart);
-    m_ui.labelLineNumber->setEnabled(partsMask & FileAndLinePart);
-    m_ui.lineEditLineNumber->setEnabled(partsMask & FileAndLinePart);
-    m_ui.labelUseFullPath->setEnabled(partsMask & FileAndLinePart);
-    m_ui.comboBoxPathUsage->setEnabled(partsMask & FileAndLinePart);
+    m_labelFileName->setEnabled(partsMask & FileAndLinePart);
+    m_pathChooserFileName->setEnabled(partsMask & FileAndLinePart);
+    m_labelLineNumber->setEnabled(partsMask & FileAndLinePart);
+    m_lineEditLineNumber->setEnabled(partsMask & FileAndLinePart);
+    m_labelUseFullPath->setEnabled(partsMask & FileAndLinePart);
+    m_comboBoxPathUsage->setEnabled(partsMask & FileAndLinePart);
 
+    m_labelFunction->setEnabled(partsMask & FunctionPart);
+    m_lineEditFunction->setEnabled(partsMask & FunctionPart);
 
-    m_ui.labelFunction->setEnabled(partsMask & FunctionPart);
-    m_ui.lineEditFunction->setEnabled(partsMask & FunctionPart);
+    m_labelOneShot->setEnabled(partsMask & OneShotPart);
+    m_checkBoxOneShot->setEnabled(partsMask & OneShotPart);
 
-    m_ui.labelAddress->setEnabled(partsMask & AddressPart);
-    m_ui.lineEditAddress->setEnabled(partsMask & AddressPart);
-    m_ui.labelExpression->setEnabled(partsMask & ExpressionPart);
-    m_ui.lineEditExpression->setEnabled(partsMask & ExpressionPart);
+    m_labelAddress->setEnabled(partsMask & AddressPart);
+    m_lineEditAddress->setEnabled(partsMask & AddressPart);
+    m_labelExpression->setEnabled(partsMask & ExpressionPart);
+    m_lineEditExpression->setEnabled(partsMask & ExpressionPart);
 
-    m_ui.labelCondition->setEnabled(partsMask & ConditionPart);
-    m_ui.lineEditCondition->setEnabled(partsMask & ConditionPart);
-    m_ui.labelIgnoreCount->setEnabled(partsMask & IgnoreCountPart);
-    m_ui.spinBoxIgnoreCount->setEnabled(partsMask & IgnoreCountPart);
-    m_ui.labelThreadSpec->setEnabled(partsMask & ThreadSpecPart);
-    m_ui.lineEditThreadSpec->setEnabled(partsMask & ThreadSpecPart);
+    m_labelCondition->setEnabled(partsMask & ConditionPart);
+    m_lineEditCondition->setEnabled(partsMask & ConditionPart);
+    m_labelIgnoreCount->setEnabled(partsMask & IgnoreCountPart);
+    m_spinBoxIgnoreCount->setEnabled(partsMask & IgnoreCountPart);
+    m_labelThreadSpec->setEnabled(partsMask & ThreadSpecPart);
+    m_lineEditThreadSpec->setEnabled(partsMask & ThreadSpecPart);
 
-    m_ui.labelModule->setEnabled(partsMask & ModulePart);
-    m_ui.lineEditModule->setEnabled(partsMask & ModulePart);
+    m_labelModule->setEnabled(partsMask & ModulePart);
+    m_lineEditModule->setEnabled(partsMask & ModulePart);
 
-    m_ui.labelTracepoint->setEnabled(partsMask & TracePointPart);
-    m_ui.checkBoxTracepoint->setEnabled(partsMask & TracePointPart);
+    m_labelTracepoint->setEnabled(partsMask & TracePointPart);
+    m_checkBoxTracepoint->setEnabled(partsMask & TracePointPart);
 
-    m_ui.labelCommand->setEnabled(partsMask & TracePointPart);
-    m_ui.lineEditCommand->setEnabled(partsMask & TracePointPart);
+    m_labelCommands->setEnabled(partsMask & TracePointPart);
+    m_textEditCommands->setEnabled(partsMask & TracePointPart);
 
-    m_ui.labelMessage->setEnabled(partsMask & TracePointPart);
-    m_ui.lineEditMessage->setEnabled(partsMask & TracePointPart);
+    m_labelMessage->setEnabled(partsMask & TracePointPart);
+    m_lineEditMessage->setEnabled(partsMask & TracePointPart);
 }
 
 void BreakpointDialog::clearOtherParts(unsigned partsMask)
 {
     const unsigned invertedPartsMask = ~partsMask;
     if (invertedPartsMask & FileAndLinePart) {
-        m_ui.pathChooserFileName->setPath(QString());
-        m_ui.lineEditLineNumber->clear();
-        m_ui.comboBoxPathUsage->setCurrentIndex(BreakpointPathUsageEngineDefault);
+        m_pathChooserFileName->setPath(QString());
+        m_lineEditLineNumber->clear();
+        m_comboBoxPathUsage->setCurrentIndex(BreakpointPathUsageEngineDefault);
     }
 
     if (invertedPartsMask & FunctionPart)
-        m_ui.lineEditFunction->clear();
+        m_lineEditFunction->clear();
 
     if (invertedPartsMask & AddressPart)
-        m_ui.lineEditAddress->clear();
+        m_lineEditAddress->clear();
     if (invertedPartsMask & ExpressionPart)
-        m_ui.lineEditExpression->clear();
+        m_lineEditExpression->clear();
 
     if (invertedPartsMask & ConditionPart)
-        m_ui.lineEditCondition->clear();
+        m_lineEditCondition->clear();
     if (invertedPartsMask & IgnoreCountPart)
-        m_ui.spinBoxIgnoreCount->clear();
+        m_spinBoxIgnoreCount->clear();
     if (invertedPartsMask & ThreadSpecPart)
-        m_ui.lineEditThreadSpec->clear();
+        m_lineEditThreadSpec->clear();
     if (invertedPartsMask & ModulePart)
-        m_ui.lineEditModule->clear();
+        m_lineEditModule->clear();
 
+    if (partsMask & OneShotPart)
+        m_checkBoxOneShot->setChecked(false);
     if (invertedPartsMask & TracePointPart) {
-        m_ui.checkBoxTracepoint->setChecked(false);
-        m_ui.lineEditCommand->clear();
-        m_ui.lineEditMessage->clear();
+        m_checkBoxTracepoint->setChecked(false);
+        m_textEditCommands->clear();
+        m_lineEditMessage->clear();
     }
 }
 
 void BreakpointDialog::getParts(unsigned partsMask, BreakpointParameters *data) const
 {
-    data->enabled = m_ui.checkBoxEnabled->isChecked();
+    data->enabled = m_checkBoxEnabled->isChecked();
 
     if (partsMask & FileAndLinePart) {
-        data->lineNumber = m_ui.lineEditLineNumber->text().toInt();
-        data->pathUsage = static_cast<BreakpointPathUsage>(m_ui.comboBoxPathUsage->currentIndex());
-        data->fileName = m_ui.pathChooserFileName->path();
+        data->lineNumber = m_lineEditLineNumber->text().toInt();
+        data->pathUsage = static_cast<BreakpointPathUsage>(m_comboBoxPathUsage->currentIndex());
+        data->fileName = m_pathChooserFileName->path();
     }
     if (partsMask & FunctionPart)
-        data->functionName = m_ui.lineEditFunction->text();
+        data->functionName = m_lineEditFunction->text();
 
     if (partsMask & AddressPart)
-        data->address = m_ui.lineEditAddress->text().toULongLong(0, 0);
+        data->address = m_lineEditAddress->text().toULongLong(0, 0);
     if (partsMask & ExpressionPart)
-        data->expression = m_ui.lineEditExpression->text();
+        data->expression = m_lineEditExpression->text();
 
     if (partsMask & ConditionPart)
-        data->condition = m_ui.lineEditCondition->text().toUtf8();
+        data->condition = m_lineEditCondition->text().toUtf8();
     if (partsMask & IgnoreCountPart)
-        data->ignoreCount = m_ui.spinBoxIgnoreCount->text().toInt();
+        data->ignoreCount = m_spinBoxIgnoreCount->text().toInt();
     if (partsMask & ThreadSpecPart)
         data->threadSpec =
-            BreakHandler::threadSpecFromDisplay(m_ui.lineEditThreadSpec->text());
+            BreakHandler::threadSpecFromDisplay(m_lineEditThreadSpec->text());
     if (partsMask & ModulePart)
-        data->module = m_ui.lineEditModule->text();
+        data->module = m_lineEditModule->text();
 
+    if (partsMask & OneShotPart)
+        data->oneShot = m_checkBoxOneShot->isChecked();
     if (partsMask & TracePointPart) {
-        data->tracepoint = m_ui.checkBoxTracepoint->isChecked();
-        data->command = m_ui.lineEditCommand->text().trimmed();
-        data->message = m_ui.lineEditMessage->text();
+        data->tracepoint = m_checkBoxTracepoint->isChecked();
+        data->command = m_textEditCommands->toPlainText().trimmed();
+        data->message = m_lineEditMessage->text();
     }
 }
 
 void BreakpointDialog::setParts(unsigned mask, const BreakpointParameters &data)
 {
-    m_ui.checkBoxEnabled->setChecked(data.enabled);
-    m_ui.comboBoxPathUsage->setCurrentIndex(data.pathUsage);
-    m_ui.lineEditCommand->setText(data.command);
-    m_ui.lineEditMessage->setText(data.message);
+    m_checkBoxEnabled->setChecked(data.enabled);
+    m_comboBoxPathUsage->setCurrentIndex(data.pathUsage);
+    m_textEditCommands->setPlainText(data.command);
+    m_lineEditMessage->setText(data.message);
 
     if (mask & FileAndLinePart) {
-        m_ui.pathChooserFileName->setPath(data.fileName);
-        m_ui.lineEditLineNumber->setText(QString::number(data.lineNumber));
+        m_pathChooserFileName->setPath(data.fileName);
+        m_lineEditLineNumber->setText(QString::number(data.lineNumber));
     }
 
     if (mask & FunctionPart)
-        m_ui.lineEditFunction->setText(data.functionName);
+        m_lineEditFunction->setText(data.functionName);
 
     if (mask & AddressPart) {
         if (data.address) {
-            m_ui.lineEditAddress->setText(
+            m_lineEditAddress->setText(
                 QString::fromLatin1("0x%1").arg(data.address, 0, 16));
         } else {
-            m_ui.lineEditAddress->clear();
+            m_lineEditAddress->clear();
         }
     }
 
     if (mask & ExpressionPart) {
         if (!data.expression.isEmpty()) {
-            m_ui.lineEditExpression->setText(data.expression);
+            m_lineEditExpression->setText(data.expression);
         } else {
-            m_ui.lineEditExpression->clear();
+            m_lineEditExpression->clear();
         }
     }
 
     if (mask & ConditionPart)
-        m_ui.lineEditCondition->setText(QString::fromUtf8(data.condition));
+        m_lineEditCondition->setText(QString::fromUtf8(data.condition));
     if (mask & IgnoreCountPart)
-        m_ui.spinBoxIgnoreCount->setValue(data.ignoreCount);
+        m_spinBoxIgnoreCount->setValue(data.ignoreCount);
     if (mask & ThreadSpecPart)
-        m_ui.lineEditThreadSpec->
+        m_lineEditThreadSpec->
             setText(BreakHandler::displayFromThreadSpec(data.threadSpec));
     if (mask & ModulePart)
-        m_ui.lineEditModule->setText(data.module);
+        m_lineEditModule->setText(data.module);
 
+    if (mask & OneShotPart)
+        m_checkBoxOneShot->setChecked(data.oneShot);
     if (mask & TracePointPart)
-        m_ui.checkBoxTracepoint->setChecked(data.tracepoint);
+        m_checkBoxTracepoint->setChecked(data.tracepoint);
 }
 
 void BreakpointDialog::typeChanged(int)
@@ -406,7 +581,7 @@ void BreakpointDialog::typeChanged(int)
         setPartsEnabled(0);
         break;
     case BreakpointAtMain:
-        m_ui.lineEditFunction->setText(QLatin1String("main")); // Just for display
+        m_lineEditFunction->setText(QLatin1String("main")); // Just for display
         clearOtherParts(0);
         setPartsEnabled(0);
         break;
@@ -449,35 +624,54 @@ bool BreakpointDialog::showDialog(BreakpointParameters *data,
 class MultiBreakPointsDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     MultiBreakPointsDialog(QWidget *parent = 0);
 
-    QString condition() const { return m_ui.lineEditCondition->text(); }
-    int ignoreCount() const { return m_ui.spinBoxIgnoreCount->value(); }
+    QString condition() const { return m_lineEditCondition->text(); }
+    int ignoreCount() const { return m_spinBoxIgnoreCount->value(); }
     int threadSpec() const
-       { return BreakHandler::threadSpecFromDisplay(m_ui.lineEditThreadSpec->text()); }
+       { return BreakHandler::threadSpecFromDisplay(m_lineEditThreadSpec->text()); }
 
-    void setCondition(const QString &c) { m_ui.lineEditCondition->setText(c); }
-    void setIgnoreCount(int i) { m_ui.spinBoxIgnoreCount->setValue(i); }
+    void setCondition(const QString &c) { m_lineEditCondition->setText(c); }
+    void setIgnoreCount(int i) { m_spinBoxIgnoreCount->setValue(i); }
     void setThreadSpec(int t)
-        { return m_ui.lineEditThreadSpec->setText(BreakHandler::displayFromThreadSpec(t)); }
+        { return m_lineEditThreadSpec->setText(BreakHandler::displayFromThreadSpec(t)); }
 
 private:
-    Ui::BreakCondition m_ui;
+    QLineEdit *m_lineEditCondition;
+    QSpinBox *m_spinBoxIgnoreCount;
+    QLineEdit *m_lineEditThreadSpec;
+    QDialogButtonBox *m_buttonBox;
 };
 
 MultiBreakPointsDialog::MultiBreakPointsDialog(QWidget *parent) :
     QDialog(parent)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    m_ui.setupUi(this);
     setWindowTitle(tr("Edit Breakpoint Properties"));
-    m_ui.spinBoxIgnoreCount->setMinimum(0);
-    m_ui.spinBoxIgnoreCount->setMaximum(2147483647);
-    if (!debuggerCore()->currentEngine()->hasCapability(BreakConditionCapability)) {
-        m_ui.labelCondition->setEnabled(false);
-        m_ui.lineEditCondition->setEnabled(false);
-    }
+
+    m_lineEditCondition = new QLineEdit(this);
+    m_spinBoxIgnoreCount = new QSpinBox(this);
+    m_spinBoxIgnoreCount->setMinimum(0);
+    m_spinBoxIgnoreCount->setMaximum(2147483647);
+    m_lineEditThreadSpec = new QLineEdit(this);
+
+    m_buttonBox = new QDialogButtonBox(this);
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    QFormLayout *formLayout = new QFormLayout;
+    if (debuggerCore()->currentEngine()->hasCapability(BreakConditionCapability))
+        formLayout->addRow(tr("&Condition:"), m_lineEditCondition);
+    formLayout->addRow(tr("&Ignore count:"), m_spinBoxIgnoreCount);
+    formLayout->addRow(tr("&Thread specification:"), m_lineEditThreadSpec);
+
+    QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    verticalLayout->addLayout(formLayout);
+    verticalLayout->addWidget(m_buttonBox);
+
+    QObject::connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    QObject::connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
 ///////////////////////////////////////////////////////////////////////

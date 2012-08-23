@@ -26,9 +26,7 @@ OTHER_FILES = qmldir
 }
 
 qmldir.files = qmldir
-symbian {
-    TARGET.EPOCALLOWDLLDATA = 1
-} else:unix {
+unix {
     maemo5 | !isEmpty(MEEGO_VERSION_MAJOR) {
         installPath = /usr/lib/qt4/imports/$$replace(uri, \\., /)
     } else {

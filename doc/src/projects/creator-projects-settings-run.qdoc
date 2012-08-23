@@ -50,7 +50,6 @@
     \input projects/creator-projects-settings-run-desktop.qdocinc
     \input projects/creator-projects-settings-run-analyze.qdocinc
     \input projects/creator-projects-settings-run-debug.qdocinc
-    \input symbian/creator-projects-settings-run-symbian.qdocinc
     \input linux-mobile/creator-projects-settings-run-linux.qdocinc
     \input qnx/creator-projects-settings-run-qnx.qdocinc
     \input android/creator-projects-settings-run-android.qdocinc

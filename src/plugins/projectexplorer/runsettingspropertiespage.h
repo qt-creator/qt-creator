@@ -91,6 +91,8 @@ private slots:
     void activeDeployConfigurationChanged();
     void renameDeployConfiguration();
 
+    void updateRemoveToolButton();
+
 private:
     QString uniqueDCName(const QString &name);
     QString uniqueRCName(const QString &name);
@@ -121,7 +123,6 @@ private:
     QComboBox *m_runConfigurationCombo;
     QPushButton *m_addDeployToolButton;
     QPushButton *m_removeDeployToolButton;
-    QPushButton *m_renameDeployToolButton;
     QPushButton *m_addRunToolButton;
     QPushButton *m_removeRunToolButton;
     QPushButton *m_renameRunButton;

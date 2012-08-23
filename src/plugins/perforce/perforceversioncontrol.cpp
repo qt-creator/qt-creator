@@ -58,7 +58,7 @@ Core::Id PerforceVersionControl::id() const
 
 bool PerforceVersionControl::isConfigured() const
 {
-    const QString binary = m_plugin->settings().p4Command();
+    const QString binary = m_plugin->settings().p4BinaryPath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi(binary);

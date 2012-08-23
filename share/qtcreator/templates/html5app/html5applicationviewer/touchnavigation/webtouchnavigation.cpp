@@ -70,7 +70,7 @@ QPoint closestElement(QObject *viewObject, QWebFrame *frame, WebTouchEvent &touc
         }
 
         // QtWebKit EditorClientQt already enables these input hints. Thus, this should only be
-        // enabled if QtWebKit happens to be old. Qt::ImhNoPredictiveText is only enalbed for Symbian / Maemo on WebKit side.
+        // enabled if QtWebKit happens to be old. Qt::ImhNoPredictiveText is only enalbed for Maemo on WebKit side.
 
 
         touchEvent.m_editable = true;

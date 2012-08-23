@@ -333,11 +333,6 @@ void BaseQtVersion::setId(int id)
     m_id = id;
 }
 
-void BaseQtVersion::restoreLegacySettings(QSettings *s)
-{
-    Q_UNUSED(s);
-}
-
 void BaseQtVersion::fromMap(const QVariantMap &map)
 {
     m_id = map.value(QLatin1String(QTVERSIONID)).toInt();
@@ -1189,7 +1184,18 @@ bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QSt
         return false;
 
     QProcess process;
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+
+#ifdef Q_OS_WIN
+    // Add tool chain environments. This is necessary for non-static qmakes e.g. using mingw on windows
+    QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
+    foreach (ProjectExplorer::ToolChain *tc, tcList)
+        tc->addToEnvironment(env);
+#endif
+
+    process.setEnvironment(env.toStringList());
     process.start(qmake.absoluteFilePath(), QStringList(QLatin1String("-query")), QIODevice::ReadOnly);
+
     if (!process.waitForStarted()) {
         *qmakeIsExecutable = false;
         qWarning("Cannot start '%s': %s", qPrintable(binary.toUserOutput()), qPrintable(process.errorString()));

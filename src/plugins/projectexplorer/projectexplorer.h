@@ -260,6 +260,8 @@ private slots:
     void testAbiOfBinary_data();
     void testAbiOfBinary();
     void testFlavorForOs();
+
+    void testDeviceManager();
 #endif
 
 private:

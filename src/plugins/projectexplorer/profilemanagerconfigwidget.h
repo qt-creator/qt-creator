@@ -49,7 +49,7 @@ class ProfileManagerConfigWidget : public ProjectExplorer::ProfileConfigWidget
     Q_OBJECT
 
 public:
-    ProfileManagerConfigWidget(Profile *p, QWidget *parent = 0);
+    explicit ProfileManagerConfigWidget(Profile *p, QWidget *parent = 0);
 
     QString displayName() const;
 

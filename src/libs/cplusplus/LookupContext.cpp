@@ -32,6 +32,7 @@
 #include "ResolveExpression.h"
 #include "Overview.h"
 #include "DeprecatedGenTemplateInstance.h"
+#include "CppRewriter.h"
 
 #include <CoreTypes.h>
 #include <Symbols.h>
@@ -382,9 +383,6 @@ QList<Enum *> ClassOrNamespace::enums() const
 
 QList<Symbol *> ClassOrNamespace::symbols() const
 {
-    if (_templateId && ! _usings.isEmpty())
-        return _usings.first()->symbols(); // ask to the base implementation
-
     const_cast<ClassOrNamespace *>(this)->flush();
     return _symbols;
 }
@@ -418,6 +416,8 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
     QList<LookupItem> result;
 
     if (name) {
+        QSet<ClassOrNamespace *> processed;
+
         if (const QualifiedNameId *q = name->asQualifiedNameId()) {
             if (! q->base())
                 result = globalNamespace()->find(q->name());
@@ -425,10 +425,11 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
             else if (ClassOrNamespace *binding = lookupType(q->base()))
                 result = binding->find(q->name());
 
+            lookup_helper(name, this, &result, &processed, /*templateId = */ 0);
+
             return result;
         }
 
-        QSet<ClassOrNamespace *> processed;
         ClassOrNamespace *binding = this;
         do {
             lookup_helper(name, binding, &result, &processed, /*templateId = */ 0);
@@ -608,7 +609,7 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
     return 0;
 }
 
-ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespace *origin) const
+ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespace *origin)
 {
     Q_ASSERT(name != 0);
     Q_ASSERT(name->isNameId() || name->isTemplateNameId());
@@ -616,21 +617,131 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     const_cast<ClassOrNamespace *>(this)->flush();
 
     Table::const_iterator it = _classOrNamespaces.find(name);
-
     if (it == _classOrNamespaces.end())
         return 0;
 
-    ClassOrNamespace *c = it->second;
+    ClassOrNamespace *reference = it->second;
 
-    if (const TemplateNameId *templId = name->asTemplateNameId()) {
-        ClassOrNamespace *i = _factory->allocClassOrNamespace(c);
-        i->_templateId = templId;
-        i->_instantiationOrigin = origin;
-        i->_usings.append(c);
-        return i;
+    // The reference binding might still be missing some of its base classes in the case they
+    // are templates. We need to collect them now. First, we track the bases which are already
+    // part of the binding so we can identify the missings ones later.
+
+    QSet<const Name *> knownBases;
+    foreach (ClassOrNamespace *con, reference->usings()) {
+        foreach (Symbol *s, con->symbols()) {
+            if (Class *c = s->asClass()) {
+                knownBases.insert(c->name());
+                break;
+            }
+        }
     }
 
-    return c;
+    Class *referenceClass = 0;
+    QList<const Name *> missingBases;
+    foreach (Symbol *s, reference->symbols()) {
+        if (Class *clazz = s->asClass()) {
+            for (unsigned i = 0; i < clazz->baseClassCount(); ++i) {
+                BaseClass *baseClass = clazz->baseClassAt(i);
+                if (baseClass->name() && !knownBases.contains(baseClass->name()))
+                    missingBases.append(baseClass->name());
+            }
+            referenceClass = clazz;
+            break;
+        }
+    }
+
+    if (!referenceClass)
+        return reference;
+
+    // If we are dealling with a template type, more work is required, since we need to
+    // construct all instantiation data.
+    if (const TemplateNameId *templId = name->asTemplateNameId()) {
+        ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(reference);
+        instantiation->_templateId = templId;
+        instantiation->_instantiationOrigin = origin;
+
+        // The instantiation should have all symbols, enums, and usings from the reference.
+        instantiation->_symbols.append(reference->symbols());
+        instantiation->_enums.append(reference->enums());
+        instantiation->_usings.append(reference->usings());
+
+        // It gets a bit complicated if the reference is actually a class template because we
+        // now must worry about dependent names in base classes.
+        if (Template *templ = referenceClass->enclosingTemplate()) {
+            QHash<const Name*, unsigned> templParams;
+            for (unsigned i = 0; i < templ->templateParameterCount(); ++i)
+                templParams.insert(templ->templateParameterAt(i)->name(), i);
+
+            foreach (const Name *baseName, missingBases) {
+                ClassOrNamespace *baseBinding = 0;
+
+                if (const Identifier *nameId = baseName->asNameId()) {
+                    // This is the simple case in which a template parameter is itself a base.
+                    // Ex.: template <class T> class A : public T {};
+                    if (templParams.contains(nameId)) {
+                        const FullySpecifiedType &fullType =
+                                templId->templateArgumentAt(templParams.value(nameId));
+                        if (NamedType *namedType = fullType.type()->asNamedType())
+                            baseBinding = lookupType(namedType->name());
+                    }
+                } else {
+                    SubstitutionMap map;
+                    for (unsigned i = 0;
+                         i < templ->templateParameterCount() && i < templId->templateArgumentCount();
+                         ++i) {
+                        map.bind(templ->templateParameterAt(i)->name(),
+                                 templId->templateArgumentAt(i));
+                    }
+                    SubstitutionEnvironment env;
+                    env.enter(&map);
+
+                    baseName = rewriteName(baseName, &env, _control.data());
+
+                    if (const TemplateNameId *baseTemplId = baseName->asTemplateNameId()) {
+                        // Another template that uses the dependent name.
+                        // Ex.: template <class T> class A : public B<T> {};
+                        if (baseTemplId->identifier() != templId->identifier())
+                            baseBinding = nestedType(baseName, origin);
+                    } else if (const QualifiedNameId *qBaseName = baseName->asQualifiedNameId()) {
+                        // Qualified names in general.
+                        // Ex.: template <class T> class A : public B<T>::Type {};
+                        ClassOrNamespace *binding = this;
+                        if (const Name *qualification = qBaseName->base())
+                            binding = lookupType(qualification);
+                        baseName = qBaseName->name();
+
+                        if (binding)
+                            baseBinding = binding->lookupType(baseName);
+                    }
+                }
+
+                if (baseBinding)
+                    instantiation->addUsing(baseBinding);
+            }
+        }
+
+        return instantiation;
+    }
+
+    // Find the missing bases for regular (non-template) types.
+    // Ex.: class A : public B<Some>::Type {};
+    foreach (const Name *baseName, missingBases) {
+        ClassOrNamespace *binding = this;
+        if (const QualifiedNameId *qBaseName = baseName->asQualifiedNameId()) {
+            if (const Name *qualification = qBaseName->base())
+                binding = lookupType(qualification);
+            baseName = qBaseName->name();
+        }
+
+        if (binding) {
+            ClassOrNamespace * baseBinding = binding->lookupType(baseName);
+            if (baseBinding)
+                reference->addUsing(baseBinding);
+        }
+    }
+
+
+    return reference;
 }
 
 void ClassOrNamespace::flush()
@@ -761,6 +872,7 @@ QSharedPointer<Control> CreateBindings::control() const
 ClassOrNamespace *CreateBindings::allocClassOrNamespace(ClassOrNamespace *parent)
 {
     ClassOrNamespace *e = new ClassOrNamespace(this, parent);
+    e->_control = control();
     _entities.append(e);
     return e;
 }

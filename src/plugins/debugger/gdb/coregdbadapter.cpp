@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "coregdbadapter.h"
 
 #include "debuggerstartparameters.h"
@@ -94,7 +96,7 @@ void GdbCoreEngine::continueSetupEngine()
         // Read executable from core.
         ElfReader reader(coreFileName());
         bool isCore = false;
-        m_executable = reader.readCoreName(&isCore);
+        m_executable = QString::fromLocal8Bit(reader.readCoreName(&isCore));
 
         if (!isCore) {
             showMessageBox(QMessageBox::Warning,
@@ -212,7 +214,9 @@ void GdbCoreEngine::unpackCoreIfNeeded()
 
     QProcess *process = new QProcess(this);
     process->setWorkingDirectory(QDir::tempPath());
-    process->start("/usr/bin/lzop", QStringList() << "-o" << m_tempCoreName << "-x" << m_coreName);
+    QStringList arguments;
+    arguments << QLatin1String("-o") << m_tempCoreName << QLatin1String("-x") << m_coreName;
+    process->start(QLatin1String("/usr/bin/lzop"), arguments);
     connect(process, SIGNAL(finished(int)), SLOT(continueSetupEngine()));
 }
 

@@ -67,7 +67,7 @@ bool BazaarControl::managesDirectory(const QString &directory, QString *topLevel
 
 bool BazaarControl::isConfigured() const
 {
-    const QString binary = m_bazaarClient->settings()->stringValue(BazaarSettings::binaryPathKey);
+    const QString binary = m_bazaarClient->settings()->binaryPath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi(binary);

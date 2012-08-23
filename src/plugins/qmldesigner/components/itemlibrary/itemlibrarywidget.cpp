@@ -266,8 +266,6 @@ void ItemLibraryWidget::updateImports()
         foreach (const Import &import, d->model->imports())
             if (import.isLibraryImport())
                 imports << import.url();
-        if (imports.contains("com.nokia.symbian", Qt::CaseInsensitive))
-            filter = Symbian;
         if (imports.contains("com.nokia.meego", Qt::CaseInsensitive))
             filter = Meego;
     }
@@ -290,22 +288,15 @@ QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
     QAction * basicQtAction = new QAction(menu);
     basicQtAction->setCheckable(true);
     basicQtAction->setText("Basic Qt Quick only");
-    QAction * symbianAction = new QAction(menu);
-    symbianAction->setCheckable(true);
-    symbianAction->setText("Symbian Components");
     QAction * meegoAction= new QAction(menu);
     meegoAction->setCheckable(true);
     meegoAction->setText("Meego Components");
     menu->addAction(basicQtAction);
     menu->addAction(meegoAction);
-    menu->addAction(symbianAction);
     buttons.first()->setMenu(menu);
 
     connect(basicQtAction, SIGNAL(toggled(bool)), this, SLOT(onQtBasicOnlyChecked(bool)));
     connect(this, SIGNAL(qtBasicOnlyChecked(bool)), basicQtAction, SLOT(setChecked(bool)));
-
-    connect(symbianAction, SIGNAL(toggled(bool)), this, SLOT(onSymbianChecked(bool)));
-    connect(this, SIGNAL(symbianChecked(bool)), symbianAction, SLOT(setChecked(bool)));
 
     connect(meegoAction, SIGNAL(toggled(bool)), this, SLOT(onMeegoChecked(bool)));
     connect(this, SIGNAL(meegoChecked(bool)), meegoAction, SLOT(setChecked(bool)));
@@ -355,7 +346,6 @@ void ItemLibraryWidget::emitImportChecked()
 
     bool qtOnlyImport = false;
     bool meegoImport = false;
-    bool symbianImport = false;
 
     foreach (const Import &import, d->model->imports()) {
         if (import.isLibraryImport()) {
@@ -363,17 +353,14 @@ void ItemLibraryWidget::emitImportChecked()
                 meegoImport = true;
             if (import.url().contains(QString("Qt"), Qt::CaseInsensitive) || import.url().contains(QString("QtQuick"), Qt::CaseInsensitive))
                 qtOnlyImport = true;
-            if (import.url().contains(QString("symbian"), Qt::CaseInsensitive))
-                symbianImport = true;
         }
     }
 
-    if (meegoImport || symbianImport)
+    if (meegoImport)
         qtOnlyImport = false;
 
     emit qtBasicOnlyChecked(qtOnlyImport);
     emit meegoChecked(meegoImport);
-    emit symbianChecked(symbianImport);
 }
 
 void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
@@ -395,16 +382,10 @@ void ItemLibraryWidget::setImportFilter(FilterChangeFlag flag)
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     try {
         block = true;
-        if (flag == QtBasic) {
+        if (flag == QtBasic)
             removeImport(QLatin1String("com.nokia.meego"));
-            removeImport(QLatin1String("com.nokia.symbian"));
-        } else  if (flag == Symbian) {
-            removeImport(QLatin1String("com.nokia.meego"));
-            addImport(QLatin1String("com.nokia.symbian"), QLatin1String("1.0"));
-        }  else  if (flag == Meego) {
-            removeImport(QLatin1String("com.nokia.symbian"));
+        else if (flag == Meego)
             addImport(QLatin1String("com.nokia.meego"), QLatin1String("1.0"));
-        }
         QApplication::restoreOverrideCursor();
         block = false;
         m_filterFlag = flag;
@@ -430,14 +411,6 @@ void ItemLibraryWidget::onMeegoChecked(bool b)
     if (b)
         setImportFilter(Meego);
 }
-
-void ItemLibraryWidget::onSymbianChecked(bool b)
-{
-    if (b)
-        setImportFilter(Symbian);
-}
-
-
 
 void ItemLibraryWidget::updateModel()
 {

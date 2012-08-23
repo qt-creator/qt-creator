@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "watchhandler.h"
 
 #include "breakhandler.h"
@@ -955,9 +957,14 @@ QString WatchModel::display(const WatchItem *item, int col) const
         case 1:
             result = removeInitialNamespace(
                 truncateValue(formattedValue(*item)));
+            // Append referencing address unless the value contains it.
             if (item->referencingAddress) {
-                result += QLatin1String(" @");
-                result += QString::fromLatin1(item->hexReferencingAddress());
+                if (result.startsWith(QLatin1String("0x"))) {
+                    result.prepend(QLatin1Char('@'));
+                } else {
+                    result += QLatin1String(" @");
+                    result += QString::fromLatin1(item->hexReferencingAddress());
+                }
             }
             break;
         case 2:
@@ -1408,7 +1415,7 @@ void WatchModel::showInEditorHelper(QString *contents, WatchItem *item, int dept
     contents->append(tab);
     contents->append(item->value);
     contents->append(tab);
-    contents->append(item->type);
+    contents->append(QString::fromLatin1(item->type));
     contents->append(nl);
     foreach (WatchItem *child, item->children)
        showInEditorHelper(contents, child, depth + 1);

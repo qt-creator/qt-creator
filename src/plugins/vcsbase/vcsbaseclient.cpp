@@ -282,7 +282,7 @@ bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
         vcsProcess.setWorkingDirectory(workingDir);
     vcsProcess.setProcessEnvironment(processEnvironment());
 
-    const QString binary = settings()->stringValue(VcsBaseClientSettings::binaryPathKey);
+    const QString binary = settings()->binaryPath();
 
     ::vcsOutputWindow()->appendCommand(workingDir, binary, args);
 
@@ -317,7 +317,7 @@ Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(
         unsigned flags,
         QTextCodec *outputCodec)
 {
-    const QString binary = settings()->stringValue(VcsBaseClientSettings::binaryPathKey);
+    const QString binary = settings()->binaryPath();
     const int timeoutSec = settings()->intValue(VcsBaseClientSettings::timeoutKey);
     return VcsBase::VcsBasePlugin::runVcs(workingDirectory, binary, args,
                                           timeoutSec * 1000, flags, outputCodec);
@@ -545,7 +545,7 @@ VcsBaseEditorParameterWidget *VcsBaseClient::createLogEditor(const QString &work
 
 QString VcsBaseClient::vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const
 {
-    const QString binary = settings()->stringValue(VcsBaseClientSettings::binaryPathKey);
+    const QString binary = settings()->binaryPath();
     return QFileInfo(binary).baseName() +
             QLatin1Char(' ') + vcsCmd + QLatin1Char(' ') +
             QFileInfo(sourceId).fileName();
@@ -592,7 +592,7 @@ Command *VcsBaseClient::createCommand(const QString &workingDirectory,
                                       VcsBase::VcsBaseEditorWidget *editor,
                                       JobOutputBindMode mode)
 {
-    Command *cmd = new Command(d->m_clientSettings->stringValue(VcsBaseClientSettings::binaryPathKey),
+    Command *cmd = new Command(d->m_clientSettings->binaryPath(),
                                workingDirectory, processEnvironment());
     cmd->setDefaultTimeout(d->m_clientSettings->intValue(VcsBaseClientSettings::timeoutKey));
     if (editor)
@@ -620,7 +620,7 @@ Command *VcsBaseClient::createCommand(const QString &workingDirectory,
 
 void VcsBaseClient::enqueueJob(Command *cmd, const QStringList &args)
 {
-    const QString binary = QFileInfo(d->m_clientSettings->stringValue(VcsBaseClientSettings::binaryPathKey)).baseName();
+    const QString binary = QFileInfo(d->m_clientSettings->binaryPath()).baseName();
     ::vcsOutputWindow()->appendCommand(cmd->workingDirectory(), binary, args);
     cmd->addJob(args);
     cmd->execute();

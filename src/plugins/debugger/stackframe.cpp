@@ -29,6 +29,7 @@
 **************************************************************************/
 
 #include "stackframe.h"
+#include "watchutils.h"
 
 #include <QFileInfo>
 #include <QDebug>
@@ -87,13 +88,9 @@ QString StackFrame::toToolTip() const
     QString res;
     QTextStream str(&res);
     str << "<html><body><table>";
-    if (address) {
-        str << "<tr><td>" << tr("Address:") << "</td><td>0x";
-        str.setIntegerBase(16);
-        str <<  address;
-    }
-    str.setIntegerBase(10);
-    str << "</td></tr>";
+    if (address)
+        str << "<tr><td>" << tr("Address:") << "</td><td>"
+            << formatToolTipAddress(address) << "</td></tr>";
     if (!function.isEmpty())
         str << "<tr><td>" << tr("Function:") << "</td><td>" << function << "</td></tr>";
     if (!file.isEmpty())

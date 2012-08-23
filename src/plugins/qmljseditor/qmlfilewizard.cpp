@@ -63,8 +63,7 @@ QString QmlFileWizard::fileContents(const QString &) const
     QTextStream str(&contents);
 
     // 100:62 is the 'golden ratio'
-    str << QLatin1String("// import QtQuick 1.0 // to target S60 5th Edition or Maemo 5\n")
-        << QLatin1String("import QtQuick 1.1\n")
+    str << QLatin1String("import QtQuick 1.1\n")
         << QLatin1String("\n")
         << QLatin1String("Rectangle {\n")
         << QLatin1String("    width: 100\n")

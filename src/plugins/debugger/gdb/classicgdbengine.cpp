@@ -723,11 +723,6 @@ void GdbEngine::updateLocalsClassic()
     m_pendingBreakpointRequests = 0;
     m_processedNames.clear();
 
-    if (0 && debugPending)
-        qDebug() << "\nRESET PENDING";
-    //m_toolTipCache.clear();
-    clearToolTip();
-
     QByteArray level = QByteArray::number(currentFrame());
     // '2' is 'list with type and value'
     QByteArray cmd = "-stack-list-arguments 2 " + level + ' ' + level;
@@ -1123,8 +1118,8 @@ void GdbEngine::tryLoadDebuggingHelpersClassic()
     m_debuggingHelperState = DebuggingHelperLoadTried;
 
     // Do not use STRINGIFY for RTLD_NOW as we really want to expand that to a number.
-#if defined(Q_OS_WIN) || defined(Q_OS_SYMBIAN)
-    // We are using Python on Windows and Symbian.
+#if defined(Q_OS_WIN)
+    // We are using Python on Windows.
     QTC_CHECK(false);
 #elif defined(Q_OS_MAC)
     QByteArray dlopenLib = startParameters().dumperLibrary.toLocal8Bit();

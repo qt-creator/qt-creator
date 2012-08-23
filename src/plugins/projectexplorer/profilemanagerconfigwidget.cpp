@@ -126,11 +126,18 @@ void ProfileManagerConfigWidget::addConfigWidget(ProjectExplorer::ProfileConfigW
 
     connect(widget, SIGNAL(dirty()), this, SIGNAL(dirty()));
     int row = m_layout->rowCount();
-    m_layout->addWidget(new QLabel(widget->displayName()), row, 0,
+    QLabel *label = new QLabel(widget->displayName());
+    label->setToolTip(widget->toolTip());
+    m_layout->addWidget(label, row, 0,
                         Qt::Alignment(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment)));
     m_layout->addWidget(widget, row, 1);
-    if (widget->buttonWidget())
+    QWidget *buttonWidget = widget->buttonWidget();
+    if (buttonWidget) {
+        if (buttonWidget->toolTip().isEmpty())
+            buttonWidget->setToolTip(widget->toolTip());
         m_layout->addWidget(widget->buttonWidget(), row, 2);
+    }
+
     m_widgets.append(widget);
 }
 

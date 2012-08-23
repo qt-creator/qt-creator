@@ -135,6 +135,7 @@ signals:
     void aboutToRemoveObject(QObject *obj);
 
     void pluginsChanged();
+    void initializationDone();
 
 public slots:
     void remoteArguments(const QString &serializedArguments);

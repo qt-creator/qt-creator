@@ -30,6 +30,8 @@
 
 #include "cvssettings.h"
 
+#include <utils/environment.h>
+
 #include <QSettings>
 #include <QTextStream>
 
@@ -70,6 +72,7 @@ void CvsSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(groupC));
     cvsCommand = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
+    cvsBinaryPath = Utils::Environment::systemEnvironment().searchInPath(cvsCommand);
     promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
     cvsRoot = settings->value(QLatin1String(rootC), QString()).toString();
     cvsDiffOptions = settings->value(QLatin1String(diffOptionsKeyC), QLatin1String(defaultDiffOptions)).toString();

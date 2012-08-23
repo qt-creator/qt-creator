@@ -43,46 +43,19 @@ namespace Internal {
 // Additional parameters required for creating mobile
 // libraries
 struct MobileLibraryParameters {
-    enum Type { TypeNone = 0, Symbian = 0x1, Maemo = 0x2 };
-    enum Capability {
-        CapabilityNone  = 0,
-        LocalServices   = 1 << 0,
-        Location        = 1 << 1,
-        NetworkServices = 1 << 2,
-        ReadUserData    = 1 << 3,
-        UserEnvironment = 1 << 4,
-        WriteUserData   = 1 << 5,
-        PowerMgmt       = 1 << 6,
-        ProtServ        = 1 << 7,
-        ReadDeviceData  = 1 << 8,
-        SurroundingsDD  = 1 << 9,
-        SwEvent         = 1 << 10,
-        TrustedUI       = 1 << 11,
-        WriteDeviceData = 1 << 12,
-        CommDD          = 1 << 13,
-        DiskAdmin       = 1 << 14,
-        NetworkControl  = 1 << 15,
-        MultimediaDD    = 1 << 16,
-        AllFiles        = 1 << 17,
-        DRM             = 1 << 18,
-        TCB             = 1 << 19
-    };
+    enum Type { TypeNone = 0, Maemo = 0x1 };
 
     MobileLibraryParameters();
     void writeProFile(QTextStream &str) const;
 
 private:
-    void writeSymbianProFile(QTextStream &str) const;
     void writeMaemoProFile(QTextStream &str) const;
 
 public:
     uint type;
     uint libraryType;
     QString fileName;
-
-    QString symbianUid;
     QString qtPluginDirectory;
-    uint symbianCapabilities;
 };
 
 } // namespace Internal

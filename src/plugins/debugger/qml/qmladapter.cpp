@@ -91,19 +91,6 @@ void QmlAdapter::beginConnectionTcp(const QString &address, quint16 port)
     m_connectionTimer.start();
 }
 
-void QmlAdapter::beginConnectionOst(const QString &channel)
-{
-    if (m_engine.isNull()
-            || (m_conn && m_conn->state() != QAbstractSocket::UnconnectedState))
-        return;
-
-    showConnectionStatusMessage(tr("Connecting to debug server on %1").arg(channel));
-    m_conn->connectToOst(channel);
-
-    //A timeout to check the connection state
-    m_connectionTimer.start();
-}
-
 void QmlAdapter::closeConnection()
 {
     if (m_connectionTimer.isActive()) {

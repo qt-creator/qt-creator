@@ -542,6 +542,8 @@ void SettingsDialog::done(int val)
     settings->setValue(QLatin1String(categoryKeyC), m_currentCategory);
     settings->setValue(QLatin1String(pageKeyC), m_currentPage);
 
+    ICore::saveSettings(); // save all settings
+
     // exit all additional event loops, see comment in execDialog()
     QListIterator<QEventLoop *> it(m_eventLoops);
     it.toBack();

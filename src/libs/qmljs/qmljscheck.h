@@ -130,7 +130,6 @@ private:
     QList<StaticAnalysis::Message> _messages;
     QSet<StaticAnalysis::Type> _enabledMessages;
 
-    const Value *_lastValue;
     QList<AST::Node *> _chain;
     QStack<StringSet> m_idStack;
     QStack<StringSet> m_propertyStack;

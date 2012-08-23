@@ -30,6 +30,8 @@
 
 #include "icore.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 /*!
     \namespace Core
     \brief The Core namespace contains all classes that make up the Core plugin
@@ -373,6 +375,9 @@ ICore::ICore(MainWindow *mainwindow)
 {
     m_instance = this;
     m_mainwindow = mainwindow;
+    // Save settings once after all plugins are initialized:
+    connect(ExtensionSystem::PluginManager::instance(), SIGNAL(initializationDone()),
+            this, SIGNAL(saveSettingsRequested()));
 }
 
 ICore::~ICore()
@@ -551,6 +556,14 @@ void ICore::openFiles(const QStringList &arguments, ICore::OpenFilesFlags flags)
 void ICore::emitNewItemsDialogRequested()
 {
     emit m_instance->newItemsDialogRequested();
+}
+
+void ICore::saveSettings()
+{
+    emit m_instance->saveSettingsRequested();
+
+    ICore::settings(QSettings::SystemScope)->sync();
+    ICore::settings(QSettings::UserScope)->sync();
 }
 
 } // namespace Core

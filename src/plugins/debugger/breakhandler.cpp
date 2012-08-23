@@ -321,6 +321,8 @@ void BreakHandler::saveBreakpoints()
             map.insert(_("threadspec"), data.threadSpec);
         if (!data.enabled)
             map.insert(_("disabled"), one);
+        if (data.oneShot)
+            map.insert(_("oneshot"), one);
         if (data.pathUsage != BreakpointPathUsageEngineDefault)
             map.insert(_("usefullpath"), QString::number(data.pathUsage));
         if (data.tracepoint)
@@ -373,6 +375,9 @@ void BreakHandler::loadBreakpoints()
         v = map.value(_("disabled"));
         if (v.isValid())
             data.enabled = !v.toInt();
+        v = map.value(_("oneshot"));
+        if (v.isValid())
+            data.oneShot = v.toInt();
         v = map.value(_("usefullpath"));
         if (v.isValid())
             data.pathUsage = static_cast<BreakpointPathUsage>(v.toInt());
@@ -766,6 +771,13 @@ bool BreakHandler::isTracepoint(BreakpointModelId id) const
     ConstIterator it = m_storage.find(id);
     BREAK_ASSERT(it != m_storage.end(), return false);
     return it->data.tracepoint;
+}
+
+bool BreakHandler::isOneShot(BreakpointModelId id) const
+{
+    ConstIterator it = m_storage.find(id);
+    BREAK_ASSERT(it != m_storage.end(), return false);
+    return it->data.oneShot;
 }
 
 bool BreakHandler::needsChildren(BreakpointModelId id) const

@@ -577,8 +577,7 @@ ResourceModel::ResourceModel(const ResourceFile &resource_file, QObject *parent)
     // Only action that works for QListWidget and the like.
     setSupportedDragActions(Qt::CopyAction);
 
-    Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    m_prefixIcon = iconProvider->overlayIcon(QStyle::SP_DirIcon,
+    m_prefixIcon = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
         QIcon(QLatin1String(":/resourceeditor/images/qt_qrc.png")), QSize(16, 16));
 }
 

@@ -69,11 +69,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 
-#include <qt4projectmanager/qt-s60/s60devicedebugruncontrol.h>
-#include <qt4projectmanager/qt-s60/s60devicerunconfiguration.h>
-#include <qt4projectmanager/qt-s60/s60deployconfiguration.h>
-#include <qt4projectmanager/qt-s60/symbianidevice.h>
-
 #include <qtsupport/qtprofileinformation.h>
 
 #include <QApplication>
@@ -253,17 +248,6 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
                     return 0;
             }
         }
-
-        // Check whether we should use OST instead of TCP
-        if (Qt4ProjectManager::S60DeployConfiguration *deployConfig
-                = qobject_cast<Qt4ProjectManager::S60DeployConfiguration*>(
-                    runConfiguration->target()->activeDeployConfiguration())) {
-            if (deployConfig->device()->communicationChannel()
-                    == Qt4ProjectManager::SymbianIDevice::CommunicationCodaSerialConnection) {
-                d->m_profilerConnections->setOstConnection(deployConfig->device()->serialPortName());
-                isTcpConnection = false;
-            }
-        }
     }
 
     // FIXME: Check that there's something sensible in sp.connParams
@@ -295,8 +279,7 @@ bool QmlProfilerTool::canRun(RunConfiguration *runConfiguration, RunMode mode) c
 {
     if (qobject_cast<QmlProjectRunConfiguration *>(runConfiguration)
             || qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration)
-            || qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)
-            || qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration *>(runConfiguration))
+            || qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration))
         return mode == runMode();
     return false;
 }
@@ -345,16 +328,6 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
         sp.analyzerCmdPrefix = rc3->commandPrefix();
         sp.displayName = rc3->displayName();
         sp.sysroot = sysroot(rc3);
-    } else if (Qt4ProjectManager::S60DeviceRunConfiguration *rc4 =
-        qobject_cast<Qt4ProjectManager::S60DeviceRunConfiguration *>(runConfiguration)) {
-        Qt4ProjectManager::S60DeployConfiguration *deployConf =
-                qobject_cast<Qt4ProjectManager::S60DeployConfiguration *>(runConfiguration->target()->activeDeployConfiguration());
-
-        sp.debuggeeArgs = rc4->commandLineArguments();
-        sp.displayName = rc4->displayName();
-        sp.connParams.host = deployConf->device()->address();
-        sp.connParams.port = rc4->debuggerAspect()->qmlDebugServerPort();
-        sp.sysroot = sysroot(rc4);
     } else {
         // What could that be?
         QTC_ASSERT(false, return sp);

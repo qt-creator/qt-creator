@@ -30,6 +30,8 @@
 
 #include "subversionsettings.h"
 
+#include <utils/environment.h>
+
 #include <QSettings>
 
 static const char groupC[] = "Subversion";
@@ -71,6 +73,7 @@ void SubversionSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(groupC));
     svnCommand = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
+    svnBinaryPath = Utils::Environment::systemEnvironment().searchInPath(svnCommand);
     useAuthentication = settings->value(QLatin1String(authenticationKeyC), QVariant(false)).toBool();
     user = settings->value(QLatin1String(userKeyC), QString()).toString();
     password =  settings->value(QLatin1String(passwordKeyC), QString()).toString();

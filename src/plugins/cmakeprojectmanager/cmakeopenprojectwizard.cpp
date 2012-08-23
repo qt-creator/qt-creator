@@ -31,7 +31,9 @@
 #include "cmakeopenprojectwizard.h"
 #include "cmakeprojectmanager.h"
 
+#include <coreplugin/icore.h>
 #include <utils/pathchooser.h>
+#include <utils/historycompleter.h>
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/profilemanager.h>
 #include <projectexplorer/toolchain.h>
@@ -44,6 +46,7 @@
 #include <QPushButton>
 #include <QPlainTextEdit>
 #include <QDateTime>
+#include <QSettings>
 #include <QStringList>
 
 using namespace CMakeProjectManager;
@@ -293,6 +296,9 @@ void CMakeRunPage::initWidgets()
 
     // Run CMake Line (with arguments)
     m_argumentsLineEdit = new QLineEdit(this);
+    m_argumentsLineEdit->setCompleter(
+        new Utils::HistoryCompleter(m_argumentsLineEdit, QLatin1String("CMakeArgumentsLineEdit")));
+
     connect(m_argumentsLineEdit,SIGNAL(returnPressed()), this, SLOT(runCMake()));
     fl->addRow(tr("Arguments:"), m_argumentsLineEdit);
 

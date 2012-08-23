@@ -76,12 +76,6 @@ private slots:
     void buildStateChanged(ProjectExplorer::Project *pro);
 
 #ifdef WITH_TESTS
-    void testAbldOutputParsers_data();
-    void testAbldOutputParsers();
-    void testSbsV2OutputParsers_data();
-    void testSbsV2OutputParsers();
-    void testRvctOutputParser_data();
-    void testRvctOutputParser();
     void testQmakeOutputParsers_data();
     void testQmakeOutputParsers();
 #endif

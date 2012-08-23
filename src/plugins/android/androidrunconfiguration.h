@@ -39,10 +39,8 @@
 namespace Android {
 namespace Internal {
 
-class AndroidDeviceConfigListModel;
 class AndroidDeployStep;
 class AndroidRunConfigurationFactory;
-class AndroidToolChain;
 
 class AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
 {
@@ -50,13 +48,6 @@ class AndroidRunConfiguration : public ProjectExplorer::RunConfiguration
     friend class AndroidRunConfigurationFactory;
 
 public:
-    enum BaseEnvironmentBase {
-        CleanEnvironmentBase = 0,
-        SystemEnvironmentBase = 1
-    };
-
-    enum DebuggingType { DebugCppOnly, DebugQmlOnly, DebugCppAndQml };
-
     AndroidRunConfiguration(ProjectExplorer::Target *parent, Core::Id id, const QString &path);
 
     QWidget *createConfigurationWidget();
@@ -67,8 +58,6 @@ public:
     void setArguments(const QString &args);
     AndroidConfig config() const;
     QString proFilePath() const;
-
-    DebuggingType debuggingType() const;
 
     const Utils::FileName gdbCmd() const;
     const QString remoteChannel() const;

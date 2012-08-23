@@ -20,7 +20,7 @@
 
 /*!
     \contentspage index.html
-    \previouspage creator-developing-symbian.html
+    \previouspage creator-developing-maemo.html
     \page creator-developing-qnx.html
     \nextpage creator-developing-android.html
 
@@ -77,11 +77,11 @@
     From the command line:
     \c{blackberry-nativepackage -installDebugToken ~/.rim/debugtoken.bar -device <device_ip> [-password <device_pass>]}
 
-    \section1 Adding a QNX Device in \QC
+    \section1 Adding a BlackBerry Device in \QC
 
-    Adding a QNX device is done using a wizard in the \gui{Device
+    Adding a BlackBerry device is done using a wizard in the \gui{Device
     Configurations} options. To launch it, go to \gui{Tools > Options >
-    Linux Devices > Device Configurations > Add... > QNX device > Start
+    Linux Devices > Device Configurations > Add... > BlackBerry Device > Start
     Wizard}.
 
     \image qtcreator-qnx-device-configurations-wizard-1.png "Connection details"
@@ -113,4 +113,10 @@
     \gui{Device Configurations} options page.
 
     \image qtcreator-qnx-device-configurations.png "Device Configurations"
+
+    \section1 Adding a QNX Neutrino Device in \QC
+
+    Adding a QNX Neutrino device is very similar to \l{Connecting Embedded
+    Linux Devices}, except you need to select \gui{QNX Device} in the
+    \gui{Device Configuration} wizard.
 */

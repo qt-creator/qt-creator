@@ -62,7 +62,7 @@ QString SnapshotData::function() const
     if (m_frames.isEmpty())
         return QString();
     const StackFrame &frame = m_frames.at(0);
-    return frame.function + ":" + QString::number(frame.line);
+    return frame.function + QLatin1Char(':') + QString::number(frame.line);
 }
 
 QString SnapshotData::toString() const

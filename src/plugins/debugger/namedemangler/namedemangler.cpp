@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "namedemangler.h"
 
 #include "demanglerexceptions.h"
@@ -61,7 +63,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
         m_demangledName.clear();
 
         if (!MangledNameRule::mangledRepresentationStartsWith(m_parseState.peek())) {
-            m_demangledName = m_parseState.m_mangledName;
+            m_demangledName = QLatin1String(m_parseState.m_mangledName);
             return true;
         }
 
@@ -76,7 +78,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
         // Uncomment for debugging.
         //m_parseState.stackTop()->print(0);
 
-        m_demangledName = m_parseState.stackTop()->toByteArray();
+        m_demangledName = QLatin1String(m_parseState.stackTop()->toByteArray());
         success = true;
     } catch (const ParseException &p) {
         m_errorString = QString::fromLocal8Bit("Parse error at index %1 of mangled name '%2': %3.")

@@ -41,4 +41,4 @@
 #    define JSON_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // SYMBIANUTILS_GLOBAL_H
+#endif // JSON_GLOBAL_H

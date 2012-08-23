@@ -89,7 +89,7 @@
     \endlist
 
     For more information about the project file settings, see
-    \l{http://doc.qt.nokia.com/4.7/qmake-project-files.html#declaring-other-libraries}
+    \l{http://qt-project.org/doc/qt-4.8/qmake-project-files.html#declaring-other-libraries}
     {Declaring Other Libraries}.
 
     \section1 Example of Adding Internal Libraries
@@ -127,7 +127,6 @@
             \code
             win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/release/ -lmylib
             else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../../projects/mylib/debug/ -lmylib
-            else:symbian: LIBS += -lmylib
             else:unix: LIBS += -L$$OUT_PWD/../../../projects/mylib/ -lmylib
 
             INCLUDEPATH += $$PWD/../../../projects/mylib
@@ -135,7 +134,7 @@
 
             win32:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/release/mylib.lib
             else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/debug/mylib.lib
-            else:unix:!symbian: PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/libmylib.a
+            else:unix: PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/libmylib.a
             \endcode
 
     \endlist

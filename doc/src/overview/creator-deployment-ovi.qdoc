@@ -27,7 +27,7 @@
     \contentspage index.html
     \previouspage creator-running-valgrind-remotely.html
     \page creator-publish-ovi.html
-    \nextpage creator-publish-ovi-symbian.html
+    \nextpage creator-publish-ovi-maemo.html
 
     \title Publishing
 
@@ -44,13 +44,6 @@
     {Guide to Publishing Qt Applications to the Nokia Store} wiki.
 
     \list
-
-        \o  \l{Publishing Qt Content for Symbian Devices}
-
-            The \gui {Publish Qt Symbian Applications to Nokia Store}
-            wizard ensures that your application can be published to Nokia
-            Store by verifying that the the application UID, vendor name,
-            and the capabilities used meet the Nokia Publish criteria.
 
         \o  \l{Publishing Qt Content for MeeGo Harmattan Devices}
 

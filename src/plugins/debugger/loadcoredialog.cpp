@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "loadcoredialog.h"
 
 #include "debuggerconstants.h"
@@ -203,7 +205,7 @@ void SelectRemoteFileDialog::selectFile()
             SLOT(handleSftpOperationFinished(QSsh::SftpJobId,QString)));
 
     {
-        QTemporaryFile localFile(QDir::tempPath() + "/remotecore-XXXXXX");
+        QTemporaryFile localFile(QDir::tempPath() + QLatin1String("/remotecore-XXXXXX"));
         localFile.open();
         m_localFile = localFile.fileName();
     }

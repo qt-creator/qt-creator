@@ -31,7 +31,7 @@ public:
     void loadFile(const QString &fileName);
     void loadUrl(const QUrl &url);
 
-    // Note that this will only have an effect on Symbian and Fremantle.
+    // Note that this will only have an effect on Fremantle.
     void setOrientation(ScreenOrientation orientation);
 
     void showExpanded();

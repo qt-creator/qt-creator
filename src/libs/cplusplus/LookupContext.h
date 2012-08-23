@@ -90,7 +90,7 @@ private:
     ClassOrNamespace *lookupType_helper(const Name *name, QSet<ClassOrNamespace *> *processed,
                                         bool searchInEnclosingScope, ClassOrNamespace *origin);
 
-    ClassOrNamespace *nestedType(const Name *name, ClassOrNamespace *origin) const;
+    ClassOrNamespace *nestedType(const Name *name, ClassOrNamespace *origin);
 
 private:
     struct CompareName: std::binary_function<const Name *, const Name *, bool> {
@@ -106,6 +106,7 @@ private:
     Table _classOrNamespaces;
     QList<Enum *> _enums;
     QList<Symbol *> _todo;
+    QSharedPointer<Control> _control;
 
     // it's an instantiation.
     const TemplateNameId *_templateId;

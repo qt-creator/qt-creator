@@ -27,7 +27,7 @@
     \contentspage index.html
     \previouspage creator-running-targets.html
     \page creator-deployment.html
-    \nextpage creator-deployment-symbian.html
+    \nextpage creator-deployment-maemo.html
 
     \title Deploying to Mobile Devices
 
@@ -38,13 +38,6 @@
 
     \list
 
-        \o  \l{Deploying Applications to Symbian Devices}
-
-            When you deploy the application for the \gui{Symbian Device} target,
-            \QC automatically generates a Symbian installation system (SIS) file
-            in the project folder and copies it to the connected device. You can
-            sign the SIS file and wrap it in a Nokia Smart Installer for Symbian
-            package. You can test and debug the application on the device.
         \o  \l{Deploying Applications to Linux-Based Devices}
 
             When you deploy the application on a Linux-based device target, such
@@ -55,9 +48,11 @@
             Maemo 5 devices.
         \o \l{Deploying Applications to QNX Devices}
 
-            When you deploy the application on the \gui{QNX} target, \QC generates
-            a BAR package in the build directory and deploys it to the connected
-            device. You can test and debug the application on the device.
+            When you deploy the application on the \gui{QNX} target, depending
+            on your target device, \QC either generates a BAR package in the
+            build directory and deploys it to the connected device, or copies
+            the application files to the connected device. You can test and
+            debug the application on the device.
         \o  \l{Deploying Applications to Android Devices}
 
             When you deploy the application on the Android target, \QC copies

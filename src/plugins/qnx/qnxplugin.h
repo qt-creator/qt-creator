@@ -42,6 +42,7 @@ namespace Internal {
 class QNXPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")
 
 public:
     QNXPlugin();

@@ -98,14 +98,8 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
     if (toolChain->targetAbi().os() == Abi::LinuxOS
         && Abi::hostAbi().os() == Abi::WindowsOS)
         m_target = QLatin1String("-unix");
-    if (toolChain->targetAbi().os() == Abi::SymbianOS) {
-        m_makeArguments << QLatin1String("debug-") + toolChain->defaultMakeTarget();
-        m_makeArguments << QLatin1String("release-") + toolChain->defaultMakeTarget();
-        m_makeArguments << QLatin1String("-k");
-    } else {
-        m_makeArguments << QLatin1String("all")
-                        << QLatin1String("-k");
-    }
+    m_makeArguments << QLatin1String("all")
+                    << QLatin1String("-k");
     m_qmakeCommand = version->qmakeCommand();
     m_qmakeArguments = QStringList() << QLatin1String("-nocache");
     if (toolChain->targetAbi().os() == Abi::MacOS

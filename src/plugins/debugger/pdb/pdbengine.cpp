@@ -361,7 +361,7 @@ void PdbEngine::handleBreakInsert(const PdbResponse &response)
     int pos1 = response.data.indexOf(" at ");
     QTC_ASSERT(pos1 != -1, return);
     QByteArray bpnr = response.data.mid(11, pos1 - 11);
-    int pos2 = response.data.lastIndexOf(":");
+    int pos2 = response.data.lastIndexOf(':');
     QByteArray file = response.data.mid(pos1 + 4, pos2 - pos1 - 4);
     QByteArray line = response.data.mid(pos2 + 1);
     BreakpointResponse br;
@@ -630,7 +630,7 @@ void PdbEngine::handleOutput(const QByteArray &data)
 {
     //qDebug() << "READ: " << data;
     m_inbuffer.append(data);
-    qDebug() << "BUFFER FROM: '" << m_inbuffer << "'";
+    qDebug() << "BUFFER FROM: '" << m_inbuffer << '\'';
     while (true) {
         int pos = m_inbuffer.indexOf("(Pdb)");
         if (pos == -1)
@@ -641,7 +641,7 @@ void PdbEngine::handleOutput(const QByteArray &data)
         m_inbuffer = m_inbuffer.mid(pos + 6);
         emit outputReady(response);
     }
-    qDebug() << "BUFFER LEFT: '" << m_inbuffer << "'";
+    qDebug() << "BUFFER LEFT: '" << m_inbuffer << '\'';
     //m_inbuffer.clear();
 }
 

@@ -56,7 +56,7 @@ Core::Id SubversionControl::id() const
 
 bool SubversionControl::isConfigured() const
 {
-    const QString binary = m_plugin->settings().svnCommand;
+    const QString binary = m_plugin->settings().svnBinaryPath;
     if (binary.isEmpty())
         return false;
     QFileInfo fi(binary);

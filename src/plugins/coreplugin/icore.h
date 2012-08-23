@@ -134,6 +134,8 @@ public:
 
     static void emitNewItemsDialogRequested();
 
+    static void saveSettings();
+
 signals:
     void coreAboutToOpen();
     void coreOpened();

@@ -141,33 +141,32 @@ def expensiveDowncast(value):
 
 typeCache = {}
 
-class TypeInfo:
-    def __init__(self, type):
-        self.type = type
-        self.reported = False
-
-
 def lookupType(typestring):
-    typeInfo = typeCache.get(typestring)
+    global typeCache
+    global typesToReport
+    type = typeCache.get(typestring)
     #warn("LOOKUP 1: %s -> %s" % (typestring, type))
-    if not typeInfo is None:
-        return typeInfo.type
+    if not type is None:
+        return type
 
     if typestring == "void":
         type = gdb.lookup_type(typestring)
-        typeCache[typestring] = TypeInfo(type)
+        typeCache[typestring] = type
+        typesToReport[typestring] = type
         return type
 
     if typestring.find("(anon") != -1:
         # gdb doesn't like
         # '(anonymous namespace)::AddAnalysisMessageSuppressionComment'
         #typeCache[typestring] = None
-        typeCache[typestring] = TypeInfo(type)
+        typeCache[typestring] = type
+        typesToReport[typestring] = type
         return None
 
     try:
         type = gdb.parse_and_eval("{%s}&main" % typestring).type
-        typeCache[typestring] = TypeInfo(type)
+        typeCache[typestring] = type
+        typesToReport[typestring] = type
         return type
     except:
         pass
@@ -207,7 +206,8 @@ def lookupType(typestring):
         type = lookupType(ts[0:-1])
         if not type is None:
             type = type.pointer()
-            typeCache[typestring] = TypeInfo(type)
+            typeCache[typestring] = type
+            typesToReport[typestring] = type
             return type
 
     try:
@@ -233,6 +233,8 @@ def lookupType(typestring):
 
     # This could still be None as gdb.lookup_type("char[3]") generates
     # "RuntimeError: No type named char[3]"
+    typeCache[typestring] = type
+    typesToReport[typestring] = type
     return type
 
 def cleanAddress(addr):
@@ -906,15 +908,18 @@ registerCommand("bbedit", bbedit)
 #
 #######################################################################
 
+typesToReport = {}
+
 def bb(args):
-    output = 'data=[' + "".join(Dumper(args).output) + '],typeinfo=['
-    for typeName, typeInfo in typeCache.iteritems():
-        if not typeInfo.reported:
-            output += '{name="' + base64.b64encode(typeName)
-            output += '",size="' + str(typeInfo.type.sizeof) + '"},'
-            typeInfo.reported = True
-    output += ']';
-    return output
+    global typesToReport
+    typesToReport = {}
+    output = Dumper(args).output
+    output.append('],typeinfo=[')
+    for name, type in typesToReport.iteritems():
+        output.append('{name="%s",size="%s"}'
+            % (base64.b64encode(name), type.sizeof))
+    output.append(']')
+    return "".join(output)
 
 
 def p1(args):
@@ -959,6 +964,8 @@ class Dumper:
         self.typeformats = {}
         self.formats = {}
         self.expandedINames = ""
+
+        self.output.append('data=[')
 
         options = []
         varList = []
@@ -1054,7 +1061,7 @@ class Dumper:
                 pass
 
         for item in locals:
-            value = downcast(item.value)
+            value = downcast(item.value) if self.useDynamicType else item.value
             with OutputSafer(self):
                 self.anonNumber = -1
 
@@ -1351,6 +1358,7 @@ class Dumper:
         type = value.type.unqualified()
         typeName = str(type)
         tryDynamic &= self.useDynamicType
+        lookupType(typeName) # Fill type cache
 
         # FIXME: Gui shows references stripped?
         #warn(" ")
@@ -1370,17 +1378,18 @@ class Dumper:
             except:
                 pass
 
-            try:
-                # Dynamic references are not supported by gdb, see
-                # http://sourceware.org/bugzilla/show_bug.cgi?id=14077.
-                # Find the dynamic type manually using referenced_type.
-                value = value.referenced_value()
-                value = value.cast(value.dynamic_type)
-                self.putItem(value)
-                self.putBetterType("%s &" % value.type)
-                return
-            except:
-                pass
+            if tryDynamic:
+                try:
+                    # Dynamic references are not supported by gdb, see
+                    # http://sourceware.org/bugzilla/show_bug.cgi?id=14077.
+                    # Find the dynamic type manually using referenced_type.
+                    value = value.referenced_value()
+                    value = value.cast(value.dynamic_type)
+                    self.putItem(value)
+                    self.putBetterType("%s &" % value.type)
+                    return
+                except:
+                    pass
 
             try:
                 # FIXME: This throws "RuntimeError: Attempt to dereference a

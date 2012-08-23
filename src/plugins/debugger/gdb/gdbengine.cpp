@@ -42,7 +42,6 @@
 #include "termgdbadapter.h"
 #include "remotegdbserveradapter.h"
 #include "remoteplaingdbadapter.h"
-#include "codagdbadapter.h"
 
 #include "debuggeractions.h"
 #include "debuggerconstants.h"
@@ -469,7 +468,12 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 m_pendingLogStreamOutput.clear();
                 m_pendingConsoleStreamOutput.clear();
             } else if (asyncClass == "running") {
-                // Archer has 'thread-id="all"' here
+                if (state() == InferiorRunOk) {
+                    // We get multiple *running after thread creation.
+                    showMessage(_("NOTE: INFERIOR STILL RUNNING."));
+                } else {
+                    notifyInferiorRunOk();
+                }
             } else if (asyncClass == "library-loaded") {
                 // Archer has 'id="/usr/lib/libdrm.so.2",
                 // target-name="/usr/lib/libdrm.so.2",
@@ -633,8 +637,13 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray nr = result.findChild("id").data();
                 BreakpointResponseId rid(nr);
                 BreakpointModelId id = handler->findBreakpointByResponseId(rid);
-                if (id.isValid())
-                    handler->removeAlienBreakpoint(id);
+                if (id.isValid()) {
+                    // This also triggers when a temporary breakpoint is hit.
+                    // We do not really want that, as this loses all information.
+                    // FIXME: Use a special marker for this case?
+                    if (!handler->isOneShot(id))
+                        handler->removeAlienBreakpoint(id);
+                }
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();
@@ -1296,8 +1305,9 @@ void GdbEngine::handleQuerySources(const GdbResponse &response)
 void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
-        doNotifyInferiorRunOk();
-        // All is fine. Waiting for the temporary breakpoint to be hit.
+        // All is fine. Waiting for a *running
+        // and the temporary breakpoint to be hit.
+        notifyInferiorRunOk(); // Only needed for gdb < 7.0.
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb. Trigger the effect of a '*stopped'.
         showStatusMessage(tr("Jumped. Stopped"));
@@ -1309,8 +1319,8 @@ void GdbEngine::handleExecuteJumpToLine(const GdbResponse &response)
 void GdbEngine::handleExecuteRunToLine(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultRunning) {
-        doNotifyInferiorRunOk();
-        // All is fine. Waiting for the temporary breakpoint to be hit.
+        // All is fine. Waiting for a *running
+        // and the temporary breakpoint to be hit.
     } else if (response.resultClass == GdbResultDone) {
         // This happens on old gdb (Mac). gdb is not stopped yet,
         // but merely accepted the continue.
@@ -1475,15 +1485,16 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // be handled in the result handler.
         // -- or --
         // *stopped arriving earlier than ^done response to an -exec-step
-        doNotifyInferiorRunOk();
         notifyInferiorSpontaneousStop();
-    } else if (state() == InferiorStopOk && isQmlStepBreakpoint2(rid)) {
+    } else if (state() == InferiorStopOk) {
         // That's expected.
     } else {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
         m_actingOnExpectedStop = true;
         notifyInferiorStopOk();
     }
+
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
 
     if (isQmlStepBreakpoint1(rid))
         return;
@@ -1504,6 +1515,8 @@ void GdbEngine::handleStop1(const GdbResponse &response)
 
 void GdbEngine::handleStop1(const GdbMi &data)
 {
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    QTC_ASSERT(!isDying(), return);
     const GdbMi frame = data.findChild("frame");
     const QByteArray reason = data.findChild("reason").data();
 
@@ -1593,11 +1606,8 @@ void GdbEngine::handleStop2(const GdbResponse &response)
 
 void GdbEngine::handleStop2(const GdbMi &data)
 {
-    if (isDying()) {
-        qDebug() << "HANDLING STOP WHILE DYING";
-        notifyInferiorStopOk();
-        return;
-    }
+    QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
+    QTC_ASSERT(!isDying(), return);
 
     // A user initiated stop looks like the following. Note that there is
     // this extra "stopper thread" created and "properly" reported by gdb.
@@ -1745,9 +1755,7 @@ void GdbEngine::handleStop2()
     reloadStack(false); // Will trigger register reload.
 
     if (supportsThreads()) {
-        if (isCodaAdapter()) {
-            codaReloadThreads();
-        } else if (m_isMacGdb || m_gdbVersion < 70100) {
+        if (m_isMacGdb || m_gdbVersion < 70100) {
             postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds));
         } else {
             // This is only available in gdb 7.1+.
@@ -1869,7 +1877,8 @@ void GdbEngine::handleExecuteContinue(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        doNotifyInferiorRunOk();
+        // All is fine. Waiting for a *running.
+        notifyInferiorRunOk(); // Only needed for gdb < 7.0.
         return;
     }
     QByteArray msg = response.data.findChild("msg").data();
@@ -1905,7 +1914,6 @@ QString GdbEngine::fullName(const QString &fileName)
 {
     if (fileName.isEmpty())
         return QString();
-    //QTC_ASSERT(!m_sourcesListOutdated, /* */);
     QTC_ASSERT(!m_sourcesListUpdating, /* */);
     return m_shortToFullName.value(fileName, QString());
 }
@@ -2130,12 +2138,6 @@ void GdbEngine::continueInferiorInternal()
     postCommand("-exec-continue", RunRequest, CB(handleExecuteContinue));
 }
 
-void GdbEngine::doNotifyInferiorRunOk()
-{
-    clearToolTip();
-    notifyInferiorRunOk();
-}
-
 void GdbEngine::autoContinueInferior()
 {
     resetLocation();
@@ -2156,8 +2158,6 @@ void GdbEngine::executeStep()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step requested..."), 5000);
-    if (isCodaAdapter() && stackHandler()->stackSize() > 0)
-        postCommand("sal step,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
     if (isReverseDebugging()) {
         postCommand("reverse-step", RunRequest, CB(handleExecuteStep));
     } else {
@@ -2175,7 +2175,8 @@ void GdbEngine::handleExecuteStep(const GdbResponse &response)
     }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        doNotifyInferiorRunOk();
+        // All is fine. Waiting for a *running.
+        notifyInferiorRunOk(); // Only needed for gdb < 7.0.
         return;
     }
     QByteArray msg = response.data.findChild("msg").data();
@@ -2230,8 +2231,6 @@ void GdbEngine::executeNext()
     setTokenBarrier();
     notifyInferiorRunRequested();
     showStatusMessage(tr("Step next requested..."), 5000);
-    if (isCodaAdapter() && stackHandler()->stackSize() > 0)
-        postCommand("sal next,0x" + QByteArray::number(stackHandler()->topAddress(), 16));
     if (isReverseDebugging()) {
         postCommand("reverse-next", RunRequest, CB(handleExecuteNext));
     } else {
@@ -2252,7 +2251,8 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
     }
     QTC_ASSERT(state() == InferiorRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
-        doNotifyInferiorRunOk();
+        // All is fine. Waiting for a *running.
+        notifyInferiorRunOk(); // Only needed for gdb < 7.0.
         return;
     }
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
@@ -3125,8 +3125,6 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
         cmd = "-break-insert -a -f ";
     } else if (m_isMacGdb) {
         cmd = "-break-insert -l -1 -f ";
-    } else if (isCodaAdapter()) {
-        cmd = "-break-insert -h -f ";
     } else if (m_gdbVersion >= 70000) {
         int spec = handler->threadSpec(id);
         cmd = "-break-insert ";
@@ -3139,6 +3137,10 @@ void GdbEngine::insertBreakpoint(BreakpointModelId id)
     } else {
         cmd = "-break-insert ";
     }
+
+    if (handler->isOneShot(id))
+        cmd += "-t ";
+
     //if (!data->condition.isEmpty())
     //    cmd += "-c " + data->condition + ' ';
     cmd += breakpointLocation(id);
@@ -3177,7 +3179,7 @@ void GdbEngine::changeBreakpoint(BreakpointModelId id)
     }
     if (data.command != response.command) {
         QByteArray breakCommand = "-break-commands " + bpnr;
-        foreach (const QString &command, data.command.split(QLatin1String("\\n"))) {
+        foreach (const QString &command, data.command.split(QLatin1String("\n"))) {
             if (!command.isEmpty()) {
                 breakCommand.append(" \"");
                 breakCommand.append(command.toLatin1());
@@ -3510,7 +3512,7 @@ void GdbEngine::reloadStack(bool forceGotoLocation)
     PENDING_DEBUG("RELOAD STACK");
     QByteArray cmd = "-stack-list-frames";
     int stackDepth = debuggerCore()->action(MaximalStackDepth)->value().toInt();
-    if (stackDepth && !isCodaAdapter())
+    if (stackDepth)
         cmd += " 0 " + QByteArray::number(stackDepth);
     postCommand(cmd, Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(false, forceGotoLocation)));
@@ -3749,17 +3751,10 @@ void GdbEngine::reloadRegisters()
     if (!m_registerNamesListed) {
         postCommand("-data-list-register-names", CB(handleRegisterListNames));
         m_registerNamesListed = true;
-        // FIXME: Maybe better completely re-do this logic in CODA adapter.
-        if (isCodaAdapter())
-            return;
     }
 
-    if (isCodaAdapter()) {
-        codaReloadRegisters();
-    } else {
-        postCommand("-data-list-register-values r",
-                    Discardable, CB(handleRegisterListValues));
-    }
+    postCommand("-data-list-register-values r",
+                Discardable, CB(handleRegisterListValues));
 }
 
 void GdbEngine::setRegisterValue(int nr, const QString &value)
@@ -3782,9 +3777,6 @@ void GdbEngine::handleRegisterListNames(const GdbResponse &response)
             registers.append(Register(item.data()));
 
     registerHandler()->setRegisters(registers);
-
-    if (isCodaAdapter())
-        codaReloadRegisters();
 }
 
 void GdbEngine::handleRegisterListValues(const GdbResponse &response)
@@ -3861,9 +3853,10 @@ QString GdbEngine::tooltipExpression() const
     return m_toolTipContext.isNull() ? QString() : m_toolTipContext->expression;
 }
 
-void GdbEngine::clearToolTip()
+void GdbEngine::resetLocation()
 {
     m_toolTipContext.reset();
+    DebuggerEngine::resetLocation();
 }
 
 bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
@@ -4187,10 +4180,6 @@ WatchData GdbEngine::localVariable(const GdbMi &item,
         // pass through the insertData() machinery.
         if (isIntOrFloatType(data.type) || isPointerType(data.type))
             setWatchDataValue(data, item);
-        if (isSymbianIntType(data.type)) {
-            setWatchDataValue(data, item);
-            data.setHasChildren(false);
-        }
     }
 
     if (!watchHandler()->isExpandedIName(data.iname))
@@ -4713,9 +4702,6 @@ void GdbEngine::startGdb(const QStringList &args)
     // Produces a few messages during symtab loading
     //postCommand("set verbose on");
 
-    //postCommand("set substitute-path /var/tmp/qt-x11-src-4.5.0 "
-    //    "/home/sandbox/qtsdk-2009.01/qt");
-
     // one of the following is needed to prevent crashes in gdb on code like:
     //  template <class T> T foo() { return T(0); }
     //  int main() { return foo<int>(); }
@@ -4733,9 +4719,6 @@ void GdbEngine::startGdb(const QStringList &args)
     // when Custom DebuggingHelper crash (which happen regularly when accessing
     // uninitialized variables).
     postCommand("handle SIGSEGV nopass stop print");
-
-    // This is useful to kill the inferior whenever gdb dies.
-    //postCommand(_("handle SIGTERM pass nostop print"));
 
     postCommand("set unwindonsignal on");
     postCommand("set width 0");
@@ -5304,11 +5287,6 @@ void GdbEngine::write(const QByteArray &data)
     gdbProc()->write(data);
 }
 
-bool GdbEngine::isCodaAdapter() const
-{
-    return false;
-}
-
 bool GdbEngine::prepareCommand()
 {
 #ifdef Q_OS_WIN
@@ -5379,9 +5357,6 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
 
 DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp)
 {
-    if (sp.toolChainAbi.os() == Abi::SymbianOS)
-        return new GdbCodaEngine(sp);
-
     switch (sp.startMode) {
     case AttachCore:
         return new GdbCoreEngine(sp);

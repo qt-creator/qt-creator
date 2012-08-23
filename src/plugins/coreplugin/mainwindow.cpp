@@ -82,6 +82,7 @@
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/settingsdatabase.h>
+#include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
 #include <utils/stylehelper.h>
 #include <utils/stringutils.h>
@@ -175,6 +176,8 @@ MainWindow::MainWindow() :
     (void) new DocumentManager(this);
     OutputPaneManager::create();
 
+    Utils::HistoryCompleter::setSettings(m_settings);
+
     setWindowTitle(tr("Qt Creator"));
 #ifndef Q_OS_MAC
     QApplication::setWindowIcon(QIcon(QLatin1String(Constants::ICON_QTLOGO_128)));
@@ -233,11 +236,6 @@ MainWindow::MainWindow() :
 #if defined(Q_OS_MAC)
     MacFullScreen::addFullScreen(this);
 #endif
-
-    m_autoSaveSessionTimer = new QTimer(this);
-    m_autoSaveSessionTimer->setInterval(10000);
-    connect(m_autoSaveSessionTimer, SIGNAL(timeout()),
-            m_coreImpl, SIGNAL(saveSettingsRequested()));
 }
 
 void MainWindow::setSidebarVisible(bool visible)
@@ -377,13 +375,11 @@ void MainWindow::extensionsInitialized()
     emit m_coreImpl->coreAboutToOpen();
     show();
     emit m_coreImpl->coreOpened();
-    m_autoSaveSessionTimer->start();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    m_autoSaveSessionTimer->stop();
-    emit m_coreImpl->saveSettingsRequested();
+    ICore::saveSettings();
 
     // Save opened files
     bool cancelled;
@@ -979,7 +975,6 @@ bool MainWindow::showOptionsDialog(const QString &category,
 void MainWindow::saveAll()
 {
     DocumentManager::saveModifiedDocumentsSilently(DocumentManager::modifiedDocuments());
-    emit m_coreImpl->saveSettingsRequested();
 }
 
 void MainWindow::exit()

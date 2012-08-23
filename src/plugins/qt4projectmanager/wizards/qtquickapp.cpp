@@ -256,11 +256,6 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
         }
 
         proFile << endl;
-    } else if (line.contains(QLatin1String("# QTQUICKCOMPONENTS"))) {
-        QString nextLine = proFileTemplate.readLine(); // eats '# CONFIG += qtquickcomponents'
-        if (componentSet() == Symbian11Components)
-            nextLine.remove(0, 2); // remove comment
-        proFile << nextLine << endl;
     } else if (line.contains(QLatin1String("# HARMATTAN_BOOSTABLE"))) {
         QString nextLine = proFileTemplate.readLine(); // eats '# CONFIG += qdeclarative-boostable'
         if (supportsMeegoBooster())
@@ -352,8 +347,7 @@ Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
     Core::GeneratedFiles files = AbstractMobileApp::generateFiles(errorMessage);
     if (!useExistingMainQml()) {
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
-        if ((componentSet() == QtQuickApp::Symbian11Components)
-                || (componentSet() == QtQuickApp::Meego10Components))
+        if ((componentSet() == QtQuickApp::Meego10Components))
             files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainPageQmlFile, errorMessage), path(MainPageQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
@@ -453,8 +447,6 @@ QList<DeploymentFolder> QtQuickApp::deploymentFolders() const
 QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
 {
     switch (componentSet) {
-    case Symbian11Components:
-        return QLatin1String("symbian11");
     case Meego10Components:
         return QLatin1String("meego10");
     case QtQuick10Components:
@@ -463,7 +455,7 @@ QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
     }
 }
 
-const int QtQuickApp::StubVersion = 21;
+const int QtQuickApp::StubVersion = 22;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

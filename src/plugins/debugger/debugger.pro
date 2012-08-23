@@ -132,8 +132,6 @@ SOURCES += \
     localsandexpressionswindow.cpp
 
 FORMS += \
-    breakcondition.ui \
-    breakpoint.ui \
     localsandexpressionsoptionspage.ui \
     commonoptionspage.ui
 

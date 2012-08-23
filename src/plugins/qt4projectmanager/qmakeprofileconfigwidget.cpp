@@ -48,6 +48,8 @@ QmakeProfileConfigWidget::QmakeProfileConfigWidget(ProjectExplorer::Profile *p,
     m_profile(p),
     m_lineEdit(new QLineEdit)
 {
+    setToolTip(tr("The mkspec to use when building the project with qmake.<br>"
+                  "This setting is ignored when using other build systems."));
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
 

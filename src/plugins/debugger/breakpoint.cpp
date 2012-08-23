@@ -180,7 +180,7 @@ BreakpointParameters::BreakpointParameters(BreakpointType t)
   : type(t), enabled(true), pathUsage(BreakpointPathUsageEngineDefault),
     ignoreCount(0), lineNumber(0), address(0), size(0),
     bitpos(0), bitsize(0), threadSpec(-1),
-    tracepoint(false)
+    tracepoint(false), oneShot(false)
 {}
 
 BreakpointParts BreakpointParameters::differencesTo
@@ -215,31 +215,33 @@ BreakpointParts BreakpointParameters::differencesTo
         parts |= CommandPart;
     if (message != rhs.message)
         parts |= MessagePart;
+    if (oneShot != rhs.oneShot)
+        parts |= OneShotPart;
     return parts;
 }
 
 bool BreakpointParameters::isValid() const
 {
     switch (type) {
-    case Debugger::Internal::BreakpointByFileAndLine:
+    case BreakpointByFileAndLine:
         return !fileName.isEmpty() && lineNumber > 0;
-    case Debugger::Internal::BreakpointByFunction:
+    case BreakpointByFunction:
         return !functionName.isEmpty();
-    case Debugger::Internal::WatchpointAtAddress:
-    case Debugger::Internal::BreakpointByAddress:
+    case WatchpointAtAddress:
+    case BreakpointByAddress:
         return address != 0;
-    case Debugger::Internal::BreakpointAtThrow:
-    case Debugger::Internal::BreakpointAtCatch:
-    case Debugger::Internal::BreakpointAtMain:
-    case Debugger::Internal::BreakpointAtFork:
-    case Debugger::Internal::BreakpointAtExec:
-    case Debugger::Internal::BreakpointAtSysCall:
-    case Debugger::Internal::BreakpointOnQmlSignalEmit:
-    case Debugger::Internal::BreakpointAtJavaScriptThrow:
+    case BreakpointAtThrow:
+    case BreakpointAtCatch:
+    case BreakpointAtMain:
+    case BreakpointAtFork:
+    case BreakpointAtExec:
+    case BreakpointAtSysCall:
+    case BreakpointOnQmlSignalEmit:
+    case BreakpointAtJavaScriptThrow:
         break;
-    case Debugger::Internal::WatchpointAtExpression:
+    case WatchpointAtExpression:
         return !expression.isEmpty();
-    case Debugger::Internal::UnknownType:
+    case UnknownType:
         return false;
     }
     return true;

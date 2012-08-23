@@ -30,6 +30,8 @@
 
 #include "vcsbaseclientsettings.h"
 
+#include <utils/environment.h>
+
 #include <QSettings>
 
 namespace {
@@ -165,13 +167,15 @@ public:
         QSharedData(other),
         m_valueHash(other.m_valueHash),
         m_defaultValueHash(other.m_defaultValueHash),
-        m_settingsGroup(other.m_settingsGroup)
+        m_settingsGroup(other.m_settingsGroup),
+        m_binaryFullPath(other.m_binaryFullPath)
     {
     }
 
     QHash<QString, SettingValue> m_valueHash;
     QVariantHash m_defaultValueHash;
     QString m_settingsGroup;
+    QString m_binaryFullPath;
 };
 
 } // namespace Internal
@@ -326,8 +330,11 @@ QVariant VcsBaseClientSettings::value(const QString &key) const
 
 void VcsBaseClientSettings::setValue(const QString &key, const QVariant &v)
 {
-    if (SettingValue::isUsableVariantType(valueType(key)))
+    if (SettingValue::isUsableVariantType(valueType(key))) {
         d->m_valueHash.insert(key, SettingValue(v));
+        if (key == binaryPathKey)
+            d->m_binaryFullPath = Utils::Environment::systemEnvironment().searchInPath(v.toString());
+    }
 }
 
 QVariant::Type VcsBaseClientSettings::valueType(const QString &key) const
@@ -335,6 +342,11 @@ QVariant::Type VcsBaseClientSettings::valueType(const QString &key) const
     if (hasKey(key))
         return d->m_valueHash[key].type();
     return QVariant::Invalid;
+}
+
+QString VcsBaseClientSettings::binaryPath() const
+{
+    return d->m_binaryFullPath;
 }
 
 QString VcsBaseClientSettings::settingsGroup() const

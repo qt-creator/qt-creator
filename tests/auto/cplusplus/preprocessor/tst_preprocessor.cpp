@@ -336,6 +336,8 @@ private slots:
     void comments_within2_data();
     void multitokens_argument();
     void multitokens_argument_data();
+    void multiline_strings();
+    void multiline_strings_data();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -1179,6 +1181,42 @@ void tst_Preprocessor::comments_within_data()
             "# 10 \"<stdin>\"\n"
             "x = 10\n";
     QTest::newRow("case 4") << original << expected;
+
+    original = "#define FOO(x, y) { (void)x; (void)y; }\n"
+               "\n"
+               "void foo() {\n"
+               "   FOO(10,\n"
+               "       //comment\n"
+               "       12\n"
+               "}\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "void foo() {\n"
+            "# expansion begin 57,3 ~4 4:7 ~4 6:7 7:0 ~2\n"
+            "{ (void)10; (void)12}; }\n"
+            "# expansion end\n"
+            "# 8 \"<stdin>\"\n";
+    QTest::newRow("case 5") << original << expected;
+
+    original = "#define FOO(x, y) { (void)x; (void)y; }\n"
+               "\n"
+               "void foo() {\n"
+               "   FOO(10,\n"
+               "       //tricky*/comment\n"
+               "       12\n"
+               "}\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "void foo() {\n"
+            "# expansion begin 57,3 ~4 4:7 ~4 6:7 7:0 ~2\n"
+            "{ (void)10; (void)12}; }\n"
+            "# expansion end\n"
+            "# 8 \"<stdin>\"\n";
+    QTest::newRow("case 6") << original << expected;
 }
 
 void tst_Preprocessor::comments_within2()
@@ -1296,6 +1334,64 @@ void tst_Preprocessor::comments_within2_data()
             "*/\n"
             "x = 10\n";
     QTest::newRow("case 4") << original << expected;
+
+
+    original = "#define FOO(x, y) { (void)x; (void)y; }\n"
+               "\n"
+               "void foo() {\n"
+               "   FOO(10,\n"
+               "       //comment\n"
+               "       12\n"
+               "}\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "void foo() {\n"
+            "# expansion begin 57,3 ~4 4:7 ~5 6:7 7:0 ~2\n"
+            "{ (void)10; (void)/*comment*/ 12}; }\n"
+            "# expansion end\n"
+            "# 8 \"<stdin>\"\n";
+    QTest::newRow("case 5") << original << expected;
+
+    original = "#define FOO(x, y) { (void)x; (void)y; }\n"
+               "\n"
+               "void foo() {\n"
+               "   FOO(10,\n"
+               "       //tricky*/comment\n"
+               "       12\n"
+               "}\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "void foo() {\n"
+            "# expansion begin 57,3 ~4 4:7 ~5 6:7 7:0 ~2\n"
+            "{ (void)10; (void)/*tricky*|comment*/ 12}; }\n"
+            "# expansion end\n"
+            "# 8 \"<stdin>\"\n";
+    QTest::newRow("case 6") << original << expected;
+}
+
+void tst_Preprocessor::multiline_strings()
+{
+    compare_input_output();
+}
+
+void tst_Preprocessor::multiline_strings_data()
+{
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QByteArray>("output");
+
+    QByteArray original;
+    QByteArray expected;
+
+    original = "const char *s = \"abc\\\n"
+               "xyz\";\n";
+    expected = "# 1 \"<stdin>\"\n"
+               "const char *s = \"abc\\\n"
+               "xyz\";\n";
+    QTest::newRow("case 1") << original << expected;
 }
 
 void tst_Preprocessor::compare_input_output(bool keepComments)

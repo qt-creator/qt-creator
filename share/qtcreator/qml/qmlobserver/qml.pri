@@ -19,11 +19,7 @@ SOURCES += $$PWD/qmlruntime.cpp \
 RESOURCES = $$PWD/browser/browser.qrc \
             $$PWD/startup/startup.qrc
 
-symbian:!contains(S60_VERSION, 3.1):!contains(S60_VERSION, 3.2) {
-   SOURCES += $$PWD/deviceorientation_symbian.cpp
-   FORMS = $$PWD/recopts.ui \
-           $$PWD/proxysettings.ui
-} else:maemo5 {
+maemo5 {
     QT += dbus
     HEADERS += $$PWD/texteditautoresizer_maemo5.h
     SOURCES += $$PWD/deviceorientation_maemo5.cpp

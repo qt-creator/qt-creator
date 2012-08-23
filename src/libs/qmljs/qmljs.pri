@@ -1,7 +1,6 @@
-INCLUDEPATH += \
-    $$PWD/../../shared \
-    $$PWD/../../shared/qmljs \
-    $$PWD/../../shared/qmljs/parser
+INCLUDEPATH *= $$PWD/../../shared
+INCLUDEPATH *= $$PWD/../../shared/qmljs
+INCLUDEPATH *= $$PWD/../../shared/qmljs/parser
 
 LIBS *= -l$$qtLibraryName(QmlJS)
-DEFINES += QT_CREATOR
+DEFINES *= QT_CREATOR

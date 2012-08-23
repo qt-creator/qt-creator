@@ -28,6 +28,8 @@
 **
 **************************************************************************/
 
+#define QT_NO_CAST_FROM_ASCII
+
 #include "debuggerplugin.h"
 
 #include "debuggerstartparameters.h"
@@ -177,8 +179,8 @@
     \brief Base class of a debugger engine.
 
     Note: the Debugger process itself and any helper processes like
-    gdbserver, the CODA client etc are referred to as 'Engine',
-    whereas the debugged process is referred to as 'Inferior'.
+    gdbserver are referred to as 'Engine', whereas the debugged process
+    is referred to as 'Inferior'.
 
     Transitions marked by '---' are done in the individual engines.
     Transitions marked by '+-+' are done in the base DebuggerEngine.
@@ -563,7 +565,7 @@ void fillParameters(DebuggerStartParameters *sp, Profile *profile)
     IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
     if (device) {
         sp->connParams = device->sshParameters();
-        sp->remoteChannel = QString("%1:%2").arg(sp->connParams.host).arg(sp->connParams.port);
+        sp->remoteChannel = sp->connParams.host + QLatin1Char(':') + QString::number(sp->connParams.port);
     }
 }
 
@@ -1558,6 +1560,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
 void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
 {
     DeviceProcessesDialog *dlg = new DeviceProcessesDialog(mainWindow());
+    dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
         delete dlg;
@@ -2465,12 +2468,6 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
         if (!sp.workingDirectory.isEmpty())
             str << "Directory: " << QDir::toNativeSeparators(sp.workingDirectory)
                 << '\n';
-        if (sp.executableUid) {
-            str << "UID: 0x";
-            str.setIntegerBase(16);
-            str << sp.executableUid << '\n';
-            str.setIntegerBase(10);
-        }
     }
     QString cmd = sp.debuggerCommand;
     if (!cmd.isEmpty())
@@ -3400,7 +3397,7 @@ void DebuggerPluginPrivate::testPythonDumpers1()
 {
     m_testSuccess = true;
     QString proFile = ICore::resourcePath()
-        + "/../../tests/manual/debugger/simple/simple.pro";
+        + QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
     testLoadProject(proFile, TestCallBack(this,  "testPythonDumpers2"));
     QVERIFY(m_testSuccess);
     QTestEventLoop::instance().enterLoop(20);
@@ -3432,7 +3429,7 @@ void DebuggerPluginPrivate::testStateMachine1()
 {
     m_testSuccess = true;
     QString proFile = ICore::resourcePath()
-        + "/../../tests/manual/debugger/simple/simple.pro";
+        + QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
     testLoadProject(proFile, TestCallBack(this,  "testStateMachine2"));
     QVERIFY(m_testSuccess);
     QTestEventLoop::instance().enterLoop(20);

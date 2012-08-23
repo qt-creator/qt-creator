@@ -7,7 +7,6 @@ QT += script \
 
 include (../designercore/iwidgetplugin.pri)
 
-DEFINES += SYMBIAN_LIBRARY
 SOURCES += $$PWD/meegoplugin.cpp
 
 HEADERS += $$PWD/meegoplugin.h  $$PWD/../designercore/include/iwidgetplugin.h

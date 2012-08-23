@@ -9,20 +9,6 @@ DEPLOYMENTFOLDERS = folder_01
 # QML_IMPORT_PATH #
 QML_IMPORT_PATH =
 
-# TARGETUID3 #
-symbian:TARGET.UID3 = 0xE1111234
-
-# Smart Installer package's UID
-# This UID is from the protected range and therefore the package will
-# fail to install if self-signed. By default qmake uses the unprotected
-# range value if unprotected UID is defined for the application and
-# 0x2002CCCF value if protected UID is given to the application
-#symbian:DEPLOYMENT.installer_header = 0x2002CCCF
-
-# Allow network access on Symbian
-# NETWORKACCESS #
-symbian:TARGET.CAPABILITY += NetworkServices
-
 # If your application uses the Qt Mobility libraries, uncomment the following
 # lines and add the respective components to the MOBILITY variable.
 # CONFIG += mobility
@@ -31,10 +17,6 @@ symbian:TARGET.CAPABILITY += NetworkServices
 # Speed up launching on MeeGo/Harmattan when using applauncherd daemon
 # HARMATTAN_BOOSTABLE #
 # CONFIG += qdeclarative-boostable
-
-# Add dependency to Symbian components
-# QTQUICKCOMPONENTS #
-# CONFIG += qt-components
 
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp

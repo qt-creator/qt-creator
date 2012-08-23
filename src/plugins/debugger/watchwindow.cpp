@@ -212,16 +212,13 @@ static int memberVariableRecursion(const QAbstractItemModel *model,
                                    ColorNumberToolTips *cnmv)
 {
     int childCount = 0;
-    // Recurse over top level items if modelIndex is invalid.
-    const bool isRoot = !modelIndex.isValid();
-    const int rowCount = isRoot
-        ? model->rowCount() : modelIndex.model()->rowCount(modelIndex);
+    QTC_ASSERT(modelIndex.isValid(), return childCount );
+    const int rowCount = model->rowCount(modelIndex);
     if (!rowCount)
         return childCount;
     const QString nameRoot = name.isEmpty() ? name : name +  QLatin1Char('.');
     for (int r = 0; r < rowCount; r++) {
-        const QModelIndex childIndex = isRoot
-            ? model->index(r, 0) : modelIndex.child(r, 0);
+        const QModelIndex childIndex = modelIndex.child(r, 0);
         const quint64 childAddress = addressOf(childIndex);
         const uint childSize = sizeOf(childIndex);
         if (childAddress && childAddress >= start
@@ -423,22 +420,26 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
     // Determine suitable address range from locals.
     quint64 start = Q_UINT64_C(0xFFFFFFFFFFFFFFFF);
     quint64 end = 0;
-    const int rootItemCount = m->rowCount();
+    const QModelIndex localsIndex = m->index(0, 0);
+    QTC_ASSERT(localsIndex.data(LocalsINameRole).toString() == QLatin1String("local"), return);
+    const int localsItemCount = m->rowCount(localsIndex);
     // Note: Unsorted by default. Exclude 'Automatically dereferenced
     // pointer' items as they are outside the address range.
-    for (int r = 0; r < rootItemCount; r++) {
-        const QModelIndex idx = m->index(r, 0);
+    for (int r = 0; r < localsItemCount; r++) {
+        const QModelIndex idx = localsIndex.child(r, 0);
         if (idx.data(LocalsReferencingAddressRole).toULongLong() == 0) {
             const quint64 address = addressOf(idx);
             if (address) {
                 if (address < start)
                     start = address;
-                if (const uint size = sizeOf(idx))
-                    if (address + size > end)
-                        end = address + size;
+                const uint size = qMax(1u, sizeOf(idx));
+                if (address + size > end)
+                    end = address + size;
             }
         }
     }
+    if (const quint64 remainder = end % 8)
+        end += 8 - remainder;
     // Anything found and everything in a sensible range (static data in-between)?
     if (end <= start || end - start > 100 * 1024) {
         QMessageBox::information(parent,
@@ -461,7 +462,7 @@ static void addStackLayoutMemoryView(DebuggerEngine *engine, bool separateView,
     // Indicate all variables.
     const QColor background = parent->palette().color(QPalette::Normal, QPalette::Base);
     const MemoryMarkupList markup =
-        variableMemoryMarkup(m, QModelIndex(), QString(),
+        variableMemoryMarkup(m, localsIndex, QString(),
                              QString(), start, end - start,
                              regMap, true, background);
     const unsigned flags = separateView

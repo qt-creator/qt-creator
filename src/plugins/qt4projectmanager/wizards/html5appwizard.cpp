@@ -108,9 +108,7 @@ Core::BaseFileWizardParameters Html5AppWizard::parameters()
     parameters.setDescription(tr("Creates an HTML5 application project that can contain "
                                  "both HTML5 and C++ code and includes a WebKit view.\n\n"
                                  "You can build the application and deploy it on desktop and "
-                                 "mobile target platforms. For example, you can create signed "
-                                 "Symbian Installation System (SIS) packages for this type of "
-                                 "projects."));
+                                 "mobile target platforms."));
     parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
     parameters.setDisplayCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
     return parameters;

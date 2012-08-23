@@ -14,8 +14,6 @@
 
         \o  Generic remote Linux
 
-        \o  Symbian
-
         \o  QNX
 
         \o  Android
@@ -35,13 +33,11 @@
             \o  Maemo 5
             \o  MeeGo Harmattan
             \o  Generic Remote Linux
-            \o  Symbian
             \o  QNX
             \o  Android
 
         \row
             \o  Windows
-            \o  Yes
             \o  Yes
             \o  Yes
             \o  Yes
@@ -57,7 +53,6 @@
             \o  Yes
             \o  Yes
             \o  Yes
-            \o  Yes (by using Remote Compiler for building)
             \o  Yes
             \o  Yes
         \row
@@ -67,7 +62,6 @@
             \o  Yes
             \o  Yes
             \o  Yes
-            \o  Yes (by using Remote Compiler for building)
             \o  Yes
             \o  Yes
     \endtable

@@ -4,9 +4,6 @@
 
     \list
 
-        \o  In the \gui {Qt version} field, select a Qt version that has support
-            for QML.
-
         \o  In the \gui Arguments field, you can specify command line arguments
             to be passed to the executable.
 

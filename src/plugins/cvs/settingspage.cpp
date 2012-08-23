@@ -55,7 +55,8 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 CvsSettings SettingsPageWidget::settings() const
 {
     CvsSettings rc;
-    rc.cvsCommand = m_ui.commandPathChooser->path();
+    rc.cvsCommand = m_ui.commandPathChooser->rawPath();
+    rc.cvsBinaryPath = m_ui.commandPathChooser->path();
     rc.cvsRoot = m_ui.rootLineEdit->text();
     rc.cvsDiffOptions = m_ui.diffOptionsLineEdit->text();
     rc.timeOutS = m_ui.timeOutSpinBox->value();

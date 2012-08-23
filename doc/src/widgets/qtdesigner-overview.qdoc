@@ -37,7 +37,7 @@
     \image qtcreator-formedit.png
 
     For more information about \QD, see the
-    \l{http://doc.qt.nokia.com/4.7/designer-manual.html}{Qt Designer Manual}.
+    \l{http://qt-project.org/doc/qt-4.8/designer-manual.html}{Qt Designer Manual}.
 
     Generally, the integrated \QD contains the same functions as the standalone
     \QD. The following sections describe the differences.

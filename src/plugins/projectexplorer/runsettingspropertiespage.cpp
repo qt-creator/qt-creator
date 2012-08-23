@@ -251,6 +251,16 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
     connect(m_renameRunButton, SIGNAL(clicked()),
             this, SLOT(renameRunConfiguration()));
 
+    connect(m_target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(updateRemoveToolButton()));
+    connect(m_target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(updateRemoveToolButton()));
+
+    connect(m_target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
+            this, SLOT(updateRemoveToolButton()));
+    connect(m_target, SIGNAL(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
+            this, SLOT(updateRemoveToolButton()));
+
     connect(m_target, SIGNAL(activeRunConfigurationChanged(ProjectExplorer::RunConfiguration*)),
             this, SLOT(activeRunConfigurationChanged()));
 }
@@ -321,6 +331,7 @@ void RunSettingsWidget::activeRunConfigurationChanged()
     m_runConfigurationCombo->setCurrentIndex(actRc.row());
     setConfigurationWidget(m_runConfigurationsModel->runConfigurationAt(actRc.row()));
     m_ignoreChange = false;
+    m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
 }
 
 void RunSettingsWidget::renameRunConfiguration()
@@ -360,8 +371,10 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
 
 void RunSettingsWidget::currentDeployConfigurationChanged(int index)
 {
+    if (m_ignoreChange)
+        return;
     if (index == -1)
-        updateDeployConfiguration(0);
+        m_target->setActiveDeployConfiguration(0);
     else
         m_target->setActiveDeployConfiguration(m_deployConfigurationModel->deployConfigurationAt(index));
 }
@@ -457,6 +470,12 @@ void RunSettingsWidget::renameDeployConfiguration()
     m_target->activeDeployConfiguration()->setDisplayName(name);
 }
 
+void RunSettingsWidget::updateRemoveToolButton()
+{
+    m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().count() > 1);
+    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+}
+
 void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
 {
     delete m_deployConfigurationWidget;
@@ -464,13 +483,19 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     delete m_deploySteps;
     m_deploySteps = 0;
 
+    m_ignoreChange = true;
     m_deployConfigurationCombo->setCurrentIndex(-1);
+    m_ignoreChange = false;
+
+    m_renameDeployButton->setEnabled(dc);
 
     if (!dc)
         return;
 
     QModelIndex actDc = m_deployConfigurationModel->indexFor(dc);
+    m_ignoreChange = true;
     m_deployConfigurationCombo->setCurrentIndex(actDc.row());
+    m_ignoreChange = false;
 
     m_deployConfigurationWidget = dc->configurationWidget();
     if (m_deployConfigurationWidget) {

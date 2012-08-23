@@ -129,8 +129,8 @@
     After you download and install Valgrind tools, you can use Callgrind from
     \QC.
 
-    \note Callgrind is supported locally on Linux and Mac OS. You can run it on
-    a remote host from Windows.
+    \note Callgrind is supported locally on Linux and Mac OS. You can run
+    it on a remote Linux machine or device from any development machine.
 
     To analyze applications:
 
@@ -165,6 +165,21 @@
     Double-click a function to view information about the calling functions in
     the \gui Callers view and about the called functions in the \gui Callees
     view.
+
+    Since Debug and Release mode run-time characteristics differ
+    significantly, analytical findings for one mode may or not be
+    relevant for the other. Profiling a Debug mode build
+    often finds a major part of the time being spent in low-level
+    code like container implementations, while the same code
+    does not show up in the profile of a Release build of the
+    same application due to inlining and other optimizations
+    typically done there.
+
+    Many recent compilers allow you to build an optimized application
+    with debug information present at the same time. Typical
+    options for GCC are for instance \c{-g -O2}. It is
+    advisable to use such a setup for Callgrind profiling.
+
 
     \image qtcreator-valgrind-callgrind.png "Profile view"
 

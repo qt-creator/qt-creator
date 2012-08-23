@@ -56,6 +56,7 @@ struct CvsSettings
     bool equals(const CvsSettings &s) const;
 
     QString cvsCommand;
+    QString cvsBinaryPath;
     QString cvsRoot;
     QString cvsDiffOptions;
     int timeOutS;

@@ -55,6 +55,7 @@ struct SubversionSettings
     bool equals(const SubversionSettings &s) const;
 
     QString svnCommand;
+    QString svnBinaryPath;
     bool useAuthentication;
     QString user;
     QString password;

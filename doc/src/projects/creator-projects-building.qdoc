@@ -56,8 +56,4 @@
     For more information on the options you have, see
     \l{Specifying Build Settings}.
 
-    \if defined(qcmanual)
-    \input symbian/creator-projects-building-symbian.qdocinc
-    \endif
-
 */

@@ -233,12 +233,7 @@ QUrl QDeclarativeFolderListModel::parentFolder() const
     QString localFile = d->folder.toLocalFile();
     if (!localFile.isEmpty()) {
         QDir dir(localFile);
-#if defined(Q_OS_SYMBIAN) || defined(Q_OS_WIN)
-        if (dir.isRoot())
-            dir.setPath("");
-        else
-#endif
-            dir.cdUp();
+        dir.cdUp();
         localFile = dir.path();
     } else {
         int pos = d->folder.path().lastIndexOf(QLatin1Char('/'));

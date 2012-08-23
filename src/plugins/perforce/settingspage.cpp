@@ -67,7 +67,7 @@ void SettingsPageWidget::slotTest()
 
     setStatusText(tr("Testing..."));
     const Settings s = settings();
-    m_checker->start(s.p4Command, s.commonP4Arguments(), 10000);
+    m_checker->start(s.p4BinaryPath, s.commonP4Arguments(), 10000);
 }
 
 void SettingsPageWidget::testSucceeded(const QString &repo)
@@ -78,7 +78,8 @@ void SettingsPageWidget::testSucceeded(const QString &repo)
 Settings SettingsPageWidget::settings() const
 {
     Settings  settings;
-    settings.p4Command = m_ui.pathChooser->path();
+    settings.p4Command = m_ui.pathChooser->rawPath();
+    settings.p4BinaryPath = m_ui.pathChooser->path();
     settings.defaultEnv = !m_ui.environmentGroupBox->isChecked();
     settings.p4Port = m_ui.portLineEdit->text();
     settings.p4User = m_ui.userLineEdit->text();

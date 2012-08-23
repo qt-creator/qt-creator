@@ -143,7 +143,6 @@ FORMS += makestep.ui \
     wizards/html5appwizardsourcespage.ui \
     wizards/mobilelibrarywizardoptionpage.ui \
     wizards/mobileappwizardgenericoptionspage.ui \
-    wizards/mobileappwizardsymbianoptionspage.ui \
     wizards/mobileappwizardmaemooptionspage.ui \
     wizards/mobileappwizardharmattanoptionspage.ui \
     wizards/qtquickcomponentsetoptionspage.ui
@@ -151,7 +150,6 @@ FORMS += makestep.ui \
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
 
-include(qt-s60/qt-s60.pri)
 include(qt-desktop/qt-desktop.pri)
 include(customwidgetwizard/customwidgetwizard.pri)
 

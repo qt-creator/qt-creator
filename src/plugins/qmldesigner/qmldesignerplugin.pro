@@ -16,7 +16,6 @@ include(components/formeditor/formeditor.pri)
 include(components/itemlibrary/itemlibrary.pri)
 include(components/navigator/navigator.pri)
 include(components/pluginmanager/pluginmanager.pri)
-include(components/themeloader/qts60stylethemeio.pri)
 include(components/stateseditor/stateseditor.pri)
 include(components/resources/resources.pri)
 

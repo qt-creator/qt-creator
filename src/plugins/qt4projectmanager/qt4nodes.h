@@ -93,7 +93,6 @@ enum Qt4Variable {
     QtVar,
     QmlImportPathVar,
     Makefile,
-    SymbianCapabilities,
     ObjectExt,
     ObjectsDir,
     VersionVar,
@@ -385,7 +384,6 @@ public:
     ProjectVersion projectVersion() const { return m_projectVersion; }
 
     QString makefile() const;
-    QStringList symbianCapabilities() const;
     QString objectExtension() const;
     QString objectsDirectory() const;
     QByteArray cxxDefines() const;

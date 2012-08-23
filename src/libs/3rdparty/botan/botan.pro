@@ -3,6 +3,7 @@ TARGET = Botan
 
 PRECOMPILED_HEADER = ../precompiled_headers/botan_pch.h
 
+QT =
 
 CONFIG += exceptions
 CONFIG += release
@@ -10,7 +11,7 @@ CONFIG -= debug debug_and_release
 include(../../../qtcreatorlibrary.pri)
 
 DEPENDPATH += .
-INCLUDEPATH += .
+INCLUDEPATH += . $$[QT_INSTALL_HEADERS] $$[QT_INSTALL_HEADERS]/QtCore
 
 DEFINES += BOTAN_DLL=Q_DECL_EXPORT
 unix:DEFINES += BOTAN_TARGET_OS_HAS_GETTIMEOFDAY BOTAN_HAS_ALLOC_MMAP \

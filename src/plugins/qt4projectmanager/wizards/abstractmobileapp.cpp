@@ -64,23 +64,11 @@ AbstractMobileApp::AbstractMobileApp()
     : QObject()
     , m_canSupportMeegoBooster(false)
     , m_orientation(ScreenOrientationAuto)
-    , m_networkEnabled(true)
     , m_supportsMeegoBooster(false)
 {
 }
 
 AbstractMobileApp::~AbstractMobileApp() { }
-
-QString AbstractMobileApp::symbianUidForPath(const QString &path)
-{
-    quint32 hash = 5381;
-    for (int i = 0; i < path.size(); ++i) {
-        const char c = path.at(i).toAscii();
-        hash ^= c + ((c - i) << i % 20) + ((c + i) << (i + 5) % 20) + ((c - 2 * i) << (i + 10) % 20) + ((c + 2 * i) << (i + 15) % 20);
-    }
-    return QString::fromLatin1("0xE")
-            + QString::fromLatin1("%1").arg(hash, 7, 16, QLatin1Char('0')).right(7).toUpper();
-}
 
 void AbstractMobileApp::setOrientation(ScreenOrientation orientation)
 {
@@ -107,16 +95,6 @@ void AbstractMobileApp::setProjectPath(const QString &path)
     m_projectPath.setFile(path);
 }
 
-void AbstractMobileApp::setSymbianSvgIcon(const QString &icon)
-{
-    m_symbianSvgIcon = icon;
-}
-
-QString AbstractMobileApp::symbianSvgIcon() const
-{
-    return path(SymbianSvgIconOrigin);
-}
-
 void AbstractMobileApp::setPngIcon64(const QString &icon)
 {
     m_pngIcon64 = icon;
@@ -137,33 +115,11 @@ QString AbstractMobileApp::pngIcon80() const
     return path(PngIconOrigin80);
 }
 
-void AbstractMobileApp::setSymbianTargetUid(const QString &uid)
-{
-    m_symbianTargetUid = uid;
-}
-
-QString AbstractMobileApp::symbianTargetUid() const
-{
-    return !m_symbianTargetUid.isEmpty() ? m_symbianTargetUid
-        : symbianUidForPath(path(AppPro));
-}
-
-void AbstractMobileApp::setNetworkEnabled(bool enabled)
-{
-    m_networkEnabled = enabled;
-}
-
-bool AbstractMobileApp::networkEnabled() const
-{
-    return m_networkEnabled;
-}
-
 QString AbstractMobileApp::path(int fileType) const
 {
     const QString originsRootApp = originsRoot();
     const QString originsRootShared = templatesRoot() + QLatin1String("shared/");
     const QString mainCppFileName = QLatin1String("main.cpp");
-    const QString symbianIconFileName = QLatin1String("symbianicon.svg");
     switch (fileType) {
         case MainCpp:               return outputPathBase() + mainCppFileName;
         case MainCppOrigin:         return originsRootApp + mainCppFileName;
@@ -175,9 +131,6 @@ QString AbstractMobileApp::path(int fileType) const
         case DesktopOrigin:         return originsRootShared + QLatin1String("app.desktop");
         case DeploymentPri:         return outputPathBase() + DeploymentPriFileName;
         case DeploymentPriOrigin:   return originsRootShared + DeploymentPriFileName;
-        case SymbianSvgIcon:        return outputPathBase() + m_projectName + QLatin1String(".svg");
-        case SymbianSvgIconOrigin:  return !m_symbianSvgIcon.isEmpty() ? m_symbianSvgIcon
-                                        : originsRootShared + symbianIconFileName;
         case PngIcon64:        return outputPathBase() + m_projectName +  QLatin1String("64.png");
         case PngIconOrigin64:  return !m_pngIcon64.isEmpty() ? m_pngIcon64
                                         : originsRootShared + QLatin1String("icon64.png");
@@ -279,12 +232,7 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
     bool commentOutNextLine = false;
     QString line;
     while (!(line = in.readLine()).isNull()) {
-        if (line.contains(QLatin1String("# TARGETUID3"))) {
-            valueOnNextLine = symbianTargetUid();
-        } else if (line.contains(QLatin1String("# NETWORKACCESS"))
-            && !networkEnabled()) {
-            commentOutNextLine = true;
-        } else if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
+        if (line.contains(QLatin1String("# DEPLOYMENTFOLDERS"))) {
             // Eat lines
             QString nextLine;
             while (!(nextLine = in.readLine()).isNull()
@@ -405,7 +353,6 @@ Core::GeneratedFiles AbstractMobileApp::generateFiles(QString *errorMessage) con
     files << file(generateFile(AbstractGeneratedFileInfo::AppProFile, errorMessage), path(AppPro));
     files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
     files << file(generateFile(AbstractGeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp));
-    files << file(generateFile(AbstractGeneratedFileInfo::SymbianSvgIconFile, errorMessage), path(SymbianSvgIcon));
     files << file(generateFile(AbstractGeneratedFileInfo::PngIcon64File, errorMessage), path(PngIcon64));
     files << file(generateFile(AbstractGeneratedFileInfo::PngIcon80File, errorMessage), path(PngIcon80));
     files << file(generateFile(AbstractGeneratedFileInfo::DesktopFremantleFile, errorMessage), path(DesktopFremantle));
@@ -457,9 +404,6 @@ QByteArray AbstractMobileApp::generateFile(int fileType,
         case AbstractGeneratedFileInfo::AppProFile:
             data = generateProFile(errorMessage);
             comment = ProFileComment;
-            break;
-        case AbstractGeneratedFileInfo::SymbianSvgIconFile:
-            data = readBlob(path(SymbianSvgIconOrigin), errorMessage);
             break;
         case AbstractGeneratedFileInfo::PngIcon64File:
             data = readBlob(path(PngIconOrigin64), errorMessage);

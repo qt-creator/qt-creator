@@ -2,5 +2,4 @@ TEMPLATE=subdirs
 
 SUBDIRS= \
 cplusplus-dump \
-qml-ast2dot \
-codaclient
+qml-ast2dot

@@ -61,26 +61,6 @@ MobileLibraryWizardOptionPage::~MobileLibraryWizardOptionPage()
     delete d;
 }
 
-QString MobileLibraryWizardOptionPage::symbianUid() const
-{
-    return d->ui.symbianTargetUid3LineEdit->text();
-}
-
-void MobileLibraryWizardOptionPage::setSymbianUid(const QString &uid)
-{
-    d->ui.symbianTargetUid3LineEdit->setText(uid);
-}
-
-void MobileLibraryWizardOptionPage::setNetworkEnabled(bool enableIt)
-{
-    d->ui.symbianEnableNetworkCheckBox->setChecked(enableIt);
-}
-
-bool MobileLibraryWizardOptionPage::networkEnabled() const
-{
-    return d->ui.symbianEnableNetworkCheckBox->isChecked();
-}
-
 QString MobileLibraryWizardOptionPage::qtPluginDirectory() const
 {
     return d->ui.qtPluginLocationLineEdit->text();
@@ -98,9 +78,9 @@ void MobileLibraryWizardOptionPage::setLibraryType(int type)
     if (type != QtProjectParameters::Qt4Plugin) {
         d->ui.qtPluginLocationLineEdit->setVisible(false);
         d->ui.qtPluginLocationLabel->setVisible(false);
-        d->ui.formLayout_2->removeItem(d->ui.horizontalLayout_2);
-        delete d->ui.horizontalLayout_2;
-        d->ui.horizontalLayout_2 = 0;
+        d->ui.formLayout->removeItem(d->ui.horizontalLayout);
+        delete d->ui.horizontalLayout;
+        d->ui.horizontalLayout = 0;
     }
 }
 

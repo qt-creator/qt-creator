@@ -305,6 +305,7 @@ protected:
     virtual void notifyInferiorSetupOk();
     virtual void notifyInferiorSetupFailed();
 
+    virtual void notifyEngineRunOkAndInferiorRunRequested();
     virtual void notifyEngineRunAndInferiorRunOk();
     virtual void notifyEngineRunAndInferiorStopOk();
     virtual void notifyInferiorUnrunnable(); // Called by CoreAdapter.
