@@ -27,6 +27,7 @@
     \contentspage index.html
     \previouspage creator-tutorials.html
     \page creator-qml-application.html
+    \nextpage creator-writing-program.html
 
     \title Creating a Qt Quick Application
 

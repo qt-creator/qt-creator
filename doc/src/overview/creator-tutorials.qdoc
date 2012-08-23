@@ -42,9 +42,6 @@
         \o  \l{Creating a Qt Quick Application}
 
             Learn about the basic Qt Quick concepts and QML elements.
-        \o  \l{Using Qt Quick Components}
-
-            Learn how to develop a Qt Quick application for mobile devices.
 
         \o  \l{Creating a Qt Widget Based Application}
 

@@ -90,12 +90,6 @@
             if they are installed on the development PC, but were not detected
             automatically. For more information, see \l{Adding Tool Chains}.
 
-            \note The \gui {Symbian Device} target uses the GCCE tool chain by
-            default. To use RVCT for building, install the RVCT tool chain, and
-            then select it in the \gui {Tool chain} field. RVCT 2.2 is supported
-            on Symbian^3 and earlier. RVCT 4.0 b902 or later is required for
-            Symbian Belle.
-
         \o  In the \gui {Debugger command} field, specify the path to the
             debugger command. On Windows, specify the path to the Windows
             Console Debugger executable (32-bit version).

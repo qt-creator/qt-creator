@@ -153,7 +153,6 @@
             \o  \l{Tutorials}
             \list
                 \o  \l{Creating a Qt Quick Application}
-                \o  \l{Using Qt Quick Components}
                 \o  \l{Creating a Qt Widget Based Application}
             \endlist
         \endlist
