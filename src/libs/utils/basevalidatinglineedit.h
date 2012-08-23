@@ -33,13 +33,13 @@
 
 #include "utils_global.h"
 
-#include <QLineEdit>
+#include "fancylineedit.h"
 
 namespace Utils {
 
 struct BaseValidatingLineEditPrivate;
 
-class QTCREATOR_UTILS_EXPORT BaseValidatingLineEdit : public QLineEdit
+class QTCREATOR_UTILS_EXPORT BaseValidatingLineEdit : public FancyLineEdit
 {
     Q_OBJECT
     Q_PROPERTY(QString initialText READ initialText WRITE setInitialText DESIGNABLE true)

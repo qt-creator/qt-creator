@@ -34,6 +34,7 @@
 #include "utils_global.h"
 
 #include "fileutils.h"
+#include "fancylineedit.h"
 
 #include <QWidget>
 
@@ -115,7 +116,7 @@ public:
     void insertButton(int index, const QString &text, QObject *receiver, const char *slotFunc);
     QAbstractButton *buttonAtIndex(int index) const;
 
-    QLineEdit *lineEdit() const;
+    FancyLineEdit *lineEdit() const;
 
     // For PathChoosers of 'Command' type, this property specifies the arguments
     // required to obtain the tool version (commonly, '--version'). Setting them
