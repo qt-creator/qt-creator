@@ -109,6 +109,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/devicesupport/deviceprocesslist.h>
 
 #include <qtsupport/qtsupportconstants.h>
 
@@ -122,6 +123,9 @@
 #include <utils/proxyaction.h>
 #include <utils/statuslabel.h>
 #include <utils/fileutils.h>
+#ifdef Q_OS_WIN
+#  include <utils/winutils.h>
+#endif
 
 #include <QComboBox>
 #include <QDockWidget>
@@ -551,10 +555,112 @@ public:
 //
 ///////////////////////////////////////////////////////////////////////
 
-void fillParameters(DebuggerStartParameters *sp, Profile *profile)
+static inline QString executableForPid(qint64 pid)
 {
-    if (!profile)
-        profile = ProfileManager::instance()->defaultProfile();
+    foreach (const ProjectExplorer::DeviceProcess &p, ProjectExplorer::DeviceProcessList::localProcesses())
+        if (p.pid == pid)
+            return p.exe;
+    return QString();
+}
+
+class AbiProfileMatcher : public ProfileMatcher
+{
+public:
+    explicit AbiProfileMatcher(const QList<Abi> &abis) : m_abis(abis) {}
+    bool matches(const Profile *p) const
+    {
+        if (const ToolChain *tc = ToolChainProfileInformation::toolChain(p))
+            return m_abis.contains(tc->targetAbi());
+        return false;
+    }
+
+private:
+    const QList<Abi> m_abis;
+};
+
+class CompatibleAbiProfileMatcher : public ProfileMatcher
+{
+public:
+    explicit CompatibleAbiProfileMatcher(const QList<Abi> &abis) : m_abis(abis) {}
+    bool matches(const Profile *p) const
+    {
+        if (const ToolChain *tc = ToolChainProfileInformation::toolChain(p))
+            foreach (const Abi &a, m_abis)
+                if (a.isCompatibleWith(tc->targetAbi()))
+                    return true;
+        return false;
+    }
+
+private:
+    const QList<Abi> m_abis;
+};
+
+class CdbMatcher : ProfileMatcher
+{
+public:
+    CdbMatcher(char wordWidth = 0) : m_wordWidth(wordWidth) {}
+
+    bool matches(const Profile *profile) const
+    {
+        const ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
+        QTC_ASSERT(tc, return false);
+        const Abi abi = tc->targetAbi();
+        if (abi.architecture() != Abi::X86Architecture
+            || abi.os() != Abi::WindowsOS
+            || abi.binaryFormat() != Abi::PEFormat)
+            return false;
+        if (abi.osFlavor() == Abi::WindowsMSysFlavor
+            || abi.osFlavor() == Abi::WindowsCEFlavor)
+            return false;
+        if (m_wordWidth && abi.wordWidth() != m_wordWidth)
+            return false;
+        return true;
+    }
+
+    // Find a CDB profile for debugging unknown processes.
+    // On a 64bit OS, prefer a 64bit debugger.
+    static Profile *findUniversalCdbProfile()
+    {
+#ifdef Q_OS_WIN
+        if (Utils::winIs64BitSystem()) {
+            CdbMatcher matcher64(64);
+            if (Profile *cdb64Profile = ProfileManager::instance()->find(&matcher64))
+                return cdb64Profile;
+        }
+#endif
+        CdbMatcher matcher;
+        return ProfileManager::instance()->find(&matcher);
+    }
+
+private:
+    const char m_wordWidth;
+};
+
+void fillParameters(DebuggerStartParameters *sp, const Profile *profile /* = 0 */)
+{
+    if (!profile) {
+        // This code can only be reached when starting via the command
+        // (-debug pid or executable) without specifying a profile.
+        // Try to find a profile via ABI.
+        if (sp->executable.isEmpty()
+            && (sp->startMode == AttachExternal || sp->startMode == AttachCrashedExternal)) {
+            sp->executable = executableForPid(sp->attachPID);
+        }
+        if (!sp->executable.isEmpty()) {
+            const QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(sp->executable));
+            if (!abis.isEmpty()) {
+                AbiProfileMatcher matcher(abis);
+                profile = ProfileManager::instance()->find(&matcher);
+                if (!profile) {
+                    CompatibleAbiProfileMatcher matcher(abis);
+                    profile = ProfileManager::instance()->find(&matcher);
+                }
+            }
+        }
+        if (!profile)
+            profile = ProfileManager::instance()->defaultProfile();
+    }
+
     sp->sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
     sp->debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
 
@@ -1279,8 +1385,8 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             *errorMessage = msgParameterMissing(*it);
             return false;
         }
+        Profile *profile = 0;
         DebuggerStartParameters sp;
-        fillParameters(&sp, ProfileManager::instance()->defaultProfile());
         qulonglong pid = it->toULongLong();
         if (pid) {
             sp.startMode = AttachExternal;
@@ -1318,11 +1424,11 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
                 }
                 else if (key == QLatin1String("profile")) {
-                    Profile *profile = ProfileManager::instance()->find(Id(val));
-                    fillParameters(&sp, profile);
+                    profile = ProfileManager::instance()->find(Id(val));
                 }
             }
         }
+        fillParameters(&sp, profile);
         if (sp.startMode == StartExternal) {
             sp.displayName = tr("Executable file \"%1\"").arg(sp.executable);
             sp.startMessage = tr("Debugging file %1.").arg(sp.executable);
@@ -1342,7 +1448,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
-        fillParameters(&sp, 0);
+        fillParameters(&sp, CdbMatcher::findUniversalCdbProfile());
         sp.startMode = AttachCrashedExternal;
         sp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
         sp.attachPID = it->section(QLatin1Char(':'), 1, 1).toULongLong();
@@ -1491,35 +1597,11 @@ void DebuggerPluginPrivate::attachCore()
     DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
-struct RemoteCdbMatcher : ProfileMatcher
-{
-    RemoteCdbMatcher() : m_hostAbi(Abi::hostAbi()) {}
-
-    bool matches(const Profile *profile) const
-    {
-        ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
-        QTC_ASSERT(tc, return false);
-        Abi abi = tc->targetAbi();
-        if (abi.architecture() != m_hostAbi.architecture()
-                || abi.os() != Abi::WindowsOS
-                || abi.binaryFormat() != Abi::PEFormat
-                || abi.wordWidth() != m_hostAbi.wordWidth())
-            return false;
-        if (abi.osFlavor() == Abi::WindowsMSysFlavor
-                || abi.osFlavor() == Abi::WindowsCEFlavor)
-            return false;
-        return true;
-    }
-
-    Abi m_hostAbi;
-};
-
 void DebuggerPluginPrivate::startRemoteCdbSession()
 {
     const QString connectionKey = _("CdbRemoteConnection");
     DebuggerStartParameters sp;
-    RemoteCdbMatcher matcher;
-    Profile *profile = ProfileManager::instance()->find(&matcher);
+    Profile *profile = CdbMatcher::findUniversalCdbProfile();
     QTC_ASSERT(profile, return);
     fillParameters(&sp, profile);
     sp.startMode = AttachToRemoteServer;

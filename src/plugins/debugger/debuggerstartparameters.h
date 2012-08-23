@@ -140,7 +140,7 @@ public:
 
 namespace Internal {
 
-void fillParameters(DebuggerStartParameters *sp, ProjectExplorer::Profile *profile);
+void fillParameters(DebuggerStartParameters *sp, const ProjectExplorer::Profile *profile = 0);
 
 } // namespace Internal
 } // namespace Debugger
