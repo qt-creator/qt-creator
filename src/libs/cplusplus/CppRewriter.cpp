@@ -41,6 +41,11 @@
 #include <QRegExp>
 #include <QDebug>
 
+#define QTC_ASSERT_STRINGIFY_HELPER(x) #x
+#define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_HELPER(x)
+#define QTC_ASSERT_STRING(cond) qDebug("SOFT ASSERT: \"" cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__))
+#define QTC_ASSERT(cond, action) if (cond) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)
+
 namespace CPlusPlus {
 
 class Rewrite
@@ -471,7 +476,7 @@ static inline QRegExp stdStringRegExp(const QString &charType)
     rc += charType;
     rc += QLatin1String("> >");
     const QRegExp re(rc);
-    Q_ASSERT(re.isValid());
+    QTC_ASSERT(re.isValid(), /**/);
     return re;
 }
 
@@ -549,21 +554,21 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
         }
         // std::vector, std::deque, std::list
         QRegExp re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(inner, alloc));
-        Q_ASSERT(re1.isValid());
+        QTC_ASSERT(re1.isValid(), return typeIn);
         if (re1.indexIn(type) != -1)
             type.replace(re1.cap(0), QString::fromLatin1("%1<%2>").arg(re1.cap(1), inner));
 
         // std::stack
         QRegExp stackRE(QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(inner, inner));
         stackRE.setMinimal(true);
-        Q_ASSERT(stackRE.isValid());
+        QTC_ASSERT(stackRE.isValid(), return typeIn);
         if (stackRE.indexIn(type) != -1)
             type.replace(stackRE.cap(0), QString::fromLatin1("stack<%1>").arg(inner));
 
         // std::set
         QRegExp setRE(QString::fromLatin1("set<%1, ?std::less<%2>, ?%3\\s*>").arg(inner, inner, alloc));
         setRE.setMinimal(true);
-        Q_ASSERT(setRE.isValid());
+        QTC_ASSERT(setRE.isValid(), return typeIn);
         if (setRE.indexIn(type) != -1)
             type.replace(setRE.cap(0), QString::fromLatin1("set<%1>").arg(inner));
 
@@ -589,7 +594,7 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
             QRegExp mapRE1(QString("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*>")
                 .arg(key, value, key, alloc));
             mapRE1.setMinimal(true);
-            Q_ASSERT(mapRE1.isValid());
+            QTC_ASSERT(mapRE1.isValid(), return typeIn);
             if (mapRE1.indexIn(type) != -1) {
                 type.replace(mapRE1.cap(0), QString("map<%1, %2>").arg(key, value));
             } else {
