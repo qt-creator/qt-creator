@@ -331,6 +331,7 @@ void RunSettingsWidget::activeRunConfigurationChanged()
     m_runConfigurationCombo->setCurrentIndex(actRc.row());
     setConfigurationWidget(m_runConfigurationsModel->runConfigurationAt(actRc.row()));
     m_ignoreChange = false;
+    m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
 }
 
 void RunSettingsWidget::renameRunConfiguration()
@@ -481,6 +482,8 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     m_deploySteps = 0;
 
     m_deployConfigurationCombo->setCurrentIndex(-1);
+
+    m_renameDeployButton->setEnabled(dc);
 
     if (!dc)
         return;
