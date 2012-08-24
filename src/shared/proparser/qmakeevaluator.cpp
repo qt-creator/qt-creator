@@ -170,6 +170,7 @@ QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
     initStatics();
 
     // Configuration, more or less
+    m_caller = 0;
 #ifdef PROEVALUATOR_CUMULATIVE
     m_cumulative = false;
 #endif
@@ -1626,11 +1627,14 @@ bool QMakeEvaluator::evaluateFile(
 {
     if (fileName.isEmpty())
         return false;
-    foreach (const ProFile *pf, m_profileStack)
-        if (pf->fileName() == fileName) {
-            evalError(fL1S("Circular inclusion of %1.").arg(fileName));
-            return false;
-        }
+    QMakeEvaluator *ref = this;
+    do {
+        foreach (const ProFile *pf, ref->m_profileStack)
+            if (pf->fileName() == fileName) {
+                evalError(fL1S("Circular inclusion of %1.").arg(fileName));
+                return false;
+            }
+    } while ((ref = ref->m_caller));
     return evaluateFileDirect(fileName, type, flags);
 }
 
@@ -1695,6 +1699,7 @@ bool QMakeEvaluator::evaluateFileInto(const QString &fileName, QMakeHandler::Eva
         ProValueMap *values, LoadFlags flags)
 {
     QMakeEvaluator visitor(m_option, m_parser, m_handler);
+    visitor.m_caller = this;
     visitor.m_outputDir = m_outputDir;
     if (!visitor.evaluateFile(fileName, type, flags))
         return false;
