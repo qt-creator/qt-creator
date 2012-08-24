@@ -310,16 +310,16 @@ void ToolChainModel::apply()
 
     if (removedTcs.count() == 1) {
         QMessageBox::warning(0,
-                             tr("Duplicate Tool Chain detected"),
-                             tr("The following tool chain was already configured:<br>"
+                             tr("Duplicate compilers detected"),
+                             tr("The following compiler was already configured:<br>"
                                 "&nbsp;%1<br>"
                                 "It was not configured again.")
                              .arg(removedTcs.at(0)));
 
     } else if (!removedTcs.isEmpty()) {
         QMessageBox::warning(0,
-                             tr("Duplicate Tool Chains detected"),
-                             tr("The following tool chains were already configured:<br>"
+                             tr("Duplicate compilers detected"),
+                             tr("The following compilers were already configured:<br>"
                                 "&nbsp;%1<br>"
                                 "They were not configured again.")
                              .arg(removedTcs.join(QLatin1String(",<br>&nbsp;"))));
@@ -444,7 +444,7 @@ ToolChainOptionsPage::ToolChainOptionsPage() :
     m_addButton(0), m_cloneButton(0), m_delButton(0)
 {
     setId(QLatin1String(Constants::TOOLCHAIN_SETTINGS_PAGE_ID));
-    setDisplayName(tr("Tool Chains"));
+    setDisplayName(tr("Compilers"));
     setCategory(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
         Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
@@ -528,7 +528,7 @@ QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
     if (m_searchKeywords.isEmpty()) {
         QLatin1Char sep(' ');
         QTextStream stream(&m_searchKeywords);
-        stream << tr("Tool Chains");
+        stream << tr("Compilers");
         foreach (ToolChainFactory *f, m_factories)
             stream << sep << f->displayName();
 

@@ -270,7 +270,7 @@ QList<ToolChain *> ToolChainManager::restoreToolChains(const QString &fileName)
             }
         }
         if (!restored)
-            qWarning("Warning: Unable to restore tool chain '%s' stored in %s.",
+            qWarning("Warning: Unable to restore compiler '%s' stored in %s.",
                      qPrintable(ToolChainFactory::idFromMap(tcMap)),
                      qPrintable(QDir::toNativeSeparators(fileName)));
     }

@@ -145,7 +145,7 @@ bool MakeStep::init()
 
     m_tasks.clear();
     if (!bc) {
-        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode."),
+        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a build configuration set up to build. Configure a target in Project mode."),
                                              Utils::FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return true; // otherwise the tasks will not get reported
@@ -153,7 +153,7 @@ bool MakeStep::init()
 
     ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
     if (!tc) {
-        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a tool chain set up to build. Configure a tool chain in the target options."),
+        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the target options."),
                                              Utils::FileName(), -1,
                                              Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return true; // otherwise the tasks will not get reported

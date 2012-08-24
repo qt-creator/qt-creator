@@ -316,7 +316,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateProfile(const ProjectExplore
             qtAbiString.append(qtAbi.toString());
         }
         const QString message = QCoreApplication::translate("BaseQtVersion",
-                                                            "The tool chain '%1' (%2) cannot produce code for the Qt version '%3' (%4).").
+                                                            "The compiler'%1' (%2) cannot produce code for the Qt version '%3' (%4).").
                                                             arg(tc->displayName(),
                                                                 tc->targetAbi().toString(),
                                                                 version->displayName(),
@@ -396,7 +396,7 @@ QStringList BaseQtVersion::warningReason() const
 {
     QStringList ret;
     if (qtAbis().count() == 1 && qtAbis().first().isNull())
-        ret << QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching tool chain when building.");
+        ret << QCoreApplication::translate("QtVersion", "ABI detection failed: Make sure to use a matching compiler when building.");
     if (m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX/get"))
         != m_versionInfo.value(QLatin1String("QT_INSTALL_PREFIX"))) {
         ret << QCoreApplication::translate("QtVersion", "Non-installed -prefix build - for internal development only.");

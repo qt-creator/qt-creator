@@ -29,7 +29,7 @@
     \page creator-tool-chains.html
     \nextpage creator-run-settings.html
 
-    \title Adding Tool Chains
+    \title Adding Compilers
 
     A \e {tool chain} specifies a compiler and other necessary
     tools for building an application that is \l{glossary-development-target}
@@ -68,7 +68,7 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options > Build & Run > Tool Chains > Add} and
+        \o  Select \gui {Tools > Options > Build & Run > Compilers > Add} and
             select a
             compiler in the list.
 

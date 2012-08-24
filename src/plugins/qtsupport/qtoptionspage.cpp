@@ -381,12 +381,12 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     if (!missingToolChains.isEmpty()) {
         if (missingToolChains.count() == abiCount) {
             // Yes, this Qt version can't be used at all!
-            info.message = tr("No tool chain can produce code for this Qt version. Please define one or more tool chains.");
+            info.message = tr("No compiler can produce code for this Qt version. Please define one or more compilers.");
             info.icon = m_invalidVersionIcon;
             useable = false;
         } else {
             // Yes, some ABIs are unsupported
-            warnings << tr("Not all possible target environments can be supported due to missing tool chains.");
+            warnings << tr("Not all possible target environments can be supported due to missing compilers.");
             info.toolTip = tr("The following ABIs are currently not supported:<ul><li>%1</li></ul>")
                     .arg(missingToolChains.join(QLatin1String("</li><li>")));
             info.icon = m_warningVersionIcon;
