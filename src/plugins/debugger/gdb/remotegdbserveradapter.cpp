@@ -347,7 +347,9 @@ void GdbRemoteServerEngine::runEngine()
 
     const QString remoteExecutable = startParameters().remoteExecutable;
     if (!remoteExecutable.isEmpty()) {
-        postCommand("-exec-run " + remoteExecutable.toLocal8Bit(), GdbEngine::RunRequest, CB(handleExecRun));
+        // Cannot use -exec-run for QNX gdb as it does not support path parameter for the MI call
+        const QByteArray command = m_isQnxGdb ? "run" : "-exec-run";
+        postCommand(command + " " + remoteExecutable.toLocal8Bit(), GdbEngine::RunRequest, CB(handleExecRun));
     } else {
         notifyEngineRunAndInferiorStopOk();
         continueInferiorInternal();
