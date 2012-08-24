@@ -343,7 +343,7 @@ LogWindow::LogWindow(QWidget *parent)
     m_commandLabel = new QLabel(tr("Command:"), this);
     m_commandEdit = new Utils::FancyLineEdit(this);
     m_commandEdit->setFrame(false);
-    m_commandEdit->setHistoryKey(QLatin1String("DebuggerInput"));
+    m_commandEdit->setHistoryCompleter(QLatin1String("DebuggerInput"));
     QHBoxLayout *commandBox = new QHBoxLayout;
     commandBox->addWidget(m_commandLabel);
     commandBox->addWidget(m_commandEdit);

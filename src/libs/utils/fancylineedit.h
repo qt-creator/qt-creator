@@ -95,7 +95,7 @@ public:
     bool hasAutoHideButton(Side side) const;
 
     // Enable a history completer with a history of entries.
-    void setHistoryKey(const QString &historyKey);
+    void setHistoryCompleter(const QString &historyKey);
 
     // Sets a completer that is not a history completer.
     void setSpecialCompleter(QCompleter *completer);

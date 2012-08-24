@@ -113,12 +113,12 @@ public:
     IconButton *m_iconbutton[2];
     bool m_iconEnabled[2];
 
-    HistoryCompleter *m_completer;
+    HistoryCompleter *m_historyCompleter;
 };
 
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
-    QObject(parent), m_lineEdit(parent),  m_completer(0)
+    QObject(parent), m_lineEdit(parent),  m_historyCompleter(0)
 {
     for (int i = 0; i < 2; ++i) {
         m_menu[i] = 0;
@@ -302,16 +302,16 @@ bool FancyLineEdit::hasAutoHideButton(Side side) const
     return d->m_iconbutton[side]->hasAutoHide();
 }
 
-void FancyLineEdit::setHistoryKey(const QString &historyKey)
+void FancyLineEdit::setHistoryCompleter(const QString &historyKey)
 {
-    QTC_ASSERT(!d->m_completer, return);
-    d->m_completer = new HistoryCompleter(this, historyKey);
-    QLineEdit::setCompleter(d->m_completer);
+    QTC_ASSERT(!d->m_historyCompleter, return);
+    d->m_historyCompleter = new HistoryCompleter(this, historyKey);
+    QLineEdit::setCompleter(d->m_historyCompleter);
 }
 
 void FancyLineEdit::setSpecialCompleter(QCompleter *completer)
 {
-    QTC_ASSERT(!d->m_completer, return);
+    QTC_ASSERT(!d->m_historyCompleter, return);
     QLineEdit::setCompleter(completer);
 }
 
