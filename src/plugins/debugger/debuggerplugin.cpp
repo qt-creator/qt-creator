@@ -1702,10 +1702,12 @@ void DebuggerPluginPrivate::attachToQmlPort()
     if (dlg.exec() != QDialog::Accepted)
         return;
 
+    Profile *profile = dlg.profile();
+    QTC_ASSERT(profile, return);
     setConfigValue(_("LastQmlServerPort"), dlg.port());
-    setConfigValue(_("LastProfile"), dlg.profile()->id().toString());
+    setConfigValue(_("LastProfile"), profile->id().toString());
 
-    fillParameters(&sp, dlg.profile());
+    fillParameters(&sp, profile);
     sp.qmlServerAddress = sp.connParams.host;
     sp.qmlServerPort = dlg.port();
     sp.startMode = AttachToRemoteProcess;

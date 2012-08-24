@@ -375,6 +375,7 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     }
 
     Profile *profile = dialog.d->profileChooser->currentProfile();
+    QTC_ASSERT(profile, return false);
     fillParameters(sp, profile);
 
     sp->executable = newParameters.localExecutable;

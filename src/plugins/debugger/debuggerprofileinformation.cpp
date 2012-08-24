@@ -37,6 +37,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/environment.h>
+#include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QPair>
@@ -213,11 +214,12 @@ ProfileInformation::ItemList DebuggerProfileInformation::toUserOutput(Profile *p
 
 FileName DebuggerProfileInformation::debuggerCommand(const Profile *p)
 {
-    return FileName::fromString(p->value(Core::Id(DEBUGGER_INFORMATION)).toString());
+    return FileName::fromString(p ? p->value(Core::Id(DEBUGGER_INFORMATION)).toString() : QString());
 }
 
 void DebuggerProfileInformation::setDebuggerCommand(Profile *p, const FileName &command)
 {
+    QTC_ASSERT(p, return);
     p->setValue(Core::Id(DEBUGGER_INFORMATION), command.toString());
 }
 

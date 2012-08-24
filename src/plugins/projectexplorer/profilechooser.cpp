@@ -50,6 +50,8 @@ void ProfileChooser::onCurrentIndexChanged(int index)
 {
     if (Profile *profile = profileAt(index))
         setToolTip(profile->toHtml());
+    else
+        setToolTip(QString());
 }
 
 void ProfileChooser::populate(unsigned flags)
@@ -78,7 +80,8 @@ void ProfileChooser::populate(unsigned flags)
 
 Profile *ProfileChooser::currentProfile() const
 {
-    return profileAt(currentIndex());
+    const int index = currentIndex();
+    return index == -1 ? 0 : profileAt(index);
 }
 
 void ProfileChooser::setCurrentProfileId(Core::Id id)
@@ -93,7 +96,8 @@ void ProfileChooser::setCurrentProfileId(Core::Id id)
 
 Core::Id ProfileChooser::currentProfileId() const
 {
-    return profileAt(currentIndex())->id();
+    Profile *profile = currentProfile();
+    return profile ? profile->id() : Core::Id();
 }
 
 Profile *ProfileChooser::profileAt(int index) const
