@@ -2417,6 +2417,28 @@ def qdump__CPlusPlus__ByteArrayRef(d, value):
         Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
+def qdump__CPlusPlus__Identifier(d, value):
+    d.putValue(encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__IntegerType(d, value):
+    d.putValue(value["_kind"])
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__NamedType(d, value):
+    literal = downcast(value["_name"])
+    d.putValue(encodeCharArray(literal["_chars"]), Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__TemplateNameId(d, value):
+    s = encodeCharArray(value["_identifier"]["_chars"])
+    d.putValue(s + "3c2e2e2e3e", Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
+def qdump__CPlusPlus__Literal(d, value):
+    d.putValue(encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__Internal__Value(d, value):
     d.putValue(value["l"])
     d.putPlainChildren(value)
