@@ -96,20 +96,21 @@ static bool projectLesserThan(Project *p1, Project *p2)
 class TargetSelectorDelegate : public QItemDelegate
 {
 public:
-    TargetSelectorDelegate(QObject *parent) : QItemDelegate(parent) { }
+    TargetSelectorDelegate(ListWidget *parent) : QItemDelegate(parent), m_listWidget(parent) { }
 private:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void paint(QPainter *painter,
                const QStyleOptionViewItem &option,
                const QModelIndex &index) const;
     mutable QImage selectionGradient;
+    ListWidget *m_listWidget;
 };
 
 QSize TargetSelectorDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     Q_UNUSED(option)
     Q_UNUSED(index)
-    return QSize(190, 30);
+    return QSize(m_listWidget->size().width(), 30);
 }
 
 void TargetSelectorDelegate::paint(QPainter *painter,
@@ -153,7 +154,7 @@ void TargetSelectorDelegate::paint(QPainter *painter,
 // ListWidget
 ////////
 ListWidget::ListWidget(QWidget *parent)
-    : QListWidget(parent), m_maxCount(0)
+    : QListWidget(parent), m_maxCount(0), m_optimalWidth(0)
 {
     setFocusPolicy(Qt::NoFocus);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -163,25 +164,6 @@ ListWidget::ListWidget(QWidget *parent)
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setStyleSheet(QString::fromLatin1("QListWidget { background: #464646; border-style: none; }"));
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-}
-
-
-QSize ListWidget::sizeHint() const
-{
-    int height = m_maxCount * 30;
-    int width = 190;
-
-    // We try to keep the height of the popup equal to the actionbar
-    QSize size(width, height);
-    static QStatusBar *statusBar = Core::ICore::statusBar();
-    static QWidget *actionBar = Core::ICore::mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
-    Q_ASSERT(actionBar);
-
-    QMargins popupMargins = window()->contentsMargins();
-    int alignedWithActionHeight
-            = actionBar->height() - statusBar->height() - (popupMargins.top() + popupMargins.bottom());
-    size.setHeight(qBound(alignedWithActionHeight, height, 2 * alignedWithActionHeight));
-    return size;
 }
 
 void ListWidget::keyPressEvent(QKeyEvent *event)
@@ -202,11 +184,30 @@ void ListWidget::keyReleaseEvent(QKeyEvent *event)
 
 void ListWidget::setMaxCount(int maxCount)
 {
-    // Note: the current assumption is that, this is not called while the listwidget is visible
-    // Otherwise we would need to add code to MiniProjectTargetSelector reacting to the
-    // updateGeometry (which then would jump ugly)
     m_maxCount = maxCount;
     updateGeometry();
+}
+
+int ListWidget::maxCount()
+{
+    return m_maxCount;
+}
+
+int ListWidget::optimalWidth() const
+{
+    return m_optimalWidth;
+}
+
+void ListWidget::setOptimalWidth(int width)
+{
+    m_optimalWidth = width;
+    updateGeometry();
+}
+
+int ListWidget::padding()
+{
+    // there needs to be enough extra pixels to show a scrollbar
+    return 30;
 }
 
 ////////
@@ -274,6 +275,11 @@ void ProjectListWidget::addProject(Project *project)
         setCurrentItem(item);
     }
 
+    QFontMetrics fn(font());
+    int width = fn.width(project->displayName()) + padding();
+    if (width > optimalWidth())
+        setOptimalWidth(width);
+
     m_ignoreIndexChange = false;
 }
 
@@ -300,8 +306,17 @@ void ProjectListWidget::removeProject(Project *project)
         item(otherIndex)->setText(p->displayName());
     }
 
-    m_ignoreIndexChange = false;
+    QFontMetrics fn(font());
 
+    // recheck optimal width
+    int width = 0;
+    for (int i = 0; i < count(); ++i) {
+        Project *p = item(i)->data(Qt::UserRole).value<Project *>();
+        width = qMax(fn.width(p->displayName()) + padding(), width);
+    }
+    setOptimalWidth(width);
+
+    m_ignoreIndexChange = false;
 }
 
 void ProjectListWidget::projectDisplayNameChanged(Project *project)
@@ -337,6 +352,15 @@ void ProjectListWidget::projectDisplayNameChanged(Project *project)
     insertItem(pos, projectItem);
     if (isCurrentItem)
         setCurrentRow(pos);
+
+    // recheck optimal width
+    QFontMetrics fn(font());
+    int width = 0;
+    for (int i = 0; i < count(); ++i) {
+        Project *p = item(i)->data(Qt::UserRole).value<Project *>();
+        width = qMax(fn.width(p->displayName()) + padding(), width);
+    }
+    setOptimalWidth(width);
 
     m_ignoreIndexChange = false;
 }
@@ -376,9 +400,16 @@ void GenericListWidget::setProjectConfigurations(const QList<ProjectConfiguratio
         disconnect(p, SIGNAL(displayNameChanged()),
                    this, SLOT(displayNameChanged()));
     }
-    foreach (ProjectConfiguration *pc, list)
+
+    QFontMetrics fn(font());
+    int width = 0;
+    foreach (ProjectConfiguration *pc, list) {
         addProjectConfiguration(pc);
+        width = qMax(width, fn.width(pc->displayName()) + padding());
+    }
+    setOptimalWidth(width);
     setActiveProjectConfiguration(active);
+
     m_ignoreIndexChange = false;
 }
 
@@ -408,6 +439,11 @@ void GenericListWidget::addProjectConfiguration(ProjectExplorer::ProjectConfigur
 
     connect(pc, SIGNAL(displayNameChanged()),
             this, SLOT(displayNameChanged()));
+
+    QFontMetrics fn(font());
+    int width = fn.width(pc->displayName()) + padding();
+    if (width > optimalWidth())
+        setOptimalWidth(width);
     m_ignoreIndexChange = false;
 }
 
@@ -417,6 +453,15 @@ void GenericListWidget::removeProjectConfiguration(ProjectExplorer::ProjectConfi
     disconnect(pc, SIGNAL(displayNameChanged()),
                this, SLOT(displayNameChanged()));
     delete itemForProjectConfiguration(pc);
+
+    QFontMetrics fn(font());
+    int width = 0;
+    for (int i = 0; i < count(); ++i) {
+        ProjectConfiguration *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
+        width = qMax(width, fn.width(p->displayName()) + padding());
+    }
+    setOptimalWidth(width);
+
     m_ignoreIndexChange = false;
 }
 
@@ -461,6 +506,15 @@ void GenericListWidget::displayNameChanged()
     insertItem(pos, lwi);
     if (activeProjectConfiguration)
         setCurrentItem(itemForProjectConfiguration(activeProjectConfiguration));
+
+    QFontMetrics fn(font());
+    int width = 0;
+    for (int i = 0; i < count(); ++i) {
+        ProjectConfiguration *p = item(i)->data(Qt::UserRole).value<ProjectConfiguration *>();
+        width = qMax(width, fn.width(p->displayName()) + padding());
+    }
+    setOptimalWidth(width);
+
     m_ignoreIndexChange = false;
 }
 
@@ -475,16 +529,15 @@ QListWidgetItem *GenericListWidget::itemForProjectConfiguration(ProjectConfigura
     return 0;
 }
 
-QWidget *createTitleLabel(const QString &text)
+QWidget *MiniProjectTargetSelector::createTitleLabel(const QString &text)
 {
-    Utils::StyledBar *bar = new Utils::StyledBar;
+    Utils::StyledBar *bar = new Utils::StyledBar(this);
     bar->setSingleRow(true);
     QVBoxLayout *toolLayout = new QVBoxLayout(bar);
-    toolLayout->setMargin(0);
+    toolLayout->setContentsMargins(6, 0, 6, 0);
     toolLayout->setSpacing(0);
 
     QLabel *l = new QLabel(text);
-    l->setIndent(6);
     QFont f = l->font();
     f.setBold(true);
     l->setFont(f);
@@ -495,24 +548,6 @@ QWidget *createTitleLabel(const QString &text)
     bar->setFixedHeight(panelHeight);
     return bar;
 }
-
-class OnePixelGreyLine : public QWidget
-{
-public:
-    OnePixelGreyLine(QWidget *parent)
-        : QWidget(parent)
-    {
-        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-        setMinimumWidth(1);
-        setMaximumWidth(1);
-    }
-    void paintEvent(QPaintEvent *e)
-    {
-        Q_UNUSED(e);
-        QPainter p(this);
-        p.fillRect(contentsRect(), QColor(160, 160, 160, 255));
-    }
-};
 
 MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorAction, SessionManager *sessionManager, QWidget *parent) :
     QWidget(parent), m_projectAction(targetSelectorAction), m_sessionManager(sessionManager),
@@ -533,10 +568,6 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     targetSelectorAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));
     targetSelectorAction->setProperty("titledAction", true);
 
-    QGridLayout *grid = new QGridLayout(this);
-    grid->setMargin(0);
-    grid->setSpacing(0);
-
     m_summaryLabel = new QLabel(this);
     m_summaryLabel->setMargin(3);
     m_summaryLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
@@ -544,19 +575,12 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_summaryLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     m_summaryLabel->setTextInteractionFlags(m_summaryLabel->textInteractionFlags() | Qt::LinksAccessibleByMouse);
 
-    grid->addWidget(m_summaryLabel, 0, 0, 1, 2 * LAST - 1);
-
     m_listWidgets.resize(LAST);
     m_titleWidgets.resize(LAST);
-    m_separators.resize(LAST);
     m_listWidgets[PROJECT] = 0; //project is not a generic list widget
 
     m_titleWidgets[PROJECT] = createTitleLabel(tr("Project"));
-    grid->addWidget(m_titleWidgets[PROJECT], 1, 0, 1, 2);
     m_projectListWidget = new ProjectListWidget(m_sessionManager, this);
-    grid->addWidget(m_projectListWidget, 2, 0);
-    m_separators[PROJECT] = new OnePixelGreyLine(this);
-    grid->addWidget(m_separators[PROJECT], 2, 1);
 
     QStringList titles;
     titles << tr("Kit") << tr("Build")
@@ -564,11 +588,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
 
     for (int i = TARGET; i < LAST; ++i) {
         m_titleWidgets[i] = createTitleLabel(titles.at(i -1));
-        grid->addWidget(m_titleWidgets[i], 1, 2 * i, 1, 2);
         m_listWidgets[i] = new GenericListWidget(this);
-        grid->addWidget(m_listWidgets[i], 2, 2 *i);
-        m_separators[i] = new OnePixelGreyLine(this);
-        grid->addWidget(m_separators[i], 2, 1 + 2 * i);
     }
 
     changeStartupProject(m_sessionManager->startupProject());
@@ -600,6 +620,236 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
             this, SLOT(setActiveDeployConfiguration(ProjectExplorer::ProjectConfiguration*)));
     connect(m_listWidgets[RUN], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
             this, SLOT(setActiveRunConfiguration(ProjectExplorer::ProjectConfiguration*)));
+}
+
+bool MiniProjectTargetSelector::event(QEvent *event)
+{
+    if (event->type() != QEvent::LayoutRequest)
+        return QWidget::event(event);
+    doLayout(true);
+    return true;
+}
+
+class IndexSorter
+{
+public:
+    enum SortOrder { Less = 0, Greater = 1};
+
+    IndexSorter(QVector<int> result, SortOrder order)
+        : m_result(result), m_order(order)
+    { }
+
+    bool operator()(int i, int j)
+    { return (m_result[i] < m_result[j]) ^ bool(m_order); }
+
+private:
+    QVector<int> m_result;
+    SortOrder m_order;
+};
+
+// does some fancy calculations to ensure proper widths for the list widgets
+QVector<int> MiniProjectTargetSelector::listWidgetWidths(int minSize, int maxSize)
+{
+    QVector<int> result;
+    result.resize(LAST);
+    if (m_projectListWidget->isVisibleTo(this))
+        result[PROJECT] = m_projectListWidget->optimalWidth();
+    else
+        result[PROJECT] = -1;
+
+    for (int i = TARGET; i < LAST; ++i) {
+        if (m_listWidgets[i]->isVisibleTo(this))
+            result[i] = m_listWidgets[i]->optimalWidth();
+        else
+            result[i] = -1;
+    }
+
+    int totalWidth = 0;
+    // Adjust to minimum width of title
+    for (int i = PROJECT; i < LAST; ++i) {
+        if (result[i] != -1) {
+            // We want at least 100 pixels per column
+            int width = qMax(m_titleWidgets[i]->sizeHint().width(), 100);
+            if (result[i] < width)
+                result[i] = width;
+            totalWidth += result[i];
+        }
+    }
+
+    if (totalWidth == 0) // All hidden
+        return result;
+
+    bool tooSmall;
+    if (totalWidth < minSize)
+        tooSmall = true;
+    else if (totalWidth > maxSize)
+        tooSmall = false;
+    else
+        return result;
+
+    int widthToDistribute = tooSmall ? (minSize - totalWidth)
+                                     : (totalWidth - maxSize);
+    QVector<int> indexes;
+    indexes.reserve(LAST);
+    for (int i = PROJECT; i < LAST; ++i)
+        if (result[i] != -1)
+            indexes.append(i);
+
+    IndexSorter indexSorter(result, tooSmall ? IndexSorter::Less : IndexSorter::Greater);
+    qSort(indexes.begin(), indexes.end(), indexSorter);
+
+    int i = 0;
+    int first = result[indexes.first()]; // biggest or smallest
+
+    // we resize the biggest columns until they are the same size as the second biggest
+    // since it looks prettiest if all the columns are the same width
+    while (true) {
+        for (; i < indexes.size(); ++i) {
+            if (result[indexes[i]] != first)
+                break;
+        }
+        int next = tooSmall ? INT_MAX : 0;
+        if (i < indexes.size())
+            next = result[indexes[i]];
+
+        int delta;
+        if (tooSmall)
+            delta = qMin(next - first, widthToDistribute / i);
+        else
+            delta = qMin(first - next, widthToDistribute / i);
+
+        if (delta == 0)
+            return result;
+
+        if (tooSmall) {
+            for (int j = 0; j < i; ++j)
+                result[indexes[j]] += delta;
+        } else {
+            for (int j = 0; j < i; ++j)
+                result[indexes[j]] -= delta;
+        }
+
+        widthToDistribute -= delta * i;
+        if (widthToDistribute == 0)
+            return result;
+
+        first = result[indexes.first()];
+        i = 0; // TODO can we do better?
+    }
+}
+
+void MiniProjectTargetSelector::doLayout(bool keepSize)
+{
+    // An unconfigured project shows empty build/deploy/run sections
+    // if there's a configured project in the seesion
+    // that could be improved
+    static QStatusBar *statusBar = Core::ICore::statusBar();
+    static QWidget *actionBar = Core::ICore::mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
+    Q_ASSERT(actionBar);
+
+    // 1. Calculate the summary label height
+    int summaryLabelY = 1;
+    int summaryLabelHeight = 0;
+    int oldSummaryLabelHeight = m_summaryLabel->height();
+    bool onlySummary = false;
+    // Count the number of lines
+    int visibleLineCount = m_projectListWidget->isVisibleTo(this) ? 0 : 1;
+    for (int i = TARGET; i < LAST; ++i)
+        visibleLineCount += m_listWidgets[i]->isVisibleTo(this) ? 0 : 1;
+
+    if (visibleLineCount == LAST) {
+        summaryLabelHeight = visibleLineCount * QFontMetrics(m_summaryLabel->font()).height()
+                + m_summaryLabel->margin() *2;
+        onlySummary = true;
+    } else {
+        if (visibleLineCount < 3) {
+            foreach (Project *p, m_sessionManager->projects()) {
+                if (p->needsConfiguration()) {
+                    visibleLineCount = 3;
+                    break;
+                }
+            }
+        }
+        if (visibleLineCount)
+            summaryLabelHeight = visibleLineCount * QFontMetrics(m_summaryLabel->font()).height()
+                    + m_summaryLabel->margin() *2;
+    }
+
+    if (keepSize && oldSummaryLabelHeight > summaryLabelHeight)
+        summaryLabelHeight = oldSummaryLabelHeight;
+
+    m_summaryLabel->move(0, summaryLabelY);
+
+    // Height to be aligned with side bar button
+    int alignedWithActionHeight = actionBar->height() - statusBar->height();
+    int bottomMargin = 9;
+    int totalHeight = 0;
+
+    if (!onlySummary) {
+        // list widget heigth
+        int maxItemCount = m_projectListWidget->maxCount();
+        for (int i = TARGET; i < LAST; ++i)
+            maxItemCount = qMax(maxItemCount, m_listWidgets[i]->maxCount());
+
+        int titleWidgetsHeight = m_titleWidgets.first()->height();
+        if (keepSize) {
+            totalHeight = height();
+        } else {
+            // Clamp the size of the listwidgets to be
+            // at least as high as the the sidebar button
+            // and at most twice as high
+            totalHeight = summaryLabelHeight + qBound(alignedWithActionHeight,
+                                                      maxItemCount * 30 + bottomMargin + titleWidgetsHeight,
+                                                      alignedWithActionHeight * 2);
+        }
+
+        int titleY = summaryLabelY + summaryLabelHeight;
+        int listY = titleY + titleWidgetsHeight;
+        int listHeight = totalHeight - bottomMargin - listY + 1;
+
+        // list widget widths
+        int minWidth = qMax(m_summaryLabel->sizeHint().width(), 250);
+        if (keepSize) {
+            // Do not make the widget smaller then it was before
+            int oldTotalListWidgetWidth = m_projectListWidget->isVisibleTo(this) ?
+                    m_projectListWidget->width() : 0;
+            for (int i = TARGET; i < LAST; ++i)
+                oldTotalListWidgetWidth += m_listWidgets[i]->width();
+            minWidth = qMax(minWidth, oldTotalListWidgetWidth);
+        }
+
+        QVector<int> widths = listWidgetWidths(minWidth, 1000);
+        int x = 0;
+        for (int i = PROJECT; i < LAST; ++i) {
+            int optimalWidth = widths[i];
+            if (i == PROJECT) {
+                m_projectListWidget->resize(optimalWidth, listHeight);
+                m_projectListWidget->move(x, listY);
+            } else {
+                m_listWidgets[i]->resize(optimalWidth, listHeight);
+                m_listWidgets[i]->move(x, listY);
+            }
+            m_titleWidgets[i]->resize(optimalWidth, titleWidgetsHeight);
+            m_titleWidgets[i]->move(x, titleY);
+            x += optimalWidth + 1; //1 extra pixel for the separators or the right border
+        }
+
+        m_summaryLabel->resize(x - 1, summaryLabelHeight);
+        setFixedSize(x, totalHeight);
+    } else {
+        if (keepSize)
+            totalHeight = height();
+        else
+            totalHeight = qMax(summaryLabelHeight + bottomMargin, alignedWithActionHeight);
+        m_summaryLabel->resize(m_summaryLabel->sizeHint().width(), totalHeight - bottomMargin);
+        setFixedSize(m_summaryLabel->width() + 1, totalHeight); //1 extra pixel for the border
+    }
+
+    if (isVisibleTo(parentWidget())) {
+        QPoint moveTo = statusBar->mapToGlobal(QPoint(0,0));
+        moveTo -= QPoint(0, totalHeight);
+        move(moveTo);
+    }
 }
 
 void MiniProjectTargetSelector::setActiveTarget(ProjectExplorer::ProjectConfiguration *pc)
@@ -821,7 +1071,6 @@ void MiniProjectTargetSelector::updateProjectListVisible()
     m_titleWidgets[PROJECT]->setVisible(visible);
 
     updateSummary();
-    updateSeparatorVisible();
 }
 
 void MiniProjectTargetSelector::updateTargetListVisible()
@@ -835,7 +1084,6 @@ void MiniProjectTargetSelector::updateTargetListVisible()
     m_listWidgets[TARGET]->setMaxCount(maxCount);
     m_titleWidgets[TARGET]->setVisible(visible);
     updateSummary();
-    updateSeparatorVisible();
 }
 
 void MiniProjectTargetSelector::updateBuildListVisible()
@@ -850,7 +1098,6 @@ void MiniProjectTargetSelector::updateBuildListVisible()
     m_listWidgets[BUILD]->setMaxCount(maxCount);
     m_titleWidgets[BUILD]->setVisible(visible);
     updateSummary();
-    updateSeparatorVisible();
 }
 
 void MiniProjectTargetSelector::updateDeployListVisible()
@@ -865,7 +1112,6 @@ void MiniProjectTargetSelector::updateDeployListVisible()
     m_listWidgets[DEPLOY]->setMaxCount(maxCount);
     m_titleWidgets[DEPLOY]->setVisible(visible);
     updateSummary();
-    updateSeparatorVisible();
 }
 
 void MiniProjectTargetSelector::updateRunListVisible()
@@ -880,7 +1126,6 @@ void MiniProjectTargetSelector::updateRunListVisible()
     m_listWidgets[RUN]->setMaxCount(maxCount);
     m_titleWidgets[RUN]->setVisible(visible);
     updateSummary();
-    updateSeparatorVisible();
 }
 
 void MiniProjectTargetSelector::changeStartupProject(ProjectExplorer::Project *project)
@@ -1039,28 +1284,12 @@ void MiniProjectTargetSelector::activeRunConfigurationChanged(ProjectExplorer::R
     updateActionAndSummary();
 }
 
-void MiniProjectTargetSelector::updateSeparatorVisible()
-{
-    QVector<bool> visibility;
-    visibility.resize(LAST);
-    visibility[PROJECT] = m_projectListWidget->isVisibleTo(this);
-    for (int i = TARGET; i < LAST; ++i)
-        visibility[i] = m_listWidgets[i]->isVisibleTo(this);
-    int lastVisible = visibility.lastIndexOf(true);
-    if (lastVisible != -1)
-        visibility[lastVisible] = false;
-
-    for (int i = PROJECT; i < LAST; ++i)
-        m_separators[i]->setVisible(visibility[i]);
-}
-
 void MiniProjectTargetSelector::setVisible(bool visible)
 {
+    QWidget::setVisible(visible);
+    m_projectAction->setChecked(visible);
     if (visible) {
-        QStatusBar *statusBar = Core::ICore::statusBar();
-        QPoint moveTo = statusBar->mapToGlobal(QPoint(0,0));
-        moveTo -= QPoint(0, sizeHint().height());
-        move(moveTo);
+        doLayout(false);
         if (!focusWidget() || !focusWidget()->isVisibleTo(this)) { // Does the second part actually work?
             if (m_projectListWidget->isVisibleTo(this))
                 m_projectListWidget->setFocus();
@@ -1072,9 +1301,6 @@ void MiniProjectTargetSelector::setVisible(bool visible)
             }
         }
     }
-
-    QWidget::setVisible(visible);
-    m_projectAction->setChecked(visible);
 }
 
 void MiniProjectTargetSelector::toggleVisible()
@@ -1123,21 +1349,6 @@ void MiniProjectTargetSelector::keyReleaseEvent(QKeyEvent *ke)
             || ke->key() == Qt::Key_Space)
         return;
     QWidget::keyReleaseEvent(ke);
-}
-
-QSize MiniProjectTargetSelector::sizeHint() const
-{
-    static QStatusBar *statusBar = Core::ICore::statusBar();
-    static QWidget *actionBar = Core::ICore::mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
-    Q_ASSERT(actionBar);
-
-    // At least the size of the actionbar
-    int alignedWithActionHeight
-            = actionBar->height() - statusBar->height();
-    QSize s = QWidget::sizeHint();
-    if (s.height() < alignedWithActionHeight)
-        s.setHeight(alignedWithActionHeight);
-    return s;
 }
 
 void MiniProjectTargetSelector::delayedHide()
@@ -1221,29 +1432,6 @@ void MiniProjectTargetSelector::updateActionAndSummary()
 
 void MiniProjectTargetSelector::updateSummary()
 {
-    // Count the number of lines
-    int visibleLineCount = m_projectListWidget->isVisibleTo(this) ? 0 : 1;
-    for (int i = TARGET; i < LAST; ++i)
-        visibleLineCount += m_listWidgets[i]->isVisibleTo(this) ? 0 : 1;
-
-    if (visibleLineCount == LAST) {
-        m_summaryLabel->setMinimumHeight(0);
-        m_summaryLabel->setMaximumHeight(800);
-    } else {
-        if (visibleLineCount < 3) {
-            foreach (Project *p, m_sessionManager->projects()) {
-                if (p->needsConfiguration()) {
-                    visibleLineCount = 3;
-                    break;
-                }
-            }
-        }
-
-        int height = visibleLineCount * QFontMetrics(m_summaryLabel->font()).height() + m_summaryLabel->margin() *2;
-        m_summaryLabel->setMinimumHeight(height);
-        m_summaryLabel->setMaximumHeight(height);
-    }
-
     QString summary;
     if (Project *startupProject = m_sessionManager->startupProject()) {
         if (!m_projectListWidget->isVisibleTo(this))
@@ -1283,6 +1471,8 @@ void MiniProjectTargetSelector::updateSummary()
 void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
+    painter.setBrush(QBrush(QColor(160, 160, 160, 255)));
+    painter.drawRect(rect());
     painter.setPen(Utils::StyleHelper::borderColor());
     painter.drawLine(rect().topLeft(), rect().topRight());
     painter.drawLine(rect().topRight(), rect().bottomRight());
