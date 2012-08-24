@@ -310,7 +310,7 @@ void ToolChainModel::apply()
 
     if (removedTcs.count() == 1) {
         QMessageBox::warning(0,
-                             tr("Duplicate compilers detected"),
+                             tr("Duplicate Compilers Detected"),
                              tr("The following compiler was already configured:<br>"
                                 "&nbsp;%1<br>"
                                 "It was not configured again.")
@@ -318,7 +318,7 @@ void ToolChainModel::apply()
 
     } else if (!removedTcs.isEmpty()) {
         QMessageBox::warning(0,
-                             tr("Duplicate compilers detected"),
+                             tr("Duplicate Compilers Detected"),
                              tr("The following compilers were already configured:<br>"
                                 "&nbsp;%1<br>"
                                 "They were not configured again.")
