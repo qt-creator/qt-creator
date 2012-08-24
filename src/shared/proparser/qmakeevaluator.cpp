@@ -1701,6 +1701,7 @@ bool QMakeEvaluator::evaluateFileInto(const QString &fileName, QMakeHandler::Eva
     QMakeEvaluator visitor(m_option, m_parser, m_handler);
     visitor.m_caller = this;
     visitor.m_outputDir = m_outputDir;
+    visitor.m_featureRoots = m_featureRoots;
     if (!visitor.evaluateFile(fileName, type, flags))
         return false;
     *values = visitor.m_valuemapStack.top();
