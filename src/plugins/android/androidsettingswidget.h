@@ -47,6 +47,7 @@ namespace Internal {
 
 class AvdModel: public QAbstractTableModel
 {
+    Q_OBJECT
 public:
     void setAvdList(const QVector<AndroidDeviceInfo> &list);
     QString avdName(const QModelIndex &index);
