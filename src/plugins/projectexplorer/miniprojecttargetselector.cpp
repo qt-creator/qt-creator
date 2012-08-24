@@ -625,10 +625,10 @@ void MiniProjectTargetSelector::setActiveRunConfiguration(ProjectExplorer::Proje
 void MiniProjectTargetSelector::projectAdded(ProjectExplorer::Project *project)
 {
     connect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(addedTarget(ProjectExplorer::Target*)));
+            this, SLOT(slotAddedTarget(ProjectExplorer::Target*)));
 
     connect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
-            this, SLOT(removedTarget(ProjectExplorer::Target*)));
+            this, SLOT(slotRemovedTarget(ProjectExplorer::Target*)));
 
     foreach (Target *t, project->targets())
         addedTarget(t);
@@ -643,10 +643,10 @@ void MiniProjectTargetSelector::projectAdded(ProjectExplorer::Project *project)
 void MiniProjectTargetSelector::projectRemoved(ProjectExplorer::Project *project)
 {
     disconnect(project, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-               this, SLOT(addedTarget(ProjectExplorer::Target*)));
+               this, SLOT(slotAddedTarget(ProjectExplorer::Target*)));
 
     disconnect(project, SIGNAL(removedTarget(ProjectExplorer::Target*)),
-               this, SLOT(removedTarget(ProjectExplorer::Target*)));
+               this, SLOT(slotRemovedTarget(ProjectExplorer::Target*)));
 
     foreach (Target *t, project->targets())
         removedTarget(t);
@@ -661,19 +661,19 @@ void MiniProjectTargetSelector::projectRemoved(ProjectExplorer::Project *project
 void MiniProjectTargetSelector::addedTarget(ProjectExplorer::Target *target)
 {
     connect(target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+            this, SLOT(slotAddedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
     connect(target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+            this, SLOT(slotRemovedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
 
     connect(target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+            this, SLOT(slotAddedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
     connect(target, SIGNAL(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-            this, SLOT(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+            this, SLOT(slotRemovedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
 
     connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+            this, SLOT(slotAddedRunConfiguration(ProjectExplorer::RunConfiguration*)));
     connect(target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-            this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+            this, SLOT(slotRemovedRunConfiguration(ProjectExplorer::RunConfiguration*)));
 
     if (target->project() == m_project)
         m_listWidgets[TARGET]->addProjectConfiguration(target);
@@ -684,7 +684,11 @@ void MiniProjectTargetSelector::addedTarget(ProjectExplorer::Target *target)
         addedDeployConfiguration(dc);
     foreach (RunConfiguration *rc, target->runConfigurations())
         addedRunConfiguration(rc);
+}
 
+void MiniProjectTargetSelector::slotAddedTarget(ProjectExplorer::Target *target)
+{
+    addedTarget(target);
     updateTargetListVisible();
     updateBuildListVisible();
     updateDeployListVisible();
@@ -694,19 +698,19 @@ void MiniProjectTargetSelector::addedTarget(ProjectExplorer::Target *target)
 void MiniProjectTargetSelector::removedTarget(ProjectExplorer::Target *target)
 {
     disconnect(target, SIGNAL(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-               this, SLOT(addedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+               this, SLOT(slotAddedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
     disconnect(target, SIGNAL(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)),
-               this, SLOT(removedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+               this, SLOT(slotRemovedBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
 
     disconnect(target, SIGNAL(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-               this, SLOT(addedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+               this, SLOT(slotAddedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
     disconnect(target, SIGNAL(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)),
-               this, SLOT(removedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
+               this, SLOT(slotRemovedDeployConfiguration(ProjectExplorer::DeployConfiguration*)));
 
     disconnect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-               this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+               this, SLOT(slotAddedRunConfiguration(ProjectExplorer::RunConfiguration*)));
     disconnect(target, SIGNAL(removedRunConfiguration(ProjectExplorer::RunConfiguration*)),
-               this, SLOT(removedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+               this, SLOT(slotRemovedRunConfiguration(ProjectExplorer::RunConfiguration*)));
 
     if (target->project() == m_project)
         m_listWidgets[TARGET]->removeProjectConfiguration(target);
@@ -717,6 +721,11 @@ void MiniProjectTargetSelector::removedTarget(ProjectExplorer::Target *target)
         removedDeployConfiguration(dc);
     foreach (RunConfiguration *rc, target->runConfigurations())
         removedRunConfiguration(rc);
+}
+
+void MiniProjectTargetSelector::slotRemovedTarget(ProjectExplorer::Target *target)
+{
+    removedTarget(target);
 
     updateTargetListVisible();
     updateBuildListVisible();
@@ -724,7 +733,14 @@ void MiniProjectTargetSelector::removedTarget(ProjectExplorer::Target *target)
     updateRunListVisible();
 }
 
+
 void MiniProjectTargetSelector::addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+{
+    if (bc->target() == m_target)
+        m_listWidgets[BUILD]->addProjectConfiguration(bc);
+}
+
+void MiniProjectTargetSelector::slotAddedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
 {
     if (bc->target() == m_target)
         m_listWidgets[BUILD]->addProjectConfiguration(bc);
@@ -735,10 +751,22 @@ void MiniProjectTargetSelector::removedBuildConfiguration(ProjectExplorer::Build
 {
     if (bc->target() == m_target)
         m_listWidgets[BUILD]->removeProjectConfiguration(bc);
+}
+
+void MiniProjectTargetSelector::slotRemovedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
+{
+    if (bc->target() == m_target)
+        m_listWidgets[BUILD]->removeProjectConfiguration(bc);
     updateBuildListVisible();
 }
 
 void MiniProjectTargetSelector::addedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+{
+    if (dc->target() == m_target)
+        m_listWidgets[DEPLOY]->addProjectConfiguration(dc);
+}
+
+void MiniProjectTargetSelector::slotAddedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
 {
     if (dc->target() == m_target)
         m_listWidgets[DEPLOY]->addProjectConfiguration(dc);
@@ -749,6 +777,12 @@ void MiniProjectTargetSelector::removedDeployConfiguration(ProjectExplorer::Depl
 {
     if (dc->target() == m_target)
         m_listWidgets[DEPLOY]->removeProjectConfiguration(dc);
+}
+
+void MiniProjectTargetSelector::slotRemovedDeployConfiguration(ProjectExplorer::DeployConfiguration *dc)
+{
+    if (dc->target() == m_target)
+        m_listWidgets[DEPLOY]->removeProjectConfiguration(dc);
     updateDeployListVisible();
 }
 
@@ -756,10 +790,22 @@ void MiniProjectTargetSelector::addedRunConfiguration(ProjectExplorer::RunConfig
 {
     if (rc->target() == m_target)
         m_listWidgets[RUN]->addProjectConfiguration(rc);
+}
+
+void MiniProjectTargetSelector::slotAddedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+{
+    if (rc->target() == m_target)
+        m_listWidgets[RUN]->addProjectConfiguration(rc);
     updateRunListVisible();
 }
 
 void MiniProjectTargetSelector::removedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+{
+    if (rc->target() == m_target)
+        m_listWidgets[RUN]->removeProjectConfiguration(rc);
+}
+
+void MiniProjectTargetSelector::slotRemovedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
 {
     if (rc->target() == m_target)
         m_listWidgets[RUN]->removeProjectConfiguration(rc);
