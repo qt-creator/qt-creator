@@ -2,7 +2,9 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2012 AudioCodes Ltd.
+**
+** Author: Orgad Shaneh <orgad.shaneh@audiocodes.com>
 **
 ** Contact: http://www.qt-project.org/
 **
@@ -28,45 +30,39 @@
 **
 **************************************************************************/
 
-#ifndef ANCHORMANIPULATOR_H
-#define ANCHORMANIPULATOR_H
+#ifndef VERSIONSELECTOR_H
+#define VERSIONSELECTOR_H
 
-#include <qmlanchors.h>
+#include <QDialog>
 
-namespace QmlDesigner {
+QT_BEGIN_NAMESPACE
+class QTextStream;
+QT_END_NAMESPACE
 
-class FormEditorItem;
-class FormEditorView;
+namespace ClearCase {
+namespace Internal {
 
-class AnchorManipulator
+namespace Ui {
+    class VersionSelector;
+}
+
+class VersionSelector : public QDialog
 {
+    Q_OBJECT
+
 public:
-    AnchorManipulator(FormEditorView *view);
-    ~AnchorManipulator();
-    void begin(FormEditorItem *beginItem, AnchorLine::Type anchorLine);
-    void addAnchor(FormEditorItem *endItem, AnchorLine::Type anchorLine);
-    void removeAnchor();
+    explicit VersionSelector(const QString &fileName, const QString &message, QWidget *parent = 0);
+    ~VersionSelector();
+    bool isUpdate() const;
 
-    void clear();
-
-    bool isActive() const;
-
-    bool beginAnchorLineIsHorizontal() const;
-    bool beginAnchorLineIsVertical() const;
-
-    AnchorLine::Type beginAnchorLine() const;
-
-    FormEditorItem *beginFormEditorItem() const;
-
-private: // functions
-    void setMargin(FormEditorItem *endItem, AnchorLine::Type endAnchorLine);
-
-private: // variables
-    FormEditorItem *m_beginFormEditorItem;
-    AnchorLine::Type m_beginAnchorLine;
-    QWeakPointer<FormEditorView> m_view;
+private:
+    Ui::VersionSelector *ui;
+    QTextStream *m_stream;
+    QString m_versionID, m_createdBy, m_createdOn, m_message;
+    bool readValues();
 };
 
-} // namespace QmlDesigner
 
-#endif // ANCHORMANIPULATOR_H
+} // namespace Internal
+} // namespace ClearCase
+#endif // VERSIONSELECTOR_H

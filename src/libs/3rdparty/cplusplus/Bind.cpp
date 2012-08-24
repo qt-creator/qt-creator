@@ -2660,6 +2660,20 @@ bool Bind::visit(TemplateIdAST *ast)
 bool Bind::visit(SimpleSpecifierAST *ast)
 {
     switch (tokenKind(ast->specifier_token)) {
+        case T_IDENTIFIER: {
+                const Identifier *id = tokenAt(ast->specifier_token).identifier;
+                if (id->isEqualTo(control()->cpp11Override())) {
+                    if (_type.isOverride())
+                        translationUnit()->error(ast->specifier_token, "duplicate `override'");
+                    _type.setOverride(true);
+                }
+                else if (id->isEqualTo(control()->cpp11Final())) {
+                    if (_type.isFinal())
+                        translationUnit()->error(ast->specifier_token, "duplicate `final'");
+                    _type.setFinal(true);
+                }
+            }
+            break;
         case T_CONST:
             if (_type.isConst())
                 translationUnit()->error(ast->specifier_token, "duplicate `%s'", spell(ast->specifier_token));
@@ -3106,6 +3120,8 @@ bool Bind::visit(FunctionDeclaratorAST *ast)
     // propagate the cv-qualifiers
     fun->setConst(type.isConst());
     fun->setVolatile(type.isVolatile());
+    fun->setOverride(type.isOverride());
+    fun->setFinal(type.isFinal());
 
     this->exceptionSpecification(ast->exception_specification, type);
     if (ast->as_cpp_initializer != 0) {

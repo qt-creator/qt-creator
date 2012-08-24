@@ -4327,6 +4327,14 @@ void BaseTextEditorWidget::dragEnterEvent(QDragEnterEvent *e)
     QPlainTextEdit::dragEnterEvent(e);
 }
 
+void BaseTextEditorWidget::showDefaultContextMenu(QContextMenuEvent *e, const Core::Id menuContextId)
+{
+    QMenu menu;
+    appendMenuActionsFromContext(&menu, menuContextId);
+    appendStandardContextMenuActions(&menu);
+    menu.exec(e->globalPos());
+}
+
 void BaseTextEditorWidget::extraAreaLeaveEvent(QEvent *)
 {
     // fake missing mouse move event from Qt
@@ -6057,6 +6065,15 @@ QMimeData *BaseTextEditorWidget::duplicateMimeData(const QMimeData *source) cons
     }
 
     return mimeData;
+}
+
+void BaseTextEditorWidget::appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContextId)
+{
+    Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(menuContextId);
+    QMenu *contextMenu = mcontext->menu();
+
+    foreach (QAction *action, contextMenu->actions())
+        menu->addAction(action);
 }
 
 void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)

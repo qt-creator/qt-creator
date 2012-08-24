@@ -236,6 +236,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
         m_ui.checkBoxIncSearch);
     m_group.insert(theFakeVimSetting(ConfigUseCoreSearch),
         m_ui.checkBoxUseCoreSearch);
+    m_group.insert(theFakeVimSetting(ConfigSmartCase),
+        m_ui.checkBoxSmartCase);
 
     connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
         SLOT(copyTextEditorSettings()));
@@ -257,6 +259,7 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
                 << sep << m_ui.checkBoxIncSearch->text()
                 << sep << m_ui.checkBoxStartOfLine->text()
                 << sep << m_ui.checkBoxUseCoreSearch->text()
+                << sep << m_ui.checkBoxSmartCase->text()
                 << sep << m_ui.checkBoxShowMarks->text()
                 << sep << m_ui.checkBoxPassControlKey->text()
                 << sep << m_ui.labelShiftWidth->text()

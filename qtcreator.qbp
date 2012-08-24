@@ -34,8 +34,10 @@ Project {
         "src/plugins/bineditor/bineditor.qbs",
         "src/plugins/bookmarks/bookmarks.qbs",
         "src/plugins/classview/classview.qbs",
+        "src/plugins/clearcase/clearcase.qbs",
         "src/plugins/cmakeprojectmanager/cmakeprojectmanager.qbs",
         "src/plugins/coreplugin/coreplugin.qbs",
+        "src/plugins/coreplugin/images/logo/logo.qbs",
         "src/plugins/cpaster/cpaster.qbs",
         "src/plugins/cppeditor/cppeditor.qbs",
         "src/plugins/cpptools/cpptools.qbs",
@@ -72,6 +74,7 @@ Project {
         "src/plugins/valgrind/valgrind.qbs",
         "src/plugins/vcsbase/vcsbase.qbs",
         "src/plugins/welcome/welcome.qbs",
+        "src/share/share.qbs",
         "src/tools/qtcdebugger/qtcdebugger.qbs",
         "src/tools/qtpromaker/qtpromaker.qbs"
     ]

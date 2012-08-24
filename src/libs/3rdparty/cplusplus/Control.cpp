@@ -496,6 +496,8 @@ public:
     const Identifier *objcRetainId;
     const Identifier *objcCopyId;
     const Identifier *objcNonatomicId;
+    const Identifier *cpp11Override;
+    const Identifier *cpp11Final;
     TopLevelDeclarationProcessor *processor;
 };
 
@@ -514,6 +516,9 @@ Control::Control()
     d->objcRetainId = identifier("retain");
     d->objcCopyId = identifier("copy");
     d->objcNonatomicId = identifier("nonatomic");
+
+    d->cpp11Override = identifier("override");
+    d->cpp11Final = identifier("final");
 }
 
 Control::~Control()
@@ -752,6 +757,12 @@ const Identifier *Control::objcCopyId() const
 
 const Identifier *Control::objcNonatomicId() const
 { return d->objcNonatomicId; }
+
+const Identifier *Control::cpp11Override() const
+{ return d->cpp11Override; }
+
+const Identifier *Control::cpp11Final() const
+{ return d->cpp11Final; }
 
 Symbol **Control::firstSymbol() const
 {

@@ -70,6 +70,8 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
         m_ui.checkBoxCloseBuffersOnExit);
     m_group->insert(dc->action(SwitchModeOnExit),
         m_ui.checkBoxSwitchModeOnExit);
+    m_group->insert(dc->action(BreakpointsFullPathByDefault),
+        m_ui.checkBoxBreakpointsFullPath);
     m_group->insert(dc->action(RaiseOnInterrupt),
         m_ui.checkBoxBringToForegroundOnInterrrupt);
     m_group->insert(dc->action(ShowQmlObjectTree),
@@ -116,6 +118,7 @@ QString CommonOptionsPageWidget::searchKeyWords() const
             << sep << m_ui.checkBoxFontSizeFollowsEditor->text()
             << sep << m_ui.checkBoxUseToolTipsInMainEditor->text()
             << sep << m_ui.checkBoxListSourceFiles->text()
+            << sep << m_ui.checkBoxBreakpointsFullPath->text()
 #ifdef Q_OS_WIN
             << sep << m_ui.checkBoxRegisterForPostMortem->text()
 #endif

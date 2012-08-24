@@ -69,7 +69,7 @@ HEADERS += \
     winceqtversionfactory.h \
     winceqtversion.h \
     profilecompletionassist.h \
-    unconfiguredprojectpanel.h \
+    unconfiguredprojectpanel.h
 
 SOURCES += \
     qmakeprofileconfigwidget.cpp \
@@ -132,7 +132,7 @@ SOURCES += \
     winceqtversionfactory.cpp \
     winceqtversion.cpp \
     profilecompletionassist.cpp \
-    unconfiguredprojectpanel.cpp \
+    unconfiguredprojectpanel.cpp
 
 FORMS += makestep.ui \
     qmakestep.ui \

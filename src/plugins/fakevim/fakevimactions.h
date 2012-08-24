@@ -55,6 +55,7 @@ enum FakeVimSettingsCode
     ConfigSmartIndent,
     ConfigIncSearch,
     ConfigUseCoreSearch,
+    ConfigSmartCase,
 
     // indent  allow backspacing over autoindent
     // eol     allow backspacing over line breaks (join lines)
@@ -67,7 +68,8 @@ enum FakeVimSettingsCode
 
     // other actions
     ConfigShowMarks,
-    ConfigPassControlKey
+    ConfigPassControlKey,
+    ConfigClipboard
 };
 
 class FakeVimSettings : public QObject

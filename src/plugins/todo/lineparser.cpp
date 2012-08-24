@@ -58,7 +58,8 @@ bool LineParser::isKeywordSeparator(const QChar &ch)
     return ch.isSpace()
         || (ch == QLatin1Char(':'))
         || (ch == QLatin1Char('/'))
-        || (ch == QLatin1Char('*'));
+        || (ch == QLatin1Char('*'))
+        || (ch == QLatin1Char('('));
 }
 
 LineParser::KeywordEntryCandidates LineParser::findKeywordEntryCandidates(const QString &line)

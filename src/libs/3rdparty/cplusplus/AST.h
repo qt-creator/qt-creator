@@ -1168,6 +1168,7 @@ public:
     unsigned classkey_token;
     SpecifierListAST *attribute_list;
     NameAST *name;
+    unsigned final_token;
     unsigned colon_token;
     BaseSpecifierListAST *base_clause_list;
     unsigned dot_dot_dot_token;
@@ -1183,6 +1184,7 @@ public:
         : classkey_token(0)
         , attribute_list(0)
         , name(0)
+        , final_token(0)
         , colon_token(0)
         , base_clause_list(0)
         , dot_dot_dot_token(0)

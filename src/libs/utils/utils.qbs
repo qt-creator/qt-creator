@@ -40,6 +40,8 @@ QtcLibrary {
         "basetreeview.h",
         "basevalidatinglineedit.cpp",
         "basevalidatinglineedit.h",
+        "bracematcher.cpp",
+        "bracematcher.h",
         "buildablehelperlibrary.h",
         "changeset.cpp",
         "changeset.h",

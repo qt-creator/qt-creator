@@ -78,7 +78,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/appmainwindow.cpp \
     $$PWD/basetreeview.cpp \
     $$PWD/qtcassert.cpp \
-    $$PWD/elfreader.cpp
+    $$PWD/elfreader.cpp \
+    $$PWD/bracematcher.cpp
 
 win32 {
     SOURCES += \
@@ -163,7 +164,8 @@ HEADERS += \
     $$PWD/tcpportsgatherer.h \
     $$PWD/appmainwindow.h \
     $$PWD/basetreeview.h \
-    $$PWD/elfreader.h
+    $$PWD/elfreader.h \
+    $$PWD/bracematcher.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

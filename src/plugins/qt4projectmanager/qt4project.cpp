@@ -50,6 +50,8 @@
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/target.h>
@@ -637,6 +639,7 @@ void Qt4Project::update()
         qDebug()<<"State is now Base";
     m_asyncUpdateState = Base;
     enableActiveQt4BuildConfiguration(activeTarget(), true);
+    updateBuildSystemData();
     buildSystemEvaluationFinished(true);
 }
 
@@ -787,6 +790,7 @@ void Qt4Project::decrementPendingEvaluateFutures()
             enableActiveQt4BuildConfiguration(activeTarget(), true);
             updateFileList();
             updateCodeModels();
+            updateBuildSystemData();
             buildSystemEvaluationFinished(true);
             if (debug)
                 qDebug()<<"  Setting state to Base";
@@ -1402,6 +1406,141 @@ Target *Qt4Project::createTarget(Profile *p, const QList<BuildConfigurationInfo>
     // Do not create Run Configurations: Those will be generated later anyway.
 
     return t;
+}
+
+void Qt4Project::updateBuildSystemData()
+{
+    Target * const target = activeTarget();
+    if (!target)
+        return;
+    const Qt4ProFileNode * const rootNode = rootQt4ProjectNode();
+    if (!rootNode || rootNode->parseInProgress())
+        return;
+
+    DeploymentData deploymentData;
+    collectData(rootNode, deploymentData);
+    target->setDeploymentData(deploymentData);
+
+    BuildTargetInfoList appTargetList;
+    foreach (const Qt4ProFileNode * const node, applicationProFiles())
+        appTargetList.list << BuildTargetInfo(node->targetInformation().executable, node->path());
+    target->setApplicationTargets(appTargetList);
+}
+
+void Qt4Project::collectData(const Qt4ProFileNode *node, DeploymentData &deploymentData)
+{
+    if (!node->isSubProjectDeployable(node->path()))
+        return;
+
+    const InstallsList &installsList = node->installsList();
+    foreach (const InstallsItem &item, installsList.items) {
+        foreach (const QString &localFile, item.files)
+            deploymentData.addFile(localFile, item.path);
+    }
+
+    switch (node->projectType()) {
+    case ApplicationTemplate:
+        if (!installsList.targetPath.isEmpty())
+            deploymentData.addFile(node->targetInformation().executable, installsList.targetPath);
+        break;
+    case LibraryTemplate:
+        collectLibraryData(node, deploymentData);
+        break;
+    case SubDirsTemplate:
+        foreach (const ProjectNode * const subProject, node->subProjectNodesExact()) {
+            const Qt4ProFileNode * const qt4SubProject
+                    = qobject_cast<const Qt4ProFileNode *>(subProject);
+            if (!qt4SubProject)
+                continue;
+            collectData(qt4SubProject, deploymentData);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void Qt4Project::collectLibraryData(const Qt4ProFileNode *node, DeploymentData &deploymentData)
+{
+    const QString targetPath = node->installsList().targetPath;
+    if (targetPath.isEmpty())
+        return;
+    const ProjectExplorer::Profile * const profile = activeTarget()->profile();
+    const ProjectExplorer::ToolChain * const toolchain
+            = ProjectExplorer::ToolChainProfileInformation::toolChain(profile);
+    if (!toolchain)
+        return;
+
+    TargetInformation ti = node->targetInformation();
+    QString targetFileName = ti.target;
+    const QStringList config = node->variableValue(ConfigVar);
+    const bool isStatic = config.contains(QLatin1String("static"));
+    const bool isPlugin = config.contains(QLatin1String("plugin"));
+    switch (toolchain->targetAbi().os()) {
+    case ProjectExplorer::Abi::WindowsOS: {
+        QString targetVersionExt = node->singleVariableValue(TargetVersionExtVar);
+        if (targetVersionExt.isEmpty()) {
+            const QString version = node->singleVariableValue(VersionVar);
+            if (!version.isEmpty()) {
+                targetVersionExt = version.left(version.indexOf(QLatin1Char('.')));
+                if (targetVersionExt == QLatin1String("0"))
+                    targetVersionExt.clear();
+            }
+        }
+        targetFileName += targetVersionExt + QLatin1Char('.');
+        targetFileName += QLatin1String(isStatic ? "lib" : "dll");
+        deploymentData.addFile(ti.workingDir + QLatin1Char('/') + targetFileName, targetPath);
+        break;
+    }
+    case ProjectExplorer::Abi::MacOS:
+        if (config.contains("lib_bundle")) {
+            ti.workingDir.append(QLatin1Char('/')).append(ti.target)
+                    .append(QLatin1String(".framework"));
+        } else {
+            targetFileName.prepend(QLatin1String("lib"));
+            if (!isPlugin) {
+                targetFileName += QLatin1Char('.');
+                const QString version = node->singleVariableValue(VersionVar);
+                QString majorVersion = version.left(version.indexOf(QLatin1Char('.')));
+                if (majorVersion.isEmpty())
+                    majorVersion = QLatin1String("1");
+                targetFileName += majorVersion;
+            }
+            targetFileName += QLatin1Char('.');
+            targetFileName += node->singleVariableValue(isStatic
+                    ? StaticLibExtensionVar : ShLibExtensionVar);
+        }
+        deploymentData.addFile(ti.workingDir + QLatin1Char('/') + targetFileName, targetPath);
+        break;
+    case ProjectExplorer::Abi::LinuxOS:
+    case ProjectExplorer::Abi::BsdOS:
+    case ProjectExplorer::Abi::UnixOS:
+        targetFileName.prepend(QLatin1String("lib"));
+        targetFileName += QLatin1Char('.');
+        if (isStatic) {
+            targetFileName += QLatin1Char('a');
+        } else {
+            targetFileName += QLatin1String("so");
+            deploymentData.addFile(ti.workingDir + QLatin1Char('/') + targetFileName, targetPath);
+            if (!isPlugin) {
+                QString version = node->singleVariableValue(VersionVar);
+                if (version.isEmpty())
+                    version = QLatin1String("1.0.0");
+                targetFileName += QLatin1Char('.');
+                while (true) {
+                    deploymentData.addFile(ti.workingDir + QLatin1Char('/')
+                            + targetFileName + version, targetPath);
+                    const QString tmpVersion = version.left(version.lastIndexOf(QLatin1Char('.')));
+                    if (tmpVersion == version)
+                        break;
+                    version = tmpVersion;
+                }
+            }
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 } // namespace Qt4ProjectManager

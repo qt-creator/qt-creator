@@ -128,8 +128,7 @@ static ApplicationProgressView *sharedProgressView = nil;
 
 void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &text)
 {
-    const char *utf8String = text.toUtf8().constData();
-    NSString *cocoaString = [[NSString alloc] initWithUTF8String:utf8String];
+    NSString *cocoaString = [[NSString alloc] initWithUTF8String:text.toUtf8().constData()];
     [[NSApp dockTile] setBadgeLabel:cocoaString];
     [cocoaString release];
 }

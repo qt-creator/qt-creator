@@ -166,7 +166,7 @@ public:
     QString mimeType() const;
     virtual void setMimeType(const QString &mt);
 
-
+    void appendMenuActionsFromContext(QMenu *menu, const Core::Id menuContextId);
     void appendStandardContextMenuActions(QMenu *menu);
 
     // Works only in conjunction with a syntax highlighter that puts
@@ -468,6 +468,8 @@ protected:
     void keyReleaseEvent(QKeyEvent *);
 
     void dragEnterEvent(QDragEnterEvent *e);
+
+    void showDefaultContextMenu(QContextMenuEvent *e, const Core::Id menuContextId);
 
 public:
     void indentInsertedText(const QTextCursor &tc);

@@ -28,60 +28,44 @@
 **
 **************************************************************************/
 
-#ifndef ANCHORLINEHANDLEITEM_H
-#define ANCHORLINEHANDLEITEM_H
+#include "deployablefile.h"
 
-#include <QGraphicsPathItem>
+#include <QFileInfo>
+#include <QHash>
+#include <QPair>
 
-#include "anchorlinecontroller.h"
+using namespace Utils;
 
-namespace QmlDesigner {
+namespace ProjectExplorer {
 
-class AnchorLineHandleItem : public QGraphicsPathItem
+DeployableFile::DeployableFile()
 {
-public:
-    enum
-    {
-        Type = 0xEAEB
-    };
-
-
-    AnchorLineHandleItem(QGraphicsItem *parent, const AnchorLineController &AnchorLineController);
-
-    void setHandlePath(const QPainterPath & path);
-
-    int type() const;
-    QRectF boundingRect() const;
-    QPainterPath shape() const;
-
-    AnchorLineController anchorLineController() const;
-    AnchorLine::Type anchorLine() const;
-
-
-    static AnchorLineHandleItem* fromGraphicsItem(QGraphicsItem *item);
-
-
-    bool isTopHandle() const;
-    bool isLeftHandle() const;
-    bool isRightHandle() const;
-    bool isBottomHandle() const;
-
-    QPointF itemSpacePosition() const;
-
-    AnchorLine::Type anchorLineType() const;
-
-    void setHiglighted(bool highlight);
-
-
-private:
-    QWeakPointer<AnchorLineControllerData> m_anchorLineControllerData;
-};
-
-inline int AnchorLineHandleItem::type() const
-{
-    return Type;
 }
 
-} // namespace QmlDesigner
+DeployableFile::DeployableFile(const QString &localFilePath, const QString &remoteDir)
+    : m_localFilePath(FileName::fromUserInput(localFilePath)), m_remoteDir(remoteDir)
+{
+}
 
-#endif // ANCHORLINEHANDLEITEM_H
+DeployableFile::DeployableFile(const FileName &localFilePath, const QString &remoteDir)
+    : m_localFilePath(localFilePath), m_remoteDir(remoteDir)
+{
+}
+
+QString DeployableFile::remoteFilePath() const
+{
+    return m_remoteDir.isEmpty()
+            ? QString() : m_remoteDir + QLatin1Char('/') + m_localFilePath.toFileInfo().fileName();
+}
+
+bool DeployableFile::isValid() const
+{
+    return !m_localFilePath.toString().isEmpty() && !m_remoteDir.isEmpty();
+}
+
+uint qHash(const DeployableFile &d)
+{
+    return qHash(qMakePair(d.localFilePath().toString(), d.remoteDirectory()));
+}
+
+} // namespace ProjectExplorer

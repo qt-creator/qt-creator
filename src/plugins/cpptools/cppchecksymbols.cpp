@@ -506,6 +506,14 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
                                                                 decl->enclosingScope()),
                                                 nameAST, funTy->argumentCount())) {
                         declrIdNameAST = nameAST;
+
+                        // Add a diagnostic message if non-virtual function has override/final marker
+                        if ((_usages.back().kind != SemanticInfo::VirtualMethodUse)) {
+                            if (funTy->isOverride())
+                                warning(declrIdNameAST, "Only virtual methods can be marked `override'");
+                            else if (funTy->isFinal())
+                                warning(declrIdNameAST, "Only virtual methods can be marked `final'");
+                        }
                     }
                 }
             }
@@ -945,11 +953,42 @@ bool CheckSymbols::visit(GotoStatementAST *ast)
 
 bool CheckSymbols::visit(LabeledStatementAST *ast)
 {
-    if (ast->label_token)
+    if (ast->label_token && !tokenAt(ast->label_token).isKeyword())
         addUse(ast->label_token, SemanticInfo::LabelUse);
 
     accept(ast->statement);
     return false;
+}
+
+
+/**
+ * \brief Highlights "override" and "final" pseudokeywords like true keywords
+ */
+bool CheckSymbols::visit(SimpleSpecifierAST *ast)
+{
+    if (ast->specifier_token)
+    {
+        const Token &tk = tokenAt(ast->specifier_token);
+        if (tk.is(T_IDENTIFIER))
+        {
+            const Identifier &id = *(tk.identifier);
+            if (id.equalTo(_doc->control()->cpp11Override())
+                    || id.equalTo(_doc->control()->cpp11Final()))
+            {
+                addUse(ast->specifier_token, SemanticInfo::PseudoKeywordUse);
+            }
+        }
+    }
+
+    return false;
+}
+
+bool CheckSymbols::visit(ClassSpecifierAST *ast)
+{
+    if (ast->final_token)
+        addUse(ast->final_token, SemanticInfo::PseudoKeywordUse);
+
+    return true;
 }
 
 bool CheckSymbols::visit(FunctionDefinitionAST *ast)

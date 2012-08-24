@@ -49,11 +49,17 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     connect(ui->removeButton, SIGNAL(clicked()), SLOT(removeButtonClicked()));
     connect(ui->editButton, SIGNAL(clicked()), SLOT(editButtonClicked()));
     connect(ui->resetButton, SIGNAL(clicked()), SLOT(resetButtonClicked()));
+    connect(ui->keywordsList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(itemDoubleClicked(QListWidgetItem*)));
 }
 
 OptionsDialog::~OptionsDialog()
 {
     delete ui;
+}
+
+void OptionsDialog::itemDoubleClicked(QListWidgetItem *item)
+{
+    editItem(item);
 }
 
 void OptionsDialog::setSettings(const Settings &settings)
@@ -98,7 +104,11 @@ void OptionsDialog::addButtonClicked()
 void OptionsDialog::editButtonClicked()
 {
     QListWidgetItem *item = ui->keywordsList->currentItem();
+    editItem(item);
+}
 
+void OptionsDialog::editItem(QListWidgetItem *item)
+{
     Keyword keyword;
     keyword.name = item->text();
     keyword.iconResource = item->data(Qt::UserRole).toString();

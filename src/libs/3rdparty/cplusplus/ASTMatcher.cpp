@@ -593,6 +593,8 @@ bool ASTMatcher::match(ClassSpecifierAST *node, ClassSpecifierAST *pattern)
     else if (! AST::match(node->name, pattern->name, this))
         return false;
 
+    pattern->final_token = node->final_token;
+
     pattern->colon_token = node->colon_token;
 
     if (! pattern->base_clause_list)

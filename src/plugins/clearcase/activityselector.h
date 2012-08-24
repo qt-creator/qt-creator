@@ -2,7 +2,9 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2012 AudioCodes Ltd.
+**
+** Author: Orgad Shaneh <orgad.shaneh@audiocodes.com>
 **
 ** Contact: http://www.qt-project.org/
 **
@@ -28,43 +30,45 @@
 **
 **************************************************************************/
 
-#ifndef ANCHORLINEINDICATOR_H
-#define ANCHORLINEINDICATOR_H
+#ifndef ACTIVITYSELECTOR_H
+#define ACTIVITYSELECTOR_H
 
-#include "layeritem.h"
-#include "anchorlinecontroller.h"
-#include <QHash>
+#include <QWidget>
 
-namespace QmlDesigner {
+QT_BEGIN_NAMESPACE
+class QComboBox;
+QT_END_NAMESPACE
 
-class FormEditorItem;
+namespace ClearCase {
+namespace Internal {
 
-class AnchorLineIndicator
+class ClearCasePlugin;
+
+class ActivitySelector : public QWidget
 {
+    Q_OBJECT
+
 public:
-    AnchorLineIndicator(LayerItem *layerItem);
-    ~AnchorLineIndicator();
+    explicit ActivitySelector(QWidget *parent = 0);
+    QString activity() const;
+    void setActivity(const QString &act);
+    void addKeep();
+    bool refresh();
+    bool changed() { return m_changed; }
 
-    void show(AnchorLine::Type anchorLineMask);
+public slots:
+    void newActivity();
 
-    void hide();
-
-    void clear();
-
-    void update();
-
-    void setItems(const QList<FormEditorItem*> &itemList);
-    void setItem(FormEditorItem* item);
-    void updateItems(const QList<FormEditorItem*> &itemList);
-
-    void clearHighlight();
+private slots:
+    void userChanged();
 
 private:
-    QHash<FormEditorItem*, AnchorLineController> m_itemControllerHash;
-
-    LayerItem *m_layerItem;
+    ClearCasePlugin *m_plugin;
+    bool m_changed;
+    QComboBox *m_cmbActivity;
 };
 
-} // namespace QmlDesigner
+} // namespace Internal
+} // namespace ClearCase
 
-#endif // ANCHORLINEINDICATOR_H
+#endif // ACTIVITYSELECTOR_H

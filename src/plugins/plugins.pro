@@ -57,6 +57,7 @@ isEmpty(IDE_PACKAGE_MODE) {
 linux-* {
      SUBDIRS += debugger/ptracepreload.pro
 }
+!macx:SUBDIRS += plugin_clearcase
 
 include(../../qtcreator.pri)
 
@@ -331,3 +332,7 @@ plugin_qnx.depends = plugin_remotelinux
 plugin_qnx.depends += plugin_qt4projectmanager
 plugin_qnx.depends += plugin_coreplugin
 
+plugin_clearcase.subdir = clearcase
+plugin_clearcase.depends = plugin_vcsbase
+plugin_clearcase.depends += plugin_projectexplorer
+plugin_clearcase.depends += plugin_coreplugin

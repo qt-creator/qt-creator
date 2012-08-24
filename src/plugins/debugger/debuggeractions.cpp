@@ -412,6 +412,12 @@ DebuggerSettings::DebuggerSettings(QSettings *settings)
     insertItem(SwitchModeOnExit, item);
 
     item = new SavedAction(this);
+    item->setSettingsKey(debugModeGroup, QLatin1String("BreakpointsFullPath"));
+    item->setCheckable(true);
+    item->setDefaultValue(false);
+    insertItem(BreakpointsFullPathByDefault, item);
+
+    item = new SavedAction(this);
     item->setSettingsKey(debugModeGroup, QLatin1String("RaiseOnInterrupt"));
     item->setCheckable(true);
     item->setDefaultValue(true);

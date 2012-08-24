@@ -53,7 +53,6 @@ class AbstractFormEditorTool;
 class MoveTool;
 class SelectionTool;
 class ResizeTool;
-class AnchorTool;
 class DragTool;
 class ItemLibraryEntry;
 class QmlItemNode;
@@ -97,7 +96,6 @@ public:
     void changeToSelectionTool();
     void changeToSelectionTool(QGraphicsSceneMouseEvent *event);
     void changeToResizeTool();
-    void changeToAnchorTool();
     void changeToTransformTools();
 
     void nodeSlidedToIndex(const NodeListProperty &listProperty, int newIndex, int oldIndex);
@@ -143,7 +141,6 @@ private: //variables
     MoveTool *m_moveTool;
     SelectionTool *m_selectionTool;
     ResizeTool *m_resizeTool;
-    AnchorTool *m_anchorTool;
     DragTool *m_dragTool;
     AbstractFormEditorTool *m_currentTool;
     int m_transactionCounter;

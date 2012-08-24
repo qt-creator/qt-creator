@@ -55,7 +55,6 @@ public:
     FormEditorWidget(FormEditorView *view);
 
     ZoomAction *zoomAction() const;
-    QAction *anchorToolAction() const;
     QAction *transformToolAction() const;
     QAction *showBoundingRectAction() const;
     QAction *selectOnlyContentItemsAction() const;
@@ -67,8 +66,6 @@ public:
 
     double spacing() const;
     double margins() const;
-
-    void setFeedbackNode(const QmlItemNode &node);
 
     QString contextHelpId() const;
 
@@ -82,14 +79,12 @@ public:
 
     void setFocus();
 
-
 protected:
     void wheelEvent(QWheelEvent *event);
     QActionGroup *toolActionGroup() const;
 
 private slots:
     void changeTransformTool(bool checked);
-    void changeAnchorTool(bool checked);
     void setZoomLevel(double zoomLevel);
     void changeRootItemWidth(const QString &widthText);
     void changeRootItemHeight(const QString &heightText);
@@ -100,7 +95,6 @@ private:
     QWeakPointer<FormEditorGraphicsView> m_graphicsView;
     QWeakPointer<ZoomAction> m_zoomAction;
     QWeakPointer<ToolBox> m_toolBox;
-    QWeakPointer<QAction> m_anchorToolAction;
     QWeakPointer<QAction> m_transformToolAction;
     QWeakPointer<QActionGroup> m_toolActionGroup;
     QWeakPointer<QAction> m_snappingAction;

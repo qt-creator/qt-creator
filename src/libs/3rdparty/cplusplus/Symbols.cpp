@@ -358,6 +358,18 @@ bool Function::isVirtual() const
 void Function::setVirtual(bool isVirtual)
 { f._isVirtual = isVirtual; }
 
+bool Function::isOverride() const
+{ return f._isOverride; }
+
+void Function::setOverride(bool isOverride)
+{ f._isOverride = isOverride; }
+
+bool Function::isFinal() const
+{ return f._isFinal; }
+
+void Function::setFinal(bool isFinal)
+{ f._isFinal = isFinal; }
+
 bool Function::isVariadic() const
 { return f._isVariadic; }
 

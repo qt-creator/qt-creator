@@ -33,35 +33,51 @@
 
 #include "corelib_global.h"
 
+#include <import.h>
+
 #include <QObject>
 #include <QString>
 #include <QUrl>
+#include <QFileSystemWatcher>
+#include <QWeakPointer>
+#include <QFileInfo>
 
 namespace QmlDesigner {
 
-class Import;
 class Model;
-
-namespace Internal {
-class SubComponentManagerPrivate;
-}
 
 class CORESHARED_EXPORT SubComponentManager : public QObject
 {
     Q_OBJECT
 public:
     explicit SubComponentManager(Model *model, QObject *parent = 0);
-    ~SubComponentManager();
 
     void update(const QUrl &fileUrl, const QList<Import> &imports);
 
     QStringList qmlFiles() const;
     QStringList directories() const;
 
+private slots:
+    void parseDirectory(const QString &canonicalDirPath,  bool addToLibrary = true, const QString& qualification = QString());
+    void parseFile(const QString &canonicalFilePath,  bool addToLibrary, const QString&);
+    void parseFile(const QString &canonicalFilePath);
 
-private:
-    friend class Internal::SubComponentManagerPrivate;
-    Internal::SubComponentManagerPrivate *d;
+private: // functions
+    void addImport(int pos, const Import &import);
+    void removeImport(int pos);
+    void parseDirectories();
+    QList<QFileInfo> watchedFiles(const QString &canonicalDirPath);
+    void unregisterQmlFile(const QFileInfo &fileInfo, const QString &qualifier);
+    void registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier, bool addToLibrary);
+    Model *model() const;
+
+private: // variables
+    QFileSystemWatcher m_watcher;
+    QList<Import> m_imports;
+    // key: canonical directory path
+    QMultiHash<QString,QString> m_dirToQualifier;
+    QUrl m_filePath;
+    QWeakPointer<Model> m_model;
 };
 
 } // namespace QmlDesigner

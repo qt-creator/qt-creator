@@ -178,6 +178,9 @@ public:
     const Identifier *objcRetainId() const;
     const Identifier *objcCopyId() const;
     const Identifier *objcNonatomicId() const;
+    // C++11 context keywords
+    const Identifier *cpp11Override() const;
+    const Identifier *cpp11Final() const;
 
     const OperatorNameId *findOperatorNameId(OperatorNameId::Kind operatorId) const;
 

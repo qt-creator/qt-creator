@@ -94,7 +94,11 @@ enum Qt4Variable {
     QmlImportPathVar,
     Makefile,
     ObjectExt,
-    ObjectsDir
+    ObjectsDir,
+    VersionVar,
+    TargetVersionExtVar,
+    StaticLibExtensionVar,
+    ShLibExtensionVar
 };
 
 // Import base classes into namespace
@@ -357,6 +361,7 @@ public:
     Qt4ProjectType projectType() const;
 
     QStringList variableValue(const Qt4Variable var) const;
+    QString singleVariableValue(const Qt4Variable var) const;
 
     bool isSubProjectDeployable(const QString &filePath) const {
         return !m_subProjectsNotToDeploy.contains(filePath);

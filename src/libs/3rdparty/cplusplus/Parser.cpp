@@ -1176,6 +1176,40 @@ bool Parser::parseCvQualifiers(SpecifierListAST *&node)
     return start != cursor();
 }
 
+/**
+ * \brief Handles override and final from C++ 2011, they are pseudo keywords and has special meaning only in function declaration
+ */
+bool Parser::parseOverrideFinalQualifiers(SpecifierListAST *&node)
+{
+    DEBUG_THIS_RULE();
+
+    if (!_cxx0xEnabled)
+        return false;
+
+    unsigned start = cursor();
+
+    SpecifierListAST **ast = &node;
+    while (*ast)
+        ast = &(*ast)->next;
+
+    while (LA() == T_IDENTIFIER) {
+        const Identifier &id = *(_translationUnit->tokenAt(cursor()).identifier);
+
+        if (id.equalTo(_control->cpp11Override())
+                || id.equalTo(_control->cpp11Final())) {
+            SimpleSpecifierAST *spec = new (_pool) SimpleSpecifierAST;
+            spec->specifier_token = consumeToken();
+            *ast = new (_pool) SpecifierListAST(spec);
+            ast = &(*ast)->next;
+        }
+        else {
+            break;
+        }
+    }
+
+    return (start != cursor());
+}
+
 bool Parser::parsePtrOperator(PtrOperatorListAST *&node)
 {
     DEBUG_THIS_RULE();
@@ -1440,6 +1474,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
             ast->rparen_token = consumeToken();
             // ### parse attributes
             parseCvQualifiers(ast->cv_qualifier_list);
+            parseOverrideFinalQualifiers(ast->cv_qualifier_list);
             // ### parse ref-qualifiers
             parseExceptionSpecification(ast->exception_specification);
 
@@ -1570,11 +1605,26 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *dec
     return true;
 }
 
+/**
+ * @brief Reads enumeration type declaration, examples:
+ * @code
+    enum {
+        debug = 1
+    };
+    enum class Format {
+        FormatPNG,
+        FormatJPEG
+    };
+ * @endcode
+ */
 bool Parser::parseEnumSpecifier(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_ENUM) {
         unsigned enum_token = consumeToken();
+        if (_cxx0xEnabled && LA() == T_CLASS)
+            consumeToken();
+
         NameAST *name = 0;
         parseName(name);
         if (LA() == T_LBRACE) {
@@ -1872,9 +1922,12 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
     }
 
     if (LA(1) == T_IDENTIFIER && LA(2) == T_IDENTIFIER) {
-        warning(cursor(), "skip identifier `%s'",
-                                  tok().spell());
-        consumeToken();
+        const Identifier *id = tok(2).identifier;
+        if (!id->equalTo(_control->cpp11Final())) {
+            warning(cursor(), "skip identifier `%s'",
+                                      tok().spell());
+            consumeToken();
+        }
     }
 
     NameAST *name = 0;
@@ -1887,6 +1940,13 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
 
     unsigned colon_token = 0;
     unsigned dot_dot_dot_token = 0;
+    unsigned final_token = 0;
+
+    if (LA() == T_IDENTIFIER) {
+        const Identifier *id = tok().identifier;
+        if (id->equalTo(_control->cpp11Final()))
+            final_token = consumeToken();
+    }
 
     if (LA() == T_COLON || LA() == T_LBRACE) {
         BaseSpecifierListAST *base_clause_list = 0;
@@ -1917,6 +1977,7 @@ bool Parser::parseClassSpecifier(SpecifierListAST *&node)
         ClassSpecifierAST *ast = new (_pool) ClassSpecifierAST;
         ast->classkey_token = classkey_token;
         ast->attribute_list = attributes;
+        ast->final_token = final_token;
         ast->name = name;
         ast->colon_token = colon_token;
         ast->base_clause_list = base_clause_list;
@@ -3780,8 +3841,11 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
         } else if (! has_type_specifier && lookAtClassKey()) {
             unsigned startOfTypeSpecifier = cursor();
             if (! parseElaboratedTypeSpecifier(*decl_specifier_seq_ptr) ||
-                (LA() == T_COLON || LA() == T_LBRACE || (LA(0) == T_IDENTIFIER && LA(1) == T_IDENTIFIER &&
-                                                         (LA(2) == T_COLON || LA(2) == T_LBRACE)))) {
+                (LA() == T_COLON || LA() == T_LBRACE
+                 || (LA(0) == T_IDENTIFIER && LA(1) == T_IDENTIFIER // MACRO Name followed by : or {
+                     && (LA(2) == T_COLON || LA(2) == T_LBRACE))
+                 || (LA(0) == T_IDENTIFIER && LA(1) == T_IDENTIFIER && LA(2) == T_IDENTIFIER && // MACRO Name final followed by : or {
+                     (LA(3) == T_COLON || LA(3) == T_LBRACE)))) {
                 rewind(startOfTypeSpecifier);
                 if (! parseClassSpecifier(*decl_specifier_seq_ptr)) {
                     error(startOfTypeSpecifier,

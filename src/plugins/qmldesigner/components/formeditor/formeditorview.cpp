@@ -31,7 +31,6 @@
 #include "selectiontool.h"
 #include "movetool.h"
 #include "resizetool.h"
-#include "anchortool.h"
 #include "dragtool.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
@@ -66,7 +65,6 @@ FormEditorView::FormEditorView(QObject *parent)
       m_moveTool(new MoveTool(this)),
       m_selectionTool(new SelectionTool(this)),
       m_resizeTool(new ResizeTool(this)),
-      m_anchorTool(new AnchorTool(this)),
       m_dragTool(new DragTool(this)),
       m_currentTool(m_selectionTool),
       m_transactionCounter(0)
@@ -90,8 +88,6 @@ FormEditorView::~FormEditorView()
     m_moveTool = 0;
     delete m_resizeTool;
     m_resizeTool = 0;
-    delete m_anchorTool;
-    m_anchorTool = 0;
     delete m_dragTool;
     m_dragTool = 0;
 
@@ -174,7 +170,6 @@ void FormEditorView::modelAboutToBeDetached(Model *model)
     m_selectionTool->clear();
     m_moveTool->clear();
     m_resizeTool->clear();
-    m_anchorTool->clear();
     m_dragTool->clear();
     m_scene->clearFormEditorItems();
     m_formEditorWidget->updateActions();
@@ -296,16 +291,6 @@ void FormEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     QmlModelView::selectedNodesChanged(selectedNodeList, lastSelectedNodeList);
 
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(toQmlItemNodeList(selectedNodeList)));
-    if (scene()->paintMode() == FormEditorScene::AnchorMode) {
-        foreach (FormEditorItem *item, m_scene->itemsForQmlItemNodes(toQmlItemNodeList(selectedNodeList)))
-            item->update();
-
-        foreach (FormEditorItem *item, m_scene->itemsForQmlItemNodes(toQmlItemNodeList(lastSelectedNodeList)))
-            item->update();
-    }
-
-    if (selectedNodeList.count() != 1)
-        m_formEditorWidget->setFeedbackNode(QmlItemNode());
 
     m_scene->update();
 }
@@ -332,7 +317,6 @@ bool FormEditorView::changeToMoveTool()
     if (!isMoveToolAvailable())
         return false;
 
-    scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
     m_currentTool->clear();
     m_currentTool = m_moveTool;
@@ -346,7 +330,6 @@ void FormEditorView::changeToDragTool()
     if (m_currentTool == m_dragTool)
         return;
 
-    scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
     m_currentTool->clear();
     m_currentTool = m_dragTool;
@@ -363,7 +346,6 @@ bool FormEditorView::changeToMoveTool(const QPointF &beginPoint)
     if (!isMoveToolAvailable())
         return false;
 
-    scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
     m_currentTool->clear();
     m_currentTool = m_moveTool;
@@ -378,7 +360,6 @@ void FormEditorView::changeToSelectionTool()
     if (m_currentTool == m_selectionTool)
         return;
 
-    scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
     m_currentTool->clear();
     m_currentTool = m_selectionTool;
@@ -391,7 +372,6 @@ void FormEditorView::changeToSelectionTool(QGraphicsSceneMouseEvent *event)
     if (m_currentTool == m_selectionTool)
         return;
 
-    scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
     m_currentTool->clear();
     m_currentTool = m_selectionTool;
@@ -406,23 +386,9 @@ void FormEditorView::changeToResizeTool()
     if (m_currentTool == m_resizeTool)
         return;
 
-    scene()->setPaintMode(FormEditorScene::NormalMode);
     m_scene->updateAllFormEditorItems();
     m_currentTool->clear();
     m_currentTool = m_resizeTool;
-    m_currentTool->clear();
-    m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
-}
-
-void FormEditorView::changeToAnchorTool()
-{
-    if (m_currentTool == m_anchorTool)
-        return;
-
-    scene()->setPaintMode(FormEditorScene::AnchorMode);
-    m_scene->updateAllFormEditorItems();
-    m_currentTool->clear();
-    m_currentTool = m_anchorTool;
     m_currentTool->clear();
     m_currentTool->setItems(scene()->itemsForQmlItemNodes(selectedQmlItemNodes()));
 }
@@ -537,16 +503,11 @@ void FormEditorView::instancesChildrenChanged(const QVector<ModelNode> &nodeList
 void FormEditorView::rewriterBeginTransaction()
 {
     m_transactionCounter++;
-    if (m_transactionCounter == 1
-        && selectedModelNodes().count() == 1)
-        m_formEditorWidget->setFeedbackNode(QmlItemNode(selectedModelNodes().first()));
 }
 
 void FormEditorView::rewriterEndTransaction()
 {
     m_transactionCounter--;
-    if (m_transactionCounter == 0)
-        m_formEditorWidget->setFeedbackNode(QmlItemNode());
 }
 
 double FormEditorView::margins() const
@@ -627,17 +588,6 @@ void FormEditorView::actualStateChanged(const ModelNode &node)
     QmlModelView::actualStateChanged(node);
 
     QmlModelState newQmlModelState(node);
-
-    m_formEditorWidget->anchorToolAction()->setEnabled(newQmlModelState.isBaseState());
-
-    if (!newQmlModelState.isBaseState() && currentTool() == m_anchorTool) {
-        changeToTransformTools();
-        m_formEditorWidget->transformToolAction()->setChecked(true);
-    }
-
-//    FormEditorItem *item = m_scene->itemForQmlItemNode(fxObjectNode);
-//
-//    m_currentTool->formEditorItemsChanged(itemList);
 }
 
 Utils::CrumblePath *FormEditorView::crumblePath() const
@@ -658,7 +608,6 @@ void FormEditorView::delayedReset()
     m_selectionTool->clear();
     m_moveTool->clear();
     m_resizeTool->clear();
-    m_anchorTool->clear();
     m_dragTool->clear();
     m_scene->clearFormEditorItems();
     if (rootQmlObjectNode().toQmlItemNode().isValid())

@@ -99,6 +99,7 @@ enum DebuggerActionCode
     OperateByInstruction,
     CloseBuffersOnExit,
     SwitchModeOnExit,
+    BreakpointsFullPathByDefault,
     RaiseOnInterrupt,
 
     UseDebuggingHelpers,

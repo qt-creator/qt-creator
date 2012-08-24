@@ -28,38 +28,48 @@
 **
 **************************************************************************/
 
-#ifndef ANCHORINDICATOR_H
-#define ANCHORINDICATOR_H
+#ifndef DEPLOYABLEFILE_H
+#define DEPLOYABLEFILE_H
 
-#include "anchorcontroller.h"
-#include <QList>
-#include <QHash>
+#include "projectexplorer_export.h"
 
-namespace QmlDesigner {
+#include <utils/fileutils.h>
 
-class AnchorIndicator
+#include <QString>
+
+namespace ProjectExplorer {
+
+class PROJECTEXPLORER_EXPORT DeployableFile
 {
 public:
-    AnchorIndicator(LayerItem *layerItem);
-    ~AnchorIndicator();
+    DeployableFile();
+    DeployableFile(const QString &m_localFilePath, const QString &m_remoteDir);
+    DeployableFile(const Utils::FileName &localFilePath, const QString &remoteDir);
 
-    void show();
-    void hide();
-    void clear();
+    Utils::FileName localFilePath() const { return m_localFilePath; }
+    QString remoteDirectory() const { return m_remoteDir; }
+    QString remoteFilePath() const;
 
-    void setItems(const QList<FormEditorItem*> &itemList);
-
-    void updateItems(const QList<FormEditorItem*> &itemList);
-    void updateTargetPoint(FormEditorItem *item, AnchorLine::Type anchorLine, const QPointF &targetPoint);
-
-    void clearHighlight();
-    void highlight(FormEditorItem *item, AnchorLine::Type anchorLine);
+    bool isValid() const;
 
 private:
-    QHash<FormEditorItem*, AnchorController> m_itemControllerHash;
-    LayerItem *m_layerItem;
+    Utils::FileName m_localFilePath;
+    QString m_remoteDir;
 };
 
-} // namespace QmlDesigner
 
-#endif // ANCHORINDICATOR_H
+inline bool operator==(const DeployableFile &d1, const DeployableFile &d2)
+{
+    return d1.localFilePath() == d2.localFilePath() && d1.remoteDirectory() == d2.remoteDirectory();
+}
+
+inline bool operator!=(const DeployableFile &d1, const DeployableFile &d2)
+{
+    return !(d1 == d2);
+}
+
+PROJECTEXPLORER_EXPORT uint qHash(const DeployableFile &d);
+
+} // namespace ProjectExplorer
+
+#endif // DEPLOYABLEFILE_H

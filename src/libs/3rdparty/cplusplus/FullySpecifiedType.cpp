@@ -55,6 +55,8 @@ FullySpecifiedType FullySpecifiedType::qualifiedType() const
 
     ty.setInline(false);
     ty.setVirtual(false);
+    ty.setOverride(false);
+    ty.setFinal(false);
     ty.setExplicit(false);
 
     ty.setDeprecated(false);
@@ -139,6 +141,18 @@ bool FullySpecifiedType::isVirtual() const
 
 void FullySpecifiedType::setVirtual(bool isVirtual)
 { f._isVirtual = isVirtual; }
+
+bool FullySpecifiedType::isOverride() const
+{ return f._isOverride; }
+
+void FullySpecifiedType::setOverride(bool isOverride)
+{ f._isOverride = isOverride; }
+
+bool FullySpecifiedType::isFinal() const
+{ return f._isFinal; }
+
+void FullySpecifiedType::setFinal(bool isFinal)
+{ f._isFinal = isFinal; }
 
 bool FullySpecifiedType::isExplicit() const
 { return f._isExplicit; }
@@ -226,6 +240,8 @@ void FullySpecifiedType::copySpecifiers(const FullySpecifiedType &type)
     // function specifiers
     f._isInline = type.f._isInline;
     f._isVirtual = type.f._isVirtual;
+    f._isOverride = type.f._isOverride;
+    f._isFinal = type.f._isFinal;
     f._isExplicit = type.f._isExplicit;
 }
 

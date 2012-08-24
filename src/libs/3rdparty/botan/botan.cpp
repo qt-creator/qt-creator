@@ -46239,7 +46239,7 @@ namespace {
 }
 
 #elif defined(BOTAN_TARGET_ARCH_IS_X86_64) && \
-   (defined(BOTAN_BUILD_COMPILER_IS_CLANG) || defined(BOTAN_BUILD_COMPILER_IS_GCC))
+    (defined(BOTAN_BUILD_COMPILER_IS_CLANG) || defined(BOTAN_BUILD_COMPILER_IS_GCC) || defined(BOTAN_BUILD_COMPILER_IS_INTEL))
 
   /*
   * We can't safely use this on x86-32 as some 32-bit ABIs use ebx as

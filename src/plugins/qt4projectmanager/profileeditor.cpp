@@ -196,19 +196,7 @@ TextEditor::BaseTextEditor *ProFileEditorWidget::createEditor()
 
 void ProFileEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
-    QMenu *menu = new QMenu();
-
-    Core::ActionContainer *mcontext =
-            Core::ActionManager::actionContainer(Qt4ProjectManager::Constants::M_CONTEXT);
-    QMenu *contextMenu = mcontext->menu();
-
-    foreach (QAction *action, contextMenu->actions())
-        menu->addAction(action);
-
-    appendStandardContextMenuActions(menu);
-
-    menu->exec(e->globalPos());
-    delete menu;
+    showDefaultContextMenu(e, Constants::M_CONTEXT);
 }
 
 void ProFileEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)

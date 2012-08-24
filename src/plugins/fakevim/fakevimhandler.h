@@ -41,10 +41,12 @@ namespace Internal {
 
 enum RangeMode
 {
+    // Reordering first three enum items here will break
+    // compatibility with clipboard format stored by Vim.
     RangeCharMode,         // v
     RangeLineMode,         // V
-    RangeLineModeExclusive,
     RangeBlockMode,        // Ctrl-v
+    RangeLineModeExclusive,
     RangeBlockAndTailMode // Ctrl-v for D and X
 };
 

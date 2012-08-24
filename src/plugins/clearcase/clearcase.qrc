@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/clearcase">
+        <file>ClearCase.mimetypes.xml</file>
+    </qresource>
+</RCC>

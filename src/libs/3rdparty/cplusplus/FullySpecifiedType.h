@@ -79,6 +79,12 @@ public:
     bool isVirtual() const;
     void setVirtual(bool isVirtual);
 
+    bool isOverride() const;
+    void setOverride(bool isOverride);
+
+    bool isFinal() const;
+    void setFinal(bool isFinal);
+
     bool isExplicit() const;
     void setExplicit(bool isExplicit);
 
@@ -132,6 +138,8 @@ private:
         // function specifiers
         unsigned _isInline: 1;
         unsigned _isVirtual: 1;
+        unsigned _isOverride: 1;
+        unsigned _isFinal: 1;
         unsigned _isExplicit: 1;
 
         // speficiers from attributes

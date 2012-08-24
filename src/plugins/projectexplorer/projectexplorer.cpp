@@ -31,6 +31,7 @@
 #include "projectexplorer.h"
 
 #include "buildsteplist.h"
+#include "deployablefile.h"
 #include "deployconfiguration.h"
 #include "gcctoolchainfactories.h"
 #include "project.h"
@@ -316,6 +317,7 @@ bool ProjectExplorerPlugin::parseArguments(const QStringList &arguments, QString
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
     qRegisterMetaType<ProjectExplorer::RunControl *>();
+    qRegisterMetaType<ProjectExplorer::DeployableFile>("ProjectExplorer::DeployableFile");
 
     if (!parseArguments(arguments, error))
         return false;
