@@ -352,7 +352,7 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
     QByteArray out;
     if (FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
                                + IoUtils::shellQuote(currentDirectory())
-                               + QLatin1String(" && ") + args[0]).toLocal8Bit().constData(), "r")) {
+                               + QLatin1String(" && ") + args).toLocal8Bit().constData(), "r")) {
         while (!feof(proc)) {
             char buff[10 * 1024];
             int read_in = int(fread(buff, 1, sizeof(buff), proc));
