@@ -299,7 +299,7 @@ ProString ProString::mid(int off, int len) const
         off = m_length;
     ret.m_offset += off;
     ret.m_length -= off;
-    if (ret.m_length > len)
+    if ((uint)ret.m_length > (uint)len)  // Unsigned comparison to interpret < 0 as infinite
         ret.m_length = len;
     return ret;
 }
