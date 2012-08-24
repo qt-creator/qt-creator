@@ -545,6 +545,8 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
         }
         const QString alloc = fixNestedTemplates(type.mid(start, pos + 1 - start).trimmed());
         const QString inner = fixNestedTemplates(alloc.mid(15, alloc.size() - 16).trimmed());
+        const QString allocEsc = QRegExp::escape(alloc);
+        const QString innerEsc = QRegExp::escape(inner);
         if (inner == QLatin1String("char")) { // std::string
             simplifyStdString(QLatin1String("char"), QLatin1String("string"), &type);
         } else if (inner == QLatin1String("wchar_t")) { // std::wstring
@@ -553,20 +555,20 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
             simplifyStdString(QLatin1String("unsigned short"), QLatin1String("wstring"), &type);
         }
         // std::vector, std::deque, std::list
-        QRegExp re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(inner, alloc));
+        QRegExp re1(QString::fromLatin1("(vector|list|deque)<%1, ?%2\\s*>").arg(innerEsc, allocEsc));
         QTC_ASSERT(re1.isValid(), return typeIn);
         if (re1.indexIn(type) != -1)
             type.replace(re1.cap(0), QString::fromLatin1("%1<%2>").arg(re1.cap(1), inner));
 
         // std::stack
-        QRegExp stackRE(QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(inner, inner));
+        QRegExp stackRE(QString::fromLatin1("stack<%1, ?std::deque<%2> >").arg(innerEsc, innerEsc));
         stackRE.setMinimal(true);
         QTC_ASSERT(stackRE.isValid(), return typeIn);
         if (stackRE.indexIn(type) != -1)
             type.replace(stackRE.cap(0), QString::fromLatin1("stack<%1>").arg(inner));
 
         // std::set
-        QRegExp setRE(QString::fromLatin1("set<%1, ?std::less<%2>, ?%3\\s*>").arg(inner, inner, alloc));
+        QRegExp setRE(QString::fromLatin1("set<%1, ?std::less<%2>, ?%3\\s*>").arg(innerEsc, innerEsc, allocEsc));
         setRE.setMinimal(true);
         QTC_ASSERT(setRE.isValid(), return typeIn);
         if (setRE.indexIn(type) != -1)
@@ -587,19 +589,21 @@ CPLUSPLUS_EXPORT QString simplifySTLType(const QString &typeIn)
                     break;
             }
             const QString key = chopConst(inner.mid(10, pos - 10));
+            const QString keyEsc = QRegExp::escape(key);
             // Get value: MSVC: 'pair<a const ,b>', gcc: 'pair<const a, b>'
             if (inner.at(++pos) == QLatin1Char(' '))
                 pos++;
-            QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
+            const QString value = inner.mid(pos, inner.size() - pos - 1).trimmed();
+            const QString valueEsc = QRegExp::escape(value);
             QRegExp mapRE1(QString("map<%1, ?%2, ?std::less<%3 ?>, ?%4\\s*>")
-                .arg(key, value, key, alloc));
+                .arg(keyEsc, valueEsc, keyEsc, allocEsc));
             mapRE1.setMinimal(true);
             QTC_ASSERT(mapRE1.isValid(), return typeIn);
             if (mapRE1.indexIn(type) != -1) {
                 type.replace(mapRE1.cap(0), QString("map<%1, %2>").arg(key, value));
             } else {
                 QRegExp mapRE2(QString("map<const %1, ?%2, ?std::less<const %3>, ?%4\\s*>")
-                    .arg(key, value, key, alloc));
+                    .arg(keyEsc, valueEsc, keyEsc, allocEsc));
                 mapRE2.setMinimal(true);
                 if (mapRE2.indexIn(type) != -1) {
                     type.replace(mapRE2.cap(0), QString("map<const %1, %2>").arg(key, value));
