@@ -1091,7 +1091,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         // they cannot be used to terminate loops anyway.
         if (m_cumulative)
             return ReturnTrue;
-        if (m_valuemapStack.isEmpty()) {
+        if (m_valuemapStack.size() == 1) {
             evalError(fL1S("unexpected return()."));
             return ReturnFalse;
         }
