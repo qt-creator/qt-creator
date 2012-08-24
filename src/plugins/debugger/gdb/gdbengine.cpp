@@ -2542,7 +2542,7 @@ QByteArray GdbEngine::breakpointLocation(BreakpointModelId id)
         ? data.fileName : breakLocation(data.fileName);
     // The argument is simply a C-quoted version of the argument to the
     // non-MI "break" command, including the "original" quoting it wants.
-    return "\"\\\"" + GdbMi::escapeCString(fileName).toLocal8Bit() + "\\\":"
+    return "\"\\\"" + GdbMi::escapeCString(fileName.toLocal8Bit()) + "\\\":"
         + QByteArray::number(data.lineNumber) + '"';
 }
 
@@ -2552,7 +2552,7 @@ QByteArray GdbEngine::breakpointLocation2(BreakpointModelId id)
     const BreakpointParameters &data = handler->breakpointData(id);
     const QString fileName = data.pathUsage == BreakpointUseFullPath
         ? data.fileName : breakLocation(data.fileName);
-    return  GdbMi::escapeCString(fileName).toLocal8Bit() + ':'
+    return  GdbMi::escapeCString(fileName.toLocal8Bit()) + ':'
         + QByteArray::number(data.lineNumber);
 }
 
@@ -2685,7 +2685,7 @@ void GdbEngine::handleBreakInsert1(const GdbResponse &response)
         const QString fileName = handler->fileName(id);
         const int lineNumber = handler->lineNumber(id);
         QByteArray cmd = "trace "
-            "\"" + GdbMi::escapeCString(fileName).toLocal8Bit() + "\":"
+            "\"" + GdbMi::escapeCString(fileName.toLocal8Bit()) + "\":"
             + QByteArray::number(lineNumber);
         QVariant vid = QVariant::fromValue(id);
         postCommand(cmd, NeedsStop | RebuildBreakpointModel,

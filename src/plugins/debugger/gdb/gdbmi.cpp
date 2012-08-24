@@ -246,67 +246,34 @@ void GdbMi::dumpChildren(QByteArray * str, bool multiline, int indent) const
     }
 }
 
-template <class String, typename CharType>
-struct EscapeTraits
+QByteArray GdbMi::escapeCString(const QByteArray &ba)
 {
-    static CharType at(const String &s, int  i)
-        { return s.at(i); }
-    static void appendChar(CharType c, String *s)
-        { s->append(c); }
-    static void appendString(const char *c, String *s)
-        { s->append(c); }
-};
-
-template <>
-struct EscapeTraits<QString, ushort>
-{
-    static ushort at(const QString &s, int  i)
-        { return s.at(i).unicode(); }
-    static void appendChar(ushort c, QString *s)
-        { s->append(QLatin1Char(c)); }
-    static void appendString(const char *c, QString *s)
-        { s->append(QLatin1String(c)); }
-};
-
-template<class ST, typename CT>
-inline ST escapeCStringTpl(const ST &ba)
-{
-    ST ret;
+    QByteArray ret;
     ret.reserve(ba.length() * 2);
     for (int i = 0; i < ba.length(); ++i) {
-        const CT c = EscapeTraits<ST, CT>::at(ba, i);
+        const uchar c = ba.at(i);
         switch (c) {
-            case '\\': EscapeTraits<ST, CT>::appendString("\\\\", &ret); break;
-            case '\a': EscapeTraits<ST, CT>::appendString("\\a", &ret); break;
-            case '\b': EscapeTraits<ST, CT>::appendString("\\b", &ret); break;
-            case '\f': EscapeTraits<ST, CT>::appendString("\\f", &ret); break;
-            case '\n': EscapeTraits<ST, CT>::appendString("\\n", &ret); break;
-            case '\r': EscapeTraits<ST, CT>::appendString("\\r", &ret); break;
-            case '\t': EscapeTraits<ST, CT>::appendString("\\t", &ret); break;
-            case '\v': EscapeTraits<ST, CT>::appendString("\\v", &ret); break;
-            case '"': EscapeTraits<ST, CT>::appendString("\\\"", &ret); break;
+            case '\\': ret += "\\\\"; break;
+            case '\a': ret += "\\a"; break;
+            case '\b': ret += "\\b"; break;
+            case '\f': ret += "\\f"; break;
+            case '\n': ret += "\\n"; break;
+            case '\r': ret += "\\r"; break;
+            case '\t': ret += "\\t"; break;
+            case '\v': ret += "\\v"; break;
+            case '"': ret += "\\\""; break;
             default:
                 if (c < 32 || c == 127) {
-                    EscapeTraits<ST, CT>::appendChar('\\', &ret);
-                    EscapeTraits<ST, CT>::appendChar('0' + (c >> 6), &ret);
-                    EscapeTraits<ST, CT>::appendChar('0' + ((c >> 3) & 7), &ret);
-                    EscapeTraits<ST, CT>::appendChar('0' + (c & 7), &ret);
+                    ret += '\\';
+                    ret += ('0' + (c >> 6));
+                    ret += ('0' + ((c >> 3) & 7));
+                    ret += ('0' + (c & 7));
                 } else {
-                    EscapeTraits<ST, CT>::appendChar(c, &ret);
+                    ret += c;
                 }
         }
     }
     return ret;
-}
-
-QString GdbMi::escapeCString(const QString &ba)
-{
-    return escapeCStringTpl<QString, ushort>(ba);
-}
-
-QByteArray GdbMi::escapeCString(const QByteArray &ba)
-{
-    return escapeCStringTpl<QByteArray, uchar>(ba);
 }
 
 QByteArray GdbMi::toString(bool multiline, int indent) const
