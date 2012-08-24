@@ -31,13 +31,16 @@
 
     \title Adding Compilers
 
-    A \e {tool chain} specifies a compiler and other necessary
-    tools for building an application that is \l{glossary-development-target}
-    {targeted} for a particular platform. \QC automatically detects the tool
-    chains that are registered by your system or by \QSDK.
+    Qt is supported on a variety of 32-bit and 64-bit platforms, and can
+    usually be built on each platform with GCC, a vendor-supplied compiler, or
+    a third party compiler. In \QC, a \l{glossary-development-target}{target}
+    specifies the compiler and other necessary tools for building an
+    application for a particular platform.
 
-    You can add tool chains to build applications by using other compilers or
-    with different versions of the automatically detected compilers:
+    \QC automatically detects the compilers that are registered by your system
+    or by an SDK. You can add compilers to build applications by using other
+    compilers or by using additional versions of the automatically detected
+    compilers:
 
     \list
 
@@ -56,36 +59,31 @@
             LLVM compiler for Windows, Linux, and Mac OS X.
     \endlist
 
-    To build an application using GCC, MinGW, or Clang, specify the paths
-    to the directories where the compiler and debugger are located and select
+    To build an application using GCC, MinGW, or Clang, specify the path
+    to the directory where the compiler is located and select
     the application binary interface (ABI) version from the list of available
     versions. You can also create a custom ABI definition.
 
-    You specify the tool chain to use for each \l{glossary-development-target}
-    {target} in \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets.
+    You specify the compiler to use for each target in \gui Tools >
+    \gui Options > \gui {Build & Run} > \gui Targets.
 
-    To add tool chains:
+    To add compilers:
 
     \list 1
 
         \o  Select \gui {Tools > Options > Build & Run > Compilers > Add} and
-            select a
-            compiler in the list.
+            select a compiler in the list.
 
             \image qtcreator-toolchains.png
 
-            To clone the selected tool chain, select \gui {Clone}.
+            To clone the selected compiler, select \gui {Clone}.
 
         \o  In the \gui Name column, double-click the name to change it.
 
         \o  In the \gui{Compiler path} field, enter the path to the directory
             where the compiler is located.
-            \if defined(qcmanual)
-            For WINSCW, enter the path to the Carbide C++ installation directory
-            here.
-            \endif
 
-            The other settings to specify depend on the tool chain.
+            The other settings to specify depend on the compiler.
 
     \endlist
 
