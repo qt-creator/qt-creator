@@ -78,6 +78,7 @@ struct ModeManagerPrivate
     QSignalMapper *m_signalMapper;
     Context m_addedContexts;
     int m_oldCurrent;
+    bool m_saveSettingsOnModeChange;
 };
 
 static ModeManagerPrivate *d;
@@ -104,10 +105,13 @@ ModeManager::ModeManager(Internal::MainWindow *mainWindow,
     d->m_oldCurrent = -1;
     d->m_actionBar = new Internal::FancyActionBar(modeStack);
     d->m_modeStack->addCornerWidget(d->m_actionBar);
+    d->m_saveSettingsOnModeChange = false;
 
     connect(d->m_modeStack, SIGNAL(currentAboutToShow(int)), SLOT(currentTabAboutToChange(int)));
     connect(d->m_modeStack, SIGNAL(currentChanged(int)), SLOT(currentTabChanged(int)));
     connect(d->m_signalMapper, SIGNAL(mapped(int)), this, SLOT(slotActivateMode(int)));
+    connect(ExtensionSystem::PluginManager::instance(), SIGNAL(initializationDone()), this, SLOT(handleStartup()));
+    connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(handleShutdown()));
 }
 
 void ModeManager::init()
@@ -252,6 +256,12 @@ void ModeManager::enabledStateChanged()
     }
 }
 
+void ModeManager::handleStartup()
+{ d->m_saveSettingsOnModeChange = true; }
+
+void ModeManager::handleShutdown()
+{ d->m_saveSettingsOnModeChange = false; }
+
 void ModeManager::aboutToRemoveObject(QObject *obj)
 {
     IMode *mode = Aggregation::query<IMode>(obj);
@@ -290,8 +300,11 @@ void ModeManager::currentTabAboutToChange(int index)
 {
     if (index >= 0) {
         IMode *mode = d->m_modes.at(index);
-        if (mode)
+        if (mode) {
+            if (d->m_saveSettingsOnModeChange)
+                ICore::saveSettings();
             emit currentModeAboutToChange(mode);
+        }
     }
 }
 
