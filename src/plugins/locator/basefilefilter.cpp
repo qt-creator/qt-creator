@@ -31,12 +31,14 @@
 #include "basefilefilter.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <utils/fileutils.h>
 
 #include <QDir>
 #include <QStringMatcher>
 
 using namespace Core;
 using namespace Locator;
+using namespace Utils;
 
 BaseFileFilter::BaseFileFilter()
   : m_forceNewSearchList(false)
@@ -81,7 +83,7 @@ QList<FilterEntry> BaseFileFilter::matchesFor(QFutureInterface<Locator::FilterEn
                 || (!hasWildcard && matcher.indexIn(name) != -1)) {
             QFileInfo fi(path);
             FilterEntry entry(this, fi.fileName(), QString(path + lineNoSuffix));
-            entry.extraInfo = QDir::toNativeSeparators(fi.path());
+            entry.extraInfo = FileUtils::shortNativePath(FileName(fi));
             entry.resolveFileIcon = true;
             if (name.startsWith(needle))
                 matches.append(entry);

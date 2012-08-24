@@ -37,10 +37,12 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildsteplist.h>
+#include <utils/fileutils.h>
 
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
+using namespace Utils;
 
 CMakeLocatorFilter::CMakeLocatorFilter()
 {
@@ -74,7 +76,8 @@ QList<Locator::FilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<Loca
             foreach (CMakeBuildTarget ct, cmakeProject->buildTargets()) {
                 if (ct.title.contains(entry)) {
                     Locator::FilterEntry entry(this, ct.title, cmakeProject->document()->fileName());
-                    entry.extraInfo = cmakeProject->document()->fileName();
+                    entry.extraInfo = FileUtils::shortNativePath(
+                        FileName::fromString(cmakeProject->document()->fileName()));
                     result.append(entry);
                 }
             }

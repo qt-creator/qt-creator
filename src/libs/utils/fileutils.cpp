@@ -205,6 +205,24 @@ FileName FileUtils::resolveSymlinks(const FileName &path)
     return FileName::fromString(f.filePath());
 }
 
+/*!
+  Like QDir::toNativeSeparators(), but use prefix '~' instead of $HOME on unix systems when an
+  absolute path is given.
+
+  return Possibly shortened path with native separators.
+*/
+QString FileUtils::shortNativePath(const FileName &path)
+{
+    if (HostOsInfo::isAnyUnixHost()) {
+        const FileName home = FileName::fromString(QDir::cleanPath(QDir::homePath()));
+        if (path.isChildOf(home)) {
+            return QLatin1Char('~') + QDir::separator()
+                + QDir::toNativeSeparators(path.relativeChildPath(home).toString());
+        }
+    }
+    return path.toUserOutput();
+}
+
 QByteArray FileReader::fetchQrc(const QString &fileName)
 {
     QTC_ASSERT(fileName.startsWith(QLatin1Char(':')), return QByteArray());

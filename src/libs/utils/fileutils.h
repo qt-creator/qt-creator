@@ -96,6 +96,7 @@ public:
                                 QString *error = 0);
     static bool isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp);
     static FileName resolveSymlinks(const FileName &path);
+    static QString shortNativePath(const FileName &path);
 };
 
 class QTCREATOR_UTILS_EXPORT FileReader

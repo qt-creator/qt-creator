@@ -32,6 +32,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <utils/fileutils.h>
 
 #include <QFileInfo>
 #include <QDir>
@@ -39,6 +40,7 @@
 using namespace Core;
 using namespace Locator;
 using namespace Locator::Internal;
+using namespace Utils;
 
 OpenDocumentsFilter::OpenDocumentsFilter(EditorManager *editorManager) :
     m_editorManager(editorManager)
@@ -72,7 +74,7 @@ QList<FilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locator::Fil
             if (!fileName.isEmpty()) {
                 QFileInfo fi(fileName);
                 FilterEntry fiEntry(this, fi.fileName(), QString(fileName + lineNoSuffix));
-                fiEntry.extraInfo = QDir::toNativeSeparators(fi.path());
+                fiEntry.extraInfo = FileUtils::shortNativePath(FileName(fi));
                 fiEntry.resolveFileIcon = true;
                 value.append(fiEntry);
             }
