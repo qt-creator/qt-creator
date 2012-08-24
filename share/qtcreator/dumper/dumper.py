@@ -155,28 +155,33 @@ def lookupType(typestring):
         typesToReport[typestring] = type
         return type
 
-    if typestring.find("(anon") != -1:
-        # gdb doesn't like
-        # '(anonymous namespace)::AddAnalysisMessageSuppressionComment'
-        #typeCache[typestring] = None
-        typeCache[typestring] = type
-        typesToReport[typestring] = type
-        return None
-
     try:
         type = gdb.parse_and_eval("{%s}&main" % typestring).type
-        typeCache[typestring] = type
-        typesToReport[typestring] = type
-        return type
+        if not type is None:
+            typeCache[typestring] = type
+            typesToReport[typestring] = type
+            return type
     except:
         pass
 
+    # See http://sourceware.org/bugzilla/show_bug.cgi?id=13269
+    # gcc produces "{anonymous}", gdb "(anonymous namespace)"
+    # "<unnamed>" has been seen too. The only thing gdb
+    # understands when reading things back is "(anonymous namespace)"
+    if typestring.find("{anonymous}") != -1:
+        ts = typestring
+        ts = ts.replace("{anonymous}", "(anonymous namespace)")
+        type = lookupType(ts)
+        if not type is None:
+            typeCache[typestring] = type
+            typesToReport[typestring] = type
+            return type
+
     #warn(" RESULT FOR 7.2: '%s': %s" % (typestring, type))
-    #typeCache[typestring] = type
-    #return None
 
     # This part should only trigger for
     # gdb 7.1 for types with namespace separators.
+    # And anonymous namespaces.
 
     ts = typestring
     while True:
@@ -215,11 +220,6 @@ def lookupType(typestring):
         type = gdb.lookup_type(ts)
     except RuntimeError, error:
         #warn("LOOKING UP '%s': %s" % (ts, error))
-        if type is None:
-            pos = typestring.find("<unnamed>")
-            if pos != -1:
-                # See http://sourceware.org/bugzilla/show_bug.cgi?id=13269
-                return lookupType(typestring.replace("<unnamed>", "(anonymous namespace)"))
         # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
         exp = "(class '%s'*)0" % ts
         try:
@@ -230,6 +230,11 @@ def lookupType(typestring):
     except:
         #warn("LOOKING UP '%s' FAILED" % ts)
         pass
+
+    if not type is None:
+        typeCache[typestring] = type
+        typesToReport[typestring] = type
+        return type
 
     # This could still be None as gdb.lookup_type("char[3]") generates
     # "RuntimeError: No type named char[3]"
@@ -912,13 +917,15 @@ typesToReport = {}
 
 def bb(args):
     global typesToReport
-    typesToReport = {}
     output = Dumper(args).output
     output.append('],typeinfo=[')
     for name, type in typesToReport.iteritems():
-        output.append('{name="%s",size="%s"}'
-            % (base64.b64encode(name), type.sizeof))
+        # Happens e.g. for '(anonymous namespace)::InsertDefOperation'
+        if not type is None:
+            output.append('{name="%s",size="%s"}'
+                % (base64.b64encode(name), type.sizeof))
     output.append(']')
+    typesToReport = {}
     return "".join(output)
 
 
