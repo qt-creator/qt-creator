@@ -692,7 +692,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             ProValueMap vars;
             QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
-            if (evaluateFileInto(fn, QMakeHandler::EvalAuxFile, &vars, LoadProOnly))
+            if (evaluateFileInto(fn, &vars, LoadProOnly))
                 ret = vars.value(map(args.at(1)));
         }
         break;
@@ -1134,7 +1134,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             ProValueMap vars;
             QString fn = resolvePath(m_option->expandEnvVars(args.at(0).toQString(m_tmp1)));
             fn.detach();
-            if (!evaluateFileInto(fn, QMakeHandler::EvalAuxFile, &vars, LoadProOnly))
+            if (!evaluateFileInto(fn, &vars, LoadProOnly))
                 return ReturnFalse;
             if (args.count() == 2)
                 return returnBool(vars.contains(map(args.at(1))));
@@ -1363,7 +1363,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
             ok = evaluateFile(fn, QMakeHandler::EvalIncludeFile, LoadProOnly | flags);
         } else {
             ProValueMap symbols;
-            if ((ok = evaluateFileInto(fn, QMakeHandler::EvalAuxFile, &symbols, LoadAll | flags))) {
+            if ((ok = evaluateFileInto(fn, &symbols, LoadAll | flags))) {
                 ProValueMap newMap;
                 for (ProValueMap::ConstIterator
                         it = m_valuemapStack.top().constBegin(),

@@ -1768,14 +1768,13 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName, bool silent)
     return ok;
 }
 
-bool QMakeEvaluator::evaluateFileInto(const QString &fileName, QMakeHandler::EvalFileType type,
-        ProValueMap *values, LoadFlags flags)
+bool QMakeEvaluator::evaluateFileInto(const QString &fileName, ProValueMap *values, LoadFlags flags)
 {
     QMakeEvaluator visitor(m_option, m_parser, m_handler);
     visitor.m_caller = this;
     visitor.m_outputDir = m_outputDir;
     visitor.m_featureRoots = m_featureRoots;
-    if (!visitor.evaluateFile(fileName, type, flags))
+    if (!visitor.evaluateFile(fileName, QMakeHandler::EvalAuxFile, flags))
         return false;
     *values = visitor.m_valuemapStack.top();
 #ifdef PROEVALUATOR_FULL

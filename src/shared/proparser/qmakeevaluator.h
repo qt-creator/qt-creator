@@ -151,7 +151,7 @@ public:
     bool evaluateFile(const QString &fileName, QMakeHandler::EvalFileType type,
                       LoadFlags flags);
     bool evaluateFeatureFile(const QString &fileName, bool silent = false);
-    bool evaluateFileInto(const QString &fileName, QMakeHandler::EvalFileType type,
+    bool evaluateFileInto(const QString &fileName,
                           ProValueMap *values, // output-only
                           LoadFlags flags);
     void message(int type, const QString &msg) const;
