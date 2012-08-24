@@ -28,8 +28,6 @@
 **
 **************************************************************************/
 
-#define QT_NO_CAST_FROM_ASCII
-
 #include "scriptengine.h"
 
 #include "debuggerstartparameters.h"
