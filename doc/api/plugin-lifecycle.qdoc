@@ -106,7 +106,10 @@
     In the \c delayedInitialize method, a plugin can perform non-critical initialization
     that could unnecessarily delay showing the \QC UI if done during startup.
 
-    Before shutdown, the \c Core plugin's \l{Core::ICore} sends the
+    After all delayed initializations are done the \l{ExtensionSystem::PluginManager}{PluginManager}
+    sends the \l{ExtensionSystem::PluginManager::initializationDone()}{initializationDone()} signal.
+
+    Before shutdown, the \c Core plugin \l{Core::ICore} sends the
     \l{Core::ICore::coreAboutToClose()}{coreAboutToClose()} signal. After that, the
     plugin manager starts its shutdown sequence:
 
