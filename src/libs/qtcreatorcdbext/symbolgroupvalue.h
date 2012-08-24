@@ -145,6 +145,9 @@ public:
     static ULONG64 readUnsignedValue(CIDebugDataSpaces *ds,
                                      ULONG64 address, ULONG debuggeeTypeSize, ULONG64 defaultValue = 0,
                                      std::string *errorMessage = 0);
+    static int readIntValue(CIDebugDataSpaces *ds,
+                            ULONG64 address, int defaultValue = 0,
+                            std::string *errorMessage = 0);
     static double readDouble(CIDebugDataSpaces *ds,
                              ULONG64 address, double defaultValue = 0.0,
                              std::string *errorMessage = 0);

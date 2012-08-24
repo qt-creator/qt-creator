@@ -89,7 +89,7 @@ enum KnownType
     KT_QXmltem = KT_Qt_Type + KT_Qt_MovableType + 40,
     KT_QXmlName = KT_Qt_Type + KT_Qt_MovableType + 41,
     KT_QBitArray = KT_Qt_Type + KT_Qt_MovableType + 42,
-    KT_QDateTime = KT_Qt_Type + KT_Qt_MovableType + 43,
+    KT_QDateTime = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 43,
     KT_QFileInfo = KT_Qt_Type + KT_Qt_MovableType + KT_HasSimpleDumper + 44,
     KT_QMetaEnum = KT_Qt_Type + KT_Qt_MovableType + 45,
     KT_QVector2D = KT_Qt_Type + KT_Qt_MovableType + 46,

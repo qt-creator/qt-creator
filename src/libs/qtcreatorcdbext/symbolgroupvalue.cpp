@@ -268,6 +268,18 @@ ULONG64 SymbolGroupValue::readUnsignedValue(CIDebugDataSpaces *ds,
     return readPODFromMemory<ULONG64>(ds, address, debuggeeTypeSize, defaultValue, errorMessage);
 }
 
+// Note: sizeof(int) should always be 4 on Win32/Win64, no need to
+// differentiate between host and debuggee int types. When implementing
+// something like 'long', different size on host/debuggee must be taken
+// into account  (shifting signedness bits around).
+int SymbolGroupValue::readIntValue(CIDebugDataSpaces *ds,
+                                   ULONG64 address, int defaultValue,
+                                   std::string *errorMessage /* = 0 */)
+{
+    return readPODFromMemory<int>(ds, address, sizeof(int),
+                                  defaultValue, errorMessage);
+}
+
 double SymbolGroupValue::readDouble(CIDebugDataSpaces *ds, ULONG64 address, double defaultValue,
                                     std::string *errorMessage /* = 0 */)
 {
@@ -1585,6 +1597,13 @@ static unsigned qStringSize(const SymbolGroupValueContext &ctx)
     return size;
 }
 
+/* Return the size of a QList via QStringList. */
+static unsigned qListSize(const SymbolGroupValueContext &ctx)
+{
+    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QStringList").c_str());
+    return size;
+}
+
 /* Return the size of a QByteArray */
 static unsigned qByteArraySize(const SymbolGroupValueContext &ctx)
 {
@@ -1742,7 +1761,12 @@ static inline bool dumpQFileInfo(const SymbolGroupValue &v, std::wostream &str)
  * Dump 1st string past its QSharedData base class. */
 static bool inline dumpQDir(const SymbolGroupValue &v, std::wostream &str)
 {
-    return dumpQStringFromQPrivateClass(v, QPDM_qSharedData, 0,  str);
+    // Access QDirPrivate's dirEntry, which has the path as first member.
+    const unsigned listSize = qListSize(v.context());
+    const unsigned offset = padOffset(listSize + 2 * SymbolGroupValue::intSize())
+            + padOffset(SymbolGroupValue::pointerSize() + SymbolGroupValue::sizeOf("bool"))
+            + 2 * listSize;
+    return dumpQStringFromQPrivateClass(v, QPDM_qSharedData, offset,  str);
 }
 
 /* Dump QRegExp, for whose private class no debugging information is available.
@@ -1829,9 +1853,42 @@ static inline bool dumpQScriptValue(const SymbolGroupValue &v, std::wostream &st
 static inline bool dumpQUrl(const SymbolGroupValue &v, std::wostream &str)
 {
     // Get address of the original-encoded byte array, obtain value by dumping at address
-    const ULONG offset = padOffset(qAtomicIntSize(v.context()))
+    if (QtInfo::get(v.context()).version < 5) {
+        const ULONG offset = padOffset(qAtomicIntSize(v.context()))
                          + 6 * qStringSize(v.context()) + qByteArraySize(v.context());
-    return dumpQByteArrayFromQPrivateClass(v, QPDM_None, offset, str);
+        return dumpQByteArrayFromQPrivateClass(v, QPDM_None, offset, str);
+    }
+    ULONG offset = qAtomicIntSize(v.context()) +
+                   SymbolGroupValue::intSize();
+    const unsigned stringSize = qStringSize(v.context());
+    str << L"Scheme: ";
+    if (!dumpQStringFromQPrivateClass(v, QPDM_None, offset, str))
+        return false;
+    offset += stringSize;
+    str << L" User: ";
+    if (!dumpQStringFromQPrivateClass(v, QPDM_None, offset, str))
+        return false;
+    offset += stringSize;
+    str << L" Password: ";
+    if (!dumpQStringFromQPrivateClass(v, QPDM_None, offset, str))
+        return false;
+    offset += stringSize;
+    str << L" Host: ";
+    if (!dumpQStringFromQPrivateClass(v, QPDM_None, offset, str))
+        return false;
+    offset += stringSize;
+    str << L" Path: ";
+    if (!dumpQStringFromQPrivateClass(v, QPDM_None, offset, str))
+        return false;
+    offset += stringSize;
+    str << L" Query: ";
+    if (!dumpQStringFromQPrivateClass(v, QPDM_None, offset, str))
+        return false;
+    offset += stringSize;
+    str << L" Fragment: ";
+    if (!dumpQStringFromQPrivateClass(v, QPDM_None, offset, str))
+        return false;
+    return true;
 }
 
 // Dump QColor
@@ -1925,15 +1982,22 @@ static inline bool dumpQFlags(const SymbolGroupValue &v, std::wostream &str)
     return false;
 }
 
-static inline bool dumpQDate(const SymbolGroupValue &v, std::wostream &str)
+static bool dumpJulianDate(int julianDay, std::wostream &str)
 {
-    if (const SymbolGroupValue julianDayV = v["jd"]) {
-        const int julianDay = julianDayV.intValue();
-        if (julianDay > 0) {
-            formatJulianDate(str, julianDay);
-            return true;
-        }
+    if (julianDay < 0) {
+        return false;
+    } else if (!julianDay) {
+        str << L"<null>";
+    } else {
+        formatJulianDate(str, julianDay);
     }
+    return true;
+}
+
+static bool dumpQDate(const SymbolGroupValue &v, std::wostream &str)
+{
+    if (const SymbolGroupValue julianDayV = v["jd"])
+        return dumpJulianDate(julianDayV.intValue(), str);
     return false;
 }
 
@@ -1947,6 +2011,31 @@ static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str)
         }
     }
     return false;
+}
+
+// QDateTime has an unexported private class. Obtain date and time
+// from memory.
+static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
+{
+    const ULONG64 dateAddr = addressOfQPrivateMember(v, QPDM_qSharedData, 0);
+    if (!dateAddr)
+        return false;
+    const int date =
+        SymbolGroupValue::readIntValue(v.context().dataspaces,
+                                       dateAddr, SymbolGroupValue::intSize(), 0);
+    if (!date) {
+        str << L"<null>";
+        return true;
+    }
+    if (!dumpJulianDate(date, str))
+        return false;
+    const ULONG64 timeAddr = dateAddr + padOffset(SymbolGroupValue::intSize());
+    const int time =
+        SymbolGroupValue::readIntValue(v.context().dataspaces,
+                                       timeAddr, SymbolGroupValue::intSize(), 0);
+    str << L' ';
+    formatMilliSeconds(str, time);
+    return true;
 }
 
 // Dump a rectangle in X11 syntax
@@ -2423,6 +2512,9 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
         break;
     case KT_QTime:
         rc = dumpQTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_QDateTime:
+        rc = dumpQDateTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QPoint:
     case KT_QPointF:
