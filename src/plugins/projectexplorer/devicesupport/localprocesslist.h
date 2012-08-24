@@ -57,15 +57,11 @@ private:
 
 private slots:
     void handleUpdate();
-#ifdef Q_OS_UNIX
     void reportDelayedKillStatus();
-#endif
 
 private:
     const qint64 m_myPid;
-#ifdef Q_OS_UNIX
     QString m_error;
-#endif
 };
 
 } // namespace Internal
