@@ -1,11 +1,9 @@
 greaterThan(QT_MAJOR_VERSION, 4): QT += core-private
 include(../qttest.pri)
-include($$IDE_SOURCE_TREE/src/shared/json/json.pri)
 include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
-DEFINES += JSON_INCLUDE_PRI
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger
-UTILSDIR    = $$IDE_SOURCE_TREE/src/libs
+UTILSDIR    = $$IDE_SOURCE_TREE/src/libs/utils
 MACROSDIR   = $$IDE_SOURCE_TREE/share/qtcreator/dumper
 
 SOURCES += \

@@ -273,15 +273,6 @@ QtcPlugin {
     }
 
     Group {
-        prefix: "../../shared/json/"
-        files: [
-            "json_global.h",
-            "json.cpp",
-            "json.h"
-        ]
-    }
-
-    Group {
         condition: qbs.targetOS == "windows"
         files: [
             "registerpostmortemaction.cpp",
