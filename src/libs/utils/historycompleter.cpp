@@ -180,7 +180,9 @@ HistoryCompleter::~HistoryCompleter()
 
 bool HistoryCompleter::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Down) {
+    if (event->type() == QEvent::KeyPress &&
+            static_cast<QKeyEvent *>(event)->key() == Qt::Key_Down &&
+            static_cast<QLineEdit *>(widget())->text().isEmpty()) {
         setCompletionPrefix(QString());
         complete();
     }
