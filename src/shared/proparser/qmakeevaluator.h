@@ -105,11 +105,15 @@ public:
     void setExtraVars(const ProValueMap &extraVars) { m_extraVars = extraVars; }
     void setExtraConfigs(const ProStringList &extraConfigs) { m_extraConfigs = extraConfigs; }
 #endif
+    void setOutputDir(const QString &outputDir) { m_outputDir = outputDir; }
 
     ProStringList values(const ProKey &variableName) const;
     ProStringList &valuesRef(const ProKey &variableName);
     ProString first(const ProKey &variableName) const;
     ProString propertyValue(const ProKey &val) const;
+
+    ProString dirSep() const { return m_dirSep; }
+    bool isHostBuild() const { return m_hostBuild; }
 
     enum VisitReturn {
         ReturnFalse,
