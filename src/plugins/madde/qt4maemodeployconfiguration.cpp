@@ -299,7 +299,9 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
     Q_ASSERT(canCreate(parent, id));
 
     const QString displayName = displayNameForId(id);
-    DeployConfiguration * const dc = new Qt4MaemoDeployConfiguration(parent, id, displayName);
+    Qt4MaemoDeployConfiguration * const dc = new Qt4MaemoDeployConfiguration(parent, id, displayName);
+    dc->setupDebianPackaging();
+
     if (id == Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId()) {
         dc->stepList()->insertStep(0, new MaemoMakeInstallToSysrootStep(dc->stepList()));
         dc->stepList()->insertStep(1, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
