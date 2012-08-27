@@ -56,7 +56,7 @@ enum TextStyle {
     C_TYPE,
     C_LOCAL,
     C_FIELD,
-    C_STATIC,
+    C_ENUMERATION,
     C_VIRTUAL_METHOD,
     C_FUNCTION,
     C_KEYWORD,

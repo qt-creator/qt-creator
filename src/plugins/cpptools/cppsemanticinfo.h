@@ -48,7 +48,7 @@ public:
         TypeUse,
         LocalUse,
         FieldUse,
-        StaticUse,
+        EnumerationUse,
         VirtualMethodUse,
         LabelUse,
         MacroUse,

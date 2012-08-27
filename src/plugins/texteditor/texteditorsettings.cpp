@@ -139,7 +139,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescriptions.append(FormatDescription(C_TYPE, tr("Type"), Qt::darkMagenta));
     formatDescriptions.append(FormatDescription(C_LOCAL, tr("Local")));
     formatDescriptions.append(FormatDescription(C_FIELD, tr("Field"), Qt::darkRed));
-    formatDescriptions.append(FormatDescription(C_STATIC, tr("Static"), Qt::darkMagenta));
+    formatDescriptions.append(FormatDescription(C_ENUMERATION, tr("Enumeration"), Qt::darkMagenta));
 
     Format functionFormat;
     formatDescriptions.append(FormatDescription(C_FUNCTION, tr("Function"), functionFormat));

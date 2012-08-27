@@ -1765,8 +1765,8 @@ void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
             fs.toTextCharFormat(TextEditor::C_LOCAL);
     m_semanticHighlightFormatMap[SemanticInfo::FieldUse] =
             fs.toTextCharFormat(TextEditor::C_FIELD);
-    m_semanticHighlightFormatMap[SemanticInfo::StaticUse] =
-            fs.toTextCharFormat(TextEditor::C_STATIC);
+    m_semanticHighlightFormatMap[SemanticInfo::EnumerationUse] =
+            fs.toTextCharFormat(TextEditor::C_ENUMERATION);
     m_semanticHighlightFormatMap[SemanticInfo::VirtualMethodUse] =
             fs.toTextCharFormat(TextEditor::C_VIRTUAL_METHOD);
     m_semanticHighlightFormatMap[SemanticInfo::LabelUse] =
