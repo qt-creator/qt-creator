@@ -50,7 +50,7 @@ static QSettings *theSettings = 0;
 class HistoryCompleterPrivate : public QAbstractListModel
 {
 public:
-    HistoryCompleterPrivate() : maxLines(30) {}
+    HistoryCompleterPrivate() : maxLines(30), lineEdit(0) {}
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -62,6 +62,7 @@ public:
     QStringList list;
     QString historyKey;
     int maxLines;
+    QLineEdit *lineEdit;
 };
 
 class HistoryLineDelegate : public QItemDelegate
@@ -166,12 +167,15 @@ HistoryCompleter::HistoryCompleter(QLineEdit *lineEdit, const QString &historyKe
 
     d->historyKey = QLatin1String("CompleterHistory/") + historyKey;
     d->list = theSettings->value(d->historyKey).toStringList();
+    d->lineEdit = lineEdit;
     if (d->list.count())
         lineEdit->setText(d->list.at(0));
 
     setModel(d);
     setPopup(new HistoryLineView(d));
     lineEdit->installEventFilter(this);
+
+    connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(saveHistory()));
 }
 
 HistoryCompleter::~HistoryCompleter()
@@ -181,9 +185,9 @@ HistoryCompleter::~HistoryCompleter()
 
 bool HistoryCompleter::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress &&
-            static_cast<QKeyEvent *>(event)->key() == Qt::Key_Down &&
-            static_cast<QLineEdit *>(widget())->text().isEmpty()) {
+    if (event->type() == QEvent::KeyPress
+            && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Down
+            && !popup()->isVisible()) {
         setCompletionPrefix(QString());
         complete();
     }
@@ -212,7 +216,7 @@ void HistoryCompleter::clearHistory()
 
 void HistoryCompleter::saveHistory()
 {
-    d->saveEntry(completionPrefix());
+    d->saveEntry(d->lineEdit->text());
 }
 
 void HistoryCompleter::setSettings(QSettings *settings)
