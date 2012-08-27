@@ -54,10 +54,10 @@
 namespace Debugger {
 namespace Internal {
 
-class GdbOptionsPagePrivate : public QWidget
+class GdbOptionsPageWidget : public QWidget
 {
 public:
-    explicit GdbOptionsPagePrivate(QWidget *parent);
+    explicit GdbOptionsPageWidget(QWidget *parent);
 
     QGroupBox *groupBoxGeneral;
     QLabel *labelGdbWatchdogTimeout;
@@ -91,7 +91,7 @@ public:
     QString searchKeywords;
 };
 
-GdbOptionsPagePrivate::GdbOptionsPagePrivate(QWidget *parent)
+GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     : QWidget(parent)
 {
     groupBoxGeneral = new QGroupBox(this);
@@ -338,7 +338,6 @@ GdbOptionsPagePrivate::GdbOptionsPagePrivate(QWidget *parent)
 }
 
 GdbOptionsPage::GdbOptionsPage()
-    : d(0)
 {
     setId(QLatin1String("M.Gdb"));
     setDisplayName(tr("GDB"));
@@ -349,30 +348,29 @@ GdbOptionsPage::GdbOptionsPage()
 
 GdbOptionsPage::~GdbOptionsPage()
 {
-    delete d;
 }
 
 QWidget *GdbOptionsPage::createPage(QWidget *parent)
 {
-    d = new GdbOptionsPagePrivate(parent);
-    return d;
+    m_widget = new GdbOptionsPageWidget(parent);
+    return m_widget;
 }
 
 void GdbOptionsPage::apply()
 {
-    if (d)
-        d->group.apply(Core::ICore::settings());
+    if (m_widget)
+        m_widget->group.apply(Core::ICore::settings());
 }
 
 void GdbOptionsPage::finish()
 {
-    if (d)
-        d->group.finish();
+    if (m_widget)
+        m_widget->group.finish();
 }
 
 bool GdbOptionsPage::matches(const QString &s) const
 {
-    return d && d->searchKeywords.contains(s, Qt::CaseInsensitive);
+    return m_widget && m_widget->searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 } // namespace Internal

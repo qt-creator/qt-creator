@@ -32,11 +32,12 @@
 #define GDBOPTIONSPAGE_H
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <QPointer>
 
 namespace Debugger {
 namespace Internal {
 
-class GdbOptionsPagePrivate;
+class GdbOptionsPageWidget;
 
 class GdbOptionsPage : public Core::IOptionsPage
 {
@@ -51,7 +52,7 @@ public:
     bool matches(const QString &) const;
 
 private:
-    GdbOptionsPagePrivate *d;
+    QPointer<GdbOptionsPageWidget> m_widget;
 };
 
 } // namespace Internal
