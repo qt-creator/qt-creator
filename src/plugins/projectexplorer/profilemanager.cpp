@@ -59,10 +59,10 @@ static const char PROFILE_FILENAME[] = "/qtcreator/profiles.xml";
 using Utils::PersistentSettingsWriter;
 using Utils::PersistentSettingsReader;
 
-static QString settingsFileName()
+static Utils::FileName settingsFileName()
 {
     QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
-    return settingsLocation.absolutePath() + QLatin1String(PROFILE_FILENAME);
+    return Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String(PROFILE_FILENAME));
 }
 
 namespace ProjectExplorer {
@@ -86,14 +86,19 @@ public:
     bool m_initialized;
     QList<ProfileInformation *> m_informationList;
     QList<Profile *> m_profileList;
+    Utils::PersistentSettingsWriter *m_writer;
 };
 
 ProfileManagerPrivate::ProfileManagerPrivate()
-    : m_defaultProfile(0), m_initialized(false)
+    : m_defaultProfile(0), m_initialized(false),
+      m_writer(new Utils::PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles")))
 { }
 
 ProfileManagerPrivate::~ProfileManagerPrivate()
 {
+    qDeleteAll(m_informationList);
+    qDeleteAll(m_profileList);
+    delete m_writer;
 }
 
 QList<Task> ProfileManagerPrivate::validateProfile(Profile *p) const
@@ -148,7 +153,7 @@ void ProfileManager::restoreProfiles()
 
     // read all profiles from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    ProfileList system = restoreProfiles(systemSettingsFile.absolutePath() + QLatin1String(PROFILE_FILENAME));
+    ProfileList system = restoreProfiles(Utils::FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(PROFILE_FILENAME)));
     QList<Profile *> readProfiles = system.profiles;
     // make sure we mark these as autodetected!
     foreach (Profile *p, readProfiles)
@@ -213,8 +218,6 @@ void ProfileManager::restoreProfiles()
 ProfileManager::~ProfileManager()
 {
     // Clean out profile information to avoid calling them during deregistration:
-    qDeleteAll(d->m_informationList);
-    qDeleteAll(d->m_profileList);
     delete d;
     m_instance = 0;
 }
@@ -224,21 +227,20 @@ void ProfileManager::saveProfiles()
     if (!d->m_initialized) // ignore save requests while we are not initialized.
         return;
 
-    PersistentSettingsWriter writer;
-    writer.saveValue(QLatin1String(PROFILE_FILE_VERSION_KEY), 1);
+    d->m_writer->saveValue(QLatin1String(PROFILE_FILE_VERSION_KEY), 1);
 
     int count = 0;
     foreach (Profile *p, profiles()) {
         QVariantMap tmp = p->toMap();
         if (tmp.isEmpty())
             continue;
-        writer.saveValue(QString::fromLatin1(PROFILE_DATA_KEY) + QString::number(count), tmp);
+        d->m_writer->saveValue(QString::fromLatin1(PROFILE_DATA_KEY) + QString::number(count), tmp);
         ++count;
     }
-    writer.saveValue(QLatin1String(PROFILE_COUNT_KEY), count);
-    writer.saveValue(QLatin1String(PROFILE_DEFAULT_KEY),
+    d->m_writer->saveValue(QLatin1String(PROFILE_COUNT_KEY), count);
+    d->m_writer->saveValue(QLatin1String(PROFILE_DEFAULT_KEY),
                      d->m_defaultProfile ? QString::fromLatin1(d->m_defaultProfile->id().name()) : QString());
-    writer.save(settingsFileName(), QLatin1String("QtCreatorProfiles"), Core::ICore::mainWindow());
+    d->m_writer->save(Core::ICore::mainWindow());
 }
 
 bool greaterPriority(ProfileInformation *a, ProfileInformation *b)
@@ -272,7 +274,7 @@ void ProfileManager::deregisterProfileInformation(ProfileInformation *pi)
     delete pi;
 }
 
-ProfileManager::ProfileList ProfileManager::restoreProfiles(const QString &fileName)
+ProfileManager::ProfileList ProfileManager::restoreProfiles(const Utils::FileName &fileName)
 {
     ProfileList result;
 
@@ -300,7 +302,7 @@ ProfileManager::ProfileList ProfileManager::restoreProfiles(const QString &fileN
         } else {
             delete p;
             qWarning("Warning: Unable to restore profiles stored in %s at position %d.",
-                     qPrintable(QDir::toNativeSeparators(fileName)), i);
+                     qPrintable(fileName.toUserOutput()), i);
         }
     }
     const QString defaultId = data.value(QLatin1String(PROFILE_DEFAULT_KEY)).toString();

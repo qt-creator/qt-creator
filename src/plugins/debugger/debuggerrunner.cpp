@@ -578,17 +578,12 @@ static DebuggerEngineType guessCppEngineTypeForAbi(const DebuggerStartParameters
     return NoEngineType;
 }
 
-static DebuggerEngineType guessCppEngineType(const DebuggerStartParameters &sp, RunConfiguration *rc)
+static DebuggerEngineType guessCppEngineType(const DebuggerStartParameters &sp)
 {
-    if (rc) {
-        if (Target *target = rc->target()) {
-            Profile *profile = target->profile();
-            if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile)) {
-                DebuggerEngineType et = guessCppEngineTypeForAbi(sp, tc->targetAbi());
-                if (et != NoEngineType)
-                    return et;
-            }
-        }
+    if (sp.toolChainAbi.isValid()) {
+        const  DebuggerEngineType et = guessCppEngineTypeForAbi(sp, sp.toolChainAbi);
+        if (et != NoEngineType)
+            return et;
     }
 
     #ifdef Q_OS_WIN
@@ -628,23 +623,24 @@ static void fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc)
 
     if (rc) {
         DebuggerRunConfigurationAspect *aspect = rc->debuggerAspect();
-        bool useCppDebugger = aspect->useCppDebugger();
-        bool useQmlDebugger = aspect->useQmlDebugger();
+        if (const Target *target = rc->target())
+            fillParameters(&sp, target->profile());
+        const bool useCppDebugger = aspect->useCppDebugger();
+        const bool useQmlDebugger = aspect->useQmlDebugger();
         if (useQmlDebugger) {
             if (useCppDebugger) {
                 sp.masterEngineType = QmlCppEngineType;
-                sp.firstSlaveEngineType = guessCppEngineType(sp, rc);
+                sp.firstSlaveEngineType = guessCppEngineType(sp);
                 sp.secondSlaveEngineType = QmlCppEngineType;
             } else {
                 sp.masterEngineType = QmlEngineType;
             }
         } else {
-            sp.masterEngineType = guessCppEngineType(sp, rc);
+            sp.masterEngineType = guessCppEngineType(sp);
         }
         return;
     }
-
-    sp.masterEngineType = guessCppEngineType(sp, rc);
+    sp.masterEngineType = guessCppEngineType(sp);
 }
 
 DebuggerRunControl *DebuggerRunControlFactory::doCreate

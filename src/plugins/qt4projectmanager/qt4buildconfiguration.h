@@ -78,9 +78,6 @@ public:
     // not really nice, the build configuration should save the arguments
     // since they are needed for reevaluation
     void emitQMakeBuildConfigurationChanged();
-    // used by qmake step to notify that the build directory was initialized
-    // not really nice
-    void emitBuildDirectoryInitialized();
 
     QStringList configCommandLineArguments() const;
 
@@ -124,7 +121,7 @@ public:
     bool supportsShadowBuilds();
 
 public slots:
-    void emitEvaluateBuildSystem();
+    void emitProFileEvaluateNeeded();
 
 signals:
     /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even

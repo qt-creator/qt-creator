@@ -33,6 +33,8 @@
 
 #include "texteditor_global.h"
 
+#include <utils/fileutils.h>
+
 #include <QObject>
 
 namespace TextEditor {
@@ -68,8 +70,8 @@ public:
 
     void loadCustomCodeStyles();
 
-    ICodeStylePreferences *importCodeStyle(const QString &fileName);
-    void exportCodeStyle(const QString &fileName, ICodeStylePreferences *codeStyle) const;
+    ICodeStylePreferences *importCodeStyle(const Utils::FileName &fileName);
+    void exportCodeStyle(const Utils::FileName &fileName, ICodeStylePreferences *codeStyle) const;
 
 signals:
     void codeStyleAdded(ICodeStylePreferences *);
@@ -80,12 +82,11 @@ private slots:
 
 private:
     QString settingsDir() const;
-    QString settingsPath(const QString &id) const;
-    ICodeStylePreferences *loadCodeStyle(const QString &fileName);
+    Utils::FileName settingsPath(const QString &id) const;
+    ICodeStylePreferences *loadCodeStyle(const Utils::FileName &fileName);
     void saveCodeStyle(ICodeStylePreferences *codeStyle) const;
 
     Internal::CodeStylePoolPrivate *d;
-
 };
 
 } // namespace TextEditor

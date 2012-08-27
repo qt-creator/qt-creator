@@ -42,7 +42,8 @@
 #include <QPlainTextEdit>
 
 namespace Utils {
-    class PathChooser;
+class FancyLineEdit;
+class PathChooser;
 }
 
 namespace ProjectExplorer {
@@ -144,7 +145,7 @@ private:
     QPlainTextEdit *m_output;
     QPushButton *m_runCMake;
     Utils::QtcProcess *m_cmakeProcess;
-    QLineEdit *m_argumentsLineEdit;
+    Utils::FancyLineEdit *m_argumentsLineEdit;
     Utils::PathChooser *m_cmakeExecutable;
     QComboBox *m_generatorComboBox;
     QLabel *m_descriptionLabel;

@@ -105,8 +105,8 @@ FindToolBar::FindToolBar(FindPlugin *plugin, CurrentDocumentFind *currentDocumen
 
     m_findCompleter->setModel(m_plugin->findCompletionModel());
     m_replaceCompleter->setModel(m_plugin->replaceCompletionModel());
-    m_ui.findEdit->setCompleter(m_findCompleter);
-    m_ui.replaceEdit->setCompleter(m_replaceCompleter);
+    m_ui.findEdit->setSpecialCompleter(m_findCompleter);
+    m_ui.replaceEdit->setSpecialCompleter(m_replaceCompleter);
 
     QMenu *lineEditMenu = new QMenu(m_ui.findEdit);
     m_ui.findEdit->setButtonMenu(Utils::FancyLineEdit::Left, lineEditMenu);

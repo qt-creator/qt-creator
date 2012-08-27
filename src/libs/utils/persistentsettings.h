@@ -33,6 +33,8 @@
 
 #include "utils_global.h"
 
+#include "fileutils.h"
+
 #include <QMap>
 #include <QVariant>
 
@@ -48,7 +50,7 @@ public:
     PersistentSettingsReader();
     QVariant restoreValue(const QString &variable) const;
     QVariantMap restoreValues() const;
-    bool load(const QString &fileName);
+    bool load(const FileName &fileName);
 
 private:
     QMap<QString, QVariant> m_valueMap;
@@ -57,12 +59,17 @@ private:
 class QTCREATOR_UTILS_EXPORT PersistentSettingsWriter
 {
 public:
-    PersistentSettingsWriter();
+    PersistentSettingsWriter(const FileName &fileName, const QString &docType);
     void saveValue(const QString &variable, const QVariant &value);
-    bool save(const QString &fileName, const QString &docType, QWidget *parent) const;
+    bool save(QWidget *parent) const;
+
+    Utils::FileName fileName() const;
 
 private:
     QMap<QString, QVariant> m_valueMap;
+    const Utils::FileName m_fileName;
+    const QString m_docType;
+    mutable bool m_mustSave;
 };
 
 } // namespace Utils

@@ -448,14 +448,8 @@ bool GenericProject::fromMap(const QVariantMap &map)
 
     setIncludePaths(allIncludePaths());
 
-    evaluateBuildSystem();
-    return true;
-}
-
-void GenericProject::evaluateBuildSystem()
-{
     refresh(Everything);
-    buildSystemEvaluationFinished(true);
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

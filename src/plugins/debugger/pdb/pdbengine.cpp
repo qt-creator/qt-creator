@@ -28,8 +28,6 @@
 **
 **************************************************************************/
 
-#define QT_NO_CAST_FROM_ASCII
-
 #include "pdbengine.h"
 
 #include "debuggerstartparameters.h"

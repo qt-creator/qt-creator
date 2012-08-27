@@ -120,7 +120,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     m_queryModel->setStringList(m_parameters->savedQueries);
     QCompleter *completer = new QCompleter(this);
     completer->setModel(m_queryModel);
-    m_queryLineEdit->setCompleter(completer);
+    m_queryLineEdit->setSpecialCompleter(completer);
     filterLayout->addWidget(queryLabel);
     filterLayout->addWidget(m_queryLineEdit);
     filterLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));

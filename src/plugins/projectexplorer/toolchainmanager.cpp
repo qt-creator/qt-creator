@@ -56,10 +56,10 @@ static const char LEGACY_TOOLCHAIN_FILENAME[] = "/toolChains.xml";
 using Utils::PersistentSettingsWriter;
 using Utils::PersistentSettingsReader;
 
-static QString settingsFileName(const QString &path)
+static Utils::FileName settingsFileName(const QString &path)
 {
     QFileInfo settingsLocation(ExtensionSystem::PluginManager::settings()->fileName());
-    return settingsLocation.absolutePath() + path;
+    return Utils::FileName::fromString(settingsLocation.absolutePath() + path);
 }
 
 namespace ProjectExplorer {
@@ -76,20 +76,26 @@ class ToolChainManagerPrivate
 {
 public:
     ToolChainManagerPrivate(ToolChainManager *parent);
+    ~ToolChainManagerPrivate();
 
     QList<ToolChain *> &toolChains();
 
     ToolChainManager *q;
     bool m_initialized;
     QMap<QString, Utils::FileName> m_abiToDebugger;
+    Utils::PersistentSettingsWriter *m_writer;
 
 private:
     QList<ToolChain *> m_toolChains;
 };
 
 ToolChainManagerPrivate::ToolChainManagerPrivate(ToolChainManager *parent)
-    : q(parent), m_initialized(false)
+    : q(parent), m_initialized(false),
+      m_writer(new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains")))
 { }
+
+ToolChainManagerPrivate::~ToolChainManagerPrivate()
+{ delete m_writer; }
 
 QList<ToolChain *> &ToolChainManagerPrivate::toolChains()
 {
@@ -136,7 +142,7 @@ void ToolChainManager::restoreToolChains()
     // read all tool chains from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
     QList<ToolChain *> readTcs =
-            restoreToolChains(systemSettingsFile.absolutePath() + QLatin1String(LEGACY_TOOLCHAIN_FILENAME));
+            restoreToolChains(Utils::FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(LEGACY_TOOLCHAIN_FILENAME)));
     // make sure we mark these as autodetected!
     foreach (ToolChain *tc, readTcs)
         tc->setAutoDetected(true);
@@ -146,8 +152,8 @@ void ToolChainManager::restoreToolChains()
 
     // read all tool chains from user file.
     // Read legacy settings once and keep them around...
-    QString fileName = settingsFileName(QLatin1String(TOOLCHAIN_FILENAME));
-    if (!QFileInfo(fileName).exists())
+    Utils::FileName fileName = settingsFileName(QLatin1String(TOOLCHAIN_FILENAME));
+    if (!fileName.toFileInfo().exists())
         fileName = settingsFileName(QLatin1String(LEGACY_TOOLCHAIN_FILENAME));
     readTcs = restoreToolChains(fileName);
 
@@ -203,8 +209,7 @@ ToolChainManager::~ToolChainManager()
 
 void ToolChainManager::saveToolChains()
 {
-    PersistentSettingsWriter writer;
-    writer.saveValue(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 1);
+    d->m_writer->saveValue(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 1);
 
     int count = 0;
     foreach (ToolChain *tc, d->toolChains()) {
@@ -212,17 +217,17 @@ void ToolChainManager::saveToolChains()
             QVariantMap tmp = tc->toMap();
             if (tmp.isEmpty())
                 continue;
-            writer.saveValue(QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(count), tmp);
+            d->m_writer->saveValue(QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(count), tmp);
             ++count;
         }
     }
-    writer.saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
-    writer.save(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains"), Core::ICore::mainWindow());
+    d->m_writer->saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
+    d->m_writer->save(Core::ICore::mainWindow());
 
     // Do not save default debuggers! Those are set by the SDK!
 }
 
-QList<ToolChain *> ToolChainManager::restoreToolChains(const QString &fileName)
+QList<ToolChain *> ToolChainManager::restoreToolChains(const Utils::FileName &fileName)
 {
     QList<ToolChain *> result;
 
@@ -270,9 +275,9 @@ QList<ToolChain *> ToolChainManager::restoreToolChains(const QString &fileName)
             }
         }
         if (!restored)
-            qWarning("Warning: Unable to restore tool chain '%s' stored in %s.",
+            qWarning("Warning: Unable to restore compiler '%s' stored in %s.",
                      qPrintable(ToolChainFactory::idFromMap(tcMap)),
-                     qPrintable(QDir::toNativeSeparators(fileName)));
+                     qPrintable(fileName.toUserOutput()));
     }
     return result;
 }

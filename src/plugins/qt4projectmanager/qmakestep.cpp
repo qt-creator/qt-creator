@@ -362,7 +362,8 @@ bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
     bool result = AbstractProcessStep::processSucceeded(exitCode, status);
     if (!result)
         m_needToRunQMake = true;
-    qt4BuildConfiguration()->emitBuildDirectoryInitialized();
+    Qt4Project *project = static_cast<Qt4Project *>(qt4BuildConfiguration()->target()->project());
+    project->emitBuildDirectoryInitialized();
     return result;
 }
 
@@ -375,7 +376,7 @@ void QMakeStep::setUserArguments(const QString &arguments)
     emit userArgumentsChanged();
 
     qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
-    qt4BuildConfiguration()->emitEvaluateBuildSystem();
+    qt4BuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
 bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
@@ -437,7 +438,7 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
     emit linkQmlDebuggingLibraryChanged();
 
     qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
-    qt4BuildConfiguration()->emitEvaluateBuildSystem();
+    qt4BuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
 QStringList QMakeStep::parserArguments()

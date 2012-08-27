@@ -78,7 +78,7 @@ BaseValidatingLineEditPrivate::BaseValidatingLineEditPrivate(const QWidget *w) :
 }
 
 BaseValidatingLineEdit::BaseValidatingLineEdit(QWidget *parent) :
-    QLineEdit(parent),
+    FancyLineEdit(parent),
     m_bd(new BaseValidatingLineEditPrivate(this))
 {
     // Note that textChanged() is also triggered automagically by

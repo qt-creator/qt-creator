@@ -230,19 +230,6 @@ QVariantMap ConfigureStep::toMap() const
     return map;
 }
 
-bool ConfigureStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
-{
-    if (exitCode != 0 || status != QProcess::NormalExit)
-        return false;
-    AutotoolsBuildConfiguration *bc = qobject_cast<AutotoolsBuildConfiguration *>(buildConfiguration());
-    if (!bc)
-        bc = qobject_cast<AutotoolsBuildConfiguration *>(target()->activeBuildConfiguration());
-    if (!bc)
-        return true;
-    bc->emitBuildDirectoryInitialized();
-    return true;
-}
-
 bool ConfigureStep::fromMap(const QVariantMap &map)
 {
     m_additionalArguments = map.value(QLatin1String(CONFIGURE_ADDITIONAL_ARGUMENTS_KEY)).toString();

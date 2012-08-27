@@ -102,6 +102,7 @@ public:
 
     bool isProjectFile(const QString &fileName);
 
+    bool parseCMakeLists();
 
 signals:
     /// emitted after parsing
@@ -122,9 +123,9 @@ private slots:
     void editorAboutToClose(Core::IEditor *editor);
     void uiEditorContentsChanged();
     void buildStateChanged(ProjectExplorer::Project *project);
-private:
-    void evaluateBuildSystem();
+    void updateRunConfigurations();
 
+private:
     void buildTree(CMakeProjectNode *rootNode, QList<ProjectExplorer::FileNode *> list);
     void gatherFileNodes(ProjectExplorer::FolderNode *parent, QList<ProjectExplorer::FileNode *> &list);
     ProjectExplorer::FolderNode *findOrCreateFolder(CMakeProjectNode *rootNode, QString directory);

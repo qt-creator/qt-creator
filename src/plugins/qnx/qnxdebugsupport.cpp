@@ -67,7 +67,7 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
 
     connect(m_runner, SIGNAL(reportError(QString)), SLOT(handleError(QString)));
     connect(m_runner, SIGNAL(remoteProcessStarted()),        this, SLOT(handleRemoteProcessStarted()));
-    connect(m_runner, SIGNAL(finished(bool)), SLOT(handleRemoteProcessFinished(qint64)));
+    connect(m_runner, SIGNAL(finished(bool)), SLOT(handleRemoteProcessFinished(bool)));
     connect(m_runner, SIGNAL(reportProgress(QString)),       this, SLOT(handleProgressReport(QString)));
     connect(m_runner, SIGNAL(remoteStdout(QByteArray)),      this, SLOT(handleRemoteOutput(QByteArray)));
 

@@ -80,6 +80,8 @@ public:
     QList<IDevice::Ptr> devices;
     QList<IDevice::Ptr> inactiveAutoDetectedDevices;
     QHash<Core::Id, Core::Id> defaultDevices;
+
+    Utils::PersistentSettingsWriter *writer;
 };
 DeviceManager *DeviceManagerPrivate::clonedInstance = 0;
 
@@ -134,10 +136,8 @@ void DeviceManager::copy(const DeviceManager *source, DeviceManager *target, boo
 
 void DeviceManager::save()
 {
-    Utils::PersistentSettingsWriter writer;
-    writer.saveValue(QLatin1String(DeviceManagerKey), toMap());
-    writer.save(settingsFilePath(QLatin1String("/qtcreator/devices.xml")),
-                QLatin1String("QtCreatorDevices"), Core::ICore::mainWindow());
+    d->writer->saveValue(QLatin1String(DeviceManagerKey), toMap());
+    d->writer->save(Core::ICore::mainWindow());
 }
 
 void DeviceManager::load()
@@ -220,9 +220,9 @@ QVariantMap DeviceManager::toMap() const
     return map;
 }
 
-QString DeviceManager::settingsFilePath(const QString &extension)
+Utils::FileName DeviceManager::settingsFilePath(const QString &extension)
 {
-    return QFileInfo(ExtensionSystem::PluginManager::settings()->fileName()).absolutePath() + extension;
+    return Utils::FileName::fromString(QFileInfo(ExtensionSystem::PluginManager::settings()->fileName()).absolutePath() + extension);
 }
 
 void DeviceManager::addDevice(const IDevice::Ptr &_device)
@@ -332,6 +332,8 @@ const IDeviceFactory *DeviceManager::restoreFactory(const QVariantMap &map)
 
 DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
 {
+    d->writer = new Utils::PersistentSettingsWriter(settingsFilePath(QLatin1String("/qtcreator/devices.xml")),
+                                                    QLatin1String("QtCreatorDevices"));
     if (isInstance) {
         load();
         connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), SLOT(save()));
@@ -340,6 +342,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(new DeviceManagerPrivate)
 
 DeviceManager::~DeviceManager()
 {
+    delete d->writer;
     delete d;
 }
 

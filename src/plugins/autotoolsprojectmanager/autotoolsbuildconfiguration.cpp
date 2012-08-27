@@ -254,8 +254,3 @@ BuildConfiguration::BuildType AutotoolsBuildConfiguration::buildType() const
     // TODO: Should I return something different from Unknown?
     return Unknown;
 }
-
-void AutotoolsBuildConfiguration::emitBuildDirectoryInitialized()
-{
-    emit buildDirectoryInitialized();
-}

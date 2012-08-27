@@ -97,7 +97,7 @@ public:
     bool addDependency(Project *project, Project *depProject);
     void removeDependency(Project *project, Project *depProject);
 
-    QString sessionNameToFileName(const QString &session) const;
+    Utils::FileName sessionNameToFileName(const QString &session) const;
     Project *startupProject() const;
 
     const QList<Project *> &projects() const;
@@ -176,6 +176,7 @@ private:
     QMap<QString, QStringList> m_depMap;
     QMap<QString, QVariant> m_values;
     QFutureInterface<void> m_future;
+    Utils::PersistentSettingsWriter *m_writer;
 };
 
 } // namespace ProjectExplorer

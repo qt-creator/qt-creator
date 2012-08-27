@@ -90,7 +90,7 @@ private slots:
     /**
      *  Loads the project tree by parsing the makefiles.
      */
-    void evaluateBuildSystem();
+    void loadProjectTree();
 
     /**
      * Is invoked when the makefile parsing by m_makefileParserThread has

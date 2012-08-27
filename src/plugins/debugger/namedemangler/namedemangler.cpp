@@ -28,8 +28,6 @@
 **
 **************************************************************************/
 
-#define QT_NO_CAST_FROM_ASCII
-
 #include "namedemangler.h"
 
 #include "demanglerexceptions.h"

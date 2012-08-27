@@ -94,6 +94,12 @@ public:
     void setAutoHideButton(Side side, bool h);
     bool hasAutoHideButton(Side side) const;
 
+    // Enable a history completer with a history of entries.
+    void setHistoryCompleter(const QString &historyKey);
+
+    // Sets a completer that is not a history completer.
+    void setSpecialCompleter(QCompleter *completer);
+
 signals:
     void buttonClicked(Utils::FancyLineEdit::Side side);
     void leftButtonClicked();
@@ -107,6 +113,10 @@ protected:
     virtual void resizeEvent(QResizeEvent *e);
 
 private:
+    // Unimplemented, to force the user to make a decision on
+    // whether to use setHistoryKey() or setSpecialCompleter().
+    void setCompleter(QCompleter *);
+
     void updateMargins();
     void updateButtonPositions();
     friend class Utils::FancyLineEditPrivate;

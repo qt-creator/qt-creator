@@ -53,7 +53,7 @@ void RegisterPostMortemAction::registerNow(const QVariant &value)
 {
     const bool boolValue = value.toBool();
     const QString debuggerExe = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + QLatin1Char('/')
-                                + debuggerApplicationFileC + QLatin1String(".exe"));
+                                + QLatin1String(debuggerApplicationFileC) + QLatin1String(".exe"));
     const ushort *debuggerWString = debuggerExe.utf16();
 
     CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);

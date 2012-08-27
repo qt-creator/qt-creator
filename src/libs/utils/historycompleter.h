@@ -36,11 +36,11 @@
 #include <QCompleter>
 
 QT_BEGIN_NAMESPACE
+class QLineEdit;
 class QSettings;
 QT_END_NAMESPACE
 
 namespace Utils {
-
 namespace Internal { class HistoryCompleterPrivate; }
 
 class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
@@ -48,13 +48,15 @@ class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
     Q_OBJECT
 
 public:
-    HistoryCompleter(QObject *parent, const QString &historyKey);
+    static void setSettings(QSettings *settings);
+    HistoryCompleter(QLineEdit *lineEdit, const QString &historyKey);
+
+private:
     ~HistoryCompleter();
     int historySize() const;
     int maximalHistorySize() const;
     void setMaximalHistorySize(int numberOfEntries);
-
-    static void setSettings(QSettings *settings);
+    bool eventFilter(QObject *obj, QEvent *event);
 
 public Q_SLOTS:
     void clearHistory();

@@ -112,8 +112,8 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Profile *p, Q
     m_isReadOnly(false), m_profile(p),
     m_comboBox(new QComboBox), m_manageButton(new QPushButton(this))
 {
-    setToolTip(tr("The tool chain to use for building.<br>"
-                  "Make sure the tool chains will produce binaries compatible with the target device, "
+    setToolTip(tr("The compiler to use for building.<br>"
+                  "Make sure the compiler will produce binaries compatible with the target device, "
                   "Qt version and other libraries used."));
     ToolChainManager *tcm = ToolChainManager::instance();
 
@@ -146,7 +146,7 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Profile *p, Q
 
 QString ToolChainInformationConfigWidget::displayName() const
 {
-    return tr("Tool chain:");
+    return tr("Compiler:");
 }
 
 void ToolChainInformationConfigWidget::apply()
@@ -214,7 +214,7 @@ void ToolChainInformationConfigWidget::updateComboBox()
         m_comboBox->removeItem(pos);
 
     if (m_comboBox->count() == 0) {
-        m_comboBox->addItem(tr("<No tool chain available>"), QString());
+        m_comboBox->addItem(tr("<No compiler available>"), QString());
         m_comboBox->setEnabled(false);
     } else {
         m_comboBox->setEnabled(!m_isReadOnly);

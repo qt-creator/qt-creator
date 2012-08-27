@@ -28,8 +28,6 @@
 **
 **************************************************************************/
 
-#define QT_NO_CAST_FROM_ASCII
-
 #include "parsetreenodes.h"
 
 #include "demanglerexceptions.h"

@@ -33,7 +33,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/pathchooser.h>
-#include <utils/historycompleter.h>
+#include <utils/fancylineedit.h>
 #include <projectexplorer/profileinformation.h>
 #include <projectexplorer/profilemanager.h>
 #include <projectexplorer/toolchain.h>
@@ -295,9 +295,8 @@ void CMakeRunPage::initWidgets()
     }
 
     // Run CMake Line (with arguments)
-    m_argumentsLineEdit = new QLineEdit(this);
-    m_argumentsLineEdit->setCompleter(
-        new Utils::HistoryCompleter(m_argumentsLineEdit, QLatin1String("CMakeArgumentsLineEdit")));
+    m_argumentsLineEdit = new Utils::FancyLineEdit(this);
+    m_argumentsLineEdit->setHistoryCompleter(QLatin1String("CMakeArgumentsLineEdit"));
 
     connect(m_argumentsLineEdit,SIGNAL(returnPressed()), this, SLOT(runCMake()));
     fl->addRow(tr("Arguments:"), m_argumentsLineEdit);

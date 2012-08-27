@@ -57,8 +57,9 @@ namespace QmlProjectManager {
 
 const char * const M_CURRENT_FILE = "CurrentFile";
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent) :
-    ProjectExplorer::RunConfiguration(parent, Core::Id(Constants::QML_RC_ID)),
+QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
+                                                       Core::Id id) :
+    ProjectExplorer::RunConfiguration(parent, id),
     m_scriptFile(M_CURRENT_FILE),
     m_isEnabled(false)
 {
@@ -84,7 +85,7 @@ bool QmlProjectRunConfiguration::isEnabled() const
 QString QmlProjectRunConfiguration::disabledReason() const
 {
     if (!m_isEnabled)
-        return tr("No qmlviewer or qmlobserver found.");
+        return tr("No qmlviewer or qmlscene found.");
     return QString();
 }
 
@@ -101,7 +102,10 @@ void QmlProjectRunConfiguration::ctor()
     connect(target(), SIGNAL(profileChanged()),
             this, SLOT(updateEnabled()));
 
-    setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
+    if (id() == Constants::QML_SCENE_RC_ID)
+        setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
+    else
+        setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
 }
 
 QmlProjectRunConfiguration::~QmlProjectRunConfiguration()
@@ -113,6 +117,9 @@ QString QmlProjectRunConfiguration::viewerPath() const
     QtSupport::BaseQtVersion *version = qtVersion();
     if (!version)
         return QString();
+
+    if (id() == Constants::QML_SCENE_RC_ID)
+        return version->qmlsceneCommand();
     else
         return version->qmlviewerCommand();
 }
@@ -123,6 +130,8 @@ QString QmlProjectRunConfiguration::observerPath() const
     if (!version) {
         return QString();
     } else {
+        if (id() == Constants::QML_SCENE_RC_ID)
+            return version->qmlsceneCommand();
         if (!version->needsQmlDebuggingLibrary())
             return version->qmlviewerCommand();
         return version->qmlObserverTool();

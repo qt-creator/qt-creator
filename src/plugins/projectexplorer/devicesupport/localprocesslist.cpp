@@ -126,17 +126,18 @@ void LocalProcessList::doKillProcess(const DeviceProcess &process)
     const DWORD rights = PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION
             |PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ
             |PROCESS_DUP_HANDLE|PROCESS_TERMINATE|PROCESS_CREATE_THREAD|PROCESS_SUSPEND_RESUME;
-    const HANDLE handle = OpenProcess(rights, FALSE, process.pid);
-    if (!handle) {
-        qWarning("Cannot open process %d: %s" , process.pid,
-                 qPrintable(Utils::winErrorMessage(GetLastError())));
-        return;
+    m_error.clear();
+    if (const HANDLE handle = OpenProcess(rights, FALSE, process.pid)) {
+        if (!TerminateProcess(handle, UINT(-1))) {
+          m_error = tr("Cannot terminate process %1: %2").
+                    arg(process.pid).arg(Utils::winErrorMessage(GetLastError()));
+        }
+        CloseHandle(handle);
+    } else {
+        m_error = tr("Cannot open process %1: %2").
+                  arg(process.pid).arg(Utils::winErrorMessage(GetLastError()));
     }
-    if (!TerminateProcess(handle, UINT(-1))) {
-        qWarning("Cannot terminate process %d: %s" , process.pid,
-                 qPrintable(Utils::winErrorMessage(GetLastError())));
-    }
-    CloseHandle(handle);
+    QTimer::singleShot(0, this, SLOT(reportDelayedKillStatus()));
 }
 
 #endif //Q_OS_WIN
@@ -255,13 +256,6 @@ void LocalProcessList::doKillProcess(const DeviceProcess &process)
     QTimer::singleShot(0, this, SLOT(reportDelayedKillStatus()));
 }
 
-void LocalProcessList::reportDelayedKillStatus()
-{
-    if (m_error.isEmpty())
-        reportProcessKilled();
-    else
-        reportError(m_error);
-}
 #endif // QT_OS_UNIX
 
 Qt::ItemFlags LocalProcessList::flags(const QModelIndex &index) const
@@ -280,6 +274,14 @@ void LocalProcessList::handleUpdate()
 void LocalProcessList::doUpdate()
 {
     QTimer::singleShot(0, this, SLOT(handleUpdate()));
+}
+
+void LocalProcessList::reportDelayedKillStatus()
+{
+    if (m_error.isEmpty())
+        reportProcessKilled();
+    else
+        reportError(m_error);
 }
 
 } // namespace Internal

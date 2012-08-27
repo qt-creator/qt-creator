@@ -342,6 +342,7 @@ bool Qt4ProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
 }
 
 } // namespace Internal
+
 /*!
   \class Qt4Project
 
@@ -360,7 +361,8 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_asyncUpdateState(NoState),
     m_cancelEvaluate(false),
     m_codeModelCanceled(false),
-    m_centralizedFolderWatcher(0)
+    m_centralizedFolderWatcher(0),
+    m_activeTarget(0)
 {
     setProjectContext(Core::Context(Qt4ProjectManager::Constants::PROJECT_ID));
     setProjectLanguage(Core::Context(ProjectExplorer::Constants::LANG_CXX));
@@ -428,15 +430,16 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     // Now we emit update once :)
     m_rootProjectNode->emitProFileUpdatedRecursive();
 
+    // On active buildconfiguration changes, reevaluate the .pro files
+    m_activeTarget = activeTarget();
+    if (m_activeTarget)
+        connect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+                this, SLOT(scheduleAsyncUpdate()));
+
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetWasChanged()));
 
     return true;
-}
-
-void Qt4Project::evaluateBuildSystem()
-{
-    scheduleAsyncUpdate();
 }
 
 /// equalFileList compares two file lists ignoring
@@ -640,7 +643,14 @@ void Qt4Project::update()
     m_asyncUpdateState = Base;
     enableActiveQt4BuildConfiguration(activeTarget(), true);
     updateBuildSystemData();
-    buildSystemEvaluationFinished(true);
+    updateRunConfigurations();
+    emit proFilesEvaluated();
+}
+
+void Qt4Project::updateRunConfigurations()
+{
+    foreach (Target *t, targets())
+        t->updateDefaultRunConfigurations();
 }
 
 void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
@@ -791,7 +801,8 @@ void Qt4Project::decrementPendingEvaluateFutures()
             updateFileList();
             updateCodeModels();
             updateBuildSystemData();
-            buildSystemEvaluationFinished(true);
+            updateRunConfigurations();
+            emit proFilesEvaluated();
             if (debug)
                 qDebug()<<"  Setting state to Base";
         }
@@ -1086,8 +1097,16 @@ QStringList Qt4Project::applicationProFilePathes(const QString &prepend) const
 
 void Qt4Project::activeTargetWasChanged()
 {
-    if (!activeTarget())
+    disconnect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(scheduleAsyncUpdate()));
+
+    m_activeTarget = activeTarget();
+
+    if (!m_activeTarget)
         return;
+
+    connect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(scheduleAsyncUpdate()));
 
     scheduleAsyncUpdate();
 }
@@ -1543,6 +1562,10 @@ void Qt4Project::collectLibraryData(const Qt4ProFileNode *node, DeploymentData &
     }
 }
 
+void Qt4Project::emitBuildDirectoryInitialized()
+{
+    emit buildDirectoryInitialized();
+}
 } // namespace Qt4ProjectManager
 
 #include "qt4project.moc"

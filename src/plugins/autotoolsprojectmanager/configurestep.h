@@ -106,8 +106,6 @@ public:
     QString additionalArguments() const;
     QVariantMap toMap() const;
 
-    bool processSucceeded(int exitCode, QProcess::ExitStatus status);
-
 public slots:
     void setAdditionalArguments(const QString &list);
 

@@ -53,7 +53,7 @@ QtProfileConfigWidget::QtProfileConfigWidget(ProjectExplorer::Profile *p,
     m_combo(new QComboBox),
     m_manageButton(new QPushButton(this))
 {
-    setToolTip(tr("The Qt library to use for all projects using this profile.<br>"
+    setToolTip(tr("The Qt library to use for all projects using this target.<br>"
                   "A Qt version is required for qmake-based projects and optional when using other build systems."));
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);

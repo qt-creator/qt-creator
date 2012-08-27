@@ -28,8 +28,6 @@
 **
 **************************************************************************/
 
-#define QT_NO_CAST_FROM_ASCII
-
 #include "qmlv8debuggerclient.h"
 #include "qmlv8debuggerclientconstants.h"
 #include "debuggerstringutils.h"

@@ -187,7 +187,7 @@ QString ToolChainProfileInformation::displayNamePostfix(const Profile *p) const
 ProfileInformation::ItemList ToolChainProfileInformation::toUserOutput(Profile *p) const
 {
     ToolChain *tc = toolChain(p);
-    return ItemList() << qMakePair(tr("Tool chain"), tc ? tc->displayName() : tr("None"));
+    return ItemList() << qMakePair(tr("Compiler"), tc ? tc->displayName() : tr("None"));
 }
 
 void ToolChainProfileInformation::addToEnvironment(const Profile *p, Utils::Environment &env) const
@@ -212,7 +212,7 @@ void ToolChainProfileInformation::setToolChain(Profile *p, ToolChain *tc)
 
 QString ToolChainProfileInformation::msgNoToolChainInTarget()
 {
-    return tr("No tool chain set in target.");
+    return tr("No compiler set in target.");
 }
 
 // --------------------------------------------------------------------------

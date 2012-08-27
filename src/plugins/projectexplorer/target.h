@@ -150,17 +150,12 @@ signals:
     void deployConfigurationEnabledChanged();
     void runConfigurationEnabledChanged();
 
-    /// Emitted whenever the project should (re-)evaluate the build system
-    void requestBuildSystemEvaluation();
-    /// Emitted whenever the current build configuration has finished to initialize its build directory.
-    void buildDirectoryInitialized();
+    // Remove all the signals below, they are stupid
     /// Emitted whenever the current build configuartion changed or the build directory of the current
     /// build configuration was changed.
     void buildDirectoryChanged();
 
 public slots:
-    void onRequestBuildSystemEvaluation();
-    void onBuildDirectoryInitialized();
     void onBuildDirectoryChanged();
 
 protected:

@@ -87,23 +87,28 @@ class ProjectPrivate
 {
 public:
     ProjectPrivate();
+    ~ProjectPrivate();
+
     QList<Target *> m_targets;
     Target *m_activeTarget;
     EditorConfiguration *m_editorConfiguration;
     Core::Context m_projectContext;
     Core::Context m_projectLanguage;
     QVariantMap m_pluginSettings;
+    SettingsAccessor *m_accessor;
 };
 
 ProjectPrivate::ProjectPrivate() :
     m_activeTarget(0),
-    m_editorConfiguration(new EditorConfiguration())
-{
-}
+    m_editorConfiguration(new EditorConfiguration()),
+    m_accessor(0)
+{ }
+
+ProjectPrivate::~ProjectPrivate()
+{ delete m_accessor; }
 
 Project::Project() : d(new ProjectPrivate)
-{
-}
+{ }
 
 Project::~Project()
 {
@@ -162,8 +167,6 @@ void Project::addTarget(Target *t)
             SLOT(changeEnvironment()));
     connect(t, SIGNAL(buildConfigurationEnabledChanged()),
             this, SLOT(changeBuildConfigurationEnabled()));
-    connect(t, SIGNAL(requestBuildSystemEvaluation()),
-            this, SLOT(triggerBuildSystemEvaluation()));
     connect(t, SIGNAL(buildDirectoryChanged()),
             this, SLOT(onBuildDirectoryChanged()));
     emit addedTarget(t);
@@ -283,12 +286,16 @@ Target *Project::restoreTarget(const QVariantMap &data)
 void Project::saveSettings()
 {
     emit aboutToSaveSettings();
-    SettingsAccessor::instance()->saveSettings(this, toMap());
+    if (!d->m_accessor)
+        d->m_accessor = new SettingsAccessor(this);
+    d->m_accessor->saveSettings(toMap());
 }
 
 bool Project::restoreSettings()
 {
-    QVariantMap map(SettingsAccessor::instance()->restoreSettings(this));
+    if (!d->m_accessor)
+        d->m_accessor = new SettingsAccessor(this);
+    QVariantMap map(d->m_accessor->restoreSettings());
     bool ok = fromMap(map);
     if (ok)
         emit settingsLoaded();
@@ -399,9 +406,6 @@ void Project::setProjectLanguage(Core::Context language)
     d->m_projectLanguage = language;
 }
 
-void Project::evaluateBuildSystem()
-{ buildSystemEvaluationFinished(true); }
-
 Core::Context Project::projectContext() const
 {
     return d->m_projectContext;
@@ -433,34 +437,6 @@ bool Project::needsConfiguration() const
 void Project::configureAsExampleProject(const QStringList &platforms)
 {
     Q_UNUSED(platforms);
-}
-
-void Project::triggerBuildSystemEvaluation()
-{
-    Target *target = qobject_cast<Target *>(sender());
-    if (target && target != activeTarget())
-        return;
-
-    evaluateBuildSystem();
-}
-
-void Project::buildSystemEvaluationFinished(bool success)
-{
-    if (!success)
-        return;
-
-    // Create new run configurations:
-    foreach (Target *t, targets())
-        t->updateDefaultRunConfigurations();
-
-    emit buildSystemEvaluated();
-}
-
-void Project::onBuildDirectoryInitialized()
-{
-    Target *target = qobject_cast<Target *>(sender());
-    if (target && target == activeTarget())
-        emit buildDirectoryInitialized();
 }
 
 void Project::onBuildDirectoryChanged()

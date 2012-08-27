@@ -65,7 +65,7 @@ FindToolWindow::FindToolWindow(FindPlugin *plugin, QWidget *parent)
     connect(m_ui.searchTerm, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStates()));
 
     m_findCompleter->setModel(m_plugin->findCompletionModel());
-    m_ui.searchTerm->setCompleter(m_findCompleter);
+    m_ui.searchTerm->setSpecialCompleter(m_findCompleter);
     m_ui.searchTerm->installEventFilter(this);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);

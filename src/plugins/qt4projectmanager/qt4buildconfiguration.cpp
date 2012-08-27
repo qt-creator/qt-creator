@@ -136,14 +136,14 @@ void Qt4BuildConfiguration::ctor()
     connect(this, SIGNAL(environmentChanged()),
             this, SLOT(emitBuildDirectoryChanged()));
     connect(this, SIGNAL(environmentChanged()),
-            this, SLOT(emitEvaluateBuildSystem()));
+            this, SLOT(emitProFileEvaluateNeeded()));
     connect(target(), SIGNAL(profileChanged()),
             this, SLOT(profileChanged()));
 }
 
 void Qt4BuildConfiguration::profileChanged()
 {
-    emit requestBuildSystemEvaluation();
+    emitProFileEvaluateNeeded();
     emit environmentChanged();
     emitBuildDirectoryChanged();
 }
@@ -265,7 +265,7 @@ void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const Q
 
     emit environmentChanged();
     emitBuildDirectoryChanged();
-    emitEvaluateBuildSystem();
+    emitProFileEvaluateNeeded();
 }
 
 QString Qt4BuildConfiguration::defaultMakeTarget() const
@@ -294,24 +294,22 @@ void Qt4BuildConfiguration::setQMakeBuildConfiguration(QtSupport::BaseQtVersion:
         return;
     m_qmakeBuildConfiguration = config;
 
-    emitEvaluateBuildSystem();
     emit qmakeBuildConfigurationChanged();
     emitBuildDirectoryChanged();
+    emitProFileEvaluateNeeded();
 }
 
-void Qt4BuildConfiguration::emitEvaluateBuildSystem()
+void Qt4BuildConfiguration::emitProFileEvaluateNeeded()
 {
-    emit requestBuildSystemEvaluation();
+    Target *t = target();
+    Project *p = t->project();
+    if (t->activeBuildConfiguration() == this && p->activeTarget() == t)
+        static_cast<Qt4Project *>(p)->scheduleAsyncUpdate();
 }
 
 void Qt4BuildConfiguration::emitQMakeBuildConfigurationChanged()
 {
     emit qmakeBuildConfigurationChanged();
-}
-
-void Qt4BuildConfiguration::emitBuildDirectoryInitialized()
-{
-    emit buildDirectoryInitialized();
 }
 
 QStringList Qt4BuildConfiguration::configCommandLineArguments() const

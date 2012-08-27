@@ -140,10 +140,15 @@ public:
 
     ProjectExplorer::Target *createTarget(ProjectExplorer::Profile *p, const QList<BuildConfigurationInfo> &infoList);
 
+    void emitBuildDirectoryInitialized();
+
 signals:
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
+    void buildDirectoryInitialized();
+    void proFilesEvaluated();
 
 public slots:
+    void scheduleAsyncUpdate();
     void proFileParseError(const QString &errorMessage);
     void update();
 
@@ -156,8 +161,7 @@ private slots:
     void activeTargetWasChanged();
 
 private:
-    void evaluateBuildSystem();
-    void scheduleAsyncUpdate();
+    void updateRunConfigurations();
 
     void updateCppCodeModel();
     void updateQmlJSCodeModel();
@@ -205,6 +209,8 @@ private:
     QFuture<void> m_codeModelFuture;
 
     Internal::CentralizedFolderWatcher *m_centralizedFolderWatcher;
+
+    ProjectExplorer::Target *m_activeTarget;
 
     friend class Internal::Qt4ProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;

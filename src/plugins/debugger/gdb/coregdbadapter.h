@@ -68,6 +68,7 @@ private:
     void unpackCoreIfNeeded();
     QString coreFileName() const;
     Q_SLOT void continueSetupEngine();
+    QString readExecutableNameFromCore(bool *isCore);
     QString coreName() const;
 
     QString m_executable;

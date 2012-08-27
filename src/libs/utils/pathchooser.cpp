@@ -598,7 +598,7 @@ QString PathChooser::makeDialogTitle(const QString &title)
         return d->m_dialogTitleOverride;
 }
 
-QLineEdit *PathChooser::lineEdit() const
+FancyLineEdit *PathChooser::lineEdit() const
 {
     // HACK: Make it work with HistoryCompleter.
     if (d->m_lineEdit->objectName().isEmpty())

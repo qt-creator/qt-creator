@@ -343,8 +343,9 @@ void CodeStyleSelectorWidget::slotRemoveClicked()
 
 void CodeStyleSelectorWidget::slotImportClicked()
 {
-    const QString fileName = QFileDialog::getOpenFileName(this, tr("Import Code Style"), QString::null,
-                             tr("Code styles (*.xml);;All files (*)"));
+    const Utils::FileName fileName =
+            Utils::FileName::fromString(QFileDialog::getOpenFileName(this, tr("Import Code Style"), QString::null,
+                                                                     tr("Code styles (*.xml);;All files (*)")));
     if (!fileName.isEmpty()) {
         CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();
         ICodeStylePreferences *importedStyle = codeStylePool->importCodeStyle(fileName);
@@ -352,7 +353,7 @@ void CodeStyleSelectorWidget::slotImportClicked()
             m_codeStyle->setCurrentDelegate(importedStyle);
         else
             QMessageBox::warning(this, tr("Import Code Style"),
-                                 tr("Cannot import code style"));
+                                 tr("Cannot import code style from %1"), fileName.toUserOutput());
     }
 }
 
@@ -364,7 +365,7 @@ void CodeStyleSelectorWidget::slotExportClicked()
                              tr("Code styles (*.xml);;All files (*)"));
     if (!fileName.isEmpty()) {
         CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();
-        codeStylePool->exportCodeStyle(fileName, currentPreferences);
+        codeStylePool->exportCodeStyle(Utils::FileName::fromString(fileName), currentPreferences);
     }
 }
 

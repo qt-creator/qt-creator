@@ -83,10 +83,10 @@ namespace {
     const QLatin1String jarsignerName("jarsigner");
     const QLatin1String changeTimeStamp("ChangeTimeStamp");
 
-    static QString settingsFileName()
+    static Utils::FileName settingsFileName()
     {
-        return QString::fromLatin1("%1/qtcreator/android.xml").arg(
-            QFileInfo(Core::ICore::settings(QSettings::SystemScope)->fileName()).absolutePath());
+        return Utils::FileName::fromString(QString::fromLatin1("%1/qtcreator/android.xml")
+                                           .arg(QFileInfo(Core::ICore::settings(QSettings::SystemScope)->fileName()).absolutePath()));
     }
 
     bool androidDevicesLessThan(const AndroidDeviceInfo &dev1, const AndroidDeviceInfo &dev2)
@@ -142,8 +142,9 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
     // user settings
 
     PersistentSettingsReader reader;
-    if (reader.load(settingsFileName())
-            && settings.value(changeTimeStamp).toInt() != QFileInfo(settingsFileName()).lastModified().toMSecsSinceEpoch() / 1000) {
+    Utils::FileName fn = settingsFileName();
+    if (reader.load(fn)
+            && settings.value(changeTimeStamp).toInt() != fn.toFileInfo().lastModified().toMSecsSinceEpoch() / 1000) {
         // persisten settings
         sdkLocation = FileName::fromString(reader.restoreValue(SDKLocationKey).toString());
         ndkLocation = FileName::fromString(reader.restoreValue(NDKLocationKey).toString());
@@ -181,7 +182,7 @@ AndroidConfig::AndroidConfig()
 
 void AndroidConfig::save(QSettings &settings) const
 {
-    QFileInfo fileInfo(settingsFileName());
+    QFileInfo fileInfo = settingsFileName().toFileInfo();
     if (fileInfo.exists())
         settings.setValue(changeTimeStamp, fileInfo.lastModified().toMSecsSinceEpoch() / 1000);
 

@@ -96,11 +96,9 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(ProjectExplorer::Target *target)
     connect(m_ui->shadowBuildDirEdit, SIGNAL(changed(QString)),
             this, SLOT(shadowBuildEdited()));
 
-    Project *project = target->project();
-    if (project) {
-        connect(project, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
-        connect(project, SIGNAL(buildDirectoryInitialized()), this, SLOT(updateProblemLabel()));
-    }
+    Qt4Project *project = static_cast<Qt4Project *>(target->project());
+    connect(project, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
+    connect(project, SIGNAL(buildDirectoryInitialized()), this, SLOT(updateProblemLabel()));
 }
 
 Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()

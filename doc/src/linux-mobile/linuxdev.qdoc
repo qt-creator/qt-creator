@@ -57,9 +57,9 @@
             add the Qt version
             for the embedded Linux.
 
-        \o  Select \gui {Tools > Options > Build & Run > Tool Chains > Add} to
-            add the tool
-            chain for building the applications.
+        \o  Select \gui {Tools > Options > Build & Run > Compilers > Add} to
+            add the compiler
+            for building the applications.
 
         \o  To deploy applications and run them remotely on devices, specify
             parameters for accessing the devices:

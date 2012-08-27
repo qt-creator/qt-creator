@@ -31,8 +31,8 @@
 #ifndef PROJECTMANAGER_USERFILEACCESSOR_H
 #define PROJECTMANAGER_USERFILEACCESSOR_H
 
-#include <QVariantMap>
-
+#include <utils/fileutils.h>
+#include <utils/persistentsettings.h>
 
 namespace ProjectExplorer {
 
@@ -45,15 +45,15 @@ class UserFileVersionHandler;
 class SettingsAccessor
 {
 public:
+    SettingsAccessor(Project *project);
     ~SettingsAccessor();
 
-    static SettingsAccessor *instance();
+    Project *project() const;
 
-    QVariantMap restoreSettings(Project *project) const;
-    bool saveSettings(const Project *project, const QVariantMap &map) const;
+    QVariantMap restoreSettings() const;
+    bool saveSettings(const QVariantMap &map) const;
 
 private:
-    SettingsAccessor();
 
     // Takes ownership of the handler!
     void addVersionHandler(Internal::UserFileVersionHandler *handler);
@@ -71,7 +71,7 @@ private:
         int m_version;
         bool m_usingBackup;
         QVariantMap m_map;
-        QString m_fileName;
+        Utils::FileName m_fileName;
     };
 
     // The entity which actually reads/writes to the settings file.
@@ -82,10 +82,15 @@ private:
                      const QString &defaultSuffix,
                      const QString &environmentSuffix,
                      bool envSpecific,
-                     bool versionStrict);
+                     bool versionStrict,
+                     SettingsAccessor *accessor);
+        ~FileAccessor();
 
-        bool readFile(Project *project, SettingsData *settings) const;
-        bool writeFile(const Project *project, const SettingsData *settings) const;
+        bool readFile(SettingsData *settings) const;
+        bool writeFile(const SettingsData *settings) const;
+
+        QString suffix() const { return m_suffix; }
+        QByteArray id() const { return m_id; }
 
     private:
         void assignSuffix(const QString &defaultSuffix, const QString &environmentSuffix);
@@ -96,6 +101,8 @@ private:
         QString m_suffix;
         bool m_environmentSpecific;
         bool m_versionStrict;
+        SettingsAccessor *m_accessor;
+        mutable Utils::PersistentSettingsWriter *m_writer;
     };
 
     static bool verifyEnvironmentId(const QString &id);
@@ -105,6 +112,8 @@ private:
     int m_lastVersion;
     const FileAccessor m_userFileAcessor;
     const FileAccessor m_sharedFileAcessor;
+
+    Project *m_project;
 };
 
 } // namespace ProjectExplorer

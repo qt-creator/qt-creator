@@ -236,9 +236,6 @@ void Target::addBuildConfiguration(BuildConfiguration *configuration)
             SLOT(changeEnvironment()));
     connect(configuration, SIGNAL(enabledChanged()),
             this, SLOT(changeBuildConfigurationEnabled()));
-    connect(configuration, SIGNAL(requestBuildSystemEvaluation()),
-            this, SLOT(onRequestBuildSystemEvaluation()));
-
 
     if (!activeBuildConfiguration())
         setActiveBuildConfiguration(configuration);
@@ -290,7 +287,6 @@ void Target::setActiveBuildConfiguration(BuildConfiguration *configuration)
         emit environmentChanged();
         emit buildConfigurationEnabledChanged();
         emit buildDirectoryChanged();
-        emit requestBuildSystemEvaluation();
     }
 }
 
@@ -314,7 +310,6 @@ void Target::addDeployConfiguration(DeployConfiguration *dc)
     d->m_deployConfigurations.push_back(dc);
 
     connect(dc, SIGNAL(enabledChanged()), this, SLOT(changeDeployConfigurationEnabled()));
-    connect(dc, SIGNAL(requestBuildSystemEvaluation()), this, SLOT(onRequestBuildSystemEvaluation()));
 
     emit addedDeployConfiguration(dc);
 
@@ -367,7 +362,6 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
         d->m_activeDeployConfiguration = dc;
         emit activeDeployConfigurationChanged(d->m_activeDeployConfiguration);
         emit deployConfigurationEnabledChanged();
-        emit requestBuildSystemEvaluation();
     }
     updateDeviceState();
 }
@@ -450,7 +444,6 @@ void Target::setActiveRunConfiguration(RunConfiguration* configuration)
         d->m_activeRunConfiguration = configuration;
         emit activeRunConfigurationChanged(d->m_activeRunConfiguration);
         emit runConfigurationEnabledChanged();
-        emit requestBuildSystemEvaluation();
     }
     updateDeviceState();
 }
@@ -833,25 +826,6 @@ bool Target::fromMap(const QVariantMap &map)
     }
 
     return true;
-}
-
-void Target::onRequestBuildSystemEvaluation()
-{
-    ProjectConfiguration *config = qobject_cast<ProjectConfiguration *>(sender());
-    if (!config)
-        return;
-    if (config == static_cast<ProjectConfiguration *>(activeBuildConfiguration())
-            || config == static_cast<ProjectConfiguration *>(activeDeployConfiguration()))
-        emit requestBuildSystemEvaluation();
-}
-
-void Target::onBuildDirectoryInitialized()
-{
-    BuildConfiguration *bc = qobject_cast<BuildConfiguration *>(sender());
-    if (!bc)
-        return;
-    if (bc == activeBuildConfiguration())
-        emit buildDirectoryInitialized();
 }
 
 } // namespace ProjectExplorer

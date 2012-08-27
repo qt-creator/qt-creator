@@ -29,6 +29,8 @@
 **************************************************************************/
 
 #include "fancylineedit.h"
+#include "historycompleter.h"
+#include "qtcassert.h"
 
 #include <QEvent>
 #include <QDebug>
@@ -97,7 +99,8 @@ enum { margin = 6 };
 namespace Utils {
 
 // --------- FancyLineEditPrivate
-class FancyLineEditPrivate : public QObject {
+class FancyLineEditPrivate : public QObject
+{
 public:
     explicit FancyLineEditPrivate(FancyLineEdit *parent);
 
@@ -109,12 +112,13 @@ public:
     bool m_menuTabFocusTrigger[2];
     IconButton *m_iconbutton[2];
     bool m_iconEnabled[2];
+
+    HistoryCompleter *m_historyCompleter;
 };
 
 
 FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
-    QObject(parent),
-    m_lineEdit(parent)
+    QObject(parent), m_lineEdit(parent),  m_historyCompleter(0)
 {
     for (int i = 0; i < 2; ++i) {
         m_menu[i] = 0;
@@ -296,6 +300,19 @@ void FancyLineEdit::setMenuTabFocusTrigger(Side side, bool v)
 bool FancyLineEdit::hasAutoHideButton(Side side) const
 {
     return d->m_iconbutton[side]->hasAutoHide();
+}
+
+void FancyLineEdit::setHistoryCompleter(const QString &historyKey)
+{
+    QTC_ASSERT(!d->m_historyCompleter, return);
+    d->m_historyCompleter = new HistoryCompleter(this, historyKey);
+    QLineEdit::setCompleter(d->m_historyCompleter);
+}
+
+void FancyLineEdit::setSpecialCompleter(QCompleter *completer)
+{
+    QTC_ASSERT(!d->m_historyCompleter, return);
+    QLineEdit::setCompleter(completer);
 }
 
 void FancyLineEdit::setAutoHideButton(Side side, bool h)

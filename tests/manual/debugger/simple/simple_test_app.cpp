@@ -537,6 +537,7 @@ namespace anon {
         a.i = 1;
         a.i = 2;
         a.i = 3;
+
         Something s;
         BREAK_HERE;
         // Expand s.
@@ -544,13 +545,20 @@ namespace anon {
         // Check s.a 1 int.
         // Check s.b 1 int.
         // Continue.
+
         s.foo();
         BREAK_HERE;
         // Expand s.
         // Check s.a 42 int.
         // Check s.b 43 int.
         // Continue.
-        dummyStatement(&a, &s);
+
+        std::map<int, Something> m;
+        BREAK_HERE;
+        // CheckType m std::map<int, anon::{anonymous}::Something>.
+        // Continue.
+
+        dummyStatement(&a, &s, &m);
     #endif
     }
 
