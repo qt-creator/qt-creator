@@ -423,8 +423,7 @@ void QMakeEvaluator::evaluateExpression(
             addStrList(values(map(getHashStr(tokPtr))), tok, ret, pending, joined);
             break;
         case TokProperty:
-            addStr(propertyValue(getHashStr(tokPtr)).setSource(currentProFile()),
-                   ret, pending, joined);
+            addStr(propertyValue(getHashStr(tokPtr)), ret, pending, joined);
             break;
         case TokEnvVar:
             addStrList(split_value_list(m_option->getEnv(getStr(tokPtr).toQString(m_tmp1))),
