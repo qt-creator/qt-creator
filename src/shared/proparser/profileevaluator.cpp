@@ -82,7 +82,7 @@ QStringList ProFileEvaluator::values(const QString &variableName) const
 QStringList ProFileEvaluator::values(const QString &variableName, const ProFile *pro) const
 {
     // It makes no sense to put any kind of magic into expanding these
-    const ProStringList &values = d->m_valuemapStack.at(0).value(ProKey(variableName));
+    const ProStringList &values = d->m_valuemapStack.first().value(ProKey(variableName));
     QStringList ret;
     ret.reserve(values.size());
     foreach (const ProString &str, values)

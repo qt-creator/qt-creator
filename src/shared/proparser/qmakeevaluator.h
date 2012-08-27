@@ -71,6 +71,8 @@ public:
     virtual void doneWithEval(ProFile *parent) = 0;
 };
 
+typedef QStack<ProValueMap> ProValueMapStack;
+
 class QMAKE_EXPORT QMakeEvaluator
 {
 public:
@@ -265,7 +267,7 @@ public:
     ProString m_dirSep;
     ProFunctionDefs m_functionDefs;
     ProStringList m_returnValue;
-    QStack<ProValueMap> m_valuemapStack; // VariableName must be us-ascii, the content however can be non-us-ascii.
+    ProValueMapStack m_valuemapStack; // VariableName must be us-ascii, the content however can be non-us-ascii.
     QString m_tmp1, m_tmp2, m_tmp3, m_tmp[2]; // Temporaries for efficient toQString
     mutable QString m_mtmp;
 

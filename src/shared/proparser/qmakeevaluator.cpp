@@ -1304,7 +1304,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 #ifdef QT_BUILD_QMAKE
     for (ProValueMap::ConstIterator it = m_extraVars.constBegin();
          it != m_extraVars.constEnd(); ++it)
-        m_valuemapStack[0].insert(it.key(), it.value());
+        m_valuemapStack.first().insert(it.key(), it.value());
 #endif
 
     m_handler->aboutToEval(currentProFile(), pro, type);
@@ -1673,15 +1673,17 @@ void QMakeEvaluator::checkRequirements(const ProStringList &deps)
 
 ProValueMap *QMakeEvaluator::findValues(const ProKey &variableName, ProValueMap::Iterator *rit)
 {
-    for (int i = m_valuemapStack.size(); --i >= 0; ) {
-        ProValueMap::Iterator it = m_valuemapStack[i].find(variableName);
-        if (it != m_valuemapStack[i].end()) {
+    ProValueMapStack::Iterator vmi = m_valuemapStack.end();
+    do {
+        --vmi;
+        ProValueMap::Iterator it = (*vmi).find(variableName);
+        if (it != (*vmi).end()) {
             if (it->constBegin() == statics.fakeValue.constBegin())
                 return 0;
             *rit = it;
-            return &m_valuemapStack[i];
+            return &(*vmi);
         }
-    }
+    } while (vmi != m_valuemapStack.begin());
     return 0;
 }
 
@@ -1693,28 +1695,34 @@ ProStringList &QMakeEvaluator::valuesRef(const ProKey &variableName)
             it->clear();
         return *it;
     }
-    for (int i = m_valuemapStack.size() - 1; --i >= 0; ) {
-        ProValueMap::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
-        if (it != m_valuemapStack.at(i).constEnd()) {
-            ProStringList &ret = m_valuemapStack.top()[variableName];
-            if (it->constBegin() != statics.fakeValue.constBegin())
-                ret = *it;
-            return ret;
-        }
+    ProValueMapStack::Iterator vmi = m_valuemapStack.end();
+    if (--vmi != m_valuemapStack.begin()) {
+        do {
+            --vmi;
+            ProValueMap::ConstIterator it = (*vmi).constFind(variableName);
+            if (it != (*vmi).constEnd()) {
+                ProStringList &ret = m_valuemapStack.top()[variableName];
+                if (it->constBegin() != statics.fakeValue.constBegin())
+                    ret = *it;
+                return ret;
+            }
+        } while (vmi != m_valuemapStack.begin());
     }
     return m_valuemapStack.top()[variableName];
 }
 
 ProStringList QMakeEvaluator::values(const ProKey &variableName) const
 {
-    for (int i = m_valuemapStack.size(); --i >= 0; ) {
-        ProValueMap::ConstIterator it = m_valuemapStack.at(i).constFind(variableName);
-        if (it != m_valuemapStack.at(i).constEnd()) {
+    ProValueMapStack::ConstIterator vmi = m_valuemapStack.constEnd();
+    do {
+        --vmi;
+        ProValueMap::ConstIterator it = (*vmi).constFind(variableName);
+        if (it != (*vmi).constEnd()) {
             if (it->constBegin() == statics.fakeValue.constBegin())
                 break;
             return *it;
         }
-    }
+    } while (vmi != m_valuemapStack.constBegin());
     return ProStringList();
 }
 

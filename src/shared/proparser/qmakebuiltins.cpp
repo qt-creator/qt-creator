@@ -1089,18 +1089,19 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             return ReturnFalse;
         }
         const ProKey &var = map(args.at(0));
-        for (int i = m_valuemapStack.size(); --i > 0; ) {
-            ProValueMap::Iterator it = m_valuemapStack[i].find(var);
-            if (it != m_valuemapStack.at(i).end()) {
+        for (ProValueMapStack::Iterator vmi = m_valuemapStack.end();
+             --vmi != m_valuemapStack.begin(); ) {
+            ProValueMap::Iterator it = (*vmi).find(var);
+            if (it != (*vmi).end()) {
                 if (it->constBegin() == statics.fakeValue.constBegin()) {
                     // This is stupid, but qmake doesn't propagate deletions
-                    m_valuemapStack[0][var] = ProStringList();
+                    m_valuemapStack.first()[var] = ProStringList();
                 } else {
-                    m_valuemapStack[0][var] = *it;
+                    m_valuemapStack.first()[var] = *it;
                 }
-                m_valuemapStack[i].erase(it);
-                while (--i)
-                    m_valuemapStack[i].remove(var);
+                (*vmi).erase(it);
+                while (--vmi != m_valuemapStack.begin())
+                    (*vmi).remove(var);
                 break;
             }
         }
