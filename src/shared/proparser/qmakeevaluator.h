@@ -39,6 +39,7 @@
 #include "ioutils.h"
 
 #include <QList>
+#include <QLinkedList>
 #include <QSet>
 #include <QStack>
 #include <QString>
@@ -71,7 +72,16 @@ public:
     virtual void doneWithEval(ProFile *parent) = 0;
 };
 
-typedef QStack<ProValueMap> ProValueMapStack;
+// We use a QLinkedList based stack instead of a QVector based one (QStack), so that
+// the addresses of value maps stay constant. The qmake generators rely on that.
+class QMAKE_EXPORT ProValueMapStack : public QLinkedList<ProValueMap>
+{
+public:
+    inline void push(const ProValueMap &t) { append(t); }
+    inline ProValueMap pop() { return takeLast(); }
+    ProValueMap &top() { return last(); }
+    const ProValueMap &top() const { return last(); }
+};
 
 class QMAKE_EXPORT QMakeEvaluator
 {
