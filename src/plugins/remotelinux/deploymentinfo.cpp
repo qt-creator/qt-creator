@@ -61,7 +61,7 @@ using namespace Internal;
 DeploymentInfo::DeploymentInfo(Qt4ProjectManager::Qt4Project *project, const QString &installPrefix)
     : QAbstractListModel(project), d(new DeploymentInfoPrivate(project))
 {
-    connect(project, SIGNAL(buildSystemEvaluated()), SLOT(createModels()));
+    connect(project, SIGNAL(proFilesEvaluated()), SLOT(createModels()));
     setInstallPrefix(installPrefix);
 }
 
@@ -89,13 +89,13 @@ void DeploymentInfo::createModels()
     const Qt4ProFileNode *const rootNode = d->project->rootQt4ProjectNode();
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
-    disconnect(d->project, SIGNAL(buildSystemEvaluated()), this, SLOT(createModels()));
+    disconnect(d->project, SIGNAL(proFilesEvaluated()), this, SLOT(createModels()));
     beginResetModel();
     qDeleteAll(d->listModels);
     d->listModels.clear();
     createModels(rootNode);
     endResetModel();
-    connect (d->project, SIGNAL(buildSystemEvaluated()), SLOT(createModels()));
+    connect (d->project, SIGNAL(proFilesEvaluated()), SLOT(createModels()));
 }
 
 void DeploymentInfo::createModels(const Qt4ProFileNode *proFileNode)
