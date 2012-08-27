@@ -91,7 +91,7 @@
    <item>
     <widget class="QCheckBox" name="hijackedCheckBox">
      <property name="text">
-      <string>Use &amp;Hijacked file</string>
+      <string extracomment="Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.">Use &amp;Hijacked file</string>
      </property>
      <property name="checked">
       <bool>true</bool>

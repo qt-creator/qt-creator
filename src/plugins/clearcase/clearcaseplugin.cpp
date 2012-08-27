@@ -710,7 +710,7 @@ void ClearCasePlugin::undoHijackCurrent()
         Ui::UndoCheckOut unhijackUi;
         QDialog unhijackDlg;
         unhijackUi.setupUi(&unhijackDlg);
-        unhijackDlg.setWindowTitle(tr("Undo hijack file"));
+        unhijackDlg.setWindowTitle(tr("Undo Hijack File"));
         unhijackUi.lblMessage->setText(tr("Do you want to undo hijack of '%1'?")
                                        .arg(QDir::toNativeSeparators(fileName)));
         if (unhijackDlg.exec() != QDialog::Accepted)
@@ -1185,7 +1185,7 @@ ClearCaseResponse
     ClearCaseResponse response;
     if (executable.isEmpty()) {
         response.error = true;
-        response.message = tr("No ClearCase executable specified!");
+        response.message = tr("No ClearCase executable specified.");
         return response;
     }
 
@@ -1269,7 +1269,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
             (fi.isWritable() || s_statusMap[relFile].status == FileStatus::Unknown))
         QtConcurrent::run(&sync, topLevel, QStringList(relFile)).waitForFinished();
     if (s_statusMap[relFile].status == FileStatus::CheckedOut) {
-        QMessageBox::information(0, tr("ClearCase Checkout"), tr("File is already checked out!"));
+        QMessageBox::information(0, tr("ClearCase Checkout"), tr("File is already checked out."));
         return true;
     }
     bool isHijacked = (s_statusMap[relFile].status & FileStatus::Hijacked);
@@ -1492,7 +1492,7 @@ bool ClearCasePlugin::vcsAdd(const QString &workingDir, const QString &fileName)
 bool ClearCasePlugin::vcsDelete(const QString &workingDir, const QString &fileName)
 {
     const QString title(tr("ClearCase Remove Element"));
-    if (QMessageBox::warning(0, title, tr("This operation is irreversible! Are you sure?"),
+    if (QMessageBox::warning(0, title, tr("This operation is irreversible. Are you sure?"),
                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
         return true;
 
