@@ -32,24 +32,21 @@
 
     \title Setting Up Debugger
 
-    The main debugger settings are associated with the \l{glossary-tool-chain}
-    {tool chains} used to build your project.
-
-    To configure tool chains, select \gui{Tools > Options > Build and Run >
-    Tool Chains}. The view lists the tool chains that \QC detected
-    automatically. You can add tool chains.
+    The main debugger settings are associated with the build
+    \l{glossary-development-target}{target} of your project. To specify the
+    debugger and compiler to use for each build target, select \gui Tools >
+    \gui Options > \gui {Build and Run} > \gui Targets.
 
     You need to set up the debugger only if the automatic setup
     fails, because the native debugger is missing (as is usually the
     case for the CDB debugger on Windows, which you always must install
-    yourself) or because the installed version is not supported (e.g.
+    yourself) or because the installed version is not supported (for example,
     when your system contains no, or an outdated version of GDB and you
     want to use a locally installed replacement instead).
 
-    \note If you need to change parameters of an automatically detected
-    toolchain, you can \gui{Clone} the tool chain and change the
-    parameters in the clone. Make sure to select the cloned tool chain
-    in the build settings of your project.
+    \note If you need to change the debugger to use for an automatically
+    detected target, you can \gui{Clone} the target and change the parameters in
+    the clone. Make sure to select the cloned target for your project.
 
     \note To use the debugging tools for Windows, you must install them
     and add the Symbol Server provided by Microsoft to the symbol search
@@ -57,7 +54,7 @@
     Server in Windows}.
 
     \note To use the Free Software Foundation (FSF) version of GDB on
-    Mac OS, you must sign it and modify your tool chain settings.
+    Mac OS, you must sign it and modify your target settings.
 
     This section explains the options you have for debugging C++ code
     and provides installation notes for the supported native debuggers.
@@ -237,7 +234,7 @@
                 supports Python from
                 \l{ftp://ftp.qt.nokia.com/misc/gdb/7.2/gdb72_mac_platform.tar.bz2}.
                 To use FSF GDB on Mac OS, you must sign it and add it to the \QC
-                tool chains. For more information, see
+                targets. For more information, see
                 \l{Setting up FSF GDB for Mac OS}.
 
               \note The Mac OS X Snow Leopard (10.6) has a bug that might cause the
@@ -275,8 +272,7 @@
 
     \section1 Setting up FSF GDB for Mac OS
 
-    To use FSF GDB on Mac OS, you must sign it and add it to the \QC tool
-    chains.
+    To use FSF GDB on Mac OS, you must sign it and add it to the \QC targets.
 
     \list 1
 
@@ -317,21 +313,14 @@
             \endcode
 
         \o  In \QC, select \gui {Qt Creator > Preferences > Build & Run >
-            Tool Chains}, to add a tool chain that uses the debugger:
-
-        \list 1
-
-            \o  Select a native tool chain (usually, a x86 64-bit tool chain)
-                and click \gui Clone to clone it.
+            Targets} > \gui Add to create a build target that uses FSF GDB.
 
             \o  In the \gui Debugger field, specify the path to FSF GDB
                 (\c $HOME/gdb72/bin/fsfgdb, but with an explicit value for
                 \c $HOME).
 
-        \endlist
-
-        \o  To use the debugger, select the tool chain in the \gui {Tool chain}
-            field in the \gui {Build Settings} of the project.
+        \o  To use the debugger, add the target in the \gui {Build Settings}
+            of the project.
 
     \endlist
 
