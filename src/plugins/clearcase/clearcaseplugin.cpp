@@ -1542,31 +1542,31 @@ QList<QStringPair> ClearCasePlugin::ccGetActivities() const
     // Maintain latest deliver and rebase activities only
     QStringPair rebaseAct;
     QStringPair deliverAct;
-    QStringList args(QLatin1String("lsactivity"));
     // Retrieve all activities
+    QStringList args(QLatin1String("lsactivity"));
     args << QLatin1String("-fmt") << QLatin1String("%n\\t%[headline]p\\n");
     const QString response = runCleartoolSync(currentState().topLevel(), args);
     QStringList acts = response.split(QLatin1Char('\n'), QString::SkipEmptyParts);
     foreach (QString activity, acts) {
         QStringList act = activity.split(QLatin1Char('\t'));
-        // exclude deliver/rebase activities (and include only the latest ones)
-        QRegExp deliverRebase(QLatin1String("deliver\\.|rebase\\."));
         if (act.size() >= 2)
         {
             QString actName = act.at(0);
-            if (actName.indexOf(deliverRebase) == -1)
-                result.append(QStringPair(actName, act.at(1).trimmed()));
-            else if ((actName.at(0) == QLatin1Char('r')) && (actName > rebaseAct.first))
+            // include only latest deliver/rebase activities. Activities are sorted
+            // by creation time
+            if (actName.startsWith(QLatin1String("rebase.")))
                 rebaseAct = QStringPair(actName, act.at(1));
-            else if ((actName.at(0) == QLatin1Char('d')) && (actName > deliverAct.first))
+            else if (actName.startsWith(QLatin1String("deliver.")))
                 deliverAct = QStringPair(actName, act.at(1));
+            else
+                result.append(QStringPair(actName, act.at(1).trimmed()));
         }
     }
+    qSort(result);
     if (!rebaseAct.first.isEmpty())
         result.append(rebaseAct);
     if (!deliverAct.first.isEmpty())
         result.append(deliverAct);
-    qSort(result);
     return result;
 }
 
