@@ -1097,8 +1097,10 @@ QStringList Qt4Project::applicationProFilePathes(const QString &prepend) const
 
 void Qt4Project::activeTargetWasChanged()
 {
-    disconnect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            this, SLOT(scheduleAsyncUpdate()));
+    if (m_activeTarget) {
+        disconnect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+                   this, SLOT(scheduleAsyncUpdate()));
+    }
 
     m_activeTarget = activeTarget();
 
