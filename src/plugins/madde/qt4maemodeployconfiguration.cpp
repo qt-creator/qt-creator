@@ -162,15 +162,15 @@ void Qt4MaemoDeployConfiguration::setupDebianPackaging()
         return;
 
     Utils::FileName debianDir = DebianManager::debianDirectory(target());
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
-    DebianManager *dm = DebianManager::instance();
-    QString projectName = target()->project()->displayName();
-
     DebianManager::ActionStatus status = DebianManager::createTemplate(bc, debianDir);
 
     if (status == DebianManager::NoActionRequired ||
             status == DebianManager::ActionFailed)
         return;
+
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    DebianManager *dm = DebianManager::instance();
+    QString projectName = target()->project()->displayName();
 
     if (!DebianManager::hasPackageManagerIcon(debianDir)) {
         // Such a file is created by the mobile wizards.
