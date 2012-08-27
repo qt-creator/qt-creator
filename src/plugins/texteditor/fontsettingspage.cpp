@@ -228,17 +228,19 @@ FontSettingsPagePrivate::~FontSettingsPagePrivate()
 
 
 // ------- FormatDescription
-FormatDescription::FormatDescription(TextStyle id, const QString &displayName, const QColor &color) :
-    m_id(id),
-    m_displayName(displayName)
-{
-    m_format.setForeground(color);
-}
-
-FormatDescription::FormatDescription(TextStyle id, const QString &displayName, const Format &format) :
+FormatDescription::FormatDescription(TextStyle id, const QString &displayName, const QString &tooltipText, const QColor &foreground) :
     m_id(id),
     m_displayName(displayName),
-    m_format(format)
+    m_tooltipText(tooltipText)
+{
+    m_format.setForeground(foreground);
+}
+
+FormatDescription::FormatDescription(TextStyle id, const QString &displayName, const QString &tooltipText, const Format &format) :
+    m_id(id),
+    m_displayName(displayName),
+    m_format(format),
+    m_tooltipText(tooltipText)
 {
 }
 

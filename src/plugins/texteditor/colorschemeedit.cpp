@@ -115,6 +115,9 @@ public:
             font.setItalic(m_scheme->formatFor(description.id()).italic());
             return font;
         }
+        case Qt::ToolTipRole: {
+            return description.tooltipText();
+        }
         }
         return QVariant();
     }
