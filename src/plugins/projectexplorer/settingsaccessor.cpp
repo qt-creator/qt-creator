@@ -658,7 +658,7 @@ QVariantMap SettingsAccessor::restoreSettings() const
 
     // Time to consider shared settings...
     SettingsData sharedSettings;
-    if (m_sharedFileAcessor.readFile(&sharedSettings)) {
+    if (!sharedSettings.m_fileName.isEmpty() && m_sharedFileAcessor.readFile(&sharedSettings)) {
         bool useSharedSettings = true;
         if (sharedSettings.m_version != settings.m_version) {
             int baseFileVersion;
