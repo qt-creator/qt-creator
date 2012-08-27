@@ -107,7 +107,7 @@ static int theId(const char *str)
         if (lastUid == 0)
             stringFromId.append(QByteArray());
         res = ++lastUid;
-        sh.str = strdup(sh.str);
+        sh.str = qstrdup(sh.str);
         idFromString[sh] = res;
         stringFromId.append(QByteArray::fromRawData(sh.str, sh.n));
     }
