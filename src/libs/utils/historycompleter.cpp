@@ -156,8 +156,9 @@ void HistoryCompleterPrivate::saveEntry(const QString &str)
     theSettings->setValue(historyKey, list);
 }
 
-HistoryCompleter::HistoryCompleter(QLineEdit *lineEdit, const QString &historyKey)
-    : d(new HistoryCompleterPrivate)
+HistoryCompleter::HistoryCompleter(QLineEdit *lineEdit, const QString &historyKey, QObject *parent)
+    : QCompleter(parent),
+      d(new HistoryCompleterPrivate)
 {
     QTC_ASSERT(lineEdit, return);
     QTC_ASSERT(!historyKey.isEmpty(), return);
