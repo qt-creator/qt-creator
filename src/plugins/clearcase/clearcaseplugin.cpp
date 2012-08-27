@@ -216,6 +216,8 @@ QString ClearCasePlugin::findTopLevel(const QString &directory) const
     if (!topLevel.isEmpty() || !clearCaseControl()->isConfigured())
         return topLevel;
     // Dynamic view
+    if (directory.startsWith(m_topLevel) && directory.at(m_topLevel.size()) == QLatin1Char('/'))
+        return m_topLevel;
     bool isDynamic;
     ccGetView(directory, &isDynamic);
     if (isDynamic) {
