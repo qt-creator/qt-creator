@@ -249,6 +249,7 @@ public:
     struct Location {
         Location() : pro(0), line(0) {}
         Location(ProFile *_pro, ushort _line) : pro(_pro), line(_line) {}
+        void clear() { pro = 0; line = 0; }
         ProFile *pro;
         ushort line;
     };
