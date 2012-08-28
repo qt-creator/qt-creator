@@ -1752,7 +1752,7 @@ bool QMakeEvaluator::evaluateFile(
 #endif
         return ok;
     } else {
-        if (!(flags & LoadSilent) && IoUtils::exists(fileName))
+        if (!(flags & LoadSilent) && !IoUtils::exists(fileName))
             languageWarning(fL1S("Include file %1 not found").arg(fileName));
         return false;
     }
