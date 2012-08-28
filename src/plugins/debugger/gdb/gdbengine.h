@@ -495,6 +495,7 @@ private: ////////// View & Data Stuff //////////
     void setRegisterValue(int nr, const QString &value);
     void handleRegisterListNames(const GdbResponse &response);
     void handleRegisterListValues(const GdbResponse &response);
+    QVector<int> m_registerNumbers; // Map GDB register numbers to indices
 
     //
     // Disassembler specific stuff

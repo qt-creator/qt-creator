@@ -3770,9 +3770,23 @@ void GdbEngine::handleRegisterListNames(const GdbResponse &response)
     }
 
     Registers registers;
-    foreach (const GdbMi &item, response.data.findChild("register-names").children())
-        if (!item.data().isEmpty())
+    int gdbRegisterNumber = 0, internalIndex = 0;
+
+    // This both handles explicitly having space for all the registers and
+    // initializes all indices to 0, giving missing registers a sane default
+    // in the event of something wacky.
+    GdbMi names = response.data.findChild("register-names");
+    m_registerNumbers.resize(names.childCount());
+    foreach (const GdbMi &item, names.children()) {
+        // Since we throw away missing registers to eliminate empty rows
+        // we need to maintain a mapping of GDB register numbers to their
+        // respective indices in the register list.
+        if (!item.data().isEmpty()) {
+            m_registerNumbers[gdbRegisterNumber] = internalIndex++;
             registers.append(Register(item.data()));
+        }
+        gdbRegisterNumber++;
+    }
 
     registerHandler()->setRegisters(registers);
 }
@@ -3784,14 +3798,15 @@ void GdbEngine::handleRegisterListValues(const GdbResponse &response)
 
     Registers registers = registerHandler()->registers();
     const int registerCount = registers.size();
+    const int gdbRegisterCount = m_registerNumbers.size();
 
     // 24^done,register-values=[{number="0",value="0xf423f"},...]
     const GdbMi values = response.data.findChild("register-values");
     QTC_ASSERT(registerCount == values.children().size(), return);
     foreach (const GdbMi &item, values.children()) {
         const int number = item.findChild("number").data().toInt();
-        if (number >= 0 && number < registerCount)
-            registers[number].value = item.findChild("value").data();
+        if (number >= 0 && number < gdbRegisterCount)
+            registers[m_registerNumbers[number]].value = item.findChild("value").data();
     }
     registerHandler()->setAndMarkRegisters(registers);
 }
