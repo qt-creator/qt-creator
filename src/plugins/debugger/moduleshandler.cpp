@@ -255,8 +255,9 @@ void ModulesModel::updateModule(const Module &module)
 //
 //////////////////////////////////////////////////////////////////
 
-ModulesHandler::ModulesHandler()
+ModulesHandler::ModulesHandler(DebuggerEngine *engine)
 {
+    m_engine = engine;
     m_model = new ModulesModel(this);
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setSourceModel(m_model);

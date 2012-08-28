@@ -163,7 +163,7 @@ public:
         m_targetState(DebuggerNotReady),
         m_remoteSetupState(RemoteSetupNone),
         m_inferiorPid(0),
-        m_modulesHandler(),
+        m_modulesHandler(engine),
         m_registerHandler(),
         m_sourceFilesHandler(),
         m_stackHandler(),
