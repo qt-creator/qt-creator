@@ -195,6 +195,7 @@ public:
 
     static void removeEach(ProStringList *varlist, const ProStringList &value);
 
+    QMakeEvaluator *m_caller;
     int m_loopLevel; // To report unexpected break() and next()s
 #ifdef PROEVALUATOR_CUMULATIVE
     bool m_cumulative;
@@ -232,6 +233,7 @@ public:
     QStringList m_qmakefeatures;
     QStringList m_mkspecPaths;
     QStringList m_featureRoots;
+    ProString m_dirSep;
     ProFunctionDefs m_functionDefs;
     ProStringList m_returnValue;
     QStack<ProValueMap> m_valuemapStack; // VariableName must be us-ascii, the content however can be non-us-ascii.

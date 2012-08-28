@@ -63,7 +63,7 @@
       </palette>
      </property>
      <property name="text">
-      <string>The file was changed!</string>
+      <string>The file was changed.</string>
      </property>
     </widget>
    </item>

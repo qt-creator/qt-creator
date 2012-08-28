@@ -161,7 +161,7 @@
       <item row="9" column="0">
        <widget class="QLabel" name="indexOnlyVOBsLabel">
         <property name="text">
-         <string>&amp;Index only VOBs:</string>
+         <string extracomment="VOB: Versioned Object Base">&amp;Index only VOBs:</string>
         </property>
         <property name="buddy">
          <cstring>indexOnlyVOBsEdit</cstring>

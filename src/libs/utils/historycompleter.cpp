@@ -156,8 +156,9 @@ void HistoryCompleterPrivate::saveEntry(const QString &str)
     theSettings->setValue(historyKey, list);
 }
 
-HistoryCompleter::HistoryCompleter(QLineEdit *lineEdit, const QString &historyKey)
-    : d(new HistoryCompleterPrivate)
+HistoryCompleter::HistoryCompleter(QLineEdit *lineEdit, const QString &historyKey, QObject *parent)
+    : QCompleter(parent),
+      d(new HistoryCompleterPrivate)
 {
     QTC_ASSERT(lineEdit, return);
     QTC_ASSERT(!historyKey.isEmpty(), return);
@@ -180,7 +181,9 @@ HistoryCompleter::~HistoryCompleter()
 
 bool HistoryCompleter::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::KeyPress && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Down) {
+    if (event->type() == QEvent::KeyPress &&
+            static_cast<QKeyEvent *>(event)->key() == Qt::Key_Down &&
+            static_cast<QLineEdit *>(widget())->text().isEmpty()) {
         setCompletionPrefix(QString());
         complete();
     }

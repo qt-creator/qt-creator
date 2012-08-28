@@ -352,7 +352,7 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
     QByteArray out;
     if (FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
                                + IoUtils::shellQuote(currentDirectory())
-                               + QLatin1String(" && ") + args[0]).toLocal8Bit().constData(), "r")) {
+                               + QLatin1String(" && ") + args).toLocal8Bit().constData(), "r")) {
         while (!feof(proc)) {
             char buff[10 * 1024];
             int read_in = int(fread(buff, 1, sizeof(buff), proc));
@@ -1009,7 +1009,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             evalError(fL1S("shell_path(path) requires one argument."));
         } else {
             QString rstr = args.at(0).toQString(m_tmp1);
-            if (m_option->dir_sep.at(0) != QLatin1Char('/'))
+            if (m_dirSep.startsWith(QLatin1Char('\\')))
                 rstr.replace(QLatin1Char('/'), QLatin1Char('\\'));
             else
                 rstr.replace(QLatin1Char('\\'), QLatin1Char('/'));
@@ -1029,7 +1029,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
             evalError(fL1S("shell_quote(arg) requires one argument."));
         } else {
             QString rstr = args.at(0).toQString(m_tmp1);
-            if (m_option->dir_sep.at(0) != QLatin1Char('/'))
+            if (m_dirSep.startsWith(QLatin1Char('\\')))
                 rstr = IoUtils::shellQuoteWin(rstr);
             else
                 rstr = IoUtils::shellQuoteUnix(rstr);
@@ -1091,7 +1091,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         // they cannot be used to terminate loops anyway.
         if (m_cumulative)
             return ReturnTrue;
-        if (m_valuemapStack.isEmpty()) {
+        if (m_valuemapStack.size() == 1) {
             evalError(fL1S("unexpected return()."));
             return ReturnFalse;
         }

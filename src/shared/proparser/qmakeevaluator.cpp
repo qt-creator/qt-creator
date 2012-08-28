@@ -170,6 +170,7 @@ QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
     initStatics();
 
     // Configuration, more or less
+    m_caller = 0;
 #ifdef PROEVALUATOR_CUMULATIVE
     m_cumulative = false;
 #endif
@@ -200,6 +201,7 @@ void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
     m_qmakespecName = other.m_qmakespecName;
     m_mkspecPaths = other.m_mkspecPaths;
     m_featureRoots = other.m_featureRoots;
+    m_dirSep = other.m_dirSep;
 }
 
 //////// Evaluator tools /////////
@@ -328,7 +330,7 @@ static void replaceInList(ProStringList *varlist,
         QString val = varit->toQString(tmp);
         QString copy = val; // Force detach and have a reference value
         val.replace(regexp, replace);
-        if (!val.isSharedWith(copy)) {
+        if (!val.isSharedWith(copy) && val != copy) {
             if (val.isEmpty()) {
                 varit = varlist->erase(varit);
             } else {
@@ -1104,6 +1106,8 @@ bool QMakeEvaluator::loadSpec()
     if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
         return false;
     updateFeaturePaths(); // The spec extends the feature search path, so rebuild the cache.
+    // The MinGW and x-build specs may change the separator; $$shell_{path,quote}() need it
+    m_dirSep = first(ProKey("QMAKE_DIR_SEP"));
     if (!m_conffile.isEmpty()
         && !evaluateFileDirect(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
@@ -1626,11 +1630,14 @@ bool QMakeEvaluator::evaluateFile(
 {
     if (fileName.isEmpty())
         return false;
-    foreach (const ProFile *pf, m_profileStack)
-        if (pf->fileName() == fileName) {
-            evalError(fL1S("Circular inclusion of %1.").arg(fileName));
-            return false;
-        }
+    QMakeEvaluator *ref = this;
+    do {
+        foreach (const ProFile *pf, ref->m_profileStack)
+            if (pf->fileName() == fileName) {
+                evalError(fL1S("Circular inclusion of %1.").arg(fileName));
+                return false;
+            }
+    } while ((ref = ref->m_caller));
     return evaluateFileDirect(fileName, type, flags);
 }
 
@@ -1695,7 +1702,9 @@ bool QMakeEvaluator::evaluateFileInto(const QString &fileName, QMakeHandler::Eva
         ProValueMap *values, LoadFlags flags)
 {
     QMakeEvaluator visitor(m_option, m_parser, m_handler);
+    visitor.m_caller = this;
     visitor.m_outputDir = m_outputDir;
+    visitor.m_featureRoots = m_featureRoots;
     if (!visitor.evaluateFile(fileName, type, flags))
         return false;
     *values = visitor.m_valuemapStack.top();

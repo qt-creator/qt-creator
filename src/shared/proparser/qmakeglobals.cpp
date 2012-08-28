@@ -182,10 +182,11 @@ QStringList QMakeGlobals::getPathListEnv(const QString &var) const
     QStringList ret;
     QString val = getEnv(var);
     if (!val.isEmpty()) {
+        QDir bdir;
         QStringList vals = val.split(dirlist_sep);
         ret.reserve(vals.length());
         foreach (const QString &it, vals)
-            ret << QDir::cleanPath(it);
+            ret << QDir::cleanPath(bdir.absoluteFilePath(it));
     }
     return ret;
 }

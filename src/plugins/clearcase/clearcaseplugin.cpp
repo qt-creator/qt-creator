@@ -217,6 +217,8 @@ QString ClearCasePlugin::findTopLevel(const QString &directory) const
     if (!topLevel.isEmpty() || !clearCaseControl()->isConfigured())
         return topLevel;
     // Dynamic view
+    if (directory.startsWith(m_topLevel) && directory.at(m_topLevel.size()) == QLatin1Char('/'))
+        return m_topLevel;
     bool isDynamic;
     ccGetView(directory, &isDynamic);
     if (isDynamic) {
@@ -708,7 +710,7 @@ void ClearCasePlugin::undoHijackCurrent()
         Ui::UndoCheckOut unhijackUi;
         QDialog unhijackDlg;
         unhijackUi.setupUi(&unhijackDlg);
-        unhijackDlg.setWindowTitle(tr("Undo hijack file"));
+        unhijackDlg.setWindowTitle(tr("Undo Hijack File"));
         unhijackUi.lblMessage->setText(tr("Do you want to undo hijack of '%1'?")
                                        .arg(QDir::toNativeSeparators(fileName)));
         if (unhijackDlg.exec() != QDialog::Accepted)
@@ -1183,7 +1185,7 @@ ClearCaseResponse
     ClearCaseResponse response;
     if (executable.isEmpty()) {
         response.error = true;
-        response.message = tr("No ClearCase executable specified!");
+        response.message = tr("No ClearCase executable specified.");
         return response;
     }
 
@@ -1267,7 +1269,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
             (fi.isWritable() || s_statusMap[relFile].status == FileStatus::Unknown))
         QtConcurrent::run(&sync, topLevel, QStringList(relFile)).waitForFinished();
     if (s_statusMap[relFile].status == FileStatus::CheckedOut) {
-        QMessageBox::information(0, tr("ClearCase Checkout"), tr("File is already checked out!"));
+        QMessageBox::information(0, tr("ClearCase Checkout"), tr("File is already checked out."));
         return true;
     }
     bool isHijacked = (s_statusMap[relFile].status & FileStatus::Hijacked);
@@ -1490,7 +1492,7 @@ bool ClearCasePlugin::vcsAdd(const QString &workingDir, const QString &fileName)
 bool ClearCasePlugin::vcsDelete(const QString &workingDir, const QString &fileName)
 {
     const QString title(tr("ClearCase Remove Element"));
-    if (QMessageBox::warning(0, title, tr("This operation is irreversible! Are you sure?"),
+    if (QMessageBox::warning(0, title, tr("This operation is irreversible. Are you sure?"),
                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
         return true;
 
@@ -1542,31 +1544,31 @@ QList<QStringPair> ClearCasePlugin::ccGetActivities() const
     // Maintain latest deliver and rebase activities only
     QStringPair rebaseAct;
     QStringPair deliverAct;
-    QStringList args(QLatin1String("lsactivity"));
     // Retrieve all activities
+    QStringList args(QLatin1String("lsactivity"));
     args << QLatin1String("-fmt") << QLatin1String("%n\\t%[headline]p\\n");
     const QString response = runCleartoolSync(currentState().topLevel(), args);
     QStringList acts = response.split(QLatin1Char('\n'), QString::SkipEmptyParts);
     foreach (QString activity, acts) {
         QStringList act = activity.split(QLatin1Char('\t'));
-        // exclude deliver/rebase activities (and include only the latest ones)
-        QRegExp deliverRebase(QLatin1String("deliver\\.|rebase\\."));
         if (act.size() >= 2)
         {
             QString actName = act.at(0);
-            if (actName.indexOf(deliverRebase) == -1)
-                result.append(QStringPair(actName, act.at(1).trimmed()));
-            else if ((actName.at(0) == QLatin1Char('r')) && (actName > rebaseAct.first))
+            // include only latest deliver/rebase activities. Activities are sorted
+            // by creation time
+            if (actName.startsWith(QLatin1String("rebase.")))
                 rebaseAct = QStringPair(actName, act.at(1));
-            else if ((actName.at(0) == QLatin1Char('d')) && (actName > deliverAct.first))
+            else if (actName.startsWith(QLatin1String("deliver.")))
                 deliverAct = QStringPair(actName, act.at(1));
+            else
+                result.append(QStringPair(actName, act.at(1).trimmed()));
         }
     }
+    qSort(result);
     if (!rebaseAct.first.isEmpty())
         result.append(rebaseAct);
     if (!deliverAct.first.isEmpty())
         result.append(deliverAct);
-    qSort(result);
     return result;
 }
 

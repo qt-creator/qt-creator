@@ -643,7 +643,7 @@ Abi Abi::hostAbi()
     subos = WindowsMsvc2008Flavor;
 #elif _MSC_VER == 1400
     subos = WindowsMsvc2005Flavor;
-#elif defined (mingw32)
+#elif defined (Q_CC_MINGW)
     subos = WindowsMSysFlavor;
 #endif
     format = PEFormat;

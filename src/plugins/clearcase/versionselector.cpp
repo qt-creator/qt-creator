@@ -45,6 +45,9 @@ VersionSelector::VersionSelector(const QString &fileName, const QString &message
 {
     ui->setupUi(this);
     ui->headerLabel->setText(ui->headerLabel->text().arg(fileName));
+    ui->loadedText->setHtml(tr("<html><head/><body><p><b>NOTE: You will not be able to check in "
+                               "this file without merging the changes (not supported by the "
+                               "plugin)</b></p></body></html>"));
     m_stream = new QTextStream(message.toLocal8Bit(), QIODevice::ReadOnly | QIODevice::Text);
     QString line;
     while (!m_stream->atEnd() && !line.contains(QLatin1String("1) Loaded version")))

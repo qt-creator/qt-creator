@@ -121,15 +121,15 @@ void Qt4MaemoDeployConfiguration::setupDebianPackaging()
         return;
 
     Utils::FileName debianDir = DebianManager::debianDirectory(target());
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
-    DebianManager *dm = DebianManager::instance();
-    QString projectName = target()->project()->displayName();
-
     DebianManager::ActionStatus status = DebianManager::createTemplate(bc, debianDir);
 
     if (status == DebianManager::NoActionRequired ||
             status == DebianManager::ActionFailed)
         return;
+
+    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    DebianManager *dm = DebianManager::instance();
+    QString projectName = target()->project()->displayName();
 
     if (!DebianManager::hasPackageManagerIcon(debianDir)) {
         // Such a file is created by the mobile wizards.
@@ -249,7 +249,9 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
     Q_ASSERT(canCreate(parent, id));
 
     const QString displayName = displayNameForId(id);
-    DeployConfiguration * const dc = new Qt4MaemoDeployConfiguration(parent, id, displayName);
+    Qt4MaemoDeployConfiguration * const dc = new Qt4MaemoDeployConfiguration(parent, id, displayName);
+    dc->setupDebianPackaging();
+
     if (id == Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId()) {
         dc->stepList()->insertStep(0, new MaemoMakeInstallToSysrootStep(dc->stepList()));
         dc->stepList()->insertStep(1, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));

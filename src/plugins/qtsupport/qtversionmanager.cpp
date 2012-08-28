@@ -136,7 +136,7 @@ QtVersionManager::QtVersionManager() :
 void QtVersionManager::extensionsInitialized()
 {
     bool success = restoreQtVersions();
-    updateFromInstaller();
+    updateFromInstaller(false);
     if (!success) {
         // We did neither restore our settings or upgraded
         // in that case figure out if there's a qt in path
@@ -144,6 +144,7 @@ void QtVersionManager::extensionsInitialized()
         findSystemQt();
     }
 
+    emit qtVersionsChanged(m_versions.keys(), QList<int>(), QList<int>());
     saveQtVersions();
 
     const Utils::FileName configFileName = globalSettingsFileName();
@@ -231,7 +232,7 @@ bool QtVersionManager::restoreQtVersions()
     return true;
 }
 
-void QtVersionManager::updateFromInstaller()
+void QtVersionManager::updateFromInstaller(bool emitSignal)
 {
     m_fileWatcherTimer->stop();
 
@@ -353,7 +354,8 @@ void QtVersionManager::updateFromInstaller()
             qDebug() << "";
         }
     }
-    emit qtVersionsChanged(added, removed, changed);
+    if (emitSignal)
+        emit qtVersionsChanged(added, removed, changed);
     saveQtVersions();
 }
 

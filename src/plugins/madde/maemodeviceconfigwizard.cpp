@@ -339,7 +339,7 @@ private:
 
         m_ui->keyDirPathChooser->setEnabled(false);
         m_ui->createKeysButton->setEnabled(false);
-        m_ui->statusLabel->setText(tr("Creating keys... "));
+        m_ui->statusLabel->setText(tr("Creating keys..."));
         SshKeyGenerator keyGenerator;
         if (!keyGenerator.generateKeys(SshKeyGenerator::Rsa,
              SshKeyGenerator::Mixed, 1024)) {
@@ -447,7 +447,7 @@ private:
         sshParams.password = password();
         sshParams.timeout = 10;
         sshParams.userName = defaultUser();
-        m_ui->statusLabel->setText(tr("Deploying... "));
+        m_ui->statusLabel->setText(tr("Deploying..."));
         m_keyDeployer->deployPublicKey(sshParams, m_wizardData.publicKeyFilePath);
     }
 

@@ -668,6 +668,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         // It gets a bit complicated if the reference is actually a class template because we
         // now must worry about dependent names in base classes.
         if (Template *templ = referenceClass->enclosingTemplate()) {
+            const unsigned argumentCount = templId->templateArgumentCount();
             QHash<const Name*, unsigned> templParams;
             for (unsigned i = 0; i < templ->templateParameterCount(); ++i)
                 templParams.insert(templ->templateParameterAt(i)->name(), i);
@@ -679,15 +680,20 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     // This is the simple case in which a template parameter is itself a base.
                     // Ex.: template <class T> class A : public T {};
                     if (templParams.contains(nameId)) {
-                        const FullySpecifiedType &fullType =
-                                templId->templateArgumentAt(templParams.value(nameId));
-                        if (NamedType *namedType = fullType.type()->asNamedType())
-                            baseBinding = lookupType(namedType->name());
+                        const unsigned parameterIndex = templParams.value(nameId);
+                        if (parameterIndex < argumentCount) {
+                            const FullySpecifiedType &fullType =
+                                    templId->templateArgumentAt(parameterIndex);
+                            if (fullType.isValid()) {
+                                if (NamedType *namedType = fullType.type()->asNamedType())
+                                    baseBinding = lookupType(namedType->name());
+                            }
+                        }
                     }
                 } else {
                     SubstitutionMap map;
                     for (unsigned i = 0;
-                         i < templ->templateParameterCount() && i < templId->templateArgumentCount();
+                         i < templ->templateParameterCount() && i < argumentCount;
                          ++i) {
                         map.bind(templ->templateParameterAt(i)->name(),
                                  templId->templateArgumentAt(i));

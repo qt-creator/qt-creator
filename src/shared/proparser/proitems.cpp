@@ -33,6 +33,7 @@
 #include <QFileInfo>
 #include <QSet>
 #include <QStringList>
+#include <QTextStream>
 
 QT_BEGIN_NAMESPACE
 
@@ -155,39 +156,6 @@ QString &ProString::toQString(QString &tmp) const
     return tmp.setRawData(m_string.constData() + m_offset, m_length);
 }
 
-bool ProString::operator==(const ProString &other) const
-{
-    if (m_length != other.m_length)
-        return false;
-    return !memcmp(m_string.constData() + m_offset,
-                   other.m_string.constData() + other.m_offset, m_length * 2);
-}
-
-bool ProString::operator==(const QString &other) const
-{
-    if (m_length != other.length())
-        return false;
-    return !memcmp(m_string.constData() + m_offset, other.constData(), m_length * 2);
-}
-
-bool ProString::operator==(const QLatin1String &other) const
-{
-    const ushort *uc = (ushort *)m_string.constData() + m_offset;
-    const ushort *e = uc + m_length;
-    const uchar *c = (uchar *)other.latin1();
-
-    if (!c)
-        return isEmpty();
-
-    while (*c) {
-        if (uc == e || *uc != *c)
-            return false;
-        ++uc;
-        ++c;
-    }
-    return (uc == e);
-}
-
 QChar *ProString::prepareAppend(int extraLen)
 {
     if (m_string.isDetached() && m_length + extraLen <= m_string.capacity()) {
@@ -299,7 +267,7 @@ ProString ProString::mid(int off, int len) const
         off = m_length;
     ret.m_offset += off;
     ret.m_length -= off;
-    if (ret.m_length > len)
+    if ((uint)ret.m_length > (uint)len)  // Unsigned comparison to interpret < 0 as infinite
         ret.m_length = len;
     return ret;
 }
@@ -320,6 +288,12 @@ ProString ProString::trimmed() const
     ret.m_offset = cur;
     ret.m_length = end - cur;
     return ret;
+}
+
+QTextStream &operator<<(QTextStream &t, const ProString &str)
+{
+    t << str.toQString(); // XXX optimize ... somehow
+    return t;
 }
 
 QString ProStringList::join(const QString &sep) const
@@ -346,6 +320,20 @@ QString ProStringList::join(const QString &sep) const
     return res;
 }
 
+void ProStringList::removeAll(const ProString &str)
+{
+    for (int i = size(); --i >= 0; )
+        if (at(i) == str)
+            remove(i);
+}
+
+void ProStringList::removeAll(const char *str)
+{
+    for (int i = size(); --i >= 0; )
+        if (at(i) == str)
+            remove(i);
+}
+
 void ProStringList::removeDuplicates()
 {
     int n = size();
@@ -365,6 +353,13 @@ void ProStringList::removeDuplicates()
         erase(begin() + j, end());
 }
 
+ProStringList::ProStringList(const QStringList &list)
+{
+    reserve(list.size());
+    foreach (const QString &str, list)
+        *this << ProString(str);
+}
+
 QStringList ProStringList::toQStringList() const
 {
     QStringList ret;
@@ -372,6 +367,22 @@ QStringList ProStringList::toQStringList() const
     foreach (const ProString &str, *this)
         ret << str.toQString();
     return ret;
+}
+
+bool ProStringList::contains(const ProString &str, Qt::CaseSensitivity cs) const
+{
+    for (int i = 0; i < size(); i++)
+        if (!at(i).compare(str, cs))
+            return true;
+    return false;
+}
+
+bool ProStringList::contains(const char *str, Qt::CaseSensitivity cs) const
+{
+    for (int i = 0; i < size(); i++)
+        if (!at(i).compare(str, cs))
+            return true;
+    return false;
 }
 
 ProFile::ProFile(const QString &fileName)

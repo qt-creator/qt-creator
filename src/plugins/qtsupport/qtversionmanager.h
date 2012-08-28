@@ -109,7 +109,7 @@ public slots:
     void updateDumpFor(const Utils::FileName &qmakeCommand);
 
 private slots:
-    void updateFromInstaller();
+    void updateFromInstaller(bool emitSignal = true);
 
 private:
     // This function is really simplistic...

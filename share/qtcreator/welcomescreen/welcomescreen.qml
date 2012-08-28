@@ -40,17 +40,6 @@ Rectangle {
     Rectangle {
         id: canvas
 
-
-        opacity: 0
-
-        Component.onCompleted: canvas.opacity = 1
-
-        Behavior on opacity {
-            PropertyAnimation {
-                duration: 450
-            }
-        }
-
         width: Math.min(1024, parent.width)
         //this is a workaround for QTCREATORBUG-6803
         anchors.topMargin: (root.height > 700) ? 0 : 0

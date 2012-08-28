@@ -228,19 +228,24 @@ void ModulesModel::removeModule(const QString &modulePath)
 void ModulesModel::updateModule(const Module &module)
 {
     const int row = indexOfModule(module.modulePath);
-    ElfReader reader(module.modulePath);
-    ElfData elfData = reader.readHeaders();
+    try { // MinGW occasionallly throws std::bad_alloc.
+        ElfReader reader(module.modulePath);
+        ElfData elfData = reader.readHeaders();
 
-    if (row == -1) {
-        const int n = m_modules.size();
-        beginInsertRows(QModelIndex(), n, n);
-        m_modules.push_back(module);
-        m_modules.back().elfData = elfData;
-        endInsertRows();
-    } else {
-        m_modules[row] = module;
-        m_modules[row].elfData = elfData;
-        dataChanged(index(row, 0, QModelIndex()), index(row, 4, QModelIndex()));
+        if (row == -1) {
+            const int n = m_modules.size();
+            beginInsertRows(QModelIndex(), n, n);
+            m_modules.push_back(module);
+            m_modules.back().elfData = elfData;
+            endInsertRows();
+        } else {
+            m_modules[row] = module;
+            m_modules[row].elfData = elfData;
+            dataChanged(index(row, 0, QModelIndex()), index(row, 4, QModelIndex()));
+        }
+    } catch(...) {
+        qWarning("%s: An exception occurred while reading module '%s'",
+                 Q_FUNC_INFO, qPrintable(module.modulePath));
     }
 }
 
@@ -250,8 +255,9 @@ void ModulesModel::updateModule(const Module &module)
 //
 //////////////////////////////////////////////////////////////////
 
-ModulesHandler::ModulesHandler()
+ModulesHandler::ModulesHandler(DebuggerEngine *engine)
 {
+    m_engine = engine;
     m_model = new ModulesModel(this);
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setSourceModel(m_model);

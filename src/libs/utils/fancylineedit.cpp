@@ -305,7 +305,7 @@ bool FancyLineEdit::hasAutoHideButton(Side side) const
 void FancyLineEdit::setHistoryCompleter(const QString &historyKey)
 {
     QTC_ASSERT(!d->m_historyCompleter, return);
-    d->m_historyCompleter = new HistoryCompleter(this, historyKey);
+    d->m_historyCompleter = new HistoryCompleter(this, historyKey, this);
     QLineEdit::setCompleter(d->m_historyCompleter);
 }
 

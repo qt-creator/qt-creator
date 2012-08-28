@@ -42,6 +42,9 @@ class QSortFilterProxyModel;
 QT_END_NAMESPACE
 
 namespace Debugger {
+
+class DebuggerEngine;
+
 namespace Internal {
 
 class ModulesModel;
@@ -105,7 +108,7 @@ class ModulesHandler : public QObject
     Q_OBJECT
 
 public:
-    ModulesHandler();
+    explicit ModulesHandler(DebuggerEngine *engine);
 
     QAbstractItemModel *model() const;
 
@@ -117,6 +120,7 @@ public:
     void removeAll();
 
 private:
+    DebuggerEngine *m_engine;
     ModulesModel *m_model;
     QSortFilterProxyModel *m_proxyModel;
 };

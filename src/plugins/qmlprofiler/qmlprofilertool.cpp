@@ -692,7 +692,7 @@ void QmlProfilerTool::profilerStateChanged()
         break;
     }
     case QmlProfilerStateManager::AppKilled : {
-        showNonmodalWarning(tr("Application finished before loading profiled data.\n Please use the stop button instead."));
+        showNonmodalWarning(tr("Application finished before loading profiled data.\nPlease use the stop button instead."));
         break;
     }
     case QmlProfilerStateManager::Idle :

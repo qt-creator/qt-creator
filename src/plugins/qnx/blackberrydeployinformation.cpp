@@ -48,7 +48,7 @@ BlackBerryDeployInformation::BlackBerryDeployInformation(Qt4ProjectManager::Qt4P
     : QAbstractTableModel(project)
     , m_project(project)
 {
-    connect(m_project, SIGNAL(buildSystemEvaluated()), this, SLOT(initModel()));
+    connect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(initModel()));
 }
 
 int BlackBerryDeployInformation::rowCount(const QModelIndex &parent) const
@@ -175,7 +175,7 @@ void BlackBerryDeployInformation::initModel()
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
 
-    disconnect(m_project, SIGNAL(buildSystemEvaluated()), this, SLOT(initModel()));
+    disconnect(m_project, SIGNAL(proFilesEvaluated()), this, SLOT(initModel()));
     beginResetModel();
     m_deployInformation.clear();
 
@@ -193,5 +193,5 @@ void BlackBerryDeployInformation::initModel()
     }
 
     endResetModel();
-    connect(m_project, SIGNAL(buildSystemEvaluated()), SLOT(initModel()));
+    connect(m_project, SIGNAL(proFilesEvaluated()), SLOT(initModel()));
 }

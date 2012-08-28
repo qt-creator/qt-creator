@@ -1633,7 +1633,9 @@ class Dumper:
             self.putPointerValue(value.address)
             return
 
-        if type.code == MethodPointerCode or type.code == MemberPointerCode:
+        if type.code == MethodPointerCode \
+                or type.code == MethodCode \
+                or type.code == MemberPointerCode:
             self.putType(typeName)
             self.putAddress(value.address)
             self.putValue(value)
