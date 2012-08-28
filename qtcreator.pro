@@ -32,7 +32,7 @@ macx {
         deployqt.commands ~= s,/,\\\\,g
         deployartifacts.depends = install
         PLATFORM="windows"
-        deployartifacts.commands = git clone "git://gitorious.org/qt-creator/binary-artifacts.git"&& xcopy /s /q /y /i "binary-artifacts\\win32" $(INSTALL_ROOT)&& rmdir /s binary-artifacts
+        deployartifacts.commands = git clone "git://gitorious.org/qt-creator/binary-artifacts.git"&& xcopy /s /q /y /i "binary-artifacts\\win32" $(INSTALL_ROOT)&& rmdir /s /q binary-artifacts
         QMAKE_EXTRA_TARGETS += deployartifacts
     }
     else:linux-*:PLATFORM="linux-$${QT_ARCH}"
