@@ -168,6 +168,8 @@ int main(int argc, char **argv)
         QString arg = args.at(pos++);
         if (arg == QLatin1String("-v")) {
             level = 0;
+        } else if (arg == QLatin1String("-d")) {
+            option.debugLevel++;
         } else if (arg == QLatin1String("-c")) {
             cumulative = true;
         } else if (arg.startsWith(QLatin1Char('-'))) {
@@ -185,7 +187,7 @@ int main(int argc, char **argv)
         }
     }
     if (file.isEmpty()) {
-        qCritical("usage: testreader [-v] [-c] <filenme> [<out_pwd>] [<variable assignments>]");
+        qCritical("usage: testreader [-v] [-d [-d]] [-c] <filenme> [<out_pwd>] [<variable assignments>]");
         return 3;
     }
     if (out_pwd.isEmpty())

@@ -106,6 +106,10 @@ public:
     QString user_template, user_template_prefix;
     QString precmds, postcmds;
 
+#ifdef PROEVALUATOR_DEBUG
+    int debugLevel;
+#endif
+
     enum ArgumentReturn { ArgumentUnknown, ArgumentMalformed, ArgumentsOk };
     ArgumentReturn addCommandLineArguments(QMakeCmdLineParserState &state,
                                            QStringList &args, int *pos);

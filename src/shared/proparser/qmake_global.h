@@ -53,4 +53,8 @@
 # define ALWAYS_INLINE inline
 #endif
 
+#ifdef PROEVALUATOR_FULL
+#  define PROEVALUATOR_DEBUG
+#endif
+
 #endif

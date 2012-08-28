@@ -164,7 +164,11 @@ const ProKey &QMakeEvaluator::map(const ProKey &var)
 
 QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
                                QMakeParser *parser, QMakeHandler *handler)
-  : m_option(option), m_parser(parser), m_handler(handler)
+  :
+#ifdef PROEVALUATOR_DEBUG
+    m_debugLevel(option->debugLevel),
+#endif
+    m_option(option), m_parser(parser), m_handler(handler)
 {
     // So that single-threaded apps don't have to call initialize() for now.
     initStatics();
@@ -401,39 +405,56 @@ static ALWAYS_INLINE void addStrList(
 void QMakeEvaluator::evaluateExpression(
         const ushort *&tokPtr, ProStringList *ret, bool joined)
 {
+    debugMsg(2, joined ? "evaluating joined expression" : "evaluating expression");
     if (joined)
         *ret << ProString();
     bool pending = false;
     forever {
         ushort tok = *tokPtr++;
-        if (tok & TokNewStr)
+        if (tok & TokNewStr) {
+            debugMsg(2, "new string");
             pending = false;
+        }
         ushort maskedTok = tok & TokMask;
         switch (maskedTok) {
         case TokLine:
             m_current.line = *tokPtr++;
             break;
-        case TokLiteral:
-            addStr(getStr(tokPtr), ret, pending, joined);
-            break;
-        case TokHashLiteral:
-            addStr(getHashStr(tokPtr), ret, pending, joined);
-            break;
-        case TokVariable:
-            addStrList(values(map(getHashStr(tokPtr))), tok, ret, pending, joined);
-            break;
-        case TokProperty:
-            addStr(propertyValue(getHashStr(tokPtr)), ret, pending, joined);
-            break;
-        case TokEnvVar:
-            addStrList(split_value_list(m_option->getEnv(getStr(tokPtr).toQString(m_tmp1))),
-                       tok, ret, pending, joined);
-            break;
+        case TokLiteral: {
+            const ProString &val = getStr(tokPtr);
+            debugMsg(2, "literal %s", dbgStr(val));
+            addStr(val, ret, pending, joined);
+            break; }
+        case TokHashLiteral: {
+            const ProKey &val = getHashStr(tokPtr);
+            debugMsg(2, "hashed literal %s", dbgStr(val.toString()));
+            addStr(val, ret, pending, joined);
+            break; }
+        case TokVariable: {
+            const ProKey &var = getHashStr(tokPtr);
+            const ProStringList &val = values(map(var));
+            debugMsg(2, "variable %s => %s", dbgKey(var), dbgStrList(val));
+            addStrList(val, tok, ret, pending, joined);
+            break; }
+        case TokProperty: {
+            const ProKey &var = getHashStr(tokPtr);
+            const ProString &val = propertyValue(var);
+            debugMsg(2, "property %s => %s", dbgKey(var), dbgStr(val));
+            addStr(val, ret, pending, joined);
+            break; }
+        case TokEnvVar: {
+            const ProString &var = getStr(tokPtr);
+            const ProStringList &val = split_value_list(m_option->getEnv(var.toQString(m_tmp1)));
+            debugMsg(2, "env var %s => %s", dbgStr(var), dbgStrList(val));
+            addStrList(val, tok, ret, pending, joined);
+            break; }
         case TokFuncName: {
             const ProKey &func = getHashStr(tokPtr);
+            debugMsg(2, "function %s", dbgKey(func));
             addStrList(evaluateExpandFunction(func, tokPtr), tok, ret, pending, joined);
             break; }
         default:
+            debugMsg(2, "evaluated expression => %s", dbgStrList(*ret));
             tokPtr--;
             return;
         }
@@ -491,6 +512,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
 QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
         const ushort *tokPtr)
 {
+    traceMsg("entering block");
     ProStringList curr;
     bool okey = true, or_op = false, invert = false;
     uint blockLen;
@@ -527,12 +549,18 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
                     m_skipLevel--;
 #endif
             } else {
-                if (okey)
+                if (okey) {
+                    traceMsg("taking 'then' branch");
                     ret = blockLen ? visitProBlock(tokPtr) : ReturnTrue;
+                    traceMsg("finished 'then' branch");
+                }
                 tokPtr += blockLen;
                 blockLen = getBlockLen(tokPtr);
-                if (!okey)
+                if (!okey) {
+                    traceMsg("taking 'else' branch");
                     ret = blockLen ? visitProBlock(tokPtr) : ReturnTrue;
+                    traceMsg("finished 'else' branch");
+                }
             }
             tokPtr += blockLen;
             okey = true, or_op = false; // force next evaluation
@@ -556,6 +584,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
                 uint exprLen = getBlockLen(tokPtr);
                 tokPtr += exprLen;
                 blockLen = getBlockLen(tokPtr);
+                traceMsg("skipped loop");
                 ret = ReturnTrue;
             }
             tokPtr += blockLen;
@@ -567,7 +596,10 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
                 const ProKey &name = getHashStr(tokPtr);
                 blockLen = getBlockLen(tokPtr);
                 visitProFunctionDef(tok, name, tokPtr);
+                traceMsg("defined %s function %s",
+                      tok == TokTestDef ? "test" : "replace", dbgKey(name));
             } else {
+                traceMsg("skipped function definition");
                 skipHashStr(tokPtr);
                 blockLen = getBlockLen(tokPtr);
             }
@@ -575,12 +607,15 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
             okey = true, or_op = false; // force next evaluation
             continue;
         case TokNot:
+            traceMsg("NOT");
             invert ^= true;
             continue;
         case TokAnd:
+            traceMsg("AND");
             or_op = false;
             continue;
         case TokOr:
+            traceMsg("OR");
             or_op = true;
             continue;
         case TokCondition:
@@ -590,8 +625,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
                         evalError(fL1S("Conditional must expand to exactly one word."));
                     okey = false;
                 } else {
-                    okey = isActiveConfig(curr.at(0).toQString(m_tmp2), true) ^ invert;
+                    okey = isActiveConfig(curr.at(0).toQString(m_tmp2), true);
+                    traceMsg("condition %s is %s", dbgStr(curr.at(0)), dbgBool(okey));
+                    okey ^= invert;
                 }
+            } else {
+                traceMsg("skipped condition %s", curr.size() == 1 ? dbgStr(curr.at(0)) : "<invalid>");
             }
             or_op = !okey; // tentatively force next evaluation
             invert = false;
@@ -605,12 +644,16 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
                     skipExpression(tokPtr);
                     okey = false;
                 } else {
+                    traceMsg("evaluating test function %s", dbgStr(curr.at(0)));
                     ret = evaluateConditionalFunction(curr.at(0).toKey(), tokPtr);
                     switch (ret) {
                     case ReturnTrue: okey = true; break;
                     case ReturnFalse: okey = false; break;
-                    default: return ret;
+                    default:
+                        traceMsg("aborting block, function status: %s", dbgReturn(ret));
+                        return ret;
                     }
+                    traceMsg("test function returned %s", dbgBool(okey));
                     okey ^= invert;
                 }
             } else if (m_cumulative) {
@@ -624,6 +667,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
 #endif
             } else {
                 skipExpression(tokPtr);
+                traceMsg("skipped test function %s", curr.size() == 1 ? dbgStr(curr.at(0)) : "<invalid>");
             }
             or_op = !okey; // tentatively force next evaluation
             invert = false;
@@ -638,9 +682,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
             Q_ASSERT_X(false, "visitProBlock", "unexpected item type");
             continue;
         }
-        if (ret != ReturnTrue && ret != ReturnFalse)
+        if (ret != ReturnTrue && ret != ReturnFalse) {
+            traceMsg("aborting block, status: %s", dbgReturn(ret));
             return ret;
+        }
     }
+    traceMsg("leaving block, okey=%s", dbgBool(okey));
     return returnBool(okey);
 }
 
@@ -700,6 +747,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
         }
     }
 
+    if (infinite)
+        traceMsg("entering infinite loop for %s", dbgKey(variable));
+    else
+        traceMsg("entering loop for %s over %s", dbgKey(variable), dbgStrList(list));
+
     m_loopLevel++;
     forever {
         if (infinite) {
@@ -709,6 +761,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
                 evalError(fL1S("Ran into infinite loop (> 1000 iterations)."));
                 break;
             }
+            traceMsg("loop iteration %d", index);
         } else {
             ProString val;
             do {
@@ -716,6 +769,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
                     goto do_break;
                 val = list.at(index++);
             } while (val.isEmpty()); // stupid, but qmake is like that
+            traceMsg("loop iteration %s", dbgStr(val));
             m_valuemapStack.top()[variable] = ProStringList(val);
         }
 
@@ -736,6 +790,8 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
     }
   do_break:
     m_loopLevel--;
+
+    traceMsg("done looping");
 
     if (!variable.isEmpty())
         m_valuemapStack.top()[variable] = oldVarVal;
@@ -787,6 +843,7 @@ void QMakeEvaluator::visitProVariable(
         // We could make a union of modified and unmodified values,
         // but this will break just as much as it fixes, so leave it as is.
         replaceInList(&valuesRef(varName), regexp, replace, global, m_tmp2);
+        debugMsg(2, "replaced %s with %s", dbgQStr(pattern), dbgQStr(replace));
     } else {
         ProStringList varVal = expandVariableReferences(tokPtr, sizeHint);
         switch (tok) {
@@ -817,13 +874,16 @@ void QMakeEvaluator::visitProVariable(
                     }
                 }
             }
+            debugMsg(2, "assigning");
             break;
         case TokAppendUnique:    // *=
             insertUnique(&valuesRef(varName), varVal);
+            debugMsg(2, "appending unique");
             break;
         case TokAppend:          // +=
             zipEmpty(&varVal);
             valuesRef(varName) += varVal;
+            debugMsg(2, "appending");
             break;
         case TokRemove:       // -=
             if (!m_cumulative) {
@@ -831,9 +891,11 @@ void QMakeEvaluator::visitProVariable(
             } else {
                 // We are stingy with our values, too.
             }
+            debugMsg(2, "removing");
             break;
         }
     }
+    traceMsg("%s := %s", dbgKey(varName), dbgStrList(values(varName)));
 
     if (varName == statics.strTEMPLATE)
         setTemplate();
@@ -1228,7 +1290,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         visitCmdLine(m_option->precmds);
     }
 
+    debugMsg(1, "visiting file %s", qPrintable(pro->fileName()));
     visitProBlock(pro, pro->tokPtr());
+    debugMsg(1, "done visiting file %s", qPrintable(pro->fileName()));
 
     if (flags & LoadPostFiles) {
         visitCmdLine(m_option->postcmds);
@@ -1730,5 +1794,114 @@ void QMakeEvaluator::message(int type, const QString &msg) const
         m_handler->message(type, msg,
                 m_current.line ? m_current.pro->fileName() : QString(), m_current.line);
 }
+
+#ifdef PROEVALUATOR_DEBUG
+void QMakeEvaluator::debugMsgInternal(int level, const char *fmt, ...) const
+{
+    va_list ap;
+
+    if (level <= m_debugLevel) {
+        fprintf(stderr, "DEBUG %d: ", level);
+        va_start(ap, fmt);
+        vfprintf(stderr, fmt, ap);
+        va_end(ap);
+        fputc('\n', stderr);
+    }
+}
+
+void QMakeEvaluator::traceMsgInternal(const char *fmt, ...) const
+{
+    va_list ap;
+
+    if (!m_current.pro)
+        fprintf(stderr, "DEBUG 1: ");
+    else if (m_current.line <= 0)
+        fprintf(stderr, "DEBUG 1: %s: ", qPrintable(m_current.pro->fileName()));
+    else
+        fprintf(stderr, "DEBUG 1: %s:%d: ", qPrintable(m_current.pro->fileName()), m_current.line);
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    fputc('\n', stderr);
+}
+
+QString QMakeEvaluator::formatValue(const ProString &val, bool forceQuote)
+{
+    QString ret;
+    ret.reserve(val.size() + 2);
+    const QChar *chars = val.constData();
+    bool quote = forceQuote || val.isEmpty();
+    for (int i = 0, l = val.size(); i < l; i++) {
+        QChar c = chars[i];
+        ushort uc = c.unicode();
+        if (uc < 32) {
+            switch (uc) {
+            case '\r':
+                ret += QLatin1String("\\r");
+                break;
+            case '\n':
+                ret += QLatin1String("\\n");
+                break;
+            case '\t':
+                ret += QLatin1String("\\t");
+                break;
+            default:
+                ret += QString::fromLatin1("\\x%1").arg(uc, 2, 16, QLatin1Char('0'));
+                break;
+            }
+        } else {
+            switch (uc) {
+            case '\\':
+                ret += QLatin1String("\\\\");
+                break;
+            case '"':
+                ret += QLatin1String("\\\"");
+                break;
+            case '\'':
+                ret += QLatin1String("\\'");
+                break;
+            case 32:
+                quote = true;
+                // fallthrough
+            default:
+                ret += c;
+                break;
+            }
+        }
+    }
+    if (quote) {
+        ret.prepend(QLatin1Char('"'));
+        ret.append(QLatin1Char('"'));
+    }
+    return ret;
+}
+
+QString QMakeEvaluator::formatValueList(const ProStringList &vals, bool commas)
+{
+    QString ret;
+
+    foreach (const ProString &str, vals) {
+        if (!ret.isEmpty()) {
+            if (commas)
+                ret += QLatin1Char(',');
+            ret += QLatin1Char(' ');
+        }
+        ret += formatValue(str);
+    }
+    return ret;
+}
+
+QString QMakeEvaluator::formatValueListList(const QList<ProStringList> &lists)
+{
+    QString ret;
+
+    foreach (const ProStringList &list, lists) {
+        if (!ret.isEmpty())
+            ret += QLatin1String(", ");
+        ret += formatValueList(list);
+    }
+    return ret;
+}
+#endif
 
 QT_END_NAMESPACE

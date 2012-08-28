@@ -206,6 +206,21 @@ public:
     enum { m_skipLevel = 0 };
 #endif
 
+#ifdef PROEVALUATOR_DEBUG
+    void debugMsgInternal(int level, const char *fmt, ...) const;
+    void traceMsgInternal(const char *fmt, ...) const;
+    static QString formatValue(const ProString &val, bool forceQuote = false);
+    static QString formatValueList(const ProStringList &vals, bool commas = false);
+    static QString formatValueListList(const QList<ProStringList> &vals);
+
+    const int m_debugLevel;
+#else
+    ALWAYS_INLINE void debugMsgInternal(int, const char *, ...) const {}
+    ALWAYS_INLINE void traceMsgInternal(const char *, ...) const {}
+
+    enum { m_debugLevel = 0 };
+#endif
+
     struct Location {
         Location() : pro(0), line(0) {}
         Location(ProFile *_pro, int _line) : pro(_pro), line(_line) {}

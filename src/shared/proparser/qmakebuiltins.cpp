@@ -392,8 +392,11 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
 {
     QHash<ProKey, ProFunctionDef>::ConstIterator it =
             m_functionDefs.replaceFunctions.constFind(func);
-    if (it != m_functionDefs.replaceFunctions.constEnd())
-        return evaluateFunction(*it, prepareFunctionArgs(tokPtr), 0);
+    if (it != m_functionDefs.replaceFunctions.constEnd()) {
+        const QList<ProStringList> args = prepareFunctionArgs(tokPtr);
+        traceMsg("calling $$%s(%s)", dbgKey(func), dbgStrListList(args));
+        return evaluateFunction(*it, args, 0);
+    }
 
     ExpandFunc func_t = ExpandFunc(statics.expands.value(func));
     if (func_t == 0) {
@@ -408,6 +411,7 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
 
     //why don't the builtin functions just use args_list? --Sam
     const ProStringList &args = expandVariableReferences(tokPtr, 5, true);
+    traceMsg("calling built-in $$%s(%s)", dbgKey(func), dbgSepStrList(args));
     ProStringList ret;
 
     switch (func_t) {
@@ -1053,13 +1057,17 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
 {
     QHash<ProKey, ProFunctionDef>::ConstIterator it =
             m_functionDefs.testFunctions.constFind(function);
-    if (it != m_functionDefs.testFunctions.constEnd())
-        return evaluateBoolFunction(*it, prepareFunctionArgs(tokPtr), function);
+    if (it != m_functionDefs.testFunctions.constEnd()) {
+        const QList<ProStringList> args = prepareFunctionArgs(tokPtr);
+        traceMsg("calling %s(%s)", dbgKey(function), dbgStrListList(args));
+        return evaluateBoolFunction(*it, args, function);
+    }
 
     TestFunc func_t = (TestFunc)statics.functions.value(function);
 
     //why don't the builtin functions just use args_list? --Sam
     const ProStringList &args = expandVariableReferences(tokPtr, 5, true);
+    traceMsg("calling built-in %s(%s)", dbgKey(function), dbgSepStrList(args));
 
     switch (func_t) {
     case T_DEFINED: {
@@ -1389,9 +1397,20 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         return returnBool(evaluateFeatureFile(m_option->expandEnvVars(args.at(0).toQString()),
                                               ignore_error) || ignore_error);
     }
-    case T_DEBUG:
-        // Yup - do nothing. Nothing is going to enable debug output anyway.
-        return ReturnFalse;
+    case T_DEBUG: {
+#ifdef PROEVALUATOR_DEBUG
+        if (args.count() != 2) {
+            evalError(fL1S("debug(level, message) requires two arguments."));
+            return ReturnFalse;
+        }
+        int level = args.at(0).toInt();
+        if (level <= m_debugLevel) {
+            const QString &msg = m_option->expandEnvVars(args.at(1).toQString(m_tmp2));
+            debugMsg(level, "Project DEBUG: %s", qPrintable(msg));
+        }
+#endif
+        return ReturnTrue;
+    }
     case T_LOG:
     case T_ERROR:
     case T_WARNING:

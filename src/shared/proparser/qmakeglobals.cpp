@@ -94,6 +94,9 @@ QMakeGlobals::QMakeGlobals()
 
     do_cache = true;
 
+#ifdef PROEVALUATOR_DEBUG
+    debugLevel = 0;
+#endif
 #ifdef Q_OS_WIN
     dirlist_sep = QLatin1Char(';');
     dir_sep = QLatin1Char('\\');
