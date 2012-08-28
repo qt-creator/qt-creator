@@ -250,11 +250,11 @@ void QMakeGlobals::setDirectories(const QString &input_dir, const QString &outpu
 
 QString QMakeGlobals::getEnv(const QString &var) const
 {
-#ifndef QT_BOOTSTRAPPED
-    if (!environment.isEmpty())
-        return environment.value(var);
-#endif
+#ifdef PROEVALUATOR_SETENV
+    return environment.value(var);
+#else
     return QString::fromLocal8Bit(qgetenv(var.toLocal8Bit().constData()));
+#endif
 }
 
 QStringList QMakeGlobals::getPathListEnv(const QString &var) const

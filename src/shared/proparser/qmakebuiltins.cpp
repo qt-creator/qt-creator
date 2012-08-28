@@ -319,8 +319,10 @@ QMakeEvaluator::writeFile(const QString &ctx, const QString &fn, QIODevice::Open
 void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
 {
     proc->setWorkingDirectory(currentDirectory());
+# ifdef PROEVALUATOR_SETENV
     if (!m_option->environment.isEmpty())
         proc->setProcessEnvironment(m_option->environment);
+# endif
 # ifdef Q_OS_WIN
     proc->setNativeArguments(QLatin1String("/v:off /s /c \"") + command + QLatin1Char('"'));
     proc->start(m_option->getEnv(QLatin1String("COMSPEC")), QStringList());

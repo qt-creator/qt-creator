@@ -100,7 +100,7 @@ public:
     QString dir_sep;
     QString dirlist_sep;
     QString cachefile;
-#ifndef QT_BOOTSTRAPPED
+#ifdef PROEVALUATOR_SETENV
     QProcessEnvironment environment;
 #endif
     QString qmake_abslocation;
