@@ -741,7 +741,7 @@ void QmlEngine::executeNextI()
 void QmlEngine::executeRunToLine(const ContextData &data)
 {
     QTC_ASSERT(state() == InferiorStopOk, qDebug() << state());
-    showStatusMessage(tr("Run to line  %1 (%2) requested...").arg(data.lineNumber).arg(data.fileName), 5000);
+    showStatusMessage(tr("Run to line %1 (%2) requested...").arg(data.lineNumber).arg(data.fileName), 5000);
     resetLocation();
     ContextData modifiedData = data;
     quint32 line = data.lineNumber;

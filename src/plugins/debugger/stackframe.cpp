@@ -116,7 +116,7 @@ QString StackFrame::toToolTip() const
     } else {
         str << tr("Binary debug information is accessible for this "
             "frame. However, matching sources have not been found. "
-            "Note that some distributions ship debug sources in "
+            "Note that some distributions ship debug sources "
             "in separate packages.");
     }
 

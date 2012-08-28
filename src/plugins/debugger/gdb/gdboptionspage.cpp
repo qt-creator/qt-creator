@@ -145,7 +145,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     checkBoxUseDynamicType->setText(GdbOptionsPage::tr(
         "Use dynamic object type for display"));
     checkBoxUseDynamicType->setToolTip(GdbOptionsPage::tr(
-        "Specifies whether the dynamic or the static type of objects will be"
+        "Specifies whether the dynamic or the static type of objects will be "
         "displayed. Choosing the dynamic type might be slower."));
 
     checkBoxLoadGdbInit = new QCheckBox(groupBoxGeneral);
@@ -190,7 +190,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     checkBoxBreakOnFatal->setText(GdbOptionsPage::tr("Stop when qFatal() is called"));
     checkBoxBreakOnFatal->setToolTip(GdbOptionsPage::tr(
         "<html><head/><body>Always add a breakpoint on the <i>qFatal()</i> function."
-        "/body></html>"));
+        "</body></html>"));
 
     checkBoxBreakOnAbort = new QCheckBox(groupBoxGeneral);
     checkBoxBreakOnAbort->setText(GdbOptionsPage::tr("Stop when abort() is called"));
