@@ -6926,7 +6926,7 @@
 "genericlinuxdeviceconfigurationwizard.h"	"4"
 "genericlinuxdeviceconfigurationwizardpages.h"	"4"
 "genericremotelinuxdeploystepfactory.h"	"4"
-"linuxdevice.h"	"4"
+"linuxdeviceconfiguration.h"	"4"
 "linuxdevicetestdialog.h"	"4"
 "linuxdevicetester.h"	"4"
 "packageuploader.h"	"4"
