@@ -1854,7 +1854,8 @@ void QMakeEvaluator::message(int type, const QString &msg) const
 {
     if (!m_skipLevel)
         m_handler->message(type, msg,
-                m_current.line ? m_current.pro->fileName() : QString(), m_current.line);
+                m_current.line ? m_current.pro->fileName() : QString(),
+                m_current.line != 0xffff ? m_current.line : -1);
 }
 
 #ifdef PROEVALUATOR_DEBUG

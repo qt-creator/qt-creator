@@ -248,9 +248,9 @@ public:
 
     struct Location {
         Location() : pro(0), line(0) {}
-        Location(ProFile *_pro, int _line) : pro(_pro), line(_line) {}
+        Location(ProFile *_pro, ushort _line) : pro(_pro), line(_line) {}
         ProFile *pro;
-        int line;
+        ushort line;
     };
 
     Location m_current; // Currently evaluated location
