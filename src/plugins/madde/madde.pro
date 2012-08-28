@@ -49,7 +49,8 @@ HEADERS += \
     maddedevicetester.h \
     maddedeviceconfigurationfactory.h \
     maddedevice.h \
-    maemoapplicationrunnerhelperactions.h
+    maemoapplicationrunnerhelperactions.h \
+    maddeqemustartstep.h
 
 SOURCES += \
     maddeplugin.cpp \
@@ -92,7 +93,8 @@ SOURCES += \
     maddedevicetester.cpp \
     maemorunconfiguration.cpp \
     maddedevice.cpp \
-    maemoapplicationrunnerhelperactions.cpp
+    maemoapplicationrunnerhelperactions.cpp \
+    maddeqemustartstep.cpp
 
 FORMS += \
     maemopackagecreationwidget.ui \

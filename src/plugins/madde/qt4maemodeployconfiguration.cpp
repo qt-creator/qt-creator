@@ -30,6 +30,7 @@
 #include "qt4maemodeployconfiguration.h"
 
 #include "debianmanager.h"
+#include "maddeqemustartstep.h"
 #include "maddeuploadandinstallpackagesteps.h"
 #include "maemoconstants.h"
 #include "maemodeploybymountsteps.h"
@@ -304,18 +305,21 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
 
     if (id == Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId()) {
         dc->stepList()->insertStep(0, new MaemoMakeInstallToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(1, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new MaemoCopyFilesViaMountStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new MaddeQemuStartStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+        dc->stepList()->insertStep(3, new MaemoCopyFilesViaMountStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::fremantleWithPackagingId()) {
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
-        dc->stepList()->insertStep(3, new MaemoInstallPackageViaMountStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaddeQemuStartStep(dc->stepList()));
+        dc->stepList()->insertStep(3, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+        dc->stepList()->insertStep(4, new MaemoInstallPackageViaMountStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::harmattanId()) {
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
-        dc->stepList()->insertStep(3, new MaemoUploadAndInstallPackageStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaddeQemuStartStep(dc->stepList()));
+        dc->stepList()->insertStep(3, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+        dc->stepList()->insertStep(4, new MaemoUploadAndInstallPackageStep(dc->stepList()));
     }
     return dc;
 }

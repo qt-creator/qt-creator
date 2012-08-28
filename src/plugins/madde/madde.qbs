@@ -30,6 +30,8 @@ QtcPlugin {
         "maddeplugin.h",
         "maddeuploadandinstallpackagesteps.cpp",
         "maddeuploadandinstallpackagesteps.h",
+        "maddeqemustartstep.cpp",
+        "maddeqemustartstep.h",
         "maemoconstants.h",
         "maemodeploybymountsteps.cpp",
         "maemodeploybymountsteps.h",
