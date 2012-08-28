@@ -210,7 +210,6 @@ class JIRA:
             self.__bugs__= {
                             'QTCREATORBUG-6853':self._workaroundCreator6853_,
                             'QTCREATORBUG-6918':self._workaroundCreator_MacEditorFocus_,
-                            'QTCREATORBUG-6953':self._workaroundCreator_MacEditorFocus_,
                             'QTCREATORBUG-6994':self._workaroundCreator6994_
                             }
         # helper function - will be called if no workaround for the requested bug is deposited
