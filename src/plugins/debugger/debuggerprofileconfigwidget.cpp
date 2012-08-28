@@ -106,7 +106,7 @@ DebuggerProfileConfigWidget::DebuggerProfileConfigWidget(ProjectExplorer::Profil
 
 QString DebuggerProfileConfigWidget::displayName() const
 {
-    return tr("Debugger command:");
+    return tr("Debugger:");
 }
 
 void DebuggerProfileConfigWidget::makeReadOnly()
