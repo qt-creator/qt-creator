@@ -1753,7 +1753,7 @@ bool QMakeEvaluator::evaluateFile(
         return ok;
     } else {
         if (!(flags & LoadSilent) && !IoUtils::exists(fileName))
-            languageWarning(fL1S("Include file %1 not found").arg(fileName));
+            evalError(fL1S("WARNING: Include file %1 not found").arg(fileName));
         return false;
     }
 }
@@ -1804,7 +1804,7 @@ bool QMakeEvaluator::evaluateFeatureFile(const QString &fileName, bool silent)
         goto cool;
 #endif
     if (!silent)
-        languageWarning(fL1S("Cannot find feature %1").arg(fileName));
+        evalError(fL1S("Cannot find feature %1").arg(fileName));
     return false;
 
   cool:
