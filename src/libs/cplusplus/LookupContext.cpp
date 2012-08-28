@@ -626,24 +626,14 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     // are templates. We need to collect them now. First, we track the bases which are already
     // part of the binding so we can identify the missings ones later.
 
-    QSet<const Name *> knownBases;
-    foreach (ClassOrNamespace *con, reference->usings()) {
-        foreach (Symbol *s, con->symbols()) {
-            if (Class *c = s->asClass()) {
-                knownBases.insert(c->name());
-                break;
-            }
-        }
-    }
-
     Class *referenceClass = 0;
-    QList<const Name *> missingBases;
+    QList<const Name *> allBases;
     foreach (Symbol *s, reference->symbols()) {
         if (Class *clazz = s->asClass()) {
             for (unsigned i = 0; i < clazz->baseClassCount(); ++i) {
                 BaseClass *baseClass = clazz->baseClassAt(i);
-                if (baseClass->name() && !knownBases.contains(baseClass->name()))
-                    missingBases.append(baseClass->name());
+                if (baseClass->name())
+                    allBases.append(baseClass->name());
             }
             referenceClass = clazz;
             break;
@@ -652,6 +642,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
 
     if (!referenceClass)
         return reference;
+
+    QSet<ClassOrNamespace *> knownUsings = reference->usings().toSet();
 
     // If we are dealling with a template type, more work is required, since we need to
     // construct all instantiation data.
@@ -673,7 +665,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             for (unsigned i = 0; i < templ->templateParameterCount(); ++i)
                 templParams.insert(templ->templateParameterAt(i)->name(), i);
 
-            foreach (const Name *baseName, missingBases) {
+            foreach (const Name *baseName, allBases) {
                 ClassOrNamespace *baseBinding = 0;
 
                 if (const Identifier *nameId = baseName->asNameId()) {
@@ -721,7 +713,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     }
                 }
 
-                if (baseBinding)
+                if (baseBinding && !knownUsings.contains(baseBinding))
                     instantiation->addUsing(baseBinding);
             }
         }
@@ -731,7 +723,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
 
     // Find the missing bases for regular (non-template) types.
     // Ex.: class A : public B<Some>::Type {};
-    foreach (const Name *baseName, missingBases) {
+    foreach (const Name *baseName, allBases) {
         ClassOrNamespace *binding = this;
         if (const QualifiedNameId *qBaseName = baseName->asQualifiedNameId()) {
             if (const Name *qualification = qBaseName->base())
@@ -741,7 +733,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
 
         if (binding) {
             ClassOrNamespace * baseBinding = binding->lookupType(baseName);
-            if (baseBinding)
+            if (baseBinding && !knownUsings.contains(baseBinding))
                 reference->addUsing(baseBinding);
         }
     }
