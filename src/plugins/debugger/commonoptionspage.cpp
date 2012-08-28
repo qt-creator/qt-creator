@@ -200,6 +200,24 @@ bool CommonOptionsPage::matches(const QString &s) const
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
+QString CommonOptionsPage::msgSetBreakpointAtFunction(const char *function)
+{
+    return tr("Stop when %1() is called").arg(QLatin1String(function));
+}
+
+QString CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(const char *function,
+                                                             const QString &hint)
+{
+    QString result = QLatin1String("<html><head/><body>");
+    result += tr("Always add a breakpoint on the <i>%1()</i> function.").arg(QLatin1String(function));
+    if (!hint.isEmpty()) {
+        result += QLatin1String("<br>");
+        result += hint;
+    }
+    result += QLatin1String("</body></html>");
+    return result;
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // LocalsAndExpressionsOptionsPage

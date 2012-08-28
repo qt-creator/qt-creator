@@ -79,6 +79,10 @@ public:
     void finish();
     bool matches(const QString &s) const;
 
+    static QString msgSetBreakpointAtFunction(const char *function);
+    static QString msgSetBreakpointAtFunctionToolTip(const char *function,
+                                                     const QString &hint = QString());
+
 private:
     const QSharedPointer<GlobalDebuggerOptions> m_options;
     QSharedPointer<Utils::SavedActionSet> m_group;
