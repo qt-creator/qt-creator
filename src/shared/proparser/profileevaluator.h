@@ -32,6 +32,7 @@
 #define PROFILEEVALUATOR_H
 
 #include "qmake_global.h"
+#include "qmakeglobals.h"
 #include "qmakeevaluator.h"
 #include "proitems.h"
 
@@ -40,10 +41,15 @@
 
 QT_BEGIN_NAMESPACE
 
-class QMakeGlobals;
 class QMakeParser;
 class QMakeEvaluator;
 class QMakeHandler;
+
+class QMAKE_EXPORT ProFileGlobals : public QMakeGlobals
+{
+public:
+    QString sysroot;
+};
 
 class QMAKE_EXPORT ProFileEvaluator
 {
@@ -60,7 +66,7 @@ public:
     // Call this from a concurrency-free context
     static void initialize();
 
-    ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser, QMakeHandler *handler);
+    ProFileEvaluator(ProFileGlobals *option, QMakeParser *parser, QMakeHandler *handler);
     ~ProFileEvaluator();
 
     ProFileEvaluator::TemplateType templateType() const;

@@ -43,7 +43,7 @@
 #include <QFuture>
 
 QT_BEGIN_NAMESPACE
-class QMakeGlobals;
+class ProFileGlobals;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class DeploymentData; }
@@ -105,7 +105,7 @@ public:
     /// \internal
     QtSupport::ProFileReader *createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
     /// \internal
-    QMakeGlobals *qmakeGlobals();
+    ProFileGlobals *qmakeGlobals();
     /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
 
@@ -194,7 +194,7 @@ private:
     Internal::Qt4ProjectFiles *m_projectFiles;
 
     // cached data during project rescan
-    QMakeGlobals *m_qmakeGlobals;
+    ProFileGlobals *m_qmakeGlobals;
     int m_qmakeGlobalsRefCnt;
 
     QTimer m_asyncUpdateTimer;

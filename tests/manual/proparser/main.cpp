@@ -70,7 +70,7 @@ public:
 static EvalHandler evalHandler;
 
 static int evaluate(const QString &fileName, const QString &in_pwd, const QString &out_pwd,
-                    bool cumulative, QMakeGlobals *option, QMakeParser *parser, int level)
+                    bool cumulative, ProFileGlobals *option, QMakeParser *parser, int level)
 {
     static QSet<QString> visited;
     if (visited.contains(fileName))
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
-    QMakeGlobals option;
+    ProFileGlobals option;
     QString qmake = QString::fromLocal8Bit(qgetenv("TESTREADER_QMAKE"));
     if (qmake.isEmpty())
         qmake = QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/qmake");

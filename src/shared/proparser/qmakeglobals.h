@@ -103,7 +103,6 @@ public:
 #ifndef QT_BOOTSTRAPPED
     QProcessEnvironment environment;
 #endif
-    QString sysroot;
     QString qmake_abslocation;
 
     QString qmakespec, xqmakespec;

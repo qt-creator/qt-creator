@@ -68,7 +68,7 @@ void ProMessageHandler::fileMessage(const QString &)
 }
 
 
-ProFileReader::ProFileReader(QMakeGlobals *option)
+ProFileReader::ProFileReader(ProFileGlobals *option)
     : QMakeParser(ProFileCacheManager::instance()->cache(), this)
     , ProFileEvaluator(option, this, this)
     , m_ignoreLevel(0)

@@ -44,7 +44,7 @@ void ProFileEvaluator::initialize()
     QMakeEvaluator::initStatics();
 }
 
-ProFileEvaluator::ProFileEvaluator(QMakeGlobals *option, QMakeParser *parser,
+ProFileEvaluator::ProFileEvaluator(ProFileGlobals *option, QMakeParser *parser,
                                    QMakeHandler *handler)
   : d(new QMakeEvaluator(option, parser, handler))
 {
@@ -93,16 +93,17 @@ QStringList ProFileEvaluator::values(const QString &variableName, const ProFile 
 
 QString ProFileEvaluator::sysrootify(const QString &path, const QString &baseDir) const
 {
+    ProFileGlobals *option = static_cast<ProFileGlobals *>(d->m_option);
 #ifdef Q_OS_WIN
     Qt::CaseSensitivity cs = Qt::CaseInsensitive;
 #else
     Qt::CaseSensitivity cs = Qt::CaseSensitive;
 #endif
     const bool isHostSystemPath =
-        d->m_option->sysroot.isEmpty() || path.startsWith(d->m_option->sysroot, cs)
+        option->sysroot.isEmpty() || path.startsWith(option->sysroot, cs)
         || path.startsWith(baseDir, cs) || path.startsWith(d->m_outputDir, cs);
 
-    return isHostSystemPath ? path : d->m_option->sysroot + path;
+    return isHostSystemPath ? path : option->sysroot + path;
 }
 
 QStringList ProFileEvaluator::absolutePathValues(

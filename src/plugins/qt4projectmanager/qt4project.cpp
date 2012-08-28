@@ -930,7 +930,7 @@ void Qt4Project::proFileParseError(const QString &errorMessage)
 QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)
 {
     if (!m_qmakeGlobals) {
-        m_qmakeGlobals = new QMakeGlobals;
+        m_qmakeGlobals = new ProFileGlobals;
         m_qmakeGlobalsRefCnt = 0;
 
         Profile *p;
@@ -978,7 +978,7 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
     return reader;
 }
 
-QMakeGlobals *Qt4Project::qmakeGlobals()
+ProFileGlobals *Qt4Project::qmakeGlobals()
 {
     return m_qmakeGlobals;
 }
