@@ -87,6 +87,7 @@ public:
 #else
     void setSettings(QSettings *settings);
     static QString defaultTerminalEmulator();
+    static QStringList availableTerminalEmulators();
     static QString terminalEmulator(const QSettings *settings);
     static void setTerminalEmulator(QSettings *settings, const QString &term);
 #endif
