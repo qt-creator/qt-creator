@@ -4933,8 +4933,8 @@ namespace basic {
         // Check s "Foo" QString.
         // Continue.
 
-        // Select "Open Memory View" from Locals and Expressions
-        //    context menu for item 'd'.
+        // Select "Open Memory Editor->Open Memory Editor Showing Stack Layout"
+        // from Locals and Expressions context menu.
         // Check that the opened memory view contains coloured items
         //    for 'i', 'd', and 's'.
         dummyStatement(&i, &d, &s);
