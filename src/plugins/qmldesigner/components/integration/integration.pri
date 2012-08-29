@@ -1,7 +1,6 @@
 VPATH += $$PWD
 INCLUDEPATH += $$PWD
 SOURCES += \
-    integrationcore.cpp \
     designdocumentcontroller.cpp \
     designdocumentcontrollerview.cpp \
     utilitypanelcontroller.cpp \
@@ -11,7 +10,6 @@ SOURCES += \
     xuifiledialog.cpp
 
 HEADERS += \
-    integrationcore.h \
     designdocumentcontrollerview.h \
     designdocumentcontroller.h \
     utilitypanelcontroller.h \

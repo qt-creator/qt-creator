@@ -35,6 +35,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <pluginmanager.h>
+
 #include <QWeakPointer>
 #include <QStringList>
 
@@ -48,10 +50,6 @@ namespace Core {
     class IEditor;
     class DesignMode;
     class EditorManager;
-}
-
-namespace QmlDesigner {
-    class IntegrationCore;
 }
 
 namespace QmlDesigner {
@@ -92,7 +90,7 @@ private:
     QStringList m_mimeTypes;
     DesignModeWidget *m_mainWidget;
 
-    QmlDesigner::IntegrationCore *m_designerCore;
+    QmlDesigner::PluginManager m_pluginManager;
     static BauhausPlugin *m_pluginInstance;
     DesignerSettings m_settings;
     DesignModeContext *m_context;

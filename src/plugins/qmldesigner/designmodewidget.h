@@ -36,8 +36,6 @@
 #include <utils/faketooltip.h>
 #include <texteditor/itexteditor.h>
 
-#include <integrationcore.h>
-
 #include <designdocumentcontroller.h>
 #include <itemlibraryview.h>
 #include <navigatorwidget.h>

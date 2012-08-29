@@ -58,8 +58,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <integrationcore.h>
-
 #include <QAction>
 
 #include <QFileInfo>
@@ -80,7 +78,6 @@ bool shouldAssertInException()
 }
 
 BauhausPlugin::BauhausPlugin() :
-    m_designerCore(0),
     m_designMode(0),
     m_isActive(false),
     m_revertToSavedAction(new QAction(this)),
@@ -107,7 +104,6 @@ BauhausPlugin::BauhausPlugin() :
 
 BauhausPlugin::~BauhausPlugin()
 {
-    delete m_designerCore;
     Core::ICore::removeContextObject(m_context);
 }
 
@@ -126,14 +122,13 @@ bool BauhausPlugin::initialize(const QStringList & /*arguments*/, QString *error
                 switchAction, QmlDesigner::Constants::SWITCH_TEXT_DESIGN, switchContext);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
 
-    m_designerCore = new QmlDesigner::IntegrationCore;
     m_pluginInstance = this;
 
     const QString pluginPath = Utils::HostOsInfo::isMacHost()
             ? QString(QCoreApplication::applicationDirPath() + "/../PlugIns/QmlDesigner")
             : QString(QCoreApplication::applicationDirPath() + "/../"
                       + QLatin1String(IDE_LIBRARY_BASENAME) + "/qtcreator/qmldesigner");
-    m_designerCore->pluginManager()->setPluginPaths(QStringList() << pluginPath);
+    m_pluginManager.setPluginPaths(QStringList() << pluginPath);
 
     createDesignModeWidget();
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchTextDesign()));
