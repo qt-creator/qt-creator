@@ -32,15 +32,42 @@
 #define ITEMLIBRARYWIDGET_H
 
 #include "itemlibraryinfo.h"
+#include "itemlibrarycomponents.h"
+
+#include <utils/filterlineedit.h>
+
 #include <QFrame>
 #include <QToolButton>
+#include <QFileIconProvider>
+#include <QDeclarativeView>
+
+QT_BEGIN_NAMESPACE
+class QFileSystemModel;
+class QStackedWidget;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class ItemLibraryWidgetPrivate;
 class MetaInfo;
 class ItemLibraryEntry;
 class Model;
+
+namespace Internal {
+    class ItemLibraryModel;
+    class ItemLibraryTreeView;
+}
+
+class ItemLibraryFileIconProvider : public QFileIconProvider
+{
+public:
+    ItemLibraryFileIconProvider(const QSize &iconSize);
+
+    QIcon icon( const QFileInfo & info ) const;
+
+private:
+    QSize m_iconSize;
+};
+
 
 class ItemLibraryWidget : public QFrame
 {
@@ -53,7 +80,6 @@ class ItemLibraryWidget : public QFrame
 
 public:
     ItemLibraryWidget(QWidget *parent = 0);
-    virtual ~ItemLibraryWidget();
 
     void setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo);
     QList<QToolButton *> createToolBarWidgets();
@@ -91,7 +117,21 @@ signals:
     void meegoChecked(bool b);
 
 private:
-    ItemLibraryWidgetPrivate *d;
+    ItemLibraryFileIconProvider m_iconProvider;
+    QSize m_itemIconSize;
+    QSize m_resIconSize;
+
+    QWeakPointer<ItemLibraryInfo> m_itemLibraryInfo;
+
+    QWeakPointer<Internal::ItemLibraryModel> m_itemLibraryModel;
+    QWeakPointer<QFileSystemModel> m_resourcesFileSystemModel;
+
+    QWeakPointer<QStackedWidget> m_stackedWidget;
+    QWeakPointer<Utils::FilterLineEdit> m_lineEdit;
+    QScopedPointer<QDeclarativeView> m_itemsView;
+    QScopedPointer<Internal::ItemLibraryTreeView> m_resourcesView;
+
+    QWeakPointer<Model> m_model;
     FilterChangeFlag m_filterFlag;
 };
 
