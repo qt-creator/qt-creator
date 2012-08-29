@@ -369,8 +369,8 @@ void DebuggerMainWindowPrivate::activateQmlCppLayout()
     Context qmlCppContext = m_contextsForLanguage.value(QmlLanguage);
     qmlCppContext.add(m_contextsForLanguage.value(CppLanguage));
     if (m_toolBars.value(QmlLanguage)) {
-        m_toolBars.value(QmlLanguage)->show();
         m_debugToolBarLayout->insertWidget(1, m_toolBars.value(QmlLanguage));
+        m_toolBars.value(QmlLanguage)->show();
     }
 
     if (m_previousDebugLanguages & QmlLanguage) {
