@@ -29,6 +29,8 @@
 **************************************************************************/
 
 #include "pluginpath.h"
+#include "pluginmanager.h"
+
 #include <iplugin.h>
 #include <QLibrary>
 #include <QWeakPointer>
