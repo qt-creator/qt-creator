@@ -338,6 +338,8 @@ private slots:
     void multitokens_argument_data();
     void multiline_strings();
     void multiline_strings_data();
+    void skip_unknown_directives();
+    void skip_unknown_directives_data();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -1391,6 +1393,30 @@ void tst_Preprocessor::multiline_strings_data()
     expected = "# 1 \"<stdin>\"\n"
                "const char *s = \"abc\\\n"
                "xyz\";\n";
+    QTest::newRow("case 1") << original << expected;
+}
+
+void tst_Preprocessor::skip_unknown_directives()
+{
+    compare_input_output();
+}
+
+void tst_Preprocessor::skip_unknown_directives_data()
+{
+    QTest::addColumn<QByteArray>("input");
+    QTest::addColumn<QByteArray>("output");
+
+    QByteArray original;
+    QByteArray expected;
+
+    // We should skip "weird" things when preprocessing. Particularly useful when we preprocess
+    // a particular expression from a document which has already been processed.
+
+    original = "# foo\n"
+               "# 10 \"file.cpp\"\n"
+               "# ()\n"
+               "#\n";
+    expected = "# 1 \"<stdin>\"\n";
     QTest::newRow("case 1") << original << expected;
 }
 
