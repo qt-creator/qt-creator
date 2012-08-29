@@ -78,7 +78,7 @@ void AbstractPackagingStep::ctor()
         SLOT(handleBuildConfigurationChanged()));
     handleBuildConfigurationChanged();
 
-    connect(project(), SIGNAL(buildSystemEvaluated()), SLOT(setDeploymentDataModified()));
+    connect(target(), SIGNAL(deploymentDataChanged()), SLOT(setDeploymentDataModified()));
     setDeploymentDataModified();
 
     connect(this, SIGNAL(unmodifyDeploymentData()), this, SLOT(setDeploymentDataUnmodified()));

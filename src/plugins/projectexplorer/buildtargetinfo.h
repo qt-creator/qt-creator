@@ -35,6 +35,7 @@
 #include <utils/fileutils.h>
 
 #include <QList>
+#include <QSet>
 
 namespace ProjectExplorer {
 
@@ -59,6 +60,22 @@ public:
     bool isValid() const { return !targetFilePath.isEmpty(); }
 };
 
+inline bool operator==(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
+{
+    return ti1.targetFilePath == ti2.targetFilePath;
+}
+
+inline bool operator!=(const BuildTargetInfo &ti1, const BuildTargetInfo &ti2)
+{
+    return !(ti1 == ti2);
+}
+
+inline uint qHash(const BuildTargetInfo &ti)
+{
+    return qHash(ti.targetFilePath);
+}
+
+
 class PROJECTEXPLORER_EXPORT BuildTargetInfoList
 {
 public:
@@ -78,6 +95,16 @@ public:
 
     QList<BuildTargetInfo> list;
 };
+
+inline bool operator==(const BuildTargetInfoList &til1, const BuildTargetInfoList &til2)
+{
+    return til1.list.toSet() == til2.list.toSet();
+}
+
+inline bool operator!=(const BuildTargetInfoList &til1, const BuildTargetInfoList &til2)
+{
+    return !(til1 == til2);
+}
 
 } // namespace ProjectExplorer
 

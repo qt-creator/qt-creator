@@ -73,8 +73,7 @@ void RemoteLinuxDeployConfigurationWidget::init(DeployConfiguration *dc)
     d->deployConfiguration = qobject_cast<RemoteLinuxDeployConfiguration *>(dc);
     QTC_ASSERT(d->deployConfiguration, return);
 
-    connect(dc->target()->project(), SIGNAL(buildSystemEvaluated()),
-            SLOT(updateDeploymentDataModel()));
+    connect(dc->target(), SIGNAL(deploymentDataChanged()), SLOT(updateDeploymentDataModel()));
     updateDeploymentDataModel();
 }
 

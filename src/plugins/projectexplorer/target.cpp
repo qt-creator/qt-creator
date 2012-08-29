@@ -368,7 +368,10 @@ void Target::setActiveDeployConfiguration(DeployConfiguration *dc)
 
 void Target::setDeploymentData(const DeploymentData &deploymentData)
 {
-    d->m_deploymentData = deploymentData;
+    if (d->m_deploymentData != deploymentData) {
+        d->m_deploymentData = deploymentData;
+        emit deploymentDataChanged();
+    }
 }
 
 DeploymentData Target::deploymentData() const
@@ -378,7 +381,10 @@ DeploymentData Target::deploymentData() const
 
 void Target::setApplicationTargets(const BuildTargetInfoList &appTargets)
 {
-    d->m_appTargets = appTargets;
+    if (d->m_appTargets != appTargets) {
+        d->m_appTargets = appTargets;
+        emit applicationTargetsChanged();
+    }
 }
 
 BuildTargetInfoList Target::applicationTargets() const

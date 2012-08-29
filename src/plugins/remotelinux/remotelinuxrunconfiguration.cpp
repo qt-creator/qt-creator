@@ -126,8 +126,8 @@ void RemoteLinuxRunConfiguration::init()
     setDefaultDisplayName(defaultDisplayName());
     debuggerAspect()->suppressQmlDebuggingSpinbox();
 
-    Project *pro = target()->project();
-    connect(pro, SIGNAL(buildSystemEvaluated()), SLOT(handleBuildSystemDataUpdated()));
+    connect(target(), SIGNAL(deploymentDataChanged()), SLOT(handleBuildSystemDataUpdated()));
+    connect(target(), SIGNAL(applicationTargetsChanged()), SLOT(handleBuildSystemDataUpdated()));
     connect(target(), SIGNAL(profileChanged()),
             this, SLOT(handleBuildSystemDataUpdated())); // Handles device changes, etc.
 }

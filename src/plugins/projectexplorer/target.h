@@ -150,6 +150,9 @@ signals:
     void deployConfigurationEnabledChanged();
     void runConfigurationEnabledChanged();
 
+    void deploymentDataChanged();
+    void applicationTargetsChanged();
+
     // Remove all the signals below, they are stupid
     /// Emitted whenever the current build configuartion changed or the build directory of the current
     /// build configuration was changed.
