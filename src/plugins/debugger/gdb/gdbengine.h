@@ -686,7 +686,7 @@ protected:
     QString m_lastWinException;
     QString m_lastMissingDebugInfo;
     BreakpointResponseId m_qFatalBreakpointResponseId;
-    bool m_actingOnExpectedStop;
+    bool m_terminalTrap;
 
     bool usesExecInterrupt() const;
 

@@ -258,7 +258,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     m_stackNeeded = false;
     m_preparedForQmlBreak = false;
     m_disassembleUsesComma = false;
-    m_actingOnExpectedStop = false;
+    m_terminalTrap = startParameters.useTerminal;
     m_fullStartDone = false;
     m_forceAsyncModel = false;
 
@@ -466,9 +466,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 m_pendingLogStreamOutput.clear();
                 m_pendingConsoleStreamOutput.clear();
             } else if (asyncClass == "running") {
-                if (state() == InferiorRunOk) {
-                    // We get multiple *running after thread creation.
-                    showMessage(_("NOTE: INFERIOR STILL RUNNING."));
+                if (state() == InferiorRunOk || state() == InferiorSetupRequested) {
+                    // We get multiple *running after thread creation and in Windows terminals.
+                    showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
+                                arg(QLatin1String(DebuggerEngine::stateName(state()))));
                 } else {
                     notifyInferiorRunOk();
                 }
@@ -1375,9 +1376,15 @@ void GdbEngine::handleAqcuiredInferior()
 
 void GdbEngine::handleStopResponse(const GdbMi &data)
 {
+    // Ignore trap on Windows terminals, which results in
+    // spurious "* stopped" message.
+    if (!data.isValid() && m_terminalTrap && Abi::hostAbi().os() == Abi::WindowsOS) {
+        m_terminalTrap = false;
+        showMessage(_("IGNORING TERMINAL SIGTRAP"), LogMisc);
+        return;
+    }
     // This is gdb 7+'s initial *stopped in response to attach.
     // For consistency, we just discard it.
-    m_actingOnExpectedStop = false;
     if (state() == InferiorSetupRequested)
         return;
 
@@ -1420,11 +1427,19 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     BreakpointResponseId rid(data.findChild("bkptno").data());
     const GdbMi frame = data.findChild("frame");
 
-    const int lineNumber = frame.findChild("line").data().toInt();
-    QString fullName = cleanupFullName(QString::fromLocal8Bit(frame.findChild("fullname").data()));
-
-    if (fullName.isEmpty())
-        fullName = QString::fromLocal8Bit(frame.findChild("file").data());
+    int lineNumber = 0;
+    QString fullName;
+    if (frame.isValid()) {
+        const GdbMi lineNumberG = frame.findChild("line");
+        if (lineNumberG.isValid()) {
+            lineNumber = lineNumberG.data().toInt();
+            fullName = cleanupFullName(QString::fromLocal8Bit(frame.findChild("fullname").data()));
+            if (fullName.isEmpty())
+                fullName = QString::fromLocal8Bit(frame.findChild("file").data());
+        } // found line number
+    } else {
+        showMessage(_("INVALID STOPPED REASON"), LogWarning);
+    }
 
     if (rid.isValid() && frame.isValid()
             && !isQmlStepBreakpoint(rid)
@@ -1455,7 +1470,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     if (!m_commandsToRunOnTemporaryBreak.isEmpty()) {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
-        m_actingOnExpectedStop = true;
         notifyInferiorStopOk();
         flushQueuedCommands();
         if (state() == InferiorStopOk) {
@@ -1488,7 +1502,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         // That's expected.
     } else {
         QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state());
-        m_actingOnExpectedStop = true;
         notifyInferiorStopOk();
     }
 
@@ -1655,12 +1668,6 @@ void GdbEngine::handleStop2(const GdbMi &data)
             && reason == "signal-received"
             && data.findChild("signal-name").data() == "SIGTRAP")
     {
-        if (!m_actingOnExpectedStop) {
-            // Ignore signals from command line start up traps.
-            showMessage(_("INTERNAL CONTINUE AFTER SIGTRAP"), LogMisc);
-            continueInferiorInternal();
-            return;
-        }
         // This is the stopper thread. That also means that the
         // reported thread is not the one we'd like to expose
         // to the user.
