@@ -40,7 +40,6 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qmljstools \
             plugin_macros \
             debugger/dumper.pro \
-            plugin_qmlprofiler \
             plugin_remotelinux \
             plugin_android \
             plugin_madde \
@@ -63,7 +62,8 @@ include(../../qtcreator.pri)
 
 contains(QT_CONFIG, declarative)|contains(QT_CONFIG, quick1) {
     SUBDIRS += \
-            plugin_qmlprojectmanager
+            plugin_qmlprojectmanager \
+            plugin_qmlprofiler
 
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
