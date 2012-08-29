@@ -165,12 +165,18 @@ void Qt4MaemoDeployConfiguration::setupDebianPackaging()
     Utils::FileName debianDir = DebianManager::debianDirectory(target());
     DebianManager::ActionStatus status = DebianManager::createTemplate(bc, debianDir);
 
-    if (status == DebianManager::NoActionRequired ||
-            status == DebianManager::ActionFailed)
+    if (status == DebianManager::ActionFailed)
+        return;
+
+    DebianManager * const dm = DebianManager::instance();
+    dm->monitor(debianDir);
+    connect(dm, SIGNAL(debianDirectoryChanged(Utils::FileName)), this,
+            SLOT(debianDirChanged(Utils::FileName)));
+
+    if (status == DebianManager::NoActionRequired)
         return;
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
-    DebianManager *dm = DebianManager::instance();
     QString projectName = target()->project()->displayName();
 
     if (!DebianManager::hasPackageManagerIcon(debianDir)) {
@@ -180,11 +186,6 @@ void Qt4MaemoDeployConfiguration::setupDebianPackaging()
         if (iconPath.toFileInfo().exists())
             dm->setPackageManagerIcon(debianDir, deviceType, iconPath);
     }
-
-
-
-    dm->monitor(debianDir);
-    connect(dm, SIGNAL(debianDirectoryChanged(Utils::FileName)), this, SLOT(debianDirChanged(Utils::FileName)));
 
     // Set up aegis manifest on harmattan:
     if (deviceType == HarmattanOsType) {

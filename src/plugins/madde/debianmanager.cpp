@@ -507,7 +507,8 @@ bool DebianManager::setPackageManagerName(const Utils::FileName &debianDir, Core
 
 QIcon DebianManager::packageManagerIcon(const Utils::FileName &debianDir, QString *error)
 {
-    const QByteArray &base64Icon = controlFileFieldValue(debianDir, IconFieldName, true);
+    const QByteArray &base64Icon
+            = controlFileFieldValue(controlFilePath(debianDir), IconFieldName, true);
     if (base64Icon.isEmpty())
         return QIcon();
     QPixmap pixmap;
@@ -695,7 +696,7 @@ void DebianManager::controlWasChanged()
     WatchableFile *file = qobject_cast<WatchableFile *>(sender());
     if (!file)
         return;
-    emit controlChanged(Utils::FileName::fromString(file->fileName()));
+    emit controlChanged(Utils::FileName::fromString(file->fileName()).parentDir());
 }
 
 void DebianManager::changelogWasChanged()
@@ -703,7 +704,7 @@ void DebianManager::changelogWasChanged()
     WatchableFile *file = qobject_cast<WatchableFile *>(sender());
     if (!file)
         return;
-    emit changelogChanged(Utils::FileName::fromString(file->fileName()));
+    emit changelogChanged(Utils::FileName::fromString(file->fileName()).parentDir());
 }
 
 Utils::FileName DebianManager::changelogFilePath(const Utils::FileName &debianDir)
