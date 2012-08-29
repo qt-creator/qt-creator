@@ -65,7 +65,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_ignoreUpdates(false),
     m_firstWidget(0),
     m_ui(new Internal::Ui::TargetSetupPage),
-    m_importWidget(new Internal::ImportWidget),
+    m_importWidget(new Internal::ImportWidget(this)),
     m_spacer(new QSpacerItem(0,0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding))
 {
     setObjectName(QLatin1String("TargetSetupPage"));
