@@ -116,6 +116,7 @@ public:
 
     void loadDefaults();
     bool prepareProject(const QString &inDir);
+    bool loadSpecInternal();
     bool loadSpec();
     void initFrom(const QMakeEvaluator &other);
     void setupProject();

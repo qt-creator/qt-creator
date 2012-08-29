@@ -1032,6 +1032,33 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
     return true;
 }
 
+bool QMakeEvaluator::loadSpecInternal()
+{
+    if (!evaluateFeatureFile(QLatin1String("spec_pre.prf")))
+        return false;
+    QString spec = m_qmakespec + QLatin1String("/qmake.conf");
+    if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
+        evalError(fL1S("Could not read qmake configuration file %1.").arg(spec));
+        return false;
+    }
+#ifdef Q_OS_UNIX
+    m_qmakespecFull = QFileInfo(m_qmakespec).canonicalFilePath();
+#else
+    // We can't resolve symlinks as they do on Unix, so configure.exe puts
+    // the source of the qmake.conf at the end of the default/qmake.conf in
+    // the QMAKESPEC_ORIGINAL variable.
+    const ProString &orig_spec = first(ProKey("QMAKESPEC_ORIGINAL"));
+    m_qmakespecFull = orig_spec.isEmpty() ? m_qmakespec : orig_spec.toQString();
+#endif
+    valuesRef(ProKey("QMAKESPEC")) << ProString(m_qmakespecFull);
+    m_qmakespecName = IoUtils::fileName(m_qmakespecFull).toString();
+    if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
+        return false;
+    // The MinGW and x-build specs may change the separator; $$shell_{path,quote}() need it
+    m_dirSep = first(ProKey("QMAKE_DIR_SEP"));
+    return true;
+}
+
 bool QMakeEvaluator::loadSpec()
 {
     QString qmakespec = m_option->expandEnvVars(
@@ -1085,29 +1112,9 @@ bool QMakeEvaluator::loadSpec()
         && !evaluateFileDirect(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
     }
-    if (!evaluateFeatureFile(QLatin1String("spec_pre.prf")))
-        return false;
-    QString spec = m_qmakespec + QLatin1String("/qmake.conf");
-    if (!evaluateFileDirect(spec, QMakeHandler::EvalConfigFile, LoadProOnly)) {
-        evalError(fL1S("Could not read qmake configuration file %1.").arg(spec));
-        return false;
-    }
-#ifdef Q_OS_UNIX
-    m_qmakespecFull = QFileInfo(m_qmakespec).canonicalFilePath();
-#else
-    // We can't resolve symlinks as they do on Unix, so configure.exe puts
-    // the source of the qmake.conf at the end of the default/qmake.conf in
-    // the QMAKESPEC_ORIGINAL variable.
-    const ProString &orig_spec = first(ProKey("QMAKESPEC_ORIGINAL"));
-    m_qmakespecFull = orig_spec.isEmpty() ? m_qmakespec : orig_spec.toQString();
-#endif
-    valuesRef(ProKey("QMAKESPEC")) << ProString(m_qmakespecFull);
-    m_qmakespecName = IoUtils::fileName(m_qmakespecFull).toString();
-    if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
+    if (!loadSpecInternal())
         return false;
     updateFeaturePaths(); // The spec extends the feature search path, so rebuild the cache.
-    // The MinGW and x-build specs may change the separator; $$shell_{path,quote}() need it
-    m_dirSep = first(ProKey("QMAKE_DIR_SEP"));
     if (!m_conffile.isEmpty()
         && !evaluateFileDirect(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly)) {
         return false;
