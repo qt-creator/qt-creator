@@ -5235,7 +5235,9 @@ bool GdbEngine::attemptQuickStart() const
 
 void GdbEngine::checkForReleaseBuild()
 {
-    QString binary = startParameters().executable;
+    const QString binary = startParameters().executable;
+    if (binary.isEmpty())
+        return;
     ElfReader reader(binary);
     ElfData elfData = reader.readHeaders();
     QString error = reader.errorString();

@@ -888,6 +888,7 @@ public slots:
     void attachToRemoteServer();
     void attachToProcess(bool startServerOnly);
     void attachToRunningApplication();
+    void attachExternalApplication(ProjectExplorer::RunControl *rc);
     void attachToQmlPort();
     void startRemoteEngine();
     void runScheduled();
@@ -1682,6 +1683,18 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
         GdbServerStarter *starter = new GdbServerStarter(dlg, startServerOnly);
         starter->run();
     }
+}
+
+void DebuggerPluginPrivate::attachExternalApplication(ProjectExplorer::RunControl *rc)
+{
+    DebuggerStartParameters sp;
+    fillParameters(&sp);
+    sp.attachPID = rc->applicationProcessHandle().pid();
+    sp.displayName = tr("Process %1").arg(sp.attachPID);
+    sp.startMode = AttachExternal;
+    sp.closeMode = DetachAtClose;
+    sp.toolChainAbi = rc->abi();
+    DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::attachToQmlPort()
