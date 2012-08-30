@@ -424,19 +424,6 @@ static inline int classify6(const char *s, bool q, bool) {
       }
     }
   }
-  else if (q && s[0] == 'Q') {
-    if (s[1] == '_') {
-      if (s[2] == 'E') {
-        if (s[3] == 'M') {
-          if (s[4] == 'I') {
-            if (s[5] == 'T') {
-              return T_Q_EMIT;
-            }
-          }
-        }
-      }
-    }
-  }
   else if (s[0] == 'r') {
     if (s[1] == 'e') {
       if (s[2] == 't') {
@@ -541,6 +528,15 @@ static inline int classify6(const char *s, bool q, bool) {
           if (s[4] == 'O') {
             if (s[5] == 'T') {
               return T_Q_SLOT;
+            }
+          }
+        }
+      }
+      else if (s[2] == 'E') {
+        if (s[3] == 'M') {
+          if (s[4] == 'I') {
+            if (s[5] == 'T') {
+              return T_Q_EMIT;
             }
           }
         }
