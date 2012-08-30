@@ -79,7 +79,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/basetreeview.cpp \
     $$PWD/qtcassert.cpp \
     $$PWD/elfreader.cpp \
-    $$PWD/bracematcher.cpp
+    $$PWD/bracematcher.cpp \
+    $$PWD/proxyaction.cpp
 
 win32 {
     SOURCES += \
@@ -165,7 +166,9 @@ HEADERS += \
     $$PWD/appmainwindow.h \
     $$PWD/basetreeview.h \
     $$PWD/elfreader.h \
-    $$PWD/bracematcher.h
+    $$PWD/bracematcher.h \
+    $$PWD/proxyaction.h \
+    $$PWD/hostosinfo.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

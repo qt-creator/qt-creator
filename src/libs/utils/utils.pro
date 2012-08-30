@@ -12,13 +12,6 @@ lessThan(QT_MAJOR_VERSION, 5) {
     win32:include(../../private_headers.pri)
 }
 
-HEADERS += \
-    proxyaction.h \
-    hostosinfo.h
-
-SOURCES += \
-    proxyaction.cpp
-
 win32: LIBS += -lUser32
 # PortsGatherer
 win32: LIBS += -liphlpapi -lWs2_32
