@@ -3890,46 +3890,10 @@ bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
 
     DebuggerToolTipContext context = contextIn;
     int line, column;
-    QString exp = cppExpressionAt(editor, context.position, &line, &column, &context.function);
+    const QString exp = fixCppExpression(cppExpressionAt(editor, context.position, &line, &column, &context.function));
     if (DebuggerToolTipManager::debug())
         qDebug() << "GdbEngine::setToolTipExpression1 " << exp << context;
     if (exp.isEmpty())
-        return false;
-
-    // Extract the first identifier, everything else is considered
-    // too dangerous.
-    int pos1 = 0, pos2 = exp.size();
-    bool inId = false;
-    for (int i = 0; i != exp.size(); ++i) {
-        const QChar c = exp.at(i);
-        const bool isIdChar = c.isLetterOrNumber() || c.unicode() == '_';
-        if (inId && !isIdChar) {
-            pos2 = i;
-            break;
-        }
-        if (!inId && isIdChar) {
-            inId = true;
-            pos1 = i;
-        }
-    }
-    exp = exp.mid(pos1, pos2 - pos1);
-
-    if (exp.isEmpty() || exp.startsWith(QLatin1Char('#')) || !hasLetterOrNumber(exp) || isKeyWord(exp))
-        return false;
-
-    if (exp.startsWith(QLatin1Char('"')) && exp.endsWith(QLatin1Char('"')))
-        return false;
-
-    if (exp.startsWith(QLatin1String("++")) || exp.startsWith(QLatin1String("--")))
-        exp = exp.mid(2);
-
-    if (exp.endsWith(QLatin1String("++")) || exp.endsWith(QLatin1String("--")))
-        exp = exp.mid(2);
-
-    if (exp.startsWith(QLatin1Char('<')) || exp.startsWith(QLatin1Char('[')))
-        return false;
-
-    if (hasSideEffects(exp) || exp.isEmpty())
         return false;
 
     if (!m_toolTipContext.isNull() && m_toolTipContext->expression == exp) {

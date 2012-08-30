@@ -1140,6 +1140,7 @@ public slots:
             int line, column;
             exp = cppExpressionAt(textEditor, tc.position(), &line, &column);
         }
+        exp = fixCppExpression(exp);
         if (exp.isEmpty())
             return;
         currentEngine()->watchHandler()->watchExpression(exp);
