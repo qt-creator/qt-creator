@@ -17,8 +17,7 @@ HEADERS += \
     hostosinfo.h
 
 SOURCES += \
-    proxyaction.cpp \
-    hostosinfo.cpp
+    proxyaction.cpp
 
 win32: LIBS += -lUser32
 # PortsGatherer

@@ -40,13 +40,37 @@ public:
     // Add more as needed.
     enum HostOs { HostOsWindows, HostOsLinux, HostOsMac, HostOsOtherUnix, HostOsOther };
 
-    static HostOs hostOs();
+    static inline HostOs hostOs();
 
     static bool isWindowsHost() { return hostOs() == HostOsWindows; }
     static bool isLinuxHost() { return hostOs() == HostOsLinux; }
     static bool isMacHost() { return hostOs() == HostOsMac; }
-    static bool isAnyUnixHost();
+    static inline bool isAnyUnixHost();
 };
+
+HostOsInfo::HostOs HostOsInfo::hostOs()
+{
+#if defined(Q_OS_WIN)
+    return HostOsWindows;
+#elif defined(Q_OS_LINUX)
+    return HostOsLinux;
+#elif defined(Q_OS_MAC)
+    return HostOsMac;
+#elif defined(Q_OS_UNIX)
+    return HostOsOtherUnix;
+#else
+    return HostOsOther;
+#endif
+}
+
+bool HostOsInfo::isAnyUnixHost()
+{
+#ifdef Q_OS_UNIX
+    return true;
+#else
+    return false;
+#endif
+}
 
 } // namespace Utils
 
