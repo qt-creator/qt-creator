@@ -675,6 +675,23 @@ namespace catchthrow {
 } // namespace catchthrow
 
 
+namespace undefined {
+
+    void testUndefined()
+    {
+        int *i = new int;
+        delete i;
+        BREAK_HERE;
+        // Manual: Uncomment the following line. Step.
+        // On Linux, a SIGABRT should be received.
+        //delete i;
+        // Continue.
+        dummyStatement(&i);
+    }
+
+} // namespace undefined
+
+
 namespace qdatetime {
 
     void testQDate()
@@ -6545,6 +6562,7 @@ int main(int argc, char *argv[])
     text::testText();
     io::testIO();
     catchthrow::testCatchThrow();
+    undefined::testUndefined();
     plugin::testPlugin();
     valgrind::testValgrind();
     namespc::testNamespace();
