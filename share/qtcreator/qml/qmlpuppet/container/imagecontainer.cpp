@@ -30,7 +30,12 @@
 
 #include "imagecontainer.h"
 
+#include <QSharedMemory>
+#include <QCache>
+
 namespace QmlDesigner {
+
+static QCache<qint32, QSharedMemory> globalSharedMemoryCache(10000);
 
 ImageContainer::ImageContainer()
     : m_instanceId(-1)
@@ -38,7 +43,8 @@ ImageContainer::ImageContainer()
 }
 
 ImageContainer::ImageContainer(qint32 instanceId, const QImage &image)
-    : m_image(image), m_instanceId(instanceId)
+    :  m_image(image),
+       m_instanceId(instanceId)
 {
 }
 
@@ -52,6 +58,25 @@ QImage ImageContainer::image() const
     return m_image;
 }
 
+static QSharedMemory *createSharedMemory(qint32 key, int byteCount)
+{
+    QSharedMemory *sharedMemory = globalSharedMemoryCache.take(key);
+    if (sharedMemory == 0)
+        sharedMemory = new QSharedMemory(QString::number(key));
+
+    if (sharedMemory->isAttached())
+        sharedMemory->detach();
+
+    bool sharedMemoryIsCreated = sharedMemory->create(byteCount);
+
+    if (sharedMemoryIsCreated) {
+        globalSharedMemoryCache.insert(key, sharedMemory);
+        return sharedMemory;
+    }
+
+    return 0;
+}
+
 QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
 {
     out << container.instanceId();
@@ -63,9 +88,29 @@ QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
     out << image.size();
     out << qint32(image.format());
     out << qint32(image.byteCount());
-    out.writeRawData(reinterpret_cast<const char*>(image.constBits()), image.byteCount());
+
+    QSharedMemory *sharedMemory = createSharedMemory(container.instanceId(), image.byteCount());
+
+    out << qint32(sharedMemory != 0); // send if shared memory is used
+
+    if (sharedMemory) {
+        qMemCopy(sharedMemory->data(), image.constBits(), image.byteCount());
+    } else {
+        out.writeRawData(reinterpret_cast<const char*>(image.constBits()), image.byteCount());
+    }
+
 
     return out;
+}
+
+void readSharedMemory(qint32 key, QImage *image, qint32 byteSize)
+{
+    QSharedMemory sharedMemory(QString::number(key));
+    bool canAttach = sharedMemory.attach(QSharedMemory::ReadOnly);
+    if (canAttach)
+    {
+        qMemCopy(image->bits(), sharedMemory.constData(), byteSize);
+    }
 }
 
 QDataStream &operator>>(QDataStream &in, ImageContainer &container)
@@ -75,6 +120,7 @@ QDataStream &operator>>(QDataStream &in, ImageContainer &container)
     qint32 bytesPerLine;
     QSize imageSize;
     qint32 format;
+    qint32 sharedmemoryIsUsed;
 
     in >> container.m_instanceId;
 
@@ -82,9 +128,14 @@ QDataStream &operator>>(QDataStream &in, ImageContainer &container)
     in >> imageSize;
     in >> format;
     in >> byteSize;
+    in >> sharedmemoryIsUsed;
 
     container.m_image = QImage(imageSize, QImage::Format(format));
-    in.readRawData(reinterpret_cast<char*>(container.m_image.bits()), byteSize);
+
+    if (sharedmemoryIsUsed)
+        readSharedMemory(container.instanceId(), &container.m_image, byteSize);
+    else
+        in.readRawData(reinterpret_cast<char*>(container.m_image.bits()), byteSize);
 
     return in;
 }
