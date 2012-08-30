@@ -64,6 +64,9 @@ BlackBerryRunConfiguration::BlackBerryRunConfiguration(ProjectExplorer::Target *
 void BlackBerryRunConfiguration::init()
 {
     updateDisplayName();
+
+    connect(deployConfiguration()->deploymentInfo(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(targetInformationChanged()));
+    connect(deployConfiguration()->deploymentInfo(), SIGNAL(modelReset()), this, SIGNAL(targetInformationChanged()));
 }
 
 void BlackBerryRunConfiguration::updateDisplayName()
