@@ -85,6 +85,8 @@ private slots:
     void currentTabChanged(int index);
     void updateModeToolTip();
     void enabledStateChanged();
+    void handleStartup();
+    void handleShutdown();
 };
 
 } // namespace Core

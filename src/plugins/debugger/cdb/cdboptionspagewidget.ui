@@ -121,6 +121,18 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="breakFunctionGroupBox">
+     <property name="title">
+      <string>Break on functions:</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="breakCrtDbgReportCheckBox"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

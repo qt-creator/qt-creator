@@ -41,8 +41,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
 #include <remotelinux/abstractremotelinuxdeployservice.h>
 #include <remotelinux/linuxdevice.h>
 #include <utils/hostosinfo.h>
@@ -156,28 +154,7 @@ void AbstractMaemoDeployByMountService::doDeviceSetup()
 {
     QTC_ASSERT(m_state == Inactive, return);
 
-    if (deviceConfiguration()->machineType() == IDevice::Hardware) {
-        handleDeviceSetupDone(true);
-        return;
-    }
-
-    if (MaemoQemuManager::instance().qemuIsRunning()) {
-        handleDeviceSetupDone(true);
-        return;
-    }
-
-    MaemoQemuRuntime rt;
-    const int qtId = QtSupport::QtProfileInformation::qtVersionId(profile());
-    if (MaemoQemuManager::instance().runtimeForQtVersion(qtId, &rt)) {
-        MaemoQemuManager::instance().startRuntime();
-        emit errorMessage(tr("Cannot deploy: Qemu was not running. "
-            "It has now been started up for you, but it will take "
-            "a bit of time until it is ready. Please try again then."));
-    } else {
-        emit errorMessage(tr("Cannot deploy: You want to deploy to Qemu, but it is not enabled "
-            "for this Qt version."));
-    }
-    handleDeviceSetupDone(false);
+    handleDeviceSetupDone(true);
 }
 
 void AbstractMaemoDeployByMountService::stopDeviceSetup()

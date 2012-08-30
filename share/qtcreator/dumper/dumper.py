@@ -1472,7 +1472,10 @@ class Dumper:
             self.putType(typeName)
             self.putNumChild(1)
             format = self.currentItemFormat()
-            if format == 0:
+            if format == None and str(targetType.unqualified()) == "char":
+                # Use Latin1 as default for char [].
+                self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
+            elif format == 0:
                 # Explicitly requested Latin1 formatting.
                 self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
             elif format == 1:

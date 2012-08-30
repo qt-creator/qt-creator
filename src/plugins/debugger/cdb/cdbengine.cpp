@@ -775,12 +775,59 @@ void CdbEngine::setupInferior()
     postExtensionCommand("pid", QByteArray(), 0, &CdbEngine::handlePid);
 }
 
+static QByteArray msvcRunTime(const Abi::OSFlavor flavour)
+{
+    switch (flavour)  {
+    case Abi::WindowsMsvc2005Flavor:
+        return "MSVCR80";
+    case Abi::WindowsMsvc2008Flavor:
+        return "MSVCR90";
+    case Abi::WindowsMsvc2010Flavor:
+        return "MSVCR100";
+    case Abi::WindowsMsvc2012Flavor:
+        return "MSVCR110"; // #FIXME: VS2012 beta, will probably be 12 in final?
+    default:
+        break;
+    }
+    return "MSVCRT"; // MinGW, others.
+}
+
+static QByteArray breakAtFunctionCommand(const QByteArray &function,
+                                         const QByteArray &module = QByteArray())
+{
+     QByteArray result = "bu ";
+     if (!module.isEmpty()) {
+         result += module;
+         result += '!';
+     }
+     result += function;
+     return result;
+}
+
 void CdbEngine::runEngine()
 {
     if (debug)
         qDebug("runEngine");
     foreach (const QString &breakEvent, m_options->breakEvents)
             postCommand(QByteArray("sxe ") + breakEvent.toAscii(), 0);
+    // Break functions: each function must be fully qualified,
+    // else the debugger will slow down considerably.
+    foreach (const QString &breakFunctionS, m_options->breakFunctions) {
+        const QByteArray breakFunction = breakFunctionS.toLatin1();
+        if (breakFunction == CdbOptions::crtDbgReport) {
+            // CrtDbgReport(): Add MSVC runtime (debug, release)
+            // and stop at Wide character version as well
+            const QByteArray module = msvcRunTime(startParameters().toolChainAbi.osFlavor());
+            const QByteArray debugModule = module + 'D';
+            const QByteArray wideFunc = breakFunction + 'W';
+            postCommand(breakAtFunctionCommand(breakFunction, module), 0);
+            postCommand(breakAtFunctionCommand(wideFunc, module), 0);
+            postCommand(breakAtFunctionCommand(breakFunction, debugModule), 0);
+            postCommand(breakAtFunctionCommand(wideFunc, debugModule), 0);
+        } else {
+            postCommand(breakAtFunctionCommand(breakFunction), 0);
+        }
+    }
     if (startParameters().startMode == AttachCore) {
         QTC_ASSERT(!m_coreStopReason.isNull(), return; );
         notifyInferiorUnrunnable();
@@ -2990,6 +3037,8 @@ void CdbEngine::handleBreakPoints(const GdbMi &value)
                 qPrintable(reportedResponse.toString()));
         if (reportedResponse.id.isValid() && !reportedResponse.pending) {
             const BreakpointModelId mid = handler->findBreakpointByResponseId(reportedResponse.id);
+            if (!mid.isValid() && reportedResponse.type == BreakpointByFunction)
+                continue; // Breakpoints from options, CrtDbgReport() and others.
             QTC_ASSERT(mid.isValid(), continue);
             const PendingBreakPointMap::iterator it = m_pendingBreakpointMap.find(mid);
             if (it != m_pendingBreakpointMap.end()) {

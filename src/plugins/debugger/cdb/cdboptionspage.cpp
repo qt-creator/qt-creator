@@ -30,6 +30,7 @@
 
 #include "cdboptionspage.h"
 #include "cdboptions.h"
+#include "commonoptionspage.h"
 #include "debuggerinternalconstants.h"
 #include "cdbengine.h"
 
@@ -176,6 +177,11 @@ CdbOptionsPageWidget::CdbOptionsPageWidget(QWidget *parent) :
     eventLayout->setContentsMargins(margins);
     eventLayout->addWidget(m_breakEventWidget);
     m_ui.eventGroupBox->setLayout(eventLayout);
+    m_ui.breakCrtDbgReportCheckBox
+        ->setText(CommonOptionsPage::msgSetBreakpointAtFunction(CdbOptions::crtDbgReport));
+    const QString hint = tr("This is useful to catch runtime error messages, for example caused by assert().");
+    m_ui.breakCrtDbgReportCheckBox
+        ->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip(CdbOptions::crtDbgReport, hint));
 }
 
 void CdbOptionsPageWidget::setOptions(CdbOptions &o)
@@ -186,6 +192,7 @@ void CdbOptionsPageWidget::setOptions(CdbOptions &o)
     m_breakEventWidget->setBreakEvents(o.breakEvents);
     m_ui.consoleCheckBox->setChecked(o.cdbConsole);
     m_ui.breakpointCorrectionCheckBox->setChecked(o.breakpointCorrection);
+    m_ui.breakCrtDbgReportCheckBox->setChecked(o.breakFunctions.contains(QLatin1String(CdbOptions::crtDbgReport)));
 }
 
 CdbOptions CdbOptionsPageWidget::options() const
@@ -197,6 +204,8 @@ CdbOptions CdbOptionsPageWidget::options() const
     rc.breakEvents = m_breakEventWidget->breakEvents();
     rc.cdbConsole = m_ui.consoleCheckBox->isChecked();
     rc.breakpointCorrection = m_ui.breakpointCorrectionCheckBox->isChecked();
+    if (m_ui.breakCrtDbgReportCheckBox->isChecked())
+        rc.breakFunctions.push_back(QLatin1String(CdbOptions::crtDbgReport));
     return rc;
 }
 

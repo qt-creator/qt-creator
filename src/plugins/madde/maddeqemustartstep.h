@@ -27,18 +27,35 @@
 **
 **
 **************************************************************************/
+#ifndef MAEMOQEMUCHECKSTEP_H
+#define MAEMOQEMUCHECKSTEP_H
 
-#ifndef JSON_GLOBAL_H
-#define JSON_GLOBAL_H
+#include <remotelinux/abstractremotelinuxdeploystep.h>
 
-#include <qglobal.h>
+namespace Madde {
+namespace Internal {
+class MaddeQemuStartService;
 
-#if defined(JSON_BUILD_LIB)
-#    define JSON_EXPORT Q_DECL_EXPORT
-#elif defined(JSON_BUILD_STATIC_LIB) || defined(JSON_INCLUDE_PRI)
-#    define JSON_EXPORT
-#else
-#    define JSON_EXPORT Q_DECL_IMPORT
-#endif
+class MaddeQemuStartStep : public RemoteLinux::AbstractRemoteLinuxDeployStep
+{
+    Q_OBJECT
+public:
+    MaddeQemuStartStep(ProjectExplorer::BuildStepList *bsl);
+    MaddeQemuStartStep(ProjectExplorer::BuildStepList *bsl, MaddeQemuStartStep *other);
 
-#endif // JSON_GLOBAL_H
+    static Core::Id stepId();
+    static QString stepDisplayName();
+
+private:
+    void ctor();
+
+    RemoteLinux::AbstractRemoteLinuxDeployService *deployService() const;
+    bool initInternal(QString *error = 0);
+
+    MaddeQemuStartService *m_service;
+};
+
+} // namespace Internal
+} // namespace Madde
+
+#endif // MAEMOQEMUCHECKSTEP_H

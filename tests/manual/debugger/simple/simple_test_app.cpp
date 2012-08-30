@@ -675,6 +675,23 @@ namespace catchthrow {
 } // namespace catchthrow
 
 
+namespace undefined {
+
+    void testUndefined()
+    {
+        int *i = new int;
+        delete i;
+        BREAK_HERE;
+        // Manual: Uncomment the following line. Step.
+        // On Linux, a SIGABRT should be received.
+        //delete i;
+        // Continue.
+        dummyStatement(&i);
+    }
+
+} // namespace undefined
+
+
 namespace qdatetime {
 
     void testQDate()
@@ -4933,8 +4950,8 @@ namespace basic {
         // Check s "Foo" QString.
         // Continue.
 
-        // Select "Open Memory View" from Locals and Expressions
-        //    context menu for item 'd'.
+        // Select "Open Memory Editor->Open Memory Editor Showing Stack Layout"
+        // from Locals and Expressions context menu.
         // Check that the opened memory view contains coloured items
         //    for 'i', 'd', and 's'.
         dummyStatement(&i, &d, &s);
@@ -6545,6 +6562,7 @@ int main(int argc, char *argv[])
     text::testText();
     io::testIO();
     catchthrow::testCatchThrow();
+    undefined::testUndefined();
     plugin::testPlugin();
     valgrind::testValgrind();
     namespc::testNamespace();

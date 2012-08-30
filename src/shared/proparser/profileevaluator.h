@@ -69,6 +69,8 @@ public:
 #endif
     void setOutputDir(const QString &dir); // Default is empty
 
+    bool loadNamedSpec(const QString &specDir, bool hostSpec);
+
     bool accept(ProFile *pro, QMakeEvaluator::LoadFlags flags = QMakeEvaluator::LoadAll);
 
     bool contains(const QString &variableName) const;

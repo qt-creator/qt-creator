@@ -30,6 +30,7 @@
 #include "qt4maemodeployconfiguration.h"
 
 #include "debianmanager.h"
+#include "maddeqemustartstep.h"
 #include "maddeuploadandinstallpackagesteps.h"
 #include "maemoconstants.h"
 #include "maemodeploybymountsteps.h"
@@ -123,12 +124,18 @@ void Qt4MaemoDeployConfiguration::setupDebianPackaging()
     Utils::FileName debianDir = DebianManager::debianDirectory(target());
     DebianManager::ActionStatus status = DebianManager::createTemplate(bc, debianDir);
 
-    if (status == DebianManager::NoActionRequired ||
-            status == DebianManager::ActionFailed)
+    if (status == DebianManager::ActionFailed)
+        return;
+
+    DebianManager * const dm = DebianManager::instance();
+    dm->monitor(debianDir);
+    connect(dm, SIGNAL(debianDirectoryChanged(Utils::FileName)), this,
+            SLOT(debianDirChanged(Utils::FileName)));
+
+    if (status == DebianManager::NoActionRequired)
         return;
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
-    DebianManager *dm = DebianManager::instance();
     QString projectName = target()->project()->displayName();
 
     if (!DebianManager::hasPackageManagerIcon(debianDir)) {
@@ -138,11 +145,6 @@ void Qt4MaemoDeployConfiguration::setupDebianPackaging()
         if (iconPath.toFileInfo().exists())
             dm->setPackageManagerIcon(debianDir, deviceType, iconPath);
     }
-
-
-
-    dm->monitor(debianDir);
-    connect(dm, SIGNAL(debianDirectoryChanged(Utils::FileName)), this, SLOT(debianDirChanged(Utils::FileName)));
 
     // Set up aegis manifest on harmattan:
     if (deviceType == HarmattanOsType) {
@@ -254,18 +256,21 @@ DeployConfiguration *Qt4MaemoDeployConfigurationFactory::create(Target *parent,
 
     if (id == Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId()) {
         dc->stepList()->insertStep(0, new MaemoMakeInstallToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(1, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new MaemoCopyFilesViaMountStep(dc->stepList()));
+        dc->stepList()->insertStep(1, new MaddeQemuStartStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+        dc->stepList()->insertStep(3, new MaemoCopyFilesViaMountStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::fremantleWithPackagingId()) {
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
-        dc->stepList()->insertStep(3, new MaemoInstallPackageViaMountStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaddeQemuStartStep(dc->stepList()));
+        dc->stepList()->insertStep(3, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+        dc->stepList()->insertStep(4, new MaemoInstallPackageViaMountStep(dc->stepList()));
     } else if (id == Qt4MaemoDeployConfiguration::harmattanId()) {
         dc->stepList()->insertStep(0, new MaemoDebianPackageCreationStep(dc->stepList()));
         dc->stepList()->insertStep(1, new MaemoInstallDebianPackageToSysrootStep(dc->stepList()));
-        dc->stepList()->insertStep(2, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
-        dc->stepList()->insertStep(3, new MaemoUploadAndInstallPackageStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new MaddeQemuStartStep(dc->stepList()));
+        dc->stepList()->insertStep(3, new RemoteLinuxCheckForFreeDiskSpaceStep(dc->stepList()));
+        dc->stepList()->insertStep(4, new MaemoUploadAndInstallPackageStep(dc->stepList()));
     }
     return dc;
 }

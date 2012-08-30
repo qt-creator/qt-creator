@@ -164,7 +164,7 @@ public:
 
     void testJson(const char* input)
     {
-        QCOMPARE('\n' + QString::fromLatin1(Json::JsonValue(input).toString(false)),
+        QCOMPARE('\n' + Utils::JsonStringValue(QLatin1String(input)).value(),
             '\n' + QString(input));
     }
 

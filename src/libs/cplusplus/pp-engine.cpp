@@ -1417,9 +1417,9 @@ void Preprocessor::handlePreprocessorDirective(PPToken *tk)
             handleElseDirective(tk, poundToken);
         else if (directive == ppElif)
             handleElifDirective(tk, poundToken);
-
-        skipPreprocesorDirective(tk);
     }
+
+    skipPreprocesorDirective(tk);
 }
 
 

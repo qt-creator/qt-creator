@@ -31,6 +31,7 @@
 #include "maemodeploystepfactory.h"
 
 #include "maemoconstants.h"
+#include "maddeqemustartstep.h"
 #include "maddeuploadandinstallpackagesteps.h"
 #include "maemodeploybymountsteps.h"
 #include "maemoinstalltosysrootstep.h"
@@ -73,16 +74,18 @@ QList<Core::Id> MaemoDeployStepFactory::availableCreationIds(BuildStepList *pare
         platform = version->platformName();
 
     if (platform == QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM) {
-        ids << Core::Id(MaemoMakeInstallToSysrootStep::Id)
-            << Core::Id(MaemoInstallDebianPackageToSysrootStep::Id)
-            << Core::Id(MaemoUploadAndInstallPackageStep::stepId())
-            << Core::Id(MaemoInstallPackageViaMountStep::stepId())
-            << Core::Id(MaemoCopyFilesViaMountStep::stepId());
+        ids << MaemoMakeInstallToSysrootStep::Id
+            << MaemoInstallDebianPackageToSysrootStep::Id
+            << MaemoUploadAndInstallPackageStep::stepId()
+            << MaemoInstallPackageViaMountStep::stepId()
+            << MaemoCopyFilesViaMountStep::stepId()
+            << MaddeQemuStartStep::stepId();
     } else if (platform == QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM) {
-        ids << Core::Id(MaemoMakeInstallToSysrootStep::Id)
-            << Core::Id(MaemoInstallDebianPackageToSysrootStep::Id)
-            << Core::Id(MaemoUploadAndInstallPackageStep::stepId())
-            << Core::Id(GenericDirectUploadStep::stepId());
+        ids << MaemoMakeInstallToSysrootStep::Id
+            << MaemoInstallDebianPackageToSysrootStep::Id
+            << MaemoUploadAndInstallPackageStep::stepId()
+            << GenericDirectUploadStep::stepId()
+            << MaddeQemuStartStep::stepId();
     }
 
     return ids;
@@ -106,6 +109,8 @@ QString MaemoDeployStepFactory::displayNameForId(const Core::Id id) const
         return GenericDirectUploadStep::displayName();
     if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
         return RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName();
+    if (id == MaddeQemuStartStep::stepId())
+        return MaddeQemuStartStep::stepDisplayName();
     return QString();
 }
 
@@ -136,7 +141,8 @@ BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const Core::Id 
         return new GenericDirectUploadStep(parent, id);
     if (id == RemoteLinuxCheckForFreeDiskSpaceStep::stepId())
         return new RemoteLinuxCheckForFreeDiskSpaceStep(parent);
-
+    if (id == MaddeQemuStartStep::stepId())
+        return new MaddeQemuStartStep(parent);
     return 0;
 }
 
@@ -187,6 +193,8 @@ BuildStep *MaemoDeployStepFactory::clone(BuildStepList *parent, BuildStep *produ
              qobject_cast<GenericDirectUploadStep *>(product));
     } else if (RemoteLinuxCheckForFreeDiskSpaceStep * const other = qobject_cast<RemoteLinuxCheckForFreeDiskSpaceStep *>(product)) {
         return new RemoteLinuxCheckForFreeDiskSpaceStep(parent, other);
+    } else if (MaddeQemuStartStep * const other = qobject_cast<MaddeQemuStartStep *>(product)) {
+        return new MaddeQemuStartStep(parent, other);
     }
 
     return 0;

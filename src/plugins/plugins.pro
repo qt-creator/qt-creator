@@ -40,7 +40,6 @@ SUBDIRS   = plugin_coreplugin \
             plugin_qmljstools \
             plugin_macros \
             debugger/dumper.pro \
-            plugin_qmlprofiler \
             plugin_remotelinux \
             plugin_android \
             plugin_madde \
@@ -63,24 +62,19 @@ include(../../qtcreator.pri)
 
 contains(QT_CONFIG, declarative)|contains(QT_CONFIG, quick1) {
     SUBDIRS += \
-            plugin_qmlprojectmanager
+            plugin_qmlprojectmanager \
+            plugin_qmlprofiler
 
     include(../private_headers.pri)
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-
-        minQtVersion(4, 7, 1) {
             SUBDIRS += plugin_qmldesigner
-        } else {
-            warning()
-            warning("QmlDesigner plugin has been disabled.")
-            warning("QmlDesigner requires Qt 4.7.1 or later.")
-        }
     } else {
-        warning()
         warning("QmlDesigner plugin has been disabled.")
         warning("The plugin depends on private headers from QtDeclarative module.")
         warning("To enable it, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
     }
+} else {
+    warning("QmlProjectManager, QmlProfiler and QmlDesigner plugins have been disabled: The plugins require QtDeclarative (Qt 4.x) or QtQuick1 (Qt 5.x)");
 }
 
 include (debugger/lldb/guest/qtcreator-lldb.pri)

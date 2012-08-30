@@ -57,7 +57,9 @@ const char *nameForStyle(TextStyle style)
     case C_TYPE:                return "Type";
     case C_LOCAL:               return "Local";
     case C_FIELD:               return "Field";
-    case C_STATIC:              return "Static";
+    // TODO: Rename "Static" to "Enumeration" in next major update,
+    // because renaming here would break styles defined by the user.
+    case C_ENUMERATION:         return "Static";
     case C_VIRTUAL_METHOD:      return "VirtualMethod";
     case C_FUNCTION:            return "Function";
     case C_KEYWORD:             return "Keyword";

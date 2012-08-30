@@ -279,10 +279,15 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Down) {
-            if (obj == m_ui.findEdit)
+            if (obj == m_ui.findEdit) {
+                if (m_ui.findEdit->text().isEmpty())
+                    m_findCompleter->setCompletionPrefix(QString());
                 m_findCompleter->complete();
-            else if (obj == m_ui.replaceEdit)
+            } else if (obj == m_ui.replaceEdit) {
+                if (m_ui.replaceEdit->text().isEmpty())
+                    m_replaceCompleter->setCompletionPrefix(QString());
                 m_replaceCompleter->complete();
+            }
         }
     }
 

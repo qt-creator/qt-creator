@@ -52,6 +52,10 @@ namespace Utils {
 class SavedAction;
 }
 
+namespace ProjectExplorer {
+class RunControl;
+}
+
 namespace Debugger {
 
 class DebuggerEngine;
@@ -122,6 +126,9 @@ public:
 
     virtual DebuggerToolTipManager *toolTipManager() const = 0;
     virtual QSharedPointer<GlobalDebuggerOptions> globalDebuggerOptions() const = 0;
+
+public slots:
+    virtual void attachExternalApplication(ProjectExplorer::RunControl *rc) = 0;
 };
 
 // This is the only way to access the global object.

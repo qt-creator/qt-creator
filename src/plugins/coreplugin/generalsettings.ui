@@ -124,7 +124,11 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="terminalEdit"/>
+       <widget class="QComboBox" name="terminalComboBox">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="externalFileBrowserLabel">
@@ -305,7 +309,7 @@
   <tabstop>colorButton</tabstop>
   <tabstop>resetButton</tabstop>
   <tabstop>languageBox</tabstop>
-  <tabstop>terminalEdit</tabstop>
+  <tabstop>terminalComboBox</tabstop>
   <tabstop>resetTerminalButton</tabstop>
   <tabstop>externalFileBrowserEdit</tabstop>
   <tabstop>resetFileBrowserButton</tabstop>

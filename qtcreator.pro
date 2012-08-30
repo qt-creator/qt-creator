@@ -1,9 +1,9 @@
 include(qtcreator.pri)
 
 #version check qt
-!minQtVersion(4, 7, 4) {
+!minQtVersion(4, 8, 0) {
     message("Cannot build Qt Creator with Qt version $${QT_VERSION}.")
-    error("Use at least Qt 4.7.4.")
+    error("Use at least Qt 4.8.0.")
 }
 
 include(doc/doc.pri)
@@ -32,7 +32,7 @@ macx {
         deployqt.commands ~= s,/,\\\\,g
         deployartifacts.depends = install
         PLATFORM="windows"
-        deployartifacts.commands = git clone "git://gitorious.org/qt-creator/binary-artifacts.git"&& xcopy /s /q /y /i "binary-artifacts\\win32" $(INSTALL_ROOT)&& rmdir /s binary-artifacts
+        deployartifacts.commands = git clone "git://gitorious.org/qt-creator/binary-artifacts.git"&& xcopy /s /q /y /i "binary-artifacts\\win32" $(INSTALL_ROOT)&& rmdir /s /q binary-artifacts
         QMAKE_EXTRA_TARGETS += deployartifacts
     }
     else:linux-*:PLATFORM="linux-$${QT_ARCH}"

@@ -69,10 +69,7 @@ BaseQtVersion *QtVersionFactory::createQtVersionFromQMakePath(const Utils::FileN
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &msgHandler);
     ProFileEvaluator evaluator(&globals, &parser, &msgHandler);
-    if (ProFile *pro = parser.parsedProFile(mkspec.toString() + QLatin1String("/qmake.conf"))) {
-        evaluator.accept(pro, QMakeEvaluator::LoadProOnly);
-        pro->deref();
-    }
+    evaluator.loadNamedSpec(mkspec.toString(), false);
 
     QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
     qSort(factories.begin(), factories.end(), &sortByPriority);

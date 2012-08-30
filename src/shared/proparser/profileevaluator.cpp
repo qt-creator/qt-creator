@@ -184,6 +184,15 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
     return TT_Unknown;
 }
 
+bool ProFileEvaluator::loadNamedSpec(const QString &specDir, bool hostSpec)
+{
+    d->m_qmakespec = specDir;
+    d->m_hostBuild = hostSpec;
+
+    d->updateMkspecPaths();
+    return d->loadSpecInternal();
+}
+
 bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
 {
     return d->visitProFile(pro, QMakeHandler::EvalProjectFile, flags) == QMakeEvaluator::ReturnTrue;

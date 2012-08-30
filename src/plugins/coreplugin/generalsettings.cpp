@@ -113,10 +113,13 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
     m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadSetting());
 #ifdef Q_OS_UNIX
-    m_page->terminalEdit->setText(ConsoleProcess::terminalEmulator(settings));
+    const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
+    const QString currentTerminal = ConsoleProcess::terminalEmulator(settings);
+    m_page->terminalComboBox->addItems(availableTerminals);
+    m_page->terminalComboBox->lineEdit()->setText(currentTerminal);
 #else
     m_page->terminalLabel->hide();
-    m_page->terminalEdit->hide();
+    m_page->terminalComboBox->hide();
     m_page->resetTerminalButton->hide();
 #endif
 
@@ -175,7 +178,7 @@ void GeneralSettings::apply()
     EditorManager::instance()->setReloadSetting(IDocument::ReloadSetting(m_page->reloadBehavior->currentIndex()));
 #ifdef Q_OS_UNIX
     ConsoleProcess::setTerminalEmulator(Core::ICore::settings(),
-                                        m_page->terminalEdit->text());
+                                        m_page->terminalComboBox->lineEdit()->text());
 #ifndef Q_OS_MAC
     Utils::UnixUtils::setFileBrowser(Core::ICore::settings(), m_page->externalFileBrowserEdit->text());
 #endif
@@ -200,7 +203,7 @@ void GeneralSettings::resetInterfaceColor()
 void GeneralSettings::resetTerminal()
 {
 #if defined(Q_OS_UNIX)
-    m_page->terminalEdit->setText(ConsoleProcess::defaultTerminalEmulator() + QLatin1String(" -e"));
+    m_page->terminalComboBox->lineEdit()->setText(ConsoleProcess::defaultTerminalEmulator());
 #endif
 }
 

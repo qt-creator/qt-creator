@@ -154,6 +154,12 @@ int main(int argc, char *argv[])
         env[count] = 0;
     }
 
+
+    /* Ignore SIGTTOU. Without this, calling tcsetpgrp() from a background
+     * process group (in which we will be, once as child and once as parent)
+     * generates the mentioned signal and stops the concerned process. */
+    signal(SIGTTOU, SIG_IGN);
+
     /* Create execution result notification pipe. */
     if (pipe(chldPipe)) {
         perror("Cannot create status pipe");

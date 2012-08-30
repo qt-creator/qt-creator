@@ -244,7 +244,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->debuginfoPathChooser = new PathChooser(this);
     d->debuginfoPathChooser->setPromptDialogTitle(tr("Select Location of Debugging Information"));
     d->debuginfoPathChooser->setToolTip(tr(
-        "Base path for external debug information and debug sources."
+        "Base path for external debug information and debug sources. "
         "If empty, $SYSROOT/usr/lib/debug will be chosen."));
 
     QFrame *line = new QFrame(this);

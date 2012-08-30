@@ -485,7 +485,7 @@ bool CheckSymbols::visit(UsingDirectiveAST *)
 
 bool CheckSymbols::visit(EnumeratorAST *ast)
 {
-    addUse(ast->identifier_token, SemanticInfo::StaticUse);
+    addUse(ast->identifier_token, SemanticInfo::EnumerationUse);
     return true;
 }
 
@@ -1163,7 +1163,7 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
 
             UseKind kind = SemanticInfo::TypeUse;
             if (c->enclosingEnum() != 0)
-                kind = SemanticInfo::StaticUse;
+                kind = SemanticInfo::EnumerationUse;
 
             const Use use(line, column, length, kind);
             addUse(use);

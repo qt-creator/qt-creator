@@ -281,19 +281,69 @@ void ConsoleProcess::stubExited()
     emit wrapperStopped();
 }
 
+struct Terminal {
+    const char *binary;
+    const char *options;
+};
+
+static const Terminal knownTerminals[] =
+{
+    {"xterm", "-e"},
+    {"aterm", "-e"},
+    {"Eterm", "-e"},
+    {"rxvt", "-e"},
+    {"urxvt", "-e"},
+    {"xfce4-terminal", "-x"},
+    {"konsole", "--nofork -e"},
+    {"gnome-terminal", "-x"}
+};
+
 QString ConsoleProcess::defaultTerminalEmulator()
 {
     if (Utils::HostOsInfo::isMacHost())
         return QLatin1String("/usr/X11/bin/xterm");
-    return QLatin1String("xterm");
+
+    const Environment env = Environment::systemEnvironment();
+    const int terminalCount = int(sizeof(knownTerminals) / sizeof(knownTerminals[0]));
+    for (int i = 0; i < terminalCount; ++i) {
+        QString result = env.searchInPath(QLatin1String(knownTerminals[i].binary));
+        if (!result.isEmpty()) {
+            result += QLatin1Char(' ');
+            result += QLatin1String(knownTerminals[i].options);
+            return result;
+        }
+    }
+    return QLatin1String("xterm -e");
+}
+
+QStringList ConsoleProcess::availableTerminalEmulators()
+{
+    if (Utils::HostOsInfo::isMacHost())
+        return QStringList(defaultTerminalEmulator());
+
+    QStringList result;
+    const Environment env = Environment::systemEnvironment();
+    const int terminalCount = int(sizeof(knownTerminals) / sizeof(knownTerminals[0]));
+    for (int i = 0; i < terminalCount; ++i) {
+        QString terminal = env.searchInPath(QLatin1String(knownTerminals[i].binary));
+        if (!terminal.isEmpty()) {
+            terminal += QLatin1Char(' ');
+            terminal += QLatin1String(knownTerminals[i].options);
+            result.push_back(terminal);
+        }
+    }
+    result.sort();
+    return result;
 }
 
 QString ConsoleProcess::terminalEmulator(const QSettings *settings)
 {
-    const QString dflt = defaultTerminalEmulator() + QLatin1String(" -e");
-    if (!settings)
-        return dflt;
-    return settings->value(QLatin1String("General/TerminalEmulator"), dflt).toString();
+    if (settings) {
+        const QString value = settings->value(QLatin1String("General/TerminalEmulator")).toString();
+        if (!value.isEmpty())
+            return value;
+    }
+    return defaultTerminalEmulator();
 }
 
 void ConsoleProcess::setTerminalEmulator(QSettings *settings, const QString &term)

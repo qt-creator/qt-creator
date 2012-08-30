@@ -29,6 +29,7 @@
 **************************************************************************/
 
 #include "gdboptionspage.h"
+#include "commonoptionspage.h"
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggerinternalconstants.h"
@@ -181,22 +182,16 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "when starting GDB.</body></html>"));
 
     checkBoxBreakOnWarning = new QCheckBox(groupBoxGeneral);
-    checkBoxBreakOnWarning->setText(GdbOptionsPage::tr("Stop when qWarning() is called"));
-    checkBoxBreakOnWarning->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>Always add a breakpoint on the <i>qWarning()</i> function."
-        "</body></html>"));
+    checkBoxBreakOnWarning->setText(CommonOptionsPage::msgSetBreakpointAtFunction("qWarning"));
+    checkBoxBreakOnWarning->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qWarning"));
 
     checkBoxBreakOnFatal = new QCheckBox(groupBoxGeneral);
-    checkBoxBreakOnFatal->setText(GdbOptionsPage::tr("Stop when qFatal() is called"));
-    checkBoxBreakOnFatal->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>Always add a breakpoint on the <i>qFatal()</i> function."
-        "</body></html>"));
+    checkBoxBreakOnFatal->setText(CommonOptionsPage::msgSetBreakpointAtFunction("qFatal"));
+    checkBoxBreakOnFatal->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("qFatal"));
 
     checkBoxBreakOnAbort = new QCheckBox(groupBoxGeneral);
-    checkBoxBreakOnAbort->setText(GdbOptionsPage::tr("Stop when abort() is called"));
-    checkBoxBreakOnAbort->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body><p>Always add a breakpoint on the <i>abort()</i> function."
-        "</p></body></html>"));
+    checkBoxBreakOnAbort->setText(CommonOptionsPage::msgSetBreakpointAtFunction("abort"));
+    checkBoxBreakOnAbort->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("abort"));
 
     checkBoxEnableReverseDebugging = new QCheckBox(groupBoxGeneral);
     checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
