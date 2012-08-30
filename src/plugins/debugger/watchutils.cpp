@@ -280,16 +280,59 @@ bool hasSideEffects(const QString &exp)
 bool isKeyWord(const QString &exp)
 {
     // FIXME: incomplete
-    return exp == QLatin1String("class")
-        || exp == QLatin1String("const")
-        || exp == QLatin1String("do")
-        || exp == QLatin1String("if")
-        || exp == QLatin1String("return")
-        || exp == QLatin1String("struct")
-        || exp == QLatin1String("template")
-        || exp == QLatin1String("void")
-        || exp == QLatin1String("volatile")
-        || exp == QLatin1String("while");
+    QTC_ASSERT(!exp.isEmpty(), return false);
+    switch (exp.at(0).toAscii()) {
+    case 'a':
+        return exp == QLatin1String("auto");
+    case 'b':
+        return exp == QLatin1String("break");
+    case 'c':
+        return exp == QLatin1String("case") || exp == QLatin1String("class")
+               || exp == QLatin1String("const") || exp == QLatin1String("constexpr")
+               || exp == QLatin1String("catch") || exp == QLatin1String("continue")
+               || exp == QLatin1String("const_cast");
+    case 'd':
+        return exp == QLatin1String("do") || exp == QLatin1String("default")
+               || exp == QLatin1String("delete") || exp == QLatin1String("decltype")
+               || exp == QLatin1String("dynamic_cast");
+    case 'e':
+        return exp == QLatin1String("else") || exp == QLatin1String("extern")
+               || exp == QLatin1String("enum") || exp == QLatin1String("explicit");
+    case 'f':
+        return exp == QLatin1String("for") || exp == QLatin1String("friend");  // 'final'?
+    case 'g':
+        return exp == QLatin1String("goto");
+    case 'i':
+        return exp == QLatin1String("if") || exp == QLatin1String("inline");
+    case 'n':
+        return exp == QLatin1String("new") || exp == QLatin1String("namespace")
+               || exp == QLatin1String("noexcept");
+    case 'm':
+        return exp == QLatin1String("mutable");
+    case 'o':
+        return exp == QLatin1String("operator"); // 'override'?
+    case 'p':
+        return exp == QLatin1String("public") || exp == QLatin1String("protected")
+               || exp == QLatin1String("private");
+    case 'r':
+        return exp == QLatin1String("return") || exp == QLatin1String("register")
+               || exp == QLatin1String("reinterpret_cast");
+    case 's':
+        return exp == QLatin1String("struct") || exp == QLatin1String("switch")
+               || exp == QLatin1String("static_cast");
+    case 't':
+        return exp == QLatin1String("template") || exp == QLatin1String("typename")
+               || exp == QLatin1String("try") || exp == QLatin1String("throw")
+               || exp == QLatin1String("typedef");
+    case 'u':
+        return exp == QLatin1String("union") || exp == QLatin1String("using");
+    case 'v':
+        return exp == QLatin1String("void") || exp == QLatin1String("volatile")
+               || exp == QLatin1String("virtual");
+    case 'w':
+        return exp == QLatin1String("while");
+    }
+    return false;
 }
 
 bool startsWithDigit(const QString &str)
