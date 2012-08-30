@@ -191,7 +191,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
 
     checkBoxBreakOnAbort = new QCheckBox(groupBoxGeneral);
     checkBoxBreakOnAbort->setText(CommonOptionsPage::msgSetBreakpointAtFunction("abort"));
-    checkBoxBreakOnAbort->setText(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("abort"));
+    checkBoxBreakOnAbort->setToolTip(CommonOptionsPage::msgSetBreakpointAtFunctionToolTip("abort"));
 
     checkBoxEnableReverseDebugging = new QCheckBox(groupBoxGeneral);
     checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
