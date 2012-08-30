@@ -60,26 +60,6 @@ int main(int argc, char *argv[])
     }
 
     {
-        const QString rootPath = QLatin1String("../appwizards/qmlimportscenario_02/");
-        QtQuickApp sAppImport02;
-        sAppImport02.setProjectPath(projectPath);
-        sAppImport02.setProjectName(QLatin1String("qml_imported_scenario_02"));
-        sAppImport02.setMainQml(QtQuickApp::ModeImport, rootPath + QLatin1String("subfolder1/myqmlapp.qml"));
-        QStringList moduleNames;
-        moduleNames.append(QLatin1String("no.trolltech.QmlModule01"));
-        moduleNames.append(QLatin1String("com.nokia.QmlModule02"));
-        QStringList importPaths;
-        importPaths.append(rootPath + QLatin1String("subfolder2/"));
-        importPaths.append(rootPath + QLatin1String("subfolder3/"));
-        if (!sAppImport02.setExternalModules(moduleNames, importPaths)) {
-            qDebug() << sAppImport02.error();
-            return 2;
-        }
-        if (!sAppImport02.generateFiles(&errorMessage))
-            return 1;
-    }
-
-    {
         Html5App sAppNew;
         sAppNew.setProjectPath(projectPath);
         sAppNew.setProjectName(QLatin1String("new_html5_app"));

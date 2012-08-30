@@ -39,42 +39,6 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class QtQuickApp;
-struct QmlCppPlugin;
-
-struct QmlModule
-{
-    enum Path {
-        // Example: Module "com.foo.bar" in "c:/modules/".
-        // "qmldir" file is in "c:/modules/com/foo/bar/".
-        // Application .pro file is "c:/app/app.pro".
-        Root,                   // "c:/modules/" (absolute)
-        ContentDir,             // "../modules/com/foo/bar" (relative form .pro file)
-        ContentBase,            // "com/foo/"
-        DeployedContentBase     // "<qmlmodules>/com/foo" (on deploy target)
-    };
-
-    QmlModule(const QString &name, const QFileInfo &rootDir, const QFileInfo &qmldir,
-              bool isExternal, QtQuickApp *qtQuickApp);
-    QString path(Path path) const;
-    const QString uri;              // "com.foo.bar"
-    const QFileInfo rootDir;        // Location of "com/"
-    const QFileInfo qmldir;         // 'qmldir' file.
-    const bool isExternal;          // Either external or inside a source paths
-    const QtQuickApp *qtQuickApp;
-    QHash<QString, QmlCppPlugin *> cppPlugins;   // Just as info. No ownership.
-};
-
-struct QmlCppPlugin
-{
-    QmlCppPlugin(const QString &name, const QFileInfo &path,
-                 const QmlModule *module, const QFileInfo &proFile);
-    const QString name;             // Original name
-    const QFileInfo path;           // Plugin path where qmldir points to
-    const QmlModule *module;
-    const QFileInfo proFile;        // .pro file for the plugin
-};
-
 struct QtQuickAppGeneratedFileInfo : public AbstractGeneratedFileInfo
 {
     enum ExtendedFileType {
@@ -103,7 +67,6 @@ public:
         AppViewerHOrigin,
         QmlDir,
         QmlDirProFileRelative,
-        ModulesDir,
         MainPageQml,
         MainPageQmlOrigin
     };
@@ -119,14 +82,12 @@ public:
     };
 
     QtQuickApp();
-    virtual ~QtQuickApp();
 
     void setComponentSet(ComponentSet componentSet);
     ComponentSet componentSet() const;
 
     void setMainQml(Mode mode, const QString &file = QString());
     Mode mainQmlMode() const;
-    bool setExternalModules(const QStringList &uris, const QStringList &importPaths);
 
 #ifndef CREATORLESSTEST
     virtual Core::GeneratedFiles generateFiles(QString *errorMessage) const;
@@ -134,7 +95,6 @@ public:
     bool generateFiles(QString *errorMessage) const;
 #endif // CREATORLESSTEST
     bool useExistingMainQml() const;
-    const QList<QmlModule*> modules() const;
 
     static const int StubVersion;
 
@@ -152,18 +112,10 @@ private:
     QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
     QList<DeploymentFolder> deploymentFolders() const;
 
-    bool addExternalModule(const QString &uri, const QFileInfo &dir,
-                           const QFileInfo &contentDir);
-    bool addCppPlugins(QmlModule *module);
-    bool addCppPlugin(const QString &qmldirLine, QmlModule *module);
-    void clearModulesAndPlugins();
     QString componentSetDir(ComponentSet componentSet) const;
 
     QFileInfo m_mainQmlFile;
     Mode m_mainQmlMode;
-    QStringList m_importPaths;
-    QList<QmlModule *> m_modules;
-    QList<QmlCppPlugin *> m_cppPlugins;
     ComponentSet m_componentSet;
 };
 

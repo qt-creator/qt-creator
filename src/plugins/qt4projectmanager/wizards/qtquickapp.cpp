@@ -43,57 +43,11 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-const QString qmldir(QLatin1String("qmldir"));
-const QString qmldir_plugin(QLatin1String("plugin"));
 const QString appViewerBaseName(QLatin1String("qmlapplicationviewer"));
 const QString appViewerPriFileName(appViewerBaseName + QLatin1String(".pri"));
 const QString appViewerCppFileName(appViewerBaseName + QLatin1String(".cpp"));
 const QString appViewerHFileName(appViewerBaseName + QLatin1String(".h"));
 const QString appViewerOriginsSubDir(appViewerBaseName + QLatin1Char('/'));
-
-QmlModule::QmlModule(const QString &uri, const QFileInfo &rootDir, const QFileInfo &qmldir,
-                     bool isExternal, QtQuickApp *qtQuickApp)
-    : uri(uri)
-    , rootDir(rootDir)
-    , qmldir(qmldir)
-    , isExternal(isExternal)
-    , qtQuickApp(qtQuickApp)
-{}
-
-QString QmlModule::path(Path path) const
-{
-    switch (path) {
-        case Root: {
-            return rootDir.canonicalFilePath();
-        }
-        case ContentDir: {
-            const QDir proFile(qtQuickApp->path(QtQuickApp::AppProPath));
-            return proFile.relativeFilePath(qmldir.canonicalPath());
-        }
-        case ContentBase: {
-            const QString localRoot = rootDir.canonicalFilePath() + QLatin1Char('/');
-            QDir contentDir = qmldir.dir();
-            contentDir.cdUp();
-            const QString localContentDir = contentDir.canonicalPath();
-            return localContentDir.right(localContentDir.length() - localRoot.length());
-        }
-        case DeployedContentBase: {
-            const QString modulesDir = qtQuickApp->path(QtQuickApp::ModulesDir);
-            return modulesDir + QLatin1Char('/') + this->path(ContentBase);
-        }
-        default: qFatal("QmlModule::path() needs more work");
-    }
-    return QString();
-}
-
-QmlCppPlugin::QmlCppPlugin(const QString &name, const QFileInfo &path,
-                           const QmlModule *module, const QFileInfo &proFile)
-    : name(name)
-    , path(path)
-    , module(module)
-    , proFile(proFile)
-{
-}
 
 QtQuickApp::QtQuickApp()
     : AbstractMobileApp()
@@ -101,11 +55,6 @@ QtQuickApp::QtQuickApp()
     , m_componentSet(QtQuick10Components)
 {
     m_canSupportMeegoBooster = true;
-}
-
-QtQuickApp::~QtQuickApp()
-{
-    clearModulesAndPlugins();
 }
 
 void QtQuickApp::setComponentSet(ComponentSet componentSet)
@@ -128,47 +77,6 @@ void QtQuickApp::setMainQml(Mode mode, const QString &file)
 QtQuickApp::Mode QtQuickApp::mainQmlMode() const
 {
     return m_mainQmlMode;
-}
-
-bool QtQuickApp::setExternalModules(const QStringList &uris,
-                                    const QStringList &importPaths)
-{
-    clearModulesAndPlugins();
-    m_importPaths.clear();
-    foreach (const QFileInfo &importPath, importPaths) {
-        if (!importPath.exists()) {
-            m_error = QCoreApplication::translate(
-                        "Qt4ProjectManager::Internal::QtQuickApp",
-                        "The QML import path '%1' cannot be found.")
-                      .arg(QDir::toNativeSeparators(importPath.filePath()));
-            return false;
-        } else {
-            m_importPaths.append(importPath.canonicalFilePath());
-        }
-    }
-    foreach (const QString &uri, uris) {
-        QString uriPath = uri;
-        uriPath.replace(QLatin1Char('.'), QLatin1Char('/'));
-        const int modulesCount = m_modules.count();
-        foreach (const QFileInfo &importPath, m_importPaths) {
-            const QFileInfo qmlDirFile(
-                    importPath.absoluteFilePath() + QLatin1Char('/')
-                    + uriPath + QLatin1Char('/') + qmldir);
-            if (qmlDirFile.exists()) {
-                if (!addExternalModule(uri, importPath, qmlDirFile))
-                    return false;
-                break;
-            }
-        }
-        if (modulesCount == m_modules.count()) { // no module was added
-            m_error = QCoreApplication::translate(
-                      "Qt4ProjectManager::Internal::QtQuickApp",
-                      "The QML module '%1' cannot be found.").arg(uri);
-            return false;
-        }
-    }
-    m_error.clear();
-    return true;
 }
 
 QString QtQuickApp::pathExtended(int fileType) const
@@ -205,7 +113,6 @@ QString QtQuickApp::pathExtended(int fileType) const
         case QmlDir:                        return pathBase + qmlSubDir;
         case QmlDirProFileRelative:         return importQmlFile ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
                                                                  : QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
-        case ModulesDir:                    return QLatin1String("modules");
         default:                            qFatal("QtQuickApp::pathExtended() needs more work");
     }
     return QString();
@@ -225,14 +132,9 @@ bool QtQuickApp::adaptCurrentMainCppTemplateLine(QString &line) const
 {
     const QLatin1Char quote('"');
 
-    if (line.contains(QLatin1String("// MAINQML"))) {
+    if (line.contains(QLatin1String("// MAINQML")))
         insertParameter(line, quote + path(MainQmlDeployed) + quote);
-    } else if (line.contains(QLatin1String("// ADDIMPORTPATH"))) {
-        if (m_modules.isEmpty())
-            return false;
-        else
-            insertParameter(line, quote + path(ModulesDir) + quote);
-    }
+
     return true;
 }
 
@@ -245,100 +147,13 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
         QString nextLine = proFileTemplate.readLine(); // eats 'QML_IMPORT_PATH ='
         if (!nextLine.startsWith(QLatin1String("QML_IMPORT_PATH =")))
             return;
-
-        proFile << nextLine;
-
-        const QLatin1String separator(" \\\n    ");
-        const QDir proPath(path(AppProPath));
-        foreach (const QString &importPath, m_importPaths) {
-            const QString relativePath = proPath.relativeFilePath(importPath);
-            proFile << separator << relativePath;
-        }
-
-        proFile << endl;
+        proFile << nextLine << endl;
     } else if (line.contains(QLatin1String("# HARMATTAN_BOOSTABLE"))) {
         QString nextLine = proFileTemplate.readLine(); // eats '# CONFIG += qdeclarative-boostable'
         if (supportsMeegoBooster())
             nextLine.remove(0, 2); // remove comment
         proFile << nextLine << endl;
     }
-}
-
-void QtQuickApp::clearModulesAndPlugins()
-{
-    qDeleteAll(m_modules);
-    m_modules.clear();
-    qDeleteAll(m_cppPlugins);
-    m_cppPlugins.clear();
-}
-
-bool QtQuickApp::addCppPlugin(const QString &qmldirLine, QmlModule *module)
-{
-    const QStringList qmldirLineElements =
-            qmldirLine.split(QLatin1Char(' '), QString::SkipEmptyParts);
-    if (qmldirLineElements.count() < 2) {
-        m_error = QCoreApplication::translate(
-                      "Qt4ProjectManager::Internal::QtQuickApp",
-                      "Invalid '%1' entry in '%2' of module '%3'.")
-                  .arg(qmldir_plugin).arg(qmldir).arg(module->uri);
-        return false;
-    }
-    const QString name = qmldirLineElements.at(1);
-    const QFileInfo path(module->qmldir.dir(), qmldirLineElements.value(2, QString()));
-
-    // TODO: Add more magic to find a good .pro file..
-    const QString proFileName = name + QLatin1String(".pro");
-    const QFileInfo proFile_guess1(module->qmldir.dir(), proFileName);
-    const QFileInfo proFile_guess2(QString(module->qmldir.dir().absolutePath() + QLatin1String("/../")),
-                                   proFileName);
-    const QFileInfo proFile_guess3(module->qmldir.dir(),
-                                   QFileInfo(module->qmldir.path()).fileName() + QLatin1String(".pro"));
-    const QFileInfo proFile_guess4(proFile_guess3.absolutePath() + QLatin1String("/../")
-                                   + proFile_guess3.fileName());
-
-    QFileInfo foundProFile;
-    if (proFile_guess1.exists()) {
-        foundProFile = proFile_guess1.canonicalFilePath();
-    } else if (proFile_guess2.exists()) {
-        foundProFile = proFile_guess2.canonicalFilePath();
-    } else if (proFile_guess3.exists()) {
-        foundProFile = proFile_guess3.canonicalFilePath();
-    } else if (proFile_guess4.exists()) {
-        foundProFile = proFile_guess4.canonicalFilePath();
-    } else {
-        m_error = QCoreApplication::translate(
-                    "Qt4ProjectManager::Internal::QtQuickApp",
-                    "No .pro file for plugin '%1' can be found.").arg(name);
-        return false;
-    }
-    QmlCppPlugin *plugin =
-            new QmlCppPlugin(name, path, module, foundProFile);
-    m_cppPlugins.append(plugin);
-    module->cppPlugins.insert(name, plugin);
-    return true;
-}
-
-bool QtQuickApp::addCppPlugins(QmlModule *module)
-{
-    QFile qmlDirFile(module->qmldir.absoluteFilePath());
-    if (qmlDirFile.open(QIODevice::ReadOnly)) {
-        QTextStream in(&qmlDirFile);
-        QString line;
-        while (!(line = in.readLine()).isNull()) {
-            line = line.trimmed();
-            if (line.startsWith(qmldir_plugin) && !addCppPlugin(line, module))
-                return false;
-        };
-    }
-    return true;
-}
-
-bool QtQuickApp::addExternalModule(const QString &name, const QFileInfo &dir,
-                                         const QFileInfo &contentDir)
-{
-    QmlModule *module = new QmlModule(name, dir, contentDir, true, this);
-    m_modules.append(module);
-    return addCppPlugins(module);
 }
 
 #ifndef CREATORLESSTEST
@@ -363,11 +178,6 @@ Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
 bool QtQuickApp::useExistingMainQml() const
 {
     return !m_mainQmlFile.filePath().isEmpty();
-}
-
-const QList<QmlModule*> QtQuickApp::modules() const
-{
-    return m_modules;
 }
 
 QByteArray QtQuickApp::generateFileExtended(int fileType,
@@ -438,9 +248,6 @@ QList<DeploymentFolder> QtQuickApp::deploymentFolders() const
 {
     QList<DeploymentFolder> result;
     result.append(DeploymentFolder(path(QmlDirProFileRelative), QLatin1String("qml")));
-    foreach (const QmlModule *module, m_modules)
-        if (module->isExternal)
-            result.append(DeploymentFolder(module->path(QmlModule::ContentDir), module->path(QmlModule::DeployedContentBase)));
     return result;
 }
 
