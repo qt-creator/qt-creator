@@ -32,6 +32,7 @@
 #define QMLPROJECTITEM_H
 
 #include <QObject>
+#include <QSet>
 #include <QStringList>
 #include <qdeclarative.h>
 
