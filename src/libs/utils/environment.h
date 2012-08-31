@@ -79,6 +79,8 @@ public:
     QList<EnvironmentItem> diff(const Environment &other) const;
     bool hasKey(const QString &key);
 
+    QString userName() const;
+
     void appendOrSet(const QString &key, const QString &value, const QString &sep = QString());
     void prependOrSet(const QString &key, const QString &value, const QString &sep = QString());
 

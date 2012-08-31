@@ -39,7 +39,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/hostosinfo.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 
 #include <QSettings>
@@ -151,8 +151,7 @@ static bool keyWordReplacement(const QString &keyWord,
         return true;
     }
     if (keyWord == QLatin1String("%USER%")) {
-        const char * const envKey = Utils::HostOsInfo::isWindowsHost() ? "USERNAME" : "USER";
-        *value = QString::fromLocal8Bit(qgetenv(envKey));
+        *value = Utils::Environment::systemEnvironment().userName();
         return true;
     }
     // Environment variables (for example '%$EMAIL%').

@@ -383,6 +383,11 @@ bool Environment::hasKey(const QString &key)
     return m_values.contains(key);
 }
 
+QString Environment::userName() const
+{
+    return value(QLatin1String(HostOsInfo::isWindowsHost() ? "USERNAME" : "USER"));
+}
+
 bool Environment::operator!=(const Environment &other) const
 {
     return !(*this == other);
