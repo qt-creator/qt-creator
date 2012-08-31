@@ -1022,7 +1022,8 @@ void GdbEngine::handleDebuggingHelperValue2Classic(const GdbResponse &response)
     parseWatchData(watchHandler()->expandedINames(), data, contents, &list);
     //for (int i = 0; i != list.size(); ++i)
     //    qDebug() << "READ: " << list.at(i).toString();
-    watchHandler()->insertData(list);
+    foreach (const WatchData &data, list)
+        insertData(data);
 }
 
 void GdbEngine::handleDebuggingHelperValue3Classic(const GdbResponse &response)
