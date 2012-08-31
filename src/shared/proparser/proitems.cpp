@@ -30,10 +30,10 @@
 
 #include "proitems.h"
 
-#include <QFileInfo>
-#include <QSet>
-#include <QStringList>
-#include <QTextStream>
+#include <qfileinfo.h>
+#include <qset.h>
+#include <qstringlist.h>
+#include <qtextstream.h>
 
 QT_BEGIN_NAMESPACE
 

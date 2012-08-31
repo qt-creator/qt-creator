@@ -31,7 +31,7 @@
 #ifndef IOUTILS_H
 #define IOUTILS_H
 
-#include <QString>
+#include <qstring.h>
 
 QT_BEGIN_NAMESPACE
 

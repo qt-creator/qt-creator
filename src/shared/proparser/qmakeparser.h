@@ -33,11 +33,12 @@
 
 #include "qmake_global.h"
 #include "proitems.h"
-#include <QHash>
-#include <QStack>
+
+#include <qhash.h>
+#include <qstack.h>
 #ifdef PROPARSER_THREAD_SAFE
-# include <QMutex>
-# include <QWaitCondition>
+# include <qmutex.h>
+# include <qwaitcondition.h>
 #endif
 
 QT_BEGIN_NAMESPACE

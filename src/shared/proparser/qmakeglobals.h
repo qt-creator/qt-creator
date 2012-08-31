@@ -38,14 +38,14 @@
 #  include <property.h>
 #endif
 
-#include <QHash>
-#include <QStringList>
+#include <qhash.h>
+#include <qstringlist.h>
 #ifndef QT_BOOTSTRAPPED
-# include <QProcess>
+# include <qprocess.h>
 #endif
 #ifdef PROEVALUATOR_THREAD_SAFE
-# include <QMutex>
-# include <QWaitCondition>
+# include <qmutex.h>
+# include <qwaitcondition.h>
 #endif
 
 QT_BEGIN_NAMESPACE

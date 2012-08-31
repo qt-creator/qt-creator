@@ -38,14 +38,14 @@
 #include "qmakeparser.h"
 #include "ioutils.h"
 
-#include <QList>
-#include <QLinkedList>
-#include <QSet>
-#include <QStack>
-#include <QString>
-#include <QStringList>
+#include <qlist.h>
+#include <qlinkedlist.h>
+#include <qset.h>
+#include <qstack.h>
+#include <qstring.h>
+#include <qstringlist.h>
 #ifndef QT_BOOTSTRAPPED
-# include <QProcess>
+# include <qprocess.h>
 #endif
 
 QT_BEGIN_NAMESPACE

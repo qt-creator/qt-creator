@@ -35,15 +35,15 @@
 #include "qmakeparser.h"
 #include "ioutils.h"
 
-#include <QByteArray>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QList>
-#include <QRegExp>
-#include <QSet>
-#include <QStringList>
-#include <QTextStream>
+#include <qbytearray.h>
+#include <qdir.h>
+#include <qfile.h>
+#include <qfileinfo.h>
+#include <qlist.h>
+#include <qregexp.h>
+#include <qset.h>
+#include <qstringlist.h>
+#include <qtextstream.h>
 
 #ifdef Q_OS_UNIX
 #include <time.h>

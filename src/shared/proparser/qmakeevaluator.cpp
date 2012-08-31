@@ -35,20 +35,20 @@
 #include "qmakeevaluator_p.h"
 #include "ioutils.h"
 
-#include <QByteArray>
-#include <QDateTime>
-#include <QDebug>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QList>
-#include <QRegExp>
-#include <QSet>
-#include <QStack>
-#include <QString>
-#include <QStringList>
+#include <qbytearray.h>
+#include <qdatetime.h>
+#include <qdebug.h>
+#include <qdir.h>
+#include <qfile.h>
+#include <qfileinfo.h>
+#include <qlist.h>
+#include <qregexp.h>
+#include <qset.h>
+#include <qstack.h>
+#include <qstring.h>
+#include <qstringlist.h>
 #ifdef PROEVALUATOR_THREAD_SAFE
-# include <QThreadPool>
+# include <qthreadpool.h>
 #endif
 
 #ifdef Q_OS_UNIX

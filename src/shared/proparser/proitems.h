@@ -33,9 +33,9 @@
 
 #include "qmake_global.h"
 
-#include <QString>
-#include <QVector>
-#include <QHash>
+#include <qstring.h>
+#include <qvector.h>
+#include <qhash.h>
 
 QT_BEGIN_NAMESPACE
 

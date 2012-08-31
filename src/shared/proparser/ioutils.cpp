@@ -30,8 +30,8 @@
 
 #include "ioutils.h"
 
-#include <QDir>
-#include <QFile>
+#include <qdir.h>
+#include <qfile.h>
 
 #ifdef Q_OS_WIN
 #  include <windows.h>
