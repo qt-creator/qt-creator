@@ -466,7 +466,7 @@ bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
     int line;
     int column;
     DebuggerToolTipContext context = contextIn;
-    QString exp = cppExpressionAt(editor, context.position, &line, &column, &context.function);
+    QString exp = fixCppExpression(cppExpressionAt(editor, context.position, &line, &column, &context.function));
     // Are we in the current stack frame
     if (context.function.isEmpty() || exp.isEmpty() || context.function != stackHandler()->currentFrame().function)
         return false;

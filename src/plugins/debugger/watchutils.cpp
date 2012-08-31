@@ -805,6 +805,49 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
     return expr;
 }
 
+// Ensure an expression can be added as side-effect
+// free debugger expression.
+QString fixCppExpression(const QString &expIn)
+{
+    QString exp = expIn;
+    // Extract the first identifier, everything else is considered
+    // too dangerous.
+    int pos1 = 0, pos2 = exp.size();
+    bool inId = false;
+    for (int i = 0; i != exp.size(); ++i) {
+        const QChar c = exp.at(i);
+        const bool isIdChar = c.isLetterOrNumber() || c.unicode() == '_';
+        if (inId && !isIdChar) {
+            pos2 = i;
+            break;
+        }
+        if (!inId && isIdChar) {
+            inId = true;
+            pos1 = i;
+        }
+    }
+    exp = exp.mid(pos1, pos2 - pos1);
+
+    if (exp.isEmpty() || exp.startsWith(QLatin1Char('#')) || !hasLetterOrNumber(exp) || isKeyWord(exp))
+        return QString();
+
+    if (exp.startsWith(QLatin1Char('"')) && exp.endsWith(QLatin1Char('"')))
+        return QString();
+
+    if (exp.startsWith(QLatin1String("++")) || exp.startsWith(QLatin1String("--")))
+        exp.remove(0, 2);
+
+    if (exp.endsWith(QLatin1String("++")) || exp.endsWith(QLatin1String("--")))
+        exp.truncate(exp.size() - 2);
+
+    if (exp.startsWith(QLatin1Char('<')) || exp.startsWith(QLatin1Char('[')))
+        return QString();
+
+    if (hasSideEffects(exp) || exp.isEmpty())
+        return QString();
+    return exp;
+}
+
 QString cppFunctionAt(const QString &fileName, int line)
 {
     using namespace CppTools;
