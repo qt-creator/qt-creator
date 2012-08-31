@@ -228,8 +228,11 @@ void ModulesModel::removeModule(const QString &modulePath)
 void ModulesModel::updateModule(const Module &module)
 {
     const int row = indexOfModule(module.modulePath);
+    const QString path = module.modulePath;
+    if (path.isEmpty())
+        return;
     try { // MinGW occasionallly throws std::bad_alloc.
-        ElfReader reader(module.modulePath);
+        ElfReader reader(path);
         ElfData elfData = reader.readHeaders();
 
         if (row == -1) {
