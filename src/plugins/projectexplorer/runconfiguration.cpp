@@ -558,6 +558,11 @@ Abi RunControl::abi() const
     return Abi();
 }
 
+RunConfiguration *RunControl::runConfiguration() const
+{
+    return m_runConfiguration.data();
+}
+
 ProcessHandle RunControl::applicationProcessHandle() const
 {
     return m_applicationProcessHandle;

@@ -637,22 +637,27 @@ private:
 void fillParameters(DebuggerStartParameters *sp, const Profile *profile /* = 0 */)
 {
     if (!profile) {
-        // This code can only be reached when starting via the command
-        // (-debug pid or executable) without specifying a profile.
-        // Try to find a profile via ABI.
-        if (sp->executable.isEmpty()
-            && (sp->startMode == AttachExternal || sp->startMode == AttachCrashedExternal)) {
-            sp->executable = executableForPid(sp->attachPID);
+        // This code can only be reached when starting via the command line
+        // (-debug pid or executable) or attaching from runconfiguration
+        // without specifying a profile. Try to find a profile via ABI.
+        QList<Abi> abis;
+        if (sp->toolChainAbi.isValid()) {
+            abis.push_back(sp->toolChainAbi);
+        } else {
+            // Try via executable.
+            if (sp->executable.isEmpty()
+                && (sp->startMode == AttachExternal || sp->startMode == AttachCrashedExternal)) {
+                sp->executable = executableForPid(sp->attachPID);
+            }
+            if (!sp->executable.isEmpty())
+                abis = Abi::abisOfBinary(Utils::FileName::fromString(sp->executable));
         }
-        if (!sp->executable.isEmpty()) {
-            const QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(sp->executable));
-            if (!abis.isEmpty()) {
-                AbiProfileMatcher matcher(abis);
+        if (!abis.isEmpty()) {
+            AbiProfileMatcher matcher(abis);
+            profile = ProfileManager::instance()->find(&matcher);
+            if (!profile) {
+                CompatibleAbiProfileMatcher matcher(abis);
                 profile = ProfileManager::instance()->find(&matcher);
-                if (!profile) {
-                    CompatibleAbiProfileMatcher matcher(abis);
-                    profile = ProfileManager::instance()->find(&matcher);
-                }
             }
         }
         if (!profile)
@@ -1694,12 +1699,16 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
 void DebuggerPluginPrivate::attachExternalApplication(ProjectExplorer::RunControl *rc)
 {
     DebuggerStartParameters sp;
-    fillParameters(&sp);
     sp.attachPID = rc->applicationProcessHandle().pid();
     sp.displayName = tr("Process %1").arg(sp.attachPID);
     sp.startMode = AttachExternal;
     sp.closeMode = DetachAtClose;
     sp.toolChainAbi = rc->abi();
+    Profile *profile = 0;
+    if (const RunConfiguration *runConfiguration = rc->runConfiguration())
+        if (const Target *target = runConfiguration->target())
+            profile = target->profile();
+    fillParameters(&sp, profile);
     DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
