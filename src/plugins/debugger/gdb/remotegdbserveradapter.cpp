@@ -37,6 +37,7 @@
 #include "gdbengine.h"
 #include "gdbmi.h"
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/fancymainwindow.h>
 #include <projectexplorer/abi.h>
@@ -157,11 +158,6 @@ void GdbRemoteServerEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     const DebuggerStartParameters &sp = startParameters();
-#ifdef Q_OS_WIN
-    #define PATHSEP ";"
-#else
-    #define PATHSEP ":"
-#endif
     QString executableFileName;
     if (!sp.executable.isEmpty()) {
         QFileInfo fi(sp.executable);
@@ -179,7 +175,8 @@ void GdbRemoteServerEngine::setupInferior()
 
 //    if (!remoteArch.isEmpty())
 //        postCommand("set architecture " + remoteArch);
-    const QString solibSearchPath = sp.solibSearchPath.join(QLatin1String(PATHSEP));
+    const QString solibSearchPath
+            = sp.solibSearchPath.join(QString(Utils::HostOsInfo::pathListSeparator()));
     if (!solibSearchPath.isEmpty())
         postCommand("set solib-search-path " + solibSearchPath.toLocal8Bit());
 

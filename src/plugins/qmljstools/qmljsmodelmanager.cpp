@@ -655,8 +655,8 @@ static QStringList environmentImportPaths()
 
     QByteArray envImportPath = qgetenv("QML_IMPORT_PATH");
 
-    const QChar pathSep = Utils::HostOsInfo::isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
-    foreach (const QString &path, QString::fromLatin1(envImportPath).split(pathSep, QString::SkipEmptyParts)) {
+    foreach (const QString &path, QString::fromLatin1(envImportPath)
+             .split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts)) {
         QString canonicalPath = QDir(path).canonicalPath();
         if (!canonicalPath.isEmpty() && !paths.contains(canonicalPath))
             paths.append(canonicalPath);

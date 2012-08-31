@@ -32,6 +32,14 @@
 
 #include "utils_global.h"
 
+#include <QString>
+
+#ifdef Q_OS_WIN
+#define QTC_HOST_EXE_SUFFIX ".exe"
+#else
+#define QTC_HOST_EXE_SUFFIX ""
+#endif // Q_OS_WIN
+
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT HostOsInfo
@@ -46,6 +54,24 @@ public:
     static bool isLinuxHost() { return hostOs() == HostOsLinux; }
     static bool isMacHost() { return hostOs() == HostOsMac; }
     static inline bool isAnyUnixHost();
+
+    static QString appendExecutableSuffix(const QString &executable)
+    {
+        QString finalName = executable;
+        if (isWindowsHost())
+            finalName += QLatin1String(QTC_HOST_EXE_SUFFIX);
+        return finalName;
+    }
+
+    static Qt::CaseSensitivity fileNameCaseSensitivity()
+    {
+        return isWindowsHost() ? Qt::CaseInsensitive: Qt::CaseSensitive;
+    }
+
+    static QChar pathListSeparator()
+    {
+        return isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
+    }
 };
 
 HostOsInfo::HostOs HostOsInfo::hostOs()

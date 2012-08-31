@@ -31,6 +31,7 @@
 #include "qmljspreviewrunner.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/synchronousprocess.h>
 
@@ -47,7 +48,7 @@ QmlJSPreviewRunner::QmlJSPreviewRunner(QObject *parent) :
 {
     // prepend creator/bin dir to search path (only useful for special creator-qml package)
     const QString searchPath = QCoreApplication::applicationDirPath()
-                               + Utils::SynchronousProcess::pathSeparator()
+                               + Utils::HostOsInfo::pathListSeparator()
                                + QString(qgetenv("PATH"));
     m_qmlViewerDefaultPath = Utils::SynchronousProcess::locateBinary(searchPath, QLatin1String("qmlviewer"));
 

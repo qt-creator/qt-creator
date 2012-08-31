@@ -1445,7 +1445,7 @@ QProcessEnvironment GitClient::processEnvironment() const
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
     QString gitPath = settings()->stringValue(GitSettings::pathKey);
     if (!gitPath.isEmpty()) {
-        gitPath += Utils::SynchronousProcess::pathSeparator();
+        gitPath += Utils::HostOsInfo::pathListSeparator();
         gitPath += environment.value(QLatin1String("PATH"));
         environment.insert(QLatin1String("PATH"), gitPath);
     }

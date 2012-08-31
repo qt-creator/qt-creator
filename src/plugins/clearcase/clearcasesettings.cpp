@@ -58,10 +58,7 @@ enum { defaultTimeOutS = 30, defaultHistoryCount = 50 };
 
 static QString defaultCommand()
 {
-    QString rc(QLatin1String("cleartool"));
-    if (Utils::HostOsInfo::isWindowsHost())
-        rc.append(QLatin1String(".exe"));
-    return rc;
+    return QLatin1String("cleartool" QTC_HOST_EXE_SUFFIX);
 }
 
 using namespace ClearCase::Internal;

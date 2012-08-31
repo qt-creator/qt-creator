@@ -444,16 +444,9 @@ void NodeInstanceServerProxy::readThirdDataStream()
 
 QString NodeInstanceServerProxy::qmlPuppetApplicationName() const
 {
-    QString appName;
-    if (hasQtQuick2(m_nodeInstanceView.data())) {
-        appName = QLatin1String("qml2puppet");
-    } else {
-        appName = QLatin1String("qmlpuppet");
-    }
-    if (Utils::HostOsInfo::isWindowsHost())
-        appName += QLatin1String(".exe");
-
-    return appName;
+    if (hasQtQuick2(m_nodeInstanceView.data()))
+        return QLatin1String("qml2puppet" QTC_HOST_EXE_SUFFIX);
+    return QLatin1String("qmlpuppet" QTC_HOST_EXE_SUFFIX);
 }
 
 QString NodeInstanceServerProxy::macOSBundlePath(const QString &path) const

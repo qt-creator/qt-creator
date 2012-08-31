@@ -62,11 +62,6 @@ Q_GLOBAL_STATIC(SystemEnvironment, staticSystemEnvironment)
 
 namespace Utils {
 
-static QChar varSeparator()
-{
-    return HostOsInfo::isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
-}
-
 static bool sortEnvironmentItem(const EnvironmentItem &a, const EnvironmentItem &b)
 {
     return a.name < b.name;
@@ -172,12 +167,14 @@ void Environment::prependOrSet(const QString&key, const QString &value, const QS
 
 void Environment::appendOrSetPath(const QString &value)
 {
-    appendOrSet(QLatin1String("PATH"), QDir::toNativeSeparators(value), QString(varSeparator()));
+    appendOrSet(QLatin1String("PATH"), QDir::toNativeSeparators(value),
+            QString(HostOsInfo::pathListSeparator()));
 }
 
 void Environment::prependOrSetPath(const QString &value)
 {
-    prependOrSet(QLatin1String("PATH"), QDir::toNativeSeparators(value), QString(varSeparator()));
+    prependOrSet(QLatin1String("PATH"), QDir::toNativeSeparators(value),
+            QString(HostOsInfo::pathListSeparator()));
 }
 
 void Environment::prependOrSetLibrarySearchPath(const QString &value)
@@ -271,7 +268,8 @@ QString Environment::searchInPath(const QStringList &executables,
 
 QStringList Environment::path() const
 {
-    return m_values.value(QLatin1String("PATH")).split(varSeparator(), QString::SkipEmptyParts);
+    return m_values.value(QLatin1String("PATH")).split(HostOsInfo::pathListSeparator(),
+                                                       QString::SkipEmptyParts);
 }
 
 QString Environment::value(const QString &key) const

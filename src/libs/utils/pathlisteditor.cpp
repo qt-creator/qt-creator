@@ -94,7 +94,7 @@ void PathListPlainTextEdit::insertFromMimeData(const QMimeData *source)
     if (source->hasText()) {
         // replace separator
         QString text = source->text().trimmed();
-        text.replace(PathListEditor::separator(), QLatin1Char('\n'));
+        text.replace(HostOsInfo::pathListSeparator(), QLatin1Char('\n'));
         QSharedPointer<QMimeData> fixed(new QMimeData);
         fixed->setText(text);
         QPlainTextEdit::insertFromMimeData(fixed.data());
@@ -190,7 +190,7 @@ int PathListEditor::lastAddActionIndex()
 
 QString PathListEditor::pathListString() const
 {
-    return pathList().join(separator());
+    return pathList().join(HostOsInfo::pathListSeparator());
 }
 
 QStringList PathListEditor::pathList() const
@@ -216,7 +216,8 @@ void PathListEditor::setPathList(const QString &pathString)
     if (pathString.isEmpty()) {
         clear();
     } else {
-        setPathList(pathString.split(separator(), QString::SkipEmptyParts));
+        setPathList(pathString.split(HostOsInfo::pathListSeparator(),
+                QString::SkipEmptyParts));
     }
 }
 
@@ -252,11 +253,6 @@ void PathListEditor::slotInsert()
     const QString dir = QFileDialog::getExistingDirectory(this, d->fileDialogTitle);
     if (!dir.isEmpty())
         insertPathAtCursor(QDir::toNativeSeparators(dir));
-}
-
-QChar PathListEditor::separator()
-{
-    return HostOsInfo::isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
 }
 
 // Add a button "Import from 'Path'"

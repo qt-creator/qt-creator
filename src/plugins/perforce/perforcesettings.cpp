@@ -58,10 +58,7 @@ enum { defaultTimeOutS = 30, defaultLogCount = 1000 };
 
 static QString defaultCommand()
 {
-    QString rc = QLatin1String("p4");
-    if (Utils::HostOsInfo::isWindowsHost())
-        rc.append(QLatin1String(".exe"));
-    return rc;
+    return QLatin1String("p4" QTC_HOST_EXE_SUFFIX);
 }
 
 namespace Perforce {

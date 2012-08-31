@@ -665,7 +665,7 @@ QString SynchronousProcess::locateBinary(const QString &path, const QString &bin
             return currentDirBinary;
     }
 
-    const QStringList paths = path.split(pathSeparator());
+    const QStringList paths = path.split(HostOsInfo::pathListSeparator());
     if (paths.empty())
         return QString();
     const QStringList::const_iterator cend = paths.constEnd();
@@ -682,11 +682,6 @@ QString SynchronousProcess::locateBinary(const QString &binary)
 {
     const QByteArray path = qgetenv("PATH");
     return locateBinary(QString::fromLocal8Bit(path), binary);
-}
-
-QChar SynchronousProcess::pathSeparator()
-{
-    return HostOsInfo::isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
 }
 
 } // namespace Utils

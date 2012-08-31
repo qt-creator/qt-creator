@@ -140,7 +140,6 @@ public:
     // and file types.
     static QString locateBinary(const QString &binary);
     static QString locateBinary(const QString &path, const QString &binary);
-    static QChar pathSeparator();
 
 signals:
     void stdOut(const QByteArray &data, bool firstTime);

@@ -50,10 +50,7 @@ enum { defaultTimeOutS = 30, defaultLogCount = 1000 };
 
 static QString defaultCommand()
 {
-    QString rc = QLatin1String("svn");
-    if (Utils::HostOsInfo::isWindowsHost())
-        rc.append(QLatin1String(".exe"));
-    return rc;
+    return QLatin1String("svn" QTC_HOST_EXE_SUFFIX);
 }
 
 using namespace Subversion::Internal;

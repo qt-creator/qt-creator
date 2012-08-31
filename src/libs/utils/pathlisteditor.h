@@ -54,8 +54,6 @@ public:
     QStringList pathList() const;
     QString fileDialogTitle() const;
 
-    static QChar separator();
-
     // Add a convenience action "Import from 'Path'" (environment variable)
     void addEnvVariableImportAction(const QString &var);
 

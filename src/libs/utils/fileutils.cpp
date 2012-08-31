@@ -413,9 +413,6 @@ TempFileSaver::~TempFileSaver()
     On windows filenames are compared case insensitively.
 */
 
-const Qt::CaseSensitivity FileName::cs
-    = HostOsInfo::isWindowsHost() ? Qt::CaseInsensitive : Qt::CaseSensitive;
-
 FileName::FileName()
     : QString()
 {
@@ -492,7 +489,7 @@ FileName::FileName(const QString &string)
 
 bool FileName::operator==(const FileName &other) const
 {
-    return QString::compare(*this, other, cs) == 0;
+    return QString::compare(*this, other, HostOsInfo::fileNameCaseSensitivity()) == 0;
 }
 
 bool FileName::operator!=(const FileName &other) const
@@ -502,12 +499,12 @@ bool FileName::operator!=(const FileName &other) const
 
 bool FileName::operator<(const FileName &other) const
 {
-    return QString::compare(*this, other, cs) < 0;
+    return QString::compare(*this, other, HostOsInfo::fileNameCaseSensitivity()) < 0;
 }
 
 bool FileName::operator<=(const FileName &other) const
 {
-    return QString::compare(*this, other, cs) <= 0;
+    return QString::compare(*this, other, HostOsInfo::fileNameCaseSensitivity()) <= 0;
 }
 
 bool FileName::operator>(const FileName &other) const
@@ -523,7 +520,7 @@ bool FileName::operator>=(const FileName &other) const
 /// \returns whether FileName is a child of \a s
 bool FileName::isChildOf(const FileName &s) const
 {
-    if (!QString::startsWith(s, cs))
+    if (!QString::startsWith(s, HostOsInfo::fileNameCaseSensitivity()))
         return false;
     if (size() <= s.size())
         return false;
@@ -539,7 +536,7 @@ bool FileName::isChildOf(const QDir &dir) const
 /// \returns whether FileName endsWith \a s
 bool FileName::endsWith(const QString &s) const
 {
-    return QString::endsWith(s, cs);
+    return QString::endsWith(s, HostOsInfo::fileNameCaseSensitivity());
 }
 
 /// \returns the relativeChildPath of FileName to parent if FileName is a child of parent

@@ -56,9 +56,7 @@ using namespace Utils;
 
 namespace Madde {
 namespace Internal {
-namespace {
-static const QLatin1String binQmake("/bin/qmake" EXEC_SUFFIX);
-} // namespace
+static const QString binQmake = QLatin1String("/bin/qmake" QTC_HOST_EXE_SUFFIX);
 
 bool MaemoGlobal::hasMaemoDevice(const Kit *k)
 {
@@ -176,9 +174,7 @@ FileName MaemoGlobal::maddeRoot(const Kit *k)
 
 QString MaemoGlobal::targetRoot(const QString &qmakePath)
 {
-    const Qt::CaseSensitivity cs = HostOsInfo::isWindowsHost()
-            ? Qt::CaseInsensitive : Qt::CaseSensitive;
-    return QDir::cleanPath(qmakePath).remove(binQmake, cs);
+    return QDir::cleanPath(qmakePath).remove(binQmake, HostOsInfo::fileNameCaseSensitivity());
 }
 
 QString MaemoGlobal::targetName(const QString &qmakePath)

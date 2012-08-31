@@ -73,8 +73,8 @@ QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName)
     QMapIterator<QString, QString> it(fileContent);
     while (it.hasNext()) {
         it.next();
-        const QChar sep = Utils::HostOsInfo::isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
-        const QStringList values = it.value().split(sep);
+        const QStringList values
+                = it.value().split(Utils::HostOsInfo::pathListSeparator());
         QString key = it.key();
         foreach (const QString &value, values) {
             const QString ownKeyAsWindowsVar = QLatin1Char('%') + key + QLatin1Char('%');

@@ -84,7 +84,7 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
         QString systemPath = QString::fromLocal8Bit(qgetenv("PATH"));
         if (!systemPath.isEmpty()) {
             if (!currentPath.isEmpty())
-                currentPath.append(Utils::SynchronousProcess::pathSeparator());
+                currentPath.append(Utils::HostOsInfo::pathListSeparator());
             currentPath.append(systemPath);
         }
         // Search in path?

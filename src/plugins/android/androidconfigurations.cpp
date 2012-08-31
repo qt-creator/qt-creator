@@ -264,7 +264,7 @@ QStringList AndroidConfigurations::ndkToolchainVersions() const
 FileName AndroidConfigurations::adbToolPath() const
 {
     FileName path = m_config.sdkLocation;
-    return path.appendPath(QLatin1String("platform-tools/adb" ANDROID_EXE_SUFFIX));
+    return path.appendPath(QLatin1String("platform-tools/adb" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::androidToolPath() const
@@ -273,7 +273,7 @@ FileName AndroidConfigurations::androidToolPath() const
         // I want to switch from using android.bat to using an executable. All it really does is call
         // Java and I've made some progress on it. So if android.exe exists, return that instead.
         FileName path = m_config.sdkLocation;
-        path.appendPath(QLatin1String("tools/android" ANDROID_EXE_SUFFIX));
+        path.appendPath(QLatin1String("tools/android" QTC_HOST_EXE_SUFFIX));
         if (path.toFileInfo().exists())
             return path;
         path = m_config.sdkLocation;
@@ -295,7 +295,7 @@ FileName AndroidConfigurations::antToolPath() const
 FileName AndroidConfigurations::emulatorToolPath() const
 {
     FileName path = m_config.sdkLocation;
-    return path.appendPath(QLatin1String("tools/emulator" ANDROID_EXE_SUFFIX));
+    return path.appendPath(QLatin1String("tools/emulator" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::toolPath(Abi::Architecture architecture) const
@@ -310,17 +310,17 @@ FileName AndroidConfigurations::toolPath(Abi::Architecture architecture) const
 
 FileName AndroidConfigurations::stripPath(Abi::Architecture architecture) const
 {
-    return toolPath(architecture).append(QLatin1String("-strip" ANDROID_EXE_SUFFIX));
+    return toolPath(architecture).append(QLatin1String("-strip" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::readelfPath(Abi::Architecture architecture) const
 {
-    return toolPath(architecture).append(QLatin1String("-readelf" ANDROID_EXE_SUFFIX));
+    return toolPath(architecture).append(QLatin1String("-readelf" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::gccPath(Abi::Architecture architecture) const
 {
-    return toolPath(architecture).append(QLatin1String("-gcc" ANDROID_EXE_SUFFIX));
+    return toolPath(architecture).append(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::gdbServerPath(Abi::Architecture architecture) const
@@ -362,7 +362,7 @@ FileName AndroidConfigurations::gdbPath(Abi::Architecture architecture) const
     }
     if (!gdbPath.isEmpty())
         return gdbPath;
-    return toolPath(architecture).append(QLatin1String("-gdb" ANDROID_EXE_SUFFIX));
+    return toolPath(architecture).append(QLatin1String("-gdb" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::openJDKPath() const
@@ -391,7 +391,7 @@ FileName AndroidConfigurations::jarsignerPath() const
 FileName AndroidConfigurations::zipalignPath() const
 {
     Utils::FileName path = m_config.sdkLocation;
-    return path.appendPath(QLatin1String("tools/zipalign" ANDROID_EXE_SUFFIX));
+    return path.appendPath(QLatin1String("tools/zipalign" QTC_HOST_EXE_SUFFIX));
 }
 
 QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel) const

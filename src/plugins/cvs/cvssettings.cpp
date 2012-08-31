@@ -49,11 +49,7 @@ enum { defaultTimeOutS = 30 };
 
 static QString defaultCommand()
 {
-    QString rc;
-    rc = QLatin1String("cvs");
-    if (Utils::HostOsInfo::isWindowsHost())
-        rc.append(QLatin1String(".exe"));
-    return rc;
+    return QLatin1String("cvs" QTC_HOST_EXE_SUFFIX);
 }
 
 namespace Cvs {

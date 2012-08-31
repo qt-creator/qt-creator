@@ -2543,16 +2543,8 @@ void Version11Handler::addRunConfigurations(Kit *k,
 
 static QString targetRoot(const QString &qmakePath)
 {
-    Qt::CaseSensitivity cs;
-    QString binQmake;
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        cs = Qt::CaseInsensitive;
-        binQmake = "/bin/qmake.exe";
-    } else {
-        cs = Qt::CaseSensitive;
-        binQmake = "/bin/qmake";
-    }
-    return QDir::cleanPath(qmakePath).remove(binQmake, cs);
+    return QDir::cleanPath(qmakePath).remove(QLatin1String("/bin/qmake" QTC_HOST_EXE_SUFFIX),
+            Utils::HostOsInfo::fileNameCaseSensitivity());
 }
 
 static QString maddeRoot(const QString &qmakePath)

@@ -2270,8 +2270,7 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
     result.executable = QDir::cleanPath(wd + QLatin1Char('/') + result.target);
     //qDebug() << "##### updateTarget sets:" << result.workingDir << result.executable;
 
-    if (Utils::HostOsInfo::isWindowsHost())
-        result.executable += QLatin1String(".exe");
+    Utils::HostOsInfo::appendExecutableSuffix(result.executable);
     result.valid = true;
     return result;
 }

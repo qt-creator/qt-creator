@@ -58,8 +58,8 @@ static inline QStringList importPaths() {
     // env import paths
     QByteArray envImportPath = qgetenv("QML_IMPORT_PATH");
     if (!envImportPath.isEmpty()) {
-        const QChar sep = Utils::HostOsInfo::isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
-        paths = QString::fromLatin1(envImportPath).split(sep, QString::SkipEmptyParts);
+        paths = QString::fromLatin1(envImportPath)
+                .split(Utils::HostOsInfo::pathListSeparator(), QString::SkipEmptyParts);
     }
 
     return paths;

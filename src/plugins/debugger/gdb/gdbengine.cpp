@@ -4982,15 +4982,17 @@ void GdbEngine::finishInferiorSetup()
 
 void GdbEngine::handleDebugInfoLocation(const GdbResponse &response)
 {
-    const char pathSep = HostOsInfo::isWindowsHost() ? ';' : ':';
     if (response.resultClass == GdbResultDone) {
         const QByteArray debugInfoLocation = startParameters().debugInfoLocation.toLocal8Bit();
         if (QFile::exists(QString::fromLocal8Bit(debugInfoLocation))) {
             const QByteArray curDebugInfoLocations = response.consoleStreamOutput.split('"').value(1);
-            if (curDebugInfoLocations.isEmpty())
+            if (curDebugInfoLocations.isEmpty()) {
                 postCommand("set debug-file-directory " + debugInfoLocation);
-            else
-                postCommand("set debug-file-directory " + debugInfoLocation + pathSep + curDebugInfoLocations);
+            } else {
+                postCommand("set debug-file-directory " + debugInfoLocation
+                        + HostOsInfo::pathListSeparator().toLatin1()
+                        + curDebugInfoLocations);
+            }
         }
     }
 }

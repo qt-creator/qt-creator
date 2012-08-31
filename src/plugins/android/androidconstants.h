@@ -45,10 +45,8 @@ enum AndroidQemuStatus {
 };
 
 #ifdef Q_OS_WIN32
-#define ANDROID_EXE_SUFFIX ".exe"
 #define ANDROID_BAT_SUFFIX ".bat"
 #else
-#define ANDROID_EXE_SUFFIX ""
 #define ANDROID_BAT_SUFFIX ""
 #endif
 
