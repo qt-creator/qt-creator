@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProfiles>
-<!-- Written by Qt Creator 2.5.81, 2012-08-28T18:44:22. -->
+<!-- Written by Qt Creator 2.5.81, 2012-08-31T19:40:12. -->
 <qtcreator>
  <data>
   <variable>Profile.0</variable>
@@ -39,8 +39,26 @@
   </valuemap>
  </data>
  <data>
+  <variable>Profile.2</variable>
+  <valuemap type="QVariantMap">
+   <value type="bool" key="PE.Profile.AutoDetected">false</value>
+   <valuemap type="QVariantMap" key="PE.Profile.Data">
+    <value type="QString" key="Debugger.Information">/usr/bin/gdb</value>
+    <value type="QString" key="PE.Profile.Device">{68a75dff-5ec6-40cb-884f-8f383ed2ebb2}</value>
+    <value type="QByteArray" key="PE.Profile.DeviceType">Maemo5OsType</value>
+    <value type="QString" key="PE.Profile.SysRoot"></value>
+    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{32ee0a53-87d9-4f17-b8a5-a7642101e803}</value>
+    <value type="QString" key="QtPM4.mkSpecInformation"></value>
+    <value type="int" key="QtSupport.QtInformation">3</value>
+   </valuemap>
+   <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
+   <value type="QString" key="PE.Profile.Id">{f559999e-8f5d-4246-9321-ea9d1c444c85}</value>
+   <value type="QString" key="PE.Profile.Name">Fremantle</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>Profile.Count</variable>
-  <value type="int">2</value>
+  <value type="int">3</value>
  </data>
  <data>
   <variable>Profile.Default</variable>

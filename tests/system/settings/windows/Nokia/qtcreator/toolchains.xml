@@ -16,8 +16,21 @@
   </valuemap>
  </data>
  <data>
+  <variable>ToolChain.1</variable>
+  <valuemap type="QVariantMap">
+   <value type="QString" key="ProjectExplorer.GccToolChain.Path">C:/QtSDK/Maemo/4.6.2/targets/fremantle-pr13/bin/g++.exe</value>
+   <valuelist type="QVariantList" key="ProjectExplorer.GccToolChain.SupportedAbis">
+    <value type="QString">arm-linux-generic-elf-32bit</value>
+   </valuelist>
+   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">arm-linux-maemo-elf-32bit</value>
+   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">GCC for Fremantle</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Gcc:{333fff9b-5a71-4289-ac68-af2174cb68df}</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>ToolChain.Count</variable>
-  <value type="int">1</value>
+  <value type="int">2</value>
  </data>
  <data>
   <variable>Version</variable>
