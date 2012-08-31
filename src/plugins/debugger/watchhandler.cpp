@@ -1550,7 +1550,7 @@ QByteArray WatchHandler::watcherName(const QByteArray &exp)
     return "watch." + QByteArray::number(theWatcherNames[exp]);
 }
 
-void WatchHandler::watchExpression(const QString &exp)
+void WatchHandler::watchExpression(const QString &exp, const QString &name)
 {
     QTC_ASSERT(m_engine, return);
     // Do not insert the same entry more then once.
@@ -1560,7 +1560,7 @@ void WatchHandler::watchExpression(const QString &exp)
     // FIXME: 'exp' can contain illegal characters
     WatchData data;
     data.exp = exp.toLatin1();
-    data.name = exp;
+    data.name = name.isEmpty() ? exp : name;
     theWatcherNames[data.exp] = m_watcherCounter++;
     saveWatchers();
 
@@ -1792,6 +1792,20 @@ const WatchData *WatchHandler::watchData(const QModelIndex &idx) const
 const WatchData *WatchHandler::findData(const QByteArray &iname) const
 {
     return m_model->findItem(iname);
+}
+
+const WatchData *WatchHandler::findCppLocalVariable(const QString &name) const
+{
+    // Can this be found as a local variable?
+    const QByteArray localsPrefix("local.");
+    QByteArray iname = localsPrefix + name.toLatin1();
+    if (const WatchData *wd = findData(iname))
+        return wd;
+    // Nope, try a 'local.this.m_foo'.
+    iname.insert(localsPrefix.size(), "this.");
+    if (const WatchData *wd = findData(iname))
+        return wd;
+    return 0;
 }
 
 QString WatchHandler::displayForAutoTest(const QByteArray &iname) const

@@ -64,17 +64,35 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
     const QString fileName = stackHandler()->currentFrame().file;
     const QString function = stackHandler()->currentFrame().function;
     if (!fileName.isEmpty()) {
-        QStringList expressions = DebuggerToolTipManager::instance()
+        typedef DebuggerToolTipManager::ExpressionInamePair ExpressionInamePair;
+        typedef DebuggerToolTipManager::ExpressionInamePairs ExpressionInamePairs;
+
+        // Re-create tooltip items that are not filters on existing local variables in
+        // the tooltip model.
+        ExpressionInamePairs toolTips = DebuggerToolTipManager::instance()
             ->treeWidgetExpressions(fileName, objectName(), function);
+
         const QString currentExpression = tooltipExpression();
-        if (!currentExpression.isEmpty() && !expressions.contains(currentExpression))
-            expressions.push_back(currentExpression);
-        foreach (const QString &te, expressions) {
-            if (!watchers.isEmpty())
-                watchers += "##";
-            watchers += te.toLatin1();
-            watchers += '#';
-            watchers += tooltipIName(te);
+        if (!currentExpression.isEmpty()) {
+            int currentIndex = -1;
+            for (int i = 0; i < toolTips.size(); ++i) {
+                if (toolTips.at(i).first == currentExpression) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+            if (currentIndex < 0)
+                toolTips.push_back(ExpressionInamePair(currentExpression, tooltipIName(currentExpression)));
+        }
+
+        foreach (const ExpressionInamePair &p, toolTips) {
+            if (p.second.startsWith("tooltip")) {
+                if (!watchers.isEmpty())
+                    watchers += "##";
+                watchers += p.first.toLatin1();
+                watchers += '#';
+                watchers += p.second;
+            }
         }
     }
 

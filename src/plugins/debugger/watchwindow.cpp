@@ -920,7 +920,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         grabMouse(Qt::CrossCursor);
         m_grabbing = true;
     } else if (act == actWatchExpression) {
-        watchExpression(exp);
+        watchExpression(exp, name);
     } else if (act == actRemoveWatchExpression) {
         handler->removeData(p.data(LocalsINameRole).toByteArray());
     } else if (act == actCopy) {
@@ -1036,7 +1036,12 @@ void WatchTreeView::reset()
 
 void WatchTreeView::watchExpression(const QString &exp)
 {
-    currentEngine()->watchHandler()->watchExpression(exp);
+    watchExpression(exp, QString());
+}
+
+void WatchTreeView::watchExpression(const QString &exp, const QString &name)
+{
+    currentEngine()->watchHandler()->watchExpression(exp, name);
 }
 
 void WatchTreeView::setModelData

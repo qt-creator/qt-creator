@@ -404,6 +404,7 @@ void CdbEngine::init()
     m_sourceStepInto = false;
     m_watchPointX = m_watchPointY = 0;
     m_ignoreCdbOutput = false;
+    m_watchInameToName.clear();
 
     m_outputBuffer.clear();
     m_builtinCommandQueue.clear();
@@ -470,23 +471,13 @@ bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
     // Are we in the current stack frame
     if (context.function.isEmpty() || exp.isEmpty() || context.function != stackHandler()->currentFrame().function)
         return false;
-    // No numerical or any other expressions [yet]
-    if (!(exp.at(0).isLetter() || exp.at(0) == QLatin1Char('_')))
+    // Show tooltips of local variables only. Anything else can slow debugging down.
+    const WatchData *localVariable = watchHandler()->findCppLocalVariable(exp);
+    if (!localVariable)
         return false;
-    // Can this be found as a local variable?
-    const QByteArray localsPrefix(localsPrefixC);
-    QByteArray iname = localsPrefix + exp.toAscii();
-    if (!watchHandler()->hasItem(iname)) {
-        // Nope, try a 'local.this.m_foo'.
-        exp.prepend(QLatin1String("this."));
-        iname.insert(localsPrefix.size(), "this.");
-        if (!watchHandler()->hasItem(iname))
-            return false;
-    }
     DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
     tw->setContext(context);
-    tw->setDebuggerModel(LocalsType);
-    tw->setExpression(exp);
+    tw->setIname(localVariable->iname);
     tw->acquireEngine(this);
     DebuggerToolTipManager::instance()->showToolTip(mousePos, editor, tw);
     return true;
@@ -995,6 +986,10 @@ void CdbEngine::updateWatchData(const WatchData &dataIn,
         QByteArray args;
         ByteArrayInputStream str(args);
         str << dataIn.iname << " \"" << dataIn.exp << '"';
+        // Store the name since the CDB extension library
+        // does not maintain the names of watches.
+        if (!dataIn.name.isEmpty() && dataIn.name != QLatin1String(dataIn.exp))
+            m_watchInameToName.insert(dataIn.iname, dataIn.name);
         postExtensionCommand("addwatch", args, 0,
                              &CdbEngine::handleAddWatch, 0,
                              qVariantFromValue(dataIn));
@@ -1915,6 +1910,15 @@ void CdbEngine::handleLocals(const CdbExtensionCommandPtr &reply)
             dummy.iname = child.findChild("iname").data();
             dummy.name = QLatin1String(child.findChild("name").data());
             parseWatchData(watchHandler()->expandedINames(), dummy, child, &watchData);
+        }
+        // Fix the names of watch data.
+        for (int i =0; i < watchData.size(); ++i) {
+            if (watchData.at(i).iname.startsWith('w')) {
+                const QHash<QByteArray, QString>::const_iterator it
+                    = m_watchInameToName.find(watchData.at(i).iname);
+                if (it != m_watchInameToName.constEnd())
+                    watchData[i].name = it.value();
+            }
         }
         watchHandler()->insertData(watchData);
         if (debugLocals) {
