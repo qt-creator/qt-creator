@@ -47,7 +47,8 @@
     either a password or an SSH key. If you do not have an SSH key, you can
     create it in \QC. For more information, see \l {Generating SSH Keys}.
 
-    To configure connections between \QC and embedded Linux devices:
+    To configure connections between \QC and an embedded Linux device and to
+    specify build and run settings for the device:
 
     \list 1
 
@@ -90,6 +91,10 @@
 
             \endlist
 
+        \o  Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets
+            > \gui Add to add a target for building for the device. Select the
+            Qt version, compiler, and device that you added above.
+
         \o  To specify build settings:
 
         \list 1
@@ -97,26 +102,17 @@
             \o  Open a project for an application you want to develop for the
                 device.
 
-            \o  Select \gui {Projects > Desktop > Build}.
+            \o  Select \gui {Projects > Targets > Add}.
 
-            \o  Select the Qt version and tool chain for the embedded Linux
-                device.
+            \o  Select the target that you added above.
 
         \endlist
 
-        \o To specify run settings:
-
-        \list 1
-
-            \o  Select \gui {Run > Add > Deploy to Remote Linux Host}
-                to add a new deploy configuration.
+        \o  To specify run settings, select \gui Run.
 
                 \image qtcreator-run-settings-linux-devices.png "Run settings for embedded Linux devices"
 
-            \o  In the \gui {Device configuration} field, select the device
-                connection.
-
-        \endlist
+            Usually, you can use the default settings.
 
     When you run the project, \QC deploys the application as specified by the
     deploy steps. By default, \QC copies the application files to the device.
