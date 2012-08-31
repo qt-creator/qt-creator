@@ -60,16 +60,14 @@ class QTCREATOR_UTILS_EXPORT PersistentSettingsWriter
 {
 public:
     PersistentSettingsWriter(const FileName &fileName, const QString &docType);
-    void saveValue(const QString &variable, const QVariant &value);
-    bool save(QWidget *parent) const;
+    bool save(const QVariantMap &data, QWidget *parent) const;
 
     Utils::FileName fileName() const;
 
 private:
-    QMap<QString, QVariant> m_valueMap;
     const Utils::FileName m_fileName;
     const QString m_docType;
-    mutable bool m_mustSave;
+    mutable QMap<QString, QVariant> m_savedData;
 };
 
 } // namespace Utils

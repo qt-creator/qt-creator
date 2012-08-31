@@ -136,8 +136,9 @@ void DeviceManager::copy(const DeviceManager *source, DeviceManager *target, boo
 
 void DeviceManager::save()
 {
-    d->writer->saveValue(QLatin1String(DeviceManagerKey), toMap());
-    d->writer->save(Core::ICore::mainWindow());
+    QVariantMap data;
+    data.insert(QLatin1String(DeviceManagerKey), toMap());
+    d->writer->save(data, Core::ICore::mainWindow());
 }
 
 void DeviceManager::load()

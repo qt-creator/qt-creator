@@ -936,18 +936,20 @@ bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings) con
         m_writer = new Utils::PersistentSettingsWriter(settings->m_fileName, QLatin1String("QtCreatorProject"));
     }
 
+    QVariantMap data;
+
     for (QVariantMap::const_iterator i = settings->m_map.constBegin();
          i != settings->m_map.constEnd();
          ++i) {
-        m_writer->saveValue(i.key(), i.value());
+        data.insert(i.key(), i.value());
     }
 
-    m_writer->saveValue(QLatin1String(VERSION_KEY), m_accessor->m_lastVersion + 1);
+    data.insert(QLatin1String(VERSION_KEY), m_accessor->m_lastVersion + 1);
 
     if (m_environmentSpecific)
-        m_writer->saveValue(QLatin1String(ENVIRONMENT_ID_KEY),
-                            ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString());
-    return m_writer->save(Core::ICore::mainWindow());
+        data.insert(QLatin1String(ENVIRONMENT_ID_KEY),
+                    ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString());
+    return m_writer->save(data, Core::ICore::mainWindow());
 }
 
 // -------------------------------------------------------------------------

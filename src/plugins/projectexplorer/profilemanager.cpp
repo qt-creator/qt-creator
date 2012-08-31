@@ -227,20 +227,21 @@ void ProfileManager::saveProfiles()
     if (!d->m_initialized) // ignore save requests while we are not initialized.
         return;
 
-    d->m_writer->saveValue(QLatin1String(PROFILE_FILE_VERSION_KEY), 1);
+    QVariantMap data;
+    data.insert(QLatin1String(PROFILE_FILE_VERSION_KEY), 1);
 
     int count = 0;
     foreach (Profile *p, profiles()) {
         QVariantMap tmp = p->toMap();
         if (tmp.isEmpty())
             continue;
-        d->m_writer->saveValue(QString::fromLatin1(PROFILE_DATA_KEY) + QString::number(count), tmp);
+        data.insert(QString::fromLatin1(PROFILE_DATA_KEY) + QString::number(count), tmp);
         ++count;
     }
-    d->m_writer->saveValue(QLatin1String(PROFILE_COUNT_KEY), count);
-    d->m_writer->saveValue(QLatin1String(PROFILE_DEFAULT_KEY),
-                     d->m_defaultProfile ? QString::fromLatin1(d->m_defaultProfile->id().name()) : QString());
-    d->m_writer->save(Core::ICore::mainWindow());
+    data.insert(QLatin1String(PROFILE_COUNT_KEY), count);
+    data.insert(QLatin1String(PROFILE_DEFAULT_KEY),
+                d->m_defaultProfile ? QString::fromLatin1(d->m_defaultProfile->id().name()) : QString());
+    d->m_writer->save(data, Core::ICore::mainWindow());
 }
 
 bool greaterPriority(ProfileInformation *a, ProfileInformation *b)
