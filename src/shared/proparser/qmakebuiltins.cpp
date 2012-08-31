@@ -353,7 +353,7 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
 #else
     QByteArray out;
     if (FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
-                               + IoUtils::shellQuote(currentDirectory())
+                               + IoUtils::shellQuote(QDir::toNativeSeparators(currentDirectory()))
                                + QLatin1String(" && ") + args).toLocal8Bit().constData(), "r")) {
         while (!feof(proc)) {
             char buff[10 * 1024];
@@ -1431,7 +1431,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         return returnBool(proc.exitStatus() == QProcess::NormalExit && proc.exitCode() == 0);
 #else
         return returnBool(system((QLatin1String("cd ")
-                                  + IoUtils::shellQuote(currentDirectory())
+                                  + IoUtils::shellQuote(QDir::toNativeSeparators(currentDirectory()))
                                   + QLatin1String(" && ") + args.at(0)).toLocal8Bit().constData()) == 0);
 #endif
     }
