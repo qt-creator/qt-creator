@@ -66,6 +66,13 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="2">
+       <widget class="QCheckBox" name="checkBoxWrapScan">
+        <property name="text">
+         <string>Use wrapscan</string>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="0" colspan="2">
        <widget class="QCheckBox" name="checkBoxExpandTab">
         <property name="text">
@@ -73,7 +80,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="2">
+      <item row="4" column="2">
        <widget class="QCheckBox" name="checkBoxShowMarks">
         <property name="text">
          <string>Show position of text marks</string>
@@ -87,7 +94,7 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="2">
+      <item row="5" column="2">
        <widget class="QCheckBox" name="checkBoxPassControlKey">
         <property name="toolTip">
          <string>Pass key sequences like Ctrl-S to Qt Creator core instead of interpreting them in FakeVim. This gives easier access to Qt Creator core functionality at the price of losing some features of FakeVim.</string>

@@ -53,9 +53,11 @@ enum FakeVimSettingsCode
     ConfigExpandTab,
     ConfigAutoIndent,
     ConfigSmartIndent,
+
     ConfigIncSearch,
     ConfigUseCoreSearch,
     ConfigSmartCase,
+    ConfigWrapScan,
 
     // indent  allow backspacing over autoindent
     // eol     allow backspacing over line breaks (join lines)

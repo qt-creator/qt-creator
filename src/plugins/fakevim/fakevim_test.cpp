@@ -426,17 +426,68 @@ void FakeVimPlugin::test_vim_search()
 
     data.setText("abc" N "def" N "ghi");
     KEYS("/ghi<CR>", "abc" N "def" N X "ghi");
-    KEYS("gg/\\w\\{3}<CR>", X "abc" N "def" N "ghi");
-    KEYS("n", "abc" N X "def" N "ghi");
+    KEYS("gg/\\w\\{3}<CR>", "abc" N X "def" N "ghi");
+    KEYS("n", "abc" N "def" N X "ghi");
+    KEYS("N", "abc" N X "def" N "ghi");
     KEYS("N", X "abc" N "def" N "ghi");
 
-    NOT_IMPLEMENTED
-    KEYS("2n", "abc" N "def" N X "ghi");
-    KEYS("2N", X "abc" N "def" N "ghi");
+    // return to search-start position on escape or not found
+    KEYS("/def<ESC>", X "abc" N "def" N "ghi");
+    KEYS("/x", X "abc" N "def" N "ghi");
+    KEYS("/x<CR>", X "abc" N "def" N "ghi");
+    KEYS("/x<ESC>", X "abc" N "def" N "ghi");
+
+    KEYS("?def<ESC>", X "abc" N "def" N "ghi");
+    KEYS("?x", X "abc" N "def" N "ghi");
+    KEYS("?x<CR>", X "abc" N "def" N "ghi");
+    KEYS("?x<ESC>", X "abc" N "def" N "ghi");
+
+    // search [count] times
+    data.setText("abc" N "def" N "ghi");
+    KEYS("/\\w\\{3}<CR>", "abc" N X "def" N "ghi");
+    KEYS("2n", X "abc" N "def" N "ghi");
+    KEYS("2N", "abc" N X "def" N "ghi");
+    KEYS("2/\\w\\{3}<CR>", X "abc" N "def" N "ghi");
+
+    // set wrapscan (search wraps at end of file)
+    data.doCommand("set ws");
+    data.setText("abc" N "def" N "abc" N "ghi abc jkl");
+    KEYS("*", "abc" N "def" N X "abc" N "ghi abc jkl");
+    KEYS("*", "abc" N "def" N "abc" N "ghi " X "abc jkl");
+    KEYS("2*", "abc" N "def" N X "abc" N "ghi abc jkl");
+    KEYS("#", X "abc" N "def" N "abc" N "ghi abc jkl");
+    KEYS("#", "abc" N "def" N "abc" N "ghi " X "abc jkl");
+    KEYS("#", "abc" N "def" N X "abc" N "ghi abc jkl");
+    KEYS("2#", "abc" N "def" N "abc" N "ghi " X "abc jkl");
+
+    data.doCommand("set nows");
+    data.setText("abc" N "def" N "abc" N "ghi abc jkl");
+    KEYS("*", "abc" N "def" N X "abc" N "ghi abc jkl");
+    KEYS("*", "abc" N "def" N "abc" N "ghi " X "abc jkl");
+    KEYS("*", "abc" N "def" N "abc" N "ghi " X "abc jkl");
+    KEYS("#", "abc" N "def" N X "abc" N "ghi abc jkl");
+    KEYS("#", X "abc" N "def" N "abc" N "ghi abc jkl");
+    KEYS("#", X "abc" N "def" N "abc" N "ghi abc jkl");
+
+    data.setText("abc" N "def" N "ab" X "c" N "ghi abc jkl");
+    KEYS("#", X "abc" N "def" N "abc" N "ghi abc jkl");
 
     /* QTCREATORBUG-7251 */
     data.setText("abc abc abc abc");
     KEYS("$?abc<CR>", "abc abc abc " X "abc");
+    KEYS("2?abc<CR>", "abc " X "abc abc abc");
+    KEYS("n", X "abc abc abc abc");
+    KEYS("N", "abc " X "abc abc abc");
+
+    NOT_IMPLEMENTED
+    // find same stuff forward and backward,
+    // i.e. '<ab>c' forward but not 'a<bc>' backward
+    data.setText("abc" N "def" N "ghi");
+    KEYS("/\\w\\{2}<CR>", X "abc" N "def" N "ghi");
+    KEYS("2n", "abc" N "def" N X "ghi");
+    KEYS("N", "abc" N X "def" N "ghi");
+    KEYS("N", X "abc" N "def" N "ghi");
+    KEYS("2n2N", X "abc" N "def" N "ghi");
 }
 
 void FakeVimPlugin::test_vim_indent()

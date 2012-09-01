@@ -219,6 +219,13 @@ FakeVimSettings *theFakeVimSettings()
     instance->insertItem(ConfigSmartCase, item, _("smartcase"), _("scs"));
 
     item = new SavedAction(instance);
+    item->setDefaultValue(true);
+    item->setValue(true);
+    item->setSettingsKey(group, _("WrapScan")); item->setCheckable(true);
+    item->setCheckable(true);
+    instance->insertItem(ConfigWrapScan, item, _("wrapscan"), _("ws"));
+
+    item = new SavedAction(instance);
     item->setDefaultValue(_("indent,eol,start"));
     item->setSettingsKey(group, _("Backspace"));
     instance->insertItem(ConfigBackspace, item, _("backspace"), _("bs"));
