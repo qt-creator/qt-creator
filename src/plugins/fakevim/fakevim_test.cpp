@@ -699,3 +699,120 @@ void FakeVimPlugin::test_vim_undo_redo()
     KEYS("jlllSxyz<ESC>", "abc" N "xyz" N "ghi");
     KEYS("u", "abc" N "  " X "def" N "ghi");
 }
+
+void FakeVimPlugin::test_map()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abc def");
+    data.doCommand("map C i<space>x<space><esc>");
+    data.doCommand("map c iXXX");
+    data.doCommand("imap c YYY<space>");
+    KEYS("C", " x" X " abc def");
+    data.doCommand("map C <nop>");
+    KEYS("C", " x" X " abc def");
+    data.doCommand("map C i<bs><esc><right>");
+    KEYS("C", " " X " abc def");
+    KEYS("ccc<esc>", " XXXYYY YYY" X "  abc def");
+    // unmap
+    KEYS(":unmap c<cr>ccc<esc>", "YYY" X " ");
+    KEYS(":iunmap c<cr>ccc<esc>", X "c");
+    data.doCommand("unmap C");
+
+    data.setText("abc def");
+    data.doCommand("imap x (((<space><right><right>)))<esc>");
+    KEYS("x", X "bc def");
+    KEYS("ix", "((( bc))" X ") def");
+    data.doCommand("iunmap x");
+
+    data.setText("abc def");
+    data.doCommand("map <c-right> 3l");
+    KEYS("<C-Right>", "abc" X " def");
+    KEYS("<C-Right>", "abc de" X "f");
+
+    // map vs. noremap
+    data.setText("abc def");
+    data.doCommand("map x 3l");
+    data.doCommand("map X x");
+    KEYS("X", "abc" X " def");
+    data.doCommand("noremap X x");
+    KEYS("X", "abc" X "def");
+    data.doCommand("unmap X");
+    data.doCommand("unmap x");
+
+    // limit number of recursions in mappings
+    data.doCommand("map X Y");
+    data.doCommand("map Y Z");
+    data.doCommand("map Z X");
+    KEYS("X", "abc" X "def");
+    data.doCommand("map Z i<space><esc>");
+    KEYS("X", "abc" X " def");
+    data.doCommand("unmap X");
+    data.doCommand("unmap Y");
+    data.doCommand("unmap Z");
+
+    // imcomplete mapping
+    data.setText("abc");
+    data.doCommand("map  Xa  ia<esc>");
+    data.doCommand("map  Xb  ib<esc>");
+    data.doCommand("map  X   ic<esc>");
+    KEYS("Xa", X "aabc");
+    KEYS("Xb", X "baabc");
+    KEYS("Xic<esc>", X "ccbaabc");
+
+    // unmap
+    data.doCommand("unmap  Xa");
+    KEYS("Xa<esc>", X "cccbaabc");
+    data.doCommand("unmap  Xb");
+    KEYS("Xb", X "ccccbaabc");
+    data.doCommand("unmap  X");
+    KEYS("Xb", X "ccccbaabc");
+    KEYS("X<esc>", X "ccccbaabc");
+
+    // recursive mapping
+    data.setText("abc");
+    data.doCommand("map  X    Y");
+    data.doCommand("map  XXX  i1<esc>");
+    data.doCommand("map  Y    i2<esc>");
+    data.doCommand("map  YZ   i3<esc>");
+    data.doCommand("map  _    i <esc>");
+    KEYS("_XXX_", X " 1 abc");
+    KEYS("XX_0", X " 22 1 abc");
+    KEYS("XXXXZ_0", X " 31 22 1 abc");
+    KEYS("XXXXX_0", X " 221 31 22 1 abc");
+    KEYS("XXZ", X "32 221 31 22 1 abc");
+    data.doCommand("unmap  X");
+    data.doCommand("unmap  XXX");
+    data.doCommand("unmap  Y");
+    data.doCommand("unmap  YZ");
+    data.doCommand("unmap  _");
+
+    // shift modifier
+    data.setText("abc");
+    data.doCommand("map  x  i1<esc>");
+    data.doCommand("map  X  i2<esc>");
+    KEYS("x", X "1abc");
+    KEYS("X", X "21abc");
+    data.doCommand("map  <S-X>  i3<esc>");
+    KEYS("X", X "321abc");
+    data.doCommand("map  X  i4<esc>");
+    KEYS("X", X "4321abc");
+    KEYS("x", X "14321abc");
+    data.doCommand("unmap  x");
+    data.doCommand("unmap  X");
+
+    // undo/redo mapped input
+    data.setText("abc def ghi");
+    data.doCommand("map X dwea xyz<esc>3l");
+    KEYS("X", "def xyz g" X "hi");
+    KEYS("u", X "abc def ghi");
+    KEYS("<C-r>", X "def xyz ghi");
+    data.doCommand("unmap  X");
+
+    NOT_IMPLEMENTED
+    // <C-o>
+    data.setText("abc def");
+    data.doCommand("imap X <c-o>:%s/def/xxx/<cr>");
+    KEYS("iX", "abc xxx");
+}

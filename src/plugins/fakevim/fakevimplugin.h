@@ -73,6 +73,7 @@ private slots:
     void test_vim_marks();
     void test_vim_copy_paste();
     void test_vim_undo_redo();
+    void test_map();
 #endif
 };
 
