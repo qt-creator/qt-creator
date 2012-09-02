@@ -249,7 +249,7 @@ private:
     QAction *m_submitRedoAction;
     QAction *m_menuAction;
     bool m_submitActionTriggered;
-    QMutex *activityMutex;
+    QMutex *m_activityMutex;
     QList<QStringPair> m_activities;
 
     static ClearCasePlugin *m_clearcasePluginInstance;

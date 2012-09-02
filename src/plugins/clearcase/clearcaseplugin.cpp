@@ -181,18 +181,18 @@ ClearCasePlugin::ClearCasePlugin() :
     m_submitUndoAction(0),
     m_submitRedoAction(0),
     m_menuAction(0),
-    m_submitActionTriggered(false)
+    m_submitActionTriggered(false),
+    m_activityMutex(new QMutex)
 {
-    activityMutex = new QMutex;
 }
 
 ClearCasePlugin::~ClearCasePlugin()
 {
     cleanCheckInMessageFile();
     // wait for sync thread to finish reading activities
-    activityMutex->lock();
-    activityMutex->unlock();
-    delete activityMutex;
+    m_activityMutex->lock();
+    m_activityMutex->unlock();
+    delete m_activityMutex;
 }
 
 void ClearCasePlugin::cleanCheckInMessageFile()
@@ -1574,7 +1574,7 @@ QList<QStringPair> ClearCasePlugin::ccGetActivities() const
 
 void ClearCasePlugin::refreshActivities()
 {
-    QMutexLocker locker(activityMutex);
+    QMutexLocker locker(m_activityMutex);
     m_activity = ccGetCurrentActivity();
     m_activities = ccGetActivities();
 }
@@ -1585,7 +1585,7 @@ QList<QStringPair> ClearCasePlugin::activities(int *current) const
     QString curActivity;
     const VcsBase::VcsBasePluginState state = currentState();
     if (state.topLevel() == state.currentProjectTopLevel()) {
-        QMutexLocker locker(activityMutex);
+        QMutexLocker locker(m_activityMutex);
         activitiesList = m_activities;
         curActivity = m_activity;
     } else {
@@ -1952,7 +1952,7 @@ void ClearCasePlugin::sync(QFutureInterface<void> &future, QString topLevel, QSt
     process.waitForFinished();
 }
 
-} // namespace ClearCase
 } // namespace Internal
+} // namespace ClearCase
 
 Q_EXPORT_PLUGIN(ClearCase::Internal::ClearCasePlugin)
