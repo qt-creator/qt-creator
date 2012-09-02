@@ -7,33 +7,33 @@ include(clearcase_dependencies.pri)
 
 DEFINES += QT_NO_CAST_FROM_ASCII
 
-HEADERS += annotationhighlighter.h \
-    clearcaseplugin.h \
-    clearcasecontrol.h \
-    settingspage.h \
-    clearcaseeditor.h \
-    clearcasesettings.h \
-    clearcaseconstants.h \
-    clearcasesubmiteditor.h \
+HEADERS += activityselector.h \
+    annotationhighlighter.h \
     checkoutdialog.h \
-    activityselector.h \
+    clearcaseconstants.h \
+    clearcasecontrol.h \
+    clearcaseeditor.h \
+    clearcaseplugin.h \
+    clearcasesettings.h \
+    clearcasesubmiteditor.h \
     clearcasesubmiteditorwidget.h \
+    settingspage.h \
     versionselector.h
 
-SOURCES += annotationhighlighter.cpp \
-    clearcaseplugin.cpp \
+SOURCES += activityselector.cpp \
+    annotationhighlighter.cpp \
+    checkoutdialog.cpp \
     clearcasecontrol.cpp \
-    settingspage.cpp \
     clearcaseeditor.cpp \
+    clearcaseplugin.cpp \
     clearcasesettings.cpp \
     clearcasesubmiteditor.cpp \
-    checkoutdialog.cpp \
-    activityselector.cpp \
     clearcasesubmiteditorwidget.cpp \
+    settingspage.cpp \
     versionselector.cpp
 
-FORMS += settingspage.ui \
-    checkoutdialog.ui \
+FORMS += checkoutdialog.ui \
+    settingspage.ui \
     undocheckout.ui \
     versionselector.ui
 
