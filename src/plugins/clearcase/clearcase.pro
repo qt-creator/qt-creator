@@ -17,6 +17,7 @@ HEADERS += activityselector.h \
     clearcasesettings.h \
     clearcasesubmiteditor.h \
     clearcasesubmiteditorwidget.h \
+    clearcasesync.h \
     settingspage.h \
     versionselector.h
 
@@ -29,6 +30,7 @@ SOURCES += activityselector.cpp \
     clearcasesettings.cpp \
     clearcasesubmiteditor.cpp \
     clearcasesubmiteditorwidget.cpp \
+    clearcasesync.cpp \
     settingspage.cpp \
     versionselector.cpp
 

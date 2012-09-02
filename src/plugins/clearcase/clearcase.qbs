@@ -47,6 +47,8 @@ QtcPlugin {
         "clearcasesubmiteditor.h",
         "clearcasesubmiteditorwidget.cpp",
         "clearcasesubmiteditorwidget.h",
+        "clearcasesync.cpp",
+        "clearcasesync.h",
         "settingspage.cpp",
         "settingspage.h",
         "settingspage.ui",
