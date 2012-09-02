@@ -98,6 +98,7 @@ void ClearCaseSettings::fromSettings(QSettings *settings)
     promptToCheckIn = settings->value(QLatin1String(promptToCheckInKeyC), false).toBool();
     disableIndexer = settings->value(QLatin1String(disableIndexerKeyC), false).toBool();
     indexOnlyVOBs = settings->value(QLatin1String(indexOnlyVOBsC), QString()).toString();
+    extDiffAvailable = !Utils::Environment::systemEnvironment().searchInPath(QLatin1String("diff")).isEmpty();
     settings->beginGroup(QLatin1String(totalFilesKeyC));
     foreach (const QString &view, settings->childKeys())
         totalFiles[view] = settings->value(view).toInt();

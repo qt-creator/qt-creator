@@ -706,8 +706,13 @@ void ClearCasePlugin::undoHijackCurrent()
     const QString fileName = state.relativeCurrentFile();
 
     bool keep = false;
-    QString diffres = diffExternal(ccGetFileVersion(state.topLevel(), fileName), fileName);
-    if (diffres.at(0) != QLatin1Char('F')) { // Files are identical
+    bool askKeep = true;
+    if (m_settings.extDiffAvailable) {
+        QString diffres = diffExternal(ccGetFileVersion(state.topLevel(), fileName), fileName);
+        if (diffres.at(0) == QLatin1Char('F')) // Files are identical
+            askKeep = false;
+    }
+    if (askKeep) {
         Ui::UndoCheckOut unhijackUi;
         QDialog unhijackDlg;
         unhijackUi.setupUi(&unhijackDlg);
@@ -748,6 +753,11 @@ void ClearCasePlugin::ccDiffWithPred(const QStringList &files)
         else
             diffGraphical(file);
         return; // done here, diff is opened in a new window
+    }
+    if (!m_settings.extDiffAvailable) {
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(
+                    tr("External diff is required to compare multiple files."));
+        return;
     }
     QString result;
     foreach (const QString &file, files) {
@@ -814,6 +824,11 @@ void ClearCasePlugin::diffActivity()
     QTC_ASSERT(state.hasTopLevel(), return);
     if (ClearCase::Constants::debug)
         qDebug() << Q_FUNC_INFO;
+    if (!m_settings.extDiffAvailable) {
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(
+                    tr("External diff is required to compare multiple files."));
+        return;
+    }
     QString topLevel = state.topLevel();
     QString activity = QInputDialog::getText(0, tr("Enter Activity"), tr("Activity Name"), QLineEdit::Normal, m_activity);
     if (activity.isEmpty())
@@ -1148,7 +1163,8 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
     const ClearCaseResponse response =
             runCleartool(topLevel, args, m_settings.timeOutMS(), 0, codec);
     description = response.stdOut;
-    description += diffExternal(id);
+    if (m_settings.extDiffAvailable)
+        description += diffExternal(id);
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
