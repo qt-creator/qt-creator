@@ -137,7 +137,6 @@ QtcPlugin {
         "qt-desktop/simulatorqtversion.h",
         "qt-desktop/simulatorqtversionfactory.cpp",
         "qt-desktop/simulatorqtversionfactory.h",
-        "wizards/targetsetuppage.ui",
         "wizards/testwizardpage.ui",
         "wizards/wizards.qrc",
         "wizards/abstractmobileapp.cpp",

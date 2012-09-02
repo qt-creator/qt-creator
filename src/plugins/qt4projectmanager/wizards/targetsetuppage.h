@@ -46,10 +46,7 @@ class Qt4Project;
 
 namespace Internal {
 class ImportWidget;
-
-namespace Ui {
-class TargetSetupPage;
-} // namespace Ui
+class TargetSetupPageUi;
 } // namespace Internal
 
 /// \internal
@@ -122,7 +119,7 @@ private:
     QMap<Core::Id, Qt4TargetSetupWidget *> m_widgets;
     Qt4TargetSetupWidget *m_firstWidget;
 
-    Internal::Ui::TargetSetupPage *m_ui;
+    Internal::TargetSetupPageUi *m_ui;
 
     Internal::ImportWidget *m_importWidget;
     QSpacerItem *m_spacer;

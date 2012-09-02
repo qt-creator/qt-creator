@@ -49,12 +49,102 @@
 
 #include <QLabel>
 #include <QMessageBox>
+#include <QVariant>
+#include <QAction>
+#include <QApplication>
+#include <QButtonGroup>
+#include <QHeaderView>
+#include <QLabel>
+#include <QScrollArea>
+#include <QVBoxLayout>
+#include <QWidget>
 
-using namespace Qt4ProjectManager;
+namespace Qt4ProjectManager {
+namespace Internal {
 
 static const Core::Id QT_IS_TEMPORARY("Qt4PM.TempQt");
 static const Core::Id PROFILE_IS_TEMPORARY("Qt4PM.TempProfile");
 static const Core::Id TEMPORARY_OF_PROJECTS("Qt4PM.TempProject");
+
+class TargetSetupPageUi
+{
+public:
+    QWidget *centralWidget;
+    QWidget *scrollAreaWidget;
+    QScrollArea *scrollArea;
+    QLabel *descriptionLabel;
+
+    void setupUi(QWidget *q)
+    {
+        QWidget *setupTargetPage = new QWidget(q);
+
+        descriptionLabel = new QLabel(setupTargetPage);
+        descriptionLabel->setWordWrap(true);
+        descriptionLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        descriptionLabel->setText(TargetSetupPage::tr("Qt Creator can set up the following targets:"));
+
+#ifdef Q_OS_MAC
+        QString hint = TargetSetupPage::tr(
+            "<html><head/><body><p><span style=\" font-weight:600;\">"
+            "No valid targets found.</span></p>"
+            "<p>Please add a target in <a href=\"buildandrun\"><span style=\" text-decoration: underline; color:#0000ff;\">"
+            "Qt Creator &gt; Preferences &gt; Build &amp; Run</span></a>"
+            " or via the maintenance tool of the SDK.</p></body></html>");
+#else
+        QString hint = TargetSetupPage::tr(
+            "<html><head/><body><p><span style=\" font-weight:600;\">"
+            "No valid targets found.</span></p>"
+            "<p>Please add a target in <a href=\"buildandrun\"><span style=\" text-decoration: underline; color:#0000ff;\">"
+            "Tools &gt; Options &gt; Build &amp; Run</span></a>"
+            " or via the maintenance tool of the SDK.</p></body></html>");
+#endif
+
+        QLabel *noValidProfileLabel = new QLabel(setupTargetPage);
+        noValidProfileLabel->setWordWrap(true);
+        noValidProfileLabel->setText(hint);
+        noValidProfileLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+
+        centralWidget = new QWidget(setupTargetPage);
+        QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        policy.setHorizontalStretch(0);
+        policy.setVerticalStretch(0);
+        policy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
+        centralWidget->setSizePolicy(policy);
+
+        scrollAreaWidget = new QWidget(setupTargetPage);
+        scrollArea = new QScrollArea(scrollAreaWidget);
+        scrollArea->setWidgetResizable(true);
+
+        QWidget *scrollAreaWidgetContents;
+        scrollAreaWidgetContents = new QWidget();
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 230, 81));
+        scrollArea->setWidget(scrollAreaWidgetContents);
+
+        QVBoxLayout *verticalLayout = new QVBoxLayout(scrollAreaWidget);
+        verticalLayout->setSpacing(0);
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
+        verticalLayout->addWidget(scrollArea);
+
+        QVBoxLayout *verticalLayout_2 = new QVBoxLayout(setupTargetPage);
+        verticalLayout_2->addWidget(descriptionLabel);
+        verticalLayout_2->addWidget(noValidProfileLabel);
+        verticalLayout_2->addWidget(centralWidget);
+        verticalLayout_2->addWidget(scrollAreaWidget);
+
+        QVBoxLayout *verticalLayout_3 = new QVBoxLayout(q);
+        verticalLayout_3->setContentsMargins(0, 0, 0, -1);
+        verticalLayout_3->addWidget(setupTargetPage);
+
+        QObject::connect(noValidProfileLabel, SIGNAL(linkActivated(QString)),
+            q, SIGNAL(noteTextLinkActivated()));
+        QObject::connect(descriptionLabel, SIGNAL(linkActivated(QString)),
+            q, SIGNAL(noteTextLinkActivated()));
+    }
+};
+
+} // namespace Internal
+
+using namespace Internal;
 
 TargetSetupPage::TargetSetupPage(QWidget *parent) :
     QWizardPage(parent),
@@ -64,12 +154,19 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_importSearch(false),
     m_ignoreUpdates(false),
     m_firstWidget(0),
-    m_ui(new Internal::Ui::TargetSetupPage),
+    m_ui(new TargetSetupPageUi),
     m_importWidget(new Internal::ImportWidget(this)),
     m_spacer(new QSpacerItem(0,0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding))
 {
     setObjectName(QLatin1String("TargetSetupPage"));
+    setWindowTitle(tr("Set up Targets for Your Project"));
     m_ui->setupUi(this);
+
+    QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    policy.setHorizontalStretch(0);
+    policy.setVerticalStretch(0);
+    policy.setHeightForWidth(sizePolicy().hasHeightForWidth());
+    setSizePolicy(policy);
 
     QWidget *centralWidget = new QWidget(this);
     m_ui->scrollArea->setWidget(centralWidget);
@@ -81,9 +178,6 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     setImportSearch(false);
 
     setTitle(tr("Target Setup"));
-
-    connect(m_ui->descriptionLabel, SIGNAL(linkActivated(QString)),
-            this, SIGNAL(noteTextLinkActivated()));
 
     ProjectExplorer::ProfileManager *sm = ProjectExplorer::ProfileManager::instance();
     connect(sm, SIGNAL(profileAdded(ProjectExplorer::Profile*)),
@@ -589,3 +683,5 @@ void TargetSetupPage::setUseScrollArea(bool b)
     m_ui->scrollAreaWidget->setVisible(b);
     m_ui->centralWidget->setVisible(!b);
 }
+
+} // namespace Qt4ProjectManager
