@@ -334,9 +334,8 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     int argc = 0;
     int wordCount = 0; // Number of words in currently accumulated expression
     int lastIndent = 0; // Previous line's indentation, to detect accidental continuation abuse
-    bool putSpace = false; // Only ever true inside quoted string
     bool lineMarked = true; // For in-expression markers
-    ushort needSep = TokNewStr; // Complementary to putSpace: separator outside quotes
+    ushort needSep = TokNewStr; // Met unquoted whitespace
     ushort quote = 0;
     ushort term = 0;
 
@@ -488,10 +487,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                 if (c == '$') {
                     if (*cur == '$') { // may be EOF, EOL, WS, '#' or '\\' if past end
                         cur++;
-                        if (putSpace) {
-                            putSpace = false;
-                            *ptr++ = ' ';
-                        }
                         FLUSH_LITERAL();
                         if (!lineMarked) {
                             lineMarked = true;
@@ -613,13 +608,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                 } else if (quote) {
                     if (c == quote) {
                         quote = 0;
-                        if (putSpace) {
-                            putSpace = false;
-                            *ptr++ = ' ';
-                        }
-                        goto nextChr;
-                    } else if ((c == ' ' || c == '\t') && context != CtxPureValue) {
-                        putSpace = true;
                         goto nextChr;
                     } else if (c == '!' && ptr == xprPtr && context == CtxTest) {
                         m_invert ^= true;
@@ -787,10 +775,6 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
                             languageWarning(fL1S("Possible accidental line continuation"));
                     }
                 }
-                if (putSpace) {
-                    putSpace = false;
-                    *ptr++ = ' ';
-                }
                 *ptr++ = c;
               nextChr:
                 if (cur == end)
@@ -801,7 +785,7 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
           lineEnd:
             if (lineCont) {
                 if (quote) {
-                    putSpace = true;
+                    *ptr++ = ' ';
                 } else {
                     FLUSH_LITERAL();
                     needSep = TokNewStr;
