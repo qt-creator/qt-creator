@@ -1,6 +1,6 @@
     \section1 Specifying Run Settings for Qt Quick UI Projects
 
-    You can specify run settings for the \gui Desktop target:
+    You can specify run settings for \l{glossary-buildandrun-kit}{kits} with \gui Desktop device type:
 
     \list
 

@@ -57,9 +57,10 @@
     \section1 Starting the Emulator
 
     The \gui {Start MeeGo Emulator} button is visible if you have a project
-    open in \QC for which you have added the Maemo or MeeGo Harmattan
-    build target. It starts the Maemo or MeeGo Harmattan emulator, depending
-    on the selected target.
+    open in \QC for which you have added a \l{glossary-buildandrun-kit}{kit}
+    with Maemo or MeeGo Harmattan device type.
+    It starts the Maemo or MeeGo Harmattan emulator, depending
+    on the selected kit.
 
     To start the emulator, click
     \inlineimage qtcreator-maemo-emulator-button.png "Start MeeGo Emulator button"

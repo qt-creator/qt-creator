@@ -40,7 +40,7 @@
 
         \o  \l{Deploying Applications to Linux-Based Devices}
 
-            When you deploy the application on a Linux-based device target, such
+            When you deploy the application on a Linux-based device, such
             as \gui {Embedded Linux}, \gui Harmattan, or \gui{Maemo5}, \QC
             copies the application files to the connected device. You
             can test and debug the application on the device.
@@ -48,14 +48,14 @@
             Maemo 5 devices.
         \o \l{Deploying Applications to QNX Devices}
 
-            When you deploy the application on the \gui{QNX} target, depending
+            When you deploy the application on a \gui{QNX} device, depending
             on your target device, \QC either generates a BAR package in the
             build directory and deploys it to the connected device, or copies
             the application files to the connected device. You can test and
             debug the application on the device.
         \o  \l{Deploying Applications to Android Devices}
 
-            When you deploy the application on the Android target, \QC copies
+            When you deploy the application on an Android device, \QC copies
             the application files to the device. In addition, you can determine
             the Qt libraries to use.
     \endlist
@@ -68,7 +68,7 @@
             When you are ready to publish the application on a publishing
             channel, you must make sure that the installation file meets the
             requirements for publishing and installing applications to the
-            target devices.
+            targeted devices.
     \endlist
 
 */

@@ -32,7 +32,8 @@
     \title Connecting Mobile Targets
 
     You can connect mobile devices to the development PC to build, run, debug,
-    and analyze applications on them from \QC. When you install mobile targets
+    and analyze applications on them from \QC. When you install
+    \l{glossary-buildandrun-kit}{kits} for building and running on mobile targets
     as part of the \QSDK, the build and run settings for the target devices are
     set up automatically in \QC. However, \QSDK does not contain a tool chain
     for building applications for embedded Linux devices.

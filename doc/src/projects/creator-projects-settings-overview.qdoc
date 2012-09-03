@@ -33,8 +33,7 @@
 
     \omit
     When you install the \QSDK, the build and run settings for the development
-    targets
-    delivered with the \QSDK are set up automatically.
+    targets delivered with the \QSDK are set up automatically.
     \endomit
 
     To view and modify the settings for currently open projects, switch to the
@@ -42,23 +41,23 @@
 
     \image qtcreator-project-targets.png
 
-    To add build and run targets for the project, select \gui Add. The list
-    displays targets that are configured in \gui Tools > \gui Options >
-    \gui {Build & Run} > \gui Targets. To add targets to the list, select
+    To add build and run \l{glossary-buildandrun-kit}{kits} for the project, select \gui Add. The list
+    displays kits that are configured in \gui Tools > \gui Options >
+    \gui {Build & Run} > \gui Kits. To add kits to the list, select
     \gui Manage.
 
-    To remove a target, hover the cursor over it (1) and click
-    \inlineimage qtcreator-target-remove.png "Remove Target button"
+    To remove a kit, hover the cursor over it (1) and click
+    \inlineimage qtcreator-target-remove.png "Remove Kit button"
     .
 
-    You can select the targets and use the \gui Build menu commands to build,
+    You can select the kits and use the \gui Build menu commands to build,
     deploy, and run projects.
 
     The project pane consists of the following tabs:
 
     \list
 
-        \o  \l{Adding Targets}{Targets}
+        \o  \l{Adding Kits}{Build & Run}
 
             \list
 
@@ -69,7 +68,7 @@
             \endlist
 
                 \note If you have not configured the project for building, the
-                    \gui Targets tab is replaced by the \l{Opening Projects}
+                    \gui {Build & Run} tab is replaced by the \l{Opening Projects}
                     {Configure Projects} tab.
 
         \o  \l{Specifying Editor Settings}{Editor Settings}

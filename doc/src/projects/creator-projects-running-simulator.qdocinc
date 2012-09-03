@@ -7,7 +7,7 @@
 
     \list 1
 
-        \o  Select \gui {\QS} as the target.
+        \o  Select \gui {\QS} as the build and run \l{glossary-buildandrun-kit}{kit}.
 
         \o  Click the \gui Run button.
 

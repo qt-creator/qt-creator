@@ -55,11 +55,12 @@
 
     By default, \QC builds projects in a separate directory from the source
     directory, as \l{glossary-shadow-build} {shadow builds}. This keeps the
-    files generated for each \l{glossary-development-target}{target} separate.
-    If you only build for one target, you can deselect the \gui {Shadow build}
+    files generated for each \l{glossary-buildandrun-kit}{build and run kit} separate.
+    If you only build and run with a single \l{glossary-buildandrun-kit}{kit},
+    you can deselect the \gui {Shadow build}
     checkbox.
 
-    Shadow building is not supported for the following target platforms on
+    Shadow building is not supported for the following device types on
     Windows:
 
     \list
@@ -192,7 +193,7 @@
 
     \list
 
-        \o  \l{Adding Targets}
+        \o  \l{Adding Kits}
         \o  \l{Adding Qt Versions}
         \o  \l{Adding Compilers}
 

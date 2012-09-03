@@ -54,8 +54,8 @@
 
     \image qtcreator-embedded-linux-deployment.png "Deploy to embedded Linux"
 
-    When you run the application on the \gui {Embedded Linux} target, \QC
-    deploys the application as specified by the deploy steps. By default,
+    When you run the application on the \gui {Embedded Linux} device,
+    \QC deploys the application as specified by the deploy steps. By default,
     \QC copies the application files to the device by using the SSH file
     transfer protocol (SFTP), as specified by the \gui {Upload files via SFTP}
     step.
@@ -91,7 +91,7 @@
 
     \section1 Creating Debian Installation Packages
 
-    When you run the application on the \gui{Maemo5} or \gui Harmattan target,
+    When you run the application on the \gui{Maemo5} or \gui Harmattan device,
     \QC generates a Debian installation package in the build directory by
     default. You can deliver the installation package to users for installation
     on devices that are of the same type and run the same firmware as the
@@ -117,8 +117,9 @@
     \note \QC automates this process for you.
 
     \QC provides templates for a set of files that must be included in Debian
-    packages. When you create a \gui Maemo5 or \gui Harmattan target for a
-    project, \QC asks whether packaging files are to be added to the project and
+    packages. When you start using a \l{glossary-buildandrun-kit}{kit} with
+    \gui Maemo5 or \gui Harmattan device type
+    for a project, \QC asks whether packaging files are to be added to the project and
     to version control. If you plan to edit the packaging files, add them to
     version control.
 

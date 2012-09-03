@@ -32,10 +32,10 @@
     \title Specifying Run Settings
 
     \QC automatically creates run configurations for your project.
-    To view and modify the settings, select \gui {Projects > Run}.
+    To view and modify the settings, select \gui {Projects > Build & Run > Run}.
 
-    The settings to specify depend on the type of the project and on the build
-    target for the project.
+    The settings to specify depend on the type of the project and on the
+    \l{glossary-buildandrun-kit}{kit} that you build and run the project with.
 
     Click \gui Add to add run settings for a project and \gui Remove to remove
     the current settings.

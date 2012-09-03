@@ -549,7 +549,7 @@
             \o Open project
             \o Ctrl+Shift+O
         \row
-            \o Select build and run target
+            \o Select the \l{glossary-buildandrun-kit}{kit} to build and run your project with
             \o Ctrl+T
         \row
             \o Run

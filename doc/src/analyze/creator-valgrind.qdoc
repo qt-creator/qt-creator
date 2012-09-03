@@ -252,15 +252,13 @@
 
     \list 1
 
-        \o  Select \gui {Analyze > Valgrind Analyze Memory (Remote)} or
-            \gui {Valgrind Function Profile (Remote)}.
+        \o  Select \gui {Analyze > Valgrind Analyze Memory (External)} or
+            \gui {Valgrind Function Profile (External)}.
 
-            \image qtcreator-valgrind-remote-settings.png "Start Debugger dialog"
+            \image qtcreator-valgrind-remote-settings.png "Start Analyzer dialog"
 
-        \o  In the \gui Remote group, specify the connection to the remote host.
-
-        \o  In the \gui Target group, specify the application to run and analyze
-            on the remote host.
+        \o  Specify the application to run and analyze, and the \l{glossary-buildandrun-kit}{kit}
+            to use.
 
     \endlist
 

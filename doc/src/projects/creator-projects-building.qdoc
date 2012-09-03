@@ -31,12 +31,15 @@
 
     \title Building for Multiple Targets
 
-    You can build applications for multiple \l{glossary-development-target}
-    {targets}. By default, when you run the application on a target, you
-    automatically build it for the target and deploy it to the target first.
+    You can build applications for multiple targets, or using different compilers,
+    debuggers or Qt versions. \l{glossary-buildandrun-kit}{Kits} define the tools,
+    device type and other settings to use.
+
+    By default, when you run the application, you
+    automatically build and deploy it first.
     However, you can also perform each operation separately.
 
-    To check that the application code can be compiled and linked for a target,
+    To check that the application code can be compiled and linked for a device,
     you can build the project. The build errors and warnings are displayed in
     the \gui {Issues} output pane. More detailed information is displayed
     in the \gui {Compile Output} pane.
@@ -45,9 +48,9 @@
 
     \list 1
 
-        \o Select a target for the project.
+        \o Select a \l{glossary-buildandrun-kit}{kit} for the project.
 
-        \image qtcreator-target-selector.png "Target selector"
+        \image qtcreator-kit-selector.png "Kit selector"
 
         \o Choose \gui {Build > Build Project} or press \key {Ctrl+B}.
 

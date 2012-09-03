@@ -57,15 +57,15 @@
         \o  In the \gui {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \gui{Next}.
 
-            The \gui {Target Setup} dialog opens.
+            The \gui {Kit Selection} dialog opens.
 
-            \image qtcreator-new-project-qt-versions-qt-gui.png "Target Setup dialog"
+            \image qtcreator-new-project-qt-versions-qt-gui.png "Kit Selection dialog"
 
-        \o  Select build targets for your project,
+        \o  Select build and run \l{glossary-buildandrun-kit}{kits} for your project,
             and click \gui{Next}.
 
-            \note If only one target is specified in \gui Tools > \gui Options >
-            \gui {Build & Run} > \gui Targets, this dialog is
+            \note If only one kit is specified in \gui Tools > \gui Options >
+            \gui {Build & Run} > \gui Kits, this dialog is
             skipped.
 
             The \gui{Class Information} dialog opens.

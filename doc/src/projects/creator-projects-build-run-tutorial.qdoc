@@ -50,22 +50,22 @@
 
         \o  Select \gui Projects to configure the project:
 
-            \image qtcreator-gs-build-example-targets.png "Selecting targets"
+            \image qtcreator-gs-build-example-targets.png "Selecting kit for building and running"
 
             \list 1
 
                 \o  Select at least \QS and one of the mobile
-                    \l{glossary-development-target}{targets} (1), Maemo 5 or
+                    \l{glossary-buildandrun-kit}{kits} (1), Maemo 5 or
                     MeeGo Harmattan, depending on the device you develop for.
 
                 \o  Select \gui {Configure Project} (2).
 
             \endlist
 
-        \o  To test the application in \QS, click the \gui {Target
+        \o  To test the application in \QS, click the \gui {Kit
             Selector} and select \gui {\QS}.
 
-            \image qtcreator-gs-build-example-select-qs.png "Selecting Qt Simulator as target"
+            \image qtcreator-gs-build-example-select-qs.png "Selecting Qt Simulator as target device type"
 
         \o  Click
             \inlineimage qtcreator-run.png

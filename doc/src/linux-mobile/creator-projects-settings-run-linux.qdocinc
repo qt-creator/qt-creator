@@ -1,8 +1,9 @@
     \section2 Specifying Run Settings for Linux-Based Devices
 
-    To run an application on a Linux-based device target (embedded Linux, MeeGo
-    Harmattan, or Maemo), create and select a device configuration in the run
-    settings for the project.
+    To run an application on a Linux-based device (embedded Linux, MeeGo
+    Harmattan, or Maemo), create and select a device configuration in the
+    \l{glossary-buildandrun-kit}{kit} that is used for building and running the project and set its
+    device type correspondingly.
     You can also pass command line arguments to your application.
 
     \image qtcreator-screenshot-run-settings-maemo.png "Run settings for Linux-based devices"
@@ -16,7 +17,7 @@
 
     When you run the application, \QC copies the files to the connected device.
 
-    For MeeGo Harmattan and Maemo targets, \QC also generates an
+    For MeeGo Harmattan and Maemo device types, \QC also generates an
     installation package in the build directory by default. You can deliver the
     installation package to users for installation
     on devices that are of the same type and run the same firmware as the
