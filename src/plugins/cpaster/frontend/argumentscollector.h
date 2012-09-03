@@ -28,47 +28,40 @@
 **
 **************************************************************************/
 
-#ifndef PASTEBINDOTCAPROTOCOL_H
-#define PASTEBINDOTCAPROTOCOL_H
+#ifndef ARGUMENTSCOLLECTOR_H
+#define ARGUMENTSCOLLECTOR_H
 
-#include "protocol.h"
+#include <QCoreApplication>
+#include <QStringList>
 
-namespace CodePaster {
-class PasteBinDotCaProtocol : public NetworkProtocol
+class ArgumentsCollector
 {
-    Q_OBJECT
+    Q_DECLARE_TR_FUNCTIONS(ArgumentsCollector)
 public:
-    explicit PasteBinDotCaProtocol(const NetworkAccessManagerProxyPtr &nw);
+    ArgumentsCollector(const QStringList &availableProtocols);
+    bool collect(const QStringList &args); // Application is already removed.
 
-    static QString protocolName() { return QLatin1String("Pastebin.Ca"); }
-    QString name() const { return protocolName(); }
+    enum RequestType { RequestTypeHelp, RequestTypeListProtocols, RequestTypePaste };
+    RequestType requestType() const { return m_requestType; }
 
-    virtual bool hasSettings() const { return false; }
-    virtual unsigned capabilities() const;
+    QString errorString() const { return m_errorString; }
+    QString usageString() const;
 
-    virtual void fetch(const QString &id);
-    virtual void paste(const QString &text,
-                       ContentType ct = Text,
-                       const QString &username = QString(),
-                       const QString &comment = QString(),
-                       const QString &description = QString());
-    virtual void list();
-
-public slots:
-    void fetchFinished();
-    void listFinished();
-    void pasteFinished();
-
-protected:
-    virtual bool checkConfiguration(QString *errorMessage);
+    // These are valid <=> requestType() == RequestTypePaste
+    QString inputFilePath() const { return m_inputFilePath; }
+    QString protocol() const { return m_protocol; }
 
 private:
-    QNetworkReply *m_fetchReply;
-    QNetworkReply *m_listReply;
-    QNetworkReply *m_pasteReply;
-    QString m_fetchId;
-    bool m_hostChecked;
+    void setRequest();
+    void setPasteOptions();
+    bool checkAndSetOption(const QString &optionString, QString &optionValue);
+
+    const QStringList m_availableProtocols;
+    QStringList m_arguments;
+    RequestType m_requestType;
+    QString m_inputFilePath;
+    QString m_protocol;
+    QString m_errorString;
 };
 
-} // namespace CodePaster
-#endif // PASTEBINDOTCAPROTOCOL_H
+#endif // ARGUMENTSCOLLECTOR_H
