@@ -31,7 +31,7 @@
 #include "qmakeparser.h"
 
 #include "ioutils.h"
-using namespace ProFileEvaluatorInternal;
+using namespace QMakeInternal;
 
 #include <qfile.h>
 #ifdef PROPARSER_THREAD_SAFE

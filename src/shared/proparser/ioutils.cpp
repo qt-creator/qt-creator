@@ -43,7 +43,7 @@
 
 QT_BEGIN_NAMESPACE
 
-using namespace ProFileEvaluatorInternal;
+using namespace QMakeInternal;
 
 IoUtils::FileType IoUtils::fileType(const QString &fileName)
 {

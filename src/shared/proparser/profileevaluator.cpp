@@ -35,7 +35,7 @@
 
 #include <QDir>
 
-using namespace ProFileEvaluatorInternal;
+using namespace QMakeInternal;
 
 QT_BEGIN_NAMESPACE
 

@@ -64,7 +64,7 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace ProFileEvaluatorInternal {
+namespace QMakeInternal {
 
 struct QMakeStatics {
     QString field_sep;

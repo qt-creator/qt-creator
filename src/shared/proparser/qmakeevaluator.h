@@ -165,7 +165,7 @@ public:
     QString currentDirectory() const;
     ProFile *currentProFile() const;
     QString resolvePath(const QString &fileName) const
-        { return ProFileEvaluatorInternal::IoUtils::resolvePath(currentDirectory(), fileName); }
+        { return QMakeInternal::IoUtils::resolvePath(currentDirectory(), fileName); }
 
     bool evaluateFile(const QString &fileName, QMakeHandler::EvalFileType type,
                       LoadFlags flags);

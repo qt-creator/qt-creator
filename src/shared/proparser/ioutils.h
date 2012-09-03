@@ -35,7 +35,7 @@
 
 QT_BEGIN_NAMESPACE
 
-namespace ProFileEvaluatorInternal {
+namespace QMakeInternal {
 
 /*!
   This class provides replacement functionality for QFileInfo, QFile & QDir,

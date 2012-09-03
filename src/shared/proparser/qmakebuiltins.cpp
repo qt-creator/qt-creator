@@ -66,7 +66,7 @@
 #define QT_PCLOSE pclose
 #endif
 
-using namespace ProFileEvaluatorInternal;
+using namespace QMakeInternal;
 
 QT_BEGIN_NAMESPACE
 

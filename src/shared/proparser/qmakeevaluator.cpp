@@ -60,7 +60,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-using namespace ProFileEvaluatorInternal;
+using namespace QMakeInternal;
 
 QT_BEGIN_NAMESPACE
 
@@ -95,7 +95,7 @@ QMakeBaseEnv::~QMakeBaseEnv()
     delete evaluator;
 }
 
-namespace ProFileEvaluatorInternal {
+namespace QMakeInternal {
 QMakeStatics statics;
 }
 
