@@ -275,6 +275,7 @@ private:
     PendingBreakPointMap m_pendingBreakpointMap;
     QHash<QString, QString> m_fileNameModuleHash;
     QMultiHash<QString, quint64> m_symbolAddressCache;
+    QHash<QByteArray, QString> m_watchInameToName;
     bool m_ignoreCdbOutput;
     QVariantList m_customSpecialStopData;
     QList<SourcePathMapping> m_sourcePathMappings;

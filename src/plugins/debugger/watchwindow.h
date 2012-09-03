@@ -56,6 +56,7 @@ public:
 
 public slots:
     void watchExpression(const QString &exp);
+    void watchExpression(const QString &exp, const QString &name);
     void handleItemIsExpanded(const QModelIndex &idx);
 
 private:

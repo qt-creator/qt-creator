@@ -622,6 +622,11 @@ static QString filterForQmakeFileDialog()
             // work around QTBUG-7739 that prohibits filters that don't start with *
             filter += QLatin1Char('*');
         filter += commands.at(i);
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+        // kde bug, we need at least one wildcard character
+        // see QTCREATORBUG-7771
+        filter += QLatin1Char('*');
+#endif
     }
     filter += QLatin1Char(')');
     return filter;

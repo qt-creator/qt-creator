@@ -423,8 +423,14 @@ void CMakeRunPage::initializePage()
                 if (hasCodeBlocksGenerator && (cachedGenerator.isEmpty() || cachedGenerator == "NMake Makefiles"))
                     m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(p->displayName()), profileVariant);
              } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
+#ifdef Q_OS_WIN
                 if (cachedGenerator.isEmpty() || cachedGenerator == "MinGW Makefiles")
                     m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(p->displayName()), profileVariant);
+#else
+                if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
+                    m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(p->displayName()), profileVariant);
+#endif
+
             }
         } else {
             // Non windows
@@ -460,7 +466,11 @@ void CMakeRunPage::runCMake()
     QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
     if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS) {
         if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor)
+#ifdef Q_OS_WIN
             generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
+#else
+            generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
+#endif
         else
             generator = QLatin1String("-GCodeBlocks - NMake Makefiles");
     }

@@ -1144,7 +1144,12 @@ public slots:
         exp = fixCppExpression(exp);
         if (exp.isEmpty())
             return;
-        currentEngine()->watchHandler()->watchExpression(exp);
+        const QString name = exp;
+        // Prefer to watch an existing local variable by its expression (address) if it can be found.
+        WatchHandler *watchHandler = currentEngine()->watchHandler();
+        if (const WatchData *localVariable = watchHandler->findCppLocalVariable(exp))
+            exp = QLatin1String(localVariable->exp);
+        watchHandler->watchExpression(exp, name);
     }
 
     void handleExecExit()

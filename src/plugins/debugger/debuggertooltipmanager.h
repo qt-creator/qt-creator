@@ -119,8 +119,9 @@ public:
 
     static DebuggerToolTipWidget *loadSessionData(QXmlStreamReader &r);
 
-    int debuggerModel() const { return m_debuggerModel; }
-    void setDebuggerModel(int m) { m_debuggerModel = m; }
+    QByteArray iname() const { return m_iname; }
+    void setIname(const QByteArray &e) { m_iname = e; }
+
     QString expression() const { return m_expression; }
     void setExpression(const QString &e) { m_expression = e; }
 
@@ -166,6 +167,7 @@ private:
 
     int m_debuggerModel;
     QString m_expression;
+    QByteArray m_iname;
 
     DebuggerToolTipTreeView *m_treeView;
     QStandardItemModel *m_defaultModel;
@@ -196,6 +198,9 @@ class DebuggerToolTipManager : public QObject
     Q_OBJECT
 
 public:
+    typedef QPair<QString, QByteArray> ExpressionInamePair;
+    typedef QList<ExpressionInamePair> ExpressionInamePairs;
+
     explicit DebuggerToolTipManager(QObject *parent = 0);
     virtual ~DebuggerToolTipManager();
 
@@ -204,9 +209,9 @@ public:
     bool hasToolTips() const { return !m_tooltips.isEmpty(); }
 
     // Collect all expressions of DebuggerTreeViewToolTipWidget
-    QStringList treeWidgetExpressions(const QString &fileName,
-                                      const QString &engineType = QString(),
-                                      const QString &function= QString()) const;
+    ExpressionInamePairs treeWidgetExpressions(const QString &fileName,
+                                               const QString &engineType = QString(),
+                                               const QString &function= QString()) const;
 
     void showToolTip(const QPoint &p, Core::IEditor *editor, DebuggerToolTipWidget *);
 

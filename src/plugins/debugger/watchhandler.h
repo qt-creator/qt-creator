@@ -58,15 +58,6 @@ public:
 
 typedef QHash<QString, QStringList> TypeFormats;
 
-enum WatchType
-{
-    LocalsType,
-    InspectType,
-    WatchersType,
-    ReturnType,
-    TooltipType
-};
-
 enum IntegerFormat
 {
     DecimalFormat = 0, // Keep that at 0 as default.
@@ -86,7 +77,7 @@ public:
     QAbstractItemModel *model() const;
 
     void cleanup();
-    void watchExpression(const QString &exp);
+    void watchExpression(const QString &exp, const QString &name = QString());
     Q_SLOT void clearWatches();
 
     void updateWatchers(); // Called after locals are fetched
@@ -95,6 +86,7 @@ public:
 
     const WatchData *watchData(const QModelIndex &) const;
     const WatchData *findData(const QByteArray &iname) const;
+    const WatchData *findCppLocalVariable(const QString &name) const;
     QString displayForAutoTest(const QByteArray &iname) const;
     bool hasItem(const QByteArray &iname) const;
 

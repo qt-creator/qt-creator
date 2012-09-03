@@ -118,6 +118,7 @@ public:
 
     QPoint mousePosition;
     QString expression;
+    QByteArray iname;
     Core::IEditor *editor;
 };
 
@@ -3845,22 +3846,19 @@ void GdbEngine::showToolTip()
     if (m_toolTipContext.isNull())
         return;
     const QString expression = m_toolTipContext->expression;
-    const QByteArray iname = tooltipIName(m_toolTipContext->expression);
     if (DebuggerToolTipManager::debug())
-        qDebug() << "GdbEngine::showToolTip " << expression << iname << (*m_toolTipContext);
+        qDebug() << "GdbEngine::showToolTip " << expression << m_toolTipContext->iname << (*m_toolTipContext);
 
-    if (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)) {
-        watchHandler()->removeData(iname);
+    if (m_toolTipContext->iname.startsWith("tooltip")
+        && (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)
+            || !watchHandler()->isValidToolTip(m_toolTipContext->iname))) {
+        watchHandler()->removeData(m_toolTipContext->iname);
         return;
     }
 
-    if (!watchHandler()->isValidToolTip(iname)) {
-        watchHandler()->removeData(iname);
-        return;
-    }
     DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
-    tw->setDebuggerModel(TooltipType);
-    tw->setExpression(expression);
+    tw->setIname(m_toolTipContext->iname);
+    tw->setExpression(m_toolTipContext->expression);
     tw->setContext(*m_toolTipContext);
     tw->acquireEngine(this);
     DebuggerToolTipManager::instance()->showToolTip(m_toolTipContext->mousePosition,
@@ -3891,12 +3889,22 @@ bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
 
     DebuggerToolTipContext context = contextIn;
     int line, column;
-    const QString exp = fixCppExpression(cppExpressionAt(editor, context.position, &line, &column, &context.function));
-    if (DebuggerToolTipManager::debug())
-        qDebug() << "GdbEngine::setToolTipExpression1 " << exp << context;
+    QString exp = fixCppExpression(cppExpressionAt(editor, context.position, &line, &column, &context.function));
     if (exp.isEmpty())
         return false;
+    // Prefer a filter on an existing local variable if it can be found.
+    QByteArray iname;
+    if (const WatchData *localVariable = watchHandler()->findCppLocalVariable(exp)) {
+        exp = QLatin1String(localVariable->exp);
+        iname = localVariable->iname;
+    } else {
+        iname = tooltipIName(exp);
+    }
 
+    if (DebuggerToolTipManager::debug())
+        qDebug() << "GdbEngine::setToolTipExpression1 " << exp << iname << context;
+
+    // Same expression: Display synchronously.
     if (!m_toolTipContext.isNull() && m_toolTipContext->expression == exp) {
         showToolTip();
         return true;
@@ -3905,7 +3913,14 @@ bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
     m_toolTipContext.reset(new GdbToolTipContext(context));
     m_toolTipContext->mousePosition = mousePos;
     m_toolTipContext->expression = exp;
+    m_toolTipContext->iname = iname;
     m_toolTipContext->editor = editor;
+    // Local variable: Display synchronously.
+    if (iname.startsWith("local")) {
+        showToolTip();
+        return true;
+    }
+
     if (DebuggerToolTipManager::debug())
         qDebug() << "GdbEngine::setToolTipExpression2 " << exp << (*m_toolTipContext);
 
@@ -3913,13 +3928,13 @@ bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
         UpdateParameters params;
         params.tryPartial = true;
         params.tooltipOnly = true;
-        params.varList = tooltipIName(exp);
+        params.varList = iname;
         updateLocalsPython(params);
     } else {
         WatchData toolTip;
         toolTip.exp = exp.toLatin1();
         toolTip.name = exp;
-        toolTip.iname = tooltipIName(exp);
+        toolTip.iname = iname;
         watchHandler()->insertData(toolTip);
     }
     return true;

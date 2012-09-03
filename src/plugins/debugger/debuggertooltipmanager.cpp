@@ -98,8 +98,8 @@ static const char offsetYAttributeC[] = "offset_y";
 static const char engineTypeAttributeC[] = "engine";
 static const char dateAttributeC[] = "date";
 static const char treeElementC[] = "tree";
-static const char treeModelAttributeC[] = "model"; // Locals/Watches
-static const char treeExpressionAttributeC[] = "expression"; // Locals/Watches
+static const char treeExpressionAttributeC[] = "expression";
+static const char treeInameAttributeC[] = "iname";
 static const char modelElementC[] = "model";
 static const char modelColumnCountAttributeC[] = "columncount";
 static const char modelRowElementC[] = "row";
@@ -615,7 +615,6 @@ DebuggerToolTipWidget::DebuggerToolTipWidget(QWidget *parent) :
     m_titleLabel(new DraggableLabel),
     m_engineAcquired(false),
     m_creationDate(QDate::currentDate()),
-    m_debuggerModel(TooltipType),
     m_treeView(new DebuggerToolTipTreeView),
     m_defaultModel(new QStandardItemModel(this))
 {
@@ -836,11 +835,7 @@ void DebuggerToolTipWidget::saveSessionData(QXmlStreamWriter &w) const
 /*!
     \class Debugger::Internal::TooltipFilterModel
 
-    \brief Model for tooltips filtering a local variable using the locals or tooltip model,
-    matching on the name.
-
-    Expressions/names can either be flat ('foo' will match at the root level)
-    or nested ('this.m_foo' will match 'this' at root level and 'm_foo' at level 1).
+    \brief Model for tooltips filtering an item on the watchhandler matching its tree on the iname.
 
     In addition, suppress the model's tooltip data to avoid a tooltip on a tooltip.
 */
@@ -848,9 +843,8 @@ void DebuggerToolTipWidget::saveSessionData(QXmlStreamWriter &w) const
 class TooltipFilterModel : public QSortFilterProxyModel
 {
 public:
-    TooltipFilterModel(QAbstractItemModel *model, const QString &exp, int debuggerModel) :
-        m_expressions(exp.split(QLatin1Char('.'))),
-        m_debuggerModel(debuggerModel)
+    TooltipFilterModel(QAbstractItemModel *model, const QByteArray &iname)
+        : m_iname(iname)
     {
         setSourceModel(model);
     }
@@ -864,27 +858,21 @@ public:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
 private:
-    const QStringList m_expressions;
-    int m_debuggerModel;
+    const QByteArray m_iname;
 };
+
+static bool isSubIname(const QByteArray &haystack, const QByteArray &needle)
+{
+    return haystack.size() > needle.size()
+           && haystack.startsWith(needle)
+           && haystack.at(needle.size()) == '.';
+}
 
 bool TooltipFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     const QModelIndex nameIndex = sourceModel()->index(sourceRow, 0, sourceParent);
-    QByteArray iname = nameIndex.data(LocalsINameRole).toByteArray();
-    if (m_debuggerModel == LocalsType && !iname.startsWith("local"))
-        return false;
-    if (m_debuggerModel == TooltipType && !iname.startsWith("tooltip"))
-        return false;
-    // Match on expression for top level, else pass through.
-    const int depth = iname.count('.');
-    if (depth == 0)
-        return true;
-    if (depth > m_expressions.size())
-        return true;
-    const QString name = nameIndex.data().toString();
-    //const QString exp = nameIndex.data(LocalsExpressionRole).toString();
-    return name == m_expressions.at(depth - 1);
+    const QByteArray iname = nameIndex.data(LocalsINameRole).toByteArray();
+    return iname == m_iname || isSubIname(iname, m_iname) || isSubIname(m_iname, iname);
 }
 
 /*!
@@ -991,7 +979,7 @@ void DebuggerToolTipWidget::doAcquireEngine(DebuggerEngine *engine)
     // Create a filter model on the debugger's model and switch to it.
     QAbstractItemModel *model = engine->watchModel();
     TooltipFilterModel *filterModel =
-            new TooltipFilterModel(model, m_expression, m_debuggerModel);
+            new TooltipFilterModel(model, m_iname);
     swapModel(filterModel);
 }
 
@@ -1000,7 +988,7 @@ QAbstractItemModel *DebuggerToolTipWidget::swapModel(QAbstractItemModel *newMode
     QAbstractItemModel *oldModel = m_treeView->swapModel(newModel);
     // When looking at some 'this.m_foo.x', expand all items
     if (newModel) {
-        if (const int level = m_expression.count(QLatin1Char('.')) + 1) {
+        if (const int level = m_iname.count('.')) {
             QModelIndex index = newModel->index(0, 0);
             for (int i = 0; i < level && index.isValid(); i++, index = index.child(0, 0))
                 m_treeView->setExpanded(index, true);
@@ -1062,8 +1050,9 @@ void DebuggerToolTipWidget::doSaveSessionData(QXmlStreamWriter &w) const
 {
     w.writeStartElement(QLatin1String(treeElementC));
     QXmlStreamAttributes attributes;
-    attributes.append(QLatin1String(treeModelAttributeC), QString::number(m_debuggerModel));
-    attributes.append(QLatin1String(treeExpressionAttributeC), m_expression);
+    if (!m_expression.isEmpty())
+        attributes.append(QLatin1String(treeExpressionAttributeC), m_expression);
+    attributes.append(QLatin1String(treeInameAttributeC), QLatin1String(m_iname));
     w.writeAttributes(attributes);
     if (QAbstractItemModel *model = m_treeView->model()) {
         XmlWriterTreeModelVisitor v(model, w);
@@ -1078,11 +1067,11 @@ void DebuggerToolTipWidget::doLoadSessionData(QXmlStreamReader &r)
         return;
     // Restore data to default model and show that.
     const QXmlStreamAttributes attributes = r.attributes();
-    m_debuggerModel = attributes.value(QLatin1String(treeModelAttributeC)).toString().toInt();
+    m_iname = attributes.value(QLatin1String(treeInameAttributeC)).toString().toLatin1();
     m_expression = attributes.value(QLatin1String(treeExpressionAttributeC)).toString();
     if (debugToolTips)
-        qDebug() << "DebuggerTreeViewToolTipWidget::doLoadSessionData() " << m_debuggerModel << m_expression;
-    setObjectName(QLatin1String("DebuggerTreeViewToolTipWidget: ") + m_expression);
+        qDebug() << "DebuggerTreeViewToolTipWidget::doLoadSessionData() " << m_debuggerModel << m_iname;
+    setObjectName(QLatin1String("DebuggerTreeViewToolTipWidget: ") + QLatin1String(m_iname));
     restoreTreeModel(r, m_defaultModel);
     r.readNext(); // Skip </tree>
     m_treeView->swapModel(m_defaultModel);
@@ -1480,14 +1469,16 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested(ITextEditor *editor,
         qDebug() << "<slotTooltipOverrideRequested() " << currentEngine << *handled;
 }
 
-QStringList DebuggerToolTipManager::treeWidgetExpressions(const QString &fileName,
-                                                          const QString &engineType,
-                                                          const QString &function) const
+
+DebuggerToolTipManager::ExpressionInamePairs
+    DebuggerToolTipManager::treeWidgetExpressions(const QString &fileName,
+                                                  const QString &engineType,
+                                                  const QString &function) const
 {
-    QStringList rc;
+    ExpressionInamePairs rc;
     foreach (const QPointer<DebuggerToolTipWidget> &tw, m_tooltips) {
         if (!tw.isNull() && tw->matches(fileName, engineType, function))
-            rc.push_back(tw->expression());
+            rc.push_back(ExpressionInamePair(tw->expression(), tw->iname()));
     }
     if (debugToolTips)
         qDebug() << "DebuggerToolTipManager::treeWidgetExpressions"
