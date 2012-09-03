@@ -75,6 +75,7 @@ using namespace QmlDesigner;
 #include "../common/statichelpers.cpp"
 
 #include <qmljstools/qmljsmodelmanager.h>
+#include <qmljs/qmljsinterpreter.h>
 
 #ifdef Q_OS_MAC
 #  define SHARE_PATH "/Resources"
@@ -108,9 +109,10 @@ static void initializeMetaTypeSystem(const QString &resourcePath)
                                                              QDir::Files,
                                                              QDir::Name);
 
-    const QStringList errors = QmlJS::Interpreter::CppQmlTypesLoader::loadQmlTypes(qmlFiles);
-    foreach (const QString &error, errors)
-        qWarning() << qPrintable(error);
+    QStringList errorsAndWarnings;
+    QmlJS::CppQmlTypesLoader::loadQmlTypes(qmlFiles, &errorsAndWarnings, &errorsAndWarnings);
+    foreach (const QString &errorAndWarning, errorsAndWarnings)
+        qWarning() << qPrintable(errorAndWarning);
 }
 
 tst_TestCore::tst_TestCore()
@@ -3478,7 +3480,7 @@ void tst_TestCore::testSubComponentManager()
 
     QScopedPointer<Model> model(Model::create("Qt/Item"));
     model->setFileUrl(QUrl::fromLocalFile(fileName));
-    QScopedPointer<SubComponentManager> subComponentManager(new SubComponentManager(model->metaInfo(), 0));
+    QScopedPointer<SubComponentManager> subComponentManager(new SubComponentManager(model.data()));
     subComponentManager->update(QUrl::fromLocalFile(fileName), model->imports());
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());

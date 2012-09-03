@@ -73,8 +73,7 @@ public:
 
     void nodeOrderChanged(const QmlDesigner::NodeListProperty &listProperty, const QmlDesigner::ModelNode &movedNode, int oldIndex);
 
-    void stateChanged(const QmlDesigner::QmlModelState &newQmlModelState, const QmlDesigner::QmlModelState &oldQmlModelState);
-
+    void actualStateChanged(const QmlDesigner::ModelNode &node);
     QList<MethodCall> &methodCalls();
 
     QString lastFunction() const;

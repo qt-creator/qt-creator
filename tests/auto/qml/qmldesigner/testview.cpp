@@ -152,10 +152,10 @@ void TestView::nodeOrderChanged(const QmlDesigner::NodeListProperty &listPropert
     m_methodCalls += MethodCall("nodeOrderChanged", QStringList() << listProperty.name() << movedNode.id() << QString::number(oldIndex));
 }
 
-void TestView::stateChanged(const QmlDesigner::QmlModelState &newQmlModelState, const QmlDesigner::QmlModelState &oldQmlModelState)
+void TestView::actualStateChanged(const QmlDesigner::ModelNode &node)
 {
-    QmlDesigner::QmlModelView::stateChanged(newQmlModelState, oldQmlModelState);
-    m_methodCalls += MethodCall("stateChanged", QStringList() << newQmlModelState.name() << oldQmlModelState.name());
+    QmlDesigner::QmlModelView::actualStateChanged(node);
+    m_methodCalls += MethodCall("actualStateChanged", QStringList() << node.id());
 }
 
 QList<TestView::MethodCall> &TestView::methodCalls()
