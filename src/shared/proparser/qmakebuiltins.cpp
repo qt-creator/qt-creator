@@ -389,13 +389,12 @@ void QMakeEvaluator::populateDeps(
 }
 
 ProStringList QMakeEvaluator::evaluateBuiltinExpand(
-        const ProKey &func, const ProStringList &args)
+        int func_t, const ProKey &func, const ProStringList &args)
 {
     ProStringList ret;
 
     traceMsg("calling built-in $$%s(%s)", dbgKey(func), dbgSepStrList(args));
 
-    ExpandFunc func_t = ExpandFunc(statics.expands.value(func));
     switch (func_t) {
     case E_BASENAME:
     case E_DIRNAME:
@@ -1015,10 +1014,6 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
             ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
         }
         break;
-    case E_INVALID:
-        evalError(fL1S("'%1' is not a recognized replace function.")
-                  .arg(func.toQString(m_tmp1)));
-        break;
     default:
         evalError(fL1S("Function '%1' is not implemented.").arg(func.toQString(m_tmp1)));
         break;
@@ -1028,11 +1023,10 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
 }
 
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
-        const ProKey &function, const ProStringList &args)
+        int func_t, const ProKey &function, const ProStringList &args)
 {
     traceMsg("calling built-in %s(%s)", dbgKey(function), dbgSepStrList(args));
 
-    TestFunc func_t = (TestFunc)statics.functions.value(function);
     switch (func_t) {
     case T_DEFINED: {
         if (args.count() < 1 || args.count() > 2) {
@@ -1624,10 +1618,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         return writeFile(fL1S("cache "), fn, QIODevice::Append, varstr);
     }
 #endif
-    case T_INVALID:
-        evalError(fL1S("'%1' is not a recognized test function.")
-                  .arg(function.toQString(m_tmp1)));
-        return ReturnFalse;
     default:
         evalError(fL1S("Function '%1' is not implemented.").arg(function.toQString(m_tmp1)));
         return ReturnFalse;

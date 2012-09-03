@@ -1647,6 +1647,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBoolFunction(
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         const ProKey &func, const ushort *&tokPtr)
 {
+    if (int func_t = statics.functions.value(func)) {
+        //why don't the builtin functions just use args_list? --Sam
+        return evaluateBuiltinConditional(func_t, func, expandVariableReferences(tokPtr, 5, true));
+    }
+
     QHash<ProKey, ProFunctionDef>::ConstIterator it =
             m_functionDefs.testFunctions.constFind(func);
     if (it != m_functionDefs.testFunctions.constEnd()) {
@@ -1655,13 +1660,19 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditionalFunction(
         return evaluateBoolFunction(*it, args, func);
     }
 
-    //why don't the builtin functions just use args_list? --Sam
-    return evaluateBuiltinConditional(func, expandVariableReferences(tokPtr, 5, true));
+    skipExpression(tokPtr);
+    evalError(fL1S("'%1' is not a recognized test function.").arg(func.toQString(m_tmp1)));
+    return ReturnFalse;
 }
 
 ProStringList QMakeEvaluator::evaluateExpandFunction(
         const ProKey &func, const ushort *&tokPtr)
 {
+    if (int func_t = statics.expands.value(func)) {
+        //why don't the builtin functions just use args_list? --Sam
+        return evaluateBuiltinExpand(func_t, func, expandVariableReferences(tokPtr, 5, true));
+    }
+
     QHash<ProKey, ProFunctionDef>::ConstIterator it =
             m_functionDefs.replaceFunctions.constFind(func);
     if (it != m_functionDefs.replaceFunctions.constEnd()) {
@@ -1670,8 +1681,9 @@ ProStringList QMakeEvaluator::evaluateExpandFunction(
         return evaluateFunction(*it, args, 0);
     }
 
-    //why don't the builtin functions just use args_list? --Sam
-    return evaluateBuiltinExpand(func, expandVariableReferences(tokPtr, 5, true));
+    skipExpression(tokPtr);
+    evalError(fL1S("'%1' is not a recognized replace function.").arg(func.toQString(m_tmp1)));
+    return ProStringList();
 }
 
 bool QMakeEvaluator::evaluateConditional(const QString &cond, const QString &where, int line)
