@@ -4183,11 +4183,13 @@ namespace qvector {
     {
         // This tests the display of a big vector.
         QVector<int> vec(10000);
+        for (int i = 0; i != vec.size(); ++i)
+            vec[i] = i * i;
         BREAK_HERE;
         // Expand vec.
         // Check vec <10000 items> QVector<int>.
         // Check vec.0 0 int.
-        // Check vec.1999 0 int.
+        // Check vec.1999 3996001 int.
         // Continue.
 
         // step over

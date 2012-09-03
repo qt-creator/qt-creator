@@ -11,6 +11,11 @@ from __future__ import with_statement
 def mapForms():
     return "Normal,Compact"
 
+def arrayForms():
+    if hasPlot():
+        return "Normal,Plot"
+    return "Normal"
+
 def mapCompact(format, keyType, valueType):
     if format == 2:
         return True # Compact.
@@ -1658,6 +1663,10 @@ def qedit__QVector(expr, value):
     gdb.execute(cmd)
 
 
+def qform__QVector():
+    return arrayForms()
+
+
 def qdump__QVector(d, value):
     private = value["d"]
     checkRef(private["ref"])
@@ -1678,8 +1687,7 @@ def qdump__QVector(d, value):
     check(0 <= size and size <= alloc and alloc <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     d.putNumChild(size)
-    if d.isExpanded():
-        d.putArrayData(innerType, p, size)
+    d.putPlotData(innerType, p, size, 2)
 
 
 def qdump__QWeakPointer(d, value):
@@ -2733,3 +2741,5 @@ if False:
         if d.isExpanded():
             with Children(d):
                 d.putFields(value)
+
+
