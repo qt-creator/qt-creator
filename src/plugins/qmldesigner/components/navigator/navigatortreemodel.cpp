@@ -40,6 +40,7 @@
 #include <rewriterview.h>
 #include <invalididexception.h>
 #include <rewritingexception.h>
+#include <modelnodecontextmenu.h>
 
 #include <QMimeData>
 #include <QMessageBox>
@@ -659,10 +660,9 @@ void NavigatorTreeModel::setVisible(const QModelIndex &index, bool visible)
     itemRow.visibilityItem->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
 }
 
-void NavigatorTreeModel::openContextMenu(const QPoint &p)
+void NavigatorTreeModel::openContextMenu(const QPoint &position)
 {
-    if (m_view)
-        m_view->showContextMenu(p, QPoint(), false);
+    ModelNodeContextMenu::showContextMenu(m_view.data(), position, QPoint(), false);
 }
 
 } // QmlDesigner

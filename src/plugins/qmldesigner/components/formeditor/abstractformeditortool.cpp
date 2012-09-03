@@ -32,6 +32,8 @@
 #include "formeditorview.h"
 #include "formeditorview.h"
 
+#include <modelnodecontextmenu.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <QDebug>
@@ -211,7 +213,7 @@ void AbstractFormEditorTool::mouseDoubleClickEvent(const QList<QGraphicsItem*> &
 
 void AbstractFormEditorTool::showContextMenu(QGraphicsSceneMouseEvent *event)
 {
-     view()->showContextMenu(event->screenPos(), event->scenePos().toPoint(), true);
+    ModelNodeContextMenu::showContextMenu(view(), event->screenPos(), event->scenePos().toPoint(), true);
 }
 
 void AbstractFormEditorTool::clear()

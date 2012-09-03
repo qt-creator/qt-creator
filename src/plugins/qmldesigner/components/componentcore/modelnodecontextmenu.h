@@ -118,6 +118,8 @@ public:
     void execute(const QPoint &pos, bool selectionMenu);
     void setScenePos(const QPoint &pos);
 
+    static void showContextMenu(QmlModelView *view, const QPoint &globalPosition, const QPoint &scenePosition, bool showSelection);
+
 private:
     ModelNodeAction* createModelNodeAction(const QString &description, QMenu *menu, const QList<ModelNode> &modelNodeList, ModelNodeAction::ModelNodeActionType type, bool enabled = true);
 

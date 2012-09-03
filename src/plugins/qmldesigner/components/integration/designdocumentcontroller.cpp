@@ -44,7 +44,7 @@
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 #include <rewritingexception.h>
-#include <model/modelnodecontextmenu.h>
+#include <modelnodecontextmenu.h>
 #include <designmodewidget.h>
 
 #include <projectexplorer/projectexplorer.h>

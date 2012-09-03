@@ -434,6 +434,12 @@ void ModelNodeContextMenu::setScenePos(const QPoint &pos)
     m_scenePos = pos;
 }
 
+void ModelNodeContextMenu::showContextMenu(QmlModelView *view, const QPoint &globalPosition, const QPoint &scenePosition, bool showSelection)
+{
+    ModelNodeContextMenu contextMenu(view);
+    contextMenu.setScenePos(scenePosition);
+    contextMenu.execute(globalPosition, showSelection);
+}
 
 ModelNodeAction* ModelNodeContextMenu::createModelNodeAction(const QString &description, QMenu *menu, const QList<ModelNode> &modelNodeList, ModelNodeAction::ModelNodeActionType type, bool enabled)
 {

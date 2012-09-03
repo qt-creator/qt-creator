@@ -46,8 +46,6 @@
 #include "rewriterview.h"
 #include "plaintexteditmodifier.h"
 #include "modelmerger.h"
-#include "modelnodecontextmenu.h"
-
 
 namespace QmlDesigner {
 
@@ -423,13 +421,6 @@ void QmlModelView::instancesToken(const QString &/*tokenName*/, int /*tokenNumbe
 void QmlModelView::nodeSourceChanged(const ModelNode &, const QString & /*newNodeSource*/)
 {
 
-}
-
-void QmlModelView::showContextMenu(const QPoint &globalPos, const QPoint &scenePos, bool showSelection)
-{
-    ModelNodeContextMenu contextMenu(this);
-    contextMenu.setScenePos(scenePos);
-    contextMenu.execute(globalPos, showSelection);
 }
 
 void QmlModelView::rewriterBeginTransaction()

@@ -10,6 +10,7 @@ include(../../private_headers.pri)
 include(qmldesigner_dependencies.pri)
 
 include(designercore/designercore.pri)
+include(components/componentcore/componentcore.pri)
 include(components/integration/integration.pri)
 include(components/propertyeditor/propertyeditor.pri)
 include(components/formeditor/formeditor.pri)
@@ -18,20 +19,4 @@ include(components/navigator/navigator.pri)
 include(components/pluginmanager/pluginmanager.pri)
 include(components/stateseditor/stateseditor.pri)
 include(components/resources/resources.pri)
-
-HEADERS += qmldesignerconstants.h \
-    qmldesignerplugin.h \
-    designmodewidget.h \
-    designersettings.h \
-    settingspage.h \
-    designmodecontext.h \
-    styledoutputpaneplaceholder.h
-
-SOURCES += qmldesignerplugin.cpp \
-    designmodewidget.cpp \
-    designersettings.cpp \
-    settingspage.cpp \
-    designmodecontext.cpp \
-    styledoutputpaneplaceholder.cpp
-
-FORMS += settingspage.ui
+include(qmldesignerplugin.pri)

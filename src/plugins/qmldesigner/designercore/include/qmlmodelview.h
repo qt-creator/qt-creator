@@ -121,8 +121,6 @@ public:
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports);
     void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource);
 
-    void showContextMenu(const QPoint &globalPos, const QPoint &scenePos, bool showSelection);
-
 protected:
     NodeInstance instanceForModelNode(const ModelNode &modelNode);
     bool hasInstanceForModelNode(const ModelNode &modelNode);
