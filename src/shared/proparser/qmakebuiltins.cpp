@@ -396,15 +396,6 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
     traceMsg("calling built-in $$%s(%s)", dbgKey(func), dbgSepStrList(args));
 
     ExpandFunc func_t = ExpandFunc(statics.expands.value(func));
-    if (func_t == 0) {
-        const QString &fn = func.toQString(m_tmp1);
-        const QString &lfn = fn.toLower();
-        if (!fn.isSharedWith(lfn)) {
-            func_t = ExpandFunc(statics.expands.value(ProKey(lfn)));
-            if (func_t)
-                deprecationWarning(fL1S("Using uppercased builtin functions is deprecated."));
-        }
-    }
     switch (func_t) {
     case E_BASENAME:
     case E_DIRNAME:
