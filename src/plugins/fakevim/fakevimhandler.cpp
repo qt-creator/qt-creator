@@ -3301,10 +3301,12 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
     } else if (input.isKey(Key_PageDown) || input.isControl('f')) {
         removeAutomaticIndentation();
         moveDown(count() * (linesOnScreen() - 2));
+        breakEditBlock();
         m_lastInsertion.clear();
     } else if (input.isKey(Key_PageUp) || input.isControl('b')) {
         removeAutomaticIndentation();
         moveUp(count() * (linesOnScreen() - 2));
+        breakEditBlock();
         m_lastInsertion.clear();
     } else if (input.isKey(Key_Tab)) {
         m_justAutoIndented = 0;
