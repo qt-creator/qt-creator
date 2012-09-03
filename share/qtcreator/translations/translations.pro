@@ -120,6 +120,6 @@ isEmpty(vcproj) {
 }
 
 qmfiles.files = $$prependAll(LANGUAGES, $$OUT_PWD/qtcreator_,.qm)
-qmfiles.path = /share/qtcreator/translations
+qmfiles.path = $$QTC_PREFIX/share/qtcreator/translations
 qmfiles.CONFIG += no_check_exist
 INSTALLS += qmfiles
