@@ -31,8 +31,6 @@
 #ifndef WIDGETPLUGINPATH_H
 #define WIDGETPLUGINPATH_H
 
-#include "widgetpluginmanager.h"
-
 #include <QObject>
 #include <QWeakPointer>
 #include <QList>
@@ -74,11 +72,12 @@ struct WidgetPluginData {
 // IPlugins.
 
 class WidgetPluginPath {
+    typedef QList<IWidgetPlugin *> IWidgetPluginList;
 public:
     explicit WidgetPluginPath(const QDir &path);
 
 
-    void getInstances(WidgetPluginManager::IWidgetPluginList *list);
+    void getInstances(IWidgetPluginList *list);
 
     QDir path() const { return m_path; }
 

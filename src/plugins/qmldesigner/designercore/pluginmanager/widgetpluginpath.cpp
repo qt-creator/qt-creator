@@ -173,7 +173,7 @@ void WidgetPluginPath::ensureLoaded()
     }
 }
 
-void WidgetPluginPath::getInstances(WidgetPluginManager::IWidgetPluginList *list)
+void WidgetPluginPath::getInstances(IWidgetPluginList *list)
 {
     ensureLoaded();
     // Compile list of instances
