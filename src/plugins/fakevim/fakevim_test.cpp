@@ -44,7 +44,10 @@
  * Tests after this macro will be skipped and warning printed.
  * Uncomment it to test a feature -- if tests succeeds it should be removed from the test.
  */
-#define NOT_IMPLEMENTED QSKIP("Not fully implemented!", SkipSingle);
+#define NOT_IMPLEMENTED return;
+
+//   QTest::qSkip("Not fully implemented!", QTest::SkipSingle, __FILE__, __LINE__);
+//   return;
 
 // text cursor representation in comparisons (set empty to disable cursor position checking)
 #define X "|"
