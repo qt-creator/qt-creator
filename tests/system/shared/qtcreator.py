@@ -67,6 +67,22 @@ def __removeTmpSettingsDir__():
     waitForCleanShutdown()
     deleteDirIfExists(os.path.dirname(os.path.dirname(tmpSettingsDir)))
 
+def substituteTildeWithinToolchains(settingsDir):
+    toolchains = os.path.join(settingsDir, "Nokia", 'qtcreator', 'toolchains.xml')
+    origToolchains = toolchains + "_orig"
+    home = os.path.expanduser("~")
+    os.rename(toolchains, origToolchains)
+    origFile = open(origToolchains, "r")
+    modifiedFile = open(toolchains, "w")
+    for line in origFile:
+        if "~" in line:
+            line = line.replace("~", home)
+        modifiedFile.write(line)
+    origFile.close()
+    modifiedFile.close()
+    os.remove(origToolchains)
+    test.log("Substituted all tildes with '%s' inside toolchains.xml..." % home)
+
 if platform.system() in ('Windows', 'Microsoft'):
     sdkPath = "C:\\QtSDK"
     cwd = os.getcwd()       # current dir is directory holding qtcreator.py
@@ -85,5 +101,7 @@ if os.getenv("SYSTEST_NOSETTINGSPATH") != "1":
     tmpSettingsDir = tempDir()
     tmpSettingsDir = os.path.abspath(tmpSettingsDir+"/settings")
     shutil.copytree(cwd, tmpSettingsDir)
+    if platform.system() in ('Linux', 'Darwin'):
+        substituteTildeWithinToolchains(tmpSettingsDir)
     atexit.register(__removeTmpSettingsDir__)
     SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
