@@ -82,8 +82,6 @@ protected:
     bool checkCandidates(const QList<LookupItem> &candidates) const;
     void checkExpression(unsigned startToken, unsigned endToken, Scope *scope = 0);
 
-    static bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<const Name *> &other);
-    static bool compareName(const Name *name, const Name *other);
     static bool isLocalScope(Scope *scope);
 
     void statement(StatementAST *ast);
