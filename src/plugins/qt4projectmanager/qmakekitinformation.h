@@ -28,41 +28,41 @@
 **
 **************************************************************************/
 
-#ifndef QT4PM_QMAKEPROFILEINFORMATION_H
-#define QT4PM_QMAKEPROFILEINFORMATION_H
+#ifndef QT4PM_QMAKEKITINFORMATION_H
+#define QT4PM_QMAKEKITINFORMATION_H
 
 #include "qt4projectmanager_global.h"
 
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kitmanager.h>
 
 namespace Qt4ProjectManager {
 
-class QT4PROJECTMANAGER_EXPORT QmakeProfileInformation : public ProjectExplorer::ProfileInformation
+class QT4PROJECTMANAGER_EXPORT QmakeKitInformation : public ProjectExplorer::KitInformation
 {
     Q_OBJECT
 
 public:
-    QmakeProfileInformation();
+    QmakeKitInformation();
 
     Core::Id dataId() const;
 
     unsigned int priority() const; // the higher the closer to the top.
 
-    QVariant defaultValue(ProjectExplorer::Profile *p) const;
+    QVariant defaultValue(ProjectExplorer::Kit *k) const;
 
-    QList<ProjectExplorer::Task> validate(ProjectExplorer::Profile *p) const;
+    QList<ProjectExplorer::Task> validate(ProjectExplorer::Kit *k) const;
 
-    ProjectExplorer::ProfileConfigWidget *createConfigWidget(ProjectExplorer::Profile *p) const;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
 
-    ItemList toUserOutput(ProjectExplorer::Profile *p) const;
+    ItemList toUserOutput(ProjectExplorer::Kit *k) const;
 
-    static void setMkspec(ProjectExplorer::Profile *p, const Utils::FileName &fn);
-    static Utils::FileName mkspec(const ProjectExplorer::Profile *p);
-    static Utils::FileName effectiveMkspec(const ProjectExplorer::Profile *p);
-    static Utils::FileName defaultMkspec(const ProjectExplorer::Profile *p);
+    static void setMkspec(ProjectExplorer::Kit *k, const Utils::FileName &fn);
+    static Utils::FileName mkspec(const ProjectExplorer::Kit *k);
+    static Utils::FileName effectiveMkspec(const ProjectExplorer::Kit *k);
+    static Utils::FileName defaultMkspec(const ProjectExplorer::Kit *k);
 
 };
 
 } // namespace Qt4ProjectManager
 
-#endif // QT4PM_QMAKEPROFILEINFORMATION_H
+#endif // QT4PM_QMAKEKITINFORMATION_H

@@ -33,7 +33,7 @@
 #include "remotelinuxdeployconfigurationfactory.h"
 #include "remotelinuxrunconfiguration.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4nodes.h>
@@ -138,12 +138,12 @@ RunConfiguration *RemoteLinuxRunConfigurationFactory::clone(Target *parent,
 
 bool RemoteLinuxRunConfigurationFactory::canHandle(Target *t) const
 {
-    if (!t->project()->supportsProfile(t->profile()))
+    if (!t->project()->supportsKit(t->kit()))
         return false;
     if (!qobject_cast<Qt4Project *>(t->project()))
         return false;
 
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(t->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());
     return deviceType == RemoteLinux::Constants::GenericLinuxOsType;
 }
 

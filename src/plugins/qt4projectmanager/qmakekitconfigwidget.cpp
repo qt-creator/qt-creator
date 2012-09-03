@@ -28,10 +28,10 @@
 **
 **************************************************************************/
 
-#include "qmakeprofileconfigwidget.h"
+#include "qmakekitconfigwidget.h"
 
 #include "qt4projectmanagerconstants.h"
-#include "qmakeprofileinformation.h"
+#include "qmakekitinformation.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -42,10 +42,9 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-QmakeProfileConfigWidget::QmakeProfileConfigWidget(ProjectExplorer::Profile *p,
-                                                   QWidget *parent) :
-    ProjectExplorer::ProfileConfigWidget(parent),
-    m_profile(p),
+QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, QWidget *parent) :
+    ProjectExplorer::KitConfigWidget(parent),
+    m_kit(k),
     m_lineEdit(new QLineEdit)
 {
     setToolTip(tr("The mkspec to use when building the project with qmake.<br>"
@@ -56,33 +55,33 @@ QmakeProfileConfigWidget::QmakeProfileConfigWidget(ProjectExplorer::Profile *p,
     m_lineEdit->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_lineEdit);
 
-    discard(); // set up everything according to profile
+    discard(); // set up everything according to kit
     connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SIGNAL(dirty()));
 }
 
-QString QmakeProfileConfigWidget::displayName() const
+QString QmakeKitConfigWidget::displayName() const
 {
     return tr("Qt mkspec:");
 }
 
-void QmakeProfileConfigWidget::makeReadOnly()
+void QmakeKitConfigWidget::makeReadOnly()
 {
     m_lineEdit->setEnabled(false);
 }
 
-void QmakeProfileConfigWidget::apply()
+void QmakeKitConfigWidget::apply()
 {
-    QmakeProfileInformation::setMkspec(m_profile, Utils::FileName::fromString(m_lineEdit->text()));
+    QmakeKitInformation::setMkspec(m_kit, Utils::FileName::fromString(m_lineEdit->text()));
 }
 
-void QmakeProfileConfigWidget::discard()
+void QmakeKitConfigWidget::discard()
 {
-    m_lineEdit->setText(QmakeProfileInformation::mkspec(m_profile).toString());
+    m_lineEdit->setText(QmakeKitInformation::mkspec(m_kit).toString());
 }
 
-bool QmakeProfileConfigWidget::isDirty() const
+bool QmakeKitConfigWidget::isDirty() const
 {
-    return m_lineEdit->text() != QmakeProfileInformation::mkspec(m_profile).toString();
+    return m_lineEdit->text() != QmakeKitInformation::mkspec(m_kit).toString();
 }
 
 } // namespace Internal

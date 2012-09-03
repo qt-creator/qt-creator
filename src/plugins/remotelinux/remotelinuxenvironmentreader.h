@@ -35,7 +35,7 @@
 
 namespace ProjectExplorer {
 class RunConfiguration;
-class Profile;
+class Kit;
 }
 
 namespace QSsh { class SshRemoteProcessRunner; }
@@ -70,7 +70,7 @@ private:
 
     bool m_stop;
     Utils::Environment m_env;
-    ProjectExplorer::Profile *m_profile;
+    ProjectExplorer::Kit *m_kit;
     QSsh::SshRemoteProcessRunner *m_remoteProcessRunner;
 };
 

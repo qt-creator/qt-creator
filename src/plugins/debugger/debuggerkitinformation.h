@@ -6,6 +6,7 @@
 **
 ** Contact: http://www.qt-project.org/
 **
+**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -17,7 +18,7 @@
 **
 ** In addition, as a special exception, Nokia gives you certain additional
 ** rights. These rights are described in the Nokia Qt LGPL Exception
-** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+* version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** Other Usage
 **
@@ -27,43 +28,38 @@
 **
 **************************************************************************/
 
-#ifndef DEVICEPROCESSESDIALOG_H
-#define DEVICEPROCESSESDIALOG_H
+#ifndef DEBUGGER_DEBUGGERKITINFORMATION_H
+#define DEBUGGER_DEBUGGERKITINFORMATION_H
 
-#include "../projectexplorer_export.h"
+#include "debugger_global.h"
 
-#include <projectexplorer/kit.h>
-#include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/deviceprocesslist.h>
+#include <projectexplorer/kitinformation.h>
 
-#include <QDialog>
+namespace Debugger {
 
-namespace ProjectExplorer {
-
-class KitChooser;
-
-namespace Internal { class DeviceProcessesDialogPrivate; }
-
-class PROJECTEXPLORER_EXPORT DeviceProcessesDialog : public QDialog
+class DEBUGGER_EXPORT DebuggerKitInformation : public ProjectExplorer::KitInformation
 {
     Q_OBJECT
 
 public:
-    explicit DeviceProcessesDialog(QWidget *parent = 0);
-    ~DeviceProcessesDialog();
-    void addAcceptButton(const QString &label);
-    void addCloseButton();
+    DebuggerKitInformation();
 
-    void setDevice(const IDevice::ConstPtr &device);
-    void showAllDevices();
-    DeviceProcess currentProcess() const;
-    KitChooser *kitChooser() const;
-    void logMessage(const QString &line);
+    Core::Id dataId() const;
 
-private:
-    Internal::DeviceProcessesDialogPrivate * const d;
+    unsigned int priority() const; // the higher the closer to the top.
+
+    QVariant defaultValue(ProjectExplorer::Kit *k) const;
+
+    QList<ProjectExplorer::Task> validate(ProjectExplorer::Kit *k) const;
+
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
+
+    ItemList toUserOutput(ProjectExplorer::Kit *k) const;
+
+    static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k);
+    static void setDebuggerCommand(ProjectExplorer::Kit *k, const Utils::FileName &command);
 };
 
-} // namespace RemoteLinux
+} // namespace Debugger
 
-#endif // REMOTELINUXPROCESSESDIALOG_H
+#endif // DEBUGGER_DEBUGGERKITINFORMATION_H

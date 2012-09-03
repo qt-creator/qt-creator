@@ -44,11 +44,11 @@
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerprofileinformation.h>
+#include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerstartparameters.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/portlist.h>
 
 using namespace Debugger;
@@ -60,17 +60,17 @@ DebuggerStartParameters createStartParameters(const QnxRunConfiguration *runConf
 {
     DebuggerStartParameters params;
     Target *target = runConfig->target();
-    Profile *profile = target->profile();
+    Kit *k = target->kit();
 
-    const IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    const IDevice::ConstPtr device = DeviceKitInformation::device(k);
     if (device.isNull())
         return params;
 
     params.startMode = AttachToRemoteServer;
-    params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
-    params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
+    params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
+    params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
 
-    if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
+    if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
         params.toolChainAbi = tc->targetAbi();
 
     params.symbolFileName = runConfig->localExecutableFilePath();
@@ -81,7 +81,7 @@ DebuggerStartParameters createStartParameters(const QnxRunConfiguration *runConf
     params.closeMode = DetachAtClose;
 
     QnxQtVersion *qtVersion =
-            dynamic_cast<QnxQtVersion *>(QtSupport::QtProfileInformation::qtVersion(profile));
+            dynamic_cast<QnxQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
     if (qtVersion)
         params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 
@@ -107,7 +107,7 @@ bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mo
 
     const QnxRunConfiguration * const rc = qobject_cast<QnxRunConfiguration *>(runConfiguration);
     if (mode == DebugRunMode) {
-        const QnxDeviceConfiguration::ConstPtr dev = DeviceProfileInformation::device(runConfiguration->target()->profile())
+        const QnxDeviceConfiguration::ConstPtr dev = DeviceKitInformation::device(runConfiguration->target()->kit())
                   .dynamicCast<const QnxDeviceConfiguration>();
         if (dev.isNull())
             return false;

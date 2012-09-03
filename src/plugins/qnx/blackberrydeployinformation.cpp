@@ -39,7 +39,7 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -163,7 +163,7 @@ void BlackBerryDeployInformation::initModel()
             || !qobject_cast<BlackBerryDeployConfiguration *>(target->activeDeployConfiguration()))
         return;
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (!version || !version->isValid()) {
         beginResetModel();
         m_deployInformation.clear();

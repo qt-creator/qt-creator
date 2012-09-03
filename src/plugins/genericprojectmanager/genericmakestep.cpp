@@ -37,7 +37,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
@@ -119,7 +119,7 @@ bool GenericMakeStep::init()
     setIgnoreReturnValue(m_clean);
 
     setOutputParser(new GnuMakeParser());
-    ToolChain *tc = ToolChainProfileInformation::toolChain(bc->target()->profile());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     if (tc)
         appendOutputParser(tc->outputParser());
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
@@ -169,7 +169,7 @@ QString GenericMakeStep::makeCommand() const
 {
     QString command = m_makeCommand;
     if (command.isEmpty()) {
-        ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
+        ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
         if (tc)
             command = tc->makeCommand();
         else
@@ -243,7 +243,7 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
     connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
 
-    connect(m_makeStep->target(), SIGNAL(profileChanged()),
+    connect(m_makeStep->target(), SIGNAL(kitChanged()),
             this, SLOT(updateMakeOverrrideLabel()));
 }
 

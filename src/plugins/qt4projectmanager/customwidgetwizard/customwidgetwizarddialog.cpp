@@ -36,24 +36,24 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/profileinformation.h>
-#include <projectexplorer/profilemanager.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
 namespace {
 
-class DesktopQtProfileMatcher : public ProjectExplorer::ProfileMatcher
+class DesktopQtKitMatcher : public ProjectExplorer::KitMatcher
 {
 public:
-    bool matches(const ProjectExplorer::Profile *p) const
+    bool matches(const ProjectExplorer::Kit *k) const
     {
-        ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceProfileInformation::device(p);
+        ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(k);
         if (dev.isNull() || dev->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID)
             return false;
-        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
         return version && version->type() == QtSupport::Constants::DESKTOPQT;
     }
 };

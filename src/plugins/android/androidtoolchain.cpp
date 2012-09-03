@@ -38,7 +38,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <qt4projectmanager/qt4project.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/environment.h>
@@ -93,7 +93,7 @@ void AndroidToolChain::addToEnvironment(Utils::Environment &env) const
 
     Qt4Project *qt4pro = qobject_cast<Qt4Project *>(ProjectExplorerPlugin::instance()->currentProject());
     if (!qt4pro || !qt4pro->activeTarget()
-            || QtSupport::QtProfileInformation::qtVersion(qt4pro->activeTarget()->profile())->type() != QLatin1String(Constants::ANDROIDQT))
+            || QtSupport::QtKitInformation::qtVersion(qt4pro->activeTarget()->kit())->type() != QLatin1String(Constants::ANDROIDQT))
         return;
 
     QString ndk_host = QLatin1String(

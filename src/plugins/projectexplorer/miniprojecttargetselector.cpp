@@ -45,7 +45,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectmodels.h>
 #include <projectexplorer/runconfiguration.h>
 
@@ -559,7 +559,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     grid->addWidget(m_separators[PROJECT], 2, 1);
 
     QStringList titles;
-    titles << tr("Target") << tr("Build")
+    titles << tr("Kit") << tr("Build")
            << tr("Deploy") << tr("Run");
 
     for (int i = TARGET; i < LAST; ++i) {
@@ -589,8 +589,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
             this, SLOT(updateActionAndSummary()));
 
     // for icon changes:
-    connect(ProjectExplorer::ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
-            this, SLOT(profileChanged(ProjectExplorer::Profile*)));
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(kitChanged(ProjectExplorer::Kit*)));
 
     connect(m_listWidgets[TARGET], SIGNAL(changeActiveProjectConfiguration(ProjectExplorer::ProjectConfiguration*)),
             this, SLOT(setActiveTarget(ProjectExplorer::ProjectConfiguration*)));
@@ -994,9 +994,9 @@ void MiniProjectTargetSelector::activeTargetChanged(ProjectExplorer::Target *tar
     updateActionAndSummary();
 }
 
-void MiniProjectTargetSelector::profileChanged(Profile *profile)
+void MiniProjectTargetSelector::kitChanged(Kit *k)
 {
-    if (m_target && m_target->profile() == profile)
+    if (m_target && m_target->kit() == k)
         updateActionAndSummary();
 }
 
@@ -1250,7 +1250,7 @@ void MiniProjectTargetSelector::updateSummary()
             summary.append(tr("Project: <b>%1</b><br/>").arg(startupProject->displayName()));
         if (Target *activeTarget = m_sessionManager->startupProject()->activeTarget()) {
             if (!m_listWidgets[TARGET]->isVisibleTo(this))
-                summary.append(tr("Target: <b>%1</b><br/>").arg( activeTarget->displayName()));
+                summary.append(tr("Kit: <b>%1</b><br/>").arg( activeTarget->displayName()));
             if (!m_listWidgets[BUILD]->isVisibleTo(this) && activeTarget->activeBuildConfiguration())
                 summary.append(tr("Build: <b>%1</b><br/>").arg(
                                    activeTarget->activeBuildConfiguration()->displayName()));

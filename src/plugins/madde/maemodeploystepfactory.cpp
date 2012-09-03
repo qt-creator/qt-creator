@@ -41,7 +41,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <remotelinux/genericdirectuploadstep.h>
 #include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
@@ -69,7 +69,7 @@ QList<Core::Id> MaemoDeployStepFactory::availableCreationIds(BuildStepList *pare
         return ids;
 
     QString platform;
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(parent->target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(parent->target()->kit());
     if (version)
         platform = version->platformName();
 
@@ -121,7 +121,7 @@ bool MaemoDeployStepFactory::canCreate(BuildStepList *parent, const Core::Id id)
 
 BuildStep *MaemoDeployStepFactory::create(BuildStepList *parent, const Core::Id id)
 {
-    Core::Id deviceType = DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
+    Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(parent->target()->kit());
 
     if (id == MaemoInstallDebianPackageToSysrootStep::Id)
         return new MaemoInstallDebianPackageToSysrootStep(parent);

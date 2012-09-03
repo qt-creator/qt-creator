@@ -35,7 +35,7 @@
 #include "remotelinuxdeployconfiguration.h"
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4project.h>
@@ -61,13 +61,13 @@ QList<Core::Id> RemoteLinuxDeployConfigurationFactory::availableCreationIds(Targ
     QList<Core::Id> ids;
     if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
         return ids;
-    if (!parent->project()->supportsProfile(parent->profile()))
+    if (!parent->project()->supportsKit(parent->kit()))
         return ids;
     ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainProfileInformation::toolChain(parent->profile());
+            = ProjectExplorer::ToolChainKitInformation::toolChain(parent->kit());
     if (!tc || tc->targetAbi().os() != ProjectExplorer::Abi::LinuxOS)
         return ids;
-    const Core::Id devType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
+    const Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
     if (devType == Constants::GenericLinuxOsType)
         ids << genericDeployConfigurationId();
     return ids;

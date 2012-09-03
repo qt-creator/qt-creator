@@ -41,11 +41,11 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcprocess.h>
 #include <qtsupport/qtparser.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -151,7 +151,7 @@ bool MakeStep::init()
         return true; // otherwise the tasks will not get reported
     }
 
-    ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     if (!tc) {
         m_tasks.append(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the target options."),
                                              Utils::FileName(), -1,
@@ -257,7 +257,7 @@ bool MakeStep::init()
     pp->setArguments(args);
 
     IOutputParser *parser = 0;
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (version)
         parser = version->createOutputParser();
     if (parser)
@@ -376,7 +376,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     connect(ProjectExplorerPlugin::instance(), SIGNAL(settingsChanged()),
             this, SLOT(updateDetails()));
-    connect(m_makeStep->target(), SIGNAL(profileChanged()), this, SLOT(updateDetails()));
+    connect(m_makeStep->target(), SIGNAL(kitChanged()), this, SLOT(updateDetails()));
 }
 
 void MakeStepConfigWidget::activeBuildConfigurationChanged()
@@ -411,14 +411,14 @@ MakeStepConfigWidget::~MakeStepConfigWidget()
 void MakeStepConfigWidget::updateDetails()
 {
     ToolChain *tc
-            = ToolChainProfileInformation::toolChain(m_makeStep->target()->profile());
+            = ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
     if (tc)
         m_ui->makeLabel->setText(tr("Override %1:").arg(tc->makeCommand()));
     else
         m_ui->makeLabel->setText(tr("Make:"));
 
     if (!tc) {
-        setSummaryText(tr("<b>Make:</b> %1").arg(ProjectExplorer::ToolChainProfileInformation::msgNoToolChainInTarget()));
+        setSummaryText(tr("<b>Make:</b> %1").arg(ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget()));
         return;
     }
     Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();

@@ -31,7 +31,7 @@
 #include "toolchainmanager.h"
 
 #include "abi.h"
-#include "profileinformation.h"
+#include "kitinformation.h"
 #include "toolchain.h"
 
 #include <coreplugin/icore.h>

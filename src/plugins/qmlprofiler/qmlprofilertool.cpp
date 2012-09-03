@@ -69,7 +69,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QApplication>
 #include <QHBoxLayout>
@@ -237,7 +237,7 @@ IAnalyzerEngine *QmlProfilerTool::createEngine(const AnalyzerStartParameters &sp
         // Check minimum Qt Version. We cannot really be sure what the Qt version
         // at runtime is, but guess that the active build configuraiton has been used.
         QtSupport::QtVersionNumber minimumVersion(4, 7, 4);
-        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(runConfiguration->target()->profile());
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(runConfiguration->target()->kit());
         if (version) {
             if (version->isValid() && version->qtVersion() < minimumVersion) {
                 int result = QMessageBox::warning(QApplication::activeWindow(), tr("QML Profiler"),
@@ -287,9 +287,9 @@ bool QmlProfilerTool::canRun(RunConfiguration *runConfiguration, RunMode mode) c
 static QString sysroot(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return QString());
-    ProjectExplorer::Profile *p = runConfig->target()->profile();
-    if (p && ProjectExplorer::SysRootProfileInformation::hasSysRoot(p))
-        return ProjectExplorer::SysRootProfileInformation::sysRoot(runConfig->target()->profile()).toString();
+    ProjectExplorer::Kit *k = runConfig->target()->kit();
+    if (k && ProjectExplorer::SysRootKitInformation::hasSysRoot(k))
+        return ProjectExplorer::SysRootKitInformation::sysRoot(runConfig->target()->kit()).toString();
     return QString();
 }
 
@@ -324,7 +324,7 @@ AnalyzerStartParameters QmlProfilerTool::createStartParameters(RunConfiguration 
             qobject_cast<RemoteLinux::RemoteLinuxRunConfiguration *>(runConfiguration)) {
         sp.debuggee = rc3->remoteExecutableFilePath();
         sp.debuggeeArgs = rc3->arguments();
-        sp.connParams = ProjectExplorer::DeviceProfileInformation::device(rc3->target()->profile())->sshParameters();
+        sp.connParams = ProjectExplorer::DeviceKitInformation::device(rc3->target()->kit())->sshParameters();
         sp.analyzerCmdPrefix = rc3->commandPrefix();
         sp.displayName = rc3->displayName();
         sp.sysroot = sysroot(rc3);

@@ -28,11 +28,11 @@
 **
 **************************************************************************/
 
-#include "profilemodel.h"
+#include "kitmodel.h"
 
-#include "profile.h"
-#include "profileconfigwidget.h"
-#include "profilemanager.h"
+#include "kit.h"
+#include "kitconfigwidget.h"
+#include "kitmanager.h"
 
 #include <utils/qtcassert.h>
 
@@ -43,128 +43,128 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class ProfileNode
+class KitNode
 {
 public:
-    explicit ProfileNode(ProfileNode *pn, Profile *p = 0, bool c = false) :
-        parent(pn), profile(p), changed(c)
+    explicit KitNode(KitNode *pn, Kit *k = 0, bool c = false) :
+        parent(pn), kit(k), changed(c)
     {
         if (pn)
             pn->childNodes.append(this);
-        widget = ProfileManager::instance()->createConfigWidget(p);
+        widget = KitManager::instance()->createConfigWidget(k);
         if (widget) {
-            if (p && p->isAutoDetected())
+            if (k && k->isAutoDetected())
                 widget->makeReadOnly();
             widget->setVisible(false);
         }
     }
 
-    ~ProfileNode()
+    ~KitNode()
     {
         if (parent)
             parent->childNodes.removeOne(this);
 
         // deleting a child removes it from childNodes
         // so operate on a temporary list
-        QList<ProfileNode *> tmp = childNodes;
+        QList<KitNode *> tmp = childNodes;
         qDeleteAll(tmp);
         Q_ASSERT(childNodes.isEmpty());
     }
 
-    ProfileNode *parent;
+    KitNode *parent;
     QString newName;
-    QList<ProfileNode *> childNodes;
-    Profile *profile;
-    ProfileConfigWidget *widget;
+    QList<KitNode *> childNodes;
+    Kit *kit;
+    KitConfigWidget *widget;
     bool changed;
 };
 
 // --------------------------------------------------------------------------
-// ProfileModel
+// KitModel
 // --------------------------------------------------------------------------
 
-ProfileModel::ProfileModel(QBoxLayout *parentLayout, QObject *parent) :
+KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
     QAbstractItemModel(parent),
     m_parentLayout(parentLayout),
     m_defaultNode(0)
 {
     Q_ASSERT(m_parentLayout);
 
-    connect(ProfileManager::instance(), SIGNAL(profileAdded(ProjectExplorer::Profile*)),
-            this, SLOT(addProfile(ProjectExplorer::Profile*)));
-    connect(ProfileManager::instance(), SIGNAL(profileRemoved(ProjectExplorer::Profile*)),
-            this, SLOT(removeProfile(ProjectExplorer::Profile*)));
-    connect(ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
-            this, SLOT(updateProfile(ProjectExplorer::Profile*)));
-    connect(ProfileManager::instance(), SIGNAL(defaultProfileChanged()),
-            this, SLOT(changeDefaultProfile()));
+    connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
+            this, SLOT(addKit(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
+            this, SLOT(removeKit(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(updateKit(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(defaultkitChanged()),
+            this, SLOT(changeDefaultKit()));
 
-    m_root = new ProfileNode(0);
-    m_autoRoot = new ProfileNode(m_root);
-    m_manualRoot = new ProfileNode(m_root);
+    m_root = new KitNode(0);
+    m_autoRoot = new KitNode(m_root);
+    m_manualRoot = new KitNode(m_root);
 
-    foreach (Profile *p, ProfileManager::instance()->profiles())
-        addProfile(p);
+    foreach (Kit *k, KitManager::instance()->kits())
+        addKit(k);
 
-    changeDefaultProfile();
+    changeDefaultKit();
 }
 
-ProfileModel::~ProfileModel()
+KitModel::~KitModel()
 {
     delete m_root;
 }
 
-QModelIndex ProfileModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex KitModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
         if (row >= 0 && row < m_root->childNodes.count())
             return createIndex(row, column, m_root->childNodes.at(row));
     }
-    ProfileNode *node = static_cast<ProfileNode *>(parent.internalPointer());
+    KitNode *node = static_cast<KitNode *>(parent.internalPointer());
     if (row < node->childNodes.count() && column == 0)
         return createIndex(row, column, node->childNodes.at(row));
     else
         return QModelIndex();
 }
 
-QModelIndex ProfileModel::parent(const QModelIndex &idx) const
+QModelIndex KitModel::parent(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return QModelIndex();
-    ProfileNode *node = static_cast<ProfileNode *>(idx.internalPointer());
+    KitNode *node = static_cast<KitNode *>(idx.internalPointer());
     if (node->parent == m_root)
         return QModelIndex();
     return index(node->parent);
 }
 
-int ProfileModel::rowCount(const QModelIndex &parent) const
+int KitModel::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         return m_root->childNodes.count();
-    ProfileNode *node = static_cast<ProfileNode *>(parent.internalPointer());
+    KitNode *node = static_cast<KitNode *>(parent.internalPointer());
     return node->childNodes.count();
 }
 
-int ProfileModel::columnCount(const QModelIndex &parent) const
+int KitModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 1;
 }
 
-QVariant ProfileModel::data(const QModelIndex &index, int role) const
+QVariant KitModel::data(const QModelIndex &index, int role) const
 {
     static QIcon warningIcon(":/projectexplorer/images/compile_warning.png");
 
     if (!index.isValid() || index.column() != 0)
         return QVariant();
 
-    ProfileNode *node = static_cast<ProfileNode *>(index.internalPointer());
+    KitNode *node = static_cast<KitNode *>(index.internalPointer());
     QTC_ASSERT(node, return QVariant());
     if (node == m_autoRoot && role == Qt::DisplayRole)
         return tr("Auto-detected");
     if (node == m_manualRoot && role == Qt::DisplayRole)
         return tr("Manual");
-    if (node->profile) {
+    if (node->kit) {
         if (role == Qt::FontRole) {
             QFont f = QApplication::font();
             if (node->changed)
@@ -173,54 +173,54 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
                 f.setItalic(f.style() != QFont::StyleItalic);
             return f;
         } else if (role == Qt::DisplayRole) {
-            QString baseName = node->newName.isEmpty() ? node->profile->displayName() : node->newName;
+            QString baseName = node->newName.isEmpty() ? node->kit->displayName() : node->newName;
             if (node == m_defaultNode)
-                //: Mark up a profile as the default one.
+                //: Mark up a kit as the default one.
                 baseName = tr("%1 (default)").arg(baseName);
             return baseName;
         } else if (role == Qt::EditRole) {
-            return node->newName.isEmpty() ? node->profile->displayName() : node->newName;
+            return node->newName.isEmpty() ? node->kit->displayName() : node->newName;
         } else if (role == Qt::DecorationRole) {
-            return node->profile->isValid() ? QIcon() : warningIcon;
+            return node->kit->isValid() ? QIcon() : warningIcon;
         } else if (role == Qt::ToolTipRole) {
-            return node->profile->toHtml();
+            return node->kit->toHtml();
         }
     }
     return QVariant();
 }
 
-bool ProfileModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool KitModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid())
         return false;
 
-    ProfileNode *node = static_cast<ProfileNode *>(index.internalPointer());
+    KitNode *node = static_cast<KitNode *>(index.internalPointer());
     Q_ASSERT(node);
-    if (index.column() != 0 || !node->profile || role != Qt::EditRole)
+    if (index.column() != 0 || !node->kit || role != Qt::EditRole)
         return false;
     node->newName = value.toString();
-    if (!node->newName.isEmpty() && node->newName != node->profile->displayName())
+    if (!node->newName.isEmpty() && node->newName != node->kit->displayName())
         node->changed = true;
     return true;
 }
 
-Qt::ItemFlags ProfileModel::flags(const QModelIndex &index) const
+Qt::ItemFlags KitModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return 0;
 
-    ProfileNode *node = static_cast<ProfileNode *>(index.internalPointer());
+    KitNode *node = static_cast<KitNode *>(index.internalPointer());
     Q_ASSERT(node);
-    if (!node->profile)
+    if (!node->kit)
         return Qt::ItemIsEnabled;
 
-    if (node->profile->isAutoDetected())
+    if (node->kit->isAutoDetected())
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 }
 
-QVariant ProfileModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant KitModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     Q_UNUSED(section);
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
@@ -228,64 +228,64 @@ QVariant ProfileModel::headerData(int section, Qt::Orientation orientation, int 
     return QVariant();
 }
 
-Profile *ProfileModel::profile(const QModelIndex &index)
+Kit *KitModel::kit(const QModelIndex &index)
 {
     if (!index.isValid())
         return 0;
-    ProfileNode *node = static_cast<ProfileNode *>(index.internalPointer());
+    KitNode *node = static_cast<KitNode *>(index.internalPointer());
     Q_ASSERT(node);
-    return node->profile;
+    return node->kit;
 }
 
-QModelIndex ProfileModel::indexOf(Profile *p) const
+QModelIndex KitModel::indexOf(Kit *k) const
 {
-    ProfileNode *n = find(p);
+    KitNode *n = find(k);
     return n ? index(n) : QModelIndex();
 }
 
-void ProfileModel::setDefaultProfile(const QModelIndex &index)
+void KitModel::setDefaultKit(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
-    ProfileNode *node = static_cast<ProfileNode *>(index.internalPointer());
+    KitNode *node = static_cast<KitNode *>(index.internalPointer());
     Q_ASSERT(node);
-    if (node->profile)
+    if (node->kit)
         setDefaultNode(node);
 }
 
-bool ProfileModel::isDefaultProfile(const QModelIndex &index)
+bool KitModel::isDefaultKit(const QModelIndex &index)
 {
-    return m_defaultNode == static_cast<ProfileNode *>(index.internalPointer());
+    return m_defaultNode == static_cast<KitNode *>(index.internalPointer());
 }
 
-ProfileConfigWidget *ProfileModel::widget(const QModelIndex &index)
+KitConfigWidget *KitModel::widget(const QModelIndex &index)
 {
     if (!index.isValid())
         return 0;
-    ProfileNode *node = static_cast<ProfileNode *>(index.internalPointer());
+    KitNode *node = static_cast<KitNode *>(index.internalPointer());
     Q_ASSERT(node);
     return node->widget;
 }
 
-bool ProfileModel::isDirty() const
+bool KitModel::isDirty() const
 {
-    foreach (ProfileNode *n, m_manualRoot->childNodes) {
+    foreach (KitNode *n, m_manualRoot->childNodes) {
         if (n->changed)
             return true;
     }
     return false;
 }
 
-bool ProfileModel::isDirty(Profile *p) const
+bool KitModel::isDirty(Kit *k) const
 {
-    ProfileNode *n = find(p);
+    KitNode *n = find(k);
     return n ? !n->changed : false;
 }
 
-void ProfileModel::setDirty()
+void KitModel::setDirty()
 {
-    ProfileConfigWidget *w = qobject_cast<ProfileConfigWidget *>(sender());
-    foreach (ProfileNode *n, m_manualRoot->childNodes) {
+    KitConfigWidget *w = qobject_cast<KitConfigWidget *>(sender());
+    foreach (KitNode *n, m_manualRoot->childNodes) {
         if (n->widget == w) {
             n->changed = true;
             emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
@@ -293,76 +293,76 @@ void ProfileModel::setDirty()
     }
 }
 
-void ProfileModel::apply()
+void KitModel::apply()
 {
-    // Remove unused profiles:
-    QList<ProfileNode *> nodes = m_toRemoveList;
-    foreach (ProfileNode *n, nodes) {
+    // Remove unused kits:
+    QList<KitNode *> nodes = m_toRemoveList;
+    foreach (KitNode *n, nodes) {
         Q_ASSERT(!n->parent);
-        ProfileManager::instance()->deregisterProfile(n->profile);
+        KitManager::instance()->deregisterKit(n->kit);
     }
     Q_ASSERT(m_toRemoveList.isEmpty());
 
-    // Update profiles:
-    foreach (ProfileNode *n, m_manualRoot->childNodes) {
+    // Update kits:
+    foreach (KitNode *n, m_manualRoot->childNodes) {
         Q_ASSERT(n);
-        Q_ASSERT(n->profile);
+        Q_ASSERT(n->kit);
         if (n->changed) {
-            ProfileManager::instance()->blockSignals(true);
+            KitManager::instance()->blockSignals(true);
             if (!n->newName.isEmpty()) {
-                n->profile->setDisplayName(n->newName);
+                n->kit->setDisplayName(n->newName);
                 n->newName.clear();
             }
             if (n->widget)
                 n->widget->apply();
             n->changed = false;
 
-            ProfileManager::instance()->blockSignals(false);
-            ProfileManager::instance()->notifyAboutUpdate(n->profile);
+            KitManager::instance()->blockSignals(false);
+            KitManager::instance()->notifyAboutUpdate(n->kit);
             emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
         }
     }
 
-    // Add new (and already updated) profiles
+    // Add new (and already updated) kits
     QStringList removedSts;
     nodes = m_toAddList;
-    foreach (ProfileNode *n, nodes) {
-        if (!ProfileManager::instance()->registerProfile(n->profile))
-            removedSts << n->profile->displayName();
+    foreach (KitNode *n, nodes) {
+        if (!KitManager::instance()->registerKit(n->kit))
+            removedSts << n->kit->displayName();
     }
 
-    foreach (ProfileNode *n, m_toAddList)
-        markForRemoval(n->profile);
+    foreach (KitNode *n, m_toAddList)
+        markForRemoval(n->kit);
 
     if (removedSts.count() == 1) {
         QMessageBox::warning(0,
-                             tr("Duplicate Target Detected"),
-                             tr("The target<br>&nbsp;%1<br>"
+                             tr("Duplicate Kit Detected"),
+                             tr("The kit<br>&nbsp;%1<br>"
                                 " was already configured. It was not configured again.")
                              .arg(removedSts.at(0)));
 
     } else if (!removedSts.isEmpty()) {
         QMessageBox::warning(0,
-                             tr("Duplicate Targets Detected"),
-                             tr("The following targets were already configured:<br>"
+                             tr("Duplicate Kits Detected"),
+                             tr("The following kits were already configured:<br>"
                                 "&nbsp;%1<br>"
                                 "They were not configured again.")
                              .arg(removedSts.join(QLatin1String(",<br>&nbsp;"))));
     }
 
-    // Set default profile:
+    // Set default kit:
     if (m_defaultNode)
-        ProfileManager::instance()->setDefaultProfile(m_defaultNode->profile);
+        KitManager::instance()->setDefaultKit(m_defaultNode->kit);
 }
 
-void ProfileModel::markForRemoval(Profile *p)
+void KitModel::markForRemoval(Kit *k)
 {
-    ProfileNode *node = find(p);
+    KitNode *node = find(k);
     if (!node)
         return;
 
     if (node == m_defaultNode) {
-        ProfileNode *newDefault = 0;
+        KitNode *newDefault = 0;
         if (!m_autoRoot->childNodes.isEmpty())
             newDefault = m_autoRoot->childNodes.at(0);
         else if (!m_manualRoot->childNodes.isEmpty())
@@ -374,8 +374,8 @@ void ProfileModel::markForRemoval(Profile *p)
     m_manualRoot->childNodes.removeOne(node);
     node->parent = 0;
     if (m_toAddList.contains(node)) {
-        delete node->profile;
-        node->profile = 0;
+        delete node->kit;
+        node->kit = 0;
         m_toAddList.removeOne(node);
         delete node;
     } else {
@@ -384,12 +384,12 @@ void ProfileModel::markForRemoval(Profile *p)
     endRemoveRows();
 }
 
-void ProfileModel::markForAddition(Profile *p)
+void KitModel::markForAddition(Kit *k)
 {
     int pos = m_manualRoot->childNodes.size();
     beginInsertRows(index(m_manualRoot), pos, pos);
 
-    ProfileNode *node = createNode(m_manualRoot, p, true);
+    KitNode *node = createNode(m_manualRoot, k, true);
     m_toAddList.append(node);
 
     if (!m_defaultNode)
@@ -398,7 +398,7 @@ void ProfileModel::markForAddition(Profile *p)
     endInsertRows();
 }
 
-QModelIndex ProfileModel::index(ProfileNode *node, int column) const
+QModelIndex KitModel::index(KitNode *node, int column) const
 {
     if (node->parent == 0) // is root (or was marked for deletion)
         return QModelIndex();
@@ -408,22 +408,22 @@ QModelIndex ProfileModel::index(ProfileNode *node, int column) const
         return index(node->parent->childNodes.indexOf(node), column, index(node->parent));
 }
 
-ProfileNode *ProfileModel::find(Profile *p) const
+KitNode *KitModel::find(Kit *k) const
 {
-    foreach (ProfileNode *n, m_autoRoot->childNodes) {
-        if (n->profile == p)
+    foreach (KitNode *n, m_autoRoot->childNodes) {
+        if (n->kit == k)
             return n;
     }
-    foreach (ProfileNode *n, m_manualRoot->childNodes) {
-        if (n->profile == p)
+    foreach (KitNode *n, m_manualRoot->childNodes) {
+        if (n->kit == k)
             return n;
     }
     return 0;
 }
 
-ProfileNode *ProfileModel::createNode(ProfileNode *parent, Profile *p, bool changed)
+KitNode *KitModel::createNode(KitNode *parent, Kit *k, bool changed)
 {
-    ProfileNode *node = new ProfileNode(parent, p, changed);
+    KitNode *node = new KitNode(parent, k, changed);
     if (node->widget) {
         node->widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         m_parentLayout->addWidget(node->widget, 10);
@@ -433,7 +433,7 @@ ProfileNode *ProfileModel::createNode(ProfileNode *parent, Profile *p, bool chan
     return node;
 }
 
-void ProfileModel::setDefaultNode(ProfileNode *node)
+void KitModel::setDefaultNode(KitNode *node)
 {
     if (m_defaultNode) {
         QModelIndex idx = index(m_defaultNode);
@@ -448,47 +448,47 @@ void ProfileModel::setDefaultNode(ProfileNode *node)
     }
 }
 
-void ProfileModel::addProfile(Profile *p)
+void KitModel::addKit(Kit *k)
 {
-    QList<ProfileNode *> nodes = m_toAddList;
-    foreach (ProfileNode *n, nodes) {
-        if (n->profile == p) {
+    QList<KitNode *> nodes = m_toAddList;
+    foreach (KitNode *n, nodes) {
+        if (n->kit == k) {
             m_toAddList.removeOne(n);
             // do not delete n: Still used elsewhere!
             return;
         }
     }
 
-    ProfileNode *parent = m_manualRoot;
-    if (p->isAutoDetected())
+    KitNode *parent = m_manualRoot;
+    if (k->isAutoDetected())
         parent = m_autoRoot;
     int row = parent->childNodes.count();
 
     beginInsertRows(index(parent), row, row);
-    createNode(parent, p, false);
+    createNode(parent, k, false);
     endInsertRows();
 
-    emit profileStateChanged();
+    emit kitStateChanged();
 }
 
-void ProfileModel::removeProfile(Profile *p)
+void KitModel::removeKit(Kit *k)
 {
-    QList<ProfileNode *> nodes = m_toRemoveList;
-    foreach (ProfileNode *n, nodes) {
-        if (n->profile == p) {
+    QList<KitNode *> nodes = m_toRemoveList;
+    foreach (KitNode *n, nodes) {
+        if (n->kit == k) {
             m_toRemoveList.removeOne(n);
             delete n;
             return;
         }
     }
 
-    ProfileNode *parent = m_manualRoot;
-    if (p->isAutoDetected())
+    KitNode *parent = m_manualRoot;
+    if (k->isAutoDetected())
         parent = m_autoRoot;
     int row = 0;
-    ProfileNode *node = 0;
-    foreach (ProfileNode *current, parent->childNodes) {
-        if (current->profile == p) {
+    KitNode *node = 0;
+    foreach (KitNode *current, parent->childNodes) {
+        if (current->kit == k) {
             node = current;
             break;
         }
@@ -500,13 +500,13 @@ void ProfileModel::removeProfile(Profile *p)
     delete node;
     endRemoveRows();
 
-    emit profileStateChanged();
+    emit kitStateChanged();
 }
 
-void ProfileModel::updateProfile(Profile *p)
+void KitModel::updateKit(Kit *k)
 {
-    ProfileNode *n = find(p);
-    // This can happen if Qt Versions and Profiles are removed simultaneously.
+    KitNode *n = find(k);
+    // This can happen if Qt Versions and kits are removed simultaneously.
     if (!n)
         return;
     if (n->widget)
@@ -515,9 +515,9 @@ void ProfileModel::updateProfile(Profile *p)
     emit dataChanged(idx, idx);
 }
 
-void ProfileModel::changeDefaultProfile()
+void KitModel::changeDefaultKit()
 {
-    setDefaultNode(find(ProfileManager::instance()->defaultProfile()));
+    setDefaultNode(find(KitManager::instance()->defaultKit()));
 }
 
 } // namespace Internal

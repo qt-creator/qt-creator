@@ -38,8 +38,8 @@ HEADERS += \
     debuggerstartparameters.h \
     debuggerstreamops.h \
     debuggerstringutils.h \
-    debuggerprofileconfigwidget.h \
-    debuggerprofileinformation.h \
+    debuggerkitconfigwidget.h \
+    debuggerkitinformation.h \
     disassembleragent.h \
     disassemblerlines.h \
     loadcoredialog.h \
@@ -92,8 +92,8 @@ SOURCES += \
     debuggerplugin.cpp \
     debuggerrunner.cpp \
     debuggerstreamops.cpp \
-    debuggerprofileconfigwidget.cpp \
-    debuggerprofileinformation.cpp \
+    debuggerkitconfigwidget.cpp \
+    debuggerkitinformation.cpp \
     disassembleragent.cpp \
     disassemblerlines.cpp \
     loadcoredialog.cpp \

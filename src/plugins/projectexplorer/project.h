@@ -50,7 +50,7 @@ class BuildConfigWidget;
 class IProjectManager;
 class EditorConfiguration;
 class ProjectNode;
-class Profile;
+class Kit;
 class Target;
 class ProjectPrivate;
 
@@ -89,10 +89,10 @@ public:
     Target *activeTarget() const;
     void setActiveTarget(Target *target);
     Target *target(const Core::Id id) const;
-    Target *target(Profile *p) const;
-    virtual bool supportsProfile(Profile *p) const;
+    Target *target(Kit *k) const;
+    virtual bool supportsKit(Kit *k) const;
 
-    Target *createTarget(Profile *p);
+    Target *createTarget(Kit *k);
     Target *restoreTarget(const QVariantMap &data);
 
     void saveSettings();
@@ -111,9 +111,9 @@ public:
 
     virtual QVariantMap toMap() const;
 
-    // The directory that holds the project file. This includes the absolute path.
+    // The directory that holds the project. This includes the absolute path.
     QString projectDirectory() const;
-    static QString projectDirectory(const QString &proFile);
+    static QString projectDirectory(const QString &top);
 
     virtual Core::Context projectContext() const;
     virtual Core::Context projectLanguage() const;

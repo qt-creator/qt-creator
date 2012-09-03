@@ -28,75 +28,39 @@
 **
 **************************************************************************/
 
-#ifndef PROFILEOPTIONSPAGE_H
-#define PROFILEOPTIONSPAGE_H
+#ifndef KITCONFIGWIDGET_H
+#define KITCONFIGWIDGET_H
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QModelIndex>
-
-QT_BEGIN_NAMESPACE
-class QItemSelectionModel;
-class QTreeView;
-class QPushButton;
-QT_END_NAMESPACE
+#include <QWidget>
 
 namespace ProjectExplorer {
 
-namespace Internal { class ProfileModel; }
-
-class Profile;
-class ProfileConfigWidget;
-class ProfileFactory;
-class ProfileManager;
-
 // --------------------------------------------------------------------------
-// ProfileOptionsPage:
+// KitConfigWidget
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT ProfileOptionsPage : public Core::IOptionsPage
+class PROJECTEXPLORER_EXPORT KitConfigWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    ProfileOptionsPage();
+    KitConfigWidget(QWidget *parent = 0) : QWidget(parent)
+    { }
 
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish();
-    bool matches(const QString &) const;
+    virtual QString displayName() const = 0;
+    virtual void makeReadOnly() = 0;
 
-    void showProfile(Profile *p);
+    virtual void apply() = 0;
+    virtual void discard() = 0;
+    virtual bool isDirty() const = 0;
 
-private slots:
-    void profileSelectionChanged();
-    void addNewProfile();
-    void cloneProfile();
-    void removeProfile();
-    void makeDefaultProfile();
-    void updateState();
-
-private:
-    QModelIndex currentIndex() const;
-
-    QTreeView *m_profilesView;
-    QPushButton *m_addButton;
-    QPushButton *m_cloneButton;
-    QPushButton *m_delButton;
-    QPushButton *m_makeDefaultButton;
-
-    QWidget *m_configWidget;
-    QString m_searchKeywords;
-
-    Internal::ProfileModel *m_model;
-    QItemSelectionModel *m_selectionModel;
-    QWidget *m_currentWidget;
-
-    Profile *m_toShow;
+    virtual QWidget *buttonWidget() const { return 0; }
+signals:
+    void dirty();
 };
 
 } // namespace ProjectExplorer
 
-#endif // PROFILEOPTIONSPAGE_H
+#endif // KITCONFIGWIDGET_H

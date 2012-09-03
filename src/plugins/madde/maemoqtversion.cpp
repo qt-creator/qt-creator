@@ -32,7 +32,7 @@
 #include "maemoconstants.h"
 #include "maemoglobal.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -163,13 +163,13 @@ QString MaemoQtVersion::platformDisplayName() const
     return QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM_TR);
 }
 
-void MaemoQtVersion::addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const
+void MaemoQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
 {
-    Q_UNUSED(p);
+    Q_UNUSED(k);
     const QString maddeRoot = MaemoGlobal::maddeRoot(qmakeCommand().toString());
 
     // Needed to make pkg-config stuff work.
-    Utils::FileName sysRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(p);
+    Utils::FileName sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k);
     env.prependOrSet(QLatin1String("SYSROOT_DIR"), sysRoot.toUserOutput());
     env.prependOrSetPath(QDir::toNativeSeparators(QString("%1/madbin")
         .arg(maddeRoot)));

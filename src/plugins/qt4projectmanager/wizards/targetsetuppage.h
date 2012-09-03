@@ -35,7 +35,7 @@
 #include "../qt4targetsetupwidget.h"
 
 #include <coreplugin/featureprovider.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kitmanager.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <QString>
@@ -63,8 +63,8 @@ public:
     void initializePage();
 
     // Call these before initializePage!
-    void setRequiredProfileMatcher(ProjectExplorer::ProfileMatcher *matcher);
-    void setPreferredProfileMatcher(ProjectExplorer::ProfileMatcher *matcher);
+    void setRequiredKitMatcher(ProjectExplorer::KitMatcher *matcher);
+    void setPreferredKitMatcher(ProjectExplorer::KitMatcher *matcher);
     void setImportSearch(bool b);
 
     /// Sets whether the targetsetupage uses a scrollarea
@@ -74,9 +74,9 @@ public:
 
     bool isComplete() const;
     bool setupProject(Qt4ProjectManager::Qt4Project *project);
-    bool isProfileSelected(Core::Id id) const;
-    void setProfileSelected(Core::Id id, bool selected);
-    QList<Core::Id> selectedProfiles() const;
+    bool isKitSelected(Core::Id id) const;
+    void setKitSelected(Core::Id id, bool selected);
+    QList<Core::Id> selectedKits() const;
     void setProFilePath(const QString &dir);
 
     /// Overrides the summary text of the targetsetuppage
@@ -87,29 +87,29 @@ signals:
 private slots:
     void import(const Utils::FileName &path);
     void handleQtUpdate(const QList<int> &add, const QList<int> &rm, const QList<int> &mod);
-    void handleProfileAddition(ProjectExplorer::Profile *p);
-    void handleProfileRemoval(ProjectExplorer::Profile *p);
-    void handleProfileUpdate(ProjectExplorer::Profile *p);
+    void handleKitAddition(ProjectExplorer::Kit *k);
+    void handleKitRemoval(ProjectExplorer::Kit *k);
+    void handleKitUpdate(ProjectExplorer::Kit *k);
     void updateVisibility();
 
 private:
     void selectAtLeastOneTarget();
     void import(const Utils::FileName &path, const bool silent);
-    void removeWidget(ProjectExplorer::Profile *p);
-    Qt4TargetSetupWidget *addWidget(ProjectExplorer::Profile *p);
+    void removeWidget(ProjectExplorer::Kit *k);
+    Qt4TargetSetupWidget *addWidget(ProjectExplorer::Kit *k);
 
     void setupImports();
 
     void setupWidgets();
     void reset();
-    ProjectExplorer::Profile *createTemporaryProfile(QtSupport::BaseQtVersion *version, bool temporaryVersion, const Utils::FileName &parsedSpec);
-    void cleanProfile(ProjectExplorer::Profile *p);
-    void makeQtPersistent(ProjectExplorer::Profile *p);
-    void addProject(ProjectExplorer::Profile *p, const QString &path);
-    void removeProject(ProjectExplorer::Profile *p, const QString &path);
+    ProjectExplorer::Kit *createTemporaryProfile(QtSupport::BaseQtVersion *version, bool temporaryVersion, const Utils::FileName &parsedSpec);
+    void cleanProfile(ProjectExplorer::Kit *k);
+    void makeQtPersistent(ProjectExplorer::Kit *k);
+    void addProject(ProjectExplorer::Kit *k, const QString &path);
+    void removeProject(ProjectExplorer::Kit *k, const QString &path);
 
-    ProjectExplorer::ProfileMatcher *m_requiredMatcher;
-    ProjectExplorer::ProfileMatcher *m_preferredMatcher;
+    ProjectExplorer::KitMatcher *m_requiredMatcher;
+    ProjectExplorer::KitMatcher *m_preferredMatcher;
     QLayout *m_baseLayout;
     bool m_importSearch;
     bool m_useScrollArea;

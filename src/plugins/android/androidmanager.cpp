@@ -44,7 +44,7 @@
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <QDir>
@@ -81,7 +81,7 @@ bool AndroidManager::supportsAndroid(ProjectExplorer::Target *target)
 {
     if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project()))
         return false;
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     return version && version->platformName() == QLatin1String(QtSupport::Constants::ANDROID_PLATFORM);
 }
 
@@ -388,7 +388,7 @@ QString AndroidManager::targetApplicationPath(ProjectExplorer::Target *target)
 
 bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *target)
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project*>(target->project());
     if (!qt4Project || !qt4Project->rootProjectNode() || !version)
         return false;
@@ -555,7 +555,7 @@ void AndroidManager::updateTarget(ProjectExplorer::Target *target, const QString
 
 Utils::FileName AndroidManager::localLibsRulesFilePath(ProjectExplorer::Target *target)
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (!version)
         return Utils::FileName();
     return Utils::FileName::fromString(version->qmakeProperty("QT_INSTALL_LIBS") + QLatin1String("/rules.xml"));
@@ -573,7 +573,7 @@ QString AndroidManager::loadLocalJars(ProjectExplorer::Target *target, int apiLe
 
 QStringList AndroidManager::availableQtLibs(ProjectExplorer::Target *target)
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (!target->activeRunConfiguration())
         return QStringList();
 

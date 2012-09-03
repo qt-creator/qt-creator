@@ -28,10 +28,10 @@
 **
 **************************************************************************/
 
-#ifndef PROFILEINFORMATIONCONFIGWIDGET_H
-#define PROFILEINFORMATIONCONFIGWIDGET_H
+#ifndef KITINFORMATIONCONFIGWIDGET_H
+#define KITINFORMATIONCONFIGWIDGET_H
 
-#include "profileconfigwidget.h"
+#include "kitconfigwidget.h"
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -43,7 +43,7 @@ namespace Utils { class PathChooser; }
 namespace ProjectExplorer {
 
 class DeviceManagerModel;
-class Profile;
+class Kit;
 class ToolChain;
 
 namespace Internal {
@@ -52,12 +52,12 @@ namespace Internal {
 // SysRootInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-class SysRootInformationConfigWidget : public ProfileConfigWidget
+class SysRootInformationConfigWidget : public KitConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit SysRootInformationConfigWidget(Profile *p, QWidget *parent = 0);
+    explicit SysRootInformationConfigWidget(Kit *k, QWidget *parent = 0);
 
     QString displayName() const;
     void apply();
@@ -67,7 +67,7 @@ public:
     QWidget *buttonWidget() const;
 
 private:
-    Profile *m_profile;
+    Kit *m_kit;
     Utils::PathChooser *m_chooser;
 };
 
@@ -75,12 +75,12 @@ private:
 // ToolChainInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-class ToolChainInformationConfigWidget : public ProfileConfigWidget
+class ToolChainInformationConfigWidget : public KitConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit ToolChainInformationConfigWidget(Profile *p, QWidget *parent = 0);
+    explicit ToolChainInformationConfigWidget(Kit *k, QWidget *parent = 0);
 
     QString displayName() const;
     void apply();
@@ -100,7 +100,7 @@ private:
     int indexOf(const ToolChain *tc);
 
     bool m_isReadOnly;
-    Profile *m_profile;
+    Kit *m_kit;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
 };
@@ -109,12 +109,12 @@ private:
 // DeviceTypeInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-class DeviceTypeInformationConfigWidget : public ProfileConfigWidget
+class DeviceTypeInformationConfigWidget : public KitConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit DeviceTypeInformationConfigWidget(Profile *p, QWidget *parent = 0);
+    explicit DeviceTypeInformationConfigWidget(Kit *k, QWidget *parent = 0);
 
     QString displayName() const;
     void apply();
@@ -124,7 +124,7 @@ public:
 
 private:
     bool m_isReadOnly;
-    Profile *m_profile;
+    Kit *m_kit;
     QComboBox *m_comboBox;
 };
 
@@ -132,12 +132,12 @@ private:
 // DeviceInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-class DeviceInformationConfigWidget : public ProfileConfigWidget
+class DeviceInformationConfigWidget : public KitConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit DeviceInformationConfigWidget(Profile *p, QWidget *parent = 0);
+    explicit DeviceInformationConfigWidget(Kit *k, QWidget *parent = 0);
 
     QString displayName() const;
     void apply();
@@ -151,7 +151,7 @@ private slots:
 
 private:
     bool m_isReadOnly;
-    Profile *m_profile;
+    Kit *m_kit;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
     DeviceManagerModel *m_model;
@@ -160,4 +160,4 @@ private:
 } // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // PROFILEINFORMATIONCONFIGWIDGET_H
+#endif // KITINFORMATIONCONFIGWIDGET_H

@@ -40,8 +40,8 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
 
-#include <projectexplorer/profile.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 
@@ -130,44 +130,44 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
             this, SLOT(noteTextLinkActivated()));
     connect(m_targetSetupPage, SIGNAL(completeChanged()),
             this, SLOT(completeChanged()));
-    connect(ProjectExplorer::ProfileManager::instance(), SIGNAL(defaultProfileChanged()),
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(defaultkitChanged()),
             this, SLOT(updateNoteText()));
-    connect(ProjectExplorer::ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
-            this, SLOT(profileUpdated(ProjectExplorer::Profile*)));
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
 }
 
-void TargetSetupPageWrapper::profileUpdated(ProjectExplorer::Profile *profile)
+void TargetSetupPageWrapper::kitUpdated(ProjectExplorer::Kit *k)
 {
-    if (profile == ProjectExplorer::ProfileManager::instance()->defaultProfile())
+    if (k == ProjectExplorer::KitManager::instance()->defaultKit())
         updateNoteText();
 }
 
 void TargetSetupPageWrapper::updateNoteText()
 {
-    ProjectExplorer::Profile *p = ProjectExplorer::ProfileManager::instance()->defaultProfile();
+    ProjectExplorer::Kit *k = ProjectExplorer::KitManager::instance()->defaultKit();
 
 
     QString text;
-    if (!p)
+    if (!k)
         text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
                   "<p>Qt Creator cannot parse the project, because no target "
                   "has been set up. You can set up targets "
                   "in the <b><a href=\"edit\">options.</a></b></p>")
                 .arg(m_project->displayName());
-    else if (p->isValid())
+    else if (k->isValid())
         text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
                   "<p>Qt Creator uses the target <b>%2</b> "
                   "to parse the project. You can edit "
                   "targets in the <b><a href=\"edit\">options.</a></b></p>")
                 .arg(m_project->displayName())
-                .arg(p->displayName());
+                .arg(k->displayName());
     else
         text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
                   "<p>Qt Creator uses the <b>invalid</b> target <b>%2</b> "
                   "to parse the project. You can edit "
                   "targets in the <b><a href=\"edit\">options</a></b></p>")
                 .arg(m_project->displayName())
-                .arg(p->displayName());
+                .arg(k->displayName());
 
 
     m_targetSetupPage->setNoteText(text);
@@ -198,7 +198,7 @@ void TargetSetupPageWrapper::done()
 void TargetSetupPageWrapper::noteTextLinkActivated()
 {
     Core::ICore::instance()->showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                               QLatin1String(ProjectExplorer::Constants::PROFILE_SETTINGS_PAGE_ID));
+                                               QLatin1String(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID));
 }
 
 void TargetSetupPageWrapper::completeChanged()

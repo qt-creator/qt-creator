@@ -36,7 +36,7 @@
 #include "qnxconstants.h"
 #include "blackberrydeviceconfigurationwidget.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -93,9 +93,9 @@ IDevice::Ptr BlackBerryDeviceConfiguration::clone() const
     return Ptr(new BlackBerryDeviceConfiguration(*this));
 }
 
-BlackBerryDeviceConfiguration::ConstPtr BlackBerryDeviceConfiguration::device(const Profile *p)
+BlackBerryDeviceConfiguration::ConstPtr BlackBerryDeviceConfiguration::device(const Kit *k)
 {
-    IDevice::ConstPtr dev = DeviceProfileInformation::device(p);
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     return dev.dynamicCast<const BlackBerryDeviceConfiguration>();
 }
 

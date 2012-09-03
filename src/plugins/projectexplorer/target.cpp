@@ -32,9 +32,9 @@
 
 #include "buildtargetinfo.h"
 #include "deploymentdata.h"
-#include "profile.h"
-#include "profileinformation.h"
-#include "profilemanager.h"
+#include "kit.h"
+#include "kitinformation.h"
+#include "kitmanager.h"
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
 #include "project.h"
@@ -99,7 +99,7 @@ public:
     QPixmap m_readyToUsePixmap;
     QPixmap m_disconnectedPixmap;
 
-    Profile *m_profile;
+    Kit *m_profile;
 };
 
 TargetPrivate::TargetPrivate() :
@@ -119,7 +119,7 @@ QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
     return ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
 }
 
-Target::Target(Project *project, Profile *p) :
+Target::Target(Project *project, Kit *p) :
     ProjectConfiguration(project, p->id()),
     d(new TargetPrivate)
 {
@@ -130,11 +130,11 @@ Target::Target(Project *project, Profile *p) :
     setDisplayName(d->m_profile->displayName());
     setIcon(d->m_profile->icon());
 
-    ProfileManager *pm = ProfileManager::instance();
-    connect(pm, SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
-            this, SLOT(handleProfileUpdates(ProjectExplorer::Profile*)));
-    connect(pm, SIGNAL(profileRemoved(ProjectExplorer::Profile*)),
-            this, SLOT(handleProfileRemoval(ProjectExplorer::Profile*)));
+    KitManager *pm = KitManager::instance();
+    connect(pm, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(handleKitUpdates(ProjectExplorer::Kit*)));
+    connect(pm, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
+            this, SLOT(handleKitRemoval(ProjectExplorer::Kit*)));
 }
 
 Target::~Target()
@@ -180,7 +180,7 @@ void Target::onBuildDirectoryChanged()
         emit buildDirectoryChanged();
 }
 
-void Target::handleProfileUpdates(Profile *p)
+void Target::handleKitUpdates(Kit *p)
 {
     if (p != d->m_profile)
         return;
@@ -188,10 +188,10 @@ void Target::handleProfileUpdates(Profile *p)
     setDisplayName(p->displayName());
     setIcon(p->icon());
     updateDefaultDeployConfigurations();
-    emit profileChanged();
+    emit kitChanged();
 }
 
-void Target::handleProfileRemoval(Profile *p)
+void Target::handleKitRemoval(Kit *p)
 {
     if (p != d->m_profile)
         return;
@@ -204,7 +204,7 @@ Project *Target::project() const
     return static_cast<Project *>(parent());
 }
 
-Profile *Target::profile() const
+Kit *Target::kit() const
 {
     return d->m_profile;
 }
@@ -674,7 +674,7 @@ static QString formatToolTip(const IDevice::DeviceInfo &input)
 
 void Target::updateDeviceState()
 {
-    IDevice::ConstPtr current = DeviceProfileInformation::device(profile());
+    IDevice::ConstPtr current = DeviceKitInformation::device(kit());
 
     QPixmap overlay;
     if (current.isNull()) {
@@ -728,7 +728,7 @@ bool Target::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
-    d->m_profile = ProfileManager::instance()->find(id());
+    d->m_profile = KitManager::instance()->find(id());
     if (!d->m_profile)
         return false;
 

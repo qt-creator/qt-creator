@@ -18,7 +18,7 @@
 **
 ** In addition, as a special exception, Nokia gives you certain additional
 ** rights. These rights are described in the Nokia Qt LGPL Exception
-* version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** Other Usage
 **
@@ -28,38 +28,46 @@
 **
 **************************************************************************/
 
-#ifndef DEBUGGER_DEBUGGERPROFILEINFORMATION_H
-#define DEBUGGER_DEBUGGERPROFILEINFORMATION_H
+#ifndef PROJECTEXPLORER_KITCHOOSER_H
+#define PROJECTEXPLORER_KITCHOOSER_H
 
-#include "debugger_global.h"
+#include "projectexplorer_export.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <QComboBox>
 
-namespace Debugger {
+namespace Core { class Id; }
 
-class DEBUGGER_EXPORT DebuggerProfileInformation : public ProjectExplorer::ProfileInformation
+namespace ProjectExplorer {
+
+class Kit;
+
+// Let the user pick a kit.
+class PROJECTEXPLORER_EXPORT KitChooser : public QComboBox
 {
     Q_OBJECT
 
 public:
-    DebuggerProfileInformation();
+    enum Flags {
+        HostAbiOnly = 0x1,
+        IncludeInvalidKits = 0x2,
+        HasDebugger = 0x4,
+        RemoteDebugging = IncludeInvalidKits | HasDebugger,
+        LocalDebugging = RemoteDebugging | HostAbiOnly
+    };
 
-    Core::Id dataId() const;
+    explicit KitChooser(QWidget *parent, unsigned flags = 0);
 
-    unsigned int priority() const; // the higher the closer to the top.
+    void setCurrentKitId(Core::Id id);
+    Core::Id currentKitId() const;
 
-    QVariant defaultValue(ProjectExplorer::Profile *p) const;
+    Kit *currentKit() const;
 
-    QList<ProjectExplorer::Task> validate(ProjectExplorer::Profile *p) const;
-
-    ProjectExplorer::ProfileConfigWidget *createConfigWidget(ProjectExplorer::Profile *p) const;
-
-    ItemList toUserOutput(ProjectExplorer::Profile *p) const;
-
-    static Utils::FileName debuggerCommand(const ProjectExplorer::Profile *p);
-    static void setDebuggerCommand(ProjectExplorer::Profile *p, const Utils::FileName &command);
+private:
+    Q_SLOT void onCurrentIndexChanged(int index);
+    void populate(unsigned flags);
+    Kit *kitAt(int index) const;
 };
 
-} // namespace Debugger
+} // namespace ProjectExplorer
 
-#endif // DEBUGGER_DEBUGGERPROFILEINFORMATION_H
+#endif // PROJECTEXPLORER_KITCHOOSER_H

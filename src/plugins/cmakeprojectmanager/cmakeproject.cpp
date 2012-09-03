@@ -45,8 +45,8 @@
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/profileinformation.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
@@ -286,7 +286,7 @@ bool CMakeProject::parseCMakeLists()
 
     createUiCodeModelSupport();
 
-    ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(activeTarget()->profile());
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(activeTarget()->kit());
     if (!tc) {
         emit buildTargetsChanged();
         emit fileListChanged();
@@ -530,9 +530,9 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
-    if (!activeTarget() && defaultProfile)
-        addTarget(createTarget(defaultProfile));
+    Kit *defaultKit = KitManager::instance()->defaultKit();
+    if (!activeTarget() && defaultKit)
+        addTarget(createTarget(defaultKit));
 
     // We have a user file, but we could still be missing the cbp file
     // or simply run createXml with the saved settings

@@ -28,9 +28,9 @@
 **
 **************************************************************************/
 
-#include "profilemanagerconfigwidget.h"
+#include "kitmanagerconfigwidget.h"
 
-#include "profile.h"
+#include "kit.h"
 
 #include <utils/detailswidget.h>
 
@@ -46,11 +46,11 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-ProfileManagerConfigWidget::ProfileManagerConfigWidget(Profile *p, QWidget *parent) :
-    ProfileConfigWidget(parent),
+KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, QWidget *parent) :
+    KitConfigWidget(parent),
     m_layout(new QGridLayout),
     m_iconButton(new QToolButton),
-    m_profile(p)
+    m_kit(k)
 {
     m_layout->setMargin(0);
     m_layout->setSpacing(6);
@@ -88,35 +88,35 @@ ProfileManagerConfigWidget::ProfileManagerConfigWidget(Profile *p, QWidget *pare
     connect(m_iconButton, SIGNAL(clicked()), this, SLOT(setIcon()));
 }
 
-QString ProfileManagerConfigWidget::displayName() const
+QString KitManagerConfigWidget::displayName() const
 {
-    return tr("Targets");
+    return tr("Kits");
 }
 
-void ProfileManagerConfigWidget::apply()
+void KitManagerConfigWidget::apply()
 {
-    foreach (ProfileConfigWidget *w, m_widgets)
+    foreach (KitConfigWidget *w, m_widgets)
         w->apply();
-    m_profile->setIconPath(m_iconPath);
+    m_kit->setIconPath(m_iconPath);
 }
 
-void ProfileManagerConfigWidget::discard()
+void KitManagerConfigWidget::discard()
 {
-    foreach (ProfileConfigWidget *w, m_widgets)
+    foreach (KitConfigWidget *w, m_widgets)
         w->discard();
-    m_iconButton->setIcon(m_profile->icon());
-    m_iconPath = m_profile->iconPath();
+    m_iconButton->setIcon(m_kit->icon());
+    m_iconPath = m_kit->iconPath();
 }
 
-bool ProfileManagerConfigWidget::isDirty() const
+bool KitManagerConfigWidget::isDirty() const
 {
-    foreach (ProfileConfigWidget *w, m_widgets)
+    foreach (KitConfigWidget *w, m_widgets)
         if (w->isDirty())
             return true;
-    return m_profile->iconPath() != m_iconPath;
+    return m_kit->iconPath() != m_iconPath;
 }
 
-void ProfileManagerConfigWidget::addConfigWidget(ProjectExplorer::ProfileConfigWidget *widget)
+void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *widget)
 {
     Q_ASSERT(widget);
     Q_ASSERT(!m_widgets.contains(widget));
@@ -138,14 +138,14 @@ void ProfileManagerConfigWidget::addConfigWidget(ProjectExplorer::ProfileConfigW
     m_widgets.append(widget);
 }
 
-void ProfileManagerConfigWidget::makeReadOnly()
+void KitManagerConfigWidget::makeReadOnly()
 {
-    foreach (ProfileConfigWidget *w, m_widgets)
+    foreach (KitConfigWidget *w, m_widgets)
         w->makeReadOnly();
     m_iconButton->setEnabled(false);
 }
 
-void ProfileManagerConfigWidget::setIcon()
+void KitManagerConfigWidget::setIcon()
 {
     const QString path = QFileDialog::getOpenFileName(0, tr("Select Icon"), m_iconPath, tr("Images (*.png *.xpm *.jpg)"));
     if (path.isEmpty())

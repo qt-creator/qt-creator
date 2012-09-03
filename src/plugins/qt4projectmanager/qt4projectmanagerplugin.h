@@ -42,7 +42,7 @@ namespace ProjectExplorer {
 class Node;
 class Project;
 class ProjectExplorerPlugin;
-class ProfileInformation;
+class KitInformation;
 class Target;
 }
 namespace Utils { class ParameterAction; }

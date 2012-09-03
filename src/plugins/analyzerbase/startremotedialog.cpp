@@ -32,8 +32,8 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
-#include <projectexplorer/profilechooser.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitchooser.h>
+#include <projectexplorer/kitinformation.h>
 #include <ssh/sshconnection.h>
 #include <utils/pathchooser.h>
 
@@ -53,7 +53,7 @@ namespace Internal {
 class StartRemoteDialogPrivate
 {
 public:
-    ProfileChooser *profileChooser;
+    KitChooser *kitChooser;
     QLineEdit *executable;
     QLineEdit *arguments;
     QLineEdit *workingDirectory;
@@ -69,7 +69,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Remote Analysis"));
 
-    d->profileChooser = new ProfileChooser(this, ProfileChooser::RemoteDebugging);
+    d->kitChooser = new KitChooser(this, KitChooser::RemoteDebugging);
     d->executable = new QLineEdit(this);
     d->arguments = new QLineEdit(this);
     d->workingDirectory = new QLineEdit(this);
@@ -80,7 +80,7 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 
     QFormLayout *formLayout = new QFormLayout;
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    formLayout->addRow(tr("Target:"), d->profileChooser);
+    formLayout->addRow(tr("Kit:"), d->kitChooser);
     formLayout->addRow(tr("Executable:"), d->executable);
     formLayout->addRow(tr("Arguments:"), d->arguments);
     formLayout->addRow(tr("Working directory:"), d->workingDirectory);
@@ -91,14 +91,14 @@ StartRemoteDialog::StartRemoteDialog(QWidget *parent)
 
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerStartRemoteDialog"));
-    QString profile = settings->value(QLatin1String("profile")).toString();
-    d->profileChooser->setCurrentProfileId(Core::Id(profile));
+    QString kit = settings->value(QLatin1String("profile")).toString();
+    d->kitChooser->setCurrentKitId(Core::Id(kit));
     d->executable->setText(settings->value(QLatin1String("executable")).toString());
     d->workingDirectory->setText(settings->value(QLatin1String("workingDirectory")).toString());
     d->arguments->setText(settings->value(QLatin1String("arguments")).toString());
     settings->endGroup();
 
-    connect(d->profileChooser, SIGNAL(activated(int)), SLOT(validate()));
+    connect(d->kitChooser, SIGNAL(activated(int)), SLOT(validate()));
     connect(d->executable, SIGNAL(textChanged(QString)), SLOT(validate()));
     connect(d->workingDirectory, SIGNAL(textChanged(QString)), SLOT(validate()));
     connect(d->arguments, SIGNAL(textChanged(QString)), SLOT(validate()));
@@ -117,7 +117,7 @@ void StartRemoteDialog::accept()
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("AnalyzerStartRemoteDialog"));
-    settings->setValue(QLatin1String("profile"), d->profileChooser->currentProfileId().toString());
+    settings->setValue(QLatin1String("profile"), d->kitChooser->currentKitId().toString());
     settings->setValue(QLatin1String("executable"), d->executable->text());
     settings->setValue(QLatin1String("workingDirectory"), d->workingDirectory->text());
     settings->setValue(QLatin1String("arguments"), d->arguments->text());
@@ -134,8 +134,8 @@ void StartRemoteDialog::validate()
 
 QSsh::SshConnectionParameters StartRemoteDialog::sshParams() const
 {
-    Profile *profile = d->profileChooser->currentProfile();
-    IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    Kit *kit = d->kitChooser->currentKit();
+    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     return device->sshParameters();
 }
 

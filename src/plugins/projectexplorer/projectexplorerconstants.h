@@ -180,7 +180,7 @@ const char PROJECTEXPLORER_SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("ProjectEx
 const char PROJECTEXPLORER_SETTINGS_CATEGORY_ICON[]  = ":/core/images/category_buildrun.png";
 const char PROJECTEXPLORER_SETTINGS_ID[] = "A.ProjectExplorer.ProjectExplorer";
 const char TOOLCHAIN_SETTINGS_PAGE_ID[] = "M.ProjectExplorer.ToolChainOptions";
-const char PROFILE_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.ProfileOptions";
+const char KITS_SETTINGS_PAGE_ID[] = "D.ProjectExplorer.KitsOptions";
 
 // Device settings page
 const char DEVICE_SETTINGS_CATEGORY[] = "X.Devices";

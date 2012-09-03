@@ -41,7 +41,7 @@
 #include "debuggerrunner.h"
 #include "debuggerruncontrolfactory.h"
 #include "debuggerstringutils.h"
-#include "debuggerprofileinformation.h"
+#include "debuggerkitinformation.h"
 #include "memoryagent.h"
 #include "breakpoint.h"
 #include "breakhandler.h"
@@ -101,9 +101,9 @@
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/profilechooser.h>
-#include <projectexplorer/profileinformation.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kitchooser.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -561,13 +561,13 @@ static inline QString executableForPid(qint64 pid)
     return QString();
 }
 
-class AbiProfileMatcher : public ProfileMatcher
+class AbiKitMatcher : public KitMatcher
 {
 public:
-    explicit AbiProfileMatcher(const QList<Abi> &abis) : m_abis(abis) {}
-    bool matches(const Profile *p) const
+    explicit AbiKitMatcher(const QList<Abi> &abis) : m_abis(abis) {}
+    bool matches(const Kit *p) const
     {
-        if (const ToolChain *tc = ToolChainProfileInformation::toolChain(p))
+        if (const ToolChain *tc = ToolChainKitInformation::toolChain(p))
             return m_abis.contains(tc->targetAbi());
         return false;
     }
@@ -576,13 +576,13 @@ private:
     const QList<Abi> m_abis;
 };
 
-class CompatibleAbiProfileMatcher : public ProfileMatcher
+class CompatibleAbiKitMatcher : public KitMatcher
 {
 public:
-    explicit CompatibleAbiProfileMatcher(const QList<Abi> &abis) : m_abis(abis) {}
-    bool matches(const Profile *p) const
+    explicit CompatibleAbiKitMatcher(const QList<Abi> &abis) : m_abis(abis) {}
+    bool matches(const Kit *p) const
     {
-        if (const ToolChain *tc = ToolChainProfileInformation::toolChain(p))
+        if (const ToolChain *tc = ToolChainKitInformation::toolChain(p))
             foreach (const Abi &a, m_abis)
                 if (a.isCompatibleWith(tc->targetAbi()))
                     return true;
@@ -593,14 +593,14 @@ private:
     const QList<Abi> m_abis;
 };
 
-class CdbMatcher : ProfileMatcher
+class CdbMatcher : KitMatcher
 {
 public:
     CdbMatcher(char wordWidth = 0) : m_wordWidth(wordWidth) {}
 
-    bool matches(const Profile *profile) const
+    bool matches(const Kit *k) const
     {
-        const ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
+        const ToolChain *tc = ToolChainKitInformation::toolChain(k);
         QTC_ASSERT(tc, return false);
         const Abi abi = tc->targetAbi();
         if (abi.architecture() != Abi::X86Architecture
@@ -615,31 +615,31 @@ public:
         return true;
     }
 
-    // Find a CDB profile for debugging unknown processes.
+    // Find a CDB kit for debugging unknown processes.
     // On a 64bit OS, prefer a 64bit debugger.
-    static Profile *findUniversalCdbProfile()
+    static Kit *findUniversalCdbKit()
     {
 #ifdef Q_OS_WIN
         if (Utils::winIs64BitSystem()) {
             CdbMatcher matcher64(64);
-            if (Profile *cdb64Profile = ProfileManager::instance()->find(&matcher64))
-                return cdb64Profile;
+            if (Kit *cdb64Kit = KitManager::instance()->find(&matcher64))
+                return cdb64Kit;
         }
 #endif
         CdbMatcher matcher;
-        return ProfileManager::instance()->find(&matcher);
+        return KitManager::instance()->find(&matcher);
     }
 
 private:
     const char m_wordWidth;
 };
 
-void fillParameters(DebuggerStartParameters *sp, const Profile *profile /* = 0 */)
+void fillParameters(DebuggerStartParameters *sp, const Kit *kit /* = 0 */)
 {
-    if (!profile) {
+    if (!kit) {
         // This code can only be reached when starting via the command line
         // (-debug pid or executable) or attaching from runconfiguration
-        // without specifying a profile. Try to find a profile via ABI.
+        // without specifying a kit. Try to find a kit via ABI.
         QList<Abi> abis;
         if (sp->toolChainAbi.isValid()) {
             abis.push_back(sp->toolChainAbi);
@@ -653,25 +653,25 @@ void fillParameters(DebuggerStartParameters *sp, const Profile *profile /* = 0 *
                 abis = Abi::abisOfBinary(Utils::FileName::fromString(sp->executable));
         }
         if (!abis.isEmpty()) {
-            AbiProfileMatcher matcher(abis);
-            profile = ProfileManager::instance()->find(&matcher);
-            if (!profile) {
-                CompatibleAbiProfileMatcher matcher(abis);
-                profile = ProfileManager::instance()->find(&matcher);
+            AbiKitMatcher matcher(abis);
+            kit = KitManager::instance()->find(&matcher);
+            if (!kit) {
+                CompatibleAbiKitMatcher matcher(abis);
+                kit = KitManager::instance()->find(&matcher);
             }
         }
-        if (!profile)
-            profile = ProfileManager::instance()->defaultProfile();
+        if (!kit)
+            kit = KitManager::instance()->defaultKit();
     }
 
-    sp->sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
-    sp->debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
+    sp->sysRoot = SysRootKitInformation::sysRoot(kit).toString();
+    sp->debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
 
-    ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
+    ToolChain *tc = ToolChainKitInformation::toolChain(kit);
     if (tc)
         sp->toolChainAbi = tc->targetAbi();
 
-    IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
         sp->connParams = device->sshParameters();
         sp->remoteChannel = sp->connParams.host + QLatin1Char(':') + QString::number(sp->connParams.port);
@@ -1388,14 +1388,14 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
 {
     const QString &option = *it;
     // '-debug <pid>'
-    // '-debug <exe>[,server=<server:port>][,core=<core>][,profile=<profile>]'
+    // '-debug <exe>[,server=<server:port>][,core=<core>][,kit=<kit>]'
     if (*it == _("-debug")) {
         ++it;
         if (it == cend) {
             *errorMessage = msgParameterMissing(*it);
             return false;
         }
-        Profile *profile = 0;
+        Kit *kit = 0;
         DebuggerStartParameters sp;
         qulonglong pid = it->toULongLong();
         if (pid) {
@@ -1433,12 +1433,12 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                     sp.displayName = tr("Core file \"%1\"").arg(sp.coreFile);
                     sp.startMessage = tr("Attaching to core file %1.").arg(sp.coreFile);
                 }
-                else if (key == QLatin1String("profile")) {
-                    profile = ProfileManager::instance()->find(Id(val));
+                else if (key == QLatin1String("kit")) {
+                    kit = KitManager::instance()->find(Id(val));
                 }
             }
         }
-        fillParameters(&sp, profile);
+        fillParameters(&sp, kit);
         if (sp.startMode == StartExternal) {
             sp.displayName = tr("Executable file \"%1\"").arg(sp.executable);
             sp.startMessage = tr("Debugging file %1.").arg(sp.executable);
@@ -1458,7 +1458,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
             return false;
         }
         DebuggerStartParameters sp;
-        fillParameters(&sp, CdbMatcher::findUniversalCdbProfile());
+        fillParameters(&sp, CdbMatcher::findUniversalCdbKit());
         sp.startMode = AttachCrashedExternal;
         sp.crashParameter = it->section(QLatin1Char(':'), 0, 0);
         sp.attachPID = it->section(QLatin1Char(':'), 1, 1).toULongLong();
@@ -1579,7 +1579,7 @@ void DebuggerPluginPrivate::attachCore()
 {
     AttachCoreDialog dlg(mainWindow());
 
-    dlg.setProfileId(Id(configValue(_("LastExternalProfile")).toString()));
+    dlg.setKitId(Id(configValue(_("LastExternalProfile")).toString()));
     dlg.setLocalExecutableFile(configValue(_("LastExternalExecutableFile")).toString());
     dlg.setLocalCoreFile(configValue(_("LastLocalCoreFile")).toString());
     dlg.setRemoteCoreFile(configValue(_("LastRemoteCoreFile")).toString());
@@ -1591,12 +1591,12 @@ void DebuggerPluginPrivate::attachCore()
     setConfigValue(_("LastExternalExecutableFile"), dlg.localExecutableFile());
     setConfigValue(_("LastLocalCoreFile"), dlg.localCoreFile());
     setConfigValue(_("LastRemoteCoreFile"), dlg.remoteCoreFile());
-    setConfigValue(_("LastExternalProfile"), dlg.profile()->id().toString());
+    setConfigValue(_("LastExternalProfile"), dlg.kit()->id().toString());
     setConfigValue(_("LastExternalStartScript"), dlg.overrideStartScript());
 
     DebuggerStartParameters sp;
     QString display = dlg.isLocal() ? dlg.localCoreFile() : dlg.remoteCoreFile();
-    fillParameters(&sp, dlg.profile());
+    fillParameters(&sp, dlg.kit());
     sp.masterEngineType = GdbEngineType;
     sp.executable = dlg.localExecutableFile();
     sp.coreFile = dlg.localCoreFile();
@@ -1611,9 +1611,9 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
 {
     const QString connectionKey = _("CdbRemoteConnection");
     DebuggerStartParameters sp;
-    Profile *profile = CdbMatcher::findUniversalCdbProfile();
-    QTC_ASSERT(profile, return);
-    fillParameters(&sp, profile);
+    Kit *kit = CdbMatcher::findUniversalCdbKit();
+    QTC_ASSERT(kit, return);
+    fillParameters(&sp, kit);
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
     StartRemoteCdbDialog dlg(mainWindow());
@@ -1660,10 +1660,10 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     }
 
     dlg->setAttribute(Qt::WA_DeleteOnClose);
-    ProfileChooser *profileChooser = dlg->profileChooser();
-    Profile *profile = profileChooser->currentProfile();
-    QTC_ASSERT(profile, return);
-    IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    KitChooser *kitChooser = dlg->kitChooser();
+    Kit *kit = kitChooser->currentKit();
+    QTC_ASSERT(kit, return);
+    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     QTC_ASSERT(device, return);
     DeviceProcess process = dlg->currentProcess();
     if (process.pid == 0) {
@@ -1683,7 +1683,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
 
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         DebuggerStartParameters sp;
-        fillParameters(&sp, profile);
+        fillParameters(&sp, kit);
         sp.attachPID = process.pid;
         sp.displayName = tr("Process %1").arg(process.pid);
         sp.executable = process.exe;
@@ -1704,11 +1704,11 @@ void DebuggerPluginPrivate::attachExternalApplication(ProjectExplorer::RunContro
     sp.startMode = AttachExternal;
     sp.closeMode = DetachAtClose;
     sp.toolChainAbi = rc->abi();
-    Profile *profile = 0;
+    Kit *kit = 0;
     if (const RunConfiguration *runConfiguration = rc->runConfiguration())
         if (const Target *target = runConfiguration->target())
-            profile = target->profile();
-    fillParameters(&sp, profile);
+            kit = target->kit();
+    fillParameters(&sp, kit);
     DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
@@ -1723,19 +1723,19 @@ void DebuggerPluginPrivate::attachToQmlPort()
     else
         dlg.setPort(sp.qmlServerPort);
 
-    const QVariant profileId = configValue(_("LastProfile"));
-    if (profileId.isValid())
-        dlg.setProfileId(Id(profileId.toString()));
+    const QVariant kitId = configValue(_("LastProfile"));
+    if (kitId.isValid())
+        dlg.setKitId(Id(kitId.toString()));
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    Profile *profile = dlg.profile();
-    QTC_ASSERT(profile, return);
+    Kit *kit = dlg.kit();
+    QTC_ASSERT(kit, return);
     setConfigValue(_("LastQmlServerPort"), dlg.port());
-    setConfigValue(_("LastProfile"), profile->id().toString());
+    setConfigValue(_("LastProfile"), kit->id().toString());
 
-    fillParameters(&sp, profile);
+    fillParameters(&sp, kit);
     sp.qmlServerAddress = sp.connParams.host;
     sp.qmlServerPort = dlg.port();
     sp.startMode = AttachToRemoteProcess;
@@ -3369,7 +3369,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     mstart->addSeparator(globalcontext, Constants::G_GENERAL);
     mstart->addSeparator(globalcontext, Constants::G_SPECIAL);
 
-    ProfileManager::instance()->registerProfileInformation(new DebuggerProfileInformation);
+    KitManager::instance()->registerKitInformation(new DebuggerKitInformation);
 
     return theDebuggerCore->initialize(arguments, errorMessage);
 }
@@ -3463,12 +3463,12 @@ static Target *activeTarget()
     return project->activeTarget();
 }
 
-static Profile *currentProfile()
+static Kit *currentKit()
 {
     Target *t = activeTarget();
     if (!t || !t->isEnabled())
         return 0;
-    return activeTarget()->profile();
+    return activeTarget()->kit();
 }
 
 static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
@@ -3516,7 +3516,7 @@ void DebuggerPluginPrivate::testPythonDumpers1()
 void DebuggerPluginPrivate::testPythonDumpers2()
 {
     DebuggerStartParameters sp;
-    fillParameters(&sp, currentProfile());
+    fillParameters(&sp, currentKit());
     sp.executable = activeLocalRunConfiguration()->executable();
     testRunProject(sp, TestCallBack(this, "testPythonDumpers3"));
 }
@@ -3548,7 +3548,7 @@ void DebuggerPluginPrivate::testStateMachine1()
 void DebuggerPluginPrivate::testStateMachine2()
 {
     DebuggerStartParameters sp;
-    fillParameters(&sp, currentProfile());
+    fillParameters(&sp, currentKit());
     sp.executable = activeLocalRunConfiguration()->executable();
     sp.testCase = TestNoBoundsOfCurrentFunction;
     testRunProject(sp, TestCallBack(this, "testStateMachine3"));

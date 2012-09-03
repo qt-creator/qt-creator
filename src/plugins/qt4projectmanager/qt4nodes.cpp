@@ -55,7 +55,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/profilereader.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/qtcassert.h>
@@ -1535,7 +1535,7 @@ void Qt4ProFileNode::emitProFileUpdatedRecursive()
 {
     foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
         if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-            emit qt4Watcher->proFileUpdated(this, m_validParse, m_parseInProgress);
+            emit qt4Watcher->kitUpdated(this, m_validParse, m_parseInProgress);
 
     foreach (ProjectNode *subNode, subProjectNodes()) {
         if (Qt4ProFileNode *node = qobject_cast<Qt4ProFileNode *>(subNode)) {
@@ -1561,7 +1561,7 @@ void Qt4ProFileNode::setParseInProgress(bool b)
     m_parseInProgress = b;
     foreach (ProjectExplorer::NodesWatcher *watcher, watchers())
         if (Internal::Qt4NodesWatcher *qt4Watcher = qobject_cast<Internal::Qt4NodesWatcher*>(watcher))
-            emit qt4Watcher->proFileUpdated(this, m_validParse, m_parseInProgress);
+            emit qt4Watcher->kitUpdated(this, m_validParse, m_parseInProgress);
 }
 
 void Qt4ProFileNode::setValidParseRecursive(bool b)

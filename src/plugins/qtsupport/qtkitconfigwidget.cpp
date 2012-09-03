@@ -28,10 +28,10 @@
 **
 **************************************************************************/
 
-#include "qtprofileconfigwidget.h"
+#include "qtkitconfigwidget.h"
 
 #include "qtsupportconstants.h"
-#include "qtprofileinformation.h"
+#include "qtkitinformation.h"
 #include "qtversionmanager.h"
 
 #include <coreplugin/icore.h>
@@ -46,14 +46,13 @@
 namespace QtSupport {
 namespace Internal {
 
-QtProfileConfigWidget::QtProfileConfigWidget(ProjectExplorer::Profile *p,
-                                             QWidget *parent) :
-    ProjectExplorer::ProfileConfigWidget(parent),
-    m_profile(p),
+QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, QWidget *parent) :
+    ProjectExplorer::KitConfigWidget(parent),
+    m_kit(k),
     m_combo(new QComboBox),
     m_manageButton(new QPushButton(this))
 {
-    setToolTip(tr("The Qt library to use for all projects using this target.<br>"
+    setToolTip(tr("The Qt library to use for all projects using this kit.<br>"
                   "A Qt version is required for qmake-based projects and optional when using other build systems."));
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
@@ -80,46 +79,46 @@ QtProfileConfigWidget::QtProfileConfigWidget(ProjectExplorer::Profile *p,
 
     connect(mgr, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(versionsChanged(QList<int>,QList<int>,QList<int>)));
-    connect(ProjectExplorer::ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
-            this, SLOT(profileUpdated(ProjectExplorer::Profile*)));
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
 
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageQtVersions()));
 }
 
-QString QtProfileConfigWidget::displayName() const
+QString QtKitConfigWidget::displayName() const
 {
     return tr("Qt version:");
 }
 
-void QtProfileConfigWidget::makeReadOnly()
+void QtKitConfigWidget::makeReadOnly()
 {
     m_combo->setEnabled(false);
 }
 
-void QtProfileConfigWidget::apply()
+void QtKitConfigWidget::apply()
 {
     int id = m_combo->itemData(m_combo->currentIndex()).toInt();
-    QtProfileInformation::setQtVersionId(m_profile, id);
+    QtKitInformation::setQtVersionId(m_kit, id);
 }
 
-void QtProfileConfigWidget::discard()
+void QtKitConfigWidget::discard()
 {
-    m_combo->setCurrentIndex(findQtVersion(QtProfileInformation::qtVersionId(m_profile)));
+    m_combo->setCurrentIndex(findQtVersion(QtKitInformation::qtVersionId(m_kit)));
 }
 
-bool QtProfileConfigWidget::isDirty() const
+bool QtKitConfigWidget::isDirty() const
 {
     int id = m_combo->itemData(m_combo->currentIndex()).toInt();
-    return id != QtProfileInformation::qtVersionId(m_profile);
+    return id != QtKitInformation::qtVersionId(m_kit);
 }
 
-QWidget *QtProfileConfigWidget::buttonWidget() const
+QWidget *QtKitConfigWidget::buttonWidget() const
 {
     return m_manageButton;
 }
 
-void QtProfileConfigWidget::versionsChanged(const QList<int> &added, const QList<int> &removed,
-                                            const QList<int> &changed)
+void QtKitConfigWidget::versionsChanged(const QList<int> &added, const QList<int> &removed,
+                                        const QList<int> &changed)
 {
     QtVersionManager *mgr = QtVersionManager::instance();
 
@@ -143,12 +142,12 @@ void QtProfileConfigWidget::versionsChanged(const QList<int> &added, const QList
     }
 }
 
-void QtProfileConfigWidget::profileUpdated(ProjectExplorer::Profile *p)
+void QtKitConfigWidget::kitUpdated(ProjectExplorer::Kit *k)
 {
-    if (p != m_profile)
+    if (k != m_kit)
         return;
 
-    int id = QtProfileInformation::qtVersionId(p);
+    int id = QtKitInformation::qtVersionId(k);
 
     for (int i = 0; i < m_combo->count(); ++i) {
         if (m_combo->itemData(i).toInt() == id) {
@@ -158,13 +157,13 @@ void QtProfileConfigWidget::profileUpdated(ProjectExplorer::Profile *p)
     }
 }
 
-void QtProfileConfigWidget::manageQtVersions()
+void QtKitConfigWidget::manageQtVersions()
 {
     Core::ICore::showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
                                    QLatin1String(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
 }
 
-int QtProfileConfigWidget::findQtVersion(const int id) const
+int QtKitConfigWidget::findQtVersion(const int id) const
 {
     for (int i = 0; i < m_combo->count(); ++i) {
         if (id == m_combo->itemData(i).toInt())

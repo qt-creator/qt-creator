@@ -48,7 +48,7 @@ class DeployConfiguration;
 class IBuildConfigurationFactory;
 class DeployConfigurationFactory;
 class IRunConfigurationFactory;
-class Profile;
+class Kit;
 class Project;
 class BuildConfigWidget;
 
@@ -59,13 +59,13 @@ class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
     Q_OBJECT
 
 public:
-    Target(Project *parent, Profile *p);
+    Target(Project *parent, Kit *p);
     ~Target();
 
     Project *project() const;
 
-    // Profile:
-    Profile *profile() const;
+    // Kit:
+    Kit *kit() const;
 
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *configuration);
@@ -124,7 +124,7 @@ signals:
     void overlayIconChanged();
     void toolTipChanged();
 
-    void profileChanged();
+    void kitChanged();
 
     // TODO clean up signal names
     // might be better to also have aboutToRemove signals
@@ -172,8 +172,8 @@ private slots:
     void changeDeployConfigurationEnabled();
     void changeRunConfigurationEnabled();
 
-    void handleProfileUpdates(ProjectExplorer::Profile *p);
-    void handleProfileRemoval(ProjectExplorer::Profile *p);
+    void handleKitUpdates(ProjectExplorer::Kit *p);
+    void handleKitRemoval(ProjectExplorer::Kit *p);
 
 private:
     TargetPrivate *d;

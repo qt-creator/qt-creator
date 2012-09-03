@@ -47,7 +47,7 @@ namespace ProjectExplorer {
 class BuildConfiguration;
 class BuildConfigWidget;
 class BuildStepList;
-class Profile;
+class Kit;
 class Target;
 class IOutputParser;
 
@@ -112,7 +112,7 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private slots:
-    void handleProfileUpdate(ProjectExplorer::Profile *p);
+    void handleKitUpdate(ProjectExplorer::Kit *p);
 
 private:
     bool m_clearSystemEnvironment;

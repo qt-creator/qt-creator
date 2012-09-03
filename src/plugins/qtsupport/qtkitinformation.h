@@ -28,78 +28,78 @@
 **
 **************************************************************************/
 
-#ifndef QTSUPPORT_QTPROFILEINFORMATION_H
-#define QTSUPPORT_QTPROFILEINFORMATION_H
+#ifndef QTSUPPORT_QTKITINFORMATION_H
+#define QTSUPPORT_QTKITINFORMATION_H
 
 #include "qtsupport_global.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 
 #include "baseqtversion.h"
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT QtProfileInformation : public ProjectExplorer::ProfileInformation
+class QTSUPPORT_EXPORT QtKitInformation : public ProjectExplorer::KitInformation
 {
     Q_OBJECT
 
 public:
-    QtProfileInformation();
+    QtKitInformation();
 
     Core::Id dataId() const;
 
     unsigned int priority() const; // the higher the closer to the top.
 
-    QVariant defaultValue(ProjectExplorer::Profile *p) const;
+    QVariant defaultValue(ProjectExplorer::Kit *p) const;
 
-    QList<ProjectExplorer::Task> validate(ProjectExplorer::Profile *p) const;
+    QList<ProjectExplorer::Task> validate(ProjectExplorer::Kit *p) const;
 
-    ProjectExplorer::ProfileConfigWidget *createConfigWidget(ProjectExplorer::Profile *p) const;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *p) const;
 
-    QString displayNamePostfix(const ProjectExplorer::Profile *p) const;
+    QString displayNamePostfix(const ProjectExplorer::Kit *p) const;
 
-    ItemList toUserOutput(ProjectExplorer::Profile *p) const;
+    ItemList toUserOutput(ProjectExplorer::Kit *p) const;
 
-    void addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const;
+    void addToEnvironment(const ProjectExplorer::Kit *p, Utils::Environment &env) const;
 
-    static int qtVersionId(const ProjectExplorer::Profile *p);
-    static void setQtVersionId(ProjectExplorer::Profile *p, const int id);
-    static BaseQtVersion *qtVersion(const ProjectExplorer::Profile *p);
-    static void setQtVersion(ProjectExplorer::Profile *p, const BaseQtVersion *v);
+    static int qtVersionId(const ProjectExplorer::Kit *p);
+    static void setQtVersionId(ProjectExplorer::Kit *p, const int id);
+    static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *p);
+    static void setQtVersion(ProjectExplorer::Kit *p, const BaseQtVersion *v);
 };
 
-class QTSUPPORT_EXPORT QtTypeProfileMatcher : public ProjectExplorer::ProfileMatcher
+class QTSUPPORT_EXPORT QtTypeKitMatcher : public ProjectExplorer::KitMatcher
 {
 public:
-    QtTypeProfileMatcher(const QString &type);
+    QtTypeKitMatcher(const QString &type);
 
-    bool matches(const ProjectExplorer::Profile *p) const;
+    bool matches(const ProjectExplorer::Kit *p) const;
 
 private:
     QString m_type;
 };
 
-class QTSUPPORT_EXPORT QtPlatformProfileMatcher : public ProjectExplorer::ProfileMatcher
+class QTSUPPORT_EXPORT QtPlatformKitMatcher : public ProjectExplorer::KitMatcher
 {
 public:
-    QtPlatformProfileMatcher(const QString &platform);
+    QtPlatformKitMatcher(const QString &platform);
 
-    bool matches(const ProjectExplorer::Profile *p) const;
+    bool matches(const ProjectExplorer::Kit *p) const;
 
 private:
     QString m_platform;
 };
 
-class QTSUPPORT_EXPORT QtVersionProfileMatcher : public ProjectExplorer::ProfileMatcher
+class QTSUPPORT_EXPORT QtVersionKitMatcher : public ProjectExplorer::KitMatcher
 {
 public:
-    explicit QtVersionProfileMatcher(const Core::FeatureSet &required = Core::FeatureSet(),
+    explicit QtVersionKitMatcher(const Core::FeatureSet &required = Core::FeatureSet(),
                                      const QtVersionNumber &min = QtVersionNumber(0, 0, 0),
                                      const QtVersionNumber &max = QtVersionNumber(INT_MAX, INT_MAX, INT_MAX)) :
         m_min(min), m_max(max), m_features(required)
     { }
 
-    bool matches(const ProjectExplorer::Profile *p) const;
+    bool matches(const ProjectExplorer::Kit *p) const;
 
 private:
     QtVersionNumber m_min;
@@ -109,4 +109,4 @@ private:
 
 } // namespace QtSupport
 
-#endif // QTSUPPORT_QTPROFILEINFORMATION_H
+#endif // QTSUPPORT_QTKITINFORMATION_H

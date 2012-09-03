@@ -36,7 +36,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <designer/designerconstants.h>
 
@@ -141,7 +141,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
     // Get the binary either from the current Qt version of the project or Path
     if (const Qt4Project *project = qt4ProjectFor(fileName)) {
         if (const ProjectExplorer::Target *target = project->activeTarget()) {
-            if (const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(target->profile())) {
+            if (const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit())) {
                 data->binary = (qtVersion->*commandAccessor)();
                 data->workingDirectory = project->projectDirectory();
             }

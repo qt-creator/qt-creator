@@ -37,7 +37,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QPushButton)
 
-namespace ProjectExplorer { class Profile; }
+namespace ProjectExplorer { class Kit; }
 
 namespace Qt4ProjectManager {
 class TargetSetupPage;
@@ -68,7 +68,7 @@ protected:
 private slots:
     void done();
     void noteTextLinkActivated();
-    void profileUpdated(ProjectExplorer::Profile *profile);
+    void kitUpdated(ProjectExplorer::Kit *k);
     void updateNoteText();
     void completeChanged();
 

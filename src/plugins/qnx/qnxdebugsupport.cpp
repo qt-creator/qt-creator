@@ -38,7 +38,7 @@
 #include <debugger/debuggerengine.h>
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -54,7 +54,7 @@ QnxDebugSupport::QnxDebugSupport(QnxRunConfiguration *runConfig, Debugger::Debug
     , m_executable(QLatin1String(Constants::QNX_DEBUG_EXECUTABLE))
     , m_commandPrefix(runConfig->commandPrefix())
     , m_arguments(runConfig->arguments())
-    , m_device(DeviceProfileInformation::device(runConfig->target()->profile()))
+    , m_device(DeviceKitInformation::device(runConfig->target()->kit()))
     , m_engine(engine)
     , m_port(-1)
     , m_state(Inactive)

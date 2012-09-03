@@ -56,7 +56,7 @@
 #include <utils/qtcassert.h>
 #include <qtsupport/profilereader.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <QCoreApplication>
@@ -200,9 +200,9 @@ void Qt4Manager::updateVariable(const QByteArray &variable)
         QString value;
         const QtSupport::BaseQtVersion *qtv = 0;
         if (ProjectExplorer::Target *t = qt4pro->activeTarget())
-            qtv = QtSupport::QtProfileInformation::qtVersion(t->profile());
+            qtv = QtSupport::QtKitInformation::qtVersion(t->kit());
         else
-            qtv = QtSupport::QtProfileInformation::qtVersion(ProjectExplorer::ProfileManager::instance()->defaultProfile());
+            qtv = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::instance()->defaultKit());
 
         if (qtv)
             value = qtv->qmakeProperty(variable == kHostBins ? "QT_HOST_BINS" : "QT_INSTALL_BINS");

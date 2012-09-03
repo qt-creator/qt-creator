@@ -42,7 +42,7 @@
 #include <qt4projectmanager/qmakestep.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <remotelinux/deployablefilesperprofile.h>
 #include <remotelinux/deploymentinfo.h>
 #include <utils/fileutils.h>
@@ -311,10 +311,10 @@ void MaemoPublisherFremantleFree::handleProcessFinished(bool failedToStart)
             setState(RunningMakeDistclean);
             // Toolchain might be null! (yes because this sucks)
             ProjectExplorer::ToolChain *tc
-                    = ProjectExplorer::ToolChainProfileInformation::toolChain(m_buildConfig->target()->profile());
+                    = ProjectExplorer::ToolChainKitInformation::toolChain(m_buildConfig->target()->kit());
             if (!tc) {
                 finishWithFailure(QString(), tr("Make distclean failed: %1")
-                                  .arg(ProjectExplorer::ToolChainProfileInformation::msgNoToolChainInTarget()));
+                                  .arg(ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget()));
             }
             m_process->start(tc->makeCommand(), QStringList() << QLatin1String("distclean"));
         }
@@ -380,7 +380,7 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
         }
     }
 
-    QtSupport::BaseQtVersion *lqt = QtSupport::QtProfileInformation::qtVersion(m_buildConfig->target()->profile());
+    QtSupport::BaseQtVersion *lqt = QtSupport::QtKitInformation::qtVersion(m_buildConfig->target()->kit());
     if (!lqt)
         finishWithFailure(QString(), tr("No Qt version set."));
 
@@ -606,7 +606,7 @@ QStringList MaemoPublisherFremantleFree::findProblems() const
     QStringList problems;
     ProjectExplorer::Target *target = m_buildConfig->target();
     Core::Id deviceType
-            = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target->profile());
+            = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target->kit());
     if (deviceType != Maemo5OsType)
         return QStringList();
 

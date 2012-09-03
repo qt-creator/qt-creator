@@ -62,7 +62,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qmlprojectmanager/qmlprojectrunconfiguration.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/crumblepath.h>
@@ -921,8 +921,8 @@ static inline QtSupport::BaseQtVersion *getActiveQtVersion(DesignDocumentControl
     if (!target)
         return 0;
 
-    controller->connect(target, SIGNAL(profileChanged()), controller, SLOT(activeQtVersionChanged()));
-    return QtSupport::QtProfileInformation::qtVersion(target->profile());
+    controller->connect(target, SIGNAL(kitChanged()), controller, SLOT(activeQtVersionChanged()));
+    return QtSupport::QtKitInformation::qtVersion(target->kit());
 }
 
 void DesignDocumentController::activeQtVersionChanged()

@@ -48,7 +48,7 @@ QString CodeStyleSettingsPanelFactory::id() const
 
 QString CodeStyleSettingsPanelFactory::displayName() const
 {
-    return QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style Settings");
+    return QCoreApplication::translate("CodeStyleSettingsPanelFactory", "Code Style");
 }
 
 int CodeStyleSettingsPanelFactory::priority() const
@@ -67,7 +67,7 @@ PropertiesPanel *CodeStyleSettingsPanelFactory::createPanel(Project *project)
     PropertiesPanel *panel = new PropertiesPanel;
     panel->setWidget(new CodeStyleSettingsWidget(project));
     panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/CodeStyleSettings.png")));
-    panel->setDisplayName(QCoreApplication::translate("CodeStyleSettingsPanel", "Code Style Settings"));
+    panel->setDisplayName(QCoreApplication::translate("CodeStyleSettingsPanel", "Code Style"));
     return panel;
 }
 

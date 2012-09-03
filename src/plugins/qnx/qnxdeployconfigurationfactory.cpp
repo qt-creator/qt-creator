@@ -37,7 +37,7 @@
 #include "qnxdeployconfiguration.h"
 #include "qnxdeviceconfigurationfactory.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <remotelinux/genericdirectuploadstep.h>
 
@@ -120,7 +120,7 @@ ProjectExplorer::DeployConfiguration *QnxDeployConfigurationFactory::clone(Proje
 
 bool QnxDeployConfigurationFactory::canHandle(ProjectExplorer::Target *t) const
 {
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(t->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());
     if (deviceType != QnxDeviceConfigurationFactory::deviceType())
         return false;
 

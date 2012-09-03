@@ -39,7 +39,7 @@
 #include <qt4projectmanager/qt4projectmanager.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/customwizard/customwizard.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -64,14 +64,14 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
     , m_genericItem(0)
     , m_maemoItem(0)
     , m_harmattanItem(0)
-    , m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_PROFILE_IDS).value<QList<Core::Id> >())
+    , m_kitIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_PROFILE_IDS).value<QList<Core::Id> >())
 {
     if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS)) {
         m_targetsPage = new TargetSetupPage;
-        m_targetsPage->setPreferredProfileMatcher(new QtSupport::QtPlatformProfileMatcher(selectedPlatform()));
-        m_targetsPage->setRequiredProfileMatcher(new QtSupport::QtVersionProfileMatcher(requiredFeatures(),
-                                                                                        minimumQtVersionNumber,
-                                                                                        maximumQtVersionNumber));
+        m_targetsPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(selectedPlatform()));
+        m_targetsPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(requiredFeatures(),
+                                                                                minimumQtVersionNumber,
+                                                                                maximumQtVersionNumber));
         resize(900, 450);
     }
 
@@ -204,23 +204,23 @@ Utils::WizardProgressItem *AbstractMobileAppWizardDialog::itemOfNextGenericPage(
 
 bool AbstractMobileAppWizardDialog::isQtPlatformSelected(const QString &platform) const
 {
-    QList<Core::Id> selectedProfileList = selectedProfiles();
+    QList<Core::Id> selectedKitsList = selectedKits();
 
-    QtSupport::QtPlatformProfileMatcher matcher(platform);
-    QList<ProjectExplorer::Profile *> allProfileList
-            = ProjectExplorer::ProfileManager::instance()->profiles(&matcher);
-    foreach (ProjectExplorer::Profile *p, allProfileList) {
-        if (selectedProfileList.contains(p->id()))
+    QtSupport::QtPlatformKitMatcher matcher(platform);
+    QList<ProjectExplorer::Kit *> kitsList
+            = ProjectExplorer::KitManager::instance()->kits(&matcher);
+    foreach (ProjectExplorer::Kit *p, kitsList) {
+        if (selectedKitsList.contains(p->id()))
             return true;
     }
     return false;
 }
 
-QList<Core::Id> AbstractMobileAppWizardDialog::selectedProfiles() const
+QList<Core::Id> AbstractMobileAppWizardDialog::selectedKits() const
 {
     if (m_targetsPage)
-        return m_targetsPage->selectedProfiles();
-    return m_profileIds;
+        return m_targetsPage->selectedKits();
+    return m_kitIds;
 }
 
 

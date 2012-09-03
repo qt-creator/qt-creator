@@ -40,7 +40,7 @@
 #include "blackberrydeviceconfigurationfactory.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4project.h>
 #include <remotelinux/genericdirectuploadstep.h>
@@ -65,7 +65,7 @@ QList<Core::Id> BlackBerryDeployConfigurationFactory::availableCreationIds(Proje
     if (!project)
         return result;
 
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
     if (deviceType != BlackBerryDeviceConfigurationFactory::deviceType())
         return result;
 

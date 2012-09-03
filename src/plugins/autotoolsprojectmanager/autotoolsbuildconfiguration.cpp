@@ -42,7 +42,7 @@
 #include "configurestep.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -117,7 +117,7 @@ void AutotoolsBuildConfiguration::setBuildDirectory(const QString &buildDirector
 
 IOutputParser *AutotoolsBuildConfiguration::createOutputParser() const
 {
-    ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
     if (tc)
         return tc->outputParser();
     return 0;
@@ -214,7 +214,7 @@ AutotoolsBuildConfiguration *AutotoolsBuildConfigurationFactory::createDefaultCo
 
 bool AutotoolsBuildConfigurationFactory::canHandle(const Target *t) const
 {
-    if (!t->project()->supportsProfile(t->profile()))
+    if (!t->project()->supportsKit(t->kit()))
         return false;
     return t->project()->id() == Constants::AUTOTOOLS_PROJECT_ID;
 }

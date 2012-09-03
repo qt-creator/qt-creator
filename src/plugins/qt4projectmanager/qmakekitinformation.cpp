@@ -28,49 +28,49 @@
 **
 **************************************************************************/
 
-#include "qmakeprofileinformation.h"
+#include "qmakekitinformation.h"
 
-#include "qmakeprofileinformation.h"
-#include "qmakeprofileconfigwidget.h"
+#include "qmakekitinformation.h"
+#include "qmakekitconfigwidget.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 const char MKSPEC_INFORMATION[] = "QtPM4.mkSpecInformation";
 } // namespace Internal
 
-QmakeProfileInformation::QmakeProfileInformation()
+QmakeKitInformation::QmakeKitInformation()
 {
-    setObjectName(QLatin1String("QmakeProfileInformation"));
+    setObjectName(QLatin1String("QmakeKitInformation"));
 }
 
-Core::Id QmakeProfileInformation::dataId() const
+Core::Id QmakeKitInformation::dataId() const
 {
     static Core::Id id = Core::Id(Internal::MKSPEC_INFORMATION);
     return id;
 }
 
-unsigned int QmakeProfileInformation::priority() const
+unsigned int QmakeKitInformation::priority() const
 {
     return 24000;
 }
 
-QVariant QmakeProfileInformation::defaultValue(ProjectExplorer::Profile *p) const
+QVariant QmakeKitInformation::defaultValue(ProjectExplorer::Kit *k) const
 {
-    Q_UNUSED(p);
+    Q_UNUSED(k);
     return QString();
 }
 
-QList<ProjectExplorer::Task> QmakeProfileInformation::validate(ProjectExplorer::Profile *p) const
+QList<ProjectExplorer::Task> QmakeKitInformation::validate(ProjectExplorer::Kit *k) const
 {
     QList<ProjectExplorer::Task> result;
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
 
-    Utils::FileName mkspec = QmakeProfileInformation::mkspec(p);
+    Utils::FileName mkspec = QmakeKitInformation::mkspec(k);
     if (!version && !mkspec.isEmpty())
         result << ProjectExplorer::Task(ProjectExplorer::Task::Warning,
                                         tr("No Qt version set, so mkspec is ignored."),
@@ -84,49 +84,49 @@ QList<ProjectExplorer::Task> QmakeProfileInformation::validate(ProjectExplorer::
     return result;
 }
 
-ProjectExplorer::ProfileConfigWidget *
-QmakeProfileInformation::createConfigWidget(ProjectExplorer::Profile *p) const
+ProjectExplorer::KitConfigWidget *
+QmakeKitInformation::createConfigWidget(ProjectExplorer::Kit *k) const
 {
-    return new Internal::QmakeProfileConfigWidget(p);
+    return new Internal::QmakeKitConfigWidget(k);
 }
 
-ProjectExplorer::ProfileInformation::ItemList QmakeProfileInformation::toUserOutput(ProjectExplorer::Profile *p) const
+ProjectExplorer::KitInformation::ItemList QmakeKitInformation::toUserOutput(ProjectExplorer::Kit *k) const
 {
-    return ItemList() << qMakePair(tr("mkspec"), mkspec(p).toUserOutput());
+    return ItemList() << qMakePair(tr("mkspec"), mkspec(k).toUserOutput());
 }
 
-Utils::FileName QmakeProfileInformation::mkspec(const ProjectExplorer::Profile *p)
+Utils::FileName QmakeKitInformation::mkspec(const ProjectExplorer::Kit *k)
 {
-    if (!p)
+    if (!k)
         return Utils::FileName();
-    return Utils::FileName::fromString(p->value(Core::Id(Internal::MKSPEC_INFORMATION)).toString());
+    return Utils::FileName::fromString(k->value(Core::Id(Internal::MKSPEC_INFORMATION)).toString());
 }
 
-Utils::FileName QmakeProfileInformation::effectiveMkspec(const ProjectExplorer::Profile *p)
+Utils::FileName QmakeKitInformation::effectiveMkspec(const ProjectExplorer::Kit *k)
 {
-    if (!p)
+    if (!k)
         return Utils::FileName();
-    Utils::FileName spec = mkspec(p);
+    Utils::FileName spec = mkspec(k);
     if (spec.isEmpty())
-        return defaultMkspec(p);
+        return defaultMkspec(k);
     return spec;
 }
 
-void QmakeProfileInformation::setMkspec(ProjectExplorer::Profile *p, const Utils::FileName &fn)
+void QmakeKitInformation::setMkspec(ProjectExplorer::Kit *k, const Utils::FileName &fn)
 {
-    if (fn == defaultMkspec(p))
-        p->setValue(Core::Id(Internal::MKSPEC_INFORMATION), QString());
+    if (fn == defaultMkspec(k))
+        k->setValue(Core::Id(Internal::MKSPEC_INFORMATION), QString());
     else
-        p->setValue(Core::Id(Internal::MKSPEC_INFORMATION), fn.toString());
+        k->setValue(Core::Id(Internal::MKSPEC_INFORMATION), fn.toString());
 }
 
-Utils::FileName QmakeProfileInformation::defaultMkspec(const ProjectExplorer::Profile *p)
+Utils::FileName QmakeKitInformation::defaultMkspec(const ProjectExplorer::Kit *k)
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version) // No version, so no qmake
         return Utils::FileName();
 
-    return version->mkspecFor(ProjectExplorer::ToolChainProfileInformation::toolChain(p));
+    return version->mkspecFor(ProjectExplorer::ToolChainKitInformation::toolChain(k));
 }
 
 } // namespace Qt4ProjectManager

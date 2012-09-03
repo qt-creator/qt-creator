@@ -38,7 +38,7 @@
 #include "blackberrydeviceconfigurationfactory.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -60,7 +60,7 @@ QList<Core::Id> BlackBerryCreatePackageStepFactory::availableCreationIds(
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return QList<Core::Id>();
 
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->target()->kit());
     if (deviceType != BlackBerryDeviceConfigurationFactory::deviceType())
         return QList<Core::Id>();
 

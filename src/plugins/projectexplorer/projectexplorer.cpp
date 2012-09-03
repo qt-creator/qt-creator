@@ -36,8 +36,8 @@
 #include "gcctoolchainfactories.h"
 #include "project.h"
 #include "projectexplorersettings.h"
-#include "profilemanager.h"
-#include "profileoptionspage.h"
+#include "kitmanager.h"
+#include "kitoptionspage.h"
 #include "target.h"
 #include "targetsettingspanel.h"
 #include "toolchainmanager.h"
@@ -64,7 +64,7 @@
 #include "processstep.h"
 #include "projectexplorerconstants.h"
 #include "customwizard.h"
-#include "profileinformation.h"
+#include "kitinformation.h"
 #include "projectfilewizardextension.h"
 #include "projecttreewidget.h"
 #include "projectwindow.h"
@@ -244,7 +244,7 @@ struct ProjectExplorerPluginPrivate {
     Core::IMode *m_projectsMode;
 
     TaskHub *m_taskHub;
-    ProfileManager *m_profileManager;
+    KitManager *m_kitManager;
     ToolChainManager *m_toolChainManager;
     bool m_shuttingDown;
 };
@@ -255,7 +255,7 @@ ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() :
     m_delayedRunConfiguration(0),
     m_runMode(NoRunMode),
     m_projectsMode(0),
-    m_profileManager(0),
+    m_kitManager(0),
     m_toolChainManager(0),
     m_shuttingDown(false)
 {
@@ -297,7 +297,7 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     delete d->m_welcomePage;
     removeObject(this);
     // Force sequence of deletion:
-    delete d->m_profileManager; // remove all the profile informations
+    delete d->m_kitManager; // remove all the profile informations
     delete d->m_toolChainManager;
 
     delete d;
@@ -340,10 +340,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     addAutoReleasedObject(new Internal::DesktopDeviceFactory);
 
-    d->m_profileManager = new ProfileManager; // register before ToolChainManager
+    d->m_kitManager = new KitManager; // register before ToolChainManager
     d->m_toolChainManager = new ToolChainManager;
     addAutoReleasedObject(new Internal::ToolChainOptionsPage);
-    addAutoReleasedObject(new ProfileOptionsPage);
+    addAutoReleasedObject(new KitOptionsPage);
 
     d->m_taskHub = new TaskHub;
     addAutoReleasedObject(d->m_taskHub);
@@ -869,7 +869,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     d->m_projectSelectorActionMenu = new QAction(this);
     d->m_projectSelectorActionMenu->setEnabled(false);
-    d->m_projectSelectorActionMenu->setText(tr("Open Build/Run Target Selector..."));
+    d->m_projectSelectorActionMenu->setText(tr("Open Build and Run Kit Selector..."));
     connect(d->m_projectSelectorActionMenu, SIGNAL(triggered()), d->m_targetSelector, SLOT(toggleVisible()));
     cmd = Core::ActionManager::registerAction(d->m_projectSelectorActionMenu, ProjectExplorer::Constants::SELECTTARGET,
                        globalcontext);
@@ -1104,10 +1104,10 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     // Register ProfileInformation:
     // Only do this now to make sure all device factories were properly initialized.
-    ProfileManager::instance()->registerProfileInformation(new SysRootProfileInformation);
-    ProfileManager::instance()->registerProfileInformation(new DeviceProfileInformation);
-    ProfileManager::instance()->registerProfileInformation(new DeviceTypeProfileInformation);
-    ProfileManager::instance()->registerProfileInformation(new ToolChainProfileInformation);
+    KitManager::instance()->registerKitInformation(new SysRootKitInformation);
+    KitManager::instance()->registerKitInformation(new DeviceKitInformation);
+    KitManager::instance()->registerKitInformation(new DeviceTypeKitInformation);
+    KitManager::instance()->registerKitInformation(new ToolChainKitInformation);
 
     DeviceManager *dm = DeviceManager::instance();
     if (dm->find(Core::Id(Constants::DESKTOP_DEVICE_ID)).isNull())

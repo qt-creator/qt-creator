@@ -44,7 +44,7 @@ class QSettings;
 QT_END_NAMESPACE
 
 namespace Core { class Id; }
-namespace ProjectExplorer { class Profile; }
+namespace ProjectExplorer { class Kit; }
 
 namespace Debugger {
 class DebuggerStartParameters;
@@ -78,7 +78,7 @@ private:
     void setParameters(const StartApplicationParameters &p);
     void setHistory(const QList<StartApplicationParameters> &l);
     void hideStartScript();
-    Core::Id profileId() const;
+    Core::Id kitId() const;
 
     StartApplicationDialogPrivate *d;
 };
@@ -94,8 +94,8 @@ public:
     int port() const;
     void setPort(const int port);
 
-    ProjectExplorer::Profile *profile() const;
-    void setProfileId(const Core::Id &id);
+    ProjectExplorer::Kit *kit() const;
+    void setKitId(const Core::Id &id);
 
 private:
     AttachToQmlPortDialogPrivate *d;

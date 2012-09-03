@@ -33,11 +33,11 @@
 #include "maemoqemumanager.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <remotelinux/remotelinux_constants.h>
 #include <utils/environment.h>
 
@@ -58,9 +58,9 @@ namespace {
 static const QLatin1String binQmake("/bin/qmake" EXEC_SUFFIX);
 } // namespace
 
-bool MaemoGlobal::hasMaemoDevice(const Profile *p)
+bool MaemoGlobal::hasMaemoDevice(const Kit *k)
 {
-    IDevice::ConstPtr dev = DeviceProfileInformation::device(p);
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     if (dev.isNull())
         return false;
 
@@ -68,9 +68,9 @@ bool MaemoGlobal::hasMaemoDevice(const Profile *p)
     return type == Maemo5OsType || type == HarmattanOsType;
 }
 
-bool MaemoGlobal::supportsMaemoDevice(const Profile *p)
+bool MaemoGlobal::supportsMaemoDevice(const Kit *p)
 {
-    const Core::Id type = DeviceTypeProfileInformation::deviceTypeId(p);
+    const Core::Id type = DeviceTypeKitInformation::deviceTypeId(p);
     return type == Maemo5OsType || type == HarmattanOsType;
 }
 
@@ -121,7 +121,7 @@ QString MaemoGlobal::devrootshPath()
 
 int MaemoGlobal::applicationIconSize(const Target *target)
 {
-    Core::Id deviceType = DeviceTypeProfileInformation::deviceTypeId(target->profile());
+    Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(target->kit());
     return deviceType == HarmattanOsType ? 80 : 64;
 }
 
@@ -144,10 +144,10 @@ QString MaemoGlobal::remoteSourceProfilesCommand()
     return QString::fromAscii(remoteCall);
 }
 
-Utils::PortList MaemoGlobal::freePorts(const Profile *profile)
+Utils::PortList MaemoGlobal::freePorts(const Kit *k)
 {
-    IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(profile);
+    IDevice::ConstPtr device = DeviceKitInformation::device(k);
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
 
     if (!device || !qtVersion)
         return Utils::PortList();
@@ -167,9 +167,9 @@ QString MaemoGlobal::maddeRoot(const QString &qmakePath)
     return dir.absolutePath();
 }
 
-Utils::FileName MaemoGlobal::maddeRoot(const Profile *profile)
+Utils::FileName MaemoGlobal::maddeRoot(const Kit *k)
 {
-    return SysRootProfileInformation::sysRoot(profile).parentDir().parentDir();
+    return SysRootKitInformation::sysRoot(k).parentDir().parentDir();
 }
 
 QString MaemoGlobal::targetRoot(const QString &qmakePath)

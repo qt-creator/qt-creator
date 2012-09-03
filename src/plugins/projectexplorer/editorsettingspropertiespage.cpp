@@ -44,7 +44,7 @@ QString EditorSettingsPanelFactory::id() const
 
 QString EditorSettingsPanelFactory::displayName() const
 {
-    return QCoreApplication::translate("EditorSettingsPanelFactory", "Editor Settings");
+    return QCoreApplication::translate("EditorSettingsPanelFactory", "Editor");
 }
 
 int EditorSettingsPanelFactory::priority() const
@@ -61,7 +61,7 @@ bool EditorSettingsPanelFactory::supports(Project *project)
 PropertiesPanel *EditorSettingsPanelFactory::createPanel(Project *project)
 {
     PropertiesPanel *panel = new PropertiesPanel;
-    panel->setDisplayName(QCoreApplication::translate("EditorSettingsPanel", "Editor Settings"));
+    panel->setDisplayName(QCoreApplication::translate("EditorSettingsPanel", "Editor"));
     panel->setWidget(new EditorSettingsWidget(project)),
     panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/EditorSettings.png")));
     return panel;

@@ -43,7 +43,7 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
 
@@ -140,7 +140,7 @@ RunConfiguration *AndroidRunConfigurationFactory::clone(Target *parent, RunConfi
 
 bool AndroidRunConfigurationFactory::canHandle(Target *t) const
 {
-    if (!t->project()->supportsProfile(t->profile()))
+    if (!t->project()->supportsKit(t->kit()))
         return false;
     return AndroidManager::supportsAndroid(t);
 }

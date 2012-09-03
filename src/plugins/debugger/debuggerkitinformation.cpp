@@ -28,9 +28,9 @@
 **
 **************************************************************************/
 
-#include "debuggerprofileinformation.h"
+#include "debuggerkitinformation.h"
 
-#include "debuggerprofileconfigwidget.h"
+#include "debuggerkitconfigwidget.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -115,30 +115,30 @@ static QPair<QString, QString> autoDetectCdbDebugger()
 namespace Debugger {
 
 // --------------------------------------------------------------------------
-// DebuggerProfileInformation:
+// DebuggerKitInformation:
 // --------------------------------------------------------------------------
 
 static const char DEBUGGER_INFORMATION[] = "Debugger.Information";
 
-DebuggerProfileInformation::DebuggerProfileInformation()
+DebuggerKitInformation::DebuggerKitInformation()
 {
-    setObjectName(QLatin1String("DebuggerProfileInformation"));
+    setObjectName(QLatin1String("DebuggerKitInformation"));
 }
 
-Core::Id DebuggerProfileInformation::dataId() const
+Core::Id DebuggerKitInformation::dataId() const
 {
     static Core::Id id = Core::Id(DEBUGGER_INFORMATION);
     return id;
 }
 
-unsigned int DebuggerProfileInformation::priority() const
+unsigned int DebuggerKitInformation::priority() const
 {
     return 28000;
 }
 
-QVariant DebuggerProfileInformation::defaultValue(Profile *p) const
+QVariant DebuggerKitInformation::defaultValue(Kit *k) const
 {
-    ToolChain *tc = ToolChainProfileInformation::toolChain(p);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k);
     Abi abi = Abi::hostAbi();
     if (tc)
         abi = tc->targetAbi();
@@ -166,11 +166,11 @@ QVariant DebuggerProfileInformation::defaultValue(Profile *p) const
     return env.searchInPath(debugger);
 }
 
-QList<Task> DebuggerProfileInformation::validate(Profile *p) const
+QList<Task> DebuggerKitInformation::validate(Kit *k) const
 {
     const Core::Id id(Constants::TASK_CATEGORY_BUILDSYSTEM);
     QList<Task> result;
-    FileName dbg = debuggerCommand(p);
+    FileName dbg = debuggerCommand(k);
     if (dbg.isEmpty()) {
         result << Task(Task::Warning, tr("No debugger set up."), FileName(), -1, id);
         return result;
@@ -182,7 +182,7 @@ QList<Task> DebuggerProfileInformation::validate(Profile *p) const
     else if (!fi.isExecutable())
         result << Task(Task::Error, tr("Debugger not exectutable."), FileName(), -1, id);
 
-    if (ToolChain *tc = ToolChainProfileInformation::toolChain(p)) {
+    if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
         // We need an absolute path to be able to locate Python on Windows.
         const Abi abi = tc->targetAbi();
         if (abi.os() == Abi::WindowsOS && !fi.isAbsolute()) {
@@ -202,25 +202,25 @@ QList<Task> DebuggerProfileInformation::validate(Profile *p) const
     return result;
 }
 
-ProfileConfigWidget *DebuggerProfileInformation::createConfigWidget(Profile *p) const
+KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
 {
-    return new Internal::DebuggerProfileConfigWidget(p, this);
+    return new Internal::DebuggerKitConfigWidget(k, this);
 }
 
-ProfileInformation::ItemList DebuggerProfileInformation::toUserOutput(Profile *p) const
+KitInformation::ItemList DebuggerKitInformation::toUserOutput(Kit *k) const
 {
-    return ItemList() << qMakePair(tr("Debugger"), debuggerCommand(p).toUserOutput());
+    return ItemList() << qMakePair(tr("Debugger"), debuggerCommand(k).toUserOutput());
 }
 
-FileName DebuggerProfileInformation::debuggerCommand(const Profile *p)
+FileName DebuggerKitInformation::debuggerCommand(const Kit *k)
 {
-    return FileName::fromString(p ? p->value(Core::Id(DEBUGGER_INFORMATION)).toString() : QString());
+    return FileName::fromString(k ? k->value(Core::Id(DEBUGGER_INFORMATION)).toString() : QString());
 }
 
-void DebuggerProfileInformation::setDebuggerCommand(Profile *p, const FileName &command)
+void DebuggerKitInformation::setDebuggerCommand(Kit *k, const FileName &command)
 {
-    QTC_ASSERT(p, return);
-    p->setValue(Core::Id(DEBUGGER_INFORMATION), command.toString());
+    QTC_ASSERT(k, return);
+    k->setValue(Core::Id(DEBUGGER_INFORMATION), command.toString());
 }
 
 } // namespace Debugger

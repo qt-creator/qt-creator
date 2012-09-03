@@ -35,10 +35,10 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/profile.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/profileoptionspage.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <projectexplorer/kitoptionspage.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
@@ -56,15 +56,15 @@ namespace Qt4ProjectManager {
 // Qt4TargetSetupWidget
 // -------------------------------------------------------------------------
 
-Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Profile *p,
+Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Kit *p,
                                            const QString &proFilePath,
                                            const QList<BuildConfigurationInfo> &infoList) :
-    m_profile(p),
+    m_kit(p),
     m_haveImported(false),
     m_ignoreChange(false),
     m_selected(0)
 {
-    Q_ASSERT(m_profile);
+    Q_ASSERT(m_kit);
 
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     QVBoxLayout *vboxLayout = new QVBoxLayout();
@@ -74,7 +74,7 @@ Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Profile *p,
     m_detailsWidget->setUseCheckBox(true);
     m_detailsWidget->setChecked(false);
     m_detailsWidget->setSummaryFontBold(true);
-    m_detailsWidget->setToolTip(m_profile->toHtml());
+    m_detailsWidget->setToolTip(m_kit->toHtml());
     vboxLayout->addWidget(m_detailsWidget);
 
     Utils::FadingWidget *panel = new Utils::FadingWidget(m_detailsWidget);
@@ -83,7 +83,7 @@ Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Profile *p,
     panelLayout->addWidget(m_manageButton);
     m_detailsWidget->setToolWidget(panel);
 
-    handleProfileUpdate(m_profile);
+    handleKitUpdate(m_kit);
 
     QWidget *widget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout;
@@ -110,26 +110,26 @@ Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Profile *p,
     connect(m_detailsWidget, SIGNAL(checked(bool)),
             this, SLOT(targetCheckBoxToggled(bool)));
 
-    connect(ProjectExplorer::ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
-            this, SLOT(handleProfileUpdate(ProjectExplorer::Profile*)));
+    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(handleKitUpdate(ProjectExplorer::Kit*)));
 
-    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageProfile()));
+    connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageKit()));
 }
 
 Qt4TargetSetupWidget::~Qt4TargetSetupWidget()
 { }
 
-ProjectExplorer::Profile *Qt4TargetSetupWidget::profile()
+ProjectExplorer::Kit *Qt4TargetSetupWidget::profile()
 {
-    return m_profile;
+    return m_kit;
 }
 
 void Qt4TargetSetupWidget::clearProfile()
 {
-    m_profile = 0;
+    m_kit = 0;
 }
 
-bool Qt4TargetSetupWidget::isTargetSelected() const
+bool Qt4TargetSetupWidget::isKitSelected() const
 {
     if (!m_detailsWidget->isChecked())
         return false;
@@ -137,7 +137,7 @@ bool Qt4TargetSetupWidget::isTargetSelected() const
     return !selectedBuildConfigurationInfoList().isEmpty();
 }
 
-void Qt4TargetSetupWidget::setTargetSelected(bool b)
+void Qt4TargetSetupWidget::setKitSelected(bool b)
 {
     // Only check target if there are build configurations possible
     b &= !selectedBuildConfigurationInfoList().isEmpty();
@@ -178,7 +178,7 @@ void Qt4TargetSetupWidget::addBuildConfigurationInfo(const BuildConfigurationInf
     Utils::PathChooser *pathChooser = new Utils::PathChooser();
     pathChooser->setExpectedKind(Utils::PathChooser::Directory);
     pathChooser->setPath(info.directory);
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(m_profile);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_kit);
     if (!version)
         return;
     pathChooser->setReadOnly(!version->supportsShadowBuilds() || importing);
@@ -221,39 +221,39 @@ void Qt4TargetSetupWidget::targetCheckBoxToggled(bool b)
     emit selectedToggled();
 }
 
-void Qt4TargetSetupWidget::manageProfile()
+void Qt4TargetSetupWidget::manageKit()
 {
-    ProjectExplorer::ProfileOptionsPage *page =
-            ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::ProfileOptionsPage>();
-    if (!page || !m_profile)
+    ProjectExplorer::KitOptionsPage *page =
+            ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::KitOptionsPage>();
+    if (!page || !m_kit)
         return;
 
-    page->showProfile(m_profile);
+    page->showKit(m_kit);
     Core::ICore::showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                   QLatin1String(ProjectExplorer::Constants::PROFILE_SETTINGS_PAGE_ID));
+                                   QLatin1String(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID));
 }
 
 void Qt4TargetSetupWidget::setProFilePath(const QString &proFilePath)
 {
-    if (!m_profile)
+    if (!m_kit)
         return;
 
     m_proFilePath = proFilePath;
     clear();
 
     QList<BuildConfigurationInfo> infoList
-            = Qt4BuildConfigurationFactory::availableBuildConfigurations(m_profile, proFilePath);
+            = Qt4BuildConfigurationFactory::availableBuildConfigurations(m_kit, proFilePath);
     foreach (const BuildConfigurationInfo &info, infoList)
         addBuildConfigurationInfo(info);
 }
 
-void Qt4TargetSetupWidget::handleProfileUpdate(ProjectExplorer::Profile *p)
+void Qt4TargetSetupWidget::handleKitUpdate(ProjectExplorer::Kit *k)
 {
-    if (p != m_profile)
+    if (k != m_kit)
         return;
 
-    m_detailsWidget->setIcon(p->icon());
-    m_detailsWidget->setSummaryText(p->displayName());
+    m_detailsWidget->setIcon(k->icon());
+    m_detailsWidget->setSummaryText(k->displayName());
 }
 
 QList<BuildConfigurationInfo> Qt4TargetSetupWidget::selectedBuildConfigurationInfoList() const
@@ -337,7 +337,7 @@ QPair<ProjectExplorer::Task::TaskType, QString> Qt4TargetSetupWidget::findIssues
         return qMakePair(ProjectExplorer::Task::Unknown, QString());
 
     QString buildDir = info.directory;
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(m_profile);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_kit);
     if (!version)
         return qMakePair(ProjectExplorer::Task::Unknown, QString());
 

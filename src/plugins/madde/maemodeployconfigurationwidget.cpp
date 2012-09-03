@@ -34,7 +34,7 @@
 #include "maemoconstants.h"
 #include "qt4maemodeployconfiguration.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <remotelinux/deployablefile.h>
@@ -130,7 +130,7 @@ void MaemoDeployConfigurationWidget::addDesktopFile()
     DeployableFile d;
     d.remoteDir = QLatin1String("/usr/share/applications");
     Core::Id deviceType
-            = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(deployConfiguration()->target()->profile());
+            = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(deployConfiguration()->target()->kit());
     if (deviceType == Maemo5OsType)
         d.remoteDir += QLatin1String("/hildon");
     d.localFilePath = desktopFilePath;

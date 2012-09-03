@@ -35,7 +35,7 @@
 #include "maemoqemumanager.h"
 
 #include <projectexplorer/target.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <remotelinux/abstractuploadandinstallpackageservice.h>
 #include <remotelinux/remotelinuxdeployconfiguration.h>
 #include <ssh/sshconnection.h>
@@ -117,7 +117,7 @@ MaemoUploadAndInstallPackageStep::MaemoUploadAndInstallPackageStep(ProjectExplor
 void MaemoUploadAndInstallPackageStep::ctor()
 {
     setDefaultDisplayName(displayName());
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
     if (deviceType == HarmattanOsType)
         m_deployService = new HarmattanUploadAndInstallPackageAction(this);
     else

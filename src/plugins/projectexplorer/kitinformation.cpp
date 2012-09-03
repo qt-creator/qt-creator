@@ -28,13 +28,13 @@
 **
 **************************************************************************/
 
-#include "profileinformation.h"
+#include "kitinformation.h"
 
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/devicemanager.h"
 #include "projectexplorerconstants.h"
-#include "profile.h"
-#include "profileinformationconfigwidget.h"
+#include "kit.h"
+#include "kitinformationconfigwidget.h"
 #include "toolchain.h"
 #include "toolchainmanager.h"
 
@@ -55,67 +55,67 @@ namespace ProjectExplorer {
 
 static const char SYSROOT_INFORMATION[] = "PE.Profile.SysRoot";
 
-SysRootProfileInformation::SysRootProfileInformation()
+SysRootKitInformation::SysRootKitInformation()
 {
     setObjectName(QLatin1String("SysRootInformation"));
 }
 
-Core::Id SysRootProfileInformation::dataId() const
+Core::Id SysRootKitInformation::dataId() const
 {
     static const Core::Id id(SYSROOT_INFORMATION);
     return id;
 }
 
-unsigned int SysRootProfileInformation::priority() const
+unsigned int SysRootKitInformation::priority() const
 {
     return 32000;
 }
 
-QVariant SysRootProfileInformation::defaultValue(Profile *p) const
+QVariant SysRootKitInformation::defaultValue(Kit *k) const
 {
-    Q_UNUSED(p)
+    Q_UNUSED(k)
     return QString();
 }
 
-QList<Task> SysRootProfileInformation::validate(Profile *p) const
+QList<Task> SysRootKitInformation::validate(Kit *k) const
 {
     QList<Task> result;
-    const Utils::FileName dir = SysRootProfileInformation::sysRoot(p);
-    if (!dir.toFileInfo().isDir() && SysRootProfileInformation::hasSysRoot(p)) {
+    const Utils::FileName dir = SysRootKitInformation::sysRoot(k);
+    if (!dir.toFileInfo().isDir() && SysRootKitInformation::hasSysRoot(k)) {
         result << Task(Task::Error, tr("Sys Root \"%1\" is not a directory.").arg(dir.toUserOutput()),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     return result;
 }
 
-ProfileConfigWidget *SysRootProfileInformation::createConfigWidget(Profile *p) const
+KitConfigWidget *SysRootKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(p);
-    return new Internal::SysRootInformationConfigWidget(p);
+    Q_ASSERT(k);
+    return new Internal::SysRootInformationConfigWidget(k);
 }
 
-ProfileInformation::ItemList SysRootProfileInformation::toUserOutput(Profile *p) const
+KitInformation::ItemList SysRootKitInformation::toUserOutput(Kit *k) const
 {
-    return ItemList() << qMakePair(tr("Sys Root"), sysRoot(p).toUserOutput());
+    return ItemList() << qMakePair(tr("Sys Root"), sysRoot(k).toUserOutput());
 }
 
-bool SysRootProfileInformation::hasSysRoot(const Profile *p)
+bool SysRootKitInformation::hasSysRoot(const Kit *k)
 {
-    if (p)
-        return !p->value(Core::Id(SYSROOT_INFORMATION)).toString().isEmpty();
+    if (k)
+        return !k->value(Core::Id(SYSROOT_INFORMATION)).toString().isEmpty();
     return false;
 }
 
-Utils::FileName SysRootProfileInformation::sysRoot(const Profile *p)
+Utils::FileName SysRootKitInformation::sysRoot(const Kit *k)
 {
-    if (!p)
+    if (!k)
         return Utils::FileName();
-    return Utils::FileName::fromString(p->value(Core::Id(SYSROOT_INFORMATION)).toString());
+    return Utils::FileName::fromString(k->value(Core::Id(SYSROOT_INFORMATION)).toString());
 }
 
-void SysRootProfileInformation::setSysRoot(Profile *p, const Utils::FileName &v)
+void SysRootKitInformation::setSysRoot(Kit *k, const Utils::FileName &v)
 {
-    p->setValue(Core::Id(SYSROOT_INFORMATION), v.toString());
+    k->setValue(Core::Id(SYSROOT_INFORMATION), v.toString());
 }
 
 // --------------------------------------------------------------------------
@@ -124,7 +124,7 @@ void SysRootProfileInformation::setSysRoot(Profile *p, const Utils::FileName &v)
 
 static const char TOOLCHAIN_INFORMATION[] = "PE.Profile.ToolChain";
 
-ToolChainProfileInformation::ToolChainProfileInformation()
+ToolChainKitInformation::ToolChainKitInformation()
 {
     setObjectName(QLatin1String("ToolChainInformation"));
     connect(ToolChainManager::instance(), SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
@@ -133,20 +133,20 @@ ToolChainProfileInformation::ToolChainProfileInformation()
             this, SIGNAL(validationNeeded()));
 }
 
-Core::Id ToolChainProfileInformation::dataId() const
+Core::Id ToolChainKitInformation::dataId() const
 {
     static const Core::Id id(TOOLCHAIN_INFORMATION);
     return id;
 }
 
-unsigned int ToolChainProfileInformation::priority() const
+unsigned int ToolChainKitInformation::priority() const
 {
     return 30000;
 }
 
-QVariant ToolChainProfileInformation::defaultValue(Profile *p) const
+QVariant ToolChainKitInformation::defaultValue(Kit *k) const
 {
-    Q_UNUSED(p);
+    Q_UNUSED(k);
     QList<ToolChain *> tcList = ToolChainManager::instance()->toolChains();
     if (tcList.isEmpty())
         return QString();
@@ -161,58 +161,58 @@ QVariant ToolChainProfileInformation::defaultValue(Profile *p) const
     return tcList.at(0)->id();
 }
 
-QList<Task> ToolChainProfileInformation::validate(Profile *p) const
+QList<Task> ToolChainKitInformation::validate(Kit *k) const
 {
     QList<Task> result;
-    if (!toolChain(p)) {
-        setToolChain(p, 0); // make sure to clear out no longer known tool chains
-        result << Task(Task::Error, ToolChainProfileInformation::msgNoToolChainInTarget(),
+    if (!toolChain(k)) {
+        setToolChain(k, 0); // make sure to clear out no longer known tool chains
+        result << Task(Task::Error, ToolChainKitInformation::msgNoToolChainInTarget(),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     return result;
 }
 
-ProfileConfigWidget *ToolChainProfileInformation::createConfigWidget(Profile *p) const
+KitConfigWidget *ToolChainKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(p);
-    return new Internal::ToolChainInformationConfigWidget(p);
+    Q_ASSERT(k);
+    return new Internal::ToolChainInformationConfigWidget(k);
 }
 
-QString ToolChainProfileInformation::displayNamePostfix(const Profile *p) const
+QString ToolChainKitInformation::displayNamePostfix(const Kit *k) const
 {
-    ToolChain *tc = toolChain(p);
+    ToolChain *tc = toolChain(k);
     return tc ? tc->displayName() : QString();
 }
 
-ProfileInformation::ItemList ToolChainProfileInformation::toUserOutput(Profile *p) const
+KitInformation::ItemList ToolChainKitInformation::toUserOutput(Kit *k) const
 {
-    ToolChain *tc = toolChain(p);
+    ToolChain *tc = toolChain(k);
     return ItemList() << qMakePair(tr("Compiler"), tc ? tc->displayName() : tr("None"));
 }
 
-void ToolChainProfileInformation::addToEnvironment(const Profile *p, Utils::Environment &env) const
+void ToolChainKitInformation::addToEnvironment(const Kit *k, Utils::Environment &env) const
 {
-    ToolChain *tc = toolChain(p);
+    ToolChain *tc = toolChain(k);
     if (tc)
         tc->addToEnvironment(env);
 }
 
-ToolChain *ToolChainProfileInformation::toolChain(const Profile *p)
+ToolChain *ToolChainKitInformation::toolChain(const Kit *k)
 {
-    if (!p)
+    if (!k)
         return 0;
-    const QString id = p->value(Core::Id(TOOLCHAIN_INFORMATION)).toString();
+    const QString id = k->value(Core::Id(TOOLCHAIN_INFORMATION)).toString();
     return ToolChainManager::instance()->findToolChain(id);
 }
 
-void ToolChainProfileInformation::setToolChain(Profile *p, ToolChain *tc)
+void ToolChainKitInformation::setToolChain(Kit *k, ToolChain *tc)
 {
-    p->setValue(Core::Id(TOOLCHAIN_INFORMATION), tc ? tc->id() : QString());
+    k->setValue(Core::Id(TOOLCHAIN_INFORMATION), tc ? tc->id() : QString());
 }
 
-QString ToolChainProfileInformation::msgNoToolChainInTarget()
+QString ToolChainKitInformation::msgNoToolChainInTarget()
 {
-    return tr("No compiler set in target.");
+    return tr("No compiler set in kit.");
 }
 
 // --------------------------------------------------------------------------
@@ -221,47 +221,47 @@ QString ToolChainProfileInformation::msgNoToolChainInTarget()
 
 static const char DEVICETYPE_INFORMATION[] = "PE.Profile.DeviceType";
 
-DeviceTypeProfileInformation::DeviceTypeProfileInformation()
+DeviceTypeKitInformation::DeviceTypeKitInformation()
 {
     setObjectName(QLatin1String("DeviceTypeInformation"));
 }
 
-Core::Id DeviceTypeProfileInformation::dataId() const
+Core::Id DeviceTypeKitInformation::dataId() const
 {
     static const Core::Id id(DEVICETYPE_INFORMATION);
     return id;
 }
 
-unsigned int DeviceTypeProfileInformation::priority() const
+unsigned int DeviceTypeKitInformation::priority() const
 {
     return 33000;
 }
 
-QVariant DeviceTypeProfileInformation::defaultValue(Profile *p) const
+QVariant DeviceTypeKitInformation::defaultValue(Kit *k) const
 {
-    Q_UNUSED(p);
+    Q_UNUSED(k);
     return QByteArray(Constants::DESKTOP_DEVICE_TYPE);
 }
 
-QList<Task> DeviceTypeProfileInformation::validate(Profile *p) const
+QList<Task> DeviceTypeKitInformation::validate(Kit *k) const
 {
-    IDevice::ConstPtr dev = DeviceProfileInformation::device(p);
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     QList<Task> result;
-    if (!dev.isNull() && dev->type() != DeviceTypeProfileInformation::deviceTypeId(p))
+    if (!dev.isNull() && dev->type() != DeviceTypeKitInformation::deviceTypeId(k))
         result.append(Task(Task::Error, tr("Device does not match device type."),
                            Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
     return result;
 }
 
-ProfileConfigWidget *DeviceTypeProfileInformation::createConfigWidget(Profile *p) const
+KitConfigWidget *DeviceTypeKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(p);
-    return new Internal::DeviceTypeInformationConfigWidget(p);
+    Q_ASSERT(k);
+    return new Internal::DeviceTypeInformationConfigWidget(k);
 }
 
-ProfileInformation::ItemList DeviceTypeProfileInformation::toUserOutput(Profile *p) const
+KitInformation::ItemList DeviceTypeKitInformation::toUserOutput(Kit *k) const
 {
-    Core::Id type = deviceTypeId(p);
+    Core::Id type = deviceTypeId(k);
     QString typeDisplayName = tr("Unknown device type");
     if (type.isValid()) {
         QList<IDeviceFactory *> factories
@@ -276,16 +276,16 @@ ProfileInformation::ItemList DeviceTypeProfileInformation::toUserOutput(Profile 
     return ItemList() << qMakePair(tr("Device type"), typeDisplayName);
 }
 
-const Core::Id DeviceTypeProfileInformation::deviceTypeId(const Profile *p)
+const Core::Id DeviceTypeKitInformation::deviceTypeId(const Kit *k)
 {
-    if (!p)
+    if (!k)
         return Core::Id();
-    return Core::Id(p->value(Core::Id(DEVICETYPE_INFORMATION)).toByteArray().constData());
+    return Core::Id(k->value(Core::Id(DEVICETYPE_INFORMATION)).toByteArray().constData());
 }
 
-void DeviceTypeProfileInformation::setDeviceTypeId(Profile *p, Core::Id type)
+void DeviceTypeKitInformation::setDeviceTypeId(Kit *k, Core::Id type)
 {
-    p->setValue(Core::Id(DEVICETYPE_INFORMATION), type.name());
+    k->setValue(Core::Id(DEVICETYPE_INFORMATION), type.name());
 }
 
 // --------------------------------------------------------------------------
@@ -294,7 +294,7 @@ void DeviceTypeProfileInformation::setDeviceTypeId(Profile *p, Core::Id type)
 
 static const char DEVICE_INFORMATION[] = "PE.Profile.Device";
 
-DeviceProfileInformation::DeviceProfileInformation()
+DeviceKitInformation::DeviceKitInformation()
 {
     setObjectName(QLatin1String("DeviceInformation"));
     connect(DeviceManager::instance(), SIGNAL(deviceRemoved(Core::Id)),
@@ -303,71 +303,71 @@ DeviceProfileInformation::DeviceProfileInformation()
             this, SIGNAL(validationNeeded()));
 }
 
-Core::Id DeviceProfileInformation::dataId() const
+Core::Id DeviceKitInformation::dataId() const
 {
     static const Core::Id id(DEVICE_INFORMATION);
     return id;
 }
 
-unsigned int DeviceProfileInformation::priority() const
+unsigned int DeviceKitInformation::priority() const
 {
     return 32000;
 }
 
-QVariant DeviceProfileInformation::defaultValue(Profile *p) const
+QVariant DeviceKitInformation::defaultValue(Kit *k) const
 {
-    Q_UNUSED(p);
+    Q_UNUSED(k);
     return QByteArray(Constants::DESKTOP_DEVICE_ID);
 }
 
-QList<Task> DeviceProfileInformation::validate(Profile *p) const
+QList<Task> DeviceKitInformation::validate(Kit *k) const
 {
-    Q_UNUSED(p);
+    Q_UNUSED(k);
     QList<Task> result;
     return result;
 }
 
-ProfileConfigWidget *DeviceProfileInformation::createConfigWidget(Profile *p) const
+KitConfigWidget *DeviceKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(p);
-    return new Internal::DeviceInformationConfigWidget(p);
+    Q_ASSERT(k);
+    return new Internal::DeviceInformationConfigWidget(k);
 }
 
-QString DeviceProfileInformation::displayNamePostfix(const Profile *p) const
+QString DeviceKitInformation::displayNamePostfix(const Kit *k) const
 {
-    IDevice::ConstPtr dev = device(p);
+    IDevice::ConstPtr dev = device(k);
     return dev.isNull() ? QString() : dev->displayName();
 }
 
-ProfileInformation::ItemList DeviceProfileInformation::toUserOutput(Profile *p) const
+KitInformation::ItemList DeviceKitInformation::toUserOutput(Kit *k) const
 {
-    IDevice::ConstPtr dev = device(p);
+    IDevice::ConstPtr dev = device(k);
     return ItemList() << qMakePair(tr("Device"), dev.isNull() ? tr("Unconfigured") : dev->displayName());
 }
 
-IDevice::ConstPtr DeviceProfileInformation::device(const Profile *p)
+IDevice::ConstPtr DeviceKitInformation::device(const Kit *k)
 {
     DeviceManager *dm = DeviceManager::instance();
-    return dm ? dm->find(deviceId(p)) : IDevice::ConstPtr();
+    return dm ? dm->find(deviceId(k)) : IDevice::ConstPtr();
 }
 
-Core::Id DeviceProfileInformation::deviceId(const Profile *p)
+Core::Id DeviceKitInformation::deviceId(const Kit *k)
 {
-    if (p) {
-        QString idname = p->value(Core::Id(DEVICE_INFORMATION)).toString();
+    if (k) {
+        QString idname = k->value(Core::Id(DEVICE_INFORMATION)).toString();
         return idname.isEmpty() ? IDevice::invalidId() : Core::Id(idname);
     }
     return IDevice::invalidId();
 }
 
-void DeviceProfileInformation::setDevice(Profile *p, IDevice::ConstPtr dev)
+void DeviceKitInformation::setDevice(Kit *k, IDevice::ConstPtr dev)
 {
-    setDeviceId(p, dev ? dev->id() : IDevice::invalidId());
+    setDeviceId(k, dev ? dev->id() : IDevice::invalidId());
 }
 
-void DeviceProfileInformation::setDeviceId(Profile *p, const Core::Id id)
+void DeviceKitInformation::setDeviceId(Kit *k, const Core::Id id)
 {
-    p->setValue(Core::Id(DEVICE_INFORMATION), id.toString());
+    k->setValue(Core::Id(DEVICE_INFORMATION), id.toString());
 }
 
 } // namespace ProjectExplorer

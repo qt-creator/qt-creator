@@ -28,14 +28,14 @@
 **
 **************************************************************************/
 
-#include "profileinformationconfigwidget.h"
+#include "kitinformationconfigwidget.h"
 
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/devicemanagermodel.h"
 #include "devicesupport/idevicefactory.h"
 #include "projectexplorerconstants.h"
-#include "profile.h"
-#include "profileinformation.h"
+#include "kit.h"
+#include "kitinformation.h"
 #include "toolchain.h"
 #include "toolchainmanager.h"
 
@@ -55,9 +55,9 @@ namespace Internal {
 // SysRootInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-SysRootInformationConfigWidget::SysRootInformationConfigWidget(Profile *p, QWidget *parent) :
-    ProfileConfigWidget(parent),
-    m_profile(p)
+SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, QWidget *parent) :
+    KitConfigWidget(parent),
+    m_kit(k)
 {
     setToolTip(tr("The root directory of the system image to use.<br>"
                   "Leave empty when building for the desktop."));
@@ -68,7 +68,7 @@ SysRootInformationConfigWidget::SysRootInformationConfigWidget(Profile *p, QWidg
     layout->addWidget(m_chooser);
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
 
-    m_chooser->setFileName(SysRootProfileInformation::sysRoot(p));
+    m_chooser->setFileName(SysRootKitInformation::sysRoot(k));
 
     connect(m_chooser, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
 }
@@ -80,17 +80,17 @@ QString SysRootInformationConfigWidget::displayName() const
 
 void SysRootInformationConfigWidget::apply()
 {
-    SysRootProfileInformation::setSysRoot(m_profile, m_chooser->fileName());
+    SysRootKitInformation::setSysRoot(m_kit, m_chooser->fileName());
 }
 
 void SysRootInformationConfigWidget::discard()
 {
-    m_chooser->setFileName(SysRootProfileInformation::sysRoot(m_profile));
+    m_chooser->setFileName(SysRootKitInformation::sysRoot(m_kit));
 }
 
 bool SysRootInformationConfigWidget::isDirty() const
 {
-    return SysRootProfileInformation::sysRoot(m_profile) != m_chooser->fileName();
+    return SysRootKitInformation::sysRoot(m_kit) != m_chooser->fileName();
 }
 
 void SysRootInformationConfigWidget::makeReadOnly()
@@ -107,9 +107,9 @@ QWidget *SysRootInformationConfigWidget::buttonWidget() const
 // ToolChainInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Profile *p, QWidget *parent) :
-    ProfileConfigWidget(parent),
-    m_isReadOnly(false), m_profile(p),
+ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, QWidget *parent) :
+    KitConfigWidget(parent),
+    m_isReadOnly(false), m_kit(k),
     m_comboBox(new QComboBox), m_manageButton(new QPushButton(this))
 {
     setToolTip(tr("The compiler to use for building.<br>"
@@ -153,17 +153,17 @@ void ToolChainInformationConfigWidget::apply()
 {
     const QString id = m_comboBox->itemData(m_comboBox->currentIndex()).toString();
     ToolChain *tc = ToolChainManager::instance()->findToolChain(id);
-    ToolChainProfileInformation::setToolChain(m_profile, tc);
+    ToolChainKitInformation::setToolChain(m_kit, tc);
 }
 
 void ToolChainInformationConfigWidget::discard()
 {
-    m_comboBox->setCurrentIndex(indexOf(ToolChainProfileInformation::toolChain(m_profile)));
+    m_comboBox->setCurrentIndex(indexOf(ToolChainKitInformation::toolChain(m_kit)));
 }
 
 bool ToolChainInformationConfigWidget::isDirty() const
 {
-    ToolChain *tc = ToolChainProfileInformation::toolChain(m_profile);
+    ToolChain *tc = ToolChainKitInformation::toolChain(m_kit);
     return (m_comboBox->itemData(m_comboBox->currentIndex()).toString())
             == (tc ? tc->id() : QString());
 }
@@ -235,9 +235,9 @@ int ToolChainInformationConfigWidget::indexOf(const ToolChain *tc)
 // DeviceTypeInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Profile *p, QWidget *parent) :
-    ProfileConfigWidget(parent),
-    m_isReadOnly(false), m_profile(p),
+DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *k, QWidget *parent) :
+    KitConfigWidget(parent),
+    m_isReadOnly(false), m_kit(k),
     m_comboBox(new QComboBox)
 {
     setToolTip(tr("The type of device to run applications on."));
@@ -269,12 +269,12 @@ void DeviceTypeInformationConfigWidget::apply()
     Core::Id devType;
     if (m_comboBox->currentIndex() >= 0)
         devType = m_comboBox->itemData(m_comboBox->currentIndex()).value<Core::Id>();
-    DeviceTypeProfileInformation::setDeviceTypeId(m_profile, devType);
+    DeviceTypeKitInformation::setDeviceTypeId(m_kit, devType);
 }
 
 void DeviceTypeInformationConfigWidget::discard()
 {
-    Core::Id devType = DeviceTypeProfileInformation::deviceTypeId(m_profile);
+    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(m_kit);
     if (!devType.isValid())
         m_comboBox->setCurrentIndex(-1);
     for (int i = 0; i < m_comboBox->count(); ++i) {
@@ -290,7 +290,7 @@ bool DeviceTypeInformationConfigWidget::isDirty() const
     Core::Id devType;
     if (m_comboBox->currentIndex() >= 0)
         devType = m_comboBox->itemData(m_comboBox->currentIndex()).value<Core::Id>();
-    return DeviceTypeProfileInformation::deviceTypeId(m_profile) != devType;
+    return DeviceTypeKitInformation::deviceTypeId(m_kit) != devType;
 }
 
 void DeviceTypeInformationConfigWidget::makeReadOnly()
@@ -302,9 +302,9 @@ void DeviceTypeInformationConfigWidget::makeReadOnly()
 // DeviceInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-DeviceInformationConfigWidget::DeviceInformationConfigWidget(Profile *p, QWidget *parent) :
-    ProfileConfigWidget(parent),
-    m_isReadOnly(false), m_profile(p),
+DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *k, QWidget *parent) :
+    KitConfigWidget(parent),
+    m_isReadOnly(false), m_kit(k),
     m_comboBox(new QComboBox), m_manageButton(new QPushButton(this)),
     m_model(new DeviceManagerModel(DeviceManager::instance()))
 {
@@ -336,19 +336,19 @@ void DeviceInformationConfigWidget::apply()
 {
     int idx = m_comboBox->currentIndex();
     if (idx >= 0)
-        DeviceProfileInformation::setDeviceId(m_profile, m_model->deviceId(idx));
+        DeviceKitInformation::setDeviceId(m_kit, m_model->deviceId(idx));
     else
-        DeviceProfileInformation::setDeviceId(m_profile, IDevice::invalidId());
+        DeviceKitInformation::setDeviceId(m_kit, IDevice::invalidId());
 }
 
 void DeviceInformationConfigWidget::discard()
 {
-    m_comboBox->setCurrentIndex(m_model->indexOf(DeviceProfileInformation::device(m_profile)));
+    m_comboBox->setCurrentIndex(m_model->indexOf(DeviceKitInformation::device(m_kit)));
 }
 
 bool DeviceInformationConfigWidget::isDirty() const
 {
-    Core::Id devId = DeviceProfileInformation::deviceId(m_profile);
+    Core::Id devId = DeviceKitInformation::deviceId(m_kit);
     return devId != m_model->deviceId(m_comboBox->currentIndex());
 }
 

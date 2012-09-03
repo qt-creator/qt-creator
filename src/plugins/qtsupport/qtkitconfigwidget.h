@@ -28,39 +28,51 @@
 **
 **************************************************************************/
 
-#ifndef PROFILECONFIGWIDGET_H
-#define PROFILECONFIGWIDGET_H
+#ifndef QTSUPPORT_QTKITCONFIGWIDGET_H
+#define QTSUPPORT_QTKITCONFIGWIDGET_H
 
-#include "projectexplorer_export.h"
+#include <projectexplorer/kitconfigwidget.h>
 
-#include <QWidget>
+QT_FORWARD_DECLARE_CLASS(QComboBox)
+QT_FORWARD_DECLARE_CLASS(QPushButton)
 
-namespace ProjectExplorer {
+namespace ProjectExplorer { class Kit; }
 
-// --------------------------------------------------------------------------
-// ProfileConfigWidget
-// --------------------------------------------------------------------------
+namespace QtSupport {
+class BaseQtVersion;
 
-class PROJECTEXPLORER_EXPORT ProfileConfigWidget : public QWidget
+namespace Internal {
+
+class QtKitConfigWidget : public ProjectExplorer::KitConfigWidget
 {
     Q_OBJECT
 
 public:
-    ProfileConfigWidget(QWidget *parent = 0) : QWidget(parent)
-    { }
+    explicit QtKitConfigWidget(ProjectExplorer::Kit *k, QWidget *parent = 0);
 
-    virtual QString displayName() const = 0;
-    virtual void makeReadOnly() = 0;
+    QString displayName() const;
 
-    virtual void apply() = 0;
-    virtual void discard() = 0;
-    virtual bool isDirty() const = 0;
+    void makeReadOnly();
 
-    virtual QWidget *buttonWidget() const { return 0; }
-signals:
-    void dirty();
+    void apply();
+    void discard();
+    bool isDirty() const;
+    QWidget *buttonWidget() const;
+
+private slots:
+    void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);
+    void kitUpdated(ProjectExplorer::Kit *k);
+    void manageQtVersions();
+
+private:
+    int findQtVersion(const int id) const;
+
+    ProjectExplorer::Kit *m_kit;
+    QComboBox *m_combo;
+    QPushButton *m_manageButton;
 };
 
-} // namespace ProjectExplorer
+} // namespace Internal
+} // namespace Debugger
 
-#endif // PROFILECONFIGWIDGET_H
+#endif // QTSUPPORT_QTYSTEMCONFIGWIDGET_H

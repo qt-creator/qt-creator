@@ -48,7 +48,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
 #include <utils/filesystemwatcher.h>
@@ -246,23 +246,23 @@ void MaemoQemuManager::projectChanged(ProjectExplorer::Project *project)
 
 void MaemoQemuManager::targetAdded(ProjectExplorer::Target *target)
 {
-    if (!target || !MaemoGlobal::hasMaemoDevice(target->profile()))
+    if (!target || !MaemoGlobal::hasMaemoDevice(target->kit()))
         return;
 
     // handle the Qt version changes the build configuration uses
     connect(target, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
-    connect(target, SIGNAL(profileChanged()), this, SLOT(systemChanged()));
+    connect(target, SIGNAL(kitChanged()), this, SLOT(systemChanged()));
 
     toggleStarterButton(target);
 }
 
 void MaemoQemuManager::targetRemoved(ProjectExplorer::Target *target)
 {
-    if (!target || !MaemoGlobal::hasMaemoDevice(target->profile()))
+    if (!target || !MaemoGlobal::hasMaemoDevice(target->kit()))
         return;
 
     disconnect(target, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
-    disconnect(target, SIGNAL(profileChanged()), this, SLOT(systemChanged()));
+    disconnect(target, SIGNAL(kitChanged()), this, SLOT(systemChanged()));
 
     showOrHideQemuButton();
 }
@@ -459,7 +459,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
 {
     int uniqueId = -1;
     if (target) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
         if (version)
             uniqueId = version->uniqueId();
     }
@@ -474,7 +474,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
     const Project * const p
         = ProjectExplorerPlugin::instance()->session()->startupProject();
     const bool qemuButtonEnabled
-        = p && p->activeTarget() && MaemoGlobal::hasMaemoDevice(target->profile())
+        = p && p->activeTarget() && MaemoGlobal::hasMaemoDevice(target->kit())
             && m_runtimes.value(uniqueId, MaemoQemuRuntime()).isValid()
             && targetUsesMatchingRuntimeConfig(target) && !isRunning;
     m_qemuAction->setEnabled(qemuButtonEnabled);
@@ -487,7 +487,7 @@ bool MaemoQemuManager::sessionHasMaemoTarget() const
     const QList<Project*> &projects = explorer->session()->projects();
     foreach (const Project *p, projects) {
         foreach (const Target * const target, p->targets()) {
-            if (MaemoGlobal::hasMaemoDevice(target->profile()))
+            if (MaemoGlobal::hasMaemoDevice(target->kit()))
                 return true;
         }
     }
@@ -507,13 +507,13 @@ bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
     if (!mrc)
         return false;
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (!version || !m_runtimes.value(version->uniqueId(), MaemoQemuRuntime()).isValid())
         return false;
 
     if (qtVersion)
         *qtVersion = version;
-    const IDevice::ConstPtr config = DeviceProfileInformation::device(target->profile());
+    const IDevice::ConstPtr config = DeviceKitInformation::device(target->kit());
     return !config.isNull() && config->machineType() == IDevice::Emulator;
 }
 

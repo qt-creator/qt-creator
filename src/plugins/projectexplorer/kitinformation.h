@@ -28,11 +28,11 @@
 **
 **************************************************************************/
 
-#ifndef PROFILEINFORMATION_H
-#define PROFILEINFORMATION_H
+#ifndef KITINFORMATION_H
+#define KITINFORMATION_H
 
-#include "profilemanager.h"
-#include "profile.h"
+#include "kitmanager.h"
+#include "kit.h"
 
 #include "devicesupport/idevice.h"
 #include "toolchain.h"
@@ -43,44 +43,44 @@
 
 namespace ProjectExplorer {
 
-class ProfileConfigWidget;
+class KitConfigWidget;
 
 // --------------------------------------------------------------------------
 // SysRootInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT SysRootProfileInformation : public ProfileInformation
+class PROJECTEXPLORER_EXPORT SysRootKitInformation : public KitInformation
 {
     Q_OBJECT
 
 public:
-    SysRootProfileInformation();
+    SysRootKitInformation();
 
     Core::Id dataId() const;
     unsigned int priority() const;
 
-    QVariant defaultValue(Profile *p) const;
+    QVariant defaultValue(Kit *k) const;
 
-    QList<Task> validate(Profile *p) const;
+    QList<Task> validate(Kit *k) const;
 
-    ProfileConfigWidget *createConfigWidget(Profile *p) const;
+    KitConfigWidget *createConfigWidget(Kit *k) const;
 
-    ItemList toUserOutput(Profile *p) const;
+    ItemList toUserOutput(Kit *k) const;
 
-    static bool hasSysRoot(const Profile *p);
-    static Utils::FileName sysRoot(const Profile *p);
-    static void setSysRoot(Profile *p, const Utils::FileName &v);
+    static bool hasSysRoot(const Kit *k);
+    static Utils::FileName sysRoot(const Kit *k);
+    static void setSysRoot(Kit *k, const Utils::FileName &v);
 };
 
-class PROJECTEXPLORER_EXPORT SysRootMatcher : public ProfileMatcher
+class PROJECTEXPLORER_EXPORT SysRootMatcher : public KitMatcher
 {
 public:
     SysRootMatcher(const Utils::FileName &fn) : m_sysroot(fn)
     { }
 
-    bool matches(const Profile *p) const
+    bool matches(const Kit *p) const
     {
-        return SysRootProfileInformation::sysRoot(p) == m_sysroot;
+        return SysRootKitInformation::sysRoot(p) == m_sysroot;
     }
 
 private:
@@ -91,43 +91,43 @@ private:
 // ToolChainInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT ToolChainProfileInformation : public ProfileInformation
+class PROJECTEXPLORER_EXPORT ToolChainKitInformation : public KitInformation
 {
     Q_OBJECT
 
 public:
-    ToolChainProfileInformation();
+    ToolChainKitInformation();
 
     Core::Id dataId() const;
     unsigned int priority() const;
 
-    QVariant defaultValue(Profile *p) const;
+    QVariant defaultValue(Kit *k) const;
 
-    QList<Task> validate(Profile *p) const;
+    QList<Task> validate(Kit *k) const;
 
-    ProfileConfigWidget *createConfigWidget(Profile *p) const;
+    KitConfigWidget *createConfigWidget(Kit *k) const;
 
-    QString displayNamePostfix(const Profile *p) const;
+    QString displayNamePostfix(const Kit *k) const;
 
-    ItemList toUserOutput(Profile *p) const;
+    ItemList toUserOutput(Kit *k) const;
 
-    void addToEnvironment(const Profile *p, Utils::Environment &env) const;
+    void addToEnvironment(const Kit *k, Utils::Environment &env) const;
 
-    static ToolChain *toolChain(const Profile *p);
-    static void setToolChain(Profile *p, ToolChain *tc);
+    static ToolChain *toolChain(const Kit *k);
+    static void setToolChain(Kit *k, ToolChain *tc);
 
     static QString msgNoToolChainInTarget();
 };
 
-class PROJECTEXPLORER_EXPORT ToolChainMatcher : public ProfileMatcher
+class PROJECTEXPLORER_EXPORT ToolChainMatcher : public KitMatcher
 {
 public:
     ToolChainMatcher(const ToolChain *tc) : m_tc(tc)
     { }
 
-    bool matches(const Profile *p) const
+    bool matches(const Kit *p) const
     {
-        return ToolChainProfileInformation::toolChain(p) == m_tc;
+        return ToolChainKitInformation::toolChain(p) == m_tc;
     }
 
 private:
@@ -138,37 +138,37 @@ private:
 // DeviceTypeInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT DeviceTypeProfileInformation : public ProfileInformation
+class PROJECTEXPLORER_EXPORT DeviceTypeKitInformation : public KitInformation
 {
     Q_OBJECT
 
 public:
-    DeviceTypeProfileInformation();
+    DeviceTypeKitInformation();
 
     Core::Id dataId() const;
     unsigned int priority() const;
 
-    QVariant defaultValue(Profile *p) const;
+    QVariant defaultValue(Kit *k) const;
 
-    QList<Task> validate(Profile *p) const;
+    QList<Task> validate(Kit *k) const;
 
-    ProfileConfigWidget *createConfigWidget(Profile *p) const;
+    KitConfigWidget *createConfigWidget(Kit *k) const;
 
-    ItemList toUserOutput(Profile *p) const;
+    ItemList toUserOutput(Kit *k) const;
 
-    static const Core::Id deviceTypeId(const Profile *p);
-    static void setDeviceTypeId(Profile *p, Core::Id type);
+    static const Core::Id deviceTypeId(const Kit *k);
+    static void setDeviceTypeId(Kit *k, Core::Id type);
 };
 
-class PROJECTEXPLORER_EXPORT DeviceTypeMatcher : public ProfileMatcher
+class PROJECTEXPLORER_EXPORT DeviceTypeMatcher : public KitMatcher
 {
 public:
     DeviceTypeMatcher(const Core::Id t) : m_type(t)
     { }
 
-    bool matches(const Profile *p) const
+    bool matches(const Kit *p) const
     {
-        Core::Id deviceType = DeviceTypeProfileInformation::deviceTypeId(p);
+        Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(p);
         if (!deviceType.isValid())
             return false;
         return deviceType == m_type;
@@ -182,41 +182,41 @@ private:
 // DeviceInformation:
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT DeviceProfileInformation : public ProfileInformation
+class PROJECTEXPLORER_EXPORT DeviceKitInformation : public KitInformation
 {
     Q_OBJECT
 
 public:
-    DeviceProfileInformation();
+    DeviceKitInformation();
 
     Core::Id dataId() const;
     unsigned int priority() const;
 
-    QVariant defaultValue(Profile *p) const;
+    QVariant defaultValue(Kit *k) const;
 
-    QList<Task> validate(Profile *p) const;
+    QList<Task> validate(Kit *k) const;
 
-    ProfileConfigWidget *createConfigWidget(Profile *p) const;
+    KitConfigWidget *createConfigWidget(Kit *k) const;
 
-    QString displayNamePostfix(const Profile *p) const;
+    QString displayNamePostfix(const Kit *k) const;
 
-    ItemList toUserOutput(Profile *p) const;
+    ItemList toUserOutput(Kit *k) const;
 
-    static IDevice::ConstPtr device(const Profile *p);
-    static Core::Id deviceId(const Profile *p);
-    static void setDevice(Profile *p, IDevice::ConstPtr dev);
-    static void setDeviceId(Profile *p, const Core::Id id);
+    static IDevice::ConstPtr device(const Kit *k);
+    static Core::Id deviceId(const Kit *k);
+    static void setDevice(Kit *k, IDevice::ConstPtr dev);
+    static void setDeviceId(Kit *k, const Core::Id id);
 };
 
-class PROJECTEXPLORER_EXPORT DeviceMatcher : public ProfileMatcher
+class PROJECTEXPLORER_EXPORT DeviceMatcher : public KitMatcher
 {
 public:
     DeviceMatcher(Core::Id id) : m_devId(id)
     { }
 
-    bool matches(const Profile *p) const
+    bool matches(const Kit *p) const
     {
-        return DeviceProfileInformation::deviceId(p) == m_devId;
+        return DeviceKitInformation::deviceId(p) == m_devId;
     }
 
 private:
@@ -225,4 +225,4 @@ private:
 
 } // namespace ProjectExplorer
 
-#endif // PROFILEINFORMATION_H
+#endif // KITINFORMATION_H

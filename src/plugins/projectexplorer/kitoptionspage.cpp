@@ -28,13 +28,13 @@
 **
 **************************************************************************/
 
-#include "profileoptionspage.h"
+#include "kitoptionspage.h"
 
-#include "profilemodel.h"
-#include "profile.h"
+#include "kitmodel.h"
+#include "kit.h"
 #include "projectexplorerconstants.h"
-#include "profileconfigwidget.h"
-#include "profilemanager.h"
+#include "kitconfigwidget.h"
+#include "kitmanager.h"
 
 #include <coreplugin/icore.h>
 
@@ -50,28 +50,28 @@
 namespace ProjectExplorer {
 
 // --------------------------------------------------------------------------
-// ProfileOptionsPage:
+// KitOptionsPage:
 // --------------------------------------------------------------------------
 
-ProfileOptionsPage::ProfileOptionsPage() :
+KitOptionsPage::KitOptionsPage() :
     m_model(0), m_selectionModel(0), m_currentWidget(0), m_toShow(0)
 {
-    setId(Constants::PROFILE_SETTINGS_PAGE_ID);
-    setDisplayName(tr("Targets"));
+    setId(Constants::KITS_SETTINGS_PAGE_ID);
+    setDisplayName(tr("Kits"));
     setCategory(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
                                        Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
-QWidget *ProfileOptionsPage::createPage(QWidget *parent)
+QWidget *KitOptionsPage::createPage(QWidget *parent)
 {
     m_configWidget = new QWidget(parent);
 
-    m_profilesView = new QTreeView(m_configWidget);
-    m_profilesView->setUniformRowHeights(true);
-    m_profilesView->header()->setStretchLastSection(true);
-    m_profilesView->setSizePolicy(m_profilesView->sizePolicy().horizontalPolicy(),
+    m_kitsView = new QTreeView(m_configWidget);
+    m_kitsView->setUniformRowHeights(true);
+    m_kitsView->header()->setStretchLastSection(true);
+    m_kitsView->setSizePolicy(m_kitsView->sizePolicy().horizontalPolicy(),
                                   QSizePolicy::Ignored);
 
     m_addButton = new QPushButton(tr("Add"), m_configWidget);
@@ -89,37 +89,37 @@ QWidget *ProfileOptionsPage::createPage(QWidget *parent)
     buttonLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
-    horizontalLayout->addWidget(m_profilesView);
+    horizontalLayout->addWidget(m_kitsView);
     horizontalLayout->addLayout(buttonLayout);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(m_configWidget);
     verticalLayout->addLayout(horizontalLayout);
 
     Q_ASSERT(!m_model);
-    m_model = new Internal::ProfileModel(verticalLayout);
-    connect(m_model, SIGNAL(profileStateChanged()), this, SLOT(updateState()));
+    m_model = new Internal::KitModel(verticalLayout);
+    connect(m_model, SIGNAL(kitStateChanged()), this, SLOT(updateState()));
 
-    m_profilesView->setModel(m_model);
-    m_profilesView->header()->setResizeMode(0, QHeaderView::Stretch);
-    m_profilesView->expandAll();
+    m_kitsView->setModel(m_model);
+    m_kitsView->header()->setResizeMode(0, QHeaderView::Stretch);
+    m_kitsView->expandAll();
 
-    m_selectionModel = m_profilesView->selectionModel();
+    m_selectionModel = m_kitsView->selectionModel();
     connect(m_selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(profileSelectionChanged()));
-    connect(ProfileManager::instance(), SIGNAL(profileAdded(ProjectExplorer::Profile*)),
-            this, SLOT(profileSelectionChanged()));
-    connect(ProfileManager::instance(), SIGNAL(profileRemoved(ProjectExplorer::Profile*)),
-            this, SLOT(profileSelectionChanged()));
-    connect(ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
-            this, SLOT(profileSelectionChanged()));
+            this, SLOT(kitSelectionChanged()));
+    connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
+            this, SLOT(kitSelectionChanged()));
+    connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
+            this, SLOT(kitSelectionChanged()));
+    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(kitSelectionChanged()));
 
     // Set up add menu:
-    connect(m_addButton, SIGNAL(clicked()), this, SLOT(addNewProfile()));
-    connect(m_cloneButton, SIGNAL(clicked()), this, SLOT(cloneProfile()));
-    connect(m_delButton, SIGNAL(clicked()), this, SLOT(removeProfile()));
-    connect(m_makeDefaultButton, SIGNAL(clicked()), this, SLOT(makeDefaultProfile()));
+    connect(m_addButton, SIGNAL(clicked()), this, SLOT(addNewKit()));
+    connect(m_cloneButton, SIGNAL(clicked()), this, SLOT(cloneKit()));
+    connect(m_delButton, SIGNAL(clicked()), this, SLOT(removeKit()));
+    connect(m_makeDefaultButton, SIGNAL(clicked()), this, SLOT(makeDefaultKit()));
 
-    m_searchKeywords = tr("Targets");
+    m_searchKeywords = tr("Kits");
 
     updateState();
 
@@ -133,13 +133,13 @@ QWidget *ProfileOptionsPage::createPage(QWidget *parent)
     return m_configWidget;
 }
 
-void ProfileOptionsPage::apply()
+void KitOptionsPage::apply()
 {
     if (m_model)
         m_model->apply();
 }
 
-void ProfileOptionsPage::finish()
+void KitOptionsPage::finish()
 {
     if (m_model) {
         delete m_model;
@@ -148,22 +148,22 @@ void ProfileOptionsPage::finish()
 
     m_configWidget = 0; // deleted by settingsdialog
     m_selectionModel = 0; // child of m_configWidget
-    m_profilesView = 0; // child of m_configWidget
+    m_kitsView = 0; // child of m_configWidget
     m_currentWidget = 0; // deleted by the model
     m_toShow = 0;
 }
 
-bool ProfileOptionsPage::matches(const QString &s) const
+bool KitOptionsPage::matches(const QString &s) const
 {
     return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
-void ProfileOptionsPage::showProfile(Profile *p)
+void KitOptionsPage::showKit(Kit *k)
 {
-    m_toShow = p;
+    m_toShow = k;
 }
 
-void ProfileOptionsPage::profileSelectionChanged()
+void KitOptionsPage::kitSelectionChanged()
 {
     if (m_currentWidget)
         m_currentWidget->setVisible(false);
@@ -176,63 +176,63 @@ void ProfileOptionsPage::profileSelectionChanged()
     updateState();
 }
 
-void ProfileOptionsPage::addNewProfile()
+void KitOptionsPage::addNewKit()
 {
-    Profile *p = new Profile;
-    m_model->markForAddition(p);
+    Kit *k = new Kit;
+    m_model->markForAddition(k);
 
-    QModelIndex newIdx = m_model->indexOf(p);
+    QModelIndex newIdx = m_model->indexOf(k);
     m_selectionModel->select(newIdx,
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
                              | QItemSelectionModel::Rows);
 }
 
-void ProfileOptionsPage::cloneProfile()
+void KitOptionsPage::cloneKit()
 {
-    Profile *current = m_model->profile(currentIndex());
+    Kit *current = m_model->kit(currentIndex());
     if (!current)
         return;
 
-    Profile *p = current->clone();
+    Kit *k = current->clone();
 
-    m_model->markForAddition(p);
+    m_model->markForAddition(k);
 
-    QModelIndex newIdx = m_model->indexOf(p);
+    QModelIndex newIdx = m_model->indexOf(k);
     m_selectionModel->select(newIdx,
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
                              | QItemSelectionModel::Rows);
 }
 
-void ProfileOptionsPage::removeProfile()
+void KitOptionsPage::removeKit()
 {
-    Profile *p = m_model->profile(currentIndex());
-    if (!p)
+    Kit *k = m_model->kit(currentIndex());
+    if (!k)
         return;
-    m_model->markForRemoval(p);
+    m_model->markForRemoval(k);
 }
 
-void ProfileOptionsPage::makeDefaultProfile()
+void KitOptionsPage::makeDefaultKit()
 {
-    m_model->setDefaultProfile(currentIndex());
+    m_model->setDefaultKit(currentIndex());
     updateState();
 }
 
-void ProfileOptionsPage::updateState()
+void KitOptionsPage::updateState()
 {
-    if (!m_profilesView)
+    if (!m_kitsView)
         return;
 
     bool canCopy = false;
     bool canDelete = false;
     bool canMakeDefault = false;
     QModelIndex index = currentIndex();
-    Profile *p = m_model->profile(index);
-    if (p) {
-        canCopy = p->isValid();
-        canDelete = !p->isAutoDetected();
-        canMakeDefault = !m_model->isDefaultProfile(index);
+    Kit *k = m_model->kit(index);
+    if (k) {
+        canCopy = k->isValid();
+        canDelete = !k->isAutoDetected();
+        canMakeDefault = !m_model->isDefaultKit(index);
     }
 
     m_cloneButton->setEnabled(canCopy);
@@ -240,7 +240,7 @@ void ProfileOptionsPage::updateState()
     m_makeDefaultButton->setEnabled(canMakeDefault);
 }
 
-QModelIndex ProfileOptionsPage::currentIndex() const
+QModelIndex KitOptionsPage::currentIndex() const
 {
     if (!m_selectionModel)
         return QModelIndex();

@@ -49,7 +49,7 @@ public:
     bool isValid() const;
 
     QList<ProjectExplorer::Abi> detectQtAbis() const;
-    void addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const;
+    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
 
     QString description() const;
 

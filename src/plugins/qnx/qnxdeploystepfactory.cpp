@@ -36,7 +36,7 @@
 #include "qnxdeviceconfigurationfactory.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <remotelinux/genericdirectuploadstep.h>
@@ -54,7 +54,7 @@ QList<Core::Id> QnxDeployStepFactory::availableCreationIds(ProjectExplorer::Buil
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return QList<Core::Id>();
 
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->target()->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->target()->kit());
     if (deviceType != QnxDeviceConfigurationFactory::deviceType())
         return QList<Core::Id>();
 

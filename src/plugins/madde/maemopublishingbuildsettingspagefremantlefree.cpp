@@ -39,7 +39,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/qtcassert.h>
 
@@ -79,7 +79,7 @@ void MaemoPublishingBuildSettingsPageFremantleFree::collectBuildConfigurations(c
     m_buildConfigs.clear();
 
     foreach (const Target *const target, project->targets()) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
         if (!version || version->platformName() != QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
             continue;
         foreach (BuildConfiguration *const bc, target->buildConfigurations()) {

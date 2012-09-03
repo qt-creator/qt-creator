@@ -140,9 +140,9 @@ void RemoteLinuxRunConfiguration::init()
     handleDeployConfigChanged();
 
     Project *pro = target()->project();
-    connect(pro, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+    connect(pro, SIGNAL(kitUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
             this, SLOT(proFileUpdate(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
-    connect(target(), SIGNAL(profileChanged()),
+    connect(target(), SIGNAL(kitChanged()),
             this, SLOT(handleDeployablesUpdated())); // Handles device changes, etc.
 }
 

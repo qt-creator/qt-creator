@@ -36,7 +36,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <utils/portlist.h>
 
-namespace ProjectExplorer { class Profile; }
+namespace ProjectExplorer { class Kit; }
 namespace QSsh { class SshConnection; }
 namespace Utils { class FileName; }
 
@@ -55,7 +55,7 @@ public:
     // Connection must be in connected state.
     void setupMounts(QSsh::SshConnection *connection,
         const QList<MaemoMountSpecification> &mountSpecs,
-        const ProjectExplorer::Profile *profile);
+        const ProjectExplorer::Kit *k);
     void tearDownMounts();
 
 signals:
@@ -86,7 +86,7 @@ private:
     ProjectExplorer::IDevice::ConstPtr m_devConf;
     MaemoRemoteMounter * const m_mounter;
     QList<MaemoMountSpecification> m_mountSpecs;
-    const ProjectExplorer::Profile *m_profile;
+    const ProjectExplorer::Kit *m_kit;
 };
 
 } // namespace Internal

@@ -42,7 +42,7 @@ namespace QSsh { class SshConnection; }
 
 namespace ProjectExplorer {
 class BuildConfiguration;
-class Profile;
+class Kit;
 }
 
 namespace RemoteLinux {
@@ -79,7 +79,7 @@ signals:
 
 protected:
     const ProjectExplorer::BuildConfiguration *buildConfiguration() const;
-    const ProjectExplorer::Profile *profile() const;
+    const ProjectExplorer::Kit *profile() const;
     ProjectExplorer::IDevice::ConstPtr deviceConfiguration() const;
     QSsh::SshConnection *connection() const;
 

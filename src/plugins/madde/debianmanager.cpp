@@ -39,7 +39,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 
@@ -612,7 +612,7 @@ DebianManager::ActionStatus DebianManager::createTemplate(Qt4ProjectManager::Qt4
                           << (packageName + QLatin1Char('_')
                               + AbstractMaemoPackageCreationStep::DefaultVersionNumber);
 
-    QtSupport::BaseQtVersion *lqt = QtSupport::QtProfileInformation::qtVersion(bc->target()->profile());
+    QtSupport::BaseQtVersion *lqt = QtSupport::QtKitInformation::qtVersion(bc->target()->kit());
     if (!lqt) {
         raiseError(tr("Unable to create Debian templates: No Qt version set."));
         return ActionFailed;
@@ -653,7 +653,7 @@ DebianManager::ActionStatus DebianManager::createTemplate(Qt4ProjectManager::Qt4
 
     setPackageName(debianDir, packageName);
 
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(bc->target()->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(bc->target()->kit());
 
     const QByteArray sec = section(deviceType);
     const QByteArray nameField = packageManagerNameFieldName(deviceType);
@@ -674,7 +674,7 @@ Utils::FileName DebianManager::debianDirectory(ProjectExplorer::Target *target)
 {
     Utils::FileName path = Utils::FileName::fromString(target->project()->projectDirectory());
     path.appendPath(PackagingDirName);
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target->kit());
     if (deviceType == HarmattanOsType)
         path.appendPath(QLatin1String("debian_harmattan"));
     else if (deviceType == Maemo5OsType)

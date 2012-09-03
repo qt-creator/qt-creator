@@ -28,12 +28,12 @@
 **
 **************************************************************************/
 
-#include "debuggerprofileconfigwidget.h"
+#include "debuggerkitconfigwidget.h"
 
-#include "debuggerprofileinformation.h"
+#include "debuggerkitinformation.h"
 
 #include <projectexplorer/abi.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -56,23 +56,23 @@ namespace Internal {
 static const char dgbToolsDownloadLink32C[] = "http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx";
 static const char dgbToolsDownloadLink64C[] = "http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx";
 // -----------------------------------------------------------------------
-// DebuggerProfileConfigWidget:
+// DebuggerKitConfigWidget:
 // -----------------------------------------------------------------------
 
-DebuggerProfileConfigWidget::DebuggerProfileConfigWidget(ProjectExplorer::Profile *p,
-                                                         const DebuggerProfileInformation *pi,
-                                                         QWidget *parent) :
-    ProjectExplorer::ProfileConfigWidget(parent),
-    m_profile(p),
-    m_info(pi),
+DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *k,
+                                                 const DebuggerKitInformation *ki,
+                                                 QWidget *parent) :
+    ProjectExplorer::KitConfigWidget(parent),
+    m_kit(k),
+    m_info(ki),
     m_chooser(new Utils::PathChooser)
 {
-    setToolTip(tr("The debugger to use for this target."));
+    setToolTip(tr("The debugger to use for this kit."));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if (tc && tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
             && tc->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
         QLabel *msvcDebuggerConfigLabel = new QLabel;
@@ -104,43 +104,42 @@ DebuggerProfileConfigWidget::DebuggerProfileConfigWidget(ProjectExplorer::Profil
     connect(m_chooser, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
 }
 
-QString DebuggerProfileConfigWidget::displayName() const
+QString DebuggerKitConfigWidget::displayName() const
 {
     return tr("Debugger:");
 }
 
-void DebuggerProfileConfigWidget::makeReadOnly()
+void DebuggerKitConfigWidget::makeReadOnly()
 {
     m_chooser->setEnabled(false);
 }
 
-void DebuggerProfileConfigWidget::apply()
+void DebuggerKitConfigWidget::apply()
 {
     Utils::FileName fn = m_chooser->fileName();
-    DebuggerProfileInformation::setDebuggerCommand(m_profile, fn);
+    DebuggerKitInformation::setDebuggerCommand(m_kit, fn);
 }
 
-void DebuggerProfileConfigWidget::discard()
+void DebuggerKitConfigWidget::discard()
 {
-    m_chooser->setFileName(DebuggerProfileInformation::debuggerCommand(m_profile));
+    m_chooser->setFileName(DebuggerKitInformation::debuggerCommand(m_kit));
 }
 
-bool DebuggerProfileConfigWidget::isDirty() const
+bool DebuggerKitConfigWidget::isDirty() const
 {
-    return m_chooser->fileName() != DebuggerProfileInformation::debuggerCommand(m_profile);
+    return m_chooser->fileName() != DebuggerKitInformation::debuggerCommand(m_kit);
 }
 
-QWidget *DebuggerProfileConfigWidget::buttonWidget() const
+QWidget *DebuggerKitConfigWidget::buttonWidget() const
 {
     return m_chooser->buttonAtIndex(1);
 }
 
-void DebuggerProfileConfigWidget::autoDetectDebugger()
+void DebuggerKitConfigWidget::autoDetectDebugger()
 {
-    QVariant v = m_info->defaultValue(m_profile);
+    QVariant v = m_info->defaultValue(m_kit);
     m_chooser->setFileName(Utils::FileName::fromString(v.toString()));
 }
 
 } // namespace Internal
-
 } // namespace Debugger

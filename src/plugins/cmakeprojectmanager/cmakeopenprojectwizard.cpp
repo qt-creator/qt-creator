@@ -34,8 +34,8 @@
 #include <coreplugin/icore.h>
 #include <utils/pathchooser.h>
 #include <utils/fancylineedit.h>
-#include <projectexplorer/profileinformation.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/abi.h>
 #include <texteditor/fontsettings.h>
@@ -405,13 +405,13 @@ void CMakeRunPage::initializePage()
     m_generatorComboBox->clear();
     bool hasCodeBlocksGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator();
 
-    QList<ProjectExplorer::Profile *> profileList =
-            ProjectExplorer::ProfileManager::instance()->profiles();
+    QList<ProjectExplorer::Kit *> kitList =
+            ProjectExplorer::KitManager::instance()->kits();
 
-    foreach (ProjectExplorer::Profile *p, profileList) {
-        QVariant profileVariant = qVariantFromValue(static_cast<void *>(p));
+    foreach (ProjectExplorer::Kit *k, kitList) {
+        QVariant kitVariant = qVariantFromValue(static_cast<void *>(k));
 
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
         if (!tc)
             continue;
         ProjectExplorer::Abi targetAbi = tc->targetAbi();
@@ -421,21 +421,21 @@ void CMakeRunPage::initializePage()
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor) {
                 if (hasCodeBlocksGenerator && (cachedGenerator.isEmpty() || cachedGenerator == "NMake Makefiles"))
-                    m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(p->displayName()), profileVariant);
+                    m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(k->displayName()), kitVariant);
              } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
 #ifdef Q_OS_WIN
                 if (cachedGenerator.isEmpty() || cachedGenerator == "MinGW Makefiles")
-                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(p->displayName()), profileVariant);
+                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(p->displayName()), kitVariant);
 #else
                 if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
-                    m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(p->displayName()), profileVariant);
+                    m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(k->displayName()), kitVariant);
 #endif
 
             }
         } else {
             // Non windows
             if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
-                m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(p->displayName()), profileVariant);
+                m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(k->displayName()), kitVariant);
         }
     }
 }
@@ -448,15 +448,15 @@ void CMakeRunPage::runCMake()
 
     int index = m_generatorComboBox->currentIndex();
 
-    ProjectExplorer::Profile *p = 0;
+    ProjectExplorer::Kit *p = 0;
     if (index >= 0)
-        p = static_cast<ProjectExplorer::Profile *>(m_generatorComboBox->itemData(index).value<void *>());
+        p = static_cast<ProjectExplorer::Kit *>(m_generatorComboBox->itemData(index).value<void *>());
     if (!p) {
         m_output->appendPlainText(tr("No generator selected."));
         return;
     }
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(p);
 
     m_runCMake->setEnabled(false);
     m_argumentsLineEdit->setEnabled(false);

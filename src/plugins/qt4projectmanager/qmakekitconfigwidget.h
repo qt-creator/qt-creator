@@ -28,27 +28,26 @@
 **
 **************************************************************************/
 
-#ifndef QTSUPPORT_QTPROFILECONFIGWIDGET_H
-#define QTSUPPORT_QTPROFILECONFIGWIDGET_H
+#ifndef QT4PM_QMAKEKITCONFIGWIDGET_H
+#define QT4PM_QMAKEKITCONFIGWIDGET_H
 
-#include <projectexplorer/profileconfigwidget.h>
+#include <projectexplorer/kitconfigwidget.h>
 
-QT_FORWARD_DECLARE_CLASS(QComboBox)
-QT_FORWARD_DECLARE_CLASS(QPushButton)
+QT_FORWARD_DECLARE_CLASS(QLineEdit)
 
-namespace ProjectExplorer { class Profile; }
+namespace ProjectExplorer { class Kit; }
 
-namespace QtSupport {
+namespace Qt4ProjectManager {
 class BaseQtVersion;
 
 namespace Internal {
 
-class QtProfileConfigWidget : public ProjectExplorer::ProfileConfigWidget
+class QmakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit QtProfileConfigWidget(ProjectExplorer::Profile *p, QWidget *parent = 0);
+    explicit QmakeKitConfigWidget(ProjectExplorer::Kit *k, QWidget *parent = 0);
 
     QString displayName() const;
 
@@ -57,22 +56,15 @@ public:
     void apply();
     void discard();
     bool isDirty() const;
-    QWidget *buttonWidget() const;
-
-private slots:
-    void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);
-    void profileUpdated(ProjectExplorer::Profile *p);
-    void manageQtVersions();
 
 private:
     int findQtVersion(const int id) const;
 
-    ProjectExplorer::Profile *m_profile;
-    QComboBox *m_combo;
-    QPushButton *m_manageButton;
+    ProjectExplorer::Kit *m_kit;
+    QLineEdit *m_lineEdit;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // QTSUPPORT_QTYSTEMCONFIGWIDGET_H
+#endif // QT4PM_QMAKEKITCONFIGWIDGET_H

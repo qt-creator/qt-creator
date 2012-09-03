@@ -37,8 +37,8 @@
 #include "projectexplorersettings.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
-#include "profile.h"
-#include "profilemanager.h"
+#include "kit.h"
+#include "kitmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -361,10 +361,10 @@ public:
     QVariantMap update(Project *project, const QVariantMap &map);
 
 private:
-    Profile *uniqueProfile(Profile *p);
-    void addBuildConfiguration(Profile *p, const QVariantMap &bc, int bcPos, int bcCount);
-    void addDeployConfiguration(Profile *p, const QVariantMap &dc, int dcPos, int dcActive);
-    void addRunConfigurations(Profile *p,
+    Kit *uniqueProfile(Kit *p);
+    void addBuildConfiguration(Kit *p, const QVariantMap &bc, int bcPos, int bcCount);
+    void addDeployConfiguration(Kit *p, const QVariantMap &dc, int dcPos, int dcActive);
+    void addRunConfigurations(Kit *p,
                               const QMap<int, QVariantMap> &rcs, int activeRc, const QString &projectDir);
 
     void parseQtversionFile();
@@ -383,7 +383,7 @@ private:
     QHash<QString, ToolChainExtraData> m_toolChainExtras;
     QHash<int, QString> m_qtVersionExtras;
 
-    QHash<Profile *, QVariantMap> m_targets;
+    QHash<Kit *, QVariantMap> m_targets;
 };
 
 } // namespace
@@ -2225,11 +2225,11 @@ Version11Handler::Version11Handler()
 
 Version11Handler::~Version11Handler()
 {
-    ProfileManager *pm = ProfileManager::instance();
+    KitManager *pm = KitManager::instance();
     if (!pm) // Can happen during teardown!
         return;
-    QList<Profile *> knownProfiles = pm->profiles();
-    foreach (Profile *p, m_targets.keys()) {
+    QList<Kit *> knownProfiles = pm->kits();
+    foreach (Kit *p, m_targets.keys()) {
         if (!knownProfiles.contains(p))
             delete p;
     }
@@ -2248,8 +2248,8 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
     parseToolChainFile();
 
     QVariantMap result;
-    ProfileManager *pm = ProfileManager::instance();
-    foreach (Profile *p, pm->profiles())
+    KitManager *pm = KitManager::instance();
+    foreach (Kit *p, pm->kits())
         m_targets.insert(p, QVariantMap());
 
     QMapIterator<QString, QVariant> globalIt(map);
@@ -2317,13 +2317,13 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
         const QString oldTargetId = extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
 
         // Check each BCs/DCs and create profiles as needed
-        static Profile rawProfile; // Do not needlessly use Core::Ids
+        static Kit rawProfile; // Do not needlessly use Core::Ids
         QMapIterator<int, QVariantMap> buildIt(bcs);
         while (buildIt.hasNext()) {
             buildIt.next();
             int bcPos = buildIt.key();
             const QVariantMap &bc = buildIt.value();
-            Profile *tmpProfile = &rawProfile;
+            Kit *tmpProfile = &rawProfile;
 
             if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.AndroidDeviceTarget")) {
                 tmpProfile->setIconPath(QLatin1String(":/android/images/QtAndroid.png"));
@@ -2404,7 +2404,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
                 // Set display name last:
                 tmpProfile->setDisplayName(extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName")).toString());
 
-                Profile *p = uniqueProfile(tmpProfile);
+                Kit *p = uniqueProfile(tmpProfile);
 
                 addBuildConfiguration(p, bc, bcPos, activeBc);
                 addDeployConfiguration(p, dc, dcPos, activeDc);
@@ -2417,12 +2417,12 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
 
     int newPos = 0;
     // Generate new target data:
-    foreach (Profile *p, m_targets.keys()) {
+    foreach (Kit *p, m_targets.keys()) {
         QVariantMap data = m_targets.value(p);
         if (data.isEmpty())
             continue;
 
-        pm->registerProfile(p);
+        pm->registerKit(p);
 
         data.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), p->id().name());
         data.insert(QLatin1String("ProjectExplorer.Target.Profile"), p->id().name());
@@ -2439,7 +2439,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
     return result;
 }
 
-Profile *Version11Handler::uniqueProfile(Profile *p)
+Kit *Version11Handler::uniqueProfile(Kit *p)
 {
     const QString tc = p->value(Core::Id("PE.Profile.ToolChain")).toString();
     const int qt = p->value(Core::Id("QtSupport.QtInformation")).toInt();
@@ -2449,7 +2449,7 @@ Profile *Version11Handler::uniqueProfile(Profile *p)
     const QString device = p->value(Core::Id("PE.Profile.Device")).toString();
     const QString sysroot = p->value(Core::Id("PE.Profile.SysRoot")).toString();
 
-    foreach (Profile *i, m_targets.keys()) {
+    foreach (Kit *i, m_targets.keys()) {
         const QString currentTc = i->value(Core::Id("PE.Profile.ToolChain")).toString();
         const int currentQt = i->value(Core::Id("QtSupport.QtInformation")).toInt();
         const QString currentDebugger = i->value(Core::Id("Debugger.Information")).toString();
@@ -2472,7 +2472,7 @@ Profile *Version11Handler::uniqueProfile(Profile *p)
     return p->clone(true);
 }
 
-void Version11Handler::addBuildConfiguration(Profile *p, const QVariantMap &bc, int bcPos, int bcActive)
+void Version11Handler::addBuildConfiguration(Kit *p, const QVariantMap &bc, int bcPos, int bcActive)
 {
     QVariantMap merged = m_targets.value(p);
     int internalCount = merged.value(QLatin1String("ProjectExplorer.Target.BuildConfigurationCount"), 0).toInt();
@@ -2493,7 +2493,7 @@ void Version11Handler::addBuildConfiguration(Profile *p, const QVariantMap &bc, 
     m_targets.insert(p, merged);
 }
 
-void Version11Handler::addDeployConfiguration(Profile *p, const QVariantMap &dc, int dcPos, int dcActive)
+void Version11Handler::addDeployConfiguration(Kit *p, const QVariantMap &dc, int dcPos, int dcActive)
 {
     QVariantMap merged = m_targets.value(p);
     int internalCount = merged.value(QLatin1String("ProjectExplorer.Target.DeployConfigurationCount"), 0).toInt();
@@ -2514,7 +2514,7 @@ void Version11Handler::addDeployConfiguration(Profile *p, const QVariantMap &dc,
     m_targets.insert(p, merged);
 }
 
-void Version11Handler::addRunConfigurations(Profile *p,
+void Version11Handler::addRunConfigurations(Kit *p,
                                              const QMap<int, QVariantMap> &rcs, int activeRc,
                                              const QString &projectDir)
 {

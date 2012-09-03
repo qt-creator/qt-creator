@@ -41,7 +41,7 @@ class QStackedWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class Profile;
+class Kit;
 class Project;
 class Target;
 class BuildConfiguration;
@@ -134,7 +134,7 @@ private slots:
 
     void changeStartupProject(ProjectExplorer::Project *project);
     void activeTargetChanged(ProjectExplorer::Target *target);
-    void profileChanged(ProjectExplorer::Profile *profile);
+    void kitChanged(ProjectExplorer::Kit *k);
     void activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
     void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
     void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);

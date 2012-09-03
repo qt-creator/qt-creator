@@ -28,43 +28,49 @@
 **
 **************************************************************************/
 
-#ifndef QT4PM_QMAKEPROFILECONFIGWIDGET_H
-#define QT4PM_QMAKEPROFILECONFIGWIDGET_H
+#ifndef KITMANAGERWIDGET_H
+#define KITMANAGERWIDGET_H
 
-#include <projectexplorer/profileconfigwidget.h>
+#include "kitconfigwidget.h"
 
-QT_FORWARD_DECLARE_CLASS(QLineEdit)
+QT_BEGIN_NAMESPACE
+class QHBoxLayout;
+class QGridLayout;
+class QToolButton;
+QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Profile; }
-
-namespace Qt4ProjectManager {
-class BaseQtVersion;
+namespace ProjectExplorer {
+class Kit;
 
 namespace Internal {
 
-class QmakeProfileConfigWidget : public ProjectExplorer::ProfileConfigWidget
+class KitManagerConfigWidget : public ProjectExplorer::KitConfigWidget
 {
     Q_OBJECT
 
 public:
-    explicit QmakeProfileConfigWidget(ProjectExplorer::Profile *p, QWidget *parent = 0);
+    explicit KitManagerConfigWidget(Kit *k, QWidget *parent = 0);
 
     QString displayName() const;
-
-    void makeReadOnly();
 
     void apply();
     void discard();
     bool isDirty() const;
+    void addConfigWidget(ProjectExplorer::KitConfigWidget *widget);
+    void makeReadOnly();
+
+private slots:
+    void setIcon();
 
 private:
-    int findQtVersion(const int id) const;
-
-    ProjectExplorer::Profile *m_profile;
-    QLineEdit *m_lineEdit;
+    QGridLayout *m_layout;
+    QToolButton *m_iconButton;
+    QList<KitConfigWidget *> m_widgets;
+    Kit *m_kit;
+    QString m_iconPath;
 };
 
 } // namespace Internal
-} // namespace Debugger
+} // namespace ProjectExplorer
 
-#endif // QT4PM_QMAKEPROFILECONFIGWIDGET_H
+#endif // KITMANAGERWIDGET_H

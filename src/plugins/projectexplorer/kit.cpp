@@ -28,11 +28,11 @@
 **
 **************************************************************************/
 
-#include "profile.h"
+#include "kit.h"
 
 #include "devicesupport/devicemanager.h"
-#include "profileinformation.h"
-#include "profilemanager.h"
+#include "kitinformation.h"
+#include "kitmanager.h"
 #include "project.h"
 #include "toolchainmanager.h"
 
@@ -55,15 +55,15 @@ const char ICON_KEY[] = "PE.Profile.Icon";
 namespace ProjectExplorer {
 
 // -------------------------------------------------------------------------
-// ProfilePrivate
+// KitPrivate
 // -------------------------------------------------------------------------
 
 namespace Internal {
 
-class ProfilePrivate
+class KitPrivate
 {
 public:
-    ProfilePrivate() :
+    KitPrivate() :
         m_id(QUuid::createUuid().toString().toLatin1().constData()),
         m_autodetected(false),
         m_isValid(true)
@@ -82,32 +82,32 @@ public:
 } // namespace Internal
 
 // -------------------------------------------------------------------------
-// Profile:
+// Kit:
 // -------------------------------------------------------------------------
 
-Profile::Profile() :
-    d(new Internal::ProfilePrivate)
+Kit::Kit() :
+    d(new Internal::KitPrivate)
 {
-    ProfileManager *stm = ProfileManager::instance();
-    foreach (ProfileInformation *sti, stm->profileInformation())
+    KitManager *stm = KitManager::instance();
+    foreach (KitInformation *sti, stm->kitInformation())
         d->m_data.insert(sti->dataId(), sti->defaultValue(this));
 
-    setDisplayName(QCoreApplication::translate("ProjectExplorer::Profile", "Unnamed"));
+    setDisplayName(QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed"));
     setIconPath(QLatin1String(":///DESKTOP///"));
 }
 
-Profile::~Profile()
+Kit::~Kit()
 {
     delete d;
 }
 
-Profile *Profile::clone(bool keepName) const
+Kit *Kit::clone(bool keepName) const
 {
-    Profile *p = new Profile;
+    Kit *p = new Kit;
     if (keepName)
         p->d->m_displayName = d->m_displayName;
     else
-        p->d->m_displayName = QCoreApplication::translate("ProjectExplorer::Profile", "Clone of %1")
+        p->d->m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Clone of %1")
                 .arg(d->m_displayName);
     p->d->m_autodetected = false;
     p->d->m_data = d->m_data;
@@ -117,21 +117,21 @@ Profile *Profile::clone(bool keepName) const
     return p;
 }
 
-bool Profile::isValid() const
+bool Kit::isValid() const
 {
     return d->m_id.isValid() && d->m_isValid;
 }
 
-QList<Task> Profile::validate()
+QList<Task> Kit::validate()
 {
     QList<Task> result;
-    QList<ProfileInformation *> infoList = ProfileManager::instance()->profileInformation();
-    foreach (ProfileInformation *i, infoList)
+    QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
+    foreach (KitInformation *i, infoList)
         result.append(i->validate(this));
     return result;
 }
 
-QString Profile::displayName() const
+QString Kit::displayName() const
 {
     return d->m_displayName;
 }
@@ -143,16 +143,16 @@ static QString candidateName(const QString &name, const QString &postfix)
     return name + QLatin1Char('-') + postfix;
 }
 
-void Profile::setDisplayName(const QString &name)
+void Kit::setDisplayName(const QString &name)
 {
-    ProfileManager *pm = ProfileManager::instance();
-    QList<ProfileInformation *> profileInfo = pm->profileInformation();
+    KitManager *pm = KitManager::instance();
+    QList<KitInformation *> kitInfo = pm->kitInformation();
 
     QStringList nameList;
-    foreach (Profile *p, pm->profiles()) {
+    foreach (Kit *p, pm->kits()) {
         nameList << p->displayName();
-        foreach (ProfileInformation *pi, profileInfo) {
-            const QString postfix = pi->displayNamePostfix(p);
+        foreach (KitInformation *ki, kitInfo) {
+            const QString postfix = ki->displayNamePostfix(p);
             if (!postfix.isEmpty())
                 nameList << candidateName(p->displayName(), postfix);
         }
@@ -161,8 +161,8 @@ void Profile::setDisplayName(const QString &name)
     QStringList candidateNames;
     candidateNames << name;
 
-    foreach (ProfileInformation *pi, profileInfo) {
-        const QString postfix = pi->displayNamePostfix(this);
+    foreach (KitInformation *ki, kitInfo) {
+        const QString postfix = ki->displayNamePostfix(this);
         if (!postfix.isEmpty())
             candidateNames << candidateName(name, postfix);
     }
@@ -181,30 +181,30 @@ void Profile::setDisplayName(const QString &name)
     if (d->m_displayName == uniqueName)
         return;
     d->m_displayName = uniqueName;
-    profileUpdated();
+    kitUpdated();
 }
 
-bool Profile::isAutoDetected() const
+bool Kit::isAutoDetected() const
 {
     return d->m_autodetected;
 }
 
-Core::Id Profile::id() const
+Core::Id Kit::id() const
 {
     return d->m_id;
 }
 
-QIcon Profile::icon() const
+QIcon Kit::icon() const
 {
     return d->m_icon;
 }
 
-QString Profile::iconPath() const
+QString Kit::iconPath() const
 {
     return d->m_iconPath;
 }
 
-void Profile::setIconPath(const QString &path)
+void Kit::setIconPath(const QString &path)
 {
     if (d->m_iconPath == path)
         return;
@@ -215,36 +215,36 @@ void Profile::setIconPath(const QString &path)
         d->m_icon = qApp->style()->standardIcon(QStyle::SP_ComputerIcon);
     else
         d->m_icon = QIcon(path);
-    profileUpdated();
+    kitUpdated();
 }
 
-QVariant Profile::value(const Core::Id &key, const QVariant &unset) const
+QVariant Kit::value(const Core::Id &key, const QVariant &unset) const
 {
     return d->m_data.value(key, unset);
 }
 
-bool Profile::hasValue(const Core::Id &key) const
+bool Kit::hasValue(const Core::Id &key) const
 {
     return d->m_data.contains(key);
 }
 
-void Profile::setValue(const Core::Id &key, const QVariant &value)
+void Kit::setValue(const Core::Id &key, const QVariant &value)
 {
     if (d->m_data.value(key) == value)
         return;
     d->m_data.insert(key, value);
-    profileUpdated();
+    kitUpdated();
 }
 
-void Profile::removeKey(const Core::Id &key)
+void Kit::removeKey(const Core::Id &key)
 {
     if (!d->m_data.contains(key))
         return;
     d->m_data.remove(key);
-    profileUpdated();
+    kitUpdated();
 }
 
-QVariantMap Profile::toMap() const
+QVariantMap Kit::toMap() const
 {
     QVariantMap data;
     data.insert(QLatin1String(ID_KEY), QString::fromLatin1(d->m_id.name()));
@@ -260,19 +260,19 @@ QVariantMap Profile::toMap() const
     return data;
 }
 
-bool Profile::operator==(const Profile &other) const
+bool Kit::operator==(const Kit &other) const
 {
     return d->m_data == other.d->m_data;
 }
 
-void Profile::addToEnvironment(Utils::Environment &env) const
+void Kit::addToEnvironment(Utils::Environment &env) const
 {
-    QList<ProfileInformation *> infoList = ProfileManager::instance()->profileInformation();
-    foreach (ProfileInformation *si, infoList)
-        si->addToEnvironment(this, env);
+    QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
+    foreach (KitInformation *ki, infoList)
+        ki->addToEnvironment(this, env);
 }
 
-QString Profile::toHtml()
+QString Kit::toHtml()
 {
     QString rc;
     QTextStream str(&rc);
@@ -287,10 +287,10 @@ QString Profile::toHtml()
             str << "<b>";
             switch (t.type) {
             case Task::Error:
-                QCoreApplication::translate("ProjectExplorer::Profile", "Error:");
+                QCoreApplication::translate("ProjectExplorer::Kit", "Error:");
                 break;
             case Task::Warning:
-                QCoreApplication::translate("ProjectExplorer::Profile", "Warning:");
+                QCoreApplication::translate("ProjectExplorer::Kit", "Warning:");
                 break;
             case Task::Unknown:
             default:
@@ -301,17 +301,17 @@ QString Profile::toHtml()
         str << "</p>";
     }
 
-    QList<ProfileInformation *> infoList = ProfileManager::instance()->profileInformation();
-    foreach (ProfileInformation *i, infoList) {
-        ProfileInformation::ItemList list = i->toUserOutput(this);
-        foreach (const ProfileInformation::Item &j, list)
+    QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
+    foreach (KitInformation *ki, infoList) {
+        KitInformation::ItemList list = ki->toUserOutput(this);
+        foreach (const KitInformation::Item &j, list)
             str << "<tr><td><b>" << j.first << ":</b></td><td>" << j.second << "</td></tr>";
     }
     str << "</table></body></html>";
     return rc;
 }
 
-bool Profile::fromMap(const QVariantMap &data)
+bool Kit::fromMap(const QVariantMap &data)
 {
     const QString id = data.value(QLatin1String(ID_KEY)).toString();
     if (id.isEmpty())
@@ -328,19 +328,19 @@ bool Profile::fromMap(const QVariantMap &data)
     return true;
 }
 
-void Profile::setAutoDetected(bool detected)
+void Kit::setAutoDetected(bool detected)
 {
     d->m_autodetected = detected;
 }
 
-void Profile::setValid(bool valid)
+void Kit::setValid(bool valid)
 {
     d->m_isValid = valid;
 }
 
-void Profile::profileUpdated()
+void Kit::kitUpdated()
 {
-    ProfileManager::instance()->notifyAboutUpdate(this);
+    KitManager::instance()->notifyAboutUpdate(this);
 }
 
 } // namespace ProjectExplorer

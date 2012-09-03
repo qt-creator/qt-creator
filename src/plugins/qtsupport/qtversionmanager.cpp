@@ -30,7 +30,7 @@
 
 #include "qtversionmanager.h"
 
-#include "qtprofileinformation.h"
+#include "qtkitinformation.h"
 #include "qtversionfactory.h"
 
 #include "qtsupportconstants.h"

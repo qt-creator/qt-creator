@@ -45,8 +45,8 @@
 #include <coreplugin/icontext.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/profile.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitmanager.h>
 #include <limits>
 #include <utils/qtcassert.h>
 
@@ -150,7 +150,7 @@ void Project::changeBuildConfigurationEnabled()
 void Project::addTarget(Target *t)
 {
     QTC_ASSERT(t && !d->m_targets.contains(t), return);
-    QTC_ASSERT(!target(t->profile()), return);
+    QTC_ASSERT(!target(t->kit()), return);
     Q_ASSERT(t->project() == this);
 
     // Check that we don't have a configuration with the same displayName
@@ -234,27 +234,27 @@ Target *Project::target(const Core::Id id) const
     return 0;
 }
 
-Target *Project::target(Profile *p) const
+Target *Project::target(Kit *k) const
 {
     foreach (Target *target, d->m_targets) {
-        if (target->profile() == p)
+        if (target->kit() == k)
             return target;
     }
     return 0;
 }
 
-bool Project::supportsProfile(Profile *p) const
+bool Project::supportsKit(Kit *k) const
 {
-    Q_UNUSED(p);
+    Q_UNUSED(k);
     return true;
 }
 
-Target *Project::createTarget(Profile *p)
+Target *Project::createTarget(Kit *k)
 {
-    if (!p || target(p))
+    if (!k || target(k))
         return 0;
 
-    Target *t = new Target(this, p);
+    Target *t = new Target(this, k);
     t->createDefaultSetup();
 
     return t;
@@ -269,13 +269,13 @@ Target *Project::restoreTarget(const QVariantMap &data)
         return 0;
     }
 
-    Profile *p = ProfileManager::instance()->find(id);
-    if (!p) {
+    Kit *k = KitManager::instance()->find(id);
+    if (!k) {
         qWarning("Warning: No profile '%s' found. Continuing.", qPrintable(id.toString()));
         return 0;
     }
 
-    Target *t = new Target(this, p);
+    Target *t = new Target(this, k);
     if (!t->fromMap(data)) {
         delete t;
         return 0;
@@ -339,11 +339,11 @@ QString Project::projectDirectory() const
     return projectDirectory(document()->fileName());
 }
 
-QString Project::projectDirectory(const QString &proFile)
+QString Project::projectDirectory(const QString &top)
 {
-    if (proFile.isEmpty())
+    if (top.isEmpty())
         return QString();
-    QFileInfo info(proFile);
+    QFileInfo info(top);
     return info.absoluteDir().path();
 }
 

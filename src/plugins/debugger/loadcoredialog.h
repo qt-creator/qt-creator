@@ -34,7 +34,7 @@
 #include <QDialog>
 
 namespace Core { class Id; }
-namespace ProjectExplorer { class Profile; }
+namespace ProjectExplorer { class Kit; }
 
 namespace Debugger {
 namespace Internal {
@@ -56,12 +56,12 @@ public:
     bool isLocal() const;
 
     // For persistance.
-    ProjectExplorer::Profile *profile() const;
+    ProjectExplorer::Kit *kit() const;
     void setLocalExecutableFile(const QString &executable);
     void setLocalCoreFile(const QString &core);
     void setRemoteCoreFile(const QString &core);
     void setOverrideStartScript(const QString &scriptName);
-    void setProfileId(const Core::Id &id);
+    void setKitId(const Core::Id &id);
 
 private slots:
     void changed();

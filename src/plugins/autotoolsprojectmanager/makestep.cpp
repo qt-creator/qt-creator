@@ -41,7 +41,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcprocess.h>
@@ -174,7 +174,7 @@ bool MakeStep::init()
 
     setIgnoreReturnValue(m_clean);
 
-    ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(bc->target()->profile());
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
@@ -289,7 +289,7 @@ QString MakeStepConfigWidget::summaryText() const
 void MakeStepConfigWidget::updateDetails()
 {
     AutotoolsBuildConfiguration *bc = m_makeStep->autotoolsBuildConfiguration();
-    ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(m_makeStep->target()->profile());
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
 
     if (tc) {
         QString arguments = Utils::QtcProcess::joinArgs(m_makeStep->m_buildTargets);
@@ -303,7 +303,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {
-        m_summaryText = QLatin1String("<b>") + ProjectExplorer::ToolChainProfileInformation::msgNoToolChainInTarget()  + QLatin1String("</b>");
+        m_summaryText = QLatin1String("<b>") + ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget()  + QLatin1String("</b>");
     }
 
     emit updateSummary();

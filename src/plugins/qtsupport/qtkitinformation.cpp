@@ -28,9 +28,9 @@
 **
 **************************************************************************/
 
-#include "qtprofileinformation.h"
+#include "qtkitinformation.h"
 
-#include "qtprofileconfigwidget.h"
+#include "qtkitconfigwidget.h"
 #include "qtversionmanager.h"
 
 #include <utils/environment.h>
@@ -40,25 +40,25 @@ namespace Internal {
 const char QT_INFORMATION[] = "QtSupport.QtInformation";
 } // namespace Internal
 
-QtProfileInformation::QtProfileInformation()
+QtKitInformation::QtKitInformation()
 {
-    setObjectName(QLatin1String("QtProfileInformation"));
+    setObjectName(QLatin1String("QtKitInformation"));
     connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SIGNAL(validationNeeded()));
 }
 
-Core::Id QtProfileInformation::dataId() const
+Core::Id QtKitInformation::dataId() const
 {
     static Core::Id id = Core::Id(Internal::QT_INFORMATION);
     return id;
 }
 
-unsigned int QtProfileInformation::priority() const
+unsigned int QtKitInformation::priority() const
 {
     return 26000;
 }
 
-QVariant QtProfileInformation::defaultValue(ProjectExplorer::Profile *p) const
+QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *p) const
 {
     Q_UNUSED(p);
     QtVersionManager *mgr = QtVersionManager::instance();
@@ -79,7 +79,7 @@ QVariant QtProfileInformation::defaultValue(ProjectExplorer::Profile *p) const
     return -1;
 }
 
-QList<ProjectExplorer::Task> QtProfileInformation::validate(ProjectExplorer::Profile *p) const
+QList<ProjectExplorer::Task> QtKitInformation::validate(ProjectExplorer::Kit *p) const
 {
     int id = qtVersionId(p);
     if (id == -1)
@@ -89,36 +89,35 @@ QList<ProjectExplorer::Task> QtProfileInformation::validate(ProjectExplorer::Pro
         setQtVersionId(p, -1);
         return QList<ProjectExplorer::Task>();
     }
-    return version->validateProfile(p);
+    return version->validateKit(p);
 }
 
-ProjectExplorer::ProfileConfigWidget *
-QtProfileInformation::createConfigWidget(ProjectExplorer::Profile *p) const
+ProjectExplorer::KitConfigWidget *QtKitInformation::createConfigWidget(ProjectExplorer::Kit *p) const
 {
-    return new Internal::QtProfileConfigWidget(p);
+    return new Internal::QtKitConfigWidget(p);
 }
 
-QString QtProfileInformation::displayNamePostfix(const ProjectExplorer::Profile *p) const
+QString QtKitInformation::displayNamePostfix(const ProjectExplorer::Kit *p) const
 {
     BaseQtVersion *version = qtVersion(p);
     return version ? version->displayName() : QString();
 }
 
-ProjectExplorer::ProfileInformation::ItemList
-QtProfileInformation::toUserOutput(ProjectExplorer::Profile *p) const
+ProjectExplorer::KitInformation::ItemList
+QtKitInformation::toUserOutput(ProjectExplorer::Kit *p) const
 {
     BaseQtVersion *version = qtVersion(p);
     return ItemList() << qMakePair(tr("Qt version"), version ? version->displayName() : tr("None"));
 }
 
-void QtProfileInformation::addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const
+void QtKitInformation::addToEnvironment(const ProjectExplorer::Kit *p, Utils::Environment &env) const
 {
     BaseQtVersion *version = qtVersion(p);
     if (version)
         version->addToEnvironment(p, env);
 }
 
-int QtProfileInformation::qtVersionId(const ProjectExplorer::Profile *p)
+int QtKitInformation::qtVersionId(const ProjectExplorer::Kit *p)
 {
     if (!p)
         return -1;
@@ -129,17 +128,17 @@ int QtProfileInformation::qtVersionId(const ProjectExplorer::Profile *p)
     return id;
 }
 
-void QtProfileInformation::setQtVersionId(ProjectExplorer::Profile *p, const int id)
+void QtKitInformation::setQtVersionId(ProjectExplorer::Kit *p, const int id)
 {
     p->setValue(Core::Id(Internal::QT_INFORMATION), id);
 }
 
-BaseQtVersion *QtProfileInformation::qtVersion(const ProjectExplorer::Profile *p)
+BaseQtVersion *QtKitInformation::qtVersion(const ProjectExplorer::Kit *p)
 {
     return QtVersionManager::instance()->version(qtVersionId(p));
 }
 
-void QtProfileInformation::setQtVersion(ProjectExplorer::Profile *p, const BaseQtVersion *v)
+void QtKitInformation::setQtVersion(ProjectExplorer::Kit *p, const BaseQtVersion *v)
 {
     if (!v)
         setQtVersionId(p, -1);
@@ -147,29 +146,29 @@ void QtProfileInformation::setQtVersion(ProjectExplorer::Profile *p, const BaseQ
         setQtVersionId(p, v->uniqueId());
 }
 
-QtTypeProfileMatcher::QtTypeProfileMatcher(const QString &type) :
+QtTypeKitMatcher::QtTypeKitMatcher(const QString &type) :
     m_type(type)
 { }
 
-bool QtTypeProfileMatcher::matches(const ProjectExplorer::Profile *p) const
+bool QtTypeKitMatcher::matches(const ProjectExplorer::Kit *p) const
 {
-    BaseQtVersion *version = QtProfileInformation::qtVersion(p);
+    BaseQtVersion *version = QtKitInformation::qtVersion(p);
     return version && version->type() == m_type;
 }
 
-QtPlatformProfileMatcher::QtPlatformProfileMatcher(const QString &platform) :
+QtPlatformKitMatcher::QtPlatformKitMatcher(const QString &platform) :
     m_platform(platform)
 { }
 
-bool QtPlatformProfileMatcher::matches(const ProjectExplorer::Profile *p) const
+bool QtPlatformKitMatcher::matches(const ProjectExplorer::Kit *p) const
 {
-    BaseQtVersion *version = QtProfileInformation::qtVersion(p);
+    BaseQtVersion *version = QtKitInformation::qtVersion(p);
     return version && version->platformName() == m_platform;
 }
 
-bool QtVersionProfileMatcher::matches(const ProjectExplorer::Profile *p) const
+bool QtVersionKitMatcher::matches(const ProjectExplorer::Kit *p) const
 {
-    BaseQtVersion *version = QtProfileInformation::qtVersion(p);
+    BaseQtVersion *version = QtKitInformation::qtVersion(p);
     if (!version)
         return false;
     QtVersionNumber current = version->qtVersion();

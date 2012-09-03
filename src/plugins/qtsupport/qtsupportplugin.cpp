@@ -32,7 +32,7 @@
 
 #include "customexecutablerunconfiguration.h"
 #include "qtoptionspage.h"
-#include "qtprofileinformation.h"
+#include "qtkitinformation.h"
 #include "qtversionmanager.h"
 
 #include "profilereader.h"
@@ -40,7 +40,7 @@
 #include "gettingstartedwelcomepage.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kitmanager.h>
 
 #include <QtPlugin>
 #include <QMenu>
@@ -83,7 +83,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 void QtSupportPlugin::extensionsInitialized()
 {
     QtVersionManager::instance()->extensionsInitialized();
-    ProjectExplorer::ProfileManager::instance()->registerProfileInformation(new QtProfileInformation);
+    ProjectExplorer::KitManager::instance()->registerKitInformation(new QtKitInformation);
 }
 
 bool QtSupportPlugin::delayedInitialize()

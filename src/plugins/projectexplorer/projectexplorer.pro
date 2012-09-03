@@ -20,15 +20,15 @@ HEADERS += projectexplorer.h \
     gcctoolchain.h \
     projectexplorer_export.h \
     projectwindow.h \
-    profile.h \
-    profilechooser.h \
-    profileconfigwidget.h \
-    profileinformation.h \
-    profileinformationconfigwidget.h \
-    profilemanager.h \
-    profilemanagerconfigwidget.h \
-    profilemodel.h \
-    profileoptionspage.h \
+    kit.h \
+    kitchooser.h \
+    kitconfigwidget.h \
+    kitinformation.h \
+    kitinformationconfigwidget.h \
+    kitmanager.h \
+    kitmanagerconfigwidget.h \
+    kitmodel.h \
+    kitoptionspage.h \
     buildmanager.h \
     buildsteplist.h \
     compileoutputwindow.h \
@@ -139,14 +139,14 @@ SOURCES += projectexplorer.cpp \
     clangparser.cpp \
     gcctoolchain.cpp \
     projectwindow.cpp \
-    profile.cpp \
-    profilechooser.cpp \
-    profileinformation.cpp \
-    profileinformationconfigwidget.cpp \
-    profilemanager.cpp \
-    profilemanagerconfigwidget.cpp \
-    profilemodel.cpp \
-    profileoptionspage.cpp \
+    kit.cpp \
+    kitchooser.cpp \
+    kitinformation.cpp \
+    kitinformationconfigwidget.cpp \
+    kitmanager.cpp \
+    kitmanagerconfigwidget.cpp \
+    kitmodel.cpp \
+    kitoptionspage.cpp \
     buildmanager.cpp \
     buildsteplist.cpp \
     compileoutputwindow.cpp \

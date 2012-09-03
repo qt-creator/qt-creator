@@ -28,46 +28,53 @@
 **
 **************************************************************************/
 
-#ifndef PROJECTEXPLORER_PROFILECHOOSER_H
-#define PROJECTEXPLORER_PROFILECHOOSER_H
+#ifndef DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
+#define DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
 
-#include "projectexplorer_export.h"
+#include <projectexplorer/kitconfigwidget.h>
 
-#include <QComboBox>
+#include <QLabel>
+#include <debuggerkitinformation.h>
 
-namespace Core { class Id; }
+namespace ProjectExplorer { class Kit; }
+namespace Utils { class PathChooser; }
 
-namespace ProjectExplorer {
+namespace Debugger {
+class DebuggerKitInformation;
 
-class Profile;
+namespace Internal {
+// -----------------------------------------------------------------------
+// DebuggerKitConfigWidget:
+// -----------------------------------------------------------------------
 
-// Let the user pick a profile.
-class PROJECTEXPLORER_EXPORT ProfileChooser : public QComboBox
+class DebuggerKitConfigWidget : public ProjectExplorer::KitConfigWidget
 {
     Q_OBJECT
 
 public:
-    enum Flags {
-        HostAbiOnly = 0x1,
-        IncludeInvalidProfiles = 0x2,
-        HasDebugger = 0x4,
-        RemoteDebugging = IncludeInvalidProfiles | HasDebugger,
-        LocalDebugging = RemoteDebugging | HostAbiOnly
-    };
+    DebuggerKitConfigWidget(ProjectExplorer::Kit *p,
+                            const DebuggerKitInformation *ki,
+                            QWidget *parent = 0);
 
-    explicit ProfileChooser(QWidget *parent, unsigned flags = 0);
+    QString displayName() const;
 
-    void setCurrentProfileId(Core::Id id);
-    Core::Id currentProfileId() const;
+    void makeReadOnly();
 
-    Profile *currentProfile() const;
+    void apply();
+    void discard();
+    bool isDirty() const;
+    QWidget *buttonWidget() const;
+
+private slots:
+    void autoDetectDebugger();
 
 private:
-    Q_SLOT void onCurrentIndexChanged(int index);
-    void populate(unsigned flags);
-    Profile *profileAt(int index) const;
+    ProjectExplorer::Kit *m_kit;
+    const DebuggerKitInformation *m_info;
+    Utils::PathChooser *m_chooser;
 };
 
-} // namespace ProjectExplorer
+} // namespace Internal
+} // namespace Debugger
 
-#endif // PROJECTEXPLORER_PROFILECHOOSER_H
+#endif // DEBUGGER_DEBUGGERKITINFORMATION_H

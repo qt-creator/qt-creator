@@ -39,7 +39,7 @@
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -99,7 +99,7 @@ void QmlProjectRunConfiguration::ctor()
     connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeCurrentFile(Core::IEditor*)));
 
-    connect(target(), SIGNAL(profileChanged()),
+    connect(target(), SIGNAL(kitChanged()),
             this, SLOT(updateEnabled()));
 
     if (id() == Constants::QML_SCENE_RC_ID)
@@ -180,7 +180,7 @@ QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
 
 QtSupport::BaseQtVersion *QmlProjectRunConfiguration::qtVersion() const
 {
-    return QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    return QtSupport::QtKitInformation::qtVersion(target()->kit());
 }
 
 QWidget *QmlProjectRunConfiguration::createConfigurationWidget()

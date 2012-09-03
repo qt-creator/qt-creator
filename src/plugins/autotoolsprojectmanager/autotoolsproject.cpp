@@ -44,8 +44,8 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildenvironmentwidget.h>
-#include <projectexplorer/profilemanager.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -158,9 +158,9 @@ bool AutotoolsProject::fromMap(const QVariantMap &map)
     // Load the project tree structure.
     loadProjectTree();
 
-    Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
-    if (!activeTarget() && defaultProfile)
-        addTarget(createTarget(defaultProfile));
+    Kit *defaultKit = KitManager::instance()->defaultKit();
+    if (!activeTarget() && defaultKit)
+        addTarget(createTarget(defaultKit));
 
     return true;
 }
@@ -418,7 +418,7 @@ void AutotoolsProject::updateCppCodeModel()
     QByteArray macros;
 
     if (activeTarget()) {
-        ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(activeTarget()->profile());
+        ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(activeTarget()->kit());
         if (tc) {
             const QList<HeaderPath> allHeaderPaths = tc->systemHeaderPaths();
             foreach (const HeaderPath &headerPath, allHeaderPaths) {

@@ -36,7 +36,7 @@
 
 #include <debugger/debuggerconstants.h>
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -77,7 +77,7 @@ void MaemoRunConfiguration::init()
         SLOT(handleRemoteMountsChanged()));
     connect(m_remoteMounts, SIGNAL(modelReset()), SLOT(handleRemoteMountsChanged()));
 
-    if (DeviceTypeProfileInformation::deviceTypeId(target()->profile()) != HarmattanOsType)
+    if (DeviceTypeKitInformation::deviceTypeId(target()->kit()) != HarmattanOsType)
         debuggerAspect()->suppressQmlDebuggingOptions();
 }
 
@@ -119,7 +119,7 @@ QString MaemoRunConfiguration::environmentPreparationCommand() const
 
 QString MaemoRunConfiguration::commandPrefix() const
 {
-    IDevice::ConstPtr dev = DeviceProfileInformation::device(target()->profile());
+    IDevice::ConstPtr dev = DeviceKitInformation::device(target()->kit());
     if (!dev)
         return QString();
 
@@ -130,13 +130,13 @@ QString MaemoRunConfiguration::commandPrefix() const
 
 Utils::PortList MaemoRunConfiguration::freePorts() const
 {
-    return MaemoGlobal::freePorts(target()->profile());
+    return MaemoGlobal::freePorts(target()->kit());
 }
 
 bool MaemoRunConfiguration::hasEnoughFreePorts(RunMode mode) const
 {
     const int freePortCount = freePorts().count();
-    Core::Id typeId = DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    Core::Id typeId = DeviceTypeKitInformation::deviceTypeId(target()->kit());
     const bool remoteMountsAllowed = MaddeDevice::allowsRemoteMounts(typeId);
     const int mountDirCount = remoteMountsAllowed
         ? remoteMounts()->validMountSpecificationCount() : 0;

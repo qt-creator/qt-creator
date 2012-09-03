@@ -28,17 +28,17 @@
 **
 **************************************************************************/
 
-#include "profilechooser.h"
+#include "kitchooser.h"
 
-#include "profileinformation.h"
-#include "profilemanager.h"
+#include "kitinformation.h"
+#include "kitmanager.h"
 #include "abi.h"
 
 #include <utils/qtcassert.h>
 
 namespace ProjectExplorer {
 
-ProfileChooser::ProfileChooser(QWidget *parent, unsigned flags) :
+KitChooser::KitChooser(QWidget *parent, unsigned flags) :
     QComboBox(parent)
 {
     populate(flags);
@@ -46,64 +46,64 @@ ProfileChooser::ProfileChooser(QWidget *parent, unsigned flags) :
     connect(this, SIGNAL(currentIndexChanged(int)), SLOT(onCurrentIndexChanged(int)));
 }
 
-void ProfileChooser::onCurrentIndexChanged(int index)
+void KitChooser::onCurrentIndexChanged(int index)
 {
-    if (Profile *profile = profileAt(index))
-        setToolTip(profile->toHtml());
+    if (Kit *kit = kitAt(index))
+        setToolTip(kit->toHtml());
     else
         setToolTip(QString());
 }
 
-void ProfileChooser::populate(unsigned flags)
+void KitChooser::populate(unsigned flags)
 {
     clear();
     const Abi hostAbi = Abi::hostAbi();
-    foreach (Profile *profile, ProfileManager::instance()->profiles()) {
-        if (!profile->isValid() && !(flags & IncludeInvalidProfiles))
+    foreach (Kit *kit, KitManager::instance()->kits()) {
+        if (!kit->isValid() && !(flags & IncludeInvalidKits))
             continue;
-        ToolChain *tc = ToolChainProfileInformation::toolChain(profile);
+        ToolChain *tc = ToolChainKitInformation::toolChain(kit);
         if (!tc)
             continue;
         const Abi abi = tc->targetAbi();
         if ((flags & HostAbiOnly) && hostAbi.os() != abi.os())
             continue;
-        const QString debuggerCommand = profile->value(Core::Id("Debugger.Information")).toString();
+        const QString debuggerCommand = kit->value(Core::Id("Debugger.Information")).toString();
         if ((flags & HasDebugger) && debuggerCommand.isEmpty())
             continue;
         const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();
-        const QString name = tr("%1 (%2)").arg(profile->displayName(), completeBase);
-        addItem(name, qVariantFromValue(profile->id()));
-        setItemData(count() - 1, profile->toHtml(), Qt::ToolTipRole);
+        const QString name = tr("%1 (%2)").arg(kit->displayName(), completeBase);
+        addItem(name, qVariantFromValue(kit->id()));
+        setItemData(count() - 1, kit->toHtml(), Qt::ToolTipRole);
     }
     setEnabled(count() > 1);
 }
 
-Profile *ProfileChooser::currentProfile() const
+Kit *KitChooser::currentKit() const
 {
     const int index = currentIndex();
-    return index == -1 ? 0 : profileAt(index);
+    return index == -1 ? 0 : kitAt(index);
 }
 
-void ProfileChooser::setCurrentProfileId(Core::Id id)
+void KitChooser::setCurrentKitId(Core::Id id)
 {
     for (int i = 0, n = count(); i != n; ++i) {
-        if (profileAt(i)->id() == id) {
+        if (kitAt(i)->id() == id) {
             setCurrentIndex(i);
             break;
         }
     }
 }
 
-Core::Id ProfileChooser::currentProfileId() const
+Core::Id KitChooser::currentKitId() const
 {
-    Profile *profile = currentProfile();
-    return profile ? profile->id() : Core::Id();
+    Kit *kit = currentKit();
+    return kit ? kit->id() : Core::Id();
 }
 
-Profile *ProfileChooser::profileAt(int index) const
+Kit *KitChooser::kitAt(int index) const
 {
     Core::Id id = qvariant_cast<Core::Id>(itemData(index));
-    return ProfileManager::instance()->find(id);
+    return KitManager::instance()->find(id);
 }
 
 } // namespace ProjectExplorer

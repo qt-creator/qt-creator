@@ -36,7 +36,7 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4project.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QList>
 #include <QTimer>
@@ -78,7 +78,7 @@ void DeploymentInfo::createModels()
             || !qobject_cast<RemoteLinuxDeployConfiguration *>(target->activeDeployConfiguration()))
         return;
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (!version || !version->isValid()) {
         beginResetModel();
         qDeleteAll(d->listModels);

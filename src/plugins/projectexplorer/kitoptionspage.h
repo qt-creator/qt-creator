@@ -28,49 +28,75 @@
 **
 **************************************************************************/
 
-#ifndef PROFILEMANAGERWIDGET_H
-#define PROFILEMANAGERWIDGET_H
+#ifndef KITOPTIONSPAGE_H
+#define KITOPTIONSPAGE_H
 
-#include "profileconfigwidget.h"
+#include "projectexplorer_export.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#include <QModelIndex>
 
 QT_BEGIN_NAMESPACE
-class QHBoxLayout;
-class QGridLayout;
-class QToolButton;
+class QItemSelectionModel;
+class QTreeView;
+class QPushButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class Profile;
 
-namespace Internal {
+namespace Internal { class KitModel; }
 
-class ProfileManagerConfigWidget : public ProjectExplorer::ProfileConfigWidget
+class Kit;
+class KitConfigWidget;
+class KitFactory;
+class KitManager;
+
+// --------------------------------------------------------------------------
+// KitOptionsPage:
+// --------------------------------------------------------------------------
+
+class PROJECTEXPLORER_EXPORT KitOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    explicit ProfileManagerConfigWidget(Profile *p, QWidget *parent = 0);
+    KitOptionsPage();
 
-    QString displayName() const;
-
+    QWidget *createPage(QWidget *parent);
     void apply();
-    void discard();
-    bool isDirty() const;
-    void addConfigWidget(ProjectExplorer::ProfileConfigWidget *widget);
-    void makeReadOnly();
+    void finish();
+    bool matches(const QString &) const;
+
+    void showKit(Kit *k);
 
 private slots:
-    void setIcon();
+    void kitSelectionChanged();
+    void addNewKit();
+    void cloneKit();
+    void removeKit();
+    void makeDefaultKit();
+    void updateState();
 
 private:
-    QGridLayout *m_layout;
-    QToolButton *m_iconButton;
-    QList<ProfileConfigWidget *> m_widgets;
-    Profile *m_profile;
-    QString m_iconPath;
+    QModelIndex currentIndex() const;
+
+    QTreeView *m_kitsView;
+    QPushButton *m_addButton;
+    QPushButton *m_cloneButton;
+    QPushButton *m_delButton;
+    QPushButton *m_makeDefaultButton;
+
+    QWidget *m_configWidget;
+    QString m_searchKeywords;
+
+    Internal::KitModel *m_model;
+    QItemSelectionModel *m_selectionModel;
+    QWidget *m_currentWidget;
+
+    Kit *m_toShow;
 };
 
-} // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // PROFILEMANAGERCONFIGWIDGET_H
+#endif // KITOPTIONSPAGE_H

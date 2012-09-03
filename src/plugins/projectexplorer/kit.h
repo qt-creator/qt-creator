@@ -28,8 +28,8 @@
 **
 **************************************************************************/
 
-#ifndef PROFILE_H
-#define PROFILE_H
+#ifndef KIT_H
+#define KIT_H
 
 #include "projectexplorer_export.h"
 #include "task.h"
@@ -43,21 +43,21 @@ namespace Utils { class Environment; }
 namespace ProjectExplorer {
 
 namespace Internal {
-class ProfileManagerPrivate;
-class ProfilePrivate;
+class KitManagerPrivate;
+class KitPrivate;
 } // namespace Internal
 
 /**
- * @brief The Profile class
+ * @brief The Kit class
  *
- * The profile holds a set of values defining a system targeted by the software
+ * The kit holds a set of values defining a system targeted by the software
  * under development.
  */
-class PROJECTEXPLORER_EXPORT Profile
+class PROJECTEXPLORER_EXPORT Kit
 {
 public:
-    Profile();
-    ~Profile();
+    Kit();
+    ~Kit();
 
     bool isValid() const;
     QList<Task> validate();
@@ -77,34 +77,34 @@ public:
     void setValue(const Core::Id &key, const QVariant &value);
     void removeKey(const Core::Id &key);
 
-    bool operator==(const Profile &other) const;
+    bool operator==(const Kit &other) const;
 
     void addToEnvironment(Utils::Environment &env) const;
 
     QString toHtml();
-    Profile *clone(bool keepName = false) const;
+    Kit *clone(bool keepName = false) const;
 
 private:
     // Unimplemented.
-    Profile(const Profile &other);
-    void operator=(const Profile &other);
+    Kit(const Kit &other);
+    void operator=(const Kit &other);
 
     void setAutoDetected(bool detected);
     void setValid(bool valid);
 
-    void profileUpdated();
+    void kitUpdated();
 
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &value);
 
-    Internal::ProfilePrivate *d;
+    Internal::KitPrivate *d;
 
-    friend class ProfileManager;
-    friend class Internal::ProfileManagerPrivate;
+    friend class KitManager;
+    friend class Internal::KitManagerPrivate;
 };
 
 } // namespace ProjectExplorer
 
-Q_DECLARE_METATYPE(ProjectExplorer::Profile *)
+Q_DECLARE_METATYPE(ProjectExplorer::Kit *)
 
-#endif // PROFILE_H
+#endif // KIT_H

@@ -35,7 +35,7 @@
 #include "qt4projectmanager.h"
 #include <projectexplorer/target.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 
 using namespace Qt4ProjectManager;
 using namespace Internal;
@@ -55,10 +55,10 @@ QString Qt4UiCodeModelSupport::uicCommand() const
 {
     QtSupport::BaseQtVersion *version;
     if (m_project->needsConfiguration()) {
-        version = QtSupport::QtProfileInformation::qtVersion(ProjectExplorer::ProfileManager::instance()->defaultProfile());
+        version = QtSupport::QtKitInformation::qtVersion(ProjectExplorer::KitManager::instance()->defaultKit());
     } else {
         ProjectExplorer::Target *target = m_project->activeTarget();
-        version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+        version = QtSupport::QtKitInformation::qtVersion(target->kit());
     }
     return version ? version->uicCommand() : QString();
 }

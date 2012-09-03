@@ -31,7 +31,7 @@
 
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <remotelinux/remotelinuxrunconfiguration.h>
@@ -47,7 +47,7 @@ RemoteLinuxQmlProfilerRunner::RemoteLinuxQmlProfilerRunner(
     : AbstractQmlProfilerRunner(parent)
     , m_portsGatherer(new DeviceUsedPortsGatherer(this))
     , m_runner(new DeviceApplicationRunner(this))
-    , m_device(DeviceProfileInformation::device(runConfiguration->target()->profile()))
+    , m_device(DeviceKitInformation::device(runConfiguration->target()->kit()))
     , m_remoteExecutable(runConfiguration->remoteExecutableFilePath())
     , m_arguments(runConfiguration->arguments())
     , m_commandPrefix(runConfiguration->commandPrefix())

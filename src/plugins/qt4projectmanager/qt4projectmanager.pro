@@ -6,8 +6,8 @@ include(../../qtcreatorplugin.pri)
 include(qt4projectmanager_dependencies.pri)
 
 HEADERS += \
-    qmakeprofileinformation.h \
-    qmakeprofileconfigwidget.h \
+    qmakekitinformation.h \
+    qmakekitconfigwidget.h \
     qmakerunconfigurationfactory.h \
     qt4projectmanagerplugin.h \
     qt4projectmanager.h \
@@ -72,8 +72,8 @@ HEADERS += \
     unconfiguredprojectpanel.h
 
 SOURCES += \
-    qmakeprofileconfigwidget.cpp \
-    qmakeprofileinformation.cpp \
+    qmakekitconfigwidget.cpp \
+    qmakekitinformation.cpp \
     qmakerunconfigurationfactory.cpp \
     qt4projectmanagerplugin.cpp \
     qt4projectmanager.cpp \

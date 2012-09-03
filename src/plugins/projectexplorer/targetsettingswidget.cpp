@@ -54,9 +54,9 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
     buttonLayout->setContentsMargins(0, 0, 0, 0);
     buttonLayout->setSpacing(4);
     buttonWidget->setLayout(buttonLayout);
-    m_addButton = new QPushButton(tr("Add"), buttonWidget);
+    m_addButton = new QPushButton(tr("Add Kit"), buttonWidget);
     buttonLayout->addWidget(m_addButton);
-    m_manageButton = new QPushButton(tr("Manage ..."), buttonWidget);
+    m_manageButton = new QPushButton(tr("Manage Kits..."), buttonWidget);
     connect(m_manageButton, SIGNAL(clicked()), this, SIGNAL(manageButtonClicked()));
     buttonLayout->addWidget(m_manageButton);
     headerLayout->addWidget(buttonWidget, 0, Qt::AlignVCenter);

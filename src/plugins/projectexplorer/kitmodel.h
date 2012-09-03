@@ -28,8 +28,8 @@
 **
 **************************************************************************/
 
-#ifndef PROFILEMODEL_H
-#define PROFILEMODEL_H
+#ifndef KITMODEL_H
+#define KITMODEL_H
 
 #include "projectexplorer_export.h"
 
@@ -42,26 +42,26 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 
-class Profile;
-class ProfileConfigWidget;
-class ProfileFactory;
-class ProfileManager;
+class Kit;
+class KitConfigWidget;
+class KitFactory;
+class KitManager;
 
 namespace Internal {
 
-class ProfileNode;
+class KitNode;
 
 // --------------------------------------------------------------------------
-// ProfileModel:
+// KitModel:
 // --------------------------------------------------------------------------
 
-class ProfileModel : public QAbstractItemModel
+class KitModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit ProfileModel(QBoxLayout *parentLayout, QObject *parent = 0);
-    ~ProfileModel();
+    explicit KitModel(QBoxLayout *parentLayout, QObject *parent = 0);
+    ~KitModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -73,50 +73,50 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-    Profile *profile(const QModelIndex &);
-    QModelIndex indexOf(Profile *p) const;
+    Kit *kit(const QModelIndex &);
+    QModelIndex indexOf(Kit *k) const;
 
-    void setDefaultProfile(const QModelIndex &index);
-    bool isDefaultProfile(const QModelIndex &index);
+    void setDefaultKit(const QModelIndex &index);
+    bool isDefaultKit(const QModelIndex &index);
 
-    ProfileConfigWidget *widget(const QModelIndex &);
+    KitConfigWidget *widget(const QModelIndex &);
 
     bool isDirty() const;
-    bool isDirty(Profile *p) const;
+    bool isDirty(Kit *k) const;
 
     void apply();
 
-    void markForRemoval(Profile *p);
-    void markForAddition(Profile *p);
+    void markForRemoval(Kit *k);
+    void markForAddition(Kit *k);
 
 signals:
-    void profileStateChanged();
+    void kitStateChanged();
 
 private slots:
-    void addProfile(ProjectExplorer::Profile *p);
-    void removeProfile(ProjectExplorer::Profile *p);
-    void updateProfile(ProjectExplorer::Profile *p);
-    void changeDefaultProfile();
+    void addKit(ProjectExplorer::Kit *k);
+    void removeKit(ProjectExplorer::Kit *k);
+    void updateKit(ProjectExplorer::Kit *k);
+    void changeDefaultKit();
     void setDirty();
 
 private:
-    QModelIndex index(ProfileNode *, int column = 0) const;
-    ProfileNode *find(Profile *) const;
-    ProfileNode *createNode(ProfileNode *parent, Profile *p, bool changed);
-    void setDefaultNode(ProfileNode *node);
+    QModelIndex index(KitNode *, int column = 0) const;
+    KitNode *find(Kit *k) const;
+    KitNode *createNode(KitNode *parent, Kit *k, bool changed);
+    void setDefaultNode(KitNode *node);
 
-    ProfileNode *m_root;
-    ProfileNode *m_autoRoot;
-    ProfileNode *m_manualRoot;
+    KitNode *m_root;
+    KitNode *m_autoRoot;
+    KitNode *m_manualRoot;
 
-    QList<ProfileNode *> m_toAddList;
-    QList<ProfileNode *> m_toRemoveList;
+    QList<KitNode *> m_toAddList;
+    QList<KitNode *> m_toRemoveList;
 
     QBoxLayout *m_parentLayout;
-    ProfileNode *m_defaultNode;
+    KitNode *m_defaultNode;
 };
 
 } // namespace Internal
 } // namespace ProjectExplorer
 
-#endif // PROFILEMODEL_H
+#endif // KITMODEL_H
