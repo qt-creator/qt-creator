@@ -38,94 +38,71 @@
 
 namespace QmlDesigner {
 
-class DeclarativeWidgetViewPrivate
+void DeclarativeWidgetView::execute()
 {
-public:
-    DeclarativeWidgetViewPrivate(DeclarativeWidgetView *view)
-        : q(view), root(0), component(0) {}
-    ~DeclarativeWidgetViewPrivate() { delete root; }
-    void execute();
+    if (m_root)
+        delete m_root.data();
 
-    DeclarativeWidgetView *q;
+    if (m_component)
+        delete m_component.data();
 
-    QPointer<QWidget> root;
-    QUrl source;
-    QDeclarativeEngine engine;
-    QDeclarativeComponent *component;
-};
-
-void DeclarativeWidgetViewPrivate::execute()
-{
-    if (root) {
-        delete root;
-        root = 0;
-    }
-    if (component) {
-        delete component;
-        component = 0;
-    }
-    if (!source.isEmpty()) {
-        component = new QDeclarativeComponent(&engine, source, q);
-        if (!component->isLoading()) {
-            q->continueExecute();
+    if (!m_source.isEmpty()) {
+        m_component = new QDeclarativeComponent(&m_engine, m_source, this);
+        if (!m_component->isLoading()) {
+            continueExecute();
         } else {
-            QObject::connect(component, SIGNAL(statusChanged(QDeclarativeComponent::Status)), q, SLOT(continueExecute()));
+            connect(m_component.data(), SIGNAL(statusChanged(QDeclarativeComponent::Status)), this, SLOT(continueExecute()));
         }
     }
 }
 
 DeclarativeWidgetView::DeclarativeWidgetView(QWidget *parent) :
-    QWidget(parent), d(new DeclarativeWidgetViewPrivate(this))
+    QWidget(parent)
 {
-}
-
-DeclarativeWidgetView::~DeclarativeWidgetView()
-{
-    delete d;
 }
 
 QUrl DeclarativeWidgetView::source() const
 {
-    return d->source;
+    return m_source;
 }
 
 void DeclarativeWidgetView::setSource(const QUrl& url)
 {
-    d->source = url;
-    d->execute();
+    m_source = url;
+    execute();
 }
 
 QDeclarativeEngine* DeclarativeWidgetView::engine()
 {
-   return &d->engine;
+   return &m_engine;
 }
 
 QWidget *DeclarativeWidgetView::rootWidget() const
 {
-    return d->root;
+    return m_root.data();
 }
 
 QDeclarativeContext* DeclarativeWidgetView::rootContext()
 {
-   return d->engine.rootContext();
+   return m_engine.rootContext();
 }
 
 DeclarativeWidgetView::Status DeclarativeWidgetView::status() const
 {
-    if (!d->component)
+    if (!m_component)
         return DeclarativeWidgetView::Null;
 
-    return DeclarativeWidgetView::Status(d->component->status());
+    return DeclarativeWidgetView::Status(m_component->status());
 }
 
 
 void DeclarativeWidgetView::continueExecute()
 {
 
-    disconnect(d->component, SIGNAL(statusChanged(QDeclarativeComponent::Status)), this, SLOT(continueExecute()));
+    disconnect(m_component.data(), SIGNAL(statusChanged(QDeclarativeComponent::Status)), this, SLOT(continueExecute()));
 
-    if (d->component->isError()) {
-        QList<QDeclarativeError> errorList = d->component->errors();
+    if (m_component->isError()) {
+        QList<QDeclarativeError> errorList = m_component->errors();
         foreach (const QDeclarativeError &error, errorList) {
             qWarning() << error;
         }
@@ -133,10 +110,10 @@ void DeclarativeWidgetView::continueExecute()
         return;
     }
 
-    QObject *obj = d->component->create();
+    QObject *obj = m_component->create();
 
-    if(d->component->isError()) {
-        QList<QDeclarativeError> errorList = d->component->errors();
+    if (m_component->isError()) {
+        QList<QDeclarativeError> errorList = m_component->errors();
         foreach (const QDeclarativeError &error, errorList) {
             qWarning() << error;
         }
@@ -150,7 +127,7 @@ void DeclarativeWidgetView::continueExecute()
 
 void DeclarativeWidgetView::setRootWidget(QWidget *widget)
 {
-    if (d->root == widget)
+    if (m_root.data() == widget)
         return;
 
     window()->setAttribute(Qt::WA_OpaquePaintEvent, false);
@@ -160,10 +137,10 @@ void DeclarativeWidgetView::setRootWidget(QWidget *widget)
         widget->setVisible(true);
     }
     resize(widget->size());
-    d->root = widget;
+    m_root.reset(widget);
 
-    if (d->root) {
-        QSize initialSize = d->root->size();
+    if (m_root) {
+        QSize initialSize = m_root->size();
         if (initialSize != size()) {
             resize(initialSize);
         }

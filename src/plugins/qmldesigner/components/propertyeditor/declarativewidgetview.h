@@ -33,16 +33,15 @@
 
 #include <QWidget>
 #include <QUrl>
+#include <QDeclarativeEngine>
 
 QT_BEGIN_NAMESPACE
-class QDeclarativeEngine;
 class QDeclarativeContext;
 class QDeclarativeError;
+class QDeclarativeComponent;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
-
-class DeclarativeWidgetViewPrivate;
 
 class DeclarativeWidgetView : public QWidget
 {
@@ -51,8 +50,6 @@ class DeclarativeWidgetView : public QWidget
     Q_PROPERTY(QUrl source READ source WRITE setSource DESIGNABLE true)
 public:
     explicit DeclarativeWidgetView(QWidget *parent = 0);
-
-    virtual ~DeclarativeWidgetView();
 
     QUrl source() const;
     void setSource(const QUrl&);
@@ -69,14 +66,17 @@ signals:
     void statusChanged(DeclarativeWidgetView::Status);
 
 protected:
-    virtual void setRootWidget(QWidget *);
+    void setRootWidget(QWidget *);
+    void execute();
 
 private Q_SLOTS:
     void continueExecute();
 
 private:
-     friend class DeclarativeWidgetViewPrivate;
-     DeclarativeWidgetViewPrivate *d;
+     QScopedPointer<QWidget> m_root;
+     QUrl m_source;
+     QDeclarativeEngine m_engine;
+     QWeakPointer<QDeclarativeComponent> m_component;
 
 };
 
