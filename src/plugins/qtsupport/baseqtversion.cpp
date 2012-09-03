@@ -241,9 +241,11 @@ QString BaseQtVersion::defaultDisplayName(const QString &versionString, const Ut
                 location = QCoreApplication::translate("QtVersion", "System");
                 break;
             }
+            location = dirName;
+            // Also skip default checkouts named 'qt'. Parent dir might have descriptive name.
             if (dirName.compare(QLatin1String("bin"), Qt::CaseInsensitive)
-                && dirName.compare(QLatin1String("qtbase"), Qt::CaseInsensitive)) {
-                location = dirName;
+                && dirName.compare(QLatin1String("qtbase"), Qt::CaseInsensitive)
+                && dirName.compare(QLatin1String("qt"), Qt::CaseInsensitive)) {
                 break;
             }
         } while (dir.cdUp());
