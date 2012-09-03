@@ -31,7 +31,6 @@
 #include "targetsetuppage.h"
 #include "importwidget.h"
 
-#include "ui_targetsetuppage.h"
 #include "buildconfigurationinfo.h"
 #include "qt4buildconfiguration.h"
 #include "qt4project.h"
