@@ -577,7 +577,9 @@ IDevice::Ptr MaemoDeviceConfigWizard::device()
     device->setFreePorts(PortList::fromString(freePortsSpec));
     device->setSshParameters(sshParams);
     if (doTest) {
-        LinuxDeviceTestDialog dlg(device, new MaddeDeviceTester(this), this);
+        // Might be called after accept.
+        QWidget *parent = isVisible() ? this : static_cast<QWidget *>(0);
+        LinuxDeviceTestDialog dlg(device, new MaddeDeviceTester(this), parent);
         dlg.exec();
     }
     return device;
