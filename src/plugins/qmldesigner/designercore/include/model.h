@@ -81,7 +81,7 @@ public:
 
     virtual ~Model();
 
-    static Model *create(QString type, int major = 4, int minor = 7, Model *metaInfoPropxyModel = 0);
+    static Model *create(QString type, int major = 1, int minor = 1, Model *metaInfoPropxyModel = 0);
 
     Model *masterModel() const;
     void setMasterModel(Model *model);
