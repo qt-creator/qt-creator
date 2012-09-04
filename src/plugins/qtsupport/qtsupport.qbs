@@ -29,7 +29,8 @@ QtcPlugin {
             "PROPARSER_THREAD_SAFE",
             "PROEVALUATOR_THREAD_SAFE",
             "PROEVALUATOR_CUMULATIVE",
-            "QMAKE_BUILTIN_PRFS"
+            "QMAKE_BUILTIN_PRFS",
+            "PROEVALUATOR_SETENV"
         ])
     }
 
@@ -106,7 +107,8 @@ QtcPlugin {
         cpp.defines: [
             "QMAKE_AS_LIBRARY",
             "PROEVALUATOR_THREAD_SAFE",
-            "QMAKE_BUILTIN_PRFS"
+            "QMAKE_BUILTIN_PRFS",
+            "PROEVALUATOR_SETENV"
         ]
     }
 }
