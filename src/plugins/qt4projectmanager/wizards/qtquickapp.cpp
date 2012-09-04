@@ -45,11 +45,6 @@ namespace Internal {
 
 const QString qmldir(QLatin1String("qmldir"));
 const QString qmldir_plugin(QLatin1String("plugin"));
-const QString appViewerBaseName(QLatin1String("qmlapplicationviewer"));
-const QString appViewerPriFileName(appViewerBaseName + QLatin1String(".pri"));
-const QString appViewerCppFileName(appViewerBaseName + QLatin1String(".cpp"));
-const QString appViewerHFileName(appViewerBaseName + QLatin1String(".h"));
-const QString appViewerOriginsSubDir(appViewerBaseName + QLatin1Char('/'));
 
 QmlModule::QmlModule(const QString &uri, const QFileInfo &rootDir, const QFileInfo &qmldir,
                      bool isExternal, QtQuickApp *qtQuickApp)
@@ -177,7 +172,7 @@ QString QtQuickApp::pathExtended(int fileType) const
     const QString qmlSubDir = QLatin1String("qml/")
                               + (importQmlFile ? m_mainQmlFile.dir().dirName() : projectName())
                               + QLatin1Char('/');
-    const QString appViewerTargetSubDir = appViewerOriginsSubDir;
+    const QString appViewerTargetSubDir = appViewerOriginSubDir();
 
     const QString mainQmlFile = QLatin1String("main.qml");
     const QString mainPageQmlFile = QLatin1String("MainPage.qml");
@@ -196,12 +191,12 @@ QString QtQuickApp::pathExtended(int fileType) const
         case MainQmlOrigin:                 return qmlOriginDir + mainQmlFile;
         case MainPageQml:                   return pathBase + qmlSubDir + mainPageQmlFile;
         case MainPageQmlOrigin:             return qmlOriginDir + mainPageQmlFile;
-        case AppViewerPri:                  return pathBase + appViewerTargetSubDir + appViewerPriFileName;
-        case AppViewerPriOrigin:            return originsRoot() + appViewerOriginsSubDir + appViewerPriFileName;
-        case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + appViewerCppFileName;
-        case AppViewerCppOrigin:            return originsRoot() + appViewerOriginsSubDir + appViewerCppFileName;
-        case AppViewerH:                    return pathBase + appViewerTargetSubDir + appViewerHFileName;
-        case AppViewerHOrigin:              return originsRoot() + appViewerOriginsSubDir + appViewerHFileName;
+        case AppViewerPri:                  return pathBase + appViewerTargetSubDir + fileName(AppViewerPri);
+        case AppViewerPriOrigin:            return originsRoot() + appViewerOriginSubDir() + fileName(AppViewerPri);
+        case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + fileName(AppViewerCpp);
+        case AppViewerCppOrigin:            return originsRoot() + appViewerOriginSubDir() + fileName(AppViewerCpp);
+        case AppViewerH:                    return pathBase + appViewerTargetSubDir + fileName(AppViewerH);
+        case AppViewerHOrigin:              return originsRoot() + appViewerOriginSubDir() + fileName(AppViewerH);
         case QmlDir:                        return pathBase + qmlSubDir;
         case QmlDirProFileRelative:         return importQmlFile ? appProFilePath.relativeFilePath(m_mainQmlFile.canonicalPath())
                                                                  : QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
@@ -213,7 +208,8 @@ QString QtQuickApp::pathExtended(int fileType) const
 
 QString QtQuickApp::originsRoot() const
 {
-    return templatesRoot() + QLatin1String("qtquickapp/");
+    const bool isQtQuick2 = m_componentSet == QtQuick20Components;
+    return templatesRoot() + QLatin1String(isQtQuick2 ? "qtquick2app/" : "qtquickapp/");
 }
 
 QString QtQuickApp::mainWindowClassName() const
@@ -370,6 +366,27 @@ const QList<QmlModule*> QtQuickApp::modules() const
     return m_modules;
 }
 
+QString QtQuickApp::appViewerBaseName() const
+{
+    return QLatin1String(m_componentSet == QtQuick20Components ?
+                             "qtquick2applicationviewer" : "qmlapplicationviewer");
+}
+
+QString QtQuickApp::fileName(QtQuickApp::ExtendedFileType type) const
+{
+    switch (type) {
+        case AppViewerPri:      return appViewerBaseName() + QLatin1String(".pri");
+        case AppViewerH:        return appViewerBaseName() + QLatin1String(".h");
+        case AppViewerCpp:      return appViewerBaseName() + QLatin1String(".cpp");
+        default:                return QString();
+    }
+}
+
+QString QtQuickApp::appViewerOriginSubDir() const
+{
+    return appViewerBaseName() + QLatin1Char('/');
+}
+
 QByteArray QtQuickApp::generateFileExtended(int fileType,
     bool *versionAndCheckSum, QString *comment, QString *errorMessage) const
 {
@@ -402,7 +419,7 @@ QByteArray QtQuickApp::generateFileExtended(int fileType,
 
 int QtQuickApp::stubVersionMinor() const
 {
-    return StubVersion;
+    return m_componentSet == QtQuick20Components ? 1 : 22;
 }
 
 QList<AbstractGeneratedFileInfo> QtQuickApp::updateableFiles(const QString &mainProFile) const
@@ -412,21 +429,21 @@ QList<AbstractGeneratedFileInfo> QtQuickApp::updateableFiles(const QString &main
         int fileType;
         QString fileName;
     } files[] = {
-        {QtQuickAppGeneratedFileInfo::AppViewerPriFile, appViewerPriFileName},
-        {QtQuickAppGeneratedFileInfo::AppViewerHFile, appViewerHFileName},
-        {QtQuickAppGeneratedFileInfo::AppViewerCppFile, appViewerCppFileName}
+        {QtQuickAppGeneratedFileInfo::AppViewerPriFile, fileName(AppViewerPri)},
+        {QtQuickAppGeneratedFileInfo::AppViewerHFile, fileName(AppViewerH)},
+        {QtQuickAppGeneratedFileInfo::AppViewerCppFile, fileName(AppViewerCpp)}
     };
     const QFileInfo mainProFileInfo(mainProFile);
     const int size = sizeof(files) / sizeof(files[0]);
     for (int i = 0; i < size; ++i) {
         const QString fileName = mainProFileInfo.dir().absolutePath()
-                + QLatin1Char('/') + appViewerOriginsSubDir + files[i].fileName;
+                + QLatin1Char('/') + appViewerOriginSubDir() + files[i].fileName;
         if (!QFile::exists(fileName))
             continue;
         QtQuickAppGeneratedFileInfo file;
         file.fileType = files[i].fileType;
         file.fileInfo = QFileInfo(fileName);
-        file.currentVersion = AbstractMobileApp::makeStubVersion(QtQuickApp::StubVersion);
+        file.currentVersion = AbstractMobileApp::makeStubVersion(stubVersionMinor());
         result.append(file);
     }
     if (result.count() != size)
@@ -449,13 +466,13 @@ QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
     switch (componentSet) {
     case Meego10Components:
         return QLatin1String("meego10");
+    case QtQuick20Components:
+        return QLatin1String("qtquick20");
     case QtQuick10Components:
     default:
         return QLatin1String("qtquick10");
     }
 }
-
-const int QtQuickApp::StubVersion = 22;
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

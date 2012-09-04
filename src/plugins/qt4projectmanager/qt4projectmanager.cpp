@@ -265,7 +265,9 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName, QStri
         }
     }
 
-    const QtQuickApp qtQuickApp;
+    QtQuickApp qtQuickApp;
+    updateBoilerPlateCodeFiles(&qtQuickApp, canonicalFilePath);
+    qtQuickApp.setComponentSet(QtQuickApp::QtQuick20Components);
     updateBoilerPlateCodeFiles(&qtQuickApp, canonicalFilePath);
     const Html5App html5App;
     updateBoilerPlateCodeFiles(&html5App, canonicalFilePath);

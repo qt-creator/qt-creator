@@ -115,7 +115,8 @@ public:
 
     enum ComponentSet {
         QtQuick10Components,
-        Meego10Components
+        Meego10Components,
+        QtQuick20Components
     };
 
     QtQuickApp();
@@ -137,6 +138,11 @@ public:
     const QList<QmlModule*> modules() const;
 
     static const int StubVersion;
+
+protected:
+    virtual QString appViewerBaseName() const;
+    QString fileName(ExtendedFileType type) const;
+    QString appViewerOriginSubDir() const;
 
 private:
     virtual QByteArray generateFileExtended(int fileType,
