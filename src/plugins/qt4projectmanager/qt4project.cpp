@@ -944,7 +944,7 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
             env = bc->environment();
             if (bc->qmakeStep()) {
                 qmakeArgs = bc->qmakeStep()->parserArguments();
-                m_qmakeGlobals->qmakespec = bc->qmakeStep()->mkspec().toString();
+                m_qmakeGlobals->qmakespec = m_qmakeGlobals->xqmakespec = bc->qmakeStep()->mkspec().toString();
             } else {
                 qmakeArgs = bc->configCommandLineArguments();
             }
