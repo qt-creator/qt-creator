@@ -181,7 +181,7 @@ void tst_TestCore::loadEmptyCoreModel()
     textEdit2.setPlainText("import QtQuick 1.1; Item{}");
     NotIndentingTextEditModifier modifier2(&textEdit2);
 
-    QScopedPointer<Model> model2(Model::create("QtQuick.item"));
+    QScopedPointer<Model> model2(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
     testRewriterView2->setTextModifier(&modifier2);
@@ -343,7 +343,7 @@ void tst_TestCore::loadAttributesInCoreModel()
     textEdit2.setPlainText("import QtQuick 1.1; Item{}");
     NotIndentingTextEditModifier modifier2(&textEdit2);
 
-    QScopedPointer<Model> model2(Model::create("QtQuick.item"));
+    QScopedPointer<Model> model2(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
     testRewriterView2->setTextModifier(&modifier2);
