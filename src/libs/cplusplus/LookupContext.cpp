@@ -88,7 +88,9 @@ static void path_helper(Symbol *symbol, QList<const Name *> *names)
     }
 }
 
-static bool compareName(const Name *name, const Name *other)
+namespace CPlusPlus {
+
+bool compareName(const Name *name, const Name *other)
 {
     if (name == other)
         return true;
@@ -103,8 +105,6 @@ static bool compareName(const Name *name, const Name *other)
 
     return false;
 }
-
-namespace CPlusPlus {
 
 bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<const Name *> &other)
 {

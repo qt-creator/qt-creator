@@ -252,6 +252,7 @@ private:
     QSharedPointer<Control> _control;
 };
 
+bool CPLUSPLUS_EXPORT compareName(const Name *name, const Name *other);
 bool CPLUSPLUS_EXPORT compareFullyQualifiedName(const QList<const Name *> &path,
                                                 const QList<const Name *> &other);
 

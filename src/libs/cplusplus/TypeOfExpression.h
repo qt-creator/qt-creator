@@ -122,15 +122,13 @@ public:
     Scope *scope() const;
 
     ExpressionAST *expressionAST() const;
+    QByteArray preprocessedExpression(const QByteArray &utf8code) const;
 
 private:
-    ExpressionAST *extractExpressionAST(Document::Ptr doc) const;
-    Document::Ptr documentForExpression(const QByteArray &utf8code) const;
 
     void processEnvironment(Document::Ptr doc, Environment *env,
                             QSet<QString> *processed) const;
 
-    QByteArray preprocessedExpression(const QByteArray &utf8code) const;
 
 private:
     Document::Ptr m_thisDocument;
@@ -141,6 +139,9 @@ private:
     LookupContext m_lookupContext;
     mutable QSharedPointer<Environment> m_environment;
 };
+
+ExpressionAST CPLUSPLUS_EXPORT *extractExpressionAST(Document::Ptr doc);
+Document::Ptr CPLUSPLUS_EXPORT documentForExpression(const QByteArray &utf8code);
 
 } // namespace CPlusPlus
 
