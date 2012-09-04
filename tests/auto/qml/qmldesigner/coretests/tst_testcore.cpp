@@ -152,7 +152,7 @@ void tst_TestCore::cleanupTestCase()
 
 void tst_TestCore::testModelCreateCoreModel()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> testView(new TestView(model.data()));
@@ -171,7 +171,7 @@ void tst_TestCore::loadEmptyCoreModel()
     textEdit1.setPlainText(file.readAll());
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -181,7 +181,7 @@ void tst_TestCore::loadEmptyCoreModel()
     textEdit2.setPlainText("import Qt 4.7; Item{}");
     NotIndentingTextEditModifier modifier2(&textEdit2);
 
-    QScopedPointer<Model> model2(Model::create("Qt/item"));
+    QScopedPointer<Model> model2(Model::create("QtQuick.item"));
 
     QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
     testRewriterView2->setTextModifier(&modifier2);
@@ -197,7 +197,7 @@ void tst_TestCore::testRewriterView()
         textEdit.setPlainText("import Qt 4.7;\n\nItem {\n}\n");
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Item"));
+        QScopedPointer<Model> model(Model::create("QtQuick.Item"));
         QVERIFY(model.data());
 
         QScopedPointer<TestView> view(new TestView(model.data()));
@@ -210,15 +210,15 @@ void tst_TestCore::testRewriterView()
         testRewriterView->setTextModifier(&textModifier);
         model->attachView(testRewriterView.data());
 
-        ModelNode childNode(addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data"));
+        ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data"));
         QVERIFY(childNode.isValid());
         childNode.setId("childNode");
 
-        ModelNode childNode2(addNodeListChild(childNode, "Qt/Rectangle", 4, 7, "data"));
+        ModelNode childNode2(addNodeListChild(childNode, "QtQuick.Rectangle", 4, 7, "data"));
         childNode2.setId("childNode2");
-        ModelNode childNode3(addNodeListChild(childNode2, "Qt/Rectangle", 4, 7, "data"));
+        ModelNode childNode3(addNodeListChild(childNode2, "QtQuick.Rectangle", 4, 7, "data"));
         childNode3.setId("childNode3");
-        ModelNode childNode4(addNodeListChild(childNode3, "Qt/Rectangle", 4, 7, "data"));
+        ModelNode childNode4(addNodeListChild(childNode3, "QtQuick.Rectangle", 4, 7, "data"));
         childNode4.setId("childNode4");
 
         QVERIFY(childNode.isValid());
@@ -244,7 +244,7 @@ void tst_TestCore::testRewriterView()
 
         testRewriterView->modelToTextMerger()->applyChanges();
 
-        childNode = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+        childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
         QVERIFY(testRewriterView->modelToTextMerger()->isNodeScheduledForAddition(childNode));
 
         testRewriterView->modelToTextMerger()->applyChanges();
@@ -267,7 +267,7 @@ void tst_TestCore::testRewriterErrors()
     textEdit.setPlainText("import Qt 4.7;\n\nItem {\n}\n");
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -298,7 +298,7 @@ void tst_TestCore::saveEmptyCoreModel()
     textEdit1.setPlainText(file.readAll());
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -313,7 +313,7 @@ void tst_TestCore::saveEmptyCoreModel()
     textEdit2.setPlainText("import Qt 4.7; Item{}");
     NotIndentingTextEditModifier modifier2(&textEdit2);
 
-    QScopedPointer<Model> model2(Model::create("Qt/item"));
+    QScopedPointer<Model> model2(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
     testRewriterView2->setTextModifier(&modifier2);
@@ -333,7 +333,7 @@ void tst_TestCore::loadAttributesInCoreModel()
     textEdit1.setPlainText(file.readAll());
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -343,7 +343,7 @@ void tst_TestCore::loadAttributesInCoreModel()
     textEdit2.setPlainText("import Qt 4.7; Item{}");
     NotIndentingTextEditModifier modifier2(&textEdit2);
 
-    QScopedPointer<Model> model2(Model::create("Qt/item"));
+    QScopedPointer<Model> model2(Model::create("QtQuick.item"));
 
     QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
     testRewriterView2->setTextModifier(&modifier2);
@@ -368,7 +368,7 @@ void tst_TestCore::saveAttributesInCoreModel()
     textEdit1.setPlainText(file.readAll());
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -384,7 +384,7 @@ void tst_TestCore::saveAttributesInCoreModel()
     textEdit2.setPlainText(buffer.data());
     NotIndentingTextEditModifier modifier2(&textEdit2);
 
-    QScopedPointer<Model> model2(Model::create("Qt/Item"));
+    QScopedPointer<Model> model2(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
     testRewriterView2->setTextModifier(&modifier2);
@@ -399,7 +399,7 @@ void tst_TestCore::testModelCreateRect()
 {
      try {
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -407,7 +407,7 @@ void tst_TestCore::testModelCreateRect()
     model->attachView(view.data());
 
     QVERIFY(view->rootModelNode().isValid());
-    ModelNode childNode = addNodeListChild(view->rootModelNode(), "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(childNode.isValid());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
     QVERIFY(childNode.parentProperty().parentModelNode() == view->rootModelNode());
@@ -462,7 +462,7 @@ void tst_TestCore::testRewriterDynamicProperties()
     textEdit1.setPlainText(qmlString);
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -555,7 +555,7 @@ void tst_TestCore::testRewriterDynamicProperties()
 //    textEdit2.setPlainText("import Qt 4.7; Item{}");
 //    NotIndentingTextEditModifier modifier2(&textEdit2);
 //
-//    QScopedPointer<Model> model2(Model::create("Qt/Item"));
+//    QScopedPointer<Model> model2(Model::create("QtQuick.Item"));
 //
 //    QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
 //    testRewriterView2->setTextModifier(&modifier2);
@@ -582,7 +582,7 @@ void tst_TestCore::testRewriterGroupedProperties()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier modifier1(&textEdit);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Text"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Text"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -664,7 +664,7 @@ void tst_TestCore::testRewriterPreserveOrder()
         textEdit.setPlainText(qmlString2);
         NotIndentingTextEditModifier modifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Text"));
+        QScopedPointer<Model> model(Model::create("QtQuick.Text"));
 
         QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
         testRewriterView->setTextModifier(&modifier);
@@ -677,7 +677,7 @@ void tst_TestCore::testRewriterPreserveOrder()
 
         RewriterTransaction transaction = testRewriterView->beginRewriterTransaction();
 
-        ModelNode newModelNode = testRewriterView->createModelNode("Qt/Rectangle", 4, 7);
+        ModelNode newModelNode = testRewriterView->createModelNode("QtQuick.Rectangle", 4, 7);
 
         newModelNode.setParentProperty(rootModelNode.nodeAbstractProperty("data"));
 
@@ -699,7 +699,7 @@ void tst_TestCore::testRewriterPreserveOrder()
         textEdit.setPlainText(qmlString1);
         NotIndentingTextEditModifier modifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Text"));
+        QScopedPointer<Model> model(Model::create("QtQuick.Text"));
 
         QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
         testRewriterView->setTextModifier(&modifier);
@@ -712,7 +712,7 @@ void tst_TestCore::testRewriterPreserveOrder()
 
         RewriterTransaction transaction = testRewriterView->beginRewriterTransaction();
 
-        ModelNode newModelNode = testRewriterView->createModelNode("Qt/Rectangle", 4, 7);
+        ModelNode newModelNode = testRewriterView->createModelNode("QtQuick.Rectangle", 4, 7);
 
         newModelNode.setParentProperty(rootModelNode.nodeAbstractProperty("data"));
 
@@ -753,7 +753,7 @@ void tst_TestCore::testRewriterActionCompression()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier modifier1(&textEdit);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Rectangle"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Rectangle"));
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
     testRewriterView->setTextModifier(&modifier1);
@@ -807,7 +807,7 @@ void tst_TestCore::testRewriterImports()
     textEdit.setPlainText(file.readAll());
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     model->setFileUrl(QUrl::fromLocalFile(fileName));
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -854,7 +854,7 @@ void tst_TestCore::testRewriterChangeImports()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle"));
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(0, RewriterView::Amend));
     testRewriterView->setTextModifier(&modifier);
@@ -966,7 +966,7 @@ void tst_TestCore::testRewriterForGradientMagic()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Text"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Text"));
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
     testRewriterView->setTextModifier(&modifier);
@@ -982,7 +982,7 @@ void tst_TestCore::testRewriterForGradientMagic()
     myRect.variantProperty("rotation") = QVariant(45);
     QVERIFY(myRect.isValid());
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model1.data());
 
     QScopedPointer<TestView> view1(new TestView(model1.data()));
@@ -1016,7 +1016,7 @@ void tst_TestCore::loadSubItems()
     textEdit1.setPlainText(file.readAll());
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -1034,7 +1034,7 @@ void tst_TestCore::createInvalidCoreModel()
 
 void tst_TestCore::testModelCreateSubNode()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -1046,7 +1046,7 @@ void tst_TestCore::testModelCreateSubNode()
     QCOMPARE(view->methodCalls(), expectedCalls);
 
     QVERIFY(view->rootModelNode().isValid());
-    ModelNode childNode = addNodeListChild(view->rootModelNode(), "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(childNode.isValid());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
     QVERIFY(childNode.parentProperty().parentModelNode() == view->rootModelNode());
@@ -1080,7 +1080,7 @@ void tst_TestCore::testModelCreateSubNode()
 
 void tst_TestCore::testTypicalRewriterOperations()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -1109,7 +1109,7 @@ void tst_TestCore::testTypicalRewriterOperations()
 
     QCOMPARE(rootModelNode.bindingProperty("test").expression(), QString("parent.x"));
 
-    ModelNode childNode(addNodeListChild(rootModelNode, "Qt/Rectangle", 4 ,6, "data"));
+    ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4 ,6, "data"));
     rootModelNode.nodeListProperty("test").reparentHere(childNode);
     QCOMPARE(childNode.parentProperty(), rootModelNode.nodeAbstractProperty("test"));
     QVERIFY(rootModelNode.property("test").isNodeAbstractProperty());
@@ -1168,7 +1168,7 @@ void tst_TestCore::testBasicStates()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -1177,13 +1177,13 @@ void tst_TestCore::testBasicStates()
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Item"));
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
     testRewriterView->setTextModifier(&textModifier);
 
     model->attachView(testRewriterView.data());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Rectangle"));
 
     QVERIFY(rootModelNode.hasProperty("data"));
 
@@ -1281,7 +1281,7 @@ void tst_TestCore::testBasicStates()
 void tst_TestCore::testModelBasicOperations()
 {
     QSKIP("Fix MetaInfo", SkipAll);
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -1302,8 +1302,8 @@ void tst_TestCore::testModelBasicOperations()
     QVERIFY(!rootModelNode.hasProperty("width"));
 
     QVERIFY(!rootModelNode.hasProperty("children"));
-    ModelNode childNode1(addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "children"));
-    ModelNode childNode2(addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data"));
+    ModelNode childNode1(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "children"));
+    ModelNode childNode2(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data"));
 
     QVERIFY(childNode1.isValid());
     QVERIFY(childNode2.isValid());
@@ -1341,7 +1341,7 @@ void tst_TestCore::testModelBasicOperations()
 
 void tst_TestCore::testModelResolveIds()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -1351,9 +1351,9 @@ void tst_TestCore::testModelResolveIds()
     ModelNode rootNode = view->rootModelNode();
     rootNode.setId("rootNode");
 
-    ModelNode childNode1(addNodeListChild(rootNode, "Qt/Rectangle", 4, 7, "children"));
+    ModelNode childNode1(addNodeListChild(rootNode, "QtQuick.Rectangle", 4, 7, "children"));
 
-    ModelNode childNode2(addNodeListChild(childNode1, "Qt/Rectangle", 4, 7, "children"));
+    ModelNode childNode2(addNodeListChild(childNode1, "QtQuick.Rectangle", 4, 7, "children"));
     childNode2.setId("childNode2");
     childNode2.bindingProperty("test").setExpression("parent.parent");
 
@@ -1364,7 +1364,7 @@ void tst_TestCore::testModelResolveIds()
     childNode2.bindingProperty("test").setExpression("rootNode");
     QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), rootNode);
 
-    ModelNode childNode3(addNodeListChild(childNode2, "Qt/Rectangle", 4, 7, "children"));
+    ModelNode childNode3(addNodeListChild(childNode2, "QtQuick.Rectangle", 4, 7, "children"));
     childNode3.setId("childNode3");
     childNode2.nodeProperty("front").setModelNode(childNode3);
     childNode2.bindingProperty("test").setExpression("childNode3.parent");
@@ -1399,7 +1399,7 @@ void tst_TestCore::testModelNodeListProperty()
     //
     // Test NodeListProperty API
     //
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -1417,7 +1417,7 @@ void tst_TestCore::testModelNodeListProperty()
     QVERIFY(!rootChildren.isNodeListProperty());
     QVERIFY(rootChildren.isEmpty());
 
-    ModelNode rectNode = view->createModelNode("Qt/Rectangle", 4, 7);
+    ModelNode rectNode = view->createModelNode("QtQuick.Rectangle", 4, 7);
     rootChildren.reparentHere(rectNode);
 
     //
@@ -1428,7 +1428,7 @@ void tst_TestCore::testModelNodeListProperty()
     QVERIFY(rootChildren.isNodeListProperty());
     QVERIFY(!rootChildren.isEmpty());
 
-    ModelNode mouseAreaNode = view->createModelNode("Qt/Item", 4, 7);
+    ModelNode mouseAreaNode = view->createModelNode("QtQuick.Item", 4, 7);
     NodeListProperty rectChildren = rectNode.nodeListProperty("children");
     rectChildren.reparentHere(mouseAreaNode);
 
@@ -1456,7 +1456,7 @@ void tst_TestCore::testModelNodeListProperty()
 
 void tst_TestCore::testBasicOperationsWithView()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -1487,8 +1487,8 @@ void tst_TestCore::testBasicOperationsWithView()
     QCOMPARE(rootInstance.size().width(), 10.0);
     QCOMPARE(rootInstance.size().height(), 10.0);
 
-    ModelNode childNode(addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data"));
-    ModelNode childNode2(addNodeListChild(childNode, "Qt/Rectangle", 4, 7, "data"));
+    ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data"));
+    ModelNode childNode2(addNodeListChild(childNode, "QtQuick.Rectangle", 4, 7, "data"));
     QVERIFY(childNode2.parentProperty().parentModelNode() == childNode);
 
     QVERIFY(childNode.isValid());
@@ -1522,10 +1522,10 @@ void tst_TestCore::testBasicOperationsWithView()
         QVERIFY(!childInstance2.isValid());
     }
 
-    childNode = addNodeListChild(rootModelNode, "Qt/Image", 4, 7, "data");
+    childNode = addNodeListChild(rootModelNode, "QtQuick.Image", 4, 7, "data");
     QVERIFY(childNode.isValid());
-    QCOMPARE(childNode.type(), QString("Qt/Image"));
-    childNode2 = addNodeListChild(childNode, "Qt/Rectangle", 4, 7, "data");
+    QCOMPARE(childNode.type(), QString("QtQuick.Image"));
+    childNode2 = addNodeListChild(childNode, "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(childNode2.isValid());
     childNode2.setParentProperty(rootModelNode, "data");
     QVERIFY(childNode2.isValid());
@@ -1563,7 +1563,7 @@ void tst_TestCore::testBasicOperationsWithView()
 
 void tst_TestCore::testQmlModelView()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QmlModelView *view = new TestView(model.data());
@@ -1581,7 +1581,7 @@ void tst_TestCore::testQmlModelView()
     propertyList.append(qMakePair(QString("width"), QVariant(20)));
     propertyList.append(qMakePair(QString("height"), QVariant(20)));
 
-    QmlObjectNode node1 = view->createQmlObjectNode("Qt/Rectangle", 4, 7, propertyList);
+    QmlObjectNode node1 = view->createQmlObjectNode("QtQuick.Rectangle", 4, 7, propertyList);
 
     QVERIFY(node1.isValid());
     QVERIFY(!node1.hasNodeParent());
@@ -1597,7 +1597,7 @@ void tst_TestCore::testQmlModelView()
     QVERIFY(node1.instanceParent() == view->rootQmlObjectNode());
 
 
-    QmlObjectNode node2 = view->createQmlObjectNode("Qt/Rectangle", 4, 7, propertyList);
+    QmlObjectNode node2 = view->createQmlObjectNode("QtQuick.Rectangle", 4, 7, propertyList);
 
     QVERIFY(node2.isValid());
     QVERIFY(!node2.hasNodeParent());
@@ -1625,12 +1625,12 @@ void tst_TestCore::testQmlModelView()
     QCOMPARE(node1.instanceValue("x").toInt(), 2);
 
 
-    QmlObjectNode node3 = view->createQmlObjectNode("Qt/Rectangle", 4, 7, propertyList);
-    QmlObjectNode node4 = view->createQmlObjectNode("Qt/Rectangle", 4, 7, propertyList);
-    QmlObjectNode node5 = view->createQmlObjectNode("Qt/Rectangle", 4, 7, propertyList);
-    QmlObjectNode node6 = view->createQmlObjectNode("Qt/Rectangle", 4, 7, propertyList);
-    QmlObjectNode node7 = view->createQmlObjectNode("Qt/Rectangle", 4, 7, propertyList);
-    QmlObjectNode node8 = view->createQmlObjectNode("Qt/Rectangle", 4, 7, propertyList);
+    QmlObjectNode node3 = view->createQmlObjectNode("QtQuick.Rectangle", 4, 7, propertyList);
+    QmlObjectNode node4 = view->createQmlObjectNode("QtQuick.Rectangle", 4, 7, propertyList);
+    QmlObjectNode node5 = view->createQmlObjectNode("QtQuick.Rectangle", 4, 7, propertyList);
+    QmlObjectNode node6 = view->createQmlObjectNode("QtQuick.Rectangle", 4, 7, propertyList);
+    QmlObjectNode node7 = view->createQmlObjectNode("QtQuick.Rectangle", 4, 7, propertyList);
+    QmlObjectNode node8 = view->createQmlObjectNode("QtQuick.Rectangle", 4, 7, propertyList);
 
     node3.setParentProperty(node2.nodeAbstractProperty("children"));
     node4.setParentProperty(node3.nodeAbstractProperty("children"));
@@ -1658,12 +1658,12 @@ void tst_TestCore::testQmlModelView()
 
     QCOMPARE(node2.instanceValue("x").toInt(), 10); // is this right? or should it be a invalid qvariant?
 
-    node1 = view->createQmlObjectNode("Qt/Rectangle", 4, 7, propertyList);
+    node1 = view->createQmlObjectNode("QtQuick.Rectangle", 4, 7, propertyList);
     node1.setId("node1");
 
     QCOMPARE(node2.instanceValue("x").toInt(), 20);
 
-    node3 = view->createQmlObjectNode("Qt/Rectangle", 4, 7, propertyList);
+    node3 = view->createQmlObjectNode("QtQuick.Rectangle", 4, 7, propertyList);
     node3.setParentProperty(node2.nodeAbstractProperty("children"));
     QCOMPARE(node3.instanceValue("width").toInt(), 20);
     node3.setVariantProperty("width", 0);
@@ -1685,7 +1685,7 @@ void tst_TestCore::testQmlModelView()
 
 void tst_TestCore::testModelRemoveNode()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -1698,7 +1698,7 @@ void tst_TestCore::testModelRemoveNode()
     QCOMPARE(view->rootModelNode().allDirectSubModelNodes().count(), 0);
 
 
-    ModelNode childNode = addNodeListChild(view->rootModelNode(), "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(childNode.isValid());
     QCOMPARE(view->rootModelNode().allDirectSubModelNodes().count(), 1);
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
@@ -1710,7 +1710,7 @@ void tst_TestCore::testModelRemoveNode()
         QVERIFY(childInstance.parentId() == view->rootModelNode().internalId());
     }
 
-    ModelNode subChildNode = addNodeListChild(childNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode subChildNode = addNodeListChild(childNode, "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(subChildNode.isValid());
     QCOMPARE(childNode.allDirectSubModelNodes().count(), 1);
     QVERIFY(childNode.allDirectSubModelNodes().contains(subChildNode));
@@ -1741,7 +1741,7 @@ void tst_TestCore::testModelRemoveNode()
     QVERIFY(view->rootModelNode().isValid());
 
     // delete node not in hierarchy
-    childNode = view->createModelNode("Qt/Item", 4, 7);
+    childNode = view->createModelNode("QtQuick.Item", 4, 7);
     childNode.destroy();
 
     model->detachView(nodeInstanceView);
@@ -1749,7 +1749,7 @@ void tst_TestCore::testModelRemoveNode()
 
 void tst_TestCore::reparentingNode()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
 
     QVERIFY(model.data());
 
@@ -1766,7 +1766,7 @@ void tst_TestCore::reparentingNode()
     NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
     model->attachView(nodeInstanceView);
 
-    ModelNode childNode = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
     QCOMPARE(childNode.parentProperty().parentModelNode(), rootModelNode);
     QVERIFY(rootModelNode.allDirectSubModelNodes().contains(childNode));
 
@@ -1776,7 +1776,7 @@ void tst_TestCore::reparentingNode()
         QVERIFY(childInstance.parentId() == view->rootModelNode().internalId());
     }
 
-    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/Item", 4, 7, "data");
+    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Item", 4, 7, "data");
     QCOMPARE(childNode2.parentProperty().parentModelNode(), rootModelNode);
     QVERIFY(rootModelNode.allDirectSubModelNodes().contains(childNode2));
 
@@ -1820,7 +1820,7 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
     textEdit.setPlainText("import Qt 4.7;\n\nItem {\n}\n");
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -1836,7 +1836,7 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
     view->rootModelNode().setId("rootModelNode");
     QCOMPARE(view->rootModelNode().id(), QString("rootModelNode"));
 
-    ModelNode rectNode = addNodeListChild(view->rootModelNode(), "Qt/Rectangle", 4, 7, "data");
+    ModelNode rectNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 4, 7, "data");
     rectNode.setId("rect_1");
     rectNode.variantProperty("x").setValue(20);
     rectNode.variantProperty("y").setValue(30);
@@ -1845,7 +1845,7 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
 
     RewriterTransaction transaction(view->beginRewriterTransaction());
 
-    ModelNode textNode = addNodeListChild(view->rootModelNode(), "Qt/Text", 4, 7, "data");
+    ModelNode textNode = addNodeListChild(view->rootModelNode(), "QtQuick.Text", 4, 7, "data");
     QCOMPARE(textNode.parentProperty().parentModelNode(), view->rootModelNode());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(textNode));
 
@@ -1933,7 +1933,7 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
 
 void tst_TestCore::testModelReorderSiblings()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -1946,11 +1946,11 @@ void tst_TestCore::testModelReorderSiblings()
     ModelNode rootModelNode = view->rootModelNode();
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode a = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode a = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(a.isValid());
-    ModelNode b = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode b = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(b.isValid());
-    ModelNode c = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode c = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(c.isValid());
 
     {
@@ -1984,7 +1984,7 @@ void tst_TestCore::testModelReorderSiblings()
 
 void tst_TestCore::testModelRootNode()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -1995,10 +1995,10 @@ void tst_TestCore::testModelRootNode()
         ModelNode rootModelNode = view->rootModelNode();
         QVERIFY(rootModelNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
-        ModelNode topChildNode = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+        ModelNode topChildNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
         QVERIFY(topChildNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
-        ModelNode childNode = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+        ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
         QVERIFY(childNode.isValid());
         QVERIFY(rootModelNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
@@ -2015,15 +2015,15 @@ void tst_TestCore::testModelRootNode()
 
 void tst_TestCore::reparentingNodeInModificationGroup()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    ModelNode childNode = addNodeListChild(view->rootModelNode(), "Qt/Rectangle", 4, 7, "data");
-    ModelNode childNode2 = addNodeListChild(view->rootModelNode(), "Qt/Item", 4, 7, "data");
+    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 4, 7, "data");
+    ModelNode childNode2 = addNodeListChild(view->rootModelNode(), "QtQuick.Item", 4, 7, "data");
     childNode.variantProperty("x").setValue(10);
     childNode.variantProperty("y").setValue(10);
 
@@ -2065,7 +2065,7 @@ void tst_TestCore::reparentingNodeInModificationGroup()
 
 void tst_TestCore::testModelAddAndRemoveProperty()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2106,7 +2106,7 @@ void tst_TestCore::testModelAddAndRemoveProperty()
 
 void tst_TestCore::testModelViewNotification()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view1(new TestView(model.data()));
@@ -2128,7 +2128,7 @@ void tst_TestCore::testModelViewNotification()
     QCOMPARE(view1->methodCalls(), expectedCalls);
     QCOMPARE(view2->methodCalls(), expectedCalls);
 
-    ModelNode childNode = addNodeListChild(view2->rootModelNode(), "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode = addNodeListChild(view2->rootModelNode(), "QtQuick.Rectangle", 4, 7, "data");
     expectedCalls << TestView::MethodCall("nodeCreated", QStringList() << "");
     expectedCalls << TestView::MethodCall("nodeReparented", QStringList() << "" << "data" << "" << "PropertiesAdded");
     QCOMPARE(view1->methodCalls(), expectedCalls);
@@ -2178,7 +2178,7 @@ void tst_TestCore::testModelViewNotification()
 
 void tst_TestCore::testRewriterTransaction()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2188,7 +2188,7 @@ void tst_TestCore::testRewriterTransaction()
     RewriterTransaction transaction = view->beginRewriterTransaction();
     QVERIFY(transaction.isValid());
 
-    ModelNode childNode = addNodeListChild(view->rootModelNode(), "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(childNode.isValid());
 
     childNode.destroy();
@@ -2198,7 +2198,7 @@ void tst_TestCore::testRewriterTransaction()
         RewriterTransaction transaction2 = view->beginRewriterTransaction();
         QVERIFY(transaction2.isValid());
 
-        ModelNode childNode = addNodeListChild(view->rootModelNode(), "Qt/Rectangle", 4, 7, "data");
+        ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 4, 7, "data");
         QVERIFY(childNode.isValid());
 
         childNode.destroy();
@@ -2233,7 +2233,7 @@ void tst_TestCore::testRewriterId()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2248,11 +2248,11 @@ void tst_TestCore::testRewriterId()
 
 
     model->attachView(testRewriterView.data());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Rectangle"));
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode newNode(view->createModelNode("Qt/Rectangle", 4, 7));
+    ModelNode newNode(view->createModelNode("QtQuick.Rectangle", 4, 7));
     newNode.setId("testId");
 
     rootModelNode.nodeListProperty("data").reparentHere(newNode);
@@ -2277,7 +2277,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction1()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2286,7 +2286,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction1()
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Item"));
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
     testRewriterView->setTextModifier(&textModifier);
 
@@ -2294,12 +2294,12 @@ void tst_TestCore::testRewriterNodeReparentingTransaction1()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-    ModelNode childNode3 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-    ModelNode childNode4 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+    ModelNode childNode3 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+    ModelNode childNode4 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
 
-    ModelNode reparentNode = addNodeListChild(childNode1, "Qt/Rectangle", 4, 7, "data");
+    ModelNode reparentNode = addNodeListChild(childNode1, "QtQuick.Rectangle", 4, 7, "data");
 
     RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
@@ -2322,7 +2322,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction2()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2331,7 +2331,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction2()
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Item"));
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
     testRewriterView->setTextModifier(&textModifier);
 
@@ -2339,8 +2339,8 @@ void tst_TestCore::testRewriterNodeReparentingTransaction2()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
 
     childNode2.variantProperty("x") = 200;
     childNode2.variantProperty("y") = 50;
@@ -2388,7 +2388,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction3()
    textEdit.setPlainText(qmlString);
    NotIndentingTextEditModifier textModifier(&textEdit);
 
-   QScopedPointer<Model> model(Model::create("Qt/Item"));
+   QScopedPointer<Model> model(Model::create("QtQuick.Item"));
    QVERIFY(model.data());
 
    QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2397,7 +2397,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction3()
 
    ModelNode rootModelNode(view->rootModelNode());
    QVERIFY(rootModelNode.isValid());
-   QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
+   QCOMPARE(rootModelNode.type(), QString("QtQuick.Item"));
    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
    testRewriterView->setTextModifier(&textModifier);
 
@@ -2405,10 +2405,10 @@ void tst_TestCore::testRewriterNodeReparentingTransaction3()
 
    QVERIFY(rootModelNode.isValid());
 
-   ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-   ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-   ModelNode childNode3 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-   ModelNode childNode4 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+   ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+   ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+   ModelNode childNode3 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+   ModelNode childNode4 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
 
    RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
@@ -2438,7 +2438,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction4()
    textEdit.setPlainText(qmlString);
    NotIndentingTextEditModifier textModifier(&textEdit);
 
-   QScopedPointer<Model> model(Model::create("Qt/Item"));
+   QScopedPointer<Model> model(Model::create("QtQuick.Item"));
    QVERIFY(model.data());
 
    QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2447,7 +2447,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction4()
 
    ModelNode rootModelNode(view->rootModelNode());
    QVERIFY(rootModelNode.isValid());
-   QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
+   QCOMPARE(rootModelNode.type(), QString("QtQuick.Item"));
    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
    testRewriterView->setTextModifier(&textModifier);
 
@@ -2455,11 +2455,11 @@ void tst_TestCore::testRewriterNodeReparentingTransaction4()
 
    QVERIFY(rootModelNode.isValid());
 
-   ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-   ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-   ModelNode childNode3 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-   ModelNode childNode4 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
-   ModelNode childNode5 = addNodeListChild(childNode2, "Qt/Rectangle", 4, 7, "data");
+   ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+   ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+   ModelNode childNode3 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+   ModelNode childNode4 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
+   ModelNode childNode5 = addNodeListChild(childNode2, "QtQuick.Rectangle", 4, 7, "data");
 
    RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
@@ -2489,7 +2489,7 @@ void tst_TestCore::testRewriterAddNodeTransaction()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2498,7 +2498,7 @@ void tst_TestCore::testRewriterAddNodeTransaction()
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Item"));
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
     testRewriterView->setTextModifier(&textModifier);
 
@@ -2507,11 +2507,11 @@ void tst_TestCore::testRewriterAddNodeTransaction()
     QVERIFY(rootModelNode.isValid());
 
 
-    ModelNode childNode = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
 
     RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
-    ModelNode newNode = view->createModelNode("Qt/Rectangle", 4, 7);
+    ModelNode newNode = view->createModelNode("QtQuick.Rectangle", 4, 7);
     newNode.variantProperty("x") = 100;
     newNode.variantProperty("y") = 100;
 
@@ -2536,7 +2536,7 @@ void tst_TestCore::testRewriterComponentId()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2549,11 +2549,11 @@ void tst_TestCore::testRewriterComponentId()
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Rectangle"));
 
     ModelNode component(rootModelNode.allDirectSubModelNodes().first());
     QVERIFY(component.isValid());
-    QCOMPARE(component.type(), QString("Qt/Component"));
+    QCOMPARE(component.type(), QString("QtQuick.Component"));
     QCOMPARE(component.id(), QString("testComponent"));
 }
 
@@ -2567,7 +2567,7 @@ void tst_TestCore::testRewriterTransactionRewriter()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2576,7 +2576,7 @@ void tst_TestCore::testRewriterTransactionRewriter()
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Item"));
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
     testRewriterView->setTextModifier(&textModifier);
 
@@ -2589,7 +2589,7 @@ void tst_TestCore::testRewriterTransactionRewriter()
 
     {
         RewriterTransaction transaction = view->beginRewriterTransaction();
-        childNode1 = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+        childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
         childNode1.variantProperty("x") = 10;
         childNode1.variantProperty("y") = 10;
     }
@@ -2601,7 +2601,7 @@ void tst_TestCore::testRewriterTransactionRewriter()
 
     {
         RewriterTransaction transaction = view->beginRewriterTransaction();
-        childNode2 = addNodeListChild(childNode1, "Qt/Rectangle", 4, 7, "data");
+        childNode2 = addNodeListChild(childNode1, "QtQuick.Rectangle", 4, 7, "data");
         childNode2.destroy();
     }
 
@@ -2639,7 +2639,7 @@ void tst_TestCore::testRewriterPropertyDeclarations()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2657,7 +2657,7 @@ void tst_TestCore::testRewriterPropertyDeclarations()
     //
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Item"));
 
     QCOMPARE(rootModelNode.properties().size(), 4);
 
@@ -2701,7 +2701,7 @@ void tst_TestCore::testRewriterPropertyAliases()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2714,7 +2714,7 @@ void tst_TestCore::testRewriterPropertyAliases()
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Item"));
 
     QList<AbstractProperty> properties  = rootModelNode.properties();
     QCOMPARE(properties.size(), 0); // TODO: How to represent alias properties? As Bindings?
@@ -2761,7 +2761,7 @@ void tst_TestCore::testRewriterPositionAndOffset()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2774,7 +2774,7 @@ void tst_TestCore::testRewriterPositionAndOffset()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Rectangle"));
 
     QString string = QString(qmlString).mid(testRewriterView->nodeOffset(rootNode), testRewriterView->nodeLength(rootNode));
     const QString qmlExpected0("Rectangle {\n"
@@ -2863,7 +2863,7 @@ void tst_TestCore::testRewriterComponentTextModifier()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2876,7 +2876,7 @@ void tst_TestCore::testRewriterComponentTextModifier()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Rectangle"));
 
     ModelNode componentNode  = rootNode.allDirectSubModelNodes().last();
 
@@ -2908,14 +2908,14 @@ void tst_TestCore::testRewriterComponentTextModifier()
 
     QCOMPARE(componentTextModifier.text(), qmlExpected);
 
-    QScopedPointer<Model> componentModel(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> componentModel(Model::create("QtQuick.Item", 4, 7));
     QScopedPointer<TestRewriterView> testRewriterViewComponent(new TestRewriterView());
     testRewriterViewComponent->setTextModifier(&componentTextModifier);
     componentModel->attachView(testRewriterViewComponent.data());
 
     ModelNode componentrootNode = testRewriterViewComponent->rootModelNode();
     QVERIFY(componentrootNode.isValid());
-    QCOMPARE(componentrootNode.type(), QLatin1String("Qt/Component"));
+    QCOMPARE(componentrootNode.type(), QLatin1String("QtQuick.Component"));
 }
 
 void tst_TestCore::testRewriterPreserveType()
@@ -2933,7 +2933,7 @@ void tst_TestCore::testRewriterPreserveType()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2946,7 +2946,7 @@ void tst_TestCore::testRewriterPreserveType()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Rectangle"));
 
     ModelNode textNode = rootNode.allDirectSubModelNodes().first();
     QCOMPARE(QVariant::Bool, textNode.variantProperty("font.bold").value().type());
@@ -2955,7 +2955,7 @@ void tst_TestCore::testRewriterPreserveType()
     textNode.variantProperty("font.bold") = QVariant(true);
     textNode.variantProperty("font.pointSize") = QVariant(13.0);
 
-    ModelNode newTextNode = addNodeListChild(rootNode, "Qt/Text", 4, 7, "data");
+    ModelNode newTextNode = addNodeListChild(rootNode, "QtQuick.Text", 4, 7, "data");
 
     newTextNode.variantProperty("font.bold") = QVariant(true);
     newTextNode.variantProperty("font.pointSize") = QVariant(13.0);
@@ -2978,7 +2978,7 @@ void tst_TestCore::testRewriterForArrayMagic()
         textEdit.setPlainText(qmlString);
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+        QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
         QVERIFY(model.data());
 
         QScopedPointer<TestView> view(new TestView(model.data()));
@@ -2991,14 +2991,14 @@ void tst_TestCore::testRewriterForArrayMagic()
 
         ModelNode rootNode = view->rootModelNode();
         QVERIFY(rootNode.isValid());
-        QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+        QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
         QVERIFY(rootNode.property(QLatin1String("states")).isNodeListProperty());
 
         QmlItemNode rootItem(rootNode);
         QVERIFY(rootItem.isValid());
 
         QmlModelState state1(rootItem.states().addState("s2"));
-        QCOMPARE(state1.modelNode().type(), QString("Qt/State"));
+        QCOMPARE(state1.modelNode().type(), QString("QtQuick.State"));
 
         const QLatin1String expected("import Qt 4.7\n"
                                      "\n"
@@ -3030,7 +3030,7 @@ void tst_TestCore::testRewriterWithSignals()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3043,7 +3043,7 @@ void tst_TestCore::testRewriterWithSignals()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/TextEdit"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.TextEdit"));
 
     QmlItemNode rootItem(rootNode);
     QVERIFY(rootItem.isValid());
@@ -3073,7 +3073,7 @@ void tst_TestCore::testRewriterNodeSliding()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3086,7 +3086,7 @@ void tst_TestCore::testRewriterNodeSliding()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Rectangle"));
     QCOMPARE(rootNode.id(), QLatin1String("root"));
 
     QCOMPARE(rootNode.nodeListProperty(QLatin1String("data")).toModelNodeList().at(0).id(), QLatin1String("rectangle1"));
@@ -3113,7 +3113,7 @@ void tst_TestCore::testRewriterExceptionHandling()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Text", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Text", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3126,7 +3126,7 @@ void tst_TestCore::testRewriterExceptionHandling()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QLatin1String("Qt/Text"));
+    QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Text"));
 
     try
     {
@@ -3137,7 +3137,7 @@ void tst_TestCore::testRewriterExceptionHandling()
         QFAIL("RewritingException should be thrown");
     } catch (RewritingException &e) {
         QVERIFY(rootNode.isValid());
-        QCOMPARE(rootNode.type(), QLatin1String("Qt/Text"));
+        QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Text"));
         QVERIFY(!rootNode.hasProperty("bla"));
         QVERIFY(!rootNode.hasProperty("text"));
     }
@@ -3169,7 +3169,7 @@ void tst_TestCore::testRewriterFirstDefinitionInside()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3182,7 +3182,7 @@ void tst_TestCore::testRewriterFirstDefinitionInside()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Rectangle"));
 
     ModelNode componentNode  = rootNode.allDirectSubModelNodes().last();
 
@@ -3239,7 +3239,7 @@ void tst_TestCore::testCopyModelRewriter1()
     textEdit1.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model1.data());
 
     QScopedPointer<TestView> view1(new TestView(model1.data()));
@@ -3252,13 +3252,13 @@ void tst_TestCore::testCopyModelRewriter1()
 
     ModelNode rootNode1 = view1->rootModelNode();
     QVERIFY(rootNode1.isValid());
-    QCOMPARE(rootNode1.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode1.type(), QLatin1String("QtQuick.Rectangle"));
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier2(&textEdit2);
 
-    QScopedPointer<Model> model2(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model2(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model2.data());
 
     QScopedPointer<TestView> view2(new TestView(model2.data()));
@@ -3271,7 +3271,7 @@ void tst_TestCore::testCopyModelRewriter1()
 
     ModelNode rootNode2 = view2->rootModelNode();
     QVERIFY(rootNode2.isValid());
-    QCOMPARE(rootNode2.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode2.type(), QLatin1String("QtQuick.Rectangle"));
 
 
     //
@@ -3420,7 +3420,7 @@ void tst_TestCore::testCopyModelRewriter2()
     textEdit1.setPlainText(qmlString1);
     NotIndentingTextEditModifier textModifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model1.data());
 
     QScopedPointer<TestView> view1(new TestView(model1.data()));
@@ -3433,7 +3433,7 @@ void tst_TestCore::testCopyModelRewriter2()
 
     ModelNode rootNode1 = view1->rootModelNode();
     QVERIFY(rootNode1.isValid());
-    QCOMPARE(rootNode1.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode1.type(), QLatin1String("QtQuick.Rectangle"));
 
 
         // read in 2
@@ -3442,7 +3442,7 @@ void tst_TestCore::testCopyModelRewriter2()
     textEdit2.setPlainText(qmlString2);
     NotIndentingTextEditModifier textModifier2(&textEdit2);
 
-    QScopedPointer<Model> model2(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model2(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model2.data());
 
     QScopedPointer<TestView> view2(new TestView(model2.data()));
@@ -3454,7 +3454,7 @@ void tst_TestCore::testCopyModelRewriter2()
 
     ModelNode rootNode2 = view2->rootModelNode();
     QVERIFY(rootNode2.isValid());
-    QCOMPARE(rootNode2.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode2.type(), QLatin1String("QtQuick.Rectangle"));
 
 
     //
@@ -3463,7 +3463,7 @@ void tst_TestCore::testCopyModelRewriter2()
 
     merger.replaceModel(rootNode1);
     QVERIFY(rootNode2.isValid());
-    QCOMPARE(rootNode2.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode2.type(), QLatin1String("QtQuick.Rectangle"));
 
     QCOMPARE(textEdit2.toPlainText(), qmlString1);
 }
@@ -3478,7 +3478,7 @@ void tst_TestCore::testSubComponentManager()
     textEdit.setPlainText(file.readAll());
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     model->setFileUrl(QUrl::fromLocalFile(fileName));
     QScopedPointer<SubComponentManager> subComponentManager(new SubComponentManager(model.data()));
     subComponentManager->update(QUrl::fromLocalFile(fileName), model->imports());
@@ -3492,9 +3492,9 @@ void tst_TestCore::testSubComponentManager()
     QVERIFY(testRewriterView->rootModelNode().isValid());
 
 
-    QVERIFY(model->metaInfo("Qt/Rectangle").propertyNames().contains("border.width"));
+    QVERIFY(model->metaInfo("QtQuick.Rectangle").propertyNames().contains("border.width"));
 
-    QVERIFY(model->metaInfo("Qt/Pen").isValid());
+    QVERIFY(model->metaInfo("QtQuick.Pen").isValid());
     NodeMetaInfo myButtonMetaInfo = model->metaInfo("MyButton");
     QVERIFY(myButtonMetaInfo.isValid());
     QVERIFY(myButtonMetaInfo.propertyNames().contains("border.width"));
@@ -3526,7 +3526,7 @@ void tst_TestCore::testAnchorsAndRewriting()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3539,7 +3539,7 @@ void tst_TestCore::testAnchorsAndRewriting()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Rectangle"));
 
     QmlItemNode rootItemNode = view->rootQmlItemNode();
     QVERIFY(rootItemNode.isValid());
@@ -3587,7 +3587,7 @@ void tst_TestCore::testAnchorsAndRewritingCenter()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3600,7 +3600,7 @@ void tst_TestCore::testAnchorsAndRewritingCenter()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Rectangle"));
 
     QmlItemNode rootItemNode = view->rootQmlItemNode();
     QVERIFY(rootItemNode.isValid());
@@ -3655,7 +3655,7 @@ char qmlString[] = "import Qt 4.7\n"
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -3664,14 +3664,14 @@ char qmlString[] = "import Qt 4.7\n"
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Item"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Item"));
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
     testRewriterView->setTextModifier(&textModifier);
 
     model->attachView(testRewriterView.data());
 
     QVERIFY(rootModelNode.isValid());
-    QCOMPARE(rootModelNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Rectangle"));
     QCOMPARE(rootModelNode.id(), QString("root"));
     QCOMPARE(rootModelNode.variantProperty("width").value().toInt(), 200);
     QCOMPARE(rootModelNode.variantProperty("height").value().toInt(), 200);
@@ -3681,7 +3681,7 @@ char qmlString[] = "import Qt 4.7\n"
     QCOMPARE(rootModelNode.nodeListProperty("data").toModelNodeList().count(), 3);
     ModelNode textNode1 = rootModelNode.nodeListProperty("data").toModelNodeList().first();
     QVERIFY(textNode1.isValid());
-    QCOMPARE(textNode1.type(), QString("Qt/Text"));
+    QCOMPARE(textNode1.type(), QString("QtQuick.Text"));
     QCOMPARE(textNode1.id(), QString("text1"));
     QCOMPARE(textNode1.variantProperty("text").value().toString(), QString("Hello World"));
     QVERIFY(textNode1.hasProperty("anchors.centerIn"));
@@ -3697,13 +3697,13 @@ char qmlString[] = "import Qt 4.7\n"
 
     ModelNode rectNode = rootModelNode.nodeListProperty("data").toModelNodeList().at(1);
     QVERIFY(rectNode.isValid());
-    QCOMPARE(rectNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rectNode.type(), QString("QtQuick.Rectangle"));
     QCOMPARE(rectNode.id(), QString("rectangle"));
     QVERIFY(rectNode.hasProperty("gradient"));
     QVERIFY(rectNode.property("gradient").isNodeProperty());
     ModelNode gradientNode = rectNode.nodeProperty("gradient").modelNode();
     QVERIFY(gradientNode.isValid());
-    QCOMPARE(gradientNode.type(), QString("Qt/Gradient"));
+    QCOMPARE(gradientNode.type(), QString("QtQuick.Gradient"));
     QVERIFY(gradientNode.hasProperty("stops"));
     QVERIFY(gradientNode.property("stops").isNodeListProperty());
     QCOMPARE(gradientNode.nodeListProperty("stops").toModelNodeList().count(), 2);
@@ -3714,15 +3714,15 @@ char qmlString[] = "import Qt 4.7\n"
     QVERIFY(stop1.isValid());
     QVERIFY(stop2.isValid());
 
-    QCOMPARE(stop1.type(), QString("Qt/GradientStop"));
-    QCOMPARE(stop2.type(), QString("Qt/GradientStop"));
+    QCOMPARE(stop1.type(), QString("QtQuick.GradientStop"));
+    QCOMPARE(stop2.type(), QString("QtQuick.GradientStop"));
 
     QCOMPARE(stop1.variantProperty("position").value().toInt(), 0);
     QCOMPARE(stop2.variantProperty("position").value().toInt(), 1);
 
     ModelNode textNode2 = rootModelNode.nodeListProperty("data").toModelNodeList().last();
     QVERIFY(textNode2.isValid());
-    QCOMPARE(textNode2.type(), QString("Qt/Text"));
+    QCOMPARE(textNode2.type(), QString("QtQuick.Text"));
     QCOMPARE(textNode2.id(), QString("text2"));
     QCOMPARE(textNode2.variantProperty("width").value().toInt(), 80);
     QCOMPARE(textNode2.variantProperty("height").value().toInt(), 20);
@@ -3734,11 +3734,11 @@ char qmlString[] = "import Qt 4.7\n"
 void tst_TestCore::testMetaInfo()
 {
     QSKIP("Fix metainfo", SkipAll);
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     // test whether default type is registered
-    QVERIFY(model->metaInfo("Qt/Item", 4, 7).isValid());
+    QVERIFY(model->metaInfo("QtQuick.Item", 4, 7).isValid());
 
     // test whether types from plugins are registered
     QVERIFY(model->hasNodeMetaInfo("QtWebKit/WebView", 1, 0));
@@ -3757,17 +3757,17 @@ void tst_TestCore::testMetaInfoSimpleType()
     // qmlRegisterType<QDeclarativeItem>("Qt",4,7,"Item")
     //
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
-    QVERIFY(model->hasNodeMetaInfo("Qt/Item", 4, 7));
-    QVERIFY(model->hasNodeMetaInfo("Qt/Item", 4, 7));
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 4, 7));
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 4, 7));
 
-    NodeMetaInfo itemMetaInfo = model->metaInfo("Qt/Item", 4, 7);
-    NodeMetaInfo itemMetaInfo2 = model->metaInfo("Qt/Item", 4, 7);
+    NodeMetaInfo itemMetaInfo = model->metaInfo("QtQuick.Item", 4, 7);
+    NodeMetaInfo itemMetaInfo2 = model->metaInfo("QtQuick.Item", 4, 7);
 
     QVERIFY(itemMetaInfo.isValid());
-    QCOMPARE(itemMetaInfo.typeName(), QLatin1String("Qt/Item"));
+    QCOMPARE(itemMetaInfo.typeName(), QLatin1String("QtQuick.Item"));
     QCOMPARE(itemMetaInfo.majorVersion(), 4);
     QCOMPARE(itemMetaInfo.minorVersion(), 7);
 
@@ -3778,9 +3778,9 @@ void tst_TestCore::testMetaInfoSimpleType()
     QCOMPARE(graphicsObjectInfo.majorVersion(), -1);
     QCOMPARE(graphicsObjectInfo.minorVersion(), -1);
 
-    QCOMPARE(itemMetaInfo.superClasses().size(), 2); // QGraphicsObject, Qt/QtObject
+    QCOMPARE(itemMetaInfo.superClasses().size(), 2); // QGraphicsObject, QtQuick.QtObject
     QVERIFY(itemMetaInfo.isSubclassOf("QGraphicsObject", 4, 7));
-    QVERIFY(itemMetaInfo.isSubclassOf("Qt/QtObject", 4, 7));
+    QVERIFY(itemMetaInfo.isSubclassOf("QtQuick.QtObject", 4, 7));
 
     // availableInVersion
     QVERIFY(itemMetaInfo.availableInVersion(4, 7));
@@ -3799,21 +3799,21 @@ void tst_TestCore::testMetaInfoUncreatableType()
     // qmlRegisterUncreatableType<QDeclarativeAbstractAnimation>("Qt",4,7,"Animation",QDeclarativeAbstractAnimation::tr("Animation is an abstract class"));
     //
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
-    QVERIFY(model->hasNodeMetaInfo("Qt/Animation"));
-    NodeMetaInfo animationTypeInfo = model->metaInfo("Qt/Animation", 4, 7);
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Animation"));
+    NodeMetaInfo animationTypeInfo = model->metaInfo("QtQuick.Animation", 4, 7);
     QVERIFY(animationTypeInfo.isValid());
 
     QVERIFY(animationTypeInfo.isValid());
-    QCOMPARE(animationTypeInfo.typeName(), QLatin1String("Qt/Animation"));
+    QCOMPARE(animationTypeInfo.typeName(), QLatin1String("QtQuick.Animation"));
     QCOMPARE(animationTypeInfo.majorVersion(), 4);
     QCOMPARE(animationTypeInfo.minorVersion(), 7);
 
     NodeMetaInfo qObjectTypeInfo = animationTypeInfo.directSuperClass();
     QVERIFY(qObjectTypeInfo.isValid());
-    QCOMPARE(qObjectTypeInfo.typeName(), QLatin1String("Qt/QtObject"));
+    QCOMPARE(qObjectTypeInfo.typeName(), QLatin1String("QtQuick.QtObject"));
     QCOMPARE(qObjectTypeInfo.majorVersion(), 4);
     QCOMPARE(qObjectTypeInfo.minorVersion(), 7);
     QCOMPARE(animationTypeInfo.superClasses().size(), 1);
@@ -3827,11 +3827,11 @@ void tst_TestCore::testMetaInfoExtendedType()
     // qmlRegisterExtendedType<QGraphicsWidget,QDeclarativeGraphicsWidget>("Qt",4,7,"QGraphicsWidget");
     //
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
-    QVERIFY(model->hasNodeMetaInfo("Qt/QGraphicsWidget"));
-    NodeMetaInfo graphicsWidgetTypeInfo = model->metaInfo("Qt/QGraphicsWidget", 4, 7);
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.QGraphicsWidget"));
+    NodeMetaInfo graphicsWidgetTypeInfo = model->metaInfo("QtQuick.QGraphicsWidget", 4, 7);
     QVERIFY(graphicsWidgetTypeInfo.isValid());
     QVERIFY(graphicsWidgetTypeInfo.hasProperty("layout")); // from QGraphicsWidgetDeclarativeUI
     QVERIFY(graphicsWidgetTypeInfo.hasProperty("font")); // from QGraphicsWidget
@@ -3861,11 +3861,11 @@ void tst_TestCore::testMetaInfoCustomType()
     //
     // qmlRegisterCustomType<QDeclarativePropertyChanges>("Qt", 4, 7, "PropertyChanges", new QDeclarativePropertyChangesParser);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
-    QVERIFY(model->hasNodeMetaInfo("Qt/PropertyChanges"));
-    NodeMetaInfo propertyChangesInfo = model->metaInfo("Qt/PropertyChanges", 4, 7);
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.PropertyChanges"));
+    NodeMetaInfo propertyChangesInfo = model->metaInfo("QtQuick.PropertyChanges", 4, 7);
     QVERIFY(propertyChangesInfo.isValid());
     QVERIFY(propertyChangesInfo.hasProperty("target")); // from QDeclarativePropertyChanges
     QVERIFY(propertyChangesInfo.hasProperty("restoreEntryValues")); // from QDeclarativePropertyChanges
@@ -3886,14 +3886,14 @@ void tst_TestCore::testMetaInfoEnums()
 {
     QSKIP("Fix metainfo", SkipAll);
 
-    QScopedPointer<Model> model(Model::create("Qt/Text"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Text"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("Qt/Text"));
+    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("QtQuick.Text"));
 
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("transformOrigin"));
 
@@ -3912,14 +3912,14 @@ void tst_TestCore::testMetaInfoProperties()
 {
     QSKIP("Fix metainfo", SkipAll);
 
-    QScopedPointer<Model> model(Model::create("Qt/Text"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Text"));
     QVERIFY(model.data());
 
-    NodeMetaInfo textNodeMetaInfo = model->metaInfo("Qt/TextEdit", 4, 7);
+    NodeMetaInfo textNodeMetaInfo = model->metaInfo("QtQuick.TextEdit", 4, 7);
     QVERIFY(textNodeMetaInfo.hasProperty("text"));   // QDeclarativeTextEdit
     QVERIFY(textNodeMetaInfo.hasProperty("parent"));     // QDeclarativeItem
     QVERIFY(textNodeMetaInfo.hasProperty("x"));          // QGraphicsObject
-    QVERIFY(textNodeMetaInfo.hasProperty("objectName")); // Qt/QObject
+    QVERIFY(textNodeMetaInfo.hasProperty("objectName")); // QtQuick.QObject
     QVERIFY(!textNodeMetaInfo.hasProperty("bla"));
 
     QVERIFY(textNodeMetaInfo.propertyIsWritable("text"));
@@ -3930,18 +3930,18 @@ void tst_TestCore::testMetaInfoDotProperties()
 {
     QSKIP("Fix metainfo", SkipAll);
 
-    QScopedPointer<Model> model(Model::create("Qt/Text"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Text"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QVERIFY(model->hasNodeMetaInfo("Qt/Text"));
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Text"));
 
-    QVERIFY(model->hasNodeMetaInfo("Qt/Pen"));
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Pen"));
 
-    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("Qt/Text"));
+    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("QtQuick.Text"));
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font"));
 
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font.bold"));
@@ -3949,7 +3949,7 @@ void tst_TestCore::testMetaInfoDotProperties()
     QVERIFY(view->rootModelNode().metaInfo().propertyNames().contains("font.pointSize"));
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font.pointSize"));
 
-    ModelNode rectNode(addNodeListChild(view->rootModelNode(), "Qt/Rectangle", 4, 7, "data"));
+    ModelNode rectNode(addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 4, 7, "data"));
 
 
     QVERIFY(rectNode.metaInfo().propertyNames().contains("pos.x"));
@@ -3966,15 +3966,15 @@ void tst_TestCore::testMetaInfoListProperties()
 {
     QSKIP("Fix metainfo", SkipAll);
 
-     QScopedPointer<Model> model(Model::create("Qt/Item"));
+     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QVERIFY(model->hasNodeMetaInfo("Qt/Item"));
-    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("Qt/Item"));
+    QVERIFY(model->hasNodeMetaInfo("QtQuick.Item"));
+    QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("QtQuick.Item"));
 
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("states"));
     QVERIFY(view->rootModelNode().metaInfo().propertyIsListProperty("states"));
@@ -4001,7 +4001,7 @@ void tst_TestCore::testStatesRewriter()
     textEdit.setPlainText("import Qt 4.7; Item {}\n");
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4048,7 +4048,7 @@ void tst_TestCore::testGradientsRewriter()
     textEdit.setPlainText("\nimport Qt 4.7\n\nItem {\n}\n");
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4064,7 +4064,7 @@ void tst_TestCore::testGradientsRewriter()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode rectNode(addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data"));
+    ModelNode rectNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data"));
 
     const QLatin1String expected1("\nimport Qt 4.7\n"
                                   "\n"
@@ -4074,7 +4074,7 @@ void tst_TestCore::testGradientsRewriter()
                                   "}\n");
     QCOMPARE(textEdit.toPlainText(), expected1);
 
-    ModelNode gradientNode(addNodeChild(rectNode, "Qt/Gradient", 4, 7, "gradient"));
+    ModelNode gradientNode(addNodeChild(rectNode, "QtQuick.Gradient", 4, 7, "gradient"));
 
     QVERIFY(rectNode.hasNodeProperty("gradient"));
 
@@ -4095,7 +4095,7 @@ void tst_TestCore::testGradientsRewriter()
     propertyList.append(qMakePair(QString("position"), QVariant::fromValue(0)));
     propertyList.append(qMakePair(QString("color"), QVariant::fromValue(QColor(Qt::red))));
 
-    ModelNode gradientStop1(gradientNode.view()->createModelNode("Qt/GradientStop", 4, 7, propertyList));
+    ModelNode gradientStop1(gradientNode.view()->createModelNode("QtQuick.GradientStop", 4, 7, propertyList));
     QVERIFY(gradientStop1.isValid());
     stops.reparentHere(gradientStop1);
 
@@ -4118,7 +4118,7 @@ void tst_TestCore::testGradientsRewriter()
     propertyList.append(qMakePair(QString("position"), QVariant::fromValue(0.5)));
     propertyList.append(qMakePair(QString("color"), QVariant::fromValue(QColor(Qt::blue))));
 
-    ModelNode gradientStop2(gradientNode.view()->createModelNode("Qt/GradientStop", 4, 7, propertyList));
+    ModelNode gradientStop2(gradientNode.view()->createModelNode("QtQuick.GradientStop", 4, 7, propertyList));
     QVERIFY(gradientStop2.isValid());
     stops.reparentHere(gradientStop2);
 
@@ -4146,7 +4146,7 @@ void tst_TestCore::testGradientsRewriter()
     propertyList.append(qMakePair(QString("position"), QVariant::fromValue(0.8)));
     propertyList.append(qMakePair(QString("color"), QVariant::fromValue(QColor(Qt::yellow))));
 
-    ModelNode gradientStop3(gradientNode.view()->createModelNode("Qt/GradientStop", 4, 7, propertyList));
+    ModelNode gradientStop3(gradientNode.view()->createModelNode("QtQuick.GradientStop", 4, 7, propertyList));
     QVERIFY(gradientStop3.isValid());
     stops.reparentHere(gradientStop3);
 
@@ -4194,7 +4194,7 @@ void tst_TestCore::testGradientsRewriter()
     propertyList.append(qMakePair(QString("position"), QVariant::fromValue(0)));
     propertyList.append(qMakePair(QString("color"), QVariant::fromValue(QColor(Qt::blue))));
 
-    gradientStop1 = gradientNode.view()->createModelNode("Qt/GradientStop", 4, 7, propertyList);
+    gradientStop1 = gradientNode.view()->createModelNode("QtQuick.GradientStop", 4, 7, propertyList);
     QVERIFY(gradientStop1.isValid());
 
     stops.reparentHere(gradientStop1);
@@ -4202,7 +4202,7 @@ void tst_TestCore::testGradientsRewriter()
 
 void tst_TestCore::testQmlModelStates()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4263,7 +4263,7 @@ void tst_TestCore::testInstancesStates()
 //    }
 //
 
-//    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+//    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
 //    QVERIFY(model.data());
 //    QScopedPointer<TestView> view(new TestView(model.data()));
 //    QVERIFY(view.data());
@@ -4274,28 +4274,28 @@ void tst_TestCore::testInstancesStates()
 //    //
 //    ModelNode rootNode = view->rootModelNode();
 
-//    ModelNode textNode = view->createModelNode("Qt/Text", 4, 7);
+//    ModelNode textNode = view->createModelNode("QtQuick.Text", 4, 7);
 //    textNode.setId("targetObject");
 //    textNode.variantProperty("text").setValue("base state");
 
 //    rootNode.nodeListProperty("data").reparentHere(textNode);
 
-//    ModelNode propertyChanges1Node = view->createModelNode("Qt/PropertyChanges", 4, 7);
+//    ModelNode propertyChanges1Node = view->createModelNode("QtQuick.PropertyChanges", 4, 7);
 //    propertyChanges1Node.bindingProperty("target").setExpression("targetObject");
 //    propertyChanges1Node.variantProperty("x").setValue(10);
 //    propertyChanges1Node.variantProperty("text").setValue("state1");
 
-//    ModelNode state1Node = view->createModelNode("Qt/State", 4, 7);
+//    ModelNode state1Node = view->createModelNode("QtQuick.State", 4, 7);
 //    state1Node.variantProperty("name").setValue("state1");
 //    state1Node.nodeListProperty("changes").reparentHere(propertyChanges1Node);
 
 //    rootNode.nodeListProperty("states").reparentHere(state1Node);
 
-//    ModelNode propertyChanges2Node = view->createModelNode("Qt/PropertyChanges", 4, 7);
+//    ModelNode propertyChanges2Node = view->createModelNode("QtQuick.PropertyChanges", 4, 7);
 //    propertyChanges2Node.bindingProperty("target").setExpression("targetObject");
 //    propertyChanges2Node.variantProperty("text").setValue("state2");
 
-//    ModelNode state2Node = view->createModelNode("Qt/State", 4, 7);
+//    ModelNode state2Node = view->createModelNode("QtQuick.State", 4, 7);
 //    state2Node.variantProperty("name").setValue("state2");
 //    state2Node.nodeListProperty("changes").reparentHere(propertyChanges2Node);
 
@@ -4392,7 +4392,7 @@ void tst_TestCore::testInstancesStates()
 //    //
 
 //    // move property changes of current state out of state
-//    ModelNode state3Node = view->createModelNode("Qt/State", 4, 7);
+//    ModelNode state3Node = view->createModelNode("QtQuick.State", 4, 7);
 //    QDeclarativeListReference changes(state1, "changes");
 //    QCOMPARE(changes.count(), 1);
 //    state3Node.nodeListProperty("changes").reparentHere(propertyChanges1Node);
@@ -4415,7 +4415,7 @@ void tst_TestCore::testInstancesStates()
 //    textNode.variantProperty("text").setValue("base state");
 
 //    // expressions
-//    ModelNode textNode2 = view->createModelNode("Qt/Text", 4, 7);
+//    ModelNode textNode2 = view->createModelNode("QtQuick.Text", 4, 7);
 //    textNode2.setId("targetObject2");
 //    textNode2.variantProperty("text").setValue("textNode2");
 
@@ -4494,7 +4494,7 @@ void tst_TestCore::testStates()
 //    }
 //
 
-//    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+//    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
 //    QVERIFY(model.data());
 //    QScopedPointer<TestView> view(new TestView(model.data()));
 //    QVERIFY(view.data());
@@ -4503,7 +4503,7 @@ void tst_TestCore::testStates()
 //    // build up model
 //    ModelNode rootNode = view->rootModelNode();
 
-//    ModelNode textNode = view->createModelNode("Qt/Text", 4, 7);
+//    ModelNode textNode = view->createModelNode("QtQuick.Text", 4, 7);
 //    textNode.setId("targetObject");
 //    textNode.variantProperty("text").setValue("base state");
 
@@ -4519,7 +4519,7 @@ void tst_TestCore::testStates()
 //    QVERIFY(textItem.isValid());
 
 //    QmlModelState state1(rootItem.states().addState("state 1")); //add state "state 1"
-//    QCOMPARE(state1.modelNode().type(), QString("Qt/State"));
+//    QCOMPARE(state1.modelNode().type(), QString("QtQuick.State"));
 
 //    QVERIFY(view->currentState().isBaseState());
 
@@ -4552,7 +4552,7 @@ void tst_TestCore::testStates()
 //    QCOMPARE(changes.modelNode().variantProperty("text").value(), QVariant("state 1"));
 //    QCOMPARE(changes.modelNode().bindingProperty("target").expression(), QString("targetObject"));
 //    QCOMPARE(changes.target(), textNode);
-//    QCOMPARE(changes.modelNode().type(), QString("Qt/PropertyChanges"));
+//    QCOMPARE(changes.modelNode().type(), QString("QtQuick.PropertyChanges"));
 
 //    QCOMPARE(changes.modelNode().parentProperty().name(), QString("changes"));
 //    QCOMPARE(changes.modelNode().parentProperty().parentModelNode(), state1.modelNode());
@@ -4590,7 +4590,7 @@ void tst_TestCore::testStatesBaseState()
 //    }
 //
 
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4599,7 +4599,7 @@ void tst_TestCore::testStatesBaseState()
     // build up model
     ModelNode rootNode = view->rootModelNode();
 
-    ModelNode textNode = view->createModelNode("Qt/Text", 4, 7);
+    ModelNode textNode = view->createModelNode("QtQuick.Text", 4, 7);
     textNode.setId("targetObject");
     textNode.variantProperty("text").setValue("base state");
 
@@ -4615,7 +4615,7 @@ void tst_TestCore::testStatesBaseState()
     QVERIFY(textItem.isValid());
 
     QmlModelState state1(rootItem.states().addState("state 1")); //add state "state 1"
-    QCOMPARE(state1.modelNode().type(), QString("Qt/State"));
+    QCOMPARE(state1.modelNode().type(), QString("QtQuick.State"));
 
     QVERIFY(view->currentState().isBaseState());
 
@@ -4625,7 +4625,7 @@ void tst_TestCore::testStatesBaseState()
     QVERIFY(textItem.propertyAffectedByCurrentState("text"));
     QCOMPARE(textItem.instanceValue("text"), QVariant("state 1"));
 
-    ModelNode newNode = view->createModelNode("Qt/Rectangle", 4, 7);
+    ModelNode newNode = view->createModelNode("QtQuick.Rectangle", 4, 7);
     QVERIFY(!QmlObjectNode(newNode).currentState().isBaseState());
 
     view->setCurrentState(view->baseState()); //set currentState base state
@@ -4647,7 +4647,7 @@ void tst_TestCore::testStatesBaseState()
 
 void tst_TestCore::testInstancesIdResolution()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4671,7 +4671,7 @@ void tst_TestCore::testInstancesIdResolution()
     rootNode.variantProperty("width").setValue(100);
     rootNode.variantProperty("height").setValue(100);
 
-    ModelNode item1Node = view->createModelNode("Qt/Rectangle", 4, 7);
+    ModelNode item1Node = view->createModelNode("QtQuick.Rectangle", 4, 7);
     item1Node.setId("item1");
     item1Node.bindingProperty("width").setExpression("root.width");
     item1Node.bindingProperty("height").setExpression("item2.height");
@@ -4691,7 +4691,7 @@ void tst_TestCore::testInstancesIdResolution()
     //        height: root.height
     //      }
 
-    ModelNode item2Node = view->createModelNode("Qt/Rectangle", 4, 7);
+    ModelNode item2Node = view->createModelNode("QtQuick.Rectangle", 4, 7);
     item2Node.setId("item2");
     item2Node.bindingProperty("width").setExpression("root.width / 2");
     item2Node.bindingProperty("height").setExpression("root.height");
@@ -4716,7 +4716,7 @@ void tst_TestCore::testInstancesIdResolution()
     //        height: 80
     //      }
 
-    ModelNode item3Node = view->createModelNode("Qt/Rectangle", 4, 7);
+    ModelNode item3Node = view->createModelNode("QtQuick.Rectangle", 4, 7);
     item3Node.setId("item3");
     item3Node.variantProperty("height").setValue(80);
     rootNode.nodeListProperty("data").reparentHere(item3Node);
@@ -4734,16 +4734,16 @@ void tst_TestCore::testInstancesNotInScene()
     // test whether deleting an instance which is not in the scene crashes
     //
 
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    ModelNode node1 = view->createModelNode("Qt/Item", 4, 7);
+    ModelNode node1 = view->createModelNode("QtQuick.Item", 4, 7);
     node1.setId("node1");
 
-    ModelNode node2 = view->createModelNode("Qt/Item", 4, 7);
+    ModelNode node2 = view->createModelNode("QtQuick.Item", 4, 7);
     node2.setId("node2");
 
     node1.nodeListProperty("children").reparentHere(node2);
@@ -4755,21 +4755,21 @@ void tst_TestCore::testInstancesBindingsInStatesStress()
 {
     //This is a stress test to provoke a crash
     for (int j=0;j<20;j++) {
-        QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+        QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
         QVERIFY(model.data());
         QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
         model->attachView(view.data());
 
-        ModelNode node1 = view->createModelNode("Qt/Item", 4, 7);
+        ModelNode node1 = view->createModelNode("QtQuick.Item", 4, 7);
         node1.setId("node1");
 
         view->rootModelNode().nodeListProperty("children").reparentHere(node1);
 
-        ModelNode node2 = view->createModelNode("Qt/Rectangle", 4, 7);
+        ModelNode node2 = view->createModelNode("QtQuick.Rectangle", 4, 7);
         node2.setId("node2");
 
-        ModelNode node3 = view->createModelNode("Qt/Rectangle", 4, 7);
+        ModelNode node3 = view->createModelNode("QtQuick.Rectangle", 4, 7);
         node3.setId("node3");
 
         node1.nodeListProperty("children").reparentHere(node2);
@@ -4860,21 +4860,21 @@ void tst_TestCore::testInstancesPropertyChangeTargets()
         //this tests checks if a change of the target of a CropertyChange 
         //node is handled correctly
 
-        QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+        QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
         QVERIFY(model.data());
         QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
         model->attachView(view.data());
 
-        ModelNode node1 = view->createModelNode("Qt/Item", 4, 7);
+        ModelNode node1 = view->createModelNode("QtQuick.Item", 4, 7);
         node1.setId("node1");
 
         view->rootModelNode().nodeListProperty("children").reparentHere(node1);
 
-        ModelNode node2 = view->createModelNode("Qt/Rectangle", 4, 7);
+        ModelNode node2 = view->createModelNode("QtQuick.Rectangle", 4, 7);
         node2.setId("node2");
 
-        ModelNode node3 = view->createModelNode("Qt/Rectangle", 4, 7);
+        ModelNode node3 = view->createModelNode("QtQuick.Rectangle", 4, 7);
         node3.setId("node3");
 
         node1.nodeListProperty("children").reparentHere(node2);
@@ -4966,21 +4966,21 @@ void tst_TestCore::testInstancesPropertyChangeTargets()
 
 void tst_TestCore::testInstancesDeletePropertyChanges()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
         QVERIFY(model.data());
         QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
         model->attachView(view.data());
 
-        ModelNode node1 = view->createModelNode("Qt/Item", 4, 7);
+        ModelNode node1 = view->createModelNode("QtQuick.Item", 4, 7);
         node1.setId("node1");
 
         view->rootModelNode().nodeListProperty("children").reparentHere(node1);
 
-        ModelNode node2 = view->createModelNode("Qt/Rectangle", 4, 7);
+        ModelNode node2 = view->createModelNode("QtQuick.Rectangle", 4, 7);
         node2.setId("node2");
 
-        ModelNode node3 = view->createModelNode("Qt/Rectangle", 4, 7);
+        ModelNode node3 = view->createModelNode("QtQuick.Rectangle", 4, 7);
         node3.setId("node3");
 
         node1.nodeListProperty("children").reparentHere(node2);
@@ -5055,7 +5055,7 @@ void tst_TestCore::testInstancesDeletePropertyChanges()
 
 void tst_TestCore::testInstancesChildrenLowLevel()
 {
-//    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+//    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
 //    QVERIFY(model.data());
 
 //    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
@@ -5067,11 +5067,11 @@ void tst_TestCore::testInstancesChildrenLowLevel()
 
 //    rootModelNode.setId("rootModelNode");
 
-//    ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Text", 4, 7, "data");
+//    ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Text", 4, 7, "data");
 //    QVERIFY(childNode1.isValid());
 //    childNode1.setId("childNode1");
 
-//    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "data");
+//    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.TextEdit", 4, 7, "data");
 //    QVERIFY(childNode2.isValid());
 //    childNode2.setId("childNode2");
 
@@ -5145,7 +5145,7 @@ void tst_TestCore::testInstancesChildrenLowLevel()
 
 void tst_TestCore::testInstancesResourcesLowLevel()
 {
-//    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+//    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
 //    QVERIFY(model.data());
 
 //    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
@@ -5157,15 +5157,15 @@ void tst_TestCore::testInstancesResourcesLowLevel()
 
 //    rootModelNode.setId("rootModelNode");
 
-//    ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Text", 4, 7, "data");
+//    ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Text", 4, 7, "data");
 //    QVERIFY(childNode1.isValid());
 //    childNode1.setId("childNode1");
 
-//    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "data");
+//    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.TextEdit", 4, 7, "data");
 //    QVERIFY(childNode2.isValid());
 //    childNode2.setId("childNode2");
 
-//    ModelNode listModel = addNodeListChild(rootModelNode, "Qt/ListModel", 4, 7, "data");
+//    ModelNode listModel = addNodeListChild(rootModelNode, "QtQuick.ListModel", 4, 7, "data");
 //    QVERIFY(listModel.isValid());
 //    listModel.setId("listModel");
 
@@ -5244,7 +5244,7 @@ void tst_TestCore::testInstancesResourcesLowLevel()
 //    QCOMPARE(listReferenceData.at(1), child1Item);
 //    QCOMPARE(listReferenceData.at(2), child2Item);
 
-//    ModelNode listModel2 = addNodeListChild(rootModelNode, "Qt/ListModel", 4, 7, "data");
+//    ModelNode listModel2 = addNodeListChild(rootModelNode, "QtQuick.ListModel", 4, 7, "data");
 //    QVERIFY(listModel2.isValid());
 //    listModel2.setId("listModel2");
 
@@ -5292,7 +5292,7 @@ void tst_TestCore::testInstancesResourcesLowLevel()
 
 void tst_TestCore::testInstancesFlickableLowLevel()
 {
-//    QScopedPointer<Model> model(Model::create("Qt/Flickable", 4, 7));
+//    QScopedPointer<Model> model(Model::create("QtQuick.Flickable", 4, 7));
 //    QVERIFY(model.data());
 
 //    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
@@ -5304,15 +5304,15 @@ void tst_TestCore::testInstancesFlickableLowLevel()
 
 //    rootModelNode.setId("rootModelNode");
 
-//    ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Text", 4, 7, "flickableData");
+//    ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Text", 4, 7, "flickableData");
 //    QVERIFY(childNode1.isValid());
 //    childNode1.setId("childNode1");
 
-//    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "flickableData");
+//    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.TextEdit", 4, 7, "flickableData");
 //    QVERIFY(childNode2.isValid());
 //    childNode2.setId("childNode2");
 
-//    ModelNode listModel = addNodeListChild(rootModelNode, "Qt/ListModel", 4, 7, "flickableData");
+//    ModelNode listModel = addNodeListChild(rootModelNode, "QtQuick.ListModel", 4, 7, "flickableData");
 //    QVERIFY(listModel.isValid());
 //    listModel.setId("listModel");
 
@@ -5380,7 +5380,7 @@ void tst_TestCore::testInstancesFlickableLowLevel()
 
 void tst_TestCore::testInstancesReorderChildrenLowLevel()
 {
-//    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+//    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
 //    QVERIFY(model.data());
 
 //    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
@@ -5392,23 +5392,23 @@ void tst_TestCore::testInstancesReorderChildrenLowLevel()
 
 //    rootModelNode.setId("rootModelNode");
 
-//    ModelNode childNode1 = addNodeListChild(rootModelNode, "Qt/Text", 4, 7, "data");
+//    ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Text", 4, 7, "data");
 //    QVERIFY(childNode1.isValid());
 //    childNode1.setId("childNode1");
 
-//    ModelNode childNode2 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "data");
+//    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.TextEdit", 4, 7, "data");
 //    QVERIFY(childNode2.isValid());
 //    childNode2.setId("childNode2");
 
-//    ModelNode listModel = addNodeListChild(rootModelNode, "Qt/ListModel", 4, 7, "data");
+//    ModelNode listModel = addNodeListChild(rootModelNode, "QtQuick.ListModel", 4, 7, "data");
 //    QVERIFY(listModel.isValid());
 //    listModel.setId("listModel");
 
-//    ModelNode childNode3 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "data");
+//    ModelNode childNode3 = addNodeListChild(rootModelNode, "QtQuick.TextEdit", 4, 7, "data");
 //    QVERIFY(childNode3.isValid());
 //    childNode3.setId("childNode3");
 
-//    ModelNode childNode4 = addNodeListChild(rootModelNode, "Qt/TextEdit", 4, 7, "data");
+//    ModelNode childNode4 = addNodeListChild(rootModelNode, "QtQuick.TextEdit", 4, 7, "data");
 //    QVERIFY(childNode4.isValid());
 //    childNode4.setId("childNode4");
 
@@ -5479,7 +5479,7 @@ void tst_TestCore::testInstancesReorderChildrenLowLevel()
 
 void tst_TestCore::testQmlModelStatesInvalidForRemovedNodes()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -5496,11 +5496,11 @@ void tst_TestCore::testQmlModelStatesInvalidForRemovedNodes()
     QVERIFY(state1.isValid());
     QCOMPARE(state1.name(), QString("state1"));
 
-    ModelNode childNode = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(childNode.isValid());
     childNode.setId("childNode");
 
-    ModelNode subChildNode = addNodeListChild(childNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode subChildNode = addNodeListChild(childNode, "QtQuick.Rectangle", 4, 7, "data");
     QVERIFY(subChildNode.isValid());
     subChildNode.setId("subChildNode");
 
@@ -5520,7 +5520,7 @@ void tst_TestCore::testInstancesAttachToExistingModel()
     // Test attaching nodeinstanceview to an existing model
     //
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -5528,7 +5528,7 @@ void tst_TestCore::testInstancesAttachToExistingModel()
     model->attachView(view.data());
 
     ModelNode rootNode = view->rootModelNode();
-    ModelNode rectangleNode = addNodeListChild(rootNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode rectangleNode = addNodeListChild(rootNode, "QtQuick.Rectangle", 4, 7, "data");
 
     rectangleNode.variantProperty("width").setValue(100);
 
@@ -5552,7 +5552,7 @@ void tst_TestCore::testInstancesAttachToExistingModel()
 
 void tst_TestCore::testQmlModelAddMultipleStates()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -5583,7 +5583,7 @@ void tst_TestCore::testQmlModelAddMultipleStates()
 
 void tst_TestCore::testQmlModelRemoveStates()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle", 4, 7));
 
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -5616,7 +5616,7 @@ void tst_TestCore::testQmlModelStateWithName()
     textEdit1.setPlainText("import Qt 4.7; Rectangle { id: theRect; width: 100; states: [ State { name: \"a\"; PropertyChanges { target: theRect; width: 200; } } ] }\n");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
 
     TestRewriterView *testRewriterView1 = new TestRewriterView(model1.data());
     testRewriterView1->setTextModifier(&modifier1);
@@ -5661,7 +5661,7 @@ void tst_TestCore::testRewriterAutomaticSemicolonAfterChangedProperty()
     textEdit1.setPlainText("import Qt 4.7; Rectangle {\n    width: 640\n    height: 480\n}\n");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
 
     TestRewriterView *testRewriterView1 = new TestRewriterView(model1.data());
     testRewriterView1->setTextModifier(&modifier1);
@@ -5678,7 +5678,7 @@ void tst_TestCore::testRewriterAutomaticSemicolonAfterChangedProperty()
 
 void tst_TestCore::defaultPropertyValues()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -5688,12 +5688,12 @@ void tst_TestCore::defaultPropertyValues()
     QCOMPARE(view->rootModelNode().variantProperty("x").value().toDouble(), 0.0);
     QCOMPARE(view->rootModelNode().variantProperty("width").value().toDouble(), 0.0);
 
-    ModelNode rectNode(addNodeListChild(view->rootModelNode(), "Qt/Rectangle", 4, 7, "data"));
+    ModelNode rectNode(addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 4, 7, "data"));
 
     QCOMPARE(rectNode.variantProperty("y").value().toDouble(), 0.0);
     QCOMPARE(rectNode.variantProperty("width").value().toDouble(), 0.0);
 
-    ModelNode imageNode(addNodeListChild(view->rootModelNode(), "Qt/Image", 4, 7, "data"));
+    ModelNode imageNode(addNodeListChild(view->rootModelNode(), "QtQuick.Image", 4, 7, "data"));
 
     QCOMPARE(imageNode.variantProperty("y").value().toDouble(), 0.0);
     QCOMPARE(imageNode.variantProperty("width").value().toDouble(), 0.0);
@@ -5705,7 +5705,7 @@ void tst_TestCore::testModelPropertyValueTypes()
     textEdit1.setPlainText("import Qt 4.7; Rectangle { width: 100; radius: 1.5; color: \"red\"; }");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(Model::create("Qt/Item"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -5723,7 +5723,7 @@ void tst_TestCore::testModelPropertyValueTypes()
 
 void tst_TestCore::testModelNodeInHierarchy()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -5731,9 +5731,9 @@ void tst_TestCore::testModelNodeInHierarchy()
     model->attachView(view.data());
 
     QVERIFY(view->rootModelNode().isInHierarchy());
-    ModelNode node1 = addNodeListChild(view->rootModelNode(), "Qt/Item", 4, 7, "data");
+    ModelNode node1 = addNodeListChild(view->rootModelNode(), "QtQuick.Item", 4, 7, "data");
     QVERIFY(node1.isInHierarchy());
-    ModelNode node2 = view->createModelNode("Qt/Item", 4, 7);
+    ModelNode node2 = view->createModelNode("QtQuick.Item", 4, 7);
     QVERIFY(!node2.isInHierarchy());
     node2.nodeListProperty("data").reparentHere(node1);
     QVERIFY(!node2.isInHierarchy());
@@ -5744,7 +5744,7 @@ void tst_TestCore::testModelNodeInHierarchy()
 
 void tst_TestCore::testModelNodeIsAncestorOf()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     //
@@ -5766,11 +5766,11 @@ void tst_TestCore::testModelNodeIsAncestorOf()
     model->attachView(view.data());
 
     view->rootModelNode().setId("item1");
-    ModelNode item2 = addNodeListChild(view->rootModelNode(), "Qt/Item", 4, 7, "data");
+    ModelNode item2 = addNodeListChild(view->rootModelNode(), "QtQuick.Item", 4, 7, "data");
     item2.setId("item2");
-    ModelNode item3 = addNodeListChild(view->rootModelNode(), "Qt/Item", 4, 7, "data");
+    ModelNode item3 = addNodeListChild(view->rootModelNode(), "QtQuick.Item", 4, 7, "data");
     item3.setId("item3");
-    ModelNode item4 = addNodeListChild(item3, "Qt/Item", 4, 7, "data");
+    ModelNode item4 = addNodeListChild(item3, "QtQuick.Item", 4, 7, "data");
     item4.setId("item4");
 
     QVERIFY(view->rootModelNode().isAncestorOf(item2));
@@ -5784,7 +5784,7 @@ void tst_TestCore::testModelNodeIsAncestorOf()
 void tst_TestCore::testModelDefaultProperties()
 {
     QSKIP("Fix metainfo", SkipAll);
-    QScopedPointer<Model> model(Model::create("Qt/Rectangle"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Rectangle"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -5803,7 +5803,7 @@ void tst_TestCore::loadAnchors()
     textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { anchors.left: parent.left; anchors.horizontalCenter: parent.horizontalCenter; anchors.rightMargin: 20; }}");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -5842,7 +5842,7 @@ void tst_TestCore::changeAnchors()
     textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { anchors.left: parent.left; anchors.horizontalCenter: parent.horizontalCenter; anchors.rightMargin: 20; }}");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -5903,7 +5903,7 @@ void tst_TestCore::anchorToSibling()
     textEdit1.setPlainText("import Qt 4.7; Item { Rectangle {} Rectangle { id: secondChild } }");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -5947,7 +5947,7 @@ void tst_TestCore::removeFillAnchorByDetaching()
     textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { id: child; anchors.fill: parent } }");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -6027,7 +6027,7 @@ void tst_TestCore::removeFillAnchorByChanging()
     textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { id: child; anchors.fill: parent } }");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -6104,7 +6104,7 @@ void tst_TestCore::removeFillAnchorByChanging()
 
 void tst_TestCore::testModelBindings()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
@@ -6124,7 +6124,7 @@ void tst_TestCore::testModelBindings()
     QCOMPARE(rootInstance.size().width(), 200.0);
     QCOMPARE(rootInstance.size().height(), 100.0);
 
-    ModelNode childNode = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
 
     childNode.variantProperty("width") = 100;
     childNode.variantProperty("height") = 100;
@@ -6162,7 +6162,7 @@ void tst_TestCore::testModelBindings()
 
 void tst_TestCore::testModelDynamicProperties()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     TestView *testView = new TestView(model.data());
@@ -6206,7 +6206,7 @@ void tst_TestCore::testModelDynamicProperties()
 
 void tst_TestCore::testModelSliding()
 {
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6215,10 +6215,10 @@ void tst_TestCore::testModelSliding()
 
     ModelNode rootModelNode(view->rootModelNode());
 
-    ModelNode rect00(addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data"));
-    ModelNode rect01(addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data"));
-    ModelNode rect02(addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data"));
-    ModelNode rect03(addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data"));
+    ModelNode rect00(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data"));
+    ModelNode rect01(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data"));
+    ModelNode rect02(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data"));
+    ModelNode rect03(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data"));
 
     QVERIFY(rect00.isValid());
     QVERIFY(rect01.isValid());
@@ -6280,7 +6280,7 @@ void tst_TestCore::testRewriterChangeId()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6305,7 +6305,7 @@ void tst_TestCore::testRewriterChangeId()
     QCOMPARE(textEdit.toPlainText(), expected);
 
     // change id for node outside of hierarchy
-    ModelNode node = view->createModelNode("Qt/Item", 4, 7);
+    ModelNode node = view->createModelNode("QtQuick.Item", 4, 7);
     node.setId("myId");
 }
 
@@ -6317,7 +6317,7 @@ void tst_TestCore::testRewriterRemoveId()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6349,7 +6349,7 @@ void tst_TestCore::testRewriterChangeValueProperty()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6372,7 +6372,7 @@ void tst_TestCore::testRewriterChangeValueProperty()
     // change property for node outside of hierarchy
     PropertyListType properties;
     properties.append(QPair<QString,QVariant>("x", 10));
-    ModelNode node = view->createModelNode("Qt/Item", 4, 7, properties);
+    ModelNode node = view->createModelNode("QtQuick.Item", 4, 7, properties);
     node.variantProperty("x").setValue(20);
 }
 
@@ -6389,7 +6389,7 @@ void tst_TestCore::testRewriterRemoveValueProperty()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6419,7 +6419,7 @@ void tst_TestCore::testRewriterRemoveValueProperty()
     // remove property for node outside of hierarchy
     PropertyListType properties;
     properties.append(QPair<QString,QVariant>("x", 10));
-    ModelNode node = view->createModelNode("Qt/Item", 4, 7, properties);
+    ModelNode node = view->createModelNode("QtQuick.Item", 4, 7, properties);
     node.removeProperty("x");
 }
 
@@ -6431,7 +6431,7 @@ void tst_TestCore::testRewriterSignalProperty()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6457,7 +6457,7 @@ void tst_TestCore::testRewriterObjectTypeProperty()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6471,11 +6471,11 @@ void tst_TestCore::testRewriterObjectTypeProperty()
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
 
-    QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootModelNode.type(), QLatin1String("QtQuick.Rectangle"));
 
-    view->changeRootNodeType(QLatin1String("Qt/Text"), 4, 7);
+    view->changeRootNodeType(QLatin1String("QtQuick.Text"), 4, 7);
 
-    QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Text"));
+    QCOMPARE(rootModelNode.type(), QLatin1String("QtQuick.Text"));
 }
 
 void tst_TestCore::testRewriterPropertyChanges()
@@ -6505,7 +6505,7 @@ void tst_TestCore::testRewriterPropertyChanges()
         textEdit.setPlainText(qmlString);
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+        QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
         QVERIFY(model.data());
 
         QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6518,7 +6518,7 @@ void tst_TestCore::testRewriterPropertyChanges()
 
         ModelNode rootNode = view->rootModelNode();
         QVERIFY(rootNode.isValid());
-        QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+        QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
         QVERIFY(rootNode.propertyNames().contains(QLatin1String("data")));
         QVERIFY(rootNode.propertyNames().contains(QLatin1String("states")));
         QCOMPARE(rootNode.propertyNames().count(), 2);
@@ -6529,7 +6529,7 @@ void tst_TestCore::testRewriterPropertyChanges()
 
         ModelNode stateNode = statesProperty.toModelNodeList().first();
         QVERIFY(stateNode.isValid());
-        QCOMPARE(stateNode.type(), QString("Qt/State"));
+        QCOMPARE(stateNode.type(), QString("QtQuick.State"));
         QCOMPARE(stateNode.propertyNames(), QStringList("changes"));
 
         NodeListProperty stateChangesProperty = stateNode.property("changes").toNodeListProperty();
@@ -6562,7 +6562,7 @@ void tst_TestCore::testRewriterListModel()
         textEdit.setPlainText(qmlString);
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+        QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
         QVERIFY(model.data());
 
         QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -6599,7 +6599,7 @@ void tst_TestCore::testRewriterAddProperty()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6612,7 +6612,7 @@ void tst_TestCore::testRewriterAddProperty()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
 
     rootNode.variantProperty(QLatin1String("x")).setValue(123);
 
@@ -6643,7 +6643,7 @@ void tst_TestCore::testRewriterAddPropertyInNestedObject()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6656,11 +6656,11 @@ void tst_TestCore::testRewriterAddPropertyInNestedObject()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Rectangle"));
 
     ModelNode childNode = rootNode.nodeListProperty(QLatin1String("data")).toModelNodeList().at(0);
     QVERIFY(childNode.isValid());
-    QCOMPARE(childNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(childNode.type(), QLatin1String("QtQuick.Rectangle"));
     QCOMPARE(childNode.id(), QLatin1String("rectangle1"));
 
     childNode.variantProperty(QLatin1String("x")).setValue(10);
@@ -6689,7 +6689,7 @@ void tst_TestCore::testRewriterAddObjectDefinition()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6702,14 +6702,14 @@ void tst_TestCore::testRewriterAddObjectDefinition()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
 
-    ModelNode childNode = view->createModelNode("Qt/MouseArea", 4, 7);
+    ModelNode childNode = view->createModelNode("QtQuick.MouseArea", 4, 7);
     rootNode.nodeAbstractProperty(QLatin1String("data")).reparentHere(childNode);
 
     QCOMPARE(rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().size(), 1);
     childNode = rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().at(0);
-    QCOMPARE(childNode.type(), QString(QLatin1String("Qt/MouseArea")));
+    QCOMPARE(childNode.type(), QString(QLatin1String("QtQuick.MouseArea")));
 }
 
 void tst_TestCore::testRewriterAddStatesArray()
@@ -6723,7 +6723,7 @@ void tst_TestCore::testRewriterAddStatesArray()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6735,9 +6735,9 @@ void tst_TestCore::testRewriterAddStatesArray()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
 
-    ModelNode stateNode = view->createModelNode("Qt/State", 4, 7);
+    ModelNode stateNode = view->createModelNode("QtQuick.State", 4, 7);
     rootNode.nodeListProperty(QLatin1String("states")).reparentHere(stateNode);
 
     const QString expected1 = QLatin1String("\n"
@@ -6751,7 +6751,7 @@ void tst_TestCore::testRewriterAddStatesArray()
                                            "}");
     QCOMPARE(textEdit.toPlainText(), expected1);
 
-    ModelNode stateNode2 = view->createModelNode("Qt/State", 4, 7);
+    ModelNode stateNode2 = view->createModelNode("QtQuick.State", 4, 7);
     rootNode.nodeListProperty(QLatin1String("states")).reparentHere(stateNode2);
 
     const QString expected2 = QLatin1String("\n"
@@ -6785,7 +6785,7 @@ void tst_TestCore::testRewriterRemoveStates()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6797,7 +6797,7 @@ void tst_TestCore::testRewriterRemoveStates()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
 
     NodeListProperty statesProperty = rootNode.nodeListProperty(QLatin1String("states"));
     QVERIFY(statesProperty.isValid());
@@ -6843,7 +6843,7 @@ void tst_TestCore::testRewriterRemoveObjectDefinition()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6856,17 +6856,17 @@ void tst_TestCore::testRewriterRemoveObjectDefinition()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
 
     QCOMPARE(rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().size(), 2);
     ModelNode childNode = rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().at(1);
-    QCOMPARE(childNode.type(), QString(QLatin1String("Qt/MouseArea")));
+    QCOMPARE(childNode.type(), QString(QLatin1String("QtQuick.MouseArea")));
 
     childNode.destroy();
 
     QCOMPARE(rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().size(), 1);
     childNode = rootNode.nodeProperty(QLatin1String("data")).toNodeListProperty().toModelNodeList().at(0);
-    QCOMPARE(childNode.type(), QString(QLatin1String("Qt/MouseArea")));
+    QCOMPARE(childNode.type(), QString(QLatin1String("QtQuick.MouseArea")));
 
     childNode.destroy();
 
@@ -6881,9 +6881,9 @@ void tst_TestCore::testRewriterRemoveObjectDefinition()
     QCOMPARE(textEdit.toPlainText(), expected);
 
     // don't crash when deleting nodes not in any hierarchy
-    ModelNode node1 = view->createModelNode("Qt/Rectangle", 4, 7);
-    ModelNode node2 = addNodeListChild(node1, "Qt/Item", 4, 7, "data");
-    ModelNode node3 = addNodeListChild(node2, "Qt/Item", 4, 7, "data");
+    ModelNode node1 = view->createModelNode("QtQuick.Rectangle", 4, 7);
+    ModelNode node2 = addNodeListChild(node1, "QtQuick.Item", 4, 7, "data");
+    ModelNode node3 = addNodeListChild(node2, "QtQuick.Item", 4, 7, "data");
 
     node3.destroy();
     node1.destroy();
@@ -6902,7 +6902,7 @@ void tst_TestCore::testRewriterRemoveScriptBinding()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6915,7 +6915,7 @@ void tst_TestCore::testRewriterRemoveScriptBinding()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
 
     QCOMPARE(rootNode.properties().size(), 2);
     QVERIFY(rootNode.hasProperty(QLatin1String("x")));
@@ -6955,7 +6955,7 @@ void tst_TestCore::testRewriterNodeReparenting()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -6968,15 +6968,15 @@ void tst_TestCore::testRewriterNodeReparenting()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
 
     ModelNode itemNode = rootNode.nodeListProperty("data").toModelNodeList().at(0);
     QVERIFY(itemNode.isValid());
-    QCOMPARE(itemNode.type(), QLatin1String("Qt/Item"));
+    QCOMPARE(itemNode.type(), QLatin1String("QtQuick.Item"));
 
     ModelNode mouseArea = itemNode.nodeListProperty("data").toModelNodeList().at(0);
     QVERIFY(mouseArea.isValid());
-    QCOMPARE(mouseArea.type(), QLatin1String("Qt/MouseArea"));
+    QCOMPARE(mouseArea.type(), QLatin1String("QtQuick.MouseArea"));
 
     rootNode.nodeListProperty("data").reparentHere(mouseArea);
 
@@ -6996,9 +6996,9 @@ void tst_TestCore::testRewriterNodeReparenting()
     QCOMPARE(textEdit.toPlainText(), expected);
 
     // reparenting outside of the hierarchy
-    ModelNode node1 = view->createModelNode("Qt/Rectangle", 4, 7);
-    ModelNode node2 = view->createModelNode("Qt/Item", 4, 7);
-    ModelNode node3 = view->createModelNode("Qt/Item", 4, 7);
+    ModelNode node1 = view->createModelNode("QtQuick.Rectangle", 4, 7);
+    ModelNode node2 = view->createModelNode("QtQuick.Item", 4, 7);
+    ModelNode node3 = view->createModelNode("QtQuick.Item", 4, 7);
     node2.nodeListProperty("data").reparentHere(node3);
     node1.nodeListProperty("data").reparentHere(node2);
 
@@ -7026,7 +7026,7 @@ void tst_TestCore::testRewriterNodeReparenting()
     QCOMPARE(textEdit.toPlainText(), expected);
 
     // reparent out of the hierarchy
-    ModelNode node4 = view->createModelNode("Qt/Rectangle", 4, 7);
+    ModelNode node4 = view->createModelNode("QtQuick.Rectangle", 4, 7);
     node4.nodeListProperty("data").reparentHere(node1);
 
     expected =  "\n"
@@ -7063,7 +7063,7 @@ void tst_TestCore::testRewriterNodeReparentingWithTransaction()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -7076,17 +7076,17 @@ void tst_TestCore::testRewriterNodeReparentingWithTransaction()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QLatin1String("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Rectangle"));
     QCOMPARE(rootNode.id(), QLatin1String("rootItem"));
 
     ModelNode item1Node = rootNode.nodeListProperty("data").toModelNodeList().at(0);
     QVERIFY(item1Node.isValid());
-    QCOMPARE(item1Node.type(), QLatin1String("Qt/Item"));
+    QCOMPARE(item1Node.type(), QLatin1String("QtQuick.Item"));
     QCOMPARE(item1Node.id(), QLatin1String("firstItem"));
 
     ModelNode item2Node = rootNode.nodeListProperty("data").toModelNodeList().at(1);
     QVERIFY(item2Node.isValid());
-    QCOMPARE(item2Node.type(), QLatin1String("Qt/Item"));
+    QCOMPARE(item2Node.type(), QLatin1String("QtQuick.Item"));
     QCOMPARE(item2Node.id(), QLatin1String("secondItem"));
 
     RewriterTransaction transaction = testRewriterView->beginRewriterTransaction();
@@ -7124,7 +7124,7 @@ void tst_TestCore::testRewriterMovingInOut()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -7137,9 +7137,9 @@ void tst_TestCore::testRewriterMovingInOut()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
 
-    ModelNode newNode = view->createModelNode("Qt/MouseArea", 4, 7);
+    ModelNode newNode = view->createModelNode("QtQuick.MouseArea", 4, 7);
     rootNode.nodeListProperty(QLatin1String("data")).reparentHere(newNode);
 
     const QLatin1String expected1("\n"
@@ -7180,7 +7180,7 @@ void tst_TestCore::testRewriterMovingInOutWithTransaction()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -7193,11 +7193,11 @@ void tst_TestCore::testRewriterMovingInOutWithTransaction()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
 
     RewriterTransaction transaction = view->beginRewriterTransaction();
 
-    ModelNode newNode = view->createModelNode("Qt/MouseArea", 4, 7);
+    ModelNode newNode = view->createModelNode("QtQuick.MouseArea", 4, 7);
     rootNode.nodeListProperty(QLatin1String("data")).reparentHere(newNode);
 
 #define move(node, x, y) {\
@@ -7233,7 +7233,7 @@ void tst_TestCore::testRewriterComplexMovingInOut()
     textEdit.setPlainText(qmlString);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -7246,10 +7246,10 @@ void tst_TestCore::testRewriterComplexMovingInOut()
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
-    QCOMPARE(rootNode.type(), QString("Qt/Rectangle"));
+    QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
     ModelNode itemNode = rootNode.nodeListProperty(QLatin1String("data")).toModelNodeList().at(0);
 
-    ModelNode newNode = view->createModelNode("Qt/MouseArea", 4, 7);
+    ModelNode newNode = view->createModelNode("QtQuick.MouseArea", 4, 7);
     rootNode.nodeListProperty(QLatin1String("data")).reparentHere(newNode);
 
     const QLatin1String expected1("\n"
@@ -7324,7 +7324,7 @@ void tst_TestCore::removeCenteredInAnchorByDetaching()
     textEdit1.setPlainText("import Qt 4.7; Item { Rectangle { id: child; anchors.centerIn: parent } }");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
@@ -7375,7 +7375,7 @@ void tst_TestCore::removeCenteredInAnchorByDetaching()
 void tst_TestCore::changePropertyBinding()
 {
 
-    QScopedPointer<Model> model(Model::create("Qt/Item"));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -7384,7 +7384,7 @@ void tst_TestCore::changePropertyBinding()
     ModelNode rootModelNode(view->rootModelNode());
     rootModelNode.variantProperty("width") = 20;
 
-    ModelNode firstChild = addNodeListChild(rootModelNode, "Qt/Rectangle", 4, 7, "data");
+    ModelNode firstChild = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4, 7, "data");
     firstChild.bindingProperty("width").setExpression(QString("parent.width"));
     firstChild.variantProperty("height")=  10;
     QVERIFY(firstChild.isValid());
@@ -7424,7 +7424,7 @@ void tst_TestCore::loadTestFiles()
         textEdit.setPlainText(QString(file.readAll()));
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+        QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
         QVERIFY(model.data());
 
         QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -7435,7 +7435,7 @@ void tst_TestCore::loadTestFiles()
         QVERIFY(model.data());
         ModelNode rootModelNode(testRewriterView->rootModelNode());
         QVERIFY(rootModelNode.isValid());
-        QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Item"));
+        QCOMPARE(rootModelNode.type(), QLatin1String("QtQuick.Item"));
         QVERIFY(rootModelNode.allDirectSubModelNodes().isEmpty());
     }
 
@@ -7447,7 +7447,7 @@ void tst_TestCore::loadTestFiles()
         textEdit.setPlainText(QString(file.readAll()));
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+        QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
         QVERIFY(model.data());
 
         QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -7458,14 +7458,14 @@ void tst_TestCore::loadTestFiles()
         QVERIFY(model.data());
         ModelNode rootModelNode(testRewriterView->rootModelNode());
         QVERIFY(rootModelNode.isValid());
-        QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Rectangle"));
+        QCOMPARE(rootModelNode.type(), QLatin1String("QtQuick.Rectangle"));
         QCOMPARE(rootModelNode.allDirectSubModelNodes().count(), 1);
         QCOMPARE(rootModelNode.variantProperty("width").value().toInt(), 200);
         QCOMPARE(rootModelNode.variantProperty("height").value().toInt(), 200);
 
         ModelNode textNode(rootModelNode.allDirectSubModelNodes().first());
         QVERIFY(textNode.isValid());
-        QCOMPARE(textNode.type(), QLatin1String("Qt/Text"));
+        QCOMPARE(textNode.type(), QLatin1String("QtQuick.Text"));
         QCOMPARE(textNode.variantProperty("x").value().toInt(), 66);
         QCOMPARE(textNode.variantProperty("y").value().toInt(), 93);
     }
@@ -7477,7 +7477,7 @@ void tst_TestCore::loadTestFiles()
         textEdit.setPlainText(QString(file.readAll()));
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+        QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
         QVERIFY(model.data());
 
         QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -7488,7 +7488,7 @@ void tst_TestCore::loadTestFiles()
         QVERIFY(model.data());
         ModelNode rootModelNode(testRewriterView->rootModelNode());
         QVERIFY(rootModelNode.isValid());
-        QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Rectangle"));
+        QCOMPARE(rootModelNode.type(), QLatin1String("QtQuick.Rectangle"));
         QCOMPARE(rootModelNode.allDirectSubModelNodes().count(), 4);
         QCOMPARE(rootModelNode.variantProperty("width").value().toInt(), 200);
         QCOMPARE(rootModelNode.variantProperty("height").value().toInt(), 200);
@@ -7499,14 +7499,14 @@ void tst_TestCore::loadTestFiles()
         ModelNode textNode(rootModelNode.nodeListProperty("data").toModelNodeList().first());
         QVERIFY(textNode.isValid());
         QCOMPARE(textNode.id(), QLatin1String("text"));
-        QCOMPARE(textNode.type(), QLatin1String("Qt/Text"));
+        QCOMPARE(textNode.type(), QLatin1String("QtQuick.Text"));
         QCOMPARE(textNode.variantProperty("x").value().toInt(), 66);
         QCOMPARE(textNode.variantProperty("y").value().toInt(), 93);
 
         ModelNode imageNode(rootModelNode.nodeListProperty("data").toModelNodeList().last());
         QVERIFY(imageNode.isValid());
         QCOMPARE(imageNode.id(), QLatin1String("image1"));
-        QCOMPARE(imageNode.type(), QLatin1String("Qt/Image"));
+        QCOMPARE(imageNode.type(), QLatin1String("QtQuick.Image"));
         QCOMPARE(imageNode.variantProperty("x").value().toInt(), 41);
         QCOMPARE(imageNode.variantProperty("y").value().toInt(), 46);
         QCOMPARE(imageNode.variantProperty("source").value().toUrl(), QUrl("images/qtcreator.png"));
@@ -7526,7 +7526,7 @@ void tst_TestCore::loadTestFiles()
         textEdit.setPlainText(QString(file.readAll()));
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+        QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
         QVERIFY(model.data());
 
         QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -7538,7 +7538,7 @@ void tst_TestCore::loadTestFiles()
         QVERIFY(model.data());
         ModelNode rootModelNode(testRewriterView->rootModelNode());
         QVERIFY(rootModelNode.isValid());
-        QCOMPARE(rootModelNode.type(), QLatin1String("Qt/Rectangle"));
+        QCOMPARE(rootModelNode.type(), QLatin1String("QtQuick.Rectangle"));
         QVERIFY(!rootModelNode.allDirectSubModelNodes().isEmpty());
     }
 }
@@ -7563,7 +7563,7 @@ void tst_TestCore::loadGradient()
     textEdit.setPlainText(rectWithGradient);
     NotIndentingTextEditModifier textModifier(&textEdit);
 
-    QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+    QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
     QVERIFY(model.data());
 
     QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -7582,7 +7582,7 @@ void tst_TestCore::loadGradient()
         QVERIFY(gradientProperty.isNodeProperty());
         ModelNode gradientPropertyModelNode = gradientProperty.toNodeProperty().modelNode();
         QVERIFY(gradientPropertyModelNode.isValid());
-        QCOMPARE(gradientPropertyModelNode.type(), QString("Qt/Gradient"));
+        QCOMPARE(gradientPropertyModelNode.type(), QString("QtQuick.Gradient"));
         QCOMPARE(gradientPropertyModelNode.allDirectSubModelNodes().size(), 2);
 
         AbstractProperty stopsProperty = gradientPropertyModelNode.property("stops");
@@ -7595,7 +7595,7 @@ void tst_TestCore::loadGradient()
         ModelNode pOne = stops.first();
         ModelNode pTwo = stops.last();
 
-        QCOMPARE(pOne.type(), QString("Qt/GradientStop"));
+        QCOMPARE(pOne.type(), QString("QtQuick.GradientStop"));
         QCOMPARE(pOne.id(), QString("pOne"));
         QCOMPARE(pOne.allDirectSubModelNodes().size(), 0);
         QCOMPARE(pOne.propertyNames().size(), 2);
@@ -7604,7 +7604,7 @@ void tst_TestCore::loadGradient()
         QCOMPARE(pOne.variantProperty("color").value().type(), QVariant::Color);
         QCOMPARE(pOne.variantProperty("color").value().value<QColor>(), QColor("lightsteelblue"));
 
-        QCOMPARE(pTwo.type(), QString("Qt/GradientStop"));
+        QCOMPARE(pTwo.type(), QString("QtQuick.GradientStop"));
         QCOMPARE(pTwo.id(), QString("pTwo"));
         QCOMPARE(pTwo.allDirectSubModelNodes().size(), 0);
         QCOMPARE(pTwo.propertyNames().size(), 2);
@@ -7617,8 +7617,8 @@ void tst_TestCore::loadGradient()
     {
         ModelNode gradientNode = rootModelNode.allDirectSubModelNodes().last();
         QVERIFY(gradientNode.isValid());
-        QVERIFY(!gradientNode.metaInfo().isSubclassOf("Qt/Item", -1, -1));
-        QCOMPARE(gradientNode.type(), QString("Qt/Gradient"));
+        QVERIFY(!gradientNode.metaInfo().isSubclassOf("QtQuick.Item", -1, -1));
+        QCOMPARE(gradientNode.type(), QString("QtQuick.Gradient"));
         QCOMPARE(gradientNode.id(), QString("secondGradient"));
         QCOMPARE(gradientNode.allDirectSubModelNodes().size(), 2);
 
@@ -7632,7 +7632,7 @@ void tst_TestCore::loadGradient()
         ModelNode nOne = stops.first();
         ModelNode nTwo = stops.last();
 
-        QCOMPARE(nOne.type(), QString("Qt/GradientStop"));
+        QCOMPARE(nOne.type(), QString("QtQuick.GradientStop"));
         QCOMPARE(nOne.id(), QString("nOne"));
         QCOMPARE(nOne.allDirectSubModelNodes().size(), 0);
         QCOMPARE(nOne.propertyNames().size(), 2);
@@ -7641,7 +7641,7 @@ void tst_TestCore::loadGradient()
         QCOMPARE(nOne.variantProperty("color").value().type(), QVariant::Color);
         QCOMPARE(nOne.variantProperty("color").value().value<QColor>(), QColor("blue"));
 
-        QCOMPARE(nTwo.type(), QString("Qt/GradientStop"));
+        QCOMPARE(nTwo.type(), QString("QtQuick.GradientStop"));
         QCOMPARE(nTwo.id(), QString("nTwo"));
         QCOMPARE(nTwo.allDirectSubModelNodes().size(), 0);
         QCOMPARE(nTwo.propertyNames().size(), 2);
@@ -7659,7 +7659,7 @@ void tst_TestCore::changeGradientId()
         textEdit.setPlainText(rectWithGradient);
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(Model::create("Qt/Item", 4, 7));
+        QScopedPointer<Model> model(Model::create("QtQuick.Item", 4, 7));
         QVERIFY(model.data());
 
         QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
@@ -7692,7 +7692,7 @@ void tst_TestCore::changeGradientId()
         firstStop.destroy();
         QVERIFY(!firstStop.isValid());
 
-        ModelNode gradientStop  = addNodeListChild(gradientNode, "Qt/GradientStop", 4, 7, "stops");
+        ModelNode gradientStop  = addNodeListChild(gradientNode, "QtQuick.GradientStop", 4, 7, "stops");
         gradientStop.variantProperty("position") = 0.5;
         gradientStop.variantProperty("color") = QColor("yellow");
 
