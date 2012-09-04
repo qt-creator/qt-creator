@@ -32,6 +32,7 @@
 #include "watchutils.h"
 
 #include <QTextStream>
+#include <QTextDocument>
 #include <QDebug>
 
 ////////////////////////////////////////////////////////////////////
@@ -42,25 +43,6 @@
 
 namespace Debugger {
 namespace Internal {
-
-static QString htmlEscape(const QString &plain)
-{
-    QString rich;
-    rich.reserve(int(plain.length() * 1.1));
-    for (int i = 0; i < plain.length(); ++i) {
-        if (plain.at(i) == QLatin1Char('<'))
-            rich += QLatin1String("&lt;");
-        else if (plain.at(i) == QLatin1Char('>'))
-            rich += QLatin1String("&gt;");
-        else if (plain.at(i) == QLatin1Char('&'))
-            rich += QLatin1String("&amp;");
-        else if (plain.at(i) == QLatin1Char('"'))
-            rich += QLatin1String("&quot;");
-        else
-            rich += plain.at(i);
-    }
-    return rich;
-}
 
 bool isPointerType(const QByteArray &type)
 {
@@ -369,7 +351,7 @@ static void formatToolTipRow(QTextStream &str,
     const QString &category, const QString &value)
 {
     str << "<tr><td>" << category << "</td><td> : </td><td>"
-        << htmlEscape(value) << "</td></tr>";
+        << Qt::escape(value) << "</td></tr>";
 }
 
 QString WatchData::toToolTip() const
