@@ -73,8 +73,10 @@ bool OptionsParser::parse()
             continue;
         if (checkForProfilingOption())
             continue;
+#ifdef WITH_TESTS
         if (checkForTestOption())
             continue;
+#endif
         if (checkForAppOption())
             continue;
         if (checkForPluginOption())
