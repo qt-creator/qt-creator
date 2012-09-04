@@ -1351,8 +1351,11 @@ bool WatchModel::ancestorChanged(const QSet<QByteArray> &inames, WatchItem *item
 void WatchModel::insertBulkData(const QList<WatchData> &list)
 {
 #if 1
-    for (int i = 0, n = list.size(); i != n; ++i)
-        insertDataItem(list.at(i));
+    for (int i = 0, n = list.size(); i != n; ++i) {
+        const WatchData &data = list.at(i);
+        insertDataItem(data);
+        m_handler->showEditValue(data);
+    }
 #else
     // Destroy unneeded items.
     QSet<QByteArray> inames;
