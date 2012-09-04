@@ -62,7 +62,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 static const Core::Id QT_IS_TEMPORARY("Qt4PM.TempQt");
-static const Core::Id PROFILE_IS_TEMPORARY("Qt4PM.TempProfile");
+static const Core::Id KIT_IS_TEMPORARY("Qt4PM.TempKit");
 static const Core::Id TEMPORARY_OF_PROJECTS("Qt4PM.TempProject");
 
 class TargetSetupPageUi
@@ -80,7 +80,7 @@ public:
         descriptionLabel = new QLabel(setupTargetPage);
         descriptionLabel->setWordWrap(true);
         descriptionLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        descriptionLabel->setText(TargetSetupPage::tr("Qt Creator can set up the following targets:"));
+        descriptionLabel->setText(TargetSetupPage::tr("Qt Creator can use the following kits:"));
 
 #ifdef Q_OS_MAC
         QString hint = TargetSetupPage::tr(
@@ -98,10 +98,10 @@ public:
             " or via the maintenance tool of the SDK.</p></body></html>");
 #endif
 
-        QLabel *noValidProfileLabel = new QLabel(setupTargetPage);
-        noValidProfileLabel->setWordWrap(true);
-        noValidProfileLabel->setText(hint);
-        noValidProfileLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        QLabel *noValidKitLabel = new QLabel(setupTargetPage);
+        noValidKitLabel->setWordWrap(true);
+        noValidKitLabel->setText(hint);
+        noValidKitLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
         centralWidget = new QWidget(setupTargetPage);
         QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -126,7 +126,7 @@ public:
 
         QVBoxLayout *verticalLayout_2 = new QVBoxLayout(setupTargetPage);
         verticalLayout_2->addWidget(descriptionLabel);
-        verticalLayout_2->addWidget(noValidProfileLabel);
+        verticalLayout_2->addWidget(noValidKitLabel);
         verticalLayout_2->addWidget(centralWidget);
         verticalLayout_2->addWidget(scrollAreaWidget);
 
@@ -134,7 +134,7 @@ public:
         verticalLayout_3->setContentsMargins(0, 0, 0, -1);
         verticalLayout_3->addWidget(setupTargetPage);
 
-        QObject::connect(noValidProfileLabel, SIGNAL(linkActivated(QString)),
+        QObject::connect(noValidKitLabel, SIGNAL(linkActivated(QString)),
             q, SIGNAL(noteTextLinkActivated()));
         QObject::connect(descriptionLabel, SIGNAL(linkActivated(QString)),
             q, SIGNAL(noteTextLinkActivated()));
@@ -158,7 +158,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_spacer(new QSpacerItem(0,0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding))
 {
     setObjectName(QLatin1String("TargetSetupPage"));
-    setWindowTitle(tr("Set up Targets for Your Project"));
+    setWindowTitle(tr("Select Kits for Your Project"));
     m_ui->setupUi(this);
 
     QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -176,7 +176,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     setUseScrollArea(true);
     setImportSearch(false);
 
-    setTitle(tr("Target Setup"));
+    setTitle(tr("Kit Selection"));
 
     ProjectExplorer::KitManager *km = ProjectExplorer::KitManager::instance();
     connect(km, SIGNAL(kitAdded(ProjectExplorer::Kit*)),
@@ -195,7 +195,7 @@ void TargetSetupPage::initializePage()
 
     setupWidgets();
     setupImports();
-    selectAtLeastOneTarget();
+    selectAtLeastOneKit();
 }
 
 void TargetSetupPage::setRequiredKitMatcher(ProjectExplorer::KitMatcher *matcher)
@@ -261,7 +261,7 @@ void TargetSetupPage::setupWidgets()
 {
     // Known profiles:
     foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits(m_requiredMatcher)) {
-        cleanProfile(k); // clean up broken profiles added by some development versions of QtC
+        cleanKit(k); // clean up broken kit added by some development versions of QtC
         addWidget(k);
     }
 
@@ -289,9 +289,9 @@ void TargetSetupPage::reset()
     m_firstWidget = 0;
 }
 
-ProjectExplorer::Kit *TargetSetupPage::createTemporaryProfile(QtSupport::BaseQtVersion *version,
-                                                              bool temporaryVersion,
-                                                              const Utils::FileName &parsedSpec)
+ProjectExplorer::Kit *TargetSetupPage::createTemporaryKit(QtSupport::BaseQtVersion *version,
+                                                          bool temporaryVersion,
+                                                          const Utils::FileName &parsedSpec)
 {
     ProjectExplorer::Kit *k = new ProjectExplorer::Kit;
     QtSupport::QtKitInformation::setQtVersion(k, version);
@@ -299,7 +299,7 @@ ProjectExplorer::Kit *TargetSetupPage::createTemporaryProfile(QtSupport::BaseQtV
     QmakeKitInformation::setMkspec(k, parsedSpec);
 
     k->setDisplayName(version->displayName());
-    k->setValue(PROFILE_IS_TEMPORARY, true);
+    k->setValue(KIT_IS_TEMPORARY, true);
     k->setValue(TEMPORARY_OF_PROJECTS, QStringList() << m_proFilePath);
     if (temporaryVersion)
         k->setValue(QT_IS_TEMPORARY, version->uniqueId());
@@ -311,10 +311,10 @@ ProjectExplorer::Kit *TargetSetupPage::createTemporaryProfile(QtSupport::BaseQtV
     return k;
 }
 
-void TargetSetupPage::cleanProfile(ProjectExplorer::Kit *k)
+void TargetSetupPage::cleanKit(ProjectExplorer::Kit *k)
 {
     m_ignoreUpdates = true;
-    k->removeKey(PROFILE_IS_TEMPORARY);
+    k->removeKey(KIT_IS_TEMPORARY);
     k->removeKey(QT_IS_TEMPORARY);
     k->removeKey(TEMPORARY_OF_PROJECTS);
     m_ignoreUpdates = false;
@@ -329,19 +329,19 @@ void TargetSetupPage::makeQtPersistent(ProjectExplorer::Kit *k)
 
 void TargetSetupPage::addProject(ProjectExplorer::Kit *k, const QString &path)
 {
-    if (!k->hasValue(PROFILE_IS_TEMPORARY))
+    if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
     QStringList profiles = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
     profiles.append(path);
     m_ignoreUpdates = true;
-    k->setValue(PROFILE_IS_TEMPORARY, profiles);
+    k->setValue(KIT_IS_TEMPORARY, profiles);
     m_ignoreUpdates = false;
 }
 
 void TargetSetupPage::removeProject(ProjectExplorer::Kit *k, const QString &path)
 {
-    if (!k->hasValue(PROFILE_IS_TEMPORARY) || path.isEmpty())
+    if (!k->hasValue(KIT_IS_TEMPORARY) || path.isEmpty())
         return;
 
     QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
@@ -359,7 +359,7 @@ void TargetSetupPage::setProFilePath(const QString &path)
 {
     m_proFilePath = path;
     if (!m_proFilePath.isEmpty()) {
-        m_ui->descriptionLabel->setText(tr("Qt Creator can set up the following targets for project <b>%1</b>:",
+        m_ui->descriptionLabel->setText(tr("Qt Creator can use the following kits for project <b>%1</b>:",
                                            "%1: Project name").arg(QFileInfo(m_proFilePath).baseName()));
     }
 
@@ -446,7 +446,7 @@ void TargetSetupPage::import(const Utils::FileName &path, const bool silent)
                 kit = k;
         }
         if (!kit)
-            kit = createTemporaryProfile(version, temporaryVersion, parsedSpec);
+            kit = createTemporaryKit(version, temporaryVersion, parsedSpec);
         else
             addProject(kit, m_proFilePath);
 
@@ -481,7 +481,7 @@ void TargetSetupPage::import(const Utils::FileName &path, const bool silent)
 void TargetSetupPage::handleQtUpdate(const QList<int> &add, const QList<int> &rm, const QList<int> &mod)
 {
     Q_UNUSED(add);
-    // Update Profile to no longer claim a Qt version is temporary once it is modified/removed.
+    // Update kit to no longer claim a Qt version is temporary once it is modified/removed.
     foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits()) {
         if (!k->hasValue(QT_IS_TEMPORARY))
             continue;
@@ -541,7 +541,7 @@ void TargetSetupPage::handleKitUpdate(ProjectExplorer::Kit *k)
     if (m_ignoreUpdates)
         return;
 
-    cleanProfile(k);
+    cleanKit(k);
     Qt4TargetSetupWidget *widget = m_widgets.value(k->id());
 
     bool acceptable = true;
@@ -556,17 +556,17 @@ void TargetSetupPage::handleKitUpdate(ProjectExplorer::Kit *k)
     updateVisibility();
 }
 
-void TargetSetupPage::selectAtLeastOneTarget()
+void TargetSetupPage::selectAtLeastOneKit()
 {
-    bool atLeastOneTargetSelected = false;
+    bool atLeastOneKitSelected = false;
     foreach (Qt4TargetSetupWidget *w, m_widgets.values()) {
         if (w->isKitSelected()) {
-            atLeastOneTargetSelected = true;
+            atLeastOneKitSelected = true;
             break;
         }
     }
 
-    if (!atLeastOneTargetSelected) {
+    if (!atLeastOneKitSelected) {
         Qt4TargetSetupWidget *widget = m_firstWidget;
         ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::instance()->defaultKit();
         if (defaultKit)
@@ -627,33 +627,34 @@ Qt4TargetSetupWidget *TargetSetupPage::addWidget(ProjectExplorer::Kit *k)
     return widget;
 }
 
-struct ProfileBuildInfo
+class KitBuildInfo
 {
-    ProfileBuildInfo(ProjectExplorer::Kit *p, const QList<BuildConfigurationInfo> &il) :
-        profile(p), infoList(il)
+public:
+    KitBuildInfo(ProjectExplorer::Kit *k, const QList<BuildConfigurationInfo> &il) :
+        kit(k), infoList(il)
     { }
 
-    ProjectExplorer::Kit *profile;
+    ProjectExplorer::Kit *kit;
     QList<BuildConfigurationInfo> infoList;
 };
 
 bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
 {
-    QList<ProfileBuildInfo> toRegister;
+    QList<KitBuildInfo> toRegister;
     foreach (Qt4TargetSetupWidget *widget, m_widgets.values()) {
         if (!widget->isKitSelected())
             continue;
 
         ProjectExplorer::Kit *p = widget->profile();
-        cleanProfile(p);
-        toRegister.append(ProfileBuildInfo(p, widget->selectedBuildConfigurationInfoList()));
-        widget->clearProfile();
+        cleanKit(p);
+        toRegister.append(KitBuildInfo(p, widget->selectedBuildConfigurationInfoList()));
+        widget->clearKit();
     }
     reset();
 
-    // only register targets after we are done cleaning up
-    foreach (const ProfileBuildInfo &data, toRegister)
-        project->addTarget(project->createTarget(data.profile, data.infoList));
+    // only register kits after we are done cleaning up
+    foreach (const KitBuildInfo &data, toRegister)
+        project->addTarget(project->createTarget(data.kit, data.infoList));
 
     // Select active target
     // a) Simulator target

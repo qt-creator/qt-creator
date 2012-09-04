@@ -169,7 +169,7 @@ CustomQt4ProjectWizard::CustomQt4ProjectWizard(const Core::BaseFileWizardParamet
 {
     BaseQt4ProjectWizardDialog *wizard = new BaseQt4ProjectWizardDialog(false, parent, wizardDialogParameters);
 
-    if (!wizardDialogParameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+    if (!wizardDialogParameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS))
         wizard->addTargetSetupPage(false, targetPageId);
 
     initProjectWizardDialog(wizard, wizardDialogParameters.defaultPath(),
@@ -193,7 +193,7 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWi
     ProjectExplorer::BaseProjectWizardDialog(parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0),
-    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_PROFILE_IDS).value<QList<Core::Id> >())
+    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_KIT_IDS).value<QList<Core::Id> >())
 {
     init(showModulesPage);
 }
@@ -205,7 +205,7 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
     ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0),
-    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_PROFILE_IDS).value<QList<Core::Id> >())
+    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_KIT_IDS).value<QList<Core::Id> >())
 {
     init(showModulesPage);
 }
@@ -258,7 +258,7 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(bool mobile, int id)
         setPage(id, m_targetSetupPage);
     else
         id = addPage(m_targetSetupPage);
-    wizardProgress()->item(id)->setTitle(tr("Targets"));
+    wizardProgress()->item(id)->setTitle(tr("Kits"));
 
     return id;
 }

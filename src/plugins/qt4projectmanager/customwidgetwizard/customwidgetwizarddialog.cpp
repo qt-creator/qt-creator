@@ -80,7 +80,7 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
     setIntroDescription(tr("This wizard generates a Qt4 Designer Custom Widget "
                            "or a Qt4 Designer Custom Widget Collection project."));
 
-    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS))
         addTargetSetupPage();
     m_widgetPageId = addPage(m_widgetsPage);
     m_pluginPageId = addPage(m_pluginPage);

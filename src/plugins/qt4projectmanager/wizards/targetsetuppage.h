@@ -93,7 +93,7 @@ private slots:
     void updateVisibility();
 
 private:
-    void selectAtLeastOneTarget();
+    void selectAtLeastOneKit();
     void import(const Utils::FileName &path, const bool silent);
     void removeWidget(ProjectExplorer::Kit *k);
     Qt4TargetSetupWidget *addWidget(ProjectExplorer::Kit *k);
@@ -102,8 +102,8 @@ private:
 
     void setupWidgets();
     void reset();
-    ProjectExplorer::Kit *createTemporaryProfile(QtSupport::BaseQtVersion *version, bool temporaryVersion, const Utils::FileName &parsedSpec);
-    void cleanProfile(ProjectExplorer::Kit *k);
+    ProjectExplorer::Kit *createTemporaryKit(QtSupport::BaseQtVersion *version, bool temporaryVersion, const Utils::FileName &parsedSpec);
+    void cleanKit(ProjectExplorer::Kit *k);
     void makeQtPersistent(ProjectExplorer::Kit *k);
     void addProject(ProjectExplorer::Kit *k, const QString &path);
     void removeProject(ProjectExplorer::Kit *k, const QString &path);

@@ -124,7 +124,7 @@ ProjectExplorer::Kit *Qt4TargetSetupWidget::profile()
     return m_kit;
 }
 
-void Qt4TargetSetupWidget::clearProfile()
+void Qt4TargetSetupWidget::clearKit()
 {
     m_kit = 0;
 }

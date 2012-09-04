@@ -68,7 +68,7 @@ public:
     ~Qt4TargetSetupWidget();
 
     ProjectExplorer::Kit *profile();
-    void clearProfile();
+    void clearKit();
 
     bool isKitSelected() const;
     void setKitSelected(bool b);

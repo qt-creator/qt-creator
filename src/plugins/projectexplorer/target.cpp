@@ -99,7 +99,7 @@ public:
     QPixmap m_readyToUsePixmap;
     QPixmap m_disconnectedPixmap;
 
-    Kit *m_profile;
+    Kit *m_kit;
 };
 
 TargetPrivate::TargetPrivate() :
@@ -110,7 +110,7 @@ TargetPrivate::TargetPrivate() :
     m_connectedPixmap(QLatin1String(":/projectexplorer/images/DeviceConnected.png")),
     m_readyToUsePixmap(QLatin1String(":/projectexplorer/images/DeviceReadyToUse.png")),
     m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/DeviceDisconnected.png")),
-    m_profile(0)
+    m_kit(0)
 {
 }
 
@@ -125,10 +125,10 @@ Target::Target(Project *project, Kit *p) :
 {
     connect(DeviceManager::instance(), SIGNAL(updated()), this, SLOT(updateDeviceState()));
 
-    d->m_profile = p;
+    d->m_kit = p;
 
-    setDisplayName(d->m_profile->displayName());
-    setIcon(d->m_profile->icon());
+    setDisplayName(d->m_kit->displayName());
+    setIcon(d->m_kit->icon());
 
     KitManager *pm = KitManager::instance();
     connect(pm, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
@@ -182,7 +182,7 @@ void Target::onBuildDirectoryChanged()
 
 void Target::handleKitUpdates(Kit *p)
 {
-    if (p != d->m_profile)
+    if (p != d->m_kit)
         return;
 
     setDisplayName(p->displayName());
@@ -193,9 +193,9 @@ void Target::handleKitUpdates(Kit *p)
 
 void Target::handleKitRemoval(Kit *p)
 {
-    if (p != d->m_profile)
+    if (p != d->m_kit)
         return;
-    d->m_profile = 0;
+    d->m_kit = 0;
     project()->removeTarget(this);
 }
 
@@ -206,7 +206,7 @@ Project *Target::project() const
 
 Kit *Target::kit() const
 {
-    return d->m_profile;
+    return d->m_kit;
 }
 
 void Target::addBuildConfiguration(BuildConfiguration *configuration)
@@ -488,7 +488,7 @@ void Target::setToolTip(const QString &text)
 
 QVariantMap Target::toMap() const
 {
-    if (!d->m_profile) // Profile was deleted, target is only around to be copied.
+    if (!d->m_kit) // Kit was deleted, target is only around to be copied.
         return QVariantMap();
 
     QVariantMap map(ProjectConfiguration::toMap());
@@ -728,8 +728,8 @@ bool Target::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
-    d->m_profile = KitManager::instance()->find(id());
-    if (!d->m_profile)
+    d->m_kit = KitManager::instance()->find(id());
+    if (!d->m_kit)
         return false;
 
     bool ok;

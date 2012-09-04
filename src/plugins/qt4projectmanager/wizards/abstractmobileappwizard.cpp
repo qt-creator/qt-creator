@@ -64,9 +64,9 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
     , m_genericItem(0)
     , m_maemoItem(0)
     , m_harmattanItem(0)
-    , m_kitIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_PROFILE_IDS).value<QList<Core::Id> >())
+    , m_kitIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_KIT_IDS).value<QList<Core::Id> >())
 {
-    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS)) {
+    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS)) {
         m_targetsPage = new TargetSetupPage;
         m_targetsPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(selectedPlatform()));
         m_targetsPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(requiredFeatures(),

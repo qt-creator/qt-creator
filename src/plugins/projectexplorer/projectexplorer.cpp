@@ -1102,7 +1102,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
     }
     d->m_buildManager->extensionsInitialized();
 
-    // Register ProfileInformation:
+    // Register KitInformation:
     // Only do this now to make sure all device factories were properly initialized.
     KitManager::instance()->registerKitInformation(new SysRootKitInformation);
     KitManager::instance()->registerKitInformation(new DeviceKitInformation);
@@ -2594,7 +2594,7 @@ void ProjectExplorerPlugin::addNewFile()
         QList<Core::Id> profileIds;
         foreach (Target *target, d->m_currentProject->targets())
             profileIds << target->id();
-        map.insert(QLatin1String(Constants::PROJECT_PROFILE_IDS), QVariant::fromValue(profileIds));
+        map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
     }
     Core::ICore::showNewItemDialog(tr("New File", "Title of dialog"),
                                Core::IWizard::wizardsOfKind(Core::IWizard::FileWizard)
@@ -2616,7 +2616,7 @@ void ProjectExplorerPlugin::addNewSubproject()
             QList<Core::Id> profileIds;
             foreach (Target *target, d->m_currentProject->targets())
                 profileIds << target->id();
-            map.insert(QLatin1String(Constants::PROJECT_PROFILE_IDS), QVariant::fromValue(profileIds));
+            map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), QVariant::fromValue(profileIds));
         }
 
         Core::ICore::showNewItemDialog(tr("New Subproject", "Title of dialog"),

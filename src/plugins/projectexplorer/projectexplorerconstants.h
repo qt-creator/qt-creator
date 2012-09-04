@@ -208,7 +208,7 @@ const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer
 
 // Wizard extra values
 const char PREFERED_PROJECT_NODE[] = "ProjectExplorer.PreferedProjectNode";
-const char PROJECT_PROFILE_IDS[] = "ProjectExplorer.Profile.Ids";
+const char PROJECT_KIT_IDS[] = "ProjectExplorer.Profile.Ids";
 
 // Build step lists ids:
 const char BUILDSTEPS_CLEAN[] = "ProjectExplorer.BuildSteps.Clean";
