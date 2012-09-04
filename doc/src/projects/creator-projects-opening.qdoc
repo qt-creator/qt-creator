@@ -39,19 +39,20 @@
     one environment to another. Therefore, we recommend that you click \gui No
     and enter the information again in the \gui {Configure Project} tab.
 
-    The \gui {Configure Project} tab displays a list of development environments
-    for target platforms that are installed on the development PC and
-    configured in \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets.
-    Select the targets that you want to build the project for.
+    The \gui {Configure Project} tab displays a list of \l{glossary-buildandrun-kit}{kits}
+    for building and running projects, that are installed on the development PC and
+    configured in \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits.
+    Select the kits that you want to build and run the project with.
 
     \image qtcreator-open-project-targets.png "Configure Project tab"
 
     Even if you do not intend to build the project, the C++ and QML code models
     need a Qt version and compiler to offer code completion. To specify them,
     select the \gui Options link, or select \gui {Tools > Options > Build & Run
-    > Targets}.
+    > Kits}.
 
-    If \QC cannot find an existing build for a particular target, it starts out
+    If \QC cannot find an existing build for a particular \l{glossary-buildandrun-kit}{kit},
+    it starts out
     from a clean slate, and creates new debug and release build configurations
     in the specified directory. \QC suggests a name
     and location for the directory that you can change.
@@ -71,7 +72,7 @@
         \o  Select \gui File > \gui{Open File or Project} and select the project
             to open.
 
-        \o  In the \gui {Configure Project} tab, select build targets for your
+        \o  In the \gui {Configure Project} tab, select kits for building and running your
             project, and click \gui {Configure Project}.
 
     \endlist

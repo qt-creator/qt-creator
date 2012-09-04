@@ -36,7 +36,7 @@
 #include "abi.h"
 #include "buildconfiguration.h"
 #include "projectexplorerconstants.h"
-#include "profileinformation.h"
+#include "kitinformation.h"
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/qtcassert.h>
@@ -357,7 +357,7 @@ ProjectExplorer::Abi RunConfiguration::abi() const
     BuildConfiguration *bc = target()->activeBuildConfiguration();
     if (!bc)
         return Abi::hostAbi();
-    ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
     if (!tc)
         return Abi::hostAbi();
     return tc->targetAbi();
@@ -556,6 +556,11 @@ Abi RunControl::abi() const
     if (const RunConfiguration *rc = m_runConfiguration.data())
         return rc->abi();
     return Abi();
+}
+
+RunConfiguration *RunControl::runConfiguration() const
+{
+    return m_runConfiguration.data();
 }
 
 ProcessHandle RunControl::applicationProcessHandle() const

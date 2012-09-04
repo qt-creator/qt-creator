@@ -32,9 +32,9 @@
 
 #include "buildtargetinfo.h"
 #include "deploymentdata.h"
-#include "profile.h"
-#include "profileinformation.h"
-#include "profilemanager.h"
+#include "kit.h"
+#include "kitinformation.h"
+#include "kitmanager.h"
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
 #include "project.h"
@@ -99,7 +99,7 @@ public:
     QPixmap m_readyToUsePixmap;
     QPixmap m_disconnectedPixmap;
 
-    Profile *m_profile;
+    Kit *m_kit;
 };
 
 TargetPrivate::TargetPrivate() :
@@ -110,7 +110,7 @@ TargetPrivate::TargetPrivate() :
     m_connectedPixmap(QLatin1String(":/projectexplorer/images/DeviceConnected.png")),
     m_readyToUsePixmap(QLatin1String(":/projectexplorer/images/DeviceReadyToUse.png")),
     m_disconnectedPixmap(QLatin1String(":/projectexplorer/images/DeviceDisconnected.png")),
-    m_profile(0)
+    m_kit(0)
 {
 }
 
@@ -119,22 +119,22 @@ QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
     return ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
 }
 
-Target::Target(Project *project, Profile *p) :
+Target::Target(Project *project, Kit *p) :
     ProjectConfiguration(project, p->id()),
     d(new TargetPrivate)
 {
     connect(DeviceManager::instance(), SIGNAL(updated()), this, SLOT(updateDeviceState()));
 
-    d->m_profile = p;
+    d->m_kit = p;
 
-    setDisplayName(d->m_profile->displayName());
-    setIcon(d->m_profile->icon());
+    setDisplayName(d->m_kit->displayName());
+    setIcon(d->m_kit->icon());
 
-    ProfileManager *pm = ProfileManager::instance();
-    connect(pm, SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
-            this, SLOT(handleProfileUpdates(ProjectExplorer::Profile*)));
-    connect(pm, SIGNAL(profileRemoved(ProjectExplorer::Profile*)),
-            this, SLOT(handleProfileRemoval(ProjectExplorer::Profile*)));
+    KitManager *pm = KitManager::instance();
+    connect(pm, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(handleKitUpdates(ProjectExplorer::Kit*)));
+    connect(pm, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
+            this, SLOT(handleKitRemoval(ProjectExplorer::Kit*)));
 }
 
 Target::~Target()
@@ -180,22 +180,22 @@ void Target::onBuildDirectoryChanged()
         emit buildDirectoryChanged();
 }
 
-void Target::handleProfileUpdates(Profile *p)
+void Target::handleKitUpdates(Kit *p)
 {
-    if (p != d->m_profile)
+    if (p != d->m_kit)
         return;
 
     setDisplayName(p->displayName());
     setIcon(p->icon());
     updateDefaultDeployConfigurations();
-    emit profileChanged();
+    emit kitChanged();
 }
 
-void Target::handleProfileRemoval(Profile *p)
+void Target::handleKitRemoval(Kit *p)
 {
-    if (p != d->m_profile)
+    if (p != d->m_kit)
         return;
-    d->m_profile = 0;
+    d->m_kit = 0;
     project()->removeTarget(this);
 }
 
@@ -204,9 +204,9 @@ Project *Target::project() const
     return static_cast<Project *>(parent());
 }
 
-Profile *Target::profile() const
+Kit *Target::kit() const
 {
-    return d->m_profile;
+    return d->m_kit;
 }
 
 void Target::addBuildConfiguration(BuildConfiguration *configuration)
@@ -494,7 +494,7 @@ void Target::setToolTip(const QString &text)
 
 QVariantMap Target::toMap() const
 {
-    if (!d->m_profile) // Profile was deleted, target is only around to be copied.
+    if (!d->m_kit) // Kit was deleted, target is only around to be copied.
         return QVariantMap();
 
     QVariantMap map(ProjectConfiguration::toMap());
@@ -680,7 +680,7 @@ static QString formatToolTip(const IDevice::DeviceInfo &input)
 
 void Target::updateDeviceState()
 {
-    IDevice::ConstPtr current = DeviceProfileInformation::device(profile());
+    IDevice::ConstPtr current = DeviceKitInformation::device(kit());
 
     QPixmap overlay;
     if (current.isNull()) {
@@ -734,8 +734,8 @@ bool Target::fromMap(const QVariantMap &map)
     if (!ProjectConfiguration::fromMap(map))
         return false;
 
-    d->m_profile = ProfileManager::instance()->find(id());
-    if (!d->m_profile)
+    d->m_kit = KitManager::instance()->find(id());
+    if (!d->m_kit)
         return false;
 
     bool ok;

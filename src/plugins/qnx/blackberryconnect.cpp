@@ -103,7 +103,7 @@ BlackBerryConnect::BlackBerryConnect(BlackBerryRunConfiguration *runConfig)
     m_deviceHost = deployConfig->deviceHost();
     m_password = deployConfig->password();
 
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target->profile());
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target->kit());
     m_publicKeyFile = device->sshParameters().privateKeyFile + QLatin1String(".pub");
 
     connect(m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));

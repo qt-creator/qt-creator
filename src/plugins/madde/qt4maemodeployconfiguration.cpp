@@ -45,7 +45,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <remotelinux/remotelinuxcheckforfreediskspacestep.h>
 #include <remotelinux/remotelinuxdeployconfigurationwidget.h>
@@ -118,7 +118,7 @@ void Qt4MaemoDeployConfiguration::setupPackaging()
 void Qt4MaemoDeployConfiguration::setupDebianPackaging()
 {
     Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
-    if (!bc || !target()->profile())
+    if (!bc || !target()->kit())
         return;
 
     Utils::FileName debianDir = DebianManager::debianDirectory(target());
@@ -135,7 +135,7 @@ void Qt4MaemoDeployConfiguration::setupDebianPackaging()
     if (status == DebianManager::NoActionRequired)
         return;
 
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
     QString projectName = target()->project()->displayName();
 
     if (!DebianManager::hasPackageManagerIcon(debianDir)) {
@@ -219,7 +219,7 @@ QList<Core::Id> Qt4MaemoDeployConfigurationFactory::availableCreationIds(Target 
     if (!canHandle(parent))
         return ids;
 
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
     if (deviceType == Maemo5OsType)
         ids << Qt4MaemoDeployConfiguration::fremantleWithPackagingId()
             << Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId();
@@ -279,7 +279,7 @@ bool Qt4MaemoDeployConfigurationFactory::canRestore(Target *parent, const QVaria
 {
     Core::Id id = idFromMap(map);
     return canHandle(parent) && availableCreationIds(parent).contains(id)
-            && MaemoGlobal::supportsMaemoDevice(parent->profile());
+            && MaemoGlobal::supportsMaemoDevice(parent->kit());
 }
 
 DeployConfiguration *Qt4MaemoDeployConfigurationFactory::restore(Target *parent, const QVariantMap &map)
@@ -308,9 +308,9 @@ bool Qt4MaemoDeployConfigurationFactory::canHandle(Target *parent) const
 {
     if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
         return false;
-    if (!parent->project()->supportsProfile(parent->profile()))
+    if (!parent->project()->supportsKit(parent->kit()))
         return false;
-    return MaemoGlobal::supportsMaemoDevice(parent->profile());
+    return MaemoGlobal::supportsMaemoDevice(parent->kit());
 }
 
 } // namespace Internal

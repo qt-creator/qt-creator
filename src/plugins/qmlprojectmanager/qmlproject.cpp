@@ -44,11 +44,11 @@
 #include <qtsupport/qmldumptool.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/fileutils.h>
-#include <projectexplorer/profileinformation.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
 #include <utils/filesystemwatcher.h>
 
@@ -157,8 +157,8 @@ void QmlProject::refresh(RefreshOptions options)
     pinfo.importPaths = importPaths();
     QtSupport::BaseQtVersion *version = 0;
     if (activeTarget()) {
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(activeTarget()->profile());
-        version = QtSupport::QtProfileInformation::qtVersion(activeTarget()->profile());
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(activeTarget()->kit());
+        version = QtSupport::QtKitInformation::qtVersion(activeTarget()->kit());
         QtSupport::QmlDumpTool::pathAndEnvironment(this, version, tc, false, &pinfo.qmlDumpPath, &pinfo.qmlDumpEnvironment);
     }
     if (version) {
@@ -269,14 +269,14 @@ ProjectExplorer::IProjectManager *QmlProject::projectManager() const
     return m_manager;
 }
 
-bool QmlProject::supportsProfile(ProjectExplorer::Profile *p) const
+bool QmlProject::supportsKit(ProjectExplorer::Kit *p) const
 {
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(p);
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(p);
     if (deviceType != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return false;
 
     // TODO: Limit supported versions?
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(p);
     return version;
 }
 
@@ -300,9 +300,9 @@ bool QmlProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-ProjectExplorer::Profile *defaultProfile = ProjectExplorer::ProfileManager::instance()->defaultProfile();
-    if (!activeTarget() && defaultProfile)
-        addTarget(createTarget(defaultProfile));
+    ProjectExplorer::Kit *defaultKit = ProjectExplorer::KitManager::instance()->defaultKit();
+    if (!activeTarget() && defaultKit)
+        addTarget(createTarget(defaultKit));
 
     refresh(Everything);
     // FIXME workaround to guarantee that run/debug actions are enabled if a valid file exists

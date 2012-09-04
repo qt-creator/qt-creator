@@ -49,7 +49,7 @@ class Environment;
 
 namespace ProjectExplorer {
 class IOutputParser;
-class Profile;
+class Kit;
 class ToolChain;
 } // namespace ProjectExplorer
 
@@ -131,7 +131,7 @@ public:
     QHash<QString,QString> versionInfo() const;
     static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name);
     QString qmakeProperty(const QByteArray &name) const;
-    virtual void addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const;
+    virtual void addToEnvironment(const ProjectExplorer::Kit *p, Utils::Environment &env) const;
 
     virtual Utils::FileName sourcePath() const;
     // used by QtUiCodeModelSupport
@@ -153,7 +153,7 @@ public:
     bool hasDemos() const;
     QString demosPath() const;
 
-    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPathes(const ProjectExplorer::Profile *p) const;
+    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPathes(const ProjectExplorer::Kit *p) const;
     virtual QString frameworkInstallPath() const;
 
     // former local functions
@@ -220,7 +220,7 @@ public:
     virtual QString platformDisplayName() const;
     virtual bool supportsPlatform(const QString &platformName) const;
 
-    virtual QList<ProjectExplorer::Task> validateProfile(const ProjectExplorer::Profile *p);
+    virtual QList<ProjectExplorer::Task> validateKit(const ProjectExplorer::Kit *k);
 
 protected:
     BaseQtVersion();

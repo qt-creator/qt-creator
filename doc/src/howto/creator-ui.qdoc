@@ -51,8 +51,8 @@
 
     You can use the mode selector (1) to change to another \QC mode.
 
-    You can use the target selector (2) to select the
-    \l{glossary-development-target}{target} for running (3), debugging (4), or
+    You can use the kit selector (2) to select the
+    \l{glossary-buildandrun-kit}{kit} for running (3), debugging (4), or
     building (5) the application. Output from these actions is displayed in the
     output panes (7).
 

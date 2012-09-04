@@ -107,7 +107,7 @@
 
         \if defined(qcmanual)
         \o  On Windows, you must create projects for Maemo 5 and Harmattan
-            targets on the same partition where you installed \QSDK, \QC, and
+            device types on the same partition where you installed \QSDK, \QC, and
             MADDE.
         \endif
 

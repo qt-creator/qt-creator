@@ -32,7 +32,7 @@
     \title Adding Qt Versions
 
     \QC allows you to have multiple versions of Qt installed on your development
-    PC and use different versions to build your projects for different targets.
+    PC and use different versions to build your projects.
     For example, \QSDK contains special Qt versions for developing applications
     for mobile devices.
 
@@ -42,8 +42,9 @@
     \gui {Qt version for} section. To add Qt versions, select
     \gui {Tools > Options > Build & Run > Qt Versions}.
 
-    You specify the Qt version to use for each \l{glossary-development-target}
-    {target} in \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets.
+    You specify the Qt version to use for each \l{glossary-buildandrun-kit}
+    {kit} for building and running your projects
+    in \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits.
 
     \section2 Setting Up New Qt Versions
 

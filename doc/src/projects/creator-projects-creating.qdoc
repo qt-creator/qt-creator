@@ -68,9 +68,9 @@
     use \QC as a code editor and to fully control the steps and commands used to
     build the project.
 
-    You can install mobile device \l{glossary-development-target}{targets}
-    as part of the \QSDK. The build and  run settings for the
-    installed targets are set up automatically. However, you might need to
+    You can install tools for mobile devices
+    as part of the \QSDK. The \l{glossary-buildandrun-kit}{kits} and build and run settings for the
+    installed device types are set up automatically. However, you might need to
     install and configure some additional software on the devices to be able to
     connect to them from the development PC.
 
@@ -78,7 +78,7 @@
 
     In the first step, you
     select a template for the project. You can filter templates (1) to view only
-    those that apply to a particular target.
+    those that apply to a particular device type.
 
     \image qtcreator-new-qt-quick-project-wizard.png
 
@@ -225,8 +225,8 @@
 
     To create a new project, select \gui File > \gui{New File or Project} and
     select the type of your project. The contents of the wizard dialogs depend
-    on the project type and the build targets that you select in the
-    \gui {Target Setup} dialog. Follow the instructions of the wizard.
+    on the project type and the \l{glossary-buildandrun-kit}{kits} that you select in the
+    \gui {Kit Selection} dialog. Follow the instructions of the wizard.
 
     For examples of creating different types of projects, see
     \l{Tutorials}.
@@ -238,8 +238,8 @@
     for building and running projects, select \gui{Tools} > \gui{Options} >
     \gui{Build & Run} > \gui{General}.
 
-    To specify build and run settings for different target platforms, select
-    \gui Projects.
+    To specify build and run settings for different target platforms    ,
+    select \gui Projects.
 
     \section1 Adding Files to Projects
 

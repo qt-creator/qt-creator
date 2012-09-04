@@ -32,7 +32,7 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
@@ -59,7 +59,7 @@ RemoteLinuxRunControl::RemoteLinuxRunControl(RunConfiguration *rc)
         : RunControl(rc, ProjectExplorer::NormalRunMode), d(new RemoteLinuxRunControlPrivate)
 {
     d->running = false;
-    d->device = DeviceProfileInformation::device(rc->target()->profile());
+    d->device = DeviceKitInformation::device(rc->target()->kit());
     const RemoteLinuxRunConfiguration * const lrc = qobject_cast<RemoteLinuxRunConfiguration *>(rc);
     d->remoteExecutable = lrc->remoteExecutableFilePath();
     d->arguments = lrc->arguments();

@@ -37,7 +37,7 @@
 #include "blackberrydeployconfigurationwidget.h"
 #include "blackberrydeployinformation.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
@@ -89,19 +89,19 @@ BlackBerryDeployInformation *BlackBerryDeployConfiguration::deploymentInfo() con
 
 QString BlackBerryDeployConfiguration::deviceHost() const
 {
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->profile());
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->kit());
     return device->sshParameters().host;
 }
 
 QString BlackBerryDeployConfiguration::password() const
 {
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->profile());
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->kit());
     return device->sshParameters().password;
 }
 
 QString BlackBerryDeployConfiguration::deviceName() const
 {
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->profile());
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->kit());
     return device->displayName();
 }
 

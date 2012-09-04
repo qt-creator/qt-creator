@@ -34,7 +34,7 @@
 #include "genericproject.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/pathchooser.h>
@@ -113,7 +113,7 @@ BuildConfigWidget *GenericBuildConfiguration::createConfigWidget()
 
 IOutputParser *GenericBuildConfiguration::createOutputParser() const
 {
-    ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     return tc ? tc->outputParser() : 0;
 }
 
@@ -223,7 +223,7 @@ BuildConfiguration *GenericBuildConfigurationFactory::restore(Target *parent, co
 
 bool GenericBuildConfigurationFactory::canHandle(const Target *t) const
 {
-    if (!t->project()->supportsProfile(t->profile()))
+    if (!t->project()->supportsKit(t->kit()))
         return false;
     return qobject_cast<GenericProject *>(t->project());
 }

@@ -34,20 +34,24 @@
     \image creator_buildingrunning.png
 
     \QC provides support for building, running, and deploying Qt applications
-    for different \l{glossary-development-target}{targets}.
+    for different targets, or using different compilers, debuggers or Qt versions.
+    \l{glossary-buildandrun-kit}{Kits} define the tools,
+    device type and other settings to use when building and running your project.
 
     \list
         \o  \l{Building for Multiple Targets}
 
             \e {Build configurations} contain everything you need to compile
-            the sources into binaries.
+            the sources into binaries. Build configurations use the tools and settings
+            defined in their corresponding \l{glossary-buildandrun-kit}{kit}.
 
         \o  \l{Running on Multiple Targets}
 
             \e {Run configurations} start the application in the location
             where it was copied by the \e{deploy configuration}. By default,
             when you select the \gui Run function, \QC builds the project,
-            deploys it to the selected target, and runs it there. However,
+            deploys it to the target defined in the \l{glossary-buildandrun-kit}{kit},
+            and runs it there. However,
             if you have not made any changes to the project since you last
             built and deployed it, \QC simply runs it again.
 
@@ -60,8 +64,8 @@
 
         \o  \l{Connecting Mobile Targets}
 
-            When you install tool chains for build targets as part of the \QSDK,
-            the build and run settings for mobile device targets are set up
+            When you install tool chains for device types as part of the \QSDK,
+            the build and run settings for mobile device types are set up
             automatically. However, you might need to install and configure some
             additional software on the devices to be able to connect to them
             from the development PC.
@@ -75,7 +79,7 @@
         \o  \l{Customizing the Build Process}
 
             By default, running an application also builds it and deploys it to
-            a location from where it can be run on the target. You can change
+            a location from where it can be run on the target device. You can change
             the relationship between the build, run, and deploy configurations.
 
         \o  \l{http://doc.qt.nokia.com/qtsimulator/index.html}
@@ -89,7 +93,9 @@
             Therefore, applications that run well on \QS also run on
             any device that hosts the Qt and Qt Mobility libraries.
             The \QS is installed as part of the \QSDK. After it is
-            installed, you can select it as a build target in \QC.
+            installed, you can create a \l{glossary-buildandrun-kit}{kit}
+            with \gui Desktop device type and the Qt Simulator Qt version for
+            building and running your projects.
 
         \o  \l{Using Maemo or MeeGo Harmattan Emulator}
 

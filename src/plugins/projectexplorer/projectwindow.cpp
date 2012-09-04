@@ -32,7 +32,7 @@
 
 #include "doubletabwidget.h"
 
-#include "profilemanager.h"
+#include "kitmanager.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -261,7 +261,7 @@ ProjectWindow::~ProjectWindow()
 
 void ProjectWindow::extensionsInitialized()
 {
-    connect(ProfileManager::instance(), SIGNAL(profilesChanged()), this, SLOT(handleProfilesChanges()));
+    connect(KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(handleKitChanges()));
 }
 
 void ProjectWindow::aboutToShutdown()
@@ -288,7 +288,7 @@ void ProjectWindow::projectUpdated(Project *p)
     m_tabWidget->setCurrentIndex(index);
 }
 
-void ProjectWindow::handleProfilesChanges()
+void ProjectWindow::handleKitChanges()
 {
     bool changed = false;
     int index = m_tabWidget->currentIndex();
@@ -330,7 +330,7 @@ void ProjectWindow::registerProject(ProjectExplorer::Project *project)
     m_hasTarget.insert(project, projectHasTarget);
 
     if (projectHasTarget) // Use the Targets page
-        subtabs << QCoreApplication::translate("TargetSettingsPanelFactory", "Targets");
+        subtabs << QCoreApplication::translate("TargetSettingsPanelFactory", "Build & Run");
 
     // Add the project specific pages
     QList<IProjectPanelFactory *> factories = ExtensionSystem::PluginManager::getObjects<IProjectPanelFactory>();

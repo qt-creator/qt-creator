@@ -37,7 +37,7 @@
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4projectmanagerconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
 using namespace ProjectExplorer;
@@ -71,7 +71,7 @@ bool MaemoPublishingWizardFactoryFremantleFree::canCreateWizard(const Project *p
     if (!qobject_cast<const Qt4Project *>(project))
         return false;
     foreach (const Target *const target, project->targets()) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target->profile());
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
         const QString &platform = version ? version->platformName() : QString();
         if (platform == QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM))
             return true;

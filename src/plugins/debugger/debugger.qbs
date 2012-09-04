@@ -33,10 +33,10 @@ QtcPlugin {
 
     files: [
         "debugger.qrc",
-        "debuggerprofileconfigwidget.cpp",
-        "debuggerprofileconfigwidget.h",
-        "debuggerprofileinformation.cpp",
-        "debuggerprofileinformation.h",
+        "debuggerkitconfigwidget.cpp",
+        "debuggerkitconfigwidget.h",
+        "debuggerkitinformation.cpp",
+        "debuggerkitinformation.h",
         "basewindow.cpp",
         "breakhandler.cpp",
         "breakhandler.h",

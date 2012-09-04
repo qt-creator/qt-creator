@@ -41,13 +41,13 @@
 
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
-#include <debugger/debuggerprofileinformation.h>
+#include <debugger/debuggerkitinformation.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -128,13 +128,13 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
 {
     Debugger::DebuggerStartParameters params;
     ProjectExplorer::Target *target = runConfig->target();
-    ProjectExplorer::Profile *profile = target->profile();
+    ProjectExplorer::Kit *k = target->kit();
 
     params.startMode = Debugger::AttachToRemoteServer;
-    params.debuggerCommand = Debugger::DebuggerProfileInformation::debuggerCommand(profile).toString();
-    params.sysRoot = ProjectExplorer::SysRootProfileInformation::sysRoot(profile).toString();
+    params.debuggerCommand = Debugger::DebuggerKitInformation::debuggerCommand(k).toString();
+    params.sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k).toString();
 
-    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(profile))
+    if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k))
         params.toolChainAbi = tc->targetAbi();
 
     params.executable = runConfig->localExecutableFilePath();
@@ -143,7 +143,7 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
     params.remoteSetupNeeded = true;
 
     if (runConfig->debuggerAspect()->useQmlDebugger()) {
-        BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(runConfig->target()->profile());
+        BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(runConfig->target()->kit());
         if (device) {
             params.qmlServerAddress = device->sshParameters().host;
             params.qmlServerPort = runConfig->debuggerAspect()->qmlDebugServerPort();
@@ -162,7 +162,7 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
     }
 
     BlackBerryQtVersion *qtVersion =
-            dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtProfileInformation::qtVersion(profile));
+            dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtKitInformation::qtVersion(k));
     if (qtVersion)
         params.solibSearchPath = QnxUtils::searchPaths(qtVersion);
 

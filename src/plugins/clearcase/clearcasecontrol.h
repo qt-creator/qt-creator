@@ -70,6 +70,9 @@ public:
 
     bool vcsAnnotate(const QString &file, int line);
 
+    QString vcsOpenText() const;
+    QString vcsMakeWritableText() const;
+
     void emitRepositoryChanged(const QString &);
     void emitFilesChanged(const QStringList &);
     void emitConfigurationChanged();

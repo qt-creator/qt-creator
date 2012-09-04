@@ -28,7 +28,7 @@ class QtQuickConstants:
         if target==QtQuickConstants.Targets.DESKTOP:
             return "Desktop"
         elif target==QtQuickConstants.Targets.MAEMO5:
-            return "Maemo5"
+            return "Fremantle"
         elif target==QtQuickConstants.Targets.SIMULATOR:
             return "Qt Simulator"
         elif target==QtQuickConstants.Targets.HARMATTAN:

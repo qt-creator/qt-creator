@@ -46,7 +46,7 @@ class QPushButton;
 class QSpacerItem;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Profile; }
+namespace ProjectExplorer { class Kit; }
 namespace QtSupport {
 class BaseQtVersion;
 } // namespace QtSupport
@@ -62,16 +62,16 @@ class QT4PROJECTMANAGER_EXPORT Qt4TargetSetupWidget : public QWidget
 {
     Q_OBJECT
 public:
-    Qt4TargetSetupWidget(ProjectExplorer::Profile *p,
+    Qt4TargetSetupWidget(ProjectExplorer::Kit *p,
                          const QString &proFilePath,
                          const QList<BuildConfigurationInfo> &infoList);
     ~Qt4TargetSetupWidget();
 
-    ProjectExplorer::Profile *profile();
-    void clearProfile();
+    ProjectExplorer::Kit *profile();
+    void clearKit();
 
-    bool isTargetSelected() const;
-    void setTargetSelected(bool b);
+    bool isKitSelected() const;
+    void setKitSelected(bool b);
 
     void addBuildConfigurationInfo(const BuildConfigurationInfo &info, bool importing = false);
 
@@ -83,19 +83,19 @@ signals:
     void selectedToggled() const;
 
 private slots:
-    void handleProfileUpdate(ProjectExplorer::Profile *p);
+    void handleKitUpdate(ProjectExplorer::Kit *k);
 
     void checkBoxToggled(bool b);
     void pathChanged();
     void targetCheckBoxToggled(bool b);
-    void manageProfile();
+    void manageKit();
 
 private:
     void reportIssues(int index);
     QPair<ProjectExplorer::Task::TaskType, QString> findIssues(const BuildConfigurationInfo &info);
     void clear();
 
-    ProjectExplorer::Profile *m_profile;
+    ProjectExplorer::Kit *m_kit;
     QString m_proFilePath;
     bool m_haveImported;
     Utils::DetailsWidget *m_detailsWidget;

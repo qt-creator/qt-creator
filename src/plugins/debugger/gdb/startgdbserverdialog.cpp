@@ -33,14 +33,14 @@
 #include "debuggercore.h"
 #include "debuggermainwindow.h"
 #include "debuggerplugin.h"
-#include "debuggerprofileinformation.h"
+#include "debuggerkitinformation.h"
 #include "debuggerrunner.h"
 #include "debuggerruncontrolfactory.h"
 #include "debuggerstartparameters.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/profilechooser.h>
+#include <projectexplorer/kitchooser.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <ssh/sshconnection.h>
@@ -69,7 +69,7 @@ public:
     DeviceProcessesDialog *dialog;
     bool startServerOnly;
     DeviceProcess process;
-    Profile *profile;
+    Kit *kit;
     IDevice::ConstPtr device;
 
     DeviceUsedPortsGatherer gatherer;
@@ -81,9 +81,9 @@ GdbServerStarter::GdbServerStarter(DeviceProcessesDialog *dlg, bool startServerO
 {
     d = new StartGdbServerDialogPrivate;
     d->dialog = dlg;
-    d->profile = dlg->profileChooser()->currentProfile();
+    d->kit = dlg->kitChooser()->currentKit();
     d->process = dlg->currentProcess();
-    d->device = DeviceProfileInformation::device(d->profile);
+    d->device = DeviceKitInformation::device(d->kit);
     d->startServerOnly = startServerOnly;
 }
 
@@ -169,7 +169,7 @@ void GdbServerStarter::handleProcessErrorOutput()
 
 void GdbServerStarter::attach(int port)
 {
-    QString sysroot = SysRootProfileInformation::sysRoot(d->profile).toString();
+    QString sysroot = SysRootKitInformation::sysRoot(d->kit).toString();
     QString binary;
     QString localExecutable;
     QString candidate = sysroot + d->process.exe;
@@ -207,7 +207,7 @@ void GdbServerStarter::attach(int port)
     }
 
     DebuggerStartParameters sp;
-    fillParameters(&sp, d->profile);
+    fillParameters(&sp, d->kit);
     sp.masterEngineType = GdbEngineType;
     sp.connParams.port = port;
     sp.displayName = tr("Remote: \"%1:%2\"").arg(sp.connParams.host).arg(port);

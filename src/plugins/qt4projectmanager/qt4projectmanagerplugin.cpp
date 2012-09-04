@@ -57,7 +57,7 @@
 #include "qt-desktop/simulatorqtversionfactory.h"
 #include "winceqtversionfactory.h"
 #include "unconfiguredprojectpanel.h"
-#include "qmakeprofileinformation.h"
+#include "qmakekitinformation.h"
 
 #include <coreplugin/id.h>
 #include <coreplugin/icore.h>
@@ -65,7 +65,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
@@ -131,7 +131,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     m_proFileEditorFactory = new ProFileEditorFactory(m_qt4ProjectManager, editorHandler);
 
-    ProjectExplorer::ProfileManager::instance()->registerProfileInformation(new QmakeProfileInformation);
+    ProjectExplorer::KitManager::instance()->registerKitInformation(new QmakeKitInformation);
 
     addObject(m_proFileEditorFactory);
 

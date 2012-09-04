@@ -37,7 +37,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/environmentwidget.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <remotelinux/remotelinuxrunconfigurationwidget.h>
@@ -82,12 +82,12 @@ MaemoRunConfigurationWidget::MaemoRunConfigurationWidget(
     QVBoxLayout *subLayout = new QVBoxLayout(m_subWidget);
     subLayout->setMargin(0);
     addMountWidgets(subLayout);
-    connect(m_runConfiguration->target(), SIGNAL(profileChanged()), this, SLOT(updateMountWarning()));
+    connect(m_runConfiguration->target(), SIGNAL(kitChanged()), this, SLOT(updateMountWarning()));
     connect(m_runConfiguration->debuggerAspect(), SIGNAL(debuggersChanged()),
             SLOT(updateMountWarning()));
     updateMountWarning();
 
-    Core::Id devId = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(runConfiguration->target()->profile());
+    Core::Id devId = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(runConfiguration->target()->kit());
     m_mountDetailsContainer->setVisible(MaddeDevice::allowsRemoteMounts(devId));
 
     connect(m_runConfiguration, SIGNAL(enabledChanged()),

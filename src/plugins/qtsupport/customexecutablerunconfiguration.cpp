@@ -410,7 +410,7 @@ CustomExecutableRunConfigurationFactory::clone(ProjectExplorer::Target *parent,
 
 bool CustomExecutableRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const
 {
-    return parent->project()->supportsProfile(parent->profile());
+    return parent->project()->supportsKit(parent->kit());
 }
 
 QList<Core::Id> CustomExecutableRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const

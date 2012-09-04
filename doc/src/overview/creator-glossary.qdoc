@@ -43,7 +43,8 @@
                 into binaries. Different build configurations allow you to
                 quickly build the project for different purposes.
                 By default, \QC creates \e {debug build} and \e {release build}
-                configurations for each \e target. A debug build contains
+                configurations for each \l{glossary-buildandrun-kit}{kit} defined for your project.
+                A debug build contains
                 additional debug symbols that you need for debugging the
                 application but that you can leave out from the release version.
                 Generally, you use the debug configuration for testing and the
@@ -80,6 +81,15 @@
                 a mobile device.
 
         \row
+            \o  Kit
+                \target glossary-buildandrun-kit
+            \o  \QC groups build and run specific settings as kits to make
+                cross-platform development easier. Each kit consists of a set
+                of values that define one environment, such as a device,
+                tool chain, Qt version, and debugger command to use. Configure kits at
+                \gui {Tools > Options > Build & Run > Kits}.
+
+        \row
             \o  Mode
                 \target glossary-mode
             \o  Adapts the \QC user interface to the different application
@@ -102,14 +112,15 @@
                 \target glossary-project-qt
             \o  \QC allows you to have multiple versions of Qt installed on your
                 development PC and use different versions to build your projects
-                for different \e targets.
+                for different purposes.
 
         \row
             \o  Run configuration
                 \target glossary-run-config
             \o  Starts the application in the location where it was copied by
                 the \e {deploy configuration}. By default, when you run a
-                project, \QC builds it, deploys it to the selected \e target,
+                project, \QC builds it, deploys it to the device specified in the selected
+                \l{glossary-buildandrun-kit}{kit},
                 and runs it there. However, if you have not made any changes to
                 the project since you last built and deployed it, \QC simply
                 runs it again.
@@ -125,23 +136,6 @@
                 configurations}. Therefore, shadow building is the best practice
                 if you need many build configurations for a single set of
                 source files.
-
-        \row
-            \o  Target
-                \target glossary-development-target
-            \o  \QC groups platform specific settings as targets to make
-                cross-platform development easier. Each target consists of a set
-                of values that define one environment, such as a device,
-                tool chain, Qt version, and debugger command to use.
-
-         \row
-            \o  Tool chain
-                \target glossary-tool-chain
-            \o  Specifies a compiler and a debugger and other necessary
-                tools for building an application for a particular \e target.
-                \QC tries to detect the tool chains that are available on your
-                system. You can manually add tool chains that are not detected
-                automatically.
 
     \endtable
 

@@ -38,7 +38,7 @@
 #include "uploadandinstalltarpackagestep.h"
 
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;

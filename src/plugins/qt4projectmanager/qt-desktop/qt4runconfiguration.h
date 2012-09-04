@@ -113,8 +113,8 @@ signals:
     void effectiveTargetInformationChanged();
 
 private slots:
-    void profileChanged();
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
+    void kitChanged();
+    void kitUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
 
 protected:
     Qt4RunConfiguration(ProjectExplorer::Target *parent, Qt4RunConfiguration *source);

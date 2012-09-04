@@ -6447,8 +6447,12 @@ int BaseTextEditorWidget::rowCount() const
 */
 void BaseTextEditorWidget::transformSelection(Internal::TransformationMethod method)
 {
-    QTextCursor cursor = textCursor();
+    if (hasBlockSelection()) {
+        transformBlockSelection(method);
+        return;
+    }
 
+    QTextCursor cursor = textCursor();
     int pos    = cursor.position();
     int anchor = cursor.anchor();
 
@@ -6472,6 +6476,57 @@ void BaseTextEditorWidget::transformSelection(Internal::TransformationMethod met
     cursor.setPosition(anchor);
     cursor.setPosition(pos, QTextCursor::KeepAnchor);
     setTextCursor(cursor);
+}
+
+void BaseTextEditorWidget::transformBlockSelection(Internal::TransformationMethod method)
+{
+    QTextCursor cursor = textCursor();
+    int minPos = cursor.anchor();
+    int maxPos = cursor.position();
+    if (minPos > maxPos)
+        qSwap(minPos, maxPos);
+    int leftBound = verticalBlockSelectionFirstColumn();
+    int rightBound = verticalBlockSelectionLastColumn();
+    BaseTextBlockSelection::Anchor anchorPosition = d->m_blockSelection.anchor;
+    QString text = cursor.selectedText();
+    QString transformedText = text;
+    QTextBlock currentLine = document()->findBlock(minPos);
+    int lineStart = currentLine.position();
+    do {
+        if (currentLine.contains(lineStart + leftBound)) {
+            int currentBlockWidth = qBound(0, currentLine.text().length() - leftBound,
+                                           rightBound - leftBound);
+            cursor.setPosition(lineStart + leftBound);
+            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, currentBlockWidth);
+            transformedText.replace(lineStart + leftBound - minPos, currentBlockWidth,
+                                    (cursor.selectedText().*method)());
+        }
+        currentLine = currentLine.next();
+        if (!currentLine.isValid())
+            break;
+        lineStart = currentLine.position();
+    } while (lineStart < maxPos);
+
+    if (transformedText == text) {
+        // if the transformation does not do anything to the selection, do no create an undo step
+        return;
+    }
+
+    cursor.setPosition(minPos);
+    cursor.setPosition(maxPos, QTextCursor::KeepAnchor);
+    cursor.insertText(transformedText);
+    // restore former block selection
+    if (anchorPosition <= BaseTextBlockSelection::TopRight)
+        qSwap(minPos, maxPos);
+    cursor.setPosition(minPos);
+    cursor.setPosition(maxPos, QTextCursor::KeepAnchor);
+    d->m_blockSelection.fromSelection(tabSettings(), cursor);
+    d->m_blockSelection.anchor = anchorPosition;
+    d->m_inBlockSelectionMode = true;
+    d->m_blockSelection.firstVisualColumn = leftBound;
+    d->m_blockSelection.lastVisualColumn = rightBound;
+    setTextCursor(d->m_blockSelection.selection(tabSettings()));
+    viewport()->update();
 }
 
 void BaseTextEditorWidget::inSnippetMode(bool *active)

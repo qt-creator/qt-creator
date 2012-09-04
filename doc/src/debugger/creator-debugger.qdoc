@@ -252,9 +252,9 @@
 
     While this setup might look daunting, it is mostly invisible to
     the user of \QC. To start debugging on a remote target with the
-    necessary helper processes running, select the target in
-    \gui{Projects > Build Settings}
-    or in the \gui{Debug > Start Debugging} menu.
+    necessary helper processes running, select the corresponding
+    \l{glossary-buildandrun-kit}{kit} in
+    \gui{Projects > Build & Run} or in the \gui{Debug > Start Debugging} menu.
 
     Special use cases, such as attaching to a running process on the
     target, might still require manual setup.
@@ -693,8 +693,7 @@
     which may contain both release and debug versions of the library. When you run
     applications on the Mac OS desktop, the release version of Frameworks is used
     by default. To step into Frameworks, select the \gui {Use debug versions of
-    Frameworks} option in the project run settings for \gui Desktop and
-    \gui {\QS} targets.
+    Frameworks} option in the project run settings.
 
     \section2 Viewing Threads
 
@@ -792,7 +791,7 @@
     To give the user simple access also to these items, \QC employs
     so-called Debugging Helpers. Debugging Helpers come in two varieties,
     compiled, and Python based, depending on the selected
-    \l{glossary-development-target}{target}.
+    \l{glossary-buildandrun-kit}{kit}.
 
     By default, Debugging Helpers are automatically and transparently used.
     To disable them, select \gui Tools > \gui Options > \gui Debugger >

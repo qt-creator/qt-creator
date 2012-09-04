@@ -37,7 +37,7 @@
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerstartparameters.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <utils/portlist.h>
@@ -72,7 +72,7 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
     const RemoteLinuxRunConfiguration * const remoteRunConfig
             = qobject_cast<RemoteLinuxRunConfiguration *>(runConfiguration);
     if (mode == DebugRunMode) {
-        IDevice::ConstPtr dev = DeviceProfileInformation::device(runConfiguration->target()->profile());
+        IDevice::ConstPtr dev = DeviceKitInformation::device(runConfiguration->target()->kit());
         if (dev.isNull())
             return false;
         return remoteRunConfig->portsUsedByDebuggers() <= dev->freePorts().count();

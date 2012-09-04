@@ -496,7 +496,7 @@ QString CMakeRunConfigurationFactory::displayNameForId(const Core::Id id) const
 
 bool CMakeRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const
 {
-    if (!parent->project()->supportsProfile(parent->profile()))
+    if (!parent->project()->supportsKit(parent->kit()))
         return false;
     return qobject_cast<CMakeProject *>(parent->project());
 }

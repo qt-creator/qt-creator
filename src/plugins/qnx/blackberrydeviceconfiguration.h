@@ -37,7 +37,7 @@
 #include <remotelinux/linuxdevice.h>
 
 namespace ProjectExplorer {
-class Profile;
+class Kit;
 }
 
 namespace Qnx {
@@ -67,7 +67,7 @@ public:
     void executeAction(Core::Id actionId, QWidget *parent) const;
     ProjectExplorer::IDevice::Ptr clone() const;
 
-    static ConstPtr device(const ProjectExplorer::Profile *p);
+    static ConstPtr device(const ProjectExplorer::Kit *k);
 
 protected:
     BlackBerryDeviceConfiguration();

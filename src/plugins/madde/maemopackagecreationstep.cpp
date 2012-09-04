@@ -39,7 +39,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -98,7 +98,7 @@ bool AbstractMaemoPackageCreationStep::init()
             QLatin1String("nostrip"), QLatin1String(" "));
     }
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!version) {
         raiseError(tr("Packaging failed: No Qt version."));
         return false;
@@ -238,7 +238,7 @@ void AbstractMaemoPackageCreationStep::preparePackagingProcess(QProcess *proc,
 
 QString AbstractMaemoPackageCreationStep::replaceDots(const QString &name) const
 {
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
     // Idiotic OVI store requirement for N900 (but not allowed for N9 ...).
     if (deviceType == Maemo5OsType) {
         QString adaptedName = name;
@@ -276,7 +276,7 @@ bool MaemoDebianPackageCreationStep::init()
 {
     if (!AbstractMaemoPackageCreationStep::init())
         return false;
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     m_maddeRoot = MaemoGlobal::maddeRoot(version->qmakeCommand().toString());
     m_projectDirectory = project()->projectDirectory();
     m_pkgFileName = DebianManager::packageFileName(DebianManager::debianDirectory(target())).toString();

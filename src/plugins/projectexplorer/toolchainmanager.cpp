@@ -31,7 +31,7 @@
 #include "toolchainmanager.h"
 
 #include "abi.h"
-#include "profileinformation.h"
+#include "kitinformation.h"
 #include "toolchain.h"
 
 #include <coreplugin/icore.h>
@@ -209,7 +209,8 @@ ToolChainManager::~ToolChainManager()
 
 void ToolChainManager::saveToolChains()
 {
-    d->m_writer->saveValue(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 1);
+    QVariantMap data;
+    data.insert(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 1);
 
     int count = 0;
     foreach (ToolChain *tc, d->toolChains()) {
@@ -217,12 +218,12 @@ void ToolChainManager::saveToolChains()
             QVariantMap tmp = tc->toMap();
             if (tmp.isEmpty())
                 continue;
-            d->m_writer->saveValue(QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(count), tmp);
+            data.insert(QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(count), tmp);
             ++count;
         }
     }
-    d->m_writer->saveValue(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
-    d->m_writer->save(Core::ICore::mainWindow());
+    data.insert(QLatin1String(TOOLCHAIN_COUNT_KEY), count);
+    d->m_writer->save(data, Core::ICore::mainWindow());
 
     // Do not save default debuggers! Those are set by the SDK!
 }

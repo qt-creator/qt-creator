@@ -32,7 +32,7 @@
 #include "maemoqemumanager.h"
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <remotelinux/abstractremotelinuxdeployservice.h>
 #include <utils/qtcassert.h>
 
@@ -66,7 +66,7 @@ private:
         }
 
         MaemoQemuRuntime rt;
-        const int qtId = QtSupport::QtProfileInformation::qtVersionId(profile());
+        const int qtId = QtSupport::QtKitInformation::qtVersionId(profile());
         if (MaemoQemuManager::instance().runtimeForQtVersion(qtId, &rt)) {
             MaemoQemuManager::instance().startRuntime();
             emit errorMessage(tr("Cannot deploy: Qemu was not running. "

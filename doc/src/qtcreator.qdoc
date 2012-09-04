@@ -169,7 +169,7 @@
             \list
                 \o  \l{Specifying Build Settings}
                 \list
-                    \o  \l{Adding Targets}
+                    \o  \l{Adding Kits}
                     \o  \l{Adding Qt Versions}
                     \o  \l{Adding Compilers}
                 \endlist

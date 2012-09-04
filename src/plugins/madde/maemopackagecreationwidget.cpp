@@ -36,7 +36,7 @@
 #include "maemopackagecreationstep.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -71,7 +71,7 @@ void MaemoPackageCreationWidget::initGui()
 {
     m_ui->shortDescriptionLineEdit->setMaxLength(60);
     updateVersionInfo();
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(m_step->target()->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(m_step->target()->kit());
     const Utils::FileName path = DebianManager::debianDirectory(m_step->target());
     const QSize iconSize = MaddeDevice::packageManagerIconSize(deviceType);
     m_ui->packageManagerIconButton->setFixedSize(iconSize);
@@ -170,7 +170,7 @@ void MaemoPackageCreationWidget::updatePackageManagerName()
 {
     const Utils::FileName path = DebianManager::debianDirectory(m_step->target());
     Core::Id deviceType
-            = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(m_step->target()->profile());
+            = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(m_step->target()->kit());
     m_ui->packageManagerNameLineEdit->setText(DebianManager::packageManagerName(path, deviceType));
 }
 
@@ -184,7 +184,7 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
 {
     const Utils::FileName path = DebianManager::debianDirectory(m_step->target());
     Core::Id deviceType
-            = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(m_step->target()->profile());
+            = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(m_step->target()->kit());
     QString imageFilter = tr("Images") + QLatin1String("( ");
     const QList<QByteArray> &imageTypes = QImageReader::supportedImageFormats();
     foreach (const QByteArray &imageType, imageTypes)
@@ -215,7 +215,7 @@ void MaemoPackageCreationWidget::setPackageManagerName()
 {
     const Utils::FileName path = DebianManager::debianDirectory(m_step->target());
     Core::Id deviceType
-            = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(m_step->target()->profile());
+            = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(m_step->target()->kit());
     if (!DebianManager::setPackageManagerName(path, deviceType, m_ui->packageManagerNameLineEdit->text())) {
         QMessageBox::critical(this, tr("File Error"),
             tr("Could not set package name for project manager."));

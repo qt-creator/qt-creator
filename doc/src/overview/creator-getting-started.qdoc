@@ -49,7 +49,7 @@
                 with the parts of the user interface, go to \l{User Interface}.
             \o  \bold {\l{Building and Running an Example}}
 
-                To check that \l{glossary-development-target}{targets} were
+                To check that \l{glossary-buildandrun-kit}{kits} for building and running were
                 successfully installed as part of the \QSDK installation, open
                 an example application and run it. If you have not done so
                 before, go to \l{Building and Running an Example}.

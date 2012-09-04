@@ -29,8 +29,8 @@
 
 #include "devicesupport/deviceprocessesdialog.h"
 #include "devicesupport/deviceprocesslist.h"
-#include "profilechooser.h"
-#include "profileinformation.h"
+#include "kitchooser.h"
+#include "kitinformation.h"
 
 #include <utils/filterlineedit.h>
 #include <utils/qtcassert.h>
@@ -113,7 +113,7 @@ public:
     QWidget *q;
     DeviceProcessList *processList;
     ProcessListFilterModel proxyModel;
-    ProfileChooser *profileChooser;
+    KitChooser *kitChooser;
 
     QTreeView *procView;
     QTextBrowser *errorText;
@@ -133,7 +133,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QWidget *parent)
     processFilterLineEdit->setPlaceholderText(DeviceProcessesDialog::tr("Filter"));
     processFilterLineEdit->setFocus(Qt::TabFocusReason);
 
-    profileChooser = new ProfileChooser(q);
+    kitChooser = new KitChooser(q);
 
     procView = new QTreeView(q);
     procView->setModel(&proxyModel);
@@ -157,7 +157,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QWidget *parent)
 
     QFormLayout *leftColumn = new QFormLayout();
     leftColumn->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    leftColumn->addRow(DeviceProcessesDialog::tr("Target:"), profileChooser);
+    leftColumn->addRow(DeviceProcessesDialog::tr("Kit:"), kitChooser);
     leftColumn->addRow(DeviceProcessesDialog::tr("&Filter:"), processFilterLineEdit);
 
 //    QVBoxLayout *rightColumn = new QVBoxLayout();
@@ -185,7 +185,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QWidget *parent)
         SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
         SLOT(updateButtons()));
     connect(updateListButton, SIGNAL(clicked()), SLOT(updateProcessList()));
-    connect(profileChooser, SIGNAL(currentIndexChanged(int)), SLOT(updateDevice()));
+    connect(kitChooser, SIGNAL(currentIndexChanged(int)), SLOT(updateDevice()));
     connect(killProcessButton, SIGNAL(clicked()), SLOT(killProcess()));
     connect(&proxyModel, SIGNAL(layoutChanged()), SLOT(handleProcessListUpdated()));
     connect(buttonBox, SIGNAL(accepted()), q, SLOT(accept()));
@@ -246,7 +246,7 @@ void DeviceProcessesDialogPrivate::killProcess()
 
 void DeviceProcessesDialogPrivate::updateDevice()
 {
-    setDevice(DeviceProfileInformation::device(profileChooser->currentProfile()));
+    setDevice(DeviceKitInformation::device(kitChooser->currentKit()));
 }
 
 void DeviceProcessesDialogPrivate::handleProcessKilled()
@@ -323,13 +323,13 @@ void DeviceProcessesDialog::addCloseButton()
 
 void DeviceProcessesDialog::setDevice(const IDevice::ConstPtr &device)
 {
-    d->profileChooser->hide();
+    d->kitChooser->hide();
     d->setDevice(device);
 }
 
 void DeviceProcessesDialog::showAllDevices()
 {
-    d->profileChooser->show();
+    d->kitChooser->show();
     d->updateDevice();
 }
 
@@ -338,9 +338,9 @@ DeviceProcess DeviceProcessesDialog::currentProcess() const
     return d->selectedProcess();
 }
 
-ProfileChooser *DeviceProcessesDialog::profileChooser() const
+KitChooser *DeviceProcessesDialog::kitChooser() const
 {
-    return d->profileChooser;
+    return d->kitChooser;
 }
 
 void DeviceProcessesDialog::logMessage(const QString &line)

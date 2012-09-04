@@ -66,7 +66,7 @@ QString IAnalyzerTool::defaultActionName(const IAnalyzerTool *tool, StartMode mo
 {
     QString base = tool->displayName();
     if (mode == StartRemote)
-        return base + tr(" (Remote)");
+        return base + tr(" (External)");
     return base;
 }
 

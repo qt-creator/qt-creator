@@ -94,7 +94,7 @@ QList<ProjectExplorer::Abi> QnxAbstractQtVersion::detectQtAbis() const
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
-void QnxAbstractQtVersion::addToEnvironment(const ProjectExplorer::Profile *p, Utils::Environment &env) const
+void QnxAbstractQtVersion::addToEnvironment(const ProjectExplorer::Kit *p, Utils::Environment &env) const
 {
     QtSupport::BaseQtVersion::addToEnvironment(p, env);
 

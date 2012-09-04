@@ -257,7 +257,7 @@ signals:
                           const QHash<Qt4Variable, QStringList> &oldValues,
                           const QHash<Qt4Variable, QStringList> &newValues);
 
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *projectNode, bool success, bool parseInProgress);
+    void kitUpdated(Qt4ProjectManager::Qt4ProFileNode *projectNode, bool success, bool parseInProgress);
 
 private:
     // let them emit signals

@@ -32,15 +32,15 @@
 #include "debuggerstartparameters.h"
 
 #include "debuggerconstants.h"
-#include "debuggerprofileinformation.h"
+#include "debuggerkitinformation.h"
 #include "debuggerstringutils.h"
 #include "cdb/cdbengine.h"
 #include "shared/hostutils.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
-#include <projectexplorer/profilechooser.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitchooser.h>
+#include <projectexplorer/kitinformation.h>
 #include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -88,7 +88,7 @@ namespace Internal {
 class StartApplicationDialogPrivate
 {
 public:
-    ProfileChooser *profileChooser;
+    KitChooser *kitChooser;
     PathChooser *localExecutablePathChooser;
     FancyLineEdit *arguments;
     PathChooser *workingDirectory;
@@ -127,7 +127,7 @@ public:
     bool operator==(const StartApplicationParameters &p) const { return equals(p); }
     bool operator!=(const StartApplicationParameters &p) const { return !equals(p); }
 
-    Id profileId;
+    Id kitId;
     QString localExecutable;
     QString processArgs;
     QString workingDirectory;
@@ -150,7 +150,7 @@ bool StartApplicationParameters::equals(const StartApplicationParameters &rhs) c
         && breakAtMain == rhs.breakAtMain
         && runInTerminal == rhs.runInTerminal
         && serverStartScript == rhs.serverStartScript
-        && profileId == rhs.profileId
+        && kitId == rhs.kitId
         && debugInfoLocation == rhs.debugInfoLocation;
 }
 
@@ -167,15 +167,15 @@ QString StartApplicationParameters::displayName() const
         name += QLatin1String("...");
     }
 
-    if (Profile *profile = ProfileManager::instance()->find(profileId))
-        name += QString::fromLatin1(" (%1)").arg(profile->displayName());
+    if (Kit *kit = KitManager::instance()->find(kitId))
+        name += QString::fromLatin1(" (%1)").arg(kit->displayName());
 
     return name;
 }
 
 void StartApplicationParameters::toSettings(QSettings *settings) const
 {
-    settings->setValue(_("LastProfileId"), profileId.toString());
+    settings->setValue(_("LastProfileId"), kitId.toString());
     settings->setValue(_("LastExternalExecutable"), localExecutable);
     settings->setValue(_("LastExternalExecutableArguments"), processArgs);
     settings->setValue(_("LastExternalWorkingDirectory"), workingDirectory);
@@ -187,8 +187,8 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
 
 void StartApplicationParameters::fromSettings(const QSettings *settings)
 {
-    const QString profileIdString = settings->value(_("LastProfileId")).toString();
-    profileId = profileIdString.isEmpty() ? Id() : Id(profileIdString);
+    const QString kitIdString = settings->value(_("LastProfileId")).toString();
+    kitId = kitIdString.isEmpty() ? Id() : Id(kitIdString);
     localExecutable = settings->value(_("LastExternalExecutable")).toString();
     processArgs = settings->value(_("LastExternalExecutableArguments")).toString();
     workingDirectory = settings->value(_("LastExternalWorkingDirectory")).toString();
@@ -225,7 +225,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
 
     d->runInTerminalCheckBox = new QCheckBox(this);
 
-    d->profileChooser = new ProfileChooser(this, ProfileChooser::LocalDebugging);
+    d->kitChooser = new KitChooser(this, KitChooser::LocalDebugging);
 
     d->breakAtMainCheckBox = new QCheckBox(this);
     d->breakAtMainCheckBox->setText(QString());
@@ -263,7 +263,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
 
     QFormLayout *formLayout = new QFormLayout();
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    formLayout->addRow(tr("&Target:"), d->profileChooser);
+    formLayout->addRow(tr("&Kit:"), d->kitChooser);
     formLayout->addRow(tr("Local &executable:"), d->localExecutablePathChooser);
     formLayout->addRow(tr("Command line &arguments:"), d->arguments);
     formLayout->addRow(tr("&Working directory:"), d->workingDirectory);
@@ -319,9 +319,9 @@ void StartApplicationDialog::historyIndexChanged(int index)
     setParameters(v.value<StartApplicationParameters>());
 }
 
-Id StartApplicationDialog::profileId() const
+Id StartApplicationDialog::kitId() const
 {
-    return d->profileChooser->currentProfileId();
+    return d->kitChooser->currentKitId();
 }
 
 void StartApplicationDialog::updateState()
@@ -373,9 +373,9 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
         settings->endGroup();
     }
 
-    Profile *profile = dialog.d->profileChooser->currentProfile();
-    QTC_ASSERT(profile, return false);
-    fillParameters(sp, profile);
+    Kit *kit = dialog.d->kitChooser->currentKit();
+    QTC_ASSERT(kit, return false);
+    fillParameters(sp, kit);
 
     sp->executable = newParameters.localExecutable;
     sp->displayName = newParameters.displayName();
@@ -387,7 +387,7 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     sp->serverStartScript = newParameters.serverStartScript;
     sp->debugInfoLocation = newParameters.debugInfoLocation;
 
-    bool isLocal = DeviceProfileInformation::device(profile)->type()
+    bool isLocal = DeviceKitInformation::device(kit)->type()
          == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     sp->startMode = isLocal ? StartExternal : StartRemoteProcess;
     return true;
@@ -398,7 +398,7 @@ StartApplicationParameters StartApplicationDialog::parameters() const
     StartApplicationParameters result;
     result.localExecutable = d->localExecutablePathChooser->path();
     result.serverStartScript = d->serverStartScriptPathChooser->path();
-    result.profileId = d->profileChooser->currentProfileId();
+    result.kitId = d->kitChooser->currentKitId();
     result.debugInfoLocation = d->debuginfoPathChooser->path();
     result.processArgs = d->arguments->text();
     result.workingDirectory = d->workingDirectory->path();
@@ -409,7 +409,7 @@ StartApplicationParameters StartApplicationDialog::parameters() const
 
 void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
 {
-    d->profileChooser->setCurrentProfileId(p.profileId);
+    d->kitChooser->setCurrentKitId(p.kitId);
     d->localExecutablePathChooser->setPath(p.localExecutable);
     d->serverStartScriptPathChooser->setPath(p.serverStartScript);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);
@@ -430,7 +430,7 @@ class AttachToQmlPortDialogPrivate
 {
 public:
     QSpinBox *portSpinBox;
-    ProfileChooser *profileChooser;
+    KitChooser *kitChooser;
 };
 
 AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
@@ -440,7 +440,7 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->profileChooser = new ProfileChooser(this);
+    d->kitChooser = new KitChooser(this);
 
     d->portSpinBox = new QSpinBox(this);
     d->portSpinBox->setMaximum(65535);
@@ -451,7 +451,7 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     QFormLayout *formLayout = new QFormLayout();
-    formLayout->addRow(tr("Target:"), d->profileChooser);
+    formLayout->addRow(tr("Kit:"), d->kitChooser);
     formLayout->addRow(tr("&Port:"), d->portSpinBox);
 
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
@@ -477,14 +477,14 @@ int AttachToQmlPortDialog::port() const
     return d->portSpinBox->value();
 }
 
-Profile *AttachToQmlPortDialog::profile() const
+Kit *AttachToQmlPortDialog::kit() const
 {
-    return d->profileChooser->currentProfile();
+    return d->kitChooser->currentKit();
 }
 
-void AttachToQmlPortDialog::setProfileId(const Id &id)
+void AttachToQmlPortDialog::setKitId(const Id &id)
 {
-    d->profileChooser->setCurrentProfileId(id);
+    d->kitChooser->setCurrentKitId(id);
 }
 
 // --------- StartRemoteCdbDialog

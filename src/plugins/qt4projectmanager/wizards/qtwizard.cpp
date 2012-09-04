@@ -41,10 +41,10 @@
 
 #include <cpptools/cpptoolsconstants.h>
 
-#include <projectexplorer/profile.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/task.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -169,7 +169,7 @@ CustomQt4ProjectWizard::CustomQt4ProjectWizard(const Core::BaseFileWizardParamet
 {
     BaseQt4ProjectWizardDialog *wizard = new BaseQt4ProjectWizardDialog(false, parent, wizardDialogParameters);
 
-    if (!wizardDialogParameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+    if (!wizardDialogParameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS))
         wizard->addTargetSetupPage(false, targetPageId);
 
     initProjectWizardDialog(wizard, wizardDialogParameters.defaultPath(),
@@ -193,7 +193,7 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWi
     ProjectExplorer::BaseProjectWizardDialog(parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0),
-    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_PROFILE_IDS).value<QList<Core::Id> >())
+    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_KIT_IDS).value<QList<Core::Id> >())
 {
     init(showModulesPage);
 }
@@ -205,7 +205,7 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
     ProjectExplorer::BaseProjectWizardDialog(introPage, introId, parent, parameters),
     m_modulesPage(0),
     m_targetSetupPage(0),
-    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_PROFILE_IDS).value<QList<Core::Id> >())
+    m_profileIds(parameters.extraValues().value(ProjectExplorer::Constants::PROJECT_KIT_IDS).value<QList<Core::Id> >())
 {
     init(showModulesPage);
 }
@@ -247,18 +247,18 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(bool mobile, int id)
     Core::FeatureSet features = mobile ? Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE)
                                        : Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
     if (platform.isEmpty())
-        m_targetSetupPage->setPreferredProfileMatcher(new QtSupport::QtVersionProfileMatcher(features));
+        m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
     else
-        m_targetSetupPage->setPreferredProfileMatcher(new QtSupport::QtPlatformProfileMatcher(platform));
+        m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(platform));
 
-    m_targetSetupPage->setRequiredProfileMatcher(new QtSupport::QtVersionProfileMatcher(requiredFeatures()));
+    m_targetSetupPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(requiredFeatures()));
 
     resize(900, 450);
     if (id >= 0)
         setPage(id, m_targetSetupPage);
     else
         id = addPage(m_targetSetupPage);
-    wizardProgress()->item(id)->setTitle(tr("Targets"));
+    wizardProgress()->item(id)->setTitle(tr("Kits"));
 
     return id;
 }
@@ -322,23 +322,23 @@ bool BaseQt4ProjectWizardDialog::setupProject(Qt4Project *project) const
 
 bool BaseQt4ProjectWizardDialog::isQtPlatformSelected(const QString &platform) const
 {
-    QList<Core::Id> selectedProfileList = selectedProfiles();
+    QList<Core::Id> selectedKitList = selectedKits();
 
-    QtSupport::QtPlatformProfileMatcher matcher(platform);
-    QList<ProjectExplorer::Profile *> allProfileList
-            = ProjectExplorer::ProfileManager::instance()->profiles(&matcher);
-    foreach (ProjectExplorer::Profile *p, allProfileList) {
-        if (selectedProfileList.contains(p->id()))
+    QtSupport::QtPlatformKitMatcher matcher(platform);
+    QList<ProjectExplorer::Kit *> kitList
+            = ProjectExplorer::KitManager::instance()->kits(&matcher);
+    foreach (ProjectExplorer::Kit *p, kitList) {
+        if (selectedKitList.contains(p->id()))
             return true;
     }
     return false;
 }
 
-QList<Core::Id> BaseQt4ProjectWizardDialog::selectedProfiles() const
+QList<Core::Id> BaseQt4ProjectWizardDialog::selectedKits() const
 {
     if (!m_targetSetupPage)
         return m_profileIds;
-    return m_targetSetupPage->selectedProfiles();
+    return m_targetSetupPage->selectedKits();
 }
 
 void BaseQt4ProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)

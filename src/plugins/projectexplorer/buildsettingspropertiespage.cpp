@@ -173,7 +173,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     connect(m_target, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
             this, SLOT(updateActiveConfiguration()));
 
-    connect(m_target, SIGNAL(profileChanged()), this, SLOT(updateAddButtonMenu()));
+    connect(m_target, SIGNAL(kitChanged()), this, SLOT(updateAddButtonMenu()));
 }
 
 void BuildSettingsWidget::addSubWidget(BuildConfigWidget *widget)

@@ -39,7 +39,7 @@
 #include "debuggerplugin.h"
 #include "debuggerstringutils.h"
 #include "debuggerstartparameters.h"
-#include "debuggerprofileinformation.h"
+#include "debuggerkitinformation.h"
 #include "lldb/lldbenginehost.h"
 #include "debuggertooltipmanager.h"
 
@@ -485,8 +485,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     QTC_ASSERT(rc, return sp);
 
     Target *target = runConfiguration->target();
-    Profile *profile = target ? target->profile() : ProfileManager::instance()->defaultProfile();
-    fillParameters(&sp, profile);
+    Kit *kit = target ? target->kit() : KitManager::instance()->defaultKit();
+    fillParameters(&sp, kit);
     sp.environment = rc->environment();
     sp.workingDirectory = rc->workingDirectory();
 
@@ -624,7 +624,7 @@ static void fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc)
     if (rc) {
         DebuggerRunConfigurationAspect *aspect = rc->debuggerAspect();
         if (const Target *target = rc->target())
-            fillParameters(&sp, target->profile());
+            fillParameters(&sp, target->kit());
         const bool useCppDebugger = aspect->useCppDebugger();
         const bool useQmlDebugger = aspect->useQmlDebugger();
         if (useQmlDebugger) {

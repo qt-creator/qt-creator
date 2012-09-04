@@ -37,7 +37,7 @@
 #include "qnxrunconfiguration.h"
 #include "qnxdeviceconfigurationfactory.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4project.h>
 
@@ -149,7 +149,7 @@ ProjectExplorer::RunConfiguration *QnxRunConfigurationFactory::clone(ProjectExpl
 
 bool QnxRunConfigurationFactory::canHandle(ProjectExplorer::Target *t) const
 {
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(t->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());
     if (deviceType != QnxDeviceConfigurationFactory::deviceType())
         return false;
 

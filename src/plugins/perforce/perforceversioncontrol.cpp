@@ -158,6 +158,16 @@ QString PerforceVersionControl::vcsGetRepositoryURL(const QString &)
     return QString();
 }
 
+QString PerforceVersionControl::vcsOpenText() const
+{
+    return tr("&Edit (%1)").arg(displayName());
+}
+
+QString PerforceVersionControl::vcsMakeWritableText() const
+{
+    return tr("&Hijack");
+}
+
 bool PerforceVersionControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
     const bool rc = m_plugin->managesDirectory(directory, topLevel);

@@ -88,6 +88,39 @@ static void path_helper(Symbol *symbol, QList<const Name *> *names)
     }
 }
 
+namespace CPlusPlus {
+
+bool compareName(const Name *name, const Name *other)
+{
+    if (name == other)
+        return true;
+
+    else if (name && other) {
+        const Identifier *id = name->identifier();
+        const Identifier *otherId = other->identifier();
+
+        if (id == otherId || (id && id->isEqualTo(otherId)))
+            return true;
+    }
+
+    return false;
+}
+
+bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<const Name *> &other)
+{
+    if (path.length() != other.length())
+        return false;
+
+    for (int i = 0; i < path.length(); ++i) {
+        if (! compareName(path.at(i), other.at(i)))
+            return false;
+    }
+
+    return true;
+}
+
+}
+
 bool ClassOrNamespace::CompareName::operator()(const Name *name, const Name *other) const
 {
     Q_ASSERT(name != 0);
@@ -416,20 +449,51 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
     QList<LookupItem> result;
 
     if (name) {
-        QSet<ClassOrNamespace *> processed;
 
         if (const QualifiedNameId *q = name->asQualifiedNameId()) {
             if (! q->base())
                 result = globalNamespace()->find(q->name());
 
-            else if (ClassOrNamespace *binding = lookupType(q->base()))
+            else if (ClassOrNamespace *binding = lookupType(q->base())) {
                 result = binding->find(q->name());
 
-            lookup_helper(name, this, &result, &processed, /*templateId = */ 0);
+                QList<const Name *> fullName;
+                addNames(name, &fullName);
+
+                // It's also possible that there are matches in the parent binding through
+                // a qualified name. For instance, a nested class which is forward declared
+                // in the class but defined outside it - we should capture both.
+                Symbol *match = 0;
+                ClassOrNamespace *parentBinding = binding->parent();
+                while (parentBinding && !match) {
+                    for (int j = 0; j < parentBinding->symbols().size() && !match; ++j) {
+                        if (Scope *scope = parentBinding->symbols().at(j)->asScope()) {
+                            for (unsigned i = 0; i < scope->memberCount(); ++i) {
+                                Symbol *candidate = scope->memberAt(i);
+                                if (compareFullyQualifiedName(
+                                            fullName,
+                                            LookupContext::fullyQualifiedName(candidate))) {
+                                    match = candidate;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    parentBinding = parentBinding->parent();
+                }
+
+                if (match) {
+                    LookupItem item;
+                    item.setDeclaration(match);
+                    item.setBinding(binding);
+                    result.append(item);
+                }
+            }
 
             return result;
         }
 
+        QSet<ClassOrNamespace *> processed;
         ClassOrNamespace *binding = this;
         do {
             lookup_helper(name, binding, &result, &processed, /*templateId = */ 0);
@@ -455,6 +519,7 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
                 continue;
             else if (s->isUsingNamespaceDirective())
                 continue;
+
 
             if (Scope *scope = s->asScope()) {
                 if (Class *klass = scope->asClass()) {

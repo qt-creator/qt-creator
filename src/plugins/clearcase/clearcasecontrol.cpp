@@ -136,6 +136,16 @@ bool ClearCaseControl::vcsAnnotate(const QString &file, int line)
     return true;
 }
 
+QString ClearCaseControl::vcsOpenText() const
+{
+    return tr("&Check Out");
+}
+
+QString ClearCaseControl::vcsMakeWritableText() const
+{
+    return tr("&Hijack");
+}
+
 void ClearCaseControl::emitRepositoryChanged(const QString &s)
 {
     emit repositoryChanged(s);

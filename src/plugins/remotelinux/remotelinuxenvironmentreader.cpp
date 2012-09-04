@@ -32,7 +32,7 @@
 
 #include <ssh/sshremoteprocessrunner.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
@@ -44,16 +44,16 @@ namespace Internal {
 RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(RunConfiguration *config, QObject *parent)
     : QObject(parent)
     , m_stop(false)
-    , m_profile(config->target()->profile())
+    , m_kit(config->target()->kit())
     , m_remoteProcessRunner(0)
 {
-    connect(config->target(), SIGNAL(profileChanged()),
+    connect(config->target(), SIGNAL(kitChanged()),
         this, SLOT(handleCurrentDeviceConfigChanged()));
 }
 
 void RemoteLinuxEnvironmentReader::start(const QString &environmentSetupCommand)
 {
-    IDevice::ConstPtr device = DeviceProfileInformation::device(m_profile);
+    IDevice::ConstPtr device = DeviceKitInformation::device(m_kit);
     if (!device)
         return;
     m_stop = false;

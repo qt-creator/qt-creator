@@ -59,13 +59,11 @@
         \o  In the \gui {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \gui{Next}.
 
-        \o  In the \gui {Application Type} dialog, select \gui {Built-in
-            elements only (for all platforms)}, and then click \gui{Next}.
+        \o  Select \l{glossary-buildandrun-kit}{kits} for running and building your project,
+            and then click \gui{Next}.
 
-        \o  Select targets, and then click \gui{Next}.
-
-            \note Targets are listed if they have been specified in \gui Tools >
-            \gui Options > \gui {Build & Run} > \gui Targets.
+            \note Kits are listed if they have been specified in \gui Tools >
+            \gui Options > \gui {Build & Run} > \gui Kits.
 
         \o  Select \gui Next in the following dialogs to use the default
             settings.

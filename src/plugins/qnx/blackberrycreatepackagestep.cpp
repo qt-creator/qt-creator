@@ -47,7 +47,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
 
 #include <QTemporaryFile>
@@ -156,7 +156,7 @@ ProjectExplorer::BuildStepConfigWidget *BlackBerryCreatePackageStep::createConfi
 
 QString BlackBerryCreatePackageStep::debugToken() const
 {
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->profile());
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->kit());
     return device->debugToken();
 }
 
@@ -170,7 +170,7 @@ void BlackBerryCreatePackageStep::raiseError(const QString &errorMessage)
 
 bool BlackBerryCreatePackageStep::prepareAppDescriptorFile(const QString &appDescriptorPath, QTemporaryFile *preparedFile)
 {
-    BlackBerryQtVersion *qtVersion = dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtProfileInformation::qtVersion(target()->profile()));
+    BlackBerryQtVersion *qtVersion = dynamic_cast<BlackBerryQtVersion *>(QtSupport::QtKitInformation::qtVersion(target()->kit()));
     if (!qtVersion) {
         raiseError(tr("Error preparing application descriptor file"));
         return false;

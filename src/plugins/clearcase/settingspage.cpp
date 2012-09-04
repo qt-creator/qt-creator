@@ -37,6 +37,7 @@
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
+#include <utils/environment.h>
 #include <utils/pathchooser.h>
 
 #include <QCoreApplication>
@@ -71,6 +72,7 @@ ClearCaseSettings SettingsPageWidget::settings() const
     rc.disableIndexer = m_ui.disableIndexerCheckBox->isChecked();
     rc.diffArgs = m_ui.diffArgsEdit->text();
     rc.indexOnlyVOBs = m_ui.indexOnlyVOBsEdit->text();
+    rc.extDiffAvailable = m_ui.externalDiffRadioButton->isEnabled();
     return rc;
 }
 
@@ -79,16 +81,23 @@ void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
     m_ui.commandPathChooser->setPath(s.ccCommand);
     m_ui.timeOutSpinBox->setValue(s.timeOutS);
     m_ui.autoCheckOutCheckBox->setChecked(s.autoCheckOut);
-    switch (s.diffType) {
-    case GraphicalDiff:
-        m_ui.graphicalDiffRadioButton->setChecked(true);
-        m_ui.diffWidget->setEnabled(false);
-        break;
-    case ExternalDiff:
-        m_ui.externalDiffRadioButton->setChecked(true);
-        m_ui.diffWidget->setEnabled(true);
-        break;
+    bool extDiffAvailable = !Utils::Environment::systemEnvironment().searchInPath(QLatin1String("diff")).isEmpty();
+    if (extDiffAvailable) {
+        m_ui.diffWarningLabel->setVisible(false);
+    } else {
+        QString diffWarning = tr("In order to use External diff, 'diff' command needs to be accessible.");
+#ifdef Q_OS_WIN
+        diffWarning.append(tr(" DiffUtils is available for free download "
+                              "<a href=\"http://gnuwin32.sourceforge.net/packages/diffutils.htm\">here</a>. "
+                              "Please extract it to a directory in your PATH."));
+#endif
+        m_ui.diffWarningLabel->setText(diffWarning);
+        m_ui.externalDiffRadioButton->setEnabled(false);
     }
+    if (extDiffAvailable && s.diffType == ExternalDiff)
+        m_ui.externalDiffRadioButton->setChecked(true);
+    else
+        m_ui.graphicalDiffRadioButton->setChecked(true);
     m_ui.autoAssignActivityCheckBox->setChecked(s.autoAssignActivityName);
     m_ui.historyCountSpinBox->setValue(s.historyCount);
     m_ui.promptCheckBox->setChecked(s.promptToCheckIn);

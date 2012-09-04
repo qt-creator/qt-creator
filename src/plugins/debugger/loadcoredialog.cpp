@@ -36,8 +36,8 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
-#include <projectexplorer/profilechooser.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitchooser.h>
+#include <projectexplorer/kitinformation.h>
 #include <ssh/sshconnection.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <ssh/sftpdefs.h>
@@ -93,7 +93,7 @@ class SelectRemoteFileDialog : public QDialog
 public:
     explicit SelectRemoteFileDialog(QWidget *parent);
 
-    void attachToDevice(Profile *profile);
+    void attachToDevice(Kit *k);
     QString localFile() const { return m_localFile; }
     QString remoteFile() const { return m_remoteFile; }
 
@@ -151,11 +151,11 @@ SelectRemoteFileDialog::SelectRemoteFileDialog(QWidget *parent)
             SLOT(handleConnectionError(QString)));
 }
 
-void SelectRemoteFileDialog::attachToDevice(Profile *profile)
+void SelectRemoteFileDialog::attachToDevice(Kit *k)
 {
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-    QTC_ASSERT(profile, return);
-    IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    QTC_ASSERT(k, return);
+    IDevice::ConstPtr device = DeviceKitInformation::device(k);
     QTC_ASSERT(device, return);
     QSsh::SshConnectionParameters sshParams = device->sshParameters();
     m_fileSystemModel.setSshConnection(sshParams);
@@ -223,7 +223,7 @@ void SelectRemoteFileDialog::selectFile()
 class AttachCoreDialogPrivate
 {
 public:
-    ProfileChooser *profileChooser;
+    KitChooser *kitChooser;
 
     QSettings *settings;
 
@@ -245,7 +245,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 
     d->settings = ICore::settings();
 
-    d->profileChooser = new ProfileChooser(this);
+    d->kitChooser = new KitChooser(this);
 
     d->selectRemoteCoreButton = new QPushButton(tr("Browse..."), this);
     d->remoteCoreFileName = new QLineEdit(this);
@@ -277,7 +277,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     formLayout->setContentsMargins(0, 0, 0, 0);
     formLayout->setHorizontalSpacing(6);
     formLayout->setVerticalSpacing(6);
-    formLayout->addRow(tr("Target:"), d->profileChooser);
+    formLayout->addRow(tr("Kit:"), d->kitChooser);
     formLayout->addRow(tr("&Executable:"), d->localExecFileName);
     formLayout->addRow(tr("Core file:"), coreLayout);
     formLayout->addRow(tr("Override &start script:"), d->overrideStartScriptFileName);
@@ -296,7 +296,7 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 
     connect(d->selectRemoteCoreButton, SIGNAL(clicked()), SLOT(selectRemoteCoreFile()));
     connect(d->remoteCoreFileName, SIGNAL(textChanged(QString)), SLOT(changed()));
-    connect(d->profileChooser, SIGNAL(activated(int)), SLOT(changed()));
+    connect(d->kitChooser, SIGNAL(activated(int)), SLOT(changed()));
     connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
     connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
 }
@@ -308,19 +308,19 @@ AttachCoreDialog::~AttachCoreDialog()
 
 bool AttachCoreDialog::isLocal() const
 {
-    Profile *profile = d->profileChooser->currentProfile();
-    QTC_ASSERT(profile, return false);
-    IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    Kit *k = d->kitChooser->currentKit();
+    QTC_ASSERT(k, return false);
+    IDevice::ConstPtr device = DeviceKitInformation::device(k);
     QTC_ASSERT(device, return false);
     SshConnectionParameters sshParams = device->sshParameters();
     d->settings->setValue(QLatin1String("LastProfile"),
-        d->profileChooser->currentProfileId().toString());
+        d->kitChooser->currentKitId().toString());
     return sshParams.host.isEmpty();
 }
 
 void AttachCoreDialog::changed()
 {
-    bool isValid = d->profileChooser->currentIndex() >= 0
+    bool isValid = d->kitChooser->currentIndex() >= 0
             && !localCoreFile().isEmpty();
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isValid);
 
@@ -341,7 +341,7 @@ void AttachCoreDialog::selectRemoteCoreFile()
     QTC_ASSERT(!isLocal(), return);
     SelectRemoteFileDialog dlg(this);
     dlg.setWindowTitle(tr("Select Remote Core File"));
-    dlg.attachToDevice(d->profileChooser->currentProfile());
+    dlg.attachToDevice(d->kitChooser->currentKit());
     if (dlg.exec() == QDialog::Rejected)
         return;
     d->localCoreFileName->setPath(dlg.localFile());
@@ -379,15 +379,15 @@ QString AttachCoreDialog::remoteCoreFile() const
     return d->remoteCoreFileName->text();
 }
 
-void AttachCoreDialog::setProfileId(const Core::Id &id)
+void AttachCoreDialog::setKitId(const Core::Id &id)
 {
-    d->profileChooser->setCurrentProfileId(id);
+    d->kitChooser->setCurrentKitId(id);
     changed();
 }
 
-Profile *AttachCoreDialog::profile() const
+Kit *AttachCoreDialog::kit() const
 {
-    return d->profileChooser->currentProfile();
+    return d->kitChooser->currentKit();
 }
 
 QString AttachCoreDialog::overrideStartScript() const

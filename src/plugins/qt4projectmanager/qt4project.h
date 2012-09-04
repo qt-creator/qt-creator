@@ -83,7 +83,7 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
 
-    bool supportsProfile(ProjectExplorer::Profile *p) const;
+    bool supportsKit(ProjectExplorer::Kit *p) const;
 
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     Qt4ProFileNode *rootQt4ProjectNode() const;
@@ -133,17 +133,17 @@ public:
     QString disabledReasonForRunConfiguration(const QString &proFilePath);
 
     /// suffix should be unique
-    static QString shadowBuildDirectory(const QString &profilePath, const ProjectExplorer::Profile *p,
+    static QString shadowBuildDirectory(const QString &profilePath, const ProjectExplorer::Kit *p,
                                  const QString &suffix);
     /// used by the default implementation of shadowBuildDirectory
-    static QString buildNameFor(const ProjectExplorer::Profile *p);
+    static QString buildNameFor(const ProjectExplorer::Kit *p);
 
-    ProjectExplorer::Target *createTarget(ProjectExplorer::Profile *p, const QList<BuildConfigurationInfo> &infoList);
+    ProjectExplorer::Target *createTarget(ProjectExplorer::Kit *p, const QList<BuildConfigurationInfo> &infoList);
 
     void emitBuildDirectoryInitialized();
 
 signals:
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
+    void kitUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
     void buildDirectoryInitialized();
     void proFilesEvaluated();
 

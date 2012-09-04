@@ -29,13 +29,14 @@
     \page creator-targets.html
     \nextpage creator-project-qmake.html
 
-    \title Adding Targets
+    \title Adding Kits
 
-    \QC groups platform specific settings as \e targets to make cross-platform
-    development easier. Each target consists of a set of values that define one
+    \QC groups settings used for building and running projects as kits
+    to make cross-platform and cross-configuration
+    development easier. Each kit consists of a set of values that define one
     environment, such as a device, compiler, Qt version, and debugger command
-    to use, and some metadata, such as an icon and a name for the target. Once
-    you have defined targets, you can select them to build and run projects.
+    to use, and some metadata, such as an icon and a name for the kit. Once
+    you have defined kits, you can select them to build and run projects.
 
     \QC supports development for the desktop and for the following types of
     devices:
@@ -54,18 +55,18 @@
 
     \endlist
 
-    To add targets:
+    To add kits:
 
     \list 1
 
-        \o  Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets
+        \o  Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits
             > \gui Add.
 
             \image qtcreator-targets.png
 
-            To clone the selected target, select \gui Clone.
+            To clone the selected kit, select \gui Clone.
 
-        \o  In the \gui Name column, double-click the target name to change it.
+        \o  In the \gui Name column, double-click the kit name to change it.
 
 
 
@@ -73,11 +74,11 @@
             target.
 
             Double-click the icon next to the field to select the image that is
-            displayed in the target selector for this target. You can use any
+            displayed in the kit selector for this kit. You can use any
             image in a supported file format (for example, PNG). The image is
             scaled to the size 64x64 pixels. For example, using the compiler
             logo as an icon allows you to easily see, which compiler is used to
-            build the project for the selected target.
+            build the project for the selected kit.
 
         \o  In the \gui Device field, select the device configuration to target.
 
@@ -104,7 +105,7 @@
             \QC checks the directories listed in the \c{PATH} environment
             variable for the qmake executable. If a qmake executable is found,
             it is referred to as \bold{Qt in PATH} and selected as the Qt
-            version to use for the \gui Desktop target.
+            version to use for the \gui Desktop kit that is created by default.
 
         \o  In the \gui {Qt mkspec} field, specify build instructions for qmake.
             If you leave this field empty, the default value is used.

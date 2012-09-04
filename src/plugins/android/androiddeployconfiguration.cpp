@@ -39,7 +39,7 @@
 #include <projectexplorer/target.h>
 
 #include <qt4projectmanager/qt4project.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
 using namespace ProjectExplorer;
@@ -119,15 +119,15 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *
     if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
         return ids;
 
-    if (!parent->project()->supportsProfile(parent->profile()))
+    if (!parent->project()->supportsKit(parent->kit()))
         return ids;
 
-    ToolChain *tc = ToolChainProfileInformation::toolChain(parent->profile());
+    ToolChain *tc = ToolChainKitInformation::toolChain(parent->kit());
 
     if (!tc || tc->targetAbi().osFlavor() != Abi::AndroidLinuxFlavor)
         return ids;
 
-    if (QtSupport::QtProfileInformation::qtVersion(parent->profile())->type() != QLatin1String(Constants::ANDROIDQT))
+    if (QtSupport::QtKitInformation::qtVersion(parent->kit())->type() != QLatin1String(Constants::ANDROIDQT))
         return ids;
 
     ids << Core::Id(ANDROID_DEPLOYCONFIGURATION_ID);

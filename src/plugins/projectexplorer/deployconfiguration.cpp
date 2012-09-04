@@ -33,7 +33,7 @@
 #include "buildmanager.h"
 #include "buildsteplist.h"
 #include "buildstepspage.h"
-#include "profileinformation.h"
+#include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -242,9 +242,9 @@ DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent)
 
 bool DeployConfigurationFactory::canHandle(Target *parent) const
 {
-    if (!parent->project()->supportsProfile(parent->profile()))
+    if (!parent->project()->supportsKit(parent->kit()))
         return false;
-    return DeviceTypeProfileInformation::deviceTypeId(parent->profile()) == Constants::DESKTOP_DEVICE_TYPE;
+    return DeviceTypeKitInformation::deviceTypeId(parent->kit()) == Constants::DESKTOP_DEVICE_TYPE;
 }
 
 ///

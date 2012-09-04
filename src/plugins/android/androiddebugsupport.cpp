@@ -37,7 +37,7 @@
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
-#include <debugger/debuggerprofileinformation.h>
+#include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunner.h>
 #include <debugger/debuggerstartparameters.h>
 
@@ -45,7 +45,7 @@
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QDir>
 
@@ -93,10 +93,10 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
 
     if (runConfig->debuggerAspect()->useCppDebugger()) {
         params.languages |= CppLanguage;
-        Profile *profile = target->profile();
-        params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
-        params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
-        if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
+        Kit *kit = target->kit();
+        params.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
+        params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
+        if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
             params.toolChainAbi = tc->targetAbi();
         params.executable = project->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
         params.remoteChannel = runConfig->remoteChannel();
@@ -105,7 +105,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         foreach (Qt4ProFileNode *node, nodes)
             if (node->projectType() == ApplicationTemplate)
                 params.solibSearchPath.append(node->targetInformation().buildDir);
-        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(profile);
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
         params.solibSearchPath.append(qtSoPaths(version));
     }
     if (runConfig->debuggerAspect()->useQmlDebugger()) {

@@ -38,6 +38,7 @@
 #include "clearcaseplugin.h"
 #include "clearcasesubmiteditor.h"
 #include "clearcasesubmiteditorwidget.h"
+#include "clearcasesync.h"
 #include "settingspage.h"
 #include "versionselector.h"
 #include "ui_undocheckout.h"
@@ -116,8 +117,6 @@ static const char CMD_ID_UPDATE_VIEW[]        = "ClearCase.UpdateView";
 static const char CMD_ID_CHECKIN_ALL[]        = "ClearCase.CheckInAll";
 static const char CMD_ID_STATUS[]             = "ClearCase.Status";
 
-StatusMap ClearCasePlugin::s_statusMap;
-
 static const VcsBase::VcsBaseEditorParameters editorParameters[] = {
 {
     VcsBase::RegularCommandOutput,
@@ -182,18 +181,20 @@ ClearCasePlugin::ClearCasePlugin() :
     m_submitUndoAction(0),
     m_submitRedoAction(0),
     m_menuAction(0),
-    m_submitActionTriggered(false)
+    m_submitActionTriggered(false),
+    m_activityMutex(new QMutex),
+    m_statusMap(new StatusMap)
 {
-    activityMutex = new QMutex;
+    qRegisterMetaType<ClearCase::Internal::FileStatus::Status>("ClearCase::Internal::FileStatus::Status");
 }
 
 ClearCasePlugin::~ClearCasePlugin()
 {
     cleanCheckInMessageFile();
     // wait for sync thread to finish reading activities
-    activityMutex->lock();
-    activityMutex->unlock();
-    delete activityMutex;
+    m_activityMutex->lock();
+    m_activityMutex->unlock();
+    delete m_activityMutex;
 }
 
 void ClearCasePlugin::cleanCheckInMessageFile()
@@ -539,7 +540,7 @@ QStringList ClearCasePlugin::ccGetActiveVobs() const
 // file must be relative to topLevel, and using '/' path separator
 FileStatus ClearCasePlugin::vcsStatus(const QString &file) const
 {
-    return s_statusMap.value(file, FileStatus(FileStatus::Unknown));
+    return m_statusMap->value(file, FileStatus(FileStatus::Unknown));
 }
 
 QString ClearCasePlugin::ccGetFileActivity(const QString &workingDir, const QString &file)
@@ -569,7 +570,7 @@ ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString 
 void ClearCasePlugin::updateStatusActions()
 {
     bool hasFile = currentState().hasFile();
-    FileStatus fileStatus = s_statusMap.value(currentState().relativeCurrentFile(), FileStatus(FileStatus::Unknown));
+    FileStatus fileStatus = m_statusMap->value(currentState().relativeCurrentFile(), FileStatus(FileStatus::Unknown));
     m_checkOutAction->setEnabled(hasFile && (fileStatus.status & (FileStatus::CheckedIn | FileStatus::Hijacked)));
     m_undoCheckOutAction->setEnabled(hasFile && (fileStatus.status & FileStatus::CheckedOut));
     m_undoHijackAction->setEnabled(hasFile && (fileStatus.status & FileStatus::Hijacked));
@@ -618,9 +619,9 @@ void ClearCasePlugin::addCurrentFile()
     vcsAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void ClearCasePlugin::setStatus(const QString &file, FileStatus::Status status, bool update)
+void ClearCasePlugin::setStatus(const QString &file, ClearCase::Internal::FileStatus::Status status, bool update)
 {
-    s_statusMap[file] = FileStatus(status, QFileInfo(currentState().topLevel(), file).permissions());
+    m_statusMap->insert(file, FileStatus(status, QFileInfo(currentState().topLevel(), file).permissions()));
     if (update && (currentState().relativeCurrentFile() == file))
         updateStatusActions();
 }
@@ -705,8 +706,13 @@ void ClearCasePlugin::undoHijackCurrent()
     const QString fileName = state.relativeCurrentFile();
 
     bool keep = false;
-    QString diffres = diffExternal(ccGetFileVersion(state.topLevel(), fileName), fileName);
-    if (diffres.at(0) != QLatin1Char('F')) { // Files are identical
+    bool askKeep = true;
+    if (m_settings.extDiffAvailable) {
+        QString diffres = diffExternal(ccGetFileVersion(state.topLevel(), fileName), fileName);
+        if (diffres.at(0) == QLatin1Char('F')) // Files are identical
+            askKeep = false;
+    }
+    if (askKeep) {
         Ui::UndoCheckOut unhijackUi;
         QDialog unhijackDlg;
         unhijackUi.setupUi(&unhijackDlg);
@@ -742,15 +748,20 @@ void ClearCasePlugin::ccDiffWithPred(const QStringList &files)
 
     if ((m_settings.diffType == GraphicalDiff) && (files.count() == 1)) {
         QString file = files.first();
-        if (s_statusMap[file].status == FileStatus::Hijacked)
+        if (m_statusMap->value(file).status == FileStatus::Hijacked)
             diffGraphical(ccGetFileVersion(topLevel, file), file);
         else
             diffGraphical(file);
         return; // done here, diff is opened in a new window
     }
+    if (!m_settings.extDiffAvailable) {
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(
+                    tr("External diff is required to compare multiple files."));
+        return;
+    }
     QString result;
     foreach (const QString &file, files) {
-        if (s_statusMap[QDir::fromNativeSeparators(file)].status == FileStatus::Hijacked)
+        if (m_statusMap->value(QDir::fromNativeSeparators(file)).status == FileStatus::Hijacked)
             result += diffExternal(ccGetFileVersion(topLevel, file), file);
         else
             result += diffExternal(file);
@@ -813,6 +824,11 @@ void ClearCasePlugin::diffActivity()
     QTC_ASSERT(state.hasTopLevel(), return);
     if (ClearCase::Constants::debug)
         qDebug() << Q_FUNC_INFO;
+    if (!m_settings.extDiffAvailable) {
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(
+                    tr("External diff is required to compare multiple files."));
+        return;
+    }
     QString topLevel = state.topLevel();
     QString activity = QInputDialog::getText(0, tr("Enter Activity"), tr("Activity Name"), QLineEdit::Normal, m_activity);
     if (activity.isEmpty())
@@ -885,8 +901,8 @@ void ClearCasePlugin::startCheckInAll()
     QTC_ASSERT(state.hasTopLevel(), return);
     QString topLevel = state.topLevel();
     QStringList files;
-    for (StatusMap::ConstIterator iterator = s_statusMap.constBegin();
-         iterator != s_statusMap.constEnd();
+    for (StatusMap::ConstIterator iterator = m_statusMap->constBegin();
+         iterator != m_statusMap->constEnd();
          ++iterator)
     {
         if (iterator.value().status == FileStatus::CheckedOut)
@@ -1025,8 +1041,8 @@ void ClearCasePlugin::viewStatus()
     VcsBase::VcsBaseOutputWindow *outputwindow = VcsBase::VcsBaseOutputWindow::instance();
     outputwindow->appendCommand(QLatin1String("Indexed files status (C=Checked Out, H=Hijacked, ?=Missing)"));
     bool anymod = false;
-    for (StatusMap::ConstIterator it = s_statusMap.constBegin();
-         it != s_statusMap.constEnd();
+    for (StatusMap::ConstIterator it = m_statusMap->constBegin();
+         it != m_statusMap->constEnd();
          ++it)
     {
         char cstat = 0;
@@ -1147,7 +1163,8 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
     const ClearCaseResponse response =
             runCleartool(topLevel, args, m_settings.timeOutMS(), 0, codec);
     description = response.stdOut;
-    description += diffExternal(id);
+    if (m_settings.extDiffAvailable)
+        description += diffExternal(id);
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
@@ -1266,13 +1283,13 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
     const QString title = QString::fromLatin1("Checkout %1").arg(file);
     CheckOutDialog coDialog(title);
     if (!m_settings.disableIndexer &&
-            (fi.isWritable() || s_statusMap[relFile].status == FileStatus::Unknown))
+            (fi.isWritable() || m_statusMap->value(relFile).status == FileStatus::Unknown))
         QtConcurrent::run(&sync, topLevel, QStringList(relFile)).waitForFinished();
-    if (s_statusMap[relFile].status == FileStatus::CheckedOut) {
+    if (m_statusMap->value(relFile).status == FileStatus::CheckedOut) {
         QMessageBox::information(0, tr("ClearCase Checkout"), tr("File is already checked out."));
         return true;
     }
-    bool isHijacked = (s_statusMap[relFile].status & FileStatus::Hijacked);
+    bool isHijacked = (m_statusMap->value(relFile).status & FileStatus::Hijacked);
     if (!isHijacked)
         coDialog.hideHijack();
     if (coDialog.exec() == QDialog::Accepted) {
@@ -1574,7 +1591,7 @@ QList<QStringPair> ClearCasePlugin::ccGetActivities() const
 
 void ClearCasePlugin::refreshActivities()
 {
-    QMutexLocker locker(activityMutex);
+    QMutexLocker locker(m_activityMutex);
     m_activity = ccGetCurrentActivity();
     m_activities = ccGetActivities();
 }
@@ -1585,7 +1602,7 @@ QList<QStringPair> ClearCasePlugin::activities(int *current) const
     QString curActivity;
     const VcsBase::VcsBasePluginState state = currentState();
     if (state.topLevel() == state.currentProjectTopLevel()) {
-        QMutexLocker locker(activityMutex);
+        QMutexLocker locker(m_activityMutex);
         activitiesList = m_activities;
         curActivity = m_activity;
     } else {
@@ -1693,7 +1710,7 @@ void ClearCasePlugin::updateIndex()
     if (!project)
         return;
     m_checkInAllAction->setEnabled(false);
-    s_statusMap.clear();
+    m_statusMap->clear();
     QFuture<void> result = QtConcurrent::run(&sync, currentState().topLevel(),
                project->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
     if (!m_settings.disableIndexer)
@@ -1847,112 +1864,14 @@ void ClearCasePlugin::closing()
 void ClearCasePlugin::sync(QFutureInterface<void> &future, QString topLevel, QStringList files)
 {
     ClearCasePlugin *plugin = ClearCasePlugin::instance();
-
-    ClearCaseSettings settings = plugin->settings();
-    QString program = settings.ccBinaryPath;
-    if (program.isEmpty())
-        return;
-    int total = files.size();
-    bool hot = (total < 10);
-    int processed = 0;
-    QString view = plugin->currentView();
-    if (view.isEmpty())
-        plugin->updateStreamAndView();
-    if (!hot)
-        total = settings.totalFiles.value(view, total);
-
-    // refresh activities list
-    plugin->refreshActivities();
-
-    if (settings.disableIndexer)
-        return;
-    QStringList vobs;
-    if (!settings.indexOnlyVOBs.isEmpty())
-        vobs = settings.indexOnlyVOBs.split(QLatin1Char(','));
-    else
-        vobs = plugin->ccGetActiveVobs();
-    QDir topLevelDir(topLevel);
-    QStringList args(QLatin1String("ls"));
-    if (hot) {
-        // find all files whose permissions changed OR hijacked files
-        // (might have become checked out)
-        foreach (const QString &file, s_statusMap.keys()) {
-            bool permChanged =
-                    s_statusMap[file].permissions != QFileInfo(topLevel, file).permissions();
-            if (permChanged || s_statusMap[file].status == FileStatus::Hijacked) {
-                files.append(file);
-                s_statusMap[file].status = FileStatus::Unknown;
-                ++total;
-            }
-        }
-        args << files;
-    } else {
-        foreach (const QString &file, files)
-            plugin->setStatus(topLevelDir.relativeFilePath(file), FileStatus::Unknown, false);
-        args << QLatin1String("-recurse");
-        args << vobs;
-    }
-
-    // adding 1 for initial sync in which total is not accurate, to prevent finishing
-    // (we don't want it to become green)
-    future.setProgressRange(0, total + 1);
-    QProcess process;
-    process.setWorkingDirectory(topLevel);
-    process.start(program, args);
-    if (!process.waitForStarted())
-        return;
-    QString buffer;
-    while (process.waitForReadyRead() && !future.isCanceled()) {
-        while (process.state() == QProcess::Running &&
-               process.bytesAvailable() && !future.isCanceled())
-        {
-            QString line = QString::fromLocal8Bit(process.readLine().constData());
-            buffer += line;
-            if (buffer.endsWith(QLatin1Char('\n')) || process.atEnd()) {
-                int atatpos = buffer.indexOf(QLatin1String("@@"));
-                if (atatpos != -1) { // probably managed file
-                    // find first whitespace. anything before that is not interesting
-                    int wspos = buffer.indexOf(QRegExp(QLatin1String("\\s")));
-                    const QString file = QDir::fromNativeSeparators(buffer.left(atatpos));
-                    QString ccState;
-                    QRegExp reState(QLatin1String("^\\s*\\[[^\\]]*\\]")); // [hijacked]; [loaded but missing]
-                    if (reState.indexIn(buffer, wspos + 1, QRegExp::CaretAtOffset) != -1) {
-                        ccState = reState.cap();
-                        if (ccState.indexOf(QLatin1String("hijacked")) != -1)
-                            plugin->setStatus(file, FileStatus::Hijacked, true);
-                        else if (ccState.indexOf(QLatin1String("loaded but missing")) != -1)
-                            plugin->setStatus(file, FileStatus::Missing, false);
-                    }
-                    else if (buffer.lastIndexOf(QLatin1String("CHECKEDOUT"), wspos) != -1)
-                        plugin->setStatus(file, FileStatus::CheckedOut, true);
-                    // don't care about checked-in files not listed in project
-                    else if (s_statusMap.contains(file))
-                        plugin->setStatus(file, FileStatus::CheckedIn, false);
-                }
-                buffer.clear();
-                future.setProgressValue(qMin(total, ++processed));
-            }
-        }
-    }
-
-    if (!future.isCanceled()) {
-        foreach (const QString &file, files) {
-            QString relFile = topLevelDir.relativeFilePath(file);
-            if (s_statusMap[relFile].status == FileStatus::Unknown)
-                plugin->setStatus(relFile, FileStatus::NotManaged, false);
-        }
-        future.setProgressValue(total + 1);
-        if (!hot) {
-            settings.totalFiles[view] = processed;
-            plugin->setSettings(settings);
-        }
-    }
-    if (process.state() == QProcess::Running)
-        process.kill();
-    process.waitForFinished();
+    ClearCaseSync ccSync(plugin, plugin->m_statusMap);
+    connect(&ccSync, SIGNAL(updateStreamAndView()), plugin, SLOT(updateStreamAndView()));
+    connect(&ccSync, SIGNAL(setStatus(QString, ClearCase::Internal::FileStatus::Status, bool)),
+            plugin, SLOT(setStatus(QString, ClearCase::Internal::FileStatus::Status, bool)));
+    ccSync.run(future, topLevel, files);
 }
 
-} // namespace ClearCase
 } // namespace Internal
+} // namespace ClearCase
 
 Q_EXPORT_PLUGIN(ClearCase::Internal::ClearCasePlugin)

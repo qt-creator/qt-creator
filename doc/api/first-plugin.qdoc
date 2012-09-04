@@ -39,7 +39,7 @@
     your plugin with.
 
     \list 1
-        \o Select \gui{File > New File or Project > Other Qt Project > Qt Creator Plugin > Choose}.
+        \o Select \gui{File > New File or Project > Libraries > Qt Creator Plugin > Choose}.
 
            \image firstplugin-wizard.png "Choose the \QC Plugin Wizard"
 
@@ -52,12 +52,12 @@
            from the project name. You will choose that name later in the wizard.
            Continue to the next page.
 
-           The \gui{Target Setup} dialog opens.
+           The \gui{Kit Selection} dialog opens.
 
-           \image firstplugin-target.png "Choose the Desktop Target and Matching Qt"
+           \image firstplugin-kitselection.png "Choose the kit to build and run your project with"
 
-        \o Select the target and Qt version to build your project with.
-           For a \QC plugin this needs to be the \gui{Desktop} target,
+        \o Select the \l{glossary-buildandrun-kit}{kit} to build and run your project with.
+           For a \QC plugin this needs to be a kit with \gui{Desktop} device type,
            and a Qt version that is compatible with the Qt version that your
            \QC was built with (in the best case the exact same build).
            If you use an incompatible Qt version to build your plugin, you

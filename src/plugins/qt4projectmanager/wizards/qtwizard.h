@@ -39,7 +39,7 @@
 
 #include <QSet>
 
-namespace ProjectExplorer { class Profile; }
+namespace ProjectExplorer { class Kit; }
 
 namespace Qt4ProjectManager {
 
@@ -141,7 +141,7 @@ public:
     bool writeUserFile(const QString &proFileName) const;
     bool setupProject(Qt4Project *project) const;
     bool isQtPlatformSelected(const QString &platform) const;
-    QList<Core::Id> selectedProfiles() const;
+    QList<Core::Id> selectedKits() const;
 
     void addExtensionPages(const QList<QWizardPage *> &wizardPageList);
 

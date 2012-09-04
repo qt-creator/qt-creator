@@ -34,7 +34,7 @@
 #include "buildsteplist.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
-#include "profilemanager.h"
+#include "kitmanager.h"
 #include "target.h"
 #include "project.h"
 
@@ -92,8 +92,8 @@ BuildConfiguration::BuildConfiguration(Target *target, const Core::Id id) :
     bsl->setDefaultDisplayName(tr("Clean"));
     m_stepLists.append(bsl);
 
-    connect(ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
-            this, SLOT(handleProfileUpdate(ProjectExplorer::Profile*)));
+    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(handleKitUpdate(ProjectExplorer::Kit*)));
 }
 
 BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
@@ -107,8 +107,8 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     // otherwise BuildStepFactories might reject to set up a BuildStep for us
     // since we are not yet the derived class!
 
-    connect(ProfileManager::instance(), SIGNAL(profileUpdated(ProjectExplorer::Profile*)),
-            this, SLOT(handleProfileUpdate(ProjectExplorer::Profile*)));
+    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(handleKitUpdate(ProjectExplorer::Kit*)));
 }
 
 BuildConfiguration::~BuildConfiguration()
@@ -187,9 +187,9 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     return ProjectConfiguration::fromMap(map);
 }
 
-void BuildConfiguration::handleProfileUpdate(ProjectExplorer::Profile *p)
+void BuildConfiguration::handleKitUpdate(ProjectExplorer::Kit *p)
 {
-    if (p != target()->profile())
+    if (p != target()->kit())
         return;
     emit environmentChanged();
 }

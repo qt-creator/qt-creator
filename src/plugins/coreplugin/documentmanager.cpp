@@ -825,15 +825,20 @@ DocumentManager::ReadOnlyAction
                        tr("The file <i>%1</i> is read only.").arg(QDir::toNativeSeparators(fileName)),
                        QMessageBox::Cancel, parent);
 
+    QString makeWritableText;
     QPushButton *vcsButton = 0;
-    if (promptVCS)
-        vcsButton = msgBox.addButton(tr("Open with VCS (%1)").arg(versionControl->displayName()), QMessageBox::AcceptRole);
+    if (promptVCS) {
+        vcsButton = msgBox.addButton(versionControl->vcsOpenText(), QMessageBox::AcceptRole);
+        makeWritableText = versionControl->vcsMakeWritableText();
+    }
+    if (makeWritableText.isEmpty())
+        makeWritableText = tr("Make &Writable");
 
-    QPushButton *makeWritableButton =  msgBox.addButton(tr("Make Writable"), QMessageBox::AcceptRole);
+    QPushButton *makeWritableButton =  msgBox.addButton(makeWritableText, QMessageBox::AcceptRole);
 
     QPushButton *saveAsButton = 0;
     if (displaySaveAsButton)
-        saveAsButton = msgBox.addButton(tr("Save As..."), QMessageBox::ActionRole);
+        saveAsButton = msgBox.addButton(tr("&Save As..."), QMessageBox::ActionRole);
 
     msgBox.setDefaultButton(vcsButton ? vcsButton : makeWritableButton);
     msgBox.exec();

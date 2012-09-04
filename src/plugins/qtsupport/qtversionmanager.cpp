@@ -30,7 +30,7 @@
 
 #include "qtversionmanager.h"
 
-#include "qtprofileinformation.h"
+#include "qtkitinformation.h"
 #include "qtversionfactory.h"
 
 #include "qtsupportconstants.h"
@@ -364,7 +364,9 @@ void QtVersionManager::saveQtVersions()
     if (!m_writer)
         m_writer = new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(QTVERSION_FILENAME)),
                                                        QLatin1String("QtCreatorQtVersions"));
-    m_writer->saveValue(QLatin1String(QTVERSION_FILE_VERSION_KEY), 1);
+
+    QVariantMap data;
+    data.insert(QLatin1String(QTVERSION_FILE_VERSION_KEY), 1);
 
     int count = 0;
     foreach (BaseQtVersion *qtv, m_versions) {
@@ -372,11 +374,11 @@ void QtVersionManager::saveQtVersions()
         if (tmp.isEmpty())
             continue;
         tmp.insert(QLatin1String(QTVERSION_TYPE_KEY), qtv->type());
-        m_writer->saveValue(QString::fromLatin1(QTVERSION_DATA_KEY) + QString::number(count), tmp);
+        data.insert(QString::fromLatin1(QTVERSION_DATA_KEY) + QString::number(count), tmp);
         ++count;
 
     }
-    m_writer->save(Core::ICore::mainWindow());
+    m_writer->save(data, Core::ICore::mainWindow());
 }
 
 void QtVersionManager::findSystemQt()

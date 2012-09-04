@@ -48,7 +48,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/qtcassert.h>
@@ -205,10 +205,10 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     bool incompatibleBuild = false;
     bool allGood = false;
 
-    ProjectExplorer::Profile *p = m_buildConfiguration->target()->profile();
+    ProjectExplorer::Kit *p = m_buildConfiguration->target()->kit();
     const QString proFileName = m_buildConfiguration->target()->project()->document()->fileName();
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(p);
     if (!version) {
         m_ui->problemLabel->setVisible(true);
         m_ui->warningLabel->setVisible(true);

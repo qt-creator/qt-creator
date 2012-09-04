@@ -44,11 +44,11 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <QDebug>
 
@@ -137,11 +137,11 @@ void Qt4BuildConfiguration::ctor()
             this, SLOT(emitBuildDirectoryChanged()));
     connect(this, SIGNAL(environmentChanged()),
             this, SLOT(emitProFileEvaluateNeeded()));
-    connect(target(), SIGNAL(profileChanged()),
-            this, SLOT(profileChanged()));
+    connect(target(), SIGNAL(kitChanged()),
+            this, SLOT(kitChanged()));
 }
 
-void Qt4BuildConfiguration::profileChanged()
+void Qt4BuildConfiguration::kitChanged()
 {
     emitProFileEvaluateNeeded();
     emit environmentChanged();
@@ -162,7 +162,7 @@ void Qt4BuildConfiguration::emitBuildDirectoryChanged()
 Environment Qt4BuildConfiguration::baseEnvironment() const
 {
     Environment env = BuildConfiguration::baseEnvironment();
-    target()->profile()->addToEnvironment(env);
+    target()->kit()->addToEnvironment(env);
     return env;
 }
 
@@ -175,7 +175,7 @@ QString Qt4BuildConfiguration::defaultShadowBuildDirectory() const
 {
     // todo displayName isn't ideal
     return Qt4Project::shadowBuildDirectory(target()->project()->document()->fileName(),
-                                            target()->profile(), displayName());
+                                            target()->kit(), displayName());
 }
 
 /// returns the unexpanded build directory
@@ -196,12 +196,13 @@ QString Qt4BuildConfiguration::rawBuildDirectory() const
 /// Returns the build directory.
 QString Qt4BuildConfiguration::buildDirectory() const
 {
-    return QDir::cleanPath(environment().expandVariables(rawBuildDirectory()));
+    QString path = QDir::cleanPath(environment().expandVariables(rawBuildDirectory()));
+    return QDir::cleanPath(QDir(target()->project()->projectDirectory()).absoluteFilePath(path));
 }
 
 bool Qt4BuildConfiguration::supportsShadowBuilds()
 {
-    BaseQtVersion *version = QtProfileInformation::qtVersion(target()->profile());
+    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
     return !version || version->supportsShadowBuilds();
 }
 
@@ -254,7 +255,7 @@ QString Qt4BuildConfiguration::shadowBuildDirectory() const
 
 void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const QString &buildDirectory)
 {
-    BaseQtVersion *version = QtProfileInformation::qtVersion(target()->profile());
+    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
     QString directoryToSet = buildDirectory;
     bool toSet = (shadowBuild && version && version->isValid() && version->supportsShadowBuilds());
     if (m_shadowBuild == toSet && m_buildDirectory == directoryToSet)
@@ -270,8 +271,8 @@ void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const Q
 
 QString Qt4BuildConfiguration::defaultMakeTarget() const
 {
-    ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
-    BaseQtVersion *version = QtProfileInformation::qtVersion(target()->profile());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
+    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
     if (!tc || !version)
         return QString();
 
@@ -315,9 +316,9 @@ void Qt4BuildConfiguration::emitQMakeBuildConfigurationChanged()
 QStringList Qt4BuildConfiguration::configCommandLineArguments() const
 {
     QStringList result;
-    BaseQtVersion *version = QtProfileInformation::qtVersion(target()->profile());
+    BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
     BaseQtVersion::QmakeBuildConfigs defaultBuildConfiguration =
-        version ? version->defaultBuildConfig() : (BaseQtVersion::DebugBuild | BaseQtVersion::BuildAll);
+            version ? version->defaultBuildConfig() : (BaseQtVersion::DebugBuild | BaseQtVersion::BuildAll);
     BaseQtVersion::QmakeBuildConfigs userBuildConfiguration = m_qmakeBuildConfiguration;
     if ((defaultBuildConfiguration & BaseQtVersion::BuildAll) && !(userBuildConfiguration & BaseQtVersion::BuildAll))
         result << QLatin1String("CONFIG-=debug_and_release");
@@ -359,7 +360,7 @@ Qt4BuildConfiguration::MakefileState Qt4BuildConfiguration::compareToImportFrom(
     QMakeStep *qs = qmakeStep();
     if (QFileInfo(makefile).exists() && qs) {
         FileName qmakePath = QtVersionManager::findQMakeBinaryFromMakefile(makefile);
-        BaseQtVersion *version = QtProfileInformation::qtVersion(target()->profile());
+        BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
         if (!version)
             return MakefileForWrongProject;
         if (version->qmakeCommand() == qmakePath) {
@@ -521,7 +522,7 @@ FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
 
 IOutputParser *Qt4BuildConfiguration::createOutputParser() const
 {
-    ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     return tc ? tc->outputParser() : 0;
 }
 
@@ -570,7 +571,7 @@ void Qt4BuildConfigurationFactory::update()
 
 bool Qt4BuildConfigurationFactory::canHandle(const Target *t) const
 {
-    if (!t->project()->supportsProfile(t->profile()))
+    if (!t->project()->supportsKit(t->kit()))
         return false;
     return qobject_cast<Qt4Project *>(t->project());
 }
@@ -601,7 +602,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const C
     if (!canCreate(parent, id))
         return 0;
 
-    BaseQtVersion *version = QtProfileInformation::qtVersion(parent->profile());
+    BaseQtVersion *version = QtKitInformation::qtVersion(parent->kit());
     Q_ASSERT(version);
 
     bool ok = true;
@@ -674,12 +675,12 @@ BuildConfiguration *Qt4BuildConfigurationFactory::restore(Target *parent, const 
     return 0;
 }
 
-QList<BuildConfigurationInfo> Qt4BuildConfigurationFactory::availableBuildConfigurations(const Profile *p,
+QList<BuildConfigurationInfo> Qt4BuildConfigurationFactory::availableBuildConfigurations(const Kit *p,
                                                                                          const QString &proFilePath)
 {
     QList<BuildConfigurationInfo> infoList;
 
-    BaseQtVersion *version = QtProfileInformation::qtVersion(p);
+    BaseQtVersion *version = QtKitInformation::qtVersion(p);
     if (!version || !version->isValid())
         return infoList;
     BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();

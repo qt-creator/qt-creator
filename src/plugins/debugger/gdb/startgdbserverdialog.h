@@ -32,7 +32,7 @@
 #define STARTGDBSERVERDIALOG_H
 
 #include "debugger_global.h"
-#include <projectexplorer/profile.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 
 namespace Debugger {

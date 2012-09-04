@@ -61,7 +61,8 @@
 
     \list 1
 
-        \o  Select the \gui {Maemo5} build target for your project.
+        \o  Select the \l{glossary-buildandrun-kit}{kit} with \gui {Maemo5} device type
+            for your project.
 
         \o  Choose \gui {Build > Publish Project}.
 

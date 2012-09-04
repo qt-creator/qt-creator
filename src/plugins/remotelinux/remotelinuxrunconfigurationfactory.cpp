@@ -33,7 +33,7 @@
 #include "remotelinuxrunconfiguration.h"
 
 #include <projectexplorer/buildtargetinfo.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
@@ -135,9 +135,9 @@ RunConfiguration *RemoteLinuxRunConfigurationFactory::clone(Target *parent,
 
 bool RemoteLinuxRunConfigurationFactory::canHandle(const Target *target) const
 {
-    if (!target->project()->supportsProfile(target->profile()))
+    if (!target->project()->supportsKit(target->kit()))
         return false;
-    const Core::Id deviceType = DeviceTypeProfileInformation::deviceTypeId(target->profile());
+    const Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(target->kit());
     return deviceType == RemoteLinux::Constants::GenericLinuxOsType;
 }
 

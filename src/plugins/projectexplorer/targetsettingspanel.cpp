@@ -40,8 +40,8 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/profile.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
@@ -87,7 +87,7 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
     connect(m_project, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(activeTargetChanged(ProjectExplorer::Target*)));
 
-    connect(ProfileManager::instance(), SIGNAL(profilesChanged()),
+    connect(KitManager::instance(), SIGNAL(kitsChanged()),
             this, SLOT(updateTargetAddAndRemoveButtons()));
 }
 
@@ -113,7 +113,7 @@ void TargetSettingsPanelWidget::setupUi()
     QVBoxLayout *noTargetLayout = new QVBoxLayout(m_noTargetLabel);
     noTargetLayout->setMargin(0);
     QLabel *label = new QLabel(m_noTargetLabel);
-    label->setText(tr("No target defined."));
+    label->setText(tr("No kit defined."));
     {
         QFont f = label->font();
         f.setPointSizeF(f.pointSizeF() * 1.4);
@@ -157,7 +157,7 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
     if (subIndex < -1 || subIndex >= 2)
         return;
 
-    if (targetIndex == -1 || subIndex == -1) { // no more targets!
+    if (targetIndex == -1 || subIndex == -1) { // no more kits!
         delete m_panelWidgets[0];
         m_panelWidgets[0] = 0;
         delete m_panelWidgets[1];
@@ -212,10 +212,10 @@ void TargetSettingsPanelWidget::currentTargetChanged(int targetIndex, int subInd
 
 void TargetSettingsPanelWidget::addTarget(QAction *action)
 {
-    Profile *p = ProfileManager::instance()->find(action->data().value<Core::Id>());
-    QTC_ASSERT(!m_project->target(p), return);
+    Kit *k = KitManager::instance()->find(action->data().value<Core::Id>());
+    QTC_ASSERT(!m_project->target(k), return);
 
-    Target *target = m_project->createTarget(p);
+    Target *target = m_project->createTarget(k);
     if (!target)
         return;
     m_project->addTarget(target);
@@ -228,12 +228,12 @@ void TargetSettingsPanelWidget::removeTarget(int targetIndex)
     ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
     if (bm->isBuilding(t)) {
         QMessageBox box;
-        QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Remove Target"), QMessageBox::AcceptRole);
+        QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Remove Kit"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(tr("Do Not Remove"), QMessageBox::RejectRole);
         box.setDefaultButton(cancelClose);
-        box.setWindowTitle(tr("Remove Target %1?").arg(t->displayName()));
-        box.setText(tr("The target <b>%1</b> is currently being built.").arg(t->displayName()));
-        box.setInformativeText(tr("Do you want to cancel the build process and remove the Target anyway?"));
+        box.setWindowTitle(tr("Remove Kit %1?").arg(t->displayName()));
+        box.setText(tr("The kit <b>%1</b> is currently being built.").arg(t->displayName()));
+        box.setInformativeText(tr("Do you want to cancel the build process and remove the Kit anyway?"));
         box.exec();
         if (box.clickedButton() != closeAnyway)
             return;
@@ -242,7 +242,7 @@ void TargetSettingsPanelWidget::removeTarget(int targetIndex)
         // We don't show the generic message box on removing the target, if we showed the still building one
         int ret = QMessageBox::warning(this, tr("Qt Creator"),
                                        tr("Do you really want to remove the\n"
-                                          "\"%1\" target?").arg(t->displayName()),
+                                          "\"%1\" kit?").arg(t->displayName()),
                                         QMessageBox::Yes | QMessageBox::No,
                                         QMessageBox::No);
         if (ret != QMessageBox::Yes)
@@ -301,14 +301,14 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
 
     m_addMenu->clear();
 
-    foreach (Profile *p, ProfileManager::instance()->profiles()) {
-        if (m_project->target(p))
+    foreach (Kit *k, KitManager::instance()->kits()) {
+        if (m_project->target(k))
             continue;
-        if (!m_project->supportsProfile(p))
+        if (!m_project->supportsKit(k))
             continue;
 
-        QAction *action = new QAction(p->displayName(), m_addMenu);
-        action->setData(QVariant::fromValue(p->id()));
+        QAction *action = new QAction(k->displayName(), m_addMenu);
+        action->setData(QVariant::fromValue(k->id()));
 
         bool inserted = false;
         foreach (QAction *existing, m_addMenu->actions()) {
@@ -339,7 +339,7 @@ void TargetSettingsPanelWidget::renameTarget()
 void TargetSettingsPanelWidget::openTargetPreferences()
 {
     Core::ICore::showOptionsDialog(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                   QLatin1String(Constants::PROFILE_SETTINGS_PAGE_ID));
+                                   QLatin1String(Constants::KITS_SETTINGS_PAGE_ID));
 }
 
 int TargetSettingsPanelWidget::currentSubIndex() const

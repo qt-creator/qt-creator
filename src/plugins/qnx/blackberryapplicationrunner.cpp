@@ -107,7 +107,7 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
     m_password = runConfiguration->deployConfiguration()->password();
     m_barPackage = runConfiguration->barPackage();
 
-    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target->profile());
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target->kit());
     m_sshParams = device->sshParameters();
     // The BlackBerry device always uses key authentication
     m_sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;

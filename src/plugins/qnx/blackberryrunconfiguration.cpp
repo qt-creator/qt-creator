@@ -147,5 +147,5 @@ BlackBerryDeployConfiguration *BlackBerryRunConfiguration::deployConfiguration()
 
 QString BlackBerryRunConfiguration::key() const
 {
-    return barPackage() + QLatin1Char('_') + BlackBerryDeviceConfiguration::device(target()->profile())->sshParameters().host;
+    return barPackage() + QLatin1Char('_') + BlackBerryDeviceConfiguration::device(target()->kit())->sshParameters().host;
 }

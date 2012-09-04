@@ -128,7 +128,7 @@ void RemoteLinuxRunConfiguration::init()
 
     connect(target(), SIGNAL(deploymentDataChanged()), SLOT(handleBuildSystemDataUpdated()));
     connect(target(), SIGNAL(applicationTargetsChanged()), SLOT(handleBuildSystemDataUpdated()));
-    connect(target(), SIGNAL(profileChanged()),
+    connect(target(), SIGNAL(kitChanged()),
             this, SLOT(handleBuildSystemDataUpdated())); // Handles device changes, etc.
 }
 

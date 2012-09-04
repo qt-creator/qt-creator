@@ -34,7 +34,7 @@
 #include "maemoremotemounter.h"
 
 #include <projectexplorer/target.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <utils/qtcassert.h>
 #include <ssh/sshconnection.h>
@@ -63,15 +63,15 @@ MaemoDeploymentMounter::~MaemoDeploymentMounter() {}
 
 void MaemoDeploymentMounter::setupMounts(SshConnection *connection,
     const QList<MaemoMountSpecification> &mountSpecs,
-    const Profile *profile)
+    const Kit *k)
 {
     QTC_ASSERT(m_state == Inactive, return);
 
     m_mountSpecs = mountSpecs;
     m_connection = connection;
-    m_profile = profile;
-    m_devConf = DeviceProfileInformation::device(profile);
-    m_mounter->setParameters(m_devConf, MaemoGlobal::maddeRoot(profile));
+    m_kit = k;
+    m_devConf = DeviceKitInformation::device(k);
+    m_mounter->setParameters(m_devConf, MaemoGlobal::maddeRoot(k));
     connect(m_connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
     setState(UnmountingOldDirs);
     unmount();

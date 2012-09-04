@@ -42,7 +42,7 @@ class FileSystemWatcher;
 class PersistentSettingsWriter;
 } // namespace Utils
 
-namespace ProjectExplorer { class ProfileInformation; }
+namespace ProjectExplorer { class KitInformation; }
 
 namespace QtSupport {
 namespace Internal {

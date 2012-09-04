@@ -85,7 +85,7 @@ public slots:
     void projectUpdated(ProjectExplorer::Project *p);
 
 private slots:
-    void handleProfilesChanges();
+    void handleKitChanges();
     void showProperties(int index, int subIndex);
     void registerProject(ProjectExplorer::Project*);
     void deregisterProject(ProjectExplorer::Project*);

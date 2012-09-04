@@ -163,6 +163,16 @@ public:
      */
     virtual bool vcsAnnotate(const QString &file, int line) = 0;
 
+    /*!
+     * Display text for Open operation
+     */
+    virtual QString vcsOpenText() const;
+
+    /*!
+     * Display text for Make Writable
+     */
+    virtual QString vcsMakeWritableText() const;
+
 signals:
     void repositoryChanged(const QString &repository);
     void filesChanged(const QStringList &files);

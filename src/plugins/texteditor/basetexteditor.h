@@ -576,6 +576,7 @@ private:
     void processTooltipRequest(const QTextCursor &c);
 
     void transformSelection(Internal::TransformationMethod method);
+    void transformBlockSelection(Internal::TransformationMethod method);
 
 private slots:
     void handleBlockSelection(int diff_row, int diff_col);

@@ -34,10 +34,10 @@
 #include "androidtoolchain.h"
 #include "androidmanager.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtoutputformatter.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <utils/qtcassert.h>
 
@@ -87,7 +87,7 @@ AndroidConfig AndroidRunConfiguration::config() const
 
 const Utils::FileName AndroidRunConfiguration::gdbCmd() const
 {
-    ToolChain *tc = ToolChainProfileInformation::toolChain(target()->profile());
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     if (!tc)
         return Utils::FileName();
     return AndroidConfigurations::instance().gdbPath(tc->targetAbi().architecture());
@@ -110,7 +110,7 @@ const QString AndroidRunConfiguration::remoteChannel() const
 
 const QString AndroidRunConfiguration::dumperLib() const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!version)
         return QString();
     return version->gdbDebuggingHelperLibrary();

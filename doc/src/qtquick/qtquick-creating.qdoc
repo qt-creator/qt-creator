@@ -154,15 +154,15 @@
 
         \o  Click \gui{Next}.
 
-            The \gui {Target Setup} dialog opens.
+            The \gui {Kit Selection} dialog opens.
 
-            \image qmldesigner-new-project-qt-versions.png "Target Setup dialog"
+            \image qmldesigner-new-project-qt-versions.png "Kit Selection dialog"
 
-        \o  Select build targets for your project,
+        \o  Select build and run \l{glossary-buildandrun-kit}{kits} for your project,
             and then click \gui{Next}.
 
-            \note If only one target is specified in \gui Tools > \gui Options >
-            \gui {Build & Run} > \gui Targets, this dialog is skipped.
+            \note If only one kit is specified in \gui Tools > \gui Options >
+            \gui {Build & Run} > \gui Kits, this dialog is skipped.
 
             The \gui {Mobile Options} dialog opens.
 
@@ -172,8 +172,8 @@
             application behaves when the orientation of the device display
             rotates between portrait and landscape, and then click \gui Next.
 
-            \note This dialog opens only if you select \gui Maemo5
-            target in the \gui {Target Setup} dialog. On
+            \note This dialog opens only if you select a \l{glossary-buildandrun-kit}{kit}
+            with \gui Maemo5 device type in the \gui {Kit Selection} dialog. On
             Harmattan, the Qt Quick Components for MeeGo provide native-looking
             rotation.
 

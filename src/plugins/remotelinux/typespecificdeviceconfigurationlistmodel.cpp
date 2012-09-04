@@ -30,7 +30,7 @@
 #include "typespecificdeviceconfigurationlistmodel.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <utils/qtcassert.h>
 
@@ -44,7 +44,7 @@ TypeSpecificDeviceConfigurationListModel::TypeSpecificDeviceConfigurationListMod
 {
     const DeviceManager * const devConfs = DeviceManager::instance();
     connect(devConfs, SIGNAL(updated()), this, SIGNAL(modelReset()));
-    connect(target, SIGNAL(profileChanged()), this, SIGNAL(modelReset()));
+    connect(target, SIGNAL(kitChanged()), this, SIGNAL(modelReset()));
 }
 
 int TypeSpecificDeviceConfigurationListModel::rowCount(const QModelIndex &parent) const
@@ -131,7 +131,7 @@ bool TypeSpecificDeviceConfigurationListModel::deviceMatches(IDevice::ConstPtr d
 {
     if (dev.isNull())
         return false;
-    Core::Id typeId = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(target()->profile());
+    Core::Id typeId = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(target()->kit());
     return dev->type() == typeId;
 }
 

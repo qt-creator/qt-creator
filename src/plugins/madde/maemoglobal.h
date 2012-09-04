@@ -45,7 +45,7 @@ class QProcess;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class Profile;
+class Kit;
 class Target;
 } // namespace ProjectExplorer
 
@@ -81,8 +81,8 @@ class MaemoGlobal
 {
     Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::MaemoGlobal)
 public:
-    static bool hasMaemoDevice(const ProjectExplorer::Profile *p);
-    static bool supportsMaemoDevice(const ProjectExplorer::Profile *p);
+    static bool hasMaemoDevice(const ProjectExplorer::Kit *k);
+    static bool supportsMaemoDevice(const ProjectExplorer::Kit *p);
     static bool isValidMaemo5QtVersion(const QString &qmakePath);
     static bool isValidHarmattanQtVersion(const QString &qmakePath);
 
@@ -91,12 +91,12 @@ public:
     static int applicationIconSize(const ProjectExplorer::Target *target);
     static QString remoteSudo(Core::Id deviceType, const QString &uname);
     static QString remoteSourceProfilesCommand();
-    static Utils::PortList freePorts(const ProjectExplorer::Profile *profile);
+    static Utils::PortList freePorts(const ProjectExplorer::Kit *k);
 
     static void addMaddeEnvironment(Utils::Environment &env, const QString &qmakePath);
     static void transformMaddeCall(QString &command, QStringList &args, const QString &qmakePath);
     static QString maddeRoot(const QString &qmakePath);
-    static Utils::FileName maddeRoot(const ProjectExplorer::Profile *profile);
+    static Utils::FileName maddeRoot(const ProjectExplorer::Kit *k);
     static QString targetRoot(const QString &qmakePath);
     static QString targetName(const QString &qmakePath);
     static QString madCommand(const QString &qmakePath);

@@ -41,7 +41,7 @@ class QStackedWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-class Profile;
+class Kit;
 class Project;
 class Target;
 class BuildConfiguration;
@@ -58,13 +58,18 @@ class ListWidget : public QListWidget
     Q_OBJECT
 public:
     ListWidget(QWidget *parent);
-    QSize sizeHint() const;
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
     void setMaxCount(int maxCount);
+    int maxCount();
 
+    int optimalWidth() const;
+    void setOptimalWidth(int width);
+
+    int padding();
 private:
     int m_maxCount;
+    int m_optimalWidth;
 };
 
 class ProjectListWidget : public ListWidget
@@ -115,7 +120,7 @@ public:
 
     void keyPressEvent(QKeyEvent *ke);
     void keyReleaseEvent(QKeyEvent *ke);
-    QSize sizeHint() const;
+    bool event(QEvent *event);
 public slots:
     void toggleVisible();
     void nextOrShow();
@@ -134,7 +139,7 @@ private slots:
 
     void changeStartupProject(ProjectExplorer::Project *project);
     void activeTargetChanged(ProjectExplorer::Target *target);
-    void profileChanged(ProjectExplorer::Profile *profile);
+    void kitChanged(ProjectExplorer::Kit *k);
     void activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
     void activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration *dc);
     void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
@@ -163,9 +168,12 @@ private:
     void updateDeployListVisible();
     void updateRunListVisible();
     void updateSummary();
-    void updateSeparatorVisible();
     void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *);
+
+    void doLayout(bool keepSize);
+    QVector<int> listWidgetWidths(int minSize, int maxSize);
+    QWidget *createTitleLabel(const QString &text);
 
     QAction *m_projectAction;
     SessionManager *m_sessionManager;
@@ -174,7 +182,6 @@ private:
     ProjectListWidget *m_projectListWidget;
     QVector<GenericListWidget *> m_listWidgets;
     QVector<QWidget *> m_titleWidgets;
-    QVector<QWidget *> m_separators;
     QLabel *m_summaryLabel;
 
     Project *m_project;

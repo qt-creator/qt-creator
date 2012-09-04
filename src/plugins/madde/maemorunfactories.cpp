@@ -39,7 +39,7 @@
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4nodes.h>
 #include <qt4projectmanager/qt4project.h>
@@ -69,9 +69,9 @@ QString pathFromId(Core::Id id)
 template<class Receiver> void setHelperActions(Receiver *receiver, MaemoRunConfiguration *runConfig,
         RunControl *runControl)
 {
-    const Profile * const profile = runConfig->target()->profile();
+    const Kit * const k = runConfig->target()->kit();
     MaemoPreRunAction * const preRunAction = new MaemoPreRunAction(
-            DeviceProfileInformation::device(profile), MaemoGlobal::maddeRoot(profile),
+            DeviceKitInformation::device(k), MaemoGlobal::maddeRoot(k),
             runConfig->remoteMounts()->mountSpecs(), runControl);
     MaemoPostRunAction * const postRunAction
             = new MaemoPostRunAction(preRunAction->mounter(), runControl);
@@ -166,11 +166,11 @@ RunConfiguration *MaemoRunConfigurationFactory::clone(Target *parent, RunConfigu
 
 bool MaemoRunConfigurationFactory::canHandle(Target *t) const
 {
-    if (!t->project()->supportsProfile(t->profile()))
+    if (!t->project()->supportsKit(t->kit()))
         return false;
     if (!qobject_cast<Qt4Project *>(t->project()))
         return false;
-    Core::Id devType = DeviceTypeProfileInformation::deviceTypeId(t->profile());
+    Core::Id devType = DeviceTypeKitInformation::deviceTypeId(t->kit());
     return devType == Maemo5OsType || devType == HarmattanOsType;
 }
 

@@ -20,10 +20,11 @@ OTHER_FILES += dist/copyright_template.txt \
 macx {
     APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
     deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\"
+    codesign.commands = codesign -s \"$(SIGNING_IDENTITY)\" \"$${APPBUNDLE}\"
     bindist.commands = 7z a -mx9 $$OUT_PWD/qt-creator-mac$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX).7z \"$$OUT_PWD/bin/Qt Creator.app/\"
     dmg.commands = $$PWD/scripts/makedmg.sh $$OUT_PWD/bin qt-creator-mac$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX).dmg
     dmg.depends = deployqt
-    QMAKE_EXTRA_TARGETS += dmg
+    QMAKE_EXTRA_TARGETS += codesign dmg
 } else {
     deployqt.commands = $$PWD/scripts/deployqt.py -i $(INSTALL_ROOT)
     deployqt.depends = install

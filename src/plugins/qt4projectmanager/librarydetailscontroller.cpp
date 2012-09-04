@@ -37,7 +37,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -87,7 +87,7 @@ LibraryDetailsController::LibraryDetailsController(
         const ProjectExplorer::Project *project =
                 ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile);
         // if its tool chain is maemo behave the same as we would be on linux
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(project->activeTarget()->profile());
+        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(project->activeTarget()->kit());
         if (tc
                 && (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
                     || tc->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))

@@ -274,6 +274,7 @@ public:
     void setApplicationProcessHandle(const ProcessHandle &handle);
     Abi abi() const;
 
+    RunConfiguration *runConfiguration() const;
     bool sameRunConfiguration(const RunControl *other) const;
 
     Utils::OutputFormatter *outputFormatter();

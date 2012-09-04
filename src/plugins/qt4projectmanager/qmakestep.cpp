@@ -37,13 +37,13 @@
 #include "qt4project.h"
 #include "qt4projectmanagerconstants.h"
 #include "qt4projectmanager.h"
-#include "qmakeprofileinformation.h"
+#include "qmakekitinformation.h"
 #include "qt4nodes.h"
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
@@ -51,7 +51,7 @@
 #include <coreplugin/mainwindow.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/messagemanager.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/debugginghelperbuildtask.h>
 #include <utils/hostosinfo.h>
@@ -173,7 +173,7 @@ QStringList QMakeStep::deducedArguments()
 {
     QStringList arguments;
     ProjectExplorer::ToolChain *tc
-            = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
+            = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
     ProjectExplorer::Abi targetAbi;
     if (tc)
         targetAbi = tc->targetAbi();
@@ -199,7 +199,7 @@ QStringList QMakeStep::deducedArguments()
         }
     }
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (linkQmlDebuggingLibrary() && version) {
         if (!version->needsQmlDebuggingLibrary()) {
             // This Qt version has the QML debugging services built in, however
@@ -227,7 +227,7 @@ QStringList QMakeStep::deducedArguments()
 /// -after OBJECTS_DIR, MOC_DIR, UI_DIR, RCC_DIR
 QStringList QMakeStep::deducedArgumentsAfter()
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (version && !version->supportsShadowBuilds()) {
         // We have a target which does not allow shadow building.
         // But we really don't want to have the build artefacts in the source dir
@@ -246,7 +246,7 @@ QStringList QMakeStep::deducedArgumentsAfter()
 bool QMakeStep::init()
 {
     Qt4BuildConfiguration *qt4bc = qt4BuildConfiguration();
-    const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
 
     if (!qtVersion)
         return false;
@@ -383,7 +383,7 @@ void QMakeStep::setUserArguments(const QString &arguments)
 
 bool QMakeStep::isQmlDebuggingLibrarySupported(QString *reason) const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!version) {
         if (reason)
             *reason = tr("No Qt version.");
@@ -467,7 +467,7 @@ FileName QMakeStep::mkspec()
         }
     }
 
-    return Qt4ProjectManager::QmakeProfileInformation::effectiveMkspec(target()->profile());
+    return Qt4ProjectManager::QmakeKitInformation::effectiveMkspec(target()->kit());
 }
 
 QVariantMap QMakeStep::toMap() const
@@ -530,7 +530,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(linkQmlDebuggingLibraryChanged()));
     connect(step->qt4BuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
             this, SLOT(qmakeBuildConfigChanged()));
-    connect(step->target(), SIGNAL(profileChanged()), this, SLOT(qtVersionChanged()));
+    connect(step->target(), SIGNAL(kitChanged()), this, SLOT(qtVersionChanged()));
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
             this, SLOT(qtVersionChanged()));
 }
@@ -646,11 +646,11 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
 
 void QMakeStepConfigWidget::buildQmlDebuggingHelper()
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(m_step->target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(m_step->target()->kit());
     if (!version)
         return;
 
-    ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(m_step->target()->profile());
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_step->target()->kit());
 
     QtSupport::DebuggingHelperBuildTask *buildTask =
             new QtSupport::DebuggingHelperBuildTask(version, tc,
@@ -667,7 +667,7 @@ void QMakeStepConfigWidget::buildQmlDebuggingHelper()
 
 void QMakeStepConfigWidget::updateSummaryLabel()
 {
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(m_step->target()->profile());
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(m_step->target()->kit());
     if (!qtVersion) {
         setSummaryText(tr("<b>qmake:</b> No Qt version set. Cannot run qmake."));
         return;
@@ -697,7 +697,7 @@ void QMakeStepConfigWidget::updateQmlDebuggingOption()
 
 void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 {
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(m_step->target()->profile());
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(m_step->target()->kit());
     QString program = tr("<No Qt version>");
     if (qtVersion)
         program = qtVersion->qmakeCommand().toFileInfo().fileName();

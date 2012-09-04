@@ -58,7 +58,7 @@
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/profilereader.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/hostosinfo.h>
 
 #include <QFormLayout>
@@ -152,7 +152,7 @@ QString Qt4RunConfiguration::disabledReason() const
     return QString();
 }
 
-void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
+void Qt4RunConfiguration::kitUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
     if (m_proFilePath != pro->path()) {
         if (!parseInProgress) {
@@ -180,20 +180,20 @@ void Qt4RunConfiguration::ctor()
 {
     setDefaultDisplayName(defaultDisplayName());
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     m_forcedGuiMode = (version && version->type() == QtSupport::Constants::SIMULATORQT);
 
     connect(target(), SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
-    connect(target()->project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SLOT(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
-    connect(target(), SIGNAL(profileChanged()),
-            this, SLOT(profileChanged()));
+    connect(target()->project(), SIGNAL(kitUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(kitUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+    connect(target(), SIGNAL(kitChanged()),
+            this, SLOT(kitChanged()));
 }
 
-void Qt4RunConfiguration::profileChanged()
+void Qt4RunConfiguration::kitChanged()
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     m_forcedGuiMode = (version && version->type() == QtSupport::Constants::SIMULATORQT);
     emit runModeChanged(runMode()); // Always emit
 }
@@ -620,7 +620,7 @@ Utils::Environment Qt4RunConfiguration::baseEnvironment() const
         } // libDirectories
     } // node
 
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (qtVersion)
         env.prependOrSetLibrarySearchPath(qtVersion->qmakeProperty("QT_INSTALL_LIBS"));
     return env;
@@ -676,7 +676,7 @@ QString Qt4RunConfiguration::proFilePath() const
 
 QString Qt4RunConfiguration::dumperLibrary() const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (version)
         return version->gdbDebuggingHelperLibrary();
     return QString();
@@ -684,7 +684,7 @@ QString Qt4RunConfiguration::dumperLibrary() const
 
 QStringList Qt4RunConfiguration::dumperLibraryLocations() const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(target()->profile());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (version)
         return version->debuggingHelperLibraryLocations();
     return QStringList();
@@ -808,11 +808,11 @@ QString Qt4RunConfigurationFactory::displayNameForId(const Core::Id id) const
 
 bool Qt4RunConfigurationFactory::canHandle(ProjectExplorer::Target *t) const
 {
-    if (!t->project()->supportsProfile(t->profile()))
+    if (!t->project()->supportsKit(t->kit()))
         return false;
     if (!qobject_cast<Qt4Project *>(t->project()))
         return false;
-    Core::Id devType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(t->profile());
+    Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());
     return devType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 

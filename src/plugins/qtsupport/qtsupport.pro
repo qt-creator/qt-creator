@@ -18,8 +18,8 @@ include(../../shared/proparser/proparser.pri)
 HEADERS += \
     qtsupportplugin.h \
     qtsupport_global.h \
-    qtprofileconfigwidget.h \
-    qtprofileinformation.h \
+    qtkitconfigwidget.h \
+    qtkitinformation.h \
     qtoutputformatter.h \
     qtversionmanager.h \
     qtversionfactory.h \
@@ -41,8 +41,8 @@ HEADERS += \
 
 SOURCES += \
     qtsupportplugin.cpp \
-    qtprofileconfigwidget.cpp \
-    qtprofileinformation.cpp \
+    qtkitconfigwidget.cpp \
+    qtkitinformation.cpp \
     qtoutputformatter.cpp \
     qtversionmanager.cpp \
     qtversionfactory.cpp \

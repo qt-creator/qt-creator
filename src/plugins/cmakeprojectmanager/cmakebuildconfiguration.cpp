@@ -36,12 +36,12 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/ioutputparser.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtparser.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <utils/qtcassert.h>
 
 #include <QInputDialog>
@@ -113,11 +113,11 @@ ProjectExplorer::IOutputParser *CMakeBuildConfiguration::createOutputParser() co
 {
     ProjectExplorer::IOutputParser *parserchain = new ProjectExplorer::GnuMakeParser;
 
-    int versionId = QtSupport::QtProfileInformation::qtVersionId(target()->profile());
+    int versionId = QtSupport::QtKitInformation::qtVersionId(target()->kit());
     if (versionId >= 0)
         parserchain->appendOutputParser(new QtSupport::QtParser);
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(target()->profile());
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
     if (tc)
         parserchain->appendOutputParser(tc->outputParser());
     return parserchain;
@@ -126,7 +126,7 @@ ProjectExplorer::IOutputParser *CMakeBuildConfiguration::createOutputParser() co
 Utils::Environment CMakeBuildConfiguration::baseEnvironment() const
 {
     Utils::Environment env = BuildConfiguration::baseEnvironment();
-    target()->profile()->addToEnvironment(env);
+    target()->kit()->addToEnvironment(env);
     return env;
 }
 
@@ -248,7 +248,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::restore(ProjectExplorer
 
 bool CMakeBuildConfigurationFactory::canHandle(const ProjectExplorer::Target *t) const
 {
-    if (!t->project()->supportsProfile(t->profile()))
+    if (!t->project()->supportsKit(t->kit()))
         return false;
     return qobject_cast<CMakeProject *>(t->project());
 }

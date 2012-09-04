@@ -373,20 +373,12 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
 }
 
 PersistentSettingsWriter::PersistentSettingsWriter(const FileName &fileName, const QString &docType) :
-    m_fileName(fileName), m_docType(docType), m_mustSave(false)
+    m_fileName(fileName), m_docType(docType)
 { }
 
-void PersistentSettingsWriter::saveValue(const QString &variable, const QVariant &value)
+bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) const
 {
-    if (m_valueMap.contains(variable) && m_valueMap.value(variable) == value)
-        return;
-    m_mustSave = true;
-    m_valueMap.insert(variable, value);
-}
-
-bool PersistentSettingsWriter::save(QWidget *parent) const
-{
-    if (!m_mustSave)
+    if (data == m_savedData)
         return true;
 
     QDir tmp;
@@ -403,8 +395,8 @@ bool PersistentSettingsWriter::save(QWidget *parent) const
                        arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
                            QDateTime::currentDateTime().toString(Qt::ISODate)));
         w.writeStartElement(ctx.qtCreatorElement);
-        const QVariantMap::const_iterator cend = m_valueMap.constEnd();
-        for (QVariantMap::const_iterator it =  m_valueMap.constBegin(); it != cend; ++it) {
+        const QVariantMap::const_iterator cend = data.constEnd();
+        for (QVariantMap::const_iterator it =  data.constBegin(); it != cend; ++it) {
             w.writeStartElement(ctx.dataElement);
             w.writeTextElement(ctx.variableElement, it.key());
             writeVariantValue(w, ctx, it.value());
@@ -416,7 +408,7 @@ bool PersistentSettingsWriter::save(QWidget *parent) const
     }
     bool ok = saver.finalize(parent);
     if (ok)
-        m_mustSave = false;
+        m_savedData = data;
     return ok;
 }
 

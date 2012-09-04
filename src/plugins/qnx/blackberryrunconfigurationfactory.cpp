@@ -36,7 +36,7 @@
 #include "blackberryrunconfiguration.h"
 #include "blackberrydeviceconfigurationfactory.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4project.h>
 
@@ -157,12 +157,12 @@ ProjectExplorer::RunConfiguration *BlackBerryRunConfigurationFactory::clone(
 
 bool BlackBerryRunConfigurationFactory::canHandle(ProjectExplorer::Target *t) const
 {
-    if (!t->project()->supportsProfile(t->profile()))
+    if (!t->project()->supportsKit(t->kit()))
         return false;
     if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(t->project()))
         return false;
 
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(t->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());
     if (deviceType != BlackBerryDeviceConfigurationFactory::deviceType())
         return false;
 

@@ -65,7 +65,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
          "and includes an empty widget."));
 
     addModulesPage();
-    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_PROFILE_IDS))
+    if (!parameters.extraValues().contains(ProjectExplorer::Constants::PROJECT_KIT_IDS))
         addTargetSetupPage(isMobile);
 
     m_filesPage->setFormInputCheckable(true);

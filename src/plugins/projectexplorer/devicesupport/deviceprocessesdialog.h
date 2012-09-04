@@ -32,7 +32,7 @@
 
 #include "../projectexplorer_export.h"
 
-#include <projectexplorer/profile.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 
@@ -40,7 +40,7 @@
 
 namespace ProjectExplorer {
 
-class ProfileChooser;
+class KitChooser;
 
 namespace Internal { class DeviceProcessesDialogPrivate; }
 
@@ -57,7 +57,7 @@ public:
     void setDevice(const IDevice::ConstPtr &device);
     void showAllDevices();
     DeviceProcess currentProcess() const;
-    ProfileChooser *profileChooser() const;
+    KitChooser *kitChooser() const;
     void logMessage(const QString &line);
 
 private:

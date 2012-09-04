@@ -286,9 +286,11 @@ void CodeStylePool::exportCodeStyle(const Utils::FileName &fileName, ICodeStyleP
 {
     QVariantMap map;
     codeStyle->toMap(QString::null, &map);
+
+    QVariantMap tmp;
+    tmp.insert(QLatin1String(displayNameKey), codeStyle->displayName());
+    tmp.insert(QLatin1String(codeStyleDataKey), map);
     Utils::PersistentSettingsWriter writer(fileName, QLatin1String(codeStyleDocKey));
-    writer.saveValue(QLatin1String(displayNameKey), codeStyle->displayName());
-    writer.saveValue(QLatin1String(codeStyleDataKey), map);
-    writer.save(0);
+    writer.save(map, 0);
 }
 

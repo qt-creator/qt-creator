@@ -4,8 +4,7 @@
     detecting memory leaks and profiling function execution. You can configure
     the tools according to your needs.
 
-    You can specify analyzer settings for the desktop and \QS targets.
-    You can specify them either globally for all projects or separately for each
+    You can specify analyzer settings either globally for all projects or separately for each
     project.
 
     To specify analyzer settings for the current project:

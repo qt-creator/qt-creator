@@ -73,6 +73,7 @@ public:
     bool promptToCheckIn;
     bool disableIndexer;
     QString indexOnlyVOBs;
+    bool extDiffAvailable;
     QHash<QString, int> totalFiles;
 };
 

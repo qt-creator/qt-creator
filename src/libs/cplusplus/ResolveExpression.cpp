@@ -473,27 +473,38 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
         if (item.declaration() == 0)
             continue;
 
-        if (item.type().isAuto()) {
+        if (item.type().isAuto()
+                && _blockedIds.find(ast->name->identifier()) == _blockedIds.end()) {
             const Declaration *decl = item.declaration()->asDeclaration();
             if (!decl)
                 continue;
-
-            Document::Ptr doc = _context.snapshot().document(decl->fileName());
 
             const StringLiteral *initializationString = decl->getInitializer();
             if (initializationString == 0)
                 continue;
 
-            QByteArray initializer = QByteArray::fromRawData(initializationString->chars(), initializationString->size()).trimmed();
+            const QByteArray &initializer =
+                    QByteArray::fromRawData(initializationString->chars(),
+                                            initializationString->size()).trimmed();
 
             // Skip lambda-function initializers
             if (initializer.length() > 0 && initializer[0] == '[')
                 continue;
 
             TypeOfExpression exprTyper;
+            Document::Ptr doc = _context.snapshot().document(decl->fileName());
             exprTyper.init(doc, _context.snapshot(), _context.bindings());
 
-            QList<LookupItem> typeItems = exprTyper(initializer, decl->enclosingScope(), TypeOfExpression::Preprocess);
+            Document::Ptr exprDoc =
+                    documentForExpression(exprTyper.preprocessedExpression(initializer));
+            exprDoc->check();
+            ExpressionAST *exprAST = extractExpressionAST(exprDoc);
+            if (!exprAST)
+                continue;
+
+            _blockedIds.insert(ast->name->identifier());
+            const QList<LookupItem> &typeItems = resolve(exprAST, decl->enclosingScope());
+            _blockedIds.erase(ast->name->identifier());
             if (typeItems.empty())
                 continue;
 

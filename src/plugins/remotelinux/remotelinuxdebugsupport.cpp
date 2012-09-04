@@ -33,11 +33,11 @@
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerstartparameters.h>
-#include <debugger/debuggerprofileinformation.h>
+#include <debugger/debuggerkitinformation.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
-#include <projectexplorer/profile.h>
+#include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -68,7 +68,7 @@ public:
           cppDebugging(runConfig->debuggerAspect()->useCppDebugger()),
           state(Inactive),
           gdbServerPort(-1), qmlPort(-1),
-          device(DeviceProfileInformation::device(runConfig->target()->profile())),
+          device(DeviceKitInformation::device(runConfig->target()->kit())),
           remoteFilePath(runConfig->remoteExecutableFilePath()),
           arguments(runConfig->arguments()),
           commandPrefix(runConfig->commandPrefix())
@@ -99,12 +99,12 @@ DebuggerStartParameters LinuxDeviceDebugSupport::startParameters(const RemoteLin
 {
     DebuggerStartParameters params;
     Target *target = runConfig->target();
-    Profile *profile = target->profile();
-    const IDevice::ConstPtr device = DeviceProfileInformation::device(profile);
+    Kit *k = target->kit();
+    const IDevice::ConstPtr device = DeviceKitInformation::device(k);
 
-    params.sysRoot = SysRootProfileInformation::sysRoot(profile).toString();
-    params.debuggerCommand = DebuggerProfileInformation::debuggerCommand(profile).toString();
-    if (ToolChain *tc = ToolChainProfileInformation::toolChain(profile))
+    params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
+    params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
+    if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
         params.toolChainAbi = tc->targetAbi();
 
     if (runConfig->debuggerAspect()->useQmlDebugger()) {

@@ -33,11 +33,11 @@
 #include "qmlprojectrunconfiguration.h"
 #include "qmlprojectrunconfigurationfactory.h"
 
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectconfiguration.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 
 namespace QmlProjectManager {
 namespace Internal {
@@ -58,7 +58,7 @@ QList<Core::Id> QmlProjectRunConfigurationFactory::availableCreationIds(ProjectE
         return QList<Core::Id>();
 
     QtSupport::BaseQtVersion *version
-            = QtSupport::QtProfileInformation::qtVersion(parent->profile());
+            = QtSupport::QtKitInformation::qtVersion(parent->kit());
 
     // put qmlscene first (so that it is the default) for Qt 5.0.0
     QList<Core::Id> list;
@@ -91,7 +91,7 @@ bool QmlProjectRunConfigurationFactory::canCreate(ProjectExplorer::Target *paren
     if (id == Constants::QML_SCENE_RC_ID) {
         // only support qmlscene if it's Qt5
         QtSupport::BaseQtVersion *version
-                = QtSupport::QtProfileInformation::qtVersion(parent->profile());
+                = QtSupport::QtKitInformation::qtVersion(parent->kit());
         return version && version->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0);
     }
     return false;
@@ -137,11 +137,11 @@ ProjectExplorer::RunConfiguration *QmlProjectRunConfigurationFactory::clone(Proj
 
 bool QmlProjectRunConfigurationFactory::canHandle(ProjectExplorer::Target *parent) const
 {
-    if (!parent->project()->supportsProfile(parent->profile()))
+    if (!parent->project()->supportsKit(parent->kit()))
         return false;
     if (!qobject_cast<QmlProject *>(parent->project()))
         return false;
-    Core::Id deviceType = ProjectExplorer::DeviceTypeProfileInformation::deviceTypeId(parent->profile());
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(parent->kit());
     return deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 

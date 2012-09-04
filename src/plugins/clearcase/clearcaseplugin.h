@@ -39,6 +39,8 @@
 #include <QFile>
 #include <QPair>
 #include <QStringList>
+#include <QMetaType>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -145,11 +147,14 @@ public:
                   const QString &fileName, const QString &file2 = QString());
     FileStatus vcsStatus(const QString &file) const;
     QString currentView() const { return m_view; }
+    void refreshActivities();
 
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1) const;
     bool newActivity();
+    void updateStreamAndView();
+    void setStatus(const QString &file, ClearCase::Internal::FileStatus::Status status, bool update = true);
 
 private slots:
     void checkOutCurrentFile();
@@ -179,7 +184,6 @@ protected:
     void updateActions(VcsBase::VcsBasePlugin::ActionState);
     bool submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor);
     QString ccGet(const QString &workingDir, const QString &file, const QString &prefix = QString());
-    void refreshActivities();
     QList<QStringPair> ccGetActivities() const;
 
 private:
@@ -204,7 +208,6 @@ private:
     void cleanCheckInMessageFile();
     inline ClearCaseControl *clearCaseControl() const;
     QString ccGetFileActivity(const QString &workingDir, const QString &file);
-    void setStatus(const QString &file, FileStatus::Status status, bool update = true);
     QStringList ccGetActivityVersions(const QString &workingDir, const QString &activity);
     void updateStatusActions();
     void diffGraphical(const QString &file1, const QString &file2 = QString());
@@ -214,11 +217,9 @@ private:
     QString runExtDiff(const QString &workingDir, const QStringList &arguments,
                        int timeOut, QTextCodec *outputCodec = 0);
     QString ccGetView(const QString &workingDir, bool *isDynamic = 0) const;
-    void updateStreamAndView();
 
     ClearCaseSettings m_settings;
 
-    static StatusMap s_statusMap;
     QString m_checkInMessageFileName;
     QString m_topLevel;
     QString m_stream;
@@ -249,13 +250,16 @@ private:
     QAction *m_submitRedoAction;
     QAction *m_menuAction;
     bool m_submitActionTriggered;
-    QMutex *activityMutex;
+    QMutex *m_activityMutex;
     QList<QStringPair> m_activities;
+    QSharedPointer<StatusMap> m_statusMap;
 
     static ClearCasePlugin *m_clearcasePluginInstance;
 };
 
 } // namespace Internal
 } // namespace ClearCase
+
+Q_DECLARE_METATYPE(ClearCase::Internal::FileStatus::Status)
 
 #endif // CLEARCASEPLUGIN_H

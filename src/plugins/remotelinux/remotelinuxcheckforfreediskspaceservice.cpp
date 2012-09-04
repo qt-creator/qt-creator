@@ -91,6 +91,7 @@ void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
     QByteArray processOutput = d->processRunner->readAllStandardOutput();
     processOutput.chop(1); // newline
     quint64 freeSpace = processOutput.toULongLong(&isNumber);
+    quint64 requiredSpaceInMegaBytes = d->requiredSpaceInBytes / (1024 * 1024);
     if (!isNumber) {
         emit errorMessage(tr("Unexpected output from remote process: '%1'.")
                 .arg(QString::fromUtf8(processOutput)));
@@ -98,15 +99,15 @@ void RemoteLinuxCheckForFreeDiskSpaceService::handleProcessFinished()
         return;
     }
 
-    freeSpace *= 1024;
-    if (freeSpace < d->requiredSpaceInBytes) {
-        emit errorMessage(tr("The remote file system has only %n bytes of free space, "
-                "but %1 bytes are required.", 0, freeSpace).arg(d->requiredSpaceInBytes));
+    freeSpace /= 1024; // convert kilobyte to megabyte
+    if (freeSpace < requiredSpaceInMegaBytes) {
+        emit errorMessage(tr("The remote file system has only %n megabytes of free space, "
+                "but %1 megabytes are required.", 0, freeSpace).arg(requiredSpaceInMegaBytes));
         stopDeployment();
         return;
     }
 
-    emit progressMessage(tr("The remote file system has %n bytes of free space, going ahead.",
+    emit progressMessage(tr("The remote file system has %n megabytes of free space, going ahead.",
                             0, freeSpace));
     stopDeployment();
 }

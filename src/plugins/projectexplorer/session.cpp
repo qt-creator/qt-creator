@@ -312,9 +312,10 @@ bool SessionManager::save()
                                                        QLatin1String("QtCreatorSession"));
     }
 
+    QVariantMap data;
     // save the startup project
     if (m_startupProject)
-        m_writer->saveValue(QLatin1String("StartupProject"), m_startupProject->document()->fileName());
+        data.insert(QLatin1String("StartupProject"), m_startupProject->document()->fileName());
 
     QStringList projectFiles;
     foreach (Project *pro, m_projects)
@@ -326,7 +327,7 @@ bool SessionManager::save()
         if (!projectFiles.contains(failed))
             projectFiles << failed;
 
-    m_writer->saveValue(QLatin1String("ProjectList"), projectFiles);
+    data.insert(QLatin1String("ProjectList"), projectFiles);
 
     QMap<QString, QVariant> depMap;
     QMap<QString, QStringList>::const_iterator i = m_depMap.constBegin();
@@ -339,7 +340,7 @@ bool SessionManager::save()
         depMap.insert(key, values);
         ++i;
     }
-    m_writer->saveValue(QLatin1String("ProjectDependencies"), QVariant(depMap));
+    data.insert(QLatin1String("ProjectDependencies"), QVariant(depMap));
 
     int editorCount = 0;
     QList<Core::IEditor *> editors = ICore::editorManager()->openedEditors();
@@ -348,21 +349,20 @@ bool SessionManager::save()
         if (!editor->isTemporary())
             ++editorCount;
     }
-    m_writer->saveValue(QLatin1String("OpenEditors"), editorCount);
-    m_writer->saveValue(QLatin1String("EditorSettings"),
-                        ICore::editorManager()->saveState().toBase64());
+    data.insert(QLatin1String("OpenEditors"), editorCount);
+    data.insert(QLatin1String("EditorSettings"), ICore::editorManager()->saveState().toBase64());
 
     QMap<QString, QVariant>::const_iterator it, end;
     end = m_values.constEnd();
     QStringList keys;
     for (it = m_values.constBegin(); it != end; ++it) {
-        m_writer->saveValue(QLatin1String("value-") + it.key(), it.value());
+        data.insert(QLatin1String("value-") + it.key(), it.value());
         keys << it.key();
     }
 
-    m_writer->saveValue(QLatin1String("valueKeys"), keys);
+    data.insert(QLatin1String("valueKeys"), keys);
 
-    bool result = m_writer->save(Core::ICore::mainWindow());
+    bool result = m_writer->save(data, Core::ICore::mainWindow());
     if (!result) {
         QMessageBox::warning(0, tr("Error while saving session"),
                                 tr("Could not save session to file %1").arg(m_writer->fileName().toUserOutput()));

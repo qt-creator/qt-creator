@@ -31,17 +31,17 @@
 
     If you have a tool chain for building applications for embedded Linux
     devices (with no MADDE support) installed on the development PC, you can add
-    it to \QC. You can then select the \gui {Embedded Linux} target to
-    run applications on embedded Linux devices.
+    it to \QC. You can then select a \l{glossary-buildandrun-kit}{kit}
+    with \gui {Embedded Linux} device type to
+    build and run applications on embedded Linux devices.
 
     To be able to run and debug applications on embedded Linux devices, you must
-    create device configurations and select them in the \QC run
-    settings.
+    create device configurations and select them in the \QC \l{glossary-buildandrun-kit}{kit}
 
     You use a wizard to create the connections. You can edit the settings later
-    in \gui {Tools > Options > Linux Devices > Device Configurations}.
+    in \gui {Tools > Options > Devices > Devices}.
 
-    \image qtcreator-linux-device-configurations.png "Device Configurations dialog"
+    \image qtcreator-linux-device-configurations.png "Devices dialog"
 
     You can protect the connections between \QC and a device by using
     either a password or an SSH key. If you do not have an SSH key, you can
@@ -67,8 +67,8 @@
 
             \list 1
 
-                \o  Select \gui {Tools > Options > Linux Devices > Device
-                    Configurations > Add > Generic Linux Device > Start Wizard}.
+                \o  Select \gui {Tools > Options > Linux Devices > Devices > Add
+                    > Generic Linux Device > Start Wizard}.
 
                     \image qtcreator-screenshot-devconf-linux.png "Connection Data wizard"
 
@@ -91,9 +91,10 @@
 
             \endlist
 
-        \o  Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Targets
-            > \gui Add to add a target for building for the device. Select the
-            Qt version, compiler, and device that you added above.
+        \o  Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits
+            > \gui Add to add a kit for building for the device. Select the
+            Qt version, compiler, and device that you added above, and choose
+            \gui {Generic Linux Device} for the device type.
 
         \o  To specify build settings:
 
@@ -102,9 +103,9 @@
             \o  Open a project for an application you want to develop for the
                 device.
 
-            \o  Select \gui {Projects > Targets > Add}.
+            \o  Select \gui {Projects > Build & Run Settings > Add Kit}.
 
-            \o  Select the target that you added above.
+            \o  Select the kit that you added above.
 
         \endlist
 

@@ -32,14 +32,14 @@
 #include "qmlobservertool.h"
 #include "qmldumptool.h"
 #include "qmldebugginglibrary.h"
-#include "qtprofileinformation.h"
+#include "qtkitinformation.h"
 
 #include "qtversionmanager.h"
 #include "profilereader.h"
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -243,9 +243,11 @@ QString BaseQtVersion::defaultDisplayName(const QString &versionString, const Fi
                 location = QCoreApplication::translate("QtVersion", "System");
                 break;
             }
+            location = dirName;
+            // Also skip default checkouts named 'qt'. Parent dir might have descriptive name.
             if (dirName.compare(QLatin1String("bin"), Qt::CaseInsensitive)
-                && dirName.compare(QLatin1String("qtbase"), Qt::CaseInsensitive)) {
-                location = dirName;
+                && dirName.compare(QLatin1String("qtbase"), Qt::CaseInsensitive)
+                && dirName.compare(QLatin1String("qt"), Qt::CaseInsensitive)) {
                 break;
             }
         } while (dir.cdUp());
@@ -294,17 +296,17 @@ bool BaseQtVersion::supportsPlatform(const QString &platform) const
     return platform == platformName();
 }
 
-QList<ProjectExplorer::Task> BaseQtVersion::validateProfile(const ProjectExplorer::Profile *p)
+QList<ProjectExplorer::Task> BaseQtVersion::validateKit(const ProjectExplorer::Kit *k)
 {
     QList<ProjectExplorer::Task> result;
 
-    BaseQtVersion *version = QtProfileInformation::qtVersion(p);
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
     Q_ASSERT(version == this);
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainProfileInformation::toolChain(p);
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if (!tc)
         result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                        ProjectExplorer::ToolChainProfileInformation::msgNoToolChainInTarget(),
+                                        ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget(),
                                         FileName(), -1,
                                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
 
@@ -980,7 +982,7 @@ QString BaseQtVersion::examplesPath() const
     return qmakeProperty("QT_INSTALL_EXAMPLES");
 }
 
-QList<ProjectExplorer::HeaderPath> BaseQtVersion::systemHeaderPathes(const ProjectExplorer::Profile *p) const
+QList<ProjectExplorer::HeaderPath> BaseQtVersion::systemHeaderPathes(const ProjectExplorer::Kit *p) const
 {
     Q_UNUSED(p);
     QList<ProjectExplorer::HeaderPath> result;
@@ -988,7 +990,7 @@ QList<ProjectExplorer::HeaderPath> BaseQtVersion::systemHeaderPathes(const Proje
     return result;
 }
 
-void BaseQtVersion::addToEnvironment(const ProjectExplorer::Profile *p, Environment &env) const
+void BaseQtVersion::addToEnvironment(const ProjectExplorer::Kit *p, Environment &env) const
 {
     Q_UNUSED(p);
     env.set(QLatin1String("QTDIR"), QDir::toNativeSeparators(qmakeProperty("QT_HOST_DATA")));

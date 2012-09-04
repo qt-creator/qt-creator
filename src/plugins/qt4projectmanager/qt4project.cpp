@@ -56,7 +56,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildenvironmentwidget.h>
-#include <projectexplorer/profileinformation.h>
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/qtcassert.h>
@@ -64,7 +64,7 @@
 #include <qtsupport/qmldumptool.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/profilereader.h>
-#include <qtsupport/qtprofileinformation.h>
+#include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/QtConcurrentTools>
@@ -424,8 +424,8 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     updateCodeModels();
 
     // We have the profile nodes now, so we know the runconfigs!
-    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+    connect(m_nodesWatcher, SIGNAL(kitUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SIGNAL(kitUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 
     // Now we emit update once :)
     m_rootProjectNode->emitProFileUpdatedRecursive();
@@ -483,15 +483,15 @@ void Qt4Project::updateCppCodeModel()
 {
     typedef CPlusPlus::CppModelManagerInterface::ProjectPart ProjectPart;
 
-    Profile *p = 0;
+    Kit *k = 0;
     QtSupport::BaseQtVersion *qtVersion = 0;
     ToolChain *tc = 0;
     if (ProjectExplorer::Target *target = activeTarget())
-        p = target->profile();
+        k = target->kit();
     else
-        p = ProfileManager::instance()->defaultProfile();
-    qtVersion = QtSupport::QtProfileInformation::qtVersion(p);
-    tc = ToolChainProfileInformation::toolChain(p);
+        k = KitManager::instance()->defaultKit();
+    qtVersion = QtSupport::QtKitInformation::qtVersion(k);
+    tc = ToolChainKitInformation::toolChain(k);
 
     CPlusPlus::CppModelManagerInterface *modelmanager =
         CPlusPlus::CppModelManagerInterface::instance();
@@ -529,7 +529,7 @@ void Qt4Project::updateCppCodeModel()
         if (tc)
             headers = tc->systemHeaderPaths(); // todo pass cxxflags?
         if (qtVersion) {
-            headers.append(qtVersion->systemHeaderPathes(p));
+            headers.append(qtVersion->systemHeaderPathes(k));
         }
 
         foreach (const HeaderPath &headerPath, headers) {
@@ -542,8 +542,10 @@ void Qt4Project::updateCppCodeModel()
         if (qtVersion) {
             if (!qtVersion->frameworkInstallPath().isEmpty())
                 part->frameworkPaths.append(qtVersion->frameworkInstallPath());
-            part->includePaths.append(qtVersion->mkspecPath().toString());
+
         }
+        if (Qt4ProFileNode *node = rootQt4ProjectNode())
+            part->includePaths.append(node->resolvedMkspecPath());
 
         // part->precompiledHeaders
         part->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));
@@ -596,8 +598,8 @@ void Qt4Project::updateQmlJSCodeModel()
     projectInfo.tryQmlDump = false;
 
     ProjectExplorer::Target *t = activeTarget();
-    ProjectExplorer::Profile *p = t ? t->profile() : ProjectExplorer::ProfileManager::instance()->defaultProfile();
-    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(p);
+    ProjectExplorer::Kit *k = t ? t->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
 
     if (t) {
         if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(t->activeBuildConfiguration()))
@@ -618,7 +620,7 @@ void Qt4Project::updateQmlJSCodeModel()
 
     if (projectInfo.tryQmlDump) {
         QtSupport::QmlDumpTool::pathAndEnvironment(this, qtVersion,
-                                                   ToolChainProfileInformation::toolChain(p),
+                                                   ToolChainKitInformation::toolChain(k),
                                                    preferDebugDump, &projectInfo.qmlDumpPath,
                                                    &projectInfo.qmlDumpEnvironment);
     } else {
@@ -708,6 +710,10 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
             m_partialEvaluate.append(node);
         // and start the timer anew
         m_asyncUpdateTimer.start();
+
+        // Cancel running code model update
+        m_codeModelFuture.cancel();
+        m_codeModelCanceled = true;
     } else if (m_asyncUpdateState == AsyncUpdateInProgress) {
         // A update is in progress
         // And this slot only gets called if a file changed on disc
@@ -858,9 +864,9 @@ Qt4Manager *Qt4Project::qt4ProjectManager() const
     return m_manager;
 }
 
-bool Qt4Project::supportsProfile(Profile *p) const
+bool Qt4Project::supportsKit(Kit *p) const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(p);
     return version;
 }
 
@@ -933,26 +939,26 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4Pro
         m_qmakeGlobals = new ProFileGlobals;
         m_qmakeGlobalsRefCnt = 0;
 
-        Profile *p;
+        Kit *k;
         Utils::Environment env = Utils::Environment::systemEnvironment();
         QStringList qmakeArgs;
         if (!bc)
             bc = activeTarget() ? static_cast<Qt4BuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : 0;
 
         if (bc) {
-            p = bc->target()->profile();
+            k = bc->target()->kit();
             env = bc->environment();
             if (bc->qmakeStep())
                 qmakeArgs = bc->qmakeStep()->parserArguments();
             else
                 qmakeArgs = bc->configCommandLineArguments();
         } else {
-            p = ProfileManager::instance()->defaultProfile();
+            k = KitManager::instance()->defaultKit();
         }
 
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtProfileInformation::qtVersion(p);
-        QString systemRoot = SysRootProfileInformation::hasSysRoot(p)
-                ? SysRootProfileInformation::sysRoot(p).toString() : QString();
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
+        QString systemRoot = SysRootKitInformation::hasSysRoot(k)
+                ? SysRootKitInformation::sysRoot(k).toString() : QString();
 
         if (qtVersion && qtVersion->isValid()) {
             m_qmakeGlobals->qmake_abslocation = QDir::cleanPath(qtVersion->qmakeCommand().toString());
@@ -1040,7 +1046,6 @@ void Qt4Project::collectAllfProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNo
             collectAllfProFiles(list, qt4ProFileNode);
     }
 }
-
 
 void Qt4Project::collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node)
 {
@@ -1343,19 +1348,19 @@ bool Qt4Project::needsConfiguration() const
 
 void Qt4Project::configureAsExampleProject(const QStringList &platforms)
 {
-    QList<Profile *> profiles = ProjectExplorer::ProfileManager::instance()->profiles();
-    foreach (Profile *p, profiles) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+    QList<Kit *> kits = ProjectExplorer::KitManager::instance()->kits();
+    foreach (Kit *k, kits) {
+        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
         if (!version)
             continue;
         if (!platforms.isEmpty() && !platforms.contains(version->platformName()))
             continue;
 
         QList<BuildConfigurationInfo> infoList
-                = Qt4BuildConfigurationFactory::availableBuildConfigurations(p, document()->fileName());
+                = Qt4BuildConfigurationFactory::availableBuildConfigurations(k, document()->fileName());
         if (infoList.isEmpty())
             continue;
-        addTarget(createTarget(p, infoList));
+        addTarget(createTarget(k, infoList));
     }
     ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(this);
 }
@@ -1380,13 +1385,13 @@ QString Qt4Project::disabledReasonForRunConfiguration(const QString &proFilePath
             .arg(QFileInfo(proFilePath).fileName());
 }
 
-QString Qt4Project::shadowBuildDirectory(const QString &profilePath, const Profile *p, const QString &suffix)
+QString Qt4Project::shadowBuildDirectory(const QString &profilePath, const Kit *p, const QString &suffix)
 {
     if (profilePath.isEmpty())
         return QString();
     QFileInfo info(profilePath);
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtProfileInformation::qtVersion(p);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(p);
     if (version && !version->supportsShadowBuilds())
         return info.absolutePath();
 
@@ -1395,14 +1400,14 @@ QString Qt4Project::shadowBuildDirectory(const QString &profilePath, const Profi
     return base + buildNameFor(p) + QLatin1String("-") + sanitize(suffix);
 }
 
-QString Qt4Project::buildNameFor(const Profile *p)
+QString Qt4Project::buildNameFor(const Kit *p)
 {
     if (!p)
         return QLatin1String("unknown");
     return QString::fromLatin1(p->id().name()).mid(31, 6); // part of the UUID, should be pretty unique;-)
 }
 
-Target *Qt4Project::createTarget(Profile *p, const QList<BuildConfigurationInfo> &infoList)
+Target *Qt4Project::createTarget(Kit *p, const QList<BuildConfigurationInfo> &infoList)
 {
     if (target(p))
         return 0;
@@ -1484,9 +1489,9 @@ void Qt4Project::collectLibraryData(const Qt4ProFileNode *node, DeploymentData &
     const QString targetPath = node->installsList().targetPath;
     if (targetPath.isEmpty())
         return;
-    const ProjectExplorer::Profile * const profile = activeTarget()->profile();
+    const ProjectExplorer::Kit * const kit = activeTarget()->kit();
     const ProjectExplorer::ToolChain * const toolchain
-            = ProjectExplorer::ToolChainProfileInformation::toolChain(profile);
+            = ProjectExplorer::ToolChainKitInformation::toolChain(kit);
     if (!toolchain)
         return;
 

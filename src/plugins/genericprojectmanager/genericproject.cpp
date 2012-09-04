@@ -43,8 +43,8 @@
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/profileinformation.h>
-#include <projectexplorer/profilemanager.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <utils/fileutils.h>
@@ -250,7 +250,7 @@ void GenericProject::refresh(RefreshOptions options)
                     new CPlusPlus::CppModelManagerInterface::ProjectPart);
 
         ToolChain *tc = activeTarget() ?
-                    ToolChainProfileInformation::toolChain(activeTarget()->profile()) : 0;
+                    ToolChainKitInformation::toolChain(activeTarget()->kit()) : 0;
         if (tc) {
             part->defines = tc->predefinedMacros(QStringList());
             part->defines += '\n';
@@ -430,9 +430,9 @@ bool GenericProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    Profile *defaultProfile = ProfileManager::instance()->defaultProfile();
-    if (!activeTarget() && defaultProfile)
-        addTarget(createTarget(defaultProfile));
+    Kit *defaultKit = KitManager::instance()->defaultKit();
+    if (!activeTarget() && defaultKit)
+        addTarget(createTarget(defaultKit));
 
     // Sanity check: We need both a buildconfiguration and a runconfiguration!
     QList<Target *> targetList = targets();
