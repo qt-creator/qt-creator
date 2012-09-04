@@ -1,15 +1,11 @@
 IDE_SOURCE_TREE=$$PWD/../../../../..
 IDE_BUILD_TREE=$$OUT_PWD/../../../../..
 # can we check that this is a valid build dir?
-message($$IDE_SOURCE_TREE)
-message($$IDE_BUILD_TREE)
 OUT_PWD_SAVE=$$OUT_PWD
 OUT_PWD=IDE_BUILD_TREE
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
 include(../../../qttest.pri)
 OUT_PWD=$$OUT_PWD_SAVE
-message($$IDE_LIBRARY_PATH)
-message($$IDE_PLUGIN_PATH)
 LIBS += -L$$IDE_PLUGIN_PATH/Nokia
 LIBS += -L$$IDE_LIBRARY_PATH
 
