@@ -542,8 +542,10 @@ void Qt4Project::updateCppCodeModel()
         if (qtVersion) {
             if (!qtVersion->frameworkInstallPath().isEmpty())
                 part->frameworkPaths.append(qtVersion->frameworkInstallPath());
-            part->includePaths.append(qtVersion->mkspecPath().toString());
+
         }
+        if (Qt4ProFileNode *node = rootQt4ProjectNode())
+            part->includePaths.append(node->resolvedMkspecPath());
 
         // part->precompiledHeaders
         part->precompiledHeaders.append(pro->variableValue(PrecompiledHeaderVar));

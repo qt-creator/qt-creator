@@ -203,6 +203,11 @@ QString ProFileEvaluator::propertyValue(const QString &name) const
     return d->m_option->propertyValue(ProKey(name)).toQString();
 }
 
+QString ProFileEvaluator::resolvedMkSpec() const
+{
+    return d->m_qmakespecFull;
+}
+
 #ifdef PROEVALUATOR_CUMULATIVE
 void ProFileEvaluator::setCumulative(bool on)
 {

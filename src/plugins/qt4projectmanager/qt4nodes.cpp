@@ -1914,7 +1914,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
 
         // update TargetInformation
         m_qt4targetInformation = targetInformation(m_readerExact);
-        m_resolvedMkspecPath = m_project->qmakeGlobals()->qmakespec;
+        m_resolvedMkspecPath = m_readerExact->resolvedMkSpec();
 
         m_subProjectsNotToDeploy = subProjectsNotToDeploy;
         setupInstallsList(m_readerExact);
