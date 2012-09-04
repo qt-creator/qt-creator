@@ -126,8 +126,6 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
 
     connect(m_configureButton, SIGNAL(clicked()),
             this, SLOT(done()));
-    connect(m_targetSetupPage, SIGNAL(noteTextLinkActivated()),
-            this, SLOT(noteTextLinkActivated()));
     connect(m_targetSetupPage, SIGNAL(completeChanged()),
             this, SLOT(completeChanged()));
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(defaultkitChanged()),
@@ -146,31 +144,30 @@ void TargetSetupPageWrapper::updateNoteText()
 {
     ProjectExplorer::Kit *k = ProjectExplorer::KitManager::instance()->defaultKit();
 
-
     QString text;
-    if (!k)
-        text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
-                  "<p>Qt Creator cannot parse the project, because no target "
-                  "has been set up. You can set up targets "
-                  "in the <b><a href=\"edit\">options.</a></b></p>")
+    bool showHint = false;
+    if (!k) {
+        text = tr("The project <b>%1</b> is not yet configured.<br/>"
+                  "Qt Creator cannot parse the project, because no kit "
+                  "has been set up.")
                 .arg(m_project->displayName());
-    else if (k->isValid())
-        text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
-                  "<p>Qt Creator uses the target <b>%2</b> "
-                  "to parse the project. You can edit "
-                  "targets in the <b><a href=\"edit\">options.</a></b></p>")
+        showHint = true;
+    } else if (k->isValid()) {
+        text = tr("The project <b>%1</b> is not yet configured.<br/>"
+                  "Qt Creator uses the kit <b>%2</b> to parse the project.")
                 .arg(m_project->displayName())
                 .arg(k->displayName());
-    else
-        text = tr("<p>The project <b>%1</b> is not yet configured.</p>"
-                  "<p>Qt Creator uses the <b>invalid</b> target <b>%2</b> "
-                  "to parse the project. You can edit "
-                  "targets in the <b><a href=\"edit\">options</a></b></p>")
+        showHint = false;
+    } else {
+        text = tr("The project <b>%1</b> is not yet configured.<br/>"
+                  "Qt Creator uses the <b>invalid</b> kit <b>%2</b> to parse the project.")
                 .arg(m_project->displayName())
                 .arg(k->displayName());
-
+        showHint = true;
+    }
 
     m_targetSetupPage->setNoteText(text);
+    m_targetSetupPage->showOptionsHint(showHint);
 }
 
 void TargetSetupPageWrapper::keyPressEvent(QKeyEvent *event)
@@ -193,12 +190,6 @@ void TargetSetupPageWrapper::done()
     m_targetSetupPage->setupProject(m_project);
     ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(m_project);
     Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_EDIT);
-}
-
-void TargetSetupPageWrapper::noteTextLinkActivated()
-{
-    Core::ICore::instance()->showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                               QLatin1String(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID));
 }
 
 void TargetSetupPageWrapper::completeChanged()

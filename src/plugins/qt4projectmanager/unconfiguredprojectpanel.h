@@ -67,7 +67,6 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 private slots:
     void done();
-    void noteTextLinkActivated();
     void kitUpdated(ProjectExplorer::Kit *k);
     void updateNoteText();
     void completeChanged();

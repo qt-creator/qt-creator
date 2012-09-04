@@ -71,37 +71,34 @@ public:
     QWidget *centralWidget;
     QWidget *scrollAreaWidget;
     QScrollArea *scrollArea;
+    QLabel *headerLabel;
     QLabel *descriptionLabel;
+    QLabel *noValidKitLabel;
+    QLabel *optionHintLabel;
 
     void setupUi(QWidget *q)
     {
         QWidget *setupTargetPage = new QWidget(q);
 
+        headerLabel = new QLabel(setupTargetPage);
+        headerLabel->setWordWrap(true);
+        headerLabel->setVisible(false);
+
+        noValidKitLabel = new QLabel(setupTargetPage);
+        noValidKitLabel->setWordWrap(true);
+        noValidKitLabel->setText(TargetSetupPage::tr("<span style=\" font-weight:600;\">No valid kits found.</span>"));
+
         descriptionLabel = new QLabel(setupTargetPage);
         descriptionLabel->setWordWrap(true);
-        descriptionLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        descriptionLabel->setText(TargetSetupPage::tr("Qt Creator can use the following kits:"));
+        descriptionLabel->setVisible(false);
 
-#ifdef Q_OS_MAC
-        QString hint = TargetSetupPage::tr(
-            "<html><head/><body><p><span style=\" font-weight:600;\">"
-            "No valid kits found.</span></p>"
-            "<p>Please add a kit in <a href=\"buildandrun\"><span style=\" text-decoration: underline; color:#0000ff;\">"
-            "Qt Creator &gt; Preferences &gt; Build &amp; Run</span></a>"
-            " or via the maintenance tool of the SDK.</p></body></html>");
-#else
-        QString hint = TargetSetupPage::tr(
-            "<html><head/><body><p><span style=\" font-weight:600;\">"
-            "No valid kits found.</span></p>"
-            "<p>Please add a kit in <a href=\"buildandrun\"><span style=\" text-decoration: underline; color:#0000ff;\">"
-            "Tools &gt; Options &gt; Build &amp; Run</span></a>"
-            " or via the maintenance tool of the SDK.</p></body></html>");
-#endif
-
-        QLabel *noValidKitLabel = new QLabel(setupTargetPage);
-        noValidKitLabel->setWordWrap(true);
-        noValidKitLabel->setText(hint);
-        noValidKitLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        optionHintLabel = new QLabel(setupTargetPage);
+        optionHintLabel->setWordWrap(true);
+        optionHintLabel->setText(TargetSetupPage::tr(
+                                     "Please add a kit in the <a href=\"buildandrun\">options</a> "
+                                     "or via the maintenance tool of the SDK."));
+        optionHintLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+        optionHintLabel->setVisible(false);
 
         centralWidget = new QWidget(setupTargetPage);
         QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -125,8 +122,10 @@ public:
         verticalLayout->addWidget(scrollArea);
 
         QVBoxLayout *verticalLayout_2 = new QVBoxLayout(setupTargetPage);
-        verticalLayout_2->addWidget(descriptionLabel);
+        verticalLayout_2->addWidget(headerLabel);
         verticalLayout_2->addWidget(noValidKitLabel);
+        verticalLayout_2->addWidget(descriptionLabel);
+        verticalLayout_2->addWidget(optionHintLabel);
         verticalLayout_2->addWidget(centralWidget);
         verticalLayout_2->addWidget(scrollAreaWidget);
 
@@ -134,10 +133,8 @@ public:
         verticalLayout_3->setContentsMargins(0, 0, 0, -1);
         verticalLayout_3->addWidget(setupTargetPage);
 
-        QObject::connect(noValidKitLabel, SIGNAL(linkActivated(QString)),
-            q, SIGNAL(noteTextLinkActivated()));
-        QObject::connect(descriptionLabel, SIGNAL(linkActivated(QString)),
-            q, SIGNAL(noteTextLinkActivated()));
+        QObject::connect(optionHintLabel, SIGNAL(linkActivated(QString)),
+                         q, SLOT(openOptions()));
     }
 };
 
@@ -155,7 +152,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_firstWidget(0),
     m_ui(new TargetSetupPageUi),
     m_importWidget(new Internal::ImportWidget(this)),
-    m_spacer(new QSpacerItem(0,0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding))
+    m_spacer(new QSpacerItem(0,0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding)),
+    m_forceOptionHint(false)
 {
     setObjectName(QLatin1String("TargetSetupPage"));
     setWindowTitle(tr("Select Kits for Your Project"));
@@ -358,10 +356,10 @@ void TargetSetupPage::removeProject(ProjectExplorer::Kit *k, const QString &path
 void TargetSetupPage::setProFilePath(const QString &path)
 {
     m_proFilePath = path;
-    if (!m_proFilePath.isEmpty()) {
-        m_ui->descriptionLabel->setText(tr("Qt Creator can use the following kits for project <b>%1</b>:",
-                                           "%1: Project name").arg(QFileInfo(m_proFilePath).baseName()));
-    }
+    if (!m_proFilePath.isEmpty())
+        m_ui->headerLabel->setText(tr("Qt Creator can use the following kits for project <b>%1</b>:",
+                                      "%1: Project name").arg(QFileInfo(m_proFilePath).baseName()));
+    m_ui->headerLabel->setVisible(!m_proFilePath.isEmpty());
 
     if (m_widgets.isEmpty())
         return;
@@ -373,6 +371,13 @@ void TargetSetupPage::setProFilePath(const QString &path)
 void TargetSetupPage::setNoteText(const QString &text)
 {
     m_ui->descriptionLabel->setText(text);
+    m_ui->descriptionLabel->setVisible(!text.isEmpty());
+}
+
+void TargetSetupPage::showOptionsHint(bool show)
+{
+    m_forceOptionHint = show;
+    updateVisibility();
 }
 
 void TargetSetupPage::import(const Utils::FileName &path)
@@ -584,7 +589,17 @@ void TargetSetupPage::updateVisibility()
     m_ui->scrollAreaWidget->setVisible(m_baseLayout == m_ui->scrollArea->widget()->layout());
     m_ui->centralWidget->setVisible(m_baseLayout == m_ui->centralWidget->layout());
 
+    bool hasKits = !m_widgets.isEmpty();
+    m_ui->noValidKitLabel->setVisible(!hasKits);
+    m_ui->optionHintLabel->setVisible(m_forceOptionHint || !hasKits);
+
     emit completeChanged();
+}
+
+void TargetSetupPage::openOptions()
+{
+    Core::ICore::instance()->showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
+                                               QLatin1String(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID));
 }
 
 void TargetSetupPage::removeWidget(ProjectExplorer::Kit *k)

@@ -81,8 +81,7 @@ public:
 
     /// Overrides the summary text of the targetsetuppage
     void setNoteText(const QString &text);
-signals:
-    void noteTextLinkActivated();
+    void showOptionsHint(bool show);
 
 private slots:
     void import(const Utils::FileName &path);
@@ -91,6 +90,7 @@ private slots:
     void handleKitRemoval(ProjectExplorer::Kit *k);
     void handleKitUpdate(ProjectExplorer::Kit *k);
     void updateVisibility();
+    void openOptions();
 
 private:
     void selectAtLeastOneKit();
@@ -123,6 +123,8 @@ private:
 
     Internal::ImportWidget *m_importWidget;
     QSpacerItem *m_spacer;
+
+    bool m_forceOptionHint;
 };
 
 } // namespace Qt4ProjectManager
