@@ -182,6 +182,7 @@ void KitOptionsPage::addNewKit()
     m_model->markForAddition(k);
 
     QModelIndex newIdx = m_model->indexOf(k);
+    m_kitsView->scrollTo(newIdx);
     m_selectionModel->select(newIdx,
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
@@ -199,6 +200,7 @@ void KitOptionsPage::cloneKit()
     m_model->markForAddition(k);
 
     QModelIndex newIdx = m_model->indexOf(k);
+    m_kitsView->scrollTo(newIdx);
     m_selectionModel->select(newIdx,
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
