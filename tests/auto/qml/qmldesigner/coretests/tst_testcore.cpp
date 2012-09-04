@@ -178,7 +178,7 @@ void tst_TestCore::loadEmptyCoreModel()
     model1->attachView(testRewriterView1.data());
 
     QPlainTextEdit textEdit2;
-    textEdit2.setPlainText("import Qt 4.7; Item{}");
+    textEdit2.setPlainText("import QtQuick 1.1; Item{}");
     NotIndentingTextEditModifier modifier2(&textEdit2);
 
     QScopedPointer<Model> model2(Model::create("QtQuick.item"));
@@ -194,7 +194,7 @@ void tst_TestCore::testRewriterView()
 {
     try {
         QPlainTextEdit textEdit;
-        textEdit.setPlainText("import Qt 4.7;\n\nItem {\n}\n");
+        textEdit.setPlainText("import QtQuick 1.1;\n\nItem {\n}\n");
         NotIndentingTextEditModifier textModifier(&textEdit);
 
         QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -264,7 +264,7 @@ void tst_TestCore::testRewriterView()
 void tst_TestCore::testRewriterErrors()
 {
     QPlainTextEdit textEdit;
-    textEdit.setPlainText("import Qt 4.7;\n\nItem {\n}\n");
+    textEdit.setPlainText("import QtQuick 1.1;\n\nItem {\n}\n");
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -281,10 +281,10 @@ void tst_TestCore::testRewriterErrors()
     model->attachView(testRewriterView.data());
 
     QVERIFY(testRewriterView->errors().isEmpty());
-    textEdit.setPlainText("import Qt 4.7;\n\nError {\n}\n");
+    textEdit.setPlainText("import QtQuick 1.1;\n\nError {\n}\n");
     QVERIFY(!testRewriterView->errors().isEmpty());
 
-    textEdit.setPlainText("import Qt 4.7;\n\nItem {\n}\n");
+    textEdit.setPlainText("import QtQuick 1.1;\n\nItem {\n}\n");
     QVERIFY(testRewriterView->errors().isEmpty());
 }
 
@@ -310,7 +310,7 @@ void tst_TestCore::saveEmptyCoreModel()
     modifier1.save(&buffer);
 
     QPlainTextEdit textEdit2;
-    textEdit2.setPlainText("import Qt 4.7; Item{}");
+    textEdit2.setPlainText("import QtQuick 1.1; Item{}");
     NotIndentingTextEditModifier modifier2(&textEdit2);
 
     QScopedPointer<Model> model2(Model::create("QtQuick.Item"));
@@ -340,7 +340,7 @@ void tst_TestCore::loadAttributesInCoreModel()
     model1->attachView(testRewriterView1.data());
 
     QPlainTextEdit textEdit2;
-    textEdit2.setPlainText("import Qt 4.7; Item{}");
+    textEdit2.setPlainText("import QtQuick 1.1; Item{}");
     NotIndentingTextEditModifier modifier2(&textEdit2);
 
     QScopedPointer<Model> model2(Model::create("QtQuick.item"));
@@ -435,7 +435,7 @@ void tst_TestCore::testModelCreateRect()
 void tst_TestCore::testRewriterDynamicProperties()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  property int i\n"
@@ -552,7 +552,7 @@ void tst_TestCore::testRewriterDynamicProperties()
 
     // test model2text
 //    QPlainTextEdit textEdit2;
-//    textEdit2.setPlainText("import Qt 4.7; Item{}");
+//    textEdit2.setPlainText("import QtQuick 1.1; Item{}");
 //    NotIndentingTextEditModifier modifier2(&textEdit2);
 //
 //    QScopedPointer<Model> model2(Model::create("QtQuick.Item"));
@@ -569,7 +569,7 @@ void tst_TestCore::testRewriterDynamicProperties()
 void tst_TestCore::testRewriterGroupedProperties()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Text {\n"
                                   "  font {\n"
@@ -606,7 +606,7 @@ void tst_TestCore::testRewriterGroupedProperties()
 
     rootModelNode.removeProperty(QLatin1String("font.pointSize"));
     const QLatin1String expected("\n"
-                                 "import Qt 4.7\n"
+                                 "import QtQuick 1.1\n"
                                  "\n"
                                  "Text {\n"
                                  "}\n");
@@ -617,7 +617,7 @@ void tst_TestCore::testRewriterGroupedProperties()
 void tst_TestCore::testRewriterPreserveOrder()
 {
     const QLatin1String qmlString1("\n"
-        "import Qt 4.7\n"
+        "import QtQuick 1.1\n"
         "\n"
         "Rectangle {\n"
             "width: 640\n"
@@ -638,7 +638,7 @@ void tst_TestCore::testRewriterPreserveOrder()
             "}\n"
         "}\n");
     const QLatin1String qmlString2("\n"
-        "import Qt 4.7\n"
+        "import QtQuick 1.1\n"
         "\n"
         "Rectangle {\n"
             "width: 640\n"
@@ -733,7 +733,7 @@ void tst_TestCore::testRewriterPreserveOrder()
 void tst_TestCore::testRewriterActionCompression()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  id: root\n"
@@ -779,7 +779,7 @@ void tst_TestCore::testRewriterActionCompression()
     transaction.commit();
 
     const QLatin1String expected("\n"
-                                 "import Qt 4.7\n"
+                                 "import QtQuick 1.1\n"
                                  "\n"
                                  "Rectangle {\n"
                                  "  id: root\n"
@@ -818,7 +818,7 @@ void tst_TestCore::testRewriterImports()
 
     QVERIFY(model->imports().size() == 3);
 
-    // import Qt 4.7
+    // import QtQuick 1.1
     Import import = model->imports().at(0);
     QVERIFY(import.isLibraryImport());
     QCOMPARE(import.url(), QString("Qt"));
@@ -846,7 +846,7 @@ void tst_TestCore::testRewriterImports()
 void tst_TestCore::testRewriterChangeImports()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {}\n");
 
@@ -873,7 +873,7 @@ void tst_TestCore::testRewriterChangeImports()
     model->changeImports(importList, QList<Import>());
 
     const QLatin1String qmlWithImport("\n"
-                                 "import Qt 4.7\n"
+                                 "import QtQuick 1.1\n"
                                  "import QtWebKit 1.0\n"
                                  "\n"
                                  "Rectangle {}\n");
@@ -893,7 +893,7 @@ void tst_TestCore::testRewriterChangeImports()
     model->changeImports(importList, QList<Import>());
 
     const QLatin1String qmlWithAliasImport("\n"
-                                 "import Qt 4.7\n"
+                                 "import QtQuick 1.1\n"
                                  "import QtWebKit 1.0 as Web\n"
                                  "\n"
                                  "Rectangle {}\n");
@@ -928,7 +928,7 @@ void tst_TestCore::testRewriterChangeImports()
 void tst_TestCore::testRewriterForGradientMagic()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "    id: root\n"
@@ -990,7 +990,7 @@ void tst_TestCore::testRewriterForGradientMagic()
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import Qt 4.7; Item {}");
+    textEdit1.setPlainText("import QtQuick 1.1; Item {}");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     testRewriterView1->setTextModifier(&modifier1);
@@ -1129,7 +1129,7 @@ void tst_TestCore::testTypicalRewriterOperations()
 
 void tst_TestCore::testBasicStates()
 {
-    char qmlString[] = "import Qt 4.7\n"
+    char qmlString[] = "import QtQuick 1.1\n"
                        "Rectangle {\n"
                        "id: root;\n"
                             "Rectangle {\n"
@@ -1817,7 +1817,7 @@ void tst_TestCore::reparentingNode()
 void tst_TestCore::reparentingNodeLikeDragAndDrop()
 {
     QPlainTextEdit textEdit;
-    textEdit.setPlainText("import Qt 4.7;\n\nItem {\n}\n");
+    textEdit.setPlainText("import QtQuick 1.1;\n\nItem {\n}\n");
     NotIndentingTextEditModifier textModifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -2225,7 +2225,7 @@ void tst_TestCore::testRewriterTransaction()
 
 void tst_TestCore::testRewriterId()
 {
-    char qmlString[] = "import Qt 4.7\n"
+    char qmlString[] = "import QtQuick 1.1\n"
                        "Rectangle {\n"
                        "}\n";
 
@@ -2257,7 +2257,7 @@ void tst_TestCore::testRewriterId()
 
     rootModelNode.nodeListProperty("data").reparentHere(newNode);
 
-    const QLatin1String expected("import Qt 4.7\n"
+    const QLatin1String expected("import QtQuick 1.1\n"
                                   "Rectangle {\n"
                                   "Rectangle {\n"
                                   "    id: testId\n"
@@ -2269,7 +2269,7 @@ void tst_TestCore::testRewriterId()
 
 void tst_TestCore::testRewriterNodeReparentingTransaction1()
 {
-     char qmlString[] = "import Qt 4.7\n"
+     char qmlString[] = "import QtQuick 1.1\n"
                        "Rectangle {\n"
                        "}\n";
 
@@ -2314,7 +2314,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction1()
 
 void tst_TestCore::testRewriterNodeReparentingTransaction2()
 {
-     char qmlString[] = "import Qt 4.7\n"
+     char qmlString[] = "import QtQuick 1.1\n"
                        "Rectangle {\n"
                        "}\n";
 
@@ -2380,7 +2380,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction2()
 
 void tst_TestCore::testRewriterNodeReparentingTransaction3()
 {
-    char qmlString[] = "import Qt 4.7\n"
+    char qmlString[] = "import QtQuick 1.1\n"
                       "Rectangle {\n"
                       "}\n";
 
@@ -2430,7 +2430,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction3()
 
 void tst_TestCore::testRewriterNodeReparentingTransaction4()
 {
-    char qmlString[] = "import Qt 4.7\n"
+    char qmlString[] = "import QtQuick 1.1\n"
                       "Rectangle {\n"
                       "}\n";
 
@@ -2481,7 +2481,7 @@ void tst_TestCore::testRewriterNodeReparentingTransaction4()
 
 void tst_TestCore::testRewriterAddNodeTransaction()
 {
-    char qmlString[] = "import Qt 4.7\n"
+    char qmlString[] = "import QtQuick 1.1\n"
                        "Rectangle {\n"
                        "}\n";
 
@@ -2523,7 +2523,7 @@ void tst_TestCore::testRewriterAddNodeTransaction()
 
 void tst_TestCore::testRewriterComponentId()
 {
-    char qmlString[] = "import Qt 4.7\n"
+    char qmlString[] = "import QtQuick 1.1\n"
         "Rectangle {\n"
         "   Component {\n"
         "       id: testComponent\n"
@@ -2559,7 +2559,7 @@ void tst_TestCore::testRewriterComponentId()
 
 void tst_TestCore::testRewriterTransactionRewriter()
 {
-    char qmlString[] = "import Qt 4.7\n"
+    char qmlString[] = "import QtQuick 1.1\n"
                        "Rectangle {\n"
                        "}\n";
 
@@ -2626,7 +2626,7 @@ void tst_TestCore::testRewriterPropertyDeclarations()
     //  property variant myArray: [ Rectangle {} ]
     //  property variant someGradient: Gradient {}
 
-    char qmlString[] = "import Qt 4.7\n"
+    char qmlString[] = "import QtQuick 1.1\n"
         "Item {\n"
         "   property int intProperty\n"
         "   property bool boolProperty: true\n"
@@ -2690,7 +2690,7 @@ void tst_TestCore::testRewriterPropertyAliases()
     // where type is (int | bool | double | real | string | url | color | date | variant)
     //
 
-    char qmlString[] = "import Qt 4.7\n"
+    char qmlString[] = "import QtQuick 1.1\n"
         "Item {\n"
         "   property alias theText: t.text\n"
         "   default alias property yPos: t.y\n"
@@ -2723,7 +2723,7 @@ void tst_TestCore::testRewriterPropertyAliases()
 void tst_TestCore::testRewriterPositionAndOffset()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "    id: root\n"
@@ -2840,7 +2840,7 @@ void tst_TestCore::testRewriterPositionAndOffset()
 
 void tst_TestCore::testRewriterComponentTextModifier()
 {
-    const QString qmlString("import Qt 4.7\n"
+    const QString qmlString("import QtQuick 1.1\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    x: 10;\n"
@@ -2887,7 +2887,7 @@ void tst_TestCore::testRewriterComponentTextModifier()
 
     ComponentTextModifier componentTextModifier(&textModifier, componentStartOffset, componentEndOffset, rootStartOffset);
 
-     const QString qmlExpected("import Qt 4.7\n"
+     const QString qmlExpected("import QtQuick 1.1\n"
                             "            "
                             "             "
                             "           "
@@ -2920,7 +2920,7 @@ void tst_TestCore::testRewriterComponentTextModifier()
 
 void tst_TestCore::testRewriterPreserveType()
 {
-    const QString qmlString("import Qt 4.7\n"
+    const QString qmlString("import QtQuick 1.1\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    Text {\n"
@@ -2967,7 +2967,7 @@ void tst_TestCore::testRewriterPreserveType()
 void tst_TestCore::testRewriterForArrayMagic()
 {
     try {
-        const QLatin1String qmlString("import Qt 4.7\n"
+        const QLatin1String qmlString("import QtQuick 1.1\n"
                                       "\n"
                                       "Rectangle {\n"
                                       "    states: State {\n"
@@ -3000,7 +3000,7 @@ void tst_TestCore::testRewriterForArrayMagic()
         QmlModelState state1(rootItem.states().addState("s2"));
         QCOMPARE(state1.modelNode().type(), QString("QtQuick.State"));
 
-        const QLatin1String expected("import Qt 4.7\n"
+        const QLatin1String expected("import QtQuick 1.1\n"
                                      "\n"
                                      "Rectangle {\n"
                                      "    states: [\n"
@@ -3021,7 +3021,7 @@ void tst_TestCore::testRewriterForArrayMagic()
 
 void tst_TestCore::testRewriterWithSignals()
 {
-    const QLatin1String qmlString("import Qt 4.7\n"
+    const QLatin1String qmlString("import QtQuick 1.1\n"
                                   "\n"
                                   "TextEdit {\n"
                                   "    onTextChanged: { print(\"foo\"); }\n"
@@ -3053,7 +3053,7 @@ void tst_TestCore::testRewriterWithSignals()
 
 void tst_TestCore::testRewriterNodeSliding()
 {
-    const QLatin1String qmlString("import Qt 4.7\n"
+    const QLatin1String qmlString("import QtQuick 1.1\n"
                                   "Rectangle {\n"
                                   "    id: root\n"
                                   "    Rectangle {\n"
@@ -3105,7 +3105,7 @@ void tst_TestCore::testRewriterNodeSliding()
 
 void tst_TestCore::testRewriterExceptionHandling()
 {
-    const QLatin1String qmlString("import Qt 4.7\n"
+    const QLatin1String qmlString("import QtQuick 1.1\n"
                                   "Text {\n"
                                   "}");
 
@@ -3145,7 +3145,7 @@ void tst_TestCore::testRewriterExceptionHandling()
 
 void tst_TestCore::testRewriterFirstDefinitionInside()
 {
-    const QString qmlString("import Qt 4.7\n"
+    const QString qmlString("import QtQuick 1.1\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    x: 10;\n"
@@ -3201,7 +3201,7 @@ void tst_TestCore::testRewriterFirstDefinitionInside()
 void tst_TestCore::testCopyModelRewriter1()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "    id: root\n"
@@ -3296,7 +3296,7 @@ void tst_TestCore::testCopyModelRewriter1()
     const QLatin1String expected(
 
         "\n"
-        "import Qt 4.7\n"
+        "import QtQuick 1.1\n"
         "\n"
         "Rectangle {\n"
         "    id: root\n"
@@ -3371,7 +3371,7 @@ void tst_TestCore::testCopyModelRewriter1()
 void tst_TestCore::testCopyModelRewriter2()
 {
    const QLatin1String qmlString1("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "id: root\n"
@@ -3411,7 +3411,7 @@ void tst_TestCore::testCopyModelRewriter2()
 
 
     const QLatin1String qmlString2("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "}");
@@ -3503,7 +3503,7 @@ void tst_TestCore::testSubComponentManager()
 
 void tst_TestCore::testAnchorsAndRewriting()
 {
-        const QString qmlString("import Qt 4.7\n"
+        const QString qmlString("import QtQuick 1.1\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    x: 10;\n"
@@ -3564,7 +3564,7 @@ void tst_TestCore::testAnchorsAndRewriting()
 
 void tst_TestCore::testAnchorsAndRewritingCenter()
 {
-      const QString qmlString("import Qt 4.7\n"
+      const QString qmlString("import QtQuick 1.1\n"
                             "Rectangle {\n"
                             "    id: root\n"
                             "    x: 10;\n"
@@ -3614,7 +3614,7 @@ void tst_TestCore::testAnchorsAndRewritingCenter()
 
 void tst_TestCore::loadQml()
 {
-char qmlString[] = "import Qt 4.7\n"
+char qmlString[] = "import QtQuick 1.1\n"
                        "Rectangle {\n"
                             "id: root;\n"
                             "width: 200;\n"
@@ -3998,7 +3998,7 @@ void tst_TestCore::testMetaInfoListProperties()
 void tst_TestCore::testStatesRewriter()
 {
     QPlainTextEdit textEdit;
-    textEdit.setPlainText("import Qt 4.7; Item {}\n");
+    textEdit.setPlainText("import QtQuick 1.1; Item {}\n");
     NotIndentingTextEditModifier modifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -4045,7 +4045,7 @@ void tst_TestCore::testStatesRewriter()
 void tst_TestCore::testGradientsRewriter()
 {
     QPlainTextEdit textEdit;
-    textEdit.setPlainText("\nimport Qt 4.7\n\nItem {\n}\n");
+    textEdit.setPlainText("\nimport QtQuick 1.1\n\nItem {\n}\n");
     NotIndentingTextEditModifier modifier(&textEdit);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -4066,7 +4066,7 @@ void tst_TestCore::testGradientsRewriter()
 
     ModelNode rectNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data"));
 
-    const QLatin1String expected1("\nimport Qt 4.7\n"
+    const QLatin1String expected1("\nimport QtQuick 1.1\n"
                                   "\n"
                                   "Item {\n"
                                   "Rectangle {\n"
@@ -4078,7 +4078,7 @@ void tst_TestCore::testGradientsRewriter()
 
     QVERIFY(rectNode.hasNodeProperty("gradient"));
 
-    const QLatin1String expected2("\nimport Qt 4.7\n"
+    const QLatin1String expected2("\nimport QtQuick 1.1\n"
                                   "\n"
                                   "Item {\n"
                                   "Rectangle {\n"
@@ -4099,7 +4099,7 @@ void tst_TestCore::testGradientsRewriter()
     QVERIFY(gradientStop1.isValid());
     stops.reparentHere(gradientStop1);
 
-    const QLatin1String expected3("\nimport Qt 4.7\n"
+    const QLatin1String expected3("\nimport QtQuick 1.1\n"
                                   "\n"
                                   "Item {\n"
                                   "Rectangle {\n"
@@ -4122,7 +4122,7 @@ void tst_TestCore::testGradientsRewriter()
     QVERIFY(gradientStop2.isValid());
     stops.reparentHere(gradientStop2);
 
-    const QLatin1String expected4("\nimport Qt 4.7\n"
+    const QLatin1String expected4("\nimport QtQuick 1.1\n"
                                   "\n"
                                   "Item {\n"
                                   "Rectangle {\n"
@@ -4150,7 +4150,7 @@ void tst_TestCore::testGradientsRewriter()
     QVERIFY(gradientStop3.isValid());
     stops.reparentHere(gradientStop3);
 
-    const QLatin1String expected5("\nimport Qt 4.7\n"
+    const QLatin1String expected5("\nimport QtQuick 1.1\n"
                                   "\n"
                                   "Item {\n"
                                   "Rectangle {\n"
@@ -4177,7 +4177,7 @@ void tst_TestCore::testGradientsRewriter()
 
     gradientNode.removeProperty("stops");
 
-    const QLatin1String expected6("\nimport Qt 4.7\n"
+    const QLatin1String expected6("\nimport QtQuick 1.1\n"
                                   "\n"
                                   "Item {\n"
                                   "Rectangle {\n"
@@ -4235,7 +4235,7 @@ void tst_TestCore::testQmlModelStates()
 void tst_TestCore::testInstancesStates()
 {
 //
-//    import Qt 4.7
+//    import QtQuick 1.1
 //
 //    Rectangle {
 //      Text {
@@ -4475,7 +4475,7 @@ void tst_TestCore::testInstancesStates()
 void tst_TestCore::testStates()
 {
 //
-//    import Qt 4.7
+//    import QtQuick 1.1
 //
 //    Rectangle {
 //      Text {
@@ -4571,7 +4571,7 @@ void tst_TestCore::testStates()
 void tst_TestCore::testStatesBaseState()
 {
 //
-//    import Qt 4.7
+//    import QtQuick 1.1
 //
 //    Rectangle {
 //      Text {
@@ -4653,7 +4653,7 @@ void tst_TestCore::testInstancesIdResolution()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    //    import Qt 4.7
+    //    import QtQuick 1.1
     //
     //    Rectangle {
     //      id: root
@@ -5613,7 +5613,7 @@ void tst_TestCore::testQmlModelRemoveStates()
 void tst_TestCore::testQmlModelStateWithName()
 {
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import Qt 4.7; Rectangle { id: theRect; width: 100; states: [ State { name: \"a\"; PropertyChanges { target: theRect; width: 200; } } ] }\n");
+    textEdit1.setPlainText("import QtQuick 1.1; Rectangle { id: theRect; width: 100; states: [ State { name: \"a\"; PropertyChanges { target: theRect; width: 200; } } ] }\n");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
@@ -5638,7 +5638,7 @@ void tst_TestCore::testQmlModelStateWithName()
     view->setCurrentState(rootNode.states().allStates().at(0));
     rootNode.setVariantProperty("width", 112);
 
-    const QLatin1String expected1("import Qt 4.7; Rectangle { id: theRect; width: 100; states: [ State { name: \"a\"; PropertyChanges { target: theRect; width: 112 } } ] }\n");
+    const QLatin1String expected1("import QtQuick 1.1; Rectangle { id: theRect; width: 100; states: [ State { name: \"a\"; PropertyChanges { target: theRect; width: 112 } } ] }\n");
     QCOMPARE(textEdit1.toPlainText(), expected1);
 
     QVERIFY(!rootNode.isInBaseState());
@@ -5658,7 +5658,7 @@ void tst_TestCore::testQmlModelStateWithName()
 void tst_TestCore::testRewriterAutomaticSemicolonAfterChangedProperty()
 {
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import Qt 4.7; Rectangle {\n    width: 640\n    height: 480\n}\n");
+    textEdit1.setPlainText("import QtQuick 1.1; Rectangle {\n    width: 640\n    height: 480\n}\n");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
@@ -5702,7 +5702,7 @@ void tst_TestCore::defaultPropertyValues()
 void tst_TestCore::testModelPropertyValueTypes()
 {
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import Qt 4.7; Rectangle { width: 100; radius: 1.5; color: \"red\"; }");
+    textEdit1.setPlainText("import QtQuick 1.1; Rectangle { width: 100; radius: 1.5; color: \"red\"; }");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
@@ -5748,7 +5748,7 @@ void tst_TestCore::testModelNodeIsAncestorOf()
     QVERIFY(model.data());
 
     //
-    //  import Qt 4.7
+    //  import QtQuick 1.1
     //  Item {
     //    Item {
     //      id: item2
@@ -5800,7 +5800,7 @@ void tst_TestCore::testModelDefaultProperties()
 void tst_TestCore::loadAnchors()
 {
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { anchors.left: parent.left; anchors.horizontalCenter: parent.horizontalCenter; anchors.rightMargin: 20; }}");
+    textEdit1.setPlainText("import QtQuick 1.1; Item { width: 100; height: 100; Rectangle { anchors.left: parent.left; anchors.horizontalCenter: parent.horizontalCenter; anchors.rightMargin: 20; }}");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -5839,7 +5839,7 @@ void tst_TestCore::loadAnchors()
 void tst_TestCore::changeAnchors()
 {
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { anchors.left: parent.left; anchors.horizontalCenter: parent.horizontalCenter; anchors.rightMargin: 20; }}");
+    textEdit1.setPlainText("import QtQuick 1.1; Item { width: 100; height: 100; Rectangle { anchors.left: parent.left; anchors.horizontalCenter: parent.horizontalCenter; anchors.rightMargin: 20; }}");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -5900,7 +5900,7 @@ void tst_TestCore::changeAnchors()
 void tst_TestCore::anchorToSibling()
 {
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import Qt 4.7; Item { Rectangle {} Rectangle { id: secondChild } }");
+    textEdit1.setPlainText("import QtQuick 1.1; Item { Rectangle {} Rectangle { id: secondChild } }");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -5944,7 +5944,7 @@ void tst_TestCore::anchorToSibling()
 void tst_TestCore::removeFillAnchorByDetaching()
 {
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { id: child; anchors.fill: parent } }");
+    textEdit1.setPlainText("import QtQuick 1.1; Item { width: 100; height: 100; Rectangle { id: child; anchors.fill: parent } }");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -6024,7 +6024,7 @@ void tst_TestCore::removeFillAnchorByDetaching()
 void tst_TestCore::removeFillAnchorByChanging()
 {
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import Qt 4.7; Item { width: 100; height: 100; Rectangle { id: child; anchors.fill: parent } }");
+    textEdit1.setPlainText("import QtQuick 1.1; Item { width: 100; height: 100; Rectangle { id: child; anchors.fill: parent } }");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -6274,7 +6274,7 @@ void tst_TestCore::testModelSliding()
 
 void tst_TestCore::testRewriterChangeId()
 {
-    const char* qmlString = "import Qt 4.7\nRectangle { }";
+    const char* qmlString = "import QtQuick 1.1\nRectangle { }";
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
@@ -6299,7 +6299,7 @@ void tst_TestCore::testRewriterChangeId()
 
     QCOMPARE(rootModelNode.id(), QString("rectId"));
 
-    QString expected = "import Qt 4.7\n"
+    QString expected = "import QtQuick 1.1\n"
                        "Rectangle { id: rectId }";
 
     QCOMPARE(textEdit.toPlainText(), expected);
@@ -6311,7 +6311,7 @@ void tst_TestCore::testRewriterChangeId()
 
 void tst_TestCore::testRewriterRemoveId()
 {
-    const char* qmlString = "import Qt 4.7\nRectangle { id: rect }";
+    const char* qmlString = "import QtQuick 1.1\nRectangle { id: rect }";
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
@@ -6335,7 +6335,7 @@ void tst_TestCore::testRewriterRemoveId()
     //
     // remove id in text
     //
-    const char* qmlString2 = "import Qt 4.7\nRectangle { }";
+    const char* qmlString2 = "import QtQuick 1.1\nRectangle { }";
     textEdit.setPlainText(qmlString2);
 
     QCOMPARE(rootModelNode.id(), QString());
@@ -6343,7 +6343,7 @@ void tst_TestCore::testRewriterRemoveId()
 
 void tst_TestCore::testRewriterChangeValueProperty()
 {
-    const char* qmlString = "import Qt 4.7\nRectangle { x: 10; y: 10 }";
+    const char* qmlString = "import QtQuick 1.1\nRectangle { x: 10; y: 10 }";
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
@@ -6379,7 +6379,7 @@ void tst_TestCore::testRewriterChangeValueProperty()
 void tst_TestCore::testRewriterRemoveValueProperty()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "Rectangle {\n"
                                   "  x: 10\n"
                                   "  y: 10;\n"
@@ -6410,7 +6410,7 @@ void tst_TestCore::testRewriterRemoveValueProperty()
     rootModelNode.removeProperty("x");
 
     const QLatin1String expected("\n"
-                                 "import Qt 4.7\n"
+                                 "import QtQuick 1.1\n"
                                  "Rectangle {\n"
                                  "  y: 10;\n"
                                  "}\n");
@@ -6425,7 +6425,7 @@ void tst_TestCore::testRewriterRemoveValueProperty()
 
 void tst_TestCore::testRewriterSignalProperty()
 {
-    const char* qmlString = "import Qt 4.7\nRectangle { onColorChanged: {} }";
+    const char* qmlString = "import QtQuick 1.1\nRectangle { onColorChanged: {} }";
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
@@ -6451,7 +6451,7 @@ void tst_TestCore::testRewriterSignalProperty()
 
 void tst_TestCore::testRewriterObjectTypeProperty()
 {
-    const char* qmlString = "import Qt 4.7\nRectangle { x: 10; y: 10 }";
+    const char* qmlString = "import QtQuick 1.1\nRectangle { x: 10; y: 10 }";
 
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlString);
@@ -6485,7 +6485,7 @@ void tst_TestCore::testRewriterPropertyChanges()
 
         // Use a slightly more complicated example so that target properties are not resolved in default scope
         const char* qmlString
-                = "import Qt 4.7\n"
+                = "import QtQuick 1.1\n"
                   "Rectangle {\n"
                   "  Text {\n"
                   "    id: targetObj\n"
@@ -6556,7 +6556,7 @@ void tst_TestCore::testRewriterListModel()
 
     try {
         // ListModel uses a custom parser
-        const char* qmlString = "import Qt 4.7; ListModel {\n ListElement {\n age: 12\n} \n}";
+        const char* qmlString = "import QtQuick 1.1; ListModel {\n ListElement {\n age: 12\n} \n}";
 
         QPlainTextEdit textEdit;
         textEdit.setPlainText(qmlString);
@@ -6591,7 +6591,7 @@ void tst_TestCore::testRewriterListModel()
 void tst_TestCore::testRewriterAddProperty()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "}");
@@ -6621,7 +6621,7 @@ void tst_TestCore::testRewriterAddProperty()
     QCOMPARE(rootNode.variantProperty(QLatin1String("x")).value(), QVariant(123));
 
     const QLatin1String expected("\n"
-                                 "import Qt 4.7\n"
+                                 "import QtQuick 1.1\n"
                                  "\n"
                                  "Rectangle {\n"
                                  "x: 123\n"
@@ -6632,7 +6632,7 @@ void tst_TestCore::testRewriterAddProperty()
 void tst_TestCore::testRewriterAddPropertyInNestedObject()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "    Rectangle {\n"
@@ -6667,7 +6667,7 @@ void tst_TestCore::testRewriterAddPropertyInNestedObject()
     childNode.variantProperty(QLatin1String("y")).setValue(10);
 
     const QLatin1String expected("\n"
-                                 "import Qt 4.7\n"
+                                 "import QtQuick 1.1\n"
                                  "\n"
                                  "Rectangle {\n"
                                  "    Rectangle {\n"
@@ -6681,7 +6681,7 @@ void tst_TestCore::testRewriterAddPropertyInNestedObject()
 
 void tst_TestCore::testRewriterAddObjectDefinition()
 {
-    const QLatin1String qmlString("import Qt 4.7\n"
+    const QLatin1String qmlString("import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "}");
@@ -6715,7 +6715,7 @@ void tst_TestCore::testRewriterAddObjectDefinition()
 void tst_TestCore::testRewriterAddStatesArray()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "}");
@@ -6741,7 +6741,7 @@ void tst_TestCore::testRewriterAddStatesArray()
     rootNode.nodeListProperty(QLatin1String("states")).reparentHere(stateNode);
 
     const QString expected1 = QLatin1String("\n"
-                                           "import Qt 4.7\n"
+                                           "import QtQuick 1.1\n"
                                            "\n"
                                            "Rectangle {\n"
                                            "states: [\n"
@@ -6755,7 +6755,7 @@ void tst_TestCore::testRewriterAddStatesArray()
     rootNode.nodeListProperty(QLatin1String("states")).reparentHere(stateNode2);
 
     const QString expected2 = QLatin1String("\n"
-                                           "import Qt 4.7\n"
+                                           "import QtQuick 1.1\n"
                                            "\n"
                                            "Rectangle {\n"
                                            "states: [\n"
@@ -6771,7 +6771,7 @@ void tst_TestCore::testRewriterAddStatesArray()
 void tst_TestCore::testRewriterRemoveStates()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "    states: [\n"
@@ -6807,7 +6807,7 @@ void tst_TestCore::testRewriterRemoveStates()
     state.destroy();
 
     const QLatin1String expected1("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "    states: [\n"
@@ -6821,7 +6821,7 @@ void tst_TestCore::testRewriterRemoveStates()
     state.destroy();
 
     const QLatin1String expected2("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "}");
@@ -6831,7 +6831,7 @@ void tst_TestCore::testRewriterRemoveStates()
 void tst_TestCore::testRewriterRemoveObjectDefinition()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  MouseArea {\n"
@@ -6873,7 +6873,7 @@ void tst_TestCore::testRewriterRemoveObjectDefinition()
     QVERIFY(!rootNode.hasProperty(QLatin1String("data")));
 
     const QString expected = QLatin1String("\n"
-                                           "import Qt 4.7\n"
+                                           "import QtQuick 1.1\n"
                                            "\n"
                                            "Rectangle {\n"
                                            "  // some comment here\n"
@@ -6892,7 +6892,7 @@ void tst_TestCore::testRewriterRemoveObjectDefinition()
 void tst_TestCore::testRewriterRemoveScriptBinding()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "   x: 10; // some comment\n"
@@ -6932,7 +6932,7 @@ void tst_TestCore::testRewriterRemoveScriptBinding()
     QCOMPARE(rootNode.properties().size(), 0);
 
     const QString expected = QLatin1String("\n"
-                                           "import Qt 4.7\n"
+                                           "import QtQuick 1.1\n"
                                            "\n"
                                            "Rectangle {\n"
                                            "   // some comment\n"
@@ -6943,7 +6943,7 @@ void tst_TestCore::testRewriterRemoveScriptBinding()
 void tst_TestCore::testRewriterNodeReparenting()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  Item {\n"
@@ -6984,7 +6984,7 @@ void tst_TestCore::testRewriterNodeReparenting()
     QCOMPARE(rootNode.nodeListProperty("data").toModelNodeList().size(), 2);
 
     QString expected =  "\n"
-                        "import Qt 4.7\n"
+                        "import QtQuick 1.1\n"
                         "\n"
                         "Rectangle {\n"
                         "  Item {\n"
@@ -7006,7 +7006,7 @@ void tst_TestCore::testRewriterNodeReparenting()
     rootNode.nodeListProperty("data").reparentHere(node1);
 
     expected =  "\n"
-                "import Qt 4.7\n"
+                "import QtQuick 1.1\n"
                 "\n"
                 "Rectangle {\n"
                 "  Item {\n"
@@ -7030,7 +7030,7 @@ void tst_TestCore::testRewriterNodeReparenting()
     node4.nodeListProperty("data").reparentHere(node1);
 
     expected =  "\n"
-                "import Qt 4.7\n"
+                "import QtQuick 1.1\n"
                 "\n"
                 "Rectangle {\n"
                 "  Item {\n"
@@ -7046,7 +7046,7 @@ void tst_TestCore::testRewriterNodeReparenting()
 void tst_TestCore::testRewriterNodeReparentingWithTransaction()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  id: rootItem\n"
@@ -7097,7 +7097,7 @@ void tst_TestCore::testRewriterNodeReparentingWithTransaction()
     transaction.commit();
 
     const QLatin1String expected("\n"
-                                 "import Qt 4.7\n"
+                                 "import QtQuick 1.1\n"
                                  "\n"
                                  "Rectangle {\n"
                                  "  id: rootItem\n"
@@ -7116,7 +7116,7 @@ void tst_TestCore::testRewriterNodeReparentingWithTransaction()
 void tst_TestCore::testRewriterMovingInOut()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "}");
@@ -7143,7 +7143,7 @@ void tst_TestCore::testRewriterMovingInOut()
     rootNode.nodeListProperty(QLatin1String("data")).reparentHere(newNode);
 
     const QLatin1String expected1("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "MouseArea {\n"
@@ -7162,7 +7162,7 @@ void tst_TestCore::testRewriterMovingInOut()
     newNode.destroy();
 
     const QLatin1String expected2("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "}");
@@ -7172,7 +7172,7 @@ void tst_TestCore::testRewriterMovingInOut()
 void tst_TestCore::testRewriterMovingInOutWithTransaction()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "}");
@@ -7213,7 +7213,7 @@ void tst_TestCore::testRewriterMovingInOutWithTransaction()
     transaction.commit();
 
     const QLatin1String expected2("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "}");
@@ -7223,7 +7223,7 @@ void tst_TestCore::testRewriterMovingInOutWithTransaction()
 void tst_TestCore::testRewriterComplexMovingInOut()
 {
     const QLatin1String qmlString("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  Item {\n"
@@ -7253,7 +7253,7 @@ void tst_TestCore::testRewriterComplexMovingInOut()
     rootNode.nodeListProperty(QLatin1String("data")).reparentHere(newNode);
 
     const QLatin1String expected1("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  Item {\n"
@@ -7273,7 +7273,7 @@ void tst_TestCore::testRewriterComplexMovingInOut()
     move(newNode, 3, 3);
 
     const QLatin1String expected2("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  Item {\n"
@@ -7289,7 +7289,7 @@ void tst_TestCore::testRewriterComplexMovingInOut()
     itemNode.nodeListProperty(QLatin1String("data")).reparentHere(newNode);
 
     const QLatin1String expected3("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  Item {\n"
@@ -7309,7 +7309,7 @@ void tst_TestCore::testRewriterComplexMovingInOut()
     newNode.destroy();
 
     const QLatin1String expected4("\n"
-                                  "import Qt 4.7\n"
+                                  "import QtQuick 1.1\n"
                                   "\n"
                                   "Rectangle {\n"
                                   "  Item {\n"
@@ -7321,7 +7321,7 @@ void tst_TestCore::testRewriterComplexMovingInOut()
 void tst_TestCore::removeCenteredInAnchorByDetaching()
 {
     QPlainTextEdit textEdit1;
-    textEdit1.setPlainText("import Qt 4.7; Item { Rectangle { id: child; anchors.centerIn: parent } }");
+    textEdit1.setPlainText("import QtQuick 1.1; Item { Rectangle { id: child; anchors.centerIn: parent } }");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     QScopedPointer<Model> model(Model::create("QtQuick.Item"));
@@ -7543,7 +7543,7 @@ void tst_TestCore::loadTestFiles()
     }
 }
 
-static QString rectWithGradient = "import Qt 4.7\n"
+static QString rectWithGradient = "import QtQuick 1.1\n"
                                   "Rectangle {\n"
                                   "    gradient: Gradient {\n"
                                   "        id: pGradient\n"
