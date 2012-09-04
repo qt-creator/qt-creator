@@ -23,6 +23,8 @@
 :Edit Environment_ProjectExplorer::EnvironmentItemsDialog	{type='ProjectExplorer::EnvironmentItemsDialog' unnamed='1' visible='1' windowTitle='Edit Environment'}
 :Failed to start application_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Failed to start application'}
 :Generator:_QComboBox	{buddy=':CMake Wizard.Generator:_QLabel' type='QComboBox' unnamed='1' visible='1'}
+:Kits_QTreeView	{container=':qt_tabwidget_stackedwidget_QWidget' type='QTreeView' unnamed='1' visible='1'}
+:Kits_QtVersion_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' occurrence='4' type='QComboBox' unnamed='1' visible='1'}
 :New.frame_QFrame	{name='frame' type='QFrame' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
 :New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialog' visible='1' windowTitle='New'}
@@ -57,8 +59,6 @@
 :QtSupport__Internal__QtVersionManager.qmake_QLabel	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='qmakePath' type='QLabel' visible='1'}
 :QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='qtdirList' type='QTreeWidget' visible='1'}
 :Symbol Server_Utils::CheckableMessageBox	{type='Utils::CheckableMessageBox' unnamed='1' visible='1' windowTitle='Symbol Server'}
-:Targets_QTreeView	{container=':qt_tabwidget_stackedwidget_QWidget' type='QTreeView' unnamed='1' visible='1'}
-:Targets_QtVersion_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' occurrence='4' type='QComboBox' unnamed='1' visible='1'}
 :addToVersionControlComboBox_QComboBox	{name='addToVersionControlComboBox' type='QComboBox' visible='1'}
 :formFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Form file:_QLabel' name='formFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :frame.templateDescription_QTextBrowser	{container=':New.frame_QFrame' name='templateDescription' type='QTextBrowser' visible='1'}
