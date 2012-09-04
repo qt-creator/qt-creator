@@ -152,6 +152,7 @@ QtcPlugin {
         "versiondialog.cpp",
         "versiondialog.h",
         "id.cpp",
+        "iversioncontrol.cpp",
         "iversioncontrol.h",
         "variablechooser.cpp",
         "variablemanager.cpp",
