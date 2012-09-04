@@ -273,11 +273,11 @@ FileName AndroidConfigurations::androidToolPath() const
         // I want to switch from using android.bat to using an executable. All it really does is call
         // Java and I've made some progress on it. So if android.exe exists, return that instead.
         FileName path = m_config.sdkLocation;
-        path.appendPath(QLatin1String("tools/android"ANDROID_EXE_SUFFIX));
+        path.appendPath(QLatin1String("tools/android" ANDROID_EXE_SUFFIX));
         if (path.toFileInfo().exists())
             return path;
         path = m_config.sdkLocation;
-        return path.appendPath(QLatin1String("tools/android"ANDROID_BAT_SUFFIX));
+        return path.appendPath(QLatin1String("tools/android" ANDROID_BAT_SUFFIX));
     } else {
         FileName path = m_config.sdkLocation;
         return path.appendPath(QLatin1String("tools/android"));
