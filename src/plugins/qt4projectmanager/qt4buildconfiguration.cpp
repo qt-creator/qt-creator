@@ -196,7 +196,8 @@ QString Qt4BuildConfiguration::rawBuildDirectory() const
 /// returns the build directory
 QString Qt4BuildConfiguration::buildDirectory() const
 {
-    return QDir::cleanPath(environment().expandVariables(rawBuildDirectory()));
+    QString path = QDir::cleanPath(environment().expandVariables(rawBuildDirectory()));
+    return QDir::cleanPath(QDir(target()->project()->projectDirectory()).absoluteFilePath(path));
 }
 
 bool Qt4BuildConfiguration::supportsShadowBuilds()
