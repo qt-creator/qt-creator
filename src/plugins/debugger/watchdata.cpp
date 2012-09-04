@@ -350,8 +350,10 @@ QString WatchData::toString() const
 static void formatToolTipRow(QTextStream &str,
     const QString &category, const QString &value)
 {
+    QString val = Qt::escape(value);
+    val.replace(QLatin1Char('\n'), QLatin1String("<br>"));
     str << "<tr><td>" << category << "</td><td> : </td><td>"
-        << Qt::escape(value) << "</td></tr>";
+        << val << "</td></tr>";
 }
 
 QString WatchData::toToolTip() const
@@ -366,7 +368,7 @@ QString WatchData::toToolTip() const
     formatToolTipRow(str, tr("Internal Type"), QLatin1String(type));
     formatToolTipRow(str, tr("Displayed Type"), displayedType);
     QString val = value;
-    if (value.size() > 1000) {
+    if (val.size() > 1000) {
         val.truncate(1000);
         val += tr(" ... <cut off>");
     }
