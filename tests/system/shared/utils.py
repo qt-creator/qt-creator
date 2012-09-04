@@ -319,7 +319,8 @@ def getCorrectlyConfiguredTargets():
     for targetName in result.keys():
         targetInfo = result[targetName]
         if targetInfo[0] == "Maemo":
-            result.update({targetName:("Maemo5", targetInfo[1])})
+            result.update({targetName:
+                           (QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.MAEMO5), targetInfo[1])})
     test.log("Correctly configured targets: %s" % str(result))
     return result
 
