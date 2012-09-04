@@ -112,7 +112,9 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 
    QString applicationPath =  pathToQt + QLatin1String("/bin");
    if (runModus == TestModus) {
-       applicationPath = QCoreApplication::applicationDirPath() + QLatin1String("/../../../../../bin");
+       applicationPath = QCoreApplication::applicationDirPath()
+               + QLatin1String("/../../../../../bin/")
+               + qmlPuppetApplicationName();
    } else {
        applicationPath = macOSBundlePath(applicationPath);
        applicationPath += QLatin1Char('/') + qmlPuppetApplicationName();
