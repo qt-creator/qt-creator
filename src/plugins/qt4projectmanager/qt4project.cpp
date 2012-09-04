@@ -708,6 +708,10 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
             m_partialEvaluate.append(node);
         // and start the timer anew
         m_asyncUpdateTimer.start();
+
+        // Cancel running code model update
+        m_codeModelFuture.cancel();
+        m_codeModelCanceled = true;
     } else if (m_asyncUpdateState == AsyncUpdateInProgress) {
         // A update is in progress
         // And this slot only gets called if a file changed on disc
