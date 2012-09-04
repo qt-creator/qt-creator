@@ -60,9 +60,11 @@ public:
 
 private:
     bool updateAndCheck(const QString &prefix);
-    void updatePositionAndSize();
     void notifyActivation(int index);
     void abort();
+
+private slots:
+    void updatePositionAndSize();
 
 protected:
     virtual bool eventFilter(QObject *o, QEvent *e);
