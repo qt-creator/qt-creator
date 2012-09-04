@@ -112,8 +112,10 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
 def __selectQtVersionDesktop__(checks, available=None):
     __chooseTargets__(QtQuickConstants.Targets.DESKTOP, available)
     if checks:
-        verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) debug_QCheckBox")
-        verifyChecked(":scrollArea.Qt 4 for Desktop - (Qt SDK) release_QCheckBox")
+        cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "
+                    "container={type='Utils::DetailsWidget' visible='1' unnamed='1'}}")
+        verifyChecked(cbObject % "Debug")
+        verifyChecked(cbObject % "Release")
     clickButton(waitForObject(":Next_QPushButton"))
 
 def __createProjectHandleLastPage__(expectedFiles = None):
