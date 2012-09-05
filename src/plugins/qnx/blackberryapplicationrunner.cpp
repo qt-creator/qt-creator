@@ -155,6 +155,7 @@ void BlackBerryApplicationRunner::startFinished(int exitCode, QProcess::ExitStat
         const QString errorString = (m_launchProcess->error() != QProcess::UnknownError)
                 ? m_launchProcess->errorString() : tr("Launching application failed");
         emit startFailed(errorString);
+        reset();
     }
 }
 
@@ -344,9 +345,11 @@ void BlackBerryApplicationRunner::reset()
     m_stopping = false;
 
     m_runningStateTimer->stop();
-    m_runningStateProcess->terminate();
-    if (!m_runningStateProcess->waitForFinished(1000))
-        m_runningStateProcess->kill();
+    if (m_runningStateProcess) {
+        m_runningStateProcess->terminate();
+        if (!m_runningStateProcess->waitForFinished(1000))
+            m_runningStateProcess->kill();
+    }
 
     if (m_tailProcess && m_tailProcess->isProcessRunning())
         killTailProcess();
