@@ -425,7 +425,7 @@ void CMakeRunPage::initializePage()
              } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
 #ifdef Q_OS_WIN
                 if (cachedGenerator.isEmpty() || cachedGenerator == "MinGW Makefiles")
-                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(p->displayName()), kitVariant);
+                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(k->displayName()), kitVariant);
 #else
                 if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
                     m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(k->displayName()), kitVariant);
