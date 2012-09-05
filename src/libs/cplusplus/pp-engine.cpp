@@ -1542,7 +1542,9 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
         previousOffset = tk->offset;
         previousLine = tk->lineno;
 
-        bodyTokens.push_back(*tk);
+        // Discard comments in macro definitions (keep comments flag doesn't apply here).
+        if (!tk->isComment())
+            bodyTokens.push_back(*tk);
 
         lex(tk);
     }
