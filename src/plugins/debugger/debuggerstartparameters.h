@@ -60,6 +60,7 @@ public:
       : masterEngineType(NoEngineType),
         firstSlaveEngineType(NoEngineType),
         secondSlaveEngineType(NoEngineType),
+        cppEngineType(NoEngineType),
         isSnapshot(false),
         attachPID(-1),
         useTerminal(false),
@@ -81,6 +82,7 @@ public:
     DebuggerEngineType masterEngineType;
     DebuggerEngineType firstSlaveEngineType;
     DebuggerEngineType secondSlaveEngineType;
+    DebuggerEngineType cppEngineType;
     QString sysRoot;
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
@@ -140,7 +142,7 @@ public:
 
 namespace Internal {
 
-void fillParameters(DebuggerStartParameters *sp, const ProjectExplorer::Kit *kit = 0);
+bool fillParameters(DebuggerStartParameters *sp, const ProjectExplorer::Kit *kit = 0, QString *errorMessage = 0);
 
 } // namespace Internal
 } // namespace Debugger

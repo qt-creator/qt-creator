@@ -140,6 +140,7 @@ LldbEngineHost::LldbEngineHost(const DebuggerStartParameters &startParameters)
     :IPCEngineHost(startParameters), m_ssh(0)
 {
     showMessage(QLatin1String("setting up coms"));
+    setObjectName(QLatin1String("LLDBEngine"));
 
     if (startParameters.startMode == StartRemoteEngine)
     {

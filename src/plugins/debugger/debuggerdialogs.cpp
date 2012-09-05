@@ -374,8 +374,7 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     }
 
     Kit *kit = dialog.d->kitChooser->currentKit();
-    QTC_ASSERT(kit, return false);
-    fillParameters(sp, kit);
+    QTC_ASSERT(kit && fillParameters(sp, kit), return false);
 
     sp->executable = newParameters.localExecutable;
     sp->displayName = newParameters.displayName();

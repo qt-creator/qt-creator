@@ -29,7 +29,6 @@
 **************************************************************************/
 
 #include "debuggerkitconfigwidget.h"
-
 #include "debuggerkitinformation.h"
 
 #include <projectexplorer/abi.h>
@@ -48,6 +47,8 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QLabel>
+#include <QComboBox>
 
 namespace Debugger {
 namespace Internal {
@@ -55,6 +56,7 @@ namespace Internal {
 
 static const char dgbToolsDownloadLink32C[] = "http://www.microsoft.com/whdc/devtools/debugging/installx86.Mspx";
 static const char dgbToolsDownloadLink64C[] = "http://www.microsoft.com/whdc/devtools/debugging/install64bit.Mspx";
+
 // -----------------------------------------------------------------------
 // DebuggerKitConfigWidget:
 // -----------------------------------------------------------------------
@@ -65,34 +67,26 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *k,
     ProjectExplorer::KitConfigWidget(parent),
     m_kit(k),
     m_info(ki),
-    m_chooser(new Utils::PathChooser)
+    m_comboBox(new QComboBox(this)),
+    m_label(new QLabel(this)),
+    m_chooser(new Utils::PathChooser(this))
 {
     setToolTip(tr("The debugger to use for this kit."));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-    if (tc && tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS
-            && tc->targetAbi().osFlavor() != ProjectExplorer::Abi::WindowsMSysFlavor) {
-        QLabel *msvcDebuggerConfigLabel = new QLabel;
-#ifdef Q_OS_WIN
-        const bool is64bit = Utils::winIs64BitSystem();
-#else
-        const bool is64bit = false;
-#endif
-        const QString link = is64bit ? QLatin1String(dgbToolsDownloadLink64C) : QLatin1String(dgbToolsDownloadLink32C);
-        //: Label text for path configuration. %2 is "x-bit version".
-        msvcDebuggerConfigLabel->setText(tr("<html><body><p>Specify the path to the "
-                                            "<a href=\"%1\">Windows Console Debugger executable</a>"
-                                            " (%2) here.</p>"
-                                            "</body></html>").arg(link, (is64bit ? tr("64-bit version")
-                                                                                 : tr("32-bit version"))));
-        msvcDebuggerConfigLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
-        msvcDebuggerConfigLabel->setOpenExternalLinks(true);
-        layout->addWidget(msvcDebuggerConfigLabel);
-
+    m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(GdbEngineType), QVariant(int(GdbEngineType)));
+    if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS) {
+        m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(CdbEngineType), QVariant(int(CdbEngineType)));
+    } else {
+        m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(LldbEngineType), QVariant(int(LldbEngineType)));
     }
+    layout->addWidget(m_comboBox);
+
+    m_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    m_label->setOpenExternalLinks(true);
+    layout->addWidget(m_label);
 
     m_chooser->setContentsMargins(0, 0, 0, 0);
     m_chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
@@ -102,6 +96,8 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *k,
 
     discard();
     connect(m_chooser, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
+    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(dirty()));
+    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(refreshLabel()));
 }
 
 QString DebuggerKitConfigWidget::displayName() const
@@ -111,23 +107,26 @@ QString DebuggerKitConfigWidget::displayName() const
 
 void DebuggerKitConfigWidget::makeReadOnly()
 {
+    m_comboBox->setEnabled(false);
     m_chooser->setEnabled(false);
 }
 
 void DebuggerKitConfigWidget::apply()
 {
-    Utils::FileName fn = m_chooser->fileName();
-    DebuggerKitInformation::setDebuggerCommand(m_kit, fn);
+    DebuggerKitInformation::setDebuggerItem(m_kit, DebuggerKitInformation::DebuggerItem(engineType(), fileName()));
 }
 
 void DebuggerKitConfigWidget::discard()
 {
-    m_chooser->setFileName(DebuggerKitInformation::debuggerCommand(m_kit));
+    const DebuggerKitInformation::DebuggerItem item = DebuggerKitInformation::debuggerItem(m_kit);
+    setEngineType(item.engineType);
+    setFileName(item.binary);
 }
 
 bool DebuggerKitConfigWidget::isDirty() const
 {
-    return m_chooser->fileName() != DebuggerKitInformation::debuggerCommand(m_kit);
+    const DebuggerKitInformation::DebuggerItem item = DebuggerKitInformation::debuggerItem(m_kit);
+    return item.engineType != engineType() || item.binary != fileName();
 }
 
 QWidget *DebuggerKitConfigWidget::buttonWidget() const
@@ -137,8 +136,62 @@ QWidget *DebuggerKitConfigWidget::buttonWidget() const
 
 void DebuggerKitConfigWidget::autoDetectDebugger()
 {
-    QVariant v = m_info->defaultValue(m_kit);
-    m_chooser->setFileName(Utils::FileName::fromString(v.toString()));
+    const DebuggerKitInformation::DebuggerItem item = DebuggerKitInformation::autoDetectItem(m_kit);
+    setEngineType(item.engineType);
+    setFileName(item.binary);
+}
+
+DebuggerEngineType DebuggerKitConfigWidget::engineType() const
+{
+    const int index = m_comboBox->currentIndex();
+    return static_cast<DebuggerEngineType>(m_comboBox->itemData(index).toInt());
+}
+
+void DebuggerKitConfigWidget::setEngineType(DebuggerEngineType et)
+{
+    const int size = m_comboBox->count();
+    for (int i = 0; i < size; ++i) {
+        if (m_comboBox->itemData(i).toInt() == et) {
+            m_comboBox->setCurrentIndex(i);
+            refreshLabel();
+            break;
+        }
+    }
+}
+
+Utils::FileName DebuggerKitConfigWidget::fileName() const
+{
+    return m_chooser->fileName();
+}
+
+void DebuggerKitConfigWidget::setFileName(const Utils::FileName &fn)
+{
+    m_chooser->setFileName(fn);
+}
+
+void DebuggerKitConfigWidget::refreshLabel()
+{
+    QString text;
+    switch (engineType()) {
+    case CdbEngineType: {
+#ifdef Q_OS_WIN
+        const bool is64bit = Utils::winIs64BitSystem();
+#else
+        const bool is64bit = false;
+#endif
+        const QString link = is64bit ? QLatin1String(dgbToolsDownloadLink64C) : QLatin1String(dgbToolsDownloadLink32C);
+        const QString versionString = is64bit ? tr("64-bit version") : tr("32-bit version");
+        //: Label text for path configuration. %2 is "x-bit version".
+        text = tr("<html><body><p>Specify the path to the "
+                  "<a href=\"%1\">Windows Console Debugger executable</a>"
+                  " (%2) here.</p>""</body></html>").arg(link, versionString);
+    }
+        break;
+    default:
+        break;
+    }
+    m_label->setText(text);
+    m_label->setVisible(!text.isEmpty());
 }
 
 } // namespace Internal

@@ -33,11 +33,16 @@
 
 #include <projectexplorer/kitconfigwidget.h>
 
-#include <QLabel>
-#include <debuggerkitinformation.h>
+#include "debuggerconstants.h"
+
+QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_FORWARD_DECLARE_CLASS(QComboBox)
 
 namespace ProjectExplorer { class Kit; }
-namespace Utils { class PathChooser; }
+namespace Utils {
+class PathChooser;
+class FileName;
+}
 
 namespace Debugger {
 class DebuggerKitInformation;
@@ -65,12 +70,21 @@ public:
     bool isDirty() const;
     QWidget *buttonWidget() const;
 
+    DebuggerEngineType engineType() const;
+    void setEngineType(DebuggerEngineType et);
+
+    Utils::FileName fileName() const;
+    void setFileName(const Utils::FileName &fn);
+
 private slots:
     void autoDetectDebugger();
+    void refreshLabel();
 
 private:
     ProjectExplorer::Kit *m_kit;
     const DebuggerKitInformation *m_info;
+    QComboBox *m_comboBox;
+    QLabel *m_label;
     Utils::PathChooser *m_chooser;
 };
 

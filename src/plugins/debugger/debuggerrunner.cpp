@@ -259,11 +259,6 @@ public:
     explicit DebuggerRunControlPrivate(DebuggerRunControl *parent,
                                        RunConfiguration *runConfiguration);
 
-    DebuggerEngineType engineForExecutable(unsigned enabledEngineTypes,
-        const QString &executable);
-    DebuggerEngineType engineForMode(unsigned enabledEngineTypes,
-        DebuggerStartMode mode);
-
 public:
     DebuggerRunControl *q;
     DebuggerEngine *m_engine;
@@ -476,7 +471,7 @@ QString DebuggerRunControlFactory::displayName() const
     return DebuggerPlugin::tr("Debug");
 }
 
-static DebuggerStartParameters localStartParameters(RunConfiguration *runConfiguration)
+static DebuggerStartParameters localStartParameters(RunConfiguration *runConfiguration, QString *errorMessage)
 {
     DebuggerStartParameters sp;
     QTC_ASSERT(runConfiguration, return sp);
@@ -486,7 +481,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 
     Target *target = runConfiguration->target();
     Kit *kit = target ? target->kit() : KitManager::instance()->defaultKit();
-    fillParameters(&sp, kit);
+    if (!fillParameters(&sp, kit, errorMessage))
+        return sp;
     sp.environment = rc->environment();
     sp.workingDirectory = rc->workingDirectory();
 
@@ -547,7 +543,7 @@ RunControl *DebuggerRunControlFactory::create
 {
     Q_UNUSED(errorMessage)
     QTC_ASSERT(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain, return 0);
-    DebuggerStartParameters sp = localStartParameters(runConfiguration);
+    DebuggerStartParameters sp = localStartParameters(runConfiguration, errorMessage);
     if (sp.startMode == NoStartMode)
         return 0;
     if (mode == DebugRunModeWithBreakOnMain)
@@ -556,92 +552,43 @@ RunControl *DebuggerRunControlFactory::create
     return doCreate(sp, runConfiguration, errorMessage);
 }
 
-static DebuggerEngineType guessUnixCppEngineType(const DebuggerStartParameters &sp)
-{
-    if (sp.debuggerCommand.contains(QLatin1String("lldb")))
-        return LldbEngineType;
-    return GdbEngineType;
-}
-
-static DebuggerEngineType guessCppEngineTypeForAbi(const DebuggerStartParameters &sp, const Abi &abi)
-{
-    switch (abi.binaryFormat()) {
-        case Abi::ElfFormat:
-        case Abi::MachOFormat:
-            return guessUnixCppEngineType(sp) ;
-        case Abi::PEFormat:
-           if (abi.osFlavor() == Abi::WindowsMSysFlavor)
-               return guessUnixCppEngineType(sp);
-           return CdbEngineType;
-       default:
-           break;
-    }
-    return NoEngineType;
-}
-
-static DebuggerEngineType guessCppEngineType(const DebuggerStartParameters &sp)
-{
-    if (sp.toolChainAbi.isValid()) {
-        const  DebuggerEngineType et = guessCppEngineTypeForAbi(sp, sp.toolChainAbi);
-        if (et != NoEngineType)
-            return et;
-    }
-
-    #ifdef Q_OS_WIN
-    // If a file has PDB files, it has been compiled by VS.
-    if (sp.executable.endsWith(_(".exe"), Qt::CaseInsensitive)) {
-        QStringList pdbFiles;
-        QString errorMessage;
-        if (getPDBFiles(sp.executable, &pdbFiles, &errorMessage) && !pdbFiles.isEmpty())
-            return CdbEngineType;
-    }
-    #endif
-
-    QList<Abi> abis = Abi::abisOfBinary(FileName::fromString(sp.executable));
-    foreach (const Abi &abi, abis) {
-        DebuggerEngineType et = guessCppEngineTypeForAbi(sp, abi);
-        if (et != NoEngineType)
-            return et;
-    }
-
-    return guessUnixCppEngineType(sp);
-}
-
-static void fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc)
+static bool fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc, QString *errorMessage)
 {
     if (sp.masterEngineType != NoEngineType)
-        return;
+        return true;
 
     if (sp.executable.endsWith(_(".js"))) {
         sp.masterEngineType = ScriptEngineType;
-        return;
+        return true;
     }
 
     if (sp.executable.endsWith(_(".py"))) {
         sp.masterEngineType = PdbEngineType;
-        return;
+        return true;
     }
 
     if (rc) {
         DebuggerRunConfigurationAspect *aspect = rc->debuggerAspect();
         if (const Target *target = rc->target())
-            fillParameters(&sp, target->kit());
+            if (!fillParameters(&sp, target->kit(), errorMessage))
+                return false;
         const bool useCppDebugger = aspect->useCppDebugger();
         const bool useQmlDebugger = aspect->useQmlDebugger();
         if (useQmlDebugger) {
             if (useCppDebugger) {
                 sp.masterEngineType = QmlCppEngineType;
-                sp.firstSlaveEngineType = guessCppEngineType(sp);
+                sp.firstSlaveEngineType = sp.cppEngineType;
                 sp.secondSlaveEngineType = QmlCppEngineType;
             } else {
                 sp.masterEngineType = QmlEngineType;
             }
         } else {
-            sp.masterEngineType = guessCppEngineType(sp);
+            sp.masterEngineType = sp.cppEngineType;
         }
-        return;
+        return true;
     }
-    sp.masterEngineType = guessCppEngineType(sp);
+    sp.masterEngineType = sp.cppEngineType;
+    return true;
 }
 
 DebuggerRunControl *DebuggerRunControlFactory::doCreate
@@ -664,10 +611,8 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
         }
     }
 
-    fixupEngineTypes(sp, rc);
-    if (!sp.masterEngineType) {
+    if (!fixupEngineTypes(sp, rc, errorMessage))
         return 0;
-    }
 
     return new DebuggerRunControl(rc, sp);
 }
