@@ -39,7 +39,6 @@
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
-#include <projectexplorer/kitchooser.h>
 #include <projectexplorer/kitinformation.h>
 #include <utils/historycompleter.h>
 #include <utils/pathchooser.h>
@@ -108,6 +107,36 @@ Q_DECLARE_METATYPE(Debugger::Internal::StartApplicationParameters)
 
 namespace Debugger {
 namespace Internal {
+
+///////////////////////////////////////////////////////////////////////
+//
+// DebuggerKitChooser
+//
+///////////////////////////////////////////////////////////////////////
+
+DebuggerKitChooser::DebuggerKitChooser(Mode mode, QWidget *parent)
+    : ProjectExplorer::KitChooser(parent)
+    , m_hostAbi(ProjectExplorer::Abi::hostAbi())
+    , m_mode(mode)
+{
+}
+
+// Match valid debuggers and restrict local debugging to compatible toolchains.
+bool DebuggerKitChooser::kitMatches(const ProjectExplorer::Kit *k) const
+{
+    if (!DebuggerKitInformation::isValidDebugger(k))
+        return false;
+    if (m_mode == LocalDebugging) {
+        const ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(k);
+        return tc && tc->targetAbi().os() == m_hostAbi.os();
+    }
+    return true;
+}
+
+QString DebuggerKitChooser::kitToolTip(Kit *k) const
+{
+    return DebuggerKitInformation::userOutput(k);
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -225,7 +254,8 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
 
     d->runInTerminalCheckBox = new QCheckBox(this);
 
-    d->kitChooser = new KitChooser(this, KitChooser::LocalDebugging);
+    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::LocalDebugging, this);
+    d->kitChooser->populate();
 
     d->breakAtMainCheckBox = new QCheckBox(this);
     d->breakAtMainCheckBox->setText(QString());
@@ -439,7 +469,8 @@ AttachToQmlPortDialog::AttachToQmlPortDialog(QWidget *parent)
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     setWindowTitle(tr("Start Debugger"));
 
-    d->kitChooser = new KitChooser(this);
+    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::RemoteDebugging, this);
+    d->kitChooser->populate();
 
     d->portSpinBox = new QSpinBox(this);
     d->portSpinBox->setMaximum(65535);

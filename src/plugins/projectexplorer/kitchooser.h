@@ -47,24 +47,25 @@ class PROJECTEXPLORER_EXPORT KitChooser : public QComboBox
     Q_OBJECT
 
 public:
-    enum Flags {
-        HostAbiOnly = 0x1,
-        IncludeInvalidKits = 0x2,
-        HasDebugger = 0x4,
-        RemoteDebugging = IncludeInvalidKits | HasDebugger,
-        LocalDebugging = RemoteDebugging | HostAbiOnly
-    };
-
-    explicit KitChooser(QWidget *parent, unsigned flags = 0);
+    explicit KitChooser(QWidget *parent = 0);
 
     void setCurrentKitId(Core::Id id);
     Core::Id currentKitId() const;
 
     Kit *currentKit() const;
 
+public slots:
+    void populate();
+
+private slots:
+    void onCurrentIndexChanged(int index);
+
+protected:
+    virtual bool kitMatches(const Kit *k) const;
+    virtual QString kitText(const Kit *k) const;
+    virtual QString kitToolTip(Kit *k) const;
+
 private:
-    Q_SLOT void onCurrentIndexChanged(int index);
-    void populate(unsigned flags);
     Kit *kitAt(int index) const;
 };
 

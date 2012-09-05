@@ -60,6 +60,9 @@ public:
     KitChooser *kitChooser() const;
     void logMessage(const QString &line);
 
+protected:
+    DeviceProcessesDialog(KitChooser *chooser, QWidget *parent);
+
 private:
     Internal::DeviceProcessesDialogPrivate * const d;
 };

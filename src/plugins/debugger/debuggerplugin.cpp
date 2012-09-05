@@ -1670,9 +1670,21 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     attachToProcess(false);
 }
 
+class DebuggerProcessesDialog : public ProjectExplorer::DeviceProcessesDialog {
+public:
+    DebuggerProcessesDialog(DebuggerKitChooser::Mode m, QWidget *parent) :
+        ProjectExplorer::DeviceProcessesDialog(new DebuggerKitChooser(m), parent)
+    {
+        addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
+    }
+};
+
 void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
 {
-    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(mainWindow());
+
+    const DebuggerKitChooser::Mode mode = startServerOnly ?
+        DebuggerKitChooser::RemoteDebugging : DebuggerKitChooser::LocalDebugging;
+    DeviceProcessesDialog *dlg = new DebuggerProcessesDialog(mode, mainWindow());
     dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {

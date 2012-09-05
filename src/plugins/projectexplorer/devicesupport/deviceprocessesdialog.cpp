@@ -96,7 +96,7 @@ class DeviceProcessesDialogPrivate : public QObject
     Q_OBJECT
 
 public:
-    DeviceProcessesDialogPrivate(QWidget *parent);
+    DeviceProcessesDialogPrivate(KitChooser *chooser, QWidget *parent);
 
 public slots:
     void setDevice(const IDevice::ConstPtr &device);
@@ -124,16 +124,20 @@ public:
     QDialogButtonBox *buttonBox;
 };
 
-DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(QWidget *parent)
-    : q(parent), acceptButton(0), buttonBox(new QDialogButtonBox(parent))
+DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, QWidget *parent)
+    : q(parent), kitChooser(chooser), acceptButton(0), buttonBox(new QDialogButtonBox(parent))
 {
+    q->setWindowTitle(DeviceProcessesDialog::tr("List of Processes"));
+    q->setWindowFlags(q->windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    q->setMinimumHeight(500);
+
     processList = 0;
 
     processFilterLineEdit = new FilterLineEdit(q);
     processFilterLineEdit->setPlaceholderText(DeviceProcessesDialog::tr("Filter"));
     processFilterLineEdit->setFocus(Qt::TabFocusReason);
 
-    kitChooser = new KitChooser(q);
+    kitChooser->populate();
 
     procView = new QTreeView(q);
     procView->setModel(&proxyModel);
@@ -295,11 +299,13 @@ DeviceProcess DeviceProcessesDialogPrivate::selectedProcess() const
 */
 
 DeviceProcessesDialog::DeviceProcessesDialog(QWidget *parent)
-    : QDialog(parent), d(new Internal::DeviceProcessesDialogPrivate(this))
+    : QDialog(parent), d(new Internal::DeviceProcessesDialogPrivate(new KitChooser(this), this))
 {
-    setWindowTitle(tr("List of Processes"));
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    setMinimumHeight(500);
+}
+
+DeviceProcessesDialog::DeviceProcessesDialog(KitChooser *chooser, QWidget *parent)
+    : QDialog(parent), d(new Internal::DeviceProcessesDialogPrivate(chooser, this))
+{
 }
 
 DeviceProcessesDialog::~DeviceProcessesDialog()

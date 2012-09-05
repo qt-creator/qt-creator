@@ -38,42 +38,43 @@
 
 namespace ProjectExplorer {
 
-KitChooser::KitChooser(QWidget *parent, unsigned flags) :
+KitChooser::KitChooser(QWidget *parent) :
     QComboBox(parent)
 {
-    populate(flags);
-    onCurrentIndexChanged(currentIndex());
     connect(this, SIGNAL(currentIndexChanged(int)), SLOT(onCurrentIndexChanged(int)));
 }
 
 void KitChooser::onCurrentIndexChanged(int index)
 {
     if (Kit *kit = kitAt(index))
-        setToolTip(kit->toHtml());
+        setToolTip(kitToolTip(kit));
     else
         setToolTip(QString());
 }
 
-void KitChooser::populate(unsigned flags)
+bool KitChooser::kitMatches(const Kit *k) const
+{
+    return k->isValid();
+}
+
+QString KitChooser::kitText(const Kit *k) const
+{
+    return k->displayName();
+}
+
+QString KitChooser::kitToolTip(Kit *k) const
+{
+    return k->toHtml();
+}
+
+void KitChooser::populate()
 {
     clear();
-    const Abi hostAbi = Abi::hostAbi();
     foreach (Kit *kit, KitManager::instance()->kits()) {
-        if (!kit->isValid() && !(flags & IncludeInvalidKits))
-            continue;
-        ToolChain *tc = ToolChainKitInformation::toolChain(kit);
-        if (!tc)
-            continue;
-        const Abi abi = tc->targetAbi();
-        if ((flags & HostAbiOnly) && hostAbi.os() != abi.os())
-            continue;
-        const QString debuggerCommand = kit->value(Core::Id("Debugger.Information")).toString();
-        if ((flags & HasDebugger) && debuggerCommand.isEmpty())
-            continue;
-        const QString completeBase = QFileInfo(debuggerCommand).completeBaseName();
-        const QString name = tr("%1 (%2)").arg(kit->displayName(), completeBase);
-        addItem(name, qVariantFromValue(kit->id()));
-        setItemData(count() - 1, kit->toHtml(), Qt::ToolTipRole);
+        if (kitMatches(kit)) {
+            addItem(kitText(kit), qVariantFromValue(kit->id()));
+            setItemData(count() - 1, kitToolTip(kit), Qt::ToolTipRole);
+        }
     }
     setEnabled(count() > 1);
 }
