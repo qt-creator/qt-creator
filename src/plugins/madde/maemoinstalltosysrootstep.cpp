@@ -299,9 +299,9 @@ void MaemoCopyToSysrootStep::run(QFutureInterface<bool> &fi)
             + deployable.remoteDirectory() + sep + localFileInfo.fileName();
         sysrootDir.mkpath(deployable.remoteDirectory().mid(1));
         QString errorMsg;
-        Utils::FileUtils::removeRecursively(targetFilePath, &errorMsg);
-        if (!Utils::FileUtils::copyRecursively(deployable.localFilePath().toString(),
-                targetFilePath, &errorMsg)) {
+        Utils::FileUtils::removeRecursively(Utils::FileName::fromString(targetFilePath), &errorMsg);
+        if (!Utils::FileUtils::copyRecursively(deployable.localFilePath(),
+                Utils::FileName::fromString(targetFilePath), &errorMsg)) {
             emit addOutput(tr("Sysroot installation failed: %1\n"
                 " Continuing anyway.").arg(errorMsg), ErrorMessageOutput);
         }

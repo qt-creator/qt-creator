@@ -72,6 +72,8 @@
 #include <QDeclarativeContext>
 #include <QDesktopServices>
 
+using namespace Utils;
+
 namespace QtSupport {
 namespace Internal {
 
@@ -337,9 +339,9 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                       .arg(nativeProjectDir));
     lay->addWidget(descrLbl, 0, 0, 1, 2);
     QLabel *txt = new QLabel(tr("&Location:"));
-    Utils::PathChooser *chooser = new Utils::PathChooser;
+    PathChooser *chooser = new PathChooser;
     txt->setBuddy(chooser);
-    chooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    chooser->setExpectedKind(PathChooser::ExistingDirectory);
     QSettings *settings = Core::ICore::settings();
     chooser->setPath(settings->value(QString::fromLatin1(C_FALLBACK_ROOT),
                                      Core::DocumentManager::projectsDirectory()).toString());
@@ -368,15 +370,18 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
         } else {
             QString error;
             QString targetDir = destBaseDir + QLatin1Char('/') + exampleDirName;
-            if (Utils::FileUtils::copyRecursively(projectDir, targetDir, &error)) {
+            if (FileUtils::copyRecursively(FileName::fromString(projectDir),
+                    FileName::fromString(targetDir), &error)) {
                 // set vars to new location
                 const QStringList::Iterator end = filesToOpen.end();
                 for (QStringList::Iterator it = filesToOpen.begin(); it != end; ++it)
                     it->replace(projectDir, targetDir);
 
                 foreach (const QString &dependency, dependencies) {
-                    QString dirName = QDir(dependency).dirName();
-                    if (!Utils::FileUtils::copyRecursively(dependency, targetDir + QDir::separator()+ dirName, &error)) {
+                    FileName targetFile = FileName::fromString(targetDir);
+                    targetFile.appendPath(QDir(dependency).dirName());
+                    if (!FileUtils::copyRecursively(FileName::fromString(dependency), targetFile,
+                            &error)) {
                         QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Copy Project"), error);
                         // do not fail, just warn;
                     }

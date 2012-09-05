@@ -100,7 +100,8 @@ bool SaveFile::commit()
         return false;
     }
 
-    QString finalFileName = Utils::FileUtils::resolveSymlinks(m_finalFileName);
+    QString finalFileName
+            = FileUtils::resolveSymlinks(FileName::fromString(m_finalFileName)).toString();
     QString bakname = finalFileName + QLatin1Char('~');
     QFile::remove(bakname); // Kill old backup
     QFile::rename(finalFileName, bakname); // Backup current file

@@ -372,7 +372,7 @@ bool MaemoDebianPackageCreationStep::copyDebianFiles(bool inSourceBuild)
         return false;
     }
     QString error;
-    if (!FileUtils::removeRecursively(debianDirPath, &error)) {
+    if (!FileUtils::removeRecursively(FileName::fromString(debianDirPath), &error)) {
         raiseError(tr("Packaging failed: Could not remove directory '%1': %2")
             .arg(debianDirPath, error));
         return false;

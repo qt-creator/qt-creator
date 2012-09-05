@@ -636,7 +636,7 @@ DebianManager::ActionStatus DebianManager::createTemplate(Qt4ProjectManager::Qt4
 
     if (!QFile::rename(location.appendPath(QLatin1String("debian")).toString(), debianDir.toString())) {
         raiseError(tr("Unable to move new debian directory to '%1'.").arg(debianDir.toUserOutput()));
-        Utils::FileUtils::removeRecursively(location.toString(), &error);
+        Utils::FileUtils::removeRecursively(location, &error);
         return ActionFailed;
     }
 

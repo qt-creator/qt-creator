@@ -58,6 +58,7 @@ using namespace Core;
 using namespace Qt4ProjectManager;
 using namespace RemoteLinux;
 using namespace QSsh;
+using namespace Utils;
 
 namespace Madde {
 namespace Internal {
@@ -127,7 +128,7 @@ void MaemoPublisherFremantleFree::createPackage()
     if (QFileInfo(tmpDirContainer()).exists()) {
         emit progressReport(tr("Removing left-over temporary directory..."));
         QString error;
-        if (!Utils::FileUtils::removeRecursively(tmpDirContainer(), &error)) {
+        if (!FileUtils::removeRecursively(FileName::fromString(tmpDirContainer()), &error)) {
             finishWithFailure(tr("Error removing temporary directory: %1").arg(error),
                 tr("Publishing failed: Could not create source package."));
             return;
@@ -201,7 +202,7 @@ bool MaemoPublisherFremantleFree::copyRecursively(const QString &srcFilePath,
         }
     } else {
         if (tgtFilePath == m_tmpProjectDir + QLatin1String("/debian/rules")) {
-            Utils::FileReader reader;
+            FileReader reader;
             if (!reader.fetch(srcFilePath)) {
                 emit progressReport(reader.errorString(), ErrorOutput);
                 return false;
@@ -211,7 +212,7 @@ bool MaemoPublisherFremantleFree::copyRecursively(const QString &srcFilePath,
             rulesContents.replace("# Add here commands to configure the package.",
                 "qmake " + QFileInfo(m_project->document()->fileName()).fileName().toLocal8Bit());
             MaemoDebianPackageCreationStep::ensureShlibdeps(rulesContents);
-            Utils::FileSaver saver(tgtFilePath);
+            FileSaver saver(tgtFilePath);
             saver.write(rulesContents);
             if (!saver.finalize()) {
                 emit progressReport(saver.errorString(), ErrorOutput);
@@ -243,7 +244,7 @@ bool MaemoPublisherFremantleFree::fixNewlines()
     const QStringList &fileNames = debianDir.entryList(QDir::Files);
     foreach (const QString &fileName, fileNames) {
         QString filePath = debianDir.filePath(fileName);
-        Utils::FileReader reader;
+        FileReader reader;
         if (!reader.fetch(filePath))
             return false;
         QByteArray contents = reader.data();
@@ -251,7 +252,7 @@ bool MaemoPublisherFremantleFree::fixNewlines()
         if (!contents.contains(crlf))
             continue;
         contents.replace(crlf, "\n");
-        Utils::FileSaver saver(filePath);
+        FileSaver saver(filePath);
         saver.write(contents);
         if (!saver.finalize())
             return false;
@@ -365,7 +366,7 @@ void MaemoPublisherFremantleFree::runDpkgBuildPackage()
     }
     foreach (const QString &filePath, d.filesToExclude()) {
         QString error;
-        if (!Utils::FileUtils::removeRecursively(filePath, &error)) {
+        if (!FileUtils::removeRecursively(FileName::fromString(filePath), &error)) {
             finishWithFailure(error,
                 tr("Publishing failed: Could not create package."));
         }

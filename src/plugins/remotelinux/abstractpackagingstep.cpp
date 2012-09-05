@@ -137,7 +137,7 @@ bool AbstractPackagingStep::isPackagingNeeded() const
 
     const DeploymentData &dd = target()->deploymentData();
     for (int i = 0; i < dd.fileCount(); ++i) {
-        if (Utils::FileUtils::isFileNewerThan(dd.fileAt(i).localFilePath().toString(),
+        if (Utils::FileUtils::isFileNewerThan(dd.fileAt(i).localFilePath(),
                 packageInfo.lastModified())) {
             return true;
         }

@@ -50,14 +50,52 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+class QTCREATOR_UTILS_EXPORT FileName : private QString
+{
+public:
+    FileName();
+    explicit FileName(const QFileInfo &info);
+    QFileInfo toFileInfo() const;
+    static FileName fromString(const QString &filename);
+    static FileName fromUserInput(const QString &filename);
+    QString toString() const;
+    QString toUserOutput() const;
+
+    FileName parentDir() const;
+
+    bool operator==(const FileName &other) const;
+    bool operator!=(const FileName &other) const;
+    bool operator<(const FileName &other) const;
+    bool operator<=(const FileName &other) const;
+    bool operator>(const FileName &other) const;
+    bool operator>=(const FileName &other) const;
+
+    bool isChildOf(const FileName &s) const;
+    bool isChildOf(const QDir &dir) const;
+    bool endsWith(const QString &s) const;
+
+    Utils::FileName relativeChildPath(const FileName &parent) const;
+    Utils::FileName &appendPath(const QString &s);
+    Utils::FileName &append(const QString &str);
+    Utils::FileName &append(QChar str);
+
+    using QString::size;
+    using QString::count;
+    using QString::length;
+    using QString::isEmpty;
+    using QString::isNull;
+    using QString::clear;
+private:
+    FileName(const QString &string);
+};
+
 class QTCREATOR_UTILS_EXPORT FileUtils {
 public:
-    static bool removeRecursively(const QString &filePath, QString *error = 0);
-    static bool copyRecursively(const QString &srcFilePath,
-                         const QString &tgtFilePath, QString *error = 0);
-    static bool isFileNewerThan(const QString &filePath,
-                            const QDateTime &timeStamp);
-    static QString resolveSymlinks(const QString &path);
+    static bool removeRecursively(const FileName &filePath, QString *error = 0);
+    static bool copyRecursively(const FileName &srcFilePath, const FileName &tgtFilePath,
+                                QString *error = 0);
+    static bool isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp);
+    static FileName resolveSymlinks(const FileName &path);
 };
 
 class QTCREATOR_UTILS_EXPORT FileReader
@@ -137,45 +175,6 @@ public:
 
 private:
     bool m_autoRemove;
-};
-
-class QTCREATOR_UTILS_EXPORT FileName : private QString
-{
-public:
-    FileName();
-    explicit FileName(const QFileInfo &info);
-    QFileInfo toFileInfo() const;
-    static FileName fromString(const QString &filename);
-    static FileName fromUserInput(const QString &filename);
-    QString toString() const;
-    QString toUserOutput() const;
-
-    FileName parentDir() const;
-
-    bool operator==(const FileName &other) const;
-    bool operator!=(const FileName &other) const;
-    bool operator<(const FileName &other) const;
-    bool operator<=(const FileName &other) const;
-    bool operator>(const FileName &other) const;
-    bool operator>=(const FileName &other) const;
-
-    bool isChildOf(const FileName &s) const;
-    bool isChildOf(const QDir &dir) const;
-    bool endsWith(const QString &s) const;
-
-    Utils::FileName relativeChildPath(const FileName &parent) const;
-    Utils::FileName &appendPath(const QString &s);
-    Utils::FileName &append(const QString &str);
-    Utils::FileName &append(QChar str);
-
-    using QString::size;
-    using QString::count;
-    using QString::length;
-    using QString::isEmpty;
-    using QString::isNull;
-    using QString::clear;
-private:
-    FileName(const QString &string);
 };
 
 } // namespace Utils

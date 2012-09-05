@@ -138,7 +138,7 @@ bool BuildableHelperLibrary::copyFiles(const QString &sourcePath,
                                      QString *errorMessage)
 {
     // try remove the directory
-    if (!FileUtils::removeRecursively(targetDirectory, errorMessage))
+    if (!FileUtils::removeRecursively(FileName::fromString(targetDirectory), errorMessage))
         return false;
     if (!QDir().mkpath(targetDirectory)) {
         *errorMessage = QCoreApplication::translate("ProjectExplorer::DebuggingHelperLibrary", "The target directory %1 could not be created.").arg(targetDirectory);
