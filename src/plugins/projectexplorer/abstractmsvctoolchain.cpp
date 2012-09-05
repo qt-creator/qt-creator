@@ -98,7 +98,14 @@ QByteArray AbstractMsvcToolChain::predefinedMacros(const QStringList &cxxflags) 
 ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList &cxxflags) const
 {
     Q_UNUSED(cxxflags);
-    return NO_FLAGS;
+
+    switch (m_abi.osFlavor()) {
+    case ProjectExplorer::Abi::WindowsMsvc2010Flavor:
+    case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
+        return STD_CXX11;
+    default:
+        return NO_FLAGS;
+    }
 }
 
 QList<HeaderPath> AbstractMsvcToolChain::systemHeaderPaths() const
