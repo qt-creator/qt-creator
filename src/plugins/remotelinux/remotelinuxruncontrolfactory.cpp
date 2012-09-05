@@ -80,7 +80,7 @@ bool RemoteLinuxRunControlFactory::canRun(RunConfiguration *runConfiguration, Ru
     return true;
 }
 
-RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode)
+RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
 
@@ -92,7 +92,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
     DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
     if (mode == ProjectExplorer::DebugRunModeWithBreakOnMain)
         params.breakOnMain = true;
-    DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc);
+    DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc, errorMessage);
     if (!runControl)
         return 0;
     LinuxDeviceDebugSupport * const debugSupport =

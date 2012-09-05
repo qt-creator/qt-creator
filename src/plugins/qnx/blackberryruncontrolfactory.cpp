@@ -82,9 +82,8 @@ bool BlackBerryRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runC
     return activeDeployConf != 0;
 }
 
-ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(
-        ProjectExplorer::RunConfiguration *runConfiguration,
-        ProjectExplorer::RunMode mode)
+ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration,
+        ProjectExplorer::RunMode mode, QString *errorMessage)
 {
     BlackBerryRunConfiguration *rc = qobject_cast<BlackBerryRunConfiguration *>(runConfiguration);
     if (!rc)
@@ -92,8 +91,11 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(
 
     BlackBerryDeployConfiguration *activeDeployConf = qobject_cast<BlackBerryDeployConfiguration *>(
                 rc->target()->activeDeployConfiguration());
-    if (!activeDeployConf)
+    if (!activeDeployConf) {
+        if (errorMessage)
+            *errorMessage = tr("No active deploy configuration");
         return 0;
+    }
 
     if (mode == ProjectExplorer::NormalRunMode) {
         BlackBerryRunControl *runControl = new BlackBerryRunControl(rc);
@@ -102,7 +104,7 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(
     }
 
     Debugger::DebuggerRunControl * const runControl =
-            Debugger::DebuggerPlugin::createDebugger(startParameters(rc), runConfiguration);
+            Debugger::DebuggerPlugin::createDebugger(startParameters(rc), runConfiguration, errorMessage);
     if (!runControl)
         return 0;
 

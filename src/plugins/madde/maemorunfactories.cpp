@@ -202,7 +202,7 @@ bool MaemoRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode 
     return maemoRunConfig->hasEnoughFreePorts(mode);
 }
 
-RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode mode)
+RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
 
@@ -216,7 +216,7 @@ RunControl* MaemoRunControlFactory::create(RunConfiguration *runConfig, RunMode 
     }
 
     const DebuggerStartParameters params = LinuxDeviceDebugSupport::startParameters(rc);
-    DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc);
+    DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc, errorMessage);
     if (!runControl)
         return 0;
     LinuxDeviceDebugSupport * const debugSupport

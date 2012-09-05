@@ -81,7 +81,7 @@ static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
     return paths.toList();
 }
 
-RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig)
+RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig, QString *errorMessage)
 {
     Target *target = runConfig->target();
     Qt4Project *project = static_cast<Qt4Project *>(target->project());
@@ -119,7 +119,7 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
     }
 
     DebuggerRunControl * const debuggerRunControl
-        = DebuggerPlugin::createDebugger(params, runConfig);
+        = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
     new AndroidDebugSupport(runConfig, debuggerRunControl);
     return debuggerRunControl;
 }

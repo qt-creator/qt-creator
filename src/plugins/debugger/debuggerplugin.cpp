@@ -3387,9 +3387,9 @@ void DebuggerPlugin::remoteCommand(const QStringList &options,
 }
 
 DebuggerRunControl *DebuggerPlugin::createDebugger
-    (const DebuggerStartParameters &sp, RunConfiguration *rc)
+    (const DebuggerStartParameters &sp, RunConfiguration *rc, QString *errorMessage)
 {
-    return DebuggerRunControlFactory::doCreate(sp, rc);
+    return DebuggerRunControlFactory::doCreate(sp, rc, errorMessage);
 }
 
 void DebuggerPlugin::extensionsInitialized()

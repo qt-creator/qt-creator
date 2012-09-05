@@ -57,7 +57,8 @@ public:
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
                 ProjectExplorer::RunMode mode) const;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
-                                        ProjectExplorer::RunMode mode);
+                                        ProjectExplorer::RunMode mode,
+                                        QString *errorMessage);
 
     QString displayName() const;
 

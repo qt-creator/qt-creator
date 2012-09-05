@@ -228,7 +228,7 @@ public:
     virtual ~IRunControlFactory();
 
     virtual bool canRun(RunConfiguration *runConfiguration, RunMode mode) const = 0;
-    virtual RunControl *create(RunConfiguration *runConfiguration, RunMode mode) = 0;
+    virtual RunControl *create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage) = 0;
 
     virtual QString displayName() const = 0;
 

@@ -171,7 +171,7 @@ bool AndroidRunControlFactory::canRun(RunConfiguration *runConfiguration,
 }
 
 RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
-                                        ProjectExplorer::RunMode mode)
+                                        ProjectExplorer::RunMode mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
     AndroidRunConfiguration *rc = qobject_cast<AndroidRunConfiguration *>(runConfig);
@@ -179,7 +179,7 @@ RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
     if (mode == NormalRunMode)
         return new AndroidRunControl(rc);
     else
-        return AndroidDebugSupport::createDebugRunControl(rc);
+        return AndroidDebugSupport::createDebugRunControl(rc, errorMessage);
 }
 
 QString AndroidRunControlFactory::displayName() const

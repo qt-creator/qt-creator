@@ -543,8 +543,9 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 }
 
 RunControl *DebuggerRunControlFactory::create
-    (RunConfiguration *runConfiguration, RunMode mode)
+    (RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage)
     QTC_ASSERT(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain, return 0);
     DebuggerStartParameters sp = localStartParameters(runConfiguration);
     if (sp.startMode == NoStartMode)
@@ -552,7 +553,7 @@ RunControl *DebuggerRunControlFactory::create
     if (mode == DebugRunModeWithBreakOnMain)
         sp.breakOnMain = true;
 
-    return doCreate(sp, runConfiguration);
+    return doCreate(sp, runConfiguration, errorMessage);
 }
 
 static DebuggerEngineType guessUnixCppEngineType(const DebuggerStartParameters &sp)
@@ -644,8 +645,9 @@ static void fixupEngineTypes(DebuggerStartParameters &sp, RunConfiguration *rc)
 }
 
 DebuggerRunControl *DebuggerRunControlFactory::doCreate
-    (const DebuggerStartParameters &sp0, RunConfiguration *rc)
+    (const DebuggerStartParameters &sp0, RunConfiguration *rc, QString *errorMessage)
 {
+    Q_UNUSED(errorMessage);
     DebuggerStartParameters sp = sp0;
     if (!debuggerCore()->boolSetting(AutoEnrichParameters)) {
         const QString sysroot = sp.sysRoot;
@@ -663,8 +665,9 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
     }
 
     fixupEngineTypes(sp, rc);
-    if (!sp.masterEngineType)
+    if (!sp.masterEngineType) {
         return 0;
+    }
 
     return new DebuggerRunControl(rc, sp);
 }
@@ -672,9 +675,12 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
 DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun
     (const DebuggerStartParameters &sp, RunConfiguration *runConfiguration)
 {
-    DebuggerRunControl *rc = doCreate(sp, runConfiguration);
-    if (!rc)
+    QString errorMessage;
+    DebuggerRunControl *rc = doCreate(sp, runConfiguration, &errorMessage);
+    if (!rc) {
+        ProjectExplorer::ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
         return 0;
+    }
     debuggerCore()->showMessage(sp.startMessage, 0);
     ProjectExplorerPlugin::instance()->startRunControl(rc, DebugRunMode);
     return rc;
