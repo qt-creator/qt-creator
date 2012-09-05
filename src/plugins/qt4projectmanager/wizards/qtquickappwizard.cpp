@@ -72,7 +72,7 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
                                                QtQuickAppWizard::Kind kind)
     : AbstractMobileAppWizardDialog(parent,
                                     QtSupport::QtVersionNumber(4, 7, 0),
-                                    QtSupport::QtVersionNumber(4, INT_MAX, INT_MAX), parameters)
+                                    QtSupport::QtVersionNumber(5, INT_MAX, INT_MAX), parameters)
 {
     setWindowTitle(tr("New Qt Quick Application"));
     setIntroDescription(tr("This wizard generates a Qt Quick application project."));
@@ -143,11 +143,21 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
     basicFeatures = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
 
     parameter = base;
-    parameter.setDisplayName(tr("Qt Quick Application (Built-in Elements)"));
-    parameter.setDescription(basicDescription + tr("The built-in elements in the QtQuick namespace allow "
+    parameter.setDisplayName(tr("Qt Quick 1 Application (Built-in Elements)"));
+    parameter.setDescription(basicDescription + tr("The built-in elements in the QtQuick 1 namespace allow "
                                                    "you to write cross-platform applications with "
                                                    "a custom look and feel.\n\nRequires <b>Qt 4.7.0</b> or newer."));
     parameter.setRequiredFeatures(basicFeatures);
+    list << parameter;
+
+    parameter = base;
+    parameter.setDisplayName(tr("Qt Quick 2 Application (Built-in Elements)"));
+    parameter.setDescription(tr("Creates a Qt Quick application project that can contain "
+                                "both QML and C++ code and includes a QQuickView.\n\n"
+                                "The built-in elements in the QtQuick 2 namespace allow "
+                                "you to write cross-platform applications with "
+                                "a custom look and feel.\n\nRequires <b>Qt 5.0</b> or newer."));
+    parameter.setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2));
     list << parameter;
 
     parameter = base;
@@ -173,7 +183,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
 
     QList<QtQuickAppWizard*> wizardList = Core::createMultipleBaseFileWizardInstances<QtQuickAppWizard>(list, plugin);
 
-    Q_ASSERT(wizardList.count() == 3);
+    Q_ASSERT(wizardList.count() == 4);
 
     for (int i = 0; i < wizardList.count(); i++) {
         wizardList.at(i)->setQtQuickKind(Kind(i));
@@ -208,6 +218,10 @@ AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWid
     case ImportQml:
         d->app->setComponentSet(QtQuickApp::QtQuick10Components);
         d->app->setMainQml(QtQuickApp::ModeImport);
+        break;
+    case QtQuick2_0:
+        d->app->setComponentSet(QtQuickApp::QtQuick20Components);
+        d->app->setMainQml(QtQuickApp::ModeGenerate);
         break;
     default:
         qWarning() << "QtQuickAppWizard illegal subOption:" << qtQuickKind();

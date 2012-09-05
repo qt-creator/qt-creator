@@ -73,7 +73,7 @@ public:
     QString id() const;
 
     virtual QList<Utils::FileName> suggestedMkspecList() const { return QList<Utils::FileName>(); }
-    virtual Utils::FileName suggestedDebugger();
+    virtual Utils::FileName suggestedDebugger() const;
 
     virtual QString type() const = 0;
     virtual QString typeDisplayName() const = 0;
@@ -88,7 +88,7 @@ public:
         STD_CXX11 = 1
     };
     virtual CompilerFlags compilerFlags(const QStringList &cxxflags) const = 0;
-    virtual QList<HeaderPath> systemHeaderPaths() const = 0;
+    virtual QList<HeaderPath> systemHeaderPaths(const Utils::FileName &sysRoot) const = 0;
     virtual void addToEnvironment(Utils::Environment &env) const = 0;
     virtual QString makeCommand() const = 0;
 

@@ -124,7 +124,7 @@ QString ToolChain::id() const
     return d->m_id;
 }
 
-Utils::FileName ToolChain::suggestedDebugger()
+Utils::FileName ToolChain::suggestedDebugger() const
 {
     return ToolChainManager::instance()->defaultDebugger(targetAbi());
 }

@@ -51,6 +51,15 @@ int main(int argc, char *argv[])
     }
 
     {
+        QtQuickApp sAppNew;
+        sAppNew.setProjectPath(projectPath);
+        sAppNew.setComponentSet(QtQuickApp::ComponentSetQtQuick2_0);
+        sAppNew.setProjectName(QLatin1String("new_qtquick2_app"));
+        if (!sAppNew.generateFiles(&errorMessage))
+           return 1;
+    }
+
+    {
         QtQuickApp sAppImport01;
         sAppImport01.setProjectPath(projectPath);
         sAppImport01.setProjectName(QLatin1String("qml_imported_scenario_01"));

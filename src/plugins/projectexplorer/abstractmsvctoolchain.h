@@ -53,7 +53,7 @@ public:
 
     QByteArray predefinedMacros(const QStringList &cxxflags) const;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const;
-    QList<HeaderPath> systemHeaderPaths() const;
+    QList<HeaderPath> systemHeaderPaths(const Utils::FileName &sysRoot) const;
     void addToEnvironment(Utils::Environment &env) const;
 
     QString makeCommand() const;
