@@ -2190,7 +2190,7 @@ void tst_TestCore::testModelViewNotification()
     QCOMPARE(view1->methodCalls(), expectedCalls);
     QCOMPARE(view2->methodCalls(), expectedCalls);
 
-    childNode.bindingProperty("visible").setExpression("false");
+    childNode.bindingProperty("visible").setExpression("false && true");
     expectedCalls << TestView::MethodCall("propertiesAboutToBeRemoved", QStringList() << "visible");
     expectedCalls << TestView::MethodCall("bindingPropertiesChanged", QStringList() << "visible" << "PropertiesAdded");
     QCOMPARE(view1->methodCalls(), expectedCalls);
