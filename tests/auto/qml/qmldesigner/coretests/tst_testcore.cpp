@@ -242,15 +242,15 @@ void tst_TestCore::testRewriterView()
         testRewriterView->setTextModifier(&textModifier);
         model->attachView(testRewriterView.data());
 
-        ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data"));
+        ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data"));
         QVERIFY(childNode.isValid());
         childNode.setId("childNode");
 
-        ModelNode childNode2(addNodeListChild(childNode, "QtQuick.Rectangle", 1, 1, "data"));
+        ModelNode childNode2(addNodeListChild(childNode, "QtQuick.Rectangle", 1, 0, "data"));
         childNode2.setId("childNode2");
-        ModelNode childNode3(addNodeListChild(childNode2, "QtQuick.Rectangle", 1, 1, "data"));
+        ModelNode childNode3(addNodeListChild(childNode2, "QtQuick.Rectangle", 1, 0, "data"));
         childNode3.setId("childNode3");
-        ModelNode childNode4(addNodeListChild(childNode3, "QtQuick.Rectangle", 1, 1, "data"));
+        ModelNode childNode4(addNodeListChild(childNode3, "QtQuick.Rectangle", 1, 0, "data"));
         childNode4.setId("childNode4");
 
         QVERIFY(childNode.isValid());
@@ -276,7 +276,7 @@ void tst_TestCore::testRewriterView()
 
         testRewriterView->modelToTextMerger()->applyChanges();
 
-        childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+        childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
         QVERIFY(testRewriterView->modelToTextMerger()->isNodeScheduledForAddition(childNode));
 
         testRewriterView->modelToTextMerger()->applyChanges();
@@ -439,7 +439,7 @@ void tst_TestCore::testModelCreateRect()
     model->attachView(view.data());
 
     QVERIFY(view->rootModelNode().isValid());
-    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(childNode.isValid());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
     QVERIFY(childNode.parentProperty().parentModelNode() == view->rootModelNode());
@@ -709,7 +709,7 @@ void tst_TestCore::testRewriterPreserveOrder()
 
         RewriterTransaction transaction = testRewriterView->beginRewriterTransaction();
 
-        ModelNode newModelNode = testRewriterView->createModelNode("QtQuick.Rectangle", 1, 1);
+        ModelNode newModelNode = testRewriterView->createModelNode("QtQuick.Rectangle", 1, 0);
 
         newModelNode.setParentProperty(rootModelNode.nodeAbstractProperty("data"));
 
@@ -744,7 +744,7 @@ void tst_TestCore::testRewriterPreserveOrder()
 
         RewriterTransaction transaction = testRewriterView->beginRewriterTransaction();
 
-        ModelNode newModelNode = testRewriterView->createModelNode("QtQuick.Rectangle", 1, 1);
+        ModelNode newModelNode = testRewriterView->createModelNode("QtQuick.Rectangle", 1, 0);
 
         newModelNode.setParentProperty(rootModelNode.nodeAbstractProperty("data"));
 
@@ -1078,7 +1078,7 @@ void tst_TestCore::testModelCreateSubNode()
     QCOMPARE(view->methodCalls(), expectedCalls);
 
     QVERIFY(view->rootModelNode().isValid());
-    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(childNode.isValid());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
     QVERIFY(childNode.parentProperty().parentModelNode() == view->rootModelNode());
@@ -1334,8 +1334,8 @@ void tst_TestCore::testModelBasicOperations()
     QVERIFY(!rootModelNode.hasProperty("width"));
 
     QVERIFY(!rootModelNode.hasProperty("children"));
-    ModelNode childNode1(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "children"));
-    ModelNode childNode2(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data"));
+    ModelNode childNode1(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "children"));
+    ModelNode childNode2(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data"));
 
     QVERIFY(childNode1.isValid());
     QVERIFY(childNode2.isValid());
@@ -1383,9 +1383,9 @@ void tst_TestCore::testModelResolveIds()
     ModelNode rootNode = view->rootModelNode();
     rootNode.setId("rootNode");
 
-    ModelNode childNode1(addNodeListChild(rootNode, "QtQuick.Rectangle", 1, 1, "children"));
+    ModelNode childNode1(addNodeListChild(rootNode, "QtQuick.Rectangle", 1, 0, "children"));
 
-    ModelNode childNode2(addNodeListChild(childNode1, "QtQuick.Rectangle", 1, 1, "children"));
+    ModelNode childNode2(addNodeListChild(childNode1, "QtQuick.Rectangle", 1, 0, "children"));
     childNode2.setId("childNode2");
     childNode2.bindingProperty("test").setExpression("parent.parent");
 
@@ -1396,7 +1396,7 @@ void tst_TestCore::testModelResolveIds()
     childNode2.bindingProperty("test").setExpression("rootNode");
     QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), rootNode);
 
-    ModelNode childNode3(addNodeListChild(childNode2, "QtQuick.Rectangle", 1, 1, "children"));
+    ModelNode childNode3(addNodeListChild(childNode2, "QtQuick.Rectangle", 1, 0, "children"));
     childNode3.setId("childNode3");
     childNode2.nodeProperty("front").setModelNode(childNode3);
     childNode2.bindingProperty("test").setExpression("childNode3.parent");
@@ -1449,7 +1449,7 @@ void tst_TestCore::testModelNodeListProperty()
     QVERIFY(!rootChildren.isNodeListProperty());
     QVERIFY(rootChildren.isEmpty());
 
-    ModelNode rectNode = view->createModelNode("QtQuick.Rectangle", 1, 1);
+    ModelNode rectNode = view->createModelNode("QtQuick.Rectangle", 1, 0);
     rootChildren.reparentHere(rectNode);
 
     //
@@ -1519,8 +1519,8 @@ void tst_TestCore::testBasicOperationsWithView()
     QCOMPARE(rootInstance.size().width(), 10.0);
     QCOMPARE(rootInstance.size().height(), 10.0);
 
-    ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data"));
-    ModelNode childNode2(addNodeListChild(childNode, "QtQuick.Rectangle", 1, 1, "data"));
+    ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data"));
+    ModelNode childNode2(addNodeListChild(childNode, "QtQuick.Rectangle", 1, 0, "data"));
     QVERIFY(childNode2.parentProperty().parentModelNode() == childNode);
 
     QVERIFY(childNode.isValid());
@@ -1557,7 +1557,7 @@ void tst_TestCore::testBasicOperationsWithView()
     childNode = addNodeListChild(rootModelNode, "QtQuick.Image", 1, 1, "data");
     QVERIFY(childNode.isValid());
     QCOMPARE(childNode.type(), QString("QtQuick.Image"));
-    childNode2 = addNodeListChild(childNode, "QtQuick.Rectangle", 1, 1, "data");
+    childNode2 = addNodeListChild(childNode, "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(childNode2.isValid());
     childNode2.setParentProperty(rootModelNode, "data");
     QVERIFY(childNode2.isValid());
@@ -1613,7 +1613,7 @@ void tst_TestCore::testQmlModelView()
     propertyList.append(qMakePair(QString("width"), QVariant(20)));
     propertyList.append(qMakePair(QString("height"), QVariant(20)));
 
-    QmlObjectNode node1 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 1, propertyList);
+    QmlObjectNode node1 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 0, propertyList);
 
     QVERIFY(node1.isValid());
     QVERIFY(!node1.hasNodeParent());
@@ -1629,7 +1629,7 @@ void tst_TestCore::testQmlModelView()
     QVERIFY(node1.instanceParent() == view->rootQmlObjectNode());
 
 
-    QmlObjectNode node2 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 1, propertyList);
+    QmlObjectNode node2 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 0, propertyList);
 
     QVERIFY(node2.isValid());
     QVERIFY(!node2.hasNodeParent());
@@ -1657,12 +1657,12 @@ void tst_TestCore::testQmlModelView()
     QCOMPARE(node1.instanceValue("x").toInt(), 2);
 
 
-    QmlObjectNode node3 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 1, propertyList);
-    QmlObjectNode node4 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 1, propertyList);
-    QmlObjectNode node5 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 1, propertyList);
-    QmlObjectNode node6 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 1, propertyList);
-    QmlObjectNode node7 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 1, propertyList);
-    QmlObjectNode node8 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 1, propertyList);
+    QmlObjectNode node3 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 0, propertyList);
+    QmlObjectNode node4 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 0, propertyList);
+    QmlObjectNode node5 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 0, propertyList);
+    QmlObjectNode node6 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 0, propertyList);
+    QmlObjectNode node7 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 0, propertyList);
+    QmlObjectNode node8 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 0, propertyList);
 
     node3.setParentProperty(node2.nodeAbstractProperty("children"));
     node4.setParentProperty(node3.nodeAbstractProperty("children"));
@@ -1690,12 +1690,12 @@ void tst_TestCore::testQmlModelView()
 
     QCOMPARE(node2.instanceValue("x").toInt(), 10); // is this right? or should it be a invalid qvariant?
 
-    node1 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 1, propertyList);
+    node1 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 0, propertyList);
     node1.setId("node1");
 
     QCOMPARE(node2.instanceValue("x").toInt(), 20);
 
-    node3 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 1, propertyList);
+    node3 = view->createQmlObjectNode("QtQuick.Rectangle", 1, 0, propertyList);
     node3.setParentProperty(node2.nodeAbstractProperty("children"));
     QCOMPARE(node3.instanceValue("width").toInt(), 20);
     node3.setVariantProperty("width", 0);
@@ -1730,7 +1730,7 @@ void tst_TestCore::testModelRemoveNode()
     QCOMPARE(view->rootModelNode().allDirectSubModelNodes().count(), 0);
 
 
-    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(childNode.isValid());
     QCOMPARE(view->rootModelNode().allDirectSubModelNodes().count(), 1);
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode));
@@ -1742,7 +1742,7 @@ void tst_TestCore::testModelRemoveNode()
         QVERIFY(childInstance.parentId() == view->rootModelNode().internalId());
     }
 
-    ModelNode subChildNode = addNodeListChild(childNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode subChildNode = addNodeListChild(childNode, "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(subChildNode.isValid());
     QCOMPARE(childNode.allDirectSubModelNodes().count(), 1);
     QVERIFY(childNode.allDirectSubModelNodes().contains(subChildNode));
@@ -1798,7 +1798,7 @@ void tst_TestCore::reparentingNode()
     NodeInstanceView *nodeInstanceView = new NodeInstanceView(model.data(), NodeInstanceServerInterface::TestModus);
     model->attachView(nodeInstanceView);
 
-    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
     QCOMPARE(childNode.parentProperty().parentModelNode(), rootModelNode);
     QVERIFY(rootModelNode.allDirectSubModelNodes().contains(childNode));
 
@@ -1868,7 +1868,7 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
     view->rootModelNode().setId("rootModelNode");
     QCOMPARE(view->rootModelNode().id(), QString("rootModelNode"));
 
-    ModelNode rectNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode rectNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data");
     rectNode.setId("rect_1");
     rectNode.variantProperty("x").setValue(20);
     rectNode.variantProperty("y").setValue(30);
@@ -1978,11 +1978,11 @@ void tst_TestCore::testModelReorderSiblings()
     ModelNode rootModelNode = view->rootModelNode();
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode a = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode a = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(a.isValid());
-    ModelNode b = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode b = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(b.isValid());
-    ModelNode c = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode c = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(c.isValid());
 
     {
@@ -2027,10 +2027,10 @@ void tst_TestCore::testModelRootNode()
         ModelNode rootModelNode = view->rootModelNode();
         QVERIFY(rootModelNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
-        ModelNode topChildNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+        ModelNode topChildNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
         QVERIFY(topChildNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
-        ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+        ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
         QVERIFY(childNode.isValid());
         QVERIFY(rootModelNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
@@ -2054,7 +2054,7 @@ void tst_TestCore::reparentingNodeInModificationGroup()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data");
     ModelNode childNode2 = addNodeListChild(view->rootModelNode(), "QtQuick.Item", 1, 1, "data");
     childNode.variantProperty("x").setValue(10);
     childNode.variantProperty("y").setValue(10);
@@ -2160,7 +2160,7 @@ void tst_TestCore::testModelViewNotification()
     QCOMPARE(view1->methodCalls(), expectedCalls);
     QCOMPARE(view2->methodCalls(), expectedCalls);
 
-    ModelNode childNode = addNodeListChild(view2->rootModelNode(), "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode = addNodeListChild(view2->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data");
     expectedCalls << TestView::MethodCall("nodeCreated", QStringList() << "");
     expectedCalls << TestView::MethodCall("nodeReparented", QStringList() << "" << "data" << "" << "PropertiesAdded");
     QCOMPARE(view1->methodCalls(), expectedCalls);
@@ -2220,7 +2220,7 @@ void tst_TestCore::testRewriterTransaction()
     RewriterTransaction transaction = view->beginRewriterTransaction();
     QVERIFY(transaction.isValid());
 
-    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(childNode.isValid());
 
     childNode.destroy();
@@ -2230,7 +2230,7 @@ void tst_TestCore::testRewriterTransaction()
         RewriterTransaction transaction2 = view->beginRewriterTransaction();
         QVERIFY(transaction2.isValid());
 
-        ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 1, "data");
+        ModelNode childNode = addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data");
         QVERIFY(childNode.isValid());
 
         childNode.destroy();
@@ -2284,7 +2284,7 @@ void tst_TestCore::testRewriterId()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode newNode(view->createModelNode("QtQuick.Rectangle", 1, 1));
+    ModelNode newNode(view->createModelNode("QtQuick.Rectangle", 1, 0));
     newNode.setId("testId");
 
     rootModelNode.nodeListProperty("data").reparentHere(newNode);
@@ -2326,12 +2326,12 @@ void tst_TestCore::testRewriterNodeReparentingTransaction1()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-    ModelNode childNode3 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-    ModelNode childNode4 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+    ModelNode childNode3 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+    ModelNode childNode4 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
 
-    ModelNode reparentNode = addNodeListChild(childNode1, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode reparentNode = addNodeListChild(childNode1, "QtQuick.Rectangle", 1, 0, "data");
 
     RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
@@ -2371,8 +2371,8 @@ void tst_TestCore::testRewriterNodeReparentingTransaction2()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+    ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
 
     childNode2.variantProperty("x") = 200;
     childNode2.variantProperty("y") = 50;
@@ -2437,10 +2437,10 @@ void tst_TestCore::testRewriterNodeReparentingTransaction3()
 
    QVERIFY(rootModelNode.isValid());
 
-   ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-   ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-   ModelNode childNode3 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-   ModelNode childNode4 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+   ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+   ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+   ModelNode childNode3 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+   ModelNode childNode4 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
 
    RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
@@ -2487,11 +2487,11 @@ void tst_TestCore::testRewriterNodeReparentingTransaction4()
 
    QVERIFY(rootModelNode.isValid());
 
-   ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-   ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-   ModelNode childNode3 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-   ModelNode childNode4 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
-   ModelNode childNode5 = addNodeListChild(childNode2, "QtQuick.Rectangle", 1, 1, "data");
+   ModelNode childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+   ModelNode childNode2 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+   ModelNode childNode3 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+   ModelNode childNode4 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
+   ModelNode childNode5 = addNodeListChild(childNode2, "QtQuick.Rectangle", 1, 0, "data");
 
    RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
@@ -2539,11 +2539,11 @@ void tst_TestCore::testRewriterAddNodeTransaction()
     QVERIFY(rootModelNode.isValid());
 
 
-    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
 
     RewriterTransaction rewriterTransaction = view->beginRewriterTransaction();
 
-    ModelNode newNode = view->createModelNode("QtQuick.Rectangle", 1, 1);
+    ModelNode newNode = view->createModelNode("QtQuick.Rectangle", 1, 0);
     newNode.variantProperty("x") = 100;
     newNode.variantProperty("y") = 100;
 
@@ -2621,7 +2621,7 @@ void tst_TestCore::testRewriterTransactionRewriter()
 
     {
         RewriterTransaction transaction = view->beginRewriterTransaction();
-        childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+        childNode1 = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
         childNode1.variantProperty("x") = 10;
         childNode1.variantProperty("y") = 10;
     }
@@ -2633,7 +2633,7 @@ void tst_TestCore::testRewriterTransactionRewriter()
 
     {
         RewriterTransaction transaction = view->beginRewriterTransaction();
-        childNode2 = addNodeListChild(childNode1, "QtQuick.Rectangle", 1, 1, "data");
+        childNode2 = addNodeListChild(childNode1, "QtQuick.Rectangle", 1, 0, "data");
         childNode2.destroy();
     }
 
@@ -3981,7 +3981,7 @@ void tst_TestCore::testMetaInfoDotProperties()
     QVERIFY(view->rootModelNode().metaInfo().propertyNames().contains("font.pointSize"));
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font.pointSize"));
 
-    ModelNode rectNode(addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 1, "data"));
+    ModelNode rectNode(addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data"));
 
 
     QVERIFY(rectNode.metaInfo().propertyNames().contains("pos.x"));
@@ -4096,7 +4096,7 @@ void tst_TestCore::testGradientsRewriter()
 
     QVERIFY(rootModelNode.isValid());
 
-    ModelNode rectNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data"));
+    ModelNode rectNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data"));
 
     const QLatin1String expected1("\nimport QtQuick 1.1\n"
                                   "\n"
@@ -4295,7 +4295,7 @@ void tst_TestCore::testInstancesStates()
 //    }
 //
 
-//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
 //    QVERIFY(model.data());
 //    QScopedPointer<TestView> view(new TestView(model.data()));
 //    QVERIFY(view.data());
@@ -4526,7 +4526,7 @@ void tst_TestCore::testStates()
 //    }
 //
 
-//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
 //    QVERIFY(model.data());
 //    QScopedPointer<TestView> view(new TestView(model.data()));
 //    QVERIFY(view.data());
@@ -4622,7 +4622,7 @@ void tst_TestCore::testStatesBaseState()
 //    }
 //
 
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4657,7 +4657,7 @@ void tst_TestCore::testStatesBaseState()
     QVERIFY(textItem.propertyAffectedByCurrentState("text"));
     QCOMPARE(textItem.instanceValue("text"), QVariant("state 1"));
 
-    ModelNode newNode = view->createModelNode("QtQuick.Rectangle", 1, 1);
+    ModelNode newNode = view->createModelNode("QtQuick.Rectangle", 1, 0);
     QVERIFY(!QmlObjectNode(newNode).currentState().isBaseState());
 
     view->setCurrentState(view->baseState()); //set currentState base state
@@ -4679,7 +4679,7 @@ void tst_TestCore::testStatesBaseState()
 
 void tst_TestCore::testInstancesIdResolution()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4703,7 +4703,7 @@ void tst_TestCore::testInstancesIdResolution()
     rootNode.variantProperty("width").setValue(100);
     rootNode.variantProperty("height").setValue(100);
 
-    ModelNode item1Node = view->createModelNode("QtQuick.Rectangle", 1, 1);
+    ModelNode item1Node = view->createModelNode("QtQuick.Rectangle", 1, 0);
     item1Node.setId("item1");
     item1Node.bindingProperty("width").setExpression("root.width");
     item1Node.bindingProperty("height").setExpression("item2.height");
@@ -4723,7 +4723,7 @@ void tst_TestCore::testInstancesIdResolution()
     //        height: root.height
     //      }
 
-    ModelNode item2Node = view->createModelNode("QtQuick.Rectangle", 1, 1);
+    ModelNode item2Node = view->createModelNode("QtQuick.Rectangle", 1, 0);
     item2Node.setId("item2");
     item2Node.bindingProperty("width").setExpression("root.width / 2");
     item2Node.bindingProperty("height").setExpression("root.height");
@@ -4748,7 +4748,7 @@ void tst_TestCore::testInstancesIdResolution()
     //        height: 80
     //      }
 
-    ModelNode item3Node = view->createModelNode("QtQuick.Rectangle", 1, 1);
+    ModelNode item3Node = view->createModelNode("QtQuick.Rectangle", 1, 0);
     item3Node.setId("item3");
     item3Node.variantProperty("height").setValue(80);
     rootNode.nodeListProperty("data").reparentHere(item3Node);
@@ -4766,7 +4766,7 @@ void tst_TestCore::testInstancesNotInScene()
     // test whether deleting an instance which is not in the scene crashes
     //
 
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4787,7 +4787,7 @@ void tst_TestCore::testInstancesBindingsInStatesStress()
 {
     //This is a stress test to provoke a crash
     for (int j=0;j<20;j++) {
-        QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+        QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
         QVERIFY(model.data());
         QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
@@ -4798,10 +4798,10 @@ void tst_TestCore::testInstancesBindingsInStatesStress()
 
         view->rootModelNode().nodeListProperty("children").reparentHere(node1);
 
-        ModelNode node2 = view->createModelNode("QtQuick.Rectangle", 1, 1);
+        ModelNode node2 = view->createModelNode("QtQuick.Rectangle", 1, 0);
         node2.setId("node2");
 
-        ModelNode node3 = view->createModelNode("QtQuick.Rectangle", 1, 1);
+        ModelNode node3 = view->createModelNode("QtQuick.Rectangle", 1, 0);
         node3.setId("node3");
 
         node1.nodeListProperty("children").reparentHere(node2);
@@ -4892,7 +4892,7 @@ void tst_TestCore::testInstancesPropertyChangeTargets()
         //this tests checks if a change of the target of a CropertyChange 
         //node is handled correctly
 
-        QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+        QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
         QVERIFY(model.data());
         QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
@@ -4903,10 +4903,10 @@ void tst_TestCore::testInstancesPropertyChangeTargets()
 
         view->rootModelNode().nodeListProperty("children").reparentHere(node1);
 
-        ModelNode node2 = view->createModelNode("QtQuick.Rectangle", 1, 1);
+        ModelNode node2 = view->createModelNode("QtQuick.Rectangle", 1, 0);
         node2.setId("node2");
 
-        ModelNode node3 = view->createModelNode("QtQuick.Rectangle", 1, 1);
+        ModelNode node3 = view->createModelNode("QtQuick.Rectangle", 1, 0);
         node3.setId("node3");
 
         node1.nodeListProperty("children").reparentHere(node2);
@@ -4998,7 +4998,7 @@ void tst_TestCore::testInstancesPropertyChangeTargets()
 
 void tst_TestCore::testInstancesDeletePropertyChanges()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
         QVERIFY(model.data());
         QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
@@ -5009,10 +5009,10 @@ void tst_TestCore::testInstancesDeletePropertyChanges()
 
         view->rootModelNode().nodeListProperty("children").reparentHere(node1);
 
-        ModelNode node2 = view->createModelNode("QtQuick.Rectangle", 1, 1);
+        ModelNode node2 = view->createModelNode("QtQuick.Rectangle", 1, 0);
         node2.setId("node2");
 
-        ModelNode node3 = view->createModelNode("QtQuick.Rectangle", 1, 1);
+        ModelNode node3 = view->createModelNode("QtQuick.Rectangle", 1, 0);
         node3.setId("node3");
 
         node1.nodeListProperty("children").reparentHere(node2);
@@ -5087,7 +5087,7 @@ void tst_TestCore::testInstancesDeletePropertyChanges()
 
 void tst_TestCore::testInstancesChildrenLowLevel()
 {
-//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
 //    QVERIFY(model.data());
 
 //    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
@@ -5177,7 +5177,7 @@ void tst_TestCore::testInstancesChildrenLowLevel()
 
 void tst_TestCore::testInstancesResourcesLowLevel()
 {
-//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
 //    QVERIFY(model.data());
 
 //    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
@@ -5412,7 +5412,7 @@ void tst_TestCore::testInstancesFlickableLowLevel()
 
 void tst_TestCore::testInstancesReorderChildrenLowLevel()
 {
-//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
 //    QVERIFY(model.data());
 
 //    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
@@ -5511,7 +5511,7 @@ void tst_TestCore::testInstancesReorderChildrenLowLevel()
 
 void tst_TestCore::testQmlModelStatesInvalidForRemovedNodes()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -5528,11 +5528,11 @@ void tst_TestCore::testQmlModelStatesInvalidForRemovedNodes()
     QVERIFY(state1.isValid());
     QCOMPARE(state1.name(), QString("state1"));
 
-    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(childNode.isValid());
     childNode.setId("childNode");
 
-    ModelNode subChildNode = addNodeListChild(childNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode subChildNode = addNodeListChild(childNode, "QtQuick.Rectangle", 1, 0, "data");
     QVERIFY(subChildNode.isValid());
     subChildNode.setId("subChildNode");
 
@@ -5560,7 +5560,7 @@ void tst_TestCore::testInstancesAttachToExistingModel()
     model->attachView(view.data());
 
     ModelNode rootNode = view->rootModelNode();
-    ModelNode rectangleNode = addNodeListChild(rootNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode rectangleNode = addNodeListChild(rootNode, "QtQuick.Rectangle", 1, 0, "data");
 
     rectangleNode.variantProperty("width").setValue(100);
 
@@ -5584,7 +5584,7 @@ void tst_TestCore::testInstancesAttachToExistingModel()
 
 void tst_TestCore::testQmlModelAddMultipleStates()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -5615,7 +5615,7 @@ void tst_TestCore::testQmlModelAddMultipleStates()
 
 void tst_TestCore::testQmlModelRemoveStates()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
 
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -5720,7 +5720,7 @@ void tst_TestCore::defaultPropertyValues()
     QCOMPARE(view->rootModelNode().variantProperty("x").value().toDouble(), 0.0);
     QCOMPARE(view->rootModelNode().variantProperty("width").value().toDouble(), 0.0);
 
-    ModelNode rectNode(addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 1, "data"));
+    ModelNode rectNode(addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data"));
 
     QCOMPARE(rectNode.variantProperty("y").value().toDouble(), 0.0);
     QCOMPARE(rectNode.variantProperty("width").value().toDouble(), 0.0);
@@ -6156,7 +6156,7 @@ void tst_TestCore::testModelBindings()
     QCOMPARE(rootInstance.size().width(), 200.0);
     QCOMPARE(rootInstance.size().height(), 100.0);
 
-    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode childNode = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
 
     childNode.variantProperty("width") = 100;
     childNode.variantProperty("height") = 100;
@@ -6247,10 +6247,10 @@ void tst_TestCore::testModelSliding()
 
     ModelNode rootModelNode(view->rootModelNode());
 
-    ModelNode rect00(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data"));
-    ModelNode rect01(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data"));
-    ModelNode rect02(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data"));
-    ModelNode rect03(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data"));
+    ModelNode rect00(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data"));
+    ModelNode rect01(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data"));
+    ModelNode rect02(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data"));
+    ModelNode rect03(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data"));
 
     QVERIFY(rect00.isValid());
     QVERIFY(rect01.isValid());
@@ -6913,7 +6913,7 @@ void tst_TestCore::testRewriterRemoveObjectDefinition()
     QCOMPARE(textEdit.toPlainText(), expected);
 
     // don't crash when deleting nodes not in any hierarchy
-    ModelNode node1 = view->createModelNode("QtQuick.Rectangle", 1, 1);
+    ModelNode node1 = view->createModelNode("QtQuick.Rectangle", 1, 0);
     ModelNode node2 = addNodeListChild(node1, "QtQuick.Item", 1, 1, "data");
     ModelNode node3 = addNodeListChild(node2, "QtQuick.Item", 1, 1, "data");
 
@@ -7028,7 +7028,7 @@ void tst_TestCore::testRewriterNodeReparenting()
     QCOMPARE(textEdit.toPlainText(), expected);
 
     // reparenting outside of the hierarchy
-    ModelNode node1 = view->createModelNode("QtQuick.Rectangle", 1, 1);
+    ModelNode node1 = view->createModelNode("QtQuick.Rectangle", 1, 0);
     ModelNode node2 = view->createModelNode("QtQuick.Item", 1, 1);
     ModelNode node3 = view->createModelNode("QtQuick.Item", 1, 1);
     node2.nodeListProperty("data").reparentHere(node3);
@@ -7058,7 +7058,7 @@ void tst_TestCore::testRewriterNodeReparenting()
     QCOMPARE(textEdit.toPlainText(), expected);
 
     // reparent out of the hierarchy
-    ModelNode node4 = view->createModelNode("QtQuick.Rectangle", 1, 1);
+    ModelNode node4 = view->createModelNode("QtQuick.Rectangle", 1, 0);
     node4.nodeListProperty("data").reparentHere(node1);
 
     expected =  "\n"
@@ -7416,7 +7416,7 @@ void tst_TestCore::changePropertyBinding()
     ModelNode rootModelNode(view->rootModelNode());
     rootModelNode.variantProperty("width") = 20;
 
-    ModelNode firstChild = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 1, "data");
+    ModelNode firstChild = addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1, 0, "data");
     firstChild.bindingProperty("width").setExpression(QString("parent.width"));
     firstChild.variantProperty("height")=  10;
     QVERIFY(firstChild.isValid());
