@@ -460,6 +460,48 @@ bool ResolveExpression::visit(QualifiedNameAST *ast)
     return false;
 }
 
+namespace {
+
+class DeduceAutoCheck : public ASTVisitor
+{
+public:
+    DeduceAutoCheck(const Identifier *id, TranslationUnit *tu)
+        : ASTVisitor(tu), _id(id), _block(false)
+    {
+        accept(tu->ast());
+    }
+
+    virtual bool preVisit(AST *)
+    {
+        if (_block)
+            return false;
+
+        return true;
+    }
+
+    virtual bool visit(SimpleNameAST *ast)
+    {
+        if (ast->name
+                && ast->name->identifier()
+                && strcmp(ast->name->identifier()->chars(), _id->chars()) == 0) {
+            _block = true;
+        }
+
+        return false;
+    }
+
+    virtual bool visit(MemberAccessAST *ast)
+    {
+        accept(ast->base_expression);
+        return false;
+    }
+
+    const Identifier *_id;
+    bool _block;
+};
+
+} // namespace anonymous
+
 bool ResolveExpression::visit(SimpleNameAST *ast)
 {
     QList<LookupItem> candidates = _context.lookup(ast->name, _scope);
@@ -473,8 +515,7 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
         if (item.declaration() == 0)
             continue;
 
-        if (item.type().isAuto()
-                && _blockedIds.find(ast->name->identifier()) == _blockedIds.end()) {
+        if (item.type().isAuto()) {
             const Declaration *decl = item.declaration()->asDeclaration();
             if (!decl)
                 continue;
@@ -498,13 +539,13 @@ bool ResolveExpression::visit(SimpleNameAST *ast)
             Document::Ptr exprDoc =
                     documentForExpression(exprTyper.preprocessedExpression(initializer));
             exprDoc->check();
-            ExpressionAST *exprAST = extractExpressionAST(exprDoc);
-            if (!exprAST)
+
+            DeduceAutoCheck deduceAuto(ast->name->identifier(), exprDoc->translationUnit());
+            if (deduceAuto._block)
                 continue;
 
-            _blockedIds.insert(ast->name->identifier());
-            const QList<LookupItem> &typeItems = resolve(exprAST, decl->enclosingScope());
-            _blockedIds.erase(ast->name->identifier());
+            const QList<LookupItem> &typeItems =
+                    exprTyper(extractExpressionAST(exprDoc), exprDoc, decl->enclosingScope());
             if (typeItems.empty())
                 continue;
 

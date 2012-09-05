@@ -121,18 +121,11 @@ protected:
 
 
 private:
-    struct IdentifierComp
-    {
-        bool operator()(const Identifier *a, const Identifier *b) const
-        { return strcmp(a->chars(), b->chars()) < 0; }
-    };
-
     Scope *_scope;
     LookupContext _context;
     Bind bind;
     QList<LookupItem> _results;
     bool _reference;
-    std::set<const Identifier *, IdentifierComp> _blockedIds; // Replace by a hash impl.
 };
 
 } // namespace CPlusPlus
