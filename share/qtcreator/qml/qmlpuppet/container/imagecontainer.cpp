@@ -62,7 +62,7 @@ static QSharedMemory *createSharedMemory(qint32 key, int byteCount)
 {
     QSharedMemory *sharedMemory = globalSharedMemoryCache.take(key);
     if (sharedMemory == 0)
-        sharedMemory = new QSharedMemory(QString::number(key));
+        sharedMemory = new QSharedMemory(QString("Image-%1").arg(key));
 
     if (sharedMemory->isAttached())
         sharedMemory->detach();
@@ -94,7 +94,9 @@ QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
     out << qint32(sharedMemory != 0); // send if shared memory is used
 
     if (sharedMemory) {
+        sharedMemory->lock();
         qMemCopy(sharedMemory->data(), image.constBits(), image.byteCount());
+        sharedMemory->unlock();
     } else {
         out.writeRawData(reinterpret_cast<const char*>(image.constBits()), image.byteCount());
     }
@@ -105,11 +107,13 @@ QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
 
 void readSharedMemory(qint32 key, QImage *image, qint32 byteSize)
 {
-    QSharedMemory sharedMemory(QString::number(key));
+    QSharedMemory sharedMemory(QString("Image-%1").arg(key));
     bool canAttach = sharedMemory.attach(QSharedMemory::ReadOnly);
     if (canAttach)
     {
+        sharedMemory.lock();
         qMemCopy(image->bits(), sharedMemory.constData(), byteSize);
+        sharedMemory.unlock();
     }
 }
 
