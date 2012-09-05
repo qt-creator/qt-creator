@@ -126,7 +126,8 @@ QStringList BuildableHelperLibrary::possibleQMakeCommands()
 #else
     // On unix some distributions renamed qmake to avoid clashes
     QStringList result;
-    result << QLatin1String("qmake-qt4") << QLatin1String("qmake4") << QLatin1String("qmake");
+    result << QLatin1String("qmake-qt4") << QLatin1String("qmake4")
+           << QLatin1String("qmake-qt5") << QLatin1String("qmake5") << QLatin1String("qmake");
     return result;
 #endif
 }
