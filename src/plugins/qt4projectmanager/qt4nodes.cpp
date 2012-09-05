@@ -1389,9 +1389,7 @@ TargetInformation Qt4ProFileNode::targetInformation(const QString &fileName) con
 
 QString Qt4ProFileNode::makefile() const
 {
-    if (m_varValues[Makefile].isEmpty())
-        return QString();
-    return m_varValues[Makefile].first();
+    return singleVariableValue(Makefile);
 }
 
 QString Qt4ProFileNode::objectExtension() const
@@ -1403,9 +1401,7 @@ QString Qt4ProFileNode::objectExtension() const
 
 QString Qt4ProFileNode::objectsDirectory() const
 {
-    if (m_varValues[ObjectsDir].isEmpty())
-        return QString();
-    return m_varValues[ObjectsDir].first();
+    return singleVariableValue(ObjectsDir);
 }
 
 QByteArray Qt4ProFileNode::cxxDefines() const
