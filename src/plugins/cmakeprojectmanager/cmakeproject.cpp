@@ -286,7 +286,8 @@ bool CMakeProject::parseCMakeLists()
 
     createUiCodeModelSupport();
 
-    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(activeTarget()->kit());
+    Kit *k = activeTarget()->kit();
+    ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
     if (!tc) {
         emit buildTargetsChanged();
         emit fileListChanged();
@@ -304,7 +305,7 @@ bool CMakeProject::parseCMakeLists()
 
     QStringList allFrameworkPaths;
     QList<ProjectExplorer::HeaderPath> allHeaderPaths;
-    allHeaderPaths = tc->systemHeaderPaths();
+    allHeaderPaths = tc->systemHeaderPaths(SysRootKitInformation::sysRoot(k));
     foreach (const ProjectExplorer::HeaderPath &headerPath, allHeaderPaths) {
         if (headerPath.kind() == ProjectExplorer::HeaderPath::FrameworkHeaderPath)
             allFrameworkPaths.append(headerPath.path());

@@ -148,12 +148,12 @@ static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &ar
     return predefinedMacros;
 }
 
-QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &env, const QString &sysrootPath)
+QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &env, const FileName &sysrootPath)
 {
     QList<HeaderPath> systemHeaderPaths;
     QStringList arguments;
     if (!sysrootPath.isEmpty())
-        arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysrootPath));
+        arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysrootPath.toString()));
     arguments << QLatin1String("-xc++")
               << QLatin1String("-E")
               << QLatin1String("-v")
@@ -393,13 +393,13 @@ ToolChain::CompilerFlags GccToolChain::compilerFlags(const QStringList &cxxflags
     return NO_FLAGS;
 }
 
-QList<HeaderPath> GccToolChain::systemHeaderPaths() const
+QList<HeaderPath> GccToolChain::systemHeaderPaths(const Utils::FileName &sysRoot) const
 {
     if (m_headerPaths.isEmpty()) {
         // Using a clean environment breaks ccache/distcc/etc.
         Environment env = Environment::systemEnvironment();
         addToEnvironment(env);
-        m_headerPaths = gccHeaderPaths(m_compilerCommand, env.toStringList());
+        m_headerPaths = gccHeaderPaths(m_compilerCommand, env.toStringList(), sysRoot);
     }
     return m_headerPaths;
 }

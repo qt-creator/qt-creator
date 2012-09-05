@@ -249,13 +249,13 @@ void GenericProject::refresh(RefreshOptions options)
         CPlusPlus::CppModelManagerInterface::ProjectPart::Ptr part(
                     new CPlusPlus::CppModelManagerInterface::ProjectPart);
 
-        ToolChain *tc = activeTarget() ?
-                    ToolChainKitInformation::toolChain(activeTarget()->kit()) : 0;
+        Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::instance()->defaultKit();
+        ToolChain *tc = k ? ToolChainKitInformation::toolChain(k) : 0;
         if (tc) {
             part->defines = tc->predefinedMacros(QStringList());
             part->defines += '\n';
 
-            foreach (const HeaderPath &headerPath, tc->systemHeaderPaths()) {
+            foreach (const HeaderPath &headerPath, tc->systemHeaderPaths(SysRootKitInformation::sysRoot(k))) {
                 if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
                     part->frameworkPaths.append(headerPath.path());
                 else

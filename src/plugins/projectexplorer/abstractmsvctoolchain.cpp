@@ -108,8 +108,9 @@ ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList 
     }
 }
 
-QList<HeaderPath> AbstractMsvcToolChain::systemHeaderPaths() const
+QList<HeaderPath> AbstractMsvcToolChain::systemHeaderPaths(const Utils::FileName &sysRoot) const
 {
+    Q_UNUSED(sysRoot);
     if (m_headerPaths.isEmpty()) {
         Utils::Environment env(m_lastEnvironment);
         addToEnvironment(env);

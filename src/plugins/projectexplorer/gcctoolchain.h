@@ -64,7 +64,7 @@ public:
     QByteArray predefinedMacros(const QStringList &cxxflags) const;
     CompilerFlags compilerFlags(const QStringList &cxxflags) const;
 
-    QList<HeaderPath> systemHeaderPaths() const;
+    QList<HeaderPath> systemHeaderPaths(const Utils::FileName &sysRoot) const;
     void addToEnvironment(Utils::Environment &env) const;
     QString makeCommand() const;
     QList<Utils::FileName> suggestedMkspecList() const;
@@ -91,7 +91,7 @@ protected:
     virtual QList<Abi> detectSupportedAbis() const;
     virtual QString detectVersion() const;
 
-    static QList<HeaderPath> gccHeaderPaths(const Utils::FileName &gcc, const QStringList &env, const QString &sysrootPath = QString());
+    static QList<HeaderPath> gccHeaderPaths(const Utils::FileName &gcc, const QStringList &env, const Utils::FileName &sysrootPath);
 
     mutable QByteArray m_predefinedMacros;
 

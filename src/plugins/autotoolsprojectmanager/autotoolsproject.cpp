@@ -418,9 +418,10 @@ void AutotoolsProject::updateCppCodeModel()
     QByteArray macros;
 
     if (activeTarget()) {
-        ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(activeTarget()->kit());
+        ProjectExplorer::Kit *k = activeTarget()->kit();
+        ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
         if (tc) {
-            const QList<HeaderPath> allHeaderPaths = tc->systemHeaderPaths();
+            const QList<HeaderPath> allHeaderPaths = tc->systemHeaderPaths(SysRootKitInformation::sysRoot(k));
             foreach (const HeaderPath &headerPath, allHeaderPaths) {
                 if (headerPath.kind() == HeaderPath::FrameworkHeaderPath)
                     allFrameworkPaths.append(headerPath.path());

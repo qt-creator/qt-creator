@@ -527,7 +527,7 @@ void Qt4Project::updateCppCodeModel()
 
         QList<HeaderPath> headers;
         if (tc)
-            headers = tc->systemHeaderPaths(); // todo pass cxxflags?
+            headers = tc->systemHeaderPaths(SysRootKitInformation::sysRoot(k)); // todo pass cxxflags?
         if (qtVersion) {
             headers.append(qtVersion->systemHeaderPathes(k));
         }
