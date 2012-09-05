@@ -249,7 +249,6 @@
             \endlist
             \o  \l{Customizing the Build Process}
             \o  \l{Using Maemo or MeeGo Harmattan Emulator}
-            \o  \l{Building with Remote Compiler}
         \endlist
         \o  \l{Debugging and Analyzing}
         \list
