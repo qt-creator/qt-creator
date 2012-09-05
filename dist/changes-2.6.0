@@ -5,48 +5,191 @@ list of changes, see the Git log for the Qt Creator sources that
 you can check out from the public Git repository. For example:
 
 git clone git://gitorious.org/qt-creator/qt-creator.git
-git log --cherry-pick --pretty=oneline v2.5.0...origin/2.6
+git log --cherry-pick --pretty=oneline v2.5.2..origin/2.6
 
 General
+   * Added a wizard for creating a temporary text file
+   * Added a menu for showing and hiding the output pane buttons
+   * Added a visual hint for canceled searches (QTCREATORBUG-6820)
+   * Fixed the New dialog for dark themes (QTCREATORBUG-7435)
+   * Added support for jumping to a line in a specific file to Locator
+     (with "+" or ":" appended to the file name, for example "myfile.cpp:41")
+   * Fixed that several settings where saved every few seconds
+     even without changes (QTCREATORBUG-7718)
 
 Editing
+   * Added a context menu for adding and removing UTF-8 bom
+   * Added shortcuts for searching for next and previous
+     occurrence of selected text without opening the find tool bar (QTCREATORBUG-464)
+   * Made resource files searchable (Ctrl+F)
+   * Added file type icons to the resource editor
+   * Added opening of files from the resource editor
+   * Added highlighting of missing files in the resource editor
+   * Added support for movies in the image viewer
+   * Fixed problems when closing documents in a split view (QTCREATORBUG-7361)
 
 Managing Projects
+   * Introduced "Kits" that supersede the previous "Targets". They bundle the settings
+     for the target device, compiler, debugger, Qt version and more into
+     a user definable, reusable setting.
+   * Moved the debugger setting from tool chains to kits
+     and renamed tool chains to compilers
+   * Added experimental support for Android (enable the plugin in Help > About Plugins)
+   * Added experimental support for QNX (enable the plugin in Help > About Plugins)
+   * Made it possible to disable deploy configurations
+   * Added double-clicking of file names in compile errors to open the file
+   * Added a Cancel Build button to the Compile Output pane
+   * Added CurrentProject::BuildPath variable for external tools (QTCREATORBUG-4885)
+
+QMake Projects
+   * Added an action for compiling a single file (QTCREATORBUG-106)
+   * Added actions for (re)building and cleaning the current subproject
+
+CMake Projects
+   * Added CMake specific context menu items to the CMakeLists.txt editor
 
 Debugging
+   * Made all views searchable (Ctrl+F)
 
 Debugging QML/JS
 
 Analyzing Code
 
 C++ Support
+   * Fixed lambda formatting issues
+   * Added support for variadic arguments (__VA_ARGS__)
+   * Added support for raw string literals (QTCREATORBUG-6722)
+   * Fixed the display of results when searching for macro usages (QTCREATORBUG-7217)
+   * Added highlighting of macro usages
+   * Implemented renaming of macro usages (QTCREATORBUG-413)
 
 QML/JS Support
+   * Added support for adding the file to VCS when moving a component into
+     a separate file (QTCREATORBUG-7246)
+
+GLSL Support
+   * Fixed a crash on declaration without type (QTCREATORBUG-7548)
+   * Fixed a freeze when using the conditional operator (QTCREATORBUG-7517)
 
 Qt Quick Designer
 
 Help
+   * Made hiding the navigation side bar in the Help mode possible (QTCREATORBUG-1533)
+
+Qt Designer
+
+Version control plugins
+   * Added experimental support for ClearCase (enable the plugin in
+     Help > About Plugins)
+
+Git
+   * Added a customizable repository browser command
+   * Fixed commit and amend when not on a branch
+   * Added partial support for Gerrit (Tools > Git > Gerrit)
+
+SVN
+   * Fixed project status command when no document is open
+   * Fixed completion in the submit editor
+
+FakeVim
+   * Fixed :!cmd if there is no selection
 
 Platform Specific
 
 Mac
+   * Added support for fullscreen (Lion and later)
+   * Changed the VCS shortcuts to use the Ctrl modifier instead of the Opt modifier
+     (the Opt modifier inserts special characters on Mac)
+   * Made the shortcut modifiers (e.g. Cmd+...) searchable in the Filter
+     functionality of the keyboard shortcut settings
 
 Linux (GNOME and KDE)
+   * Worked around a problem in the KDE file dialog that prevented selecting
+     qmake (QTCREATORBUG-7771)
 
 Windows
 
 Symbian Target
+   * Removed support for Symbian development because of missing maintainer
 
 Remote Linux Support
 
-Qt Designer
-
-FakeVim
-
-Version control plugins
-
 Madde
-    * Remove generic MeeGo support due to complete irrelevance
+    * Removed generic MeeGo support due to complete irrelevance
 
-Additional credits go to:
-
+Credits go to:
+    Aleksey Sidorov
+    Alessandro Portale
+    Andreas Holzammer
+    Andre Hartmann
+    Aurélien Gâteau
+    Aurindam Jana
+    Bill King
+    BogDan Vatra
+    Bojan Petrovic
+    Bradley T. Hughes
+    Campbell Barton
+    Casper van Donderen
+    Christiaan Janssen
+    Christian Kamm
+    Christian Kandeler
+    Christian Stenger
+    cnavarro
+    Daniel Molkentin
+    Daniel Teske
+    David Schulz
+    Dmitry Savchenko
+    Eike Ziller
+    Erik Verbruggen
+    Fawzi Mohamed
+    Flex Ferrum
+    Francois Ferrand
+    Friedemann Kleint
+    hjk
+    hluk
+    Hugues Delorme
+    Jarek Kobus
+    Jędrzej Nowacki
+    Joerg Bornemann
+    Jonathan Liu
+    Juhapekka Piiroinen
+    Kaffeine
+    Kai Koehne
+    kh1
+    Konstantin Ritt
+    Konstantin Tokarev
+    Leandro Melo
+    Leena Miettinen
+    Lukas Geyer
+    Lukas Holecek
+    Marc Mutz
+    Marco Bubke
+    Marius Storm-Olsen
+    Martin Aumüller
+    Mathias Hasselmann
+    Montel Laurent
+    Morten Johan Sorvig
+    Nicolas Arnaud-Cormos
+    Nikolai Kosjar
+    Orgad Shaneh
+    Oswald Buddenhagen
+    Oto Magaldadze
+    Peter Kuemmel
+    Pierre Rossi
+    Robert Loehning
+    Ryan May
+    Sergey Belyashov
+    Sergey Shambir
+    Simjees Abraham
+    Takumi Asaki
+    Theo J.A. de Vries
+    Thiago Macieira
+    Thomas Hartmann
+    Thorbjørn Lindeijer
+    tjenssen
+    Tobias Hunger
+    Tobias Nätterlund
+    Tommi Asp
+    Tyler Mandry
+    Vladislav Navrocky
+    Yuchen Deng
