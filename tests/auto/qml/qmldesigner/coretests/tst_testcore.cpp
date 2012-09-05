@@ -6146,9 +6146,9 @@ void tst_TestCore::testModelBindings()
     QCOMPARE(rootModelNode.allDirectSubModelNodes().count(), 0);
     NodeInstance rootInstance = nodeInstanceView->instanceForNode(rootModelNode);
 
-    // default width/height is forced to 100
-    QCOMPARE(rootInstance.size().width(), 100.0);
-    QCOMPARE(rootInstance.size().height(), 100.0);
+    // default width/height is 0
+    QCOMPARE(rootInstance.size().width(), 0.0);
+    QCOMPARE(rootInstance.size().height(), 0.0);
 
     rootModelNode.variantProperty("width") = 200;
     rootModelNode.variantProperty("height") = 100;
