@@ -90,6 +90,9 @@ BlackBerryDeployInformation *BlackBerryDeployConfiguration::deploymentInfo() con
 QString BlackBerryDeployConfiguration::deviceHost() const
 {
     BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->kit());
+    if (!device)
+        return QString();
+
     return device->sshParameters().host;
 }
 
@@ -102,6 +105,9 @@ QString BlackBerryDeployConfiguration::password() const
 QString BlackBerryDeployConfiguration::deviceName() const
 {
     BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->kit());
+    if (!device)
+        return QString();
+
     return device->displayName();
 }
 

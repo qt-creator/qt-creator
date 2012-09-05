@@ -66,6 +66,10 @@ bool BlackBerryRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runC
     if (!rc)
         return false;
 
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(rc->target()->kit());
+    if (!device)
+        return false;
+
     // The device can only run the same application once, any subsequent runs will
     // not launch a second instance. Disable the Run button if the application is already
     // running on the device.
