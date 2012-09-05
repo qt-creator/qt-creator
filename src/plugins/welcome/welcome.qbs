@@ -10,7 +10,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
 
     Depends { name: "cpp" }
-    cpp.defines: project.additionalCppDefines
     cpp.includePaths: [
         "..",
         "../../libs",

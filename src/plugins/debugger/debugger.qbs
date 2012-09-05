@@ -1,6 +1,7 @@
 import qbs.base 1.0
 
 import "../QtcPlugin.qbs" as QtcPlugin
+import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "Debugger"
@@ -19,7 +20,6 @@ QtcPlugin {
     Depends { name: "QtcSsh" }
 
     Depends { name: "cpp" }
-    cpp.defines: ["DEBUGGER_LIBRARY"]
     cpp.includePaths: [
         ".",
         "shared",
@@ -33,7 +33,7 @@ QtcPlugin {
     ]
 
     Group {
-        condition: qbs.buildVariant === "debug"
+        condition: Defaults.testsEnabled(qbs)
         qbs.installDir: "tests/manual/debugger/simple/"
         fileTags: ["install"]
         files: ["../../../tests/manual/debugger/simple/simple.pro"]
@@ -314,4 +314,3 @@ QtcPlugin {
         cpp.includePaths: ["."]
     }
 }
-

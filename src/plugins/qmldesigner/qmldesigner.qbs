@@ -20,7 +20,7 @@ QtcPlugin {
     Depends { name: "QtSupport" }
 
     Depends { name: "cpp" }
-    cpp.defines: base.concat(project.additionalCppDefines.concat(["QWEAKPOINTER_ENABLE_ARROW"]))
+    cpp.defines: base.concat(["QWEAKPOINTER_ENABLE_ARROW"])
     cpp.includePaths: [
         ".",
         "designercore",

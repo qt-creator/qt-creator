@@ -1,6 +1,7 @@
 import qbs.base 1.0
 
 import "../QtcPlugin.qbs" as QtcPlugin
+import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "QmlJSTools"
@@ -58,6 +59,11 @@ QtcPlugin {
         "qmljssemanticinfo.cpp",
         "qmljssemanticinfo.h"
     ]
+
+    Group {
+        condition: Defaults.testsEnabled(qbs)
+        files: ["qmljstools_test.cpp"]
+    }
 
     ProductModule {
         Depends { name: "CppTools" }

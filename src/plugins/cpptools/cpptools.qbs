@@ -1,6 +1,7 @@
 import qbs.base 1.0
 
 import "../QtcPlugin.qbs" as QtcPlugin
+import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "CppTools"
@@ -106,6 +107,11 @@ QtcPlugin {
         "TypeHierarchyBuilder.cpp",
         "TypeHierarchyBuilder.h"
     ]
+
+    Group {
+        condition: Defaults.testsEnabled(qbs)
+        files: ["cppcodegen_test.cpp", "cppcompletion_test.cpp"]
+    }
 
     ProductModule {
         Depends { name: "CPlusPlus" }
