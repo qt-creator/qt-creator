@@ -23,8 +23,7 @@ def prepareQmlFile():
     model = navTree.model()
     waitForObjectItem(navTree, "untitled.QML.qml/untitled.main\\.qml")
     doubleClickItem(navTree, "untitled.QML.qml/untitled.main\\.qml", 5, 5, 0, Qt.LeftButton)
-    editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
-                           "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget", 20000)
     for i in range(3):
         content = "%s" % editor.plainText
         start = content.find("Text {")
@@ -53,11 +52,10 @@ def handleTextChanged(object):
 
 def testReIndent():
     global originalText,textHasChanged
-    installLazySignalHandler("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1'}",
+    installLazySignalHandler(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget",
                              "textChanged()", "handleTextChanged")
     textHasChanged = False
-    editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' "
-                           "window=':Qt Creator_Core::Internal::MainWindow'}")
+    editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     type(editor, "<Ctrl+A>")
     test.log("calling re-indent")
     starttime = datetime.utcnow()

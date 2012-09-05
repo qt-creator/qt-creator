@@ -40,14 +40,18 @@
 :QML Debugging_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='QML Debugging'}
 :Qt Creator.Compile Output_Core::OutputWindow	{type='Core::OutputWindow' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Compile Output'}
 :Qt Creator.DebugModeWidget_QSplitter	{name='DebugModeWidget' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Issues_QListView	{type='QListView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Issues'}
 :Qt Creator.QtCreator.MenuBar_QMenuBar	{name='QtCreator.MenuBar' type='QMenuBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.ReRun_QToolButton	{toolTip='Re-run this run-configuration' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Stop_QToolButton	{text='Stop' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.scrollArea_QScrollArea	{name='scrollArea' type='QScrollArea' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton	{occurrence='3' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_CloseButton	{type='CloseButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton	{occurrence='4' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' visible='1' windowTitle?='*Qt Creator'}
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Issues_Core::Internal::OutputPaneToggleButton	{occurrence='1' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QmlJSEditor::QmlJSTextEditorWidget	{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SearchResult_Core::Internal::OutputPaneToggleButton	{occurrence='2' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_SystemSettings.Details_Utils::DetailsButton	{occurrence='4' text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

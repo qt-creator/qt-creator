@@ -24,7 +24,7 @@ def main():
         invokeMenuItem("Build", "Build All")
         waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
         # verify build successful
-        ensureChecked(waitForObject(":Compile Output - Qt Creator_Core::Internal::OutputPaneToggleButton"))
+        ensureChecked(waitForObject(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton"))
         compileOutput = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")
         if not test.verify(str(compileOutput.plainText).endswith("exited normally."),
                            "Verifying building of existing complex qt application."):

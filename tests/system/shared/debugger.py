@@ -180,8 +180,7 @@ def __startDebugger__(config):
 
 def __stopDebugger__():
     clickButton(waitForObject(":Debugger Toolbar.Exit Debugger_QToolButton"))
-    ensureChecked("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
-                  "window=':Qt Creator_Core::Internal::MainWindow' occurrence='3'}")
+    ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
     waitFor("'Debugging has finished' in str(output.plainText)", 20000)
     return __logDebugResult__()

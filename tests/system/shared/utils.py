@@ -194,8 +194,7 @@ def invokeMenuItem(menu, item, subItem = None):
 
 def logApplicationOutput():
     # make sure application output is shown
-    ensureChecked("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
-                  "window=':Qt Creator_Core::Internal::MainWindow' occurrence='3'}")
+    ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     try:
         output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
         test.log("Application Output:\n%s" % output.plainText)
