@@ -199,11 +199,12 @@ def createProject_Qt_Console(path, projectName, checks = True):
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 10000)
     __verifyFileCreation__(path, expectedFiles)
 
-def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, targets = QtQuickConstants.Targets.DESKTOP):
+def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, targets = QtQuickConstants.Targets.DESKTOP, qtQuickVersion=1):
     if templateFile:
         available = __createProjectSelectType__("  Applications", "Qt Quick Application (from Existing QML File)")
     else:
-        available = __createProjectSelectType__("  Applications", "Qt Quick Application (Built-in Elements)")
+        available = __createProjectSelectType__("  Applications", "Qt Quick %d Application (Built-in Elements)"
+                                                % qtQuickVersion)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     if templateFile:
         baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
