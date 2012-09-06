@@ -440,6 +440,12 @@
         \o  \c {%CppHeaderSuffix%} is replaced by the default header suffix,
             which is also defined in \gui {File Naming}.
 
+        \o  \c {%CurrentDate%} is replaced by the current date in the format
+            \c {yyyy-MM-dd}.
+
+        \o  \c {%CurrentTime%} is replaced by the current time in the short
+            format of the locale.
+
     \endlist
 
     \section1 Validating User Input
