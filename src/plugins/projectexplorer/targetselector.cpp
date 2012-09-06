@@ -276,6 +276,23 @@ void TargetSelector::leaveEvent(QEvent *event)
     update();
 }
 
+bool TargetSelector::event(QEvent *e)
+{
+    if (e->type() == QEvent::ToolTip) {
+        const QHelpEvent *helpEvent = static_cast<const QHelpEvent *>(e);
+        int targetIndex;
+        int subTargetIndex;
+        bool removeButton;
+        getControlAt(helpEvent->x(), helpEvent->y(), 0, &targetIndex, &subTargetIndex, &removeButton);
+        if (targetIndex >= 0 && subTargetIndex < 0 && !removeButton) {
+            emit toolTipRequested(helpEvent->globalPos(), targetIndex);
+            e->accept();
+            return true;
+        }
+    }
+    return QWidget::event(e);
+}
+
 void TargetSelector::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event)

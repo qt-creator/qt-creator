@@ -50,9 +50,10 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
-#include <QVBoxLayout>
-#include <QStackedWidget>
 #include <QPushButton>
+#include <QStackedWidget>
+#include <QToolTip>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -142,6 +143,8 @@ void TargetSettingsPanelWidget::setupUi()
             this, SLOT(removeTarget(int)));
     connect(m_selector, SIGNAL(manageButtonClicked()),
             this, SLOT(openTargetPreferences()));
+    connect(m_selector, SIGNAL(toolTipRequested(QPoint,int)),
+            this, SLOT(showTargetToolTip(QPoint,int)));
 
     m_selector->setAddButtonMenu(m_addMenu);
     connect(m_addMenu, SIGNAL(triggered(QAction*)),
@@ -251,6 +254,13 @@ void TargetSettingsPanelWidget::removeTarget(int targetIndex)
 
     m_project->removeTarget(t);
 
+}
+
+void TargetSettingsPanelWidget::showTargetToolTip(const QPoint &globalPos, int targetIndex)
+{
+    QTC_ASSERT(targetIndex >= 0 && targetIndex < m_targets.count(), return);
+    Target *target = m_targets.at(targetIndex);
+    QToolTip::showText(globalPos, target->kit()->toHtml());
 }
 
 void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)

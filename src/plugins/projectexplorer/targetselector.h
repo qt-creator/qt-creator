@@ -75,12 +75,14 @@ signals:
     // This signal is emitted whenever the target pointed to by the indices
     // has changed.
     void currentChanged(int targetIndex, int subIndex);
+    void toolTipRequested(const QPoint &globalPosition, int targetIndex);
 
 protected:
     void paintEvent(QPaintEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void leaveEvent(QEvent *event);
+    bool event(QEvent *e);
 
 private:
     void getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex, bool *removeButton);

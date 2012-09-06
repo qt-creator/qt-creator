@@ -72,6 +72,7 @@ signals:
     void removeButtonClicked(int targetIndex);
     void currentChanged(int targetIndex, int subIndex);
     void manageButtonClicked();
+    void toolTipRequested(const QPoint &globalPosition, int targetIndex);
 
 protected:
     void changeEvent(QEvent *e);

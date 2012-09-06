@@ -64,6 +64,7 @@ public:
 private slots:
     void currentTargetChanged(int targetIndex, int subIndex);
     void removeTarget(int targetIndex);
+    void showTargetToolTip(const QPoint &globalPos, int targetIndex);
     void addTarget(QAction *);
     void targetAdded(ProjectExplorer::Target *target);
     void removedTarget(ProjectExplorer::Target *target);
