@@ -25,12 +25,12 @@ def main():
         type(editorWidget, "<Meta+Space>")
     else:
         type(editorWidget, "<Ctrl+Space>")
-    type(waitForObject(":m_popupFrame_QListView"), "<Down>")
-    type(waitForObject(":m_popupFrame_QListView"), "<Down>")
-    listView = waitForObject(":m_popupFrame_QListView")
+    type(waitForObject(":popupFrame_Proposal_QListView"), "<Down>")
+    type(waitForObject(":popupFrame_Proposal_QListView"), "<Down>")
+    listView = waitForObject(":popupFrame_Proposal_QListView")
     test.compare("class derived from QObject", str(listView.model().data(listView.currentIndex())),
                  "Verifying selecting the correct entry.")
-    type(waitForObject(":m_popupFrame_QListView"), "<Return>")
+    type(waitForObject(":popupFrame_Proposal_QListView"), "<Return>")
     test.verify(str(editorWidget.plainText).startswith("class name : public QObject"),
                 "Steps 3&4: Verifying if: The list of suggestions is opened. It is "
                 "possible to select one of the suggestions. Code with several "
@@ -51,5 +51,3 @@ def main():
     # exit qt creator
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
-# no cleanup needed, as whole testing directory gets properly removed after test finished
-

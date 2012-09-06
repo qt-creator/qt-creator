@@ -33,7 +33,7 @@ def main():
     # verify if find toolbar exists and if search text contains selected word
     test.verify(checkIfObjectExists(":*Qt Creator.Find_Find::Internal::FindToolBar"),
                 "Verifying if: Find/Replace pane is displayed at the bottom of the view.")
-    test.compare(waitForObject(":Qt Creator.findEdit_Utils::FilterLineEdit").displayText, "viewer",
+    test.compare(waitForObject(":*Qt Creator.findEdit_Utils::FilterLineEdit").displayText, "viewer",
                  "Verifying if: Find line edit contains 'viewer' text.")
     # insert some word to "Replace with:" field and select "Replace All".
     replaceEditorContent(waitForObject(":Qt Creator.replaceEdit_Utils::FilterLineEdit"), "find")
@@ -65,4 +65,3 @@ def main():
     # exit qt creator
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
-# no cleanup needed, as whole testing directory gets properly removed after test finished

@@ -24,8 +24,8 @@ def main():
         type(editorWidget, "<Meta+Space>")
     else:
         type(editorWidget, "<Ctrl+Space>")
-    waitForObjectItem(":m_popupFrame_QListView", "register")
-    doubleClickItem(":m_popupFrame_QListView", "register", 5, 5, 0, Qt.LeftButton)
+    waitForObjectItem(":popupFrame_Proposal_QListView", "register")
+    doubleClickItem(":popupFrame_Proposal_QListView", "register", 5, 5, 0, Qt.LeftButton)
     test.verify(str(editorWidget.plainText).startswith("register"),
                 "Step 3: Verifying if: The list of suggestions is opened. It is "
                 "possible to select one of the suggestions.")
@@ -37,8 +37,8 @@ def main():
         type(editorWidget, "<Shift+End>")
     type(editorWidget, "<Del>")
     type(editorWidget, "voi")
-    waitForObjectItem(":m_popupFrame_QListView", "void")
-    type(waitForObject(":m_popupFrame_QListView"), "<Tab>")
+    waitForObjectItem(":popupFrame_Proposal_QListView", "void")
+    type(waitForObject(":popupFrame_Proposal_QListView"), "<Tab>")
     test.verify(str(editorWidget.plainText).startswith("void"),
                 "Step 4: Verifying if: Word 'void' is completed because only one option is available.")
 # Step 5: From "Tools -> Options -> Text Editor -> Completion" select Activate completion Manually,
@@ -58,7 +58,7 @@ def main():
         type(editorWidget, "<Meta+Space>")
     else:
         type(editorWidget, "<Ctrl+Space>")
-    waitForObjectItem(":m_popupFrame_QListView", "return")
+    waitForObjectItem(":popupFrame_Proposal_QListView", "return")
     type(editorWidget, "<Right>")
     type(editorWidget, "<Backspace>")
     test.verify(str(editorWidget.plainText).startswith("ret#"),
@@ -67,5 +67,3 @@ def main():
     # exit qt creator
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
-# no cleanup needed, as whole testing directory gets properly removed after test finished
-
