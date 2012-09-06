@@ -172,7 +172,8 @@ void DebuggerKitConfigWidget::setFileName(const Utils::FileName &fn)
 void DebuggerKitConfigWidget::refreshLabel()
 {
     QString text;
-    switch (engineType()) {
+    const DebuggerEngineType type = engineType();
+    switch (type) {
     case CdbEngineType: {
 #ifdef Q_OS_WIN
         const bool is64bit = Utils::winIs64BitSystem();
@@ -192,6 +193,9 @@ void DebuggerKitConfigWidget::refreshLabel()
     }
     m_label->setText(text);
     m_label->setVisible(!text.isEmpty());
+    m_chooser->setCommandVersionArguments(type == CdbEngineType ?
+                                          QStringList(QLatin1String("-version")) :
+                                          QStringList(QLatin1String("--version")));
 }
 
 } // namespace Internal
