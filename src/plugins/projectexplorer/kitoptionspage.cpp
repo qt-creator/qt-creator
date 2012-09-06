@@ -123,11 +123,14 @@ QWidget *KitOptionsPage::createPage(QWidget *parent)
 
     updateState();
 
-    if (m_toShow)
-        m_selectionModel->select(m_model->indexOf(m_toShow),
+    if (m_toShow) {
+        QModelIndex index = m_model->indexOf(m_toShow);
+        m_selectionModel->select(index,
                                  QItemSelectionModel::Clear
                                  | QItemSelectionModel::SelectCurrent
                                  | QItemSelectionModel::Rows);
+        m_kitsView->scrollTo(index);
+    }
     m_toShow = 0;
 
     return m_configWidget;

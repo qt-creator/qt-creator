@@ -31,6 +31,7 @@
 #include "targetsettingspanel.h"
 
 #include "buildsettingspropertiespage.h"
+#include "kitoptionspage.h"
 #include "project.h"
 #include "projectwindow.h"
 #include "runsettingspropertiespage.h"
@@ -348,6 +349,13 @@ void TargetSettingsPanelWidget::renameTarget()
 
 void TargetSettingsPanelWidget::openTargetPreferences()
 {
+    int targetIndex = m_selector->currentIndex();
+    if (targetIndex >= 0 && targetIndex < m_targets.size()) {
+        ProjectExplorer::KitOptionsPage *page =
+                ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::KitOptionsPage>();
+        if (page)
+            page->showKit(m_targets.at(targetIndex)->kit());
+    }
     Core::ICore::showOptionsDialog(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
                                    QLatin1String(Constants::KITS_SETTINGS_PAGE_ID));
 }
