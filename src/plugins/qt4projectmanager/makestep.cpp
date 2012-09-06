@@ -144,18 +144,11 @@ bool MakeStep::init()
         bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
 
     m_tasks.clear();
-    if (!bc) {
-        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a build configuration set up to build. Configure a target in Project mode."),
-                                             Utils::FileName(), -1,
-                                             Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
-        return true; // otherwise the tasks will not get reported
-    }
-
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     if (!tc) {
-        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the target options."),
-                                             Utils::FileName(), -1,
-                                             Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the kit options."),
+                            Utils::FileName(), -1,
+                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
         return true; // otherwise the tasks will not get reported
     }
 
@@ -278,12 +271,10 @@ bool MakeStep::init()
 
 void MakeStep::run(QFutureInterface<bool> & fi)
 {
-    // Warn on common error conditions:
     bool canContinue = true;
     foreach (const Task &t, m_tasks) {
         addTask(t);
-        if (t.type == Task::Error)
-            canContinue = false;
+        canContinue = false;
     }
     if (!canContinue) {
         emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);

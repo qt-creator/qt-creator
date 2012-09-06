@@ -132,12 +132,20 @@ bool MakeStep::init()
     if (!bc)
         bc = static_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
 
+    m_tasks.clear();
+    ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
+    if (!tc) {
+        m_tasks.append(Task(Task::Error, tr("Qt Creator needs a compiler set up to build. Configure a compiler in the kit options."),
+                            Utils::FileName(), -1,
+                            Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)));
+        return true; // otherwise the tasks will not get reported
+    }
+
     QString arguments = Utils::QtcProcess::joinArgs(m_buildTargets);
     Utils::QtcProcess::addArgs(&arguments, additionalArguments());
 
     setIgnoreReturnValue(m_clean);
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
@@ -158,6 +166,17 @@ bool MakeStep::init()
 
 void MakeStep::run(QFutureInterface<bool> &fi)
 {
+    bool canContinue = true;
+    foreach (const Task &t, m_tasks) {
+        addTask(t);
+        canContinue = false;
+    }
+    if (!canContinue) {
+        emit addOutput(tr("Configuration is faulty. Check the Issues view for details."), BuildStep::MessageOutput);
+        fi.reportResult(false);
+        return;
+    }
+
     m_futureInterface = &fi;
     m_futureInterface->setProgressRange(0, 100);
     AbstractProcessStep::run(fi);
