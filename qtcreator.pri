@@ -5,7 +5,6 @@ QTCREATOR_VERSION = 2.5.81
 
 isEmpty(QTC_PREFIX) {
   unix: QTC_PREFIX = /usr/local
-  else: QTC_PREFIX = QtCreator
 }
 
 defineReplace(cleanPath) {
