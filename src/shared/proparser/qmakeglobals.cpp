@@ -248,6 +248,18 @@ void QMakeGlobals::setDirectories(const QString &input_dir, const QString &outpu
     }
 }
 
+QString QMakeGlobals::shadowedPath(const QString &fileName) const
+{
+    if (source_root.isEmpty())
+        return fileName;
+    if (fileName.startsWith(source_root)
+        && (fileName.length() == source_root.length()
+            || fileName.at(source_root.length()) == QLatin1Char('/'))) {
+        return build_root + fileName.mid(source_root.length());
+    }
+    return QString();
+}
+
 QString QMakeGlobals::getEnv(const QString &var) const
 {
 #ifdef PROEVALUATOR_SETENV

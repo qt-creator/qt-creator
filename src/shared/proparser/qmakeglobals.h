@@ -133,6 +133,7 @@ public:
 #endif
 
     QString expandEnvVars(const QString &str) const;
+    QString shadowedPath(const QString &fileName) const;
 
 private:
     QString getEnv(const QString &) const;

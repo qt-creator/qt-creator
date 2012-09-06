@@ -945,17 +945,9 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         if (args.count() != 1) {
             evalError(fL1S("shadowed(path) requires one argument."));
         } else {
-            QString val = resolvePath(args.at(0).toQString(m_tmp1));
-            QString rstr;
-            if (m_option->source_root.isEmpty()) {
-                rstr = val;
-            } else if (val.startsWith(m_option->source_root)
-                       && (val.length() == m_option->source_root.length()
-                           || val.at(m_option->source_root.length()) == QLatin1Char('/'))) {
-                rstr = m_option->build_root + val.mid(m_option->source_root.length());
-            } else {
+            QString rstr = m_option->shadowedPath(resolvePath(args.at(0).toQString(m_tmp1)));
+            if (rstr.isEmpty())
                 break;
-            }
             ret << (rstr.isSharedWith(m_tmp1) ? args.at(0) : ProString(rstr).setSource(args.at(0)));
         }
         break;
