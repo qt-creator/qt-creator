@@ -632,7 +632,7 @@ void DesignDocumentController::copySelected()
 
     DesignDocumentControllerView view;
 
-    copyModel->attachView(&view);
+    m_model->attachView(&view);
 
     if (view.selectedModelNodes().isEmpty())
         return;
@@ -652,7 +652,7 @@ void DesignDocumentController::copySelected()
         if (!selectedNode.isValid())
             return;
 
-        copyModel->detachView(&view);
+        m_model->detachView(&view);
 
         copyModel->attachView(&view);
         view.replaceModel(selectedNode);
@@ -662,7 +662,7 @@ void DesignDocumentController::copySelected()
 
         view.toClipboard();
     } else { //multi items selected
-        copyModel->detachView(&view);
+        m_model->detachView(&view);
         copyModel->attachView(&view);
 
         foreach (ModelNode node, view.rootModelNode().allDirectSubModelNodes()) {
@@ -743,7 +743,7 @@ void DesignDocumentController::paste()
         qDebug() << rootNode;
         qDebug() << selectedNodes;
         pasteModel->detachView(&view);
-        pasteModel->attachView(&view);
+        m_model->attachView(&view);
 
         ModelNode targetNode;
 
@@ -789,7 +789,7 @@ void DesignDocumentController::paste()
             RewriterTransaction transaction(m_formEditorView.data());
 
             pasteModel->detachView(&view);
-            pasteModel->attachView(&view);
+            m_model->attachView(&view);
             ModelNode pastedNode(view.insertModel(rootNode));
             ModelNode targetNode;
 
