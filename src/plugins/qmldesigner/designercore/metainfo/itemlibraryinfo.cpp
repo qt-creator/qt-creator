@@ -317,7 +317,7 @@ void ItemLibraryInfo::clearEntries()
 
 void ItemLibraryInfo::setBaseInfo(ItemLibraryInfo *baseInfo)
 {
-    baseInfo = baseInfo;
+    m_baseInfo = baseInfo;
 }
 
 } // namespace QmlDesigner
