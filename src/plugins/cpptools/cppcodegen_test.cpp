@@ -416,8 +416,8 @@ void CppToolsPlugin::test_codegen_definition_empty_class()
     QCOMPARE(loc.fileName(), dst->fileName());
     QCOMPARE(loc.prefix(), QLatin1String("\n\n"));
     QCOMPARE(loc.suffix(), QString());
-    QCOMPARE(loc.line(), 1U);
-    QCOMPARE(loc.column(), 7U);
+    QCOMPARE(loc.line(), 3U);
+    QCOMPARE(loc.column(), 1U);
 }
 
 void CppToolsPlugin::test_codegen_definition_first_member()
