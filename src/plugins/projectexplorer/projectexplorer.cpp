@@ -1456,6 +1456,21 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 }
 
+// Return a list of glob patterns for project files ("*.pro", etc), use first, main pattern only.
+static inline QStringList projectFileGlobs()
+{
+    QStringList result;
+    const Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
+    foreach (const IProjectManager *ipm, ExtensionSystem::PluginManager::getObjects<IProjectManager>()) {
+        if (const Core::MimeType mimeType = mimeDatabase->findByType(ipm->mimeType())) {
+            const QList<Core::MimeGlobPattern> patterns = mimeType.globPatterns();
+            if (!patterns.isEmpty())
+                result.push_back(patterns.front().regExp().pattern());
+        }
+    }
+    return result;
+}
+
 /*!
     \fn void ProjectExplorerPlugin::restoreSession()
 
@@ -1471,8 +1486,55 @@ void ProjectExplorerPlugin::restoreSession()
 
     // We have command line arguments, try to find a session in them
     QStringList arguments = ExtensionSystem::PluginManager::arguments();
-    arguments.removeOne(d->m_sessionToRestoreAtStartup);
+    if (!d->m_sessionToRestoreAtStartup.isEmpty() && !arguments.isEmpty())
+        arguments.removeOne(d->m_sessionToRestoreAtStartup);
 
+    // Massage the argument list.
+    // Be smart about directories: If there is a session of that name, load it.
+    //   Other than that, look for project files in it. The idea is to achieve
+    //   'Do what I mean' functionality when starting Creator in a directory with
+    //   the single command line argument '.' and avoid editor warnings about not
+    //   being able to open directories.
+    // In addition, convert "filename" "+45" or "filename" ":23" into
+    //   "filename+45"   and "filename:23".
+    if (!arguments.isEmpty()) {
+        const QStringList sessions = d->m_session->sessions();
+        QStringList projectGlobs = projectFileGlobs();
+        for (int a = 0; a < arguments.size(); ) {
+            const QString &arg = arguments.at(a);
+            const QFileInfo fi(arg);
+            if (fi.isDir()) {
+                const QDir dir(fi.absoluteFilePath());
+                // Does the directory name match a session?
+                if (d->m_sessionToRestoreAtStartup.isEmpty()
+                    && sessions.contains(dir.dirName())) {
+                    d->m_sessionToRestoreAtStartup = dir.dirName();
+                    arguments.removeAt(a);
+                    continue;
+                } else {
+                    // Are there project files in that directory?
+                    const QFileInfoList proFiles
+                        = dir.entryInfoList(projectGlobs, QDir::Files);
+                    if (!proFiles.isEmpty()) {
+                        arguments[a] = proFiles.front().absoluteFilePath();
+                        ++a;
+                        continue;
+                    }
+                }
+                // Cannot handle: Avoid mime type warning for directory.
+                qWarning("Skipping directory '%s' passed on to command line.",
+                         qPrintable(QDir::toNativeSeparators(arg)));
+                arguments.removeAt(a);
+                continue;
+            } // Done directories.
+            // Converts "filename" "+45" or "filename" ":23" into "filename+45" and "filename:23"
+            if (a && (arg.startsWith(QLatin1Char('+')) || arg.startsWith(QLatin1Char(':')))) {
+                arguments[a - 1].append(arguments.takeAt(a));
+                continue;
+            }
+            ++a;
+        } // for arguments
+    } // !arguments.isEmpty()
     // Restore latest session or what was passed on the command line
     if (!d->m_sessionToRestoreAtStartup.isEmpty())
         d->m_session->loadSession(d->m_sessionToRestoreAtStartup);
@@ -1484,19 +1546,7 @@ void ProjectExplorerPlugin::restoreSession()
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
     connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(openProjectWelcomePage(QString)));
 
-    QStringList combinedList;
-    // Converts "filename" "+45" or "filename" ":23"
-    // into     "filename+45"   and "filename:23"
-    foreach (const QString &str, arguments) {
-        if (!combinedList.isEmpty() && (str.startsWith(QLatin1Char('+'))
-                                        || str.startsWith(QLatin1Char(':')))) {
-            combinedList.last().append(str);
-        } else {
-            combinedList << str;
-        }
-    }
-
-    Core::ICore::openFiles(combinedList, Core::ICore::OpenFilesFlags(Core::ICore::CanContainLineNumbers | Core::ICore::SwitchMode));
+    Core::ICore::openFiles(arguments, Core::ICore::OpenFilesFlags(Core::ICore::CanContainLineNumbers | Core::ICore::SwitchMode));
     updateActions();
 }
 

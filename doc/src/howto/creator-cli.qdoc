@@ -55,6 +55,12 @@
 
     \endlist
 
+    To open a project that is located in a particular folder, you can pass on the folder
+    name as a command line argument. \QC looks for a session that matches the folder name and
+    loads it. Or it looks for a project file in the folder and opens it. For example:
+
+    \c {qtcreator .}
+
     The following table summarizes the available options:
 
     \table
