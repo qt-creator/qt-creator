@@ -144,7 +144,6 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
         params.toolChainAbi = tc->targetAbi();
 
     params.executable = runConfig->localExecutableFilePath();
-    params.remoteChannel = runConfig->deployConfiguration()->deviceHost() + QLatin1String(":8000");
     params.displayName = runConfig->displayName();
     params.remoteSetupNeeded = true;
 
