@@ -124,6 +124,8 @@ public:
     virtual bool needsConfiguration() const;
     virtual void configureAsExampleProject(const QStringList &platforms);
 
+    virtual bool supportsNoTargetPanel() const;
+
 signals:
     void displayNameChanged();
     void fileListChanged();

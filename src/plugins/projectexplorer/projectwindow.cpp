@@ -384,7 +384,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
         m_previousTargetSubIndex = previousPanelWidget->currentSubIndex();
     }
 
-    if (m_hasTarget.value(project)) {
+    if (m_hasTarget.value(project) || !project->supportsNoTargetPanel()) {
         if (subIndex == 0) {
             // Targets page
             removeCurrentWidget();

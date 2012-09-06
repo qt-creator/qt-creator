@@ -115,7 +115,7 @@ void TargetSettingsPanelWidget::setupUi()
     QVBoxLayout *noTargetLayout = new QVBoxLayout(m_noTargetLabel);
     noTargetLayout->setMargin(0);
     QLabel *label = new QLabel(m_noTargetLabel);
-    label->setText(tr("No kit defined."));
+    label->setText(tr("No kit defined in this project."));
     {
         QFont f = label->font();
         f.setPointSizeF(f.pointSizeF() * 1.4);

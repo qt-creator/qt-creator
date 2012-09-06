@@ -439,6 +439,11 @@ void Project::configureAsExampleProject(const QStringList &platforms)
     Q_UNUSED(platforms);
 }
 
+bool Project::supportsNoTargetPanel() const
+{
+    return false;
+}
+
 void Project::onBuildDirectoryChanged()
 {
     Target *target = qobject_cast<Target *>(sender());

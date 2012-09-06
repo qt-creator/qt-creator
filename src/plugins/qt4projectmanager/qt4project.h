@@ -129,6 +129,8 @@ public:
 
     void configureAsExampleProject(const QStringList &platforms);
 
+    bool supportsNoTargetPanel() const;
+
     /// \internal
     QString disabledReasonForRunConfiguration(const QString &proFilePath);
 
