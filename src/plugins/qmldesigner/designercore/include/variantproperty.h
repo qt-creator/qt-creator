@@ -58,7 +58,7 @@ public:
     VariantProperty& operator= (const QVariant &value);
 
     void setDynamicTypeNameAndValue(const QString &type, const QVariant &value);
-    VariantProperty& operator= (const QPair<QString, QVariant> &typeValuePair);
+    Q_DECL_DEPRECATED VariantProperty& operator= (const QPair<QString, QVariant> &typeValuePair);
 
     VariantProperty();
     VariantProperty(const VariantProperty &property, AbstractView *view);

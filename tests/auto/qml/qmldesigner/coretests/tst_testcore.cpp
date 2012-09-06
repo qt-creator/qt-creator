@@ -6204,7 +6204,7 @@ void tst_TestCore::testModelDynamicProperties()
     ModelNode rootModelNode = rootQmlItemNode.modelNode();
 
     rootModelNode.variantProperty("x") = 10;
-    rootModelNode.variantProperty("myDouble") = qMakePair(QString("real"), QVariant(10));
+    rootModelNode.variantProperty("myDouble").setDynamicTypeNameAndValue("real", 10);
     rootModelNode.variantProperty("myColor").setDynamicTypeNameAndValue("color", Qt::red);
 
     QVERIFY(!rootModelNode.property("x").isDynamic());
