@@ -105,12 +105,12 @@ static void skipExpression(const ushort *&pTokPtr, int &lineNo)
         default:
             switch (tok & TokMask) {
             case TokLiteral:
-            case TokProperty:
             case TokEnvVar:
                 skipStr(tokPtr);
                 break;
             case TokHashLiteral:
             case TokVariable:
+            case TokProperty:
                 skipHashStr(tokPtr);
                 break;
             case TokFuncName:
