@@ -113,6 +113,7 @@ public:
     QWidget *q;
     DeviceProcessList *processList;
     ProcessListFilterModel proxyModel;
+    QLabel *kitLabel;
     KitChooser *kitChooser;
 
     QTreeView *procView;
@@ -125,7 +126,11 @@ public:
 };
 
 DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, QWidget *parent)
-    : q(parent), kitChooser(chooser), acceptButton(0), buttonBox(new QDialogButtonBox(parent))
+    : q(parent)
+    , kitLabel(new QLabel(DeviceProcessesDialog::tr("Kit:"), parent))
+    , kitChooser(chooser)
+    , acceptButton(0)
+    , buttonBox(new QDialogButtonBox(parent))
 {
     q->setWindowTitle(DeviceProcessesDialog::tr("List of Processes"));
     q->setWindowFlags(q->windowFlags() & ~Qt::WindowContextHelpButtonHint);
@@ -161,7 +166,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 
     QFormLayout *leftColumn = new QFormLayout();
     leftColumn->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    leftColumn->addRow(DeviceProcessesDialog::tr("Kit:"), kitChooser);
+    leftColumn->addRow(kitLabel, kitChooser);
     leftColumn->addRow(DeviceProcessesDialog::tr("&Filter:"), processFilterLineEdit);
 
 //    QVBoxLayout *rightColumn = new QVBoxLayout();
@@ -327,15 +332,21 @@ void DeviceProcessesDialog::addCloseButton()
     d->buttonBox->addButton(QDialogButtonBox::Close);
 }
 
+void DeviceProcessesDialog::setKitVisible(bool v)
+{
+    d->kitLabel->setVisible(v);
+    d->kitChooser->setVisible(v);
+}
+
 void DeviceProcessesDialog::setDevice(const IDevice::ConstPtr &device)
 {
-    d->kitChooser->hide();
+    setKitVisible(false);
     d->setDevice(device);
 }
 
 void DeviceProcessesDialog::showAllDevices()
 {
-    d->kitChooser->show();
+    setKitVisible(true);
     d->updateDevice();
 }
 

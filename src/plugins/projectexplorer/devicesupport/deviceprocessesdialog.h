@@ -64,6 +64,8 @@ protected:
     DeviceProcessesDialog(KitChooser *chooser, QWidget *parent);
 
 private:
+    void setKitVisible(bool);
+
     Internal::DeviceProcessesDialogPrivate * const d;
 };
 
