@@ -27,27 +27,59 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEKEYWORDS_H
-#define PROFILEKEYWORDS_H
+#ifndef CMAKEVALIDATOR_H
+#define CMAKEVALIDATOR_H
 
+#include <QObject>
+#include <QString>
 #include <QStringList>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 
-namespace Qt4ProjectManager {
+QT_FORWARD_DECLARE_CLASS(QProcess)
 
+namespace CMakeProjectManager {
 namespace Internal {
 
-class ProFileKeywords
+class CMakeValidator : public QObject
 {
+    Q_OBJECT
 public:
-    static QStringList variables();
-    static QStringList functions();
-    static bool isVariable(const QString &word);
-    static bool isFunction(const QString &word);
+    CMakeValidator();
+    ~CMakeValidator();
+
+    enum State { Invalid, RunningBasic, RunningFunctionList, RunningFunctionDetails, ValidFunctionDetails };
+    void cancel();
+    bool isValid() const;
+
+    void setCMakeExecutable(const QString &executable);
+    QString cmakeExecutable() const;
+    bool hasCodeBlocksMsvcGenerator() const;
+    bool hasCodeBlocksNinjaGenerator() const;
+    TextEditor::Keywords keywords();
+private slots:
+    void finished(int exitCode);
+
 private:
-    ProFileKeywords();
+    void finishStep();
+    void startNextStep();
+    bool startProcess(const QStringList &args);
+    void parseFunctionOutput(const QByteArray &output);
+    void parseFunctionDetailsOutput(const QByteArray &output);
+    QString formatFunctionDetails(const QString &command, const QByteArray &args);
+
+    State m_state;
+    QProcess *m_process;
+    bool m_hasCodeBlocksMsvcGenerator;
+    bool m_hasCodeBlocksNinjaGenerator;
+    QString m_version;
+    QString m_executable;
+
+    QMap<QString, QStringList> m_functionArgs;
+    QStringList m_variables;
+    QStringList m_functions;
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace CMakeProjectManager
 
-#endif // PROFILEKEYWORDS_H
+#endif // CMAKEVALIDATOR_H

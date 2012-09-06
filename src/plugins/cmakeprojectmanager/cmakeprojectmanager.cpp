@@ -250,102 +250,26 @@ CMakeSettingsPage::CMakeSettingsPage()
        ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_TR_CATEGORY));
     setCategoryIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 
-    m_userCmake.process = 0;
-    m_pathCmake.process = 0;
-    m_userCmake.hasCodeBlocksMsvcGenerator = false;
-    m_pathCmake.hasCodeBlocksMsvcGenerator = false;
-    m_userCmake.hasCodeBlocksNinjaGenerator = false;
-    m_pathCmake.hasCodeBlocksNinjaGenerator = false;
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
-    m_userCmake.executable = settings->value(QLatin1String("cmakeExecutable")).toString();
+    m_cmakeValidatorForUser.setCMakeExecutable(settings->value(QLatin1String("cmakeExecutable")).toString());
     settings->endGroup();
 
-    updateInfo(&m_userCmake);
-    m_pathCmake.executable = findCmakeExecutable();
-    updateInfo(&m_pathCmake);
-}
-
-void CMakeSettingsPage::startProcess(CMakeValidator *cmakeValidator)
-{
-    cmakeValidator->process = new QProcess();
-
-    if (cmakeValidator == &m_pathCmake) // ugly
-        connect(cmakeValidator->process, SIGNAL(finished(int)),
-                this, SLOT(userCmakeFinished()));
-    else
-        connect(cmakeValidator->process, SIGNAL(finished(int)),
-                this, SLOT(pathCmakeFinished()));
-
-    cmakeValidator->process->start(cmakeValidator->executable, QStringList(QLatin1String("--help")));
-    cmakeValidator->process->waitForStarted();
-}
-
-void CMakeSettingsPage::userCmakeFinished()
-{
-    cmakeFinished(&m_userCmake);
-}
-
-void CMakeSettingsPage::pathCmakeFinished()
-{
-    cmakeFinished(&m_pathCmake);
-}
-
-void CMakeSettingsPage::cmakeFinished(CMakeValidator *cmakeValidator) const
-{
-    if (cmakeValidator->process) {
-        cmakeValidator->process->waitForFinished();
-        QString response = cmakeValidator->process->readAll();
-        QRegExp versionRegexp(QLatin1String("^cmake version ([\\d\\.]*)"));
-        versionRegexp.indexIn(response);
-
-        //m_supportsQtCreator = response.contains(QLatin1String("QtCreator"));
-        cmakeValidator->hasCodeBlocksNinjaGenerator = response.contains(QLatin1String("CodeBlocks - Ninja"));
-        cmakeValidator->hasCodeBlocksMsvcGenerator = response.contains(QLatin1String("CodeBlocks - NMake Makefiles"));
-        cmakeValidator->version = versionRegexp.cap(1);
-        if (!(versionRegexp.capturedTexts().size() > 3))
-            cmakeValidator->version += QLatin1Char('.') + versionRegexp.cap(3);
-
-        if (cmakeValidator->version.isEmpty())
-            cmakeValidator->state = CMakeValidator::INVALID;
-        else
-            cmakeValidator->state = CMakeValidator::VALID;
-
-        cmakeValidator->process->deleteLater();
-        cmakeValidator->process = 0;
-    }
+    m_cmakeValidatorForSystem.setCMakeExecutable(findCmakeExecutable());
 }
 
 bool CMakeSettingsPage::isCMakeExecutableValid() const
 {
-    if (m_userCmake.state == CMakeValidator::RUNNING) {
-        disconnect(m_userCmake.process, SIGNAL(finished(int)),
-                   this, SLOT(userCmakeFinished()));
-        m_userCmake.process->waitForFinished();
-        // Parse the output now
-        cmakeFinished(&m_userCmake);
-    }
-
-    if (m_userCmake.state == CMakeValidator::VALID)
+    if (m_cmakeValidatorForUser.isValid())
         return true;
-    if (m_pathCmake.state == CMakeValidator::RUNNING) {
-        disconnect(m_userCmake.process, SIGNAL(finished(int)),
-                   this, SLOT(pathCmakeFinished()));
-        m_pathCmake.process->waitForFinished();
-        // Parse the output now
-        cmakeFinished(&m_pathCmake);
-    }
-    return m_pathCmake.state == CMakeValidator::VALID;
+
+    return m_cmakeValidatorForSystem.isValid();
 }
 
 CMakeSettingsPage::~CMakeSettingsPage()
 {
-    if (m_userCmake.process)
-        m_userCmake.process->waitForFinished();
-    delete m_userCmake.process;
-    if (m_pathCmake.process)
-        m_pathCmake.process->waitForFinished();
-    delete m_pathCmake.process;
+    m_cmakeValidatorForUser.cancel();
+    m_cmakeValidatorForSystem.cancel();
 }
 
 QString CMakeSettingsPage::findCmakeExecutable() const
@@ -363,28 +287,15 @@ QWidget *CMakeSettingsPage::createPage(QWidget *parent)
     m_pathchooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     formLayout->addRow(tr("Executable:"), m_pathchooser);
     formLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
-    m_pathchooser->setPath(m_userCmake.executable);
+    m_pathchooser->setPath(m_cmakeValidatorForUser.cmakeExecutable());
     return outerWidget;
-}
-
-void CMakeSettingsPage::updateInfo(CMakeValidator *cmakeValidator)
-{
-    QFileInfo fi(cmakeValidator->executable);
-    if (fi.exists() && fi.isExecutable()) {
-        // Run it to find out more
-        cmakeValidator->state = CMakeValidator::RUNNING;
-        startProcess(cmakeValidator);
-    } else {
-        cmakeValidator->state = CMakeValidator::INVALID;
-    }
-    saveSettings();
 }
 
 void CMakeSettingsPage::saveSettings() const
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
-    settings->setValue(QLatin1String("cmakeExecutable"), m_userCmake.executable);
+    settings->setValue(QLatin1String("cmakeExecutable"), m_cmakeValidatorForUser.cmakeExecutable());
     settings->endGroup();
 }
 
@@ -392,10 +303,10 @@ void CMakeSettingsPage::apply()
 {
     if (!m_pathchooser) // page was never shown
         return;
-    if (m_userCmake.executable == m_pathchooser->path())
+    if (m_cmakeValidatorForUser.cmakeExecutable() == m_pathchooser->path())
         return;
-    m_userCmake.executable = m_pathchooser->path();
-    updateInfo(&m_userCmake);
+    m_cmakeValidatorForUser.setCMakeExecutable(m_pathchooser->path());
+    saveSettings();
 }
 
 void CMakeSettingsPage::finish()
@@ -407,36 +318,46 @@ QString CMakeSettingsPage::cmakeExecutable() const
 {
     if (!isCMakeExecutableValid())
         return QString();
-    if (m_userCmake.state == CMakeValidator::VALID)
-        return m_userCmake.executable;
-    else
-        return m_pathCmake.executable;
+
+    if (m_cmakeValidatorForUser.isValid())
+        return m_cmakeValidatorForUser.cmakeExecutable();
+    if (m_cmakeValidatorForSystem.isValid())
+        return m_cmakeValidatorForSystem.cmakeExecutable();
+    return QString();
 }
 
 void CMakeSettingsPage::setCMakeExecutable(const QString &executable)
 {
-    if (m_userCmake.executable == executable)
+    if (m_cmakeValidatorForUser.cmakeExecutable() == executable)
         return;
-    m_userCmake.executable = executable;
-    updateInfo(&m_userCmake);
+    m_cmakeValidatorForUser.setCMakeExecutable(executable);
 }
 
 bool CMakeSettingsPage::hasCodeBlocksMsvcGenerator() const
 {
-    if (!isCMakeExecutableValid())
-        return false;
-    if (m_userCmake.state == CMakeValidator::VALID)
-        return m_userCmake.hasCodeBlocksMsvcGenerator;
-    else
-        return m_pathCmake.hasCodeBlocksMsvcGenerator;
+    if (m_cmakeValidatorForUser.isValid())
+        return m_cmakeValidatorForUser.hasCodeBlocksMsvcGenerator();
+    if (m_cmakeValidatorForSystem.isValid())
+        return m_cmakeValidatorForSystem.hasCodeBlocksMsvcGenerator();
+    return false;
 }
 
 bool CMakeSettingsPage::hasCodeBlocksNinjaGenerator() const
 {
-    if (!isCMakeExecutableValid())
-        return false;
-    if (m_userCmake.state == CMakeValidator::VALID)
-        return m_userCmake.hasCodeBlocksNinjaGenerator;
-    else
-        return m_pathCmake.hasCodeBlocksNinjaGenerator;
+    if (m_cmakeValidatorForUser.isValid())
+        return m_cmakeValidatorForUser.hasCodeBlocksNinjaGenerator();
+    if (m_cmakeValidatorForSystem.isValid())
+        return m_cmakeValidatorForSystem.hasCodeBlocksNinjaGenerator();
+    return false;
+}
+
+TextEditor::Keywords CMakeSettingsPage::keywords()
+{
+    if (m_cmakeValidatorForUser.isValid())
+        return m_cmakeValidatorForUser.keywords();
+
+    if (m_cmakeValidatorForSystem.isValid())
+        return m_cmakeValidatorForSystem.keywords();
+
+    return TextEditor::Keywords(QStringList(), QStringList(), QMap<QString, QStringList>());
 }

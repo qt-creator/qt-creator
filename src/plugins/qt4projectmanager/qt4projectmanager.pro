@@ -63,7 +63,6 @@ HEADERS += \
     librarydetailscontroller.h \
     findqt4profiles.h \
     qt4projectmanager_global.h \
-    profilekeywords.h \
     qt4targetsetupwidget.h \
     buildconfigurationinfo.h \
     winceqtversionfactory.h \
@@ -127,7 +126,6 @@ SOURCES += \
     addlibrarywizard.cpp \
     librarydetailscontroller.cpp \
     findqt4profiles.cpp \
-    profilekeywords.cpp \
     qt4targetsetupwidget.cpp \
     winceqtversionfactory.cpp \
     winceqtversion.cpp \

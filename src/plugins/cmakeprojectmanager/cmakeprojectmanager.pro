@@ -17,7 +17,9 @@ HEADERS = cmakeproject.h \
     cmakeeditor.h \
     cmakehighlighter.h \
     cmakeuicodemodelsupport.h \
-    cmakelocatorfilter.h
+    cmakelocatorfilter.h \
+    cmakefilecompletionassist.h \
+    cmakevalidator.h
 
 SOURCES = cmakeproject.cpp \
     cmakeprojectplugin.cpp \
@@ -31,7 +33,9 @@ SOURCES = cmakeproject.cpp \
     cmakeeditor.cpp \
     cmakehighlighter.cpp \
     cmakeuicodemodelsupport.cpp \
-    cmakelocatorfilter.cpp
+    cmakelocatorfilter.cpp \
+    cmakefilecompletionassist.cpp \
+    cmakevalidator.cpp
 
 RESOURCES += cmakeproject.qrc
 

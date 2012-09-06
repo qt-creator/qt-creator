@@ -116,7 +116,8 @@ SOURCES += texteditorplugin.cpp \
     codestyleeditor.cpp \
     circularclipboard.cpp \
     circularclipboardassist.cpp \
-    itextmark.cpp
+    itextmark.cpp \
+    codeassist/keywordscompletionassist.cpp
 
 HEADERS += texteditorplugin.h \
     textfilewizard.h \
@@ -235,7 +236,8 @@ HEADERS += texteditorplugin.h \
     basefilefind_p.h \
     circularclipboard.h \
     circularclipboardassist.h \
-    itextmark.h
+    itextmark.h \
+    codeassist/keywordscompletionassist.h
 
 FORMS += \
     displaysettingspage.ui \

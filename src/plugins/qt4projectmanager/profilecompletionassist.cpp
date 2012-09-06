@@ -29,73 +29,236 @@
 
 #include "profilecompletionassist.h"
 #include "qt4projectmanagerconstants.h"
-#include "profilekeywords.h"
 
-#include <texteditor/codeassist/iassistinterface.h>
-#include <texteditor/codeassist/genericproposal.h>
-#include <texteditor/completionsettings.h>
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/basetexteditor.h>
-
-#include <cplusplus/Icons.h>
-
-#include <QTextCursor>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 
 using namespace Qt4ProjectManager::Internal;
 using namespace TextEditor;
 
-// -------------------------
-// ProFileAssistProposalItem
-// -------------------------
-ProFileAssistProposalItem::ProFileAssistProposalItem()
-{}
 
-ProFileAssistProposalItem::~ProFileAssistProposalItem()
-{}
+static const char *const variableKeywords[] = {
+    "BACKUP_REGISTRATION_FILE_MAEMO",
+    "CCFLAG",
+    "CONFIG",
+    "DEFINES",
+    "DEF_FILE",
+    "DEPENDPATH",
+    "DEPLOYMENT",
+    "DEPLOYMENT_PLUGIN",
+    "DESTDIR",
+    "DESTDIR_TARGET",
+    "DISTFILES",
+    "DLLDESTDIR",
+    "DISTFILES",
+    "DSP_TEMPLATE",
+    "FORMS",
+    "FORMS3",
+    "GUID",
+    "HEADERS",
+    "ICON",
+    "INCLUDEPATH",
+    "INSTALLS",
+    "LEXIMPLS",
+    "LEXOBJECTS",
+    "LEXSOURCES",
+    "LIBS",
+    "LITERAL_HASH",
+    "MAKEFILE",
+    "MAKEFILE_GENERATOR",
+    "MOBILITY",
+    "MOC_DIR",
+    "OBJECTIVE_HEADERS",
+    "OBJECTIVE_SOURCES",
+    "OBJECTS",
+    "OBJECTS_DIR",
+    "OBJMOC",
+    "OTHER_FILES",
+    "PKGCONFIG",
+    "POST_TARGETDEPS",
+    "PRE_TARGETDEPS",
+    "PRECOMPILED_HEADER",
+    "PWD",
+    "OUT_PWD",
+    "QMAKE",
+    "QMAKESPEC",
+    "QMAKE_APP_FLAG",
+    "QMAKE_APP_OR_DLL",
+    "QMAKE_AR_CMD",
+    "QMAKE_BUNDLE_DATA",
+    "QMAKE_BUNDLE_EXTENSION",
+    "QMAKE_CC",
+    "QMAKE_CFLAGS_DEBUG",
+    "QMAKE_CFLAGS_MT",
+    "QMAKE_CFLAGS_MT_DBG",
+    "QMAKE_CFLAGS_MT_DLL",
+    "QMAKE_CFLAGS_MT_DLLDBG",
+    "QMAKE_CFLAGS_RELEASE",
+    "QMAKE_CFLAGS_SHLIB",
+    "QMAKE_CFLAGS_THREAD",
+    "QMAKE_CFLAGS_WARN_OFF",
+    "QMAKE_CFLAGS_WARN_ON",
+    "QMAKE_CLEAN",
+    "QMAKE_CXX",
+    "QMAKE_CXXFLAGS",
+    "QMAKE_CXXFLAGS_DEBUG",
+    "QMAKE_CXXFLAGS_MT",
+    "QMAKE_CXXFLAGS_MT_DBG",
+    "QMAKE_CXXFLAGS_MT_DLL",
+    "QMAKE_CXXFLAGS_MT_DLLDBG",
+    "QMAKE_CXXFLAGS_RELEASE",
+    "QMAKE_CXXFLAGS_SHLIB",
+    "QMAKE_CXXFLAGS_THREAD",
+    "QMAKE_CXXFLAGS_WARN_OFF",
+    "QMAKE_CXXFLAGS_WARN_ON",
+    "QMAKE_DISTCLEAN",
+    "QMAKE_EXTENSION_SHLIB",
+    "QMAKE_EXT_MOC",
+    "QMAKE_EXT_UI",
+    "QMAKE_EXT_PRL",
+    "QMAKE_EXT_LEX",
+    "QMAKE_EXT_YACC",
+    "QMAKE_EXT_OBJ",
+    "QMAKE_EXT_CPP",
+    "QMAKE_EXT_H",
+    "QMAKE_EXTRA_COMPILERS",
+    "QMAKE_EXTRA_TARGETS",
+    "QMAKE_FAILED_REQUIREMENTS",
+    "QMAKE_FRAMEWORK_BUNDLE_NAME",
+    "QMAKE_FRAMEWORK_VERSION",
+    "QMAKE_INCDIR",
+    "QMAKE_INCDIR_EGL",
+    "QMAKE_INCDIR_OPENGL",
+    "QMAKE_INCDIR_OPENGL_ES1",
+    "QMAKE_INCDIR_OPENGL_ES2",
+    "QMAKE_INCDIR_OPENVG",
+    "QMAKE_INCDIR_QT",
+    "QMAKE_INCDIR_THREAD",
+    "QMAKE_INCDIR_X11",
+    "QMAKE_INFO_PLIST",
+    "QMAKE_LFLAGS",
+    "QMAKE_LFLAGS_CONSOLE",
+    "QMAKE_LFLAGS_CONSOLE_DLL",
+    "QMAKE_LFLAGS_DEBUG",
+    "QMAKE_LFLAGS_PLUGIN",
+    "QMAKE_LFLAGS_RPATH",
+    "QMAKE_LFLAGS_QT_DLL",
+    "QMAKE_LFLAGS_RELEASE",
+    "QMAKE_LFLAGS_SHAPP",
+    "QMAKE_LFLAGS_SHLIB",
+    "QMAKE_LFLAGS_SONAME",
+    "QMAKE_LFLAGS_THREAD",
+    "QMAKE_LFLAGS_WINDOWS",
+    "QMAKE_LFLAGS_WINDOWS_DLL",
+    "QMAKE_LIBDIR",
+    "QMAKE_LIBDIR_FLAGS",
+    "QMAKE_LIBDIR_EGL",
+    "QMAKE_LIBDIR_OPENGL",
+    "QMAKE_LIBDIR_OPENVG",
+    "QMAKE_LIBDIR_QT",
+    "QMAKE_LIBDIR_X11",
+    "QMAKE_LIBS",
+    "QMAKE_LIBS_CONSOLE",
+    "QMAKE_LIBS_EGL",
+    "QMAKE_LIBS_OPENGL",
+    "QMAKE_LIBS_OPENGL_QT",
+    "QMAKE_LIBS_OPENGL_ES1",
+    "QMAKE_LIBS_OPENGL_ES2",
+    "QMAKE_LIBS_OPENVG",
+    "QMAKE_LIBS_QT",
+    "QMAKE_LIBS_QT_DLL",
+    "QMAKE_LIBS_QT_OPENGL",
+    "QMAKE_LIBS_QT_THREAD",
+    "QMAKE_LIBS_RT",
+    "QMAKE_LIBS_RTMT",
+    "QMAKE_LIBS_THREAD",
+    "QMAKE_LIBS_WINDOWS",
+    "QMAKE_LIBS_X11",
+    "QMAKE_LIBS_X11SM",
+    "QMAKE_LIB_FLAG",
+    "QMAKE_LINK_SHLIB_CMD",
+    "QMAKE_LN_SHLIB",
+    "QMAKE_POST_LINK",
+    "QMAKE_PRE_LINK",
+    "QMAKE_PROJECT_NAME",
+    "QMAKE_MAC_SDK",
+    "QMAKE_MACOSX_DEPLOYMENT_TARGET",
+    "QMAKE_MAKEFILE",
+    "QMAKE_MOC_SRC",
+    "QMAKE_QMAKE",
+    "QMAKE_QT_DLL",
+    "QMAKE_RESOURCE_FLAGS",
+    "QMAKE_RPATH",
+    "QMAKE_RPATHDIR",
+    "QMAKE_RUN_CC",
+    "QMAKE_RUN_CC_IMP",
+    "QMAKE_RUN_CXX",
+    "QMAKE_RUN_CXX_IMP",
+    "QMAKE_TARGET",
+    "QMAKE_UIC",
+    "QT",
+    "QTPLUGIN",
+    "QT_VERSION",
+    "QT_MAJOR_VERSION",
+    "QT_MINOR_VERSION",
+    "QT_PATCH_VERSION",
+    "RCC_DIR",
+    "RC_FILE",
+    "REQUIRES",
+    "RESOURCES",
+    "RES_FILE",
+    "RSS_RULES",
+    "SIGNATURE_FILE",
+    "SOURCES",
+    "SRCMOC",
+    "STATECHARTS",
+    "SUBDIRS",
+    "TARGET",
+    "TEMPLATE",
+    "TRANSLATIONS",
+    "UICIMPLS",
+    "UICOBJECTS",
+    "UI_DIR",
+    "UI_HEADERS_DIR",
+    "UI_SOURCES_DIR",
+    "VER_MAJ",
+    "VER_MIN",
+    "VER_PAT",
+    "VERSION",
+    "VPATH",
+    "YACCIMPLS",
+    "YACCOBJECTS",
+    "YACCSOURCES",
+    "_PRO_FILE_",
+    "_PRO_FILE_PWD_",
+    0
+};
 
-bool ProFileAssistProposalItem::prematurelyApplies(const QChar &c) const
-{
-    // only '(' in case of a function
-    if (c == QLatin1Char('(') && ProFileKeywords::isFunction(text()))
-        return true;
-    return false;
-}
-
-void ProFileAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *editor,
-                                                        int basePosition) const
-{
-    const CompletionSettings &settings = TextEditorSettings::instance()->completionSettings();
-
-    int replaceLength = editor->position() - basePosition;
-    QString toInsert = text();
-    int cursorOffset = 0;
-    if (ProFileKeywords::isFunction(toInsert) && settings.m_autoInsertBrackets) {
-        if (settings.m_spaceAfterFunctionName) {
-            if (editor->textAt(editor->position(), 2) == QLatin1String(" (")) {
-                cursorOffset = 2;
-            } else if (editor->characterAt(editor->position()) == QLatin1Char('(')
-                       || editor->characterAt(editor->position()) == QLatin1Char(' ')) {
-                replaceLength += 1;
-                toInsert += QLatin1String(" (");
-            } else {
-                toInsert += QLatin1String(" ()");
-                cursorOffset = -1;
-            }
-        } else {
-            if (editor->characterAt(editor->position()) == QLatin1Char('(')) {
-                cursorOffset = 1;
-            } else {
-                toInsert += QLatin1String("()");
-                cursorOffset = -1;
-            }
-        }
-    }
-
-    editor->setCursorPosition(basePosition);
-    editor->replace(replaceLength, toInsert);
-    if (cursorOffset)
-        editor->setCursorPosition(editor->position() + cursorOffset);
-}
+static const char *const functionKeywords[] = {
+    "basename",
+    "contains",
+    "count",
+    "dirname",
+    "error",
+    "eval",
+    "exists",
+    "find",
+    "for",
+    "include",
+    "infile",
+    "isEmpty",
+    "join",
+    "member",
+    "message",
+    "packagesExist",
+    "prompt",
+    "quote",
+    "replace",
+    "sprintf",
+    "system",
+    "unique",
+    "warning",
+    0
+};
 
 // -------------------------------
 // ProFileCompletionAssistProvider
@@ -103,127 +266,41 @@ void ProFileAssistProposalItem::applyContextualContent(TextEditor::BaseTextEdito
 ProFileCompletionAssistProvider::ProFileCompletionAssistProvider()
 {}
 
+void ProFileCompletionAssistProvider::init()
+{
+    for (uint i = 0; i < sizeof variableKeywords / sizeof variableKeywords[0] - 1; i++)
+        m_variables.append(QLatin1String(variableKeywords[i]));
+    for (uint i = 0; i < sizeof functionKeywords / sizeof functionKeywords[0] - 1; i++)
+        m_functions.append(QLatin1String(functionKeywords[i]));
+}
+
 ProFileCompletionAssistProvider::~ProFileCompletionAssistProvider()
-{}
+{
+}
 
 bool ProFileCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
     return editorId == Qt4ProjectManager::Constants::PROFILE_EDITOR_ID;
 }
 
-bool ProFileCompletionAssistProvider::isAsynchronous() const
-{
-    return false;
-}
-
-int ProFileCompletionAssistProvider::activationCharSequenceLength() const
-{
-    return 0;
-}
-
-bool ProFileCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
-{
-    Q_UNUSED(sequence);
-    return false;
-}
-
-bool ProFileCompletionAssistProvider::isContinuationChar(const QChar &c) const
-{
-    return c.isLetterOrNumber() || c == QLatin1Char('_');
-}
-
 IAssistProcessor *ProFileCompletionAssistProvider::createProcessor() const
 {
-    return new ProFileCompletionAssistProcessor;
+    if (m_variables.isEmpty())
+        const_cast<ProFileCompletionAssistProvider *>(this)->init();
+    TextEditor::Keywords keywords = TextEditor::Keywords(m_variables, m_functions, QMap<QString, QStringList>());
+    return new KeywordsCompletionAssistProcessor(keywords);
 }
 
-// --------------------------------
-// ProFileCompletionAssistProcessor
-// --------------------------------
-ProFileCompletionAssistProcessor::ProFileCompletionAssistProcessor()
-    : m_startPosition(-1)
-    , m_variableIcon(CPlusPlus::Icons().iconForType(CPlusPlus::Icons::VarPublicIconType))
-    , m_functionIcon(CPlusPlus::Icons().iconForType(CPlusPlus::Icons::FuncPublicIconType))
-{}
-
-ProFileCompletionAssistProcessor::~ProFileCompletionAssistProcessor()
-{}
-
-IAssistProposal *ProFileCompletionAssistProcessor::perform(const IAssistInterface *interface)
+QStringList ProFileCompletionAssistProvider::variables() const
 {
-    m_interface.reset(interface);
-
-    if (isInComment())
-        return 0;
-
-    if (interface->reason() == IdleEditor && !acceptsIdleEditor())
-        return 0;
-
-    if (m_startPosition == -1)
-        m_startPosition = findStartOfName();
-
-    QList<TextEditor::BasicProposalItem *> items;
-    QStringList keywords = ProFileKeywords::variables() + ProFileKeywords::functions();
-    for (int i = 0; i < keywords.count(); i++) {
-        BasicProposalItem *item = new ProFileAssistProposalItem;
-        item->setText(keywords[i]);
-        item->setIcon(ProFileKeywords::isFunction(item->text()) ? m_functionIcon : m_variableIcon);
-        items.append(item);
-    }
-
-    return new GenericProposal(m_startPosition, new ProFileAssistProposalModel(items));
+    if (m_variables.isEmpty())
+        const_cast<ProFileCompletionAssistProvider *>(this)->init();
+    return m_variables;
 }
 
-bool ProFileCompletionAssistProcessor::acceptsIdleEditor()
+QStringList ProFileCompletionAssistProvider::functions() const
 {
-    const int pos = m_interface->position();
-    QChar characterUnderCursor = m_interface->characterAt(pos);
-    if (!characterUnderCursor.isLetterOrNumber()) {
-        m_startPosition = findStartOfName();
-        if (pos - m_startPosition >= 3 && !isInComment())
-            return true;
-    }
-    return false;
-}
-
-int ProFileCompletionAssistProcessor::findStartOfName(int pos) const
-{
-    if (pos == -1)
-        pos = m_interface->position();
-    QChar chr;
-
-    // Skip to the start of a name
-    do {
-        chr = m_interface->characterAt(--pos);
-    } while (chr.isLetterOrNumber() || chr == QLatin1Char('_'));
-
-    return pos + 1;
-}
-
-bool ProFileCompletionAssistProcessor::isInComment() const
-{
-    QTextCursor tc(m_interface->textDocument());
-    tc.setPosition(m_interface->position());
-    tc.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-    const QString &lineBeginning = tc.selectedText();
-    if (lineBeginning.contains(QLatin1Char('#')))
-        return true;
-    return false;
-}
-
-// --------------------------
-// ProFileAssistProposalModel
-// --------------------------
-ProFileAssistProposalModel::ProFileAssistProposalModel(
-    const QList<BasicProposalItem *> &items)
-    : BasicProposalItemListModel(items)
-{}
-
-ProFileAssistProposalModel::~ProFileAssistProposalModel()
-{}
-
-bool ProFileAssistProposalModel::isSortable(const QString &prefix) const
-{
-    Q_UNUSED(prefix)
-    return false;
+    if (m_functions.isEmpty())
+        const_cast<ProFileCompletionAssistProvider *>(this)->init();
+    return m_functions;
 }

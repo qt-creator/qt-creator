@@ -35,6 +35,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <coreplugin/icontext.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
@@ -42,9 +43,11 @@
 #include <QFuture>
 #include <QStringList>
 #include <QDir>
+#include <QVector>
 #include <QAction>
 
-QT_FORWARD_DECLARE_CLASS(QProcess)
+#include "cmakevalidator.h"
+
 QT_FORWARD_DECLARE_CLASS(QLabel)
 
 namespace Utils {
@@ -95,17 +98,6 @@ private:
     ProjectExplorer::Project *m_contextProject;
 };
 
-struct CMakeValidator
-{
-    enum STATE { VALID, INVALID, RUNNING };
-    STATE state;
-    QProcess *process;
-    bool hasCodeBlocksMsvcGenerator;
-    bool hasCodeBlocksNinjaGenerator;
-    QString version;
-    QString executable;
-};
-
 class CMakeSettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
@@ -124,20 +116,15 @@ public:
     bool hasCodeBlocksMsvcGenerator() const;
     bool hasCodeBlocksNinjaGenerator() const;
 
-private slots:
-    void userCmakeFinished();
-    void pathCmakeFinished();
+    TextEditor::Keywords keywords();
 
 private:
-    void cmakeFinished(CMakeValidator *cmakeValidator) const;
     void saveSettings() const;
     QString findCmakeExecutable() const;
-    void startProcess(CMakeValidator *cmakeValidator);
-    void updateInfo(CMakeValidator *cmakeValidator);
 
     Utils::PathChooser *m_pathchooser;
-    mutable CMakeValidator m_userCmake;
-    mutable CMakeValidator m_pathCmake;
+    CMakeValidator m_cmakeValidatorForUser;
+    CMakeValidator m_cmakeValidatorForSystem;
 };
 
 } // namespace Internal

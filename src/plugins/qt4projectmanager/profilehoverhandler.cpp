@@ -29,7 +29,7 @@
 
 #include "profilehoverhandler.h"
 #include "profileeditor.h"
-#include "profilekeywords.h"
+#include "profilecompletionassist.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -53,6 +53,9 @@ ProFileHoverHandler::ProFileHoverHandler(QObject *parent)
   : BaseHoverHandler(parent),
     m_manualKind(UnknownManual)
 {
+    ProFileCompletionAssistProvider *pcap
+            = ExtensionSystem::PluginManager::instance()->getObject<ProFileCompletionAssistProvider>();
+    m_keywords = TextEditor::Keywords(pcap->variables(), pcap->functions(), QMap<QString, QStringList>());
 }
 
 ProFileHoverHandler::~ProFileHoverHandler()
@@ -111,9 +114,9 @@ void ProFileHoverHandler::identifyQMakeKeyword(const QString &text, int pos)
         if (checkBuffer) {
             if (!buf.isEmpty()) {
                 if ((i >= pos) && (i - buf.size() <= pos)) {
-                    if (ProFileKeywords::isFunction(buf))
+                    if (m_keywords.isFunction(buf))
                         identifyDocFragment(FunctionManual, buf);
-                    else if (ProFileKeywords::isVariable(buf))
+                    else if (m_keywords.isVariable(buf))
                         identifyDocFragment(VariableManual, buf);
                     break;
                 }

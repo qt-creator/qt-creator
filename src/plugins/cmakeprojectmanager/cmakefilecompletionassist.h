@@ -27,60 +27,30 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEHOVERHANDLER_H
-#define PROFILEHOVERHANDLER_H
+#ifndef CMAKEFILECOMPLETIONASSIST_H
+#define CMAKEFILECOMPLETIONASSIST_H
 
-#include <texteditor/basehoverhandler.h>
-#include <texteditor/codeassist/keywordscompletionassist.h>
+#include <texteditor/codeassist/completionassistprovider.h>
 
-#include <QObject>
-
-QT_BEGIN_NAMESPACE
-class QUrl;
-QT_END_NAMESPACE
-
-namespace Core {
-class IEditor;
-}
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace Qt4ProjectManager {
+namespace CMakeProjectManager {
 namespace Internal {
 
-class ProFileHoverHandler : public TextEditor::BaseHoverHandler
-{
-    Q_OBJECT
-public:
-    ProFileHoverHandler(QObject *parent = 0);
-    virtual ~ProFileHoverHandler();
+class CMakeSettingsPage;
 
-signals:
-    void creatorHelpRequested(const QUrl &url);
+class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
+{
+public:
+    CMakeFileCompletionAssistProvider(CMakeSettingsPage *settingsPage);
+    ~CMakeFileCompletionAssistProvider();
+
+    bool supportsEditor(const Core::Id &editorId) const;
+    TextEditor::IAssistProcessor *createProcessor() const;
 
 private:
-    virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
-    void identifyQMakeKeyword(const QString &text, int pos);
-
-    enum ManualKind {
-        VariableManual,
-        FunctionManual,
-        UnknownManual
-    };
-
-    QString manualName() const;
-    void identifyDocFragment(ManualKind manualKind,
-                       const QString &keyword);
-
-    QString m_docFragment;
-    ManualKind m_manualKind;
-    TextEditor::Keywords m_keywords;
+    CMakeSettingsPage *m_settingsPage;
 };
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // Internal
+} // CMakeProjectManager
 
-#endif // PROFILEHOVERHANDLER_H
+#endif // CMAKEFILECOMPLETIONASSIST_H

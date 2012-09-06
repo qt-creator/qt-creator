@@ -30,71 +30,28 @@
 #ifndef PROFILECOMPLETIONASSIST_H
 #define PROFILECOMPLETIONASSIST_H
 
-#include <texteditor/codeassist/basicproposalitem.h>
-#include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include <texteditor/codeassist/completionassistprovider.h>
-#include <texteditor/codeassist/iassistprocessor.h>
 
-#include <QIcon>
+#include <QStringList>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-class ProFileAssistProposalItem : public TextEditor::BasicProposalItem
-{
-public:
-    ProFileAssistProposalItem();
-    virtual ~ProFileAssistProposalItem();
-
-    virtual bool prematurelyApplies(const QChar &c) const;
-    virtual void applyContextualContent(TextEditor::BaseTextEditor *editor,
-                                        int basePosition) const;
-};
-
-
 class ProFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
+    Q_OBJECT
 public:
     ProFileCompletionAssistProvider();
+    void init();
     virtual ~ProFileCompletionAssistProvider();
 
     virtual bool supportsEditor(const Core::Id &editorId) const;
     virtual TextEditor::IAssistProcessor *createProcessor() const;
-
-    virtual bool isAsynchronous() const;
-    virtual int activationCharSequenceLength() const;
-    virtual bool isActivationCharSequence(const QString &sequence) const;
-    virtual bool isContinuationChar(const QChar &c) const;
-};
-
-
-class ProFileCompletionAssistProcessor : public TextEditor::IAssistProcessor
-{
-public:
-    ProFileCompletionAssistProcessor();
-    virtual ~ProFileCompletionAssistProcessor();
-
-    virtual TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface);
-
+    QStringList variables() const;
+    QStringList functions() const;
 private:
-    bool acceptsIdleEditor();
-    int findStartOfName(int pos = -1) const;
-    bool isInComment() const;
-
-    int m_startPosition;
-    QScopedPointer<const TextEditor::IAssistInterface> m_interface;
-    const QIcon m_variableIcon;
-    const QIcon m_functionIcon;
-};
-
-
-class ProFileAssistProposalModel : public TextEditor::BasicProposalItemListModel
-{
-public:
-    ProFileAssistProposalModel(const QList<TextEditor::BasicProposalItem *> &items);
-    virtual ~ProFileAssistProposalModel();
-
-    virtual bool isSortable(const QString &prefix) const;
+    QStringList m_variables;
+    QStringList m_functions;
 };
 
 } // Internal

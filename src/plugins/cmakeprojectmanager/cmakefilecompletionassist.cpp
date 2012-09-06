@@ -27,60 +27,31 @@
 **
 ****************************************************************************/
 
-#ifndef PROFILEHOVERHANDLER_H
-#define PROFILEHOVERHANDLER_H
+#include "cmakefilecompletionassist.h"
+#include "cmakeprojectconstants.h"
+#include "cmakeprojectmanager.h"
 
-#include <texteditor/basehoverhandler.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
-#include <QObject>
+using namespace CMakeProjectManager::Internal;
+using namespace TextEditor;
 
-QT_BEGIN_NAMESPACE
-class QUrl;
-QT_END_NAMESPACE
+// -------------------------------
+// CMakeFileCompletionAssistProvider
+// -------------------------------
+CMakeFileCompletionAssistProvider::CMakeFileCompletionAssistProvider(CMakeSettingsPage *settingsPage)
+    : m_settingsPage(settingsPage)
+{}
 
-namespace Core {
-class IEditor;
-}
+CMakeFileCompletionAssistProvider::~CMakeFileCompletionAssistProvider()
+{}
 
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace Qt4ProjectManager {
-namespace Internal {
-
-class ProFileHoverHandler : public TextEditor::BaseHoverHandler
+bool CMakeFileCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
-    Q_OBJECT
-public:
-    ProFileHoverHandler(QObject *parent = 0);
-    virtual ~ProFileHoverHandler();
+    return editorId == CMakeProjectManager::Constants::CMAKE_EDITOR_ID;
+}
 
-signals:
-    void creatorHelpRequested(const QUrl &url);
-
-private:
-    virtual bool acceptEditor(Core::IEditor *editor);
-    virtual void identifyMatch(TextEditor::ITextEditor *editor, int pos);
-    void identifyQMakeKeyword(const QString &text, int pos);
-
-    enum ManualKind {
-        VariableManual,
-        FunctionManual,
-        UnknownManual
-    };
-
-    QString manualName() const;
-    void identifyDocFragment(ManualKind manualKind,
-                       const QString &keyword);
-
-    QString m_docFragment;
-    ManualKind m_manualKind;
-    TextEditor::Keywords m_keywords;
-};
-
-} // namespace Internal
-} // namespace Qt4ProjectManager
-
-#endif // PROFILEHOVERHANDLER_H
+IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor() const
+{
+    return new KeywordsCompletionAssistProcessor(m_settingsPage->keywords());
+}

@@ -31,6 +31,7 @@
 #define PROFILEHIGHLIGHTER_H
 
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/codeassist/keywordscompletionassist.h>
 #include <QtAlgorithms>
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
@@ -61,6 +62,8 @@ public:
 
 private:
     QTextCharFormat m_formats[NumProfileFormats];
+    TextEditor::Keywords m_keywords;
+
 };
 
 } // namespace Internal
