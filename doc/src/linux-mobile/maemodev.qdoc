@@ -48,7 +48,7 @@
     or see
     \l{http://doc.qt.nokia.com/qt-maemo/platform-notes-maemo5.html}{Platform Notes - Maemo 5}.
 
-    \section1 Hardware and Software Requirements for Maemo Target
+    \section1 Hardware and Software Requirements for Maemo Devices
 
     To build and run Qt applications for Maemo 5, you need the following:
     \list
@@ -222,7 +222,7 @@
     only need to configure a connection to the device.
 
     You use a wizard to create the connections. You can edit the settings later
-    in \gui {Tools > Options > Linux Devices > Device Configurations}.
+    in \gui Tools > \gui Options > \gui Devices.
 
     \image qtcreator-maemo-device-configurations.png "Maemo Device Configurations dialog"
 
@@ -282,20 +282,14 @@
             \note If you experience connection problems due to a USB port issue,
             switch to a different port or use WLAN to connect to the device.
 
-            \o Select \gui {Tools > Options > Linux Devices > Device
-                Configurations > Add}.
+            \o  Select \gui Tools > \gui Options > \gui Devices > \gui Add.
 
-            \o  Select \gui {Device with MADDE support (Fremantle, Harmattan,
-                MeeGo) > Start Wizard}, and add a new configuration for a
-                hardware device.
+            \o  Select \gui {Maemo5/Fremantle} > \gui {Start Wizard}.
 
             \image qtcreator-dev-conf-maemo.png "Maemo device configuration"
 
             \o In the \gui {The name to identify this configuration} field,
             enter a name for the connection.
-
-            \o In the \gui {The system running on the device} field, select
-            the software platform of the device.
 
             \o In the \gui {The kind of device} field, select
             \gui {Hardware device}.
@@ -321,21 +315,11 @@
 
             \list a
 
-                \o In \QC, select \gui {Tools > Options > Linux
-                Devices > Device Configurations > Add} to add a new
-                configuration.
-
-                \image qtcreator-maemo-emulator-connection.png "Maemo emulator configuration"
-
-                \o In the \gui {The name to identify this configuration} field,
-                enter a name for
-                the connection.
-
-                \o In the \gui {The system running on the device} field, select
-                the software platform to emulate.
+                \o  In \QC, select \gui Tools > \gui Options > \gui Devices >
+                    \gui Add to add a new configuration.
 
                 \o In the \gui {The kind of device} field, select
-                \gui {Emulator (Qemu)}.
+                \gui Emulator.
 
                 \o Click \gui Next.
 
@@ -345,30 +329,56 @@
             \endlist
     \endif
 
-            \o To specify build and run settings:
+            \o  Select \gui Tools > \gui Options > \gui {Build & Run} >
+                \gui Kits > \gui Add to add a kit for building for the device:
 
             \list a
 
-                \o Open a project for an application you want to develop for your
+                \o  In the \gui {Device type} field, select
+                    \gui {Maemo5/Fremantle}.
+
+                \o  In the \gui Device field, select the device that you added
+                    above.
+
+                \o  In the \gui Sysroot field, specify the path to the sysroot.
+                    By default, the \QSDK installer places sysroot in the
+                    following folder:
+                    \c{QtSDK\Maemo\4.6.2\sysroots\fremantle-arm-sysroot-20.2010.36-2-slim}.
+
+                \o  In the \gui {Compiler type} field, select GCC.
+
+                \o  In the \gui Compiler field, specify the path to the GCC
+                    compiler. By default, the \QSDK installer places the
+                    compiler in the following folder:
+                    \c{QtSDK\Maemo\4.6.2\targets\fremantle-pr13\bin\}.
+
+                \o  In the \gui Debugger field, specify the path to GDB. By
+                    default, the \QSDK installer places the debugger
+                    in the following folder:
+                    \c{QtSDK\Maemo\4.6.2\targets\fremantle-pr13\bin\}.
+
+                \o  In the \gui {Qt version} field, choose the MADDE Qt version
+                    for Maemo5/Fremantle. By default, the \QSDK installer
+                    places qmake in the following folder:
+                    \c{QtSDK\Maemo\4.6.2\targets\fremantle-pr13\bin\}.
+
+            \endlist
+
+                You can leave the \gui {Qt mkspec} field empty.
+
+            \o  Open a project for an application you want to develop for your
                 device.
 
-                \o Click \gui Projects to open the projects mode.
+            \o  Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+                add the kit that you specified above.
 
-                \o In the \gui{Build Settings} section, choose the MADDE Qt version
-                that was registered by the installation program.
+            \o  Select \gui Run to specify run settings for the project.
 
-                 \image qtcreator-build-settings-maemo.png "Maemo build settings"
-
-                 \o In the \gui{Run Settings} section, in the
-                 \gui {Device configuration} field, select the device
-                 connection or the emulator connection.
-                 \image qtcreator-run-settings-maemo.png "Maemo run settings"
-
-                 \o Click \gui {<no target path set>} in \gui {Remote Directory}
-                 to specify the folder where the file is installed on the device.
-                 For example, \c {/opt/usr/bin}.
-
-             \endlist
+            \o  The mobile application wizard automatically sets the folder
+                where the file is installed on the device in the \gui {Remote
+                Directory} field. For example, \c {/opt/usr/bin}. If the text
+                \gui {<no target path set>} is displayed, click it to specify a
+                folder.
 
         \endlist
 
@@ -386,8 +396,7 @@
         \o  To specify the password, enter the following command:
             \c{/usr/lib/mad-developer/devrootsh passwd user}
 
-        \o  In \QC, select \gui {Tools > Options Linux Devices >
-            Device Configurations}.
+        \o  In \QC, select \gui Tools > \gui Options > \gui Devices.
 
         \o  Specify the username \c user and the password in the device
             configuration.

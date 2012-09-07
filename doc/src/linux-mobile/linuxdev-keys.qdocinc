@@ -10,8 +10,7 @@
 
     \list 1
 
-        \o  Select \gui {Tools > Options > Linux Devices > Device
-            Configurations > Generate SSH Key}.
+        \o  Select \gui Tools > \gui Options > \gui Devices > \gui {Create New}.
 
             \image qtcreator-ssh-key-configuration.png "SSH Key Configuration dialog"
 
