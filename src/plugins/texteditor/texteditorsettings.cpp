@@ -228,7 +228,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                          tr("Operators. (for example operator++ operator-=)")));
     formatDescr.append(FormatDescription(C_PREPROCESSOR, tr("Preprocessor"),
                                          tr("Preprocessor directives."), Qt::darkBlue));
-    formatDescr.append(FormatDescription(C_LABEL, tr("Label"), tr("Labels for goto steatments."),
+    formatDescr.append(FormatDescription(C_LABEL, tr("Label"), tr("Labels for goto statements."),
                                          Qt::darkRed));
     formatDescr.append(FormatDescription(C_COMMENT, tr("Comment"),
                                          tr("All style of comments except Doxygen comments."),
