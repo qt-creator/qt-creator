@@ -9,7 +9,7 @@ QMAKE_STRIP =
 
 QMAKE_CLEAN = qtcreator.sh
 
-target.path  = $$QTC_PREFIX/bin
+target.path  = /bin
 INSTALLS    += target
 
 OTHER_FILES = $$PWD/qtcreator.sh

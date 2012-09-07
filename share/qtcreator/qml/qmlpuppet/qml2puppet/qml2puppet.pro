@@ -36,6 +36,6 @@ macx {
     info.output = $$DESTDIR/$${TARGET}.app/Contents/Info.plist
     QMAKE_SUBSTITUTES += info
 } else {
-    target.path  = $$QTC_PREFIX/bin
+    target.path  = /bin
     INSTALLS    += target
 }

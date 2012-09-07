@@ -17,7 +17,7 @@ QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
 }
 win32 {
     RC_FILE = qtcreator.rc
-    target.path = $$QTC_PREFIX/bin
+    target.path = /bin
     INSTALLS += target
 } else:macx {
     LIBS += -framework CoreFoundation
@@ -29,7 +29,7 @@ win32 {
     info.output = $$IDE_BIN_PATH/../Info.plist
     QMAKE_SUBSTITUTES = info
 } else {
-    target.path  = $$QTC_PREFIX/bin
+    target.path  = /bin
     INSTALLS    += target
 }
 

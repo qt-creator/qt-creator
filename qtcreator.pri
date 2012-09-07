@@ -3,11 +3,6 @@ QTCREATOR_PRI_INCLUDED = 1
 
 QTCREATOR_VERSION = 2.5.81
 
-isEmpty(QTC_PREFIX) {
-  unix: QTC_PREFIX = /usr/local
-  else: QTC_PREFIX = QtCreator
-}
-
 defineReplace(cleanPath) {
     win32:1 ~= s|\\\\|/|g
     contains(1, ^/.*):pfx = /
