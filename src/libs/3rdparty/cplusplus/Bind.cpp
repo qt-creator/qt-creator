@@ -2098,7 +2098,16 @@ bool Bind::visit(ExceptionDeclarationAST *ast)
     }
     DeclaratorIdAST *declaratorId = 0;
     type = this->declarator(ast->declarator, type, &declaratorId);
+
+    const Name *argName = 0;
+    if (declaratorId && declaratorId->name)
+        argName = declaratorId->name->name;
+    Argument *arg = control()->newArgument(location(declaratorId, ast->firstToken()), argName);
+    arg->setType(type);
+    _scope->addMember(arg);
+
     // unsigned dot_dot_dot_token = ast->dot_dot_dot_token;
+
     return false;
 }
 
