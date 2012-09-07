@@ -31,4 +31,3 @@ def main():
     verifyInteractiveQMLHelp("MouseArea {", "QML MouseArea Element")
     # exit
     invokeMenuItem("File","Exit")
-# no cleanup needed

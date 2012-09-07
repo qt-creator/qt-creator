@@ -3,7 +3,9 @@ source("../../shared/suites_qtta.py")
 
 # test Qt Creator version information from file and dialog
 def getQtCreatorVersionFromDialog():
-    chk = re.search("(?<=Qt Creator)\s\d+.\d+.\d+" , str(waitForObject(':About Qt Creator.Label' ).text))
+    chk = re.search("(?<=Qt Creator)\s\d+.\d+.\d+",
+                    str(waitForObject("{text?='*Qt Creator*' type='QLabel' unnamed='1' visible='1' "
+                                      "window=':About Qt Creator_Core::Internal::VersionDialog'}").text))
     try:
         ver = chk.group(0).strip()
         return ver
@@ -37,9 +39,11 @@ def main():
     waitForObject(":About Qt Creator_Core::Internal::VersionDialog")
     actualVersion = getQtCreatorVersionFromDialog()
     test.verify(actualVersion == expectedVersion,
-                "Verifying if version is good. Current version is: " + actualVersion + ", expected version is: " + expectedVersion)
+                "Verifying version. Current version is '%s', expected version is '%s'"
+                % (actualVersion, expectedVersion))
     # close and verify about dialog closed
-    clickButton(waitForObject(":About Qt Creator.Close_QPushButton"))
+    clickButton(waitForObject("{text='Close' type='QPushButton' unnamed='1' visible='1' "
+                              "window=':About Qt Creator_Core::Internal::VersionDialog'}"))
     test.verify(checkIfObjectExists(":About Qt Creator_Core::Internal::VersionDialog", False),
                 "Verifying if About dialog closed.")
     # exit qt creator
@@ -47,4 +51,3 @@ def main():
     # verify if qt creator closed properly
     test.verify(checkIfObjectExists(":Qt Creator_Core::Internal::MainWindow", False),
                 "Verifying if Qt Creator closed.")
-# no cleanup needed
