@@ -341,10 +341,6 @@ public:
     bool isPureVirtual() const;
     void setPureVirtual(bool isPureVirtual);
 
-#ifdef ICHECK_BUILD
-    bool isEqualTo(const Function* fct, bool ignoreName = false) const;
-#endif
-
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 

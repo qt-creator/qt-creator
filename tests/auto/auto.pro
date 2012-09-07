@@ -9,7 +9,6 @@ SUBDIRS += \
     environment \
     fakevim \
     generichighlighter \
-#    icheckbuild \
     profilewriter \
     ioutils \
     qtcprocess \

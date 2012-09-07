@@ -36,31 +36,25 @@
 #include "cpphighlightingsupport.h"
 #include "cpphighlightingsupportinternal.h"
 #include "abstracteditorsupport.h"
-#ifndef ICHECK_BUILD
-#  include "cpptoolsconstants.h"
-#  include "cpptoolseditorsupport.h"
-#  include "cppfindreferences.h"
-#endif
+#include "cpptoolsconstants.h"
+#include "cpptoolseditorsupport.h"
+#include "cppfindreferences.h"
 
 #include <functional>
 #include <QtConcurrentRun>
-#ifndef ICHECK_BUILD
-#  include <QFutureSynchronizer>
-#  include <utils/runextensions.h>
-#  include <texteditor/itexteditor.h>
-#  include <texteditor/basetexteditor.h>
-#  include <projectexplorer/project.h>
-#  include <projectexplorer/projectexplorer.h>
-#  include <projectexplorer/projectexplorerconstants.h>
-#  include <projectexplorer/session.h>
-#  include <coreplugin/icore.h>
-#  include <coreplugin/mimedatabase.h>
-#  include <coreplugin/editormanager/editormanager.h>
-#  include <coreplugin/progressmanager/progressmanager.h>
-#  include <extensionsystem/pluginmanager.h>
-#else
-#  include <QDir>
-#endif
+#include <QFutureSynchronizer>
+#include <utils/runextensions.h>
+#include <texteditor/itexteditor.h>
+#include <texteditor/basetexteditor.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/session.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/mimedatabase.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/progressmanager/progressmanager.h>
+#include <extensionsystem/pluginmanager.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -199,7 +193,6 @@ static const char pp_configuration[] =
     "#define __inline inline\n"
     "#define __forceinline inline\n";
 
-#ifndef ICHECK_BUILD
 CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager, bool dumpFileNameWhileParsing)
     : snapshot(modelManager->snapshot()),
       m_modelManager(modelManager),
@@ -209,16 +202,6 @@ CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager, bool du
 {
     preprocess.setKeepComments(true);
 }
-
-#else
-
-CppPreprocessor::CppPreprocessor(QPointer<CPlusPlus::ParseManager> modelManager)
-    : preprocess(this, &env),
-      m_dumpFileNameWhileParsing(false),
-      m_revision(0)
-{
-}
-#endif
 
 CppPreprocessor::~CppPreprocessor()
 { }
@@ -299,7 +282,6 @@ void CppPreprocessor::setProjectFiles(const QStringList &files)
 void CppPreprocessor::setTodo(const QStringList &files)
 { m_todo = QSet<QString>::fromList(files); }
 
-#ifndef ICHECK_BUILD
 namespace {
 class Process: public std::unary_function<Document::Ptr, void>
 {
@@ -334,7 +316,6 @@ public:
     }
 };
 } // end of anonymous namespace
-#endif
 
 void CppPreprocessor::run(const QString &fileName)
 {
@@ -639,21 +620,11 @@ void CppPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType
     snapshot.insert(doc);
     m_todo.remove(fileName);
 
-#ifndef ICHECK_BUILD
     Process process(m_modelManager, doc, snapshot, m_workingCopy);
 
     process();
 
     (void) switchDocument(previousDoc);
-#else
-    doc->releaseSource();
-    Document::CheckMode mode = Document::FastCheck;
-    mode = Document::FullCheck;
-    doc->parse();
-    doc->check(mode);
-
-    (void) switchDocument(previousDoc);
-#endif
 }
 
 Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
@@ -663,7 +634,6 @@ Document::Ptr CppPreprocessor::switchDocument(Document::Ptr doc)
     return previousDoc;
 }
 
-#ifndef ICHECK_BUILD
 void CppModelManager::updateModifiedSourceFiles()
 {
     const Snapshot snapshot = this->snapshot();
@@ -1437,6 +1407,3 @@ QList<Document::DiagnosticMessage> CppModelManager::extraDiagnostics(const QStri
     }
     return m_extraDiagnostics.value(fileName).value(kind);
 }
-
-#endif
-
