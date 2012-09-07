@@ -69,6 +69,7 @@ public:
     void discard();
     bool isDirty() const;
     QWidget *buttonWidget() const;
+    void addToLayout(QGridLayout *layout, int row);
 
     DebuggerEngineType engineType() const;
     void setEngineType(DebuggerEngineType et);

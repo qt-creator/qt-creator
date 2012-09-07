@@ -100,6 +100,13 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *k,
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(refreshLabel()));
 }
 
+void DebuggerKitConfigWidget::addToLayout(QGridLayout *layout, int row)
+{
+    addLabel(layout, row);
+    layout->addWidget(this, row, WidgetColumn, 3 , 1);
+    addButtonWidget(layout, row + 2);
+}
+
 QString DebuggerKitConfigWidget::displayName() const
 {
     return tr("Debugger:");
