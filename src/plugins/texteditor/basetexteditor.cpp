@@ -1823,9 +1823,6 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         break;
     }
 
-    const Qt::KeyboardModifiers modifiers
-            = HostOsInfo::isMacHost() ? Qt::MetaModifier : Qt::ControlModifier;
-
     if (!ro && d->m_inBlockSelectionMode) {
         QString text = e->text();
         if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
@@ -1834,7 +1831,8 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
     }
 
-    if (e->key() == Qt::Key_H && e->modifiers() == modifiers) {
+    if (e->key() == Qt::Key_H
+            && e->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
         universalHelper();
         e->accept();
         return;

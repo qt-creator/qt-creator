@@ -131,16 +131,8 @@ namespace Internal {
 
 #define EDITOR(s) (m_textedit ? m_textedit->s : m_plaintextedit->s)
 
-enum {
-#ifdef Q_OS_MAC
-    RealControlModifier = Qt::MetaModifier
-#else
-    RealControlModifier = Qt::ControlModifier
-#endif
-};
-// Enforce use of RealControlModifier by breaking the compilation.
-#define MetaModifier     // Use RealControlModifier instead
-#define ControlModifier  // Use RealControlModifier instead
+#define MetaModifier     // Use HostOsInfo::controlModifier() instead
+#define ControlModifier  // Use HostOsInfo::controlModifier() instead
 
 typedef QLatin1String _;
 
@@ -602,12 +594,12 @@ public:
 
     bool is(int c) const
     {
-        return m_xkey == c && m_modifiers != RealControlModifier;
+        return m_xkey == c && m_modifiers != int(HostOsInfo::controlModifier());
     }
 
     bool isControl(int c) const
     {
-        return m_modifiers == RealControlModifier
+        return m_modifiers == int(HostOsInfo::controlModifier())
             && (m_xkey == c || m_xkey + 32 == c || m_xkey + 64 == c || m_xkey + 96 == c);
     }
 
@@ -789,7 +781,7 @@ static Input parseVimKeyName(const QString &keyName)
         if (key == "S")
             mods |= Qt::ShiftModifier;
         else if (key == "C")
-            mods |= RealControlModifier;
+            mods |= HostOsInfo::controlModifier();
         else
             return Input();
     }
@@ -1618,7 +1610,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     }
 
     // We are interested in overriding most Ctrl key combinations.
-    if (mods == RealControlModifier
+    if (mods == int(HostOsInfo::controlModifier())
             && !config(ConfigPassControlKey).toBool()
             && ((key >= Key_A && key <= Key_Z && key != Key_K)
                 || key == Key_BracketLeft || key == Key_BracketRight)) {
@@ -1824,7 +1816,7 @@ void FakeVimHandler::Private::importSelection()
         // Import new selection.
         Qt::KeyboardModifiers mods = QApplication::keyboardModifiers();
         if (cursor().hasSelection()) {
-            if (mods & RealControlModifier)
+            if (mods & HostOsInfo::controlModifier())
                 m_visualMode = VisualBlockMode;
             else if (mods & Qt::AltModifier)
                 m_visualMode = VisualBlockMode;

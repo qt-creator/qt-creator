@@ -72,6 +72,11 @@ public:
     {
         return isWindowsHost() ? QLatin1Char(';') : QLatin1Char(':');
     }
+
+    static Qt::KeyboardModifier controlModifier()
+    {
+        return isMacHost() ? Qt::MetaModifier : Qt::ControlModifier;
+    }
 };
 
 HostOsInfo::HostOs HostOsInfo::hostOs()

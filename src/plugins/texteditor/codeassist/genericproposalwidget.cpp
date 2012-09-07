@@ -516,8 +516,6 @@ void GenericProposalWidget::updatePositionAndSize()
 
 bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
 {
-    const Qt::KeyboardModifiers modifier = HostOsInfo::isMacHost()
-            ? Qt::MetaModifier : Qt::ControlModifier;
     if (e->type() == QEvent::FocusOut) {
         abort();
 #if (QT_VERSION < 0x050000) && defined(Q_OS_DARWIN) && ! defined(QT_MAC_USE_COCOA)
@@ -538,7 +536,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         switch (ke->key()) {
         case Qt::Key_N:
         case Qt::Key_P:
-            if (ke->modifiers() == modifier) {
+            if (ke->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
                 e->accept();
                 return true;
             }
@@ -554,7 +552,7 @@ bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
         case Qt::Key_P:
             // select next/previous completion
             d->m_explicitlySelected = true;
-            if (ke->modifiers() == modifier) {
+            if (ke->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
                 int change = (ke->key() == Qt::Key_N) ? 1 : -1;
                 int nrows = d->m_model->size();
                 int row = d->m_completionListView->currentIndex().row();

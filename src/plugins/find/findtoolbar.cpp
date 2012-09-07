@@ -291,12 +291,10 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
         }
     }
 
-    const Qt::KeyboardModifier modifier = Utils::HostOsInfo::isMacHost()
-            ? Qt::ControlModifier : Qt::MetaModifier;
     if ((obj == m_ui.findEdit || obj == m_findCompleter->popup())
                && event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-        if (ke->key() == Qt::Key_Space && (ke->modifiers() & modifier)) {
+        if (ke->key() == Qt::Key_Space && (ke->modifiers() & Utils::HostOsInfo::controlModifier())) {
             QString completedText = m_currentDocumentFind->completedFindString();
             if (!completedText.isEmpty()) {
                 setFindText(completedText);
@@ -313,7 +311,7 @@ bool FindToolBar::eventFilter(QObject *obj, QEvent *event)
                 event->accept();
                 return true;
             }
-        } else if (ke->key() == Qt::Key_Space && (ke->modifiers() & modifier)) {
+        } else if (ke->key() == Qt::Key_Space && (ke->modifiers() & Utils::HostOsInfo::controlModifier())) {
             event->accept();
             return true;
         }
