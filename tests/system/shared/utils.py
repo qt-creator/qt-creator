@@ -311,8 +311,12 @@ def getConfiguredKits():
             qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
             targetQtVersionNames[targetName] = qtVersionStr
     # merge defined target names with their configured Qt versions and devices
-    for target,qtVersion in targetQtVersionNames.iteritems():
-        result[target] = targetsQtVersions[qtVersionNames.index(qtVersion)].items()[0]
+    for kit,qtVersion in targetQtVersionNames.iteritems():
+        if qtVersion in qtVersionNames:
+            result[kit] = targetsQtVersions[qtVersionNames.index(qtVersion)].items()[0]
+        else:
+            test.fail("Qt version '%s' for kit '%s' can't be found in qtVersionNames."
+                      % (qtVersion, kit))
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
     # adjust device name(s) to match getStringForTarget() - some differ from time to time
     for targetName in result.keys():
