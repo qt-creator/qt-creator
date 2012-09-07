@@ -1670,21 +1670,12 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     attachToProcess(false);
 }
 
-class DebuggerProcessesDialog : public ProjectExplorer::DeviceProcessesDialog {
-public:
-    DebuggerProcessesDialog(DebuggerKitChooser::Mode m, QWidget *parent) :
-        ProjectExplorer::DeviceProcessesDialog(new DebuggerKitChooser(m), parent)
-    {
-        addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
-    }
-};
-
 void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
 {
-
     const DebuggerKitChooser::Mode mode = startServerOnly ?
         DebuggerKitChooser::RemoteDebugging : DebuggerKitChooser::LocalDebugging;
-    DeviceProcessesDialog *dlg = new DebuggerProcessesDialog(mode, mainWindow());
+    DebuggerKitChooser *kitChooser = new DebuggerKitChooser(mode);
+    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(kitChooser, mainWindow());
     dlg->addAcceptButton(DeviceProcessesDialog::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
@@ -1693,7 +1684,6 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     }
 
     dlg->setAttribute(Qt::WA_DeleteOnClose);
-    KitChooser *kitChooser = dlg->kitChooser();
     Kit *kit = kitChooser->currentKit();
     QTC_ASSERT(kit, return);
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
