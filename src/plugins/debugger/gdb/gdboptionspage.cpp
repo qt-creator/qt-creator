@@ -196,7 +196,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     checkBoxEnableReverseDebugging = new QCheckBox(groupBoxGeneral);
     checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
     checkBoxEnableReverseDebugging->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body><p>Enable stepping backwards.</p><.p>"
+        "<html><head/><body><p>Enable stepping backwards.</p><p>"
         "<b>Note:</b> This feature is very slow and unstable on the GDB side. "
         "It exhibits unpredictable behavior when going backwards over system "
         "calls and is very likely to destroy your debugging session.</p></body></html>"));

@@ -318,7 +318,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateKit(const ProjectExplorer::K
             qtAbiString.append(qtAbi.toString());
         }
         const QString message = QCoreApplication::translate("BaseQtVersion",
-                                                            "The compiler'%1' (%2) cannot produce code for the Qt version '%3' (%4).").
+                                                            "The compiler '%1' (%2) cannot produce code for the Qt version '%3' (%4).").
                                                             arg(tc->displayName(),
                                                                 tc->targetAbi().toString(),
                                                                 version->displayName(),
