@@ -53,6 +53,7 @@ class ICore;
 }
 
 namespace QtSupport {
+class BaseQtVersion;
 class ProFileReader;
 }
 
@@ -169,7 +170,7 @@ public:
 protected:
     void setIncludedInExactParse(bool b);
     static QStringList varNames(FileType type);
-    static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative);
+    static QStringList dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative, QtSupport::BaseQtVersion *qtVersion);
     static QSet<Utils::FileName> filterFilesProVariables(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
     static QSet<Utils::FileName> filterFilesRecursiveEnumerata(ProjectExplorer::FileType fileType, const QSet<Utils::FileName> &files);
 

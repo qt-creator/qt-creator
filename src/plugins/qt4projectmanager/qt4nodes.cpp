@@ -600,9 +600,13 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
 
     InternalNode contents;
 
+    ProjectExplorer::Target *t = m_project->activeTarget();
+    ProjectExplorer::Kit *k = t ? t->kit() : ProjectExplorer::KitManager::instance()->defaultKit();
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(k);
+
     // Figure out DEPLOYMENT and INSTALL folders
     QStringList folders;
-    QStringList dynamicVariables = dynamicVarNames(readerExact, readerCumulative);
+    QStringList dynamicVariables = dynamicVarNames(readerExact, readerCumulative, qtVersion);
     if (includeFileExact)
         foreach (const QString &dynamicVar, dynamicVariables) {
             folders += readerExact->values(dynamicVar, includeFileExact);
@@ -1253,12 +1257,14 @@ QStringList Qt4PriFileNode::varNames(ProjectExplorer::FileType type)
 }
 
 
-QStringList Qt4PriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative)
+QStringList Qt4PriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExact, QtSupport::ProFileReader *readerCumulative,
+                                            QtSupport::BaseQtVersion *qtVersion)
 {
     QStringList result;
+
     // Figure out DEPLOYMENT and INSTALLS
     const QString deployment = QLatin1String("DEPLOYMENT");
-    const QString sources = QLatin1String(".sources");
+    const QString sources = QLatin1String(qtVersion && qtVersion->qtVersion() < QtSupport::QtVersionNumber(5,0,0) ? ".sources" : ".files");
     QStringList listOfVars = readerExact->values(deployment);
     foreach (const QString &var, listOfVars) {
         result << (var + sources);
