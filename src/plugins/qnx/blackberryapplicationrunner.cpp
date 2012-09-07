@@ -161,6 +161,9 @@ void BlackBerryApplicationRunner::startFinished(int exitCode, QProcess::ExitStat
 
 ProjectExplorer::RunControl::StopResult BlackBerryApplicationRunner::stop()
 {
+    if (m_stopping)
+        return ProjectExplorer::RunControl::AsynchronousStop;
+
     m_stopping = true;
 
     QStringList args;
@@ -180,14 +183,13 @@ ProjectExplorer::RunControl::StopResult BlackBerryApplicationRunner::stop()
         m_stopProcess->setEnvironment(m_environment.toStringList());
     }
 
-
     m_stopProcess->start(m_deployCmd, args);
     return ProjectExplorer::RunControl::AsynchronousStop;
 }
 
 bool BlackBerryApplicationRunner::isRunning() const
 {
-    return m_running && !m_stopping;
+    return m_running;
 }
 
 qint64 BlackBerryApplicationRunner::pid() const
@@ -248,7 +250,7 @@ void BlackBerryApplicationRunner::tailApplicationLog()
 {
     // TODO: Reading the log using qconn instead?
 
-    if (m_tailProcess && m_tailProcess->isProcessRunning())
+    if (m_stopping || (m_tailProcess && m_tailProcess->isProcessRunning()))
         return;
 
     QTC_CHECK(!m_appId.isEmpty());
