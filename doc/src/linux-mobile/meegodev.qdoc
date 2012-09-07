@@ -20,10 +20,10 @@
     /*!
 
     \contentspage index.html
-    \previouspage creator-connecting-mobile.html
+    \previouspage creator-developing-maemo.html
     \page creator-developing-meego.html
     \if defined(qcmanual)
-    \nextpage creator-developing-generic-linux.html
+    \nextpage creator-developing-qnx.html
     \else
     \nextpage creator-developing-maemo.html
     \endif
