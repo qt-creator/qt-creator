@@ -2443,6 +2443,10 @@ def qdump__CPlusPlus__Internal__Value(d, value):
     d.putValue(value["l"])
     d.putPlainChildren(value)
 
+def qdump__Utils__FileName(d, value):
+    d.putStringValue(value)
+    d.putPlainChildren(value)
+
 def qdump__Utils__ElfSection(d, value):
     d.putByteArrayValue(value["name"])
     d.putPlainChildren(value)
