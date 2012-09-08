@@ -2010,6 +2010,10 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = "-- PASSING --  ";
     } else if (!m_currentMessage.isEmpty() && !interactive) {
         msg = m_currentMessage;
+    } else if (!m_commandPrefix.isEmpty()) {
+        msg = m_commandPrefix + m_commandBuffer.display();
+        if (interactive)
+            cursorPos = m_commandPrefix.size() + m_commandBuffer.cursorPos();
     } else if (m_mode == CommandMode && isVisualMode()) {
         if (isVisualCharMode()) {
             msg = "-- VISUAL --";
@@ -2022,10 +2026,6 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = "-- INSERT --";
     } else if (m_mode == ReplaceMode) {
         msg = "-- REPLACE --";
-    } else if (!m_commandPrefix.isEmpty()) {
-        msg = m_commandPrefix + m_commandBuffer.display();
-        if (interactive)
-            cursorPos = m_commandPrefix.size() + m_commandBuffer.cursorPos();
     } else {
         QTC_CHECK(m_mode == CommandMode && m_subsubmode != SearchSubSubMode);
         msg = "-- COMMAND --";
@@ -3434,6 +3434,7 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
 EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
 {
     if (input.isEscape()) {
+        m_currentMessage.clear();
         m_commandBuffer.clear();
         g.searchHistory.append(m_searchCursor.selectedText());
         m_searchCursor = QTextCursor();
@@ -4250,9 +4251,6 @@ void FakeVimHandler::Private::searchBalanced(bool forward, QChar needle, QChar o
 
 void FakeVimHandler::Private::search(const SearchData &sd)
 {
-    if (sd.needle.isEmpty())
-        return;
-
     QTextDocument::FindFlags flags = QTextDocument::FindCaseSensitively;
     if (!sd.forward)
         flags |= QTextDocument::FindBackward;
@@ -4279,26 +4277,34 @@ void FakeVimHandler::Private::search(const SearchData &sd)
                 highlightMatches(QString());
                 showRedMessage(FakeVimHandler::tr("Pattern not found: %1").arg(sd.needle));
                 updateSelection();
-                return;
+            } else {
+                QString msg = sd.forward
+                    ? FakeVimHandler::tr("search hit BOTTOM, continuing at TOP")
+                    : FakeVimHandler::tr("search hit TOP, continuing at BOTTOM");
+                showRedMessage(msg);
             }
-            QString msg = sd.forward
-                ? FakeVimHandler::tr("search hit BOTTOM, continuing at TOP")
-                : FakeVimHandler::tr("search hit TOP, continuing at BOTTOM");
-            showRedMessage(msg);
         } else {
             QString msg = sd.forward
                 ? FakeVimHandler::tr("search hit BOTTOM without match for: %1")
                 : FakeVimHandler::tr("search hit TOP without match for: %1");
             showRedMessage(msg.arg(sd.needle));
-            return;
         }
     }
 
-    recordJump();
+    if (tc.isNull()) {
+        tc = cursor();
+        tc.setPosition(m_searchStartPosition);
+    }
 
-    // Set Cursor. In contrast to the main editor we have the cursor
-    // position before the anchor position.
-    setAnchorAndPosition(tc.position(), tc.anchor());
+    recordJump();
+    if (isVisualMode()) {
+        int d = tc.anchor() - tc.position();
+        setPosition(tc.position() + d);
+    } else {
+        // Set Cursor. In contrast to the main editor we have the cursor
+        // position before the anchor position.
+        setAnchorAndPosition(tc.position(), tc.anchor());
+    }
 
     // Making this unconditional feels better, but is not "vim like".
     if (oldLine != cursorLine() - cursorLineOnScreen())

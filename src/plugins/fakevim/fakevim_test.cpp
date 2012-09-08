@@ -436,6 +436,7 @@ void FakeVimPlugin::test_vim_search()
     KEYS("/x", X "abc" N "def" N "ghi");
     KEYS("/x<CR>", X "abc" N "def" N "ghi");
     KEYS("/x<ESC>", X "abc" N "def" N "ghi");
+    KEYS("/ghX", X "abc" N "def" N "ghi");
 
     KEYS("?def<ESC>", X "abc" N "def" N "ghi");
     KEYS("?x", X "abc" N "def" N "ghi");
