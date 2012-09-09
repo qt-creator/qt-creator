@@ -694,35 +694,96 @@ void Inputs::parseFrom(const QString &str)
     }
 }
 
+class History
+{
+public:
+    History() : m_items(QString()), m_index(0) {}
+    void append(const QString &item);
+    const QString &move(const QStringRef &prefix, int skip);
+    const QString &current() const { return m_items[m_index]; }
+    const QString &last() const { return m_items[qMax(m_items.size() - 2, 0)]; }
+    const QStringList &items() const { return m_items; }
+    void restart() { m_index = m_items.size() - 1; }
+
+private:
+    // Last item is always empty or current search prefix.
+    QStringList m_items;
+    int m_index;
+};
+
+void History::append(const QString &item)
+{
+    if (item.isEmpty())
+        return;
+    m_items.pop_back();
+    m_items.removeAll(item);
+    m_items << item << QString();
+    restart();
+}
+
+const QString &History::move(const QStringRef &prefix, int skip)
+{
+    if (!current().startsWith(prefix))
+        restart();
+
+    if (m_items.last() != prefix)
+        m_items[m_items.size() - 1] = prefix.toString();
+
+    int i = m_index + skip;
+    if (!prefix.isEmpty())
+        for (; i >= 0 && i < m_items.size() && !m_items[i].startsWith(prefix); i += skip);
+    if (i >= 0 && i < m_items.size())
+        m_index = i;
+
+    return current();
+}
+
 // This wraps a string and a "cursor position".
 class CommandBuffer
 {
 public:
-    CommandBuffer() : m_pos(0) {}
+    CommandBuffer() : m_pos(0), m_userPos(0) {}
 
-    void clear() { m_buffer.clear(); m_pos = 0; }
+    void setPrompt(const QChar &prompt) { m_prompt = prompt; }
     void setContents(const QString &s) { m_buffer = s; m_pos = s.size(); }
-    QString contents() const { return m_buffer; }
+
+    QStringRef userContents() const { return m_buffer.leftRef(m_userPos); }
+    const QChar &prompt() const { return m_prompt; }
+    const QString &contents() const { return m_buffer; }
     bool isEmpty() const { return m_buffer.isEmpty(); }
     int cursorPos() const { return m_pos; }
 
-    void insertChar(QChar c) { m_buffer.insert(m_pos++, c); }
-    void insertText(const QString &s) { m_buffer.insert(m_pos, s); m_pos += s.size(); }
-    void deleteChar() { if (m_pos) m_buffer.remove(--m_pos, 1); }
+    void insertChar(QChar c) { m_buffer.insert(m_pos++, c); m_userPos = m_pos; }
+    void insertText(const QString &s)
+    {
+        m_buffer.insert(m_pos, s); m_userPos = m_pos = m_pos + s.size();
+    }
+    void deleteChar() { if (m_pos) m_buffer.remove(--m_pos, 1); m_userPos = m_pos; }
 
-    void moveLeft() { if (m_pos) --m_pos; }
-    void moveRight() { if (m_pos < m_buffer.size()) ++m_pos; }
-    void moveStart() { m_pos = 0; }
-    void moveEnd() { m_pos = m_buffer.size(); }
+    void moveLeft() { if (m_pos) m_userPos = --m_pos; }
+    void moveRight() { if (m_pos < m_buffer.size()) m_userPos = ++m_pos; }
+    void moveStart() { m_userPos = m_pos = 0; }
+    void moveEnd() { m_userPos = m_pos = m_buffer.size(); }
+
+    void historyDown() { setContents(m_history.move(userContents(), 1)); }
+    void historyUp() { setContents(m_history.move(userContents(), -1)); }
+    const QStringList &historyItems() const { return m_history.items(); }
+    const QString &last() const { return m_history.last(); }
+    void historyPush(const QString &item = QString())
+    {
+        m_history.append(item.isNull() ? contents() : item);
+    }
+
+    void clear() { historyPush(); m_buffer.clear(); m_userPos = m_pos = 0; }
 
     QString display() const
     {
-        QString msg;
+        QString msg(m_prompt);
         for (int i = 0; i != m_buffer.size(); ++i) {
             const QChar c = m_buffer.at(i);
             if (c.unicode() < 32) {
                 msg += '^';
-                msg += QChar(c.unicode() + 64);
+                msg += QLatin1Char(c.unicode() + 64);
             } else {
                 msg += c;
             }
@@ -743,6 +804,8 @@ public:
         } else if (input.isKey(Key_Delete)) {
             if (m_pos < m_buffer.size())
                 m_buffer.remove(m_pos, 1);
+            else
+                deleteChar();
         } else if (!input.text().isEmpty()) {
             insertText(input.text());
         } else {
@@ -753,33 +816,11 @@ public:
 
 private:
     QString m_buffer;
+    QChar m_prompt;
+    History m_history;
     int m_pos;
+    int m_userPos; // last position of inserted text (for retrieving history items)
 };
-
-
-class History
-{
-public:
-    History() : m_index(0) {}
-    void append(const QString &item);
-    void down() { m_index = qMin(m_index + 1, m_items.size()); }
-    void up() { m_index = qMax(m_index - 1, 0); }
-    void restart() { m_index = m_items.size(); }
-    QString current() const { return m_items.value(m_index, QString()); }
-    QStringList items() const { return m_items; }
-
-private:
-    QStringList m_items;
-    int m_index;
-};
-
-void History::append(const QString &item)
-{
-    if (item.isEmpty())
-        return;
-    m_items.removeAll(item);
-    m_items.append(item); m_index = m_items.size() - 1;
-}
 
 // Mappings for a specific mode.
 class ModeMapping : public QList<QPair<Inputs, Inputs> >
@@ -1104,8 +1145,8 @@ public:
 
     int m_gflag;  // whether current command started with 'g'
 
-    QString m_commandPrefix;
     CommandBuffer m_commandBuffer;
+    CommandBuffer m_searchBuffer;
     QString m_currentFileName;
     QString m_currentMessage;
 
@@ -1271,12 +1312,6 @@ public:
         // Repetition.
         QString dotCommand;
 
-        // History for searches.
-        History searchHistory;
-
-        // History for :ex commands.
-        History commandHistory;
-
         QHash<int, Register> registers;
 
         // All mappings.
@@ -1329,6 +1364,7 @@ void FakeVimHandler::Private::init()
     m_breakEditBlock = false;
     m_searchStartPosition = 0;
     m_searchFromScreenLine = 0;
+    m_commandBuffer.setPrompt(':');
 
     setupCharClass();
 }
@@ -1802,7 +1838,6 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
         enterExMode();
         m_currentMessage.clear();
         m_commandBuffer.setContents(QString(".,+%1!").arg(qAbs(endLine - beginLine)));
-        //g.commandHistory.append(QString());
         updateMiniBuffer();
         return;
     }
@@ -1955,7 +1990,6 @@ void FakeVimHandler::Private::finishMovement(const QString &dotCommand)
 
     resetCommandMode();
     updateSelection();
-    updateMiniBuffer();
 }
 
 void FakeVimHandler::Private::resetCommandMode()
@@ -2010,10 +2044,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = "-- PASSING --  ";
     } else if (!m_currentMessage.isEmpty() && !interactive) {
         msg = m_currentMessage;
-    } else if (!m_commandPrefix.isEmpty()) {
-        msg = m_commandPrefix + m_commandBuffer.display();
-        if (interactive)
-            cursorPos = m_commandPrefix.size() + m_commandBuffer.cursorPos();
+        m_currentMessage.clear();
     } else if (m_mode == CommandMode && isVisualMode()) {
         if (isVisualCharMode()) {
             msg = "-- VISUAL --";
@@ -2026,6 +2057,12 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = "-- INSERT --";
     } else if (m_mode == ReplaceMode) {
         msg = "-- REPLACE --";
+    } else if (m_subsubmode == SearchSubSubMode) {
+        msg = m_searchBuffer.display();
+        cursorPos = m_searchBuffer.cursorPos() + 1;
+    } else if (m_mode == ExMode) {
+        msg = m_commandBuffer.display();
+        cursorPos = m_commandBuffer.cursorPos() + 1;
     } else {
         QTC_CHECK(m_mode == CommandMode && m_subsubmode != SearchSubSubMode);
         msg = "-- COMMAND --";
@@ -2057,7 +2094,7 @@ void FakeVimHandler::Private::showRedMessage(const QString &msg)
 void FakeVimHandler::Private::showBlackMessage(const QString &msg)
 {
     //qDebug() << "MSG: " << msg;
-    m_commandBuffer.setContents(msg);
+    m_currentMessage = msg;
     updateMiniBuffer();
 }
 
@@ -2373,7 +2410,6 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         handleExCommand(m_gflag ? "%s//~/&" : "s");
     } else if (input.is(':')) {
         enterExMode();
-        g.commandHistory.restart();
         m_currentMessage.clear();
         m_commandBuffer.clear();
         if (isVisualMode())
@@ -2381,7 +2417,6 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         updateMiniBuffer();
     } else if (input.is('/') || input.is('?')) {
         m_lastSearchForward = input.is('/');
-        g.searchHistory.restart();
         if (hasConfig(ConfigUseCoreSearch)) {
             // re-use the core dialog.
             m_findPending = true;
@@ -2395,10 +2430,10 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
             m_currentMessage.clear();
             m_movetype = MoveExclusive;
             m_subsubmode = SearchSubSubMode;
-            m_commandPrefix = QLatin1Char(m_lastSearchForward ? '/' : '?');
+            m_searchBuffer.setPrompt(m_lastSearchForward ? '/' : '?');
             m_searchStartPosition = position();
             m_searchFromScreenLine = firstVisibleLine();
-            m_commandBuffer.clear();
+            m_searchBuffer.clear();
             updateMiniBuffer();
         }
     } else if (input.is('`')) {
@@ -2412,7 +2447,7 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         tc.select(QTextCursor::WordUnderCursor);
         needle = "\\<" + tc.selection().toPlainText() + "\\>";
         setAnchorAndPosition(tc.position(), tc.anchor());
-        g.searchHistory.append(needle);
+        m_searchBuffer.historyPush(needle);
         m_lastSearchForward = input.is('*');
         searchNext();
         finishMovement();
@@ -2431,7 +2466,6 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         enterExMode();
         m_currentMessage.clear();
         m_commandBuffer.setContents("'<,'>!");
-        //g.commandHistory.append(QString());
         updateMiniBuffer();
     } else if (input.is('"')) {
         m_submode = RegisterSubMode;
@@ -3380,54 +3414,40 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
     if (input.isEscape()) {
         m_commandBuffer.clear();
         enterCommandMode();
-        updateMiniBuffer();
         m_ctrlVActive = false;
     } else if (m_ctrlVActive) {
         m_commandBuffer.insertChar(input.raw());
         m_ctrlVActive = false;
     } else if (input.isControl('v')) {
         m_ctrlVActive = true;
+        return EventHandled;
     } else if (input.isBackspace()) {
-        if (m_commandBuffer.isEmpty()) {
-            m_commandPrefix.clear();
+        if (m_commandBuffer.isEmpty())
             enterCommandMode();
-        } else {
+        else
             m_commandBuffer.deleteChar();
-        }
-        updateMiniBuffer();
     } else if (input.isKey(Key_Tab)) {
-        QStringList completions;
-        foreach (const QString &entry, g.commandHistory.items()) {
-            if (entry.startsWith(m_commandBuffer.contents()))
-                completions.append(entry);
-        }
-        qDebug() << completions;
+        // FIXME: Complete actual commands.
+        m_commandBuffer.historyUp();
     } else if (input.isKey(Key_Left)) {
         m_commandBuffer.moveLeft();
-        updateMiniBuffer();
     } else if (input.isReturn()) {
         if (!m_commandBuffer.isEmpty()) {
             //g.commandHistory.takeLast();
-            g.commandHistory.append(m_commandBuffer.contents());
             handleExCommand(m_commandBuffer.contents());
+            m_commandBuffer.clear();
             if (m_textedit || m_plaintextedit)
                 leaveVisualMode();
         }
-        updateMiniBuffer();
     } else if (input.isKey(Key_Up) || input.isKey(Key_PageUp)) {
-        g.commandHistory.up();
-        m_commandBuffer.setContents(g.commandHistory.current());
-        updateMiniBuffer();
+        m_commandBuffer.historyUp();
     } else if (input.isKey(Key_Down) || input.isKey(Key_PageDown)) {
-        g.commandHistory.down();
-        m_commandBuffer.setContents(g.commandHistory.current());
-        updateMiniBuffer();
-    } else if (m_commandBuffer.handleInput(input)) {
-        updateMiniBuffer();
-    } else {
+        m_commandBuffer.historyDown();
+    } else if (!m_commandBuffer.handleInput(input)) {
         qDebug() << "IGNORED IN EX-MODE: " << input.key() << input.text();
         return EventUnhandled;
     }
+    updateMiniBuffer();
     return EventHandled;
 }
 
@@ -3435,34 +3455,27 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
 {
     if (input.isEscape()) {
         m_currentMessage.clear();
-        m_commandBuffer.clear();
-        g.searchHistory.append(m_searchCursor.selectedText());
+        m_searchBuffer.clear();
         m_searchCursor = QTextCursor();
         setPosition(m_searchStartPosition);
         scrollToLine(m_searchFromScreenLine);
         updateSelection();
         enterCommandMode();
-        updateMiniBuffer();
     } else if (input.isBackspace()) {
-        if (m_commandBuffer.isEmpty()) {
-            m_commandPrefix.clear();
+        if (m_searchBuffer.isEmpty()) {
             m_searchCursor = QTextCursor();
             enterCommandMode();
         } else {
-            m_commandBuffer.deleteChar();
+            m_searchBuffer.deleteChar();
         }
-        updateMiniBuffer();
     } else if (input.isKey(Key_Left)) {
-        m_commandBuffer.moveLeft();
-        updateMiniBuffer();
+        m_searchBuffer.moveLeft();
     } else if (input.isKey(Key_Right)) {
-        m_commandBuffer.moveRight();
-        updateMiniBuffer();
+        m_searchBuffer.moveRight();
     } else if (input.isReturn()) {
         m_searchCursor = QTextCursor();
-        QString needle = m_commandBuffer.contents();
+        const QString &needle = m_searchBuffer.contents();
         if (!needle.isEmpty()) {
-            g.searchHistory.append(needle);
             if (!hasConfig(ConfigIncSearch)) {
                 SearchData sd;
                 sd.needle = needle;
@@ -3471,31 +3484,29 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
                 sd.highlightMatches = true;
                 search(sd);
             }
-            finishMovement(m_commandPrefix + needle + '\n');
+            finishMovement(m_searchBuffer.prompt() + needle + '\n');
         } else {
             finishMovement();
         }
         enterCommandMode();
         highlightMatches(needle);
-        updateMiniBuffer();
+        m_searchBuffer.clear();
     } else if (input.isKey(Key_Up) || input.isKey(Key_PageUp)) {
         // FIXME: This and the three cases below are wrong as vim
         // takes only matching entries in the history into account.
-        g.searchHistory.up();
-        showBlackMessage(g.searchHistory.current());
+        m_searchBuffer.historyUp();
     } else if (input.isKey(Key_Down) || input.isKey(Key_PageDown)) {
-        g.searchHistory.down();
-        showBlackMessage(g.searchHistory.current());
+        m_searchBuffer.historyDown();
     } else if (input.isKey(Key_Tab)) {
-        m_commandBuffer.insertChar(QChar(9));
-        updateMiniBuffer();
-    } else if (m_commandBuffer.handleInput(input)) {
-        updateMiniBuffer();
+        m_searchBuffer.insertChar(QChar(9));
+    } else if (!m_searchBuffer.handleInput(input)) {
+        return EventUnhandled;
     }
+    updateMiniBuffer();
 
     if (hasConfig(ConfigIncSearch) && !input.isReturn() && !input.isEscape()) {
         SearchData sd;
-        sd.needle = m_commandBuffer.contents();
+        sd.needle = m_searchBuffer.contents();
         sd.forward = m_lastSearchForward;
         sd.highlightCursor = true;
         sd.highlightMatches = false;
@@ -3809,7 +3820,7 @@ bool FakeVimHandler::Private::handleExHistoryCommand(const ExCommand &cmd)
         QString info;
         info += "#  command history\n";
         int i = 0;
-        foreach (const QString &item, g.commandHistory.items()) {
+        foreach (const QString &item, m_commandBuffer.historyItems()) {
             ++i;
             info += QString("%1 %2\n").arg(i, -8).arg(item);
         }
@@ -4182,10 +4193,10 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     }
     //qDebug() << "CMD: " << cmd;
 
-    enterCommandMode();
     showBlackMessage(QString());
     if (!handleExCommandHelper(cmd))
         showRedMessage(tr("Not an editor command: %1").arg(cmd.cmd));
+    enterCommandMode();
 }
 
 bool FakeVimHandler::Private::handleExCommandHelper(const ExCommand &cmd)
@@ -4323,7 +4334,7 @@ void FakeVimHandler::Private::search(const SearchData &sd)
 void FakeVimHandler::Private::searchNext(bool forward)
 {
     SearchData sd;
-    sd.needle = g.searchHistory.current();
+    sd.needle = m_searchBuffer.last();
     sd.forward = forward ? m_lastSearchForward : !m_lastSearchForward;
     sd.highlightCursor = false;
     sd.highlightMatches = true;
@@ -4331,8 +4342,8 @@ void FakeVimHandler::Private::searchNext(bool forward)
     m_currentMessage.clear();
     search(sd);
 
-    m_commandPrefix = QLatin1Char(m_lastSearchForward ? '/' : '?');
-    m_commandBuffer.setContents(sd.needle);
+    m_searchBuffer.setPrompt(m_lastSearchForward ? '/' : '?');
+    m_searchBuffer.setContents(sd.needle);
 }
 
 void FakeVimHandler::Private::highlightMatches(const QString &needle)
@@ -5270,20 +5281,21 @@ void FakeVimHandler::Private::toggleVisualMode(VisualMode visualMode)
 
 void FakeVimHandler::Private::leaveVisualMode()
 {
-    if (isVisualMode()) {
-        m_lastSelectionCursor = cursor();
-        m_lastSelectionMode = m_visualMode;
-        int from = m_lastSelectionCursor.anchor();
-        int to = m_lastSelectionCursor.position();
-        if (from > to)
-            qSwap(from, to);
-        setMark('<', from);
-        setMark('>', to);
-        if (isVisualLineMode())
-            m_movetype = MoveLineWise;
-        else if (isVisualCharMode())
-            m_movetype = MoveInclusive;
-    }
+    if (!isVisualMode())
+        return;
+
+    m_lastSelectionCursor = cursor();
+    m_lastSelectionMode = m_visualMode;
+    int from = m_lastSelectionCursor.anchor();
+    int to = m_lastSelectionCursor.position();
+    if (from > to)
+        qSwap(from, to);
+    setMark('<', from);
+    setMark('>', to);
+    if (isVisualLineMode())
+        m_movetype = MoveLineWise;
+    else if (isVisualCharMode())
+        m_movetype = MoveInclusive;
 
     m_visualMode = NoVisualMode;
     updateMiniBuffer();
@@ -5381,7 +5393,6 @@ void FakeVimHandler::Private::enterReplaceMode()
     m_mode = ReplaceMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
-    m_commandPrefix.clear();
     m_lastInsertion.clear();
     m_lastDeletion.clear();
 }
@@ -5391,7 +5402,6 @@ void FakeVimHandler::Private::enterInsertMode()
     m_mode = InsertMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
-    m_commandPrefix.clear();
     m_lastInsertion.clear();
     m_lastDeletion.clear();
 }
@@ -5403,7 +5413,6 @@ void FakeVimHandler::Private::enterCommandMode()
     m_mode = CommandMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
-    m_commandPrefix.clear();
 }
 
 void FakeVimHandler::Private::enterExMode()
@@ -5411,7 +5420,6 @@ void FakeVimHandler::Private::enterExMode()
     m_mode = ExMode;
     m_submode = NoSubMode;
     m_subsubmode = NoSubSubMode;
-    m_commandPrefix = ':';
 }
 
 void FakeVimHandler::Private::recordJump()
