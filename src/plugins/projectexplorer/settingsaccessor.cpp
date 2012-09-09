@@ -657,6 +657,10 @@ QVariantMap SettingsAccessor::restoreSettings() const
 
     // Time to consider shared settings...
     SettingsData sharedSettings;
+    fn = project()->property(m_sharedFileAcessor.id()).toString();
+    if (fn.isEmpty())
+        fn = project()->document()->fileName() + m_sharedFileAcessor.suffix();
+    sharedSettings.m_fileName = Utils::FileName::fromString(fn);
     if (!sharedSettings.m_fileName.isEmpty() && m_sharedFileAcessor.readFile(&sharedSettings)) {
         bool useSharedSettings = true;
         if (sharedSettings.m_version != settings.m_version) {
