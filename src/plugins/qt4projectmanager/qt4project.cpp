@@ -864,9 +864,9 @@ Qt4Manager *Qt4Project::qt4ProjectManager() const
     return m_manager;
 }
 
-bool Qt4Project::supportsKit(Kit *p) const
+bool Qt4Project::supportsKit(Kit *k) const
 {
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(p);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     return version;
 }
 
@@ -1392,34 +1392,34 @@ QString Qt4Project::disabledReasonForRunConfiguration(const QString &proFilePath
             .arg(QFileInfo(proFilePath).fileName());
 }
 
-QString Qt4Project::shadowBuildDirectory(const QString &profilePath, const Kit *p, const QString &suffix)
+QString Qt4Project::shadowBuildDirectory(const QString &profilePath, const Kit *k, const QString &suffix)
 {
     if (profilePath.isEmpty())
         return QString();
     QFileInfo info(profilePath);
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(p);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (version && !version->supportsShadowBuilds())
         return info.absolutePath();
 
     QString base = QDir::cleanPath(projectDirectory(profilePath) + QLatin1String("/../")
                                    + info.baseName() + QLatin1String("-build-"));
-    return base + buildNameFor(p) + QLatin1String("-") + sanitize(suffix);
+    return base + buildNameFor(k) + QLatin1String("-") + sanitize(suffix);
 }
 
-QString Qt4Project::buildNameFor(const Kit *p)
+QString Qt4Project::buildNameFor(const Kit *k)
 {
-    if (!p)
+    if (!k)
         return QLatin1String("unknown");
-    return QString::fromLatin1(p->id().name()).mid(31, 6); // part of the UUID, should be pretty unique;-)
+    return QString::fromLatin1(k->id().name()).mid(31, 6); // part of the UUID, should be pretty unique;-)
 }
 
-Target *Qt4Project::createTarget(Kit *p, const QList<BuildConfigurationInfo> &infoList)
+Target *Qt4Project::createTarget(Kit *k, const QList<BuildConfigurationInfo> &infoList)
 {
-    if (target(p))
+    if (target(k))
         return 0;
 
-    Target *t = new Target(this, p);
+    Target *t = new Target(this, k);
 
     // Build Configurations:
     foreach (const BuildConfigurationInfo &info, infoList) {

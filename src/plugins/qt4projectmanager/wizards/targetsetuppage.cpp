@@ -276,10 +276,10 @@ void TargetSetupPage::setupWidgets()
 void TargetSetupPage::reset()
 {
     foreach (Qt4TargetSetupWidget *widget, m_widgets.values()) {
-        ProjectExplorer::Kit *p = widget->profile();
-        if (!p)
+        ProjectExplorer::Kit *k = widget->profile();
+        if (!k)
             continue;
-        removeProject(p, m_proFilePath);
+        removeProject(k, m_proFilePath);
         delete widget;
     }
 
@@ -505,8 +505,8 @@ void TargetSetupPage::setupImports()
     import(Utils::FileName::fromString(sourceDir), true);
 
     QList<ProjectExplorer::Kit *> kitList = ProjectExplorer::KitManager::instance()->kits();
-    foreach (ProjectExplorer::Kit *p, kitList) {
-        QFileInfo fi(Qt4Project::shadowBuildDirectory(m_proFilePath, p, QString()));
+    foreach (ProjectExplorer::Kit *k, kitList) {
+        QFileInfo fi(Qt4Project::shadowBuildDirectory(m_proFilePath, k, QString()));
         const QString baseDir = fi.absolutePath();
         const QString prefix = fi.baseName();
 
@@ -660,9 +660,9 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
         if (!widget->isKitSelected())
             continue;
 
-        ProjectExplorer::Kit *p = widget->profile();
-        cleanKit(p);
-        toRegister.append(KitBuildInfo(p, widget->selectedBuildConfigurationInfoList()));
+        ProjectExplorer::Kit *k = widget->profile();
+        cleanKit(k);
+        toRegister.append(KitBuildInfo(k, widget->selectedBuildConfigurationInfoList()));
         widget->clearKit();
     }
     reset();

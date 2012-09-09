@@ -66,16 +66,16 @@ public:
     QList<ProjectExplorer::Task> validate(ProjectExplorer::Kit *k) const
         { return DebuggerKitInformation::validateDebugger(k); }
 
-    static QList<ProjectExplorer::Task> validateDebugger(const ProjectExplorer::Kit *p);
-    static bool isValidDebugger(const ProjectExplorer::Kit *p);
+    static QList<ProjectExplorer::Task> validateDebugger(const ProjectExplorer::Kit *k);
+    static bool isValidDebugger(const ProjectExplorer::Kit *k);
 
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
 
     ItemList toUserOutput(ProjectExplorer::Kit *k) const;
     static QString userOutput(const DebuggerItem &item);
 
-    static DebuggerItem debuggerItem(const ProjectExplorer::Kit *p);
-    static void setDebuggerItem(ProjectExplorer::Kit *p, const DebuggerItem &item);
+    static DebuggerItem debuggerItem(const ProjectExplorer::Kit *k);
+    static void setDebuggerItem(ProjectExplorer::Kit *k, const DebuggerItem &item);
 
     static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *p)
         { return debuggerItem(p).binary; }
@@ -85,7 +85,7 @@ public:
     static DebuggerEngineType engineType(const ProjectExplorer::Kit *p)
         { return debuggerItem(p).engineType; }
 
-    static void setEngineType(ProjectExplorer::Kit *p, DebuggerEngineType type);
+    static void setEngineType(ProjectExplorer::Kit *k, DebuggerEngineType type);
 
     static QString debuggerEngineName(DebuggerEngineType t);
 

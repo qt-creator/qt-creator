@@ -58,9 +58,9 @@ unsigned int QtKitInformation::priority() const
     return 26000;
 }
 
-QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *p) const
+QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
 {
-    Q_UNUSED(p);
+    Q_UNUSED(k);
     QtVersionManager *mgr = QtVersionManager::instance();
 
     // find "Qt in PATH":
@@ -79,86 +79,86 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *p) const
     return -1;
 }
 
-QList<ProjectExplorer::Task> QtKitInformation::validate(ProjectExplorer::Kit *p) const
+QList<ProjectExplorer::Task> QtKitInformation::validate(ProjectExplorer::Kit *k) const
 {
-    int id = qtVersionId(p);
+    int id = qtVersionId(k);
     if (id == -1)
         return QList<ProjectExplorer::Task>();
     BaseQtVersion *version = QtVersionManager::instance()->version(id);
     if (!version) {
-        setQtVersionId(p, -1);
+        setQtVersionId(k, -1);
         return QList<ProjectExplorer::Task>();
     }
-    return version->validateKit(p);
+    return version->validateKit(k);
 }
 
-ProjectExplorer::KitConfigWidget *QtKitInformation::createConfigWidget(ProjectExplorer::Kit *p) const
+ProjectExplorer::KitConfigWidget *QtKitInformation::createConfigWidget(ProjectExplorer::Kit *k) const
 {
-    return new Internal::QtKitConfigWidget(p);
+    return new Internal::QtKitConfigWidget(k);
 }
 
-QString QtKitInformation::displayNamePostfix(const ProjectExplorer::Kit *p) const
+QString QtKitInformation::displayNamePostfix(const ProjectExplorer::Kit *k) const
 {
-    BaseQtVersion *version = qtVersion(p);
+    BaseQtVersion *version = qtVersion(k);
     return version ? version->displayName() : QString();
 }
 
 ProjectExplorer::KitInformation::ItemList
-QtKitInformation::toUserOutput(ProjectExplorer::Kit *p) const
+QtKitInformation::toUserOutput(ProjectExplorer::Kit *k) const
 {
-    BaseQtVersion *version = qtVersion(p);
+    BaseQtVersion *version = qtVersion(k);
     return ItemList() << qMakePair(tr("Qt version"), version ? version->displayName() : tr("None"));
 }
 
-void QtKitInformation::addToEnvironment(const ProjectExplorer::Kit *p, Utils::Environment &env) const
+void QtKitInformation::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
 {
-    BaseQtVersion *version = qtVersion(p);
+    BaseQtVersion *version = qtVersion(k);
     if (version)
-        version->addToEnvironment(p, env);
+        version->addToEnvironment(k, env);
 }
 
-int QtKitInformation::qtVersionId(const ProjectExplorer::Kit *p)
+int QtKitInformation::qtVersionId(const ProjectExplorer::Kit *k)
 {
-    if (!p)
+    if (!k)
         return -1;
     bool ok = false;
-    int id = p->value(Core::Id(Internal::QT_INFORMATION), -1).toInt(&ok);
+    int id = k->value(Core::Id(Internal::QT_INFORMATION), -1).toInt(&ok);
     if (!ok)
         id = -1;
     return id;
 }
 
-void QtKitInformation::setQtVersionId(ProjectExplorer::Kit *p, const int id)
+void QtKitInformation::setQtVersionId(ProjectExplorer::Kit *k, const int id)
 {
-    p->setValue(Core::Id(Internal::QT_INFORMATION), id);
+    k->setValue(Core::Id(Internal::QT_INFORMATION), id);
 }
 
-BaseQtVersion *QtKitInformation::qtVersion(const ProjectExplorer::Kit *p)
+BaseQtVersion *QtKitInformation::qtVersion(const ProjectExplorer::Kit *k)
 {
-    return QtVersionManager::instance()->version(qtVersionId(p));
+    return QtVersionManager::instance()->version(qtVersionId(k));
 }
 
-void QtKitInformation::setQtVersion(ProjectExplorer::Kit *p, const BaseQtVersion *v)
+void QtKitInformation::setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v)
 {
     if (!v)
-        setQtVersionId(p, -1);
+        setQtVersionId(k, -1);
     else
-        setQtVersionId(p, v->uniqueId());
+        setQtVersionId(k, v->uniqueId());
 }
 
 QtPlatformKitMatcher::QtPlatformKitMatcher(const QString &platform) :
     m_platform(platform)
 { }
 
-bool QtPlatformKitMatcher::matches(const ProjectExplorer::Kit *p) const
+bool QtPlatformKitMatcher::matches(const ProjectExplorer::Kit *k) const
 {
-    BaseQtVersion *version = QtKitInformation::qtVersion(p);
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
     return version && version->platformName() == m_platform;
 }
 
-bool QtVersionKitMatcher::matches(const ProjectExplorer::Kit *p) const
+bool QtVersionKitMatcher::matches(const ProjectExplorer::Kit *k) const
 {
-    BaseQtVersion *version = QtKitInformation::qtVersion(p);
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
     if (!version)
         return false;
     QtVersionNumber current = version->qtVersion();

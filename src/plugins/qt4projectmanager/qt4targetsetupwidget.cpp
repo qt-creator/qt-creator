@@ -56,10 +56,10 @@ namespace Qt4ProjectManager {
 // Qt4TargetSetupWidget
 // -------------------------------------------------------------------------
 
-Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Kit *p,
+Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Kit *k,
                                            const QString &proFilePath,
                                            const QList<BuildConfigurationInfo> &infoList) :
-    m_kit(p),
+    m_kit(k),
     m_haveImported(false),
     m_ignoreChange(false),
     m_selected(0)

@@ -103,18 +103,18 @@ Kit::~Kit()
 
 Kit *Kit::clone(bool keepName) const
 {
-    Kit *p = new Kit;
+    Kit *k = new Kit;
     if (keepName)
-        p->d->m_displayName = d->m_displayName;
+        k->d->m_displayName = d->m_displayName;
     else
-        p->d->m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Clone of %1")
+        k->d->m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Clone of %1")
                 .arg(d->m_displayName);
-    p->d->m_autodetected = false;
-    p->d->m_data = d->m_data;
-    p->d->m_isValid = d->m_isValid;
-    p->d->m_icon = d->m_icon;
-    p->d->m_iconPath = d->m_iconPath;
-    return p;
+    k->d->m_autodetected = false;
+    k->d->m_data = d->m_data;
+    k->d->m_isValid = d->m_isValid;
+    k->d->m_icon = d->m_icon;
+    k->d->m_iconPath = d->m_iconPath;
+    return k;
 }
 
 bool Kit::isValid() const
@@ -145,18 +145,18 @@ static QString candidateName(const QString &name, const QString &postfix)
 
 void Kit::setDisplayName(const QString &name)
 {
-    KitManager *pm = KitManager::instance();
-    QList<KitInformation *> kitInfo = pm->kitInformation();
+    KitManager *km = KitManager::instance();
+    QList<KitInformation *> kitInfo = km->kitInformation();
 
     QStringList nameList;
-    foreach (Kit *p, pm->kits()) {
-        if (p == this)
+    foreach (Kit *k, km->kits()) {
+        if (k == this)
             continue;
-        nameList << p->displayName();
+        nameList << k->displayName();
         foreach (KitInformation *ki, kitInfo) {
-            const QString postfix = ki->displayNamePostfix(p);
+            const QString postfix = ki->displayNamePostfix(k);
             if (!postfix.isEmpty())
-                nameList << candidateName(p->displayName(), postfix);
+                nameList << candidateName(k->displayName(), postfix);
         }
     }
 

@@ -156,8 +156,8 @@ void KitManager::restoreKits()
     KitList system = restoreKits(Utils::FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(KIT_FILENAME)));
     QList<Kit *> readKits = system.kits;
     // make sure we mark these as autodetected!
-    foreach (Kit *p, readKits)
-        p->setAutoDetected(true);
+    foreach (Kit *k, readKits)
+        k->setAutoDetected(true);
 
     kitsToRegister = readKits; // SDK kits are always considered to be up-to-date, so no need to
                              // recheck them.
@@ -166,11 +166,11 @@ void KitManager::restoreKits()
     KitList userKits = restoreKits(settingsFileName());
     readKits = userKits.kits;
 
-    foreach (Kit *p, readKits) {
-        if (p->isAutoDetected())
-            kitsToCheck.append(p);
+    foreach (Kit *k, readKits) {
+        if (k->isAutoDetected())
+            kitsToCheck.append(k);
         else
-            kitsToRegister.append(p);
+            kitsToRegister.append(k);
     }
     readKits.clear();
 
@@ -198,8 +198,8 @@ void KitManager::restoreKits()
     qDeleteAll(kitsToCheck);
 
     // Store manual kits
-    foreach (Kit *p, kitsToRegister)
-        addKit(p);
+    foreach (Kit *k, kitsToRegister)
+        addKit(k);
 
     if (kits().isEmpty()) {
         Kit *defaultKit = new Kit; // One kit using default values
@@ -210,9 +210,9 @@ void KitManager::restoreKits()
         addKit(defaultKit);
     }
 
-    Kit *p = find(userKits.defaultKit);
-    if (p)
-        setDefaultKit(p);
+    Kit *k = find(userKits.defaultKit);
+    if (k)
+        setDefaultKit(k);
 }
 
 KitManager::~KitManager()
@@ -231,8 +231,8 @@ void KitManager::saveKits()
     data.insert(QLatin1String(KIT_FILE_VERSION_KEY), 1);
 
     int count = 0;
-    foreach (Kit *p, kits()) {
-        QVariantMap tmp = p->toMap();
+    foreach (Kit *k, kits()) {
+        QVariantMap tmp = k->toMap();
         if (tmp.isEmpty())
             continue;
         data.insert(QString::fromLatin1(KIT_DATA_KEY) + QString::number(count), tmp);
@@ -260,9 +260,9 @@ void KitManager::registerKitInformation(KitInformation *ki)
     if (!d->m_initialized)
         return;
 
-    foreach (Kit *p, kits()) {
-        if (!p->hasValue(ki->dataId()))
-            p->setValue(ki->dataId(), ki->defaultValue(p));
+    foreach (Kit *k, kits()) {
+        if (!k->hasValue(ki->dataId()))
+            k->setValue(ki->dataId(), ki->defaultValue(k));
     }
 
     return;
@@ -297,11 +297,11 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
 
         const QVariantMap stMap = data.value(key).toMap();
 
-        Kit *p = new Kit;
-        if (p->fromMap(stMap)) {
-            result.kits.append(p);
+        Kit *k = new Kit;
+        if (k->fromMap(stMap)) {
+            result.kits.append(k);
         } else {
-            delete p;
+            delete k;
             qWarning("Warning: Unable to restore kits stored in %s at position %d.",
                      qPrintable(fileName.toUserOutput()), i);
         }
@@ -311,8 +311,8 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
         return result;
 
     const Core::Id id = Core::Id(defaultId);
-    foreach (Kit *i, result.kits) {
-        if (i->id() == id) {
+    foreach (Kit *k, result.kits) {
+        if (k->id() == id) {
             result.defaultKit = id;
             break;
         }
@@ -328,9 +328,9 @@ QList<Kit *> KitManager::kits(const KitMatcher *m) const
     }
 
     QList<Kit *> result;
-    foreach (Kit *p, d->m_kitList) {
-        if (!m || m->matches(p))
-            result.append(p);
+    foreach (Kit *k, d->m_kitList) {
+        if (!m || m->matches(k))
+            result.append(k);
     }
     return result;
 }
@@ -340,9 +340,9 @@ Kit *KitManager::find(const Core::Id &id) const
     if (!id.isValid())
         return 0;
 
-    foreach (Kit *p, kits()) {
-        if (p->id() == id)
-            return p;
+    foreach (Kit *k, kits()) {
+        if (k->id() == id)
+            return k;
     }
     return 0;
 }
@@ -379,12 +379,12 @@ KitConfigWidget *KitManager::createConfigWidget(Kit *k) const
     return result;
 }
 
-void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *p)
+void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 {
-    if (!p || !kits().contains(p))
+    if (!k || !kits().contains(k))
         return;
-    d->validateKit(p);
-    emit kitUpdated(p);
+    d->validateKit(k);
+    emit kitUpdated(k);
 }
 
 bool KitManager::registerKit(ProjectExplorer::Kit *k)
@@ -446,8 +446,8 @@ void KitManager::setDefaultKit(Kit *k)
 
 void KitManager::validateKits()
 {
-    foreach (Kit *p, kits())
-        d->validateKit(p);
+    foreach (Kit *k, kits())
+        d->validateKit(k);
 }
 
 void KitManager::addKit(Kit *k)

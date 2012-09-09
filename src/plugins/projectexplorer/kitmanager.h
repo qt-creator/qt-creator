@@ -153,7 +153,7 @@ private:
     };
     KitList restoreKits(const Utils::FileName &fileName);
 
-    void notifyAboutUpdate(ProjectExplorer::Kit *p);
+    void notifyAboutUpdate(ProjectExplorer::Kit *k);
     void addKit(Kit *k);
 
     Internal::KitManagerPrivate *const d;

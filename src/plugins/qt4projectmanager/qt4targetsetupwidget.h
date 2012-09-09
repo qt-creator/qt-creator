@@ -62,7 +62,7 @@ class QT4PROJECTMANAGER_EXPORT Qt4TargetSetupWidget : public QWidget
 {
     Q_OBJECT
 public:
-    Qt4TargetSetupWidget(ProjectExplorer::Kit *p,
+    Qt4TargetSetupWidget(ProjectExplorer::Kit *k,
                          const QString &proFilePath,
                          const QList<BuildConfigurationInfo> &infoList);
     ~Qt4TargetSetupWidget();

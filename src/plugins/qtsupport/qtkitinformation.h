@@ -50,22 +50,22 @@ public:
 
     unsigned int priority() const; // the higher the closer to the top.
 
-    QVariant defaultValue(ProjectExplorer::Kit *p) const;
+    QVariant defaultValue(ProjectExplorer::Kit *k) const;
 
-    QList<ProjectExplorer::Task> validate(ProjectExplorer::Kit *p) const;
+    QList<ProjectExplorer::Task> validate(ProjectExplorer::Kit *k) const;
 
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *p) const;
+    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
 
-    QString displayNamePostfix(const ProjectExplorer::Kit *p) const;
+    QString displayNamePostfix(const ProjectExplorer::Kit *k) const;
 
-    ItemList toUserOutput(ProjectExplorer::Kit *p) const;
+    ItemList toUserOutput(ProjectExplorer::Kit *k) const;
 
-    void addToEnvironment(const ProjectExplorer::Kit *p, Utils::Environment &env) const;
+    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
 
-    static int qtVersionId(const ProjectExplorer::Kit *p);
-    static void setQtVersionId(ProjectExplorer::Kit *p, const int id);
-    static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *p);
-    static void setQtVersion(ProjectExplorer::Kit *p, const BaseQtVersion *v);
+    static int qtVersionId(const ProjectExplorer::Kit *k);
+    static void setQtVersionId(ProjectExplorer::Kit *k, const int id);
+    static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *k);
+    static void setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion *v);
 };
 
 class QTSUPPORT_EXPORT QtPlatformKitMatcher : public ProjectExplorer::KitMatcher
@@ -73,7 +73,7 @@ class QTSUPPORT_EXPORT QtPlatformKitMatcher : public ProjectExplorer::KitMatcher
 public:
     QtPlatformKitMatcher(const QString &platform);
 
-    bool matches(const ProjectExplorer::Kit *p) const;
+    bool matches(const ProjectExplorer::Kit *k) const;
 
 private:
     QString m_platform;
@@ -88,7 +88,7 @@ public:
         m_min(min), m_max(max), m_features(required)
     { }
 
-    bool matches(const ProjectExplorer::Kit *p) const;
+    bool matches(const ProjectExplorer::Kit *k) const;
 
 private:
     QtVersionNumber m_min;

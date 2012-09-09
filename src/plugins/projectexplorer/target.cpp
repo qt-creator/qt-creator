@@ -119,21 +119,21 @@ QList<DeployConfigurationFactory *> TargetPrivate::deployFactories() const
     return ExtensionSystem::PluginManager::getObjects<DeployConfigurationFactory>();
 }
 
-Target::Target(Project *project, Kit *p) :
-    ProjectConfiguration(project, p->id()),
+Target::Target(Project *project, Kit *k) :
+    ProjectConfiguration(project, k->id()),
     d(new TargetPrivate)
 {
     connect(DeviceManager::instance(), SIGNAL(updated()), this, SLOT(updateDeviceState()));
 
-    d->m_kit = p;
+    d->m_kit = k;
 
     setDisplayName(d->m_kit->displayName());
     setIcon(d->m_kit->icon());
 
-    KitManager *pm = KitManager::instance();
-    connect(pm, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+    KitManager *km = KitManager::instance();
+    connect(km, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
             this, SLOT(handleKitUpdates(ProjectExplorer::Kit*)));
-    connect(pm, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
+    connect(km, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
             this, SLOT(handleKitRemoval(ProjectExplorer::Kit*)));
 }
 
@@ -180,20 +180,20 @@ void Target::onBuildDirectoryChanged()
         emit buildDirectoryChanged();
 }
 
-void Target::handleKitUpdates(Kit *p)
+void Target::handleKitUpdates(Kit *k)
 {
-    if (p != d->m_kit)
+    if (k != d->m_kit)
         return;
 
-    setDisplayName(p->displayName());
-    setIcon(p->icon());
+    setDisplayName(k->displayName());
+    setIcon(k->icon());
     updateDefaultDeployConfigurations();
     emit kitChanged();
 }
 
-void Target::handleKitRemoval(Kit *p)
+void Target::handleKitRemoval(Kit *k)
 {
-    if (p != d->m_kit)
+    if (k != d->m_kit)
         return;
     d->m_kit = 0;
     project()->removeTarget(this);

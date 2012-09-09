@@ -187,9 +187,9 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     return ProjectConfiguration::fromMap(map);
 }
 
-void BuildConfiguration::handleKitUpdate(ProjectExplorer::Kit *p)
+void BuildConfiguration::handleKitUpdate(ProjectExplorer::Kit *k)
 {
-    if (p != target()->kit())
+    if (k != target()->kit())
         return;
     emit environmentChanged();
 }

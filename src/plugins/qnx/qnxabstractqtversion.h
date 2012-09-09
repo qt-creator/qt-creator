@@ -64,7 +64,7 @@ public:
 
     QList<ProjectExplorer::Abi> detectQtAbis() const;
 
-    void addToEnvironment(const ProjectExplorer::Kit *p, Utils::Environment &env) const;
+    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
 
     QtSupport::QtConfigWidget *createConfigurationWidget() const;
 

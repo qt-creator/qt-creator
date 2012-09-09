@@ -565,11 +565,11 @@ class AbiKitMatcher : public KitMatcher
 {
 public:
     explicit AbiKitMatcher(const QList<Abi> &abis) : m_abis(abis) {}
-    bool matches(const Kit *p) const
+    bool matches(const Kit *k) const
     {
-        if (const ToolChain *tc = ToolChainKitInformation::toolChain(p)) {
+        if (const ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
             return m_abis.contains(tc->targetAbi())
-                   && DebuggerKitInformation::isValidDebugger(p);
+                   && DebuggerKitInformation::isValidDebugger(k);
         }
         return false;
     }
@@ -582,11 +582,11 @@ class CompatibleAbiKitMatcher : public KitMatcher
 {
 public:
     explicit CompatibleAbiKitMatcher(const QList<Abi> &abis) : m_abis(abis) {}
-    bool matches(const Kit *p) const
+    bool matches(const Kit *k) const
     {
-        if (const ToolChain *tc = ToolChainKitInformation::toolChain(p))
+        if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
             foreach (const Abi &a, m_abis)
-                if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(p))
+                if (a.isCompatibleWith(tc->targetAbi()) && DebuggerKitInformation::isValidDebugger(k))
                     return true;
         return false;
     }
