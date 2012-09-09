@@ -88,6 +88,8 @@ class StartApplicationDialogPrivate
 {
 public:
     KitChooser *kitChooser;
+    QLabel *serverPortLabel;
+    QSpinBox *serverPortSpinBox;
     PathChooser *localExecutablePathChooser;
     FancyLineEdit *arguments;
     PathChooser *workingDirectory;
@@ -157,6 +159,7 @@ public:
     bool operator!=(const StartApplicationParameters &p) const { return !equals(p); }
 
     Id kitId;
+    uint serverPort;
     QString localExecutable;
     QString processArgs;
     QString workingDirectory;
@@ -174,6 +177,7 @@ StartApplicationParameters::StartApplicationParameters() :
 bool StartApplicationParameters::equals(const StartApplicationParameters &rhs) const
 {
     return localExecutable == rhs.localExecutable
+        && serverPort == rhs.serverPort
         && processArgs == rhs.processArgs
         && workingDirectory == rhs.workingDirectory
         && breakAtMain == rhs.breakAtMain
@@ -205,6 +209,7 @@ QString StartApplicationParameters::displayName() const
 void StartApplicationParameters::toSettings(QSettings *settings) const
 {
     settings->setValue(_("LastProfileId"), kitId.toString());
+    settings->setValue(_("LastServerPort"), serverPort);
     settings->setValue(_("LastExternalExecutable"), localExecutable);
     settings->setValue(_("LastExternalExecutableArguments"), processArgs);
     settings->setValue(_("LastExternalWorkingDirectory"), workingDirectory);
@@ -218,6 +223,7 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
 {
     const QString kitIdString = settings->value(_("LastProfileId")).toString();
     kitId = kitIdString.isEmpty() ? Id() : Id(kitIdString);
+    serverPort = settings->value(_("LastServerPort")).toUInt();
     localExecutable = settings->value(_("LastExternalExecutable")).toString();
     processArgs = settings->value(_("LastExternalExecutableArguments")).toString();
     workingDirectory = settings->value(_("LastExternalWorkingDirectory")).toString();
@@ -243,6 +249,11 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->localExecutablePathChooser->setExpectedKind(PathChooser::File);
     d->localExecutablePathChooser->setPromptDialogTitle(tr("Select Executable"));
     d->localExecutablePathChooser->lineEdit()->setHistoryCompleter(QLatin1String("LocalExecutable"));
+
+    d->serverPortSpinBox = new QSpinBox(this);
+    d->serverPortSpinBox->setRange(1, 65535);
+
+    d->serverPortLabel = new QLabel(tr("Server port:"), this);
 
     d->arguments = new FancyLineEdit(this);
     d->arguments->setHistoryCompleter(QLatin1String("CommandlineArguments"));
@@ -294,6 +305,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     QFormLayout *formLayout = new QFormLayout();
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(tr("&Kit:"), d->kitChooser);
+    formLayout->addRow(d->serverPortLabel, d->serverPortSpinBox);
     formLayout->addRow(tr("Local &executable:"), d->localExecutablePathChooser);
     formLayout->addRow(tr("Command line &arguments:"), d->arguments);
     formLayout->addRow(tr("&Working directory:"), d->workingDirectory);
@@ -334,12 +346,6 @@ void StartApplicationDialog::setHistory(const QList<StartApplicationParameters> 
     }
 }
 
-void StartApplicationDialog::hideStartScript()
-{
-    d->serverStartScriptPathChooser->setVisible(false);
-    d->serverStartScriptLabel->setVisible(false);
-}
-
 void StartApplicationDialog::historyIndexChanged(int index)
 {
     if (index < 0)
@@ -347,11 +353,6 @@ void StartApplicationDialog::historyIndexChanged(int index)
     const QVariant v = d->historyComboBox->itemData(index);
     QTC_ASSERT(v.canConvert<StartApplicationParameters>(), return);
     setParameters(v.value<StartApplicationParameters>());
-}
-
-Id StartApplicationDialog::kitId() const
-{
-    return d->kitChooser->currentKitId();
 }
 
 void StartApplicationDialog::updateState()
@@ -362,6 +363,7 @@ void StartApplicationDialog::updateState()
 
 bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerStartParameters *sp)
 {
+    const bool attachRemote = sp->startMode == AttachToRemoteServer;
     const QString settingsGroup = QLatin1String("DebugMode");
     const QString arrayName = QLatin1String("StartApplication");
 
@@ -383,8 +385,13 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     StartApplicationDialog dialog(parent);
     dialog.setHistory(history);
     dialog.setParameters(history.back());
-    if (sp->startMode == AttachToRemoteServer)
-        dialog.hideStartScript();
+    if (attachRemote) {
+        dialog.d->serverStartScriptPathChooser->setVisible(false);
+        dialog.d->serverStartScriptLabel->setVisible(false);
+    } else {
+        dialog.d->serverPortSpinBox->setVisible(false);
+        dialog.d->serverPortLabel->setVisible(false);
+    }
     if (dialog.exec() != QDialog::Accepted)
         return false;
 
@@ -407,6 +414,7 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     QTC_ASSERT(kit && fillParameters(sp, kit), return false);
 
     sp->executable = newParameters.localExecutable;
+    sp->remoteChannel = sp->connParams.host + QLatin1Char(':') + QString::number(newParameters.serverPort);
     sp->displayName = newParameters.displayName();
     sp->workingDirectory = newParameters.workingDirectory;
     sp->useTerminal = newParameters.runInTerminal;
@@ -418,13 +426,15 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
 
     bool isLocal = DeviceKitInformation::device(kit)->type()
          == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
-    sp->startMode = isLocal ? StartExternal : StartRemoteProcess;
+    if (!attachRemote)
+        sp->startMode = isLocal ? StartExternal : StartRemoteProcess;
     return true;
 }
 
 StartApplicationParameters StartApplicationDialog::parameters() const
 {
     StartApplicationParameters result;
+    result.serverPort = d->serverPortSpinBox->value();
     result.localExecutable = d->localExecutablePathChooser->path();
     result.serverStartScript = d->serverStartScriptPathChooser->path();
     result.kitId = d->kitChooser->currentKitId();
@@ -439,6 +449,7 @@ StartApplicationParameters StartApplicationDialog::parameters() const
 void StartApplicationDialog::setParameters(const StartApplicationParameters &p)
 {
     d->kitChooser->setCurrentKitId(p.kitId);
+    d->serverPortSpinBox->setValue(p.serverPort);
     d->localExecutablePathChooser->setPath(p.localExecutable);
     d->serverStartScriptPathChooser->setPath(p.serverStartScript);
     d->debuginfoPathChooser->setPath(p.debugInfoLocation);
