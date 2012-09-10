@@ -886,8 +886,9 @@ void BaseQtVersion::updateVersionInfo() const
     }
 
     // Now check for a qt that is configured with a prefix but not installed
-    if (!qtInstallBins.isNull()) {
-        QFileInfo fi(qtInstallBins);
+    QString installDir = qmakeProperty("QT_HOST_BINS");
+    if (!installDir.isNull()) {
+        QFileInfo fi(installDir);
         if (!fi.exists())
             m_installed = false;
     }
