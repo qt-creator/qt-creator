@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# This is the script that generates the copy of the QmlJS parser from the sources
+# in the qtdeclarative source tree.
+#
+# It applies a bunch of renames to make the source compatible with the Qt Creator
+# sources as well as rewrites of the licenses.
+#
+# Example:
+# cd src/libs/qmljs/parser
+# QTDIR=~/path/to/qtdeclarative-checkout ./gen-parser.sh
+
 me=$(dirname $0)
 
 for i in $QTDIR/src/qml/qml/parser/*.{g,h,cpp,pri}; do
