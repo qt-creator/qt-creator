@@ -52,6 +52,10 @@ Debugging
    * Made all views searchable (Ctrl+F)
 
 Debugging QML/JS
+   * Merged the (experimental) QML/JS Inspector plugin into the Debugger:
+     * Added the QML object tree to the Expressions window
+     * Added Console window to evaluate JS expressions at runtime
+     * Added QML specific buttons to the toolbar
 
 Analyzing Code
 
