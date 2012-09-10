@@ -69,9 +69,13 @@ Hex2EncodedInt1, \
 Hex2EncodedInt2, \
 Hex2EncodedInt4, \
 Hex2EncodedInt8, \
+Hex2EncodedUInt1, \
+Hex2EncodedUInt2, \
+Hex2EncodedUInt4, \
+Hex2EncodedUInt8, \
 Hex2EncodedFloat4, \
 Hex2EncodedFloat8 \
-    = range(23)
+    = range(27)
 
 # Display modes
 StopDisplay, \
@@ -498,14 +502,24 @@ def simpleEncoding(typeobj):
     if code == BoolCode or code == CharCode:
         return Hex2EncodedInt1
     if code == IntCode:
-        if typeobj.sizeof == 1:
-            return Hex2EncodedInt1
-        if typeobj.sizeof == 2:
-            return Hex2EncodedInt2
-        if typeobj.sizeof == 4:
-            return Hex2EncodedInt4
-        if typeobj.sizeof == 8:
-            return Hex2EncodedInt8
+        if str(typeobj).find("unsigned") >= 0:
+            if typeobj.sizeof == 1:
+                return Hex2EncodedUInt1
+            if typeobj.sizeof == 2:
+                return Hex2EncodedUInt2
+            if typeobj.sizeof == 4:
+                return Hex2EncodedUInt4
+            if typeobj.sizeof == 8:
+                return Hex2EncodedUInt8
+        else:
+            if typeobj.sizeof == 1:
+                return Hex2EncodedInt1
+            if typeobj.sizeof == 2:
+                return Hex2EncodedInt2
+            if typeobj.sizeof == 4:
+                return Hex2EncodedInt4
+            if typeobj.sizeof == 8:
+                return Hex2EncodedInt8
     if code == FloatCode:
         if typeobj.sizeof == 4:
             return Hex2EncodedFloat4

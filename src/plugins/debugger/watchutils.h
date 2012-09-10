@@ -75,8 +75,12 @@ enum DebuggerEncoding
     Hex2EncodedInt2                        = 18,
     Hex2EncodedInt4                        = 19,
     Hex2EncodedInt8                        = 20,
-    Hex2EncodedFloat4                      = 21,
-    Hex2EncodedFloat8                      = 22
+    Hex2EncodedUInt1                       = 21,
+    Hex2EncodedUInt2                       = 22,
+    Hex2EncodedUInt4                       = 23,
+    Hex2EncodedUInt8                       = 24,
+    Hex2EncodedFloat4                      = 25,
+    Hex2EncodedFloat8                      = 26
 };
 
 bool isEditorDebuggable(Core::IEditor *editor);

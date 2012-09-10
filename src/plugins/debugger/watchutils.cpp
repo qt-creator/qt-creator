@@ -725,15 +725,27 @@ void decodeArray(QList<WatchData> *list, const WatchData &tmplate,
 {
     switch (encoding) {
         case Hex2EncodedInt1:
-            decodeArrayHelper<uchar>(list, tmplate, rawData);
+            decodeArrayHelper<signed char>(list, tmplate, rawData);
             break;
         case Hex2EncodedInt2:
-            decodeArrayHelper<ushort>(list, tmplate, rawData);
+            decodeArrayHelper<short>(list, tmplate, rawData);
             break;
         case Hex2EncodedInt4:
-            decodeArrayHelper<uint>(list, tmplate, rawData);
+            decodeArrayHelper<int>(list, tmplate, rawData);
             break;
         case Hex2EncodedInt8:
+            decodeArrayHelper<qint64>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedUInt1:
+            decodeArrayHelper<uchar>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedUInt2:
+            decodeArrayHelper<ushort>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedUInt4:
+            decodeArrayHelper<uint>(list, tmplate, rawData);
+            break;
+        case Hex2EncodedUInt8:
             decodeArrayHelper<quint64>(list, tmplate, rawData);
             break;
         case Hex2EncodedFloat4:
