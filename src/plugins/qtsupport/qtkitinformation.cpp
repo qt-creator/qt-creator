@@ -146,16 +146,6 @@ void QtKitInformation::setQtVersion(ProjectExplorer::Kit *p, const BaseQtVersion
         setQtVersionId(p, v->uniqueId());
 }
 
-QtTypeKitMatcher::QtTypeKitMatcher(const QString &type) :
-    m_type(type)
-{ }
-
-bool QtTypeKitMatcher::matches(const ProjectExplorer::Kit *p) const
-{
-    BaseQtVersion *version = QtKitInformation::qtVersion(p);
-    return version && version->type() == m_type;
-}
-
 QtPlatformKitMatcher::QtPlatformKitMatcher(const QString &platform) :
     m_platform(platform)
 { }

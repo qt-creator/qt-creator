@@ -68,17 +68,6 @@ public:
     static void setQtVersion(ProjectExplorer::Kit *p, const BaseQtVersion *v);
 };
 
-class QTSUPPORT_EXPORT QtTypeKitMatcher : public ProjectExplorer::KitMatcher
-{
-public:
-    QtTypeKitMatcher(const QString &type);
-
-    bool matches(const ProjectExplorer::Kit *p) const;
-
-private:
-    QString m_type;
-};
-
 class QTSUPPORT_EXPORT QtPlatformKitMatcher : public ProjectExplorer::KitMatcher
 {
 public:
