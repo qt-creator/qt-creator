@@ -4,6 +4,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 
 QtcPlugin {
     name: "Debugger"
+    type: base.concat(["installed_content"])
 
     Depends { name: "Qt"; submodules: ["widgets", "network", "script"] }
     Depends { name: "Core" }
@@ -30,6 +31,13 @@ QtcPlugin {
         "../../libs/utils",
         "../../shared/registryaccess/"
     ]
+
+    Group {
+        condition: qbs.buildVariant === "debug"
+        qbs.installDir: "tests/manual/debugger/simple/"
+        fileTags: ["install"]
+        files: ["../../../tests/manual/debugger/simple/simple.pro"]
+    }
 
     files: [
         "debugger.qrc",
