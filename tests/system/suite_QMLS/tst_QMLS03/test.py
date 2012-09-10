@@ -71,7 +71,7 @@ def main():
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
     test.verify(checkUsages(resultsView, expectedResults), "Verifying if usages were properly found using context menu.")
     # clear previous results & prepare for next search
-    clickButton(waitForObject(":Qt Creator.Clear_QToolButton"))
+    clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     mouseClick(editorArea, 5, 5, 0, Qt.LeftButton)
     # 2. check usages using menu
     # place cursor to component
@@ -89,7 +89,7 @@ def main():
     resultsView = waitForObject(":Qt Creator_Find::Internal::SearchResultTreeView")
     test.verify(checkUsages(resultsView, expectedResults), "Verifying if usages were properly found using main menu.")
     # clear previous results & prepare for next search
-    clickButton(waitForObject(":Qt Creator.Clear_QToolButton"))
+    clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     mouseClick(editorArea, 5, 5, 0, Qt.LeftButton)
     # 3. check usages using keyboard shortcut
     # place cursor to component

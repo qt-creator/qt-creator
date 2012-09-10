@@ -97,8 +97,7 @@ def testFindUsages():
                             "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
     __invokeFindUsage__(navTree, "focus\\.qml", "FocusScope\s*\{", ["<Down>"], 6)
     test.log("Testing find usage of a property")
-    clickButton(waitForObject("{type='QToolButton' text='Clear' unnamed='1' visible='1' "
-                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
+    clickButton(waitForObject(":*Qt Creator.Clear_QToolButton"))
     home = "<Home>"
     if platform.system() == "Darwin":
         home = "<Ctrl+Left>"

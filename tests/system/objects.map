@@ -15,6 +15,8 @@
 :Add Bookmark.treeView_QExpandingLineEdit	{container=':Add Bookmark.treeView_QTreeView' type='QExpandingLineEdit' unnamed='1' visible='1'}
 :Add Bookmark.treeView_QTreeView	{name='treeView' type='QTreeView' visible='1' window=':Add Bookmark_BookmarkDialog'}
 :Add Bookmark_BookmarkDialog	{name='BookmarkDialog' type='BookmarkDialog' visible='1' windowTitle='Add Bookmark'}
+:Add to Version Control.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':Add to Version Control_QMessageBox'}
+:Add to Version Control_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Add to Version Control'}
 :Behavior.Autocomplete common prefix_QCheckBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' name='partiallyComplete' text='Autocomplete common prefix' type='QCheckBox' visible='1'}
 :Behavior.completionTrigger_QComboBox	{container=':CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox' name='completionTrigger' type='QComboBox' visible='1'}
 :Breakpoints_Debugger::Internal::BreakTreeView	{container=':DebugModeWidget.Breakpoints_QDockWidget' type='Debugger::Internal::BreakTreeView' unnamed='1' visible='1'}
@@ -32,6 +34,9 @@
 :Debugger Toolbar.Continue_QToolButton	{container=':DebugModeWidget.Debugger Toolbar_QDockWidget' text='Continue' type='QToolButton' unnamed='1' visible='1'}
 :Debugger Toolbar.Exit Debugger_QToolButton	{container=':DebugModeWidget.Debugger Toolbar_QDockWidget' text='Stop Debugger' type='QToolButton' unnamed='1' visible='1'}
 :Debugger Toolbar.StatusText_Utils::StatusLabel	{container=':DebugModeWidget.Debugger Toolbar_QDockWidget' type='Utils::StatusLabel' unnamed='1'}
+:Dialog.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
+:Dialog.componentNameEdit_QLineEdit	{name='componentNameEdit' type='Utils::ClassNameValidatingLineEdit' visible='1' window=':Dialog_QmlJSEditor::Internal::ComponentNameDialog'}
+:Dialog_QmlJSEditor::Internal::ComponentNameDialog	{name='QmlJSEditor__Internal__ComponentNameDialog' type='QmlJSEditor::Internal::ComponentNameDialog' visible='1' windowTitle='Move Component into Separate File'}
 :Edit Environment_ProjectExplorer::EnvironmentItemsDialog	{type='ProjectExplorer::EnvironmentItemsDialog' unnamed='1' visible='1' windowTitle='Edit Environment'}
 :Failed to start application_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Failed to start application'}
 :Generator:_QComboBox	{buddy=':CMake Wizard.Generator:_QLabel' type='QComboBox' unnamed='1' visible='1'}
@@ -72,6 +77,7 @@
 :Qt Creator_Core::Internal::CommandComboBox	{type='Core::Internal::CommandComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Core::Internal::MainWindow	{type='Core::Internal::MainWindow' visible='1' windowTitle?='*Qt Creator'}
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_Find::Internal::SearchResultTreeView	{type='Find::Internal::SearchResultTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Help::Internal::HelpViewer	{type='Help::Internal::HelpViewer' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Issues_Core::Internal::OutputPaneToggleButton	{occurrence='1' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QHelpContentWidget	{type='QHelpContentWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}

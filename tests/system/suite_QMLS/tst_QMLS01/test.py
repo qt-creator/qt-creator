@@ -14,7 +14,7 @@ def __beginTestSuggestions__(editorArea, lineText, textToType):
 
 # verify whether suggestions makes sense for typed textToType
 def verifySuggestions(textToType):
-    popup = findObject(":m_popupFrame_QListView")
+    popup = findObject(":popupFrame_Proposal_QListView")
     model = popup.model()
     for row in range(model.rowCount()):
         index = model.index(row, 0)
@@ -35,12 +35,12 @@ def testSuggestionsAuto(lineText, textToType, expectedText, keyToUseSuggestion):
     if not __beginTestSuggestions__(editorArea, lineText, textToType):
         return False
     # check if suggestions are shown
-    test.verify(checkIfObjectExists(":m_popupFrame_QListView"),
+    test.verify(checkIfObjectExists(":popupFrame_Proposal_QListView"),
                 "Verifying if suggestions in automatic mode are shown.")
     # verify proposed suggestions
     verifySuggestions(textToType)
     # test if suggestion can be selected with keyToUseSuggestion
-    type(findObject(":m_popupFrame_QListView"), keyToUseSuggestion)
+    type(findObject(":popupFrame_Proposal_QListView"), keyToUseSuggestion)
     # get text which was written by usage of suggestion
     typedText = str(lineUnderCursor(editorArea)).strip()
     # verify if expected text is written
@@ -56,7 +56,7 @@ def testSuggestionsManual(lineText, textToType, expectedText):
     if not __beginTestSuggestions__(editorArea, lineText, textToType):
         return False
     # wait if automatic popup displayed - if yes then fail, because we are in manual mode
-    test.verify(checkIfObjectExists(":m_popupFrame_QListView", False),
+    test.verify(checkIfObjectExists(":popupFrame_Proposal_QListView", False),
                 "Verifying if suggestions in manual mode are properly not automatically shown")
     # test if suggestion can be invoked manually
     if platform.system() == "Darwin":
@@ -64,12 +64,12 @@ def testSuggestionsManual(lineText, textToType, expectedText):
     else:
         type(editorArea, "<Ctrl+Space>")
     # check if suggestions are shown
-    test.verify(checkIfObjectExists(":m_popupFrame_QListView"),
+    test.verify(checkIfObjectExists(":popupFrame_Proposal_QListView"),
                 "Verifying if suggestions in manual mode are shown manually")
     # verify proposed suggestions
     verifySuggestions(textToType)
     # test if suggestion can be used
-    type(findObject(":m_popupFrame_QListView"), "<Return>")
+    type(findObject(":popupFrame_Proposal_QListView"), "<Return>")
     # get text which was written by usage of suggestion
     typedText = str(lineUnderCursor(editorArea)).strip()
     # verify if expected text is written
@@ -106,4 +106,3 @@ def main():
     testSuggestionsManual("Text {", "col", "color:")
     # exit qt creator
     saveAndExit()
-
