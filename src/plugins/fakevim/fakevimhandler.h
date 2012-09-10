@@ -77,6 +77,16 @@ struct ExCommand
     int count;
 };
 
+// message levels sorted by severity
+enum MessageLevel
+{
+    MessageMode,    // show current mode (format "-- %1 --")
+    MessageCommand, // show last Ex command or search
+    MessageInfo,    // result of a command
+    MessageWarning, // warning
+    MessageError    // error
+};
+
 class FakeVimHandler : public QObject
 {
     Q_OBJECT
@@ -94,8 +104,7 @@ public slots:
     void setCurrentFileName(const QString &fileName);
     QString currentFileName() const;
 
-    void showBlackMessage(const QString &msg);
-    void showRedMessage(const QString &msg);
+    void showMessage(MessageLevel level, const QString &msg);
 
     // This executes an "ex" style command taking context
     // information from the current widget.
@@ -114,8 +123,10 @@ public slots:
     int logicalIndentation(const QString &line) const;
     QString tabExpand(int n) const;
 
+    void miniBufferTextEdited(const QString &text, int cursorPos);
+
 signals:
-    void commandBufferChanged(const QString &msg, int pos);
+    void commandBufferChanged(const QString &msg, int pos, int messageLevel, QObject *eventFilter);
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
     void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);

@@ -86,6 +86,7 @@
 #include <QtPlugin>
 #include <QObject>
 #include <QSettings>
+#include <QStackedWidget>
 #include <QTextStream>
 
 #include <QDesktopServices>
@@ -111,49 +112,99 @@ const char SETTINGS_ID[]                    = "A.General";
 const char SETTINGS_EX_CMDS_ID[]            = "B.ExCommands";
 const char SETTINGS_USER_CMDS_ID[]          = "C.UserCommands";
 
-class MiniBuffer : public QLabel
+class MiniBuffer : public QStackedWidget
 {
     Q_OBJECT
 
 public:
-    void setContents(const QString &contents, int cursorPos)
+    MiniBuffer() : m_label(new QLabel(this)), m_edit(new QLineEdit(this)), m_eventFilter(0)
     {
-        QString msg = contents;
-        if (cursorPos != -1)
-            msg = contents.left(cursorPos) + QChar(10073) + contents.mid(cursorPos);
-        setText("  " + msg);
-    }
-};
+        m_edit->installEventFilter(this);
+        connect(m_edit, SIGNAL(textEdited(QString)), SLOT(changed()));
+        connect(m_edit, SIGNAL(cursorPositionChanged(int,int)), SLOT(changed()));
+        m_label->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-class MiniBuffer1 : public QLineEdit
-{
-    Q_OBJECT
+        addWidget(m_label);
+        addWidget(m_edit);
+    }
 
-public:
-    MiniBuffer1()
+    void setContents(const QString &contents, int cursorPos, int messageLevel, QObject *eventFilter)
     {
-        setFrame(false);
+        if (cursorPos != -1) {
+            m_edit->blockSignals(true);
+            m_label->clear();
+            m_edit->setText(contents);
+            m_edit->setCursorPosition(cursorPos);
+            m_edit->blockSignals(false);
+
+            setCurrentWidget(m_edit);
+            m_edit->setFocus();
+        } else {
+            m_label->setText(messageLevel == MessageMode ? "-- " + contents + " --" : contents);
+
+            QString css;
+            if (messageLevel == MessageError) {
+                css = QString("border:1px solid rgba(255,255,255,150);"
+                              "background-color:rgba(255,0,0,100);");
+            } else if (messageLevel == MessageWarning) {
+                css = QString("border:1px solid rgba(255,255,255,120);"
+                              "background-color:rgba(255,255,0,20);");
+            }
+            m_label->setStyleSheet(QString(
+                "*{border-radius:2px;padding-left:4px;padding-right:4px;%1}").arg(css));
+
+            if (m_edit->hasFocus())
+                emit edited(QString(), -1);
+
+            setCurrentWidget(m_label);
+        }
+
+        if (m_eventFilter != eventFilter) {
+            if (m_eventFilter != 0) {
+                m_edit->removeEventFilter(m_eventFilter);
+                disconnect(SIGNAL(edited(QString,int)));
+            }
+            if (eventFilter != 0) {
+                m_edit->installEventFilter(eventFilter);
+                connect(this, SIGNAL(edited(QString,int)),
+                        eventFilter, SLOT(miniBufferTextEdited(QString,int)));
+            }
+            m_eventFilter = eventFilter;
+        }
     }
-    void showEvent(QShowEvent *ev)
+
+    QSize sizeHint() const
     {
-        QLineEdit::showEvent(ev);
-        QColor color = Qt::black;
-        QPalette pal = parentWidget()->palette();
-        pal.setBrush(QPalette::All, QPalette::WindowText, color);
-        pal.setBrush(QPalette::All, QPalette::ButtonText, color);
-        pal.setBrush(QPalette::All, QPalette::Foreground, color);
-        pal.setBrush(QPalette::All, QPalette::Background, color);
-        //color.setAlpha(100);
-        //pal.setBrush(QPalette::Disabled, QPalette::WindowText, color);
-        //pal.setBrush(QPalette::Disabled, QPalette::ButtonText, color);
-        //pal.setBrush(QPalette::Disabled, QPalette::Foreground, color);
-        setPalette(pal);
+        QSize size = QWidget::sizeHint();
+        // reserve maximal width for line edit widget
+        return currentWidget() == m_edit ? QSize(maximumWidth(), size.height()) : size;
     }
-    void setContents(const QString &contents, int cursorPos)
+
+signals:
+    void edited(const QString &text, int cursorPos);
+
+private slots:
+    void changed()
     {
-        setText(contents);
-        setCursorPosition(cursorPos);
+        emit edited(m_edit->text(), m_edit->cursorPosition());
     }
+
+    bool eventFilter(QObject *ob, QEvent *ev)
+    {
+        // cancel editing on escape
+        if (m_eventFilter != 0 && ob == m_edit && ev->type() == QEvent::ShortcutOverride
+            && static_cast<QKeyEvent*>(ev)->key() == Qt::Key_Escape) {
+            emit edited(QString(), -1);
+            ev->accept();
+            return true;
+        }
+        return false;
+    }
+
+private:
+    QLabel *m_label;
+    QLineEdit *m_edit;
+    QObject *m_eventFilter;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -797,7 +848,9 @@ private slots:
     void setBlockSelection(bool);
     void hasBlockSelection(bool*);
 
-    void showCommandBuffer(const QString &contents, int cursorPos);
+    void resetCommandBuffer();
+    void showCommandBuffer(const QString &contents, int cursorPos, int messageLevel,
+                           QObject *eventFilter);
     void showExtraInformation(const QString &msg);
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
@@ -1340,8 +1393,8 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
 
     connect(handler, SIGNAL(extraInformationChanged(QString)),
         SLOT(showExtraInformation(QString)));
-    connect(handler, SIGNAL(commandBufferChanged(QString,int)),
-        SLOT(showCommandBuffer(QString,int)));
+    connect(handler, SIGNAL(commandBufferChanged(QString,int,int,QObject*)),
+        SLOT(showCommandBuffer(QString,int,int,QObject*)));
     connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
         SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
     connect(handler, SIGNAL(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)),
@@ -1376,7 +1429,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
 
     // pop up the bar
     if (theFakeVimSetting(ConfigUseFakeVim)->value().toBool()) {
-       showCommandBuffer(QString(), -1);
+       resetCommandBuffer();
        handler->setupWidget();
     }
 }
@@ -1408,7 +1461,7 @@ void FakeVimPluginPrivate::setUseFakeVimInternal(bool on)
         //ICore *core = ICore::instance();
         //core->updateAdditionalContexts(Context(),
         // Context(FAKEVIM_CONTEXT));
-        showCommandBuffer(QString(), -1);
+        resetCommandBuffer();
         foreach (IEditor *editor, m_editorToHandler.keys()) {
             if (BaseTextEditorWidget *textEditor =
                     qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
@@ -1485,22 +1538,22 @@ void FakeVimPluginPrivate::handleExCommand(bool *handled, const ExCommand &cmd)
             QFile file3(fileName);
             file3.open(QIODevice::ReadOnly);
             QByteArray ba = file3.readAll();
-            handler->showBlackMessage(FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
+            handler->showMessage(MessageInfo, FakeVimHandler::tr("\"%1\" %2 %3L, %4C written")
                 .arg(fileName).arg(" ")
                 .arg(ba.count('\n')).arg(ba.size()));
             if (cmd.cmd == "wq")
                 delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
         } else {
-            handler->showRedMessage(tr("File not saved"));
+            handler->showMessage(MessageError, tr("File not saved"));
         }
     } else if (cmd.matches("wa", "wall")) {
         // :w[all]
         QList<IDocument *> toSave = DocumentManager::modifiedDocuments();
         QList<IDocument *> failed = DocumentManager::saveModifiedDocumentsSilently(toSave);
         if (failed.isEmpty())
-            handler->showBlackMessage(tr("Saving succeeded"));
+            handler->showMessage(MessageInfo, tr("Saving succeeded"));
         else
-            handler->showRedMessage(tr("%n files not saved", 0, failed.size()));
+            handler->showMessage(MessageError, tr("%n files not saved", 0, failed.size()));
     } else if (cmd.matches("q", "quit")) {
         // :q[uit]
         emit delayedQuitRequested(cmd.hasBang, m_editorToHandler.key(handler));
@@ -1666,11 +1719,17 @@ void FakeVimPluginPrivate::quitFakeVim()
     theFakeVimSetting(ConfigUseFakeVim)->setValue(false);
 }
 
-void FakeVimPluginPrivate::showCommandBuffer(const QString &contents, int cursorPos)
+void FakeVimPluginPrivate::resetCommandBuffer()
+{
+    showCommandBuffer(QString(), -1, 0, 0);
+}
+
+void FakeVimPluginPrivate::showCommandBuffer(const QString &contents, int cursorPos,
+                                             int messageLevel, QObject *eventFilter)
 {
     //qDebug() << "SHOW COMMAND BUFFER" << contents;
     if (MiniBuffer *w = qobject_cast<MiniBuffer *>(m_statusBar->widget()))
-        w->setContents(contents, cursorPos);
+        w->setContents(contents, cursorPos, messageLevel, eventFilter);
 }
 
 void FakeVimPluginPrivate::showExtraInformation(const QString &text)
