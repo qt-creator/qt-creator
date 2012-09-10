@@ -185,7 +185,7 @@ bool CdbSymbolPathListEditor::promptToAddSymbolServer(const QString &settingsGro
                            "for retrieval of the symbols of the operating system libraries.</p>"
                            "<p><i>Note:</i> A fast internet connection is required for this to work smoothly. Also, a delay "
                            "might occur when connecting for the first time.</p>"
-                           "<p>Would you like to set it up?</p></br>"
+                           "<p>Would you like to set it up?</p>"
                            "</body></html>").arg(symServUrl);
     const QDialogButtonBox::StandardButton answer =
             Utils::CheckableMessageBox::question(Core::ICore::mainWindow(), tr("Symbol Server"), msg,
