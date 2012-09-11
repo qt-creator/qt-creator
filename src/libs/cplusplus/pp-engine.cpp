@@ -810,8 +810,11 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
     PPToken oldMarkerTk;
 
     if (macro->isFunctionLike()) {
-        if (!expandFunctionlikeMacros())
+        if (!expandFunctionlikeMacros()
+                // Still expand if this originally started with an object-like macro.
+                && m_state.m_expansionStatus != Expanding) {
             return false;
+        }
 
         // Collect individual tokens that form the macro arguments.
         QVector<QVector<PPToken> > allArgTks;
