@@ -167,6 +167,8 @@ equals(TEST, 1):!isEmpty(copydata) {
     win32 {
         INPUT_FILE ~= s,/,\\\\,g
         OUTPUT_DIR ~= s,/,\\\\,g
+    } else {
+        isEmpty(QMAKE_CHK_EXISTS_GLUE):QMAKE_CHK_EXISTS_GLUE  = "|| "
     }
     testfile.target = test_resources
     testfile.commands = ($$QMAKE_CHK_DIR_EXISTS $$OUTPUT_DIR $$QMAKE_CHK_EXISTS_GLUE $$QMAKE_MKDIR $$OUTPUT_DIR) \
