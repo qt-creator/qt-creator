@@ -45,10 +45,14 @@
 
 #include <QDesktopServices>
 #include <QHBoxLayout>
-#include <QPushButton>
 #include <QVBoxLayout>
+#include <QFormLayout>
 #include <QLabel>
 #include <QComboBox>
+#include <QMenu>
+#include <QAction>
+#include <QPushButton>
+#include <QDialogButtonBox>
 
 namespace Debugger {
 namespace Internal {
@@ -67,44 +71,30 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *k,
     ProjectExplorer::KitConfigWidget(parent),
     m_kit(k),
     m_info(ki),
-    m_comboBox(new QComboBox(this)),
+    m_dirty(false),
     m_label(new QLabel(this)),
-    m_chooser(new Utils::PathChooser(this))
+    m_button(new QPushButton(tr("Manage..."), this))
 {
     setToolTip(tr("The debugger to use for this kit."));
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
-
-    m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(GdbEngineType), QVariant(int(GdbEngineType)));
-    if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS) {
-        m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(CdbEngineType), QVariant(int(CdbEngineType)));
-    } else {
-        m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(LldbEngineType), QVariant(int(LldbEngineType)));
-    }
-    layout->addWidget(m_comboBox);
-
-    m_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    m_label->setOpenExternalLinks(true);
     layout->addWidget(m_label);
 
-    m_chooser->setContentsMargins(0, 0, 0, 0);
-    m_chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    m_chooser->insertButton(0, tr("Auto detect"), this, SLOT(autoDetectDebugger()));
-
-    layout->addWidget(m_chooser);
+    // ToolButton with Menu, defaulting to 'Autodetect'.
+    QMenu *buttonMenu = new QMenu(m_button);
+    QAction *autoDetectAction = buttonMenu->addAction(tr("Auto-detect"));
+    connect(autoDetectAction, SIGNAL(triggered()), this, SLOT(autoDetectDebugger()));
+    QAction *changeAction = buttonMenu->addAction(tr("Edit..."));
+    connect(changeAction, SIGNAL(triggered()), this, SLOT(showDialog()));
+    m_button->setMenu(buttonMenu);
 
     discard();
-    connect(m_chooser, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(dirty()));
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(refreshLabel()));
 }
 
-void DebuggerKitConfigWidget::addToLayout(QGridLayout *layout, int row)
+QWidget *DebuggerKitConfigWidget::buttonWidget() const
 {
-    addLabel(layout, row);
-    layout->addWidget(this, row, WidgetColumn, 3 , 1);
-    addButtonWidget(layout, row + 2);
+       return m_button;
 }
 
 QString DebuggerKitConfigWidget::displayName() const
@@ -114,47 +104,99 @@ QString DebuggerKitConfigWidget::displayName() const
 
 void DebuggerKitConfigWidget::makeReadOnly()
 {
-    m_comboBox->setEnabled(false);
-    m_chooser->setEnabled(false);
+    m_button->setEnabled(false);
 }
 
 void DebuggerKitConfigWidget::apply()
 {
-    DebuggerKitInformation::setDebuggerItem(m_kit, DebuggerKitInformation::DebuggerItem(engineType(), fileName()));
+    DebuggerKitInformation::setDebuggerItem(m_kit, m_item);
+    m_dirty = false;
 }
 
 void DebuggerKitConfigWidget::discard()
 {
-    const DebuggerKitInformation::DebuggerItem item = DebuggerKitInformation::debuggerItem(m_kit);
-    setEngineType(item.engineType);
-    setFileName(item.binary);
-}
-
-bool DebuggerKitConfigWidget::isDirty() const
-{
-    const DebuggerKitInformation::DebuggerItem item = DebuggerKitInformation::debuggerItem(m_kit);
-    return item.engineType != engineType() || item.binary != fileName();
-}
-
-QWidget *DebuggerKitConfigWidget::buttonWidget() const
-{
-    return m_chooser->buttonAtIndex(1);
+    doSetItem(DebuggerKitInformation::debuggerItem(m_kit));
+    m_dirty = false;
 }
 
 void DebuggerKitConfigWidget::autoDetectDebugger()
 {
-    const DebuggerKitInformation::DebuggerItem item = DebuggerKitInformation::autoDetectItem(m_kit);
-    setEngineType(item.engineType);
-    setFileName(item.binary);
+    setItem(DebuggerKitInformation::autoDetectItem(m_kit));
 }
 
-DebuggerEngineType DebuggerKitConfigWidget::engineType() const
+void DebuggerKitConfigWidget::doSetItem(const DebuggerKitInformation::DebuggerItem &item)
+{
+    m_item = item;
+    m_label->setText(DebuggerKitInformation::userOutput(m_item));
+}
+
+void DebuggerKitConfigWidget::setItem(const DebuggerKitInformation::DebuggerItem &item)
+{
+    if (m_item != item) {
+        m_dirty = true;
+        doSetItem(item);
+        emit dirty();
+    }
+}
+
+void DebuggerKitConfigWidget::showDialog()
+{
+    DebuggerKitConfigDialog dialog;
+    dialog.setWindowTitle(tr("Debugger for \"%1\"").arg(m_kit->displayName()));
+    dialog.setDebuggerItem(m_item);
+    if (dialog.exec() == QDialog::Accepted)
+        setItem(dialog.item());
+}
+
+// -----------------------------------------------------------------------
+// DebuggerKitConfigDialog:
+// -----------------------------------------------------------------------
+
+DebuggerKitConfigDialog::DebuggerKitConfigDialog(QWidget *parent)
+    : QDialog(parent)
+    , m_comboBox(new QComboBox(this))
+    , m_label(new QLabel(this))
+    , m_chooser(new Utils::PathChooser(this))
+{
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    QFormLayout *formLayout = new QFormLayout;
+    formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
+
+    m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(GdbEngineType), QVariant(int(GdbEngineType)));
+    if (ProjectExplorer::Abi::hostAbi().os() == ProjectExplorer::Abi::WindowsOS) {
+        m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(CdbEngineType), QVariant(int(CdbEngineType)));
+    } else {
+        m_comboBox->addItem(DebuggerKitInformation::debuggerEngineName(LldbEngineType), QVariant(int(LldbEngineType)));
+    }
+    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(refreshLabel()));
+    QLabel *engineTypeLabel = new QLabel(tr("&Engine:"));
+    engineTypeLabel->setBuddy(m_comboBox);
+    formLayout->addRow(engineTypeLabel, m_comboBox);
+
+    m_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    m_label->setOpenExternalLinks(true);
+    formLayout->addRow(m_label);
+
+    QLabel *binaryLabel = new QLabel(tr("&Binary:"));
+    m_chooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    binaryLabel->setBuddy(m_chooser);
+    formLayout->addRow(binaryLabel, m_chooser);
+    layout->addLayout(formLayout);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    layout->addWidget(buttonBox);
+}
+
+DebuggerEngineType DebuggerKitConfigDialog::engineType() const
 {
     const int index = m_comboBox->currentIndex();
     return static_cast<DebuggerEngineType>(m_comboBox->itemData(index).toInt());
 }
 
-void DebuggerKitConfigWidget::setEngineType(DebuggerEngineType et)
+void DebuggerKitConfigDialog::setEngineType(DebuggerEngineType et)
 {
     const int size = m_comboBox->count();
     for (int i = 0; i < size; ++i) {
@@ -166,17 +208,17 @@ void DebuggerKitConfigWidget::setEngineType(DebuggerEngineType et)
     }
 }
 
-Utils::FileName DebuggerKitConfigWidget::fileName() const
+Utils::FileName DebuggerKitConfigDialog::fileName() const
 {
     return m_chooser->fileName();
 }
 
-void DebuggerKitConfigWidget::setFileName(const Utils::FileName &fn)
+void DebuggerKitConfigDialog::setFileName(const Utils::FileName &fn)
 {
     m_chooser->setFileName(fn);
 }
 
-void DebuggerKitConfigWidget::refreshLabel()
+void DebuggerKitConfigDialog::refreshLabel()
 {
     QString text;
     const DebuggerEngineType type = engineType();
@@ -203,6 +245,12 @@ void DebuggerKitConfigWidget::refreshLabel()
     m_chooser->setCommandVersionArguments(type == CdbEngineType ?
                                           QStringList(QLatin1String("-version")) :
                                           QStringList(QLatin1String("--version")));
+}
+
+void DebuggerKitConfigDialog::setDebuggerItem(const DebuggerKitInformation::DebuggerItem &item)
+{
+    setEngineType(item.engineType);
+    setFileName(item.binary);
 }
 
 } // namespace Internal

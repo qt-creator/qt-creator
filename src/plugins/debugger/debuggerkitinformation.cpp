@@ -269,16 +269,17 @@ KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
     return new Internal::DebuggerKitConfigWidget(k, this);
 }
 
-QString DebuggerKitInformation::userOutput(const ProjectExplorer::Kit *k)
+QString DebuggerKitInformation::userOutput(const DebuggerItem &item)
 {
-    const DebuggerItem item = DebuggerKitInformation::debuggerItem(k);
-    return tr("%1 using '%2'").arg(debuggerEngineName(item.engineType),
-                                   item.binary.toUserOutput());
+    const QString binary = item.binary.toUserOutput();
+    return binary.isEmpty() ?
+           tr("%1 <None>").arg(debuggerEngineName(item.engineType)) :
+           tr("%1 using '%2'").arg(debuggerEngineName(item.engineType), binary);
 }
 
 KitInformation::ItemList DebuggerKitInformation::toUserOutput(Kit *k) const
 {
-  return ItemList() << qMakePair(tr("Debugger"), DebuggerKitInformation::userOutput(k));
+    return ItemList() << qMakePair(tr("Debugger"), DebuggerKitInformation::userOutput(DebuggerKitInformation::debuggerItem(k)));
 }
 
 static const char engineTypeKeyC[] = "EngineType";

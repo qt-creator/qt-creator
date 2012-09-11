@@ -47,6 +47,7 @@ public:
     public:
         DebuggerItem();
         DebuggerItem(DebuggerEngineType engineType, const Utils::FileName &fn);
+        bool equals(const DebuggerItem &rhs) const { return engineType == rhs.engineType && binary == rhs.binary; }
 
         DebuggerEngineType engineType;
         Utils::FileName binary;
@@ -71,7 +72,7 @@ public:
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
 
     ItemList toUserOutput(ProjectExplorer::Kit *k) const;
-    static QString userOutput(const ProjectExplorer::Kit *k);
+    static QString userOutput(const DebuggerItem &item);
 
     static DebuggerItem debuggerItem(const ProjectExplorer::Kit *p);
     static void setDebuggerItem(ProjectExplorer::Kit *p, const DebuggerItem &item);
@@ -92,6 +93,11 @@ private:
     static DebuggerItem variantToItem(const QVariant &v);
     static QVariant itemToVariant(const DebuggerItem &i);
 };
+
+inline bool operator==(const DebuggerKitInformation::DebuggerItem &i1, const DebuggerKitInformation::DebuggerItem &i2)
+    { return i1.equals(i2); }
+inline bool operator!=(const DebuggerKitInformation::DebuggerItem &i1, const DebuggerKitInformation::DebuggerItem &i2)
+    { return !i1.equals(i2); }
 
 } // namespace Debugger
 
