@@ -257,7 +257,7 @@ QString Environment::searchInPath(const QString &executable,
     if (executable.isEmpty())
         return QString();
 
-    QStringList execs;
+    QStringList execs(exec);
 #ifdef Q_OS_WIN
     // Check all the executable extensions on windows:
     // PATHEXT is only used if the executable has no extension
