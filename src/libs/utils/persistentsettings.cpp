@@ -30,8 +30,6 @@
 
 #include "persistentsettings.h"
 
-#include <app/app_version.h>
-
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -391,8 +389,9 @@ bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) co
         w.setAutoFormattingIndent(1); // Historical, used to be QDom.
         w.writeStartDocument();
         w.writeDTD(QLatin1String("<!DOCTYPE ") + m_docType + QLatin1Char('>'));
-        w.writeComment(QString::fromAscii(" Written by Qt Creator %1, %2. ").
-                       arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
+        w.writeComment(QString::fromAscii(" Written by %1 %2, %3. ").
+                       arg(QCoreApplication::applicationName(),
+                           QCoreApplication::applicationVersion(),
                            QDateTime::currentDateTime().toString(Qt::ISODate)));
         w.writeStartElement(ctx.qtCreatorElement);
         const QVariantMap::const_iterator cend = data.constEnd();
