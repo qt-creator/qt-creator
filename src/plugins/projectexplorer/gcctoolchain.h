@@ -66,7 +66,7 @@ public:
 
     QList<HeaderPath> systemHeaderPaths(const Utils::FileName &sysRoot) const;
     void addToEnvironment(Utils::Environment &env) const;
-    QString makeCommand() const;
+    QString makeCommand(const Utils::Environment &environment) const;
     QList<Utils::FileName> suggestedMkspecList() const;
     IOutputParser *outputParser() const;
 
@@ -120,7 +120,7 @@ class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 public:
     QString type() const;
     QString typeDisplayName() const;
-    QString makeCommand() const;
+    QString makeCommand(const Utils::Environment &environment) const;
 
     IOutputParser *outputParser() const;
 
@@ -144,7 +144,7 @@ class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 public:
     QString type() const;
     QString typeDisplayName() const;
-    QString makeCommand() const;
+    QString makeCommand(const Utils::Environment &environment) const;
 
     ToolChain *clone() const;
 

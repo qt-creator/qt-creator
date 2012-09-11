@@ -451,9 +451,11 @@ QList<FileName> GccToolChain::suggestedMkspecList() const
     return QList<FileName>();
 }
 
-QString GccToolChain::makeCommand() const
+QString GccToolChain::makeCommand(const Utils::Environment &environment) const
 {
-    return QLatin1String("make");
+    QString make = QLatin1String("make");
+    QString tmp = environment.searchInPath(make);
+    return tmp.isEmpty() ? make : tmp;
 }
 
 IOutputParser *GccToolChain::outputParser() const
@@ -763,13 +765,23 @@ QString ClangToolChain::typeDisplayName() const
     return Internal::ClangToolChainFactory::tr("Clang");
 }
 
-QString ClangToolChain::makeCommand() const
+QString ClangToolChain::makeCommand(const Utils::Environment &environment) const
 {
+    QStringList makes;
 #if defined(Q_OS_WIN)
-    return QLatin1String("mingw32-make.exe");
+    makes << QLatin1String("mingw32-make.exe");
+    makes << QLatin1String("make.exe");
 #else
-    return QLatin1String("make");
+    makes << QLatin1String("make");
 #endif
+
+    QString tmp;
+    foreach (const QString &make, makes) {
+        tmp = environment.searchInPath(make);
+        if (!tmp.isEmpty())
+            return tmp;
+    }
+    return makes.first();
 }
 
 QList<FileName> ClangToolChain::suggestedMkspecList() const
@@ -882,13 +894,23 @@ QList<FileName> MingwToolChain::suggestedMkspecList() const
 #endif
 }
 
-QString MingwToolChain::makeCommand() const
+QString MingwToolChain::makeCommand(const Utils::Environment &environment) const
 {
+    QStringList makes;
 #ifdef Q_OS_WIN
-    return QLatin1String("mingw32-make.exe");
+        makes << QLatin1String("mingw32-make.exe");
+        makes << QLatin1String("make.exe");
 #else
-    return QLatin1String("make");
+        makes << QLatin1String("make");
 #endif
+
+    QString tmp;
+    foreach (const QString &make, makes) {
+        tmp = environment.searchInPath(make);
+        if (!tmp.isEmpty())
+            return tmp;
+    }
+    return makes.first();
 }
 
 ToolChain *MingwToolChain::clone() const

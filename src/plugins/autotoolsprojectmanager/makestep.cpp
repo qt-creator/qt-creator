@@ -189,7 +189,7 @@ bool MakeStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
-    pp->setCommand(tc ? tc->makeCommand() : QLatin1String("make"));
+    pp->setCommand(tc ? tc->makeCommand(bc->environment()) : QLatin1String("make"));
     pp->setArguments(arguments);
 
     setOutputParser(new GnuMakeParser());
@@ -295,6 +295,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep) :
             makeStep, SLOT(setAdditionalArguments(QString)));
     connect(makeStep, SIGNAL(additionalArgumentsChanged(QString)),
             this, SLOT(updateDetails()));
+    connect(m_makeStep->project(), SIGNAL(environmentChanged()), this, SLOT(updateDetails()));
 }
 
 QString MakeStepConfigWidget::displayName() const
@@ -320,7 +321,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setMacroExpander(bc->macroExpander());
         param.setEnvironment(bc->environment());
         param.setWorkingDirectory(bc->buildDirectory());
-        param.setCommand(tc->makeCommand());
+        param.setCommand(tc->makeCommand(bc->environment()));
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {

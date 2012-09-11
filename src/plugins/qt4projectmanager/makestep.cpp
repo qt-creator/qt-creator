@@ -162,7 +162,7 @@ bool MakeStep::init()
         workingDirectory = bc->buildDirectory();
     pp->setWorkingDirectory(workingDirectory);
 
-    QString makeCmd = tc->makeCommand();
+    QString makeCmd = tc->makeCommand(bc->environment());
     if (!m_makeCmd.isEmpty())
         makeCmd = m_makeCmd;
     pp->setCommand(makeCmd);
@@ -403,8 +403,12 @@ void MakeStepConfigWidget::updateDetails()
 {
     ToolChain *tc
             = ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
-    if (tc)
-        m_ui->makeLabel->setText(tr("Override %1:").arg(tc->makeCommand()));
+    Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
+    if (!bc)
+        bc = qobject_cast<Qt4BuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
+
+    if (tc && bc)
+        m_ui->makeLabel->setText(tr("Override %1:").arg(tc->makeCommand(bc->environment())));
     else
         m_ui->makeLabel->setText(tr("Make:"));
 
@@ -412,9 +416,6 @@ void MakeStepConfigWidget::updateDetails()
         setSummaryText(tr("<b>Make:</b> %1").arg(ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget()));
         return;
     }
-    Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
-    if (!bc)
-        bc = qobject_cast<Qt4BuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
     if (!bc) {
         setSummaryText(tr("<b>Make:</b> No Qt4 build configuration."));
         return;
@@ -423,7 +424,7 @@ void MakeStepConfigWidget::updateDetails()
     ProcessParameters param;
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
-    QString makeCmd = tc->makeCommand();
+    QString makeCmd = tc->makeCommand(bc->environment());
     if (!m_makeStep->makeCommand().isEmpty())
         makeCmd = m_makeStep->makeCommand();
     param.setCommand(makeCmd);

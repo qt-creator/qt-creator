@@ -111,7 +111,7 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
             m_qmakeArguments << QLatin1String("CONFIG+=x86_64");
         }
     }
-    m_makeCommand = toolChain->makeCommand();
+    m_makeCommand = toolChain->makeCommand(m_environment);
     m_mkspec = version->mkspec();
 
     // Make sure QtVersion cache is invalidated

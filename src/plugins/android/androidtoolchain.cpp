@@ -152,13 +152,15 @@ QList<Utils::FileName> AndroidToolChain::suggestedMkspecList() const
     return QList<Utils::FileName>()<< Utils::FileName::fromString(QLatin1String("android-g++"));
 }
 
-QString AndroidToolChain::makeCommand() const
+QString AndroidToolChain::makeCommand(const Utils::Environment &env) const
 {
 #if defined(Q_OS_WIN)
-    return QLatin1String("ma-make.exe");
+    QString make = QLatin1String("ma-make.exe");
 #else
-    return QLatin1String("make");
+    QString make = QLatin1String("make");
 #endif
+    QString tmp = env.searchInPath(make);
+    return tmp.isEmpty() ? make : tmp;
 }
 
 void AndroidToolChain::setQtVersionId(int id)

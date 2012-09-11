@@ -316,7 +316,7 @@ void MaemoPublisherFremantleFree::handleProcessFinished(bool failedToStart)
                 finishWithFailure(QString(), tr("Make distclean failed: %1")
                                   .arg(ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget()));
             }
-            m_process->start(tc->makeCommand(), QStringList() << QLatin1String("distclean"));
+            m_process->start(tc->makeCommand(m_buildConfig->environment()), QStringList() << QLatin1String("distclean"));
         }
         break;
     case RunningMakeDistclean:

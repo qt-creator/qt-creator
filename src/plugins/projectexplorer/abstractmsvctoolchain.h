@@ -56,14 +56,13 @@ public:
     QList<HeaderPath> systemHeaderPaths(const Utils::FileName &sysRoot) const;
     void addToEnvironment(Utils::Environment &env) const;
 
-    QString makeCommand() const;
+    QString makeCommand(const Utils::Environment &environment) const;
     Utils::FileName compilerCommand() const;
     IOutputParser *outputParser() const;
 
     bool canClone() const;
 
     QString varsBat() const { return m_vcvarsBat; }
-    static QString findInstalledJom();
 
     bool operator ==(const ToolChain &) const;
 
