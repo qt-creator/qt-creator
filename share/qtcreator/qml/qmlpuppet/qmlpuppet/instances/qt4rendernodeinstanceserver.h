@@ -45,6 +45,7 @@ public:
     void clearScene(const ClearSceneCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
     void changeState(const ChangeStateCommand &command);
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
 
 protected:
     void collectItemChangesAndSendChangeCommands();

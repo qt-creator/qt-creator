@@ -4,7 +4,7 @@
 **
 ** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
 **
-** Contact: http://www.qt-project.org/
+** Contact: Nokia Corporation (qt-info@nokia.com)
 **
 **
 ** GNU Lesser General Public License Usage
@@ -25,41 +25,42 @@
 ** Alternatively, this file may be used in accordance with the terms and
 ** conditions contained in a signed written agreement between you and Nokia.
 **
+** If you have questions regarding the use of this file, please contact
+** Nokia at qt-info@nokia.com.
 **
 **************************************************************************/
 
-#ifndef INFORMATIONNODEINSTANCESERVER_H
-#define INFORMATIONNODEINSTANCESERVER_H
 
-#include "qt4nodeinstanceserver.h"
-#include "tokencommand.h"
+#ifndef QMLDESIGNER_REMOVESHAREDMEMORYCOMMAND_H
+#define QMLDESIGNER_REMOVESHAREDMEMORYCOMMAND_H
+
+#include <QMetaType>
+#include <QString>
+#include <QVector>
 
 namespace QmlDesigner {
 
-class Qt4InformationNodeInstanceServer : public Qt4NodeInstanceServer
+class RemoveSharedMemoryCommand
 {
-    Q_OBJECT
+    friend QDataStream &operator>>(QDataStream &in, RemoveSharedMemoryCommand &command);
+
 public:
-    explicit Qt4InformationNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
+    RemoveSharedMemoryCommand();
+    RemoveSharedMemoryCommand(const QString &typeName, const QVector<qint32> &keyNumberVector);
 
-    void reparentInstances(const ReparentInstancesCommand &command);
-    void clearScene(const ClearSceneCommand &command);
-    void createScene(const CreateSceneCommand &command);
-    void completeComponent(const CompleteComponentCommand &command);
-    void token(const TokenCommand &command);
-    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
-
-protected:
-    void collectItemChangesAndSendChangeCommands();
-    void sendChildrenChangedCommand(const QList<ServerNodeInstance> childList);
-    void sendTokenBack();
+    QString typeName() const;
+    QVector<qint32> keyNumbers() const;
 
 private:
-    QSet<ServerNodeInstance> m_parentChangedSet;
-    QList<ServerNodeInstance> m_completedComponentList;
-    QList<TokenCommand> m_tokenList;
+    QString m_typeName;
+    QVector<qint32> m_keyNumberVector;
 };
+
+QDataStream &operator<<(QDataStream &out, const RemoveSharedMemoryCommand &command);
+QDataStream &operator>>(QDataStream &in, RemoveSharedMemoryCommand &command);
 
 } // namespace QmlDesigner
 
-#endif // INFORMATIONNODEINSTANCESERVER_H
+Q_DECLARE_METATYPE(QmlDesigner::RemoveSharedMemoryCommand)
+
+#endif // QMLDESIGNER_REMOVESHAREDMEMORYCOMMAND_H

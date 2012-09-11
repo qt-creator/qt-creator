@@ -33,6 +33,7 @@
 #include "nodeinstanceclientinterface.h"
 #include "statepreviewimagechangedcommand.h"
 #include "createscenecommand.h"
+#include "removesharedmemorycommand.h"
 
 #include <QPainter>
 #include <QDeclarativeView>
@@ -70,11 +71,11 @@ void Qt4PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction && nodeInstanceClient()->bytesToWrite() < 10000) {
         inFunction = true;
         QVector<ImageContainer> imageContainerVector;
-        imageContainerVector.append(ImageContainer(0, renderPreviewImage()));
+        imageContainerVector.append(ImageContainer(0, renderPreviewImage(), -1));
 
         foreach (ServerNodeInstance instance,  rootNodeInstance().stateInstances()) {
             instance.activateState();
-            imageContainerVector.append(ImageContainer(instance.instanceId(), renderPreviewImage()));
+            imageContainerVector.append(ImageContainer(instance.instanceId(), renderPreviewImage(), instance.instanceId()));
             instance.deactivateState();
         }
 
@@ -88,6 +89,12 @@ void Qt4PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 void Qt4PreviewNodeInstanceServer::changeState(const ChangeStateCommand &/*command*/)
 {
 
+}
+
+void Qt4PreviewNodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &command)
+{
+    if (command.typeName() == "Image")
+        ImageContainer::removeSharedMemorys(command.keyNumbers());
 }
 
 QImage Qt4PreviewNodeInstanceServer::renderPreviewImage()

@@ -74,8 +74,7 @@
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
 #include "tokencommand.h"
-
-
+#include "removesharedmemorycommand.h"
 #include "dummycontextobject.h"
 
 namespace QmlDesigner {
@@ -97,6 +96,12 @@ void Qt4InformationNodeInstanceServer::token(const TokenCommand &command)
 {
     m_tokenList.append(command);
     startRenderTimer();
+}
+
+void Qt4InformationNodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &command)
+{
+    if (command.typeName() == "Values")
+        ValuesChangedCommand::removeSharedMemorys(command.keyNumbers());
 }
 
 void Qt4InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()

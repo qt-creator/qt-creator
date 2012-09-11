@@ -60,6 +60,7 @@
 #include "componentcompletedcommand.h"
 #include "synchronizecommand.h"
 #include "tokencommand.h"
+#include "removesharedmemorycommand.h"
 
 
 namespace QmlDesigner {
@@ -171,6 +172,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<TokenCommand>("TokenCommand");
     qRegisterMetaTypeStreamOperators<TokenCommand>("TokenCommand");
+
+    qRegisterMetaType<RemoveSharedMemoryCommand>("RemoveSharedMemoryCommand");
+    qRegisterMetaTypeStreamOperators<RemoveSharedMemoryCommand>("RemoveSharedMemoryCommand");
 }
 
 }

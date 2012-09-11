@@ -40,6 +40,7 @@ namespace QmlDesigner {
 
 class ValuesChangedCommand
 {
+    friend QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command);
     friend QDataStream &operator>>(QDataStream &in, ValuesChangedCommand &command);
 
 public:
@@ -47,9 +48,13 @@ public:
     ValuesChangedCommand(const QVector<PropertyValueContainer> &valueChangeVector);
 
     QVector<PropertyValueContainer> valueChanges() const;
+    quint32 keyNumber() const;
+
+    static void removeSharedMemorys(const QVector<qint32> &keyNumberVector);
 
 private:
     QVector<PropertyValueContainer> m_valueChangeVector;
+    mutable quint32 m_keyNumber;
 };
 
 QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command);

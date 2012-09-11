@@ -55,6 +55,7 @@
 #include "changestatecommand.h"
 #include "completecomponentcommand.h"
 #include "synchronizecommand.h"
+#include "removesharedmemorycommand.h"
 #include "tokencommand.h"
 
 #include "informationchangedcommand.h"
@@ -274,6 +275,11 @@ void NodeInstanceClientProxy::changeNodeSource(const ChangeNodeSourceCommand &co
 {
     nodeInstanceServer()->changeNodeSource(command);
 }
+
+void NodeInstanceClientProxy::removeSharedMemory(const RemoveSharedMemoryCommand &command)
+{
+    nodeInstanceServer()->removeSharedMemory(command);
+}
 void NodeInstanceClientProxy::redirectToken(const TokenCommand &command)
 {
     nodeInstanceServer()->token(command);
@@ -296,6 +302,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int completeComponentCommandType = QMetaType::type("CompleteComponentCommand");
     static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
     static const int changeNodeSourceCommandType = QMetaType::type("ChangeNodeSourceCommand");
+    static const int removeSharedMemoryCommandType = QMetaType::type("RemoveSharedMemoryCommand");
     static const int tokenCommandType = QMetaType::type("TokenCommand");
 
     if (command.userType() ==  createInstancesCommandType) {
@@ -326,6 +333,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         completeComponent(command.value<CompleteComponentCommand>());
     else if (command.userType() ==  changeNodeSourceCommandType)
         changeNodeSource(command.value<ChangeNodeSourceCommand>());
+    else if (command.userType() == removeSharedMemoryCommandType)
+        removeSharedMemory(command.value<RemoveSharedMemoryCommand>());
     else if (command.userType() ==  tokenCommandType)
         redirectToken(command.value<TokenCommand>());
     else if (command.userType() == synchronizeCommandType) {

@@ -34,7 +34,6 @@
 #include <QDeclarativeContext>
 #include <private/qdeclarativeengine_p.h>
 
-#include <QDebug>
 #include <QUrl>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -79,6 +78,7 @@
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
 #include "tokencommand.h"
+#include "removesharedmemorycommand.h"
 
 #include "nodeinstanceserverproxy.h"
 
@@ -242,6 +242,7 @@ void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
 void NodeInstanceView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     nodeInstanceServer()->removeInstances(createRemoveInstancesCommand(removedNode));
+    nodeInstanceServer()->removeSharedMemory(createRemoveSharedMemoryCommand("Image", removedNode.internalId()));
     removeInstanceAndSubInstances(removedNode);
 }
 
@@ -313,6 +314,7 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
     }
 
     nodeInstanceServer()->removeInstances(createRemoveInstancesCommand(nodeList));
+    nodeInstanceServer()->removeSharedMemory(createRemoveSharedMemoryCommand("Image", nodeList));
     nodeInstanceServer()->removeProperties(createRemovePropertiesCommand(nonNodePropertyList));
 
     foreach (const AbstractProperty &property, propertyList) {
@@ -1035,6 +1037,21 @@ RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QL
     return RemovePropertiesCommand(containerList);
 }
 
+RemoveSharedMemoryCommand NodeInstanceView::createRemoveSharedMemoryCommand(const QString &sharedMemoryTypeName, quint32 keyNumber)
+{
+    return RemoveSharedMemoryCommand(sharedMemoryTypeName, QVector<qint32>() << keyNumber);
+}
+
+RemoveSharedMemoryCommand NodeInstanceView::createRemoveSharedMemoryCommand(const QString &sharedMemoryTypeName, const QList<ModelNode> &nodeList)
+{
+    QVector<qint32> keyNumberVector;
+
+    foreach (const ModelNode &modelNode, nodeList)
+        keyNumberVector.append(modelNode.internalId());
+
+    return RemoveSharedMemoryCommand(sharedMemoryTypeName, keyNumberVector);
+}
+
 void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
 {
     if (!model())
@@ -1051,6 +1068,8 @@ void NodeInstanceView::valuesChanged(const ValuesChangedCommand &command)
             }
         }
     }
+
+    nodeInstanceServer()->removeSharedMemory(createRemoveSharedMemoryCommand(QLatin1String("Values"), command.keyNumber()));
 
     if (!valuePropertyChangeList.isEmpty())
         emitInstancePropertyChange(valuePropertyChangeList);
@@ -1130,7 +1149,7 @@ void NodeInstanceView::statePreviewImagesChanged(const StatePreviewImageChangedC
   QVector<ModelNode> previewImageChangeVector;
 
   foreach (const ImageContainer &container, command.previews()) {
-      if (container.instanceId() == 0) {
+      if (container.keyNumber() == -1) {
           m_baseStatePreviewImage = container.image();
           previewImageChangeVector.append(rootModelNode());
       } else if (hasInstanceForId(container.instanceId())) {

@@ -145,4 +145,10 @@ void Qt5RenderNodeInstanceServer::completeComponent(const CompleteComponentComma
     nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(instanceList));
 }
 
+void QmlDesigner::Qt5RenderNodeInstanceServer::removeSharedMemory(const QmlDesigner::RemoveSharedMemoryCommand &command)
+{
+    if (command.typeName() == "Image")
+        ImageContainer::removeSharedMemory(command.keyNumber());
+}
+
 } // namespace QmlDesigner

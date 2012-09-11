@@ -91,6 +91,7 @@ public:
     void completeComponent(const CompleteComponentCommand &command);
     void changeNodeSource(const ChangeNodeSourceCommand &command);
     void token(const TokenCommand &command);
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
 
     ServerNodeInstance instanceForId(qint32 id) const;
     bool hasInstanceForId(qint32 id) const;

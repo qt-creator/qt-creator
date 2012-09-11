@@ -100,6 +100,7 @@ protected:
     void changeState(const ChangeStateCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
     void changeNodeSource(const ChangeNodeSourceCommand &command);
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
     void redirectToken(const TokenCommand &command);
 
 private slots:

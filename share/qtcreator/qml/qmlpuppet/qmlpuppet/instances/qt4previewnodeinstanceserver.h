@@ -43,6 +43,7 @@ public:
 
     void createScene(const CreateSceneCommand &command);
     void changeState(const ChangeStateCommand &command);
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
 
     QImage renderPreviewImage();
 

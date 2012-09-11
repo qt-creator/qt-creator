@@ -256,4 +256,10 @@ void Qt5InformationNodeInstanceServer::completeComponent(const CompleteComponent
     nodeInstanceClient()->informationChanged(createAllInformationChangedCommand(instanceList, true));
 }
 
+void QmlDesigner::Qt5InformationNodeInstanceServer::removeSharedMemory(const QmlDesigner::RemoveSharedMemoryCommand &command)
+{
+    if (command.typeName() == "Values")
+        ValuesChangedCommand::removeSharedMemorys(command.keyNumbers());
+}
+
 } // namespace QmlDesigner

@@ -42,6 +42,7 @@ class ChildrenChangedCommand;
 class StatePreviewImageChangedCommand;
 class ComponentCompletedCommand;
 class TokenCommand;
+class RemoveSharedMemoryCommand;
 
 class NodeInstanceClientInterface
 {

@@ -184,6 +184,8 @@ private: // functions
     RemoveInstancesCommand createRemoveInstancesCommand(const QList<ModelNode> &nodeList) const;
     RemoveInstancesCommand createRemoveInstancesCommand(const ModelNode &node) const;
     RemovePropertiesCommand createRemovePropertiesCommand(const QList<AbstractProperty> &propertyList) const;
+    RemoveSharedMemoryCommand createRemoveSharedMemoryCommand(const QString &sharedMemoryTypeName, quint32 keyNumber);
+    RemoveSharedMemoryCommand createRemoveSharedMemoryCommand(const QString &sharedMemoryTypeName, const QList<ModelNode> &nodeList);
 
     void resetHorizontalAnchors(const ModelNode &node);
     void resetVerticalAnchors(const ModelNode &node);

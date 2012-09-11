@@ -41,14 +41,20 @@ class ImageContainer
     friend QDataStream &operator>>(QDataStream &in, ImageContainer &container);
 public:
     ImageContainer();
-    ImageContainer(qint32 instanceId, const QImage &image);
+    ImageContainer(qint32 instanceId, const QImage &image, qint32 keyNumber);
 
     qint32 instanceId() const;
     QImage image() const;
+    qint32 keyNumber() const;
+
+    void setImage(const QImage &image);
+
+    static void removeSharedMemorys(const QVector<qint32> &keyNumberVector);
 
 private:
     QImage m_image;
     qint32 m_instanceId;
+    qint32 m_keyNumber;
 };
 
 QDataStream &operator<<(QDataStream &out, const ImageContainer &container);

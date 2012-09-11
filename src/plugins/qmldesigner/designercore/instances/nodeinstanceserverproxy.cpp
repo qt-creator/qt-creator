@@ -64,6 +64,7 @@
 #include "statepreviewimagechangedcommand.h"
 #include "componentcompletedcommand.h"
 #include "tokencommand.h"
+#include "removesharedmemorycommand.h"
 
 #include "synchronizecommand.h"
 
@@ -233,13 +234,13 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
 
 
     if (m_qmlPuppetEditorProcess)
-        m_qmlPuppetEditorProcess->kill();
+        m_qmlPuppetEditorProcess->terminate();
 
     if (m_qmlPuppetPreviewProcess)
-        m_qmlPuppetPreviewProcess->kill();
+        m_qmlPuppetPreviewProcess->terminate();
 
     if (m_qmlPuppetRenderProcess)
-        m_qmlPuppetRenderProcess->kill();
+        m_qmlPuppetRenderProcess->terminate();
 }
 
 void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
@@ -530,6 +531,11 @@ void NodeInstanceServerProxy::changeNodeSource(const ChangeNodeSourceCommand &co
 void NodeInstanceServerProxy::token(const TokenCommand &command)
 {
     writeCommand(QVariant::fromValue(command));
+}
+
+void NodeInstanceServerProxy::removeSharedMemory(const RemoveSharedMemoryCommand &command)
+{
+   writeCommand(QVariant::fromValue(command));
 }
 
 } // namespace QmlDesigner

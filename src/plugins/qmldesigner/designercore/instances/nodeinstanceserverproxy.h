@@ -70,6 +70,7 @@ public:
     void completeComponent(const CompleteComponentCommand &command);
     void changeNodeSource(const ChangeNodeSourceCommand &command);
     void token(const TokenCommand &command);
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
 
 protected:
     void writeCommand(const QVariant &command);

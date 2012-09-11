@@ -44,6 +44,7 @@ public:
     void createScene(const CreateSceneCommand &command);
     void clearScene(const ClearSceneCommand &command);
     void completeComponent(const CompleteComponentCommand &command);
+    void removeSharedMemory(const RemoveSharedMemoryCommand &command);
 
 protected:
     void collectItemChangesAndSendChangeCommands();

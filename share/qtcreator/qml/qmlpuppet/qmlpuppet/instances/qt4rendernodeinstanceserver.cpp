@@ -73,6 +73,7 @@
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
+#include "removesharedmemorycommand.h"
 
 #include "dummycontextobject.h"
 
@@ -193,5 +194,11 @@ void Qt4RenderNodeInstanceServer::changeState(const ChangeStateCommand &command)
         item->update();
         QGraphicsItemPrivate::get(item)->notifyBoundingRectChanged = 1;
     }
+}
+
+void Qt4RenderNodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &command)
+{
+    if (command.typeName() == "Image")
+        ImageContainer::removeSharedMemorys(command.keyNumbers());
 }
 } // namespace QmlDesigner

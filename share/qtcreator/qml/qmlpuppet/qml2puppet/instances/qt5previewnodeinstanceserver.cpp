@@ -115,4 +115,10 @@ QImage Qt5PreviewNodeInstanceServer::renderPreviewImage()
     return previewImage;
 }
 
+void QmlDesigner::Qt5PreviewNodeInstanceServer::removeSharedMemory(const QmlDesigner::RemoveSharedMemoryCommand &command)
+{
+    if (command.typeName() == "Image")
+        ImageContainer::removeSharedMemory(command.keyNumber());
+}
+
 } // namespace QmlDesigner

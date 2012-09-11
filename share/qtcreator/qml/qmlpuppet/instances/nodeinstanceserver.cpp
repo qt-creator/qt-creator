@@ -74,6 +74,7 @@
 #include "createscenecommand.h"
 #include "changenodesourcecommand.h"
 #include "tokencommand.h"
+#include "removesharedmemorycommand.h"
 
 #include "dummycontextobject.h"
 
@@ -341,6 +342,10 @@ void NodeInstanceServer::changeNodeSource(const ChangeNodeSourceCommand &command
 void NodeInstanceServer::token(const TokenCommand &/*command*/)
 {
 
+}
+
+void NodeInstanceServer::removeSharedMemory(const RemoveSharedMemoryCommand &/*command*/)
+{
 }
 
 void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &containerVector)
@@ -1056,7 +1061,7 @@ PixmapChangedCommand NodeInstanceServer::createPixmapChangedCommand(const QList<
 
     foreach (const ServerNodeInstance &instance, instanceList) {
         if (instance.isValid() && instance.hasContent())
-            imageVector.append(ImageContainer(instance.instanceId(), instance.renderImage()));
+            imageVector.append(ImageContainer(instance.instanceId(), instance.renderImage(), instance.instanceId()));
     }
 
     return PixmapChangedCommand(imageVector);
