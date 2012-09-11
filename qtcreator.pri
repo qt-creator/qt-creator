@@ -3,6 +3,18 @@ QTCREATOR_PRI_INCLUDED = 1
 
 QTCREATOR_VERSION = 2.5.83
 
+isEqual(QT_MAJOR_VERSION, 5) {
+
+defineReplace(cleanPath) {
+    return($$clean_path($$1))
+}
+
+defineReplace(targetPath) {
+    return($$shell_path($$1))
+}
+
+} else { # qt5
+
 defineReplace(cleanPath) {
     win32:1 ~= s|\\\\|/|g
     contains(1, ^/.*):pfx = /
@@ -19,6 +31,8 @@ defineReplace(cleanPath) {
 defineReplace(targetPath) {
     return($$replace(1, /, $$QMAKE_DIR_SEP))
 }
+
+} # qt5
 
 defineReplace(qtLibraryName) {
    unset(LIBRARY_NAME)
@@ -56,6 +70,15 @@ defineTest(minQtVersion) {
     return(false)
 }
 
+isEqual(QT_MAJOR_VERSION, 5) {
+
+# For use in custom compilers which just copy files
+defineReplace(stripSrcDir) {
+    return($$relative_path($$absolute_path($$1, $$OUT_PWD), $$_PRO_FILE_PWD_))
+}
+
+} else { # qt5
+
 # For use in custom compilers which just copy files
 win32:i_flag = i
 defineReplace(stripSrcDir) {
@@ -68,6 +91,8 @@ defineReplace(stripSrcDir) {
     out ~= s|^$$re_escape($$_PRO_FILE_PWD_/)||$$i_flag
     return($$out)
 }
+
+} # qt5
 
 isEmpty(TEST):CONFIG(debug, debug|release) {
     !debug_and_release|build_pass {
