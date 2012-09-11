@@ -619,7 +619,8 @@ QStringList Parser::projectNodeFileList(const ProjectExplorer::FolderNode *node)
     }
 
     foreach(const ProjectExplorer::FolderNode *folder, subFolderNodes) {
-        if (folder->nodeType() != ProjectExplorer::FolderNodeType)
+        if (folder->nodeType() != ProjectExplorer::FolderNodeType
+                && folder->nodeType() != ProjectExplorer::VirtualFolderNodeType)
             continue;
         list << projectNodeFileList(folder);
     }
