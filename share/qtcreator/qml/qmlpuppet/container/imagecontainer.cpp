@@ -143,19 +143,26 @@ static void writeStream(QDataStream &out, const QImage &image)
 QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
 {
     const int extraDataSize =  20;
+    static const bool dontUseSharedMemory = !qgetenv("DESIGNER_DONT_USE_SHARED_MEMORY").isEmpty();
 
     out << container.instanceId();
     out << container.keyNumber();
 
     const QImage image = container.image();
-    QSharedMemory *sharedMemory = createSharedMemory(container.keyNumber(), image.byteCount() + extraDataSize);
 
-    out << qint32(sharedMemory != 0); // send if shared memory is used
-
-    if (sharedMemory)
-        writeSharedMemory(sharedMemory, image);
-    else
+    if (dontUseSharedMemory) {
+        out << qint32(0);
         writeStream(out, image);
+    } else {
+        QSharedMemory *sharedMemory = createSharedMemory(container.keyNumber(), image.byteCount() + extraDataSize);
+
+        out << qint32(sharedMemory != 0); // send if shared memory is used
+
+        if (sharedMemory)
+            writeSharedMemory(sharedMemory, image);
+        else
+            writeStream(out, image);
+    }
 
     return out;
 }
