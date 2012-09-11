@@ -979,13 +979,14 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
             const QString *defName;
             ushort defType;
             if (m_tmp == statics.strfor) {
-                flushCond(tokPtr);
-                putLineMarker(tokPtr);
                 if (m_invert || m_operator == OrOperator) {
                     // '|' could actually work reasonably, but qmake does nonsense here.
                     parseError(fL1S("Unexpected operator in front of for()."));
+                    bogusTest(tokPtr);
                     return;
                 }
+                flushCond(tokPtr);
+                putLineMarker(tokPtr);
                 if (*uce == (TokLiteral|TokNewStr)) {
                     nlen = uce[1];
                     uc = uce + 2 + nlen;
@@ -1028,12 +1029,13 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 defName = &statics.strdefineTest;
                 defType = TokTestDef;
               deffunc:
-                flushScopes(tokPtr);
-                putLineMarker(tokPtr);
                 if (m_invert) {
                     parseError(fL1S("Unexpected operator in front of function definition."));
+                    bogusTest(tokPtr);
                     return;
                 }
+                flushScopes(tokPtr);
+                putLineMarker(tokPtr);
                 if (*uce == (TokLiteral|TokNewStr)) {
                     uint nlen = uce[1];
                     if (uce[nlen + 2] == TokFuncTerminator) {
@@ -1053,6 +1055,7 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 if (m_state != StNew || m_blockstack.top().braceLevel || m_blockstack.size() > 1
                         || m_invert || m_operator != NoOperator) {
                     parseError(fL1S("option() must appear outside any control structures."));
+                    bogusTest(tokPtr);
                     return;
                 }
                 if (*uce == (TokLiteral|TokNewStr)) {
