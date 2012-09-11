@@ -24,16 +24,14 @@ def main():
         selectBuildConfig(1, 0, config)
         # try to compile
         test.log("Testing build configuration: " + config)
-        clickButton(waitForObject(":Qt Creator.Build Project_Core::Internal::FancyToolButton"))
+        clickButton(waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton"))
         # wait until build finished
         waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
         # open issues list view
-        ensureChecked(waitForObject(":Qt Creator_Core::Internal::IssuesPaneToggleButton"))
+        ensureChecked(waitForObject(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton"))
         issuesView = waitForObject(":Qt Creator.Issues_QListView")
         # verify that error is properly reported
         test.verify(checkSyntaxError(issuesView, expectedErrorAlternatives, False),
                     "Verifying cpp syntax error while building simple qt quick application.")
     # exit qt creator
     invokeMenuItem("File", "Exit")
-# no cleanup needed, as whole testing directory gets properly removed after test finished
-
