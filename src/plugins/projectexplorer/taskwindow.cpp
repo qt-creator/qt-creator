@@ -402,13 +402,13 @@ void TaskWindow::addTask(const Task &task)
     emit tasksChanged();
     navigateStateChanged();
 
-    if (task.type == Task::Error && d->m_filter->filterIncludesErrors() &&
-        !d->m_filter->filteredCategories().contains(task.category)) {
+    if (task.type == Task::Error && d->m_filter->filterIncludesErrors()
+            && !d->m_filter->filteredCategories().contains(task.category)) {
         flash();
         setBadgeNumber(++d->m_badgeCount);
     }
-    if (task.type == Task::Warning && d->m_filter->filterIncludesWarnings() &&
-        !d->m_filter->filteredCategories().contains(task.category)) {
+    if (task.type == Task::Warning && d->m_filter->filterIncludesWarnings()
+            && !d->m_filter->filteredCategories().contains(task.category)) {
         setBadgeNumber(++d->m_badgeCount);
     }
 }
@@ -420,12 +420,12 @@ void TaskWindow::removeTask(const Task &task)
     emit tasksChanged();
     navigateStateChanged();
 
-    if (task.type == Task::Error && d->m_filter->filterIncludesErrors() &&
-        !d->m_filter->filteredCategories().contains(task.category)) {
+    if (task.type == Task::Error && d->m_filter->filterIncludesErrors()
+            && !d->m_filter->filteredCategories().contains(task.category)) {
         setBadgeNumber(--d->m_badgeCount);
     }
-    if (task.type == Task::Warning && d->m_filter->filterIncludesWarnings() &&
-        !d->m_filter->filteredCategories().contains(task.category)) {
+    if (task.type == Task::Warning && d->m_filter->filterIncludesWarnings()
+            && !d->m_filter->filteredCategories().contains(task.category)) {
         setBadgeNumber(--d->m_badgeCount);
     }
 }
