@@ -68,11 +68,14 @@ bool AnalyzerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMo
     return false;
 }
 
-RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode)
+RunControl *AnalyzerRunControlFactory::create(RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
     IAnalyzerTool *tool = AnalyzerManager::toolFromRunMode(mode);
-    if (!tool)
+    if (!tool) {
+        if (errorMessage)
+            *errorMessage = tr("No analyzer tool selected"); // never happens
         return 0;
+    }
 
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
 

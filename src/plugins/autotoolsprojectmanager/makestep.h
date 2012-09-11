@@ -36,6 +36,7 @@
 #define MAKESTEP_H
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/task.h>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -124,6 +125,7 @@ private:
     QStringList m_buildTargets;
     QString m_additionalArguments;
     bool m_clean;
+    QList<ProjectExplorer::Task> m_tasks;
 };
 
 ///////////////////////////////

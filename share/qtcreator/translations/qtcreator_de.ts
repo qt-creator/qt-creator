@@ -2201,10 +2201,6 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
         <translation>Ausführbare Datei auswählen</translation>
     </message>
     <message>
-        <source>Target:</source>
-        <translation>Ziel:</translation>
-    </message>
-    <message>
         <source>Core file:</source>
         <translation>Core-Datei:</translation>
     </message>
@@ -2221,53 +2217,16 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
         <translation>Startskript auswählen</translation>
     </message>
     <message>
+        <source>Kit:</source>
+        <translation>Kit:</translation>
+    </message>
+    <message>
         <source>&amp;Executable:</source>
         <translation>&amp;Ausführbare Datei:</translation>
     </message>
     <message>
         <source>Override &amp;start script:</source>
         <translation>Startskript &amp;überschreiben:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::AttachExternalDialog</name>
-    <message>
-        <source>Process ID</source>
-        <translation>Prozess-ID</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation>Status</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation>Aktualisieren</translation>
-    </message>
-    <message>
-        <source>&amp;Target:</source>
-        <translation>&amp;Ziel:</translation>
-    </message>
-    <message>
-        <source>Process Already Under Debugger Control</source>
-        <translation>Prozess bereits unter Debugger-Kontrolle</translation>
-    </message>
-    <message>
-        <source>The process %1 is already under the control of a debugger.
-Qt Creator cannot attach to it.</source>
-        <translation>Der Prozess %1 wird bereits von einem Debugger kontrolliert.
-Qt Creator kann sich nicht anhängen.</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Debugger starten</translation>
-    </message>
-    <message>
-        <source>Attach to &amp;process ID:</source>
-        <translation>&amp;Prozess-ID:</translation>
     </message>
 </context>
 <context>
@@ -2565,6 +2524,14 @@ Qt Creator kann sich nicht anhängen.</translation>
         <source>Correct breakpoint location</source>
         <translation>Positionen der Haltepunkte korrigieren</translation>
     </message>
+    <message>
+        <source>Break on functions:</source>
+        <translation>Halte bei Erreichen von Funktionen:</translation>
+    </message>
+    <message>
+        <source>This is useful to catch runtime error messages, for example caused by assert().</source>
+        <translation>Damit können Laufzeit-Fehlermeldungen abgefangen werden, zum Beispiel bei assert().</translation>
+    </message>
 </context>
 <context>
     <name>Debugger::Internal::CdbSymbolPathListEditor</name>
@@ -2577,8 +2544,8 @@ Qt Creator kann sich nicht anhängen.</translation>
         <translation>Fügt den von Microsoft betriebenen Symbol-Server hinzu, der die Symbole für die Bibliotheken des Betriebssystems bereitstellt. Erfordert die Angabe eines lokalen Cache-Verzeichnisses.</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Der Debugger ist nicht zur Benutzung des öffentlichen &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Servers&lt;/a&gt; eingerichtet. Dies wird zur Anzeige der Symbole der Betriebssystem-Bibliotheken empfohlen.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Hinweis:&lt;/i&gt; Eine schnelle Internetverbindung ist erforderlich. Beim ersten Start können Verzögerungen auftreten.&lt;/p&gt;&lt;p&gt;Möchten Sie den Symbol Server einrichten?&lt;/p&gt;&lt;/br&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Server&lt;/a&gt;. This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Note:&lt;/i&gt; A fast internet connection is required for this to work smoothly. Also, a delay might occur when connecting for the first time.&lt;/p&gt;&lt;p&gt;Would you like to set it up?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Der Debugger ist nicht zur Benutzung des öffentlichen &lt;a href=&quot;%1&quot;&gt;Microsoft Symbol Servers&lt;/a&gt; eingerichtet. Dies wird zur Anzeige der Symbole der Betriebssystem-Bibliotheken empfohlen.&lt;/p&gt;&lt;p&gt;&lt;i&gt;Hinweis:&lt;/i&gt; Eine schnelle Internetverbindung ist erforderlich. Beim ersten Start können Verzögerungen auftreten.&lt;/p&gt;&lt;p&gt;Möchten Sie den Symbol Server einrichten?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Symbol Server</source>
@@ -3194,10 +3161,6 @@ Abschnitt %1: %2</translation>
         <translation>Fehler beim Disassemblieren: %1</translation>
     </message>
     <message>
-        <source>The gdb location must be given as an absolute path in the debugger settings (%1).</source>
-        <translation>Es muss ein absoluter Pfad für die ausführbare gdb-Datei in den Debugger-Einstellungen angegeben werden (%1).</translation>
-    </message>
-    <message>
         <source>The gdb process terminated.</source>
         <translation>Der gdb-Prozess wurde beendet.</translation>
     </message>
@@ -3233,14 +3196,6 @@ Abschnitt %1: %2</translation>
         <translation>GDB-Zeitlimit:</translation>
     </message>
     <message>
-        <source>This is the number of seconds Qt Creator will wait before
-it terminates a non-responsive GDB process. The default value of 20 seconds
-should be sufficient for most applications, but there are situations when
-loading big libraries or listing source files takes much longer than that
-on slow machines. In this case, the value should be increased.</source>
-        <translation>Anzahl der Sekunden, die Qt Creator abwartet, bevor GDB-Prozesse abgebrochen werden, die nicht mehr reagieren. Die Vorgabe von 20 Sekunden sollte für die meisten Anwendungsfälle ausreichen, aber es können Situationen auftreten, in denen das Laden großer Bibliotheken oder das Auflisten der Quelldateien viel länger dauert (auf langsamen Maschinen). In diesem Falle sollte der Wert erhöht werden.</translation>
-    </message>
-    <message>
         <source>sec</source>
         <translation>s</translation>
     </message>
@@ -3249,20 +3204,8 @@ on slow machines. In this case, the value should be increased.</source>
         <translation>Bekannte Stellen beim Einzelschritt überspringen</translation>
     </message>
     <message>
-        <source>Allows &apos;Step Into&apos; to compress several steps into one step
-for less noisy debugging. For example, the atomic reference
-counting code is skipped, and a single &apos;Step Into&apos; for a signal
-emission ends up directly in the slot connected to it.</source>
-        <translation>Diese Option bewirkt, dass &apos;Einzelschritt in&apos; in bestimmten Situationen mehrere Schritte zusammenfasst, was das Debuggen beschleunigt. Zum Beispiel wird der Code des atomaren Referenzzählung übersprungen; und bei der Emission eines Signals gelangt man direkt zum verbundenen Slot.</translation>
-    </message>
-    <message>
         <source>Show a message box when receiving a signal</source>
         <translation>Empfang eines Signals durch Dialogbox anzeigen</translation>
-    </message>
-    <message>
-        <source>This will show a message box as soon as your application
-receives a signal like SIGSEGV during debugging.</source>
-        <translation>Zeigt ein Benachrichtigungsfenster an, wenn die Anwendung während des Debuggens ein Signal wie SIGSEGV erhält.</translation>
     </message>
     <message>
         <source>Adjust breakpoint locations</source>
@@ -3281,15 +3224,35 @@ markers in the source code editor.</source>
         <translation>Dynamischen Objekttyp in Anzeige verwenden</translation>
     </message>
     <message>
-        <source>This specifies whether the dynamic or the static type of objects will bedisplayed. Choosing the dynamic type might be slower.</source>
-        <translation>Gibt an, ob der dynamische oder statische Typ eines Objekts angezeigt wird. Die Bestimmung des dynamische Typs kann länger dauern.</translation>
+        <source>Specifies whether the dynamic or the static type of objects will be displayed. Choosing the dynamic type might be slower.</source>
+        <translation>Gibt an, ob der dynamische oder statische Typ eines Objekts angezeigt wird. Dynamische Typen könnten langsamer sein.</translation>
     </message>
     <message>
         <source>Load .gdbinit file on startup</source>
         <translation>Datei .gdbinit zu Beginn laden</translation>
     </message>
     <message>
-        <source>This allows or inhibits reading the user&apos;s default
+        <source>The number of seconds Qt Creator will wait before it terminates
+a non-responsive GDB process. The default value of 20 seconds should
+be sufficient for most applications, but there are situations when
+loading big libraries or listing source files takes much longer than
+that on slow machines. In this case, the value should be increased.</source>
+        <translation>Anzahl der Sekunden, die Qt Creator abwartet, bevor GDB-Prozesse abgebrochen werden, die nicht mehr reagieren. Die Vorgabe von 20 Sekunden sollte für die meisten Anwendungsfälle ausreichen, aber es können Situationen auftreten, in denen das Laden großer Bibliotheken oder das Auflisten der Quelldateien viel länger dauert (auf langsamen Maschinen). In diesem Fall sollte der Wert erhöht werden.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Allows &lt;i&gt;Step Into&lt;/i&gt; to compress several steps into one step
+for less noisy debugging. For example, the atomic reference
+counting code is skipped, and a single &lt;i&gt;Step Into&lt;/i&gt; for a signal
+emission ends up directly in the slot connected to it.</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Diese Option bewirkt, dass &lt;i&gt;Einzelschritt herein&lt;/i&gt; in bestimmten Situationen mehrere Schritte zusammenfasst, was das Debuggen beschleunigt. Zum Beispiel wird der Code der atomaren Referenzzählung übersprungen und bei der Emission eines Signals gelangt man direkt zum verbundenen Slot.</translation>
+    </message>
+    <message>
+        <source>Displays a message box as soon as your application
+receives a signal like SIGSEGV during debugging.</source>
+        <translation>Zeigt ein Benachrichtigungsfenster an, wenn die Anwendung während des Debuggens ein Signal wie SIGSEGV erhält.</translation>
+    </message>
+    <message>
+        <source>Allows or inhibits reading the user&apos;s default
 .gdbinit file on debugger startup.</source>
         <translation>Gestattet oder unterdrückt das Lesen der Vorgabe-.gdbinit-Datei des Nutzers beim Starten des Debuggers.</translation>
     </message>
@@ -3306,6 +3269,10 @@ markers in the source code editor.</source>
         <translation>Die untenstehenden Einstellungen sollten mit Vorsicht verwendet werden.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;The options below give access to advanced or experimental functions of GDB. Enabling them may negatively impact your debugging experience.&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Die untenstehenden Einstellungen betreffen spezielle oder experimentelle Funktionalität von GDB. Ihre Verwendung kann das Debuggen negativ beeinflussen.&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
         <source>Use asynchronous mode to control the inferior</source>
         <translation>Asynchronen Modus zur Steuerung des zu debuggenden Prozesses verwenden</translation>
     </message>
@@ -3314,41 +3281,32 @@ markers in the source code editor.</source>
         <translation>Verwende Standardpfade zu Debug-Information</translation>
     </message>
     <message>
-        <source>This adds common paths to locations of debug information
-at debugger startup.</source>
-        <translation>Fügt einige Standardpfade zu Debug-Information beim Starten des Debugger hinzu.</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Add common paths to locations of debug information such as &lt;i&gt;/usr/src/debug&lt;/i&gt; when starting GDB.&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Stelle beim Start von GDB bekannte Pfade (wie &lt;i&gt;/usr/src/debug&lt;/i&gt;) der Debuginformation voran.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Stop when a qWarning is issued</source>
-        <translation>Bei qWarning anhalten</translation>
-    </message>
-    <message>
-        <source>Stop when a qFatal is issued</source>
-        <translation>Bei qFatal anhalten</translation>
-    </message>
-    <message>
-        <source>Stop when abort() is called</source>
-        <translation>Bei Aufruf von abort() anhalten</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Postpone reading debug information as long as possible. This can result in faster startup times at the price of not being able to set breakpoints by file and number.&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Diese Einstellung bewirkt, dass das Lesen der Debug-Information solange wie möglich verzögert wird. Das beschleunigt den Start, kann aber das Setzen von Haltepunkten mit Dateiname und Zeilennummer verhindern.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Enable reverse debugging</source>
         <translation>Rückwärts Debuggen aktivieren</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side.It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rückwärts-Debuggen aktivieren. Hinweis: Diese Funktionalität ist sehr instabil und langsam auf der GDB-Seite. Es kann unvorhersehbares Verhalten auftreten, wenn man rückwärts über einen Systemaufruf geht, und die Debugger-Sitzung kann leicht zerstört werden.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable stepping backwards.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rückwärts-Debuggen aktivieren.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Diese Funktionalität ist sehr instabil und langsam auf der GDB-Seite. Es kann unvorhersehbares Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht zerstört werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Attempt quick start</source>
         <translation>Schnellstart versuchen</translation>
     </message>
     <message>
-        <source>Checking this option will postpone reading debug information as long as possible. This can result in faster startup times at the price of not being able to set breakpoints by file and number.</source>
-        <translation>Diese Einstellung bewirkt, dass das Lesen der Debug-Information solange wie möglich verzögert wird. Das beschleunigt den Start, kann aber das Setzen von Haltepunkten mit Dateiname und Zeilennummer verhindern.</translation>
-    </message>
-    <message>
         <source>Additional Startup Commands</source>
         <translation>Zusätzliche Kommandos beim Start&apos;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GDB commands entered here will be executed after GDB has been started and the debugging helpers have been initialized.&lt;/p&gt;&lt;p&gt;You can add commands to load further debugging helpers here, or modify existing ones.&lt;/p&gt;&lt;p&gt;To execute arbitrary Python scripts, use &lt;i&gt;python execfile(&apos;/path/to/script.py&apos;)&lt;/i&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Die hier angegebenen GDB-Kommandos werden ausgeführt, nachdem GDB gestartet wurde und die Ausgabe-Hilfsbibliothek initialisiert wurde.&lt;/p&gt;&lt;p&gt;Sie können hier Kommandos zum Laden zusätzlicher Ausgabehelfer oder zur Änderung bereits existierender Ausgabehelfer angeben.&lt;/p&gt;&lt;p&gt;Verwenden Sie &lt;i&gt;python execfile(&apos;/path/to/script.py&apos;)&lt;/i&gt;, um beliebige Python-Scripte auszuführen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>GDB</source>
@@ -3497,11 +3455,11 @@ at debugger startup.</source>
     </message>
     <message>
         <source>Binary debug information is not accessible for this frame. This either means the core was not compiled with debug information, or the debug information is not accessible. Note that most distributions ship debug information in separate packages.</source>
-        <translation>Für diesen Stack-Frame ist keine binäre Debuginformation verfügbar. Entweder stammt die Core-Datei von einer ohne Debuginformation erstellten Anwendung oder es kann nicht auf die Debuginformation zugegriffen werden. Beachten Sie, dass die meisten Distributionen die Debuginformationen in separaten Paketen ausliefern.</translation>
+        <translation>Für diesen Stack-Frame ist keine binäre Debuginformation verfügbar. Entweder stammt die Core-Datei von einer ohne Debuginformation erstellten Anwendung oder es kann nicht auf die Debuginformation zugegriffen werden. Beachten Sie, dass manche Distributionen die Debuginformationen in separaten Paketen ausliefern.</translation>
     </message>
     <message>
-        <source>Binary debug information is accessible for this frame. However, matching sources have not been found. Note that some distributions ship debug sources in in separate packages.</source>
-        <translation>Für diesen Stack-Frame ist binäre Debuginformation verfügbar, es konnte aber kein passender Quellcode gefunden werden. Beachten Sie, dass die meisten Distributionen die Debuginformationen in separaten Paketen ausliefern.</translation>
+        <source>Binary debug information is accessible for this frame. However, matching sources have not been found. Note that some distributions ship debug sources in separate packages.</source>
+        <translation>Für diesen Stack-Frame ist binäre Debuginformation verfügbar. Es konnte aber kein passender Quellcode gefunden werden. Beachten Sie, dass manche Distributionen die Debuginformationen in separaten Paketen ausliefern.</translation>
     </message>
 </context>
 <context>
@@ -3509,100 +3467,6 @@ at debugger startup.</source>
     <message>
         <source>Stack</source>
         <translation>Stack</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartExternalDialog</name>
-    <message>
-        <source>Select Executable</source>
-        <translation>Ausführbare Datei auswählen</translation>
-    </message>
-    <message>
-        <source>Select Working Directory</source>
-        <translation>Wählen Sie das Arbeitsverzeichnis aus</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Debugger starten</translation>
-    </message>
-    <message>
-        <source>&amp;Executable:</source>
-        <translation>&amp;Ausführbare Datei:</translation>
-    </message>
-    <message>
-        <source>&amp;Arguments:</source>
-        <translation>&amp;Argumente:</translation>
-    </message>
-    <message>
-        <source>Run in &amp;terminal:</source>
-        <translation>In &amp;Terminal ausführen:</translation>
-    </message>
-    <message>
-        <source>&amp;Working directory:</source>
-        <translation>Arbeits&amp;verzeichnis:</translation>
-    </message>
-    <message>
-        <source>&amp;Target:</source>
-        <translation>&amp;Ziel:</translation>
-    </message>
-    <message>
-        <source>Break at &quot;&amp;main&quot;:</source>
-        <translation>Haltepunkt bei &apos;&amp;main&apos;:</translation>
-    </message>
-    <message>
-        <source>&amp;Recent:</source>
-        <translation>&amp;Letzte:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::StartRemoteDialog</name>
-    <message>
-        <source>Select Location of Debugging Information</source>
-        <translation>Pfad zu Debug-Information</translation>
-    </message>
-    <message>
-        <source>Select Executable</source>
-        <translation>Ausführbare Datei auswählen</translation>
-    </message>
-    <message>
-        <source>Select GDB Start Script</source>
-        <translation>GDB-Startskript auswählen</translation>
-    </message>
-    <message>
-        <source>Select Server Start Script</source>
-        <translation>Server-Startskript wählen</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation>Ziel:</translation>
-    </message>
-    <message>
-        <source>Remote: &quot;%1&quot;</source>
-        <translation>Verbindung: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Debugger starten</translation>
-    </message>
-    <message>
-        <source>Local &amp;executable:</source>
-        <translation>Ausführbare Datei (&amp;lokal):</translation>
-    </message>
-    <message>
-        <source>Override host GDB s&amp;tart script:</source>
-        <translation>Startskript auf Host &amp;überschreiben:</translation>
-    </message>
-    <message>
-        <source>&amp;Server start script:</source>
-        <translation>&amp;Server-Startskript:</translation>
-    </message>
-    <message>
-        <source>Location of debugging &amp;information:</source>
-        <translation>&amp;Pfad zu Debug-Information:</translation>
-    </message>
-    <message>
-        <source>&amp;Recent:</source>
-        <translation>&amp;Letzte:</translation>
     </message>
 </context>
 <context>
@@ -3887,22 +3751,6 @@ at debugger startup.</source>
 </context>
 <context>
     <name>Designer</name>
-    <message>
-        <source>The file name is empty.</source>
-        <translation>Der Dateiname ist leer.</translation>
-    </message>
-    <message>
-        <source>XML error on line %1, col %2: %3</source>
-        <translation>XML-Fehler auf Zeile %1, Spalte %2: %3</translation>
-    </message>
-    <message>
-        <source>The &lt;RCC&gt; root element is missing.</source>
-        <translation>Das Wurzelelement (&lt;RCC&gt;) fehlt.</translation>
-    </message>
-    <message>
-        <source>Cannot write file. Disk full?</source>
-        <translation>Die Datei konnte nicht geschrieben werden. Möglicherweise ist kein Speicherplatz mehr auf der Festplatte vorhanden?</translation>
-    </message>
     <message>
         <source>Designer</source>
         <translation>Designer</translation>
@@ -4253,7 +4101,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
-        <translation>Fehler beim Lesen der Datei %1: %2 auf Zeile %3, Spalte %4</translation>
+        <translation>Fehler beim Lesen der Datei %1: %2 in Zeile %3, Spalte %4</translation>
     </message>
 </context>
 <context>
@@ -4452,6 +4300,10 @@ Grund: %3</translation>
         <translation>Die Suche hat den Anfang erreicht, setze am Ende fort</translation>
     </message>
     <message>
+        <source>Invalid regular expression: %1</source>
+        <translation>Ungültiger regulärer Ausdruck: %1</translation>
+    </message>
+    <message>
         <source>Already at oldest change</source>
         <translation>Älteste Änderung erreicht</translation>
     </message>
@@ -4565,6 +4417,10 @@ Grund: %3</translation>
     <message>
         <source>Set Plain Style</source>
         <translation>Einfachen Stil setzen</translation>
+    </message>
+    <message>
+        <source>Use smartcase</source>
+        <translation>Smartcase verwenden</translation>
     </message>
 </context>
 <context>
@@ -5910,13 +5766,6 @@ Grund: %3</translation>
         <translation>Das Filter &quot;%1&quot; wird die Dokumentationsdateien anzeigen, die über eines der Attribute %2 verfügen.</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;body&gt;
-&lt;p&gt;
-Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode.  The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
-&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Hinzufügen, Ändern oder Entfernen von Dokumentenfiltern, die die im Hilfsmodus angezeigte Dokumentation festlegen. Die Attribute sind in den Dokumenten definiert. Durch die Angabe der Attribute kann die relevante Dokumentation ausgewählt werden. Beachten Sie, dass einige Attribute in mehreren Dokumenten erscheinen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>Attributes</source>
         <translation>Attribute</translation>
     </message>
@@ -5930,7 +5779,14 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <source>Remove</source>
-        <translation></translation>
+        <translation>Entfernen</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;body&gt;
+&lt;p&gt;
+Add, modify, and remove document filters, which determine the documentation set displayed in the Help mode. The attributes are defined in the documents. Select them to display a set of relevant documentation. Note that some attributes are defined in several documents.
+&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Hinzufügen, Ändern oder Entfernen von Dokumentenfiltern, die die im Hilfsmodus angezeigte Dokumentation festlegen. Die Attribute sind in den Dokumenten definiert. Durch die Angabe der Attribute kann die relevante Dokumentation ausgewählt werden. Beachten Sie, dass einige Attribute in mehreren Dokumenten erscheinen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -6397,6 +6253,10 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Automake based Makefile</source>
         <translation>Automake-basiertes Makefile</translation>
+    </message>
+    <message>
+        <source>ClearCase submit template</source>
+        <translation>ClearCase submit template</translation>
     </message>
     <message>
         <source>GLSL Shader file</source>
@@ -7556,6 +7416,10 @@ Fehler: %2</translation>
         <source>Run</source>
         <translation>Ausführen</translation>
     </message>
+    <message>
+        <source>No executable</source>
+        <translation>Keine ausführbare Datei</translation>
+    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProcessStep</name>
@@ -8110,6 +7974,10 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
         <translation>Alle einklappen</translation>
     </message>
     <message>
+        <source>Open Build and Run Kit Selector...</source>
+        <translation>Kit-Auswahl für Erstellung und Ausführung öffnen...</translation>
+    </message>
+    <message>
         <source>Quick Switch Target Selector</source>
         <translation>Schnelle Zielauswahl</translation>
     </message>
@@ -8144,6 +8012,14 @@ konnte dem Projekt &apos;%2&apos; nicht hinzugefügt werden.</translation>
     <message>
         <source>Do you want to cancel the build process and unload the project anyway?</source>
         <translation>Möchten Sie die Erstellung abbrechen und das Projekt trotzdem schließen?</translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation>Unbekannter Fehler</translation>
+    </message>
+    <message>
+        <source>Could Not Run</source>
+        <translation>Keine Ausführung möglich</translation>
     </message>
     <message>
         <source>Ignore all errors?</source>
@@ -8323,10 +8199,6 @@ Möchten Sie sie ignorieren?</translation>
     <message>
         <source>Set &quot;%1&quot; as Active Project</source>
         <translation>&quot;%1&quot; als aktives Projekt setzen</translation>
-    </message>
-    <message>
-        <source>Open Build/Run Target Selector...</source>
-        <translation>Zielauswahl für Build/Auswahl öffnen...</translation>
     </message>
     <message>
         <source>Full build path of the current project&apos;s active build configuration.</source>
@@ -8816,10 +8688,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <source>Details</source>
         <translation>Details</translation>
     </message>
-    <message>
-        <source>Symbian Specific</source>
-        <translation>Symbian-spezifisch</translation>
-    </message>
 </context>
 <context>
     <name>Qt4ProjectManager::Internal::MakeStepFactory</name>
@@ -9008,7 +8876,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
     <message>
         <source>Run in terminal</source>
-        <translation>In Terminal ausführen</translation>
+        <translation>Im Terminal ausführen</translation>
     </message>
     <message>
         <source>Base environment for this run configuration:</source>
@@ -9044,42 +8912,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceDebugRunControl</name>
-    <message>
-        <source>Warning: Cannot locate the symbol file belonging to %1.
-</source>
-        <translation>Warnung: Die zu %1 gehörige Symboldatei konnte nicht gefunden werden.
-</translation>
-    </message>
-    <message>
-        <source>Launching debugger...
-</source>
-        <translation>Starte Debugger...</translation>
-    </message>
-    <message>
-        <source>Debugger for Symbian Platform</source>
-        <translation>Debugger für Symbian-Plattform</translation>
-    </message>
-    <message>
-        <source>Debug on Device</source>
-        <translation>Auf Gerät Debuggen</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumente:</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60Manager</name>
-    <message>
-        <source>Run on Device</source>
-        <translation>Auf Gerät ausführen</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::MakeStep</name>
     <message>
         <source>Make</source>
@@ -9087,12 +8919,8 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Make</translation>
     </message>
     <message>
-        <source>Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode.</source>
-        <translation>Qt Creator benötigt eine Build-Konfiguration zum Erstellen. Bitte richten Sie eine Toolchain im Projektmodus ein.</translation>
-    </message>
-    <message>
-        <source>Qt Creator needs a tool chain set up to build. Configure a tool chain in the target options.</source>
-        <translation>Qt Creator benötigt eine Toolchain zum Erstellen des Projekts. Bitte richten Sie eine Toolchain in den Zieleinstellungen ein.</translation>
+        <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
+        <translation>Qt Creator benötigt einen Compiler zum Erstellen des Projekts. Bitte richten Sie einen Compiler in den Kit-Einstellungen ein.</translation>
     </message>
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
@@ -9537,6 +9365,10 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeich
     <message>
         <source>Rename File...</source>
         <translation>Datei umbenennen...</translation>
+    </message>
+    <message>
+        <source>Copy Resource Path to Clipboard</source>
+        <translation>Ressourcenpfad in die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>untitled</source>
@@ -10462,23 +10294,43 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
     </message>
     <message>
         <source>Link</source>
-        <translation>Link</translation>
+        <translation>Verweis</translation>
+    </message>
+    <message>
+        <source>Links that follow symbol under cursor.</source>
+        <translation>Verweise, die dem Symbol unter der Einfügemarke folgen.</translation>
     </message>
     <message>
         <source>Selection</source>
         <translation>Auswahl</translation>
     </message>
     <message>
+        <source>Selected text.</source>
+        <translation>Ausgewählter Text.</translation>
+    </message>
+    <message>
         <source>Line Number</source>
         <translation>Zeilennummer</translation>
+    </message>
+    <message>
+        <source>Line numbers located on the left side of the editor.</source>
+        <translation>Zeilennummern an der linken Seite des Editors.</translation>
     </message>
     <message>
         <source>Search Result</source>
         <translation>Suchergebnisse</translation>
     </message>
     <message>
+        <source>Highlighted search results inside the editor.</source>
+        <translation>Hervorgehobene Suchergebnisse im Editor.</translation>
+    </message>
+    <message>
         <source>Search Scope</source>
         <translation>Suchbereich</translation>
+    </message>
+    <message>
+        <source>Section where the pattern is searched in.</source>
+        <translation>Bereich, in dem das Muster gesucht wird.</translation>
     </message>
     <message>
         <source>Parentheses</source>
@@ -10489,8 +10341,16 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Aktuelle Zeile</translation>
     </message>
     <message>
+        <source>Line where the cursor is placed in.</source>
+        <translation>Zeile, in der sich die Einfügemarke befindet.</translation>
+    </message>
+    <message>
         <source>Current Line Number</source>
         <translation>Zeilennummer</translation>
+    </message>
+    <message>
+        <source>Line number located on the left side of the editor where the cursor is placed in.</source>
+        <translation>Nummer der Zeile, in der sich die Einfügemarke befindet, an der linken Seite des Editors.</translation>
     </message>
     <message>
         <source>Occurrences</source>
@@ -10509,64 +10369,151 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Zahl</translation>
     </message>
     <message>
+        <source>Number literal.</source>
+        <translation>Zahlenliteral.</translation>
+    </message>
+    <message>
         <source>String</source>
         <translation>Zeichenkette</translation>
+    </message>
+    <message>
+        <source>Character and string literals.</source>
+        <translation>Zeichen- und Zeichenkettenliterale.</translation>
     </message>
     <message>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
+        <source>Name of a type.</source>
+        <translation>Typname.</translation>
+    </message>
+    <message>
         <source>Local</source>
         <translation>Lokale Variable</translation>
+    </message>
+    <message>
+        <source>Local variables.</source>
+        <translation>Lokale Variablen.</translation>
     </message>
     <message>
         <source>Field</source>
         <translation>Feld</translation>
     </message>
     <message>
-        <source>Static</source>
-        <translation>Statisch</translation>
+        <source>Class&apos; data members.</source>
+        <translation>Mitgliedsvariablen von Klassen.</translation>
+    </message>
+    <message>
+        <source>Enumeration</source>
+        <translation>Aufzählung</translation>
+    </message>
+    <message>
+        <source>QML item id within a QML file.</source>
+        <translation>QML-Element-ID in einer QML-Datei.</translation>
+    </message>
+    <message>
+        <source>QML root Object Property</source>
+        <translation>Eigenschaft des QML-Wurzelelements</translation>
+    </message>
+    <message>
+        <source>QML property of a parent item.</source>
+        <translation>QML: Eigenschaft eines externen QML-Objektes</translation>
+    </message>
+    <message>
+        <source>QML scope Object Property</source>
+        <translation>Objekteigenschaft im Gültigkeitsbereich von QML</translation>
+    </message>
+    <message>
+        <source>Property of the same QML item.</source>
+        <translation>Eigenschaft desselben QML-Objektes.</translation>
     </message>
     <message>
         <source>Function</source>
         <translation>Funktion</translation>
     </message>
     <message>
+        <source>Name of a function.</source>
+        <translation>Funktionsname.</translation>
+    </message>
+    <message>
         <source>Virtual Method</source>
         <translation>Virtuelle Methode</translation>
+    </message>
+    <message>
+        <source>Name of method declared as virtual.</source>
+        <translation>Name einer als virtuell deklarierten Funktion.</translation>
     </message>
     <message>
         <source>QML Binding</source>
         <translation>QML-Binding</translation>
     </message>
     <message>
+        <source>QML item property, that allows a binding to another property.</source>
+        <translation>QML-Eigenschaft, die ein Binding zu einer anderen Eigenschaft ermöglicht.</translation>
+    </message>
+    <message>
         <source>QML Local Id</source>
         <translation>Lokale QML-Id</translation>
     </message>
     <message>
-        <source>QML Root Object Property</source>
-        <translation>Eigenschaft des QML-Wurzelelements</translation>
+        <source>Displayed when matching parentheses, square brackets or curly brackets are found.</source>
+        <translation>Wird angezeigt, wenn passende Klammern, eckige oder geschweifte Klammern gefunden werden.</translation>
     </message>
     <message>
-        <source>QML Scope Object Property</source>
-        <translation>Eigenschaft eines QML-Objektes im Bereich</translation>
+        <source>Occurrences of the symbol under the cursor.
+(Only the background will be applied.)</source>
+        <translation>Vorkommen des unter der Einfügemarke befindlichen Symbols (nur Hintergrund).</translation>
+    </message>
+    <message>
+        <source>Generic text.
+Applied to text, if no other rules matching.</source>
+        <translation>Generischer Text.
+Wird auf Text angewandt, sofern keine andere Regel zutrifft.</translation>
+    </message>
+    <message>
+        <source>Occurrences of unused variables.</source>
+        <translation>Vorkommen unbenutzter Variablen.</translation>
+    </message>
+    <message>
+        <source>Occurrences of a symbol that will be renamed.</source>
+        <translation>Vorkommen eines umzubenennenden Symbols.</translation>
+    </message>
+    <message>
+        <source>Applied to Enumeration Items.</source>
+        <translation>Wird auf Aufzählungen angewandt.</translation>
     </message>
     <message>
         <source>QML State Name</source>
-        <translation>Name eines Zustands in QML</translation>
+        <translation>Name eines States in QML</translation>
+    </message>
+    <message>
+        <source>Name of a QML state.</source>
+        <translation>Name eines States in QML.</translation>
     </message>
     <message>
         <source>QML Type Name</source>
         <translation>Name eines QML-Typs</translation>
     </message>
     <message>
+        <source>Name of a QML type.</source>
+        <translation>Name eines QML-Typs.</translation>
+    </message>
+    <message>
         <source>QML External Id</source>
         <translation>Externe QML-Id</translation>
     </message>
     <message>
+        <source>QML id defined in another QML file.</source>
+        <translation>In einer anderen QML-Datei definierte QML-Element-Id.</translation>
+    </message>
+    <message>
         <source>QML External Object Property</source>
         <translation>Eigenschaft eines externen QML-Objektes</translation>
+    </message>
+    <message>
+        <source>QML property defined in another QML file.</source>
+        <translation>In einer anderen QML-Datei definierte QML-Eigenschaft.</translation>
     </message>
     <message>
         <source>JavaScript Scope Var</source>
@@ -10574,24 +10521,48 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
 </translation>
     </message>
     <message>
+        <source>Variables defined inside the JavaScript file.</source>
+        <translation>In einer JavaScript-Datei definierte Variable.</translation>
+    </message>
+    <message>
         <source>JavaScript Import</source>
         <translation>JavaScript-Import</translation>
+    </message>
+    <message>
+        <source>Name of a JavaScript import inside a QML file.</source>
+        <translation>Name eines JavaScript-Imports in einer QML-Datei.</translation>
     </message>
     <message>
         <source>JavaScript Global Variable</source>
         <translation>Globale JavaScript-Variable</translation>
     </message>
     <message>
+        <source>Variables defined outside the script.</source>
+        <translation>Außerhalb des Skripts definierte Variablen.</translation>
+    </message>
+    <message>
         <source>Keyword</source>
         <translation>Schlüsselwort</translation>
+    </message>
+    <message>
+        <source>Reserved keywords of the programming language.</source>
+        <translation>Reservierte Schlüsselworte der Programmiersprache.</translation>
     </message>
     <message>
         <source>Operator</source>
         <translation>Operator</translation>
     </message>
     <message>
+        <source>Operators. (for example operator++ operator-=)</source>
+        <translation>Operatoren. (zum Beispiel operator++ operator-=)</translation>
+    </message>
+    <message>
         <source>Preprocessor</source>
         <translation>Präprozessor</translation>
+    </message>
+    <message>
+        <source>Preprocessor directives.</source>
+        <translation>Präprozessor-Anweisungen.</translation>
     </message>
     <message>
         <source>Label</source>
@@ -10602,20 +10573,54 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Kommentar</translation>
     </message>
     <message>
+        <source>All style of comments except Doxygen comments.</source>
+        <translation>Nicht-Doxygen-Kommentare.</translation>
+    </message>
+    <message>
         <source>Doxygen Comment</source>
         <translation>Doxygen-Kommentar</translation>
+    </message>
+    <message>
+        <source>Doxygen comments.</source>
+        <translation>Doxygen-Kommentare.</translation>
     </message>
     <message>
         <source>Doxygen Tag</source>
         <translation>Doxygen-Schlüsselwort</translation>
     </message>
     <message>
+        <source>Doxygen tags</source>
+        <translation>Doxygen-Schlüsselworte</translation>
+    </message>
+    <message>
         <source>Visual Whitespace</source>
         <translation>Leerzeichen darstellen</translation>
     </message>
     <message>
+        <source>Whitespace
+Will not be applied to whitespace in comments and strings.</source>
+        <translation>Leerzeichen
+Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
+    </message>
+    <message>
+        <source>Applied to added lines in differences (in diff editor).</source>
+        <translation>Wird auf hinzugefügte Zeilen angewandt (in Diff-Editor).</translation>
+    </message>
+    <message>
+        <source>Applied to removed lines in differences (in diff editor).</source>
+        <translation>Wird auf entfernte Zeilen angewandt (in Diff-Editor).</translation>
+    </message>
+    <message>
         <source>Disabled Code</source>
         <translation>Deaktivierter Code</translation>
+    </message>
+    <message>
+        <source>Labels for goto statements.</source>
+        <translation>Sprungmarken für goto-Befehle.</translation>
+    </message>
+    <message>
+        <source>Code disabled by preprocessor directives.</source>
+        <translation>Durch Präprozessor-Anweisungen deaktivierter Code.</translation>
     </message>
     <message>
         <source>Added Line</source>
@@ -10630,8 +10635,16 @@ Die folgenden Encodings scheinen der Datei zu entsprechen:</translation>
         <translation>Diff-Dateiangabe</translation>
     </message>
     <message>
+        <source>Compared files (in diff editor).</source>
+        <translation>Verglichene Dateien (in Diff-Editor).</translation>
+    </message>
+    <message>
         <source>Diff Location</source>
         <translation>Diff-Zeilenangabe</translation>
+    </message>
+    <message>
+        <source>Location in the files where the difference is (in diff editor).</source>
+        <translation>Stelle, an der sich der Unterschied befindet (in Diff-Editor).</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -11551,6 +11564,14 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>TargetSettingsWidget</source>
         <translation>TargetSettingsWidget</translation>
     </message>
+    <message>
+        <source>Add Kit</source>
+        <translation>Kit hinzufügen</translation>
+    </message>
+    <message>
+        <source>Manage Kits...</source>
+        <translation>Kits verwalten...</translation>
+    </message>
 </context>
 <context>
     <name>QmlDesigner::Internal::SettingsPage</name>
@@ -11697,6 +11718,14 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>Make</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
         <translation>Make</translation>
+    </message>
+    <message>
+        <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
+        <translation>Qt Creator benötigt einen Compiler zum Erstellen des Projekts. Bitte richten Sie einen Compiler in den Kit-Einstellungen ein.</translation>
+    </message>
+    <message>
+        <source>Configuration is faulty. Check the Issues view for details.</source>
+        <translation>Die Konfiguration ist fehlerhaft. Details befinden sich in der Ansicht &quot;Build-Probleme&quot;.</translation>
     </message>
 </context>
 <context>
@@ -11855,6 +11884,26 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>Bazaar Commit Log Editor</source>
         <translation>Bazaar Commit-Log-Editor</translation>
     </message>
+    <message>
+        <source>ClearCase Check In Editor</source>
+        <translation>ClearCase Check-In-Editor</translation>
+    </message>
+    <message>
+        <source>ClearCase Command Log Editor</source>
+        <translation>ClearCase Kommando-Log-Editor</translation>
+    </message>
+    <message>
+        <source>ClearCase File Log Editor</source>
+        <translation>ClearCase Datei-Log-Editor</translation>
+    </message>
+    <message>
+        <source>ClearCase Annotation Editor</source>
+        <translation>ClearCase Annotations-Editor</translation>
+    </message>
+    <message>
+        <source>ClearCase Diff Editor</source>
+        <translation>ClearCase Diff-Editor</translation>
+    </message>
 </context>
 <context>
     <name>Cvs::Internal::CvsEditor</name>
@@ -11916,6 +11965,14 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
     <message>
         <source>Make</source>
         <translation>Make</translation>
+    </message>
+    <message>
+        <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
+        <translation>Qt Creator benötigt einen Compiler zur Erstellung des Projekts. Bitte konfigurieren Sie einen Compiler in den Kit-Einstellungen.</translation>
+    </message>
+    <message>
+        <source>Configuration is faulty. Check the Issues view for details.</source>
+        <translation>Die Konfiguration ist fehlerhaft. Details befinden sich in der Ansicht &quot;Build-Probleme&quot;.</translation>
     </message>
     <message>
         <source>Override %1:</source>
@@ -12328,12 +12385,12 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <translation>Projekt</translation>
     </message>
     <message>
-        <source>Target</source>
-        <translation>Ziel</translation>
-    </message>
-    <message>
         <source>Build</source>
         <translation>Erstellen</translation>
+    </message>
+    <message>
+        <source>Kit</source>
+        <translation>Kit</translation>
     </message>
     <message>
         <source>Deploy</source>
@@ -12376,16 +12433,16 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <translation>&lt;html&gt;&lt;nobr&gt;%1&lt;/html&gt;</translation>
     </message>
     <message>
+        <source>Kit: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
+        <translation>Kit: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</translation>
+    </message>
+    <message>
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
         <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert&lt;br/&gt;&lt;br/&gt;Sie können es im &lt;a href=&quot;projectmode&quot;&gt;Projektmodus&lt;/a&gt; konfigurieren&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Project: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
         <translation>Projekt: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <source>Target: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation>Ziel: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Build: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
@@ -12445,37 +12502,38 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
 <context>
     <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
     <message>
-        <source>No target defined.</source>
-        <translation>Es ist kein Ziel festgelegt.</translation>
+        <source>No kit defined in this project.</source>
+        <translation>In diesem Projekt ist kein Kit festgelegt.</translation>
     </message>
     <message>
-        <source>Cancel Build &amp;&amp; Remove Target</source>
-        <translation>Build abbrechen und Ziel löschen</translation>
+        <source>Cancel Build &amp;&amp; Remove Kit</source>
+        <translation>Build abbrechen und Kit löschen</translation>
     </message>
     <message>
         <source>Do Not Remove</source>
         <translation>Nicht löschen</translation>
     </message>
     <message>
-        <source>Remove Target %1?</source>
-        <translation>Soll das Ziel %1 gelöscht werden?</translation>
+        <source>Remove Kit %1?</source>
+        <translation>Soll das Kit %1 gelöscht werden?</translation>
     </message>
     <message>
-        <source>The target &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>Das Ziel %1 wird gerade erstellt.</translation>
+        <source>The kit &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
+        <translation>Das Kit %1 wird gerade erstellt.</translation>
     </message>
     <message>
-        <source>Do you want to cancel the build process and remove the Target anyway?</source>
-        <translation>Möchten Sie die Erstellung abbrechen und das Ziel löschen?</translation>
+        <source>Do you want to cancel the build process and remove the Kit anyway?</source>
+        <translation>Möchten Sie die Erstellung abbrechen und das Kit löschen?</translation>
+    </message>
+    <message>
+        <source>Do you really want to remove the
+&quot;%1&quot; kit?</source>
+        <translation>Möchten Sie das Kit
+&quot;%1&quot; wirklich entfernen?</translation>
     </message>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Do you really want to remove the
-&quot;%1&quot; target?</source>
-        <translation>Möchten Sie das Ziel &quot;%1&quot; entfernen?</translation>
     </message>
 </context>
 <context>
@@ -12492,16 +12550,6 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
         <translation>Desktop</translation>
-    </message>
-    <message>
-        <source>Symbian Emulator</source>
-        <comment>Qt4 Symbian Emulator target display name</comment>
-        <translation>Symbian-Emulator</translation>
-    </message>
-    <message>
-        <source>Symbian Device</source>
-        <comment>Qt4 Symbian Device target display name</comment>
-        <translation>Symbian-Gerät</translation>
     </message>
     <message>
         <source>Maemo Emulator</source>
@@ -12868,8 +12916,8 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <translation>Der symbolische Link zu der Vorgabe-mkspec ist fehlerhaft.</translation>
     </message>
     <message>
-        <source>ABI detection failed: Make sure to use a matching tool chain when building.</source>
-        <translation>Die ABI konnte nicht bestimmt werden. Stellen Sie sicher, dass Sie eine passende Toolchain zum Erstellen verwenden.</translation>
+        <source>ABI detection failed: Make sure to use a matching compiler when building.</source>
+        <translation>Die ABI konnte nicht bestimmt werden. Stellen Sie sicher, dass Sie einen passenden Compiler zum Erstellen verwenden.</translation>
     </message>
     <message>
         <source>Non-installed -prefix build - for internal development only.</source>
@@ -12880,18 +12928,9 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <translation>Es ist kein qmlviewer installiert.</translation>
     </message>
     <message>
-        <source>SBS was not found.</source>
-        <translation>SBS konnte nicht gefunden werden.</translation>
-    </message>
-    <message>
         <source>Desktop</source>
         <comment>Qt Version is meant for the desktop</comment>
         <translation>Desktop</translation>
-    </message>
-    <message>
-        <source>Symbian</source>
-        <comment>Qt Version is meant for Symbian</comment>
-        <translation>Symbian</translation>
     </message>
     <message>
         <source>Maemo</source>
@@ -12902,6 +12941,10 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>Harmattan </source>
         <comment>Qt Version is meant for Harmattan</comment>
         <translation>Harmattan </translation>
+    </message>
+    <message>
+        <source>No qmlscene installed.</source>
+        <translation>qmlscene ist nicht installiert.</translation>
     </message>
     <message>
         <source>Qt Simulator</source>
@@ -12924,7 +12967,7 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
     </message>
     <message>
         <source>Build succeeded.</source>
-        <translation></translation>
+        <translation>Erstellung erfolgreich beendet.</translation>
     </message>
     <message>
         <source>Qt for WinCE</source>
@@ -13188,15 +13231,15 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
 <context>
     <name>EditorSettingsPanelFactory</name>
     <message>
-        <source>Editor Settings</source>
-        <translation>Editoreinstellungen</translation>
+        <source>Editor</source>
+        <translation>Editor</translation>
     </message>
 </context>
 <context>
     <name>EditorSettingsPanel</name>
     <message>
-        <source>Editor Settings</source>
-        <translation>Editoreinstellungen</translation>
+        <source>Editor</source>
+        <translation>Editor</translation>
     </message>
 </context>
 <context>
@@ -13270,8 +13313,13 @@ Erfordert &lt;b&gt;Qt 4.7.4&lt;/b&gt; oder neuer.</translation>
 <context>
     <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
-        <source>No qmlviewer or qmlobserver found.</source>
-        <translation>qmlviewer oder qmlobserver konnten nicht gefunden werden.</translation>
+        <source>No qmlviewer or qmlscene found.</source>
+        <translation>Es konnten weder qmlviewer noch qmlscene gefunden werden.</translation>
+    </message>
+    <message>
+        <source>QML Scene</source>
+        <comment>QMLRunConfiguration display name.</comment>
+        <translation>QML Scene</translation>
     </message>
     <message>
         <source>QML Viewer</source>
@@ -13282,15 +13330,19 @@ Erfordert &lt;b&gt;Qt 4.7.4&lt;/b&gt; oder neuer.</translation>
 <context>
     <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
     <message>
-        <source>Run QML Script</source>
-        <translation>QML-Skriptdatei ausführen</translation>
+        <source>QML Viewer</source>
+        <translation>QML-Betrachter</translation>
+    </message>
+    <message>
+        <source>QML Scene</source>
+        <translation>QML Scene</translation>
     </message>
 </context>
 <context>
     <name>TargetSettingsPanelFactory</name>
     <message>
-        <source>Targets</source>
-        <translation>Ziele</translation>
+        <source>Build &amp; Run</source>
+        <translation>Erstellung und Ausführung</translation>
     </message>
 </context>
 <context>
@@ -13336,45 +13388,6 @@ Erfordert &lt;b&gt;Qt 4.7.4&lt;/b&gt; oder neuer.</translation>
     <message>
         <source>Design</source>
         <translation>Design</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepWidget</name>
-    <message>
-        <source>Self-signed certificate</source>
-        <translation>Selbstsigniertes Zertifikat</translation>
-    </message>
-    <message>
-        <source>Custom certificate:</source>
-        <translation>Benutzerdefiniertes Zertifikat:</translation>
-    </message>
-    <message>
-        <source>Key file:</source>
-        <translation>Datei mit Schlüssel:</translation>
-    </message>
-    <message>
-        <source>Create Smart Installer package</source>
-        <translation>Smart-Installer-Paket erzeugen</translation>
-    </message>
-    <message>
-        <source>Resets saved passphrases for all used keys</source>
-        <translation>Setzt die Passphrasen aller verwendeten Schlüssel zurück</translation>
-    </message>
-    <message>
-        <source>Reset Passphrases</source>
-        <translation>Passphrase zurücksetzen</translation>
-    </message>
-    <message>
-        <source>Not signed</source>
-        <translation>Unsigniert</translation>
-    </message>
-    <message>
-        <source>Choose certificate file</source>
-        <translation>Zertifikatdatei auswählen</translation>
-    </message>
-    <message>
-        <source>Certificate&apos;s details</source>
-        <translation>Details des Zertifikats</translation>
     </message>
 </context>
 <context>
@@ -13549,130 +13562,6 @@ Erfordert &lt;b&gt;Qt 4.7.4&lt;/b&gt; oder neuer.</translation>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Aktuelle Datei&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStep</name>
-    <message>
-        <source>Create SIS Package</source>
-        <extracomment>default create SIS package build step display name</extracomment>
-        <translation>SIS-Paketdatei erzeugen</translation>
-    </message>
-    <message>
-        <source>The selected target is not configured with a Symbian Qt</source>
-        <translation>Das ausgewählte Ziel ist nicht mit Qt für Symbian konfiguriert</translation>
-    </message>
-    <message>
-        <source>Could not find make command &apos;%1&apos; in the build environment</source>
-        <translation>Das &apos;make&apos;-Kommando &apos;%1&apos; konnte in der Build-Umgebung nicht gefunden werden</translation>
-    </message>
-    <message>
-        <source>Ignore patching for this packaging step.</source>
-        <translation>Kein Patchen bei diesem Schritt durchführen.</translation>
-    </message>
-    <message>
-        <source>The process &quot;%1&quot; exited normally.</source>
-        <translation>Der Prozess &quot;%1&quot; wurde normal beendet.</translation>
-    </message>
-    <message>
-        <source>The process &quot;%1&quot; exited with code %2.</source>
-        <translation>Der Prozess &quot;%1&quot; wurde mit dem Rückgabewert %2 beendet.</translation>
-    </message>
-    <message>
-        <source>The process &quot;%1&quot; crashed.</source>
-        <translation>Der Prozess &quot;%1&quot; ist abgestürzt.</translation>
-    </message>
-    <message>
-        <source>Could not start process &quot;%1&quot; in %2</source>
-        <translation>Der Prozess &quot;%1&quot; konnte in &quot;%2&quot; nicht gestartet werden</translation>
-    </message>
-    <message>
-        <source>Package Modified</source>
-        <translation>Paket geändert</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Qt modified your package &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Qt hat das Paket &lt;b&gt;%1&lt;/b&gt; geändert.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Packages Modified</source>
-        <translation>Pakete geändert</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Qt modified some of your packages.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Qt hat einige der Pakete geändert.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build profile&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options which remove the need for this patching.&lt;/p&gt;</source>
-        <translation>%1&lt;p&gt;&lt;em&gt;Diese Änderungen wurden nicht vom Build-System vorgenommen,&lt;/em&gt; sind aber die Voraussetzung für die erfolgreiche Installation eines &lt;em&gt;selbstsignierten&lt;/em&gt; Pakets auf einem Mobilgerät.&lt;/p&gt;&lt;p&gt;Das Panel &quot;Build-Probleme&quot; enthält detaillierte Informationen über die Änderungen.&lt;/p&gt;&lt;p&gt;Die &lt;a href=&quot;%2&quot;&gt;Dokumentation&lt;/a&gt; enthält weitere Möglichkeiten der Signierung, die diesen Schritt überflüssig machen.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2 in %3
-</source>
-        <translation>Starte: &quot;%1&quot; %2 in %3
-</translation>
-    </message>
-    <message>
-        <source>No certificate file specified. Please specify one in the project settings.</source>
-        <translation>Es wurde keine Zertifikatdatei angegeben. Bitte geben Sie sie in den Projekteinstellungen an.</translation>
-    </message>
-    <message>
-        <source>Certificate file &quot;%1&quot; does not exist. Please specify an existing certificate file in the project settings.</source>
-        <translation>Die angegebene Zertifikatdatei &quot;%1&quot; existiert nicht. Bitte geben Sie eine existierende Zertifikatdatei in den Projekteinstellungen an.</translation>
-    </message>
-    <message>
-        <source>No key file specified. Please specify one in the project settings.</source>
-        <translation>Es wurde keine Schlüsseldatei angegeben. Bitte geben Sie sie in den Projekteinstellungen an.</translation>
-    </message>
-    <message>
-        <source>Key file &quot;%1&quot; does not exist. Please specify an existing key file in the project settings.</source>
-        <translation>Die angegebene Schlüsseldatei &quot;%1&quot; existiert nicht. Bitte geben Sie eine existierende Schlüsseldatei in den Projekteinstellungen an.</translation>
-    </message>
-    <message>
-        <source>The package created will not install on a device as some of the defined capabilities are not supported by the certificate: %1</source>
-        <translation>Das erzeugte Paket kann nicht auf einem Mobilgerät installiert werden, da einige der angegebenen Rechte nicht durch das Zertifikat unterstützt werden: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepFactory</name>
-    <message>
-        <source>Create SIS Package</source>
-        <translation>SIS-Paketdatei erzeugen</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
-    <message>
-        <source>Reset Passphrases</source>
-        <translation>Passphrase zurücksetzen</translation>
-    </message>
-    <message>
-        <source>Do you want to reset all passphrases saved for keys used?</source>
-        <translation>Möchten Sie Passwörter aller verwendeten Schlüssel zurücksetzen?</translation>
-    </message>
-    <message>
-        <source>signed with the certificate &quot;%1&quot; using the key &quot;%2&quot;</source>
-        <translation>signiert mit dem Zertifikat &quot;%1&quot; unter Verwendung des Schlüssels &quot;%2&quot;</translation>
-    </message>
-    <message>
-        <source>signed with a certificate and a key that need to be specified</source>
-        <translation>signiert mit noch anzugebendem Zertifikat und Schlüssel</translation>
-    </message>
-    <message>
-        <source>not signed</source>
-        <translation>Unsigniert</translation>
-    </message>
-    <message>
-        <source>self-signed</source>
-        <translation>Selbstsigniert</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1, using Smart Installer</source>
-        <translation>&lt;b&gt;Erzeuge SIS-Paketdatei:&lt;/b&gt; %1 einschließlich Smart-Installer</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Erzeuge SIS-Paketdatei:&lt;/b&gt; %1</translation>
     </message>
 </context>
 <context>
@@ -14195,21 +14084,6 @@ Verwenden Sie die Eigenschaft importPaths, um Importpfade zu qmlproject-basierte
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TargetSetupPage</name>
-    <message>
-        <source>Qt Creator can set up the following targets:</source>
-        <translation>Qt Creator kann die folgenden Ziele einrichten:</translation>
-    </message>
-    <message>
-        <source>Set up Targets for Your Project</source>
-        <translation>Ziele des Projekts einrichten</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;No valid Targets found.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Please add a target in &lt;a href=&quot;buildandrun&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Tools &amp;gt; Options &amp;gt; Build &amp;amp; Run&lt;/span&gt;&lt;/a&gt; (&lt;a href=&quot;buildandrun&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Qt Creator &amp;gt; Preferences &amp;gt; Build &amp;amp; Run&lt;/span&gt;&lt;/a&gt; on Mac OS) or via the maintenance tool of the SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Es wurden keine gültigen Ziele gefunden.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Bitte fügen Sie ein Ziel unter &lt;a href=&quot;buildandrun&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Extras &amp;gt;Einstellungen &amp;gt; Erstellung &amp;amp; Ausführung&lt;/span&gt;&lt;/a&gt; (&lt;a href=&quot;buildandrun&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Qt Creator &amp;gt; Einstellungen &amp;gt; Erstellung &amp;amp; Ausführung&lt;/span&gt;&lt;/a&gt; auf Mac OS) oder mit dem SDK-Verwaltungswerkzeug hinzu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
     <name>Utils::FileWizardDialog</name>
     <message>
         <source>Location</source>
@@ -14411,8 +14285,8 @@ Verwenden Sie die Eigenschaft importPaths, um Importpfade zu qmlproject-basierte
         <translation>Module</translation>
     </message>
     <message>
-        <source>Targets</source>
-        <translation>Ziele</translation>
+        <source>Kits</source>
+        <translation>Kits</translation>
     </message>
 </context>
 <context>
@@ -15305,10 +15179,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Windows</translation>
     </message>
     <message>
-        <source>Symbian</source>
-        <translation>Symbian</translation>
-    </message>
-    <message>
         <source>Linkage:</source>
         <translation>Linken:</translation>
     </message>
@@ -15585,26 +15455,6 @@ Flags: %3</translation>
 <context>
     <name>Debugger::Internal::CdbEngine</name>
     <message>
-        <source>The CDB debug engine required for %1 is currently disabled.</source>
-        <translation>%1 erfordert den Debugger CDB, der gegenwärtig deaktiviert ist.</translation>
-    </message>
-    <message>
-        <source>There is no CDB binary available for binaries in format &apos;%1&apos;</source>
-        <translation>Für ausführbare Dateien im Format &apos;%1&apos; ist keine ausführbare CDB-Datei verfügbar</translation>
-    </message>
-    <message>
-        <source>The CDB engine does not support start mode %1.</source>
-        <translation>Der CDB-Debugger unterstützt den Startmodus %1 nicht.</translation>
-    </message>
-    <message>
-        <source>The CDB debug engine does not support the %1 ABI.</source>
-        <translation>Der CDB-Debugger unterstützt die ABI %1 nicht.</translation>
-    </message>
-    <message>
-        <source>The CDB debug engine cannot debug gdb core files.</source>
-        <translation>Der CDB-Debugger kann keine gdb-core-Dateien debuggen.</translation>
-    </message>
-    <message>
         <source>The console process &apos;%1&apos; could not be started.</source>
         <translation>Der Konsolenprozess &apos;%1&apos; konnte nicht gestartet werden.</translation>
     </message>
@@ -15715,36 +15565,8 @@ Flags: %3</translation>
         <translation>Ungültiger Debugger-Kommandozeilenparameter: %1</translation>
     </message>
     <message>
-        <source>The application requires the debugger engine &apos;%1&apos;, which is disabled.</source>
-        <translation>Diese Anwendung erfordert den Debugger &apos;%1&apos;, der gegenwärtig deaktiviert ist.</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Warnung</translation>
-    </message>
-    <message>
         <source>Some breakpoints cannot be handled by the debugger languages currently active, and will be ignored.</source>
         <translation>Einige Haltepunkte werden von den Debuggern der gegenwärtig aktiven Sprachen nicht unterstützt und werden daher nicht berücksichtigt. Möchten Sie fortsetzen?</translation>
-    </message>
-    <message>
-        <source>The debugger engine &apos;%1&apos; is disabled.</source>
-        <translation>Der Debugger-Engine &apos;%1&apos; ist deaktiviert.</translation>
-    </message>
-    <message>
-        <source>The debugger engine &apos;%1&apos; required for debugging binaries of the type &apos;%2&apos; is not configured correctly.</source>
-        <translation>Der zum Debuggen von ausführbaren Dateien des Typs &apos;%2&apos; erforderliche Debugger-Engine &apos;%1&apos; ist nicht richtig eingerichtet.</translation>
-    </message>
-    <message>
-        <source>None of the debugger engines &apos;%1&apos; capable of debugging binaries of the type &apos;%2&apos; is configured correctly.</source>
-        <translation>Keiner der zum Debuggen von ausführbaren Dateien des Typs &apos;%2&apos; geeigneten Debugger-Engines &apos;%1&apos; ist richtig eingerichtet.</translation>
-    </message>
-    <message>
-        <source>The preferred debugger engine for debugging binaries of type &apos;%1&apos; is not available.
-The debugger engine &apos;%2&apos; will be used as a fallback.
-Details: %3</source>
-        <translation>Der zum Debuggen von ausführbaren Dateien des Typs &apos;%1&apos; am besten geeignete Debugger-Engine ist nicht verfügbar.
-Es wird stattdesen der Debugger-Engine &apos;%2&apos; benutzt.
-Details: %3</translation>
     </message>
     <message>
         <source>Install &amp;Debug Information</source>
@@ -16134,10 +15956,6 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
         <source>Deploy to Maemo device</source>
         <translation>Deployment auf Maemo-Gerät</translation>
     </message>
-    <message>
-        <source>Deploy to Symbian device</source>
-        <translation>Deployment auf Symbian-Gerät</translation>
-    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
@@ -16310,197 +16128,6 @@ Der Pfad zur Bibliothek und der Pfad zu den Headerdateien werden zur .pro-Datei 
     <message>
         <source>%1 Library</source>
         <translation>%1 Bibliothek</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::PassphraseForKeyDialog</name>
-    <message>
-        <source>Passphrase:</source>
-        <translation>Passphrase:</translation>
-    </message>
-    <message>
-        <source>Save passphrase</source>
-        <translation>Passphrase speichern</translation>
-    </message>
-    <message>
-        <source>This is an insecure option. The password will be saved as plain text.</source>
-        <translation>Diese Einstellung ist unsicher. Das Passwort wird als Text gespeichert.</translation>
-    </message>
-    <message>
-        <source>Passphrase for %1</source>
-        <translation>Passphrase für %1</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60DeployConfigurationWidget</name>
-    <message>
-        <source>Silent installation</source>
-        <translation>Stille Installation</translation>
-    </message>
-    <message>
-        <source>Installation file:</source>
-        <translation>Installationspaket:</translation>
-    </message>
-    <message>
-        <source>Silent installation is an installation mode that does not require user&apos;s intervention. In case it fails the non silent installation is launched.</source>
-        <translation>Im Modus &apos;Stille Installation&apos; ist keine Interaktion mit dem Nutzer auf dem Mobilgerät erforderlich. Bei Fehlschlag wird eine Standardinstallation gestartet.</translation>
-    </message>
-    <message>
-        <source>Installation drive:</source>
-        <translation>Installationslaufwerk:</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60DeployStep</name>
-    <message>
-        <source>Unable to remove existing file &apos;%1&apos;: %2</source>
-        <translation>Die existierende Datei &apos;%1&apos; konnte nicht entfernt werden: %2</translation>
-    </message>
-    <message>
-        <source>Unable to rename file &apos;%1&apos; to &apos;%2&apos;: %3</source>
-        <translation>Die Datei &apos;%1&apos; konnte nicht in &apos;%2&apos; umbenannt werden: %3</translation>
-    </message>
-    <message>
-        <source>Renaming new package &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation>Die Paketdatei wird von &apos;%1&apos; zu &apos;%2&apos; umbenannt</translation>
-    </message>
-    <message>
-        <source>Removing old package &apos;%1&apos;</source>
-        <translation>Entferne Paketdatei &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos;: Package file not found</source>
-        <translation>&apos;%1&apos;: Paketdatei nicht gefunden</translation>
-    </message>
-    <message>
-        <source>Copy progress: %1%</source>
-        <translation>Kopiere: %1%</translation>
-    </message>
-    <message>
-        <source>Failed to find package %1</source>
-        <translation>Die Paketdatei&apos;%1 konnte nicht gefunden werden</translation>
-    </message>
-    <message>
-        <source>Could not write to file %1 on device: %2</source>
-        <translation>Die Datei %1 konnte nicht auf dem Gerät geschrieben werden: %2</translation>
-    </message>
-    <message>
-        <source>Could not open serial device: %1</source>
-        <translation>Die serielle Schnittstelle konnte nicht geöffnet werden: %1</translation>
-    </message>
-    <message>
-        <source>No package has been found. Specify at least one installation package.</source>
-        <translation>Es konnte kein Installationspaket gefunden werden. Bitte geben Sie mindestens eines an.</translation>
-    </message>
-    <message>
-        <source>No device is connected. Connect a device and try again.</source>
-        <translation>Es ist kein Gerät verbunden. Bitte stellen Sie die Verbindung zu einem Gerät her und versuchen Sie es erneut.</translation>
-    </message>
-    <message>
-        <source>No address for a device has been defined. Define an address and try again.</source>
-        <translation>Es wurde kein Adresse für das Gerät angegeben. Bitte geben Sie eine Adresse an und versuchen Sie es erneut.</translation>
-    </message>
-    <message>
-        <source>Continue the installation on your device.</source>
-        <translation>Bitte setzen Sie die Installation auf dem Mobilgerät fort.</translation>
-    </message>
-    <message>
-        <source>Could not open remote file: %1</source>
-        <translation>Die entfernte Datei konnte nicht geöffnet werden: %1</translation>
-    </message>
-    <message>
-        <source>Could not open local file %1: %2</source>
-        <translation>Die lokale Datei %1 konnte nicht geöffnet werden: %2</translation>
-    </message>
-    <message>
-        <source>Installation failed: %1; see %2 for descriptions of the error codes</source>
-        <translation>Die Installation schlug fehl: %1; siehe %2 für eine Beschreibung der Fehlercodes</translation>
-    </message>
-    <message>
-        <source>Failed to close the remote file: %1</source>
-        <translation>Die entfernte Datei konnte nicht geschlossen werden: %1</translation>
-    </message>
-    <message>
-        <source>Copying &quot;%1&quot;...</source>
-        <translation>Kopieren &quot;%1&quot;...</translation>
-    </message>
-    <message>
-        <source>Deploy SIS Package</source>
-        <extracomment>Qt4 Deploystep display name</extracomment>
-        <translation>Deployment der SIS-Paketdatei</translation>
-    </message>
-    <message>
-        <source>Deploying application to &apos;%1&apos;...</source>
-        <translation>Deployment der Anwendung auf &apos;%1&apos;...</translation>
-    </message>
-    <message>
-        <source>No such port</source>
-        <translation>Schnittstelle existiert nicht</translation>
-    </message>
-    <message>
-        <source>Connecting to %1:%2...</source>
-        <translation>Verbinde zu %1: %2...</translation>
-    </message>
-    <message>
-        <source>Error: %1</source>
-        <translation>Fehler: %1</translation>
-    </message>
-    <message>
-        <source>Installing package &quot;%1&quot; on drive %2:...</source>
-        <translation>Installiere Paket &quot;%1&quot; auf Laufwerk %2:...</translation>
-    </message>
-    <message>
-        <source>Internal error: No filehandle obtained</source>
-        <translation>Interner Fehler: Es konnte kein Datei-Handle erhalten werden</translation>
-    </message>
-    <message>
-        <source>Installation has finished</source>
-        <translation>Installation beendet</translation>
-    </message>
-    <message>
-        <source>Installation</source>
-        <translation>Installation</translation>
-    </message>
-    <message>
-        <source>A timeout while deploying has occurred. CODA might not be responding. Try reconnecting the device.</source>
-        <translation>Während des Deployments trat eine Zeitüberschreitung auf. CODA antwortet möglicherweise nicht. Versuchen Sie die Verbindung zum Gerät neu herzustellen.</translation>
-    </message>
-    <message>
-        <source>Deployment has been cancelled.</source>
-        <translation>Das Deployment wurde abgebrochen.</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation>Die Verbindung zum Gerät &apos;%1&apos; wurde getrennt</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60DeployStepFactory</name>
-    <message>
-        <source>Deploy SIS Package</source>
-        <translation>Deployment der SIS-Paketdatei</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::SbsV2Parser</name>
-    <message>
-        <source>SBSv2 build log</source>
-        <translation>Build-Log von SBSv2</translation>
-    </message>
-    <message>
-        <source>The file &apos;%1&apos; is not a SBSv2 log file.</source>
-        <translation>Die Datei &apos;%1; ist kein Build-Log von SBSv2.</translation>
-    </message>
-    <message>
-        <source>Running command: %1
-</source>
-        <translation>Führe Kommando &apos;%1&apos; aus
-</translation>
-    </message>
-    <message>
-        <source>Recipe %1 failed with exit code %2.</source>
-        <extracomment>%1 is the SBSv2 build recipe name, %2 the return code of the failed command</extracomment>
-        <translation>Recipe %1 schlug mit Rückgabewert %2 fehl.</translation>
     </message>
 </context>
 <context>
@@ -16907,28 +16534,32 @@ Wählt Qt-Versionen für Simulator und mobile Ziele aus, sofern sie verfügbar s
         <translation>Erstellt eine Qt Quick-Anwendung, die sowohl QML- als auch C++-Code enthält und eine Instanz der Klasse QDeclarativeView verwendet.</translation>
     </message>
     <message>
-        <source>Qt Quick Application (Built-in Elements)</source>
-        <translation>Qt Quick-Anwendung (nur eingebaute Elemente)</translation>
+        <source>Qt Quick 1 Application (Built-in Elements)</source>
+        <translation>Qt Quick-1 Anwendung (nur eingebaute Elemente)</translation>
     </message>
     <message>
-        <source>The built-in elements in the QtQuick namespace allow you to write cross-platform applications with a custom look and feel.
+        <source>The built-in elements in the QtQuick 1 namespace allow you to write cross-platform applications with a custom look and feel.
 
 Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
-        <translation>Die eingebauten Elemente im QtQuick-Namensraum erlauben es, plattformübergreifende Anwendungen mit benutzerdefinierbarem Look and Feel zu erstellen.
+        <translation>Die eingebauten Elemente im QtQuick-1 Namensraum erlauben es, plattformübergreifende Anwendungen mit benutzerdefiniertem Look and Feel zu erstellen.
 
 Erfordert &lt;b&gt;Qt 4.7.0&lt;/b&gt; oder neuer.</translation>
     </message>
     <message>
-        <source>Qt Quick Application for Symbian</source>
-        <translation>Qt Quick-Anwendung für Symbian</translation>
+        <source>Qt Quick 2 Application (Built-in Elements)</source>
+        <translation>Qt Quick-2 Anwendung (nur eingebaute Elemente)</translation>
     </message>
     <message>
-        <source>The Qt Quick Components for Symbian are a set of ready-made components that are designed with specific native appearance for the Symbian platform.
+        <source>Creates a Qt Quick application project that can contain both QML and C++ code and includes a QQuickView.
 
-Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer, and the component set installed for your Qt version.</source>
-        <translation>Die Qt Quick-Komponenten für Symbian sind ein Satz vorgefertigter Komponenten, die entworfen worden, um das Symbian-spezifische Erscheinungsbild wiederzugeben.
+The built-in elements in the QtQuick 2 namespace allow you to write cross-platform applications with a custom look and feel.
 
-Erfordert &lt;b&gt;Qt 4.7.4&lt;/b&gt; oder neuer sowie die Installation des Komponentensatzes für diese Qt-Version.</translation>
+Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
+        <translation>Erstellt ein Qt Quick-Anwendungsprojekt, das sowohl QML- als auch C++-Code enthalten kann und QQuickView verwendet.
+
+Die eingebauten Elemente im QtQuick-2 Namensraum erlauben es, plattformübergreifende Anwendungen mit benutzerdefiniertem Look and Feel zu erstellen.
+
+Erfordert &lt;b&gt;Qt 5.0&lt;/b&gt; oder neuer.</translation>
     </message>
     <message>
         <source>Qt Quick Application for MeeGo Harmattan</source>
@@ -17028,18 +16659,16 @@ Erforder &lt;b&gt;Qt 4.7.0&lt;/b&gt; oder neuer.</translation>
         <translation>Halte beim Auftreten einer JavaScript-Ausnahme an</translation>
     </message>
     <message>
+        <source>&amp;One shot only:</source>
+        <translation>Nur &amp;einmal auslösen:</translation>
+    </message>
+    <message>
         <source>Specifying the module (base name of the library or executable)
 for function or file type breakpoints can significantly speed up
 debugger start-up times (CDB, LLDB).</source>
         <translation>Die Angabe des Moduls (Basisname der Bibliothek oder der ausführbaren Datei)
 für Haltepunkte des Typs Datei/Zeile oder Funktion kann die Startzeit des Debuggers 
 erheblich reduzieren (CDB, LLDB).</translation>
-    </message>
-    <message>
-        <source>Debugger command to be executed when the breakpoint is hit.
-GDB allows for specifying a sequence of commands separated by the delimiter &apos;\n&apos;.</source>
-        <translation>Debugger-Kommando zur Ausführung beim Auslösen des Haltepunkts.
-Bei GDB kann eine durch &apos;\n&apos; getrennte Kommandosequenz angegeben werden.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Determines how the path is specified when setting breakpoints:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;i&gt;Use Engine Default&lt;/i&gt;: Preferred setting of the debugger engine.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use Full Path&lt;/i&gt;: Pass full path, avoiding ambiguities should files of the same name exist in several modules. This is the engine default for CDB and LLDB.&lt;/li&gt;&lt;li&gt;&lt;i&gt;Use File Name&lt;/i&gt;: Pass the file name only. This is useful when using a source tree whose location does not match the one used when building the modules. It is the engine default for GDB as using full paths can be slow with this engine.&lt;/li&gt;&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -17090,10 +16719,6 @@ Bei GDB kann eine durch &apos;\n&apos; getrennte Kommandosequenz angegeben werde
         <translation>&amp;Modul:</translation>
     </message>
     <message>
-        <source>&amp;Command:</source>
-        <translation>&amp;Kommando:</translation>
-    </message>
-    <message>
         <source>C&amp;ondition:</source>
         <translation>&amp;Bedingung:</translation>
     </message>
@@ -17116,6 +16741,15 @@ Bei GDB kann eine durch &apos;\n&apos; getrennte Kommandosequenz angegeben werde
     <message>
         <source>Use File Name</source>
         <translation>Dateinamen verwenden</translation>
+    </message>
+    <message>
+        <source>Debugger commands to be executed when the breakpoint is hit.
+This feature is only available for GDB.</source>
+        <translation>Debugger-Kommandos, die beim Auslösen eines Haltepunkts ausgeführt werden (nur GDB).</translation>
+    </message>
+    <message>
+        <source>&amp;Commands:</source>
+        <translation>&amp;Kommandos:</translation>
     </message>
     <message>
         <source>&amp;Thread specification:</source>
@@ -17351,21 +16985,6 @@ Fehler: %2</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::BreakCondition</name>
-    <message>
-        <source>&amp;Condition:</source>
-        <translation>&amp;Bedingung:</translation>
-    </message>
-    <message>
-        <source>&amp;Ignore count:</source>
-        <translation>Anhalten &amp;erst nach:</translation>
-    </message>
-    <message>
-        <source>&amp;Thread specification:</source>
-        <translation>&amp;Thread:</translation>
-    </message>
-</context>
-<context>
     <name>Macros::Internal::MacroOptionsWidget</name>
     <message>
         <source>Form</source>
@@ -17571,11 +17190,23 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden.</translation>
         <source>Edit Breakpoint Properties</source>
         <translation>Haltepunkt bearbeiten</translation>
     </message>
+    <message>
+        <source>&amp;Condition:</source>
+        <translation>&amp;Bedingung:</translation>
+    </message>
+    <message>
+        <source>&amp;Ignore count:</source>
+        <translation>Anhalten &amp;erst nach:</translation>
+    </message>
+    <message>
+        <source>&amp;Thread specification:</source>
+        <translation>&amp;Thread:</translation>
+    </message>
 </context>
 <context>
     <name>Debugger::Internal::StartRemoteCdbDialog</name>
     <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt;  to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Der entfernte CDB muss die passende CDB-Erweiterungsbibliothek von Qt Creator (&lt;code&gt;%1&lt;/code&gt; beziehungsweise &lt;code&gt;%2&lt;/code&gt; laden.&lt;/p&gt;&lt;p&gt;Kopieren Sie sie auf den entfernten Rechner und setzen Sie die Umgebungsvariable &lt;code&gt;%3&lt;/code&gt; auf den Ordner.&lt;/p&gt;&lt;p&gt;Starten Sie den entfernten CDB als &lt;code&gt;%4 &amp;lt;ausführbare Datei&amp;gt;&lt;/code&gt; um TCP/IP als Kommunikationsprotokoll zu verwenden.&lt;/p&gt;&lt;p&gt;Geben Sie die Verbindungsparameter wie folgt an:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
@@ -17653,10 +17284,6 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden.</translation>
         <translation>Anhängen an Prozess-ID 0 nicht möglich</translation>
     </message>
     <message>
-        <source>Debugger attached to %1</source>
-        <translation>Debugger an %1 angehangen</translation>
-    </message>
-    <message>
         <source>Set Breakpoint at Line %1</source>
         <translation>Haltepunkt bei Zeile %1 setzen</translation>
     </message>
@@ -17667,14 +17294,6 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden.</translation>
     <message>
         <source>Disassemble Function &quot;%1&quot;</source>
         <translation>Funktion &quot;%1&quot; disassemblieren</translation>
-    </message>
-    <message>
-        <source>Open Qt Options</source>
-        <translation>Einstellungen zur Qt-Bibliothek öffnen</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
-        <translation>Die Ausgabe-Hilfsbibliothek dient zur Ausgabe der Werte einiger Datentypen aus Qt- und den Standardbibliotheken. Sie muss mit jeder benutzten Qt-Version compiliert werden. Das geschieht in der Seite &apos;Erstellung und Ausführung&apos; durch Auswahl der Qt-Installation und Klicken auf &apos;Erstellen&apos; für die Ausgabe-Hilfsbibliothek.</translation>
     </message>
     <message>
         <source>Debugger finished.</source>
@@ -17745,22 +17364,6 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden.</translation>
     <message>
         <source>User commands are not accepted in the current state.</source>
         <translation>Die Eingabe von Nutzerkommandos ist in diesem Zustand nicht möglich.</translation>
-    </message>
-    <message>
-        <source>Turn off Helper Usage</source>
-        <translation>Ausgabe-Hilfsbibliothek deaktivieren</translation>
-    </message>
-    <message>
-        <source>Continue Anyway</source>
-        <translation>Trotzdem fortsetzen</translation>
-    </message>
-    <message>
-        <source>Debugging Helper Missing</source>
-        <translation>Ausgabe-Hilfsbibliothek nicht gefunden</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation>Der Debugger konnte die Ausgabe-Hilfsbibliothek nicht finden.</translation>
     </message>
     <message>
         <source>Starting debugger &quot;%1&quot; for ABI &quot;%2&quot;...</source>
@@ -17859,20 +17462,8 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden.</translation>
         <translation>Debugge externe Anwendung...</translation>
     </message>
     <message>
-        <source>Start and Debug External Application with External Engine...</source>
-        <translation>Debugge externe Anwendung mit externem Engine...</translation>
-    </message>
-    <message>
-        <source>Attach to Running Local Application...</source>
-        <translation>Debugge externe, lokal laufende Anwendung...</translation>
-    </message>
-    <message>
         <source>Load Core File...</source>
         <translation>Core-Datei auswählen...</translation>
-    </message>
-    <message>
-        <source>Start and Debug Remote Application...</source>
-        <translation>Starte und Debugge entfernte Anwendung...</translation>
     </message>
     <message>
         <source>Attach to Remote Debug Server...</source>
@@ -17881,10 +17472,6 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden.</translation>
     <message>
         <source>Start Remote Debug Server Attached to Process...</source>
         <translation>Starte Debug-Server an Prozess...</translation>
-    </message>
-    <message>
-        <source>Attach to Running Remote Process...</source>
-        <translation>Debugge entfernt laufende Anwendung...</translation>
     </message>
     <message>
         <source>Attach to QML Port...</source>
@@ -17903,16 +17490,30 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden.</translation>
         <translation>Gdbserver starten</translation>
     </message>
     <message>
-        <source>Attach to Remote Process</source>
-        <translation>An entfernten Prozess anhängen</translation>
-    </message>
-    <message>
         <source>Interrupt Debugger</source>
         <translation>Debugger unterbrechen</translation>
     </message>
     <message>
         <source>Stop Debugger</source>
         <translation>Debugger anhalten</translation>
+    </message>
+    <message>
+        <source>Process Already Under Debugger Control</source>
+        <translation>Prozess bereits unter Debugger-Kontrolle</translation>
+    </message>
+    <message>
+        <source>The process %1 is already under the control of a debugger.
+Qt Creator cannot attach to it.</source>
+        <translation>Der Prozess %1 wird bereits von einem Debugger gesteuert.
+Qt Creator kann sich nicht anhängen.</translation>
+    </message>
+    <message>
+        <source>Attach to Running Application...</source>
+        <translation>Debugge externe, lokal laufende Anwendung...</translation>
+    </message>
+    <message>
+        <source>Attach to Running Application</source>
+        <translation>Debugge externe, lokal laufende Anwendung</translation>
     </message>
     <message>
         <source>Shift+Ctrl+Y</source>
@@ -18116,7 +17717,7 @@ Soll es noch einmal versucht werden?</translation>
         <translation>Die Anwendung konnte nicht gestartet werden: %1</translation>
     </message>
     <message>
-        <source>Run to line  %1 (%2) requested...</source>
+        <source>Run to line %1 (%2) requested...</source>
         <translation>Ausführung bis Zeile %1 (%2) angefordert...</translation>
     </message>
     <message>
@@ -18521,80 +18122,6 @@ Fehler: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CertificateInfo</name>
-    <message>
-        <source>The certificate &quot;%1&quot; has already expired and cannot be used.
-Expiration date: %2.</source>
-        <translation>Das Zertifikat &quot;%1&quot; ist bereits abgelaufen und kann daher nicht verwendet werden.
-Verfallsdatum: %2.</translation>
-    </message>
-    <message>
-        <source>The certificate &quot;%1&quot; is not yet valid.
-Valid from: %2.</source>
-        <translation>Das Zertifikat &quot;%1&quot; ist noch nicht gültig.
-Es gilt ab: %2.</translation>
-    </message>
-    <message>
-        <source>The certificate &quot;%1&quot; is not a valid X.509 certificate.</source>
-        <translation>Das Zertifikat &quot;%1&quot; ist kein gültiges X.509-Zertifikat.</translation>
-    </message>
-    <message>
-        <source>Type: </source>
-        <translation>Typ:</translation>
-    </message>
-    <message>
-        <source>Developer certificate</source>
-        <translation>Entwicklerzertifikat</translation>
-    </message>
-    <message>
-        <source>Self signed certificate</source>
-        <translation>Selbstsigniertes Zertifikat</translation>
-    </message>
-    <message>
-        <source>Issued by: </source>
-        <translation>Ausgestellt von: </translation>
-    </message>
-    <message>
-        <source>Issued to: </source>
-        <translation>Ausgestellt für: </translation>
-    </message>
-    <message>
-        <source>Valid from: </source>
-        <translation>Gültig ab:</translation>
-    </message>
-    <message>
-        <source>Valid to: </source>
-        <translation>Gültig bis:</translation>
-    </message>
-    <message>
-        <source>Capabilities: </source>
-        <translation>Berechtigungen:</translation>
-    </message>
-    <message numerus="yes">
-        <source>Supporting %n device(s): </source>
-        <translation>
-            <numerusform>Unterstützt ein Gerät:</numerusform>
-            <numerusform>Unterstützt %n Geräte:</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageParser</name>
-    <message>
-        <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
-%2
-Use a developer certificate or any other signing option to prevent this patching from happening.</source>
-        <extracomment>%1 package name, %2 will be replaced by a list of patching lines.</extracomment>
-        <translation>Das selbstsignierte Paket &apos;%1&apos; wurde modifiziert, um eine Installation zu ermöglichen.
-%2
-Verwenden Sie ein Entwicklerzertifikat oder eine andere Form der Signierung, um dies zu umgehen.</translation>
-    </message>
-    <message>
-        <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
-        <translation>Es kann kein Smart-Installer-Paket erstellt werden, da die Basisdatei des Smart-Installers fehlt. Bitte stellen Sie sicher, dass sie im SDK vorhanden ist.</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Internal::Html5AppWizardDialog</name>
     <message>
         <source>New HTML5 Application</source>
@@ -18618,10 +18145,10 @@ Verwenden Sie ein Entwicklerzertifikat oder eine andere Form der Signierung, um 
     <message>
         <source>Creates an HTML5 application project that can contain both HTML5 and C++ code and includes a WebKit view.
 
-You can build the application and deploy it on desktop and mobile target platforms. For example, you can create signed Symbian Installation System (SIS) packages for this type of projects.</source>
-        <translation>Erstellt ein HTML5-Projekt, welches HTML5- und C++-Code enthält und WebKit zur Anzeige verwendet.
+You can build the application and deploy it on desktop and mobile target platforms.</source>
+        <translation>Erstellt ein HTML5-Anwendungsprojekt, welches HTML5- und C++-Code enthalten kann und WebKit zur Anzeige verwendet.
 
-Sie können diese Anwendung sowohl auf Desktop- als auch auf mobilen Plattformen ausführen. Dieser Projekttyp ermöglicht zum Beispiel die Erstellung eines signierten Symbian Installation System (SIS)-Paketes.</translation>
+Sie können diese Anwendung erstellen und sowohl auf Desktop- als auch auf mobilen Plattformen ausführen.</translation>
     </message>
 </context>
 <context>
@@ -19115,33 +18642,6 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::RvctToolChainConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
-        <source>ARM &amp;version:</source>
-        <translation>ARM &amp;Version:</translation>
-    </message>
-    <message>
-        <source>Version 5</source>
-        <translation>Version 5</translation>
-    </message>
-    <message>
-        <source>Version 6</source>
-        <translation>Version 6</translation>
-    </message>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>&amp;Compiler-Pfad:</translation>
-    </message>
-    <message>
-        <source>Environment Variables</source>
-        <translation>Umgebungsvariablen</translation>
-    </message>
-</context>
-<context>
     <name>Bazaar::Internal::BazaarControl</name>
     <message>
         <source>Bazaar</source>
@@ -19626,27 +19126,23 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
         <translation>Typ</translation>
     </message>
     <message>
-        <source>Duplicate Tool Chain detected</source>
-        <translation>Es wurde eine duplizierte Toolchain festgestellt</translation>
+        <source>Duplicate Compilers Detected</source>
+        <translation>Mehrfach auftretende Compiler</translation>
     </message>
     <message>
-        <source>The following tool chain was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
-        <translation>Die folgende Toolchain ist bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Sie wurde nicht noch einmal konfiguriert.</translation>
+        <source>The following compiler was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
+        <translation>Der folgende Compiler ist bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Er wurde nicht noch einmal konfiguriert.</translation>
     </message>
     <message>
-        <source>Duplicate Tool Chains detected</source>
-        <translation>Duplizierte Toolchains</translation>
-    </message>
-    <message>
-        <source>The following tool chains were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation>Die folgenden Toolchains wurden bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Sie wurden nicht noch einmal konfiguriert.</translation>
+        <source>The following compilers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
+        <translation>Die folgenden Compiler wurden bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Sie wurden nicht noch einmal konfiguriert.</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
-        <source>Tool Chains</source>
-        <translation>Toolchains</translation>
+        <source>Compilers</source>
+        <translation>Compiler</translation>
     </message>
     <message>
         <source>Add</source>
@@ -19658,7 +19154,7 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
     <message>
         <source>Remove</source>
-        <translation></translation>
+        <translation>Entfernen</translation>
     </message>
 </context>
 <context>
@@ -19703,41 +19199,6 @@ Reason: %2</source>
 - %1
 
 Fehler: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::GcceToolChainFactory</name>
-    <message>
-        <source>GCCE</source>
-        <translation>GCCE</translation>
-    </message>
-    <message>
-        <source>GCCE from Qt version</source>
-        <translation>GCCE aus Qt-Version</translation>
-    </message>
-    <message>
-        <source>GCCE (%1)</source>
-        <translation>GCCE (%1)</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::RvctToolChainFactory</name>
-    <message>
-        <source>ARMv5</source>
-        <translation>ARMv5</translation>
-    </message>
-    <message>
-        <source>ARMv6</source>
-        <translation>ARMv6</translation>
-    </message>
-    <message>
-        <source>RVCT</source>
-        <translation>RVCT</translation>
-    </message>
-    <message>
-        <source>RVCT (%1 %2.%3 Build %4)</source>
-        <extracomment>%1 arm version, %2 major version, %3 minor version, %4 build number</extracomment>
-        <translation>RVCT (%1 %2.%3 Build %4)</translation>
     </message>
 </context>
 <context>
@@ -19842,237 +19303,6 @@ Fehler: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublisherOvi</name>
-    <message>
-        <source>Clean</source>
-        <translation>Bereinigen</translation>
-    </message>
-    <message>
-        <source>qmake</source>
-        <translation>qmake</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Erstellen</translation>
-    </message>
-    <message>
-        <source>Freeze</source>
-        <translation>Einfrieren</translation>
-    </message>
-    <message>
-        <source>Secondary clean</source>
-        <translation>Sekundäres Bereinigen</translation>
-    </message>
-    <message>
-        <source>Secondary qmake</source>
-        <translation>Sekundäres QMake</translation>
-    </message>
-    <message>
-        <source>Secondary build</source>
-        <translation>Sekundäres Erstellen</translation>
-    </message>
-    <message>
-        <source>Making SIS file</source>
-        <translation>Erstelle Sis-Datei</translation>
-    </message>
-    <message>
-        <source>SIS file not created due to previous errors.
-</source>
-        <translation>Erstellung der Sis-Datei durch vorangegangene Fehler fehlgeschlagen.
-</translation>
-    </message>
-    <message>
-        <source>Done.
-</source>
-        <translation>Beendet.
-</translation>
-    </message>
-    <message>
-        <source>Created %1.
-</source>
-        <translation>%1 wurde erstellt.
-</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60PublishingResultsPageOvi</name>
-    <message>
-        <source>Open Containing Folder</source>
-        <translation>Beinhaltenden Ordner öffnen</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Schließen</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
-    <message>
-        <source>This should be application&apos;s display name. &lt;br&gt;It cannot be empty.&lt;br&gt;</source>
-        <translation>Der angezeigte Name der Anwendung. &lt;br&gt;Er darf nicht leer sein.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The display name is quite long.&lt;br&gt;It might not be fully visible in the phone&apos;s menu.&lt;br&gt;</source>
-        <translation>Der angezeigte Name ist sehr lang &lt;br&gt;Möglicherweise wird er nicht vollständig im Menü des Telefons angezeigt.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>%1 is a default vendor name used for testing and development.</source>
-        <translation>&quot;%1&quot; ist ein zum Testen und zur Entwicklung vorgegebener Anbietername.</translation>
-    </message>
-    <message>
-        <source>%1 are default vendor names used for testing and development.</source>
-        <translation>%1 sind zum Testen und zur Entwicklung vorgegebene Anbieternamen.</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; is a default vendor name used for testing and development. &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.developer.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation>&quot;%1&quot; ist ein zum Testen und zur Entwicklung vorgegebener Anbietername. &lt;br&gt;Das Feld Vendor_Name darf den Namen &apos;Nokia&apos; nicht enthalten.&lt;br&gt;Es wird davon abgeraten, die Vorgabenamen &apos;Vendor&apos; oder &apos;Vendor-EN&apos; zu verwenden.&lt;br&gt;Das Feld sollte auch nicht leer sein.&lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>%1 &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;See &lt;a href=&quot;http://www.developer.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation>%1 &lt;br&gt;Das Feld Vendor_Name darf den Namen &apos;Nokia&apos; nicht enthalten.&lt;br&gt;Es davon abgeraten, die Vorgabenamen &apos;Vendor&apos; oder &apos;Vendor-EN&apos; zu verwenden.&lt;br&gt;Das Feld sollte auch nicht leer sein.&lt;br&gt;siehe &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Paketierungs- und Signierungsrichtlinien&lt;/a&gt;.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is only for testing and development.&lt;br&gt;SIS packages built with it cannot be distributed via the Nokia Store.&lt;br&gt;</source>
-        <translation>Die Anwendungs-UID %1 kann nur zum Testen und zur Entwicklung verwendet werden.&lt;br&gt;Damit erstellte SIS-Pakete können nicht über den Ovi Store verbreitet werden.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is a symbiansigned.com UID. &lt;br&gt;Applications with this UID will be rejected by Application Signing Services for Nokia Store.&lt;br&gt;If you want to continue with a symbiansigned.com UID, sign your application on symbiansigned.com and upload the signed application to Nokia Publish.&lt;br&gt;</source>
-        <translation>Die Anwendungs-UID %1 stammt von symbiansigned.com.&lt;br&gt;Anwendungen mit dieser UID werden von den Application Signing Services von Ovi Store zurückgewiesen.&lt;br&gt;Wenn Sie eine von symbiansigned.com stammende UID verwenden möchten, lassen Sie bitte Ihre Anwendung von symbiansigned.com signieren und laden die signierte Anwendung zu Publish to Ovi hoch.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is not an acceptable UID.&lt;br&gt;SIS packages built with it cannot be signed by Application Signing Services for Nokia Store.&lt;br&gt;</source>
-        <translation>Die Anwendungs-UID %1 ist ungültig.&lt;br&gt;Damit erstellte SIS-Paketdateien können von den Application Signing Services des Ovi Store nicht signiert werden.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID is a global unique indentifier of the SIS package.&lt;br&gt;</source>
-        <translation>Die Anwendungs-UID ist ein global eindeutiger Bezeichner eines SIS-Paketes.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>To get a unique application UID for your package file,&lt;br&gt;please register at &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</source>
-        <translation>Um eine eindeutige Anwendungs-UID für Ihre Paketdatei zu erhalten,&lt;br&gt;registrieren Sie sich bitte bei &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>If this UID is from symbiansigned.com, It will be rejected by Application Signing Services for Nokia Store.&lt;br&gt;If you want to continue with a symbiansigned.com UID, sign your application on symbiansigned.com and upload the signed application to Nokia Publish.&lt;br&gt;It is, however, recommended that you obtain a UID from &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</source>
-        <translation>Die Application Signing Services von Nokia weisen von symbiansigned.com stammende UIDs zurück.&lt;br&gt; Wenn Sie mit einer von symbiansigned.com stammenden UID weiterarbeiten möchten, signieren Sie die Anwendung auf symbiansigned.com und laden die signierte Anwendung zu Nokia Publish hoch. &lt;br&gt; Es ist jedoch empfehlenswert, UIDs von &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt; zu verwenden </translation>
-    </message>
-    <message>
-        <source>%1 need(s) to be certified signed. Please go to &lt;a href=&quot;symbiansigned.com&quot;&gt;symbiansigned.com&lt;/a&gt; for guidance.</source>
-        <translation>%1 muss zertifiziert und signiert werden. Bitte wenden Sie sich für eine weitere Anleitung an &lt;a href=&quot;symbiansigned.com&quot;&gt;symbiansigned.com&lt;/a&gt; .</translation>
-    </message>
-    <message>
-        <source>&lt;br&gt;%1 need(s) manufacturer approval.&lt;br&gt;</source>
-        <translation>&lt;br&gt;%1 benötigt die Zustimmung des Herstellers.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Some capabilities might require a special kind of signing or approval from the manufacturer.&lt;br&gt;</source>
-        <translation>Einige Berechtigungen benötigen möglicherweise eine spezielle Signierung oder Zustimmung des Herstellers.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Please verify that you have a released version of Qt. &lt;br&gt;&lt;a href=&quot;http://www.developer.nokia.com/Community/Wiki/Nokia_Smart_Installer_for_Symbian&quot;&gt;Qt Packages Distributed by Smart Installer&lt;/a&gt; has a list of released Qt versions.</source>
-        <translation>Bitte stellen Sie sicher, dass Sie eine freigegebene Qt-Version verwenden. &lt;br&gt;&lt;a href=&quot;http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian&quot;&gt;Qt Packages Distributed by Smart Installer&lt;/a&gt; stellt eine Liste freigegebener Qt-Versionen bereit.</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
-        <source>Localised Vendor Names</source>
-        <translation>Lokalisierte Anbieternamen</translation>
-    </message>
-    <message>
-        <source>Current Global Vendor Name</source>
-        <translation>Aktueller, eindeutiger Anbietername</translation>
-    </message>
-    <message>
-        <source>Display name:</source>
-        <translation>Anzuzeigender Name:</translation>
-    </message>
-    <message>
-        <source>Localised vendor names:</source>
-        <translation>Lokalisierte Anbieternamen:</translation>
-    </message>
-    <message>
-        <source>Capabilities:</source>
-        <translation>Berechtigungen:</translation>
-    </message>
-    <message>
-        <source>Current UID3</source>
-        <translation>Aktuelle UID3</translation>
-    </message>
-    <message>
-        <source>Application UID:</source>
-        <translation>UID der Anwendung:</translation>
-    </message>
-    <message>
-        <source>Current Qt Version</source>
-        <translation>Aktuelle Qt-Version</translation>
-    </message>
-    <message>
-        <source>Qt version used in builds:</source>
-        <translation>Bei Erstellung verwendete Qt-Version:</translation>
-    </message>
-    <message>
-        <source>Current set of capabilities</source>
-        <translation>Akuelle Berechtigungen</translation>
-    </message>
-    <message>
-        <source>Global vendor name:</source>
-        <translation>Eindeutiger Anbietername:</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
-    <message>
-        <source>Publish Qt Symbian Applications to Nokia Store</source>
-        <translation>Qt Symbian-Anwendungen im Ovi-Store veröffentlichen</translation>
-    </message>
-    <message>
-        <source>This wizard checks your project file to make sure it complies with Nokia Store submission criteria.
-
-The wizard creates SIS files that can be submitted to Nokia Publish.
-
-You cannot use it if you use application UIDs from Symbian Signed.
-
-You cannot use it for the Certified Signed and Manufacturer level capabilities:
-NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
-
-Your application will also be rejected by Nokia Store QA if you choose an unreleased Qt version on the next page.</source>
-        <translation>Dieser Wizard prüft Ihre Projektdatei um sicherzustellen, dass sie den Bestimmungen von Ovi Store entspricht.
-
-Dieser Wizard erstellt SIS-Paketdateien, die zur Veröffentlichung auf Ovi eingereicht werden können.
-
-Er kann nicht im Zusammenhang mit UIDs von Symbian Signed verwendet werden.
-
-Er kann ebenfalls nicht für zertifikatssignierte oder Herstellerberechtigungen verwendet werden:
-NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM und TCB
-
-Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version zurückgewiesen.</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60PublishingWizardOvi</name>
-    <message>
-        <source>Publishing to Nokia Store</source>
-        <translation>Im OviStore veröffentlichen</translation>
-    </message>
-    <message>
-        <source>Build Configuration</source>
-        <translation>Build-Konfiguration</translation>
-    </message>
-    <message>
-        <source>Project File Checks</source>
-        <translation>An Projektdatei vorgenommene Überprüfungen</translation>
-    </message>
-    <message>
-        <source>Creating an Uploadable SIS File</source>
-        <translation>Erzeuge hochladbare SIS-Datei</translation>
-    </message>
-</context>
-<context>
     <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
@@ -20117,7 +19347,7 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
     </message>
     <message>
         <source>Setting anchors in states is not supported.</source>
-        <translation>Anker koennen nicht innerhalb von States gesetzt werden.</translation>
+        <translation>Anker können nicht innerhalb von States gesetzt werden.</translation>
     </message>
     <message>
         <source>Set bottom anchor</source>
@@ -20389,8 +19619,8 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
 <context>
     <name>Analyzer::IAnalyzerTool</name>
     <message>
-        <source> (Remote)</source>
-        <translation> (entfernt)</translation>
+        <source> (External)</source>
+        <translation> (Extern)</translation>
     </message>
 </context>
 <context>
@@ -20464,65 +19694,6 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
     </message>
 </context>
 <context>
-    <name>SymbianUtils::VirtualSerialDevice</name>
-    <message>
-        <source>Port not found</source>
-        <translation>Port nicht gefunden</translation>
-    </message>
-    <message>
-        <source>Port in use</source>
-        <translation>Der Port ist bereits in Verwendung</translation>
-    </message>
-    <message>
-        <source>Timed out</source>
-        <translation>Zeitlimit überschritten</translation>
-    </message>
-    <message>
-        <source>Port unreachable</source>
-        <translation>Port nicht erreichbar</translation>
-    </message>
-    <message>
-        <source>The port %1 could not be opened: %2</source>
-        <translation>Der Port %1 konnte nicht geöffnet werden: %2</translation>
-    </message>
-    <message>
-        <source>An error occurred while waiting for read notifications from %1: %2</source>
-        <translation>Beim Lesen von %1 ist ein Fehler aufgetreten: %2</translation>
-    </message>
-    <message>
-        <source>An error occurred while reading from %1: %2</source>
-        <translation>Beim Lesen von %1 ist ein Fehler aufgetreten: %2</translation>
-    </message>
-    <message>
-        <source>An error occurred while writing to %1: %2</source>
-        <translation>Beim Schreiben zu %1 ist ein Fehler aufgetreten: %2</translation>
-    </message>
-    <message>
-        <source>An error occurred while syncing on waitForBytesWritten for %1: %2</source>
-        <translation>Beim Schreiben zu %1 ist ein Fehler aufgetreten: %2</translation>
-    </message>
-    <message>
-        <source>The port %1 could not be opened: %2 (POSIX error %3)</source>
-        <translation>Der Port %1 konnte nicht geöffnet werden: %2 (POSIX-Fehler %3)</translation>
-    </message>
-    <message>
-        <source>Unable to retrieve terminal settings of port %1: %2 (POSIX error %3)</source>
-        <translation>Die Terminal-Einstellungen von Port %1 konnten nicht abgefragt werden: %2 (POSIX-Fehler %3)</translation>
-    </message>
-    <message>
-        <source>Unable to apply terminal settings to port %1: %2 (POSIX error %3)</source>
-        <translation>Die Terminal-Einstellungen von Port %1 konnten nicht gesetzt werden: %2 (POSIX-Fehler %3)</translation>
-    </message>
-    <message>
-        <source>Cannot write to port %1: %2 (POSIX error %3)</source>
-        <translation>Es konnte nicht zu Port %1 geschrieben werden: %2 (POSIX-Fehler %3)</translation>
-    </message>
-    <message>
-        <source>The function select() returned an error on port %1: %2 (POSIX error %3)</source>
-        <translation>Bei Port %1 gab die Funktion select() einen Fehler zurück: %2 (POSIX-Fehler %3)</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::AbstractMobileAppWizardDialog</name>
     <message>
         <source>Targets</source>
@@ -20531,10 +19702,6 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
     <message>
         <source>Mobile Options</source>
         <translation>Einstellungen für Mobilgeräte</translation>
-    </message>
-    <message>
-        <source>Symbian Specific</source>
-        <translation>Symbian-spezifisch</translation>
     </message>
     <message>
         <source>Maemo5 And MeeGo Specific</source>
@@ -20548,13 +19715,25 @@ Außerdem wird die Anwendung bei Verwendung einer nicht freigegebenen Qt-Version
 <context>
     <name>Qt4ProjectManager::TargetSetupPage</name>
     <message>
-        <source>Target Setup</source>
-        <translation>Ziel einrichten</translation>
+        <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
+        <translation>&lt;span style=&quot; font-weight:600;&quot;&gt;Es wurden keine gültigen Kits gefunden.&lt;/span&gt;</translation>
     </message>
     <message>
-        <source>Qt Creator can set up the following targets for project &lt;b&gt;%1&lt;/b&gt;:</source>
+        <source>Please add a kit in the &lt;a href=&quot;buildandrun&quot;&gt;options&lt;/a&gt; or via the maintenance tool of the SDK.</source>
+        <translation>Bitte fügen Sie ein Kit in den &lt;a href=&quot;buildandrun&quot;&gt;Einstellungen&lt;/a&gt; oder unter Verwendung des SDK-Verwaltungswerkzeugs hinzu.</translation>
+    </message>
+    <message>
+        <source>Select Kits for Your Project</source>
+        <translation>Kits des Projekts einrichten</translation>
+    </message>
+    <message>
+        <source>Kit Selection</source>
+        <translation>Kit-Auswahl</translation>
+    </message>
+    <message>
+        <source>Qt Creator can use the following kits for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
-        <translation>Qt Creator kann für das Projekt &lt;b&gt;%1&lt;/b&gt; die folgenden Ziele anlegen:</translation>
+        <translation>Qt Creator kann für das Projekt &lt;b&gt;%1&lt;/b&gt; die folgenden Kits verwenden:</translation>
     </message>
     <message>
         <source>No Build Found</source>
@@ -20875,8 +20054,8 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <translation>Alles erstellen</translation>
     </message>
     <message>
-        <source>Tool chain:</source>
-        <translation>Toolchain:</translation>
+        <source>Compiler:</source>
+        <translation>Compiler:</translation>
     </message>
 </context>
 <context>
@@ -21079,6 +20258,10 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
     <message>
         <source>Please configure &lt;b&gt;%1&lt;/b&gt; now.</source>
         <translation>Bitte konfigurieren Sie jetzt &lt;b&gt;%1&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Configure...</source>
+        <translation>Einstellungen...</translation>
     </message>
 </context>
 <context>
@@ -21822,15 +21005,15 @@ Sollen sie überschrieben werden?</translation>
 <context>
     <name>CodeStyleSettingsPanelFactory</name>
     <message>
-        <source>Code Style Settings</source>
-        <translation>Coding-Stil-Einstellungen</translation>
+        <source>Code Style</source>
+        <translation>Coding-Stil</translation>
     </message>
 </context>
 <context>
     <name>CodeStyleSettingsPanel</name>
     <message>
-        <source>Code Style Settings</source>
-        <translation>Coding-Stil-Einstellungen</translation>
+        <source>Code Style</source>
+        <translation>Coding-Stil</translation>
     </message>
 </context>
 <context>
@@ -21966,12 +21149,6 @@ Sollen sie überschrieben werden?</translation>
         <translation>QML-Trace speichern</translation>
     </message>
     <message>
-        <source>Application finished before loading profiled data.
- Please use the stop button instead.</source>
-        <translation>Die Anwendung wurde vor dem Laden der Profildaten beenden.
-Bitte verwenden Sie den Stop-Button.</translation>
-    </message>
-    <message>
         <source>The QML profiler requires Qt 4.7.4 or newer.
 The Qt version configured in your active build configuration is too old.
 Do you want to continue?</source>
@@ -21990,6 +21167,12 @@ Wollen Sie fortfahren?</translation>
     <message>
         <source>QML traces (*%1)</source>
         <translation>QML-Traces (*%1)</translation>
+    </message>
+    <message>
+        <source>Application finished before loading profiled data.
+Please use the stop button instead.</source>
+        <translation>Die Anwendung wurde vor dem Laden der Profildaten beendet.
+Bitte verwenden Sie den Stop-Button.</translation>
     </message>
     <message>
         <source>Discard data</source>
@@ -22024,238 +21207,6 @@ Wollen Sie fortfahren?</translation>
     <message>
         <source>Run</source>
         <translation>Ausführen</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::CodaRunControl</name>
-    <message>
-        <source>No device is connected. Please connect a device and try again.
-</source>
-        <translation>Es ist kein Gerät verbunden. Bitte stellen Sie die Verbindung zu einem Gerät her und versuchen Sie es erneut.
-</translation>
-    </message>
-    <message>
-        <source>Executable file: %1
-</source>
-        <translation>Ausführbare Datei: %1
-</translation>
-    </message>
-    <message>
-        <source>Connecting to &apos;%1&apos;...
-</source>
-        <translation>Verbinde zu &apos;%1&apos;...
-</translation>
-    </message>
-    <message>
-        <source>Unable to create CODA connection. Please try again.
-</source>
-        <translation>Es konnte keine Vebindung zu CODA hergestellt werden. Bitte versuchen Sie es erneut.
-</translation>
-    </message>
-    <message>
-        <source>Could not open serial device: %1
-</source>
-        <translation>Die serielle Schnittstelle konnte nicht geöffnet werden: %1
-</translation>
-    </message>
-    <message>
-        <source>Connecting to %1:%2...
-</source>
-        <translation>Verbinde zu %1: %2...
-</translation>
-    </message>
-    <message>
-        <source>Error: %1
-</source>
-        <translation>Fehler: %1
-</translation>
-    </message>
-    <message>
-        <source>Connected.
-</source>
-        <translation>verbunden.
-</translation>
-    </message>
-    <message>
-        <source>Process has finished.
-</source>
-        <translation>Der Prozess wurde beendet.
-</translation>
-    </message>
-    <message>
-        <source>Thread has crashed: %1
-</source>
-        <translation>Ein Thread ist abgestürzt: %1
-</translation>
-    </message>
-    <message>
-        <source>The process is already running on the device. Please first close it.
-</source>
-        <translation>Der Prozess läuft bereits auf dem Mobilgerät. Bitte schließen Sie ihn zuerst.
-</translation>
-    </message>
-    <message>
-        <source>Launching: %1
-</source>
-        <translation>Starte: %1
-</translation>
-    </message>
-    <message>
-        <source>Launched.
-</source>
-        <translation>Gestartet.
-</translation>
-    </message>
-    <message>
-        <source>Launch failed: %1
-</source>
-        <translation>Fehlschlag beim Starten: %1
-</translation>
-    </message>
-    <message>
-        <source>Waiting for CODA</source>
-        <translation>Warte auf CODA</translation>
-    </message>
-    <message>
-        <source>Qt Creator is waiting for the CODA application to connect.&lt;br&gt;Please make sure the application is running on your mobile phone and the right IP address and/or port are configured in the project settings.</source>
-        <translation>Qt Creator wartet auf eine Verbindung zur CODA-Anwendung.&lt;br&gt;Bitte starten Sie die Anwendung auf dem Mobiltelefon und prüfen Sie die Einstellung der IP-Adresse und des Ports in der Projektkonfiguration.</translation>
-    </message>
-    <message>
-        <source>Canceled.
-</source>
-        <translation>Abgebrochen.
-</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected.
-</source>
-        <translation>Die Verbindung zum Gerät &apos;%1&apos; wurde getrennt.
-</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::S60DeployConfiguration</name>
-    <message>
-        <source>Deploy %1 to Symbian device</source>
-        <translation>Deployment von %1 auf Symbian-Gerät</translation>
-    </message>
-    <message>
-        <source>Deploy to Symbian device</source>
-        <translation>Deployment auf Symbian-Gerät</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::S60DeployConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation>%1 auf Symbian-Gerät</translation>
-    </message>
-    <message>
-        <source>Deploy to Symbian device</source>
-        <translation>Deployment auf Symbian-Gerät</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::S60DeviceRunConfiguration</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <extracomment>S60 device runconfiguration default display name, %1 is base pro-File name</extracomment>
-        <translation>%1 auf Symbian-Gerät</translation>
-    </message>
-    <message>
-        <source>Run on Symbian device</source>
-        <extracomment>S60 device runconfiguration default display name (no profile set)</extracomment>
-        <translation>Ausführung auf Symbian-Gerät</translation>
-    </message>
-    <message>
-        <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
-        <translation>Die .pro-Datei &apos;%1&apos; wird gerade ausgewertet.</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::S60DeviceRunConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation>%1 auf Symbian-Gerät</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60CommandPublishStep</name>
-    <message>
-        <source>Running %1</source>
-        <extracomment>%1 is a name of the Publish Step i.e. Clean Step</extracomment>
-        <translation>Führe %1 aus</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
-    <message>
-        <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
-        <translation>Es konnte keine gültige Qt-Version gefunden werden. &lt;br&gt; Bitte geben Sie eine korrekte Qt-Version unter &quot;Einstellungen/Qt 4&quot; an</translation>
-    </message>
-    <message>
-        <source>No valid tool chain has been detected.&lt;br&gt;Define a correct tool chain in &quot;Options &gt; Tool Chains&quot;</source>
-        <translation>Es konnte keine gültige Toolchain gefunden werden. &lt;br&gt; Bitte geben Sie eine korrekte Toolchain unter &quot;Einstellungen/Toolchains&quot; an</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation>Form</translation>
-    </message>
-    <message>
-        <source>Choose a build configuration:</source>
-        <translation>Build-Konfiguration wählen:</translation>
-    </message>
-    <message>
-        <source>Choose a tool chain:</source>
-        <translation>Toolchain wählen:</translation>
-    </message>
-    <message>
-        <source>Only Qt versions above 4.6.3 are made available in this wizard.
-Previous Qt versions have limitations in building suitable SIS files.</source>
-        <translation>Dieser Wizard zeigt nur Qt-Versionen nach Version 4.6.3 an, da in den vorangegangenen Versionen
-Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::S60RunControlBase</name>
-    <message>
-        <source>Launching</source>
-        <translation>Starte</translation>
-    </message>
-    <message>
-        <source>Please finalise the installation on your device.
-</source>
-        <translation>Bitte beenden Sie die Installation auf dem Mobilgerät.
-</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; is still running on the device.&lt;/center&gt;&lt;center&gt;Terminating it can leave the target in an inconsistent state.&lt;/center&gt;&lt;center&gt;Would you still like to terminate it?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;center&gt;&lt;i&gt;%1&lt;/i&gt; läuft noch auf dem Mobilgerät.&lt;center/&gt;&lt;center&gt;Ein Abbruch kann zu einem inkonsistenten Zustand des Gerätes führen.&lt;/center&gt;&lt;center&gt;Möchten Sie dennoch abbrechen?&lt;/center&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Application Still Running</source>
-        <translation>Anwendung läuft noch</translation>
-    </message>
-    <message>
-        <source>Force Quit</source>
-        <translation>Beenden</translation>
-    </message>
-    <message>
-        <source>Keep Running</source>
-        <translation>Fortsetzen</translation>
-    </message>
-    <message>
-        <source>Finished.
-</source>
-        <translation>Beendet.
-</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::SymbianQtConfigWidget</name>
-    <message>
-        <source>SBS v2 directory:</source>
-        <translation>SBS-v2-Ordner:</translation>
     </message>
 </context>
 <context>
@@ -22314,8 +21265,8 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
 <context>
     <name>BaseQtVersion</name>
     <message>
-        <source>The tool chain &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
-        <translation>Die Toolchain &apos;%1&apos; (%2) kann für die Qt-Version &apos;%3&apos; (%4) keinen Code erstellen.</translation>
+        <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
+        <translation>Der Compiler &apos;%1&apos; (%2) kann für die Qt-Version &apos;%3&apos; (%4) keinen Code erstellen.</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -22369,14 +21320,6 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
         <translation>Möchten Sie alle ungültigen Qt-Versionen entfernen? &lt;br&gt;&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;&lt;br&gt; wird entfernt.</translation>
     </message>
     <message>
-        <source>No tool chain can produce code for this Qt version. Please define one or more tool chains.</source>
-        <translation>Keine Toolchain kann für diese Qt-Version Code erzeugen. Bitte richten Sie geeignete Toolchains ein.</translation>
-    </message>
-    <message>
-        <source>Not all possible target environments can be supported due to missing tool chains.</source>
-        <translation>Es können nicht alle Zielumgebungen unterstützt werden, da einige Toolchains fehlen.</translation>
-    </message>
-    <message>
         <source>Building helpers</source>
         <translation>Ausgabe-Hilfsbibliothek</translation>
     </message>
@@ -22418,6 +21361,14 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
         <translation>Ungültige Qt-Versionen entfernen</translation>
     </message>
     <message>
+        <source>No compiler can produce code for this Qt version. Please define one or more compilers.</source>
+        <translation>Kein Compiler kann für diese Qt-Version Code erzeugen. Bitte richten Sie einen oder mehrere geeignete Compiler ein.</translation>
+    </message>
+    <message>
+        <source>Not all possible target environments can be supported due to missing compilers.</source>
+        <translation>Es können nicht alle Zielumgebungen unterstützt werden, da einige Compiler fehlen.</translation>
+    </message>
+    <message>
         <source>The following ABIs are currently not supported:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>Die folgenden ABIs werden gegenwärtig nicht unterstützt: &lt;ul&gt;&lt;li&gt;%1&lt;/ul&gt;</translation>
     </message>
@@ -22428,21 +21379,6 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
     <message>
         <source>The Qt version selected must be for the same target.</source>
         <translation>Die ausgewählte Qt-Version muss für dasselbe Ziel vorgesehen sein.</translation>
-    </message>
-    <message>
-        <source>S60 SDK:</source>
-        <translation>S60 SDK:</translation>
-    </message>
-    <message>
-        <source>SBS v2 directory:</source>
-        <translation>SBS-v2-Ordner:</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::QtVersionManager</name>
-    <message>
-        <source>MinGW from %1</source>
-        <translation>MinGW aus %1</translation>
     </message>
 </context>
 <context>
@@ -22624,12 +21560,12 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
         <translation>Format der Kosten</translation>
     </message>
     <message>
-        <source>Cycle Detection</source>
-        <translation>Schleifenerkennung</translation>
-    </message>
-    <message>
         <source>Enable cycle detection to properly handle recursive or circular function calls.</source>
         <translation>Aktivieren Sie die Schleifenerkennung, um rekursive oder zyklische Funktionsaufrufe richtig zu behandeln.</translation>
+    </message>
+    <message>
+        <source>This removes template parameter lists when displaying function names.</source>
+        <translation>Entfernt Template-Parameterlisten bei der Anzeige von Funktionsnamen.</translation>
     </message>
     <message>
         <source>Show Project Costs Only</source>
@@ -22836,41 +21772,6 @@ Einschränkungen bezüglich der Erstellung von SIS-Dateien bestehen.</translatio
     <message>
         <source>New Project</source>
         <translation>Neues Projekt</translation>
-    </message>
-</context>
-<context>
-    <name>Coda::Session</name>
-    <message>
-        <source>CPU: v%1.%2%3%4</source>
-        <extracomment>CPU description of an S60 device %1 major verison, %2 minor version %3 real name of major verison, %4 real name of minor version</extracomment>
-        <translation>CPU: v%1.%2%3%4</translation>
-    </message>
-    <message>
-        <source>CODA: v%1.%2 CODA protocol: v%3.%4</source>
-        <translation>CODA:  v%1.%2 CODA-Protokoll: v%3.%4</translation>
-    </message>
-    <message>
-        <source>%1, %2%3%4, %5</source>
-        <extracomment>s60description description of an S60 device %1 CPU description, %2 endianness %3 default type size (if any), %4 float size (if any) %5 Coda version</extracomment>
-        <translation>%1, %2%3%4, %5</translation>
-    </message>
-    <message>
-        <source>big endian</source>
-        <translation>big endian</translation>
-    </message>
-    <message>
-        <source>little endian</source>
-        <translation>little endian</translation>
-    </message>
-    <message>
-        <source>, type size: %1</source>
-        <extracomment>will be inserted into s60description</extracomment>
-        <translation>, Typgröße: %1</translation>
-    </message>
-    <message>
-        <source>, float size: %1</source>
-        <extracomment>will be inserted into s60description</extracomment>
-        <translation>, Gleitkomma-Größe: %1</translation>
     </message>
 </context>
 <context>
@@ -23443,7 +22344,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Debug</source>
-        <translation></translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <source>Release</source>
@@ -23454,8 +22355,8 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>Soll %1 im Modus %2 ausgeführt werden?</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used in %3 mode.&lt;/p&gt;&lt;p&gt;Do you want to continue and run it in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sie versuchen, das Werkzeug &apos;%1&apos; mit einer Anwendung im Modus %2 zu betreiben. Das Werkzeug ist zur Verwendung im Modus %3 vorgesehen.&lt;/p&gt;&lt;p&gt;Möchten Sie trotzdem fortsetzen und es im Modus %2 laufen lassen?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used in %3 mode.&lt;/p&gt;&lt;p&gt;Debug and Release mode run-time characteristics differ significantly, analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sie versuchen, das Werkzeug &quot;%1&quot; mit einer Anwendung im Modus %2 zu verwenden. Das Werkzeug ist zur Verwendung im Modus %3 vorgesehen.&lt;/p&gt;&lt;p&gt;Die Charakteristiken von Debug- und Release-Modus unterscheiden sich beträchtlich; die Analyseergebnisse eines Modus&apos; sind nicht immer für den jeweils anderen Modus relevant.&lt;/p&gt;&lt;p&gt;Möchten Sie trotzdem fortsetzen und es im Modus %2 verwenden?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&amp;Do not ask again</source>
@@ -23861,9 +22762,12 @@ Um den QML-Beobachter zu erstellen, gehen Sie auf die Qt-Einstellungsseite, wäh
         <source>Do not warn again</source>
         <translation>Nicht noch einmal anzeigen</translation>
     </message>
-    <message>
-        <source>The search resulted in more than %1 items, do you still want to continue?</source>
-        <translation>Die Suche ergab mehr als %1 Treffer. Möchten Sie trotzdem fortsetzen?</translation>
+    <message numerus="yes">
+        <source>The search resulted in more than %n items, do you still want to continue?</source>
+        <translation>
+            <numerusform>Die Suche ergab mehr als einen Treffer. Möchten Sie trotzdem fortsetzen?</numerusform>
+            <numerusform>Die Suche ergab mehr als %n Treffer. Möchten Sie trotzdem fortsetzen?</numerusform>
+        </translation>
     </message>
     <message>
         <source>Continue</source>
@@ -23960,17 +22864,6 @@ Um den QML-Beobachter zu erstellen, gehen Sie auf die Qt-Einstellungsseite, wäh
     </message>
 </context>
 <context>
-    <name>Madde::Internal::AbstractMaddeUploadAndInstallPackageAction</name>
-    <message>
-        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation>Das Deployment schlug fehl, da Qemu nicht lief. Es wurde soeben gestartet, benötigt jedoch noch einige Zeit. Bitte versuchen Sie es nach einiger Zeit noch einmal.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation>Das Deployment zu Qemu schlug fehl, da Qemu für diese Qt-Version nicht verfügbar ist.</translation>
-    </message>
-</context>
-<context>
     <name>Madde::Internal::MaemoUploadAndInstallPackageStep</name>
     <message>
         <source>No Debian package creation step found.</source>
@@ -23983,14 +22876,6 @@ Um den QML-Beobachter zu erstellen, gehen Sie auf die Qt-Einstellungsseite, wäh
 </context>
 <context>
     <name>Madde::Internal::AbstractMaemoDeployByMountService</name>
-    <message>
-        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation>Das Deployment schlug fehl, da Qemu nicht lief. Es wurde soeben gestartet, benötigt jedoch noch einige Zeit. Bitte versuchen Sie es nach einiger Zeit noch einmal.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation>Das Deployment zu Qemu schlug fehl, da Qemu für diese Qt-Version nicht verfügbar ist.</translation>
-    </message>
     <message>
         <source>Missing build configuration.</source>
         <translation>Fehlende Build-Konfiguration.</translation>
@@ -24178,8 +23063,8 @@ Um den QML-Beobachter zu erstellen, gehen Sie auf die Qt-Einstellungsseite, wäh
         <translation>Der angegebene Ordner existiert nicht und kann nicht angelegt werden.</translation>
     </message>
     <message>
-        <source>Creating keys... </source>
-        <translation>Erzeuge Schlüssel... </translation>
+        <source>Creating keys...</source>
+        <translation>Erzeuge Schlüssel...</translation>
     </message>
     <message>
         <source>Key creation failed: %1</source>
@@ -24217,7 +23102,7 @@ Um den QML-Beobachter zu erstellen, gehen Sie auf die Qt-Einstellungsseite, wäh
         <translation>Schlüssel senden</translation>
     </message>
     <message>
-        <source>Deploying... </source>
+        <source>Deploying...</source>
         <translation>Sende Schlüssel...</translation>
     </message>
     <message>
@@ -25495,8 +24380,8 @@ Fehlerausgabe: &apos;%1&apos;</translation>
         <translation>Coding-Stile (*.xml);;Alle Dateien (*)</translation>
     </message>
     <message>
-        <source>Cannot import code style</source>
-        <translation>Der Coding-Stil kann nicht importiert werden</translation>
+        <source>Cannot import code style from %1</source>
+        <translation>Der Coding-Stil kann nicht von %1 importiert werden</translation>
     </message>
     <message>
         <source>Export Code Style</source>
@@ -25983,12 +24868,8 @@ p, li { white-space: pre-wrap; }
         <translation>Debugger starten</translation>
     </message>
     <message>
-        <source>Target:</source>
-        <translation>Ziel:</translation>
-    </message>
-    <message>
-        <source>&amp;Host:</source>
-        <translation>&amp;Host:</translation>
+        <source>Kit:</source>
+        <translation>Kit:</translation>
     </message>
     <message>
         <source>&amp;Port:</source>
@@ -26060,6 +24941,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Show QML object tree</source>
         <translation>QML-Objektbaum anzeigen</translation>
+    </message>
+    <message>
+        <source>Enable a full file path in breakpoints by default also for the GDB</source>
+        <translation>Vollständiger Pfad für Haltepunkte auch bei GDB als Vorgabe</translation>
+    </message>
+    <message>
+        <source>Breakpoints full path by default</source>
+        <translation>Vollständiger Pfad für Haltepunkte als Vorgabe</translation>
+    </message>
+    <message>
+        <source>Stop when %1() is called</source>
+        <translation>Bei Aufruf von %1() anhalten</translation>
+    </message>
+    <message>
+        <source>Always add a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
+        <translation>Fügt bei der Funktion &lt;i&gt;%1()&lt;/i&gt; stets einen Haltepunkt ein.</translation>
     </message>
 </context>
 <context>
@@ -26355,13 +25252,6 @@ Die Ausgabe-Hilfsbibliothek dient lediglich zur formatierten Ausgabe von Objekte
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CertificateDetailsDialog</name>
-    <message>
-        <source>Details of Certificate</source>
-        <translation>Details zum Zertifikat</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Internal::Html5AppWizardSourcesPage</name>
     <message>
         <source>WizardPage</source>
@@ -26435,41 +25325,14 @@ Die Ausgabe-Hilfsbibliothek dient lediglich zur formatierten Ausgabe von Objekte
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardSymbianOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Application icon (.svg):</source>
-        <translation>Symbol der Anwendung (.svg):</translation>
-    </message>
-    <message>
-        <source>Target UID3:</source>
-        <translation>Ziel-UID3:</translation>
-    </message>
-    <message>
-        <source>Enable network access</source>
-        <translation>Netzwerkzugriff gestatten</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Internal::MobileLibraryWizardOptionPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
     </message>
     <message>
-        <source>Target UID3:</source>
-        <translation>Ziel-UID3:</translation>
-    </message>
-    <message>
         <source>Plugin&apos;s directory name:</source>
         <translation>Ordner des Plugins:</translation>
-    </message>
-    <message>
-        <source>Enable network access</source>
-        <translation>Netzwerkzugriff gestatten</translation>
     </message>
 </context>
 <context>
@@ -27104,13 +25967,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>&amp;SSH prompt command:</source>
         <translation>&amp;Graphische SSH-Passwortabfrage:</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsConfigurationPage</name>
-    <message>
-        <source>Configure...</source>
-        <translation>Einstellungen...</translation>
     </message>
 </context>
 <context>
@@ -27768,6 +26624,14 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Make</source>
         <translation>Make</translation>
     </message>
+    <message>
+        <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
+        <translation>Qt Creator benötigt einen Compiler zum Erstellen des Projekts. Bitte richten Sie einen Compiler in den Kit-Einstellungen ein.</translation>
+    </message>
+    <message>
+        <source>Configuration is faulty. Check the Issues view for details.</source>
+        <translation>Die Konfiguration ist fehlerhaft. Details befinden sich in der Ansicht &quot;Build-Probleme&quot;.</translation>
+    </message>
 </context>
 <context>
     <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
@@ -28277,6 +27141,10 @@ references to elements in other files, loops, etc.)</source>
         <source>Analyzer</source>
         <translation>Analyse</translation>
     </message>
+    <message>
+        <source>No analyzer tool selected</source>
+        <translation>Es ist kein Analysewerkzeug ausgewählt.</translation>
+    </message>
 </context>
 <context>
     <name>QuickFix::ExtractFunction</name>
@@ -28357,16 +27225,16 @@ references to elements in other files, loops, etc.)</source>
         <translation>Projekt konfigurieren</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator cannot parse the project, because no target has been set up. You can set up targets in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;settings.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert.&lt;/p&gt;&lt;p&gt;Qt Creator kann es nicht auswerten, weil noch kein Ziel eingerichtet wurde. Sie können Ziele in den &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;Einstellungen&lt;/a&gt;&lt;/b&gt; einrichten.&lt;/p&gt;</translation>
+        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator cannot parse the project, because no kit has been set up.</source>
+        <translation>Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert.&lt;br/&gt;Qt Creator kann es nicht auswerten, weil noch kein Kit eingerichtet wurde.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator uses the target: &lt;b&gt;%2&lt;/b&gt; to parse the project. You can edit these in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;settings.&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert.&lt;/p&gt;&lt;p&gt;Qt Creator verwendet das Ziel &lt;b&gt;%2&lt;/b&gt;, um das Projekt auszuwerten. Sie können es in den &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;Einstellungen&lt;/a&gt;&lt;/b&gt; bearbeiten.&lt;/p&gt;</translation>
+        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
+        <translation>Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert.&lt;br/&gt;Qt Creator verwendet das Kit &lt;b&gt;%2&lt;/b&gt; um das Projekt auszuwerten.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator uses the &lt;b&gt;invalid&lt;/b&gt; target: &lt;b&gt;%2&lt;/b&gt; to parse the project. You can edit these in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;settings&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert.&lt;/p&gt;&lt;p&gt;Qt Creator verwendet das &lt;b&gt;ungültige&lt;/b&gt; Ziel &lt;b&gt;%2&lt;/b&gt;, um das Projekt auszuwerten. Sie können es in den &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;Einstellungen&lt;/a&gt;&lt;/b&gt; bearbeiten.&lt;/p&gt;</translation>
+        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the &lt;b&gt;invalid&lt;/b&gt; kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
+        <translation>Das Projekt &lt;b&gt;%1&lt;/b&gt; ist noch nicht konfiguriert.&lt;br/&gt;Qt Creator verwendet das &lt;b&gt;ungültige&lt;/b&gt; Kit &lt;b&gt;%2&lt;/b&gt; um das Projekt auszuwerten.</translation>
     </message>
 </context>
 <context>
@@ -28378,10 +27246,6 @@ references to elements in other files, loops, etc.)</source>
     <message>
         <source>Maemo/Fremantle</source>
         <translation>Maemo/Fremantle</translation>
-    </message>
-    <message>
-        <source>Symbian</source>
-        <translation>Symbian</translation>
     </message>
     <message>
         <source>Desktop</source>
@@ -28602,16 +27466,12 @@ references to elements in other files, loops, etc.)</source>
         <translation>Die Datei &lt;i&gt;%1&lt;/i&gt; ist schreibgeschützt.</translation>
     </message>
     <message>
-        <source>Open with VCS (%1)</source>
-        <translation>Öffnen mittels Versionskontrollsystem (%1)</translation>
+        <source>Make &amp;Writable</source>
+        <translation>&amp;Schreibbar machen</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Schreibbar machen</translation>
-    </message>
-    <message>
-        <source>Save As...</source>
-        <translation>Speichern als...</translation>
+        <source>&amp;Save As...</source>
+        <translation>Speichern &amp;unter...</translation>
     </message>
     <message>
         <source>Cannot reload %1</source>
@@ -28862,16 +27722,16 @@ references to elements in other files, loops, etc.)</source>
         <translation>Name:</translation>
     </message>
     <message>
-        <source>Target:</source>
-        <translation>Ziel:</translation>
-    </message>
-    <message>
         <source>SD card size:</source>
         <translation>Größe der SD-Karte:</translation>
     </message>
     <message>
         <source> MiB</source>
         <translation> MiB</translation>
+    </message>
+    <message>
+        <source>Kit:</source>
+        <translation>Kit:</translation>
     </message>
 </context>
 <context>
@@ -29131,7 +27991,11 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
 &lt;p align=&quot;justify&quot;&gt;Packages are usually defined using a hierarchical naming pattern, with levels in the hierarchy separated by periods (.) (pronounced &quot;dot&quot;).&lt;/p&gt;
 &lt;p align=&quot;justify&quot;&gt;In general, a package name begins with the top level domain name of the organization and then the organization&apos;s domain and then any subdomains listed in reverse order. The organization can then choose a specific name for their package. Package names should be all lowercase characters whenever possible.&lt;/p&gt;
 &lt;p align=&quot;justify&quot;&gt;Complete conventions for disambiguating package names and rules for naming packages when the Internet domain name cannot be directly used as a package name are described in section 7.7 of the Java Language Specification.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p align=&quot;justify&quot;&gt;Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org.example.myapplication&quot;).&lt;/p&gt;
+&lt;p align=&quot;justify&quot;&gt;Paketnamen werden üblicherweise nach einem hierarchischem Namensschema festgelegt, bei dem die Ebenen der Hierarchie durch Punkte (.) (ausgesprochen &quot;dot&quot;) getrennt werden.&lt;/p&gt;
+&lt;p align=&quot;justify&quot;&gt;Im allgemeinen beginnt ein Paketname mit dem Top-Level-Domainname der Organisation, gefolgt von der Domain der Organisation und den Sub-Domains in umgekehrter Reihenfolge. Die Organisation kann dann einen spezifischen Namen für das Paket festlegen. Paketnamen sollten nach Möglichkeit nur aus Kleinbuchstaben bestehen.&lt;/p&gt;
+&lt;p align=&quot;justify&quot;&gt;Die vollständigen Konventionen zur Sicherstellung der Eindeutigkeit der Paketnamen und Regeln für den Fall, dass der Internet-Domain-Name nicht direkt als Paketname verwendet werden kann, sind im Abschnnitt 7.7 der Java-Sprachspezifikation beschrieben.&lt;/p&gt;
+</translation>
     </message>
     <message>
         <source>&lt;center&gt;Prebundled libraries&lt;/center&gt;
@@ -29302,6 +28166,10 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
     <message>
         <source>No</source>
         <translation>Nein</translation>
+    </message>
+    <message>
+        <source>Remote Processes</source>
+        <translation>Entfernte Prozesse</translation>
     </message>
 </context>
 <context>
@@ -29607,6 +28475,10 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
         <translation>Es können keine Daten an die entfernte Datei angehängt werden, da der Server das Dateigrößenattribut nicht unterstützt.</translation>
     </message>
     <message>
+        <source>SFTP channel closed unexpectedly.</source>
+        <translation>Der SFTP-Kanal wurde unerwartet geschlossen.</translation>
+    </message>
+    <message>
         <source>Server could not start session: %1</source>
         <translation>Der Server konnte keine Sitzung starten: %1</translation>
     </message>
@@ -29736,8 +28608,8 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
         <translation>Entfernte Analyse starten</translation>
     </message>
     <message>
-        <source>Target:</source>
-        <translation>Ziel:</translation>
+        <source>Kit:</source>
+        <translation>Kit:</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -30164,22 +29036,6 @@ Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org
     </message>
 </context>
 <context>
-    <name>Android::Internal::AVDModel</name>
-    <message>
-        <source>AVD Name</source>
-        <extracomment>AVD - Android Virtual Device</extracomment>
-        <translation>AVD-Name</translation>
-    </message>
-    <message>
-        <source>AVD Target</source>
-        <translation>AVD-Ziel</translation>
-    </message>
-    <message>
-        <source>CPU/ABI</source>
-        <translation>CPU/ABI</translation>
-    </message>
-</context>
-<context>
     <name>Android::Internal::AndroidSettingsWidget</name>
     <message>
         <source>Android SDK Folder</source>
@@ -30236,8 +29092,8 @@ Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org
 <context>
     <name>Android::Internal::AndroidToolChainConfigWidget</name>
     <message>
-        <source>NDK Root: %1</source>
-        <translation>NDK-Wurzel: %1</translation>
+        <source>NDK Root:</source>
+        <translation>NDK Root:</translation>
     </message>
 </context>
 <context>
@@ -30326,57 +29182,10 @@ Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerProfileConfigWidget</name>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Geben Sie den Pfad zu der ausführbaren Datei des &lt;a href=&quot;%1&quot;&gt;Windows Console Debuggers&lt;/a&gt; (%2) an.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation>64-bit-Version</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation>32-bit-Version</translation>
-    </message>
-    <message>
-        <source>Auto detect</source>
-        <translation>Automatisch bestimmen</translation>
-    </message>
-    <message>
-        <source>Debugger command:</source>
-        <translation>Debugger:</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::DebuggerProfileInformation</name>
-    <message>
-        <source>No debugger set up.</source>
-        <translation>Es ist kein Debugger eingerichtet.</translation>
-    </message>
-    <message>
-        <source>Debugger not found.</source>
-        <translation>Es konnte kein Debugger gefunden werden.</translation>
-    </message>
-    <message>
-        <source>Debugger not exectutable.</source>
-        <translation>Der Debugger ist nicht ausführbar.</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Debugger</translation>
-    </message>
-</context>
-<context>
     <name>DebuggerPlugin</name>
     <message>
         <source>Debug</source>
         <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Debugger</source>
-        <translation>Debugger</translation>
     </message>
     <message>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
@@ -30397,23 +29206,6 @@ Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org
     <message>
         <source>Attached to process %1.</source>
         <translation>An Prozess %1 angehängt.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbCodaEngine</name>
-    <message>
-        <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
-        <translation>Der Prozess wurde gestartet, PID: 0x%1, Thread-ID: 0x%2, Code-Segment: 0x%3, Datensegment: 0x%4.</translation>
-    </message>
-    <message>
-        <source>Connecting to CODA server adapter failed:
-</source>
-        <translation>Die Verbindung zum CODA-Server-Adapter schlug fehl:
-</translation>
-    </message>
-    <message>
-        <source>Could not obtain device.</source>
-        <translation>Es konnte keine Verbindung erhalten werden.</translation>
     </message>
 </context>
 <context>
@@ -30670,10 +29462,6 @@ Einzelschritt in den Modul und das Setzen von Haltepunkten nach Datei und Zeilen
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation>Verbinde zum Debug-Server %1:%2</translation>
-    </message>
-    <message>
-        <source>Connecting to debug server on %1</source>
-        <translation>Verbinde zum Debug-Server an %1</translation>
     </message>
     <message>
         <source>Error: (%1) %2</source>
@@ -31419,89 +30207,11 @@ Möchten Sie sie zum Projekt hinzufügen?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Profile</name>
-    <message>
-        <source>Unnamed</source>
-        <translation>Unbenannt</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Kopie von %1</translation>
-    </message>
-    <message>
-        <source>Error:</source>
-        <translation>Fehler:</translation>
-    </message>
-    <message>
-        <source>Warning:</source>
-        <translation>Warnung:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProfileChooser</name>
-    <message>
-        <source>%1 (%2)</source>
-        <translation>%1 (%2)</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootProfileInformation</name>
-    <message>
-        <source>Sys Root &quot;%1&quot; is not a directory.</source>
-        <translation>Sys-Root &quot;%1&quot; ist kein Ordner.</translation>
-    </message>
-    <message>
-        <source>Sys Root</source>
-        <translation>Sys-Root</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainProfileInformation</name>
-    <message>
-        <source>Tool chain</source>
-        <translation>Toolchain</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Keine</translation>
-    </message>
-    <message>
-        <source>No tool chain set in target.</source>
-        <translation>Im Ziel ist keine Toolchain eingerichtet.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeProfileInformation</name>
-    <message>
-        <source>Device does not match device type.</source>
-        <translation>Das Gerät entspricht nicht dem Gerätetyp.</translation>
-    </message>
-    <message>
-        <source>Unknown device type</source>
-        <translation>Unbekannter Gerätetyp</translation>
-    </message>
-    <message>
-        <source>Device type</source>
-        <translation>Gerätetyp</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProfileInformation</name>
-    <message>
-        <source>Device</source>
-        <translation>Gerät</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Nicht konfiguriert</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
+    <message>
+        <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
+        <translation>Das Wurzelverzeichnis des zu verwendenden System-Images.&lt;br&gt;Bei der Erstellung für Desktop ist keine Angabe erforderlich.</translation>
+    </message>
     <message>
         <source>Sysroot:</source>
         <translation>Sysroot:</translation>
@@ -31510,20 +30220,28 @@ Möchten Sie sie zum Projekt hinzufügen?&lt;/html&gt;</translation>
 <context>
     <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
     <message>
+        <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
+        <translation>Der zur Erstellung zu verwendende Compiler.&lt;br&gt;Stellen Sie sicher, dass dieser Compiler Binärdateien erstellt, die mit dem Zielgerät, der Qt-Version und anderen verwendeten Bibliotheken kompatibel sind.</translation>
+    </message>
+    <message>
         <source>Manage...</source>
         <translation>Verwalten...</translation>
     </message>
     <message>
-        <source>Tool chain:</source>
-        <translation>Toolchain:</translation>
+        <source>Compiler:</source>
+        <translation>Compiler:</translation>
     </message>
     <message>
-        <source>&lt;No tool chain available&gt;</source>
-        <translation>&lt;Keine Toolchain verfügbar&gt;</translation>
+        <source>&lt;No compiler available&gt;</source>
+        <translation>&lt;Kein Compiler verfügbar&gt;</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
+    <message>
+        <source>The type of device to run applications on.</source>
+        <translation>Der Typ des Geräts, auf dem die Anwendung laufen soll.</translation>
+    </message>
     <message>
         <source>Device Type:</source>
         <translation>Gerätetyp:</translation>
@@ -31532,93 +30250,16 @@ Möchten Sie sie zum Projekt hinzufügen?&lt;/html&gt;</translation>
 <context>
     <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
     <message>
+        <source>The device to run the applications on.</source>
+        <translation>Das Gerät, auf dem die Anwendung laufen soll.</translation>
+    </message>
+    <message>
         <source>Manage...</source>
         <translation>Verwalten...</translation>
     </message>
     <message>
         <source>Device:</source>
         <translation>Gerät:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProfileManager</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Desktop</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProfileManagerConfigWidget</name>
-    <message>
-        <source>Targets</source>
-        <translation>Ziele</translation>
-    </message>
-    <message>
-        <source>Select Icon</source>
-        <translation>Symbol auswählen</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.jpg)</source>
-        <translation>Bilddateien (*.png *.xpm *.jpg)</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProfileModel</name>
-    <message>
-        <source>Auto-detected</source>
-        <translation>Automatisch bestimmt</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Benutzerdefiniert</translation>
-    </message>
-    <message>
-        <source>%1 (default)</source>
-        <extracomment>Mark up a profile as the default one.</extracomment>
-        <translation>%1 (Vorgabe)</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-    <message>
-        <source>Duplicate Target Detected</source>
-        <translation>Mehrfach auftretendes Ziel</translation>
-    </message>
-    <message>
-        <source>The target&lt;br&gt;&amp;nbsp;%1&lt;br&gt; was already configured. It was not configured again.</source>
-        <translation>Das Ziel &lt;br&gt;&amp;nbsp;%1&lt;br&gt; wurde bereits konfiguriert. Es wurde nicht noch einmal konfiguriert.</translation>
-    </message>
-    <message>
-        <source>Duplicate Targets Detected</source>
-        <translation>Mehrfach auftretende Ziele</translation>
-    </message>
-    <message>
-        <source>The following targets were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation>Die folgenden Ziele wurden bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Sie wurden nicht noch einmal konfiguriert.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProfileOptionsPage</name>
-    <message>
-        <source>Targets</source>
-        <translation>Ziele</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Klonen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
-        <source>Make Default</source>
-        <translation>Als Vorgabe setzen</translation>
     </message>
 </context>
 <context>
@@ -31961,6 +30602,10 @@ Soll es noch einmal versucht werden?</translation>
 <context>
     <name>Qnx::Internal::BlackBerryRunControlFactory</name>
     <message>
+        <source>No active deploy configuration</source>
+        <translation>Es ist keine aktive Deploy-Konfiguration vorhanden</translation>
+    </message>
+    <message>
         <source>Run on BlackBerry Device</source>
         <translation>Ausführung auf BlackBerry-Gerät</translation>
     </message>
@@ -32032,178 +30677,6 @@ Soll es noch einmal versucht werden?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmakeProfileConfigWidget</name>
-    <message>
-        <source>Qt mkspec:</source>
-        <translation>Qt-mkspec:</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::QmakeProfileInformation</name>
-    <message>
-        <source>No Qt version set, so mkspec is ignored.</source>
-        <translation>Es ist keine Qt-Version gesetzt, die mkspec wird ignoriert.</translation>
-    </message>
-    <message>
-        <source>Mkspec not found for Qt version.</source>
-        <translation>Für diese Qt-Version konnte keine Mkspec gefunden werden.</translation>
-    </message>
-    <message>
-        <source>mkspec</source>
-        <translation>mkspec</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::SymbianIDevice</name>
-    <message>
-        <source>Device</source>
-        <translation>Gerät</translation>
-    </message>
-    <message>
-        <source>Not connected</source>
-        <translation>Nicht verbunden</translation>
-    </message>
-    <message>
-        <source>%1, %2</source>
-        <extracomment>%1 device friendly name, %2 additional information</extracomment>
-        <translation>%1, %2</translation>
-    </message>
-    <message>
-        <source>IP address</source>
-        <translation>IP-Adresse</translation>
-    </message>
-    <message>
-        <source>%1:%2</source>
-        <translation>%1:%2</translation>
-    </message>
-    <message>
-        <source>Symbian Device</source>
-        <translation>Symbian-Gerät</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::SymbianIDeviceConfigurationWidget</name>
-    <message>
-        <source>Device:</source>
-        <translation>Gerät:</translation>
-    </message>
-    <message>
-        <source>Serial:</source>
-        <translation>Seriell:</translation>
-    </message>
-    <message>
-        <source>WLAN:</source>
-        <translation>WLAN:</translation>
-    </message>
-    <message>
-        <source>Queries the device for information</source>
-        <translation>Fragt Informationen vom Gerät ab</translation>
-    </message>
-    <message>
-        <source>Serial port:</source>
-        <translation>Serielle Schnittstelle:</translation>
-    </message>
-    <message>
-        <source>Communication Channel</source>
-        <translation>Kommunikationskanal</translation>
-    </message>
-    <message>
-        <source>Address:</source>
-        <translation>Adresse:</translation>
-    </message>
-    <message>
-        <source>Connecting</source>
-        <translation>Verbinde</translation>
-    </message>
-    <message>
-        <source>Unable to create CODA connection. Please try again.</source>
-        <translation>Es konnte keine CODA-Verbindung hergestellt werden. Bitte versuchen Sie es erneut.</translation>
-    </message>
-    <message>
-        <source>Currently there is no information about the device for this connection type.</source>
-        <translation>Für diesen Verbindungstyp sind gegenwärtig keine Informationen über das Gerät verfügbar.</translation>
-    </message>
-    <message>
-        <source>No device information available</source>
-        <translation>Keine Informationen für Gerät verfügbar</translation>
-    </message>
-    <message>
-        <source>Qt version: </source>
-        <translation>Qt-Version: </translation>
-    </message>
-    <message>
-        <source>Not installed on device</source>
-        <translation>Nicht auf Gerät installiert</translation>
-    </message>
-    <message>
-        <source>Qt version:</source>
-        <translation>Qt-Version:</translation>
-    </message>
-    <message>
-        <source>Unrecognised Symbian version 0x%1</source>
-        <translation>Unbekannte Symbian-Version 0x%1</translation>
-    </message>
-    <message>
-        <source>Unrecognised S60 version 0x%1</source>
-        <translation>Unbekannte S60-Version 0x%1</translation>
-    </message>
-    <message>
-        <source>OS version:</source>
-        <translation>Betriebssystem-Version:</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <translation>unbekannt</translation>
-    </message>
-    <message>
-        <source>ROM version:</source>
-        <translation>ROM-Version:</translation>
-    </message>
-    <message>
-        <source>Release:</source>
-        <translation>Release:</translation>
-    </message>
-    <message>
-        <source>CODA version: </source>
-        <translation>CODA-Version: </translation>
-    </message>
-    <message>
-        <source>Error reading CODA version</source>
-        <translation>Fehler beim Bestimmen der CODA-Version</translation>
-    </message>
-    <message>
-        <source>Qt Mobility version: </source>
-        <translation>Qt Mobility-Version: </translation>
-    </message>
-    <message>
-        <source>Error reading Qt Mobility version</source>
-        <translation>Fehler beim Lesen der Qt Mobility-Version</translation>
-    </message>
-    <message>
-        <source>Qt Quick components version: </source>
-        <translation>Version der Qt Quick-Komponenten: </translation>
-    </message>
-    <message>
-        <source>Not installed</source>
-        <translation>Nicht installiert</translation>
-    </message>
-    <message>
-        <source>QML Viewer version: </source>
-        <translation>Version des QML Viewers: </translation>
-    </message>
-    <message>
-        <source>Screen size:</source>
-        <translation>Bildschirmgröße:</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager::Internal::SymbianIDeviceFactory</name>
-    <message>
-        <source>Symbian Device</source>
-        <translation>Symbian-Gerät</translation>
-    </message>
-</context>
-<context>
     <name>Qt4ProjectManager::Qt4TargetSetupWidget</name>
     <message>
         <source>Manage...</source>
@@ -32247,7 +30720,7 @@ Soll es noch einmal versucht werden?</translation>
     </message>
     <message>
         <source>Run in &amp;terminal</source>
-        <translation>In &amp;Terminal ausführen</translation>
+        <translation>Im &amp;Terminal ausführen</translation>
     </message>
     <message>
         <source>Run Environment</source>
@@ -32305,32 +30778,6 @@ Soll es noch einmal versucht werden?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtProfileConfigWidget</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Verwalten...</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Keine</translation>
-    </message>
-    <message>
-        <source>Qt version:</source>
-        <translation>Qt-Version:</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::QtProfileInformation</name>
-    <message>
-        <source>Qt version</source>
-        <translation>Qt-Version:</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Keine</translation>
-    </message>
-</context>
-<context>
     <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService</name>
     <message>
         <source>Remote process failed to start.</source>
@@ -32345,17 +30792,17 @@ Soll es noch einmal versucht werden?</translation>
         <translation>Unerwartete Ausgabe des entfernten Prozesses: &apos;%1&apos;.</translation>
     </message>
     <message numerus="yes">
-        <source>The remote file system has only %n bytes of free space, but %1 bytes are required.</source>
+        <source>The remote file system has only %n megabytes of free space, but %1 megabytes are required.</source>
         <translation>
-            <numerusform>Das entfernte Dateisystem hat nur ein Byte freien Speicherplatz; es sind aber %1 Bytes erforderlich.</numerusform>
-            <numerusform>Das entfernte Dateisystem hat nur %n Bytes freien Speicherplatz; es sind aber %1 Bytes erforderlich.</numerusform>
+            <numerusform>Das entfernte Dateisystem hat nur 1 Megabyte freien Speicherplatz; es sind aber %1 Megabytes erforderlich.</numerusform>
+            <numerusform>Das entfernte Dateisystem hat nur %n Megabytes freien Speicherplatz; es sind aber %1 Megabytes erforderlich.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
-        <source>The remote file system has %n bytes of free space, going ahead.</source>
+        <source>The remote file system has %n megabytes of free space, going ahead.</source>
         <translation>
-            <numerusform>Das entfernte Dateisystem hat 1 Byte freien Speicherplatz; setze fort.</numerusform>
-            <numerusform>Das entfernte Dateisystem hat %n Bytes freien Speicherplatz; setze fort.</numerusform>
+            <numerusform>Das entfernte Dateisystem hat 1 Megabyte freien Speicherplatz; setze fort.</numerusform>
+            <numerusform>Das entfernte Dateisystem hat %n Megabytes freien Speicherplatz; setze fort.</numerusform>
         </translation>
     </message>
     <message>
@@ -32502,10 +30949,6 @@ Soll es noch einmal versucht werden?</translation>
         <translation>Test</translation>
     </message>
     <message>
-        <source>Remote Processes...</source>
-        <translation>Prozesse auf Gerät...</translation>
-    </message>
-    <message>
         <source>Deploy Public Key...</source>
         <translation>Öffentlichen Schlüssel senden...</translation>
     </message>
@@ -32589,62 +31032,41 @@ Qt Creator know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialog</name>
+    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
-        <source>List of Remote Processes</source>
-        <translation>Liste der entfernten Prozesse</translation>
-    </message>
-    <message>
-        <source>&amp;Filter entries:</source>
-        <translation>Einträge &amp;filtern:</translation>
+        <source>Filter</source>
+        <translation>Filter</translation>
     </message>
     <message>
         <source>&amp;Update List</source>
         <translation>Liste &amp;aktualisieren</translation>
     </message>
     <message>
-        <source>&amp;Kill Selected Process</source>
-        <translation>Ausgewählten Prozess b&amp;eenden</translation>
+        <source>&amp;Kill Process</source>
+        <translation>Prozess b&amp;eenden</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
-        <source>Remote Error</source>
-        <translation>Entfernter Fehler</translation>
+        <source>Kit:</source>
+        <translation>Kit:</translation>
+    </message>
+    <message>
+        <source>&amp;Filter:</source>
+        <translation>&amp;Filter:</translation>
+    </message>
+    <message>
+        <source>List of Processes</source>
+        <translation>Liste der Prozesse</translation>
     </message>
 </context>
 <context>
     <name>ProjectExplorer::DeviceProcessList</name>
     <message>
-        <source>PID</source>
-        <translation>PID</translation>
-    </message>
-    <message>
         <source>Command Line</source>
         <translation>Kommandozeile</translation>
     </message>
     <message>
-        <source>Connection failure: %1</source>
-        <translation>Verbindungsfehler: %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process failed to start: %1</source>
-        <translation>Fehler: Der entfernte Prozess konnte nicht gestartet werden: %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process crashed: %1</source>
-        <translation>Fehler: Der entfernte Prozess ist abgestürzt: %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed.</source>
-        <translation>Der entfernte Prozess ist fehlgeschlagen.</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: %1</source>
-        <translation>
-Fehlerausgabe: %1</translation>
+        <source>Process ID</source>
+        <translation>Prozess-ID</translation>
     </message>
 </context>
 <context>
@@ -32726,81 +31148,6 @@ Fehlerausgabe: %1</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::StartGdbServerDialog</name>
-    <message>
-        <source>&amp;Attach to Selected Process</source>
-        <translation>An ausgewählten Prozess &amp;anhängen</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Schließen</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation>Ziel:</translation>
-    </message>
-    <message>
-        <source>&amp;Filter entries:</source>
-        <translation>Einträge &amp;filtern:</translation>
-    </message>
-    <message>
-        <source>List of Remote Processes</source>
-        <translation>Liste der entfernten Prozesse</translation>
-    </message>
-    <message>
-        <source>Remote Error</source>
-        <translation>Entfernter Fehler</translation>
-    </message>
-    <message>
-        <source>Process aborted</source>
-        <translation>Prozess abgebrochen</translation>
-    </message>
-    <message>
-        <source>Could not retrieve list of free ports:</source>
-        <translation>Die Liste der freien Ports konnte nicht bestimmt werden:</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation>Verbindungsfehler: %1</translation>
-    </message>
-    <message>
-        <source>Starting gdbserver...</source>
-        <translation>Starte gdbserver...</translation>
-    </message>
-    <message>
-        <source>Port %1 is now accessible.</source>
-        <translation>Der Port %1 ist nun verfügbar.</translation>
-    </message>
-    <message>
-        <source>Server started on %1</source>
-        <translation>Server gestartet auf %1</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Warnung</translation>
-    </message>
-    <message>
-        <source>Cannot find local executable for remote process &quot;%1&quot;.</source>
-        <translation>Die lokale ausführbare Datei für den entfernten Prozess &quot;%1&quot; konnte nicht gefunden werden.</translation>
-    </message>
-    <message>
-        <source>Cannot find ABI for remote process &quot;%1&quot;.</source>
-        <translation>Die ABI des entfernten Prozesses &quot;%1&quot; konnte nicht bestimmt werden.</translation>
-    </message>
-    <message>
-        <source>Remote: &quot;%1&quot;</source>
-        <translation>Verbindung: &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Process gdbserver finished. Status: %1</source>
-        <translation>gdbserver-Prozess beendet. Status: %1</translation>
-    </message>
-    <message>
-        <source>Running command: %1</source>
-        <translation>Ausführung des Kommandos: %1</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::DeviceApplicationRunner</name>
     <message>
         <source>User requested stop. Shutting down...</source>
@@ -32846,10 +31193,6 @@ Fehlerausgabe: %1</translation>
         <translation>Test</translation>
     </message>
     <message>
-        <source>Remote Processes...</source>
-        <translation>Prozesse auf Gerät...</translation>
-    </message>
-    <message>
         <source>Deploy Public Key...</source>
         <translation>Öffentlichen Schlüssel senden...</translation>
     </message>
@@ -32873,6 +31216,1102 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Auf dem Gerät sind nicht genügend freie Ports für das Debuggen vorhanden.</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::CheckOutDialog</name>
+    <message>
+        <source>Check Out</source>
+        <translation>Check Out</translation>
+    </message>
+    <message>
+        <source>&amp;Checkout Comment:</source>
+        <translation>&amp;Checkout-Kommentar:</translation>
+    </message>
+    <message>
+        <source>&amp;Reserved</source>
+        <translation>&amp;Reserviert</translation>
+    </message>
+    <message>
+        <source>&amp;Unreserved if already reserved</source>
+        <translation>&amp;Nicht reserviert, falls bereits reserviert</translation>
+    </message>
+    <message>
+        <source>&amp;Preserve file modification time</source>
+        <translation>Änderungsdatum von D&amp;ateien beibehalten</translation>
+    </message>
+    <message>
+        <source>Use &amp;Hijacked file</source>
+        <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
+        <translation>Datei &amp;hijacked verwenden</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::SettingsPage</name>
+    <message>
+        <source>Configuration</source>
+        <translation>Konfiguration</translation>
+    </message>
+    <message>
+        <source>&amp;Command:</source>
+        <translation>&amp;Kommando:</translation>
+    </message>
+    <message>
+        <source>Diff</source>
+        <translation>Diff</translation>
+    </message>
+    <message>
+        <source>&amp;Graphical (Single file only)</source>
+        <translation>&amp;Graphisch (nur einzelne Dateien)</translation>
+    </message>
+    <message>
+        <source>&amp;External</source>
+        <translation>&amp;Extern</translation>
+    </message>
+    <message>
+        <source>Arg&amp;uments:</source>
+        <translation>Arg&amp;umente:</translation>
+    </message>
+    <message>
+        <source>Miscellaneous</source>
+        <translation>Sonstige Einstellungen</translation>
+    </message>
+    <message>
+        <source>&amp;History count:</source>
+        <translation>Beschränkung der History:</translation>
+    </message>
+    <message>
+        <source>&amp;Timeout:</source>
+        <translation>&amp;Zeitlimit:</translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation>s</translation>
+    </message>
+    <message>
+        <source>&amp;Automatically check out files on edit</source>
+        <translation>Dateien bei Bearbeitung automatisch anfordern</translation>
+    </message>
+    <message>
+        <source>Check this if you have a trigger that renames the activity automatically. You will not be prompted for activity name</source>
+        <translation>Aktivieren Sie diese Einstellung, wenn Sie einen Trigger verwenden, der die Aktivität automatisch umbenennt. Sie werden nicht nach dem Namen der Aktivität gefragt</translation>
+    </message>
+    <message>
+        <source>Aut&amp;o assign activity names</source>
+        <translation>Aktivitäten automatisch Namen zuweisen</translation>
+    </message>
+    <message>
+        <source>&amp;Prompt on check-in</source>
+        <translation>&amp;Abgabe bestätigen</translation>
+    </message>
+    <message>
+        <source>Di&amp;sable indexer</source>
+        <translation>Indexer deaktivieren</translation>
+    </message>
+    <message>
+        <source>&amp;Index only VOBs:</source>
+        <extracomment>VOB: Versioned Object Base</extracomment>
+        <translation>Nur VOBs &amp;indizieren:</translation>
+    </message>
+    <message>
+        <source>VOBs list, separated by comma. Indexer will only traverse the specified VOBs. If left blank, all active VOBs will be indexed</source>
+        <translation>VOB-Liste, durch Kommata getrennt. Der Indexer wird nur die hier angegebenen VOBs abarbeiten. Wenn das Feld leer ist, werden alle aktiven VOBs indiziert</translation>
+    </message>
+    <message>
+        <source>ClearCase</source>
+        <translation>ClearCase</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::UndoCheckOut</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
+        <translation>&amp;Kopie der Datei mit dem Suffix &apos;.keep&apos; erstellen</translation>
+    </message>
+    <message>
+        <source>The file was changed.</source>
+        <translation>Die Datei wurde geändert.</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::VersionSelector</name>
+    <message>
+        <source>Confirm Version to Check Out</source>
+        <translation>Bestätigung der Check-Out-Version</translation>
+    </message>
+    <message>
+        <source>There are multiple versions of &apos;%1&apos; which can be considered for checkout. Please select version to checkout:</source>
+        <translation>Es gibt mehrere Versionen von &apos;%1&apos;, die für einen Check Out in Frage kommen. Bitte wählen Sie eine Version für den Check Out: </translation>
+    </message>
+    <message>
+        <source>&amp;Loaded Version</source>
+        <translation>Ge&amp;ladene Version</translation>
+    </message>
+    <message>
+        <source>Created By:</source>
+        <translation>Erstellt von:</translation>
+    </message>
+    <message>
+        <source>Created On:</source>
+        <extracomment>Date</extracomment>
+        <translation>Erstellt am:</translation>
+    </message>
+    <message>
+        <source>Version after &amp;update</source>
+        <translation>Version nach &amp;Aktualisierung</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;NOTE: You will not be able to check in this file without merging the changes (not supported by the plugin)&lt;/b&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;Hinweis: Diese Datei kann nicht ohne Mergen der Änderungen eingecheckt werden (durch das Plugin nicht unterstützt)&lt;/b&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AvdModel</name>
+    <message>
+        <source>AVD Name</source>
+        <extracomment>AVD - Android Virtual Device</extracomment>
+        <translation>AVD-Name</translation>
+    </message>
+    <message>
+        <source>AVD Target</source>
+        <translation>AVD-Ziel</translation>
+    </message>
+    <message>
+        <source>CPU/ABI</source>
+        <translation>CPU/ABI</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::ActivitySelector</name>
+    <message>
+        <source>Select &amp;Activity:</source>
+        <translation>Aktivität &amp;auswählen:</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Hinzufügen</translation>
+    </message>
+    <message>
+        <source>Keep item activity</source>
+        <translation>Aktivität des Elements beibehalten</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::ClearCaseEditor</name>
+    <message>
+        <source>Annotate version &quot;%1&quot;</source>
+        <translation>Annotation für Version &quot;%1&quot;</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::ClearCasePlugin</name>
+    <message>
+        <source>C&amp;learCase</source>
+        <translation>C&amp;learCase</translation>
+    </message>
+    <message>
+        <source>Check Out...</source>
+        <translation>Auschecken...</translation>
+    </message>
+    <message>
+        <source>Check &amp;Out &quot;%1&quot;...</source>
+        <translation>&quot;%1&quot; &amp;auschecken...</translation>
+    </message>
+    <message>
+        <source>Meta+L,Meta+O</source>
+        <translation>Meta+L,Meta+O</translation>
+    </message>
+    <message>
+        <source>Alt+L,Alt+O</source>
+        <translation>Alt+L,Alt+O</translation>
+    </message>
+    <message>
+        <source>Check &amp;In...</source>
+        <translation>&amp;Einchecken...</translation>
+    </message>
+    <message>
+        <source>Check &amp;In &quot;%1&quot;...</source>
+        <translation>&quot;%1&quot; &amp;einchecken...</translation>
+    </message>
+    <message>
+        <source>Meta+L,Meta+I</source>
+        <translation>Meta+L,Meta+I</translation>
+    </message>
+    <message>
+        <source>Alt+L,Alt+I</source>
+        <translation>Alt+L,Alt+I</translation>
+    </message>
+    <message>
+        <source>Undo Check Out</source>
+        <translation>Auschecken rückgängig machen</translation>
+    </message>
+    <message>
+        <source>&amp;Undo Check Out &quot;%1&quot;</source>
+        <translation>Auschecken von &quot;%1&quot; rückgängig machen</translation>
+    </message>
+    <message>
+        <source>Meta+L,Meta+U</source>
+        <translation>Meta+L,Meta+U</translation>
+    </message>
+    <message>
+        <source>Alt+L,Alt+U</source>
+        <translation>Alt+L,Alt+U</translation>
+    </message>
+    <message>
+        <source>Undo Hijack</source>
+        <translation>Hijack rückgängig machen</translation>
+    </message>
+    <message>
+        <source>Undo Hi&amp;jack &quot;%1&quot;</source>
+        <translation>Hijack von &quot;%1&quot; rückgängig machen</translation>
+    </message>
+    <message>
+        <source>Meta+L,Meta+R</source>
+        <translation>Meta+L,Meta+R</translation>
+    </message>
+    <message>
+        <source>Alt+L,Alt+R</source>
+        <translation>Alt+L,Alt+R</translation>
+    </message>
+    <message>
+        <source>Diff Current File</source>
+        <translation>Diff für Datei</translation>
+    </message>
+    <message>
+        <source>&amp;Diff &quot;%1&quot;</source>
+        <translation>&amp;Diff für &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Meta+L,Meta+D</source>
+        <translation>Meta+L,Meta+D</translation>
+    </message>
+    <message>
+        <source>Alt+L,Alt+D</source>
+        <translation>Alt+L,Alt+D</translation>
+    </message>
+    <message>
+        <source>History Current File</source>
+        <translation>History für Datei</translation>
+    </message>
+    <message>
+        <source>&amp;History &quot;%1&quot;</source>
+        <translation>&amp;History von &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Meta+L,Meta+H</source>
+        <translation>Meta+L,Meta+H</translation>
+    </message>
+    <message>
+        <source>Alt+L,Alt+H</source>
+        <translation>Alt+L,Alt+H</translation>
+    </message>
+    <message>
+        <source>Annotate Current File</source>
+        <translation>Annotation für Datei</translation>
+    </message>
+    <message>
+        <source>&amp;Annotate &quot;%1&quot;</source>
+        <translation>&amp;Annotation für &quot;%1&quot;</translation>
+    </message>
+    <message>
+        <source>Meta+L,Meta+A</source>
+        <translation>Meta+L,Meta+A</translation>
+    </message>
+    <message>
+        <source>Alt+L,Alt+A</source>
+        <translation>Alt+L,Alt+A</translation>
+    </message>
+    <message>
+        <source>Add File...</source>
+        <translation>Datei hinzufügen...</translation>
+    </message>
+    <message>
+        <source>Add File &quot;%1&quot;</source>
+        <translation>Datei &quot;%1&quot; hinzufügen</translation>
+    </message>
+    <message>
+        <source>Diff A&amp;ctivity...</source>
+        <translation>Diff der A&amp;ktivität...</translation>
+    </message>
+    <message>
+        <source>Ch&amp;eck In Activity</source>
+        <translation>&amp;Aktivität einchecken</translation>
+    </message>
+    <message>
+        <source>Chec&amp;k In Activity &quot;%1&quot;...</source>
+        <translation>&amp;Aktivität &quot;%1&quot; einchecken...</translation>
+    </message>
+    <message>
+        <source>Update Index</source>
+        <translation>Index aktualisieren</translation>
+    </message>
+    <message>
+        <source>Update View</source>
+        <translation>Ansicht aktualisieren</translation>
+    </message>
+    <message>
+        <source>U&amp;pdate View &quot;%1&quot;</source>
+        <translation>Ansicht &quot;%1&quot; aktualisieren</translation>
+    </message>
+    <message>
+        <source>Check In All &amp;Files...</source>
+        <translation>Alle &amp;Dateien einchecken...</translation>
+    </message>
+    <message>
+        <source>Meta+L,Meta+F</source>
+        <translation>Meta+L,Meta+F</translation>
+    </message>
+    <message>
+        <source>Alt+L,Alt+F</source>
+        <translation>Alt+L,Alt+F</translation>
+    </message>
+    <message>
+        <source>View &amp;Status</source>
+        <translation>Status anzeigen</translation>
+    </message>
+    <message>
+        <source>Meta+L,Meta+S</source>
+        <translation>Meta+L,Meta+S</translation>
+    </message>
+    <message>
+        <source>Alt+L,Alt+S</source>
+        <translation>Alt+L,Alt+S</translation>
+    </message>
+    <message>
+        <source>Check In</source>
+        <translation>Einchecken</translation>
+    </message>
+    <message>
+        <source>Diff Selected Files</source>
+        <translation>Diff für Auswahl</translation>
+    </message>
+    <message>
+        <source>&amp;Undo</source>
+        <translation>&amp;Rückgängig</translation>
+    </message>
+    <message>
+        <source>&amp;Redo</source>
+        <translation>&amp;Wiederholen</translation>
+    </message>
+    <message>
+        <source>Closing ClearCase Editor</source>
+        <translation>ClearCase-Editor schließen</translation>
+    </message>
+    <message>
+        <source>Do you want to check in the files?</source>
+        <translation>Möchten Sie die Dateien einchecken?</translation>
+    </message>
+    <message>
+        <source>The comment check failed. Do you want to check in the files?</source>
+        <translation>Die Überprüfung der Beschreibung schlug fehl. Möchten Sie die Dateien trotzdem einchecken?</translation>
+    </message>
+    <message>
+        <source>Do you want to undo the check out of &apos;%1&apos;?</source>
+        <translation>Möchten Sie das Auschecken von &quot;%1&quot; rückgängig machen?</translation>
+    </message>
+    <message>
+        <source>Undo Hijack File</source>
+        <translation>Hijack rückgängig machen</translation>
+    </message>
+    <message>
+        <source>External diff is required to compare multiple files.</source>
+        <translation>Um mehrere Dateien zu vergleichen, ist ein externer Diff erforderlich.</translation>
+    </message>
+    <message>
+        <source>No ClearCase executable specified.</source>
+        <translation>Es wurde keine ausführbare ClearCase-Datei angegeben.</translation>
+    </message>
+    <message>
+        <source>File is already checked out.</source>
+        <translation>Die Datei ist bereits ausgecheckt.</translation>
+    </message>
+    <message>
+        <source>This operation is irreversible. Are you sure?</source>
+        <translation>Dieser Vorgang kann nicht rückgängig gemacht werden. Sind Sie sicher?</translation>
+    </message>
+    <message>
+        <source>Do you want to undo hijack of &apos;%1&apos;?</source>
+        <translation>Möchten Sie den Hijack von &quot;%1&quot; rückgängig machen?</translation>
+    </message>
+    <message>
+        <source>Enter Activity</source>
+        <translation>Aktivität eingeben</translation>
+    </message>
+    <message>
+        <source>Activity Name</source>
+        <translation>Name der Aktivität</translation>
+    </message>
+    <message>
+        <source>Check In Activity</source>
+        <translation>Aktivität einchecken</translation>
+    </message>
+    <message>
+        <source>Another check in is currently being executed.</source>
+        <translation>Es läuft bereits ein Eincheck-Vorgang.</translation>
+    </message>
+    <message>
+        <source>There are no modified files.</source>
+        <translation>Es gibt keine geänderten Dateien.</translation>
+    </message>
+    <message>
+        <source>ClearCase Checkout</source>
+        <translation>ClearCase Auschecken</translation>
+    </message>
+    <message>
+        <source>Set current activity failed: %1</source>
+        <translation>Das Setzen der aktuellen Aktivität schlug fehl: %1</translation>
+    </message>
+    <message>
+        <source>Enter &amp;comment:</source>
+        <translation>&amp;Kommentar eingeben:</translation>
+    </message>
+    <message>
+        <source>ClearCase Add File</source>
+        <translation>ClearCase Datei hinzufügen</translation>
+    </message>
+    <message>
+        <source>ClearCase Remove Element</source>
+        <translation>ClearCase Element entfernen</translation>
+    </message>
+    <message>
+        <source>ClearCase Remove File</source>
+        <translation>ClearCase Datei löschen</translation>
+    </message>
+    <message>
+        <source>ClearCase Rename File</source>
+        <translation>ClearCase Datei umbenennen</translation>
+    </message>
+    <message>
+        <source>Activity Headline</source>
+        <translation>Titel der Aktivität</translation>
+    </message>
+    <message>
+        <source>Enter activity headline</source>
+        <translation>Geben Sie den Titel der Aktivität ein</translation>
+    </message>
+    <message>
+        <source>CC Indexing</source>
+        <translation>CC Indizierung</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
+    <message>
+        <source>ClearCase Check In</source>
+        <translation>ClearCase Einchecken</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
+    <message>
+        <source>Chec&amp;k in even if identical to previous version</source>
+        <translation>Einchecken auch wenn zur Vorgängerversion identisch</translation>
+    </message>
+    <message>
+        <source>&amp;Preserve file modification time</source>
+        <translation>Änderungsdatum von D&amp;ateien beibehalten</translation>
+    </message>
+    <message>
+        <source>&amp;Check In</source>
+        <translation>&amp;Einchecken</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::SettingsPageWidget</name>
+    <message>
+        <source>ClearCase Command</source>
+        <translation>ClearCase-Befehl</translation>
+    </message>
+    <message>
+        <source>In order to use External diff, &apos;diff&apos; command needs to be accessible.</source>
+        <translation>Zur Verwendung von externen Diffs ist muss ein &apos;diff&apos;-Kommando verfügbar sein.</translation>
+    </message>
+    <message>
+        <source> DiffUtils is available for free download &lt;a href=&quot;http://gnuwin32.sourceforge.net/packages/diffutils.htm&quot;&gt;here&lt;/a&gt;. Please extract it to a directory in your PATH.</source>
+        <translation> DiffUtils sind &lt;a href=&quot;http://gnuwin32.sourceforge.net/packages/diffutils.htm&quot;&gt;kostenlos erhältlich&lt;/a&gt;. Bitte entpacken Sie sie in einen im Pfad befindlichen Ordner.</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::StartApplicationDialog</name>
+    <message>
+        <source>Start Debugger</source>
+        <translation>Debugger starten</translation>
+    </message>
+    <message>
+        <source>Select Executable</source>
+        <translation>Ausführbare Datei auswählen</translation>
+    </message>
+    <message>
+        <source>Server port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select Working Directory</source>
+        <translation>Wählen Sie das Arbeitsverzeichnis aus</translation>
+    </message>
+    <message>
+        <source>Select Server Start Script</source>
+        <translation>Server-Startskript wählen</translation>
+    </message>
+    <message>
+        <source>This option can be used to point to a script that will be used to start a debug server. If the field is empty, Qt Creator&apos;s default methods to set up debug servers will be used.</source>
+        <translation>Mit dieser Einstellung kann ein Skript zum Start eines Debug-Servers angegeben werden. Wenn das Feld leer ist, wird Qt Creator den Debug-Server mit den eingebauten Methoden einrichten.</translation>
+    </message>
+    <message>
+        <source>&amp;Server start script:</source>
+        <translation>&amp;Server-Startskript:</translation>
+    </message>
+    <message>
+        <source>Select Location of Debugging Information</source>
+        <translation>Pfad zu Debug-Information</translation>
+    </message>
+    <message>
+        <source>Base path for external debug information and debug sources. If empty, $SYSROOT/usr/lib/debug will be chosen.</source>
+        <translation>Basispfad für Debuginformationen und Quellen. Als Vorgabe wird $SYSROOT/usr/lib/debug benutzt.</translation>
+    </message>
+    <message>
+        <source>&amp;Kit:</source>
+        <translation>&amp;Kit:</translation>
+    </message>
+    <message>
+        <source>Local &amp;executable:</source>
+        <translation>Ausführbare Datei (&amp;lokal):</translation>
+    </message>
+    <message>
+        <source>Command line &amp;arguments:</source>
+        <translation>Kommandozeilen&amp;argumente:</translation>
+    </message>
+    <message>
+        <source>&amp;Working directory:</source>
+        <translation>Arbeits&amp;verzeichnis:</translation>
+    </message>
+    <message>
+        <source>Run in &amp;terminal:</source>
+        <translation>Im &amp;Terminal ausführen:</translation>
+    </message>
+    <message>
+        <source>Break at &quot;&amp;main&quot;:</source>
+        <translation>Haltepunkt bei &quot;&amp;main&quot;:</translation>
+    </message>
+    <message>
+        <source>Debug &amp;information:</source>
+        <translation>Debug&amp;information:</translation>
+    </message>
+    <message>
+        <source>&amp;Recent:</source>
+        <translation>&amp;Letzte:</translation>
+    </message>
+</context>
+<context>
+    <name>DeviceProcessesDialog</name>
+    <message>
+        <source>&amp;Attach to Process</source>
+        <translation>&amp;An Prozess anhängen</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::DebuggerCore</name>
+    <message>
+        <source>Open Qt Options</source>
+        <translation>Einstellungen zur Qt-Bibliothek öffnen</translation>
+    </message>
+    <message>
+        <source>Turn off Helper Usage</source>
+        <translation>Ausgabe-Hilfsbibliothek deaktivieren</translation>
+    </message>
+    <message>
+        <source>Continue Anyway</source>
+        <translation>Trotzdem fortsetzen</translation>
+    </message>
+    <message>
+        <source>Debugging Helper Missing</source>
+        <translation>Ausgabe-Hilfsbibliothek nicht gefunden</translation>
+    </message>
+    <message>
+        <source>The debugger could not load the debugging helper library.</source>
+        <translation>Der Debugger konnte die Ausgabe-Hilfsbibliothek nicht finden.</translation>
+    </message>
+    <message>
+        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
+        <translation>Die Ausgabe-Hilfsbibliothek dient zur Ausgabe der Werte einiger Datentypen aus Qt- und den Standardbibliotheken. Sie muss für jede benutzte Qt-Version compiliert werden. Das geschieht auf der Seite &apos;Erstellung und Ausführung&apos; durch Auswahl der Qt-Installation, Anzeige der Details und Klicken auf &apos;Erstellen&apos; für die Ausgabe-Hilfsbibliothek.</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::GdbServerStarter</name>
+    <message>
+        <source>Remote Error</source>
+        <translation>Entfernter Fehler</translation>
+    </message>
+    <message>
+        <source>Could not retrieve list of free ports:</source>
+        <translation>Die Liste der freien Ports konnte nicht bestimmt werden:</translation>
+    </message>
+    <message>
+        <source>Process aborted</source>
+        <translation>Prozess abgebrochen</translation>
+    </message>
+    <message>
+        <source>Running command: %1</source>
+        <translation>Ausführung des Kommandos: %1</translation>
+    </message>
+    <message>
+        <source>Connection error: %1</source>
+        <translation>Verbindungsfehler: %1</translation>
+    </message>
+    <message>
+        <source>Starting gdbserver...</source>
+        <translation>Starte gdbserver...</translation>
+    </message>
+    <message>
+        <source>Port %1 is now accessible.</source>
+        <translation>Der Port %1 ist nun verfügbar.</translation>
+    </message>
+    <message>
+        <source>Server started on %1:%2</source>
+        <translation>Server gestartet auf %1:%2</translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Warnung</translation>
+    </message>
+    <message>
+        <source>Cannot find local executable for remote process &quot;%1&quot;.</source>
+        <translation>Die lokale ausführbare Datei für den entfernten Prozess &quot;%1&quot; konnte nicht gefunden werden.</translation>
+    </message>
+    <message>
+        <source>Cannot find ABI for remote process &quot;%1&quot;.</source>
+        <translation>Die ABI des entfernten Prozesses &quot;%1&quot; konnte nicht bestimmt werden.</translation>
+    </message>
+    <message>
+        <source>Remote: &quot;%1:%2&quot;</source>
+        <translation>Verbunden zu: &quot;%1:%2&quot;</translation>
+    </message>
+    <message>
+        <source>Process gdbserver finished. Status: %1</source>
+        <translation>gdbserver-Prozess beendet. Status: %1</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
+    <message>
+        <source>Remote Error</source>
+        <translation>Entfernter Fehler</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::LocalProcessList</name>
+    <message>
+        <source>Cannot terminate process %1: %2</source>
+        <translation>Der Prozess %1 konnte nicht beendet werden: %2</translation>
+    </message>
+    <message>
+        <source>Cannot open process %1: %2</source>
+        <translation>Der Prozess :&quot;%1&quot; konnte nicht geöffnet werden: %2</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::SshDeviceProcessList</name>
+    <message>
+        <source>Connection failure: %1</source>
+        <translation>Fehler beim Herstellen der Verbindung: %1</translation>
+    </message>
+    <message>
+        <source>Error: Process listing command failed to start: %1</source>
+        <translation>Fehler: Das Kommando zur Auflistung der Prozesse konnte nicht gestartet werden: %1</translation>
+    </message>
+    <message>
+        <source>Error: Process listing command crashed: %1</source>
+        <translation>Fehler: Das Kommando zur Auflistung der Prozesse ist abgestürzt : %1</translation>
+    </message>
+    <message>
+        <source>Process listing command failed with exit code %1.</source>
+        <translation>Das Kommando zur Auflistung der Prozesse schlug mit Rückgabewert %1 fehl.</translation>
+    </message>
+    <message>
+        <source>Error: Kill process failed to start: %1</source>
+        <translation>Fehler: Das Kommando zum Beenden des Prozesses konnte nicht gestartet werden: %1</translation>
+    </message>
+    <message>
+        <source>Error: Kill process crashed: %1</source>
+        <translation>Fehler: Das Kommando zum Beenden des Prozesses ist abgestürzt: %1</translation>
+    </message>
+    <message>
+        <source>Kill process failed with exit code %1.</source>
+        <translation>Das Kommando zum Beenden schlug mit dem Rückgabewert %1 fehl.</translation>
+    </message>
+    <message>
+        <source>
+Remote stderr was: %1</source>
+        <translation>
+Fehlerausgabe: %1</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::ToolChainConfigWidget</name>
+    <message>
+        <source>Name:</source>
+        <translation>Name:</translation>
+    </message>
+</context>
+<context>
+    <name>ResourceFile</name>
+    <message>
+        <source>The file name is empty.</source>
+        <translation>Der Dateiname ist leer.</translation>
+    </message>
+    <message>
+        <source>XML error on line %1, col %2: %3</source>
+        <translation>XML-Fehler in Zeile %1, Spalte %2: %3</translation>
+    </message>
+    <message>
+        <source>The &lt;RCC&gt; root element is missing.</source>
+        <translation>Das Wurzelelement (&lt;RCC&gt;) fehlt.</translation>
+    </message>
+    <message>
+        <source>Cannot write file. Disk full?</source>
+        <translation>Die Datei konnte nicht geschrieben werden. Möglicherweise ist kein Speicherplatz mehr auf der Festplatte vorhanden?</translation>
+    </message>
+</context>
+<context>
+    <name>ClearCase::Internal::ClearCaseControl</name>
+    <message>
+        <source>&amp;Check Out</source>
+        <translation>&amp;Checkout</translation>
+    </message>
+    <message>
+        <source>&amp;Hijack</source>
+        <translation>&amp;Hijack</translation>
+    </message>
+</context>
+<context>
+    <name>Core::IVersionControl</name>
+    <message>
+        <source>Open with VCS (%1)</source>
+        <translation>Öffnen mittels Versionskontrollsystem (%1)</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::DebuggerKitConfigWidget</name>
+    <message>
+        <source>The debugger to use for this kit.</source>
+        <translation>Der für dieses Kit zu verwendende Debugger.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Geben Sie den Pfad zu der ausführbaren Datei des &lt;a href=&quot;%1&quot;&gt;Windows Console Debuggers&lt;/a&gt; (%2) an.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>64-bit version</source>
+        <translation>64-bit-Version</translation>
+    </message>
+    <message>
+        <source>32-bit version</source>
+        <translation>32-bit-Version</translation>
+    </message>
+    <message>
+        <source>Auto detect</source>
+        <translation>Automatisch bestimmen</translation>
+    </message>
+    <message>
+        <source>Debugger:</source>
+        <translation>Debugger:</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::DebuggerKitInformation</name>
+    <message>
+        <source>No debugger set up.</source>
+        <translation>Es ist kein Debugger eingerichtet.</translation>
+    </message>
+    <message>
+        <source>Debugger &apos;%1&apos; not found.</source>
+        <translation>Der Debugger &apos;%1&apos; konnte nicht gefunden werden.</translation>
+    </message>
+    <message>
+        <source>Debugger &apos;%1&apos; not executable.</source>
+        <translation>Der Debugger &apos;%1&apos; ist nicht ausführbar.</translation>
+    </message>
+    <message>
+        <source>The debugger location must be given as an absolute path (%1).</source>
+        <translation>Der Pfad zum Debugger muss als absoluter Pfad angegeben werden (%1).</translation>
+    </message>
+    <message>
+        <source>%1 using &apos;%2&apos;</source>
+        <translation>%1 unter Verwendung von &apos;%2&apos;</translation>
+    </message>
+    <message>
+        <source>Debugger</source>
+        <translation>Debugger</translation>
+    </message>
+    <message>
+        <source>GDB Engine</source>
+        <translation>GDB-Engine</translation>
+    </message>
+    <message>
+        <source>CDB Engine</source>
+        <translation>CDB-Engine</translation>
+    </message>
+    <message>
+        <source>LLDB Engine</source>
+        <translation>LLDB-Engine</translation>
+    </message>
+    <message>
+        <source>No kit found.</source>
+        <translation>Es wurde kein Kit gefunden.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaddeQemuStartService</name>
+    <message>
+        <source>Checking whether to start Qemu...</source>
+        <translation>Prüfe, ob Qemu gestartet werden soll...</translation>
+    </message>
+    <message>
+        <source>Target device is not an emulator. Nothing to do.</source>
+        <translation>Das Zielgerät ist kein Emulator. Keine Aktion erforderlich.</translation>
+    </message>
+    <message>
+        <source>Qemu is already running. Nothing to do.</source>
+        <translation>Qemu läuft bereits. Keine Aktion erforderlich.</translation>
+    </message>
+    <message>
+        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
+        <translation>Das Deployment schlug fehl, da Qemu nicht lief. Es wurde soeben gestartet, benötigt jedoch noch einige Zeit. Bitte versuchen Sie es später noch einmal.</translation>
+    </message>
+    <message>
+        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
+        <translation>Das Deployment zu Qemu schlug fehl, da Qemu für diese Qt-Version nicht verfügbar ist.</translation>
+    </message>
+</context>
+<context>
+    <name>Madde::Internal::MaddeQemuStartStep</name>
+    <message>
+        <source>Start Qemu, if necessary</source>
+        <translation>Qemu starten, falls erforderlich</translation>
+    </message>
+</context>
+<context>
+    <name>Perforce::Internal::PerforceVersionControl</name>
+    <message>
+        <source>&amp;Edit (%1)</source>
+        <translation>%1 &amp;anfordern</translation>
+    </message>
+    <message>
+        <source>&amp;Hijack</source>
+        <translation>&amp;Hijack</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Kit</name>
+    <message>
+        <source>Unnamed</source>
+        <translation>Unbenannt</translation>
+    </message>
+    <message>
+        <source>Clone of %1</source>
+        <translation>Kopie von %1</translation>
+    </message>
+    <message>
+        <source>Error:</source>
+        <translation>Fehler:</translation>
+    </message>
+    <message>
+        <source>Warning:</source>
+        <translation>Warnung:</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::SysRootKitInformation</name>
+    <message>
+        <source>Sys Root &quot;%1&quot; is not a directory.</source>
+        <translation>Sys-Root &quot;%1&quot; ist kein Ordner.</translation>
+    </message>
+    <message>
+        <source>Sys Root</source>
+        <translation>Sys-Root</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::ToolChainKitInformation</name>
+    <message>
+        <source>Compiler</source>
+        <translation>Compiler</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
+    </message>
+    <message>
+        <source>No compiler set in kit.</source>
+        <translation>Im Kit ist kein Compiler eingerichtet.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::DeviceTypeKitInformation</name>
+    <message>
+        <source>Device does not match device type.</source>
+        <translation>Das Gerät entspricht nicht dem Gerätetyp.</translation>
+    </message>
+    <message>
+        <source>Unknown device type</source>
+        <translation>Unbekannter Gerätetyp</translation>
+    </message>
+    <message>
+        <source>Device type</source>
+        <translation>Gerätetyp</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::DeviceKitInformation</name>
+    <message>
+        <source>Device</source>
+        <translation>Gerät</translation>
+    </message>
+    <message>
+        <source>Unconfigured</source>
+        <translation>Nicht konfiguriert</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::KitManager</name>
+    <message>
+        <source>Desktop</source>
+        <translation>Desktop</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
+    <message>
+        <source>Kits</source>
+        <translation>Kits</translation>
+    </message>
+    <message>
+        <source>Select Icon</source>
+        <translation>Symbol auswählen</translation>
+    </message>
+    <message>
+        <source>Images (*.png *.xpm *.jpg)</source>
+        <translation>Bilddateien (*.png *.xpm *.jpg)</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::KitModel</name>
+    <message>
+        <source>Auto-detected</source>
+        <translation>Automatisch bestimmt</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation>Benutzerdefiniert</translation>
+    </message>
+    <message>
+        <source>%1 (default)</source>
+        <extracomment>Mark up a kit as the default one.</extracomment>
+        <translation>%1 (Vorgabe)</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <source>Duplicate Kit Detected</source>
+        <translation>Mehrfach auftretendes Kit festgestellt</translation>
+    </message>
+    <message>
+        <source>The kit&lt;br&gt;&amp;nbsp;%1&lt;br&gt; was already configured. It was not configured again.</source>
+        <translation>Das Kit&lt;br&gt;&amp;nbsp;%1&lt;br&gt; wurde bereits konfiguriert. Es wurde nicht noch einmal konfiguriert.</translation>
+    </message>
+    <message>
+        <source>Duplicate Kits Detected</source>
+        <translation>Mehrfach auftretende Kits festgestellt</translation>
+    </message>
+    <message>
+        <source>The following kits were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
+        <translation>Die folgenden Kits wurden bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Sie wurden nicht noch einmal konfiguriert.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::KitOptionsPage</name>
+    <message>
+        <source>Kits</source>
+        <translation>Kits</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Hinzufügen</translation>
+    </message>
+    <message>
+        <source>Clone</source>
+        <translation>Klonen</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Entfernen</translation>
+    </message>
+    <message>
+        <source>Make Default</source>
+        <translation>Als Vorgabe setzen</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::Internal::QmakeKitConfigWidget</name>
+    <message>
+        <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
+        <translation>Die zur Erstellung des Projekts mit qmake zu verwendende mkspec.&lt;br&gt;Diese Einstellung hat keine Auswirkung auf andere Build-Systeme.</translation>
+    </message>
+    <message>
+        <source>Qt mkspec:</source>
+        <translation>Qt-mkspec:</translation>
+    </message>
+</context>
+<context>
+    <name>Qt4ProjectManager::QmakeKitInformation</name>
+    <message>
+        <source>No Qt version set, so mkspec is ignored.</source>
+        <translation>Es ist keine Qt-Version gesetzt, die mkspec wird ignoriert.</translation>
+    </message>
+    <message>
+        <source>Mkspec not found for Qt version.</source>
+        <translation>Für diese Qt-Version konnte keine mkspec gefunden werden.</translation>
+    </message>
+    <message>
+        <source>mkspec</source>
+        <translation>mkspec</translation>
+    </message>
+</context>
+<context>
+    <name>QtSupport::Internal::QtKitConfigWidget</name>
+    <message>
+        <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
+        <translation>Die für alle Projekte, die dieses Kit verwenden, zu benutzende Qt-Bibliothek.&lt;br&gt;Für qmake-basierende Projekte ist diese Angabe erforderlich, für andere Build-Systeme optional.</translation>
+    </message>
+    <message>
+        <source>Manage...</source>
+        <translation>Verwalten...</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
+    </message>
+    <message>
+        <source>Qt version:</source>
+        <translation>Qt-Version:</translation>
+    </message>
+</context>
+<context>
+    <name>QtSupport::QtKitInformation</name>
+    <message>
+        <source>Qt version</source>
+        <translation>Qt-Version:</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation>Keine</translation>
     </message>
 </context>
 </TS>

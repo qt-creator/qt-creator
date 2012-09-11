@@ -105,6 +105,8 @@ bool FindToolWindow::eventFilter(QObject *obj, QEvent *event)
     if (obj == m_ui.searchTerm && event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent *>(event);
         if (ke->key() == Qt::Key_Down) {
+            if (m_ui.searchTerm->text().isEmpty())
+                m_findCompleter->setCompletionPrefix(QString());
             m_findCompleter->complete();
         }
     }

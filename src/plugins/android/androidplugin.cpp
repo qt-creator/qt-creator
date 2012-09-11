@@ -71,14 +71,15 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidToolChainFactory);
     addAutoReleasedObject(new Internal::AndroidDeployConfigurationFactory);
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
-    ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
-    if (dm->find(Core::Id(Constants::ANDROID_DEVICE_ID)).isNull())
-        dm->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
     return true;
 }
 
 void AndroidPlugin::extensionsInitialized()
-{ }
+{
+    ProjectExplorer::DeviceManager *dm = ProjectExplorer::DeviceManager::instance();
+    if (dm->find(Core::Id(Constants::ANDROID_DEVICE_ID)).isNull())
+        dm->addDevice(ProjectExplorer::IDevice::Ptr(new Internal::AndroidDevice));
+}
 
 } // namespace Android
 

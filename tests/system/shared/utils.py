@@ -194,8 +194,7 @@ def invokeMenuItem(menu, item, subItem = None):
 
 def logApplicationOutput():
     # make sure application output is shown
-    ensureChecked("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
-                  "window=':Qt Creator_Core::Internal::MainWindow' occurrence='3'}")
+    ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     try:
         output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
         test.log("Application Output:\n%s" % output.plainText)
@@ -283,17 +282,17 @@ def __checkParentAccess__(filePath):
             test.fail("No execute permission on '%s'" % tmp)
 
 # this function checks for all configured Qt versions inside
-# options dialog and returns a dict holding the targets as keys
-# and a list of supported versions as value
-def getCorrectlyConfiguredTargets():
+# options dialog and returns a dict holding the kits as keys
+# and a list of information of its configured Qt
+def getConfiguredKits():
     def __retrieveQtVersionName__(target, version):
         treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
         return treeWidget.currentItem().text(0)
     targetQtVersionNames = {}
     result = {}
     targetsQtVersions, qtVersionNames = iterateQtVersions(True, __retrieveQtVersionName__)
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Targets")
-    treeView = waitForObject(":Targets_QTreeView")
+    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Kits")
+    treeView = waitForObject(":Kits_QTreeView")
     model = treeView.model()
     test.compare(model.rowCount(), 2, "Verifying expected target section count")
     autoDetected = model.index(0, 0)
@@ -309,11 +308,15 @@ def getCorrectlyConfiguredTargets():
             item = ".".join([str(section.data().toString()),
                              str(index.data().toString()).replace(".", "\\.")])
             clickItem(treeView, item, 5, 5, 0, Qt.LeftButton)
-            qtVersionStr = str(waitForObject(":Targets_QtVersion_QComboBox").currentText)
+            qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
             targetQtVersionNames[targetName] = qtVersionStr
     # merge defined target names with their configured Qt versions and devices
-    for target,qtVersion in targetQtVersionNames.iteritems():
-        result[target] = targetsQtVersions[qtVersionNames.index(qtVersion)].items()[0]
+    for kit,qtVersion in targetQtVersionNames.iteritems():
+        if qtVersion in qtVersionNames:
+            result[kit] = targetsQtVersions[qtVersionNames.index(qtVersion)].items()[0]
+        else:
+            test.fail("Qt version '%s' for kit '%s' can't be found in qtVersionNames."
+                      % (qtVersion, kit))
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
     # adjust device name(s) to match getStringForTarget() - some differ from time to time
     for targetName in result.keys():
@@ -321,7 +324,7 @@ def getCorrectlyConfiguredTargets():
         if targetInfo[0] == "Maemo":
             result.update({targetName:
                            (QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.MAEMO5), targetInfo[1])})
-    test.log("Correctly configured targets: %s" % str(result))
+    test.log("Configured kits: %s" % str(result))
     return result
 
 def visibleCheckBoxExists(text):

@@ -44,6 +44,32 @@
 #include <QStyle>
 
 namespace ProjectExplorer {
+
+void KitConfigWidget::addToLayout(QGridLayout *layout, int row)
+{
+    addLabel(layout, row);
+    layout->addWidget(this, row, WidgetColumn);
+    addButtonWidget(layout, row);
+}
+
+void KitConfigWidget::addLabel(QGridLayout *layout, int row)
+{
+    static const Qt::Alignment alignment
+        = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+    QLabel *label = new QLabel(displayName());
+    label->setToolTip(toolTip());
+    layout->addWidget(label, row, LabelColumn, alignment);
+}
+
+void KitConfigWidget::addButtonWidget(QGridLayout *layout, int row)
+{
+    if (QWidget *button = buttonWidget()) {
+        if (button->toolTip().isEmpty())
+            button->setToolTip(toolTip());
+        layout->addWidget(button, row, ButtonColumn);
+    }
+}
+
 namespace Internal {
 
 KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, QWidget *parent) :
@@ -122,19 +148,7 @@ void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *w
     Q_ASSERT(!m_widgets.contains(widget));
 
     connect(widget, SIGNAL(dirty()), this, SIGNAL(dirty()));
-    int row = m_layout->rowCount();
-    QLabel *label = new QLabel(widget->displayName());
-    label->setToolTip(widget->toolTip());
-    m_layout->addWidget(label, row, 0,
-                        Qt::Alignment(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment)));
-    m_layout->addWidget(widget, row, 1);
-    QWidget *buttonWidget = widget->buttonWidget();
-    if (buttonWidget) {
-        if (buttonWidget->toolTip().isEmpty())
-            buttonWidget->setToolTip(widget->toolTip());
-        m_layout->addWidget(widget->buttonWidget(), row, 2);
-    }
-
+    widget->addToLayout(m_layout, m_layout->rowCount());
     m_widgets.append(widget);
 }
 

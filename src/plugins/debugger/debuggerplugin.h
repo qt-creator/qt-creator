@@ -66,7 +66,8 @@ public:
     static QAction *visibleDebugAction();
 
     static DebuggerRunControl *createDebugger(const DebuggerStartParameters &sp,
-                                              ProjectExplorer::RunConfiguration *rc);
+                                              ProjectExplorer::RunConfiguration *rc,
+                                              QString *errorMessage);
 
 private:
     // IPlugin implementation.

@@ -12,6 +12,6 @@ lessThan(QT_MAJOR_VERSION, 5) {
     win32:include(../../private_headers.pri)
 }
 
-win32: LIBS += -lUser32
+win32: LIBS += -luser32
 # PortsGatherer
-win32: LIBS += -liphlpapi -lWs2_32
+win32: LIBS += -liphlpapi -lws2_32

@@ -66,6 +66,10 @@ bool BlackBerryRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runC
     if (!rc)
         return false;
 
+    BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(rc->target()->kit());
+    if (!device)
+        return false;
+
     // The device can only run the same application once, any subsequent runs will
     // not launch a second instance. Disable the Run button if the application is already
     // running on the device.
@@ -82,9 +86,8 @@ bool BlackBerryRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runC
     return activeDeployConf != 0;
 }
 
-ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(
-        ProjectExplorer::RunConfiguration *runConfiguration,
-        ProjectExplorer::RunMode mode)
+ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer::RunConfiguration *runConfiguration,
+        ProjectExplorer::RunMode mode, QString *errorMessage)
 {
     BlackBerryRunConfiguration *rc = qobject_cast<BlackBerryRunConfiguration *>(runConfiguration);
     if (!rc)
@@ -92,8 +95,11 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(
 
     BlackBerryDeployConfiguration *activeDeployConf = qobject_cast<BlackBerryDeployConfiguration *>(
                 rc->target()->activeDeployConfiguration());
-    if (!activeDeployConf)
+    if (!activeDeployConf) {
+        if (errorMessage)
+            *errorMessage = tr("No active deploy configuration");
         return 0;
+    }
 
     if (mode == ProjectExplorer::NormalRunMode) {
         BlackBerryRunControl *runControl = new BlackBerryRunControl(rc);
@@ -102,7 +108,7 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(
     }
 
     Debugger::DebuggerRunControl * const runControl =
-            Debugger::DebuggerPlugin::createDebugger(startParameters(rc), runConfiguration);
+            Debugger::DebuggerPlugin::createDebugger(startParameters(rc), runConfiguration, errorMessage);
     if (!runControl)
         return 0;
 
@@ -138,7 +144,6 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
         params.toolChainAbi = tc->targetAbi();
 
     params.executable = runConfig->localExecutableFilePath();
-    params.remoteChannel = runConfig->deployConfiguration()->deviceHost() + QLatin1String(":8000");
     params.displayName = runConfig->displayName();
     params.remoteSetupNeeded = true;
 

@@ -32,6 +32,7 @@
 #define DEBUGGER_DEBUGGERKITINFORMATION_H
 
 #include "debugger_global.h"
+#include "debuggerconstants.h"
 
 #include <projectexplorer/kitinformation.h>
 
@@ -42,22 +43,54 @@ class DEBUGGER_EXPORT DebuggerKitInformation : public ProjectExplorer::KitInform
     Q_OBJECT
 
 public:
+    class DEBUGGER_EXPORT DebuggerItem {
+    public:
+        DebuggerItem();
+        DebuggerItem(DebuggerEngineType engineType, const Utils::FileName &fn);
+
+        DebuggerEngineType engineType;
+        Utils::FileName binary;
+    };
+
     DebuggerKitInformation();
 
     Core::Id dataId() const;
 
     unsigned int priority() const; // the higher the closer to the top.
 
-    QVariant defaultValue(ProjectExplorer::Kit *k) const;
+    static DebuggerItem autoDetectItem(const ProjectExplorer::Kit *k);
+    QVariant defaultValue(ProjectExplorer::Kit *k) const
+        { return DebuggerKitInformation::itemToVariant(DebuggerKitInformation::autoDetectItem(k)); }
 
-    QList<ProjectExplorer::Task> validate(ProjectExplorer::Kit *k) const;
+    QList<ProjectExplorer::Task> validate(ProjectExplorer::Kit *k) const
+        { return DebuggerKitInformation::validateDebugger(k); }
+
+    static QList<ProjectExplorer::Task> validateDebugger(const ProjectExplorer::Kit *p);
+    static bool isValidDebugger(const ProjectExplorer::Kit *p);
 
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
 
     ItemList toUserOutput(ProjectExplorer::Kit *k) const;
+    static QString userOutput(const ProjectExplorer::Kit *k);
 
-    static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k);
-    static void setDebuggerCommand(ProjectExplorer::Kit *k, const Utils::FileName &command);
+    static DebuggerItem debuggerItem(const ProjectExplorer::Kit *p);
+    static void setDebuggerItem(ProjectExplorer::Kit *p, const DebuggerItem &item);
+
+    static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *p)
+        { return debuggerItem(p).binary; }
+
+    static void setDebuggerCommand(ProjectExplorer::Kit *p, const Utils::FileName &command);
+
+    static DebuggerEngineType engineType(const ProjectExplorer::Kit *p)
+        { return debuggerItem(p).engineType; }
+
+    static void setEngineType(ProjectExplorer::Kit *p, DebuggerEngineType type);
+
+    static QString debuggerEngineName(DebuggerEngineType t);
+
+private:
+    static DebuggerItem variantToItem(const QVariant &v);
+    static QVariant itemToVariant(const DebuggerItem &i);
 };
 
 } // namespace Debugger

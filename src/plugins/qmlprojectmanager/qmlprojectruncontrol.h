@@ -77,11 +77,12 @@ public:
 
     // IRunControlFactory
     virtual bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
-    virtual ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode);
+    virtual ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
+                                                ProjectExplorer::RunMode mode, QString *errorMessage);
     virtual QString displayName() const;
 
 private:
-    ProjectExplorer::RunControl *createDebugRunControl(QmlProjectRunConfiguration *runConfig);
+    ProjectExplorer::RunControl *createDebugRunControl(QmlProjectRunConfiguration *runConfig, QString *errorMessage);
 };
 
 } // namespace Internal

@@ -1076,7 +1076,6 @@ void tst_Preprocessor::comments_within()
 {
     compare_input_output();
 }
-
 void tst_Preprocessor::comments_within_data()
 {
     QTest::addColumn<QByteArray>("input");
@@ -1219,6 +1218,26 @@ void tst_Preprocessor::comments_within_data()
             "# expansion end\n"
             "# 8 \"<stdin>\"\n";
     QTest::newRow("case 6") << original << expected;
+
+    original =
+            "#define FOO 0 //coment\n"
+            "#define BAR (1 == FOO)\n"
+            "void foo() {\n"
+            "    if (BAR) {}\n"
+            "}\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "void foo() {\n"
+            "    if (\n"
+            "# expansion begin 67,3 ~5\n"
+            "(1 == 0)\n"
+            "# expansion end\n"
+            "# 4 \"<stdin>\"\n"
+            "           ) {}\n"
+            "}\n";
+    QTest::newRow("case 7") << original << expected;
 }
 
 void tst_Preprocessor::comments_within2()
@@ -1373,6 +1392,26 @@ void tst_Preprocessor::comments_within2_data()
             "# expansion end\n"
             "# 8 \"<stdin>\"\n";
     QTest::newRow("case 6") << original << expected;
+
+    original =
+            "#define FOO 0 //coment\n"
+            "#define BAR (1 == FOO)\n"
+            "void foo() {\n"
+            "    if (BAR) {}\n"
+            "}\n";
+    expected =
+            "# 1 \"<stdin>\"\n"
+            "\n"
+            "\n"
+            "void foo() {\n"
+            "    if (\n"
+            "# expansion begin 67,3 ~5\n"
+            "(1 == 0)\n"
+            "# expansion end\n"
+            "# 4 \"<stdin>\"\n"
+            "           ) {}\n"
+            "}\n";
+    QTest::newRow("case 7") << original << expected;
 }
 
 void tst_Preprocessor::multiline_strings()

@@ -31,6 +31,9 @@
 #ifndef DEBUGGER_DIALOGS_H
 #define DEBUGGER_DIALOGS_H
 
+#include <projectexplorer/kitchooser.h>
+#include <projectexplorer/abi.h>
+
 #include <QDialog>
 #include <QHash>
 #include <QStringList>
@@ -58,6 +61,22 @@ class StartApplicationParameters;
 class StartApplicationDialogPrivate;
 class StartRemoteEngineDialogPrivate;
 
+class DebuggerKitChooser : public ProjectExplorer::KitChooser {
+    Q_OBJECT
+public:
+    enum Mode { RemoteDebugging, LocalDebugging };
+
+    explicit DebuggerKitChooser(Mode mode = RemoteDebugging, QWidget *parent = 0);
+
+protected:
+    bool kitMatches(const ProjectExplorer::Kit *k) const;
+    QString kitToolTip(ProjectExplorer::Kit *k) const;
+
+private:
+    const ProjectExplorer::Abi m_hostAbi;
+    const Mode m_mode;
+};
+
 class StartApplicationDialog : public QDialog
 {
     Q_OBJECT
@@ -77,8 +96,6 @@ private:
     StartApplicationParameters parameters() const;
     void setParameters(const StartApplicationParameters &p);
     void setHistory(const QList<StartApplicationParameters> &l);
-    void hideStartScript();
-    Core::Id kitId() const;
 
     StartApplicationDialogPrivate *d;
 };

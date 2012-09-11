@@ -2122,21 +2122,32 @@ SymbolGroupValue qobjectDerivedPrivate(const SymbolGroupValue &v,
     return SymbolGroupValue(qwPrivateNode, v.context());
 }
 
+static bool dumpQObjectName(const SymbolGroupValue &qoPrivate, std::wostream &str)
+{
+    // Qt 4: plain member.
+    if (QtInfo::get(qoPrivate.context()).version < 5) {
+        if (const SymbolGroupValue oName = qoPrivate["objectName"])
+            return dumpQString(oName, str);
+    }
+    // Qt 5: member of allocated extraData.
+    if (const SymbolGroupValue extraData = qoPrivate["extraData"])
+        if (extraData.pointerValue())
+            if (const SymbolGroupValue oName = extraData["objectName"])
+                return dumpQString(oName, str);
+    return false;
+}
+
 // Dump the object name
 static inline bool dumpQWidget(const SymbolGroupValue &v, std::wostream &str, void **specialInfoIn = 0)
 {
     const QtInfo &qtInfo = QtInfo::get(v.context());
     const SymbolGroupValue qwPrivate =
         qobjectDerivedPrivate(v, qtInfo.qWidgetPrivateType, qtInfo);
-    if (!qwPrivate)
-        return false;
     // QWidgetPrivate inherits QObjectPrivate
-    const SymbolGroupValue oName = qwPrivate[unsigned(0)]["objectName"];
-    if (!oName)
+    if (!qwPrivate || !dumpQObjectName(qwPrivate[unsigned(0)], str))
         return false;
     if (specialInfoIn)
         *specialInfoIn = qwPrivate.node();
-    dumpQString(oName, str);
     return true;
 }
 
@@ -2144,15 +2155,12 @@ static inline bool dumpQWidget(const SymbolGroupValue &v, std::wostream &str, vo
 static inline bool dumpQObject(const SymbolGroupValue &v, std::wostream &str, void **specialInfoIn = 0)
 {
     const std::string &qoPrivateType = QtInfo::get(v.context()).qObjectPrivateType;
-    if (SymbolGroupValue qoPrivate = v["d_ptr"]["d"].pointerTypeCast(qoPrivateType.c_str())) {
-        if (SymbolGroupValue oName = qoPrivate["objectName"]) {
-            if (specialInfoIn)
-                *specialInfoIn = qoPrivate.node();
-            dumpQString(oName, str);
-            return true;
-        }
-    }
-    return false;
+    const SymbolGroupValue qoPrivate = v["d_ptr"]["d"].pointerTypeCast(qoPrivateType.c_str());
+    if (!qoPrivate || !dumpQObjectName(qoPrivate, str))
+        return false;
+    if (specialInfoIn)
+        *specialInfoIn = qoPrivate.node();
+    return true;
 }
 
 // Dump the object name
@@ -2161,15 +2169,11 @@ static inline bool dumpQWindow(const SymbolGroupValue &v, std::wostream &str, vo
     const QtInfo &qtInfo = QtInfo::get(v.context());
     const SymbolGroupValue qwPrivate =
         qobjectDerivedPrivate(v, qtInfo.qWindowPrivateType, qtInfo);
-    if (!qwPrivate)
-        return false;
     // QWindowPrivate inherits QObjectPrivate
-    const SymbolGroupValue oName = qwPrivate[unsigned(0)]["objectName"]; // QWidgetPrivate inherits QObjectPrivate
-    if (!oName)
+    if (!qwPrivate || !dumpQObjectName(qwPrivate[unsigned(0)], str))
         return false;
     if (specialInfoIn)
         *specialInfoIn = qwPrivate.node();
-    dumpQString(oName, str);
     return true;
 }
 

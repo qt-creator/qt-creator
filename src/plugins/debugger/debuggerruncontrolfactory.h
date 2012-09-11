@@ -50,7 +50,8 @@ public:
     // FIXME: Used by qmljsinspector.cpp:469
     ProjectExplorer::RunControl *create(
         ProjectExplorer::RunConfiguration *runConfiguration,
-        ProjectExplorer::RunMode mode);
+        ProjectExplorer::RunMode mode,
+        QString *errorMessage);
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
         ProjectExplorer::RunMode mode) const;
@@ -64,7 +65,7 @@ public:
         ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     static DebuggerRunControl *doCreate(const DebuggerStartParameters &sp,
-        ProjectExplorer::RunConfiguration *rc);
+        ProjectExplorer::RunConfiguration *rc, QString *errorMessage);
 
 private:
     QString displayName() const;

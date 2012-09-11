@@ -63,6 +63,7 @@ Project {
         "src/plugins/qmljstools/qmljstools.qbs",
         "src/plugins/qmlprofiler/qmlprofiler.qbs",
         "src/plugins/qmlprojectmanager/qmlprojectmanager.qbs",
+        "src/plugins/qnx/qnx.qbs",
         "src/plugins/qt4projectmanager/qt4projectmanager.qbs",
         "src/plugins/qtsupport/qtsupport.qbs",
         "src/plugins/remotelinux/remotelinux.qbs",

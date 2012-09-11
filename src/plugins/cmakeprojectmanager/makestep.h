@@ -94,6 +94,7 @@ private:
     QFutureInterface<bool> *m_futureInterface;
     QStringList m_buildTargets;
     QString m_additionalArguments;
+    QList<ProjectExplorer::Task> m_tasks;
 };
 
 class MakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget

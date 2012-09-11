@@ -181,7 +181,7 @@ private:
 class GenericProposalListView : public QListView
 {
 public:
-    GenericProposalListView(QWidget *parent) : QListView(parent) {}
+    GenericProposalListView(QWidget *parent);
 
     QSize calculateSize() const;
     QPoint infoFramePos() const;
@@ -194,19 +194,24 @@ public:
     void selectLastRow() { selectRow(model()->rowCount() - 1); }
 };
 
+GenericProposalListView::GenericProposalListView(QWidget *parent)
+    : QListView(parent)
+{
+    setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
+}
+
 QSize GenericProposalListView::calculateSize() const
 {
     static const int maxVisibleItems = 10;
 
     // Determine size by calculating the space of the visible items
-    int visibleItems = model()->rowCount();
-    if (visibleItems > maxVisibleItems)
-        visibleItems = maxVisibleItems;
+    const int visibleItems = qMin(model()->rowCount(), maxVisibleItems);
+    const int firstVisibleRow = verticalScrollBar()->value();
 
     const QStyleOptionViewItem &option = viewOptions();
     QSize shint;
     for (int i = 0; i < visibleItems; ++i) {
-        QSize tmp = itemDelegate()->sizeHint(option, model()->index(i, 0));
+        QSize tmp = itemDelegate()->sizeHint(option, model()->index(i + firstVisibleRow, 0));
         if (shint.width() < tmp.width())
             shint = tmp;
     }
@@ -323,6 +328,8 @@ GenericProposalWidget::GenericProposalWidget()
     d->m_completionListView->setSelectionMode(QAbstractItemView::SingleSelection);
     d->m_completionListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     d->m_completionListView->setMinimumSize(1, 1);
+    connect(d->m_completionListView->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            this, SLOT(updatePositionAndSize()));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);

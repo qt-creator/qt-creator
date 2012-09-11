@@ -9,7 +9,7 @@ def handleDebuggerWarnings(config):
                                     "This is recommended for retrieval of the symbols of the operating system libraries.</p>"
                                     "<p><i>Note:</i> A fast internet connection is required for this to work smoothly. "
                                     "Also, a delay might occur when connecting for the first time.</p>"
-                                    "<p>Would you like to set it up?</p></br></body></html>")
+                                    "<p>Would you like to set it up?</p></body></html>")
             if popup.text == symServerNotConfiged:
                 test.log("Creator warned about the debugger not being configured to use the public Microsoft Symbol Server.")
             else:
@@ -180,8 +180,7 @@ def __startDebugger__(config):
 
 def __stopDebugger__():
     clickButton(waitForObject(":Debugger Toolbar.Exit Debugger_QToolButton"))
-    ensureChecked("{type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' "
-                  "window=':Qt Creator_Core::Internal::MainWindow' occurrence='3'}")
+    ensureChecked(":Qt Creator_AppOutput_Core::Internal::OutputPaneToggleButton")
     output = waitForObject("{type='Core::OutputWindow' visible='1' windowTitle='Application Output Window'}", 20000)
     waitFor("'Debugging has finished' in str(output.plainText)", 20000)
     return __logDebugResult__()

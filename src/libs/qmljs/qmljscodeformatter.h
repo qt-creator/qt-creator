@@ -110,9 +110,9 @@ public: // must be public to make Q_GADGET introspection work
 
         property_start, // after 'property'
         default_property_start, // after 'default'
-        property_type, // after first identifier
         property_list_open, // after 'list' as a type
-        property_maybe_initializer, // after
+        property_name, // after the type
+        property_maybe_initializer, // after the identifier
 
         signal_start, // after 'signal'
         signal_maybe_arglist, // after identifier

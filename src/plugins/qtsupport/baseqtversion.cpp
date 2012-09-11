@@ -320,7 +320,7 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateKit(const ProjectExplorer::K
             qtAbiString.append(qtAbi.toString());
         }
         const QString message = QCoreApplication::translate("BaseQtVersion",
-                                                            "The compiler'%1' (%2) cannot produce code for the Qt version '%3' (%4).").
+                                                            "The compiler '%1' (%2) cannot produce code for the Qt version '%3' (%4).").
                                                             arg(tc->displayName(),
                                                                 tc->targetAbi().toString(),
                                                                 version->displayName(),
@@ -885,8 +885,9 @@ void BaseQtVersion::updateVersionInfo() const
     }
 
     // Now check for a qt that is configured with a prefix but not installed
-    if (!qtInstallBins.isNull()) {
-        QFileInfo fi(qtInstallBins);
+    QString installDir = qmakeProperty("QT_HOST_BINS");
+    if (!installDir.isNull()) {
+        QFileInfo fi(installDir);
         if (!fi.exists())
             m_installed = false;
     }

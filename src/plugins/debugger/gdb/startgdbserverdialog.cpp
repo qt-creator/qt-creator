@@ -207,7 +207,7 @@ void GdbServerStarter::attach(int port)
     }
 
     DebuggerStartParameters sp;
-    fillParameters(&sp, d->kit);
+    QTC_ASSERT(fillParameters(&sp, d->kit), return);
     sp.masterEngineType = GdbEngineType;
     sp.connParams.port = port;
     sp.displayName = tr("Remote: \"%1:%2\"").arg(sp.connParams.host).arg(port);

@@ -275,12 +275,12 @@ bool QMakeParser::read(ProFile *pro, const QString &in, int line, SubGrammar gra
     // Worst-case size calculations:
     // - line marker adds 1 (2-nl) to 1st token of each line
     // - empty assignment "A=":2 =>
-    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) +
-    //   TokValueTerminator(1) == 7 (8)
+    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) + 0(1) +
+    //   TokValueTerminator(1) == 8 (9)
     // - non-empty assignment "A=B C":5 =>
-    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) +
+    //   TokHashLiteral(1) + hash(2) + len(1) + "A"(1) + TokAssign(1) + 2(1) +
     //   TokLiteral(1) + len(1) + "B"(1) +
-    //   TokLiteral(1) + len(1) + "C"(1) + TokValueTerminator(1) == 13 (14)
+    //   TokLiteral(1) + len(1) + "C"(1) + TokValueTerminator(1) == 14 (15)
     // - variable expansion: "$$f":3 =>
     //   TokVariable(1) + hash(2) + len(1) + "f"(1) = 5
     // - function expansion: "$$f()":5 =>

@@ -82,7 +82,9 @@ public:
     QString displayName() const;
 
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
-    RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode);
+    RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
+                       ProjectExplorer::RunMode mode,
+                       QString *errorMessage);
 };
 
     } // namespace Internal

@@ -167,7 +167,7 @@ bool QmlProjectRunControlFactory::canRun(RunConfiguration *runConfiguration,
 }
 
 RunControl *QmlProjectRunControlFactory::create(RunConfiguration *runConfiguration,
-                                                RunMode mode)
+                                                RunMode mode, QString *errorMessage)
 {
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     QmlProjectRunConfiguration *config = qobject_cast<QmlProjectRunConfiguration *>(runConfiguration);
@@ -187,7 +187,7 @@ RunControl *QmlProjectRunControlFactory::create(RunConfiguration *runConfigurati
     if (mode == NormalRunMode)
         runControl = new QmlProjectRunControl(config, mode);
     else if (mode == DebugRunMode)
-        runControl = createDebugRunControl(config);
+        runControl = createDebugRunControl(config, errorMessage);
     return runControl;
 }
 
@@ -196,7 +196,7 @@ QString QmlProjectRunControlFactory::displayName() const
     return tr("Run");
 }
 
-RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig)
+RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConfiguration *runConfig, QString *errorMessage)
 {
     Debugger::DebuggerStartParameters params;
     params.startMode = Debugger::StartInternal;
@@ -224,10 +224,11 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
 
     if (params.executable.isEmpty()) {
         QmlProjectPlugin::showQmlObserverToolWarning();
+        *errorMessage = QString(""); // hack, we already showed a error message
         return 0;
     }
 
-    return Debugger::DebuggerPlugin::createDebugger(params, runConfig);
+    return Debugger::DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
 }
 
 } // namespace Internal

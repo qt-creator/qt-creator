@@ -109,6 +109,7 @@ public:
     Internal::ProjectExplorerSettings projectExplorerSettings() const;
 
     void startRunControl(RunControl *runControl, RunMode runMode);
+    static void showRunErrorMessage(const QString &errorMessage);
 
     // internal public for FlatModel
     void renameFile(Node *node, const QString &to);

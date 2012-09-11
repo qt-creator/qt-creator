@@ -1626,10 +1626,26 @@ void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfigu
     if (IRunControlFactory *runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
         emit aboutToExecuteProject(runConfiguration->target()->project(), runMode);
 
-        RunControl *control = runControlFactory->create(runConfiguration, runMode);
-        if (!control)
+        QString errorMessage;
+        RunControl *control = runControlFactory->create(runConfiguration, runMode, &errorMessage);
+        if (!control) {
+            showRunErrorMessage(errorMessage);
             return;
+        }
         startRunControl(control, runMode);
+    }
+}
+
+void ProjectExplorerPlugin::showRunErrorMessage(const QString &errorMessage)
+{
+    if (errorMessage.isNull()) {
+        // a error occured, but message was not set
+        QMessageBox::critical(Core::ICore::mainWindow(), tr("Unknown error"), errorMessage);
+    } else if (errorMessage.isEmpty()) {
+        // a error, but the message was set to empty
+        // hack for qml observer warning, show nothing at all
+    } else {
+        QMessageBox::critical(Core::ICore::mainWindow(), tr("Could Not Run"), errorMessage);
     }
 }
 

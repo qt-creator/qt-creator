@@ -37,6 +37,8 @@
 #include <QRegExp>
 #include <QDebug>
 #include <QDir>
+#include <QDate>
+#include <QTime>
 
 #include <QWizardPage>
 #include <QFormLayout>
@@ -462,6 +464,13 @@ QMap<QString, QString> CustomWizardFieldPage::replacementMap(const QWizard *w,
     // Insert paths for generator scripts.
     fieldReplacementMap.insert(QLatin1String("Path"), QDir::toNativeSeparators(ctx->path));
     fieldReplacementMap.insert(QLatin1String("TargetPath"), QDir::toNativeSeparators(ctx->targetPath));
+
+    // Insert additional pre-defined variables
+    fieldReplacementMap.insert(QLatin1String("CurrentDate"),
+                               QDate::currentDate().toString(QLatin1String("yyyy-MM-dd")));
+    fieldReplacementMap.insert(QLatin1String("CurrentTime"),
+                               QTime::currentTime().toString(QLocale::system().
+                                                             timeFormat(QLocale::ShortFormat)));
     return fieldReplacementMap;
 }
 

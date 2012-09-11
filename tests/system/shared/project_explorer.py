@@ -146,26 +146,26 @@ def getQtInformationForBuildSettings(alreadyOnProjectsBuildSettings=False, after
 
 def getQtInformationForQmlProject():
     fancyToolButton = waitForObject(":*Qt Creator_Core::Internal::FancyToolButton")
-    target = __getTargetFromToolTip__(str(fancyToolButton.toolTip))
-    if not target:
-        test.fatal("Could not figure out which target you're using...")
+    kit = __getTargetFromToolTip__(str(fancyToolButton.toolTip))
+    if not kit:
+        test.fatal("Could not figure out which kit you're using...")
         return None, None, None, None
-    test.log("Searching for Qt information for target '%s'" % target)
+    test.log("Searching for Qt information for kit '%s'" % kit)
     invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Build & Run")
     clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Targets")
-    targetsTreeView = waitForObject(":Targets_QTreeView")
-    if not __selectTreeItemOnBuildAndRun__(targetsTreeView, "%s(\s\(default\))?" % target, True):
-        test.fatal("Found no matching target - this shouldn't happen.")
+    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Kits")
+    targetsTreeView = waitForObject(":Kits_QTreeView")
+    if not __selectTreeItemOnBuildAndRun__(targetsTreeView, "%s(\s\(default\))?" % kit, True):
+        test.fatal("Found no matching kit - this shouldn't happen.")
         clickButton(waitForObject(":Options.Cancel_QPushButton"))
         return None, None, None, None
-    qtVersionStr = str(waitForObject(":Targets_QtVersion_QComboBox").currentText)
-    test.log("Target '%s' uses Qt Version '%s'" % (target, qtVersionStr))
+    qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
+    test.log("Kit '%s' uses Qt Version '%s'" % (kit, qtVersionStr))
     clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Qt Versions")
     treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
     if not __selectTreeItemOnBuildAndRun__(treeWidget, qtVersionStr):
-        test.fatal("Found no matching Qt Version for target - this shouldn't happen.")
+        test.fatal("Found no matching Qt Version for kit - this shouldn't happen.")
         clickButton(waitForObject(":Options.Cancel_QPushButton"))
         return None, None, None, None
     qmake = str(waitForObject(":QtSupport__Internal__QtVersionManager.qmake_QLabel").text)
@@ -179,12 +179,11 @@ def getQtInformationForQmlProject():
 
 def __selectTreeItemOnBuildAndRun__(treeViewOrWidget, itemText, isRegex=False):
     model = treeViewOrWidget.model()
-    test.compare(model.rowCount(), 2, "Verifying expected target section count")
+    test.compare(model.rowCount(), 2, "Verifying expected section count")
     autoDetected = model.index(0, 0)
-    test.compare(autoDetected.data().toString(), "Auto-detected",
-                 "Verifying label for target section")
+    test.compare(autoDetected.data().toString(), "Auto-detected", "Verifying label for section")
     manual = model.index(1, 0)
-    test.compare(manual.data().toString(), "Manual", "Verifying label for target section")
+    test.compare(manual.data().toString(), "Manual", "Verifying label for section")
     if isRegex:
         pattern = re.compile(itemText)
     found = False

@@ -832,6 +832,8 @@ SftpChannelPrivate::JobMap::Iterator SftpChannelPrivate::lookupJob(SftpJobId id)
 
 void SftpChannelPrivate::closeHook()
 {
+    for (JobMap::ConstIterator it = m_jobs.constBegin(); it != m_jobs.constEnd(); ++it)
+        emit finished(it.key(), tr("SFTP channel closed unexpectedly."));
     m_jobs.clear();
     m_incomingData.clear();
     m_incomingPacket.clear();

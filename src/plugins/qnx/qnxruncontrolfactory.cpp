@@ -116,7 +116,7 @@ bool QnxRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mo
     return true;
 }
 
-RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode)
+RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mode, QString *errorMessage)
 {
     Q_ASSERT(canRun(runConfig, mode));
 
@@ -126,7 +126,7 @@ RunControl *QnxRunControlFactory::create(RunConfiguration *runConfig, RunMode mo
         return new QnxRunControl(rc);
 
     const DebuggerStartParameters params = createStartParameters(rc);
-    DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc);
+    DebuggerRunControl * const runControl = DebuggerPlugin::createDebugger(params, rc, errorMessage);
     if (!runControl)
         return 0;
 

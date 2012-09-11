@@ -85,6 +85,7 @@ private:
     QString m_makeArguments;
     QString m_makeCommand;
     bool m_clean;
+    QList<ProjectExplorer::Task> m_tasks;
 };
 
 class GenericMakeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget

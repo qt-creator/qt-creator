@@ -157,6 +157,9 @@ ProjectExplorer::BuildStepConfigWidget *BlackBerryCreatePackageStep::createConfi
 QString BlackBerryCreatePackageStep::debugToken() const
 {
     BlackBerryDeviceConfiguration::ConstPtr device = BlackBerryDeviceConfiguration::device(target()->kit());
+    if (!device)
+        return QString();
+
     return device->debugToken();
 }
 

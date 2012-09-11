@@ -159,3 +159,18 @@ include(qml/qml.pri)
 include(namedemangler/namedemangler.pri)
 
 include(shared/shared.pri)
+
+equals(TEST, 1):!isEmpty(copydata) {
+    TEST_DIR = ../../../tests/manual/debugger/simple
+    INPUT_FILE = $$PWD/$$TEST_DIR/simple.pro
+    OUTPUT_DIR = $$OUT_PWD/$$TEST_DIR
+    win32 {
+        INPUT_FILE ~= s,/,\\\\,g
+        OUTPUT_DIR ~= s,/,\\\\,g
+    }
+    testfile.target = test_resources
+    testfile.commands = ($$QMAKE_CHK_DIR_EXISTS $$OUTPUT_DIR $$QMAKE_CHK_EXISTS_GLUE $$QMAKE_MKDIR $$OUTPUT_DIR) \
+        && $$QMAKE_COPY $$INPUT_FILE $$OUTPUT_DIR
+    QMAKE_EXTRA_TARGETS += testfile
+    PRE_TARGETDEPS += $$testfile.target
+}

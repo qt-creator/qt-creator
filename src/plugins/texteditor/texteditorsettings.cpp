@@ -113,7 +113,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
     // Add font preference page
     FormatDescriptions formatDescr;
-    formatDescr.append(FormatDescription(C_TEXT, tr("Text"), tr("Generic text.\nApplied for "
+    formatDescr.append(FormatDescription(C_TEXT, tr("Text"), tr("Generic text.\nApplied to "
                                                                 "text, if no other "
                                                                 "rules matching.")));
 
@@ -131,7 +131,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_SEARCH_SCOPE, tr("Search Scope"),
                                          tr("Section where the pattern is searched in.")));
     formatDescr.append(FormatDescription(C_PARENTHESES, tr("Parentheses"),
-                                         tr("Displayed when matching parantheses, square brackets "
+                                         tr("Displayed when matching parentheses, square brackets "
                                             "or curly brackets are found.")));
     formatDescr.append(FormatDescription(C_CURRENT_LINE, tr("Current Line"),
                                          tr("Line where the cursor is placed in.")));
@@ -145,12 +145,12 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
 
 
     formatDescr.append(FormatDescription(C_OCCURRENCES, tr("Occurrences"),
-                                         tr("Occurences of the symbol under the cursor.\n"
-                                            "(Only the backgroud will be applied.)")));
+                                         tr("Occurrences of the symbol under the cursor.\n"
+                                            "(Only the background will be applied.)")));
     formatDescr.append(FormatDescription(C_OCCURRENCES_UNUSED, tr("Unused Occurrence"),
-                                         tr("Occurences of unused variables.")));
+                                         tr("Occurrences of unused variables.")));
     formatDescr.append(FormatDescription(C_OCCURRENCES_RENAME, tr("Renaming Occurrence"),
-                                         tr("Occurences of a symbol that will be renamed.")));
+                                         tr("Occurrences of a symbol that will be renamed.")));
 
     // Standard categories
     formatDescr.append(FormatDescription(C_NUMBER, tr("Number"), tr("Number literal."),
@@ -163,7 +163,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_FIELD, tr("Field"),
                                          tr("Class' data members."), Qt::darkRed));
     formatDescr.append(FormatDescription(C_ENUMERATION, tr("Enumeration"),
-                                         tr("Applied for Enumeration Items."), Qt::darkMagenta));
+                                         tr("Applied to Enumeration Items."), Qt::darkMagenta));
 
     Format functionFormat;
     formatDescr.append(FormatDescription(C_FUNCTION, tr("Function"), tr("Name of a function."),
@@ -228,7 +228,7 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                          tr("Operators. (for example operator++ operator-=)")));
     formatDescr.append(FormatDescription(C_PREPROCESSOR, tr("Preprocessor"),
                                          tr("Preprocessor directives."), Qt::darkBlue));
-    formatDescr.append(FormatDescription(C_LABEL, tr("Label"), tr("Labels for goto steatments."),
+    formatDescr.append(FormatDescription(C_LABEL, tr("Label"), tr("Labels for goto statements."),
                                          Qt::darkRed));
     formatDescr.append(FormatDescription(C_COMMENT, tr("Comment"),
                                          tr("All style of comments except Doxygen comments."),
@@ -238,17 +238,17 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_DOXYGEN_TAG, tr("Doxygen Tag"), tr("Doxygen tags"),
                                          Qt::blue));
     formatDescr.append(FormatDescription(C_VISUAL_WHITESPACE, tr("Visual Whitespace"),
-                                         tr("Whitespace\nWill not be applied for whitespace "
+                                         tr("Whitespace\nWill not be applied to whitespace "
                                             "in comments and strings."), Qt::lightGray));
     formatDescr.append(FormatDescription(C_DISABLED_CODE, tr("Disabled Code"),
                                          tr("Code disabled by preprocessor directives.")));
 
     // Diff categories
     formatDescr.append(FormatDescription(C_ADDED_LINE, tr("Added Line"),
-                                         tr("Applied for added lines in differences "
+                                         tr("Applied to added lines in differences "
                                             "(in diff editor)."), QColor(0, 170, 0)));
     formatDescr.append(FormatDescription(C_REMOVED_LINE, tr("Removed Line"),
-                                         tr("Applied for removed lines "
+                                         tr("Applied to removed lines "
                                             "in differences (in diff editor)."), Qt::red));
     formatDescr.append(FormatDescription(C_DIFF_FILE, tr("Diff File"),
                                          tr("Compared files (in diff editor)."), Qt::darkBlue));

@@ -59,8 +59,11 @@ public:
     DeviceProcess currentProcess() const;
     KitChooser *kitChooser() const;
     void logMessage(const QString &line);
+    DeviceProcessesDialog(KitChooser *chooser, QWidget *parent);
 
 private:
+    void setKitVisible(bool);
+
     Internal::DeviceProcessesDialogPrivate * const d;
 };
 

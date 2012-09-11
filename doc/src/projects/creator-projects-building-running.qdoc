@@ -108,15 +108,6 @@
             development PC than to use the emulators. The emulator is installed
             as part of the \QSDK.
 
-        \o  \l{Building with Remote Compiler}
-
-            You can use a compilation service at Nokia Developer to build Qt
-            applications and create installation packages for mobile device
-            targets when you do not have the necessary tool chains and SDKs
-            installed or they are not supported on the development PC. You can
-            choose from a set of supported devices. You can install the Remote
-            Compiler target as part of the \QSDK.
-
     \endlist
 
 */

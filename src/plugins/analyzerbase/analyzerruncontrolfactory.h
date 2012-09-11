@@ -51,7 +51,8 @@ public:
     QString displayName() const;
     bool canRun(RunConfiguration *runConfiguration, ProjectExplorer::RunMode mode) const;
     ProjectExplorer::RunControl *create(RunConfiguration *runConfiguration,
-                                        ProjectExplorer::RunMode mode);
+                                        ProjectExplorer::RunMode mode,
+                                        QString *errorMessage);
     ProjectExplorer::IRunConfigurationAspect *createRunConfigurationAspect();
     ProjectExplorer::RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 

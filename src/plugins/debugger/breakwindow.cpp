@@ -151,7 +151,7 @@ BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
     : QDialog(parent), m_enabledParts(~0), m_previousType(UnknownType),
       m_firstTypeChange(true)
 {
-    setWindowTitle(tr("Edit Breakpoint Properties", 0, QApplication::UnicodeUTF8));
+    setWindowTitle(tr("Edit Breakpoint Properties"));
 
     QGroupBox *groupBoxBasic = new QGroupBox(tr("Basic"), this);
 

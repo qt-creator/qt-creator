@@ -47,7 +47,8 @@ class AndroidDebugSupport : public QObject
     Q_OBJECT
 
 public:
-    static ProjectExplorer::RunControl *createDebugRunControl(AndroidRunConfiguration *runConfig);
+    static ProjectExplorer::RunControl *createDebugRunControl(AndroidRunConfiguration *runConfig,
+                                                              QString *errorMessage);
 
     AndroidDebugSupport(AndroidRunConfiguration *runConfig,
         Debugger::DebuggerRunControl *runControl);

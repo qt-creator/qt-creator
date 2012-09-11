@@ -20,10 +20,10 @@
     /*!
 
     \contentspage index.html
-    \previouspage creator-connecting-mobile.html
+    \previouspage creator-developing-maemo.html
     \page creator-developing-meego.html
     \if defined(qcmanual)
-    \nextpage creator-developing-generic-linux.html
+    \nextpage creator-developing-qnx.html
     \else
     \nextpage creator-developing-maemo.html
     \endif
@@ -235,7 +235,7 @@
     device.
 
     You use a wizard to create the connections. You can edit the settings later
-    in \gui {Tools > Options > Linux Devices > Device Configurations}.
+    in \gui Tools > \gui Options > \gui Devices.
 
     \image qtcreator-meego-device-configurations.png "MeeGo Device Configurations dialog"
 
@@ -294,20 +294,15 @@
                     port issue, switch to a different port or use WLAN to
                     connect to the device.
 
-                \o  Select \gui {Tools > Options > Linux Devices > Device
-                    Configurations > Add}.
+                \o  Select \gui Tools > \gui Options > \gui Devices > \gui Add.
 
-                \o  Select \gui {Device with MADDE support (Fremantle, Harmattan,
-                    MeeGo) > Start Wizard}, and add a new configuration for a
-                    hardware device.
+                \o  Select \gui {MeeGo 1.2 Harmattan} > \gui {Start Wizard} to
+                    add a new configuration for a device.
 
                     \image qtcreator-screenshot-devconf.png
 
                 \o  In the \gui {The name to identify this configuration} field,
                     enter a name for the connection.
-
-                \o  In the \gui {The system running on the device} field, select
-                    the software platform of the device.
 
                 \o  In the \gui {The kind of device} field, select
                     \gui {Hardware device}.
@@ -322,7 +317,7 @@
                 \o  Click \gui Next.
 
                 \o  Follow the instructions of the wizard to create the
-                    connection.
+                    configuration.
 
             \endlist
 
@@ -335,20 +330,16 @@
 
             \list a
 
-                \o  In \QC, select \gui {Tools > Options > Linux
-                    Devices > Device Configurations > Add} to add a new
-                    configuration.
+                \o  In \QC, select \gui Tools > \gui Options > \gui Devices >
+                    \gui Add to add a new configuration.
 
-                    \image qtcreator-meego-emulator-connection.png
+                \o  Select \gui {MeeGo 1.2 Harmattan} > \gui {Start Wizard}.
 
                 \o  In the \gui {The name to identify this configuration} field,
                     enter a name for the connection.
 
-                \o  In the \gui {The system running on the device} field, select
-                    the software platform to emulate.
-
                 \o  In the \gui {The kind of device} field, select
-                    \gui {Emulator (Qemu)}.
+                    \gui Emulator.
 
                 \o  Click \gui Next.
 
@@ -356,35 +347,59 @@
                     connection.
 
                     SDK Connectivity is not needed for emulator connections, and
-                    therefore, you do nt need to authenticate the emulator
+                    therefore, you do not need to authenticate the emulator
                     connection.
 
             \endlist
 
         \endif
 
-            \o  To specify build and run settings:
+            \o  Select \gui Tools > \gui Options > \gui {Build & Run} >
+                \gui Kits > \gui Add to add a kit for building for the device:
 
-                \list a
+            \list a
+
+                \o  In the \gui {Device type} field, select
+                    \gui {MeeGo 1.2 Harmattan}.
+
+                \o  In the \gui Device field, select the device that you added
+                    above.
+
+                \o  In the \gui Sysroot field, specify the path to the sysroot.
+                    By default, the \QSDK installer places sysroot in the
+                    following folder:
+                    \c{QtSDK\Madde\bin\sysroots\harmattan_sysroot_10.2011.34-1_slim}.
+
+                \o  In the \gui {Compiler type} field, select GCC.
+
+                \o  In the \gui Compiler field, specify the path to the GCC
+                    compiler. By default, the \QSDK installer places the
+                    compiler in the following folder:
+                    \c{QtSDK\Madde\targets\harmattan_10.2011.34-1_rt1.2\bin\}.
+
+                \o  In the \gui Debugger field, specify the path to GDB. By
+                    default, the \QSDK installer places the debugger
+                    in the following folder:
+                    \c{QtSDK\Madde\targets\harmattan_10.2011.34-1_rt1.2\bin\}.
+
+                \o  In the \gui {Qt version} field, choose the MADDE Qt version
+                    for MeeGo 1.2 Harmattan. By default, the \QSDK installer
+                    places qmake in the following folder:
+                    \c{QtSDK\Madde\targets\harmattan_10.2011.34-1_rt1.2\bin\}.
+
+             \endlist
+
+                You can leave the \gui {Qt mkspec} field empty.
 
                     \o  Open a project for an application you want to develop
                         for your device.
 
-                    \o  Click \gui Projects to open the projects mode.
+            \o  Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+                add the kit that you specified above.
 
-                    \o  In the \gui{Build Settings} section, choose the MADDE Qt
-                        version that was registered by the installation program.
+                \o  Select \gui Run to specify run settings for the project.
 
-                        \image qtcreator-screenshot-build-settings.png
-
-                    \o  In the \gui {Run Settings} section,
-                        \gui {Device configuration} field, select the
-                        device connection or the emulator connection.
-                        \image qtcreator-screenshot-run-settings.png
-
-                 \endlist
-
-                \note The new application wizards automatically set the folder
+            \o  The Qt Quick project wizards automatically set the folder
                 where the file is installed on the device in the \gui {Remote
                 Directory} field. For example, \c {/opt/usr/bin}. If the text
                 \gui {<no target path set>} is displayed, click it to specify a
@@ -408,8 +423,7 @@
         \o  To specify the password, enter the following command:
             \c{/usr/lib/mad-developer/devrootsh passwd user}
 
-        \o  In \QC, select \gui {Tools > Options Linux Devices >
-            Device Configurations}.
+        \o  In \QC, select \gui Tools > \gui Options > \gui Devices.
 
         \o  Specify the username \c user and the password in the device
             configuration.

@@ -83,7 +83,7 @@ void BlackBerryDebugSupport::launchRemoteApplication()
 void BlackBerryDebugSupport::handleStarted()
 {
     m_engine->startParameters().attachPID = m_runner->pid();
-    m_engine->notifyEngineRemoteSetupDone(-1, -1);
+    m_engine->notifyEngineRemoteSetupDone(8000, -1);
 }
 
 void BlackBerryDebugSupport::handleStartFailed(const QString &message)

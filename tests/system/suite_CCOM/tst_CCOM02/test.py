@@ -21,7 +21,7 @@ def main():
     # save all to invoke qml parsing
     invokeMenuItem("File", "Save All")
     # open issues list view
-    ensureChecked(waitForObject(":Issues - Qt Creator_Core::Internal::OutputPaneToggleButton"))
+    ensureChecked(waitForObject(":Qt Creator_Issues_Core::Internal::OutputPaneToggleButton"))
     issuesView = waitForObject(":Qt Creator.Issues_QListView")
     # verify that error is properly reported
     test.verify(checkSyntaxError(issuesView, ["Syntax error"], True),

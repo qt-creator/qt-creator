@@ -67,7 +67,8 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
             this, SIGNAL(removeButtonClicked(int)));
     connect(m_targetSelector, SIGNAL(currentChanged(int,int)),
             this, SIGNAL(currentChanged(int,int)));
-
+    connect(m_targetSelector, SIGNAL(toolTipRequested(QPoint,int)),
+            this, SIGNAL(toolTipRequested(QPoint,int)));
 
     QPalette shadowPal = palette();
     QLinearGradient grad(0, 0, 0, 2);

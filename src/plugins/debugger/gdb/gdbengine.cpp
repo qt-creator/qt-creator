@@ -5004,12 +5004,15 @@ void GdbEngine::handleNamespaceExtraction(const GdbResponse &response)
     QByteArray ba = file.readAll();
     file.close();
     file.remove();
-    int pos = ba.indexOf("7QString9fromAscii");
-    int pos1 = pos - 1;
-    while (pos1 > 0 && ba.at(pos1) != 'N' && ba.at(pos1) > '@')
-        --pos1;
-    ++pos1;
-    const QByteArray ns = ba.mid(pos1, pos - pos1);
+    QByteArray ns;
+    int pos = ba.indexOf("7QString16fromAscii_helper");
+    if (pos > -1) {
+        int pos1 = pos - 1;
+        while (pos1 > 0 && ba.at(pos1) != 'N' && ba.at(pos1) > '@')
+            --pos1;
+        ++pos1;
+        ns = ba.mid(pos1, pos - pos1);
+    }
     if (ns.isEmpty()) {
         showMessage(_("FOUND NON-NAMESPACED QT"));
     } else {

@@ -105,12 +105,12 @@ static void skipExpression(const ushort *&pTokPtr, int &lineNo)
         default:
             switch (tok & TokMask) {
             case TokLiteral:
-            case TokProperty:
             case TokEnvVar:
                 skipStr(tokPtr);
                 break;
             case TokHashLiteral:
             case TokVariable:
+            case TokProperty:
                 skipHashStr(tokPtr);
                 break;
             case TokFuncName:
@@ -325,11 +325,15 @@ static void findProVariables(const ushort *tokPtr, const QStringList &vars,
     while (ushort tok = *tokPtr++) {
         if (tok == TokBranch) {
             uint blockLen = getBlockLen(tokPtr);
-            findProVariables(tokPtr, vars, proVars, lineNo);
-            tokPtr += blockLen;
+            if (blockLen) {
+                findProVariables(tokPtr, vars, proVars, lineNo);
+                tokPtr += blockLen;
+            }
             blockLen = getBlockLen(tokPtr);
-            findProVariables(tokPtr, vars, proVars, lineNo);
-            tokPtr += blockLen;
+            if (blockLen) {
+                findProVariables(tokPtr, vars, proVars, lineNo);
+                tokPtr += blockLen;
+            }
         } else if (tok == TokAssign || tok == TokAppend || tok == TokAppendUnique) {
             if (getLiteral(lastXpr, tokPtr - 1, tmp) && vars.contains(tmp))
                 *proVars << lineNo;

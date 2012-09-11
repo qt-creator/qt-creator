@@ -1365,6 +1365,11 @@ void Qt4Project::configureAsExampleProject(const QStringList &platforms)
     ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(this);
 }
 
+bool Qt4Project::supportsNoTargetPanel() const
+{
+    return true;
+}
+
 // All the Qt4 run configurations should share code.
 // This is a rather suboptimal way to do that for disabledReason()
 // but more pratical then duplicated the code everywhere

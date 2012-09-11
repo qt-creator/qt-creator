@@ -15,8 +15,7 @@ def main():
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
                   "sourceFilesRefreshed(QStringList)")
-    editor = waitForObject("{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' "
-                           "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+    editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     if placeCursorToLine(editor, "MouseArea.*", True):
         type(editor, '<Up>')
         type(editor, '<Return>')

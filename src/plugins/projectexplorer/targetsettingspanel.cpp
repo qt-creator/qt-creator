@@ -31,6 +31,7 @@
 #include "targetsettingspanel.h"
 
 #include "buildsettingspropertiespage.h"
+#include "kitoptionspage.h"
 #include "project.h"
 #include "projectwindow.h"
 #include "runsettingspropertiespage.h"
@@ -50,9 +51,10 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
-#include <QVBoxLayout>
-#include <QStackedWidget>
 #include <QPushButton>
+#include <QStackedWidget>
+#include <QToolTip>
+#include <QVBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -113,7 +115,7 @@ void TargetSettingsPanelWidget::setupUi()
     QVBoxLayout *noTargetLayout = new QVBoxLayout(m_noTargetLabel);
     noTargetLayout->setMargin(0);
     QLabel *label = new QLabel(m_noTargetLabel);
-    label->setText(tr("No kit defined."));
+    label->setText(tr("No kit defined in this project."));
     {
         QFont f = label->font();
         f.setPointSizeF(f.pointSizeF() * 1.4);
@@ -142,6 +144,8 @@ void TargetSettingsPanelWidget::setupUi()
             this, SLOT(removeTarget(int)));
     connect(m_selector, SIGNAL(manageButtonClicked()),
             this, SLOT(openTargetPreferences()));
+    connect(m_selector, SIGNAL(toolTipRequested(QPoint,int)),
+            this, SLOT(showTargetToolTip(QPoint,int)));
 
     m_selector->setAddButtonMenu(m_addMenu);
     connect(m_addMenu, SIGNAL(triggered(QAction*)),
@@ -253,6 +257,13 @@ void TargetSettingsPanelWidget::removeTarget(int targetIndex)
 
 }
 
+void TargetSettingsPanelWidget::showTargetToolTip(const QPoint &globalPos, int targetIndex)
+{
+    QTC_ASSERT(targetIndex >= 0 && targetIndex < m_targets.count(), return);
+    Target *target = m_targets.at(targetIndex);
+    QToolTip::showText(globalPos, target->kit()->toHtml());
+}
+
 void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
 {
     Q_ASSERT(m_project == target->project());
@@ -338,6 +349,13 @@ void TargetSettingsPanelWidget::renameTarget()
 
 void TargetSettingsPanelWidget::openTargetPreferences()
 {
+    int targetIndex = m_selector->currentIndex();
+    if (targetIndex >= 0 && targetIndex < m_targets.size()) {
+        ProjectExplorer::KitOptionsPage *page =
+                ExtensionSystem::PluginManager::instance()->getObject<ProjectExplorer::KitOptionsPage>();
+        if (page)
+            page->showKit(m_targets.at(targetIndex)->kit());
+    }
     Core::ICore::showOptionsDialog(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
                                    QLatin1String(Constants::KITS_SETTINGS_PAGE_ID));
 }

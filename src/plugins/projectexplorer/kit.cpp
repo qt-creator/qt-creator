@@ -150,6 +150,8 @@ void Kit::setDisplayName(const QString &name)
 
     QStringList nameList;
     foreach (Kit *p, pm->kits()) {
+        if (p == this)
+            continue;
         nameList << p->displayName();
         foreach (KitInformation *ki, kitInfo) {
             const QString postfix = ki->displayNamePostfix(p);

@@ -2085,6 +2085,8 @@ QTextCodec *EditorManager::defaultTextCodec() const
     if (QTextCodec *candidate = QTextCodec::codecForName(
             settings->value(QLatin1String(Constants::SETTINGS_DEFAULTTEXTENCODING)).toByteArray()))
         return candidate;
+    if (QTextCodec *defaultUTF8 = QTextCodec::codecForName("UTF-8"))
+        return defaultUTF8;
     return QTextCodec::codecForLocale();
 }
 

@@ -20,7 +20,7 @@
     /*!
 
     \contentspage index.html
-    \previouspage creator-developing-meego.html
+    \previouspage creator-developing-android.html
     \page creator-developing-generic-linux.html
     \nextpage creator-developing-maemo.html
 
@@ -39,7 +39,7 @@
     create device configurations and select them in the \QC \l{glossary-buildandrun-kit}{kit}
 
     You use a wizard to create the connections. You can edit the settings later
-    in \gui {Tools > Options > Devices > Devices}.
+    in \gui Tools > \gui Options > \gui Devices.
 
     \image qtcreator-linux-device-configurations.png "Devices dialog"
 
@@ -67,8 +67,8 @@
 
             \list 1
 
-                \o  Select \gui {Tools > Options > Linux Devices > Devices > Add
-                    > Generic Linux Device > Start Wizard}.
+                \o  Select \gui Tools > \gui Options > \gui Devices > \gui Add
+                    > \gui {Generic Linux Device} > \gui {Start Wizard}.
 
                     \image qtcreator-screenshot-devconf-linux.png "Connection Data wizard"
 
@@ -103,13 +103,12 @@
             \o  Open a project for an application you want to develop for the
                 device.
 
-            \o  Select \gui {Projects > Build & Run Settings > Add Kit}.
-
-            \o  Select the kit that you added above.
+            \o  Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+                add the kit that you specified above.
 
         \endlist
 
-        \o  To specify run settings, select \gui Run.
+        \o  Select \gui Run to specify run settings.
 
                 \image qtcreator-run-settings-linux-devices.png "Run settings for embedded Linux devices"
 

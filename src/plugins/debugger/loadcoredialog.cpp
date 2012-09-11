@@ -33,6 +33,7 @@
 #include "debuggerconstants.h"
 #include "debuggercore.h"
 #include "debuggerstartparameters.h"
+#include "debuggerdialogs.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/abi.h>
@@ -245,7 +246,8 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 
     d->settings = ICore::settings();
 
-    d->kitChooser = new KitChooser(this);
+    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::RemoteDebugging, this);
+    d->kitChooser->populate();
 
     d->selectRemoteCoreButton = new QPushButton(tr("Browse..."), this);
     d->remoteCoreFileName = new QLineEdit(this);

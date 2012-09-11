@@ -4066,7 +4066,7 @@ void BaseTextEditorWidget::updateHighlights()
             d->m_parenthesesMatchingTimer->start(50);
         } else {
              // use 0-timer, not direct call, to give the syntax highlighter a chance
-            // to update the parantheses information
+            // to update the parentheses information
             d->m_parenthesesMatchingTimer->start(0);
         }
     }
