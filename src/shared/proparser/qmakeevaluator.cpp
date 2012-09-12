@@ -683,8 +683,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
         case TokNext:
             ret = ReturnNext;
           ctrlstm:
-            if (!m_skipLevel && okey != or_op)
+            if (!m_skipLevel && okey != or_op) {
+                traceMsg("flow control statement '%s', aborting block", dbgReturn(ret));
                 return ret;
+            }
+            traceMsg("skipped flow control statement '%s'", dbgReturn(ret));
             okey = false, or_op = true; // force next evaluation
             continue;
         default: {
