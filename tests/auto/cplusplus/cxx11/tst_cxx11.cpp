@@ -44,7 +44,7 @@ using namespace CPlusPlus;
       QByteArray expectedErrors; \
       if (e.open(QFile::ReadOnly)) \
         expectedErrors = QTextStream(&e).readAll().toUtf8(); \
-      QCOMPARE(errors, expectedErrors); \
+      QCOMPARE(QString::fromLatin1(errors), QString::fromLatin1(expectedErrors)); \
     } while (0)
 
 
@@ -57,7 +57,7 @@ class tst_cxx11: public QObject
     */
     static QString testdata(const QString &name = QString())
     {
-        static const QString dataDirectory = QDir::currentPath() + QLatin1String("/data");
+        static const QString dataDirectory = QLatin1String(TESTSRCDIR) + QLatin1String("/data");
         QString result = dataDirectory;
         if (!name.isEmpty()) {
             result += QLatin1Char('/');
@@ -106,6 +106,8 @@ class tst_cxx11: public QObject
             doc->translationUnit()->setCxxOxEnabled(true);
             doc->check();
             doc->control()->setDiagnosticClient(0);
+        } else {
+            qWarning() << "could not read file" << fileName;
         }
         return doc;
     }
@@ -114,12 +116,8 @@ private Q_SLOTS:
     //
     // checks for the syntax
     //
-    void inlineNamespace_data();
-    void inlineNamespace();
-    void staticAssert();
-    void staticAssert_data();
-    void noExcept();
-    void noExcept_data();
+    void parse_data();
+    void parse();
 
     //
     // checks for the semantic
@@ -128,15 +126,18 @@ private Q_SLOTS:
 };
 
 
-void tst_cxx11::inlineNamespace_data()
+void tst_cxx11::parse_data()
 {
     QTest::addColumn<QString>("file");
     QTest::addColumn<QString>("errorFile");
 
     QTest::newRow("inlineNamespace.1") << "inlineNamespace.1.cpp" << "inlineNamespace.1.errors.txt";
+    QTest::newRow("staticAssert.1") << "staticAssert.1.cpp" << "staticAssert.1.errors.txt";
+    QTest::newRow("noExcept.1") << "noExcept.1.cpp" << "noExcept.1.errors.txt";
+    QTest::newRow("braceInitializers.1") << "braceInitializers.1.cpp" << "braceInitializers.1.errors.txt";
 }
 
-void tst_cxx11::inlineNamespace()
+void tst_cxx11::parse()
 {
     QFETCH(QString, file);
     QFETCH(QString, errorFile);
@@ -164,50 +165,6 @@ void tst_cxx11::inlineNamespaceLookup()
 
     QList<LookupItem> results = context.lookup(control->identifier("foo"), doc->globalNamespace());
     QCOMPARE(results.size(), 1); // the symbol is visible from the global scope
-}
-
-void tst_cxx11::staticAssert_data()
-{
-    QTest::addColumn<QString>("file");
-    QTest::addColumn<QString>("errorFile");
-
-    QTest::newRow("staticAssert.1") << "staticAssert.1.cpp" << "staticAssert.1.errors.txt";
-}
-
-void tst_cxx11::staticAssert()
-{
-    QFETCH(QString, file);
-    QFETCH(QString, errorFile);
-
-    QByteArray errors;
-    Document::Ptr doc = document(file, &errors);
-
-    if (! qgetenv("DEBUG").isNull())
-        printf("%s\n", errors.constData());
-
-    VERIFY_ERRORS();
-}
-
-void tst_cxx11::noExcept_data()
-{
-    QTest::addColumn<QString>("file");
-    QTest::addColumn<QString>("errorFile");
-
-    QTest::newRow("noExcept.1") << "noExcept.1.cpp" << "noExcept.1.errors.txt";
-}
-
-void tst_cxx11::noExcept()
-{
-    QFETCH(QString, file);
-    QFETCH(QString, errorFile);
-
-    QByteArray errors;
-    Document::Ptr doc = document(file, &errors);
-
-    if (! qgetenv("DEBUG").isNull())
-        printf("%s\n", errors.constData());
-
-    VERIFY_ERRORS();
 }
 
 QTEST_APPLESS_MAIN(tst_cxx11)

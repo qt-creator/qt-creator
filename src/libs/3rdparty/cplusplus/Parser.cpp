@@ -2493,6 +2493,10 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             consumeToken();
     }
 
+    const bool isFunctionDeclarator = node
+            && node->postfix_declarator_list
+            && node->postfix_declarator_list->lastValue()
+            && node->postfix_declarator_list->lastValue()->asFunctionDeclarator();
     if (declaringClass && LA() == T_COLON
             && (! node || ! node->postfix_declarator_list)) {
         unsigned colon_token = consumeToken();
@@ -2506,7 +2510,7 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             return true;
         }
         rewind(colon_token);
-    } else if (node->core_declarator && (LA() == T_EQUAL || (! declaringClass && LA() == T_LPAREN))) {
+    } else if (node->core_declarator && (LA() == T_EQUAL || (_cxx0xEnabled && !isFunctionDeclarator && LA() == T_LBRACE) || (! declaringClass && LA() == T_LPAREN))) {
         parseInitializer(node->initializer, &node->equal_token);
     }
     return true;
