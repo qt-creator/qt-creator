@@ -40,10 +40,12 @@ using namespace CPlusPlus;
 
 #define VERIFY_ERRORS() \
     do { \
-      QFile e(testdata(errorFile)); \
       QByteArray expectedErrors; \
-      if (e.open(QFile::ReadOnly)) \
-        expectedErrors = QTextStream(&e).readAll().toUtf8(); \
+      if (!errorFile.isEmpty()) { \
+        QFile e(testdata(errorFile)); \
+        if (e.open(QFile::ReadOnly)) \
+          expectedErrors = QTextStream(&e).readAll().toUtf8(); \
+      } \
       QCOMPARE(QString::fromLatin1(errors), QString::fromLatin1(expectedErrors)); \
     } while (0)
 
@@ -135,6 +137,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("staticAssert.1") << "staticAssert.1.cpp" << "staticAssert.1.errors.txt";
     QTest::newRow("noExcept.1") << "noExcept.1.cpp" << "noExcept.1.errors.txt";
     QTest::newRow("braceInitializers.1") << "braceInitializers.1.cpp" << "braceInitializers.1.errors.txt";
+    QTest::newRow("defaultdeleteInitializer.1") << "defaultdeleteInitializer.1.cpp" << "";
 }
 
 void tst_cxx11::parse()

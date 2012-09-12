@@ -2510,6 +2510,19 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             return true;
         }
         rewind(colon_token);
+    } else if (isFunctionDeclarator && declaringClass && node->core_declarator && LA() == T_EQUAL && LA(3) == T_SEMICOLON) { // = 0, = delete, = default
+        if (!_cxx0xEnabled || LA(2) == T_NUMERIC_LITERAL) {
+            parseInitializer(node->initializer, &node->equal_token);
+        } else {
+            node->equal_token = consumeToken();
+
+            IdExpressionAST *id_expr = new (_pool) IdExpressionAST;
+            node->initializer = id_expr;
+
+            SimpleNameAST *simple_name = new (_pool) SimpleNameAST;
+            id_expr->name = simple_name;
+            simple_name->identifier_token = consumeToken();
+        }
     } else if (node->core_declarator && (LA() == T_EQUAL || (_cxx0xEnabled && !isFunctionDeclarator && LA() == T_LBRACE) || (! declaringClass && LA() == T_LPAREN))) {
         parseInitializer(node->initializer, &node->equal_token);
     }
