@@ -202,6 +202,7 @@ void ClearCasePlugin::cleanCheckInMessageFile()
     if (!m_checkInMessageFileName.isEmpty()) {
         QFile::remove(m_checkInMessageFileName);
         m_checkInMessageFileName.clear();
+        m_checkInView.clear();
     }
 }
 
@@ -496,7 +497,7 @@ bool ClearCasePlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *sub
 
 void ClearCasePlugin::diffCheckInFiles(const QStringList &files)
 {
-    ccDiffWithPred(files);
+    ccDiffWithPred(m_checkInView, files);
 }
 
 static inline void setDiffBaseDirectory(Core::IEditor *editor, const QString &db)
@@ -563,7 +564,7 @@ ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString 
     QTC_CHECK(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_checkInSelectedAction, m_checkInDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCheckInFiles(QStringList)));
-    submitEditor->setCheckScriptWorkingDirectory(currentState().topLevel());
+    submitEditor->setCheckScriptWorkingDirectory(m_checkInView);
     return submitEditor;
 }
 
@@ -738,18 +739,17 @@ QString ClearCasePlugin::ccGetFileVersion(const QString &workingDir, const QStri
     return runCleartoolSync(workingDir, args).trimmed();
 }
 
-void ClearCasePlugin::ccDiffWithPred(const QStringList &files)
+void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringList &files)
 {
     if (ClearCase::Constants::debug)
         qDebug() << Q_FUNC_INFO << files;
-    QString topLevel = currentState().topLevel();
-    const QString source = VcsBase::VcsBaseEditorWidget::getSource(topLevel, files);
+    const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBase::VcsBaseEditorWidget::getCodec(source);
 
     if ((m_settings.diffType == GraphicalDiff) && (files.count() == 1)) {
         QString file = files.first();
         if (m_statusMap->value(file).status == FileStatus::Hijacked)
-            diffGraphical(ccGetFileVersion(topLevel, file), file);
+            diffGraphical(ccGetFileVersion(workingDir, file), file);
         else
             diffGraphical(file);
         return; // done here, diff is opened in a new window
@@ -762,7 +762,7 @@ void ClearCasePlugin::ccDiffWithPred(const QStringList &files)
     QString result;
     foreach (const QString &file, files) {
         if (m_statusMap->value(QDir::fromNativeSeparators(file)).status == FileStatus::Hijacked)
-            result += diffExternal(ccGetFileVersion(topLevel, file), file);
+            result += diffExternal(ccGetFileVersion(workingDir, file), file);
         else
             result += diffExternal(file);
     }
@@ -771,20 +771,20 @@ void ClearCasePlugin::ccDiffWithPred(const QStringList &files)
 
     // diff of a single file? re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, topLevel, files);
+    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, workingDir, files);
     if (files.count() == 1) {
         // Show in the same editor if diff has been executed before
         if (Core::IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
             existingEditor->createNew(result);
             Core::EditorManager::activateEditor(existingEditor, Core::EditorManager::ModeSwitch);
-            setDiffBaseDirectory(existingEditor, topLevel);
+            setDiffBaseDirectory(existingEditor, workingDir);
             return;
         }
         diffname = QDir::toNativeSeparators(files.first());
     }
     const QString title = QString::fromLatin1("cc diff %1").arg(diffname);
     Core::IEditor *editor = showOutputInEditor(title, result, VcsBase::DiffOutput, source, codec);
-    setDiffBaseDirectory(editor, topLevel);
+    setDiffBaseDirectory(editor, workingDir);
     VcsBase::VcsBaseEditorWidget::tagEditor(editor, tag);
     ClearCaseEditor *diffEditorWidget = qobject_cast<ClearCaseEditor *>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return);
@@ -884,7 +884,7 @@ void ClearCasePlugin::diffCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    ccDiffWithPred(QStringList(state.relativeCurrentFile()));
+    ccDiffWithPred(state.topLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void ClearCasePlugin::startCheckInCurrentFile()
@@ -974,6 +974,7 @@ void ClearCasePlugin::startCheckIn(const QString &workingDir, const QStringList 
         return;
     }
     m_checkInMessageFileName = saver.fileName();
+    m_checkInView = workingDir;
     // Create a submit editor and set file list
     ClearCaseSubmitEditor *editor = openClearCaseSubmitEditor(m_checkInMessageFileName);
     editor->setStatusList(files);
@@ -1373,10 +1374,9 @@ bool ClearCasePlugin::vcsCheckIn(const QString &messageFile, const QStringList &
     if (files.isEmpty())
         return true;
     const QString title = QString::fromLatin1("Checkin %1").arg(files.join(QLatin1String("; ")));
-    QString workingDir = currentState().topLevel();
     typedef QSharedPointer<Core::FileChangeBlocker> FCBPointer;
     replaceActivity &= (activity != QLatin1String(Constants::KEEP_ACTIVITY));
-    if (replaceActivity && !vcsSetActivity(workingDir, title, activity))
+    if (replaceActivity && !vcsSetActivity(m_checkInView, title, activity))
         return false;
     QFile msgFile(messageFile);
     msgFile.open(QFile::ReadOnly | QFile::Text);
@@ -1395,11 +1395,11 @@ bool ClearCasePlugin::vcsCheckIn(const QString &messageFile, const QStringList &
     args << files;
     QList<FCBPointer> blockers;
     foreach (QString fileName, files) {
-        FCBPointer fcb(new Core::FileChangeBlocker(QFileInfo(workingDir, fileName).canonicalFilePath()));
+        FCBPointer fcb(new Core::FileChangeBlocker(QFileInfo(m_checkInView, fileName).canonicalFilePath()));
         blockers.append(fcb);
     }
     const ClearCaseResponse response =
-            runCleartool(workingDir, args, m_settings.longTimeOutMS(), ShowStdOutInLogWindow);
+            runCleartool(m_checkInView, args, m_settings.longTimeOutMS(), ShowStdOutInLogWindow);
     QRegExp checkedIn(QLatin1String("Checked in \\\"([^\"]*)\\\""));
     bool anySucceeded = false;
     int offset = checkedIn.indexIn(response.stdOut);

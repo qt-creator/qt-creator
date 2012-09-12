@@ -68,9 +68,9 @@ bool MaemoGlobal::hasMaemoDevice(const Kit *k)
     return type == Maemo5OsType || type == HarmattanOsType;
 }
 
-bool MaemoGlobal::supportsMaemoDevice(const Kit *p)
+bool MaemoGlobal::supportsMaemoDevice(const Kit *k)
 {
-    const Core::Id type = DeviceTypeKitInformation::deviceTypeId(p);
+    const Core::Id type = DeviceTypeKitInformation::deviceTypeId(k);
     return type == Maemo5OsType || type == HarmattanOsType;
 }
 

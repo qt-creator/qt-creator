@@ -131,7 +131,7 @@ public:
     QHash<QString,QString> versionInfo() const;
     static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name);
     QString qmakeProperty(const QByteArray &name) const;
-    virtual void addToEnvironment(const ProjectExplorer::Kit *p, Utils::Environment &env) const;
+    virtual void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
 
     virtual Utils::FileName sourcePath() const;
     // used by QtUiCodeModelSupport
@@ -153,7 +153,7 @@ public:
     bool hasDemos() const;
     QString demosPath() const;
 
-    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPathes(const ProjectExplorer::Kit *p) const;
+    virtual QList<ProjectExplorer::HeaderPath> systemHeaderPathes(const ProjectExplorer::Kit *k) const;
     virtual QString frameworkInstallPath() const;
 
     // former local functions

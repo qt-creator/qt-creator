@@ -46,11 +46,11 @@ namespace Internal {
 class KitNode
 {
 public:
-    explicit KitNode(KitNode *pn, Kit *k = 0, bool c = false) :
-        parent(pn), kit(k), changed(c)
+    explicit KitNode(KitNode *kn, Kit *k = 0, bool c = false) :
+        parent(kn), kit(k), changed(c)
     {
-        if (pn)
-            pn->childNodes.append(this);
+        if (kn)
+            kn->childNodes.append(this);
         widget = KitManager::instance()->createConfigWidget(k);
         if (widget) {
             if (k && k->isAutoDetected())

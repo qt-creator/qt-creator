@@ -170,7 +170,7 @@ public:
     bool canRestore(const ProjectExplorer::Target *parent, const QVariantMap &map) const;
     ProjectExplorer::BuildConfiguration *restore(ProjectExplorer::Target *parent, const QVariantMap &map);
 
-    static QList<BuildConfigurationInfo> availableBuildConfigurations(const ProjectExplorer::Kit *p, const QString &proFilePath);
+    static QList<BuildConfigurationInfo> availableBuildConfigurations(const ProjectExplorer::Kit *k, const QString &proFilePath);
     static QString buildConfigurationDisplayName(const BuildConfigurationInfo &info);
 
 private slots:

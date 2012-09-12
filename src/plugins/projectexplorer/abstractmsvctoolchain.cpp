@@ -132,12 +132,25 @@ void AbstractMsvcToolChain::addToEnvironment(Utils::Environment &env) const
     env = m_resultEnvironment;
 }
 
-QString AbstractMsvcToolChain::makeCommand() const
+QString AbstractMsvcToolChain::makeCommand(const Utils::Environment &environment) const
 {
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom) {
-        return findInstalledJom();
+    bool useJom = ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom;
+    const QString jom = QLatin1String("jom.exe");
+    const QString nmake = QLatin1String("nmake.exe");
+    QString tmp;
+
+    if (useJom) {
+        tmp = environment.searchInPath(jom, QStringList()
+                                       << QCoreApplication::applicationDirPath());
+        if (!tmp.isEmpty())
+            return tmp;
     }
-    return QLatin1String("nmake.exe");
+    tmp = environment.searchInPath(nmake);
+    if (!tmp.isEmpty())
+        return tmp;
+
+    // Nothing found :(
+    return useJom ? jom : nmake;
 }
 
 Utils::FileName AbstractMsvcToolChain::compilerCommand() const
@@ -264,23 +277,6 @@ bool AbstractMsvcToolChain::generateEnvironmentSettings(Utils::Environment &env,
     varsFile.remove();
 
     return true;
-}
-
-QString AbstractMsvcToolChain::findInstalledJom()
-{
-    if (Abi::hostAbi().os() != Abi::WindowsOS) {
-        qWarning() << "Jom can only be used on Windows";
-        return QString();
-    }
-
-    // We want jom! Try to find it.
-    const QString jom = QLatin1String("jom.exe");
-    const QFileInfo installedJom = QFileInfo(QCoreApplication::applicationDirPath()
-                                             + QLatin1Char('/') + jom);
-    if (installedJom.isFile() && installedJom.isExecutable())
-        return installedJom.absoluteFilePath();
-    else
-        return jom;
 }
 
 bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const

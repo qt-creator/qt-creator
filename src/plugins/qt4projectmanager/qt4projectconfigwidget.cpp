@@ -205,10 +205,10 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     bool incompatibleBuild = false;
     bool allGood = false;
 
-    ProjectExplorer::Kit *p = m_buildConfiguration->target()->kit();
+    ProjectExplorer::Kit *k = m_buildConfiguration->target()->kit();
     const QString proFileName = m_buildConfiguration->target()->project()->document()->fileName();
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(p);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version) {
         m_ui->problemLabel->setVisible(true);
         m_ui->warningLabel->setVisible(true);

@@ -69,7 +69,6 @@ PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
 {
     setRevisionsVisible(true);
     setMarksVisible(true);
-    setRequestMarkEnabled(false);
     setLineSeparatorsAllowed(true);
     setIndenter(new NormalIndenter); // Currently only "normal" indentation is supported.
 

@@ -261,7 +261,7 @@ DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *k, QWi
 
 QString DeviceTypeInformationConfigWidget::displayName() const
 {
-    return tr("Device Type:");
+    return tr("Device type:");
 }
 
 void DeviceTypeInformationConfigWidget::apply()

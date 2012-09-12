@@ -112,7 +112,7 @@ protected:
     virtual bool fromMap(const QVariantMap &map);
 
 private slots:
-    void handleKitUpdate(ProjectExplorer::Kit *p);
+    void handleKitUpdate(ProjectExplorer::Kit *k);
 
 private:
     bool m_clearSystemEnvironment;

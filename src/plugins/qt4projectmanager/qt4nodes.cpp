@@ -730,14 +730,10 @@ void Qt4PriFileNode::watchFolders(const QSet<QString> &folders)
     m_watchedFolders = folders;
 }
 
-void Qt4PriFileNode::folderChanged(const QString &folder)
+void Qt4PriFileNode::folderChanged(const QString &changedFolder)
 {
     //qDebug()<<"########## Qt4PriFileNode::folderChanged";
     // So, we need to figure out which files changed.
-
-    QString changedFolder = folder;
-    if (!changedFolder.endsWith(QLatin1Char('/')))
-        changedFolder.append(QLatin1Char('/'));
 
     // Collect all the files
     QSet<Utils::FileName> newFiles;

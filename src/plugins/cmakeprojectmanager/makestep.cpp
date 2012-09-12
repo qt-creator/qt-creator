@@ -151,7 +151,7 @@ bool MakeStep::init()
     pp->setEnvironment(bc->environment());
     pp->setWorkingDirectory(bc->buildDirectory());
     if (tc)
-        pp->setCommand(tc->makeCommand());
+        pp->setCommand(tc->makeCommand(bc->environment()));
     else
         pp->setCommand(QLatin1String("make"));
     pp->setArguments(arguments);
@@ -283,6 +283,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     connect(pro, SIGNAL(buildTargetsChanged()),
             this, SLOT(buildTargetsChanged()));
+    connect(pro, SIGNAL(environmentChanged()), this, SLOT(updateDetails()));
 }
 
 void MakeStepConfigWidget::additionalArgumentsEdited()
@@ -336,7 +337,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setMacroExpander(bc->macroExpander());
         param.setEnvironment(bc->environment());
         param.setWorkingDirectory(bc->buildDirectory());
-        param.setCommand(tc->makeCommand());
+        param.setCommand(tc->makeCommand(bc->environment()));
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {

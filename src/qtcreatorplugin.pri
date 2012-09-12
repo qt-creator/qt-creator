@@ -33,10 +33,20 @@ isEmpty(TARGET) {
     error("qtcreatorplugin.pri: You must provide a TARGET")
 }
 
+isEqual(QT_MAJOR_VERSION, 5) {
+
+defineReplace(stripOutDir) {
+    return($$relative_path($$1, $$OUT_PWD))
+}
+
+} else { # qt5
+
 defineReplace(stripOutDir) {
     1 ~= s|^$$re_escape($$OUT_PWD/)||$$i_flag
     return($$1)
 }
+
+} # qt5
 
 PLUGINSPEC = $$_PRO_FILE_PWD_/$${TARGET}.pluginspec
 PLUGINSPEC_IN = $${PLUGINSPEC}.in

@@ -119,7 +119,7 @@ bool GenericMakeStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory());
     pp->setEnvironment(bc->environment());
-    pp->setCommand(makeCommand());
+    pp->setCommand(makeCommand(bc->environment()));
     pp->setArguments(allArguments());
 
     // If we are cleaning, then make can fail with an error code, but that doesn't mean
@@ -173,13 +173,13 @@ QString GenericMakeStep::allArguments() const
     return args;
 }
 
-QString GenericMakeStep::makeCommand() const
+QString GenericMakeStep::makeCommand(const Utils::Environment &environment) const
 {
     QString command = m_makeCommand;
     if (command.isEmpty()) {
         ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
         if (tc)
-            command = tc->makeCommand();
+            command = tc->makeCommand(environment);
         else
             command = QLatin1String("make");
     }
@@ -264,6 +264,11 @@ GenericMakeStepConfigWidget::GenericMakeStepConfigWidget(GenericMakeStep *makeSt
 
     connect(m_makeStep->target(), SIGNAL(kitChanged()),
             this, SLOT(updateMakeOverrrideLabel()));
+
+    connect(pro, SIGNAL(environmentChanged()),
+            this, SLOT(updateMakeOverrrideLabel()));
+    connect(pro, SIGNAL(environmentChanged()),
+            this, SLOT(updateDetails()));
 }
 
 GenericMakeStepConfigWidget::~GenericMakeStepConfigWidget()
@@ -278,7 +283,11 @@ QString GenericMakeStepConfigWidget::displayName() const
 
 void GenericMakeStepConfigWidget::updateMakeOverrrideLabel()
 {
-    m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->makeCommand()));
+    GenericBuildConfiguration *bc = m_makeStep->genericBuildConfiguration();
+    if (!bc)
+        bc = static_cast<GenericBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
+
+    m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->makeCommand(bc->environment())));
 }
 
 void GenericMakeStepConfigWidget::updateDetails()
@@ -291,7 +300,7 @@ void GenericMakeStepConfigWidget::updateDetails()
     param.setMacroExpander(bc->macroExpander());
     param.setWorkingDirectory(bc->buildDirectory());
     param.setEnvironment(bc->environment());
-    param.setCommand(m_makeStep->makeCommand());
+    param.setCommand(m_makeStep->makeCommand(bc->environment()));
     param.setArguments(m_makeStep->allArguments());
     m_summaryText = param.summary(displayName());
     emit updateSummary();

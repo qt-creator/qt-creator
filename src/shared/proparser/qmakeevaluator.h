@@ -222,7 +222,6 @@ public:
     static void removeEach(ProStringList *varlist, const ProStringList &value);
 
     QMakeEvaluator *m_caller;
-    int m_loopLevel; // To report unexpected break() and next()s
 #ifdef PROEVALUATOR_CUMULATIVE
     bool m_cumulative;
     int m_skipLevel;

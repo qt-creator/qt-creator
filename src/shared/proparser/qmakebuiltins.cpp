@@ -85,7 +85,7 @@ enum ExpandFunc {
 enum TestFunc {
     T_INVALID = 0, T_REQUIRES, T_GREATERTHAN, T_LESSTHAN, T_EQUALS,
     T_EXISTS, T_EXPORT, T_CLEAR, T_UNSET, T_EVAL, T_CONFIG, T_SYSTEM,
-    T_RETURN, T_BREAK, T_NEXT, T_DEFINED, T_CONTAINS, T_INFILE,
+    T_DEFINED, T_CONTAINS, T_INFILE,
     T_COUNT, T_ISEMPTY, T_INCLUDE, T_LOAD, T_DEBUG, T_LOG, T_MESSAGE, T_WARNING, T_ERROR, T_IF,
     T_MKPATH, T_WRITE_FILE, T_TOUCH, T_CACHE
 };
@@ -157,9 +157,6 @@ void QMakeEvaluator::initFunctionStatics()
         { "if", T_IF },
         { "isActiveConfig", T_CONFIG },
         { "system", T_SYSTEM },
-        { "return", T_RETURN },
-        { "break", T_BREAK },
-        { "next", T_NEXT },
         { "defined", T_DEFINED },
         { "contains", T_CONTAINS },
         { "infile", T_INFILE },
@@ -1066,17 +1063,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         return returnBool(m_functionDefs.replaceFunctions.contains(var)
                           || m_functionDefs.testFunctions.contains(var));
     }
-    case T_RETURN:
-        m_returnValue = args;
-        // It is "safe" to ignore returns - due to qmake brokeness
-        // they cannot be used to terminate loops anyway.
-        if (m_cumulative)
-            return ReturnTrue;
-        if (m_valuemapStack.size() == 1) {
-            evalError(fL1S("unexpected return()."));
-            return ReturnFalse;
-        }
-        return ReturnReturn;
     case T_EXPORT: {
         if (args.count() != 1) {
             evalError(fL1S("export(variable) requires one argument."));
@@ -1147,20 +1133,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             }
             return ret;
         }
-    case T_BREAK:
-        if (m_skipLevel)
-            return ReturnFalse;
-        if (m_loopLevel)
-            return ReturnBreak;
-        evalError(fL1S("Unexpected break()."));
-        return ReturnFalse;
-    case T_NEXT:
-        if (m_skipLevel)
-            return ReturnFalse;
-        if (m_loopLevel)
-            return ReturnNext;
-        evalError(fL1S("Unexpected next()."));
-        return ReturnFalse;
     case T_IF: {
         if (args.count() != 1) {
             evalError(fL1S("if(condition) requires one argument."));

@@ -327,8 +327,8 @@ bool BaseQt4ProjectWizardDialog::isQtPlatformSelected(const QString &platform) c
     QtSupport::QtPlatformKitMatcher matcher(platform);
     QList<ProjectExplorer::Kit *> kitList
             = ProjectExplorer::KitManager::instance()->kits(&matcher);
-    foreach (ProjectExplorer::Kit *p, kitList) {
-        if (selectedKitList.contains(p->id()))
+    foreach (ProjectExplorer::Kit *k, kitList) {
+        if (selectedKitList.contains(k->id()))
             return true;
     }
     return false;

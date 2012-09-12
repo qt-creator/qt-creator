@@ -82,7 +82,7 @@ class MaemoGlobal
     Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::MaemoGlobal)
 public:
     static bool hasMaemoDevice(const ProjectExplorer::Kit *k);
-    static bool supportsMaemoDevice(const ProjectExplorer::Kit *p);
+    static bool supportsMaemoDevice(const ProjectExplorer::Kit *k);
     static bool isValidMaemo5QtVersion(const QString &qmakePath);
     static bool isValidHarmattanQtVersion(const QString &qmakePath);
 

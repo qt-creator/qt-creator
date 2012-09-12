@@ -448,15 +448,15 @@ void CMakeRunPage::runCMake()
 
     int index = m_generatorComboBox->currentIndex();
 
-    ProjectExplorer::Kit *p = 0;
+    ProjectExplorer::Kit *k = 0;
     if (index >= 0)
-        p = static_cast<ProjectExplorer::Kit *>(m_generatorComboBox->itemData(index).value<void *>());
-    if (!p) {
+        k = static_cast<ProjectExplorer::Kit *>(m_generatorComboBox->itemData(index).value<void *>());
+    if (!k) {
         m_output->appendPlainText(tr("No generator selected."));
         return;
     }
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(p);
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
 
     m_runCMake->setEnabled(false);
     m_argumentsLineEdit->setEnabled(false);

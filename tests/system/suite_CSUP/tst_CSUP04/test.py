@@ -51,7 +51,6 @@ def main():
     # exit qt creator
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
-# no cleanup needed, as whole testing directory gets properly removed after test finished
 
 def __handleFutureProgress__(obj):
     global searchFinished

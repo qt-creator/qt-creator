@@ -33,10 +33,15 @@
 
 #include <projectexplorer/kitconfigwidget.h>
 
-#include "debuggerconstants.h"
+#include "debuggerkitinformation.h"
 
-QT_FORWARD_DECLARE_CLASS(QLabel)
-QT_FORWARD_DECLARE_CLASS(QComboBox)
+#include <QDialog>
+
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QComboBox;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Kit; }
 namespace Utils {
@@ -67,23 +72,45 @@ public:
 
     void apply();
     void discard();
-    bool isDirty() const;
+    bool isDirty() const { return m_dirty; }
     QWidget *buttonWidget() const;
-    void addToLayout(QGridLayout *layout, int row);
 
+private slots:
+    void autoDetectDebugger();
+    void showDialog();
+
+private:
+    void setItem(const DebuggerKitInformation::DebuggerItem &item);
+    void doSetItem(const DebuggerKitInformation::DebuggerItem &item);
+
+    ProjectExplorer::Kit *m_kit;
+    const DebuggerKitInformation *m_info;
+    DebuggerKitInformation::DebuggerItem m_item;
+    bool m_dirty;
+    QLabel *m_label;
+    QPushButton *m_button;
+};
+
+class DebuggerKitConfigDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit DebuggerKitConfigDialog(QWidget *parent =  0);
+
+    void setDebuggerItem(const DebuggerKitInformation::DebuggerItem &item);
+    DebuggerKitInformation::DebuggerItem item() const
+        { return DebuggerKitInformation::DebuggerItem(engineType(), fileName()); }
+
+private slots:
+    void refreshLabel();
+
+private:
     DebuggerEngineType engineType() const;
     void setEngineType(DebuggerEngineType et);
 
     Utils::FileName fileName() const;
     void setFileName(const Utils::FileName &fn);
 
-private slots:
-    void autoDetectDebugger();
-    void refreshLabel();
-
-private:
-    ProjectExplorer::Kit *m_kit;
-    const DebuggerKitInformation *m_info;
     QComboBox *m_comboBox;
     QLabel *m_label;
     Utils::PathChooser *m_chooser;

@@ -209,10 +209,10 @@ enum DebuggerConfigurationErrors {
     DebuggerNeedsAbsolutePath = 0x8
 };
 
-static unsigned debuggerConfigurationErrors(const ProjectExplorer::Kit *p)
+static unsigned debuggerConfigurationErrors(const ProjectExplorer::Kit *k)
 {
     unsigned result = 0;
-    const DebuggerKitInformation::DebuggerItem item = DebuggerKitInformation::debuggerItem(p);
+    const DebuggerKitInformation::DebuggerItem item = DebuggerKitInformation::debuggerItem(k);
     if (item.engineType == NoEngineType || item.binary.isEmpty())
         return NoDebugger;
 
@@ -226,36 +226,36 @@ static unsigned debuggerConfigurationErrors(const ProjectExplorer::Kit *p)
     if (!fi.exists() || fi.isDir())
         // We need an absolute path to be able to locate Python on Windows.
         if (item.engineType == GdbEngineType)
-            if (const ToolChain *tc = ToolChainKitInformation::toolChain(p))
+            if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
                 if (tc->targetAbi().os() == Abi::WindowsOS && !fi.isAbsolute())
                     result |= DebuggerNeedsAbsolutePath;
     return result;
 }
 
-bool DebuggerKitInformation::isValidDebugger(const ProjectExplorer::Kit *p)
+bool DebuggerKitInformation::isValidDebugger(const ProjectExplorer::Kit *k)
 {
-    return debuggerConfigurationErrors(p) == 0;
+    return debuggerConfigurationErrors(k) == 0;
 }
 
-QList<ProjectExplorer::Task> DebuggerKitInformation::validateDebugger(const ProjectExplorer::Kit *p)
+QList<ProjectExplorer::Task> DebuggerKitInformation::validateDebugger(const ProjectExplorer::Kit *k)
 {
-    const unsigned errors = debuggerConfigurationErrors(p);
+    const unsigned errors = debuggerConfigurationErrors(k);
     const Core::Id id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     QList<Task> result;
     if (errors & NoDebugger)
         result << Task(Task::Warning, tr("No debugger set up."), FileName(), -1, id);
 
     if (errors & DebuggerNotFound) {
-        const QString path = DebuggerKitInformation::debuggerCommand(p).toUserOutput();
+        const QString path = DebuggerKitInformation::debuggerCommand(k).toUserOutput();
         result << Task(Task::Error, tr("Debugger '%1' not found.").arg(path),
                        FileName(), -1, id);
     }
     if (errors & DebuggerNotExecutable) {
-        const QString path = DebuggerKitInformation::debuggerCommand(p).toUserOutput();
+        const QString path = DebuggerKitInformation::debuggerCommand(k).toUserOutput();
         result << Task(Task::Error, tr("Debugger '%1' not executable.").arg(path), FileName(), -1, id);
     }
     if (errors & DebuggerNeedsAbsolutePath) {
-        const QString path = DebuggerKitInformation::debuggerCommand(p).toUserOutput();
+        const QString path = DebuggerKitInformation::debuggerCommand(k).toUserOutput();
         const QString message =
                 tr("The debugger location must be given as an "
                    "absolute path (%1).").arg(path);
@@ -269,16 +269,17 @@ KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
     return new Internal::DebuggerKitConfigWidget(k, this);
 }
 
-QString DebuggerKitInformation::userOutput(const ProjectExplorer::Kit *k)
+QString DebuggerKitInformation::userOutput(const DebuggerItem &item)
 {
-    const DebuggerItem item = DebuggerKitInformation::debuggerItem(k);
-    return tr("%1 using '%2'").arg(debuggerEngineName(item.engineType),
-                                   item.binary.toUserOutput());
+    const QString binary = item.binary.toUserOutput();
+    return binary.isEmpty() ?
+           tr("%1 <None>").arg(debuggerEngineName(item.engineType)) :
+           tr("%1 using '%2'").arg(debuggerEngineName(item.engineType), binary);
 }
 
 KitInformation::ItemList DebuggerKitInformation::toUserOutput(Kit *k) const
 {
-  return ItemList() << qMakePair(tr("Debugger"), DebuggerKitInformation::userOutput(k));
+    return ItemList() << qMakePair(tr("Debugger"), DebuggerKitInformation::userOutput(DebuggerKitInformation::debuggerItem(k)));
 }
 
 static const char engineTypeKeyC[] = "EngineType";
@@ -308,17 +309,17 @@ QVariant DebuggerKitInformation::itemToVariant(const DebuggerItem &i)
     return QVariant(vmap);
 }
 
-DebuggerKitInformation::DebuggerItem DebuggerKitInformation::debuggerItem(const ProjectExplorer::Kit *p)
+DebuggerKitInformation::DebuggerItem DebuggerKitInformation::debuggerItem(const ProjectExplorer::Kit *k)
 {
-    return p ?
-           DebuggerKitInformation::variantToItem(p->value(Core::Id(DEBUGGER_INFORMATION))) :
+    return k ?
+           DebuggerKitInformation::variantToItem(k->value(Core::Id(DEBUGGER_INFORMATION))) :
            DebuggerItem();
 }
 
-void DebuggerKitInformation::setDebuggerItem(ProjectExplorer::Kit *p, const DebuggerItem &item)
+void DebuggerKitInformation::setDebuggerItem(ProjectExplorer::Kit *k, const DebuggerItem &item)
 {
-    QTC_ASSERT(p, return);
-    p->setValue(Core::Id(DEBUGGER_INFORMATION), itemToVariant(item));
+    QTC_ASSERT(k, return);
+    k->setValue(Core::Id(DEBUGGER_INFORMATION), itemToVariant(item));
 }
 
 void DebuggerKitInformation::setDebuggerCommand(ProjectExplorer::Kit *k, const FileName &command)
@@ -326,9 +327,9 @@ void DebuggerKitInformation::setDebuggerCommand(ProjectExplorer::Kit *k, const F
     setDebuggerItem(k, DebuggerItem(engineType(k), command));
 }
 
-void DebuggerKitInformation::setEngineType(ProjectExplorer::Kit *p, DebuggerEngineType type)
+void DebuggerKitInformation::setEngineType(ProjectExplorer::Kit *k, DebuggerEngineType type)
 {
-    setDebuggerItem(p, DebuggerItem(type, debuggerCommand(p)));
+    setDebuggerItem(k, DebuggerItem(type, debuggerCommand(k)));
 }
 
 QString DebuggerKitInformation::debuggerEngineName(DebuggerEngineType t)

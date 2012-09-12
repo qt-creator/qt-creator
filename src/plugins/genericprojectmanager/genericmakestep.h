@@ -66,7 +66,7 @@ public:
     bool buildsTarget(const QString &target) const;
     void setBuildTarget(const QString &target, bool on);
     QString allArguments() const;
-    QString makeCommand() const;
+    QString makeCommand(const Utils::Environment &environment) const;
 
     void setClean(bool clean);
     bool isClean() const;

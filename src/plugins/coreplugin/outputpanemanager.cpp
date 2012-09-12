@@ -462,10 +462,14 @@ void OutputPaneManager::setBadgeNumber(int number)
 void OutputPaneManager::showPage(bool focus, bool ensureSizeHint)
 {
     int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
-    showPage(idx, focus);
-    if (ensureSizeHint)
-        if (OutputPanePlaceHolder *ph = OutputPanePlaceHolder::getCurrent())
-            ph->ensureSizeHintAsMinimum();
+    OutputPanePlaceHolder *ph = OutputPanePlaceHolder::getCurrent();
+    if (!ph)
+        m_buttons.value(idx)->flash();
+    else
+        showPage(idx, focus);
+
+    if (ensureSizeHint && ph)
+        ph->ensureSizeHintAsMinimum();
 }
 
 void OutputPaneManager::showPage(int idx, bool focus)
@@ -702,6 +706,7 @@ void OutputPaneToggleButton::checkStateSet()
 
 void OutputPaneToggleButton::flash(int count)
 {
+    setVisible(true);
     //Start flashing if button is not checked
     if (!isChecked()) {
         m_flashTimer->setLoopCount(count);

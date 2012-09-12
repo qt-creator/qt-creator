@@ -593,21 +593,31 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     FindMethodDefinitionInsertPoint finder(doc->translationUnit());
     finder(declaration, &line, &column);
 
-    // Make sure we have a line before and after the new definition.
-    const QLatin1String prefix("\n\n");
+    // Force empty lines before and after the new definition.
+    QString prefix;
     QString suffix;
-    int firstNonSpace = targetFile->position(line, column);
-    QChar c = targetFile->charAt(firstNonSpace);
-    while (c == QLatin1Char(' ') || c == QLatin1Char('\t')) {
-        ++firstNonSpace;
-        c = targetFile->charAt(firstNonSpace);
-    }
-    if (targetFile->charAt(firstNonSpace) != QChar::ParagraphSeparator) {
-        suffix.append(QLatin1String("\n\n"));
+    if (!line) {
+        // Totally empty file.
+        line = 1;
+        column = 1;
+        prefix = suffix = QLatin1Char('\n');
     } else {
-        ++firstNonSpace;
-        if (targetFile->charAt(firstNonSpace) != QChar::ParagraphSeparator)
-            suffix.append(QLatin1Char('\n'));
+        QTC_ASSERT(column, return result);
+
+        prefix = QLatin1String("\n\n");
+        int firstNonSpace = targetFile->position(line, column);
+        QChar c = targetFile->charAt(firstNonSpace);
+        while (c == QLatin1Char(' ') || c == QLatin1Char('\t')) {
+            ++firstNonSpace;
+            c = targetFile->charAt(firstNonSpace);
+        }
+        if (targetFile->charAt(firstNonSpace) != QChar::ParagraphSeparator) {
+            suffix.append(QLatin1String("\n\n"));
+        } else {
+            ++firstNonSpace;
+            if (targetFile->charAt(firstNonSpace) != QChar::ParagraphSeparator)
+                suffix.append(QLatin1Char('\n'));
+        }
     }
 
     result += InsertionLocation(target, prefix, suffix, line, column);

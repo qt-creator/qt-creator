@@ -97,6 +97,9 @@ static struct {
     QString strdefineTest;
     QString strdefineReplace;
     QString stroption;
+    QString strreturn;
+    QString strnext;
+    QString strbreak;
     QString strhost_build;
     QString strLINE;
     QString strFILE;
@@ -117,6 +120,9 @@ void QMakeParser::initialize()
     statics.strdefineTest = QLatin1String("defineTest");
     statics.strdefineReplace = QLatin1String("defineReplace");
     statics.stroption = QLatin1String("option");
+    statics.strreturn = QLatin1String("return");
+    statics.strnext = QLatin1String("next");
+    statics.strbreak = QLatin1String("break");
     statics.strhost_build = QLatin1String("host_build");
     statics.strLINE = QLatin1String("_LINE_");
     statics.strFILE = QLatin1String("_FILE_");
@@ -873,9 +879,11 @@ void QMakeParser::putLineMarker(ushort *&tokPtr)
 
 void QMakeParser::enterScope(ushort *&tokPtr, bool special, ScopeState state)
 {
+    uchar nest = m_blockstack.top().nest;
     m_blockstack.resize(m_blockstack.size() + 1);
     m_blockstack.top().special = special;
     m_blockstack.top().start = tokPtr;
+    m_blockstack.top().nest = nest;
     tokPtr += 2;
     m_state = state;
     m_canElse = false;
@@ -1015,14 +1023,16 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
             m_tmp.setRawData((QChar *)uc + 4, nlen);
             const QString *defName;
             ushort defType;
+            uchar nest;
             if (m_tmp == statics.strfor) {
-                flushCond(tokPtr);
-                putLineMarker(tokPtr);
                 if (m_invert || m_operator == OrOperator) {
                     // '|' could actually work reasonably, but qmake does nonsense here.
                     parseError(fL1S("Unexpected operator in front of for()."));
+                    bogusTest(tokPtr);
                     return;
                 }
+                flushCond(tokPtr);
+                putLineMarker(tokPtr);
                 if (*uce == (TokLiteral|TokNewStr)) {
                     nlen = uce[1];
                     uc = uce + 2 + nlen;
@@ -1036,6 +1046,7 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                       didFor:
                         putTok(tokPtr, TokValueTerminator);
                         enterScope(tokPtr, true, StCtrl);
+                        m_blockstack.top().nest |= NestLoop;
                         return;
                     } else if (*uc == TokArgSeparator && argc == 2) {
                         // for(var, something)
@@ -1065,12 +1076,13 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                 defName = &statics.strdefineTest;
                 defType = TokTestDef;
               deffunc:
-                flushScopes(tokPtr);
-                putLineMarker(tokPtr);
                 if (m_invert) {
                     parseError(fL1S("Unexpected operator in front of function definition."));
+                    bogusTest(tokPtr);
                     return;
                 }
+                flushScopes(tokPtr);
+                putLineMarker(tokPtr);
                 if (*uce == (TokLiteral|TokNewStr)) {
                     uint nlen = uce[1];
                     if (uce[nlen + 2] == TokFuncTerminator) {
@@ -1081,15 +1093,53 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
                         putTok(tokPtr, defType);
                         putHashStr(tokPtr, uce + 2, nlen);
                         enterScope(tokPtr, true, StCtrl);
+                        m_blockstack.top().nest = NestFunction;
                         return;
                     }
                 }
                 parseError(fL1S("%1(function) requires one literal argument.").arg(*defName));
                 return;
+            } else if (m_tmp == statics.strreturn) {
+                if (argc > 1) {
+                    parseError(fL1S("return() requires zero or one argument."));
+                    bogusTest(tokPtr);
+                    return;
+                }
+                defType = TokReturn;
+                nest = NestFunction;
+                goto ctrlstm2;
+            } else if (m_tmp == statics.strnext) {
+                defType = TokNext;
+                goto ctrlstm;
+            } else if (m_tmp == statics.strbreak) {
+                defType = TokBreak;
+              ctrlstm:
+                if (*uce != TokFuncTerminator) {
+                    parseError(fL1S("%1() requires zero arguments.").arg(m_tmp));
+                    bogusTest(tokPtr);
+                    return;
+                }
+                nest = NestLoop;
+              ctrlstm2:
+                if (m_invert) {
+                    parseError(fL1S("Unexpected NOT operator in front of %1().").arg(m_tmp));
+                    bogusTest(tokPtr);
+                    return;
+                }
+                if (!(m_blockstack.top().nest & nest)) {
+                    parseError(fL1S("Unexpected %1().").arg(m_tmp));
+                    bogusTest(tokPtr);
+                    return;
+                }
+                finalizeTest(tokPtr);
+                putBlock(tokPtr, uce, ptr - uce - 1); // Only for TokReturn
+                putTok(tokPtr, defType);
+                return;
             } else if (m_tmp == statics.stroption) {
                 if (m_state != StNew || m_blockstack.top().braceLevel || m_blockstack.size() > 1
                         || m_invert || m_operator != NoOperator) {
                     parseError(fL1S("option() must appear outside any control structures."));
+                    bogusTest(tokPtr);
                     return;
                 }
                 if (*uce == (TokLiteral|TokNewStr)) {

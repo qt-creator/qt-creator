@@ -269,14 +269,14 @@ ProjectExplorer::IProjectManager *QmlProject::projectManager() const
     return m_manager;
 }
 
-bool QmlProject::supportsKit(ProjectExplorer::Kit *p) const
+bool QmlProject::supportsKit(ProjectExplorer::Kit *k) const
 {
-    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(p);
+    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
     if (deviceType != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return false;
 
     // TODO: Limit supported versions?
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(p);
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     return version;
 }
 

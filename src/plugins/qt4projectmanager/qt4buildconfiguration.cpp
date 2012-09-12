@@ -675,21 +675,21 @@ BuildConfiguration *Qt4BuildConfigurationFactory::restore(Target *parent, const 
     return 0;
 }
 
-QList<BuildConfigurationInfo> Qt4BuildConfigurationFactory::availableBuildConfigurations(const Kit *p,
+QList<BuildConfigurationInfo> Qt4BuildConfigurationFactory::availableBuildConfigurations(const Kit *k,
                                                                                          const QString &proFilePath)
 {
     QList<BuildConfigurationInfo> infoList;
 
-    BaseQtVersion *version = QtKitInformation::qtVersion(p);
+    BaseQtVersion *version = QtKitInformation::qtVersion(k);
     if (!version || !version->isValid())
         return infoList;
     BaseQtVersion::QmakeBuildConfigs config = version->defaultBuildConfig();
     BuildConfigurationInfo info = BuildConfigurationInfo(config, QString(), QString(), false);
-    info.directory = Qt4Project::shadowBuildDirectory(proFilePath, p, buildConfigurationDisplayName(info));
+    info.directory = Qt4Project::shadowBuildDirectory(proFilePath, k, buildConfigurationDisplayName(info));
     infoList.append(info);
 
     info.buildConfig = config ^ BaseQtVersion::DebugBuild;
-    info.directory = Qt4Project::shadowBuildDirectory(proFilePath, p, buildConfigurationDisplayName(info));
+    info.directory = Qt4Project::shadowBuildDirectory(proFilePath, k, buildConfigurationDisplayName(info));
     infoList.append(info);
     return infoList;
 }

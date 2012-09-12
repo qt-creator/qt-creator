@@ -48,22 +48,25 @@ def main():
     # switch to help mode
     switchViewTo(ViewConstants.HELP)
     # verify that search widget is accessible
-    mouseClick(waitForObjectItem(":Qt Creator_Core::Internal::CommandComboBox_2", "Search"))
-    test.verify(checkIfObjectExists(":Qt Creator_QHelpSearchQueryWidget"),
+    mouseClick(waitForObjectItem(":Qt Creator_Core::Internal::CommandComboBox", "Search"))
+    test.verify(checkIfObjectExists("{type='QHelpSearchQueryWidget' unnamed='1' visible='1' "
+                                    "window=':Qt Creator_Core::Internal::MainWindow'}"),
                 "Verifying search widget visibility.")
     # try to search empty string
-    clickButton(waitForObject(":Qt Creator.Search_QPushButton"))
+    clickButton(waitForObject("{text='Search' type='QPushButton' unnamed='1' visible='1' "
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
     progressBarWait()
     test.verify(waitFor("noMatch in "
                         "str(waitForObject(':Hits_QCLuceneResultWidget').plainText)", 2000),
                         "Verifying if search did not match anything.")
     # workaround for "endless waiting cursor"
-    mouseClick(waitForObject(":Qt Reference Documentation_QModelIndex"))
+    mouseClick(waitForObject("{column='0' container=':Qt Creator_QHelpContentWidget' "
+                             "text='Qt Reference Documentation' type='QModelIndex'}"))
     # try to search keyword from list
     for searchKeyword,shouldFind in searchKeywordDictionary.items():
-        mouseClick(waitForObject(":Qt Creator.Search for:_QLineEdit"))
-        replaceEditorContent(":Qt Creator.Search for:_QLineEdit", searchKeyword)
-        type(waitForObject(":Qt Creator.Search for:_QLineEdit"), "<Return>")
+        mouseClick(waitForObject(":Qt Creator.Help_Search for:_QLineEdit"))
+        replaceEditorContent(":Qt Creator.Help_Search for:_QLineEdit", searchKeyword)
+        type(waitForObject(":Qt Creator.Help_Search for:_QLineEdit"), "<Return>")
         progressBarWait()
         if shouldFind:
             test.verify(waitFor("re.match('[1-9]\d* - [1-9]\d* of [1-9]\d* Hits',"
@@ -84,14 +87,22 @@ def main():
                                 "str(waitForObject(':Hits_QCLuceneResultWidget').plainText)", 1000),
                                 "Verifying if search did not match anything for: " + searchKeyword)
     # advanced search - setup
-    clickButton(waitForObject(":Qt Creator.+_QToolButton"))
-    type(waitForObject(":Qt Creator.words similar to:_QLineEdit"), "deploy")
-    type(waitForObject(":Qt Creator.without the words:_QLineEdit"), "bookmark")
-    type(waitForObject(":Qt Creator.with exact phrase:_QLineEdit"), "sql in qt")
-    type(waitForObject(":Qt Creator.with all of the words:_QLineEdit"), "designer sql")
-    type(waitForObject(":Qt Creator.with at least one of the words:_QLineEdit"), "printing")
+    clickButton(waitForObject("{text='+' type='QToolButton' unnamed='1' visible='1' "
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
+    label = ("{text='%s' type='QLabel' unnamed='1' visible='1' "
+             "window=':Qt Creator_Core::Internal::MainWindow'}")
+    lineEdit = ("{leftWidget=%s type='QLineEdit' unnamed='1' visible='1' "
+                "window=':Qt Creator_Core::Internal::MainWindow'}")
+    labelTextsToSearchStr = {"words <B>similar</B> to:":"deploy",
+                             "<B>without</B> the words:":"bookmark",
+                             "with <B>exact phrase</B>:":"sql in qt",
+                             "with <B>all</B> of the words:":"designer sql",
+                             "with <B>at least one</B> of the words:":"printing"}
+    for labelText,searchStr in labelTextsToSearchStr.items():
+        type(waitForObject(lineEdit % (label % labelText)), searchStr)
     # advanced search - do search
-    clickButton(waitForObject(":Qt Creator.Search_QPushButton"))
+    clickButton(waitForObject("{text='Search' type='QPushButton' unnamed='1' visible='1' "
+                              "window=':Qt Creator_Core::Internal::MainWindow'}"))
     progressBarWait()
     # verify that advanced search results found
     test.verify(waitFor("re.search('1 - 2 of 2 Hits',"
@@ -109,8 +120,7 @@ def main():
     test.verify("sql" in str(findObject(":Qt Creator_Help::Internal::HelpViewer").selectedText).lower(),
                 "sql advanced search result can be found")
     # verify if simple search is properly disabled
-    test.verify(findObject(":Qt Creator.Search for:_QLineEdit").enabled == False,
+    test.verify(findObject(":Qt Creator.Help_Search for:_QLineEdit").enabled == False,
                 "Verifying if simple search is not active in advanced mode.")
     # exit
     invokeMenuItem("File", "Exit")
-# no cleanup needed

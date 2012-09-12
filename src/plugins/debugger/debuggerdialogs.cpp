@@ -137,7 +137,7 @@ bool DebuggerKitChooser::kitMatches(const ProjectExplorer::Kit *k) const
 
 QString DebuggerKitChooser::kitToolTip(Kit *k) const
 {
-    return DebuggerKitInformation::userOutput(k);
+    return DebuggerKitInformation::userOutput(DebuggerKitInformation::debuggerItem(k));
 }
 
 ///////////////////////////////////////////////////////////////////////

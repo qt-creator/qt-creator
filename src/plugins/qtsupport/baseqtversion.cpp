@@ -983,17 +983,17 @@ QString BaseQtVersion::examplesPath() const
     return qmakeProperty("QT_INSTALL_EXAMPLES");
 }
 
-QList<ProjectExplorer::HeaderPath> BaseQtVersion::systemHeaderPathes(const ProjectExplorer::Kit *p) const
+QList<ProjectExplorer::HeaderPath> BaseQtVersion::systemHeaderPathes(const ProjectExplorer::Kit *k) const
 {
-    Q_UNUSED(p);
+    Q_UNUSED(k);
     QList<ProjectExplorer::HeaderPath> result;
     result.append(ProjectExplorer::HeaderPath(mkspecPath().toString(), ProjectExplorer::HeaderPath::GlobalHeaderPath));
     return result;
 }
 
-void BaseQtVersion::addToEnvironment(const ProjectExplorer::Kit *p, Environment &env) const
+void BaseQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Environment &env) const
 {
-    Q_UNUSED(p);
+    Q_UNUSED(k);
     env.set(QLatin1String("QTDIR"), QDir::toNativeSeparators(qmakeProperty("QT_HOST_DATA")));
     env.prependOrSetPath(qmakeProperty("QT_HOST_BINS"));
 }

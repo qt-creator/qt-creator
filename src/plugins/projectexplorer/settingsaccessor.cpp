@@ -2228,10 +2228,10 @@ Version11Handler::Version11Handler()
 
 Version11Handler::~Version11Handler()
 {
-    KitManager *pm = KitManager::instance();
-    if (!pm) // Can happen during teardown!
+    KitManager *km = KitManager::instance();
+    if (!km) // Can happen during teardown!
         return;
-    QList<Kit *> knownKits = pm->kits();
+    QList<Kit *> knownKits = km->kits();
     foreach (Kit *k, m_targets.keys()) {
         if (!knownKits.contains(k))
             delete k;
@@ -2251,8 +2251,8 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
     parseToolChainFile();
 
     QVariantMap result;
-    KitManager *pm = KitManager::instance();
-    foreach (Kit *k, pm->kits())
+    KitManager *km = KitManager::instance();
+    foreach (Kit *k, km->kits())
         m_targets.insert(k, QVariantMap());
 
     QMapIterator<QString, QVariant> globalIt(map);
@@ -2425,7 +2425,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
         if (data.isEmpty())
             continue;
 
-        pm->registerKit(k);
+        km->registerKit(k);
 
         data.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), k->id().name());
         data.insert(QLatin1String("ProjectExplorer.Target.Profile"), k->id().name());

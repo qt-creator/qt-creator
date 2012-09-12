@@ -769,8 +769,11 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                         // Qualified names in general.
                         // Ex.: template <class T> class A : public B<T>::Type {};
                         ClassOrNamespace *binding = this;
-                        if (const Name *qualification = qBaseName->base())
-                            binding = lookupType(qualification);
+                        if (const Name *qualification = qBaseName->base()) {
+                            const TemplateNameId *baseTemplName = qualification->asTemplateNameId();
+                            if (!baseTemplName || !compareName(baseTemplName, templ->name()))
+                                binding = lookupType(qualification);
+                        }
                         baseName = qBaseName->name();
 
                         if (binding)
