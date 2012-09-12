@@ -2559,7 +2559,15 @@ bool Parser::parseInitializer0x(ExpressionAST *&node, unsigned *equals_token)
     }
 
     else if (LA() == T_LPAREN) {
-        return parsePrimaryExpression(node);
+        ExpressionListParenAST *expr_list_paren = new (_pool) ExpressionListParenAST;
+        node = expr_list_paren;
+        expr_list_paren->lparen_token = consumeToken();
+
+        parseInitializerList0x(expr_list_paren->expression_list);
+
+        match(T_RPAREN, &expr_list_paren->rparen_token);
+
+        return true;
     }
 
     return false;
