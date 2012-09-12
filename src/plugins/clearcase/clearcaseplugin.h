@@ -203,7 +203,7 @@ private:
                  bool enableAnnotationContextMenu = false);
     QString ccGetFileVersion(const QString &workingDir, const QString &file) const;
     void ccUpdate(const QString &workingDir, const QStringList &relativePaths = QStringList());
-    void ccDiffWithPred(const QStringList &files);
+    void ccDiffWithPred(const QString &workingDir, const QStringList &files);
     void startCheckIn(const QString &workingDir, const QStringList &files = QStringList());
     void cleanCheckInMessageFile();
     inline ClearCaseControl *clearCaseControl() const;
@@ -221,6 +221,7 @@ private:
     ClearCaseSettings m_settings;
 
     QString m_checkInMessageFileName;
+    QString m_checkInView;
     QString m_topLevel;
     QString m_stream;
     QString m_view;
