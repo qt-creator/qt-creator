@@ -1806,7 +1806,13 @@
 
             The main.cpp file opens in the editor.
 
+        \o  To move to a line in the file, enter the line number in the locator.
+
     \endlist
+
+    To move directly to a particular line in the document when you open the
+    document, append a plus sign (+) or a colon (:) to the file name in the
+    locator. For example, to open main.cpp to line 41, enter: \c {main.cpp:41}.
 
     If the path to a file is very long, it might not fit into the locator
     window. To view the full path, press \key Alt when the filename is selected.
