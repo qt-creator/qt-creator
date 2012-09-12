@@ -614,7 +614,8 @@ void TargetSetupPage::updateVisibility()
 void TargetSetupPage::openOptions()
 {
     Core::ICore::instance()->showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                               QLatin1String(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID));
+                                               QLatin1String(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID),
+                                               this);
 }
 
 void TargetSetupPage::removeWidget(ProjectExplorer::Kit *k)
