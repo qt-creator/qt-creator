@@ -168,6 +168,7 @@ public:
     virtual ExceptionDeclarationAST *asExceptionDeclaration() { return 0; }
     virtual ExceptionSpecificationAST *asExceptionSpecification() { return 0; }
     virtual ExpressionAST *asExpression() { return 0; }
+    virtual ExpressionListParenAST *asExpressionListParen() { return 0; }
     virtual ExpressionOrDeclarationStatementAST *asExpressionOrDeclarationStatement() { return 0; }
     virtual ExpressionStatementAST *asExpressionStatement() { return 0; }
     virtual ForStatementAST *asForStatement() { return 0; }
@@ -196,7 +197,6 @@ public:
     virtual NewArrayDeclaratorAST *asNewArrayDeclarator() { return 0; }
     virtual NewExpressionAST *asNewExpression() { return 0; }
     virtual NewInitializerAST *asNewInitializer() { return 0; }
-    virtual NewPlacementAST *asNewPlacement() { return 0; }
     virtual NewTypeIdAST *asNewTypeId() { return 0; }
     virtual NoExceptSpecificationAST *asNoExceptSpecification() { return 0; }
     virtual NumericLiteralAST *asNumericLiteral() { return 0; }
@@ -2402,7 +2402,7 @@ protected:
     virtual bool match0(AST *, ASTMatcher *);
 };
 
-class CPLUSPLUS_EXPORT NewPlacementAST: public AST
+class CPLUSPLUS_EXPORT ExpressionListParenAST: public ExpressionAST
 {
 public:
     unsigned lparen_token;
@@ -2410,18 +2410,18 @@ public:
     unsigned rparen_token;
 
 public:
-    NewPlacementAST()
+    ExpressionListParenAST()
         : lparen_token(0)
         , expression_list(0)
         , rparen_token(0)
     {}
 
-    virtual NewPlacementAST *asNewPlacement() { return this; }
+    virtual ExpressionListParenAST *asExpressionListParen() { return this; }
 
     virtual unsigned firstToken() const;
     virtual unsigned lastToken() const;
 
-    virtual NewPlacementAST *clone(MemoryPool *pool) const;
+    virtual ExpressionListParenAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);
@@ -2459,7 +2459,7 @@ class CPLUSPLUS_EXPORT NewExpressionAST: public ExpressionAST
 public:
     unsigned scope_token;
     unsigned new_token;
-    NewPlacementAST *new_placement;
+    ExpressionListParenAST *new_placement;
 
     unsigned lparen_token;
     ExpressionAST *type_id;

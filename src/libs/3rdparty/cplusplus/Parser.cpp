@@ -2731,6 +2731,8 @@ bool Parser::parseTypeIdList(ExpressionListAST *&node)
     return false;
 }
 
+// Note that this function doesn't parse a C++11-style expression-list
+// yet, so it doesn't allow for brace-initializers.
 bool Parser::parseExpressionList(ExpressionListAST *&node)
 {
     DEBUG_THIS_RULE();
@@ -4827,7 +4829,7 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
 }
 
 // new-placement ::= T_LPAREN expression-list T_RPAREN
-bool Parser::parseNewPlacement(NewPlacementAST *&node)
+bool Parser::parseExpressionListParen(ExpressionListParenAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_LPAREN) {
@@ -4835,7 +4837,7 @@ bool Parser::parseNewPlacement(NewPlacementAST *&node)
         ExpressionListAST *expression_list = 0;
         if (parseExpressionList(expression_list) && expression_list && LA() == T_RPAREN) {
             unsigned rparen_token = consumeToken();
-            NewPlacementAST *ast = new (_pool) NewPlacementAST;
+            ExpressionListParenAST *ast = new (_pool) ExpressionListParenAST;
             ast->lparen_token = lparen_token;
             ast->expression_list = expression_list;
             ast->rparen_token = rparen_token;
@@ -4863,14 +4865,14 @@ bool Parser::parseNewExpression(ExpressionAST *&node)
 
     ast->new_token = consumeToken();
 
-    NewPlacementAST *new_placement = 0;
+    ExpressionListParenAST *parenExpressionList = 0;
 
-    if (parseNewPlacement(new_placement)) {
+    if (parseExpressionListParen(parenExpressionList)) {
         unsigned after_new_placement = cursor();
 
         NewTypeIdAST *new_type_id = 0;
         if (parseNewTypeId(new_type_id)) {
-            ast->new_placement = new_placement;
+            ast->new_placement = parenExpressionList;
             ast->new_type_id = new_type_id;
             parseNewInitializer(ast->new_initializer);
             // recognized new-placement.opt new-type-id new-initializer.opt
@@ -4883,7 +4885,7 @@ bool Parser::parseNewExpression(ExpressionAST *&node)
             unsigned lparen_token = consumeToken();
             ExpressionAST *type_id = 0;
             if (parseTypeId(type_id) && LA() == T_RPAREN) {
-                ast->new_placement = new_placement;
+                ast->new_placement = parenExpressionList;
                 ast->lparen_token = lparen_token;
                 ast->type_id = type_id;
                 ast->rparen_token = consumeToken();

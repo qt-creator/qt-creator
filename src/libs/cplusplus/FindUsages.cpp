@@ -559,14 +559,14 @@ void FindUsages::nestedNameSpecifier(NestedNameSpecifierAST *ast)
     // unsigned scope_token = ast->scope_token;
 }
 
-bool FindUsages::visit(NewPlacementAST *ast)
+bool FindUsages::visit(ExpressionListParenAST *ast)
 {
     (void) ast;
     Q_ASSERT(!"unreachable");
     return false;
 }
 
-void FindUsages::newPlacement(NewPlacementAST *ast)
+void FindUsages::newPlacement(ExpressionListParenAST *ast)
 {
     if (! ast)
         return;

@@ -2069,7 +2069,7 @@ unsigned NewInitializerAST::lastToken() const
 }
 
 /** \generated */
-unsigned NewPlacementAST::firstToken() const
+unsigned ExpressionListParenAST::firstToken() const
 {
     if (lparen_token)
         return lparen_token;
@@ -2082,7 +2082,7 @@ unsigned NewPlacementAST::firstToken() const
 }
 
 /** \generated */
-unsigned NewPlacementAST::lastToken() const
+unsigned ExpressionListParenAST::lastToken() const
 {
     if (rparen_token)
         return rparen_token + 1;

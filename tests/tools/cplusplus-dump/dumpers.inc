@@ -359,6 +359,8 @@ virtual bool visit(ClassSpecifierAST *ast)
     for (SpecifierListAST *iter = ast->attribute_list; iter; iter = iter->next)
         nonterminal(iter->value);
     nonterminal(ast->name);
+    if (ast->final_token)
+        terminal(ast->final_token, ast);
     if (ast->colon_token)
         terminal(ast->colon_token, ast);
     for (BaseSpecifierListAST *iter = ast->base_clause_list; iter; iter = iter->next)
@@ -649,6 +651,25 @@ virtual bool visit(ForeachStatementAST *ast)
     return false;
 }
 
+virtual bool visit(RangeBasedForStatementAST *ast)
+{
+    if (ast->for_token)
+        terminal(ast->for_token, ast);
+    if (ast->lparen_token)
+        terminal(ast->lparen_token, ast);
+    for (SpecifierListAST *iter = ast->type_specifier_list; iter; iter = iter->next)
+        nonterminal(iter->value);
+    nonterminal(ast->declarator);
+    nonterminal(ast->initializer);
+    if (ast->colon_token)
+        terminal(ast->colon_token, ast);
+    nonterminal(ast->expression);
+    if (ast->rparen_token)
+        terminal(ast->rparen_token, ast);
+    nonterminal(ast->statement);
+    return false;
+}
+
 virtual bool visit(ForStatementAST *ast)
 {
     if (ast->for_token)
@@ -831,7 +852,7 @@ virtual bool visit(NamespaceAliasDefinitionAST *ast)
     return false;
 }
 
-virtual bool visit(NewPlacementAST *ast)
+virtual bool visit(ExpressionListParenAST *ast)
 {
     if (ast->lparen_token)
         terminal(ast->lparen_token, ast);

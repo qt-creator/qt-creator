@@ -104,7 +104,7 @@ protected:
     void exceptionSpecification(ExceptionSpecificationAST *ast);
     void memInitializer(MemInitializerAST *ast);
     void nestedNameSpecifier(NestedNameSpecifierAST *ast);
-    void newPlacement(NewPlacementAST *ast);
+    void newPlacement(ExpressionListParenAST *ast);
     void newArrayDeclarator(NewArrayDeclaratorAST *ast);
     void newInitializer(NewInitializerAST *ast);
     void newTypeId(NewTypeIdAST *ast);
@@ -137,7 +137,7 @@ protected:
     virtual bool visit(DynamicExceptionSpecificationAST *ast);
     virtual bool visit(MemInitializerAST *ast);
     virtual bool visit(NestedNameSpecifierAST *ast);
-    virtual bool visit(NewPlacementAST *ast);
+    virtual bool visit(ExpressionListParenAST *ast);
     virtual bool visit(NewArrayDeclaratorAST *ast);
     virtual bool visit(NewInitializerAST *ast);
     virtual bool visit(NewTypeIdAST *ast);

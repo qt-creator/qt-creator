@@ -578,9 +578,9 @@ public:
         return __ast;
     }
 
-    NewPlacementAST *NewPlacement(ExpressionListAST *expression_list = 0)
+    ExpressionListParenAST *ExpressionListParen(ExpressionListAST *expression_list = 0)
     {
-        NewPlacementAST *__ast = new (&pool) NewPlacementAST;
+        ExpressionListParenAST *__ast = new (&pool) ExpressionListParenAST;
         __ast->expression_list = expression_list;
         return __ast;
     }
@@ -592,7 +592,7 @@ public:
         return __ast;
     }
 
-    NewExpressionAST *NewExpression(NewPlacementAST *new_placement = 0, ExpressionAST *type_id = 0, NewTypeIdAST *new_type_id = 0, NewInitializerAST *new_initializer = 0)
+    NewExpressionAST *NewExpression(ExpressionListParenAST *new_placement = 0, ExpressionAST *type_id = 0, NewTypeIdAST *new_type_id = 0, NewInitializerAST *new_initializer = 0)
     {
         NewExpressionAST *__ast = new (&pool) NewExpressionAST;
         __ast->new_placement = new_placement;

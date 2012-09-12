@@ -636,7 +636,7 @@ void NamespaceAliasDefinitionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void NewPlacementAST::accept0(ASTVisitor *visitor)
+void ExpressionListParenAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(expression_list, visitor);

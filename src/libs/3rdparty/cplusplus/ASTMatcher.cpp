@@ -1492,7 +1492,7 @@ bool ASTMatcher::match(NamespaceAliasDefinitionAST *node, NamespaceAliasDefiniti
     return true;
 }
 
-bool ASTMatcher::match(NewPlacementAST *node, NewPlacementAST *pattern)
+bool ASTMatcher::match(ExpressionListParenAST *node, ExpressionListParenAST *pattern)
 {
     (void) node;
     (void) pattern;

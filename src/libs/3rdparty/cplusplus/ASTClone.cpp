@@ -878,9 +878,9 @@ NamespaceAliasDefinitionAST *NamespaceAliasDefinitionAST::clone(MemoryPool *pool
     return ast;
 }
 
-NewPlacementAST *NewPlacementAST::clone(MemoryPool *pool) const
+ExpressionListParenAST *ExpressionListParenAST::clone(MemoryPool *pool) const
 {
-    NewPlacementAST *ast = new (pool) NewPlacementAST;
+    ExpressionListParenAST *ast = new (pool) ExpressionListParenAST;
     ast->lparen_token = lparen_token;
     for (ExpressionListAST *iter = expression_list, **ast_iter = &ast->expression_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)

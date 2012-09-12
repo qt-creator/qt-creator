@@ -539,14 +539,14 @@ const Name *Bind::nestedNameSpecifier(NestedNameSpecifierAST *ast)
     return class_or_namespace_name;
 }
 
-bool Bind::visit(NewPlacementAST *ast)
+bool Bind::visit(ExpressionListParenAST *ast)
 {
     (void) ast;
     assert(!"unreachable");
     return false;
 }
 
-void Bind::newPlacement(NewPlacementAST *ast)
+void Bind::newPlacement(ExpressionListParenAST *ast)
 {
     if (! ast)
         return;
