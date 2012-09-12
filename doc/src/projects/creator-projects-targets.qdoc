@@ -91,36 +91,9 @@
             if they are installed on the development PC, but were not detected
             automatically. For more information, see \l{Adding Compilers}.
 
-        \o  In the \gui Debugger field, specify the type of debugger to
-            use (\gui {GDB Engine} or \gui {CDB Engine}) and the path to the
-            debugger command:
-
-            \list
-
-                \o  For the \gui {CDB Engine} (Windows only), specify the path to
-                    the Windows Console Debugger executable.
-
-                \o  For the \gui {GDB Engine}, specify the path to the GDB
-                    executable. The executable must be built with Python
-                    scripting support enabled (except when debugging on Mac OS).
-
-                    \list
-
-                        \o  For local debugging on Linux or Mac OS, select
-                            \gui {Auto Detect} to automatically locate the
-                            debugger command.
-
-                        \o  For debugging on embedded devices using a different
-                            ABI, you must provide a special executable.
-
-                        \o  For debugging on Windows using MinGW, select a
-                            Windows executable of GDB with Python scripting
-                            enabled. You can download it from
-                            \l{http://builds.qt-project.org/job/gdb-windows}.
-
-                    \endlist
-
-            \endlist
+        \o  In the \gui Debugger field, select \gui Manage to automatically
+            detect a suitable debugger or to edit the currently selected
+            debugger. For more information, see \l{Selecting the Debugger}.
 
         \o  In the \gui {Qt version} field, select the Qt version to use for
             building the project. You can add Qt versions to the list if they
@@ -134,6 +107,36 @@
 
         \o  In the \gui {Qt mkspec} field, specify build instructions for qmake.
             If you leave this field empty, the default value is used.
+
+    \endlist
+
+    \section1 Selecting the Debugger
+
+    To automatically detect a suitable debugger in the \gui Debugger field,
+    select \gui Manage > \gui {Auto-detect}. This should work for the CDB engine
+    and for the GDB engine for local debugging on Linux or Mac OS.
+
+    To edit the selected debugger, select \gui Manage > \gui Edit. In the
+    \gui {Debugger for} dialog, specify the type of debugger to use
+    (\gui {GDB Engine} or \gui {CDB Engine}) and the path to the debugger
+    binary.
+
+    For the \gui {CDB Engine} (Windows only), specify the path to the Windows
+    Console Debugger executable.
+
+    For the \gui {GDB Engine}, specify the path to the GDB executable. The
+    executable must be built with Python scripting support enabled
+    (except when debugging on Mac OS). The options you have depend on the
+    development and target platform:
+
+    \list
+
+        \o  For debugging on embedded devices using a different ABI, you must
+            provide a special executable.
+
+        \o  For debugging on Windows using MinGW, select a Windows executable of
+            GDB with Python scripting enabled. You can download it from
+            \l{http://builds.qt-project.org/job/gdb-windows}.
 
     \endlist
 
