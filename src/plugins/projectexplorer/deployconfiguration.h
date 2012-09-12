@@ -78,9 +78,16 @@ protected:
     bool fromMap(const QVariantMap &map);
 
 private:
-    friend class DeployConfigurationFactory;
-
     BuildStepList *m_stepList;
+};
+
+class PROJECTEXPLORER_EXPORT DefaultDeployConfiguration : public DeployConfiguration
+{
+    Q_OBJECT
+    friend class DeployConfigurationFactory; // for the ctors
+protected:
+    DefaultDeployConfiguration(Target *target, const Core::Id id);
+    DefaultDeployConfiguration(Target *target, DeployConfiguration *source);
 };
 
 class PROJECTEXPLORER_EXPORT DeployConfigurationFactory :

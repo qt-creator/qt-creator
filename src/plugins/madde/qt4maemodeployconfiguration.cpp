@@ -76,6 +76,7 @@ Qt4MaemoDeployConfiguration::Qt4MaemoDeployConfiguration(ProjectExplorer::Target
     : RemoteLinuxDeployConfiguration(target, source)
 {
     init();
+    cloneSteps(source);
 }
 
 DeployConfigurationWidget *Qt4MaemoDeployConfiguration::configurationWidget() const

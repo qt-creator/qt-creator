@@ -61,6 +61,7 @@ BlackBerryDeployConfiguration::BlackBerryDeployConfiguration(ProjectExplorer::Ta
     : ProjectExplorer::DeployConfiguration(parent, source)
 {
     ctor();
+    cloneSteps(source);
 }
 
 void BlackBerryDeployConfiguration::ctor()

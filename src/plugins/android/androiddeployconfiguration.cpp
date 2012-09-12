@@ -57,6 +57,7 @@ AndroidDeployConfiguration::AndroidDeployConfiguration(Target *parent, Core::Id 
 AndroidDeployConfiguration::AndroidDeployConfiguration(Target *parent, DeployConfiguration *source)
     : DeployConfiguration(parent, source)
 {
+    cloneSteps(source);
 }
 
 AndroidDeployConfigurationFactory::AndroidDeployConfigurationFactory(QObject *parent)

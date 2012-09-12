@@ -44,4 +44,5 @@ QnxDeployConfiguration::QnxDeployConfiguration(ProjectExplorer::Target *target, 
 QnxDeployConfiguration::QnxDeployConfiguration(ProjectExplorer::Target *target, QnxDeployConfiguration *source)
     : RemoteLinux::RemoteLinuxDeployConfiguration(target, source)
 {
+    cloneSteps(source);
 }

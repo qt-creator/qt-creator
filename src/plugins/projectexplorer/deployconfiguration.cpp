@@ -151,6 +151,21 @@ void DeployConfiguration::cloneSteps(DeployConfiguration *source)
 }
 
 ///
+// DefaultDeployConfiguration
+///
+DefaultDeployConfiguration::DefaultDeployConfiguration(Target *target, const Core::Id id)
+    : DeployConfiguration(target, id)
+{
+
+}
+
+DefaultDeployConfiguration::DefaultDeployConfiguration(Target *target, DeployConfiguration *source)
+    : DeployConfiguration(target, source)
+{
+    cloneSteps(source);
+}
+
+///
 // DeployConfigurationFactory
 ///
 
@@ -187,7 +202,7 @@ DeployConfiguration *DeployConfigurationFactory::create(Target *parent, const Co
 {
     if (!canCreate(parent, id))
         return 0;
-    return new DeployConfiguration(parent, id);
+    return new DefaultDeployConfiguration(parent, id);
 }
 
 bool DeployConfigurationFactory::canRestore(Target *parent, const QVariantMap &map) const
@@ -199,7 +214,7 @@ DeployConfiguration *DeployConfigurationFactory::restore(Target *parent, const Q
 {
     if (!canRestore(parent, map))
         return 0;
-    DeployConfiguration *dc = new DeployConfiguration(parent, idFromMap(map));
+    DefaultDeployConfiguration *dc = new DefaultDeployConfiguration(parent, idFromMap(map));
     if (!dc->fromMap(map)) {
         delete dc;
         return 0;
@@ -216,7 +231,7 @@ DeployConfiguration *DeployConfigurationFactory::clone(Target *parent, DeployCon
 {
     if (!canClone(parent, product))
         return 0;
-    return new DeployConfiguration(parent, product);
+    return new DefaultDeployConfiguration(parent, product);
 }
 
 DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, const QVariantMap &map)
