@@ -180,7 +180,6 @@ QMakeEvaluator::QMakeEvaluator(QMakeGlobals *option,
 #ifdef PROEVALUATOR_CUMULATIVE
     m_skipLevel = 0;
 #endif
-    m_loopLevel = 0;
     m_listCount = 0;
     m_valuemapStack.push(ProValueMap());
     m_valuemapInited = false;
@@ -630,6 +629,21 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProBlock(
             invert = false;
             curr.clear();
             continue;
+        case TokReturn:
+            m_returnValue = curr;
+            curr.clear();
+            ret = ReturnReturn;
+            goto ctrlstm;
+        case TokBreak:
+            ret = ReturnBreak;
+            goto ctrlstm;
+        case TokNext:
+            ret = ReturnNext;
+          ctrlstm:
+            if (!m_skipLevel && okey != or_op)
+                return ret;
+            okey = false, or_op = true; // force next evaluation
+            continue;
         default: {
                 const ushort *oTokPtr = --tokPtr;
                 evaluateExpression(tokPtr, &curr, false);
@@ -701,7 +715,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
         }
     }
 
-    m_loopLevel++;
     forever {
         if (infinite) {
             if (!variable.isEmpty())
@@ -736,7 +749,6 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProLoop(
         }
     }
   do_break:
-    m_loopLevel--;
 
     if (!variable.isEmpty())
         m_valuemapStack.top()[variable] = oldVarVal;
@@ -1477,8 +1489,6 @@ ProStringList QMakeEvaluator::evaluateFunction(
     } else {
         m_valuemapStack.push(ProValueMap());
         m_locationStack.push(m_current);
-        int loopLevel = m_loopLevel;
-        m_loopLevel = 0;
 
         ProStringList args;
         for (int i = 0; i < argumentsList.count(); ++i) {
@@ -1491,7 +1501,6 @@ ProStringList QMakeEvaluator::evaluateFunction(
         ret = m_returnValue;
         m_returnValue.clear();
 
-        m_loopLevel = loopLevel;
         m_current = m_locationStack.pop();
         m_valuemapStack.pop();
     }

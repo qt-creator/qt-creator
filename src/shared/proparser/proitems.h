@@ -286,6 +286,9 @@ enum ProToken {
     TokTestCall,        // previous literal/expansion is a test function call
                         // - ((nested expansion + TokArgSeparator)* + nested expansion)?
                         // - TokFuncTerminator
+    TokReturn,          // previous literal/expansion is a return value
+    TokBreak,           // break loop
+    TokNext,            // shortcut to next loop iteration
     TokNot,             // '!' operator
     TokAnd,             // ':' operator
     TokOr,              // '|' operator

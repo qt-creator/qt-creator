@@ -159,6 +159,9 @@ static const ushort *skipToken(ushort tok, const ushort *&tokPtr, int &lineNo)
     case TokAnd:
     case TokOr:
     case TokCondition:
+    case TokReturn:
+    case TokNext:
+    case TokBreak:
         break;
     default: {
             const ushort *oTokPtr = --tokPtr;
