@@ -3102,7 +3102,10 @@ bool Parser::parseReturnStatement(StatementAST *&node)
     if (LA() == T_RETURN) {
         ReturnStatementAST *ast = new (_pool) ReturnStatementAST;
         ast->return_token = consumeToken();
-        parseExpression(ast->expression);
+        if (_cxx0xEnabled && LA() == T_LBRACE)
+            parseBracedInitList0x(ast->expression);
+        else
+            parseExpression(ast->expression);
         match(T_SEMICOLON, &ast->semicolon_token);
         node = ast;
         return true;
