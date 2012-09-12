@@ -5202,8 +5202,13 @@ void Parser::parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minP
         if (operPrecedence <= Prec::Conditional && isCPlusPlus) {
             // in C++ you can put a throw in the right-most expression of a conditional expression,
             // or an assignment, so some special handling:
-            if (!parseAssignmentExpression(rhs))
-                return;
+            if (_cxx0xEnabled) {
+                if (!parseInitializerClause0x(rhs))
+                    return;
+            } else {
+                if (!parseAssignmentExpression(rhs))
+                    return;
+            }
         } else {
             // for C & all other expressions:
             if (!parseCastExpression(rhs))
