@@ -65,6 +65,12 @@ public:
 
     BuildType buildType() const;
 
+    bool useNinja() const;
+    void setUseNinja(bool);
+
+signals:
+    void useNinjaChanged(bool);
+
 protected:
     CMakeBuildConfiguration(ProjectExplorer::Target *parent, CMakeBuildConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
@@ -72,6 +78,7 @@ protected:
 private:
     QString m_buildDirectory;
     QString m_msvcVersion;
+    bool m_useNinja;
 };
 
 class CMakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

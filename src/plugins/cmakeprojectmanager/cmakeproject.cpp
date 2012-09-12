@@ -166,7 +166,7 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
                                     sourceFileInfo.absolutePath(),
                                     cmakebc->buildDirectory(),
                                     mode,
-                                    cmakebc->environment());
+                                    cmakebc);
         copw.exec();
     }
     // reparse
@@ -555,7 +555,7 @@ bool CMakeProject::fromMap(const QVariantMap &map)
                                     sourceFileInfo.absolutePath(),
                                     activeBC->buildDirectory(),
                                     mode,
-                                    activeBC->environment());
+                                    activeBC);
         if (copw.exec() != QDialog::Accepted)
             return false;
     }
@@ -906,7 +906,7 @@ void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
     CMakeOpenProjectWizard copw(project->projectManager(),
                                 project->projectDirectory(),
                                 m_buildConfiguration->buildDirectory(),
-                                m_buildConfiguration->environment());
+                                m_buildConfiguration);
     if (copw.exec() == QDialog::Accepted) {
         project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
         m_pathLineEdit->setText(m_buildConfiguration->buildDirectory());
@@ -921,7 +921,7 @@ void CMakeBuildSettingsWidget::runCMake()
                                 project->projectDirectory(),
                                 m_buildConfiguration->buildDirectory(),
                                 CMakeOpenProjectWizard::WantToUpdate,
-                                m_buildConfiguration->environment());
+                                m_buildConfiguration);
     if (copw.exec() == QDialog::Accepted)
         project->parseCMakeLists();
 }

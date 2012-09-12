@@ -54,6 +54,7 @@ namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeManager;
+class CMakeBuildConfiguration;
 
 class CMakeOpenProjectWizard : public Utils::Wizard
 {
@@ -73,14 +74,14 @@ public:
     };
 
     // used at importing a project without a .user file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const Utils::Environment &env);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, CMakeBuildConfiguration *bc);
     /// used to update if we have already a .user file
     /// recreates or updates the cbp file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &buildDirectory, Mode mode, const Utils::Environment &env);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &buildDirectory, Mode mode, CMakeBuildConfiguration *bc);
     /// used to change the build directory of one buildconfiguration
     /// shows a page for selecting a directory
     /// then the run cmake page
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory, const Utils::Environment &env);
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory, CMakeBuildConfiguration *bc);
 
     virtual int nextId() const;
     QString buildDirectory() const;
@@ -90,6 +91,7 @@ public:
     QString arguments() const;
     void setArguments(const QString &args);
     Utils::Environment environment() const;
+    CMakeBuildConfiguration *buildConfiguration() const;
     bool existsUpToDateXmlFile() const;
 
 private:
@@ -100,7 +102,7 @@ private:
     QString m_sourceDirectory;
     QString m_arguments;
     bool m_creatingCbpFiles;
-    Utils::Environment m_environment;
+    CMakeBuildConfiguration *m_buildConfiguration;
 };
 
 class InSourceBuildPage : public QWizardPage
