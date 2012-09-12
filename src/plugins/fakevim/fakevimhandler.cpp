@@ -2326,6 +2326,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
             cursorPos = m_commandBuffer.cursorPos() + 1;
     } else if (!m_currentMessage.isEmpty()) {
         msg = m_currentMessage;
+        m_currentMessage.clear();
     } else if (g.mapStates.size() > 1 && !g.mapStates.last().silent) {
         // Do not reset previous message when after running a mapped command.
         return;
@@ -2345,8 +2346,6 @@ void FakeVimHandler::Private::updateMiniBuffer()
         QTC_CHECK(m_mode == CommandMode && m_subsubmode != SearchSubSubMode);
         msg = "-- COMMAND --";
     }
-
-    m_currentMessage.clear();
 
     emit q->commandBufferChanged(msg, cursorPos);
 
