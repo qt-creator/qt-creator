@@ -1565,10 +1565,14 @@ void ProjectExplorerPlugin::buildStateChanged(Project * pro)
 
 void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfiguration, RunMode runMode)
 {
+    QString errorMessage;
+    if (!runConfiguration->ensureConfigured(&errorMessage)) {
+        showRunErrorMessage(errorMessage);
+        return;
+    }
     if (IRunControlFactory *runControlFactory = findRunControlFactory(runConfiguration, runMode)) {
         emit aboutToExecuteProject(runConfiguration->target()->project(), runMode);
 
-        QString errorMessage;
         RunControl *control = runControlFactory->create(runConfiguration, runMode, &errorMessage);
         if (!control) {
             showRunErrorMessage(errorMessage);

@@ -151,6 +151,8 @@ public:
     virtual QString disabledReason() const;
     virtual QWidget *createConfigurationWidget() = 0;
     virtual bool isConfigured() const;
+    // Pop up configuration dialog in case for example the executable is missing.
+    virtual bool ensureConfigured(QString *errorMessage = 0);
 
     Target *target() const;
 

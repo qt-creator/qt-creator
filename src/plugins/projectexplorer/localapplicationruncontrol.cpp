@@ -66,11 +66,8 @@ RunControl *LocalApplicationRunControlFactory::create(RunConfiguration *runConfi
     QTC_ASSERT(canRun(runConfiguration, mode), return 0);
     LocalApplicationRunConfiguration *localRunConfiguration = qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
     // Force the dialog about executables at this point and fail if there is none
-    if (localRunConfiguration->executable().isEmpty()) {
-        if (errorMessage)
-            *errorMessage = tr("No executable");
+    if (!localRunConfiguration->ensureConfigured(errorMessage))
         return 0;
-    }
     return new LocalApplicationRunControl(localRunConfiguration, mode);
 }
 
