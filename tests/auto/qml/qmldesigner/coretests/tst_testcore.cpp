@@ -4108,7 +4108,7 @@ void tst_TestCore::testGradientsRewriter()
                                   "}\n");
     QCOMPARE(textEdit.toPlainText(), expected1);
 
-    ModelNode gradientNode(addNodeChild(rectNode, "QtQuick.Gradient", 1, 1, "gradient"));
+    ModelNode gradientNode(addNodeChild(rectNode, "QtQuick.Gradient", 1, 0, "gradient"));
 
     QVERIFY(rectNode.hasNodeProperty("gradient"));
 
@@ -4129,7 +4129,7 @@ void tst_TestCore::testGradientsRewriter()
     propertyList.append(qMakePair(QString("position"), QVariant::fromValue(0)));
     propertyList.append(qMakePair(QString("color"), QVariant::fromValue(QColor(Qt::red))));
 
-    ModelNode gradientStop1(gradientNode.view()->createModelNode("QtQuick.GradientStop", 1, 1, propertyList));
+    ModelNode gradientStop1(gradientNode.view()->createModelNode("QtQuick.GradientStop", 1, 0, propertyList));
     QVERIFY(gradientStop1.isValid());
     stops.reparentHere(gradientStop1);
 
@@ -4152,7 +4152,7 @@ void tst_TestCore::testGradientsRewriter()
     propertyList.append(qMakePair(QString("position"), QVariant::fromValue(0.5)));
     propertyList.append(qMakePair(QString("color"), QVariant::fromValue(QColor(Qt::blue))));
 
-    ModelNode gradientStop2(gradientNode.view()->createModelNode("QtQuick.GradientStop", 1, 1, propertyList));
+    ModelNode gradientStop2(gradientNode.view()->createModelNode("QtQuick.GradientStop", 1, 0, propertyList));
     QVERIFY(gradientStop2.isValid());
     stops.reparentHere(gradientStop2);
 
@@ -4180,7 +4180,7 @@ void tst_TestCore::testGradientsRewriter()
     propertyList.append(qMakePair(QString("position"), QVariant::fromValue(0.8)));
     propertyList.append(qMakePair(QString("color"), QVariant::fromValue(QColor(Qt::yellow))));
 
-    ModelNode gradientStop3(gradientNode.view()->createModelNode("QtQuick.GradientStop", 1, 1, propertyList));
+    ModelNode gradientStop3(gradientNode.view()->createModelNode("QtQuick.GradientStop", 1, 0, propertyList));
     QVERIFY(gradientStop3.isValid());
     stops.reparentHere(gradientStop3);
 
@@ -4228,7 +4228,7 @@ void tst_TestCore::testGradientsRewriter()
     propertyList.append(qMakePair(QString("position"), QVariant::fromValue(0)));
     propertyList.append(qMakePair(QString("color"), QVariant::fromValue(QColor(Qt::blue))));
 
-    gradientStop1 = gradientNode.view()->createModelNode("QtQuick.GradientStop", 1, 1, propertyList);
+    gradientStop1 = gradientNode.view()->createModelNode("QtQuick.GradientStop", 1, 0, propertyList);
     QVERIFY(gradientStop1.isValid());
 
     stops.reparentHere(gradientStop1);
@@ -7727,7 +7727,7 @@ void tst_TestCore::changeGradientId()
         firstStop.destroy();
         QVERIFY(!firstStop.isValid());
 
-        ModelNode gradientStop  = addNodeListChild(gradientNode, "QtQuick.GradientStop", 1, 1, "stops");
+        ModelNode gradientStop  = addNodeListChild(gradientNode, "QtQuick.GradientStop", 1, 0, "stops");
         gradientStop.variantProperty("position") = 0.5;
         gradientStop.variantProperty("color") = QColor("yellow");
 
