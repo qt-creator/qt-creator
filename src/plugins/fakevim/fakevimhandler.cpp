@@ -546,6 +546,8 @@ public:
     {
         if (x.isUpper())
             m_modifiers = Qt::ShiftModifier;
+        else if (x.isLower())
+            m_key = x.toUpper().unicode();
     }
 
     Input(int k, int m, const QString &t)
@@ -610,8 +612,7 @@ public:
 
     bool operator==(const Input &a) const
     {
-        return a.m_xkey == m_xkey && a.m_modifiers == m_modifiers
-            && m_text == a.m_text;
+        return m_key == a.m_key && m_modifiers == a.m_modifiers && m_text == a.m_text;
     }
 
     bool operator!=(const Input &a) const { return !operator==(a); }
@@ -1861,20 +1862,35 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
 {
     KEY_DEBUG("HANDLE INPUT: " << input << " MODE: " << mode);
 
+    bool handleMapped = true;
+    bool hasInput = input.isValid();
+
+    if (hasInput)
+        g.pendingInput.append(input);
+
+    // Waiting on input to complete mapping?
     if (g.inputTimer != -1) {
         killTimer(g.inputTimer);
         g.inputTimer = -1;
-    }
-
-    EventResult r = EventUnhandled;
-    if (input.isValid()) {
-        g.pendingInput.append(input);
-        if (g.currentMap.isValid()) {
-            if (!g.currentMap.walk(input) && g.currentMap.isComplete())
+        // If there is a new input add it to incomplete input or
+        // if the mapped input can be completed complete.
+        if (hasInput && g.currentMap.walk(input)) {
+            if (g.currentMap.canExtend()) {
+                g.inputTimer = startTimer(1000);
+                return EventHandled;
+            } else {
+                hasInput = false;
                 handleMappedKeys();
+            }
+        } else if (g.currentMap.isComplete()) {
+            handleMappedKeys();
+        } else {
+            g.currentMap.reset();
+            handleMapped = false;
         }
     }
 
+    EventResult r = EventUnhandled;
     while (!g.pendingInput.isEmpty()) {
         const Input &in = g.pendingInput.front();
 
@@ -1888,7 +1904,7 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
             if (m_mode == ExMode || m_subsubmode == SearchSubSubMode)
                 updateMiniBuffer(); // update cursor position on command line
         } else {
-            if (!g.mapStates.last().noremap && m_subsubmode != SearchSubSubMode) {
+            if (handleMapped && !g.mapStates.last().noremap && m_subsubmode != SearchSubSubMode) {
                 if (!g.currentMap.isValid()) {
                     g.currentMap.reset(currentModeCode());
                     if (!g.currentMap.walk(g.pendingInput) && g.currentMap.isComplete()) {
@@ -1899,7 +1915,7 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
 
                 // handle user mapping
                 if (g.currentMap.canExtend()) {
-                    // wait for user to press any key or trigger mapping after interval
+                    // wait for user to press any key or trigger complete mapping after interval
                     g.inputTimer = startTimer(1000);
                     return EventHandled;
                 } else if (g.currentMap.isComplete()) {
@@ -1911,6 +1927,7 @@ EventResult FakeVimHandler::Private::handleKey(const Input &input)
             r = handleDefaultKey(in);
             // TODO: Unhadled events!
         }
+        handleMapped = true;
         g.pendingInput.pop_front();
     }
 
