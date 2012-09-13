@@ -5,11 +5,13 @@ def verifyChangeProject(projectName):
     # select project
     projItem = waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", projectName)
     openItemContextMenu(waitForObject(":Qt Creator_Utils::NavigationTreeView"), projectName, 5, 5, 0)
-    activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Project_QMenu", 'Set "%s" as Active Project' % projectName))
-    waitFor("projItem.font.bold==True",3000)
+    activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1' "
+                                   "window=':Qt Creator_Core::Internal::MainWindow'}",
+                                   'Set "%s" as Active Project' % projectName))
+    waitFor("projItem.font.bold==True", 3000)
     # check if bold is right project
     test.verify(projItem.font.bold == True,
-                "Simple Qt Quick App - multiple projects - verifying if properly set to project: " + projectName)
+                "Multiple projects - verifying if active project is set to " + projectName)
 
 def main():
     projectName1 = "SampleApp1"
@@ -26,11 +28,11 @@ def main():
     # change to project 2
     verifyChangeProject(projectName2)
     # build project 2
-    clickButton(waitForObject(":Qt Creator.Build Project_Core::Internal::FancyToolButton"))
+    clickButton(waitForObject(":*Qt Creator.Build Project_Core::Internal::FancyToolButton"))
     # wait for build to complete
     waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
     # check output if build successful
-    ensureChecked(waitForObject(":Qt Creator_Core::Internal::OutputPaneToggleButton"))
+    ensureChecked(waitForObject(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton"))
     outputLog = str(waitForObject(":Qt Creator.Compile Output_Core::OutputWindow").plainText)
     # verify that project was built successfully
     test.verify(outputLog.endswith("exited normally."),
@@ -40,5 +42,3 @@ def main():
                 "Verifying that proper project " + projectName2 + " was built.")
     # exit qt creator
     invokeMenuItem("File", "Exit")
-# no cleanup needed, as whole testing directory gets properly removed after test finished
-

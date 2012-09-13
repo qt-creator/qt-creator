@@ -1,3 +1,4 @@
+:*Qt Creator.Build Project_Core::Internal::FancyToolButton	{text='Build Project' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Clear_QToolButton	{text='Clear' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.Continue_Core::Internal::FancyToolButton	{text='Continue' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.DoubleTabWidget_ProjectExplorer::Internal::DoubleTabWidget	{name='ProjectExplorer__Internal__DoubleTabWidget' type='ProjectExplorer::Internal::DoubleTabWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='DoubleTabWidget'}
