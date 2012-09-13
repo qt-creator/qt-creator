@@ -4789,7 +4789,7 @@ void tst_TestCore::testInstancesBindingsInStatesStress()
 {
     //This is a stress test to provoke a crash
     for (int j=0;j<20;j++) {
-        QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+        QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
         QVERIFY(model.data());
         QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
