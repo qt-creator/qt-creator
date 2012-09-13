@@ -275,15 +275,16 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     }
 
     QString tabText(this->tabText(tabIndex));
-    QRect tabTextRect(tabRect(tabIndex));
+    QRect tabTextRect(rect);
+    const bool drawIcon = rect.height() > 36;
     QRect tabIconRect(tabTextRect);
-    tabTextRect.translate(0, -2);
+    tabTextRect.translate(0, drawIcon ? -2 : 1);
     QFont boldFont(painter->font());
     boldFont.setPointSizeF(Utils::StyleHelper::sidebarFontSize());
     boldFont.setBold(true);
     painter->setFont(boldFont);
     painter->setPen(selected ? QColor(255, 255, 255, 160) : QColor(0, 0, 0, 110));
-    int textFlags = Qt::AlignCenter | Qt::AlignBottom | Qt::TextWordWrap;
+    const int textFlags = Qt::AlignCenter | (drawIcon ? Qt::AlignBottom : Qt::AlignVCenter) | Qt::TextWordWrap;
     if (enabled) {
         painter->drawText(tabTextRect, textFlags, tabText);
         painter->setPen(selected ? QColor(60, 60, 60) : Utils::StyleHelper::panelTextColor());
@@ -307,9 +308,11 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     if (!enabled)
         painter->setOpacity(0.7);
 
-    int textHeight = painter->fontMetrics().boundingRect(QRect(0, 0, width(), height()), Qt::TextWordWrap, tabText).height();
-    tabIconRect.adjust(0, 4, 0, -textHeight);
-    Utils::StyleHelper::drawIconWithShadow(tabIcon(tabIndex), tabIconRect, painter, enabled ? QIcon::Normal : QIcon::Disabled);
+    if (drawIcon) {
+        int textHeight = painter->fontMetrics().boundingRect(QRect(0, 0, width(), height()), Qt::TextWordWrap, tabText).height();
+        tabIconRect.adjust(0, 4, 0, -textHeight);
+        Utils::StyleHelper::drawIconWithShadow(tabIcon(tabIndex), tabIconRect, painter, enabled ? QIcon::Normal : QIcon::Disabled);
+    }
 
     painter->translate(0, -1);
     painter->drawText(tabTextRect, textFlags, tabText);
