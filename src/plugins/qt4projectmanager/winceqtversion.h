@@ -51,10 +51,9 @@ public:
 
     QString description() const;
 
-    virtual QVariantMap toMap() const;
-    virtual void fromMap(const QVariantMap &data);
+    void fromMap(const QVariantMap &data);
 
-    virtual QString platformName() const;
+    QString platformName() const;
     QString platformDisplayName() const;
 
 private:
