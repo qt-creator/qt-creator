@@ -919,16 +919,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             s->value(QLatin1String("ProjectExplorer/Settings/MergeStdErrAndStdOut"), false).toBool();
     d->m_projectExplorerSettings.wrapAppOutput =
             s->value(QLatin1String("ProjectExplorer/Settings/WrapAppOutput"), true).toBool();
-#ifdef Q_OS_WIN
-    QFileInfo jom = QFileInfo(MsvcToolChain::findInstalledJom());
-    if (!jom.exists())
-        jom.setFile(Utils::Environment::systemEnvironment().searchInPath(QLatin1String("jom.exe")));
-
     d->m_projectExplorerSettings.useJom =
-            s->value(QLatin1String("ProjectExplorer/Settings/UseJom"), jom.exists()).toBool();
-#else
-    d->m_projectExplorerSettings.useJom = true; // No need to read any settings
-#endif
+            s->value(QLatin1String("ProjectExplorer/Settings/UseJom"), true).toBool();
     d->m_projectExplorerSettings.autorestoreLastSession =
             s->value(QLatin1String("ProjectExplorer/Settings/AutoRestoreLastSession"), false).toBool();
     d->m_projectExplorerSettings.prompToStopRunControl =
