@@ -6772,7 +6772,7 @@ void tst_TestCore::testRewriterAddStatesArray()
     QVERIFY(rootNode.isValid());
     QCOMPARE(rootNode.type(), QString("QtQuick.Rectangle"));
 
-    ModelNode stateNode = view->createModelNode("QtQuick.State", 1, 1);
+    ModelNode stateNode = view->createModelNode("QtQuick.State", 1, 0);
     rootNode.nodeListProperty(QLatin1String("states")).reparentHere(stateNode);
 
     const QString expected1 = QLatin1String("\n"
@@ -6786,7 +6786,7 @@ void tst_TestCore::testRewriterAddStatesArray()
                                            "}");
     QCOMPARE(textEdit.toPlainText(), expected1);
 
-    ModelNode stateNode2 = view->createModelNode("QtQuick.State", 1, 1);
+    ModelNode stateNode2 = view->createModelNode("QtQuick.State", 1, 0);
     rootNode.nodeListProperty(QLatin1String("states")).reparentHere(stateNode2);
 
     const QString expected2 = QLatin1String("\n"
