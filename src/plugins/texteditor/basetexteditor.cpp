@@ -255,7 +255,7 @@ BaseTextEditorWidget::BaseTextEditorWidget(QWidget *parent)
     // parentheses matcher
     d->m_formatRange = true;
     d->m_matchFormat.setForeground(Qt::red);
-    d->m_rangeFormat.setBackground(QColor(0xb4, 0xee, 0xb4));
+    d->m_matchFormat.setBackground(QColor(0xb4, 0xee, 0xb4));
     d->m_mismatchFormat.setBackground(Qt::magenta);
     d->m_parenthesesMatchingTimer = new QTimer(this);
     d->m_parenthesesMatchingTimer->setSingleShot(true);
@@ -5029,15 +5029,11 @@ void BaseTextEditorWidget::_q_matchParentheses()
         if (backwardMatchType == TextBlockUserData::Mismatch) {
             sel.cursor = backwardMatch;
             sel.format = d->m_mismatchFormat;
+            extraSelections.append(sel);
         } else {
 
-            if (d->m_displaySettings.m_animateMatchingParentheses) {
+            if (d->m_displaySettings.m_animateMatchingParentheses)
                 animatePosition = backwardMatch.selectionStart();
-            } else if (d->m_formatRange) {
-                sel.cursor = backwardMatch;
-                sel.format = d->m_rangeFormat;
-                extraSelections.append(sel);
-            }
 
             sel.cursor = backwardMatch;
             sel.format = d->m_matchFormat;
@@ -5048,8 +5044,8 @@ void BaseTextEditorWidget::_q_matchParentheses()
 
             sel.cursor.setPosition(backwardMatch.selectionEnd());
             sel.cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+            extraSelections.append(sel);
         }
-        extraSelections.append(sel);
     }
 
     if (forwardMatch.hasSelection()) {
@@ -5057,15 +5053,11 @@ void BaseTextEditorWidget::_q_matchParentheses()
         if (forwardMatchType == TextBlockUserData::Mismatch) {
             sel.cursor = forwardMatch;
             sel.format = d->m_mismatchFormat;
+            extraSelections.append(sel);
         } else {
 
-            if (d->m_displaySettings.m_animateMatchingParentheses) {
+            if (d->m_displaySettings.m_animateMatchingParentheses)
                 animatePosition = forwardMatch.selectionEnd()-1;
-            } else if (d->m_formatRange) {
-                sel.cursor = forwardMatch;
-                sel.format = d->m_rangeFormat;
-                extraSelections.append(sel);
-            }
 
             sel.cursor = forwardMatch;
             sel.format = d->m_matchFormat;
@@ -5076,8 +5068,8 @@ void BaseTextEditorWidget::_q_matchParentheses()
 
             sel.cursor.setPosition(forwardMatch.selectionEnd());
             sel.cursor.movePosition(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+            extraSelections.append(sel);
         }
-        extraSelections.append(sel);
     }
 
 
@@ -5098,7 +5090,7 @@ void BaseTextEditorWidget::_q_matchParentheses()
         d->m_animator->setPosition(animatePosition);
         QPalette pal;
         pal.setBrush(QPalette::Text, d->m_matchFormat.foreground());
-        pal.setBrush(QPalette::Base, d->m_rangeFormat.background());
+        pal.setBrush(QPalette::Base, d->m_matchFormat.background());
         d->m_animator->setData(font(), pal, characterAt(d->m_animator->position()));
         connect(d->m_animator, SIGNAL(updateRequest(int,QPointF,QRectF)),
                 this, SLOT(_q_animateUpdate(int,QPointF,QRectF)));
@@ -5601,9 +5593,7 @@ void BaseTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
     d->m_searchResultFormat.setBackground(searchResultFormat.background());
 
     // Matching braces
-    d->m_matchFormat.setForeground(parenthesesFormat.foreground());
-    d->m_rangeFormat.setBackground(parenthesesFormat.background());
-
+    d->m_matchFormat = parenthesesFormat;
 
     // snippests
     d->m_occurrencesFormat = fs.toTextCharFormat(C_OCCURRENCES);

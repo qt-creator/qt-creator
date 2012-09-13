@@ -198,7 +198,6 @@ public:
     bool m_formatRange;
     QTextCharFormat m_matchFormat;
     QTextCharFormat m_mismatchFormat;
-    QTextCharFormat m_rangeFormat;
     QTimer *m_parenthesesMatchingTimer;
     // end parentheses matcher
 
