@@ -1595,10 +1595,10 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl, RunMode runM
 {
     d->m_outputPane->createNewOutputWindow(runControl);
     if (runMode == NormalRunMode && d->m_projectExplorerSettings.showRunOutput)
-        d->m_outputPane->popup(false);
+        d->m_outputPane->popup(Core::IOutputPane::NoModeSwitch);
     if ((runMode == DebugRunMode || runMode == DebugRunModeWithBreakOnMain)
             && d->m_projectExplorerSettings.showDebugOutput)
-        d->m_outputPane->popup(false);
+        d->m_outputPane->popup(Core::IOutputPane::NoModeSwitch);
     d->m_outputPane->showTabFor(runControl);
     connect(runControl, SIGNAL(finished()), this, SLOT(runControlFinished()));
     runControl->start();

@@ -148,7 +148,7 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
     FileFindParameters parameters = search->userData().value<FileFindParameters>();
     CountingLabel *label = new CountingLabel;
     connect(search, SIGNAL(countChanged(int)), label, SLOT(updateCount(int)));
-    Find::SearchResultWindow::instance()->popup(true);
+    Find::SearchResultWindow::instance()->popup(Core::IOutputPane::Flags(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus));
     QFutureWatcher<FileSearchResultList> *watcher = new QFutureWatcher<FileSearchResultList>();
     m_watchers.insert(watcher, search);
     watcher->setPendingResultsLimit(1);

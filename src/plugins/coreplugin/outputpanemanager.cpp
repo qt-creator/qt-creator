@@ -257,9 +257,9 @@ void OutputPaneManager::init()
         const int idx = m_outputWidgetPane->addWidget(outPane->outputWidget(this));
         QTC_CHECK(idx == i);
 
-        connect(outPane, SIGNAL(showPage(bool,bool)), this, SLOT(showPage(bool,bool)));
+        connect(outPane, SIGNAL(showPage(int)), this, SLOT(showPage(int)));
         connect(outPane, SIGNAL(hidePage()), this, SLOT(slotHide()));
-        connect(outPane, SIGNAL(togglePage(bool)), this, SLOT(togglePage(bool)));
+        connect(outPane, SIGNAL(togglePage(int)), this, SLOT(togglePage(int)));
         connect(outPane, SIGNAL(navigateStateUpdate()), this, SLOT(updateNavigateState()));
         connect(outPane, SIGNAL(flashButton()), this, SLOT(flashButton()));
         connect(outPane, SIGNAL(setBadgeNumber(int)), this, SLOT(setBadgeNumber(int)));
@@ -364,7 +364,7 @@ void OutputPaneManager::buttonTriggered(int idx)
         // we should toggle and the page is already visible and we are actually closeable
         slotHide();
     } else {
-        showPage(idx, true);
+        showPage(idx, IOutputPane::ModeSwitch | IOutputPane::WithFocus);
     }
 }
 
@@ -462,45 +462,47 @@ void OutputPaneManager::setBadgeNumber(int number)
 }
 
 // Slot connected to showPage signal of each page
-void OutputPaneManager::showPage(bool focus, bool ensureSizeHint)
+void OutputPaneManager::showPage(int flags)
 {
     int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
-    OutputPanePlaceHolder *ph = OutputPanePlaceHolder::getCurrent();
-    if (!ph)
-        m_buttons.value(idx)->flash();
-    else
-        showPage(idx, focus);
-
-    if (ensureSizeHint && ph)
-        ph->ensureSizeHintAsMinimum();
+    showPage(idx, flags);
 }
 
-void OutputPaneManager::showPage(int idx, bool focus)
+void OutputPaneManager::showPage(int idx, int flags)
 {
     QTC_ASSERT(idx >= 0, return);
-    if (!OutputPanePlaceHolder::getCurrent()) {
+    OutputPanePlaceHolder *ph = OutputPanePlaceHolder::getCurrent();
+
+    if (!ph && flags & IOutputPane::ModeSwitch) {
         // In this mode we don't have a placeholder
         // switch to the output mode and switch the page
         ModeManager::activateMode(Id(Constants::MODE_EDIT));
+        ph = OutputPanePlaceHolder::getCurrent();
     }
-    if (OutputPanePlaceHolder *ph = OutputPanePlaceHolder::getCurrent()) {
+
+    if (ph) {
         // make the page visible
         ph->setVisible(true);
         ensurePageVisible(idx);
         IOutputPane *out = m_panes.at(idx);
         out->visibilityChanged(true);
-        if (focus && out->canFocus())
+        if (flags & IOutputPane::WithFocus && out->canFocus())
             out->setFocus();
+
+        if (flags & IOutputPane::EnsureSizeHint)
+            ph->ensureSizeHintAsMinimum();
+    } else {
+        m_buttons.value(idx)->flash();
     }
 }
 
-void OutputPaneManager::togglePage(bool focus)
+void OutputPaneManager::togglePage(int flags)
 {
     int idx = findIndexForPage(qobject_cast<IOutputPane*>(sender()));
     if (OutputPanePlaceHolder::isCurrentVisible() && currentIndex() == idx)
          slotHide();
     else
-         showPage(idx, focus);
+         showPage(idx, flags);
 }
 
 void OutputPaneManager::focusInEvent(QFocusEvent *e)
@@ -558,7 +560,7 @@ void OutputPaneManager::popupMenu()
         button->hide();
     } else {
         button->show();
-        showPage(idx, false);
+        showPage(idx, IOutputPane::ModeSwitch);
     }
 }
 

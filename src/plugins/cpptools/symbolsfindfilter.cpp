@@ -175,7 +175,7 @@ void SymbolsFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
     connect(search, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
     connect(search, SIGNAL(searchAgainRequested()), this, SLOT(searchAgain()));
     connect(this, SIGNAL(enabledChanged(bool)), search, SLOT(setSearchAgainEnabled(bool)));
-    window->popup(true);
+    window->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
 
     SymbolsFindParameters parameters;
     parameters.text = txt;

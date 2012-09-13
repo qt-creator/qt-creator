@@ -941,7 +941,7 @@ void FindReferences::displayResults(int first, int last)
                 this, SLOT(openEditor(Find::SearchResultItem)));
         connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
         connect(m_currentSearch, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
-        Find::SearchResultWindow::instance()->popup(true);
+        Find::SearchResultWindow::instance()->popup(Core::IOutputPane::Flags(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus));
 
         Core::ProgressManager *progressManager = Core::ICore::progressManager();
         Core::FutureProgress *progress = progressManager->addTask(

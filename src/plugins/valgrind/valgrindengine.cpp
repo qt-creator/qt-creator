@@ -191,7 +191,7 @@ void ValgrindEngine::receiveProcessError(const QString &error, QProcess::Process
     QList<Core::IOutputPane *> panes = ExtensionSystem::PluginManager::getObjects<Core::IOutputPane>();
     foreach (Core::IOutputPane *pane, panes) {
         if (pane->displayName() == tr("Application Output")) {
-            pane->popup(false);
+            pane->popup(Core::IOutputPane::NoModeSwitch);
             break;
         }
     }

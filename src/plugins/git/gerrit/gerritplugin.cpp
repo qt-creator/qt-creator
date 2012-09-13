@@ -309,7 +309,8 @@ void FetchContext::startWritePatchFile()
 
 void FetchContext::startCherryPick()
 {
-    VcsBase::VcsBaseOutputWindow::instance()->popup(); // Point user to errors.
+    // Point user to errors.
+    VcsBase::VcsBaseOutputWindow::instance()->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
     VcsBase::VcsBaseOutputWindow::instance()->append(tr("Cherry-picking %1...").arg(m_patchFileName));
     QStringList args;
     args << QLatin1String("cherry-pick") <<  QLatin1String("FETCH_HEAD");

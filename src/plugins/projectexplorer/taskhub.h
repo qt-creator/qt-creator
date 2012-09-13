@@ -67,7 +67,7 @@ signals:
     void taskFileNameUpdated(unsigned int id, const QString &fileName);
     void taskLineNumberUpdated(unsigned int id, int line);
     void categoryVisibilityChanged(const Core::Id &categoryId, bool visible);
-    void popupRequested(bool withFocus);
+    void popupRequested(int);
     void showTask(unsigned int id);
     void openTask(unsigned int id);
 private:

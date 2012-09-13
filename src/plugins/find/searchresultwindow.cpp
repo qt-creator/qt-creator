@@ -184,7 +184,8 @@ namespace Internal {
         QTC_ASSERT(widget, return);
         int internalIndex = m_searchResultWidgets.indexOf(widget) + 1/*account for "new search" entry*/;
         setCurrentIndex(internalIndex, focus);
-        q->popup(focus);
+        q->popup(focus ? Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus
+                       : Core::IOutputPane::NoModeSwitch);
     }
 }
 
@@ -480,7 +481,7 @@ void SearchResultWindow::setTextEditorFont(const QFont &font)
 void SearchResultWindow::openNewSearchPanel()
 {
     d->setCurrentIndex(0);
-    popup(true/*focus*/, true/*sizeHint*/);
+    popup(IOutputPane::ModeSwitch  | IOutputPane::WithFocus | IOutputPane::EnsureSizeHint);
 }
 
 /*!

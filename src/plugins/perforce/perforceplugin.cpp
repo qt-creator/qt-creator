@@ -591,7 +591,7 @@ void PerforcePlugin::printOpenedFileList()
             outWin->appendSilently(mapped + QLatin1Char(' ') + line.mid(delimiterPos));
         }
     }
-    outWin->popup();
+    outWin->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
 }
 
 void PerforcePlugin::startSubmitProject()

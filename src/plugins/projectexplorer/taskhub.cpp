@@ -31,6 +31,7 @@
 #include "taskhub.h"
 #include "extensionsystem/pluginmanager.h"
 #include "projectexplorer.h"
+#include <coreplugin/ioutputpane.h>
 #include <texteditor/basetextmark.h>
 #include <QMetaType>
 
@@ -152,7 +153,7 @@ void TaskHub::setCategoryVisibility(const Core::Id &categoryId, bool visible)
 
 void TaskHub::requestPopup()
 {
-    emit popupRequested(false);
+    emit popupRequested(Core::IOutputPane::NoModeSwitch);
 }
 
 QIcon TaskHub::taskTypeIcon(Task::TaskType t) const
