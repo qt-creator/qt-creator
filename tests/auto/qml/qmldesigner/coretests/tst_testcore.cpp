@@ -4297,7 +4297,7 @@ void tst_TestCore::testInstancesStates()
 //    }
 //
 
-//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
 //    QVERIFY(model.data());
 //    QScopedPointer<TestView> view(new TestView(model.data()));
 //    QVERIFY(view.data());
@@ -4528,7 +4528,7 @@ void tst_TestCore::testStates()
 //    }
 //
 
-//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
 //    QVERIFY(model.data());
 //    QScopedPointer<TestView> view(new TestView(model.data()));
 //    QVERIFY(view.data());
@@ -4624,7 +4624,7 @@ void tst_TestCore::testStatesBaseState()
 //    }
 //
 
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4681,7 +4681,7 @@ void tst_TestCore::testStatesBaseState()
 
 void tst_TestCore::testInstancesIdResolution()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4768,7 +4768,7 @@ void tst_TestCore::testInstancesNotInScene()
     // test whether deleting an instance which is not in the scene crashes
     //
 
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
     QVERIFY(model.data());
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
@@ -4894,7 +4894,7 @@ void tst_TestCore::testInstancesPropertyChangeTargets()
         //this tests checks if a change of the target of a CropertyChange 
         //node is handled correctly
 
-        QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+        QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
         QVERIFY(model.data());
         QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
@@ -5000,7 +5000,7 @@ void tst_TestCore::testInstancesPropertyChangeTargets()
 
 void tst_TestCore::testInstancesDeletePropertyChanges()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
         QVERIFY(model.data());
         QScopedPointer<TestView> view(new TestView(model.data()));
         QVERIFY(view.data());
@@ -5089,7 +5089,7 @@ void tst_TestCore::testInstancesDeletePropertyChanges()
 
 void tst_TestCore::testInstancesChildrenLowLevel()
 {
-//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
 //    QVERIFY(model.data());
 
 //    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
@@ -5179,7 +5179,7 @@ void tst_TestCore::testInstancesChildrenLowLevel()
 
 void tst_TestCore::testInstancesResourcesLowLevel()
 {
-//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
 //    QVERIFY(model.data());
 
 //    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
@@ -5414,7 +5414,7 @@ void tst_TestCore::testInstancesFlickableLowLevel()
 
 void tst_TestCore::testInstancesReorderChildrenLowLevel()
 {
-//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+//    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
 //    QVERIFY(model.data());
 
 //    QScopedPointer<NodeInstanceView> view(new NodeInstanceView);
@@ -5513,7 +5513,7 @@ void tst_TestCore::testInstancesReorderChildrenLowLevel()
 
 void tst_TestCore::testQmlModelStatesInvalidForRemovedNodes()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -5586,7 +5586,7 @@ void tst_TestCore::testInstancesAttachToExistingModel()
 
 void tst_TestCore::testQmlModelAddMultipleStates()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
@@ -5617,7 +5617,7 @@ void tst_TestCore::testQmlModelAddMultipleStates()
 
 void tst_TestCore::testQmlModelRemoveStates()
 {
-    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 0));
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 1, 1));
 
     QScopedPointer<TestView> view(new TestView(model.data()));
     QVERIFY(view.data());
