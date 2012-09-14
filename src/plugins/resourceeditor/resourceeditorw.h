@@ -46,7 +46,7 @@ class ResourceEditorW;
 class QrcEditor;
 
 class ResourceEditorDocument
-  : public virtual Core::IDocument
+  : public Core::IDocument
 {
     Q_OBJECT
 
