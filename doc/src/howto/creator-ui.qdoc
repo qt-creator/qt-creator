@@ -337,6 +337,11 @@
 
     \image qtcreator-compile-pane.png
 
+    Double-click on a file name in an error message to open the file in the
+    code editor.
+
+    Select the \gui {Cancel Build} button to cancel the build.
+
     \section2 To-Do List
 
     The \gui {To-Do List Entries} pane lists the BUG, FIXME, NOTE, TODO, and
