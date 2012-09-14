@@ -40,10 +40,11 @@
 
     \image qtcreator-project-targets.png
 
-    To add build and run \l{glossary-buildandrun-kit}{kits} for the project, select \gui Add. The list
+    To add build and run \l{glossary-buildandrun-kit}{kits} for the project,
+    select \gui {Add Kit}. The list
     displays kits that are configured in \gui Tools > \gui Options >
     \gui {Build & Run} > \gui Kits. To add kits to the list, select
-    \gui Manage.
+    \gui {Manage Kits}.
 
     To remove a kit, hover the cursor over it (1) and click
     \inlineimage qtcreator-target-remove.png "Remove Kit button"
