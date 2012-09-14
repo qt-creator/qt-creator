@@ -282,7 +282,15 @@
 
         \o  General
 
-            Text files
+        \list
+
+            \o  Text files
+
+            \o  Scratch buffers that use temporary files. You can create this
+                type of files for temporarily storing information that you do
+                not intend to save
+
+        \endlist
 
     \endlist
 
