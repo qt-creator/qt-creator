@@ -89,7 +89,7 @@
 
         \o  To debug applications on devices, check that Qt 4.7.4, or later,
             libraries are installed on the device and
-            \l{Running on Multiple Targets}{select the corresponding kit for the device}
+            \l{Running on Multiple Platforms}{select the corresponding kit for the device}
             before you start debugging.
 
     \endlist

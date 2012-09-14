@@ -29,14 +29,13 @@
     \page creator-connecting-mobile.html
     \nextpage creator-developing-android.html
 
-    \title Connecting Mobile Targets
+    \title Connecting Mobile Devices
 
     You can connect mobile devices to the development PC to build, run, debug,
-    and analyze applications on them from \QC. When you install
-    \l{glossary-buildandrun-kit}{kits} for building and running on mobile targets
-    as part of the \QSDK, the build and run settings for the target devices are
-    set up automatically in \QC. However, \QSDK does not contain a tool chain
-    for building applications for embedded Linux devices.
+    and analyze applications on them from \QC. When you install an SDK for a
+    target platform, such as Android or QNX, the build and run settings for the
+    development targets delivered with the SDK might be set up automatically in
+    \QC.
 
     You can connect the device to the development PC using a USB connection.
     Additionally, you can connect Linux-based devices by using a WLAN
@@ -57,8 +56,7 @@
 
             If you have a tool chain for building applications for embedded
             Linux devices (with no MADDE support) installed on the development
-            PC, you can add it to \QC. Create device configurations and select
-            them in the \QC run settings.
+            PC, you can add it and the device to \QC.
 
         \o  \l{Connecting Maemo Devices}
 

@@ -224,7 +224,7 @@
     You use a wizard to create the connections. You can edit the settings later
     in \gui Tools > \gui Options > \gui Devices.
 
-    \image qtcreator-maemo-device-configurations.png "Maemo Device Configurations dialog"
+    \image qtcreator-maemo-device-configurations.png "Devices dialog"
 
     By default, you create the connection as the \e developer user. This
     protects real user data on the device from getting corrupted during
@@ -286,7 +286,7 @@
 
             \o  Select \gui {Maemo5/Fremantle} > \gui {Start Wizard}.
 
-            \image qtcreator-dev-conf-maemo.png "Maemo device configuration"
+            \image qtcreator-dev-conf-maemo.png "Maemo device"
 
             \o In the \gui {The name to identify this configuration} field,
             enter a name for the connection.

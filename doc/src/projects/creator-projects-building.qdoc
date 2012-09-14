@@ -29,9 +29,10 @@
     \page creator-building-targets.html
     \nextpage creator-running-targets.html
 
-    \title Building for Multiple Targets
+    \title Building for Multiple Platforms
 
-    You can build applications for multiple targets, or using different compilers,
+    You can build applications for multiple target platforms, or using different
+    compilers,
     debuggers or Qt versions. \l{glossary-buildandrun-kit}{Kits} define the tools,
     device type and other settings to use.
 

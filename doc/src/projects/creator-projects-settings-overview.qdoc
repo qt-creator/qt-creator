@@ -31,10 +31,9 @@
 
     \title Configuring Projects
 
-    \omit
-    When you install the \QSDK, the build and run settings for the development
-    targets delivered with the \QSDK are set up automatically.
-    \endomit
+    When you install an SDK for a target platform, such as Android or QNX, the
+    build and run settings for the development
+    targets delivered with the SDK might be set up automatically in \QC.
 
     To view and modify the settings for currently open projects, switch to the
     \gui Projects mode by pressing \key Ctrl+5.

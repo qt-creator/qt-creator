@@ -68,10 +68,7 @@
 
         \o  In the \gui Name column, double-click the kit name to change it.
 
-
-
-        \o  In the \gui{Device type} field, select the type of the device to
-            target.
+        \o  In the \gui{Device type} field, select the type of the device.
 
             Double-click the icon next to the field to select the image that is
             displayed in the kit selector for this kit. You can use any
@@ -80,7 +77,7 @@
             logo as an icon allows you to easily see, which compiler is used to
             build the project for the selected kit.
 
-        \o  In the \gui Device field, select the device configuration to target.
+        \o  In the \gui Device field, select a device.
 
         \o  In the \gui Sysroot field, specify the directory where the device
             image is located. If you are not cross-compiling, leave this field

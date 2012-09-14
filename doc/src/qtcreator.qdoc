@@ -86,10 +86,10 @@
             \o  \list
             \o  \bold {\l{Building and Running}}
                 \list
-                    \o  \l{Building for Multiple Targets}
-                    \o  \l{Running on Multiple Targets}
+                    \o  \l{Building for Multiple Platforms}
+                    \o  \l{Running on Multiple Platforms}
                     \o  \l{Deploying to Mobile Devices}
-                    \o  \l{Connecting Mobile Targets}
+                    \o  \l{Connecting Mobile Devices}
                 \endlist
             \endlist
             \o  \list
@@ -231,15 +231,15 @@
         \endlist
         \o  \l{Building and Running}
         \list
-            \o  \l{Building for Multiple Targets}
-            \o  \l{Running on Multiple Targets}
+            \o  \l{Building for Multiple Platforms}
+            \o  \l{Running on Multiple Platforms}
             \o  \l{Deploying to Mobile Devices}
             \list
                 \o  \l{Deploying Applications to Android Devices}
                 \o  \l{Deploying Applications to Linux-Based Devices}
                 \o  \l{Deploying Applications to QNX Devices}
             \endlist
-            \o  \l{Connecting Mobile Targets}
+            \o  \l{Connecting Mobile Devices}
             \list
                 \o  \l{Connecting Android Devices}
                 \o  \l{Connecting Embedded Linux Devices}
