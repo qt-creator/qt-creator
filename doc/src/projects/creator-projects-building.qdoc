@@ -60,4 +60,8 @@
     For more information on the options you have, see
     \l{Specifying Build Settings}.
 
+    To quickly check the compile output for changes that you made in one file or
+    subproject, you can use the \gui Build menu commands to build a file or
+    subproject.
+
 */
