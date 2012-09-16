@@ -16044,8 +16044,6 @@ void Extended_Key_Usage::contents_to(Data_Store& subject, Data_Store&) const
       subject.add("X509v3.ExtendedKeyUsage", oids[i].as_string());
    }
 
-namespace {
-
 /*
 * A policy specifier
 */
@@ -16072,8 +16070,6 @@ class Policy_Information : public ASN1_Object
             .end_cons();
          }
    };
-
-}
 
 /*
 * Encode the extension
