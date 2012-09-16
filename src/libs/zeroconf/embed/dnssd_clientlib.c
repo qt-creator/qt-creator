@@ -36,8 +36,10 @@
 #endif
 
 #if defined(_WIN32)
+#ifdef _MSC_VER
 // disable warning "conversion from <data> to uint16_t"
 #pragma warning(disable:4244)
+#endif
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp
 #endif

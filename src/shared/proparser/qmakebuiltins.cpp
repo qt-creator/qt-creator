@@ -184,7 +184,7 @@ static bool isTrue(const ProString &_str, QString &tmp)
     return !str.compare(statics.strtrue, Qt::CaseInsensitive) || str.toInt();
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && defined(PROEVALUATOR_FULL)
 static QString windowsErrorCode()
 {
     wchar_t *string = 0;

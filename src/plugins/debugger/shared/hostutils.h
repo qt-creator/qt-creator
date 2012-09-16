@@ -74,7 +74,7 @@ void formatWindowsException(unsigned long code, quint64 address,
 bool isFatalWinException(long code);
 
 // Check for EXCEPTION_BREAKPOINT, EXCEPTION_SINGLE_STEP
-bool isDebuggerWinException(long code);
+bool isDebuggerWinException(unsigned long code);
 
 #endif // defined(Q_OS_WIN)
 
