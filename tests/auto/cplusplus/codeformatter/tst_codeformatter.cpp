@@ -117,6 +117,7 @@ private Q_SLOTS:
     void functionBodyAndBraces4();
     void constructor1();
     void constructor2();
+    void constructor3();
     void caseBody1();
     void caseBody2();
     void caseBody3();
@@ -1867,6 +1868,42 @@ void tst_CodeFormatter::constructor2()
          << Line("    ~         foo() + 12)")
          << Line("    ~   , _carooooo(foo(),")
          << Line("    ~               12)")
+         << Line("    {")
+         << Line("        _b = 0")
+         << Line("    }")
+         << Line("};")
+         ;
+    CppCodeStyleSettings codeStyle;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::constructor3()
+{
+    QList<Line> data;
+    data << Line("class Foo {")
+         << Line("    Foo() : _a{0}, _b{1, {2, {3, \"foo\"}, 3}}")
+         << Line("    {")
+         << Line("        _b = 0")
+         << Line("    }")
+         << Line("    int _a;")
+         << Line("    Foo()")
+         << Line("    ~   : _foo{1},")
+         << Line("    ~     _bar{2},")
+         << Line("    ~     _carooooo(")
+         << Line("    ~         foo() + 12),")
+         << Line("    ~     _carooooo{foo(),")
+         << Line("    ~               12}")
+         << Line("    {")
+         << Line("        _b = 0")
+         << Line("    }")
+         << Line("    int _b;")
+         << Line("    Foo()")
+         << Line("    ~   : _foo{1}")
+         << Line("    ~   , _bar{2}")
+         << Line("    ~   , _carooooo{")
+         << Line("    ~         foo() + 12}")
+         << Line("    ~   , _carooooo{foo(),")
+         << Line("    ~               12}")
          << Line("    {")
          << Line("        _b = 0")
          << Line("    }")

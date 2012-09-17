@@ -300,6 +300,13 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             default:            tryExpression(); break;
             } break;
 
+        case braceinit_open:
+            switch (kind) {
+            case T_RBRACE:      leave(); break;
+            case T_RPAREN:      leave(); continue; // recover?
+            default:            tryExpression(); break;
+            } break;
+
         case ternary_op:
             switch (kind) {
             case T_RPAREN:
@@ -340,14 +347,16 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
 
         case member_init:
             switch (kind) {
-            case T_LPAREN:      enter(member_init_paren_open); break;
-            case T_RPAREN:      leave(); break;
             case T_LBRACE:
+            case T_LPAREN:      enter(member_init_nest_open); break;
+            case T_RBRACE:
+            case T_RPAREN:      leave(); break;
             case T_SEMICOLON:   leave(); continue; // try to recover
             } break;
 
-        case member_init_paren_open:
+        case member_init_nest_open:
             switch (kind) {
+            case T_RBRACE:
             case T_RPAREN:      leave(); continue;
             case T_SEMICOLON:   leave(); continue; // try to recover
             default:            tryExpression(); break;
@@ -765,6 +774,7 @@ bool CodeFormatter::tryExpression(bool alsoExpression)
     switch (kind) {
     case T_LPAREN:          newState = arglist_open; break;
     case T_QUESTION:        newState = ternary_op; break;
+    case T_LBRACE:          newState = braceinit_open; break;
 
     case T_EQUAL:
     case T_AMPER_EQUAL:
@@ -1235,7 +1245,7 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
 
     case arglist_open:
     case condition_paren_open:
-    case member_init_paren_open:
+    case member_init_nest_open:
         if (!lastToken)
             *paddingDepth = nextTokenPosition-*indentDepth;
         else

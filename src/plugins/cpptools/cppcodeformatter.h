@@ -124,7 +124,7 @@ public: // must be public to make Q_GADGET introspection work
         member_init_open, // After ':' that starts a member initialization list.
         member_init_expected, // At the start and after every ',' in member_init_open
         member_init, // After an identifier in member_init_expected
-        member_init_paren_open, // After '(' in member_init.
+        member_init_nest_open, // After '(' or '{' in member_init.
 
         enum_start, // After 'enum'
         enum_open, // Brace that opens a enum declaration.
@@ -168,6 +168,7 @@ public: // must be public to make Q_GADGET introspection work
         stream_op, // After a '<<' or '>>' in a context where it's likely a stream operator.
         stream_op_cont, // When finding another stream operator in stream_op
         ternary_op, // The ? : operator
+        braceinit_open, // after '{' in an expression context
 
         condition_open, // Start of a condition in 'if', 'while', entered after opening paren
         condition_paren_open, // After an lparen in a condition
