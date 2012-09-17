@@ -1297,6 +1297,8 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
     removeTrailingOutputLines();
 
     delete m_state.m_lexer;
+    while (m_state.m_tokenBuffer)
+        m_state.popTokenBuffer();
     m_state = savedState;
 
     m_env->currentFile = previousFileName;
