@@ -1500,26 +1500,32 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
     return true;
 }
 
+static QString baseName(const QString &fileName)
+{
+    return fileName.mid(fileName.lastIndexOf(QLatin1Char('/')) + 1);
+}
+
 bool ClearCasePlugin::vcsAdd(const QString &workingDir, const QString &fileName)
 {
-    return ccFileOp(workingDir, tr("ClearCase Add File"),
+    return ccFileOp(workingDir, tr("ClearCase Add File %1").arg(baseName(fileName)),
                     QStringList() << QLatin1String("mkelem") << QLatin1String("-ci"), fileName);
 }
 
 bool ClearCasePlugin::vcsDelete(const QString &workingDir, const QString &fileName)
 {
-    const QString title(tr("ClearCase Remove Element"));
+    const QString title(tr("ClearCase Remove Element %1").arg(baseName(fileName)));
     if (QMessageBox::warning(0, title, tr("This operation is irreversible. Are you sure?"),
                          QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
         return true;
 
-    return ccFileOp(workingDir, tr("ClearCase Remove File"),
+    return ccFileOp(workingDir, tr("ClearCase Remove File %1").arg(baseName(fileName)),
                     QStringList() << QLatin1String("rmname") << QLatin1String("-force"), fileName);
 }
 
 bool ClearCasePlugin::vcsMove(const QString &workingDir, const QString &from, const QString &to)
 {
-    return ccFileOp(workingDir, tr("ClearCase Rename File"),
+    return ccFileOp(workingDir, tr("ClearCase Rename File %1 -> %2")
+                    .arg(baseName(from)).arg(baseName(to)),
                     QStringList() << QLatin1String("move"), from, to);
 }
 
