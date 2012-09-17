@@ -459,7 +459,7 @@ void tst_TestCore::testModelCreateRect()
     QCOMPARE(childNode.propertyNames().count(), 4);
     QCOMPARE(childNode.variantProperty("scale").value(), QVariant());
 
-     } catch (Exception &exception) {
+     } catch (Exception &) {
         QFAIL("Exception thrown");
     }
 
@@ -3169,7 +3169,7 @@ void tst_TestCore::testRewriterExceptionHandling()
         rootNode.variantProperty("bla") = QVariant("blah");
         transaction.commit();
         QFAIL("RewritingException should be thrown");
-    } catch (RewritingException &e) {
+    } catch (RewritingException &) {
         QVERIFY(rootNode.isValid());
         QCOMPARE(rootNode.type(), QLatin1String("QtQuick.Text"));
         QVERIFY(!rootNode.hasProperty("bla"));
