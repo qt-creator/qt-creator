@@ -332,6 +332,7 @@ void QMakeEvaluator::runProcess(QProcess *proc, const QString &command) const
 
 QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
 {
+    QByteArray out;
 #ifndef QT_BOOTSTRAPPED
     QProcess proc;
     runProcess(&proc, args);
@@ -346,9 +347,12 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
         m_handler->message(QMakeHandler::EvalError, QString::fromLocal8Bit(errout));
     }
 # endif
-    return proc.readAllStandardOutput();
+    out = proc.readAllStandardOutput();
+# ifdef Q_OS_WIN
+    // FIXME: Qt's line end conversion on sequential files should really be fixed
+    out.replace("\r\n", "\n");
+# endif
 #else
-    QByteArray out;
     if (FILE *proc = QT_POPEN(QString(QLatin1String("cd ")
                                + IoUtils::shellQuote(QDir::toNativeSeparators(currentDirectory()))
                                + QLatin1String(" && ") + args).toLocal8Bit().constData(), "r")) {
@@ -361,8 +365,8 @@ QByteArray QMakeEvaluator::getCommandOutput(const QString &args) const
         }
         QT_PCLOSE(proc);
     }
-    return out;
 #endif
+    return out;
 }
 
 void QMakeEvaluator::populateDeps(
