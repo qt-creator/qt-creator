@@ -32,6 +32,7 @@ public:
     virtual ~ASTMatcher();
 
     virtual bool match(AccessDeclarationAST *node, AccessDeclarationAST *pattern);
+    virtual bool match(AlignofExpressionAST *node, AlignofExpressionAST *pattern);
     virtual bool match(ArrayAccessAST *node, ArrayAccessAST *pattern);
     virtual bool match(ArrayDeclaratorAST *node, ArrayDeclaratorAST *pattern);
     virtual bool match(ArrayInitializerAST *node, ArrayInitializerAST *pattern);

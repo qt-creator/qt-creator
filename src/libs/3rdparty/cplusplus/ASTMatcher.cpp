@@ -1925,6 +1925,25 @@ bool ASTMatcher::match(SizeofExpressionAST *node, SizeofExpressionAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(AlignofExpressionAST *node, AlignofExpressionAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->alignof_token = node->alignof_token;
+
+    pattern->lparen_token = node->lparen_token;
+
+    if (! pattern->typeId)
+        pattern->typeId = node->typeId;
+    else if (! AST::match(node->typeId, pattern->typeId, this))
+        return false;
+
+    pattern->rparen_token = node->rparen_token;
+
+    return true;
+}
+
 bool ASTMatcher::match(PointerLiteralAST *node, PointerLiteralAST *pattern)
 {
     (void) node;

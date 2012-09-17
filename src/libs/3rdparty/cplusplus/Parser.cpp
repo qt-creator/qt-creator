@@ -4860,6 +4860,24 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
         return true;
     }
 
+    case T_ALIGNOF: {
+        if (!_cxx0xEnabled)
+            break;
+
+        AlignofExpressionAST *ast = new (_pool) AlignofExpressionAST;
+        ast->alignof_token = consumeToken();
+
+        match(T_LPAREN, &ast->lparen_token);
+        ExpressionAST *temp = 0;
+        parseTypeId(temp);
+        if (temp)
+            ast->typeId = temp->asTypeId();
+        match(T_RPAREN, &ast->rparen_token);
+
+        node = ast;
+        return true;
+    }
+
     default:
         break;
     } // switch

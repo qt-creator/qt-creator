@@ -1137,6 +1137,17 @@ SizeofExpressionAST *SizeofExpressionAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+AlignofExpressionAST *AlignofExpressionAST::clone(MemoryPool *pool) const
+{
+    AlignofExpressionAST *ast = new (pool) AlignofExpressionAST;
+    ast->alignof_token = alignof_token;
+    ast->lparen_token = lparen_token;
+    if (typeId)
+        ast->typeId = typeId->clone(pool);
+    ast->rparen_token = rparen_token;
+    return ast;
+}
+
 PointerLiteralAST *PointerLiteralAST::clone(MemoryPool *pool) const
 {
     PointerLiteralAST *ast = new (pool) PointerLiteralAST;

@@ -828,6 +828,14 @@ void SizeofExpressionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void AlignofExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(typeId, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void PointerLiteralAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

@@ -747,6 +747,13 @@ public:
         return __ast;
     }
 
+    AlignofExpressionAST *AlignofExpression(TypeIdAST *typeId = 0)
+    {
+        AlignofExpressionAST *__ast = new (&pool) AlignofExpressionAST;
+        __ast->typeId = typeId;
+        return __ast;
+    }
+
     PointerLiteralAST *PointerLiteral()
     {
         PointerLiteralAST *__ast = new (&pool) PointerLiteralAST;

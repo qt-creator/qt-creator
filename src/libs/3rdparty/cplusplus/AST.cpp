@@ -4407,3 +4407,33 @@ unsigned RangeBasedForStatementAST::lastToken() const
     return 1;
 }
 
+/** \generated */
+unsigned AlignofExpressionAST::firstToken() const
+{
+    if (alignof_token)
+        return alignof_token;
+    if (lparen_token)
+        return lparen_token;
+    if (typeId)
+        if (unsigned candidate = typeId->firstToken())
+            return candidate;
+    if (rparen_token)
+        return rparen_token;
+    return 0;
+}
+
+/** \generated */
+unsigned AlignofExpressionAST::lastToken() const
+{
+    if (rparen_token)
+        return rparen_token + 1;
+    if (typeId)
+        if (unsigned candidate = typeId->lastToken())
+            return candidate;
+    if (lparen_token)
+        return lparen_token + 1;
+    if (alignof_token)
+        return alignof_token + 1;
+    return 1;
+}
+

@@ -32,6 +32,7 @@ class ASTVisitor;
 class ASTMatcher;
 
 class AccessDeclarationAST;
+class AlignofExpressionAST;
 class ArrayAccessAST;
 class ArrayDeclaratorAST;
 class ArrayInitializerAST;

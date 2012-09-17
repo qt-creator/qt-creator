@@ -1104,6 +1104,18 @@ virtual bool visit(SizeofExpressionAST *ast)
     return false;
 }
 
+virtual bool visit(AlignofExpressionAST *ast)
+{
+    if (ast->alignof_token)
+        terminal(ast->alignof_token, ast);
+    if (ast->lparen_token)
+        terminal(ast->lparen_token, ast);
+    nonterminal(ast->typeId);
+    if (ast->rparen_token)
+        terminal(ast->rparen_token, ast);
+    return false;
+}
+
 virtual bool visit(PointerLiteralAST *ast)
 {
     if (ast->literal_token)
