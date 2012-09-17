@@ -1176,6 +1176,21 @@ bool Parser::parseCvQualifiers(SpecifierListAST *&node)
     return start != cursor();
 }
 
+bool Parser::parseRefQualifier(unsigned &ref_qualifier)
+{
+    DEBUG_THIS_RULE();
+
+    if (!_cxx0xEnabled)
+        return false;
+
+    if (LA() == T_AMPER || LA() == T_AMPER_AMPER) {
+        ref_qualifier = consumeToken();
+        return true;
+    }
+
+    return false;
+}
+
 /**
  * \brief Handles override and final from C++ 2011, they are pseudo keywords and has special meaning only in function declaration
  */
@@ -1474,8 +1489,7 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
             ast->rparen_token = consumeToken();
             // ### parse attributes
             parseCvQualifiers(ast->cv_qualifier_list);
-            parseOverrideFinalQualifiers(ast->cv_qualifier_list);
-            // ### parse ref-qualifiers
+            parseRefQualifier(ast->ref_qualifier_token);
             parseExceptionSpecification(ast->exception_specification);
 
             if (_cxx0xEnabled && ! node->ptr_operator_list && LA() == T_ARROW) {
@@ -1493,6 +1507,8 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
                 if (hasAuto)
                     parseTrailingReturnType(ast->trailing_return_type);
             }
+
+            parseOverrideFinalQualifiers(ast->cv_qualifier_list);
 
             *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
             postfix_ptr = &(*postfix_ptr)->next;
@@ -1579,6 +1595,7 @@ bool Parser::parseAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *dec
                     ast->rparen_token = consumeToken();
             }
             parseCvQualifiers(ast->cv_qualifier_list);
+            parseRefQualifier(ast->ref_qualifier_token);
             parseExceptionSpecification(ast->exception_specification);
             *postfix_ptr = new (_pool) PostfixDeclaratorListAST(ast);
             postfix_ptr = &(*postfix_ptr)->next;

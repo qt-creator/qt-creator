@@ -479,6 +479,8 @@ virtual bool visit(FunctionDeclaratorAST *ast)
         terminal(ast->rparen_token, ast);
     for (SpecifierListAST *iter = ast->cv_qualifier_list; iter; iter = iter->next)
         nonterminal(iter->value);
+    if (ast->ref_qualifier_token)
+        terminal(ast->ref_qualifier_token, ast);
     nonterminal(ast->exception_specification);
     nonterminal(ast->trailing_return_type);
     nonterminal(ast->as_cpp_initializer);
@@ -1028,6 +1030,8 @@ virtual bool visit(PointerToMemberAST *ast)
         terminal(ast->star_token, ast);
     for (SpecifierListAST *iter = ast->cv_qualifier_list; iter; iter = iter->next)
         nonterminal(iter->value);
+    if (ast->ref_qualifier_token)
+        terminal(ast->ref_qualifier_token, ast);
     return false;
 }
 

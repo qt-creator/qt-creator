@@ -1457,6 +1457,7 @@ public:
     ParameterDeclarationClauseAST *parameter_declaration_clause;
     unsigned rparen_token;
     SpecifierListAST *cv_qualifier_list;
+    unsigned ref_qualifier_token;
     ExceptionSpecificationAST *exception_specification;
     TrailingReturnTypeAST *trailing_return_type;
     ExpressionAST *as_cpp_initializer;
@@ -1470,6 +1471,7 @@ public:
         , parameter_declaration_clause(0)
         , rparen_token(0)
         , cv_qualifier_list(0)
+        , ref_qualifier_token(0)
         , exception_specification(0)
         , trailing_return_type(0)
         , as_cpp_initializer(0)
@@ -2825,6 +2827,7 @@ public:
     NestedNameSpecifierListAST *nested_name_specifier_list;
     unsigned star_token;
     SpecifierListAST *cv_qualifier_list;
+    unsigned ref_qualifier_token;
 
 public:
     PointerToMemberAST()
@@ -2832,6 +2835,7 @@ public:
         , nested_name_specifier_list(0)
         , star_token(0)
         , cv_qualifier_list(0)
+        , ref_qualifier_token(0)
     {}
 
     virtual PointerToMemberAST *asPointerToMember() { return this; }

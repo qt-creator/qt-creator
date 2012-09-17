@@ -82,6 +82,7 @@ public:
     bool parseConstantExpression(ExpressionAST *&node);
     bool parseCtorInitializer(CtorInitializerAST *&node);
     bool parseCvQualifiers(SpecifierListAST *&node);
+    bool parseRefQualifier(unsigned &ref_qualifier);
     bool parseOverrideFinalQualifiers(SpecifierListAST *&node);
     bool parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list);
     bool parseDeclaration(DeclarationAST *&node);

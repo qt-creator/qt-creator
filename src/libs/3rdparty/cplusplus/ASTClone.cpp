@@ -487,6 +487,7 @@ FunctionDeclaratorAST *FunctionDeclaratorAST::clone(MemoryPool *pool) const
     for (SpecifierListAST *iter = cv_qualifier_list, **ast_iter = &ast->cv_qualifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->ref_qualifier_token = ref_qualifier_token;
     if (exception_specification)
         ast->exception_specification = exception_specification->clone(pool);
     if (trailing_return_type)
@@ -1068,6 +1069,7 @@ PointerToMemberAST *PointerToMemberAST::clone(MemoryPool *pool) const
     for (SpecifierListAST *iter = cv_qualifier_list, **ast_iter = &ast->cv_qualifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
+    ast->ref_qualifier_token = ref_qualifier_token;
     return ast;
 }
 

@@ -1369,6 +1369,8 @@ unsigned FunctionDeclaratorAST::firstToken() const
     if (cv_qualifier_list)
         if (unsigned candidate = cv_qualifier_list->firstToken())
             return candidate;
+    if (ref_qualifier_token)
+        return ref_qualifier_token;
     if (exception_specification)
         if (unsigned candidate = exception_specification->firstToken())
             return candidate;
@@ -1393,6 +1395,8 @@ unsigned FunctionDeclaratorAST::lastToken() const
     if (exception_specification)
         if (unsigned candidate = exception_specification->lastToken())
             return candidate;
+    if (ref_qualifier_token)
+        return ref_qualifier_token + 1;
     if (cv_qualifier_list)
         if (unsigned candidate = cv_qualifier_list->lastToken())
             return candidate;
@@ -3067,12 +3071,16 @@ unsigned PointerToMemberAST::firstToken() const
     if (cv_qualifier_list)
         if (unsigned candidate = cv_qualifier_list->firstToken())
             return candidate;
+    if (ref_qualifier_token)
+        return ref_qualifier_token;
     return 0;
 }
 
 /** \generated */
 unsigned PointerToMemberAST::lastToken() const
 {
+    if (ref_qualifier_token)
+        return ref_qualifier_token + 1;
     if (cv_qualifier_list)
         if (unsigned candidate = cv_qualifier_list->lastToken())
             return candidate;

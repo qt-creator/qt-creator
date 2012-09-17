@@ -809,6 +809,8 @@ bool ASTMatcher::match(FunctionDeclaratorAST *node, FunctionDeclaratorAST *patte
     else if (! AST::match(node->cv_qualifier_list, pattern->cv_qualifier_list, this))
         return false;
 
+    pattern->ref_qualifier_token = node->ref_qualifier_token;
+
     if (! pattern->exception_specification)
         pattern->exception_specification = node->exception_specification;
     else if (! AST::match(node->exception_specification, pattern->exception_specification, this))
@@ -1816,6 +1818,8 @@ bool ASTMatcher::match(PointerToMemberAST *node, PointerToMemberAST *pattern)
         pattern->cv_qualifier_list = node->cv_qualifier_list;
     else if (! AST::match(node->cv_qualifier_list, pattern->cv_qualifier_list, this))
         return false;
+
+    pattern->ref_qualifier_token = node->ref_qualifier_token;
 
     return true;
 }
