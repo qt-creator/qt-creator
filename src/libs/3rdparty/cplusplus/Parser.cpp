@@ -2446,7 +2446,9 @@ bool Parser::parseExceptionSpecification(ExceptionSpecificationAST *&node)
     } else if (_cxx0xEnabled && LA() == T_NOEXCEPT) {
         NoExceptSpecificationAST *ast = new (_pool) NoExceptSpecificationAST;
         ast->noexcept_token = consumeToken();
-        if (LA() == T_LPAREN && parseConstantExpression(ast->expression)) {
+        if (LA() == T_LPAREN) {
+            ast->lparen_token = consumeToken();
+            parseConstantExpression(ast->expression);
             match(T_RPAREN, &ast->rparen_token);
         }
         node = ast;
