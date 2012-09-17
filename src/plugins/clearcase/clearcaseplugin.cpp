@@ -160,6 +160,7 @@ ClearCasePlugin *ClearCasePlugin::m_clearcasePluginInstance = 0;
 
 ClearCasePlugin::ClearCasePlugin() :
     VcsBase::VcsBasePlugin(QLatin1String(ClearCase::Constants::CLEARCASECHECKINEDITOR_ID)),
+    m_isDynamic(false),
     m_commandLocator(0),
     m_checkOutAction(0),
     m_checkInCurrentAction(0),
@@ -581,7 +582,7 @@ void ClearCasePlugin::updateStatusActions()
     FileStatus fileStatus = m_statusMap->value(currentState().relativeCurrentFile(), FileStatus(FileStatus::Unknown));
     m_checkOutAction->setEnabled(hasFile && (fileStatus.status & (FileStatus::CheckedIn | FileStatus::Hijacked)));
     m_undoCheckOutAction->setEnabled(hasFile && (fileStatus.status & FileStatus::CheckedOut));
-    m_undoHijackAction->setEnabled(hasFile && (fileStatus.status & FileStatus::Hijacked));
+    m_undoHijackAction->setEnabled(!m_isDynamic && hasFile && (fileStatus.status & FileStatus::Hijacked));
     m_checkInCurrentAction->setEnabled(hasFile && (fileStatus.status & FileStatus::CheckedOut));
     m_addFileAction->setEnabled(hasFile && (fileStatus.status & FileStatus::NotManaged));
 }
@@ -598,7 +599,7 @@ void ClearCasePlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
     if (hasTopLevel)
         m_topLevel = state.topLevel();
 
-    m_updateViewAction->setParameter(m_view);
+    m_updateViewAction->setParameter(m_isDynamic ? QString() : m_view);
 
     const QString fileName = state.currentFileName();
     m_checkOutAction->setParameter(fileName);
@@ -1304,7 +1305,8 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
         QMessageBox::information(0, tr("ClearCase Checkout"), tr("File is already checked out."));
         return true;
     }
-    bool isHijacked = (m_statusMap->value(relFile).status & FileStatus::Hijacked);
+    // Only snapshot views can have hijacked files
+    bool isHijacked = (!m_isDynamic && (m_statusMap->value(relFile).status & FileStatus::Hijacked));
     if (!isHijacked)
         coDialog.hideHijack();
     if (coDialog.exec() == QDialog::Accepted) {
@@ -1325,6 +1327,14 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
         if (coDialog.isPreserveTime())
             args << QLatin1String("-ptime");
         if (isHijacked) {
+            if (ClearCase::Constants::debug)
+                qDebug() << Q_FUNC_INFO << file << " seems to be hijacked";
+
+            // A hijacked files means that the file is modified but was
+            // not checked out. By checking it out now changes will
+            // be lost, unless handled. This can be done by renaming
+            // the hijacked file, undoing the hijack and updating the file
+
             // -usehijack not supported in old cleartool versions...
             // args << QLatin1String("-usehijack");
             if (coDialog.isUseHijacked())
@@ -1553,7 +1563,7 @@ QString ClearCasePlugin::vcsGetRepositoryURL(const QString & /*directory*/)
     return currentState().topLevel();
 }
 
-// ClearCase has "view.dat" file in the root directory it manages.
+// ClearCase has "view.dat" file in the root directory it manages for snapshot views.
 bool ClearCasePlugin::managesDirectory(const QString &directory, QString *topLevel /* = 0 */) const
 {
     QString topLevelFound = findTopLevel(directory);
@@ -1685,8 +1695,8 @@ void ClearCasePlugin::updateStreamAndView()
     QRegExp intStreamExp(QLatin1String("stream:([^@]*)"));
     if (intStreamExp.indexIn(sresponse.mid(tabPos + 1)) != -1)
         m_intStream = intStreamExp.cap(1);
-    m_view = ccGetView(m_topLevel);
-    m_updateViewAction->setParameter(m_view);
+    m_view = ccGetView(m_topLevel, &m_isDynamic);
+    m_updateViewAction->setParameter(m_isDynamic ? QString() : m_view);
 }
 
 void ClearCasePlugin::projectChanged(ProjectExplorer::Project *project)

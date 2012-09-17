@@ -225,6 +225,7 @@ private:
     QString m_topLevel;
     QString m_stream;
     QString m_view;
+    bool m_isDynamic;
     QString m_intStream;
     QString m_activity;
     QString m_diffPrefix;
