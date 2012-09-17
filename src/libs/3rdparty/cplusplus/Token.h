@@ -115,7 +115,9 @@ enum Kind {
     T_LAST_OPERATOR = T_TILDE_EQUAL,
 
     T_FIRST_KEYWORD,
-    T_ASM = T_FIRST_KEYWORD,
+    T_ALIGNAS = T_FIRST_KEYWORD,
+    T_ALIGNOF,
+    T_ASM,
     T_AUTO,
     T_BOOL,
     T_BREAK,

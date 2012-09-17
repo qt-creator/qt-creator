@@ -573,6 +573,26 @@ static inline int classify7(const char *s, bool q, bool x) {
       }
     }
   }
+  else if (x && s[0] == 'a') {
+    if (s[1] == 'l') {
+      if (s[2] == 'i') {
+        if (s[3] == 'g') {
+          if (s[4] == 'n') {
+            if (s[5] == 'a') {
+              if (s[6] == 's') {
+                return T_ALIGNAS;
+              }
+            }
+            else if (s[5] == 'o') {
+              if (s[6] == 'f') {
+                return T_ALIGNOF;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (s[0] == 'd') {
     if (s[1] == 'e') {
       if (s[2] == 'f') {

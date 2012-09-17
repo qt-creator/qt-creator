@@ -46,7 +46,7 @@ static const char *token_names[] = {
     ("|="), ("||"), ("+"), ("+="), ("++"), ("#"), ("##"), ("?"), ("}"),
     ("]"), (")"), (";"), ("*"), ("*="), ("~"), ("~="),
 
-    ("asm"), ("auto"), ("bool"), ("break"), ("case"), ("catch"),
+    ("alignas"), ("alignof"), ("asm"), ("auto"), ("bool"), ("break"), ("case"), ("catch"),
     ("char"), ("char16_t"), ("char32_t"),
     ("class"), ("const"), ("const_cast"), ("constexpr"), ("continue"),
     ("decltype"), ("default"),
