@@ -133,6 +133,7 @@ private:
     QList<AST::Node *> _chain;
     QStack<StringSet> m_idStack;
     QStack<StringSet> m_propertyStack;
+    QStack<QString> m_typeStack;
 
     class MessageTypeAndSuppression
     {

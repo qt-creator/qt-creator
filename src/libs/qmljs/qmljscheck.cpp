@@ -503,7 +503,43 @@ private:
     bool _seenNonDeclarationStatement;
 };
 
+class VisualAspectsPropertyBlackList : public QStringList
+{
+public:
+   VisualAspectsPropertyBlackList()
+   {
+       (*this) << QLatin1String("x") << QLatin1String("y") << QLatin1String("z")
+            << QLatin1String("width") << QLatin1String("height") << QLatin1String("color")
+            << QLatin1String("opacity") << QLatin1String("scale")
+            << QLatin1String("rotation") << QLatin1String("margins")
+            << QLatin1String("verticalCenterOffset") << QLatin1String("horizontalCenterOffset")
+            << QLatin1String("baselineOffset") << QLatin1String("bottomMargin")
+            << QLatin1String("topMargin") << QLatin1String("leftMargin")
+            << QLatin1String("rightMargin") << QLatin1String("baseline")
+            << QLatin1String("centerIn") << QLatin1String("fill")
+            << QLatin1String("left") << QLatin1String("right")
+            << QLatin1String("mirrored") << QLatin1String("verticalCenter")
+            << QLatin1String("horizontalCenter");
+
+   }
+};
+
+class UnsupportedTypesByVisualDesigner : public QStringList
+{
+public:
+    UnsupportedTypesByVisualDesigner()
+    {
+        (*this) << QLatin1String("Transform") << QLatin1String("Timer")
+            << QLatin1String("Rotation") << QLatin1String("Scale")
+            << QLatin1String("Translate") << QLatin1String("Package")
+            << QLatin1String("Particles");
+    }
+
+};
 } // end of anonymous namespace
+
+Q_GLOBAL_STATIC(VisualAspectsPropertyBlackList, visualAspectsPropertyBlackList)
+Q_GLOBAL_STATIC(UnsupportedTypesByVisualDesigner, unsupportedTypesByVisualDesigner)
 
 Check::Check(Document::Ptr doc, const ContextPtr &context)
     : _doc(doc)
@@ -524,6 +560,11 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     disableMessage(HintBinaryOperatorSpacing);
     disableMessage(HintOneStatementPerLine);
     disableMessage(HintExtraParentheses);
+    disableMessage(WarnImperativeCodeNotEditableInVisualDesigner);
+    disableMessage(WarnUnsupportedTypeInVisualDesigner);
+    disableMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner);
+    disableMessage(WarnUndefinedValueForVisualDesigner);
+    disableMessage(WarnStatesOnlyInRootItemForVisualDesigner);
 }
 
 Check::~Check()
@@ -569,21 +610,28 @@ bool Check::visit(UiProgram *)
 
 bool Check::visit(UiObjectInitializer *)
 {
+    QString typeName;
     m_propertyStack.push(StringSet());
-    UiObjectDefinition *objectDefinition = cast<UiObjectDefinition *>(parent());
-    if (objectDefinition && objectDefinition->qualifiedTypeNameId->name == "Component")
-        m_idStack.push(StringSet());
-    UiObjectBinding *objectBinding = cast<UiObjectBinding *>(parent());
-    if (objectBinding && objectBinding->qualifiedTypeNameId->name == "Component")
-        m_idStack.push(StringSet());
+    UiQualifiedId *qualifiedTypeId = qualifiedTypeNameId(parent());
+    if (qualifiedTypeId) {
+        typeName = qualifiedTypeId->name.toString();
+        if (typeName == QLatin1String("Component"))
+            m_idStack.push(StringSet());
+    }
+
+    if (!typeName.isEmpty() && typeName.at(0).isUpper())
+        m_typeStack.push(typeName);
+
     if (m_idStack.isEmpty())
         m_idStack.push(StringSet());
+
     return true;
 }
 
 void Check::endVisit(UiObjectInitializer *)
 {
     m_propertyStack.pop();
+    m_typeStack.pop();
     UiObjectDefinition *objectDenition = cast<UiObjectDefinition *>(parent());
     if (objectDenition && objectDenition->qualifiedTypeNameId->name == "Component")
         m_idStack.pop();
@@ -619,6 +667,57 @@ bool Check::visit(UiObjectBinding *ast)
     return false;
 }
 
+static bool expressionAffectsVisualAspects(BinaryExpression *expression)
+{
+    if (expression->op == QSOperator::Assign
+            || expression->op == QSOperator::InplaceSub
+            || expression->op == QSOperator::InplaceAdd
+            || expression->op == QSOperator::InplaceDiv
+            || expression->op == QSOperator::InplaceMul
+            || expression->op == QSOperator::InplaceOr
+            || expression->op == QSOperator::InplaceXor
+            || expression->op == QSOperator::InplaceAnd) {
+
+        const ExpressionNode *lhsValue = expression->left;
+
+        if (const IdentifierExpression* identifierExpression = cast<const IdentifierExpression *>(lhsValue)) {
+            if (visualAspectsPropertyBlackList()->contains(identifierExpression->name.toString()))
+                return true;
+        } else if (const FieldMemberExpression* fieldMemberExpression = cast<const FieldMemberExpression *>(lhsValue)) {
+            if (visualAspectsPropertyBlackList()->contains(fieldMemberExpression->name.toString()))
+                return true;
+        }
+    }
+    return false;
+}
+
+static UiQualifiedId *getRightMostIdentifier(UiQualifiedId *typeId)
+{
+        if (typeId->next)
+            return getRightMostIdentifier(typeId->next);
+
+        return typeId;
+}
+
+static bool checkTypeForDesignerSupport(UiQualifiedId *typeId)
+{
+    return unsupportedTypesByVisualDesigner()->contains(getRightMostIdentifier(typeId)->name.toString());
+}
+
+static bool checkTopLevelBindingForParentReference(ExpressionStatement *expStmt, const QString &source)
+{
+    if (!expStmt)
+        return false;
+
+    SourceLocation location = locationFromRange(expStmt->firstSourceLocation(), expStmt->lastSourceLocation());
+    QString stmtSource = source.mid(location.begin(), location.length);
+
+    if (stmtSource.contains(QRegExp("(^|\\W)parent\\.")))
+        return true;
+
+    return false;
+}
+
 void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
                            UiObjectInitializer *initializer)
 {
@@ -630,9 +729,16 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
         return;
     }
 
+    const SourceLocation typeErrorLocation = fullLocationForQualifiedId(typeId);
+
+    if (checkTypeForDesignerSupport(typeId))
+        addMessage(WarnUnsupportedTypeInVisualDesigner, typeErrorLocation);
+
+    if (m_typeStack.count() > 1 && getRightMostIdentifier(typeId)->name.toString() == QLatin1String("State"))
+        addMessage(WarnStatesOnlyInRootItemForVisualDesigner, typeErrorLocation);
+
     bool typeError = false;
     if (_importsOk) {
-        const SourceLocation typeErrorLocation = fullLocationForQualifiedId(typeId);
         const ObjectValue *prototype = _context->lookupType(_doc.data(), typeId);
         if (!prototype) {
             typeError = true;
@@ -712,6 +818,13 @@ bool Check::visit(UiScriptBinding *ast)
         m_idStack.top().insert(id);
     }
 
+    if (m_typeStack.count() == 1
+            && visualAspectsPropertyBlackList()->contains(ast->qualifiedId->name.toString())
+            && checkTopLevelBindingForParentReference(cast<ExpressionStatement *>(ast->statement), _doc->source())) {
+        addMessage(WarnReferenceToParentItemNotSupportedByVisualDesigner,
+                   locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+    }
+
     checkProperty(ast->qualifiedId);
 
     if (!ast->statement)
@@ -721,6 +834,12 @@ bool Check::visit(UiScriptBinding *ast)
     if (lhsValue) {
         Evaluate evaluator(&_scopeChain);
         const Value *rhsValue = evaluator(ast->statement);
+
+        if (visualAspectsPropertyBlackList()->contains(ast->qualifiedId->name.toString()) &&
+                rhsValue->asUndefinedValue()) {
+            addMessage(WarnUndefinedValueForVisualDesigner,
+                       locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+        }
 
         const SourceLocation loc = locationFromRange(ast->statement->firstSourceLocation(),
                                                      ast->statement->lastSourceLocation());
@@ -910,6 +1029,11 @@ bool Check::visit(BinaryExpression *ast)
             || (int(op.end()) < source.size() && !source.at(op.end()).isSpace())) {
         addMessage(HintBinaryOperatorSpacing, op);
     }
+
+    SourceLocation expressionSourceLocation = locationFromRange(ast->firstSourceLocation(),
+                                                                ast->lastSourceLocation());
+    if (expressionAffectsVisualAspects(ast))
+        addMessage(WarnImperativeCodeNotEditableInVisualDesigner, expressionSourceLocation);
 
     // check ==, !=
     if (ast->op == QSOperator::Equal || ast->op == QSOperator::NotEqual) {
