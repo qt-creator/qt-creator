@@ -8,10 +8,10 @@ QtcLibrary {
         ".",
         ".."
     ]
-    cpp.defines: [
+    cpp.defines: base.concat([
         "EXTENSIONSYSTEM_LIBRARY",
         "IDE_TEST_DIR=\".\""
-    ]
+    ])
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["core", "widgets"] }

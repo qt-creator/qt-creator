@@ -8,10 +8,10 @@ QtcLibrary {
         ".",
         ".."
     ]
-    cpp.defines: [
+    cpp.defines: base.concat([
         "QT_CREATOR",
         "GLSL_BUILD_LIB"
-    ]
+    ])
 
     Depends { name: "cpp" }
     Depends { name: "Qt.gui" }

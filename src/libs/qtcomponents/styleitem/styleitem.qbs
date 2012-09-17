@@ -7,6 +7,8 @@ DynamicLibrary {
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["core", "widgets", "quick1", "script"] }
 
+    cpp.defines: project.additionalCppDefines
+
     files: [
         "qdeclarativefolderlistmodel.cpp",
         "qdeclarativefolderlistmodel.h",

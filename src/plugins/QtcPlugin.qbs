@@ -21,7 +21,7 @@ Product {
 
     Depends { name: "pluginspec" }
     Depends { name: "cpp" }
-    cpp.defines: [name.toUpperCase() + "_LIBRARY"]
+    cpp.defines: project.additionalCppDefines.concat([name.toUpperCase() + "_LIBRARY"])
     cpp.rpaths: ["$ORIGIN/../../.."]
     cpp.linkerFlags: {
         if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))

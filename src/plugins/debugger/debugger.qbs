@@ -19,7 +19,6 @@ QtcPlugin {
     Depends { name: "QtcSsh" }
 
     Depends { name: "cpp" }
-    cpp.defines: ["DEBUGGER_LIBRARY"]
     cpp.includePaths: [
         ".",
         "shared",

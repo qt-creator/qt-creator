@@ -10,10 +10,10 @@ QtcLibrary {
         "../3rdparty/cplusplus",
         "../../plugins"
     ]
-    cpp.defines: [
+    cpp.defines: base.concat([
         "NDEBUG",
         "CPLUSPLUS_BUILD_LIB"
-    ]
+    ])
     cpp.optimization: "fast"
 
     Depends { name: "cpp" }

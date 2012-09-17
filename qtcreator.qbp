@@ -6,7 +6,10 @@ Project {
     property string ide_version_minor: '5'
     property string ide_version_release: '83'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
-    property var additionalCppDefines: [ 'IDE_LIBRARY_BASENAME="lib"' ]
+    property var additionalCppDefines: [
+        'IDE_LIBRARY_BASENAME="lib"',
+        "QT_DISABLE_DEPRECATED_BEFORE=0x040900"
+    ]
     moduleSearchPaths: "qbs"
 
     references: [
