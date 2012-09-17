@@ -132,6 +132,7 @@ public:
     bool parseNewArrayDeclarator(NewArrayDeclaratorListAST *&node);
     bool parseNewExpression(ExpressionAST *&node);
     bool parseExpressionListParen(ExpressionListParenAST *&node);
+    bool parseExpressionListParen0x(ExpressionAST *&node);
     bool parseNewInitializer(NewInitializerAST *&node);
     bool parseNewTypeId(NewTypeIdAST *&node);
     bool parseOperator(OperatorAST *&node);

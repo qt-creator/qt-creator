@@ -137,6 +137,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("staticAssert.1") << "staticAssert.1.cpp" << "staticAssert.1.errors.txt";
     QTest::newRow("noExcept.1") << "noExcept.1.cpp" << "noExcept.1.errors.txt";
     QTest::newRow("braceInitializers.1") << "braceInitializers.1.cpp" << "braceInitializers.1.errors.txt";
+    QTest::newRow("braceInitializers.2") << "braceInitializers.2.cpp" << "";
     QTest::newRow("defaultdeleteInitializer.1") << "defaultdeleteInitializer.1.cpp" << "";
 }
 

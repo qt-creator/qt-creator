@@ -924,10 +924,17 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
                         } else if (maybeField(nameAST->name)) {
                             maybeAddField(_context.lookup(nameAST->name, klass), nameAST);
                         } else {
-                            // It's a constructor
+                            // It's a constructor, count the number of arguments
                             unsigned arguments = 0;
-                            for (ExpressionListAST *it = ast->expression_list; it; it = it->next)
-                                ++arguments;
+                            if (ast->expression) {
+                                ExpressionListAST *expr_list = 0;
+                                if (ExpressionListParenAST *parenExprList = ast->expression->asExpressionListParen())
+                                    expr_list = parenExprList->expression_list;
+                                else if (BracedInitializerAST *bracedInitList = ast->expression->asBracedInitializer())
+                                    expr_list = bracedInitList->expression_list;
+                                for (ExpressionListAST *it = expr_list; it; it = it->next)
+                                    ++arguments;
+                            }
                             maybeAddFunction(_context.lookup(nameAST->name, klass), nameAST, arguments);
                         }
 
@@ -937,7 +944,7 @@ bool CheckSymbols::visit(MemInitializerAST *ast)
             }
         }
 
-        accept(ast->expression_list);
+        accept(ast->expression);
     }
 
     return false;

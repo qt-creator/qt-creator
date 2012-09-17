@@ -505,11 +505,11 @@ public:
         return __ast;
     }
 
-    MemInitializerAST *MemInitializer(NameAST *name = 0, ExpressionListAST *expression_list = 0)
+    MemInitializerAST *MemInitializer(NameAST *name = 0, ExpressionAST *expression = 0)
     {
         MemInitializerAST *__ast = new (&pool) MemInitializerAST;
         __ast->name = name;
-        __ast->expression_list = expression_list;
+        __ast->expression = expression;
         return __ast;
     }
 

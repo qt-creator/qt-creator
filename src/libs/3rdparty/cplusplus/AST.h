@@ -2138,16 +2138,13 @@ class CPLUSPLUS_EXPORT MemInitializerAST: public AST
 {
 public:
     NameAST *name;
-    unsigned lparen_token;
-    ExpressionListAST *expression_list;
-    unsigned rparen_token;
+    // either a BracedInitializerAST or a ExpressionListParenAST
+    ExpressionAST *expression;
 
 public:
     MemInitializerAST()
         : name(0)
-        , lparen_token(0)
-        , expression_list(0)
-        , rparen_token(0)
+        , expression(0)
     {}
 
     virtual MemInitializerAST *asMemInitializer() { return this; }

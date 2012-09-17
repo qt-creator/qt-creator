@@ -517,9 +517,7 @@ void Bind::memInitializer(MemInitializerAST *ast, Function *fun)
     /*const Name *name =*/ this->name(ast->name);
 
     Scope *previousScope = switchScope(fun);
-    for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        /*ExpressionTy value =*/ this->expression(it->value);
-    }
+    this->expression(ast->expression);
     (void) switchScope(previousScope);
 }
 
@@ -541,8 +539,12 @@ const Name *Bind::nestedNameSpecifier(NestedNameSpecifierAST *ast)
 
 bool Bind::visit(ExpressionListParenAST *ast)
 {
-    (void) ast;
-    assert(!"unreachable");
+    // unsigned lparen_token = ast->lparen_token;
+    for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
+        /*ExpressionTy value =*/ this->expression(it->value);
+    }
+    // unsigned rparen_token = ast->rparen_token;
+
     return false;
 }
 
@@ -1804,7 +1806,7 @@ bool Bind::visit(BracedInitializerAST *ast)
 {
     // unsigned lbrace_token = ast->lbrace_token;
     for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        ExpressionTy value = this->expression(it->value);
+        /*ExpressionTy value =*/ this->expression(it->value);
     }
     // unsigned comma_token = ast->comma_token;
     // unsigned rbrace_token = ast->rbrace_token;

@@ -772,11 +772,8 @@ MemInitializerAST *MemInitializerAST::clone(MemoryPool *pool) const
     MemInitializerAST *ast = new (pool) MemInitializerAST;
     if (name)
         ast->name = name->clone(pool);
-    ast->lparen_token = lparen_token;
-    for (ExpressionListAST *iter = expression_list, **ast_iter = &ast->expression_list;
-         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : 0);
-    ast->rparen_token = rparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
     return ast;
 }
 

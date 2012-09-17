@@ -1744,26 +1744,18 @@ unsigned MemInitializerAST::firstToken() const
     if (name)
         if (unsigned candidate = name->firstToken())
             return candidate;
-    if (lparen_token)
-        return lparen_token;
-    if (expression_list)
-        if (unsigned candidate = expression_list->firstToken())
+    if (expression)
+        if (unsigned candidate = expression->firstToken())
             return candidate;
-    if (rparen_token)
-        return rparen_token;
     return 0;
 }
 
 /** \generated */
 unsigned MemInitializerAST::lastToken() const
 {
-    if (rparen_token)
-        return rparen_token + 1;
-    if (expression_list)
-        if (unsigned candidate = expression_list->lastToken())
+    if (expression)
+        if (unsigned candidate = expression->lastToken())
             return candidate;
-    if (lparen_token)
-        return lparen_token + 1;
     if (name)
         if (unsigned candidate = name->lastToken())
             return candidate;

@@ -748,12 +748,7 @@ virtual bool visit(LinkageSpecificationAST *ast)
 virtual bool visit(MemInitializerAST *ast)
 {
     nonterminal(ast->name);
-    if (ast->lparen_token)
-        terminal(ast->lparen_token, ast);
-    for (ExpressionListAST *iter = ast->expression_list; iter; iter = iter->next)
-        nonterminal(iter->value);
-    if (ast->rparen_token)
-        terminal(ast->rparen_token, ast);
+    nonterminal(ast->expression);
     return false;
 }
 

@@ -122,7 +122,6 @@ protected:
     virtual bool visit(DynamicExceptionSpecificationAST *ast);
     virtual bool visit(MemInitializerAST *ast);
     virtual bool visit(NestedNameSpecifierAST *ast);
-    virtual bool visit(ExpressionListParenAST *ast);
     virtual bool visit(NewArrayDeclaratorAST *ast);
     virtual bool visit(NewInitializerAST *ast);
     virtual bool visit(NewTypeIdAST *ast);
@@ -199,6 +198,7 @@ protected:
     virtual bool visit(ObjCSelectorExpressionAST *ast);
     virtual bool visit(LambdaExpressionAST *ast);
     virtual bool visit(BracedInitializerAST *ast);
+    virtual bool visit(ExpressionListParenAST *ast);
 
     // DeclarationAST
     virtual bool visit(SimpleDeclarationAST *ast);
