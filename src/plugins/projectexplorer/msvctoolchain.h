@@ -50,7 +50,12 @@ class MsvcToolChain : public AbstractMsvcToolChain
 {
 public:
     enum Type { WindowsSDK, VS };
-    enum Platform { s32, s64, ia64, amd64 };
+    enum Platform { x86,        // x86   -> x86
+                    amd64,      // amd64 -> amd64
+                    ia64,       // ia64  -> ia64
+                    x86_amd64,  // x86   -> amd64
+                    x86_ia64,   // x86   -> ia64
+                  };
 
     MsvcToolChain(const QString &name, const Abi &abi,
                   const QString &varsBat, const QString &varsBatArg, bool autodetect = false);
