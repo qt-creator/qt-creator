@@ -328,7 +328,7 @@ bool ToolChainManager::registerToolChain(ToolChain *tc)
     if (!tc || d->toolChains().contains(tc))
         return true;
     foreach (ToolChain *current, d->toolChains()) {
-        if (*tc == *current)
+        if (*tc == *current && !tc->isAutoDetected())
             return false;
     }
 
