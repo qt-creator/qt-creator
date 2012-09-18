@@ -259,7 +259,7 @@ public:
     bool skip(int l, int r);
     int find(int token, int stopAt);
 
-    bool lookAtTypeParameter() const;
+    bool lookAtTypeParameter();
     bool lookAtCVQualifier() const;
     bool lookAtFunctionSpecifier() const;
     bool lookAtStorageClassSpecifier() const;
@@ -277,6 +277,7 @@ public:
     int peekAtQtContextKeyword() const;
 
     bool switchTemplateArguments(bool templateArguments);
+    bool maybeSplitGreaterGreaterToken(int n = 1);
 
     bool blockErrors(bool block);
     void warning(unsigned index, const char *format, ...);

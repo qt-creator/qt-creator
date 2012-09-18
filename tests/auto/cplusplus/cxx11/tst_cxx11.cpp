@@ -144,6 +144,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("rangeFor.1") << "rangeFor.1.cpp" << "";
     QTest::newRow("aliasDecl.1") << "aliasDecl.1.cpp" << "";
     QTest::newRow("enums.1") << "enums.1.cpp" << "";
+    QTest::newRow("templateGreaterGreater.1") << "templateGreaterGreater.1.cpp" << "";
 }
 
 void tst_cxx11::parse()

@@ -134,6 +134,8 @@ public:
 
     unsigned findPreviousLineOffset(unsigned tokenIndex) const;
 
+    bool maybeSplitGreaterGreaterToken(unsigned tokenIndex);
+
 public:
     struct PPLine {
         unsigned offset;

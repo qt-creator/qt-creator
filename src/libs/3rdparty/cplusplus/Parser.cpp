@@ -107,7 +107,7 @@ inline int precedence(int tokenKind, bool templateArguments)
 {
     // ### this will/might need some tuning for C++0x
     // (see: [temp.names]p3)
-    if (templateArguments && tokenKind == T_GREATER)
+    if (templateArguments && (tokenKind == T_GREATER || tokenKind == T_GREATER_GREATER))
         return -1;
 
     if (lookAtAssignmentOperator(tokenKind))
@@ -210,6 +210,11 @@ bool Parser::switchTemplateArguments(bool templateArguments)
     bool previousTemplateArguments = _templateArguments;
     _templateArguments = templateArguments;
     return previousTemplateArguments;
+}
+
+bool Parser::maybeSplitGreaterGreaterToken(int n)
+{
+    return _translationUnit->maybeSplitGreaterGreaterToken(_tokenIndex + n - 1);
 }
 
 bool Parser::blockErrors(bool block)
@@ -433,9 +438,9 @@ bool Parser::parseTemplateId(NameAST *&node, unsigned template_token)
         ast->template_token = template_token;
         ast->identifier_token = consumeToken();
         ast->less_token = consumeToken();
-        if (LA() == T_GREATER || parseTemplateArgumentList(
+        if (maybeSplitGreaterGreaterToken() || LA() == T_GREATER || parseTemplateArgumentList(
                 ast->template_argument_list)) {
-            if (LA() == T_GREATER) {
+            if (maybeSplitGreaterGreaterToken() || LA() == T_GREATER) {
                 ast->greater_token = consumeToken();
                 node = ast;
                 return true;
@@ -1103,7 +1108,7 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
 
     if (LA() == T_LESS) {
         ast->less_token = consumeToken();
-        if (LA() == T_GREATER || parseTemplateParameterList(ast->template_parameter_list))
+        if (maybeSplitGreaterGreaterToken() || LA() == T_GREATER || parseTemplateParameterList(ast->template_parameter_list))
             match(T_GREATER, &ast->greater_token);
     }
 
@@ -1318,7 +1323,7 @@ bool Parser::parseTemplateArgument(ExpressionAST *&node)
         if (_cxx0xEnabled && LA() == T_DOT_DOT_DOT)
             index = 2;
 
-        if (LA(index) == T_COMMA || LA(index) == T_GREATER)
+        if (LA(index) == T_COMMA || maybeSplitGreaterGreaterToken(index) || LA(index) == T_GREATER)
             return true;
     }
 
@@ -1796,7 +1801,7 @@ bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
         if (LA() == T_LESS)
             ast->less_token = consumeToken();
         parseTemplateParameterList(ast->template_parameter_list);
-        if (LA() == T_GREATER)
+        if (maybeSplitGreaterGreaterToken() || LA() == T_GREATER)
             ast->greater_token = consumeToken();
         if (LA() == T_CLASS)
             ast->class_token = consumeToken();
@@ -1816,7 +1821,7 @@ bool Parser::parseTemplateTypeParameter(DeclarationAST *&node)
     return false;
 }
 
-bool Parser::lookAtTypeParameter() const
+bool Parser::lookAtTypeParameter()
 {
     if (LA() == T_CLASS || LA() == T_TYPENAME) {
         if (LA(2) == T_IDENTIFIER) {
@@ -1827,7 +1832,7 @@ bool Parser::lookAtTypeParameter() const
                 return true;
 
             default:
-                return false;
+                return maybeSplitGreaterGreaterToken(3);
             }
         } else if (LA(2) == T_COLON_COLON) {
             // found something like template <typename ::foo::bar>...
@@ -2947,7 +2952,7 @@ bool Parser::parseUnqualifiedName(NameAST *&node, bool acceptTemplateId)
         if (acceptTemplateId && LA(2) == T_LESS) {
             bool blocked = blockErrors(true);
             if (parseTemplateId(node)
-                    && (! _templateArguments || (LA() == T_COMMA  || LA() == T_GREATER ||
+                    && (! _templateArguments || (LA() == T_COMMA  || maybeSplitGreaterGreaterToken() || LA() == T_GREATER ||
                                                  LA() == T_LPAREN || LA() == T_RPAREN  ||
                                                  LA() == T_STAR || LA() == T_AMPER || // ptr-operators
                                                  LA() == T_COLON_COLON))) {

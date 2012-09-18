@@ -552,6 +552,34 @@ unsigned TranslationUnit::findPreviousLineOffset(unsigned tokenIndex) const
     return lineOffset;
 }
 
+bool TranslationUnit::maybeSplitGreaterGreaterToken(unsigned tokenIndex)
+{
+    Token &tok = _tokens->at(tokenIndex);
+    if (tok.kind() != T_GREATER_GREATER)
+        return false;
+
+    tok.f.kind = T_GREATER;
+    tok.f.length = 1;
+
+    Token newGreater;
+    newGreater.f.kind = T_GREATER;
+    newGreater.f.expanded = tok.f.expanded;
+    newGreater.f.generated = tok.f.generated;
+    newGreater.f.length = 1;
+    newGreater.offset = tok.offset + 1;
+
+    _tokens->insert(_tokens->begin() + tokenIndex + 1, newGreater);
+
+    std::map<unsigned, std::pair<unsigned, unsigned> >::const_iterator it =
+            _expandedLineColumn.find(tok.offset);
+    if (it != _expandedLineColumn.end()) {
+        const std::pair<unsigned, unsigned> newPosition(it->second.first, it->second.second + 1);
+        _expandedLineColumn.insert(std::make_pair(newGreater.offset, newPosition));
+    }
+
+    return true;
+}
+
 void TranslationUnit::showErrorLine(unsigned index, unsigned column, FILE *out)
 {
     unsigned lineOffset = _lineOffsets[findLineNumber(_tokens->at(index).offset)];
