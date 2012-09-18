@@ -7,7 +7,6 @@ contains (QT_CONFIG, webkit) {
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
 
 include (instances/instances.pri)
-include (../instances/instances.pri)
 include (../commands/commands.pri)
 include (../container/container.pri)
 include (../interfaces/interfaces.pri)
