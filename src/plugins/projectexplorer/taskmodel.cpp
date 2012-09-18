@@ -70,6 +70,13 @@ int TaskModel::warningTaskCount(const Core::Id &categoryId)
     return m_categories.value(categoryId).warnings;
 }
 
+int TaskModel::unknownTaskCount(const Core::Id &categoryId)
+{
+    return m_categories.value(categoryId).count
+            - m_categories.value(categoryId).errors
+            - m_categories.value(categoryId).warnings;
+}
+
 bool TaskModel::hasFile(const QModelIndex &index) const
 {
     int row = index.row();

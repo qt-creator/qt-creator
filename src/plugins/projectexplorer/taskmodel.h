@@ -74,6 +74,7 @@ public:
     int taskCount(const Core::Id &categoryId);
     int errorTaskCount(const Core::Id &categoryId);
     int warningTaskCount(const Core::Id &categoryId);
+    int unknownTaskCount(const Core::Id &categoryId);
 
     bool hasFile(const QModelIndex &index) const;
 

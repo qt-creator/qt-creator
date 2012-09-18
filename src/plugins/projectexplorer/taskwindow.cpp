@@ -341,6 +341,8 @@ void TaskWindow::clearTasks(const Core::Id &categoryId)
             d->m_badgeCount -= d->m_model->errorTaskCount(categoryId);
         if (d->m_filter->filterIncludesWarnings())
             d->m_badgeCount -= d->m_model->warningTaskCount(categoryId);
+        if (d->m_filter->filterIncludesUnknowns())
+            d->m_badgeCount -= d->m_model->unknownTaskCount(categoryId);
     } else {
         d->m_badgeCount = 0;
     }
