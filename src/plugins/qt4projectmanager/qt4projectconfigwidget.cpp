@@ -296,7 +296,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
         m_ui->problemLabel->setText(shadowBuildWarning +tr("An incompatible build exists in %1, which will be overwritten.",
                                                            "%1 build directory")
                                     .arg(m_ui->shadowBuildDirEdit->path()));
-    } else if (shadowBuildWarning.isEmpty()) {
+    } else if (!shadowBuildWarning.isEmpty()) {
         m_ui->warningLabel->setVisible(true);
         m_ui->problemLabel->setVisible(true);
         m_ui->problemLabel->setText(shadowBuildWarning);
