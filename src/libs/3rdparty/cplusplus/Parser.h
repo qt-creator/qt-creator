@@ -191,6 +191,7 @@ public:
     bool parseUnqualifiedName(NameAST *&node, bool acceptTemplateId = true);
     bool parseUsing(DeclarationAST *&node);
     bool parseUsingDirective(DeclarationAST *&node);
+    bool parseAliasDeclaration(DeclarationAST *&node);
     bool parseWhileStatement(StatementAST *&node);
 
     void parseExpressionWithOperatorPrecedence(ExpressionAST *&lhs, int minPrecedence);
@@ -256,6 +257,7 @@ public:
     void skipUntilDeclaration();
     bool skipUntilStatement();
     bool skip(int l, int r);
+    int find(int token, int stopAt);
 
     bool lookAtTypeParameter() const;
     bool lookAtCVQualifier() const;

@@ -125,6 +125,7 @@ public:
     virtual AST *clone(MemoryPool *pool) const = 0;
 
     virtual AccessDeclarationAST *asAccessDeclaration() { return 0; }
+    virtual AliasDeclarationAST *asAliasDeclaration() { return 0; }
     virtual AlignofExpressionAST *asAlignofExpression() { return 0; }
     virtual ArrayAccessAST *asArrayAccess() { return 0; }
     virtual ArrayDeclaratorAST *asArrayDeclarator() { return 0; }
@@ -2394,6 +2395,36 @@ public:
     virtual unsigned lastToken() const;
 
     virtual NamespaceAliasDefinitionAST *clone(MemoryPool *pool) const;
+
+protected:
+    virtual void accept0(ASTVisitor *visitor);
+    virtual bool match0(AST *, ASTMatcher *);
+};
+
+class CPLUSPLUS_EXPORT AliasDeclarationAST: public DeclarationAST
+{
+public:
+    unsigned using_token;
+    unsigned identifier_token;
+    unsigned equal_token;
+    TypeIdAST *typeId;
+    unsigned semicolon_token;
+
+public:
+    AliasDeclarationAST()
+        : using_token(0)
+        , identifier_token(0)
+        , equal_token(0)
+        , typeId(0)
+        , semicolon_token(0)
+    {}
+
+    virtual AliasDeclarationAST *asAliasDeclaration() { return this; }
+
+    virtual unsigned firstToken() const;
+    virtual unsigned lastToken() const;
+
+    virtual AliasDeclarationAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

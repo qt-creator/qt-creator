@@ -1485,6 +1485,27 @@ bool ASTMatcher::match(NamespaceAliasDefinitionAST *node, NamespaceAliasDefiniti
     return true;
 }
 
+bool ASTMatcher::match(AliasDeclarationAST *node, AliasDeclarationAST *pattern)
+{
+    (void) node;
+    (void) pattern;
+
+    pattern->using_token = node->using_token;
+
+    pattern->identifier_token = node->identifier_token;
+
+    pattern->equal_token = node->equal_token;
+
+    if (! pattern->typeId)
+        pattern->typeId = node->typeId;
+    else if (! AST::match(node->typeId, pattern->typeId, this))
+        return false;
+
+    pattern->semicolon_token = node->semicolon_token;
+
+    return true;
+}
+
 bool ASTMatcher::match(ExpressionListParenAST *node, ExpressionListParenAST *pattern)
 {
     (void) node;

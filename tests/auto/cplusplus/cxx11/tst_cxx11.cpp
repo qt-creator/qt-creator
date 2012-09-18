@@ -142,6 +142,7 @@ void tst_cxx11::parse_data()
     QTest::newRow("refQualifier.1") << "refQualifier.1.cpp" << "";
     QTest::newRow("alignofAlignas.1") << "alignofAlignas.1.cpp" << "";
     QTest::newRow("rangeFor.1") << "rangeFor.1.cpp" << "";
+    QTest::newRow("aliasDecl.1") << "aliasDecl.1.cpp" << "";
 }
 
 void tst_cxx11::parse()

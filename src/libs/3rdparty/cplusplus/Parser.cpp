@@ -367,6 +367,18 @@ bool Parser::skip(int l, int r)
     return false;
 }
 
+int Parser::find(int token, int stopAt)
+{
+    for (int i = 1; ; ++i) {
+        const int tk = LA(i);
+        if (!tk || tk == stopAt)
+            return 0;
+        if (tk == token)
+            return i;
+    }
+    return 0;
+}
+
 void Parser::match(int kind, unsigned *token)
 {
     if (LA() == kind)
@@ -811,6 +823,9 @@ bool Parser::parseUsing(DeclarationAST *&node)
     if (LA(2) == T_NAMESPACE)
         return parseUsingDirective(node);
 
+    if (_cxx0xEnabled && LA(2) == T_IDENTIFIER && parseAliasDeclaration(node))
+        return true;
+
     UsingAST *ast = new (_pool) UsingAST;
     ast->using_token = consumeToken();
 
@@ -838,6 +853,37 @@ bool Parser::parseUsingDirective(DeclarationAST *&node)
         return true;
     }
     return false;
+}
+
+// alias-declaration = 'using' identifier attribute-specifier-seq(opt) '=' type-id ';'
+bool Parser::parseAliasDeclaration(DeclarationAST *&node)
+{
+    DEBUG_THIS_RULE();
+    if (LA() != T_USING || LA(2) != T_IDENTIFIER)
+        return false;
+
+    if (!find(T_EQUAL, T_SEMICOLON))
+        return false;
+
+    AliasDeclarationAST *alias = new (_pool) AliasDeclarationAST;
+    alias->using_token = consumeToken();
+    alias->identifier_token = consumeToken();
+
+    // ### attributes!
+    while (LA() != T_EQUAL)
+        consumeToken();
+
+    alias->equal_token = consumeToken();
+
+    ExpressionAST *expr = 0;
+    parseTypeId(expr);
+    if (expr)
+        alias->typeId = expr->asTypeId();
+
+    match(T_SEMICOLON, &alias->semicolon_token);
+
+    node = alias;
+    return true;
 }
 
 bool Parser::parseConversionFunctionId(NameAST *&node)

@@ -592,6 +592,14 @@ bool NamespaceAliasDefinitionAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool AliasDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (AliasDeclarationAST *_other = pattern->asAliasDeclaration())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool ExpressionListParenAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (ExpressionListParenAST *_other = pattern->asExpressionListParen())

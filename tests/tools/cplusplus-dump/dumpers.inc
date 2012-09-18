@@ -848,6 +848,20 @@ virtual bool visit(NamespaceAliasDefinitionAST *ast)
     return false;
 }
 
+virtual bool visit(AliasDeclarationAST *ast)
+{
+    if (ast->using_token)
+        terminal(ast->using_token, ast);
+    if (ast->identifier_token)
+        terminal(ast->identifier_token, ast);
+    if (ast->equal_token)
+        terminal(ast->equal_token, ast);
+    nonterminal(ast->typeId);
+    if (ast->semicolon_token)
+        terminal(ast->semicolon_token, ast);
+    return false;
+}
+
 virtual bool visit(ExpressionListParenAST *ast)
 {
     if (ast->lparen_token)

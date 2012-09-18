@@ -577,6 +577,13 @@ public:
         return __ast;
     }
 
+    AliasDeclarationAST *AliasDeclaration(TypeIdAST *typeId = 0)
+    {
+        AliasDeclarationAST *__ast = new (&pool) AliasDeclarationAST;
+        __ast->typeId = typeId;
+        return __ast;
+    }
+
     ExpressionListParenAST *ExpressionListParen(ExpressionListAST *expression_list = 0)
     {
         ExpressionListParenAST *__ast = new (&pool) ExpressionListParenAST;

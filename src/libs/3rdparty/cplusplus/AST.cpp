@@ -4431,3 +4431,37 @@ unsigned AlignofExpressionAST::lastToken() const
     return 1;
 }
 
+/** \generated */
+unsigned AliasDeclarationAST::firstToken() const
+{
+    if (using_token)
+        return using_token;
+    if (identifier_token)
+        return identifier_token;
+    if (equal_token)
+        return equal_token;
+    if (typeId)
+        if (unsigned candidate = typeId->firstToken())
+            return candidate;
+    if (semicolon_token)
+        return semicolon_token;
+    return 0;
+}
+
+/** \generated */
+unsigned AliasDeclarationAST::lastToken() const
+{
+    if (semicolon_token)
+        return semicolon_token + 1;
+    if (typeId)
+        if (unsigned candidate = typeId->lastToken())
+            return candidate;
+    if (equal_token)
+        return equal_token + 1;
+    if (identifier_token)
+        return identifier_token + 1;
+    if (using_token)
+        return using_token + 1;
+    return 1;
+}
+
