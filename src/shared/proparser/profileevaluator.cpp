@@ -204,7 +204,7 @@ QString ProFileEvaluator::propertyValue(const QString &name) const
 
 QString ProFileEvaluator::resolvedMkSpec() const
 {
-    return d->m_qmakespecFull;
+    return d->m_qmakespec;
 }
 
 #ifdef PROEVALUATOR_CUMULATIVE

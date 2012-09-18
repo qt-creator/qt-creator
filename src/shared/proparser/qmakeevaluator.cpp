@@ -195,7 +195,6 @@ void QMakeEvaluator::initFrom(const QMakeEvaluator &other)
     m_valuemapStack = other.m_valuemapStack;
     m_valuemapInited = true;
     m_qmakespec = other.m_qmakespec;
-    m_qmakespecFull = other.m_qmakespecFull;
     m_qmakespecName = other.m_qmakespecName;
     m_mkspecPaths = other.m_mkspecPaths;
     m_featureRoots = other.m_featureRoots;
@@ -1053,16 +1052,17 @@ bool QMakeEvaluator::loadSpecInternal()
         return false;
     }
 #ifdef Q_OS_UNIX
-    m_qmakespecFull = QFileInfo(m_qmakespec).canonicalFilePath();
+    m_qmakespec = QFileInfo(m_qmakespec).canonicalFilePath();
 #else
     // We can't resolve symlinks as they do on Unix, so configure.exe puts
     // the source of the qmake.conf at the end of the default/qmake.conf in
     // the QMAKESPEC_ORIGINAL variable.
     const ProString &orig_spec = first(ProKey("QMAKESPEC_ORIGINAL"));
-    m_qmakespecFull = orig_spec.isEmpty() ? m_qmakespec : orig_spec.toQString();
+    if (!orig_spec.isEmpty())
+        m_qmakespec = orig_spec.toQString();
 #endif
-    valuesRef(ProKey("QMAKESPEC")) << ProString(m_qmakespecFull);
-    m_qmakespecName = IoUtils::fileName(m_qmakespecFull).toString();
+    valuesRef(ProKey("QMAKESPEC")) << ProString(m_qmakespec);
+    m_qmakespecName = IoUtils::fileName(m_qmakespec).toString();
     if (!evaluateFeatureFile(QLatin1String("spec_post.prf")))
         return false;
     // The MinGW and x-build specs may change the separator; $$shell_{path,quote}() need it
@@ -1324,12 +1324,12 @@ void QMakeEvaluator::updateFeaturePaths()
     foreach (const QString &item, m_qmakepath)
         feature_bases << (item + mkspecs_concat);
 
-    if (!m_qmakespecFull.isEmpty()) {
+    if (!m_qmakespec.isEmpty()) {
         // The spec is already platform-dependent, so no subdirs here.
-        feature_roots << (m_qmakespecFull + features_concat);
+        feature_roots << (m_qmakespec + features_concat);
 
         // Also check directly under the root directory of the mkspecs collection
-        QDir specdir(m_qmakespecFull);
+        QDir specdir(m_qmakespec);
         while (!specdir.isRoot() && specdir.cdUp()) {
             const QString specpath = specdir.path();
             if (specpath.endsWith(mkspecs_concat)) {
