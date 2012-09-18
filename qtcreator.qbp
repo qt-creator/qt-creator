@@ -80,7 +80,8 @@ Project {
         "src/plugins/welcome/welcome.qbs",
         "src/share/share.qbs",
         "src/tools/qtcdebugger/qtcdebugger.qbs",
-        "src/tools/qtpromaker/qtpromaker.qbs"
+        "src/tools/qtpromaker/qtpromaker.qbs",
+        "src/tools/sdktool/sdktool.qbs"
     ]
 
     Product {
