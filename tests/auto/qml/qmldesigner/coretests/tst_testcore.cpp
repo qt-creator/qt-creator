@@ -3767,29 +3767,22 @@ char qmlString[] = "import QtQuick 1.1\n"
 
 void tst_TestCore::testMetaInfo()
 {
-    QSKIP("Fix metainfo", SkipAll);
     QScopedPointer<Model> model(createModel("QtQuick.Item"));
     QVERIFY(model.data());
+    model->changeImports(QList<Import>() << Import::createLibraryImport("QtWebKit", "1.0"), QList<Import>());
 
     // test whether default type is registered
-    QVERIFY(model->metaInfo("QtQuick.Item", 1, 1).isValid());
+    QVERIFY(model->metaInfo("QtQuick.Item", -1, -1).isValid());
 
     // test whether types from plugins are registered
-    QVERIFY(model->hasNodeMetaInfo("QtWebKit/WebView", 1, 0));
+    QVERIFY(model->hasNodeMetaInfo("QtWebKit.WebView", -1, -1));
 
     // test whether non-qml type is registered
-    QVERIFY(model->hasNodeMetaInfo("QGraphicsObject", 1, 1)); // Qt 4.7 namespace
-    QVERIFY(model->hasNodeMetaInfo("QGraphicsObject", 1, 0)); // webkit 1.0 namespace
+    QVERIFY(model->hasNodeMetaInfo("<cpp>.QGraphicsObject", -1, -1)); // Qt 4.7 namespace
 }
 
 void tst_TestCore::testMetaInfoSimpleType()
 {
-    QSKIP("Fix metainfo", SkipAll);
-    //
-    // Test type registered with qmlRegisterType:
-    //
-    // qmlRegisterType<QDeclarativeItem>("Qt",4,7,"Item")
-    //
 
     QScopedPointer<Model> model(createModel("QtQuick.Item"));
     QVERIFY(model.data());
@@ -3802,37 +3795,28 @@ void tst_TestCore::testMetaInfoSimpleType()
 
     QVERIFY(itemMetaInfo.isValid());
     QCOMPARE(itemMetaInfo.typeName(), QLatin1String("QtQuick.Item"));
-    QCOMPARE(itemMetaInfo.majorVersion(), 4);
-    QCOMPARE(itemMetaInfo.minorVersion(), 7);
+    QCOMPARE(itemMetaInfo.majorVersion(), 1);
+    QCOMPARE(itemMetaInfo.minorVersion(), 1);
 
     // super classes
     NodeMetaInfo graphicsObjectInfo = itemMetaInfo.directSuperClass();
     QVERIFY(graphicsObjectInfo.isValid());
-    QCOMPARE(graphicsObjectInfo.typeName(), QLatin1String("QGraphicsObject"));
+    QCOMPARE(graphicsObjectInfo.typeName(), QLatin1String("QtQuick.QGraphicsObject"));
     QCOMPARE(graphicsObjectInfo.majorVersion(), -1);
     QCOMPARE(graphicsObjectInfo.minorVersion(), -1);
 
-    QCOMPARE(itemMetaInfo.superClasses().size(), 2); // QGraphicsObject, QtQuick.QtObject
-    QVERIFY(itemMetaInfo.isSubclassOf("QGraphicsObject", 1, 1));
-    QVERIFY(itemMetaInfo.isSubclassOf("QtQuick.QtObject", 1, 1));
+    QCOMPARE(itemMetaInfo.superClasses().size(), 3); // Item, QGraphicsObject, QtQuick.QtObject
+    QVERIFY(itemMetaInfo.isSubclassOf("QtQuick.QGraphicsObject", -1, -1));
+    QVERIFY(itemMetaInfo.isSubclassOf("<cpp>.QObject", -1, -1));
 
     // availableInVersion
     QVERIFY(itemMetaInfo.availableInVersion(1, 1));
-    QVERIFY(itemMetaInfo.availableInVersion(4, 8));
-    QVERIFY(itemMetaInfo.availableInVersion(5, 0));
+    QVERIFY(itemMetaInfo.availableInVersion(1, 0));
     QVERIFY(itemMetaInfo.availableInVersion(-1, -1));
-    QVERIFY(!itemMetaInfo.availableInVersion(4, 6));
-    QVERIFY(!itemMetaInfo.availableInVersion(3, 7));
 }
 
 void tst_TestCore::testMetaInfoUncreatableType()
 {
-    QSKIP("Fix metainfo", SkipAll);
-    // Test type registered with qmlRegisterUncreatableType or qmlRegisterTypeNotAvailable:
-    //
-    // qmlRegisterUncreatableType<QDeclarativeAbstractAnimation>("Qt",4,7,"Animation",QDeclarativeAbstractAnimation::tr("Animation is an abstract class"));
-    //
-
     QScopedPointer<Model> model(createModel("QtQuick.Item"));
     QVERIFY(model.data());
 
@@ -3842,25 +3826,19 @@ void tst_TestCore::testMetaInfoUncreatableType()
 
     QVERIFY(animationTypeInfo.isValid());
     QCOMPARE(animationTypeInfo.typeName(), QLatin1String("QtQuick.Animation"));
-    QCOMPARE(animationTypeInfo.majorVersion(), 4);
-    QCOMPARE(animationTypeInfo.minorVersion(), 7);
+    QCOMPARE(animationTypeInfo.majorVersion(), 1);
+    QCOMPARE(animationTypeInfo.minorVersion(), 1);
 
     NodeMetaInfo qObjectTypeInfo = animationTypeInfo.directSuperClass();
     QVERIFY(qObjectTypeInfo.isValid());
     QCOMPARE(qObjectTypeInfo.typeName(), QLatin1String("QtQuick.QtObject"));
-    QCOMPARE(qObjectTypeInfo.majorVersion(), 4);
-    QCOMPARE(qObjectTypeInfo.minorVersion(), 7);
-    QCOMPARE(animationTypeInfo.superClasses().size(), 1);
+    QCOMPARE(qObjectTypeInfo.majorVersion(), 1);
+    QCOMPARE(qObjectTypeInfo.minorVersion(), 0);
+    QCOMPARE(animationTypeInfo.superClasses().size(), 2);
 }
 
 void tst_TestCore::testMetaInfoExtendedType()
 {
-    QSKIP("Fix metainfo", SkipAll);
-    // Test type registered with qmlRegisterExtendedType
-    //
-    // qmlRegisterExtendedType<QGraphicsWidget,QDeclarativeGraphicsWidget>("Qt",4,7,"QGraphicsWidget");
-    //
-
     QScopedPointer<Model> model(createModel("QtQuick.Item"));
     QVERIFY(model.data());
 
@@ -3873,10 +3851,10 @@ void tst_TestCore::testMetaInfoExtendedType()
 
     NodeMetaInfo graphicsObjectTypeInfo = graphicsWidgetTypeInfo.directSuperClass();
     QVERIFY(graphicsObjectTypeInfo.isValid());
-    QCOMPARE(graphicsObjectTypeInfo.typeName(), QLatin1String("QGraphicsObject"));
+    QCOMPARE(graphicsObjectTypeInfo.typeName(), QLatin1String("<cpp>.QGraphicsObject"));
     QCOMPARE(graphicsObjectTypeInfo.majorVersion(), -1);
     QCOMPARE(graphicsObjectTypeInfo.minorVersion(), -1);
-    QCOMPARE(graphicsWidgetTypeInfo.superClasses().size(), 2);
+    QCOMPARE(graphicsWidgetTypeInfo.superClasses().size(), 3);
 }
 
 void tst_TestCore::testMetaInfoInterface()
