@@ -3867,12 +3867,6 @@ void tst_TestCore::testMetaInfoInterface()
 
 void tst_TestCore::testMetaInfoCustomType()
 {
-    QSKIP("Fix metainfo", SkipAll);
-
-    // Test type registered with qmlRegisterCustomType:
-    //
-    // qmlRegisterCustomType<QDeclarativePropertyChanges>("Qt", 1, 1, "PropertyChanges", new QDeclarativePropertyChangesParser);
-
     QScopedPointer<Model> model(createModel("QtQuick.Item"));
     QVERIFY(model.data());
 
@@ -3885,10 +3879,10 @@ void tst_TestCore::testMetaInfoCustomType()
 
     NodeMetaInfo stateOperationInfo = propertyChangesInfo.directSuperClass();
     QVERIFY(stateOperationInfo.isValid());
-    QCOMPARE(stateOperationInfo.typeName(), QLatin1String("QDeclarativeStateOperation"));
+    QCOMPARE(stateOperationInfo.typeName(), QLatin1String("QtQuick.QDeclarative1StateOperation"));
     QCOMPARE(stateOperationInfo.majorVersion(), -1);
     QCOMPARE(stateOperationInfo.minorVersion(), -1);
-    QCOMPARE(propertyChangesInfo.superClasses().size(), 2);
+    QCOMPARE(propertyChangesInfo.superClasses().size(), 3);
 
     // DeclarativePropertyChanges just has 3 properties
     QCOMPARE(propertyChangesInfo.propertyNames().size() - stateOperationInfo.propertyNames().size(), 3);
@@ -3896,8 +3890,6 @@ void tst_TestCore::testMetaInfoCustomType()
 
 void tst_TestCore::testMetaInfoEnums()
 {
-    QSKIP("Fix metainfo", SkipAll);
-
     QScopedPointer<Model> model(createModel("QtQuick.Text"));
     QVERIFY(model.data());
 
@@ -3922,8 +3914,6 @@ void tst_TestCore::testMetaInfoEnums()
 
 void tst_TestCore::testMetaInfoProperties()
 {
-    QSKIP("Fix metainfo", SkipAll);
-
     QScopedPointer<Model> model(createModel("QtQuick.Text"));
     QVERIFY(model.data());
 
@@ -3940,8 +3930,6 @@ void tst_TestCore::testMetaInfoProperties()
 
 void tst_TestCore::testMetaInfoDotProperties()
 {
-    QSKIP("Fix metainfo", SkipAll);
-
     QScopedPointer<Model> model(createModel("QtQuick.Text"));
     QVERIFY(model.data());
 
@@ -3951,7 +3939,8 @@ void tst_TestCore::testMetaInfoDotProperties()
 
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Text"));
 
-    QVERIFY(model->hasNodeMetaInfo("QtQuick.Pen"));
+    QVERIFY(model->metaInfo("QtQuick.Rectangle").hasProperty("border"));
+    QCOMPARE(model->metaInfo("QtQuick.Rectangle").propertyTypeName("border"), QString("<cpp>.QDeclarative1Pen"));
 
     QCOMPARE(view->rootModelNode().metaInfo().typeName(), QString("QtQuick.Text"));
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("font"));
@@ -3963,12 +3952,10 @@ void tst_TestCore::testMetaInfoDotProperties()
 
     ModelNode rectNode(addNodeListChild(view->rootModelNode(), "QtQuick.Rectangle", 1, 0, "data"));
 
-
-    QVERIFY(rectNode.metaInfo().propertyNames().contains("pos.x"));
-    QVERIFY(!rectNode.metaInfo().propertyNames().contains("pos.x"));
+    QVERIFY(rectNode.metaInfo().propertyNames().contains("pos"));
     QVERIFY(rectNode.metaInfo().propertyNames().contains("pos.y"));
-    QVERIFY(!rectNode.metaInfo().propertyNames().contains("pos.y"));
-    QVERIFY(!rectNode.metaInfo().propertyNames().contains("anchors.topMargin"));
+    QVERIFY(rectNode.metaInfo().propertyNames().contains("pos.x"));
+    QVERIFY(rectNode.metaInfo().propertyNames().contains("anchors.topMargin"));
     QVERIFY(rectNode.metaInfo().propertyNames().contains("border.width"));
     QVERIFY(rectNode.metaInfo().hasProperty("border"));
     QVERIFY(rectNode.metaInfo().hasProperty("border.width"));
@@ -3976,9 +3963,7 @@ void tst_TestCore::testMetaInfoDotProperties()
 
 void tst_TestCore::testMetaInfoListProperties()
 {
-    QSKIP("Fix metainfo", SkipAll);
-
-     QScopedPointer<Model> model(createModel("QtQuick.Item"));
+    QScopedPointer<Model> model(createModel("QtQuick.Item"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
