@@ -45,7 +45,7 @@
 
     \list 1
 
-        \o  In the \gui Projects mode, select a release build configuration.
+        \o  In the \gui Projects mode, select a debug build configuration.
 
         \o  Select \gui Analyze to open the \gui Analyze mode.
 
@@ -166,12 +166,13 @@
     the \gui Callers view and about the called functions in the \gui Callees
     view.
 
-    Since Debug and Release mode run-time characteristics differ
-    significantly, analytical findings for one mode may or not be
-    relevant for the other. Profiling a Debug mode build
+    Since the run-time characteristics of debug and release
+    \l{glossary-build-config}{build configurations}
+    differ significantly, analytical findings for one build configuration may or
+    not be relevant for the other. Profiling a debug build
     often finds a major part of the time being spent in low-level
     code like container implementations, while the same code
-    does not show up in the profile of a Release build of the
+    does not show up in the profile of a release build of the
     same application due to inlining and other optimizations
     typically done there.
 
