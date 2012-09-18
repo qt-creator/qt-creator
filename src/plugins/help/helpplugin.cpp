@@ -194,6 +194,8 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
         SLOT(setupHelpEngineIfNeeded()));
     connect(Core::HelpManager::instance(), SIGNAL(collectionFileChanged()), this,
         SLOT(setupHelpEngineIfNeeded()));
+    connect(Core::HelpManager::instance(), SIGNAL(setupFinished()), this,
+            SLOT(unregisterOldQtCreatorDocumentation()));
 
     m_splitter = new Core::MiniSplitter;
     m_centralWidget = new Help::Internal::CentralWidget();
@@ -385,16 +387,6 @@ bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
 
 void HelpPlugin::extensionsInitialized()
 {
-    const QString &nsInternal = QString::fromLatin1("com.nokia.qtcreator.%1%2%3")
-        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
-
-    Core::HelpManager *helpManager = Core::HelpManager::instance();
-    foreach (const QString &ns, helpManager->registeredNamespaces()) {
-        if (ns.startsWith(QLatin1String("com.nokia.qtcreator."))
-            && ns != nsInternal)
-            helpManager->unregisterDocumentation(QStringList() << ns);
-    }
-
     QStringList filesToRegister;
     // Explicitly register qml.qch if located in creator directory. This is only
     // needed for the creator-qml package, were we want to ship the documentation
@@ -406,7 +398,7 @@ void HelpPlugin::extensionsInitialized()
     // we might need to register creators inbuild help
     filesToRegister.append(QDir::cleanPath(appPath
         + QLatin1String(DOCPATH "qtcreator.qch")));
-    helpManager->registerDocumentation(filesToRegister);
+    Core::HelpManager::instance()->registerDocumentation(filesToRegister);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
@@ -426,6 +418,23 @@ ExtensionSystem::IPlugin::ShutdownFlag HelpPlugin::aboutToShutdown()
     }
 
     return SynchronousShutdown;
+}
+
+void HelpPlugin::unregisterOldQtCreatorDocumentation()
+{
+    const QString &nsInternal = QString::fromLatin1("com.nokia.qtcreator.%1%2%3")
+        .arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(IDE_VERSION_RELEASE);
+
+    Core::HelpManager *helpManager = Core::HelpManager::instance();
+    QStringList documentationToUnregister;
+    foreach (const QString &ns, helpManager->registeredNamespaces()) {
+        if (ns.startsWith(QLatin1String("com.nokia.qtcreator."))
+                && ns != nsInternal) {
+            documentationToUnregister << ns;
+        }
+    }
+    if (!documentationToUnregister.isEmpty())
+        helpManager->unregisterDocumentation(documentationToUnregister);
 }
 
 void HelpPlugin::setupUi()
