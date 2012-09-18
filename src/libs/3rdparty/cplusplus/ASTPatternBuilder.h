@@ -374,10 +374,11 @@ public:
         return __ast;
     }
 
-    EnumSpecifierAST *EnumSpecifier(NameAST *name = 0, EnumeratorListAST *enumerator_list = 0)
+    EnumSpecifierAST *EnumSpecifier(NameAST *name = 0, SpecifierListAST *type_specifier_list = 0, EnumeratorListAST *enumerator_list = 0)
     {
         EnumSpecifierAST *__ast = new (&pool) EnumSpecifierAST;
         __ast->name = name;
+        __ast->type_specifier_list = type_specifier_list;
         __ast->enumerator_list = enumerator_list;
         return __ast;
     }

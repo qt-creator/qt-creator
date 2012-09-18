@@ -1634,7 +1634,10 @@ class CPLUSPLUS_EXPORT EnumSpecifierAST: public SpecifierAST
 {
 public:
     unsigned enum_token;
+    unsigned key_token; // struct, class or 0
     NameAST *name;
+    unsigned colon_token; // can be 0 if there is no enum-base
+    SpecifierListAST *type_specifier_list; // ditto
     unsigned lbrace_token;
     EnumeratorListAST *enumerator_list;
     unsigned stray_comma_token;
@@ -1646,7 +1649,10 @@ public: // annotations
 public:
     EnumSpecifierAST()
         : enum_token(0)
+        , key_token(0)
         , name(0)
+        , colon_token(0)
+        , type_specifier_list(0)
         , lbrace_token(0)
         , enumerator_list(0)
         , stray_comma_token(0)

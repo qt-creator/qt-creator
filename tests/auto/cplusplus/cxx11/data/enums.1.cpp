@@ -1,0 +1,11 @@
+enum { A, B };
+enum : int;
+enum : int { A, B };
+enum Foo1 { A, B };
+enum Foo2 : int;
+enum Foo3 : int { A, B };
+enum class Foo4 : int;
+enum struct Foo5;
+enum class Foo6 { A, B };
+enum struct Foo7 { A, B };
+enum struct Foo8 : long long;

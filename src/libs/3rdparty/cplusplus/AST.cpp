@@ -1077,8 +1077,15 @@ unsigned EnumSpecifierAST::firstToken() const
 {
     if (enum_token)
         return enum_token;
+    if (key_token)
+        return key_token;
     if (name)
         if (unsigned candidate = name->firstToken())
+            return candidate;
+    if (colon_token)
+        return colon_token;
+    if (type_specifier_list)
+        if (unsigned candidate = type_specifier_list->firstToken())
             return candidate;
     if (lbrace_token)
         return lbrace_token;
@@ -1104,9 +1111,16 @@ unsigned EnumSpecifierAST::lastToken() const
             return candidate;
     if (lbrace_token)
         return lbrace_token + 1;
+    if (type_specifier_list)
+        if (unsigned candidate = type_specifier_list->lastToken())
+            return candidate;
+    if (colon_token)
+        return colon_token + 1;
     if (name)
         if (unsigned candidate = name->lastToken())
             return candidate;
+    if (key_token)
+        return key_token + 1;
     if (enum_token)
         return enum_token + 1;
     return 1;

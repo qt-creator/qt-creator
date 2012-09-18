@@ -548,7 +548,13 @@ virtual bool visit(EnumSpecifierAST *ast)
 {
     if (ast->enum_token)
         terminal(ast->enum_token, ast);
+    if (ast->key_token)
+        terminal(ast->key_token, ast);
     nonterminal(ast->name);
+    if (ast->colon_token)
+        terminal(ast->colon_token, ast);
+    for (SpecifierListAST *iter = ast->type_specifier_list; iter; iter = iter->next)
+        nonterminal(iter->value);
     if (ast->lbrace_token)
         terminal(ast->lbrace_token, ast);
     for (EnumeratorListAST *iter = ast->enumerator_list; iter; iter = iter->next)

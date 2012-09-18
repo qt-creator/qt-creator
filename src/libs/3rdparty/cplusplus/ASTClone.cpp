@@ -558,8 +558,13 @@ EnumSpecifierAST *EnumSpecifierAST::clone(MemoryPool *pool) const
 {
     EnumSpecifierAST *ast = new (pool) EnumSpecifierAST;
     ast->enum_token = enum_token;
+    ast->key_token = key_token;
     if (name)
         ast->name = name->clone(pool);
+    ast->colon_token = colon_token;
+    for (SpecifierListAST *iter = type_specifier_list, **ast_iter = &ast->type_specifier_list;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     ast->lbrace_token = lbrace_token;
     for (EnumeratorListAST *iter = enumerator_list, **ast_iter = &ast->enumerator_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)

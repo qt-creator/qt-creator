@@ -28,7 +28,7 @@
 #include "QtContextKeywords.h"
 #include <string>
 #include <cstdio> // for putchar
-
+#include <QDebug>
 #ifdef _MSC_VER
 #    define va_copy(dst, src) ((dst) = (src))
 #elif defined(__INTEL_COMPILER) && !defined(va_copy)
@@ -1684,16 +1684,19 @@ bool Parser::parseEnumSpecifier(SpecifierListAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_ENUM) {
-        unsigned enum_token = consumeToken();
-        if (_cxx0xEnabled && LA() == T_CLASS)
-            consumeToken();
+        EnumSpecifierAST *ast = new (_pool) EnumSpecifierAST;
 
-        NameAST *name = 0;
-        parseName(name);
+        ast->enum_token = consumeToken();
+        if (_cxx0xEnabled && (LA() == T_CLASS || LA() == T_STRUCT))
+            ast->key_token = consumeToken();
+
+        parseName(ast->name);
+
+        if (_cxx0xEnabled && LA() == T_COLON) {
+            ast->colon_token = consumeToken();
+            parseTypeSpecifier(ast->type_specifier_list);
+        }
         if (LA() == T_LBRACE) {
-            EnumSpecifierAST *ast = new (_pool) EnumSpecifierAST;
-            ast->enum_token = enum_token;
-            ast->name = name;
             ast->lbrace_token = consumeToken();
             unsigned comma_token = 0;
             EnumeratorListAST **enumerator_ptr = &ast->enumerator_list;
@@ -1717,9 +1720,12 @@ bool Parser::parseEnumSpecifier(SpecifierListAST *&node)
                     match(T_COMMA, &comma_token);
             }
             match(T_RBRACE, &ast->rbrace_token);
-            node = new (_pool) SpecifierListAST(ast);
-            return true;
+        } else if (!_cxx0xEnabled) {
+            return false;
         }
+
+        node = new (_pool) SpecifierListAST(ast);
+        return true;
     }
     return false;
 }
@@ -3920,7 +3926,9 @@ bool Parser::parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *de
             }
         } else if (! has_type_specifier && LA() == T_ENUM) {
             unsigned startOfTypeSpecifier = cursor();
-            if (! parseElaboratedTypeSpecifier(*decl_specifier_seq_ptr) || LA() == T_LBRACE) {
+            if (! parseElaboratedTypeSpecifier(*decl_specifier_seq_ptr)
+                    || LA() == T_LBRACE
+                    || (_cxx0xEnabled && LA() == T_COLON)) {
                 rewind(startOfTypeSpecifier);
                 if (! parseEnumSpecifier(*decl_specifier_seq_ptr)) {
                     error(startOfTypeSpecifier,

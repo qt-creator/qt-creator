@@ -410,6 +410,7 @@ void EnumSpecifierAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
         accept(name, visitor);
+        accept(type_specifier_list, visitor);
         accept(enumerator_list, visitor);
     }
     visitor->endVisit(this);

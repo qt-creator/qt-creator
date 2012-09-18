@@ -935,9 +935,18 @@ bool ASTMatcher::match(EnumSpecifierAST *node, EnumSpecifierAST *pattern)
 
     pattern->enum_token = node->enum_token;
 
+    pattern->key_token = node->key_token;
+
     if (! pattern->name)
         pattern->name = node->name;
     else if (! AST::match(node->name, pattern->name, this))
+        return false;
+
+    pattern->colon_token = node->colon_token;
+
+    if (! pattern->type_specifier_list)
+        pattern->type_specifier_list = node->type_specifier_list;
+    else if (! AST::match(node->type_specifier_list, pattern->type_specifier_list, this))
         return false;
 
     pattern->lbrace_token = node->lbrace_token;
