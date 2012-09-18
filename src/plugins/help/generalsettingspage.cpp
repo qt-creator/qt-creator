@@ -80,7 +80,7 @@ QWidget *GeneralSettingsPage::createPage(QWidget *parent)
     m_ui->styleComboBox->setEditable(false);
 
     Core::HelpManager *manager = Core::HelpManager::instance();
-    m_font = qVariantValue<QFont>(manager->customValue(QLatin1String("font"),
+    m_font = qvariant_cast<QFont>(manager->customValue(QLatin1String("font"),
         m_font));
 
     updateFontSize();

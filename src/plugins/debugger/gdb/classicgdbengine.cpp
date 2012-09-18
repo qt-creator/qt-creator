@@ -1232,7 +1232,7 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
     if (debuggerCore()->action(UseCodeModel)->isChecked()) {
         const StackFrame frame =
             qVariantCanConvert<Debugger::Internal::StackFrame>(response.cookie)
-                ? qVariantValue<Debugger::Internal::StackFrame>(response.cookie)
+                ? qvariant_cast<Debugger::Internal::StackFrame>(response.cookie)
                 : stackHandler()->currentFrame();
         if (frame.isUsable())
             getUninitializedVariables(debuggerCore()->cppCodeModelSnapshot(),

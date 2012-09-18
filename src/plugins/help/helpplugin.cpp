@@ -774,7 +774,7 @@ void HelpPlugin::fontChanged()
         createRightPaneContextViewer();
 
     const QHelpEngine &engine = LocalHelpManager::helpEngine();
-    QFont font = qVariantValue<QFont>(engine.customValue(QLatin1String("font"),
+    QFont font = qvariant_cast<QFont>(engine.customValue(QLatin1String("font"),
         m_helpViewerForSideBar->viewerFont()));
 
     m_helpViewerForSideBar->setFont(font);

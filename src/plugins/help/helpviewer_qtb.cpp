@@ -82,7 +82,7 @@ HelpViewer::~HelpViewer()
 QFont HelpViewer::viewerFont() const
 {
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    return qVariantValue<QFont>(engine.customValue(QLatin1String("font"),
+    return qvariant_cast<QFont>(engine.customValue(QLatin1String("font"),
         qApp->font()));
 }
 

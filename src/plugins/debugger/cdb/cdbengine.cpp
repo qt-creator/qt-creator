@@ -3103,12 +3103,12 @@ void CdbEngine::postWidgetAtCommand()
 void CdbEngine::handleCustomSpecialStop(const QVariant &v)
 {
     if (qVariantCanConvert<MemoryChangeCookie>(v)) {
-        const MemoryChangeCookie changeData = qVariantValue<MemoryChangeCookie>(v);
+        const MemoryChangeCookie changeData = qvariant_cast<MemoryChangeCookie>(v);
         postCommand(cdbWriteMemoryCommand(changeData.address, changeData.data), 0);
         return;
     }
     if (qVariantCanConvert<MemoryViewCookie>(v)) {
-        postFetchMemory(qVariantValue<MemoryViewCookie>(v));
+        postFetchMemory(qvariant_cast<MemoryViewCookie>(v));
         return;
     }
 }

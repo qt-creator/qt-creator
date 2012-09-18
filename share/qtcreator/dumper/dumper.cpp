@@ -2252,11 +2252,11 @@ static void qDumpQVariantHelper(const QVariant *v, QString *value,
 #    endif
     default: {
         static const char *qTypeFormat = sizeof(void *) == sizeof(long)
-            ? "'" NS "%s " NS "qVariantValue<" NS "%s >'(*('" NS "QVariant'*)0x%lx)"
-            : "'" NS "%s " NS "qVariantValue<" NS "%s >'(*('" NS "QVariant'*)0x%llx)";
+            ? "'" NS "%s " NS "qvariant_cast<" NS "%s >'(*('" NS "QVariant'*)0x%lx)"
+            : "'" NS "%s " NS "qvariant_cast<" NS "%s >'(*('" NS "QVariant'*)0x%llx)";
         static const char *nonQTypeFormat = sizeof(void *) == sizeof(long)
-            ? "'%s " NS "qVariantValue<%s >'(*('" NS "QVariant'*)0x%lx)"
-            : "'%s " NS "qVariantValue<%s >'(*('" NS "QVariant'*)0x%llx)";
+            ? "'%s " NS "qvariant_cast<%s >'(*('" NS "QVariant'*)0x%lx)"
+            : "'%s " NS "qvariant_cast<%s >'(*('" NS "QVariant'*)0x%llx)";
         char buf[1000];
         const char *format = (v->typeName()[0] == 'Q') ? qTypeFormat : nonQTypeFormat;
         qsnprintf(buf, sizeof(buf) - 1, format, v->typeName(), v->typeName(), v);

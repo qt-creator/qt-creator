@@ -1363,7 +1363,7 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
 {
     QTC_ASSERT(action, return);
     const QVariant data = action->data();
-    OpenWithEntry entry = qVariantValue<OpenWithEntry>(data);
+    OpenWithEntry entry = qvariant_cast<OpenWithEntry>(data);
     if (entry.editorFactory) {
         // close any open editors that have this file open, but have a different type.
         EditorManager *em = EditorManager::instance();

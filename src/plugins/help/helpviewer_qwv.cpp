@@ -393,7 +393,7 @@ QFont HelpViewer::viewerFont() const
     QFont font(QApplication::font().family(),
         webSettings->fontSize(QWebSettings::DefaultFontSize));
     const QHelpEngineCore &engine = LocalHelpManager::helpEngine();
-    return qVariantValue<QFont>(engine.customValue(QLatin1String("font"),
+    return qvariant_cast<QFont>(engine.customValue(QLatin1String("font"),
         font));
 }
 

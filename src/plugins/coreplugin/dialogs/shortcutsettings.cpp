@@ -142,7 +142,7 @@ void ShortcutSettings::commandChanged(QTreeWidgetItem *current)
     CommandMappings::commandChanged(current);
     if (!current || !current->data(0, Qt::UserRole).isValid())
         return;
-    ShortcutItem *scitem = qVariantValue<ShortcutItem *>(current->data(0, Qt::UserRole));
+    ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
     setKeySequence(scitem->m_key);
 }
 
@@ -150,7 +150,7 @@ void ShortcutSettings::targetIdentifierChanged()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
     if (current && current->data(0, Qt::UserRole).isValid()) {
-        ShortcutItem *scitem = qVariantValue<ShortcutItem *>(current->data(0, Qt::UserRole));
+        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
         scitem->m_key = QKeySequence(m_key[0], m_key[1], m_key[2], m_key[3]);
         if (scitem->m_cmd->defaultKeySequence() != scitem->m_key)
             setModified(current, true);
@@ -176,7 +176,7 @@ void ShortcutSettings::resetTargetIdentifier()
 {
     QTreeWidgetItem *current = commandList()->currentItem();
     if (current && current->data(0, Qt::UserRole).isValid()) {
-        ShortcutItem *scitem = qVariantValue<ShortcutItem *>(current->data(0, Qt::UserRole));
+        ShortcutItem *scitem = qvariant_cast<ShortcutItem *>(current->data(0, Qt::UserRole));
         setKeySequence(scitem->m_cmd->defaultKeySequence());
     }
 }
