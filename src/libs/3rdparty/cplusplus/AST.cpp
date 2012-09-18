@@ -4362,9 +4362,6 @@ unsigned RangeBasedForStatementAST::firstToken() const
     if (declarator)
         if (unsigned candidate = declarator->firstToken())
             return candidate;
-    if (initializer)
-        if (unsigned candidate = initializer->firstToken())
-            return candidate;
     if (colon_token)
         return colon_token;
     if (expression)
@@ -4391,9 +4388,6 @@ unsigned RangeBasedForStatementAST::lastToken() const
             return candidate;
     if (colon_token)
         return colon_token + 1;
-    if (initializer)
-        if (unsigned candidate = initializer->lastToken())
-            return candidate;
     if (declarator)
         if (unsigned candidate = declarator->lastToken())
             return candidate;

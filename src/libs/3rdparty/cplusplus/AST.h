@@ -1921,7 +1921,6 @@ public:
     SpecifierListAST *type_specifier_list;
     DeclaratorAST *declarator;
     // or an expression
-    ExpressionAST *initializer;
     unsigned colon_token;
     ExpressionAST *expression;
     unsigned rparen_token;
@@ -1936,7 +1935,6 @@ public:
         , lparen_token(0)
         , type_specifier_list(0)
         , declarator(0)
-        , initializer(0)
         , colon_token(0)
         , expression(0)
         , rparen_token(0)

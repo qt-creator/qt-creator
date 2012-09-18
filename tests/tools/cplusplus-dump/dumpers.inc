@@ -662,7 +662,6 @@ virtual bool visit(RangeBasedForStatementAST *ast)
     for (SpecifierListAST *iter = ast->type_specifier_list; iter; iter = iter->next)
         nonterminal(iter->value);
     nonterminal(ast->declarator);
-    nonterminal(ast->initializer);
     if (ast->colon_token)
         terminal(ast->colon_token, ast);
     nonterminal(ast->expression);

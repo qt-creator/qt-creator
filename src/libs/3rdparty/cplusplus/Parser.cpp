@@ -3429,7 +3429,11 @@ bool Parser::parseForStatement(StatementAST *&node)
             ast->colon_token = consumeToken();
             blockErrors(blocked);
 
-            parseExpression(ast->expression);
+            if (LA() == T_LBRACE) {
+                parseBracedInitList0x(ast->expression);
+            } else {
+                parseExpression(ast->expression);
+            }
             match(T_RPAREN, &ast->rparen_token);
             parseStatement(ast->statement);
 

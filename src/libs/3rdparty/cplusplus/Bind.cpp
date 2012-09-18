@@ -1332,7 +1332,6 @@ bool Bind::visit(RangeBasedForStatementAST *ast)
         block->addMember(decl);
     }
 
-    /*ExpressionTy initializer =*/ this->expression(ast->initializer);
     /*ExpressionTy expression =*/ this->expression(ast->expression);
     this->statement(ast->statement);
     (void) switchScope(previousScope);

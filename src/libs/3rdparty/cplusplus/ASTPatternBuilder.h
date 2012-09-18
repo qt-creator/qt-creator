@@ -447,12 +447,11 @@ public:
         return __ast;
     }
 
-    RangeBasedForStatementAST *RangeBasedForStatement(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0, ExpressionAST *initializer = 0, ExpressionAST *expression = 0, StatementAST *statement = 0)
+    RangeBasedForStatementAST *RangeBasedForStatement(SpecifierListAST *type_specifier_list = 0, DeclaratorAST *declarator = 0, ExpressionAST *expression = 0, StatementAST *statement = 0)
     {
         RangeBasedForStatementAST *__ast = new (&pool) RangeBasedForStatementAST;
         __ast->type_specifier_list = type_specifier_list;
         __ast->declarator = declarator;
-        __ast->initializer = initializer;
         __ast->expression = expression;
         __ast->statement = statement;
         return __ast;

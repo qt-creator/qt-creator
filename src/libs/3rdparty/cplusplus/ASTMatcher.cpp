@@ -1154,11 +1154,6 @@ bool ASTMatcher::match(RangeBasedForStatementAST *node, RangeBasedForStatementAS
     else if (! AST::match(node->declarator, pattern->declarator, this))
         return false;
 
-    if (! pattern->initializer)
-        pattern->initializer = node->initializer;
-    else if (! AST::match(node->initializer, pattern->initializer, this))
-        return false;
-
     pattern->colon_token = node->colon_token;
 
     if (! pattern->expression)

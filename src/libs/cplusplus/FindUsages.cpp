@@ -1025,7 +1025,6 @@ bool FindUsages::visit(RangeBasedForStatementAST *ast)
         this->specifier(it->value);
     }
     this->declarator(ast->declarator);
-    this->expression(ast->initializer);
     // unsigned comma_token = ast->comma_token;
     this->expression(ast->expression);
     // unsigned rparen_token = ast->rparen_token;

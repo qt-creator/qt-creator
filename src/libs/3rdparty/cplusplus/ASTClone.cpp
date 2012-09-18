@@ -681,8 +681,6 @@ RangeBasedForStatementAST *RangeBasedForStatementAST::clone(MemoryPool *pool) co
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
     if (declarator)
         ast->declarator = declarator->clone(pool);
-    if (initializer)
-        ast->initializer = initializer->clone(pool);
     ast->colon_token = colon_token;
     if (expression)
         ast->expression = expression->clone(pool);
