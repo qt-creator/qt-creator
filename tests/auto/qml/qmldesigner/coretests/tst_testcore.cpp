@@ -1123,40 +1123,40 @@ void tst_TestCore::testTypicalRewriterOperations()
     ModelNode rootModelNode = view->rootModelNode();
     QCOMPARE(rootModelNode.allDirectSubModelNodes().count(), 0);
 
-    QVERIFY(rootModelNode.property("test").isValid());
-    QVERIFY(!rootModelNode.property("test").isVariantProperty());
-    QVERIFY(!rootModelNode.property("test").isBindingProperty());
+    QVERIFY(rootModelNode.property("x").isValid());
+    QVERIFY(!rootModelNode.property("x").isVariantProperty());
+    QVERIFY(!rootModelNode.property("x").isBindingProperty());
 
-    QVERIFY(rootModelNode.variantProperty("test").isValid());
-    QVERIFY(!rootModelNode.hasProperty("test"));
+    QVERIFY(rootModelNode.variantProperty("x").isValid());
+    QVERIFY(!rootModelNode.hasProperty("x"));
 
-    rootModelNode.variantProperty("test") = 70;
+    rootModelNode.variantProperty("x") = 70;
 
-    QVERIFY(rootModelNode.hasProperty("test"));
-    QVERIFY(rootModelNode.property("test").isVariantProperty());
-    QCOMPARE(rootModelNode.variantProperty("test").value(), QVariant(70));
+    QVERIFY(rootModelNode.hasProperty("x"));
+    QVERIFY(rootModelNode.property("x").isVariantProperty());
+    QCOMPARE(rootModelNode.variantProperty("x").value(), QVariant(70));
 
-    rootModelNode.bindingProperty("test") = "parent.x";
-    QVERIFY(!rootModelNode.property("test").isVariantProperty());
-    QVERIFY(rootModelNode.property("test").isBindingProperty());
+    rootModelNode.bindingProperty("x") = "parent.x";
+    QVERIFY(!rootModelNode.property("x").isVariantProperty());
+    QVERIFY(rootModelNode.property("x").isBindingProperty());
 
-    QCOMPARE(rootModelNode.bindingProperty("test").expression(), QString("parent.x"));
+    QCOMPARE(rootModelNode.bindingProperty("x").expression(), QString("parent.x"));
 
-    ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 4 ,6, "data"));
-    rootModelNode.nodeListProperty("test").reparentHere(childNode);
-    QCOMPARE(childNode.parentProperty(), rootModelNode.nodeAbstractProperty("test"));
-    QVERIFY(rootModelNode.property("test").isNodeAbstractProperty());
-    QVERIFY(rootModelNode.property("test").isNodeListProperty());
-    QVERIFY(!rootModelNode.property("test").isBindingProperty());
+    ModelNode childNode(addNodeListChild(rootModelNode, "QtQuick.Rectangle", 1 ,0, "data"));
+    rootModelNode.nodeListProperty("data").reparentHere(childNode);
+    QCOMPARE(childNode.parentProperty(), rootModelNode.nodeAbstractProperty("data"));
+    QVERIFY(rootModelNode.property("data").isNodeAbstractProperty());
+    QVERIFY(rootModelNode.property("data").isNodeListProperty());
+    QVERIFY(!rootModelNode.property("data").isBindingProperty());
     QVERIFY(childNode.parentProperty().isNodeListProperty());
     QCOMPARE(childNode, childNode.parentProperty().toNodeListProperty().toModelNodeList().first());
     QCOMPARE(rootModelNode, childNode.parentProperty().parentModelNode());
-    QCOMPARE(childNode.parentProperty().name(), QString("test"));
+    QCOMPARE(childNode.parentProperty().name(), QString("data"));
 
-    QVERIFY(!rootModelNode.property("test").isVariantProperty());
-    rootModelNode.variantProperty("test") = 90;
-    QVERIFY(rootModelNode.property("test").isVariantProperty());
-    QCOMPARE(rootModelNode.variantProperty("test").value(), QVariant(90));
+    QVERIFY(!rootModelNode.property("x").isVariantProperty());
+    rootModelNode.variantProperty("x") = 90;
+    QVERIFY(rootModelNode.property("x").isVariantProperty());
+    QCOMPARE(rootModelNode.variantProperty("x").value(), QVariant(90));
 
 }
 
