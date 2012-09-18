@@ -1052,7 +1052,12 @@ bool QMakeEvaluator::loadSpecInternal()
         return false;
     }
 #ifdef Q_OS_UNIX
-    m_qmakespec = QFileInfo(m_qmakespec).canonicalFilePath();
+    if (m_qmakespec.endsWith(QLatin1String("/default-host"))
+        || m_qmakespec.endsWith(QLatin1String("/default"))) {
+        QString rspec = QFileInfo(m_qmakespec).readLink();
+        if (!rspec.isEmpty())
+            m_qmakespec = QDir::cleanPath(QDir(m_qmakespec).absoluteFilePath(rspec));
+    }
 #else
     // We can't resolve symlinks as they do on Unix, so configure.exe puts
     // the source of the qmake.conf at the end of the default/qmake.conf in

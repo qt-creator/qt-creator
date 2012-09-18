@@ -1305,7 +1305,7 @@ Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QStrin
                     if (value.contains("XCODE")) {
                         // we don't want to generate xcode projects...
 //                      qDebug() << "default mkspec is xcode, falling back to g++";
-                        mkspecFullPath = baseMkspecDir.appendPath(QLatin1String("macx-g++"));
+                        return baseMkspecDir.appendPath(QLatin1String("macx-g++"));
                     }
                 }
                 break;
@@ -1315,7 +1315,9 @@ Utils::FileName BaseQtVersion::mkspecFromVersionInfo(const QHash<QString, QStrin
     }
 #  endif
     //resolve mkspec link
-    mkspecFullPath = Utils::FileName::fromString(mkspecFullPath.toFileInfo().canonicalFilePath());
+    QString rspec = mkspecFullPath.toFileInfo().readLink();
+    if (!rspec.isEmpty())
+        mkspecFullPath = Utils::FileName::fromUserInput(QDir(baseMkspecDir).absoluteFilePath(rspec));
 #endif
 
     return mkspecFullPath;
