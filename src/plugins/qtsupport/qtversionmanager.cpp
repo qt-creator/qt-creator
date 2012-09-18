@@ -71,7 +71,7 @@ static const char QTVERSION_DATA_KEY[] = "QtVersion.";
 static const char QTVERSION_TYPE_KEY[] = "QtVersion.Type";
 static const char QTVERSION_FILE_VERSION_KEY[] = "Version";
 static const char QTVERSION_FILENAME[] = "/qtcreator/qtversion.xml";
-static const char QTVERSION_SDK_FILENAME[] = "/qtversion.xml";
+static const char QTVERSION_LEGACY_FILENAME[] = "/qtversion.xml"; // TODO: pre 2.6, remove later
 
 // legacy settings
 static const char QtVersionsSectionName[] = "QtVersions";
@@ -96,7 +96,7 @@ static Utils::FileName globalSettingsFileName()
 {
     QSettings *globalSettings = ExtensionSystem::PluginManager::globalSettings();
     return Utils::FileName::fromString(QFileInfo(globalSettings->fileName()).absolutePath()
-                                       + QLatin1String(QTVERSION_SDK_FILENAME));
+                                       + QLatin1String(QTVERSION_FILENAME));
 }
 
 static Utils::FileName settingsFileName(const QString &path)
@@ -184,7 +184,7 @@ bool QtVersionManager::restoreQtVersions()
 
     // Read Qt Creator 2.5 qtversions.xml once:
     if (!filename.toFileInfo().exists())
-        filename = settingsFileName(QLatin1String(QTVERSION_SDK_FILENAME));
+        filename = settingsFileName(QLatin1String(QTVERSION_LEGACY_FILENAME));
     if (!reader.load(filename))
         return false;
     QVariantMap data = reader.restoreValues();
