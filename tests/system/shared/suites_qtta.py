@@ -1,3 +1,4 @@
+import __builtin__
 
 # appends to line, by typing <typeWhat> after <insertAfterLine> text into <codeArea> widget
 def appendToLine(codeArea, insertAfterLine, typeWhat):
@@ -50,3 +51,23 @@ def changeAutocompleteToManual():
     selectFromCombo(":Behavior.completionTrigger_QComboBox", "Manually")
     verifyEnabled(":Options.OK_QPushButton")
     clickButton(waitForObject(":Options.OK_QPushButton"))
+
+# wait and verify if object item exists/not exists
+def checkIfObjectItemExists(object, item, timeout = 3000):
+    try:
+        waitForObjectItem(object, item, timeout)
+        return True
+    except:
+        return False
+
+# this function creates a string holding the real name of a Qml Item
+# param type defines the Qml type (support is limited)
+# param container defines the container of the Qml item - can be a real or symbolic name
+# param clip defines the state of the clip property (true/false)
+# param text a string holding the complete text property (e.g. "text='example'", "text~='ex.*'")
+def getQmlItem(type, container, clip, text=""):
+    if (container.startswith(":")):
+        container = "'%s'" % container
+    clip = ("%s" % __builtin__.bool(clip)).lower()
+    return ("{clip='%s' container=%s enabled='true' %s type='%s' unnamed='1' visible='true'}"
+            % (clip, container, text, type))

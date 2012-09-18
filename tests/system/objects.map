@@ -7,6 +7,7 @@
 :*Qt Creator.Start Debugging_Core::Internal::FancyToolButton	{text='Start Debugging' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator.findEdit_Utils::FilterLineEdit	{name='findEdit' type='Utils::FilterLineEdit' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Core::Internal::FancyToolButton	{occurrence='3' type='Core::Internal::FancyToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:*Qt Creator_Help::Internal::HelpViewer	{type='Help::Internal::HelpViewer' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::FilterLineEdit	{type='Utils::FilterLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :*Qt Creator_Utils::IconButton	{occurrence='4' type='Utils::IconButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :About Qt Creator_Core::Internal::VersionDialog	{type='Core::Internal::VersionDialog' unnamed='1' visible='1' windowTitle='About Qt Creator'}
@@ -28,6 +29,7 @@
 :CMake Wizard.Run CMake_QPushButton	{text='Run CMake' type='QPushButton' unnamed='1' visible='1' window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}
 :CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard	{type='CMakeProjectManager::Internal::CMakeOpenProjectWizard' unnamed='1' visible='1' windowTitle='CMake Wizard'}
 :CppTools__Internal__CompletionSettingsPage.Behavior_QGroupBox	{container=':qt_tabwidget_stackedwidget.CppTools__Internal__CompletionSettingsPage_QWidget' name='groupBox' title='Behavior' type='QGroupBox' visible='1'}
+:CreateProject_QStyleItem	{clip='false' container=':Qt Creator_QDeclarativeView' enabled='true' text='Create Project' type='LinkedText' unnamed='1' visible='true'}
 :DebugModeWidget.Breakpoints_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.Break' type='QDockWidget' visible='1' windowTitle='Breakpoints'}
 :DebugModeWidget.Debugger Log_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger.Docks.Output' type='QDockWidget' visible='1' windowTitle='Debugger Log'}
 :DebugModeWidget.Debugger Toolbar_QDockWidget	{container=':Qt Creator.DebugModeWidget_QSplitter' name='Debugger Toolbar' type='QDockWidget' visible='1' windowTitle='Debugger Toolbar'}
@@ -40,6 +42,7 @@
 :Dialog_QmlJSEditor::Internal::ComponentNameDialog	{name='QmlJSEditor__Internal__ComponentNameDialog' type='QmlJSEditor::Internal::ComponentNameDialog' visible='1' windowTitle='Move Component into Separate File'}
 :Edit Environment_ProjectExplorer::EnvironmentItemsDialog	{type='ProjectExplorer::EnvironmentItemsDialog' unnamed='1' visible='1' windowTitle='Edit Environment'}
 :Failed to start application_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='Failed to start application'}
+:Form.Startup_QGroupBox	{container=':qt_tabwidget_stackedwidget.Form_QWidget' name='startupGroupBox' title='Startup' type='QGroupBox' visible='1'}
 :Generator:_QComboBox	{buddy=':CMake Wizard.Generator:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :Hits_QCLuceneResultWidget	{aboveWidget=':Hits_QLabel' type='QCLuceneResultWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Hits_QLabel	{text~='\\\\d+ - \\\\d+ of \\\\d+ Hits' type='QLabel' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -49,6 +52,9 @@
 :New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
 :New_Core::Internal::NewDialog	{name='Core__Internal__NewDialog' type='Core::Internal::NewDialog' visible='1' windowTitle='New'}
 :Next_QPushButton	{text~='(Next.*|Continue)' type='QPushButton' visible='1'}
+:Open File.File name:_QLabel	{name='fileNameLabel' text='File name:' type='QLabel' visible='1' window=':Open File_QFileDialog'}
+:Open File_QFileDialog	{name='QFileDialog' type='QFileDialog' visible='1' windowTitle='Open File'}
+:OpenProject_QStyleItem	{clip='false' container=':Qt Creator_QDeclarativeView' enabled='true' text='Open Project' type='LinkedText' unnamed='1' visible='true'}
 :Options.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
 :Options.OK_QPushButton	{text='OK' type='QPushButton' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
 :Options.qt_tabwidget_stackedwidget_QStackedWidget	{name='qt_tabwidget_stackedwidget' type='QStackedWidget' visible='1' window=':Options_Core::Internal::SettingsDialog'}
@@ -57,12 +63,16 @@
 :Options_QListView	{type='QListView' unnamed='1' visible='1' window=':Options_Core::Internal::SettingsDialog'}
 :QML Debugging.No_QPushButton	{text='No' type='QPushButton' unnamed='1' visible='1' window=':QML Debugging_QMessageBox'}
 :QML Debugging_QMessageBox	{type='QMessageBox' unnamed='1' visible='1' windowTitle='QML Debugging'}
+:QWebPage	{type='QWebPage' unnamed='1'}
 :Qt Creator.Add Bookmark_QToolButton	{text='Add Bookmark' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Analyzer Toolbar_QDockWidget	{name='Analyzer Toolbar' type='QDockWidget' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Analyzer Toolbar'}
 :Qt Creator.CloseFind_QToolButton	{name='close' type='QToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Compile Output_Core::OutputWindow	{type='Core::OutputWindow' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Compile Output'}
 :Qt Creator.DebugModeWidget_QSplitter	{name='DebugModeWidget' type='QSplitter' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator.Go to Help Mode_QToolButton	{text='Go to Help Mode' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Help_Search for:_QLineEdit	{leftWidget=':Qt Creator.Search for:_QLabel' type='QLineEdit' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Issues_QListView	{type='QListView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow' windowTitle='Issues'}
+:Qt Creator.Project.Menu.Project_QMenu	{name='Project.Menu.Project' type='QMenu' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.QtCreator.MenuBar_QMenuBar	{name='QtCreator.MenuBar' type='QMenuBar' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.ReRun_QToolButton	{toolTip='Re-run this run-configuration' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator.Replace All_QToolButton	{name='replaceAllButton' text='Replace All' type='QToolButton' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -80,7 +90,9 @@
 :Qt Creator_CppEditor::Internal::CPPEditorWidget	{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Find::Internal::SearchResultTreeView	{type='Find::Internal::SearchResultTreeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Help::Internal::HelpViewer	{type='Help::Internal::HelpViewer' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_HelpSelector_QComboBox	{occurrence='3' type='QComboBox' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_Issues_Core::Internal::OutputPaneToggleButton	{occurrence='1' type='Core::Internal::OutputPaneToggleButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
+:Qt Creator_QDeclarativeView	{type='QDeclarativeView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QHelpContentWidget	{type='QHelpContentWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :Qt Creator_QmlJSEditor::QmlJSTextEditorWidget	{type='QmlJSEditor::QmlJSTextEditorWidget' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
@@ -95,14 +107,17 @@
 :QtSupport__Internal__QtVersionManager.QLabel	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' type='QLabel' unnamed='1' visible='1'}
 :QtSupport__Internal__QtVersionManager.qmake_QLabel	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='qmakePath' type='QLabel' visible='1'}
 :QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget	{container=':qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget' name='qtdirList' type='QTreeWidget' visible='1'}
+:Startup.contextHelpComboBox_QComboBox	{container=':Form.Startup_QGroupBox' name='contextHelpComboBox' type='QComboBox' visible='1'}
 :Symbol Server_Utils::CheckableMessageBox	{type='Utils::CheckableMessageBox' unnamed='1' visible='1' windowTitle='Symbol Server'}
 :addToVersionControlComboBox_QComboBox	{name='addToVersionControlComboBox' type='QComboBox' visible='1'}
+:fileNameEdit_QLineEdit	{buddy=':Open File.File name:_QLabel' name='fileNameEdit' type='QLineEdit' visible='1'}
 :formFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Form file:_QLabel' name='formFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :frame.templateDescription_QTextBrowser	{container=':New.frame_QFrame' name='templateDescription' type='QTextBrowser' visible='1'}
 :headerFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Header file:_QLabel' name='headerFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :popupFrame_Proposal_QListView	{container=':popupFrame_TextEditor::GenericProposalWidget' type='QListView' unnamed='1' visible='1'}
 :popupFrame_TextEditor::GenericProposalWidget	{name='m_popupFrame' type='TextEditor::GenericProposalWidget' visible='1'}
 :qt_tabwidget_stackedwidget.CppTools__Internal__CompletionSettingsPage_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='CppTools__Internal__CompletionSettingsPage' type='QWidget' visible='1'}
+:qt_tabwidget_stackedwidget.Form_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='Help__Internal__GeneralSettingsPage' type='QWidget' visible='1' windowTitle='Form'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' name='QtSupport__Internal__QtVersionManager' type='QtSupport::Internal::QtOptionsPageWidget' visible='1'}
 :qt_tabwidget_stackedwidget_QWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QWidget' unnamed='1' visible='1'}
 :scrollArea.Create Build Configurations:_QComboBox_2	{container=':Qt Gui Application.scrollArea_QScrollArea' leftWidget=':scrollArea.Create Build Configurations:_QLabel_2' type='QComboBox' unnamed='1' visible='1'}

@@ -12,9 +12,14 @@ def __handleProcessExited__(object, exitCode):
     global processExited
     processExited = True
 
-def openQmakeProject(projectPath, targets=QtQuickConstants.Targets.DESKTOP):
+def openQmakeProject(projectPath, targets = QtQuickConstants.Targets.DESKTOP, fromWelcome = False):
     cleanUpUserFiles(projectPath)
-    invokeMenuItem("File", "Open File or Project...")
+    if fromWelcome:
+        mouseClick(waitForObject(":OpenProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
+        if not platform.system() == "Darwin":
+            waitFor("waitForObject(':fileNameEdit_QLineEdit').focus == True")
+    else:
+        invokeMenuItem("File", "Open File or Project...")
     selectFromFileDialog(projectPath)
     try:
         # handle update generated files dialog
@@ -78,8 +83,11 @@ def shadowBuildDir(path, project, qtVersion, debugVersion):
 # because the Simulator target is added for some cases even when Simulator has not
 # been set up inside Qt versions/Toolchains
 # this list can be used in __chooseTargets__()
-def __createProjectSelectType__(category, template):
-    invokeMenuItem("File", "New File or Project...")
+def __createProjectSelectType__(category, template, fromWelcome = False):
+    if fromWelcome:
+        mouseClick(waitForObject(":CreateProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
+    else:
+        invokeMenuItem("File", "New File or Project...")
     categoriesView = waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000)
     clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
     templatesView = waitForObject("{name='templatesView' type='QListView'}", 20000)
@@ -199,12 +207,14 @@ def createProject_Qt_Console(path, projectName, checks = True):
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 10000)
     __verifyFileCreation__(path, expectedFiles)
 
-def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None, targets = QtQuickConstants.Targets.DESKTOP, qtQuickVersion=1):
+def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None,
+                                targets = QtQuickConstants.Targets.DESKTOP, qtQuickVersion=1,
+                                fromWelcome=False):
     if templateFile:
-        available = __createProjectSelectType__("  Applications", "Qt Quick Application (from Existing QML File)")
+        available = __createProjectSelectType__("  Applications", "Qt Quick Application (from Existing QML File)", fromWelcome)
     else:
         available = __createProjectSelectType__("  Applications", "Qt Quick %d Application (Built-in Elements)"
-                                                % qtQuickVersion)
+                                                % qtQuickVersion, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     if templateFile:
         baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
