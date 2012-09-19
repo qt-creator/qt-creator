@@ -1017,12 +1017,7 @@ virtual bool visit(TypenameCallExpressionAST *ast)
     if (ast->typename_token)
         terminal(ast->typename_token, ast);
     nonterminal(ast->name);
-    if (ast->lparen_token)
-        terminal(ast->lparen_token, ast);
-    for (ExpressionListAST *iter = ast->expression_list; iter; iter = iter->next)
-        nonterminal(iter->value);
-    if (ast->rparen_token)
-        terminal(ast->rparen_token, ast);
+    nonterminal(ast->expression);
     return false;
 }
 
@@ -1030,12 +1025,7 @@ virtual bool visit(TypeConstructorCallAST *ast)
 {
     for (SpecifierListAST *iter = ast->type_specifier_list; iter; iter = iter->next)
         nonterminal(iter->value);
-    if (ast->lparen_token)
-        terminal(ast->lparen_token, ast);
-    for (ExpressionListAST *iter = ast->expression_list; iter; iter = iter->next)
-        nonterminal(iter->value);
-    if (ast->rparen_token)
-        terminal(ast->rparen_token, ast);
+    nonterminal(ast->expression);
     return false;
 }
 

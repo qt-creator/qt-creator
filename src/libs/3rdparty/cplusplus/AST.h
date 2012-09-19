@@ -2803,17 +2803,13 @@ class CPLUSPLUS_EXPORT TypenameCallExpressionAST: public ExpressionAST
 public:
     unsigned typename_token;
     NameAST *name;
-    unsigned lparen_token;
-    ExpressionListAST *expression_list;
-    unsigned rparen_token;
+    ExpressionAST *expression; // either ExpressionListParenAST or BracedInitializerAST
 
 public:
     TypenameCallExpressionAST()
         : typename_token(0)
         , name(0)
-        , lparen_token(0)
-        , expression_list(0)
-        , rparen_token(0)
+        , expression(0)
     {}
 
     virtual TypenameCallExpressionAST *asTypenameCallExpression() { return this; }
@@ -2832,16 +2828,12 @@ class CPLUSPLUS_EXPORT TypeConstructorCallAST: public ExpressionAST
 {
 public:
     SpecifierListAST *type_specifier_list;
-    unsigned lparen_token;
-    ExpressionListAST *expression_list;
-    unsigned rparen_token;
+    ExpressionAST *expression; // either ExpressionListParenAST or BracedInitializerAST
 
 public:
     TypeConstructorCallAST()
         : type_specifier_list(0)
-        , lparen_token(0)
-        , expression_list(0)
-        , rparen_token(0)
+        , expression(0)
     {}
 
     virtual TypeConstructorCallAST *asTypeConstructorCall() { return this; }

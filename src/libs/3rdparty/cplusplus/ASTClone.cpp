@@ -1051,11 +1051,8 @@ TypenameCallExpressionAST *TypenameCallExpressionAST::clone(MemoryPool *pool) co
     ast->typename_token = typename_token;
     if (name)
         ast->name = name->clone(pool);
-    ast->lparen_token = lparen_token;
-    for (ExpressionListAST *iter = expression_list, **ast_iter = &ast->expression_list;
-         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : 0);
-    ast->rparen_token = rparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
     return ast;
 }
 
@@ -1065,11 +1062,8 @@ TypeConstructorCallAST *TypeConstructorCallAST::clone(MemoryPool *pool) const
     for (SpecifierListAST *iter = type_specifier_list, **ast_iter = &ast->type_specifier_list;
          iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
         *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : 0);
-    ast->lparen_token = lparen_token;
-    for (ExpressionListAST *iter = expression_list, **ast_iter = &ast->expression_list;
-         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
-        *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : 0);
-    ast->rparen_token = rparen_token;
+    if (expression)
+        ast->expression = expression->clone(pool);
     return ast;
 }
 

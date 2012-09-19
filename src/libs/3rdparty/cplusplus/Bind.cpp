@@ -1654,11 +1654,7 @@ bool Bind::visit(TypenameCallExpressionAST *ast)
 {
     // unsigned typename_token = ast->typename_token;
     /*const Name *name =*/ this->name(ast->name);
-    // unsigned lparen_token = ast->lparen_token;
-    for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        ExpressionTy value = this->expression(it->value);
-    }
-    // unsigned rparen_token = ast->rparen_token;
+    this->expression(ast->expression);
     return false;
 }
 
@@ -1668,11 +1664,7 @@ bool Bind::visit(TypeConstructorCallAST *ast)
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);
     }
-    // unsigned lparen_token = ast->lparen_token;
-    for (ExpressionListAST *it = ast->expression_list; it; it = it->next) {
-        ExpressionTy value = this->expression(it->value);
-    }
-    // unsigned rparen_token = ast->rparen_token;
+    this->expression(ast->expression);
     return false;
 }
 

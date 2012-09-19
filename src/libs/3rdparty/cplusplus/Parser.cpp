@@ -4712,13 +4712,16 @@ bool Parser::parseTypenameCallExpression(ExpressionAST *&node)
     if (LA() == T_TYPENAME) {
         unsigned typename_token = consumeToken();
         NameAST *name = 0;
-        if (parseName(name) && LA() == T_LPAREN) {
+        if (parseName(name)
+                && (LA() == T_LPAREN || (_cxx0xEnabled && LA() == T_LBRACE))) {
             TypenameCallExpressionAST *ast = new (_pool) TypenameCallExpressionAST;
             ast->typename_token = typename_token;
             ast->name = name;
-            ast->lparen_token = consumeToken();
-            parseExpressionList(ast->expression_list);
-            match(T_RPAREN, &ast->rparen_token);
+            if (LA() == T_LPAREN) {
+                parseExpressionListParen(ast->expression);
+            } else { // T_LBRACE
+                parseBracedInitList0x(ast->expression);
+            }
             node = ast;
             return true;
         }
@@ -4771,21 +4774,19 @@ bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
         bool blocked = blockErrors(true);
         if (lookAtBuiltinTypeSpecifier() &&
                 parseSimpleTypeSpecifier(type_specifier) &&
-                LA() == T_LPAREN) {
-            unsigned lparen_token = consumeToken();
-            ExpressionListAST *expression_list = 0;
-            parseExpressionList(expression_list);
-            if (LA() == T_RPAREN) {
-                unsigned rparen_token = consumeToken();
-                TypeConstructorCallAST *ast = new (_pool) TypeConstructorCallAST;
-                ast->type_specifier_list = type_specifier;
-                ast->lparen_token = lparen_token;
-                ast->expression_list = expression_list;
-                ast->rparen_token = rparen_token;
-                node = ast;
-                blockErrors(blocked);
-                return true;
+                (LA() == T_LPAREN || (_cxx0xEnabled && LA() == T_LBRACE))) {
+            ExpressionAST *expr;
+            if (LA() == T_LPAREN) {
+                parseExpressionListParen(expr);
+            } else { // T_LBRACE
+                parseBracedInitList0x(expr);
             }
+            TypeConstructorCallAST *ast = new (_pool) TypeConstructorCallAST;
+            ast->type_specifier_list = type_specifier;
+            ast->expression = expr;
+            node = ast;
+            blockErrors(blocked);
+            return true;
         }
         rewind(start);
 
@@ -4834,6 +4835,14 @@ bool Parser::parsePostfixExpression(ExpressionAST *&node)
                 parseExpression(ast->expression);
                 match(T_RBRACKET, &ast->rbracket_token);
                 ast->base_expression = node;
+                node = ast;
+            } else if (_cxx0xEnabled && LA() == T_LBRACE && node->asIdExpression()) {
+                // this is slightly inconsistent: simple-type-specifier '(' expression-list ')'
+                // gets parsed as a CallAST while simple-type-specifier brace-init-list
+                // is a TypenameCallExpressionAST
+                TypenameCallExpressionAST *ast = new (_pool) TypenameCallExpressionAST;
+                ast->name = node->asIdExpression()->name;
+                parseBracedInitList0x(ast->expression);
                 node = ast;
             } else if (LA() == T_PLUS_PLUS || LA() == T_MINUS_MINUS) {
                 PostIncrDecrAST *ast = new (_pool) PostIncrDecrAST;

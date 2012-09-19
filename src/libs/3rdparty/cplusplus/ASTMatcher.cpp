@@ -1791,14 +1791,10 @@ bool ASTMatcher::match(TypenameCallExpressionAST *node, TypenameCallExpressionAS
     else if (! AST::match(node->name, pattern->name, this))
         return false;
 
-    pattern->lparen_token = node->lparen_token;
-
-    if (! pattern->expression_list)
-        pattern->expression_list = node->expression_list;
-    else if (! AST::match(node->expression_list, pattern->expression_list, this))
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
         return false;
-
-    pattern->rparen_token = node->rparen_token;
 
     return true;
 }
@@ -1813,14 +1809,10 @@ bool ASTMatcher::match(TypeConstructorCallAST *node, TypeConstructorCallAST *pat
     else if (! AST::match(node->type_specifier_list, pattern->type_specifier_list, this))
         return false;
 
-    pattern->lparen_token = node->lparen_token;
-
-    if (! pattern->expression_list)
-        pattern->expression_list = node->expression_list;
-    else if (! AST::match(node->expression_list, pattern->expression_list, this))
+    if (! pattern->expression)
+        pattern->expression = node->expression;
+    else if (! AST::match(node->expression, pattern->expression, this))
         return false;
-
-    pattern->rparen_token = node->rparen_token;
 
     return true;
 }

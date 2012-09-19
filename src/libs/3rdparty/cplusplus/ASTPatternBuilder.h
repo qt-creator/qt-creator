@@ -685,19 +685,19 @@ public:
         return __ast;
     }
 
-    TypenameCallExpressionAST *TypenameCallExpression(NameAST *name = 0, ExpressionListAST *expression_list = 0)
+    TypenameCallExpressionAST *TypenameCallExpression(NameAST *name = 0, ExpressionAST *expression = 0)
     {
         TypenameCallExpressionAST *__ast = new (&pool) TypenameCallExpressionAST;
         __ast->name = name;
-        __ast->expression_list = expression_list;
+        __ast->expression = expression;
         return __ast;
     }
 
-    TypeConstructorCallAST *TypeConstructorCall(SpecifierListAST *type_specifier_list = 0, ExpressionListAST *expression_list = 0)
+    TypeConstructorCallAST *TypeConstructorCall(SpecifierListAST *type_specifier_list = 0, ExpressionAST *expression = 0)
     {
         TypeConstructorCallAST *__ast = new (&pool) TypeConstructorCallAST;
         __ast->type_specifier_list = type_specifier_list;
-        __ast->expression_list = expression_list;
+        __ast->expression = expression;
         return __ast;
     }
 
