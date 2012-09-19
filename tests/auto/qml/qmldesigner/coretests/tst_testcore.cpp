@@ -915,7 +915,7 @@ void tst_TestCore::testRewriterChangeImports()
     model->changeImports(QList<Import>(), importList);
 
     QCOMPARE(model->imports().size(), 1);
-    QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
 
     QCOMPARE(textEdit.toPlainText(), qmlString);
 
@@ -923,7 +923,10 @@ void tst_TestCore::testRewriterChangeImports()
     //
     // Add / Remove an import in the model (with alias)
     //
-    model->changeImports(importList, QList<Import>());
+
+    Import webkitImportAlias = Import::createLibraryImport("QtWebKit", "1.0", "Web");
+
+    model->changeImports(QList<Import>() << webkitImportAlias, QList<Import>() <<  webkitImport);
 
     const QLatin1String qmlWithAliasImport("\n"
                                  "import QtQuick 1.1\n"
@@ -932,30 +935,27 @@ void tst_TestCore::testRewriterChangeImports()
                                  "Rectangle {}\n");
     QCOMPARE(textEdit.toPlainText(), qmlWithAliasImport);
 
-    model->changeImports(QList<Import>(), importList);
-
-    QCOMPARE(model->imports().size(), 1);
-    QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
+    model->changeImports(QList<Import>(), QList<Import>() << webkitImportAlias);
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
 
     QCOMPARE(textEdit.toPlainText(), qmlString);
-
 
     //
     // Add / Remove an import in text
     //
     textEdit.setPlainText(qmlWithImport);
     QCOMPARE(model->imports().size(), 2);
-    QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
     QCOMPARE(model->imports().last(), Import::createLibraryImport("QtWebKit", "1.0"));
 
     textEdit.setPlainText(qmlWithAliasImport);
     QCOMPARE(model->imports().size(), 2);
-    QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
     QCOMPARE(model->imports().last(), Import::createLibraryImport("QtWebKit", "1.0", "Web"));
 
     textEdit.setPlainText(qmlString);
     QCOMPARE(model->imports().size(), 1);
-    QCOMPARE(model->imports().first(), Import::createLibraryImport("Qt", "4.7"));
+    QCOMPARE(model->imports().first(), Import::createLibraryImport("QtQuick", "1.1"));
 }
 
 void tst_TestCore::testRewriterForGradientMagic()
