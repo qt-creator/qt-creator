@@ -28,8 +28,9 @@ OTHER_FILES += \
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     !isEmpty(QT.svg.name): QT += svg
+    else: DEFINES += QT_NO_SVG
 } else {
-    contains(QT_CONFIG, svg):QT += svg
+    contains(QT_CONFIG, svg): QT += svg
 }
 
 FORMS += \
