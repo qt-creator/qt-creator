@@ -32,6 +32,7 @@
 #include "cmakeprojectmanager.h"
 
 #include <coreplugin/icore.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/fancylineedit.h>
 #include <projectexplorer/kitinformation.h>
@@ -423,14 +424,12 @@ void CMakeRunPage::initializePage()
                 if (hasCodeBlocksGenerator && (cachedGenerator.isEmpty() || cachedGenerator == "NMake Makefiles"))
                     m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(k->displayName()), kitVariant);
              } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
-#ifdef Q_OS_WIN
-                if (cachedGenerator.isEmpty() || cachedGenerator == "MinGW Makefiles")
-                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(k->displayName()), kitVariant);
-#else
-                if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
+                if (Utils::HostOsInfo::isWindowsHost()) {
+                    if (cachedGenerator.isEmpty() || cachedGenerator == "MinGW Makefiles")
+                        m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(k->displayName()), kitVariant);
+                } else if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles") {
                     m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(k->displayName()), kitVariant);
-#endif
-
+                }
             }
         } else {
             // Non windows
@@ -465,14 +464,13 @@ void CMakeRunPage::runCMake()
 
     QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
     if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS) {
-        if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor)
-#ifdef Q_OS_WIN
-            generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
-#else
-            generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
-#endif
-        else
+        if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
+            generator = Utils::HostOsInfo::isWindowsHost()
+                    ? QLatin1String("-GCodeBlocks - MinGW Makefiles")
+                    : QLatin1String("-GCodeBlocks - Unix Makefiles");
+        } else {
             generator = QLatin1String("-GCodeBlocks - NMake Makefiles");
+        }
     }
 
     Utils::Environment env = m_cmakeWizard->environment();

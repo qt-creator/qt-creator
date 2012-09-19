@@ -38,6 +38,7 @@
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
 #include <QCoreApplication>
@@ -86,11 +87,11 @@ void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
         m_ui.diffWarningLabel->setVisible(false);
     } else {
         QString diffWarning = tr("In order to use External diff, 'diff' command needs to be accessible.");
-#ifdef Q_OS_WIN
-        diffWarning.append(tr(" DiffUtils is available for free download "
-                              "<a href=\"http://gnuwin32.sourceforge.net/packages/diffutils.htm\">here</a>. "
-                              "Please extract it to a directory in your PATH."));
-#endif
+        if (HostOsInfo::isWindowsHost()) {
+            diffWarning.append(tr(" DiffUtils is available for free download "
+                                  "<a href=\"http://gnuwin32.sourceforge.net/packages/diffutils.htm\">here</a>. "
+                                  "Please extract it to a directory in your PATH."));
+        }
         m_ui.diffWarningLabel->setText(diffWarning);
         m_ui.externalDiffRadioButton->setEnabled(false);
     }
