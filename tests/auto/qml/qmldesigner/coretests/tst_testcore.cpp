@@ -125,6 +125,8 @@ static void initializeMetaTypeSystem(const QString &resourcePath)
 
 static QmlDesigner::Model* createModel(const QString &typeName, int major = 1, int minor = 1, Model *metaInfoPropxyModel = 0)
 {
+    QApplication::processEvents();
+
     QmlDesigner::Model *model = QmlDesigner::Model::create(typeName, major, minor, metaInfoPropxyModel);
 
     QPlainTextEdit *textEdit = new QPlainTextEdit;
@@ -180,6 +182,15 @@ void tst_TestCore::initTestCase()
 void tst_TestCore::cleanupTestCase()
 {
     MetaInfo::clearGlobal();
+}
+
+void tst_TestCore::init()
+{
+    QApplication::processEvents();
+}
+void tst_TestCore::cleanup()
+{
+    QApplication::processEvents();
 }
 
 void tst_TestCore::testModelCreateCoreModel()
@@ -1837,6 +1848,7 @@ void tst_TestCore::reparentingNode()
 
     QCOMPARE(childNode.parentProperty().parentModelNode(), childNode2);
 
+    QApplication::processEvents();
     model->detachView(nodeInstanceView);
 }
 
@@ -1954,6 +1966,8 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
         QCOMPARE(textNode.parentProperty().parentModelNode(), rectNode);
     QVERIFY(rectNode.allDirectSubModelNodes().contains(textNode));
 
+    QApplication::processEvents();
+
     model->detachView(nodeInstanceView);
 }
 
@@ -2005,6 +2019,8 @@ void tst_TestCore::testModelReorderSiblings()
         QVERIFY(nodeInstanceView->instanceForNode(c).parentId() == rootModelNode.internalId());
     }
 
+    QApplication::processEvents();
+
     model->detachView(nodeInstanceView);
 }
 
@@ -2037,6 +2053,7 @@ void tst_TestCore::testModelRootNode()
         QString errorMsg = tr("Exception: %1 %2 %3:%4").arg(exception.type(), exception.function(), exception.file()).arg(exception.line());
         QFAIL(errorMsg.toLatin1().constData());
     }
+    QApplication::processEvents();
 }
 
 void tst_TestCore::reparentingNodeInModificationGroup()
@@ -2087,6 +2104,8 @@ void tst_TestCore::reparentingNodeInModificationGroup()
     QCOMPARE(childNode2.parentProperty().parentModelNode(), view->rootModelNode());
     QVERIFY(childNode2.isValid());
     QVERIFY(view->rootModelNode().allDirectSubModelNodes().contains(childNode2));
+
+    QApplication::processEvents();
 }
 
 void tst_TestCore::testModelAddAndRemoveProperty()
@@ -2126,6 +2145,8 @@ void tst_TestCore::testModelAddAndRemoveProperty()
     node.variantProperty("foo").setValue("bar");
     QVERIFY(node.hasProperty("foo"));
     QCOMPARE(node.variantProperty("foo").value().toString(), QString("bar"));
+
+    QApplication::processEvents();
 
     model->detachView(nodeInstanceView);
 }
@@ -2199,6 +2220,8 @@ void tst_TestCore::testModelViewNotification()
     model->detachView(view1.data());
     expectedCalls << TestView::MethodCall("modelAboutToBeDetached", QStringList() << QString::number(reinterpret_cast<long>(model.data())));
     QCOMPARE(view1->methodCalls(), expectedCalls);
+
+    QApplication::processEvents();
 }
 
 
@@ -3879,6 +3902,8 @@ void tst_TestCore::testMetaInfoCustomType()
 
     // DeclarativePropertyChanges just has 3 properties
     QCOMPARE(propertyChangesInfo.propertyNames().size() - stateOperationInfo.propertyNames().size(), 3);
+
+    QApplication::processEvents();
 }
 
 void tst_TestCore::testMetaInfoEnums()
@@ -3903,6 +3928,8 @@ void tst_TestCore::testMetaInfoEnums()
     QCOMPARE(view->rootModelNode().metaInfo().propertyTypeName("horizontalAlignment"), QLatin1String("HAlignment"));
     QVERIFY(view->rootModelNode().metaInfo().propertyKeysForEnum("horizontalAlignment").contains(QLatin1String("AlignLeft")));
     QVERIFY(view->rootModelNode().metaInfo().propertyKeysForEnum("horizontalAlignment").contains(QLatin1String("AlignRight")));
+
+    QApplication::processEvents();
 }
 
 void tst_TestCore::testMetaInfoProperties()
@@ -3919,6 +3946,8 @@ void tst_TestCore::testMetaInfoProperties()
 
     QVERIFY(textNodeMetaInfo.propertyIsWritable("text"));
     QVERIFY(textNodeMetaInfo.propertyIsWritable("x"));
+
+    QApplication::processEvents();
 }
 
 void tst_TestCore::testMetaInfoDotProperties()
@@ -3952,6 +3981,8 @@ void tst_TestCore::testMetaInfoDotProperties()
     QVERIFY(rectNode.metaInfo().propertyNames().contains("border.width"));
     QVERIFY(rectNode.metaInfo().hasProperty("border"));
     QVERIFY(rectNode.metaInfo().hasProperty("border.width"));
+
+    QApplication::processEvents();
 }
 
 void tst_TestCore::testMetaInfoListProperties()
@@ -3983,6 +4014,8 @@ void tst_TestCore::testMetaInfoListProperties()
     QVERIFY(!view->rootModelNode().metaInfo().propertyIsListProperty("effect"));
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("parent"));
     QVERIFY(!view->rootModelNode().metaInfo().propertyIsListProperty("parent"));
+
+    QApplication::processEvents();
 }
 
 void tst_TestCore::testStatesRewriter()
@@ -7157,6 +7190,8 @@ void tst_TestCore::testRewriterMovingInOut()
                                   "Rectangle {\n"
                                   "}");
     QCOMPARE(textEdit.toPlainText(), expected2);
+
+    QApplication::processEvents();
 }
 
 void tst_TestCore::testRewriterMovingInOutWithTransaction()
@@ -7208,6 +7243,7 @@ void tst_TestCore::testRewriterMovingInOutWithTransaction()
                                   "Rectangle {\n"
                                   "}");
     QCOMPARE(textEdit.toPlainText(), expected2);
+    QApplication::processEvents();
 }
 
 void tst_TestCore::testRewriterComplexMovingInOut()
@@ -7306,6 +7342,7 @@ void tst_TestCore::testRewriterComplexMovingInOut()
                                   "  }\n"
                                   "}");
     QCOMPARE(textEdit.toPlainText(), expected4);
+    QApplication::processEvents();
 }
 
 void tst_TestCore::removeCenteredInAnchorByDetaching()
