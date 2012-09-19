@@ -203,7 +203,7 @@ void tst_TestCore::loadEmptyCoreModel()
     textEdit1.setPlainText(file.readAll());
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
-    QScopedPointer<Model> model1(createModel("QtQuick.Item"));
+    QScopedPointer<Model> model1(Model::create("QtQuick.Item"));
 
     QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
     testRewriterView1->setTextModifier(&modifier1);
