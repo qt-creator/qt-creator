@@ -3865,7 +3865,6 @@ bool Parser::parseBuiltinTypeSpecifier(SpecifierListAST *&node)
         if (parseExpression(ast->expression))
             match(T_RPAREN, &ast->rparen_token);
         node = new (_pool) SpecifierListAST(ast);
-        skipUntilDeclaration();
         return true;
     } else if (lookAtBuiltinTypeSpecifier()) {
         SimpleSpecifierAST *ast = new (_pool) SimpleSpecifierAST;
