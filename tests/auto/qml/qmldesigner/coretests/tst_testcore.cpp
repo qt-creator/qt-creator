@@ -295,7 +295,6 @@ void tst_TestCore::testRewriterView()
 
 void tst_TestCore::testRewriterErrors()
 {
-    QSKIP("Rewriter has problems with the Error item", SkipAll);
     QPlainTextEdit textEdit;
     textEdit.setPlainText("import QtQuick 1.1;\n\nItem {\n}\n");
     NotIndentingTextEditModifier textModifier(&textEdit);
@@ -314,7 +313,7 @@ void tst_TestCore::testRewriterErrors()
     model->attachView(testRewriterView.data());
 
     QVERIFY(testRewriterView->errors().isEmpty());
-    textEdit.setPlainText("import QtQuick 1.1;\n\nError {\n}\n");
+    textEdit.setPlainText("import QtQuick 1.1;\nRectangle {\ntest: blah\n}\n");
     QVERIFY(!testRewriterView->errors().isEmpty());
 
     textEdit.setPlainText("import QtQuick 1.1;\n\nItem {\n}\n");
