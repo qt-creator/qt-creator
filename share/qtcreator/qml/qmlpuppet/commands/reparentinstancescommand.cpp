@@ -30,6 +30,8 @@
 
 #include "reparentinstancescommand.h"
 
+#include <QDataStream>
+
 namespace QmlDesigner {
 
 ReparentInstancesCommand::ReparentInstancesCommand()

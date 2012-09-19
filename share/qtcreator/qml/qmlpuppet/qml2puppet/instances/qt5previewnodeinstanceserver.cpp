@@ -33,8 +33,9 @@
 #include "nodeinstanceclientinterface.h"
 #include "statepreviewimagechangedcommand.h"
 #include "createscenecommand.h"
+#include "removesharedmemorycommand.h"
 
-#include <QSGItem>
+#include <QQuickItem>
 #include <designersupport.h>
 
 namespace QmlDesigner {
@@ -68,11 +69,11 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction && nodeInstanceClient()->bytesToWrite() < 10000) {
         inFunction = true;
         QVector<ImageContainer> imageContainerVector;
-        imageContainerVector.append(ImageContainer(0, renderPreviewImage()));
+        imageContainerVector.append(ImageContainer(0, renderPreviewImage(), -1));
 
         foreach (ServerNodeInstance instance,  rootNodeInstance().stateInstances()) {
             instance.activateState();
-            imageContainerVector.append(ImageContainer(instance.instanceId(), renderPreviewImage()));
+            imageContainerVector.append(ImageContainer(instance.instanceId(), renderPreviewImage(), instance.instanceId()));
             instance.deactivateState();
         }
 
@@ -88,9 +89,9 @@ void Qt5PreviewNodeInstanceServer::changeState(const ChangeStateCommand &/*comma
 
 }
 
-static void updateDirtyNodeRecursive(QSGItem *parentItem)
+static void updateDirtyNodeRecursive(QQuickItem *parentItem)
 {
-    foreach (QSGItem *childItem, parentItem->childItems())
+    foreach (QQuickItem *childItem, parentItem->childItems())
         updateDirtyNodeRecursive(childItem);
 
     DesignerSupport::updateDirtyNode(parentItem);
@@ -118,7 +119,7 @@ QImage Qt5PreviewNodeInstanceServer::renderPreviewImage()
 void QmlDesigner::Qt5PreviewNodeInstanceServer::removeSharedMemory(const QmlDesigner::RemoveSharedMemoryCommand &command)
 {
     if (command.typeName() == "Image")
-        ImageContainer::removeSharedMemory(command.keyNumber());
+        ImageContainer::removeSharedMemorys(command.keyNumbers());
 }
 
 } // namespace QmlDesigner

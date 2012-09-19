@@ -28,49 +28,49 @@
 **
 **************************************************************************/
 
-#ifndef QT5NODEINSTANCESERVER_H
-#define QT5NODEINSTANCESERVER_H
 
-#include <QtGlobal>
 
-#include "nodeinstanceserver.h"
+#ifndef QMLDESIGNER_ANCHORCHANGESNODEINSTANCE_H
+#define QMLDESIGNER_ANCHORCHANGESNODEINSTANCE_H
+
+#include "objectnodeinstance.h"
+
+#include <QPair>
+#include <QWeakPointer>
 
 QT_BEGIN_NAMESPACE
-class QQuickItem;
-class DesignerSupport;
+class QQmlProperty;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class Qt5NodeInstanceServer : public NodeInstanceServer
+namespace Internal {
+
+class AnchorChangesNodeInstance : public ObjectNodeInstance
 {
-    Q_OBJECT
 public:
-    Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
-    ~Qt5NodeInstanceServer();
+    typedef QSharedPointer<AnchorChangesNodeInstance> Pointer;
+    typedef QWeakPointer<AnchorChangesNodeInstance> WeakPointer;
 
-    QQuickView *quickView() const;
-    QQmlView *declarativeView() const;
-    QQmlEngine *engine() const;
-    void refreshBindings();
+    static Pointer create(QObject *objectToBeWrapped);
 
-    DesignerSupport *designerSupport() const;
+    virtual void setPropertyVariant(const QString &name, const QVariant &value);
+    virtual void setPropertyBinding(const QString &name, const QString &expression);
+    virtual QVariant property(const QString &name) const;
+    virtual void resetProperty(const QString &name);
 
-    void createScene(const CreateSceneCommand &command);
-    void clearScene(const ClearSceneCommand &command);
+    using ObjectNodeInstance::reparent; // keep the virtual reparent(...) method around
+    void reparent(const ServerNodeInstance &oldParentInstance,
+                  const QString &oldParentProperty,
+                  const ServerNodeInstance &newParentInstance,
+                  const QString &newParentProperty);
 
 protected:
-    void initializeView(const QVector<AddImportContainer> &importVector);
-    void resizeCanvasSizeToRootItemSize();
-    void resetAllItems();
-    QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
-    QList<QQuickItem*> allItems() const;
-
-private:
-    QWeakPointer<QQuickView> m_quickView;
-    DesignerSupport *m_designerSupport;
+    AnchorChangesNodeInstance(QObject *object);
+    QObject *changesObject() const;
 };
 
-} // QmlDesigner
+} // namespace Internal
+} // namespace QmlDesigner
 
-#endif // QT5NODEINSTANCESERVER_H
+#endif // QMLDESIGNER_ANCHORCHANGESNODEINSTANCE_H

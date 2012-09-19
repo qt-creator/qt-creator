@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: http://www.qt-project.org/
 **
@@ -28,40 +28,32 @@
 **
 **************************************************************************/
 
-#ifndef QMLDESIGNER_TOKENCOMMAND_H
-#define QMLDESIGNER_TOKENCOMMAND_H
+#include "childrenchangeeventfilter.h"
 
-
-#include <QMetaType>
-#include <QVector>
-#include <QString>
+#include <QEvent>
 
 namespace QmlDesigner {
+namespace Internal {
 
-class TokenCommand
+ChildrenChangeEventFilter::ChildrenChangeEventFilter(QObject *parent)
+    : QObject(parent)
 {
-    friend QDataStream &operator>>(QDataStream &in, TokenCommand &command);
+}
 
-public:
-    TokenCommand();
-    TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instances);
 
-    QString tokenName() const;
-    qint32 tokenNumber() const;
-    QVector<qint32> instances() const;
+bool ChildrenChangeEventFilter::eventFilter(QObject * /*object*/, QEvent *event)
+{
+    switch (event->type()) {
+        case QEvent::ChildAdded:
+        case QEvent::ChildRemoved:
+            {
+                QChildEvent *childEvent = static_cast<QChildEvent*>(event);
+                emit childrenChanged(childEvent->child()); break;
+            }
+        default: break;
+    }
 
-private:
-    QString m_tokenName;
-    qint32 m_tokenNumber;
-    QVector<qint32> m_instanceIdVector;
-};
-
-QDataStream &operator<<(QDataStream &out, const TokenCommand &command);
-QDataStream &operator>>(QDataStream &in, TokenCommand &command);
-
+    return false;
+}
+} // namespace Internal
 } // namespace QmlDesigner
-
-Q_DECLARE_METATYPE(QmlDesigner::TokenCommand)
-
-
-#endif // QMLDESIGNER_TOKENCOMMAND_H

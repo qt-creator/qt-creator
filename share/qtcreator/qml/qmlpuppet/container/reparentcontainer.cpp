@@ -30,6 +30,8 @@
 
 #include "reparentcontainer.h"
 
+#include <QDataStream>
+
 namespace QmlDesigner {
 
 ReparentContainer::ReparentContainer()

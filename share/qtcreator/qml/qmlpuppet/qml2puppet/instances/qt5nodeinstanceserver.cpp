@@ -31,8 +31,8 @@
 #include "qt5nodeinstanceserver.h"
 
 
-#include <QSGItem>
-#include <QSGView>
+#include <QQuickItem>
+#include <QQuickView>
 
 #include <designersupport.h>
 #include <addimportcontainer.h>
@@ -49,40 +49,32 @@ Qt5NodeInstanceServer::Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeIn
 
 Qt5NodeInstanceServer::~Qt5NodeInstanceServer()
 {
-    delete sgView();
+    delete quickView();
     delete m_designerSupport;
     m_designerSupport = 0;
 }
 
-QSGView *Qt5NodeInstanceServer::sgView() const
+QQuickView *Qt5NodeInstanceServer::quickView() const
 {
-    return m_sgView.data();
+    return m_quickView.data();
 }
 
 void Qt5NodeInstanceServer::initializeView(const QVector<AddImportContainer> &/*importVector*/)
 {
-    Q_ASSERT(!sgView());
+    Q_ASSERT(!quickView());
 
-    m_sgView = new QSGView;
-#ifndef Q_OS_MAC
-    sgView()->setAttribute(Qt::WA_DontShowOnScreen, true);
-#endif
-    sgView()->show();
-#ifdef Q_OS_MAC
-    sgView()->setAttribute(Qt::WA_DontShowOnScreen, true);
-#endif
-    sgView()->setUpdatesEnabled(false);
+    m_quickView = new QQuickView;
 }
 
-QDeclarativeView *Qt5NodeInstanceServer::declarativeView() const
+QQmlView *Qt5NodeInstanceServer::declarativeView() const
 {
     return 0;
 }
 
-QDeclarativeEngine *Qt5NodeInstanceServer::engine() const
+QQmlEngine *Qt5NodeInstanceServer::engine() const
 {
-    if (sgView())
-        return sgView()->engine();
+    if (quickView())
+        return quickView()->engine();
 
     return 0;
 }
@@ -93,7 +85,7 @@ void Qt5NodeInstanceServer::resizeCanvasSizeToRootItemSize()
 
 void Qt5NodeInstanceServer::resetAllItems()
 {
-    foreach (QSGItem *item, allItems())
+    foreach (QQuickItem *item, allItems())
         DesignerSupport::resetDirty(item);
 }
 
@@ -105,29 +97,29 @@ QList<ServerNodeInstance> Qt5NodeInstanceServer::setupScene(const CreateSceneCom
 
     QList<ServerNodeInstance> instanceList = setupInstances(command);
 
-    sgView()->resize(rootNodeInstance().boundingRect().size().toSize());
+    quickView()->resize(rootNodeInstance().boundingRect().size().toSize());
 
     return instanceList;
 }
 
-QList<QSGItem*> subItems(QSGItem *parentItem)
+QList<QQuickItem*> subItems(QQuickItem *parentItem)
 {
-    QList<QSGItem*> itemList;
+    QList<QQuickItem*> itemList;
     itemList.append(parentItem->childItems());
 
-    foreach (QSGItem *childItem, parentItem->childItems())
+    foreach (QQuickItem *childItem, parentItem->childItems())
         itemList.append(subItems(childItem));
 
     return itemList;
 }
 
-QList<QSGItem*> Qt5NodeInstanceServer::allItems() const
+QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
 {
-    QList<QSGItem*> itemList;
+    QList<QQuickItem*> itemList;
 
-    if (sgView()) {
-        itemList.append(sgView()->rootItem());
-        itemList.append(subItems(sgView()->rootItem()));
+    if (quickView()) {
+        itemList.append(quickView()->rootItem());
+        itemList.append(subItems(quickView()->rootItem()));
     }
 
     return itemList;

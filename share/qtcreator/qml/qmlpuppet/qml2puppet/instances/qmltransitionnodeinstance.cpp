@@ -28,40 +28,50 @@
 **
 **************************************************************************/
 
-#ifndef QMLDESIGNER_TOKENCOMMAND_H
-#define QMLDESIGNER_TOKENCOMMAND_H
-
-
-#include <QMetaType>
-#include <QVector>
-#include <QString>
+#include "qmltransitionnodeinstance.h"
+#include <private/qquicktransition_p.h>
 
 namespace QmlDesigner {
+namespace Internal {
 
-class TokenCommand
+QmlTransitionNodeInstance::QmlTransitionNodeInstance(QQuickTransition *transition)
+    : ObjectNodeInstance(transition)
 {
-    friend QDataStream &operator>>(QDataStream &in, TokenCommand &command);
+}
 
-public:
-    TokenCommand();
-    TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instances);
+QmlTransitionNodeInstance::Pointer QmlTransitionNodeInstance::create(QObject *object)
+{
+     QQuickTransition *transition = qobject_cast<QQuickTransition*>(object);
 
-    QString tokenName() const;
-    qint32 tokenNumber() const;
-    QVector<qint32> instances() const;
+     Q_ASSERT(transition);
 
-private:
-    QString m_tokenName;
-    qint32 m_tokenNumber;
-    QVector<qint32> m_instanceIdVector;
-};
+     Pointer instance(new QmlTransitionNodeInstance(transition));
 
-QDataStream &operator<<(QDataStream &out, const TokenCommand &command);
-QDataStream &operator>>(QDataStream &in, TokenCommand &command);
+     instance->populateResetHashes();
 
-} // namespace QmlDesigner
+     transition->setToState("invalidState");
+     transition->setFromState("invalidState");
 
-Q_DECLARE_METATYPE(QmlDesigner::TokenCommand)
+     return instance;
+}
 
+bool QmlTransitionNodeInstance::isTransition() const
+{
+    return true;
+}
 
-#endif // QMLDESIGNER_TOKENCOMMAND_H
+void QmlTransitionNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+{
+    if (name == "from" || name == "to")
+        return;
+
+    ObjectNodeInstance::setPropertyVariant(name, value);
+}
+
+QQuickTransition *QmlTransitionNodeInstance::qmlTransition() const
+{
+    Q_ASSERT(qobject_cast<QQuickTransition*>(object()));
+    return static_cast<QQuickTransition*>(object());
+}
+}
+}

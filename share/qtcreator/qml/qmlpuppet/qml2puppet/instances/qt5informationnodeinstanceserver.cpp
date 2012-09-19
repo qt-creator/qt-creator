@@ -30,7 +30,7 @@
 
 #include "qt5informationnodeinstanceserver.h"
 
-#include <QSGItem>
+#include <QQuickItem>
 
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
@@ -59,6 +59,7 @@
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
 #include "tokencommand.h"
+#include "removesharedmemorycommand.h"
 
 #include "dummycontextobject.h"
 
@@ -95,8 +96,8 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         QVector<InstancePropertyPair> propertyChangedList;
         bool adjustSceneRect = false;
 
-        if (sgView()) {
-            foreach (QSGItem *item, allItems()) {
+        if (quickView()) {
+            foreach (QQuickItem *item, allItems()) {
                 if (item && hasInstanceForObject(item)) {
                     ServerNodeInstance instance = instanceForObject(item);
 

@@ -33,6 +33,8 @@
 
 #include "removesharedmemorycommand.h"
 
+#include <QDataStream>
+
 namespace QmlDesigner {
 
 RemoveSharedMemoryCommand::RemoveSharedMemoryCommand()

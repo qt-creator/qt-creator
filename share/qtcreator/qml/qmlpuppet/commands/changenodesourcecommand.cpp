@@ -30,6 +30,8 @@
 
 #include "changenodesourcecommand.h"
 
+#include <QDataStream>
+
 namespace QmlDesigner {
 
 ChangeNodeSourceCommand::ChangeNodeSourceCommand()

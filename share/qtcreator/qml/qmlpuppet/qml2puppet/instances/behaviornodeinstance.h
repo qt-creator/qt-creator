@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: http://www.qt-project.org/
 **
@@ -28,40 +28,36 @@
 **
 **************************************************************************/
 
-#ifndef QMLDESIGNER_TOKENCOMMAND_H
-#define QMLDESIGNER_TOKENCOMMAND_H
+#ifndef BEHAVIORNODEINSTANCE_H
+#define BEHAVIORNODEINSTANCE_H
 
-
-#include <QMetaType>
-#include <QVector>
-#include <QString>
+#include "objectnodeinstance.h"
 
 namespace QmlDesigner {
+namespace Internal {
 
-class TokenCommand
+class BehaviorNodeInstance : public ObjectNodeInstance
 {
-    friend QDataStream &operator>>(QDataStream &in, TokenCommand &command);
-
 public:
-    TokenCommand();
-    TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instances);
+    typedef QSharedPointer<BehaviorNodeInstance> Pointer;
+    typedef QWeakPointer<BehaviorNodeInstance> WeakPointer;
 
-    QString tokenName() const;
-    qint32 tokenNumber() const;
-    QVector<qint32> instances() const;
+    BehaviorNodeInstance(QObject *object);
+
+    static Pointer create(QObject *objectToBeWrapped);
+
+    void setPropertyVariant(const QString &name, const QVariant &value);
+    void setPropertyBinding(const QString &name, const QString &expression);
+
+
+    QVariant property(const QString &name) const;
+    void resetProperty(const QString &name);
 
 private:
-    QString m_tokenName;
-    qint32 m_tokenNumber;
-    QVector<qint32> m_instanceIdVector;
+    bool m_isEnabled;
 };
 
-QDataStream &operator<<(QDataStream &out, const TokenCommand &command);
-QDataStream &operator>>(QDataStream &in, TokenCommand &command);
-
+} // namespace Internal
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::TokenCommand)
-
-
-#endif // QMLDESIGNER_TOKENCOMMAND_H
+#endif // BEHAVIORNODEINSTANCE_H

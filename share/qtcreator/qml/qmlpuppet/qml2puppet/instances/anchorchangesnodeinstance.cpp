@@ -28,55 +28,58 @@
 **
 **************************************************************************/
 
-#include "tokencommand.h"
 
-#include <QDataStream>
+
+#include "anchorchangesnodeinstance.h"
 
 namespace QmlDesigner {
 
-TokenCommand::TokenCommand()
-    : m_tokenNumber(-1)
+namespace Internal {
+
+AnchorChangesNodeInstance::AnchorChangesNodeInstance(QObject *object) :
+        ObjectNodeInstance(object)
 {
 }
 
-TokenCommand::TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instanceIdVector)
-    : m_tokenName(tokenName),
-      m_tokenNumber(tokenNumber),
-      m_instanceIdVector(instanceIdVector)
+AnchorChangesNodeInstance::Pointer AnchorChangesNodeInstance::create(QObject *object)
+{
+    Q_ASSERT(object);
+
+    Pointer instance(new AnchorChangesNodeInstance(object));
+
+    return instance;
+}
+
+void AnchorChangesNodeInstance::setPropertyVariant(const QString &/*name*/, const QVariant &/*value*/)
 {
 }
 
-QString TokenCommand::tokenName() const
+void AnchorChangesNodeInstance::setPropertyBinding(const QString &/*name*/, const QString &/*expression*/)
 {
-    return m_tokenName;
 }
 
-qint32 TokenCommand::tokenNumber() const
+QVariant AnchorChangesNodeInstance::property(const QString &/*name*/) const
 {
-    return m_tokenNumber;
+    return QVariant();
 }
 
-QVector<qint32> TokenCommand::instances() const
+void AnchorChangesNodeInstance::resetProperty(const QString &/*name*/)
 {
-    return m_instanceIdVector;
 }
 
-QDataStream &operator<<(QDataStream &out, const TokenCommand &command)
+
+void AnchorChangesNodeInstance::reparent(const ServerNodeInstance &/*oldParentInstance*/,
+                                         const QString &/*oldParentProperty*/,
+                                         const ServerNodeInstance &/*newParentInstance*/,
+                                         const QString &/*newParentProperty*/)
 {
-    out << command.tokenName();
-    out << command.tokenNumber();
-    out << command.instances();
-    return out;
 }
 
-QDataStream &operator>>(QDataStream &in, TokenCommand &command)
+QObject *AnchorChangesNodeInstance::changesObject() const
 {
-    in >> command.m_tokenName;
-    in >> command.m_tokenNumber;
-    in >> command.m_instanceIdVector;
-
-    return in;
+    return object();
 }
 
+} // namespace Internal
 
 } // namespace QmlDesigner

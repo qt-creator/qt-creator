@@ -28,31 +28,31 @@
 **
 **************************************************************************/
 
-#ifndef SGITEMNODEINSTANCE_H
-#define SGITEMNODEINSTANCE_H
+#ifndef QuickITEMNODEINSTANCE_H
+#define QuickITEMNODEINSTANCE_H
 
 #include <QtGlobal>
 
 #include "objectnodeinstance.h"
 
-#include <QSGItem>
+#include <QQuickItem>
 #include <designersupport.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
-class SGItemNodeInstance : public ObjectNodeInstance
+class QuickItemNodeInstance : public ObjectNodeInstance
 {
 public:
-    typedef QSharedPointer<SGItemNodeInstance> Pointer;
-    typedef QWeakPointer<SGItemNodeInstance> WeakPointer;
+    typedef QSharedPointer<QuickItemNodeInstance> Pointer;
+    typedef QWeakPointer<QuickItemNodeInstance> WeakPointer;
 
-    ~SGItemNodeInstance();
+    ~QuickItemNodeInstance();
 
     static Pointer create(QObject *objectToBeWrapped);
     void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance);
 
-    bool isSGItem() const;
+    bool isQuickItem() const;
 
     QRectF boundingRect() const;
     QPointF position() const;
@@ -69,12 +69,12 @@ public:
     QPointF transformOriginPoint() const;
     double zValue() const;
 
-    bool equalSGItem(QSGItem *item) const;
+    bool equalQuickItem(QQuickItem *item) const;
 
     bool hasContent() const;
 
     QList<ServerNodeInstance> childItems() const;
-    QList<ServerNodeInstance> childItemsForChild(QSGItem *childItem) const;
+    QList<ServerNodeInstance> childItemsForChild(QQuickItem *childItem) const;
 
     bool isMovable() const;
     void setMovable(bool movable);
@@ -110,13 +110,13 @@ public:
     static void createEffectItem(bool createEffectItem);
 
 protected:
-    SGItemNodeInstance(QSGItem*);
-    QSGItem *sgItem() const;
+    QuickItemNodeInstance(QQuickItem*);
+    QQuickItem *quickItem() const;
     void resetHorizontal();
     void resetVertical();
     void refresh();
-    QRectF boundingRectWithStepChilds(QSGItem *parentItem) const;
-    void updateDirtyNodeRecursive(QSGItem *parentItem) const;
+    QRectF boundingRectWithStepChilds(QQuickItem *parentItem) const;
+    void updateDirtyNodeRecursive(QQuickItem *parentItem) const;
 
 private: //variables
     bool m_hasHeight;
@@ -134,5 +134,5 @@ private: //variables
 } // namespace Internal
 } // namespace QmlDesigner
 
-#endif  // SGITEMNODEINSTANCE_H
+#endif  // QuickITEMNODEINSTANCE_H
 

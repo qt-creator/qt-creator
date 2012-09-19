@@ -28,40 +28,46 @@
 **
 **************************************************************************/
 
-#ifndef QMLDESIGNER_TOKENCOMMAND_H
-#define QMLDESIGNER_TOKENCOMMAND_H
+#ifndef DUMMYNODEINSTANCE_H
+#define DUMMYNODEINSTANCE_H
 
+#include <QWeakPointer>
 
-#include <QMetaType>
-#include <QVector>
-#include <QString>
+#include "objectnodeinstance.h"
 
 namespace QmlDesigner {
+namespace Internal {
 
-class TokenCommand
+class DummyNodeInstance : public ObjectNodeInstance
 {
-    friend QDataStream &operator>>(QDataStream &in, TokenCommand &command);
-
 public:
-    TokenCommand();
-    TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instances);
+    typedef QSharedPointer<DummyNodeInstance> Pointer;
+    typedef QWeakPointer<DummyNodeInstance> WeakPointer;
 
-    QString tokenName() const;
-    qint32 tokenNumber() const;
-    QVector<qint32> instances() const;
+    static Pointer create();
 
-private:
-    QString m_tokenName;
-    qint32 m_tokenNumber;
-    QVector<qint32> m_instanceIdVector;
+    void paint(QPainter *painter);
+
+    QRectF boundingRect() const;
+    QPointF position() const;
+    QSizeF size() const;
+    QTransform transform() const;
+    double opacity() const;
+
+    void setPropertyVariant(const QString &name, const QVariant &value);
+    void setPropertyBinding(const QString &name, const QString &expression);
+    void setId(const QString &id);
+    QVariant property(const QString &name) const;
+    QStringList properties();
+    QStringList localProperties();
+
+    void initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance);
+
+protected:
+    DummyNodeInstance();
+
 };
 
-QDataStream &operator<<(QDataStream &out, const TokenCommand &command);
-QDataStream &operator>>(QDataStream &in, TokenCommand &command);
-
-} // namespace QmlDesigner
-
-Q_DECLARE_METATYPE(QmlDesigner::TokenCommand)
-
-
-#endif // QMLDESIGNER_TOKENCOMMAND_H
+}
+}
+#endif // DUMMYNODEINSTANCE_H

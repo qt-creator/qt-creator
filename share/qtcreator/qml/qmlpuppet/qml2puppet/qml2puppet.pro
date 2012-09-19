@@ -2,22 +2,20 @@ TARGET = qml2puppet
 
 TEMPLATE = app
 
-QT += core gui declarative network
-
+QT += core gui qml quick network v8
 contains (QT_CONFIG, webkit) {
     QT += webkit
 }
 
-QT += core-private declarative-private gui-private script-private v8-private
+QT += core-private qml-private quick-private gui-private script-private v8-private
 
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
 
-include(../../../../qtcreator.pri)
+include(../../../../../qtcreator.pri)
 DESTDIR = $$[QT_INSTALL_BINS]
-include(../../../rpath.pri)
+include(../../../../../src/rpath.pri)
 
 include (instances/instances.pri)
-include (../instances/instances.pri)
 include (../commands/commands.pri)
 include (../container/container.pri)
 include (../interfaces/interfaces.pri)

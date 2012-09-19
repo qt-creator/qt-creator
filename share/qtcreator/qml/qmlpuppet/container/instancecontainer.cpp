@@ -30,6 +30,8 @@
 
 #include "instancecontainer.h"
 
+#include <QDataStream>
+
 namespace QmlDesigner {
 
 InstanceContainer::InstanceContainer()

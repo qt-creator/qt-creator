@@ -32,6 +32,7 @@
 #define REPARENTCONTAINER_H
 
 #include <qmetatype.h>
+#include <QString>
 
 namespace QmlDesigner {
 

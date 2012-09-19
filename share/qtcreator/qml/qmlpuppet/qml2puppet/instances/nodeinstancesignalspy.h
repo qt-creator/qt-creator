@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: http://www.qt-project.org/
 **
@@ -28,40 +28,40 @@
 **
 **************************************************************************/
 
-#ifndef QMLDESIGNER_TOKENCOMMAND_H
-#define QMLDESIGNER_TOKENCOMMAND_H
+#ifndef NODEINSTANCESIGNALSPY_H
+#define NODEINSTANCESIGNALSPY_H
 
-
-#include <QMetaType>
-#include <QVector>
-#include <QString>
+#include <QObject>
+#include <QHash>
+#include <QSharedPointer>
 
 namespace QmlDesigner {
+namespace Internal {
 
-class TokenCommand
+class ObjectNodeInstance;
+typedef QSharedPointer<ObjectNodeInstance> ObjectNodeInstancePointer;
+typedef QWeakPointer<ObjectNodeInstance> ObjectNodeInstanceWeakPointer;
+
+class NodeInstanceSignalSpy : public QObject
 {
-    friend QDataStream &operator>>(QDataStream &in, TokenCommand &command);
-
 public:
-    TokenCommand();
-    TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instances);
+    explicit NodeInstanceSignalSpy();
 
-    QString tokenName() const;
-    qint32 tokenNumber() const;
-    QVector<qint32> instances() const;
+    void setObjectNodeInstance(const ObjectNodeInstancePointer &nodeInstance);
+
+    virtual int qt_metacall(QMetaObject::Call, int, void **);
+
+protected:
+    void registerObject(QObject *spiedObject, const QString &prefix = QString());
 
 private:
-    QString m_tokenName;
-    qint32 m_tokenNumber;
-    QVector<qint32> m_instanceIdVector;
+    int methodeOffset;
+    QHash<int, QString> m_indexPropertyHash;
+    QObjectList m_registeredObjectList;
+    ObjectNodeInstanceWeakPointer m_objectNodeInstance;
 };
 
-QDataStream &operator<<(QDataStream &out, const TokenCommand &command);
-QDataStream &operator>>(QDataStream &in, TokenCommand &command);
-
+} // namespace Internal
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::TokenCommand)
-
-
-#endif // QMLDESIGNER_TOKENCOMMAND_H
+#endif // NODEINSTANCESIGNALSPY_H

@@ -32,8 +32,8 @@
 
 #include "qt5nodeinstanceserver.h"
 
-#include <QDeclarativeExpression>
-#include <QSGView>
+#include <QQmlExpression>
+#include <QQuickView>
 #include <cmath>
 
 #include <QHash>
@@ -43,9 +43,9 @@
 namespace QmlDesigner {
 namespace Internal {
 
-bool SGItemNodeInstance::s_createEffectItem = false;
+bool QuickItemNodeInstance::s_createEffectItem = false;
 
-SGItemNodeInstance::SGItemNodeInstance(QSGItem *item)
+QuickItemNodeInstance::QuickItemNodeInstance(QQuickItem *item)
    : ObjectNodeInstance(item),
      m_hasHeight(false),
      m_hasWidth(false),
@@ -59,22 +59,22 @@ SGItemNodeInstance::SGItemNodeInstance(QSGItem *item)
 {
 }
 
-SGItemNodeInstance::~SGItemNodeInstance()
+QuickItemNodeInstance::~QuickItemNodeInstance()
 {
-    if (sgItem())
-        designerSupport()->derefFromEffectItem(sgItem());
+    if (quickItem())
+        designerSupport()->derefFromEffectItem(quickItem());
 }
 
-bool SGItemNodeInstance::hasContent() const
+bool QuickItemNodeInstance::hasContent() const
 {
     return m_hasContent;
 }
 
-QList<ServerNodeInstance> SGItemNodeInstance::childItems() const
+QList<ServerNodeInstance> QuickItemNodeInstance::childItems() const
 {
     QList<ServerNodeInstance> instanceList;
 
-    foreach (QSGItem *childItem, sgItem()->childItems())
+    foreach (QQuickItem *childItem, quickItem()->childItems())
     {
         if (childItem && nodeInstanceServer()->hasInstanceForObject(childItem)) {
             instanceList.append(nodeInstanceServer()->instanceForObject(childItem));
@@ -90,12 +90,12 @@ QList<ServerNodeInstance> SGItemNodeInstance::childItems() const
     return instanceList;
 }
 
-QList<ServerNodeInstance> SGItemNodeInstance::childItemsForChild(QSGItem *childItem) const
+QList<ServerNodeInstance> QuickItemNodeInstance::childItemsForChild(QQuickItem *childItem) const
 {
     QList<ServerNodeInstance> instanceList;
 
     if (childItem) {
-        foreach (QSGItem *childItem, childItem->childItems())
+        foreach (QQuickItem *childItem, childItem->childItems())
         {
             if (childItem && nodeInstanceServer()->hasInstanceForObject(childItem)) {
                 instanceList.append(nodeInstanceServer()->instanceForObject(childItem));
@@ -107,18 +107,18 @@ QList<ServerNodeInstance> SGItemNodeInstance::childItemsForChild(QSGItem *childI
     return instanceList;
 }
 
-void SGItemNodeInstance::setHasContent(bool hasContent)
+void QuickItemNodeInstance::setHasContent(bool hasContent)
 {
     m_hasContent = hasContent;
 }
 
 
-bool anyItemHasContent(QSGItem *graphicsItem)
+bool anyItemHasContent(QQuickItem *graphicsItem)
 {
-    if (graphicsItem->flags().testFlag(QSGItem::ItemHasContents))
+    if (graphicsItem->flags().testFlag(QQuickItem::ItemHasContents))
         return true;
 
-    foreach (QSGItem *childItem, graphicsItem->childItems()) {
+    foreach (QQuickItem *childItem, graphicsItem->childItems()) {
         if (anyItemHasContent(childItem))
             return true;
     }
@@ -126,67 +126,68 @@ bool anyItemHasContent(QSGItem *graphicsItem)
     return false;
 }
 
-QPointF SGItemNodeInstance::position() const
+QPointF QuickItemNodeInstance::position() const
 {
-    return sgItem()->pos();
+    return quickItem()->pos();
 }
 
-QTransform SGItemNodeInstance::transform() const
+QTransform QuickItemNodeInstance::transform() const
 {
-    return DesignerSupport::parentTransform(sgItem());
+    return DesignerSupport::parentTransform(quickItem());
 }
 
-QTransform SGItemNodeInstance::customTransform() const
+QTransform QuickItemNodeInstance::customTransform() const
 {
     return QTransform();
 }
 
-QTransform SGItemNodeInstance::sceneTransform() const
+QTransform QuickItemNodeInstance::sceneTransform() const
 {
-    return DesignerSupport::canvasTransform(sgItem());
+    return QTransform();
+//    return DesignerSupport::canvasTransform(quickItem());
 }
 
-double SGItemNodeInstance::rotation() const
+double QuickItemNodeInstance::rotation() const
 {
-    return sgItem()->rotation();
+    return quickItem()->rotation();
 }
 
-double SGItemNodeInstance::scale() const
+double QuickItemNodeInstance::scale() const
 {
-    return sgItem()->scale();
+    return quickItem()->scale();
 }
 
-QPointF SGItemNodeInstance::transformOriginPoint() const
+QPointF QuickItemNodeInstance::transformOriginPoint() const
 {
-    return sgItem()->transformOriginPoint();
+    return quickItem()->transformOriginPoint();
 }
 
-double SGItemNodeInstance::zValue() const
+double QuickItemNodeInstance::zValue() const
 {
-    return sgItem()->z();
+    return quickItem()->z();
 }
 
-double SGItemNodeInstance::opacity() const
+double QuickItemNodeInstance::opacity() const
 {
-    return sgItem()->opacity();
+    return quickItem()->opacity();
 }
 
-QObject *SGItemNodeInstance::parent() const
+QObject *QuickItemNodeInstance::parent() const
 {
-    if (!sgItem() || !sgItem()->parentItem())
+    if (!quickItem() || !quickItem()->parentItem())
         return 0;
 
-    return sgItem()->parentItem();
+    return quickItem()->parentItem();
 }
 
-bool SGItemNodeInstance::equalSGItem(QSGItem *item) const
+bool QuickItemNodeInstance::equalQuickItem(QQuickItem *item) const
 {
-    return item == sgItem();
+    return item == quickItem();
 }
 
-void SGItemNodeInstance::updateDirtyNodeRecursive(QSGItem *parentItem) const
+void QuickItemNodeInstance::updateDirtyNodeRecursive(QQuickItem *parentItem) const
 {
-    foreach (QSGItem *childItem, parentItem->childItems()) {
+    foreach (QQuickItem *childItem, parentItem->childItems()) {
         if (!nodeInstanceServer()->hasInstanceForObject(childItem))
             updateDirtyNodeRecursive(childItem);
     }
@@ -194,86 +195,86 @@ void SGItemNodeInstance::updateDirtyNodeRecursive(QSGItem *parentItem) const
     DesignerSupport::updateDirtyNode(parentItem);
 }
 
-QImage SGItemNodeInstance::renderImage() const
+QImage QuickItemNodeInstance::renderImage() const
 {
-    updateDirtyNodeRecursive(sgItem());
+    updateDirtyNodeRecursive(quickItem());
 
-    QRectF boundingRect = boundingRectWithStepChilds(sgItem());
+    QRectF boundingRect = boundingRectWithStepChilds(quickItem());
 
-    QImage renderImage = designerSupport()->renderImageForItem(sgItem(), boundingRect, boundingRect.size().toSize());
+    QImage renderImage = designerSupport()->renderImageForItem(quickItem(), boundingRect, boundingRect.size().toSize());
 
     renderImage = renderImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
     return renderImage;
 }
 
-bool SGItemNodeInstance::isMovable() const
+bool QuickItemNodeInstance::isMovable() const
 {
     if (isRootNodeInstance())
         return false;
 
-    return m_isMovable && sgItem() && sgItem()->parentItem();
+    return m_isMovable && quickItem() && quickItem()->parentItem();
 }
 
-void SGItemNodeInstance::setMovable(bool movable)
+void QuickItemNodeInstance::setMovable(bool movable)
 {
     m_isMovable = movable;
 }
 
-SGItemNodeInstance::Pointer SGItemNodeInstance::create(QObject *object)
+QuickItemNodeInstance::Pointer QuickItemNodeInstance::create(QObject *object)
 {
-    QSGItem *sgItem = qobject_cast<QSGItem*>(object);
+    QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
 
-    Q_ASSERT(sgItem);
+    Q_ASSERT(quickItem);
 
-    Pointer instance(new SGItemNodeInstance(sgItem));
+    Pointer instance(new QuickItemNodeInstance(quickItem));
 
-    instance->setHasContent(anyItemHasContent(sgItem));
-    sgItem->setFlag(QSGItem::ItemHasContents, true);
+    instance->setHasContent(anyItemHasContent(quickItem));
+    quickItem->setFlag(QQuickItem::ItemHasContents, true);
 
-    static_cast<QDeclarativeParserStatus*>(sgItem)->classBegin();
+    static_cast<QQmlParserStatus*>(quickItem)->classBegin();
 
     instance->populateResetHashes();
 
     return instance;
 }
 
-void SGItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
+void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
     if (instanceId() == 0) {
-        DesignerSupport::setRootItem(nodeInstanceServer()->sgView(), sgItem());
+        DesignerSupport::setRootItem(nodeInstanceServer()->quickView(), quickItem());
     } else {
-        sgItem()->setParentItem(qobject_cast<QSGItem*>(nodeInstanceServer()->sgView()->rootObject()));
+        quickItem()->setParentItem(qobject_cast<QQuickItem*>(nodeInstanceServer()->quickView()->rootObject()));
     }
 
     if (s_createEffectItem || instanceId() == 0)
-        designerSupport()->refFromEffectItem(sgItem());
+        designerSupport()->refFromEffectItem(quickItem());
 
     ObjectNodeInstance::initialize(objectNodeInstance);
-    sgItem()->update();
+    quickItem()->update();
 }
 
-bool SGItemNodeInstance::isSGItem() const
+bool QuickItemNodeInstance::isQuickItem() const
 {
     return true;
 }
 
-QSizeF SGItemNodeInstance::size() const
+QSizeF QuickItemNodeInstance::size() const
 {
     double width;
 
-    if (DesignerSupport::isValidWidth(sgItem())) {
-        width = sgItem()->width();
+    if (DesignerSupport::isValidWidth(quickItem())) {
+        width = quickItem()->width();
     } else {
-        width = sgItem()->implicitWidth();
+        width = quickItem()->implicitWidth();
     }
 
     double height;
 
-    if (DesignerSupport::isValidHeight(sgItem())) {
-        height = sgItem()->height();
+    if (DesignerSupport::isValidHeight(quickItem())) {
+        height = quickItem()->height();
     } else {
-        height = sgItem()->implicitHeight();
+        height = quickItem()->implicitHeight();
     }
 
 
@@ -285,11 +286,11 @@ static inline bool isRectangleSane(const QRectF &rect)
     return rect.isValid() && (rect.width() < 10000) && (rect.height() < 10000);
 }
 
-QRectF SGItemNodeInstance::boundingRectWithStepChilds(QSGItem *parentItem) const
+QRectF QuickItemNodeInstance::boundingRectWithStepChilds(QQuickItem *parentItem) const
 {
     QRectF boundingRect = parentItem->boundingRect();
 
-    foreach (QSGItem *childItem, parentItem->childItems()) {
+    foreach (QQuickItem *childItem, parentItem->childItems()) {
         if (!nodeInstanceServer()->hasInstanceForObject(childItem)) {
             QRectF transformedRect = childItem->mapRectToItem(parentItem, boundingRectWithStepChilds(childItem));
             if (isRectangleSane(transformedRect))
@@ -300,20 +301,20 @@ QRectF SGItemNodeInstance::boundingRectWithStepChilds(QSGItem *parentItem) const
     return boundingRect;
 }
 
-QRectF SGItemNodeInstance::boundingRect() const
+QRectF QuickItemNodeInstance::boundingRect() const
 {
-    if (sgItem()) {
-        if (sgItem()->clip()) {
-            return sgItem()->boundingRect();
+    if (quickItem()) {
+        if (quickItem()->clip()) {
+            return quickItem()->boundingRect();
         } else {
-            return boundingRectWithStepChilds(sgItem());
+            return boundingRectWithStepChilds(quickItem());
         }
     }
 
     return QRectF();
 }
 
-void SGItemNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
+void QuickItemNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
     if (name == "state")
         return; // states are only set by us
@@ -345,7 +346,7 @@ void SGItemNodeInstance::setPropertyVariant(const QString &name, const QVariant 
     refresh();
 }
 
-void SGItemNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
+void QuickItemNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
 {
     if (name == "state")
         return; // states are only set by us
@@ -353,37 +354,37 @@ void SGItemNodeInstance::setPropertyBinding(const QString &name, const QString &
     ObjectNodeInstance::setPropertyBinding(name, expression);
 }
 
-QVariant SGItemNodeInstance::property(const QString &name) const
+QVariant QuickItemNodeInstance::property(const QString &name) const
 {
     return ObjectNodeInstance::property(name);
 }
 
-void SGItemNodeInstance::resetHorizontal()
+void QuickItemNodeInstance::resetHorizontal()
  {
     setPropertyVariant("x", m_x);
     if (m_width > 0.0) {
         setPropertyVariant("width", m_width);
     } else {
-        setPropertyVariant("width", sgItem()->implicitWidth());
+        setPropertyVariant("width", quickItem()->implicitWidth());
     }
 }
 
-void SGItemNodeInstance::resetVertical()
+void QuickItemNodeInstance::resetVertical()
  {
     setPropertyVariant("y", m_y);
     if (m_height > 0.0) {
         setPropertyVariant("height", m_height);
     } else {
-        setPropertyVariant("height", sgItem()->implicitWidth());
+        setPropertyVariant("height", quickItem()->implicitWidth());
     }
 }
 
-static void repositioning(QSGItem *item)
+static void repositioning(QQuickItem *item)
 {
     if (!item)
         return;
 
-//    QDeclarativeBasePositioner *positioner = qobject_cast<QDeclarativeBasePositioner*>(item);
+//    QQmlBasePositioner *positioner = qobject_cast<QQmlBasePositioner*>(item);
 //    if (positioner)
 //        positioner->rePositioning();
 
@@ -391,41 +392,41 @@ static void repositioning(QSGItem *item)
         repositioning(item->parentItem());
 }
 
-void SGItemNodeInstance::refresh()
+void QuickItemNodeInstance::refresh()
 {
-    repositioning(sgItem());
+    repositioning(quickItem());
 }
 
-void SGItemNodeInstance::doComponentComplete()
+void QuickItemNodeInstance::doComponentComplete()
 {
-    if (sgItem()) {
-        if (DesignerSupport::isComponentComplete(sgItem()))
+    if (quickItem()) {
+        if (DesignerSupport::isComponentComplete(quickItem()))
             return;
-        static_cast<QDeclarativeParserStatus*>(sgItem())->componentComplete();
+        static_cast<QQmlParserStatus*>(quickItem())->componentComplete();
     }
 
-    sgItem()->update();
+    quickItem()->update();
 }
 
-bool SGItemNodeInstance::isResizable() const
+bool QuickItemNodeInstance::isResizable() const
 {
     if (isRootNodeInstance())
         return false;
 
-    return m_isResizable && sgItem() && sgItem()->parentItem();
+    return m_isResizable && quickItem() && quickItem()->parentItem();
 }
 
-void SGItemNodeInstance::setResizable(bool resizeable)
+void QuickItemNodeInstance::setResizable(bool resizeable)
 {
     m_isResizable = resizeable;
 }
 
-int SGItemNodeInstance::penWidth() const
+int QuickItemNodeInstance::penWidth() const
 {
-    return DesignerSupport::borderWidth(sgItem());
+    return DesignerSupport::borderWidth(quickItem());
 }
 
-void SGItemNodeInstance::resetProperty(const QString &name)
+void QuickItemNodeInstance::resetProperty(const QString &name)
 {
     if (name == "height") {
         m_hasHeight = false;
@@ -443,7 +444,7 @@ void SGItemNodeInstance::resetProperty(const QString &name)
     if (name == "y")
         m_y = 0.0;
 
-    DesignerSupport::resetAnchor(sgItem(), name);
+    DesignerSupport::resetAnchor(quickItem(), name);
 
     if (name == "anchors.fill") {
         resetHorizontal();
@@ -470,7 +471,7 @@ void SGItemNodeInstance::resetProperty(const QString &name)
     ObjectNodeInstance::resetProperty(name);
 }
 
-void SGItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty)
+void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty)
 {
     if (oldParentInstance && oldParentInstance->isPositioner()) {
         setInPositioner(false);
@@ -493,7 +494,7 @@ void SGItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentIn
     }
 
     refresh();
-    DesignerSupport::updateDirtyNode(sgItem());
+    DesignerSupport::updateDirtyNode(quickItem());
 }
 
 static bool isValidAnchorName(const QString &name)
@@ -511,17 +512,17 @@ static bool isValidAnchorName(const QString &name)
     return anchorNameList.contains(name);
 }
 
-bool SGItemNodeInstance::hasAnchor(const QString &name) const
+bool QuickItemNodeInstance::hasAnchor(const QString &name) const
 {
-    return DesignerSupport::hasAnchor(sgItem(), name);
+    return DesignerSupport::hasAnchor(quickItem(), name);
 }
 
-QPair<QString, ServerNodeInstance> SGItemNodeInstance::anchor(const QString &name) const
+QPair<QString, ServerNodeInstance> QuickItemNodeInstance::anchor(const QString &name) const
 {
-    if (!isValidAnchorName(name) || !DesignerSupport::hasAnchor(sgItem(), name))
+    if (!isValidAnchorName(name) || !DesignerSupport::hasAnchor(quickItem(), name))
         return ObjectNodeInstance::anchor(name);
 
-    QPair<QString, QObject*> nameObjectPair = DesignerSupport::anchorLineTarget(sgItem(), name, context());
+    QPair<QString, QObject*> nameObjectPair = DesignerSupport::anchorLineTarget(quickItem(), name, context());
 
     QObject *targetObject = nameObjectPair.second;
     QString targetName = nameObjectPair.first;
@@ -533,10 +534,10 @@ QPair<QString, ServerNodeInstance> SGItemNodeInstance::anchor(const QString &nam
     }
 }
 
-QList<ServerNodeInstance> SGItemNodeInstance::stateInstances() const
+QList<ServerNodeInstance> QuickItemNodeInstance::stateInstances() const
 {
     QList<ServerNodeInstance> instanceList;
-    QList<QObject*> stateList = DesignerSupport::statesForItem(sgItem());
+    QList<QObject*> stateList = DesignerSupport::statesForItem(quickItem());
     foreach (QObject *state, stateList)
     {
         if (state && nodeInstanceServer()->hasInstanceForObject(state))
@@ -546,12 +547,12 @@ QList<ServerNodeInstance> SGItemNodeInstance::stateInstances() const
     return instanceList;
 }
 
-bool SGItemNodeInstance::isAnchoredBySibling() const
+bool QuickItemNodeInstance::isAnchoredBySibling() const
 {
-    if (sgItem()->parentItem()) {
-        foreach (QSGItem *siblingItem, sgItem()->parentItem()->childItems()) { // search in siblings for a anchor to this item
+    if (quickItem()->parentItem()) {
+        foreach (QQuickItem *siblingItem, quickItem()->parentItem()->childItems()) { // search in siblings for a anchor to this item
             if (siblingItem) {
-                if (DesignerSupport::isAnchoredTo(siblingItem, sgItem()))
+                if (DesignerSupport::isAnchoredTo(siblingItem, quickItem()))
                     return true;
             }
         }
@@ -560,34 +561,34 @@ bool SGItemNodeInstance::isAnchoredBySibling() const
     return false;
 }
 
-bool SGItemNodeInstance::isAnchoredByChildren() const
+bool QuickItemNodeInstance::isAnchoredByChildren() const
 {
-    if (DesignerSupport::areChildrenAnchoredTo(sgItem(), sgItem())) // search in children for a anchor to this item
+    if (DesignerSupport::areChildrenAnchoredTo(quickItem(), quickItem())) // search in children for a anchor to this item
         return true;
 
     return false;
 }
 
-QSGItem *SGItemNodeInstance::sgItem() const
+QQuickItem *QuickItemNodeInstance::quickItem() const
 {
     if (object() == 0)
         return 0;
 
-    Q_ASSERT(qobject_cast<QSGItem*>(object()));
-    return static_cast<QSGItem*>(object());
+    Q_ASSERT(qobject_cast<QQuickItem*>(object()));
+    return static_cast<QQuickItem*>(object());
 }
 
-DesignerSupport *SGItemNodeInstance::designerSupport() const
+DesignerSupport *QuickItemNodeInstance::designerSupport() const
 {
     return qt5NodeInstanceServer()->designerSupport();
 }
 
-Qt5NodeInstanceServer *SGItemNodeInstance::qt5NodeInstanceServer() const
+Qt5NodeInstanceServer *QuickItemNodeInstance::qt5NodeInstanceServer() const
 {
     return qobject_cast<Qt5NodeInstanceServer*>(nodeInstanceServer());
 }
 
-void SGItemNodeInstance::createEffectItem(bool createEffectItem)
+void QuickItemNodeInstance::createEffectItem(bool createEffectItem)
 {
     s_createEffectItem = createEffectItem;
 }

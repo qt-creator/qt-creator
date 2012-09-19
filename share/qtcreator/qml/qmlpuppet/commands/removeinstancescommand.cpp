@@ -30,6 +30,8 @@
 
 #include "removeinstancescommand.h"
 
+#include <QDataStream>
+
 namespace QmlDesigner {
 
 RemoveInstancesCommand::RemoveInstancesCommand()

@@ -32,6 +32,7 @@
 #define CHANGENODESOURCECOMMAND_H
 
 #include <QMetaType>
+#include <QString>
 
 namespace QmlDesigner {
 

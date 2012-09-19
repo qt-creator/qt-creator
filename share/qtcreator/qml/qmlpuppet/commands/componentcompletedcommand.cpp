@@ -30,6 +30,8 @@
 
 #include "componentcompletedcommand.h"
 
+#include <QDataStream>
+
 namespace QmlDesigner {
 
 ComponentCompletedCommand::ComponentCompletedCommand()

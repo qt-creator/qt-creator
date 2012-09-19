@@ -30,7 +30,7 @@
 
 #include "qt5rendernodeinstanceserver.h"
 
-#include <QSGItem>
+#include <QQuickItem>
 
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
@@ -59,7 +59,7 @@
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
 #include "sgitemnodeinstance.h"
-
+#include "removesharedmemorycommand.h"
 
 #include "dummycontextobject.h"
 
@@ -70,7 +70,7 @@ namespace QmlDesigner {
 Qt5RenderNodeInstanceServer::Qt5RenderNodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient) :
     Qt5NodeInstanceServer(nodeInstanceClient)
 {
-    Internal::SGItemNodeInstance::createEffectItem(true);
+    Internal::QuickItemNodeInstance::createEffectItem(true);
 }
 
 void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
@@ -79,8 +79,8 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction) {
         inFunction = true;
 
-        if (sgView() && nodeInstanceClient()->bytesToWrite() < 10000) {
-            foreach (QSGItem *item, allItems()) {
+        if (quickView() && nodeInstanceClient()->bytesToWrite() < 10000) {
+            foreach (QQuickItem *item, allItems()) {
                 if (item && hasInstanceForObject(item)) {
                     ServerNodeInstance instance = instanceForObject(item);
                     if (DesignerSupport::isDirty(item, DesignerSupport::ContentUpdateMask))
@@ -148,7 +148,7 @@ void Qt5RenderNodeInstanceServer::completeComponent(const CompleteComponentComma
 void QmlDesigner::Qt5RenderNodeInstanceServer::removeSharedMemory(const QmlDesigner::RemoveSharedMemoryCommand &command)
 {
     if (command.typeName() == "Image")
-        ImageContainer::removeSharedMemory(command.keyNumber());
+        ImageContainer::removeSharedMemorys(command.keyNumbers());
 }
 
 } // namespace QmlDesigner

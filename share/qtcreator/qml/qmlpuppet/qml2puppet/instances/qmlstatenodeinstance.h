@@ -28,49 +28,50 @@
 **
 **************************************************************************/
 
-#ifndef QT5NODEINSTANCESERVER_H
-#define QT5NODEINSTANCESERVER_H
+#ifndef QMLSTATENODEINSTANCE_H
+#define QMLSTATENODEINSTANCE_H
 
-#include <QtGlobal>
-
-#include "nodeinstanceserver.h"
+#include "objectnodeinstance.h"
 
 QT_BEGIN_NAMESPACE
-class QQuickItem;
-class DesignerSupport;
+class QQuickState;
+class QQuickStateGroup;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class Qt5NodeInstanceServer : public NodeInstanceServer
+namespace Internal {
+
+class QmlStateNodeInstance : public ObjectNodeInstance
 {
-    Q_OBJECT
 public:
-    Qt5NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
-    ~Qt5NodeInstanceServer();
+    typedef QSharedPointer<QmlStateNodeInstance> Pointer;
+    typedef QWeakPointer<QmlStateNodeInstance> WeakPointer;
 
-    QQuickView *quickView() const;
-    QQmlView *declarativeView() const;
-    QQmlEngine *engine() const;
-    void refreshBindings();
+    static Pointer create(QObject *objectToBeWrapped);
 
-    DesignerSupport *designerSupport() const;
+    void setPropertyVariant(const QString &name, const QVariant &value);
+    void setPropertyBinding(const QString &name, const QString &expression);
 
-    void createScene(const CreateSceneCommand &command);
-    void clearScene(const ClearSceneCommand &command);
+    void activateState();
+    void deactivateState();
+
+    bool updateStateVariant(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &value);
+    bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QString &expression);
+    bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const QString &propertyName, const QVariant &resetValue);
+
 
 protected:
-    void initializeView(const QVector<AddImportContainer> &importVector);
-    void resizeCanvasSizeToRootItemSize();
-    void resetAllItems();
-    QList<ServerNodeInstance> setupScene(const CreateSceneCommand &command);
-    QList<QQuickItem*> allItems() const;
 
-private:
-    QWeakPointer<QQuickView> m_quickView;
-    DesignerSupport *m_designerSupport;
+    QmlStateNodeInstance(QQuickState *object);
+
+    bool isStateActive() const;
+
+    QQuickState *stateObject() const;
+    QQuickStateGroup *stateGroup() const;
 };
 
-} // QmlDesigner
+} // namespace Internal
+} // namespace QmlDesigner
 
-#endif // QT5NODEINSTANCESERVER_H
+#endif // QMLSTATENODEINSTANCE_H

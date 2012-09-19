@@ -28,40 +28,36 @@
 **
 **************************************************************************/
 
-#ifndef QMLDESIGNER_TOKENCOMMAND_H
-#define QMLDESIGNER_TOKENCOMMAND_H
+#ifndef COMPONENTNODEINSTANCE_H
+#define COMPONENTNODEINSTANCE_H
 
+#include "objectnodeinstance.h"
 
-#include <QMetaType>
-#include <QVector>
-#include <QString>
+QT_BEGIN_NAMESPACE
+class QQmlComponent;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
+namespace Internal {
 
-class TokenCommand
+class ComponentNodeInstance : public ObjectNodeInstance
 {
-    friend QDataStream &operator>>(QDataStream &in, TokenCommand &command);
-
 public:
-    TokenCommand();
-    TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instances);
+    typedef QSharedPointer<ComponentNodeInstance> Pointer;
+    typedef QWeakPointer<ComponentNodeInstance> WeakPointer;
+    ComponentNodeInstance(QQmlComponent *component);
+    static Pointer create(QObject *objectToBeWrapped);
 
-    QString tokenName() const;
-    qint32 tokenNumber() const;
-    QVector<qint32> instances() const;
+    bool hasContent() const;
 
-private:
-    QString m_tokenName;
-    qint32 m_tokenNumber;
-    QVector<qint32> m_instanceIdVector;
+    void setNodeSource(const QString &source);
+
+private: //function
+    QQmlComponent *component() const;
+
 };
 
-QDataStream &operator<<(QDataStream &out, const TokenCommand &command);
-QDataStream &operator>>(QDataStream &in, TokenCommand &command);
+} // Internal
+} // QmlDesigner
 
-} // namespace QmlDesigner
-
-Q_DECLARE_METATYPE(QmlDesigner::TokenCommand)
-
-
-#endif // QMLDESIGNER_TOKENCOMMAND_H
+#endif // COMPONENTNODEINSTANCE_H

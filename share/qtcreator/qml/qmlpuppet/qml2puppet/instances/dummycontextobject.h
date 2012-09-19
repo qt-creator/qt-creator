@@ -2,7 +2,7 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
+** Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 **
 ** Contact: http://www.qt-project.org/
 **
@@ -28,40 +28,34 @@
 **
 **************************************************************************/
 
-#ifndef QMLDESIGNER_TOKENCOMMAND_H
-#define QMLDESIGNER_TOKENCOMMAND_H
+#ifndef DUMMYCONTEXTOBJECT_H
+#define DUMMYCONTEXTOBJECT_H
 
-
-#include <QMetaType>
-#include <QVector>
-#include <QString>
+#include <QObject>
+#include <QWeakPointer>
+#include <qqml.h>
 
 namespace QmlDesigner {
 
-class TokenCommand
+class DummyContextObject : public QObject
 {
-    friend QDataStream &operator>>(QDataStream &in, TokenCommand &command);
+    Q_OBJECT
+    Q_PROPERTY(QObject * parent READ parentDummy WRITE setParentDummy NOTIFY parentDummyChanged DESIGNABLE false FINAL)
 
 public:
-    TokenCommand();
-    TokenCommand(const QString &tokenName, qint32 tokenNumber, const QVector<qint32> &instances);
+    explicit DummyContextObject(QObject *parent = 0);
 
-    QString tokenName() const;
-    qint32 tokenNumber() const;
-    QVector<qint32> instances() const;
+    QObject *parentDummy() const;
+    void setParentDummy(QObject *parentDummy);
+
+signals:
+    void parentDummyChanged();
 
 private:
-    QString m_tokenName;
-    qint32 m_tokenNumber;
-    QVector<qint32> m_instanceIdVector;
+    QWeakPointer<QObject> m_dummyParent;
 };
-
-QDataStream &operator<<(QDataStream &out, const TokenCommand &command);
-QDataStream &operator>>(QDataStream &in, TokenCommand &command);
 
 } // namespace QmlDesigner
 
-Q_DECLARE_METATYPE(QmlDesigner::TokenCommand)
-
-
-#endif // QMLDESIGNER_TOKENCOMMAND_H
+QML_DECLARE_TYPE(QmlDesigner::DummyContextObject)
+#endif // DUMMYCONTEXTOBJECT_H
