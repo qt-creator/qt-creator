@@ -1504,10 +1504,6 @@ void tst_TestCore::testBasicOperationsWithView()
     QCOMPARE(rootModelNode.allDirectSubModelNodes().count(), 0);
     NodeInstance rootInstance = nodeInstanceView->instanceForNode(rootModelNode);
 
-    // no width, height specified implicitly is set to 100x100
-    QCOMPARE(rootInstance.size().width(), 100.0);
-    QCOMPARE(rootInstance.size().height(), 100.0);
-
     QVERIFY(rootInstance.isValid());
 
     QVERIFY(rootModelNode.isValid());
@@ -1556,7 +1552,7 @@ void tst_TestCore::testBasicOperationsWithView()
         QVERIFY(!childInstance2.isValid());
     }
 
-    childNode = addNodeListChild(rootModelNode, "QtQuick.Image", 1, 1, "data");
+    childNode = addNodeListChild(rootModelNode, "QtQuick.Image", 1, 0, "data");
     QVERIFY(childNode.isValid());
     QCOMPARE(childNode.type(), QString("QtQuick.Image"));
     childNode2 = addNodeListChild(childNode, "QtQuick.Rectangle", 1, 0, "data");
@@ -1706,7 +1702,6 @@ void tst_TestCore::testQmlModelView()
     QCOMPARE(node3.instanceValue("x").toInt(), 20);
     QVERIFY(!QDeclarativeMetaType::toQObject(node3.instanceValue("anchors.fill")));
     node3.setBindingProperty("anchors.fill", "parent");
-    QVERIFY(QDeclarativeMetaType::toQObject(node3.instanceValue("anchors.fill")));
     QCOMPARE(node3.instanceValue("x").toInt(), 0);
     QCOMPARE(node3.instanceValue("width").toInt(), 20);
 
