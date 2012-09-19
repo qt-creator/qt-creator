@@ -663,13 +663,14 @@ bool CheckSymbols::visit(NewExpressionAST *ast)
         if (binding && nameAST) {
             int arguments = 0;
             if (ast->new_initializer) {
-                if (ExpressionAST *expr = ast->new_initializer->expression) {
-                    while (BinaryExpressionAST *binExpr = expr->asBinaryExpression()) {
-                        expr = binExpr->right_expression;
-                        ++arguments;
-                    }
+                ExpressionListAST *list = 0;
+                if (ExpressionListParenAST *exprListParen = ast->new_initializer->asExpressionListParen()) {
+                    list = exprListParen->expression_list;
+                } else if (BracedInitializerAST *braceInit = ast->new_initializer->asBracedInitializer()) {
+                    list = braceInit->expression_list;
                 }
-
+                for (ExpressionListAST *it = list; it; it = it->next)
+                    ++arguments;
             }
 
             Scope *scope = enclosingScope();

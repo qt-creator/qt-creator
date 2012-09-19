@@ -133,7 +133,7 @@ public:
     bool parseNewArrayDeclarator(NewArrayDeclaratorListAST *&node);
     bool parseNewExpression(ExpressionAST *&node);
     bool parseExpressionListParen(ExpressionAST *&node);
-    bool parseNewInitializer(NewInitializerAST *&node);
+    bool parseNewInitializer(ExpressionAST *&node);
     bool parseNewTypeId(NewTypeIdAST *&node);
     bool parseOperator(OperatorAST *&node);
     bool parseConversionFunctionId(NameAST *&node);

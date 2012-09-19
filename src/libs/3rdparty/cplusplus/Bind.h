@@ -87,7 +87,6 @@ protected:
     const Name *nestedNameSpecifier(NestedNameSpecifierAST *ast);
     void newPlacement(ExpressionListParenAST *ast);
     FullySpecifiedType newArrayDeclarator(NewArrayDeclaratorAST *ast, const FullySpecifiedType &init);
-    void newInitializer(NewInitializerAST *ast);
     FullySpecifiedType newTypeId(NewTypeIdAST *ast);
     OperatorNameId::Kind cppOperator(OperatorAST *ast);
     void parameterDeclarationClause(ParameterDeclarationClauseAST *ast, unsigned lparen_token, Function *fun);
@@ -123,7 +122,6 @@ protected:
     virtual bool visit(MemInitializerAST *ast);
     virtual bool visit(NestedNameSpecifierAST *ast);
     virtual bool visit(NewArrayDeclaratorAST *ast);
-    virtual bool visit(NewInitializerAST *ast);
     virtual bool visit(NewTypeIdAST *ast);
     virtual bool visit(OperatorAST *ast);
     virtual bool visit(ParameterDeclarationClauseAST *ast);

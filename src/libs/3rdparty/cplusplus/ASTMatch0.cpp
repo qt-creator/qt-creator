@@ -624,14 +624,6 @@ bool NewExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
-bool NewInitializerAST::match0(AST *pattern, ASTMatcher *matcher)
-{
-    if (NewInitializerAST *_other = pattern->asNewInitializer())
-        return matcher->match(this, _other);
-
-    return false;
-}
-
 bool NewTypeIdAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (NewTypeIdAST *_other = pattern->asNewTypeId())

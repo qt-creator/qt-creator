@@ -100,7 +100,6 @@ public:
     virtual bool match(NestedNameSpecifierAST *node, NestedNameSpecifierAST *pattern);
     virtual bool match(NewArrayDeclaratorAST *node, NewArrayDeclaratorAST *pattern);
     virtual bool match(NewExpressionAST *node, NewExpressionAST *pattern);
-    virtual bool match(NewInitializerAST *node, NewInitializerAST *pattern);
     virtual bool match(NewTypeIdAST *node, NewTypeIdAST *pattern);
     virtual bool match(NoExceptSpecificationAST *node, NoExceptSpecificationAST *pattern);
     virtual bool match(NumericLiteralAST *node, NumericLiteralAST *pattern);

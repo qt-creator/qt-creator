@@ -580,23 +580,6 @@ FullySpecifiedType Bind::newArrayDeclarator(NewArrayDeclaratorAST *ast, const Fu
     return type;
 }
 
-bool Bind::visit(NewInitializerAST *ast)
-{
-    (void) ast;
-    assert(!"unreachable");
-    return false;
-}
-
-void Bind::newInitializer(NewInitializerAST *ast)
-{
-    if (! ast)
-        return;
-
-    // unsigned lparen_token = ast->lparen_token;
-    ExpressionTy expression = this->expression(ast->expression);
-    // unsigned rparen_token = ast->rparen_token;
-}
-
 bool Bind::visit(NewTypeIdAST *ast)
 {
     (void) ast;
@@ -1637,7 +1620,7 @@ bool Bind::visit(NewExpressionAST *ast)
     ExpressionTy type_id = this->expression(ast->type_id);
     // unsigned rparen_token = ast->rparen_token;
     this->newTypeId(ast->new_type_id);
-    this->newInitializer(ast->new_initializer);
+    this->expression(ast->new_initializer);
     return false;
 }
 

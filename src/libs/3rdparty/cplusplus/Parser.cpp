@@ -5091,20 +5091,13 @@ bool Parser::parseNewArrayDeclarator(NewArrayDeclaratorListAST *&node)
     return true;
 }
 
-bool Parser::parseNewInitializer(NewInitializerAST *&node)
+bool Parser::parseNewInitializer(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_LPAREN) {
-        unsigned lparen_token = consumeToken();
-        ExpressionAST *expression = 0;
-        if (LA() == T_RPAREN || parseExpression(expression)) {
-            NewInitializerAST *ast = new (_pool) NewInitializerAST;
-            ast->lparen_token = lparen_token;
-            ast->expression = expression;
-            match(T_RPAREN, &ast->rparen_token);
-            node = ast;
-            return true;
-        }
+        return parseExpressionListParen(node);
+    } else if (_cxx0xEnabled && LA() == T_LBRACE) {
+        return parseBracedInitList0x(node);
     }
     return false;
 }

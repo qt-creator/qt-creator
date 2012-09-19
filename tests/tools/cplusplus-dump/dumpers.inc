@@ -906,16 +906,6 @@ virtual bool visit(NewExpressionAST *ast)
     return false;
 }
 
-virtual bool visit(NewInitializerAST *ast)
-{
-    if (ast->lparen_token)
-        terminal(ast->lparen_token, ast);
-    nonterminal(ast->expression);
-    if (ast->rparen_token)
-        terminal(ast->rparen_token, ast);
-    return false;
-}
-
 virtual bool visit(NewTypeIdAST *ast)
 {
     for (SpecifierListAST *iter = ast->type_specifier_list; iter; iter = iter->next)

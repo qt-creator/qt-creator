@@ -671,14 +671,6 @@ void NewExpressionAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
-void NewInitializerAST::accept0(ASTVisitor *visitor)
-{
-    if (visitor->visit(this)) {
-        accept(expression, visitor);
-    }
-    visitor->endVisit(this);
-}
-
 void NewTypeIdAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

@@ -2053,32 +2053,6 @@ unsigned NewExpressionAST::lastToken() const
 }
 
 /** \generated */
-unsigned NewInitializerAST::firstToken() const
-{
-    if (lparen_token)
-        return lparen_token;
-    if (expression)
-        if (unsigned candidate = expression->firstToken())
-            return candidate;
-    if (rparen_token)
-        return rparen_token;
-    return 0;
-}
-
-/** \generated */
-unsigned NewInitializerAST::lastToken() const
-{
-    if (rparen_token)
-        return rparen_token + 1;
-    if (expression)
-        if (unsigned candidate = expression->lastToken())
-            return candidate;
-    if (lparen_token)
-        return lparen_token + 1;
-    return 1;
-}
-
-/** \generated */
 unsigned ExpressionListParenAST::firstToken() const
 {
     if (lparen_token)

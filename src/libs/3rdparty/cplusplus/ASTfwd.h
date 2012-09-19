@@ -105,7 +105,6 @@ class NestedExpressionAST;
 class NestedNameSpecifierAST;
 class NewArrayDeclaratorAST;
 class NewExpressionAST;
-class NewInitializerAST;
 class NewTypeIdAST;
 class NoExceptSpecificationAST;
 class NumericLiteralAST;

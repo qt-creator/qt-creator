@@ -142,7 +142,6 @@ public:
     virtual bool visit(NestedNameSpecifierAST *) { return true; }
     virtual bool visit(NewArrayDeclaratorAST *) { return true; }
     virtual bool visit(NewExpressionAST *) { return true; }
-    virtual bool visit(NewInitializerAST *) { return true; }
     virtual bool visit(NewTypeIdAST *) { return true; }
     virtual bool visit(NoExceptSpecificationAST *) { return true; }
     virtual bool visit(NumericLiteralAST *) { return true; }
@@ -288,7 +287,6 @@ public:
     virtual void endVisit(NestedNameSpecifierAST *) {}
     virtual void endVisit(NewArrayDeclaratorAST *) {}
     virtual void endVisit(NewExpressionAST *) {}
-    virtual void endVisit(NewInitializerAST *) {}
     virtual void endVisit(NewTypeIdAST *) {}
     virtual void endVisit(NoExceptSpecificationAST *) {}
     virtual void endVisit(NumericLiteralAST *) {}

@@ -594,23 +594,6 @@ void FindUsages::newArrayDeclarator(NewArrayDeclaratorAST *ast)
     // unsigned rbracket_token = ast->rbracket_token;
 }
 
-bool FindUsages::visit(NewInitializerAST *ast)
-{
-    (void) ast;
-    Q_ASSERT(!"unreachable");
-    return false;
-}
-
-void FindUsages::newInitializer(NewInitializerAST *ast)
-{
-    if (! ast)
-        return;
-
-    // unsigned lparen_token = ast->lparen_token;
-    this->expression(ast->expression);
-    // unsigned rparen_token = ast->rparen_token;
-}
-
 bool FindUsages::visit(NewTypeIdAST *ast)
 {
     (void) ast;
@@ -1295,7 +1278,7 @@ bool FindUsages::visit(NewExpressionAST *ast)
     this->expression(ast->type_id);
     // unsigned rparen_token = ast->rparen_token;
     this->newTypeId(ast->new_type_id);
-    this->newInitializer(ast->new_initializer);
+    this->expression(ast->new_initializer);
     return false;
 }
 

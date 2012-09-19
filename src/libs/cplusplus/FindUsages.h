@@ -106,7 +106,6 @@ protected:
     void nestedNameSpecifier(NestedNameSpecifierAST *ast);
     void newPlacement(ExpressionListParenAST *ast);
     void newArrayDeclarator(NewArrayDeclaratorAST *ast);
-    void newInitializer(NewInitializerAST *ast);
     void newTypeId(NewTypeIdAST *ast);
     void cppOperator(OperatorAST *ast);
     void parameterDeclarationClause(ParameterDeclarationClauseAST *ast);
@@ -138,7 +137,6 @@ protected:
     virtual bool visit(MemInitializerAST *ast);
     virtual bool visit(NestedNameSpecifierAST *ast);
     virtual bool visit(NewArrayDeclaratorAST *ast);
-    virtual bool visit(NewInitializerAST *ast);
     virtual bool visit(NewTypeIdAST *ast);
     virtual bool visit(OperatorAST *ast);
     virtual bool visit(ParameterDeclarationClauseAST *ast);

@@ -599,20 +599,13 @@ public:
         return __ast;
     }
 
-    NewExpressionAST *NewExpression(ExpressionListParenAST *new_placement = 0, ExpressionAST *type_id = 0, NewTypeIdAST *new_type_id = 0, NewInitializerAST *new_initializer = 0)
+    NewExpressionAST *NewExpression(ExpressionListParenAST *new_placement = 0, ExpressionAST *type_id = 0, NewTypeIdAST *new_type_id = 0, ExpressionAST *new_initializer = 0)
     {
         NewExpressionAST *__ast = new (&pool) NewExpressionAST;
         __ast->new_placement = new_placement;
         __ast->type_id = type_id;
         __ast->new_type_id = new_type_id;
         __ast->new_initializer = new_initializer;
-        return __ast;
-    }
-
-    NewInitializerAST *NewInitializer(ExpressionAST *expression = 0)
-    {
-        NewInitializerAST *__ast = new (&pool) NewInitializerAST;
-        __ast->expression = expression;
         return __ast;
     }
 

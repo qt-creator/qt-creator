@@ -930,16 +930,6 @@ NewExpressionAST *NewExpressionAST::clone(MemoryPool *pool) const
     return ast;
 }
 
-NewInitializerAST *NewInitializerAST::clone(MemoryPool *pool) const
-{
-    NewInitializerAST *ast = new (pool) NewInitializerAST;
-    ast->lparen_token = lparen_token;
-    if (expression)
-        ast->expression = expression->clone(pool);
-    ast->rparen_token = rparen_token;
-    return ast;
-}
-
 NewTypeIdAST *NewTypeIdAST::clone(MemoryPool *pool) const
 {
     NewTypeIdAST *ast = new (pool) NewTypeIdAST;

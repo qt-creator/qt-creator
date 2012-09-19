@@ -198,7 +198,6 @@ public:
     virtual NestedNameSpecifierAST *asNestedNameSpecifier() { return 0; }
     virtual NewArrayDeclaratorAST *asNewArrayDeclarator() { return 0; }
     virtual NewExpressionAST *asNewExpression() { return 0; }
-    virtual NewInitializerAST *asNewInitializer() { return 0; }
     virtual NewTypeIdAST *asNewTypeId() { return 0; }
     virtual NoExceptSpecificationAST *asNoExceptSpecification() { return 0; }
     virtual NumericLiteralAST *asNumericLiteral() { return 0; }
@@ -2502,7 +2501,7 @@ public:
 
     NewTypeIdAST *new_type_id;
 
-    NewInitializerAST *new_initializer;
+    ExpressionAST *new_initializer; // either ExpressionListParenAST or BracedInitializerAST
 
 public:
     NewExpressionAST()
@@ -2522,32 +2521,6 @@ public:
     virtual unsigned lastToken() const;
 
     virtual NewExpressionAST *clone(MemoryPool *pool) const;
-
-protected:
-    virtual void accept0(ASTVisitor *visitor);
-    virtual bool match0(AST *, ASTMatcher *);
-};
-
-class CPLUSPLUS_EXPORT NewInitializerAST: public AST
-{
-public:
-    unsigned lparen_token;
-    ExpressionAST *expression;
-    unsigned rparen_token;
-
-public:
-    NewInitializerAST()
-        : lparen_token(0)
-        , expression(0)
-        , rparen_token(0)
-    {}
-
-    virtual NewInitializerAST *asNewInitializer() { return this; }
-
-    virtual unsigned firstToken() const;
-    virtual unsigned lastToken() const;
-
-    virtual NewInitializerAST *clone(MemoryPool *pool) const;
 
 protected:
     virtual void accept0(ASTVisitor *visitor);

@@ -1585,23 +1585,6 @@ bool ASTMatcher::match(NewExpressionAST *node, NewExpressionAST *pattern)
     return true;
 }
 
-bool ASTMatcher::match(NewInitializerAST *node, NewInitializerAST *pattern)
-{
-    (void) node;
-    (void) pattern;
-
-    pattern->lparen_token = node->lparen_token;
-
-    if (! pattern->expression)
-        pattern->expression = node->expression;
-    else if (! AST::match(node->expression, pattern->expression, this))
-        return false;
-
-    pattern->rparen_token = node->rparen_token;
-
-    return true;
-}
-
 bool ASTMatcher::match(NewTypeIdAST *node, NewTypeIdAST *pattern)
 {
     (void) node;
