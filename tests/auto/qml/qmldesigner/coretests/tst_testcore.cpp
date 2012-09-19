@@ -5534,7 +5534,7 @@ void tst_TestCore::testInstancesAttachToExistingModel()
 
     // Attach NodeInstanceView
 
-    QScopedPointer<NodeInstanceView> instanceView(new NodeInstanceView);
+    QScopedPointer<NodeInstanceView> instanceView(new NodeInstanceView(0, NodeInstanceServerInterface::TestModus));
     QVERIFY(instanceView.data());
     model->attachView(instanceView.data());
 
