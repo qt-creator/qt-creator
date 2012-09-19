@@ -854,9 +854,9 @@ void tst_TestCore::testRewriterImports()
     // import QtQuick 1.1
     Import import = model->imports().at(0);
     QVERIFY(import.isLibraryImport());
-    QCOMPARE(import.url(), QString("Qt"));
+    QCOMPARE(import.url(), QString("QtQuick"));
     QVERIFY(import.hasVersion());
-    QCOMPARE(import.version(), QString("4.7"));
+    QCOMPARE(import.version(), QString("1.0"));
     QVERIFY(!import.hasAlias());
 
     // import "subitems"
