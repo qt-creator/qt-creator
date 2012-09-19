@@ -2949,7 +2949,8 @@ void tst_TestCore::testRewriterComponentTextModifier()
 
     ModelNode componentrootNode = testRewriterViewComponent->rootModelNode();
     QVERIFY(componentrootNode.isValid());
-    QCOMPARE(componentrootNode.type(), QLatin1String("QtQuick.Component"));
+    //The <Component> node is skipped
+    QCOMPARE(componentrootNode.type(), QLatin1String("QtQuick.Rectangle"));
 }
 
 void tst_TestCore::testRewriterPreserveType()
