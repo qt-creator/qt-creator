@@ -3521,7 +3521,7 @@ void tst_TestCore::testSubComponentManager()
 
     QVERIFY(model->metaInfo("QtQuick.Rectangle").propertyNames().contains("border.width"));
 
-    QVERIFY(model->metaInfo("QtQuick.Pen").isValid());
+    QVERIFY(model->metaInfo("<cpp>.QDeclarative1Pen").isValid());
     NodeMetaInfo myButtonMetaInfo = model->metaInfo("MyButton");
     QVERIFY(myButtonMetaInfo.isValid());
     QVERIFY(myButtonMetaInfo.propertyNames().contains("border.width"));
