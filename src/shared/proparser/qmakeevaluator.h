@@ -164,15 +164,15 @@ public:
     QString resolvePath(const QString &fileName) const
         { return QMakeInternal::IoUtils::resolvePath(currentDirectory(), fileName); }
 
-    bool evaluateFile(const QString &fileName, QMakeHandler::EvalFileType type,
-                      LoadFlags flags);
-    bool evaluateFileChecked(const QString &fileName, QMakeHandler::EvalFileType type,
+    VisitReturn evaluateFile(const QString &fileName, QMakeHandler::EvalFileType type,
                              LoadFlags flags);
-    bool evaluateFeatureFile(const QString &fileName, bool silent = false);
-    bool evaluateFileInto(const QString &fileName,
-                          ProValueMap *values, // output-only
-                          LoadFlags flags);
-    void evaluateConfigFeatures();
+    VisitReturn evaluateFileChecked(const QString &fileName, QMakeHandler::EvalFileType type,
+                                    LoadFlags flags);
+    VisitReturn evaluateFeatureFile(const QString &fileName, bool silent = false);
+    VisitReturn evaluateFileInto(const QString &fileName,
+                                 ProValueMap *values, // output-only
+                                 LoadFlags flags);
+    VisitReturn evaluateConfigFeatures();
     void message(int type, const QString &msg) const;
     void evalError(const QString &msg) const
             { message(QMakeHandler::EvalError, msg); }
@@ -183,7 +183,7 @@ public:
 
     QList<ProStringList> prepareFunctionArgs(const ushort *&tokPtr);
     ProStringList evaluateFunction(const ProFunctionDef &func,
-                                   const QList<ProStringList> &argumentsList, bool *ok);
+                                   const QList<ProStringList> &argumentsList, VisitReturn *ok);
     VisitReturn evaluateBoolFunction(const ProFunctionDef &func,
                                      const QList<ProStringList> &argumentsList,
                                      const ProString &function);
