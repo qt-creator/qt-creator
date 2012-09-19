@@ -1259,6 +1259,7 @@ void tst_TestCore::testBasicStates()
     QCOMPARE(state1.propertyChanges().count(), 2);
     QCOMPARE(state2.propertyChanges().count(), 2);
 
+    QVERIFY(state1.propertyChanges().first().modelNode().metaInfo().isSubclassOf("<cpp>.QDeclarative1StateOperation", -1, -1));
     QVERIFY(!state1.hasPropertyChanges(rootModelNode));
 
     QVERIFY(state1.propertyChanges(rect1).isValid());

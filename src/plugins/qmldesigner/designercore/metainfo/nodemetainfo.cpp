@@ -339,7 +339,7 @@ public:
     Model *model() const
     { return m_model; }
 
-    QString packageName() const;
+    QString cppPackageName() const;
 
     QString componentSource() const;
     QString componentFileName() const;
@@ -674,6 +674,14 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const QString &propertyName) cons
     return QString();
 }
 
+static QString getUnqualifiedName(const QString &name)
+{
+    const QStringList nameComponents = name.split('.');
+    if (nameComponents.size() < 2)
+        return QString();
+    return nameComponents.last();
+}
+
 bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
 {
     if (otherType == qualfiedTypeName())
@@ -689,8 +697,8 @@ bool NodeMetaInfoPrivate::cleverCheckType(const QString &otherType) const
         package = split.first();
         typeName = split.at(1);
     }
-    if (packageName() == package)
-        return QString(package + '.' + typeName) == qualfiedTypeName();
+    if (cppPackageName() == package)
+        return QString(package + '.' + typeName) == cppPackageName() + '.' + getUnqualifiedName(qualfiedTypeName());
 
     const CppComponentValue *qmlObjectValue = getCppComponentValue();
     if (!qmlObjectValue)
@@ -753,7 +761,7 @@ QStringList NodeMetaInfoPrivate::keysForEnum(const QString &enumName) const
     return qmlObjectValue->getEnum(enumName).keys();
 }
 
-QString NodeMetaInfoPrivate::packageName() const
+QString NodeMetaInfoPrivate::cppPackageName() const
 {
     if (!isComponent()) {
         if (const CppComponentValue *qmlObject = getCppComponentValue())
