@@ -356,7 +356,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
         // changed signal and react to the buildDirectoryChanged() signal of the buildconfiguration
         bc = makeStep->target()->activeBuildConfiguration();
         m_bc = bc;
-        connect (makeStep->target(), SIGNAL(activeBuildConfigurationChanged(BuildConfiguration*)),
+        connect (makeStep->target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
                  this, SLOT(activeBuildConfigurationChanged()));
     }
 
