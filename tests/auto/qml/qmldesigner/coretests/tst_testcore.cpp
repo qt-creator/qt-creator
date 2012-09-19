@@ -1374,7 +1374,6 @@ void tst_TestCore::testModelBasicOperations()
 
 void tst_TestCore::testModelResolveIds()
 {
-    QSKIP("Fix fake propertiesi", SkipAll);
     QScopedPointer<Model> model(createModel("QtQuick.Item"));
     QVERIFY(model.data());
 
@@ -1387,45 +1386,45 @@ void tst_TestCore::testModelResolveIds()
 
     ModelNode childNode1(addNodeListChild(rootNode, "QtQuick.Rectangle", 1, 0, "children"));
 
-    ModelNode childNode2(addNodeListChild(childNode1, "QtQuick.Rectangle", 1, 0, "children"));
+    ModelNode childNode2(addNodeListChild(childNode1, "QtQuick.Flipable", 1, 0, "children"));
     childNode2.setId("childNode2");
-    childNode2.bindingProperty("test").setExpression("parent.parent");
+    childNode2.bindingProperty("anchors.fill").setExpression("parent.parent");
 
-    QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), rootNode);
+    QCOMPARE(childNode2.bindingProperty("anchors.fill").resolveToModelNode(), rootNode);
     childNode1.setId("childNode1");
-    childNode2.bindingProperty("test").setExpression("childNode1.parent");
-    QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), rootNode);
-    childNode2.bindingProperty("test").setExpression("rootNode");
-    QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), rootNode);
+    childNode2.bindingProperty("anchors.fill").setExpression("childNode1.parent");
+    QCOMPARE(childNode2.bindingProperty("anchors.fill").resolveToModelNode(), rootNode);
+    childNode2.bindingProperty("anchors.fill").setExpression("rootNode");
+    QCOMPARE(childNode2.bindingProperty("anchors.fill").resolveToModelNode(), rootNode);
 
     ModelNode childNode3(addNodeListChild(childNode2, "QtQuick.Rectangle", 1, 0, "children"));
     childNode3.setId("childNode3");
     childNode2.nodeProperty("front").setModelNode(childNode3);
-    childNode2.bindingProperty("test").setExpression("childNode3.parent");
-    QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), childNode2);
-    childNode2.bindingProperty("test").setExpression("childNode3.parent.parent");
-    QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), childNode1);
-    childNode2.bindingProperty("test").setExpression("childNode3.parent.parent.parent");
-    QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), rootNode);
-    childNode2.bindingProperty("test").setExpression("childNode3");
-    QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), childNode3);
-    childNode2.bindingProperty("test").setExpression("front");
-    QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), childNode3);
-    childNode2.bindingProperty("test").setExpression("back");
-    QVERIFY(!childNode2.bindingProperty("test").resolveToModelNode().isValid());
-    childNode2.bindingProperty("test").setExpression("childNode3.parent.front");
-    QCOMPARE(childNode2.bindingProperty("test").resolveToModelNode(), childNode3);
+    childNode2.bindingProperty("anchors.fill").setExpression("childNode3.parent");
+    QCOMPARE(childNode2.bindingProperty("anchors.fill").resolveToModelNode(), childNode2);
+    childNode2.bindingProperty("anchors.fill").setExpression("childNode3.parent.parent");
+    QCOMPARE(childNode2.bindingProperty("anchors.fill").resolveToModelNode(), childNode1);
+    childNode2.bindingProperty("anchors.fill").setExpression("childNode3.parent.parent.parent");
+    QCOMPARE(childNode2.bindingProperty("anchors.fill").resolveToModelNode(), rootNode);
+    childNode2.bindingProperty("anchors.fill").setExpression("childNode3");
+    QCOMPARE(childNode2.bindingProperty("anchors.fill").resolveToModelNode(), childNode3);
+    childNode2.bindingProperty("anchors.fill").setExpression("front");
+    QCOMPARE(childNode2.bindingProperty("anchors.fill").resolveToModelNode(), childNode3);
+    childNode2.bindingProperty("anchors.fill").setExpression("back");
+    QVERIFY(!childNode2.bindingProperty("anchors.fill").resolveToModelNode().isValid());
+    childNode2.bindingProperty("anchors.fill").setExpression("childNode3.parent.front");
+    QCOMPARE(childNode2.bindingProperty("anchors.fill").resolveToModelNode(), childNode3);
 
     childNode2.variantProperty("x") = 10;
     QCOMPARE(childNode2.variantProperty("x").value().toInt(), 10);
 
-    childNode2.bindingProperty("test").setExpression("childNode3.parent.x");
-    QVERIFY(childNode2.bindingProperty("test").resolveToProperty().isVariantProperty());
-    QCOMPARE(childNode2.bindingProperty("test").resolveToProperty().toVariantProperty().value().toInt(), 10);
+    childNode2.bindingProperty("width").setExpression("childNode3.parent.x");
+    QVERIFY(childNode2.bindingProperty("width").resolveToProperty().isVariantProperty());
+    QCOMPARE(childNode2.bindingProperty("width").resolveToProperty().toVariantProperty().value().toInt(), 10);
 
-    childNode2.bindingProperty("test").setExpression("childNode3.parent.test");
-    QVERIFY(childNode2.bindingProperty("test").resolveToProperty().isBindingProperty());
-    QCOMPARE(childNode2.bindingProperty("test").resolveToProperty().toBindingProperty().expression(), QString("childNode3.parent.test"));
+    childNode2.bindingProperty("width").setExpression("childNode3.parent.width");
+    QVERIFY(childNode2.bindingProperty("width").resolveToProperty().isBindingProperty());
+    QCOMPARE(childNode2.bindingProperty("width").resolveToProperty().toBindingProperty().expression(), QString("childNode3.parent.width"));
 }
 
 void tst_TestCore::testModelNodeListProperty()
