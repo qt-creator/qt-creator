@@ -76,6 +76,17 @@
 
 #include <QMessageBox>
 
+namespace {
+static QLatin1String qmlPuppetApplicationDirectoryForTests()
+{
+#ifdef Q_OS_WIN
+    //one more - debug/release dir
+    return QLatin1String("/../../../../../../bin/");
+#else
+    return QLatin1String("/../../../../../bin/");
+#endif
+}
+} //namespace
 
 namespace QmlDesigner {
 
@@ -114,8 +125,8 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    QString applicationPath =  pathToQt + QLatin1String("/bin");
    if (runModus == TestModus) {
        applicationPath = QCoreApplication::applicationDirPath()
-               + QLatin1String("/../../../../../bin/")
-               + qmlPuppetApplicationName();
+           + qmlPuppetApplicationDirectoryForTests()
+           + qmlPuppetApplicationName();
    } else {
        applicationPath = macOSBundlePath(applicationPath);
        applicationPath += QLatin1Char('/') + qmlPuppetApplicationName();
