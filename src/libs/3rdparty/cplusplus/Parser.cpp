@@ -2651,7 +2651,7 @@ bool Parser::parseInitializer0x(ExpressionAST *&node, unsigned *equals_token)
     }
 
     else if (LA() == T_LPAREN) {
-        return parseExpressionListParen0x(node);
+        return parseExpressionListParen(node);
     }
 
     return false;
@@ -2787,7 +2787,7 @@ bool Parser::parseMemInitializer(MemInitializerListAST *&node)
     ast->name = name;
 
     if (LA() == T_LPAREN) {
-        parseExpressionListParen0x(ast->expression);
+        parseExpressionListParen(ast->expression);
     } else if (_cxx0xEnabled && LA() == T_LBRACE) {
         parseBracedInitList0x(ast->expression);
     } else {
@@ -2834,18 +2834,13 @@ bool Parser::parseTypeIdList(ExpressionListAST *&node)
     return false;
 }
 
-// Note that this function doesn't parse a C++11-style expression-list
-// yet, so it doesn't allow for brace-initializers.
 bool Parser::parseExpressionList(ExpressionListAST *&node)
 {
     DEBUG_THIS_RULE();
 
-#ifdef CPLUSPLUS_WITH_CXXOX_INITIALIZER_LIST
     if (_cxx0xEnabled)
         return parseInitializerList0x(node);
-#endif
 
-    // ### remove me
     ExpressionListAST **expression_list_ptr = &node;
     ExpressionAST *expression = 0;
     if (parseAssignmentExpression(expression)) {
@@ -4959,35 +4954,13 @@ bool Parser::parseUnaryExpression(ExpressionAST *&node)
 }
 
 // new-placement ::= T_LPAREN expression-list T_RPAREN
-bool Parser::parseExpressionListParen(ExpressionListParenAST *&node)
+bool Parser::parseExpressionListParen(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_LPAREN) {
         unsigned lparen_token = consumeToken();
         ExpressionListAST *expression_list = 0;
         if (parseExpressionList(expression_list) && expression_list && LA() == T_RPAREN) {
-            unsigned rparen_token = consumeToken();
-            ExpressionListParenAST *ast = new (_pool) ExpressionListParenAST;
-            ast->lparen_token = lparen_token;
-            ast->expression_list = expression_list;
-            ast->rparen_token = rparen_token;
-            node = ast;
-            return true;
-        }
-    }
-
-    return false;
-}
-
-// like above, but for C++11 where expression-list expands to initializer-list
-// and can contain braced-init-list members
-bool Parser::parseExpressionListParen0x(ExpressionAST *&node)
-{
-    DEBUG_THIS_RULE();
-    if (LA() == T_LPAREN) {
-        unsigned lparen_token = consumeToken();
-        ExpressionListAST *expression_list = 0;
-        if (parseInitializerList0x(expression_list) && expression_list && LA() == T_RPAREN) {
             unsigned rparen_token = consumeToken();
             ExpressionListParenAST *ast = new (_pool) ExpressionListParenAST;
             ast->lparen_token = lparen_token;
@@ -5018,14 +4991,14 @@ bool Parser::parseNewExpression(ExpressionAST *&node)
 
     ast->new_token = consumeToken();
 
-    ExpressionListParenAST *parenExpressionList = 0;
+    ExpressionAST *parenExpressionList = 0;
 
     if (parseExpressionListParen(parenExpressionList)) {
         unsigned after_new_placement = cursor();
 
         NewTypeIdAST *new_type_id = 0;
         if (parseNewTypeId(new_type_id)) {
-            ast->new_placement = parenExpressionList;
+            ast->new_placement = parenExpressionList->asExpressionListParen();
             ast->new_type_id = new_type_id;
             parseNewInitializer(ast->new_initializer);
             // recognized new-placement.opt new-type-id new-initializer.opt
@@ -5038,7 +5011,7 @@ bool Parser::parseNewExpression(ExpressionAST *&node)
             unsigned lparen_token = consumeToken();
             ExpressionAST *type_id = 0;
             if (parseTypeId(type_id) && LA() == T_RPAREN) {
-                ast->new_placement = parenExpressionList;
+                ast->new_placement = parenExpressionList->asExpressionListParen();
                 ast->lparen_token = lparen_token;
                 ast->type_id = type_id;
                 ast->rparen_token = consumeToken();
