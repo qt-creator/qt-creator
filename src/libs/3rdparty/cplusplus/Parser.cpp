@@ -1946,7 +1946,10 @@ bool Parser::parseParameterDeclaration(ParameterDeclarationAST *&node)
         parseDeclaratorOrAbstractDeclarator(ast->declarator, decl_specifier_seq);
         if (LA() == T_EQUAL) {
             ast->equal_token = consumeToken();
-            parseLogicalOrExpression(ast->expression);
+            if (!_cxx0xEnabled)
+                parseLogicalOrExpression(ast->expression);
+            else
+                parseInitializerClause0x(ast->expression);
         }
 
         node = ast;
