@@ -55,8 +55,12 @@ inline static QString properColorName(const QColor &color)
 inline static QString doubleToString(double d)
 {
     QString string = QString::number(d, 'f', 3);
-    if (string.endsWith(".000"))
-        string.chop(4);
+    if (string.contains(QLatin1Char('.'))) {
+        while (string.at(string.length()- 1) == QLatin1Char('0'))
+            string.chop(1);
+        if (string.at(string.length()- 1) == QLatin1Char('.'))
+            string.chop(1);
+    }
     return string;
 }
 
