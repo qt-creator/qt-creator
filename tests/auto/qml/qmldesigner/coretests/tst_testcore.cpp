@@ -5773,7 +5773,6 @@ void tst_TestCore::testModelNodeIsAncestorOf()
 
 void tst_TestCore::testModelDefaultProperties()
 {
-    QSKIP("Fix metainfo", SkipAll);
     QScopedPointer<Model> model(createModel("QtQuick.Rectangle"));
     QVERIFY(model.data());
 
