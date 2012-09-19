@@ -88,7 +88,7 @@ struct IdCache : public QHash<StringHolder, int>
     ~IdCache()
     {
         for (IdCache::iterator it = begin(); it != end(); ++it)
-            free(const_cast<char *>(it.key().str));
+            delete[](const_cast<char *>(it.key().str));
     }
 #endif
 };

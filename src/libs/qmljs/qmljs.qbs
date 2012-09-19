@@ -9,10 +9,10 @@ QtcLibrary {
         "..",
         "parser"
     ]
-    cpp.defines: [
+    cpp.defines: base.concat([
         "QMLJS_BUILD_DIR",
         "QT_CREATOR"
-    ]
+    ])
     cpp.optimization: "fast"
 
     Depends { name: "Utils" }

@@ -238,7 +238,7 @@
     for building and running projects, select \gui{Tools} > \gui{Options} >
     \gui{Build & Run} > \gui{General}.
 
-    To specify build and run settings for different target platforms    ,
+    To specify build and run settings for different target platforms,
     select \gui Projects.
 
     \section1 Adding Files to Projects
@@ -282,7 +282,15 @@
 
         \o  General
 
-            Text files
+        \list
+
+            \o  Text files
+
+            \o  Scratch buffers that use temporary files. You can create this
+                type of files for temporarily storing information that you do
+                not intend to save
+
+        \endlist
 
     \endlist
 

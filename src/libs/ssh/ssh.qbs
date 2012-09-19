@@ -4,7 +4,7 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "QtcSsh"
 
-    cpp.defines: ["QSSH_LIBRARY"]
+    cpp.defines: base.concat(["QSSH_LIBRARY"])
     cpp.includePaths: [
         ".",
         "..",

@@ -8,9 +8,6 @@ QtcLibrary {
         ".",
         ".."
     ]
-    cpp.defines: [
-        "AGGREGATION_LIBRARY"
-    ]
 
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }

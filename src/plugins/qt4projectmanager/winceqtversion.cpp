@@ -111,8 +111,3 @@ QString WinCeQtVersion::platformDisplayName() const
 {
     return QLatin1String(QtSupport::Constants::WINDOWS_CE_PLATFORM_TR);
 }
-
-QVariantMap WinCeQtVersion::toMap() const
-{
-    return BaseQtVersion::toMap();
-}

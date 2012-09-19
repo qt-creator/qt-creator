@@ -285,7 +285,7 @@ void CppFindReferences::findAll_helper(Find::SearchResult *search)
     connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
 
-    Find::SearchResultWindow::instance()->popup(true);
+    Find::SearchResultWindow::instance()->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
     const CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
     QFuture<Usage> result;
     result = QtConcurrent::run(&find_helper, workingCopy,
@@ -661,7 +661,7 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>)),
             SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>)));
 
-    Find::SearchResultWindow::instance()->popup(true);
+    Find::SearchResultWindow::instance()->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
 
     connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));

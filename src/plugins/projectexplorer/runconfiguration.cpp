@@ -322,6 +322,16 @@ bool RunConfiguration::isConfigured() const
     return true;
 }
 
+bool RunConfiguration::ensureConfigured(QString *errorMessage)
+{
+    if (isConfigured())
+        return true;
+    if (errorMessage)
+        *errorMessage = tr("Unknown error.");
+    return false;
+}
+
+
 /*!
     \fn virtual QWidget *ProjectExplorer::RunConfiguration::createConfigurationWidget()
 

@@ -1807,6 +1807,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
                 d->m_autoCompleter->setAutoParenthesesEnabled(d->autoParenthesisOverwriteBackup);
                 d->m_autoCompleter->setSurroundWithEnabled(d->surroundWithEnabledOverwriteBackup);
                 setOverwriteMode(false);
+                viewport()->update();
             } else {
                 d->autoParenthesisOverwriteBackup = d->m_autoCompleter->isAutoParenthesesEnabled();
                 d->surroundWithEnabledOverwriteBackup = d->m_autoCompleter->isSurroundWithEnabled();

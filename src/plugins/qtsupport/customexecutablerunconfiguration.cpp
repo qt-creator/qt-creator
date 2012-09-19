@@ -45,6 +45,7 @@
 
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QPushButton>
 #include <QLabel>
 #include <QVBoxLayout>
 
@@ -119,51 +120,106 @@ void CustomExecutableRunConfiguration::activeBuildConfigurationChanged()
     }
 }
 
+// Dialog embedding the CustomExecutableConfigurationWidget
+// prompting the user to complete the configuration.
+class CustomExecutableDialog : public QDialog
+{
+    Q_OBJECT
+public:
+    explicit CustomExecutableDialog(CustomExecutableRunConfiguration *rc, QWidget *parent = 0);
+
+private slots:
+    void changed()
+    {
+        setOkButtonEnabled(m_runConfiguration->isConfigured());
+    }
+
+private:
+    inline void setOkButtonEnabled(bool e)
+    {
+        m_dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(e);
+    }
+
+    QDialogButtonBox *m_dialogButtonBox;
+    CustomExecutableRunConfiguration *m_runConfiguration;
+};
+
+CustomExecutableDialog::CustomExecutableDialog(CustomExecutableRunConfiguration *rc, QWidget *parent)
+    : QDialog(parent)
+    , m_dialogButtonBox(new  QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel))
+    , m_runConfiguration(rc)
+{
+    connect(rc, SIGNAL(changed()), this, SLOT(changed()));
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    QLabel *label = new QLabel(tr("Could not find the executable, please specify one."));
+    label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    layout->addWidget(label);
+    QWidget *configWidget = rc->createConfigurationWidget();
+    configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    layout->addWidget(configWidget);
+    setOkButtonEnabled(false);
+    connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    layout->addWidget(m_dialogButtonBox);
+    layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
+}
+
+bool CustomExecutableRunConfiguration::ensureConfigured(QString *errorMessage)
+{
+    if (isConfigured())
+        return validateExecutable(0, errorMessage);
+    CustomExecutableDialog dialog(this, Core::ICore::mainWindow());
+    dialog.setWindowTitle(displayName());
+    const QString oldExecutable = m_executable;
+    const QString oldWorkingDirectory = m_workingDirectory;
+    const QString oldCmdArguments = m_cmdArguments;
+    if (dialog.exec() == QDialog::Accepted)
+        return validateExecutable(0, errorMessage);
+    // User canceled: Hack: Silence the error dialog.
+    if (errorMessage)
+        *errorMessage = QLatin1String("");
+    // Restore values changed by the configuration widget.
+    if (m_executable != oldExecutable
+        || m_workingDirectory != oldWorkingDirectory
+        || m_cmdArguments != oldCmdArguments) {
+        m_executable = oldExecutable;
+        m_workingDirectory = oldWorkingDirectory;
+        m_cmdArguments = oldCmdArguments;
+        emit changed();
+    }
+    return false;
+}
+
+// Search the executable in the path.
+bool CustomExecutableRunConfiguration::validateExecutable(QString *executable, QString *errorMessage) const
+{
+    if (executable)
+        executable->clear();
+    if (m_executable.isEmpty()) {
+        if (errorMessage)
+            *errorMessage = tr("No executable.");
+        return false;
+    }
+    const Utils::Environment env = environment();
+    const QString exec = env.searchInPath(Utils::expandMacros(m_executable, macroExpander()),
+                                          QStringList(workingDirectory()));
+    if (exec.isEmpty()) {
+        if (errorMessage)
+            *errorMessage = tr("The executable\n%1\ncannot be found in the path.").
+                            arg(QDir::toNativeSeparators(m_executable));
+        return false;
+    }
+    if (executable)
+        *executable = QDir::cleanPath(exec);
+    return true;
+}
+
 QString CustomExecutableRunConfiguration::executable() const
 {
-    Utils::Environment env = environment();
-    QString exec = env.searchInPath(Utils::expandMacros(m_executable, macroExpander()),
-                                    QStringList() << workingDirectory());
-
-    if (exec.isEmpty() || !QFileInfo(exec).exists()) {
-        // Oh the executable doesn't exists, ask the user.
-        CustomExecutableRunConfiguration *that = const_cast<CustomExecutableRunConfiguration *>(this);
-        QWidget *confWidget = that->createConfigurationWidget();
-        confWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-        QDialog dialog(Core::ICore::mainWindow());
-        dialog.setWindowTitle(displayName());
-        dialog.setWindowFlags(dialog.windowFlags() & ~Qt::WindowContextHelpButtonHint);
-        dialog.setLayout(new QVBoxLayout());
-        QLabel *label = new QLabel(tr("Could not find the executable, please specify one."));
-        label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-        dialog.layout()->addWidget(label);
-        dialog.layout()->addWidget(confWidget);
-        QDialogButtonBox *dbb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-        connect(dbb, SIGNAL(accepted()), &dialog, SLOT(accept()));
-        connect(dbb, SIGNAL(rejected()), &dialog, SLOT(reject()));
-        dialog.layout()->addWidget(dbb);
-        dialog.layout()->setSizeConstraint(QLayout::SetMinAndMaxSize);
-
-        QString oldExecutable = m_executable;
-        QString oldWorkingDirectory = m_workingDirectory;
-        QString oldCmdArguments = m_cmdArguments;
-
-        if (dialog.exec() == QDialog::Accepted) {
-            return executable();
-        } else {
-            // Restore values changed by the configuration widget.
-            if (that->m_executable != oldExecutable
-                || that->m_workingDirectory != oldWorkingDirectory
-                || that->m_cmdArguments != oldCmdArguments) {
-                that->m_executable = oldExecutable;
-                that->m_workingDirectory = oldWorkingDirectory;
-                that->m_cmdArguments = oldCmdArguments;
-                emit that->changed();
-            }
-            return QString();
-        }
-    }
-    return QDir::cleanPath(exec);
+    QString result;
+    validateExecutable(&result);
+    return result;
 }
 
 QString CustomExecutableRunConfiguration::rawExecutable() const
@@ -426,3 +482,5 @@ QString CustomExecutableRunConfigurationFactory::displayNameForId(const Core::Id
         return tr("Custom Executable");
     return QString();
 }
+
+#include "customexecutablerunconfiguration.moc"

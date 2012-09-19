@@ -65,7 +65,7 @@
         \o  To test the application in \QS, click the \gui {Kit
             Selector} and select \gui {\QS}.
 
-            \image qtcreator-gs-build-example-select-qs.png "Selecting Qt Simulator as target device type"
+            \image qtcreator-gs-build-example-select-qs.png "Selecting Qt Simulator to run on"
 
         \o  Click
             \inlineimage qtcreator-run.png
@@ -82,7 +82,7 @@
 
         \o  Change the settings in the \gui Model view. For example, rotate the
             device by clicking the \gui {Orientation} buttons or choose from the
-            various mobile device configurations in the \gui {Device} field. You
+            various mobile devices in the \gui {Device} field. You
             can also simulate various mobile functions and create your own
             scripts.
 

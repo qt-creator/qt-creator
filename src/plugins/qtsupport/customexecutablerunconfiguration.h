@@ -80,6 +80,8 @@ public:
 
     QVariantMap toMap() const;
 
+    bool ensureConfigured(QString *errorMessage);
+
 signals:
     void changed();
 
@@ -116,6 +118,7 @@ private:
     QString baseWorkingDirectory() const;
     void setUserName(const QString &name);
     void setRunMode(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode);
+    bool validateExecutable(QString *executable = 0, QString *errorMessage = 0) const;
 
     QString m_executable;
     QString m_workingDirectory;

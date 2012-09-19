@@ -142,7 +142,7 @@ void ToolChainManager::restoreToolChains()
     // read all tool chains from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
     QList<ToolChain *> readTcs =
-            restoreToolChains(Utils::FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(LEGACY_TOOLCHAIN_FILENAME)));
+            restoreToolChains(Utils::FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME)));
     // make sure we mark these as autodetected!
     foreach (ToolChain *tc, readTcs)
         tc->setAutoDetected(true);
@@ -328,7 +328,7 @@ bool ToolChainManager::registerToolChain(ToolChain *tc)
     if (!tc || d->toolChains().contains(tc))
         return true;
     foreach (ToolChain *current, d->toolChains()) {
-        if (*tc == *current)
+        if (*tc == *current && !tc->isAutoDetected())
             return false;
     }
 

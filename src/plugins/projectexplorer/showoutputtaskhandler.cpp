@@ -53,7 +53,8 @@ bool ShowOutputTaskHandler::canHandle(const ProjectExplorer::Task &task) const
 void ShowOutputTaskHandler::handle(const ProjectExplorer::Task &task)
 {
     Q_ASSERT(canHandle(task));
-    m_window->popup(); // popup first as this does move the visible area!
+    // popup first as this does move the visible area!
+    m_window->popup(Core::IOutputPane::Flags(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus));
     m_window->showPositionOf(task);
 }
 

@@ -90,7 +90,7 @@
                 applications for desktop environment and mobile devices.
                 \l{glossary-buildandrun-kit}{Kits}, build,
                 run, and deployment settings allow you to quickly switch between
-                different setups and targets.
+                different setups and target platforms.
 
                 For more information, see \l{Building and Running}.
             \o  \bold {\l{Debugging and Analyzing}}

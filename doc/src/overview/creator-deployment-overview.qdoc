@@ -53,9 +53,9 @@
             Maemo 5/Fremantle devices.
         \o \l{Deploying Applications to QNX Devices}
 
-            When you deploy the application on a QNX device, depending
-            on your target device, \QC either generates a BAR package in the
-            build directory and deploys it to the connected device, or copies
+            When you deploy the application on a BlackBerry, \QC  generates a
+            BAR package in the build directory and deploys it to the connected
+            device. When you deploy it on a QNX Neutrino device, \QC copies
             the application files to the connected device. You can test and
             debug the application on the device.
     \endlist
@@ -67,8 +67,7 @@
 
             When you are ready to publish the application on a publishing
             channel, you must make sure that the installation file meets the
-            requirements for publishing and installing applications to the
-            targeted devices.
+            requirements for publishing on the channel.
     \endlist
 
 */

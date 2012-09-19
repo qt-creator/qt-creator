@@ -1174,9 +1174,10 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
                                            bool *isExternalEditor) const
 {
     // Collect editors that can open the file
-    const MimeType mt = ICore::mimeDatabase()->findByFile(fileName);
+    MimeType mt = ICore::mimeDatabase()->findByFile(fileName);
+    //Unable to determine mime type of fileName. Falling back to text/plain",
     if (!mt)
-        return Id();
+        mt = ICore::mimeDatabase()->findByType(QLatin1String("text/plain"));
     QStringList allEditorIds;
     QStringList allEditorDisplayNames;
     QList<Id> externalEditorIds;

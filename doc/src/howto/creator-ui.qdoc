@@ -326,6 +326,9 @@
 
     \image qtcreator-application-output.png
 
+    Select toolbar buttons to run applications, to attach the debugger to the
+    running application, and to stop running or debugging.
+
     \section2 Compile Output
 
     The \gui{Compile Output} pane provides all output from the compiler.
@@ -333,6 +336,11 @@
     displayed in the \gui{Issues} pane.
 
     \image qtcreator-compile-pane.png
+
+    Double-click on a file name in an error message to open the file in the
+    code editor.
+
+    Select the \gui {Cancel Build} button to cancel the build.
 
     \section2 To-Do List
 
@@ -382,6 +390,8 @@
         \o  Fit images to screen
 
         \o  Return to original size
+
+        \o  Play and pause movies
 
     \endlist
 

@@ -184,7 +184,7 @@
             \image qmldesigner-new-project-harmattan-options.png "Harmattan Specific dialog"
 
         \o  In the \gui {Application icon} field, select the application
-            icon to use on Maemo or Harmattan targets, or use the default icon.
+            icon to use on Maemo or Harmattan devices, or use the default icon.
 
             The \gui {Project Management} dialog opens.
 

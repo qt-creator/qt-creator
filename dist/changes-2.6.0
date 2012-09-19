@@ -22,10 +22,12 @@ Editing
    * Added shortcuts for searching for next and previous occurrence
      of selected text without opening the find tool bar (QTCREATORBUG-464)
    * Made resource files searchable (Ctrl+F)
+   * Integrated VCS support into the resource editor
    * Added file type icons to the resource editor
    * Added opening of files from the resource editor
+   * Added renaming of files from the resource editor
    * Added highlighting of missing files in the resource editor
-   * Added support for movies in the image viewer
+   * Added support for animated images in the image viewer
    * Fixed problems when closing documents in a split view (QTCREATORBUG-7361)
 
 Managing Projects

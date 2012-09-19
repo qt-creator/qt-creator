@@ -36,7 +36,7 @@
     build and run applications on embedded Linux devices.
 
     To be able to run and debug applications on embedded Linux devices, you must
-    create device configurations and select them in the \QC \l{glossary-buildandrun-kit}{kit}
+    add devices and select them in the \QC \l{glossary-buildandrun-kit}{kit}.
 
     You use a wizard to create the connections. You can edit the settings later
     in \gui Tools > \gui Options > \gui Devices.

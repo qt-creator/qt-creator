@@ -453,3 +453,20 @@ def iterateQtVersions(keepOptionsOpen=False, additionalFunction=None, *argsForAd
         return result, additionalResult
     else:
         return result
+
+# set "Always Start Full Help" in "Tools" -> "Options..." -> "Help" -> "General"
+def setAlwaysStartFullHelp():
+    invokeMenuItem("Tools", "Options...")
+    waitForObjectItem(":Options_QListView", "Help")
+    clickItem(":Options_QListView", "Help", 5, 5, 0, Qt.LeftButton)
+    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "General")
+    selectFromCombo(":Startup.contextHelpComboBox_QComboBox", "Always Start Full Help")
+    clickButton(waitForObject(":Options.OK_QPushButton"))
+
+def removePackagingDirectory(projectPath):
+    qtcPackaging = os.path.join(projectPath, "qtc_packaging")
+    if os.path.exists(qtcPackaging):
+        test.log("Removing old packaging directory '%s'" % qtcPackaging)
+        deleteDirIfExists(qtcPackaging)
+    else:
+        test.log("Couldn't remove packaging directory '%s' - did not exist." % qtcPackaging)

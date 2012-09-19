@@ -75,26 +75,29 @@ public:
     virtual void goToNext() = 0;
     virtual void goToPrev() = 0;
 
+    enum Flag { NoModeSwitch = 0, ModeSwitch = 1, WithFocus = 2, EnsureSizeHint = 4};
+    Q_DECLARE_FLAGS(Flags, Flag)
+
 public slots:
-    void popup() { popup(true, false); }
-    void popup(bool withFocus) { popup(withFocus, false); }
-    void popup(bool withFocus, bool ensureSizeHint) { emit showPage(withFocus, ensureSizeHint); }
+    void popup(int flags) { emit showPage(flags); }
+
     void hide() { emit hidePage(); }
-    void toggle() { toggle(true); }
-    void toggle(bool withFocusIfShown) { emit togglePage(withFocusIfShown); }
+    void toggle(int flags) { emit togglePage(flags); }
     void navigateStateChanged() { emit navigateStateUpdate(); }
     void flash() { emit flashButton(); }
     void setIconBadgeNumber(int number) { emit setBadgeNumber(number); }
 
 signals:
-    void showPage(bool withFocus, bool ensureSizeHint);
+    void showPage(int flags);
     void hidePage();
-    void togglePage(bool withFocusIfShown);
+    void togglePage(int flags);
     void navigateStateUpdate();
     void flashButton();
     void setBadgeNumber(int number);
 };
 
 } // namespace Core
+
+ Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IOutputPane::Flags)
 
 #endif // IOUTPUTPANE_H

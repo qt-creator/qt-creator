@@ -3038,6 +3038,7 @@ namespace stdset {
         // Check it1.value 11 int.
         // Check it1.key 55 unsigned int.
         // Check it1.value 55 int.
+        // Continue.
         dummyStatement(&set, &it1, &it2, &it3, &it4, &it5, &it6);
     }
 

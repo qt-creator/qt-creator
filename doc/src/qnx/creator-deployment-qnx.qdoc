@@ -32,13 +32,11 @@
 
     \title Deploying Applications to QNX Devices
 
-    When you deploy the application on the \gui{QNX} target, depending on your
-    target device, \QC either generates a BAR package and installs it on the
-    connected device, or copies the application files to the device.
+    You can deploy applications to BlackBerry and QNX Neutrino devices.
 
     \section1 Deploying to BlackBerry Devices
 
-    For \gui{BlackBerry} targets, \QC generates a BAR package in the build
+    For BlackBerry devices, \QC generates a BAR package in the build
     directory and installs it on the connected device. The contents of the BAR
     package are specified in the \gui{Application Descriptor File}.
 
@@ -64,7 +62,7 @@
 
     \section1 Deploying to QNX Neutrino Devices
 
-    Deploying applications to a \gui{QNX Neutrino} device is very similar to
+    Deploying applications to a QNX Neutrino device is very similar to
     \l{Deploying Applications to Linux-Based Devices}.
 
     \image qtcreator-qnx-deployment.png "Deploy to device"

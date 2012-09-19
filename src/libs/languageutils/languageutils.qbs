@@ -9,10 +9,10 @@ QtcLibrary {
         "..",
         "../3rdparty/cplusplus"
     ]
-    cpp.defines: [
+    cpp.defines: base.concat([
         "QT_CREATOR",
         "LANGUAGEUTILS_BUILD_DIR"
-    ]
+    ])
     cpp.optimization: "fast"
 
     Depends { name: "cpp" }

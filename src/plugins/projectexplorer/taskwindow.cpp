@@ -305,8 +305,8 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
             this, SLOT(clearTasks(Core::Id)));
     connect(d->m_taskHub, SIGNAL(categoryVisibilityChanged(Core::Id,bool)),
             this, SLOT(setCategoryVisibility(Core::Id,bool)));
-    connect(d->m_taskHub, SIGNAL(popupRequested(bool)),
-            this, SLOT(popup(bool)));
+    connect(d->m_taskHub, SIGNAL(popupRequested(int)),
+            this, SLOT(popup(int)));
     connect(d->m_taskHub, SIGNAL(showTask(uint)),
             this, SLOT(showTask(uint)));
     connect(d->m_taskHub, SIGNAL(openTask(uint)),
@@ -341,6 +341,8 @@ void TaskWindow::clearTasks(const Core::Id &categoryId)
             d->m_badgeCount -= d->m_model->errorTaskCount(categoryId);
         if (d->m_filter->filterIncludesWarnings())
             d->m_badgeCount -= d->m_model->warningTaskCount(categoryId);
+        if (d->m_filter->filterIncludesUnknowns())
+            d->m_badgeCount -= d->m_model->unknownTaskCount(categoryId);
     } else {
         d->m_badgeCount = 0;
     }
@@ -456,7 +458,7 @@ void TaskWindow::showTask(unsigned int id)
     QModelIndex sourceIdx = d->m_model->index(sourceRow, 0);
     QModelIndex filterIdx = d->m_filter->mapFromSource(sourceIdx);
     d->m_listview->setCurrentIndex(filterIdx);
-    popup(false);
+    popup(Core::IOutputPane::ModeSwitch);
 }
 
 void TaskWindow::openTask(unsigned int id)

@@ -31,20 +31,20 @@
 
     \title Configuring Projects
 
-    \omit
-    When you install the \QSDK, the build and run settings for the development
-    targets delivered with the \QSDK are set up automatically.
-    \endomit
+    When you install an SDK for a target platform, such as Android or QNX, the
+    build and run settings for the development
+    targets delivered with the SDK might be set up automatically in \QC.
 
     To view and modify the settings for currently open projects, switch to the
     \gui Projects mode by pressing \key Ctrl+5.
 
     \image qtcreator-project-targets.png
 
-    To add build and run \l{glossary-buildandrun-kit}{kits} for the project, select \gui Add. The list
+    To add build and run \l{glossary-buildandrun-kit}{kits} for the project,
+    select \gui {Add Kit}. The list
     displays kits that are configured in \gui Tools > \gui Options >
     \gui {Build & Run} > \gui Kits. To add kits to the list, select
-    \gui Manage.
+    \gui {Manage Kits}.
 
     To remove a kit, hover the cursor over it (1) and click
     \inlineimage qtcreator-target-remove.png "Remove Kit button"

@@ -284,17 +284,17 @@ void BuildManager::clearBuildQueue()
 
 void BuildManager::toggleOutputWindow()
 {
-    d->m_outputWindow->toggle(false);
+    d->m_outputWindow->toggle(Core::IOutputPane::ModeSwitch);
 }
 
 void BuildManager::showTaskWindow()
 {
-    d->m_taskWindow->popup(false);
+    d->m_taskWindow->popup(Core::IOutputPane::NoModeSwitch);
 }
 
 void BuildManager::toggleTaskWindow()
 {
-    d->m_taskWindow->toggle(false);
+    d->m_taskWindow->toggle(Core::IOutputPane::ModeSwitch);
 }
 
 bool BuildManager::tasksAvailable() const
@@ -546,12 +546,12 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &st
 
     bool success = buildQueueAppend(steps, names);
     if (!success) {
-        d->m_outputWindow->popup(false);
+        d->m_outputWindow->popup(Core::IOutputPane::NoModeSwitch);
         return false;
     }
 
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
-        d->m_outputWindow->popup(false);
+        d->m_outputWindow->popup(Core::IOutputPane::NoModeSwitch);
     startBuildQueue(preambelMessage);
     return true;
 }
@@ -560,11 +560,11 @@ void BuildManager::appendStep(BuildStep *step, const QString &name)
 {
     bool success = buildQueueAppend(QList<BuildStep *>() << step, QStringList() << name);
     if (!success) {
-        d->m_outputWindow->popup(false);
+        d->m_outputWindow->popup(Core::IOutputPane::NoModeSwitch);
         return;
     }
     if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
-        d->m_outputWindow->popup(false);
+        d->m_outputWindow->popup(Core::IOutputPane::NoModeSwitch);
     startBuildQueue();
 }
 

@@ -80,9 +80,8 @@
     \section1 Adding a BlackBerry Device in \QC
 
     Adding a BlackBerry device is done using a wizard in the \gui{Device
-    Configurations} options. To launch it, go to \gui{Tools > Options >
-    Linux Devices > Device Configurations > Add... > BlackBerry Device > Start
-    Wizard}.
+    Configurations} options. To launch it, go to \gui Tools > \gui Options >
+    \gui Devices > \gui Add > \gui {BlackBerry Device} > \gui {Start Wizard}.
 
     \image qtcreator-qnx-device-configurations-wizard-1.png "Connection details"
 
@@ -109,10 +108,10 @@
     Click \gui{Next} and then \gui{Finish} to complete setting up the device
     connection.
 
-    Once the device is added, you can edit the settings directly in the
-    \gui{Device Configurations} options page.
+    Once the device is added, you can edit the settings directly in \gui Tools >
+    \gui Options > \gui Devices.
 
-    \image qtcreator-qnx-device-configurations.png "Device Configurations"
+    \image qtcreator-qnx-device-configurations.png "Devices"
 
     \section1 Adding a QNX Neutrino Device in \QC
 

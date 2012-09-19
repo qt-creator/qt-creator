@@ -116,6 +116,7 @@ bool DeployConfiguration::fromMap(const QVariantMap &map)
         return false;
     QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QLatin1String("0")).toMap();
     if (!data.isEmpty()) {
+        delete m_stepList;
         m_stepList = new BuildStepList(this, data);
         if (m_stepList->isNull()) {
             qWarning() << "Failed to restore deploy step list";

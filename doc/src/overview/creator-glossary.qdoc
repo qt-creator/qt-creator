@@ -103,7 +103,8 @@
             \o  Project
                 \target glossary-project
             \o  Groups together a set of source files, forms, and resource files
-                that you can build, deploy, and run for different \e targets, as
+                that you can build, deploy, and run for different desktop and
+                mobile device platforms, as
                 specified by a \e {build configuration}, \e {deploy
                 configuration}, and \e {run configuration}.
 

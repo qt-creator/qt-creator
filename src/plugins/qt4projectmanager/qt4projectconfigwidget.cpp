@@ -99,6 +99,8 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(ProjectExplorer::Target *target)
     Qt4Project *project = static_cast<Qt4Project *>(target->project());
     connect(project, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
     connect(project, SIGNAL(buildDirectoryInitialized()), this, SLOT(updateProblemLabel()));
+
+    connect(target, SIGNAL(kitChanged()), this, SLOT(updateProblemLabel()));
 }
 
 Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
@@ -296,7 +298,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
         m_ui->problemLabel->setText(shadowBuildWarning +tr("An incompatible build exists in %1, which will be overwritten.",
                                                            "%1 build directory")
                                     .arg(m_ui->shadowBuildDirEdit->path()));
-    } else if (shadowBuildWarning.isEmpty()) {
+    } else if (!shadowBuildWarning.isEmpty()) {
         m_ui->warningLabel->setVisible(true);
         m_ui->problemLabel->setVisible(true);
         m_ui->problemLabel->setText(shadowBuildWarning);

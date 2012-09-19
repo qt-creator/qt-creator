@@ -237,7 +237,7 @@
     You use a wizard to create the connections. You can edit the settings later
     in \gui Tools > \gui Options > \gui Devices.
 
-    \image qtcreator-meego-device-configurations.png "MeeGo Device Configurations dialog"
+    \image qtcreator-meego-device-configurations.png "Devices dialog"
 
     By default, you create the connection as the \e developer user. This
     protects real user data on the device from getting corrupted during testing.

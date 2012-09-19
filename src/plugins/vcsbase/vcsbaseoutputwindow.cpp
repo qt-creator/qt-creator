@@ -370,23 +370,22 @@ void VcsBaseOutputWindow::appendSilently(const QString &text)
 void VcsBaseOutputWindow::append(const QString &text)
 {
     appendSilently(text);
-    // Pop up without focus
     if (!d->plainTextEdit()->isVisible())
-        popup(false);
+        popup(Core::IOutputPane::NoModeSwitch);
 }
 
 void VcsBaseOutputWindow::appendError(const QString &text)
 {
     d->plainTextEdit()->appendError(text);
     if (!d->plainTextEdit()->isVisible())
-        popup(false); // Pop up without focus
+        popup(Core::IOutputPane::NoModeSwitch);
 }
 
 void VcsBaseOutputWindow::appendWarning(const QString &text)
 {
     d->plainTextEdit()->appendWarning(text);
     if (!d->plainTextEdit()->isVisible())
-        popup(false); // Pop up without focus
+        popup(Core::IOutputPane::NoModeSwitch);
 }
 
 // Helper to format arguments for log windows hiding common password
@@ -441,7 +440,7 @@ void VcsBaseOutputWindow::appendData(const QByteArray &data)
 {
     appendDataSilently(data);
     if (!d->plainTextEdit()->isVisible())
-        popup(false); // Pop up without focus
+        popup(Core::IOutputPane::NoModeSwitch);
 }
 
 void VcsBaseOutputWindow::appendDataSilently(const QByteArray &data)

@@ -1,7 +1,7 @@
 TEMPLATE = lib
 TARGET = QmlProfiler
 
-DEFINES += PROFILER_LIBRARY
+DEFINES += QMLPROFILER_LIBRARY
 
 QT += network script
 greaterThan(QT_MAJOR_VERSION, 4) {

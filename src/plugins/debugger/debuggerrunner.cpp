@@ -478,6 +478,8 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     LocalApplicationRunConfiguration *rc =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
     QTC_ASSERT(rc, return sp);
+    if (!rc->ensureConfigured(errorMessage))
+        return sp;
 
     Target *target = runConfiguration->target();
     Kit *kit = target ? target->kit() : KitManager::instance()->defaultKit();
@@ -541,7 +543,6 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
 RunControl *DebuggerRunControlFactory::create
     (RunConfiguration *runConfiguration, RunMode mode, QString *errorMessage)
 {
-    Q_UNUSED(errorMessage)
     QTC_ASSERT(mode == DebugRunMode || mode == DebugRunModeWithBreakOnMain, return 0);
     DebuggerStartParameters sp = localStartParameters(runConfiguration, errorMessage);
     if (sp.startMode == NoStartMode)
@@ -621,6 +622,9 @@ DebuggerRunControl *DebuggerRunControlFactory::createAndScheduleRun
     (const DebuggerStartParameters &sp, RunConfiguration *runConfiguration)
 {
     QString errorMessage;
+    if (runConfiguration && !runConfiguration->ensureConfigured(&errorMessage))
+        ProjectExplorer::ProjectExplorerPlugin::showRunErrorMessage(errorMessage);
+
     DebuggerRunControl *rc = doCreate(sp, runConfiguration, &errorMessage);
     if (!rc) {
         ProjectExplorer::ProjectExplorerPlugin::showRunErrorMessage(errorMessage);

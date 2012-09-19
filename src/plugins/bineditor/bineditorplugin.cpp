@@ -222,8 +222,10 @@ public:
 
     bool open(QString *errorString, const QString &fileName, quint64 offset = 0) {
         QFile file(fileName);
-        if (offset >= static_cast<quint64>(file.size()))
+        if (offset >= static_cast<quint64>(file.size())) {
+            *errorString = tr("The Binary Editor can not open empty files.");
             return false;
+        }
         if (file.open(QIODevice::ReadOnly)) {
             file.close();
             m_fileName = fileName;

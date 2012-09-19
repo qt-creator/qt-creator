@@ -81,6 +81,8 @@ public:
     ShutdownFlag aboutToShutdown();
 
 private slots:
+    void unregisterOldQtCreatorDocumentation();
+
     void showExternalWindow();
     void modeChanged(Core::IMode *mode, Core::IMode *old);
 

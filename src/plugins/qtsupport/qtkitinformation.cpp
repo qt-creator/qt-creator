@@ -121,10 +121,23 @@ int QtKitInformation::qtVersionId(const ProjectExplorer::Kit *k)
 {
     if (!k)
         return -1;
-    bool ok = false;
-    int id = k->value(Core::Id(Internal::QT_INFORMATION), -1).toInt(&ok);
-    if (!ok)
-        id = -1;
+
+    int id = -1;
+    QVariant data = k->value(Core::Id(Internal::QT_INFORMATION), -1);
+    if (data.type() == QVariant::Int) {
+        bool ok;
+        id = data.toInt(&ok);
+        if (!ok)
+            id = -1;
+    } else {
+        QString source = data.toString();
+        foreach (BaseQtVersion *v, QtVersionManager::instance()->versions()) {
+            if (v->autodetectionSource() != source)
+                continue;
+            id = v->uniqueId();
+            break;
+        }
+    }
     return id;
 }
 

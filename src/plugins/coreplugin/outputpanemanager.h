@@ -79,8 +79,8 @@ protected:
     void focusInEvent(QFocusEvent *e);
 
 private slots:
-    void showPage(bool focus, bool ensureSizeHint);
-    void togglePage(bool focus);
+    void showPage(int flags);
+    void togglePage(int flags);
     void clearPage();
     void buttonTriggered();
     void updateNavigateState();
@@ -100,7 +100,7 @@ private:
     explicit OutputPaneManager(QWidget *parent = 0);
     ~OutputPaneManager();
 
-    void showPage(int idx, bool focus);
+    void showPage(int idx, int flags);
     void ensurePageVisible(int idx);
     int findIndexForPage(IOutputPane *out);
     int currentIndex() const;

@@ -250,6 +250,8 @@ void BuildConfiguration::setUserEnvironmentChanges(const QList<Utils::Environmen
 
 void BuildConfiguration::cloneSteps(BuildConfiguration *source)
 {
+    if (source == this)
+        return;
     qDeleteAll(m_stepLists);
     m_stepLists.clear();
     foreach (BuildStepList *bsl, source->m_stepLists) {

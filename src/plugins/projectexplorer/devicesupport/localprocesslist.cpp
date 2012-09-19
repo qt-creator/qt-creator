@@ -50,6 +50,9 @@
 #include <utils/winutils.h>
 #include <tlhelp32.h>
 #include <psapi.h>
+#ifndef PROCESS_SUSPEND_RESUME
+#define PROCESS_SUSPEND_RESUME 0x0800
+#endif
 #endif
 
 namespace ProjectExplorer {

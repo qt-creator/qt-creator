@@ -206,7 +206,7 @@ void formatWindowsException(unsigned long code, quint64 address,
     str.setIntegerBase(10);
 }
 
-bool isDebuggerWinException(long code)
+bool isDebuggerWinException(unsigned long code)
 {
     return code == EXCEPTION_BREAKPOINT || code == EXCEPTION_SINGLE_STEP;
 }
