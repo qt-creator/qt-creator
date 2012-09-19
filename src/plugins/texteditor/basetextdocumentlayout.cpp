@@ -86,6 +86,7 @@ bool DocumentMarker::addMark(TextEditor::ITextMark *mark)
         mark->updateLineNumber(blockNumber + 1);
         QTC_CHECK(mark->lineNumber() == blockNumber + 1); // Checks that the base class is called
         mark->updateBlock(block);
+        mark->setMarkableInterface(this);
         if (!mark->visible())
             return true;
         // Update document layout
@@ -97,7 +98,6 @@ bool DocumentMarker::addMark(TextEditor::ITextMark *mark)
             documentLayout->requestUpdate();
         else
             documentLayout->requestExtraAreaUpdate();
-        mark->setMarkableInterface(this);
         return true;
     }
     return false;
