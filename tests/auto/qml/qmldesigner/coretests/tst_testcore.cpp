@@ -1312,8 +1312,7 @@ void tst_TestCore::testBasicStates()
 
 void tst_TestCore::testModelBasicOperations()
 {
-    QSKIP("Fix MetaInfo", SkipAll);
-    QScopedPointer<Model> model(createModel("QtQuick.Item"));
+    QScopedPointer<Model> model(createModel("QtQuick.Flipable"));
     QVERIFY(model.data());
 
     QScopedPointer<TestView> view(new TestView(model.data()));
