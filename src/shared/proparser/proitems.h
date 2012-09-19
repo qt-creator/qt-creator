@@ -233,6 +233,7 @@ public:
     int length() const { return size(); }
 
     QString join(const QString &sep) const;
+    QString join(QChar sep) const;
 
     void removeAll(const ProString &str);
     void removeAll(const char *str);

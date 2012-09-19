@@ -333,28 +333,39 @@ QTextStream &operator<<(QTextStream &t, const ProString &str)
     return t;
 }
 
-QString ProStringList::join(const QString &sep) const
+static QString ProStringList_join(const ProStringList &this_, const QChar *sep, const int sepSize)
 {
     int totalLength = 0;
-    const int sz = size();
+    const int sz = this_.size();
 
     for (int i = 0; i < sz; ++i)
-        totalLength += at(i).size();
+        totalLength += this_.at(i).size();
 
     if (sz)
-        totalLength += sep.size() * (sz - 1);
+        totalLength += sepSize * (sz - 1);
 
     QString res(totalLength, Qt::Uninitialized);
     QChar *ptr = (QChar *)res.constData();
     for (int i = 0; i < sz; ++i) {
         if (i) {
-            memcpy(ptr, sep.constData(), sep.size() * 2);
-            ptr += sep.size();
+            memcpy(ptr, sep, sepSize * sizeof(QChar));
+            ptr += sepSize;
         }
-        memcpy(ptr, at(i).constData(), at(i).size() * 2);
-        ptr += at(i).size();
+        const ProString &str = this_.at(i);
+        memcpy(ptr, str.constData(), str.size() * sizeof(QChar));
+        ptr += str.size();
     }
     return res;
+}
+
+QString ProStringList::join(const QString &sep) const
+{
+    return ProStringList_join(*this, sep.constData(), sep.size());
+}
+
+QString ProStringList::join(QChar sep) const
+{
+    return ProStringList_join(*this, &sep, 1);
 }
 
 void ProStringList::removeAll(const ProString &str)
