@@ -99,6 +99,8 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(ProjectExplorer::Target *target)
     Qt4Project *project = static_cast<Qt4Project *>(target->project());
     connect(project, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
     connect(project, SIGNAL(buildDirectoryInitialized()), this, SLOT(updateProblemLabel()));
+
+    connect(target, SIGNAL(kitChanged()), this, SLOT(updateProblemLabel()));
 }
 
 Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
