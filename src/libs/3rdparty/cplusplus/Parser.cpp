@@ -2677,8 +2677,7 @@ bool Parser::parseInitializerClause0x(ExpressionAST *&node)
     if (LA() == T_LBRACE)
         return parseBracedInitList0x(node);
 
-    parseAssignmentExpression(node);
-    return true;
+    return parseAssignmentExpression(node);
 }
 
 bool Parser::parseInitializerList0x(ExpressionListAST *&node)
@@ -4775,7 +4774,7 @@ bool Parser::parseCorePostfixExpression(ExpressionAST *&node)
         if (lookAtBuiltinTypeSpecifier() &&
                 parseSimpleTypeSpecifier(type_specifier) &&
                 (LA() == T_LPAREN || (_cxx0xEnabled && LA() == T_LBRACE))) {
-            ExpressionAST *expr;
+            ExpressionAST *expr = 0;
             if (LA() == T_LPAREN) {
                 parseExpressionListParen(expr);
             } else { // T_LBRACE
