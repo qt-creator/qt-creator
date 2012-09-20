@@ -291,6 +291,6 @@ void CodeStylePool::exportCodeStyle(const Utils::FileName &fileName, ICodeStyleP
     tmp.insert(QLatin1String(displayNameKey), codeStyle->displayName());
     tmp.insert(QLatin1String(codeStyleDataKey), map);
     Utils::PersistentSettingsWriter writer(fileName, QLatin1String(codeStyleDocKey));
-    writer.save(map, 0);
+    writer.save(tmp, 0);
 }
 
