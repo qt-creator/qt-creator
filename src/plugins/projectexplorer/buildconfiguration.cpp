@@ -282,6 +282,7 @@ IBuildConfigurationFactory::IBuildConfigurationFactory(QObject *parent) :
 IBuildConfigurationFactory::~IBuildConfigurationFactory()
 { }
 
+// restore
 IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, const QVariantMap &map)
 {
     QList<IBuildConfigurationFactory *> factories
@@ -293,6 +294,7 @@ IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, con
     return 0;
 }
 
+// create
 IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
 {
     QList<IBuildConfigurationFactory *> factories
@@ -304,4 +306,15 @@ IBuildConfigurationFactory * IBuildConfigurationFactory::find(Target *parent)
     return 0;
 }
 
+// clone
+IBuildConfigurationFactory *IBuildConfigurationFactory::find(Target *parent, BuildConfiguration *bc)
+{
+    QList<IBuildConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<IBuildConfigurationFactory>();
+    foreach (IBuildConfigurationFactory *factory, factories) {
+        if (factory->canClone(parent, bc))
+            return factory;
+    }
+    return 0;
+}
 } // namespace ProjectExplorer

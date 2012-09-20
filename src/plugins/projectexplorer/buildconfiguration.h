@@ -145,6 +145,7 @@ public:
 
     static IBuildConfigurationFactory *find(Target *parent, const QVariantMap &map);
     static IBuildConfigurationFactory *find(Target *parent);
+    static IBuildConfigurationFactory *find(Target *parent, BuildConfiguration *bc);
 
 signals:
     void availableCreationIdsChanged();

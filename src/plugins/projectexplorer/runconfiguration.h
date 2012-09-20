@@ -91,7 +91,7 @@ class PROJECTEXPLORER_EXPORT DebuggerRunConfigurationAspect
 
 public:
     DebuggerRunConfigurationAspect(RunConfiguration *runConfiguration);
-    DebuggerRunConfigurationAspect(DebuggerRunConfigurationAspect *other);
+    DebuggerRunConfigurationAspect(RunConfiguration *runConfiguration, DebuggerRunConfigurationAspect *other);
 
     enum QmlDebuggerStatus {
         DisableQmlDebugger = 0,
@@ -214,6 +214,7 @@ public:
     virtual RunConfiguration *clone(Target *parent, RunConfiguration *product) = 0;
 
     static IRunConfigurationFactory *find(Target *parent, const QVariantMap &map);
+    static IRunConfigurationFactory *find(Target *parent, RunConfiguration *rc);
     static QList<IRunConfigurationFactory *> find(Target *parent);
 
 signals:
@@ -235,6 +236,7 @@ public:
     virtual QString displayName() const = 0;
 
     virtual IRunConfigurationAspect *createRunConfigurationAspect();
+    virtual IRunConfigurationAspect *cloneRunConfigurationAspect(IRunConfigurationAspect *);
     virtual RunConfigWidget *createConfigurationWidget(RunConfiguration *runConfiguration);
 };
 

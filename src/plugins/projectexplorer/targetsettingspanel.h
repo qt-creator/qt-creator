@@ -43,6 +43,7 @@ namespace ProjectExplorer {
 
 class Target;
 class Project;
+class Kit;
 
 namespace Internal {
 
@@ -65,17 +66,24 @@ protected:
     bool event(QEvent *event);
 private slots:
     void currentTargetChanged(int targetIndex, int subIndex);
-    void removeTarget(int targetIndex);
     void showTargetToolTip(const QPoint &globalPos, int targetIndex);
-    void addTarget(QAction *);
     void targetAdded(ProjectExplorer::Target *target);
     void removedTarget(ProjectExplorer::Target *target);
     void activeTargetChanged(ProjectExplorer::Target *target);
-    void updateTargetAddAndRemoveButtons();
+    void updateTargetButtons();
     void renameTarget();
     void openTargetPreferences();
 
+    void removeTarget();
+    void menuShown(int targetIndex);
+    void addActionTriggered(QAction *action);
+    void changeActionTriggered(QAction *action);
+    void duplicateActionTriggered(QAction *action);
 private:
+    Target *cloneTarget(Target *sourceTarget, Kit *k);
+    void removeTarget(Target *t);
+    void createAction(Kit *k, QMenu *menu);
+
     Target *m_currentTarget;
     Project *m_project;
     TargetSettingsWidget *m_selector;
@@ -83,8 +91,12 @@ private:
     QWidget *m_noTargetLabel;
     PanelsWidget *m_panelWidgets[2];
     QList<Target *> m_targets;
+    QMenu *m_targetMenu;
+    QMenu *m_changeMenu;
+    QMenu *m_duplicateMenu;
     QMenu *m_addMenu;
     QAction *m_lastAction;
+    int m_menuTargetIndex;
 };
 
 } // namespace Internal

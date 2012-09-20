@@ -114,6 +114,7 @@ public:
 
     static DeployConfigurationFactory *find(Target *parent, const QVariantMap &map);
     static DeployConfigurationFactory *find(Target *parent);
+    static DeployConfigurationFactory *find(Target *parent, DeployConfiguration *dc);
 
 signals:
     void availableCreationIdsChanged();

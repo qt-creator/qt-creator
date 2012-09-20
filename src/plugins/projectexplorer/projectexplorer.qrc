@@ -40,7 +40,7 @@
         <file>images/unconfigured.png</file>
         <file>images/targetleftbutton.png</file>
         <file>images/targetrightbutton.png</file>
-        <file>images/targetremovebutton.png</file>
-        <file>images/targetremovebuttondark.png</file>
+        <file>images/targetchangebutton.png</file>
+        <file>images/targetchangebutton2.png</file>
     </qresource>
 </RCC>

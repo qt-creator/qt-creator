@@ -63,12 +63,12 @@ TargetSettingsWidget::TargetSettingsWidget(QWidget *parent) :
 
     headerLayout->addWidget(m_targetSelector, 0, Qt::AlignBottom);
     headerLayout->addStretch(10);
-    connect(m_targetSelector, SIGNAL(removeButtonClicked(int)),
-            this, SIGNAL(removeButtonClicked(int)));
     connect(m_targetSelector, SIGNAL(currentChanged(int,int)),
             this, SIGNAL(currentChanged(int,int)));
     connect(m_targetSelector, SIGNAL(toolTipRequested(QPoint,int)),
             this, SIGNAL(toolTipRequested(QPoint,int)));
+    connect(m_targetSelector, SIGNAL(menuShown(int)),
+            this, SIGNAL(menuShown(int)));
 
     QPalette shadowPal = palette();
     QLinearGradient grad(0, 0, 0, 2);
@@ -117,6 +117,11 @@ void TargetSettingsWidget::setAddButtonEnabled(bool enabled)
 void TargetSettingsWidget::setAddButtonMenu(QMenu *menu)
 {
     m_addButton->setMenu(menu);
+}
+
+void TargetSettingsWidget::setTargetMenu(QMenu *menu)
+{
+    m_targetSelector->setTargetMenu(menu);
 }
 
 QString TargetSettingsWidget::targetNameAt(int index) const

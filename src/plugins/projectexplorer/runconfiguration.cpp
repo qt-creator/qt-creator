@@ -123,16 +123,17 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(RunConfiguration 
     m_suppressQmlDebuggingSpinbox(false)
 {}
 
-DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(DebuggerRunConfigurationAspect *other) :
-    m_runConfiguration(other->m_runConfiguration),
-    m_useCppDebugger(other->m_useCppDebugger),
-    m_useQmlDebugger(other->m_useQmlDebugger),
-    m_qmlDebugServerPort(other->m_qmlDebugServerPort),
-    m_useMultiProcess(other->m_useMultiProcess),
-    m_suppressDisplay(other->m_suppressDisplay),
-    m_suppressQmlDebuggingOptions(other->m_suppressQmlDebuggingOptions),
-    m_suppressCppDebuggingOptions(other->m_suppressCppDebuggingOptions),
-    m_suppressQmlDebuggingSpinbox(other->m_suppressQmlDebuggingSpinbox)
+DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(RunConfiguration *runConfiguration,
+                                                               DebuggerRunConfigurationAspect *other)
+    : m_runConfiguration(runConfiguration),
+      m_useCppDebugger(other->m_useCppDebugger),
+      m_useQmlDebugger(other->m_useQmlDebugger),
+      m_qmlDebugServerPort(other->m_qmlDebugServerPort),
+      m_useMultiProcess(other->m_useMultiProcess),
+      m_suppressDisplay(other->m_suppressDisplay),
+      m_suppressQmlDebuggingOptions(other->m_suppressQmlDebuggingOptions),
+      m_suppressCppDebuggingOptions(other->m_suppressCppDebuggingOptions),
+      m_suppressQmlDebuggingSpinbox(other->m_suppressQmlDebuggingSpinbox)
 {}
 
 RunConfiguration *DebuggerRunConfigurationAspect::runConfiguration()
@@ -284,10 +285,18 @@ RunConfiguration::RunConfiguration(Target *target, const Core::Id id) :
 
 RunConfiguration::RunConfiguration(Target *target, RunConfiguration *source) :
     ProjectConfiguration(target, source),
-    m_debuggerAspect(new DebuggerRunConfigurationAspect(source->debuggerAspect()))
+    m_debuggerAspect(new DebuggerRunConfigurationAspect(this, source->debuggerAspect()))
 {
     Q_ASSERT(target);
-    addExtraAspects();
+    QList<IRunControlFactory *> factories = ExtensionSystem::PluginManager::getObjects<IRunControlFactory>();
+    foreach (IRunConfigurationAspect *aspect, source->m_aspects) {
+        foreach (IRunControlFactory *factory, factories) {
+            if (IRunConfigurationAspect *clone = factory->cloneRunConfigurationAspect(aspect)) {
+                m_aspects.append(clone);
+                break;
+            }
+        }
+    }
 }
 
 RunConfiguration::~RunConfiguration()
@@ -455,6 +464,17 @@ IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, const Q
     return 0;
 }
 
+IRunConfigurationFactory *IRunConfigurationFactory::find(Target *parent, RunConfiguration *rc)
+{
+    QList<IRunConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<IRunConfigurationFactory>();
+    foreach (IRunConfigurationFactory *factory, factories) {
+        if (factory->canClone(parent, rc))
+            return factory;
+    }
+    return 0;
+}
+
 QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 {
     QList<IRunConfigurationFactory *> factories
@@ -501,6 +521,11 @@ IRunControlFactory::~IRunControlFactory()
 }
 
 IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect()
+{
+    return 0;
+}
+
+IRunConfigurationAspect *IRunControlFactory::cloneRunConfigurationAspect(IRunConfigurationAspect *source)
 {
     return 0;
 }

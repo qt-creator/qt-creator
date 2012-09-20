@@ -56,6 +56,11 @@ AnalyzerSettings::AnalyzerSettings(QObject *parent)
 {
 }
 
+AnalyzerSettings::AnalyzerSettings(AnalyzerSettings *other)
+{
+
+}
+
 QVariantMap AnalyzerSettings::defaults() const
 {
     QVariantMap map;
@@ -151,7 +156,7 @@ void AnalyzerGlobalSettings::registerTool(IAnalyzerTool *tool)
 
 
 AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect()
-    : AnalyzerSettings(0), m_useGlobalSettings(true)
+    : AnalyzerSettings((QObject *)0), m_useGlobalSettings(true)
 {
     QList<IAnalyzerTool*> tools = AnalyzerManager::tools();
     // add sub configs
@@ -163,6 +168,19 @@ AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect()
 
     m_subConfigs = AnalyzerGlobalSettings::instance()->subConfigs();
     resetCustomToGlobalSettings();
+}
+
+AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect(AnalyzerRunConfigurationAspect *other)
+    : AnalyzerSettings(other), m_useGlobalSettings(other->m_useGlobalSettings)
+{
+
+    foreach (AbstractAnalyzerSubConfig *config, other->m_customConfigurations)
+        m_customConfigurations.append(config->clone());
+
+    if (m_useGlobalSettings)
+        m_subConfigs = AnalyzerGlobalSettings::instance()->subConfigs();
+    else
+        m_subConfigs = m_customConfigurations;
 }
 
 AnalyzerRunConfigurationAspect::~AnalyzerRunConfigurationAspect()

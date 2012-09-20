@@ -175,6 +175,7 @@ public:
     QVariantMap toMap() const;
     QVariantMap defaults() const;
     void fromMap(const QVariantMap &map);
+    virtual AbstractAnalyzerSubConfig *clone();
 
     /*
      * Global memcheck settings
@@ -232,6 +233,7 @@ public:
     QVariantMap toMap() const;
     QVariantMap defaults() const;
     void fromMap(const QVariantMap &map);
+    virtual AbstractAnalyzerSubConfig *clone();
 
     /**
      * Per-project memcheck settings, saves a diff to the global suppression files list

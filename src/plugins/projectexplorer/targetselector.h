@@ -36,10 +36,12 @@
 
 QT_BEGIN_NAMESPACE
 class QMenu;
+class QPushButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 namespace Internal {
+class QPixmapButton;
 
 class TargetSelector : public QWidget
 {
@@ -63,6 +65,8 @@ public:
     int currentIndex() const { return m_currentTargetIndex; }
     int currentSubIndex() const { return m_targets.at(m_currentTargetIndex).currentSubIndex; }
 
+    void setTargetMenu(QMenu *menu);
+
 public:
     void insertTarget(int index, const QString &name);
     void renameTarget(int index, const QString &name);
@@ -71,11 +75,11 @@ public:
     void setCurrentSubIndex(int subindex);
 
 signals:
-    void removeButtonClicked(int targetIndex);
     // This signal is emitted whenever the target pointed to by the indices
     // has changed.
     void currentChanged(int targetIndex, int subIndex);
     void toolTipRequested(const QPoint &globalPosition, int targetIndex);
+    void menuShown(int targetIndex);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -84,8 +88,13 @@ protected:
     void leaveEvent(QEvent *event);
     bool event(QEvent *e);
 
+private slots:
+    void changeButtonPressed();
+    void updateButtons();
+    void menuAboutToShow();
+    void menuAboutToHide();
 private:
-    void getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex, bool *removeButton);
+    void getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex);
     int maxVisibleTargets() const;
 
     const QImage m_unselected;
@@ -93,14 +102,17 @@ private:
     const QImage m_buildselected;
     const QPixmap m_targetRightButton;
     const QPixmap m_targetLeftButton;
-    const QPixmap m_targetRemoveButton;
-    const QPixmap m_targetRemoveDarkButton;
+    const QPixmap m_targetChangePixmap;
+    const QPixmap m_targetChangePixmap2;
+
+    QPixmapButton *m_targetChangeButton;
 
     QList<Target> m_targets;
 
     int m_currentTargetIndex;
     int m_currentHoveredTargetIndex;
     int m_startIndex;
+    bool m_menuShown;
 };
 
 } // namespace Internal

@@ -39,6 +39,8 @@ class QPushButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
+class Target;
+class Kit;
 namespace Internal {
 
 namespace Ui {
@@ -67,12 +69,14 @@ public:
     void setCurrentSubIndex(int index);
     void setAddButtonEnabled(bool enabled);
     void setAddButtonMenu(QMenu *menu);
-
+    void setTargetMenu(QMenu *menu);
 signals:
-    void removeButtonClicked(int targetIndex);
     void currentChanged(int targetIndex, int subIndex);
     void manageButtonClicked();
+    void duplicateButtonClicked();
+    void changeKitButtonClicked();
     void toolTipRequested(const QPoint &globalPosition, int targetIndex);
+    void menuShown(int targetIndex);
 
 protected:
     void changeEvent(QEvent *e);

@@ -37,9 +37,40 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QFontMetrics>
+#include <QPushButton>
 
 static const int TARGET_HEIGHT = 43;
 static const int NAVBUTTON_WIDTH = 27;
+
+namespace ProjectExplorer {
+namespace Internal {
+class QPixmapButton : public QPushButton
+{
+public:
+    QPixmapButton(QWidget *parent, const QPixmap &first, const QPixmap &second)
+        : QPushButton(parent), m_showFirst(true), m_first(first), m_second(second)
+    {
+        setFixedSize(m_first.size());
+    }
+
+    void paintEvent(QPaintEvent *)
+    {
+        QPainter p(this);
+        p.drawPixmap(0, 0, m_showFirst ? m_first : m_second);
+    }
+
+    void setFirst(bool f)
+    {
+        m_showFirst = f;
+    }
+
+private:
+    bool m_showFirst;
+    const QPixmap m_first;
+    const QPixmap m_second;
+};
+}
+}
 
 using namespace ProjectExplorer::Internal;
 
@@ -50,11 +81,12 @@ TargetSelector::TargetSelector(QWidget *parent) :
     m_buildselected(QLatin1String(":/projectexplorer/images/targetbuildselected.png")),
     m_targetRightButton(QLatin1String(":/projectexplorer/images/targetrightbutton.png")),
     m_targetLeftButton(QLatin1String(":/projectexplorer/images/targetleftbutton.png")),
-    m_targetRemoveButton(QLatin1String(":/projectexplorer/images/targetremovebutton.png")),
-    m_targetRemoveDarkButton(QLatin1String(":/projectexplorer/images/targetremovebuttondark.png")),
+    m_targetChangePixmap(QLatin1String(":/projectexplorer/images/targetchangebutton.png")),
+    m_targetChangePixmap2(QLatin1String(":/projectexplorer/images/targetchangebutton2.png")),
     m_currentTargetIndex(-1),
     m_currentHoveredTargetIndex(-1),
-    m_startIndex(0)
+    m_startIndex(0),
+    m_menuShown(false)
 {
     QFont f = font();
     f.setPixelSize(10);
@@ -62,6 +94,27 @@ TargetSelector::TargetSelector(QWidget *parent) :
     setFont(f);
     setMouseTracking(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    m_targetChangeButton = new QPixmapButton(this, m_targetChangePixmap2, m_targetChangePixmap);
+    m_targetChangeButton->hide();
+    connect(m_targetChangeButton, SIGNAL(pressed()), this, SLOT(changeButtonPressed()));
+}
+
+void TargetSelector::changeButtonPressed()
+{
+    emit menuShown(m_currentHoveredTargetIndex);
+}
+
+void TargetSelector::menuAboutToShow()
+{
+    m_menuShown = true;
+    updateButtons();
+}
+
+void TargetSelector::menuAboutToHide()
+{
+    m_menuShown = false;
+    updateButtons();
 }
 
 void TargetSelector::insertTarget(int index, const QString &name)
@@ -137,6 +190,25 @@ TargetSelector::Target TargetSelector::targetAt(int index) const
     return m_targets.at(index);
 }
 
+void TargetSelector::setTargetMenu(QMenu *menu)
+{
+    if (m_targetChangeButton->menu()) {
+        disconnect(m_targetChangeButton->menu(), SIGNAL(aboutToShow()),
+                   this, SLOT(menuAboutToShow()));
+        disconnect(m_targetChangeButton->menu(), SIGNAL(aboutToHide()),
+                   this, SLOT(menuAboutToHide()));
+    }
+
+    m_targetChangeButton->setMenu(menu);
+
+    if (menu) {
+        connect(m_targetChangeButton->menu(), SIGNAL(aboutToShow()),
+                this, SLOT(menuAboutToShow()));
+        connect(m_targetChangeButton->menu(), SIGNAL(aboutToHide()),
+                this, SLOT(menuAboutToHide()));
+    }
+}
+
 int TargetSelector::targetWidth() const
 {
     static int width = -1;
@@ -158,7 +230,7 @@ int TargetSelector::maxVisibleTargets() const
     return (width() - ((NAVBUTTON_WIDTH + 1) * 2 + 3))/(targetWidth() + 1);
 }
 
-void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex, bool *removeButton)
+void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetIndex, int *targetSubIndex)
 {
     if (buttonIndex)
         *buttonIndex = -1;
@@ -166,8 +238,6 @@ void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetInd
         *targetIndex = -1;
     if (targetSubIndex)
         *targetSubIndex = -1;
-    if (removeButton)
-        *removeButton = false;
 
     // left button?
     if (m_startIndex > 0 /* button visible */ && x >= 0 && x < NAVBUTTON_WIDTH + 2) {
@@ -197,6 +267,7 @@ void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetInd
     }
     --index;
     tx -= targetWidth() + 1;
+
     if (index >= 0 && index < m_targets.size()) {
         if (targetIndex)
             *targetIndex = index;
@@ -210,10 +281,6 @@ void TargetSelector::getControlAt(int x, int y, int *buttonIndex, int *targetInd
                 if (targetSubIndex)
                     *targetSubIndex = 0;
             }
-        } else if (y < m_targetRemoveButton.height() + 3
-                   && x >= tx + targetWidth() - m_targetRemoveButton.width() - 1) {
-            if (removeButton)
-                *removeButton = true;
         }
     }
 }
@@ -223,8 +290,7 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
     int buttonIndex;
     int targetIndex;
     int targetSubIndex;
-    bool removeButton;
-    getControlAt(event->x(), event->y(), &buttonIndex, &targetIndex, &targetSubIndex, &removeButton);
+    getControlAt(event->x(), event->y(), &buttonIndex, &targetIndex, &targetSubIndex);
     if (buttonIndex == 0) {
         event->accept();
         --m_startIndex;
@@ -236,7 +302,7 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
     } else if (targetIndex != -1) {
         event->accept();
         bool updateNeeded = false;
-        if (targetIndex != m_currentTargetIndex && !removeButton) {
+        if (targetIndex != m_currentTargetIndex) {
             m_currentTargetIndex = targetIndex;
             updateNeeded = true;
         }
@@ -245,8 +311,6 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
                 m_targets[m_currentTargetIndex].currentSubIndex = targetSubIndex;
                 updateNeeded = true;
             }
-        } else if (removeButton) {
-            emit removeButtonClicked(targetIndex);
         }
         if (updateNeeded) {
             update();
@@ -260,11 +324,12 @@ void TargetSelector::mousePressEvent(QMouseEvent *event)
 void TargetSelector::mouseMoveEvent(QMouseEvent *event)
 {
     int targetIndex;
-    getControlAt(event->x(), event->y(), 0, &targetIndex, 0, 0);
+    getControlAt(event->x(), event->y(), 0, &targetIndex, 0);
     if (m_currentHoveredTargetIndex != targetIndex) {
         m_currentHoveredTargetIndex = targetIndex;
         if (targetIndex != -1)
             event->accept();
+        updateButtons();
         update();
     }
 }
@@ -273,7 +338,24 @@ void TargetSelector::leaveEvent(QEvent *event)
 {
     Q_UNUSED(event)
     m_currentHoveredTargetIndex = -1;
+    updateButtons();
     update();
+}
+
+void TargetSelector::updateButtons()
+{
+    if (m_menuShown) {
+        // Do nothing while the menu is show
+    } else if (m_currentHoveredTargetIndex == -1) {
+        m_targetChangeButton->hide();
+    } else {
+        int tx = NAVBUTTON_WIDTH + 3 + (m_currentHoveredTargetIndex - m_startIndex) * (targetWidth() + 1);
+
+        QPoint buttonTopLeft(tx + targetWidth() - m_targetChangePixmap.width() - 1, 3);
+        m_targetChangeButton->move(buttonTopLeft);
+        m_targetChangeButton->setVisible(true);
+        m_targetChangeButton->setFirst(m_currentHoveredTargetIndex == m_currentTargetIndex);
+    }
 }
 
 bool TargetSelector::event(QEvent *e)
@@ -282,9 +364,8 @@ bool TargetSelector::event(QEvent *e)
         const QHelpEvent *helpEvent = static_cast<const QHelpEvent *>(e);
         int targetIndex;
         int subTargetIndex;
-        bool removeButton;
-        getControlAt(helpEvent->x(), helpEvent->y(), 0, &targetIndex, &subTargetIndex, &removeButton);
-        if (targetIndex >= 0 && subTargetIndex < 0 && !removeButton) {
+        getControlAt(helpEvent->x(), helpEvent->y(), 0, &targetIndex, &subTargetIndex);
+        if (targetIndex >= 0 && subTargetIndex < 0) {
             emit toolTipRequested(helpEvent->globalPos(), targetIndex);
             e->accept();
             return true;
@@ -340,12 +421,6 @@ void TargetSelector::paintEvent(QPaintEvent *event)
                                                                  targetWidth() - 6);
         p.drawText(x + (targetWidth()- fm.width(nameText))/2 + 1, 7 + fm.ascent(),
             nameText);
-
-        // remove button
-        if (m_currentHoveredTargetIndex == index) {
-            p.drawPixmap(x + targetWidth() - m_targetRemoveButton.width() - 2, 3,
-                         index == m_currentTargetIndex ? m_targetRemoveDarkButton : m_targetRemoveButton);
-        }
 
         // Build
         int margin = 2; // position centered within the rounded buttons

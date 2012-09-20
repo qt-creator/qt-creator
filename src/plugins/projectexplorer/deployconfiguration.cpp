@@ -65,7 +65,8 @@ DeployConfiguration::DeployConfiguration(Target *target, const Core::Id id) :
 }
 
 DeployConfiguration::DeployConfiguration(Target *target, DeployConfiguration *source) :
-    ProjectConfiguration(target, source)
+    ProjectConfiguration(target, source),
+    m_stepList(0)
 {
     Q_ASSERT(target);
     // Do not clone stepLists here, do that in the derived constructor instead
@@ -251,6 +252,17 @@ DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent)
             = ExtensionSystem::PluginManager::instance()->getObjects<DeployConfigurationFactory>();
     foreach (DeployConfigurationFactory *factory, factories) {
         if (!factory->availableCreationIds(parent).isEmpty())
+            return factory;
+    }
+    return 0;
+}
+
+DeployConfigurationFactory *DeployConfigurationFactory::find(Target *parent, DeployConfiguration *dc)
+{
+    QList<DeployConfigurationFactory *> factories
+            = ExtensionSystem::PluginManager::instance()->getObjects<DeployConfigurationFactory>();
+    foreach (DeployConfigurationFactory *factory, factories) {
+        if (factory->canClone(parent, dc))
             return factory;
     }
     return 0;
