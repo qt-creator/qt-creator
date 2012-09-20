@@ -249,10 +249,12 @@ int ModelNode::majorQtQuickVersion() const
     }
 
     if (metaInfo().isValid()) {
+        if (type() == "QtQuick.QtObject")
+            return majorVersion();
         NodeMetaInfo superClass = metaInfo().directSuperClass();
 
         while (superClass.isValid()) {
-            if (superClass.typeName() == "QtQuick.Item")
+            if (superClass.typeName() == "QtQuick.QtObject")
                 return superClass.majorVersion();
             superClass = superClass.directSuperClass();
         }
