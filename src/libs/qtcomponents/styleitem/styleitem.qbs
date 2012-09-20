@@ -1,4 +1,5 @@
 import qbs.base 1.0
+import "../../../../qbs/defaults.js" as Defaults
 
 DynamicLibrary {
     name: "styleplugin"
@@ -7,7 +8,7 @@ DynamicLibrary {
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["core", "widgets", "quick1", "script"] }
 
-    cpp.defines: project.additionalCppDefines
+    cpp.defines: Defaults.defines(qbs)
 
     files: [
         "qdeclarativefolderlistmodel.cpp",
