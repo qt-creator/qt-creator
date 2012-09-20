@@ -210,6 +210,14 @@ bool ClearCasePlugin::isCheckInEditorOpen() const
     return !m_checkInMessageFileName.isEmpty();
 }
 
+/*! Find top level for view that contains \a directory
+ *
+ * - Snapshot Views will have the CLEARCASE_ROOT_FILE (view.dat) in its top dir
+ * - Dynamic views can either be
+ *      - M:/view_name,
+ *      - or mapped to a drive letter, like Z:/
+ *    (drive letters are just examples)
+ */
 QString ClearCasePlugin::findTopLevel(const QString &directory) const
 {
     // Snapshot view
@@ -678,6 +686,12 @@ bool ClearCasePlugin::vcsUndoCheckOut(const QString &workingDir, const QString &
     return !response.error;
 }
 
+
+/*! Undo a hijacked file in a snapshot view
+ *
+ * Runs cleartool update -overwrite \a fileName in \a workingDir
+ * if \a keep is true, renames hijacked files to <filename>.keep. Otherwise it is overwritten
+ */
 bool ClearCasePlugin::vcsUndoHijack(const QString &workingDir, const QString &fileName, bool keep)
 {
     if (ClearCase::Constants::debug)
