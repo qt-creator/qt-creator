@@ -399,9 +399,9 @@ Product {
     }
 
     Group {
-        qbs.installDir: "share/qtcreator/qml/qmlpuppet/instances"
+        qbs.installDir: "share/qtcreator/qml/qmlpuppet/qmlpuppet/instances"
         fileTags: ["install"]
-        prefix: "qtcreator/qml/qmlpuppet/instances/"
+        prefix: "qtcreator/qml/qmlpuppet/qmlpuppet/instances/"
         files: [
             "anchorchangesnodeinstance.cpp",
             "anchorchangesnodeinstance.h",
@@ -415,7 +415,6 @@ Product {
             "dummycontextobject.h",
             "dummynodeinstance.cpp",
             "dummynodeinstance.h",
-            "instances.pri",
             "nodeinstanceclientproxy.cpp",
             "nodeinstanceclientproxy.h",
             "nodeinstancemetaobject.cpp",
