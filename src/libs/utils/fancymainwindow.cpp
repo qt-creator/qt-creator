@@ -257,7 +257,7 @@ void FancyMainWindow::restoreSettings(const QHash<QString, QVariant> &settings)
 
 QList<QDockWidget *> FancyMainWindow::dockWidgets() const
 {
-    return qFindChildren<QDockWidget *>(this);
+    return findChildren<QDockWidget *>();
 }
 
 bool FancyMainWindow::isLocked() const
@@ -275,7 +275,7 @@ static bool actionLessThan(const QAction *action1, const QAction *action2)
 QMenu *FancyMainWindow::createPopupMenu()
 {
     QList<QAction *> actions;
-    QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(this);
+    QList<QDockWidget *> dockwidgets = findChildren<QDockWidget *>();
     for (int i = 0; i < dockwidgets.size(); ++i) {
         QDockWidget *dockWidget = dockwidgets.at(i);
         if (dockWidget->property("managed_dockwidget").isNull()

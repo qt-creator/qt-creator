@@ -68,7 +68,7 @@ SearchWidget::~SearchWidget()
 
 void SearchWidget::zoomIn()
 {
-    QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
+    QTextBrowser* browser = resultWidget->findChild<QTextBrowser*>();
     if (browser && zoomCount != 10) {
         zoomCount++;
         browser->zoomIn();
@@ -77,7 +77,7 @@ void SearchWidget::zoomIn()
 
 void SearchWidget::zoomOut()
 {
-    QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
+    QTextBrowser* browser = resultWidget->findChild<QTextBrowser*>();
     if (browser && zoomCount != -5) {
         zoomCount--;
         browser->zoomOut();
@@ -89,7 +89,7 @@ void SearchWidget::resetZoom()
     if (zoomCount == 0)
         return;
 
-    QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
+    QTextBrowser* browser = resultWidget->findChild<QTextBrowser*>();
     if (browser) {
         browser->zoomOut(zoomCount);
         zoomCount = 0;
@@ -136,7 +136,7 @@ void SearchWidget::showEvent(QShowEvent *event)
         connect(searchEngine, SIGNAL(searchingFinished(int)), this,
             SLOT(searchingFinished(int)));
 
-        QTextBrowser* browser = qFindChild<QTextBrowser*>(resultWidget);
+        QTextBrowser* browser = resultWidget->findChild<QTextBrowser*>();
         browser->viewport()->installEventFilter(this);
 
         connect(searchEngine, SIGNAL(indexingStarted()), this,
@@ -215,7 +215,7 @@ void SearchWidget::indexingFinished()
 
 bool SearchWidget::eventFilter(QObject *o, QEvent *e)
 {
-    QTextBrowser *browser = qFindChild<QTextBrowser *>(resultWidget);
+    QTextBrowser *browser = resultWidget->findChild<QTextBrowser *>();
     if (browser && o == browser->viewport()
         && e->type() == QEvent::MouseButtonRelease){
         QMouseEvent *me = static_cast<QMouseEvent *>(e);
@@ -233,7 +233,7 @@ bool SearchWidget::eventFilter(QObject *o, QEvent *e)
 
 void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
 {
-    QTextBrowser *browser = qFindChild<QTextBrowser *>(resultWidget);
+    QTextBrowser *browser = resultWidget->findChild<QTextBrowser *>();
     if (!browser)
         return;
 
