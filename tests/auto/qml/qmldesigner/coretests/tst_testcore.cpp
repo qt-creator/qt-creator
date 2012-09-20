@@ -4019,6 +4019,28 @@ void tst_TestCore::testMetaInfoListProperties()
     QApplication::processEvents();
 }
 
+void tst_TestCore::testQtQuick20Basic()
+{
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText("\nimport QtQuick 2.0\n\nItem {\n}\n");
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
+    QVERIFY(model.data());
+
+    TestRewriterView *testRewriterView = new TestRewriterView(model.data());
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView);
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+    ModelNode rootModelNode(testRewriterView->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+    QCOMPARE(rootModelNode.metaInfo().majorVersion(), 2);
+    QCOMPARE(rootModelNode.metaInfo().minorVersion(), 0);
+    QCOMPARE(rootModelNode.majorQtQuickVersion(), 2);
+    QCOMPARE(rootModelNode.majorVersion(), 2);
+}
+
 void tst_TestCore::testStatesRewriter()
 {
     QPlainTextEdit textEdit;
