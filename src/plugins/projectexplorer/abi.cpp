@@ -135,29 +135,32 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
         break;
     }
 
-    if (data.size() >= 68) {
+    if (data.size() >= 24) {
         // Get Major and Minor Image Version from optional header fields
-        quint32 image = getLEUint32(data, 64);
-        if (image == 1) { // Image is 1 for mingw and higher for MSVC (4.something in some encoding)
+        quint8 minorLinker = data.at(23);
+        switch (data.at(22)) {
+        case 2:
+        case 3: // not yet reached:-)
             flavor = Abi::WindowsMSysFlavor;
-        } else {
-            switch (data.at(22)) {
-            case 8:
-                flavor = Abi::WindowsMsvc2005Flavor;
-                break;
-            case 9:
-                flavor = Abi::WindowsMsvc2008Flavor;
-                break;
-            case 10:
-                flavor = Abi::WindowsMsvc2010Flavor;
-                break;
-            case 11:
-                flavor = Abi::WindowsMsvc2012Flavor;
-                break;
-            default: // Keep unknown flavor
+            break;
+        case 8:
+            flavor = Abi::WindowsMsvc2005Flavor;
+            break;
+        case 9:
+            flavor = Abi::WindowsMsvc2008Flavor;
+            break;
+        case 10:
+            flavor = Abi::WindowsMsvc2010Flavor;
+            break;
+        case 11:
+            flavor = Abi::WindowsMsvc2012Flavor;
+            break;
+        default: // Keep unknown flavor
+            if (minorLinker != 0)
+                flavor = Abi::WindowsMSysFlavor; // MSVC seems to avoid using minor numbers
+            else
                 qWarning("%s: Unknown MSVC flavour encountered.", Q_FUNC_INFO);
-                break;
-            }
+            break;
         }
     }
 
@@ -791,9 +794,6 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
                               << QString::fromLatin1("ppc-macos-generic-mach_o-32bit")
                               << QString::fromLatin1("x86-macos-generic-mach_o-64bit"));
 
-    QTest::newRow("dynamic QtCore: win msvc2012 64bit")
-            << QString::fromLatin1("/tmp/win-msvc2012-64bit.dll").arg(prefix)
-            << (QStringList() << QString::fromLatin1("x86-windows-msvc2012-pe-64bit"));
     QTest::newRow("dynamic QtCore: win msvc2010 64bit")
             << QString::fromLatin1("%1/dynamic/win-msvc2010-64bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2010-pe-64bit"));
@@ -806,6 +806,9 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
     QTest::newRow("dynamic QtCore: win msys 32bit")
             << QString::fromLatin1("%1/dynamic/win-mingw-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-32bit"));
+    QTest::newRow("dynamic QtCore: win mingw 64bit")
+            << QString::fromLatin1("%1/dynamic/win-mingw-64bit.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msys-pe-64bit"));
     QTest::newRow("dynamic QtCore: wince msvc2005 32bit")
             << QString::fromLatin1("%1/dynamic/wince-32bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("mips-windows-msvc2005-pe-32bit"));
