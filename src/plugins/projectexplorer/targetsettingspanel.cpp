@@ -55,6 +55,7 @@
 #include <QStackedWidget>
 #include <QToolTip>
 #include <QVBoxLayout>
+#include <QToolTip>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -68,7 +69,8 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
     m_currentTarget(0),
     m_project(project),
     m_selector(0),
-    m_centralWidget(0)
+    m_centralWidget(0),
+    m_lastAction(0)
 {
     Q_ASSERT(m_project);
 
@@ -95,6 +97,33 @@ TargetSettingsPanelWidget::TargetSettingsPanelWidget(Project *project) :
 
 TargetSettingsPanelWidget::~TargetSettingsPanelWidget()
 {
+}
+
+bool TargetSettingsPanelWidget::event(QEvent *event)
+{
+    if (event->type() == QEvent::StatusTip) {
+        QStatusTipEvent *ev = static_cast<QStatusTipEvent *>(event);
+        ev->accept();
+
+        QAction *act = m_addMenu->activeAction();
+        if (act != m_lastAction)
+            QToolTip::showText(QPoint(), QString());
+        m_lastAction = act;
+        if (act) {
+            QRect actionRect = m_addMenu->actionGeometry(act);
+            actionRect.translate(m_addMenu->pos());
+            QPoint p = QCursor::pos();
+            if (!actionRect.contains(p))
+                p = actionRect.center();
+            p.setY(actionRect.center().y());
+            QToolTip::showText(p, ev->tip(), m_addMenu, m_addMenu->actionGeometry(act));
+        } else {
+            QToolTip::showText(QPoint(), QString());
+        }
+
+        return true;
+    }
+    return QWidget::event(event);
 }
 
 void TargetSettingsPanelWidget::setupUi()
@@ -315,11 +344,14 @@ void TargetSettingsPanelWidget::updateTargetAddAndRemoveButtons()
     foreach (Kit *k, KitManager::instance()->kits()) {
         if (m_project->target(k))
             continue;
-        if (!m_project->supportsKit(k))
-            continue;
 
         QAction *action = new QAction(k->displayName(), m_addMenu);
         action->setData(QVariant::fromValue(k->id()));
+        QString errorMessage;
+        if (!m_project->supportsKit(k, &errorMessage)) {
+            action->setEnabled(false);
+            action->setStatusTip(errorMessage);
+        }
 
         bool inserted = false;
         foreach (QAction *existing, m_addMenu->actions()) {

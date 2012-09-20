@@ -864,9 +864,11 @@ Qt4Manager *Qt4Project::qt4ProjectManager() const
     return m_manager;
 }
 
-bool Qt4Project::supportsKit(Kit *k) const
+bool Qt4Project::supportsKit(Kit *k, QString *errorMessage) const
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+    if (!version && errorMessage)
+        *errorMessage = tr("No Qt version set in kit.");
     return version;
 }
 

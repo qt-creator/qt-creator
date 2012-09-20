@@ -243,9 +243,10 @@ Target *Project::target(Kit *k) const
     return 0;
 }
 
-bool Project::supportsKit(Kit *k) const
+bool Project::supportsKit(Kit *k, QString *errorMessage) const
 {
     Q_UNUSED(k);
+    Q_UNUSED(errorMessage);
     return true;
 }
 

@@ -83,7 +83,7 @@ public:
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;
 
-    bool supportsKit(ProjectExplorer::Kit *k) const;
+    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const;
 
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     Qt4ProFileNode *rootQt4ProjectNode() const;

@@ -269,14 +269,19 @@ ProjectExplorer::IProjectManager *QmlProject::projectManager() const
     return m_manager;
 }
 
-bool QmlProject::supportsKit(ProjectExplorer::Kit *k) const
+bool QmlProject::supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const
 {
     Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
-    if (deviceType != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+    if (deviceType != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        if (errorMessage)
+            *errorMessage = tr("Device type is not desktop.");
         return false;
+    }
 
     // TODO: Limit supported versions?
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
+    if (!version && errorMessage)
+        *errorMessage = tr("No Qt version set in kit.");
     return version;
 }
 

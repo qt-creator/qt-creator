@@ -90,7 +90,7 @@ public:
     void setActiveTarget(Target *target);
     Target *target(const Core::Id id) const;
     Target *target(Kit *k) const;
-    virtual bool supportsKit(Kit *k) const;
+    virtual bool supportsKit(Kit *k, QString *errorMessage = 0) const;
 
     Target *createTarget(Kit *k);
     Target *restoreTarget(const QVariantMap &data);
