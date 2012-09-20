@@ -100,6 +100,7 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
         command.m_keyNumber = keyCounter;
         QByteArray outDataStreamByteArray;
         QDataStream temporaryOutDataStream(&outDataStreamByteArray, QIODevice::WriteOnly);
+        temporaryOutDataStream.setVersion(QDataStream::Qt_4_8);
 
         temporaryOutDataStream << command.valueChanges();;
 
@@ -125,6 +126,7 @@ void readSharedMemory(qint32 key, QVector<PropertyValueContainer> *valueChangeVe
 
     if (canAttach) {
         QDataStream in(QByteArray::fromRawData(static_cast<const char*>(sharedMemory.constData()), sharedMemory.size()));
+        in.setVersion(QDataStream::Qt_4_8);
         in >> *valueChangeVector;
     }
 }

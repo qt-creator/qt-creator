@@ -93,6 +93,7 @@ void NodeInstanceClientProxy::writeCommand(const QVariant &command)
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_4_8);
     out << quint32(0);
     out << quint32(m_writeCommandCounter);
     m_writeCommandCounter++;
@@ -164,6 +165,7 @@ void NodeInstanceClientProxy::readDataStream()
             break;
 
         QDataStream in(m_socket);
+        in.setVersion(QDataStream::Qt_4_8);
 
         if (m_blockSize == 0) {
             in >> m_blockSize;
