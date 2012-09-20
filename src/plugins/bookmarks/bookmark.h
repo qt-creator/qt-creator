@@ -53,12 +53,15 @@ public:
     void updateLineNumber(int lineNumber);
     void updateBlock(const QTextBlock &block);
     void updateFileName(const QString &fileName);
+    void setNote(const QString &note);
+    void updateNote(const QString &note);
     void removedFromEditor();
 
     QString filePath() const;
     QString fileName() const;
     QString path() const;
     QString lineText() const;
+    QString note() const;
 
 private:
     BookmarkManager *m_manager;
@@ -66,6 +69,7 @@ private:
     QString m_onlyFile;
     QString m_path;
     QString m_lineText;
+    QString m_note;
 };
 
 } // namespace Internal

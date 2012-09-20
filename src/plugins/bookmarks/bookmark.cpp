@@ -78,9 +78,25 @@ void Bookmark::updateFileName(const QString &fileName)
     BaseTextMark::updateFileName(fileName);
 }
 
+void Bookmark::setNote(const QString &note)
+{
+    m_note = note;
+}
+
+void Bookmark::updateNote(const QString &note)
+{
+    setNote(note);
+    m_manager->updateBookmark(this);
+}
+
 QString Bookmark::lineText() const
 {
     return m_lineText;
+}
+
+QString Bookmark::note() const
+{
+    return m_note;
 }
 
 QString Bookmark::filePath() const

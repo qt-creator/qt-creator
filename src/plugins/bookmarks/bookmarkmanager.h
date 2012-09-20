@@ -86,11 +86,14 @@ public:
     // this QItemSelectionModel is shared by all views
     QItemSelectionModel *selectionModel() const;
 
+    bool hasBookmarkInPosition(const QString &fileName, int lineNumber);
+
     enum Roles {
         Filename = Qt::UserRole,
         LineNumber = Qt::UserRole + 1,
         Directory = Qt::UserRole + 2,
-        LineText = Qt::UserRole + 3
+        LineText = Qt::UserRole + 3,
+        Note = Qt::UserRole + 4
     };
 
 public slots:
@@ -102,6 +105,8 @@ public slots:
     void prev();
     void moveUp();
     void moveDown();
+    void editNote();
+    void editNote(const QString &fileName, int lineNumber);
     bool gotoBookmark(Bookmark *bookmark);
 
 signals:
@@ -114,6 +119,9 @@ private slots:
     void handleBookmarkRequest(TextEditor::ITextEditor * textEditor,
                                int line,
                                TextEditor::ITextEditor::MarkRequestKind kind);
+    void handleBookmarkTooltipRequest(TextEditor::ITextEditor *textEditor,
+                                      const QPoint &pos,
+                                      int line);
 
 private:
     TextEditor::ITextEditor *currentTextEditor() const;
@@ -126,6 +134,7 @@ private:
     void addBookmark(const QString &s);
     static QString bookmarkToString(const Bookmark *b);
     void saveBookmarks();
+    void operateTooltip(TextEditor::ITextEditor *textEditor, const QPoint &pos, Bookmark *mark);
 
     typedef QMultiMap<QString, Bookmark *> FileNameBookmarksMap;
     typedef QMap<QString, FileNameBookmarksMap *> DirectoryFileBookmarksMap;

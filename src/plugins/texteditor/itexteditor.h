@@ -117,6 +117,7 @@ signals:
     void markContextMenuRequested(TextEditor::ITextEditor *editor, int line, QMenu *menu);
     void tooltipOverrideRequested(TextEditor::ITextEditor *editor, const QPoint &globalPos, int position, bool *handled);
     void tooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPos, int position);
+    void markTooltipRequested(TextEditor::ITextEditor *editor, const QPoint &globalPos, int line);
     void contextHelpIdRequested(TextEditor::ITextEditor *editor, int position);
 };
 

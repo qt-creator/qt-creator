@@ -4385,6 +4385,12 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
     // Set whether the mouse cursor is a hand or normal arrow
     if (e->type() == QEvent::MouseMove) {
         bool hand = (e->pos().x() <= markWidth);
+        if (hand) {
+            //Find line by cursor position
+            int line = cursor.blockNumber() + 1;
+            emit editor()->markTooltipRequested(editor(), mapToGlobal(e->pos()), line);
+        }
+
         if (hand != (d->m_extraArea->cursor().shape() == Qt::PointingHandCursor))
             d->m_extraArea->setCursor(hand ? Qt::PointingHandCursor : Qt::ArrowCursor);
     }

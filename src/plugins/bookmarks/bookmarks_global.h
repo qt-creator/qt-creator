@@ -37,6 +37,7 @@ namespace Constants {
 const char BOOKMARKS_TOGGLE_ACTION[]      = "Bookmarks.Toggle";
 const char BOOKMARKS_MOVEUP_ACTION[]      = "Bookmarks.MoveUp";
 const char BOOKMARKS_MOVEDOWN_ACTION[]    = "Bookmarks.MoveDown";
+const char BOOKMARKS_EDITNOTE_ACTION[]    = "Bookmarks.EditNote";
 const char BOOKMARKS_PREV_ACTION[]        = "Bookmarks.Previous";
 const char BOOKMARKS_NEXT_ACTION[]        = "Bookmarks.Next";
 const char BOOKMARKS_PREVDIR_ACTION[]     = "Bookmarks.PreviousDirectory";

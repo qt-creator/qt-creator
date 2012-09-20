@@ -109,6 +109,8 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     cmd = Core::ActionManager::registerAction(m_docNextAction, BOOKMARKS_NEXTDOC_ACTION, globalcontext);
     mbm->addAction(cmd);
 
+    m_editNoteAction = new QAction(tr("Edit Bookmark Note"), this);
+
     m_bookmarkManager = new BookmarkManager;
 
     connect(m_toggleAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(toggleBookmark()));
@@ -116,6 +118,7 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
     connect(m_nextAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(next()));
     connect(m_docPrevAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(prevInDocument()));
     connect(m_docNextAction, SIGNAL(triggered()), m_bookmarkManager, SLOT(nextInDocument()));
+    connect(m_editNoteAction, SIGNAL(triggered()), this, SLOT(bookmarkEditNoteActionTriggered()));
     connect(m_bookmarkManager, SIGNAL(updateActions(int)), this, SLOT(updateActions(int)));
     updateActions(m_bookmarkManager->state());
     addAutoReleasedObject(new BookmarkViewFactory(m_bookmarkManager));
@@ -164,6 +167,10 @@ void BookmarksPlugin::editorOpened(Core::IEditor *editor)
                 m_bookmarkManager,
                 SLOT(handleBookmarkRequest(TextEditor::ITextEditor*,int,
                                            TextEditor::ITextEditor::MarkRequestKind)));
+        connect(editor,
+                SIGNAL(markTooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
+                m_bookmarkManager,
+                SLOT(handleBookmarkTooltipRequest(TextEditor::ITextEditor*,QPoint,int)));
     }
 }
 
@@ -180,15 +187,21 @@ void BookmarksPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
 {
     m_bookmarkMarginActionLineNumber = lineNumber;
     m_bookmarkMarginActionFileName = editor->document()->fileName();
+
     menu->addAction(m_bookmarkMarginAction);
+    if (m_bookmarkManager->hasBookmarkInPosition(m_bookmarkMarginActionFileName, m_bookmarkMarginActionLineNumber))
+        menu->addAction(m_editNoteAction);
 }
 
 void BookmarksPlugin::bookmarkMarginActionTriggered()
 {
-    m_bookmarkManager->toggleBookmark(
-        m_bookmarkMarginActionFileName,
-        m_bookmarkMarginActionLineNumber
-    );
+    m_bookmarkManager->toggleBookmark(m_bookmarkMarginActionFileName,
+                                      m_bookmarkMarginActionLineNumber);
+}
+
+void BookmarksPlugin::bookmarkEditNoteActionTriggered()
+{
+    m_bookmarkManager->editNote(m_bookmarkMarginActionFileName, m_bookmarkMarginActionLineNumber);
 }
 
 Q_EXPORT_PLUGIN(BookmarksPlugin)
