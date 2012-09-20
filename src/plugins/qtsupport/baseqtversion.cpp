@@ -1197,10 +1197,15 @@ bool BaseQtVersion::queryQMakeVariables(const Utils::FileName &binary, QHash<QSt
     Utils::Environment env = Utils::Environment::systemEnvironment();
 
 #ifdef Q_OS_WIN
-    // Add tool chain environments. This is necessary for non-static qmakes e.g. using mingw on windows
+    // Add tool chain environment. This is necessary for non-static qmakes e.g. using mingw on windows
+    // We can not just add all the environments of all tool chains since that will make PATH too long
+    // which in turn will trigger a crash when parsing the results of vcvars.bat of MSVC.
+    QList<ProjectExplorer::Abi> abiList = ProjectExplorer::Abi::abisOfBinary(binary);
     QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
-    foreach (ProjectExplorer::ToolChain *tc, tcList)
-        tc->addToEnvironment(env);
+    foreach (ProjectExplorer::ToolChain *tc, tcList) {
+        if (abiList.contains(tc->targetAbi()))
+            tc->addToEnvironment(env);
+    }
 #endif
 
     process.setEnvironment(env.toStringList());
