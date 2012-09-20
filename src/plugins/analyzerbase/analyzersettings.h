@@ -164,7 +164,7 @@ class ANALYZER_EXPORT AnalyzerRunConfigurationAspect
     Q_OBJECT
 
 public:
-    AnalyzerRunConfigurationAspect(QObject *parent = 0);
+    AnalyzerRunConfigurationAspect();
     ~AnalyzerRunConfigurationAspect();
 
     QString displayName() const;
