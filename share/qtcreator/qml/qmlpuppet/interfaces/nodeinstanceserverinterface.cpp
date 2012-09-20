@@ -99,7 +99,7 @@ void NodeInstanceServerInterface::registerCommands()
     qRegisterMetaTypeStreamOperators<ChangeFileUrlCommand>("ChangeFileUrlCommand");
 
     qRegisterMetaType<ChangeStateCommand>("ChangeStateCommand");
-    qRegisterMetaTypeStreamOperators<PropertyAbstractContainer>("ChangeStateCommand");
+    qRegisterMetaTypeStreamOperators<ChangeStateCommand>("ChangeStateCommand");
 
     qRegisterMetaType<RemoveInstancesCommand>("RemoveInstancesCommand");
     qRegisterMetaTypeStreamOperators<RemoveInstancesCommand>("RemoveInstancesCommand");
