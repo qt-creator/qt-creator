@@ -33,6 +33,8 @@
 #include <QSharedMemory>
 #include <QCache>
 
+#include <cstring>
+
 #define QTC_ASSERT_STRINGIFY_HELPER(x) #x
 #define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_HELPER(x)
 #define QTC_ASSERT_STRING(cond) qDebug("SOFT ASSERT: \"" cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__))
@@ -125,8 +127,8 @@ static void writeSharedMemory(QSharedMemory *sharedMemory, const QImage &image)
     headerData[3] = image.size().height();
     headerData[4] = image.format();
 
-    qMemCopy(sharedMemory->data(), headerData, 20);
-    qMemCopy(reinterpret_cast<char*>(sharedMemory->data()) + 20, image.constBits(), image.byteCount());
+    std::memcpy(sharedMemory->data(), headerData, 20);
+    std::memcpy(reinterpret_cast<char*>(sharedMemory->data()) + 20, image.constBits(), image.byteCount());
 
     sharedMemory->unlock();
 }
@@ -177,7 +179,7 @@ static void readSharedMemory(qint32 key, ImageContainer &container)
     {
         sharedMemory.lock();
         qint32 headerData[5];
-        qMemCopy(headerData, sharedMemory.constData(), 20);
+        std::memcpy(headerData, sharedMemory.constData(), 20);
 
         qint32 byteCount = headerData[0];
 //        qint32 bytesPerLine = headerData[1];
@@ -187,7 +189,7 @@ static void readSharedMemory(qint32 key, ImageContainer &container)
 
         QImage image = QImage(imageWidth, imageHeight, QImage::Format(imageFormat));
 
-        qMemCopy(image.bits(), reinterpret_cast<const qint32*>(sharedMemory.constData()) + 5, byteCount);
+        std::memcpy(image.bits(), reinterpret_cast<const qint32*>(sharedMemory.constData()) + 5, byteCount);
 
         container.setImage(image);
 

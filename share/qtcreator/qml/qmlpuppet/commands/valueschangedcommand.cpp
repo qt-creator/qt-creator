@@ -33,6 +33,8 @@
 #include <QSharedMemory>
 #include <QCache>
 
+#include <cstring>
+
 namespace QmlDesigner {
 
 static QCache<qint32, QSharedMemory> globalSharedMemoryCache(10000);
@@ -104,7 +106,7 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
         QSharedMemory *sharedMemory = createSharedMemory(keyCounter, outDataStreamByteArray.size());
 
         if (sharedMemory) {
-            qMemCopy(sharedMemory->data(), outDataStreamByteArray.constData(), sharedMemory->size());
+            std::memcpy(sharedMemory->data(), outDataStreamByteArray.constData(), sharedMemory->size());
             out << command.keyNumber();
             return out;
         }
