@@ -239,6 +239,7 @@ Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
 
 void OverviewModel::rebuild(Document::Ptr doc)
 {
+    beginResetModel();
     _cppDocument = doc;
-    reset();
+    endResetModel();
 }

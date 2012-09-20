@@ -165,8 +165,9 @@ QVariant SnippetsTableModel::headerData(int section, Qt::Orientation orientation
 
 void SnippetsTableModel::load(const QString &groupId)
 {
+    beginResetModel();
     m_activeGroupId = groupId;
-    reset();
+    endResetModel();
 }
 
 QList<QString> SnippetsTableModel::groupIds() const
@@ -219,14 +220,16 @@ void SnippetsTableModel::revertBuitInSnippet(const QModelIndex &modelIndex)
 
 void SnippetsTableModel::restoreRemovedBuiltInSnippets()
 {
+    beginResetModel();
     m_collection->restoreRemovedSnippets(m_activeGroupId);
-    reset();
+    endResetModel();
 }
 
 void SnippetsTableModel::resetSnippets()
 {
+    beginResetModel();
     m_collection->reset(m_activeGroupId);
-    reset();
+    endResetModel();
 }
 
 void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelIndex &modelIndex)

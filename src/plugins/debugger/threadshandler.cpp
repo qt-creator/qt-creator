@@ -249,12 +249,13 @@ int ThreadsHandler::indexOf(quint64 threadId) const
 
 void ThreadsHandler::setThreads(const Threads &threads)
 {
+    beginResetModel();
     m_threads = threads;
     if (m_currentIndex >= m_threads.size())
         m_currentIndex = -1;
     m_resetLocationScheduled = false;
     m_contentsValid = true;
-    reset();
+    endResetModel();
     updateThreadBox();
 }
 
@@ -273,9 +274,10 @@ Threads ThreadsHandler::threads() const
 
 void ThreadsHandler::removeAll()
 {
+    beginResetModel();
     m_threads.clear();
     m_currentIndex = 0;
-    reset();
+    endResetModel();
 }
 
 void ThreadsHandler::notifyRunning()
@@ -334,8 +336,9 @@ void ThreadsHandler::scheduleResetLocation()
 void ThreadsHandler::resetLocation()
 {
     if (m_resetLocationScheduled) {
+        beginResetModel();
         m_resetLocationScheduled = false;
-        reset();
+        endResetModel();
     }
 }
 

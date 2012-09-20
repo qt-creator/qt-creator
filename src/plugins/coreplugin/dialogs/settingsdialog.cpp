@@ -137,6 +137,8 @@ QVariant CategoryModel::data(const QModelIndex &index, int role) const
 void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
                              const QList<IOptionsPageProvider *> &providers)
 {
+    beginResetModel();
+
     // Clear any previous categories
     qDeleteAll(m_categories);
     m_categories.clear();
@@ -176,7 +178,7 @@ void CategoryModel::setPages(const QList<IOptionsPage*> &pages,
         category->providers.append(provider);
     }
 
-    reset();
+    endResetModel();
 }
 
 Category *CategoryModel::findCategoryById(const QString &id)

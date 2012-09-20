@@ -101,8 +101,9 @@ public:
 
     void setColorSchemes(const QList<ColorSchemeEntry> &colorSchemes)
     {
+        beginResetModel();
         m_colorSchemes = colorSchemes;
-        reset();
+        endResetModel();
     }
 
     const ColorSchemeEntry &colorSchemeAt(int index) const

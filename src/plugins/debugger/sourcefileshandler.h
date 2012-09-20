@@ -56,7 +56,6 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void clearModel();
-    void update() { reset(); }
 
     void setSourceFiles(const QMap<QString, QString> &sourceFiles);
     void removeAll();

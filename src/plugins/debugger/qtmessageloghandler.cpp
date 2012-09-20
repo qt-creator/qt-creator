@@ -182,7 +182,6 @@ QtMessageLogHandler::~QtMessageLogHandler()
 void QtMessageLogHandler::clear()
 {
     beginResetModel();
-    reset();
     delete m_rootItem;
     m_rootItem = new QtMessageLogItem(0);
     endResetModel();

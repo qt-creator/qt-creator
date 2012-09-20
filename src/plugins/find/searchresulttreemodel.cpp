@@ -411,10 +411,11 @@ QList<QModelIndex> SearchResultTreeModel::addResults(const QList<SearchResultIte
 
 void SearchResultTreeModel::clear()
 {
+    beginResetModel();
     m_currentParent = NULL;
     m_rootItem->clearChildren();
     m_editorFontIsUsed = false;
-    reset();
+    endResetModel();
 }
 
 QModelIndex SearchResultTreeModel::nextIndex(const QModelIndex &idx, bool *wrapped) const

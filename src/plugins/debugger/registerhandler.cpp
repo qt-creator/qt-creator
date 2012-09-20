@@ -480,8 +480,9 @@ Qt::ItemFlags RegisterHandler::flags(const QModelIndex &idx) const
 
 void RegisterHandler::removeAll()
 {
+    beginResetModel();
     m_registers.clear();
-    reset();
+    endResetModel();
 }
 
 bool RegisterHandler::isEmpty() const
@@ -503,12 +504,13 @@ static inline bool compareRegisterSet(const Registers &r1, const Registers &r2)
 
 void RegisterHandler::setRegisters(const Registers &registers)
 {
+    beginResetModel();
     m_registers = registers;
     const int size = m_registers.size();
     for (int r = 0; r < size; r++)
         m_registers[r].changed = false;
     calculateWidth();
-    reset();
+    endResetModel();
 }
 
 void RegisterHandler::setAndMarkRegisters(const Registers &registers)
@@ -544,9 +546,10 @@ void RegisterHandler::calculateWidth()
 void RegisterHandler::setNumberBase(int base)
 {
     if (m_base != base) {
+        beginResetModel();
         m_base = base;
         calculateWidth();
-        emit reset();
+        endResetModel();
     }
 }
 

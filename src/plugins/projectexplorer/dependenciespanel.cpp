@@ -82,9 +82,10 @@ DependenciesModel::~DependenciesModel()
 
 void DependenciesModel::resetModel()
 {
+    beginResetModel();
     m_projects = m_session->projects();
     m_projects.removeAll(m_project);
-    reset();
+    endResetModel();
 }
 
 int DependenciesModel::rowCount(const QModelIndex &index) const

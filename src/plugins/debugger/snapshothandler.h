@@ -76,7 +76,7 @@ private:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
-    Q_SLOT void resetModel() { reset(); }
+    Q_SLOT void resetModel() { beginResetModel(); endResetModel(); }
 
     int m_currentIndex;
     QList< QPointer<DebuggerEngine> > m_snapshots;

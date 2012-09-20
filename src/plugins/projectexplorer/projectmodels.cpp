@@ -452,8 +452,9 @@ void FlatModel::setStartupProject(ProjectNode *projectNode)
 
 void FlatModel::reset()
 {
+    beginResetModel();
     m_childNodes.clear();
-    QAbstractItemModel::reset();
+    endResetModel();
 }
 
 QModelIndex FlatModel::indexForNode(const Node *node_)

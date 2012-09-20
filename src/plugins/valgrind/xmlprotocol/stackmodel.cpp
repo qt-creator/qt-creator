@@ -221,8 +221,9 @@ void StackModel::setError(const Error &error)
 {
     if (d->error == error)
         return;
+    beginResetModel();
     d->error = error;
-    reset();
+    endResetModel();
 }
 
 void StackModel::clear()

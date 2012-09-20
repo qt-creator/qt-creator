@@ -111,7 +111,8 @@ bool SessionModel::isDefaultVirgin() const
 
 void SessionModel::resetSessions()
 {
-    reset();
+    beginResetModel();
+    endResetModel();
 }
 
 void SessionModel::cloneSession(const QString &session)
@@ -124,8 +125,9 @@ void SessionModel::cloneSession(const QString &session)
         QString newSession = newSessionInputDialog.value();
         if (newSession.isEmpty() || m_manager->sessions().contains(newSession))
             return;
+        beginResetModel();
         m_manager->cloneSession(session, newSession);
-        reset();
+        endResetModel();
 
         if (newSessionInputDialog.isSwitchToRequested()) {
             m_manager->loadSession(newSession);
@@ -135,8 +137,9 @@ void SessionModel::cloneSession(const QString &session)
 
 void SessionModel::deleteSession(const QString &session)
 {
+    beginResetModel();
     m_manager->deleteSession(session);
-    reset();
+    endResetModel();
 }
 
 void SessionModel::renameSession(const QString &session)
@@ -149,8 +152,9 @@ void SessionModel::renameSession(const QString &session)
         QString newSession = newSessionInputDialog.value();
         if (newSession.isEmpty() || m_manager->sessions().contains(newSession))
             return;
+        beginResetModel();
         m_manager->renameSession(session, newSession);
-        reset();
+        endResetModel();
 
         if (newSessionInputDialog.isSwitchToRequested()) {
             m_manager->loadSession(newSession);
@@ -194,7 +198,8 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
 
 void ProjectModel::resetProjects()
 {
-    reset();
+    beginResetModel();
+    endResetModel();
 }
 
 ///////////////////

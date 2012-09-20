@@ -195,15 +195,17 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
 
 void ModulesModel::setModules(const Modules &m)
 {
+    beginResetModel();
     m_modules = m;
-    reset();
+    endResetModel();
 }
 
 void ModulesModel::clearModel()
 {
     if (!m_modules.isEmpty()) {
+        beginResetModel();
         m_modules.clear();
-        reset();
+        endResetModel();
     }
 }
 

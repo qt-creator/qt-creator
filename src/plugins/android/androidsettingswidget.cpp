@@ -51,8 +51,9 @@ namespace Internal {
 
 void AvdModel::setAvdList(const QVector<AndroidDeviceInfo> &list)
 {
+    beginResetModel();
     m_list = list;
-    reset();
+    endResetModel();
 }
 
 QString AvdModel::avdName(const QModelIndex &index)

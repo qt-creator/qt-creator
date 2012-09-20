@@ -184,13 +184,15 @@ void StackHandler::setCurrentIndex(int level)
 
 void StackHandler::removeAll()
 {
+    beginResetModel();
     m_stackFrames.clear();
     setCurrentIndex(-1);
-    reset();
+    endResetModel();
 }
 
 void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
 {
+    beginResetModel();
     m_resetLocationScheduled = false;
     m_contentsValid = true;
     m_canExpand = canExpand;
@@ -199,7 +201,7 @@ void StackHandler::setFrames(const StackFrames &frames, bool canExpand)
         setCurrentIndex(0);
     else
         m_currentIndex = -1;
-    reset();
+    endResetModel();
     emit stackChanged();
 }
 
@@ -217,8 +219,9 @@ void StackHandler::scheduleResetLocation()
 void StackHandler::resetLocation()
 {
     if (m_resetLocationScheduled) {
+        beginResetModel();
         m_resetLocationScheduled = false;
-        reset();
+        endResetModel();
     }
 }
 

@@ -214,10 +214,11 @@ Qt::ItemFlags SnapshotHandler::flags(const QModelIndex &index) const
 
 void SnapshotHandler::activateSnapshot(int index)
 {
+    beginResetModel();
     m_currentIndex = index;
     //qDebug() << "ACTIVATING INDEX: " << m_currentIndex << " OF " << size();
     debuggerCore()->displayDebugger(at(index), true);
-    reset();
+    endResetModel();
 }
 
 void SnapshotHandler::createSnapshot(int index)
@@ -240,28 +241,31 @@ void SnapshotHandler::removeSnapshot(int index)
     //QString fileName = engine->startParameters().coreFile;
     //if (!fileName.isEmpty())
     //    QFile::remove(fileName);
+    beginResetModel();
     m_snapshots.removeAt(index);
     if (index == m_currentIndex)
         m_currentIndex = -1;
     else if (index < m_currentIndex)
         --m_currentIndex;
     //engine->quitDebugger();
-    reset();
+    endResetModel();
 }
 
 
 void SnapshotHandler::removeAll()
 {
+    beginResetModel();
     m_snapshots.clear();
     m_currentIndex = -1;
-    reset();
+    endResetModel();
 }
 
 void SnapshotHandler::appendSnapshot(DebuggerEngine *engine)
 {
+    beginResetModel();
     m_snapshots.append(engine);
     m_currentIndex = size() - 1;
-    reset();
+    endResetModel();
 }
 
 void SnapshotHandler::removeSnapshot(DebuggerEngine *engine)
@@ -274,8 +278,9 @@ void SnapshotHandler::removeSnapshot(DebuggerEngine *engine)
 
 void SnapshotHandler::setCurrentIndex(int index)
 {
+    beginResetModel();
     m_currentIndex = index;
-    reset();
+    endResetModel();
 }
 
 DebuggerEngine *SnapshotHandler::at(int i) const

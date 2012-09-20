@@ -1092,10 +1092,11 @@ QModelIndex ResourceModel::deleteItem(const QModelIndex &idx)
 
 bool ResourceModel::reload()
 {
+    beginResetModel();
     const bool result = m_resource_file.load();
     if (result)
         setDirty(false);
-    reset();
+    endResetModel();
     return result;
 }
 

@@ -139,8 +139,9 @@ bool HistoryCompleterPrivate::removeRows(int row, int count, const QModelIndex &
 
 void HistoryCompleterPrivate::clearHistory()
 {
+    beginResetModel();
     list.clear();
-    reset();
+    endResetModel();
 }
 
 void HistoryCompleterPrivate::saveEntry(const QString &str)

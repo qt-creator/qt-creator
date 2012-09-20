@@ -62,8 +62,9 @@ public:
 
     void setFormatDescriptions(const FormatDescriptions *descriptions)
     {
+        beginResetModel();
         m_descriptions = descriptions;
-        reset();
+        endResetModel();
     }
 
     void setBaseFont(const QFont &font)

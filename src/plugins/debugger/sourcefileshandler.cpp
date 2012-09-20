@@ -49,9 +49,10 @@ void SourceFilesHandler::clearModel()
 {
     if (m_shortNames.isEmpty())
         return;
+    beginResetModel();
     m_shortNames.clear();
     m_fullNames.clear();
-    reset();
+    endResetModel();
 }
 
 QVariant SourceFilesHandler::headerData(int section,
@@ -101,6 +102,7 @@ QVariant SourceFilesHandler::data(const QModelIndex &index, int role) const
 
 void SourceFilesHandler::setSourceFiles(const QMap<QString, QString> &sourceFiles)
 {
+    beginResetModel();
     m_shortNames.clear();
     m_fullNames.clear();
     QMap<QString, QString>::ConstIterator it = sourceFiles.begin();
@@ -109,7 +111,7 @@ void SourceFilesHandler::setSourceFiles(const QMap<QString, QString> &sourceFile
         m_shortNames.append(it.key());
         m_fullNames.append(it.value());
     }
-    reset();
+    endResetModel();
 }
 
 void SourceFilesHandler::removeAll()

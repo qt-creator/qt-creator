@@ -205,8 +205,9 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
 
 void LocatorModel::setEntries(const QList<FilterEntry> &entries)
 {
+    beginResetModel();
     mEntries = entries;
-    reset();
+    endResetModel();
 }
 
 // =========== CompletionList ===========
