@@ -237,7 +237,7 @@ void ItemLibraryWidget::setSearchFilter(const QString &searchFilter)
             nameFilterList.append(QString("*%1*").arg(searchFilter));
         } else {
             foreach (const QByteArray &extension, QImageReader::supportedImageFormats()) {
-                nameFilterList.append(QString("*%1*.%2").arg(searchFilter, QString::fromAscii(extension)));
+                nameFilterList.append(QString("*%1*.%2").arg(searchFilter, QString::fromLatin1(extension)));
             }
         }
 

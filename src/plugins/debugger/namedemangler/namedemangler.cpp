@@ -56,7 +56,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
 {
     bool success;
     try {
-        m_parseState.m_mangledName = mangledName.toAscii();
+        m_parseState.m_mangledName = mangledName.toLatin1();
         m_parseState.m_pos = 0;
         m_demangledName.clear();
 

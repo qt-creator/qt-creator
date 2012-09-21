@@ -150,7 +150,7 @@ static inline bool generateFormClass(const GuiAppParameters &params,
         }
     }
     if (headerContents.isEmpty() || sourceContents.isEmpty()) {
-        *errorMessage = QString::fromAscii("Failed to obtain Designer plugin code generation service.");
+        *errorMessage = QString::fromLatin1("Failed to obtain Designer plugin code generation service.");
         return false;
     }
 

@@ -280,8 +280,8 @@ QByteArray AbstractMobileApp::generateProFile(QString *errorMessage) const
         out << line << endl;
     };
 
-    proFileContent.replace("../shared/" + DeploymentPriFileName.toAscii(),
-        DeploymentPriFileName.toAscii());
+    proFileContent.replace("../shared/" + DeploymentPriFileName.toLatin1(),
+        DeploymentPriFileName.toLatin1());
     return proFileContent;
 }
 
@@ -438,7 +438,7 @@ QByteArray AbstractMobileApp::generateFile(int fileType,
     const QString versionLine =
             comment + sep + FileChecksum + sep + checkSumString
             + sep + FileStubVersion + sep + versionString + QLatin1Char('\x0A');
-    return versionLine.toAscii() + data;
+    return versionLine.toLatin1() + data;
 }
 
 int AbstractMobileApp::makeStubVersion(int minor)

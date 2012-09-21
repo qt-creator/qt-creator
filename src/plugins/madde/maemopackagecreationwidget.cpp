@@ -188,7 +188,7 @@ void MaemoPackageCreationWidget::setPackageManagerIcon()
     QString imageFilter = tr("Images") + QLatin1String("( ");
     const QList<QByteArray> &imageTypes = QImageReader::supportedImageFormats();
     foreach (const QByteArray &imageType, imageTypes)
-        imageFilter += "*." + QString::fromAscii(imageType) + QLatin1Char(' ');
+        imageFilter += "*." + QString::fromLatin1(imageType) + QLatin1Char(' ');
     imageFilter += QLatin1Char(')');
     const QSize iconSize = MaddeDevice::packageManagerIconSize(deviceType);
     const QString iconFileName = QFileDialog::getOpenFileName(this,

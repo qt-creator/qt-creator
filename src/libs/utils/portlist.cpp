@@ -117,7 +117,7 @@ private:
     }
 
     bool atEnd() const { return m_pos == m_portsSpec.length(); }
-    char nextChar() const { return m_portsSpec.at(m_pos).toAscii(); }
+    char nextChar() const { return m_portsSpec.at(m_pos).toLatin1(); }
 
     PortList m_portList;
     int m_pos;

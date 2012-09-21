@@ -129,7 +129,7 @@ public:
                     logger->appendError(ErrorMessage::NoteLevel,
                                         ZConfLib::tr("%1: log of previous daemon run is: '%2'.\n")
                                         .arg(name())
-                                        .arg(QString::fromAscii(logBA.constData(), logBA.size())));
+                                        .arg(QString::fromLatin1(logBA.constData(), logBA.size())));
                     qDebug()<<logBA.size()<<oldLog.error()<<oldLog.errorString();
                 }
                 oldLog.close();

@@ -178,7 +178,7 @@ public:
         Q_UNUSED(size)
         QMutexLocker lock(&m_mutex);
 
-        QUrl url = QUrl::fromEncoded(id.toAscii());
+        QUrl url = QUrl::fromEncoded(id.toLatin1());
 
         if (!m_fetcher.asynchronousFetchData(url))
             return QImage();

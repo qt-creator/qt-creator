@@ -389,7 +389,7 @@ bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) co
         w.setAutoFormattingIndent(1); // Historical, used to be QDom.
         w.writeStartDocument();
         w.writeDTD(QLatin1String("<!DOCTYPE ") + m_docType + QLatin1Char('>'));
-        w.writeComment(QString::fromAscii(" Written by %1 %2, %3. ").
+        w.writeComment(QString::fromLatin1(" Written by %1 %2, %3. ").
                        arg(QCoreApplication::applicationName(),
                            QCoreApplication::applicationVersion(),
                            QDateTime::currentDateTime().toString(Qt::ISODate)));

@@ -2368,7 +2368,7 @@ static void qDumpQObjectProperty(QDumper &d)
     if (dotPos == -1)
         return;
     iname.remove(0, dotPos + 1);
-    const int index = mob->indexOfProperty(iname.toAscii());
+    const int index = mob->indexOfProperty(iname.toLatin1());
     if (index == -1)
         return;
     const QMetaProperty mop = mob->property(index);

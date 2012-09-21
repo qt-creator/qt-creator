@@ -556,7 +556,7 @@ bool parseCdbDisassemblerLine(const QString &line, DisassemblerLine *dLine, uint
     dLine->address = addressS.toULongLong(&ok, 16);
     if (!ok)
         return false;
-    dLine->rawData = QByteArray::fromHex(line.mid(rawDataPos, rawDataEnd - rawDataPos).toAscii());
+    dLine->rawData = QByteArray::fromHex(line.mid(rawDataPos, rawDataEnd - rawDataPos).toLatin1());
     dLine->data = line.right(line.size() - instructionPos).trimmed();
     return true;
 }

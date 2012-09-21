@@ -699,7 +699,7 @@ bool ResourceModel::iconFileExtension(const QString &path)
         const QList<QByteArray> _ext_list = QImageReader::supportedImageFormats();
         foreach (const QByteArray &ext, _ext_list) {
             QString dotExt = QString(QLatin1Char('.'));
-            dotExt  += QString::fromAscii(ext);
+            dotExt  += QString::fromLatin1(ext);
             ext_list.append(dotExt);
         }
     }

@@ -943,7 +943,7 @@ QtMessageLogItem *QmlV8DebuggerClientPrivate::constructLogItemTree(
     if (objectData.name.isEmpty())
         text = objectData.value.toString();
     else
-        text = QString(_("%1: %2")).arg(QString::fromAscii(objectData.name))
+        text = QString(_("%1: %2")).arg(QString::fromLatin1(objectData.name))
                 .arg(objectData.value.toString());
 
     QtMessageLogItem *item = new QtMessageLogItem(parent,

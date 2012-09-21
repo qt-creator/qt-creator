@@ -96,7 +96,7 @@ bool MaemoGlobal::isValidMaemoQtVersion(const QString &qmakePath, Core::Id devic
         return false;
 
     madAdminProc.setReadChannel(QProcess::StandardOutput);
-    const QByteArray tgtName = targetName(qmakePath).toAscii();
+    const QByteArray tgtName = targetName(qmakePath).toLatin1();
     while (madAdminProc.canReadLine()) {
         const QByteArray &line = madAdminProc.readLine();
         if (line.contains(tgtName)
@@ -141,7 +141,7 @@ QString MaemoGlobal::remoteSourceProfilesCommand()
     QByteArray remoteCall(":");
     foreach (const QByteArray &profile, profiles)
         remoteCall += "; test -f " + profile + " && source " + profile;
-    return QString::fromAscii(remoteCall);
+    return QString::fromLatin1(remoteCall);
 }
 
 PortList MaemoGlobal::freePorts(const Kit *k)

@@ -538,7 +538,7 @@ bool DebianManager::setPackageManagerIcon(const Utils::FileName &debianDir, Core
     QBuffer buffer(&iconAsBase64);
     buffer.open(QIODevice::WriteOnly);
     if (!pixmap.scaled(MaddeDevice::packageManagerIconSize(deviceType))
-            .save(&buffer, iconPath.toFileInfo().suffix().toAscii())) {
+            .save(&buffer, iconPath.toFileInfo().suffix().toLatin1())) {
         if (error)
             *error = tr("Could not export image file '%1'.").arg(iconPath.toUserOutput());
         return false;

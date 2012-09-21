@@ -125,7 +125,7 @@ QString ConsoleProcess::msgCannotCreateTempDir(const QString & dir, const QStrin
 
 QString ConsoleProcess::msgUnexpectedOutput(const QByteArray &what)
 {
-    return tr("Unexpected output from helper program (%1).").arg(QString::fromAscii(what));
+    return tr("Unexpected output from helper program (%1).").arg(QString::fromLatin1(what));
 }
 
 QString ConsoleProcess::msgCannotChangeToWorkDir(const QString & dir, const QString &why)

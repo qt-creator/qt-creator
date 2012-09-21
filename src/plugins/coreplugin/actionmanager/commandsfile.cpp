@@ -141,7 +141,7 @@ bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
         w.setAutoFormattingIndent(1); // Historical, used to be QDom.
         w.writeStartDocument();
         w.writeDTD(QLatin1String("<!DOCTYPE KeyboardMappingScheme>"));
-        w.writeComment(QString::fromAscii(" Written by Qt Creator %1, %2. ").
+        w.writeComment(QString::fromLatin1(" Written by Qt Creator %1, %2. ").
                        arg(QLatin1String(Core::Constants::IDE_VERSION_LONG),
                            QDateTime::currentDateTime().toString(Qt::ISODate)));
         w.writeStartElement(ctx.mappingElement);

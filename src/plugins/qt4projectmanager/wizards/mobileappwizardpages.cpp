@@ -154,7 +154,7 @@ public:
         saver.setAutoRemove(false);
         if (!saver.hasError())
             saver.setResult(m_pixmap.save(
-                                saver.file(), QFileInfo(m_iconPath).suffix().toAscii().constData()));
+                                saver.file(), QFileInfo(m_iconPath).suffix().toLatin1().constData()));
         if (!saver.finalize()) {
             QMessageBox::critical(QApplication::activeWindow(),
                                   tr("File Error"),

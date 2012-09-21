@@ -281,7 +281,7 @@ bool isKeyWord(const QString &exp)
 {
     // FIXME: incomplete
     QTC_ASSERT(!exp.isEmpty(), return false);
-    switch (exp.at(0).toAscii()) {
+    switch (exp.at(0).toLatin1()) {
     case 'a':
         return exp == QLatin1String("auto");
     case 'b':

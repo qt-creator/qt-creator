@@ -250,19 +250,19 @@ bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileIn
         | (02 * fileInfo.permission(QFile::WriteOther))
         | (01 * fileInfo.permission(QFile::ExeOther));
     const QByteArray permissionString = QString("%1").arg(permissions,
-        sizeof header.fileMode - 1, 8, QLatin1Char('0')).toAscii();
+        sizeof header.fileMode - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.fileMode, permissionString.data(), permissionString.length());
     const QByteArray uidString = QString("%1").arg(fileInfo.ownerId(),
-        sizeof header.uid - 1, 8, QLatin1Char('0')).toAscii();
+        sizeof header.uid - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.uid, uidString.data(), uidString.length());
     const QByteArray gidString = QString("%1").arg(fileInfo.groupId(),
-        sizeof header.gid - 1, 8, QLatin1Char('0')).toAscii();
+        sizeof header.gid - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.gid, gidString.data(), gidString.length());
     const QByteArray sizeString = QString("%1").arg(fileInfo.size(),
-        sizeof header.length - 1, 8, QLatin1Char('0')).toAscii();
+        sizeof header.length - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.length, sizeString.data(), sizeString.length());
     const QByteArray mtimeString = QString("%1").arg(fileInfo.lastModified().toTime_t(),
-        sizeof header.mtime - 1, 8, QLatin1Char('0')).toAscii();
+        sizeof header.mtime - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.mtime, mtimeString.data(), mtimeString.length());
     if (fileInfo.isDir())
         header.typeflag = '5';
@@ -277,7 +277,7 @@ bool TarPackageCreationStep::writeHeader(QFile &tarFile, const QFileInfo &fileIn
     for (size_t i = 0; i < sizeof header; ++i)
         checksum += reinterpret_cast<char *>(&header)[i];
     const QByteArray checksumString = QString("%1").arg(checksum,
-        sizeof header.chksum - 1, 8, QLatin1Char('0')).toAscii();
+        sizeof header.chksum - 1, 8, QLatin1Char('0')).toLatin1();
     std::memcpy(&header.chksum, checksumString.data(), checksumString.length());
     header.chksum[sizeof header.chksum-1] = 0;
     if (!tarFile.write(reinterpret_cast<char *>(&header), sizeof header)) {

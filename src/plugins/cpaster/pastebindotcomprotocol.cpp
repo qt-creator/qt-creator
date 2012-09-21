@@ -134,7 +134,7 @@ void PasteBinDotComProtocol::pasteFinished()
     if (m_pasteReply->error()) {
         qWarning("Pastebin.com protocol error: %s", qPrintable(m_pasteReply->errorString()));
     } else {
-        emit pasteDone(QString::fromAscii(m_pasteReply->readAll()));
+        emit pasteDone(QString::fromLatin1(m_pasteReply->readAll()));
     }
 
     m_pasteReply->deleteLater();
@@ -171,7 +171,7 @@ void PasteBinDotComProtocol::fetchFinished()
             qDebug() << "fetchFinished: error" << m_fetchId << content;
     } else {
         title = QString::fromLatin1("Pastebin.com: %1").arg(m_fetchId);
-        content = QString::fromAscii(m_fetchReply->readAll());
+        content = QString::fromLatin1(m_fetchReply->readAll());
         // Cut out from '<pre>' formatting
         const int preEnd = content.lastIndexOf(QLatin1String("</pre>"));
         if (preEnd != -1)

@@ -1094,7 +1094,7 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
             case ParseComment: {
                 // comments have locale attributes. We want the default, English one
                 QString locale = atts.value(QLatin1String(localeAttributeC)).toString();
-                const QString comment = QCoreApplication::translate("MimeType", reader.readElementText().toAscii());
+                const QString comment = QCoreApplication::translate("MimeType", reader.readElementText().toLatin1());
                 if (locale.isEmpty()) {
                     data.comment = comment;
                 } else {

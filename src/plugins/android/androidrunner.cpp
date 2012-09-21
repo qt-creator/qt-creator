@@ -85,7 +85,7 @@ void AndroidRunner::checkPID()
     qint64 pid = -1;
     QList<QByteArray> procs = psProc.readAll().split('\n');
     foreach (const QByteArray &proc, procs) {
-        if (proc.trimmed().endsWith(m_packageName.toAscii())) {
+        if (proc.trimmed().endsWith(m_packageName.toLatin1())) {
             QRegExp rx(QLatin1String("(\\d+)"));
             if (rx.indexIn(QLatin1String(proc), proc.indexOf(' ')) > 0) {
                 pid = rx.cap(1).toLongLong();
@@ -259,7 +259,7 @@ void AndroidRunner::logcatReadStandardOutput()
     m_logcat += m_adbLogcatProcess.readAllStandardOutput();
     bool keepLastLine = m_logcat.endsWith('\n');
     QByteArray line;
-    QByteArray pid(QString::fromLatin1("%1):").arg(m_processPID).toAscii());
+    QByteArray pid(QString::fromLatin1("%1):").arg(m_processPID).toLatin1());
     foreach (line, m_logcat.split('\n')) {
         if (!line.contains(pid))
             continue;

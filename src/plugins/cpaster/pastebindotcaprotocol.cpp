@@ -119,7 +119,7 @@ void PasteBinDotCaProtocol::pasteFinished()
     } else {
         /// returns ""SUCCESS:[id]""
         const QByteArray data = m_pasteReply->readAll();
-        const QString link = QString::fromLatin1(urlC) + QString::fromAscii(data).remove(QLatin1String("SUCCESS:"));
+        const QString link = QString::fromLatin1(urlC) + QString::fromLatin1(data).remove(QLatin1String("SUCCESS:"));
         emit pasteDone(link);
     }
     m_pasteReply->deleteLater();

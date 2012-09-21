@@ -695,7 +695,7 @@ QList<Abi> Abi::abisOfBinary(const Utils::FileName &path)
             quint64 fileNameOffset = 0;
             if (fileName.startsWith(QLatin1String("#1/")))
                 fileNameOffset = fileName.mid(3).toInt();
-            const QString fileLength = QString::fromAscii(data.mid(48, 10));
+            const QString fileLength = QString::fromLatin1(data.mid(48, 10));
 
             int toSkip = 60 + fileNameOffset;
             offset += fileLength.toInt() + 60 /* header */;

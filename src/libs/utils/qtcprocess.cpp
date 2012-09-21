@@ -279,7 +279,7 @@ QStringList QtcProcess::splitArgs(const QString &_args, bool abortOnMeta, SplitE
 
 inline static bool isQuoteMeta(QChar cUnicode)
 {
-    char c = cUnicode.toAscii();
+    char c = cUnicode.toLatin1();
     return c == '\\' || c == '\'' || c == '"' || c == '$';
 }
 

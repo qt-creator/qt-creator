@@ -799,7 +799,7 @@ static Input parseVimKeyName(const QString &keyName)
         static const QMap<QString, int> k = vimKeyNames();
         QMap<QString, int>::ConstIterator it = k.constFind(key.toUpper());
         if (it != k.end())
-            return Input(*it, mods, *it <= 0x7f ? QString(QChar::fromAscii(*it)) : QString(""));
+            return Input(*it, mods, *it <= 0x7f ? QString(QChar::fromLatin1(*it)) : QString(""));
     }
 
     return Input();

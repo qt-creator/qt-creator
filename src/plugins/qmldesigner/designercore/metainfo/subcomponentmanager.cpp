@@ -78,7 +78,7 @@ SubComponentManager::SubComponentManager(Model *model, QObject *parent)
 void SubComponentManager::addImport(int pos, const Import &import)
 {
     if (debug)
-        qDebug() << Q_FUNC_INFO << pos << import.file().toAscii();
+        qDebug() << Q_FUNC_INFO << pos << import.file().toLatin1();
 
     if (import.isFileImport()) {
         QFileInfo dirInfo = QFileInfo(m_filePath.resolved(import.file()).toLocalFile());

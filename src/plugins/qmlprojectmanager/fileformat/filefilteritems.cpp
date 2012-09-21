@@ -326,7 +326,7 @@ ImageFileFilterItem::ImageFileFilterItem(QObject *parent)
     // supported image formats according to
     QList<QByteArray> extensions = QImageReader::supportedImageFormats();
     foreach (const QByteArray &extension, extensions) {
-        filter.append(QString("*.%1;").arg(QString::fromAscii(extension)));
+        filter.append(QString("*.%1;").arg(QString::fromLatin1(extension)));
     }
     setFilter(filter);
 }

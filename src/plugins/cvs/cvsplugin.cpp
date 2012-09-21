@@ -148,7 +148,7 @@ static inline const VcsBaseEditorParameters *findType(int ie)
 
 static inline QString debugCodec(const QTextCodec *c)
 {
-    return c ? QString::fromAscii(c->name()) : QString::fromAscii("Null codec");
+    return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
 }
 
 static inline bool messageBoxQuestion(const QString &title, const QString &question, QWidget *parent = 0)

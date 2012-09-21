@@ -109,7 +109,7 @@ static inline const VcsBase::VcsBaseEditorParameters *findType(int ie)
 
 static inline QString debugCodec(const QTextCodec *c)
 {
-    return c ? QString::fromAscii(c->name()) : QString::fromAscii("Null codec");
+    return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
 }
 
 // Ensure adding "..." to relative paths which is p4's convention
@@ -624,7 +624,7 @@ void PerforcePlugin::startSubmitProject()
 
     Utils::TempFileSaver saver;
     saver.setAutoRemove(false);
-    saver.write(result.stdOut.toAscii());
+    saver.write(result.stdOut.toLatin1());
     if (!saver.finalize()) {
         VcsBase::VcsBaseOutputWindow::instance()->appendError(saver.errorString());
         cleanCommitMessageFile();

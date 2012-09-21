@@ -800,7 +800,7 @@ void CdbEngine::runEngine()
     if (debug)
         qDebug("runEngine");
     foreach (const QString &breakEvent, m_options->breakEvents)
-            postCommand(QByteArray("sxe ") + breakEvent.toAscii(), 0);
+            postCommand(QByteArray("sxe ") + breakEvent.toLatin1(), 0);
     // Break functions: each function must be fully qualified,
     // else the debugger will slow down considerably.
     foreach (const QString &breakFunctionS, m_options->breakFunctions) {
@@ -1260,7 +1260,7 @@ void CdbEngine::handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &cm
 static inline bool isAsciiWord(const QString &s)
 {
     foreach (const QChar &c, s) {
-        if (!c.isLetterOrNumber() || c.toAscii() == 0)
+        if (!c.isLetterOrNumber() || c.toLatin1() == 0)
             return false;
     }
     return true;

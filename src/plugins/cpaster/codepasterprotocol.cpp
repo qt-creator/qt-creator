@@ -158,7 +158,7 @@ void CodePasterProtocol::pasteFinished()
         qWarning("Error pasting: %s", qPrintable(m_pasteReply->errorString()));
     } else {
         // Cut out the href-attribute
-        QString contents = QString::fromAscii(m_pasteReply->readAll());
+        QString contents = QString::fromLatin1(m_pasteReply->readAll());
         int hrefPos = contents.indexOf(QLatin1String("href=\""));
         if (hrefPos != -1) {
             hrefPos += 6;
@@ -189,7 +189,7 @@ void CodePasterProtocol::fetchFinished()
     if (error) {
         content = m_fetchReply->errorString();
     } else {
-        content = QString::fromAscii(m_fetchReply->readAll()); // Codepaster does not support special characters.
+        content = QString::fromLatin1(m_fetchReply->readAll()); // Codepaster does not support special characters.
         if (debug)
             qDebug() << content;
         if (content.contains(QLatin1String("<B>No such paste!</B>"))) {
@@ -209,7 +209,7 @@ void CodePasterProtocol::listFinished()
         Core::ICore::messageManager()->printToOutputPane(m_listReply->errorString(), true);
     } else {
         const QByteArray data = m_listReply->readAll();
-        const QStringList lines = QString::fromAscii(data).split(QLatin1Char('\n'));
+        const QStringList lines = QString::fromLatin1(data).split(QLatin1Char('\n'));
         emit listDone(name(), lines);
     }
     m_listReply->deleteLater();

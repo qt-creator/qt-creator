@@ -585,10 +585,10 @@ int main(int argc, char *argv[])
 
         // find all QMetaObjects reachable when the specified module is imported
         if (action != Path) {
-            importCode += QString("import %0 %1\n").arg(pluginImportUri, pluginImportVersion).toAscii();
+            importCode += QString("import %0 %1\n").arg(pluginImportUri, pluginImportVersion).toLatin1();
         } else {
             // pluginImportVersion can be empty
-            importCode += QString("import \".\" %2\n").arg(pluginImportVersion).toAscii();
+            importCode += QString("import \".\" %2\n").arg(pluginImportVersion).toLatin1();
         }
 
         // create a component with these imports to make sure the imports are valid

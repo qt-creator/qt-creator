@@ -62,7 +62,7 @@ QString toolTipForFrame(const Frame &frame)
     if (frame.instructionPointer())
         lines << qMakePair(QCoreApplication::translate("Valgrind::XmlProtocol",
                                                        "Instruction pointer:"),
-                           QString::fromAscii("0x%1").arg(frame.instructionPointer(), 0, 16));
+                           QString::fromLatin1("0x%1").arg(frame.instructionPointer(), 0, 16));
     if (!frame.object().isEmpty())
         lines << qMakePair(QCoreApplication::translate("Valgrind::XmlProtocol", "Object:"), frame.object());
 

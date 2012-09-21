@@ -144,7 +144,7 @@ static inline const VcsBase::VcsBaseEditorParameters *findType(int ie)
 
 static inline QString debugCodec(const QTextCodec *c)
 {
-    return c ? QString::fromAscii(c->name()) : QString::fromAscii("Null codec");
+    return c ? QString::fromLatin1(c->name()) : QString::fromLatin1("Null codec");
 }
 
 // Parse "svn status" output for added/modified/deleted files

@@ -91,10 +91,10 @@ IntegerValidator::IntegerValidator(QObject *parent) :
 bool IntegerValidator::isCharAcceptable(const QChar &c, int base)
 {
     if (c.isLetter())
-        return base == 16 && c.toLower().toAscii() <= 'f';
+        return base == 16 && c.toLower().toLatin1() <= 'f';
     if (!c.isDigit())
         return false;
-    const int digit = c.toAscii() - '0';
+    const int digit = c.toLatin1() - '0';
     if (base == 8 && digit > 7)
         return false;
     if (base == 2 && digit > 1)
