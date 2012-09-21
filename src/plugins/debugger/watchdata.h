@@ -113,7 +113,6 @@ public:
     quint64    coreAddress() const;
     QByteArray hexAddress()  const;
     QByteArray hexReferencingAddress()  const;
-    bool hasChanged(const WatchData &old) const;
 
 public:
     quint64    id;           // Token for the engine for internal mapping
@@ -137,7 +136,6 @@ public:
     bool valueEnabled;       // Value will be enabled or not
     bool valueEditable;      // Value will be editable
     bool error;
-    bool changed;
     qint32 sortId;
     QByteArray dumperFlags;
 

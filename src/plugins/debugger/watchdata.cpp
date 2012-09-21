@@ -128,7 +128,6 @@ WatchData::WatchData() :
     valueEnabled(true),
     valueEditable(true),
     error(false),
-    changed(false),
     sortId(0),
     source(0)
 {
@@ -426,11 +425,6 @@ QByteArray WatchData::hexReferencingAddress() const
     if (referencingAddress)
         return QByteArray("0x") + QByteArray::number(referencingAddress, 16);
     return QByteArray();
-}
-
-bool WatchData::hasChanged(const WatchData &old) const
-{
-    return !value.isEmpty() && value != old.value && value != msgNotInScope();
 }
 
 } // namespace Internal

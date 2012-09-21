@@ -177,7 +177,7 @@ private:
     void fetchMore(const QModelIndex &parent);
 
     void invalidateAll(const QModelIndex &parentIndex = QModelIndex());
-    void setUnchangedRecursively(WatchItem *item);
+    void resetValueCacheRecursively(WatchItem *item);
 
     WatchItem *createItem(const QByteArray &iname, const QString &name, WatchItem *parent);
 
@@ -188,7 +188,7 @@ private:
     QModelIndex watchIndexHelper(const WatchItem *needle,
         const WatchItem *parentItem, const QModelIndex &parentIndex) const;
 
-    void insertDataItem(const WatchData &data, bool destructive = true);
+    void insertDataItem(const WatchData &data, bool destructive);
     Q_SLOT void reinsertAllData();
     void reinsertAllDataHelper(WatchItem *item, QList<WatchData> *data);
     bool ancestorChanged(const QSet<QByteArray> &parentINames, WatchItem *item) const;
@@ -246,6 +246,8 @@ private:
     friend class WatchItem;
     typedef QHash<QByteArray, WatchItem *> Cache;
     Cache m_cache;
+    typedef QHash<QByteArray, QString> ValueCache;
+    ValueCache m_valueCache;
 
     #if USE_EXPENSIVE_CHECKS
     QHash<const WatchItem *, QByteArray> m_cache2;
@@ -859,12 +861,12 @@ void WatchModel::invalidateAll(const QModelIndex &parentIndex)
         emit dataChanged(idx1, idx2);
 }
 
-void WatchModel::setUnchangedRecursively(WatchItem *item)
+void WatchModel::resetValueCacheRecursively(WatchItem *item)
 {
-    item->changed = false;
+    m_valueCache[item->iname] = item->value;
     const WatchItems &items = item->children;
     for (int i = items.size(); --i >= 0; )
-        setUnchangedRecursively(items.at(i));
+        resetValueCacheRecursively(items.at(i));
 }
 
 // Truncate value for item view, maintaining quotes.
@@ -1028,9 +1030,11 @@ QVariant WatchModel::data(const QModelIndex &idx, int role) const
         case Qt::ForegroundRole: {
             static const QVariant red(QColor(200, 0, 0));
             static const QVariant gray(QColor(140, 140, 140));
-            switch (idx.column()) {
-                case 1: return (!data.valueEnabled || !contentIsValid()) ? gray
-                            : data.changed ? red : QVariant();
+            if (idx.column() == 1) {
+                if (!data.valueEnabled || !contentIsValid())
+                    return gray;
+                if (data.value != m_valueCache.value(data.iname))
+                    return red;
             }
             break;
         }
@@ -1314,9 +1318,7 @@ void WatchModel::insertDataItem(const WatchData &data, bool destructive)
             destroyChildren(item);
 
         // Overwrite old entry.
-        bool hasChanged = item->hasChanged(data);
         assignData(item, data);
-        item->changed = hasChanged;
         QModelIndex idx = watchIndex(item);
         emit dataChanged(idx, idx.sibling(idx.row(), 2));
     } else {
@@ -1325,7 +1327,6 @@ void WatchModel::insertDataItem(const WatchData &data, bool destructive)
         QTC_ASSERT(parent, return);
         WatchItem *newItem = createItem(data);
         newItem->parent = parent;
-        newItem->changed = true;
         const int row = findInsertPosition(parent->children, newItem);
         QModelIndex idx = watchIndex(parent);
         beginInsertRows(idx, row, row);
@@ -1353,7 +1354,7 @@ void WatchModel::insertBulkData(const QList<WatchData> &list)
 #if 1
     for (int i = 0, n = list.size(); i != n; ++i) {
         const WatchData &data = list.at(i);
-        insertDataItem(data);
+        insertDataItem(data, true);
         m_handler->showEditValue(data);
     }
 #else
@@ -1483,7 +1484,7 @@ void WatchHandler::insertIncompleteData(const WatchData &data)
     if (data.isSomethingNeeded() && data.iname.contains('.')) {
         MODEL_DEBUG("SOMETHING NEEDED: " << data.toString());
         if (!m_engine->isSynchronous() || data.isInspect()) {
-            m_model->insertDataItem(data);
+            m_model->insertDataItem(data, true);
             m_engine->updateWatchData(data);
         } else {
             m_engine->showMessage(QLatin1String("ENDLESS LOOP: SOMETHING NEEDED: ")
@@ -1492,11 +1493,11 @@ void WatchHandler::insertIncompleteData(const WatchData &data)
             data1.setAllUnneeded();
             data1.setValue(QLatin1String("<unavailable synchronous data>"));
             data1.setHasChildren(false);
-            m_model->insertDataItem(data1);
+            m_model->insertDataItem(data1, true);
         }
     } else {
         MODEL_DEBUG("NOTHING NEEDED: " << data.toString());
-        m_model->insertDataItem(data);
+        m_model->insertDataItem(data, true);
         showEditValue(data);
     }
 }
@@ -1522,9 +1523,10 @@ void WatchHandler::removeAllData()
     updateWatchersWindow();
 }
 
-void WatchHandler::markAllUnchanged()
+void WatchHandler::resetValueCache()
 {
-    m_model->setUnchangedRecursively(m_model->m_root);
+    m_model->m_valueCache.clear();
+    m_model->resetValueCacheRecursively(m_model->m_root);
 }
 
 void WatchHandler::removeData(const QByteArray &iname)
