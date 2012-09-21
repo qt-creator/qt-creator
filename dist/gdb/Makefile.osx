@@ -1,21 +1,16 @@
 broot=${PWD}
 source=${broot}/source
-targets=x86_64-unknown-linux-gnu i686-unknown-linux-gnu arm-none-linux-gnueabi arm-none-symbianelf
+targets=x86_64-unknown-linux-gnu i686-unknown-linux-gnu arm-none-linux-gnueabi arm-none-symbianelf x86_64-apple-darwin10
 staging=${broot}/staging
 pyversion=2.7
 expatversion=2.0.1
 arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
-version=7.4.1
+version=7.5
 targetdir=${broot}/qtcreator-gdb-${version}
 gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
 packagename=qtcreator-gdb-${version}-${arch}.tar.gz
 
 all:package
-
-gdb-7.4: override version=7.4
-
-gdb-7.4: ${staging}/lib/libpython${pyversion}.a ${staging}/lib/libexpat.a
-	${MAKE} version=${version}
 
 clean:
 	rm -rf  ${broot}/qtcreator-gdb-* ${staging}/gdb-* qtcreator-gdb-*.tar.gz
@@ -71,7 +66,6 @@ ${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestag
 	tar xf ${source}/gdb-${version}.tar.bz2 && \
 	cd gdb-${version} && \
 	touch configure && \
-	patch -p2 < ${broot}/patches/pythonhome-${version}.patch && \
 	patch -p1 < ${broot}/patches/gdb-ipv6.patch
 
 ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/gdb-${version}/configure ${staging}/lib/libpython${pyversion}.a ${staging}/lib/libexpat.a | maketargetdir

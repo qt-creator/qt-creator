@@ -59,7 +59,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  #include "server.h"
  #include "terminal.h"
  #include "target.h"
-@@ -62,6 +64,9 @@
+@@ -63,6 +65,9 @@
  
  #if USE_WIN32API
  #include <winsock2.h>
@@ -69,8 +69,8 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  #endif
  
  #if __QNX__
-@@ -106,7 +111,7 @@ int remote_debug = 0;
- struct ui_file *gdb_stdlog;
+@@ -109,7 +114,7 @@ struct ui_file *gdb_stdlog;
+ static int remote_is_stdio = 0;
  
  static gdb_fildes_t remote_desc = INVALID_DESCRIPTOR;
 -static gdb_fildes_t listen_desc = INVALID_DESCRIPTOR;
@@ -78,7 +78,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  
  /* FIXME headerize? */
  extern int using_threads;
-@@ -145,15 +150,17 @@ enable_async_notification (int fd)
+@@ -156,15 +161,17 @@ enable_async_notification (int fd)
  static int
  handle_accept_event (int err, gdb_client_data client_data)
  {
@@ -100,7 +100,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
      perror_with_name ("Accept failed");
  
    /* Enable TCP keep alive process. */
-@@ -167,27 +174,55 @@ handle_accept_event (int err, gdb_client
+@@ -178,27 +185,55 @@ handle_accept_event (int err, gdb_client
    setsockopt (remote_desc, IPPROTO_TCP, TCP_NODELAY,
  	      (char *) &tmp, sizeof (tmp));
  
@@ -167,7 +167,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  
    enable_async_notification (remote_desc);
  
-@@ -213,12 +248,15 @@ remote_prepare (char *name)
+@@ -224,12 +259,15 @@ remote_prepare (char *name)
  {
    char *port_str;
  #ifdef USE_WIN32API
@@ -186,9 +186,9 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
 +  char *host_str = NULL;
 +  char back_host[128], back_port[32];
  
-   port_str = strchr (name, ':');
-   if (port_str == NULL)
-@@ -227,8 +265,24 @@ remote_prepare (char *name)
+   remote_is_stdio = 0;
+   if (strcmp (name, STDIO_CONNECTION_NAME) == 0)
+@@ -249,8 +287,24 @@ remote_prepare (char *name)
        return;
      }
  
@@ -215,7 +215,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
      fatal ("Bad port argument: %s", name);
  
  #ifdef USE_WIN32API
-@@ -241,24 +295,181 @@ remote_prepare (char *name)
+@@ -263,24 +317,181 @@ remote_prepare (char *name)
      }
  #endif
  
@@ -241,14 +241,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
 +  err = getaddrinfo(host_str, port_str, &hints, &ainfo0);
 +  if (err)
 +      fatal ("%s for %s", gai_strerror(err), name);
- 
--  sockaddr.sin_family = PF_INET;
--  sockaddr.sin_port = htons (port);
--  sockaddr.sin_addr.s_addr = INADDR_ANY;
--
--  if (bind (listen_desc, (struct sockaddr *) &sockaddr, sizeof (sockaddr))
--      || listen (listen_desc, 1))
--    perror_with_name ("Can't bind address");
++
 +  for (ainfo = ainfo0; ainfo; ainfo = ainfo->ai_next)
 +    {
 +      int current_port, tmp;
@@ -341,7 +334,14 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
 +          s = -1;
 +          continue;
 +        }
-+
+ 
+-  sockaddr.sin_family = PF_INET;
+-  sockaddr.sin_port = htons (port);
+-  sockaddr.sin_addr.s_addr = INADDR_ANY;
+-
+-  if (bind (listen_desc, (struct sockaddr *) &sockaddr, sizeof (sockaddr))
+-      || listen (listen_desc, 1))
+-    perror_with_name ("Can't bind address");
 +      {
 +        struct sockaddr_storage address;
 +        socklen_t alen = (socklen_t) sizeof (address);
@@ -380,7 +380,7 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
 +                     back_host, back_port);
 +          }
 +      }
-+
+ 
 +      if (socktable_size < nsock + 3)
 +        {
 +          socktable = xrealloc (socktable,
@@ -399,11 +399,11 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
 +  /* Bound socktable from both ends, so an inner pointer can still
 +     find the whole array. */
 +  socktable[++nsock] = INVALID_DESCRIPTOR;
- 
-   transport_is_reliable = 1;
++
++  transport_is_reliable = 1;
 +  fprintf (stderr, "Listening on port %d\n", port);
 +  fflush (stderr);
-+  transport_is_reliable = 1;
+   transport_is_reliable = 1;
 +  if (listening_sockets)
 +    fatal ("Multiple concurrent remote_open not supported.");
 +
@@ -411,12 +411,13 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
  }
  
  /* Open a connection to a remote debugger.
-@@ -268,8 +479,25 @@ void
+@@ -290,8 +501,24 @@
  remote_open (char *name)
  {
    char *port_str;
 +  char *host_start, *host_end;
-+
+ 
+-  port_str = strchr (name, ':');
 +  host_start = name;
 +  if (host_start[0] == '[')
 +    {
@@ -433,78 +434,11 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
 +      port_str = strchr (name, ':');
 +      host_end = port_str;
 +    }
- 
--  port_str = strchr (name, ':');
-   if (port_str == NULL)
-     {
  #ifdef USE_WIN32API
-@@ -278,21 +506,21 @@ remote_open (char *name)
-       struct stat statbuf;
- 
-       if (stat (name, &statbuf) == 0
--	  && (S_ISCHR (statbuf.st_mode) || S_ISFIFO (statbuf.st_mode)))
--	remote_desc = open (name, O_RDWR);
-+          && (S_ISCHR (statbuf.st_mode) || S_ISFIFO (statbuf.st_mode)))
-+        remote_desc = open (name, O_RDWR);
-       else
--	{
--	  errno = EINVAL;
--	  remote_desc = -1;
--	}
-+        {
-+          errno = EINVAL;
-+          remote_desc = -1;
-+        }
- 
-       if (remote_desc < 0)
--	perror_with_name ("Could not open remote device");
-+        perror_with_name ("Could not open remote device");
- 
- #ifdef HAVE_TERMIOS
-       {
--	struct termios termios;
--	tcgetattr (remote_desc, &termios);
-+        struct termios termios;
-+        tcgetattr (remote_desc, &termios);
- 
- 	termios.c_iflag = 0;
- 	termios.c_oflag = 0;
-@@ -302,14 +530,14 @@ remote_open (char *name)
- 	termios.c_cc[VMIN] = 1;
- 	termios.c_cc[VTIME] = 0;
- 
--	tcsetattr (remote_desc, TCSANOW, &termios);
-+        tcsetattr (remote_desc, TCSANOW, &termios);
-       }
- #endif
- 
- #ifdef HAVE_TERMIO
-       {
--	struct termio termio;
--	ioctl (remote_desc, TCGETA, &termio);
-+        struct termio termio;
-+        ioctl (remote_desc, TCGETA, &termio);
- 
- 	termio.c_iflag = 0;
- 	termio.c_oflag = 0;
-@@ -319,13 +547,13 @@ remote_open (char *name)
- 	termio.c_cc[VMIN] = 1;
- 	termio.c_cc[VTIME] = 0;
- 
--	ioctl (remote_desc, TCSETA, &termio);
-+        ioctl (remote_desc, TCSETA, &termio);
-       }
- #endif
- 
- #ifdef HAVE_SGTTY
-       {
--	struct sgttyb sg;
-+        struct sgttyb sg;
- 
- 	ioctl (remote_desc, TIOCGETP, &sg);
- 	sg.sg_flags = RAW;
-@@ -343,22 +571,17 @@ remote_open (char *name)
-     }
+   if (port_str == NULL)
+     error ("Only <host>:<port> is supported on this platform.");
+@@ -381,22 +608,17 @@ remote_open (char *name)
+ #endif /* USE_WIN32API */
    else
      {
 -      int port;
@@ -536,8 +470,6 @@ diff -rup gdb-7.4-clean/gdb/gdbserver/remote-utils.c gdb-7.4/gdb/gdbserver/remot
      }
  }
  
-Only in gdb-7.4/gdb/gdbserver: remote-utils.c.orig
-Only in gdb-7.4/gdb/gdbserver: remote-utils.c.rej
 diff -rup gdb-7.4-clean/gdb/ser-tcp.c gdb-7.4/gdb/ser-tcp.c
 --- gdb-7.4-clean/gdb/ser-tcp.c	2012-03-30 15:07:01.540553998 +0200
 +++ gdb-7.4/gdb/ser-tcp.c	2012-03-30 15:08:39.484553844 +0200

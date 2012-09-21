@@ -6,7 +6,7 @@ pyversion=2.7
 pydir=${broot}/python
 expatversion=2.0.1
 iconvversion=1.14
-version=7.4.1
+version=7.5
 targetdir=${broot}/qtcreator-gdb-${version}
 gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
 packageparts=${targetdir}/lib ${targetdir}/lib ${targetdir}/libiconv-2.dll ${targetdir}/python27.dll ${targetdir}/libexpat-1.dll
@@ -14,11 +14,6 @@ arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
 packagename=qtcreator-gdb-${version}-${arch}.tar.gz
 
 all: package
-
-gdb-7.4: override version=7.4
-
-gdb-7.4:
-	${MAKE} version=${version}
 
 clean:
 	rm -rf  ${broot}/qtcreator-gdb-* ${staging}/gdb-*
