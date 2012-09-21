@@ -344,7 +344,7 @@ QModelIndex BookmarkManager::index(int row, int column, const QModelIndex &paren
     if (parent.isValid())
         return QModelIndex();
     else
-        return createIndex(row, column, 0);
+        return createIndex(row, column);
 }
 
 QModelIndex BookmarkManager::parent(const QModelIndex &) const

@@ -360,7 +360,7 @@ QModelIndex TaskFilterModel::index(int row, int column, const QModelIndex &paren
 {
     if (parent.isValid())
         return QModelIndex();
-    return createIndex(row, column, 0);
+    return createIndex(row, column);
 }
 
 QModelIndex TaskFilterModel::parent(const QModelIndex &child) const

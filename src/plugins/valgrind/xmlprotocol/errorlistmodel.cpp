@@ -87,7 +87,7 @@ QModelIndex ErrorListModel::index(int row, int column, const QModelIndex &parent
         QTC_ASSERT(parent.model() == this, qt_noop());
         return QModelIndex();
     }
-    return createIndex(row, column, 0);
+    return createIndex(row, column);
 }
 
 QModelIndex ErrorListModel::parent(const QModelIndex &child) const
