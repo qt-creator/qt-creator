@@ -509,7 +509,7 @@
     \endcode
 
     By default, the scripts are run in the directory corresponding to
-    \c %TargetPath%. This can be overriden by specifying the attribute
+    \c %TargetPath%. This can be overridden by specifying the attribute
     \c workingdirectory on the element \c generatorscript. For example, if the
     script creates the project directory by itself, %Path% can be specified. In
     that case, \c --dry-run should output the correct relative paths or absolute

@@ -245,7 +245,7 @@
     \section3 Reverting Changes Using Git
 
     The Git version control system has an index that is used to stage
-    changes. The index is commited on the next commit. Git allows you to revert
+    changes. The index is committed on the next commit. Git allows you to revert
     back to the state of the last commit as well as to the state staged in the
     index.
 

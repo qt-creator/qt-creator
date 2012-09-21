@@ -421,10 +421,10 @@
             \o Find previous
             \o Shift+F3
         \row
-            \o Find next occurence of selected text
+            \o Find next occurrence of selected text
             \o Ctrl+F3
         \row
-            \o Find previous occurence of selected text
+            \o Find previous occurrence of selected text
             \o Ctrl+Shift+F3
         \row
             \o Replace next

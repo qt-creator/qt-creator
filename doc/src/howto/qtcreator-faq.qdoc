@@ -197,7 +197,7 @@
     sudo apt-get install libgl-dev libglu-dev
     \endcode
 
-    \section1 Platform Releated Questions
+    \section1 Platform Related Questions
 
     \bold {Where is application output shown in \QC?}
 

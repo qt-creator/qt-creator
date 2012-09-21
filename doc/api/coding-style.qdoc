@@ -435,7 +435,7 @@
         \o  Use \c{class} instead of \c{struct}. Some compilers mangle that
             difference into the symbol names and spit out warnings if a struct
             declaration is followed by a class definition. To avoid ongoing
-            changes from one to the other we declare \c{class} the prefered way.
+            changes from one to the other we declare \c{class} the preferred way.
 
     \endlist
 
@@ -782,7 +782,7 @@
             reentrant, though.
 
         \o  A \c char is signed or unsigned dependent on the architecture. Use signed
-            \c char or \c uchar if you explicitely want a signed or unsigned char.
+            \c char or \c uchar if you explicitly want a signed or unsigned char.
             The following code will break on PowerPC, for example:
 
             \code
@@ -848,7 +848,7 @@
 
         \o  No float comparisons (\c{-Wfloat-equal}). Use \c qFuzzyCompare to compare
             values with a delta. Use \c qIsNull to check whether a float is
-            binary 0, instead of comparing it to 0.0, or, prefered, move
+            binary 0, instead of comparing it to 0.0, or, preferred, move
             such code into an implementation file.
 
        \o  Do not hide virtual methods in subclasses (\{-Woverloaded-virtual}).

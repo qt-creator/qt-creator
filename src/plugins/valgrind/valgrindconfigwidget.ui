@@ -270,7 +270,7 @@ With cache simulation, further event counters are enabled:
          <string/>
         </property>
         <property name="text">
-         <string>Visualisation: Minimum event cost:</string>
+         <string>Visualization: Minimum event cost:</string>
         </property>
        </widget>
       </item>
