@@ -202,7 +202,19 @@ ToolChain *ToolChainKitInformation::toolChain(const Kit *k)
     if (!k)
         return 0;
     const QString id = k->value(Core::Id(TOOLCHAIN_INFORMATION)).toString();
-    return ToolChainManager::instance()->findToolChain(id);
+    if (id.isEmpty())
+        return 0;
+
+    ToolChain *tc = ToolChainManager::instance()->findToolChain(id);
+    if (tc)
+        return tc;
+
+    // ID is not found: Might be an ABI string...
+    foreach (ToolChain *current, ToolChainManager::instance()->toolChains()) {
+        if (current->targetAbi().toString() == id)
+            return current;
+    }
+    return 0;
 }
 
 void ToolChainKitInformation::setToolChain(Kit *k, ToolChain *tc)
