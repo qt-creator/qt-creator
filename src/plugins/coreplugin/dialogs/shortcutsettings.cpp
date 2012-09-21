@@ -156,7 +156,7 @@ void ShortcutSettings::targetIdentifierChanged()
             setModified(current, true);
         else
             setModified(current, false);
-        current->setText(2, scitem->m_key);
+        current->setText(2, scitem->m_key.toString(QKeySequence::NativeText));
         resetCollisionMarker(scitem);
         markPossibleCollisions(scitem);
     }
@@ -169,7 +169,7 @@ void ShortcutSettings::setKeySequence(const QKeySequence &key)
     for (int i = 0; i < m_keyNum; ++i) {
         m_key[i] = key[i];
     }
-    targetEdit()->setText(key);
+    targetEdit()->setText(key.toString(QKeySequence::NativeText));
 }
 
 void ShortcutSettings::resetTargetIdentifier()
@@ -201,7 +201,7 @@ void ShortcutSettings::importAction()
             QString sid = item->m_cmd->id().toString();
             if (mapping.contains(sid)) {
                 item->m_key = mapping.value(sid);
-                item->m_item->setText(2, item->m_key);
+                item->m_item->setText(2, item->m_key.toString(QKeySequence::NativeText));
                 if (item->m_item == commandList()->currentItem())
                     commandChanged(item->m_item);
 
@@ -223,7 +223,7 @@ void ShortcutSettings::defaultAction()
 {
     foreach (ShortcutItem *item, m_scitems) {
         item->m_key = item->m_cmd->defaultKeySequence();
-        item->m_item->setText(2, item->m_key);
+        item->m_item->setText(2, item->m_key.toString(QKeySequence::NativeText));
         setModified(item->m_item, false);
         if (item->m_item == commandList()->currentItem())
             commandChanged(item->m_item);
@@ -294,7 +294,7 @@ void ShortcutSettings::initialize()
         s->m_key = c->keySequence();
         item->setText(0, subId);
         item->setText(1, c->description());
-        item->setText(2, s->m_key);
+        item->setText(2, s->m_key.toString(QKeySequence::NativeText));
         if (s->m_cmd->defaultKeySequence() != s->m_key)
             setModified(item, true);
 
@@ -334,7 +334,7 @@ void ShortcutSettings::handleKeyEvent(QKeyEvent *e)
     }
     m_keyNum++;
     QKeySequence ks(m_key[0], m_key[1], m_key[2], m_key[3]);
-    targetEdit()->setText(ks);
+    targetEdit()->setText(ks.toString(QKeySequence::NativeText));
     e->accept();
 }
 

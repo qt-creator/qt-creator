@@ -179,7 +179,7 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     d->m_file.setFileName(absfileName);
     d->m_file.setShouldAutoSave(false);
 
-    if (Internal::ResourceHandler *rh = qFindChild<Designer::Internal::ResourceHandler*>(form))
+    if (Internal::ResourceHandler *rh = form->findChild<Designer::Internal::ResourceHandler*>())
         rh->updateResources();
 
     emit changed();

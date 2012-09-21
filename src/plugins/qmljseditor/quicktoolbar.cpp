@@ -214,7 +214,7 @@ void QuickToolBar::apply(TextEditor::BaseTextEditor *editor, Document::Ptr docum
         rect.setHeight(widget()->height() + 10);
         rect.setWidth(reg.boundingRect().width() - reg.boundingRect().left());
         rect.moveTo(reg.boundingRect().topLeft());
-        reg = reg.intersect(rect);
+        reg = reg.intersected(rect);
 
         if (contextWidget()->acceptsType(m_prototypes)) {
             m_node = 0;

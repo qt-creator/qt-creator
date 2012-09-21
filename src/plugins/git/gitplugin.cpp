@@ -814,7 +814,7 @@ static inline GitClientMemberFunc memberFunctionFromAction(const QObject *o)
     if (o) {
         if (const QAction *action = qobject_cast<const QAction *>(o)) {
             const QVariant v = action->data();
-            if (qVariantCanConvert<GitClientMemberFunc>(v))
+            if (v.canConvert<GitClientMemberFunc>())
                 return qvariant_cast<GitClientMemberFunc>(v);
         }
     }

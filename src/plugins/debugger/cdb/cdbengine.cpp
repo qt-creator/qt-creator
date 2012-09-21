@@ -1250,7 +1250,7 @@ void CdbEngine::handleJumpToLineAddressResolution(const CdbBuiltinCommandPtr &cm
     bool ok;
     const quint64 address = answer.toLongLong(&ok, 16);
     if (ok && address) {
-        QTC_ASSERT(qVariantCanConvert<ContextData>(cmd->cookie), return);
+        QTC_ASSERT(cmd->cookie.canConvert<ContextData>(), return);
         const ContextData cookie = qvariant_cast<ContextData>(cmd->cookie);
         jumpToAddress(address);
         gotoLocation(Location(cookie.fileName, cookie.lineNumber));
@@ -1683,7 +1683,7 @@ void CdbEngine::handleResolveSymbol(const QList<quint64> &addresses, const QVari
 {
     // Disassembly mode: Determine suitable range containing the
     // agent's address within the function to display.
-    if (qVariantCanConvert<DisassemblerAgent*>(cookie)) {
+    if (cookie.canConvert<DisassemblerAgent*>()) {
         DisassemblerAgent *agent = cookie.value<DisassemblerAgent *>();
         const quint64 agentAddress = agent->address();
         quint64 functionAddress = 0;
@@ -1722,7 +1722,7 @@ void CdbEngine::handleResolveSymbol(const QList<quint64> &addresses, const QVari
 // Parse: "00000000`77606060 cc              int     3"
 void CdbEngine::handleDisassembler(const CdbBuiltinCommandPtr &command)
 {
-    QTC_ASSERT(qVariantCanConvert<DisassemblerAgent*>(command->cookie), return);
+    QTC_ASSERT(command->cookie.canConvert<DisassemblerAgent*>(), return);
     DisassemblerAgent *agent = qvariant_cast<DisassemblerAgent*>(command->cookie);
     agent->setContents(parseCdbDisassembler(command->reply));
 }
@@ -1761,7 +1761,7 @@ void CdbEngine::changeMemory(Internal::MemoryAgent *, QObject *, quint64 addr, c
 
 void CdbEngine::handleMemory(const CdbExtensionCommandPtr &command)
 {
-    QTC_ASSERT(qVariantCanConvert<MemoryViewCookie>(command->cookie), return);
+    QTC_ASSERT(command->cookie.canConvert<MemoryViewCookie>(), return);
     const MemoryViewCookie memViewCookie = qvariant_cast<MemoryViewCookie>(command->cookie);
     if (command->success) {
         const QByteArray data = QByteArray::fromBase64(command->reply);
@@ -2893,7 +2893,7 @@ void CdbEngine::handleExpression(const CdbExtensionCommandPtr &command)
         showMessage(QString::fromLocal8Bit(command->errorMessage), LogError);
     }
     // Is this a conditional breakpoint?
-    if (command->cookie.isValid() && qVariantCanConvert<ConditionalBreakPointCookie>(command->cookie)) {
+    if (command->cookie.isValid() && command->cookie.canConvert<ConditionalBreakPointCookie>()) {
         const ConditionalBreakPointCookie cookie = qvariant_cast<ConditionalBreakPointCookie>(command->cookie);
         const QString message = value ?
             tr("Value %1 obtained from evaluating the condition of breakpoint %2, stopping.").
@@ -3102,12 +3102,12 @@ void CdbEngine::postWidgetAtCommand()
 
 void CdbEngine::handleCustomSpecialStop(const QVariant &v)
 {
-    if (qVariantCanConvert<MemoryChangeCookie>(v)) {
+    if (v.canConvert<MemoryChangeCookie>()) {
         const MemoryChangeCookie changeData = qvariant_cast<MemoryChangeCookie>(v);
         postCommand(cdbWriteMemoryCommand(changeData.address, changeData.data), 0);
         return;
     }
-    if (qVariantCanConvert<MemoryViewCookie>(v)) {
+    if (v.canConvert<MemoryViewCookie>()) {
         postFetchMemory(qvariant_cast<MemoryViewCookie>(v));
         return;
     }
