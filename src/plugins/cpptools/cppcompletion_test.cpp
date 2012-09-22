@@ -231,7 +231,7 @@ void CppToolsPlugin::test_completion_template_1()
     QVERIFY(!completions.contains("func"));
 }
 
-void CppToolsPlugin::test_completion_template_as_base()
+void CppToolsPlugin::test_completion()
 {
     QFETCH(QByteArray, code);
     QFETCH(QStringList, expectedCompletions);
@@ -251,6 +251,11 @@ void CppToolsPlugin::test_completion_template_as_base()
     expectedCompletions.sort();
 
     QCOMPARE(actualCompletions, expectedCompletions);
+}
+
+void CppToolsPlugin::test_completion_template_as_base()
+{
+    test_completion();
 }
 
 void CppToolsPlugin::test_completion_template_as_base_data()
@@ -398,4 +403,272 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append("Other");
     completions.append("otherMember");
     QTest::newRow("case: base as template name in non-template") << code << completions;
+}
+
+void CppToolsPlugin::test_completion_use_global_identifier_as_base_class()
+{
+    test_completion();
+}
+
+void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QByteArray code;
+    QStringList completions;
+
+    code = "\n"
+            "struct Global\n"
+            "{\n"
+            "    int int_global;\n"
+            "};\n"
+            "\n"
+            "struct Final : ::Global\n"
+            "{\n"
+            "   int int_final;\n"
+            "};\n"
+            "\n"
+            "Final c;\n"
+            "@\n"
+            "// padding so we get the scope right\n";
+
+    completions.append("int_global");
+    completions.append("int_final");
+    completions.append("Final");
+    completions.append("Global");
+    QTest::newRow("case: derived as global and base as global") << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "struct Global\n"
+            "{\n"
+            "    int int_global;\n"
+            "};\n"
+            "\n"
+            "namespace NS\n"
+            "{\n"
+            "struct Final : ::Global\n"
+            "{\n"
+            "   int int_final;\n"
+            "};\n"
+            "}\n"
+            "\n"
+            "NS::Final c;\n"
+            "@\n"
+            "// padding so we get the scope right\n";
+
+    completions.append("int_global");
+    completions.append("int_final");
+    completions.append("Final");
+    completions.append("Global");
+    QTest::newRow("case: derived is inside namespace, base as global")
+            << code << completions;
+
+    completions.clear();
+
+    //this test does not work due to the bug QTCREATORBUG-7912
+
+
+//    code = "\n"
+//            "struct Global\n"
+//            "{\n"
+//            "    int int_global;\n"
+//            "};\n"
+//            "\n"
+//            "template <typename T>\n"
+//            "struct Enclosing\n"
+//            "{\n"
+//            "struct Final : ::Global\n"
+//            "{\n"
+//            "   int int_final;\n"
+//            "};\n"
+//            "}\n"
+//            "\n"
+//            "Enclosing<int>::Final c;\n"
+//            "@\n"
+//            "// padding so we get the scope right\n";
+
+//    completions.append("int_global");
+//    completions.append("int_final");
+//    completions.append("Final");
+//    completions.append("Global");
+//    QTest::newRow("case: derived is enclosed by template, base as global")
+//    << code << completions;
+
+//    completions.clear();
+}
+
+void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived()
+{
+    test_completion();
+}
+
+void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QByteArray code;
+    QStringList completions;
+
+    code = "\n"
+            "struct A : A\n"
+            "{\n"
+            "   int int_a;\n"
+            "};\n"
+            "\n"
+            "A c;\n"
+            "@\n"
+            "// padding so we get the scope right\n";
+
+    completions.append("int_a");
+    completions.append("A");
+    QTest::newRow("case: base class is derived class") << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "namespace NS\n"
+            "{\n"
+            "struct A : A\n"
+            "{\n"
+            "   int int_a;\n"
+            "};\n"
+            "}\n"
+            "\n"
+            "NS::A c;\n"
+            "@\n"
+            "// padding so we get the scope right\n";
+
+    completions.append("int_a");
+    completions.append("A");
+    QTest::newRow("case: base class is derived class. class is in namespace")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "namespace NS\n"
+            "{\n"
+            "struct A : NS::A\n"
+            "{\n"
+            "   int int_a;\n"
+            "};\n"
+            "}\n"
+            "\n"
+            "NS::A c;\n"
+            "@\n"
+            "// padding so we get the scope right\n";
+
+    completions.append("int_a");
+    completions.append("A");
+    QTest::newRow("case: base class is derived class. class is in namespace. "
+                  "use scope operator for base class") << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "namespace NS1\n"
+            "{\n"
+            "struct A\n"
+            "{\n"
+            "   int int_ns1_a;\n"
+            "};\n"
+            "}\n"
+            "namespace NS2\n"
+            "{\n"
+            "struct A : NS1::A\n"
+            "{\n"
+            "   int int_ns2_a;\n"
+            "};\n"
+            "}\n"
+            "\n"
+            "NS2::A c;\n"
+            "@\n"
+            "// padding so we get the scope right\n";
+
+    completions.append("int_ns1_a");
+    completions.append("int_ns2_a");
+    completions.append("A");
+    QTest::newRow("case: base class has the same name as derived but in different namespace")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "struct Enclosing\n"
+            "{\n"
+            "struct A\n"
+            "{\n"
+            "   int int_enclosing_a;\n"
+            "};\n"
+            "};\n"
+            "namespace NS2\n"
+            "{\n"
+            "struct A : Enclosing::A\n"
+            "{\n"
+            "   int int_ns2_a;\n"
+            "};\n"
+            "}\n"
+            "\n"
+            "NS2::A c;\n"
+            "@\n"
+            "// padding so we get the scope right\n";
+
+    completions.append("int_enclosing_a");
+    completions.append("int_ns2_a");
+    completions.append("A");
+    QTest::newRow("case: base class has the same name as derived(in namespace) "
+                  "but is nested by different class") << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "struct EnclosingBase\n"
+            "{\n"
+            "struct A\n"
+            "{\n"
+            "   int int_enclosing_base_a;\n"
+            "};\n"
+            "};\n"
+            "struct EnclosingDerived\n"
+            "{\n"
+            "struct A : EnclosingBase::A\n"
+            "{\n"
+            "   int int_enclosing_derived_a;\n"
+            "};\n"
+            "};\n"
+            "\n"
+            "EnclosingDerived::A c;\n"
+            "@\n"
+            "// padding so we get the scope right\n";
+
+    completions.append("int_enclosing_base_a");
+    completions.append("int_enclosing_derived_a");
+    completions.append("A");
+    QTest::newRow("case: base class has the same name as derived(nested) "
+                  "but is nested by different class") << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "template <typename T>\n"
+            "struct A : A\n"
+            "{\n"
+            "   int int_a;\n"
+            "};\n"
+            "\n"
+            "A<int> c;\n"
+            "@\n"
+            "// padding so we get the scope right\n";
+
+    completions.append("int_a");
+    completions.append("A");
+    QTest::newRow("case: base class is derived class. class is a template")
+            << code << completions;
+
+    completions.clear();
+
 }
