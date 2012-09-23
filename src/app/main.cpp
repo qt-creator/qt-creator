@@ -229,7 +229,9 @@ int main(int argc, char **argv)
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
     QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
 
+#if defined(Q_OS_LINUX) && !defined(QT_NO_DEBUG)
     setupCrashHandler(); // Display a backtrace once a serious signal is delivered.
+#endif
 
 #ifdef ENABLE_QT_BREAKPAD
     QtSystemExceptionHandler systemExceptionHandler;
@@ -436,6 +438,8 @@ int main(int argc, char **argv)
 #endif
 
     const int r = app.exec();
+#if defined(Q_OS_LINUX) && !defined(QT_NO_DEBUG)
     cleanupCrashHandler();
+#endif
     return r;
 }
