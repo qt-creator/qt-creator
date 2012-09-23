@@ -212,7 +212,9 @@ QtcLibrary {
     }
 
     ProductModule {
+        Depends { name: "cpp" }
         Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
+        cpp.includePaths: [".."]
     }
 }
 
