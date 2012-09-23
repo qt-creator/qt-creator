@@ -116,7 +116,7 @@ void setupCrashHandler()
     // restarted Qt Creator.
     // SA_ONSTACK - Use alternative stack.
     sa.sa_flags = SA_RESETHAND | SA_NODEFER | SA_ONSTACK;
-    const int signalsToHandle[] = { SIGILL, SIGFPE, SIGSEGV, SIGBUS, SIGPIPE, 0 };
+    const int signalsToHandle[] = { SIGILL, SIGFPE, SIGSEGV, SIGBUS, 0 };
     for (int i = 0; signalsToHandle[i]; ++i) {
         if (sigaction(signalsToHandle[i], &sa, 0) == -1 )
             qWarning("Warning: Failed to install signal handler for SIGILL (%s).", Q_FUNC_INFO);
