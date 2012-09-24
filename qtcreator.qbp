@@ -162,7 +162,9 @@ Project {
             "src/shared/qtsingleapplication/qtsingleapplication.cpp",
             "src/shared/qtsingleapplication/qtlocalpeer.h",
             "src/shared/qtsingleapplication/qtlocalpeer.cpp",
-            "src/shared/qtlockedfile/qtlockedfile.cpp"
+            "src/shared/qtlockedfile/qtlockedfile.cpp",
+            "src/tools/qtcreatorcrashhandler/crashhandlersetup.cpp",
+            "src/tools/qtcreatorcrashhandler/crashhandlersetup.h"
         ]
 
         Group {
@@ -176,14 +178,6 @@ Project {
            condition: qbs.targetOS == "linux" || qbs.targetOS == "macx"
            files: [
                "src/shared/qtlockedfile/qtlockedfile_unix.cpp"
-           ]
-        }
-
-        Group {
-           condition: qbs.targetOS == "linux"
-           files: [
-               "src/tools/qtcreatorcrashhandler/crashhandlersetup.cpp",
-               "src/tools/qtcreatorcrashhandler/crashhandlersetup.h"
            ]
         }
 
