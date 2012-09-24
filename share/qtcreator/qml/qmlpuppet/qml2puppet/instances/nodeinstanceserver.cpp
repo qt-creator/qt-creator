@@ -964,9 +964,9 @@ InformationChangedCommand NodeInstanceServer::createAllInformationChangedCommand
     return InformationChangedCommand(createInformationVector(instanceList, initial));
 }
 
-static bool supportedVariantType(QVariant::Type type)
+static bool supportedVariantType(int type)
 {
-    return type < QVariant::UserType && type != QVariant::Icon;
+    return type < QVariant::LastCoreType && type != QMetaType::QObjectStar;
 }
 
 ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<ServerNodeInstance> &instanceList) const
@@ -976,7 +976,7 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QList<
     foreach (const ServerNodeInstance &instance, instanceList) {
         foreach (const QString &propertyName, instance.propertyNames()) {
             QVariant propertyValue = instance.property(propertyName);
-            if (supportedVariantType(propertyValue.type()))
+            if (supportedVariantType(propertyValue.userType()))
                 valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName, propertyValue, QString()));
         }
     }
@@ -1005,8 +1005,9 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
 
         if ( instance.isValid()) {
             QVariant propertyValue = instance.property(propertyName);
-            if (supportedVariantType(propertyValue.type()))
+            if (QMetaType::isRegistered(propertyValue.userType()) && supportedVariantType(propertyValue.type())) {
                 valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName, propertyValue, QString()));
+            }
         }
     }
 
