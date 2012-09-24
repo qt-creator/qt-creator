@@ -5015,6 +5015,8 @@ void BaseTextEditorWidget::_q_matchParentheses()
 
     QTextCursor backwardMatch = textCursor();
     QTextCursor forwardMatch = textCursor();
+    if (overwriteMode())
+        backwardMatch.movePosition(QTextCursor::Right);
     const TextBlockUserData::MatchType backwardMatchType = TextBlockUserData::matchCursorBackward(&backwardMatch);
     const TextBlockUserData::MatchType forwardMatchType = TextBlockUserData::matchCursorForward(&forwardMatch);
 
