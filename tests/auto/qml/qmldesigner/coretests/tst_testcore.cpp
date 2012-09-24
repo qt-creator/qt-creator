@@ -56,7 +56,6 @@
 #include <nodelistproperty.h>
 #include <nodeabstractproperty.h>
 #include <componenttextmodifier.h>
-#include <instances/objectnodeinstance.h>
 
 #include <bytearraymodifier.h>
 #include "testrewriterview.h"
