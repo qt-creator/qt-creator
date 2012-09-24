@@ -43,6 +43,8 @@ public:
     ~BacktraceCollector();
 
     void run(Q_PID pid);
+    bool isRunning() const;
+    void kill();
 
 signals:
     void error(const QString &errorMessage);

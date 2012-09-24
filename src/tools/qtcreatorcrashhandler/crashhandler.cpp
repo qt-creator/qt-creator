@@ -33,13 +33,17 @@
 #include "backtracecollector.h"
 #include "utils.h"
 
+#include <utils/environment.h>
+
 #include <QApplication>
 #include <QDebug>
 #include <QDesktopServices>
+#include <QDir>
 #include <QFile>
 #include <QRegExp>
 #include <QTextStream>
 #include <QUrl>
+#include <QVector>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,9 +52,11 @@
 #include <unistd.h>
 
 #include <sys/types.h>
+#include <sys/wait.h>
 
 static const char FileDistroInformation[] = "/etc/lsb-release";
 static const char FileKernelVersion[] = "/proc/version";
+static const char QtCreatorExecutable[] = "qtcreator";
 
 static QString collectLinuxDistributionInfo()
 {
@@ -62,33 +68,40 @@ static QString collectKernelVersionInfo()
     return QString::fromLatin1(fileContents(QLatin1String(FileKernelVersion)));
 }
 
+// Convience class for interacting with exec() family of functions.
+class CExecList : public QVector<char *>
+{
+public:
+    CExecList(const QStringList &list)
+    {
+        foreach (const QString &item, list)
+            append(qstrdup(item.toLatin1().data()));
+        append(0);
+    }
+
+    ~CExecList()
+    {
+        for (int i = 0; i < size(); ++i)
+            delete[] value(i);
+    }
+};
+
 class CrashHandlerPrivate
 {
 public:
     CrashHandlerPrivate(pid_t pid, CrashHandler *crashHandler)
-        : pid(pid), dialog(crashHandler), argv(0), envp(0) {}
+        : pid(pid),
+          creatorInPath(Utils::Environment::systemEnvironment().searchInPath(QtCreatorExecutable)),
+          dialog(crashHandler) {}
 
-    ~CrashHandlerPrivate()
-    {
-        if (argv) {
-            for (int i = 0; argv[i]; ++i)
-                delete[] argv[i];
-        }
-        if (envp) {
-            for (int i = 0; envp[i]; ++i)
-                delete[] envp[i];
-        }
-        free(argv);
-        free(envp);
-    }
+    const pid_t pid;
+    const QString creatorInPath; // Backup debugger.
 
-    pid_t pid;
     BacktraceCollector backtraceCollector;
     CrashHandlerDialog dialog;
 
-    // For restarting the process.
-    char **argv;
-    char **envp;
+    QStringList restartAppCommandLine;
+    QStringList restartAppEnvironment;
 };
 
 CrashHandler::CrashHandler(pid_t pid, QObject *parent)
@@ -100,10 +113,14 @@ CrashHandler::CrashHandler(pid_t pid, QObject *parent)
 
     d->dialog.appendDebugInfo(collectKernelVersionInfo());
     d->dialog.appendDebugInfo(collectLinuxDistributionInfo());
-    d->dialog.show();
 
-    if (!collectRestartAppData()) // If we can't restart the app properly, ...
-        d->dialog.disableRestartAppButton();
+    if (!collectRestartAppData()) {
+        d->dialog.disableRestartAppCheckBox();
+        if (d->creatorInPath.isEmpty())
+            d->dialog.disableDebugAppButton();
+    }
+
+    d->dialog.show();
 }
 
 CrashHandler::~CrashHandler()
@@ -130,8 +147,7 @@ void CrashHandler::onError(const QString &errorMessage)
 void CrashHandler::onBacktraceChunk(const QString &chunk)
 {
     d->dialog.appendDebugInfo(chunk);
-    QTextStream out(stdout);
-    out << chunk;
+    QTextStream(stdout) << chunk;
 }
 
 void CrashHandler::onBacktraceFinished(const QString &backtrace)
@@ -164,54 +180,40 @@ bool CrashHandler::collectRestartAppData()
 {
     const QString procDir = QString::fromLatin1("/proc/%1").arg(d->pid);
 
-    // Construct d->argv.
+    // Get command line.
     // man 5 proc: /proc/[pid]/cmdline
     // The command-line arguments appear in this file as a set of strings separated by
     // null bytes ('\0'), with a further null byte after the last string.
     const QString procCmdFileName = procDir + QLatin1String("/cmdline");
-    QList<QByteArray> cmdEntries = fileContents(procCmdFileName).split('\0');
-    if (cmdEntries.size() < 2) {
+    QList<QByteArray> commandLine = fileContents(procCmdFileName).split('\0');
+    if (commandLine.size() < 2) {
         qWarning("%s: Unexpected format in file '%s'.\n", Q_FUNC_INFO, qPrintable(procCmdFileName));
         return false;
     }
-    cmdEntries.removeLast();
-    char * const executable = qstrdup(qPrintable(cmdEntries.takeFirst()));
-    d->argv = (char **) malloc(sizeof(char*) * (cmdEntries.size() + 2));
-    if (d->argv == 0)
-        qFatal("%s: malloc() failed.\n", Q_FUNC_INFO);
-    d->argv[0] = executable;
-    int i;
-    for (i = 1; i <= cmdEntries.size(); ++i)
-        d->argv[i] = qstrdup(cmdEntries.at(i-1));
-    d->argv[i] = 0;
+    commandLine.removeLast();
+    foreach (const QByteArray &item, commandLine)
+        d->restartAppCommandLine.append(QString::fromLatin1(item));
 
-    // Construct d->envp.
+    // Get environment.
     // man 5 proc: /proc/[pid]/environ
-    // The entries are separated by null bytes ('\0'), and there may be a null  byte at the end.
+    // The entries are separated by null bytes ('\0'), and there may be a null byte at the end.
     const QString procEnvFileName = procDir + QLatin1String("/environ");
-    QList<QByteArray> envEntries = fileContents(procEnvFileName).split('\0');
-    if (envEntries.isEmpty()) {
+    QList<QByteArray> environment = fileContents(procEnvFileName).split('\0');
+    if (environment.isEmpty()) {
         qWarning("%s: Unexpected format in file '%s'.\n", Q_FUNC_INFO, qPrintable(procEnvFileName));
         return false;
     }
-    if (envEntries.last().isEmpty())
-        envEntries.removeLast();
-    d->envp = (char **) malloc(sizeof(char*) * (envEntries.size() + 1));
-    if (d->envp == 0)
-        qFatal("%s: malloc() failed.\n", Q_FUNC_INFO);
-    for (i = 0; i < envEntries.size(); ++i)
-        d->envp[i] = qstrdup(envEntries.at(i));
-    d->envp[i] = 0;
+    if (environment.last().isEmpty())
+        environment.removeLast();
+    foreach (const QByteArray &item, environment)
+        d->restartAppEnvironment.append(QString::fromLatin1(item));
 
     return true;
 }
 
-void CrashHandler::restartApplication()
+void CrashHandler::runCommand(QStringList commandLine, QStringList environment, WaitMode waitMode)
 {
     // TODO: If QTBUG-2284 is resolved, use QProcess::startDetached() here.
-    // Close the crash handler and start the process again with same environment and
-    // command line arguments.
-    //
     // We can't use QProcess::startDetached because of bug
     //
     //      QTBUG-2284
@@ -224,15 +226,19 @@ void CrashHandler::restartApplication()
     case -1: // error
         qFatal("%s: fork() failed.", Q_FUNC_INFO);
         break;
-    case 0: // child
-        qDebug("Restarting Qt Creator with\n");
-        for (int i = 0; d->argv[i]; ++i)
-            qDebug("   %s", d->argv[i]);
-        qDebug("\nand environment\n");
-        for (int i = 0; d->envp[i]; ++i)
-            qDebug("   %s", d->envp[i]);
+    case 0: { // child
+        CExecList argv(commandLine);
+        CExecList envp(environment);
+        qDebug("Running\n");
+        for (int i = 0; argv[i]; ++i)
+            qDebug("   %s", argv[i]);
+        if (!environment.isEmpty()) {
+            qDebug("\nwith environment:\n");
+            for (int i = 0; envp[i]; ++i)
+                qDebug("   %s", envp[i]);
+        }
 
-        // The standards pipes must be open, otherwise the restarted Qt Creator will
+        // The standards pipes must be open, otherwise the application will
         // receive a SIGPIPE as soon as these are used.
         if (freopen("/dev/null", "r", stdin) == 0)
             qFatal("%s: freopen() failed for stdin: %s.\n", Q_FUNC_INFO, strerror(errno));
@@ -241,10 +247,68 @@ void CrashHandler::restartApplication()
         if (freopen("/dev/null", "w", stderr) == 0)
             qFatal("%s: freopen() failed for stderr: %s.\n.", Q_FUNC_INFO, strerror(errno));
 
-        execve(d->argv[0], d->argv, d->envp);
+        if (environment.isEmpty())
+            execv(argv[0], argv.data());
+        else
+            execve(argv[0], argv.data(), envp.data());
         _exit(EXIT_FAILURE);
-    default: // parent
-        qApp->quit();
+    } default: // parent
+        if (waitMode == WaitForExit) {
+            while (true) {
+                int status;
+                if (waitpid(pid, &status, 0) == -1) {
+                    if (errno == EINTR) // Signal handler of QProcess for SIGCHLD was triggered.
+                        continue;
+                    perror("waitpid() failed unexpectedly");
+                }
+                if (WIFEXITED(status)) {
+                    qDebug("Child exited with exit code %d.", WEXITSTATUS(status));
+                    break;
+                } else if (WIFSIGNALED(status)) {
+                    qDebug("Child terminated by signal %d.", WTERMSIG(status));
+                    break;
+                }
+            }
+        }
         break;
     }
+}
+
+void CrashHandler::restartApplication()
+{
+    runCommand(d->restartAppCommandLine, d->restartAppEnvironment, DontWaitForExit);
+}
+
+void CrashHandler::debugApplication()
+{
+    // User requested to debug the app while our debugger is running.
+    if (d->backtraceCollector.isRunning()) {
+        if (!d->dialog.runDebuggerWhileBacktraceNotFinished())
+            return;
+        if (d->backtraceCollector.isRunning()) {
+            d->backtraceCollector.disconnect();
+            d->backtraceCollector.kill();
+            d->dialog.setToFinalState();
+            d->dialog.appendDebugInfo(tr("\n\nCollecting backtrace aborted by user."));
+            QCoreApplication::processEvents(); // Show the last appended output immediately.
+        }
+    }
+
+    // Prepare command.
+    QString executable = d->creatorInPath;
+    if (!d->restartAppCommandLine.isEmpty())
+        executable = d->restartAppCommandLine.at(0);
+    const QStringList commandLine = QStringList()
+            << executable
+            << QLatin1String("-debug")
+            << QString::number(d->pid);
+
+    QStringList environment;
+    if (!d->restartAppEnvironment.isEmpty())
+        environment = d->restartAppEnvironment;
+
+    // The UI is blocked/frozen anyway, so hide the dialog while debugging.
+    d->dialog.hide();
+    runCommand(commandLine, environment, WaitForExit);
+    d->dialog.show();
 }

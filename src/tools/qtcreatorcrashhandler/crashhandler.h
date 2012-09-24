@@ -55,9 +55,13 @@ public slots:
 
     void openBugTracker();
     void restartApplication();
+    void debugApplication();
 
 private:
     bool collectRestartAppData();
+
+    enum WaitMode { WaitForExit, DontWaitForExit };
+    static void runCommand(QStringList commandLine, QStringList environment, WaitMode waitMode);
 
     CrashHandlerPrivate *d;
 };

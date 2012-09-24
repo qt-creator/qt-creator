@@ -50,14 +50,17 @@ public:
     ~CrashHandlerDialog();
 
 public:
-    void disableRestartAppButton();
     void setApplicationInfo();
-    void setToFinalState();
     void appendDebugInfo(const QString &chunk);
     void selectLineWithContents(const QString &text);
+    void setToFinalState();
+    void disableRestartAppCheckBox();
+    void disableDebugAppButton();
+    bool runDebuggerWhileBacktraceNotFinished();
 
 private slots:
     void copyToClipboardClicked();
+    void close();
 
 private:
     CrashHandler *m_crashHandler;

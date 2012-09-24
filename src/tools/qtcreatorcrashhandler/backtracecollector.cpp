@@ -78,6 +78,16 @@ void BacktraceCollector::run(Q_PID pid)
     );
 }
 
+bool BacktraceCollector::isRunning() const
+{
+    return d->debugger.state() == QProcess::Running;
+}
+
+void BacktraceCollector::kill()
+{
+    d->debugger.kill();
+}
+
 void BacktraceCollector::onDebuggerFinished(int exitCode, QProcess::ExitStatus /*exitStatus*/)
 {
     if (d->errorOccurred) {

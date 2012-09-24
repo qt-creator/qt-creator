@@ -12,7 +12,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
+    <width>500</width>
     <height>300</height>
    </size>
   </property>
@@ -64,12 +64,25 @@
    <item>
     <widget class="QTextEdit" name="debugInfoEdit"/>
    </item>
+   <item alignment="Qt::AlignRight">
+    <widget class="QCheckBox" name="restartAppCheckBox">
+     <property name="text">
+      <string>&amp;Restart Qt Creator on close</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="copyToClipBoardButton">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Copy the whole contents to clipboard.</string>
        </property>
        <property name="text">
         <string>C&amp;opy to clipboard</string>
@@ -80,6 +93,9 @@
       <widget class="QPushButton" name="reportBugButton">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Open the bug tracker web site.</string>
        </property>
        <property name="text">
         <string>Report this &amp;bug</string>
@@ -100,14 +116,23 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="restartAppButton">
+      <widget class="QPushButton" name="debugAppButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string>Debug the application with a new instance of Qt Creator. During debugging the crash handler will be hidden.</string>
+       </property>
        <property name="text">
-        <string>&amp;Restart Qt Creator</string>
+        <string>Attach and &amp;Debug</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="closeButton">
+       <property name="toolTip">
+        <string>Quit the handler and the crashed application.</string>
+       </property>
        <property name="text">
         <string>&amp;Close</string>
        </property>

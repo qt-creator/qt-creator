@@ -34,9 +34,15 @@
 #include "utils.h"
 
 #include <app/app_version.h>
+#include <utils/checkablemessagebox.h>
 
 #include <QClipboard>
 #include <QIcon>
+#include <QSettings>
+
+static const char SettingsApplication[] = "QtCreator";
+static const char SettingsKeySkipWarningAbortingBacktrace[]
+    = "CrashHandler/SkipWarningAbortingBacktrace";
 
 CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler, QWidget *parent) :
     QDialog(parent),
@@ -59,8 +65,8 @@ CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler, QWidget *parent) :
 
     connect(m_ui->copyToClipBoardButton, SIGNAL(clicked()), this, SLOT(copyToClipboardClicked()));
     connect(m_ui->reportBugButton, SIGNAL(clicked()), m_crashHandler, SLOT(openBugTracker()));
-    connect(m_ui->restartAppButton, SIGNAL(clicked()), m_crashHandler, SLOT(restartApplication()));
-    connect(m_ui->closeButton, SIGNAL(clicked()), qApp, SLOT(quit()));
+    connect(m_ui->debugAppButton, SIGNAL(clicked()), m_crashHandler, SLOT(debugApplication()));
+    connect(m_ui->closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
     setApplicationInfo();
 }
@@ -70,6 +76,34 @@ CrashHandlerDialog::~CrashHandlerDialog()
     delete m_ui;
 }
 
+bool CrashHandlerDialog::runDebuggerWhileBacktraceNotFinished()
+{
+    // Check settings.
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+        QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+        QLatin1String(SettingsApplication));
+    if (settings.value(QLatin1String(SettingsKeySkipWarningAbortingBacktrace), false).toBool())
+        return true;
+
+    // Ask user.
+    const QString title = tr("Run Debugger And Abort Collecting Backtrace?");
+    const QString message = tr(
+        "<html><head/><body>"
+          "<p><b>Run the debugger and abort collecting backtrace?</b></p>"
+          "<p>You have requested to run the debugger while collecting the backtrace was not "
+          "finished.</p>"
+        "</body></html>");
+    const QString checkBoxText = tr("Do not &ask again.");
+    bool checkBoxSetting = false;
+    const QDialogButtonBox::StandardButton button = Utils::CheckableMessageBox::question(this,
+        title, message, checkBoxText, &checkBoxSetting,
+        QDialogButtonBox::Yes|QDialogButtonBox::No, QDialogButtonBox::No);
+    if (checkBoxSetting)
+        settings.setValue(QLatin1String(SettingsKeySkipWarningAbortingBacktrace), checkBoxSetting);
+
+    return button == QDialogButtonBox::Yes;
+}
+
 void CrashHandlerDialog::setToFinalState()
 {
     m_ui->progressBar->hide();
@@ -77,9 +111,14 @@ void CrashHandlerDialog::setToFinalState()
     m_ui->reportBugButton->setEnabled(true);
 }
 
-void CrashHandlerDialog::disableRestartAppButton()
+void CrashHandlerDialog::disableRestartAppCheckBox()
 {
-    m_ui->restartAppButton->setDisabled(true);
+    m_ui->restartAppCheckBox->setDisabled(true);
+}
+
+void CrashHandlerDialog::disableDebugAppButton()
+{
+    m_ui->debugAppButton->setDisabled(true);
 }
 
 void CrashHandlerDialog::setApplicationInfo()
@@ -129,4 +168,11 @@ void CrashHandlerDialog::selectLineWithContents(const QString &text)
 void CrashHandlerDialog::copyToClipboardClicked()
 {
     QApplication::clipboard()->setText(m_ui->debugInfoEdit->toPlainText());
+}
+
+void CrashHandlerDialog::close()
+{
+    if (m_ui->restartAppCheckBox->isEnabled() && m_ui->restartAppCheckBox->isChecked())
+        m_crashHandler->restartApplication();
+    qApp->quit();
 }

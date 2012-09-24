@@ -11,13 +11,18 @@ SOURCES += \
     backtracecollector.cpp \
     crashhandlerdialog.cpp \
     crashhandler.cpp \
-    utils.cpp
+    utils.cpp \
+    ../../libs/utils/checkablemessagebox.cpp \
+    ../../libs/utils/environment.cpp
+
 
 HEADERS += \
     backtracecollector.h \
     crashhandlerdialog.h \
     crashhandler.h \
-    utils.h
+    utils.h \
+    ../../libs/utils/checkablemessagebox.h \
+    ../../libs/utils/environment.h
 
 FORMS += \
     crashhandlerdialog.ui
