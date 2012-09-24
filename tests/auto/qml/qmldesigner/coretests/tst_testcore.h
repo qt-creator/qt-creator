@@ -168,6 +168,7 @@ private slots:
     // integration tests
     //
     void testBasicStates();
+    void testBasicStatesQtQuick20();
     void testStates();
     void testStatesBaseState();
     void testStatesRewriter();
