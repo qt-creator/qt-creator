@@ -7844,7 +7844,7 @@ void tst_TestCore::changeGradientId()
         textEdit.setPlainText(rectWithGradient);
         NotIndentingTextEditModifier textModifier(&textEdit);
 
-        QScopedPointer<Model> model(createModel("QtQuick.Item", 1, 1));
+        QScopedPointer<Model> model(Model::create("QtQuick.Item", 1, 1));
         QVERIFY(model.data());
 
         QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
