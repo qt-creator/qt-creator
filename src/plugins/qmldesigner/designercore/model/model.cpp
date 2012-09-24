@@ -109,14 +109,14 @@ void ModelPrivate::detachAllViews()
 
     m_viewList.clear();
 
-    if (m_rewriterView) {
-        m_rewriterView->modelAboutToBeDetached(m_q);
-        m_rewriterView.clear();
-    }
-
     if (m_nodeInstanceView) {
         m_nodeInstanceView->modelAboutToBeDetached(m_q);
         m_nodeInstanceView.clear();
+    }
+
+    if (m_rewriterView) {
+        m_rewriterView->modelAboutToBeDetached(m_q);
+        m_rewriterView.clear();
     }
 }
 
