@@ -298,7 +298,6 @@ ProjectExplorer::Kit *TargetSetupPage::createTemporaryKit(QtSupport::BaseQtVersi
 
     k->setDisplayName(version->displayName());
     k->setValue(KIT_IS_TEMPORARY, true);
-    k->setValue(TEMPORARY_OF_PROJECTS, QStringList() << m_proFilePath);
     if (temporaryVersion)
         k->setValue(QT_IS_TEMPORARY, version->uniqueId());
 
@@ -395,7 +394,6 @@ void TargetSetupPage::import(const Utils::FileName &path, const bool silent)
 
     QtSupport::BaseQtVersion *version = 0;
     bool temporaryVersion = false;
-    ProjectExplorer::Kit *kit = 0;
 
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     ProjectExplorer::KitManager *km = ProjectExplorer::KitManager::instance();
@@ -438,7 +436,8 @@ void TargetSetupPage::import(const Utils::FileName &path, const bool silent)
             specArgument = QLatin1String("-spec ") + Utils::QtcProcess::quoteArg(parsedSpec.toUserOutput());
         Utils::QtcProcess::addArgs(&specArgument, additionalArguments);
 
-        // Find profile:
+        // Find profiles (can be more than one, e.g. (Linux-)Desktop and embedded linux):
+        QList<ProjectExplorer::Kit *> kitList;
         foreach (ProjectExplorer::Kit *k, km->kits()) {
             QtSupport::BaseQtVersion *profileVersion = QtSupport::QtKitInformation::qtVersion(k);
             Utils::FileName profileSpec = QmakeKitInformation::mkspec(k);
@@ -448,31 +447,33 @@ void TargetSetupPage::import(const Utils::FileName &path, const bool silent)
 
             if (profileVersion == version
                     && profileSpec == parsedSpec)
-                kit = k;
+                kitList.append(k);
         }
-        if (!kit)
-            kit = createTemporaryKit(version, temporaryVersion, parsedSpec);
-        else
-            addProject(kit, m_proFilePath);
+        if (kitList.isEmpty())
+            kitList.append(createTemporaryKit(version, temporaryVersion, parsedSpec));
 
-        // Create widget:
-        Qt4TargetSetupWidget *widget = m_widgets.value(kit->id(), 0);
-        if (!widget)
-            addWidget(kit);
-        widget = m_widgets.value(kit->id(), 0);
-        if (!widget)
-            continue;
+        foreach (ProjectExplorer::Kit *k, kitList) {
+            addProject(k, m_proFilePath);
 
-        // create info:
-        BuildConfigurationInfo info = BuildConfigurationInfo(makefileBuildConfig.first,
-                                                             specArgument,
-                                                             path.toString(),
-                                                             true,
-                                                             file);
+            // Create widget:
+            Qt4TargetSetupWidget *widget = m_widgets.value(k->id(), 0);
+            if (!widget)
+                addWidget(k);
+            widget = m_widgets.value(k->id(), 0);
+            if (!widget)
+                continue;
 
-        widget->addBuildConfigurationInfo(info, true);
-        widget->setKitSelected(true);
-        found = true;
+            // create info:
+            BuildConfigurationInfo info = BuildConfigurationInfo(makefileBuildConfig.first,
+                                                                 specArgument,
+                                                                 path.toString(),
+                                                                 true,
+                                                                 file);
+
+            widget->addBuildConfigurationInfo(info, true);
+            widget->setKitSelected(true);
+            found = true;
+        }
     }
 
     updateVisibility();
