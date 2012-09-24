@@ -5872,7 +5872,7 @@ void tst_TestCore::defaultPropertyValues()
     QCOMPARE(rectNode.variantProperty("y").value().toDouble(), 0.0);
     QCOMPARE(rectNode.variantProperty("width").value().toDouble(), 0.0);
 
-    ModelNode imageNode(addNodeListChild(view->rootModelNode(), "QtQuick.Image", 1, 1, "data"));
+    ModelNode imageNode(addNodeListChild(view->rootModelNode(), "QtQuick.Image", 1, 0, "data"));
 
     QCOMPARE(imageNode.variantProperty("y").value().toDouble(), 0.0);
     QCOMPARE(imageNode.variantProperty("width").value().toDouble(), 0.0);
