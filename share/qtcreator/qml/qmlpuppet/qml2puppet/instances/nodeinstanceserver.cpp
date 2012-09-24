@@ -1003,7 +1003,7 @@ ValuesChangedCommand NodeInstanceServer::createValuesChangedCommand(const QVecto
         const QString propertyName = property.second;
         const ServerNodeInstance instance = property.first;
 
-        if ( instance.isValid()) {
+        if (instance.isValid()) {
             QVariant propertyValue = instance.property(propertyName);
             if (QMetaType::isRegistered(propertyValue.userType()) && supportedVariantType(propertyValue.type())) {
                 valueVector.append(PropertyValueContainer(instance.instanceId(), propertyName, propertyValue, QString()));
