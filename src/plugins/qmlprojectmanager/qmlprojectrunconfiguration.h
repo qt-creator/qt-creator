@@ -35,7 +35,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QWeakPointer>
+#include <QPointer>
 
 QT_FORWARD_DECLARE_CLASS(QStringListModel)
 
@@ -125,7 +125,7 @@ private:
     QString m_scriptFile;
     QString m_qmlViewerArgs;
 
-    QWeakPointer<Internal::QmlProjectRunConfigurationWidget> m_configurationWidget;
+    QPointer<Internal::QmlProjectRunConfigurationWidget> m_configurationWidget;
 
     bool m_isEnabled;
 

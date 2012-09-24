@@ -52,7 +52,7 @@
 #include <QMutex>
 #include <QThread>
 #include <QMutexLocker>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QWaitCondition>
 #include <QDir>
 #include <QBuffer>
@@ -79,9 +79,9 @@ namespace Internal {
 
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
 
-QWeakPointer<ExamplesListModel> &examplesModelStatic()
+QPointer<ExamplesListModel> &examplesModelStatic()
 {
-    static QWeakPointer<ExamplesListModel> s_examplesModel;
+    static QPointer<ExamplesListModel> s_examplesModel;
     return s_examplesModel;
 }
 

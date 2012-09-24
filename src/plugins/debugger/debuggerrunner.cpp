@@ -71,6 +71,7 @@
 #include <QErrorMessage>
 #include <QFormLayout>
 #include <QLabel>
+#include <QPointer>
 
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -262,7 +263,7 @@ public:
 public:
     DebuggerRunControl *q;
     DebuggerEngine *m_engine;
-    const QWeakPointer<RunConfiguration> m_myRunConfiguration;
+    const QPointer<RunConfiguration> m_myRunConfiguration;
     bool m_running;
 };
 

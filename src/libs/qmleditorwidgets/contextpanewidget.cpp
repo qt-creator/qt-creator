@@ -244,7 +244,7 @@ ContextPaneWidget::~ContextPaneWidget()
     //if the pane was never activated the widget is not in a widget tree
     if (!m_bauhausColorDialog.isNull())
         delete m_bauhausColorDialog.data();
-        m_bauhausColorDialog.clear();
+        m_bauhausColorDialog = 0;
 }
 
 void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2, bool pinned)

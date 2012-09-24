@@ -37,7 +37,7 @@
 #include <qmldebug/qv8profilerclient.h>
 
 #include <utils/qtcassert.h>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QTimer>
 #include <QMessageBox>
 
@@ -54,8 +54,8 @@ public:
     QmlProfilerStateManager* profilerState;
 
     QmlDebugConnection *connection;
-    QWeakPointer<QmlProfilerTraceClient> qmlclientplugin;
-    QWeakPointer<QV8ProfilerClient> v8clientplugin;
+    QPointer<QmlProfilerTraceClient> qmlclientplugin;
+    QPointer<QV8ProfilerClient> v8clientplugin;
 
     QTimer connectionTimer;
     int connectionAttempts;

@@ -37,7 +37,7 @@
 #include <utils/fileinprojectfinder.h>
 
 #include <QRegExp>
-#include <QWeakPointer>
+#include <QPointer>
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
 
@@ -81,7 +81,7 @@ private:
     mutable QRegExp m_qtAssert;
     mutable QRegExp m_qtAssertX;
     mutable QRegExp m_qtTestFail;
-    QWeakPointer<ProjectExplorer::Project> m_project;
+    QPointer<ProjectExplorer::Project> m_project;
     QString m_lastLine;
     Utils::FileInProjectFinder m_projectFinder;
 };

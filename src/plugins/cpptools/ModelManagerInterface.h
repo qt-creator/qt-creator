@@ -107,7 +107,7 @@ public:
         ProjectInfo()
         { }
 
-        ProjectInfo(QWeakPointer<ProjectExplorer::Project> project)
+        ProjectInfo(QPointer<ProjectExplorer::Project> project)
             : m_project(project)
         { }
 
@@ -120,7 +120,7 @@ public:
         bool isNull() const
         { return m_project.isNull(); }
 
-        QWeakPointer<ProjectExplorer::Project> project() const
+        QPointer<ProjectExplorer::Project> project() const
         { return m_project; }
 
         const QList<ProjectPart::Ptr> projectParts() const
@@ -142,7 +142,7 @@ public:
         { return m_defines; }
 
     private: // attributes
-        QWeakPointer<ProjectExplorer::Project> m_project;
+        QPointer<ProjectExplorer::Project> m_project;
         QList<ProjectPart::Ptr> m_projectParts;
         // the attributes below are calculated from the project parts.
         QStringList m_includePaths;

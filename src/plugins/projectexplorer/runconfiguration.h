@@ -38,7 +38,7 @@
 #include <utils/outputformat.h>
 
 #include <QMetaType>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QWidget>
 
 QT_FORWARD_DECLARE_CLASS(QIcon)
@@ -305,7 +305,7 @@ protected:
 private:
     QString m_displayName;
     RunMode m_runMode;
-    const QWeakPointer<RunConfiguration> m_runConfiguration;
+    const QPointer<RunConfiguration> m_runConfiguration;
     Utils::OutputFormatter *m_outputFormatter;
 
     // A handle to the actual application process.

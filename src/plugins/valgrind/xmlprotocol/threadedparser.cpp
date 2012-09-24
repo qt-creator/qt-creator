@@ -41,7 +41,7 @@
 #include <QIODevice>
 #include <QMetaType>
 #include <QThread>
-#include <QSharedPointer>
+#include <QPointer>
 
 namespace {
 
@@ -76,7 +76,7 @@ public:
     Private()
     {}
 
-    QWeakPointer<Thread> parserThread;
+    QPointer<Thread> parserThread;
     QString errorString;
 };
 

@@ -33,6 +33,8 @@
 
 #include <qmljs/qmljsicontextpane.h>
 
+#include <QPointer>
+
 namespace TextEditor {
 class BaseTextEditor;
 }
@@ -66,7 +68,7 @@ public slots:
 
 private:
     QmlEditorWidgets::ContextPaneWidget* contextWidget();
-    QWeakPointer<QmlEditorWidgets::ContextPaneWidget> m_widget;
+    QPointer<QmlEditorWidgets::ContextPaneWidget> m_widget;
     QmlJS::Document::Ptr m_doc;
     QmlJS::AST::Node *m_node;
     TextEditor::BaseTextEditor *m_editor;

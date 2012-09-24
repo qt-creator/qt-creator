@@ -49,6 +49,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDir>
+#include <QPointer>
 #include <QTime>
 #include <QTimer>
 #include <QMetaType>
@@ -98,7 +99,7 @@ struct BuildManagerPrivate {
     int m_maxProgress;
     QFutureInterface<void> *m_progressFutureInterface;
     QFutureWatcher<void> m_progressWatcher;
-    QWeakPointer<Core::FutureProgress> m_futureProgress;
+    QPointer<Core::FutureProgress> m_futureProgress;
 };
 
 BuildManagerPrivate::BuildManagerPrivate() :
@@ -275,7 +276,7 @@ void BuildManager::clearBuildQueue()
     d->m_progressWatcher.setFuture(QFuture<void>());
     delete d->m_progressFutureInterface;
     d->m_progressFutureInterface = 0;
-    d->m_futureProgress.clear();
+    d->m_futureProgress = 0;
     d->m_maxProgress = 0;
 
     emit buildQueueFinished(false);
@@ -322,10 +323,10 @@ void BuildManager::startBuildQueue(const QStringList &preambleMessage)
         d->m_taskHub->clearTasks(Core::Id(Constants::TASK_CATEGORY_COMPILE));
         d->m_taskHub->clearTasks(Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
         progressManager->setApplicationLabel(QString());
-        d->m_futureProgress = QWeakPointer<Core::FutureProgress>(progressManager->addTask(d->m_progressFutureInterface->future(),
+        d->m_futureProgress = progressManager->addTask(d->m_progressFutureInterface->future(),
               QString(),
               QLatin1String(Constants::TASK_BUILD),
-              Core::ProgressManager::KeepOnFinish | Core::ProgressManager::ShowInApplicationIcon));
+              Core::ProgressManager::KeepOnFinish | Core::ProgressManager::ShowInApplicationIcon);
         connect(d->m_futureProgress.data(), SIGNAL(clicked()), this, SLOT(showBuildResults()));
         d->m_futureProgress.data()->setWidget(new Internal::BuildProgress(d->m_taskWindow));
         d->m_progress = 0;

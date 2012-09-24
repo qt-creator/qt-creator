@@ -74,7 +74,7 @@ bool BlackBerryRunControlFactory::canRun(ProjectExplorer::RunConfiguration *runC
     // not launch a second instance. Disable the Run button if the application is already
     // running on the device.
     if (m_activeRunControls.contains(rc->key())) {
-        QWeakPointer<ProjectExplorer::RunControl> activeRunControl = m_activeRunControls[rc->key()];
+        QPointer<ProjectExplorer::RunControl> activeRunControl = m_activeRunControls[rc->key()];
         if (activeRunControl && activeRunControl.data()->isRunning())
             return false;
         else
@@ -103,7 +103,7 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
 
     if (mode == ProjectExplorer::NormalRunMode) {
         BlackBerryRunControl *runControl = new BlackBerryRunControl(rc);
-        m_activeRunControls[rc->key()] = QWeakPointer<ProjectExplorer::RunControl>(runControl);
+        m_activeRunControls[rc->key()] = runControl;
         return runControl;
     }
 
@@ -113,7 +113,7 @@ ProjectExplorer::RunControl *BlackBerryRunControlFactory::create(ProjectExplorer
         return 0;
 
     new BlackBerryDebugSupport(rc, runControl);
-    m_activeRunControls[rc->key()] = QWeakPointer<ProjectExplorer::RunControl>(runControl);
+    m_activeRunControls[rc->key()] = runControl;
     return runControl;
 }
 

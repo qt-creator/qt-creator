@@ -36,6 +36,7 @@
 #include <projectexplorer/project.h>
 
 #include <QDeclarativeEngine>
+#include <QPointer>
 
 namespace QmlJS { class ModelManagerInterface; }
 namespace Utils { class FileSystemWatcher; }
@@ -115,7 +116,7 @@ private:
 
     // qml based, new format
     QDeclarativeEngine m_engine;
-    QWeakPointer<QmlProjectItem> m_projectItem;
+    QPointer<QmlProjectItem> m_projectItem;
 
     Internal::QmlProjectNode *m_rootNode;
 };

@@ -45,6 +45,7 @@
 
 #include <QPair>
 #include <QFileInfo>
+#include <QPointer>
 #include <QStringList>
 #include <QDebug>
 
@@ -101,7 +102,7 @@ public:
 
 public:
     Internal::DesignModeCoreListener *m_coreListener;
-    QWeakPointer<Core::IEditor> m_currentEditor;
+    QPointer<Core::IEditor> m_currentEditor;
     bool m_isActive;
     bool m_isRequired;
     QList<DesignEditorInfo*> m_editors;
@@ -237,10 +238,10 @@ void DesignMode::currentEditorChanged(Core::IEditor *editor)
         if (ModeManager::currentMode() == this)
             ModeManager::activateMode(Core::Constants::MODE_EDIT);
         setEnabled(false);
-        d->m_currentEditor = QWeakPointer<Core::IEditor>();
+        d->m_currentEditor = 0;
         emit actionsUpdated(d->m_currentEditor.data());
     } else {
-        d->m_currentEditor = QWeakPointer<Core::IEditor>(editor);
+        d->m_currentEditor = editor;
 
         if (d->m_currentEditor)
             connect(d->m_currentEditor.data(), SIGNAL(changed()), this, SLOT(updateActions()));

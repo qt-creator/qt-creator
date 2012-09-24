@@ -68,7 +68,7 @@ public:
 private:
     static Debugger::DebuggerStartParameters startParameters( const BlackBerryRunConfiguration *runConfig);
 
-    mutable QMap<QString, QWeakPointer<ProjectExplorer::RunControl> > m_activeRunControls;
+    mutable QMap<QString, QPointer<ProjectExplorer::RunControl> > m_activeRunControls;
 };
 
 } // namespace Internal

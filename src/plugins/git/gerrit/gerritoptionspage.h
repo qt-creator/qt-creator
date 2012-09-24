@@ -35,7 +35,7 @@
 
 #include <QWidget>
 #include <QSharedPointer>
-#include <QWeakPointer>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -85,7 +85,7 @@ public:
 
 private:
     const QSharedPointer<GerritParameters> &m_parameters;
-    QWeakPointer<GerritOptionsWidget> m_widget;
+    QPointer<GerritOptionsWidget> m_widget;
 };
 
 } // namespace Internal

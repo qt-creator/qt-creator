@@ -46,8 +46,8 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QLatin1Char>
+#include <QPointer>
 #include <QProcess>
-#include <QWeakPointer>
 
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
@@ -111,7 +111,7 @@ class MaemoCopyFilesToSysrootWidget : public BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    MaemoCopyFilesToSysrootWidget(const BuildStep *buildStep)
+    MaemoCopyFilesToSysrootWidget(BuildStep *buildStep)
         : m_buildStep(buildStep)
     {
         if (m_buildStep) {
@@ -126,7 +126,7 @@ public:
     }
     virtual bool showWidget() const { return false; }
 private:
-    const QWeakPointer<const BuildStep> m_buildStep;
+    const QPointer<BuildStep> m_buildStep;
 };
 
 

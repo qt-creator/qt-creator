@@ -32,9 +32,11 @@
 #define CONTEXTPANEWIDGETIMAGE_H
 
 #include <qmleditorwidgets_global.h>
-#include <QLabel>
 #include <contextpanewidget.h>
 #include <qdrawutil.h>
+
+#include <QLabel>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -157,7 +159,7 @@ private:
     Ui::ContextPaneWidgetImage *ui;
     Ui::ContextPaneWidgetBorderImage *uiBorderImage;
     QString m_path;
-    QWeakPointer<PreviewDialog> m_previewDialog;    
+    QPointer<PreviewDialog> m_previewDialog;
     FileWidget *m_fileWidget;
     QLabel *m_sizeLabel;
     bool m_borderImage;

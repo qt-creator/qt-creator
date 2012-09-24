@@ -90,6 +90,7 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QPointer>
 #include <QPushButton>
 
 using namespace Core;
@@ -213,7 +214,7 @@ public:
     MainWindowSettingsMap m_defaultSettings;
 
     // list of dock widgets to prevent memory leak
-    typedef QWeakPointer<QDockWidget> DockPtr;
+    typedef QPointer<QDockWidget> DockPtr;
     QList<DockPtr> m_dockWidgets;
 };
 

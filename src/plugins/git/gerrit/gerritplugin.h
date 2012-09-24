@@ -32,8 +32,8 @@
 #define GERRIT_INTERNAL_GERRITPLUGIN_H
 
 #include <QObject>
+#include <QPointer>
 #include <QSharedPointer>
-#include <QWeakPointer>
 
 namespace Core {
 class ActionContainer;
@@ -71,7 +71,7 @@ private:
     void fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &change, int mode);
 
     QSharedPointer<GerritParameters> m_parameters;
-    QWeakPointer<GerritDialog> m_dialog;
+    QPointer<GerritDialog> m_dialog;
 };
 
 } // namespace Internal
