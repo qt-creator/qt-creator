@@ -31,8 +31,8 @@
 **************************************************************************/
 
 #include "checkoutdialog.h"
-#include "clearcaseplugin.h"
 #include "ui_checkoutdialog.h"
+#include "activityselector.h"
 
 #include <QList>
 #include <QPair>
@@ -41,11 +41,23 @@
 namespace ClearCase {
 namespace Internal {
 
-CheckOutDialog::CheckOutDialog(const QString &fileName, QWidget *parent) :
-    QDialog(parent), ui(new Ui::CheckOutDialog)
+CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, QWidget *parent) :
+    QDialog(parent), ui(new Ui::CheckOutDialog), m_actSelector(0)
 {
     ui->setupUi(this);
     ui->lblFileName->setText(fileName);
+
+    if (isUcm) {
+        m_actSelector = new ActivitySelector(this);
+
+        ui->verticalLayout->insertWidget(0, m_actSelector);
+
+        QFrame *line = new QFrame(this);
+        line->setFrameShape(QFrame::HLine);
+        line->setFrameShadow(QFrame::Sunken);
+
+        ui->verticalLayout->insertWidget(1, line);
+    }
 }
 
 CheckOutDialog::~CheckOutDialog()
@@ -55,7 +67,7 @@ CheckOutDialog::~CheckOutDialog()
 
 QString CheckOutDialog::activity() const
 {
-    return ui->actSelector->activity();
+    return m_actSelector ? m_actSelector->activity() : QString();
 }
 
 QString CheckOutDialog::comment() const

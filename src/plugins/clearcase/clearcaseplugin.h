@@ -118,7 +118,7 @@ public:
 
     bool initialize(const QStringList &arguments, QString *error_message);
 
-    ClearCaseSubmitEditor *openClearCaseSubmitEditor(const QString &fileName);
+    ClearCaseSubmitEditor *openClearCaseSubmitEditor(const QString &fileName, bool isUcm);
 
     const ClearCaseSettings &settings() const;
     void setSettings(const ClearCaseSettings &s);
@@ -148,6 +148,9 @@ public:
     FileStatus vcsStatus(const QString &file) const;
     QString currentView() const { return m_view; }
     void refreshActivities();
+    inline bool isUcm() const { return m_isUcm; }
+
+    bool ccCheckUcm(const QString &viewname, const QString &workingDir) const;
 
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
@@ -216,7 +219,7 @@ private:
     static void rmdir(const QString &path);
     QString runExtDiff(const QString &workingDir, const QStringList &arguments,
                        int timeOut, QTextCodec *outputCodec = 0);
-    QString ccGetView(const QString &workingDir, bool *isDynamic = 0) const;
+    QString ccGetView(const QString &workingDir, bool *isDynamic = 0, bool *isUcm = 0) const;
 
     ClearCaseSettings m_settings;
 
@@ -226,6 +229,7 @@ private:
     QString m_stream;
     QString m_view;
     bool m_isDynamic;
+    bool m_isUcm;
     QString m_intStream;
     QString m_activity;
     QString m_diffPrefix;

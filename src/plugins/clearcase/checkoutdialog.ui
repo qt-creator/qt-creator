@@ -22,16 +22,6 @@
     </widget>
    </item>
    <item>
-    <widget class="ActivitySelector" name="actSelector" native="true"/>
-   </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QLabel" name="lblComment">
      <property name="text">
       <string>&amp;Checkout Comment:</string>
@@ -110,14 +100,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ActivitySelector</class>
-   <extends>QWidget</extends>
-   <header>activityselector.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>

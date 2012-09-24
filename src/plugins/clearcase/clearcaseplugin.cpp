@@ -84,18 +84,20 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QMutex>
+#include <QProcess>
+#include <QRegExp>
+#include <QSharedPointer>
+#include <QtConcurrentRun>
 #include <QTemporaryFile>
 #include <QTextCodec>
-#include <QProcess>
-#include <QSharedPointer>
 #include <QTimer>
+#include <QtPlugin>
 #include <QUrl>
 #include <QUuid>
 #include <QVariant>
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
-#include <QtConcurrentRun>
-#include <QtPlugin>
+
 
 namespace ClearCase {
 namespace Internal {
@@ -161,6 +163,7 @@ ClearCasePlugin *ClearCasePlugin::m_clearcasePluginInstance = 0;
 ClearCasePlugin::ClearCasePlugin() :
     VcsBase::VcsBasePlugin(QLatin1String(ClearCase::Constants::CLEARCASECHECKINEDITOR_ID)),
     m_isDynamic(false),
+    m_isUcm(false),
     m_commandLocator(0),
     m_checkOutAction(0),
     m_checkInCurrentAction(0),
@@ -226,6 +229,7 @@ QString ClearCasePlugin::findTopLevel(const QString &directory) const
             findRepositoryForDirectory(directory, QLatin1String(ClearCase::Constants::CLEARCASE_ROOT_FILE));
     if (!topLevel.isEmpty() || !clearCaseControl()->isConfigured())
         return topLevel;
+
     // Dynamic view
     if (directory.startsWith(m_topLevel) && directory.at(m_topLevel.size()) == QLatin1Char('/'))
         return m_topLevel;
@@ -562,7 +566,7 @@ QString ClearCasePlugin::ccGetFileActivity(const QString &workingDir, const QStr
     return response.stdOut;
 }
 
-ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString &fileName)
+ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString &fileName, bool isUcm)
 {
     Core::IEditor *editor =
             Core::EditorManager::openEditor(fileName,
@@ -573,18 +577,28 @@ ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString 
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_checkInSelectedAction, m_checkInDiffAction);
     connect(submitEditor, SIGNAL(diffSelectedFiles(QStringList)), this, SLOT(diffCheckInFiles(QStringList)));
     submitEditor->setCheckScriptWorkingDirectory(m_checkInView);
+    submitEditor->setIsUcm(isUcm);
     return submitEditor;
 }
 
 void ClearCasePlugin::updateStatusActions()
 {
     bool hasFile = currentState().hasFile();
-    FileStatus fileStatus = m_statusMap->value(currentState().relativeCurrentFile(), FileStatus(FileStatus::Unknown));
+    QString fileName = currentState().relativeCurrentFile();
+
+    FileStatus fileStatus = m_statusMap->value(fileName, FileStatus(FileStatus::Unknown));
+
+    if (ClearCase::Constants::debug)
+        qDebug() << Q_FUNC_INFO << fileName << ", status = " << fileStatus.status;
+
     m_checkOutAction->setEnabled(hasFile && (fileStatus.status & (FileStatus::CheckedIn | FileStatus::Hijacked)));
     m_undoCheckOutAction->setEnabled(hasFile && (fileStatus.status & FileStatus::CheckedOut));
     m_undoHijackAction->setEnabled(!m_isDynamic && hasFile && (fileStatus.status & FileStatus::Hijacked));
     m_checkInCurrentAction->setEnabled(hasFile && (fileStatus.status & FileStatus::CheckedOut));
     m_addFileAction->setEnabled(hasFile && (fileStatus.status & FileStatus::NotManaged));
+
+    m_checkInActivityAction->setEnabled(m_isUcm);
+    m_diffActivityAction->setEnabled(m_isUcm);
 }
 
 void ClearCasePlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)
@@ -928,8 +942,11 @@ void ClearCasePlugin::startCheckInAll()
 
 void ClearCasePlugin::startCheckInActivity()
 {
+    QTC_ASSERT(isUcm(), return);
+
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
+
     QDialog dlg;
     QVBoxLayout *layout = new QVBoxLayout(&dlg);
     ActivitySelector *actSelector = new ActivitySelector(&dlg);
@@ -941,6 +958,7 @@ void ClearCasePlugin::startCheckInActivity()
     dlg.setWindowTitle(tr("Check In Activity"));
     if (!dlg.exec())
         return;
+
     QString topLevel = state.topLevel();
     int topLevelLen = topLevel.length();
     QStringList versions = ccGetActivityVersions(topLevel, actSelector->activity());
@@ -991,9 +1009,10 @@ void ClearCasePlugin::startCheckIn(const QString &workingDir, const QStringList 
     m_checkInMessageFileName = saver.fileName();
     m_checkInView = workingDir;
     // Create a submit editor and set file list
-    ClearCaseSubmitEditor *editor = openClearCaseSubmitEditor(m_checkInMessageFileName);
+    ClearCaseSubmitEditor *editor = openClearCaseSubmitEditor(m_checkInMessageFileName, m_isUcm);
     editor->setStatusList(files);
-    if (files.size() == 1) {
+
+    if (m_isUcm && (files.size() == 1)) {
         QString activity = ccGetFileActivity(workingDir, files.first());
         editor->submitEditorWidget()->setActivity(activity);
     }
@@ -1053,6 +1072,8 @@ void ClearCasePlugin::history(const QString &workingDir,
 
 void ClearCasePlugin::viewStatus()
 {
+    if (m_view.isEmpty())
+        m_view = ccGetView(m_topLevel);
     QTC_ASSERT(!m_view.isEmpty() && !m_settings.disableIndexer, return);
     VcsBase::VcsBaseOutputWindow *outputwindow = VcsBase::VcsBaseOutputWindow::instance();
     outputwindow->appendCommand(QLatin1String("Indexed files status (C=Checked Out, H=Hijacked, ?=Missing)"));
@@ -1297,7 +1318,8 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
 
     const QString file = QDir::toNativeSeparators(relFile);
     const QString title = QString::fromLatin1("Checkout %1").arg(file);
-    CheckOutDialog coDialog(title);
+    CheckOutDialog coDialog(title, m_isUcm);
+
     if (!m_settings.disableIndexer &&
             (fi.isWritable() || m_statusMap->value(relFile).status == FileStatus::Unknown))
         QtConcurrent::run(&sync, topLevel, QStringList(relFile)).waitForFinished();
@@ -1310,8 +1332,9 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
     if (!isHijacked)
         coDialog.hideHijack();
     if (coDialog.exec() == QDialog::Accepted) {
-        if (!vcsSetActivity(topLevel, title, coDialog.activity()))
+        if (m_isUcm && !vcsSetActivity(topLevel, title, coDialog.activity()))
             return false;
+
         Core::FileChangeBlocker fcb(absPath);
         QStringList args(QLatin1String("checkout"));
         QString comment = coDialog.comment();
@@ -1444,7 +1467,7 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
     const QString file = QDir::toNativeSeparators(fileName);
     bool noCheckout = false;
     QVBoxLayout *verticalLayout;
-    ActivitySelector *actSelector;
+    ActivitySelector *actSelector = 0;
     QLabel *commentLabel;
     QTextEdit *commentEdit;
     QDialogButtonBox *buttonBox;
@@ -1452,8 +1475,10 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
     fileOpDlg.setWindowTitle(title);
 
     verticalLayout = new QVBoxLayout(&fileOpDlg);
-    actSelector = new ActivitySelector;
-    verticalLayout->addWidget(actSelector);
+    if (m_isUcm) {
+        actSelector = new ActivitySelector;
+        verticalLayout->addWidget(actSelector);
+    }
 
     commentLabel = new QLabel(tr("Enter &comment:"));
     verticalLayout->addWidget(commentLabel);
@@ -1474,9 +1499,11 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
 
     if (!fileOpDlg.exec())
         return true;
+
     QString comment = commentEdit->toPlainText();
-    if (actSelector->changed())
+    if (m_isUcm && actSelector->changed())
         vcsSetActivity(workingDir, fileOpDlg.windowTitle(), actSelector->activity());
+
     QString dirName = QDir::toNativeSeparators(QFileInfo(workingDir, fileName).absolutePath());
     QStringList commentArg;
     if (comment.isEmpty())
@@ -1670,7 +1697,18 @@ bool ClearCasePlugin::newActivity()
     return (!response.error);
 }
 
-QString ClearCasePlugin::ccGetView(const QString &workingDir, bool *isDynamic) const
+// check if the view is UCM
+bool ClearCasePlugin::ccCheckUcm(const QString &viewname, const QString &workingDir) const
+{
+    QStringList catcsArgs(QLatin1String("catcs"));
+    catcsArgs << QLatin1String("-tag") << viewname;
+    QString catcsData = runCleartoolSync(workingDir, catcsArgs);
+
+    // check output for the word "ucm"
+    return QRegExp(QLatin1String("(^|\\n)ucm\\n")).indexIn(catcsData) != -1;
+}
+
+QString ClearCasePlugin::ccGetView(const QString &workingDir, bool *isDynamic, bool *isUcm) const
 {
     QStringList args(QLatin1String("lsview"));
     args << QLatin1String("-cview");
@@ -1682,7 +1720,13 @@ QString ClearCasePlugin::ccGetView(const QString &workingDir, bool *isDynamic) c
     }
     if (isDynamic)
         *isDynamic = !data.isEmpty() && (data.at(0) == QLatin1Char('*'));
-    return data.mid(2, data.indexOf(QLatin1Char(' '), 2) - 2);
+
+    QString viewname = data.mid(2, data.indexOf(QLatin1Char(' '), 2) - 2);
+    if (isUcm)
+        *isUcm = ccCheckUcm(viewname, workingDir);
+
+    return viewname;
+
 }
 
 void ClearCasePlugin::updateStreamAndView()
@@ -1695,7 +1739,7 @@ void ClearCasePlugin::updateStreamAndView()
     QRegExp intStreamExp(QLatin1String("stream:([^@]*)"));
     if (intStreamExp.indexIn(sresponse.mid(tabPos + 1)) != -1)
         m_intStream = intStreamExp.cap(1);
-    m_view = ccGetView(m_topLevel, &m_isDynamic);
+    m_view = ccGetView(m_topLevel, &m_isDynamic, &m_isUcm);
     m_updateViewAction->setParameter(m_isDynamic ? QString() : m_view);
 }
 

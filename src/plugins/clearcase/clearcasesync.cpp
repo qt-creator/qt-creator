@@ -1,4 +1,5 @@
 #include "clearcasesync.h"
+#include "clearcaseconstants.h"
 
 #include <QDir>
 #include <QFutureInterface>
@@ -30,7 +31,8 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
         total = settings.totalFiles.value(view, total);
 
     // refresh activities list
-    m_plugin->refreshActivities();
+    if (m_plugin->isUcm())
+        m_plugin->refreshActivities();
 
     if (settings.disableIndexer)
         return;
@@ -66,6 +68,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
     future.setProgressRange(0, total + 1);
     QProcess process;
     process.setWorkingDirectory(topLevel);
+
     process.start(program, args);
     if (!process.waitForStarted())
         return;
@@ -75,6 +78,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, const QString &topLevel,
                process.bytesAvailable() && !future.isCanceled())
         {
             QString line = QString::fromLocal8Bit(process.readLine().constData());
+
             buffer += line;
             if (buffer.endsWith(QLatin1Char('\n')) || process.atEnd()) {
                 int atatpos = buffer.indexOf(QLatin1String("@@"));

@@ -54,8 +54,11 @@ public:
     void setStatusList(const QStringList &statusOutput);
     ClearCaseSubmitEditorWidget *submitEditorWidget();
 
+    void setIsUcm(bool isUcm);
+
 protected:
     virtual QByteArray fileContents() const;
+
 };
 
 } // namespace Internal

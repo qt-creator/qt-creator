@@ -50,6 +50,11 @@ ClearCaseSubmitEditorWidget *ClearCaseSubmitEditor::submitEditorWidget()
     return static_cast<ClearCaseSubmitEditorWidget *>(widget());
 }
 
+void ClearCaseSubmitEditor::setIsUcm(bool isUcm)
+{
+    submitEditorWidget()->addActivitySelector(isUcm);
+}
+
 void ClearCaseSubmitEditor::setStatusList(const QStringList &statusOutput)
 {
     typedef QStringList::const_iterator ConstIterator;
