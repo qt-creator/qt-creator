@@ -376,11 +376,24 @@ PersistentSettingsWriter::PersistentSettingsWriter(const FileName &fileName, con
     m_fileName(fileName), m_docType(docType)
 { }
 
+PersistentSettingsWriter::~PersistentSettingsWriter()
+{
+    write(m_savedData, 0);
+}
+
 bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) const
 {
     if (data == m_savedData)
         return true;
 
+    return write(data, parent);
+}
+
+FileName PersistentSettingsWriter::fileName() const
+{ return m_fileName; }
+
+bool PersistentSettingsWriter::write(const QVariantMap &data, QWidget *parent) const
+{
     QDir tmp;
     tmp.mkpath(m_fileName.toFileInfo().path());
     Utils::FileSaver saver(m_fileName.toString(), QIODevice::Text);
@@ -411,8 +424,5 @@ bool PersistentSettingsWriter::save(const QVariantMap &data, QWidget *parent) co
         m_savedData = data;
     return ok;
 }
-
-FileName PersistentSettingsWriter::fileName() const
-{ return m_fileName; }
 
 } // namespace Utils
