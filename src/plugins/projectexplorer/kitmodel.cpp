@@ -31,7 +31,7 @@
 #include "kitmodel.h"
 
 #include "kit.h"
-#include "kitconfigwidget.h"
+#include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
 #include <utils/qtcassert.h>
@@ -72,10 +72,9 @@ public:
     }
 
     KitNode *parent;
-    QString newName;
     QList<KitNode *> childNodes;
     Kit *kit;
-    KitConfigWidget *widget;
+    KitManagerConfigWidget *widget;
     bool changed;
 };
 
@@ -173,13 +172,11 @@ QVariant KitModel::data(const QModelIndex &index, int role) const
                 f.setItalic(f.style() != QFont::StyleItalic);
             return f;
         } else if (role == Qt::DisplayRole) {
-            QString baseName = node->newName.isEmpty() ? node->kit->displayName() : node->newName;
+            QString baseName = node->widget->displayName();
             if (node == m_defaultNode)
                 //: Mark up a kit as the default one.
                 baseName = tr("%1 (default)").arg(baseName);
             return baseName;
-        } else if (role == Qt::EditRole) {
-            return node->newName.isEmpty() ? node->kit->displayName() : node->newName;
         } else if (role == Qt::DecorationRole) {
             return node->kit->isValid() ? QIcon() : warningIcon;
         } else if (role == Qt::ToolTipRole) {
@@ -187,21 +184,6 @@ QVariant KitModel::data(const QModelIndex &index, int role) const
         }
     }
     return QVariant();
-}
-
-bool KitModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    if (!index.isValid())
-        return false;
-
-    KitNode *node = static_cast<KitNode *>(index.internalPointer());
-    Q_ASSERT(node);
-    if (index.column() != 0 || !node->kit || role != Qt::EditRole)
-        return false;
-    node->newName = value.toString();
-    if (!node->newName.isEmpty() && node->newName != node->kit->displayName())
-        node->changed = true;
-    return true;
 }
 
 Qt::ItemFlags KitModel::flags(const QModelIndex &index) const
@@ -214,10 +196,7 @@ Qt::ItemFlags KitModel::flags(const QModelIndex &index) const
     if (!node->kit)
         return Qt::ItemIsEnabled;
 
-    if (node->kit->isAutoDetected())
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
 QVariant KitModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -309,10 +288,6 @@ void KitModel::apply()
         Q_ASSERT(n->kit);
         if (n->changed) {
             KitManager::instance()->blockSignals(true);
-            if (!n->newName.isEmpty()) {
-                n->kit->setDisplayName(n->newName);
-                n->newName.clear();
-            }
             if (n->widget)
                 n->widget->apply();
             n->changed = false;
