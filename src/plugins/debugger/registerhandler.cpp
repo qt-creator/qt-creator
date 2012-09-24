@@ -294,6 +294,12 @@ static int bitWidthFromType(int type, int subType)
     return 0;
 }
 
+static const int TopLevelId = -1;
+static bool isTopLevelItem(const QModelIndex &index)
+{
+    return quintptr(index.internalId()) == quintptr(TopLevelId);
+}
+
 Register::Register(const QByteArray &name_)
     : name(name_), changed(true)
 {
@@ -322,7 +328,7 @@ int RegisterHandler::rowCount(const QModelIndex &idx) const
         return 0;
     if (!idx.isValid())
         return m_registers.size(); // Top level.
-    if (idx.internalId() >= 0)
+    if (!isTopLevelItem(idx))
         return 0; // Sub-Items don't have children.
     if (idx.row() >= m_registers.size())
         return 0;
@@ -335,7 +341,7 @@ int RegisterHandler::columnCount(const QModelIndex &idx) const
         return 0;
     if (!idx.isValid())
         return 2;
-    if (idx.internalId() >= 0)
+    if (!isTopLevelItem(idx))
         return 0; // Sub-Items don't have children.
     return 2;
 }
@@ -345,8 +351,8 @@ QModelIndex RegisterHandler::index(int row, int col, const QModelIndex &parent) 
     if (row < 0 || col < 0 || col >= 2)
         return QModelIndex();
     if (!parent.isValid()) // Top level.
-        return createIndex(row, col, -1);
-    if (parent.internalId() >= 0) // Sub-Item has no children.
+        return createIndex(row, col, TopLevelId);
+    if (!isTopLevelItem(parent)) // Sub-Item has no children.
         return QModelIndex();
     if (parent.column() > 0)
         return QModelIndex();
@@ -357,8 +363,8 @@ QModelIndex RegisterHandler::parent(const QModelIndex &idx) const
 {
     if (!idx.isValid())
         return QModelIndex();
-    if (idx.internalId() >= 0)
-        return createIndex(idx.internalId(), 0, -1);
+    if (!isTopLevelItem(idx))
+        return createIndex(idx.internalId(), 0, TopLevelId);
     return QModelIndex();
 }
 
