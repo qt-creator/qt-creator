@@ -4967,7 +4967,7 @@ bool Parser::parseExpressionListParen(ExpressionAST *&node)
     if (LA() == T_LPAREN) {
         unsigned lparen_token = consumeToken();
         ExpressionListAST *expression_list = 0;
-        if (parseExpressionList(expression_list) && expression_list && LA() == T_RPAREN) {
+        if (parseExpressionList(expression_list) && LA() == T_RPAREN) {
             unsigned rparen_token = consumeToken();
             ExpressionListParenAST *ast = new (_pool) ExpressionListParenAST;
             ast->lparen_token = lparen_token;
