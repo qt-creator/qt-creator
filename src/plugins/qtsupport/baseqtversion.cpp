@@ -793,16 +793,19 @@ Utils::FileName BaseQtVersion::mkspec() const
 
 Utils::FileName BaseQtVersion::mkspecFor(ProjectExplorer::ToolChain *tc) const
 {
+    Utils::FileName versionSpec = mkspec();
     if (!tc)
-        return mkspec();
+        return versionSpec;
 
     const QList<Utils::FileName> tcSpecList = tc->suggestedMkspecList();
+    if (tcSpecList.contains(versionSpec))
+        return versionSpec;
     foreach (const Utils::FileName &tcSpec, tcSpecList) {
         if (hasMkspec(tcSpec))
             return tcSpec;
     }
 
-    return mkspec();
+    return versionSpec;
 }
 
 Utils::FileName BaseQtVersion::mkspecPath() const
