@@ -320,7 +320,7 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
         writeCommandToSocket(QVariant::fromValue(synchronizeCommand), m_firstSocket.data(), m_writeCommandCounter);
         m_writeCommandCounter++;
 
-        while(m_firstSocket->waitForReadyRead()) {
+        while (m_firstSocket->waitForReadyRead(100)) {
                 readFirstDataStream();
                 if (m_synchronizeId == synchronizeId)
                     return;
