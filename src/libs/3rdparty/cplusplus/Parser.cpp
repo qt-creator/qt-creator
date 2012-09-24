@@ -1491,11 +1491,12 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
 
                 bool blocked = blockErrors(true);
                 if (parseInitializer(initializer, &node->equal_token)) {
-                    NestedExpressionAST *expr = 0;
+                    // maybe the initializer also parses as a FunctionDeclarator?
+                    ExpressionListParenAST *expr = 0;
                     if (initializer)
-                        expr = initializer->asNestedExpression();
+                        expr = initializer->asExpressionListParen();
                     if (expr) {
-                        if (expr->expression && expr->rparen_token && (LA() == T_COMMA || LA() == T_SEMICOLON)) {
+                        if (expr->expression_list && expr->rparen_token && (LA() == T_COMMA || LA() == T_SEMICOLON)) {
                             rewind(lparen_token);
 
                             // check for ambiguous declarators.

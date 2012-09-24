@@ -1461,6 +1461,7 @@ public:
     unsigned ref_qualifier_token;
     ExceptionSpecificationAST *exception_specification;
     TrailingReturnTypeAST *trailing_return_type;
+    // Some FunctionDeclarators can also be interpreted as an initializer, like for 'A b(c);'
     ExpressionAST *as_cpp_initializer;
 
 public: // annotations
