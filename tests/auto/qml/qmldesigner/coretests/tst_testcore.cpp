@@ -1322,6 +1322,114 @@ void tst_TestCore::testBasicStates()
 //    QCOMPARE(rect2Instance.property("x").toInt(), 0);
 }
 
+void tst_TestCore::testBasicStatesQtQuick20()
+{
+    char qmlString[] = "import QtQuick 2.0\n"
+                       "Rectangle {\n"
+                       "id: root;\n"
+                            "Rectangle {\n"
+                                "id: rect1;\n"
+                            "}\n"
+                            "Rectangle {\n"
+                                "id: rect2;\n"
+                            "}\n"
+                            "states: [\n"
+                                "State {\n"
+                                    "name: \"state1\"\n"
+                                    "PropertyChanges {\n"
+                                        "target: rect1\n"
+                                    "}\n"
+                                    "PropertyChanges {\n"
+                                        "target: rect2\n"
+                                    "}\n"
+                                "}\n"
+                                ","
+                                "State {\n"
+                                    "name: \"state2\"\n"
+                                    "PropertyChanges {\n"
+                                        "target: rect1\n"
+                                    "}\n"
+                                    "PropertyChanges {\n"
+                                        "target: rect2;\n"
+                                        "x: 10;\n"
+                                    "}\n"
+                                "}\n"
+                            "]\n"
+                       "}\n";
+
+    Exception::setShouldAssert(true);
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+    model->attachView(testRewriterView.data());
+
+    ModelNode rootModelNode(testRewriterView->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Rectangle"));
+    QCOMPARE(rootModelNode.majorVersion(), 2);
+    QCOMPARE(rootModelNode.majorQtQuickVersion(), 2);
+
+    qDebug() << rootModelNode.nodeListProperty("states").toModelNodeList().first().metaInfo().majorVersion();
+    qDebug() << rootModelNode.nodeListProperty("states").toModelNodeList().first().metaInfo().typeName();
+
+    QSKIP("No qml2puppet", SkipAll);
+
+    QScopedPointer<TestView> view(new TestView(model.data()));
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    QVERIFY(rootModelNode.hasProperty("data"));
+
+    QVERIFY(rootModelNode.property("data").isNodeListProperty());
+
+    QCOMPARE(rootModelNode.nodeListProperty("data").toModelNodeList().count(), 2);
+
+    ModelNode rect1 = rootModelNode.nodeListProperty("data").toModelNodeList().first();
+    ModelNode rect2 = rootModelNode.nodeListProperty("data").toModelNodeList().last();
+
+    QVERIFY(QmlItemNode(rect1).isValid());
+    QVERIFY(QmlItemNode(rect2).isValid());
+
+    QVERIFY(QmlItemNode(rootModelNode).isValid());
+
+    QCOMPARE(QmlItemNode(rootModelNode).states().allStates().count(), 2);
+    QCOMPARE(QmlItemNode(rootModelNode).states().names().count(), 2);
+    QCOMPARE(QmlItemNode(rootModelNode).states().names().first(), QString("state1"));
+    QCOMPARE(QmlItemNode(rootModelNode).states().names().last(), QString("state2"));
+
+    //
+    // QmlModelState API tests
+    //
+    QmlModelState state1 = QmlItemNode(rootModelNode).states().state("state1");
+    QmlModelState state2 = QmlItemNode(rootModelNode).states().state("state2");
+
+    QVERIFY(state1.isValid());
+    QVERIFY(state2.isValid());
+
+    QCOMPARE(state1.propertyChanges().count(), 2);
+    QCOMPARE(state2.propertyChanges().count(), 2);
+
+    QVERIFY(!state1.hasPropertyChanges(rootModelNode));
+
+    QVERIFY(state1.propertyChanges(rect1).isValid());
+    QVERIFY(state1.propertyChanges(rect2).isValid());
+
+    state1.propertyChanges(rect2).modelNode().hasProperty("x");
+
+    QCOMPARE(QmlItemNode(rect1).allAffectingStates().count(), 2);
+    QCOMPARE(QmlItemNode(rect2).allAffectingStates().count(), 2);
+    QCOMPARE(QmlItemNode(rootModelNode).allAffectingStates().count(), 0);
+    QCOMPARE(QmlItemNode(rect1).allAffectingStatesOperations().count(), 2);
+    QCOMPARE(QmlItemNode(rect2).allAffectingStatesOperations().count(), 2);
+}
+
 void tst_TestCore::testModelBasicOperations()
 {
     QScopedPointer<Model> model(createModel("QtQuick.Flipable"));

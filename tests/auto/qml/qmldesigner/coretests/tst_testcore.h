@@ -64,6 +64,7 @@ private slots:
     void testMetaInfoDotProperties();
     void testMetaInfoListProperties();
     void testQtQuick20Basic();
+    void testQtQuick20BasicRectangle();
 
     //
     // unit tests Model, ModelNode, NodeProperty, AbstractView
