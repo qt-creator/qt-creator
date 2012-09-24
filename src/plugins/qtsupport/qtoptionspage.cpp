@@ -635,19 +635,24 @@ static QString filterForQmakeFileDialog()
 void QtOptionsPageWidget::addQtDir()
 {
     Utils::FileName qtVersion = Utils::FileName::fromString(
-                QFileDialog::getOpenFileName(this,
-                                             tr("Select a qmake executable"),
-                                             QString(),
-                                             filterForQmakeFileDialog(),
-                                             0,
-                                             QFileDialog::DontResolveSymlinks));
+                QFileInfo(QFileDialog::getOpenFileName(this,
+                                                       tr("Select a qmake executable"),
+                                                       QString(),
+                                                       filterForQmakeFileDialog(),
+                                                       0,
+                                                       QFileDialog::DontResolveSymlinks)).canonicalFilePath());
     if (qtVersion.isNull())
         return;
-    if (QtVersionManager::instance()->qtVersionForQMakeBinary(qtVersion)) {
+    BaseQtVersion *version = QtVersionManager::instance()->qtVersionForQMakeBinary(qtVersion);
+    if (version) {
         // Already exist
+        QMessageBox::warning(this, tr("Qt known"),
+                             tr("This Qt version was already registered as \"%1\".")
+                             .arg(version->displayName()));
+        return;
     }
 
-    BaseQtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
+    version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion);
     if (version) {
         m_versions.append(version);
 

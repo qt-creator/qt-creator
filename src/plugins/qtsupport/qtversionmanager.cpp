@@ -623,9 +623,8 @@ Utils::FileName QtVersionManager::findQMakeBinaryFromMakefile(const QString &mak
 #endif
                 // Is qmake still installed?
                 QFileInfo fi(qmakePath);
-                if (fi.exists()) {
-                    return Utils::FileName(fi);
-                }
+                if (fi.exists())
+                    return Utils::FileName::fromString(fi.canonicalFilePath());
             }
         }
     }
