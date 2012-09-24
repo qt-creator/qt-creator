@@ -347,7 +347,8 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     QString string = map.value(QLatin1String(QTVERSIONQMAKEPATH)).toString();
     if (string.startsWith(QLatin1Char('~')))
         string.remove(0, 1).prepend(QDir::homePath());
-    ctor(Utils::FileName::fromUserInput(string));
+    const QString canonical = QFileInfo(string).canonicalFilePath();
+    ctor(Utils::FileName::fromString(canonical.isEmpty() ? string : canonical));
 }
 
 QVariantMap BaseQtVersion::toMap() const
