@@ -119,7 +119,7 @@ public:
     virtual Core::Context projectLanguage() const;
 
     QVariant namedSettings(const QString &name) const;
-    void setNamedSettings(const QString &name, QVariant &value);
+    void setNamedSettings(const QString &name, const QVariant &value);
 
     virtual bool needsConfiguration() const;
     virtual void configureAsExampleProject(const QStringList &platforms);

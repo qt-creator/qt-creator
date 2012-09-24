@@ -421,7 +421,7 @@ QVariant Project::namedSettings(const QString &name) const
     return d->m_pluginSettings.value(name);
 }
 
-void Project::setNamedSettings(const QString &name, QVariant &value)
+void Project::setNamedSettings(const QString &name, const QVariant &value)
 {
     if (value.isNull())
         d->m_pluginSettings.remove(name);
