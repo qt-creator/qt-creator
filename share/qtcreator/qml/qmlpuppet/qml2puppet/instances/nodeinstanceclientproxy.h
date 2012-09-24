@@ -58,6 +58,7 @@ class RemovePropertiesCommand;
 class CompleteComponentCommand;
 class ChangeStateCommand;
 class ChangeNodeSourceCommand;
+class EndPuppetCommand;
 
 
 class NodeInstanceClientProxy : public QObject, public NodeInstanceClientInterface
@@ -102,6 +103,7 @@ protected:
     void changeNodeSource(const ChangeNodeSourceCommand &command);
     void removeSharedMemory(const RemoveSharedMemoryCommand &command);
     void redirectToken(const TokenCommand &command);
+    void redirectToken(const EndPuppetCommand &command);
 
 private slots:
     void readDataStream();

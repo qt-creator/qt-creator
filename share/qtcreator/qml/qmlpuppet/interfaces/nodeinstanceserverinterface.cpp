@@ -61,6 +61,7 @@
 #include "synchronizecommand.h"
 #include "tokencommand.h"
 #include "removesharedmemorycommand.h"
+#include "endpuppetcommand.h"
 
 
 namespace QmlDesigner {
@@ -175,6 +176,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<RemoveSharedMemoryCommand>("RemoveSharedMemoryCommand");
     qRegisterMetaTypeStreamOperators<RemoveSharedMemoryCommand>("RemoveSharedMemoryCommand");
+
+    qRegisterMetaType<EndPuppetCommand>("EndPuppetCommand");
+    qRegisterMetaTypeStreamOperators<EndPuppetCommand>("EndPuppetCommand");
 }
 
 }

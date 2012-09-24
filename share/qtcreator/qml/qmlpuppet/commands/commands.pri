@@ -1,6 +1,7 @@
 INCLUDEPATH += $$PWD/
 
 HEADERS += $$PWD/synchronizecommand.h
+HEADERS += $$PWD/endpuppetcommand.h
 HEADERS += $$PWD/tokencommand.h
 HEADERS += $$PWD/componentcompletedcommand.h
 HEADERS += $$PWD/completecomponentcommand.h
@@ -25,6 +26,7 @@ HEADERS += $$PWD/changeauxiliarycommand.h
 HEADERS += $$PWD/removesharedmemorycommand.h
 
 SOURCES += $$PWD/synchronizecommand.cpp
+SOURCES += $$PWD/endpuppetcommand.cpp
 SOURCES += $$PWD/tokencommand.cpp
 SOURCES += $$PWD/componentcompletedcommand.cpp
 SOURCES += $$PWD/completecomponentcommand.cpp

@@ -66,6 +66,7 @@
 #include "statepreviewimagechangedcommand.h"
 #include "componentcompletedcommand.h"
 #include "changenodesourcecommand.h"
+#include "endpuppetcommand.h"
 
 namespace QmlDesigner {
 
@@ -287,6 +288,12 @@ void NodeInstanceClientProxy::redirectToken(const TokenCommand &command)
     nodeInstanceServer()->token(command);
 }
 
+void NodeInstanceClientProxy::redirectToken(const EndPuppetCommand &command)
+{
+    qDebug() << "End Process: " << QCoreApplication::applicationPid();
+    QCoreApplication::exit();
+}
+
 void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 {
     static const int createInstancesCommandType = QMetaType::type("CreateInstancesCommand");
@@ -306,6 +313,7 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int changeNodeSourceCommandType = QMetaType::type("ChangeNodeSourceCommand");
     static const int removeSharedMemoryCommandType = QMetaType::type("RemoveSharedMemoryCommand");
     static const int tokenCommandType = QMetaType::type("TokenCommand");
+    static const int endPuppetCommandType = QMetaType::type("EndPuppetCommand");
 
     if (command.userType() ==  createInstancesCommandType) {
         createInstances(command.value<CreateInstancesCommand>());
@@ -339,6 +347,8 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
         removeSharedMemory(command.value<RemoveSharedMemoryCommand>());
     else if (command.userType() ==  tokenCommandType)
         redirectToken(command.value<TokenCommand>());
+    else if (command.userType() ==  endPuppetCommandType)
+        redirectToken(command.value<EndPuppetCommand>());
     else if (command.userType() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();

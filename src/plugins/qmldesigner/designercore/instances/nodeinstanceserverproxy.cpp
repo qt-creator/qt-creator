@@ -36,6 +36,7 @@
 #include <QCoreApplication>
 #include <QUuid>
 #include <QFileInfo>
+#include <QTimer>
 
 #include "propertyabstractcontainer.h"
 #include "propertyvaluecontainer.h"
@@ -65,7 +66,7 @@
 #include "componentcompletedcommand.h"
 #include "tokencommand.h"
 #include "removesharedmemorycommand.h"
-
+#include "endpuppetcommand.h"
 #include "synchronizecommand.h"
 
 #include "nodeinstanceview.h"
@@ -234,6 +235,8 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
 {
     disconnect(this, SLOT(processFinished(int,QProcess::ExitStatus)));
 
+    writeCommand(QVariant::fromValue(EndPuppetCommand()));
+
     if (m_firstSocket)
         m_firstSocket->close();
 
@@ -245,13 +248,13 @@ NodeInstanceServerProxy::~NodeInstanceServerProxy()
 
 
     if (m_qmlPuppetEditorProcess)
-        m_qmlPuppetEditorProcess->terminate();
+        QTimer::singleShot(3000, m_qmlPuppetEditorProcess.data(), SLOT(terminate()));
 
     if (m_qmlPuppetPreviewProcess)
-        m_qmlPuppetPreviewProcess->terminate();
+        QTimer::singleShot(3000, m_qmlPuppetPreviewProcess.data(), SLOT(terminate()));
 
     if (m_qmlPuppetRenderProcess)
-        m_qmlPuppetRenderProcess->terminate();
+         QTimer::singleShot(3000, m_qmlPuppetRenderProcess.data(), SLOT(terminate()));
 }
 
 void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
@@ -331,6 +334,9 @@ void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 void NodeInstanceServerProxy::processFinished(int /*exitCode*/, QProcess::ExitStatus exitStatus)
 {
     qDebug() << "Process finished:" << sender();
+
+    writeCommand(QVariant::fromValue(EndPuppetCommand()));
+
     if (m_firstSocket)
         m_firstSocket->close();
     if (m_secondSocket)
