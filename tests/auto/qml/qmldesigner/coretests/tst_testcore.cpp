@@ -4800,8 +4800,10 @@ void tst_TestCore::testStatesBaseState()
 
     view->setCurrentState(state1); //set currentState "state 1"
     QCOMPARE(view->currentState(), state1);
+    QApplication::processEvents();
     textItem.setVariantProperty("text", QVariant("state 1")); //set text in state !
     QVERIFY(textItem.propertyAffectedByCurrentState("text"));
+    QApplication::processEvents();
     QCOMPARE(textItem.instanceValue("text"), QVariant("state 1"));
 
     ModelNode newNode = view->createModelNode("QtQuick.Rectangle", 1, 0);
