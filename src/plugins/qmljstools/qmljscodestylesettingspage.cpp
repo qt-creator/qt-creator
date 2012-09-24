@@ -177,7 +177,7 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage(/*QSharedPointer<CppFileS
 QWidget *QmlJSCodeStyleSettingsPage::createPage(QWidget *parent)
 {
     TextEditor::SimpleCodeStylePreferences *originalTabPreferences
-            = QmlJSToolsSettings::instance()->qmlJSCodeStyle();
+            = QmlJSToolsSettings::globalCodeStyle();
     m_pageTabPreferences = new TextEditor::SimpleCodeStylePreferences(m_widget);
     m_pageTabPreferences->setDelegatingPool(originalTabPreferences->delegatingPool());
     m_pageTabPreferences->setTabSettings(originalTabPreferences->tabSettings());
@@ -195,7 +195,7 @@ void QmlJSCodeStyleSettingsPage::apply()
     if (m_widget) {
         QSettings *s = Core::ICore::settings();
 
-        TextEditor::SimpleCodeStylePreferences *originalTabPreferences = QmlJSToolsSettings::instance()->qmlJSCodeStyle();
+        TextEditor::SimpleCodeStylePreferences *originalTabPreferences = QmlJSToolsSettings::globalCodeStyle();
         if (originalTabPreferences->tabSettings() != m_pageTabPreferences->tabSettings()) {
             originalTabPreferences->setTabSettings(m_pageTabPreferences->tabSettings());
             if (s)

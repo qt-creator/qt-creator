@@ -35,18 +35,9 @@
 
 #include <QObject>
 
-namespace TextEditor
-{
-class SimpleCodeStylePreferences;
-}
+namespace TextEditor { class SimpleCodeStylePreferences; }
 
-namespace QmlJSTools
-{
-
-namespace Internal
-{
-class QmlJSToolsSettingsPrivate;
-}
+namespace QmlJSTools {
 
 /**
  * This class provides a central place for cpp tools settings.
@@ -59,14 +50,7 @@ public:
     explicit QmlJSToolsSettings(QObject *parent);
     ~QmlJSToolsSettings();
 
-    static QmlJSToolsSettings *instance();
-
-    TextEditor::SimpleCodeStylePreferences *qmlJSCodeStyle() const;
-
-private:
-    Internal::QmlJSToolsSettingsPrivate *d;
-
-    static QmlJSToolsSettings *m_instance;
+    static TextEditor::SimpleCodeStylePreferences *globalCodeStyle();
 };
 
 } // namespace QmlJSTools
