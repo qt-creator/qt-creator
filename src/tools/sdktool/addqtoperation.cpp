@@ -68,7 +68,6 @@ QString AddQtOperation::argumentsHelpText() const
                          "    --name <NAME>                              display name of the new Qt version. (required)\n"
                          "    --qmake <PATH>                             path to qmake. (required)\n"
                          "    --type <TYPE>                              type of Qt version to add. (required)\n"
-                         "    --noauto                                   do not mark tool chain as autodetected.\n"
                          "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
 }
 

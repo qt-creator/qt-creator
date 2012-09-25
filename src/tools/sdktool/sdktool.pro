@@ -1,7 +1,9 @@
 include(../../../qtcreator.pri)
+include(../../rpath.pri)
 include(../../libs/utils/utils.pri)
 
 CONFIG += console
+CONFIG -= app_bundle
 
 QT -= gui test
 
@@ -36,9 +38,7 @@ HEADERS += \
     rmtoolchainoperation.h \
     settings.h \
 
-INCLUDEPATH += \
-    $$PWD/../../plugins \
-    $$PWD/../../libs
-
-DESTDIR=$$IDE_APP_PATH
+DESTDIR=$$IDE_LIBEXEC_PATH
+macx:DEFINES += "DATA_PATH=\"\\\".\\\"\""
+else:DEFINES += "DATA_PATH=\"\\\"../share/qtcreator\\\"\""
 

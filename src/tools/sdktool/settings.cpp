@@ -31,10 +31,12 @@
 #include "settings.h"
 #include "operation.h"
 
+#include <app/app_version.h>
+
 #include <iostream>
 
 #include <QCoreApplication>
-#include <QFileInfo>
+#include <QDir>
 
 Settings *Settings::m_instance = 0;
 
@@ -50,32 +52,11 @@ Settings::Settings() :
     m_instance = this;
 
     // autodetect sdk dir:
-    Utils::FileName sdk = Utils::FileName::fromString(QCoreApplication::applicationDirPath());
-    Utils::FileName qtc = sdk;
-    qtc.appendPath(QLatin1String("qtcreator"));
-#ifdef Q_OS_WIN
-    qtc.append(".exe");
-#endif
-
-    QFileInfo qtcFi = qtc.toFileInfo();
-    if (!qtcFi.exists() || !qtcFi.isFile() || !qtcFi.isExecutable()) {
-        // we are in src/tools/sdktool (or lib/qtcreator/bin):
-        qtc = sdk;
-        qtc.appendPath(QLatin1String("../../../bin/qtcreator"));
-#ifdef Q_OS_WIN
-        qtc.append(".exe");
-#endif
-        qtcFi = qtc.toFileInfo();
-        if (!qtcFi.exists() || !qtcFi.isFile() || !qtcFi.isExecutable())
-            qtc.clear();
-    }
-
-    if (!qtc.isEmpty()) {
-        sdk = qtc.parentDir();
-        sdk = sdk.parentDir();
-        sdk.appendPath(QLatin1String("share/qtcreator/Nokia/qtcreator"));
-        sdkPath = sdk;
-    }
+    sdkPath = Utils::FileName::fromString(QCoreApplication::applicationDirPath());
+    sdkPath.appendPath(QLatin1String(DATA_PATH));
+    sdkPath = Utils::FileName::fromString(QDir::cleanPath(sdkPath.toString()));
+    sdkPath.appendPath(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR)
+                       + QLatin1String("/qtcreator"));
 }
 
 Utils::FileName Settings::getPath(const QString &file)
