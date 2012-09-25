@@ -204,35 +204,6 @@ QNetworkReply *HelpNetworkAccessManager::createRequest(Operation op,
         ? QLatin1String("application/octet-stream") : mimeType);
 }
 
-// -- HelpPage
-
-class HelpPage : public QWebPage
-{
-    Q_OBJECT
-public:
-    HelpPage(QObject *parent);
-
-protected:
-    virtual QWebPage *createWindow(QWebPage::WebWindowType);
-    virtual void triggerAction(WebAction action, bool checked = false);
-
-    virtual bool acceptNavigationRequest(QWebFrame *frame,
-        const QNetworkRequest &request, NavigationType type);
-
-private slots:
-    void onHandleUnsupportedContent(QNetworkReply *reply);
-
-private:
-    QUrl m_loadingUrl;
-    bool closeNewTabIfNeeded;
-
-    friend class Help::Internal::HelpViewer;
-    Qt::MouseButtons m_pressedButtons;
-    Qt::KeyboardModifiers m_keyboardModifiers;
-};
-#include "helpviewer_qwv.moc"
-
-
 // - HelpPage
 
 HelpPage::HelpPage(QObject *parent)
