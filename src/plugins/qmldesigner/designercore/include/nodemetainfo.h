@@ -98,6 +98,8 @@ public:
     bool availableInVersion(int majorVersion, int minorVersion) const;
     bool isSubclassOf(const QString& type, int majorVersion, int minorVersio) const;
 
+    bool isPositioner() const;
+
     static void clearCache();
 
 private:

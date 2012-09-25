@@ -363,10 +363,10 @@ void MoveManipulator::reparentTo(FormEditorItem *newParent)
     if (!itemsCanReparented())
         return;
 
-    if (!newParent->qmlItemNode().modelNode().metaInfo().isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1)
+    if (!newParent->qmlItemNode().modelNode().metaInfo().isPositioner()
             && newParent->qmlItemNode().modelNode().hasParentProperty()) {
         ModelNode grandParent = newParent->qmlItemNode().modelNode().parentProperty().parentModelNode();
-        if (grandParent.metaInfo().isSubclassOf("<cpp>.QDeclarativeBasePositioner", -1, -1))
+        if (grandParent.metaInfo().isPositioner())
             newParent = m_view.data()->scene()->itemForQmlItemNode(QmlItemNode(grandParent));
     }
 
