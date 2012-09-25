@@ -143,8 +143,7 @@ QTransform QuickItemNodeInstance::customTransform() const
 
 QTransform QuickItemNodeInstance::sceneTransform() const
 {
-    return QTransform();
-//    return DesignerSupport::canvasTransform(quickItem());
+    return DesignerSupport::windowTransform(quickItem());
 }
 
 double QuickItemNodeInstance::rotation() const
