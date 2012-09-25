@@ -5,13 +5,13 @@ workingDir = None
 def main():
     global workingDir
     startApplication("qtcreator" + SettingsPath)
-    if not checkDebuggingLibrary("4.7.4", [QtQuickConstants.Targets.DESKTOP]):
+    if not checkDebuggingLibrary("4.7.4", [QtQuickConstants.Targets.DESKTOP_474_GCC]):
         test.fatal("Error while checking debugging libraries - leaving this test.")
         invokeMenuItem("File", "Exit")
         return
     # using a temporary directory won't mess up a potentially existing
     workingDir = tempDir()
-    projectName = createNewQtQuickApplication(workingDir, targets = QtQuickConstants.Targets.DESKTOP)
+    projectName = createNewQtQuickApplication(workingDir, targets = QtQuickConstants.Targets.DESKTOP_474_GCC)
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}",
                   "sourceFilesRefreshed(QStringList)")

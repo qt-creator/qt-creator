@@ -12,7 +12,7 @@ def __handleProcessExited__(object, exitCode):
     global processExited
     processExited = True
 
-def openQmakeProject(projectPath, targets = QtQuickConstants.Targets.DESKTOP, fromWelcome = False):
+def openQmakeProject(projectPath, targets = QtQuickConstants.Targets.DESKTOP_474_GCC, fromWelcome = False):
     cleanUpUserFiles(projectPath)
     if fromWelcome:
         mouseClick(waitForObject(":OpenProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
@@ -118,7 +118,7 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
 # param checks turns tests in the function on if set to True
 # param available a list holding the available targets
 def __selectQtVersionDesktop__(checks, available=None):
-    __chooseTargets__(QtQuickConstants.Targets.DESKTOP, available)
+    __chooseTargets__(QtQuickConstants.Targets.DESKTOP_474_GCC, available)
     if checks:
         cbObject = ("{type='QCheckBox' text='%s' unnamed='1' visible='1' "
                     "container={type='Utils::DetailsWidget' visible='1' unnamed='1'}}")
@@ -208,7 +208,7 @@ def createProject_Qt_Console(path, projectName, checks = True):
     __verifyFileCreation__(path, expectedFiles)
 
 def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None,
-                                targets = QtQuickConstants.Targets.DESKTOP, qtQuickVersion=1,
+                                targets = QtQuickConstants.Targets.DESKTOP_474_GCC, qtQuickVersion=1,
                                 fromWelcome=False):
     if templateFile:
         available = __createProjectSelectType__("  Applications", "Qt Quick Application (from Existing QML File)", fromWelcome)
@@ -241,7 +241,7 @@ def createNewQmlExtension(workingDir):
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
-    __chooseTargets__(QtQuickConstants.Targets.DESKTOP, available)
+    __chooseTargets__(QtQuickConstants.Targets.DESKTOP_474_GCC, available)
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object Class-name:' unnamed='1' visible='1'} "
@@ -267,12 +267,12 @@ def __chooseComponents__(components=QtQuickConstants.Components.BUILTIN):
 # parameter target can be an OR'd value of QtQuickConstants.Targets
 # parameter availableTargets should be the result of __createProjectSelectType__()
 #           or use None as a fallback
-def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP, availableTargets=None):
+def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availableTargets=None):
     if availableTargets != None:
         available = availableTargets
     else:
         # following targets depend on the build environment - added for further/later tests
-        available = [QtQuickConstants.Targets.DESKTOP,
+        available = [QtQuickConstants.Targets.DESKTOP_474_GCC,
                      QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.EMBEDDED_LINUX,
                      QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
@@ -431,7 +431,7 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
         result = []
         addSimulator = False
         if 'Desktop' in supports:
-            result.append(QtQuickConstants.Targets.DESKTOP)
+            result.append(QtQuickConstants.Targets.DESKTOP_474_GCC)
             if platform.system() in ("Linux", "Darwin"):
                 result.append(QtQuickConstants.Targets.EMBEDDED_LINUX)
         if 'MeeGo/Harmattan' in supports:
@@ -443,7 +443,7 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
         if len(result) == 0 or addSimulator:
             result.append(QtQuickConstants.Targets.SIMULATOR)
     elif 'Platform independent' in text:
-        result = [QtQuickConstants.Targets.DESKTOP, QtQuickConstants.Targets.MAEMO5,
+        result = [QtQuickConstants.Targets.DESKTOP_474_GCC, QtQuickConstants.Targets.MAEMO5,
                   QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",

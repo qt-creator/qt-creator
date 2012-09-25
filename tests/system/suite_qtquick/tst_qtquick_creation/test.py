@@ -7,7 +7,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     # using a temporary directory won't mess up an eventually exisiting
     workingDir = tempDir()
-    projectName = createNewQtQuickApplication(workingDir, targets = QtQuickConstants.Targets.DESKTOP)
+    projectName = createNewQtQuickApplication(workingDir, targets = QtQuickConstants.Targets.DESKTOP_474_GCC)
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     test.log("Building project")
