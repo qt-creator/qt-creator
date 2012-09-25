@@ -108,7 +108,9 @@ QString BuildableHelperLibrary::qtVersionForQMake(const QString &qmakePath, bool
     static QRegExp regexp(QLatin1String("(QMake version|QMake version:)[\\s]*([\\d.]*)"),
                           Qt::CaseInsensitive);
     regexp.indexIn(output);
-    if (regexp.cap(2).startsWith(QLatin1String("2."))) {
+    const QString qmakeVersion = regexp.cap(2);
+    if (qmakeVersion.startsWith(QLatin1String("2."))
+            || qmakeVersion.startsWith(QLatin1String("3."))) {
         static QRegExp regexp2(QLatin1String("Using Qt version[\\s]*([\\d\\.]*)"),
                                Qt::CaseInsensitive);
         regexp2.indexIn(output);
