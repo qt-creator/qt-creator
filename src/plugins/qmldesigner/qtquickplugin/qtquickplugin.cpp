@@ -31,8 +31,6 @@
 #include "qtquickplugin.h"
 #include <widgetplugin_helper.h>
 #include <QtPlugin>
-#include <private/qdeclarativerectangle_p.h>
-#include <private/qdeclarativescalegrid_p_p.h>
 
 namespace QmlDesigner {
 
@@ -40,8 +38,6 @@ namespace QmlDesigner {
 QtQuickPlugin::QtQuickPlugin()
 {
 
-    qmlRegisterType<QDeclarativePen>("Qt", 4, 7, "Pen");
-    qmlRegisterType<QDeclarativeScaleGrid>("Qt", 4, 7, "ScaleGrid");
 }
 
 QString QtQuickPlugin::pluginName() const

@@ -32,7 +32,6 @@
 #define DESKTOPPLUGIN_H
 
 #include <iwidgetplugin.h>
-#include <qdeclarative.h>
 
 QT_BEGIN_NAMESPACE
 QT_END_NAMESPACE
