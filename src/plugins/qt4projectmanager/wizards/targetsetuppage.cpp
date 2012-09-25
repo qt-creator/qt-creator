@@ -278,7 +278,7 @@ void TargetSetupPage::setupWidgets()
 void TargetSetupPage::reset()
 {
     foreach (Qt4TargetSetupWidget *widget, m_widgets.values()) {
-        ProjectExplorer::Kit *k = widget->profile();
+        ProjectExplorer::Kit *k = widget->kit();
         if (!k)
             continue;
         removeProject(k, m_proFilePath);
@@ -670,7 +670,7 @@ bool TargetSetupPage::setupProject(Qt4ProjectManager::Qt4Project *project)
         if (!widget->isKitSelected())
             continue;
 
-        ProjectExplorer::Kit *k = widget->profile();
+        ProjectExplorer::Kit *k = widget->kit();
         cleanKit(k);
         toRegister.append(KitBuildInfo(k, widget->selectedBuildConfigurationInfoList()));
         widget->clearKit();
