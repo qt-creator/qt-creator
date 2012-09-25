@@ -43,6 +43,7 @@ QVariant read(const QString &typeStr, const QString &str, const MetaInfo &metaIn
 QVariant read(const QString &typeStr, const QString &str);
 QVariant read(int variantType, const QString &str);
 QString write(const QVariant &variant, const MetaInfo &metaInfo);
+QVariant variantFromString(const QString &s);
 
 } // namespace PropertyParser
 } // namespace Internal
