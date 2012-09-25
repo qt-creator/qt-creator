@@ -122,8 +122,6 @@ PluginManager::~PluginManager()
 
 PluginManager::IPluginList PluginManager::instances()
 {
-    if (debug)
-        qDebug() << '>' << Q_FUNC_INFO << QLibraryInfo::buildKey();
     IPluginList rc;
     const PluginManagerPrivate::PluginPathList::iterator end = d->m_paths.end();
     for (PluginManagerPrivate::PluginPathList::iterator it = d->m_paths.begin(); it != end; ++it)

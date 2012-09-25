@@ -71,8 +71,6 @@ WidgetPluginManager::~WidgetPluginManager()
 
 WidgetPluginManager::IWidgetPluginList WidgetPluginManager::instances()
 {
-    if (debug)
-        qDebug() << '>' << Q_FUNC_INFO << QLibraryInfo::buildKey();
     IWidgetPluginList rc;
     const WidgetPluginManagerPrivate::PluginPathList::iterator end = d->m_paths.end();
     for (WidgetPluginManagerPrivate::PluginPathList::iterator it = d->m_paths.begin(); it != end; ++it)
