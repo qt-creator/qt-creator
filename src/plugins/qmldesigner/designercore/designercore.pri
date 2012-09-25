@@ -36,7 +36,6 @@ SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/exceptions/invalidmetainfoexception.cpp \
     $$PWD/exceptions/invalidargumentexception.cpp \
     $$PWD/exceptions/notimplementedexception.cpp \
-    $$PWD/model/variantparser.cpp \
     $$PWD/exceptions/invalidmodelstateexception.cpp \
     $$PWD/exceptions/removebasestateexception.cpp \
     $$PWD/exceptions/invalididexception.cpp \
@@ -107,7 +106,6 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/include/invalidmodelstateexception.h \
     $$PWD/include/removebasestateexception.h \
     $$PWD/include/invalididexception.h \
-    $$PWD/model/variantparser.h \
     $$PWD/include/propertynode.h \
     $$PWD/include/invalidslideindexexception.h \
     $$PWD/include/import.h \
