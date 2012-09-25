@@ -37,7 +37,6 @@
 #include "metainfoparser.h"
 #include "iwidgetplugin.h"
 
-#include "model/variantparser.h"
 #include "pluginmanager/widgetpluginmanager.h"
 
 #include <QDebug>

@@ -51,7 +51,6 @@
 #include "nodemetainfo.h"
 #include "model_p.h"
 #include "subcomponentmanager.h"
-#include "variantparser.h"
 #include "internalproperty.h"
 #include "internalnodelistproperty.h"
 #include "internalnodeabstractproperty.h"
