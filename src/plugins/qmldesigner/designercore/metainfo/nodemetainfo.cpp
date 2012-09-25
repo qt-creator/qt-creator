@@ -36,6 +36,7 @@
 #include "metainfo.h"
 #include <model.h>
 #include <rewriterview.h>
+#include <propertyparser.h>
 
 #include <QSharedData>
 #include <QDebug>
@@ -50,8 +51,6 @@
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <languageutils/fakemetaobject.h>
-#include <private/qdeclarativemetatype_p.h>
-#include <private/qdeclarativestringconverters_p.h>
 
 namespace QmlDesigner {
 
@@ -1012,8 +1011,7 @@ QVariant NodeMetaInfo::propertyCastedValue(const QString &propertyName, const QV
         return variant;
     }
 
-    return QDeclarativeStringConverters::variantFromString(variant.toString());
-
+    return Internal::PropertyParser::variantFromString(variant.toString());
 }
 
 QList<NodeMetaInfo> NodeMetaInfo::superClasses() const

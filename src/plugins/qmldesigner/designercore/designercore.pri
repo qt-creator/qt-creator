@@ -93,7 +93,7 @@ HEADERS += $$PWD/include/corelib_global.h \
     $$PWD/model/internalnode_p.h \
     $$PWD/model/model_p.h \
     $$PWD/model/painteventfilter_p.h \
-    $$PWD/model/propertyparser.h \
+    $$PWD/include/propertyparser.h \
     $$PWD/pluginmanager/widgetpluginmanager.h \
     $$PWD/pluginmanager/widgetpluginpath.h \
     $$PWD/include/exception.h \
