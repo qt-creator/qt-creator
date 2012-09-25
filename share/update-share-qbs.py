@@ -32,6 +32,7 @@ filenamedict = {}
 blacklist = [
     scriptFileName,
     "static.pro", "share.pro", "share.qbs",
+    "translations.pro", "translations.qbs",
     "qtcreator_cs.ts",
     "qtcreator_de.ts",
     "qtcreator_es.ts",
