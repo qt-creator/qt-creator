@@ -54,6 +54,7 @@
 #include <QScrollBar>
 #include <QCalendarWidget>
 #include <QTabWidget>
+#include <QMenu>
 #include <QAction>
 #include "filewidget.h"
 #include "layoutwidget.h"
