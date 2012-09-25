@@ -71,7 +71,6 @@ def main():
                 pass
         waitForObject("{type='QLabel' unnamed='1' visible='1' text='Kit Selection'}")
         availableCheckboxes = filter(visibleCheckBoxExists, kits.keys())
-        JIRA.performWorkaroundIfStillOpen(6994, JIRA.Bug.CREATOR, template, displayedPlatforms)
         # verification whether expected, found and configured match
         for t in kits:
             if requiredVersion:

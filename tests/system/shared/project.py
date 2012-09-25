@@ -151,7 +151,6 @@ def __verifyFileCreation__(path, expectedFiles):
 def createProject_Qt_GUI(path, projectName, checks = True):
     template = "Qt Gui Application"
     available = __createProjectSelectType__("  Applications", template)
-    JIRA.performWorkaroundIfStillOpen(6994, JIRA.Bug.CREATOR, template, available)
     __createProjectSetNameAndPath__(path, projectName, checks)
     __selectQtVersionDesktop__(checks, available)
 
