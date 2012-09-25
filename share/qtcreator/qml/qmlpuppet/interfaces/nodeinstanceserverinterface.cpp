@@ -112,8 +112,8 @@ void NodeInstanceServerInterface::registerCommands()
     qRegisterMetaType<ChangeIdsCommand>("ChangeIdsCommand");
     qRegisterMetaTypeStreamOperators<ChangeIdsCommand>("ChangeIdsCommand");
 
-    qRegisterMetaType<ChangeStateCommand>("ChangeStateCommand");
-    qRegisterMetaTypeStreamOperators<ChangeStateCommand>("ChangeStateCommand");
+    qRegisterMetaType<PropertyAbstractContainer>("PropertyAbstractContainer");
+    qRegisterMetaTypeStreamOperators<PropertyAbstractContainer>("PropertyAbstractContainer");
 
     qRegisterMetaType<InformationChangedCommand>("InformationChangedCommand");
     qRegisterMetaTypeStreamOperators<InformationChangedCommand>("InformationChangedCommand");
