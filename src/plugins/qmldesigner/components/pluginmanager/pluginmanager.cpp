@@ -57,8 +57,6 @@ namespace QmlDesigner {
 
 PluginManager::IPluginList PluginManager::instances()
 {
-    if (debug)
-        qDebug() << '>' << Q_FUNC_INFO << QLibraryInfo::buildKey();
     IPluginList rc;
     const PluginPathList::iterator end = m_paths.end();
     for (PluginPathList::iterator it = m_paths.begin(); it != end; ++it)
