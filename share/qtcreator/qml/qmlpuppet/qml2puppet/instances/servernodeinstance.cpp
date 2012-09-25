@@ -38,12 +38,7 @@
 #include "qmlstatenodeinstance.h"
 #include "anchorchangesnodeinstance.h"
 
-#if QT_VERSION >= 0x050000
-#include "sgitemnodeinstance.h"
-#else
-#include "qmlgraphicsitemnodeinstance.h"
-#include "positionernodeinstance.h"
-#endif
+#include "quickitemnodeinstance.h"
 
 #include "nodeinstanceserver.h"
 #include "instancecontainer.h"

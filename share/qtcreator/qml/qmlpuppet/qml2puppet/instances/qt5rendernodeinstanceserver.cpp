@@ -58,7 +58,7 @@
 #include "completecomponentcommand.h"
 #include "componentcompletedcommand.h"
 #include "createscenecommand.h"
-#include "sgitemnodeinstance.h"
+#include "quickitemnodeinstance.h"
 #include "removesharedmemorycommand.h"
 
 #include "dummycontextobject.h"

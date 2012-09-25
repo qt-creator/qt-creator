@@ -190,7 +190,7 @@ bool ObjectNodeInstance::isPositioner() const
     return false;
 }
 
-bool ObjectNodeInstance::isSGItem() const
+bool ObjectNodeInstance::isQuickItem() const
 {
     return false;
 }

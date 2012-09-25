@@ -100,7 +100,7 @@ public:
     virtual bool isGraphicsObject() const;
     virtual bool isTransition() const;
     virtual bool isPositioner() const;
-    virtual bool isSGItem() const;
+    virtual bool isQuickItem() const;
 
     virtual bool equalGraphicsItem(QGraphicsItem *item) const;
 

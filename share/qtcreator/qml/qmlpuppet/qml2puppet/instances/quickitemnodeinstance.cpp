@@ -28,7 +28,7 @@
 **
 **************************************************************************/
 
-#include "sgitemnodeinstance.h"
+#include "quickitemnodeinstance.h"
 
 #include "qt5nodeinstanceserver.h"
 
