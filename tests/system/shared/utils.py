@@ -220,6 +220,9 @@ def selectFromFileDialog(fileName):
         nativeType("<Return>")
         snooze(2)
         nativeType("<Return>")
+        snooze(1)
+        setWindowState(findObject(":Qt Creator_Core::Internal::MainWindow"), WindowState.Minimize)
+        setWindowState(findObject(":Qt Creator_Core::Internal::MainWindow"), WindowState.Maximize)
     else:
         fName = os.path.basename(os.path.abspath(fileName))
         pName = os.path.dirname(os.path.abspath(fileName)) + os.sep
