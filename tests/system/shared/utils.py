@@ -304,7 +304,7 @@ def getConfiguredKits():
         for index in [section.child(i, 0) for i in range(model.rowCount(section))]:
             targetName = str(index.data().toString())
             if (targetName.endswith(" (default)")):
-                targetName = targetName.rstrip(" (default)")
+                targetName = targetName.rsplit(" (default)", 1)[0]
             item = ".".join([str(section.data().toString()),
                              str(index.data().toString()).replace(".", "\\.")])
             clickItem(treeView, item, 5, 5, 0, Qt.LeftButton)
