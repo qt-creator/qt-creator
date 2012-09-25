@@ -2,9 +2,6 @@ TARGET = qtquickplugin
 TEMPLATE = lib
 CONFIG += plugin
 
-QT += script \
-      declarative
-
 include (../designercore/iwidgetplugin.pri)
 
 DEFINES += QTQUICK_LIBRARY
