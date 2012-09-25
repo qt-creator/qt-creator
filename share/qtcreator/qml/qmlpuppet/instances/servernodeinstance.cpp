@@ -38,12 +38,8 @@
 #include "qmlstatenodeinstance.h"
 #include "anchorchangesnodeinstance.h"
 
-#if QT_VERSION >= 0x050000
-#include "sgitemnodeinstance.h"
-#else
 #include "qmlgraphicsitemnodeinstance.h"
 #include "positionernodeinstance.h"
-#endif
 
 #include "nodeinstanceserver.h"
 #include "instancecontainer.h"
@@ -51,10 +47,6 @@
 #include <QHash>
 #include <QSet>
 #include <QDebug>
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-#include <QSGItem>
-#endif
 
 #include <QDeclarativeEngine>
 
@@ -178,15 +170,10 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
 
     if (objectToBeWrapped == 0)
         instance = Internal::DummyNodeInstance::create();
-#if QT_VERSION >= 0x050000
-    else if (isSubclassOf(objectToBeWrapped, "QSGItem"))
-        instance = Internal::SGItemNodeInstance::create(objectToBeWrapped);
-#else
     else if (isSubclassOf(objectToBeWrapped, "QDeclarativeBasePositioner"))
         instance = Internal::PositionerNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QDeclarativeItem"))
         instance = Internal::QmlGraphicsItemNodeInstance::create(objectToBeWrapped);
-#endif
     else if (isSubclassOf(objectToBeWrapped, "QDeclarativeComponent"))
         instance = Internal::ComponentNodeInstance::create(objectToBeWrapped);
     else if (objectToBeWrapped->inherits("QDeclarativeAnchorChanges"))
@@ -225,11 +212,7 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
     }
 
     if ((object == 0) && (instanceContainer.metaType() == InstanceContainer::ItemMetaType)) //If we cannot instanciate the object but we know it has to be an Ttem, we create an Item instead.
-#if QT_VERSION >= 0x050000
-        object = Internal::ObjectNodeInstance::createPrimitive("QSGItem", 2, 0, nodeInstanceServer->context());
-#else
         object = Internal::ObjectNodeInstance::createPrimitive("QtQuick/Item", 1, 0, nodeInstanceServer->context());
-#endif
 
     ServerNodeInstance instance(createInstance(object));
 
@@ -549,13 +532,6 @@ QObject *ServerNodeInstance::internalObject() const
 
     return m_nodeInstance->object();
 }
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-QSGItem *ServerNodeInstance::internalSGItem() const
-{
-    return qobject_cast<QSGItem*>(internalObject());
-}
-#endif
 
 void ServerNodeInstance::activateState()
 {

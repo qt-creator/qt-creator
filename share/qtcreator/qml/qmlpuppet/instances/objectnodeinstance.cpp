@@ -287,12 +287,8 @@ static QVariant objectToVariant(QObject *object)
 
 static bool hasFullImplementedListInterface(const QDeclarativeListReference &list)
 {
-
-#if QT_VERSION<0x050000
     return list.isValid() && list.canCount() && list.canAt() && list.canAppend() && list.canClear();
-#else
-    return list.isChangeable();
-#endif
+
 }
 
 static void removeObjectFromList(const QDeclarativeProperty &property, QObject *objectToBeRemoved, QDeclarativeEngine * engine)
@@ -543,7 +539,11 @@ void ObjectNodeInstance::refreshProperty(const QString &name)
         property.write(resetValue(name));
 
     if (oldValue.type() == QVariant::Url) {
+#if QT_VERSION >= 0x050000
+        QByteArray key = oldValue.toUrl().toEncoded(QUrl::UrlFormattingOption(0x100));
+#else
         QByteArray key = oldValue.toUrl().toEncoded(QUrl::FormattingOption(0x100));
+#endif
         QString pixmapKey = QString::fromLatin1(key.constData(), key.count());
         QPixmapCache::remove(pixmapKey);
     }
@@ -774,11 +774,7 @@ void allSubObject(QObject *object, QObjectList &objectList)
         if (metaProperty.isReadable()
                 && QDeclarativeMetaType::isList(metaProperty.userType())) {
             QDeclarativeListReference list(object, metaProperty.name());
-#if QT_VERSION<0x050000
             if (list.canCount() && list.canAt()) {
-#else
-            if (list.isReadable()) {
-#endif
                 for (int i = 0; i < list.count(); i++) {
                     QObject *propertyObject = list.at(i);
                     allSubObject(propertyObject, objectList);
