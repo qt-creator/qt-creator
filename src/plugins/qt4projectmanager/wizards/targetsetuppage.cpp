@@ -63,6 +63,8 @@ namespace Internal {
 
 static const Core::Id QT_IS_TEMPORARY("Qt4PM.TempQt");
 static const Core::Id KIT_IS_TEMPORARY("Qt4PM.TempKit");
+static const Core::Id KIT_TEMPORARY_NAME("Qt4PM.TempName");
+static const Core::Id KIT_FINAL_NAME("Qt4PM.FinalName");
 static const Core::Id TEMPORARY_OF_PROJECTS("Qt4PM.TempProject");
 
 class TargetSetupPageUi
@@ -296,7 +298,9 @@ ProjectExplorer::Kit *TargetSetupPage::createTemporaryKit(QtSupport::BaseQtVersi
     ProjectExplorer::ToolChainKitInformation::setToolChain(k, version->preferredToolChain(parsedSpec));
     QmakeKitInformation::setMkspec(k, parsedSpec);
 
-    k->setDisplayName(version->displayName());
+    k->setDisplayName(tr("%1 - temporary").arg(version->displayName()));
+    k->setValue(KIT_TEMPORARY_NAME, k->displayName());
+    k->setValue(KIT_FINAL_NAME, version->displayName());
     k->setValue(KIT_IS_TEMPORARY, true);
     if (temporaryVersion)
         k->setValue(QT_IS_TEMPORARY, version->uniqueId());
@@ -314,6 +318,11 @@ void TargetSetupPage::cleanKit(ProjectExplorer::Kit *k)
     k->removeKey(KIT_IS_TEMPORARY);
     k->removeKey(QT_IS_TEMPORARY);
     k->removeKey(TEMPORARY_OF_PROJECTS);
+    const QString tempName = k->value(KIT_TEMPORARY_NAME).toString();
+    if (!tempName.isNull() && k->displayName() == tempName)
+        k->setDisplayName(k->value(KIT_FINAL_NAME).toString());
+    k->removeKey(KIT_TEMPORARY_NAME);
+    k->removeKey(KIT_FINAL_NAME);
     m_ignoreUpdates = false;
 }
 
