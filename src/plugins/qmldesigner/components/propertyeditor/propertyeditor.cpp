@@ -70,7 +70,6 @@
 #include <QShortcut>
 #include <QStackedWidget>
 #include <QDeclarativeEngine>
-#include <private/qdeclarativemetatype_p.h>
 #include <QMessageBox>
 #include <QApplication>
 #include <QGraphicsOpacityEffect>
@@ -97,6 +96,13 @@ static inline QString sharedDirPath()
     return QFileInfo(appPath + SHARE_PATH).absoluteFilePath();
 }
 
+static QObject *variantToQObject(const QVariant &v)
+{
+    if (v.userType() == QMetaType::QObjectStar || v.userType() > QMetaType::User)
+        return *(QObject **)v.constData();
+
+    return 0;
+}
 
 PropertyEditor::NodeType::NodeType(PropertyEditor *propertyEditor) :
         m_view(new DeclarativeWidgetView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
@@ -122,7 +128,7 @@ void setupPropertyEditorValue(const QString &name, QDeclarativePropertyMap *prop
 {
     QString propertyName(name);
     propertyName.replace(QLatin1Char('.'), QLatin1Char('_'));
-    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(propertyMap->value(propertyName)));
+    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(propertyMap->value(propertyName)));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(propertyMap);
         QObject::connect(valueObject, SIGNAL(valueChanged(QString,QVariant)), propertyMap, SIGNAL(valueChanged(QString,QVariant)));
@@ -141,7 +147,7 @@ void createPropertyEditorValue(const QmlObjectNode &fxObjectNode, const QString 
 {
     QString propertyName(name);
     propertyName.replace(QLatin1Char('.'), QLatin1Char('_'));
-    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(propertyMap->value(propertyName)));
+    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(propertyMap->value(propertyName)));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(propertyMap);
         QObject::connect(valueObject, SIGNAL(valueChanged(QString,QVariant)), propertyMap, SIGNAL(valueChanged(QString,QVariant)));
@@ -171,7 +177,7 @@ void PropertyEditor::NodeType::setValue(const QmlObjectNode & fxObjectNode, cons
 {
     QString propertyName = name;
     propertyName.replace(QLatin1Char('.'), QLatin1Char('_'));
-    PropertyEditorValue *propertyValue = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value(propertyName)));
+    PropertyEditorValue *propertyValue = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(propertyName)));
     if (propertyValue) {
         propertyValue->setValue(value);
         if (!fxObjectNode.hasBindingProperty(name))
@@ -194,7 +200,7 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
             createPropertyEditorValue(fxObjectNode, propertyName, fxObjectNode.instanceValue(propertyName), &m_backendValuesPropertyMap, propertyEditor);
 
         // className
-        PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value("className")));
+        PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value("className")));
         if (!valueObject)
             valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
         valueObject->setName("className");
@@ -204,7 +210,7 @@ void PropertyEditor::NodeType::setup(const QmlObjectNode &fxObjectNode, const QS
         m_backendValuesPropertyMap.insert("className", QVariant::fromValue(valueObject));
 
         // id
-        valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value("id")));
+        valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value("id")));
         if (!valueObject)
             valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
         valueObject->setName("id");
@@ -244,7 +250,7 @@ void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl 
     foreach (const QString &propertyName, metaInfo.propertyNames())
         setupPropertyEditorValue(propertyName, &m_backendValuesPropertyMap, propertyEditor, metaInfo.propertyTypeName(propertyName));
 
-    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value("className")));
+    PropertyEditorValue *valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value("className")));
     if (!valueObject)
         valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
     valueObject->setName("className");
@@ -254,7 +260,7 @@ void PropertyEditor::NodeType::initialSetup(const QString &typeName, const QUrl 
     m_backendValuesPropertyMap.insert("className", QVariant::fromValue(valueObject));
 
     // id
-    valueObject = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_backendValuesPropertyMap.value("id")));
+    valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value("id")));
     if (!valueObject)
         valueObject = new PropertyEditorValue(&m_backendValuesPropertyMap);
     valueObject->setName("id");
@@ -376,7 +382,7 @@ void PropertyEditor::changeValue(const QString &propertyName)
         return;
 
     if (propertyName == "id") {
-        PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(propertyName)));
+        PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(variantToQObject(m_currentType->m_backendValuesPropertyMap.value(propertyName)));
         const QString newId = value->value().toString();
 
         if (newId == m_selectedNode.id())
@@ -411,7 +417,7 @@ void PropertyEditor::changeValue(const QString &propertyName)
     //.replace(QLatin1Char('.'), QLatin1Char('_'))
     QString underscoreName(propertyName);
     underscoreName.replace(QLatin1Char('.'), QLatin1Char('_'));
-    PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
+    PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(variantToQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
 
     if (value ==0) {
         return;
@@ -480,7 +486,7 @@ void PropertyEditor::changeExpression(const QString &name)
         underscoreName.replace(QLatin1Char('.'), QLatin1Char('_'));
 
         QmlObjectNode fxObjectNode(m_selectedNode);
-        PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(QDeclarativeMetaType::toQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
+        PropertyEditorValue *value = qobject_cast<PropertyEditorValue*>(variantToQObject(m_currentType->m_backendValuesPropertyMap.value(underscoreName)));
 
         if (fxObjectNode.modelNode().metaInfo().isValid() && fxObjectNode.modelNode().metaInfo().hasProperty(name)) {
             if (fxObjectNode.modelNode().metaInfo().propertyTypeName(name) == QLatin1String("QColor")) {
