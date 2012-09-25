@@ -39,3 +39,5 @@ OTHER_FILES += qtcreator.rc \
     $$PWD/app_version.h.in
 
 QMAKE_SUBSTITUTES += $$PWD/app_version.h.in
+
+CONFIG += no_batch
