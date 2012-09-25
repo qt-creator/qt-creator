@@ -52,6 +52,8 @@ namespace Core {
 class StringHolder
 {
 public:
+    StringHolder() {}
+
     StringHolder(const char *s, int length)
         : n(length), str(s)
     {
@@ -93,8 +95,8 @@ struct IdCache : public QHash<StringHolder, int>
 };
 
 
-static int lastUid = 0;
-static QVector<QByteArray> stringFromId;
+static int lastUid = 1000 * 1000;
+static QHash<int, StringHolder> stringFromId;
 static IdCache idFromString;
 
 static int theId(const char *str, int n = 0)
@@ -103,12 +105,10 @@ static int theId(const char *str, int n = 0)
     StringHolder sh(str, n);
     int res = idFromString.value(sh, 0);
     if (res == 0) {
-        if (lastUid == 0)
-            stringFromId.append(QByteArray());
         res = ++lastUid;
         sh.str = qstrdup(sh.str);
         idFromString[sh] = res;
-        stringFromId.append(QByteArray::fromRawData(sh.str, sh.n));
+        stringFromId[res] = sh;
     }
     return res;
 }
@@ -132,23 +132,30 @@ Id::Id(const QString &name)
 
 QByteArray Id::name() const
 {
-    return stringFromId.at(m_id);
+    return stringFromId.value(m_id).str;
 }
 
 QString Id::toString() const
 {
-    return QString::fromUtf8(stringFromId.at(m_id));
+    return QString::fromUtf8(stringFromId.value(m_id).str);
+}
+
+void Id::registerId(int uid, const char *name)
+{
+    StringHolder sh(name, 0);
+    idFromString[sh] = uid;
+    stringFromId[uid] = sh;
 }
 
 bool Id::operator==(const char *name) const
 {
-    return strcmp(stringFromId.at(m_id).constData(), name) == 0;
+    return strcmp(stringFromId.value(m_id).str, name) == 0;
 }
 
 // For debugging purposes
 CORE_EXPORT const char *nameForId(int id)
 {
-    return (stringFromId.constData() + id)->constData();
+    return stringFromId.value(id).str;
 }
 
 } // namespace Core
