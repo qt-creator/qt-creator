@@ -1358,7 +1358,8 @@ template void CppQmlTypes::load< QHash<QString, FakeMetaObject::ConstPtr> >(cons
 
 QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QString &package, ComponentVersion version)
 {
-    QList<const CppComponentValue *> exportedObjects;
+    QHash<QString, const CppComponentValue *> exportedObjects;
+
     QList<const CppComponentValue *> newObjects;
 
     // make new exported objects
@@ -1398,8 +1399,11 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
 
             // use package.cppname importversion as key
             _objectsByQualifiedName.insert(key, newComponent);
-            if (exported)
-                exportedObjects += newComponent;
+            if (exported) {
+                if (!exportedObjects.contains(name) // we might have the same type in different versions
+                        || (newComponent->componentVersion() > exportedObjects.value(name)->componentVersion()))
+                    exportedObjects.insert(name, newComponent);
+            }
             newObjects += newComponent;
         }
     }
@@ -1437,7 +1441,7 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
         }
     }
 
-    return exportedObjects;
+    return exportedObjects.values();
 }
 
 bool CppQmlTypes::hasModule(const QString &module) const
