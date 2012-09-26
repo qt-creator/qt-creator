@@ -6,8 +6,12 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += declarative
 }
 
-contains (QT_CONFIG, webkit) {
-    QT += webkit
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+} else {
+    contains (QT_CONFIG, webkit) {
+        QT += webkit
+    }
 }
 
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
