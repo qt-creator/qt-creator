@@ -41,6 +41,9 @@ namespace QmlDesigner {
 class DesktopPlugin : public QObject, QmlDesigner::IWidgetPlugin
 {
     Q_OBJECT
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QmlDesignerPlugin" FILE "desktopplugin.json")
+#endif
     Q_INTERFACES(QmlDesigner::IWidgetPlugin)
 
 public:
