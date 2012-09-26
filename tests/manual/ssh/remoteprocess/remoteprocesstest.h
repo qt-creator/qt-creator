@@ -71,10 +71,10 @@ private:
     const QSsh::SshConnectionParameters m_sshParams;
     QTimer * const m_timeoutTimer;
     QTextStream *m_textStream;
+    QSsh::SshConnection *m_sshConnection;
     QSsh::SshRemoteProcessRunner * const m_remoteRunner;
     QSsh::SshRemoteProcess::Ptr m_catProcess;
     QSsh::SshRemoteProcess::Ptr m_echoProcess;
-    QSsh::SshConnection *m_sshConnection;
     QByteArray m_remoteStdout;
     QByteArray m_remoteStderr;
     QByteArray m_remoteData;
