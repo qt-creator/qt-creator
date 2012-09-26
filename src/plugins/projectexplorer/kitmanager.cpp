@@ -323,8 +323,8 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
 QList<Kit *> KitManager::kits(const KitMatcher *m) const
 {
     if (!d->m_initialized) {
-        d->m_initialized = true;
         const_cast<KitManager *>(this)->restoreKits();
+        d->m_initialized = true;
     }
 
     QList<Kit *> result;
@@ -356,8 +356,8 @@ Kit *KitManager::find(const KitMatcher *m) const
 Kit *KitManager::defaultKit()
 {
     if (!d->m_initialized) {
-        d->m_initialized = true;
         restoreKits();
+        d->m_initialized = true;
     }
     return d->m_defaultKit;
 }
