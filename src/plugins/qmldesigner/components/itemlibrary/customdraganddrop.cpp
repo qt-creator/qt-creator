@@ -39,7 +39,7 @@
 #include <QDebug>
 #include <QPainter>
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && QT_VERSION < 0x050000
 #include <private/qwidget_p.h>
 #endif
 
@@ -64,7 +64,7 @@ void CustomDragAndDropIcon::startDrag()
 
 void CustomDragAndDropIcon::grabMouseSafely()
 {
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && QT_VERSION < 0x050000
     // grabMouse calls SetWindowsHookEx() - this function causes a system-wide
     // freeze if any other app on the system installs a hook and fails to
     // process events.
