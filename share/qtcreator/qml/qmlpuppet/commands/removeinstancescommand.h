@@ -33,6 +33,7 @@
 
 #include <QMetaType>
 #include <QVector>
+#include <QDataStream>
 
 #include "instancecontainer.h"
 

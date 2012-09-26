@@ -32,7 +32,6 @@
 #define MEEGOPLUGIN_H
 
 #include <iwidgetplugin.h>
-#include <qdeclarative.h>
 
 namespace QmlDesigner {
 
