@@ -76,6 +76,7 @@ Project {
         "src/plugins/tasklist/tasklist.qbs",
         "src/plugins/texteditor/texteditor.qbs",
         "src/plugins/todo/todo.qbs",
+        "src/plugins/updateinfo/updateinfo.qbs",
         "src/plugins/valgrind/valgrind.qbs",
         "src/plugins/vcsbase/vcsbase.qbs",
         "src/plugins/welcome/welcome.qbs",
