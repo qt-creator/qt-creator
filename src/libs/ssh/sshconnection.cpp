@@ -44,6 +44,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QNetworkProxy>
+#include <QRegExp>
 #include <QTcpSocket>
 
 /*!
@@ -320,7 +321,7 @@ void SshConnectionPrivate::handleIncomingData()
         qDebug("state = %d, remote data size = %d", m_state,
             m_incomingData.count());
 #endif
-        if (m_state == SocketConnected)
+        if (m_serverId.isEmpty())
             handleServerId();
         handlePackets();
     } catch (SshServerException &e) {
@@ -335,39 +336,78 @@ void SshConnectionPrivate::handleIncomingData()
     }
 }
 
+// RFC 4253, 4.2.
 void SshConnectionPrivate::handleServerId()
 {
 #ifdef CREATOR_SSH_DEBUG
     qDebug("%s: incoming data size = %d, incoming data = '%s'",
         Q_FUNC_INFO, m_incomingData.count(), m_incomingData.data());
 #endif
-    const int idOffset = m_incomingData.indexOf("SSH-");
-    if (idOffset == -1)
+    const int newLinePos = m_incomingData.indexOf('\n');
+    if (newLinePos == -1)
+        return; // Not enough data yet.
+
+    // Lines not starting with "SSH-" are ignored.
+    if (!m_incomingData.startsWith("SSH-")) {
+        m_incomingData.remove(0, newLinePos + 1);
+        m_serverHasSentDataBeforeId = true;
         return;
-    m_incomingData.remove(0, idOffset);
-    if (m_incomingData.size() < 7)
-        return;
-    const QByteArray &version = m_incomingData.mid(4, 3);
-    if (version != "2.0") {
+    }
+
+    if (newLinePos > 255 - 1) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Identification string too long.",
+            tr("Server identification string is %1 characters long, but the maximum "
+               "allowed length is 255.").arg(newLinePos + 1));
+    }
+
+    const bool hasCarriageReturn = m_incomingData.at(newLinePos - 1) == '\r';
+    m_serverId = m_incomingData.left(newLinePos);
+    if (hasCarriageReturn)
+        m_serverId.chop(1);
+    m_incomingData.remove(0, newLinePos + 1);
+
+    if (m_serverId.contains('\0')) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Identification string contains illegal NUL character.",
+            tr("Server identification string contains illegal NUL character."));
+    }
+
+    // "printable US-ASCII characters, with the exception of whitespace characters
+    // and the minus sign"
+    QString legalString = QLatin1String("[]!\"#$!&'()*+,./0-9:;<=>?@A-Z[\\\\^_`a-z{|}~]+");
+    const QRegExp versionIdpattern(QString::fromLatin1("SSH-(%1)-%1(?: .+)?").arg(legalString));
+    if (!versionIdpattern.exactMatch(QString::fromLatin1(m_serverId))) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "Identification string is invalid.",
+            tr("Server Identification string '%1' is invalid.")
+                    .arg(QString::fromLatin1(m_serverId)));
+    }
+    const QString serverProtoVersion = versionIdpattern.cap(1);
+    if (serverProtoVersion != QLatin1String("2.0") && serverProtoVersion != QLatin1String("1.99")) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_VERSION_NOT_SUPPORTED,
             "Invalid protocol version.",
-            tr("Invalid protocol version: Expected '2.0', got '%1'.")
-            .arg(SshPacketParser::asUserString(version)));
+            tr("Server protocol version is '%1', but needs to be 2.0 or 1.99.")
+                    .arg(serverProtoVersion));
     }
-    const int endOffset = m_incomingData.indexOf("\r\n");
-    if (endOffset == -1)
-        return;
-    if (m_incomingData.at(7) != '-') {
+
+    // Disable this check to accept older OpenSSH servers that do this wrong.
+    if (serverProtoVersion == QLatin1String("2.0") && !hasCarriageReturn) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
-            "Invalid server id.", tr("Invalid server id '%1'.")
-            .arg(SshPacketParser::asUserString(m_incomingData)));
+            "Identification string is invalid.",
+            tr("Server identification string is invalid (missing carriage return)."));
+    }
+
+    if (serverProtoVersion == QLatin1String("1.99") && m_serverHasSentDataBeforeId) {
+        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+            "No extra data preceding identification string allowed for 1.99.",
+            tr("Server reports protocol version 1.99, but sends data "
+               "before the identification string, which is not allowed."));
     }
 
     m_keyExchange.reset(new SshKeyExchange(m_sendFacility));
-    m_serverId = m_incomingData.left(endOffset);
     m_keyExchange->sendKexInitPacket(m_serverId);
     m_keyExchangeState = KexInitSent;
-    m_incomingData.remove(0, endOffset + 2);
 }
 
 void SshConnectionPrivate::handlePackets()
@@ -645,6 +685,8 @@ void SshConnectionPrivate::connectToHost()
     m_error = SshNoError;
     m_ignoreNextPacket = false;
     m_errorString.clear();
+    m_serverId.clear();
+    m_serverHasSentDataBeforeId = false;
 
     try {
         if (m_connParams.authenticationType == SshConnectionParameters::AuthenticationByKey)

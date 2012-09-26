@@ -165,6 +165,7 @@ private:
     SshConnection *m_conn;
     quint64 m_lastInvalidMsgSeqNr;
     QByteArray m_serverId;
+    bool m_serverHasSentDataBeforeId;
 };
 
 } // namespace Internal
