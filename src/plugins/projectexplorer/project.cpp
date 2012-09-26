@@ -153,13 +153,7 @@ void Project::addTarget(Target *t)
     QTC_ASSERT(!target(t->kit()), return);
     Q_ASSERT(t->project() == this);
 
-    // Check that we don't have a configuration with the same displayName
-    QString targetDisplayName = t->displayName();
-    QStringList displayNames;
-    foreach (const Target *target, d->m_targets)
-        displayNames << target->displayName();
-    targetDisplayName = makeUnique(targetDisplayName, displayNames);
-    t->setDefaultDisplayName(targetDisplayName);
+    t->setDefaultDisplayName(t->displayName());
 
     // add it
     d->m_targets.push_back(t);
@@ -243,9 +237,10 @@ Target *Project::target(Kit *k) const
     return 0;
 }
 
-bool Project::supportsKit(Kit *k) const
+bool Project::supportsKit(Kit *k, QString *errorMessage) const
 {
     Q_UNUSED(k);
+    Q_UNUSED(errorMessage);
     return true;
 }
 

@@ -119,7 +119,7 @@ Qt4TargetSetupWidget::Qt4TargetSetupWidget(ProjectExplorer::Kit *k,
 Qt4TargetSetupWidget::~Qt4TargetSetupWidget()
 { }
 
-ProjectExplorer::Kit *Qt4TargetSetupWidget::profile()
+ProjectExplorer::Kit *Qt4TargetSetupWidget::kit()
 {
     return m_kit;
 }

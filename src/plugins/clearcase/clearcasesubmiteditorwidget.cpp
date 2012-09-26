@@ -42,32 +42,26 @@
 using namespace ClearCase::Internal;
 
 ClearCaseSubmitEditorWidget::ClearCaseSubmitEditorWidget(QWidget *parent) :
-    Utils::SubmitEditorWidget(parent)
+    Utils::SubmitEditorWidget(parent),
+    m_actSelector(0)
 {
     setDescriptionMandatory(false);
     QWidget *checkInWidget = new QWidget(this);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(checkInWidget);
-    m_actSelector = new ActivitySelector;
-    verticalLayout->addWidget(m_actSelector);
-
-    QFrame *line = new QFrame;
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    verticalLayout->addWidget(line);
+    m_verticalLayout = new QVBoxLayout(checkInWidget);
 
     m_chkIdentical = new QCheckBox(tr("Chec&k in even if identical to previous version"));
-    verticalLayout->addWidget(m_chkIdentical);
+    m_verticalLayout->addWidget(m_chkIdentical);
 
     m_chkPTime = new QCheckBox(tr("&Preserve file modification time"));
-    verticalLayout->addWidget(m_chkPTime);
+    m_verticalLayout->addWidget(m_chkPTime);
 
     insertTopWidget(checkInWidget);
 }
 
 QString ClearCaseSubmitEditorWidget::activity() const
 {
-    return m_actSelector->activity();
+    return m_actSelector ? m_actSelector->activity() : QString();
 }
 
 bool ClearCaseSubmitEditorWidget::isIdentical() const
@@ -82,17 +76,34 @@ bool ClearCaseSubmitEditorWidget::isPreserve() const
 
 void ClearCaseSubmitEditorWidget::setActivity(const QString &act)
 {
-    m_actSelector->setActivity(act);
+    if (m_actSelector)
+        m_actSelector->setActivity(act);
 }
 
 bool ClearCaseSubmitEditorWidget::activityChanged() const
 {
-    return m_actSelector->changed();
+    return m_actSelector ? m_actSelector->changed() : false;
 }
 
 void ClearCaseSubmitEditorWidget::addKeep()
 {
-    m_actSelector->addKeep();
+    if (m_actSelector)
+        m_actSelector->addKeep();
+}
+
+//! Add the ActivitySelector if \a isUcm is set
+void ClearCaseSubmitEditorWidget::addActivitySelector(bool isUcm)
+{
+    if (!isUcm || m_actSelector)
+        return;
+
+    m_actSelector = new ActivitySelector;
+    m_verticalLayout->insertWidget(0, m_actSelector);
+
+    QFrame* line = new QFrame;
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    m_verticalLayout->insertWidget(1, line);
 }
 
 QString ClearCaseSubmitEditorWidget::commitName() const

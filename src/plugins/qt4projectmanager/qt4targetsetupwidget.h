@@ -67,7 +67,7 @@ public:
                          const QList<BuildConfigurationInfo> &infoList);
     ~Qt4TargetSetupWidget();
 
-    ProjectExplorer::Kit *profile();
+    ProjectExplorer::Kit *kit();
     void clearKit();
 
     bool isKitSelected() const;

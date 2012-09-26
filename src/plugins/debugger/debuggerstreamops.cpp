@@ -232,7 +232,6 @@ QDataStream &operator<<(QDataStream &stream, const WatchData &wd)
     stream << wd.valueEditable;
     stream << wd.error;
     stream << wd.state;
-    stream << wd.changed;
     return stream;
 }
 
@@ -257,7 +256,6 @@ QDataStream &operator>>(QDataStream &stream, WatchData &wd)
     stream >> wd.valueEditable;
     stream >> wd.error;
     stream >> wd.state;
-    stream >> wd.changed;
     return stream;
 }
 

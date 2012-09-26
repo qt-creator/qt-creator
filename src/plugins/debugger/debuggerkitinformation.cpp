@@ -272,9 +272,8 @@ KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
 QString DebuggerKitInformation::userOutput(const DebuggerItem &item)
 {
     const QString binary = item.binary.toUserOutput();
-    return binary.isEmpty() ?
-           tr("%1 <None>").arg(debuggerEngineName(item.engineType)) :
-           tr("%1 using '%2'").arg(debuggerEngineName(item.engineType), binary);
+    const QString name = debuggerEngineName(item.engineType);
+    return binary.isEmpty() ? tr("%1 <None>").arg(name) : tr("%1 using \"%2\"").arg(name, binary);
 }
 
 KitInformation::ItemList DebuggerKitInformation::toUserOutput(Kit *k) const

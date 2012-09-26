@@ -33,6 +33,6 @@ SOURCES += qtmenu.cpp \
            qwheelarea.cpp
 
 !macx {
-    target.path = /$${IDE_LIBRARY_BASENAME}/qtcreator/qtcomponents/plugin
+    target.path = $$QTC_PREFIX/$${IDE_LIBRARY_BASENAME}/qtcreator/qtcomponents/plugin
     INSTALLS += target
 }

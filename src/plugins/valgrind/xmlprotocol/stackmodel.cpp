@@ -192,7 +192,7 @@ QModelIndex StackModel::parent(const QModelIndex &child) const
 {
     QTC_ASSERT(!child.isValid() || child.model() == this, return QModelIndex());
 
-    if (child.internalId() == -1)
+    if (quintptr(child.internalId()) == quintptr(-1))
         return QModelIndex();
     return createIndex(child.internalId(), 0, -1);
 }

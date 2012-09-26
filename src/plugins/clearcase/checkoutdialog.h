@@ -42,12 +42,14 @@ namespace Ui {
     class CheckOutDialog;
 }
 
+class ActivitySelector;
+
 class CheckOutDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit CheckOutDialog(const QString &fileName, QWidget *parent = 0);
+    explicit CheckOutDialog(const QString &fileName, bool isUcm, QWidget *parent = 0);
     ~CheckOutDialog();
     QString activity() const;
     QString comment() const;
@@ -62,6 +64,7 @@ private slots:
 
 private:
     Ui::CheckOutDialog *ui;
+    ActivitySelector *m_actSelector;
 };
 
 } // namespace Internal

@@ -237,7 +237,7 @@ else:unix {
 
     for(imagesize, IMAGE_SIZE_LIST) {
         eval(image$${imagesize}.files = images/logo/$${imagesize}/qtcreator.png)
-        eval(image$${imagesize}.path = /share/icons/hicolor/$${imagesize}x$${imagesize}/apps)
+        eval(image$${imagesize}.path = $$QTC_PREFIX/share/icons/hicolor/$${imagesize}x$${imagesize}/apps)
         INSTALLS += image$${imagesize}
     }
 }

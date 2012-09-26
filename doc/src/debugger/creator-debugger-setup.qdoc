@@ -102,7 +102,7 @@
 
     \section2 Supported CDB Versions
 
-    The CDB native debugger has similar funtionality to the non-Python GDB
+    The CDB native debugger has similar functionality to the non-Python GDB
     debugger engine. Specifically, it also uses compiled C++ code for the
     debugging helper library.
 

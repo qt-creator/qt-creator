@@ -38,6 +38,7 @@
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QToolButton>
 #include <QScrollArea>
 #include <QSizePolicy>
@@ -45,43 +46,15 @@
 
 namespace ProjectExplorer {
 
-void KitConfigWidget::addToLayout(QGridLayout *layout, int row)
-{
-    addLabel(layout, row);
-    layout->addWidget(this, row, WidgetColumn);
-    addButtonWidget(layout, row);
-}
-
-void KitConfigWidget::addLabel(QGridLayout *layout, int row)
-{
-    static const Qt::Alignment alignment
-        = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
-    QLabel *label = new QLabel(displayName());
-    label->setToolTip(toolTip());
-    layout->addWidget(label, row, LabelColumn, alignment);
-}
-
-void KitConfigWidget::addButtonWidget(QGridLayout *layout, int row)
-{
-    if (QWidget *button = buttonWidget()) {
-        if (button->toolTip().isEmpty())
-            button->setToolTip(toolTip());
-        layout->addWidget(button, row, ButtonColumn);
-    }
-}
-
 namespace Internal {
 
 KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, QWidget *parent) :
     KitConfigWidget(parent),
     m_layout(new QGridLayout),
     m_iconButton(new QToolButton),
+    m_nameEdit(new QLineEdit),
     m_kit(k)
 {
-    m_layout->setMargin(0);
-    m_layout->setSpacing(6);
-    m_layout->setContentsMargins(0, 0, 0, 0);
-
     QVBoxLayout *top = new QVBoxLayout(this);
     top->setMargin(0);
 
@@ -96,27 +69,25 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, QWidget *parent) :
     scroll->setWidget(details);
 
     QWidget *widget = new QWidget;
+
+    m_layout->setMargin(0);
+    m_layout->setSpacing(6);
+    m_layout->setContentsMargins(6, 0, 6, 0);
+    m_layout->setRowStretch(1, 1);
+    widget->setLayout(m_layout);
+
     details->setWidget(widget);
 
-    QVBoxLayout *iconLayout = new QVBoxLayout;
-    iconLayout->addWidget(m_iconButton);
-    iconLayout->addStretch();
-
-    QGridLayout *masterLayout = new QGridLayout(widget);
-    masterLayout->setMargin(0);
-    masterLayout->setContentsMargins(6, 0, 6, 0);
-    masterLayout->addLayout(iconLayout, 0, 0);
-    masterLayout->addLayout(m_layout, 0, 1);
-    masterLayout->setRowStretch(1, 1);
-
+    addToLayout(tr("Name:"), tr("Kit name and icon."), m_nameEdit, m_iconButton);
     discard();
 
     connect(m_iconButton, SIGNAL(clicked()), this, SLOT(setIcon()));
+    connect(m_nameEdit, SIGNAL(textChanged(QString)), this, SIGNAL(dirty()));
 }
 
 QString KitManagerConfigWidget::displayName() const
 {
-    return tr("Kits");
+    return m_nameEdit->text();
 }
 
 void KitManagerConfigWidget::apply()
@@ -124,6 +95,7 @@ void KitManagerConfigWidget::apply()
     foreach (KitConfigWidget *w, m_widgets)
         w->apply();
     m_kit->setIconPath(m_iconPath);
+    m_kit->setDisplayName(m_nameEdit->text());
 }
 
 void KitManagerConfigWidget::discard()
@@ -132,6 +104,7 @@ void KitManagerConfigWidget::discard()
         w->discard();
     m_iconButton->setIcon(m_kit->icon());
     m_iconPath = m_kit->iconPath();
+    m_nameEdit->setText(m_kit->displayName());
 }
 
 bool KitManagerConfigWidget::isDirty() const
@@ -139,7 +112,7 @@ bool KitManagerConfigWidget::isDirty() const
     foreach (KitConfigWidget *w, m_widgets)
         if (w->isDirty())
             return true;
-    return m_kit->iconPath() != m_iconPath;
+    return (m_kit->iconPath() != m_iconPath) || (m_kit->displayName() != m_nameEdit->text());
 }
 
 void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *widget)
@@ -148,7 +121,8 @@ void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *w
     Q_ASSERT(!m_widgets.contains(widget));
 
     connect(widget, SIGNAL(dirty()), this, SIGNAL(dirty()));
-    widget->addToLayout(m_layout, m_layout->rowCount());
+
+    addToLayout(widget->displayName(), widget->toolTip(), widget, widget->buttonWidget());
     m_widgets.append(widget);
 }
 
@@ -157,11 +131,12 @@ void KitManagerConfigWidget::makeReadOnly()
     foreach (KitConfigWidget *w, m_widgets)
         w->makeReadOnly();
     m_iconButton->setEnabled(false);
+    m_nameEdit->setEnabled(false);
 }
 
 void KitManagerConfigWidget::setIcon()
 {
-    const QString path = QFileDialog::getOpenFileName(0, tr("Select Icon"), m_iconPath, tr("Images (*.png *.xpm *.jpg)"));
+    const QString path = QFileDialog::getOpenFileName(this, tr("Select Icon"), m_iconPath, tr("Images (*.png *.xpm *.jpg)"));
     if (path.isEmpty())
         return;
 
@@ -172,6 +147,33 @@ void KitManagerConfigWidget::setIcon()
     m_iconButton->setIcon(icon);
     m_iconPath = path;
     emit dirty();
+}
+
+void KitManagerConfigWidget::addToLayout(const QString &name, const QString &toolTip,
+                                         QWidget *widget, QWidget *button)
+{
+    int row = m_layout->rowCount();
+    addLabel(name, toolTip, row);
+    m_layout->addWidget(widget, row, WidgetColumn);
+    addButtonWidget(button, toolTip, row);
+}
+
+void KitManagerConfigWidget::addLabel(const QString &name, const QString &toolTip, int row)
+{
+    static const Qt::Alignment alignment
+        = static_cast<Qt::Alignment>(style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
+    QLabel *label = new QLabel(name);
+    label->setToolTip(toolTip);
+    m_layout->addWidget(label, row, LabelColumn, alignment);
+}
+
+void KitManagerConfigWidget::addButtonWidget(QWidget *button, const QString &toolTip, int row)
+{
+    if (!button)
+        return;
+    if (button->toolTip().isEmpty())
+        button->setToolTip(toolTip);
+    m_layout->addWidget(button, row, ButtonColumn);
 }
 
 } // namespace Internal

@@ -48,6 +48,7 @@ class Kit;
 class KitConfigWidget;
 
 namespace Internal {
+class KitManagerConfigWidget;
 class KitManagerPrivate;
 class KitModel;
 } // namespace Internal
@@ -110,7 +111,7 @@ public:
 
     QList<KitInformation *> kitInformation() const;
 
-    KitConfigWidget *createConfigWidget(Kit *k) const;
+    Internal::KitManagerConfigWidget *createConfigWidget(Kit *k) const;
 
 public slots:
     bool registerKit(ProjectExplorer::Kit *k);

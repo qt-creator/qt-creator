@@ -6,7 +6,7 @@ SOURCES += main.cpp
 
 DESTDIR=../../../bin
 
-target.path=/bin
+target.path=$$QTC_PREFIX/bin
 INSTALLS+=target
 
 include(../../../qtcreator.pri)

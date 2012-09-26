@@ -36,6 +36,7 @@
 QT_BEGIN_NAMESPACE
 class QHBoxLayout;
 class QGridLayout;
+class QLineEdit;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -63,8 +64,21 @@ private slots:
     void setIcon();
 
 private:
+    enum LayoutColumns {
+        LabelColumn,
+        WidgetColumn,
+        ButtonColumn
+    };
+
+    void addToLayout(const QString &name, const QString &toolTip, QWidget *widget, QWidget *button = 0);
+
+
+    void addLabel(const QString &name, const QString &toolTip, int row);
+    void addButtonWidget(QWidget *button, const QString &toolTip, int row);
+
     QGridLayout *m_layout;
     QToolButton *m_iconButton;
+    QLineEdit *m_nameEdit;
     QList<KitConfigWidget *> m_widgets;
     Kit *m_kit;
     QString m_iconPath;

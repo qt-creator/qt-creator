@@ -349,7 +349,8 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
     QString string = map.value(QLatin1String(QTVERSIONQMAKEPATH)).toString();
     if (string.startsWith(QLatin1Char('~')))
         string.remove(0, 1).prepend(QDir::homePath());
-    ctor(FileName::fromUserInput(string));
+    const QString canonical = QFileInfo(string).canonicalFilePath();
+    ctor(FileName::fromString(canonical.isEmpty() ? string : canonical));
 }
 
 QVariantMap BaseQtVersion::toMap() const
@@ -792,16 +793,19 @@ FileName BaseQtVersion::mkspec() const
 
 FileName BaseQtVersion::mkspecFor(ProjectExplorer::ToolChain *tc) const
 {
+    Utils::FileName versionSpec = mkspec();
     if (!tc)
-        return mkspec();
+        return versionSpec;
 
     const QList<FileName> tcSpecList = tc->suggestedMkspecList();
+    if (tcSpecList.contains(versionSpec))
+        return versionSpec;
     foreach (const FileName &tcSpec, tcSpecList) {
         if (hasMkspec(tcSpec))
             return tcSpec;
     }
 
-    return mkspec();
+    return versionSpec;
 }
 
 FileName BaseQtVersion::mkspecPath() const
@@ -1195,10 +1199,15 @@ bool BaseQtVersion::queryQMakeVariables(const FileName &binary, QHash<QString, Q
     Environment env = Environment::systemEnvironment();
 
     if (HostOsInfo::isWindowsHost()) {
-        // Add tool chain environments. This is necessary for non-static qmakes e.g. using mingw on windows
+        // Add tool chain environment. This is necessary for non-static qmakes e.g. using mingw on windows
+        // We can not just add all the environments of all tool chains since that will make PATH too long
+        // which in turn will trigger a crash when parsing the results of vcvars.bat of MSVC.
+        QList<ProjectExplorer::Abi> abiList = ProjectExplorer::Abi::abisOfBinary(binary);
         QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
-        foreach (ProjectExplorer::ToolChain *tc, tcList)
-            tc->addToEnvironment(env);
+        foreach (ProjectExplorer::ToolChain *tc, tcList) {
+            if (abiList.contains(tc->targetAbi()))
+                tc->addToEnvironment(env);
+        }
     }
 
     process.setEnvironment(env.toStringList());

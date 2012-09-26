@@ -10,12 +10,12 @@ Windows 7, Windows XP SP2, Windows Vista
 (K)Ubuntu Linux 8.04 (32-bit and 64-bit) or later
 Mac OS 10.5 or later
 
-Building the sources requires Qt 4.7.4 or later.
+Building the sources requires Qt 4.8.0 or later.
 
 Compiling Qt Creator
 ====================
 Prerequisites:
-   * Qt 4.7.4
+   * Qt 4.8.0
    * On Windows:
      -  ActiveState Active Perl
      -  MinGW 4.4 or later, Visual Studio 2008 or later
@@ -36,7 +36,7 @@ Compiling Qt Quick Designer
 ---------------------------
 
 Qt Quick Designer (QmlDesigner plugin) depends on "private" headers from Qt
-4.7.4, specifically from the QtDeclarative module. These private headers always
+4.8.0, specifically from the QtDeclarative module. These private headers always
 end with an "_p.h". Nokia does not promise to keep these files or APIs binary
 or source compatible between releases. This means that when compiled, the
 plugin has a dependency to the exact Qt version it was compiled with. Running

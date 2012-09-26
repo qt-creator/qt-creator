@@ -61,6 +61,8 @@ public:
     int currentSubIndex() const;
     void setCurrentSubIndex(int subIndex);
 
+protected:
+    bool event(QEvent *event);
 private slots:
     void currentTargetChanged(int targetIndex, int subIndex);
     void removeTarget(int targetIndex);
@@ -82,6 +84,7 @@ private:
     PanelsWidget *m_panelWidgets[2];
     QList<Target *> m_targets;
     QMenu *m_addMenu;
+    QAction *m_lastAction;
 };
 
 } // namespace Internal

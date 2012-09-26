@@ -1652,7 +1652,7 @@
         \row
             \o Switch with Next/Previous Parameter
             \o Moves a parameter down or up one position in a parameter list.
-            \o Parameter in the declaration or definition of a fuction or method
+            \o Parameter in the declaration or definition of a function or method
         \row
             \o Extract Method
             \o Moves the selected code to a new method and replaces the block of

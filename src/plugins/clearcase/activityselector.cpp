@@ -49,6 +49,8 @@ ActivitySelector::ActivitySelector(QWidget *parent) :
     m_plugin(ClearCasePlugin::instance()),
     m_changed(false)
 {
+    QTC_ASSERT(m_plugin->isUcm(), return);
+
     QHBoxLayout *hboxLayout = new QHBoxLayout(this);
     hboxLayout->setContentsMargins(0, 0, 0, 0);
 

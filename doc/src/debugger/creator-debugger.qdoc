@@ -193,7 +193,7 @@
 
     While this mode does not strictly require a project to be opened in \QC,
     it is beneficial to have open one, as it makes setting breakpoints
-    and stepping throught the code easier.
+    and stepping through the code easier.
 
     You can specify breakpoints before or after attaching the
     debugger to the application.

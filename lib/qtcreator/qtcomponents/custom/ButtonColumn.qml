@@ -53,7 +53,7 @@ Column {
      * [bool=true] Specifies the grouping behavior. If enabled, the checked property on buttons contained
      * in the group will be exclusive.
      *
-     * Note that a button in an exclusive group will allways be checkable
+     * Note that a button in an exclusive group will always be checkable
      */
     property bool exclusive: true
 

@@ -104,7 +104,7 @@ Rectangle {
 
             imageUrl: "widgets/images/gettingStarted01.png"
             title: qsTr("IDE Overview")
-            description: qsTr("To find out what kind of integrated enviroment (IDE) Qt Creator is.")
+            description: qsTr("To find out what kind of integrated environment (IDE) Qt Creator is.")
             number: 1
 
             onClicked: gettingStarted.openHelp("qthelp://com.nokia.qtcreator/doc/creator-overview.html")
@@ -114,7 +114,7 @@ Rectangle {
             x: 250
             y: 83
 
-            description: qsTr("To become familar with the parts of the Qt Creator user interface and to learn how to use them.")
+            description: qsTr("To become familiar with the parts of the Qt Creator user interface and to learn how to use them.")
             title: qsTr("User Interface")
             imageUrl: "widgets/images/gettingStarted02.png"
             number: 2

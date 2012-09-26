@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProfiles>
-<!-- Written by Qt Creator 2.5.81, 2012-08-31T18:59:59. -->
+<!-- Written by Qt Creator 2.5.83, 2012-09-21T18:37:07. -->
 <qtcreator>
  <data>
   <variable>Profile.0</variable>
@@ -17,7 +17,7 @@
    </valuemap>
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{897290fe-c35a-4e5e-b5e2-d8e448e2aed1}</value>
-   <value type="QString" key="PE.Profile.Name">Desktop</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 474 GCC</value>
   </valuemap>
  </data>
  <data>
@@ -57,8 +57,29 @@
   </valuemap>
  </data>
  <data>
+  <variable>Profile.3</variable>
+  <valuemap type="QVariantMap">
+   <value type="bool" key="PE.Profile.AutoDetected">false</value>
+   <valuemap type="QVariantMap" key="PE.Profile.Data">
+    <valuemap type="QVariantMap" key="Debugger.Information">
+     <value type="QString" key="Binary">C:\QtSDK\pythongdb\python_2.7based\gdb-arm-none-linux-gnueabi.exe</value>
+     <value type="int" key="EngineType">1</value>
+    </valuemap>
+    <value type="QString" key="PE.Profile.Device">{3260da4e-2949-43b8-b464-1f34d0a47c04}</value>
+    <value type="QByteArray" key="PE.Profile.DeviceType">HarmattanOsType</value>
+    <value type="QString" key="PE.Profile.SysRoot"></value>
+    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{306bf3f1-a40e-49ca-9936-72af77d8ae6d}</value>
+    <value type="QString" key="QtPM4.mkSpecInformation"></value>
+    <value type="int" key="QtSupport.QtInformation">15</value>
+   </valuemap>
+   <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
+   <value type="QString" key="PE.Profile.Id">{3800d54f-6c86-4cd1-88a9-7456bbef6dce}</value>
+   <value type="QString" key="PE.Profile.Name">Harmattan</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>Profile.Count</variable>
-  <value type="int">3</value>
+  <value type="int">4</value>
  </data>
  <data>
   <variable>Profile.Default</variable>

@@ -48,12 +48,6 @@ class PROJECTEXPLORER_EXPORT KitConfigWidget : public QWidget
     Q_OBJECT
 
 public:
-    enum LayoutColumns {
-        LabelColumn,
-        WidgetColumn,
-        ButtonColumn
-    };
-
     KitConfigWidget(QWidget *parent = 0) : QWidget(parent)
     { }
 
@@ -66,14 +60,8 @@ public:
 
     virtual QWidget *buttonWidget() const { return 0; }
 
-    virtual void addToLayout(QGridLayout *layout, int row);
-
 signals:
     void dirty();
-
-protected:
-    void addLabel(QGridLayout *layout, int row);
-    void addButtonWidget(QGridLayout *layout, int row);
 };
 
 } // namespace ProjectExplorer

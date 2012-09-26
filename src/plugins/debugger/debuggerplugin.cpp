@@ -1459,7 +1459,7 @@ bool DebuggerPluginPrivate::parseArgument(QStringList::const_iterator &it,
                 }
             }
         }
-        if (fillParameters(&sp, kit, errorMessage))
+        if (!fillParameters(&sp, kit, errorMessage))
             return false;
         if (sp.startMode == StartExternal) {
             sp.displayName = tr("Executable file \"%1\"").arg(sp.executable);

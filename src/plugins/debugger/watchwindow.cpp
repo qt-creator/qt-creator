@@ -550,7 +550,11 @@ void WatchTreeView::dragMoveEvent(QDragMoveEvent *ev)
 void WatchTreeView::dropEvent(QDropEvent *ev)
 {
     if (ev->mimeData()->hasText()) {
-        watchExpression(ev->mimeData()->text());
+        QString exp;
+        QString data = ev->mimeData()->text();
+        foreach (const QChar c, data)
+            exp.append(c.isPrint() ? c : QChar(QLatin1Char(' ')));
+        watchExpression(exp);
         //ev->acceptProposedAction();
         ev->setDropAction(Qt::CopyAction);
         ev->accept();

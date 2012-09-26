@@ -220,6 +220,9 @@ def selectFromFileDialog(fileName):
         nativeType("<Return>")
         snooze(2)
         nativeType("<Return>")
+        snooze(1)
+        setWindowState(findObject(":Qt Creator_Core::Internal::MainWindow"), WindowState.Minimize)
+        setWindowState(findObject(":Qt Creator_Core::Internal::MainWindow"), WindowState.Maximize)
     else:
         fName = os.path.basename(os.path.abspath(fileName))
         pName = os.path.dirname(os.path.abspath(fileName)) + os.sep
@@ -304,7 +307,7 @@ def getConfiguredKits():
         for index in [section.child(i, 0) for i in range(model.rowCount(section))]:
             targetName = str(index.data().toString())
             if (targetName.endswith(" (default)")):
-                targetName = targetName.rstrip(" (default)")
+                targetName = targetName.rsplit(" (default)", 1)[0]
             item = ".".join([str(section.data().toString()),
                              str(index.data().toString()).replace(".", "\\.")])
             clickItem(treeView, item, 5, 5, 0, Qt.LeftButton)

@@ -903,10 +903,22 @@ void CPPEditorWidget::onContentsChanged(int position, int charsRemoved, int char
 void CPPEditorWidget::updateFileName()
 {}
 
-void CPPEditorWidget::jumpToOutlineElement(int)
+void CPPEditorWidget::jumpToOutlineElement(int index)
 {
-    QModelIndex index = m_proxyModel->mapToSource(m_outlineCombo->view()->currentIndex());
-    Symbol *symbol = m_outlineModel->symbolFromIndex(index);
+    QModelIndex modelIndex = m_outlineCombo->view()->currentIndex();
+    // When the user clicks on an item in the combo box,
+    // the view's currentIndex is updated, so we want to use that.
+    // When the scroll wheel was used on the combo box,
+    // the view's currentIndex is not updated,
+    // but the passed index to this method is correct.
+    // So, if the view has a current index, we reset it, to be able
+    // to distinguish wheel events later
+    if (modelIndex.isValid())
+        m_outlineCombo->view()->setCurrentIndex(QModelIndex());
+    else
+        modelIndex = m_proxyModel->index(index, 0); // toplevel index
+    QModelIndex sourceIndex = m_proxyModel->mapToSource(modelIndex);
+    Symbol *symbol = m_outlineModel->symbolFromIndex(sourceIndex);
     if (! symbol)
         return;
 

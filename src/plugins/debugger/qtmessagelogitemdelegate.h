@@ -111,6 +111,8 @@ public:
           m_width(rect.width()),
           m_top(rect.top()),
           m_bottom(rect.bottom()),
+          m_maxFileLength(0),
+          m_maxLineLength(0),
           m_showTaskIconArea(showTaskIconArea),
           m_showExpandableIconArea(showExpandableIconArea)
     {

@@ -26,19 +26,23 @@ macx {
     dmg.depends = deployqt
     QMAKE_EXTRA_TARGETS += codesign dmg
 } else {
-    deployqt.commands = $$PWD/scripts/deployqt.py -i $(INSTALL_ROOT)
+    deployqt.commands = $$PWD/scripts/deployqt.py -i \"$(INSTALL_ROOT)$$QTC_PREFIX\"
     deployqt.depends = install
     win32 {
         bindist.commands ~= s,/,\\\\,g
         deployqt.commands ~= s,/,\\\\,g
         deployartifacts.depends = install
         PLATFORM="windows"
-        deployartifacts.commands = git clone "git://gitorious.org/qt-creator/binary-artifacts.git"&& xcopy /s /q /y /i "binary-artifacts\\win32" $(INSTALL_ROOT)&& rmdir /s /q binary-artifacts
+        deployartifacts.commands = git clone "git://gitorious.org/qt-creator/binary-artifacts.git"&& xcopy /s /q /y /i "binary-artifacts\\win32" \"$(INSTALL_ROOT)$$QTC_PREFIX\"&& rmdir /s /q binary-artifacts
         QMAKE_EXTRA_TARGETS += deployartifacts
     }
-    else:linux-*:PLATFORM="linux-$${QT_ARCH}"
-    else:PLATFORM="unknown"
-    bindist.commands = $$PWD/scripts/bindistHelper.py "$(INSTALL_ROOT)" "$${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)"
+    else:linux-*: PLATFORM = "linux-$${QT_ARCH}"
+    else:PLATFORM = "unknown"
+    PATTERN = $${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
+    bindist.commands = 7z a -mx9 qt-creator-$${PATTERN}.7z \"$(INSTALL_ROOT)$$QTC_PREFIX\"
+    win32 {
+        bindist.commands ~= s,/,\\\\,g
+    }
+
 }
-bindist.depends = deployqt
 QMAKE_EXTRA_TARGETS += deployqt bindist

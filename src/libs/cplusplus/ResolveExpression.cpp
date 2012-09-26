@@ -49,6 +49,7 @@
 #include <QList>
 #include <QDebug>
 #include <QSet>
+#include <map>
 
 using namespace CPlusPlus;
 
@@ -630,7 +631,8 @@ bool ResolveExpression::visit(CallAST *ast)
     }
 
     if (_reference) {
-        _results.clear();
+        typedef std::multimap<int, LookupItem> LookupMap;
+        LookupMap sortedResults;
         foreach (const LookupItem &base, baseResults) {
             if (Function *funTy = base.type()->asFunctionType()) {
                 if (! maybeValidPrototype(funTy, actualArgumentCount))
@@ -655,13 +657,13 @@ bool ResolveExpression::visit(CallAST *ast)
                         ++score;
                 }
 
-                if (score)
-                    _results.prepend(base);
-                else
-                    _results.append(base);
+                sortedResults.insert(LookupMap::value_type(-score, base));
             }
         }
 
+        _results.clear();
+        for (LookupMap::const_iterator it = sortedResults.begin(); it != sortedResults.end(); ++it)
+            _results.append(it->second);
         if (_results.isEmpty())
             _results = baseResults;
 

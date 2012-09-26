@@ -6,7 +6,7 @@ class QtQuickConstants:
         EXISTING_QML = 4
 
     class Targets:
-        DESKTOP = 1
+        DESKTOP_474_GCC = 1
         SIMULATOR = 2
         MAEMO5 = 4
         HARMATTAN = 8
@@ -25,8 +25,8 @@ class QtQuickConstants:
 
     @staticmethod
     def getStringForTarget(target):
-        if target==QtQuickConstants.Targets.DESKTOP:
-            return "Desktop"
+        if target==QtQuickConstants.Targets.DESKTOP_474_GCC:
+            return "Desktop 474 GCC"
         elif target==QtQuickConstants.Targets.MAEMO5:
             return "Fremantle"
         elif target==QtQuickConstants.Targets.SIMULATOR:
@@ -40,7 +40,7 @@ class QtQuickConstants:
 
     @staticmethod
     def getAllTargets():
-        return [QtQuickConstants.Targets.DESKTOP, QtQuickConstants.Targets.HARMATTAN,
+        return [QtQuickConstants.Targets.DESKTOP_474_GCC, QtQuickConstants.Targets.HARMATTAN,
                 QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.SIMULATOR,
                 QtQuickConstants.Targets.EMBEDDED_LINUX]
 

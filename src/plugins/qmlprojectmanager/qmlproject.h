@@ -66,7 +66,7 @@ public:
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
 
-    bool supportsKit(ProjectExplorer::Kit *k) const;
+    bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
 
     QList<ProjectExplorer::BuildConfigWidget*> subConfigWidgets();
 

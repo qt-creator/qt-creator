@@ -37,7 +37,7 @@ MouseArea {
     // need to reparent it to the root item to fake it upon showing the popup.
     // In that case, the popup will also fill the whole window to allow the user to
     // close the popup by clicking anywhere in the window. Letting the popup act as the mouse
-    // area for the button that 'owns' it is also nessesary to support drag'n'release behavior.
+    // area for the button that 'owns' it is also necessary to support drag'n'release behavior.
 
     // The 'popupframe' delegate will be told to show or hide by assigning
     // opacity to 1 or 0, respectively.

@@ -132,7 +132,7 @@ public:
     void removeData(const QByteArray &iname);
     void removeChildren(const QByteArray &iname);
     void removeAllData();
-    void markAllUnchanged();
+    void resetValueCache();
 
 private:
     friend class WatchModel;

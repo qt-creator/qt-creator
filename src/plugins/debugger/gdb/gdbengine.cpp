@@ -4113,6 +4113,7 @@ void GdbEngine::handleDebuggingHelperSetup(const GdbResponse &response)
 
 void GdbEngine::updateLocals()
 {
+    watchHandler()->resetValueCache();
     if (hasPython())
         updateLocalsPython(UpdateParameters());
     else

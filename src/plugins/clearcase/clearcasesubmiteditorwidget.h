@@ -37,6 +37,7 @@
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
+class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace ClearCase {
@@ -56,6 +57,7 @@ public:
     void setActivity(const QString &act);
     bool activityChanged() const;
     void addKeep();
+    void addActivitySelector(bool isUcm);
 
 protected:
     QString commitName() const;
@@ -64,6 +66,7 @@ private:
     ActivitySelector *m_actSelector;
     QCheckBox *m_chkIdentical;
     QCheckBox *m_chkPTime;
+    QVBoxLayout *m_verticalLayout;
 };
 
 } // namespace Internal

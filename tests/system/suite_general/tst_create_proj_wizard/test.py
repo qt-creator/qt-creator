@@ -87,7 +87,7 @@ def main():
                                     (t, requiredVersion, str(kits[t][1])))
                     continue
             found = False
-            if kits[t][0] in displayedPlatforms:
+            if t in displayedPlatforms:
                 if t in availableCheckboxes:
                     test.passes("Found expected kit '%s' on 'Kit Selection' page." % t)
                     availableCheckboxes.remove(t)

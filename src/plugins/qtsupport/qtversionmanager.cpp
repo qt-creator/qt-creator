@@ -623,9 +623,8 @@ Utils::FileName QtVersionManager::findQMakeBinaryFromMakefile(const QString &mak
 #endif
                 // Is qmake still installed?
                 QFileInfo fi(qmakePath);
-                if (fi.exists()) {
-                    return Utils::FileName(fi);
-                }
+                if (fi.exists())
+                    return Utils::FileName::fromString(fi.canonicalFilePath());
             }
         }
     }
@@ -634,13 +633,13 @@ Utils::FileName QtVersionManager::findQMakeBinaryFromMakefile(const QString &mak
 
 BaseQtVersion *QtVersionManager::qtVersionForQMakeBinary(const Utils::FileName &qmakePath)
 {
-   foreach (BaseQtVersion *version, versions()) {
-       if (version->qmakeCommand() == qmakePath) {
-           return version;
-           break;
-       }
-   }
-   return 0;
+    foreach (BaseQtVersion *version, versions()) {
+        if (version->qmakeCommand() == qmakePath) {
+            return version;
+            break;
+        }
+    }
+    return 0;
 }
 
 void dumpQMakeAssignments(const QList<QMakeAssignment> &list)

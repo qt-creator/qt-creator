@@ -704,22 +704,20 @@ QVariantMap SettingsAccessor::restoreSettings() const
                 for (int i = sharedSettings.m_version; i < baseFileVersion; ++i)
                     sharedSettings.m_map = m_handlers.value(i)->update(m_project, sharedSettings.m_map);
 
-                if (!settings.isValid()) {
-                    m_project->setProperty(SHARED_SETTINGS, sharedSettings.m_map);
-                    return sharedSettings.m_map;
+                if (settings.isValid()) {
+                    for (int i = settings.m_version; i < baseFileVersion; ++i)
+                        settings.m_map = m_handlers.value(i)->update(m_project, settings.m_map);
+                    settings.m_version = baseFileVersion;
                 }
-                for (int i = settings.m_version; i < baseFileVersion; ++i)
-                    settings.m_map = m_handlers.value(i)->update(m_project, settings.m_map);
-                settings.m_version = baseFileVersion;
             }
         }
 
         if (useSharedSettings) {
             m_project->setProperty(SHARED_SETTINGS, sharedSettings.m_map);
-            if (!settings.isValid())
-                return sharedSettings.m_map;
-
-            mergeSharedSettings(&settings.m_map, sharedSettings.m_map);
+            if (settings.isValid())
+                mergeSharedSettings(&settings.m_map, sharedSettings.m_map);
+            else
+                settings = sharedSettings;
         }
     }
 

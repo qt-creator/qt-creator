@@ -31,6 +31,7 @@
 #include "qtkitinformation.h"
 
 #include "qtkitconfigwidget.h"
+#include "qtsupportconstants.h"
 #include "qtversionmanager.h"
 
 #include <utils/environment.h>
@@ -71,10 +72,15 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
         return -1;
 
     QList<BaseQtVersion *> versionList = mgr->versions();
+    BaseQtVersion *fallBack = 0;
     foreach (BaseQtVersion *v, versionList) {
         if (qmake == v->qmakeCommand())
             return v->uniqueId();
+        if (v->type() == QLatin1String(QtSupport::Constants::DESKTOPQT) && !fallBack)
+            fallBack = v;
     }
+    if (fallBack)
+        return fallBack->uniqueId();
 
     return -1;
 }

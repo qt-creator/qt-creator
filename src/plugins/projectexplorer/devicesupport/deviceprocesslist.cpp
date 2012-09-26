@@ -78,7 +78,7 @@ bool DeviceProcessList::hasChildren(const QModelIndex &parent) const
 
 QModelIndex DeviceProcessList::index(int row, int column, const QModelIndex &parent) const
 {
-    return hasIndex(row, column, parent) ? createIndex(row, column, 0) : QModelIndex();
+    return hasIndex(row, column, parent) ? createIndex(row, column) : QModelIndex();
 }
 
 

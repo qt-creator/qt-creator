@@ -12,6 +12,7 @@ Project {
     references: [
         "lib/qtcreator/qtcomponents/qtcomponents.qbs",
         "share/share.qbs",
+        "share/qtcreator/translations/translations.qbs",
         "src/libs/3rdparty/botan/botan.qbs",
         "src/libs/aggregation/aggregation.qbs",
         "src/libs/cplusplus/cplusplus.qbs",
@@ -79,7 +80,8 @@ Project {
         "src/tools/qtcdebugger/qtcdebugger.qbs",
         "src/tools/qtcreatorcrashhandler/qtcreatorcrashhandler.qbs",
         "src/tools/qtpromaker/qtpromaker.qbs",
-        "src/plugins/cpaster/frontend/frontend.qbs"
+        "src/plugins/cpaster/frontend/frontend.qbs",
+        "src/tools/sdktool/sdktool.qbs"
     ]
 
     Product {
