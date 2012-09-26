@@ -276,6 +276,7 @@ def __chooseTargets__(targets=QtQuickConstants.Targets.DESKTOP_474_GCC, availabl
                      QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(QtQuickConstants.Targets.EMBEDDED_LINUX)
+            available.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
     for current in available:
         mustCheck = targets & current == current
         try:
@@ -433,6 +434,8 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
             result.append(QtQuickConstants.Targets.DESKTOP_474_GCC)
             if platform.system() in ("Linux", "Darwin"):
                 result.append(QtQuickConstants.Targets.EMBEDDED_LINUX)
+            elif platform.system() in ('Windows', 'Microsoft'):
+                result.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
         if 'MeeGo/Harmattan' in supports:
             result.append(QtQuickConstants.Targets.HARMATTAN)
             addSimulator = True
@@ -444,6 +447,8 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
     elif 'Platform independent' in text:
         result = [QtQuickConstants.Targets.DESKTOP_474_GCC, QtQuickConstants.Targets.MAEMO5,
                   QtQuickConstants.Targets.SIMULATOR, QtQuickConstants.Targets.HARMATTAN]
+        if platform.system() in ('Windows', 'Microsoft'):
+            result.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
     else:
         test.warning("Returning None (__getSupportedPlatforms__())",
                      "Parsed text: '%s'" % text)

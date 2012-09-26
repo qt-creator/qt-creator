@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorToolChains>
-<!-- Written by Qt Creator 2.5.83, 2012-09-21T18:26:19. -->
+<!-- Written by Qt Creator 2.5.83, 2012-09-25T18:19:53. -->
 <qtcreator>
  <data>
   <variable>ToolChain.0</variable>
@@ -42,8 +42,18 @@
   </valuemap>
  </data>
  <data>
+  <variable>ToolChain.3</variable>
+  <valuemap type="QVariantMap">
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.SupportedAbi">x86-windows-msvc2008-pe-32bit</value>
+   <value type="QString" key="ProjectExplorer.MsvcToolChain.VarsBat">c:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat</value>
+   <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">MSVC 2008 (x86)</value>
+   <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Msvc:{b86e54dd-debd-409c-b4d7-1a5c710eaa37}</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>ToolChain.Count</variable>
-  <value type="int">3</value>
+  <value type="int">4</value>
  </data>
  <data>
   <variable>Version</variable>

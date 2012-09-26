@@ -11,6 +11,7 @@ class QtQuickConstants:
         MAEMO5 = 4
         HARMATTAN = 8
         EMBEDDED_LINUX = 16
+        DESKTOP_474_MSVC2008 = 32
 
     @staticmethod
     def getStringForComponents(components):
@@ -35,14 +36,19 @@ class QtQuickConstants:
             return "Harmattan"
         elif target==QtQuickConstants.Targets.EMBEDDED_LINUX:
             return "Embedded Linux"
+        elif target==QtQuickConstants.Targets.DESKTOP_474_MSVC2008:
+            return "Desktop 474 MSVC2008"
         else:
             return None
 
     @staticmethod
     def getAllTargets():
-        return [QtQuickConstants.Targets.DESKTOP_474_GCC, QtQuickConstants.Targets.HARMATTAN,
-                QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.SIMULATOR,
-                QtQuickConstants.Targets.EMBEDDED_LINUX]
+        all = [QtQuickConstants.Targets.DESKTOP_474_GCC, QtQuickConstants.Targets.HARMATTAN,
+               QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.SIMULATOR,
+               QtQuickConstants.Targets.EMBEDDED_LINUX]
+        if platform.system() in ('Windows', 'Microsoft'):
+            all.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
+        return all
 
     @staticmethod
     def getAllTargetStrings():
