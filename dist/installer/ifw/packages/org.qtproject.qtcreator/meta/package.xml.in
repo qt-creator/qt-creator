@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<Package>
+  <DisplayName>Qt Creator</DisplayName>
+  <Description>Installs the Qt Creator IDE.</Description>
+  <Version>{version}</Version>
+  <ReleaseDate>{date}</ReleaseDate>
+  <Name>org.qtproject.qtcreator</Name>
+  <!--  <Script>installscript.js</Script> -->
+</Package>

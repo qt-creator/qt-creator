@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<Package>
+    <DisplayName>Qt Creator Application</DisplayName>
+    <Description>The IDE of choice for Qt development.</Description>
+    <Version>{version}</Version>
+    <ReleaseDate>{date}</ReleaseDate>
+    <Name>org.qtproject.qtcreator.application</Name>
+    <Script>installscript.qs</Script>
+    <Licenses>
+        <License name="Qt Creator License" file="license.txt" />
+    </Licenses>
+    <ForcedInstallation>true</ForcedInstallation>
+    <Default>true</Default>
+    <AutoDependOn>org.qtproject.qtcreator</AutoDependOn>
+</Package>

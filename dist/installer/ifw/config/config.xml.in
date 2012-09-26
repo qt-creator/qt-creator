@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<Installer>
+    <Name>Qt Creator</Name>
+    <Version>{version}</Version>
+    <Title>Qt Creator</Title>
+    <MaintenanceTitle>Qt Creator Maintenance</MaintenanceTitle>
+    <Publisher>Qt Project</Publisher>
+    <ProductUrl>http://qt-project.org</ProductUrl>
+
+    <Icon>logo.png</Icon>
+    <Watermark>watermark.png</Watermark>
+    <UninstallerName>QtCreatorUninstaller</UninstallerName>
+    <!-- @homeDir@ and @rootDir@ are some of the supported vars -->
+    <TargetDir>@homeDir@/QtCreator</TargetDir>
+    <AdminTargetDir>/opt/QtCreator</AdminTargetDir>
+
+    <Pages>
+      <Page name="LicenseAgreementPage">
+        <AcceptLicenseLabel>I have read and understood the terms contained in the above license agreements.</AcceptLicenseLabel>
+        <RejectLicenseLabel>I do not accept the terms contained in the above license agreements.</RejectLicenseLabel>
+      </Page>
+    </Pages>
+
+</Installer>
