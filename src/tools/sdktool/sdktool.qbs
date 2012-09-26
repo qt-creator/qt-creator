@@ -4,9 +4,14 @@ import "../QtcTool.qbs" as QtcTool
 QtcTool {
     name: "sdktool"
 
+    cpp.includePaths: [buildDirectory]
+    cpp.defines: base.concat([qbs.targetOS === "mac"
+            ? 'DATA_PATH="."' : 'DATA_PATH="../share/qtcreator"'])
+
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
     Depends { name: "Utils" }
+    Depends { name: "app_version_header" }
 
     files: [
         "main.cpp",
