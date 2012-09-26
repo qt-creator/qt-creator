@@ -42,6 +42,7 @@
 
 #include <utils/persistentsettings.h>
 #include <utils/environment.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -91,7 +92,7 @@ public:
 
 KitManagerPrivate::KitManagerPrivate()
     : m_defaultKit(0), m_initialized(false),
-      m_writer(new Utils::PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles")))
+      m_writer(0)
 { }
 
 KitManagerPrivate::~KitManagerPrivate()
@@ -148,6 +149,7 @@ KitManager::KitManager(QObject *parent) :
 
 void KitManager::restoreKits()
 {
+    QTC_ASSERT(!d->m_writer, return);
     QList<Kit *> kitsToRegister;
     QList<Kit *> kitsToCheck;
 
@@ -213,6 +215,8 @@ void KitManager::restoreKits()
     Kit *k = find(userKits.defaultKit);
     if (k)
         setDefaultKit(k);
+
+    d->m_writer = new Utils::PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles"));
 }
 
 KitManager::~KitManager()
@@ -224,7 +228,7 @@ KitManager::~KitManager()
 
 void KitManager::saveKits()
 {
-    if (!d->m_initialized) // ignore save requests while we are not initialized.
+    if (!d->m_writer) // ignore save requests while we are not initialized.
         return;
 
     QVariantMap data;

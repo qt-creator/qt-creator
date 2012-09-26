@@ -39,6 +39,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/persistentsettings.h>
+#include <utils/qtcassert.h>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -81,7 +82,6 @@ public:
     QList<ToolChain *> &toolChains();
 
     ToolChainManager *q;
-    bool m_initialized;
     QMap<QString, Utils::FileName> m_abiToDebugger;
     Utils::PersistentSettingsWriter *m_writer;
 
@@ -90,8 +90,7 @@ private:
 };
 
 ToolChainManagerPrivate::ToolChainManagerPrivate(ToolChainManager *parent)
-    : q(parent), m_initialized(false),
-      m_writer(new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains")))
+    : q(parent), m_writer(0)
 { }
 
 ToolChainManagerPrivate::~ToolChainManagerPrivate()
@@ -99,10 +98,8 @@ ToolChainManagerPrivate::~ToolChainManagerPrivate()
 
 QList<ToolChain *> &ToolChainManagerPrivate::toolChains()
 {
-    if (!m_initialized) {
-        m_initialized = true;
+    if (!m_writer)
         q->restoreToolChains();
-    }
     return m_toolChains;
 }
 
@@ -136,6 +133,10 @@ ToolChainManager::ToolChainManager(QObject *parent) :
 
 void ToolChainManager::restoreToolChains()
 {
+    QTC_ASSERT(!d->m_writer, return);
+    d->m_writer =
+            new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains"));
+
     QList<ToolChain *> tcsToRegister;
     QList<ToolChain *> tcsToCheck;
 
