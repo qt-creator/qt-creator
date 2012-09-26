@@ -279,6 +279,7 @@ static void writeCommandToSocket(const QVariant &command, QLocalSocket *socket, 
     if(socket) {
         QByteArray block;
         QDataStream out(&block, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_4_8);
         out << quint32(0);
         out << quint32(commandCounter);
         out << command;
@@ -335,6 +336,7 @@ void NodeInstanceServerProxy::readFirstDataStream()
             break;
 
         QDataStream in(m_firstSocket.data());
+        in.setVersion(QDataStream::Qt_4_8);
 
         if (m_firstBlockSize == 0) {
             in >> m_firstBlockSize;
@@ -372,6 +374,7 @@ void NodeInstanceServerProxy::readSecondDataStream()
             break;
 
         QDataStream in(m_secondSocket.data());
+        in.setVersion(QDataStream::Qt_4_8);
 
         if (m_secondBlockSize == 0) {
             in >> m_secondBlockSize;
@@ -409,6 +412,7 @@ void NodeInstanceServerProxy::readThirdDataStream()
             break;
 
         QDataStream in(m_thirdSocket.data());
+        in.setVersion(QDataStream::Qt_4_8);
 
         if (m_thirdBlockSize == 0) {
             in >> m_thirdBlockSize;
