@@ -5,6 +5,7 @@ import glob;
 import atexit;
 import codecs;
 import subprocess;
+import sys
 import errno;
 from datetime import datetime,timedelta;
 
@@ -83,6 +84,69 @@ def substituteTildeWithinToolchains(settingsDir):
     os.remove(origToolchains)
     test.log("Substituted all tildes with '%s' inside toolchains.xml..." % home)
 
+def __guessABI__(supportedABIs, use64Bit):
+    if use64Bit:
+        searchFor = "64bit"
+    else:
+        searchFor = "32bit"
+    for abi in supportedABIs:
+        if searchFor in abi:
+            return abi
+    if use64Bit:
+        test.log("Supported ABIs do not include an ABI supporting 64bit - trying 32bit now")
+        return __guessABI__(supportedABIs, False)
+    test.fatal('Could not guess ABI!',
+               'Given ABIs: %s' % str(supportedABIs))
+    return ''
+
+def __is64BitOS__():
+    if platform.system() == 'Darwin':
+        return sys.maxsize > (2 ** 32)
+    if platform.system() in ('Microsoft', 'Windows'):
+        machine = os.getenv("PROCESSOR_ARCHITEW6432", os.getenv("PROCESSOR_ARCHITECTURE"))
+    else:
+        machine = platform.machine()
+    if machine:
+        return '64' in machine
+    else:
+        return False
+
+def substituteUnchosenTargetABIs(settingsDir):
+    class ReadState:
+        NONE = 0
+        READING = 1
+        CLOSED = 2
+
+    on64Bit = __is64BitOS__()
+    toolchains = os.path.join(settingsDir, "Nokia", 'qtcreator', 'toolchains.xml')
+    origToolchains = toolchains + "_orig"
+    os.rename(toolchains, origToolchains)
+    origFile = open(origToolchains, "r")
+    modifiedFile = open(toolchains, "w")
+    supported = []
+    readState = ReadState.NONE
+    for line in origFile:
+        if readState == ReadState.NONE:
+            if "SupportedAbis" in line:
+                supported = []
+                readState = ReadState.READING
+        elif readState == ReadState.READING:
+            if "</valuelist>" in line:
+                readState = ReadState.CLOSED
+            else:
+                supported.append(line.split(">", 1)[1].rsplit("<", 1)[0])
+        elif readState == ReadState.CLOSED:
+            if "SupportedAbis" in line:
+                supported = []
+                readState = ReadState.READING
+            elif "SET_BY_SQUISH" in line:
+                line = line.replace("SET_BY_SQUISH", __guessABI__(supported, on64Bit))
+        modifiedFile.write(line)
+    origFile.close()
+    modifiedFile.close()
+    os.remove(origToolchains)
+    test.log("Substituted unchosen ABIs inside toolchains.xml...")
+
 if platform.system() in ('Windows', 'Microsoft'):
     sdkPath = "C:\\QtSDK"
     cwd = os.getcwd()       # current dir is directory holding qtcreator.py
@@ -103,5 +167,6 @@ if os.getenv("SYSTEST_NOSETTINGSPATH") != "1":
     shutil.copytree(cwd, tmpSettingsDir)
     if platform.system() in ('Linux', 'Darwin'):
         substituteTildeWithinToolchains(tmpSettingsDir)
+    substituteUnchosenTargetABIs(tmpSettingsDir)
     atexit.register(__removeTmpSettingsDir__)
     SettingsPath = ' -settingspath "%s"' % tmpSettingsDir
