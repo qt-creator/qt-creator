@@ -43,7 +43,7 @@
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QPixmapCache>
-#ifndef QT_NO_WEBKIT
+#if !defined(QT_NO_WEBKIT) && QT_VERSION < 0x050000
 #include <QGraphicsWebView>
 #endif
 #include <QGraphicsObject>
@@ -801,7 +801,7 @@ void allSubObject(QObject *object, QObjectList &objectList)
 
 static void disableTiledBackingStore(QObject *object)
 {
-#ifndef QT_NO_WEBKIT
+#if !defined(QT_NO_WEBKIT) && QT_VERSION < 0x050000
     QGraphicsWebView *webView = qobject_cast<QGraphicsWebView*>(object);
     if (webView)
         webView->settings()->setAttribute(QWebSettings::TiledBackingStoreEnabled, false);
