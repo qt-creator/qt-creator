@@ -250,6 +250,7 @@ public:
     QPointer<GenericProposalInfoFrame> m_infoFrame;
     QTimer m_infoTimer;
     CodeAssistant *m_assistant;
+    bool m_autoWidth;
 
 public slots:
     void handleActivation(const QModelIndex &modelIndex);
@@ -264,6 +265,7 @@ GenericProposalWidgetPrivate::GenericProposalWidgetPrivate(QWidget *completionWi
     , m_explicitlySelected(false)
     , m_justInvoked(false)
     , m_assistant(0)
+    , m_autoWidth(true)
 {
     connect(m_completionListView, SIGNAL(activated(QModelIndex)),
             this, SLOT(handleActivation(QModelIndex)));
@@ -328,6 +330,10 @@ GenericProposalWidget::GenericProposalWidget()
     d->m_completionListView->setMinimumSize(1, 1);
     connect(d->m_completionListView->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(updatePositionAndSize()));
+    connect(d->m_completionListView->verticalScrollBar(), SIGNAL(sliderPressed()),
+            this, SLOT(turnOffAutoWidth()));
+    connect(d->m_completionListView->verticalScrollBar(), SIGNAL(sliderReleased()),
+            this, SLOT(turnOnAutoWidth()));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
@@ -492,6 +498,9 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
 
 void GenericProposalWidget::updatePositionAndSize()
 {
+    if (!d->m_autoWidth)
+        return;
+
     const QSize &shint = d->m_completionListView->calculateSize();
     const int fw = frameWidth();
     const int width = shint.width() + fw * 2 + 30;
@@ -512,6 +521,17 @@ void GenericProposalWidget::updatePositionAndSize()
     if (pos.x() + width > screen.right())
         pos.setX(screen.right() - width);
     setGeometry(pos.x(), pos.y(), width, height);
+}
+
+void GenericProposalWidget::turnOffAutoWidth()
+{
+    d->m_autoWidth = false;
+}
+
+void GenericProposalWidget::turnOnAutoWidth()
+{
+    d->m_autoWidth = true;
+    updatePositionAndSize();
 }
 
 bool GenericProposalWidget::eventFilter(QObject *o, QEvent *e)
