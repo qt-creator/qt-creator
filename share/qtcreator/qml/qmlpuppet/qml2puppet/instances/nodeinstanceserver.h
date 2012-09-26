@@ -44,7 +44,6 @@ class QFileSystemWatcher;
 class QQmlView;
 class QQuickView;
 class QQmlEngine;
-class QGraphicsObject;
 class QFileInfo;
 class QQmlComponent;
 QT_END_NAMESPACE

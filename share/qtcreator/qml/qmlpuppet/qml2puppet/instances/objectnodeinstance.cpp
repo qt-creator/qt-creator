@@ -43,10 +43,7 @@
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QPixmapCache>
-#ifndef QT_NO_WEBKIT
-#include <QGraphicsWebView>
-#endif
-#include <QGraphicsObject>
+#include <QQuickItem>
 
 #include <QTextDocument>
 #include <QLibraryInfo>
@@ -351,9 +348,9 @@ void ObjectNodeInstance::addToNewProperty(QObject *object, QObject *newParent, c
         property.write(objectToVariant(object));
     }
 
-    QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);
+    QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
 
-    if (object && !(graphicsObject && graphicsObject->parentItem()))
+    if (object && !(quickItem && quickItem->parentItem()))
         object->setParent(newParent);
 
     Q_ASSERT(objectToVariant(object).isValid());
@@ -783,25 +780,18 @@ void allSubObject(QObject *object, QObjectList &objectList)
         allSubObject(childObject, objectList);
     }
 
-    // search recursive in graphics item childItems list
-    QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);
-    if (graphicsObject) {
-        foreach (QGraphicsItem *item, graphicsObject->childItems()) {
-            QGraphicsObject *childObject = item->toGraphicsObject();
-            allSubObject(childObject, objectList);
+    // search recursive in quick item childItems list
+    QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
+    if (quickItem) {
+        foreach (QQuickItem *childItem, quickItem->childItems()) {
+            allSubObject(childItem, objectList);
         }
     }
 }
 
 static void disableTiledBackingStore(QObject *object)
 {
-#ifndef QT_NO_WEBKIT
-    QGraphicsWebView *webView = qobject_cast<QGraphicsWebView*>(object);
-    if (webView)
-        webView->settings()->setAttribute(QWebSettings::TiledBackingStoreEnabled, false);
-#else
     Q_UNUSED(object);
-#endif
 }
 
 QStringList propertyNameForWritableProperties(QObject *object, const QString &baseName = QString(), QObjectList *inspectedObjects = new QObjectList())
@@ -1109,9 +1099,9 @@ QObject *ObjectNodeInstance::parent() const
 
 QObject *parentObject(QObject *object)
 {
-    QGraphicsObject *graphicsObject = qobject_cast<QGraphicsObject*>(object);
-    if (graphicsObject)
-        return graphicsObject->parentObject();
+    QQuickItem *quickItem = qobject_cast<QQuickItem*>(object);
+    if (quickItem)
+        return quickItem->parentItem();
 
     return object->parent();
 }
