@@ -135,6 +135,15 @@ void QtSupportPlugin::testQtOutputParser_data()
                                                        Utils::FileName::fromUserInput(QLatin1String("c:\\code\\test.h")), 96,
                                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
+    QTest::newRow("ninja with moc")
+            << QString::fromLatin1("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h(54): Error: Undefined interface")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>() << Task(Task::Error,
+                                                       QLatin1String("Undefined interface"),
+                                                       Utils::FileName::fromUserInput(QLatin1String("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h")), 54,
+                                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << QString();
 }
 
 void QtSupportPlugin::testQtOutputParser()
