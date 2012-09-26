@@ -5,6 +5,13 @@ Product {
     name: "SharedContent"
 
     Group {
+        condition: qbs.targetOS == "macx"
+        qbs.installDir: "share/qtcreator/scripts"
+        fileTags: ["install"]
+        files: "qtcreator/scripts/openTerminal.command"
+    }
+
+    Group {
         qbs.installDir: "share/qtcreator/designer"
         fileTags: ["install"]
         prefix: "qtcreator/designer/"
@@ -124,7 +131,6 @@ Product {
         fileTags: ["install"]
         prefix: "qtcreator/qml/qmldump/"
         files: [
-            "Info.plist.in",
             "LGPL_EXCEPTION.TXT",
             "LICENSE.LGPL",
             "main.cpp",
@@ -219,7 +225,6 @@ Product {
         fileTags: ["install"]
         prefix: "qtcreator/qml/qmlobserver/"
         files: [
-            "Info.plist.in",
             "LGPL_EXCEPTION.TXT",
             "LICENSE.LGPL",
             "deviceorientation.cpp",
@@ -456,7 +461,6 @@ Product {
         fileTags: ["install"]
         prefix: "qtcreator/qml/qmlpuppet/qml2puppet/"
         files: [
-            "Info.plist.in",
             "main.cpp",
             "qml2puppet.pro",
         ]
@@ -488,7 +492,6 @@ Product {
         fileTags: ["install"]
         prefix: "qtcreator/qml/qmlpuppet/qmlpuppet/"
         files: [
-            "Info.plist.in",
             "main.cpp",
             "qmlpuppet.pri",
             "qmlpuppet.pro",
@@ -755,15 +758,6 @@ Product {
         files: [
             "MS_Visual_C++.kms",
             "Xcode.kms",
-        ]
-    }
-
-    Group {
-        qbs.installDir: "share/qtcreator/scripts"
-        fileTags: ["install"]
-        prefix: "qtcreator/scripts/"
-        files: [
-            "openTerminal.command",
         ]
     }
 
@@ -1187,20 +1181,6 @@ Product {
         files: [
             "generate.pl",
             "wizard_sample.xml",
-        ]
-    }
-
-    Group {
-        qbs.installDir: "share/qtcreator/translations"
-        fileTags: ["install"]
-        prefix: "qtcreator/translations/"
-        files: [
-            "README",
-            "check-ts.pl",
-            "check-ts.xq",
-            "extract-customwizards.xq",
-            "extract-externaltools.xq",
-            "extract-mimetypes.xq",
         ]
     }
 
