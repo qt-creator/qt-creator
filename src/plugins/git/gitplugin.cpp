@@ -74,7 +74,6 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
-#include <QTemporaryFile>
 #include <QtPlugin>
 
 #include <QAction>

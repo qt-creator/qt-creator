@@ -66,7 +66,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QTemporaryFile>
 #include <QProcess>
 #include <QFile>
 #include <QFileInfo>

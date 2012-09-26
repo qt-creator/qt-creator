@@ -47,7 +47,6 @@ QT_BEGIN_NAMESPACE
 class QFile;
 class QAction;
 class QTextCodec;
-class QTemporaryFile;
 QT_END_NAMESPACE
 
 namespace Utils {

@@ -64,7 +64,6 @@
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <QRegExp>
-#include <QTemporaryFile>
 #include <QTime>
 #include <QFileInfo>
 #include <QDir>
