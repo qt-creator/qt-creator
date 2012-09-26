@@ -3367,6 +3367,7 @@ void BaseTextEditorWidget::paintEvent(QPaintEvent *e)
                     o.start = relativePos;
                     o.length = 1;
                     o.format.setForeground(palette().base());
+                    o.format.setBackground(palette().text());
                     selections.append(o);
                 }
             }
