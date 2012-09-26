@@ -71,8 +71,6 @@
 #include <QDir>
 #include <QDialog>
 #include <QFileDialog>
-#include <QTemporaryFile>
-
 
 using namespace Bazaar::Internal;
 using namespace Bazaar;
@@ -123,10 +121,10 @@ BazaarPlugin::BazaarPlugin()
       m_optionsPage(0),
       m_client(0),
       m_commandLocator(0),
-      m_changeLog(0),
       m_addAction(0),
       m_deleteAction(0),
-      m_menuAction(0)
+      m_menuAction(0),
+      m_submitActionTriggered(false)
 {
     m_instance = this;
 }
@@ -137,8 +135,6 @@ BazaarPlugin::~BazaarPlugin()
         delete m_client;
         m_client = 0;
     }
-
-    deleteCommitLog();
 
     m_instance = 0;
 }
@@ -552,20 +548,16 @@ void BazaarPlugin::showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusIt
         return;
     }
 
-    deleteCommitLog();
-
-    // Open commit log
-    QString changeLogPattern = QDir::tempPath();
-    if (!changeLogPattern.endsWith(QLatin1Char('/')))
-        changeLogPattern += QLatin1Char('/');
-    changeLogPattern += QLatin1String("qtcreator-bzr-XXXXXX.msg");
-    m_changeLog = new QTemporaryFile(changeLogPattern, this);
-    if (!m_changeLog->open()) {
-        outputWindow->appendError(tr("Unable to generate a temporary file for the commit editor."));
+    // Start new temp file
+    Utils::TempFileSaver saver;
+    // Keep the file alive, else it removes self and forgets its name
+    saver.setAutoRemove(false);
+    if (!saver.finalize()) {
+        VcsBase::VcsBaseOutputWindow::instance()->append(saver.errorString());
         return;
     }
 
-    Core::IEditor *editor = Core::EditorManager::openEditor(m_changeLog->fileName(),
+    Core::IEditor *editor = Core::EditorManager::openEditor(saver.fileName(),
                                                             Constants::COMMIT_ID,
                                                             Core::EditorManager::ModeSwitch);
     if (!editor) {
@@ -602,17 +594,13 @@ void BazaarPlugin::diffFromEditorSelected(const QStringList &files)
 
 void BazaarPlugin::commitFromEditor()
 {
-    if (!m_changeLog)
-        return;
-
-    //use the same functionality than if the user closes the file without completing the commit
-    Core::ICore::editorManager()->closeEditors(Core::ICore::editorManager()->editorsForFileName(m_changeLog->fileName()));
+    // Close the submit editor
+    m_submitActionTriggered = true;
+    Core::ICore::editorManager()->closeEditor();
 }
 
 bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
 {
-    if (!m_changeLog)
-        return true;
     Core::IDocument *editorDocument = submitEditor->document();
     const CommitEditor *commitEditor = qobject_cast<const CommitEditor *>(submitEditor);
     if (!editorDocument || !commitEditor)
@@ -622,13 +610,13 @@ bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submit
     const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult response =
             commitEditor->promptSubmit(tr("Close Commit Editor"), tr("Do you want to commit the changes?"),
                                        tr("Message check failed. Do you want to proceed?"),
-                                       &dummyPrompt, dummyPrompt);
+                                       &dummyPrompt, !m_submitActionTriggered);
+    m_submitActionTriggered = false;
 
     switch (response) {
     case VcsBase::VcsBaseSubmitEditor::SubmitCanceled:
         return false;
     case VcsBase::VcsBaseSubmitEditor::SubmitDiscarded:
-        deleteCommitLog();
         return true;
     default:
         break;
@@ -664,14 +652,6 @@ bool BazaarPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submit
         m_client->commit(m_submitRepository, files, editorDocument->fileName(), extraOptions);
     }
     return true;
-}
-
-void BazaarPlugin::deleteCommitLog()
-{
-    if (m_changeLog) {
-        delete m_changeLog;
-        m_changeLog = 0;
-    }
 }
 
 void BazaarPlugin::updateActions(VcsBase::VcsBasePlugin::ActionState as)

@@ -44,7 +44,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QTemporaryFile;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -127,7 +126,6 @@ private:
     void createFileActions(const Core::Context &context);
     void createDirectoryActions(const Core::Context &context);
     void createRepositoryActions(const Core::Context &context);
-    void deleteCommitLog();
 
     // Variables
     static BazaarPlugin *m_instance;
@@ -139,7 +137,6 @@ private:
     Core::ActionContainer *m_bazaarContainer;
 
     QList<QAction *> m_repositoryActionList;
-    QTemporaryFile *m_changeLog;
 
     // Menu Items (file actions)
     Utils::ParameterAction *m_addAction;
@@ -159,6 +156,7 @@ private:
     QAction *m_menuAction;
 
     QString m_submitRepository;
+    bool m_submitActionTriggered;
 };
 
 } // namespace Internal
