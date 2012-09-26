@@ -1,4 +1,10 @@
-QT += core gui declarative network
+QT += core gui network
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += quick1 quick1-private core-private widgets-private gui-private script-private
+} else {
+    QT += declarative
+}
 
 contains (QT_CONFIG, webkit) {
     QT += webkit
