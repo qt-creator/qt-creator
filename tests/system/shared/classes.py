@@ -42,19 +42,6 @@ class QtQuickConstants:
             return None
 
     @staticmethod
-    def getAllTargets():
-        all = [QtQuickConstants.Targets.DESKTOP_474_GCC, QtQuickConstants.Targets.HARMATTAN,
-               QtQuickConstants.Targets.MAEMO5, QtQuickConstants.Targets.SIMULATOR,
-               QtQuickConstants.Targets.EMBEDDED_LINUX]
-        if platform.system() in ('Windows', 'Microsoft'):
-            all.append(QtQuickConstants.Targets.DESKTOP_474_MSVC2008)
-        return all
-
-    @staticmethod
-    def getAllTargetStrings():
-        return QtQuickConstants.getTargetsAsStrings(QtQuickConstants.getAllTargets())
-
-    @staticmethod
     def getTargetsAsStrings(targets):
         if not isinstance(targets, (tuple,list)):
             test.fatal("Wrong usage... This function handles only tuples or lists.")
