@@ -222,7 +222,8 @@ public:
 
     bool open(QString *errorString, const QString &fileName, quint64 offset = 0) {
         QFile file(fileName);
-        if (offset >= static_cast<quint64>(file.size())) {
+        quint64 size = static_cast<quint64>(file.size());
+        if (size == 0) {
             QString msg = tr("The Binary Editor can not open empty files.");
             if (errorString)
                 *errorString = msg;
@@ -230,6 +231,8 @@ public:
                 QMessageBox::critical(Core::ICore::mainWindow(), tr("File Error"), msg);
             return false;
         }
+        if (offset >= size)
+            return false;
         if (file.open(QIODevice::ReadOnly)) {
             file.close();
             m_fileName = fileName;

@@ -1051,7 +1051,8 @@ bool BinEditor::event(QEvent *e)
             return true;
         case Qt::Key_Down: {
             const QScrollBar * const scrollBar = verticalScrollBar();
-            if (scrollBar->value() >= scrollBar->maximum() - 1) {
+            const int maximum = scrollBar->maximum();
+            if (maximum && scrollBar->value() >= maximum - 1) {
                 emit newRangeRequested(editor(), baseAddress() + m_size);
                 return true;
             }
