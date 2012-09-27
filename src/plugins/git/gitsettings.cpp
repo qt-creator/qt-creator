@@ -30,14 +30,11 @@
 
 #include "gitsettings.h"
 
-#include <utils/synchronousprocess.h>
-
 #include <QCoreApplication>
 
 namespace Git {
 namespace Internal {
 
-const QLatin1String GitSettings::pathKey("Path");
 const QLatin1String GitSettings::pullRebaseKey("PullRebase");
 const QLatin1String GitSettings::omitAnnotationDateKey("OmitAnnotationDate");
 const QLatin1String GitSettings::ignoreSpaceChangesInDiffKey("SpaceIgnorantDiff");
@@ -59,7 +56,6 @@ GitSettings::GitSettings()
 #else
     declareKey(timeoutKey, 30);
 #endif
-    declareKey(pathKey, QString());
     declareKey(pullRebaseKey, false);
     declareKey(omitAnnotationDateKey, false);
     declareKey(ignoreSpaceChangesInDiffKey, true);
@@ -81,33 +77,21 @@ QString GitSettings::gitBinaryPath(bool *ok, QString *errorMessage) const
     if (errorMessage)
         errorMessage->clear();
 
-    if (m_binaryPath.isEmpty()) {
-        const QString binary = binaryPath();
-        QString currentPath = stringValue(pathKey);
-        QString systemPath = QString::fromLocal8Bit(qgetenv("PATH"));
-        if (!systemPath.isEmpty()) {
-            if (!currentPath.isEmpty())
-                currentPath.append(Utils::SynchronousProcess::pathSeparator());
-            currentPath.append(systemPath);
-        }
-        // Search in path?
-        m_binaryPath = Utils::SynchronousProcess::locateBinary(currentPath, binary);
-        if (m_binaryPath.isEmpty()) {
-            if (ok)
-                *ok = false;
-            if (errorMessage)
-                *errorMessage = QCoreApplication::translate("Git::Internal::GitSettings",
-                                                            "The binary '%1' could not be located in the path '%2'")
-                    .arg(binary, currentPath);
-        }
+    QString binPath = binaryPath();
+    if (binPath.isEmpty()) {
+        if (ok)
+            *ok = false;
+        if (errorMessage)
+            *errorMessage = QCoreApplication::translate("Git::Internal::GitSettings",
+                                                        "The binary '%1' could not be located in the path '%2'")
+                .arg(stringValue(binaryPathKey), stringValue(pathKey));
     }
-    return m_binaryPath;
+    return binPath;
 }
 
 GitSettings &GitSettings::operator = (const GitSettings &s)
 {
     VcsBaseClientSettings::operator =(s);
-    m_binaryPath.clear();
     return *this;
 }
 
