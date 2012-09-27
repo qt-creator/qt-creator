@@ -6,11 +6,12 @@ def main():
     global searchFinished
     # prepare example project
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/animation/basics/property-animation")
-    if not neededFilePresent(sourceExample):
+    proFile = "propertyanimation.pro"
+    if not neededFilePresent(os.path.join(sourceExample, proFile)):
         return
     # copy example project to temp directory
     templateDir = prepareTemplate(sourceExample)
-    examplePath = templateDir + "/propertyanimation.pro"
+    examplePath = os.path.join(templateDir, proFile)
     startApplication("qtcreator" + SettingsPath)
     # open example project
     openQmakeProject(examplePath)
