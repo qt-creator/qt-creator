@@ -10,9 +10,8 @@ def charactersInFile(filename):
     return len(content)
 
 def main():
-    files = [srcPath + "/creator/README", srcPath + "/creator/qtcreator.pri",
-             srcPath + "/creator/doc/snippets/qml/list-of-transitions.qml",
-             srcPath + "/creator/share/qtcreator/glsl/glsl_120.frag"]
+    files = map(lambda record: os.path.join(srcPath, testData.field(record, "filename")),
+                testData.dataset("files.tsv"))
     for currentFile in files:
         if not neededFilePresent(currentFile):
             return
