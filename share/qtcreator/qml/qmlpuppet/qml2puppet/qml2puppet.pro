@@ -15,6 +15,7 @@ include(../../../../../qtcreator.pri)
 DESTDIR = $$[QT_INSTALL_BINS]
 include(../../../../../src/rpath.pri)
 
+include (../instances/instances.pri)
 include (instances/instances.pri)
 include (../commands/commands.pri)
 include (../container/container.pri)

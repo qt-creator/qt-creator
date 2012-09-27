@@ -16,6 +16,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
 
+include (../instances/instances.pri)
 include (instances/instances.pri)
 include (../commands/commands.pri)
 include (../container/container.pri)
