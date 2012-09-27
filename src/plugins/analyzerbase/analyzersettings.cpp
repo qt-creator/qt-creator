@@ -150,8 +150,8 @@ void AnalyzerGlobalSettings::registerTool(IAnalyzerTool *tool)
 }
 
 
-AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect(QObject *parent)
-    : AnalyzerSettings(parent), m_useGlobalSettings(true)
+AnalyzerRunConfigurationAspect::AnalyzerRunConfigurationAspect()
+    : AnalyzerSettings(0), m_useGlobalSettings(true)
 {
     QList<IAnalyzerTool*> tools = AnalyzerManager::tools();
     // add sub configs
