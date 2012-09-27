@@ -33,6 +33,7 @@ Product {
         if (qbs.buildVariant == "release" && (qbs.toolchain == "gcc" || qbs.toolchain == "mingw"))
             return ["-Wl,-s"]
     }
+    cpp.includePaths: [ ".", ".." ]
 
     Group {
         files: [ name + ".pluginspec.in" ]

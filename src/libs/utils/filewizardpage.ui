@@ -45,7 +45,7 @@
   <customwidget>
    <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
-   <header>pathchooser.h</header>
+   <header location="global">utils/pathchooser.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

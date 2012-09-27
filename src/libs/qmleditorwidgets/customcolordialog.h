@@ -31,7 +31,7 @@
 #ifndef CUSTOMCOLORDIALOG_H
 #define CUSTOMCOLORDIALOG_H
 
-#include <qmleditorwidgets_global.h>
+#include "qmleditorwidgets_global.h"
 #include <QFrame>
 
 QT_BEGIN_NAMESPACE

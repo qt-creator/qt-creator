@@ -30,8 +30,8 @@
 
 #include "progressmanager_p.h"
 #include "progressview.h"
-#include "coreconstants.h"
-#include "icore.h"
+#include "../coreconstants.h"
+#include "../icore.h"
 
 #include <utils/qtcassert.h>
 

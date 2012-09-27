@@ -29,9 +29,8 @@
 **************************************************************************/
 
 #include "synchronousprocess.h"
-
+#include "qtcassert.h"
 #include "hostosinfo.h"
-#include <qtcassert.h>
 
 #include <QDebug>
 #include <QTimer>

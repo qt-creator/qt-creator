@@ -28,8 +28,8 @@
 **
 **************************************************************************/
 #include "desktopqtversionfactory.h"
-#include "qt4projectmanagerconstants.h"
 #include "desktopqtversion.h"
+#include "../qt4projectmanagerconstants.h"
 
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtsupportconstants.h>

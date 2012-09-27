@@ -21,8 +21,7 @@ QtcPlugin {
 
     Depends { name: "cpp" }
     cpp.defines: base.concat(["QWEAKPOINTER_ENABLE_ARROW"])
-    cpp.includePaths: [
-        ".",
+    cpp.includePaths: base.concat([
         "designercore",
         "designercore/include",
         "../../../share/qtcreator/qml/qmlpuppet/interfaces",
@@ -35,11 +34,8 @@ QtcPlugin {
         "components/itemlibrary",
         "components/navigator",
         "components/pluginmanager",
-        "components/stateseditor",
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
+        "components/stateseditor"
+    ])
 
     Group {
         prefix: "designercore/filemanager/"

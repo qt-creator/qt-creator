@@ -31,7 +31,7 @@
 #ifndef HUECONTROL_H
 #define HUECONTROL_H
 
-#include <qmleditorwidgets_global.h>
+#include "qmleditorwidgets_global.h"
 #include <QWidget>
 #include <qdeclarative.h>
 

@@ -31,7 +31,7 @@
 #ifndef INAVIGATIONWIDGET_H
 #define INAVIGATIONWIDGET_H
 
-#include <coreplugin/id.h>
+#include "id.h"
 
 #include <QObject>
 #include <QList>

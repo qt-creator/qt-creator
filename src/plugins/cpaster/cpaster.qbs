@@ -10,13 +10,7 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     Depends { name: "cpp" }
-    cpp.includePaths: [
-        ".",
-        "../../shared/cpaster",
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
+    cpp.includePaths: base.concat("../../shared/cpaster")
 
     files: [
         "codepasterprotocol.cpp",

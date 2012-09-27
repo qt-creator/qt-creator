@@ -14,15 +14,11 @@ QtcPlugin {
 
     Depends { name: "cpp" }
     cpp.defines: base.concat(["CPP_ENABLED"])
-    cpp.includePaths: [
+    cpp.includePaths: base.concat([
         "../../libs/3rdparty",
         "cpp",
-        "../../shared/designerintegrationv2",
-        ".",
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
+        "../../shared/designerintegrationv2"
+    ])
 
     files: [
         "Designer.mimetypes.xml",
@@ -88,4 +84,3 @@ QtcPlugin {
         "cpp/formclasswizardparameters.h",
     ]
 }
-

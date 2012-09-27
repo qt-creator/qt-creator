@@ -11,16 +11,12 @@ QtcPlugin {
     Depends { name: "Find" }
     Depends { name: "Locator" }
 
-    cpp.includePaths: [
-        ".",
-        "..",
+    cpp.includePaths: base.concat([
         "generichighlighter",
         "tooltip",
         "snippets",
-        "codeassist",
-        "../../libs",
-        buildDirectory
-    ]
+        "codeassist"
+    ])
 
     files: [
         "TextEditor.mimetypes.xml",
@@ -290,4 +286,3 @@ QtcPlugin {
         Depends { name: "Locator" }
     }
 }
-

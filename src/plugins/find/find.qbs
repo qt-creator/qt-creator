@@ -9,16 +9,12 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "cpp" }
 
-    cpp.includePaths: [
-        ".",
-        "..",
+    cpp.includePaths: base.concat([
         "generichighlighter",
         "tooltip",
         "snippets",
-        "codeassist",
-        "../../libs",
-        buildDirectory
-    ]
+        "codeassist"
+    ])
 
     files: [
         "basetextfind.cpp",
@@ -57,4 +53,3 @@ QtcPlugin {
         "treeviewfind.h",
     ]
 }
-

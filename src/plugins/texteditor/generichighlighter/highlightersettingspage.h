@@ -31,7 +31,7 @@
 #ifndef HIGHLIGHTERSETTINGSPAGE_H
 #define HIGHLIGHTERSETTINGSPAGE_H
 
-#include "texteditoroptionspage.h"
+#include "../texteditoroptionspage.h"
 
 QT_BEGIN_NAMESPACE
 template <class> class QList;

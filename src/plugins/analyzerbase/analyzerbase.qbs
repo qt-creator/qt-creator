@@ -17,11 +17,6 @@ QtcPlugin {
         "ANALYZER_LIBRARY",
         "QT_NO_CAST_FROM_ASCII"
     ])
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
 
     files: [
         "analyzerbase.qrc",
@@ -56,9 +51,6 @@ QtcPlugin {
     ]
 
     ProductModule {
-        Depends { name: "cpp" }
-        cpp.includePaths: ["."]
-
         Depends { name: "CPlusPlus" }
     }
 }

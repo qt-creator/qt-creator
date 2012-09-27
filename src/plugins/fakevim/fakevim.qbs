@@ -9,14 +9,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "Find" }
-    Depends { name: "cpp" }
     Depends { name: "Qt.widgets" }
-
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
 
     files: [
         "fakevimactions.cpp",

@@ -33,7 +33,7 @@
 #ifndef VALGRIND_PROTOCOL_MEMCHECKRUNNER_H
 #define VALGRIND_PROTOCOL_MEMCHECKRUNNER_H
 
-#include <valgrindrunner.h>
+#include "../valgrindrunner.h"
 
 namespace Valgrind {
 

@@ -31,7 +31,7 @@
 #ifndef COLORBOX_H
 #define COLORBOX_H
 
-#include <qmleditorwidgets_global.h>
+#include "qmleditorwidgets_global.h"
 #include <QWidget>
 #include <qdeclarative.h>
 

@@ -15,12 +15,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "app_version_header" }
 
-    Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs"
-    ]
-
     files: [
         "QmlProject.mimetypes.xml",
         "qmlproject.cpp",
@@ -55,4 +49,3 @@ QtcPlugin {
         "fileformat/qmlprojectitem.h",
     ]
 }
-

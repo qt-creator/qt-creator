@@ -31,7 +31,7 @@
 #ifndef SNIPPETSSETTINGSPAGE_H
 #define SNIPPETSSETTINGSPAGE_H
 
-#include "texteditoroptionspage.h"
+#include "../texteditoroptionspage.h"
 
 namespace TextEditor {
 namespace Internal {

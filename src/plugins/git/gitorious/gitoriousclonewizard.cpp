@@ -32,9 +32,9 @@
 #include "gitorioushostwizardpage.h"
 #include "gitoriousprojectwizardpage.h"
 #include "gitoriousrepositorywizardpage.h"
-#include "clonewizardpage.h"
 
-#include <git/gitplugin.h>
+#include "../clonewizardpage.h"
+#include "../gitplugin.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <vcsbase/checkoutjobs.h>

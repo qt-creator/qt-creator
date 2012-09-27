@@ -6,8 +6,8 @@ QtcLibrary {
 
     Depends { name: "cpp" }
     Depends { name: "Qt.network" }
+    cpp.includePaths: base.concat(".")
 
-    cpp.includePaths: "."
     cpp.defines: base.concat("ZEROCONF_LIBRARY")
 
     Properties {
@@ -38,9 +38,4 @@ QtcLibrary {
         "syssocket.h",
         "zeroconf_global.h",
     ]
-
-    ProductModule {
-        Depends { name: "cpp" }
-        cpp.includePaths: ["."]
-    }
 }

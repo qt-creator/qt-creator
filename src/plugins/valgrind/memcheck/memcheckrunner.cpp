@@ -32,9 +32,9 @@
 
 #include "memcheckrunner.h"
 
-#include <xmlprotocol/error.h>
-#include <xmlprotocol/status.h>
-#include <xmlprotocol/threadedparser.h>
+#include "../xmlprotocol/error.h"
+#include "../xmlprotocol/status.h"
+#include "../xmlprotocol/threadedparser.h"
 
 #include <utils/qtcassert.h>
 

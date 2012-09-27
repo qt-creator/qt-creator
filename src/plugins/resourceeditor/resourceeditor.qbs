@@ -10,14 +10,7 @@ QtcPlugin {
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "xml"] }
 
-    cpp.includePaths: [
-        "..",
-        "../..",
-        "../../libs",
-        buildDirectory,
-        "qrceditor",
-        "../../tools/utils"
-    ]
+    cpp.includePaths: base.concat("qrceditor")
 
     files: [
         "ResourceEditor.mimetypes.xml",
@@ -42,4 +35,3 @@ QtcPlugin {
         "qrceditor/undocommands_p.h",
     ]
 }
-

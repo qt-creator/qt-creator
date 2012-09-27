@@ -4,11 +4,7 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "LanguageUtils"
 
-    cpp.includePaths: [
-        ".",
-        "..",
-        "../3rdparty/cplusplus"
-    ]
+    cpp.includePaths: base.concat("../3rdparty/cplusplus")
     cpp.defines: base.concat([
         "QT_CREATOR",
         "LANGUAGEUTILS_BUILD_DIR"

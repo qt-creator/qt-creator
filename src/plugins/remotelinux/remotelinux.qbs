@@ -12,13 +12,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "QtcSsh" }
 
-    Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
-
     files: [
         "abstractpackagingstep.cpp",
         "abstractpackagingstep.h",

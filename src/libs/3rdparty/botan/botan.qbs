@@ -7,7 +7,6 @@ QtcLibrary {
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
 
-    cpp.includePaths: '.'
     cpp.dynamicLibraries: {
         if (qbs.targetOS == "windows") {
             return [
@@ -65,6 +64,6 @@ QtcLibrary {
                 return ["-Wl,--enable-auto-import"]
             }
         }
-        cpp.includePaths: '..'
+        cpp.includePaths: ".."
     }
 }

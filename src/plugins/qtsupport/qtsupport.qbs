@@ -12,14 +12,10 @@ QtcPlugin {
     Depends { name: "QmlJS" }
 
     Depends { name: "cpp" }
-    cpp.includePaths: [
-        ".",
+    cpp.includePaths: base.concat([
         "../../shared",
-        "../../shared/proparser",
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
+        "../../shared/proparser"
+    ])
 
     cpp.defines: base.concat([
         "QT_NO_CAST_FROM_ASCII",
@@ -108,7 +104,7 @@ QtcPlugin {
 
     ProductModule {
         Depends { name: "cpp" }
-        cpp.includePaths: [ "../../shared" ]
+        cpp.includePaths: "../../shared"
         cpp.defines: [
             "QMAKE_AS_LIBRARY",
             "PROEVALUATOR_THREAD_SAFE",

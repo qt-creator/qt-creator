@@ -30,12 +30,12 @@
 
 #include "qt4runconfiguration.h"
 
-#include "makestep.h"
-#include "qt4nodes.h"
-#include "qt4project.h"
-#include "qt4buildconfiguration.h"
-#include "qt4projectmanagerconstants.h"
-#include "qmakestep.h"
+#include "../makestep.h"
+#include "../qt4nodes.h"
+#include "../qt4project.h"
+#include "../qt4buildconfiguration.h"
+#include "../qt4projectmanagerconstants.h"
+#include "../qmakestep.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

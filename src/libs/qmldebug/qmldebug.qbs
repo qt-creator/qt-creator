@@ -4,10 +4,6 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "QmlDebug"
 
-    cpp.includePaths: [
-        ".",
-        ".."
-    ]
     cpp.defines: base.concat([
         "QMLDEBUG_LIB"
     ])
@@ -46,10 +42,5 @@ QtcLibrary {
         "qv8profilerclient.cpp",
         "qv8profilerclient.h",
     ]
-
-    ProductModule {
-        Depends { name: "cpp" }
-        cpp.includePaths: ["."]
-    }
 }
 

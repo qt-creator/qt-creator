@@ -29,6 +29,7 @@
 **************************************************************************/
 
 #include "crumblepath.h"
+#include "qtcassert.h"
 #include "stylehelper.h"
 
 #include <QList>
@@ -39,8 +40,6 @@
 #include <QResizeEvent>
 #include <QPainter>
 #include <QImage>
-
-#include <qtcassert.h>
 
 namespace Utils {
 

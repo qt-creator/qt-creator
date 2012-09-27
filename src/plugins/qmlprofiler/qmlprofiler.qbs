@@ -20,12 +20,7 @@ QtcPlugin {
     Depends { name: "CPlusPlus" }
 
     Depends { name: "cpp" }
-    cpp.includePaths: [
-        "canvas",
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
+    cpp.includePaths: base.concat("canvas")
 
     files: [
         "abstractqmlprofilerrunner.h",
@@ -87,4 +82,3 @@ QtcPlugin {
         "qml/qmlprofiler.qrc",
     ]
 }
-

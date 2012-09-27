@@ -4,12 +4,7 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "CPlusPlus"
 
-    cpp.includePaths: [
-        ".",
-        "..",
-        "../3rdparty/cplusplus",
-        "../../plugins"
-    ]
+    cpp.includePaths: base.concat("../3rdparty/cplusplus")
     cpp.defines: base.concat([
         "NDEBUG",
         "CPLUSPLUS_BUILD_LIB"
@@ -181,4 +176,3 @@ QtcLibrary {
         ]
     }
 }
-

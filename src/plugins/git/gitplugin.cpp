@@ -40,12 +40,12 @@
 #include "branchdialog.h"
 #include "remotedialog.h"
 #include "clonewizard.h"
-#include "gitoriousclonewizard.h"
+#include "gitorious/gitoriousclonewizard.h"
 #include "stashdialog.h"
 #include "settingspage.h"
 #include "resetdialog.h"
 
-#include <gerritplugin.h>
+#include "gerrit/gerritplugin.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>

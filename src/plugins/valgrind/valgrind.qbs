@@ -13,15 +13,6 @@ QtcPlugin {
     Depends { name: "RemoteLinux" }
     Depends { name: "CPlusPlus"}
 
-    Depends { name: "cpp" }
-    cpp.includePaths: [
-        ".",
-        "valgrind",
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
-
     files: [
         "callgrindcostdelegate.cpp",
         "callgrindcostdelegate.h",
@@ -118,4 +109,3 @@ QtcPlugin {
         "xmlprotocol/threadedparser.h",
     ]
 }
-

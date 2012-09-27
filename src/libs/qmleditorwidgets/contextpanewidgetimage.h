@@ -31,8 +31,8 @@
 #ifndef CONTEXTPANEWIDGETIMAGE_H
 #define CONTEXTPANEWIDGETIMAGE_H
 
-#include <qmleditorwidgets_global.h>
-#include <contextpanewidget.h>
+#include "qmleditorwidgets_global.h"
+#include "contextpanewidget.h"
 #include <qdrawutil.h>
 
 #include <QLabel>

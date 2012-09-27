@@ -4,10 +4,6 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "GLSL"
 
-    cpp.includePaths: [
-        ".",
-        ".."
-    ]
     cpp.defines: base.concat([
         "QT_CREATOR",
         "GLSL_BUILD_LIB"
@@ -47,10 +43,5 @@ QtcLibrary {
         "glsltypes.cpp",
         "glsltypes.h",
     ]
-
-    ProductModule {
-        Depends { name: "cpp" }
-        cpp.includePaths: ["."]
-    }
 }
 

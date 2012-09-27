@@ -29,7 +29,7 @@
 **************************************************************************/
 
 #include "desktopqtversion.h"
-#include "qt4projectmanagerconstants.h"
+#include "../qt4projectmanagerconstants.h"
 
 #include <qtsupport/qtsupportconstants.h>
 #include <proparser/profileevaluator.h>

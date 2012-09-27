@@ -13,11 +13,6 @@ QtcPlugin {
     Depends { name: "Qt.gui" }
 
     Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
     cpp.defines: base.concat(['QT_NO_CAST_TO_ASCII'])
 
     files: [

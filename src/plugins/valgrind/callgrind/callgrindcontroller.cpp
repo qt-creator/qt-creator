@@ -29,11 +29,10 @@
 **************************************************************************/
 
 #include "callgrindcontroller.h"
+#include "../valgrindprocess.h"
 
 #include <QDebug>
 #include <QDir>
-
-#include <valgrindprocess.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

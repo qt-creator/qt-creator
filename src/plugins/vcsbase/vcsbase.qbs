@@ -14,14 +14,6 @@ QtcPlugin {
     Depends { name: "CppTools" }
     Depends { name: "CPlusPlus" }
 
-    cpp.includePaths: [
-        ".",
-        "..",
-        "../../libs",
-        "../../libs/3rdparty",
-        buildDirectory
-    ]
-
     files: [
         "VcsBase.mimetypes.xml",
         "baseannotationhighlighter.cpp",
@@ -90,4 +82,3 @@ QtcPlugin {
         "images/submit.png",
     ]
 }
-

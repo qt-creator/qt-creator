@@ -12,12 +12,8 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        "../../libs/3rdparty",
-        buildDirectory
-    ]
+
+    cpp.includePaths: base.concat("../../libs/3rdparty")
 
     files: [
         "CppEditor.mimetypes.xml",
@@ -62,4 +58,3 @@ QtcPlugin {
         "cpptypehierarchy.h",
     ]
 }
-

@@ -8,14 +8,6 @@ QtcPlugin {
     Depends { name: "Qt"; submodules: ["widgets", "svg"] }
     Depends { name: "Core" }
 
-    Depends { name: "cpp" }
-    cpp.includePaths: [
-        ".",
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
-
     files: [
         "ImageViewer.mimetypes.xml",
         "imageview.cpp",
@@ -35,4 +27,3 @@ QtcPlugin {
         "imageviewertoolbar.ui",
     ]
 }
-

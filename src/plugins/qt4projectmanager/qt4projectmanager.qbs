@@ -17,22 +17,16 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     Depends { name: "cpp" }
-    cpp.defines: {
-        return base.concat([
-            "PROPARSER_AS_LIBRARY",
-            "PROPARSER_THREAD_SAFE",
-            "PROEVALUATOR_THREAD_SAFE",
-            "PROEVALUATOR_CUMULATIVE"
-        ])
-    }
-    cpp.includePaths: [
-        ".",
-        "..",
-        buildDirectory,
+    cpp.defines: base.concat([
+        "PROPARSER_AS_LIBRARY",
+        "PROPARSER_THREAD_SAFE",
+        "PROEVALUATOR_THREAD_SAFE",
+        "PROEVALUATOR_CUMULATIVE"
+    ])
+    cpp.includePaths: base.concat([
         "customwidgetwizard",
-        "../../libs",
         "../../shared",
-    ]
+    ])
 
     files: [
         "Qt4ProjectManager.mimetypes.xml",

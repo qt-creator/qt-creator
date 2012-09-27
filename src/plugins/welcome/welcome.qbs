@@ -10,13 +10,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
 
     Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        "../../../src/shared/scriptwrapper",
-        "../../Core/dynamiclibrary",
-        buildDirectory
-    ]
+    cpp.includePaths: base.concat("../../shared/scriptwrapper")
 
     files: [
         "welcome_global.h",
@@ -24,4 +18,3 @@ QtcPlugin {
         "welcomeplugin.h",
     ]
 }
-

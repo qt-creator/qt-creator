@@ -15,11 +15,6 @@ QtcPlugin {
 
     Depends { name: "cpp" }
     cpp.defines: base.concat(["QT_NO_CAST_FROM_ASCII"])
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
 
     files: [
         "constants.h",

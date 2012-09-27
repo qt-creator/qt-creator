@@ -13,11 +13,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
 
     Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
 
     files: [
         "classview.qrc",

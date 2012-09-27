@@ -4,12 +4,7 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "Aggregation"
 
-    cpp.includePaths: [
-        ".",
-        ".."
-    ]
     cpp.defines: base.concat("AGGREGATION_LIBRARY")
-
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
 

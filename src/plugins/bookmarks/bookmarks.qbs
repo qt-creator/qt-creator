@@ -13,11 +13,6 @@ QtcPlugin {
     Depends { name: "Locator" }
 
     Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
 
     files: [
         "bookmark.cpp",

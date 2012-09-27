@@ -31,7 +31,7 @@
 #ifndef COLORBUTTON_H
 #define COLORBUTTON_H
 
-#include <qmleditorwidgets_global.h>
+#include "qmleditorwidgets_global.h"
 #include <QToolButton>
 #include <qdeclarative.h>
 

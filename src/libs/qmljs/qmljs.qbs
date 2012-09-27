@@ -4,11 +4,7 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "QmlJS"
 
-    cpp.includePaths: [
-        ".",
-        "..",
-        "parser"
-    ]
+    cpp.includePaths: base.concat("parser")
     cpp.defines: base.concat([
         "QMLJS_BUILD_DIR",
         "QT_CREATOR"
@@ -105,10 +101,6 @@ QtcLibrary {
     ProductModule {
         Depends { name: "cpp" }
         Depends { name: "LanguageUtils" }
-        cpp.includePaths: [
-            ".",
-            "parser"
-        ]
         cpp.defines: [
             "QT_CREATOR"
         ]

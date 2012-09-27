@@ -34,10 +34,10 @@
 #include "gerritmodel.h"
 #include "gerritoptionspage.h"
 
-#include <gitplugin.h>
-#include <gitclient.h>
-#include <gitversioncontrol.h>
-#include <gitconstants.h>
+#include "../gitplugin.h"
+#include "../gitclient.h"
+#include "../gitversioncontrol.h"
+#include "../gitconstants.h"
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
 

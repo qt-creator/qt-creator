@@ -12,13 +12,6 @@ QtcPlugin {
     Depends { name: "Locator" }
     Depends { name: "TextEditor" }
 
-    Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
-
     files: [
         "TaskList.mimetypes.xml",
         "stopmonitoringhandler.cpp",

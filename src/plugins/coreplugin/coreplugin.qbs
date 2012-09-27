@@ -15,18 +15,15 @@ QtcPlugin {
     Depends { name: "Aggregation" }
     Depends { name: "app_version_header" }
 
-    cpp.includePaths: [
-        ".",
-        "..",
+    cpp.includePaths: base.concat([
         "../..",
-        "../../libs",
-        "../../../src/shared/scriptwrapper/",
+        "../../shared/scriptwrapper",
         "dialogs",
         "editormanager",
         "progressmanager",
         "scriptmanager",
         "actionmanager"
-    ]
+    ])
 
     cpp.dynamicLibraries: {
         if (qbs.targetOS == "windows") return [
@@ -257,11 +254,5 @@ QtcPlugin {
         Depends { name: "Aggregation" }
         Depends { name: "ExtensionSystem" }
         Depends { name: "Utils" }
-        cpp.includePaths: [
-            "../..",
-            "../../libs",
-            product.buildDirectory + "/.obj/Core/actionmanager"
-        ]
     }
 }
-

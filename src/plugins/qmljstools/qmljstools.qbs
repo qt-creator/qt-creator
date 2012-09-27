@@ -19,12 +19,7 @@ QtcPlugin {
 
     Depends { name: "cpp" }
     cpp.defines: base.concat(["QT_NO_CAST_TO_ASCII"])
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        "../../libs/3rdparty",
-        buildDirectory
-    ]
+    cpp.includePaths: base.concat("../../libs/3rdparty")
 
     files: [
         "qmljscodestylepreferencesfactory.cpp",
@@ -70,4 +65,3 @@ QtcPlugin {
         Depends { name: "QmlDebug" }
     }
 }
-

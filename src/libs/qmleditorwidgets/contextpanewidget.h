@@ -31,7 +31,7 @@
 #ifndef CONTEXTPANEWIDGET_H
 #define CONTEXTPANEWIDGET_H
 
-#include <qmleditorwidgets_global.h>
+#include "qmleditorwidgets_global.h"
 #include <QFrame>
 #include <QPointer>
 

@@ -31,7 +31,7 @@
 #ifndef COLORWIDGET_H
 #define COLORWIDGET_H
 
-#include <qmleditorwidgets_global.h>
+#include "qmleditorwidgets_global.h"
 
 namespace QmlEditorWidgets {
 

@@ -11,11 +11,6 @@ QtcPlugin {
     Depends { name: "Find" }
 
     Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
 
     files: [
         "bineditor.cpp",

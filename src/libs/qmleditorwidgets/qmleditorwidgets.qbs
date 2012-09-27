@@ -4,11 +4,7 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "QmlEditorWidgets"
 
-    cpp.includePaths: [
-        ".",
-        "..",
-        "easingpane"
-    ]
+    cpp.includePaths: base.concat("easingpane")
     cpp.defines: base.concat([
         "QWEAKPOINTER_ENABLE_ARROW",
         "BUILD_QMLEDITORWIDGETS_LIB",
@@ -59,10 +55,5 @@ QtcLibrary {
         "easingpane/easinggraph.h",
         "easingpane/easingpane.qrc",
     ]
-
-    ProductModule {
-        Depends { name: "cpp" }
-        cpp.includePaths: ["."]
-    }
 }
 

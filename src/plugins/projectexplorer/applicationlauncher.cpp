@@ -29,13 +29,13 @@
 **************************************************************************/
 
 #include "applicationlauncher.h"
-#include "consoleprocess.h"
 #ifdef Q_OS_WIN
 #include "windebuginterface.h"
 #endif
 
 #include <coreplugin/icore.h>
 
+#include <utils/consoleprocess.h>
 #include <utils/qtcprocess.h>
 #ifdef Q_OS_WIN
 #include <utils/winutils.h>

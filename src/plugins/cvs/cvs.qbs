@@ -12,13 +12,6 @@ QtcPlugin {
     Depends { name: "VcsBase" }
     Depends { name: "Locator" }
 
-    Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
-
     files: [
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",

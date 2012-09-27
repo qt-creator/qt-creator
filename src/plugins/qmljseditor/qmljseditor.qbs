@@ -18,12 +18,6 @@ QtcPlugin {
 
     Depends { name: "cpp" }
     cpp.defines: base.concat(["QT_CREATOR"])
-    cpp.includePaths: [
-        ".",
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
 
     files: [
         "QmlJSEditor.mimetypes.xml",
@@ -98,4 +92,3 @@ QtcPlugin {
         Depends { name: "QmlJSTools" }
     }
 }
-

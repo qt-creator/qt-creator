@@ -26,13 +26,7 @@ QtcPlugin {
         cpp.defines: base.concat(["QT_NO_WEBKIT"])
     }
     cpp.defines: base.concat(["QT_CLUCENE_SUPPORT"])
-    cpp.includePaths: [
-        "../../shared/help",
-        ".",
-        "..",
-        "../..",
-        "../../libs"
-    ]
+    cpp.includePaths: base.concat("../../shared/help")
 
     files: [
         "centralwidget.cpp",
@@ -96,4 +90,3 @@ QtcPlugin {
         "../../shared/help/topicchooser.ui",
     ]
 }
-

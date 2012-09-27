@@ -12,13 +12,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "app_version_header" }
 
-    Depends { name: "cpp" }
-    cpp.includePaths: [
-        "..",
-        "../../libs",
-        "../.."
-    ]
-
     files: [
         "actionmacrohandler.cpp",
         "actionmacrohandler.h",
@@ -53,4 +46,3 @@ QtcPlugin {
         "texteditormacrohandler.h",
     ]
 }
-

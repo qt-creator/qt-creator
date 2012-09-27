@@ -31,8 +31,8 @@
 #ifndef HIGHLIGHTER_H
 #define HIGHLIGHTER_H
 
-#include "basetextdocumentlayout.h"
-#include "syntaxhighlighter.h"
+#include "../basetextdocumentlayout.h"
+#include "../syntaxhighlighter.h"
 
 #include <QString>
 #include <QVector>

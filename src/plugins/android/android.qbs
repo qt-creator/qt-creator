@@ -15,12 +15,7 @@ QtcPlugin {
     property bool enable: false
     property var pluginspecreplacements: ({"ANDROID_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
-    cpp.includePaths: [
-        "..",
-        buildDirectory,
-        "../../libs",
-        "../../shared"
-    ]
+    cpp.includePaths: base.concat("../../shared")
 
     files: [
         "addnewavddialog.ui",

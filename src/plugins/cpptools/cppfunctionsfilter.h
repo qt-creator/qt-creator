@@ -31,7 +31,7 @@
 #ifndef CPPFUNCTIONSFILTER_H
 #define CPPFUNCTIONSFILTER_H
 
-#include <cpplocatorfilter.h>
+#include "cpplocatorfilter.h"
 
 namespace CppTools {
 namespace Internal {

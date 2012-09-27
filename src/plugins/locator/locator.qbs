@@ -9,16 +9,12 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "cpp" }
 
-    cpp.includePaths: [
-        ".",
-        "..",
+    cpp.includePaths: base.concat([
         "generichighlighter",
         "tooltip",
         "snippets",
-        "codeassist",
-        "../../libs",
-        buildDirectory
-    ]
+        "codeassist"
+    ])
 
     files: [
         "basefilefilter.cpp",
@@ -55,4 +51,3 @@ QtcPlugin {
         "images/reload.png",
     ]
 }
-

@@ -5,12 +5,6 @@ QtcLibrary {
     name: "QtcSsh"
 
     cpp.defines: base.concat(["QSSH_LIBRARY"])
-    cpp.includePaths: [
-        ".",
-        "..",
-        "../..",
-        buildDirectory
-    ]
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "network" ] }
@@ -50,8 +44,6 @@ QtcLibrary {
     ]
 
     ProductModule {
-        Depends { name: "cpp" }
         Depends { name: "Qt"; submodules: ["widgets", "network"] }
-        cpp.includePaths: [".."]
     }
 }

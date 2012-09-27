@@ -30,8 +30,8 @@
 
 #include "checkoutjobs.h"
 
-#include <vcsbaseplugin.h>
-#include <vcsbaseoutputwindow.h>
+#include "vcsbaseplugin.h"
+#include "vcsbaseoutputwindow.h"
 
 #include <QDebug>
 #include <QQueue>

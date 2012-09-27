@@ -5,12 +5,6 @@ QtcLibrary {
     name: "Utils"
 
     cpp.defines: base.concat(["QTCREATOR_UTILS_LIB"])
-    cpp.includePaths: [
-        ".",
-        "..",
-        "../..",
-        buildDirectory
-    ]
 
     Properties {
         condition: qbs.targetOS == "windows"
@@ -213,9 +207,7 @@ QtcLibrary {
     }
 
     ProductModule {
-        Depends { name: "cpp" }
         Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
-        cpp.includePaths: [".."]
     }
 }
 

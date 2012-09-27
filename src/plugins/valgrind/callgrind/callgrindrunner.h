@@ -31,7 +31,7 @@
 #ifndef VALGRIND_CALLGRIND_CALLGRINDRUNNER_H
 #define VALGRIND_CALLGRIND_CALLGRINDRUNNER_H
 
-#include <valgrindrunner.h>
+#include "../valgrindrunner.h"
 
 #include "callgrindcontroller.h"
 

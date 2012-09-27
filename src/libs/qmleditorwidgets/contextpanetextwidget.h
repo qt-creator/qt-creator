@@ -31,7 +31,7 @@
 #ifndef CONTEXTPANETEXTWIDGET_H
 #define CONTEXTPANETEXTWIDGET_H
 
-#include <qmleditorwidgets_global.h>
+#include "qmleditorwidgets_global.h"
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE

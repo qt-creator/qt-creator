@@ -1,4 +1,5 @@
 import qbs.base 1.0
+
 import "../QtcPlugin.qbs" as QtcPlugin
 import "../../../qbs/defaults.js" as Defaults
 
@@ -14,15 +15,10 @@ QtcPlugin {
 
     Depends { name: "cpp" }
     cpp.defines: base.concat(["QTC_CPU=X86Architecture"])
-    cpp.includePaths: [
-        ".",
-        "..",
-        "../../libs",
-        "../../libs/utils",
+    cpp.includePaths: base.concat([
         "customwizard",
-        "publishing",
-        buildDirectory
-    ]
+        "publishing"
+    ])
 
     files: [
         "abi.cpp",
@@ -342,8 +338,6 @@ QtcPlugin {
     }
 
     ProductModule {
-        Depends { name: "cpp" }
-        Depends { name: "Qt"; submodules: ["network"] }
-        cpp.includePaths: [".."]
+        Depends { name: "Qt.network" }
     }
 }

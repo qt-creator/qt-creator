@@ -4,10 +4,6 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "ExtensionSystem"
 
-    cpp.includePaths: [
-        ".",
-        ".."
-    ]
     cpp.defines: base.concat([
         "EXTENSIONSYSTEM_LIBRARY",
         "IDE_TEST_DIR=\".\""

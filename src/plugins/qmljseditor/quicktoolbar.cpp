@@ -29,10 +29,11 @@
 **************************************************************************/
 
 #include "quicktoolbar.h"
-#include <contextpanewidget.h>
-#include <quicktoolbarsettingspage.h>
+#include "quicktoolbarsettingspage.h"
 
 #include <utils/changeset.h>
+#include <qmleditorwidgets/contextpanewidget.h>
+#include <qmleditorwidgets/customcolordialog.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljspropertyreader.h>
@@ -46,7 +47,6 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/tabsettings.h>
 #include <coreplugin/icore.h>
-#include <customcolordialog.h>
 
 #include <QDebug>
 

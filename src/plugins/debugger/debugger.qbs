@@ -20,17 +20,12 @@ QtcPlugin {
     Depends { name: "QtcSsh" }
 
     Depends { name: "cpp" }
-    cpp.includePaths: [
-        ".",
+    cpp.includePaths: base.concat([
         "shared",
         "lldb",
-        "..",
-        "../../libs",
         "../../shared/json",
-        buildDirectory,
-        "../../libs/utils",
-        "../../shared/registryaccess/"
-    ]
+        "../../shared/registryaccess"
+    ])
 
     Group {
         condition: Defaults.testsEnabled(qbs)

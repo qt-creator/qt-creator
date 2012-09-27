@@ -32,7 +32,7 @@
 #ifndef FILEWIDGET_H
 #define FILEWIDGET_H
 
-#include <qmleditorwidgets_global.h>
+#include "qmleditorwidgets_global.h"
 
 #include <QWidget>
 

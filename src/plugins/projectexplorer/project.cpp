@@ -33,7 +33,6 @@
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
 #include "editorconfiguration.h"
-#include "environment.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectnodes.h"
@@ -49,6 +48,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <limits>
 #include <utils/qtcassert.h>
+#include <utils/environment.h>
 
 /*!
     \class ProjectExplorer::Project

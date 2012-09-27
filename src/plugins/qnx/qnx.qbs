@@ -18,12 +18,7 @@ QtcPlugin {
     property var pluginspecreplacements: ({"QNX_EXPERIMENTAL_STR": (enable ? "false" : "true")})
 
     cpp.defines: base.concat(["QT_NO_CAST_TO_ASCII", "QT_NO_CAST_FROM_ASCII"])
-    cpp.includePaths: [
-        "..",
-        buildDirectory,
-        "../../libs",
-        "../../shared"
-    ]
+    cpp.includePaths: base.concat("../../shared")
 
     files: [
         "bardescriptorfileimagewizardpage.cpp",

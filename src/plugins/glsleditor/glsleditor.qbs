@@ -13,14 +13,6 @@ QtcPlugin {
     Depends { name: "GLSL" }
     Depends { name: "CPlusPlus" }
 
-    Depends { name: "cpp" }
-    cpp.includePaths: [
-        "../..",
-        "..",
-        "../../libs",
-        buildDirectory
-    ]
-
     files: [
         "GLSLEditor.mimetypes.xml",
         "glslautocompleter.cpp",
@@ -52,4 +44,3 @@ QtcPlugin {
         "reuse.h",
     ]
 }
-
