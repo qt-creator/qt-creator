@@ -177,10 +177,6 @@ QtVersionManager *QtVersionManager::instance()
 
 bool QtVersionManager::restoreQtVersions()
 {
-    QTC_ASSERT(!m_writer, return false);
-    m_writer = new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(QTVERSION_FILENAME)),
-                                                   QLatin1String("QtCreatorQtVersions"));
-
     QList<QtVersionFactory *> factories = ExtensionSystem::PluginManager::getObjects<QtVersionFactory>();
 
     Utils::PersistentSettingsReader reader;
@@ -366,7 +362,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
 void QtVersionManager::saveQtVersions()
 {
     if (!m_writer)
-        return;
+        m_writer = new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(QTVERSION_FILENAME)),
+                                                       QLatin1String("QtCreatorQtVersions"));
 
     QVariantMap data;
     data.insert(QLatin1String(QTVERSION_FILE_VERSION_KEY), 1);
