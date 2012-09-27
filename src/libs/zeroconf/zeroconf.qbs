@@ -8,6 +8,8 @@ QtcLibrary {
     Depends { name: "Qt.network" }
 
     cpp.includePaths: "."
+    cpp.defines: base.concat("ZEROCONF_LIBRARY")
+
     Properties {
         condition: qbs.targetOS == "windows"
         cpp.dynamicLibraries:  "ws2_32"
