@@ -28,7 +28,7 @@
 **
 **************************************************************************/
 
-import Qt 4.7
+import QtQuick 1.0
 import Bauhaus 1.0
 
 QWidget { //This is a special spinBox that does color coding for states
