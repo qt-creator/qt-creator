@@ -38,6 +38,7 @@
 #include "qmlstatenodeinstance.h"
 #include "anchorchangesnodeinstance.h"
 
+
 #include "quickitemnodeinstance.h"
 
 #include "nodeinstanceserver.h"
@@ -50,6 +51,7 @@
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QQuickItem>
 #endif
+#include <private/qqmlengine_p.h>
 
 #include <QQmlEngine>
 
@@ -225,6 +227,8 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
 #else
         object = Internal::ObjectNodeInstance::createPrimitive("QtQuick/Item", 1, 0, nodeInstanceServer->context());
 #endif
+
+    QQmlEnginePrivate::get(nodeInstanceServer->engine())->cache(object->metaObject());
 
     ServerNodeInstance instance(createInstance(object));
 

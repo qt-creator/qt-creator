@@ -54,6 +54,7 @@
 #include <private/qquicktransition_p.h>
 #include <private/qquickanimation_p.h>
 #include <private/qquicktimer_p.h>
+#include <private/qqmlengine_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -131,11 +132,13 @@ void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Poi
 {
     const QMetaObject *metaObject = objectNodeInstance->object()->metaObject();
     m_metaObject = new NodeInstanceMetaObject(objectNodeInstance, nodeInstanceServer()->engine());
+    QQmlEnginePrivate::get(engine())->cache(m_metaObject);
     for (int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
         if (QQmlMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
             QObject *propertyObject = QQmlMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
             if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
-                new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name(), nodeInstanceServer()->engine());
+                QMetaObject *childMetaObject = new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name(), nodeInstanceServer()->engine());
+                QQmlEnginePrivate::get(engine())->cache(childMetaObject);
             }
         }
     }
