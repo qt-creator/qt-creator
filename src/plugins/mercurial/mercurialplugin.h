@@ -39,7 +39,6 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QTemporaryFile;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -132,7 +131,6 @@ private:
     void createRepositoryActions(const Core::Context &context);
     void createRepositoryManagementActions(const Core::Context &context);
     void createLessUsedActions(const Core::Context &context);
-    void deleteCommitLog();
 
     // Variables
     static MercurialPlugin *m_instance;
@@ -145,7 +143,6 @@ private:
     Core::ActionContainer *mercurialContainer;
 
     QList<QAction *> m_repositoryActionList;
-    QTemporaryFile *changeLog;
 
     // Menu items (file actions)
     Utils::ParameterAction *m_addAction;
@@ -166,6 +163,8 @@ private:
     QAction *m_menuAction;
 
     QString m_submitRepository;
+
+    bool m_submitActionTriggered;
 };
 
 } // namespace Internal

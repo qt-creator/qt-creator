@@ -3530,7 +3530,10 @@ void DebuggerPluginPrivate::testPythonDumpers1()
 {
     m_testSuccess = true;
     QString proFile = ICore::resourcePath()
-        + QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
+#ifndef Q_OS_MAC
+        + QLatin1String("/../..")
+#endif
+        + QLatin1String("/tests/manual/debugger/simple/simple.pro");
     testLoadProject(proFile, TestCallBack(this,  "testPythonDumpers2"));
     QVERIFY(m_testSuccess);
     QTestEventLoop::instance().enterLoop(20);

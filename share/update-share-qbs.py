@@ -28,22 +28,24 @@ writeln("")
 writeln("Product {")
 writeln("    type: [\"installed_content\"]")
 writeln("    name: \"SharedContent\"")
+writeln("")
+writeln("    Group {")
+writeln("        condition: qbs.targetOS == \"macx\"")
+writeln("        qbs.installDir: \"share/qtcreator/scripts\"")
+writeln("        fileTags: [\"install\"]")
+writeln("        files: \"qtcreator/scripts/openTerminal.command\"")
+writeln("    }")
+
 filenamedict = {}
 blacklist = [
     scriptFileName,
     "static.pro", "share.pro", "share.qbs",
-    "qtcreator_cs.ts",
-    "qtcreator_de.ts",
-    "qtcreator_es.ts",
-    "qtcreator_fr.ts",
-    "qtcreator_hu.ts",
-    "qtcreator_it.ts",
-    "qtcreator_ja.ts",
-    "qtcreator_pl.ts",
-    "qtcreator_ru.ts",
-    "qtcreator_sl.ts",
-    "qtcreator_uk.ts",
-    "qtcreator_zh_CN.ts"]
+    "Info.plist.in"
+]
+blacklistdirs = [
+    "qtcreator/translations",
+    "qtcreator/scripts"
+]
 for root, dirs, files in os.walk("."):
     try:
         dirs.remove('.moc')
@@ -53,6 +55,10 @@ for root, dirs, files in os.walk("."):
     except: pass
 
     root = root.replace('\\', '/')
+    if root.startswith("./"):
+        root = path.normpath(root[2:])
+    if root in blacklistdirs:
+        continue
     for file in files:
         if not (file in blacklist):
             if not root in filenamedict:
@@ -61,9 +67,7 @@ for root, dirs, files in os.walk("."):
                 filenamedict[root].append(file)
 
 for directory in sorted(filenamedict.iterkeys()):
-    prefix = directory.replace('\\', '/')
-    if prefix.startswith("./"):
-        prefix = path.normpath(prefix[2:])
+    prefix = directory
     if not prefix.endswith("/"):
         prefix += "/"
     normalizedDirectory = path.normpath(directory.replace('\\', '/'))

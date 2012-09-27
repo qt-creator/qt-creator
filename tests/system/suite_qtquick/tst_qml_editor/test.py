@@ -7,7 +7,8 @@ searchFinished = False
 def main():
     global workingDir,templateDir
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/keyinteraction/focus")
-    if not neededFilePresent(sourceExample):
+    qmlFile = os.path.join("qml", "focus.qml")
+    if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
         return
     startApplication("qtcreator" + SettingsPath)
     # add docs to have the correct tool tips
@@ -17,7 +18,7 @@ def main():
     templateDir = prepareTemplate(sourceExample)
     prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     installLazySignalHandler("{type='Core::FutureProgress' unnamed='1'}", "finished()", "__handleFutureProgress__")
-    createNewQtQuickApplication(workingDir, "untitled", templateDir + "/qml/focus.qml")
+    createNewQtQuickApplication(workingDir, "untitled", os.path.join(templateDir, qmlFile))
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     testRenameId()

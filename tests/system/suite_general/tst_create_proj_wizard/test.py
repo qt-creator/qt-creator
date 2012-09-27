@@ -5,7 +5,8 @@ import re
 def main():
     global templateDir, textChanged
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/text/textselection")
-    if not neededFilePresent(sourceExample):
+    qmlFile = os.path.join("qml", "textselection.qml")
+    if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
         return
     templateDir = prepareTemplate(sourceExample)
     startApplication("qtcreator" + SettingsPath)
@@ -65,13 +66,12 @@ def main():
             try:
                 waitForObject("{text='Select Existing QML file' type='QLabel' visible='1'}", 1000)
                 baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}", 20000)
-                type(baseLineEd, templateDir + "/qml/textselection.qml")
+                type(baseLineEd, os.path.join(templateDir, qmlFile))
                 clickButton(waitForObject(":Next_QPushButton"))
             except LookupError:
                 pass
         waitForObject("{type='QLabel' unnamed='1' visible='1' text='Kit Selection'}")
         availableCheckboxes = filter(visibleCheckBoxExists, kits.keys())
-        JIRA.performWorkaroundIfStillOpen(6994, JIRA.Bug.CREATOR, template, displayedPlatforms)
         # verification whether expected, found and configured match
         for t in kits:
             if requiredVersion:

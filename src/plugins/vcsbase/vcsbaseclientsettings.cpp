@@ -31,6 +31,8 @@
 #include "vcsbaseclientsettings.h"
 
 #include <utils/environment.h>
+#include <utils/hostosinfo.h>
+#include <utils/synchronousprocess.h>
 
 #include <QSettings>
 
@@ -175,7 +177,7 @@ public:
     QHash<QString, SettingValue> m_valueHash;
     QVariantHash m_defaultValueHash;
     QString m_settingsGroup;
-    QString m_binaryFullPath;
+    mutable QString m_binaryFullPath;
 };
 
 } // namespace Internal
@@ -194,6 +196,7 @@ const QLatin1String VcsBaseClientSettings::userEmailKey("UserEmail");
 const QLatin1String VcsBaseClientSettings::logCountKey("LogCount");
 const QLatin1String VcsBaseClientSettings::promptOnSubmitKey("PromptOnSubmit");
 const QLatin1String VcsBaseClientSettings::timeoutKey("Timeout");
+const QLatin1String VcsBaseClientSettings::pathKey("Path");
 
 VcsBaseClientSettings::VcsBaseClientSettings() :
     d(new Internal::VcsBaseClientSettingsPrivate)
@@ -204,6 +207,7 @@ VcsBaseClientSettings::VcsBaseClientSettings() :
     declareKey(logCountKey, 100);
     declareKey(promptOnSubmitKey, true);
     declareKey(timeoutKey, 30);
+    declareKey(pathKey, QString());
 }
 
 VcsBaseClientSettings::VcsBaseClientSettings(const VcsBaseClientSettings &other) :
@@ -332,8 +336,7 @@ void VcsBaseClientSettings::setValue(const QString &key, const QVariant &v)
 {
     if (SettingValue::isUsableVariantType(valueType(key))) {
         d->m_valueHash.insert(key, SettingValue(v));
-        if (key == binaryPathKey)
-            d->m_binaryFullPath = Utils::Environment::systemEnvironment().searchInPath(v.toString());
+        d->m_binaryFullPath.clear();
     }
 }
 
@@ -346,6 +349,11 @@ QVariant::Type VcsBaseClientSettings::valueType(const QString &key) const
 
 QString VcsBaseClientSettings::binaryPath() const
 {
+    if (d->m_binaryFullPath.isEmpty()) {
+        d->m_binaryFullPath = Utils::Environment::systemEnvironment().searchInPath(
+                    stringValue(binaryPathKey), stringValue(pathKey).split(
+                        Utils::HostOsInfo::pathListSeparator()));
+    }
     return d->m_binaryFullPath;
 }
 

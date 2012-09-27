@@ -68,8 +68,6 @@
 #include <QDir>
 #include <QDialog>
 #include <QFileDialog>
-#include <QTemporaryFile>
-
 
 using namespace Mercurial::Internal;
 using namespace Mercurial;
@@ -122,11 +120,11 @@ MercurialPlugin::MercurialPlugin() :
         m_client(0),
         core(0),
         m_commandLocator(0),
-        changeLog(0),
         m_addAction(0),
         m_deleteAction(0),
         m_createRepositoryAction(0),
-        m_menuAction(0)
+        m_menuAction(0),
+        m_submitActionTriggered(false)
 {
     m_instance = this;
 }
@@ -137,8 +135,6 @@ MercurialPlugin::~MercurialPlugin()
         delete m_client;
         m_client = 0;
     }
-
-    deleteCommitLog();
 
     m_instance = 0;
 }
@@ -553,7 +549,6 @@ void MercurialPlugin::commit()
 
 void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &status)
 {
-
     VcsBaseOutputWindow *outputWindow = VcsBaseOutputWindow::instance();
     //Once we receive our data release the connection so it can be reused elsewhere
     disconnect(m_client, SIGNAL(parsedStatus(QList<VcsBase::VcsBaseClient::StatusItem>)),
@@ -564,20 +559,16 @@ void MercurialPlugin::showCommitWidget(const QList<VcsBaseClient::StatusItem> &s
         return;
     }
 
-    deleteCommitLog();
-
-    // Open commit log
-    QString changeLogPattern = QDir::tempPath();
-    if (!changeLogPattern.endsWith(QLatin1Char('/')))
-        changeLogPattern += QLatin1Char('/');
-    changeLogPattern += QLatin1String("qtcreator-hg-XXXXXX.msg");
-    changeLog = new QTemporaryFile(changeLogPattern,  this);
-    if (!changeLog->open()) {
-        outputWindow->appendError(tr("Unable to generate a temporary file for the commit editor."));
+    // Start new temp file
+    Utils::TempFileSaver saver;
+    // Keep the file alive, else it removes self and forgets its name
+    saver.setAutoRemove(false);
+    if (!saver.finalize()) {
+        VcsBase::VcsBaseOutputWindow::instance()->append(saver.errorString());
         return;
     }
 
-    Core::IEditor *editor = Core::EditorManager::openEditor(changeLog->fileName(),
+    Core::IEditor *editor = Core::EditorManager::openEditor(saver.fileName(),
                                                             Constants::COMMIT_ID,
                                                             Core::EditorManager::ModeSwitch);
     if (!editor) {
@@ -610,17 +601,13 @@ void MercurialPlugin::diffFromEditorSelected(const QStringList &files)
 
 void MercurialPlugin::commitFromEditor()
 {
-    if (!changeLog)
-        return;
-
-    //use the same functionality than if the user closes the file without completing the commit
-    core->editorManager()->closeEditors(core->editorManager()->editorsForFileName(changeLog->fileName()));
+    // Close the submit editor
+    m_submitActionTriggered = true;
+    Core::ICore::editorManager()->closeEditor();
 }
 
 bool MercurialPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor)
 {
-    if (!changeLog)
-        return true;
     Core::IDocument *editorFile = submitEditor->document();
     CommitEditor *commitEditor = qobject_cast<CommitEditor *>(submitEditor);
     if (!editorFile || !commitEditor)
@@ -630,13 +617,13 @@ bool MercurialPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor
     const VcsBaseSubmitEditor::PromptSubmitResult response =
             commitEditor->promptSubmit(tr("Close Commit Editor"), tr("Do you want to commit the changes?"),
                                        tr("Message check failed. Do you want to proceed?"),
-                                       &dummyPrompt, dummyPrompt);
+                                       &dummyPrompt, !m_submitActionTriggered);
+    m_submitActionTriggered = false;
 
     switch (response) {
     case VcsBaseSubmitEditor::SubmitCanceled:
         return false;
     case VcsBaseSubmitEditor::SubmitDiscarded:
-        deleteCommitLog();
         return true;
     default:
         break;
@@ -655,14 +642,6 @@ bool MercurialPlugin::submitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor
                          extraOptions);
     }
     return true;
-}
-
-void MercurialPlugin::deleteCommitLog()
-{
-    if (changeLog) {
-        delete changeLog;
-        changeLog = 0;
-    }
 }
 
 void MercurialPlugin::createRepositoryManagementActions(const Core::Context &context)

@@ -41,6 +41,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtparser.h>
 #include <coreplugin/variablemanager.h>
 #include <utils/stringutils.h>
 #include <utils/qtcassert.h>
@@ -128,6 +130,9 @@ bool GenericMakeStep::init()
     setIgnoreReturnValue(m_clean);
 
     setOutputParser(new GnuMakeParser());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (version)
+        appendOutputParser(new QtSupport::QtParser);
     if (tc)
         appendOutputParser(tc->outputParser());
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());

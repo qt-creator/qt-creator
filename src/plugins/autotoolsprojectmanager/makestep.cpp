@@ -44,6 +44,8 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtparser.h>
 #include <utils/qtcprocess.h>
 
 #include <QVariantMap>
@@ -193,6 +195,9 @@ bool MakeStep::init()
     pp->setArguments(arguments);
 
     setOutputParser(new GnuMakeParser());
+    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
+    if (version)
+        appendOutputParser(new QtSupport::QtParser);
     if (tc)
         appendOutputParser(tc->outputParser());
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());

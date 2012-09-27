@@ -161,9 +161,10 @@ include(namedemangler/namedemangler.pri)
 include(shared/shared.pri)
 
 equals(TEST, 1):!isEmpty(copydata) {
-    TEST_DIR = ../../../tests/manual/debugger/simple
-    INPUT_FILE = $$PWD/$$TEST_DIR/simple.pro
-    OUTPUT_DIR = $$OUT_PWD/$$TEST_DIR
+    TEST_DIR = tests/manual/debugger/simple
+    INPUT_FILE = $$IDE_SOURCE_TREE/$$TEST_DIR/simple.pro
+    macx: OUTPUT_DIR = $$IDE_DATA_PATH/$$TEST_DIR
+    else: OUTPUT_DIR = $$IDE_BUILD_TREE/$$TEST_DIR
     win32 {
         INPUT_FILE ~= s,/,\\\\,g
         OUTPUT_DIR ~= s,/,\\\\,g
@@ -171,8 +172,8 @@ equals(TEST, 1):!isEmpty(copydata) {
         isEmpty(QMAKE_CHK_EXISTS_GLUE):QMAKE_CHK_EXISTS_GLUE  = "|| "
     }
     testfile.target = test_resources
-    testfile.commands = ($$QMAKE_CHK_DIR_EXISTS $$OUTPUT_DIR $$QMAKE_CHK_EXISTS_GLUE $$QMAKE_MKDIR $$OUTPUT_DIR) \
-        && $$QMAKE_COPY $$INPUT_FILE $$OUTPUT_DIR
+    testfile.commands = ($$QMAKE_CHK_DIR_EXISTS \"$$OUTPUT_DIR\" $$QMAKE_CHK_EXISTS_GLUE $$QMAKE_MKDIR \"$$OUTPUT_DIR\") \
+        && $$QMAKE_COPY \"$$INPUT_FILE\" \"$$OUTPUT_DIR\"
     QMAKE_EXTRA_TARGETS += testfile
     PRE_TARGETDEPS += $$testfile.target
 }

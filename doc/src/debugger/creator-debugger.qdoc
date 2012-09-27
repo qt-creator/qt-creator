@@ -68,16 +68,11 @@
         \o  \l{Debugging Qt Quick Projects}
 
             When debugging a Qt Quick application, you can inspect the state
-            of the
-            application while debugging JavaScript functions. You can set
+            of the application while debugging JavaScript functions. You can set
             breakpoints, view call stack trace, and examine locals and
-            expressions. When the application is interrupted by a breakpoint,
-            you can use the QML Script Console to execute JavaScript expressions
-            in the current context.
-
-            While the application is running, you can use the QML Inspector
-            view to explore the object structure, debug animations, and
-            inspect colors.
+            expressions. While the application is running, you can inspect QML
+            objects and user interfaces, as well as execute JavaScript
+            expressions.
 
         \o  \l{Debugging a C++ Example Application}
 

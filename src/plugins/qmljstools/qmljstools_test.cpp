@@ -80,10 +80,6 @@ void QmlJSTools::Internal::QmlJSToolsPlugin::test_basic()
     QVERIFY(ovItem);
     QCOMPARE(ovItem->className(), QString("Item"));
     QCOMPARE(context->imports(doc.data())->info("Item", context.data()).name(), QString("QtQuick"));
-    const ObjectValue *ovTabWidget = context->lookupType(doc.data(), QStringList() << "TabWidget");
-    QVERIFY(ovTabWidget);
-    QCOMPARE(ovTabWidget->className(), QString("TabWidget"));
-    QCOMPARE(ovTabWidget->prototype(context)->className(), QString("Item"));
 
     const ObjectValue *ovProperty = context->lookupType(doc.data(), QStringList() << "Item" << "states");
     QVERIFY(ovProperty);

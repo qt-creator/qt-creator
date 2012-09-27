@@ -35,6 +35,7 @@
 #include <QMetaType>
 #include <QVector>
 #include <QString>
+#include <QDataStream>
 
 namespace QmlDesigner {
 

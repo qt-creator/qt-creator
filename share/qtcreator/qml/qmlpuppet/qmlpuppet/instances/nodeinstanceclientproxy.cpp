@@ -168,7 +168,6 @@ void NodeInstanceClientProxy::readDataStream()
         QDataStream in(m_socket);
         in.setVersion(QDataStream::Qt_4_8);
 
-
         if (m_blockSize == 0) {
             in >> m_blockSize;
         }

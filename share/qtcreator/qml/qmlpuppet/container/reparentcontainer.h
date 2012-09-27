@@ -33,6 +33,7 @@
 
 #include <qmetatype.h>
 #include <QString>
+#include <QDataStream>
 
 namespace QmlDesigner {
 

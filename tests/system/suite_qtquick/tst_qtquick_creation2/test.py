@@ -6,13 +6,14 @@ templateDir = None
 def main():
     global workingDir,templateDir
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/text/textselection")
-    if not neededFilePresent(sourceExample):
+    qmlFile = os.path.join("qml", "textselection.qml")
+    if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
         return
     startApplication("qtcreator" + SettingsPath)
     # using a temporary directory won't mess up an eventually exisiting
     workingDir = tempDir()
     templateDir = prepareTemplate(sourceExample)
-    projectName = createNewQtQuickApplication(workingDir, None, templateDir + "/qml/textselection.qml")
+    projectName = createNewQtQuickApplication(workingDir, None, os.path.join(templateDir, qmlFile))
     # wait for parsing to complete
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
     test.log("Building project")

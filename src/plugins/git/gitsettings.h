@@ -44,7 +44,6 @@ class GitSettings : public VcsBase::VcsBaseClientSettings
 public:
     GitSettings();
 
-    static const QLatin1String pathKey;
     static const QLatin1String pullRebaseKey;
     static const QLatin1String omitAnnotationDateKey;
     static const QLatin1String ignoreSpaceChangesInDiffKey;
@@ -59,9 +58,6 @@ public:
     QString gitBinaryPath(bool *ok = 0, QString *errorMessage = 0) const;
 
     GitSettings &operator = (const GitSettings &s);
-
-private:
-    mutable QString m_binaryPath;
 };
 
 } // namespace Internal

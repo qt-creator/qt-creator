@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProfiles>
-<!-- Written by Qt Creator 2.5.83, 2012-09-21T19:00:03. -->
+<!-- Written by Qt Creator 2.5.83, 2012-09-26T12:18:04. -->
 <qtcreator>
  <data>
   <variable>Profile.0</variable>
@@ -78,8 +78,29 @@
   </valuemap>
  </data>
  <data>
+  <variable>Profile.4</variable>
+  <valuemap type="QVariantMap">
+   <value type="bool" key="PE.Profile.AutoDetected">false</value>
+   <valuemap type="QVariantMap" key="PE.Profile.Data">
+    <valuemap type="QVariantMap" key="Debugger.Information">
+     <value type="QString" key="Binary">/usr/bin/gdb</value>
+     <value type="int" key="EngineType">1</value>
+    </valuemap>
+    <value type="QString" key="PE.Profile.Device">{7c5a3673-e300-4286-9666-0f86d3e3dc38}</value>
+    <value type="QByteArray" key="PE.Profile.DeviceType">GenericLinuxOsType</value>
+    <value type="QString" key="PE.Profile.SysRoot"></value>
+    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>
+    <value type="QString" key="QtPM4.mkSpecInformation"></value>
+    <value type="int" key="QtSupport.QtInformation">4</value>
+   </valuemap>
+   <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
+   <value type="QString" key="PE.Profile.Id">{f16848fc-b615-43b5-b0cc-16a9f57fb573}</value>
+   <value type="QString" key="PE.Profile.Name">Embedded Linux</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>Profile.Count</variable>
-  <value type="int">4</value>
+  <value type="int">5</value>
  </data>
  <data>
   <variable>Profile.Default</variable>

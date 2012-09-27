@@ -118,9 +118,7 @@
 
         \o  Change QML code and immediately see the changes at runtime
 
-        \o  Inspect QML code and change it at runtime without changing the code
-
-        \o  Debug animations
+        \o  Inspect QML code and change it temporarily at runtime
 
     \endlist
 
@@ -175,27 +173,27 @@
     \inlineimage qml-observer-bar-reload.png "Apply Changes on Save button"
     (\gui {Apply Changes on Save}) button on the toolbar.
 
-    When you change property values in the \gui {Console} or
-    \gui {QML Inspector}, they are immediately updated in the running
+    When you change property values in the \gui {Console} or in the
+    \gui {Locals and Expressions} view, they are immediately updated in the running
     application, but not in the source code.
 
-    \section1 Inspecting QML at Runtime
+    \section1 Inspecting QML Objects
 
-    While the application is running, you can use the \gui {QML Inspector} view
-    to explore the object structure, debug animations, and inspect colors.
-    To open the \gui {QML Inspector} view, choose \gui {Window > View >
-    QML Inspector}. The view shows the properties of the currently selected QML
-    element.
+    While the application is running, you can use the
+    \gui {Locals and Expressions} view to explore the QML object structure.
 
-    \image qml-observer-view.png "QML Inspector view"
+    \image qml-observer-view.png "QML object tree"
 
-    To keep the application visible while you interact with the inspector, click
+    To keep the application visible while you interact with the debugger, click
     \inlineimage qml-inspector-app-on-top.png
     (\gui {Show Application on Top}).
 
-    To display a QML element in the \gui {QML Inspector} view:
+    You can view a QML element in \gui {Locals and Expressions} in the following
+    ways:
 
     \list
+
+        \o  Expand the element in the object tree.
 
         \o  Select the element in the code editor.
 
@@ -204,65 +202,34 @@
             (\gui Select) to activate selection mode and then click an element
             in the running application.
 
-        \o  Select a child element of an element in the menu in the
-            \gui {QML Inspector} view:
-
-            \image qtquick-example-children.png
-
-        \o  Select an element in the element path in the \gui {QML Inspector}
-            view.
-
     \endlist
 
     To change property values temporarily, without editing the source,
     double-click them and enter the new values. You can view the results in the
     running application.
 
-    When you select an element, the cursor moves to it in the code editor, where
-    you can change the value permanently.
+    \section1 Inspecting User Interfaces
 
-    \section1 Debugging Animations
-
-    When you debug complex applications, you can use the inspection
-    mode to jump to the position in code where an element is defined. You are
-    switched to the inspection mode, when you click the \gui Select, \gui Zoom,
-    or \gui {Color Picker} button
-    on the toolbar.
-
-    \image qml-observer-buttons.png "QML Inspector toolbar"
+    When you debug complex applications, you can jump to the position in code
+    where an element is defined or you can zoom into the user interface.
 
     When the \gui Select tool is enabled, you can click elements in the running
     application to jump to their definitions in the code. The properties of the
-    selected element are displayed in the \gui {QML Inspector} view. The element
-    hierarchy is displayed as a bread crumb path.
+    selected element are displayed in the \gui {Locals and Expressions} view.
 
     You can also right-click an element in the running application to view the
     element hierarchy as a context menu.
 
-    \image qml-observer-context-menu.png "QML Inspector"
+    \image qml-observer-context-menu.png "QML element hierarchy"
 
     To switch to the zoom mode, click the \gui Zoom button. Click in the
     running application to zoom in. Right-click to open a context menu that
     contains zoom controls.
 
-    To inspect colors, click the \gui {Color Picker} button. You can also click
-    \inlineimage qml-observer-bar-copy-color.png "Color Picker button"
-    (\gui {Color Picker}) to copy the color definition to the clipboard.
-
-    To switch out of the inspection mode, deselect the \gui Select, \gui Zoom,
-    and \gui {Color Picker} button.
+    To switch out of the selection or zoom mode, deselect the \gui Select or
+    \gui Zoom button.
 
     To move the application running in \QQV to the front, select the
     \gui {Show Application on Top} button.
-
-    To play and pause animations in the running application, select
-    \inlineimage qml-inspector-play.png
-    (\gui {Play Animations}) and
-    \inlineimage qml-inspector-pause.png
-    (\gui {Pause Animations}) on the toolbar.
-
-    To change the speed at which animations are played, click and hold down
-    \gui {Play/Pause Animations}
-    and select a value.
 
 */

@@ -28,7 +28,7 @@
 **
 **************************************************************************/
 
-import Qt 4.7
+import QtQuick 1.0
 
 // view displaying one item library section including its grid
 

@@ -62,8 +62,7 @@
 
         \o  When the debugger hits the breakpoint, it interrupts the
             application. \QC displays the nested function calls leading to the
-            current position as a call stack trace. To view the stack, select
-            the \gui Stack tab.
+            current position as a call stack trace (1).
 
             \image qtquick-example-setting-breakpoint2.png
 
@@ -96,8 +95,8 @@
         \o  To remove a breakpoint, right-click it and select
             \gui {Delete Breakpoint}.
 
-        \o  Select the \gui {QML Inspector} tab to explore the object structure
-            at runtime:
+        \o  Select the \gui {Locals and Expressions} tab to explore the object
+            structure at runtime:
 
             \image qtquick-example-qml-inspector.png
 
@@ -114,8 +113,8 @@
 
             \image qtquick-example-property-values.png
 
-        \o  In the \gui {QML Inspector} view, double-click the value of the
-            \c text property to change it temporarily from \gui {Quit} to
+        \o  In the \gui {Locals and Expressions} view, double-click the value of
+            the \c text property to change it temporarily from \gui {Quit} to
             \gui {End Game}.
 
             When you select an element, the cursor moves to it in the code

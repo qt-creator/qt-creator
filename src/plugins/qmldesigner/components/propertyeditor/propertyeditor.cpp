@@ -625,7 +625,7 @@ void PropertyEditor::timerEvent(QTimerEvent *timerEvent)
 
 QString templateGeneration(NodeMetaInfo type, NodeMetaInfo superType, const QmlObjectNode &objectNode)
 {
-    QString qmlTemplate = QLatin1String("import Qt 4.7\nimport Bauhaus 1.0\n");
+    QString qmlTemplate = QLatin1String("import QtQuick 1.0\nimport Bauhaus 1.0\n");
     qmlTemplate += QLatin1String("GroupBox {\n");
     qmlTemplate += QString(QLatin1String("caption: \"%1\"\n")).arg(objectNode.modelNode().simplifiedTypeName());
     qmlTemplate += QLatin1String("layout: VerticalLayout {\n");

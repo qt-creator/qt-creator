@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProfiles>
-<!-- Written by Qt Creator 2.5.83, 2012-09-21T18:37:07. -->
+<!-- Written by Qt Creator 2.5.83, 2012-09-25T18:19:53. -->
 <qtcreator>
  <data>
   <variable>Profile.0</variable>
@@ -78,8 +78,29 @@
   </valuemap>
  </data>
  <data>
+  <variable>Profile.4</variable>
+  <valuemap type="QVariantMap">
+   <value type="bool" key="PE.Profile.AutoDetected">false</value>
+   <valuemap type="QVariantMap" key="PE.Profile.Data">
+    <valuemap type="QVariantMap" key="Debugger.Information">
+     <value type="QString" key="Binary">C:\Program Files\Debugging Tools for Windows (x64)\cdb.exe</value>
+     <value type="int" key="EngineType">4</value>
+    </valuemap>
+    <value type="QByteArray" key="PE.Profile.Device">Desktop Device</value>
+    <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
+    <value type="QString" key="PE.Profile.SysRoot"></value>
+    <value type="QString" key="PE.Profile.ToolChain">ProjectExplorer.ToolChain.Msvc:{b86e54dd-debd-409c-b4d7-1a5c710eaa37}</value>
+    <value type="QString" key="QtPM4.mkSpecInformation"></value>
+    <value type="int" key="QtSupport.QtInformation">7</value>
+   </valuemap>
+   <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
+   <value type="QString" key="PE.Profile.Id">{9b35bbe6-25a7-4cce-ba07-487c795f5265}</value>
+   <value type="QString" key="PE.Profile.Name">Desktop 474 MSVC2008</value>
+  </valuemap>
+ </data>
+ <data>
   <variable>Profile.Count</variable>
-  <value type="int">4</value>
+  <value type="int">5</value>
  </data>
  <data>
   <variable>Profile.Default</variable>

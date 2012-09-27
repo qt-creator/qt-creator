@@ -54,6 +54,7 @@ public:
     static const QLatin1String logCountKey;
     static const QLatin1String promptOnSubmitKey;
     static const QLatin1String timeoutKey; // Seconds
+    static const QLatin1String pathKey;
 
     VcsBaseClientSettings();
     VcsBaseClientSettings(const VcsBaseClientSettings &other);

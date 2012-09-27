@@ -209,24 +209,13 @@ class JIRA:
         def __initBugDict__(self):
             self.__bugs__= {
                             'QTCREATORBUG-6853':self._workaroundCreator6853_,
-                            'QTCREATORBUG-6918':self._workaroundCreator_MacEditorFocus_,
-                            'QTCREATORBUG-6994':self._workaroundCreator6994_
+                            'QTCREATORBUG-6918':self._workaroundCreator_MacEditorFocus_
                             }
         # helper function - will be called if no workaround for the requested bug is deposited
         def _exitFatal_(self, bugType, number):
             test.fatal("No workaround found for bug %s-%d" % (bugType, number))
 
 ############### functions that hold workarounds #################################
-
-        def _workaroundCreator6994_(self, *args):
-            if args[0] in ('Mobile Qt Application', 'Qt Gui Application', 'Qt Custom Designer Widget'):
-                if QtQuickConstants.Targets.HARMATTAN in args[1]:
-                    args[1].remove(QtQuickConstants.Targets.HARMATTAN)
-                elif QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.HARMATTAN) in args[1]:
-                    args[1].remove(QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.HARMATTAN))
-                else:
-                    test.warning('Expected Harmattan in targets, failed to find, but bug still marked as open')
-                test.xverify(False, "Removed Harmattan from expected targets.")
 
         def _workaroundCreator6853_(self, *args):
             if "Release" in args[0] and platform.system() == "Linux":
