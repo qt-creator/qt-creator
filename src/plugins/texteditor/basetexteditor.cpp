@@ -2099,7 +2099,12 @@ QChar BaseTextEditorWidget::characterAt(int pos) const
 
 bool BaseTextEditorWidget::event(QEvent *e)
 {
+#if QT_VERSION >= 0x050000
+    if (e->type() != QEvent::InputMethodQuery)
+        d->m_contentsChanged = false;
+#else
     d->m_contentsChanged = false;
+#endif
     switch (e->type()) {
     case QEvent::ShortcutOverride:
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && d->m_snippetOverlay->isVisible()) {
