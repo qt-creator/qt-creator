@@ -921,9 +921,7 @@ void QmlProfilerEventsMainView::copyTableToClipboard() const
         str += d->textForItem(d->m_model->item(i));
     }
     QClipboard *clipboard = QApplication::clipboard();
-#    ifdef Q_WS_X11
     clipboard->setText(str, QClipboard::Selection);
-#    endif
     clipboard->setText(str, QClipboard::Clipboard);
 }
 
@@ -933,9 +931,7 @@ void QmlProfilerEventsMainView::copyRowToClipboard() const
     str = d->textForItem(d->m_model->itemFromIndex(selectedItem()), false);
 
     QClipboard *clipboard = QApplication::clipboard();
-#    ifdef Q_WS_X11
     clipboard->setText(str, QClipboard::Selection);
-#    endif
     clipboard->setText(str, QClipboard::Clipboard);
 }
 

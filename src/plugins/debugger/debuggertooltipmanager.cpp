@@ -691,9 +691,7 @@ void DebuggerToolTipWidget::copy()
 {
     const QString clipboardText = clipboardContents();
     QClipboard *clipboard = QApplication::clipboard();
-#ifdef Q_WS_X11
     clipboard->setText(clipboardText, QClipboard::Selection);
-#endif
     clipboard->setText(clipboardText, QClipboard::Clipboard);
 }
 
