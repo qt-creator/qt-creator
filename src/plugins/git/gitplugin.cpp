@@ -716,9 +716,7 @@ void GitPlugin::submitCurrentLog()
 {
     // Close the submit editor
     m_submitActionTriggered = true;
-    QList<Core::IEditor*> editors;
-    editors.push_back(Core::EditorManager::currentEditor());
-    Core::ICore::editorManager()->closeEditors(editors);
+    Core::ICore::editorManager()->closeEditor();
 }
 
 bool GitPlugin::submitEditorAboutToClose(VcsBase::VcsBaseSubmitEditor *submitEditor)
