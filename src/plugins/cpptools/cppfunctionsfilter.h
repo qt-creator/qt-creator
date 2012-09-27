@@ -44,7 +44,7 @@ public:
     CppFunctionsFilter(CppModelManager *manager);
     ~CppFunctionsFilter();
 
-    QString displayName() const { return tr("Methods and Functions"); }
+    QString displayName() const { return tr("C++ Methods and Functions"); }
     QString id() const { return QLatin1String("Methods"); }
     Priority priority() const { return Medium; }
 };

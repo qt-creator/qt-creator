@@ -44,7 +44,7 @@ public:
     CppClassesFilter(Internal::CppModelManager *manager);
     ~CppClassesFilter();
 
-    QString displayName() const { return tr("Classes"); }
+    QString displayName() const { return tr("C++ Classes"); }
     QString id() const { return QLatin1String("Classes"); }
     Priority priority() const { return Medium; }
 };
