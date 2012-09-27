@@ -266,7 +266,7 @@ Target *Project::restoreTarget(const QVariantMap &data)
 
     Kit *k = KitManager::instance()->find(id);
     if (!k) {
-        qWarning("Warning: No profile '%s' found. Continuing.", qPrintable(id.toString()));
+        qWarning("Warning: No kit '%s' found. Continuing.", qPrintable(id.toString()));
         return 0;
     }
 
