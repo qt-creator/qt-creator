@@ -173,8 +173,9 @@ DebuggerKitInformation::DebuggerItem DebuggerKitInformation::autoDetectItem(cons
     }
 
     // Check suggestions from the SDK.
-    const Environment env = Environment::systemEnvironment();
+    Environment env = Environment::systemEnvironment();
     if (tc) {
+        tc->addToEnvironment(env); // Find MinGW gdb in toolchain environment.
         QString path = tc->suggestedDebugger().toString();
         if (!path.isEmpty()) {
             const QFileInfo fi(path);
