@@ -70,6 +70,7 @@
 
 #include <find/findplugin.h>
 #include <find/textfindconstants.h>
+#include <find/ifindsupport.h>
 
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -853,6 +854,7 @@ private slots:
                            QObject *eventFilter);
     void showExtraInformation(const QString &msg);
     void changeSelection(const QList<QTextEdit::ExtraSelection> &selections);
+    void highlightMatches(const QString &needle);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void checkForElectricCharacter(bool *result, QChar c);
     void indentRegion(int beginLine, int endLine, QChar typedChar);
@@ -1397,6 +1399,8 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         SLOT(showCommandBuffer(QString,int,int,QObject*)));
     connect(handler, SIGNAL(selectionChanged(QList<QTextEdit::ExtraSelection>)),
         SLOT(changeSelection(QList<QTextEdit::ExtraSelection>)));
+    connect(handler, SIGNAL(highlightMatches(QString)),
+        SLOT(highlightMatches(QString)));
     connect(handler, SIGNAL(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)),
         SLOT(moveToMatchingParenthesis(bool*,bool*,QTextCursor*)));
     connect(handler, SIGNAL(indentRegion(int,int,QChar)),
@@ -1739,12 +1743,20 @@ void FakeVimPluginPrivate::showExtraInformation(const QString &text)
         QMessageBox::information(handler->widget(), tr("FakeVim Information"), text);
 }
 
-void FakeVimPluginPrivate::changeSelection
-    (const QList<QTextEdit::ExtraSelection> &selection)
+void FakeVimPluginPrivate::changeSelection(const QList<QTextEdit::ExtraSelection> &selection)
 {
     if (FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender()))
         if (BaseTextEditorWidget *bt = qobject_cast<BaseTextEditorWidget *>(handler->widget()))
             bt->setExtraSelections(BaseTextEditorWidget::FakeVimSelection, selection);
+}
+
+void FakeVimPluginPrivate::highlightMatches(const QString &needle)
+{
+    IEditor *editor = EditorManager::currentEditor();
+    QWidget *w = editor->widget();
+    Find::IFindSupport *find = Aggregation::query<Find::IFindSupport>(w);
+    if (find != 0)
+        find->highlightAll(needle, Find::FindRegularExpression);
 }
 
 int FakeVimPluginPrivate::currentFile() const

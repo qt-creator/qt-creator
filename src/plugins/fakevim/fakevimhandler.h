@@ -130,6 +130,7 @@ signals:
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
     void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
+    void highlightMatches(const QString &needle);
     void writeAllRequested(QString *error);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void checkForElectricCharacter(bool *result, QChar c);
