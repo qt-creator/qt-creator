@@ -44,7 +44,7 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstance::Pointer
     m_nodeInstance(nodeInstance),
     m_context(nodeInstance->isRootNodeInstance() ? nodeInstance->context() : 0)
 {
-    setCached(true);
+    setCached(false);
 }
 
 NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QQmlEngine *engine)
@@ -52,7 +52,7 @@ NodeInstanceMetaObject::NodeInstanceMetaObject(const ObjectNodeInstancePointer &
     m_nodeInstance(nodeInstance),
     m_prefix(prefix)
 {
-    setCached(true);
+    setCached(false);
 }
 
 void NodeInstanceMetaObject::createNewProperty(const QString &name)
