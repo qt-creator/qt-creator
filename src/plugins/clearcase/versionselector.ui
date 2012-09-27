@@ -49,7 +49,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="loadedCreatedByHeaderLabel">
        <property name="text">
-        <string>Created By:</string>
+        <string>Created by:</string>
        </property>
       </widget>
      </item>
@@ -63,7 +63,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="loadedCreatedOnHeaderLabel">
        <property name="text">
-        <string>Created On:</string>
+        <string>Created on:</string>
        </property>
       </widget>
      </item>
@@ -91,7 +91,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="updatedCreatedByHeaderLabel">
        <property name="text">
-        <string>Created By:</string>
+        <string>Created by:</string>
        </property>
       </widget>
      </item>
@@ -105,7 +105,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="updatedCreatedOnHeaderLabel">
        <property name="text">
-        <string extracomment="Date">Created On:</string>
+        <string extracomment="Date">Created on:</string>
        </property>
       </widget>
      </item>
