@@ -62,6 +62,7 @@ private slots:
     void debugTokenEditingFinished();
 
 private:
+    void updateDeviceFromUi();
     void initGui();
 
     BlackBerryDeviceConfiguration::Ptr deviceConfiguration() const;

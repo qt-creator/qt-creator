@@ -102,7 +102,6 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
       m_deviceManager(DeviceManager::cloneInstance()),
       m_deviceManagerModel(new DeviceManagerModel(m_deviceManager, this)),
       m_nameValidator(new NameValidator(m_deviceManager, this)),
-      m_saveSettingsRequested(false),
       m_additionalActionsMapper(new QSignalMapper(this)),
       m_configWidget(0)
 {
@@ -115,11 +114,6 @@ DeviceSettingsWidget::DeviceSettingsWidget(QWidget *parent)
 
 DeviceSettingsWidget::~DeviceSettingsWidget()
 {
-    if (m_saveSettingsRequested) {
-        Core::ICore::settings()->setValue(QLatin1String(LastDeviceIndexKey),
-            currentIndex());
-        DeviceManager::replaceInstance();
-    }
     DeviceManager::removeClonedInstance();
     delete m_configWidget;
     delete m_ui;
@@ -237,10 +231,17 @@ void DeviceSettingsWidget::fillInValues()
     m_ui->nameLineEdit->setText(current->displayName());
 }
 
+void DeviceSettingsWidget::updateDeviceFromUi()
+{
+    deviceNameEditingFinished();
+    if (m_configWidget)
+        m_configWidget->updateDeviceFromUi();
+}
+
 void DeviceSettingsWidget::saveSettings()
 {
-    // We must defer this step because of a stupid bug on MacOS. See QTCREATORBUG-1675.
-    m_saveSettingsRequested = true;
+    Core::ICore::settings()->setValue(QLatin1String(LastDeviceIndexKey), currentIndex());
+    DeviceManager::replaceInstance();
 }
 
 int DeviceSettingsWidget::currentIndex() const
@@ -329,12 +330,14 @@ void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
 {
     const IDevice::ConstPtr device = m_deviceManager->find(currentDevice()->id());
     QTC_ASSERT(device, return);
+    updateDeviceFromUi();
     device->executeAction(Core::Id::fromUniqueIdentifier(actionId), this);
 }
 
 void DeviceSettingsWidget::handleProcessListRequested()
 {
     QTC_ASSERT(currentDevice()->canCreateProcessModel(), return);
+    updateDeviceFromUi();
     DeviceProcessesDialog dlg;
     dlg.addCloseButton();
     dlg.setDevice(currentDevice());

@@ -151,6 +151,17 @@ void GenericLinuxDeviceConfigurationWidget::createNewKey()
         setPrivateKey(dialog.privateKeyFilePath());
 }
 
+void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
+{
+    hostNameEditingFinished();
+    sshPortEditingFinished();
+    timeoutEditingFinished();
+    userNameEditingFinished();
+    passwordEditingFinished();
+    keyFileEditingFinished();
+    handleFreePortsChanged();
+}
+
 void GenericLinuxDeviceConfigurationWidget::updatePortsWarningLabel()
 {
     m_ui->portsWarningLabel->setVisible(!device()->freePorts().hasMore());

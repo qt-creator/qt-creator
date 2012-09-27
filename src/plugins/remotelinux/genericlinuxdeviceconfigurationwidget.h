@@ -64,6 +64,7 @@ private slots:
     void createNewKey();
 
 private:
+    void updateDeviceFromUi();
     void updatePortsWarningLabel();
     void initGui();
 

@@ -50,6 +50,18 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT IDeviceWidget : public QWidget
 {
     Q_OBJECT
+public:
+
+    /*!
+     * \brief Ensures that all changes in the UI are propagated to the device object.
+     *
+     * If the device is always updated right when the change happens, the implementation of
+     * this function can be empty. Note, however, that you cannot generally rely on the
+     * QLineEdit::editingFinished() signal being emitted on time if some button in the dialog is
+     * clicked (e.g. "Apply"). So if you have any handlers for line edit changes, they should
+     * probably be called here.
+     */
+    virtual void updateDeviceFromUi() = 0;
 
 protected:
     IDeviceWidget(const IDevice::Ptr &device, QWidget *parent = 0)
