@@ -47,10 +47,7 @@
 #include <QHash>
 #include <QSet>
 #include <QDebug>
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QQuickItem>
-#endif
 #include <private/qqmlengine_p.h>
 
 #include <QQmlEngine>
@@ -222,11 +219,7 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
     }
 
     if ((object == 0) && (instanceContainer.metaType() == InstanceContainer::ItemMetaType)) //If we cannot instanciate the object but we know it has to be an Ttem, we create an Item instead.
-#if QT_VERSION >= 0x050000
-        object = Internal::ObjectNodeInstance::createPrimitive("QQuickItem", 2, 0, nodeInstanceServer->context());
-#else
-        object = Internal::ObjectNodeInstance::createPrimitive("QtQuick/Item", 1, 0, nodeInstanceServer->context());
-#endif
+        object = Internal::ObjectNodeInstance::createPrimitive("QtQuick/Item", 2, 0, nodeInstanceServer->context());
 
     QQmlEnginePrivate::get(nodeInstanceServer->engine())->cache(object->metaObject());
 
