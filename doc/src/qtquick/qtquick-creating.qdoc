@@ -50,6 +50,14 @@
             custom look and feel, whereas the components provide the look and
             feel for a particular platform.
 
+            The Qt Quick 1 Application wizard imports Qt Quick 1.1, and
+            therefore, you can use it without changes to develop for platforms
+            that run Qt 4.7.4 (such as MeeGo). To develop for platforms that run
+            Qt 4.7.3 (such as Maemo), you must change the import statement to
+            import Qt Quick 1.0.
+
+            The Qt Quick 2 Application wizard imports Qt Quick 2.0. Use it to
+            develop for platforms that run Qt 5.
         \o  \gui {Qt Quick UI} creates a Qt Quick UI project with a single QML
             file that contains the main view. You can review Qt Quick UI
             projects in the QML Viewer and you need not build them. You do not
@@ -67,16 +75,6 @@
             applications by using the QDeclarativeEngine class.
 
     \endlist
-
-    \if defined(qcmanual)
-    \note Qt 4.7.3 supports Qt Quick 1.0 and Qt 4.7.4 supports Qt Quick 1.1. The
-    application wizards import Qt Quick 1.1, and therefore, you can use them
-    without changes if you target only platforms that run Qt 4.7.4 (such as
-    MeeGo or the desktop). If you also target platforms that run Qt 4.7.3
-    (such as Maemo), you must change the import statement to
-    import Qt Quick 1.0.
-    \endif
-
 
     \section1 Creating Qt Quick UI Projects
 
