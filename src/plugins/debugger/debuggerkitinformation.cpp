@@ -296,8 +296,27 @@ DebuggerKitInformation::DebuggerItem DebuggerKitInformation::variantToItem(const
     }
     QTC_ASSERT(v.type() == QVariant::Map, return result);
     const QVariantMap vmap = v.toMap();
-    result.binary = Utils::FileName::fromString(vmap.value(QLatin1String(binaryKeyC)).toString());
     result.engineType = static_cast<DebuggerEngineType>(vmap.value(QLatin1String(engineTypeKeyC)).toInt());
+    QString binary = vmap.value(QLatin1String(binaryKeyC)).toString();
+    // Check for special 'auto' entry for binary written by the sdktool during
+    // installation. Try to autodetect.
+    if (binary == QLatin1String("auto")) {
+        binary.clear();
+        switch (result.engineType) {
+        case Debugger::GdbEngineType: // Auto-detect system gdb on Unix
+            if (Abi::hostAbi().os() != Abi::WindowsOS)
+                binary = Environment::systemEnvironment().searchInPath(QLatin1String("gdb"));
+            break;
+        case Debugger::CdbEngineType: { // Auto-detect system CDB on Windows.
+             const QPair<QString, QString> cdbs = autoDetectCdbDebugger();
+             binary = cdbs.second.isEmpty() ? cdbs.first : cdbs.second;
+        }
+            break;
+        default:
+            break;
+        }
+    }
+    result.binary = Utils::FileName::fromString(binary);
     return result;
 }
 

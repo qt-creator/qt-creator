@@ -63,6 +63,12 @@ static char TOOLCHAIN[] = "PE.Profile.ToolChain";
 static char MKSPEC[] = "QtPM4.mkSpecInformation";
 static char QT[] = "QtSupport.QtInformation";
 
+AddKitOperation::AddKitOperation()
+    : m_debuggerEngine(0)
+    , m_debugger(QLatin1String("auto"))
+{
+}
+
 QString AddKitOperation::name() const
 {
     return QLatin1String("addKit");
