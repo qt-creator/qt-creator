@@ -76,8 +76,8 @@ void BaseEngineDebugClient::decode(QDataStream &ds,
     QmlObjectData data;
     ds >> data;
     int parentId = -1;
-    if (objectName() == QLatin1String("QmlDebugger") &&
-            serviceVersion() >= Constants::CURRENT_SUPPORTED_VERSION )
+    // qt > 4.8.3
+    if (objectName() != QLatin1String(Constants::QDECLARATIVE_ENGINE))
         ds >> parentId;
     o.m_debugId = data.objectId;
     o.m_className = data.objectType;
@@ -184,19 +184,15 @@ void BaseEngineDebugClient::messageReceived(const QByteArray &data)
     QDataStream ds(data);
     int queryId;
     QByteArray type;
-    ds >> type;
+    ds >> type >> queryId;
 
     if (type == "OBJECT_CREATED") {
         int engineId;
         int objectId;
-        ds >> engineId >> objectId;
-        emit newObject(engineId, objectId, -1);
-        return;
-    }
-
-    ds >> queryId;
-
-    if (type == "LIST_ENGINES_R") {
+        int parentId;
+        ds >> engineId >> objectId >> parentId;
+        emit newObject(engineId, objectId, parentId);
+    } else if (type == "LIST_ENGINES_R") {
         int count;
         ds >> count;
         QList<EngineReference> engines;
@@ -398,7 +394,7 @@ quint32 BaseEngineDebugClient::setBindingForObject(
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("SET_BINDING") << objectDebugId << propertyName
+        ds << QByteArray("SET_BINDING") << id << objectDebugId << propertyName
            << bindingExpression << isLiteralValue << source << line;
         sendMessage(message);
     }
@@ -414,7 +410,7 @@ quint32 BaseEngineDebugClient::resetBindingForObject(
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("RESET_BINDING") << objectDebugId << propertyName;
+        ds << QByteArray("RESET_BINDING") << id << objectDebugId << propertyName;
         sendMessage(message);
     }
     return id;
@@ -429,7 +425,7 @@ quint32 BaseEngineDebugClient::setMethodBody(
         id = getId();
         QByteArray message;
         QDataStream ds(&message, QIODevice::WriteOnly);
-        ds << QByteArray("SET_METHOD_BODY") << objectDebugId
+        ds << QByteArray("SET_METHOD_BODY") << id << objectDebugId
            << methodName << methodBody;
         sendMessage(message);
     }

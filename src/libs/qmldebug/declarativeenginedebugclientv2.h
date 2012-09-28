@@ -6,7 +6,6 @@
 **
 ** Contact: http://www.qt-project.org/
 **
-**
 ** GNU Lesser General Public License Usage
 **
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -28,23 +27,25 @@
 **
 **************************************************************************/
 
-#ifndef QMLDEBUGCONSTANTS_H
-#define QMLDEBUGCONSTANTS_H
+#ifndef DECLARATIVEENGINEDEBUGCLIENTV2_H
+#define DECLARATIVEENGINEDEBUGCLIENTV2_H
+
+#include "baseenginedebugclient.h"
 
 namespace QmlDebug {
-namespace Constants {
 
-const char STR_WAITING_FOR_CONNECTION[] = "Waiting for connection ";
-const char STR_ON_PORT_PATTERN[] = "on port (\\d+)";
-const char STR_VIA_OST[] = "via OST";
-const char STR_UNABLE_TO_LISTEN[] = "Unable to listen ";
-const char STR_IGNORING_DEBUGGER[] = "Ignoring \"-qmljsdebugger=";
-const char STR_IGNORING_DEBUGGER2[] = "Ignoring\"-qmljsdebugger="; // There is (was?) a bug in one of the error strings - safest to handle both
-const char STR_CONNECTION_ESTABLISHED[] = "Connection established";
+class QmlDebugConnection;
 
-const char QDECLARATIVE_ENGINE[] = "QDeclarativeEngine";
+class QMLDEBUG_EXPORT DeclarativeEngineDebugClientV2 : public BaseEngineDebugClient
+{
+    Q_OBJECT
+public:
+    explicit DeclarativeEngineDebugClientV2(QmlDebugConnection *conn)
+        : BaseEngineDebugClient(QLatin1String("DeclarativeDebugger"), conn)
+    {
+    }
+};
 
-} // namespace Constants
 } // namespace QmlDebug
 
-#endif // QMLDEBUGCONSTANTS_H
+#endif // DECLARATIVEENGINEDEBUGCLIENTV2_H

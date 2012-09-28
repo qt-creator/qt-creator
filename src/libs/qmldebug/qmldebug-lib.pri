@@ -11,6 +11,7 @@ HEADERS += \
     $$PWD/qmldebugclient.h \
     $$PWD/baseenginedebugclient.h \
     $$PWD/declarativeenginedebugclient.h \
+    $$PWD/declarativeenginedebugclientv2.h \
     $$PWD/qmloutputparser.h \
     $$PWD/qmldebug_global.h \
     $$PWD/qmlprofilereventtypes.h \
@@ -32,8 +33,8 @@ SOURCES += \
     $$PWD/qpacketprotocol.cpp \
     $$PWD/qv8profilerclient.cpp \
     $$PWD/qdebugmessageclient.cpp \
-    $$PWD/qmlenginedebugclient.cpp \
     $$PWD/basetoolsclient.cpp \
     $$PWD/declarativetoolsclient.cpp \
-    $$PWD/qmltoolsclient.cpp
+    $$PWD/qmltoolsclient.cpp \
+    $$PWD/declarativeenginedebugclient.cpp
 
