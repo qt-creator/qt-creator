@@ -122,14 +122,12 @@ struct TestData
 
     void setText(const QString &text)
     {
-        QTextCursor tc = cursor();
         QString str = text;
         int i = str.indexOf(cursorString);
         if (!cursorString.isEmpty() && i != -1)
             str.remove(i, 1);
         edit->document()->setPlainText(str);
-        tc.setPosition(qMax(0, i));
-        edit->setTextCursor(tc);
+        handler->setTextCursorPosition(i);
     }
 
     void doCommand(const QString &cmd) { handler->handleCommand(cmd); }
@@ -404,19 +402,50 @@ void FakeVimPlugin::test_vim_block_selection()
 
 void FakeVimPlugin::test_vim_repeat()
 {
-    NOT_IMPLEMENTED
-
     TestData data;
     setup(&data);
 
-    data.setText("test text");
-    KEYS("ciwWORD", "WOR" X "D text");
+    // delete line
+    data.setText("abc" N "def" N "ghi");
+    KEYS("dd", X "def" N "ghi");
+    KEYS(".", X "ghi");
+
+    // delete to next word
+    data.setText("abc def ghi jkl");
+    KEYS("dw", X "def ghi jkl");
+    KEYS("w.", "def " X "jkl");
+    KEYS("gg.", X "jkl");
+
+    // change in word
+    data.setText("WORD text");
+    KEYS("ciwWORD<esc>", "WOR" X "D text");
     KEYS("w.", "WORD WOR" X "D");
 
     /* QTCREATORBUG-7248 */
     data.setText("test tex" X "t");
-    KEYS("vbcWORD", "test " "WOR" X "D");
-    KEYS("bb.", X "WORD WORD");
+    KEYS("vbcWORD<esc>", "test " "WOR" X "D");
+    KEYS("bb.", "WOR" X "D WORD");
+
+    // delete selected range
+    data.setText("abc def ghi jkl");
+    KEYS("viwd", X " def ghi jkl");
+    KEYS(".", X "f ghi jkl");
+    KEYS(".", X "hi jkl");
+
+    // delete two lines
+    data.setText("abc" N "def" N "ghi" N "jkl" N "mno");
+    KEYS("Vjx", X "ghi" N "jkl" N "mno");
+    KEYS(".", X "mno");
+
+    // delete three lines
+    data.setText("abc" N "def" N "ghi" N "jkl" N "mno" N "pqr" N "stu");
+    KEYS("d2j", X "jkl" N "mno" N "pqr" N "stu");
+    KEYS(".", X "stu");
+
+    // replace block selection
+    data.setText("abcd" N "d" X "efg" N "ghij" N "jklm");
+    KEYS("<c-v>jlrX", "abcd" N "d" X "XXg" N "gXXj" N "jklm");
+    KEYS("gg.", "XXcd" N "XXXg" N "gXXj" N "jklm");
 }
 
 void FakeVimPlugin::test_vim_search()

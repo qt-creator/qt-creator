@@ -131,6 +131,9 @@ public slots:
 
     void miniBufferTextEdited(const QString &text, int cursorPos);
 
+    // Set text cursor position. Keeps anchor if in visual mode.
+    void setTextCursorPosition(int position);
+
 signals:
     void commandBufferChanged(const QString &msg, int pos, int messageLevel, QObject *eventFilter);
     void statusDataChanged(const QString &msg);
