@@ -978,8 +978,6 @@ QmlV8DebuggerClient::~QmlV8DebuggerClient()
 
 void QmlV8DebuggerClient::startSession()
 {
-    //Supports v2.0 and above
-    QTC_ASSERT(serviceVersion() >= CURRENT_SUPPORTED_VERSION, return);
     flushSendBuffer();
     d->connect();
     //Query for the V8 version. This is
