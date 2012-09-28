@@ -1034,6 +1034,9 @@ void DocumentManager::checkForReload()
                     case Utils::ReloadNone:
                         success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
                         break;
+                    case Utils::CloseCurrent:
+                        editorsToClose << EditorManager::instance()->editorsForDocument(document);
+                        break;
                     }
                 }
             // IDocument wants us to ask, and it's the TypeRemoved case

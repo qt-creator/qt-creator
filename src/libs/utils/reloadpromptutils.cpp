@@ -59,7 +59,7 @@ QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer
     Utils::reloadPrompt(const QString &title, const QString &prompt, const QString &details, QWidget *parent)
 {
     QMessageBox msg(parent);
-    msg.setStandardButtons(QMessageBox::Yes|QMessageBox::YesToAll|QMessageBox::No|QMessageBox::NoToAll);
+    msg.setStandardButtons(QMessageBox::Yes|QMessageBox::YesToAll|QMessageBox::Close|QMessageBox::No|QMessageBox::NoToAll);
     msg.setDefaultButton(QMessageBox::YesToAll);
     msg.setWindowTitle(title);
     msg.setText(prompt);
@@ -72,6 +72,8 @@ QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer
         return ReloadAll;
     case QMessageBox::No:
         return ReloadSkipCurrent;
+    case QMessageBox::Close:
+        return CloseCurrent;
     default:
         break;
     }
