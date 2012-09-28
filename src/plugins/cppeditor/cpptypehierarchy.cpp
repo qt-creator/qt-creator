@@ -124,7 +124,6 @@ private:
 // CppTypeHierarchyWidget
 CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
     QWidget(0),
-    m_cppEditor(0),
     m_treeView(0),
     m_model(0),
     m_delegate(0)
@@ -133,9 +132,7 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
     layout->setMargin(0);
     layout->setSpacing(0);
 
-    if (CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor)) {
-        m_cppEditor = static_cast<CPPEditorWidget *>(cppEditor->widget());
-
+    if (qobject_cast<CPPEditor *>(editor)) {
         m_inspectedClass = new CppClassLabel(this);
         m_inspectedClass->setMargin(5);
         layout->addWidget(m_inspectedClass);
@@ -165,27 +162,18 @@ CppTypeHierarchyWidget::CppTypeHierarchyWidget(Core::IEditor *editor) :
 CppTypeHierarchyWidget::~CppTypeHierarchyWidget()
 {}
 
-bool CppTypeHierarchyWidget::handleEditorChange(Core::IEditor *editor)
-{
-    if (CPPEditor *cppEditor = qobject_cast<CPPEditor *>(editor)) {
-        if (m_cppEditor) {
-            m_cppEditor = static_cast<CPPEditorWidget *>(cppEditor->widget());
-            return true;
-        }
-    } else if (!m_cppEditor) {
-        return true;
-    }
-    return false;
-}
-
 void CppTypeHierarchyWidget::perform()
 {
-    if (!m_cppEditor)
+    CPPEditor *editor = qobject_cast<CPPEditor *>(Core::EditorManager::instance()->currentEditor());
+    if (!editor)
+        return;
+    CPPEditorWidget *widget = qobject_cast<CPPEditorWidget *>(editor->widget());
+    if (!widget)
         return;
 
     m_model->clear();
 
-    CppElementEvaluator evaluator(m_cppEditor);
+    CppElementEvaluator evaluator(widget);
     evaluator.setLookupBaseClasses(true);
     evaluator.setLookupDerivedClasses(true);
     evaluator.execute();
@@ -218,7 +206,13 @@ void CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, QStandardI
 
 void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
 {
-    m_cppEditor->openLink(index.data(LinkRole).value<TextEditor::BaseTextEditorWidget::Link>());
+    const TextEditor::BaseTextEditorWidget::Link link
+            = index.data(LinkRole).value<TextEditor::BaseTextEditorWidget::Link>();
+    if (!link.fileName.isEmpty())
+        TextEditor::BaseTextEditorWidget::openEditorAt(link.fileName,
+                                                       link.line,
+                                                       link.column,
+                                                       Constants::CPPEDITOR_ID);
 }
 
 // CppTypeHierarchyStackedWidget
@@ -227,25 +221,11 @@ CppTypeHierarchyStackedWidget::CppTypeHierarchyStackedWidget(QWidget *parent) :
     m_typeHiearchyWidgetInstance(new CppTypeHierarchyWidget(Core::EditorManager::currentEditor()))
 {
     addWidget(m_typeHiearchyWidgetInstance);
-
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(editorChanged(Core::IEditor*)));
 }
 
 CppTypeHierarchyStackedWidget::~CppTypeHierarchyStackedWidget()
 {
     delete m_typeHiearchyWidgetInstance;
-}
-
-void CppTypeHierarchyStackedWidget::editorChanged(Core::IEditor *editor)
-{
-    if (!m_typeHiearchyWidgetInstance->handleEditorChange(editor)) {
-        CppTypeHierarchyWidget *replacement = new CppTypeHierarchyWidget(editor);
-        removeWidget(m_typeHiearchyWidgetInstance);
-        m_typeHiearchyWidgetInstance->deleteLater();
-        m_typeHiearchyWidgetInstance = replacement;
-        addWidget(m_typeHiearchyWidgetInstance);
-    }
 }
 
 // CppTypeHierarchyFactory

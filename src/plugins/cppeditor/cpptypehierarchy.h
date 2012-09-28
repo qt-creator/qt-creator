@@ -69,8 +69,6 @@ public:
     CppTypeHierarchyWidget(Core::IEditor *editor);
     virtual ~CppTypeHierarchyWidget();
 
-    bool handleEditorChange(Core::IEditor *editor);
-
 public slots:
     void perform();
 
@@ -96,9 +94,6 @@ class CppTypeHierarchyStackedWidget : public QStackedWidget
 public:
     CppTypeHierarchyStackedWidget(QWidget *parent = 0);
     virtual ~CppTypeHierarchyStackedWidget();
-
-public slots:
-    void editorChanged(Core::IEditor* editor);
 
 private:
     CppTypeHierarchyWidget *m_typeHiearchyWidgetInstance;
