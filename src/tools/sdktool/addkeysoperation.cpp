@@ -113,7 +113,7 @@ bool AddKeysOperation::test() const
     data.append(KeyValuePair(QLatin1String("newsub/1/2.1/3/qbytearray"), QString::fromLatin1("QByteArray:test array.")));
 
     QVariantMap result = addKeys(testMap, data);
-    if (!result.count() == 8)
+    if (result.count() != 8)
         return false;
 
     // subkeys:

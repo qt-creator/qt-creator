@@ -149,14 +149,14 @@ bool AddQtOperation::test() const
                 QLatin1String("/tmp/test/qmake"),
                 KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
 
-    if (!map.count() == 2
+    if (map.count() != 2
             || !map.contains(QLatin1String(VERSION))
             || map.value(QLatin1String(VERSION)).toInt() != 1
             || !map.contains(QLatin1String("QtVersion.0")))
         return false;
 
     QVariantMap version0 = map.value(QLatin1String("QtVersion.0")).toMap();
-    if (!version0.count() == 6
+    if (version0.count() != 6
             || !version0.contains(QLatin1String(ID))
             || version0.value(QLatin1String(ID)).toInt() != -1
             || !version0.contains(QLatin1String(DISPLAYNAME))
@@ -184,7 +184,7 @@ bool AddQtOperation::test() const
     map = addQt(map, QLatin1String("testId2"), QLatin1String("Test Qt Version"), QLatin1String("testType3"),
                    QLatin1String("/tmp/test/qmake2"),
                    KeyValuePairList() << KeyValuePair(QLatin1String("extraData"), QVariant(QLatin1String("extraValue"))));
-    if (!map.count() == 3
+    if (map.count() != 3
             || !map.contains(QLatin1String(VERSION))
             || map.value(QLatin1String(VERSION)).toInt() != 1
             || !map.contains(QLatin1String("QtVersion.0"))
@@ -195,7 +195,7 @@ bool AddQtOperation::test() const
         return false;
 
     QVariantMap version1 = map.value(QLatin1String("QtVersion.1")).toMap();
-    if (!version1.count() == 6
+    if (version1.count() != 6
             || !version1.contains(QLatin1String(ID))
             || version1.value(QLatin1String(ID)).toInt() != -1
             || !version1.contains(QLatin1String(DISPLAYNAME))
