@@ -184,7 +184,7 @@ RunControl *AndroidRunControlFactory::create(RunConfiguration *runConfig,
 
 QString AndroidRunControlFactory::displayName() const
 {
-    return tr("Run on Android device/emulator");
+    return tr("Run on Android device or emulator.");
 }
 
 } // namespace Internal

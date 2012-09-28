@@ -59,7 +59,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="NDKToolchainVersionLabel">
        <property name="text">
-        <string>Android NDK toolchain version:</string>
+        <string>Android NDK tool chain version:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -92,7 +92,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="GdbLocationLabel">
        <property name="text">
-        <string>arm GDB location:</string>
+        <string>ARM GDB location:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -112,7 +112,7 @@
      <item row="5" column="0">
       <widget class="QLabel" name="GdbserverLocationLabel">
        <property name="text">
-        <string>arm GDBserver location:</string>
+        <string>ARM GDB server location:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -152,7 +152,7 @@
      <item row="7" column="0">
       <widget class="QLabel" name="GdbserverLocationLabelx86">
        <property name="text">
-        <string>x86 GDBserver location:</string>
+        <string>x86 GDB server location:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

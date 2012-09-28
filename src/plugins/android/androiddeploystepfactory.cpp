@@ -65,7 +65,7 @@ QList<Core::Id> AndroidDeployStepFactory::availableCreationIds(BuildStepList *pa
 QString AndroidDeployStepFactory::displayNameForId(const Core::Id id) const
 {
     if (id == AndroidDeployStep::Id)
-        return tr("Deploy to Android device/emulator");
+        return tr("Deploy to Android device or emulator");
     return QString();
 }
 

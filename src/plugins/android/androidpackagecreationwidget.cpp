@@ -402,7 +402,7 @@ void AndroidPackageCreationWidget::prebundledLibMoveDown()
 
 void AndroidPackageCreationWidget::setHDPIIcon()
 {
-    QString file = QFileDialog::getOpenFileName(this, tr("Choose High DPI Icon"), QDir::homePath(), tr("png images (*.png)"));
+    QString file = QFileDialog::getOpenFileName(this, tr("Choose High DPI Icon"), QDir::homePath(), tr("PNG images (*.png)"));
     if (!file.length())
         return;
     AndroidManager::setHighDpiIcon(m_step->target(), file);
@@ -411,7 +411,7 @@ void AndroidPackageCreationWidget::setHDPIIcon()
 
 void AndroidPackageCreationWidget::setMDPIIcon()
 {
-    QString file = QFileDialog::getOpenFileName(this, tr("Choose Medium DPI Icon"), QDir::homePath(), tr("png images (*.png)"));
+    QString file = QFileDialog::getOpenFileName(this, tr("Choose Medium DPI Icon"), QDir::homePath(), tr("PNG images (*.png)"));
     if (!file.length())
         return;
     AndroidManager::setMediumDpiIcon(m_step->target(), file);
@@ -420,7 +420,7 @@ void AndroidPackageCreationWidget::setMDPIIcon()
 
 void AndroidPackageCreationWidget::setLDPIIcon()
 {
-    QString file = QFileDialog::getOpenFileName(this, tr("Choose Low DPI Icon"), QDir::homePath(), tr("png images (*.png)"));
+    QString file = QFileDialog::getOpenFileName(this, tr("Choose Low DPI Icon"), QDir::homePath(), tr("PNG images (*.png)"));
     if (!file.length())
         return;
     AndroidManager::setLowDpiIcon(m_step->target(), file);
@@ -437,8 +437,8 @@ void AndroidPackageCreationWidget::permissionActivated(QModelIndex index)
 void AndroidPackageCreationWidget::addPermission()
 {
     setEnabledSaveDiscardButtons(true);
-    m_ui->permissionsListView->setCurrentIndex(m_permissionsModel->addPermission(tr("< type or choose a permission >")));
-    m_ui->permissionsComboBox->lineEdit()->setText(tr("< type or choose a permission >"));
+    m_ui->permissionsListView->setCurrentIndex(m_permissionsModel->addPermission(tr("< Type or choose a permission >")));
+    m_ui->permissionsComboBox->lineEdit()->setText(tr("< Type or choose a permission >"));
     m_ui->permissionsComboBox->setFocus();
     m_ui->removePermissionButton->setEnabled(m_permissionsModel->permissions().size());
 }
