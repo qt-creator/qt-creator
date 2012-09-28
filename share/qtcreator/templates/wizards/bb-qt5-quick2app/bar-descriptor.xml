@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <qnx xmlns="http://www.qnx.com/schemas/application/1.0">
-    <id>ID</id>
+    <id>com.example.%ProjectName%</id>
     <name>%ProjectName%</name>
     <versionNumber>1.0.0</versionNumber>
     <description>DESCRIPTION</description>
