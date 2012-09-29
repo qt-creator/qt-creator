@@ -224,6 +224,52 @@ void FakeVimPlugin::test_vim_fFtT()
     KEYS("F(", "123()456" N "a" X "(b(c)d)e");
 }
 
+void FakeVimPlugin::test_vim_transform_numbers()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("8");
+    KEYS("<c-a>", X "9");
+    KEYS("<c-x>", X "8");
+    KEYS("<c-a>", X "9");
+    KEYS("<c-a>", "1" X "0");
+    KEYS("<c-a>", "1" X "1");
+    KEYS("5<c-a>", "1" X "6");
+    KEYS("10<c-a>", "2" X "6");
+    KEYS("h100<c-a>", "12" X "6");
+    KEYS("100<c-x>", "2" X "6");
+    KEYS("10<c-x>", "1" X "6");
+    KEYS("5<c-x>", "1" X "1");
+    KEYS("5<c-x>", X "6");
+    KEYS("6<c-x>", X "0");
+    KEYS("<c-x>", "-" X "1");
+    KEYS("h10<c-x>", "-1" X "1");
+    KEYS("h100<c-x>", "-11" X "1");
+    KEYS("h889<c-x>", "-100" X "0");
+
+    // increase nearest number
+    data.setText("x-x+x: 1 2 3 -4 5");
+    KEYS("8<c-a>", "x-x+x: " X "9 2 3 -4 5");
+    KEYS("l8<c-a>", "x-x+x: 9 1" X "0 3 -4 5");
+    KEYS("l8<c-a>", "x-x+x: 9 10 1" X "1 -4 5");
+    KEYS("l16<c-a>", "x-x+x: 9 10 11 1" X "2 5");
+    KEYS("w18<c-x>", "x-x+x: 9 10 11 12 -1" X "3");
+    KEYS("hh13<c-a>", "x-x+x: 9 10 11 12 " X "0");
+    KEYS("B12<c-x>", "x-x+x: 9 10 11 " X "0 0");
+    KEYS("B11<c-x>", "x-x+x: 9 10 " X "0 0 0");
+    KEYS("B10<c-x>", "x-x+x: 9 " X "0 0 0 0");
+    KEYS("B9<c-x>", "x-x+x: " X "0 0 0 0 0");
+    KEYS("B9<c-x>", "x-x+x: -" X "9 0 0 0 0");
+
+    data.setText("-- 1 --");
+    KEYS("<c-x>", "-- " X "0 --");
+    KEYS("<c-x><c-x>", "-- -" X "2 --");
+    KEYS("2<c-a><c-a>", "-- " X "1 --");
+    KEYS("<c-a>2<c-a>", "-- " X "4 --");
+    KEYS(".", "-- " X "6 --");
+}
+
 void FakeVimPlugin::test_vim_delete()
 {
     TestData data;

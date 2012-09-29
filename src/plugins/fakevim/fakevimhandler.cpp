@@ -1336,7 +1336,7 @@ public:
     void selectSentenceTextObject(bool inner);
     void selectParagraphTextObject(bool inner);
     void selectBlockTextObject(bool inner, char left, char right);
-    void changeNumberTextObject(bool doIncrement);
+    void changeNumberTextObject(int count);
     void selectQuotedStringTextObject(bool inner, const QString &quote);
 
     Q_SLOT void importSelection();
@@ -2894,8 +2894,9 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         m_lastInsertion.clear();
         updateMiniBuffer();
     } else if (input.isControl('a')) {
-        changeNumberTextObject(true);
+        changeNumberTextObject(count());
         setDotCommand("%1<c-a>", count());
+        finishMovement();
     } else if (input.is('b') || input.isShift(Key_Left)) {
         m_movetype = MoveExclusive;
         moveToNextWordStart(count(), false, false);
@@ -3347,8 +3348,9 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         setDotCommand("%1x", count());
         finishMovement();
     } else if (input.isControl('x')) {
-        changeNumberTextObject(false);
-        setDotCommand("%1<c-a>", count());
+        changeNumberTextObject(-count());
+        setDotCommand("%1<c-x>", count());
+        finishMovement();
     } else if (input.is('X')) {
         if (leftDist() > 0) {
             setAnchor();
@@ -6079,36 +6081,33 @@ static bool isSign(const QChar c)
     return c.unicode() == '-' || c.unicode() == '+';
 }
 
-void FakeVimHandler::Private::changeNumberTextObject(bool doIncrement)
+void FakeVimHandler::Private::changeNumberTextObject(int count)
 {
     QTextCursor tc = cursor();
     int pos = tc.position();
-    const int n = lastPositionInDocument();
+    const int n = lastPositionInLine(lineForPosition(pos));
     QTextDocument *doc = document();
     QChar c = doc->characterAt(pos);
-    if (!c.isNumber()) {
-        if (pos == n || !isSign(c))
+    while (!c.isNumber()) {
+        if (pos == n)
             return;
         ++pos;
         c = doc->characterAt(pos);
-        if (!c.isNumber())
-            return;
     }
     int p1 = pos;
     while (p1 >= 1 && doc->characterAt(p1 - 1).isNumber())
         --p1;
     if (p1 >= 1 && isSign(doc->characterAt(p1 - 1)))
         --p1;
-    int p2 = pos;
-    while (p2 <= n - 1 && doc->characterAt(p2 + 1).isNumber())
+    int p2 = pos + 1;
+    while (p2 <= n - 1 && doc->characterAt(p2).isNumber())
         ++p2;
-    ++p2;
-    setAnchorAndPosition(p2, p1);
+    setAnchorAndPosition(p1, p2);
 
     QString orig = selectText(currentRange());
     int value = orig.toInt();
-    value = doIncrement ? value + 1 : value - 1;
-    QString repl = QString::fromLatin1("%1").arg(value, orig.size(), 10, QLatin1Char('0'));
+    value += count;
+    QString repl = QString::fromLatin1("%1").arg(value);
     replaceText(currentRange(), repl);
     moveLeft();
 }
