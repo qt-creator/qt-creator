@@ -518,11 +518,10 @@ void FakeVimPlugin::test_vim_indent()
         "        jkl" N
         "mno");
 
-    NOT_IMPLEMENTED
     KEYS("2<<",
         "abc" N
-        "    " X "def" N
-        "    ghi" N
+        "    def" N
+        "    " X "ghi" N
         "    jkl" N
         "mno");
     KEYS("k3<<",
@@ -552,14 +551,18 @@ void FakeVimPlugin::test_vim_indent()
     data.doCommand("set shiftwidth=2");
     KEYS(">>", "  " X "abc");
 
-    /* possibly QTCREATORBUG-7376 */
     data.setText("abc");
     data.doCommand("set noexpandtab");
     data.doCommand("set tabstop=2");
-    data.doCommand("set shiftwidth=5");
+    data.doCommand("set shiftwidth=7");
     // shiftwidth = TABS * tabstop + SPACES
     //          7 = 3    * 2       + 1
     KEYS(">>", "\t\t\t abc");
+
+    data.doCommand("set tabstop=3");
+    data.doCommand("set shiftwidth=7");
+    data.setText("abc");
+    KEYS(">>", "\t\t abc");
 }
 
 void FakeVimPlugin::test_vim_marks()
@@ -693,6 +696,15 @@ void FakeVimPlugin::test_vim_undo_redo()
     KEYS("<C-r>", "    ab" X "c" N "def");
     KEYS("<C-r>", "ab" X "c" N "def");
     KEYS("<C-r>", "ab" X "c" N "def");
+
+    data.setText("abc" N "def");
+    KEYS("2>>", "    " X "abc" N "    def");
+    KEYS("u", X "abc" N "def");
+    KEYS("<c-r>", X "    abc" N "    def");
+    KEYS("u", X "abc" N "def");
+    KEYS(">j", "    " X "abc" N "    def");
+    KEYS("u", X "abc" N "def");
+    KEYS("<c-r>", X "    abc" N "    def");
 
     // undo replace line
     data.setText("abc" N "  def" N "ghi");
