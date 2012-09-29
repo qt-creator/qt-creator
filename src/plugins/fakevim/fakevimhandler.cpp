@@ -5620,12 +5620,12 @@ QWidget *FakeVimHandler::Private::editor() const
 
 char FakeVimHandler::Private::currentModeCode() const
 {
-    if (isVisualMode())
+    if (m_mode == ExMode)
+        return 'c';
+    else if (isVisualMode())
         return 'v';
     else if (m_mode == CommandMode)
         return 'n';
-    else if (m_mode == ExMode)
-        return 'c';
     else
         return 'i';
 }
