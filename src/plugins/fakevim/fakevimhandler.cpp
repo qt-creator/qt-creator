@@ -1315,21 +1315,11 @@ public:
     QTextDocument *document() const { return EDITOR(document()); }
     QChar characterAtCursor() const
         { return document()->characterAt(position()); }
-    void joinPreviousEditBlock() {
-        UNDO_DEBUG("JOIN");
-        if (m_breakEditBlock)
-            beginEditBlock();
-        else
-            cursor().joinPreviousEditBlock();
-    }
-    void beginEditBlock() {
-        UNDO_DEBUG("BEGIN EDIT BLOCK");
-        cursor().beginEditBlock();
-        setUndoPosition(false);
-        m_breakEditBlock = false;
-    }
-    void endEditBlock()
-        { UNDO_DEBUG("END EDIT BLOCK"); cursor().endEditBlock(); }
+
+    void joinPreviousEditBlock();
+    void beginEditBlock(bool rememberPosition = true);
+    void beginLargeEditBlock() { beginEditBlock(false); }
+    void endEditBlock();
     void breakEditBlock() { m_breakEditBlock = true; }
 
     bool isVisualMode() const { return m_visualMode != NoVisualMode; }
@@ -2005,7 +1995,7 @@ void FakeVimHandler::Private::handleMappedKeys()
         g.pendingInput << inputs << Input() << rest;
         g.mapStates << MappingState(maxMapDepth, inputs.noremap(), inputs.silent());
         g.commandBuffer.setHistoryAutoSave(false);
-        beginEditBlock();
+        beginLargeEditBlock();
     }
     g.currentMap.reset();
 }
@@ -4001,8 +3991,6 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
         replacement = line.mid(pos1 + 1, pos2 - pos1 - 1);
         flags = line.mid(pos2 + 1);
 
-        needle.replace('$', '\n');
-        needle.replace("\\\n", "\\$");
         pattern = vimPatternToQtPattern(needle, hasConfig(ConfigSmartCase));
 
         m_lastSubstituteFlags = flags;
@@ -4016,7 +4004,8 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     if (flags.contains('i'))
         pattern.setCaseSensitivity(Qt::CaseInsensitive);
 
-    beginEditBlock();
+    int lastLine = -1;
+    int firstLine = -1;
     const bool global = flags.contains('g');
     for (int a = 0; a != count; ++a) {
         const Range range = cmd.range.endPos == 0 ? rangeFromCurrentLine() : cmd.range;
@@ -4046,6 +4035,13 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
                 repl.replace("\\&", "&");
                 text = text.left(pos) + repl + text.mid(pos + matched.size());
                 pos += repl.size();
+
+                firstLine = line;
+                if (lastLine == -1) {
+                    lastLine = line;
+                    beginEditBlock();
+                }
+
                 if (!global)
                     break;
             }
@@ -4053,9 +4049,21 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
                 setLineContents(line, text);
         }
     }
-    moveToStartOfLine();
-    setTargetColumn();
-    endEditBlock();
+
+    if (lastLine != -1) {
+        State &state = m_undo.top();
+        state.line = firstLine;
+        state.position = firstPositionInLine(firstLine);
+
+        QTextCursor tc = cursor();
+        tc.setPosition(firstPositionInLine(lastLine));
+        setCursor(tc);
+        moveToFirstNonBlankOnLine();
+        setTargetColumn();
+
+        endEditBlock();
+    }
+
     return true;
 }
 
@@ -4530,7 +4538,7 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     cmd.setContentsFromLine(line);
     //qDebug() << "CMD: " << cmd;
 
-    beginEditBlock();
+    beginLargeEditBlock();
     while (cmd.nextSubcommand()) {
         if (!handleExCommandHelper(cmd)) {
             showMessage(MessageError,
@@ -5666,6 +5674,30 @@ QWidget *FakeVimHandler::Private::editor() const
     return m_textedit
         ? static_cast<QWidget *>(m_textedit)
         : static_cast<QWidget *>(m_plaintextedit);
+}
+
+void FakeVimHandler::Private::joinPreviousEditBlock()
+{
+    UNDO_DEBUG("JOIN");
+    if (m_breakEditBlock)
+        beginEditBlock();
+    else
+        cursor().joinPreviousEditBlock();
+}
+
+void FakeVimHandler::Private::beginEditBlock(bool rememberPosition)
+{
+    UNDO_DEBUG("BEGIN EDIT BLOCK");
+    cursor().beginEditBlock();
+    if (rememberPosition)
+        setUndoPosition(false);
+    m_breakEditBlock = false;
+}
+
+void FakeVimHandler::Private::endEditBlock()
+{
+    UNDO_DEBUG("END EDIT BLOCK");
+    cursor().endEditBlock();
 }
 
 char FakeVimHandler::Private::currentModeCode() const

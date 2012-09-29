@@ -714,20 +714,19 @@ void FakeVimPlugin::test_vim_undo_redo()
 
 void FakeVimPlugin::test_advanced_commands()
 {
-    // TODO: Fix undo/redo position for substitute command.
     TestData data;
     setup(&data);
 
     // subcommands
-    data.setText("abc" N "  xxx" N "def");
-    COMMAND("%s/xxx/ZZZ/g|%s/ZZZ/OOO/g", "abc" N "  OOO" N "def");
+    data.setText("abc" N "  xxx" N "  xxx" N "def");
+    COMMAND("%s/xxx/ZZZ/g|%s/ZZZ/OOO/g", "abc" N "  OOO" N "  " X "OOO" N "def");
 
     // undo/redo all subcommands
-    COMMAND(":undo", "abc" N "  xxx" N "def");
-    COMMAND(":redo", "abc" N "  OOO" N "def");
+    COMMAND(":undo", "abc" N X "  xxx" N "  xxx" N "def");
+    COMMAND(":redo", "abc" N X "  OOO" N "  OOO" N "def");
 
     // redundant characters
-    COMMAND(":::   %s/\\S\\S\\S/ZZZ/g   |   ::::   %s/ZZZ/XXX/g ", "XXX" N "  XXX" N "XXX");
+    COMMAND(":::   %s/\\S\\S\\S/ZZZ/g   |   ::::   %s/ZZZ/XXX/g ", "XXX" N "  XXX" N "  XXX" N X "XXX");
 }
 
 void FakeVimPlugin::test_map()
@@ -838,6 +837,20 @@ void FakeVimPlugin::test_map()
     KEYS("X", "def xyz g" X "hi");
     KEYS("u", X "abc def ghi");
     KEYS("<C-r>", X "def xyz ghi");
+    data.doCommand("unmap  X");
+
+    data.setText("abc" N "  def" N "  ghi");
+    data.doCommand("map X jdd");
+    KEYS("X", "abc" N "  " X "ghi");
+    KEYS("u", "abc" N X "  def" N "  ghi");
+    KEYS("<c-r>", "abc" N X "  ghi");
+    data.doCommand("unmap  X");
+
+    data.setText("abc" N "def" N "ghi");
+    data.doCommand("map X jAxxx<cr>yyy<esc>");
+    KEYS("X", "abc" N "defxxx" N "yy" X "y" N "ghi");
+    KEYS("u", "abc" N "de" X "f" N "ghi");
+    KEYS("<c-r>", "abc" N "def" X "xxx" N "yyy" N "ghi");
     data.doCommand("unmap  X");
 
     NOT_IMPLEMENTED
