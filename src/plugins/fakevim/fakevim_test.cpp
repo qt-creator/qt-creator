@@ -700,6 +700,24 @@ void FakeVimPlugin::test_vim_undo_redo()
     KEYS("u", "abc" N "  " X "def" N "ghi");
 }
 
+void FakeVimPlugin::test_advanced_commands()
+{
+    // TODO: Fix undo/redo position for substitute command.
+    TestData data;
+    setup(&data);
+
+    // subcommands
+    data.setText("abc" N "  xxx" N "def");
+    COMMAND("%s/xxx/ZZZ/g|%s/ZZZ/OOO/g", "abc" N "  OOO" N "def");
+
+    // undo/redo all subcommands
+    COMMAND(":undo", "abc" N "  xxx" N "def");
+    COMMAND(":redo", "abc" N "  OOO" N "def");
+
+    // redundant characters
+    COMMAND(":::   %s/\\S\\S\\S/ZZZ/g   |   ::::   %s/ZZZ/XXX/g ", "XXX" N "  XXX" N "XXX");
+}
+
 void FakeVimPlugin::test_map()
 {
     TestData data;

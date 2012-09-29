@@ -477,13 +477,32 @@ bool ExCommand::matches(const QString &min, const QString &full) const
 
 void ExCommand::setContentsFromLine(const QString &line)
 {
-    cmd = line.section(' ', 0, 0);
-    args = line.mid(cmd.size() + 1).trimmed();
-    while (cmd.startsWith(QLatin1Char(':')))
-        cmd.remove(0, 1);
-    hasBang = cmd.endsWith('!');
-    if (hasBang)
-        cmd.chop(1);
+    // split command to subcommands
+    subCommands = line.split('|');
+}
+
+bool ExCommand::nextSubcommand()
+{
+    cmd.clear();
+    while (cmd.isEmpty() && !subCommands.isEmpty()) {
+        cmd = subCommands.takeFirst().trimmed();
+        cmd.remove(QRegExp("^:+\\s*")); // remove leading colons
+        hasBang = cmd.endsWith('!');
+        if (hasBang)
+            cmd.chop(1);
+
+        // command arguments
+        args = cmd.section(QRegExp("\\s+"), 1);
+        if (!args.isEmpty())
+            cmd = cmd.left(cmd.size() - args.size()).trimmed();
+    }
+
+    return !cmd.isEmpty();
+}
+
+QString ExCommand::printCommand() const
+{
+    return subCommands.isEmpty() ? cmd : cmd + "|" + subCommands.join("|");
 }
 
 QDebug operator<<(QDebug ts, const ExCommand &cmd)
@@ -1489,7 +1508,7 @@ public:
     QTextCursor m_lastSelectionCursor;
     VisualMode m_lastSelectionMode;
 
-    bool handleExCommandHelper(const ExCommand &cmd); // Returns success.
+    bool handleExCommandHelper(ExCommand &cmd); // Returns success.
     bool handleExPluginCommand(const ExCommand &cmd); // Handled by plugin?
     bool handleExBangCommand(const ExCommand &cmd);
     bool handleExDeleteCommand(const ExCommand &cmd);
@@ -4443,25 +4462,39 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
     }
 
     bool inFunction = false;
-    while (!file.atEnd()) {
-        QByteArray line = file.readLine();
-        line = line.trimmed();
+    QByteArray line;
+    while (!file.atEnd() || !line.isEmpty()) {
+        QByteArray nextline = !file.atEnd() ? file.readLine() : QByteArray();
+
+        //  remove comment
+        int i = nextline.lastIndexOf('"');
+        if (i != -1)
+            nextline = nextline.remove(i, nextline.size() - i);
+
+        nextline = nextline.trimmed();
+
+        // multi-line command?
+        if (nextline.startsWith('\\')) {
+            line += nextline.mid(1);
+            continue;
+        }
+
         if (line.startsWith("function")) {
             //qDebug() << "IGNORING FUNCTION" << line;
             inFunction = true;
         } else if (inFunction && line.startsWith("endfunction")) {
             inFunction = false;
-        } else if (line.startsWith("function")) {
-            //qDebug() << "IGNORING FUNCTION" << line;
-            inFunction = true;
-        } else if (line.startsWith('"')) {
-            // A comment.
         } else if (!line.isEmpty() && !inFunction) {
             //qDebug() << "EXECUTING: " << line;
             ExCommand cmd;
             cmd.setContentsFromLine(QString::fromLocal8Bit(line));
-            handleExCommandHelper(cmd);
+            while (cmd.nextSubcommand()) {
+                if (!handleExCommandHelper(cmd))
+                    break;
+            }
         }
+
+        line = nextline;
     }
     file.close();
     return true;
@@ -4488,9 +4521,31 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
         return;
     }
 
+    ExCommand cmd;
+    cmd.setContentsFromLine(line);
+    //qDebug() << "CMD: " << cmd;
+
+    beginEditBlock();
+    while (cmd.nextSubcommand()) {
+        if (!handleExCommandHelper(cmd)) {
+            showMessage(MessageError,
+                tr("Not an editor command: %1").arg(cmd.printCommand()));
+            break;
+        }
+    }
+    endEditBlock();
+
+    enterCommandMode();
+}
+
+bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
+{
+    // parse range first
+    QString &line = cmd.cmd;
+
     // FIXME: that seems to be different for %w and %s
     if (line.startsWith(QLatin1Char('%')))
-        line = "1,$" + line.mid(1);
+        line.replace(0, 1, "1,$");
 
     const int beginLine = readLineCode(line);
     int endLine = -1;
@@ -4500,23 +4555,13 @@ void FakeVimHandler::Private::handleExCommand(const QString &line0)
     }
     if (beginLine != -1 && endLine == -1)
         endLine = beginLine;
-    ExCommand cmd;
-    cmd.setContentsFromLine(line);
     if (beginLine != -1) {
         const int beginPos = firstPositionInLine(beginLine);
         const int endPos = lastPositionInLine(endLine);
         cmd.range = Range(beginPos, endPos, RangeLineMode);
         cmd.count = beginLine;
     }
-    //qDebug() << "CMD: " << cmd;
 
-    if (!handleExCommandHelper(cmd))
-        showMessage(MessageError, tr("Not an editor command: %1").arg(cmd.cmd));
-    enterCommandMode();
-}
-
-bool FakeVimHandler::Private::handleExCommandHelper(const ExCommand &cmd)
-{
     return handleExPluginCommand(cmd)
         || handleExGotoCommand(cmd)
         || handleExBangCommand(cmd)
