@@ -18,6 +18,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "Find" }
     Depends { name: "Locator" }
+    Depends { name: "app_version_header" }
 
     Depends { name: "cpp" }
     Properties {
@@ -30,8 +31,7 @@ QtcPlugin {
         ".",
         "..",
         "../..",
-        "../../libs",
-        buildDirectory
+        "../../libs"
     ]
 
     files: [

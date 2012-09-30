@@ -131,6 +131,11 @@ Project {
                 return cmd;
             }
         }
+
+        ProductModule {
+            Depends { name: "cpp" }
+            cpp.includePaths: product.buildDirectory
+        }
     }
 
     Product {

@@ -10,13 +10,13 @@ QtcPlugin {
     Depends { name: "Locator" }
     Depends { name: "Find" }
     Depends { name: "TextEditor" }
+    Depends { name: "app_version_header" }
 
     Depends { name: "cpp" }
     cpp.includePaths: [
         "..",
         "../../libs",
-        "../..",
-        buildDirectory
+        "../.."
     ]
 
     files: [

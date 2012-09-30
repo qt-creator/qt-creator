@@ -13,6 +13,7 @@ QtcPlugin {
     Depends { name: "Utils" }
     Depends { name: "ExtensionSystem" }
     Depends { name: "Aggregation" }
+    Depends { name: "app_version_header" }
 
     cpp.includePaths: [
         ".",
@@ -24,8 +25,7 @@ QtcPlugin {
         "editormanager",
         "progressmanager",
         "scriptmanager",
-        "actionmanager",
-         buildDirectory
+        "actionmanager"
     ]
 
     cpp.dynamicLibraries: {

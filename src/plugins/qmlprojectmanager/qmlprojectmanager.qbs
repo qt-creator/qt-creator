@@ -13,12 +13,12 @@ QtcPlugin {
     Depends { name: "QmlJS" }
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
+    Depends { name: "app_version_header" }
 
     Depends { name: "cpp" }
     cpp.includePaths: [
         "..",
-        "../../libs",
-        buildDirectory
+        "../../libs"
     ]
 
     files: [
