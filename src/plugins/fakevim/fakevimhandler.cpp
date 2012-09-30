@@ -851,7 +851,6 @@ public:
     void append(const QString &item);
     const QString &move(const QStringRef &prefix, int skip);
     const QString &current() const { return m_items[m_index]; }
-    const QString &last() const { return m_items[qMax(m_items.size() - 2, 0)]; }
     const QStringList &items() const { return m_items; }
     void restart() { m_index = m_items.size() - 1; }
 
@@ -921,7 +920,6 @@ public:
     void historyDown() { setContents(m_history.move(userContents(), 1)); }
     void historyUp() { setContents(m_history.move(userContents(), -1)); }
     const QStringList &historyItems() const { return m_history.items(); }
-    const QString &last() const { return m_history.last(); }
     void historyPush(const QString &item = QString())
     {
         m_history.append(item.isNull() ? contents() : item);
@@ -1387,6 +1385,7 @@ public:
 
     QString m_currentFileName;
 
+    QString m_lastSearch;
     bool m_lastSearchForward;
     bool m_findPending;
     int m_findStartPosition;
@@ -3809,9 +3808,13 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
         g.searchBuffer.moveRight();
     } else if (input.isReturn()) {
         const QString &needle = g.searchBuffer.contents();
-        if (!needle.isEmpty()) {
+        if (!needle.isEmpty())
+            m_lastSearch = needle;
+        else
+            g.searchBuffer.setContents(m_lastSearch);
+        if (!m_lastSearch.isEmpty()) {
             updateFind(true);
-            finishMovement(g.searchBuffer.prompt() + needle + '\n');
+            finishMovement(g.searchBuffer.prompt() + m_lastSearch + '\n');
         } else {
             finishMovement();
         }
@@ -4697,7 +4700,7 @@ void FakeVimHandler::Private::search(const SearchData &sd, bool showMessages)
 void FakeVimHandler::Private::searchNext(bool forward)
 {
     SearchData sd;
-    sd.needle = g.searchBuffer.last();
+    sd.needle = m_lastSearch;
     sd.forward = forward ? m_lastSearchForward : !m_lastSearchForward;
     sd.highlightMatches = true;
     m_searchStartPosition = position();
