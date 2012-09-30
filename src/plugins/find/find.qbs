@@ -21,12 +21,11 @@ QtcPlugin {
     ]
 
     files: [
-        "find.qrc",
-        "findwidget.ui",
         "basetextfind.cpp",
         "basetextfind.h",
         "currentdocumentfind.cpp",
         "currentdocumentfind.h",
+        "find.qrc",
         "find_global.h",
         "finddialog.ui",
         "findplugin.cpp",
@@ -35,6 +34,7 @@ QtcPlugin {
         "findtoolbar.h",
         "findtoolwindow.cpp",
         "findtoolwindow.h",
+        "findwidget.ui",
         "ifindfilter.cpp",
         "ifindfilter.h",
         "ifindsupport.cpp",
@@ -54,7 +54,7 @@ QtcPlugin {
         "searchresultwindow.h",
         "textfindconstants.h",
         "treeviewfind.cpp",
-        "treeviewfind.h"
+        "treeviewfind.h",
     ]
 }
 

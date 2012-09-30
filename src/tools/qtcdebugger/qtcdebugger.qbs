@@ -21,6 +21,6 @@ QtcTool {
     files: [
         "main.cpp",
         "../../shared/registryaccess/registryaccess.cpp",
-        "../../shared/registryaccess/registryaccess.h"
+        "../../shared/registryaccess/registryaccess.h",
     ]
 }

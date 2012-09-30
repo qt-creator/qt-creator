@@ -50,6 +50,6 @@ QtcPlugin {
         "makefileparserthread.cpp",
         "makefileparserthread.h",
         "makestep.cpp",
-        "makestep.h"
+        "makestep.h",
     ]
 }

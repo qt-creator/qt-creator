@@ -26,10 +26,10 @@ QtcPlugin {
         "cpptodoitemsscanner.cpp",
         "cpptodoitemsscanner.h",
         "keyword.cpp",
+        "keyword.h",
         "keyworddialog.cpp",
         "keyworddialog.h",
         "keyworddialog.ui",
-        "keyword.h",
         "lineparser.cpp",
         "lineparser.h",
         "optionsdialog.cpp",
@@ -52,6 +52,6 @@ QtcPlugin {
         "todooutputpane.h",
         "todoplugin.cpp",
         "todoplugin.h",
-        "todoplugin.qrc"
+        "todoplugin.qrc",
     ]
 }

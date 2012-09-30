@@ -14,7 +14,6 @@ QtcTool {
     Depends { name: "app_version_header" }
 
     files: [
-        "main.cpp",
         "addkeysoperation.cpp",
         "addkeysoperation.h",
         "addkitoperation.cpp",
@@ -29,8 +28,9 @@ QtcTool {
         "findvalueoperation.h",
         "getoperation.cpp",
         "getoperation.h",
-        "operation.h",
+        "main.cpp",
         "operation.cpp",
+        "operation.h",
         "rmkeysoperation.cpp",
         "rmkeysoperation.h",
         "rmkitoperation.cpp",
@@ -40,6 +40,6 @@ QtcTool {
         "rmtoolchainoperation.cpp",
         "rmtoolchainoperation.h",
         "settings.cpp",
-        "settings.h"
+        "settings.h",
     ]
 }

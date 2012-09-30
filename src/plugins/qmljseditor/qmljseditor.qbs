@@ -26,8 +26,6 @@ QtcPlugin {
     ]
 
     files: [
-        "qmljseditor.qrc",
-        "quicktoolbarsettingspage.ui",
         "QmlJSEditor.mimetypes.xml",
         "jsfilewizard.cpp",
         "jsfilewizard.h",
@@ -46,6 +44,7 @@ QtcPlugin {
         "qmljscomponentnamedialog.ui",
         "qmljseditor.cpp",
         "qmljseditor.h",
+        "qmljseditor.qrc",
         "qmljseditor_global.h",
         "qmljseditoractionhandler.cpp",
         "qmljseditoractionhandler.h",
@@ -82,6 +81,7 @@ QtcPlugin {
         "qmljssnippetprovider.cpp",
         "qmljssnippetprovider.h",
         "qmljswrapinloader.cpp",
+        "qmljswrapinloader.h",
         "qmloutlinemodel.cpp",
         "qmloutlinemodel.h",
         "qmltaskmanager.cpp",
@@ -90,8 +90,8 @@ QtcPlugin {
         "quicktoolbar.h",
         "quicktoolbarsettingspage.cpp",
         "quicktoolbarsettingspage.h",
-        "qmljswrapinloader.h",
-        "images/qmlfile.png"
+        "quicktoolbarsettingspage.ui",
+        "images/qmlfile.png",
     ]
 
     ProductModule {

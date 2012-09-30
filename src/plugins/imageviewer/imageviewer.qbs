@@ -17,22 +17,22 @@ QtcPlugin {
     ]
 
     files: [
-        "imageviewerplugin.h",
-        "imageviewerfactory.h",
-        "imageviewerfile.h",
-        "imageviewer.h",
-        "imageview.h",
-        "imageviewerconstants.h",
-        "imagevieweractionhandler.h",
-        "imageviewerplugin.cpp",
-        "imageviewerfactory.cpp",
-        "imageviewerfile.cpp",
-        "imageviewer.cpp",
+        "ImageViewer.mimetypes.xml",
         "imageview.cpp",
-        "imagevieweractionhandler.cpp",
-        "imageviewertoolbar.ui",
+        "imageview.h",
+        "imageviewer.cpp",
+        "imageviewer.h",
         "imageviewer.qrc",
-        "ImageViewer.mimetypes.xml"
+        "imagevieweractionhandler.cpp",
+        "imagevieweractionhandler.h",
+        "imageviewerconstants.h",
+        "imageviewerfactory.cpp",
+        "imageviewerfactory.h",
+        "imageviewerfile.cpp",
+        "imageviewerfile.h",
+        "imageviewerplugin.cpp",
+        "imageviewerplugin.h",
+        "imageviewertoolbar.ui",
     ]
 }
 

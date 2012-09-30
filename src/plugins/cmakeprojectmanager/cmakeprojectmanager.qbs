@@ -51,7 +51,7 @@ QtcPlugin {
         "cmakeuicodemodelsupport.cpp",
         "cmakeuicodemodelsupport.h",
         "makestep.cpp",
-        "makestep.h"
+        "makestep.h",
     ]
 }
 

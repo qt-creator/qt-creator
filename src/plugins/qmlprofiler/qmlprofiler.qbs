@@ -31,6 +31,7 @@ QtcPlugin {
         "abstractqmlprofilerrunner.h",
         "localqmlprofilerrunner.cpp",
         "localqmlprofilerrunner.h",
+        "qmlprofiler_global.h",
         "qmlprofilerattachdialog.cpp",
         "qmlprofilerattachdialog.h",
         "qmlprofilerattachdialog.ui",
@@ -45,7 +46,6 @@ QtcPlugin {
         "qmlprofilerengine.h",
         "qmlprofilereventview.cpp",
         "qmlprofilereventview.h",
-        "qmlprofiler_global.h",
         "qmlprofilerplugin.cpp",
         "qmlprofilerplugin.h",
         "qmlprofilerstatemanager.cpp",
@@ -75,6 +75,7 @@ QtcPlugin {
         "qml/Detail.qml",
         "qml/Label.qml",
         "qml/MainView.qml",
+        "qml/Overview.js",
         "qml/Overview.qml",
         "qml/RangeDetails.qml",
         "qml/RangeMover.qml",
@@ -84,7 +85,6 @@ QtcPlugin {
         "qml/TimeDisplay.qml",
         "qml/TimeMarks.qml",
         "qml/qmlprofiler.qrc",
-        "qml/Overview.js"
     ]
 }
 

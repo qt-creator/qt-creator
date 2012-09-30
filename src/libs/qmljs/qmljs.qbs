@@ -21,6 +21,8 @@ QtcLibrary {
     Depends { name: "Qt"; submodules: ["widgets", "script"] }
 
     files: [
+        "jsoncheck.cpp",
+        "jsoncheck.h",
         "qmljs.qrc",
         "qmljs_global.h",
         "qmljsbind.cpp",
@@ -55,6 +57,7 @@ QtcLibrary {
         "qmljspropertyreader.cpp",
         "qmljspropertyreader.h",
         "qmljsreformatter.cpp",
+        "qmljsreformatter.h",
         "qmljsrewriter.cpp",
         "qmljsrewriter.h",
         "qmljsscanner.cpp",
@@ -73,9 +76,6 @@ QtcLibrary {
         "qmljsutils.h",
         "qmljsvalueowner.cpp",
         "qmljsvalueowner.h",
-        "qmljsreformatter.h",
-        "jsoncheck.cpp",
-        "jsoncheck.h",
         "images/element.png",
         "images/func.png",
         "images/property.png",
@@ -99,7 +99,7 @@ QtcLibrary {
         "parser/qmljslexer_p.h",
         "parser/qmljsmemorypool_p.h",
         "parser/qmljsparser.cpp",
-        "parser/qmljsparser_p.h"
+        "parser/qmljsparser_p.h",
     ]
 
     ProductModule {

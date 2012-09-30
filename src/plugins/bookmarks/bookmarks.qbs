@@ -20,14 +20,14 @@ QtcPlugin {
     ]
 
     files: [
-        "bookmarksplugin.h",
+        "bookmark.cpp",
         "bookmark.h",
+        "bookmarkmanager.cpp",
         "bookmarkmanager.h",
+        "bookmarks.qrc",
         "bookmarks_global.h",
         "bookmarksplugin.cpp",
-        "bookmark.cpp",
-        "bookmarkmanager.cpp",
-        "bookmarks.qrc",
+        "bookmarksplugin.h",
     ]
 }
 

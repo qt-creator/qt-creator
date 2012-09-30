@@ -18,12 +18,12 @@ QtcPlugin {
     ]
 
     files: [
-        "bineditorplugin.h",
+        "bineditor.cpp",
         "bineditor.h",
         "bineditorconstants.h",
-        "markup.h",
         "bineditorplugin.cpp",
-        "bineditor.cpp"
+        "bineditorplugin.h",
+        "markup.h",
     ]
 }
 

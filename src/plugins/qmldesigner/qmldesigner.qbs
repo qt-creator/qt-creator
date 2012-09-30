@@ -73,7 +73,7 @@ QtcPlugin {
             "removepropertyvisitor.cpp",
             "removepropertyvisitor.h",
             "removeuiobjectmembervisitor.cpp",
-            "removeuiobjectmembervisitor.h"
+            "removeuiobjectmembervisitor.h",
         ]
     }
 
@@ -145,13 +145,15 @@ QtcPlugin {
             "interfaces/commondefines.h",
             "interfaces/nodeinstanceclientinterface.h",
             "interfaces/nodeinstanceserverinterface.cpp",
-            "interfaces/nodeinstanceserverinterface.h"
+            "interfaces/nodeinstanceserverinterface.h",
         ]
     }
 
     Group {
         prefix: "designercore/"
         files: [
+            "rewritertransaction.cpp",
+            "rewritertransaction.h",
             "exceptions/exception.cpp",
             "exceptions/invalidargumentexception.cpp",
             "exceptions/invalididexception.cpp",
@@ -287,8 +289,6 @@ QtcPlugin {
             "pluginmanager/widgetpluginmanager.h",
             "pluginmanager/widgetpluginpath.cpp",
             "pluginmanager/widgetpluginpath.h",
-            "rewritertransaction.cpp",
-            "rewritertransaction.h"
         ]
     }
 
@@ -458,7 +458,7 @@ QtcPlugin {
             "stateseditor/stateseditorview.h",
             "stateseditor/stateseditorwidget.cpp",
             "stateseditor/stateseditorwidget.h",
-            "stateseditor/stateslist.qml"
+            "stateseditor/stateslist.qml",
         ]
     }
 
@@ -476,6 +476,6 @@ QtcPlugin {
         "settingspage.h",
         "settingspage.ui",
         "styledoutputpaneplaceholder.cpp",
-        "styledoutputpaneplaceholder.h"
+        "styledoutputpaneplaceholder.h",
     ]
 }

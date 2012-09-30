@@ -21,20 +21,21 @@ QtcPlugin {
     ]
 
     files: [
-        "directoryfilter.ui",
-        "filesystemfilter.ui",
-        "locator.qrc",
-        "settingspage.ui",
         "basefilefilter.cpp",
         "basefilefilter.h",
         "commandlocator.cpp",
         "commandlocator.h",
         "directoryfilter.cpp",
         "directoryfilter.h",
+        "directoryfilter.ui",
+        "executefilter.cpp",
         "executefilter.h",
         "filesystemfilter.cpp",
         "filesystemfilter.h",
+        "filesystemfilter.ui",
         "ilocatorfilter.cpp",
+        "ilocatorfilter.h",
+        "locator.qrc",
         "locator_global.h",
         "locatorconstants.h",
         "locatorfiltersfilter.cpp",
@@ -43,16 +44,15 @@ QtcPlugin {
         "locatormanager.h",
         "locatorplugin.cpp",
         "locatorplugin.h",
+        "locatorwidget.cpp",
+        "locatorwidget.h",
         "opendocumentsfilter.cpp",
         "opendocumentsfilter.h",
         "settingspage.cpp",
         "settingspage.h",
-        "executefilter.cpp",
-        "ilocatorfilter.h",
-        "locatorwidget.cpp",
-        "locatorwidget.h",
+        "settingspage.ui",
         "images/locator.png",
-        "images/reload.png"
+        "images/reload.png",
     ]
 }
 

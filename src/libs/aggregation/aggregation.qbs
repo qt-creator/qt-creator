@@ -14,8 +14,8 @@ QtcLibrary {
     Depends { name: "Qt.core" }
 
     files: [
-        "aggregation_global.h",
+        "aggregate.cpp",
         "aggregate.h",
-        "aggregate.cpp"
+        "aggregation_global.h",
     ]
 }

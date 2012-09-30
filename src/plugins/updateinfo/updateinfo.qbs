@@ -21,6 +21,6 @@ QtcPlugin {
         "updateinfobutton.cpp",
         "updateinfobutton.h",
         "updateinfoplugin.cpp",
-        "updateinfoplugin.h"
+        "updateinfoplugin.h",
     ]
 }

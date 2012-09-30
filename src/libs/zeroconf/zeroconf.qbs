@@ -26,17 +26,17 @@ QtcLibrary {
     }
 
     files: [
-        "servicebrowser.cpp",
-        "servicebrowser.h",
-        "servicebrowser_p.h",
-        "embeddedLib.cpp",
-        "mdnsderived.cpp",
-        "mdnsderived.h",
         "avahiLib.cpp",
         "dnsSdLib.cpp",
         "dns_sd_types.h",
+        "embeddedLib.cpp",
+        "mdnsderived.cpp",
+        "mdnsderived.h",
+        "servicebrowser.cpp",
+        "servicebrowser.h",
+        "servicebrowser_p.h",
+        "syssocket.h",
         "zeroconf_global.h",
-        "syssocket.h"
     ]
 
     ProductModule {

@@ -16,10 +16,10 @@ QtcPlugin {
     ]
 
     files: [
-        "helloworldplugin.h",
-        "helloworldwindow.h",
         "helloworldplugin.cpp",
-        "helloworldwindow.cpp"
+        "helloworldplugin.h",
+        "helloworldwindow.cpp",
+        "helloworldwindow.h",
     ]
 }
 

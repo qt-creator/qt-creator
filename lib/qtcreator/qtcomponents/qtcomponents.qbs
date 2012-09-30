@@ -51,13 +51,13 @@ Product {
             "ButtonRow.qml",
             "CheckBox.qml",
             "ChoiceList.qml",
-            "components.pro",
             "GroupBox.qml",
             "ProgressBar.qml",
             "Slider.qml",
             "SpinBox.qml",
             "SplitterRow.qml",
             "TextField.qml",
+            "components.pro",
             "qmldir",
         ]
     }

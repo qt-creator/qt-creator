@@ -31,15 +31,15 @@ QtcPlugin {
         "resourceeditorw.h",
         "resourcewizard.cpp",
         "resourcewizard.h",
-        "qrceditor/resourcefile.cpp",
-        "qrceditor/resourceview.cpp",
         "qrceditor/qrceditor.cpp",
-        "qrceditor/undocommands.cpp",
-        "qrceditor/resourcefile_p.h",
-        "qrceditor/resourceview.h",
         "qrceditor/qrceditor.h",
+        "qrceditor/qrceditor.ui",
+        "qrceditor/resourcefile.cpp",
+        "qrceditor/resourcefile_p.h",
+        "qrceditor/resourceview.cpp",
+        "qrceditor/resourceview.h",
+        "qrceditor/undocommands.cpp",
         "qrceditor/undocommands_p.h",
-        "qrceditor/qrceditor.ui"
     ]
 }
 

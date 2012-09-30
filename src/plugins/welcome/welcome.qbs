@@ -21,7 +21,7 @@ QtcPlugin {
     files: [
         "welcome_global.h",
         "welcomeplugin.cpp",
-        "welcomeplugin.h"
+        "welcomeplugin.h",
     ]
 }
 

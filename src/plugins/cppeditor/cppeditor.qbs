@@ -21,7 +21,6 @@ QtcPlugin {
 
     files: [
         "CppEditor.mimetypes.xml",
-        "cppeditor.qrc",
         "cppautocompleter.cpp",
         "cppautocompleter.h",
         "cppclasswizard.cpp",
@@ -30,6 +29,7 @@ QtcPlugin {
         "cppcompleteswitch.h",
         "cppeditor.cpp",
         "cppeditor.h",
+        "cppeditor.qrc",
         "cppeditor_global.h",
         "cppeditorconstants.h",
         "cppeditorenums.h",
@@ -59,7 +59,7 @@ QtcPlugin {
         "cppsnippetprovider.cpp",
         "cppsnippetprovider.h",
         "cpptypehierarchy.cpp",
-        "cpptypehierarchy.h"
+        "cpptypehierarchy.h",
     ]
 }
 

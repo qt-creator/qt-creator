@@ -27,8 +27,8 @@ QtcPlugin {
     ]
 
     files: [
-        "qmljsmodelmanager.cpp",
-        "qmljsmodelmanager.h",
+        "qmljscodestylepreferencesfactory.cpp",
+        "qmljscodestylepreferencesfactory.h",
         "qmljscodestylesettingspage.cpp",
         "qmljscodestylesettingspage.h",
         "qmljscodestylesettingspage.ui",
@@ -41,6 +41,8 @@ QtcPlugin {
         "qmljslocatordata.cpp",
         "qmljslocatordata.h",
         "qmljsmodelmanager.cpp",
+        "qmljsmodelmanager.cpp",
+        "qmljsmodelmanager.h",
         "qmljsmodelmanager.h",
         "qmljsplugindumper.cpp",
         "qmljsplugindumper.h",
@@ -48,16 +50,14 @@ QtcPlugin {
         "qmljsqtstylecodeformatter.h",
         "qmljsrefactoringchanges.cpp",
         "qmljsrefactoringchanges.h",
+        "qmljssemanticinfo.cpp",
+        "qmljssemanticinfo.h",
         "qmljstools_global.h",
         "qmljstoolsconstants.h",
         "qmljstoolsplugin.cpp",
         "qmljstoolsplugin.h",
         "qmljstoolssettings.cpp",
         "qmljstoolssettings.h",
-        "qmljscodestylepreferencesfactory.cpp",
-        "qmljscodestylepreferencesfactory.h",
-        "qmljssemanticinfo.cpp",
-        "qmljssemanticinfo.h"
     ]
 
     Group {

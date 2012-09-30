@@ -36,8 +36,6 @@ QtcPlugin {
     }
 
     files: [
-        "fancyactionbar.qrc",
-        "generalsettings.ui",
         "basefilewizard.cpp",
         "basefilewizard.h",
         "core.qrc",
@@ -47,6 +45,8 @@ QtcPlugin {
         "coreplugin.h",
         "designmode.cpp",
         "designmode.h",
+        "documentmanager.cpp",
+        "documentmanager.h",
         "editmode.cpp",
         "editmode.h",
         "editortoolbar.cpp",
@@ -56,10 +56,11 @@ QtcPlugin {
         "externaltoolmanager.h",
         "fancyactionbar.cpp",
         "fancyactionbar.h",
+        "fancyactionbar.qrc",
         "fancytabwidget.cpp",
         "fancytabwidget.h",
-        "featureprovider.h",
         "featureprovider.cpp",
+        "featureprovider.h",
         "fileiconprovider.cpp",
         "fileiconprovider.h",
         "fileutils.cpp",
@@ -68,6 +69,7 @@ QtcPlugin {
         "findplaceholder.h",
         "generalsettings.cpp",
         "generalsettings.h",
+        "generalsettings.ui",
         "generatedfile.cpp",
         "generatedfile.h",
         "helpmanager.cpp",
@@ -77,20 +79,21 @@ QtcPlugin {
         "icore.cpp",
         "icore.h",
         "icorelistener.h",
+        "id.cpp",
         "id.h",
-        "ifilewizardextension.h",
-        "imode.cpp",
-        "imode.h",
-        "documentmanager.cpp",
-        "documentmanager.h",
         "idocument.cpp",
         "idocument.h",
         "idocumentfactory.h",
+        "ifilewizardextension.h",
+        "imode.cpp",
+        "imode.h",
         "inavigationwidgetfactory.cpp",
         "inavigationwidgetfactory.h",
         "infobar.cpp",
         "infobar.h",
         "ioutputpane.h",
+        "iversioncontrol.cpp",
+        "iversioncontrol.h",
         "mainwindow.cpp",
         "mainwindow.h",
         "manhattanstyle.cpp",
@@ -146,18 +149,15 @@ QtcPlugin {
         "textdocument.h",
         "toolsettings.cpp",
         "toolsettings.h",
+        "variablechooser.cpp",
         "variablechooser.h",
         "variablechooser.ui",
-        "vcsmanager.h",
-        "versiondialog.cpp",
-        "versiondialog.h",
-        "id.cpp",
-        "iversioncontrol.cpp",
-        "iversioncontrol.h",
-        "variablechooser.cpp",
         "variablemanager.cpp",
         "variablemanager.h",
         "vcsmanager.cpp",
+        "vcsmanager.h",
+        "versiondialog.cpp",
+        "versiondialog.h",
         "actionmanager/actioncontainer.cpp",
         "actionmanager/actioncontainer.h",
         "actionmanager/actioncontainer_p.h",
@@ -167,23 +167,23 @@ QtcPlugin {
         "actionmanager/command.cpp",
         "actionmanager/command.h",
         "actionmanager/command_p.h",
-        "actionmanager/commandbutton.h",
         "actionmanager/commandbutton.cpp",
+        "actionmanager/commandbutton.h",
         "actionmanager/commandmappings.cpp",
         "actionmanager/commandmappings.h",
         "actionmanager/commandmappings.ui",
         "actionmanager/commandsfile.cpp",
         "actionmanager/commandsfile.h",
-        "dialogs/externaltoolconfig.ui",
-        "dialogs/newdialog.ui",
         "dialogs/externaltoolconfig.cpp",
         "dialogs/externaltoolconfig.h",
+        "dialogs/externaltoolconfig.ui",
         "dialogs/ioptionspage.cpp",
         "dialogs/ioptionspage.h",
         "dialogs/iwizard.cpp",
         "dialogs/iwizard.h",
         "dialogs/newdialog.cpp",
         "dialogs/newdialog.h",
+        "dialogs/newdialog.ui",
         "dialogs/openwithdialog.cpp",
         "dialogs/openwithdialog.h",
         "dialogs/openwithdialog.ui",
@@ -197,12 +197,14 @@ QtcPlugin {
         "dialogs/shortcutsettings.cpp",
         "dialogs/shortcutsettings.h",
         "editormanager/BinFiles.mimetypes.xml",
+        "editormanager/editormanager.cpp",
+        "editormanager/editormanager.h",
         "editormanager/editorview.cpp",
         "editormanager/editorview.h",
         "editormanager/ieditor.cpp",
         "editormanager/ieditor.h",
-        "editormanager/ieditorfactory.h",
         "editormanager/ieditorfactory.cpp",
+        "editormanager/ieditorfactory.h",
         "editormanager/iexternaleditor.cpp",
         "editormanager/iexternaleditor.h",
         "editormanager/openeditorsmodel.cpp",
@@ -214,8 +216,6 @@ QtcPlugin {
         "editormanager/openeditorswindow.h",
         "editormanager/systemeditor.cpp",
         "editormanager/systemeditor.h",
-        "editormanager/editormanager.cpp",
-        "editormanager/editormanager.h",
         "progressmanager/futureprogress.cpp",
         "progressmanager/futureprogress.h",
         "progressmanager/progressbar.cpp",
@@ -228,27 +228,27 @@ QtcPlugin {
         "scriptmanager/metatypedeclarations.h",
         "scriptmanager/scriptmanager.cpp",
         "scriptmanager/scriptmanager.h",
-        "scriptmanager/scriptmanager_p.h"
+        "scriptmanager/scriptmanager_p.h",
     ]
 
     Group {
         condition: qbs.targetOS == "windows"
         files: [
-            "progressmanager/progressmanager_win.cpp"
+            "progressmanager/progressmanager_win.cpp",
         ]
     }
 
     Group {
         condition: qbs.targetOS == "macx"
         files: [
-            "progressmanager/progressmanager_mac.mm"
+            "progressmanager/progressmanager_mac.mm",
         ]
     }
 
     Group {
         condition: qbs.targetOS == "linux"
         files: [
-            "progressmanager/progressmanager_x11.cpp"
+            "progressmanager/progressmanager_x11.cpp",
         ]
     }
 

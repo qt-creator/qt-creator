@@ -54,7 +54,7 @@ QtcPlugin {
         "settingspage.h",
         "settingspage.ui",
         "urlopenprotocol.cpp",
-        "urlopenprotocol.h"
+        "urlopenprotocol.h",
     ]
 
     Group {
@@ -63,7 +63,7 @@ QtcPlugin {
             "cgi.cpp",
             "cgi.h",
             "splitter.cpp",
-            "splitter.h"
+            "splitter.h",
         ]
     }
 }

@@ -14,15 +14,15 @@ QtcTool {
     Depends { name: "app_version_header" }
 
     files: [
-        "main.cpp",
         "backtracecollector.cpp",
         "backtracecollector.h",
-        "crashhandlerdialog.cpp",
-        "crashhandlerdialog.h",
         "crashhandler.cpp",
         "crashhandler.h",
+        "crashhandlerdialog.cpp",
+        "crashhandlerdialog.h",
+        "crashhandlerdialog.ui",
+        "main.cpp",
         "utils.cpp",
         "utils.h",
-        "crashhandlerdialog.ui"
     ]
 }

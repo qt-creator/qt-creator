@@ -27,7 +27,7 @@ DynamicLibrary {
         "qtmenuitem.cpp",
         "qtmenuitem.h",
         "qwheelarea.cpp",
-        "qwheelarea.h"
+        "qwheelarea.h",
     ]
 }
 

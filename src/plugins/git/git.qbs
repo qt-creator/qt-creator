@@ -24,18 +24,14 @@ QtcPlugin {
     ]
 
     files: [
-        "branchadddialog.ui",
-        "branchdialog.ui",
-        "git.qrc",
-        "gitsubmitpanel.ui",
-        "remoteadditiondialog.ui",
-        "stashdialog.ui",
         "annotationhighlighter.cpp",
         "annotationhighlighter.h",
         "branchadddialog.cpp",
         "branchadddialog.h",
+        "branchadddialog.ui",
         "branchdialog.cpp",
         "branchdialog.h",
+        "branchdialog.ui",
         "branchmodel.cpp",
         "branchmodel.h",
         "changeselectiondialog.cpp",
@@ -47,6 +43,7 @@ QtcPlugin {
         "clonewizardpage.h",
         "commitdata.cpp",
         "commitdata.h",
+        "git.qrc",
         "gitclient.cpp",
         "gitclient.h",
         "gitconstants.h",
@@ -60,10 +57,12 @@ QtcPlugin {
         "gitsubmiteditor.h",
         "gitsubmiteditorwidget.cpp",
         "gitsubmiteditorwidget.h",
+        "gitsubmitpanel.ui",
         "gitutils.cpp",
         "gitutils.h",
         "gitversioncontrol.cpp",
         "gitversioncontrol.h",
+        "remoteadditiondialog.ui",
         "remotedialog.cpp",
         "remotedialog.h",
         "remotedialog.ui",
@@ -75,29 +74,30 @@ QtcPlugin {
         "settingspage.h",
         "settingspage.ui",
         "stashdialog.cpp",
-        "stashdialog.h"
+        "stashdialog.h",
+        "stashdialog.ui",
     ]
 
     Group {
         prefix: "gitorious/"
         files: [
-            "gitorioushostwidget.ui",
-            "gitoriousprojectwidget.ui",
-            "gitoriousrepositorywizardpage.ui",
             "gitorious.cpp",
             "gitorious.h",
             "gitoriousclonewizard.cpp",
             "gitoriousclonewizard.h",
             "gitorioushostwidget.cpp",
             "gitorioushostwidget.h",
+            "gitorioushostwidget.ui",
             "gitorioushostwizardpage.cpp",
             "gitorioushostwizardpage.h",
             "gitoriousprojectwidget.cpp",
             "gitoriousprojectwidget.h",
+            "gitoriousprojectwidget.ui",
             "gitoriousprojectwizardpage.cpp",
             "gitoriousprojectwizardpage.h",
             "gitoriousrepositorywizardpage.cpp",
-            "gitoriousrepositorywizardpage.h"
+            "gitoriousrepositorywizardpage.h",
+            "gitoriousrepositorywizardpage.ui",
         ]
     }
 
@@ -113,7 +113,7 @@ QtcPlugin {
             "gerritparameters.cpp",
             "gerritparameters.h",
             "gerritplugin.cpp",
-            "gerritplugin.h"
+            "gerritplugin.h",
         ]
     }
 }
