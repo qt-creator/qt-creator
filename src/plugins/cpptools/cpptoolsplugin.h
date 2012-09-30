@@ -100,6 +100,8 @@ private slots:
     void test_completion_use_global_identifier_as_base_class_data();
     void test_completion_base_class_has_name_the_same_as_derived();
     void test_completion_base_class_has_name_the_same_as_derived_data();
+    void test_completion_cyclic_inheritance();
+    void test_completion_cyclic_inheritance_data();
 
 private:
     void test_completion();

@@ -672,3 +672,123 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
     completions.clear();
 
 }
+
+
+void CppToolsPlugin::test_completion_cyclic_inheritance()
+{
+    test_completion();
+}
+
+void CppToolsPlugin::test_completion_cyclic_inheritance_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QByteArray code;
+    QStringList completions;
+
+    code = "\n"
+            "struct B;\n"
+            "struct A : B { int _a; };\n"
+            "struct B : A { int _b; };\n"
+            "\n"
+            "A c;\n"
+            "@\n"
+            ;
+    completions.append("A");
+    completions.append("_a");
+    completions.append("B");
+    completions.append("_b");
+    QTest::newRow("case: direct cyclic inheritance") << code << completions;
+
+    completions.clear();
+    code = "\n"
+            "struct C;\n"
+            "struct A : C { int _a; };\n"
+            "struct B : A { int _b; };\n"
+            "struct C : B { int _c; };\n"
+            "\n"
+            "A c;\n"
+            "@\n"
+            ;
+    completions.append("A");
+    completions.append("_a");
+    completions.append("B");
+    completions.append("_b");
+    completions.append("C");
+    completions.append("_c");
+    QTest::newRow("case: indirect cyclic inheritance") << code << completions;
+
+    completions.clear();
+    code = "\n"
+            "struct B;\n"
+            "struct A : B { int _a; };\n"
+            "struct C { int _c; };\n"
+            "struct B : C, A { int _b; };\n"
+            "\n"
+            "A c;\n"
+            "@\n"
+            ;
+    completions.append("A");
+    completions.append("_a");
+    completions.append("B");
+    completions.append("_b");
+    completions.append("C");
+    completions.append("_c");
+    QTest::newRow("case: indirect cyclic inheritance") << code << completions;
+
+    completions.clear();
+    code = "\n"
+            "template< typename T > struct C;\n"
+            "template< typename T, typename S > struct D : C< S >\n"
+            "{\n"
+            "   T _d_t;\n"
+            "   S _d_s;\n"
+            "};\n"
+            "template< typename T > struct C : D< T, int >\n"
+            "{\n"
+            "   T _c_t;\n"
+            "};\n"
+            "\n"
+            "D<int, float> c;\n"
+            "@\n"
+            ;
+    completions.append("D");
+    completions.append("_d_t");
+    completions.append("_d_s");
+    completions.append("C");
+    completions.append("_c_t");
+    QTest::newRow("case: direct cyclic inheritance with templates")
+            << code << completions;
+
+    completions.clear();
+    code = "\n"
+            "template< typename T > struct C;\n"
+            "template< typename T, typename S > struct D : C< S >\n"
+            "{\n"
+            "   T _d_t;\n"
+            "   S _d_s;\n"
+            "};\n"
+            "template< typename T > struct B : D< T, int >\n"
+            "{\n"
+            "   T _b_t;\n"
+            "};\n"
+            "template< typename T > struct C : B<T>\n"
+            "{\n"
+            "   T _c_t;\n"
+            "};\n"
+            "\n"
+            "D<int, float> c;\n"
+            "@\n"
+            ;
+    completions.append("D");
+    completions.append("_d_t");
+    completions.append("_d_s");
+    completions.append("C");
+    completions.append("_c_t");
+    completions.append("B");
+    completions.append("_b_t");
+    QTest::newRow("case: indirect cyclic inheritance with templates")
+            << code << completions;
+
+}

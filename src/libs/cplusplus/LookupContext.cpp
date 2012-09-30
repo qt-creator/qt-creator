@@ -708,11 +708,22 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     if (!referenceClass)
         return reference;
 
+    const TemplateNameId *templId = name->asTemplateNameId();
+    if (_alreadyConsideredClasses.contains(referenceClass) ||
+            (templId &&
+            _alreadyConsideredTemplates.contains(templId))) {
+            return reference;
+    }
+
+    if (!name->isTemplateNameId())
+        _alreadyConsideredClasses.insert(referenceClass);
+
     QSet<ClassOrNamespace *> knownUsings = reference->usings().toSet();
 
     // If we are dealling with a template type, more work is required, since we need to
     // construct all instantiation data.
-    if (const TemplateNameId *templId = name->asTemplateNameId()) {
+    if (templId) {
+        _alreadyConsideredTemplates.insert(templId);
         ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(reference);
         instantiation->_templateId = templId;
         instantiation->_instantiationOrigin = origin;
@@ -786,6 +797,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             }
         }
 
+        _alreadyConsideredTemplates.clear(templId);
         return instantiation;
     }
 
@@ -828,6 +840,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         }
     }
 
+    _alreadyConsideredClasses.clear(referenceClass);
     return reference;
 }
 
