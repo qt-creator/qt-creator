@@ -1082,6 +1082,8 @@ void ProjectExplorerPlugin::closeAllProjects()
 
     d->m_session->closeAllProjects();
     updateActions();
+
+    Core::ModeManager::activateMode(Core::Id(Core::Constants::MODE_WELCOME));
 }
 
 void ProjectExplorerPlugin::extensionsInitialized()
