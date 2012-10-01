@@ -68,6 +68,7 @@ public:
     virtual bool visit(UiObjectBinding *) { return true; }
     virtual bool visit(UiScriptBinding *) { return true; }
     virtual bool visit(UiArrayBinding *) { return true; }
+    virtual bool visit(UiParameterList *) { return true; }
     virtual bool visit(UiObjectMemberList *) { return true; }
     virtual bool visit(UiArrayMemberList *) { return true; }
     virtual bool visit(UiQualifiedId *) { return true; }
@@ -82,6 +83,7 @@ public:
     virtual void endVisit(UiObjectBinding *) {}
     virtual void endVisit(UiScriptBinding *) {}
     virtual void endVisit(UiArrayBinding *) {}
+    virtual void endVisit(UiParameterList *) {}
     virtual void endVisit(UiObjectMemberList *) {}
     virtual void endVisit(UiArrayMemberList *) {}
     virtual void endVisit(UiQualifiedId *) {}

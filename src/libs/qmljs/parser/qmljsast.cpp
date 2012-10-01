@@ -825,6 +825,13 @@ void UiObjectInitializer::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
+void UiParameterList::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+    }
+    visitor->endVisit(this);
+}
+
 void UiObjectBinding::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
