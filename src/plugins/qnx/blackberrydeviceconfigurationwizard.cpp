@@ -68,7 +68,7 @@ BlackBerryDeviceConfigurationWizard::BlackBerryDeviceConfigurationWizard(QWidget
 ProjectExplorer::IDevice::Ptr BlackBerryDeviceConfigurationWizard::device()
 {
     QSsh::SshConnectionParameters sshParams;
-    sshParams.proxyType = QSsh::SshConnectionParameters::NoProxy;
+    sshParams.options = QSsh::SshIgnoreDefaultProxy;
     sshParams.host = m_setupPage->hostName();
     sshParams.password = m_setupPage->password();
     sshParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByKey;

@@ -1797,7 +1797,7 @@ void DebuggerPluginPrivate::startRemoteEngine()
     sp.connParams.timeout = 5;
     sp.connParams.authenticationType = QSsh::SshConnectionParameters::AuthenticationByPassword;
     sp.connParams.port = 22;
-    sp.connParams.proxyType = QSsh::SshConnectionParameters::NoProxy;
+    sp.connParams.options = QSsh::SshIgnoreDefaultProxy;
 
     sp.executable = dlg.inferiorPath();
     sp.serverStartScript = dlg.enginePath();

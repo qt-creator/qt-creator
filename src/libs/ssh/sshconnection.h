@@ -36,6 +36,7 @@
 #include "ssh_global.h"
 
 #include <QByteArray>
+#include <QFlags>
 #include <QObject>
 #include <QSharedPointer>
 #include <QString>
@@ -50,10 +51,15 @@ namespace Internal {
 class SshConnectionPrivate;
 } // namespace Internal
 
+enum SshConnectionOption {
+    SshIgnoreDefaultProxy = 0x1
+};
+
+Q_DECLARE_FLAGS(SshConnectionOptions, SshConnectionOption)
+
 class QSSH_EXPORT SshConnectionParameters
 {
 public:
-    enum ProxyType { DefaultProxy, NoProxy };
     enum AuthenticationType { AuthenticationByPassword, AuthenticationByKey };
     SshConnectionParameters();
 
@@ -64,7 +70,7 @@ public:
     int timeout; // In seconds.
     AuthenticationType authenticationType;
     quint16 port;
-    ProxyType proxyType;
+    SshConnectionOptions options;
 };
 
 QSSH_EXPORT bool operator==(const SshConnectionParameters &p1, const SshConnectionParameters &p2);
