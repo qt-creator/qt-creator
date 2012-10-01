@@ -60,8 +60,8 @@ static uchar fromHex(const uchar c, const uchar c2)
 
 static uchar fromHex(const QString &s, int idx)
 {
-    uchar c = s.at(idx).toAscii();
-    uchar c2 = s.at(idx + 1).toAscii();
+    uchar c = s.at(idx).toLatin1();
+    uchar c2 = s.at(idx + 1).toLatin1();
     return fromHex(c, c2);
 }
 
