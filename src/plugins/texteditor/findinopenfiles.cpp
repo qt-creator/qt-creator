@@ -89,7 +89,7 @@ QVariant FindInOpenFiles::additionalParameters() const
 
 QString FindInOpenFiles::label() const
 {
-    return tr("Open Documents:");
+    return tr("Open documents:");
 }
 
 QString FindInOpenFiles::toolTip() const
