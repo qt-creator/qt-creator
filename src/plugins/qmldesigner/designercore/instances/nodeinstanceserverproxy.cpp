@@ -80,12 +80,10 @@
 namespace {
 static QLatin1String qmlPuppetApplicationDirectoryForTests()
 {
-#ifdef Q_OS_WIN
-    //one more - debug/release dir
-    return QLatin1String("/../../../../../../bin/");
-#else
+    if (Utils::HostOsInfo::isWindowsHost())
+        //one more - debug/release dir
+        return QLatin1String("/../../../../../../bin/");
     return QLatin1String("/../../../../../bin/");
-#endif
 }
 } //namespace
 
