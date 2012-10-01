@@ -636,7 +636,7 @@ void QtOptionsPageWidget::addQtDir()
 {
     Utils::FileName qtVersion = Utils::FileName::fromString(
                 QFileInfo(QFileDialog::getOpenFileName(this,
-                                                       tr("Select a qmake executable"),
+                                                       tr("Select a qmake Executable"),
                                                        QString(),
                                                        filterForQmakeFileDialog(),
                                                        0,
@@ -646,7 +646,7 @@ void QtOptionsPageWidget::addQtDir()
     BaseQtVersion *version = QtVersionManager::instance()->qtVersionForQMakeBinary(qtVersion);
     if (version) {
         // Already exist
-        QMessageBox::warning(this, tr("Qt known"),
+        QMessageBox::warning(this, tr("Qt Version Already Registered"),
                              tr("This Qt version was already registered as \"%1\".")
                              .arg(version->displayName()));
         return;
