@@ -1633,7 +1633,7 @@ StackFrame QmlV8DebuggerClient::extractStackFrame(const QVariant &bodyVal, const
     QmlV8ObjectData objectData = d->extractData(body.value(_("func")), refsVal);
     QString functionName = objectData.value.toString();
     if (functionName.isEmpty())
-        functionName = tr("anonymous function");
+        functionName = tr("Anonymous Function");
     stackFrame.function = functionName;
 
     objectData = d->extractData(body.value(_("script")), refsVal);

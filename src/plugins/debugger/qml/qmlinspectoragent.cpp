@@ -424,7 +424,7 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
     } else if (type == "SET_BINDING_R"
                || type == "RESET_BINDING_R"
                || type == "SET_METHOD_BODY_R") {
-        QString msg = QLatin1String(type) + tr(" success : ");
+        QString msg = QLatin1String(type) + tr("Success: ");
         msg += value.toBool() ? QLatin1Char('1') : QLatin1Char('0');
         if (!value.toBool())
             emit automaticUpdateFailed();
@@ -814,7 +814,7 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const ObjectReference &obj,
         WatchData propertiesWatch;
         propertiesWatch.id = objDebugId;
         propertiesWatch.exp = "";
-        propertiesWatch.name = tr("properties");
+        propertiesWatch.name = tr("Properties");
         propertiesWatch.iname = objIname + ".[properties]";
         propertiesWatch.type = "";
         propertiesWatch.value = _("list");
