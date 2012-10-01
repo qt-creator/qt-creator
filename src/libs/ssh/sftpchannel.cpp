@@ -272,7 +272,7 @@ void SftpChannelPrivate::handleChannelFailure()
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Unexpected SSH_MSG_CHANNEL_FAILURE packet.");
     }
-    emit initializationFailed(tr("Server could not start sftp subsystem."));
+    emit initializationFailed(tr("Server could not start SFTP subsystem."));
     closeChannel();
 }
 
