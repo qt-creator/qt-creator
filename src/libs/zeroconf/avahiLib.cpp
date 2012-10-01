@@ -346,7 +346,7 @@ public:
             if (m_simplePollFree)
                 m_simplePollFree(connection->simple_poll);
             delete connection;
-            setError(true, ZConfLib::tr("%1 could not create a client (probably the daemon is not running)").arg(name()));
+            setError(true, ZConfLib::tr("%1 cannot create a client. The daemon is probably not running.").arg(name()));
             return kDNSServiceErr_Unknown;
         }
         *sdRef = reinterpret_cast<ConnectionRef>(connection);
@@ -472,16 +472,16 @@ extern "C" void cAvahiClientReply (AvahiClient * /*s*/, AvahiClientState state, 
         break;
     case (AVAHI_CLIENT_S_COLLISION):
         /* Server state: COLLISION */
-        lib->setError(true, ZConfLib::tr("cAvahiClient, server collision"));
+        lib->setError(true, ZConfLib::tr("cAvahiClient, server collision."));
         break;
     case (AVAHI_CLIENT_FAILURE):
-        lib->setError(true, ZConfLib::tr("cAvahiClient, some kind of error happened on the client side"));
+        lib->setError(true, ZConfLib::tr("cAvahiClient, an error occurred on the client side."));
         break;
     case (AVAHI_CLIENT_CONNECTING):
-        lib->setError(false, ZConfLib::tr("cAvahiClient, still connecting, no server available"));
+        lib->setError(false, ZConfLib::tr("cAvahiClient, still connecting, no server available."));
         break;
     default:
-        lib->setError(true, ZConfLib::tr("unexpected state %1 in cAvahiClientReply")
+        lib->setError(true, ZConfLib::tr("Unexpected state %1 in cAvahiClientReply.")
                       .arg(state));
     }
 }
@@ -532,7 +532,7 @@ extern "C" void cAvahiBrowseReply(
             break;
         default:
             browser->mainConnection->lib->setError(true, ZConfLib::tr(
-                                                       "unexpected state %1 in cAvahiBrowseReply")
+                                                       "Unexpected state %1 in cAvahiBrowseReply.")
                                                    .arg(event));
     }
 }
