@@ -6,28 +6,36 @@ import re;
 # line can be a regex - but if so, remember to set isRegex to True
 # the function returns True if this went fine, False on error
 def placeCursorToLine(editor, line, isRegex=False):
-    cursor = editor.textCursor()
+    def getEditor():
+        return waitForObject(editor)
+
+    isDarwin = platform.system() == 'Darwin'
+    if not isinstance(editor, (str, unicode)):
+        editor = objectMap.realName(editor)
     oldPosition = 0
-    cursor.setPosition(oldPosition)
-    editor.setTextCursor(cursor)
+    if isDarwin:
+        type(getEditor(), "<Home>")
+    else:
+        type(getEditor(), "<Ctrl+Home>")
     found = False
     if isRegex:
         regex = re.compile(line)
     while not found:
-        currentLine = str(lineUnderCursor(editor)).strip()
+        currentLine = str(lineUnderCursor(getEditor())).strip()
         found = isRegex and regex.match(currentLine) or not isRegex and currentLine == line
         if not found:
-            type(editor, "<Down>")
-            newPosition = editor.textCursor().position()
+            type(getEditor(), "<Down>")
+            newPosition = getEditor().textCursor().position()
             if oldPosition == newPosition:
                 break
             oldPosition = newPosition
     if not found:
         test.fatal("Couldn't find line matching\n\n%s\n\nLeaving test..." % line)
         return False
-    cursor = editor.textCursor()
-    cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.MoveAnchor)
-    editor.setTextCursor(cursor)
+    if isDarwin:
+        type(getEditor(), "<Ctrl+Right>")
+    else:
+        type(getEditor(), "<End>")
     return True
 
 # this function returns True if a QMenu is
