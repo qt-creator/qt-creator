@@ -527,6 +527,7 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect()
 
 IRunConfigurationAspect *IRunControlFactory::cloneRunConfigurationAspect(IRunConfigurationAspect *source)
 {
+    Q_UNUSED(source);
     return 0;
 }
 

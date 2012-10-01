@@ -58,7 +58,7 @@ AnalyzerSettings::AnalyzerSettings(QObject *parent)
 
 AnalyzerSettings::AnalyzerSettings(AnalyzerSettings *other)
 {
-
+    Q_UNUSED(other);
 }
 
 QVariantMap AnalyzerSettings::defaults() const
