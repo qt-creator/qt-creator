@@ -34,7 +34,6 @@
 #include "bookmarksplugin.h"
 #include "bookmarks_global.h"
 
-
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -199,10 +198,11 @@ void BookmarkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
 //
 //    painter->drawText(3, opt.rect.top() + fm.ascent() + fm.height() + 6, directory);
 
-    QString note = index.data(BookmarkManager::Note).toString().trimmed();
-    QString lineText = index.data(BookmarkManager::LineText).toString().trimmed();
+    QString lineText = index.data(BookmarkManager::Note).toString().trimmed();
+    if (lineText.isEmpty())
+        lineText = index.data(BookmarkManager::LineText).toString().trimmed();
 
-    painter->drawText(6, opt.rect.top() + fm.ascent() + fm.height() + 6, note.isEmpty() ? lineText : note);
+    painter->drawText(6, opt.rect.top() + fm.ascent() + fm.height() + 6, lineText);
 
     // Separator lines
     painter->setPen(QColor::fromRgb(150,150,150));
@@ -704,7 +704,7 @@ void BookmarkManager::editNote()
                                              tr("Note text:"), QLineEdit::Normal,
                                              b->note(), &inputOk);
     if (inputOk) {
-        b->updateNote(noteText.replace('\t', ' '));
+        b->updateNote(noteText.replace(QLatin1Char('\t'), QLatin1Char(' ')));
         emit dataChanged(current, current);
     }
 }
