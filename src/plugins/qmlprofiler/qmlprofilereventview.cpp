@@ -184,7 +184,7 @@ void QmlProfilerEventsWidget::switchToV8View()
     d->m_eventTree->setViewType(QmlProfilerEventsMainView::V8ProfileView);
     d->m_eventParents->setViewType(QmlProfilerEventsParentsAndChildrenView::V8ParentsView);
     d->m_eventChildren->setViewType(QmlProfilerEventsParentsAndChildrenView::V8ChildrenView);
-    setToolTip(tr("Trace information from the v8 JavaScript engine. Available only in Qt5 based applications"));
+    setToolTip(tr("Trace information from the v8 JavaScript engine. Available only in Qt5 based applications."));
 }
 
 void QmlProfilerEventsWidget::clear()
@@ -614,7 +614,7 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
                     typeString = typeString + tr(" (Opt)");
                     toolTipText = tr("Binding is evaluated by the optimized engine.");
                 } else if (binding->bindingType == (int)V8Binding) {
-                    toolTipText = tr("Binding not optimized (eg. has side effects or assignments,\n"
+                    toolTipText = tr("Binding not optimized (e.g. has side effects or assignments,\n"
                                      "references to elements in other files, loops, etc.)");
 
                 }
@@ -681,7 +681,7 @@ void QmlProfilerEventsMainView::QmlProfilerEventsMainViewPrivate::buildModelFrom
             if (binding->isBindingLoop)
                 foreach (QStandardItem *item, newRow) {
                     item->setBackground(colors()->bindingLoopBackground);
-                    item->setToolTip(tr("Binding loop detected"));
+                    item->setToolTip(tr("Binding loop detected."));
                 }
 
             // append
@@ -1041,7 +1041,7 @@ void QmlProfilerEventsParentsAndChildrenView::rebuildTree(void *profilerDataMode
             if (event->inLoopPath)
                 foreach (QStandardItem *item, newRow) {
                     item->setBackground(colors()->bindingLoopBackground);
-                    item->setToolTip(tr("Part of binding loop"));
+                    item->setToolTip(tr("Part of binding loop."));
                 }
         } else {
             QV8EventSub *event = v8List->at(index);
