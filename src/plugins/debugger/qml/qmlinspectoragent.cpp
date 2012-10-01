@@ -98,6 +98,17 @@ void QmlInspectorAgent::assignValue(const WatchData *data,
     }
 }
 
+int parentIdForIname(const QByteArray &iname)
+{
+    // Extract the parent id
+    int lastIndex = iname.lastIndexOf('.');
+    int secondLastIndex = iname.lastIndexOf('.', lastIndex - 1);
+    int parentId = -1;
+    if (secondLastIndex != -1)
+        parentId = iname.mid(secondLastIndex + 1, lastIndex - secondLastIndex - 1).toInt();
+    return parentId;
+}
+
 void QmlInspectorAgent::updateWatchData(const WatchData &data)
 {
     if (debug)
@@ -105,6 +116,15 @@ void QmlInspectorAgent::updateWatchData(const WatchData &data)
 
     if (data.id && !m_fetchDataIds.contains(data.id)) {
         // objects
+        using namespace QmlDebug::Constants;
+        if (m_engineClient->objectName() == QLatin1String(QDECLARATIVE_ENGINE)) {
+            int parentId = parentIdForIname(data.iname);
+            if (parentId != -1) {
+                QList<int> childIds = m_debugIdChildIds.value(parentId);
+                childIds << data.id;
+                m_debugIdChildIds.insert(parentId, childIds);
+            }
+        }
         m_fetchDataIds << data.id;
         fetchObject(data.id);
     }
@@ -441,10 +461,10 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
             foreach (QVariant var, objList) {
                 // TODO: check which among the list is the actual
                 // object that needs to be selected.
-                objectTreeFetched(qvariant_cast<ObjectReference>(var));
+                insertObjectInTree(qvariant_cast<ObjectReference>(var));
             }
         } else {
-            objectTreeFetched(qvariant_cast<ObjectReference>(value));
+            insertObjectInTree(qvariant_cast<ObjectReference>(value));
         }
     } else if (queryId == m_engineQueryId) {
         m_engineQueryId = 0;
@@ -456,7 +476,7 @@ void QmlInspectorAgent::onResult(quint32 queryId, const QVariant &value,
     } else if (queryId == m_rootContextQueryId) {
         m_rootContextQueryId = 0;
         clearObjectTree();
-        fetchObjectsInContextRecursive(qvariant_cast<ContextReference>(value));
+        updateObjectTree(qvariant_cast<ContextReference>(value));
     } else {
         emit expressionResult(queryId, value);
     }
@@ -584,8 +604,7 @@ void QmlInspectorAgent::fetchContextObjectsForLocation(const QString &file,
     m_objectTreeQueryIds << queryId;
 }
 
-// fetch the root objects from the context + any child contexts
-void QmlInspectorAgent::fetchObjectsInContextRecursive(const ContextReference &context)
+void QmlInspectorAgent::updateObjectTree(const ContextReference &context)
 {
     if (debug)
         qDebug() << __FUNCTION__ << '(' << context << ')';
@@ -594,22 +613,14 @@ void QmlInspectorAgent::fetchObjectsInContextRecursive(const ContextReference &c
             || !debuggerCore()->boolSetting(ShowQmlObjectTree))
         return;
 
-    foreach (const ObjectReference & obj, context.objects()) {
-        using namespace QmlDebug::Constants;
-        // qt <= 4.8.3
-        if (m_engineClient->objectName() == QLatin1String(QDECLARATIVE_ENGINE)) {
-            m_objectTreeQueryIds << m_engineClient->queryObjectRecursive(obj.debugId());
-        } else {
-            // Fetch only root objects for qt > 4.8.3
-            if (obj.parentId() == -1)
-                fetchObject(obj.debugId());
-        }
-    }
+    foreach (const ObjectReference & obj, context.objects())
+        insertObjectInTree(obj);
+
     foreach (const ContextReference &child, context.contexts())
-        fetchObjectsInContextRecursive(child);
+        updateObjectTree(child);
 }
 
-void QmlInspectorAgent::objectTreeFetched(const ObjectReference &object)
+void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
 {
     if (debug)
         qDebug() << __FUNCTION__ << '(' << object << ')';
@@ -737,8 +748,9 @@ void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)
     m_debugIdLocations.insert(ref.debugId(), FileReference(filePath, lineNum, colNum));
 
     // qt <= 4.8.3
-    if (m_newObjectsCreated && m_engineClient->objectName() == QLatin1String(QDECLARATIVE_ENGINE)) {
-        QList<int> childIds;
+    if (m_newObjectsCreated
+            && m_engineClient->objectName() == QLatin1String(QDECLARATIVE_ENGINE)) {
+        QList<int> childIds = m_debugIdChildIds.value(ref.debugId());
         foreach (const ObjectReference &c, ref.children()) {
             childIds << c.debugId();
         }
@@ -868,10 +880,10 @@ bool QmlInspectorAgent::isConnected() const
 void QmlInspectorAgent::clearObjectTree()
 {
     // clear view
-    m_debuggerEngine->watchHandler()->removeChildren("inspect");
+    m_debuggerEngine->watchHandler()->cleanup();
 
     m_objectTreeQueryIds.clear();
-
+    m_fetchDataIds.clear();
     int old_count = m_debugIdHash.count();
     m_debugIdHash.clear();
     m_debugIdHash.reserve(old_count + 1);

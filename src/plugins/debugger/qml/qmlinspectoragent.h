@@ -110,9 +110,9 @@ private slots:
     void onValueChanged(int debugId, const QByteArray &propertyName, const QVariant &value);
 
 private:
-    void fetchObjectsInContextRecursive(const QmlDebug::ContextReference &context);
+    void updateObjectTree(const QmlDebug::ContextReference &context);
 
-    void objectTreeFetched(const QmlDebug::ObjectReference &result);
+    void insertObjectInTree(const QmlDebug::ObjectReference &result);
 
     void buildDebugIdHashRecursive(const QmlDebug::ObjectReference &ref);
     QList<WatchData> buildWatchData(const QmlDebug::ObjectReference &obj,
