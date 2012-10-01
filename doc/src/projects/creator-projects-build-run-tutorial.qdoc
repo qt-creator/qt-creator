@@ -31,7 +31,7 @@
 
     \title Building and Running an Example
 
-    You can test that your installation is successful by opening an existing
+    You can test that your \QSDK installation is successful by opening an existing
     example application project.
 
     \list 1
@@ -54,37 +54,28 @@
 
             \list 1
 
-                \o  Select at least \QS and one of the mobile
-                    \l{glossary-buildandrun-kit}{kits} (1), Maemo 5 or
-                    MeeGo Harmattan, depending on the device you develop for.
+                \o  Select the kits \l{glossary-buildandrun-kit}{kits} (1) that
+                    specify the devices you develop for.
 
                 \o  Select \gui {Configure Project} (2).
 
             \endlist
 
-        \o  To test the application in \QS, click the \gui {Kit
-            Selector} and select \gui {\QS}.
+        \o  To check that the application code can be compiled and linked for a
+            device, click the \gui {Kit Selector} and select a kit for the
+            device.
 
-            \image qtcreator-gs-build-example-select-qs.png "Selecting Qt Simulator to run on"
+            \image qtcreator-kit-selector.png "Selecting a kit to build with"
 
         \o  Click
             \inlineimage qtcreator-run.png
-            (\gui Run) to build the application and run it in \QS.
+            (\gui Run) to build and run the application.
 
         \o  To see the compilation progress, press \key{Alt+4} to open the
             \gui {Compile Output} pane.
 
             The \gui Build progress bar on the toolbar turns green when the
-            project is successfully built. The application opens in
-            \QS.
-
-            \image qt-simulator.png "Qt Simulator"
-
-        \o  Change the settings in the \gui Model view. For example, rotate the
-            device by clicking the \gui {Orientation} buttons or choose from the
-            various mobile devices in the \gui {Device} field. You
-            can also simulate various mobile functions and create your own
-            scripts.
+            project is successfully built. The application opens on the device.
 
     \endlist
 
