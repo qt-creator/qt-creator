@@ -7416,10 +7416,6 @@ Fehler: %2</translation>
         <source>Run</source>
         <translation>Ausführen</translation>
     </message>
-    <message>
-        <source>No executable</source>
-        <translation>Keine ausführbare Datei</translation>
-    </message>
 </context>
 <context>
     <name>ProjectExplorer::Internal::ProcessStep</name>
@@ -12254,10 +12250,6 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <translation>Es sind keine ausstehenden Änderungen vorhanden.</translation>
     </message>
     <message>
-        <source>Unable to generate a temporary file for the commit editor.</source>
-        <translation>Es konnte keine temporäre Datei für die Abgabe angelegt werden.</translation>
-    </message>
-    <message>
         <source>Unable to create an editor for the commit.</source>
         <translation>Es konnte kein Editor für die Abgabe angelegt werden.</translation>
     </message>
@@ -13279,6 +13271,14 @@ Sie können die Änderungen in einem Stash ablegen oder zurücksetzen.</translat
         <source>File &apos;%1&apos; does not exist or is not readable.</source>
         <translation>Die Datei &apos;%1&apos; existiert nicht oder ist nicht lesbar.</translation>
     </message>
+    <message>
+        <source>Device type is not desktop.</source>
+        <translation>Der Gerätetyp ist nicht &quot;Desktop&quot;.</translation>
+    </message>
+    <message>
+        <source>No Qt version set in kit.</source>
+        <translation>Im Kit ist keine Qt-Version gesetzt.</translation>
+    </message>
 </context>
 <context>
     <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
@@ -13569,6 +13569,10 @@ Erfordert &lt;b&gt;Qt 4.7.4&lt;/b&gt; oder neuer.</translation>
     <message>
         <source>Evaluating</source>
         <translation>Auswertung</translation>
+    </message>
+    <message>
+        <source>No Qt version set in kit.</source>
+        <translation>Im Kit ist keine Qt-Version gesetzt.</translation>
     </message>
     <message>
         <source>The .pro file &apos;%1&apos; does not exist.</source>
@@ -18814,10 +18818,6 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
         <translation>Es sind keine ausstehenden Änderungen vorhanden.</translation>
     </message>
     <message>
-        <source>Unable to generate a temporary file for the commit editor.</source>
-        <translation>Es konnte keine temporäre Datei für die Abgabe angelegt werden.</translation>
-    </message>
-    <message>
         <source>Unable to create an editor for the commit.</source>
         <translation>Es konnte kein Editor für die Abgabe angelegt werden.</translation>
     </message>
@@ -19731,6 +19731,10 @@ Fehler: %2</translation>
         <translation>Kit-Auswahl</translation>
     </message>
     <message>
+        <source>%1 - temporary</source>
+        <translation>%1 - temporär</translation>
+    </message>
+    <message>
         <source>Qt Creator can use the following kits for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
         <translation>Qt Creator kann für das Projekt &lt;b&gt;%1&lt;/b&gt; die folgenden Kits verwenden:</translation>
@@ -20245,7 +20249,7 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
         <translation>Globale Bus-Ereignisse aufnehmen</translation>
     </message>
     <message>
-        <source>Visualisation: Minimum event cost:</source>
+        <source>Visualization: Minimum event cost:</source>
         <translation>Minimale Ereigniskosten für Visualisierung:</translation>
     </message>
 </context>
@@ -21328,8 +21332,20 @@ Bitte verwenden Sie den Stop-Button.</translation>
         <translation>Erstellungsprotokoll der Ausgabe-Hilfsbibliothek für &apos;%1&apos;</translation>
     </message>
     <message>
+        <source>Select a qmake Executable</source>
+        <translation>Wählen Sie die ausführbare qmake-Datei aus</translation>
+    </message>
+    <message>
+        <source>Qt Version Already Registered</source>
+        <translation>Qt-Version bereits registriert</translation>
+    </message>
+    <message>
         <source>Select a qmake executable</source>
         <translation>Wählen Sie die ausführbare qmake-Datei aus</translation>
+    </message>
+    <message>
+        <source>This Qt version was already registered as &quot;%1&quot;.</source>
+        <translation>Diese Qt-Version ist bereits unter &quot;%1&quot; registriert.</translation>
     </message>
     <message>
         <source>Helpers: None available</source>
@@ -26030,11 +26046,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>IDE-Überblick</translation>
     </message>
     <message>
-        <source>To find out what kind of integrated enviroment (IDE) Qt Creator is.</source>
+        <source>To find out what kind of integrated environment (IDE) Qt Creator is.</source>
         <translation>Um herauszufinden, um welche Art von integrierter Entwicklungsumgebung es sich bei Qt Creator handelt.</translation>
     </message>
     <message>
-        <source>To become familar with the parts of the Qt Creator user interface and to learn how to use them.</source>
+        <source>To become familiar with the parts of the Qt Creator user interface and to learn how to use them.</source>
         <translation>Um sich mit den Teilen der Benutzeroberfläche von Qt Creator vertraut zu machen und ihre Bedienung zu erlernen.</translation>
     </message>
     <message>
@@ -26815,8 +26831,8 @@ Möchten Sie es beenden?</translation>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerEventsWidget</name>
     <message>
-        <source>Trace information from the v8 JavaScript engine. Available only in Qt5 based applications</source>
-        <translation>Trace-Information vom v8 JavaScript-Engine. Nur in Qt-5 basierten Anwendungen verfügbar</translation>
+        <source>Trace information from the v8 JavaScript engine. Available only in Qt5 based applications.</source>
+        <translation>Trace-Information vom v8 JavaScript-Engine. Nur in Qt-5 basierten Anwendungen verfügbar.</translation>
     </message>
     <message>
         <source>Copy Row</source>
@@ -26898,13 +26914,13 @@ Möchten Sie es beenden?</translation>
         <translation>Das Binding wird von der optimierten Engine ausgewertet.</translation>
     </message>
     <message>
-        <source>Binding not optimized (eg. has side effects or assignments,
+        <source>Binding not optimized (e.g. has side effects or assignments,
 references to elements in other files, loops, etc.)</source>
         <translation>Das Binding ist nicht optimiert (d.h., es hat Seiteneffekte oder Zuweisungen, Referenzen zu Elementen in anderen Dateien, Schleifen, etc.)</translation>
     </message>
     <message>
-        <source>Binding loop detected</source>
-        <translation>Endlosschleife bei Binding festgestellt</translation>
+        <source>Binding loop detected.</source>
+        <translation>Endlosschleife bei Binding festgestellt.</translation>
     </message>
     <message utf8="true">
         <source> µs</source>
@@ -26942,8 +26958,8 @@ references to elements in other files, loops, etc.)</source>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerEventsParentsAndChildrenView</name>
     <message>
-        <source>Part of binding loop</source>
-        <translation>Teil der Binding-Endlosschleife</translation>
+        <source>Part of binding loop.</source>
+        <translation>Teil der Binding-Schleife.</translation>
     </message>
     <message>
         <source>Callee</source>
@@ -27035,28 +27051,28 @@ references to elements in other files, loops, etc.)</source>
         <translation>AvahiZConfLib c konnte die native Bibliothek &apos;%1&apos; nicht laden: %2</translation>
     </message>
     <message>
-        <source>%1 could not create a client (probably the daemon is not running)</source>
-        <translation>%1 konnte keinen Client erzeugen (möglicherweise läuft kein Hintergrundprozess)</translation>
+        <source>%1 cannot create a client. The daemon is probably not running.</source>
+        <translation>%1 konnte keinen Client erzeugen (möglicherweise läuft kein Hintergrundprozess).</translation>
     </message>
     <message>
-        <source>cAvahiClient, server collision</source>
-        <translation>cAvahiClient, Server-Kollision</translation>
+        <source>cAvahiClient, server collision.</source>
+        <translation>cAvahiClient, Server-Kollision.</translation>
     </message>
     <message>
-        <source>cAvahiClient, some kind of error happened on the client side</source>
-        <translation>cAvahiClient, client-seitiger Fehler</translation>
+        <source>cAvahiClient, an error occurred on the client side.</source>
+        <translation>cAvahiClient, client-seitiger Fehler.</translation>
     </message>
     <message>
-        <source>cAvahiClient, still connecting, no server available</source>
-        <translation>cAvahiClient, versuche Verbindung herzustellen, es ist kein Server verfügbar</translation>
+        <source>cAvahiClient, still connecting, no server available.</source>
+        <translation>cAvahiClient, versuche Verbindung herzustellen, es ist kein Server verfügbar.</translation>
     </message>
     <message>
-        <source>unexpected state %1 in cAvahiClientReply</source>
-        <translation>unerwarteter Status %1 in cAvahiClientReply</translation>
+        <source>Unexpected state %1 in cAvahiClientReply.</source>
+        <translation>Unerwarteter Status %1 in cAvahiClientReply.</translation>
     </message>
     <message>
-        <source>unexpected state %1 in cAvahiBrowseReply</source>
-        <translation>unerwarteter Status %1 in cAvahiBrowseReply</translation>
+        <source>Unexpected state %1 in cAvahiBrowseReply.</source>
+        <translation>Unerwarteter Status %1 in cAvahiBrowseReply.</translation>
     </message>
     <message>
         <source>%1 failed to kill other daemons with &apos;%2&apos;.</source>
@@ -27168,8 +27184,8 @@ references to elements in other files, loops, etc.)</source>
 <context>
     <name>Debugger::Internal::QmlV8DebuggerClient</name>
     <message>
-        <source>anonymous function</source>
-        <translation>anonyme Funktion</translation>
+        <source>Anonymous Function</source>
+        <translation>Anonyme Funktion</translation>
     </message>
 </context>
 <context>
@@ -27179,7 +27195,7 @@ references to elements in other files, loops, etc.)</source>
         <translation>Offene Dokumente</translation>
     </message>
     <message>
-        <source>Open Documents:</source>
+        <source>Open documents:</source>
         <translation>Offene Dokumente:</translation>
     </message>
     <message>
@@ -27422,6 +27438,10 @@ references to elements in other files, loops, etc.)</source>
 </context>
 <context>
     <name>BinEditorDocument</name>
+    <message>
+        <source>The Binary Editor can not open empty files.</source>
+        <translation>Der Binäreditor kann keine leeren Dateien öffnen.</translation>
+    </message>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Die Datei %1 kann nicht geöffnet werden: %2</translation>
@@ -27687,24 +27707,24 @@ references to elements in other files, loops, etc.)</source>
         <translation>Name der privaten Schlüsseldatei auswählen</translation>
     </message>
     <message>
-        <source>Failure To Save Key File</source>
-        <translation>Fehler beim Speichern der Schlüsseldatei</translation>
+        <source>Cannot Save Key File</source>
+        <translation>Schlüsseldatei kann nicht gespeichert werden</translation>
+    </message>
+    <message>
+        <source>Cannot Save Private Key File</source>
+        <translation>Die private Schlüsseldatei kann nicht gespeichert werden</translation>
+    </message>
+    <message>
+        <source>Cannot Save Public Key File</source>
+        <translation>Öffentliche Schlüsseldatei kann nicht gespeichert werden</translation>
     </message>
     <message>
         <source>Failed to create directory: &apos;%1&apos;.</source>
         <translation>Der Ordner &apos;%1&apos; konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <source>Saving Private Key File failed</source>
-        <translation>Das Speichern des privaten Schlüssels schlug fehl</translation>
-    </message>
-    <message>
         <source>The private key file could not be saved: %1</source>
         <translation>Die private Schlüsseldatei konnte nicht gespeichert werden: %1</translation>
-    </message>
-    <message>
-        <source>Saving Public Key File failed</source>
-        <translation>Das Speichern des öffentlichen Schlüssels schlug fehl</translation>
     </message>
     <message>
         <source>The public key file could not be saved: %1</source>
@@ -27789,14 +27809,6 @@ references to elements in other files, loops, etc.)</source>
         <translation>Organisation (z.B. KDE):</translation>
     </message>
     <message>
-        <source>City or Locality:</source>
-        <translation>Stadt:</translation>
-    </message>
-    <message>
-        <source>State or Province:</source>
-        <translation>Staat oder Provinz:</translation>
-    </message>
-    <message>
         <source>Two-letter country code for this unit (e.g. RO):</source>
         <translation>Länderkennung für die Einheit (2 Buchstaben, z.B. RO):</translation>
     </message>
@@ -27812,24 +27824,20 @@ references to elements in other files, loops, etc.)</source>
         <source>Certificate Distinguished Names</source>
         <translation>Namen des Zertifikats</translation>
     </message>
+    <message>
+        <source>City or locality:</source>
+        <translation>Stadt:</translation>
+    </message>
+    <message>
+        <source>State or province:</source>
+        <translation>Bundesland oder Provinz:</translation>
+    </message>
 </context>
 <context>
     <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation>Form</translation>
-    </message>
-    <message>
-        <source>Edit rules file</source>
-        <translation>Regeldatei bearbeiten</translation>
-    </message>
-    <message>
-        <source>Choose apk</source>
-        <translation>Apk wählen</translation>
-    </message>
-    <message>
-        <source>Install Ministro system wide Qt shared libraries installer</source>
-        <translation>Installiere Ministro system wide Qt shared libraries installer</translation>
     </message>
     <message>
         <source>Choose and install Ministro system wide Qt shared libraries.
@@ -27858,6 +27866,18 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
     <message>
         <source>Use local Qt libraries</source>
         <translation>Lokale Qt-Bibliotheken ausliefern</translation>
+    </message>
+    <message>
+        <source>Edit Rules File</source>
+        <translation>Regeldatei bearbeiten</translation>
+    </message>
+    <message>
+        <source>Install Ministro, system-wide Qt shared libraries installer</source>
+        <translation>Installiere Ministro (systemweiter Installer für Qt shared libraries)</translation>
+    </message>
+    <message>
+        <source>Choose APK</source>
+        <translation>APK wählen</translation>
     </message>
 </context>
 <context>
@@ -28023,28 +28043,12 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
         <translation>Android-NDK:</translation>
     </message>
     <message>
-        <source>Android NDK toolchain version:</source>
-        <translation>Toolchain-Version des Android NDK:</translation>
-    </message>
-    <message>
         <source>Ant location:</source>
         <translation>ant:</translation>
     </message>
     <message>
-        <source>arm GDB location:</source>
-        <translation>arm GDB:</translation>
-    </message>
-    <message>
-        <source>arm GDBserver location:</source>
-        <translation>arm GDBserver:</translation>
-    </message>
-    <message>
         <source>x86 GDB location:</source>
         <translation>x86 GDB:</translation>
-    </message>
-    <message>
-        <source>x86 GDBserver location:</source>
-        <translation>x86 GDBserver:</translation>
     </message>
     <message>
         <source>OpenJDK location:</source>
@@ -28077,6 +28081,22 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
     <message>
         <source>Remove</source>
         <translation>Entfernen</translation>
+    </message>
+    <message>
+        <source>Android NDK tool chain version:</source>
+        <translation>Toolchain-Version des Android NDK:</translation>
+    </message>
+    <message>
+        <source>ARM GDB location:</source>
+        <translation>ARM GDB:</translation>
+    </message>
+    <message>
+        <source>ARM GDB server location:</source>
+        <translation>ARM GDB-Server:</translation>
+    </message>
+    <message>
+        <source>x86 GDB server location:</source>
+        <translation>x86 GDB-Server:</translation>
     </message>
 </context>
 <context>
@@ -28403,8 +28423,8 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
 <context>
     <name>QSsh::Internal::SftpChannelPrivate</name>
     <message>
-        <source>Server could not start sftp subsystem.</source>
-        <translation>Der Server konnte das sftp-Subsystem nicht starten.</translation>
+        <source>Server could not start SFTP subsystem.</source>
+        <translation>Der Server konnte das SFTP-Subsystem nicht starten.</translation>
     </message>
     <message>
         <source>Unexpected packet of type %1.</source>
@@ -28523,13 +28543,32 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
         <source>Botan library exception: %1</source>
         <translation>Ausnahmefehler in der Botan-Bibliothek: %1</translation>
     </message>
-    <message>
-        <source>Invalid protocol version: Expected &apos;2.0&apos;, got &apos;%1&apos;.</source>
-        <translation>Die Versionen des Protokolls stimmen nicht überein: Erwartet &apos;2.0&apos;, erhalten %1.</translation>
+    <message numerus="yes">
+        <source>Server identification string is %n characters long, but the maximum allowed length is 255.</source>
+        <translation>
+            <numerusform>Die Zeichenkette zur Identifikation des Servers ist ein Zeichen lang, die maximal zulässige Länge ist aber 255.</numerusform>
+            <numerusform>Die Zeichenkette zur Identifikation des Servers ist %n Zeichen lang, die maximal zulässige Länge ist aber 255.</numerusform>
+        </translation>
     </message>
     <message>
-        <source>Invalid server id &apos;%1&apos;.</source>
-        <translation>Ungültige Server-Kennzeichnung &apos;%1&apos;.</translation>
+        <source>Server identification string contains illegal NUL character.</source>
+        <translation>Die Zeichenkette zur Identifikation des Servers enthält ein unzulässiges NUL-Zeichen.</translation>
+    </message>
+    <message>
+        <source>Server Identification string &apos;%1&apos; is invalid.</source>
+        <translation>Die Zeichenkette &apos;%1&apos; zur Identifikation des Servers ist ungültig.</translation>
+    </message>
+    <message>
+        <source>Server protocol version is &apos;%1&apos;, but needs to be 2.0 or 1.99.</source>
+        <translation>Die Version des Serverprotokolls ist &apos;%1&apos;, erforderlich ist jedoch 2.0 oder 1.99.</translation>
+    </message>
+    <message>
+        <source>Server identification string is invalid (missing carriage return).</source>
+        <translation>Die Zeichenkette zur Identifikation des Servers ist ungültig (es fehlt der Zeilenvorschub).</translation>
+    </message>
+    <message>
+        <source>Server reports protocol version 1.99, but sends data before the identification string, which is not allowed.</source>
+        <translation>Der Server gibt Protokollversion 1.99 an, sendet aber Daten vor der Zeichenkette zur Identifikation, was nicht gestattet ist.</translation>
     </message>
     <message>
         <source>Unexpected packet of type %1.</source>
@@ -28631,7 +28670,7 @@ Sie müssen für die Plattform kompiliert vorliegen</translation>
         <translation>Fehler beim Erstellen von AVD</translation>
     </message>
     <message>
-        <source>Cannot create a new AVD, no sufficiently recent Android SDK available.
+        <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Please install an SDK of at least API version %1.</source>
         <translation>Es konnte kein AVD erzeugt werden, da kein hinreichend aktuelles Android-SDK verfügbar ist.
 Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translation>
@@ -28721,12 +28760,20 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
         <translation>Rückgabewert: %1</translation>
     </message>
     <message>
+        <source>Deploy Qt libraries. This may take some time, please wait.</source>
+        <translation>Das Deployment der Qt-Bibliotheken kann einige Zeit dauern, bitte warten Sie.</translation>
+    </message>
+    <message>
         <source>Qt Android smart installer installation failed</source>
         <translation>Die Installation des Qt-Android-Smart-Installers schlug fehl</translation>
     </message>
     <message>
-        <source>Package installation failed</source>
-        <translation>Die Installation des Pakets schlug fehl</translation>
+        <source>Package installation failed.</source>
+        <translation>Die Installation des Pakets schlug fehl.</translation>
+    </message>
+    <message>
+        <source>Pulling files necessary for debugging.</source>
+        <translation>Die für das Debuggen erforderlichen Dateien werden installiert.</translation>
     </message>
     <message>
         <source>Installing package onto %1.</source>
@@ -28736,19 +28783,11 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
         <source>Clean old Qt libraries</source>
         <translation>Alte Qt-Bibliotheken bereinigen</translation>
     </message>
-    <message>
-        <source>Deploy Qt libraries ... this may take some time, please wait</source>
-        <translation>Das Deployment der Qt-Bibliotheken kann einige Zeit dauern, bitte warten Sie</translation>
-    </message>
-    <message>
-        <source>Pulling files necessary for debugging</source>
-        <translation>Die für das Debuggen erforderlichen Dateien werden installiert</translation>
-    </message>
 </context>
 <context>
     <name>Android::Internal::AndroidDeployStepFactory</name>
     <message>
-        <source>Deploy to Android device/emulator</source>
+        <source>Deploy to Android device or emulator</source>
         <translation>Deployment auf Android-Gerät oder Emulator</translation>
     </message>
 </context>
@@ -28925,8 +28964,12 @@ Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org
         <translation>Wählen Sie ein Symbol für hohe DPI-Werte aus</translation>
     </message>
     <message>
-        <source>png images (*.png)</source>
-        <translation>png-Dateien (*.png)</translation>
+        <source>PNG images (*.png)</source>
+        <translation>PNG-Dateien (*.png)</translation>
+    </message>
+    <message>
+        <source>&lt; Type or choose a permission &gt;</source>
+        <translation>&lt; Geben Sie eine Berechtigung ein oder wählen Sie eine aus &gt;</translation>
     </message>
     <message>
         <source>Choose Medium DPI Icon</source>
@@ -28935,10 +28978,6 @@ Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org
     <message>
         <source>Choose Low DPI Icon</source>
         <translation>Wählen Sie ein Symbol für geringe DPI-Werte aus</translation>
-    </message>
-    <message>
-        <source>&lt; type or choose a permission &gt;</source>
-        <translation>&lt; Geben Sie eine Berechtigung ein oder wählen Sie eine aus &gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Package configurations&lt;/b&gt;</source>
@@ -28970,15 +29009,15 @@ Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org
 <context>
     <name>Android::Internal::AndroidRunControl</name>
     <message>
-        <source>Starting remote process...</source>
-        <translation>Starte entfernten Prozess...</translation>
+        <source>Starting remote process.</source>
+        <translation>Starte entfernten Prozess.</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidRunControlFactory</name>
     <message>
-        <source>Run on Android device/emulator</source>
-        <translation>Ausführung auf Android-Gerät oder Emulator</translation>
+        <source>Run on Android device or emulator.</source>
+        <translation>Ausführung auf Android-Gerät oder Emulator.</translation>
     </message>
 </context>
 <context>
@@ -28986,46 +29025,46 @@ Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org
     <message>
         <source>
 
-&apos;%1&apos; died</source>
+&apos;%1&apos; died.</source>
         <translation>
 
-&apos;%1&apos; beendet</translation>
+&apos;%1&apos; beendet.</translation>
     </message>
     <message>
-        <source>Failed to forward C++ debugging ports. Reason: %1</source>
-        <translation>Die C++-Debuggerports konnten nicht übermittelt werden. Grund: %1</translation>
+        <source>Failed to forward C++ debugging ports. Reason: %1.</source>
+        <translation>Die C++-Debuggerports konnten nicht übermittelt werden. Grund: %1.</translation>
     </message>
     <message>
-        <source>Failed to forward C++ debugging ports</source>
-        <translation>C++-Debuggerports konnten nicht übermittelt werden</translation>
+        <source>Failed to forward C++ debugging ports.</source>
+        <translation>C++-Debuggerports konnten nicht übermittelt werden.</translation>
     </message>
     <message>
-        <source>Failed to forward QML debugging ports. Reason: %1</source>
-        <translation>Die QML-Debuggerports konnten nicht übermittelt werden. Grund: %1</translation>
+        <source>Failed to forward QML debugging ports. Reason: %1.</source>
+        <translation>Die QML-Debuggerports konnten nicht übermittelt werden. Grund: %1.</translation>
     </message>
     <message>
-        <source>Failed to forward QML debugging ports</source>
-        <translation>QML-Debuggerports konnten nicht übermittelt werden</translation>
+        <source>Failed to forward QML debugging ports.</source>
+        <translation>QML-Debuggerports konnten nicht übermittelt werden.</translation>
     </message>
     <message>
-        <source>Failed to start the activity. Reason: %1</source>
-        <translation>Die Aktivität konnte nicht gestartet werden: Grund: %1</translation>
+        <source>Failed to start the activity. Reason: %1.</source>
+        <translation>Die Aktivität konnte nicht gestartet werden: Grund: %1.</translation>
     </message>
     <message>
-        <source>Unable to start &apos;%1&apos;</source>
-        <translation>&apos;%1&apos; konnte nicht gestartet werden</translation>
+        <source>Unable to start &apos;%1&apos;.</source>
+        <translation>&apos;%1&apos; konnte nicht gestartet werden.</translation>
     </message>
     <message>
-        <source>Cannot find %1 process</source>
-        <translation>Der Prozess &apos;%1&apos; konnte nicht gefunden werden</translation>
+        <source>Cannot find %1 process.</source>
+        <translation>Der Prozess %1 konnte nicht gefunden werden.</translation>
     </message>
     <message>
         <source>
 
-&apos;%1&apos; killed</source>
+&apos;%1&apos; killed.</source>
         <translation>
 
-&apos;%1&apos; abgebrochen</translation>
+&apos;%1&apos; abgebrochen.</translation>
     </message>
 </context>
 <context>
@@ -29042,12 +29081,12 @@ Bitte wählen Sie einen gültigen Paketnamen für Ihre Anwendung (z.B. &quot;org
         <translation>Android-SDK-Ordner</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; doesn&apos;t seem to be an Android SDK top folder</source>
-        <translation>&quot;%1&quot; ist offenbar kein Android-SDK-Ordner</translation>
+        <source>&quot;%1&quot; does not seem to be an Android SDK top folder.</source>
+        <translation>&quot;%1&quot; ist offenbar kein Android-SDK-Ordner.</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; doesn&apos;t seem to be an Android NDK top folder</source>
-        <translation>&quot;%1&quot; ist offenbar kein Android-NDK-Ordner</translation>
+        <source>&quot;%1&quot; does not seem to be an Android NDK top folder.</source>
+        <translation>&quot;%1&quot; ist offenbar kein Android-NDK-Ordner.</translation>
     </message>
     <message>
         <source>Select Android SDK folder</source>
@@ -29469,40 +29508,40 @@ Einzelschritt in den Modul und das Setzen von Haltepunkten nach Datei und Zeilen
         <translation>Fehler: (%1) %2</translation>
     </message>
     <message>
-        <source>disconnected.
+        <source>Disconnected.
 
 </source>
-        <translation>getrennt.
+        <translation>Getrennt.
 
 </translation>
     </message>
     <message>
-        <source>resolving host...</source>
-        <translation>Hostname wird aufgelöst...</translation>
+        <source>Resolving host.</source>
+        <translation>Hostname wird aufgelöst.</translation>
     </message>
     <message>
-        <source>connecting to debug server...</source>
-        <translation>Verbinde zum Debug-Server...</translation>
+        <source>Connecting to debug server.</source>
+        <translation>Verbinde zum Debug-Server.</translation>
     </message>
     <message>
-        <source>connected.
+        <source>Connected.
 </source>
-        <translation>verbunden.
+        <translation>Verbunden.
 </translation>
     </message>
     <message>
-        <source>closing...</source>
-        <translation>schließe Verbindung...</translation>
+        <source>Closing.</source>
+        <translation>Schließe Verbindung.</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::QmlInspectorAgent</name>
     <message>
-        <source> success : </source>
-        <translation> Erfolg :  </translation>
+        <source>Success: </source>
+        <translation>Erfolg: </translation>
     </message>
     <message>
-        <source>properties</source>
+        <source>Properties</source>
         <translation>Eigenschaften</translation>
     </message>
 </context>
@@ -30063,8 +30102,8 @@ nicht konfiguriert ist.</translation>
         <translation>Gerrit...</translation>
     </message>
     <message>
-        <source>git is not available.</source>
-        <translation>git ist nicht verfügbar.</translation>
+        <source>Git is not available.</source>
+        <translation>Git ist nicht verfügbar.</translation>
     </message>
     <message>
         <source>Enter Local Repository for &apos;%1&apos; (%2)</source>
@@ -30243,7 +30282,7 @@ Möchten Sie sie zum Projekt hinzufügen?&lt;/html&gt;</translation>
         <translation>Der Typ des Geräts, auf dem die Anwendung laufen soll.</translation>
     </message>
     <message>
-        <source>Device Type:</source>
+        <source>Device type:</source>
         <translation>Gerätetyp:</translation>
     </message>
 </context>
@@ -30746,8 +30785,16 @@ Soll es noch einmal versucht werden?</translation>
 <context>
     <name>QtSupport::CustomExecutableRunConfiguration</name>
     <message>
-        <source>Could not find the executable, please specify one.</source>
-        <translation>Es konnte keine ausführbare Datei gefunden werden; bitte geben Sie eine an.</translation>
+        <source>No executable.</source>
+        <translation>Keine ausführbare Datei.</translation>
+    </message>
+    <message>
+        <source>The executable
+%1
+cannot be found in the path.</source>
+        <translation>Die ausführbare Datei
+%1
+konnte nicht im Pfad gefunden werden.</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -30914,8 +30961,8 @@ Soll es noch einmal versucht werden?</translation>
 <context>
     <name>Android::Internal::AndroidQtVersion</name>
     <message>
-        <source>Failed to detect the ABI(s) used by the Qt version.</source>
-        <translation>Es konnten keine ABI(s)für diese Qt-Version bestimmt werden.</translation>
+        <source>Failed to detect the ABIs used by the Qt version.</source>
+        <translation>Die von der Qt-Version verwendeten ABIs konnten nicht bestimmt werden.</translation>
     </message>
     <message>
         <source>Android</source>
@@ -31225,10 +31272,6 @@ Fehlerausgabe: %1</translation>
         <translation>Check Out</translation>
     </message>
     <message>
-        <source>&amp;Checkout Comment:</source>
-        <translation>&amp;Checkout-Kommentar:</translation>
-    </message>
-    <message>
         <source>&amp;Reserved</source>
         <translation>&amp;Reserviert</translation>
     </message>
@@ -31244,6 +31287,10 @@ Fehlerausgabe: %1</translation>
         <source>Use &amp;Hijacked file</source>
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation>Datei &amp;hijacked verwenden</translation>
+    </message>
+    <message>
+        <source>&amp;Checkout comment:</source>
+        <translation>&amp;Checkout-Kommentar:</translation>
     </message>
 </context>
 <context>
@@ -31352,21 +31399,21 @@ Fehlerausgabe: %1</translation>
         <translation>Ge&amp;ladene Version</translation>
     </message>
     <message>
-        <source>Created By:</source>
-        <translation>Erstellt von:</translation>
-    </message>
-    <message>
-        <source>Created On:</source>
-        <extracomment>Date</extracomment>
-        <translation>Erstellt am:</translation>
-    </message>
-    <message>
         <source>Version after &amp;update</source>
         <translation>Version nach &amp;Aktualisierung</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;NOTE: You will not be able to check in this file without merging the changes (not supported by the plugin)&lt;/b&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;b&gt;Hinweis: Diese Datei kann nicht ohne Mergen der Änderungen eingecheckt werden (durch das Plugin nicht unterstützt)&lt;/b&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Created by:</source>
+        <translation>Erstellt von:</translation>
+    </message>
+    <message>
+        <source>Created on:</source>
+        <extracomment>Date</extracomment>
+        <translation>Erstellt am:</translation>
     </message>
 </context>
 <context>
@@ -31388,7 +31435,7 @@ Fehlerausgabe: %1</translation>
 <context>
     <name>ClearCase::Internal::ActivitySelector</name>
     <message>
-        <source>Select &amp;Activity:</source>
+        <source>Select &amp;activity:</source>
         <translation>Aktivität &amp;auswählen:</translation>
     </message>
     <message>
@@ -31630,8 +31677,24 @@ Fehlerausgabe: %1</translation>
         <translation>Die Datei ist bereits ausgecheckt.</translation>
     </message>
     <message>
+        <source>ClearCase Add File %1</source>
+        <translation>ClearCase Datei %1 hinzufügen</translation>
+    </message>
+    <message>
+        <source>ClearCase Remove Element %1</source>
+        <translation>ClearCase Element %1 entfernen</translation>
+    </message>
+    <message>
         <source>This operation is irreversible. Are you sure?</source>
         <translation>Dieser Vorgang kann nicht rückgängig gemacht werden. Sind Sie sicher?</translation>
+    </message>
+    <message>
+        <source>ClearCase Remove File %1</source>
+        <translation>ClearCase Datei %1 löschen</translation>
+    </message>
+    <message>
+        <source>ClearCase Rename File %1 -&gt; %2</source>
+        <translation>ClearCase Datei %1 -&gt; %2 umbenennen</translation>
     </message>
     <message>
         <source>Do you want to undo hijack of &apos;%1&apos;?</source>
@@ -31668,22 +31731,6 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>Enter &amp;comment:</source>
         <translation>&amp;Kommentar eingeben:</translation>
-    </message>
-    <message>
-        <source>ClearCase Add File</source>
-        <translation>ClearCase Datei hinzufügen</translation>
-    </message>
-    <message>
-        <source>ClearCase Remove Element</source>
-        <translation>ClearCase Element entfernen</translation>
-    </message>
-    <message>
-        <source>ClearCase Remove File</source>
-        <translation>ClearCase Datei löschen</translation>
-    </message>
-    <message>
-        <source>ClearCase Rename File</source>
-        <translation>ClearCase Datei umbenennen</translation>
     </message>
     <message>
         <source>Activity Headline</source>
@@ -31747,7 +31794,7 @@ Fehlerausgabe: %1</translation>
     </message>
     <message>
         <source>Server port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Port:</translation>
     </message>
     <message>
         <source>Select Working Directory</source>
@@ -31997,25 +32044,24 @@ Fehlerausgabe: %1</translation>
 <context>
     <name>Debugger::Internal::DebuggerKitConfigWidget</name>
     <message>
+        <source>Manage...</source>
+        <translation>Verwalten...</translation>
+    </message>
+    <message>
         <source>The debugger to use for this kit.</source>
         <translation>Der für dieses Kit zu verwendende Debugger.</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Geben Sie den Pfad zu der ausführbaren Datei des &lt;a href=&quot;%1&quot;&gt;Windows Console Debuggers&lt;/a&gt; (%2) an.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation>64-bit-Version</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation>32-bit-Version</translation>
-    </message>
-    <message>
-        <source>Auto detect</source>
+        <source>Auto-detect</source>
         <translation>Automatisch bestimmen</translation>
+    </message>
+    <message>
+        <source>Edit...</source>
+        <translation>Bearbeiten...</translation>
+    </message>
+    <message>
+        <source>Debugger for &quot;%1&quot;</source>
+        <translation>Debugger für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Debugger:</source>
@@ -32041,8 +32087,12 @@ Fehlerausgabe: %1</translation>
         <translation>Der Pfad zum Debugger muss als absoluter Pfad angegeben werden (%1).</translation>
     </message>
     <message>
-        <source>%1 using &apos;%2&apos;</source>
-        <translation>%1 unter Verwendung von &apos;%2&apos;</translation>
+        <source>%1 &lt;None&gt;</source>
+        <translation>%1 &lt;keine&gt;</translation>
+    </message>
+    <message>
+        <source>%1 using &quot;%2&quot;</source>
+        <translation>%1 unter Verwendung von &quot;%2&quot;</translation>
     </message>
     <message>
         <source>Debugger</source>
@@ -32187,8 +32237,12 @@ Fehlerausgabe: %1</translation>
 <context>
     <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
     <message>
-        <source>Kits</source>
-        <translation>Kits</translation>
+        <source>Name:</source>
+        <translation>Name:</translation>
+    </message>
+    <message>
+        <source>Kit name and icon.</source>
+        <translation>Kit-Name und Symbol.</translation>
     </message>
     <message>
         <source>Select Icon</source>
@@ -32312,6 +32366,44 @@ Fehlerausgabe: %1</translation>
     <message>
         <source>None</source>
         <translation>Keine</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::DebuggerKitConfigDialog</name>
+    <message>
+        <source>&amp;Engine:</source>
+        <translation>&amp;Engine:</translation>
+    </message>
+    <message>
+        <source>&amp;Binary:</source>
+        <translation>&amp;Ausführbare Datei:</translation>
+    </message>
+    <message>
+        <source>64-bit version</source>
+        <translation>64-bit-Version</translation>
+    </message>
+    <message>
+        <source>32-bit version</source>
+        <translation>32-bit-Version</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Geben Sie den Pfad zu der ausführbaren Datei des &lt;a href=&quot;%1&quot;&gt;Windows Console Debuggers&lt;/a&gt; (%2) an.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::RunConfiguration</name>
+    <message>
+        <source>Unknown error.</source>
+        <translation>Unbekannter Fehler.</translation>
+    </message>
+</context>
+<context>
+    <name>CustomExecutableDialog</name>
+    <message>
+        <source>Could not find the executable, please specify one.</source>
+        <translation>Es konnte keine ausführbare Datei gefunden werden; bitte geben Sie eine an.</translation>
     </message>
 </context>
 </TS>
