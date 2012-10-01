@@ -224,7 +224,7 @@ public:
         QFile file(fileName);
         quint64 size = static_cast<quint64>(file.size());
         if (size == 0) {
-            QString msg = tr("The Binary Editor can not open empty files.");
+            QString msg = tr("The Binary Editor cannot open empty files.");
             if (errorString)
                 *errorString = msg;
             else
