@@ -502,6 +502,19 @@ void FakeVimPlugin::test_vim_search()
     data.setText("abc" N "def" N "ab" X "c" N "ghi abc jkl");
     KEYS("#", X "abc" N "def" N "abc" N "ghi abc jkl");
 
+    // search with g* and g#
+    data.doCommand("set nows");
+    data.setText("bc" N "abc" N "abcd" N "bc" N "b");
+    KEYS("g*", "bc" N "a" X "bc" N "abcd" N "bc" N "b");
+    KEYS("n", "bc" N "abc" N "a" X "bcd" N "bc" N "b");
+    KEYS("n", "bc" N "abc" N "abcd" N X "bc" N "b");
+    KEYS("n", "bc" N "abc" N "abcd" N X "bc" N "b");
+    KEYS("g#", "bc" N "abc" N "a" X "bcd" N "bc" N "b");
+    KEYS("n", "bc" N "a" X "bc" N "abcd" N "bc" N "b");
+    KEYS("N", "bc" N "abc" N "a" X "bcd" N "bc" N "b");
+    KEYS("3n", "bc" N "abc" N "a" X "bcd" N "bc" N "b");
+    KEYS("2n", X "bc" N "abc" N "abcd" N "bc" N "b");
+
     /* QTCREATORBUG-7251 */
     data.setText("abc abc abc abc");
     KEYS("$?abc<CR>", "abc abc abc " X "abc");

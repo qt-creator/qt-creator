@@ -2774,7 +2774,10 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         QString needle;
         QTextCursor tc = cursor();
         tc.select(QTextCursor::WordUnderCursor);
-        needle = "\\<" + tc.selection().toPlainText() + "\\>";
+        if (m_gflag)
+            needle = tc.selection().toPlainText();
+        else
+            needle = "\\<" + tc.selection().toPlainText() + "\\>";
         setAnchorAndPosition(tc.position(), tc.anchor());
         g.searchBuffer.historyPush(needle);
         m_lastSearch = needle;
