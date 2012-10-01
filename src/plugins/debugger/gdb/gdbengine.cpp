@@ -220,7 +220,7 @@ public:
     QAction *createAction(QObject *parent) const
     {
         QAction *action = new QAction(DebuggerPlugin::tr("Install &Debug Information"), parent);
-        action->setToolTip(DebuggerPlugin::tr("This tries to install missing debug information."));
+        action->setToolTip(DebuggerPlugin::tr("Tries to install missing debug information."));
         return action;
     }
 
@@ -301,7 +301,7 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
     switch (error) {
         case QProcess::FailedToStart:
             return tr("The gdb process failed to start. Either the "
-                "invoked program '%1' is missing, or you may have insufficient "
+                "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.\n%2")
                 .arg(m_gdb, gdbProc()->errorString());
         case QProcess::Crashed:
@@ -1052,7 +1052,7 @@ void GdbEngine::commandTimeout()
             "to a command within %n second(s). This could mean it is stuck "
             "in an endless loop or taking longer than expected to perform "
             "the operation.\nYou can choose between waiting "
-            "longer or abort debugging.", 0, timeOut / 1000);
+            "longer or aborting debugging.", 0, timeOut / 1000);
         QMessageBox *mb = showMessageBox(QMessageBox::Critical,
             tr("GDB not responding"), msg,
             QMessageBox::Ok | QMessageBox::Cancel);
@@ -2094,7 +2094,7 @@ int GdbEngine::currentFrame() const
 
 static QString msgNoGdbBinaryForToolChain(const Abi &tc)
 {
-    return GdbEngine::tr("There is no gdb binary available for binaries in format '%1'")
+    return GdbEngine::tr("There is no GDB binary available for binaries in format '%1'")
         .arg(tc.toString());
 }
 
