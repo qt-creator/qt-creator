@@ -1756,7 +1756,7 @@ void FakeVimPluginPrivate::highlightMatches(const QString &needle)
     QWidget *w = editor->widget();
     Find::IFindSupport *find = Aggregation::query<Find::IFindSupport>(w);
     if (find != 0)
-        find->highlightAll(needle, Find::FindRegularExpression);
+        find->highlightAll(needle, Find::FindRegularExpression | Find::FindCaseSensitively);
 }
 
 int FakeVimPluginPrivate::currentFile() const

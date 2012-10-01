@@ -2787,6 +2787,7 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         needle = "\\<" + tc.selection().toPlainText() + "\\>";
         setAnchorAndPosition(tc.position(), tc.anchor());
         g.searchBuffer.historyPush(needle);
+        m_lastSearch = needle;
         m_lastSearchForward = input.is('*');
         searchNext();
         finishMovement();
