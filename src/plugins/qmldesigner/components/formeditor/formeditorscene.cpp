@@ -270,9 +270,16 @@ void FormEditorScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
+static QTime staticTimer()
+{
+    QTime timer;
+    timer.start();
+    return timer;
+}
+
 void FormEditorScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    static QTime time;
+    static QTime time = staticTimer();
 
     if (time.elapsed() > 30) {
         time.restart();
