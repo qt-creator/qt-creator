@@ -336,11 +336,13 @@ void TargetSetupPage::addProject(ProjectExplorer::Kit *k, const QString &path)
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
-    QStringList profiles = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-    profiles.append(path);
-    m_ignoreUpdates = true;
-    k->setValue(KIT_IS_TEMPORARY, profiles);
-    m_ignoreUpdates = false;
+    QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
+    if (!projects.contains(path)) {
+        projects.append(path);
+        m_ignoreUpdates = true;
+        k->setValue(TEMPORARY_OF_PROJECTS, projects);
+        m_ignoreUpdates = false;
+    }
 }
 
 void TargetSetupPage::removeProject(ProjectExplorer::Kit *k, const QString &path)
@@ -352,9 +354,10 @@ void TargetSetupPage::removeProject(ProjectExplorer::Kit *k, const QString &path
     if (projects.contains(path)) {
         projects.removeOne(path);
         m_ignoreUpdates = true;
-        k->setValue(TEMPORARY_OF_PROJECTS, projects);
         if (projects.isEmpty())
             ProjectExplorer::KitManager::instance()->deregisterKit(k);
+        else
+            k->setValue(TEMPORARY_OF_PROJECTS, projects);
         m_ignoreUpdates = false;
     }
 }
@@ -542,13 +545,13 @@ void TargetSetupPage::handleKitAddition(ProjectExplorer::Kit *k)
 
 void TargetSetupPage::handleKitRemoval(ProjectExplorer::Kit *k)
 {
-    if (m_ignoreUpdates)
-        return;
-
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     QtSupport::BaseQtVersion *version = vm->version(k->value(QT_IS_TEMPORARY, -1).toInt());
     if (version)
         vm->removeVersion(version);
+
+    if (m_ignoreUpdates)
+        return;
 
     removeWidget(k);
     updateVisibility();
