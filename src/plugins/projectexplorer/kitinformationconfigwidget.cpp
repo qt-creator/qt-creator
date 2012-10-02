@@ -165,7 +165,7 @@ bool ToolChainInformationConfigWidget::isDirty() const
 {
     ToolChain *tc = ToolChainKitInformation::toolChain(m_kit);
     return (m_comboBox->itemData(m_comboBox->currentIndex()).toString())
-            == (tc ? tc->id() : QString());
+            != (tc ? tc->id() : QString());
 }
 
 void ToolChainInformationConfigWidget::makeReadOnly()
