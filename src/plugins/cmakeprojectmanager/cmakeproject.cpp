@@ -49,6 +49,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <extensionsystem/pluginmanager.h>
@@ -145,8 +146,6 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
     CMakeBuildConfiguration *cmakebc = static_cast<CMakeBuildConfiguration *>(bc);
 
     // Pop up a dialog asking the user to rerun cmake
-    QFileInfo sourceFileInfo(m_fileName);
-
     QString cbpFile = CMakeManager::findCbpFile(QDir(bc->buildDirectory()));
     QFileInfo cbpFileFi(cbpFile);
     CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
@@ -162,13 +161,12 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
     }
 
     if (mode != CMakeOpenProjectWizard::Nothing) {
-        CMakeOpenProjectWizard copw(m_manager,
-                                    sourceFileInfo.absolutePath(),
-                                    cmakebc->buildDirectory(),
-                                    mode,
-                                    cmakebc);
-        copw.exec();
+        CMakeOpenProjectWizard copw(m_manager, mode,
+                                    CMakeOpenProjectWizard::BuildInfo(cmakebc));
+        if (copw.exec() == QDialog::Accepted)
+            cmakebc->setUseNinja(copw.useNinja()); // NeedToCreate can change the Ninja setting
     }
+
     // reparse
     parseCMakeLists();
 }
@@ -190,7 +188,7 @@ void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QStri
 
 QString CMakeProject::defaultBuildDirectory() const
 {
-    return projectDirectory() + QLatin1String("/qtcreator-build");
+    return projectDirectory() + QLatin1String("-build");
 }
 
 bool CMakeProject::parseCMakeLists()
@@ -531,33 +529,59 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     if (!Project::fromMap(map))
         return false;
 
-    Kit *defaultKit = KitManager::instance()->defaultKit();
-    if (!activeTarget() && defaultKit)
-        addTarget(createTarget(defaultKit));
-
-    // We have a user file, but we could still be missing the cbp file
-    // or simply run createXml with the saved settings
-    QFileInfo sourceFileInfo(m_fileName);
-    CMakeBuildConfiguration *activeBC = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
-    if (!activeBC)
-        return false;
-    QString cbpFile = CMakeManager::findCbpFile(QDir(activeBC->buildDirectory()));
-    QFileInfo cbpFileFi(cbpFile);
-
-    CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
-    if (!cbpFileFi.exists())
-        mode = CMakeOpenProjectWizard::NeedToCreate;
-    else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
-        mode = CMakeOpenProjectWizard::NeedToUpdate;
-
-    if (mode != CMakeOpenProjectWizard::Nothing) {
-        CMakeOpenProjectWizard copw(m_manager,
-                                    sourceFileInfo.absolutePath(),
-                                    activeBC->buildDirectory(),
-                                    mode,
-                                    activeBC);
+    bool hasUserFile = activeTarget();
+    if (!hasUserFile) {
+        CMakeOpenProjectWizard copw(m_manager, projectDirectory(), Utils::Environment::systemEnvironment());
         if (copw.exec() != QDialog::Accepted)
             return false;
+        Kit *k = copw.kit();
+        Target *t = new Target(this, k);
+        CMakeBuildConfiguration *bc(new CMakeBuildConfiguration(t));
+        bc->setDefaultDisplayName("all");
+        bc->setUseNinja(copw.useNinja());
+        bc->setBuildDirectory(copw.buildDirectory());
+        ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
+
+        // Now create a standard build configuration
+        buildSteps->insertStep(0, new MakeStep(buildSteps));
+
+        MakeStep *cleanMakeStep = new MakeStep(cleanSteps);
+        cleanSteps->insertStep(0, cleanMakeStep);
+        cleanMakeStep->setAdditionalArguments("clean");
+        cleanMakeStep->setClean(true);
+
+        t->addBuildConfiguration(bc);
+
+        DeployConfigurationFactory *fac = ExtensionSystem::PluginManager::instance()->getObject<DeployConfigurationFactory>();
+        ProjectExplorer::DeployConfiguration *dc = fac->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
+        t->addDeployConfiguration(dc);
+
+        addTarget(t);
+    } else {
+        // We have a user file, but we could still be missing the cbp file
+        // or simply run createXml with the saved settings
+        QFileInfo sourceFileInfo(m_fileName);
+        CMakeBuildConfiguration *activeBC = qobject_cast<CMakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration());
+        if (!activeBC)
+            return false;
+        QString cbpFile = CMakeManager::findCbpFile(QDir(activeBC->buildDirectory()));
+        QFileInfo cbpFileFi(cbpFile);
+
+        CMakeOpenProjectWizard::Mode mode = CMakeOpenProjectWizard::Nothing;
+        if (!cbpFileFi.exists())
+            mode = CMakeOpenProjectWizard::NeedToCreate;
+        else if (cbpFileFi.lastModified() < sourceFileInfo.lastModified())
+            mode = CMakeOpenProjectWizard::NeedToUpdate;
+
+        if (mode != CMakeOpenProjectWizard::Nothing) {
+            CMakeOpenProjectWizard copw(m_manager, mode,
+                                        CMakeOpenProjectWizard::BuildInfo(activeBC));
+            if (copw.exec() != QDialog::Accepted)
+                return false;
+            else
+                activeBC->setUseNinja(copw.useNinja());
+        }
     }
 
     m_watcher = new QFileSystemWatcher(this);
@@ -565,16 +589,12 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
     parseCMakeLists();
 
-    if (hasBuildTarget("all")) {
+    if (!hasUserFile && hasBuildTarget("all")) {
         MakeStep *makeStep = qobject_cast<MakeStep *>(
                     activeTarget()->activeBuildConfiguration()->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD)->at(0));
         Q_ASSERT(makeStep);
         makeStep->setBuildTarget("all", true);
     }
-
-    foreach (Target *t, targets())
-        connect(t, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-                this, SLOT(changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
 
     connect(Core::EditorManager::instance(), SIGNAL(editorAboutToClose(Core::IEditor*)),
             this, SLOT(editorAboutToClose(Core::IEditor*)));
@@ -585,6 +605,22 @@ bool CMakeProject::fromMap(const QVariantMap &map)
     connect(ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
 
+    return true;
+}
+
+bool CMakeProject::setupTarget(Target *t)
+{
+    CMakeBuildConfigurationFactory *factory
+            = ExtensionSystem::PluginManager::instance()->getObject<CMakeBuildConfigurationFactory>();
+    CMakeBuildConfiguration *bc = factory->create(t, Constants::CMAKE_BC_ID, QLatin1String("all"));
+    if (!bc)
+        return false;
+
+    t->addBuildConfiguration(bc);
+
+    DeployConfigurationFactory *fac = ExtensionSystem::PluginManager::instance()->getObject<DeployConfigurationFactory>();
+    ProjectExplorer::DeployConfiguration *dc = fac->create(t, ProjectExplorer::Constants::DEFAULT_DEPLOYCONFIGURATION_ID);
+    t->addDeployConfiguration(dc);
     return true;
 }
 
@@ -903,25 +939,21 @@ void CMakeBuildSettingsWidget::init(BuildConfiguration *bc)
 void CMakeBuildSettingsWidget::openChangeBuildDirectoryDialog()
 {
     CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
-    CMakeOpenProjectWizard copw(project->projectManager(),
-                                project->projectDirectory(),
-                                m_buildConfiguration->buildDirectory(),
-                                m_buildConfiguration);
+    CMakeOpenProjectWizard copw(project->projectManager(), CMakeOpenProjectWizard::ChangeDirectory,
+                                CMakeOpenProjectWizard::BuildInfo(m_buildConfiguration));
     if (copw.exec() == QDialog::Accepted) {
         project->changeBuildDirectory(m_buildConfiguration, copw.buildDirectory());
+        m_buildConfiguration->setUseNinja(copw.useNinja());
         m_pathLineEdit->setText(m_buildConfiguration->buildDirectory());
     }
 }
 
 void CMakeBuildSettingsWidget::runCMake()
 {
-    // TODO skip build directory
     CMakeProject *project = static_cast<CMakeProject *>(m_buildConfiguration->target()->project());
     CMakeOpenProjectWizard copw(project->projectManager(),
-                                project->projectDirectory(),
-                                m_buildConfiguration->buildDirectory(),
                                 CMakeOpenProjectWizard::WantToUpdate,
-                                m_buildConfiguration);
+                                CMakeOpenProjectWizard::BuildInfo(m_buildConfiguration));
     if (copw.exec() == QDialog::Accepted)
         project->parseCMakeLists();
 }

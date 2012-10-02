@@ -49,6 +49,7 @@
 #include <QDateTime>
 #include <QSettings>
 #include <QStringList>
+#include <QApplication>
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
@@ -67,17 +68,21 @@ using namespace CMakeProjectManager::Internal;
 
 namespace CMakeProjectManager {
 namespace Internal {
-
     class GeneratorInfo
     {
     public:
-        GeneratorInfo()
-            : m_kit(0), m_isNinja(false) {}
-        explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false)
-            : m_kit(kit), m_isNinja(ninja) {}
+        enum Ninja { NoNinja, OfferNinja, ForceNinja };
+        static QList<GeneratorInfo> generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool hasCodeBlocks);
 
-        ProjectExplorer::Kit *kit() const { return m_kit; }
-        bool isNinja() const { return m_isNinja; }
+        GeneratorInfo();
+        explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false);
+
+        ProjectExplorer::Kit *kit() const;
+        bool isNinja() const;
+
+        QString displayName() const;
+        QString generatorArgument() const;
+        QString generator() const;
 
     private:
         ProjectExplorer::Kit *m_kit;
@@ -89,12 +94,121 @@ namespace Internal {
 
 Q_DECLARE_METATYPE(CMakeProjectManager::Internal::GeneratorInfo);
 
+GeneratorInfo::GeneratorInfo()
+    : m_kit(0), m_isNinja(false)
+{}
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, CMakeBuildConfiguration *bc)
+GeneratorInfo::GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja)
+    : m_kit(kit), m_isNinja(ninja)
+{}
+
+ProjectExplorer::Kit *GeneratorInfo::kit() const
+{
+    return m_kit;
+}
+
+bool GeneratorInfo::isNinja() const {
+    return m_isNinja;
+}
+
+QString GeneratorInfo::generator() const
+{
+    if (!m_kit)
+        return QString();
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit);
+    ProjectExplorer::Abi targetAbi = tc->targetAbi();
+    if (m_isNinja) {
+        return QLatin1String("Ninja");
+    } else if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
+        if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor) {
+            return QLatin1String("NMake Makefiles");
+        } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
+#ifdef Q_OS_WIN
+                return QLatin1String("MinGW Makefiles");
+#else
+                return QLatin1String("Unix Makefiles");
+#endif
+        }
+    }
+    return QLatin1String("Unix Makefiles");
+}
+
+QString GeneratorInfo::generatorArgument() const
+{
+    QString tmp = generator();
+    if (tmp.isEmpty())
+        return tmp;
+    return QLatin1String("-GCodeBlocks - ") + tmp;
+}
+
+QString GeneratorInfo::displayName() const
+{
+    if (!m_kit)
+        return QString();
+    if (m_isNinja)
+        return QApplication::tr("Ninja (%1)").arg(m_kit->displayName());
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_kit);
+    ProjectExplorer::Abi targetAbi = tc->targetAbi();
+    if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
+        if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
+                || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor) {
+            return QApplication::tr("NMake Generator (%1)").arg(m_kit->displayName());
+        } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
+#ifdef Q_OS_WIN
+                return QApplication::tr("MinGW Generator (%1)").arg(m_kit->displayName());
+#else
+                return QApplication::tr("Unix Generator (%1)").arg(m_kit->displayName());
+#endif
+        }
+    } else {
+        // Non windows
+        return QApplication::tr("Unix Generator (%1)").arg(m_kit->displayName());
+    }
+    return QString();
+}
+
+QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, Ninja n, bool hasCodeBlocks)
+{
+    QList<GeneratorInfo> results;
+    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    ProjectExplorer::Abi targetAbi = tc->targetAbi();
+    if (n != ForceNinja) {
+        if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
+            if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
+                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor) {
+                if (hasCodeBlocks)
+                    results << GeneratorInfo(k);
+            } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
+                results << GeneratorInfo(k);
+            }
+        } else {
+            // Non windows
+            results << GeneratorInfo(k);
+        }
+    }
+    if (n != NoNinja)
+        results << GeneratorInfo(k, true);
+    return results;
+}
+
+//////////////
+/// CMakeOpenProjectWizard
+//////////////
+
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, Utils::Environment env)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(false),
-      m_buildConfiguration(bc)
+      m_environment(env),
+      m_useNinja(false),
+      m_kit(0)
 {
     int startid;
     if (hasInSourceBuild()) {
@@ -120,37 +234,31 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
     init();
 }
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
-                                               const QString &buildDirectory, CMakeOpenProjectWizard::Mode mode,
-                                               CMakeBuildConfiguration *bc)
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, CMakeOpenProjectWizard::Mode mode,
+                                               const BuildInfo &info)
     : m_cmakeManager(cmakeManager),
-      m_sourceDirectory(sourceDirectory),
+      m_sourceDirectory(info.sourceDirectory),
       m_creatingCbpFiles(true),
-      m_buildConfiguration(bc)
+      m_environment(info.environment),
+      m_useNinja(info.useNinja),
+      m_kit(info.kit)
 {
-
     CMakeRunPage::Mode rmode;
     if (mode == CMakeOpenProjectWizard::NeedToCreate)
         rmode = CMakeRunPage::Recreate;
     else if (mode == CMakeOpenProjectWizard::WantToUpdate)
         rmode = CMakeRunPage::WantToUpdate;
-    else
+    else if (mode == CMakeOpenProjectWizard::NeedToUpdate)
         rmode = CMakeRunPage::NeedToUpdate;
-    addPage(new CMakeRunPage(this, rmode, buildDirectory));
-    init();
-}
+    else
+        rmode = CMakeRunPage::ChangeDirectory;
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
-                                               const QString &oldBuildDirectory,
-                                               CMakeBuildConfiguration *bc)
-    : m_cmakeManager(cmakeManager),
-      m_sourceDirectory(sourceDirectory),
-      m_creatingCbpFiles(true),
-      m_buildConfiguration(bc)
-{
-    m_buildDirectory = oldBuildDirectory;
-    addPage(new ShadowBuildPage(this, true));
-    addPage(new CMakeRunPage(this, CMakeRunPage::ChangeDirectory));
+    if (mode == CMakeOpenProjectWizard::ChangeDirectory) {
+        m_buildDirectory = info.buildDirectory;
+        addPage(new ShadowBuildPage(this, true));
+    }
+
+    addPage(new CMakeRunPage(this, rmode, info.buildDirectory));
     init();
 }
 
@@ -216,6 +324,16 @@ void CMakeOpenProjectWizard::setBuildDirectory(const QString &directory)
     m_buildDirectory = directory;
 }
 
+bool CMakeOpenProjectWizard::useNinja() const
+{
+    return m_useNinja;
+}
+
+void CMakeOpenProjectWizard::setUseNinja(bool b)
+{
+    m_useNinja = b;
+}
+
 QString CMakeOpenProjectWizard::arguments() const
 {
     return m_arguments;
@@ -228,12 +346,17 @@ void CMakeOpenProjectWizard::setArguments(const QString &args)
 
 Utils::Environment CMakeOpenProjectWizard::environment() const
 {
-    return m_buildConfiguration->environment();
+    return m_environment;
 }
 
-CMakeBuildConfiguration *CMakeOpenProjectWizard::buildConfiguration() const
+ProjectExplorer::Kit *CMakeOpenProjectWizard::kit() const
 {
-    return m_buildConfiguration;
+    return m_kit;
+}
+
+void CMakeOpenProjectWizard::setKit(ProjectExplorer::Kit *kit)
+{
+    m_kit = kit;
 }
 
 InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
@@ -284,6 +407,7 @@ CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode, const
     : QWizardPage(cmakeWizard),
       m_cmakeWizard(cmakeWizard),
       m_complete(false),
+      m_optionalCMake(false),
       m_mode(mode),
       m_buildDirectory(buildDirectory)
 {
@@ -366,17 +490,41 @@ void CMakeRunPage::initWidgets()
     setMinimumSize(600, 400);
 }
 
+QString CMakeRunPage::cachedGeneratorFromFile(const QString &cache)
+{
+    QFile fi(cache);
+    if (fi.exists()) {
+        // Cache exists, then read it...
+        if (fi.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            while (!fi.atEnd()) {
+                QString line = fi.readLine();
+                if (line.startsWith("CMAKE_GENERATOR:INTERNAL=")) {
+                    int splitpos = line.indexOf('=');
+                    if (splitpos != -1) {
+                        QString cachedGenerator = line.mid(splitpos + 1).trimmed();
+                        if (!cachedGenerator.isEmpty())
+                            return cachedGenerator;
+                    }
+                }
+            }
+        }
+    }
+    return QString();
+}
+
 void CMakeRunPage::initializePage()
 {
     if (m_mode == Initial) {
-        m_complete = m_cmakeWizard->existsUpToDateXmlFile();
+        bool upToDateXmlFile = m_cmakeWizard->existsUpToDateXmlFile();;
         m_buildDirectory = m_cmakeWizard->buildDirectory();
 
-        if (m_cmakeWizard->existsUpToDateXmlFile()) {
+        if (upToDateXmlFile) {
             m_descriptionLabel->setText(
                     tr("The directory %1 already contains a cbp file, which is recent enough. "
-                       "You can pass special arguments or change the used tool chain here and rerun CMake. "
+                       "You can pass special arguments and rerun CMake. "
                        "Or simply finish the wizard directly.").arg(m_buildDirectory));
+            m_optionalCMake = true;
+            m_complete = true;
         } else {
             m_descriptionLabel->setText(
                     tr("The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. "
@@ -404,71 +552,64 @@ void CMakeRunPage::initializePage()
         m_descriptionLabel->setText(tr("Refreshing cbp file in %1.").arg(m_buildDirectory));
     }
 
-
-    // Try figuring out generator and toolchain from CMakeCache.txt
-    QString cachedGenerator;
-    QString cmakeCxxCompiler;
-    QFile fi(m_buildDirectory + "/CMakeCache.txt");
-    if (fi.exists()) {
-        // Cache exists, then read it...
-        if (fi.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            while (!fi.atEnd()) {
-                QString line = fi.readLine();
-                if (line.startsWith("CMAKE_GENERATOR:INTERNAL=")) {
-                    int splitpos = line.indexOf('=');
-                    if (splitpos != -1)
-                        cachedGenerator = line.mid(splitpos + 1).trimmed();
-                }
-                if (line.startsWith("CMAKE_CXX_COMPILER:FILEPATH=")) {
-                    int splitpos = line.indexOf("=");
-                    if (splitpos != -1)
-                        cmakeCxxCompiler = line.mid(splitpos +1).trimmed();
-                }
-                if (!cachedGenerator.isEmpty() && !cmakeCxxCompiler.isEmpty())
-                    break;
-            }
-        }
-    }
-
     // Build the list of generators/toolchains we want to offer
-    // restrict toolchains based on CMAKE_CXX_COMPILER ?
-    Q_UNUSED(cmakeCxxCompiler);
     m_generatorComboBox->clear();
+
     bool hasCodeBlocksGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksMsvcGenerator();
+    bool hasNinjaGenerator = m_cmakeWizard->cmakeManager()->hasCodeBlocksNinjaGenerator();
 
-    QList<ProjectExplorer::Kit *> kitList =
-            ProjectExplorer::KitManager::instance()->kits();
+    if (m_mode == Initial) {
+        // Try figuring out generator and toolchain from CMakeCache.txt
+        QString cachedGenerator = cachedGeneratorFromFile(m_buildDirectory + "/CMakeCache.txt");
 
-    foreach (ProjectExplorer::Kit *k, kitList) {
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-        if (!tc)
-            continue;
-        ProjectExplorer::Abi targetAbi = tc->targetAbi();
-        if (targetAbi.os() == ProjectExplorer::Abi::WindowsOS) {
-            if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2005Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2008Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
-                    || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor) {
-                if (hasCodeBlocksGenerator && (cachedGenerator.isEmpty() || cachedGenerator == "NMake Makefiles"))
-                    m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(k->displayName()), qVariantFromValue(GeneratorInfo(k)));
-             } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
-#ifdef Q_OS_WIN
-                if (cachedGenerator.isEmpty() || cachedGenerator == "MinGW Makefiles")
-                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(k->displayName()), qVariantFromValue(GeneratorInfo(k)));
-#else
-                if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
-                    m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(k->displayName()), qVariantFromValue(GeneratorInfo(k)));
-#endif
-            }
-        } else {
-            // Non windows
-            if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
-                m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(k->displayName()), qVariantFromValue(GeneratorInfo(k)));
+        m_generatorComboBox->show();
+        QList<ProjectExplorer::Kit *> kitList =
+                ProjectExplorer::KitManager::instance()->kits();
+
+        foreach (ProjectExplorer::Kit *k, kitList) {
+            ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+            if (!tc)
+                continue;
+            QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(k,
+                                                                          hasNinjaGenerator ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja,
+                                                                          hasCodeBlocksGenerator);
+
+            foreach (const GeneratorInfo &info, infos)
+                if (cachedGenerator.isEmpty() || info.generator() == cachedGenerator)
+                    m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
         }
-        if (m_cmakeWizard->cmakeManager()->hasCodeBlocksNinjaGenerator() &&
-                (cachedGenerator.isEmpty() || cachedGenerator == "Ninja"))
-            m_generatorComboBox->addItem(tr("Ninja (%1)").arg(k->displayName()), qVariantFromValue(GeneratorInfo(k, true)));
+    } else {
+        // Note: We don't compare the actually cached generator to what is set in the buildconfiguration
+        // We assume that the buildconfiguration is correct
+        GeneratorInfo::Ninja ninja;
+        if (m_mode == CMakeRunPage::NeedToUpdate || m_mode == CMakeRunPage::WantToUpdate) {
+            ninja = m_cmakeWizard->useNinja() ? GeneratorInfo::ForceNinja : GeneratorInfo::NoNinja;
+        } else { // Recreate, ChangeDirectory
+            // Note: ReCreate is technically just a removed .cbp file, we assume the cache
+            // got removed too. If the cache still exists the error message from cmake should
+            // be a good hint to change the generator
+            ninja = hasNinjaGenerator ? GeneratorInfo::OfferNinja : GeneratorInfo::NoNinja;
+        }
+
+        QList<GeneratorInfo> infos = GeneratorInfo::generatorInfosFor(m_cmakeWizard->kit(),
+                                                                      ninja,
+                                                                      true);
+        foreach (const GeneratorInfo &info, infos)
+                m_generatorComboBox->addItem(info.displayName(), qVariantFromValue(info));
     }
+}
+
+bool CMakeRunPage::validatePage()
+{
+    if (m_optionalCMake) {
+        int index = m_generatorComboBox->currentIndex();
+        if (index == -1)
+            return false;
+        GeneratorInfo generatorInfo = m_generatorComboBox->itemData(index).value<GeneratorInfo>();
+        m_cmakeWizard->setKit(generatorInfo.kit());
+        m_cmakeWizard->setUseNinja(generatorInfo.isNinja());
+    }
+    return QWizardPage::validatePage();
 }
 
 void CMakeRunPage::runCMake()
@@ -477,54 +618,39 @@ void CMakeRunPage::runCMake()
         // We asked the user for the cmake executable
         m_cmakeWizard->cmakeManager()->setCMakeExecutable(m_cmakeExecutable->path());
 
+    m_optionalCMake = false;
+    m_complete = false;
+
+    Utils::Environment env = m_cmakeWizard->environment();
     int index = m_generatorComboBox->currentIndex();
 
-    ProjectExplorer::Kit *k = 0;
-    GeneratorInfo generatorInfo;
-    if (index >= 0) {
-        generatorInfo = m_generatorComboBox->itemData(index).value<GeneratorInfo>();
-        k = generatorInfo.kit();
-    }
-    if (!k) {
+    if (index == -1) {
         m_output->appendPlainText(tr("No generator selected."));
         return;
     }
+    GeneratorInfo generatorInfo = m_generatorComboBox->itemData(index).value<GeneratorInfo>();
+    m_cmakeWizard->setKit(generatorInfo.kit());
+    m_cmakeWizard->setUseNinja(generatorInfo.isNinja());
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    // If mode is initial the user chooses the kit, otherwise it's already choosen
+    // and the environment already contains the kit
+    if (m_mode == Initial)
+        generatorInfo.kit()->addToEnvironment(env);
 
     m_runCMake->setEnabled(false);
     m_argumentsLineEdit->setEnabled(false);
     m_generatorComboBox->setEnabled(false);
-    CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
-
-    QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
-    if (generatorInfo.isNinja()) {
-        m_cmakeWizard->buildConfiguration()->setUseNinja(true);
-        generator = "-GCodeBlocks - Ninja";
-    } else if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS) {
-        m_cmakeWizard->buildConfiguration()->setUseNinja(false);
-        if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
-#ifdef Q_OS_WIN
-            generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
-#else
-            generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
-#endif
-        } else {
-            generator = QLatin1String("-GCodeBlocks - NMake Makefiles");
-        }
-    }
-
-    Utils::Environment env = m_cmakeWizard->environment();
-    tc->addToEnvironment(env);
 
     m_output->clear();
 
+    CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
     if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
         m_cmakeProcess = new Utils::QtcProcess();
         connect(m_cmakeProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(cmakeReadyReadStandardOutput()));
         connect(m_cmakeProcess, SIGNAL(readyReadStandardError()), this, SLOT(cmakeReadyReadStandardError()));
         connect(m_cmakeProcess, SIGNAL(finished(int)), this, SLOT(cmakeFinished()));
-        cmakeManager->createXmlFile(m_cmakeProcess, m_argumentsLineEdit->text(), m_cmakeWizard->sourceDirectory(), m_buildDirectory, env, generator);
+        cmakeManager->createXmlFile(m_cmakeProcess, m_argumentsLineEdit->text(), m_cmakeWizard->sourceDirectory(),
+                                    m_buildDirectory, env, generatorInfo.generatorArgument());
     } else {
         m_runCMake->setEnabled(true);
         m_argumentsLineEdit->setEnabled(true);

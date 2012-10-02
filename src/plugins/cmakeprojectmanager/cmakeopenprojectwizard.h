@@ -31,9 +31,13 @@
 #ifndef CMAKEOPENPROJECTWIZARD_H
 #define CMAKEOPENPROJECTWIZARD_H
 
+#include "cmakebuildconfiguration.h"
+
 #include <utils/environment.h>
 #include <utils/wizard.h>
 #include <utils/qtcprocess.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
 
 #include <QPushButton>
 #include <QComboBox>
@@ -47,14 +51,13 @@ class PathChooser;
 }
 
 namespace ProjectExplorer {
-class ToolChain;
+class Kit;
 }
 
 namespace CMakeProjectManager {
 namespace Internal {
 
 class CMakeManager;
-class CMakeBuildConfiguration;
 
 class CMakeOpenProjectWizard : public Utils::Wizard
 {
@@ -70,28 +73,52 @@ public:
         Nothing,
         NeedToCreate,
         NeedToUpdate,
-        WantToUpdate
+        WantToUpdate,
+        ChangeDirectory
     };
 
-    // used at importing a project without a .user file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, CMakeBuildConfiguration *bc);
+    class BuildInfo
+    {
+    public:
+        BuildInfo()
+        {}
+
+        BuildInfo(CMakeBuildConfiguration *bc)
+            : sourceDirectory(bc->target()->project()->projectDirectory())
+            , buildDirectory(bc->buildDirectory())
+            , environment(bc->environment())
+            , useNinja(bc->useNinja())
+            , kit(bc->target()->kit())
+        {}
+
+        QString sourceDirectory;
+        QString buildDirectory;
+        Utils::Environment environment;
+        bool useNinja;
+        ProjectExplorer::Kit *kit;
+    };
+
+    /// used at importing a project without a .user file
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, Utils::Environment env);
+
     /// used to update if we have already a .user file
     /// recreates or updates the cbp file
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &buildDirectory, Mode mode, CMakeBuildConfiguration *bc);
-    /// used to change the build directory of one buildconfiguration
-    /// shows a page for selecting a directory
-    /// then the run cmake page
-    CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const QString &oldBuildDirectory, CMakeBuildConfiguration *bc);
+    /// Also used to change the build directory of one buildconfiguration or create a new buildconfiguration
+    CMakeOpenProjectWizard(CMakeManager *cmakeManager, Mode mode, const BuildInfo &info);
+
 
     virtual int nextId() const;
     QString buildDirectory() const;
     QString sourceDirectory() const;
     void setBuildDirectory(const QString &directory);
+    bool useNinja() const;
+    void setUseNinja(bool b);
     CMakeManager *cmakeManager() const;
     QString arguments() const;
     void setArguments(const QString &args);
     Utils::Environment environment() const;
-    CMakeBuildConfiguration *buildConfiguration() const;
+    ProjectExplorer::Kit *kit() const;
+    void setKit(ProjectExplorer::Kit *kit);
     bool existsUpToDateXmlFile() const;
 
 private:
@@ -102,7 +129,9 @@ private:
     QString m_sourceDirectory;
     QString m_arguments;
     bool m_creatingCbpFiles;
-    CMakeBuildConfiguration *m_buildConfiguration;
+    Utils::Environment m_environment;
+    bool m_useNinja;
+    ProjectExplorer::Kit *m_kit;
 };
 
 class InSourceBuildPage : public QWizardPage
@@ -134,6 +163,7 @@ public:
     explicit CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode = Initial, const QString &buildDirectory = QString());
 
     virtual void initializePage();
+    virtual bool validatePage();
     virtual void cleanupPage();
     virtual bool isComplete() const;
 private slots:
@@ -143,6 +173,7 @@ private slots:
     void cmakeReadyReadStandardError();
 private:
     void initWidgets();
+    QString cachedGeneratorFromFile(const QString &cache);
     CMakeOpenProjectWizard *m_cmakeWizard;
     QPlainTextEdit *m_output;
     QPushButton *m_runCMake;
@@ -153,6 +184,7 @@ private:
     QLabel *m_descriptionLabel;
     QLabel *m_exitCodeLabel;
     bool m_complete;
+    bool m_optionalCMake;
     Mode m_mode;
     QString m_buildDirectory;
 };

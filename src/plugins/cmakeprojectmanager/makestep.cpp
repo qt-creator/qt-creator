@@ -93,20 +93,21 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
 void MakeStep::ctor()
 {
     m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
-    m_useNinja = false;
     m_ninjaProgress = QRegExp ("^\\[\\s*(\\d*)/\\s*(\\d*)");
     m_ninjaProgressString = QLatin1String("[%s/%t "); // ninja: [33/100
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("Make"));
 
-    BuildConfiguration *bc = cmakeBuildConfiguration();
+    CMakeBuildConfiguration *bc = cmakeBuildConfiguration();
     if (bc) {
+        m_useNinja = bc->useNinja();
         m_activeConfiguration = 0;
         connect(bc, SIGNAL(useNinjaChanged(bool)), this, SLOT(setUseNinja(bool)));
     } else {
         // That means the step is in the deploylist, so we listen to the active build config
         // changed signal and react to the activeBuildConfigurationChanged() signal of the buildconfiguration
         m_activeConfiguration = targetsActiveBuildConfiguration();
+        m_useNinja = m_activeConfiguration->useNinja();
         connect (target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
                  this, SLOT(activeBuildConfigurationChanged()));
         activeBuildConfigurationChanged();

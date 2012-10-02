@@ -515,13 +515,6 @@ QVariantMap Target::toMap() const
     return map;
 }
 
-void Target::createDefaultSetup()
-{
-    updateDefaultBuildConfigurations();
-    updateDefaultDeployConfigurations();
-    updateDefaultRunConfigurations();
-}
-
 void Target::updateDefaultBuildConfigurations()
 {
     IBuildConfigurationFactory *bcFactory = IBuildConfigurationFactory::find(this);

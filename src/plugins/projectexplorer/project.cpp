@@ -250,9 +250,19 @@ Target *Project::createTarget(Kit *k)
         return 0;
 
     Target *t = new Target(this, k);
-    t->createDefaultSetup();
-
+    if (!setupTarget(t)) {
+        delete t;
+        return 0;
+    }
     return t;
+}
+
+bool Project::setupTarget(Target *t)
+{
+    t->updateDefaultBuildConfigurations();
+    t->updateDefaultDeployConfigurations();
+    t->updateDefaultRunConfigurations();
+    return true;
 }
 
 Target *Project::restoreTarget(const QVariantMap &data)

@@ -32,6 +32,7 @@
 
 #include "cmakeopenprojectwizard.h"
 #include "cmakeproject.h"
+#include "cmakeprojectconstants.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
@@ -50,12 +51,11 @@ using namespace CMakeProjectManager;
 using namespace Internal;
 
 namespace {
-const char CMAKE_BC_ID[] = "CMakeProjectManager.CMakeBuildConfiguration";
 const char BUILD_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory";
 } // namespace
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
-    BuildConfiguration(parent, Core::Id(CMAKE_BC_ID)), m_useNinja(false)
+    BuildConfiguration(parent, Core::Id(Constants::CMAKE_BC_ID)), m_useNinja(false)
 {
     m_buildDirectory = static_cast<CMakeProject *>(parent->project())->defaultBuildDirectory();
 }
@@ -161,12 +161,12 @@ QList<Core::Id> CMakeBuildConfigurationFactory::availableCreationIds(const Proje
 {
     if (!canHandle(parent))
         return QList<Core::Id>();
-    return QList<Core::Id>() << Core::Id(CMAKE_BC_ID);
+    return QList<Core::Id>() << Core::Id(Constants::CMAKE_BC_ID);
 }
 
 QString CMakeBuildConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == CMAKE_BC_ID)
+    if (id == Constants::CMAKE_BC_ID)
         return tr("Build");
     return QString();
 }
@@ -175,7 +175,7 @@ bool CMakeBuildConfigurationFactory::canCreate(const ProjectExplorer::Target *pa
 {
     if (!canHandle(parent))
         return false;
-    if (id == CMAKE_BC_ID)
+    if (id == Constants::CMAKE_BC_ID)
         return true;
     return false;
 }
@@ -199,6 +199,17 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     if (!ok || buildConfigurationName.isEmpty())
         return 0;
 
+    CMakeOpenProjectWizard::BuildInfo info;
+    info.sourceDirectory = project->projectDirectory();
+    info.environment = Utils::Environment::systemEnvironment();
+    info.buildDirectory = project->defaultBuildDirectory();
+    info.kit = parent->kit();
+    info.useNinja = false; // This is ignored anyway
+
+    CMakeOpenProjectWizard copw(project->projectManager(), CMakeOpenProjectWizard::ChangeDirectory, info);
+    if (copw.exec() != QDialog::Accepted)
+        return 0;
+
     CMakeBuildConfiguration *bc = new CMakeBuildConfiguration(parent);
     bc->setDisplayName(buildConfigurationName);
 
@@ -213,16 +224,8 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     cleanMakeStep->setAdditionalArguments("clean");
     cleanMakeStep->setClean(true);
 
-    CMakeOpenProjectWizard copw(project->projectManager(),
-                                project->projectDirectory(),
-                                bc->buildDirectory(),
-                                bc);
-    if (copw.exec() != QDialog::Accepted) {
-        delete bc;
-        return 0;
-    }
-
     bc->setBuildDirectory(copw.buildDirectory());
+    bc->setUseNinja(copw.useNinja());
 
     // Default to all
     if (project->hasBuildTarget("all"))
