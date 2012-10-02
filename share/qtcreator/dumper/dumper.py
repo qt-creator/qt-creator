@@ -1610,7 +1610,7 @@ class Dumper:
                 self.putNumChild(0)
                 return
 
-            if (typeName.replace("(anonymous namespace)", "").find("(") != -1):
+            if innerType.code == MethodCode or innerType.code == FunctionCode:
                 # A function pointer with format None.
                 self.putValue(str(value))
                 self.putAddress(value.address)
