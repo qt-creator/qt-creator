@@ -291,30 +291,22 @@ def getConfiguredKits():
     def __retrieveQtVersionName__(target, version):
         treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
         return treeWidget.currentItem().text(0)
-    targetQtVersionNames = {}
+    # end of internal function for iterateQtVersions
+    def __setQtVersionForKit__(kit, kitName, kitsQtVersionName):
+        treeView = waitForObject(":Kits_QTreeView")
+        clickItem(treeView, kit, 5, 5, 0, Qt.LeftButton)
+        qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
+        kitsQtVersionName[kitName] = qtVersionStr
+    # end of internal function for iterate kits
+
+    kitsWithQtVersionName = {}
     result = {}
-    targetsQtVersions, qtVersionNames = iterateQtVersions(True, __retrieveQtVersionName__)
-    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Kits")
-    treeView = waitForObject(":Kits_QTreeView")
-    model = treeView.model()
-    test.compare(model.rowCount(), 2, "Verifying expected target section count")
-    autoDetected = model.index(0, 0)
-    test.compare(autoDetected.data().toString(), "Auto-detected",
-                 "Verifying label for target section")
-    manual = model.index(1, 0)
-    test.compare(manual.data().toString(), "Manual", "Verifying label for target section")
-    for section in [autoDetected, manual]:
-        for index in [section.child(i, 0) for i in range(model.rowCount(section))]:
-            targetName = str(index.data().toString())
-            if (targetName.endswith(" (default)")):
-                targetName = targetName.rsplit(" (default)", 1)[0]
-            item = ".".join([str(section.data().toString()),
-                             str(index.data().toString()).replace(".", "\\.")])
-            clickItem(treeView, item, 5, 5, 0, Qt.LeftButton)
-            qtVersionStr = str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
-            targetQtVersionNames[targetName] = qtVersionStr
+    # collect kits and their Qt versions
+    targetsQtVersions, qtVersionNames = iterateQtVersions(True, False, __retrieveQtVersionName__)
+    # update collected Qt versions with their configured device and version
+    iterateKits(True, True, __setQtVersionForKit__, kitsWithQtVersionName)
     # merge defined target names with their configured Qt versions and devices
-    for kit,qtVersion in targetQtVersionNames.iteritems():
+    for kit,qtVersion in kitsWithQtVersionName.iteritems():
         if qtVersion in qtVersionNames:
             result[kit] = targetsQtVersions[qtVersionNames.index(qtVersion)].items()[0]
         else:
@@ -326,7 +318,8 @@ def getConfiguredKits():
         targetInfo = result[targetName]
         if targetInfo[0] == "Maemo":
             result.update({targetName:
-                           (QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.MAEMO5), targetInfo[1])})
+                           (QtQuickConstants.getStringForTarget(QtQuickConstants.Targets.MAEMO5),
+                            targetInfo[1])})
     test.log("Configured kits: %s" % str(result))
     return result
 
@@ -350,15 +343,22 @@ def regexVerify(text, expectedTexts):
             return True
     return False
 
-def checkDebuggingLibrary(targVersion, targets):
+def checkDebuggingLibrary(kitIDs):
+    def __getQtVersionForKit__(kit, kitName):
+        treeView = waitForObject(":Kits_QTreeView")
+        clickItem(treeView, kit, 5, 5, 0, Qt.LeftButton)
+        return str(waitForObject(":Kits_QtVersion_QComboBox").currentText)
+    # end of internal function for iterate kits
+
     # internal function to execute while iterating Qt versions
-    def __checkDebugLibsInternalFunc__(target, version, targVersion, targStrings):
+    def __checkDebugLibsInternalFunc__(target, version, kitStrings):
         built = failed = 0
         container = ("container=':qt_tabwidget_stackedwidget.QtSupport__Internal__"
                      "QtVersionManager_QtSupport::Internal::QtOptionsPageWidget'")
         buildLogWindow = ("window={name='QtSupport__Internal__ShowBuildLog' type='QDialog' "
                           "visible='1' windowTitle?='Debugging Helper Build Log*'}")
-        if target in targStrings and version == targVersion:
+        treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
+        if str(treeWidget.currentItem().text(0)) in kitStrings.values():
             detailsButton = waitForObject("{%s type='Utils::DetailsButton' text='Details' "
                                           "visible='1' unnamed='1' occurrence='2'}" % container)
             ensureChecked(detailsButton)
@@ -380,10 +380,12 @@ def checkDebuggingLibrary(targVersion, targets):
                 built += 1
             ensureChecked(detailsButton, False)
         return (built, failed)
-    # end of internal function
-
-    tv, builtAndFailedList = iterateQtVersions(False, __checkDebugLibsInternalFunc__, targVersion,
-                                               QtQuickConstants.getTargetsAsStrings(targets))
+    # end of internal function for iterateQtVersions
+    kits, qtv = iterateKits(True, False, __getQtVersionForKit__)
+    qtVersionsOfKits = zip(kits, qtv)
+    wantedKits = QtQuickConstants.getTargetsAsStrings(kitIDs)
+    kitsQtV = dict([i for i in qtVersionsOfKits if i[0] in wantedKits])
+    tv, builtAndFailedList = iterateQtVersions(False, True, __checkDebugLibsInternalFunc__, kitsQtV)
     built = failed = 0
     for current in builtAndFailedList:
         if current[0]:
@@ -394,11 +396,17 @@ def checkDebuggingLibrary(targVersion, targets):
         test.fail("%d of %d GDB Helper compilations failed." % (failed, failed+built))
     else:
         test.passes("%d GDB Helper found compiled or successfully built." % built)
+    if built == len(kitIDs):
+        test.log("Function executed for all given kits.")
+    else:
+        test.fatal("Something's wrong - function has skipped some kits.")
     return failed == 0
 
 # function that opens Options Dialog and parses the configured Qt versions
 # param keepOptionsOpen set to True if the Options dialog should stay open when
 #       leaving this function
+# param alreadyOnOptionsDialog set to True if you already have opened the Options Dialog
+#       (if False this function will open it via the MenuBar -> Tools -> Options...)
 # param additionalFunction pass a function or name of a defined function to execute
 #       for each correctly configured item on the list of Qt versions
 #       (Qt versions having no assigned toolchain, failing qmake,... will be skipped)
@@ -414,10 +422,12 @@ def checkDebuggingLibrary(targVersion, targets):
 # result, additionalResult = _iterateQtVersions(...)
 # where additionalResult is the result of all executions of additionalFunction which
 # means it is a list of results.
-def iterateQtVersions(keepOptionsOpen=False, additionalFunction=None, *argsForAdditionalFunc):
+def iterateQtVersions(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
+                      additionalFunction=None, *argsForAdditionalFunc):
     result = []
     additionalResult = []
-    invokeMenuItem("Tools", "Options...")
+    if not alreadyOnOptionsDialog:
+        invokeMenuItem("Tools", "Options...")
     waitForObjectItem(":Options_QListView", "Build & Run")
     clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
     clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Qt Versions")
@@ -450,6 +460,70 @@ def iterateQtVersions(keepOptionsOpen=False, additionalFunction=None, *argsForAd
                         test.fatal("Function to additionally execute on Options Dialog could not be found or "
                                    "an exception occured while executing it.", "%s(%s)" % (str(t), str(v)))
                     additionalResult.append(currResult)
+    if not keepOptionsOpen:
+        clickButton(waitForObject(":Options.Cancel_QPushButton"))
+    if additionalFunction:
+        return result, additionalResult
+    else:
+        return result
+
+# function that opens Options Dialog (if necessary) and parses the configured Kits
+# param keepOptionsOpen set to True if the Options dialog should stay open when
+#       leaving this function
+# param alreadyOnOptionsDialog set to True if you already have opened the Options Dialog
+#       (if False this functions will open it via the MenuBar -> Tools -> Options...)
+# param additionalFunction pass a function or name of a defined function to execute
+#       for each configured item on the list of Kits
+#       this function must take at least 2 parameters - the first is the item (QModelIndex)
+#       of the current Kit (if you need to click on it) and the second the Kit name itself
+# param argsForAdditionalFunc you can specify as much parameters as you want to pass
+#       to additionalFunction from the outside
+# the function returns a list of Kit names if used without an additional function
+# WATCH OUT! if you're using the additionalFunction parameter - this function will
+# return the list mentioned above as well as the returned value(s) from
+# additionalFunction. You MUST call this function like
+# result, additionalResult = _iterateQtVersions(...)
+# where additionalResult is the result of all executions of additionalFunction which
+# means it is a list of results.
+def iterateKits(keepOptionsOpen=False, alreadyOnOptionsDialog=False,
+                additionalFunction=None, *argsForAdditionalFunc):
+    result = []
+    additionalResult = []
+    if not alreadyOnOptionsDialog:
+        invokeMenuItem("Tools", "Options...")
+    waitForObjectItem(":Options_QListView", "Build & Run")
+    clickItem(":Options_QListView", "Build & Run", 14, 15, 0, Qt.LeftButton)
+    clickTab(waitForObject(":Options.qt_tabwidget_tabbar_QTabBar"), "Kits")
+    treeView = waitForObject(":Kits_QTreeView")
+    model = treeView.model()
+    test.compare(model.rowCount(), 2, "Verifying expected target section count")
+    autoDetected = model.index(0, 0)
+    test.compare(autoDetected.data().toString(), "Auto-detected",
+                 "Verifying label for target section")
+    manual = model.index(1, 0)
+    test.compare(manual.data().toString(), "Manual", "Verifying label for target section")
+    for section in [autoDetected, manual]:
+        for index in [section.child(i, 0) for i in range(model.rowCount(section))]:
+            kitName = str(index.data().toString())
+            if (kitName.endswith(" (default)")):
+                kitName = kitName.rsplit(" (default)", 1)[0]
+            result.append(kitName)
+            item = ".".join([str(section.data().toString()),
+                             str(index.data().toString()).replace(".", "\\.")])
+            if additionalFunction:
+                try:
+                    if isinstance(additionalFunction, (str, unicode)):
+                        currResult = globals()[additionalFunction](item, kitName, *argsForAdditionalFunc)
+                    else:
+                        currResult = additionalFunction(item, kitName, *argsForAdditionalFunc)
+                except:
+                    import sys
+                    t,v,tb = sys.exc_info()
+                    currResult = None
+                    test.fatal("Function to additionally execute on Options Dialog could not be "
+                               "found or an exception occured while executing it.", "%s(%s)" %
+                               (str(t), str(v)))
+                additionalResult.append(currResult)
     if not keepOptionsOpen:
         clickButton(waitForObject(":Options.Cancel_QPushButton"))
     if additionalFunction:
