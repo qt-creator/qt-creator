@@ -190,7 +190,11 @@ void ToolChainManager::restoreToolChains()
     }
 
     // Delete all loaded autodetected tool chains that were not rediscovered:
-    qDeleteAll(tcsToCheck);
+    foreach (ToolChain *tc, tcsToCheck) {
+        qWarning() << QString::fromLatin1("ToolChain \"%1\" (%2) dropped since it was not auto-detected again")
+                      .arg(tc->displayName()).arg(tc->id());
+        delete tc;
+    }
 
     // Store manual tool chains
     foreach (ToolChain *tc, tcsToRegister)
