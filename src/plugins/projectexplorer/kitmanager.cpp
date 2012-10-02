@@ -221,6 +221,7 @@ void KitManager::restoreKits()
 
 KitManager::~KitManager()
 {
+    saveKits(); // Make sure we save the current state on exit!
     // Clean out kit information to avoid calling them during deregistration:
     delete d;
     m_instance = 0;

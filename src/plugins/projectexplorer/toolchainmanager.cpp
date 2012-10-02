@@ -203,6 +203,8 @@ void ToolChainManager::restoreToolChains()
 
 ToolChainManager::~ToolChainManager()
 {
+    saveToolChains(); // Make sure to save tool chains when closing
+
     // Deregister tool chains
     QList<ToolChain *> copy = d->toolChains();
     foreach (ToolChain *tc, copy)
