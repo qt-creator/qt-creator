@@ -123,7 +123,7 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
                                 cmakeProject->projectDirectory(),
                                 bc->buildDirectory(),
                                 CMakeOpenProjectWizard::WantToUpdate,
-                                bc->environment());
+                                bc);
     if (copw.exec() == QDialog::Accepted)
         cmakeProject->parseCMakeLists();
 }
@@ -158,6 +158,11 @@ void CMakeManager::setCMakeExecutable(const QString &executable)
 bool CMakeManager::hasCodeBlocksMsvcGenerator() const
 {
     return m_settingsPage->hasCodeBlocksMsvcGenerator();
+}
+
+bool CMakeManager::hasCodeBlocksNinjaGenerator() const
+{
+    return m_settingsPage->hasCodeBlocksNinjaGenerator();
 }
 
 // need to refactor this out
@@ -253,6 +258,8 @@ CMakeSettingsPage::CMakeSettingsPage()
     m_pathCmake.process = 0;
     m_userCmake.hasCodeBlocksMsvcGenerator = false;
     m_pathCmake.hasCodeBlocksMsvcGenerator = false;
+    m_userCmake.hasCodeBlocksNinjaGenerator = false;
+    m_pathCmake.hasCodeBlocksNinjaGenerator = false;
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("CMakeSettings"));
     m_userCmake.executable = settings->value(QLatin1String("cmakeExecutable")).toString();
@@ -297,6 +304,7 @@ void CMakeSettingsPage::cmakeFinished(CMakeValidator *cmakeValidator) const
         versionRegexp.indexIn(response);
 
         //m_supportsQtCreator = response.contains(QLatin1String("QtCreator"));
+        cmakeValidator->hasCodeBlocksNinjaGenerator = response.contains(QLatin1String("CodeBlocks - Ninja"));
         cmakeValidator->hasCodeBlocksMsvcGenerator = response.contains(QLatin1String("CodeBlocks - NMake Makefiles"));
         cmakeValidator->version = versionRegexp.cap(1);
         if (!(versionRegexp.capturedTexts().size() > 3))
@@ -425,4 +433,14 @@ bool CMakeSettingsPage::hasCodeBlocksMsvcGenerator() const
         return m_userCmake.hasCodeBlocksMsvcGenerator;
     else
         return m_pathCmake.hasCodeBlocksMsvcGenerator;
+}
+
+bool CMakeSettingsPage::hasCodeBlocksNinjaGenerator() const
+{
+    if (!isCMakeExecutableValid())
+        return false;
+    if (m_userCmake.state == CMakeValidator::VALID)
+        return m_userCmake.hasCodeBlocksNinjaGenerator;
+    else
+        return m_pathCmake.hasCodeBlocksNinjaGenerator;
 }

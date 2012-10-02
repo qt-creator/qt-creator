@@ -30,6 +30,7 @@
 
 #include "cmakeopenprojectwizard.h"
 #include "cmakeprojectmanager.h"
+#include "cmakebuildconfiguration.h"
 
 #include <coreplugin/icore.h>
 #include <utils/pathchooser.h>
@@ -63,11 +64,37 @@ using namespace CMakeProjectManager::Internal;
 //                                   |--> Already existing cbp file (and new enough) --> Page: Ready to load the project
 //                                   |--> Page: Ask for cmd options, run generator
 
-CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, const Utils::Environment &env)
+
+namespace CMakeProjectManager {
+namespace Internal {
+
+    class GeneratorInfo
+    {
+    public:
+        GeneratorInfo()
+            : m_kit(0), m_isNinja(false) {}
+        explicit GeneratorInfo(ProjectExplorer::Kit *kit, bool ninja = false)
+            : m_kit(kit), m_isNinja(ninja) {}
+
+        ProjectExplorer::Kit *kit() const { return m_kit; }
+        bool isNinja() const { return m_isNinja; }
+
+    private:
+        ProjectExplorer::Kit *m_kit;
+        bool m_isNinja;
+    };
+
+}
+}
+
+Q_DECLARE_METATYPE(CMakeProjectManager::Internal::GeneratorInfo);
+
+
+CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, CMakeBuildConfiguration *bc)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(false),
-      m_environment(env)
+      m_buildConfiguration(bc)
 {
     int startid;
     if (hasInSourceBuild()) {
@@ -95,11 +122,11 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
                                                const QString &buildDirectory, CMakeOpenProjectWizard::Mode mode,
-                                               const Utils::Environment &env)
+                                               CMakeBuildConfiguration *bc)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
-      m_environment(env)
+      m_buildConfiguration(bc)
 {
 
     CMakeRunPage::Mode rmode;
@@ -115,11 +142,11 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
 
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory,
                                                const QString &oldBuildDirectory,
-                                               const Utils::Environment &env)
+                                               CMakeBuildConfiguration *bc)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
       m_creatingCbpFiles(true),
-      m_environment(env)
+      m_buildConfiguration(bc)
 {
     m_buildDirectory = oldBuildDirectory;
     addPage(new ShadowBuildPage(this, true));
@@ -201,9 +228,13 @@ void CMakeOpenProjectWizard::setArguments(const QString &args)
 
 Utils::Environment CMakeOpenProjectWizard::environment() const
 {
-    return m_environment;
+    return m_buildConfiguration->environment();
 }
 
+CMakeBuildConfiguration *CMakeOpenProjectWizard::buildConfiguration() const
+{
+    return m_buildConfiguration;
+}
 
 InSourceBuildPage::InSourceBuildPage(CMakeOpenProjectWizard *cmakeWizard)
     : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
@@ -409,8 +440,6 @@ void CMakeRunPage::initializePage()
             ProjectExplorer::KitManager::instance()->kits();
 
     foreach (ProjectExplorer::Kit *k, kitList) {
-        QVariant kitVariant = qVariantFromValue(static_cast<void *>(k));
-
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
         if (!tc)
             continue;
@@ -421,22 +450,24 @@ void CMakeRunPage::initializePage()
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2010Flavor
                     || targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMsvc2012Flavor) {
                 if (hasCodeBlocksGenerator && (cachedGenerator.isEmpty() || cachedGenerator == "NMake Makefiles"))
-                    m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(k->displayName()), kitVariant);
+                    m_generatorComboBox->addItem(tr("NMake Generator (%1)").arg(k->displayName()), qVariantFromValue(GeneratorInfo(k)));
              } else if (targetAbi.osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
 #ifdef Q_OS_WIN
                 if (cachedGenerator.isEmpty() || cachedGenerator == "MinGW Makefiles")
-                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(k->displayName()), kitVariant);
+                    m_generatorComboBox->addItem(tr("MinGW Generator (%1)").arg(k->displayName()), qVariantFromValue(GeneratorInfo(k)));
 #else
                 if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
-                    m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(k->displayName()), kitVariant);
+                    m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(k->displayName()), qVariantFromValue(GeneratorInfo(k)));
 #endif
-
             }
         } else {
             // Non windows
             if (cachedGenerator.isEmpty() || cachedGenerator == "Unix Makefiles")
-                m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(k->displayName()), kitVariant);
+                m_generatorComboBox->addItem(tr("Unix Generator (%1)").arg(k->displayName()), qVariantFromValue(GeneratorInfo(k)));
         }
+        if (m_cmakeWizard->cmakeManager()->hasCodeBlocksNinjaGenerator() &&
+                (cachedGenerator.isEmpty() || cachedGenerator == "Ninja"))
+            m_generatorComboBox->addItem(tr("Ninja (%1)").arg(k->displayName()), qVariantFromValue(GeneratorInfo(k, true)));
     }
 }
 
@@ -449,8 +480,11 @@ void CMakeRunPage::runCMake()
     int index = m_generatorComboBox->currentIndex();
 
     ProjectExplorer::Kit *k = 0;
-    if (index >= 0)
-        k = static_cast<ProjectExplorer::Kit *>(m_generatorComboBox->itemData(index).value<void *>());
+    GeneratorInfo generatorInfo;
+    if (index >= 0) {
+        generatorInfo = m_generatorComboBox->itemData(index).value<GeneratorInfo>();
+        k = generatorInfo.kit();
+    }
     if (!k) {
         m_output->appendPlainText(tr("No generator selected."));
         return;
@@ -464,15 +498,20 @@ void CMakeRunPage::runCMake()
     CMakeManager *cmakeManager = m_cmakeWizard->cmakeManager();
 
     QString generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
-    if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS) {
-        if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor)
+    if (generatorInfo.isNinja()) {
+        m_cmakeWizard->buildConfiguration()->setUseNinja(true);
+        generator = "-GCodeBlocks - Ninja";
+    } else if (tc->targetAbi().os() == ProjectExplorer::Abi::WindowsOS) {
+        m_cmakeWizard->buildConfiguration()->setUseNinja(false);
+        if (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::WindowsMSysFlavor) {
 #ifdef Q_OS_WIN
             generator = QLatin1String("-GCodeBlocks - MinGW Makefiles");
 #else
             generator = QLatin1String("-GCodeBlocks - Unix Makefiles");
 #endif
-        else
+        } else {
             generator = QLatin1String("-GCodeBlocks - NMake Makefiles");
+        }
     }
 
     Utils::Environment env = m_cmakeWizard->environment();

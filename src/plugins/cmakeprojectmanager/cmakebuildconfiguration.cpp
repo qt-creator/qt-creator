@@ -55,7 +55,7 @@ const char BUILD_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.
 } // namespace
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
-    BuildConfiguration(parent, Core::Id(CMAKE_BC_ID))
+    BuildConfiguration(parent, Core::Id(CMAKE_BC_ID)), m_useNinja(false)
 {
     m_buildDirectory = static_cast<CMakeProject *>(parent->project())->defaultBuildDirectory();
 }
@@ -64,7 +64,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent
                                                  CMakeBuildConfiguration *source) :
     BuildConfiguration(parent, source),
     m_buildDirectory(source->m_buildDirectory),
-    m_msvcVersion(source->m_msvcVersion)
+    m_msvcVersion(source->m_msvcVersion),
+    m_useNinja(false)
 {
     Q_ASSERT(parent);
     cloneSteps(source);
@@ -85,6 +86,19 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
 
     return true;
+}
+
+bool CMakeBuildConfiguration::useNinja() const
+{
+    return m_useNinja;
+}
+
+void CMakeBuildConfiguration::setUseNinja(bool useNninja)
+{
+    if (m_useNinja != useNninja) {
+        m_useNinja = useNninja;
+        emit useNinjaChanged(m_useNinja);
+    }
 }
 
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
@@ -202,7 +216,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     CMakeOpenProjectWizard copw(project->projectManager(),
                                 project->projectDirectory(),
                                 bc->buildDirectory(),
-                                bc->environment());
+                                bc);
     if (copw.exec() != QDialog::Accepted) {
         delete bc;
         return 0;
@@ -284,3 +298,4 @@ ProjectExplorer::BuildConfiguration::BuildType CMakeBuildConfiguration::buildTyp
 
     return Unknown;
 }
+

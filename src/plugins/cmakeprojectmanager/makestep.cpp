@@ -63,6 +63,7 @@ const char MS_ID[] = "CMakeProjectManager.MakeStep";
 const char CLEAN_KEY[] = "CMakeProjectManager.MakeStep.Clean";
 const char BUILD_TARGETS_KEY[] = "CMakeProjectManager.MakeStep.BuildTargets";
 const char ADDITIONAL_ARGUMENTS_KEY[] = "CMakeProjectManager.MakeStep.AdditionalArguments";
+const char USE_NINJA_KEY[] = "CMakeProjectManager.MakeStep.UseNinja";
 }
 
 MakeStep::MakeStep(BuildStepList *bsl) :
@@ -92,8 +93,24 @@ MakeStep::MakeStep(BuildStepList *bsl, MakeStep *bs) :
 void MakeStep::ctor()
 {
     m_percentProgress = QRegExp("^\\[\\s*(\\d*)%\\]");
+    m_useNinja = false;
+    m_ninjaProgress = QRegExp ("^\\[\\s*(\\d*)/\\s*(\\d*)");
+    m_ninjaProgressString = QLatin1String("[%s/%t "); // ninja: [33/100
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("Make"));
+
+    BuildConfiguration *bc = cmakeBuildConfiguration();
+    if (bc) {
+        m_activeConfiguration = 0;
+        connect(bc, SIGNAL(useNinjaChanged(bool)), this, SLOT(setUseNinja(bool)));
+    } else {
+        // That means the step is in the deploylist, so we listen to the active build config
+        // changed signal and react to the activeBuildConfigurationChanged() signal of the buildconfiguration
+        m_activeConfiguration = targetsActiveBuildConfiguration();
+        connect (target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+                 this, SLOT(activeBuildConfigurationChanged()));
+        activeBuildConfigurationChanged();
+    }
 }
 
 MakeStep::~MakeStep()
@@ -103,6 +120,24 @@ MakeStep::~MakeStep()
 CMakeBuildConfiguration *MakeStep::cmakeBuildConfiguration() const
 {
     return static_cast<CMakeBuildConfiguration *>(buildConfiguration());
+}
+
+CMakeBuildConfiguration *MakeStep::targetsActiveBuildConfiguration() const
+{
+    return static_cast<CMakeBuildConfiguration *>(target()->activeBuildConfiguration());
+}
+
+void MakeStep::activeBuildConfigurationChanged()
+{
+    if (m_activeConfiguration)
+        disconnect(m_activeConfiguration, SIGNAL(useNinjaChanged(bool)), this, SLOT(setUseNinja(bool)));
+
+    m_activeConfiguration = targetsActiveBuildConfiguration();
+
+    if (m_activeConfiguration) {
+        connect(m_activeConfiguration, SIGNAL(useNinjaChanged(bool)), this, SLOT(setUseNinja(bool)));
+        setUseNinja(m_activeConfiguration->useNinja());
+    }
 }
 
 void MakeStep::setClean(bool clean)
@@ -116,6 +151,7 @@ QVariantMap MakeStep::toMap() const
     map.insert(QLatin1String(CLEAN_KEY), m_clean);
     map.insert(QLatin1String(BUILD_TARGETS_KEY), m_buildTargets);
     map.insert(QLatin1String(ADDITIONAL_ARGUMENTS_KEY), m_additionalArguments);
+    map.insert(QLatin1String(USE_NINJA_KEY), m_useNinja);
     return map;
 }
 
@@ -124,6 +160,7 @@ bool MakeStep::fromMap(const QVariantMap &map)
     m_clean = map.value(QLatin1String(CLEAN_KEY)).toBool();
     m_buildTargets = map.value(QLatin1String(BUILD_TARGETS_KEY)).toStringList();
     m_additionalArguments = map.value(QLatin1String(ADDITIONAL_ARGUMENTS_KEY)).toString();
+    m_useNinja = map.value(QLatin1String(USE_NINJA_KEY)).toBool();
 
     return BuildStep::fromMap(map);
 }
@@ -151,12 +188,16 @@ bool MakeStep::init()
 
     ProcessParameters *pp = processParameters();
     pp->setMacroExpander(bc->macroExpander());
-    pp->setEnvironment(bc->environment());
+    if (m_useNinja) {
+        Utils::Environment env = bc->environment();
+        if (!env.value(QLatin1String("NINJA_STATUS")).startsWith(m_ninjaProgressString))
+            env.set(QLatin1String("NINJA_STATUS"), m_ninjaProgressString + QLatin1String("%o/sec] "));
+        pp->setEnvironment(env);
+    } else {
+        pp->setEnvironment(bc->environment());
+    }
     pp->setWorkingDirectory(bc->buildDirectory());
-    if (tc)
-        pp->setCommand(tc->makeCommand(bc->environment()));
-    else
-        pp->setCommand(QLatin1String("make"));
+    pp->setCommand(makeCommand(tc, bc->environment()));
     pp->setArguments(arguments);
 
     setOutputParser(new ProjectExplorer::GnuMakeParser());
@@ -209,8 +250,21 @@ void MakeStep::stdOutput(const QString &line)
         int percent = m_percentProgress.cap(1).toInt(&ok);;
         if (ok)
             m_futureInterface->setProgressValue(percent);
+    } else if (m_ninjaProgress.indexIn(line) != -1) {
+        bool ok = false;
+        int done = m_ninjaProgress.cap(1).toInt(&ok);
+        if (ok) {
+            int all = m_ninjaProgress.cap(2).toInt(&ok);
+            if (ok && all != 0) {
+                int percent = 100.0 * done/all;
+                m_futureInterface->setProgressValue(percent);
+            }
+        }
     }
-    AbstractProcessStep::stdOutput(line);
+    if (m_useNinja)
+        AbstractProcessStep::stdError(line);
+    else
+        AbstractProcessStep::stdOutput(line);
 }
 
 QStringList MakeStep::buildTargets() const
@@ -253,6 +307,24 @@ void MakeStep::setAdditionalArguments(const QString &list)
     m_additionalArguments = list;
 }
 
+QString MakeStep::makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const
+{
+    if (m_useNinja)
+        return QLatin1String("ninja");
+    if (tc)
+        return tc->makeCommand(env);
+
+    return QLatin1String("make");
+}
+
+void MakeStep::setUseNinja(bool useNinja)
+{
+    if (m_useNinja != useNinja) {
+        m_useNinja = useNinja;
+        emit makeCommandChanged();
+    }
+}
+
 //
 // MakeStepConfigWidget
 //
@@ -291,6 +363,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
     connect(pro, SIGNAL(buildTargetsChanged()),
             this, SLOT(buildTargetsChanged()));
     connect(pro, SIGNAL(environmentChanged()), this, SLOT(updateDetails()));
+    connect(m_makeStep, SIGNAL(makeCommandChanged()), this, SLOT(updateDetails()));
 }
 
 void MakeStepConfigWidget::additionalArgumentsEdited()
@@ -344,7 +417,7 @@ void MakeStepConfigWidget::updateDetails()
         param.setMacroExpander(bc->macroExpander());
         param.setEnvironment(bc->environment());
         param.setWorkingDirectory(bc->buildDirectory());
-        param.setCommand(tc->makeCommand(bc->environment()));
+        param.setCommand(m_makeStep->makeCommand(tc, bc->environment()));
         param.setArguments(arguments);
         m_summaryText = param.summary(displayName());
     } else {

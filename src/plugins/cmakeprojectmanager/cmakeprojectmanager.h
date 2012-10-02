@@ -78,6 +78,7 @@ public:
                        const Utils::Environment &env,
                        const QString &generator);
     bool hasCodeBlocksMsvcGenerator() const;
+    bool hasCodeBlocksNinjaGenerator() const;
     static QString findCbpFile(const QDir &);
 
     static QString findDumperLibrary(const Utils::Environment &env);
@@ -101,6 +102,7 @@ struct CMakeValidator
     STATE state;
     QProcess *process;
     bool hasCodeBlocksMsvcGenerator;
+    bool hasCodeBlocksNinjaGenerator;
     QString version;
     QString executable;
 };
@@ -121,6 +123,7 @@ public:
     void setCMakeExecutable(const QString &executable);
     bool isCMakeExecutableValid() const;
     bool hasCodeBlocksMsvcGenerator() const;
+    bool hasCodeBlocksNinjaGenerator() const;
 
 private slots:
     void userCmakeFinished();

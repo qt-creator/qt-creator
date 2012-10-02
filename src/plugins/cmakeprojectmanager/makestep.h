@@ -39,6 +39,10 @@ class QListWidget;
 class QListWidgetItem;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer {
+class ToolChain;
+}
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -72,10 +76,18 @@ public:
     QString additionalArguments() const;
     void setAdditionalArguments(const QString &list);
 
+    QString makeCommand(ProjectExplorer::ToolChain *tc, const Utils::Environment &env) const;
+
     void setClean(bool clean);
 
     QVariantMap toMap() const;
 
+public slots:
+    void setUseNinja(bool);
+    void activeBuildConfigurationChanged();
+
+signals:
+    void makeCommandChanged();
 
 protected:
     MakeStep(ProjectExplorer::BuildStepList *bsl, MakeStep *bs);
@@ -88,13 +100,18 @@ protected:
 
 private:
     void ctor();
+    CMakeBuildConfiguration *targetsActiveBuildConfiguration() const;
 
     bool m_clean;
     QRegExp m_percentProgress;
+    QRegExp m_ninjaProgress;
+    QString m_ninjaProgressString;
     QFutureInterface<bool> *m_futureInterface;
     QStringList m_buildTargets;
     QString m_additionalArguments;
     QList<ProjectExplorer::Task> m_tasks;
+    bool m_useNinja;
+    CMakeBuildConfiguration *m_activeConfiguration;
 };
 
 class MakeStepConfigWidget :public ProjectExplorer::BuildStepConfigWidget
