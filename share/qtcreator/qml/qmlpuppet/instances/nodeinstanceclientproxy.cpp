@@ -288,7 +288,7 @@ void NodeInstanceClientProxy::redirectToken(const TokenCommand &command)
     nodeInstanceServer()->token(command);
 }
 
-void NodeInstanceClientProxy::redirectToken(const EndPuppetCommand &command)
+void NodeInstanceClientProxy::redirectToken(const EndPuppetCommand & /*command*/)
 {
     qDebug() << "End Process: " << QCoreApplication::applicationPid();
     QCoreApplication::exit();
