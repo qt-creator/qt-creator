@@ -1,13 +1,13 @@
 <plugin name=\"QmlDesigner\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\">
-    <vendor>Nokia Corporation</vendor>
-    <copyright>(C) 2012 Nokia Corporation</copyright>
+    <vendor>Digia Plc</vendor>
+    <copyright>(C) 2012 Digia Plc</copyright>
     <license>
 Commercial Usage
 
 Licensees holding valid Qt Commercial licenses may use this plugin in
 accordance with the Qt Commercial License Agreement provided with the
 Software or, alternatively, in accordance with the terms contained in
-a written agreement between you and Nokia.
+a written agreement between you and Digia.
 
 GNU Lesser General Public License Usage
 

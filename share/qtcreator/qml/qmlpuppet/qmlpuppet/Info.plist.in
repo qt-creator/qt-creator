@@ -3,10 +3,10 @@
 <plist version=\"1.0\">
 <dict>
         <key>NSHumanReadableCopyright</key>
-        <string>(C) 2008-2011 Nokia Corporation
+        <string>(C) 2012 Digia Plc
 Commercial Usage
 
-Licensees holding valid Qt Commercial licenses may use this file in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and Nokia.
+Licensees holding valid Qt Commercial licenses may use this file in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and Digia.
 
 GNU Lesser General Public License Usage
 

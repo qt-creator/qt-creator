@@ -66,7 +66,7 @@ while (1) {
             $hasCurrent = 1 if $_ =~ /\(c\).*\s2012/i;
 
             $hasContact = 1 if $_ =~ /Contact: http:\/\/www.qt-project.org\/legal/;
-            $hasCommercial = 1 if $_ =~ /Commercial License Usage/;
+            $hasCommercial = 1 if $_ =~ /Commercial (License )?Usage/;
             $hasDigia = 1 if $_ =~ /Digia Plc/;
             $hasLGPL = 1 if $_ =~ /GNU Lesser General Public License Usage/;
             $hasGPL = 1 if $_ =~ /GNU General Public License Usage/;
@@ -95,7 +95,7 @@ while (1) {
         next;
     }
 
-    unless ($hasContact) {
+    if (!$hasContact && $file !~ /\.pluginspec\.in$/) {
         print "$file\tERROR\tWrong contact\n";
         next;
     }

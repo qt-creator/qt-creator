@@ -37,7 +37,7 @@ Compiling Qt Quick Designer
 
 Qt Quick Designer (QmlDesigner plugin) depends on "private" headers from Qt
 4.8.0, specifically from the QtDeclarative module. These private headers always
-end with an "_p.h". Nokia does not promise to keep these files or APIs binary
+end with an "_p.h". Digia does not promise to keep these files or APIs binary
 or source compatible between releases. This means that when compiled, the
 plugin has a dependency to the exact Qt version it was compiled with. Running
 Qt Creator with the plugin against updated Qt libraries (also for patch
@@ -250,7 +250,7 @@ we thank the authors who made this possible:
 
 * ClassView and ImageViewer plugins
 
-  Copyright (C) 2012 Nokia Corporation and/or its subsidiary(-ies).
+  Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 
   All rights reserved.
   Copyright (c) 2010 Denis Mingulov.
@@ -270,7 +270,7 @@ we thank the authors who made this possible:
       notice, this list of conditions and the following disclaimer in
       the documentation and/or other materials provided with the
       distribution.
-    * Neither the name of Nokia Corporation and its Subsidiary(-ies) nor
+    * Neither the name of Digia Plc and its Subsidiary(-ies) nor
       the names of its contributors may be used to endorse or promote
       products derived from this software without specific prior written
       permission.
