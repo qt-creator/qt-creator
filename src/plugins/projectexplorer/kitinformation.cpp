@@ -165,6 +165,7 @@ QList<Task> ToolChainKitInformation::validate(Kit *k) const
 {
     QList<Task> result;
     if (!toolChain(k)) {
+        qWarning() << "Tool chain is no longer know, removing from kit %1." << k->displayName();
         setToolChain(k, 0); // make sure to clear out no longer known tool chains
         result << Task(Task::Error, ToolChainKitInformation::msgNoToolChainInTarget(),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
