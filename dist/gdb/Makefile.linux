@@ -1,6 +1,6 @@
 broot=${PWD}
 source=${broot}/source
-targets=x86_64-unknown-linux-gnu i686-unknown-linux-gnu arm-none-linux-gnueabi arm-none-symbianelf
+targets=x86_64-unknown-linux-gnu i686-unknown-linux-gnu arm-none-linux-gnueabi
 staging=${broot}/staging
 pyversion=2.7
 expatversion=2.0.1
