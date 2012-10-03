@@ -1375,9 +1375,6 @@ public:
 
     QString m_currentFileName;
 
-    QString m_lastSearch;
-    bool m_lastSearchForward;
-    bool m_findPending;
     int m_findStartPosition;
     QString m_lastInsertion;
     QString m_lastDeletion;
@@ -1530,7 +1527,8 @@ public:
     static struct GlobalData
     {
         GlobalData()
-            : mappings(), currentMap(&mappings), inputTimer(-1), currentMessageLevel(MessageInfo)
+            : mappings(), currentMap(&mappings), inputTimer(-1), currentMessageLevel(MessageInfo),
+              lastSearchForward(false), findPending(false)
         {
             // default mapping state - shouldn't be removed
             mapStates << MappingState();
@@ -1549,7 +1547,6 @@ public:
         Inputs pendingInput;
         MappingsIterator currentMap;
         int inputTimer;
-        int lastMapCode;
         QStack<MappingState> mapStates;
 
         // Command line buffers.
@@ -1559,6 +1556,11 @@ public:
         // Current mini buffer message.
         QString currentMessage;
         MessageLevel currentMessageLevel;
+
+        // Search state
+        QString lastSearch;
+        bool lastSearchForward;
+        bool findPending;
     } g;
 };
 
@@ -1581,12 +1583,12 @@ void FakeVimHandler::Private::init()
     m_subsubmode = NoSubSubMode;
     m_passing = false;
     m_firstKeyPending = false;
-    m_findPending = false;
+    g.findPending = false;
     m_findStartPosition = -1;
     m_fakeEnd = false;
     m_positionPastEnd = false;
     m_anchorPastEnd = false;
-    m_lastSearchForward = true;
+    g.lastSearchForward = true;
     m_register = '"';
     m_gflag = false;
     m_visualMode = NoVisualMode;
@@ -2012,8 +2014,8 @@ void FakeVimHandler::Private::timerEvent(QTimerEvent *ev)
 
 void FakeVimHandler::Private::stopIncrementalFind()
 {
-    if (m_findPending) {
-        m_findPending = false;
+    if (g.findPending) {
+        g.findPending = false;
         QTextCursor tc = cursor();
         setAnchorAndPosition(m_findStartPosition, tc.selectionStart());
         finishMovement();
@@ -2031,7 +2033,7 @@ void FakeVimHandler::Private::updateFind(bool isComplete)
     const QString &needle = g.searchBuffer.contents();
     SearchData sd;
     sd.needle = needle;
-    sd.forward = m_lastSearchForward;
+    sd.forward = g.lastSearchForward;
     sd.highlightMatches = isComplete;
     search(sd, isComplete);
 }
@@ -2744,21 +2746,21 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
             g.commandBuffer.setContents("'<,'>");
         updateMiniBuffer();
     } else if (input.is('/') || input.is('?')) {
-        m_lastSearchForward = input.is('/');
+        g.lastSearchForward = input.is('/');
         if (hasConfig(ConfigUseCoreSearch)) {
             // re-use the core dialog.
-            m_findPending = true;
+            g.findPending = true;
             m_findStartPosition = position();
             m_movetype = MoveExclusive;
             setAnchor(); // clear selection: otherwise, search is restricted to selection
-            emit q->findRequested(!m_lastSearchForward);
+            emit q->findRequested(!g.lastSearchForward);
         } else {
             // FIXME: make core find dialog sufficiently flexible to
             // produce the "default vi" behaviour too. For now, roll our own.
             g.currentMessage.clear();
             m_movetype = MoveExclusive;
             m_subsubmode = SearchSubSubMode;
-            g.searchBuffer.setPrompt(m_lastSearchForward ? '/' : '?');
+            g.searchBuffer.setPrompt(g.lastSearchForward ? '/' : '?');
             m_searchStartPosition = position();
             m_searchFromScreenLine = firstVisibleLine();
             m_searchCursor = QTextCursor();
@@ -2780,8 +2782,8 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
             needle = "\\<" + tc.selection().toPlainText() + "\\>";
         setAnchorAndPosition(tc.position(), tc.anchor());
         g.searchBuffer.historyPush(needle);
-        m_lastSearch = needle;
-        m_lastSearchForward = input.is('*');
+        g.lastSearch = needle;
+        g.lastSearchForward = input.is('*');
         searchNext();
         finishMovement();
     } else if (input.is('\'')) {
@@ -3171,7 +3173,7 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         finishMovement();
     } else if (input.is('n') || input.is('N')) {
         if (hasConfig(ConfigUseCoreSearch)) {
-            bool forward = (input.is('n')) ? m_lastSearchForward : !m_lastSearchForward;
+            bool forward = (input.is('n')) ? g.lastSearchForward : !g.lastSearchForward;
             int pos = position();
             emit q->findNextRequested(!forward);
             if (forward && pos == cursor().selectionStart()) {
@@ -3813,12 +3815,12 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
     } else if (input.isReturn()) {
         const QString &needle = g.searchBuffer.contents();
         if (!needle.isEmpty())
-            m_lastSearch = needle;
+            g.lastSearch = needle;
         else
-            g.searchBuffer.setContents(m_lastSearch);
-        if (!m_lastSearch.isEmpty()) {
+            g.searchBuffer.setContents(g.lastSearch);
+        if (!g.lastSearch.isEmpty()) {
             updateFind(true);
-            finishMovement(g.searchBuffer.prompt() + m_lastSearch + '\n');
+            finishMovement(g.searchBuffer.prompt() + g.lastSearch + '\n');
         } else {
             finishMovement();
         }
@@ -4722,11 +4724,11 @@ void FakeVimHandler::Private::search(const SearchData &sd, bool showMessages)
 void FakeVimHandler::Private::searchNext(bool forward)
 {
     SearchData sd;
-    sd.needle = m_lastSearch;
-    sd.forward = forward ? m_lastSearchForward : !m_lastSearchForward;
+    sd.needle = g.lastSearch;
+    sd.forward = forward ? g.lastSearchForward : !g.lastSearchForward;
     sd.highlightMatches = true;
     m_searchStartPosition = position();
-    showMessage(MessageCommand, (m_lastSearchForward ? '/' : '?') + sd.needle);
+    showMessage(MessageCommand, (g.lastSearchForward ? '/' : '?') + sd.needle);
     search(sd);
 }
 
