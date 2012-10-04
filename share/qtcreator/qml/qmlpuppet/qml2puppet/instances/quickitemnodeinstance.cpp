@@ -354,6 +354,11 @@ void QuickItemNodeInstance::setPropertyBinding(const QString &name, const QStrin
         return; // states are only set by us
 
     ObjectNodeInstance::setPropertyBinding(name, expression);
+
+    refresh();
+
+    if (isInPositioner())
+        parentInstance()->refreshPositioner();
 }
 
 QVariant QuickItemNodeInstance::property(const QString &name) const
