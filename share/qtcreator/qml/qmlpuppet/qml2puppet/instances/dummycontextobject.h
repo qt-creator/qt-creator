@@ -32,7 +32,7 @@
 #define DUMMYCONTEXTOBJECT_H
 
 #include <QObject>
-#include <QWeakPointer>
+#include <QPointer>
 #include <qqml.h>
 
 namespace QmlDesigner {
@@ -52,7 +52,7 @@ signals:
     void parentDummyChanged();
 
 private:
-    QWeakPointer<QObject> m_dummyParent;
+    QPointer<QObject> m_dummyParent;
 };
 
 } // namespace QmlDesigner

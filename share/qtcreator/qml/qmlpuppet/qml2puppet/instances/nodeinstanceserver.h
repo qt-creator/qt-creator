@@ -35,6 +35,7 @@
 #include <QVector>
 #include <QSet>
 #include <QStringList>
+#include <QPointer>
 
 #include <nodeinstanceserverinterface.h>
 #include "servernodeinstance.h"
@@ -206,9 +207,9 @@ private:
     QHash<QObject*, ServerNodeInstance> m_objectInstanceHash;
     QMultiHash<QString, ObjectPropertyPair> m_fileSystemWatcherHash;
     QList<QPair<QString, QWeakPointer<QObject> > > m_dummyObjectList;
-    QWeakPointer<QFileSystemWatcher> m_fileSystemWatcher;
-    QWeakPointer<QFileSystemWatcher> m_dummdataFileSystemWatcher;
-    QWeakPointer<Internal::ChildrenChangeEventFilter> m_childrenChangeEventFilter;
+    QPointer<QFileSystemWatcher> m_fileSystemWatcher;
+    QPointer<QFileSystemWatcher> m_dummdataFileSystemWatcher;
+    QPointer<Internal::ChildrenChangeEventFilter> m_childrenChangeEventFilter;
     QUrl m_fileUrl;
     NodeInstanceClientInterface *m_nodeInstanceClient;
     int m_timer;
@@ -217,9 +218,9 @@ private:
     int m_slowRenderTimerInterval;
     QVector<InstancePropertyPair> m_changedPropertyList;
     QStringList m_importList;
-    QWeakPointer<QObject> m_dummyContextObject;
-    QWeakPointer<QQmlComponent> m_importComponent;
-    QWeakPointer<QObject> m_importComponentObject;
+    QPointer<QObject> m_dummyContextObject;
+    QPointer<QQmlComponent> m_importComponent;
+    QPointer<QObject> m_importComponentObject;
 };
 
 }

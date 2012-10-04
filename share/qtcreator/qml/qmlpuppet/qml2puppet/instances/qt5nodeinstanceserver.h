@@ -67,7 +67,7 @@ protected:
     QList<QQuickItem*> allItems() const;
 
 private:
-    QWeakPointer<QQuickView> m_quickView;
+    QPointer<QQuickView> m_quickView;
     DesignerSupport *m_designerSupport;
 };
 

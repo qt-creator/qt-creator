@@ -55,7 +55,7 @@ protected:
 private:
     ObjectNodeInstanceWeakPointer m_nodeInstance;
     QString m_prefix;
-    QWeakPointer<QQmlContext> m_context;
+    QPointer<QQmlContext> m_context;
 };
 
 } // namespace Internal

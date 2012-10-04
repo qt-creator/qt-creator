@@ -197,10 +197,10 @@ private:
     qint32 m_instanceId;
     QString m_id;
 
-    QWeakPointer<NodeInstanceServer> m_nodeInstanceServer;
+    QPointer<NodeInstanceServer> m_nodeInstanceServer;
     QString m_parentProperty;
     bool m_deleteHeldInstance;
-    QWeakPointer<QObject> m_object;
+    QPointer<QObject> m_object;
     NodeInstanceMetaObject *m_metaObject;
     NodeInstanceSignalSpy m_signalSpy;
     bool m_isInPositioner;
