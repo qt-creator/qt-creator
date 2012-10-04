@@ -260,10 +260,8 @@ void TargetSetupPage::setImportSearch(bool b)
 void TargetSetupPage::setupWidgets()
 {
     // Known profiles:
-    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits(m_requiredMatcher)) {
-        cleanKit(k); // clean up broken kit added by some development versions of QtC
+    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits(m_requiredMatcher))
         addWidget(k);
-    }
 
     // Setup import widget:
     m_baseLayout->addWidget(m_importWidget);
