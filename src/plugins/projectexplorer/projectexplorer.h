@@ -262,6 +262,9 @@ private slots:
     void testFlavorForOs();
 
     void testDeviceManager();
+
+    void testCustomWizardPreprocessor_data();
+    void testCustomWizardPreprocessor();
 #endif
 
 private:
