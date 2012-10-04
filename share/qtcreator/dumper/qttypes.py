@@ -43,10 +43,22 @@ def qdump__QBasicAtomicPointer(d, value):
            d.putItem(value["_q_value"])
 
 
+def qform__QByteArray():
+    return "Inline,As Latin1 in Separate Window,As UTF-8 in Separate Window"
+
 def qdump__QByteArray(d, value):
     d.putByteArrayValue(value)
     data, size, alloc = qByteArrayData(value)
     d.putNumChild(size)
+    format = d.currentItemFormat()
+    if format == 1:
+        d.putDisplay(StopDisplay)
+    elif format == 2:
+        d.putField("editformat", 5)
+        d.putField("editvalue", encodeByteArray(value))
+    elif format == 3:
+        d.putField("editformat", 6)
+        d.putField("editvalue", encodeByteArray(value))
     if d.isExpanded():
         d.putArrayData(lookupType("char"), data, size)
 

@@ -1649,7 +1649,9 @@ void WatchHandler::showEditValue(const WatchData &data)
         l->setPixmap(QPixmap::fromImage(im));
         l->resize(width, height);
         l->show();
-    } else if (data.editformat == 2) {
+    } else if (data.editformat == 2
+               || data.editformat == 5
+               || data.editformat == 6) {
         // Display QString in a separate widget.
         QTextEdit *t = qobject_cast<QTextEdit *>(w);
         if (!t) {
@@ -1658,7 +1660,13 @@ void WatchHandler::showEditValue(const WatchData &data)
             m_model->m_editHandlers[key] = t;
         }
         QByteArray ba = QByteArray::fromHex(data.editvalue);
-        QString str = QString::fromUtf16((ushort *)ba.constData(), ba.size()/2);
+        QString str;
+        if (data.editformat == 2) // UTF-16
+            str = QString::fromUtf16((ushort *)ba.constData(), ba.size()/2);
+        else if (data.editformat == 5) // Latin1
+            str = QString::fromLatin1(ba.constData(), ba.size());
+        else if (data.editformat == 6) // UTF-8
+            str = QString::fromUtf8(ba.constData(), ba.size());
         t->setText(str);
         t->resize(400, 200);
         t->show();
