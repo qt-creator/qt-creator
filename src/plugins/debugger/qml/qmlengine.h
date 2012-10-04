@@ -53,7 +53,6 @@ namespace Debugger {
 namespace Internal {
 
 class QmlAdapter;
-class QtMessageLogItem;
 
 class QmlEngine : public DebuggerEngine
 {
@@ -181,9 +180,6 @@ private:
 
     void updateEditor(Core::IEditor *editor, const QTextDocument *document);
     bool canEvaluateScript(const QString &script);
-    QtMessageLogItem *constructLogItemTree(QtMessageLogItem *parent,
-                                           const QVariant &result,
-                                           const QString &key = QString());
     bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line,
                                        quint32 *column, bool *valid);
 

@@ -34,7 +34,6 @@
 #include "debuggerstartparameters.h"
 #include "stackhandler.h"
 #include "qmlengine.h"
-#include "qtmessageloghandler.h"
 #include "watchdata.h"
 
 #include <coreplugin/icore.h>
@@ -792,11 +791,6 @@ void QmlCppEngine::resetLocation()
         d->m_cppEngine->resetLocation();
 
     DebuggerEngine::resetLocation();
-}
-
-Internal::QtMessageLogHandler *QmlCppEngine::qtMessageLogHandler() const
-{
-    return d->m_qmlEngine->qtMessageLogHandler();
 }
 
 DebuggerEngine *QmlCppEngine::cppEngine() const

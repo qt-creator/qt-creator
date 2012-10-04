@@ -35,6 +35,7 @@
 #include "qmljscodestylesettingspage.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
+#include "qmlconsolemanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -52,6 +53,7 @@
 #include <QSettings>
 #include <QMenu>
 
+using namespace QmlJSTools;
 using namespace QmlJSTools::Internal;
 
 enum { debug = 0 };
@@ -68,6 +70,7 @@ QmlJSToolsPlugin::~QmlJSToolsPlugin()
 {
     m_instance = 0;
     m_modelManager = 0; // deleted automatically
+    m_consoleManager = 0; // deleted automatically
 }
 
 bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
@@ -79,6 +82,8 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     // Objects
     m_modelManager = new ModelManager(this);
+    m_consoleManager = new QmlConsoleManager(this);
+
 //    Core::VCSManager *vcsManager = core->vcsManager();
 //    Core::DocumentManager *fileManager = core->fileManager();
 //    connect(vcsManager, SIGNAL(repositoryChanged(QString)),

@@ -514,7 +514,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
         if (iname.startsWith("watch.")) {
             watchHandler->insertIncompleteData(data);
         } else if (iname == "console") {
-            d->engine->showMessage(data.value, QtMessageLogOutput);
+            d->engine->showMessage(data.value, ConsoleOutput);
         } else if (iname.startsWith("local.")) {
             data.name = data.name.left(data.name.indexOf(QLatin1Char(' ')));
             watchHandler->insertIncompleteData(data);

@@ -53,6 +53,25 @@ QtcPlugin {
         "qmljstoolsplugin.h",
         "qmljstoolssettings.cpp",
         "qmljstoolssettings.h",
+        "qmlconsolemanager.cpp",
+        "qmlconsolemanager.h",
+        "qmlconsoleitem.cpp",
+        "qmlconsoleitem.h",
+        "qmlcomsoleitemmodel.cpp",
+        "qmlconsoleitemmodel.h",
+        "qmlconsolepane.cpp",
+        "qmlconsolepane.h",
+        "qmlconsoleview.cpp",
+        "qmlconsoleview.h",
+        "qmlconsoleitemdelegate.cpp",
+        "qmlconsoleitemdelegate.h",
+        "qmlconsoleedit.cpp",
+        "qmlconsoleedit.h",
+        "qmljsinterpreter.cpp",
+        "qmljsinterpreter.h",
+        "qmljsconsoleproxymodel.cpp",
+        "qmljsconsoleproxymodel.h",
+        "qmljstools.qrc"
     ]
 
     Group {

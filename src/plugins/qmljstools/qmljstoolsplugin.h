@@ -46,6 +46,7 @@ QT_END_NAMESPACE
 namespace QmlJSTools {
 
 class QmlJSToolsSettings;
+class QmlConsoleManager;
 
 namespace Internal {
 
@@ -77,6 +78,7 @@ private slots:
 
 private:
     ModelManager *m_modelManager;
+    QmlConsoleManager *m_consoleManager;
     QmlJSToolsSettings *m_settings;
     QAction *m_resetCodeModelAction;
 

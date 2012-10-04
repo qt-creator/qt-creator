@@ -30,12 +30,6 @@
         <file>images/location_16.png</file>
         <file>images/location_24.png</file>
         <file>images/pin.xpm</file>
-        <file>images/collapse.png</file>
-        <file>images/error.png</file>
-        <file>images/expand.png</file>
-        <file>images/log.png</file>
-        <file>images/prompt.png</file>
-        <file>images/warning.png</file>
         <file>images/qml/zoom.png</file>
         <file>images/qml/select.png</file>
         <file>images/qml/app-on-top.png</file>

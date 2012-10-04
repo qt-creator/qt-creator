@@ -93,8 +93,6 @@ public:
         int timeout = -1) const;
     void resetLocation();
 
-    Internal::QtMessageLogHandler *qtMessageLogHandler() const;
-
     void notifyInferiorIll();
 
 protected:

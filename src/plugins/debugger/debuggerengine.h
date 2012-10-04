@@ -77,7 +77,6 @@ class QmlAdapter;
 class QmlCppEngine;
 class DebuggerToolTipContext;
 class MemoryMarkup;
-class QtMessageLogHandler;
 
 struct WatchUpdateFlags
 {
@@ -216,7 +215,6 @@ public:
     virtual Internal::WatchHandler *watchHandler() const;
     virtual Internal::SourceFilesHandler *sourceFilesHandler() const;
     virtual Internal::BreakHandler *breakHandler() const;
-    virtual Internal::QtMessageLogHandler *qtMessageLogHandler() const;
 
     virtual QAbstractItemModel *modulesModel() const;
     virtual QAbstractItemModel *registerModel() const;
@@ -229,7 +227,6 @@ public:
     virtual QAbstractItemModel *toolTipsModel() const; // Deprecated, FIXME: use watchModel
     virtual QAbstractItemModel *watchModel() const;
     virtual QAbstractItemModel *sourceFilesModel() const;
-    virtual QAbstractItemModel *qtMessageLogModel() const;
 
     void progressPing();
     void handleFinished();
@@ -272,6 +269,8 @@ public:
     virtual void notifyInferiorIll();
 
     QString toFileInProject(const QUrl &fileUrl);
+
+    virtual bool evaluateScriptExpression(const QString &expression);
 
 signals:
     void stateChanged(Debugger::DebuggerState state);
@@ -354,7 +353,6 @@ protected:
     virtual void executeRunToFunction(const QString &functionName);
     virtual void executeJumpToLine(const Internal::ContextData &data);
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
-    virtual bool evaluateScriptExpression(const QString &expression);
 
     virtual void frameUp();
     virtual void frameDown();

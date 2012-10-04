@@ -70,12 +70,6 @@ HEADERS += \
     debuggertooltipmanager.h \
     debuggersourcepathmappingwidget.h \
     memoryview.h \
-    qtmessagelogwindow.h \
-    qtmessagelogeditor.h \
-    qtmessagelogview.h \
-    qtmessagelogproxymodel.h \
-    qtmessagelogitemdelegate.h \
-    qtmessageloghandler.h \
     localsandexpressionswindow.h
 
 SOURCES += \
@@ -123,12 +117,6 @@ SOURCES += \
     debuggertooltipmanager.cpp \
     debuggersourcepathmappingwidget.cpp \
     memoryview.cpp \
-    qtmessagelogwindow.cpp \
-    qtmessagelogproxymodel.cpp \
-    qtmessagelogview.cpp \
-    qtmessagelogitemdelegate.cpp \
-    qtmessageloghandler.cpp \
-    qtmessagelogeditor.cpp \
     localsandexpressionswindow.cpp
 
 FORMS += \

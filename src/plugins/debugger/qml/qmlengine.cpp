@@ -50,7 +50,6 @@
 #include "watchhandler.h"
 #include "sourcefileshandler.h"
 #include "watchutils.h"
-#include "qtmessageloghandler.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <qmldebug/baseenginedebugclient.h>
@@ -67,6 +66,9 @@
 #include <coreplugin/icore.h>
 
 #include <texteditor/itexteditor.h>
+
+#include <qmljstools/qmlconsolemanager.h>
+#include <qmljstools/qmlconsoleitem.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -329,8 +331,6 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
     m_noDebugOutputTimer.setSingleShot(true);
     m_noDebugOutputTimer.setInterval(8000);
     connect(&m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(tryToConnect()));
-
-    qtMessageLogHandler()->setHasEditableRow(true);
 
     connect(ModelManagerInterface::instance(),
             SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
@@ -1031,14 +1031,61 @@ void QmlEngine::synchronizeWatchers()
     }
 }
 
+QmlJSTools::QmlConsoleItem *constructLogItemTree(QmlJSTools::QmlConsoleItem *parent,
+                                                 const QVariant &result,
+                                                 const QString &key = QString())
+{
+    using namespace QmlJSTools;
+    bool sorted = debuggerCore()->boolSetting(SortStructMembers);
+    if (!result.isValid())
+        return 0;
+
+    QmlConsoleItem *item = new QmlConsoleItem(parent);
+    if (result.type() == QVariant::Map) {
+        if (key.isEmpty())
+            item->setText(_("Object"));
+        else
+            item->setText(key + _(" : Object"));
+
+        QMapIterator<QString, QVariant> i(result.toMap());
+        while (i.hasNext()) {
+            i.next();
+            QmlConsoleItem *child = constructLogItemTree(item, i.value(), i.key());
+            if (child)
+                item->insertChild(child, sorted);
+        }
+    } else if (result.type() == QVariant::List) {
+        if (key.isEmpty())
+            item->setText(_("List"));
+        else
+            item->setText(QString(_("[%1] : List")).arg(key));
+        QVariantList resultList = result.toList();
+        for (int i = 0; i < resultList.count(); i++) {
+            QmlConsoleItem *child = constructLogItemTree(item, resultList.at(i),
+                                                          QString::number(i));
+            if (child)
+                item->insertChild(child, sorted);
+        }
+    } else if (result.canConvert(QVariant::String)) {
+        item->setText(result.toString());
+    } else {
+        item->setText(_("Unknown Value"));
+    }
+
+    return item;
+}
+
 void QmlEngine::expressionEvaluated(quint32 queryId, const QVariant &result)
 {
     if (queryIds.contains(queryId)) {
         queryIds.removeOne(queryId);
-        QtMessageLogItem *item = constructLogItemTree(qtMessageLogHandler()->root(),
-                                                      result);
-        if (item)
-            qtMessageLogHandler()->appendItem(item);
+        using namespace QmlJSTools;
+        QmlConsoleManager *consoleManager = QmlConsoleManager::instance();
+        if (consoleManager) {
+            QmlConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), result);
+            if (item)
+                consoleManager->printToConsolePane(item);
+        }
     }
 }
 
@@ -1092,35 +1139,40 @@ void QmlEngine::documentUpdated(QmlJS::Document::Ptr doc)
 void QmlEngine::updateCurrentContext()
 {
     const QString context = state() == InferiorStopOk ?
-                stackHandler()->currentFrame().function :
-                m_inspectorAdapter.currentSelectedDisplayName();
-    showMessage(tr("Context: ").append(context), QtMessageLogStatus);
+                stackHandler()->currentFrame().function
+              : m_inspectorAdapter.currentSelectedDisplayName();
+    QmlJSTools::QmlConsoleManager *consoleManager = QmlJSTools::QmlConsoleManager::instance();
+    if (consoleManager)
+        consoleManager->setContext(tr("Context: ").append(context));
 }
 
 void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message,
                                   const QmlDebug::QDebugContextInfo &info)
 {
-    QtMessageLogHandler::ItemType itemType;
+    using namespace QmlJSTools;
+    QmlConsoleItem::ItemType itemType;
     switch (type) {
     case QtDebugMsg:
-        itemType = QtMessageLogHandler::DebugType;
+        itemType = QmlConsoleItem::DebugType;
         break;
     case QtWarningMsg:
-        itemType = QtMessageLogHandler::WarningType;
+        itemType = QmlConsoleItem::WarningType;
         break;
     case QtCriticalMsg:
     case QtFatalMsg:
-        itemType = QtMessageLogHandler::ErrorType;
+        itemType = QmlConsoleItem::ErrorType;
         break;
     default:
         //This case is not possible
         return;
     }
-    QtMessageLogItem *item = new QtMessageLogItem(qtMessageLogHandler()->root(),
-                                                  itemType, message);
-    item->file = info.file;
-    item->line = info.line;
-    qtMessageLogHandler()->appendItem(item);
+    QmlConsoleManager *consoleManager = QmlConsoleManager::instance();
+    if (consoleManager) {
+        QmlConsoleItem *item = new QmlConsoleItem(consoleManager->rootItem(), itemType, message);
+        item->file = info.file;
+        item->line = info.line;
+        consoleManager->printToConsolePane(item);
+    }
 }
 
 void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages languages)
@@ -1133,37 +1185,25 @@ void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
 bool QmlEngine::evaluateScriptExpression(const QString &expression)
 {
     bool didEvaluate = true;
-    //Check if string is only white spaces
-    if (!expression.trimmed().isEmpty()) {
-        //check if it can be evaluated
-        if (canEvaluateScript(expression)) {
-            //Evaluate expression based on engine state
-            //When engine->state() == InferiorStopOk, the expression
-            //is sent to V8DebugService. In all other cases, the
-            //expression is evaluated by QDeclarativeEngine.
-            if (state() != InferiorStopOk) {
-                QmlInspectorAgent *agent = m_inspectorAdapter.agent();
-                quint32 queryId
-                        = agent->queryExpressionResult(
-                            m_inspectorAdapter.currentSelectedDebugId(),
-                            expression);
-                if (queryId) {
-                    queryIds << queryId;
-                } else {
-                    didEvaluate = false;
-                    qtMessageLogHandler()->
-                            appendItem(
-                                new QtMessageLogItem(
-                                    qtMessageLogHandler()->root(),
-                                    QtMessageLogHandler::ErrorType,
-                                    _("Error evaluating expression.")));
-                }
-            } else {
-                executeDebuggerCommand(expression, QmlLanguage);
-            }
+    // Evaluate expression based on engine state
+    // When engine->state() == InferiorStopOk, the expression is sent to debuggerClient.
+    if (state() != InferiorStopOk) {
+        QmlInspectorAgent *agent = m_inspectorAdapter.agent();
+        quint32 queryId = agent->queryExpressionResult(m_inspectorAdapter.currentSelectedDebugId(),
+                                                       expression);
+        if (queryId) {
+            queryIds << queryId;
         } else {
             didEvaluate = false;
+            using namespace QmlJSTools;
+            QmlConsoleManager *consoleManager = QmlConsoleManager::instance();
+            if (consoleManager) {
+                consoleManager->printToConsolePane(QmlConsoleItem::ErrorType,
+                                                   _("Error evaluating expression."));
+            }
         }
+    } else {
+        executeDebuggerCommand(expression, QmlLanguage);
     }
     return didEvaluate;
 }
@@ -1268,48 +1308,6 @@ bool QmlEngine::canEvaluateScript(const QString &script)
     m_interpreter.clearText();
     m_interpreter.appendText(script);
     return m_interpreter.canEvaluate();
-}
-
-QtMessageLogItem *QmlEngine::constructLogItemTree(
-        QtMessageLogItem *parent, const QVariant &result, const QString &key)
-{
-    if (!result.isValid())
-        return 0;
-
-    QtMessageLogItem *item = new QtMessageLogItem(parent);
-    if (result.type() == QVariant::Map) {
-        if (key.isEmpty())
-            item->setText(_("Object"));
-        else
-            item->setText(key + _(" : Object"));
-
-        QMapIterator<QString, QVariant> i(result.toMap());
-        while (i.hasNext()) {
-            i.next();
-            QtMessageLogItem *child = constructLogItemTree(item,
-                                                           i.value(), i.key());
-            if (child)
-                item->insertChild(child);
-        }
-    } else if (result.type() == QVariant::List) {
-        if (key.isEmpty())
-            item->setText(_("List"));
-        else
-            item->setText(QString(_("[%1] : List")).arg(key));
-        QVariantList resultList = result.toList();
-        for (int i = 0; i < resultList.count(); i++) {
-            QtMessageLogItem *child = constructLogItemTree(item, resultList.at(i),
-                                                          QString::number(i));
-            if (child)
-                item->insertChild(child);
-        }
-    } else if (result.canConvert(QVariant::String)) {
-        item->setText(result.toString());
-    } else {
-        item->setText(_("Unknown Value"));
-    }
-
-    return item;
 }
 
 bool QmlEngine::adjustBreakpointLineAndColumn(

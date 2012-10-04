@@ -37,11 +37,15 @@
 #include "breakhandler.h"
 #include "qmlengine.h"
 #include "stackhandler.h"
-#include "qtmessageloghandler.h"
+#include "debuggercore.h"
+#include "debuggeractions.h"
 
 #include <utils/qtcassert.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/basetexteditor.h>
+
+#include <qmljstools/qmlconsoleitem.h>
+#include <qmljstools/qmlconsolemanager.h>
 
 #include <QTextBlock>
 #include <QVariant>
@@ -117,19 +121,14 @@ public:
     void version();
     //void profile(ProfileCommand command); //NOT SUPPORTED
     void gc();
-
-    QmlV8ObjectData extractData(const QVariant &data, const QVariant &refsVal);
     void clearCache();
 
     void logSendMessage(const QString &msg) const;
     void logReceiveMessage(const QString &msg) const;
 
-    QtMessageLogItem *constructLogItemTree(QtMessageLogItem *parent,
-                                           const QmlV8ObjectData &objectData, const QVariant &refsVal);
 private:
     QByteArray packMessage(const QByteArray &type, const QByteArray &message = QByteArray());
     QScriptValue initObject();
-    QVariant valueFromRef(int handle, const QVariant &refsVal, bool *success);
 
 public:
     QmlV8DebuggerClient *q;
@@ -762,8 +761,23 @@ void QmlV8DebuggerClientPrivate::gc()
     q->sendMessage(packMessage(V8REQUEST, jsonMessage.toString().toUtf8()));
 }
 
-QmlV8ObjectData QmlV8DebuggerClientPrivate::extractData(const QVariant &data,
-                                                        const QVariant &refsVal)
+QVariant valueFromRef(int handle, const QVariant &refsVal, bool *success)
+{
+    *success = false;
+    QVariant variant;
+    const QVariantList refs = refsVal.toList();
+    foreach (const QVariant &ref, refs) {
+        const QVariantMap refData = ref.toMap();
+        if (refData.value(_(HANDLE)).toInt() == handle) {
+            variant = refData;
+            *success = true;
+            break;
+        }
+    }
+    return variant;
+}
+
+QmlV8ObjectData extractData(const QVariant &data, const QVariant &refsVal)
 {
     //    { "handle" : <handle>,
     //      "type"   : <"undefined", "null", "boolean", "number", "string", "object", "function" or "frame">
@@ -901,24 +915,6 @@ QScriptValue QmlV8DebuggerClientPrivate::initObject()
     return jsonVal;
 }
 
-QVariant QmlV8DebuggerClientPrivate::valueFromRef(int handle,
-                                           const QVariant &refsVal,
-                                           bool *success)
-{
-    *success = false;
-    QVariant variant;
-    const QVariantList refs = refsVal.toList();
-    foreach (const QVariant &ref, refs) {
-        const QVariantMap refData = ref.toMap();
-        if (refData.value(_(HANDLE)).toInt() == handle) {
-            variant = refData;
-            *success = true;
-            break;
-        }
-    }
-    return variant;
-}
-
 void QmlV8DebuggerClientPrivate::logSendMessage(const QString &msg) const
 {
     if (engine)
@@ -929,34 +925,6 @@ void QmlV8DebuggerClientPrivate::logReceiveMessage(const QString &msg) const
 {
     if (engine)
         engine->logMessage(QLatin1String("V8DebuggerClient"), QmlEngine::LogReceive, msg);
-}
-
-QtMessageLogItem *QmlV8DebuggerClientPrivate::constructLogItemTree(
-        QtMessageLogItem *parent,
-        const QmlV8ObjectData &objectData,
-        const QVariant &refsVal)
-{
-    if (!objectData.value.isValid())
-        return 0;
-
-    QString text;
-    if (objectData.name.isEmpty())
-        text = objectData.value.toString();
-    else
-        text = QString(_("%1: %2")).arg(QString::fromLatin1(objectData.name))
-                .arg(objectData.value.toString());
-
-    QtMessageLogItem *item = new QtMessageLogItem(parent,
-                                                  QtMessageLogHandler::UndefinedType, text);
-
-    foreach (const QVariant &property, objectData.properties) {
-        QtMessageLogItem *child = constructLogItemTree(
-                    item, extractData(property, refsVal), refsVal);
-        if (child)
-            item->insertChild(child);
-    }
-
-    return item;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -1126,9 +1094,8 @@ void QmlV8DebuggerClient::assignValueInDebugger(const WatchData * /*data*/,
         d->evaluate(expression, false, false, stackHandler->currentIndex());
         d->updateLocalsAndWatchers.append(d->sequence);
     } else {
-        d->engine->showMessage(QString(_("Cannot evaluate"
-                                         "%1 in current stack frame")).
-                               arg(expression), QtMessageLogOutput);
+        d->engine->showMessage(QString(_("Cannot evaluate %1 in current stack frame")).arg(
+                                   expression), ConsoleOutput);
     }
 }
 
@@ -1145,9 +1112,8 @@ void QmlV8DebuggerClient::executeDebuggerCommand(const QString &command)
         d->debuggerCommands.append(d->sequence);
     } else {
         //Currently cannot evaluate if not in a javascript break
-        d->engine->showMessage(QString(_("Cannot evaluate %1"
-                                         "in current stack frame")).
-                               arg(command), QtMessageLogOutput);
+        d->engine->showMessage(QString(_("Cannot evaluate %1 in current stack frame")).arg(
+                                   command), ConsoleOutput);
     }
 }
 
@@ -1630,17 +1596,17 @@ StackFrame QmlV8DebuggerClient::extractStackFrame(const QVariant &bodyVal, const
         return stackFrame;
     }
 
-    QmlV8ObjectData objectData = d->extractData(body.value(_("func")), refsVal);
+    QmlV8ObjectData objectData = extractData(body.value(_("func")), refsVal);
     QString functionName = objectData.value.toString();
     if (functionName.isEmpty())
         functionName = tr("Anonymous Function");
     stackFrame.function = functionName;
 
-    objectData = d->extractData(body.value(_("script")), refsVal);
+    objectData = extractData(body.value(_("script")), refsVal);
     stackFrame.file = d->engine->toFileInProject(objectData.value.toString());
     stackFrame.usable = QFileInfo(stackFrame.file).isReadable();
 
-    objectData = d->extractData(body.value(_("receiver")), refsVal);
+    objectData = extractData(body.value(_("receiver")), refsVal);
     stackFrame.to = objectData.value.toString();
 
     stackFrame.line = body.value(_("line")).toInt() + 1;
@@ -1691,8 +1657,7 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
         data.exp = QByteArray("this");
         data.name = QLatin1String(data.exp);
         data.iname = QByteArray("local.") + data.exp;
-        QmlV8ObjectData objectData = d->extractData(
-                    currentFrame.value(_("receiver")), refsVal);
+        QmlV8ObjectData objectData = extractData(currentFrame.value(_("receiver")), refsVal);
         data.id = objectData.handle;
         data.type = objectData.type;
         data.value = objectData.value.toString();
@@ -1749,12 +1714,12 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
     if (bodyMap.value(_("frameIndex")).toInt() != stackHandler->currentIndex())
         return;
 
-    QmlV8ObjectData objectData = d->extractData(bodyMap.value(_("object")), refsVal);
+    QmlV8ObjectData objectData = extractData(bodyMap.value(_("object")), refsVal);
 
     QList<int> handlesToLookup;
     QList<WatchData> locals;
     foreach (const QVariant &property, objectData.properties) {
-        QmlV8ObjectData localData = d->extractData(property, refsVal);
+        QmlV8ObjectData localData = extractData(property, refsVal);
         WatchData data;
         data.exp = localData.name;
         //Check for v8 specific local data
@@ -1784,8 +1749,36 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
         d->engine->watchHandler()->insertData(locals);
 }
 
-void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, const QVariant &bodyVal,
+QmlJSTools::QmlConsoleItem *constructLogItemTree(QmlJSTools::QmlConsoleItem *parent,
+                                                 const QmlV8ObjectData &objectData,
                                                  const QVariant &refsVal)
+{
+    using namespace QmlJSTools;
+    bool sorted = debuggerCore()->boolSetting(SortStructMembers);
+    if (!objectData.value.isValid())
+        return 0;
+
+    QString text;
+    if (objectData.name.isEmpty())
+        text = objectData.value.toString();
+    else
+        text = QString(_("%1: %2")).arg(QString::fromAscii(objectData.name))
+                .arg(objectData.value.toString());
+
+    QmlConsoleItem *item = new QmlConsoleItem(parent, QmlConsoleItem::UndefinedType, text);
+
+    foreach (const QVariant &property, objectData.properties) {
+        QmlConsoleItem *child = constructLogItemTree(item, extractData(property, refsVal),
+                                                     refsVal);
+        if (child)
+            item->insertChild(child, sorted);
+    }
+
+    return item;
+}
+
+void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success,
+                                                 const QVariant &bodyVal, const QVariant &refsVal)
 {
     //    { "seq"         : <number>,
     //      "type"        : "response",
@@ -1809,17 +1802,20 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success, con
 
     } else if (d->debuggerCommands.contains(sequence)) {
         d->updateLocalsAndWatchers.removeOne(sequence);
-        QmlV8ObjectData body = d->extractData(bodyVal, refsVal);
-        QtMessageLogItem *item = d->constructLogItemTree(d->engine->qtMessageLogHandler()->root(),
-                                                         body, refsVal);
-        if (item)
-            d->engine->qtMessageLogHandler()->appendItem(item);
+        QmlV8ObjectData body = extractData(bodyVal, refsVal);
+        using namespace QmlJSTools;
+        QmlConsoleManager *consoleManager = QmlConsoleManager::instance();
+        if (consoleManager) {
+            QmlConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), body, refsVal);
+            if (item)
+                consoleManager->printToConsolePane(item);
+        }
         //Update the locals
         foreach (int index, d->currentFrameScopes)
             d->scope(index);
 
     } else {
-        QmlV8ObjectData body = d->extractData(bodyVal, refsVal);
+        QmlV8ObjectData body = extractData(bodyVal, refsVal);
         if (d->evaluatingExpression.contains(sequence)) {
             QString exp =  d->evaluatingExpression.take(sequence);
             QList<WatchData> watchDataList;
@@ -1918,7 +1914,7 @@ void QmlV8DebuggerClient::expandLocalsAndWatchers(const QVariant &bodyVal, const
     QStringList handlesList = body.keys();
     WatchHandler *watchHandler = d->engine->watchHandler();
     foreach (const QString &handle, handlesList) {
-        QmlV8ObjectData bodyObjectData = d->extractData(
+        QmlV8ObjectData bodyObjectData = extractData(
                     body.value(handle), refsVal);
         QByteArray prepend = d->localsAndWatchers.take(handle.toInt());
 
@@ -1955,7 +1951,7 @@ QList<WatchData> QmlV8DebuggerClient::createWatchDataList(const WatchData *paren
     if (properties.count()) {
         QTC_ASSERT(parent, return watchDataList);
         foreach (const QVariant &property, properties) {
-            QmlV8ObjectData propertyData = d->extractData(property, refsVal);
+            QmlV8ObjectData propertyData = extractData(property, refsVal);
             WatchData data;
             data.name = QString::fromUtf8(propertyData.name);
 
@@ -2021,7 +2017,7 @@ void QmlV8DebuggerClient::highlightExceptionCode(int lineNumber,
 
             QString message = QString(_("%1: %2: %3")).arg(filePath).arg(lineNumber)
                     .arg(errorMessage);
-            d->engine->showMessage(message, QtMessageLogOutput);
+            d->engine->showMessage(message, ConsoleOutput);
         }
     }
 }

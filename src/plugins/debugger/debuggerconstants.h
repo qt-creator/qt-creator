@@ -75,7 +75,6 @@ const char DOCKWIDGET_THREADS[]      = "Debugger.Docks.Threads";
 const char DOCKWIDGET_WATCHERS[]     = "Debugger.Docks.LocalsAndWatchers";
 
 const char DOCKWIDGET_QML_INSPECTOR[]     = "Debugger.Docks.QmlInspector";
-const char DOCKWIDGET_QML_SCRIPTCONSOLE[] = "Debugger.Docks.ScriptConsole";
 const char DOCKWIDGET_DEFAULT_AREA[]      = "Debugger.Docks.DefaultArea";
 } // namespace Constants
 
@@ -182,9 +181,8 @@ enum LogChannel
     AppOutput,               // stdout
     AppError,                // stderr
     AppStuff,                // (possibly) windows debug channel
-    StatusBar,                // LogStatus and also put to the status bar
-    QtMessageLogOutput,
-    QtMessageLogStatus
+    StatusBar,               // LogStatus and also put to the status bar
+    ConsoleOutput            // Used to output to console
 };
 
 enum DebuggerEngineType

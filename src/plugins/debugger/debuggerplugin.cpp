@@ -46,7 +46,6 @@
 #include "breakpoint.h"
 #include "breakhandler.h"
 #include "breakwindow.h"
-#include "qtmessagelogwindow.h"
 #include "disassemblerlines.h"
 #include "logwindow.h"
 #include "moduleswindow.h"
@@ -125,6 +124,8 @@
 #ifdef Q_OS_WIN
 #  include <utils/winutils.h>
 #endif
+
+#include <qmljstools/qmlconsolemanager.h>
 
 #include <QComboBox>
 #include <QDockWidget>
@@ -1283,7 +1284,6 @@ public:
 
     BaseWindow *m_breakWindow;
     BreakHandler *m_breakHandler;
-    QtMessageLogWindow *m_qtMessageLogWindow;
     WatchWindow *m_returnWindow;
     WatchWindow *m_localsWindow;
     WatchWindow *m_watchersWindow;
@@ -1349,7 +1349,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(DebuggerPlugin *plugin) :
     m_threadsWindow = 0;
     m_logWindow = 0;
     m_localsAndExpressionsWindow = 0;
-    m_qtMessageLogWindow = 0;
 
     m_mainWindow = 0;
     m_snapshotHandler = 0;
@@ -2066,12 +2065,18 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     m_threadsWindow->setModel(engine->threadsModel());
     m_watchersWindow->setModel(engine->watchersModel());
     m_inspectorWindow->setModel(engine->inspectorModel());
-    m_qtMessageLogWindow->setModel(engine->qtMessageLogModel());
 
     engine->watchHandler()->rebuildModel();
 
     mainWindow()->setEngineDebugLanguages(engine->startParameters().languages);
     mainWindow()->setCurrentEngine(engine);
+    QmlJSTools::QmlConsoleManager *consoleManager = QmlJSTools::QmlConsoleManager::instance();
+    if (consoleManager) {
+        if (engine->startParameters().languages & QmlLanguage)
+            consoleManager->setDebuggerEngine(engine);
+        else
+            consoleManager->setDebuggerEngine(0);
+    }
 }
 
 static void changeFontSize(QWidget *widget, qreal size)
@@ -2194,7 +2199,6 @@ void DebuggerPluginPrivate::setInitialState()
     action(AutoDerefPointers)->setEnabled(true);
     action(ExpandStack)->setEnabled(false);
 
-    m_qtMessageLogWindow->setEnabled(true);
 }
 
 void DebuggerPluginPrivate::updateWatchersWindow(bool showWatch, bool showReturn)
@@ -2559,10 +2563,6 @@ void DebuggerPluginPrivate::showMessage(const QString &msg, int channel, int tim
             m_logWindow->showInput(LogError, QLatin1String("ERROR: ") + msg);
             m_logWindow->showOutput(LogError, QLatin1String("ERROR: ") + msg);
             break;
-        case QtMessageLogStatus:
-            QTC_ASSERT(m_qtMessageLogWindow, return);
-            m_qtMessageLogWindow->showStatus(msg, timeout);
-            break;
         default:
             m_logWindow->showOutput(channel, msg);
             break;
@@ -2739,8 +2739,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     m_breakWindow->setObjectName(QLatin1String(DOCKWIDGET_BREAK));
     m_breakWindow->setModel(m_breakHandler->model());
 
-    m_qtMessageLogWindow = new QtMessageLogWindow();
-    m_qtMessageLogWindow->setObjectName(QLatin1String(DOCKWIDGET_QML_SCRIPTCONSOLE));
     m_modulesWindow = new ModulesWindow;
     m_modulesWindow->setObjectName(QLatin1String(DOCKWIDGET_MODULES));
     m_logWindow = new LogWindow;
@@ -2885,7 +2883,6 @@ void DebuggerPluginPrivate::extensionsInitialized()
     dock->setProperty(DOCKWIDGET_DEFAULT_AREA, Qt::TopDockWidgetArea);
 
     m_mainWindow->createDockWidget(CppLanguage, m_breakWindow);
-    m_mainWindow->createDockWidget(QmlLanguage, m_qtMessageLogWindow);
     m_mainWindow->createDockWidget(CppLanguage, m_snapshotWindow);
     m_mainWindow->createDockWidget(CppLanguage, m_stackWindow);
     m_mainWindow->createDockWidget(CppLanguage, m_threadsWindow);
