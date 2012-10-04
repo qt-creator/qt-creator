@@ -70,6 +70,7 @@ public:
     QString invalidReason() const;
 
     virtual QString sdkDescription() const = 0;
+    void setDefaultSdkPath();
 
 protected:
     QString sdkPath() const;
