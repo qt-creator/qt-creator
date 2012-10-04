@@ -113,7 +113,7 @@ void QuickItemNodeInstance::setHasContent(bool hasContent)
 }
 
 
-bool anyItemHasContent(QQuickItem *graphicsItem)
+bool QuickItemNodeInstance::anyItemHasContent(QQuickItem *graphicsItem)
 {
     if (graphicsItem->flags().testFlag(QQuickItem::ItemHasContents))
         return true;
@@ -343,6 +343,9 @@ void QuickItemNodeInstance::setPropertyVariant(const QString &name, const QVaria
     ObjectNodeInstance::setPropertyVariant(name, value);
 
     refresh();
+
+    if (isInPositioner())
+        parentInstance()->refreshPositioner();
 }
 
 void QuickItemNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
@@ -468,6 +471,9 @@ void QuickItemNodeInstance::resetProperty(const QString &name)
     }
 
     ObjectNodeInstance::resetProperty(name);
+
+    if (isInPositioner())
+        parentInstance()->refreshPositioner();
 }
 
 void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const QString &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const QString &newParentProperty)
@@ -494,6 +500,9 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
 
     refresh();
     DesignerSupport::updateDirtyNode(quickItem());
+
+    if (isInPositioner())
+        parentInstance()->refreshPositioner();
 }
 
 static bool isValidAnchorName(const QString &name)

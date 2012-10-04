@@ -29,13 +29,13 @@
 **************************************************************************/
 
 #include "positionernodeinstance.h"
-#include <private/qdeclarativepositioners_p.h>
+#include <private/qquickpositioners_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
 
-PositionerNodeInstance::PositionerNodeInstance(QDeclarativeBasePositioner *item)
-    : QmlGraphicsItemNodeInstance(item)
+PositionerNodeInstance::PositionerNodeInstance(QQuickBasePositioner *item)
+    : QuickItemNodeInstance(item)
 {
 }
 
@@ -54,7 +54,7 @@ void PositionerNodeInstance::setPropertyVariant(const QString &name, const QVari
     if (name == "move" || name == "add")
         return;
 
-    QmlGraphicsItemNodeInstance::setPropertyVariant(name, value);
+    QuickItemNodeInstance::setPropertyVariant(name, value);
 }
 
 void PositionerNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
@@ -62,31 +62,31 @@ void PositionerNodeInstance::setPropertyBinding(const QString &name, const QStri
     if (name == "move" || name == "add")
         return;
 
-    QmlGraphicsItemNodeInstance::setPropertyBinding(name, expression);
+    QuickItemNodeInstance::setPropertyBinding(name, expression);
 }
 
 PositionerNodeInstance::Pointer PositionerNodeInstance::create(QObject *object)
-{
-    QDeclarativeBasePositioner *positioner = qobject_cast<QDeclarativeBasePositioner*>(object);
+{ 
+    QQuickBasePositioner *positioner = qobject_cast<QQuickBasePositioner*>(object);
 
     Q_ASSERT(positioner);
 
     Pointer instance(new PositionerNodeInstance(positioner));
 
-    instance->setHasContent(!positioner->flags().testFlag(QGraphicsItem::ItemHasNoContents));
-    positioner->setFlag(QGraphicsItem::ItemHasNoContents, false);
+    instance->setHasContent(anyItemHasContent(positioner));
+    positioner->setFlag(QQuickItem::ItemHasContents, true);
 
-    static_cast<QDeclarativeParserStatus*>(positioner)->classBegin();
+    static_cast<QQmlParserStatus*>(positioner)->classBegin();
 
     instance->populateResetHashes();
 
     return instance;
 }
 
-QDeclarativeBasePositioner *PositionerNodeInstance::positioner() const
+QQuickBasePositioner *PositionerNodeInstance::positioner() const
 {
-    Q_ASSERT(qobject_cast<QDeclarativeBasePositioner*>(object()));
-    return static_cast<QDeclarativeBasePositioner*>(object());
+    Q_ASSERT(qobject_cast<QQuickBasePositioner*>(object()));
+    return static_cast<QQuickBasePositioner*>(object());
 }
 
 void PositionerNodeInstance::refreshPositioner()

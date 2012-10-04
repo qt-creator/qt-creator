@@ -37,7 +37,7 @@
 #include "behaviornodeinstance.h"
 #include "qmlstatenodeinstance.h"
 #include "anchorchangesnodeinstance.h"
-
+#include "positionernodeinstance.h"
 
 #include "quickitemnodeinstance.h"
 
@@ -172,15 +172,10 @@ Internal::ObjectNodeInstance::Pointer ServerNodeInstance::createInstance(QObject
 
     if (objectToBeWrapped == 0)
         instance = Internal::DummyNodeInstance::create();
-#if QT_VERSION >= 0x050000
+    else if (isSubclassOf(objectToBeWrapped, "QQuickBasePositioner"))
+        instance = Internal::PositionerNodeInstance::create(objectToBeWrapped);
     else if (isSubclassOf(objectToBeWrapped, "QQuickItem"))
         instance = Internal::QuickItemNodeInstance::create(objectToBeWrapped);
-#else
-    else if (isSubclassOf(objectToBeWrapped, "QQmlBasePositioner"))
-        instance = Internal::PositionerNodeInstance::create(objectToBeWrapped);
-    else if (isSubclassOf(objectToBeWrapped, "QQmlItem"))
-        instance = Internal::QmlGraphicsItemNodeInstance::create(objectToBeWrapped);
-#endif
     else if (isSubclassOf(objectToBeWrapped, "QQmlComponent"))
         instance = Internal::ComponentNodeInstance::create(objectToBeWrapped);
     else if (objectToBeWrapped->inherits("QQmlAnchorChanges"))
