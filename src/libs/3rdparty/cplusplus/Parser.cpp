@@ -6296,6 +6296,8 @@ bool Parser::parseLambdaCapture(LambdaCaptureAST *&node)
 
 bool Parser::parseCapture(CaptureAST *&)
 {
+    // See QTCREATORBUG-7968
+
     DEBUG_THIS_RULE();
     if (LA() == T_IDENTIFIER) {
         consumeToken();

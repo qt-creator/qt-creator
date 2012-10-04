@@ -1069,6 +1069,7 @@ void Bind::capture(CaptureAST *ast)
     if (! ast)
         return;
 
+    // See QTCREATORBUG-7968
 }
 
 bool Bind::visit(LambdaDeclaratorAST *ast)
