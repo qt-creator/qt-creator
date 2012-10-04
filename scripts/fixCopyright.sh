@@ -3,8 +3,8 @@
 # Prepend a copyright header to all files given on the command line.
 # Sample usage:
 # find . -type f -name \*.cpp -o -name \*.h | \
-#     xargs ~/bin/hasCopyright.sh | grep ": NO COPYRIGHT" | grep "^./src/" | \
-#     cut -d ':' -f1 | xargs ~/bin/fixCopyright.sh /tmp/copyright.txt
+#     xargs ~/bin/hasCopyright.pl | grep ": No copyright, NOK" | grep "^./src/" | \
+#     cut -d ':' -f1 | xargs ~/bin/fixCopyright.sh dist/copyright_template.txt
 
 COPYRIGHT_HEADER=$1
 

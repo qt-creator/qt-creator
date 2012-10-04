@@ -413,14 +413,26 @@ void TargetSetupPage::import(const Utils::FileName &path, const bool silent)
         // find interesting makefiles
         QString makefile = path.toString() + QLatin1Char('/') + file;
         Utils::FileName qmakeBinary = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
-        if (qmakeBinary.isEmpty())
+        QFileInfo fi = qmakeBinary.toFileInfo();
+        Utils::FileName canonicalQmakeBinary = Utils::FileName::fromString(fi.canonicalFilePath());
+        if (canonicalQmakeBinary.isEmpty())
             continue;
         if (QtSupport::QtVersionManager::makefileIsFor(makefile, m_proFilePath) != QtSupport::QtVersionManager::SameProject)
             continue;
 
         // Find version:
-        version = vm->qtVersionForQMakeBinary(qmakeBinary);
+        foreach (QtSupport::BaseQtVersion *v, vm->versions()) {
+            QFileInfo vfi = v->qmakeCommand().toFileInfo();
+            Utils::FileName current = Utils::FileName::fromString(vfi.canonicalFilePath());
+            if (current == canonicalQmakeBinary) {
+                version = v;
+                break;
+            }
+        }
+
+        // Create a new version if not found:
         if (!version) {
+            // Do not use the canonical path here...
             version = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(qmakeBinary);
             if (!version)
                 continue;
