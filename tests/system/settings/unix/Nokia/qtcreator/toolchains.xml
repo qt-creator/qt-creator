@@ -10,6 +10,7 @@
     <value type="QString">x86-linux-generic-elf-64bit</value>
     <value type="QString">x86-linux-generic-elf-32bit</value>
    </valuelist>
+   <value type="QString" key="ProjectExplorer.GccToolChain.TargetAbi">SET_BY_SQUISH</value>
    <value type="bool" key="ProjectExplorer.ToolChain.Autodetect">false</value>
    <value type="QString" key="ProjectExplorer.ToolChain.DisplayName">GCC</value>
    <value type="QString" key="ProjectExplorer.ToolChain.Id">ProjectExplorer.ToolChain.Gcc:{c3f59b87-6997-4bd8-8067-ee04dc536371}</value>

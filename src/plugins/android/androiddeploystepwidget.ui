@@ -59,7 +59,7 @@ You must have Qt libraries compiled for that platform</string>
      <item>
       <widget class="QPushButton" name="editRulesFilePushButton">
        <property name="text">
-        <string>Edit rules file</string>
+        <string>Edit Rules File</string>
        </property>
       </widget>
      </item>
@@ -74,7 +74,7 @@ You must have Qt libraries compiled for that platform</string>
 This option is useful when you want to try your application on devices which don't have Android Market (e.g. Android Emulator).</string>
        </property>
        <property name="text">
-        <string>Install Ministro system wide Qt shared libraries installer</string>
+        <string>Install Ministro, system-wide Qt shared libraries installer</string>
        </property>
       </widget>
      </item>
@@ -84,7 +84,7 @@ This option is useful when you want to try your application on devices which don
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Choose apk</string>
+        <string>Choose APK</string>
        </property>
       </widget>
      </item>

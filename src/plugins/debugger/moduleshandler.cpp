@@ -80,12 +80,12 @@ QVariant ModulesModel::headerData(int section,
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         static QString headers[] = {
-            ModulesHandler::tr("Module name") + QLatin1String("        "),
-            ModulesHandler::tr("Module path") + QLatin1String("        "),
-            ModulesHandler::tr("Symbols read") + QLatin1String("        "),
-            ModulesHandler::tr("Symbols type") + QLatin1String("        "),
-            ModulesHandler::tr("Start address") + QLatin1String("        "),
-            ModulesHandler::tr("End address") + QLatin1String("        ")
+            ModulesHandler::tr("Module Name") + QLatin1String("        "),
+            ModulesHandler::tr("Module Path") + QLatin1String("        "),
+            ModulesHandler::tr("Symbols Read") + QLatin1String("        "),
+            ModulesHandler::tr("Symbols Type") + QLatin1String("        "),
+            ModulesHandler::tr("Start Address") + QLatin1String("        "),
+            ModulesHandler::tr("End Address") + QLatin1String("        ")
         };
         return headers[section];
     }
@@ -123,22 +123,22 @@ QVariant ModulesModel::data(const QModelIndex &index, int role) const
         case 2:
             if (role == Qt::DisplayRole)
                 switch (module.symbolsRead) {
-                    case Module::UnknownReadState: return ModulesHandler::tr("unknown");
-                    case Module::ReadFailed: return ModulesHandler::tr("no");
-                    case Module::ReadOk: return ModulesHandler::tr("yes");
+                    case Module::UnknownReadState: return ModulesHandler::tr("Unknown");
+                    case Module::ReadFailed: return ModulesHandler::tr("No");
+                    case Module::ReadOk: return ModulesHandler::tr("Yes");
                 }
             break;
         case 3:
             if (role == Qt::DisplayRole)
                 switch (module.elfData.symbolsType) {
                     case UnknownSymbols:
-                        return ModulesHandler::tr("unknown");
+                        return ModulesHandler::tr("Unknown");
                     case NoSymbols:
-                        return ModulesHandler::tr("none");
+                        return ModulesHandler::tr("None");
                     case PlainSymbols:
-                        return ModulesHandler::tr("plain");
+                        return ModulesHandler::tr("Plain");
                     case FastSymbols:
-                        return ModulesHandler::tr("fast");
+                        return ModulesHandler::tr("Fast");
                     case LinkedSymbols:
                         return ModulesHandler::tr("debuglnk");
                     case BuildIdSymbols:

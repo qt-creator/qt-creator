@@ -510,8 +510,8 @@ void UrlTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) 
 {
     Q_UNUSED(type);
     menu->addSeparator();
-    menu->addAction(createOpenUrlAction(tr("Open URL in browser...")));
-    menu->addAction(createCopyUrlAction(tr("Copy URL location")));
+    menu->addAction(createOpenUrlAction(tr("Open URL in Browser...")));
+    menu->addAction(createCopyUrlAction(tr("Copy URL Location")));
 }
 
 QString UrlTextCursorHandler::currentContents() const
@@ -575,8 +575,8 @@ void EmailTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type
 {
     Q_UNUSED(type);
     menu->addSeparator();
-    menu->addAction(createOpenUrlAction(tr("Send email to...")));
-    menu->addAction(createCopyUrlAction(tr("Copy email address")));
+    menu->addAction(createOpenUrlAction(tr("Send Email To...")));
+    menu->addAction(createCopyUrlAction(tr("Copy Email Address")));
 }
 
 void EmailTextCursorHandler::slotOpenUrl()

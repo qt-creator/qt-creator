@@ -266,7 +266,7 @@ void KitModel::setDirty()
     KitConfigWidget *w = qobject_cast<KitConfigWidget *>(sender());
     foreach (KitNode *n, m_manualRoot->childNodes) {
         if (n->widget == w) {
-            n->changed = true;
+            n->changed = n->widget->isDirty();
             emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
         }
     }

@@ -511,20 +511,25 @@ void TargetSetupPage::setupImports()
     if (!m_importSearch || m_proFilePath.isEmpty())
         return;
 
-    QString sourceDir = QFileInfo(m_proFilePath).absolutePath();
-    import(Utils::FileName::fromString(sourceDir), true);
+    QFileInfo pfi(m_proFilePath);
+    const QString prefix = pfi.baseName();
+    QStringList toImport;
+    toImport << pfi.absolutePath();
 
     QList<ProjectExplorer::Kit *> kitList = ProjectExplorer::KitManager::instance()->kits();
     foreach (ProjectExplorer::Kit *k, kitList) {
         QFileInfo fi(Qt4Project::shadowBuildDirectory(m_proFilePath, k, QString()));
         const QString baseDir = fi.absolutePath();
-        const QString prefix = fi.baseName();
 
         foreach (const QString &dir, QDir(baseDir).entryList()) {
-            if (dir.startsWith(prefix))
-                import(Utils::FileName::fromString(baseDir + QLatin1Char('/') + dir), true);
+            const QString path = baseDir + QLatin1Char('/') + dir;
+            if (dir.startsWith(prefix) && !toImport.contains(path))
+                toImport << path;
+
         }
     }
+    foreach (const QString &path, toImport)
+        import(Utils::FileName::fromString(path), true);
 }
 
 void TargetSetupPage::handleKitAddition(ProjectExplorer::Kit *k)
@@ -609,7 +614,8 @@ void TargetSetupPage::updateVisibility()
 void TargetSetupPage::openOptions()
 {
     Core::ICore::instance()->showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
-                                               QLatin1String(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID));
+                                               QLatin1String(ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID),
+                                               this);
 }
 
 void TargetSetupPage::removeWidget(ProjectExplorer::Kit *k)

@@ -62,7 +62,7 @@ class DebuggerKitConfigWidget : public ProjectExplorer::KitConfigWidget
     Q_OBJECT
 
 public:
-    DebuggerKitConfigWidget(ProjectExplorer::Kit *p,
+    DebuggerKitConfigWidget(ProjectExplorer::Kit *k,
                             const DebuggerKitInformation *ki,
                             QWidget *parent = 0);
 

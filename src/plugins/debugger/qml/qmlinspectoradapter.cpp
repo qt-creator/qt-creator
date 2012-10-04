@@ -42,6 +42,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <qmldebug/declarativeenginedebugclient.h>
+#include <qmldebug/declarativeenginedebugclientv2.h>
 #include <qmldebug/declarativetoolsclient.h>
 #include <qmldebug/qmlenginedebugclient.h>
 #include <qmldebug/qmltoolsclient.h>
@@ -96,13 +97,23 @@ QmlInspectorAdapter::QmlInspectorAdapter(QmlAdapter *debugAdapter,
     connect(engineClient2, SIGNAL(newStatus(QmlDebug::ClientStatus)),
             this, SLOT(engineClientStatusChanged(QmlDebug::ClientStatus)));
 
+    DeclarativeEngineDebugClientV2 *engineClient3
+            = new DeclarativeEngineDebugClientV2(connection);
+    connect(engineClient3, SIGNAL(newStatus(QmlDebug::ClientStatus)),
+            this, SLOT(clientStatusChanged(QmlDebug::ClientStatus)));
+    connect(engineClient3, SIGNAL(newStatus(QmlDebug::ClientStatus)),
+            this, SLOT(engineClientStatusChanged(QmlDebug::ClientStatus)));
+
     m_engineClients.insert(engineClient1->name(), engineClient1);
     m_engineClients.insert(engineClient2->name(), engineClient2);
+    m_engineClients.insert(engineClient3->name(), engineClient3);
 
     if (engineClient1->status() == QmlDebug::Enabled)
         setActiveEngineClient(engineClient1);
     if (engineClient2->status() == QmlDebug::Enabled)
         setActiveEngineClient(engineClient2);
+    if (engineClient3->status() == QmlDebug::Enabled)
+        setActiveEngineClient(engineClient3);
 
     DeclarativeToolsClient *toolsClient1 = new DeclarativeToolsClient(connection);
     connect(toolsClient1, SIGNAL(newStatus(QmlDebug::ClientStatus)),

@@ -24,7 +24,7 @@
    <item>
     <widget class="QLabel" name="lblComment">
      <property name="text">
-      <string>&amp;Checkout Comment:</string>
+      <string>&amp;Checkout comment:</string>
      </property>
      <property name="buddy">
       <cstring>txtComment</cstring>

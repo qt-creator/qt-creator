@@ -77,6 +77,7 @@ private slots:
     void switchHeaderSource();
 
 #ifdef WITH_TESTS
+
     // codegen tests
     void test_codegen_public_in_empty_class();
     void test_codegen_public_in_nonempty_class();
@@ -95,6 +96,15 @@ private slots:
     void test_completion_template_1();
     void test_completion_template_as_base();
     void test_completion_template_as_base_data();
+    void test_completion_use_global_identifier_as_base_class();
+    void test_completion_use_global_identifier_as_base_class_data();
+    void test_completion_base_class_has_name_the_same_as_derived();
+    void test_completion_base_class_has_name_the_same_as_derived_data();
+    void test_completion_cyclic_inheritance();
+    void test_completion_cyclic_inheritance_data();
+
+private:
+    void test_completion();
 #endif
 
 private:

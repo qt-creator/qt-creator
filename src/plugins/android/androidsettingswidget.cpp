@@ -195,7 +195,7 @@ bool AndroidSettingsWidget::checkSDK(const Utils::FileName &location)
             || (!androidExe.appendPath(QLatin1String("/tools/android" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists()
                 && !androidBat.appendPath(QLatin1String("/tools/android" ANDROID_BAT_SUFFIX)).toFileInfo().exists())
             || !emulator.appendPath(QLatin1String("/tools/emulator" QTC_HOST_EXE_SUFFIX)).toFileInfo().exists()) {
-        QMessageBox::critical(this, tr("Android SDK Folder"), tr("\"%1\" doesn't seem to be an Android SDK top folder").arg(location.toUserOutput()));
+        QMessageBox::critical(this, tr("Android SDK Folder"), tr("\"%1\" does not seem to be an Android SDK top folder.").arg(location.toUserOutput()));
         return false;
     }
     return true;
@@ -216,7 +216,7 @@ bool AndroidSettingsWidget::checkNDK(const Utils::FileName &location)
     if (!platformPath.appendPath(QLatin1String("platforms")).toFileInfo().exists()
             || !toolChainPath.appendPath(QLatin1String("toolchains")).toFileInfo().exists()
             || !sourcesPath.appendPath(QLatin1String("sources/cxx-stl")).toFileInfo().exists()) {
-        QMessageBox::critical(this, tr("Android SDK Folder"), tr("\"%1\" doesn't seem to be an Android NDK top folder").arg(location.toUserOutput()));
+        QMessageBox::critical(this, tr("Android SDK Folder"), tr("\"%1\" does not seem to be an Android NDK top folder.").arg(location.toUserOutput()));
         return false;
     }
     m_androidConfig.ndkLocation = location;

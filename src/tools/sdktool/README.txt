@@ -119,6 +119,7 @@ Add a Kit using the newly set up tool chain and Qt version:
 Tricky parts:
   - debuggerengine is the integer used in the enum Debugger::DebuggerEngineType
     The most important type is 1 for GDB.
+  - debugger can be a absolute path or the value: 'auto'
 
   - devicetype is the string returned IDevice::type()
 

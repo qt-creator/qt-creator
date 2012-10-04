@@ -69,7 +69,7 @@ QString AndroidQtVersion::invalidReason() const
 {
     QString tmp = BaseQtVersion::invalidReason();
     if (tmp.isEmpty() && qtAbis().isEmpty())
-        return tr("Failed to detect the ABI(s) used by the Qt version.");
+        return tr("Failed to detect the ABIs used by the Qt version.");
     return tmp;
 }
 

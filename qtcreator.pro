@@ -27,6 +27,7 @@ PATTERN = $${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
 macx {
     APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
     BINDIST_SOURCE = "$$OUT_PWD/bin/Qt Creator.app"
+    BINDIST_INSTALLER_SOURCE = $$BINDIST_SOURCE
     deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\"
     codesign.commands = codesign -s \"$(SIGNING_IDENTITY)\" \"$${APPBUNDLE}\"
     dmg.commands = $$PWD/scripts/makedmg.sh $$OUT_PWD/bin qt-creator-$${PATTERN}.dmg
@@ -34,6 +35,7 @@ macx {
     QMAKE_EXTRA_TARGETS += codesign dmg
 } else {
     BINDIST_SOURCE = "$(INSTALL_ROOT)$$QTC_PREFIX"
+    BINDIST_INSTALLER_SOURCE = "$$BINDIST_SOURCE/*"
     deployqt.commands = $$PWD/scripts/deployqt.py -i \"$(INSTALL_ROOT)$$QTC_PREFIX\"
     deployqt.depends = install
     win32 {
@@ -43,13 +45,20 @@ macx {
     }
 }
 
+INSTALLER_ARCHIVE = $$OUT_PWD/qt-creator-$${PATTERN}-installer-archive.7z
+
+bindist.depends = deployqt
 bindist.commands = 7z a -mx9 $$OUT_PWD/qt-creator-$${PATTERN}.7z \"$$BINDIST_SOURCE\"
+bindist_installer.depends = deployqt
+bindist_installer.commands = 7z a -mx9 $$OUT_PWD/qt-creator-$${PATTERN}-installer-archive.7z \"$$BINDIST_INSTALLER_SOURCE\"
+installer.depends = bindist_installer
+installer.commands = $$PWD/scripts/packageIfw.py -i \"$(IFW_PATH)\" -v $${QTCREATOR_VERSION} -a \"$$INSTALLER_ARCHIVE\" "qt-creator-$${PATTERN}-installer"
 
 win32 {
     deployqt.commands ~= s,/,\\\\,g
     bindist.commands ~= s,/,\\\\,g
+    bindist_installer.commands ~= s,/,\\\\,g
+    installer.commands ~= s,/,\\\\,g
 }
 
-bindist.depends = deployqt
-
-QMAKE_EXTRA_TARGETS += deployqt bindist
+QMAKE_EXTRA_TARGETS += deployqt bindist bindist_installer installer

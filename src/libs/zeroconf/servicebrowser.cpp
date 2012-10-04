@@ -1849,7 +1849,7 @@ void MainConnection::createConnection()
             if (m_nErrs > lib->maxErrors() || !lib->isOk()) {
                 abortLib();
             } else if (lib->tryStartDaemon(this)) {
-                appendError(ErrorMessage::WarningLevel, tr("Zeroconf using %1 daemon starting seem successful, continuing.")
+                appendError(ErrorMessage::WarningLevel, tr("Starting the Zeroconf daemon using %1 seems successful, continuing.")
                                         .arg(lib->name()));
             } else {
                 appendError(ErrorMessage::WarningLevel, tr("Zeroconf using %1 failed because no daemon is running.")
@@ -1863,7 +1863,7 @@ void MainConnection::createConnection()
         }
     }
     if (status() < Stopping) {
-        startupPhase(zeroConfLibInstance()->nFallbacksTot() + 3, tr("Succeded using %1.").arg(lib->name()));
+        startupPhase(zeroConfLibInstance()->nFallbacksTot() + 3, tr("Succeeded using %1.").arg(lib->name()));
         appendError(ErrorMessage::NoteLevel,
                     tr("MainConnection could successfully create a connection using %1.")
                     .arg(lib->name()));

@@ -77,13 +77,13 @@ public:
     static DebuggerItem debuggerItem(const ProjectExplorer::Kit *k);
     static void setDebuggerItem(ProjectExplorer::Kit *k, const DebuggerItem &item);
 
-    static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *p)
-        { return debuggerItem(p).binary; }
+    static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k)
+        { return debuggerItem(k).binary; }
 
-    static void setDebuggerCommand(ProjectExplorer::Kit *p, const Utils::FileName &command);
+    static void setDebuggerCommand(ProjectExplorer::Kit *k, const Utils::FileName &command);
 
-    static DebuggerEngineType engineType(const ProjectExplorer::Kit *p)
-        { return debuggerItem(p).engineType; }
+    static DebuggerEngineType engineType(const ProjectExplorer::Kit *k)
+        { return debuggerItem(k).engineType; }
 
     static void setEngineType(ProjectExplorer::Kit *k, DebuggerEngineType type);
 

@@ -144,20 +144,20 @@ void QmlAdapter::connectionStateChanged()
     switch (m_conn->state()) {
     case QAbstractSocket::UnconnectedState:
     {
-        showConnectionStatusMessage(tr("disconnected.\n\n"));
+        showConnectionStatusMessage(tr("Disconnected.\n\n"));
         emit disconnected();
 
         break;
     }
     case QAbstractSocket::HostLookupState:
-        showConnectionStatusMessage(tr("resolving host..."));
+        showConnectionStatusMessage(tr("Resolving host."));
         break;
     case QAbstractSocket::ConnectingState:
-        showConnectionStatusMessage(tr("connecting to debug server..."));
+        showConnectionStatusMessage(tr("Connecting to debug server."));
         break;
     case QAbstractSocket::ConnectedState:
     {
-        showConnectionStatusMessage(tr("connected.\n"));
+        showConnectionStatusMessage(tr("Connected.\n"));
 
         m_connectionTimer.stop();
 
@@ -166,7 +166,7 @@ void QmlAdapter::connectionStateChanged()
         break;
     }
     case QAbstractSocket::ClosingState:
-        showConnectionStatusMessage(tr("closing..."));
+        showConnectionStatusMessage(tr("Closing."));
         break;
     case QAbstractSocket::BoundState:
     case QAbstractSocket::ListeningState:

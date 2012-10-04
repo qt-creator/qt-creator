@@ -78,9 +78,9 @@ public:
     SysRootMatcher(const Utils::FileName &fn) : m_sysroot(fn)
     { }
 
-    bool matches(const Kit *p) const
+    bool matches(const Kit *k) const
     {
-        return SysRootKitInformation::sysRoot(p) == m_sysroot;
+        return SysRootKitInformation::sysRoot(k) == m_sysroot;
     }
 
 private:
@@ -125,9 +125,9 @@ public:
     ToolChainMatcher(const ToolChain *tc) : m_tc(tc)
     { }
 
-    bool matches(const Kit *p) const
+    bool matches(const Kit *k) const
     {
-        return ToolChainKitInformation::toolChain(p) == m_tc;
+        return ToolChainKitInformation::toolChain(k) == m_tc;
     }
 
 private:
@@ -166,9 +166,9 @@ public:
     DeviceTypeMatcher(const Core::Id t) : m_type(t)
     { }
 
-    bool matches(const Kit *p) const
+    bool matches(const Kit *k) const
     {
-        Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(p);
+        Core::Id deviceType = DeviceTypeKitInformation::deviceTypeId(k);
         if (!deviceType.isValid())
             return false;
         return deviceType == m_type;
@@ -214,9 +214,9 @@ public:
     DeviceMatcher(Core::Id id) : m_devId(id)
     { }
 
-    bool matches(const Kit *p) const
+    bool matches(const Kit *k) const
     {
-        return DeviceKitInformation::deviceId(p) == m_devId;
+        return DeviceKitInformation::deviceId(k) == m_devId;
     }
 
 private:

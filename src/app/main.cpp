@@ -219,7 +219,7 @@ int main(int argc, char **argv)
     setrlimit(RLIMIT_NOFILE, &rl);
 #endif
 
-#ifdef Q_WS_X11
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     // QML is unusable with the xlib backend
     QApplication::setGraphicsSystem("raster");
 #endif

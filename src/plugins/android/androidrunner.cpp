@@ -96,7 +96,7 @@ void AndroidRunner::checkPID()
 
     if (-1 != m_processPID && pid == -1) {
         m_processPID = -1;
-        emit remoteProcessFinished(tr("\n\n'%1' died").arg(m_packageName));
+        emit remoteProcessFinished(tr("\n\n'%1' died.").arg(m_packageName));
         return;
     }
     m_processPID = pid;
@@ -151,11 +151,11 @@ void AndroidRunner::asyncStart()
                   << QString::fromLatin1("localfilesystem:/data/data/%1/debug-socket").arg(m_packageName);
         adbStarProc.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
         if (!adbStarProc.waitForStarted()) {
-            emit remoteProcessFinished(tr("Failed to forward C++ debugging ports. Reason: %1").arg(adbStarProc.errorString()));
+            emit remoteProcessFinished(tr("Failed to forward C++ debugging ports. Reason: %1.").arg(adbStarProc.errorString()));
             return;
         }
         if (!adbStarProc.waitForFinished(-1)) {
-            emit remoteProcessFinished(tr("Failed to forward C++ debugging ports"));
+            emit remoteProcessFinished(tr("Failed to forward C++ debugging ports."));
             return;
         }
         extraParams = QLatin1String("-e native_debug true -e gdbserver_socket +debug-socket");
@@ -167,11 +167,11 @@ void AndroidRunner::asyncStart()
                   << QLatin1String("forward") << port << port; // currently forward to same port on device and host
         adbStarProc.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
         if (!adbStarProc.waitForStarted()) {
-            emit remoteProcessFinished(tr("Failed to forward QML debugging ports. Reason: %1").arg(adbStarProc.errorString()));
+            emit remoteProcessFinished(tr("Failed to forward QML debugging ports. Reason: %1.").arg(adbStarProc.errorString()));
             return;
         }
         if (!adbStarProc.waitForFinished(-1)) {
-            emit remoteProcessFinished(tr("Failed to forward QML debugging ports"));
+            emit remoteProcessFinished(tr("Failed to forward QML debugging ports."));
             return;
         }
         extraParams+=QString::fromLatin1(" -e qml_debug true -e qmljsdebugger port:%1")
@@ -196,12 +196,12 @@ void AndroidRunner::asyncStart()
 
     adbStarProc.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
     if (!adbStarProc.waitForStarted()) {
-        emit remoteProcessFinished(tr("Failed to start the activity. Reason: %1").arg(adbStarProc.errorString()));
+        emit remoteProcessFinished(tr("Failed to start the activity. Reason: %1.").arg(adbStarProc.errorString()));
         return;
     }
     if (!adbStarProc.waitForFinished(-1)) {
         adbStarProc.terminate();
-        emit remoteProcessFinished(tr("Unable to start '%1'").arg(m_packageName));
+        emit remoteProcessFinished(tr("Unable to start '%1'.").arg(m_packageName));
         return;
     }
     QTime startTime = QTime::currentTime();
@@ -209,7 +209,7 @@ void AndroidRunner::asyncStart()
         checkPID();
     }
     if (m_processPID == -1) {
-        emit remoteProcessFinished(tr("Cannot find %1 process").arg(m_packageName));
+        emit remoteProcessFinished(tr("Cannot find %1 process.").arg(m_packageName));
         return;
     }
 
@@ -246,7 +246,7 @@ void AndroidRunner::stop()
 void AndroidRunner::asyncStop()
 {
     killPID();
-    emit remoteProcessFinished(tr("\n\n'%1' killed").arg(m_packageName));
+    emit remoteProcessFinished(tr("\n\n'%1' killed.").arg(m_packageName));
 }
 
 void AndroidRunner::logcatReadStandardError()

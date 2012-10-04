@@ -38,6 +38,8 @@
 class AddKitOperation : public Operation
 {
 public:
+    AddKitOperation();
+
     QString name() const;
     QString helpText() const;
     QString argumentsHelpText() const;

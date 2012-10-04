@@ -708,11 +708,22 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     if (!referenceClass)
         return reference;
 
+    const TemplateNameId *templId = name->asTemplateNameId();
+    if (_alreadyConsideredClasses.contains(referenceClass) ||
+            (templId &&
+            _alreadyConsideredTemplates.contains(templId))) {
+            return reference;
+    }
+
+    if (!name->isTemplateNameId())
+        _alreadyConsideredClasses.insert(referenceClass);
+
     QSet<ClassOrNamespace *> knownUsings = reference->usings().toSet();
 
     // If we are dealling with a template type, more work is required, since we need to
     // construct all instantiation data.
-    if (const TemplateNameId *templId = name->asTemplateNameId()) {
+    if (templId) {
+        _alreadyConsideredTemplates.insert(templId);
         ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(reference);
         instantiation->_templateId = templId;
         instantiation->_instantiationOrigin = origin;
@@ -786,17 +797,40 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             }
         }
 
+        _alreadyConsideredTemplates.clear(templId);
         return instantiation;
     }
 
+    if (allBases.isEmpty() || allBases.size() == knownUsings.size())
+        return reference;
+
+    QList<const Name *> fullyQualifiedNameForReferenceClass =
+            LookupContext::fullyQualifiedName(referenceClass);
     // Find the missing bases for regular (non-template) types.
     // Ex.: class A : public B<Some>::Type {};
     foreach (const Name *baseName, allBases) {
         ClassOrNamespace *binding = this;
         if (const QualifiedNameId *qBaseName = baseName->asQualifiedNameId()) {
+            QList<const Name *> fullyQualifiedNameForBaseClass;
+            addNames(baseName, &fullyQualifiedNameForBaseClass);
+            if (compareFullyQualifiedName(fullyQualifiedNameForReferenceClass,
+                                          fullyQualifiedNameForBaseClass)) {
+                continue;
+            }
+
             if (const Name *qualification = qBaseName->base())
                 binding = lookupType(qualification);
+            else if (binding->parent() != 0)
+                //if this is global identifier we take global namespace
+                //Ex: class A{}; namespace NS { class A: public ::A{}; }
+                binding = binding->globalNamespace();
+            else
+                //if we are in the global scope
+                continue;
             baseName = qBaseName->name();
+        }
+        else if (compareName(name, baseName)) {
+            continue;
         }
 
         if (binding) {
@@ -806,7 +840,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         }
     }
 
-
+    _alreadyConsideredClasses.clear(referenceClass);
     return reference;
 }
 

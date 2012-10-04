@@ -45,6 +45,33 @@
 namespace CPlusPlus {
 
 class CreateBindings;
+class Class;
+template<typename T>
+class AlreadyConsideredClassContainer
+{
+public:
+    AlreadyConsideredClassContainer() : _class(0) {}
+    void insert(const T *item)
+    {
+        if (_container.isEmpty())
+            _class = item;
+        _container.insert(item);
+    }
+    bool contains(const T *item)
+    {
+        return _container.contains(item);
+    }
+
+    void clear(const T *item)
+    {
+        if (_class != item)
+            _container.clear();
+    }
+
+private:
+    QSet<const T *> _container;
+    const T * _class;
+};
 
 class CPLUSPLUS_EXPORT ClassOrNamespace
 {
@@ -111,6 +138,9 @@ private:
     // it's an instantiation.
     const TemplateNameId *_templateId;
     ClassOrNamespace *_instantiationOrigin;
+
+    AlreadyConsideredClassContainer<Class> _alreadyConsideredClasses;
+    AlreadyConsideredClassContainer<TemplateNameId> _alreadyConsideredTemplates;
 
     friend class CreateBindings;
 };

@@ -40,10 +40,18 @@ class QMLDEBUG_EXPORT DeclarativeEngineDebugClient : public BaseEngineDebugClien
 {
     Q_OBJECT
 public:
-    DeclarativeEngineDebugClient(QmlDebugConnection *conn)
-        : BaseEngineDebugClient(QLatin1String("QDeclarativeEngine"), conn)
-    {
-    }
+    explicit DeclarativeEngineDebugClient(QmlDebugConnection *conn);
+
+    quint32 setBindingForObject(int objectDebugId, const QString &propertyName,
+                                const QVariant &bindingExpression,
+                                bool isLiteralValue,
+                                QString source, int line);
+    quint32 resetBindingForObject(int objectDebugId, const QString &propertyName);
+    quint32 setMethodBody(int objectDebugId, const QString &methodName,
+                          const QString &methodBody);
+
+protected:
+    void messageReceived(const QByteArray &data);
 };
 
 } // namespace QmlDebug

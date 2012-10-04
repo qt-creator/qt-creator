@@ -65,6 +65,8 @@ private:
 
 private slots:
     void updatePositionAndSize();
+    void turnOffAutoWidth();
+    void turnOnAutoWidth();
 
 protected:
     virtual bool eventFilter(QObject *o, QEvent *e);

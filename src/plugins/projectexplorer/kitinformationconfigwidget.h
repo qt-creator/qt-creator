@@ -33,6 +33,8 @@
 
 #include "kitconfigwidget.h"
 
+#include <coreplugin/id.h>
+
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QPushButton;
@@ -148,6 +150,8 @@ public:
 
 private slots:
     void manageDevices();
+    void modelAboutToReset();
+    void modelReset();
 
 private:
     bool m_isReadOnly;
@@ -155,6 +159,7 @@ private:
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
     DeviceManagerModel *m_model;
+    Core::Id m_selectedId;
 };
 
 } // namespace Internal

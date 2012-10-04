@@ -186,7 +186,7 @@ MainWindow::MainWindow() :
     QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));
     QCoreApplication::setOrganizationName(QLatin1String(Constants::IDE_SETTINGSVARIANT_STR));
     QString baseName = QApplication::style()->objectName();
-#ifdef Q_WS_X11
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     if (baseName == QLatin1String("windows")) {
         // Sometimes we get the standard windows 95 style as a fallback
         // e.g. if we are running on a KDE4 desktop

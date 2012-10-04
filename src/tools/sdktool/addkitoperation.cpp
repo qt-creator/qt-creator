@@ -63,6 +63,12 @@ static char TOOLCHAIN[] = "PE.Profile.ToolChain";
 static char MKSPEC[] = "QtPM4.mkSpecInformation";
 static char QT[] = "QtSupport.QtInformation";
 
+AddKitOperation::AddKitOperation()
+    : m_debuggerEngine(0)
+    , m_debugger(QLatin1String("auto"))
+{
+}
+
 QString AddKitOperation::name() const
 {
     return QLatin1String("addKit");
@@ -216,7 +222,7 @@ bool AddKitOperation::test() const
 {
     QVariantMap map = initializeKits();
 
-    if (!map.count() == 3
+    if (map.count() != 3
             || !map.contains(QLatin1String(VERSION))
             || map.value(QLatin1String(VERSION)).toInt() != 1
             || !map.contains(QLatin1String(COUNT))
@@ -231,7 +237,7 @@ bool AddKitOperation::test() const
                  QLatin1String("{some-tc-id}"), QLatin1String("{some-qt-id}"), QLatin1String("unsupported/mkspec"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
 
-    if (!map.count() == 4
+    if (map.count() != 4
             || !map.contains(QLatin1String(VERSION))
             || map.value(QLatin1String(VERSION)).toInt() != 1
             || !map.contains(QLatin1String(COUNT))
@@ -242,7 +248,7 @@ bool AddKitOperation::test() const
         return false;
 
     QVariantMap profile0 = map.value(QLatin1String("Profile.0")).toMap();
-    if (!profile0.count() == 6
+    if (profile0.count() != 6
             || !profile0.contains(QLatin1String(ID))
             || profile0.value(QLatin1String(ID)).toString() != QLatin1String("testId")
             || !profile0.contains(QLatin1String(DISPLAYNAME))
@@ -266,7 +272,7 @@ bool AddKitOperation::test() const
                  QLatin1String("Desktop"), QString(),
                  QLatin1String("{some-tc-id2}"), QLatin1String("{some-qt-id2}"), QLatin1String("unsupported/mkspec2"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue2"))));
-    if (!map.count() == 5
+    if (map.count() != 5
             || !map.contains(QLatin1String(VERSION))
             || map.value(QLatin1String(VERSION)).toInt() != 1
             || !map.contains(QLatin1String(COUNT))
@@ -280,7 +286,7 @@ bool AddKitOperation::test() const
         return false;
 
     QVariantMap profile1 = map.value(QLatin1String("Profile.1")).toMap();
-    if (!profile1.count() == 6
+    if (profile1.count() != 6
             || !profile1.contains(QLatin1String(ID))
             || profile1.value(QLatin1String(ID)).toString() != QLatin1String("testId2")
             || !profile1.contains(QLatin1String(DISPLAYNAME))

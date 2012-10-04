@@ -165,7 +165,7 @@ bool ToolChainInformationConfigWidget::isDirty() const
 {
     ToolChain *tc = ToolChainKitInformation::toolChain(m_kit);
     return (m_comboBox->itemData(m_comboBox->currentIndex()).toString())
-            == (tc ? tc->id() : QString());
+            != (tc ? tc->id() : QString());
 }
 
 void ToolChainInformationConfigWidget::makeReadOnly()
@@ -308,6 +308,9 @@ DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *k, QWidget *pa
     m_comboBox(new QComboBox), m_manageButton(new QPushButton(this)),
     m_model(new DeviceManagerModel(DeviceManager::instance()))
 {
+    connect(m_model, SIGNAL(modelAboutToBeReset()), SLOT(modelAboutToReset()));
+    connect(m_model, SIGNAL(modelReset()), SLOT(modelReset()));
+
     setToolTip(tr("The device to run the applications on."));
 
     QHBoxLayout *layout = new QHBoxLayout(this);
@@ -366,6 +369,16 @@ void DeviceInformationConfigWidget::manageDevices()
 {
     Core::ICore::showOptionsDialog(QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY),
                                    QLatin1String(ProjectExplorer::Constants::DEVICE_SETTINGS_PAGE_ID));
+}
+
+void DeviceInformationConfigWidget::modelAboutToReset()
+{
+    m_selectedId = m_model->deviceId(m_comboBox->currentIndex());
+}
+
+void DeviceInformationConfigWidget::modelReset()
+{
+    m_comboBox->setCurrentIndex(m_model->indexForId(m_selectedId));
 }
 
 } // namespace Internal

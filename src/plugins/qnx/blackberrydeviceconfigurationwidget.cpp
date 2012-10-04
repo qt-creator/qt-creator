@@ -93,6 +93,14 @@ void BlackBerryDeviceConfigurationWidget::debugTokenEditingFinished()
     deviceConfiguration()->setDebugToken(ui->debugToken->path());
 }
 
+void BlackBerryDeviceConfigurationWidget::updateDeviceFromUi()
+{
+    hostNameEditingFinished();
+    passwordEditingFinished();
+    keyFileEditingFinished();
+    debugTokenEditingFinished();
+}
+
 void BlackBerryDeviceConfigurationWidget::initGui()
 {
     ui->debugToken->setExpectedKind(Utils::PathChooser::File);

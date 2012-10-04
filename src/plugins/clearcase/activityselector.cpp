@@ -54,7 +54,7 @@ ActivitySelector::ActivitySelector(QWidget *parent) :
     QHBoxLayout *hboxLayout = new QHBoxLayout(this);
     hboxLayout->setContentsMargins(0, 0, 0, 0);
 
-    QLabel *lblActivity = new QLabel(tr("Select &Activity:"));
+    QLabel *lblActivity = new QLabel(tr("Select &activity:"));
     lblActivity->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     hboxLayout->addWidget(lblActivity);
 

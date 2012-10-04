@@ -42,6 +42,10 @@
             \o  \l{http://bazaar.canonical.com/}
             \o  \QC 2.2 and later
         \row
+            \o  ClearCase
+            \o  \l{http://www-01.ibm.com/software/awdtools/clearcase/}
+            \i  Experimental plugin in \QC 2.6
+        \row
             \o  CVS
             \o  \l{http://www.cvshome.org}
             \i
@@ -304,7 +308,45 @@
 
     \endtable
 
-    \section2 Using Additional CVS Functions
+    \section2 Using Additional ClearCase Functions
+
+    IBM Rational ClearCase is a version control, workspace management, parallel
+    development support, and build automation solution developed by IBM. The
+    ClearCase client plugin is an experimental plugin that you can enable by
+    selecting \gui Help > \gui {About Plugins} > \gui {Version Control} >
+    \gui ClearCase. The ClearCase client plugin is available on Linux and
+    Windows for accessing a ClearCase server.
+
+    The \gui ClearCase submenu contains the following additional items:
+
+    \table
+        \header
+            \o  Menu Item
+            \o  Description
+        \row
+            \o  \gui{Check In}
+            \o  Create a permanent new version of the current file or all files
+                in the versioned object base (VOB).
+        \row
+            \o  \gui{Check In Activity}
+            \o  Check in checked-out versions in the change set of the current
+                Unified Change Management (UCM) activity.
+        \row
+            \o  \gui{Check Out}
+            \o  Create a writable copy of a branch. If you check out files in a
+                UCM view, they are added to the change set of the UCM activity.
+        \row
+            \o  \gui{Undo Check Out}
+            \o  Cancel the checkout for a file and delete the checked-out
+                version.
+        \row
+            \o  \gui{Undo Hijack}
+            \o  Resolve hijacked files. If you change the read-only attribute of
+                a file that is loaded into a snapshot view and modify the file
+                without checking it out, you \e hijack the file.
+    \endtable
+
+\section2 Using Additional CVS Functions
 
     CVS is an open source version control system.
 

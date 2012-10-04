@@ -59,7 +59,7 @@ class PROJECTEXPLORER_EXPORT Target : public ProjectConfiguration
     Q_OBJECT
 
 public:
-    Target(Project *parent, Kit *p);
+    Target(Project *parent, Kit *k);
     ~Target();
 
     Project *project() const;

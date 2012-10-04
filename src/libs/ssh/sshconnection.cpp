@@ -365,8 +365,8 @@ void SshConnectionPrivate::handleServerId()
     if (newLinePos > 255 - 1) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Identification string too long.",
-            tr("Server identification string is %1 characters long, but the maximum "
-               "allowed length is 255.").arg(newLinePos + 1));
+            tr("Server identification string is %n characters long, but the maximum "
+               "allowed length is 255.", 0, newLinePos + 1));
     }
 
     const bool hasCarriageReturn = m_incomingData.at(newLinePos - 1) == '\r';

@@ -387,7 +387,7 @@ QString GerritPlugin::gitBinary()
     bool ok;
     const QString git = Git::Internal::GitPlugin::instance()->gitClient()->gitBinaryPath(&ok);
     if (!ok) {
-        VcsBase::VcsBaseOutputWindow::instance()->appendError(tr("git is not available."));
+        VcsBase::VcsBaseOutputWindow::instance()->appendError(tr("Git is not available."));
         return QString();
     }
     return git;

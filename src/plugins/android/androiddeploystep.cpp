@@ -255,7 +255,7 @@ bool AndroidDeployStep::deployPackage()
                    QStringList() << QLatin1String("-s") << m_deviceSerialNumber
                    << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/qt"));
 
-        writeOutput(tr("Deploy Qt libraries ... this may take some time, please wait"));
+        writeOutput(tr("Deploy Qt libraries. This may take some time, please wait."));
         const QString tempPath = QDir::tempPath() + QLatin1String("/android_qt_libs_") + m_packageName;
         AndroidPackageCreationStep::removeDirectory(tempPath);
         QStringList stripFiles;
@@ -299,13 +299,13 @@ bool AndroidDeployStep::deployPackage()
 
     if (!runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
                     QStringList() << QLatin1String("-s") << m_deviceSerialNumber << QLatin1String("install") << package)) {
-        raiseError(tr("Package installation failed"));
+        raiseError(tr("Package installation failed."));
         disconnect(deployProc, 0, this, 0);
         deployProc->deleteLater();
         return false;
     }
 
-    writeOutput(tr("Pulling files necessary for debugging"));
+    writeOutput(tr("Pulling files necessary for debugging."));
     runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
                QStringList() << QLatin1String("-s") << m_deviceSerialNumber
                << QLatin1String("pull") << QLatin1String("/system/bin/app_process")

@@ -34,7 +34,6 @@
 namespace Debugger {
 namespace Internal {
 
-const float CURRENT_SUPPORTED_VERSION = 2.0;
 const char V8REQUEST[] = "v8request";
 const char V8MESSAGE[] = "v8message";
 const char BREAKONSIGNAL[] = "breakonsignal";

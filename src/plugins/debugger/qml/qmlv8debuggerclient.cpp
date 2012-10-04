@@ -978,8 +978,6 @@ QmlV8DebuggerClient::~QmlV8DebuggerClient()
 
 void QmlV8DebuggerClient::startSession()
 {
-    //Supports v2.0 and above
-    QTC_ASSERT(serviceVersion() >= CURRENT_SUPPORTED_VERSION, return);
     flushSendBuffer();
     d->connect();
     //Query for the V8 version. This is
@@ -1635,7 +1633,7 @@ StackFrame QmlV8DebuggerClient::extractStackFrame(const QVariant &bodyVal, const
     QmlV8ObjectData objectData = d->extractData(body.value(_("func")), refsVal);
     QString functionName = objectData.value.toString();
     if (functionName.isEmpty())
-        functionName = tr("anonymous function");
+        functionName = tr("Anonymous Function");
     stackFrame.function = functionName;
 
     objectData = d->extractData(body.value(_("script")), refsVal);

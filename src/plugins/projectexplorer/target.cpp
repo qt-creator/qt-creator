@@ -188,6 +188,7 @@ void Target::handleKitUpdates(Kit *k)
     setDisplayName(k->displayName());
     setIcon(k->icon());
     updateDefaultDeployConfigurations();
+    updateDeviceState(); // in case the device changed...
     emit kitChanged();
 }
 

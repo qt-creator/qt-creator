@@ -81,12 +81,12 @@ private:
     void clearDetails();
     QString parseTestOutput();
     void fillInValues();
+    void updateDeviceFromUi();
 
     Ui::DeviceSettingsWidget *m_ui;
     DeviceManager * const m_deviceManager;
     DeviceManagerModel * const m_deviceManagerModel;
     NameValidator * const m_nameValidator;
-    bool m_saveSettingsRequested;
     QList<QPushButton *> m_additionalActionButtons;
     QSignalMapper * const m_additionalActionsMapper;
     IDeviceWidget *m_configWidget;

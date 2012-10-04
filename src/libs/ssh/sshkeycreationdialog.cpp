@@ -106,7 +106,7 @@ void SshKeyCreationDialog::saveKeys()
 {
     const QString parentDir = QFileInfo(privateKeyFilePath()).dir().path();
     if (!QDir::root().mkpath(parentDir)) {
-        QMessageBox::critical(this, tr("Failure To Save Key File"),
+        QMessageBox::critical(this, tr("Cannot Save Key File"),
             tr("Failed to create directory: '%1'.").arg(parentDir));
         return;
     }
@@ -114,7 +114,7 @@ void SshKeyCreationDialog::saveKeys()
     QFile privateKeyFile(privateKeyFilePath());
     if (!privateKeyFile.open(QIODevice::WriteOnly)
             || !privateKeyFile.write(m_keyGenerator->privateKey())) {
-        QMessageBox::critical(this, tr("Saving Private Key File failed"),
+        QMessageBox::critical(this, tr("Cannot Save Private Key File"),
             tr("The private key file could not be saved: %1").arg(privateKeyFile.errorString()));
         return;
     }
@@ -123,7 +123,7 @@ void SshKeyCreationDialog::saveKeys()
     QFile publicKeyFile(publicKeyFilePath());
     if (!publicKeyFile.open(QIODevice::WriteOnly)
             || !publicKeyFile.write(m_keyGenerator->publicKey())) {
-        QMessageBox::critical(this, tr("Saving Public Key File failed"),
+        QMessageBox::critical(this, tr("Cannot Save Public Key File"),
             tr("The public key file could not be saved: %1").arg(publicKeyFile.errorString()));
         return;
     }
