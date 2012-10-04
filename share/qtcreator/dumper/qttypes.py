@@ -721,7 +721,10 @@ def qdump__QObject(d, value):
         staticMetaObject = value["staticMetaObject"]
         d_ptr = value["d_ptr"]["d"].cast(privateType.pointer()).dereference()
         #warn("D_PTR: %s " % d_ptr)
-        objectName = d_ptr["objectName"]
+        try:
+            objectName = d_ptr["objectName"]
+        except: # Qt 5
+            objectName = d_ptr["extraData"].dereference()["objectName"]
     except:
         d.putPlainChildren(value)
         return
