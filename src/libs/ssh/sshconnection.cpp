@@ -82,7 +82,7 @@ namespace {
 
 
 SshConnectionParameters::SshConnectionParameters() :
-    timeout(0),  authenticationType(AuthenticationByKey), port(0), proxyType(NoProxy)
+    timeout(0),  authenticationType(AuthenticationByKey), port(0), options(SshIgnoreDefaultProxy)
 {
 }
 
@@ -226,8 +226,8 @@ SshConnectionPrivate::SshConnectionPrivate(SshConnection *conn,
       m_conn(conn)
 {
     setupPacketHandlers();
-    m_socket->setProxy(m_connParams.proxyType == SshConnectionParameters::DefaultProxy
-        ? QNetworkProxy::DefaultProxy : QNetworkProxy::NoProxy);
+    m_socket->setProxy((m_connParams.options & SshIgnoreDefaultProxy)
+            ? QNetworkProxy::NoProxy : QNetworkProxy::DefaultProxy);
     m_timeoutTimer.setSingleShot(true);
     m_timeoutTimer.setInterval(m_connParams.timeout * 1000);
     m_keepAliveTimer.setSingleShot(true);

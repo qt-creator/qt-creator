@@ -63,7 +63,7 @@ QnxDeviceConfigurationWizard::QnxDeviceConfigurationWizard(QWidget *parent) :
 IDevice::Ptr QnxDeviceConfigurationWizard::device()
 {
     QSsh::SshConnectionParameters sshParams;
-    sshParams.proxyType = QSsh::SshConnectionParameters::NoProxy;
+    sshParams.options = QSsh::SshIgnoreDefaultProxy;
     sshParams.host = m_setupPage->hostName();
     sshParams.userName = m_setupPage->userName();
     sshParams.port = 22;
