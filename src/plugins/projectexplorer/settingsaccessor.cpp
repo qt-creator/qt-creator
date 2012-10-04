@@ -622,7 +622,12 @@ QVariantMap SettingsAccessor::restoreSettings() const
         }
 
         // Verify environment.
-        if (!verifyEnvironmentId(settings.m_map.value(QLatin1String(ENVIRONMENT_ID_KEY)).toString())) {
+        const QString fileId = settings.m_map.value(QLatin1String(ENVIRONMENT_ID_KEY)).toString();
+        const QString creatorId = ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toString();
+        if (fileId.isEmpty() || fileId != creatorId) {
+            QString backup = fn + QLatin1Char('.') + fileId.mid(1, 7);
+            QFile::copy(fn, backup);
+
             // TODO tr, casing check
             QMessageBox msgBox(
                 QMessageBox::Question,
@@ -775,17 +780,6 @@ void SettingsAccessor::addVersionHandler(UserFileVersionHandler *handler)
     Q_ASSERT(m_handlers.count() == m_lastVersion - m_firstVersion + 1);
     for (int i = m_firstVersion; i < m_lastVersion; ++i)
         Q_ASSERT(m_handlers.contains(i));
-}
-
-bool SettingsAccessor::verifyEnvironmentId(const QString &id)
-{
-    QUuid fileEnvironmentId(id);
-    if (!fileEnvironmentId.isNull()
-        && fileEnvironmentId
-            != ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId) {
-        return false;
-    }
-    return true;
 }
 
 // -------------------------------------------------------------------------
