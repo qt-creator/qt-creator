@@ -45,6 +45,8 @@ public:
 private slots:
     void parentDir_data();
     void parentDir();
+    void isChildOf_data();
+    void isChildOf();
 };
 
 void tst_fileutils::parentDir_data()
@@ -90,6 +92,44 @@ void tst_fileutils::parentDir()
     if (!expectFailMessage.isEmpty())
         QEXPECT_FAIL("", expectFailMessage.toUtf8().constData(), Continue);
     QCOMPARE(result.toString(), parentPath);
+}
+
+void tst_fileutils::isChildOf_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<QString>("childPath");
+    QTest::addColumn<bool>("result");
+
+    QTest::newRow("empty path") << QString() << QString::fromLatin1("/tmp") << false;
+    QTest::newRow("root only") << QString::fromLatin1("/") << QString::fromLatin1("/tmp") << true;
+    QTest::newRow("/tmp/dir") << QString::fromLatin1("/tmp") << QString::fromLatin1("/tmp/dir") << true;
+    QTest::newRow("relative/path") << QString::fromLatin1("relative") << QString::fromLatin1("relative/path") << true;
+    QTest::newRow("/tmpdir") << QString::fromLatin1("/tmp") << QString::fromLatin1("/tmpdir") << false;
+    QTest::newRow("same") << QString::fromLatin1("/tmp/dir") << QString::fromLatin1("/tmp/dir") << false;
+
+    // Windows stuff:
+#ifdef Q_OS_WIN
+    QTest::newRow("C:/data") << QString::fromLatin1("C:/") << QString::fromLatin1("C:/data") << true;
+    QTest::newRow("C:/") << QString() << QString::fromLatin1("C:/") << false;
+    QTest::newRow("//./com1") << QString::fromLatin1("/") << QString::fromLatin1("//./com1") << true;
+    QTest::newRow("//?/path") << QString::fromLatin1("/") << QString::fromLatin1("//?/path") << true;
+    QTest::newRow("/Global??/UNC/host") << QString::fromLatin1("/Global??/UNC/host")
+                                        << QString::fromLatin1("/Global??/UNC/host/file") << true;
+    QTest::newRow("//server/directory/file")
+            << QString::fromLatin1("//server/directory") << QString::fromLatin1("//server/directory/file") << true;
+    QTest::newRow("//server/directory")
+            << QString::fromLatin1("//server") << QString::fromLatin1("//server/directory") << true;
+#endif
+}
+
+void tst_fileutils::isChildOf()
+{
+    QFETCH(QString, path);
+    QFETCH(QString, childPath);
+    QFETCH(bool, result);
+
+    bool res = FileName::fromString(childPath).isChildOf(FileName::fromString(path));
+    QCOMPARE(res, result);
 }
 
 QTEST_APPLESS_MAIN(tst_fileutils)
