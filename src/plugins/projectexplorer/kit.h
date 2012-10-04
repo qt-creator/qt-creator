@@ -64,6 +64,8 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &name);
 
+    QString fileSystemFriendlyName() const;
+
     bool isAutoDetected() const;
     Core::Id id() const;
 

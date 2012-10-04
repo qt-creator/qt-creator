@@ -53,6 +53,22 @@ const char ICON_KEY[] = "PE.Profile.Icon";
 
 namespace ProjectExplorer {
 
+// --------------------------------------------------------------------
+// Helper:
+// --------------------------------------------------------------------
+
+static QString cleanName(const QString &name)
+{
+    QString result = name;
+    result.replace(QRegExp("\\W"), QLatin1String("_"));
+    result.replace(QRegExp("_+"), "_"); // compact _
+    result.remove(QRegExp("^_*")); // remove leading _
+    result.remove(QRegExp("_+$")); // remove trailing _
+    if (result.isEmpty())
+        result = QLatin1String("unknown");
+    return result;
+}
+
 // -------------------------------------------------------------------------
 // KitPrivate
 // -------------------------------------------------------------------------
@@ -183,6 +199,22 @@ void Kit::setDisplayName(const QString &name)
         return;
     d->m_displayName = uniqueName;
     kitUpdated();
+}
+
+QString Kit::fileSystemFriendlyName() const
+{
+    QString name = cleanName(displayName());
+    foreach (Kit *i, KitManager::instance()->kits()) {
+        if (i == this)
+            continue;
+        if (name == cleanName(i->displayName())) {
+            // append part of the kit id: That should be unique enough;-)
+            // Leading { will be turned into _ which should be fine.
+            name = cleanName(name + QLatin1Char('_') + (id().toString().left(7)));
+            break;
+        }
+    }
+    return name;
 }
 
 bool Kit::isAutoDetected() const
