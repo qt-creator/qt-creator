@@ -640,7 +640,7 @@ def qdump__QMapNode(d, value):
             d.putSubItem("value", value["value"])
 
 
-def qdumpHelper__QMap(d, value, forceLong):
+def qdumpHelper__Qt4_QMap(d, value, forceLong):
     d_ptr = value["d"].dereference()
     e_ptr = value["e"].dereference()
     n = d_ptr["size"]
@@ -650,8 +650,8 @@ def qdumpHelper__QMap(d, value, forceLong):
     d.putItemCount(n)
     d.putNumChild(n)
     if d.isExpanded():
-        if n > 1000:
-            n = 1000
+        if n > 10000:
+            n = 10000
 
         keyType = templateArgument(value.type, 0)
         valueType = templateArgument(value.type, 1)
@@ -688,6 +688,66 @@ def qdumpHelper__QMap(d, value, forceLong):
                         d.putItem(node)
                 it = it.dereference()["forward"].dereference()
 
+
+def qdumpHelper__Qt5_QMap(d, value, forceLong):
+    d_ptr = value["d"].dereference()
+    n = d_ptr["size"]
+    check(0 <= n and n <= 100*1000*1000)
+    checkRef(d_ptr["ref"])
+
+    d.putItemCount(n)
+    d.putNumChild(n)
+    if d.isExpanded():
+        if n > 10000:
+            n = 10000
+
+        keyType = templateArgument(value.type, 0)
+        valueType = templateArgument(value.type, 1)
+        isCompact = mapCompact(d.currentItemFormat(), keyType, valueType)
+        nodeType = lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
+        if isCompact:
+            innerType = valueType
+        else:
+            innerType = nodeType
+
+        with Children(d, n, childType=innerType):
+            toDo = []
+            i = -1
+            node = d_ptr["header"]
+            left = node["left"]
+            if not isNull(left):
+                toDo.append(left.dereference())
+            right = node["right"]
+            if not isNull(right):
+                toDo.append(right.dereference())
+
+            while len(toDo):
+                node = toDo[0].cast(nodeType)
+                toDo = toDo[1:]
+                left = node["left"]
+                if not isNull(left):
+                    toDo.append(left.dereference())
+                right = node["right"]
+                if not isNull(right):
+                    toDo.append(right.dereference())
+                i += 1
+
+                with SubItem(d, i):
+                    if isCompact:
+                        if forceLong:
+                            d.putName("[%s] %s" % (i, node["key"]))
+                        else:
+                            d.putMapName(node["key"])
+                        d.putItem(node["value"])
+                    else:
+                        qdump__QMapNode(d, node)
+
+
+def qdumpHelper__QMap(d, value, forceLong):
+    if value["d"].dereference().type.fields()[0].name == "backward":
+        qdumpHelper__Qt4_QMap(d, value, forceLong)
+    else:
+        qdumpHelper__Qt5_QMap(d, value, forceLong)
 
 def qform__QMap():
     return mapForms()
