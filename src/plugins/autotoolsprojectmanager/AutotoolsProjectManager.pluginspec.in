@@ -1,6 +1,6 @@
 <plugin name=\"AutotoolsProjectManager\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_VERSION\" experimental=\"true\">
     <vendor>Openismus GmbH</vendor>
-    <copyright>(C) 2010 Openismus GmbH</copyright>
+    <copyright>(C) 2012 Openismus GmbH</copyright>
     <license>GNU Lesser General Public License Usage
     This file may be used under the terms of the GNU Lesser General Public
     License version 2.1 as published by the Free Software Foundation and
@@ -9,8 +9,8 @@
     Public License version 2.1 requirements will be met:
     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 
-    In addition, as a special exception, Nokia gives you certain additional
-    rights. These rights are described in the Nokia Qt LGPL Exception
+    In addition, as a special exception, Digia gives you certain additional
+    rights. These rights are described in the Digia Qt LGPL Exception
     version 1.1, included in the file LGPL_EXCEPTION.txt in this package.</license>
     <category>Build Systems</category>
     <description>Autotools project integration.</description>

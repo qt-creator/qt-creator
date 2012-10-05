@@ -1,10 +1,9 @@
-/****************************************************************************
+/**************************************************************************
+**
+** Copyright (c) 2012 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator
-**
-** Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).
-**
-** Contact: Nokia Corporation (info@qt.nokia.com)
 **
 **
 ** GNU Free Documentation License
@@ -14,10 +13,8 @@
 ** Foundation and appearing in the file included in the packaging of this
 ** file.
 **
-** If you have questions regarding the use of this file, please contact
-** Nokia at info@qt.nokia.com.
 **
-****************************************************************************/
+**************************************************************************/
 
 /*!
     \page plugin-specifications.html
