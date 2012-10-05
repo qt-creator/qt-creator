@@ -35,6 +35,7 @@
 #include "gcctoolchainfactories.h"
 #include "project.h"
 #include "projectexplorersettings.h"
+#include "removetaskhandler.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
 #include "target.h"
@@ -393,6 +394,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new CopyTaskHandler);
     addAutoReleasedObject(new ShowInEditorTaskHandler);
     addAutoReleasedObject(new VcsAnnotateTaskHandler);
+    addAutoReleasedObject(new RemoveTaskHandler);
     addAutoReleasedObject(new CoreListener);
 
     d->m_outputPane = new AppOutputPane;

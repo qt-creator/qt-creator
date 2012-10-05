@@ -178,6 +178,8 @@ QtcPlugin {
         "projectwizardpage.cpp",
         "projectwizardpage.h",
         "projectwizardpage.ui",
+        "removetaskhandler.cpp",
+        "removetaskhandler.h",
         "runconfiguration.cpp",
         "runconfiguration.h",
         "runconfigurationmodel.cpp",

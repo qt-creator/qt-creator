@@ -15,6 +15,7 @@ HEADERS += projectexplorer.h \
     gcctoolchain.h \
     projectexplorer_export.h \
     projectwindow.h \
+    removetaskhandler.h \
     kit.h \
     kitchooser.h \
     kitconfigwidget.h \
@@ -134,6 +135,7 @@ SOURCES += projectexplorer.cpp \
     clangparser.cpp \
     gcctoolchain.cpp \
     projectwindow.cpp \
+    removetaskhandler.cpp \
     kit.cpp \
     kitchooser.cpp \
     kitinformation.cpp \
