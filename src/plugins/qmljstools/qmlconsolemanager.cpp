@@ -88,6 +88,8 @@ QmlConsoleItem *QmlConsoleManager::rootItem() const
 void QmlConsoleManager::setDebuggerEngine(Debugger::DebuggerEngine *debuggerEngine)
 {
     d->debuggerEngine = debuggerEngine;
+    if (!debuggerEngine)
+        setContext(QString());
 }
 
 void QmlConsoleManager::setContext(const QString &context)
