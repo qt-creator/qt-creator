@@ -470,7 +470,7 @@ void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, 
 ModelNode QmlModelView::createQmlState(const QmlDesigner::PropertyListType &propertyList)
 {
 
-    QTC_ASSERT(rootModelNode().majorQtQuickVersion() < 3);
+    QTC_CHECK(rootModelNode().majorQtQuickVersion() < 3);
 
     if (rootModelNode().majorQtQuickVersion() > 1) {
         return createModelNode("QtQuick.State", 2, 0, propertyList);
