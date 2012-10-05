@@ -110,8 +110,8 @@ while (1) {
         next;
     }
 
-    unless ($hasGPL) {
-        print "$file\tERROR\tNo GPL license\n";
+    if ($hasGPL) {
+        print "$file\tERROR\tHas GPL license\n";
         next;
     }
 
