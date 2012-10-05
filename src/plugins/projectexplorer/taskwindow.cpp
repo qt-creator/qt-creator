@@ -68,7 +68,6 @@ public:
     TaskView(QWidget *parent = 0);
     ~TaskView();
     void resizeEvent(QResizeEvent *e);
-    void keyPressEvent(QKeyEvent *e);
 };
 
 class TaskWindowContext : public Core::IContext
@@ -189,16 +188,6 @@ void TaskView::resizeEvent(QResizeEvent *e)
     static_cast<TaskDelegate *>(itemDelegate())->emitSizeHintChanged(selectionModel()->currentIndex());
 }
 
-void TaskView::keyPressEvent(QKeyEvent *e)
-{
-    if (!e->modifiers() && e->key() == Qt::Key_Return) {
-        emit activated(currentIndex());
-        e->accept();
-        return;
-    }
-    QListView::keyPressEvent(e);
-}
-
 /////
 // TaskWindow
 /////
@@ -211,13 +200,13 @@ public:
     Internal::TaskView *m_listview;
     Internal::TaskWindowContext *m_taskWindowContext;
     QMenu *m_contextMenu;
-    QModelIndex m_contextMenuIndex;
     ITaskHandler *m_defaultHandler;
     QToolButton *m_filterWarningsButton;
     QToolButton *m_categoriesButton;
     QMenu *m_categoriesMenu;
     TaskHub *m_taskHub;
     int m_badgeCount;
+    QList<QAction *> m_actions;
 };
 
 static QToolButton *createFilterButton(QIcon icon, const QString &toolTip,
@@ -261,17 +250,14 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
     connect(d->m_listview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             tld, SLOT(currentChanged(QModelIndex,QModelIndex)));
 
+    connect(d->m_listview->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this, SLOT(currentChanged(QModelIndex)));
     connect(d->m_listview, SIGNAL(activated(QModelIndex)),
             this, SLOT(triggerDefaultHandler(QModelIndex)));
 
     d->m_contextMenu = new QMenu(d->m_listview);
-    connect(d->m_contextMenu, SIGNAL(triggered(QAction*)),
-            this, SLOT(contextMenuEntryTriggered(QAction*)));
 
-    d->m_listview->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    connect(d->m_listview, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(showContextMenu(QPoint)));
+    d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     d->m_filterWarningsButton = createFilterButton(d->m_model->taskTypeIcon(Task::Warning),
                                                    tr("Show Warnings"),
@@ -315,12 +301,48 @@ TaskWindow::TaskWindow(TaskHub *taskhub) : d(new TaskWindowPrivate)
 TaskWindow::~TaskWindow()
 {
     Core::ICore::removeContextObject(d->m_taskWindowContext);
-    cleanContextMenu();
     delete d->m_filterWarningsButton;
     delete d->m_listview;
     delete d->m_filter;
     delete d->m_model;
     delete d;
+}
+
+static ITaskHandler *handler(QAction *action)
+{
+    return qobject_cast<ITaskHandler *>(action->data().value<QObject *>());
+}
+
+void TaskWindow::delayedInitialization()
+{
+    static bool alreadyDone = false;
+    if (alreadyDone)
+        return;
+
+    alreadyDone = true;
+
+    QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::getObjects<ITaskHandler>();
+    foreach (ITaskHandler *h, handlers) {
+        if (h->isDefaultHandler() && !d->m_defaultHandler)
+            d->m_defaultHandler = h;
+
+        QAction *action = h->createAction(this);
+        QTC_ASSERT(action, continue);
+        action->setData(qVariantFromValue(qobject_cast<QObject*>(h)));
+        connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+        d->m_actions << action;
+
+        Core::Id id = h->actionManagerId();
+        if (id.isValid()) {
+            Core::Command *cmd = Core::ActionManager::instance()
+                    ->registerAction(action, id, d->m_taskWindowContext->context(), true);
+            action = cmd->action();
+        }
+        d->m_listview->addAction(action);
+    }
+
+    // Disable everything for now:
+    currentChanged(QModelIndex());
 }
 
 QList<QWidget*> TaskWindow::toolBarWidgets() const
@@ -382,8 +404,19 @@ void TaskWindow::setCategoryVisibility(const Core::Id &categoryId, bool visible)
     setBadgeNumber(d->m_badgeCount);
 }
 
-void TaskWindow::visibilityChanged(bool /* b */)
+void TaskWindow::currentChanged(const QModelIndex &index)
 {
+    const Task task = index.isValid() ? d->m_filter->task(index) : Task();
+    foreach (QAction *action, d->m_actions) {
+        ITaskHandler *h = handler(action);
+        action->setEnabled((task.isNull() || !h) ? false : h->canHandle(task));
+    }
+}
+
+void TaskWindow::visibilityChanged(bool visible)
+{
+    if (visible)
+        delayedInitialization();
 }
 
 void TaskWindow::addCategory(const Core::Id &categoryId, const QString &displayName, bool visible)
@@ -470,20 +503,9 @@ void TaskWindow::openTask(unsigned int id)
 
 void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid() || !d->m_defaultHandler)
         return;
 
-    // Find a default handler to use:
-    if (!d->m_defaultHandler) {
-        QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::getObjects<ITaskHandler>();
-        foreach(ITaskHandler *handler, handlers) {
-            if (handler->isDefaultHandler()) {
-                d->m_defaultHandler = handler;
-                break;
-            }
-        }
-    }
-    Q_ASSERT(d->m_defaultHandler);
     Task task(d->m_filter->task(index));
     if (task.isNull())
         return;
@@ -496,49 +518,21 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
     }
 }
 
-void TaskWindow::showContextMenu(const QPoint &position)
+void TaskWindow::actionTriggered()
 {
-    QModelIndex index = d->m_listview->indexAt(position);
-    if (!index.isValid())
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (!action || !action->isEnabled())
         return;
-    d->m_contextMenuIndex = index;
-    cleanContextMenu();
+    ITaskHandler *h = handler(action);
+    if (!h)
+        return;
 
+    QModelIndex index = d->m_listview->selectionModel()->currentIndex();
     Task task = d->m_filter->task(index);
     if (task.isNull())
         return;
 
-    QList<ITaskHandler *> handlers = ExtensionSystem::PluginManager::getObjects<ITaskHandler>();
-    foreach(ITaskHandler *handler, handlers) {
-        if (handler == d->m_defaultHandler)
-            continue;
-        QAction * action = handler->createAction(d->m_contextMenu);
-        action->setEnabled(handler->canHandle(task));
-        action->setData(qVariantFromValue(qobject_cast<QObject*>(handler)));
-        d->m_contextMenu->addAction(action);
-    }
-    d->m_contextMenu->popup(d->m_listview->mapToGlobal(position));
-}
-
-void TaskWindow::contextMenuEntryTriggered(QAction *action)
-{
-    if (action->isEnabled()) {
-        Task task = d->m_filter->task(d->m_contextMenuIndex);
-        if (task.isNull())
-            return;
-
-        ITaskHandler *handler = qobject_cast<ITaskHandler*>(action->data().value<QObject*>());
-        if (!handler)
-            return;
-        handler->handle(task);
-    }
-}
-
-void TaskWindow::cleanContextMenu()
-{
-    QList<QAction *> actions = d->m_contextMenu->actions();
-    qDeleteAll(actions);
-    d->m_contextMenu->clear();
+    h->handle(task);
 }
 
 void TaskWindow::setShowWarnings(bool show)

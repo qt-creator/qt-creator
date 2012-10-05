@@ -55,6 +55,8 @@ public:
     TaskWindow(ProjectExplorer::TaskHub *taskHub);
     virtual ~TaskWindow();
 
+    void delayedInitialization();
+
     int taskCount(const Core::Id &category = Core::Id()) const;
     int warningTaskCount(const Core::Id &category = Core::Id()) const;
     int errorTaskCount(const Core::Id &category = Core::Id()) const;
@@ -92,16 +94,15 @@ private slots:
     void openTask(unsigned int id);
     void clearTasks(const Core::Id &categoryId);
     void setCategoryVisibility(const Core::Id &categoryId, bool visible);
+    void currentChanged(const QModelIndex &index);
 
     void triggerDefaultHandler(const QModelIndex &index);
-    void showContextMenu(const QPoint &position);
-    void contextMenuEntryTriggered(QAction *);
+    void actionTriggered();
     void setShowWarnings(bool);
     void updateCategoriesMenu();
     void filterCategoryTriggered(QAction *action);
 
 private:
-    void cleanContextMenu();
     int sizeHintForColumn(int column) const;
 
     TaskWindowPrivate *d;
