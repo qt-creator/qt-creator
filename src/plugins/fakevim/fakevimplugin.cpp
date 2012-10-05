@@ -843,6 +843,9 @@ private slots:
     void windowCommand(int key);
     void find(bool reverse);
     void findNext(bool reverse);
+    void foldToggle(int depth);
+    void foldAll(bool fold);
+    void fold(int depth, bool fold);
     void showSettingsDialog();
     void maybeReadVimRc();
     void setBlockSelection(bool);
@@ -1348,6 +1351,96 @@ void FakeVimPluginPrivate::findNext(bool reverse)
         triggerAction(Find::Constants::FIND_NEXT);
 }
 
+void FakeVimPluginPrivate::foldToggle(int depth)
+{
+    IEditor *ieditor = EditorManager::currentEditor();
+    BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(ieditor->widget());
+    QTC_ASSERT(editor != 0, return);
+
+    QTextBlock block = editor->textCursor().block();
+    fold(depth, !BaseTextDocumentLayout::isFolded(block));
+}
+
+void FakeVimPluginPrivate::foldAll(bool fold)
+{
+    IEditor *ieditor = EditorManager::currentEditor();
+    BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(ieditor->widget());
+    QTC_ASSERT(editor != 0, return);
+
+    QTextDocument *doc = editor->document();
+    BaseTextDocumentLayout *documentLayout =
+            qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    QTC_ASSERT(documentLayout != 0, return);
+
+    QTextBlock block = editor->document()->firstBlock();
+    while (block.isValid()) {
+        BaseTextDocumentLayout::doFoldOrUnfold(block, !fold);
+        block = block.next();
+    }
+
+    documentLayout->requestUpdate();
+    documentLayout->emitDocumentSizeChanged();
+}
+
+void FakeVimPluginPrivate::fold(int depth, bool fold)
+{
+    IEditor *ieditor = EditorManager::currentEditor();
+    BaseTextEditorWidget *editor = qobject_cast<BaseTextEditorWidget *>(ieditor->widget());
+    QTC_ASSERT(editor != 0, return);
+
+    QTextDocument *doc = editor->document();
+    BaseTextDocumentLayout *documentLayout =
+            qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    QTC_ASSERT(documentLayout != 0, return);
+
+    QTextBlock block = editor->textCursor().block();
+    int indent = BaseTextDocumentLayout::foldingIndent(block);
+    if (fold) {
+        if (BaseTextDocumentLayout::isFolded(block)) {
+            while (block.isValid() && (BaseTextDocumentLayout::foldingIndent(block) >= indent
+                || !block.isVisible())) {
+                block = block.previous();
+            }
+        }
+        if (BaseTextDocumentLayout::canFold(block))
+            ++indent;
+        while (depth != 0 && block.isValid()) {
+            const int indent2 = BaseTextDocumentLayout::foldingIndent(block);
+            if (BaseTextDocumentLayout::canFold(block) && indent2 < indent) {
+                BaseTextDocumentLayout::doFoldOrUnfold(block, false);
+                if (depth > 0)
+                    --depth;
+                indent = indent2;
+            }
+            block = block.previous();
+        }
+    } else {
+        if (BaseTextDocumentLayout::isFolded(block)) {
+            if (depth < 0) {
+                // recursively open fold
+                while (depth < 0 && block.isValid()
+                    && BaseTextDocumentLayout::foldingIndent(block) >= indent) {
+                    if (BaseTextDocumentLayout::canFold(block)) {
+                        BaseTextDocumentLayout::doFoldOrUnfold(block, true);
+                        if (depth > 0)
+                            --depth;
+                    }
+                    block = block.next();
+                }
+            } else {
+                if (BaseTextDocumentLayout::canFold(block)) {
+                    BaseTextDocumentLayout::doFoldOrUnfold(block, true);
+                    if (depth > 0)
+                        --depth;
+                }
+            }
+        }
+    }
+
+    documentLayout->requestUpdate();
+    documentLayout->emitDocumentSizeChanged();
+}
+
 // This class defers deletion of a child FakeVimHandler using deleteLater().
 class DeferredDeleter : public QObject
 {
@@ -1420,6 +1513,12 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
         SLOT(find(bool)));
     connect(handler, SIGNAL(findNextRequested(bool)),
         SLOT(findNext(bool)));
+    connect(handler, SIGNAL(foldToggle(int)),
+        SLOT(foldToggle(int)));
+    connect(handler, SIGNAL(foldAll(bool)),
+        SLOT(foldAll(bool)));
+    connect(handler, SIGNAL(fold(int,bool)),
+        SLOT(fold(int,bool)));
 
     connect(handler, SIGNAL(handleExCommandRequested(bool*,ExCommand)),
         SLOT(handleExCommand(bool*,ExCommand)));

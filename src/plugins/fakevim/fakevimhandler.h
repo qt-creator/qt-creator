@@ -151,6 +151,9 @@ signals:
     void handleExCommandRequested(bool *handled, const ExCommand &cmd);
     void requestSetBlockSelection(bool on);
     void requestHasBlockSelection(bool *on);
+    void foldToggle(int depth);
+    void foldAll(bool fold);
+    void fold(int depth, bool fold);
 
 public:
     class Private;
