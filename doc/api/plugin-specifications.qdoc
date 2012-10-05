@@ -177,7 +177,7 @@
     \list
         \o If the dependency can be resolved, the plugin and
            its dependency are loaded and initialized as for \c required dependencies.
-        \o If the dependency can not be resolved, the plugin is loaded and initialized
+        \o If the dependency cannot be resolved, the plugin is loaded and initialized
            as if the dependency was not declared at all.
     \endlist
 

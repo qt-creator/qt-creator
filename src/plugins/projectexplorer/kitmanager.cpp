@@ -285,7 +285,7 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
 
     PersistentSettingsReader reader;
     if (!reader.load(fileName)) {
-        qWarning("Warning: Failed to read \"%s\", can not restore kits!", qPrintable(fileName.toUserOutput()));
+        qWarning("Warning: Failed to read \"%s\", cannot restore kits!", qPrintable(fileName.toUserOutput()));
         return result;
     }
     QVariantMap data = reader.restoreValues();
@@ -293,7 +293,7 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
     // Check version:
     int version = data.value(QLatin1String(KIT_FILE_VERSION_KEY), 0).toInt();
     if (version < 1) {
-        qWarning("Warning: Kit file version %d not supported, can not restore kits!", version);
+        qWarning("Warning: Kit file version %d not supported, cannot restore kits!", version);
         return result;
     }
 
