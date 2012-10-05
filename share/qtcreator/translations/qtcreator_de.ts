@@ -11020,7 +11020,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>&amp;Commit</source>
-        <translation>&amp;Abgeben</translation>
+        <translation>Ab&amp;geben</translation>
     </message>
     <message>
         <source>Check All</source>
@@ -11038,7 +11038,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Check a&amp;ll</source>
-        <translation>&amp;Alle markieren</translation>
+        <translation>A&amp;lle markieren</translation>
     </message>
 </context>
 <context>
