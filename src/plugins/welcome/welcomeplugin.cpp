@@ -100,7 +100,6 @@ public:
 
     bool eventFilter(QObject *, QEvent *);
 public slots:
-    void sendFeedback();
     void newProject();
     void openProject();
 
@@ -306,12 +305,6 @@ void WelcomeMode::welcomePluginAdded(QObject *obj)
         QDeclarativeContext *ctx = m_welcomePage->rootContext();
         ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
     }
-}
-
-void WelcomeMode::sendFeedback()
-{
-    QDesktopServices::openUrl(QUrl(QLatin1String(
-        "http://qt.nokia.com/forms/feedback-forms/qt-creator-user-feedback/view")));
 }
 
 void WelcomeMode::newProject()
