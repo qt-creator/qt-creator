@@ -75,7 +75,6 @@ public:
 
 signals:
     void expressionResult();
-    void selectionChanged();
 
 private slots:
     void clientStatusChanged(QmlDebug::ClientStatus status);

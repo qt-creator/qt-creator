@@ -53,6 +53,7 @@ namespace Debugger {
 namespace Internal {
 
 class QmlAdapter;
+class WatchTreeView;
 
 class QmlEngine : public DebuggerEngine, QmlJS::IScriptEvaluator
 {
@@ -182,6 +183,8 @@ private:
     bool canEvaluateScript(const QString &script);
     bool adjustBreakpointLineAndColumn(const QString &filePath, quint32 *line,
                                        quint32 *column, bool *valid);
+
+    WatchTreeView *inspectorTreeView() const;
 
     QmlAdapter m_adapter;
     QmlInspectorAdapter m_inspectorAdapter;

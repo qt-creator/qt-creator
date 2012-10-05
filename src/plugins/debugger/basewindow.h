@@ -53,6 +53,7 @@ public:
     void setModel(QAbstractItemModel *model) { m_treeView->setModel(model); }
     QHeaderView *header() const { return m_treeView->header(); }
     QAbstractItemModel *model() const { return m_treeView->model(); }
+    QTreeView *treeView() const { return m_treeView; }
 
 private:
     QTreeView *m_treeView;

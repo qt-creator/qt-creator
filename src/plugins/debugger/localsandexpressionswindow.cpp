@@ -35,6 +35,9 @@
 #include <QSplitter>
 #include <QStackedWidget>
 
+const int LOCAL_WIDGET_INDEX = 0;
+const int INSPECTOR_WIDGET_INDEX = 1;
+
 namespace Debugger {
 namespace Internal {
 
@@ -79,7 +82,13 @@ void LocalsAndExpressionsWindow::setShowLocals(bool showLocals)
 
 void LocalsAndExpressionsWindow::showLocals()
 {
-    m_localsAndInspector->setCurrentIndex(m_showLocals ? 0 : 1);
+    m_localsAndInspector->setCurrentIndex(m_showLocals ? LOCAL_WIDGET_INDEX
+                                                       : INSPECTOR_WIDGET_INDEX);
+}
+
+QWidget *LocalsAndExpressionsWindow::inspectorWidget() const
+{
+    return m_localsAndInspector->widget(INSPECTOR_WIDGET_INDEX);
 }
 
 } // namespace Internal

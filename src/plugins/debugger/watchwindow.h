@@ -58,6 +58,9 @@ public slots:
     void watchExpression(const QString &exp, const QString &name);
     void handleItemIsExpanded(const QModelIndex &idx);
 
+signals:
+    void currentIndexChanged(const QModelIndex &currentIndex);
+
 private:
     Q_SLOT void resetHelper();
     Q_SLOT void expandNode(const QModelIndex &idx);
@@ -70,6 +73,7 @@ private:
     void dragMoveEvent(QDragMoveEvent *ev);
     void mouseDoubleClickEvent(QMouseEvent *ev);
     bool event(QEvent *ev);
+    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
     void editItem(const QModelIndex &idx);
     void resetHelper(const QModelIndex &idx);

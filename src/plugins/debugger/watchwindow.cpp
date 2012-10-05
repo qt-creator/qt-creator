@@ -972,6 +972,11 @@ bool WatchTreeView::event(QEvent *ev)
     return BaseTreeView::event(ev);
 }
 
+void WatchTreeView::currentChanged(const QModelIndex &current, const QModelIndex &)
+{
+    emit currentIndexChanged(current);
+}
+
 void WatchTreeView::editItem(const QModelIndex &idx)
 {
     Q_UNUSED(idx) // FIXME

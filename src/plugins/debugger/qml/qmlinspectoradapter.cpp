@@ -509,12 +509,7 @@ void QmlInspectorAdapter::selectObject(const ObjectReference &obj,
     if (target == EditorTarget)
         gotoObjectReferenceDefinition(obj.source());
 
-    if (!agent()->selectObjectInTree(obj.debugId()))
-        return;
-
-    m_currentSelectedDebugId = obj.debugId();
-    m_currentSelectedDebugName = agent()->displayName(obj.debugId());
-    emit selectionChanged();
+    agent()->selectObjectInTree(obj.debugId());
 }
 
 void QmlInspectorAdapter::deletePreviews()

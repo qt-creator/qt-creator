@@ -41,6 +41,8 @@
 #include "debuggerrunner.h"
 #include "debuggerstringutils.h"
 #include "debuggertooltipmanager.h"
+#include "localsandexpressionswindow.h"
+#include "watchwindow.h"
 
 #include "breakhandler.h"
 #include "moduleshandler.h"
@@ -81,6 +83,8 @@
 
 #include <QTcpSocket>
 #include <QHostAddress>
+
+#include <QDockWidget>
 
 #define DEBUG_QML 1
 #if DEBUG_QML
@@ -292,7 +296,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
             SLOT(updateCurrentContext()));
     connect(this->stackHandler(), SIGNAL(currentIndexChanged()),
             SLOT(updateCurrentContext()));
-    connect(&m_inspectorAdapter, SIGNAL(selectionChanged()),
+    connect(inspectorTreeView(), SIGNAL(currentIndexChanged(QModelIndex)),
             SLOT(updateCurrentContext()));
     connect(m_inspectorAdapter.agent(), SIGNAL(
                 expressionResult(quint32,QVariant)),
@@ -1137,9 +1141,23 @@ void QmlEngine::documentUpdated(QmlJS::Document::Ptr doc)
 
 void QmlEngine::updateCurrentContext()
 {
-    const QString context = state() == InferiorStopOk ?
-                stackHandler()->currentFrame().function
-              : m_inspectorAdapter.currentSelectedDisplayName();
+    QString context;
+    if (state() == InferiorStopOk) {
+        context = stackHandler()->currentFrame().function;
+    } else {
+        QModelIndex currentIndex = inspectorTreeView()->currentIndex();
+        const WatchData *currentData = watchHandler()->watchData(currentIndex);
+        const WatchData *parentData = watchHandler()->watchData(currentIndex.parent());
+        const WatchData *grandParentData = watchHandler()->watchData(
+                    currentIndex.parent().parent());
+        if (currentData->id != parentData->id)
+            context = currentData->name;
+        else if (parentData->id != grandParentData->id)
+            context = parentData->name;
+        else
+            context = grandParentData->name;
+    }
+
     QmlJS::ConsoleManagerInterface *consoleManager = qmlConsoleManager();
     if (consoleManager)
         consoleManager->setContext(tr("Context: ").append(context));
@@ -1187,8 +1205,9 @@ bool QmlEngine::evaluateScript(const QString &expression)
     // Evaluate expression based on engine state
     // When engine->state() == InferiorStopOk, the expression is sent to debuggerClient.
     if (state() != InferiorStopOk) {
+        QModelIndex currentIndex = inspectorTreeView()->currentIndex();
         QmlInspectorAgent *agent = m_inspectorAdapter.agent();
-        quint32 queryId = agent->queryExpressionResult(m_inspectorAdapter.currentSelectedDebugId(),
+        quint32 queryId = agent->queryExpressionResult(watchHandler()->watchData(currentIndex)->id,
                                                        expression);
         if (queryId) {
             queryIds << queryId;
@@ -1331,6 +1350,15 @@ bool QmlEngine::adjustBreakpointLineAndColumn(
         }
     }
     return success;
+}
+
+WatchTreeView *QmlEngine::inspectorTreeView() const
+{
+    DebuggerMainWindow *dw = qobject_cast<DebuggerMainWindow *>(debuggerCore()->mainWindow());
+    LocalsAndExpressionsWindow *leW = qobject_cast<LocalsAndExpressionsWindow *>(
+                dw->dockWidget(QLatin1String(Constants::DOCKWIDGET_WATCHERS))->widget());
+    WatchWindow *inspectorWindow = qobject_cast<WatchWindow *>(leW->inspectorWidget());
+    return qobject_cast<WatchTreeView *>(inspectorWindow->treeView());
 }
 
 DebuggerEngine *createQmlEngine(const DebuggerStartParameters &sp)

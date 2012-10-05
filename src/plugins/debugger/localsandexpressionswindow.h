@@ -50,6 +50,7 @@ public:
             QWidget *returnWidget, QWidget *watchers, QWidget *parent = 0);
 
     void setShowLocals(bool showLocals);
+    QWidget *inspectorWidget() const;
 
 private slots:
     void showLocals();
