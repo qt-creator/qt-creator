@@ -260,10 +260,8 @@ void TargetSetupPage::setImportSearch(bool b)
 void TargetSetupPage::setupWidgets()
 {
     // Known profiles:
-    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits(m_requiredMatcher)) {
-        cleanKit(k); // clean up broken kit added by some development versions of QtC
+    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits(m_requiredMatcher))
         addWidget(k);
-    }
 
     // Setup import widget:
     m_baseLayout->addWidget(m_importWidget);
@@ -338,11 +336,13 @@ void TargetSetupPage::addProject(ProjectExplorer::Kit *k, const QString &path)
     if (!k->hasValue(KIT_IS_TEMPORARY))
         return;
 
-    QStringList profiles = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
-    profiles.append(path);
-    m_ignoreUpdates = true;
-    k->setValue(KIT_IS_TEMPORARY, profiles);
-    m_ignoreUpdates = false;
+    QStringList projects = k->value(TEMPORARY_OF_PROJECTS, QStringList()).toStringList();
+    if (!projects.contains(path)) {
+        projects.append(path);
+        m_ignoreUpdates = true;
+        k->setValue(TEMPORARY_OF_PROJECTS, projects);
+        m_ignoreUpdates = false;
+    }
 }
 
 void TargetSetupPage::removeProject(ProjectExplorer::Kit *k, const QString &path)
@@ -354,9 +354,10 @@ void TargetSetupPage::removeProject(ProjectExplorer::Kit *k, const QString &path
     if (projects.contains(path)) {
         projects.removeOne(path);
         m_ignoreUpdates = true;
-        k->setValue(TEMPORARY_OF_PROJECTS, projects);
         if (projects.isEmpty())
             ProjectExplorer::KitManager::instance()->deregisterKit(k);
+        else
+            k->setValue(TEMPORARY_OF_PROJECTS, projects);
         m_ignoreUpdates = false;
     }
 }
@@ -412,14 +413,26 @@ void TargetSetupPage::import(const Utils::FileName &path, const bool silent)
         // find interesting makefiles
         QString makefile = path.toString() + QLatin1Char('/') + file;
         Utils::FileName qmakeBinary = QtSupport::QtVersionManager::findQMakeBinaryFromMakefile(makefile);
-        if (qmakeBinary.isEmpty())
+        QFileInfo fi = qmakeBinary.toFileInfo();
+        Utils::FileName canonicalQmakeBinary = Utils::FileName::fromString(fi.canonicalFilePath());
+        if (canonicalQmakeBinary.isEmpty())
             continue;
         if (QtSupport::QtVersionManager::makefileIsFor(makefile, m_proFilePath) != QtSupport::QtVersionManager::SameProject)
             continue;
 
         // Find version:
-        version = vm->qtVersionForQMakeBinary(qmakeBinary);
+        foreach (QtSupport::BaseQtVersion *v, vm->versions()) {
+            QFileInfo vfi = v->qmakeCommand().toFileInfo();
+            Utils::FileName current = Utils::FileName::fromString(vfi.canonicalFilePath());
+            if (current == canonicalQmakeBinary) {
+                version = v;
+                break;
+            }
+        }
+
+        // Create a new version if not found:
         if (!version) {
+            // Do not use the canonical path here...
             version = QtSupport::QtVersionFactory::createQtVersionFromQMakePath(qmakeBinary);
             if (!version)
                 continue;
@@ -544,13 +557,13 @@ void TargetSetupPage::handleKitAddition(ProjectExplorer::Kit *k)
 
 void TargetSetupPage::handleKitRemoval(ProjectExplorer::Kit *k)
 {
-    if (m_ignoreUpdates)
-        return;
-
     QtSupport::QtVersionManager *vm = QtSupport::QtVersionManager::instance();
     QtSupport::BaseQtVersion *version = vm->version(k->value(QT_IS_TEMPORARY, -1).toInt());
     if (version)
         vm->removeVersion(version);
+
+    if (m_ignoreUpdates)
+        return;
 
     removeWidget(k);
     updateVisibility();

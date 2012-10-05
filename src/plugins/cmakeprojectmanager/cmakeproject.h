@@ -110,6 +110,7 @@ signals:
 
 protected:
     bool fromMap(const QVariantMap &map);
+    bool setupTarget(ProjectExplorer::Target *t);
 
     // called by CMakeBuildSettingsWidget
     void changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory);

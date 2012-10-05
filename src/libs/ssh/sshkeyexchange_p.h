@@ -33,6 +33,7 @@
 
 #include <QByteArray>
 #include <QScopedPointer>
+#include <QSharedPointer>
 
 namespace Botan {
 class DH_PrivateKey;
@@ -71,7 +72,7 @@ private:
     QByteArray m_serverId;
     QByteArray m_clientKexInitPayload;
     QByteArray m_serverKexInitPayload;
-    QScopedPointer<Botan::DH_PrivateKey> m_dhKey;
+    QSharedPointer<Botan::DH_PrivateKey> m_dhKey;
     QByteArray m_k;
     QByteArray m_h;
     QByteArray m_serverHostKeyAlgo;

@@ -113,7 +113,6 @@ public:
 
     QVariantMap toMap() const;
 
-    void createDefaultSetup();
     void updateDefaultBuildConfigurations();
     void updateDefaultDeployConfigurations();
     void updateDefaultRunConfigurations();

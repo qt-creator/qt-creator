@@ -825,7 +825,7 @@ void PropertyEditor::modelAttached(Model *model)
     resetView();
     if (!m_setupCompleted) {
         m_singleShotTimer->setSingleShot(true);
-        m_singleShotTimer->setInterval(1000);
+        m_singleShotTimer->setInterval(100);
         connect(m_singleShotTimer, SIGNAL(timeout()), this, SLOT(setupPanes()));
         m_singleShotTimer->start();
     }

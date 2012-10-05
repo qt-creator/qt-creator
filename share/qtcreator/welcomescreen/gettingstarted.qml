@@ -60,16 +60,6 @@ Rectangle {
         anchors.top: parent.top
         anchors.topMargin: 0
 
-        Feedback {
-            id: feedback
-
-            x: 851
-            y: 424
-            anchors.right: parent.right
-            anchors.rightMargin: 22
-
-        }
-
         GettingStartedItem {
             x: 688
             y: 83

@@ -488,6 +488,7 @@ FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
 
     FileName baseMkspecDir = FileName::fromUserInput(
             version->qmakeProperty("QT_HOST_DATA") + QLatin1String("/mkspecs"));
+    baseMkspecDir = Utils::FileName::fromString(baseMkspecDir.toFileInfo().canonicalFilePath());
 
     // if the path is relative it can be
     // relative to the working directory (as found in the Makefiles)

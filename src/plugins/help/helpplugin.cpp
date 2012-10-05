@@ -1172,7 +1172,7 @@ void HelpPlugin::handleHelpRequest(const QUrl &url)
         if (address.startsWith(HelpViewer::NsNokia)
             || address.startsWith(HelpViewer::NsTrolltech)) {
                 // local help not installed, resort to external web help
-                QString urlPrefix = QLatin1String("http://doc.qt.nokia.com/");
+                QString urlPrefix = QLatin1String("http://doc.qt.digia.com/");
                 if (url.authority() == QLatin1String("com.nokia.qtcreator")) {
                     urlPrefix.append(QString::fromLatin1("qtcreator"));
                 } else {

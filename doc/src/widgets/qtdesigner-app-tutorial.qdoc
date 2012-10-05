@@ -55,14 +55,15 @@
         \o  In the \gui{Name} field, type \bold {TextFinder}.
 
         \o  In the \gui {Create in} field, enter the path for the project files.
-            For example, \c {C:\Qt\examples}, and then click \gui{Next}.
+            For example, \c {C:\Qt\examples}, and then click \gui{Next} (on
+            Windows and Linux) or \gui Continue (on Mac OS).
 
             The \gui {Kit Selection} dialog opens.
 
             \image qtcreator-new-project-qt-versions-qt-gui.png "Kit Selection dialog"
 
         \o  Select build and run \l{glossary-buildandrun-kit}{kits} for your project,
-            and click \gui{Next}.
+            and click \gui Next or \gui Continue.
 
             \note If only one kit is specified in \gui Tools > \gui Options >
             \gui {Build & Run} > \gui Kits, this dialog is
@@ -81,14 +82,14 @@
            \note The \gui{Header file}, \gui{Source file} and \gui{Form file}
             fields are automatically updated to match the name of the class.
 
-        \o  Click \gui{Next}.
+        \o  Click \gui Next or \gui Continue.
 
             The \gui{Project Management} dialog opens.
 
             \image qtcreator-new-project-summary-qt-gui.png "Project Management dialog"
 
-        \o  Review the project settings, and click \gui{Finish} to create the
-            project.
+        \o  Review the project settings, and click \gui{Finish} (on Windows and
+            Linux) or \gui Done (on Mac OS) to create the project.
 
     \endlist
 
@@ -155,9 +156,10 @@
 
             \image qtcreator-textfinder-objectname.png "Changing object names"
 
-        \o  Press \key {Ctrl+A} to select the widgets and click
-            \gui{Lay out Horizontally} (or press \gui{Ctrl+H}) to apply a
-            horizontal layout (QHBoxLayout).
+        \o  Press \key {Ctrl+A} (or \key {Cmd+A}) to select the widgets and
+            click \gui{Lay out Horizontally} (or press \gui{Ctrl+H} on Linux or
+            Windows or \key {Ctrl+Shift+H} on Mac OS) to apply a horizontal
+            layout (QHBoxLayout).
 
             \image qtcreator-texfinder-ui-horizontal-layout.png "Applying horizontal layout"
 
@@ -192,7 +194,7 @@
 
             \endlist
 
-        \o  Press \gui{Ctrl+S} to save your changes.
+        \o  Press \gui{Ctrl+S} (or \key {Cmd+S}) to save your changes.
 
     \endlist
 
@@ -289,7 +291,7 @@
         \o  In the \gui{Name} field, enter \bold{textfinder}.
 
         \o  In the \gui{Path} field, enter \c{C:\Qt\examples\TextFinder},
-            and click \gui{Next}.
+            and click \gui Next or \gui Continue.
 
             The \gui{Project Management} dialog opens.
 
@@ -297,7 +299,8 @@
 
 
         \o  In the \gui{Add to project} field, select \bold{TextFinder.pro}
-            and click \gui{Finish} to open the file in the code editor.
+            and click \gui{Finish} or \gui Done to open the file in the code
+            editor.
 
         \o  Select \gui{Add > Add Prefix}.
 

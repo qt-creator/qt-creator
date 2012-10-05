@@ -225,6 +225,10 @@ bool ClearCasePlugin::isCheckInEditorOpen() const
  */
 QString ClearCasePlugin::findTopLevel(const QString &directory) const
 {
+    if ((directory == m_topLevel) ||
+            Utils::FileName::fromString(directory).isChildOf(Utils::FileName::fromString(m_topLevel)))
+        return m_topLevel;
+
     // Snapshot view
     QString topLevel =
             findRepositoryForDirectory(directory, QLatin1String(ClearCase::Constants::CLEARCASE_ROOT_FILE));
@@ -232,8 +236,6 @@ QString ClearCasePlugin::findTopLevel(const QString &directory) const
         return topLevel;
 
     // Dynamic view
-    if (directory.startsWith(m_topLevel) && directory.at(m_topLevel.size()) == QLatin1Char('/'))
-        return m_topLevel;
     bool isDynamic;
     ccGetView(directory, &isDynamic);
     if (isDynamic) {

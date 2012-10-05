@@ -218,16 +218,14 @@ bool SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &p
     try {
         Pipe pipe;
         pipe.process_msg(convertByteArray(privKeyFileContents), privKeyFileContents.size());
-        Private_Key * const key = PKCS8::load_key(pipe, m_rng, SshKeyPasswordRetriever());
-        if (DSA_PrivateKey * const dsaKey = dynamic_cast<DSA_PrivateKey *>(key)) {
+        const PrivateKeyPtr authKey = loadPkcs8PrivateKey(pipe, m_rng, SshKeyPasswordRetriever());
+        if (DSA_PrivateKey * const dsaKey = dynamic_cast<DSA_PrivateKey *>(authKey.data())) {
             m_authKeyAlgoName = SshCapabilities::PubKeyDss;
-            m_authKey.reset(dsaKey);
             pubKeyParams << dsaKey->group_p() << dsaKey->group_q()
                          << dsaKey->group_g() << dsaKey->get_y();
             allKeyParams << pubKeyParams << dsaKey->get_x();
-        } else if (RSA_PrivateKey * const rsaKey = dynamic_cast<RSA_PrivateKey *>(key)) {
+        } else if (RSA_PrivateKey * const rsaKey = dynamic_cast<RSA_PrivateKey *>(authKey.data())) {
             m_authKeyAlgoName = SshCapabilities::PubKeyRsa;
-            m_authKey.reset(rsaKey);
             pubKeyParams << rsaKey->get_e() << rsaKey->get_n();
             allKeyParams << pubKeyParams << rsaKey->get_p() << rsaKey->get_q()
                          << rsaKey->get_d();
@@ -235,6 +233,7 @@ bool SshEncryptionFacility::createAuthenticationKeyFromPKCS8(const QByteArray &p
             qWarning("%s: Unexpected code flow, expected success or exception.", Q_FUNC_INFO);
             return false;
         }
+        m_authKey = authKey;
     } catch (const Botan::Exception &ex) {
         error = QLatin1String(ex.what());
         return false;
@@ -291,15 +290,13 @@ bool SshEncryptionFacility::createAuthenticationKeyFromOpenSSL(const QByteArray 
         if (m_authKeyAlgoName == SshCapabilities::PubKeyDss) {
             BigInt p, q, g, y, x;
             sequence.decode (p).decode (q).decode (g).decode (y).decode (x);
-            DSA_PrivateKey * const dsaKey = new DSA_PrivateKey(m_rng, DL_Group(p, q, g), x);
-            m_authKey.reset(dsaKey);
+            m_authKey = createDsaPrivateKey(m_rng, DL_Group(p, q, g), x);
             pubKeyParams << p << q << g << y;
             allKeyParams << pubKeyParams << x;
         } else {
             BigInt p, q, e, d, n;
             sequence.decode(n).decode(e).decode(d).decode(p).decode(q);
-            RSA_PrivateKey * const rsaKey = new RSA_PrivateKey(m_rng, p, q, e, d, n);
-            m_authKey.reset(rsaKey);
+            m_authKey = createRsaPrivateKey(m_rng, p, q, e, d, n);
             pubKeyParams << e << n;
             allKeyParams << pubKeyParams << p << q << d;
         }

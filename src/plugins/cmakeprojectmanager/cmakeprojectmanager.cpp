@@ -119,11 +119,8 @@ void CMakeManager::runCMake(ProjectExplorer::Project *project)
     CMakeBuildConfiguration *bc
             = static_cast<CMakeBuildConfiguration *>(cmakeProject->activeTarget()->activeBuildConfiguration());
 
-    CMakeOpenProjectWizard copw(this,
-                                cmakeProject->projectDirectory(),
-                                bc->buildDirectory(),
-                                CMakeOpenProjectWizard::WantToUpdate,
-                                bc);
+    CMakeOpenProjectWizard copw(this, CMakeOpenProjectWizard::WantToUpdate,
+                                CMakeOpenProjectWizard::BuildInfo(bc));
     if (copw.exec() == QDialog::Accepted)
         cmakeProject->parseCMakeLists();
 }

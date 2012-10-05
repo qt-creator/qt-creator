@@ -117,7 +117,7 @@ private:
     QByteArray m_authKeyAlgoName;
     QByteArray m_authPubKeyBlob;
     QByteArray m_cachedPrivKeyContents;
-    QScopedPointer<Botan::Private_Key> m_authKey;
+    QSharedPointer<Botan::Private_Key> m_authKey;
     mutable Botan::AutoSeeded_RNG m_rng;
 };
 

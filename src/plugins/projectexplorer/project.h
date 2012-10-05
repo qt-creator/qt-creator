@@ -147,6 +147,7 @@ signals:
 
 protected:
     virtual bool fromMap(const QVariantMap &map);
+    virtual bool setupTarget(Target *t);
 
     virtual void setProjectContext(Core::Context context);
     virtual void setProjectLanguage(Core::Context language);

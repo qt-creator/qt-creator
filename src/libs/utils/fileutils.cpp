@@ -535,10 +535,16 @@ bool FileName::operator>=(const FileName &other) const
 /// \returns whether FileName is a child of \a s
 bool FileName::isChildOf(const FileName &s) const
 {
+    if (s.isEmpty())
+        return false;
     if (!QString::startsWith(s, HostOsInfo::fileNameCaseSensitivity()))
         return false;
     if (size() <= s.size())
         return false;
+    // s is root, '/' was already tested in startsWith
+    if (s.QString::endsWith(QLatin1Char('/')))
+        return true;
+    // s is a directory, next character should be '/' (/tmpdir is NOT a child of /tmp)
     return at(s.size()) == QLatin1Char('/');
 }
 

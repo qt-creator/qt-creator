@@ -60,9 +60,9 @@ bool SshKeyGenerator::generateKeys(KeyType type, PrivateKeyFormat format, int ke
         AutoSeeded_RNG rng;
         KeyPtr key;
         if (m_type == Rsa)
-            key = KeyPtr(new RSA_PrivateKey(rng, keySize));
+            key = createRsaPrivateKey(rng, keySize);
         else
-            key = KeyPtr(new DSA_PrivateKey(rng, DL_Group(rng, DL_Group::DSA_Kosherizer, keySize)));
+            key = createDsaPrivateKey(rng, DL_Group(rng, DL_Group::DSA_Kosherizer, keySize));
         switch (format) {
         case Pkcs8:
             generatePkcs8KeyStrings(key, rng);

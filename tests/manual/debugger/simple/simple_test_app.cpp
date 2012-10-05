@@ -4106,7 +4106,7 @@ namespace qvariant {
         // Check variant.data.2 3 int.
         // Continue.
         list.clear();
-        list = qVariantValue<QList<int> >(variant);
+        list = variant.value<QList<int> >();
         BREAK_HERE;
         // Expand list.
         // Check list <3 items> QList<int>.
