@@ -38,9 +38,9 @@
 
     \list
 
-        \o  \l{Creating a Qt Quick Application}
+        \o  \l{Creating a Qt Quick 1 Application}
 
-            Learn about the basic Qt Quick concepts and QML elements.
+            Learn how to use \QMLD to create a Qt Quick 1 application.
 
         \o  \l{Creating a Qt Widget Based Application}
 

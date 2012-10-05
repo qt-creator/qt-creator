@@ -32,6 +32,8 @@
 
     You can edit .qml files in the \QMLD visual editor or in the code editor.
 
+    \note \QMLD only supports Qt Quick 1.
+
     In \gui Projects, double-click a .qml file to open it in the code editor.
     Then select the \gui {Design} mode to edit the file in the visual editor.
 

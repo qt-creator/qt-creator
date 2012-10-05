@@ -28,12 +28,16 @@
     \page creator-qml-application.html
     \nextpage creator-writing-program.html
 
-    \title Creating a Qt Quick Application
+    \title Creating a Qt Quick 1 Application
 
-    \note To complete this tutorial, you must have Qt 4.7 or later installed.
+    \note \QMLD only supports Qt Quick 1, which is offered in Qt 5 only for
+    compatibility with Qt 4. We recommend that you use Qt Quick 2 for new
+    Qt 5 applications. You can use the code editor in the \gui Design mode to
+    develop Qt Quick 2 applications. For more information, see the Qt 5
+    documentation.
 
     This tutorial uses built-in QML elements and illustrates basic concepts of
-    \l {http://qt-project.org/doc/qt-4.8/qtquick.html}{Qt Quick}.
+    \l {http://qt-project.org/doc/qt-4.8/qtquick.html}{Qt Quick 1}.
 
     This tutorial describes how to use the \QC to implement the
     \l{http://qt-project.org/doc/qt-4.8/declarative-animation-states.html}
@@ -51,12 +55,13 @@
     \list 1
 
         \o  Select \gui{File > New File or Project > Applications >
-            Qt Quick Application (Built-in Elements) > Choose}.
+            Qt Quick 1 Application (Built-in Elements) > Choose}.
 
         \o  In the \gui{Name} field, type \bold {Transitions}.
 
         \o  In the \gui {Create in} field, enter the path for the project files.
-            For example, \c {C:\Qt\examples}, and then click \gui{Next}.
+            For example, \c {C:\Qt\examples}, and then click \gui{Next} (on
+            Windows and Linux) or \gui Continue (on Mac OS).
 
         \o  Select \l{glossary-buildandrun-kit}{kits} for running and building your project,
             and then click \gui{Next}.
@@ -67,10 +72,10 @@
         \o  Select \gui Next in the following dialogs to use the default
             settings.
 
-        \o  Review the project settings, and click \gui{Finish} to create the
-            project.
+        \o  Review the project settings, and click \gui{Finish} (on Windows and
+            Linux) or \gui Done (on Mac OS) to create the project.
 
-        \o  Press \key {Ctrl+R} to run the application.
+        \o  Press \key {Ctrl+R} (or \key {Cmd+R})to run the application.
 
     \endlist
 
