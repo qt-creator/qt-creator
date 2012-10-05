@@ -8,9 +8,6 @@ QT += core-private qml-private quick-private gui-private script-private v8-priva
 
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
 
-include(../../../../../qtcreator.pri)
-include(../../../../../src/rpath.pri)
-
 include (../instances/instances.pri)
 include (instances/instances.pri)
 include (../commands/commands.pri)
