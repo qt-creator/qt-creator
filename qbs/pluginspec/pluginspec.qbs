@@ -4,7 +4,7 @@ import qbs.fileinfo 1.0 as FileInfo
 Module {
     Depends { id: qtcore; name: "Qt.core" }
 
-    additionalProductFileTags: qtcore.versionMajor < 5 ? ["pluginSpec"] : ["pluginJSON"]
+    additionalProductFileTags: qtcore.versionMajor < 5 ? ["pluginSpec"] : ["qt_plugin_metadata"]
     property int ide_version_major: project.ide_version_major
     property int ide_version_minor: project.ide_version_minor
     property int ide_version_release: project.ide_version_release
@@ -71,7 +71,7 @@ Module {
         inputs: ["pluginSpec"]
 
         Artifact {
-            fileTags: ["pluginJSON"]
+            fileTags: ["qt_plugin_metadata"]
             fileName: {
                 var destdir = FileInfo.joinPaths(product.modules["qt/core"].generatedFilesDir,
                                                  input.fileName);
