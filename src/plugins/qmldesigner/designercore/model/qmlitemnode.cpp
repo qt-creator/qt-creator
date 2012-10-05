@@ -329,7 +329,7 @@ QmlModelState QmlModelStateGroup::addState(const QString &name)
     PropertyListType propertyList;
     propertyList.append(qMakePair(QString("name"), QVariant(name)));
 
-    ModelNode newState = modelNode().view()->createModelNode("QtQuick.State", 1, 0, propertyList);
+    ModelNode newState = QmlObjectNode(modelNode()).qmlModelView()->createQmlState(propertyList);
     modelNode().nodeListProperty("states").reparentHere(newState);
 
     return newState;

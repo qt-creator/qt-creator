@@ -47,6 +47,8 @@
 #include "plaintexteditmodifier.h"
 #include "modelmerger.h"
 
+#include <utils/qtcassert.h>
+
 namespace QmlDesigner {
 
 QmlModelView::QmlModelView(QObject *parent)
@@ -463,6 +465,18 @@ void QmlModelView::parentChanged(const QmlObjectNode &/*qmlObjectNode*/)
 
 void QmlModelView::otherPropertyChanged(const QmlObjectNode &/*qmlObjectNode*/, const QString &/*propertyName*/)
 {
+}
+
+ModelNode QmlModelView::createQmlState(const QmlDesigner::PropertyListType &propertyList)
+{
+
+    QTC_ASSERT(rootModelNode().majorQtQuickVersion() < 3);
+
+    if (rootModelNode().majorQtQuickVersion() > 1) {
+        return createModelNode("QtQuick.State", 2, 0, propertyList);
+    } else {
+        return createModelNode("QtQuick.State", 1, 0, propertyList);
+    }
 }
 
 

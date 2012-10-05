@@ -48,10 +48,10 @@ public:
     QmlModelNodeFacade();
 
     bool isRootNode() const;
+    QmlModelView* qmlModelView() const;
 
 protected:
     QmlModelNodeFacade(const ModelNode &modelNode);
-    QmlModelView* qmlModelView() const;
 
 private:
     ModelNode m_modelNode;
