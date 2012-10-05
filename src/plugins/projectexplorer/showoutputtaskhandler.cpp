@@ -61,5 +61,7 @@ QAction *ShowOutputTaskHandler::createAction(QObject *parent) const
 {
     QAction *outputAction = new QAction(tr("Show &Output"), parent);
     outputAction->setToolTip(tr("Show output generating this issue."));
+    outputAction->setShortcut(QKeySequence(tr("O")));
+    outputAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     return outputAction;
 }

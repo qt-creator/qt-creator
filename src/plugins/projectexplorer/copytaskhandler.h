@@ -44,6 +44,7 @@ public:
 
     bool canHandle(const Task &) const { return true; }
     void handle(const Task &task);
+    Core::Id actionManagerId() const;
     QAction *createAction(QObject *parent) const;
 };
 

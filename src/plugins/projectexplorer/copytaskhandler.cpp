@@ -30,8 +30,10 @@
 #include "copytaskhandler.h"
 
 #include "task.h"
+#include "taskwindow.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <QDir>
 #include <QAction>
@@ -61,9 +63,13 @@ void CopyTaskHandler::handle(const ProjectExplorer::Task &task)
                                        + type + task.description);
 }
 
+Core::Id CopyTaskHandler::actionManagerId() const
+{
+    return Core::Id(Core::Constants::COPY);
+}
+
 QAction *CopyTaskHandler::createAction(QObject *parent) const
 {
-    QAction *copyAction = new QAction(tr("&Copy", "Name of the action triggering the copytaskhandler"), parent);
-    copyAction->setToolTip(tr("Copy task to clipboard"));
+    QAction *copyAction = new QAction(parent);
     return copyAction;
 }
