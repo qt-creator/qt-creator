@@ -147,9 +147,16 @@ bool QmlInspectorAgent::selectObjectInTree(int debugId)
         m_objectToSelect = 0;
         return true;
     } else {
-        // we've to fetch it
+        // we may have to fetch it
         m_objectToSelect = debugId;
-        fetchObject(debugId);
+        using namespace QmlDebug::Constants;
+        if (m_engineClient->objectName() == QLatin1String(QDECLARATIVE_ENGINE)) {
+            // reset current Selection
+            QByteArray root = m_debuggerEngine->watchHandler()->watchData(QModelIndex())->iname;
+            m_debuggerEngine->watchHandler()->setCurrentItem(root);
+        } else {
+            fetchObject(debugId);
+        }
         return false;
     }
 }
@@ -708,9 +715,9 @@ void QmlInspectorAgent::insertObjectInTree(const ObjectReference &object)
     emit objectTreeUpdated();
     emit objectFetched(last);
 
-    if (m_objectToSelect == last.debugId()) {
+    if (m_objectToSelect == last.debugId() || m_debugIdToIname.keys().contains(m_objectToSelect)) {
         // select item in view
-        QByteArray iname = m_debugIdToIname.value(last.debugId());
+        QByteArray iname = m_debugIdToIname.value(m_objectToSelect);
         if (debug)
             qDebug() << "  selecting" << iname << "in tree";
         watchHandler->setCurrentItem(iname);
@@ -808,6 +815,7 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const ObjectReference &obj,
 
         list.append(objWatch);
         addObjectWatch(objWatch.id);
+        m_debugIdToIname.insert(objDebugId, objIname);
     }
 
     if (!m_debuggerEngine->watchHandler()->isExpandedIName(objIname)) {
@@ -848,7 +856,6 @@ QList<WatchData> QmlInspectorAgent::buildWatchData(const ObjectReference &obj,
             propertyWatch.setHasChildren(false);
             list.append(propertyWatch);
         }
-        m_debugIdToIname.insert(objDebugId, objIname);
     }
 
     // recurse
