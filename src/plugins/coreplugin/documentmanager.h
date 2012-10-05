@@ -129,6 +129,12 @@ public:
     static QString projectsDirectory();
     static void setProjectsDirectory(const QString &);
 
+    static bool useBuildDirectory();
+    static void setUseBuildDirectory(bool use);
+
+    static QString buildDirectory();
+    static void setBuildDirectory(const QString &directory);
+
     static void populateOpenWithMenu(QMenu *menu, const QString &fileName);
 
     /* Used to notify e.g. the code model to update the given files. Does *not*

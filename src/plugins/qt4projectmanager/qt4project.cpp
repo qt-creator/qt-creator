@@ -46,6 +46,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/documentmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <cpptools/ModelManagerInterface.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -1426,9 +1427,25 @@ QString Qt4Project::shadowBuildDirectory(const QString &profilePath, const Kit *
     if (version && !version->supportsShadowBuilds())
         return info.absolutePath();
 
-    QString base = QDir::cleanPath(projectDirectory(profilePath) + QLatin1String("/../")
-                                   + info.baseName() + QLatin1String("-build-"));
-    return base + buildNameFor(k) + QLatin1String("-") + sanitize(suffix);
+    Utils::FileName buildDirBase = Utils::FileName::fromString(projectDirectory(profilePath));
+    if (Core::DocumentManager::useProjectsDirectory() &&
+        Core::DocumentManager::useBuildDirectory()) {
+        const Utils::FileName projectsDirectory =
+            Utils::FileName::fromString(Core::DocumentManager::projectsDirectory());
+
+        if (buildDirBase.isChildOf(projectsDirectory)) {
+            Utils::FileName buildDirectory =
+                Utils::FileName::fromString(Core::DocumentManager::buildDirectory());
+
+            buildDirectory.appendPath(buildDirBase.relativeChildPath(projectsDirectory).toString());
+            buildDirBase = buildDirectory;
+        }
+    }
+
+    buildDirBase.append(QLatin1String("-build-") + buildNameFor(k) +
+                        QLatin1Char('-') + sanitize(suffix));
+
+    return QDir::cleanPath(buildDirBase.toString());
 }
 
 QString Qt4Project::buildNameFor(const Kit *k)

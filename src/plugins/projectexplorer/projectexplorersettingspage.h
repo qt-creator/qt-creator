@@ -55,10 +55,17 @@ public:
     bool useProjectsDirectory();
     void setUseProjectsDirectory(bool v);
 
+    bool useBuildDirectory() const;
+    void setUseBuildDirectory(bool v);
+
+    QString buildDirectory() const;
+    void setBuildDirectory(const QString &bd);
+
     QString searchKeywords() const;
 
 private slots:
     void slotDirectoryButtonGroupChanged();
+    void slotBuildDirectoryCheckBoxChanged(bool checked);
 
 private:
     void setJomVisible(bool);

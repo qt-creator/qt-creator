@@ -20,6 +20,9 @@
       <property name="fieldGrowthPolicy">
        <enum>QFormLayout::ExpandingFieldsGrow</enum>
       </property>
+      <property name="labelAlignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+      </property>
       <item row="0" column="0" colspan="2">
        <widget class="QRadioButton" name="currentDirectoryRadioButton">
         <property name="text">
@@ -28,6 +31,23 @@
         <attribute name="buttonGroup">
          <string notr="true">directoryButtonGroup</string>
         </attribute>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="Utils::PathChooser" name="projectsDirectoryPathChooser" native="true"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="buildDirectoryCheckBox">
+        <property name="text">
+         <string>Build directory</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="Utils::PathChooser" name="buildDirectoryPathChooser" native="true">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="1" column="0">
@@ -42,9 +62,6 @@
          <string notr="true">directoryButtonGroup</string>
         </attribute>
        </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="Utils::PathChooser" name="projectsDirectoryPathChooser" native="true"/>
       </item>
      </layout>
     </widget>
@@ -237,6 +254,7 @@
    <class>Utils::PathChooser</class>
    <extends>QWidget</extends>
    <header location="global">utils/pathchooser.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -53,6 +53,8 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
     m_ui.directoryButtonGroup->setId(m_ui.directoryRadioButton, UseProjectDirectory);
     connect(m_ui.directoryButtonGroup, SIGNAL(buttonClicked(int)),
             this, SLOT(slotDirectoryButtonGroupChanged()));
+    connect(m_ui.buildDirectoryCheckBox, SIGNAL(toggled(bool)),
+            this, SLOT(slotBuildDirectoryCheckBoxChanged(bool)));
 }
 
 void ProjectExplorerSettingsWidget::setJomVisible(bool v)
@@ -118,9 +120,40 @@ void ProjectExplorerSettingsWidget::setUseProjectsDirectory(bool b)
     }
 }
 
+bool ProjectExplorerSettingsWidget::useBuildDirectory() const
+{
+    return m_ui.buildDirectoryCheckBox->isChecked();
+}
+
+void ProjectExplorerSettingsWidget::setUseBuildDirectory(bool v)
+{
+    if (useBuildDirectory() != v) {
+        m_ui.buildDirectoryCheckBox->setChecked(v);
+        slotBuildDirectoryCheckBoxChanged(v);
+    }
+}
+
+QString ProjectExplorerSettingsWidget::buildDirectory() const
+{
+    return m_ui.buildDirectoryPathChooser->path();
+}
+
+void ProjectExplorerSettingsWidget::setBuildDirectory(const QString &bd)
+{
+    m_ui.buildDirectoryPathChooser->setPath(bd);
+}
+
 void ProjectExplorerSettingsWidget::slotDirectoryButtonGroupChanged()
 {
-    m_ui.projectsDirectoryPathChooser->setEnabled(useProjectsDirectory());
+    bool enable = useProjectsDirectory();
+    m_ui.projectsDirectoryPathChooser->setEnabled(enable);
+    m_ui.buildDirectoryCheckBox->setEnabled(enable);
+    m_ui.buildDirectoryPathChooser->setEnabled(enable && useBuildDirectory());
+}
+
+void ProjectExplorerSettingsWidget::slotBuildDirectoryCheckBoxChanged(bool checked)
+{
+    m_ui.buildDirectoryPathChooser->setEnabled(useProjectsDirectory() && checked);
 }
 
 QString ProjectExplorerSettingsWidget::searchKeywords() const
@@ -167,6 +200,8 @@ QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
     m_widget->setSettings(ProjectExplorerPlugin::instance()->projectExplorerSettings());
     m_widget->setProjectsDirectory(Core::DocumentManager::projectsDirectory());
     m_widget->setUseProjectsDirectory(Core::DocumentManager::useProjectsDirectory());
+    m_widget->setUseBuildDirectory(Core::DocumentManager::useBuildDirectory());
+    m_widget->setBuildDirectory(Core::DocumentManager::buildDirectory());
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
@@ -178,6 +213,8 @@ void ProjectExplorerSettingsPage::apply()
         ProjectExplorerPlugin::instance()->setProjectExplorerSettings(m_widget->settings());
         Core::DocumentManager::setProjectsDirectory(m_widget->projectsDirectory());
         Core::DocumentManager::setUseProjectsDirectory(m_widget->useProjectsDirectory());
+        Core::DocumentManager::setUseBuildDirectory(m_widget->useBuildDirectory());
+        Core::DocumentManager::setBuildDirectory(m_widget->buildDirectory());
     }
 }
 
