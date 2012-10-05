@@ -83,6 +83,17 @@ enum DebuggerEncoding
     Hex2EncodedFloat8                      = 26
 };
 
+// Keep in sync with dumper.py
+enum DebuggerDisplay {
+    StopDisplay                            = 0,
+    DisplayImageData                       = 1,
+    DisplayUtf16String                     = 2,
+    DisplayImageFile                       = 3,
+    DisplayProcess                         = 4,
+    DisplayLatin1String                    = 5,
+    DisplayUtf8String                      = 6
+};
+
 bool isEditorDebuggable(Core::IEditor *editor);
 QByteArray dotEscape(QByteArray str);
 QString currentTime();

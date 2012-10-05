@@ -1605,7 +1605,8 @@ void WatchHandler::showEditValue(const WatchData &data)
     if (data.editformat == 0x0) {
         m_model->m_editHandlers.remove(data.iname);
         delete w;
-    } else if (data.editformat == 1 || data.editformat == 3) {
+    } else if (data.editformat == DisplayImageData
+               || data.editformat == DisplayImageFile) {
         // QImage
         QLabel *l = qobject_cast<QLabel *>(w);
         if (!l) {
@@ -1621,7 +1622,7 @@ void WatchHandler::showEditValue(const WatchData &data)
         int width, height, format;
         QByteArray ba;
         uchar *bits;
-        if (data.editformat == 1) {
+        if (data.editformat == DisplayImageData) {
             ba = QByteArray::fromHex(data.editvalue);
             const int *header = (int *)(ba.data());
             swapEndian(ba.data(), ba.size());
@@ -1629,7 +1630,7 @@ void WatchHandler::showEditValue(const WatchData &data)
             width = header[0];
             height = header[1];
             format = header[2];
-        } else { // data.editformat == 3
+        } else if (data.editformat == DisplayImageFile) {
             QTextStream ts(data.editvalue);
             QString fileName;
             ts >> width >> height >> format >> fileName;
@@ -1639,20 +1640,13 @@ void WatchHandler::showEditValue(const WatchData &data)
             bits = (uchar*)ba.data();
         }
         QImage im(bits, width, height, QImage::Format(format));
-
-#if 1
-        // Qt bug. Enforce copy of image data.
-        QImage im2(im);
-        im.detach();
-#endif
-
         l->setPixmap(QPixmap::fromImage(im));
         l->resize(width, height);
         l->show();
-    } else if (data.editformat == 2
-               || data.editformat == 5
-               || data.editformat == 6) {
-        // Display QString in a separate widget.
+    } else if (data.editformat == DisplayUtf16String
+               || data.editformat == DisplayLatin1String
+               || data.editformat == DisplayUtf16String) {
+        // String data.
         QTextEdit *t = qobject_cast<QTextEdit *>(w);
         if (!t) {
             delete w;
@@ -1661,11 +1655,11 @@ void WatchHandler::showEditValue(const WatchData &data)
         }
         QByteArray ba = QByteArray::fromHex(data.editvalue);
         QString str;
-        if (data.editformat == 2) // UTF-16
+        if (data.editformat == DisplayUtf16String)
             str = QString::fromUtf16((ushort *)ba.constData(), ba.size()/2);
-        else if (data.editformat == 5) // Latin1
+        else if (data.editformat == DisplayLatin1String)
             str = QString::fromLatin1(ba.constData(), ba.size());
-        else if (data.editformat == 6) // UTF-8
+        else if (data.editformat == DisplayUtf8String)
             str = QString::fromUtf8(ba.constData(), ba.size());
         t->setText(str);
         t->resize(400, 200);

@@ -54,10 +54,10 @@ def qdump__QByteArray(d, value):
     if format == 1:
         d.putDisplay(StopDisplay)
     elif format == 2:
-        d.putField("editformat", 5)
+        d.putField("editformat", DisplayLatin1String)
         d.putField("editvalue", encodeByteArray(value))
     elif format == 3:
-        d.putField("editformat", 6)
+        d.putField("editformat", DisplayUtf8String)
         d.putField("editvalue", encodeByteArray(value))
     if d.isExpanded():
         d.putArrayData(lookupType("char"), data, size)
@@ -576,7 +576,7 @@ def qdump__QImage(d, value):
         if False:
             # Take four bytes at a time, this is critical for performance.
             # In fact, even four at a time is too slow beyond 100x100 or so.
-            d.putField("editformat", 1)  # Magic marker for direct "QImage" data.
+            d.putField("editformat", DisplayImageData)
             d.put('%s="' % name)
             d.put("%08x" % int(d_ptr["width"]))
             d.put("%08x" % int(d_ptr["height"]))
@@ -593,7 +593,7 @@ def qdump__QImage(d, value):
             p = bits.cast(lookupType("unsigned char").pointer())
             gdb.execute("dump binary memory %s %s %s" %
                 (filename, cleanAddress(p), cleanAddress(p + nbytes)))
-            d.putDisplay(DisplayImage, " %d %d %d %s"
+            d.putDisplay(DisplayImageFile, " %d %d %d %s"
                 % (d_ptr["width"], d_ptr["height"], d_ptr["format"], filename))
 
 
@@ -1398,7 +1398,7 @@ def qdump__QString(d, value):
     if format == 1:
         d.putDisplay(StopDisplay)
     elif format == 2:
-        d.putField("editformat", 2)
+        d.putField("editformat", DisplayUtf16String)
         d.putField("editvalue", encodeString(value))
 
 
