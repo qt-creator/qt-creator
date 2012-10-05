@@ -27,7 +27,6 @@ QtcLibrary {
         "qmldebugclient.cpp",
         "qmldebugclient.h",
         "qmldebugconstants.h",
-        "qmlenginedebugclient.cpp",
         "qmlenginedebugclient.h",
         "qmloutputparser.cpp",
         "qmloutputparser.h",

@@ -6,7 +6,7 @@ import "../../../qbs/defaults.js" as Defaults
 QtcPlugin {
     name: "QmlJSTools"
 
-    Depends { name: "Qt.widgets" }
+    Depends { name: "Qt"; submodules: ["script", "widgets"] }
     Depends { name: "Core" }
     Depends { name: "LanguageUtils" }
     Depends { name: "CppTools" }
@@ -57,7 +57,7 @@ QtcPlugin {
         "qmlconsolemanager.h",
         "qmlconsoleitem.cpp",
         "qmlconsoleitem.h",
-        "qmlcomsoleitemmodel.cpp",
+        "qmlconsoleitemmodel.cpp",
         "qmlconsoleitemmodel.h",
         "qmlconsolepane.cpp",
         "qmlconsolepane.h",
@@ -69,7 +69,6 @@ QtcPlugin {
         "qmlconsoleedit.h",
         "qmljsinterpreter.cpp",
         "qmljsinterpreter.h",
-        "qmljsconsoleproxymodel.cpp",
         "qmljsconsoleproxymodel.h",
         "qmljstools.qrc"
     ]
