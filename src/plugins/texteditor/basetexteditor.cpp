@@ -4478,9 +4478,25 @@ void BaseTextEditorWidget::ensureCursorVisible()
 {
     QTextBlock block = textCursor().block();
     if (!block.isVisible()) {
-        while (!block.isVisible() && block.previous().isValid())
+        BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(document()->documentLayout());
+        QTC_ASSERT(documentLayout, return);
+
+        // Open all parent folds of current line.
+        int indent = BaseTextDocumentLayout::foldingIndent(block);
+        block = block.previous();
+        while (block.isValid()) {
+            const int indent2 = BaseTextDocumentLayout::foldingIndent(block);
+            if (BaseTextDocumentLayout::canFold(block) && indent2 < indent) {
+                BaseTextDocumentLayout::doFoldOrUnfold(block, /* unfold = */ true);
+                if (block.isVisible())
+                    break;
+                indent = indent2;
+            }
             block = block.previous();
-        toggleBlockVisible(block);
+        }
+
+        documentLayout->requestUpdate();
+        documentLayout->emitDocumentSizeChanged();
     }
     QPlainTextEdit::ensureCursorVisible();
 }
