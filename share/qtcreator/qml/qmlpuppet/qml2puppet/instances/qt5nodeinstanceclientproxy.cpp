@@ -35,11 +35,14 @@
 #include "qt5previewnodeinstanceserver.h"
 #include "qt5rendernodeinstanceserver.h"
 
+#include <designersupport.h>
+
 namespace QmlDesigner {
 
 Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
     NodeInstanceClientProxy(parent)
 {
+    DesignerSupport::activateDesignerWindowManager();
     if (QCoreApplication::arguments().at(2) == QLatin1String("previewmode")) {
         setNodeInstanceServer(new Qt5PreviewNodeInstanceServer(this));
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("editormode")) {
