@@ -176,16 +176,9 @@
 
                 Qt unit tests for features or classes
 
-            \if defined(qcmanual)
             \o  Qt Custom Designer Widgets
 
                 Custom \QD widget or widget collection
-            \endif
-
-            \o  Plain C/C++ Project
-
-                Plain C or C++ project that uses qmake but does not use the Qt
-                library
 
             \o  Empty Qt Project
 
@@ -201,7 +194,19 @@
 
         \o  Non-Qt Projects
 
-            Plain C or C++ projects that use CMake but do not use the Qt library
+        \list
+
+            \o  Plain C or C++ Project
+
+                Plain C or C++ project that uses qmake but does not use the Qt
+                library
+
+            \o  Plain C or C++ Project (CMake Build)
+
+                Plain C or C++ project that uses CMake but does not use the Qt
+                library
+
+        \endlist
 
         \o  Import Project
 
