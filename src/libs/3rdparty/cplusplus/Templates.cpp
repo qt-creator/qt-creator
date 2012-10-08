@@ -514,6 +514,8 @@ Symbol *Clone::instantiate(Template *templ, const FullySpecifiedType *const args
 //
 // substitutions
 //
+
+
 FullySpecifiedType Subst::apply(const Name *name) const
 {
     if (name) {

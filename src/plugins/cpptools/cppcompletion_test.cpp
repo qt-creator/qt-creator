@@ -228,6 +228,78 @@ void CppToolsPlugin::test_completion_template_1()
     QVERIFY(!completions.contains("func"));
 }
 
+void CppToolsPlugin::test_completion_template_2()
+{
+    TestData data;
+    data.srcText = "\n"
+            "template <class T>\n"
+            "struct List\n"
+            "{\n"
+            "    T &at(int);\n"
+            "};\n"
+            "\n"
+            "struct Tupple { int a; int b; };\n"
+            "\n"
+            "void func() {\n"
+            "    List<Tupple> l;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("l.at(0).");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 3);
+    QVERIFY(completions.contains("Tupple"));
+    QVERIFY(completions.contains("a"));
+    QVERIFY(completions.contains("b"));
+}
+
+void CppToolsPlugin::test_completion_template_3()
+{
+    TestData data;
+    data.srcText = "\n"
+            "template <class T>\n"
+            "struct List\n"
+            "{\n"
+            "    T t;\n"
+            "};\n"
+            "\n"
+            "struct Tupple { int a; int b; };\n"
+            "\n"
+            "void func() {\n"
+            "    List<Tupple> l;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("l.t.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 3);
+    QVERIFY(completions.contains("Tupple"));
+    QVERIFY(completions.contains("a"));
+    QVERIFY(completions.contains("b"));
+    QVERIFY(completions.contains("a"));
+    QVERIFY(completions.contains("b"));
+}
+
 void CppToolsPlugin::test_completion()
 {
     QFETCH(QByteArray, code);

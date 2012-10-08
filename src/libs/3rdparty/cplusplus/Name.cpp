@@ -18,9 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#include "Literals.h"
 #include "Name.h"
 #include "Names.h"
 #include "NameVisitor.h"
+
+#include <cstring>
 
 using namespace CPlusPlus;
 
@@ -65,4 +68,16 @@ void Name::accept(const Name *name, NameVisitor *visitor)
     name->accept(visitor);
 }
 
+bool Name::Compare::operator()(const Name *name, const Name *other) const
+{
+    if (name == 0)
+        return other != 0;
+    if (other == 0)
+        return false;
+    if (name == other)
+        return false;
 
+    const Identifier *id = name->identifier();
+    const Identifier *otherId = other->identifier();
+    return std::strcmp(id->chars(), otherId->chars()) < 0;
+}

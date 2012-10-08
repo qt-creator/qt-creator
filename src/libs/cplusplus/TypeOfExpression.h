@@ -123,6 +123,9 @@ public:
     ExpressionAST *expressionAST() const;
     QByteArray preprocessedExpression(const QByteArray &utf8code) const;
 
+    void setExpandTemplates(bool expandTemplates)
+    { m_expandTemplates = expandTemplates; }
+
 private:
 
     void processEnvironment(Document::Ptr doc, Environment *env,
@@ -137,6 +140,8 @@ private:
     Scope *m_scope;
     LookupContext m_lookupContext;
     mutable QSharedPointer<Environment> m_environment;
+
+    bool m_expandTemplates;
 };
 
 ExpressionAST CPLUSPLUS_EXPORT *extractExpressionAST(Document::Ptr doc);

@@ -24,6 +24,7 @@
 #include "CPlusPlusForwardDeclarations.h"
 #include "TypeVisitor.h"
 #include "FullySpecifiedType.h"
+#include "Name.h"
 #include "NameVisitor.h"
 #include "SymbolVisitor.h"
 #include <map>
@@ -56,7 +57,7 @@ public:
 private:
     Control *_control;
     Subst *_previous;
-    std::map<const Name *, FullySpecifiedType> _map;
+    std::map<const Name *, FullySpecifiedType, Name::Compare> _map;
 };
 
 class CPLUSPLUS_EXPORT CloneType: protected TypeVisitor

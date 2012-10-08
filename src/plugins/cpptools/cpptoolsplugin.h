@@ -93,6 +93,8 @@ private slots:
     void test_completion_forward_declarations_present();
     void test_completion_basic_1();
     void test_completion_template_1();
+    void test_completion_template_2();
+    void test_completion_template_3();
     void test_completion_template_as_base();
     void test_completion_template_as_base_data();
     void test_completion_use_global_identifier_as_base_class();

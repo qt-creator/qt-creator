@@ -41,7 +41,8 @@ using namespace CPlusPlus;
 
 TypeOfExpression::TypeOfExpression():
     m_ast(0),
-    m_scope(0)
+    m_scope(0),
+    m_expandTemplates(false)
 {
 }
 
@@ -107,6 +108,7 @@ QList<LookupItem> TypeOfExpression::operator()(ExpressionAST *expression,
 
     m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot);
     m_lookupContext.setBindings(m_bindings);
+    m_lookupContext.setExpandTemplates(m_expandTemplates);
 
     ResolveExpression resolve(m_lookupContext);
     const QList<LookupItem> items = resolve(m_ast, scope);
@@ -127,6 +129,7 @@ QList<LookupItem> TypeOfExpression::reference(ExpressionAST *expression,
 
     m_lookupContext = LookupContext(document, m_thisDocument, m_snapshot);
     m_lookupContext.setBindings(m_bindings);
+    m_lookupContext.setExpandTemplates(m_expandTemplates);
 
     ResolveExpression resolve(m_lookupContext);
     const QList<LookupItem> items = resolve.reference(m_ast, scope);

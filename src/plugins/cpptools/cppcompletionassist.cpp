@@ -102,7 +102,9 @@ public:
         , m_completionOperator(T_EOF_SYMBOL)
         , m_replaceDotForArrow(false)
         , m_typeOfExpression(new TypeOfExpression)
-    {}
+    {
+        m_typeOfExpression->setExpandTemplates(true);
+    }
 
     virtual bool isSortable(const QString &prefix) const;
     virtual IAssistProposalItem *proposalItem(int index) const;
