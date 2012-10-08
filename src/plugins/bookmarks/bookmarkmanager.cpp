@@ -661,6 +661,8 @@ void BookmarkManager::moveUp()
     QModelIndex bottomRight = current.sibling(current.row(), 2);
     emit dataChanged(topLeft, bottomRight);
     selectionModel()->setCurrentIndex(current.sibling(row, 0), QItemSelectionModel::Select | QItemSelectionModel::Clear);
+
+    saveBookmarks();
 }
 
 void BookmarkManager::moveDown()
@@ -680,6 +682,8 @@ void BookmarkManager::moveDown()
     QModelIndex bottomRight = current.sibling(row, 2);
     emit dataChanged(topLeft, bottomRight);
     selectionModel()->setCurrentIndex(current.sibling(row, 0), QItemSelectionModel::Select | QItemSelectionModel::Clear);
+
+    saveBookmarks();
 }
 
 void BookmarkManager::editNote(const QString &fileName, int lineNumber)
@@ -705,6 +709,7 @@ void BookmarkManager::editNote()
     if (inputOk) {
         b->updateNote(noteText.replace(QLatin1Char('\t'), QLatin1Char(' ')));
         emit dataChanged(current, current);
+        saveBookmarks();
     }
 }
 
@@ -787,8 +792,7 @@ QString BookmarkManager::bookmarkToString(const Bookmark *b)
 void BookmarkManager::saveBookmarks()
 {
     QStringList list;
-    foreach (const FileNameBookmarksMap *bookmarksMap, m_bookmarksMap)
-        foreach (const Bookmark *bookmark, *bookmarksMap)
+    foreach (const Bookmark *bookmark, m_bookmarksList)
             list << bookmarkToString(bookmark);
 
     sessionManager()->setValue("Bookmarks", list);
