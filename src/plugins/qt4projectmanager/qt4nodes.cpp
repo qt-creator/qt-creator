@@ -1484,10 +1484,9 @@ bool Qt4ProFileNode::isParent(Qt4ProFileNode *node)
 
 void Qt4ProFileNode::buildStateChanged(ProjectExplorer::Project *project)
 {
-    if (project == m_project && !ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager()->isBuilding(m_project)) {
-        QStringList filesToUpdate = updateUiFiles();
-        updateCodeModelSupportFromBuild(filesToUpdate);
-    }
+    if (project == m_project
+            && !ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager()->isBuilding(m_project))
+        updateCodeModelSupportFromBuild();
 }
 
 bool Qt4ProFileNode::hasBuildTargets() const
@@ -1520,6 +1519,11 @@ QString Qt4ProFileNode::singleVariableValue(const Qt4Variable var) const
 {
     const QStringList &values = variableValue(var);
     return values.isEmpty() ? QString() : values.first();
+}
+
+QStringList Qt4ProFileNode::uiFiles() const
+{
+    return m_uiHeaderFiles;
 }
 
 void Qt4ProFileNode::emitProFileUpdatedRecursive()
@@ -1972,7 +1976,6 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     setParseInProgress(false);
 
     createUiCodeModelSupport();
-    updateUiFiles();
 
     m_project->destroyProFileReader(m_readerExact);
     m_project->destroyProFileReader(m_readerCumulative);
@@ -2002,114 +2005,6 @@ QStringList Qt4ProFileNode::fileListForVar(QtSupport::ProFileReader *readerExact
     }
     result.removeDuplicates();
     return result;
-}
-
-// This function is triggered after a build, and updates the state ui files
-// It does so by storing a modification time for each ui file we know about.
-QStringList Qt4ProFileNode::updateUiFiles()
-{
-//    qDebug()<<"Qt4ProFileNode::updateUiFiles()";
-    // Only those two project types can have ui files for us
-    if (m_projectType != ApplicationTemplate
-        && m_projectType != LibraryTemplate)
-        return QStringList();
-
-    // Find all ui files
-    FindUiFileNodesVisitor uiFilesVisitor;
-    this->accept(&uiFilesVisitor);
-    const QList<ProjectExplorer::FileNode*> uiFiles = uiFilesVisitor.uiFileNodes;
-
-    // Find the UiDir, there can only ever be one
-    QString uiDir = buildDir();
-    QStringList tmp = m_varValues[UiDirVar];
-    if (tmp.size() != 0)
-        uiDir = tmp.first();
-
-    // Collect all existing generated files
-    QList<ProjectExplorer::FileNode*> existingFileNodes;
-    foreach (ProjectExplorer::FileNode *file, fileNodes()) {
-        if (file->isGenerated())
-            existingFileNodes << file;
-    }
-
-    // Convert uiFile to uiHeaderFilePath, find all headers that correspond
-    // and try to find them in uiDir
-    QStringList newFilePaths;
-    foreach (ProjectExplorer::FileNode *uiFile, uiFiles) {
-        const QString uiHeaderFilePath
-                = QString::fromLatin1("%1/ui_%2.h").arg(uiDir, QFileInfo(uiFile->path()).completeBaseName());
-        if (QFileInfo(uiHeaderFilePath).exists())
-            newFilePaths << uiHeaderFilePath;
-    }
-
-    // Create a diff between those lists
-    QList<ProjectExplorer::FileNode*> toRemove;
-    QList<ProjectExplorer::FileNode*> toAdd;
-    // The list of files for which we call updateSourceFile
-    QStringList toUpdate;
-
-    qSort(newFilePaths);
-    qSort(existingFileNodes.begin(), existingFileNodes.end(), sortNodesByPath);
-
-    QList<ProjectExplorer::FileNode*>::const_iterator existingNodeIter = existingFileNodes.constBegin();
-    QList<QString>::const_iterator newPathIter = newFilePaths.constBegin();
-    while (existingNodeIter != existingFileNodes.constEnd()
-           && newPathIter != newFilePaths.constEnd()) {
-        if ((*existingNodeIter)->path() < *newPathIter) {
-            toRemove << *existingNodeIter;
-            ++existingNodeIter;
-        } else if ((*existingNodeIter)->path() > *newPathIter) {
-            toAdd << new ProjectExplorer::FileNode(*newPathIter, ProjectExplorer::HeaderType, true);
-            ++newPathIter;
-        } else { // *existingNodeIter->path() == *newPathIter
-            QString fileName = (*existingNodeIter)->path();
-            QMap<QString, QDateTime>::const_iterator it = m_uitimestamps.find(fileName);
-            QDateTime lastModified = QFileInfo(fileName).lastModified();
-            if (it == m_uitimestamps.constEnd() || it.value() < lastModified) {
-                toUpdate << fileName;
-                m_uitimestamps[fileName] = lastModified;
-            }
-            ++existingNodeIter;
-            ++newPathIter;
-        }
-    }
-    while (existingNodeIter != existingFileNodes.constEnd()) {
-        toRemove << *existingNodeIter;
-        ++existingNodeIter;
-    }
-    while (newPathIter != newFilePaths.constEnd()) {
-        toAdd << new ProjectExplorer::FileNode(*newPathIter, ProjectExplorer::HeaderType, true);
-        ++newPathIter;
-    }
-
-    // Update project tree
-    if (!toRemove.isEmpty()) {
-        foreach (ProjectExplorer::FileNode *file, toRemove)
-            m_uitimestamps.remove(file->path());
-        removeFileNodes(toRemove, this);
-    }
-
-    CPlusPlus::CppModelManagerInterface *modelManager =
-        CPlusPlus::CppModelManagerInterface::instance();
-
-    if (!toAdd.isEmpty()) {
-        foreach (ProjectExplorer::FileNode *file, toAdd) {
-            m_uitimestamps.insert(file->path(), QFileInfo(file->path()).lastModified());
-            toUpdate << file->path();
-
-            // Also adding files depending on that
-            // We only need to do that for files that were newly created
-            QString fileName = QFileInfo(file->path()).fileName();
-            foreach (CPlusPlus::Document::Ptr doc, modelManager->snapshot()) {
-                if (doc->includedFiles().contains(fileName)) {
-                    if (!toUpdate.contains(doc->fileName()))
-                        toUpdate << doc->fileName();
-                }
-            }
-        }
-        addFileNodes(toAdd, this);
-    }
-    return toUpdate;
 }
 
 QString Qt4ProFileNode::uiDirPath(QtSupport::ProFileReader *reader) const
@@ -2350,16 +2245,12 @@ QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
     return QDir(bc->buildDirectory()).absoluteFilePath(relativeDir);
 }
 
-void Qt4ProFileNode::updateCodeModelSupportFromBuild(const QStringList &files)
+void Qt4ProFileNode::updateCodeModelSupportFromBuild()
 {
-    foreach (const QString &file, files) {
-        QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it, end;
-        end = m_uiCodeModelSupport.constEnd();
-        for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it) {
-            if (it.value()->fileName() == file)
-                it.value()->updateFromBuild();
-        }
-    }
+    QMap<QString, Internal::Qt4UiCodeModelSupport *>::const_iterator it, end;
+    end = m_uiCodeModelSupport.constEnd();
+    for (it = m_uiCodeModelSupport.constBegin(); it != end; ++it)
+        it.value()->updateFromBuild();
 }
 
 void Qt4ProFileNode::updateCodeModelSupportFromEditor(const QString &uiFileName,
@@ -2402,6 +2293,8 @@ void Qt4ProFileNode::createUiCodeModelSupport()
     oldCodeModelSupport = m_uiCodeModelSupport;
     m_uiCodeModelSupport.clear();
 
+    m_uiHeaderFiles.clear();
+
     // Only those two project types can have ui files for us
     if (m_projectType == ApplicationTemplate || m_projectType == LibraryTemplate) {
         // Find all ui files
@@ -2413,6 +2306,7 @@ void Qt4ProFileNode::createUiCodeModelSupport()
         const  QString uiDir = uiDirectory();
         foreach (const ProjectExplorer::FileNode *uiFile, uiFiles) {
             const QString uiHeaderFilePath = uiHeaderFile(uiDir, uiFile->path());
+            m_uiHeaderFiles << uiHeaderFilePath;
 //            qDebug()<<"code model support for "<<uiFile->path()<<" "<<uiHeaderFilePath;
             QMap<QString, Internal::Qt4UiCodeModelSupport *>::iterator it = oldCodeModelSupport.find(uiFile->path());
             if (it != oldCodeModelSupport.end()) {

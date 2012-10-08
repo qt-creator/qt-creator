@@ -557,6 +557,7 @@ void Qt4Project::updateCppCodeModel()
 
         part->sourceFiles = pro->variableValue(CppSourceVar);
         part->sourceFiles += pro->variableValue(CppHeaderVar);
+        part->sourceFiles += pro->uiFiles();
         part->sourceFiles.prepend(QLatin1String("<configuration>"));
         pinfo.appendProjectPart(part);
 
@@ -789,6 +790,7 @@ void Qt4Project::decrementPendingEvaluateFutures()
         // We are done!
         if (debug)
             qDebug()<<"  reporting finished";
+
         m_asyncUpdateFutureInterface->reportFinished();
         delete m_asyncUpdateFutureInterface;
         m_asyncUpdateFutureInterface = 0;
