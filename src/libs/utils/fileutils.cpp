@@ -134,8 +134,8 @@ bool FileUtils::copyRecursively(const QString &srcFilePath,
             if (error) {
                 *error = QCoreApplication::translate("Utils::FileUtils", "Failed to create directory '%1'.")
                         .arg(QDir::toNativeSeparators(tgtFilePath));
-                return false;
             }
+            return false;
         }
         QDir sourceDir(srcFilePath);
         QStringList fileNames = sourceDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
