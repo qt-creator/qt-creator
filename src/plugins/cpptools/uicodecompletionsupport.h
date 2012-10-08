@@ -61,7 +61,6 @@ private:
     bool runUic(const QString &ui) const;
     QString m_sourceName;
     QString m_fileName;
-    mutable bool m_updateIncludingFiles;
     mutable bool m_initialized;
     mutable QByteArray m_contents;
     mutable QDateTime m_cacheTime;

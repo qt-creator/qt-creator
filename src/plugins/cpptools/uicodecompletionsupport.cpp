@@ -44,7 +44,6 @@ UiCodeModelSupport::UiCodeModelSupport(CppModelManagerInterface *modelmanager,
     : AbstractEditorSupport(modelmanager),
       m_sourceName(source),
       m_fileName(uiHeaderFile),
-      m_updateIncludingFiles(false),
       m_initialized(false)
 {
     if (debug)
@@ -91,10 +90,6 @@ void UiCodeModelSupport::init() const
                 qDebug()<<"uic run wasn't succesfull";
             m_cacheTime = QDateTime ();
             m_contents = QByteArray();
-            // and if the header file wasn't there, next time we need to update
-            // all of the files that include this header
-            if (!uiHeaderFileInfo.exists())
-                m_updateIncludingFiles = true;
             return;
         }
     } else {
