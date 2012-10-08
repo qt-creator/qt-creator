@@ -68,10 +68,10 @@ class NodeInstanceServer : public NodeInstanceServerInterface
 {
     Q_OBJECT
 public:
-    typedef QPair<QWeakPointer<QObject>, QString>  ObjectPropertyPair;
+    typedef QPair<QPointer<QObject>, QString>  ObjectPropertyPair;
     typedef QPair<qint32, QString>  IdPropertyPair;
     typedef QPair<ServerNodeInstance, QString>  InstancePropertyPair;
-    typedef QPair<QString, QWeakPointer<QObject> > DummyPair;
+    typedef QPair<QString, QPointer<QObject> > DummyPair;
 
     explicit NodeInstanceServer(NodeInstanceClientInterface *nodeInstanceClient);
     ~NodeInstanceServer();
@@ -206,7 +206,7 @@ private:
     QHash<qint32, ServerNodeInstance> m_idInstanceHash;
     QHash<QObject*, ServerNodeInstance> m_objectInstanceHash;
     QMultiHash<QString, ObjectPropertyPair> m_fileSystemWatcherHash;
-    QList<QPair<QString, QWeakPointer<QObject> > > m_dummyObjectList;
+    QList<QPair<QString, QPointer<QObject> > > m_dummyObjectList;
     QPointer<QFileSystemWatcher> m_fileSystemWatcher;
     QPointer<QFileSystemWatcher> m_dummdataFileSystemWatcher;
     QPointer<Internal::ChildrenChangeEventFilter> m_childrenChangeEventFilter;
