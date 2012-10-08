@@ -707,6 +707,9 @@ void FakeVimPlugin::test_vim_copy_paste()
     // block-select middle column, copy and paste twice
     data.setText("123" N "456");
     KEYS("l<C-v>j\"xy2\"xp", "12" X "223" N "45556");
+
+    data.setText("123" N "456" N "789");
+    KEYS("wyiw" "wviwp", "123" N "456" N "45" X "6");
 }
 
 void FakeVimPlugin::test_vim_undo_redo()
