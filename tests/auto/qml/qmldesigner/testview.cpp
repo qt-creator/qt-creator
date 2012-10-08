@@ -30,6 +30,7 @@
 #include "testview.h"
 
 #include <QDebug>
+#include <QUrl>
 #include <qtestcase.h>
 #include <abstractproperty.h>
 #include <bindingproperty.h>

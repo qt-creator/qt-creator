@@ -13,7 +13,6 @@ unix: QMAKE_LFLAGS += \'-Wl,-rpath,$${IDE_LIBRARY_PATH}\' \'-Wl,-rpath,$${IDE_PL
 
 QT += script \
     network \
-    declarative \
     webkit
 
 # DEFINES+=QTCREATOR_UTILS_STATIC_LIB QML_BUILD_STATIC_LIB

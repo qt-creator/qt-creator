@@ -69,19 +69,6 @@ static QString bareTemplate("import Qt 4.6\n"
                             "}");
 static QString contentsTemplate(bareTemplate.arg("Text { id: textChild; x:10; y: 10; text: \"%1\"; %2 }"));
 
-
-void printErrors(const QList<QDeclarativeError> &errors, const QString &fileName)
-{
-    if (errors.isEmpty())
-        return;
-
-    qDebug() << "Error loading file \"" << fileName << "\":";
-
-    foreach (const QDeclarativeError &error, errors) {
-        qDebug() << error.line() << ":" << error.column() << ": " << error.description();
-    }
-}
-
 // TODO: this need to e updated for states
 static bool compareProperty(const AbstractProperty &property1, const AbstractProperty &property2)
 {

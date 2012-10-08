@@ -63,9 +63,6 @@
 #include <qmljs/qmljsinterpreter.h>
 
 #include <QPlainTextEdit>
-#include <private/qdeclarativestate_p.h>
-#include <private/qdeclarativemetatype_p.h>
-#include <QDeclarativeItem>
 
 //TESTED_COMPONENT=src/plugins/qmldesigner/designercore
 
@@ -331,7 +328,6 @@ void tst_TestCore::testRewriterErrors()
 
 void tst_TestCore::saveEmptyCoreModel()
 {
-    QList<QDeclarativeError> errors;
     QFile file(":/fx/empty.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
@@ -366,7 +362,6 @@ void tst_TestCore::saveEmptyCoreModel()
 
 void tst_TestCore::loadAttributesInCoreModel()
 {
-    QList<QDeclarativeError> errors;
     QFile file(":/fx/attributes.qml");
     QVERIFY(file.open(QIODevice::ReadOnly | QIODevice::Text));
 
@@ -1815,7 +1810,7 @@ void tst_TestCore::testQmlModelView()
     QCOMPARE(node3.instanceValue("width").toInt(), 0);
 
     QCOMPARE(node3.instanceValue("x").toInt(), 20);
-    QVERIFY(!QDeclarativeMetaType::toQObject(node3.instanceValue("anchors.fill")));
+    //QVERIFY(!QDeclarativeMetaType::toQObject(node3.instanceValue("anchors.fill")));
     node3.setBindingProperty("anchors.fill", "parent");
     QCOMPARE(node3.instanceValue("x").toInt(), 0);
     QCOMPARE(node3.instanceValue("width").toInt(), 20);
