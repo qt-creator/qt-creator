@@ -41,10 +41,16 @@ namespace RemoteLinux {
 class REMOTELINUX_EXPORT DeployableFile
 {
 public:
+    enum Type
+    {
+        TypeNormal,
+        TypeExecutable
+    };
+
     DeployableFile() {}
 
-    DeployableFile(const QString &localFilePath, const QString &remoteDir)
-        : localFilePath(localFilePath), remoteDir(remoteDir) {}
+    DeployableFile(const QString &localFilePath, const QString &remoteDir, Type type = TypeNormal)
+        : localFilePath(localFilePath), remoteDir(remoteDir), type(type) {}
 
     bool operator==(const DeployableFile &other) const
     {
@@ -56,8 +62,13 @@ public:
         return remoteDir + QLatin1Char('/') + QFileInfo(localFilePath).fileName();
     }
 
+    bool isExecutable() const {
+        return type == TypeExecutable;
+    }
+
     QString localFilePath;
     QString remoteDir;
+    Type type;
 };
 
 inline uint qHash(const DeployableFile &d)

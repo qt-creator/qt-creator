@@ -67,6 +67,7 @@ private slots:
     void handleUploadFinished(QSsh::SftpJobId jobId, const QString &errorMsg);
     void handleMkdirFinished(int exitStatus);
     void handleLnFinished(int exitStatus);
+    void handleChmodFinished(int exitStatus);
     void handleStdOutData();
     void handleStdErrData();
 

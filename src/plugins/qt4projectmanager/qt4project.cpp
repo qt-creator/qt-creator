@@ -1473,7 +1473,8 @@ void Qt4Project::collectData(const Qt4ProFileNode *node, DeploymentData &deploym
     switch (node->projectType()) {
     case ApplicationTemplate:
         if (!installsList.targetPath.isEmpty())
-            deploymentData.addFile(node->targetInformation().executable, installsList.targetPath);
+            deploymentData.addFile(node->targetInformation().executable, installsList.targetPath,
+                                   DeployableFile::TypeExecutable);
         break;
     case LibraryTemplate:
         collectLibraryData(node, deploymentData);

@@ -77,7 +77,7 @@ DeployableFilesPerProFile::DeployableFilesPerProFile(const Qt4ProFileNode *proFi
     if (hasTargetPath()) {
         if (d->projectType == ApplicationTemplate) {
             d->deployables.prepend(DeployableFile(localExecutableFilePath(),
-                    d->installsList.targetPath));
+                    d->installsList.targetPath, DeployableFile::TypeExecutable));
         } else if (d->projectType == LibraryTemplate) {
             foreach (const QString &filePath, localLibraryFilePaths()) {
                 d->deployables.prepend(DeployableFile(filePath,

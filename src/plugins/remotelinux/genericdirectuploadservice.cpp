@@ -61,6 +61,7 @@ public:
     SftpChannel::Ptr uploader;
     SshRemoteProcess::Ptr mkdirProc;
     SshRemoteProcess::Ptr lnProc;
+    SshRemoteProcess::Ptr chmodProc;
     QList<DeployableFile> deployableFiles;
 };
 
@@ -173,13 +174,19 @@ void GenericDirectUploadService::handleUploadFinished(QSsh::SftpJobId jobId, con
     } else {
         saveDeploymentTimeStamp(df);
 
-        // Terrible hack for Windows.
-        if (df.remoteDir.contains(QLatin1String("bin"))) {
+        // This is done for Windows.
+        if (df.isExecutable()) {
             const QString command = QLatin1String("chmod a+x ") + df.remoteFilePath();
-            connection()->createRemoteProcess(command.toUtf8())->start();
+            d->chmodProc = connection()->createRemoteProcess(command.toUtf8());
+            connect(d->chmodProc.data(), SIGNAL(closed(int)), SLOT(handleChmodFinished(int)));
+            connect(d->chmodProc.data(), SIGNAL(readyReadStandardOutput()),
+                    SLOT(handleStdOutData()));
+            connect(d->chmodProc.data(), SIGNAL(readyReadStandardError()),
+                    SLOT(handleStdErrData()));
+            d->chmodProc->start();
+        } else {
+            uploadNextFile();
         }
-
-        uploadNextFile();
     }
 }
 
@@ -203,6 +210,25 @@ void GenericDirectUploadService::handleLnFinished(int exitStatus)
         saveDeploymentTimeStamp(df);
         uploadNextFile();
     }
+}
+
+void GenericDirectUploadService::handleChmodFinished(int exitStatus)
+{
+    QTC_ASSERT(d->state == Uploading, setFinished(); return);
+
+    if (d->stopRequested) {
+        setFinished();
+        handleDeploymentDone();
+        return;
+    }
+
+    if (exitStatus != SshRemoteProcess::NormalExit || d->chmodProc->exitCode() != 0) {
+        emit errorMessage(tr("Failed to set executable flag."));
+        setFinished();
+        handleDeploymentDone();
+        return;
+    }
+    uploadNextFile();
 }
 
 void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
