@@ -569,7 +569,7 @@ public:
             return usages;
 
         const Document::Ptr &doc = snapshot.document(fileName);
-        QByteArray source;
+        QString source;
 
         foreach (const Document::MacroUse &use, doc->macroUses()) {
             const Macro &useMacro = use.macro();
@@ -577,7 +577,7 @@ public:
                 && useMacro.fileName() == macro.fileName())
                 {
                 if (source.isEmpty())
-                    source = getSource(fileName, workingCopy).toLatin1(); // ### FIXME: Encoding?
+                    source = getSource(fileName, workingCopy);
 
                 unsigned lineStart;
                 const QString &lineSource = matchingLine(use.begin(), source, &lineStart);
@@ -592,29 +592,18 @@ public:
     }
 
     // ### FIXME: Pretty close to FindUsages::matchingLine.
-    static QString matchingLine(unsigned position, const QByteArray &source,
+    static QString matchingLine(unsigned position, const QString &source,
                                 unsigned *lineStart = 0)
     {
-        const char *beg = source.constData();
-        const char *start = beg + position;
-        for (; start != beg - 1; --start) {
-            if (*start == '\n')
-                break;
-        }
-
-        ++start;
-
-        const char *end = start + 1;
-        for (; *end; ++end) {
-            if (*end == '\n')
-                break;
-        }
+        int lineBegin = source.lastIndexOf(QLatin1Char('\n'), position) + 1;
+        int lineEnd = source.indexOf(QLatin1Char('\n'), position);
+        if (lineEnd == -1)
+            lineEnd = source.length();
 
         if (lineStart)
-            *lineStart = start - beg;
+            *lineStart = lineBegin;
 
-        // ### FIXME: Encoding?
-        const QString matchingLine = QString::fromUtf8(start, end - start);
+        const QString matchingLine = source.mid(lineBegin, lineEnd - lineBegin);
         return matchingLine;
     }
 };
@@ -678,15 +667,11 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
 
     // add the macro definition itself
     {
-        // ### FIXME: Encoding?
-        const QByteArray &source = getSource(macro.fileName(), workingCopy).toLatin1();
-        int lineBegin = source.lastIndexOf('\n', macro.offset()) + 1;
-        int lineEnd = source.indexOf('\n', macro.offset());
-        if (lineEnd == -1)
-            lineEnd = source.length();
-        const QByteArray line = source.mid(lineBegin, lineEnd - lineBegin);
+        const QString &source = getSource(macro.fileName(), workingCopy);
+        unsigned lineStart;
+        const QString line = FindMacroUsesInFile::matchingLine(macro.offset(), source, &lineStart);
         search->addResult(macro.fileName(), macro.line(), line,
-                          line.indexOf(macro.name()), macro.name().length());
+                          macro.offset() - lineStart, macro.name().length());
     }
 
     QFuture<Usage> result;
