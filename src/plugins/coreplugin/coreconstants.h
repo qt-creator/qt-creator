@@ -205,8 +205,8 @@ const char ICON_CLOSE_SPLIT_LEFT[]   = ":/core/images/splitbutton_closeleft.png"
 const char ICON_CLOSE_SPLIT_RIGHT[]  = ":/core/images/splitbutton_closeright.png";
 const char ICON_FILTER[]             = ":/core/images/filtericon.png";
 const char ICON_LINK[]               = ":/core/images/linkicon.png";
-const char ICON_QTLOGO_32[]          = ":/core/images/logo/32/qtcreator.png";
-const char ICON_QTLOGO_128[]         = ":/core/images/logo/128/qtcreator.png";
+const char ICON_QTLOGO_32[]          = ":/core/images/logo/32/QtProject-qtcreator.png";
+const char ICON_QTLOGO_128[]         = ":/core/images/logo/128/QtProject-qtcreator.png";
 
 const char WIZARD_CATEGORY_QT[] = "R.Qt";
 const char WIZARD_TR_CATEGORY_QT[] = QT_TRANSLATE_NOOP("Core", "Qt");
