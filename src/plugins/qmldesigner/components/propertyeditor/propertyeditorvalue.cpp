@@ -29,6 +29,7 @@
 
 #include "propertyeditorvalue.h"
 #include <QRegExp>
+#include <QUrl>
 #include <abstractview.h>
 #include <nodeabstractproperty.h>
 #include <nodeproperty.h>
