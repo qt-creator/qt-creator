@@ -269,8 +269,6 @@ public:
 
     QString toFileInProject(const QUrl &fileUrl);
 
-    virtual bool evaluateScriptExpression(const QString &expression);
-
 signals:
     void stateChanged(Debugger::DebuggerState state);
     // A new stack frame is on display including locals.

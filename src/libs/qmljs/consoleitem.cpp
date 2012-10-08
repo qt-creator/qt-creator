@@ -1,4 +1,4 @@
-/**************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
@@ -27,17 +27,17 @@
 **
 ****************************************************************************/
 
-#include "qmlconsoleitem.h"
+#include "consoleitem.h"
 
-namespace QmlJSTools {
+namespace QmlJS {
 
 ///////////////////////////////////////////////////////////////////////
 //
-// QmlConsoleItem
+// ConsoleItem
 //
 ///////////////////////////////////////////////////////////////////////
 
-QmlConsoleItem::QmlConsoleItem(QmlConsoleItem *parent, QmlConsoleItem::ItemType itemType,
+ConsoleItem::ConsoleItem(ConsoleItem *parent, ConsoleItem::ItemType itemType,
                                const QString &text)
     : m_parentItem(parent),
       itemType(itemType),
@@ -47,36 +47,36 @@ QmlConsoleItem::QmlConsoleItem(QmlConsoleItem *parent, QmlConsoleItem::ItemType 
     setText(text);
 }
 
-QmlConsoleItem::~QmlConsoleItem()
+ConsoleItem::~ConsoleItem()
 {
     qDeleteAll(m_childItems);
 }
 
-QmlConsoleItem *QmlConsoleItem::child(int number)
+ConsoleItem *ConsoleItem::child(int number)
 {
     return m_childItems.value(number);
 }
 
-int QmlConsoleItem::childCount() const
+int ConsoleItem::childCount() const
 {
     return m_childItems.size();
 }
 
-int QmlConsoleItem::childNumber() const
+int ConsoleItem::childNumber() const
 {
     if (m_parentItem)
-        return m_parentItem->m_childItems.indexOf(const_cast<QmlConsoleItem *>(this));
+        return m_parentItem->m_childItems.indexOf(const_cast<ConsoleItem *>(this));
 
     return 0;
 }
 
-bool QmlConsoleItem::insertChildren(int position, int count)
+bool ConsoleItem::insertChildren(int position, int count)
 {
     if (position < 0 || position > m_childItems.size())
         return false;
 
     for (int row = 0; row < count; ++row) {
-        QmlConsoleItem *item = new QmlConsoleItem(this, QmlConsoleItem::UndefinedType,
+        ConsoleItem *item = new ConsoleItem(this, ConsoleItem::UndefinedType,
                                                   QString());
         m_childItems.insert(position, item);
     }
@@ -84,7 +84,7 @@ bool QmlConsoleItem::insertChildren(int position, int count)
     return true;
 }
 
-void QmlConsoleItem::insertChild(QmlConsoleItem *item, bool sorted)
+void ConsoleItem::insertChild(ConsoleItem *item, bool sorted)
 {
     if (!sorted) {
         m_childItems.insert(m_childItems.count(), item);
@@ -99,7 +99,7 @@ void QmlConsoleItem::insertChild(QmlConsoleItem *item, bool sorted)
     m_childItems.insert(i, item);
 }
 
-bool QmlConsoleItem::insertChild(int position, QmlConsoleItem *item)
+bool ConsoleItem::insertChild(int position, ConsoleItem *item)
 {
     if (position < 0 || position > m_childItems.size())
         return false;
@@ -109,12 +109,12 @@ bool QmlConsoleItem::insertChild(int position, QmlConsoleItem *item)
     return true;
 }
 
-QmlConsoleItem *QmlConsoleItem::parent()
+ConsoleItem *ConsoleItem::parent()
 {
     return m_parentItem;
 }
 
-bool QmlConsoleItem::removeChildren(int position, int count)
+bool ConsoleItem::removeChildren(int position, int count)
 {
     if (position < 0 || position + count > m_childItems.size())
         return false;
@@ -125,7 +125,7 @@ bool QmlConsoleItem::removeChildren(int position, int count)
     return true;
 }
 
-bool QmlConsoleItem::detachChild(int position)
+bool ConsoleItem::detachChild(int position)
 {
     if (position < 0 || position > m_childItems.size())
         return false;
@@ -135,7 +135,7 @@ bool QmlConsoleItem::detachChild(int position)
     return true;
 }
 
-void QmlConsoleItem::setText(const QString &text)
+void ConsoleItem::setText(const QString &text)
 {
     m_text = text;
     for (int i = 0; i < m_text.length(); ++i) {
@@ -144,9 +144,9 @@ void QmlConsoleItem::setText(const QString &text)
     }
 }
 
-const QString &QmlConsoleItem::text() const
+const QString &ConsoleItem::text() const
 {
     return m_text;
 }
 
-} // QmlJSTools
+} // QmlJS

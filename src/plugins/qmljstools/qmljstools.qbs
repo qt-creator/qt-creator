@@ -55,8 +55,6 @@ QtcPlugin {
         "qmljstoolssettings.h",
         "qmlconsolemanager.cpp",
         "qmlconsolemanager.h",
-        "qmlconsoleitem.cpp",
-        "qmlconsoleitem.h",
         "qmlconsoleitemmodel.cpp",
         "qmlconsoleitemmodel.h",
         "qmlconsolepane.cpp",

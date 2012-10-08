@@ -27,60 +27,28 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCONSOLEMANAGER_H
-#define QMLCONSOLEMANAGER_H
-
-#include "qmljstools_global.h"
-
-#include <qmljs/consolemanagerinterface.h>
-
-#include <QObject>
+#include "consolemanagerinterface.h"
 
 namespace QmlJS {
-class IScriptEvaluator;
-}
-namespace QmlJSTools {
 
-namespace Internal {
-class QmlConsoleItemModel;
-class QmlConsoleModel;
-}
+static ConsoleManagerInterface *g_instance = 0;
 
-class QmlConsoleManagerPrivate;
-class QMLJSTOOLS_EXPORT QmlConsoleManager : public QmlJS::ConsoleManagerInterface
+ConsoleManagerInterface::ConsoleManagerInterface(QObject *parent)
+    : QObject(parent)
 {
-    Q_OBJECT
-public:
-    QmlConsoleManager(QObject *parent);
-    ~QmlConsoleManager();
-
-    void showConsolePane();
-
-    QmlJS::ConsoleItem *rootItem() const;
-
-    void setScriptEvaluator(QmlJS::IScriptEvaluator *scriptEvaluator);
-    void setContext(const QString &context);
-
-    void printToConsolePane(QmlJS::ConsoleItem::ItemType itemType, const QString &text,
-                            bool bringToForeground = false);
-    void printToConsolePane(QmlJS::ConsoleItem *item, bool bringToForeground = false);
-
-private:
-    QmlConsoleManagerPrivate *d;
-    friend class Internal::QmlConsoleModel;
-};
-
-namespace Internal {
-
-class QmlConsoleModel
-{
-public:
-    static QmlConsoleItemModel *qmlConsoleItemModel();
-    static void evaluate(const QString &expression);
-};
-
+    Q_ASSERT(!g_instance);
+    g_instance = this;
 }
 
-} // namespace QmlJSTools
+ConsoleManagerInterface::~ConsoleManagerInterface()
+{
+    Q_ASSERT(g_instance == this);
+    g_instance = 0;
+}
 
-#endif // QMLCONSOLEMANAGER_H
+ConsoleManagerInterface *ConsoleManagerInterface::instance()
+{
+    return g_instance;
+}
+
+} // QmlJS

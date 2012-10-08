@@ -43,8 +43,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/basetexteditor.h>
 
-#include <qmljstools/qmlconsoleitem.h>
-#include <qmljstools/qmlconsolemanager.h>
+#include <qmljs/consolemanagerinterface.h>
+#include <qmljs/consoleitem.h>
 
 #include <QTextBlock>
 #include <QVariant>
@@ -1748,11 +1748,11 @@ void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &r
         d->engine->watchHandler()->insertData(locals);
 }
 
-QmlJSTools::QmlConsoleItem *constructLogItemTree(QmlJSTools::QmlConsoleItem *parent,
+QmlJS::ConsoleItem *constructLogItemTree(QmlJS::ConsoleItem *parent,
                                                  const QmlV8ObjectData &objectData,
                                                  const QVariant &refsVal)
 {
-    using namespace QmlJSTools;
+    using namespace QmlJS;
     bool sorted = debuggerCore()->boolSetting(SortStructMembers);
     if (!objectData.value.isValid())
         return 0;
@@ -1764,10 +1764,10 @@ QmlJSTools::QmlConsoleItem *constructLogItemTree(QmlJSTools::QmlConsoleItem *par
         text = QString(_("%1: %2")).arg(QString::fromAscii(objectData.name))
                 .arg(objectData.value.toString());
 
-    QmlConsoleItem *item = new QmlConsoleItem(parent, QmlConsoleItem::UndefinedType, text);
+    ConsoleItem *item = new ConsoleItem(parent, ConsoleItem::UndefinedType, text);
 
     foreach (const QVariant &property, objectData.properties) {
-        QmlConsoleItem *child = constructLogItemTree(item, extractData(property, refsVal),
+        ConsoleItem *child = constructLogItemTree(item, extractData(property, refsVal),
                                                      refsVal);
         if (child)
             item->insertChild(child, sorted);
@@ -1802,10 +1802,10 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success,
     } else if (d->debuggerCommands.contains(sequence)) {
         d->updateLocalsAndWatchers.removeOne(sequence);
         QmlV8ObjectData body = extractData(bodyVal, refsVal);
-        using namespace QmlJSTools;
-        QmlConsoleManager *consoleManager = QmlConsoleManager::instance();
+        using namespace QmlJS;
+        ConsoleManagerInterface *consoleManager = ConsoleManagerInterface::instance();
         if (consoleManager) {
-            QmlConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), body, refsVal);
+            ConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), body, refsVal);
             if (item)
                 consoleManager->printToConsolePane(item);
         }

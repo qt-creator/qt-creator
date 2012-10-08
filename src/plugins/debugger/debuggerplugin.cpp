@@ -124,8 +124,6 @@
 #  include <utils/winutils.h>
 #endif
 
-#include <qmljstools/qmlconsolemanager.h>
-
 #include <QComboBox>
 #include <QDockWidget>
 #include <QFileDialog>
@@ -964,7 +962,6 @@ public slots:
     void aboutToSaveSession();
 
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
-    bool evaluateScriptExpression(const QString &expression);
     void coreShutdown();
 
 #ifdef WITH_TESTS
@@ -2069,13 +2066,6 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
 
     mainWindow()->setEngineDebugLanguages(engine->startParameters().languages);
     mainWindow()->setCurrentEngine(engine);
-    QmlJSTools::QmlConsoleManager *consoleManager = QmlJSTools::QmlConsoleManager::instance();
-    if (consoleManager) {
-        if (engine->startParameters().languages & QmlLanguage)
-            consoleManager->setDebuggerEngine(engine);
-        else
-            consoleManager->setDebuggerEngine(0);
-    }
 }
 
 static void changeFontSize(QWidget *widget, qreal size)
@@ -2488,11 +2478,6 @@ void DebuggerPluginPrivate::showStatusMessage(const QString &msg0, int timeout)
     QString msg = msg0;
     msg.remove(QLatin1Char('\n'));
     m_statusLabel->showStatusMessage(msg, timeout);
-}
-
-bool DebuggerPluginPrivate::evaluateScriptExpression(const QString &expression)
-{
-    return currentEngine()->evaluateScriptExpression(expression);
 }
 
 void DebuggerPluginPrivate::openMemoryEditor()

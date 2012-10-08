@@ -27,60 +27,22 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCONSOLEMANAGER_H
-#define QMLCONSOLEMANAGER_H
+#ifndef ISCRIPTEVALUATOR_H
+#define ISCRIPTEVALUATOR_H
 
-#include "qmljstools_global.h"
+#include "qmljs_global.h"
 
-#include <qmljs/consolemanagerinterface.h>
-
-#include <QObject>
+#include <QString>
 
 namespace QmlJS {
-class IScriptEvaluator;
-}
-namespace QmlJSTools {
 
-namespace Internal {
-class QmlConsoleItemModel;
-class QmlConsoleModel;
-}
-
-class QmlConsoleManagerPrivate;
-class QMLJSTOOLS_EXPORT QmlConsoleManager : public QmlJS::ConsoleManagerInterface
-{
-    Q_OBJECT
-public:
-    QmlConsoleManager(QObject *parent);
-    ~QmlConsoleManager();
-
-    void showConsolePane();
-
-    QmlJS::ConsoleItem *rootItem() const;
-
-    void setScriptEvaluator(QmlJS::IScriptEvaluator *scriptEvaluator);
-    void setContext(const QString &context);
-
-    void printToConsolePane(QmlJS::ConsoleItem::ItemType itemType, const QString &text,
-                            bool bringToForeground = false);
-    void printToConsolePane(QmlJS::ConsoleItem *item, bool bringToForeground = false);
-
-private:
-    QmlConsoleManagerPrivate *d;
-    friend class Internal::QmlConsoleModel;
-};
-
-namespace Internal {
-
-class QmlConsoleModel
+class QMLJS_EXPORT IScriptEvaluator
 {
 public:
-    static QmlConsoleItemModel *qmlConsoleItemModel();
-    static void evaluate(const QString &expression);
+    IScriptEvaluator() {}
+
+    virtual bool evaluateScript(const QString &script) = 0;
 };
+} // QmlJS
 
-}
-
-} // namespace QmlJSTools
-
-#endif // QMLCONSOLEMANAGER_H
+#endif // ISCRIPTEVALUATOR_H

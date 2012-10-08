@@ -30,31 +30,33 @@
 #include "qmlconsoleproxymodel.h"
 #include "qmlconsoleitemmodel.h"
 
+using namespace QmlJS;
+
 namespace QmlJSTools {
 namespace Internal {
 
 QmlConsoleProxyModel::QmlConsoleProxyModel(QObject *parent) :
     QSortFilterProxyModel(parent),
-    m_filter(QmlConsoleItem::DefaultTypes)
+    m_filter(ConsoleItem::DefaultTypes)
 {
 }
 
 void QmlConsoleProxyModel::setShowLogs(bool show)
 {
-    m_filter = show ? m_filter | QmlConsoleItem::DebugType : m_filter & ~QmlConsoleItem::DebugType;
+    m_filter = show ? m_filter | ConsoleItem::DebugType : m_filter & ~ConsoleItem::DebugType;
     setFilterRegExp(QString());
 }
 
 void QmlConsoleProxyModel::setShowWarnings(bool show)
 {
-    m_filter = show ? m_filter | QmlConsoleItem::WarningType
-                    : m_filter & ~QmlConsoleItem::WarningType;
+    m_filter = show ? m_filter | ConsoleItem::WarningType
+                    : m_filter & ~ConsoleItem::WarningType;
     setFilterRegExp(QString());
 }
 
 void QmlConsoleProxyModel::setShowErrors(bool show)
 {
-    m_filter = show ? m_filter | QmlConsoleItem::ErrorType : m_filter & ~QmlConsoleItem::ErrorType;
+    m_filter = show ? m_filter | ConsoleItem::ErrorType : m_filter & ~ConsoleItem::ErrorType;
     setFilterRegExp(QString());
 }
 
@@ -68,7 +70,7 @@ bool QmlConsoleProxyModel::filterAcceptsRow(int sourceRow,
          const QModelIndex &sourceParent) const
  {
      QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-     return m_filter.testFlag((QmlConsoleItem::ItemType)sourceModel()->data(
+     return m_filter.testFlag((ConsoleItem::ItemType)sourceModel()->data(
                                   index, QmlConsoleItemModel::TypeRole).toInt());
  }
 

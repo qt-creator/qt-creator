@@ -53,6 +53,8 @@ const char CONSOLE_BORDER_COLOR[] = "#C9C9C9";
 
 const int ELLIPSIS_GRADIENT_WIDTH = 16;
 
+using namespace QmlJS;
+
 namespace QmlJSTools {
 namespace Internal {
 
@@ -84,23 +86,23 @@ QColor QmlConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &re
                                               bool selected) const
 {
     painter->save();
-    QmlConsoleItem::ItemType itemType = (QmlConsoleItem::ItemType)index.data(
+    ConsoleItem::ItemType itemType = (ConsoleItem::ItemType)index.data(
                 QmlConsoleItemModel::TypeRole).toInt();
     QColor backgroundColor;
     switch (itemType) {
-    case QmlConsoleItem::DebugType:
+    case ConsoleItem::DebugType:
         backgroundColor = selected ? QColor(CONSOLE_LOG_BACKGROUND_SELECTED_COLOR) :
                                      QColor(CONSOLE_LOG_BACKGROUND_COLOR);
         break;
-    case QmlConsoleItem::WarningType:
+    case ConsoleItem::WarningType:
         backgroundColor = selected ? QColor(CONSOLE_WARNING_BACKGROUND_SELECTED_COLOR) :
                                      QColor(CONSOLE_WARNING_BACKGROUND_COLOR);
         break;
-    case QmlConsoleItem::ErrorType:
+    case ConsoleItem::ErrorType:
         backgroundColor = selected ? QColor(CONSOLE_ERROR_BACKGROUND_SELECTED_COLOR) :
                                      QColor(CONSOLE_ERROR_BACKGROUND_COLOR);
         break;
-    case QmlConsoleItem::InputType:
+    case ConsoleItem::InputType:
     default:
         backgroundColor = selected ? QColor(CONSOLE_EDITOR_BACKGROUND_SELECTED_COLOR) :
                                      QColor(CONSOLE_EDITOR_BACKGROUND_COLOR);
@@ -130,22 +132,22 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     // Set Colors
     QColor textColor;
     QIcon taskIcon;
-    QmlConsoleItem::ItemType type = (QmlConsoleItem::ItemType)index.data(
+    ConsoleItem::ItemType type = (ConsoleItem::ItemType)index.data(
                 QmlConsoleItemModel::TypeRole).toInt();
     switch (type) {
-    case QmlConsoleItem::DebugType:
+    case ConsoleItem::DebugType:
         textColor = QColor(CONSOLE_LOG_TEXT_COLOR);
         taskIcon = m_logIcon;
         break;
-    case QmlConsoleItem::WarningType:
+    case ConsoleItem::WarningType:
         textColor = QColor(CONSOLE_WARNING_TEXT_COLOR);
         taskIcon = m_warningIcon;
         break;
-    case QmlConsoleItem::ErrorType:
+    case ConsoleItem::ErrorType:
         textColor = QColor(CONSOLE_ERROR_TEXT_COLOR);
         taskIcon = m_errorIcon;
         break;
-    case QmlConsoleItem::InputType:
+    case ConsoleItem::InputType:
         textColor = QColor(CONSOLE_EDITOR_TEXT_COLOR);
         taskIcon = m_prompt;
         break;
@@ -168,7 +170,7 @@ void QmlConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem
     }
     int width = view->width() - level * view->indentation() - view->verticalScrollBar()->width();
     bool showTypeIcon = index.parent() == QModelIndex();
-    bool showExpandableIcon = type == QmlConsoleItem::UndefinedType;
+    bool showExpandableIcon = type == ConsoleItem::UndefinedType;
 
     QRect rect(opt.rect.x(), opt.rect.top(), width, opt.rect.height());
     ConsoleItemPositions positions(rect, opt.font, showTypeIcon, showExpandableIcon);
@@ -266,10 +268,10 @@ QSize QmlConsoleItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     if (!selected && option.font == m_cachedFont && m_cachedHeight > 0)
         return QSize(width, m_cachedHeight);
 
-    QmlConsoleItem::ItemType type = (QmlConsoleItem::ItemType)index.data(
+    ConsoleItem::ItemType type = (ConsoleItem::ItemType)index.data(
                 QmlConsoleItemModel::TypeRole).toInt();
     bool showTypeIcon = index.parent() == QModelIndex();
-    bool showExpandableIcon = type == QmlConsoleItem::UndefinedType;
+    bool showExpandableIcon = type == ConsoleItem::UndefinedType;
 
     QRect rect(level * view->indentation(), 0, width, 0);
     ConsoleItemPositions positions(rect, opt.font, showTypeIcon, showExpandableIcon);
@@ -320,7 +322,7 @@ void QmlConsoleItemDelegate::setModelData(QWidget *editor,
 {
     QmlConsoleEdit *edtr = qobject_cast<QmlConsoleEdit *>(editor);
     model->setData(index, edtr->getCurrentScript(), Qt::DisplayRole);
-    model->setData(index, QmlConsoleItem::InputType, QmlConsoleItemModel::TypeRole);
+    model->setData(index, ConsoleItem::InputType, QmlConsoleItemModel::TypeRole);
 }
 
 void QmlConsoleItemDelegate::updateEditorGeometry(QWidget *editor,

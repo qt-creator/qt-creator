@@ -40,6 +40,7 @@
 #include <texteditor/itexteditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <cppeditor/cppeditorconstants.h>
+#include <qmljs/consolemanagerinterface.h>
 
 #include <QTimer>
 
@@ -400,11 +401,6 @@ void QmlCppEngine::executeDebuggerCommand(const QString &command, DebuggerLangua
     d->m_cppEngine->executeDebuggerCommand(command, languages);
 }
 
-bool QmlCppEngine::evaluateScriptExpression(const QString &expression)
-{
-    return d->m_qmlEngine->evaluateScriptExpression(expression);
-}
-
 /////////////////////////////////////////////////////////
 
 void QmlCppEngine::setupEngine()
@@ -466,6 +462,9 @@ void QmlCppEngine::shutdownEngine()
 {
     EDEBUG("\nMASTER SHUTDOWN ENGINE");
     d->m_cppEngine->shutdownSlaveEngine();
+    QmlJS::ConsoleManagerInterface *consoleManager = QmlJS::ConsoleManagerInterface::instance();
+    if (consoleManager)
+        consoleManager->setScriptEvaluator(0);
 }
 
 void QmlCppEngine::quitDebugger()

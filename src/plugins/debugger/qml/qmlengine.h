@@ -39,6 +39,7 @@
 #include <qmldebug/qdebugmessageclient.h>
 #include <qmldebug/qmloutputparser.h>
 #include <qmljs/qmljsdocument.h>
+#include <qmljs/iscriptevaluator.h>
 #include <utils/outputformat.h>
 
 #include <QAbstractSocket>
@@ -53,7 +54,7 @@ namespace Internal {
 
 class QmlAdapter;
 
-class QmlEngine : public DebuggerEngine
+class QmlEngine : public DebuggerEngine, QmlJS::IScriptEvaluator
 {
     Q_OBJECT
 
@@ -161,7 +162,7 @@ private:
     void updateWatchData(const WatchData &data,
         const WatchUpdateFlags &flags);
     void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
-    bool evaluateScriptExpression(const QString &expression);
+    bool evaluateScript(const QString &expression);
 
     bool hasCapability(unsigned) const;
     void quitDebugger();

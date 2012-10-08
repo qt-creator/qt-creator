@@ -43,6 +43,8 @@
 #include <QUrl>
 #include <QScrollBar>
 
+using namespace QmlJS;
+
 namespace QmlJSTools {
 namespace Internal {
 
@@ -117,10 +119,10 @@ void QmlConsoleView::mousePressEvent(QMouseEvent *event)
     QPoint pos = event->pos();
     QModelIndex index = indexAt(pos);
     if (index.isValid()) {
-        QmlConsoleItem::ItemType type = (QmlConsoleItem::ItemType)index.data(
+        ConsoleItem::ItemType type = (ConsoleItem::ItemType)index.data(
                     QmlConsoleItemModel::TypeRole).toInt();
         bool handled = false;
-        if (type == QmlConsoleItem::UndefinedType) {
+        if (type == ConsoleItem::UndefinedType) {
             bool showTypeIcon = index.parent() == QModelIndex();
             ConsoleItemPositions positions(visualRect(index), viewOptions().font, showTypeIcon,
                                            true);

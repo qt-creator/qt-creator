@@ -64,7 +64,7 @@
 #include <utils/qtcassert.h>
 #include <utils/fileinprojectfinder.h>
 
-#include <qmljstools/qmlconsolemanager.h>
+#include <qmljs/consolemanagerinterface.h>
 
 #include <QDebug>
 #include <QTimer>
@@ -532,9 +532,9 @@ void DebuggerEngine::showMessage(const QString &msg, int channel, int timeout) c
     }
     //if (msg.size() && msg.at(0).isUpper() && msg.at(1).isUpper())
     //    qDebug() << qPrintable(msg) << "IN STATE" << state();
-    QmlJSTools::QmlConsoleManager *consoleManager = QmlJSTools::QmlConsoleManager::instance();
+    QmlJS::ConsoleManagerInterface *consoleManager = QmlJS::ConsoleManagerInterface::instance();
     if (channel == ConsoleOutput && consoleManager)
-        consoleManager->printToConsolePane(QmlJSTools::QmlConsoleItem::UndefinedType, msg);
+        consoleManager->printToConsolePane(QmlJS::ConsoleItem::UndefinedType, msg);
 
     debuggerCore()->showMessage(msg, channel, timeout);
     if (d->m_runControl) {
@@ -1653,12 +1653,6 @@ void DebuggerEngine::executeJumpToLine(const ContextData &)
 void DebuggerEngine::executeDebuggerCommand(const QString &, DebuggerLanguages)
 {
     showStatusMessage(tr("This debugger cannot handle user input."));
-}
-
-bool DebuggerEngine::evaluateScriptExpression(const QString &)
-{
-    showStatusMessage(tr("This debugger cannot handle user input."));
-    return false;
 }
 
 BreakHandler *DebuggerEngine::breakHandler() const

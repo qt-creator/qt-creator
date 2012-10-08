@@ -363,10 +363,10 @@ QmlLiveTextPreview::QmlLiveTextPreview(const QmlJS::Document::Ptr &doc,
 
     QmlJS::ModelManagerInterface *modelManager
             = QmlJS::ModelManagerInterface::instance();
-
-    connect(modelManager, SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
-            SLOT(documentChanged(QmlJS::Document::Ptr)));
-
+    if (modelManager) {
+        connect(modelManager, SIGNAL(documentChangedOnDisk(QmlJS::Document::Ptr)),
+                SLOT(documentChanged(QmlJS::Document::Ptr)));
+    }
     connect(m_inspectorAdapter->agent(), SIGNAL(objectTreeUpdated()),
             SLOT(updateDebugIds()));
     connect(this,

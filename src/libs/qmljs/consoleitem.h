@@ -1,4 +1,4 @@
-/**************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2012 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
@@ -27,17 +27,17 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCONSOLEITEM_H
-#define QMLCONSOLEITEM_H
+#ifndef CONSOLEITEM_H
+#define CONSOLEITEM_H
 
-#include "qmljstools_global.h"
+#include "qmljs_global.h"
 
 #include <QList>
 #include <QString>
 
-namespace QmlJSTools {
+namespace QmlJS {
 
-class QMLJSTOOLS_EXPORT QmlConsoleItem
+class QMLJS_EXPORT ConsoleItem
 {
 public:
     enum ItemType
@@ -51,17 +51,17 @@ public:
     };
     Q_DECLARE_FLAGS(ItemTypes, ItemType)
 
-    QmlConsoleItem(QmlConsoleItem *parent,
-                   QmlConsoleItem::ItemType type = QmlConsoleItem::UndefinedType,
+    ConsoleItem(ConsoleItem *parent,
+                   ConsoleItem::ItemType type = ConsoleItem::UndefinedType,
                    const QString &data = QString());
-    ~QmlConsoleItem();
+    ~ConsoleItem();
 
-    QmlConsoleItem *child(int number);
+    ConsoleItem *child(int number);
     int childCount() const;
     bool insertChildren(int position, int count);
-    void insertChild(QmlConsoleItem *item, bool sorted);
-    bool insertChild(int position, QmlConsoleItem *item);
-    QmlConsoleItem *parent();
+    void insertChild(ConsoleItem *item, bool sorted);
+    bool insertChild(int position, ConsoleItem *item);
+    ConsoleItem *parent();
     bool removeChildren(int position, int count);
     bool detachChild(int position);
     int childNumber() const;
@@ -69,16 +69,16 @@ public:
     const QString &text() const;
 
 private:
-    QmlConsoleItem *m_parentItem;
-    QList<QmlConsoleItem *> m_childItems;
+    ConsoleItem *m_parentItem;
+    QList<ConsoleItem *> m_childItems;
     QString m_text;
 
 public:
-    QmlConsoleItem::ItemType itemType;
+    ConsoleItem::ItemType itemType;
     QString file;
     int line;
 };
 
-} // QmlJSTools
+} // QmlJS
 
-#endif // QMLCONSOLEITEM_H
+#endif // CONSOLEITEM_H

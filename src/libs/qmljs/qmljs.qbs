@@ -96,6 +96,11 @@ QtcLibrary {
         "parser/qmljsmemorypool_p.h",
         "parser/qmljsparser.cpp",
         "parser/qmljsparser_p.h",
+        "consolemanagerinterface.cpp",
+        "consolemanagerinterface.h",
+        "consoleitem.cpp",
+        "consoleitem.h",
+        "iscriptevaluator.h"
     ]
 
     ProductModule {

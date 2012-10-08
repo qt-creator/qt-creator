@@ -33,14 +33,14 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <debugger/debuggerengine.h>
+#include <qmljs/iscriptevaluator.h>
 
 #include <QScriptEngine>
 #include <QVariant>
 
-namespace QmlJSTools {
+using namespace QmlJS;
 
-QmlConsoleManager *QmlConsoleManager::m_instance = 0;
+namespace QmlJSTools {
 
 class QmlConsoleManagerPrivate
 {
@@ -48,29 +48,26 @@ public:
     QScriptEngine *scriptEngine;
     Internal::QmlConsoleItemModel *qmlConsoleItemModel;
     Internal::QmlConsolePane *qmlConsolePane;
-    Debugger::DebuggerEngine *debuggerEngine;
+    QmlJS::IScriptEvaluator *scriptEvaluator;
 };
 
 QmlConsoleManager::QmlConsoleManager(QObject *parent)
-    : QObject(parent),
+    : ConsoleManagerInterface(parent),
       d(new QmlConsoleManagerPrivate)
 {
-    m_instance = this;
     d->scriptEngine = new QScriptEngine(this);
     d->qmlConsoleItemModel = new Internal::QmlConsoleItemModel(this);
     d->qmlConsoleItemModel->setHasEditableRow(true);
     d->qmlConsolePane = new Internal::QmlConsolePane(this);
+    d->scriptEvaluator = 0;
     ExtensionSystem::PluginManager::addObject(d->qmlConsolePane);
-    d->debuggerEngine = 0;
 }
 
 QmlConsoleManager::~QmlConsoleManager()
 {
-    if (d->qmlConsolePane) {
+    if (d->qmlConsolePane)
         ExtensionSystem::PluginManager::removeObject(d->qmlConsolePane);
-    }
     delete d;
-    m_instance = 0;
 }
 
 void QmlConsoleManager::showConsolePane()
@@ -79,15 +76,15 @@ void QmlConsoleManager::showConsolePane()
         d->qmlConsolePane->popup(Core::IOutputPane::ModeSwitch);
 }
 
-QmlConsoleItem *QmlConsoleManager::rootItem() const
+ConsoleItem *QmlConsoleManager::rootItem() const
 {
     return d->qmlConsoleItemModel->root();
 }
 
-void QmlConsoleManager::setDebuggerEngine(Debugger::DebuggerEngine *debuggerEngine)
+void QmlConsoleManager::setScriptEvaluator(QmlJS::IScriptEvaluator *scriptEvaluator)
 {
-    d->debuggerEngine = debuggerEngine;
-    if (!debuggerEngine)
+    d->scriptEvaluator = scriptEvaluator;
+    if (!scriptEvaluator)
         setContext(QString());
 }
 
@@ -96,23 +93,23 @@ void QmlConsoleManager::setContext(const QString &context)
     d->qmlConsolePane->setContext(context);
 }
 
-void QmlConsoleManager::printToConsolePane(QmlConsoleItem::ItemType itemType,
+void QmlConsoleManager::printToConsolePane(ConsoleItem::ItemType itemType,
                                            const QString &text, bool bringToForeground)
 {
     if (!d->qmlConsolePane)
         return;
-    if (itemType == QmlConsoleItem::ErrorType)
+    if (itemType == ConsoleItem::ErrorType)
         bringToForeground = true;
     if (bringToForeground)
         d->qmlConsolePane->popup(Core::IOutputPane::ModeSwitch);
     d->qmlConsoleItemModel->appendMessage(itemType, text);
 }
 
-void QmlConsoleManager::printToConsolePane(QmlConsoleItem *item, bool bringToForeground)
+void QmlConsoleManager::printToConsolePane(ConsoleItem *item, bool bringToForeground)
 {
     if (!d->qmlConsolePane)
         return;
-    if (item->itemType == QmlConsoleItem::ErrorType)
+    if (item->itemType == ConsoleItem::ErrorType)
         bringToForeground = true;
     if (bringToForeground)
         d->qmlConsolePane->popup(Core::IOutputPane::ModeSwitch);
@@ -121,13 +118,13 @@ void QmlConsoleManager::printToConsolePane(QmlConsoleItem *item, bool bringToFor
 
 namespace Internal {
 
-QmlConsoleItem *constructLogItemTree(QmlConsoleItem *parent, const QVariant &result,
+ConsoleItem *constructLogItemTree(ConsoleItem *parent, const QVariant &result,
                                      const QString &key = QString())
 {
     if (!result.isValid())
         return 0;
 
-    QmlConsoleItem *item = new QmlConsoleItem(parent);
+    ConsoleItem *item = new ConsoleItem(parent);
     if (result.type() == QVariant::Map) {
         if (key.isEmpty())
             item->setText(QLatin1String("Object"));
@@ -137,7 +134,7 @@ QmlConsoleItem *constructLogItemTree(QmlConsoleItem *parent, const QVariant &res
         QMapIterator<QString, QVariant> i(result.toMap());
         while (i.hasNext()) {
             i.next();
-            QmlConsoleItem *child = constructLogItemTree(item, i.value(), i.key());
+            ConsoleItem *child = constructLogItemTree(item, i.value(), i.key());
             if (child)
                 item->insertChild(child, true);
         }
@@ -148,7 +145,7 @@ QmlConsoleItem *constructLogItemTree(QmlConsoleItem *parent, const QVariant &res
             item->setText(QString(QLatin1String("[%1] : List")).arg(key));
         QVariantList resultList = result.toList();
         for (int i = 0; i < resultList.count(); i++) {
-            QmlConsoleItem *child = constructLogItemTree(item, resultList.at(i),
+            ConsoleItem *child = constructLogItemTree(item, resultList.at(i),
                                                           QString::number(i));
             if (child)
                 item->insertChild(child, true);
@@ -164,7 +161,7 @@ QmlConsoleItem *constructLogItemTree(QmlConsoleItem *parent, const QVariant &res
 
 QmlConsoleItemModel *QmlConsoleModel::qmlConsoleItemModel()
 {
-    QmlConsoleManager *manager = QmlConsoleManager::instance();
+    QmlConsoleManager *manager = qobject_cast<QmlConsoleManager *>(QmlConsoleManager::instance());
     if (manager)
         return manager->d->qmlConsoleItemModel;
     return 0;
@@ -172,15 +169,15 @@ QmlConsoleItemModel *QmlConsoleModel::qmlConsoleItemModel()
 
 void QmlConsoleModel::evaluate(const QString &expression)
 {
-    QmlConsoleManager *manager = QmlConsoleManager::instance();
+    QmlConsoleManager *manager = qobject_cast<QmlConsoleManager *>(QmlConsoleManager::instance());
     if (manager) {
-        if (manager->d->debuggerEngine) {
+        if (manager->d->scriptEvaluator) {
             QmlConsoleModel::qmlConsoleItemModel()->appendEditableRow();
-            manager->d->debuggerEngine->evaluateScriptExpression(expression);
+            manager->d->scriptEvaluator->evaluateScript(expression);
         } else {
             QVariant result = manager->d->scriptEngine->evaluate(expression).toVariant();
-            QmlConsoleItem *root = manager->rootItem();
-            QmlConsoleItem *item = constructLogItemTree(root, result);
+            ConsoleItem *root = manager->rootItem();
+            ConsoleItem *item = constructLogItemTree(root, result);
             if (item) {
                 QmlConsoleModel::qmlConsoleItemModel()->appendEditableRow();
                 manager->printToConsolePane(item);

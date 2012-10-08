@@ -30,7 +30,6 @@ HEADERS += \
     $$PWD/qmljssemanticinfo.h \
     $$PWD/qmljstools_global.h \
     $$PWD/qmlconsolemanager.h \
-    $$PWD/qmlconsoleitem.h \
     $$PWD/qmlconsoleitemmodel.h \
     $$PWD/qmlconsolepane.h \
     $$PWD/qmlconsoleview.h \
@@ -54,7 +53,6 @@ SOURCES += \
     $$PWD/qmljsfindexportedcpptypes.cpp \
     $$PWD/qmljssemanticinfo.cpp \
     $$PWD/qmlconsolemanager.cpp \
-    $$PWD/qmlconsoleitem.cpp \
     $$PWD/qmlconsoleitemmodel.cpp \
     $$PWD/qmlconsolepane.cpp \
     $$PWD/qmlconsoleview.cpp \

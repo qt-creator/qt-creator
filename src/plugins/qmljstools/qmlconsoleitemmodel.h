@@ -30,7 +30,7 @@
 #ifndef QMLCONSOLEITEMMODEL_H
 #define QMLCONSOLEITEMMODEL_H
 
-#include "qmlconsoleitem.h"
+#include <qmljs/consoleitem.h>
 
 #include <QAbstractItemModel>
 #include <QItemSelectionModel>
@@ -53,8 +53,8 @@ public:
     void appendEditableRow();
     void removeEditableRow();
 
-    bool appendItem(QmlConsoleItem *item, int position = -1);
-    bool appendMessage(QmlConsoleItem::ItemType itemType, const QString &message,
+    bool appendItem(QmlJS::ConsoleItem *item, int position = -1);
+    bool appendMessage(QmlJS::ConsoleItem::ItemType itemType, const QString &message,
                        int position = -1);
 
     QAbstractItemModel *model() { return this; }
@@ -64,7 +64,7 @@ public:
     int sizeOfFile(const QFont &font);
     int sizeOfLineNumber(const QFont &font);
 
-    QmlConsoleItem *root() const { return m_rootItem; }
+    QmlJS::ConsoleItem *root() const { return m_rootItem; }
 
 public slots:
     void clear();
@@ -88,11 +88,11 @@ protected:
     bool insertRows(int position, int rows, const QModelIndex &parent = QModelIndex());
     bool removeRows(int position, int rows, const QModelIndex &parent = QModelIndex());
 
-    QmlConsoleItem *getItem(const QModelIndex &index) const;
+    QmlJS::ConsoleItem *getItem(const QModelIndex &index) const;
 
 private:
     bool m_hasEditableRow;
-    QmlConsoleItem *m_rootItem;
+    QmlJS::ConsoleItem *m_rootItem;
     int m_maxSizeOfFileName;
 };
 

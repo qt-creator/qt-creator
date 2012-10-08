@@ -33,6 +33,8 @@
 
 #include <QFontMetrics>
 
+using namespace QmlJS;
+
 namespace QmlJSTools {
 namespace Internal {
 
@@ -45,7 +47,7 @@ namespace Internal {
 QmlConsoleItemModel::QmlConsoleItemModel(QObject *parent) :
     QAbstractItemModel(parent),
     m_hasEditableRow(false),
-    m_rootItem(new QmlConsoleItem(0)),
+    m_rootItem(new ConsoleItem(0)),
     m_maxSizeOfFileName(0)
 {
 }
@@ -60,14 +62,14 @@ void QmlConsoleItemModel::clear()
     beginResetModel();
     reset();
     delete m_rootItem;
-    m_rootItem = new QmlConsoleItem(0);
+    m_rootItem = new ConsoleItem(0);
     endResetModel();
 
     if (m_hasEditableRow)
         appendEditableRow();
 }
 
-bool QmlConsoleItemModel::appendItem(QmlConsoleItem *item, int position)
+bool QmlConsoleItemModel::appendItem(ConsoleItem *item, int position)
 {
     if (position < 0)
         position = m_rootItem->childCount() - 1;
@@ -82,10 +84,10 @@ bool QmlConsoleItemModel::appendItem(QmlConsoleItem *item, int position)
     return success;
 }
 
-bool QmlConsoleItemModel::appendMessage(QmlConsoleItem::ItemType itemType,
+bool QmlConsoleItemModel::appendMessage(ConsoleItem::ItemType itemType,
                                         const QString &message, int position)
 {
-    return appendItem(new QmlConsoleItem(m_rootItem, itemType, message), position);
+    return appendItem(new ConsoleItem(m_rootItem, itemType, message), position);
 }
 
 void QmlConsoleItemModel::setHasEditableRow(bool hasEditableRow)
@@ -107,13 +109,13 @@ bool QmlConsoleItemModel::hasEditableRow() const
 void QmlConsoleItemModel::appendEditableRow()
 {
     int position = m_rootItem->childCount();
-    if (appendItem(new QmlConsoleItem(m_rootItem, QmlConsoleItem::InputType), position))
+    if (appendItem(new ConsoleItem(m_rootItem, ConsoleItem::InputType), position))
         emit selectEditableRow(index(position, 0), QItemSelectionModel::ClearAndSelect);
 }
 
 void QmlConsoleItemModel::removeEditableRow()
 {
-    if (m_rootItem->child(m_rootItem->childCount() - 1)->itemType == QmlConsoleItem::InputType)
+    if (m_rootItem->child(m_rootItem->childCount() - 1)->itemType == ConsoleItem::InputType)
         removeRow(m_rootItem->childCount() - 1);
 }
 
@@ -148,7 +150,7 @@ QVariant QmlConsoleItemModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    QmlConsoleItem *item = getItem(index);
+    ConsoleItem *item = getItem(index);
 
     if (role == Qt::DisplayRole )
         return item->text();
@@ -170,9 +172,9 @@ QModelIndex QmlConsoleItemModel::index(int row, int column, const QModelIndex &p
     if (column > 0)
         return QModelIndex();
 
-    QmlConsoleItem *parentItem = getItem(parent);
+    ConsoleItem *parentItem = getItem(parent);
 
-    QmlConsoleItem *childItem = parentItem->child(row);
+    ConsoleItem *childItem = parentItem->child(row);
     if (childItem)
         return createIndex(row, column, childItem);
     else
@@ -184,8 +186,8 @@ QModelIndex QmlConsoleItemModel::parent(const QModelIndex &index) const
     if (!index.isValid())
         return QModelIndex();
 
-    QmlConsoleItem *childItem = getItem(index);
-    QmlConsoleItem *parentItem = childItem->parent();
+    ConsoleItem *childItem = getItem(index);
+    ConsoleItem *parentItem = childItem->parent();
 
     if (parentItem == m_rootItem)
         return QModelIndex();
@@ -197,7 +199,7 @@ QModelIndex QmlConsoleItemModel::parent(const QModelIndex &index) const
 
 int QmlConsoleItemModel::rowCount(const QModelIndex &parent) const
 {
-    QmlConsoleItem *parentItem = getItem(parent);
+    ConsoleItem *parentItem = getItem(parent);
 
     return parentItem->childCount();
 }
@@ -212,7 +214,7 @@ Qt::ItemFlags QmlConsoleItemModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return 0;
 
-    QmlConsoleItem *item = getItem(index);
+    ConsoleItem *item = getItem(index);
     if (m_hasEditableRow && item->parent() == m_rootItem
             && index.row() == m_rootItem->childCount() - 1)
         return Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -221,13 +223,13 @@ Qt::ItemFlags QmlConsoleItemModel::flags(const QModelIndex &index) const
 
 bool QmlConsoleItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    QmlConsoleItem *item = getItem(index);
+    ConsoleItem *item = getItem(index);
     bool result = false;
     if (role == Qt::DisplayRole) {
         item->setText(value.toString());
         result = true;
     } else if (role == QmlConsoleItemModel::TypeRole) {
-        item->itemType = (QmlConsoleItem::ItemType)value.toInt();
+        item->itemType = (ConsoleItem::ItemType)value.toInt();
         result = true;
     } else if (role == QmlConsoleItemModel::FileRole) {
         item->file = value.toString();
@@ -245,7 +247,7 @@ bool QmlConsoleItemModel::setData(const QModelIndex &index, const QVariant &valu
 
 bool QmlConsoleItemModel::insertRows(int position, int rows, const QModelIndex &parent)
 {
-    QmlConsoleItem *parentItem = getItem(parent);
+    ConsoleItem *parentItem = getItem(parent);
     bool success;
 
     beginInsertRows(parent, position, position + rows - 1);
@@ -257,7 +259,7 @@ bool QmlConsoleItemModel::insertRows(int position, int rows, const QModelIndex &
 
 bool QmlConsoleItemModel::removeRows(int position, int rows, const QModelIndex &parent)
 {
-    QmlConsoleItem *parentItem = getItem(parent);
+    ConsoleItem *parentItem = getItem(parent);
     bool success = true;
 
     beginRemoveRows(parent, position, position + rows - 1);
@@ -267,10 +269,10 @@ bool QmlConsoleItemModel::removeRows(int position, int rows, const QModelIndex &
     return success;
 }
 
-QmlConsoleItem *QmlConsoleItemModel::getItem(const QModelIndex &index) const
+ConsoleItem *QmlConsoleItemModel::getItem(const QModelIndex &index) const
 {
     if (index.isValid()) {
-        QmlConsoleItem *item = static_cast<QmlConsoleItem*>(index.internalPointer());
+        ConsoleItem *item = static_cast<ConsoleItem*>(index.internalPointer());
         if (item)
             return item;
     }

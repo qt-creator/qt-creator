@@ -30,7 +30,7 @@
 #ifndef QMLCONSOLEPROXYMODEL_H
 #define QMLCONSOLEPROXYMODEL_H
 
-#include "qmlconsoleitem.h"
+#include <qmljs/consoleitem.h>
 
 #include <QSortFilterProxyModel>
 #include <QItemSelectionModel>
@@ -61,7 +61,7 @@ protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 
 private:
-    QFlags<QmlConsoleItem::ItemType> m_filter;
+    QFlags<QmlJS::ConsoleItem::ItemType> m_filter;
 };
 
 } // Internal

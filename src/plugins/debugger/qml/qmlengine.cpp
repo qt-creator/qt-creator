@@ -50,11 +50,12 @@
 #include "sourcefileshandler.h"
 #include "watchutils.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <qmldebug/baseenginedebugclient.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/consolemanagerinterface.h>
+#include <qmljs/consoleitem.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -65,9 +66,6 @@
 #include <coreplugin/icore.h>
 
 #include <texteditor/itexteditor.h>
-
-#include <qmljstools/qmlconsolemanager.h>
-#include <qmljstools/qmlconsoleitem.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -261,6 +259,11 @@ public:
     quint32 *column;
 };
 
+QmlJS::ConsoleManagerInterface *qmlConsoleManager()
+{
+    return QmlJS::ConsoleManagerInterface::instance();
+}
+
 ///////////////////////////////////////////////////////////////////////
 //
 // QmlEngine
@@ -275,8 +278,6 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
   , m_automaticConnect(false)
 {
     setObjectName(QLatin1String("QmlEngine"));
-
-    ExtensionSystem::PluginManager::addObject(this);
 
     connect(&m_adapter, SIGNAL(connectionError(QAbstractSocket::SocketError)),
         SLOT(connectionError(QAbstractSocket::SocketError)));
@@ -331,25 +332,23 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters)
     m_noDebugOutputTimer.setInterval(8000);
     connect(&m_noDebugOutputTimer, SIGNAL(timeout()), this, SLOT(tryToConnect()));
 
-    connect(ModelManagerInterface::instance(),
-            SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
-            this,
-            SLOT(documentUpdated(QmlJS::Document::Ptr)));
-
+    ModelManagerInterface *mmIface = ModelManagerInterface::instance();
+    if (mmIface) {
+        connect(ModelManagerInterface::instance(), SIGNAL(documentUpdated(QmlJS::Document::Ptr)),
+                this, SLOT(documentUpdated(QmlJS::Document::Ptr)));
+    }
     // we won't get any debug output
     if (startParameters.useTerminal) {
         m_noDebugOutputTimer.setInterval(0);
         m_retryOnConnectFail = true;
         m_automaticConnect = true;
     }
+    if (qmlConsoleManager())
+        qmlConsoleManager()->setScriptEvaluator(this);
 }
 
 QmlEngine::~QmlEngine()
 {
-    if (ExtensionSystem::PluginManager::allObjects().contains(this)) {
-        ExtensionSystem::PluginManager::removeObject(this);
-    }
-
     QList<Core::IEditor *> editorsToClose;
 
     QHash<QString, QWeakPointer<TextEditor::ITextEditor> >::iterator iter;
@@ -649,6 +648,8 @@ void QmlEngine::shutdownInferior()
 
 void QmlEngine::shutdownEngine()
 {
+    if (qmlConsoleManager())
+        qmlConsoleManager()->setScriptEvaluator(0);
     m_noDebugOutputTimer.stop();
 
    // double check (ill engine?):
@@ -1030,16 +1031,16 @@ void QmlEngine::synchronizeWatchers()
     }
 }
 
-QmlJSTools::QmlConsoleItem *constructLogItemTree(QmlJSTools::QmlConsoleItem *parent,
+QmlJS::ConsoleItem *constructLogItemTree(QmlJS::ConsoleItem *parent,
                                                  const QVariant &result,
                                                  const QString &key = QString())
 {
-    using namespace QmlJSTools;
+    using namespace QmlJS;
     bool sorted = debuggerCore()->boolSetting(SortStructMembers);
     if (!result.isValid())
         return 0;
 
-    QmlConsoleItem *item = new QmlConsoleItem(parent);
+    ConsoleItem *item = new ConsoleItem(parent);
     if (result.type() == QVariant::Map) {
         if (key.isEmpty())
             item->setText(_("Object"));
@@ -1049,7 +1050,7 @@ QmlJSTools::QmlConsoleItem *constructLogItemTree(QmlJSTools::QmlConsoleItem *par
         QMapIterator<QString, QVariant> i(result.toMap());
         while (i.hasNext()) {
             i.next();
-            QmlConsoleItem *child = constructLogItemTree(item, i.value(), i.key());
+            ConsoleItem *child = constructLogItemTree(item, i.value(), i.key());
             if (child)
                 item->insertChild(child, sorted);
         }
@@ -1060,7 +1061,7 @@ QmlJSTools::QmlConsoleItem *constructLogItemTree(QmlJSTools::QmlConsoleItem *par
             item->setText(QString(_("[%1] : List")).arg(key));
         QVariantList resultList = result.toList();
         for (int i = 0; i < resultList.count(); i++) {
-            QmlConsoleItem *child = constructLogItemTree(item, resultList.at(i),
+            ConsoleItem *child = constructLogItemTree(item, resultList.at(i),
                                                           QString::number(i));
             if (child)
                 item->insertChild(child, sorted);
@@ -1078,10 +1079,10 @@ void QmlEngine::expressionEvaluated(quint32 queryId, const QVariant &result)
 {
     if (queryIds.contains(queryId)) {
         queryIds.removeOne(queryId);
-        using namespace QmlJSTools;
-        QmlConsoleManager *consoleManager = QmlConsoleManager::instance();
+        using namespace QmlJS;
+        ConsoleManagerInterface *consoleManager = qmlConsoleManager();
         if (consoleManager) {
-            QmlConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), result);
+            ConsoleItem *item = constructLogItemTree(consoleManager->rootItem(), result);
             if (item)
                 consoleManager->printToConsolePane(item);
         }
@@ -1140,7 +1141,7 @@ void QmlEngine::updateCurrentContext()
     const QString context = state() == InferiorStopOk ?
                 stackHandler()->currentFrame().function
               : m_inspectorAdapter.currentSelectedDisplayName();
-    QmlJSTools::QmlConsoleManager *consoleManager = QmlJSTools::QmlConsoleManager::instance();
+    QmlJS::ConsoleManagerInterface *consoleManager = qmlConsoleManager();
     if (consoleManager)
         consoleManager->setContext(tr("Context: ").append(context));
 }
@@ -1148,26 +1149,26 @@ void QmlEngine::updateCurrentContext()
 void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message,
                                   const QmlDebug::QDebugContextInfo &info)
 {
-    using namespace QmlJSTools;
-    QmlConsoleItem::ItemType itemType;
+    using namespace QmlJS;
+    ConsoleItem::ItemType itemType;
     switch (type) {
     case QtDebugMsg:
-        itemType = QmlConsoleItem::DebugType;
+        itemType = ConsoleItem::DebugType;
         break;
     case QtWarningMsg:
-        itemType = QmlConsoleItem::WarningType;
+        itemType = ConsoleItem::WarningType;
         break;
     case QtCriticalMsg:
     case QtFatalMsg:
-        itemType = QmlConsoleItem::ErrorType;
+        itemType = ConsoleItem::ErrorType;
         break;
     default:
         //This case is not possible
         return;
     }
-    QmlConsoleManager *consoleManager = QmlConsoleManager::instance();
+    ConsoleManagerInterface *consoleManager = qmlConsoleManager();
     if (consoleManager) {
-        QmlConsoleItem *item = new QmlConsoleItem(consoleManager->rootItem(), itemType, message);
+        ConsoleItem *item = new ConsoleItem(consoleManager->rootItem(), itemType, message);
         item->file = info.file;
         item->line = info.line;
         consoleManager->printToConsolePane(item);
@@ -1181,7 +1182,7 @@ void QmlEngine::executeDebuggerCommand(const QString &command, DebuggerLanguages
     }
 }
 
-bool QmlEngine::evaluateScriptExpression(const QString &expression)
+bool QmlEngine::evaluateScript(const QString &expression)
 {
     bool didEvaluate = true;
     // Evaluate expression based on engine state
@@ -1194,10 +1195,10 @@ bool QmlEngine::evaluateScriptExpression(const QString &expression)
             queryIds << queryId;
         } else {
             didEvaluate = false;
-            using namespace QmlJSTools;
-            QmlConsoleManager *consoleManager = QmlConsoleManager::instance();
+            using namespace QmlJS;
+            ConsoleManagerInterface *consoleManager = qmlConsoleManager();
             if (consoleManager) {
-                consoleManager->printToConsolePane(QmlConsoleItem::ErrorType,
+                consoleManager->printToConsolePane(ConsoleItem::ErrorType,
                                                    _("Error evaluating expression."));
             }
         }
@@ -1312,20 +1313,23 @@ bool QmlEngine::canEvaluateScript(const QString &script)
 bool QmlEngine::adjustBreakpointLineAndColumn(
         const QString &filePath, quint32 *line, quint32 *column, bool *valid)
 {
-    bool success = true;
+    bool success = false;
     //check if file is in the latest snapshot
     //ignoring documentChangedOnDisk
     //TODO:: update breakpoints if document is changed.
-    Document::Ptr doc = ModelManagerInterface::instance()->newestSnapshot().
-            document(filePath);
-    if (doc.isNull()) {
-        ModelManagerInterface::instance()->updateSourceFiles(
-                    QStringList() << filePath, false);
-        success = false;
-    } else {
-        ASTWalker walker;
-        walker(doc->ast(), line, column);
-        *valid = walker.done;
+    ModelManagerInterface *mmIface = ModelManagerInterface::instance();
+    if (mmIface) {
+        Document::Ptr doc = mmIface->newestSnapshot().
+                document(filePath);
+        if (doc.isNull()) {
+            ModelManagerInterface::instance()->updateSourceFiles(
+                        QStringList() << filePath, false);
+        } else {
+            ASTWalker walker;
+            walker(doc->ast(), line, column);
+            *valid = walker.done;
+            success = true;
+        }
     }
     return success;
 }

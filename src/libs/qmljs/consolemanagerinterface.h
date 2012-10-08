@@ -27,60 +27,38 @@
 **
 ****************************************************************************/
 
-#ifndef QMLCONSOLEMANAGER_H
-#define QMLCONSOLEMANAGER_H
+#ifndef CONSOLEMANAGERINTERFACE_H
+#define CONSOLEMANAGERINTERFACE_H
 
-#include "qmljstools_global.h"
-
-#include <qmljs/consolemanagerinterface.h>
+#include "qmljs_global.h"
+#include "consoleitem.h"
 
 #include <QObject>
 
 namespace QmlJS {
+
 class IScriptEvaluator;
-}
-namespace QmlJSTools {
-
-namespace Internal {
-class QmlConsoleItemModel;
-class QmlConsoleModel;
-}
-
-class QmlConsoleManagerPrivate;
-class QMLJSTOOLS_EXPORT QmlConsoleManager : public QmlJS::ConsoleManagerInterface
+class QMLJS_EXPORT ConsoleManagerInterface : public QObject
 {
     Q_OBJECT
 public:
-    QmlConsoleManager(QObject *parent);
-    ~QmlConsoleManager();
+    ConsoleManagerInterface(QObject *parent = 0);
+    ~ConsoleManagerInterface();
 
-    void showConsolePane();
+    static ConsoleManagerInterface *instance();
 
-    QmlJS::ConsoleItem *rootItem() const;
+    virtual void showConsolePane() = 0;
 
-    void setScriptEvaluator(QmlJS::IScriptEvaluator *scriptEvaluator);
-    void setContext(const QString &context);
+    virtual ConsoleItem *rootItem() const = 0;
 
-    void printToConsolePane(QmlJS::ConsoleItem::ItemType itemType, const QString &text,
-                            bool bringToForeground = false);
-    void printToConsolePane(QmlJS::ConsoleItem *item, bool bringToForeground = false);
+    virtual void setScriptEvaluator(IScriptEvaluator *scriptEvaluator) = 0;
+    virtual void setContext(const QString &context) = 0;
 
-private:
-    QmlConsoleManagerPrivate *d;
-    friend class Internal::QmlConsoleModel;
+    virtual void printToConsolePane(ConsoleItem::ItemType itemType, const QString &text,
+                            bool bringToForeground = false) = 0;
+    virtual void printToConsolePane(ConsoleItem *item, bool bringToForeground = false) = 0;
 };
 
-namespace Internal {
+} // QmlJS
 
-class QmlConsoleModel
-{
-public:
-    static QmlConsoleItemModel *qmlConsoleItemModel();
-    static void evaluate(const QString &expression);
-};
-
-}
-
-} // namespace QmlJSTools
-
-#endif // QMLCONSOLEMANAGER_H
+#endif // CONSOLEMANAGERINTERFACE_H

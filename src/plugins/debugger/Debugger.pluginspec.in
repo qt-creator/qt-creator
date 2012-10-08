@@ -18,7 +18,6 @@ Alternatively, this plugin may be used under the terms of the GNU Lesser General
         <dependency name=\"Core\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"Find\" version=\"$$QTCREATOR_VERSION\"/>
         <dependency name=\"CppTools\" version=\"$$QTCREATOR_VERSION\"/>
-        <dependency name=\"QmlJsTools\" version=\"$$QTCREATOR_VERSION\"/>
         <!-- Debugger plugin adds items to the editor\'s context menu -->
         <dependency name=\"CppEditor\" version=\"$$QTCREATOR_VERSION\" type=\"optional\"/>
     </dependencyList>

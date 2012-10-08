@@ -37,6 +37,8 @@
 #include <QMenu>
 #include <QKeyEvent>
 
+using namespace QmlJS;
+
 namespace QmlJSTools {
 namespace Internal {
 
@@ -207,7 +209,7 @@ void QmlConsoleEdit::handleUpKey()
         currentRow--;
         if (model->hasIndex(currentRow, 0)) {
             QModelIndex index = model->index(currentRow, 0);
-            if (QmlConsoleItem::InputType == (QmlConsoleItem::ItemType)model->data(
+            if (ConsoleItem::InputType == (ConsoleItem::ItemType)model->data(
                         index, QmlConsoleItemModel::TypeRole).toInt()) {
                 m_historyIndex = index;
                 replaceCurrentScript(model->data(index, Qt::DisplayRole).toString());
@@ -226,7 +228,7 @@ void QmlConsoleEdit::handleDownKey()
         currentRow++;
         if (model->hasIndex(currentRow, 0)) {
             QModelIndex index = model->index(currentRow, 0);
-            if (QmlConsoleItem::InputType == (QmlConsoleItem::ItemType)model->data(
+            if (ConsoleItem::InputType == (ConsoleItem::ItemType)model->data(
                         index, QmlConsoleItemModel::TypeRole).toInt()) {
                 m_historyIndex = index;
                 if (currentRow == model->rowCount() - 1)
