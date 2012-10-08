@@ -1224,7 +1224,6 @@ Product {
             "CustomTab.qml",
             "CustomizedGridView.qml",
             "Delegate.qml",
-            "Feedback.qml",
             "GettingStartedItem.qml",
             "IconAndLink.qml",
             "LinkedText.qml",
