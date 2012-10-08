@@ -67,9 +67,10 @@ QtcPlugin {
         "qmlconsoleitemdelegate.h",
         "qmlconsoleedit.cpp",
         "qmlconsoleedit.h",
+        "qmlconsoleproxymodel.cpp",
+        "qmlconsoleproxymodel.h",
         "qmljsinterpreter.cpp",
         "qmljsinterpreter.h",
-        "qmljsconsoleproxymodel.h",
         "qmljstools.qrc"
     ]
 

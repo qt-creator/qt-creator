@@ -337,6 +337,8 @@ Product {
             "createinstancescommand.h",
             "createscenecommand.cpp",
             "createscenecommand.h",
+            "endpuppetcommand.cpp",
+            "endpuppetcommand.h",
             "informationchangedcommand.cpp",
             "informationchangedcommand.h",
             "pixmapchangedcommand.cpp",
@@ -345,6 +347,8 @@ Product {
             "removeinstancescommand.h",
             "removepropertiescommand.cpp",
             "removepropertiescommand.h",
+            "removesharedmemorycommand.cpp",
+            "removesharedmemorycommand.h",
             "reparentinstancescommand.cpp",
             "reparentinstancescommand.h",
             "statepreviewimagechangedcommand.cpp",
@@ -405,40 +409,13 @@ Product {
     }
 
     Group {
-        qbs.installDir: "share/qtcreator/qml/qmlpuppet/qmlpuppet/instances"
+        qbs.installDir: "share/qtcreator/qml/qmlpuppet/instances"
         fileTags: ["install"]
-        prefix: "qtcreator/qml/qmlpuppet/qmlpuppet/instances/"
+        prefix: "qtcreator/qml/qmlpuppet/instances/"
         files: [
-            "anchorchangesnodeinstance.cpp",
-            "anchorchangesnodeinstance.h",
-            "behaviornodeinstance.cpp",
-            "behaviornodeinstance.h",
-            "childrenchangeeventfilter.cpp",
-            "childrenchangeeventfilter.h",
-            "componentnodeinstance.cpp",
-            "componentnodeinstance.h",
-            "dummycontextobject.cpp",
-            "dummycontextobject.h",
-            "dummynodeinstance.cpp",
-            "dummynodeinstance.h",
+            "instances.pri",
             "nodeinstanceclientproxy.cpp",
             "nodeinstanceclientproxy.h",
-            "nodeinstancemetaobject.cpp",
-            "nodeinstancemetaobject.h",
-            "nodeinstanceserver.cpp",
-            "nodeinstanceserver.h",
-            "nodeinstancesignalspy.cpp",
-            "nodeinstancesignalspy.h",
-            "objectnodeinstance.cpp",
-            "objectnodeinstance.h",
-            "qmlpropertychangesnodeinstance.cpp",
-            "qmlpropertychangesnodeinstance.h",
-            "qmlstatenodeinstance.cpp",
-            "qmlstatenodeinstance.h",
-            "qmltransitionnodeinstance.cpp",
-            "qmltransitionnodeinstance.h",
-            "servernodeinstance.cpp",
-            "servernodeinstance.h",
         ]
     }
 
@@ -461,6 +438,7 @@ Product {
         prefix: "qtcreator/qml/qmlpuppet/qml2puppet/"
         files: [
             "main.cpp",
+            "qml2puppet.pri",
             "qml2puppet.pro",
         ]
     }
@@ -470,7 +448,35 @@ Product {
         fileTags: ["install"]
         prefix: "qtcreator/qml/qmlpuppet/qml2puppet/instances/"
         files: [
+            "anchorchangesnodeinstance.cpp",
+            "anchorchangesnodeinstance.h",
+            "behaviornodeinstance.cpp",
+            "behaviornodeinstance.h",
+            "childrenchangeeventfilter.cpp",
+            "childrenchangeeventfilter.h",
+            "componentnodeinstance.cpp",
+            "componentnodeinstance.h",
+            "dummycontextobject.cpp",
+            "dummycontextobject.h",
+            "dummynodeinstance.cpp",
+            "dummynodeinstance.h",
             "instances.pri",
+            "nodeinstancemetaobject.cpp",
+            "nodeinstancemetaobject.h",
+            "nodeinstanceserver.cpp",
+            "nodeinstanceserver.h",
+            "nodeinstancesignalspy.cpp",
+            "nodeinstancesignalspy.h",
+            "objectnodeinstance.cpp",
+            "objectnodeinstance.h",
+            "positionernodeinstance.cpp",
+            "positionernodeinstance.h",
+            "qmlpropertychangesnodeinstance.cpp",
+            "qmlpropertychangesnodeinstance.h",
+            "qmlstatenodeinstance.cpp",
+            "qmlstatenodeinstance.h",
+            "qmltransitionnodeinstance.cpp",
+            "qmltransitionnodeinstance.h",
             "qt5informationnodeinstanceserver.cpp",
             "qt5informationnodeinstanceserver.h",
             "qt5nodeinstanceclientproxy.cpp",
@@ -481,8 +487,10 @@ Product {
             "qt5previewnodeinstanceserver.h",
             "qt5rendernodeinstanceserver.cpp",
             "qt5rendernodeinstanceserver.h",
-            "sgitemnodeinstance.cpp",
-            "sgitemnodeinstance.h",
+            "quickitemnodeinstance.cpp",
+            "quickitemnodeinstance.h",
+            "servernodeinstance.cpp",
+            "servernodeinstance.h",
         ]
     }
 
@@ -502,13 +510,40 @@ Product {
         fileTags: ["install"]
         prefix: "qtcreator/qml/qmlpuppet/qmlpuppet/instances/"
         files: [
+            ".instances.pri.swp",
+            "anchorchangesnodeinstance.cpp",
+            "anchorchangesnodeinstance.h",
+            "behaviornodeinstance.cpp",
+            "behaviornodeinstance.h",
+            "childrenchangeeventfilter.cpp",
+            "childrenchangeeventfilter.h",
+            "componentnodeinstance.cpp",
+            "componentnodeinstance.h",
+            "dummycontextobject.cpp",
+            "dummycontextobject.h",
+            "dummynodeinstance.cpp",
+            "dummynodeinstance.h",
             "graphicsobjectnodeinstance.cpp",
             "graphicsobjectnodeinstance.h",
             "instances.pri",
+            "nodeinstancemetaobject.cpp",
+            "nodeinstancemetaobject.h",
+            "nodeinstanceserver.cpp",
+            "nodeinstanceserver.h",
+            "nodeinstancesignalspy.cpp",
+            "nodeinstancesignalspy.h",
+            "objectnodeinstance.cpp",
+            "objectnodeinstance.h",
             "positionernodeinstance.cpp",
             "positionernodeinstance.h",
             "qmlgraphicsitemnodeinstance.cpp",
             "qmlgraphicsitemnodeinstance.h",
+            "qmlpropertychangesnodeinstance.cpp",
+            "qmlpropertychangesnodeinstance.h",
+            "qmlstatenodeinstance.cpp",
+            "qmlstatenodeinstance.h",
+            "qmltransitionnodeinstance.cpp",
+            "qmltransitionnodeinstance.h",
             "qt4informationnodeinstanceserver.cpp",
             "qt4informationnodeinstanceserver.h",
             "qt4nodeinstanceclientproxy.cpp",
@@ -519,6 +554,8 @@ Product {
             "qt4previewnodeinstanceserver.h",
             "qt4rendernodeinstanceserver.cpp",
             "qt4rendernodeinstanceserver.h",
+            "servernodeinstance.cpp",
+            "servernodeinstance.h",
         ]
     }
 
@@ -1071,6 +1108,17 @@ Product {
     }
 
     Group {
+        qbs.installDir: "share/qtcreator/templates/wizards/codesnippet"
+        fileTags: ["install"]
+        prefix: "qtcreator/templates/wizards/codesnippet/"
+        files: [
+            "main.cpp",
+            "project.pro",
+            "wizard.xml",
+        ]
+    }
+
+    Group {
         qbs.installDir: "share/qtcreator/templates/wizards/helloworld"
         fileTags: ["install"]
         prefix: "qtcreator/templates/wizards/helloworld/"
@@ -1223,7 +1271,6 @@ Product {
             "CustomTab.qml",
             "CustomizedGridView.qml",
             "Delegate.qml",
-            "Feedback.qml",
             "GettingStartedItem.qml",
             "IconAndLink.qml",
             "LinkedText.qml",
