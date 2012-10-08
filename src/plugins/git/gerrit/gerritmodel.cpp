@@ -43,9 +43,14 @@
 #include <QUrl>
 #include <QTextStream>
 #include <QDesktopServices>
+#include <QMessageBox>
+#include <QPushButton>
 #include <QTextStream>
 #include <QDebug>
 #include <QScopedPointer>
+#include <QTimer>
+#include <QApplication>
+#include <QMessageBox>
 #if QT_VERSION >= 0x050000
 #  include <QJsonDocument>
 #  include <QJsonValue>
@@ -258,6 +263,7 @@ private slots:
     void processFinished(int exitCode, QProcess::ExitStatus);
     void readyReadStandardError();
     void readyReadStandardOutput();
+    void timeout();
 
 private:
     void startQuery(const QString &query);
@@ -266,12 +272,15 @@ private:
     const QSharedPointer<GerritParameters> m_parameters;
     const QStringList m_queries;
     QProcess m_process;
+    QTimer m_timer;
     QString m_binary;
     QByteArray m_output;
     int m_currentQuery;
     QFutureInterface<void> m_progress;
     QStringList m_baseArguments;
 };
+
+enum { timeOutMS = 30000 };
 
 QueryContext::QueryContext(const QStringList &queries,
                            const QSharedPointer<GerritParameters> &p,
@@ -297,12 +306,18 @@ QueryContext::QueryContext(const QStringList &queries,
                     << QLatin1String("--format=JSON");
     m_binary = m_baseArguments.front();
     m_baseArguments.pop_front();
+
+    m_timer.setInterval(timeOutMS);
+    m_timer.setSingleShot(true);
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(timeout()));
 }
 
 QueryContext::~QueryContext()
 {
     if (m_progress.isRunning())
         m_progress.reportFinished();
+    if (m_timer.isActive())
+        m_timer.stop();
     m_process.disconnect(this);
     Utils::SynchronousProcess::stopProcess(m_process);
 }
@@ -323,6 +338,7 @@ void QueryContext::startQuery(const QString &query)
     arguments.push_back(query);
     VcsBase::VcsBaseOutputWindow::instance()
         ->appendCommand(m_process.workingDirectory(), m_binary, arguments);
+    m_timer.start();
     m_process.start(m_binary, arguments);
     m_process.closeWriteChannel();
 }
@@ -347,6 +363,8 @@ void QueryContext::processError(QProcess::ProcessError e)
 
 void QueryContext::processFinished(int exitCode, QProcess::ExitStatus es)
 {
+    if (m_timer.isActive())
+        m_timer.stop();
     if (es != QProcess::NormalExit) {
         errorTermination(tr("%1 crashed.").arg(m_binary));
         return;
@@ -374,6 +392,32 @@ void QueryContext::readyReadStandardError()
 void QueryContext::readyReadStandardOutput()
 {
     m_output.append(m_process.readAllStandardOutput());
+}
+
+void QueryContext::timeout()
+{
+    if (m_process.state() != QProcess::Running)
+        return;
+
+    QWidget *parent = QApplication::activeModalWidget();
+    if (!parent)
+        parent = QApplication::activeWindow();
+    QMessageBox box(QMessageBox::Question, tr("Timeout"),
+                    tr("The gerrit process has not responded within %1s.\n"
+                       "Most likely this is caused by problems with SSH-authentication.\n"
+                       "Would you like to terminate it?").
+                    arg(timeOutMS / 1000), QMessageBox::NoButton, parent);
+    QPushButton *terminateButton = box.addButton(tr("Terminate"), QMessageBox::YesRole);
+    box.addButton(tr("Keep running"), QMessageBox::NoRole);
+    connect(&m_process, SIGNAL(finished(int)), &box, SLOT(reject()));
+    box.exec();
+    if (m_process.state() != QProcess::Running)
+        return;
+    if (box.clickedButton() == terminateButton) {
+        Utils::SynchronousProcess::stopProcess(m_process);
+    } else {
+        m_timer.start();
+    }
 }
 
 GerritModel::GerritModel(const QSharedPointer<GerritParameters> &p, QObject *parent)
