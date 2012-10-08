@@ -42,7 +42,6 @@
 #include "nodelistproperty.h"
 #include <QTextStream>
 #include <qmlobjectnode.h>
-#include <QDeclarativeView>
 
 namespace QmlDesigner {
 

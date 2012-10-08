@@ -34,7 +34,6 @@
 #include <QObject>
 #include <QMimeData>
 #include <QPair>
-#include <QDeclarativeError>
 
 #include <import.h>
 

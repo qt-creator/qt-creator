@@ -40,9 +40,6 @@
 #include <QSharedData>
 #include <QDebug>
 #include <QIcon>
-#include <QDeclarativeContext>
-#include <QDeclarativeEngine>
-#include <QDeclarativeComponent>
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljscontext.h>

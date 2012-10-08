@@ -31,6 +31,7 @@
 #include <QDebug>
 #include <QTemporaryFile>
 #include <QDir>
+#include <QUrl>
 #include <variantproperty.h>
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>

@@ -42,6 +42,7 @@
 
 #include <QSet>
 #include <QStringList>
+#include <QUrl>
 
 #include <QDebug>
 

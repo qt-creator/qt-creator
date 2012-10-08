@@ -29,9 +29,6 @@
 
 #include "nodeinstanceview.h"
 
-#include <QDeclarativeEngine>
-#include <QDeclarativeContext>
-
 #include <QUrl>
 #include <QGraphicsView>
 #include <QGraphicsScene>
