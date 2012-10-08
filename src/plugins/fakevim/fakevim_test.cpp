@@ -35,6 +35,9 @@
 #include "fakevimplugin.h"
 #include "fakevimhandler.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/basetexteditor.h>
+
 #include <QtTest>
 #include <QTextEdit>
 #include <QTextDocument>
@@ -48,16 +51,25 @@
 //   QTest::qSkip("Not fully implemented!", QTest::SkipSingle, __FILE__, __LINE__);
 //   return;
 
-// text cursor representation in comparisons (set empty to disable cursor position checking)
+// Text cursor representation in comparisons (set empty to disable cursor position checking).
 #define X "|"
 static const QString cursorString(X);
 
-// a more distinct line separator in code
+// More distinct line separator in code.
 #define N "\n"
 
-// document line start and end string in error text
+// Document line start and end string in error text.
 #define LINE_START "\t\t<"
 #define LINE_END ">\n"
+
+// Format of message after comparison fails (used by KEYS, COMMAND).
+static const QString helpFormat =
+    "\n\tBefore command [%1]:\n" \
+    LINE_START "%2" LINE_END \
+    "\n\tAfter the command:\n" \
+    LINE_START "%3" LINE_END \
+    "\n\tShould be:\n" \
+    LINE_START "%4" LINE_END;
 
 // Compare document contents with a expectedText.
 // Also check cursor position if the expectedText contains cursorString.
@@ -70,24 +82,24 @@ static const QString cursorString(X);
             before.insert(beforePosition, cursorString); \
             actual.insert(afterPosition, cursorString); \
         } \
-        QString help = "\n\tBefore command [" + QString(cmd) + "]:\n" LINE_START \
-            + (before.replace('\n', LINE_END LINE_START)) \
-            + LINE_END "\n\tAfter the command:\n" LINE_START \
-            + actual.replace('\n', LINE_END LINE_START) \
-            + LINE_END "\n\tShould be:\n" LINE_START \
-            + expected.replace('\n', LINE_END LINE_START) + LINE_END; \
+        QString help = helpFormat \
+            .arg(QString(cmd)) \
+            .arg(before.replace('\n', LINE_END LINE_START)) \
+            .arg(actual.replace('\n', LINE_END LINE_START)) \
+            .arg(expected.replace('\n', LINE_END LINE_START)); \
         QVERIFY2(actual == expected, help.toLatin1().constData()); \
     } while (false)
 
 // Send keys and check if the expected result is same as document contents.
-// Escape is always prepended to keys so that previous command is cancled.
+// Escape is always prepended to keys so that previous command is cancelled.
 #define KEYS(keys, expected) \
     do { \
         QString beforeText(data.text()); \
         int beforePosition = data.position(); \
-        data.doKeys("<ESC>" keys); \
+        data.doKeys("<ESC>"); \
+        data.doKeys(keys); \
         COMPARE(beforeText, beforePosition, data.text(), data.position(), (expected), (keys)); \
-    } while (false);
+    } while (false)
 
 // Run Ex command and check if the expected result is same as document contents.
 #define COMMAND(cmd, expected) \
@@ -96,28 +108,28 @@ static const QString cursorString(X);
         int beforePosition = data.position(); \
         data.doCommand(cmd); \
         COMPARE(beforeText, beforePosition, data.text(), data.position(), (expected), (":" cmd)); \
-    } while (false);
+    } while (false)
 
 using namespace FakeVim::Internal;
+using namespace TextEditor;
 
-namespace {
-
-struct TestData
+// Data for tests containing BaseTextEditorWidget and FakeVimHAndler.
+struct FakeVimPlugin::TestData
 {
     FakeVimHandler *handler;
-    QTextEdit *edit;
-    QWidget parent;
+    QWidget *edit;
+    QString title;
 
-    QTextCursor cursor() const { return edit->textCursor(); }
+    BaseTextEditorWidget *editor() const { return qobject_cast<BaseTextEditorWidget *>(edit); }
+
+    QTextCursor cursor() const { return editor()->textCursor(); }
 
     int position() const
     {
-        int pos = cursor().position();
-        // text cursor position is never behind last character in document
-        return qMax(0, qMin(pos, edit->document()->characterCount() - 2));
+        return cursor().position();
     }
 
-    QString text() const { return edit->toPlainText(); }
+    QString text() const { return editor()->toPlainText(); }
 
     void setText(const QString &text)
     {
@@ -125,22 +137,25 @@ struct TestData
         int i = str.indexOf(cursorString);
         if (!cursorString.isEmpty() && i != -1)
             str.remove(i, 1);
-        edit->document()->setPlainText(str);
+        editor()->document()->setPlainText(str);
         handler->setTextCursorPosition(i);
     }
 
     void doCommand(const QString &cmd) { handler->handleCommand(cmd); }
     void doKeys(const QString &keys) { handler->handleInput(keys); }
+
+    int lines() const
+    {
+        QTextDocument *doc = editor()->document();
+        Q_ASSERT(doc != 0);
+        return doc->lineCount();
+    }
 };
 
-static void setup(TestData *data)
+void FakeVimPlugin::cleanup()
 {
-    data->edit = new QTextEdit(&data->parent);
-    data->handler = new FakeVimHandler(data->edit, &data->parent);
-    data->handler->handleCommand("set startofline");
+    Core::EditorManager::instance()->closeAllEditors(false);
 }
-
-} // namespace
 
 void FakeVimPlugin::test_vim_movement()
 {
@@ -418,31 +433,31 @@ void FakeVimPlugin::test_vim_block_selection()
 
     data.setText("int main(int /* (unused) */, char *argv[]);");
     KEYS("f(", "int main" X "(int /* (unused) */, char *argv[]);");
-    KEYS("da(", "int main" X ";")
+    KEYS("da(", "int main" X ";");
 
     data.setText("int main(int /* (unused) */, char *argv[]);");
     KEYS("f(", "int main" X "(int /* (unused) */, char *argv[]);");
-    KEYS("di(", "int main(" X ");")
+    KEYS("di(", "int main(" X ");");
 
     data.setText("int main(int /* (unused) */, char *argv[]);");
     KEYS("2f)", "int main(int /* (unused) */, char *argv[]" X ");");
-    KEYS("da(", "int main" X ";")
+    KEYS("da(", "int main" X ";");
 
     data.setText("int main(int /* (unused) */, char *argv[]);");
     KEYS("2f)", "int main(int /* (unused) */, char *argv[]" X ");");
-    KEYS("di(", "int main(" X ");")
+    KEYS("di(", "int main(" X ");");
 
     data.setText("{ { { } } }");
-    KEYS("2f{l", "{ { {" X " } } }")
-    KEYS("da{", "{ { " X " } }")
-    KEYS("da{", "{ " X " }")
+    KEYS("2f{l", "{ { {" X " } } }");
+    KEYS("da{", "{ { " X " } }");
+    KEYS("da{", "{ " X " }");
 
     data.setText("{ { { } } }");
-    KEYS("2f{l", "{ { {" X " } } }")
-    KEYS("2da{", "{ " X " }")
+    KEYS("2f{l", "{ { {" X " } } }");
+    KEYS("2da{", "{ " X " }");
 
     data.setText("{" N " { " N " } " N "}");
-    KEYS("di{", "{" N "}")
+    KEYS("di{", "{" N "}");
 }
 
 void FakeVimPlugin::test_vim_repeat()
@@ -802,6 +817,100 @@ void FakeVimPlugin::test_vim_undo_redo()
     KEYS("u", "abc" N "  " X "def" N "ghi");
 }
 
+void FakeVimPlugin::test_vim_code_folding()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("int main()" N "{" N "    return 0;" N "}" N "");
+
+    // fold/unfold function block
+    data.doKeys("zc");
+    QCOMPARE(data.lines(), 2);
+    data.doKeys("zo");
+    QCOMPARE(data.lines(), 5);
+    data.doKeys("za");
+    QCOMPARE(data.lines(), 2);
+
+    // delete whole block
+    KEYS("dd", "");
+
+    // undo/redo
+    KEYS("u", "int main()" N "{" N "    return 0;" N "}" N "");
+    KEYS("<c-r>", "");
+
+    // change block
+    KEYS("uggzo", X "int main()" N "{" N "    return 0;" N "}" N "");
+    KEYS("ccvoid f()<esc>", "void f(" X ")" N "{" N "    return 0;" N "}" N "");
+    KEYS("uzc.", "void f(" X ")" N "");
+
+    // open/close folds recursively
+    data.setText("int main()" N
+         "{" N
+         "    if (true) {" N
+         "        return 0;" N
+         "    } else {" N
+         "        // comment" N
+         "        " X "return 2" N
+         "    }" N
+         "}" N
+         "");
+    int lines = data.lines();
+    // close else block
+    data.doKeys("zc");
+    QCOMPARE(data.lines(), lines - 3);
+    // close function block
+    data.doKeys("zc");
+    QCOMPARE(data.lines(), lines - 8);
+    // jumping to a line opens all its parent folds
+    data.doKeys("6gg");
+    QCOMPARE(data.lines(), lines);
+
+    // close recursively
+    data.doKeys("zC");
+    QCOMPARE(data.lines(), lines - 8);
+    data.doKeys("za");
+    QCOMPARE(data.lines(), lines - 3);
+    data.doKeys("6gg");
+    QCOMPARE(data.lines(), lines);
+    data.doKeys("zA");
+    QCOMPARE(data.lines(), lines - 8);
+    data.doKeys("za");
+    QCOMPARE(data.lines(), lines - 3);
+
+    // close all folds
+    data.doKeys("zM");
+    QCOMPARE(data.lines(), lines - 8);
+    data.doKeys("zo");
+    QCOMPARE(data.lines(), lines - 4);
+    data.doKeys("zM");
+    QCOMPARE(data.lines(), lines - 8);
+
+    // open all folds
+    data.doKeys("zR");
+    QCOMPARE(data.lines(), lines);
+
+    // delete folded lined if deleting to the end of the first folding line
+    data.doKeys("zMgg");
+    QCOMPARE(data.lines(), lines - 8);
+    KEYS("wwd$", "int main" N "");
+
+    // undo
+    KEYS("u", "int main" X "()" N
+         "{" N
+         "    if (true) {" N
+         "        return 0;" N
+         "    } else {" N
+         "        // comment" N
+         "        return 2" N
+         "    }" N
+         "}" N
+         "");
+
+    NOT_IMPLEMENTED
+    // Opening folds recursively isn't supported (previous position in fold isn't restored).
+}
+
 void FakeVimPlugin::test_advanced_commands()
 {
     TestData data;
@@ -948,4 +1057,9 @@ void FakeVimPlugin::test_map()
     data.setText("abc def");
     data.doCommand("imap X <c-o>:%s/def/xxx/<cr>");
     KEYS("iX", "abc xxx");
+}
+
+void FakeVimPlugin::setup(TestData *data)
+{
+    setupTest(&data->title, &data->handler, &data->edit);
 }

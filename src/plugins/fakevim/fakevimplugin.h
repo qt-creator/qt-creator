@@ -59,6 +59,7 @@ private:
 
 #ifdef WITH_TESTS
 private slots:
+    void cleanup();
     void test_vim_movement();
     void test_vim_fFtT();
     void test_vim_transform_numbers();
@@ -73,8 +74,14 @@ private slots:
     void test_vim_marks();
     void test_vim_copy_paste();
     void test_vim_undo_redo();
+    void test_vim_code_folding();
     void test_advanced_commands();
     void test_map();
+
+private:
+    struct TestData;
+    void setup(TestData *data);
+    void setupTest(QString *title, FakeVimHandler **handler, QWidget **edit);
 #endif
 };
 

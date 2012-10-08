@@ -1932,6 +1932,18 @@ void FakeVimPlugin::extensionsInitialized()
     addAutoReleasedObject(d->m_statusBar);
 }
 
+#ifdef WITH_TESTS
+void FakeVimPlugin::setupTest(QString *title, FakeVimHandler **handler, QWidget **edit)
+{
+    *title = QString("test.cpp");
+    Core::IEditor *iedit = Core::EditorManager::openEditorWithContents(Core::Id(), title);
+    Core::EditorManager::activateEditor(iedit);
+    *edit = iedit->widget();
+    *handler = d->m_editorToHandler.value(iedit, 0);
+    (*handler)->handleCommand("set startofline");
+}
+#endif
+
 } // namespace Internal
 } // namespace FakeVim
 
