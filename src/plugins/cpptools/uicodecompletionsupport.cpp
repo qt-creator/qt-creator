@@ -44,7 +44,8 @@ UiCodeModelSupport::UiCodeModelSupport(CppModelManagerInterface *modelmanager,
     : AbstractEditorSupport(modelmanager),
       m_sourceName(source),
       m_fileName(uiHeaderFile),
-      m_initialized(false)
+      m_initialized(false),
+      m_running(false)
 {
     if (debug)
         qDebug()<<"ctor UiCodeModelSupport for"<<m_sourceName<<uiHeaderFile;
@@ -103,6 +104,8 @@ QByteArray UiCodeModelSupport::contents() const
 {
     if (!m_initialized)
         init();
+    if (m_running)
+        finishProcess();
 
     return m_contents;
 }
@@ -128,42 +131,58 @@ void UiCodeModelSupport::setFileName(const QString &name)
 
 bool UiCodeModelSupport::runUic(const QString &ui) const
 {
-    QProcess process;
     const QString uic = uicCommand();
     if (uic.isEmpty())
         return false;
-    process.setEnvironment(environment());
+    m_process.setEnvironment(environment());
 
     if (debug)
         qDebug() << "UiCodeModelSupport::runUic " << uic << " on " << ui.size() << " bytes";
-    process.start(uic, QStringList(), QIODevice::ReadWrite);
-    if (!process.waitForStarted())
+    m_process.start(uic, QStringList(), QIODevice::ReadWrite);
+    if (!m_process.waitForStarted())
         return false;
-    process.write(ui.toUtf8());
-    if (!process.waitForBytesWritten(3000))
+    m_process.write(ui.toUtf8());
+    if (!m_process.waitForBytesWritten(3000))
         goto error;
-    process.closeWriteChannel();
-    if (!process.waitForFinished(3000) && process.exitStatus() != QProcess::NormalExit && process.exitCode() != 0)
-        goto error;
-
-    m_contents = process.readAllStandardOutput();
-    m_cacheTime = QDateTime::currentDateTime();
-    if (debug)
-        qDebug() << "ok" << m_contents.size() << "bytes.";
+    m_process.closeWriteChannel();
+    m_running = true;
     return true;
 
 error:
     if (debug)
-        qDebug() << "failed" << process.readAllStandardError();
-    process.kill();
+        qDebug() << "failed" << m_process.readAllStandardError();
+    m_process.kill();
+    m_running = false;
     return false;
 }
 
 void UiCodeModelSupport::updateFromEditor(const QString &formEditorContents)
 {
-    if (runUic(formEditorContents)) {
-        updateDocument();
+    if (runUic(formEditorContents))
+        if (finishProcess())
+            updateDocument();
+}
+
+bool UiCodeModelSupport::finishProcess() const
+{
+    if (!m_running)
+        return false;
+    if (!m_process.waitForFinished(3000)
+            && m_process.exitStatus() != QProcess::NormalExit
+            && m_process.exitCode() != 0) {
+        if (debug)
+            qDebug() << "failed" << m_process.readAllStandardError();
+        m_process.kill();
+        m_running = false;
+        return false;
     }
+
+    m_contents = m_process.readAllStandardOutput();
+    m_cacheTime = QDateTime::currentDateTime();
+    if (debug)
+        qDebug() << "ok" << m_contents.size() << "bytes.";
+    m_running = false;
+    return true;
 }
 
 void UiCodeModelSupport::updateFromBuild()

@@ -37,6 +37,7 @@
 #include "ModelManagerInterface.h"
 
 #include <QDateTime>
+#include <QProcess>
 
 namespace CppTools {
 
@@ -59,11 +60,14 @@ protected:
 private:
     void init() const;
     bool runUic(const QString &ui) const;
+    bool finishProcess() const;
+    mutable QProcess m_process;
     QString m_sourceName;
     QString m_fileName;
     mutable bool m_initialized;
     mutable QByteArray m_contents;
     mutable QDateTime m_cacheTime;
+    mutable bool m_running;
 };
 
 } // CppTools
