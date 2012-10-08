@@ -31,15 +31,17 @@
     \title Adding Libraries to Projects
 
     In addition to Qt libraries, you can add other libraries to your projects.
-    The way the library is added depends on whether it is a system library or
-    your own library or a 3rd party library located in the build tree of the
+    The way the library is added depends on the type and location of the
+    library. You can add a system library, your own library, or a 3rd party
+    library. The library can be located either in the build tree of the
     current project or in another build tree.
 
     \image qtcreator-add-library-wizard.png "Add Library wizard"
 
     Because system libraries do not typically change and are often found by
     default, you do not need to specify the path to the library or to its
-    includes when you add it.
+    includes when you add it. You can use \c{pkg-config} to query system
+    libraries during compilation.
 
     For your own libraries and 3rd party libraries, you need to specify
     the paths. \QC tries to guess the include path for an external library,
