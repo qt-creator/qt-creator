@@ -100,7 +100,7 @@ bool RmKitOperation::test() const
                                     QLatin1String("testId"), QLatin1String("Test Qt Version"),
                                     QLatin1String("/tmp/icon.png"),
                                     1, QLatin1String("/usr/bin/gdb-test"),
-                                    QLatin1String("Desktop"), QString(),
+                                    QByteArray("Desktop"), QString(),
                                     QLatin1String("{some-tc-id}"), QLatin1String("{some-qt-id}"),
                                     QLatin1String("unsupported/mkspec"),
                                     KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
@@ -108,7 +108,7 @@ bool RmKitOperation::test() const
             AddKitOperation::addKit(map, QLatin1String("testId2"), QLatin1String("Test Qt Version"),
                                     QLatin1String("/tmp/icon2.png"),
                                     1, QLatin1String("/usr/bin/gdb-test2"),
-                                    QLatin1String("Desktop"), QString(),
+                                    QByteArray("Desktop"), QString(),
                                     QLatin1String("{some-tc-id2}"), QLatin1String("{some-qt-id2}"),
                                     QLatin1String("unsupported/mkspec2"),
                                     KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue2"))));

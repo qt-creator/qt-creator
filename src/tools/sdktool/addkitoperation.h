@@ -54,7 +54,7 @@ public:
     static QVariantMap addKit(const QVariantMap &map,
                               const QString &id, const QString &displayName, const QString &icon,
                               const quint32 &debuggerType, const QString &debugger,
-                              const QString &deviceType, const QString &sysRoot,
+                              const QByteArray &deviceType, const QString &sysRoot,
                               const QString &tc, const QString &qt, const QString &mkspec,
                               const KeyValuePairList &extra);
 

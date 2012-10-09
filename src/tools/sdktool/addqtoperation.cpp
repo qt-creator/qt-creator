@@ -155,7 +155,7 @@ bool AddQtOperation::test() const
         return false;
 
     QVariantMap version0 = map.value(QLatin1String("QtVersion.0")).toMap();
-    if (version0.count() != 6
+    if (version0.count() != 7
             || !version0.contains(QLatin1String(ID))
             || version0.value(QLatin1String(ID)).toInt() != -1
             || !version0.contains(QLatin1String(DISPLAYNAME))
@@ -194,7 +194,7 @@ bool AddQtOperation::test() const
         return false;
 
     QVariantMap version1 = map.value(QLatin1String("QtVersion.1")).toMap();
-    if (version1.count() != 6
+    if (version1.count() != 7
             || !version1.contains(QLatin1String(ID))
             || version1.value(QLatin1String(ID)).toInt() != -1
             || !version1.contains(QLatin1String(DISPLAYNAME))
