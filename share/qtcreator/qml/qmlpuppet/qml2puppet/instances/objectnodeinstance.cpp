@@ -33,7 +33,6 @@
 
 
 #include <QEvent>
-#include <QGraphicsScene>
 #include <QQmlContext>
 #include <QQmlError>
 #include <QQmlEngine>

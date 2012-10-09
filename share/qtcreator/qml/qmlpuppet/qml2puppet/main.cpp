@@ -29,7 +29,7 @@
 
 #include <QDebug>
 
-#include <QApplication>
+#include <QGuiApplication>
 #include <QStringList>
 
 #include <qt5nodeinstanceclientproxy.h>
@@ -44,7 +44,7 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication application(argc, argv);
+    QGuiApplication application(argc, argv);
 
     QCoreApplication::setOrganizationName("QtProject");
     QCoreApplication::setOrganizationDomain("qt-project.org");
