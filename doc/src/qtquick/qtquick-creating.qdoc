@@ -77,32 +77,8 @@
 
     \section1 Creating Qt Quick UI Projects
 
-    \list 1
-
-        \o  Select \gui {File > New File or Project > Applications >
-            Qt Quick UI > Choose}.
-
-            The \gui{Introduction and Project Location} dialog opens.
-
-            \image qmldesigner-new-ui-project-location.png "Introduction and Project Location dialog"
-
-        \o  In the \gui Name field, give a name to the project.
-
-            Do not use spaces and special characters in the project name and
-            path.
-
-        \o  In the \gui {Create in} field, enter the path for the project files.
-            For example, \c {C:\Qt\examples}. To select the path from a
-            directory tree, click \gui Browse.
-
-        \o  Click \gui{Next}.
-
-            \image qmldesigner-new-ui-project-summary.png "Project Management dialog"
-
-        \o  Review the project settings, and click \gui{Finish} to create the
-            project.
-
-    \endlist
+    Select \gui {File > New File or Project > Applications > Qt Quick UI >
+    Choose} and follow the instructions of the wizard.
 
     \QC creates the following files:
 
@@ -127,78 +103,19 @@
 
     \section1 Creating Qt Quick Applications
 
-    \list 1
+    Select \gui File > \gui {New File or Project} > \gui Applications >
+    \gui {Qt Quick Application 1 (Built-in Elements)} or \gui {Qt Quick
+    Application 2 (Built-in Elements)} > \gui Choose, and follow the
+    instructions of the wizard.
 
-        \o  Select \gui {File > New File or Project > Applications >
-            Qt Quick Application (Built-in Elements) > Choose}.
-
-            \note We recommend that you use the \gui {Qt Quick Application for
-            MeeGo Harmattan} template when you develop for MeeGo Harmattan
-            devices.
-
-            The \gui{Introduction and Project Location} dialog opens.
-
-            \image qmldesigner-new-project-location.png "Introduction and Project Location dialog"
-
-        \o  In the \gui Name field, give a name to the project.
-
-            Do not use spaces and special characters in the project name and
-            path.
-
-        \o  In the \gui {Create in} field, enter the path for the project files.
-            For example, \c {C:\Qt\examples}. To select the path from a
-            directory tree, click \gui Browse.
-
-        \o  Click \gui{Next}.
-
-            The \gui {Kit Selection} dialog opens.
-
-            \image qmldesigner-new-project-qt-versions.png "Kit Selection dialog"
-
-        \o  Select build and run \l{glossary-buildandrun-kit}{kits} for your project,
-            and then click \gui{Next}.
-
-            \note If only one kit is specified in \gui Tools > \gui Options >
-            \gui {Build & Run} > \gui Kits, this dialog is skipped.
-
-            The \gui {Mobile Options} dialog opens.
-
-            \image qmldesigner-new-app-project-mobile-options.png "Mobile Options dialog"
-
-        \o  In the \gui {Orientation behavior} field, determine how the
-            application behaves when the orientation of the device display
-            rotates between portrait and landscape, and then click \gui Next.
-
-            \note This dialog opens only if you select a \l{glossary-buildandrun-kit}{kit}
-            with \gui Maemo5 device type in the \gui {Kit Selection} dialog. On
-            Harmattan, the Qt Quick Components for MeeGo provide native-looking
-            rotation.
-
-        \o  Click \gui Next.
-
-            The \gui {Harmattan Specific} dialog opens.
-
-            \image qmldesigner-new-project-harmattan-options.png "Harmattan Specific dialog"
-
-        \o  In the \gui {Application icon} field, select the application
-            icon to use on Maemo or Harmattan devices, or use the default icon.
-
-            The \gui {Project Management} dialog opens.
-
-            \image qmldesigner-new-project-summary.png "Project Management dialog"
-
-        \o  In the \gui {Add to project} field, you can add this project to
-            another project as a subproject.
-
-        \o  In the \gui {Add to version control} field, you can add the project
-            to a version control system.
-
-        \o Click \gui Finish to create the project.
-
-    \endlist
+    \note The SDK for a particular target platform might install additional
+    templates for that platform. For example, the \gui {Qt Quick Application for
+    MeeGo Harmattan} template is installed as part of the MeeGo Harmattan tool
+    chain and the QNX templates are installed as part of the BlackBerry NDK or
+    the QNX SDK.
 
     \QC creates the necessary boilerplate files. Some of the files are
-    specific to the Maemo or MeeGo Harmattan platform.
+    specific to a particular target platform.
 
     \section1 Importing QML Applications
 
