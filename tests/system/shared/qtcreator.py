@@ -69,7 +69,7 @@ def __removeTmpSettingsDir__():
     deleteDirIfExists(os.path.dirname(os.path.dirname(tmpSettingsDir)))
 
 def substituteTildeWithinToolchains(settingsDir):
-    toolchains = os.path.join(settingsDir, "Nokia", 'qtcreator', 'toolchains.xml')
+    toolchains = os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml')
     origToolchains = toolchains + "_orig"
     home = os.path.expanduser("~")
     os.rename(toolchains, origToolchains)
@@ -118,7 +118,7 @@ def substituteUnchosenTargetABIs(settingsDir):
         CLOSED = 2
 
     on64Bit = __is64BitOS__()
-    toolchains = os.path.join(settingsDir, "Nokia", 'qtcreator', 'toolchains.xml')
+    toolchains = os.path.join(settingsDir, "QtProject", 'qtcreator', 'toolchains.xml')
     origToolchains = toolchains + "_orig"
     os.rename(toolchains, origToolchains)
     origFile = open(origToolchains, "r")

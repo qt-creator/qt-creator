@@ -67,7 +67,7 @@ ToolTip *ToolTip::instance()
 void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect)
 {
     if (acceptShow(content, pos, w, rect)) {
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
         m_tip = m_tipFactory->createTip(content, w);
 #else
         m_tip = m_tipFactory->createTip(
@@ -205,7 +205,7 @@ void ToolTip::placeTip(const QPoint &pos, QWidget *w)
     QRect screen = Internal::screenGeometry(pos, w);
     QPoint p = pos;
     p += QPoint(2,
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
                 21
 #else
                 16

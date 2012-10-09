@@ -246,7 +246,7 @@
     \if defined(qcmanual)
     \l{Testing with User Data on MeeGo Devices}.
     \else
-    \l{http://doc.qt.nokia.com/qtcreator/creator-developing-meego.html#testing-with-user-data-on-meego-devices}
+    \l{http://doc.qt.digia.com/qtcreator/creator-developing-meego.html#testing-with-user-data-on-meego-devices}
     {Testing with User Data on MeeGo Devices}.
     \endif
 
@@ -261,7 +261,7 @@
     \if defined(qcmanual)
     \l{Generating SSH Keys}.
     \else
-    \l{http://doc.qt.nokia.com/qtcreator/creator-developing-meego.html#generating-ssh-keys}
+    \l{http://doc.qt.digia.com/qtcreator/creator-developing-meego.html#generating-ssh-keys}
     {Generating SSH Keys}.
     \endif
 
@@ -271,7 +271,7 @@
     \if defined(qcmanual)
     \l{Managing Device Processes}.
     \else
-    \l{http://doc.qt.nokia.com/qtcreator/creator-developing-meego.html#managing-device-processes}
+    \l{http://doc.qt.digia.com/qtcreator/creator-developing-meego.html#managing-device-processes}
     {Managing Device Processes}.
     \endif
 

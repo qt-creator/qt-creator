@@ -9,7 +9,7 @@ CONFIG -= app_bundle
 !contains(TARGET, ^tst_.*):TARGET = $$join(TARGET,,"tst_")
 
 win32 {
-    lib = $$IDE_LIBRARY_PATH;$$IDE_PLUGIN_PATH/Nokia
+    lib = $$IDE_LIBRARY_PATH;$$IDE_PLUGIN_PATH/QtProject
     lib ~= s,/,\\,g
     # the below gets added to later by testcase.prf
     check.commands = cd . & set PATH=$$lib;%PATH%& cmd /c

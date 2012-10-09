@@ -82,7 +82,7 @@
             a location from where it can be run on the device. You can change
             the relationship between the build, run, and deploy configurations.
 
-        \o  \l{http://doc.qt.nokia.com/qtsimulator/index.html}
+        \o  \l{http://doc.qt.digia.com/qtsimulator/index.html}
             {Using Qt Simulator}
 
             You can use the \QS to test Qt applications that are

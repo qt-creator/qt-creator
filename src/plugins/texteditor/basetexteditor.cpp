@@ -2606,7 +2606,7 @@ QPoint BaseTextEditorWidget::toolTipPosition(const QTextCursor &c) const
 {
     const QPoint cursorPos = mapToGlobal(cursorRect(c).bottomRight() + QPoint(1,1));
     return cursorPos + QPoint(d->m_extraArea->width(),
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     -24
 #else
     -16

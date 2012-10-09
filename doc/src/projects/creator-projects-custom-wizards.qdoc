@@ -87,9 +87,9 @@
         \o  \c{share/qtcreator/templates/wizards}
 
         \o  the local user's configuration folder,
-            \c{$HOME/.config/Nokia/qtcreator/templates/wizards}
+            \c{$HOME/.config/QtProject/qtcreator/templates/wizards}
 
-        \o  \c{%APPDATA%\Nokia\qtcreator\templates\wizards}
+        \o  \c{%APPDATA%\QtProject\qtcreator\templates\wizards}
 
     \endlist
 

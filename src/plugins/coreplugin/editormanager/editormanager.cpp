@@ -313,7 +313,7 @@ EditorManager::EditorManager(QWidget *parent) :
     mfile->addAction(cmd, Constants::G_FILE_CLOSE);
     connect(d->m_closeCurrentEditorAction, SIGNAL(triggered()), this, SLOT(closeEditor()));
 
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
     // workaround for QTCREATORBUG-72
     QShortcut *sc = new QShortcut(parent);
     cmd = ActionManager::registerShortcut(sc, Constants::CLOSE_ALTERNATIVE, editManagerContext);

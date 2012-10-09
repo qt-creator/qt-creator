@@ -29,7 +29,7 @@ HEADERS += \
     $$SRCDIR/plugins/valgrind/callgrindwidgethandler.h \
     $$SRCDIR/plugins/valgrind/callgrindvisualisation.h \
 
-LIBS += -L$$IDE_PLUGIN_PATH/Nokia
+LIBS += -L$$IDE_PLUGIN_PATH/QtProject
 
 INCLUDEPATH *= $$IDE_BUILD_TREE/src/plugins/coreplugin # for ide_version.h
 

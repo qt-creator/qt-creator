@@ -187,9 +187,9 @@
     The specification does not define how to map JSON instances with JSON
     schemas. As a temporary solution, \QC looks for a JSON schema file with a
     name that matches the name of the JSON instance file in the user
-    configuration folder. For example, \c {~/config/Nokia/qtcreator/json} on
+    configuration folder. For example, \c {~/config/QtProject/qtcreator/json} on
     Linux and Mac OS and
-    \c {C:\Users\username\AppData\Roaming\Nokia\qtcreator\json}
+    \c {C:\Users\username\AppData\Roaming\QtCreator\qtcreator\json}
     in Windows. To check JSON data structure, copy the JSON schema file to the
     above folder.
 

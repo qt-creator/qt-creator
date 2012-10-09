@@ -46,7 +46,7 @@
     To test the application UI, user interaction with the application, and
     functionality that uses the mobility APIs, use \QS,
     instead. For more information, see the
-    \l{http://doc.qt.nokia.com/qtsimulator/index.html}{\QS Manual}.
+    \l{http://doc.qt.digia.com/qtsimulator/index.html}{\QS Manual}.
 
     The difference between \QS and the emulators is that when you
     compile your application binary for \QS, it is compiled against a
