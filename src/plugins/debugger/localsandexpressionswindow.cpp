@@ -41,7 +41,8 @@ namespace Internal {
 LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(
         QWidget *locals, QWidget *inspector, QWidget *returnWidget,
         QWidget *watchers, QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+      m_showLocals(false)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
@@ -62,11 +63,23 @@ LocalsAndExpressionsWindow::LocalsAndExpressionsWindow(
     m_splitter->setStretchFactor(0, 3);
     m_splitter->setStretchFactor(2, 1);
     m_splitter->setStretchFactor(3, 1);
+
+    // Timer is to prevent flicker when switching between Inpector and Locals
+    // when debugger engine changes states.
+    m_timer.setSingleShot(true);
+    m_timer.setInterval(500); // TODO: remove the magic number!
+    connect(&m_timer, SIGNAL(timeout()), SLOT(showLocals()));
 }
 
 void LocalsAndExpressionsWindow::setShowLocals(bool showLocals)
 {
-    m_localsAndInspector->setCurrentIndex(showLocals ? 0 : 1);
+    m_showLocals = showLocals;
+    m_timer.start();
+}
+
+void LocalsAndExpressionsWindow::showLocals()
+{
+    m_localsAndInspector->setCurrentIndex(m_showLocals ? 0 : 1);
 }
 
 } // namespace Internal
