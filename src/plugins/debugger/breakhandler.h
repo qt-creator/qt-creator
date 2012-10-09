@@ -133,6 +133,7 @@ public:
     void setEnabled(BreakpointModelId id, bool on);
     void updateFileNameFromMarker(BreakpointModelId id, const QString &fileName);
     void updateLineNumberFromMarker(BreakpointModelId id, int lineNumber);
+    void changeLineNumberFromMarker(BreakpointModelId id, int lineNumber);
     void setMarkerFileAndLine(BreakpointModelId id,
         const QString &fileName, int lineNumber);
     bool isOneShot(BreakpointModelId id) const;
@@ -189,6 +190,7 @@ private:
     void loadBreakpoints();
     void saveBreakpoints();
     void cleanupBreakpoint(BreakpointModelId id);
+    Q_SLOT void changeLineNumberFromMarkerHelper(Debugger::Internal::BreakpointModelId id, int lineNumber);
 
     struct BreakpointItem
     {

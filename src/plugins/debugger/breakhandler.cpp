@@ -37,6 +37,7 @@
 #include "debuggerstringutils.h"
 #include "stackframe.h"
 
+#include <extensionsystem/invoker.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -1256,6 +1257,25 @@ void BreakHandler::updateLineNumberFromMarker(BreakpointModelId id, int lineNumb
         it->data.lineNumber = lineNumber;
     it->updateMarker(id);
     emit layoutChanged();
+}
+
+void BreakHandler::changeLineNumberFromMarker(BreakpointModelId id, int lineNumber)
+{
+    // We need to delay this as it is called from a marker which will be destroyed.
+    ExtensionSystem::InvokerBase invoker;
+    invoker.addArgument(id);
+    invoker.addArgument(lineNumber);
+    invoker.setConnectionType(Qt::QueuedConnection);
+    invoker.invoke(this, "changeLineNumberFromMarkerHelper");
+    QTC_CHECK(invoker.wasSuccessful());
+}
+
+void BreakHandler::changeLineNumberFromMarkerHelper(BreakpointModelId id, int lineNumber)
+{
+    BreakpointParameters data = breakpointData(id);
+    data.lineNumber = lineNumber;
+    removeBreakpoint(id);
+    appendBreakpoint(data);
 }
 
 BreakpointModelIds BreakHandler::allBreakpointIds() const

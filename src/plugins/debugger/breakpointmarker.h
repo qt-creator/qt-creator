@@ -46,6 +46,8 @@ public:
     void removedFromEditor();
     void updateLineNumber(int lineNumber);
     void updateFileName(const QString &fileName);
+    bool isDraggable() const { return true; }
+    void dragToLine(int lineNumber);
 
 private:
     BreakpointModelId m_id;
