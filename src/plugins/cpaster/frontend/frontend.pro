@@ -8,8 +8,8 @@ include(../../../plugins/coreplugin/coreplugin.pri)
 CONFIG += console
 QT += network
 
-LIBS *= -L$$IDE_PLUGIN_PATH/Nokia
-QMAKE_RPATHDIR *= $$IDE_PLUGIN_PATH/Nokia
+LIBS *= -L$$IDE_PLUGIN_PATH/QtProject
+QMAKE_RPATHDIR *= $$IDE_PLUGIN_PATH/QtProject
 
 DESTDIR=$$IDE_APP_PATH
 

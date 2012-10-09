@@ -15,7 +15,7 @@ QtcTool {
     cpp.rpaths: [
         "$ORIGIN/../lib/qtcreator",
         "$ORIGIN/../lib/qtcreator/plugins",
-        "$ORIGIN/../lib/qtcreator/plugins/Nokia"
+        "$ORIGIN/../lib/qtcreator/plugins/QtProject"
     ]
 
     files: [ "main.cpp",
