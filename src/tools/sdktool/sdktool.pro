@@ -42,3 +42,5 @@ DESTDIR=$$IDE_LIBEXEC_PATH
 macx:DEFINES += "DATA_PATH=\"\\\".\\\"\""
 else:DEFINES += "DATA_PATH=\"\\\"../share/qtcreator\\\"\""
 
+target.path  = $$QTC_PREFIX/bin # FIXME: libexec, more or less
+INSTALLS += target
