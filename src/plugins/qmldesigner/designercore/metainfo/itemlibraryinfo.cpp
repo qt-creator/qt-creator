@@ -289,7 +289,7 @@ QList<ItemLibraryEntry> ItemLibraryInfo::entries() const
 
 static inline QString keyForEntry(const ItemLibraryEntry &entry)
 {
-    return entry.name() + entry.category();
+    return entry.name() + entry.category() + QString::number(entry.majorVersion());
 }
 
 void ItemLibraryInfo::addEntry(const ItemLibraryEntry &entry)
