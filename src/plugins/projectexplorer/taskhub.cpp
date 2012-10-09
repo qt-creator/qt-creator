@@ -45,7 +45,7 @@ public:
         setVisible(visible);
     }
 
-    bool clickable() const;
+    bool isClickable() const;
     void clicked();
 
     void updateFileName(const QString &fileName);
@@ -72,7 +72,7 @@ void TaskMark::removedFromEditor()
     ProjectExplorerPlugin::instance()->taskHub()->updateTaskLineNumber(m_id, -1);
 }
 
-bool TaskMark::clickable() const
+bool TaskMark::isClickable() const
 {
     return true;
 }

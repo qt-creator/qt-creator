@@ -74,7 +74,7 @@ public:
     virtual void updateLineNumber(int lineNumber);
     virtual void updateBlock(const QTextBlock &block);
     virtual void removedFromEditor();
-    virtual bool clickable() const;
+    virtual bool isClickable() const;
     virtual void clicked();
 
     void setIcon(const QIcon &icon);
@@ -82,8 +82,8 @@ public:
     void updateMarker();
     Priority priority() const;
     void setPriority(Priority prioriy);
-    bool visible() const;
-    void setVisible(bool visible);
+    bool isVisible() const;
+    void setVisible(bool isVisible);
     double widthFactor() const;
     void setWidthFactor(double factor);
 

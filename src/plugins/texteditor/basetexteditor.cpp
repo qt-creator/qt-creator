@@ -3796,7 +3796,7 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                         int count = 0;
                         it = marks.constEnd() - 1;
                         while (it != marks.constBegin()) {
-                            if ((*it)->visible())
+                            if ((*it)->isVisible())
                                 ++count;
                             if (count == 3)
                                 break;
@@ -3806,7 +3806,7 @@ void BaseTextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
                     TextMarks::const_iterator end = marks.constEnd();
                     for ( ; it != end; ++it) {
                         ITextMark *mark = *it;
-                        if (!mark->visible())
+                        if (!mark->isVisible())
                             continue;
                         const int height = fmLineSpacing - 1;
                         const int width = int(.5 + height * mark->widthFactor());
@@ -4454,7 +4454,7 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             if (cursor.blockNumber() == n) {
                 if (TextBlockUserData *data = static_cast<TextBlockUserData *>(cursor.block().userData())) {
                     foreach (ITextMark *mark, data->marks()) {
-                        if (mark->clickable()) {
+                        if (mark->isClickable()) {
                             mark->clicked();
                             return;
                         }

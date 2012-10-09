@@ -80,7 +80,7 @@ ITextMark::Priority ITextMark::priority() const
     return m_priority;
 }
 
-bool ITextMark::visible() const
+bool ITextMark::isVisible() const
 {
     return m_visible;
 }
@@ -102,7 +102,7 @@ void ITextMark::setWidthFactor(double factor)
     m_widthFactor = factor;
 }
 
-bool ITextMark::clickable() const
+bool ITextMark::isClickable() const
 {
     return false;
 }

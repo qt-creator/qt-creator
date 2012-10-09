@@ -86,7 +86,7 @@ bool DocumentMarker::addMark(TextEditor::ITextMark *mark)
         QTC_CHECK(mark->lineNumber() == blockNumber + 1); // Checks that the base class is called
         mark->updateBlock(block);
         mark->setMarkableInterface(this);
-        if (!mark->visible())
+        if (!mark->isVisible())
             return true;
         // Update document layout
         double newMaxWidthFactor = qMax(mark->widthFactor(), documentLayout->maxMarkWidthFactor);
@@ -129,7 +129,7 @@ void DocumentMarker::removeMarkFromMarksCache(TextEditor::ITextMark *mark)
         return;
     }
 
-    if (!mark->visible())
+    if (!mark->isVisible())
         return;
 
     if (documentLayout->maxMarkWidthFactor == 1.0
@@ -140,7 +140,7 @@ void DocumentMarker::removeMarkFromMarksCache(TextEditor::ITextMark *mark)
     } else {
         double maxWidthFactor = 1.0;
         foreach (const ITextMark *mark, marks()) {
-            if (!mark->visible())
+            if (!mark->isVisible())
                 continue;
             maxWidthFactor = qMax(mark->widthFactor(), maxWidthFactor);
             if (maxWidthFactor == documentLayout->maxMarkWidthFactor)
