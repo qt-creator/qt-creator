@@ -91,6 +91,7 @@ public:
 
 signals:
     void newStatus(QmlDebug::ClientStatus status);
+    void stackFrameCompleted();
 
 protected:
     virtual void statusChanged(QmlDebug::ClientStatus status);

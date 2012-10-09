@@ -401,6 +401,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
     stream >> command;
 
     WatchHandler *watchHandler = d->engine->watchHandler();
+    StackHandler *stackHandler = d->engine->stackHandler();
 
     if (command == "STOPPED") {
         d->engine->inferiorSpontaneousStop();
@@ -426,35 +427,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
             ideStackFrames << frame;
         }
 
-        if (ideStackFrames.size() && ideStackFrames.back().function == QLatin1String("<global>"))
-            ideStackFrames.takeLast();
-
-        d->engine->stackHandler()->setFrames(ideStackFrames);
-
-        bool needPing = false;
-
-        foreach (WatchData data, watches) {
-            data.iname = watchHandler->watcherName(data.exp);
-            watchHandler->insertIncompleteData(data);
-
-            if (watchHandler->isExpandedIName(data.iname) && qint64(data.id) != -1) {
-                needPing = true;
-                expandObject(data.iname,data.id);
-            }
-        }
-
-        foreach (WatchData data, locals) {
-            data.iname = "local." + data.exp;
-            watchHandler->insertIncompleteData(data);
-
-            if (watchHandler->isExpandedIName(data.iname) && qint64(data.id) != -1) {
-                needPing = true;
-                expandObject(data.iname,data.id);
-            }
-        }
-
-        if (needPing)
-            sendPing();
+        stackHandler->setFrames(ideStackFrames);
 
         bool becauseOfException;
         stream >> becauseOfException;
@@ -502,6 +475,8 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
         if (!ideStackFrames.isEmpty())
             d->engine->gotoLocation(ideStackFrames.value(0));
 
+        insertLocalsAndWatches(locals, watches, stackHandler->currentIndex());
+
     } else if (command == "RESULT") {
         WatchData data;
         QByteArray iname;
@@ -511,12 +486,12 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
                              +  QLatin1String(iname) + QLatin1Char(' ') + data.value);
         data.iname = iname;
         if (iname.startsWith("watch.")) {
-            watchHandler->insertIncompleteData(data);
+            watchHandler->insertData(data);
         } else if (iname == "console") {
             d->engine->showMessage(data.value, QtMessageLogOutput);
         } else if (iname.startsWith("local.")) {
             data.name = data.name.left(data.name.indexOf(QLatin1Char(' ')));
-            watchHandler->insertIncompleteData(data);
+            watchHandler->insertData(data);
         } else {
             qWarning() << "QmlEngine: Unexcpected result: " << iname << data.value;
         }
@@ -531,7 +506,7 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
 
         foreach (WatchData data, result) {
             data.iname = iname + '.' + data.exp;
-            watchHandler->insertIncompleteData(data);
+            watchHandler->insertData(data);
 
             if (watchHandler->isExpandedIName(data.iname) && qint64(data.id) != -1) {
                 needPing = true;
@@ -552,27 +527,8 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
         d->logReceiveMessage(QString::fromLatin1("%1 %2 (%3 x locals) (%4 x watchdata)").arg(
                              QLatin1String(command), QString::number(frameId),
                              QString::number(locals.size()), QString::number(watches.size())));
-        bool needPing = false;
-        foreach (WatchData data, watches) {
-            data.iname = watchHandler->watcherName(data.exp);
-            watchHandler->insertIncompleteData(data);
 
-            if (watchHandler->isExpandedIName(data.iname) && qint64(data.id) != -1) {
-                needPing = true;
-                expandObject(data.iname, data.id);
-            }
-        }
-
-        foreach (WatchData data, locals) {
-            data.iname = "local." + data.exp;
-            watchHandler->insertIncompleteData(data);
-            if (watchHandler->isExpandedIName(data.iname) && qint64(data.id) != -1) {
-                needPing = true;
-                expandObject(data.iname, data.id);
-            }
-        }
-        if (needPing)
-            sendPing();
+        insertLocalsAndWatches(locals, watches, frameId);
 
     } else if (command == "PONG") {
         int ping;
@@ -585,9 +541,50 @@ void QScriptDebuggerClient::messageReceived(const QByteArray &data)
 
 }
 
+void QScriptDebuggerClient::insertLocalsAndWatches(QList<WatchData> &locals,
+                                                   QList<WatchData> &watches,
+                                                   int stackFrameIndex)
+{
+    WatchHandler *watchHandler = d->engine->watchHandler();
+    watchHandler->removeAllData();
+    if (stackFrameIndex < 0)
+        return;
+    const StackFrame frame = d->engine->stackHandler()->frameAt(stackFrameIndex);
+    if (!frame.isUsable())
+        return;
+
+    bool needPing = false;
+    foreach (WatchData data, watches) {
+        data.iname = watchHandler->watcherName(data.exp);
+        watchHandler->insertData(data);
+
+        if (watchHandler->isExpandedIName(data.iname) && qint64(data.id) != -1) {
+            needPing = true;
+            expandObject(data.iname, data.id);
+        }
+    }
+
+    foreach (WatchData data, locals) {
+        if (data.name == QLatin1String("<no initialized data>"))
+            data.name = tr("No Local Variables");
+        data.iname = "local." + data.exp;
+        watchHandler->insertData(data);
+
+        if (watchHandler->isExpandedIName(data.iname) && qint64(data.id) != -1) {
+            needPing = true;
+            expandObject(data.iname, data.id);
+        }
+    }
+
+    if (needPing)
+        sendPing();
+    emit stackFrameCompleted();
+}
+
 void QScriptDebuggerClient::setEngine(QmlEngine *engine)
 {
     d->engine = engine;
+    connect(this, SIGNAL(stackFrameCompleted()), engine, SIGNAL(stackFrameCompleted()));
 }
 
 void QScriptDebuggerClientPrivate::logSendMessage(const QString &msg) const

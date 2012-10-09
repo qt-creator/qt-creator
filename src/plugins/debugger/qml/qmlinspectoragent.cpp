@@ -885,9 +885,6 @@ bool QmlInspectorAgent::isConnected() const
 
 void QmlInspectorAgent::clearObjectTree()
 {
-    // clear view
-    m_debuggerEngine->watchHandler()->cleanup();
-
     m_objectTreeQueryIds.clear();
     m_fetchDataIds.clear();
     int old_count = m_debugIdHash.count();

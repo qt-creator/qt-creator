@@ -86,6 +86,8 @@ protected:
 
 private:
     void sendPing();
+    void insertLocalsAndWatches(QList<WatchData> &locals, QList<WatchData> &watches,
+                                int stackFrameIndex);
 
 private:
     QScriptDebuggerClientPrivate *d;

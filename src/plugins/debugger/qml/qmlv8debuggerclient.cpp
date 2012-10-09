@@ -1186,6 +1186,7 @@ void QmlV8DebuggerClient::expandObject(const QByteArray &iname, quint64 objectId
 void QmlV8DebuggerClient::setEngine(QmlEngine *engine)
 {
     d->engine = engine;
+    connect(this, SIGNAL(stackFrameCompleted()), engine, SIGNAL(stackFrameCompleted()));
 }
 
 void QmlV8DebuggerClient::getSourceFiles()
@@ -1682,8 +1683,17 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
     QVariantMap currentFrame = bodyVal.toMap();
 
     StackHandler *stackHandler = d->engine->stackHandler();
-
+    WatchHandler * watchHandler = d->engine->watchHandler();
     d->clearCache();
+
+    const int frameIndex = stackHandler->currentIndex();
+    watchHandler->removeAllData();
+    if (frameIndex < 0)
+        return;
+    const StackFrame frame = stackHandler->currentFrame();
+    if (!frame.isUsable())
+        return;
+
     //Set "this" variable
     {
         WatchData data;
@@ -1702,7 +1712,7 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
             data.setHasChildren(true);
             data.id = 0;
         }
-        d->engine->watchHandler()->insertData(data);
+        watchHandler->insertData(data);
     }
 
     const QVariantList currentFrameScopes = currentFrame.value(_("scopes")).toList();
@@ -1716,6 +1726,7 @@ void QmlV8DebuggerClient::setCurrentFrameDetails(const QVariant &bodyVal, const 
         d->scope(scopeIndex);
     }
     d->engine->gotoLocation(stackHandler->currentFrame());
+    emit stackFrameCompleted();
 }
 
 void QmlV8DebuggerClient::updateScope(const QVariant &bodyVal, const QVariant &refsVal)
