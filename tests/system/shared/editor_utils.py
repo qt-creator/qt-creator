@@ -295,3 +295,14 @@ def invokeFindUsage(editor, line, typeOperation, n=1):
         type(editor, typeOperation)
     invokeContextMenuItem(editor, "Find Usages")
     return True
+
+def openDocument(treeElement):
+    try:
+        navigator = waitForObject(":Qt Creator_Utils::NavigationTreeView")
+        fileName = waitForObjectItem(navigator, treeElement).text
+        doubleClickItem(navigator, treeElement, 5, 5, 0, Qt.LeftButton)
+        mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
+        waitFor("fileName in str(mainWindow.windowTitle)")
+        return True
+    except:
+        return False
