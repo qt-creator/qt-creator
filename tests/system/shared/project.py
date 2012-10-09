@@ -248,7 +248,7 @@ def createNewQmlExtension(workingDir):
     replaceEditorContent(nameLineEd, "TestItem")
     uriLineEd = waitForObject("{buddy={type='QLabel' text='URI:' unnamed='1' visible='1'} "
                               "type='QLineEdit' unnamed='1' visible='1'}", 20000)
-    replaceEditorContent(uriLineEd, "com.nokia.test.qmlcomponents")
+    replaceEditorContent(uriLineEd, "org.qt-project.test.qmlcomponents")
     clickButton(nextButton)
     __createProjectHandleLastPage__()
 
