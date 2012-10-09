@@ -154,7 +154,7 @@ void KitManager::restoreKits()
 
     // read all kits from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    QFileInfo kitFile(systemSettingsFile.absolutePath(), QLatin1String(KIT_FILENAME));
+    QFileInfo kitFile(systemSettingsFile.absolutePath() + QLatin1String(KIT_FILENAME));
     if (kitFile.exists()) {
         KitList system = restoreKits(Utils::FileName(kitFile));
         // make sure we mark these as autodetected!
