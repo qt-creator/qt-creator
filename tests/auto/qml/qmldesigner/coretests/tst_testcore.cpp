@@ -4034,6 +4034,70 @@ void tst_TestCore::testMetaInfoEnums()
     QApplication::processEvents();
 }
 
+void tst_TestCore::testMetaInfoQtQuick1Vs2()
+{
+    char qmlString[] = "import QtQuick 2.0\n"
+                       "Rectangle {\n"
+                            "id: root;\n"
+                            "width: 200;\n"
+                            "height: 200;\n"
+                            "color: \"white\";\n"
+                            "Text {\n"
+                                "id: text1\n"
+                                "text: \"Hello World\"\n"
+                                "anchors.centerIn: parent\n"
+                                "Item {\n"
+                                    "id: item\n"
+                                 "}\n"
+                            "}\n"
+                            "Rectangle {\n"
+                                "id: rectangle;\n"
+                                "gradient: Gradient {\n"
+                                    "GradientStop {\n"
+                                        "position: 0\n"
+                                        "color: \"white\"\n"
+                                     "}\n"
+                                     "GradientStop {\n"
+                                        "position: 1\n"
+                                        "color: \"black\"\n"
+                                     "}\n"
+                                "}\n"
+                            "}\n"
+                             "Text {\n"
+                                "text: \"text\"\n"
+                                "x: 66\n"
+                                "y: 43\n"
+                                "width: 80\n"
+                                "height: 20\n"
+                                "id: text2\n"
+                            "}\n"
+                       "}\n";
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier textModifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Item"));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&textModifier);
+
+    model->attachView(testRewriterView.data());
+
+    ModelNode rootModelNode = testRewriterView->rootModelNode();
+    QVERIFY(rootModelNode.isValid());
+    QCOMPARE(rootModelNode.type(), QString("QtQuick.Rectangle"));
+
+    QVERIFY(!model->metaInfo("Rectangle", 1, 0).isValid());
+    QVERIFY(model->metaInfo("Rectangle", -1, -1).isValid());
+    QVERIFY(model->metaInfo("Rectangle", 2, 0).isValid());
+
+    QVERIFY(!model->metaInfo("QtQuick.Rectangle", 1, 0).isValid());
+    QVERIFY(model->metaInfo("QtQuick.Rectangle", -1, -1).isValid());
+    QVERIFY(model->metaInfo("QtQuick.Rectangle", 2, 0).isValid());
+}
+
 void tst_TestCore::testMetaInfoProperties()
 {
     QScopedPointer<Model> model(createModel("QtQuick.Text"));

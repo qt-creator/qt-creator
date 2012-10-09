@@ -437,9 +437,15 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, QString type, int maj, in
             if (objectValue) {
                 const CppComponentValue *qmlValue = value_cast<CppComponentValue>(objectValue);
                 if (qmlValue) {
-                    m_majorVersion = qmlValue->componentVersion().majorVersion();
-                    m_minorVersion = qmlValue->componentVersion().minorVersion();
-                    m_qualfiedTypeName = qmlValue->moduleName() + '.' + qmlValue->className();
+                    if (m_majorVersion == -1 && m_minorVersion == -1) {
+                        m_majorVersion = qmlValue->componentVersion().majorVersion();
+                        m_minorVersion = qmlValue->componentVersion().minorVersion();
+                        m_qualfiedTypeName = qmlValue->moduleName() + '.' + qmlValue->className();
+                    } else if (m_majorVersion == qmlValue->componentVersion().majorVersion() && m_minorVersion == qmlValue->componentVersion().minorVersion()) {
+                        m_qualfiedTypeName = qmlValue->moduleName() + '.' + qmlValue->className();
+                    } else {
+                        return;
+                    }
                 } else {
                     m_isComponent = true;
                 }
@@ -477,8 +483,12 @@ const QmlJS::CppComponentValue *NodeMetaInfoPrivate::getCppComponentValue() cons
         if (import.info.path() != module)
             continue;
         const Value *lookupResult = import.object->lookupMember(type, context());
-        if ((value = value_cast<CppComponentValue>(lookupResult)))
-            return value;
+        const CppComponentValue *cppValue = value_cast<CppComponentValue>(lookupResult);
+        if (cppValue
+                && (m_majorVersion == -1 || m_majorVersion == cppValue->componentVersion().majorVersion())
+                && (m_minorVersion == -1 || m_minorVersion == cppValue->componentVersion().minorVersion())
+                )
+            return cppValue;
     }
 
     return 0;
