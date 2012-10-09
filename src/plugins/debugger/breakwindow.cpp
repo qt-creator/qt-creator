@@ -713,11 +713,15 @@ void BreakTreeView::keyPressEvent(QKeyEvent *ev)
 void BreakTreeView::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     QModelIndex indexUnderMouse = indexAt(ev->pos());
-    if (indexUnderMouse.isValid() && indexUnderMouse.column() >= 4) {
-        BreakpointModelId id = breakHandler()->findBreakpointByIndex(indexUnderMouse);
-        editBreakpoints(BreakpointModelIds() << id);
+    if (indexUnderMouse.isValid()) {
+        if (indexUnderMouse.column() >= 4) {
+            BreakpointModelId id = breakHandler()->findBreakpointByIndex(indexUnderMouse);
+            editBreakpoints(BreakpointModelIds() << id);
+        }
+    } else {
+        addBreakpoint();
     }
-    QTreeView::mouseDoubleClickEvent(ev);
+    BaseTreeView::mouseDoubleClickEvent(ev);
 }
 
 void BreakTreeView::setModel(QAbstractItemModel *model)
