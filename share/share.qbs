@@ -510,7 +510,6 @@ Product {
         fileTags: ["install"]
         prefix: "qtcreator/qml/qmlpuppet/qmlpuppet/instances/"
         files: [
-            ".instances.pri.swp",
             "anchorchangesnodeinstance.cpp",
             "anchorchangesnodeinstance.h",
             "behaviornodeinstance.cpp",
