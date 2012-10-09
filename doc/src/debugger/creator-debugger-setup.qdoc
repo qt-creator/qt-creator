@@ -186,7 +186,7 @@
                 are installed when you install \QC and Qt SDK. On Mac OS X,
                 use the GDB provided with Xcode.
                 You can also build your own Python-enabled GDB. Follow the instructions in
-                \l{http://developer.qt.nokia.com/wiki/QtCreatorBuildGdb}
+                \l{http://qt-project.org/wiki/QtCreatorBuildGdb}
                 {Building GDB}.
 
         \row

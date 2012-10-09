@@ -63,7 +63,7 @@
     \section1 Configuring the Documentation Project
 
     \QC documentation is written by using QDoc. For more information about using
-    QDoc, see \l{http://doc.qt.nokia.com/qdoc/}{QDoc Reference Documentation}.
+    QDoc, see \l{http://qt-project.org/doc/qdoc/}{QDoc Reference Documentation}.
 
     QDoc finds the new topics automatically, when you place them as .qdoc files
     in the correct folder. However, to make the topics accessible to readers,
@@ -132,7 +132,7 @@
     \section1 Writing Text
 
     Follow the guidelines for
-    \l{http://developer.qt.nokia.com/wiki/Writing_Qt_Documentation}
+    \l{http://qt-project.org/wiki/Writing_Qt_Documentation}
     {writing Qt documentation}.
 
     The documentation must be grammatically correct English and use the standard

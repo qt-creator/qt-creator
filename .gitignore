@@ -89,8 +89,8 @@ dist/gdb/staging
 ipch
 tmp
 # ignore both a directory as well as a symlink
-share/qtcreator/Nokia/
-share/qtcreator/Nokia
+share/qtcreator/QtProject/
+share/qtcreator/QtProject
 
 # Binaries
 # --------

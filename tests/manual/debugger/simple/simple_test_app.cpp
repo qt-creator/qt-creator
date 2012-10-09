@@ -3592,9 +3592,9 @@ namespace qurl {
 
     void testQUrl()
     {
-        QUrl url(QString("http://www.nokia.com"));
+        QUrl url(QString("http://qt-project.org"));
         BREAK_HERE;
-        // Check url "http://www.nokia.com" QUrl.
+        // Check url "http://qt-project.org" QUrl.
         // Continue.
         dummyStatement(&url);
     }

@@ -9,9 +9,9 @@ OUT_PWD=QTCREATOR_BUILD
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
 OUT_PWD=$$OUT_PWD_SAVE
 
-LIBS += -L$$IDE_PLUGIN_PATH/Nokia
+LIBS += -L$$IDE_PLUGIN_PATH/QtProject
 
-unix: QMAKE_LFLAGS += \'-Wl,-rpath,$${IDE_LIBRARY_PATH}\' \'-Wl,-rpath,$${IDE_PLUGIN_PATH}/Nokia\'
+unix: QMAKE_LFLAGS += \'-Wl,-rpath,$${IDE_LIBRARY_PATH}\' \'-Wl,-rpath,$${IDE_PLUGIN_PATH}/QtProject\'
 
 QT += script \
     network \

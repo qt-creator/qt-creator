@@ -139,9 +139,9 @@
 
     The tool configurations that you add and modify are stored in XML format in
     the user configuration folder. For example,
-    \c {~/config/Nokia/qtcreator/externaltools}
+    \c {~/config/QtProject/qtcreator/externaltools}
     on Linux and Mac OS and
-    \c {C:\Users\username\AppData\Roaming\Nokia\qtcreator\externaltools}
+    \c {C:\Users\username\AppData\Roaming\QtProject\qtcreator\externaltools}
     in Windows. To share a configuration with other users, copy an XML
     configuration file to the folder.
 
