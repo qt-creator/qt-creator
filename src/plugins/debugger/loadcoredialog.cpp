@@ -297,9 +297,11 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
 
     connect(d->selectRemoteCoreButton, SIGNAL(clicked()), SLOT(selectRemoteCoreFile()));
     connect(d->remoteCoreFileName, SIGNAL(textChanged(QString)), SLOT(changed()));
+    connect(d->localCoreFileName, SIGNAL(changed(QString)), SLOT(changed()));
     connect(d->kitChooser, SIGNAL(activated(int)), SLOT(changed()));
     connect(d->buttonBox, SIGNAL(rejected()), SLOT(reject()));
     connect(d->buttonBox, SIGNAL(accepted()), SLOT(accept()));
+    changed();
 }
 
 AttachCoreDialog::~AttachCoreDialog()
@@ -321,19 +323,20 @@ bool AttachCoreDialog::isLocal() const
 
 void AttachCoreDialog::changed()
 {
-    bool isValid = d->kitChooser->currentIndex() >= 0
-            && !localCoreFile().isEmpty();
-    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isValid);
+    bool isValid = d->kitChooser->currentIndex() >= 0;
 
     if (isLocal()) {
         d->localCoreFileName->setVisible(true);
         d->remoteCoreFileName->setVisible(false);
         d->selectRemoteCoreButton->setVisible(false);
+        isValid &= d->localCoreFileName->isValid();
     } else {
         d->remoteCoreFileName->setVisible(true);
         d->selectRemoteCoreButton->setVisible(true);
         d->localCoreFileName->setVisible(false);
+        isValid &= !remoteCoreFile().isEmpty();
     }
+    d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isValid);
 }
 
 void AttachCoreDialog::selectRemoteCoreFile()
