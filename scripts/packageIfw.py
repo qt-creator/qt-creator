@@ -86,8 +86,15 @@ def main():
       raise Exception('Archive not specified (--archive)!')
 
     installer_name = args[0]
+    config_postfix = ''
     if sys.platform == 'darwin':
         installer_name = installer_name + '.dmg'
+    if sys.platform.startswith('win'):
+        config_postfix = '-windows'
+    if sys.platform.startswith('linux'):
+        config_postfix = '-linux'
+
+    config_name = 'config' + config_postfix + '.xml'
 
     try:
         temp_dir = tempfile.mkdtemp()
@@ -121,7 +128,7 @@ def main():
             os.makedirs(data_path)
         shutil.copy(archive, data_path)
 
-        ifw_call = [os.path.join(ifw_location, 'bin', 'binarycreator'), '-c', os.path.join(out_config_dir, 'config.xml'), '-p', out_packages_dir, installer_name, '--offline-only' ]
+        ifw_call = [os.path.join(ifw_location, 'bin', 'binarycreator'), '-c', os.path.join(out_config_dir, config_name), '-p', out_packages_dir, installer_name, '--offline-only' ]
         subprocess.check_call(ifw_call, stderr=subprocess.STDOUT)
     finally:
         print 'Cleaning up...'
