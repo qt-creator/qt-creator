@@ -83,13 +83,16 @@ def shadowBuildDir(path, project, qtVersion, debugVersion):
 # because the Simulator target is added for some cases even when Simulator has not
 # been set up inside Qt versions/Toolchains
 # this list can be used in __chooseTargets__()
-def __createProjectSelectType__(category, template, fromWelcome = False):
+def __createProjectOrFileSelectType__(category, template, fromWelcome = False, isProject=True):
     if fromWelcome:
         mouseClick(waitForObject(":CreateProject_QStyleItem"), 5, 5, 0, Qt.LeftButton)
     else:
         invokeMenuItem("File", "New File or Project...")
     categoriesView = waitForObject("{type='QTreeView' name='templateCategoryView'}", 20000)
-    clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
+    if isProject:
+        clickItem(categoriesView, "Projects." + category, 5, 5, 0, Qt.LeftButton)
+    else:
+        clickItem(categoriesView, "Files and Classes." + category, 5, 5, 0, Qt.LeftButton)
     templatesView = waitForObject("{name='templatesView' type='QListView'}", 20000)
     clickItem(templatesView, template, 5, 5, 0, Qt.LeftButton)
     text = waitForObject("{type='QTextBrowser' name='templateDescription' visible='1'}").plainText
@@ -150,7 +153,7 @@ def __verifyFileCreation__(path, expectedFiles):
 # param checks turns tests in the function on if set to True
 def createProject_Qt_GUI(path, projectName, checks = True):
     template = "Qt Gui Application"
-    available = __createProjectSelectType__("  Applications", template)
+    available = __createProjectOrFileSelectType__("  Applications", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
     __selectQtVersionDesktop__(checks, available)
 
@@ -188,7 +191,7 @@ def createProject_Qt_GUI(path, projectName, checks = True):
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
 def createProject_Qt_Console(path, projectName, checks = True):
-    available = __createProjectSelectType__("  Applications", "Qt Console Application")
+    available = __createProjectOrFileSelectType__("  Applications", "Qt Console Application")
     __createProjectSetNameAndPath__(path, projectName, checks)
     __selectQtVersionDesktop__(checks, available)
 
@@ -210,9 +213,9 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
                                 targets = QtQuickConstants.Targets.DESKTOP_474_GCC, qtQuickVersion=1,
                                 fromWelcome=False):
     if templateFile:
-        available = __createProjectSelectType__("  Applications", "Qt Quick Application (from Existing QML File)", fromWelcome)
+        available = __createProjectOrFileSelectType__("  Applications", "Qt Quick Application (from Existing QML File)", fromWelcome)
     else:
-        available = __createProjectSelectType__("  Applications", "Qt Quick %d Application (Built-in Elements)"
+        available = __createProjectOrFileSelectType__("  Applications", "Qt Quick %d Application (Built-in Elements)"
                                                 % qtQuickVersion, fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
     if templateFile:
@@ -228,7 +231,7 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     return projectName
 
 def createNewQtQuickUI(workingDir):
-    __createProjectSelectType__("  Applications", "Qt Quick UI")
+    __createProjectOrFileSelectType__("  Applications", "Qt Quick UI")
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
@@ -236,7 +239,7 @@ def createNewQtQuickUI(workingDir):
     return projectName
 
 def createNewQmlExtension(workingDir):
-    available = __createProjectSelectType__("  Libraries", "Custom QML Extension Plugin")
+    available = __createProjectOrFileSelectType__("  Libraries", "Custom QML Extension Plugin")
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
