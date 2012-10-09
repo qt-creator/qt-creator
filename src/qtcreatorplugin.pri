@@ -4,9 +4,9 @@ include(../qtcreator.pri)
 isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/shared/qtcreator_gui_pch.h
 
 isEmpty(PROVIDER) {
-    PROVIDER = Nokia
+    PROVIDER = QtProject
 } else {
-    LIBS += -L$$IDE_PLUGIN_PATH/Nokia
+    LIBS += -L$$IDE_PLUGIN_PATH/QtProject
 }
 
 isEmpty(USE_USER_DESTDIR) {
@@ -24,7 +24,7 @@ isEmpty(USE_USER_DESTDIR) {
         DESTDIRBASE = "$$(XDG_DATA_HOME)"
         isEmpty(DESTDIRBASE):DESTDIRBASE = "$$(HOME)/.local/share/data"
     }
-    DESTDIR = "$$DESTDIRBASE/Nokia/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION/$$PROVIDER"
+    DESTDIR = "$$DESTDIRBASE/QtProject/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION/$$PROVIDER"
 }
 LIBS += -L$$DESTDIR
 

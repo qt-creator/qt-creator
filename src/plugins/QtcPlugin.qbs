@@ -3,7 +3,7 @@ import qbs.fileinfo 1.0 as FileInfo
 
 Product {
     type: ["dynamiclibrary", "pluginSpec"]
-    property string provider: 'Nokia'
+    property string provider: 'QtProject'
     property var pluginspecreplacements
     destination: "lib/qtcreator/plugins/" + provider
     targetName: {

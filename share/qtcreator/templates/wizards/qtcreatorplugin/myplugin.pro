@@ -34,4 +34,4 @@ PROVIDER = %VendorName%
 include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
 include($$QTCREATOR_SOURCES/src/plugins/coreplugin/coreplugin.pri)
 
-LIBS += -L$$IDE_PLUGIN_PATH/Nokia
+LIBS += -L$$IDE_PLUGIN_PATH/QtProject
