@@ -37,6 +37,7 @@ InvokerBase::InvokerBase()
     useRet = false;
     nag = true;
     success = true;
+    connectionType = Qt::AutoConnection;
     target = 0;
 }
 
@@ -51,6 +52,11 @@ bool InvokerBase::wasSuccessful() const
 {
     nag = false;
     return success;
+}
+
+void InvokerBase::setConnectionType(Qt::ConnectionType c)
+{
+    connectionType = c;
 }
 
 void InvokerBase::invoke(QObject *t, const char *slot)
@@ -72,11 +78,11 @@ void InvokerBase::invoke(QObject *t, const char *slot)
         return;
     QMetaMethod method = target->metaObject()->method(idx);
     if (useRet)
-        success = method.invoke(target, ret,
+        success = method.invoke(target, connectionType, ret,
            arg[0], arg[1], arg[2], arg[3], arg[4],
            arg[5], arg[6], arg[7], arg[8], arg[9]);
     else
-        success = method.invoke(target,
+        success = method.invoke(target, connectionType,
            arg[0], arg[1], arg[2], arg[3], arg[4],
            arg[5], arg[6], arg[7], arg[8], arg[9]);
 }

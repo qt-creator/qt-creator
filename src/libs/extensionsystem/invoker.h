@@ -46,6 +46,7 @@ public:
     ~InvokerBase();
 
     bool wasSuccessful() const;
+    void setConnectionType(Qt::ConnectionType connectionType);
 
     template <class T> void addArgument(const T &t)
     {
@@ -73,6 +74,7 @@ private:
     int lastArg;
     bool success;
     bool useRet;
+    Qt::ConnectionType connectionType;
     mutable bool nag;
 };
 
