@@ -31,6 +31,7 @@
 function Component()
 {
     installer.finishButtonClicked.connect(this, Component.prototype.installationFinished);
+    installer.setDefaultPageVisible(QInstaller.ComponentSelection, false);
 }
 
 Component.prototype.beginInstallation = function()
