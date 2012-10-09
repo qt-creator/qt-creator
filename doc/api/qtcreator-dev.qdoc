@@ -53,7 +53,7 @@
     to which you can add your own snippets.
 
     \list
-    \o \l{http://doc.qt.nokia.com/qtcreator/creator-completing-code.html#editing-code-snippets}
+    \o \l{http://doc.qt.digia.com/qtcreator/creator-completing-code.html#editing-code-snippets}
          {Snippets User Interface}
     \o \l{Snippets} {Adding Snippets Groups}
     \endlist
@@ -64,7 +64,7 @@
     own
     file and project templates by writing XML definition files for them.
     \list
-    \o \l{http://doc.qt.nokia.com/qtcreator/creator-project-wizards.html}
+    \o \l{http://doc.qt.digia.com/qtcreator/creator-project-wizards.html}
          {Adding New Custom Wizards}
     \o \l{User Interface Text Guidelines}
     \endlist
@@ -96,7 +96,7 @@
     the MIME type definitions in Qt Creator to your specific setup,
     by adding or removing file extensions and specifying magic headers.
     \list
-    \o \l{http://doc.qt.nokia.com/qtcreator/creator-mime-types.html}
+    \o \l{http://doc.qt.digia.com/qtcreator/creator-mime-types.html}
          {Editing MIME Types}
     \o \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
          {MIME Type Specification Files}
@@ -110,7 +110,7 @@
     provided by the Kate Editor. You can download highlight definition files
     for use with Qt Creator and create your own definition files.
     \list
-    \o \l{http://doc.qt.nokia.com/qtcreator/creator-editor-options.html#generic-highlighting}
+    \o \l{http://doc.qt.digia.com/qtcreator/creator-editor-options.html#generic-highlighting}
          {Generic Highlighting}
     \o \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}
          {Writing a Syntax Highlighting File}
@@ -162,7 +162,7 @@
     to fill a feature suggestion.
     The tool descriptions are saved as XML files that you can share.
     \list
-    \o \l{http://doc.qt.nokia.com/qtcreator/creator-editor-external.html}
+    \o \l{http://doc.qt.digia.com/qtcreator/creator-editor-external.html}
          {Using External Tools}
     \o \l{External Tool Specification Files}
     \endlist
@@ -189,7 +189,7 @@
     If you need a way to configure the tool in Qt Creator, you can add an
     \gui Options page for it.
     \list
-    \o \l{http://doc.qt.nokia.com/qtcreator/creator-editor-external.html}
+    \o \l{http://doc.qt.digia.com/qtcreator/creator-editor-external.html}
          {Using External Tools}
     \o \l{External Tool Specification Files}
     \o \l{Creating Plugins}
@@ -214,7 +214,7 @@
     the \gui {Issues} output
     pane.
     \list
-    \o \l{http://doc.qt.nokia.com/qtcreator/creator-task-lists.html}
+    \o \l{http://doc.qt.digia.com/qtcreator/creator-task-lists.html}
          {Showing Task List Files in the Issues Pane}
     \o \l{Creating Plugins}
     \o \l{Qt Creator Coding Rules}

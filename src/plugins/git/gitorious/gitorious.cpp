@@ -281,7 +281,7 @@ QList<GitoriousRepository> GitoriousProjectReader::readRepositories(QXmlStreamRe
     int defaultType = -1;
 
     // The "mainlines"/"clones" elements are not used in the
-    // Nokia setup, handle them optionally.
+    // QtProject setup, handle them optionally.
     while (!reader.atEnd()) {
         reader.readNext();
 

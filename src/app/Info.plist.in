@@ -212,7 +212,7 @@
 	<key>CFBundleExecutable</key>
 	<string>Qt Creator</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.nokia.qtcreator</string>
+	<string>org.qt-project.qtcreator</string>
 	<key>CFBundleVersion</key>
 	<string>$$QTCREATOR_VERSION</string>
 	<key>CFBundleShortVersionString</key>
