@@ -110,6 +110,16 @@ bool ITextMark::isClickable() const
 void ITextMark::clicked()
 {}
 
+bool ITextMark::isDraggable() const
+{
+    return false;
+}
+
+void ITextMark::dragToLine(int lineNumber)
+{
+    Q_UNUSED(lineNumber);
+}
+
 ITextMarkable *ITextMark::markableInterface() const
 {
     return m_markableInterface;

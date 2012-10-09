@@ -76,6 +76,8 @@ public:
     virtual void removedFromEditor();
     virtual bool isClickable() const;
     virtual void clicked();
+    virtual bool isDraggable() const;
+    virtual void dragToLine(int lineNumber);
 
     void setIcon(const QIcon &icon);
     // call this if the icon has changed.

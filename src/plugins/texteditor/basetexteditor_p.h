@@ -292,6 +292,9 @@ public:
     QPointer<BaseTextEditorAnimator> m_animator;
     int m_cursorBlockNumber;
 
+    QPoint m_markDragStart;
+    bool m_markDragging;
+
     QScopedPointer<AutoCompleter> m_autoCompleter;
     QScopedPointer<Indenter> m_indenter;
 

@@ -2497,6 +2497,7 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate()
     m_codeAssistant(new CodeAssistant),
     m_assistRelevantContentAdded(false),
     m_cursorBlockNumber(-1),
+    m_markDragging(false),
     m_autoCompleter(new AutoCompleter),
     m_indenter(new Indenter),
     m_clipboardAssistProvider(new Internal::ClipboardAssistProvider)
@@ -4363,6 +4364,7 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 
     int markWidth;
     extraAreaWidth(&markWidth);
+    const bool inMarkArea = e->pos().x() <= markWidth && e->pos().x() >= 0;
 
     if (d->m_codeFoldingVisible
         && e->type() == QEvent::MouseMove && e->buttons() == 0) { // mouse tracking
@@ -4383,15 +4385,22 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 
     // Set whether the mouse cursor is a hand or normal arrow
     if (e->type() == QEvent::MouseMove) {
-        bool hand = (e->pos().x() <= markWidth);
-        if (hand) {
+        if (inMarkArea) {
             //Find line by cursor position
             int line = cursor.blockNumber() + 1;
             emit editor()->markTooltipRequested(editor(), mapToGlobal(e->pos()), line);
         }
 
-        if (hand != (d->m_extraArea->cursor().shape() == Qt::PointingHandCursor))
-            d->m_extraArea->setCursor(hand ? Qt::PointingHandCursor : Qt::ArrowCursor);
+        if (e->buttons() & Qt::LeftButton) {
+            int dist = (e->pos() - d->m_markDragStart).manhattanLength();
+            if (dist > QApplication::startDragDistance())
+                d->m_markDragging = true;
+        }
+
+        if (d->m_markDragging)
+            d->m_extraArea->setCursor(inMarkArea ? Qt::DragMoveCursor : Qt::ForbiddenCursor);
+        else if (inMarkArea != (d->m_extraArea->cursor().shape() == Qt::PointingHandCursor))
+            d->m_extraArea->setCursor(inMarkArea ? Qt::PointingHandCursor : Qt::ArrowCursor);
     }
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
@@ -4409,7 +4418,7 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
                     toggleBlockVisible(c);
                     d->moveCursorVisible(false);
                 }
-            } else if (d->m_lineNumbersVisible && e->pos().x() > markWidth) {
+            } else if (d->m_lineNumbersVisible && !inMarkArea) {
                 QTextCursor selection = cursor;
                 selection.setVisualNavigation(true);
                 d->extraAreaSelectionAnchorBlockNumber = selection.blockNumber();
@@ -4418,6 +4427,8 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
                 setTextCursor(selection);
             } else {
                 d->extraAreaToggleMarkBlockNumber = cursor.blockNumber();
+                d->m_markDragging = false;
+                d->m_markDragStart = e->pos();
             }
         }
     } else if (d->extraAreaSelectionAnchorBlockNumber >= 0) {
@@ -4451,25 +4462,38 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
         if (e->type() == QEvent::MouseButtonRelease && e->button() == Qt::LeftButton) {
             int n = d->extraAreaToggleMarkBlockNumber;
             d->extraAreaToggleMarkBlockNumber = -1;
-            if (cursor.blockNumber() == n) {
-                if (TextBlockUserData *data = static_cast<TextBlockUserData *>(cursor.block().userData())) {
-                    foreach (ITextMark *mark, data->marks()) {
+            const bool sameLine = cursor.blockNumber() == n;
+            const bool wasDragging = d->m_markDragging;
+            d->m_markDragging = false;
+            QTextBlock block = cursor.document()->findBlockByNumber(n);
+            if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
+                foreach (ITextMark *mark, data->marks()) {
+                    if (sameLine) {
                         if (mark->isClickable()) {
                             mark->clicked();
                             return;
                         }
+                    } else {
+                        if (wasDragging && mark->isDraggable()) {
+                            if (inMarkArea) {
+                                mark->dragToLine(cursor.blockNumber() + 1);
+                                d->m_extraArea->setCursor(Qt::PointingHandCursor);
+                            } else {
+                                d->m_extraArea->setCursor(Qt::ArrowCursor);
+                            }
+                            return;
+                        }
                     }
                 }
-
-                int line = n + 1;
-                ITextEditor::MarkRequestKind kind;
-                if (QApplication::keyboardModifiers() & Qt::ShiftModifier)
-                    kind = ITextEditor::BookmarkRequest;
-                else
-                    kind = ITextEditor::BreakpointRequest;
-
-                emit editor()->markRequested(editor(), line, kind);
             }
+            int line = n + 1;
+            ITextEditor::MarkRequestKind kind;
+            if (QApplication::keyboardModifiers() & Qt::ShiftModifier)
+                kind = ITextEditor::BookmarkRequest;
+            else
+                kind = ITextEditor::BreakpointRequest;
+
+            emit editor()->markRequested(editor(), line, kind);
         }
     }
 }
