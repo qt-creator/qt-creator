@@ -4,9 +4,11 @@ TARGET = Help
 QT += network
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += printsupport help
-    DEFINES += QT_NO_WEBKIT
+    !isEmpty(QT.webkit.name): QT += webkit
+    else: DEFINES += QT_NO_WEBKIT
 } else {
-   CONFIG += help
+    CONFIG += help
+    contains(QT_CONFIG, webkit): QT += webkit
 }
 
 INCLUDEPATH += $$PWD
@@ -68,7 +70,3 @@ FORMS += docsettingspage.ui \
 
 RESOURCES += help.qrc
 include(../../shared/help/help.pri)
-
-contains(QT_CONFIG, webkit) {
-    QT += webkit
-}

@@ -56,7 +56,7 @@
     in a library that matches the \c name attribute given in their
     XML description. The IPlugin implementation must be exported and
     made known to Qt's plugin system, see the Qt Documentation on the
-    \l{http://doc.qt.nokia.com/4.7/qtplugin.html#Q_EXPORT_PLUGIN2}
+    \l{http://qt-project.org/doc/qt-4.8/qtplugin.html#Q_EXPORT_PLUGIN2}
     {Q_EXPORT_PLUGIN2 macro}.
 
     After the plugins' XML files have been read, and dependencies have been

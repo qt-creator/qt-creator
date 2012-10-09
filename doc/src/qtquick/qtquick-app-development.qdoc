@@ -36,7 +36,7 @@
 
     You can use the code editor (\l{Working in Edit Mode}{Edit mode}) or the
     visual editor (\l{Using Qt Quick Designer}{Design mode}) to develop Qt Quick
-    applications.
+    applications.However, the visual editor only supports Qt Quick 1.
 
     Typically, application development proceeds as follows:
 

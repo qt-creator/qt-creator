@@ -38,16 +38,17 @@ using namespace Utils;
 namespace ProjectExplorer {
 
 DeployableFile::DeployableFile()
+    : m_type(TypeNormal)
 {
 }
 
-DeployableFile::DeployableFile(const QString &localFilePath, const QString &remoteDir)
-    : m_localFilePath(FileName::fromUserInput(localFilePath)), m_remoteDir(remoteDir)
+DeployableFile::DeployableFile(const QString &localFilePath, const QString &remoteDir, Type type)
+    : m_localFilePath(FileName::fromUserInput(localFilePath)), m_remoteDir(remoteDir), m_type(type)
 {
 }
 
-DeployableFile::DeployableFile(const FileName &localFilePath, const QString &remoteDir)
-    : m_localFilePath(localFilePath), m_remoteDir(remoteDir)
+DeployableFile::DeployableFile(const FileName &localFilePath, const QString &remoteDir, Type type)
+    : m_localFilePath(localFilePath), m_remoteDir(remoteDir), m_type(type)
 {
 }
 
@@ -60,6 +61,11 @@ QString DeployableFile::remoteFilePath() const
 bool DeployableFile::isValid() const
 {
     return !m_localFilePath.toString().isEmpty() && !m_remoteDir.isEmpty();
+}
+
+bool DeployableFile::isExecutable() const
+{
+    return m_type == TypeExecutable;
 }
 
 uint qHash(const DeployableFile &d)

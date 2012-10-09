@@ -387,6 +387,7 @@ case 47: {
 
 case 48: {
   AST::UiParameterList *node = new (pool) AST::UiParameterList(sym(1).UiParameterList, stringRef(3), stringRef(4));
+  node->propertyTypeToken = loc(3);
   node->commaToken = loc(2);
   node->identifierToken = loc(4);
   sym(1).Node = node;

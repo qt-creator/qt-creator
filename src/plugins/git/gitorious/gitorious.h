@@ -51,9 +51,9 @@ struct GitoriousRepository
     enum Type {
         MainLineRepository,
         CloneRepository,
-        BaselineRepository, // Nokia extension
-        SharedRepository,   // Nokia extension
-        PersonalRepository // Nokia extension
+        BaselineRepository, // QtProject extension
+        SharedRepository,   // QtProject extension
+        PersonalRepository // QtProject extension
     };
 
     GitoriousRepository();

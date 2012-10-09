@@ -42,6 +42,9 @@
             You can either create Qt Quick projects from scratch or import
             existing projects to \QC. You can use the code editor (Edit mode)
             or the visual editor (Design mode) to develop Qt Quick applications.
+            However, the visual editor only supports Qt Quick 1, which is
+            offered in Qt 5 only for compatibility with Qt 4. We recommend that
+            you use Qt Quick 2 for new Qt 5 applications.
         \o  \l{Developing Widget Based Applications}
 
             Widgets and forms created with \QD are integrated seamlessly with

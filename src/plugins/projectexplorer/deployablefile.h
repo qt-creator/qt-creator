@@ -41,9 +41,17 @@ namespace ProjectExplorer {
 class PROJECTEXPLORER_EXPORT DeployableFile
 {
 public:
+    enum Type
+    {
+        TypeNormal,
+        TypeExecutable
+    };
+
     DeployableFile();
-    DeployableFile(const QString &m_localFilePath, const QString &m_remoteDir);
-    DeployableFile(const Utils::FileName &localFilePath, const QString &remoteDir);
+    DeployableFile(const QString &m_localFilePath, const QString &m_remoteDir,
+                   Type type = TypeNormal);
+    DeployableFile(const Utils::FileName &localFilePath, const QString &remoteDir,
+                   Type type = TypeNormal);
 
     Utils::FileName localFilePath() const { return m_localFilePath; }
     QString remoteDirectory() const { return m_remoteDir; }
@@ -51,9 +59,12 @@ public:
 
     bool isValid() const;
 
+    bool isExecutable() const;
+
 private:
     Utils::FileName m_localFilePath;
     QString m_remoteDir;
+    Type m_type;
 };
 
 

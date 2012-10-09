@@ -544,6 +544,18 @@ protected:
         return false;
     }
 
+    virtual bool visit(UiParameterList *list)
+    {
+        for (UiParameterList *it = list; it; it = it->next) {
+            out(it->propertyTypeToken);
+            out(" ");
+            out(it->identifierToken);
+            if (it->next)
+                out(", ", it->commaToken);
+        }
+        return false;
+    }
+
     virtual bool visit(UiPublicMember *ast)
     {
         if (ast->type == UiPublicMember::Property) {
@@ -570,7 +582,11 @@ protected:
         } else { // signal
             out("signal ");
             out(ast->identifierToken);
-            accept(ast->parameters);
+            if (ast->parameters) {
+                out("(");
+                accept(ast->parameters);
+                out(")");
+            }
         }
         return false;
     }

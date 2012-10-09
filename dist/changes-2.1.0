@@ -12,7 +12,7 @@ General
 
 Editing
    * Generic highlighter:
-     http://labs.qt.nokia.com/2010/09/16/generic-highlighter-in-qt-creator/
+     http://blog.qt.digia.com/2010/09/16/generic-highlighter-in-qt-creator/
 
 C++ Support
    * Added semantic highlighting of types, virtual methods, locals, statics and

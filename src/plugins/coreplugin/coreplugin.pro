@@ -236,7 +236,7 @@ else:unix {
     IMAGE_SIZE_LIST = 16 24 32 48 64 128 256 512
 
     for(imagesize, IMAGE_SIZE_LIST) {
-        eval(image$${imagesize}.files = images/logo/$${imagesize}/qtcreator.png)
+        eval(image$${imagesize}.files = images/logo/$${imagesize}/QtProject-qtcreator.png)
         eval(image$${imagesize}.path = $$QTC_PREFIX/share/icons/hicolor/$${imagesize}x$${imagesize}/apps)
         INSTALLS += image$${imagesize}
     }

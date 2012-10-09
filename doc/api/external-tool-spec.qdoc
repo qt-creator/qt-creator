@@ -34,8 +34,8 @@
 
     \section1 Location
 
-    User specific tools are located in \c {$HOME/.config/Nokia/qtcreator/externaltools}
-    on Mac and Linux, and in \c {%APPDATA%\Nokia\qtcreator\externaltools} on Windows.
+    User specific tools are located in \c {$HOME/.config/QtProject/qtcreator/externaltools}
+    on Mac and Linux, and in \c {%APPDATA%\QtProject\qtcreator\externaltools} on Windows.
 
     System wide tools are located in \c {<Qt Creator install>/share/qtcreator/externaltools}
     on Windows and Linux, and in \c {Qt Creator.app/Contents/Resources/externaltools} on Mac.

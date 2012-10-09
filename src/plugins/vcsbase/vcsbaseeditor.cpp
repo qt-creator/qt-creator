@@ -411,7 +411,7 @@ QAction *ChangeTextCursorHandler::createCopyRevisionAction(const QString &change
 }
 
 /*! \class UrlTextCursorHandler
- *  \brief Provides a handler for URL like http://www.nokia.com
+ *  \brief Provides a handler for URL like http://qt-project.org/
  *
  *  The URL pattern can be redefined in sub-classes with setUrlPattern(), by default the pattern
  *  works for hyper-text URL

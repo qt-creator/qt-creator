@@ -117,9 +117,10 @@ Component.prototype.createOperations = function()
                                 "@TargetDir@/bin",
                                 "@TargetDir@/bin");
         component.addOperation( "CreateShortcut",
-                                "@TargetDir@\\\bin\\qtcreator.exe",
+                                "@TargetDir@\\bin\\qtcreator.exe",
                                 "@StartMenuDir@/Qt Creator.lnk",
                                 "workingDirectory=@homeDir@" );
+        component.addElevatedOperation("Execute", "{0,3010}", "@TargetDir@\\lib\\vcredist_msvc2010\\vcredist_x86.exe", "/q");
         registerWindowsFileTypeExtensions();
     }
     if ( installer.value("os") == "x11" )

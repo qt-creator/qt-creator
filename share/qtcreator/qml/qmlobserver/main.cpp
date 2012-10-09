@@ -545,8 +545,8 @@ int main(int argc, char ** argv)
 
     Application app(argc, argv);
     app.setApplicationName("QtQmlViewer");
-    app.setOrganizationName("Nokia");
-    app.setOrganizationDomain("nokia.com");
+    app.setOrganizationName("QtProject");
+    app.setOrganizationDomain("qt-project.org");
 
     QDeclarativeViewer::registerTypes();
     QDeclarativeTester::registerTypes();

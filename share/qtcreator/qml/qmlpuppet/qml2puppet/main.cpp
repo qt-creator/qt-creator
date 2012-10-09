@@ -46,8 +46,8 @@ int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
 
-    QCoreApplication::setOrganizationName("Nokia");
-    QCoreApplication::setOrganizationDomain("nokia.com");
+    QCoreApplication::setOrganizationName("QtProject");
+    QCoreApplication::setOrganizationDomain("qt-project.org");
     QCoreApplication::setApplicationName("Qml2Puppet");
     QCoreApplication::setApplicationVersion("1.0.0");
 

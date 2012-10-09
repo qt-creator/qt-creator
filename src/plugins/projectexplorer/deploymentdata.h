@@ -48,9 +48,10 @@ public:
             m_files << file;
     }
 
-    void addFile(const QString &localFilePath, const QString &remoteDirectory)
+    void addFile(const QString &localFilePath, const QString &remoteDirectory,
+                 DeployableFile::Type type = DeployableFile::TypeNormal)
     {
-        addFile(DeployableFile(localFilePath, remoteDirectory));
+        addFile(DeployableFile(localFilePath, remoteDirectory, type));
     }
 
     int fileCount() const { return m_files.count(); }

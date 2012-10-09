@@ -399,6 +399,7 @@ Parser::Parser(Engine *engine):
     state_stack(0),
     location_stack(0),
     string_stack(0),
+    program(0),
     first_token(0),
     last_token(0)
 {
@@ -821,6 +822,7 @@ UiParameterList: UiParameterList T_COMMA UiPropertyType JsIdentifier ;
 /.
 case $rule_number: {
   AST::UiParameterList *node = new (pool) AST::UiParameterList(sym(1).UiParameterList, stringRef(3), stringRef(4));
+  node->propertyTypeToken = loc(3);
   node->commaToken = loc(2);
   node->identifierToken = loc(4);
   sym(1).Node = node;
@@ -2885,7 +2887,7 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
             yylloc.startColumn += yylloc.length;
             yylloc.length = 0;
 
-            //const QString msg = qApp->translate("QmlParser", "Missing `;'");
+            //const QString msg = qApp->translate("QQmlParser", "Missing `;'");
             //diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Warning, yylloc, msg));
 
             first_token = &token_buffer[0];
@@ -2915,9 +2917,9 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
             QString msg;
             int token = token_buffer[0].token;
             if (token < 0 || token >= TERMINAL_COUNT)
-                msg = qApp->translate("QmlParser", "Syntax error");
+                msg = qApp->translate("QQmlParser", "Syntax error");
             else
-                msg = qApp->translate("QmlParser", "Unexpected token `%1'").arg(QLatin1String(spell[token]));
+                msg = qApp->translate("QQmlParser", "Unexpected token `%1'").arg(QLatin1String(spell[token]));
             diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
             action = errorState;
@@ -2945,7 +2947,7 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
         for (int *tk = tokens; *tk != EOF_SYMBOL; ++tk) {
             int a = t_action(errorState, *tk);
             if (a > 0 && t_action(a, yytoken)) {
-                const QString msg = qApp->translate("QmlParser", "Expected token `%1'").arg(QLatin1String(spell[*tk]));
+                const QString msg = qApp->translate("QQmlParser", "Expected token `%1'").arg(QLatin1String(spell[*tk]));
                 diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
                 yytoken = *tk;
@@ -2969,7 +2971,7 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
 
             int a = t_action(errorState, tk);
             if (a > 0 && t_action(a, yytoken)) {
-                const QString msg = qApp->translate("QmlParser", "Expected token `%1'").arg(QLatin1String(spell[tk]));
+                const QString msg = qApp->translate("QQmlParser", "Expected token `%1'").arg(QLatin1String(spell[tk]));
                 diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
 
                 yytoken = tk;
@@ -2982,7 +2984,7 @@ PropertyNameAndValueListOpt: PropertyNameAndValueList ;
             }
         }
 
-        const QString msg = qApp->translate("QmlParser", "Syntax error");
+        const QString msg = qApp->translate("QQmlParser", "Syntax error");
         diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
     }
 

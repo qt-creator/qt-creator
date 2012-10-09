@@ -154,26 +154,25 @@ void KitManager::restoreKits()
 
     // read all kits from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    KitList system = restoreKits(Utils::FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(KIT_FILENAME)));
-    QList<Kit *> readKits = system.kits;
-    // make sure we mark these as autodetected!
-    foreach (Kit *k, readKits)
-        k->setAutoDetected(true);
+    QFileInfo kitFile(systemSettingsFile.absolutePath(), QLatin1String(KIT_FILENAME));
+    if (kitFile.exists()) {
+        KitList system = restoreKits(Utils::FileName(kitFile));
+        // make sure we mark these as autodetected!
+        foreach (Kit *k, system.kits)
+            k->setAutoDetected(true);
 
-    kitsToRegister = readKits; // SDK kits are always considered to be up-to-date, so no need to
-                             // recheck them.
+        // SDK kits are always considered to be up-to-date, so no need to recheck them.
+        kitsToRegister = system.kits;
+    }
 
     // read all kit chains from user file
     KitList userKits = restoreKits(settingsFileName());
-    readKits = userKits.kits;
-
-    foreach (Kit *k, readKits) {
+    foreach (Kit *k, userKits.kits) {
         if (k->isAutoDetected())
             kitsToCheck.append(k);
         else
             kitsToRegister.append(k);
     }
-    readKits.clear();
 
     // Then auto create kits:
     QList<Kit *> detectedKits;
@@ -285,7 +284,7 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
 
     PersistentSettingsReader reader;
     if (!reader.load(fileName)) {
-        qWarning("Warning: Failed to read \"%s\", can not restore kits!", qPrintable(fileName.toUserOutput()));
+        qWarning("Warning: Failed to read \"%s\", cannot restore kits!", qPrintable(fileName.toUserOutput()));
         return result;
     }
     QVariantMap data = reader.restoreValues();
@@ -293,7 +292,7 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
     // Check version:
     int version = data.value(QLatin1String(KIT_FILE_VERSION_KEY), 0).toInt();
     if (version < 1) {
-        qWarning("Warning: Kit file version %d not supported, can not restore kits!", version);
+        qWarning("Warning: Kit file version %d not supported, cannot restore kits!", version);
         return result;
     }
 

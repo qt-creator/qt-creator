@@ -4,7 +4,7 @@ import "../../qbs/defaults.js" as Defaults
 
 Product {
     type: ["dynamiclibrary", "pluginSpec"]
-    property string provider: 'Nokia'
+    property string provider: 'QtProject'
     property var pluginspecreplacements
     destination: "lib/qtcreator/plugins/" + provider
     targetName: {

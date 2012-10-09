@@ -63,8 +63,15 @@ const char * const IDE_REVISION_STR      = \"\";
 #ifdef IDE_SETTINGSVARIANT
 const char * const IDE_SETTINGSVARIANT_STR      = STRINGIFY(IDE_SETTINGSVARIANT);
 #else
-const char * const IDE_SETTINGSVARIANT_STR      = \"Nokia\";
+const char * const IDE_SETTINGSVARIANT_STR      = \"QtProject\";
 #endif
+
+#ifdef IDE_COPY_SETTINGS_FROM_VARIANT
+const char * const IDE_COPY_SETTINGS_FROM_VARIANT_STR = STRINGIFY(IDE_COPY_SETTINGS_FROM_VARIANT);
+#else
+const char * const IDE_COPY_SETTINGS_FROM_VARIANT_STR = \"Nokia\";
+#endif
+
 
 #undef IDE_VERSION
 #undef IDE_VERSION_STR

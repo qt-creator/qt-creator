@@ -5,7 +5,7 @@ workingDir = None
 def main():
     global workingDir
     startApplication("qtcreator" + SettingsPath)
-    if not checkDebuggingLibrary("4.7.4", [QtQuickConstants.Targets.DESKTOP_474_GCC]):
+    if not checkDebuggingLibrary([QtQuickConstants.Targets.DESKTOP_474_GCC]):
         test.fatal("Error while checking debugging libraries - leaving this test.")
         invokeMenuItem("File", "Exit")
         return

@@ -3,10 +3,6 @@ QTCREATOR_PRI_INCLUDED = 1
 
 QTCREATOR_VERSION = 2.6.81
 
-isEmpty(QTC_PREFIX) {
-    unix:!macx: QTC_PREFIX = /usr/local
-}
-
 isEqual(QT_MAJOR_VERSION, 5) {
 
 defineReplace(cleanPath) {

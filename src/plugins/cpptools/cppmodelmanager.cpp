@@ -348,9 +348,11 @@ bool CppPreprocessor::includeFile(const QString &absoluteFilePath, QString *resu
     QFile file(absoluteFilePath);
     if (file.open(QFile::ReadOnly | QFile::Text)) {
         m_included.insert(absoluteFilePath);
+        QTextCodec *defaultCodec = Core::EditorManager::instance()->defaultTextCodec();
         QTextStream stream(&file);
-        const QString contents = stream.readAll();
-        *result = contents.toUtf8();
+        stream.setCodec(defaultCodec);
+        if (result)
+            *result = stream.readAll();
         file.close();
         return true;
     }
