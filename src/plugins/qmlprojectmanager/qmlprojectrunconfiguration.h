@@ -50,6 +50,7 @@ namespace Utils {
 namespace QtSupport { class BaseQtVersion; }
 
 namespace QmlProjectManager {
+class QmlProject;
 
 namespace Internal {
     class QmlProjectRunConfigurationFactory;
@@ -61,6 +62,7 @@ class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplor
     Q_OBJECT
     friend class Internal::QmlProjectRunConfigurationFactory;
     friend class Internal::QmlProjectRunConfigurationWidget;
+    friend class QmlProject; // to call updateEnabled()
 
 public:
     QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
@@ -93,10 +95,8 @@ public:
 
     ProjectExplorer::Abi abi() const;
 
-public slots:
-    void changeCurrentFile(Core::IEditor*);
-
 private slots:
+    void changeCurrentFile(Core::IEditor*);
     void updateEnabled();
 
 protected:

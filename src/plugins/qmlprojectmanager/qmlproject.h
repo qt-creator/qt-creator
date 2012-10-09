@@ -36,6 +36,7 @@
 
 #include <QDeclarativeEngine>
 
+namespace ProjectExplorer { class RunConfiguration; }
 namespace QmlJS { class ModelManagerInterface; }
 namespace Utils { class FileSystemWatcher; }
 
@@ -94,6 +95,8 @@ public:
 
 private slots:
     void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
+    void addedTarget(ProjectExplorer::Target *target);
+    void addedRunConfiguration(ProjectExplorer::RunConfiguration *);
 
 protected:
     bool fromMap(const QVariantMap &map);
