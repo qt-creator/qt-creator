@@ -40,7 +40,7 @@ const QString settingsKeyImagesFolder = QLatin1String("imagesFolder");
 
 static void promptPaths(QString &areasXmlFile, QString &imagesFolder)
 {
-    QSettings settings(QLatin1String("Nokia"), QLatin1String("Qt Creator Screenshot Cropper"));
+    QSettings settings(QLatin1String("QtProject"), QLatin1String("Qt Creator Screenshot Cropper"));
 
     areasXmlFile = settings.value(settingsKeyAreasXmlFile).toString();
     areasXmlFile = QFileDialog::getOpenFileName(0, QLatin1String("Select the 'images_areaofinterest.xml' file in Qt Creator's sources"), areasXmlFile);
