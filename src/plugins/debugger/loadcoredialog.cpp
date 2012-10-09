@@ -191,9 +191,8 @@ void SelectRemoteFileDialog::handleRemoteError(const QString &errorMessage)
 
 void SelectRemoteFileDialog::selectFile()
 {
-    const QModelIndexList indexes =
-            m_fileSystemView->selectionModel()->selectedIndexes();
-    if (indexes.empty())
+    QModelIndex idx = m_model.mapToSource(m_fileSystemView->currentIndex());
+    if (!idx.isValid())
         return;
 
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
@@ -208,7 +207,6 @@ void SelectRemoteFileDialog::selectFile()
         m_localFile = localFile.fileName();
     }
 
-    QModelIndex idx = indexes.at(0);
     idx = idx.sibling(idx.row(), 1);
     m_remoteFile = m_fileSystemModel.data(idx, SftpFileSystemModel::PathRole).toString();
     m_sftpJobId = m_fileSystemModel.downloadFile(idx, m_localFile);
