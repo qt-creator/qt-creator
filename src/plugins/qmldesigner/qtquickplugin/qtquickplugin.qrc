@@ -32,10 +32,16 @@
         <file>images/text-input-icon16.png</file>
         <file>images/webview-icon16.png</file>
         <file>source/listview.qml</file>
+        <file>source/listviewv2.qml</file>
         <file>source/gridview.qml</file>
+        <file>source/gridviewv2.qml</file>
         <file>source/pathview.qml</file>
+        <file>source/pathviewv2.qml</file>
         <file>source/text.qml</file>
+        <file>source/textv2.qml</file>
         <file>source/textedit.qml</file>
+        <file>source/texteditv2.qml</file>
         <file>source/textinput.qml</file>
+        <file>source/textinputv2.qml</file>
     </qresource>
 </RCC>

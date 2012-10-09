@@ -12,19 +12,41 @@
       <property name="height" type="int" value="200"/>
     </itemlibraryentry>
   </node>
+  <node name="QtQuick.Rectangle" icon=":/qtquickplugin/images/rect-icon16.png">
+    <itemlibraryentry name="Rectangle"  category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/rect-icon.png" version="2.0">
+      <property name="color" type="QColor" value="#ffffff"/>
+      <property name="width" type="int" value="200"/>
+      <property name="height" type="int" value="200"/>
+    </itemlibraryentry>
+  </node>
   <node name="QtQuick.Text" icon=":/qtquickplugin/images/text-icon16.png">
-    <itemlibraryentry name="Text" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-icon.png" version="1.0">      
+    <itemlibraryentry name="Text" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-icon.png" version="1.0">
       <qml source=":/qtquickplugin/source/text.qml"/>
     </itemlibraryentry>
   </node>
+  <node name="QtQuick.Text" icon=":/qtquickplugin/images/text-icon16.png">
+    <itemlibraryentry name="Text" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-icon.png" version="2.0">
+      <qml source=":/qtquickplugin/source/textv2.qml"/>
+    </itemlibraryentry>
+  </node>
   <node name="QtQuick.TextEdit" icon=":/qtquickplugin/images/text-edit-icon16.png">
-    <itemlibraryentry name="Text Edit" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-edit-icon.png" version="1.0">      
-      <qml source=":/qtquickplugin/source/textedit.qml"/>
+    <itemlibraryentry name="Text Edit" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-edit-icon.png" version="1.0">
+      <qml source=":/qtquickplugin/source/texteditv2.qml"/>
+    </itemlibraryentry>
+  </node>
+  <node name="QtQuick.TextEdit" icon=":/qtquickplugin/images/text-edit-icon16.png">
+    <itemlibraryentry name="Text Edit" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-edit-icon.png" version="2.0">
+      <qml source=":/qtquickplugin/source/texteditv2.qml"/>
     </itemlibraryentry>
   </node>
   <node name="QtQuick.TextInput" icon=":/qtquickplugin/images/text-input-icon16.png">
     <itemlibraryentry name="Text Input" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-input-icon.png" version="1.0">
         <qml source=":/qtquickplugin/source/textinput.qml"/>
+    </itemlibraryentry>
+  </node>
+  <node name="QtQuick.TextInput" icon=":/qtquickplugin/images/text-input-icon16.png">
+    <itemlibraryentry name="Text Input" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/text-input-icon.png" version="2.0">
+        <qml source=":/qtquickplugin/source/textinputv2.qml"/>
     </itemlibraryentry>
   </node>
   <node name="QtQuick.MouseArea" icon=":/qtquickplugin/images/mouse-area-icon16.png">
@@ -33,8 +55,21 @@
       <property name="height" type="int" value="100"/>
     </itemlibraryentry>
   </node>
+  <node name="QtQuick.MouseArea" icon=":/qtquickplugin/images/mouse-area-icon16.png">
+    <itemlibraryentry name="Mouse Area" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/mouse-area-icon.png" version="2.0">
+      <property name="width" type="int" value="100"/>
+      <property name="height" type="int" value="100"/>
+    </itemlibraryentry>
+  </node>
   <node name="QtQuick.Image" icon=":/qtquickplugin/images/image-icon16.png">
     <itemlibraryentry name="Image" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/image-icon.png" version="1.0">
+      <property name="width" type="int" value="100"/>
+      <property name="height" type="int" value="100"/>
+      <property name="source" type="QUrl" value="qrc:/qtquickplugin/images/template_image.png"/>
+    </itemlibraryentry>
+  </node>
+  <node name="QtQuick.Image" icon=":/qtquickplugin/images/image-icon16.png">
+    <itemlibraryentry name="Image" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/image-icon.png" version="2.0">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
       <property name="source" type="QUrl" value="qrc:/qtquickplugin/images/template_image.png"/>
@@ -47,6 +82,13 @@
       <property name="source" type="QUrl" value="qrc:/qtquickplugin/images/template_image.png"/>
     </itemlibraryentry>
   </node>
+  <node name="QtQuick.BorderImage" icon=":/qtquickplugin/images/border-image-icon16.png">
+    <itemlibraryentry name="Border Image" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/border-image-icon.png" version="2.0">
+      <property name="width" type="int" value="100"/>
+      <property name="height" type="int" value="100"/>
+      <property name="source" type="QUrl" value="qrc:/qtquickplugin/images/template_image.png"/>
+    </itemlibraryentry>
+  </node>
   <node name="QtQuick.Flickable" icon=":/qtquickplugin/images/flickable-icon16.png">
     <itemlibraryentry name="Flickable" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/flickable-icon.png" version="1.0">
       <property name="width" type="int" value="300"/>
@@ -54,7 +96,7 @@
     </itemlibraryentry>
   </node>
   <node name="QtQuick.Flipable" icon=":/qtquickplugin/images/flipable-icon16.png">
-    <itemlibraryentry name="Flipable" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/flipable-icon.png" version="1.0">
+    <itemlibraryentry name="Flipable" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/flipable-icon.png" version="2.0">
       <property name="width" type="int" value="300"/>
       <property name="height" type="int" value="300"/>
     </itemlibraryentry>
@@ -65,20 +107,39 @@
     </itemlibraryentry>
   </node>
 
+  <node name="QtQuick.GridView" icon=":/qtquickplugin/images/gridview-icon16.png">
+    <itemlibraryentry name="Grid View" category="Qt Quick - Views" libraryIcon=":/qtquickplugin/images/gridview-icon.png" version="2.0">
+      <qml source=":/qtquickplugin/source/gridviewv2.qml"/>
+    </itemlibraryentry>
+  </node>
   <node name="QtQuick.ListView" icon=":/qtquickplugin/images/listview-icon16.png">
     <itemlibraryentry name="List View" category="Qt Quick - Views" libraryIcon=":/qtquickplugin/images/listview-icon.png" version="1.0">
       <qml source=":/qtquickplugin/source/listview.qml"/>
     </itemlibraryentry>
   </node>
-
+  <node name="QtQuick.ListView" icon=":/qtquickplugin/images/listview-icon16.png">
+    <itemlibraryentry name="List View" category="Qt Quick - Views" libraryIcon=":/qtquickplugin/images/listview-icon.png" version="2.0">
+      <qml source=":/qtquickplugin/source/listviewv2.qml"/>
+    </itemlibraryentry>
+  </node>
   <node name="QtQuick.PathView" icon=":/qtquickplugin/images/pathview-icon16.png">
     <itemlibraryentry name="Path View" category="Qt Quick - Views" libraryIcon=":/qtquickplugin/images/pathview-icon.png" version="1.0">
     <qml source=":/qtquickplugin/source/pathview.qml"/>
     </itemlibraryentry>
   </node>
-
+  <node name="QtQuick.PathView" icon=":/qtquickplugin/images/pathview-icon16.png">
+    <itemlibraryentry name="Path View" category="Qt Quick - Views" libraryIcon=":/qtquickplugin/images/pathview-icon.png" version="2.0">
+    <qml source=":/qtquickplugin/source/pathviewv2.qml"/>
+    </itemlibraryentry>
+  </node>
   <node name="QtQuick.FocusScope" icon=":/qtquickplugin/images/focusscope-icon16.png">
     <itemlibraryentry name="Focus Scope" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/focusscope-icon.png" version="1.0">
+      <property name="width" type="int" value="100"/>
+      <property name="height" type="int" value="100"/>
+    </itemlibraryentry>
+  </node>
+  <node name="QtQuick.FocusScope" icon=":/qtquickplugin/images/focusscope-icon16.png">
+    <itemlibraryentry name="Focus Scope" category="Qt Quick - Basic" libraryIcon=":/qtquickplugin/images/focusscope-icon.png" version="2.0">
       <property name="width" type="int" value="100"/>
       <property name="height" type="int" value="100"/>
     </itemlibraryentry>
@@ -96,8 +157,20 @@
       <property name="height" type="int" value="200"/>
     </itemlibraryentry>
   </node>
+  <node name="QtQuick.Row" icon=":/qtquickplugin/images/item-icon16.png">
+    <itemlibraryentry name="Row" category="Qt Quick - Positioner" libraryIcon=":/qtquickplugin/images/item-icon.png" version="2.0">
+      <property name="width" type="int" value="400"/>
+      <property name="height" type="int" value="200"/>
+    </itemlibraryentry>
+  </node>
   <node name="QtQuick.Column" icon=":/qtquickplugin/images/item-icon16.png">
     <itemlibraryentry name="Column"  category="Qt Quick - Positioner" libraryIcon=":/qtquickplugin/images/item-icon.png" version="1.0">
+      <property name="width" type="int" value="200"/>
+      <property name="height" type="int" value="400"/>
+    </itemlibraryentry>
+  </node>
+  <node name="QtQuick.Column" icon=":/qtquickplugin/images/item-icon16.png">
+    <itemlibraryentry name="Column"  category="Qt Quick - Positioner" libraryIcon=":/qtquickplugin/images/item-icon.png" version="2.0">
       <property name="width" type="int" value="200"/>
       <property name="height" type="int" value="400"/>
     </itemlibraryentry>
@@ -108,8 +181,20 @@
       <property name="height" type="int" value="400"/>
     </itemlibraryentry>
   </node>
+  <node name="QtQuick.Grid" icon=":/qtquickplugin/images/item-icon16.png">
+    <itemlibraryentry name="Grid" category="Qt Quick - Positioner" libraryIcon=":/qtquickplugin/images/item-icon.png" version="2.0">
+      <property name="width" type="int" value="400"/>
+      <property name="height" type="int" value="400"/>
+    </itemlibraryentry>
+  </node>
   <node name="QtQuick.Flow" icon=":/qtquickplugin/images/item-icon16.png">
     <itemlibraryentry name="Flow" category="Qt Quick - Positioner" libraryIcon=":/qtquickplugin/images/item-icon.png" version="1.0">
+      <property name="width" type="int" value="400"/>
+      <property name="height" type="int" value="400"/>
+    </itemlibraryentry>
+  </node>
+  <node name="QtQuick.Flow" icon=":/qtquickplugin/images/item-icon16.png">
+    <itemlibraryentry name="Flow" category="Qt Quick - Positioner" libraryIcon=":/qtquickplugin/images/item-icon.png" version="2.0">
       <property name="width" type="int" value="400"/>
       <property name="height" type="int" value="400"/>
     </itemlibraryentry>
