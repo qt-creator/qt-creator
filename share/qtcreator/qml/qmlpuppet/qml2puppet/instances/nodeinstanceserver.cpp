@@ -43,6 +43,7 @@
 #include <QAbstractAnimation>
 #include <private/qabstractanimation_p.h>
 #include <QMutableVectorIterator>
+#include <private/qquickview_p.h>
 
 #include "servernodeinstance.h"
 #include "objectnodeinstance.h"
@@ -373,12 +374,18 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
     delete m_importComponent.data();
     delete m_importComponentObject.data();
 
-    m_importComponent = new QQmlComponent(engine(), 0);
     QString componentString;
     foreach (const QString &importStatement, m_importList)
         componentString += QString("%1").arg(importStatement);
 
     componentString += QString("Item {}\n");
+
+    if (quickView()) {
+        QQuickViewPrivate::get(quickView())->component = new QQmlComponent(engine(), quickView());
+        m_importComponent = QQuickViewPrivate::get(quickView())->component;
+    } else {
+        m_importComponent = new QQmlComponent(engine(), 0);
+    }
 
     m_importComponent->setData(componentString.toUtf8(), fileUrl());
     m_importComponentObject = m_importComponent->create();
