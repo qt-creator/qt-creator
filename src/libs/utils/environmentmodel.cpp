@@ -148,7 +148,14 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
                 if (pos >= 0)
                     return d->m_items.at(pos).value;
             }
-            return d->m_resultEnvironment.value(d->m_resultEnvironment.constBegin() + index.row());
+            QString value = d->m_resultEnvironment.value(d->m_resultEnvironment.constBegin() + index.row());
+            if (role == Qt::ToolTipRole) {
+                // Use html to enable text wrapping
+                value = value.toHtmlEscaped();
+                value.prepend("<html><body>");
+                value.append("</body></html>");
+            }
+            return value;
         }
     }
     if (role == Qt::FontRole) {
