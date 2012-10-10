@@ -321,18 +321,20 @@ bool AttachCoreDialog::isLocal() const
 
 void AttachCoreDialog::changed()
 {
-    bool isValid = d->kitChooser->currentIndex() >= 0;
+    bool isValid = d->kitChooser->currentIndex() >= 0 && d->localExecFileName->isValid();
 
     if (isLocal()) {
         d->localCoreFileName->setVisible(true);
         d->remoteCoreFileName->setVisible(false);
         d->selectRemoteCoreButton->setVisible(false);
-        isValid &= d->localCoreFileName->isValid();
+        if (isValid)
+            isValid = d->localCoreFileName->isValid();
     } else {
         d->remoteCoreFileName->setVisible(true);
         d->selectRemoteCoreButton->setVisible(true);
         d->localCoreFileName->setVisible(false);
-        isValid &= !remoteCoreFile().isEmpty();
+        if (isValid)
+            isValid = !remoteCoreFile().isEmpty();
     }
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(isValid);
 }
