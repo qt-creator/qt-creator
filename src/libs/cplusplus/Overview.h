@@ -44,32 +44,6 @@ class CPLUSPLUS_EXPORT Overview
 
 public:
     Overview();
-    ~Overview();
-
-    bool showArgumentNames() const;
-    void setShowArgumentNames(bool showArgumentNames);
-
-    bool showReturnTypes() const;
-    void setShowReturnTypes(bool showReturnTypes);
-
-    bool showFunctionSignatures() const;
-    void setShowFunctionSignatures(bool showFunctionSignatures);
-
-    bool showDefaultArguments() const;
-    void setShowDefaultArguments(bool showDefaultArguments);
-
-    bool showTemplateParameters() const;
-    void setShowTemplateParameters(bool showTemplateParameters);
-
-    // argument index that you want to mark
-    unsigned markedArgument() const;
-    void setMarkedArgument(unsigned position);
-
-    int markedArgumentBegin() const;
-    void setMarkedArgumentBegin(int begin);
-
-    int markedArgumentEnd() const;
-    void setMarkedArgumentEnd(int end);
 
     QString operator()(const Name *name) const
     { return prettyName(name); }
@@ -85,15 +59,15 @@ public:
     QString prettyType(const FullySpecifiedType &type, const Name *name = 0) const;
     QString prettyType(const FullySpecifiedType &type, const QString &name) const;
 
-private:
-    unsigned _markedArgument;
-    int _markedArgumentBegin;
-    int _markedArgumentEnd;
-    bool _showArgumentNames: 1;
-    bool _showReturnTypes: 1;
-    bool _showFunctionSignatures: 1;
-    bool _showDefaultArguments: 1;
-    bool _showTemplateParameters: 1;
+public:
+    unsigned markedArgument;
+    int markedArgumentBegin;
+    int markedArgumentEnd;
+    bool showArgumentNames: 1;
+    bool showReturnTypes: 1;
+    bool showFunctionSignatures: 1;
+    bool showDefaultArguments: 1;
+    bool showTemplateParameters: 1;
 };
 
 } // namespace CPlusPlus

@@ -143,7 +143,7 @@ void TypePrettyPrinter::visit(Namespace *type)
 void TypePrettyPrinter::visit(Template *type)
 {
     if (Symbol *d = type->declaration()) {
-        if (overview()->showTemplateParameters() && ! _name.isEmpty()) {
+        if (overview()->showTemplateParameters && ! _name.isEmpty()) {
             _name += QLatin1Char('<');
             for (unsigned index = 0; index < type->templateParameterCount(); ++index) {
                 if (index)
@@ -309,13 +309,13 @@ void TypePrettyPrinter::visit(Function *type)
         }
         _text.append(QLatin1Char(')'));
         _needsParens = false;
-    } else if (! _name.isEmpty() && _overview->showFunctionSignatures()) {
+    } else if (! _name.isEmpty() && _overview->showFunctionSignatures) {
         appendSpace();
         _text.append(_name);
         _name.clear();
     }
 
-    if (_overview->showReturnTypes()) {
+    if (_overview->showReturnTypes) {
         const QString returnType = _overview->prettyType(type->returnType());
         if (!returnType.isEmpty()) {
             if (!endsWithPtrOrRef(returnType))
@@ -324,11 +324,11 @@ void TypePrettyPrinter::visit(Function *type)
         }
     }
 
-    if (_overview->showFunctionSignatures()) {
+    if (_overview->showFunctionSignatures) {
         Overview argumentText;
-        argumentText.setShowReturnTypes(true);
-        argumentText.setShowArgumentNames(false);
-        argumentText.setShowFunctionSignatures(true);
+        argumentText.showReturnTypes = true;
+        argumentText.showArgumentNames = false;
+        argumentText.showFunctionSignatures = true;
 
         _text += QLatin1Char('(');
 
@@ -337,25 +337,25 @@ void TypePrettyPrinter::visit(Function *type)
                 _text += QLatin1String(", ");
 
             if (Argument *arg = type->argumentAt(index)->asArgument()) {
-                if (index + 1 == _overview->markedArgument())
-                    const_cast<Overview*>(_overview)->setMarkedArgumentBegin(_text.length());
+                if (index + 1 == _overview->markedArgument)
+                    const_cast<Overview*>(_overview)->markedArgumentBegin = _text.length();
 
                 const Name *name = 0;
 
-                if (_overview->showArgumentNames())
+                if (_overview->showArgumentNames)
                     name = arg->name();
 
                 _text += argumentText(arg->type(), name);
 
-                if (_overview->showDefaultArguments()) {
+                if (_overview->showDefaultArguments) {
                     if (const StringLiteral *initializer = arg->initializer()) {
                         _text += QLatin1String(" =");
                         _text += QString::fromUtf8(initializer->chars(), initializer->size());
                     }
                 }
 
-                if (index + 1 == _overview->markedArgument())
-                    const_cast<Overview*>(_overview)->setMarkedArgumentEnd(_text.length());
+                if (index + 1 == _overview->markedArgument)
+                    const_cast<Overview*>(_overview)->markedArgumentEnd = _text.length();
             }
         }
 

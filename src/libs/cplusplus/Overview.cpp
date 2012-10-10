@@ -38,98 +38,15 @@
 using namespace CPlusPlus;
 
 Overview::Overview()
-    : _markedArgument(0),
-      _markedArgumentBegin(0),
-      _markedArgumentEnd(0),
-      _showArgumentNames(false),
-      _showReturnTypes(false),
-      _showFunctionSignatures(true),
-      _showDefaultArguments(true),
-      _showTemplateParameters(false)
+    : markedArgument(0),
+      markedArgumentBegin(0),
+      markedArgumentEnd(0),
+      showArgumentNames(false),
+      showReturnTypes(false),
+      showFunctionSignatures(true),
+      showDefaultArguments(true),
+      showTemplateParameters(false)
 { }
-
-Overview::~Overview()
-{ }
-
-bool Overview::showArgumentNames() const
-{
-    return _showArgumentNames;
-}
-
-void Overview::setShowArgumentNames(bool showArgumentNames)
-{
-    _showArgumentNames = showArgumentNames;
-}
-
-void Overview::setShowReturnTypes(bool showReturnTypes)
-{
-    _showReturnTypes = showReturnTypes;
-}
-
-bool Overview::showReturnTypes() const
-{
-    return _showReturnTypes;
-}
-
-unsigned Overview::markedArgument() const
-{
-    return _markedArgument;
-}
-
-void Overview::setMarkedArgument(unsigned position)
-{
-    _markedArgument = position;
-}
-
-int Overview::markedArgumentBegin() const
-{
-    return _markedArgumentBegin;
-}
-
-void Overview::setMarkedArgumentBegin(int begin)
-{
-    _markedArgumentBegin = begin;
-}
-
-int Overview::markedArgumentEnd() const
-{
-    return _markedArgumentEnd;
-}
-
-void Overview::setMarkedArgumentEnd(int end)
-{
-    _markedArgumentEnd = end;
-}
-
-bool Overview::showFunctionSignatures() const
-{
-    return _showFunctionSignatures;
-}
-
-void Overview::setShowFunctionSignatures(bool showFunctionSignatures)
-{
-    _showFunctionSignatures = showFunctionSignatures;
-}
-
-bool Overview::showDefaultArguments() const
-{
-    return _showDefaultArguments;
-}
-
-void Overview::setShowDefaultArguments(bool showDefaultArguments)
-{
-    _showDefaultArguments = showDefaultArguments;
-}
-
-bool Overview::showTemplateParameters() const
-{
-    return _showTemplateParameters;
-}
-
-void Overview::setShowTemplateParameters(bool showTemplateParameters)
-{
-    _showTemplateParameters = showTemplateParameters;
-}
 
 QString Overview::prettyName(const Name *name) const
 {

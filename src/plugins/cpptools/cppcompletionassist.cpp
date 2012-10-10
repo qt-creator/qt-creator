@@ -401,14 +401,14 @@ private:
 QString CppFunctionHintModel::text(int index) const
 {
     Overview overview;
-    overview.setShowReturnTypes(true);
-    overview.setShowArgumentNames(true);
-    overview.setMarkedArgument(m_currentArg + 1);
+    overview.showReturnTypes = true;
+    overview.showArgumentNames = true;
+    overview.markedArgument = m_currentArg + 1;
     Function *f = m_functionSymbols.at(index);
 
-    const QString prettyMethod = overview(f->type(), f->name());
-    const int begin = overview.markedArgumentBegin();
-    const int end = overview.markedArgumentEnd();
+    const QString prettyMethod = overview.prettyType(f->type(), f->name());
+    const int begin = overview.markedArgumentBegin;
+    const int end = overview.markedArgumentEnd;
 
     QString hintText;
     hintText += Qt::escape(prettyMethod.left(begin));
@@ -536,8 +536,8 @@ public:
         : _item(0)
         , _symbol(0)
     {
-        overview.setShowReturnTypes(true);
-        overview.setShowArgumentNames(true);
+        overview.showReturnTypes = true;
+        overview.showArgumentNames = true;
     }
 
     BasicProposalItem *operator()(Symbol *symbol)
@@ -1574,9 +1574,9 @@ bool CppCompletionAssistProcessor::completeQtMethod(const QList<CPlusPlus::Looku
 
     ConvertToCompletionItem toCompletionItem;
     Overview o;
-    o.setShowReturnTypes(false);
-    o.setShowArgumentNames(false);
-    o.setShowFunctionSignatures(true);
+    o.showReturnTypes = false;
+    o.showArgumentNames = false;
+    o.showFunctionSignatures = true;
 
     QSet<QString> signatures;
     foreach (const LookupItem &p, results) {
@@ -1882,8 +1882,8 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                 // set up signature autocompletion
                 foreach (Function *f, functions) {
                     Overview overview;
-                    overview.setShowArgumentNames(true);
-                    overview.setShowDefaultArguments(false);
+                    overview.showArgumentNames = true;
+                    overview.showDefaultArguments = false;
 
                     const FullySpecifiedType localTy = rewriteType(f->type(), &env, control);
 

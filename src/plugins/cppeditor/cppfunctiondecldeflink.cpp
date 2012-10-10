@@ -596,10 +596,10 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
         return changes;
 
     Overview overview;
-    overview.setShowReturnTypes(true);
-    overview.setShowTemplateParameters(true);
-    overview.setShowArgumentNames(true);
-    overview.setShowFunctionSignatures(true);
+    overview.showReturnTypes = true;
+    overview.showTemplateParameters = true;
+    overview.showArgumentNames = true;
+    overview.showFunctionSignatures = true;
 
     // abort if the name of the newly parsed function is not the expected one
     DeclaratorIdAST *newDeclId = getDeclaratorId(newDef->declarator);

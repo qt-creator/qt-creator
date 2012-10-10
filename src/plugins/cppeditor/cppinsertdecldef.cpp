@@ -207,9 +207,9 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(
 QString InsertDeclOperation::generateDeclaration(Function *function)
 {
     Overview oo;
-    oo.setShowFunctionSignatures(true);
-    oo.setShowReturnTypes(true);
-    oo.setShowArgumentNames(true);
+    oo.showFunctionSignatures = true;
+    oo.showReturnTypes = true;
+    oo.showArgumentNames = true;
 
     QString decl;
     decl += oo(function->type(), function->unqualifiedName());
@@ -247,9 +247,9 @@ public:
         CppRefactoringFilePtr targetFile = refactoring.file(m_loc.fileName());
 
         Overview oo;
-        oo.setShowFunctionSignatures(true);
-        oo.setShowReturnTypes(true);
-        oo.setShowArgumentNames(true);
+        oo.showFunctionSignatures = true;
+        oo.showReturnTypes = true;
+        oo.showArgumentNames = true;
 
         // make target lookup context
         Document::Ptr targetDoc = targetFile->cppDocument();

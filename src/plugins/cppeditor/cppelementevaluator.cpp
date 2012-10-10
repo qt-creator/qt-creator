@@ -334,8 +334,8 @@ CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
     m_icon = Icons().iconForSymbol(declaration);
 
     Overview overview;
-    overview.setShowArgumentNames(true);
-    overview.setShowReturnTypes(true);
+    overview.showArgumentNames = true;
+    overview.showReturnTypes = true;
     m_name = overview.prettyName(declaration->name());
     if (declaration->enclosingScope()->isClass() ||
         declaration->enclosingScope()->isNamespace() ||
@@ -469,10 +469,10 @@ CppFunction::CppFunction(Symbol *declaration) : CppDeclarableElement(declaration
     // Functions marks can be found either by the main overload or signature based
     // (with no argument names and no return). Help ids have no signature at all.
     Overview overview;
-    overview.setShowDefaultArguments(false);
+    overview.showDefaultArguments = false;
     setHelpMark(overview.prettyType(type, name()));
 
-    overview.setShowFunctionSignatures(false);
+    overview.showFunctionSignatures = false;
     addHelpIdCandidate(overview.prettyName(declaration->name()));
 }
 
