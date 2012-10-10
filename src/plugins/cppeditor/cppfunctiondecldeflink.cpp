@@ -991,21 +991,18 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
 class ApplyDeclDefLinkOperation : public CppQuickFixOperation
 {
 public:
-    explicit ApplyDeclDefLinkOperation(
-            const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface,
+    explicit ApplyDeclDefLinkOperation(const CppQuickFixInterface &interface,
             const QSharedPointer<FunctionDeclDefLink> &link)
         : CppQuickFixOperation(interface, 10)
         , m_link(link)
     {}
 
-    virtual void perform()
+    void perform()
     {
         CPPEditorWidget *editor = assistInterface()->editor();
         QSharedPointer<FunctionDeclDefLink> link = editor->declDefLink();
-        if (link != m_link)
-            return;
-
-        return editor->applyDeclDefLinkChanges(/*don't jump*/false);
+        if (link == m_link)
+            editor->applyDeclDefLinkChanges(/*don't jump*/false);
     }
 
 protected:
@@ -1016,17 +1013,13 @@ private:
     QSharedPointer<FunctionDeclDefLink> m_link;
 };
 
-QList<CppQuickFixOperation::Ptr> ApplyDeclDefLinkChanges::match(const QSharedPointer<const CppQuickFixAssistInterface> &interface)
+void ApplyDeclDefLinkChanges::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
-    QList<CppQuickFixOperation::Ptr> results;
-
     QSharedPointer<FunctionDeclDefLink> link = interface->editor()->declDefLink();
     if (!link || !link->isMarkerVisible())
-        return results;
+        return;
 
     QSharedPointer<ApplyDeclDefLinkOperation> op(new ApplyDeclDefLinkOperation(interface, link));
     op->setDescription(FunctionDeclDefLink::tr("Apply Function Signature Changes"));
-    results += op;
-
-    return results;
+    result += op;
 }

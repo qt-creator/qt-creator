@@ -53,23 +53,15 @@ using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
 using namespace CPlusPlus;
-using namespace Utils;
 
-CppQuickFixOperation::CppQuickFixOperation(
-        const QSharedPointer<const CppQuickFixAssistInterface> &interface, int priority)
+CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixInterface &interface, int priority)
     : QuickFixOperation(priority)
     , m_interface(interface)
 {}
 
-CppQuickFixOperation::~CppQuickFixOperation()
-{}
-
-void CppQuickFixOperation::perform()
+Snapshot CppQuickFixOperation::snapshot() const
 {
-    CppRefactoringChanges refactoring(m_interface->snapshot());
-    CppRefactoringFilePtr current = refactoring.file(fileName());
-
-    performChanges(current, refactoring);
+    return m_interface->snapshot();
 }
 
 const CppQuickFixAssistInterface *CppQuickFixOperation::assistInterface() const
@@ -82,32 +74,10 @@ QString CppQuickFixOperation::fileName() const
     return m_interface->document()->fileName();
 }
 
-CppQuickFixFactory::CppQuickFixFactory()
+void CppQuickFixFactory::matchingOperations(const QuickFixInterface &interface, QuickFixOperations &result)
 {
-}
-
-CppQuickFixFactory::~CppQuickFixFactory()
-{
-}
-
-QList<QuickFixOperation::Ptr> CppQuickFixFactory::matchingOperations(
-    const QSharedPointer<const TextEditor::IAssistInterface> &interface)
-{
-    QSharedPointer<const CppQuickFixAssistInterface> cppInterface =
-            interface.staticCast<const CppQuickFixAssistInterface>();
+    CppQuickFixInterface cppInterface = interface.staticCast<const CppQuickFixAssistInterface>();
     if (cppInterface->path().isEmpty())
-        return QList<QuickFixOperation::Ptr>();
-    return match(cppInterface);
-}
-
-QList<CppQuickFixOperation::Ptr> CppQuickFixFactory::singleResult(CppQuickFixOperation *operation)
-{
-    QList<CppQuickFixOperation::Ptr> result;
-    result.append(CppQuickFixOperation::Ptr(operation));
-    return result;
-}
-
-QList<CppQuickFixOperation::Ptr> CppQuickFixFactory::noResult()
-{
-    return QList<CppQuickFixOperation::Ptr>();
+        return;
+    match(cppInterface, result);
 }

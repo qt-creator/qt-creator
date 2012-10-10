@@ -32,8 +32,6 @@
 
 #include "cppquickfix.h"
 
-#include <CPlusPlusForwardDeclarations.h>
-
 namespace CppEditor {
 namespace Internal {
 
@@ -43,8 +41,7 @@ namespace Internal {
 class CompleteSwitchCaseStatement: public CppQuickFixFactory
 {
 public:
-    virtual QList<CppQuickFixOperation::Ptr> match(
-        const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
 };
 
 } // namespace Internal

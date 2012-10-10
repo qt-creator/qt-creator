@@ -35,44 +35,28 @@
 
 namespace CPlusPlus {
 class CppModelManagerInterface;
-}
-
-namespace CppTools {
-    class CppRefactoringFile;
-    class CppRefactoringChanges;
-    typedef QSharedPointer<CppRefactoringFile> CppRefactoringFilePtr;
-} // namespace CppTools
-
-namespace ExtensionSystem {
-class IPlugin;
+class Snapshot;
 }
 
 namespace CppEditor {
+namespace Internal { class CppQuickFixAssistInterface; }
 
-namespace Internal {
-class CppQuickFixAssistInterface;
-}
+typedef QSharedPointer<const Internal::CppQuickFixAssistInterface> CppQuickFixInterface;
+typedef TextEditor::QuickFixInterface QuickFixInterface;
+typedef TextEditor::QuickFixOperations QuickFixOperations;
 
 class CPPEDITOR_EXPORT CppQuickFixOperation: public TextEditor::QuickFixOperation
 {
 public:
-    explicit CppQuickFixOperation(
-        const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface,
-        int priority = -1);
-    virtual ~CppQuickFixOperation();
-
-    virtual void perform();
+    explicit CppQuickFixOperation(const CppQuickFixInterface &interface, int priority = -1);
 
 protected:
-    virtual void performChanges(const CppTools::CppRefactoringFilePtr &currentFile,
-                                const CppTools::CppRefactoringChanges &refactoring) = 0;
-
     QString fileName() const;
-
+    CPlusPlus::Snapshot snapshot() const;
     const Internal::CppQuickFixAssistInterface *assistInterface() const;
 
 private:
-    QSharedPointer<const Internal::CppQuickFixAssistInterface> m_interface;
+    CppQuickFixInterface m_interface;
 };
 
 class CPPEDITOR_EXPORT CppQuickFixFactory: public TextEditor::QuickFixFactory
@@ -80,29 +64,15 @@ class CPPEDITOR_EXPORT CppQuickFixFactory: public TextEditor::QuickFixFactory
     Q_OBJECT
 
 public:
-    CppQuickFixFactory();
-    virtual ~CppQuickFixFactory();
+    CppQuickFixFactory() {}
 
-    virtual QList<TextEditor::QuickFixOperation::Ptr>
-        matchingOperations(const QSharedPointer<const TextEditor::IAssistInterface> &interface);
+    void matchingOperations(const QuickFixInterface &interface, QuickFixOperations &result);
 
     /*!
         Implement this method to match and create the appropriate
         CppQuickFixOperation objects.
      */
-    virtual QList<CppQuickFixOperation::Ptr> match(
-        const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface) = 0;
-
-protected:
-    /*!
-        Creates a list of 1 single element: the shared-pointer to the given
-        operation. This shared-pointer takes over the ownership (meaning the
-        responsibility to delete the operation).
-     */
-    static QList<CppQuickFixOperation::Ptr> singleResult(CppQuickFixOperation *operation);
-
-    /// Utility method which creates an empty list.
-    static QList<CppQuickFixOperation::Ptr> noResult();
+    virtual void match(const CppQuickFixInterface &interface, QuickFixOperations &result) = 0;
 };
 
 } // namespace CppEditor

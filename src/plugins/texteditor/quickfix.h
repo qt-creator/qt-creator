@@ -90,6 +90,9 @@ private:
     QString _description;
 };
 
+typedef QList<QuickFixOperation::Ptr> QuickFixOperations;
+typedef QSharedPointer<const IAssistInterface> QuickFixInterface;
+
 /*!
     The QuickFixFactory is responsible for generating QuickFixOperation s which are
     applicable to the given QuickFixState.
@@ -107,10 +110,9 @@ class TEXTEDITOR_EXPORT QuickFixFactory: public QObject
 
 public:
     QuickFixFactory(QObject *parent = 0);
-    virtual ~QuickFixFactory();
+    ~QuickFixFactory();
 
-    virtual QList<QuickFixOperation::Ptr>
-    matchingOperations(const QSharedPointer<const IAssistInterface> &interface) = 0;
+    virtual void matchingOperations(const QuickFixInterface &interface, QuickFixOperations &result) = 0;
 };
 
 } // namespace TextEditor

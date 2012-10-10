@@ -122,8 +122,7 @@ public:
         }
         QString replacement = componentName + QLatin1String(" {\n");
         if (!m_idName.isEmpty())
-                replacement += QLatin1String("id: ") + m_idName
-                        + QLatin1Char('\n');
+            replacement += QLatin1String("id: ") + m_idName + QLatin1Char('\n');
 
         Utils::ChangeSet changes;
         changes.replace(start, end, replacement);
@@ -136,8 +135,7 @@ public:
 } // end of anonymous namespace
 
 
-QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(
-    const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface)
+void ComponentFromObjectDef::match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
 {
     const int pos = interface->currentFile()->cursor().position();
 
@@ -146,13 +144,12 @@ QList<QmlJSQuickFixOperation::Ptr> ComponentFromObjectDef::match(
         Node *node = path.at(i);
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
             if (!interface->currentFile()->isCursorOn(objDef->qualifiedTypeNameId))
-                return noResult();
+                return;
              // check that the node is not the root node
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) {
-                return singleResult(new Operation(interface, objDef));
+                result.append(QuickFixOperation::Ptr(new Operation(interface, objDef)));
+                return;
             }
         }
     }
-
-    return noResult();
 }

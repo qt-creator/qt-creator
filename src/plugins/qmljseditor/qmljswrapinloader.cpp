@@ -173,8 +173,7 @@ public:
 } // end of anonymous namespace
 
 
-QList<QmlJSQuickFixOperation::Ptr> WrapInLoader::match(
-    const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface)
+void WrapInLoader::match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
 {
     const int pos = interface->currentFile()->cursor().position();
 
@@ -183,13 +182,12 @@ QList<QmlJSQuickFixOperation::Ptr> WrapInLoader::match(
         Node *node = path.at(i);
         if (UiObjectDefinition *objDef = cast<UiObjectDefinition *>(node)) {
             if (!interface->currentFile()->isCursorOn(objDef->qualifiedTypeNameId))
-                return noResult();
+                return;
              // check that the node is not the root node
             if (i > 0 && !cast<UiProgram*>(path.at(i - 1))) {
-                return singleResult(new Operation(interface, objDef));
+                result.append(QuickFixOperation::Ptr(new Operation(interface, objDef)));
+                return;
             }
         }
     }
-
-    return noResult();
 }

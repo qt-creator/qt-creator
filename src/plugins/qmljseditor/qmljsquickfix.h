@@ -39,20 +39,16 @@
 
 #include <QSharedPointer>
 
-namespace ExtensionSystem {
-class IPlugin;
-}
-
-namespace QmlJS {
-    class ModelManagerInterface;
-}
+namespace QmlJS { class ModelManagerInterface; }
 
 namespace QmlJSEditor {
 
-namespace Internal {
-class QmlJSQuickFixAssistInterface;
-} // namespace Internal
+namespace Internal { class QmlJSQuickFixAssistInterface; }
 
+typedef QSharedPointer<const Internal::QmlJSQuickFixAssistInterface> QmlJSQuickFixInterface;
+typedef TextEditor::QuickFixOperation QuickFixOperation;
+typedef TextEditor::QuickFixOperations QuickFixOperations;
+typedef TextEditor::QuickFixInterface QuickFixInterface;
 
 /*!
     A quick-fix operation for the QML/JavaScript editor.
@@ -66,10 +62,7 @@ public:
         \param interface The interface on which the operation is performed.
         \param priority The priority for this operation.
      */
-    explicit QmlJSQuickFixOperation(
-        const QSharedPointer<const Internal::QmlJSQuickFixAssistInterface> &interface,
-        int priority = -1);
-    virtual ~QmlJSQuickFixOperation();
+    explicit QmlJSQuickFixOperation(const QmlJSQuickFixInterface &interface, int priority = -1);
 
     virtual void perform();
 
@@ -85,29 +78,23 @@ protected:
     QString fileName() const;
 
 private:
-    QSharedPointer<const Internal::QmlJSQuickFixAssistInterface> m_interface;
+    QmlJSQuickFixInterface m_interface;
 };
 
 class QmlJSQuickFixFactory: public TextEditor::QuickFixFactory
 {
     Q_OBJECT
 
-public:
-    QmlJSQuickFixFactory();
-    virtual ~QmlJSQuickFixFactory();
+protected:
+    QmlJSQuickFixFactory() {}
 
-    virtual QList<TextEditor::QuickFixOperation::Ptr>
-        matchingOperations(const QSharedPointer<const TextEditor::IAssistInterface> &interface);
+    void matchingOperations(const QuickFixInterface &interface, QuickFixOperations &result);
 
     /*!
         Implement this method to match and create the appropriate
         QmlJSQuickFixOperation objects.
      */
-    virtual QList<QmlJSQuickFixOperation::Ptr> match(
-        const QSharedPointer<const Internal::QmlJSQuickFixAssistInterface> &interface) = 0;
-
-    static QList<QmlJSQuickFixOperation::Ptr> noResult();
-    static QList<QmlJSQuickFixOperation::Ptr> singleResult(QmlJSQuickFixOperation *operation);
+    virtual void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result) = 0;
 };
 
 } // namespace QmlJSEditor

@@ -127,8 +127,7 @@ private:
 class ApplyDeclDefLinkChanges: public CppQuickFixFactory
 {
 public:
-    virtual QList<CppQuickFixOperation::Ptr>
-        match(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
 };
 
 } // namespace Internal

@@ -37,9 +37,7 @@ namespace Internal {
 
 class WrapInLoader: public QmlJSQuickFixFactory
 {
-public:
-    virtual QList<QmlJSQuickFixOperation::Ptr> match(
-        const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface);
+    void match(const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
 };
 
 } // namespace Internal

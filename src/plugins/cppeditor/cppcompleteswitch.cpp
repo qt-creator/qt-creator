@@ -112,10 +112,11 @@ public:
                                                "Complete Switch Statement"));
     }
 
-
-    virtual void performChanges(const CppRefactoringFilePtr &currentFile,
-                                const CppRefactoringChanges &)
+    void perform()
     {
+        CppRefactoringChanges refactoring(snapshot());
+        CppRefactoringFilePtr currentFile = refactoring.file(fileName());
+
         ChangeSet changes;
         int start = currentFile->endOf(compoundStatement->lbrace_token);
         changes.insert(start, QLatin1String("\ncase ")
@@ -130,8 +131,9 @@ public:
     QStringList values;
 };
 
-static Enum *findEnum(const QList<LookupItem> &results,
-                      const LookupContext &ctxt)
+} // end of anonymous namespace
+
+static Enum *findEnum(const QList<LookupItem> &results, const LookupContext &ctxt)
 {
     foreach (const LookupItem &result, results) {
         const FullySpecifiedType fst = result.type();
@@ -153,8 +155,7 @@ static Enum *findEnum(const QList<LookupItem> &results,
     return 0;
 }
 
-static Enum *conditionEnum(const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface,
-                           SwitchStatementAST *statement)
+static Enum *conditionEnum(const CppQuickFixInterface &interface, SwitchStatementAST *statement)
 {
     Block *block = statement->symbol;
     Scope *scope = interface->semanticInfo().doc->scopeAt(block->line(), block->column());
@@ -167,15 +168,12 @@ static Enum *conditionEnum(const QSharedPointer<const CppEditor::Internal::CppQu
     return findEnum(results, typeOfExpression.context());
 }
 
-} // end of anonymous namespace
-
-QList<CppQuickFixOperation::Ptr> CompleteSwitchCaseStatement::match(
-    const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface)
+void CompleteSwitchCaseStatement::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const QList<AST *> &path = interface->path();
 
     if (path.isEmpty())
-        return noResult(); // nothing to do
+        return;
 
     // look for switch statement
     for (int depth = path.size() - 1; depth >= 0; --depth) {
@@ -183,10 +181,10 @@ QList<CppQuickFixOperation::Ptr> CompleteSwitchCaseStatement::match(
         SwitchStatementAST *switchStatement = ast->asSwitchStatement();
         if (switchStatement) {
             if (!interface->isCursorOn(switchStatement->switch_token) || !switchStatement->statement)
-                return noResult();
+                return;
             CompoundStatementAST *compoundStatement = switchStatement->statement->asCompoundStatement();
             if (!compoundStatement) // we ignore pathologic case "switch (t) case A: ;"
-                return noResult();
+                return;
             // look if the condition's type is an enum
             if (Enum *e = conditionEnum(interface, switchStatement)) {
                 // check the possible enum values
@@ -205,15 +203,12 @@ QList<CppQuickFixOperation::Ptr> CompleteSwitchCaseStatement::match(
                 // save the values that would be added
                 foreach (const QString &usedValue, usedValues)
                     values.removeAll(usedValue);
-                if (values.isEmpty())
-                    return noResult();
-                else
-                    return singleResult(new Operation(interface, depth, compoundStatement, values));
+                if (!values.isEmpty())
+                    result.append(CppQuickFixOperation::Ptr(new Operation(interface, depth, compoundStatement, values)));
+                return;
             }
 
-            return noResult();
+            return;
         }
     }
-
-    return noResult();
 }

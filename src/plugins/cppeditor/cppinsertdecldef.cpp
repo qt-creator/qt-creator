@@ -86,9 +86,10 @@ public:
                                                    "Add %1 Declaration").arg(type));
     }
 
-    void performChanges(const CppRefactoringFilePtr &,
-                        const CppRefactoringChanges &refactoring)
+    void perform()
     {
+        CppRefactoringChanges refactoring(snapshot());
+
         InsertionPointLocator locator(refactoring);
         const InsertionLocation loc = locator.methodDeclarationInClass(
                     m_targetFileName, m_targetSymbol, m_xsSpec);
@@ -147,8 +148,7 @@ Class *isMemberFunction(const LookupContext &context, Function *function)
 
 } // anonymous namespace
 
-QList<CppQuickFixOperation::Ptr> DeclFromDef::match(
-    const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface)
+void DeclFromDef::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const QList<AST *> &path = interface->path();
     CppRefactoringFilePtr file = interface->currentFile();
@@ -161,24 +161,21 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(
             if (DeclaratorIdAST *declId = node->asDeclaratorId()) {
                 if (file->isCursorOn(declId)) {
                     if (FunctionDefinitionAST *candidate = path.at(idx - 2)->asFunctionDefinition()) {
-                        if (funDef) {
-                            return noResult();
-                        } else {
-                            funDef = candidate;
-                            break;
-                        }
+                        if (funDef)
+                            return;
+                        funDef = candidate;
+                        break;
                     }
                 }
             }
         }
 
-        if (node->asClassSpecifier()) {
-            return noResult();
-        }
+        if (node->asClassSpecifier())
+            return;
     }
 
     if (!funDef || !funDef->symbol)
-        return noResult();
+        return;
 
     Function *fun = funDef->symbol;
     if (Class *matchingClass = isMemberFunction(interface->context(), fun)) {
@@ -191,17 +188,15 @@ QList<CppQuickFixOperation::Ptr> DeclFromDef::match(
 
             if (s->type().isEqualTo(fun->type())) {
                 // Declaration exists.
-                return noResult();
+                return;
             }
         }
         QString fileName = QString::fromUtf8(matchingClass->fileName(),
                                              matchingClass->fileNameLength());
         const QString decl = InsertDeclOperation::generateDeclaration(fun);
-        return singleResult(new InsertDeclOperation(interface, fileName, matchingClass,
-                                                    InsertionPointLocator::Public, decl));
+        result.append(TextEditor::QuickFixOperation::Ptr(new InsertDeclOperation(interface, fileName, matchingClass,
+                                                    InsertionPointLocator::Public, decl)));
     }
-
-    return noResult();
 }
 
 QString InsertDeclOperation::generateDeclaration(Function *function)
@@ -220,9 +215,6 @@ QString InsertDeclOperation::generateDeclaration(Function *function)
 
 namespace {
 
-
-
-
 class InsertDefOperation: public CppQuickFixOperation
 {
 public:
@@ -239,11 +231,10 @@ public:
                        .arg(dir.relativeFilePath(m_loc.fileName())));
     }
 
-    void performChanges(const CppRefactoringFilePtr &,
-                        const CppRefactoringChanges &refactoring)
+    void perform()
     {
         QTC_ASSERT(m_loc.isValid(), return);
-
+        CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr targetFile = refactoring.file(m_loc.fileName());
 
         Overview oo;
@@ -293,8 +284,7 @@ private:
 
 } // anonymous namespace
 
-QList<CppQuickFixOperation::Ptr> DefFromDecl::match(
-    const QSharedPointer<const CppEditor::Internal::CppQuickFixAssistInterface> &interface)
+void DefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const QList<AST *> &path = interface->path();
 
@@ -310,22 +300,18 @@ QList<CppQuickFixOperation::Ptr> DefFromDecl::match(
                                 && decl->enclosingScope()->isClass()) {
                             CppRefactoringChanges refactoring(interface->snapshot());
                             InsertionPointLocator locator(refactoring);
-                            QList<CppQuickFixOperation::Ptr> results;
                             foreach (const InsertionLocation &loc, locator.methodDefinition(decl)) {
                                 if (loc.isValid())
-                                    results.append(CppQuickFixOperation::Ptr(new InsertDefOperation(interface, decl, loc)));
+                                    result.append(CppQuickFixOperation::Ptr(new InsertDefOperation(interface, decl, loc)));
                             }
-                            return results;
+                            return;
                         }
                     }
                 }
             }
-
             break;
         }
     }
-
-    return noResult();
 }
 
 namespace {
@@ -333,7 +319,7 @@ namespace {
 class ExtractFunctionOperation : public CppQuickFixOperation
 {
 public:
-    ExtractFunctionOperation(const QSharedPointer<const CppQuickFixAssistInterface> &interface,
+    ExtractFunctionOperation(const CppQuickFixInterface &interface,
                     int extractionStart,
                     int extractionEnd,
                     FunctionDefinitionAST *refFuncDef,
@@ -349,10 +335,11 @@ public:
         setDescription(QCoreApplication::translate("QuickFix::ExtractFunction", "Extract Function"));
     }
 
-    void performChanges(const CppTools::CppRefactoringFilePtr &currentFile,
-                        const CppTools::CppRefactoringChanges &refactoring)
+    void perform()
     {
         QTC_ASSERT(!m_funcReturn || !m_relevantDecls.isEmpty(), return);
+        CppRefactoringChanges refactoring(snapshot());
+        CppRefactoringFilePtr currentFile = refactoring.file(fileName());
 
         const QString &funcName = getFunctionName();
         if (funcName.isEmpty())
@@ -728,14 +715,13 @@ public:
 
 } // anonymous namespace
 
-QList<CppQuickFixOperation::Ptr> ExtractFunction::match(
-        const QSharedPointer<const CppQuickFixAssistInterface> &interface)
+void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     CppRefactoringFilePtr file = interface->currentFile();
 
     QTextCursor cursor = file->cursor();
     if (!cursor.hasSelection())
-        return noResult();
+        return;
 
     const QList<AST *> &path = interface->path();
     FunctionDefinitionAST *refFuncDef = 0; // The "reference" function, which we will extract from.
@@ -752,7 +738,7 @@ QList<CppQuickFixOperation::Ptr> ExtractFunction::match(
             || !refFuncDef->symbol
             || !refFuncDef->symbol->name()
             || refFuncDef->symbol->enclosingScope()->isTemplate() /* TODO: Templates... */) {
-        return noResult();
+        return;
     }
 
     // Adjust selection ends.
@@ -770,7 +756,7 @@ QList<CppQuickFixOperation::Ptr> ExtractFunction::match(
                                         file,
                                         printer);
     if (!analyser(refFuncDef))
-        return noResult();
+        return;
 
     // We also need to collect the declarations of the parameters from the reference function.
     QSet<QString> refFuncParams;
@@ -826,20 +812,20 @@ QList<CppQuickFixOperation::Ptr> ExtractFunction::match(
 
         if ((usedBeforeExtraction && usedInsideExtraction)
                 || (usedInsideExtraction && refFuncParams.contains(name))) {
-            QTC_ASSERT(analyser.m_knownDecls.contains(name), return noResult());
+            QTC_ASSERT(analyser.m_knownDecls.contains(name), return);
             relevantDecls.append(qMakePair(name, analyser.m_knownDecls.value(name)));
         }
 
         // We assume that the first use of a local corresponds to its declaration.
         if (usedInsideExtraction && usedAfterExtraction && !usedBeforeExtraction) {
             if (!funcReturn) {
-                QTC_ASSERT(analyser.m_knownDecls.contains(name), return noResult());
+                QTC_ASSERT(analyser.m_knownDecls.contains(name), return);
                 // The return, if any, is stored as the first item in the list.
                 relevantDecls.prepend(qMakePair(name, analyser.m_knownDecls.value(name)));
                 funcReturn = it.key();
             } else {
                 // Would require multiple returns. (Unless we do fancy things, as pointed below.)
-                return noResult();
+                return;
             }
         }
     }
@@ -847,10 +833,10 @@ QList<CppQuickFixOperation::Ptr> ExtractFunction::match(
     // The current implementation doesn't try to be too smart since it preserves the original form
     // of the declarations. This might be or not the desired effect. An improvement would be to
     // let the user somehow customize the function interface.
-    return singleResult(new ExtractFunctionOperation(interface,
+    result.append(CppQuickFixOperation::Ptr(new ExtractFunctionOperation(interface,
                                                      analyser.m_extractionStart,
                                                      analyser.m_extractionEnd,
                                                      refFuncDef,
                                                      funcReturn,
-                                                     relevantDecls));
+                                                     relevantDecls)));
 }

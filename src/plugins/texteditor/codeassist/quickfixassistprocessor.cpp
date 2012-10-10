@@ -55,12 +55,12 @@ IAssistProposal *QuickFixAssistProcessor::perform(const IAssistInterface *interf
 
     QSharedPointer<const IAssistInterface> assistInterface(interface);
 
-    QList<QuickFixOperation::Ptr> quickFixes;
+    QuickFixOperations quickFixes;
 
     const QuickFixAssistProvider *quickFixProvider =
             static_cast<const QuickFixAssistProvider *>(provider());
     foreach (QuickFixFactory *factory, quickFixProvider->quickFixFactories())
-        quickFixes += factory->matchingOperations(assistInterface);
+        factory->matchingOperations(assistInterface, quickFixes);
 
     if (!quickFixes.isEmpty()) {
         QList<BasicProposalItem *> items;

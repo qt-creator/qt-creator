@@ -38,23 +38,19 @@ namespace Internal {
 class DeclFromDef: public CppQuickFixFactory
 {
 public:
-    virtual QList<CppQuickFixOperation::Ptr>
-        match(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
 };
 
 class DefFromDecl: public CppQuickFixFactory
 {
 public:
-    virtual QList<CppQuickFixOperation::Ptr>
-        match(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
 };
 
 class ExtractFunction : public CppQuickFixFactory
 {
-    virtual QList<CppQuickFixOperation::Ptr>
-        match(const QSharedPointer<const CppQuickFixAssistInterface> &interface);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
 };
-
 
 } // namespace Internal
 } // namespace CppEditor

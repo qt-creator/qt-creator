@@ -60,8 +60,7 @@ class InsertQtPropertyMembers : public CppQuickFixFactory
     Q_OBJECT
 
 public:
-    virtual QList<CppQuickFixOperation::Ptr>
-        match(const QSharedPointer<const Internal::CppQuickFixAssistInterface> &interface);
+    void match(const CppQuickFixInterface &interface, QuickFixOperations &result);
 
 private:
     enum GenerateFlag {
@@ -81,8 +80,7 @@ private:
                   const QString &getterName, const QString &setterName, const QString &signalName,
                   const QString &storageName);
 
-        virtual void performChanges(const CppTools::CppRefactoringFilePtr &file,
-                                    const CppTools::CppRefactoringChanges &refactoring);
+        void perform();
 
     private:
         void insertAndIndent(const TextEditor::RefactoringFilePtr &file, Utils::ChangeSet *changeSet,

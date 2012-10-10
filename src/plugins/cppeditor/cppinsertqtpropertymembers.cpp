@@ -50,18 +50,18 @@ using namespace Utils;
 using namespace CppEditor;
 using namespace CppEditor::Internal;
 
-QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(
-    const QSharedPointer<const CppQuickFixAssistInterface> &interface)
+void InsertQtPropertyMembers::match(const CppQuickFixInterface &interface,
+    QuickFixOperations &result)
 {
     const QList<AST *> &path = interface->path();
 
     if (path.isEmpty())
-        return noResult();
+        return;
 
     AST * const ast = path.last();
     QtPropertyDeclarationAST *qtPropertyDeclaration = ast->asQtPropertyDeclaration();
     if (!qtPropertyDeclaration)
-        return noResult();
+        return;
 
     ClassSpecifierAST *klass = 0;
     for (int i = path.size() - 2; i >= 0; --i) {
@@ -70,7 +70,7 @@ QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(
             break;
     }
     if (!klass)
-        return noResult();
+        return;
 
     CppRefactoringFilePtr file = interface->currentFile();
     const QString propertyName = file->textOf(qtPropertyDeclaration->property_name);
@@ -118,15 +118,15 @@ QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(
     }
 
     if (getterName.isEmpty() && setterName.isEmpty() && signalName.isEmpty())
-        return noResult();
+        return;
 
-    return singleResult(new Operation(interface, path.size() - 1, qtPropertyDeclaration, c,
-                                      generateFlags,
-                                      getterName, setterName, signalName, storageName));
+    result.append(QuickFixOperation::Ptr(
+        new Operation(interface, path.size() - 1, qtPropertyDeclaration, c,
+            generateFlags, getterName, setterName, signalName, storageName)));
 }
 
 InsertQtPropertyMembers::Operation::Operation(
-    const QSharedPointer<const CppQuickFixAssistInterface> &interface,
+    const CppQuickFixInterface &interface,
     int priority, QtPropertyDeclarationAST *declaration, Class *klass,
     int generateFlags, const QString &getterName, const QString &setterName, const QString &signalName,
     const QString &storageName)
@@ -143,9 +143,11 @@ InsertQtPropertyMembers::Operation::Operation(
     setDescription(desc);
 }
 
-void InsertQtPropertyMembers::Operation::performChanges(const CppRefactoringFilePtr &file,
-                                                        const CppRefactoringChanges &refactoring)
+void InsertQtPropertyMembers::Operation::perform()
 {
+    CppRefactoringChanges refactoring(snapshot());
+    CppRefactoringFilePtr file = refactoring.file(fileName());
+
     InsertionPointLocator locator(refactoring);
     Utils::ChangeSet declarations;
 
