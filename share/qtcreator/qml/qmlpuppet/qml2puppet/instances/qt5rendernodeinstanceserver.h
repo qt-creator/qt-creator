@@ -47,6 +47,7 @@ public:
 
 protected:
     void collectItemChangesAndSendChangeCommands();
+    ServerNodeInstance findNodeInstanceForItem(QQuickItem *item) const;
 
 private:
     QSet<ServerNodeInstance> m_dirtyInstanceSet;

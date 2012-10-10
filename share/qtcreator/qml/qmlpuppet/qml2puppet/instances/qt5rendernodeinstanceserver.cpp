@@ -80,10 +80,15 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
         if (quickView() && nodeInstanceClient()->bytesToWrite() < 10000) {
             foreach (QQuickItem *item, allItems()) {
-                if (item && hasInstanceForObject(item)) {
-                    ServerNodeInstance instance = instanceForObject(item);
-                    if (DesignerSupport::isDirty(item, DesignerSupport::ContentUpdateMask))
-                        m_dirtyInstanceSet.insert(instance);
+                if (item) {
+                    if (hasInstanceForObject(item)
+                            && DesignerSupport::isDirty(item, DesignerSupport::ContentUpdateMask)) {
+                        m_dirtyInstanceSet.insert(instanceForObject(item));
+                    } else if (DesignerSupport::isDirty(item, DesignerSupport::AllMask)) {
+                        ServerNodeInstance ancestorInstance = findNodeInstanceForItem(item->parentItem());
+                        if (ancestorInstance.isValid())
+                            m_dirtyInstanceSet.insert(ancestorInstance);
+                    }
                 }
             }
 
@@ -103,6 +108,18 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
         inFunction = false;
     }
+}
+
+ServerNodeInstance Qt5RenderNodeInstanceServer::findNodeInstanceForItem(QQuickItem *item) const
+{
+    if (item) {
+        if (hasInstanceForObject(item))
+            return instanceForObject(item);
+        else if (item->parentItem())
+            return findNodeInstanceForItem(item->parentItem());
+    }
+
+    return ServerNodeInstance();
 }
 
 
