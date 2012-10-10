@@ -547,7 +547,8 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
 
     // Post generation handler
     if (!postGenerateFiles(wizard.data(), files, &errorMessage))
-        QMessageBox::critical(0, tr("File Generation Failure"), errorMessage);
+        if (!errorMessage.isEmpty())
+            QMessageBox::critical(0, tr("File Generation Failure"), errorMessage);
 }
 
 
