@@ -390,12 +390,15 @@ void SshConnectionPrivate::handleServerId()
                     .arg(serverProtoVersion));
     }
 
+    // TODO: Remove #if on 2.7
+#if 0
     // Disable this check to accept older OpenSSH servers that do this wrong.
     if (serverProtoVersion == QLatin1String("2.0") && !hasCarriageReturn) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
             "Identification string is invalid.",
             tr("Server identification string is invalid (missing carriage return)."));
     }
+#endif
 
     if (serverProtoVersion == QLatin1String("1.99") && m_serverHasSentDataBeforeId) {
         throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
