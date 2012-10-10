@@ -149,7 +149,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
                     return d->m_items.at(pos).value;
             }
             QString value = d->m_resultEnvironment.value(d->m_resultEnvironment.constBegin() + index.row());
-            if (role == Qt::ToolTipRole) {
+            if (role == Qt::ToolTipRole && value.length() > 80) {
                 // Use html to enable text wrapping
                 value = Qt::escape(value);
                 value.prepend("<html><body>");
