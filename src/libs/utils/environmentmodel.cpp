@@ -33,6 +33,7 @@
 #include <utils/hostosinfo.h>
 
 #include <QFont>
+#include <QTextEdit>
 
 namespace Utils {
 namespace Internal {
