@@ -30,6 +30,7 @@
 #include "qt5rendernodeinstanceserver.h"
 
 #include <QQuickItem>
+#include <QQuickView>
 
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"

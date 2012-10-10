@@ -142,7 +142,6 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    }
 
    QProcessEnvironment enviroment = QProcessEnvironment::systemEnvironment();
-   enviroment.insert("QML_NO_THREADED_RENDERER", "true");
 
    if (QFileInfo(applicationPath).exists()) {
        m_qmlPuppetEditorProcess = new QProcess;

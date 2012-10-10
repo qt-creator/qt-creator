@@ -33,7 +33,7 @@
 #include "statepreviewimagechangedcommand.h"
 #include "createscenecommand.h"
 #include "removesharedmemorycommand.h"
-
+#include <QQuickView>
 #include <QQuickItem>
 #include <designersupport.h>
 

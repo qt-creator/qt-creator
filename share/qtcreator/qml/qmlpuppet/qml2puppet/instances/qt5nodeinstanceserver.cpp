@@ -63,6 +63,7 @@ void Qt5NodeInstanceServer::initializeView(const QVector<AddImportContainer> &/*
     Q_ASSERT(!quickView());
 
     m_quickView = new QQuickView;
+    DesignerSupport::createOpenGLContext(m_quickView.data());
 }
 
 QQmlView *Qt5NodeInstanceServer::declarativeView() const
