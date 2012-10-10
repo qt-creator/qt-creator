@@ -150,6 +150,7 @@ void KitManager::restoreKits()
 {
     QTC_ASSERT(!d->m_writer, return);
     QList<Kit *> kitsToRegister;
+    QList<Kit *> kitsToValidate;
     QList<Kit *> kitsToCheck;
 
     // read all kits from SDK
@@ -161,11 +162,12 @@ void KitManager::restoreKits()
         foreach (Kit *k, system.kits)
             k->setAutoDetected(true);
 
-        // SDK kits are always considered to be up-to-date, so no need to recheck them.
-        kitsToRegister = system.kits;
+        // SDK kits are always considered to be up for validation since they might have been
+        // extended with additional information by creator in the meantime:
+        kitsToValidate = system.kits;
     }
 
-    // read all kit chains from user file
+    // read all kits from user file
     KitList userKits = restoreKits(settingsFileName());
     foreach (Kit *k, userKits.kits) {
         if (k->isAutoDetected())
@@ -174,20 +176,16 @@ void KitManager::restoreKits()
             kitsToRegister.append(k);
     }
 
-    // Then auto create kits:
-    QList<Kit *> detectedKits;
-
-    // Find/update autodetected kits:
     Kit *toStore = 0;
-    foreach (Kit *currentDetected, detectedKits) {
-        toStore = currentDetected;
+    foreach (Kit *current, kitsToValidate) {
+        toStore = current;
 
-        // Check whether we had this kit stored and prefer the old one with the old id:
+        // Check whether we had this kit stored and prefer the stored one:
         for (int i = 0; i < kitsToCheck.count(); ++i) {
-            if (*(kitsToCheck.at(i)) == *currentDetected) {
+            if (kitsToCheck.at(i)->id() == current->id()) {
                 toStore = kitsToCheck.at(i);
                 kitsToCheck.removeAt(i);
-                delete currentDetected;
+                delete current;
                 break;
             }
         }
