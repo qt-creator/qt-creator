@@ -107,7 +107,7 @@ SDK (release builds of Qt using MinGW and Visual C++ 2008).
          For the Visual C++ compilers, it is recommended to use the tool 'jom'.
          It is a replacement for nmake that utilizes all CPU cores and thus
          speeds up compilation significantly. Download it from
-         ftp://ftp.qt.nokia.com/jom/ and add the executable to the path.
+         http://releases.qt-project.org/jom/ and add the executable to the path.
 
    8.  For convenience, we recommend creating shell prompts with the correct
        environment. This can be done by creating a .bat-file
