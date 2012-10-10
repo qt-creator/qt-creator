@@ -36,7 +36,7 @@
 
 namespace QmlJS {
 
-class QMLJS_EXPORT IScriptEvaluator
+class IScriptEvaluator
 {
 public:
     IScriptEvaluator() {}
