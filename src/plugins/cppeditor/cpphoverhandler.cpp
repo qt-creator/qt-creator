@@ -82,12 +82,12 @@ void CppHoverHandler::identifyMatch(TextEditor::ITextEditor *editor, int pos)
         if (evaluator.identifiedCppElement()) {
             const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
             if (!isDiagnosticTooltip())
-                setToolTip(cppElement->tooltip());
-            foreach (const QString &helpId, cppElement->helpIdCandidates()) {
+                setToolTip(cppElement->tooltip);
+            foreach (const QString &helpId, cppElement->helpIdCandidates) {
                 if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty()) {
                     setLastHelpItemIdentified(TextEditor::HelpItem(helpId,
-                                                                   cppElement->helpMark(),
-                                                                   cppElement->helpCategory()));
+                                                                   cppElement->helpMark,
+                                                                   cppElement->helpCategory));
                     break;
                 }
             }

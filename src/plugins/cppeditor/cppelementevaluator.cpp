@@ -237,170 +237,81 @@ void CppEditor::Internal::CppElementEvaluator::clear()
 }
 
 // CppElement
-CppElement::CppElement() : m_helpCategory(TextEditor::HelpItem::Unknown)
+CppElement::CppElement() : helpCategory(TextEditor::HelpItem::Unknown)
 {}
 
 CppElement::~CppElement()
 {}
 
-void CppElement::setHelpCategory(const TextEditor::HelpItem::Category &cat)
-{ m_helpCategory = cat; }
-
-const TextEditor::HelpItem::Category &CppElement::helpCategory() const
-{ return m_helpCategory; }
-
-void CppElement::setHelpIdCandidates(const QStringList &candidates)
-{ m_helpIdCandidates = candidates; }
-
-void CppElement::addHelpIdCandidate(const QString &candidate)
-{ m_helpIdCandidates.append(candidate); }
-
-const QStringList &CppElement::helpIdCandidates() const
-{ return m_helpIdCandidates; }
-
-void CppElement::setHelpMark(const QString &mark)
-{ m_helpMark = mark; }
-
-const QString &CppElement::helpMark() const
-{ return m_helpMark; }
-
-void CppElement::setLink(const CPPEditorWidget::Link &link)
-{ m_link = link; }
-
-const CPPEditorWidget::Link &CppElement::link() const
-{ return m_link; }
-
-void CppElement::setTooltip(const QString &tooltip)
-{ m_tooltip = tooltip; }
-
-const QString &CppElement::tooltip() const
-{ return m_tooltip; }
-
-
 // Unknown
-Unknown::Unknown(const QString &type) : CppElement(), m_type(type)
+Unknown::Unknown(const QString &type) : type(type)
 {
-    setTooltip(m_type);
+    tooltip = type;
 }
 
-Unknown::~Unknown()
-{}
-
-const QString &Unknown::type() const
-{ return m_type; }
 
 // CppInclude
-CppInclude::~CppInclude()
-{}
 
 CppInclude::CppInclude(const Document::Include &includeFile) :
-    CppElement(),
-    m_path(QDir::toNativeSeparators(includeFile.fileName())),
-    m_fileName(QFileInfo(includeFile.fileName()).fileName())
+    path(QDir::toNativeSeparators(includeFile.fileName())),
+    fileName(QFileInfo(includeFile.fileName()).fileName())
 {
-    setHelpCategory(TextEditor::HelpItem::Brief);
-    setHelpIdCandidates(QStringList(m_fileName));
-    setHelpMark(m_fileName);
-    setLink(CPPEditorWidget::Link(m_path));
-    setTooltip(m_path);
+    helpCategory = TextEditor::HelpItem::Brief;
+    helpIdCandidates = QStringList(fileName);
+    helpMark = fileName;
+    link = CPPEditorWidget::Link(path);
+    tooltip = path;
 }
-
-const QString &CppInclude::path() const
-{ return m_path; }
-
-const QString &CppInclude::fileName() const
-{ return m_fileName; }
 
 // CppMacro
-CppMacro::CppMacro(const Macro &macro) : CppElement()
+CppMacro::CppMacro(const Macro &macro)
 {
-    setHelpCategory(TextEditor::HelpItem::Macro);
+    helpCategory = TextEditor::HelpItem::Macro;
     const QString macroName = QLatin1String(macro.name());
-    setHelpIdCandidates(QStringList(macroName));
-    setHelpMark(macroName);
-    setLink(CPPEditorWidget::Link(macro.fileName(), macro.line()));
-    setTooltip(macro.toStringWithLineBreaks());
+    helpIdCandidates = QStringList(macroName);
+    helpMark = macroName;
+    link = CPPEditorWidget::Link(macro.fileName(), macro.line());
+    tooltip = macro.toStringWithLineBreaks();
 }
 
-CppMacro::~CppMacro()
-{}
-
 // CppDeclarableElement
-CppDeclarableElement::CppDeclarableElement()
-{}
 
 CppDeclarableElement::CppDeclarableElement(Symbol *declaration) : CppElement()
 {
-    m_icon = Icons().iconForSymbol(declaration);
+    icon = Icons().iconForSymbol(declaration);
 
     Overview overview;
     overview.showArgumentNames = true;
     overview.showReturnTypes = true;
-    m_name = overview.prettyName(declaration->name());
+    name = overview.prettyName(declaration->name());
     if (declaration->enclosingScope()->isClass() ||
         declaration->enclosingScope()->isNamespace() ||
         declaration->enclosingScope()->isEnum()) {
-        m_qualifiedName = overview.prettyName(LookupContext::fullyQualifiedName(declaration));
-        setHelpIdCandidates(stripName(m_qualifiedName));
+        qualifiedName = overview.prettyName(LookupContext::fullyQualifiedName(declaration));
+        helpIdCandidates = stripName(qualifiedName);
     } else {
-        m_qualifiedName = m_name;
-        setHelpIdCandidates(QStringList(m_name));
+        qualifiedName = name;
+        helpIdCandidates.append(name);
     }
 
-    setTooltip(overview.prettyType(declaration->type(), m_qualifiedName));
-    setLink(CPPEditorWidget::linkToSymbol(declaration));
-    setHelpMark(m_name);
+    tooltip = overview.prettyType(declaration->type(), qualifiedName);
+    link = CPPEditorWidget::linkToSymbol(declaration);
+    helpMark = name;
 }
-
-CppDeclarableElement::~CppDeclarableElement()
-{}
-
-void CppDeclarableElement::setName(const QString &name)
-{ m_name = name; }
-
-const QString &CppDeclarableElement::name() const
-{ return m_name; }
-
-void CppDeclarableElement::setQualifiedName(const QString &name)
-{ m_qualifiedName = name; }
-
-const QString &CppDeclarableElement::qualifiedName() const
-{ return m_qualifiedName; }
-
-void CppDeclarableElement::setType(const QString &type)
-{ m_type = type; }
-
-const QString &CppDeclarableElement::type() const
-{ return m_type; }
-
-void CppDeclarableElement::setIcon(const QIcon &icon)
-{ m_icon = icon; }
-
-const QIcon &CppDeclarableElement::icon() const
-{ return m_icon; }
 
 // CppNamespace
 CppNamespace::CppNamespace(Symbol *declaration) : CppDeclarableElement(declaration)
 {
-    setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
-    setTooltip(qualifiedName());
+    helpCategory = TextEditor::HelpItem::ClassOrNamespace;
+    tooltip = qualifiedName;
 }
-
-CppNamespace::~CppNamespace()
-{}
 
 // CppClass
-CppClass::CppClass()
-{}
-
 CppClass::CppClass(Symbol *declaration) : CppDeclarableElement(declaration)
 {
-    setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
-    setTooltip(qualifiedName());
+    helpCategory = TextEditor::HelpItem::ClassOrNamespace;
+    tooltip = qualifiedName;
 }
-
-CppClass::~CppClass()
-{}
 
 void CppClass::lookupBases(Symbol *declaration, const CPlusPlus::LookupContext &context)
 {
@@ -424,8 +335,8 @@ void CppClass::lookupBases(Symbol *declaration, const CPlusPlus::LookupContext &
                         !visited.contains(clazz)) {
                         CppClass baseCppClass(symbol);
                         CppClass *cppClass = current.second;
-                        cppClass->m_bases.append(baseCppClass);
-                        q.enqueue(qMakePair(clazz, &cppClass->m_bases.last()));
+                        cppClass->bases.append(baseCppClass);
+                        q.enqueue(qMakePair(clazz, &cppClass->bases.last()));
                     }
                 }
             }
@@ -447,22 +358,17 @@ void CppClass::lookupDerived(CPlusPlus::Symbol *declaration, const CPlusPlus::Sn
         CppClass *clazz = current.first;
         const TypeHierarchy &classHierarchy = current.second;
         foreach (const TypeHierarchy &derivedHierarchy, classHierarchy.hierarchy()) {
-            clazz->m_derived.append(CppClass(derivedHierarchy.symbol()));
-            q.enqueue(qMakePair(&clazz->m_derived.last(), derivedHierarchy));
+            clazz->derived.append(CppClass(derivedHierarchy.symbol()));
+            q.enqueue(qMakePair(&clazz->derived.last(), derivedHierarchy));
         }
     }
 }
 
-const QList<CppClass> &CppClass::bases() const
-{ return m_bases; }
-
-const QList<CppClass> &CppClass::derived() const
-{ return m_derived; }
-
 // CppFunction
-CppFunction::CppFunction(Symbol *declaration) : CppDeclarableElement(declaration)
+CppFunction::CppFunction(Symbol *declaration)
+    : CppDeclarableElement(declaration)
 {
-    setHelpCategory(TextEditor::HelpItem::Function);
+    helpCategory = TextEditor::HelpItem::Function;
 
     const FullySpecifiedType &type = declaration->type();
 
@@ -470,35 +376,26 @@ CppFunction::CppFunction(Symbol *declaration) : CppDeclarableElement(declaration
     // (with no argument names and no return). Help ids have no signature at all.
     Overview overview;
     overview.showDefaultArguments = false;
-    setHelpMark(overview.prettyType(type, name()));
+    helpMark = overview.prettyType(type, name);
 
     overview.showFunctionSignatures = false;
-    addHelpIdCandidate(overview.prettyName(declaration->name()));
+    helpIdCandidates.append(overview.prettyName(declaration->name()));
 }
-
-CppFunction::~CppFunction()
-{}
 
 // CppEnum
 CppEnum::CppEnum(Enum *declaration)
     : CppDeclarableElement(declaration)
 {
-    setHelpCategory(TextEditor::HelpItem::Enum);
-    setTooltip(qualifiedName());
+    helpCategory = TextEditor::HelpItem::Enum;
+    tooltip = qualifiedName;
 }
-
-CppEnum::~CppEnum()
-{}
 
 // CppTypedef
 CppTypedef::CppTypedef(Symbol *declaration) : CppDeclarableElement(declaration)
 {
-    setHelpCategory(TextEditor::HelpItem::Typedef);
-    setTooltip(Overview().prettyType(declaration->type(), qualifiedName()));
+    helpCategory = TextEditor::HelpItem::Typedef;
+    tooltip = Overview().prettyType(declaration->type(), qualifiedName);
 }
-
-CppTypedef::~CppTypedef()
-{}
 
 // CppVariable
 CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scope *scope) :
@@ -527,12 +424,12 @@ CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scop
                 const QString &name =
                     overview.prettyName(LookupContext::fullyQualifiedName(symbol));
                 if (!name.isEmpty()) {
-                    setTooltip(name);
-                    setHelpCategory(TextEditor::HelpItem::ClassOrNamespace);
+                    tooltip = name;
+                    helpCategory = TextEditor::HelpItem::ClassOrNamespace;
                     const QStringList &allNames = stripName(name);
                     if (!allNames.isEmpty()) {
-                        setHelpMark(allNames.last());
-                        setHelpIdCandidates(allNames);
+                        helpMark = allNames.last();
+                        helpIdCandidates = allNames;
                     }
                 }
             }
@@ -540,13 +437,10 @@ CppVariable::CppVariable(Symbol *declaration, const LookupContext &context, Scop
     }
 }
 
-CppVariable::~CppVariable()
-{}
-
 CppEnumerator::CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration)
     : CppDeclarableElement(declaration)
 {
-    setHelpCategory(TextEditor::HelpItem::Enum);
+    helpCategory = TextEditor::HelpItem::Enum;
 
     Overview overview;
 
@@ -554,19 +448,14 @@ CppEnumerator::CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration)
     const QString enumName = overview.prettyName(LookupContext::fullyQualifiedName(enumSymbol));
     const QString enumeratorName = overview.prettyName(declaration->name());
     QString enumeratorValue;
-    if (const StringLiteral *value = declaration->constantValue()) {
+    if (const StringLiteral *value = declaration->constantValue())
         enumeratorValue = QString::fromUtf8(value->chars(), value->size());
-    }
 
-    setHelpMark(overview.prettyName(enumSymbol->name()));
+    helpMark = overview.prettyName(enumSymbol->name());
 
-    QString tooltip = enumeratorName;
+    tooltip = enumeratorName;
     if (!enumName.isEmpty())
         tooltip.prepend(enumName + QLatin1Char(' '));
     if (!enumeratorValue.isEmpty())
         tooltip.append(QLatin1String(" = ") + enumeratorValue);
-    setTooltip(tooltip);
 }
-
-CppEnumerator::~CppEnumerator()
-{}

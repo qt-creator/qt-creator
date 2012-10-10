@@ -94,96 +94,60 @@ private:
 
 class CppElement
 {
-public:
-    virtual ~CppElement();
-
-    const TextEditor::HelpItem::Category &helpCategory() const;
-    const QStringList &helpIdCandidates() const;
-    const QString &helpMark() const;
-    const CPPEditorWidget::Link &link() const;
-    const QString &tooltip() const;
-
 protected:
     CppElement();
 
-    void setHelpCategory(const TextEditor::HelpItem::Category &category);
-    void setLink(const CPPEditorWidget::Link &link);
-    void setTooltip(const QString &tooltip);
-    void setHelpIdCandidates(const QStringList &candidates);
-    void addHelpIdCandidate(const QString &candidate);
-    void setHelpMark(const QString &mark);
+public:
+    virtual ~CppElement();
 
-private:
-    TextEditor::HelpItem::Category m_helpCategory;
-    QStringList m_helpIdCandidates;
-    QString m_helpMark;
-    CPPEditorWidget::Link m_link;
-    QString m_tooltip;
+    TextEditor::HelpItem::Category helpCategory;
+    QStringList helpIdCandidates;
+    QString helpMark;
+    CPPEditorWidget::Link link;
+    QString tooltip;
 };
 
 class Unknown : public CppElement
 {
 public:
     explicit Unknown(const QString &type);
-    virtual ~Unknown();
 
-    const QString &type() const;
-
-private:
-    QString m_type;
+public:
+    QString type;
 };
 
 class CppInclude : public CppElement
 {
 public:
     explicit CppInclude(const CPlusPlus::Document::Include &includeFile);
-    virtual ~CppInclude();
 
-    const QString &path() const;
-    const QString &fileName() const;
-
-private:
-    QString m_path;
-    QString m_fileName;
+public:
+    QString path;
+    QString fileName;
 };
 
 class CppMacro : public CppElement
 {
 public:
     explicit CppMacro(const CPlusPlus::Macro &macro);
-    virtual ~CppMacro();
 };
 
 class CppDeclarableElement : public CppElement
 {
 public:
-    CppDeclarableElement();
     explicit CppDeclarableElement(CPlusPlus::Symbol *declaration);
-    virtual ~CppDeclarableElement();
 
-    const QString &name() const;
-    const QString &qualifiedName() const;
-    const QString &type() const;
-    const QIcon &icon() const;
-
-protected:
-    void setName(const QString &name);
-    void setQualifiedName(const QString &name);
-    void setType(const QString &type);
-    void setIcon(const QIcon &icon);
-
-private:
-    QString m_name;
-    QString m_qualifiedName;
-    QString m_type;
-    QIcon m_icon;
+public:
+    QString name;
+    QString qualifiedName;
+    QString type;
+    QIcon icon;
 };
 
 class CppNamespace : public CppDeclarableElement
 {
 public:
     explicit CppNamespace(CPlusPlus::Symbol *declaration);
-    virtual ~CppNamespace();
 };
 
 class CppClass : public CppDeclarableElement
@@ -191,38 +155,31 @@ class CppClass : public CppDeclarableElement
 public:
     CppClass();
     explicit CppClass(CPlusPlus::Symbol *declaration);
-    virtual ~CppClass();
 
     void lookupBases(CPlusPlus::Symbol *declaration, const CPlusPlus::LookupContext &context);
     void lookupDerived(CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot);
 
-    const QList<CppClass> &bases() const;
-    const QList<CppClass> &derived() const;
-
-private:
-    QList<CppClass> m_bases;
-    QList<CppClass> m_derived;
+public:
+    QList<CppClass> bases;
+    QList<CppClass> derived;
 };
 
 class CppFunction : public CppDeclarableElement
 {
 public:
     explicit CppFunction(CPlusPlus::Symbol *declaration);
-    virtual ~CppFunction();
 };
 
 class CppEnum : public CppDeclarableElement
 {
 public:
     explicit CppEnum(CPlusPlus::Enum *declaration);
-    virtual ~CppEnum();
 };
 
 class CppTypedef : public CppDeclarableElement
 {
 public:
     explicit CppTypedef(CPlusPlus::Symbol *declaration);
-    virtual ~CppTypedef();
 };
 
 class CppVariable : public CppDeclarableElement
@@ -231,14 +188,12 @@ public:
     CppVariable(CPlusPlus::Symbol *declaration,
                 const CPlusPlus::LookupContext &context,
                 CPlusPlus::Scope *scope);
-    virtual ~CppVariable();
 };
 
 class CppEnumerator : public CppDeclarableElement
 {
 public:
     explicit CppEnumerator(CPlusPlus::EnumeratorDeclaration *declaration);
-    virtual ~CppEnumerator();
 };
 
 } // namespace Internal
