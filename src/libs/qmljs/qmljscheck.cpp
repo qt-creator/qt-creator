@@ -618,8 +618,7 @@ bool Check::visit(UiObjectInitializer *)
             m_idStack.push(StringSet());
     }
 
-    if (!typeName.isEmpty() && typeName.at(0).isUpper())
-        m_typeStack.push(typeName);
+    m_typeStack.push(typeName);
 
     if (m_idStack.isEmpty())
         m_idStack.push(StringSet());
