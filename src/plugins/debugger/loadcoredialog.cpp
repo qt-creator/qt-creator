@@ -123,6 +123,7 @@ SelectRemoteFileDialog::SelectRemoteFileDialog(QWidget *parent)
     m_fileSystemView = new QTreeView(this);
     m_fileSystemView->setModel(&m_model);
     m_fileSystemView->setSortingEnabled(true);
+    m_fileSystemView->sortByColumn(1, Qt::AscendingOrder);
     m_fileSystemView->setUniformRowHeights(true);
     m_fileSystemView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_fileSystemView->setSelectionBehavior(QAbstractItemView::SelectRows);
