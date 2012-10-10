@@ -30,6 +30,8 @@
 #ifndef CPPTOOLS_H
 #define CPPTOOLS_H
 
+#include "cpptools_global.h"
+
 #include <extensionsystem/iplugin.h>
 #include <projectexplorer/projectexplorer.h>
 #include <find/ifindfilter.h>
@@ -70,7 +72,6 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
     CppModelManager *cppModelManager() { return m_modelManager; }
-    static QString correspondingHeaderOrSource(const QString &fileName);
 
 private slots:
     void switchHeaderSource();
@@ -109,12 +110,9 @@ private:
 #endif
 
 private:
-    QString correspondingHeaderOrSourceI(const QString &fileName) const;
-
     CppModelManager *m_modelManager;
     QSharedPointer<CppFileSettings> m_fileSettings;
     CppToolsSettings *m_settings;
-    mutable QHash<QString, QString> m_headerSourceMapping;
 };
 
 } // namespace Internal

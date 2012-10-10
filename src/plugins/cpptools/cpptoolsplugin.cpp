@@ -39,6 +39,7 @@
 #include "cpplocatorfilter.h"
 #include "symbolsfindfilter.h"
 #include "cpptoolssettings.h"
+#include "cpptoolsreuse.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -74,12 +75,15 @@
 
 #include <sstream>
 
-using namespace CppTools::Internal;
 using namespace CPlusPlus;
+
+namespace CppTools {
+namespace Internal {
 
 enum { debug = 0 };
 
 static CppToolsPlugin *m_instance = 0;
+static QHash<QString, QString> m_headerSourceMapping;
 
 CppToolsPlugin::CppToolsPlugin() :
     m_modelManager(0),
@@ -250,16 +254,23 @@ static int commonStringLength(const QString &s1, const QString &s2)
     return length;
 }
 
-QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) const
+} // namespace Internal
+
+QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
 {
-    const QFileInfo fi(fileName);
-    if (m_headerSourceMapping.contains(fi.absoluteFilePath()))
-        return m_headerSourceMapping.value(fi.absoluteFilePath());
+    using namespace Internal;
 
     const Core::MimeDatabase *mimeDatase = Core::ICore::mimeDatabase();
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    const QFileInfo fi(fileName);
+    if (m_headerSourceMapping.contains(fi.absoluteFilePath())) {
+        if (wasHeader)
+            *wasHeader = fileType(mimeDatase, fi) == HeaderFile;
+        return m_headerSourceMapping.value(fi.absoluteFilePath());
+    }
 
-    const FileType type = fileType(mimeDatase, fi);
+    FileType type = fileType(mimeDatase, fi);
+    if (wasHeader)
+        *wasHeader = type == HeaderFile;
 
     if (debug)
         qDebug() << Q_FUNC_INFO << fileName <<  type;
@@ -298,6 +309,7 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
     }
 
     // Find files in the project
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
     if (project) {
         QString bestFileName;
         int compareValue = 0;
@@ -324,12 +336,6 @@ QString CppToolsPlugin::correspondingHeaderOrSourceI(const QString &fileName) co
     return QString();
 }
 
-QString CppToolsPlugin::correspondingHeaderOrSource(const QString &fileName)
-{
-    const QString rc = m_instance->correspondingHeaderOrSourceI(fileName);
-    if (debug)
-        qDebug() << Q_FUNC_INFO << fileName << rc;
-    return rc;
-}
+} // namespace CppTools
 
-Q_EXPORT_PLUGIN(CppToolsPlugin)
+Q_EXPORT_PLUGIN(CppTools::Internal::CppToolsPlugin)

@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
+#include "cpptoolsreuse.h"
 #include "cpprefactoringchanges.h"
 #include "insertionpointlocator.h"
 #include "symbolfinder.h"
@@ -578,7 +578,7 @@ QList<InsertionLocation> InsertionPointLocator::methodDefinition(
                                                    declaration->fileNameLength());
     QString target = declFileName;
     if (!isSourceFile(declFileName)) {
-        QString candidate = Internal::CppToolsPlugin::correspondingHeaderOrSource(declFileName);
+        QString candidate = CppTools::correspondingHeaderOrSource(declFileName);
         if (!candidate.isEmpty())
             target = candidate;
     }
