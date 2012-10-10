@@ -42,11 +42,11 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class Kit;
-class KitConfigWidget;
 class KitFactory;
 class KitManager;
 
 namespace Internal {
+class KitManagerConfigWidget;
 
 class KitNode;
 
@@ -77,7 +77,7 @@ public:
     void setDefaultKit(const QModelIndex &index);
     bool isDefaultKit(const QModelIndex &index);
 
-    KitConfigWidget *widget(const QModelIndex &);
+    ProjectExplorer::Internal::KitManagerConfigWidget *widget(const QModelIndex &);
 
     bool isDirty() const;
     bool isDirty(Kit *k) const;
@@ -85,7 +85,7 @@ public:
     void apply();
 
     void markForRemoval(Kit *k);
-    void markForAddition(Kit *k);
+    Kit *markForAddition(Kit *baseKit);
 
 signals:
     void kitStateChanged();
@@ -93,21 +93,19 @@ signals:
 private slots:
     void addKit(ProjectExplorer::Kit *k);
     void removeKit(ProjectExplorer::Kit *k);
-    void updateKit(ProjectExplorer::Kit *k);
     void changeDefaultKit();
     void setDirty();
 
 private:
     QModelIndex index(KitNode *, int column = 0) const;
-    KitNode *find(Kit *k) const;
-    KitNode *createNode(KitNode *parent, Kit *k, bool changed);
+    KitNode *findWorkingCopy(Kit *k) const;
+    KitNode *createNode(KitNode *parent, Kit *k);
     void setDefaultNode(KitNode *node);
 
     KitNode *m_root;
     KitNode *m_autoRoot;
     KitNode *m_manualRoot;
 
-    QList<KitNode *> m_toAddList;
     QList<KitNode *> m_toRemoveList;
 
     QBoxLayout *m_parentLayout;

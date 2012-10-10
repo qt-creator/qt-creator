@@ -52,9 +52,10 @@ public:
 
     void makeReadOnly();
 
-    void apply();
-    void discard();
-    bool isDirty() const;
+    void refresh();
+
+private slots:
+    void mkspecWasChanged(const QString &text);
 
 private:
     int findQtVersion(const int id) const;

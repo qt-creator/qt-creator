@@ -52,10 +52,7 @@ public:
 
     virtual QString displayName() const = 0;
     virtual void makeReadOnly() = 0;
-
-    virtual void apply() = 0;
-    virtual void discard() = 0;
-    virtual bool isDirty() const = 0;
+    virtual void refresh() = 0;
 
     virtual QWidget *buttonWidget() const { return 0; }
 

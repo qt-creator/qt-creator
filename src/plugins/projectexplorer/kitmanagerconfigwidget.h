@@ -44,23 +44,40 @@ class Kit;
 
 namespace Internal {
 
-class KitManagerConfigWidget : public ProjectExplorer::KitConfigWidget
+class KitManagerConfigWidget : public QWidget
 {
     Q_OBJECT
 
 public:
     explicit KitManagerConfigWidget(Kit *k, QWidget *parent = 0);
+    ~KitManagerConfigWidget();
 
     QString displayName() const;
 
     void apply();
     void discard();
     bool isDirty() const;
+    bool isValid() const;
+    QString validityMessage() const;
     void addConfigWidget(ProjectExplorer::KitConfigWidget *widget);
     void makeReadOnly();
 
+    Kit *workingCopy() const;
+    bool configures(ProjectExplorer::Kit *k) const;
+    void setIsDefaultKit(bool d);
+    bool isDefaultKit() const;
+    void removeKit();
+
+public slots:
+
+signals:
+    void dirty();
+
 private slots:
     void setIcon();
+    void setDisplayName();
+    void workingCopyWasUpdated(ProjectExplorer::Kit *k);
+    void kitWasUpdated(ProjectExplorer::Kit *k);
 
 private:
     enum LayoutColumns {
@@ -80,7 +97,9 @@ private:
     QLineEdit *m_nameEdit;
     QList<KitConfigWidget *> m_widgets;
     Kit *m_kit;
-    QString m_iconPath;
+    Kit *m_modifiedKit;
+    bool m_isDefaultKit;
+    bool m_fixingKit;
 };
 
 } // namespace Internal
