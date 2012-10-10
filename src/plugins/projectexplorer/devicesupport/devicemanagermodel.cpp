@@ -44,6 +44,7 @@ public:
     const DeviceManager *deviceManager;
     QList<IDevice::ConstPtr> devices;
     QList<Core::Id> filter;
+    Core::Id typeToKeep;
 };
 } // namespace Internal
 
@@ -66,6 +67,14 @@ DeviceManagerModel::~DeviceManagerModel()
 void DeviceManagerModel::setFilter(const QList<Core::Id> filter)
 {
     d->filter = filter;
+    handleDeviceListChanged();
+}
+
+void DeviceManagerModel::setTypeFilter(const Core::Id &type)
+{
+    if (d->typeToKeep == type)
+        return;
+    d->typeToKeep = type;
     handleDeviceListChanged();
 }
 
@@ -93,7 +102,6 @@ int DeviceManagerModel::indexOf(IDevice::ConstPtr dev) const
 {
     if (dev.isNull())
         return -1;
-
     for (int i = 0; i < d->devices.count(); ++i) {
         IDevice::ConstPtr current = d->devices.at(i);
         if (current->id() == dev->id())
@@ -104,8 +112,14 @@ int DeviceManagerModel::indexOf(IDevice::ConstPtr dev) const
 
 void DeviceManagerModel::handleDeviceAdded(Core::Id id)
 {
+    if (d->filter.contains(id))
+        return;
+    IDevice::ConstPtr dev = d->deviceManager->find(id);
+    if (!matchesTypeFilter(dev))
+        return;
+
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    d->devices << d->deviceManager->find(id);
+    d->devices << dev;
     endInsertRows();
 }
 
@@ -136,6 +150,8 @@ void DeviceManagerModel::handleDeviceListChanged()
         IDevice::ConstPtr dev = d->deviceManager->deviceAt(i);
         if (d->filter.contains(dev->id()))
             continue;
+        if (!matchesTypeFilter(dev))
+            continue;
         d->devices << dev;
     }
     endResetModel();
@@ -164,6 +180,11 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
     return name;
 }
 
+bool DeviceManagerModel::matchesTypeFilter(const IDevice::ConstPtr &dev) const
+{
+    return !d->typeToKeep.isValid() || dev->type() == d->typeToKeep;
+}
+
 int DeviceManagerModel::indexForId(Core::Id id) const
 {
     for (int i = 0; i < d->devices.count(); ++i) {
@@ -171,7 +192,6 @@ int DeviceManagerModel::indexForId(Core::Id id) const
             return i;
     }
 
-    qWarning("%s: Invalid id %s.", Q_FUNC_INFO, qPrintable(id.toString()));
     return -1;
 }
 
