@@ -913,7 +913,7 @@ static inline QString fixComponentPathForIncompatibleQt(const QString &component
 
 QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlContext *context)
 {
-    QQmlComponent component(context->engine(), QUrl::fromLocalFile(fixComponentPathForIncompatibleQt(componentPath)));
+    QQmlComponent component(context->engine(), fixComponentPathForIncompatibleQt(componentPath));
     QObject *object = component.beginCreate(context);
 
     tweakObjects(object);
