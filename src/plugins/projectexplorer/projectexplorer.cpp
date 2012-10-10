@@ -2862,6 +2862,8 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &to)
                                  .arg(orgFilePath)
                                  .arg(newFilePath)
                                  .arg(projectNode->displayName()));
+        } else {
+            setCurrent(d->m_session->projectForFile(newFilePath), newFilePath, 0);
         }
     }
 }
