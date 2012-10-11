@@ -1,7 +1,7 @@
 !isEmpty(QTCREATOR_PRI_INCLUDED):error("qtcreator.pri already included")
 QTCREATOR_PRI_INCLUDED = 1
 
-QTCREATOR_VERSION = 2.5.83
+QTCREATOR_VERSION = 2.5.84
 
 isEqual(QT_MAJOR_VERSION, 5) {
 
