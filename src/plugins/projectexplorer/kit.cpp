@@ -35,6 +35,8 @@
 #include "project.h"
 #include "toolchainmanager.h"
 
+#include <utils/qtcassert.h>
+
 #include <QApplication>
 #include <QIcon>
 #include <QStyle>
@@ -81,7 +83,9 @@ public:
     KitPrivate(Core::Id id) :
         m_id(id),
         m_autodetected(false),
-        m_isValid(true)
+        m_isValid(true),
+        m_nestedBlockingLevel(0),
+        m_mustNotify(false)
     {
         if (!id.isValid())
             m_id = Core::Id(QUuid::createUuid().toString().toLatin1().constData());
@@ -93,6 +97,8 @@ public:
     bool m_isValid;
     QIcon m_icon;
     QString m_iconPath;
+    int m_nestedBlockingLevel;
+    bool m_mustNotify;
 
     QHash<Core::Id, QVariant> m_data;
 };
@@ -107,8 +113,9 @@ Kit::Kit(Core::Id id) :
     d(new Internal::KitPrivate(id))
 {
     KitManager *stm = KitManager::instance();
+    KitGuard g(this);
     foreach (KitInformation *sti, stm->kitInformation())
-        d->m_data.insert(sti->dataId(), sti->defaultValue(this));
+        setValue(sti->dataId(), sti->defaultValue(this));
 
     setDisplayName(QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed"));
     setIconPath(QLatin1String(":///DESKTOP///"));
@@ -117,6 +124,21 @@ Kit::Kit(Core::Id id) :
 Kit::~Kit()
 {
     delete d;
+}
+
+void Kit::blockNotification()
+{
+    ++d->m_nestedBlockingLevel;
+}
+
+void Kit::unblockNotification()
+{
+    --d->m_nestedBlockingLevel;
+    if (d->m_nestedBlockingLevel > 0)
+        return;
+    if (d->m_mustNotify)
+        kitUpdated();
+    d->m_mustNotify = false;
 }
 
 Kit *Kit::clone(bool keepName) const
@@ -137,13 +159,12 @@ Kit *Kit::clone(bool keepName) const
 
 void Kit::copyFrom(const Kit *k)
 {
+    KitGuard g(this);
     d->m_data = k->d->m_data;
     d->m_iconPath = k->d->m_iconPath;
     d->m_icon = k->d->m_icon;
     d->m_autodetected = k->d->m_autodetected;
-    d->m_isValid = k->d->m_isValid;
     d->m_displayName = k->d->m_displayName;
-    kitUpdated();
 }
 
 bool Kit::isValid() const
@@ -375,17 +396,18 @@ QString Kit::toHtml()
 
 bool Kit::fromMap(const QVariantMap &data)
 {
+    KitGuard g(this);
     const QString id = data.value(QLatin1String(ID_KEY)).toString();
     if (id.isEmpty())
         return false;
     d->m_id = Core::Id(id);
-    d->m_displayName = data.value(QLatin1String(DISPLAYNAME_KEY)).toString();
     d->m_autodetected = data.value(QLatin1String(AUTODETECTED_KEY)).toBool();
+    setDisplayName(data.value(QLatin1String(DISPLAYNAME_KEY)).toString());
     setIconPath(data.value(QLatin1String(ICON_KEY)).toString());
 
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
     foreach (const QString &key, extra.keys())
-        d->m_data.insert(Core::Id(key), extra.value(key));
+        setValue(Core::Id(key), extra.value(key));
 
     return true;
 }
@@ -397,6 +419,10 @@ void Kit::setAutoDetected(bool detected)
 
 void Kit::kitUpdated()
 {
+    if (d->m_nestedBlockingLevel > 0) {
+        d->m_mustNotify = true;
+        return;
+    }
     validate();
     KitManager::instance()->notifyAboutUpdate(this);
 }

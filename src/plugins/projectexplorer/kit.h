@@ -58,6 +58,11 @@ public:
     Kit(Core::Id id = Core::Id());
     ~Kit();
 
+    // Do not trigger evaluations
+    void blockNotification();
+    // Trigger evaluations again.
+    void unblockNotification();
+
     bool isValid() const;
     QList<Task> validate() const;
 
@@ -102,6 +107,17 @@ private:
     Internal::KitPrivate *d;
 
     friend class KitManager;
+};
+
+class KitGuard
+{
+public:
+    KitGuard(Kit *k) : m_kit(k)
+    { k->blockNotification(); }
+
+    ~KitGuard() { m_kit->unblockNotification(); }
+private:
+    Kit *m_kit;
 };
 
 } // namespace ProjectExplorer
