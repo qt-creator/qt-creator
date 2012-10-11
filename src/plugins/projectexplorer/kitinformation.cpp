@@ -265,12 +265,8 @@ QVariant DeviceTypeKitInformation::defaultValue(Kit *k) const
 
 QList<Task> DeviceTypeKitInformation::validate(const Kit *k) const
 {
-    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
-    QList<Task> result;
-    if (!dev.isNull() && dev->type() != DeviceTypeKitInformation::deviceTypeId(k))
-        result.append(Task(Task::Error, tr("Device does not match device type."),
-                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
-    return result;
+    Q_UNUSED(k);
+    return QList<Task>();
 }
 
 KitConfigWidget *DeviceTypeKitInformation::createConfigWidget(Kit *k) const
@@ -336,21 +332,28 @@ unsigned int DeviceKitInformation::priority() const
 
 QVariant DeviceKitInformation::defaultValue(Kit *k) const
 {
-    Q_UNUSED(k);
-    return QByteArray(Constants::DESKTOP_DEVICE_ID);
+    Core::Id type = DeviceTypeKitInformation::deviceTypeId(k);
+    IDevice::ConstPtr dev = DeviceManager::instance()->defaultDevice(type);
+    return dev.isNull() ? QString() : dev->id().toString();
 }
 
 QList<Task> DeviceKitInformation::validate(const Kit *k) const
 {
-    Q_UNUSED(k);
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     QList<Task> result;
+    if (!dev.isNull() && dev->type() != DeviceTypeKitInformation::deviceTypeId(k))
+        result.append(Task(Task::Error, tr("Device does not match device type."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    if (dev.isNull())
+        result.append(Task(Task::Warning, tr("No Device set."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
     return result;
 }
 
 void DeviceKitInformation::fix(Kit *k)
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
-    if (!dev.isNull())
+    if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
         return;
 
     const QString id = defaultValue(k).toString();
