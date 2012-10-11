@@ -301,12 +301,6 @@ QList<ProjectExplorer::Task> BaseQtVersion::validateKit(const ProjectExplorer::K
     Q_ASSERT(version == this);
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
-    if (!tc)
-        result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                        ProjectExplorer::ToolChainKitInformation::msgNoToolChainInTarget(),
-                                        Utils::FileName(), -1,
-                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
-
 
     const QList<ProjectExplorer::Abi> qtAbis = version->qtAbis();
     if (tc && !qtAbis.contains(tc->targetAbi())) {
