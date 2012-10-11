@@ -134,6 +134,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     connect(d->m_goForwardAction, SIGNAL(triggered()), this, SIGNAL(goForwardClicked()));
 
     d->m_editorList->setProperty("hideicon", true);
+    d->m_editorList->setProperty("notelideasterisk", true);
     d->m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     d->m_editorList->setMinimumContentsLength(20);
     d->m_editorList->setModel(d->m_editorsListModel);

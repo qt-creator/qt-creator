@@ -718,7 +718,20 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                     editRect.adjust(0, 0, -13, 0);
                 }
 
-                QString text = option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, editRect.width());
+                QLatin1Char asterisk('*');
+                int elideWidth = editRect.width();
+
+                bool notElideAsterisk = widget && widget->property("notelideasterisk").toBool()
+                                        && cb->currentText.endsWith(asterisk)
+                                        && option->fontMetrics.width(cb->currentText) > elideWidth;
+
+                QString text;
+                if (notElideAsterisk) {
+                    elideWidth -= option->fontMetrics.width(asterisk);
+                    text = asterisk;
+                }
+                text.prepend(option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, elideWidth));
+
                 if ((option->state & State_Enabled)) {
                     painter->setPen(QColor(0, 0, 0, 70));
                     painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
