@@ -11,7 +11,7 @@
     <Watermark>watermark.png</Watermark>
     <UninstallerName>QtCreatorUninstaller</UninstallerName>
     <!-- @homeDir@ and @rootDir@ are some of the supported vars -->
-    <TargetDir>@rootDir@/QtCreator/qtcreator-{version}</TargetDir>
+    <TargetDir>@rootDir@/Qt/qtcreator-{version}</TargetDir>
 
     <Pages>
       <Page name="LicenseAgreementPage">
