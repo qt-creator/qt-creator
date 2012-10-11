@@ -519,7 +519,7 @@ Symbol *Clone::instantiate(Template *templ, const FullySpecifiedType *const args
 FullySpecifiedType Subst::apply(const Name *name) const
 {
     if (name) {
-        std::map<const Name *, FullySpecifiedType>::const_iterator it = _map.find(name);
+        std::map<const Name *, FullySpecifiedType, Name::Compare>::const_iterator it = _map.find(name);
         if (it != _map.end())
             return it->second;
         else if (_previous)
