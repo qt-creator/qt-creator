@@ -85,6 +85,7 @@ public:
 
     QString toHtml();
     Kit *clone(bool keepName = false) const;
+    void copyFrom(const Kit *k);
 
 private:
     // Unimplemented.

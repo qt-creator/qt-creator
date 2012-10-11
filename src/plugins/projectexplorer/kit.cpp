@@ -135,6 +135,17 @@ Kit *Kit::clone(bool keepName) const
     return k;
 }
 
+void Kit::copyFrom(const Kit *k)
+{
+    d->m_data = k->d->m_data;
+    d->m_iconPath = k->d->m_iconPath;
+    d->m_icon = k->d->m_icon;
+    d->m_autodetected = k->d->m_autodetected;
+    d->m_isValid = k->d->m_isValid;
+    d->m_displayName = k->d->m_displayName;
+    kitUpdated();
+}
+
 bool Kit::isValid() const
 {
     return d->m_id.isValid() && d->m_isValid;
