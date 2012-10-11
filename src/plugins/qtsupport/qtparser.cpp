@@ -41,7 +41,7 @@ using ProjectExplorer::Task;
 #define FILE_PATTERN "^(([A-Za-z]:)?[^:]+\\.[^:]+)"
 
 QtParser::QtParser() :
-    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+)\\)?:\\s(Warning|Error):\\s(.+)$"))
+    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+)\\)?:\\s([Ww]arning|[Ee]rror):\\s(.+)$"))
 {
     setObjectName(QLatin1String("QtParser"));
     m_mocRegExp.setMinimal(true);
@@ -60,7 +60,7 @@ void QtParser::stdError(const QString &line)
                   Utils::FileName::fromUserInput(m_mocRegExp.cap(1)) /* filename */,
                   lineno,
                   Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE));
-        if (m_mocRegExp.cap(4) == QLatin1String("Warning"))
+        if (m_mocRegExp.cap(4).compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
             task.type = Task::Warning;
         emit addTask(task);
         return;
@@ -115,6 +115,15 @@ void QtSupportPlugin::testQtOutputParser_data()
                                    "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
                                    "../../scriptbug/main.cpp:22: instantiated from here\n")
             << QList<ProjectExplorer::Task>()
+            << QString();
+    QTest::newRow("qdoc warning")
+            << QString::fromLatin1("/home/user/dev/qt5/qtscript/src/script/api/qscriptengine.cpp:295: warning: Can't create link to 'Object Trees & Ownership'")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
+                                                       QLatin1String("Can't create link to 'Object Trees & Ownership'"),
+                                                       Utils::FileName::fromUserInput(QLatin1String("/home/user/dev/qt5/qtscript/src/script/api/qscriptengine.cpp")), 295,
+                                                       Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
     QTest::newRow("moc warning")
             << QString::fromLatin1("..\\untitled\\errorfile.h:0: Warning: No relevant classes found. No output generated.")
