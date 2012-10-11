@@ -189,6 +189,13 @@ QList<Task> Kit::validate() const
     return result;
 }
 
+void Kit::fix()
+{
+    KitGuard g(this);
+    foreach (KitInformation *i, KitManager::instance()->kitInformation())
+        i->fix(this);
+}
+
 QString Kit::displayName() const
 {
     return d->m_displayName;

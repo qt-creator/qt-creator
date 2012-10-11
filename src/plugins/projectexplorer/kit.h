@@ -65,6 +65,7 @@ public:
 
     bool isValid() const;
     QList<Task> validate() const;
+    void fix();
 
     QString displayName() const;
     void setDisplayName(const QString &name);
