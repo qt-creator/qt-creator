@@ -119,12 +119,7 @@ private:
     ClassOrNamespace *nestedType(const Name *name, ClassOrNamespace *origin);
 
 private:
-    struct CompareName: std::binary_function<const Name *, const Name *, bool> {
-        bool operator()(const Name *name, const Name *other) const;
-    };
-
-private:
-    typedef std::map<const Name *, ClassOrNamespace *, CompareName> Table;
+    typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
     CreateBindings *_factory;
     ClassOrNamespace *_parent;
     QList<Symbol *> _symbols;
@@ -162,6 +157,11 @@ public:
     /// Returns the Control that must be used to create temporary symbols.
     /// \internal
     QSharedPointer<Control> control() const;
+
+    bool expandTemplates() const
+    { return _expandTemplates; }
+    void setExpandTemplates(bool expandTemplates)
+    { _expandTemplates = expandTemplates; }
 
     /// Searches in \a scope for symbols with the given \a name.
     /// Store the result in \a results.
@@ -223,6 +223,7 @@ private:
     QList<ClassOrNamespace *> _entities;
     ClassOrNamespace *_globalNamespace;
     ClassOrNamespace *_currentClassOrNamespace;
+    bool _expandTemplates;
 };
 
 class CPLUSPLUS_EXPORT LookupContext
@@ -265,6 +266,9 @@ public:
 
     static const Name *minimalName(Symbol *symbol, ClassOrNamespace *target, Control *control);
 
+    void setExpandTemplates(bool expandTemplates)
+    { m_expandTemplates = expandTemplates; }
+
 private:
     // The current expression.
     Document::Ptr _expressionDocument;
@@ -279,6 +283,8 @@ private:
     mutable QSharedPointer<CreateBindings> _bindings;
 
     QSharedPointer<Control> _control;
+
+    bool m_expandTemplates;
 };
 
 bool CPLUSPLUS_EXPORT compareName(const Name *name, const Name *other);

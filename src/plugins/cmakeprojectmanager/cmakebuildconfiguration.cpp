@@ -51,6 +51,7 @@ using namespace Internal;
 
 namespace {
 const char BUILD_DIRECTORY_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.BuildDirectory";
+const char USE_NINJA_KEY[] = "CMakeProjectManager.CMakeBuildConfiguration.UseNinja";
 } // namespace
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(ProjectExplorer::Target *parent) :
@@ -74,6 +75,7 @@ QVariantMap CMakeBuildConfiguration::toMap() const
 {
     QVariantMap map(ProjectExplorer::BuildConfiguration::toMap());
     map.insert(QLatin1String(BUILD_DIRECTORY_KEY), m_buildDirectory);
+    map.insert(QLatin1String(USE_NINJA_KEY), m_useNinja);
     return map;
 }
 
@@ -83,6 +85,7 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
         return false;
 
     m_buildDirectory = map.value(QLatin1String(BUILD_DIRECTORY_KEY)).toString();
+    m_useNinja = map.value(QLatin1String(USE_NINJA_KEY), false).toBool();
 
     return true;
 }

@@ -193,7 +193,7 @@ private:
     bool ancestorChanged(const QSet<QByteArray> &parentINames, WatchItem *item) const;
     void insertBulkData(const QList<WatchData> &data);
     QString displayForAutoTest(const QByteArray &iname) const;
-    void reinitialize();
+    void reinitialize(bool includeInspectData = false);
     void destroyItem(WatchItem *item); // With model notification.
     void destroyChildren(WatchItem *item); // With model notification.
     void destroyHelper(const WatchItems &items); // Without model notification.
@@ -315,7 +315,7 @@ WatchItem *WatchModel::createItem(const QByteArray &iname, const QString &name, 
     return item;
 }
 
-void WatchModel::reinitialize()
+void WatchModel::reinitialize(bool includeInspectData)
 {
     CHECK(checkTree());
     //MODEL_DEBUG("REMOVING " << n << " CHILDREN OF " << m_root->iname);
@@ -324,8 +324,10 @@ void WatchModel::reinitialize()
     destroyChildren(m_watchRoot);
     destroyChildren(m_returnRoot);
     destroyChildren(m_tooltipRoot);
-    destroyChildren(m_inspectorRoot);
-    QTC_CHECK(m_cache.size() == 6);
+    if (includeInspectData) {
+        destroyChildren(m_inspectorRoot);
+        QTC_CHECK(m_cache.size() == 6);
+    }
     CHECK(checkTree());
 }
 
@@ -434,7 +436,7 @@ void WatchModel::reinsertAllData()
 {
     QList<WatchData> list;
     reinsertAllDataHelper(m_root, &list);
-    reinitialize();
+    reinitialize(true);
     insertBulkData(list);
 }
 
@@ -1516,9 +1518,9 @@ void WatchHandler::insertData(const QList<WatchData> &list)
     updateWatchersWindow();
 }
 
-void WatchHandler::removeAllData()
+void WatchHandler::removeAllData(bool includeInspectData)
 {
-    m_model->reinitialize();
+    m_model->reinitialize(includeInspectData);
     updateWatchersWindow();
 }
 

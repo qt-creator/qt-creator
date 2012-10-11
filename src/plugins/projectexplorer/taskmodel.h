@@ -164,7 +164,7 @@ public:
     QModelIndex mapFromSource(const QModelIndex &idx) const;
 private slots:
     void handleNewRows(const QModelIndex &index, int first, int last);
-    void handleRemovedRows(const QModelIndex &index, int first, int last);
+    void handleRowsAboutToBeRemoved(const QModelIndex &index, int first, int last);
     void handleDataChanged(QModelIndex,QModelIndex bottom);
     void handleReset();
 

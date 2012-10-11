@@ -137,7 +137,6 @@ private:
     QStack<QmlDebug::ObjectReference> m_objectStack;
     QmlDebug::EngineReference m_engine;
     QHash<int, QByteArray> m_debugIdToIname;
-    QHash<int, QList<int> > m_debugIdChildIds; // This is for 4.x
     QHash<int, QmlDebug::FileReference> m_debugIdLocations;
     DebugIdHash m_debugIdHash;
 

@@ -50,6 +50,7 @@ QnxAbstractQtVersion::QnxAbstractQtVersion(QnxArchitecture arch, const Utils::Fi
     : QtSupport::BaseQtVersion(path, isAutoDetected, autoDetectionSource)
     , m_arch(arch)
 {
+    setDefaultSdkPath();
 }
 
 QnxArchitecture QnxAbstractQtVersion::architecture() const
@@ -167,4 +168,25 @@ QString QnxAbstractQtVersion::invalidReason() const
     if (sdkPath().isEmpty())
         return tr("No SDK path set");
     return QtSupport::BaseQtVersion::invalidReason();
+}
+
+void QnxAbstractQtVersion::setDefaultSdkPath()
+{
+    QHash<QString, QString> info = versionInfo();
+    QString qtHostPrefix;
+    if (info.contains(QLatin1String("QT_HOST_PREFIX")))
+        qtHostPrefix = info.value(QLatin1String("QT_HOST_PREFIX"));
+    else
+        return;
+
+    QString envFile;
+#if defined Q_OS_WIN
+    envFile = qtHostPrefix + QLatin1String("/bbndk-env.bat");
+#elif defined Q_OS_UNIX
+    envFile = qtHostPrefix + QLatin1String("/bbndk-env.sh");
+#endif
+
+    if (QFileInfo(envFile).exists())
+        setSdkPath(qtHostPrefix);
+
 }

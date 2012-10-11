@@ -102,7 +102,9 @@ public:
         , m_completionOperator(T_EOF_SYMBOL)
         , m_replaceDotForArrow(false)
         , m_typeOfExpression(new TypeOfExpression)
-    {}
+    {
+        m_typeOfExpression->setExpandTemplates(true);
+    }
 
     virtual bool isSortable(const QString &prefix) const;
     virtual IAssistProposalItem *proposalItem(int index) const;
@@ -831,7 +833,8 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
         else if (tk.is(T_COMMENT) || tk.is(T_CPP_COMMENT) ||
                  (tk.isLiteral() && (*kind != T_STRING_LITERAL
                                      && *kind != T_ANGLE_STRING_LITERAL
-                                     && *kind != T_SLASH))) {
+                                     && *kind != T_SLASH
+                                     && *kind != T_DOT))) {
             *kind = T_EOF_SYMBOL;
             start = pos;
         }
@@ -858,7 +861,8 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
             }
         }
         // Check for include preprocessor directive
-        else if (*kind == T_STRING_LITERAL || *kind == T_ANGLE_STRING_LITERAL || *kind == T_SLASH) {
+        else if (*kind == T_STRING_LITERAL || *kind == T_ANGLE_STRING_LITERAL|| *kind == T_SLASH
+                 || (*kind == T_DOT && (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)))) {
             bool include = false;
             if (tokens.size() >= 3) {
                 if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
@@ -877,6 +881,14 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
             if (!include) {
                 *kind = T_EOF_SYMBOL;
                 start = pos;
+            } else {
+                if (*kind == T_DOT) {
+                    start = findStartOfName(start);
+                    const QChar ch4  = start > -1 ? m_interface->characterAt(start - 1) : QChar();
+                    const QChar ch5 = start >  0 ? m_interface->characterAt(start - 2) : QChar();
+                    const QChar ch6 = start >  1 ? m_interface->characterAt(start - 3) : QChar();
+                    start = start - CppCompletionAssistProvider::activationSequenceChar(ch4, ch5, ch6, kind, wantFunctionCall);
+                }
             }
         }
     }
@@ -943,7 +955,7 @@ int CppCompletionAssistProcessor::startCompletionHelper()
         QTextCursor c(m_interface->textDocument());
         c.setPosition(endOfExpression);
         if (completeInclude(c))
-            m_startPosition = startOfName;
+            m_startPosition = endOfExpression + 1;
         return m_startPosition;
     }
 

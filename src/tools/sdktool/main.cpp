@@ -139,6 +139,7 @@ int parseArguments(const QStringList &args, Settings *s, const QList<Operation *
         return -1;
     }
     if (!s->operation->setArguments(opArgs)) {
+        std::cerr << "Argument parsing failed." << std::endl << std::endl;
         printHelp(s->operation);
         return -1;
     }

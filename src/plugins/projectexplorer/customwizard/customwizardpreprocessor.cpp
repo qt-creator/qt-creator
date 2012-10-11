@@ -28,6 +28,10 @@
 ****************************************************************************/
 
 #include "customwizardpreprocessor.h"
+#ifdef WITH_TESTS
+#  include "projectexplorer.h"
+#  include <QTest>
+#endif
 
 #include <utils/qtcassert.h>
 
@@ -192,7 +196,7 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
         switch (preprocessorLine(lines.at(l), &expression)) {
         case IfSection:
             // '@If': Push new section
-            if (top.parentEnabled) {
+            if (top.condition) {
                 if (!evaluateBooleanJavaScriptExpression(m_scriptEngine, expression, &expressionValue, errorMessage)) {
                     *errorMessage = QString::fromLatin1("Error in @if at %1: %2").
                             arg(l + 1).arg(*errorMessage);
@@ -282,4 +286,70 @@ bool customWizardPreprocess(const QString &in, QString *out, QString *errorMessa
 }
 
 } // namespace Internal
+
+#ifdef WITH_TESTS // Run qtcreator -test ProjectExplorer
+
+void ProjectExplorerPlugin::testCustomWizardPreprocessor_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expectedOutput");
+    QTest::addColumn<bool>("expectedSuccess");
+    QTest::addColumn<QString>("expectedErrorMessage");
+    QTest::newRow("if")
+        << QString::fromLatin1("@if 1\nline 1\n@elsif 0\nline 2\n@else\nline 3\n@endif\n")
+        << QString::fromLatin1("line 1")
+        << true << QString();
+    QTest::newRow("elsif")
+        << QString::fromLatin1("@if 0\nline 1\n@elsif 1\nline 2\n@else\nline 3\n@endif\n")
+        << QString::fromLatin1("line 2")
+        << true << QString();
+    QTest::newRow("else")
+        << QString::fromLatin1("@if 0\nline 1\n@elsif 0\nline 2\n@else\nline 3\n@endif\n")
+        << QString::fromLatin1("line 3")
+        << true << QString();
+    QTest::newRow("nested-if")
+        << QString::fromLatin1("@if 1\n"
+                               "  @if 1\nline 1\n@elsif 0\nline 2\n@else\nline 3\n@endif\n"
+                               "@else\n"
+                               "  @if 1\nline 4\n@elsif 0\nline 5\n@else\nline 6\n@endif\n"
+                               "@endif\n")
+        << QString::fromLatin1("line 1")
+        << true << QString();
+    QTest::newRow("nested-else")
+        << QString::fromLatin1("@if 0\n"
+                               "  @if 1\nline 1\n@elsif 0\nline 2\n@else\nline 3\n@endif\n"
+                               "@else\n"
+                               "  @if 1\nline 4\n@elsif 0\nline 5\n@else\nline 6\n@endif\n"
+                               "@endif\n")
+        << QString::fromLatin1("line 4")
+        << true << QString();
+    QTest::newRow("twice-nested-if")
+        << QString::fromLatin1("@if 0\n"
+                               "  @if 1\n"
+                               "    @if 1\nline 1\n@else\nline 2\n@endif\n"
+                               "  @endif\n"
+                               "@else\n"
+                               "  @if 1\n"
+                               "    @if 1\nline 3\n@else\nline 4\n@endif\n"
+                               "  @endif\n"
+                               "@endif\n")
+        << QString::fromLatin1("line 3")
+        << true << QString();
+}
+
+void ProjectExplorerPlugin::testCustomWizardPreprocessor()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, expectedOutput);
+    QFETCH(bool, expectedSuccess);
+    QFETCH(QString, expectedErrorMessage);
+
+    QString errorMessage;
+    QString output;
+    const bool success = Internal::customWizardPreprocess(input, &output, &errorMessage);
+    QCOMPARE(success, expectedSuccess);
+    QCOMPARE(output.trimmed(), expectedOutput.trimmed());
+    QCOMPARE(errorMessage, expectedErrorMessage);
+}
+#endif // WITH_TESTS
 } // namespace ProjectExplorer

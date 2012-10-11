@@ -345,8 +345,8 @@ TaskFilterModel::TaskFilterModel(TaskModel *sourceModel, QObject *parent) : QAbs
     Q_ASSERT(m_sourceModel);
     connect(m_sourceModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this, SLOT(handleNewRows(QModelIndex,int,int)));
-    connect(m_sourceModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-            this, SLOT(handleRemovedRows(QModelIndex,int,int)));
+    connect(m_sourceModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+            this, SLOT(handleRowsAboutToBeRemoved(QModelIndex,int,int)));
     connect(m_sourceModel, SIGNAL(modelReset()),
             this, SLOT(handleReset()));
     connect(m_sourceModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -434,7 +434,7 @@ void TaskFilterModel::handleNewRows(const QModelIndex &index, int first, int las
     endInsertRows();
 }
 
-void TaskFilterModel::handleRemovedRows(const QModelIndex &index, int first, int last)
+void TaskFilterModel::handleRowsAboutToBeRemoved(const QModelIndex &index, int first, int last)
 {
     if (index.isValid())
         return;

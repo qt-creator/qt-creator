@@ -49,6 +49,7 @@
 #include <utils/runextensions.h>
 
 #include <QtConcurrentRun>
+#include <QColor>
 #include <QFileInfo>
 #include <QFile>
 #include <QTimer>
@@ -194,7 +195,7 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         }
         return entry.displayIcon;
     } else if (role == Qt::ForegroundRole && index.column() == 1) {
-        return Qt::darkGray;
+        return QColor(Qt::darkGray);
     } else if (role == Qt::UserRole) {
         return qVariantFromValue(mEntries.at(index.row()));
     }

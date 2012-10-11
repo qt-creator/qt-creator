@@ -120,21 +120,12 @@ bool compareFullyQualifiedName(const QList<const Name *> &path, const QList<cons
 
 }
 
-bool ClassOrNamespace::CompareName::operator()(const Name *name, const Name *other) const
-{
-    Q_ASSERT(name != 0);
-    Q_ASSERT(other != 0);
-
-    const Identifier *id = name->identifier();
-    const Identifier *otherId = other->identifier();
-    return strcmp(id->chars(), otherId->chars()) < 0;
-}
-
 /////////////////////////////////////////////////////////////////////
 // LookupContext
 /////////////////////////////////////////////////////////////////////
 LookupContext::LookupContext()
     : _control(new Control())
+    , m_expandTemplates(false)
 { }
 
 LookupContext::LookupContext(Document::Ptr thisDocument,
@@ -142,7 +133,8 @@ LookupContext::LookupContext(Document::Ptr thisDocument,
     : _expressionDocument(Document::create("<LookupContext>")),
       _thisDocument(thisDocument),
       _snapshot(snapshot),
-      _control(new Control())
+      _control(new Control()),
+      m_expandTemplates(false)
 {
 }
 
@@ -152,7 +144,8 @@ LookupContext::LookupContext(Document::Ptr expressionDocument,
     : _expressionDocument(expressionDocument),
       _thisDocument(thisDocument),
       _snapshot(snapshot),
-      _control(new Control())
+      _control(new Control()),
+      m_expandTemplates(false)
 {
 }
 
@@ -161,7 +154,8 @@ LookupContext::LookupContext(const LookupContext &other)
       _thisDocument(other._thisDocument),
       _snapshot(other._snapshot),
       _bindings(other._bindings),
-      _control(other._control)
+      _control(other._control),
+      m_expandTemplates(other.m_expandTemplates)
 { }
 
 LookupContext &LookupContext::operator = (const LookupContext &other)
@@ -171,6 +165,7 @@ LookupContext &LookupContext::operator = (const LookupContext &other)
     _snapshot = other._snapshot;
     _bindings = other._bindings;
     _control = other._control;
+    m_expandTemplates = other.m_expandTemplates;
     return *this;
 }
 
@@ -227,8 +222,10 @@ const Name *LookupContext::minimalName(Symbol *symbol, ClassOrNamespace *target,
 
 QSharedPointer<CreateBindings> LookupContext::bindings() const
 {
-    if (! _bindings)
+    if (! _bindings) {
         _bindings = QSharedPointer<CreateBindings>(new CreateBindings(_thisDocument, _snapshot, control()));
+        _bindings->setExpandTemplates(m_expandTemplates);
+    }
 
     return _bindings;
 }
@@ -728,7 +725,6 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         instantiation->_instantiationOrigin = origin;
 
         // The instantiation should have all symbols, enums, and usings from the reference.
-        instantiation->_symbols.append(reference->symbols());
         instantiation->_enums.append(reference->enums());
         instantiation->_usings.append(reference->usings());
 
@@ -736,6 +732,28 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         // now must worry about dependent names in base classes.
         if (Template *templ = referenceClass->enclosingTemplate()) {
             const unsigned argumentCount = templId->templateArgumentCount();
+
+            if (_factory->expandTemplates()) {
+                Subst subst(_control.data());
+                for (unsigned i = 0, ei = std::min(argumentCount, templ->templateParameterCount()); i < ei; ++i) {
+                    const TypenameArgument *tParam = templ->templateParameterAt(i)->asTypenameArgument();
+                    if (!tParam)
+                        continue;
+                    const Name *name = tParam->name();
+                    if (!name)
+                        continue;
+                    const FullySpecifiedType &ty = templId->templateArgumentAt(i);
+                    subst.bind(name, ty);
+                }
+
+                Clone cloner(_control.data());
+                foreach (Symbol *s, reference->symbols()) {
+                    instantiation->_symbols.append(cloner.symbol(s, &subst));
+                }
+            } else {
+                instantiation->_symbols.append(reference->symbols());
+            }
+
             QHash<const Name*, unsigned> templParams;
             for (unsigned i = 0; i < templ->templateParameterCount(); ++i)
                 templParams.insert(templ->templateParameterAt(i)->name(), i);
@@ -794,6 +812,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                 if (baseBinding && !knownUsings.contains(baseBinding))
                     instantiation->addUsing(baseBinding);
             }
+        } else {
+            instantiation->_symbols.append(reference->symbols());
         }
 
         _alreadyConsideredTemplates.clear(templId);
@@ -907,7 +927,7 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNa
 }
 
 CreateBindings::CreateBindings(Document::Ptr thisDocument, const Snapshot &snapshot, QSharedPointer<Control> control)
-    : _snapshot(snapshot), _control(control)
+    : _snapshot(snapshot), _control(control), _expandTemplates(false)
 {
     _globalNamespace = allocClassOrNamespace(/*parent = */ 0);
     _currentClassOrNamespace = _globalNamespace;

@@ -1014,9 +1014,8 @@ void QmlEngine::updateWatchData(const WatchData &data,
         synchronizeWatchers();
     }
 
-
     if (!data.isSomethingNeeded())
-        watchHandler()->insertIncompleteData(data);
+        watchHandler()->insertData(data);
 }
 
 void QmlEngine::synchronizeWatchers()

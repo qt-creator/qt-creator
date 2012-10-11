@@ -31,6 +31,7 @@
 #define LOCALSANDEXPRESSIONSWINDOW_H
 
 #include <QWidget>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QSplitter;
@@ -50,9 +51,14 @@ public:
 
     void setShowLocals(bool showLocals);
 
+private slots:
+    void showLocals();
+
 private:
     QSplitter *m_splitter;
     QStackedWidget *m_localsAndInspector;
+    QTimer m_timer;
+    bool m_showLocals;
 };
 
 } // namespace Internal

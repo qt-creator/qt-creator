@@ -208,7 +208,7 @@ int AddKitOperation::execute() const
         map = initializeKits();
 
     map = addKit(map, m_id, m_displayName, m_icon, m_debuggerEngine, m_debugger,
-                 m_deviceType, m_sysRoot, m_tc, m_qt, m_mkspec, m_extra);
+                 m_deviceType.toUtf8(), m_sysRoot, m_tc, m_qt, m_mkspec, m_extra);
 
     if (map.isEmpty())
         return -2;
@@ -230,9 +230,9 @@ bool AddKitOperation::test() const
             || map.value(QLatin1String(DEFAULT)).toInt() != -1)
         return false;
 
-    map = addKit(map, QLatin1String("testId"), QLatin1String("Test Qt Version"), QLatin1String("/tmp/icon.png"),
+    map = addKit(map, QLatin1String("testId"), QLatin1String("Test Kit"), QLatin1String("/tmp/icon.png"),
                  1, QLatin1String("/usr/bin/gdb-test"),
-                 QLatin1String("Desktop"), QString(),
+                 QByteArray("Desktop"), QString(),
                  QLatin1String("{some-tc-id}"), QLatin1String("{some-qt-id}"), QLatin1String("unsupported/mkspec"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue"))));
 
@@ -247,11 +247,11 @@ bool AddKitOperation::test() const
         return false;
 
     QVariantMap profile0 = map.value(QLatin1String("Profile.0")).toMap();
-    if (profile0.count() != 6
+    if (profile0.count() != 5
             || !profile0.contains(QLatin1String(ID))
             || profile0.value(QLatin1String(ID)).toString() != QLatin1String("testId")
             || !profile0.contains(QLatin1String(DISPLAYNAME))
-            || profile0.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("Test Qt Version")
+            || profile0.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("Test Kit")
             || !profile0.contains(QLatin1String(AUTODETECTED))
             || profile0.value(QLatin1String(AUTODETECTED)).toBool() != true)
         return false;
@@ -259,16 +259,16 @@ bool AddKitOperation::test() const
     // Ignore existing ids:
     QVariantMap result = addKit(map, QLatin1String("testId"), QLatin1String("Test Qt Version X"), QLatin1String("/tmp/icon3.png"),
                                 1, QLatin1String("/usr/bin/gdb-test3"),
-                                QLatin1String("Desktop"), QString(),
+                                QByteArray("Desktop"), QString(),
                                 QLatin1String("{some-tc-id3}"), QLatin1String("{some-qt-id3}"), QLatin1String("unsupported/mkspec3"),
                                 KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue3"))));
     if (!result.isEmpty())
         return false;
 
     // Make sure name is unique:
-    map = addKit(map, QLatin1String("testId2"), QLatin1String("Test Qt Version"), QLatin1String("/tmp/icon2.png"),
+    map = addKit(map, QLatin1String("testId2"), QLatin1String("Test Kit2"), QLatin1String("/tmp/icon2.png"),
                  1, QLatin1String("/usr/bin/gdb-test2"),
-                 QLatin1String("Desktop"), QString(),
+                 QByteArray("Desktop"), QString(),
                  QLatin1String("{some-tc-id2}"), QLatin1String("{some-qt-id2}"), QLatin1String("unsupported/mkspec2"),
                  KeyValuePairList() << KeyValuePair(QLatin1String("PE.Profile.Data/extraData"), QVariant(QLatin1String("extraValue2"))));
     if (map.count() != 5
@@ -285,11 +285,11 @@ bool AddKitOperation::test() const
         return false;
 
     QVariantMap profile1 = map.value(QLatin1String("Profile.1")).toMap();
-    if (profile1.count() != 6
+    if (profile1.count() != 5
             || !profile1.contains(QLatin1String(ID))
             || profile1.value(QLatin1String(ID)).toString() != QLatin1String("testId2")
             || !profile1.contains(QLatin1String(DISPLAYNAME))
-            || profile1.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("Test Qt Version2")
+            || profile1.value(QLatin1String(DISPLAYNAME)).toString() != QLatin1String("Test Kit2")
             || !profile1.contains(QLatin1String(AUTODETECTED))
             || profile1.value(QLatin1String(AUTODETECTED)).toBool() != true)
         return false;
@@ -301,7 +301,7 @@ bool AddKitOperation::test() const
 QVariantMap AddKitOperation::addKit(const QVariantMap &map,
                                     const QString &id, const QString &displayName, const QString &icon,
                                     const quint32 &debuggerType, const QString &debugger,
-                                    const QString &deviceType, const QString &sysRoot,
+                                    const QByteArray &deviceType, const QString &sysRoot,
                                     const QString &tc, const QString &qt, const QString &mkspec,
                                     const KeyValuePairList &extra)
 {

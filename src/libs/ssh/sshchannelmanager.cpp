@@ -188,9 +188,15 @@ void SshChannelManager::insertChannel(AbstractSshChannel *priv,
 
 int SshChannelManager::closeAllChannels(CloseAllMode mode)
 {
-    const int count = m_channels.count();
-    for (ChannelIterator it = m_channels.begin(); it != m_channels.end(); ++it)
-        it.value()->closeChannel();
+    int count = 0;
+    for (ChannelIterator it = m_channels.begin(); it != m_channels.end(); ++it) {
+        AbstractSshChannel * const channel = it.value();
+        QSSH_ASSERT(channel->channelState() != AbstractSshChannel::Closed);
+        if (channel->channelState() != AbstractSshChannel::CloseRequested) {
+            channel->closeChannel();
+            ++count;
+        }
+    }
     if (mode == CloseAllAndReset) {
         m_channels.clear();
         m_sessions.clear();

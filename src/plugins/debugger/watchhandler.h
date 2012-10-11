@@ -130,7 +130,7 @@ public:
     void insertIncompleteData(const WatchData &data);
     void removeData(const QByteArray &iname);
     void removeChildren(const QByteArray &iname);
-    void removeAllData();
+    void removeAllData(bool includeInspectData = false);
     void resetValueCache();
 
 private:

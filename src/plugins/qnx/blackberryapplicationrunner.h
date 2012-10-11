@@ -62,7 +62,7 @@ public:
 
 public slots:
     void start();
-    void tailApplicationLog();
+    void checkSlog2Info();
 
 signals:
     void output(const QString &msg, Utils::OutputFormat format);
@@ -72,6 +72,8 @@ signals:
     void startFailed(const QString &msg);
 
 private slots:
+    bool showQtMessage(const QString& pattern, const QString& line);
+    void tailApplicationLog();
     void startFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void stopFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
@@ -86,11 +88,14 @@ private slots:
     void determineRunningState();
     void readRunningStateStandardOutput();
 
+    void handleSlog2InfoFound();
+
 private:
     void reset();
     void killTailProcess();
 
     bool m_debugMode;
+    bool m_slog2infoFound;
 
     qint64 m_pid;
     QString m_appId;
@@ -108,7 +113,7 @@ private:
     QProcess *m_launchProcess;
     QProcess *m_stopProcess;
     QSsh::SshRemoteProcessRunner *m_tailProcess;
-
+    QSsh::SshRemoteProcessRunner *m_testSlog2Process;
     QTimer *m_runningStateTimer;
     QProcess *m_runningStateProcess;
 };

@@ -167,7 +167,7 @@
 
     On Windows, nmake does not support the \c{-j} parameter. Instead, we
     provide a drop-in replacement called jom. You can download a precompiled
-    version of jom from \l{ftp://ftp.qt.nokia.com/jom/}{Qt FTP server}.
+    version of jom from \l{http://releases.qt-project.org/jom/}{Qt Project Release server}.
     Put jom.exe in a location in the %PATH%. Go to the \gui {Build Settings}
     and set jom.exe as the make command.
 

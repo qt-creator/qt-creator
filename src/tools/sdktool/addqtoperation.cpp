@@ -77,44 +77,72 @@ bool AddQtOperation::setArguments(const QStringList &args)
         const QString next = ((i + 1) < args.count()) ? args.at(i + 1) : QString();
 
         if (current == QLatin1String("--id")) {
-            if (next.isNull())
+            if (next.isNull()) {
+                std::cerr << "Error parsing after --id." << std::endl << std::endl;
                 return false;
+            }
             ++i; // skip next;
             m_id = next;
             continue;
         }
 
         if (current == QLatin1String("--name")) {
-            if (next.isNull())
+            if (next.isNull()) {
+                std::cerr << "Error parsing after --name." << std::endl << std::endl;
                 return false;
+            }
             ++i; // skip next;
             m_displayName = next;
             continue;
         }
 
         if (current == QLatin1String("--qmake")) {
-            if (next.isNull())
+            if (next.isNull()) {
+                std::cerr << "Error parsing after --qmake." << std::endl << std::endl;
                 return false;
+            }
             ++i; // skip next;
             m_qmake = next;
             continue;
         }
 
         if (current == QLatin1String("--type")) {
-            if (next.isNull())
+            if (next.isNull()) {
+                std::cerr << "Error parsing after --type." << std::endl << std::endl;
                 return false;
+            }
             ++i; // skip next;
             m_type = next;
             continue;
         }
 
-        if (next.isNull())
+        if (next.isNull()) {
+            std::cerr << "Unknown parameter: " << qPrintable(current) << std::endl << std::endl;
             return false;
+        }
         ++i; // skip next;
         KeyValuePair pair(current, next);
-        if (!pair.value.isValid())
+        if (!pair.value.isValid()) {
+            std::cerr << "Error parsing: " << qPrintable(current) << " " << qPrintable(next) << std::endl << std::endl;
             return false;
+        }
         m_extra << pair;
+    }
+
+    if (m_id.isEmpty()) {
+        std::cerr << "Error no id was passed." << std::endl << std::endl;
+    }
+
+    if (m_displayName.isEmpty()) {
+        std::cerr << "Error no display name was passed." << std::endl << std::endl;
+    }
+
+    if (m_qmake.isEmpty()) {
+        std::cerr << "Error no qmake was passed." << std::endl << std::endl;
+    }
+
+    if (m_type.isEmpty()) {
+        std::cerr << "Error no type was passed." << std::endl << std::endl;
     }
 
     return !m_id.isEmpty() && !m_displayName.isEmpty() && !m_qmake.isEmpty() && !m_type.isEmpty();
@@ -155,7 +183,7 @@ bool AddQtOperation::test() const
         return false;
 
     QVariantMap version0 = map.value(QLatin1String("QtVersion.0")).toMap();
-    if (version0.count() != 6
+    if (version0.count() != 7
             || !version0.contains(QLatin1String(ID))
             || version0.value(QLatin1String(ID)).toInt() != -1
             || !version0.contains(QLatin1String(DISPLAYNAME))
@@ -194,7 +222,7 @@ bool AddQtOperation::test() const
         return false;
 
     QVariantMap version1 = map.value(QLatin1String("QtVersion.1")).toMap();
-    if (version1.count() != 6
+    if (version1.count() != 7
             || !version1.contains(QLatin1String(ID))
             || version1.value(QLatin1String(ID)).toInt() != -1
             || !version1.contains(QLatin1String(DISPLAYNAME))

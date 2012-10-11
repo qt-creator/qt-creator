@@ -93,5 +93,5 @@ void BlackBerryRunControl::launchTailProcess()
 {
     // Delay the launch of "tail" to ensure the blackberry-connect
     // connection has been properly established
-    QTimer::singleShot(500, m_runner, SLOT(tailApplicationLog()));
+    QTimer::singleShot(500, m_runner, SLOT(checkSlog2Info()));
 }

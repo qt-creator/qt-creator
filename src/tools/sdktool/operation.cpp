@@ -105,8 +105,6 @@ QVariantMap Operation::load(const QString &file) const
         if (!reader.load(path))
             return QVariantMap();
         map = reader.restoreValues();
-    } else {
-        std::cout << "No such file: " << qPrintable(path.toUserOutput()) << std::endl;
     }
 
     return map;

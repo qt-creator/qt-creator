@@ -23,6 +23,7 @@
 
 #include "CPlusPlusForwardDeclarations.h"
 
+#include <functional>
 
 namespace CPlusPlus {
 
@@ -54,6 +55,11 @@ public:
 
     void accept(NameVisitor *visitor) const;
     static void accept(const Name *name, NameVisitor *visitor);
+
+public:
+    struct Compare: std::binary_function<const Name *, const Name *, bool> {
+        bool operator()(const Name *name, const Name *other) const;
+    };
 
 protected:
     virtual void accept0(NameVisitor *visitor) const = 0;
