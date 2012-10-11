@@ -143,9 +143,9 @@ void Qt5NodeInstanceServer::createScene(const CreateSceneCommand &command)
 
 void Qt5NodeInstanceServer::clearScene(const ClearSceneCommand &command)
 {
-    NodeInstanceServer::clearScene(command);
     delete m_designerSupport;
     m_designerSupport = 0;
+    NodeInstanceServer::clearScene(command);
 }
 
 } // QmlDesigner
