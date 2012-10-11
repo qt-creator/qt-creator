@@ -386,11 +386,6 @@ bool KitManager::registerKit(ProjectExplorer::Kit *k)
     }
 
     // make sure we have all the information in our kits:
-    foreach (KitInformation *ki, d->m_informationList) {
-        if (!k->hasValue(ki->dataId()))
-            k->setValue(ki->dataId(), ki->defaultValue(k));
-    }
-
     addKit(k);
     emit kitAdded(k);
     return true;
@@ -437,6 +432,7 @@ void KitManager::addKit(Kit *k)
     if (!k)
         return;
 
+    KitGuard g(k);
     foreach (KitInformation *ki, d->m_informationList) {
         if (!k->hasValue(ki->dataId()))
             k->setValue(ki->dataId(), ki->defaultValue(k));
@@ -444,7 +440,6 @@ void KitManager::addKit(Kit *k)
             ki->fix(k);
     }
 
-    k->setDisplayName(k->displayName()); // make name unique
     d->m_kitList.append(k);
     if (!d->m_defaultKit ||
             (!d->m_defaultKit->isValid() && k->isValid()))
