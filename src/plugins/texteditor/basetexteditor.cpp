@@ -4071,7 +4071,14 @@ void BaseTextEditorWidget::updateHighlights()
             && d->m_animator == 0) {
             d->m_parenthesesMatchingTimer->start(50);
         } else {
-             // use 0-timer, not direct call, to give the syntax highlighter a chance
+            // when we uncheck "highlight matching parentheses"
+            // we need clear current selection before viewport update
+            // otherwise we get sticky highlighted parentheses
+            if (!d->m_displaySettings.m_highlightMatchingParentheses) {
+                setExtraSelections(ParenthesesMatchingSelection, QList<QTextEdit::ExtraSelection>());
+            }
+
+            // use 0-timer, not direct call, to give the syntax highlighter a chance
             // to update the parentheses information
             d->m_parenthesesMatchingTimer->start(0);
         }
@@ -5060,7 +5067,9 @@ void BaseTextEditorAnimator::finish()
 
 void BaseTextEditorWidget::_q_matchParentheses()
 {
-    if (isReadOnly())
+    if (isReadOnly()
+        || !(d->m_displaySettings.m_highlightMatchingParentheses
+             || d->m_displaySettings.m_animateMatchingParentheses))
         return;
 
     QTextCursor backwardMatch = textCursor();
@@ -5149,8 +5158,8 @@ void BaseTextEditorWidget::_q_matchParentheses()
         connect(d->m_animator, SIGNAL(updateRequest(int,QPointF,QRectF)),
                 this, SLOT(_q_animateUpdate(int,QPointF,QRectF)));
     }
-
-    setExtraSelections(ParenthesesMatchingSelection, extraSelections);
+    if (d->m_displaySettings.m_highlightMatchingParentheses)
+        setExtraSelections(ParenthesesMatchingSelection, extraSelections);
 }
 
 void BaseTextEditorWidget::_q_highlightBlocks()

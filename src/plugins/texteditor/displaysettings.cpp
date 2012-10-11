@@ -41,6 +41,7 @@ static const char displayFoldingMarkersKey[] = "DisplayFoldingMarkers";
 static const char highlightCurrentLineKey[] = "HighlightCurrentLine2Key";
 static const char highlightBlocksKey[] = "HighlightBlocksKey";
 static const char animateMatchingParenthesesKey[] = "AnimateMatchingParenthesesKey";
+static const char highlightMatchingParenthesesKey[] = "HightlightMatchingParenthesesKey";
 static const char markTextChangesKey[] = "MarkTextChanges";
 static const char autoFoldFirstCommentKey[] = "AutoFoldFirstComment";
 static const char centerCursorOnScrollKey[] = "CenterCursorOnScroll";
@@ -58,6 +59,7 @@ DisplaySettings::DisplaySettings() :
     m_highlightCurrentLine(false),
     m_highlightBlocks(false),
     m_animateMatchingParentheses(true),
+    m_highlightMatchingParentheses(true),
     m_markTextChanges(true),
     m_autoFoldFirstComment(true),
     m_centerCursorOnScroll(false)
@@ -79,6 +81,7 @@ void DisplaySettings::toSettings(const QString &category, QSettings *s) const
     s->setValue(QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine);
     s->setValue(QLatin1String(highlightBlocksKey), m_highlightBlocks);
     s->setValue(QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses);
+    s->setValue(QLatin1String(highlightMatchingParenthesesKey), m_highlightMatchingParentheses);
     s->setValue(QLatin1String(markTextChangesKey), m_markTextChanges);
     s->setValue(QLatin1String(autoFoldFirstCommentKey), m_autoFoldFirstComment);
     s->setValue(QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll);
@@ -103,6 +106,7 @@ void DisplaySettings::fromSettings(const QString &category, const QSettings *s)
     m_highlightCurrentLine = s->value(group + QLatin1String(highlightCurrentLineKey), m_highlightCurrentLine).toBool();
     m_highlightBlocks = s->value(group + QLatin1String(highlightBlocksKey), m_highlightBlocks).toBool();
     m_animateMatchingParentheses = s->value(group + QLatin1String(animateMatchingParenthesesKey), m_animateMatchingParentheses).toBool();
+    m_highlightMatchingParentheses = s->value(group + QLatin1String(highlightMatchingParenthesesKey), m_highlightMatchingParentheses).toBool();
     m_markTextChanges = s->value(group + QLatin1String(markTextChangesKey), m_markTextChanges).toBool();
     m_autoFoldFirstComment = s->value(group + QLatin1String(autoFoldFirstCommentKey), m_autoFoldFirstComment).toBool();
     m_centerCursorOnScroll = s->value(group + QLatin1String(centerCursorOnScrollKey), m_centerCursorOnScroll).toBool();
@@ -119,6 +123,7 @@ bool DisplaySettings::equals(const DisplaySettings &ds) const
         && m_highlightCurrentLine == ds.m_highlightCurrentLine
         && m_highlightBlocks == ds.m_highlightBlocks
         && m_animateMatchingParentheses == ds.m_animateMatchingParentheses
+        && m_highlightMatchingParentheses == ds.m_highlightMatchingParentheses
         && m_markTextChanges == ds.m_markTextChanges
         && m_autoFoldFirstComment== ds.m_autoFoldFirstComment
         && m_centerCursorOnScroll == ds.m_centerCursorOnScroll

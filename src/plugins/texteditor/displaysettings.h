@@ -55,6 +55,7 @@ public:
     bool m_highlightCurrentLine;
     bool m_highlightBlocks;
     bool m_animateMatchingParentheses;
+    bool m_highlightMatchingParentheses;
     bool m_markTextChanges;
     bool m_autoFoldFirstComment;
     bool m_centerCursorOnScroll;
