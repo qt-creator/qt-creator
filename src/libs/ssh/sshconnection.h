@@ -51,7 +51,8 @@ class SshConnectionPrivate;
 } // namespace Internal
 
 enum SshConnectionOption {
-    SshIgnoreDefaultProxy = 0x1
+    SshIgnoreDefaultProxy = 0x1,
+    SshEnableStrictConformanceChecks = 0x2
 };
 
 Q_DECLARE_FLAGS(SshConnectionOptions, SshConnectionOption)

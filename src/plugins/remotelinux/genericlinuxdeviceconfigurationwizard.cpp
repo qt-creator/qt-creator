@@ -77,6 +77,7 @@ GenericLinuxDeviceConfigurationWizard::~GenericLinuxDeviceConfigurationWizard()
 IDevice::Ptr GenericLinuxDeviceConfigurationWizard::device()
 {
     QSsh::SshConnectionParameters sshParams;
+    sshParams.options &= ~SshConnectionOptions(SshEnableStrictConformanceChecks); // For older SSH servers.
     sshParams.host = d->setupPage.hostName();
     sshParams.userName = d->setupPage.userName();
     sshParams.port = 22;

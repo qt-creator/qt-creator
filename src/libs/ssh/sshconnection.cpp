@@ -81,8 +81,10 @@ namespace {
 
 
 SshConnectionParameters::SshConnectionParameters() :
-    timeout(0),  authenticationType(AuthenticationByKey), port(0), options(SshIgnoreDefaultProxy)
+    timeout(0),  authenticationType(AuthenticationByKey), port(0)
 {
+    options |= SshIgnoreDefaultProxy;
+    options |= SshEnableStrictConformanceChecks;
 }
 
 static inline bool equals(const SshConnectionParameters &p1, const SshConnectionParameters &p2)
@@ -398,18 +400,19 @@ void SshConnectionPrivate::handleServerId()
                     .arg(serverProtoVersion));
     }
 
-    // Disable this check to accept older OpenSSH servers that do this wrong.
-    if (serverProtoVersion == QLatin1String("2.0") && !hasCarriageReturn) {
-        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
-            "Identification string is invalid.",
-            tr("Server identification string is invalid (missing carriage return)."));
-    }
+    if (m_connParams.options & SshEnableStrictConformanceChecks) {
+        if (serverProtoVersion == QLatin1String("2.0") && !hasCarriageReturn) {
+            throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+                    "Identification string is invalid.",
+                    tr("Server identification string is invalid (missing carriage return)."));
+        }
 
-    if (serverProtoVersion == QLatin1String("1.99") && m_serverHasSentDataBeforeId) {
-        throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
-            "No extra data preceding identification string allowed for 1.99.",
-            tr("Server reports protocol version 1.99, but sends data "
-               "before the identification string, which is not allowed."));
+        if (serverProtoVersion == QLatin1String("1.99") && m_serverHasSentDataBeforeId) {
+            throw SshServerException(SSH_DISCONNECT_PROTOCOL_ERROR,
+                    "No extra data preceding identification string allowed for 1.99.",
+                    tr("Server reports protocol version 1.99, but sends data "
+                       "before the identification string, which is not allowed."));
+        }
     }
 
     m_keyExchange.reset(new SshKeyExchange(m_sendFacility));
