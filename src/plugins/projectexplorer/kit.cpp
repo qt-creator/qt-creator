@@ -155,8 +155,16 @@ QList<Task> Kit::validate()
 {
     QList<Task> result;
     QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
-    foreach (KitInformation *i, infoList)
-        result.append(i->validate(this));
+    d->m_isValid = true;
+    foreach (KitInformation *i, infoList) {
+        QList<Task> tmp = i->validate(this);
+        foreach (const Task &t, tmp) {
+            if (t.type == Task::Error)
+                d->m_isValid = false;
+        }
+        result.append(tmp);
+    }
+    qSort(result);
     return result;
 }
 
@@ -387,13 +395,9 @@ void Kit::setAutoDetected(bool detected)
     d->m_autodetected = detected;
 }
 
-void Kit::setValid(bool valid)
-{
-    d->m_isValid = valid;
-}
-
 void Kit::kitUpdated()
 {
+    validate();
     KitManager::instance()->notifyAboutUpdate(this);
 }
 

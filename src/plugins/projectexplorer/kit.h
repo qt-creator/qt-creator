@@ -93,7 +93,6 @@ private:
     void operator=(const Kit &other);
 
     void setAutoDetected(bool detected);
-    void setValid(bool valid);
 
     void kitUpdated();
 
@@ -103,7 +102,6 @@ private:
     Internal::KitPrivate *d;
 
     friend class KitManager;
-    friend class Internal::KitManagerPrivate;
 };
 
 } // namespace ProjectExplorer

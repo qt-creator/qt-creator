@@ -115,7 +115,6 @@ public:
 public slots:
     bool registerKit(ProjectExplorer::Kit *k);
     void deregisterKit(ProjectExplorer::Kit *k);
-    QList<Task> validateKit(ProjectExplorer::Kit *k);
     void setDefaultKit(ProjectExplorer::Kit *k);
 
     void saveKits();

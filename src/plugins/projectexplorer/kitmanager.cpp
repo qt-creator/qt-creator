@@ -80,7 +80,6 @@ class KitManagerPrivate
 public:
     KitManagerPrivate();
     ~KitManagerPrivate();
-    QList<Task> validateKit(Kit *k) const;
 
     Kit *m_defaultKit;
     bool m_initialized;
@@ -99,22 +98,6 @@ KitManagerPrivate::~KitManagerPrivate()
     qDeleteAll(m_informationList);
     qDeleteAll(m_kitList);
     delete m_writer;
-}
-
-QList<Task> KitManagerPrivate::validateKit(Kit *k) const
-{
-    Q_ASSERT(k);
-    QList<Task> result;
-    bool hasError = false;
-    foreach (KitInformation *ki, m_informationList) {
-        QList<Task> tmp = ki->validate(k);
-        foreach (const Task &t, tmp)
-            if (t.type == Task::Error)
-                hasError = true;
-        result << tmp;
-    }
-    k->setValid(!hasError);
-    return result;
 }
 
 } // namespace Internal
@@ -388,7 +371,6 @@ void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 {
     if (!k || !kits().contains(k))
         return;
-    d->validateKit(k);
     emit kitUpdated(k);
 }
 
@@ -432,13 +414,6 @@ void KitManager::deregisterKit(Kit *k)
     delete k;
 }
 
-QList<Task> KitManager::validateKit(Kit *k)
-{
-    QList<Task> result = d->validateKit(k);
-    qSort(result);
-    return result;
-}
-
 void KitManager::setDefaultKit(Kit *k)
 {
     if (d->m_defaultKit == k)
@@ -452,7 +427,7 @@ void KitManager::setDefaultKit(Kit *k)
 void KitManager::validateKits()
 {
     foreach (Kit *k, kits())
-        d->validateKit(k);
+        k->validate();
 }
 
 void KitManager::addKit(Kit *k)
@@ -460,7 +435,6 @@ void KitManager::addKit(Kit *k)
     if (!k)
         return;
     k->setDisplayName(k->displayName()); // make name unique
-    d->validateKit(k);
     d->m_kitList.append(k);
     if (!d->m_defaultKit ||
             (!d->m_defaultKit->isValid() && k->isValid()))
