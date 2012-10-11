@@ -63,6 +63,20 @@ using namespace QmlJS::AST;
 
 namespace {
 
+static inline QStringList supportedVersionsList()
+{
+    QStringList list;
+    list << QLatin1String("1.0") << QLatin1String("1.1");
+    return list;
+}
+
+static inline bool supportedQtQuickVersion(const QString &version)
+{
+    static QStringList supportedVersions = supportedVersionsList();
+
+    return supportedVersions.contains(version);
+}
+
 static inline QString stripQuotes(const QString &str)
 {
     if ((str.startsWith(QLatin1Char('"')) && str.endsWith(QLatin1Char('"')))
@@ -758,6 +772,14 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         if (m_rewriterView->model()->imports().isEmpty()) {
             const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::DiagnosticMessage::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger error message", "No import statements found"));
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
+        }
+
+        foreach (const QmlDesigner::Import &import, m_rewriterView->model()->imports()) {
+            if (import.isLibraryImport() && import.url() == QLatin1String("QtQuick") && !supportedQtQuickVersion(import.version())) {
+                const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::DiagnosticMessage::Error, AST::SourceLocation(0, 0, 0, 0),
+                                                                 QCoreApplication::translate("QmlDesigner::TextToModelMerger error message", "Unsupported QtQuick version"));
+                errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
+            }
         }
 
         if (view()->checkSemanticErrors()) {
