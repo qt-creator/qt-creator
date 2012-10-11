@@ -369,9 +369,12 @@ Internal::KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k) const
 
 void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 {
-    if (!k || !kits().contains(k))
+    if (!k)
         return;
-    emit kitUpdated(k);
+    if (kits().contains(k))
+        emit kitUpdated(k);
+    else
+        emit unmanagedKitUpdated(k);
 }
 
 bool KitManager::registerKit(ProjectExplorer::Kit *k)

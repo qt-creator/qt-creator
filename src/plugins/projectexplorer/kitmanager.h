@@ -128,6 +128,7 @@ signals:
     void kitRemoved(ProjectExplorer::Kit *);
     // Kit was updated.
     void kitUpdated(ProjectExplorer::Kit *);
+    void unmanagedKitUpdated(ProjectExplorer::Kit *);
     // Default kit was changed.
     void defaultkitChanged();
     // Something changed.
