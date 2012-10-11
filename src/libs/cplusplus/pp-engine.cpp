@@ -812,6 +812,9 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         if (!expandFunctionlikeMacros()
                 // Still expand if this originally started with an object-like macro.
                 && m_state.m_expansionStatus != Expanding) {
+            m_client->notifyMacroReference(m_state.m_offsetRef + idTk.offset,
+                                           idTk.lineno,
+                                           *macro);
             return false;
         }
 

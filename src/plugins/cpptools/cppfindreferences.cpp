@@ -128,14 +128,12 @@ public:
                 return usages; // skip this document, it's not using symbolId.
         }
         Document::Ptr doc;
-        QByteArray source;
         const QString unpreprocessedSource = getSource(fileName, workingCopy);
 
         if (symbolDocument && fileName == symbolDocument->fileName()) {
             doc = symbolDocument;
         } else {
-            source = snapshot.preprocessedCode(unpreprocessedSource, fileName);
-            doc = snapshot.documentFromSource(source, fileName);
+            doc = snapshot.preprocessedDocument(unpreprocessedSource, fileName);
             doc->tokenize();
         }
 
@@ -458,10 +456,8 @@ bool CppFindReferences::findSymbol(CppFindReferencesParameters *parameters,
     Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
     // document is not parsed and has no bindings yet, do it
     QString source = getSource(newSymbolDocument->fileName(), _modelManager->workingCopy());
-    const QByteArray &preprocessedCode =
-            snapshot.preprocessedCode(source, newSymbolDocument->fileName());
     Document::Ptr doc =
-            snapshot.documentFromSource(preprocessedCode, newSymbolDocument->fileName());
+            snapshot.preprocessedDocument(source, newSymbolDocument->fileName());
     doc->check();
 
     // construct id of old symbol
@@ -563,19 +559,29 @@ public:
     QList<Usage> operator()(const QString &fileName)
     {
         QList<Usage> usages;
+        Document::Ptr doc = snapshot.document(fileName);
+        QString source;
+
+_Lrestart:
         if (future->isPaused())
             future->waitForResume();
         if (future->isCanceled())
             return usages;
 
-        const Document::Ptr &doc = snapshot.document(fileName);
-        QString source;
-
+        usages.clear();
         foreach (const Document::MacroUse &use, doc->macroUses()) {
             const Macro &useMacro = use.macro();
-            if (useMacro.line() == macro.line()
-                && useMacro.fileName() == macro.fileName())
-                {
+
+            if (useMacro.fileName() == macro.fileName()) { // Check if this is a match, but possibly against an outdated document.
+                if (macro.fileRevision() > useMacro.fileRevision()) {
+                    // yes, it is outdated, so re-preprocess and start from scratch for this file.
+                    source = getSource(fileName, workingCopy).toLatin1();
+                    doc = snapshot.preprocessedDocument(source, fileName);
+                    goto _Lrestart;
+                }
+            }
+
+            if (useMacro.fileName() == macro.fileName() && macro.name() == useMacro.name()) {
                 if (source.isEmpty())
                     source = getSource(fileName, workingCopy);
 
@@ -625,7 +631,6 @@ static void findMacroUses_helper(QFutureInterface<Usage> &future,
     files.removeDuplicates();
 
     future.setProgressRange(0, files.size());
-
     FindMacroUsesInFile process(workingCopy, snapshot, macro, &future);
     UpdateUI reduce(&future);
     // This thread waits for blockingMappedReduced to finish, so reduce the pool's used thread count

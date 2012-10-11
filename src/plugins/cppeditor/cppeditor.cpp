@@ -2140,10 +2140,7 @@ SemanticInfo SemanticHighlighter::semanticInfo(const Source &source)
     if (! semanticInfo.doc) {
         semanticInfo.snapshot = source.snapshot;
         if (source.snapshot.contains(source.fileName)) {
-            const QByteArray &preprocessedCode =
-                    source.snapshot.preprocessedCode(source.code, source.fileName);
-            Document::Ptr doc =
-                    source.snapshot.documentFromSource(preprocessedCode, source.fileName);
+            Document::Ptr doc = source.snapshot.preprocessedDocument(source.code, source.fileName);
             doc->control()->setTopLevelDeclarationProcessor(this);
             doc->check();
             semanticInfo.doc = doc;

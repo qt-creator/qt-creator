@@ -39,8 +39,10 @@ FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
       _preproc(this, &_env)
 { }
 
-QByteArray FastPreprocessor::run(QString fileName, const QString &source)
+QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QString &source)
 {
+    std::swap(newDoc, _currentDoc);
+    const QString fileName = _currentDoc->fileName();
     _preproc.setExpandFunctionlikeMacros(false);
     _preproc.setKeepComments(true);
 
@@ -54,11 +56,17 @@ QByteArray FastPreprocessor::run(QString fileName, const QString &source)
 
     const QByteArray preprocessed = _preproc.run(fileName, source);
 //    qDebug("FastPreprocessor::run for %s produced [[%s]]", fileName.toUtf8().constData(), preprocessed.constData());
+    std::swap(newDoc, _currentDoc);
     return preprocessed;
 }
 
-void FastPreprocessor::sourceNeeded(unsigned, QString &fileName, IncludeType)
-{ mergeEnvironment(fileName); }
+void FastPreprocessor::sourceNeeded(unsigned line, QString &fileName, IncludeType)
+{
+    Q_ASSERT(_currentDoc);
+    _currentDoc->addIncludeFile(fileName, line);
+
+    mergeEnvironment(fileName);
+}
 
 void FastPreprocessor::mergeEnvironment(const QString &fileName)
 {
@@ -72,4 +80,57 @@ void FastPreprocessor::mergeEnvironment(const QString &fileName)
             _env.addMacros(doc->definedMacros());
         }
     }
+}
+
+void FastPreprocessor::macroAdded(const Macro &macro)
+{
+    Q_ASSERT(_currentDoc);
+
+    _currentDoc->appendMacro(macro);
+}
+
+static const Macro revision(const Snapshot &s, const Macro &m)
+{
+    if (Document::Ptr d = s.document(m.fileName())) {
+        Macro newMacro(m);
+        newMacro.setFileRevision(d->revision());
+        return newMacro;
+    }
+
+    return m;
+}
+
+void FastPreprocessor::passedMacroDefinitionCheck(unsigned offset, unsigned line, const Macro &macro)
+{
+    Q_ASSERT(_currentDoc);
+
+    _currentDoc->addMacroUse(revision(_snapshot, macro),
+                             offset, macro.name().length(), line,
+                             QVector<MacroArgumentReference>());
+}
+
+void FastPreprocessor::failedMacroDefinitionCheck(unsigned offset, const ByteArrayRef &name)
+{
+    Q_ASSERT(_currentDoc);
+
+    _currentDoc->addUndefinedMacroUse(QByteArray(name.start(), name.size()), offset);
+}
+
+void FastPreprocessor::notifyMacroReference(unsigned offset, unsigned line, const Macro &macro)
+{
+    Q_ASSERT(_currentDoc);
+
+    _currentDoc->addMacroUse(revision(_snapshot, macro),
+                             offset, macro.name().length(), line,
+                             QVector<MacroArgumentReference>());
+}
+
+void FastPreprocessor::startExpandingMacro(unsigned offset, unsigned line,
+                                          const Macro &macro,
+                                          const QVector<MacroArgumentReference> &actuals)
+{
+    Q_ASSERT(_currentDoc);
+
+    _currentDoc->addMacroUse(revision(_snapshot, macro),
+                             offset, macro.name().length(), line, actuals);
 }

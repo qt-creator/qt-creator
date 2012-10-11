@@ -47,28 +47,29 @@ class CPLUSPLUS_EXPORT FastPreprocessor: public Client
     Snapshot _snapshot;
     Preprocessor _preproc;
     QSet<QString> _merged;
+    Document::Ptr _currentDoc;
 
     void mergeEnvironment(const QString &fileName);
 
 public:
     FastPreprocessor(const Snapshot &snapshot);
 
-    QByteArray run(QString fileName, const QString &source);
+    QByteArray run(Document::Ptr newDoc, const QString &source);
 
     // CPlusPlus::Client
-    virtual void sourceNeeded(unsigned, QString &fileName, IncludeType);
+    virtual void sourceNeeded(unsigned line, QString &fileName, IncludeType);
 
-    virtual void macroAdded(const Macro &) {}
+    virtual void macroAdded(const Macro &);
 
-    virtual void passedMacroDefinitionCheck(unsigned, unsigned, const Macro &) {}
-    virtual void failedMacroDefinitionCheck(unsigned, const ByteArrayRef &) {}
+    virtual void passedMacroDefinitionCheck(unsigned, unsigned, const Macro &);
+    virtual void failedMacroDefinitionCheck(unsigned, const ByteArrayRef &);
 
-    virtual void notifyMacroReference(unsigned, unsigned, const Macro &) {}
+    virtual void notifyMacroReference(unsigned, unsigned, const Macro &);
 
     virtual void startExpandingMacro(unsigned,
                                      unsigned,
                                      const Macro &,
-                                     const QVector<MacroArgumentReference> &) {}
+                                     const QVector<MacroArgumentReference> &);
     virtual void stopExpandingMacro(unsigned, const Macro &) {}
 
     virtual void startSkippingBlocks(unsigned) {}
