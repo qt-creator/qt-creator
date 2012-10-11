@@ -84,17 +84,19 @@ QVariant QtKitInformation::defaultValue(ProjectExplorer::Kit *k) const
     return -1;
 }
 
-QList<ProjectExplorer::Task> QtKitInformation::validate(ProjectExplorer::Kit *k) const
+QList<ProjectExplorer::Task> QtKitInformation::validate(const ProjectExplorer::Kit *k) const
 {
-    int id = qtVersionId(k);
-    if (id == -1)
+    BaseQtVersion *version = qtVersion(k);
+    if (!version)
         return QList<ProjectExplorer::Task>();
-    BaseQtVersion *version = QtVersionManager::instance()->version(id);
-    if (!version) {
-        setQtVersionId(k, -1);
-        return QList<ProjectExplorer::Task>();
-    }
     return version->validateKit(k);
+}
+
+void QtKitInformation::fix(ProjectExplorer::Kit *k)
+{
+    BaseQtVersion *version = qtVersion(k);
+    if (!version)
+        setQtVersionId(k, -1);
 }
 
 ProjectExplorer::KitConfigWidget *QtKitInformation::createConfigWidget(ProjectExplorer::Kit *k) const

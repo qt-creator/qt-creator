@@ -62,7 +62,7 @@ public:
     QVariant defaultValue(ProjectExplorer::Kit *k) const
         { return DebuggerKitInformation::itemToVariant(DebuggerKitInformation::autoDetectItem(k)); }
 
-    QList<ProjectExplorer::Task> validate(ProjectExplorer::Kit *k) const
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const
         { return DebuggerKitInformation::validateDebugger(k); }
 
     static QList<ProjectExplorer::Task> validateDebugger(const ProjectExplorer::Kit *k);

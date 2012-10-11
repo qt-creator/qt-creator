@@ -151,7 +151,7 @@ bool Kit::isValid() const
     return d->m_id.isValid() && d->m_isValid;
 }
 
-QList<Task> Kit::validate()
+QList<Task> Kit::validate() const
 {
     QList<Task> result;
     QList<KitInformation *> infoList = KitManager::instance()->kitInformation();

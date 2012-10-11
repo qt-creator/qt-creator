@@ -247,6 +247,8 @@ void KitManager::registerKitInformation(KitInformation *ki)
     foreach (Kit *k, kits()) {
         if (!k->hasValue(ki->dataId()))
             k->setValue(ki->dataId(), ki->defaultValue(k));
+        else
+            ki->fix(k);
     }
 
     return;
@@ -357,9 +359,6 @@ QList<KitInformation *> KitManager::kitInformation() const
 
 Internal::KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k) const
 {
-    if (!k)
-        return 0;
-
     Internal::KitManagerConfigWidget *result = new Internal::KitManagerConfigWidget(k);
     foreach (KitInformation *ki, d->m_informationList)
         result->addConfigWidget(ki->createConfigWidget(k));
@@ -437,6 +436,14 @@ void KitManager::addKit(Kit *k)
 {
     if (!k)
         return;
+
+    foreach (KitInformation *ki, d->m_informationList) {
+        if (!k->hasValue(ki->dataId()))
+            k->setValue(ki->dataId(), ki->defaultValue(k));
+        else
+            ki->fix(k);
+    }
+
     k->setDisplayName(k->displayName()); // make name unique
     d->m_kitList.append(k);
     if (!d->m_defaultKit ||

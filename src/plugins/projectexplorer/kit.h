@@ -59,7 +59,7 @@ public:
     ~Kit();
 
     bool isValid() const;
-    QList<Task> validate();
+    QList<Task> validate() const;
 
     QString displayName() const;
     void setDisplayName(const QString &name);

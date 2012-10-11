@@ -74,7 +74,8 @@ public:
     virtual bool visibleIn(Kit *) { return true; }
     virtual QVariant defaultValue(Kit *) const = 0;
 
-    virtual QList<Task> validate(Kit *) const = 0;
+    virtual QList<Task> validate(const Kit *) const = 0;
+    virtual void fix(Kit *) { return; }
 
     virtual ItemList toUserOutput(Kit *) const = 0;
 
