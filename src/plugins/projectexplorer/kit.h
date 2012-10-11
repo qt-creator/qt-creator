@@ -78,7 +78,8 @@ public:
     void setValue(const Core::Id &key, const QVariant &value);
     void removeKey(const Core::Id &key);
 
-    bool operator==(const Kit &other) const;
+    bool isDataEqual(const Kit *other) const;
+    bool isEqual(const Kit *other) const;
 
     void addToEnvironment(Utils::Environment &env) const;
 

@@ -280,6 +280,18 @@ void Kit::removeKey(const Core::Id &key)
     kitUpdated();
 }
 
+bool Kit::isDataEqual(const Kit *other) const
+{
+    return d->m_data == other->d->m_data;
+}
+
+bool Kit::isEqual(const Kit *other) const
+{
+    return isDataEqual(other)
+            && d->m_iconPath == other->d->m_iconPath
+            && d->m_displayName == other->d->m_displayName;
+}
+
 QVariantMap Kit::toMap() const
 {
     QVariantMap data;
@@ -294,11 +306,6 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(DATA_KEY), extra);
 
     return data;
-}
-
-bool Kit::operator==(const Kit &other) const
-{
-    return d->m_data == other.d->m_data;
 }
 
 void Kit::addToEnvironment(Utils::Environment &env) const
