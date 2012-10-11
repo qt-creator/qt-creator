@@ -228,7 +228,6 @@ Utils::FileName DeviceManager::settingsFilePath(const QString &extension)
 void DeviceManager::addDevice(const IDevice::Ptr &_device)
 {
     const IDevice::Ptr device = _device->clone();
-    QTC_ASSERT(this != instance() || device->isAutoDetected(), return);
 
     QString name = device->displayName();
     const int pos = d->indexForId(device->id());
