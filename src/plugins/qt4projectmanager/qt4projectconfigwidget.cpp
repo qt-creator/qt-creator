@@ -114,6 +114,13 @@ void Qt4ProjectConfigWidget::updateDetails()
                 .arg(QDir::toNativeSeparators(m_buildConfiguration->buildDirectory())));
 }
 
+void Qt4ProjectConfigWidget::setProblemLabel(const QString &text)
+{
+    m_ui->warningLabel->setVisible(!text.isEmpty());
+    m_ui->problemLabel->setVisible(!text.isEmpty());
+    m_ui->problemLabel->setText(text);
+}
+
 void Qt4ProjectConfigWidget::environmentChanged()
 {
     m_ui->shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
@@ -202,22 +209,20 @@ void Qt4ProjectConfigWidget::shadowBuildEdited()
 
 void Qt4ProjectConfigWidget::updateProblemLabel()
 {
-    bool targetMismatch = false;
-    bool incompatibleBuild = false;
-    bool allGood = false;
 
     ProjectExplorer::Kit *k = m_buildConfiguration->target()->kit();
     const QString proFileName = m_buildConfiguration->target()->project()->document()->fileName();
 
+    // Check for Qt version:
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version) {
-        m_ui->problemLabel->setVisible(true);
-        m_ui->warningLabel->setVisible(true);
-        m_ui->problemLabel->setText(tr("This target cannot build this project since it does not define a "
-                                       "Qt version."));
+        setProblemLabel(tr("This target cannot build this project since it does not define a Qt version."));
         return;
     }
 
+    bool targetMismatch = false;
+    bool incompatibleBuild = false;
+    bool allGood = false;
     // we only show if we actually have a qmake and makestep
     if (m_buildConfiguration->qmakeStep() && m_buildConfiguration->makeStep()) {
         QString makefile = m_buildConfiguration->buildDirectory() + QLatin1Char('/');
@@ -244,7 +249,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
 
     QString shadowBuildWarning;
     if (!version->supportsShadowBuilds() && m_buildConfiguration->shadowBuild()) {
-        shadowBuildWarning =tr("The Qt version %1 does not support shadow builds, building might fail.")
+        shadowBuildWarning = tr("The Qt version %1 does not support shadow builds, building might fail.")
                 .arg(version->displayName())
                 + QLatin1String("<br>");
     }
@@ -257,12 +262,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
         issues = version->reportIssues(proFileName, buildDirectory);
         qSort(issues);
 
-        if (issues.isEmpty() && shadowBuildWarning.isEmpty()) {
-            m_ui->problemLabel->setVisible(false);
-            m_ui->warningLabel->setVisible(false);
-        } else {
-            m_ui->problemLabel->setVisible(true);
-            m_ui->warningLabel->setVisible(true);
+        if (!issues.isEmpty() || !shadowBuildWarning.isEmpty()) {
             QString text = QLatin1String("<nobr>") + shadowBuildWarning;
             foreach (const ProjectExplorer::Task &task, issues) {
                 QString type;
@@ -283,23 +283,23 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
                     text.append(QLatin1String("<br>"));
                 text.append(type + task.description);
             }
-            m_ui->problemLabel->setText(text);
+            setProblemLabel(text);
+            return;
         }
     } else if (targetMismatch) {
-        m_ui->problemLabel->setVisible(true);
-        m_ui->warningLabel->setVisible(true);
-        m_ui->problemLabel->setText(shadowBuildWarning + tr("A build for a different project exists in %1, which will be overwritten.",
-                                                            "%1 build directory")
-                                    .arg(m_ui->shadowBuildDirEdit->path()));
+        setProblemLabel(shadowBuildWarning + tr("A build for a different project exists in %1, which will be overwritten.",
+                                                "%1 build directory")
+                        .arg(m_ui->shadowBuildDirEdit->path()));
+        return;
     } else if (incompatibleBuild) {
-        m_ui->warningLabel->setVisible(true);
-        m_ui->problemLabel->setVisible(true);
-        m_ui->problemLabel->setText(shadowBuildWarning +tr("An incompatible build exists in %1, which will be overwritten.",
-                                                           "%1 build directory")
-                                    .arg(m_ui->shadowBuildDirEdit->path()));
+        setProblemLabel(shadowBuildWarning +tr("An incompatible build exists in %1, which will be overwritten.",
+                                               "%1 build directory")
+                        .arg(m_ui->shadowBuildDirEdit->path()));
+        return;
     } else if (!shadowBuildWarning.isEmpty()) {
-        m_ui->warningLabel->setVisible(true);
-        m_ui->problemLabel->setVisible(true);
-        m_ui->problemLabel->setText(shadowBuildWarning);
+        setProblemLabel(shadowBuildWarning);
+        return;
     }
+
+    setProblemLabel(QString());
 }

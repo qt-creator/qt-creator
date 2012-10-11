@@ -72,6 +72,7 @@ private slots:
 
 private:
     void updateDetails();
+    void setProblemLabel(const QString &text);
 
     Ui::Qt4ProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
