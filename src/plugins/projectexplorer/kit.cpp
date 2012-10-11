@@ -78,11 +78,14 @@ namespace Internal {
 class KitPrivate
 {
 public:
-    KitPrivate() :
-        m_id(QUuid::createUuid().toString().toLatin1().constData()),
+    KitPrivate(Core::Id id) :
+        m_id(id),
         m_autodetected(false),
         m_isValid(true)
-    { }
+    {
+        if (!id.isValid())
+            m_id = Core::Id(QUuid::createUuid().toString().toLatin1().constData());
+    }
 
     QString m_displayName;
     Core::Id m_id;
@@ -100,8 +103,8 @@ public:
 // Kit:
 // -------------------------------------------------------------------------
 
-Kit::Kit() :
-    d(new Internal::KitPrivate)
+Kit::Kit(Core::Id id) :
+    d(new Internal::KitPrivate(id))
 {
     KitManager *stm = KitManager::instance();
     foreach (KitInformation *sti, stm->kitInformation())

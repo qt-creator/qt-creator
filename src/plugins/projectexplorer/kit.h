@@ -55,7 +55,7 @@ class KitPrivate;
 class PROJECTEXPLORER_EXPORT Kit
 {
 public:
-    Kit();
+    Kit(Core::Id id = Core::Id());
     ~Kit();
 
     bool isValid() const;
