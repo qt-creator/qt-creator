@@ -184,3 +184,5 @@ qt:greaterThan(QT_MAJOR_VERSION, 4) {
     contains(QT, gui): QT += widgets
     DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x040900
 }
+
+OTHER_FILES += $$replace(_PRO_FILE_, \\.pro$, .qbs)

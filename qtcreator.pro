@@ -15,7 +15,9 @@ SUBDIRS = src share lib/qtcreator/qtcomponents
 unix:!macx:!isEmpty(copydata):SUBDIRS += bin
 
 OTHER_FILES += dist/copyright_template.txt \
-    $$files(dist/changes-*)
+    $$files(dist/changes-*) \
+    qtcreator.qbp \
+    qbs/pluginspec/pluginspec.qbs
 
 macx: PLATFORM = "mac"
 else:win32: PLATFORM = "windows"
