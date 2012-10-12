@@ -505,7 +505,7 @@ void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParen
     refresh();
     DesignerSupport::updateDirtyNode(quickItem());
 
-    if (isInPositioner())
+    if (parentInstance() && isInPositioner())
         parentInstance()->refreshPositioner();
 }
 
