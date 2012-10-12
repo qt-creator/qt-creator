@@ -62,12 +62,6 @@ class CMakeOpenProjectWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:
-    enum PageId {
-        InSourcePageId,
-        ShadowBuildPageId,
-        CMakeRunPageId
-    };
-
     enum Mode {
         Nothing,
         NeedToCreate,
@@ -105,8 +99,6 @@ public:
     /// Also used to change the build directory of one buildconfiguration or create a new buildconfiguration
     CMakeOpenProjectWizard(CMakeManager *cmakeManager, Mode mode, const BuildInfo &info);
 
-
-    virtual int nextId() const;
     QString buildDirectory() const;
     QString sourceDirectory() const;
     void setBuildDirectory(const QString &directory);
@@ -127,7 +119,6 @@ private:
     QString m_buildDirectory;
     QString m_sourceDirectory;
     QString m_arguments;
-    bool m_creatingCbpFiles;
     Utils::Environment m_environment;
     bool m_useNinja;
     ProjectExplorer::Kit *m_kit;

@@ -204,32 +204,20 @@ QList<GeneratorInfo> GeneratorInfo::generatorInfosFor(ProjectExplorer::Kit *k, N
 CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const QString &sourceDirectory, Utils::Environment env)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(sourceDirectory),
-      m_creatingCbpFiles(false),
       m_environment(env),
       m_useNinja(false),
       m_kit(0)
 {
-    int startid;
     if (hasInSourceBuild()) {
-        startid = InSourcePageId;
         m_buildDirectory = m_sourceDirectory;
+        addPage(new InSourceBuildPage(this));
     } else {
-        startid = ShadowBuildPageId;
         m_buildDirectory = m_sourceDirectory + QLatin1String("-build");
+        addPage(new ShadowBuildPage(this));
     }
 
-    setPage(InSourcePageId, new InSourceBuildPage(this));
-    setPage(ShadowBuildPageId, new ShadowBuildPage(this));
-    setPage(CMakeRunPageId, new CMakeRunPage(this));
+    addPage(new CMakeRunPage(this));
 
-    Utils::WizardProgress *wp = wizardProgress();
-    Utils::WizardProgressItem *inSourceItem = wp->item(InSourcePageId);
-    Utils::WizardProgressItem *shadowBuildItem = wp->item(ShadowBuildPageId);
-    Utils::WizardProgressItem *cmakeRunItem = wp->item(CMakeRunPageId);
-    inSourceItem->setNextItems(QList<Utils::WizardProgressItem *>() << cmakeRunItem);
-    shadowBuildItem->setNextItems(QList<Utils::WizardProgressItem *>() << cmakeRunItem);
-
-    setStartId(startid);
     init();
 }
 
@@ -237,7 +225,6 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, CMake
                                                const BuildInfo &info)
     : m_cmakeManager(cmakeManager),
       m_sourceDirectory(info.sourceDirectory),
-      m_creatingCbpFiles(true),
       m_environment(info.environment),
       m_useNinja(info.useNinja),
       m_kit(info.kit)
@@ -271,20 +258,6 @@ CMakeManager *CMakeOpenProjectWizard::cmakeManager() const
 {
     return m_cmakeManager;
 }
-
-int CMakeOpenProjectWizard::nextId() const
-{
-    if (m_creatingCbpFiles)
-        return QWizard::nextId();
-    int cid = currentId();
-    if (cid == InSourcePageId) {
-        return CMakeRunPageId;
-    } else if (cid == ShadowBuildPageId) {
-        return CMakeRunPageId;
-    }
-    return -1;
-}
-
 
 bool CMakeOpenProjectWizard::hasInSourceBuild() const
 {
