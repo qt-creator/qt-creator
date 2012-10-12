@@ -145,6 +145,22 @@ private:
     Utils::PathChooser *m_pc;
 };
 
+class ChooseCMakePage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    ChooseCMakePage(CMakeOpenProjectWizard *cmakeWizard);
+
+    virtual bool isComplete() const;
+public slots:
+    void cmakeExecutableChanged();
+private:
+    void updateErrorText();
+    QLabel *m_cmakeLabel;
+    CMakeOpenProjectWizard *m_cmakeWizard;
+    Utils::PathChooser *m_cmakeExecutable;
+};
+
 class CMakeRunPage : public QWizardPage
 {
     Q_OBJECT
@@ -169,7 +185,6 @@ private:
     QPushButton *m_runCMake;
     Utils::QtcProcess *m_cmakeProcess;
     Utils::FancyLineEdit *m_argumentsLineEdit;
-    Utils::PathChooser *m_cmakeExecutable;
     QComboBox *m_generatorComboBox;
     QLabel *m_descriptionLabel;
     QLabel *m_exitCodeLabel;

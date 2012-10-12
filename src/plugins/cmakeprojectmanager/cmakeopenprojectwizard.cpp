@@ -216,6 +216,9 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, const
         addPage(new ShadowBuildPage(this));
     }
 
+    if (!m_cmakeManager->isCMakeExecutableValid())
+        addPage(new ChooseCMakePage(this));
+
     addPage(new CMakeRunPage(this));
 
     init();
@@ -243,6 +246,8 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, CMake
         m_buildDirectory = info.buildDirectory;
         addPage(new ShadowBuildPage(this, true));
     }
+    if (!m_cmakeManager->isCMakeExecutableValid())
+        addPage(new ChooseCMakePage(this));
 
     addPage(new CMakeRunPage(this, rmode, info.buildDirectory));
     init();
@@ -375,6 +380,61 @@ void ShadowBuildPage::buildDirectoryChanged()
     m_cmakeWizard->setBuildDirectory(m_pc->path());
 }
 
+ChooseCMakePage::ChooseCMakePage(CMakeOpenProjectWizard *cmakeWizard)
+    : QWizardPage(cmakeWizard), m_cmakeWizard(cmakeWizard)
+{
+    QFormLayout *fl = new QFormLayout;
+    fl->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    setLayout(fl);
+
+    m_cmakeLabel = new QLabel;
+    m_cmakeLabel->setWordWrap(true);
+    fl->addRow(m_cmakeLabel);
+    // Show a field for the user to enter
+    m_cmakeExecutable = new Utils::PathChooser(this);
+    m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    fl->addRow("cmake Executable:", m_cmakeExecutable);
+
+    connect(m_cmakeExecutable, SIGNAL(editingFinished()),
+            this, SLOT(cmakeExecutableChanged()));
+    connect(m_cmakeExecutable, SIGNAL(browsingFinished()),
+            this, SLOT(cmakeExecutableChanged()));
+
+    setTitle(tr("Choose Cmake Executable"));
+}
+
+void ChooseCMakePage::updateErrorText()
+{
+    QString cmakeExecutable = m_cmakeWizard->cmakeManager()->cmakeExecutable();
+    if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
+        m_cmakeLabel->setText(tr("The cmake executable is valid."));
+    } else {
+        QString text = tr("Please specify the path to the cmake executable. No cmake executable was found in the path.");
+        if (!cmakeExecutable.isEmpty()) {
+            QFileInfo fi(cmakeExecutable);
+            if (!fi.exists())
+                text += tr(" The cmake executable (%1) does not exist.").arg(cmakeExecutable);
+            else if (!fi.isExecutable())
+                text += tr(" The path %1 is not a executable.").arg(cmakeExecutable);
+            else
+                text += tr(" The path %1 is not a valid cmake.").arg(cmakeExecutable);
+        }
+        m_cmakeLabel->setText(text);
+    }
+}
+
+void ChooseCMakePage::cmakeExecutableChanged()
+{
+    m_cmakeWizard->cmakeManager()->setCMakeExecutable(m_cmakeExecutable->path());
+    updateErrorText();
+    emit completeChanged();
+}
+
+bool ChooseCMakePage::isComplete() const
+{
+    return m_cmakeWizard->cmakeManager()->isCMakeExecutableValid();
+}
+
 CMakeRunPage::CMakeRunPage(CMakeOpenProjectWizard *cmakeWizard, Mode mode, const QString &buildDirectory)
     : QWizardPage(cmakeWizard),
       m_cmakeWizard(cmakeWizard),
@@ -396,30 +456,6 @@ void CMakeRunPage::initWidgets()
     m_descriptionLabel->setWordWrap(true);
 
     fl->addRow(m_descriptionLabel);
-
-    if (m_cmakeWizard->cmakeManager()->isCMakeExecutableValid()) {
-        m_cmakeExecutable = 0;
-    } else {
-        QString text = tr("Please specify the path to the cmake executable. No cmake executable was found in the path.");
-        QString cmakeExecutable = m_cmakeWizard->cmakeManager()->cmakeExecutable();
-        if (!cmakeExecutable.isEmpty()) {
-            QFileInfo fi(cmakeExecutable);
-            if (!fi.exists())
-                text += tr(" The cmake executable (%1) does not exist.").arg(cmakeExecutable);
-            else if (!fi.isExecutable())
-                text += tr(" The path %1 is not a executable.").arg(cmakeExecutable);
-            else
-                text += tr(" The path %1 is not a valid cmake.").arg(cmakeExecutable);
-        }
-
-        QLabel *cmakeLabel = new QLabel(text);
-        cmakeLabel->setWordWrap(true);
-        fl->addRow(cmakeLabel);
-        // Show a field for the user to enter
-        m_cmakeExecutable = new Utils::PathChooser(this);
-        m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
-        fl->addRow("cmake Executable:", m_cmakeExecutable);
-    }
 
     // Run CMake Line (with arguments)
     m_argumentsLineEdit = new Utils::FancyLineEdit(this);
@@ -586,10 +622,6 @@ bool CMakeRunPage::validatePage()
 
 void CMakeRunPage::runCMake()
 {
-    if (m_cmakeExecutable)
-        // We asked the user for the cmake executable
-        m_cmakeWizard->cmakeManager()->setCMakeExecutable(m_cmakeExecutable->path());
-
     m_optionalCMake = false;
     m_complete = false;
 
