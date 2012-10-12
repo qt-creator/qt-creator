@@ -257,7 +257,7 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
 {
     QString text = textIn;
     text.remove(QLatin1Char('\r'));
-    if (m_maxLineCount > 0 && document()->blockCount() > m_maxLineCount)
+    if (m_maxLineCount > 0 && document()->blockCount() >= m_maxLineCount)
         return;
     const bool atBottom = isScrollbarAtBottom();
     QTextCursor cursor = QTextCursor(document());
@@ -265,10 +265,10 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
     cursor.beginEditBlock();
     cursor.insertText(doNewlineEnfocement(text), format);
 
-    if (m_maxLineCount > 0 && document()->blockCount() > m_maxLineCount) {
+    if (m_maxLineCount > 0 && document()->blockCount() >= m_maxLineCount) {
         QTextCharFormat tmp;
         tmp.setFontWeight(QFont::Bold);
-        cursor.insertText(tr("Additional output omitted\n"), tmp);
+        cursor.insertText(doNewlineEnfocement(tr("Additional output omitted\n")), tmp);
     }
 
     cursor.endEditBlock();
