@@ -58,7 +58,7 @@ static const NSString *NSWindowDidExitFullScreenNotification = @"NSWindowDidExit
 
 @implementation WindowObserver
 
-- (id)initWithMainWindow:(Core::Internal::MainWindow *)w;
+- (id)initWithMainWindow:(Core::Internal::MainWindow *)w
 {
     if ((self = [self init])) {
         window = w;
