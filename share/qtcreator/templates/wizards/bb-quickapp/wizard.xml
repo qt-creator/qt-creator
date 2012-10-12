@@ -42,5 +42,8 @@
         <file source="qml/main.qml" openeditor="true"/>
         <file source="bar-descriptor.xml" openeditor="true"/>
         <file source="project.pro" target="%ProjectName%.pro" openproject="true"/>
+        <file source="../../qtquickapp/qmlapplicationviewer/qmlapplicationviewer.h" target="qmlapplicationviewer/qmlapplicationviewer.h" />
+        <file source="../../qtquickapp/qmlapplicationviewer/qmlapplicationviewer.cpp" target="qmlapplicationviewer/qmlapplicationviewer.cpp" />
+        <file source="../../qtquickapp/qmlapplicationviewer/qmlapplicationviewer.pri" target="qmlapplicationviewer/qmlapplicationviewer.pri" />
     </files>
 </wizard>

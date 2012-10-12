@@ -1,6 +1,7 @@
 TEMPLATE = app
 
-QT += declarative
+# Please do not modify the following line.
+include(qmlapplicationviewer/qmlapplicationviewer.pri)
 
 # Additional import path used to resolve QML modules in Creator's code model
 QML_IMPORT_PATH =
