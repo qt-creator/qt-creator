@@ -681,10 +681,10 @@ namespace undefined {
         int *i = new int;
         delete i;
         BREAK_HERE;
+        // Continue.
         // Manual: Uncomment the following line. Step.
         // On Linux, a SIGABRT should be received.
         //delete i;
-        // Continue.
         dummyStatement(&i);
     }
 
