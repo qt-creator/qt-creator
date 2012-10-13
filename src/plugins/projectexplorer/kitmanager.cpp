@@ -359,6 +359,8 @@ QList<KitInformation *> KitManager::kitInformation() const
 
 Internal::KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k) const
 {
+    if (!k)
+        return 0;
     Internal::KitManagerConfigWidget *result = new Internal::KitManagerConfigWidget(k);
     foreach (KitInformation *ki, d->m_informationList)
         result->addConfigWidget(ki->createConfigWidget(k));
