@@ -67,6 +67,7 @@ private slots:
     void test_vim_delete_inner_word();
     void test_vim_delete_a_word();
     void test_vim_change_a_word();
+    void test_vim_change_replace();
     void test_vim_block_selection();
     void test_vim_repeat();
     void test_vim_search();
@@ -74,6 +75,8 @@ private slots:
     void test_vim_marks();
     void test_vim_copy_paste();
     void test_vim_undo_redo();
+    void test_vim_letter_case();
+    void test_vim_code_autoindent();
     void test_vim_code_folding();
     void test_advanced_commands();
     void test_map();
