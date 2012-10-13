@@ -812,7 +812,6 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
 
 }
 
-
 void CppToolsPlugin::test_completion_cyclic_inheritance()
 {
     test_completion();
@@ -970,3 +969,48 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
             << code << completions;
 
 }
+
+void CppToolsPlugin::test_completion_enclosing_template_class()
+{
+    test_completion();
+}
+
+void CppToolsPlugin::test_completion_enclosing_template_class_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QByteArray code;
+    QStringList completions;
+
+    code = "\n"
+            "template<typename T>\n"
+            "struct Enclosing\n"
+            "{\n"
+            "    struct Nested { int int_nested; }; \n"
+            "    int int_enclosing;\n"
+            "};\n"
+            "\n"
+            "Enclosing<int>::Nested c;"
+            "@\n";
+    completions.append("Nested");
+    completions.append("int_nested");
+    QTest::newRow("case: nested class with enclosing template class")
+            << code << completions;
+
+    completions.clear();
+
+    code = "\n"
+            "template<typename T>\n"
+            "struct Enclosing\n"
+            "{\n"
+            "    template<typename T> struct Nested { int int_nested; }; \n"
+            "    int int_enclosing;\n"
+            "};\n"
+            "\n"
+            "Enclosing<int>::Nested<int> c;"
+            "@\n";
+    completions.append("Nested");
+    completions.append("int_nested");
+    QTest::newRow("case: nested template class with enclosing template class")
+            << code << completions;}
