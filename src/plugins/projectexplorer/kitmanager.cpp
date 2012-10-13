@@ -213,6 +213,7 @@ void KitManager::restoreKits()
         setDefaultKit(k);
 
     d->m_writer = new Utils::PersistentSettingsWriter(settingsFileName(), QLatin1String("QtCreatorProfiles"));
+    emit kitsChanged();
 }
 
 KitManager::~KitManager()
