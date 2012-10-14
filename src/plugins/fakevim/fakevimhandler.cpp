@@ -6464,12 +6464,9 @@ void FakeVimHandler::handleReplay(const QString &keys)
 
 void FakeVimHandler::handleInput(const QString &keys)
 {
-    Mode oldMode = d->m_mode;
-    d->m_mode = CommandMode;
     Inputs inputs(keys);
     foreach (const Input &input, inputs)
         d->handleKey(input);
-    d->m_mode = oldMode;
 }
 
 void FakeVimHandler::setCurrentFileName(const QString &fileName)

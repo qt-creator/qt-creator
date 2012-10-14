@@ -41,6 +41,7 @@
 #include <QtTest>
 #include <QTextEdit>
 #include <QTextDocument>
+#include <QTextBlock>
 
 /*!
  * Tests after this macro will be skipped and warning printed.
@@ -78,9 +79,11 @@ static const QString helpFormat =
         QString before(beforeText); \
         QString actual(afterText); \
         QString expected(expectedText); \
+        data.oldPosition = beforePosition; \
+        data.oldText = before; \
         if (!cursorString.isEmpty() && expected.contains(cursorString)) {\
-            before.insert(beforePosition, cursorString); \
-            actual.insert(afterPosition, cursorString); \
+            before = textWithCursor(before, beforePosition); \
+            actual = textWithCursor(actual, afterPosition); \
         } \
         QString help = helpFormat \
             .arg(QString(cmd)) \
@@ -110,8 +113,42 @@ static const QString helpFormat =
         COMPARE(beforeText, beforePosition, data.text(), data.position(), (expected), (":" cmd)); \
     } while (false)
 
+// Test undo, redo and repeat of last single command. This doesn't test cursor position.
+#define INTEGRITY() \
+    do { \
+        data.doKeys("<ESC>"); \
+        const int newPosition = data.position(); \
+        const int oldPosition = data.oldPosition; \
+        const QString redo = data.text(); \
+        KEYS("u", data.oldText); \
+        const QTextCursor tc = data.cursor(); \
+        const int pos = tc.position(); \
+        const int col = tc.positionInBlock(); \
+        const int line = tc.block().blockNumber(); \
+        const QTextDocument *doc = data.editor()->document(); \
+        KEYS("<c-r>", textWithCursor(redo, doc->findBlockByNumber(line), col)); \
+        KEYS("u", textWithCursor(data.oldText, pos)); \
+        data.setPosition(oldPosition); \
+        KEYS(".", textWithCursor(redo, newPosition)); \
+    } while (false)
+
 using namespace FakeVim::Internal;
 using namespace TextEditor;
+
+namespace {
+
+QString textWithCursor(const QString &text, int position)
+{
+    return (position == -1) ? text : (text.left(position) + cursorString + text.mid(position));
+}
+
+QString textWithCursor(const QString &text, const QTextBlock &block, int column)
+{
+    const int pos = block.position() + qMin(column, qMax(0, block.length() - 2));
+    return text.left(pos) + cursorString + text.mid(pos);
+}
+
+} // namespace
 
 // Data for tests containing BaseTextEditorWidget and FakeVimHAndler.
 struct FakeVimPlugin::TestData
@@ -120,6 +157,9 @@ struct FakeVimPlugin::TestData
     QWidget *edit;
     QString title;
 
+    int oldPosition;
+    QString oldText;
+
     BaseTextEditorWidget *editor() const { return qobject_cast<BaseTextEditorWidget *>(edit); }
 
     QTextCursor cursor() const { return editor()->textCursor(); }
@@ -127,6 +167,11 @@ struct FakeVimPlugin::TestData
     int position() const
     {
         return cursor().position();
+    }
+
+    void setPosition(int position)
+    {
+        handler->setTextCursorPosition(position);
     }
 
     QString text() const { return editor()->toPlainText(); }
@@ -138,7 +183,7 @@ struct FakeVimPlugin::TestData
         if (!cursorString.isEmpty() && i != -1)
             str.remove(i, 1);
         editor()->document()->setPlainText(str);
-        handler->setTextCursorPosition(i);
+        setPosition(i);
     }
 
     void doCommand(const QString &cmd) { handler->handleCommand(cmd); }
@@ -261,14 +306,18 @@ void FakeVimPlugin::test_vim_transform_numbers()
 
     data.setText("8");
     KEYS("<c-a>", X "9");
+    INTEGRITY();
     KEYS("<c-x>", X "8");
+    INTEGRITY();
     KEYS("<c-a>", X "9");
     KEYS("<c-a>", "1" X "0");
     KEYS("<c-a>", "1" X "1");
     KEYS("5<c-a>", "1" X "6");
+    INTEGRITY();
     KEYS("10<c-a>", "2" X "6");
     KEYS("h100<c-a>", "12" X "6");
     KEYS("100<c-x>", "2" X "6");
+    INTEGRITY();
     KEYS("10<c-x>", "1" X "6");
     KEYS("5<c-x>", "1" X "1");
     KEYS("5<c-x>", X "6");
@@ -307,24 +356,33 @@ void FakeVimPlugin::test_vim_delete()
 
     data.setText("123" N "456");
     KEYS("x",  "23" N "456");
+    INTEGRITY();
     KEYS("dd", "456");
+    INTEGRITY();
     KEYS("2x", "6");
+    INTEGRITY();
     KEYS("dd", "");
+    INTEGRITY();
 
     data.setText("void main()");
     KEYS("dt(", "()");
+    INTEGRITY();
 
     data.setText("void main()");
     KEYS("df(", ")");
+    INTEGRITY();
 
-    data.setText("void main()");
-    KEYS("wD", "void ");
+    data.setText("void " X "main()");
+    KEYS("D", "void ");
+    INTEGRITY();
     KEYS("ggd$", "");
 
     data.setText("abc def ghi");
     KEYS("2dw", X "ghi");
+    INTEGRITY();
     data.setText("abc def ghi");
     KEYS("d2w", X "ghi");
+    INTEGRITY();
 
     data.setText("abc  " N "  def" N "  ghi" N "jkl");
     KEYS("3dw", X "jkl");
@@ -338,6 +396,7 @@ void FakeVimPlugin::test_vim_delete()
     // delete on an empty line
     data.setText("a" N X "" N "  b");
     KEYS("d$", "a" N X "" N "  b");
+    INTEGRITY();
 
     // delete in empty document
     data.setText("");
@@ -354,9 +413,11 @@ void FakeVimPlugin::test_vim_delete_inner_word()
 
     data.setText("abc def ghi jkl");
     KEYS("3diw", X  " ghi jkl");
+    INTEGRITY();
 
     data.setText("abc " X "  def");
     KEYS("diw", "abc" X "def");
+    INTEGRITY();
     KEYS("diw", "");
 
     data.setText("abc  " N "  def");
@@ -399,7 +460,9 @@ void FakeVimPlugin::test_vim_delete_a_word()
 
     data.setText("abc" X " def ghi");
     KEYS("daw", "abc" X " ghi");
+    INTEGRITY();
     KEYS("daw", "ab" X "c");
+    INTEGRITY();
     KEYS("daw", "");
 
     data.setText(X " ghi jkl");
@@ -408,6 +471,7 @@ void FakeVimPlugin::test_vim_delete_a_word()
 
     data.setText("abc def ghi jkl");
     KEYS("3daw", X "jkl");
+    INTEGRITY();
 
     // remove trailing spaces
     data.setText("abc  " N "  def" N "  ghi" N "jkl");
@@ -436,6 +500,7 @@ void FakeVimPlugin::test_vim_change_a_word()
 
     data.setText("abc " X "def ghi");
     KEYS("caw#", "abc #" X "ghi");
+    INTEGRITY();
     data.setText("abc d" X "ef ghi");
     KEYS("caw#", "abc #" X "ghi");
     data.setText("abc de" X "f ghi");
@@ -443,6 +508,7 @@ void FakeVimPlugin::test_vim_change_a_word()
 
     data.setText("abc de" X "f ghi jkl");
     KEYS("2caw#", "abc #" X "jkl");
+    INTEGRITY();
 
     data.setText("abc" X " def ghi jkl");
     KEYS("2caw#", "abc#" X " jkl");
@@ -466,10 +532,12 @@ void FakeVimPlugin::test_vim_change_replace()
     // change empty line
     data.setText("a" N X "" N "  b");
     KEYS("ccABC", "a" N "ABC" X N "  b");
+    INTEGRITY();
 
     // change on empty line
     data.setText("a" N X "" N "  b");
     KEYS("c$ABC<esc>", "a" N "AB" X "C" N "  b");
+    INTEGRITY();
     KEYS("u", "a" N X "" N "  b");
     KEYS("rA", "a" N X "" N "  b");
 
@@ -498,6 +566,7 @@ void FakeVimPlugin::test_vim_change_replace()
          "  int i = 0;" X N
          "}" N
          "");
+    INTEGRITY();
 
     KEYS("uS" "int i = 0;" N "int j = 1;",
          "int main()" N
@@ -516,10 +585,12 @@ void FakeVimPlugin::test_vim_block_selection()
     data.setText("int main(int /* (unused) */, char *argv[]);");
     KEYS("f(", "int main" X "(int /* (unused) */, char *argv[]);");
     KEYS("da(", "int main" X ";");
+    INTEGRITY();
 
     data.setText("int main(int /* (unused) */, char *argv[]);");
     KEYS("f(", "int main" X "(int /* (unused) */, char *argv[]);");
     KEYS("di(", "int main(" X ");");
+    INTEGRITY();
 
     data.setText("int main(int /* (unused) */, char *argv[]);");
     KEYS("2f)", "int main(int /* (unused) */, char *argv[]" X ");");
@@ -533,10 +604,12 @@ void FakeVimPlugin::test_vim_block_selection()
     KEYS("2f{l", "{ { {" X " } } }");
     KEYS("da{", "{ { " X " } }");
     KEYS("da{", "{ " X " }");
+    INTEGRITY();
 
     data.setText("{ { { } } }");
     KEYS("2f{l", "{ { {" X " } } }");
     KEYS("2da{", "{ " X " }");
+    INTEGRITY();
 
     data.setText("{" N " { " N " } " N "}");
     KEYS("di{", "{" N "}");
@@ -556,6 +629,7 @@ void FakeVimPlugin::test_vim_repeat()
     data.setText("abc" N "def" N "ghi");
     KEYS("dd", X "def" N "ghi");
     KEYS(".", X "ghi");
+    INTEGRITY();
 
     // delete to next word
     data.setText("abc def ghi jkl");
@@ -713,6 +787,7 @@ void FakeVimPlugin::test_vim_indent()
         "    " X "ghi" N
         "    jkl" N
         "mno");
+    INTEGRITY();
     KEYS("k3<<",
         "abc" N
         X "def" N
@@ -735,6 +810,7 @@ void FakeVimPlugin::test_vim_indent()
 
     data.setText("abc");
     KEYS(">>", "    " X "abc");
+    INTEGRITY();
 
     data.setText("abc");
     data.doCommand("set shiftwidth=2");
@@ -752,6 +828,7 @@ void FakeVimPlugin::test_vim_indent()
     data.doCommand("set shiftwidth=7");
     data.setText("abc");
     KEYS(">>", "\t\t abc");
+    INTEGRITY();
 }
 
 void FakeVimPlugin::test_vim_marks()
@@ -792,6 +869,7 @@ void FakeVimPlugin::test_vim_copy_paste()
     data.setText("123" N "456");
     KEYS("yyp", "123" N X "123" N "456");
     KEYS("2p", "123" N "123" N X "123" N "123" N "456");
+    INTEGRITY();
 
     data.setText("123 456");
     KEYS("yw2P", "123 123" X " 123 456");
@@ -944,6 +1022,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "   return 0;" X N
          "}" N
          "");
+    INTEGRITY();
     KEYS("O" "int i = 0;",
          "int main()" N
          "{" N
@@ -951,6 +1030,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "   return 0;" N
          "}" N
          "");
+    INTEGRITY();
     KEYS("ddO" "int i = 0;" N "int j = 0;",
          "int main()" N
          "{" N
@@ -988,6 +1068,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "{" N
          X "}" N
          "");
+    INTEGRITY();
 }
 
 void FakeVimPlugin::test_vim_code_folding()
