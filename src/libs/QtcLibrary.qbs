@@ -8,6 +8,8 @@ DynamicLibrary {
         name: "Qt.test"
     }
 
+    targetName: Defaults.qtLibraryName(qbs, name)
+
     cpp.defines: Defaults.defines(qbs)
     cpp.linkerFlags: {
         if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))

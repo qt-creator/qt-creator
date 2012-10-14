@@ -7,16 +7,8 @@ Product {
     property string provider: 'QtProject'
     property var pluginspecreplacements
     property var pluginRecommends: []
-    targetName: {
-        // see PluginSpecPrivate::loadLibrary()
-        if (qbs.debugInformation) {
-            if (qbs.targetOS.contains("windows"))
-                return name + "d";
-            if (qbs.targetOS.contains("osx"))
-                return name + "_debug";
-        }
-        return name;
-    }
+
+    targetName: Defaults.qtLibraryName(qbs, name)
 
     Depends { name: "ExtensionSystem" }
     Depends { name: "pluginspec" }
