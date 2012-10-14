@@ -193,14 +193,21 @@ void BasicProposalItemListModel::filter(const QString &prefix)
 
     /*
      * This code builds a regular expression in order to more intelligently match
-     * camel-case style. This means upper-case characters will be rewritten as follows:
+     * camel-case and underscore names.
      *
-     *   A => [a-z0-9_]*A (for any but the first capital letter)
+     * For any but the first letter, the following replacements are made:
+     *   A => [a-z0-9_]*A
+     *   a => (?:[a-zA-Z0-9]*_)?a
      *
-     * Meaning it allows any sequence of lower-case characters to preceed an
-     * upper-case character. So for example gAC matches getActionController.
+     * That means any sequence of lower-case or underscore characters can preceed an
+     * upper-case character. And any sequence of lower-case or upper case characters -
+     * followed by an underscore can preceed a lower-case character.
      *
-     * It also implements the first-letter-only case sensitivity.
+     * Examples: (case sensitive mode)
+     *   gAC matches getActionController
+     *   gac matches get_action_controller
+     *
+     * It also implements the fully and first-letter-only case sensitivity.
      */
     const TextEditor::CaseSensitivity caseSensitivity =
         TextEditorSettings::instance()->completionSettings().m_caseSensitivity;
@@ -208,21 +215,29 @@ void BasicProposalItemListModel::filter(const QString &prefix)
     QString keyRegExp;
     keyRegExp += QLatin1Char('^');
     bool first = true;
-    const QLatin1String wordContinuation("[a-z0-9_]*");
+    const QLatin1String uppercaseWordContinuation("[a-z0-9_]*");
+    const QLatin1String lowercaseWordContinuation("(?:[a-zA-Z0-9]*_)?");
     foreach (const QChar &c, prefix) {
         if (caseSensitivity == TextEditor::CaseInsensitive ||
             (caseSensitivity == TextEditor::FirstLetterCaseSensitive && !first)) {
 
             keyRegExp += QLatin1String("(?:");
-            if (c.isUpper() && !first)
-                keyRegExp += wordContinuation;
+            if (!first)
+                keyRegExp += uppercaseWordContinuation;
             keyRegExp += QRegExp::escape(c.toUpper());
             keyRegExp += QLatin1Char('|');
+            if (!first)
+                keyRegExp += lowercaseWordContinuation;
             keyRegExp += QRegExp::escape(c.toLower());
             keyRegExp += QLatin1Char(')');
         } else {
-            if (c.isUpper() && !first)
-                keyRegExp += wordContinuation;
+            if (!first) {
+                if (c.isUpper()) {
+                    keyRegExp += uppercaseWordContinuation;
+                } else {
+                    keyRegExp += lowercaseWordContinuation;
+                }
+            }
             keyRegExp += QRegExp::escape(c);
         }
 
