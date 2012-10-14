@@ -120,7 +120,8 @@ private:
                            const QIcon &icon = QIcon(),
                            int order = 0,
                            const QVariant &data = QVariant());
-    void addCompletionItem(CPlusPlus::Symbol *symbol);
+    void addCompletionItem(CPlusPlus::Symbol *symbol,
+                           int order = 0);
     void addSnippets();
     void addKeywords();
     void addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot);

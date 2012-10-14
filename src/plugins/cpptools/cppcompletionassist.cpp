@@ -1068,6 +1068,18 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
     return true;
 }
 
+namespace {
+enum CompletionOrder {
+    // default order is 0
+    FunctionArgumentsOrder = 2,
+    FunctionLocalsOrder = 2, // includes local types
+    PublicClassMemberOrder = 1,
+    InjectedClassNameOrder = -1,
+    MacrosOrder = -2,
+    KeywordsOrder = -2
+};
+}
+
 void CppCompletionAssistProcessor::addCompletionItem(const QString &text,
                                                      const QIcon &icon,
                                                      int order,
@@ -1081,12 +1093,14 @@ void CppCompletionAssistProcessor::addCompletionItem(const QString &text,
     m_completions.append(item);
 }
 
-void CppCompletionAssistProcessor::addCompletionItem(CPlusPlus::Symbol *symbol)
+void CppCompletionAssistProcessor::addCompletionItem(CPlusPlus::Symbol *symbol,
+                                                     int order)
 {
     ConvertToCompletionItem toCompletionItem;
     BasicProposalItem *item = toCompletionItem(symbol);
     if (item) {
         item->setIcon(m_icons.iconForSymbol(symbol));
+        item->setOrder(order);
         m_completions.append(item);
     }
 }
@@ -1376,12 +1390,12 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
     for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
         if (scope->isBlock()) {
             for (unsigned i = 0; i < scope->memberCount(); ++i) {
-                addCompletionItem(scope->memberAt(i));
+                addCompletionItem(scope->memberAt(i), FunctionLocalsOrder);
             }
         } else if (scope->isFunction()) {
             Function *fun = scope->asFunction();
             for (unsigned i = 0; i < fun->argumentCount(); ++i) {
-                addCompletionItem(fun->argumentAt(i));
+                addCompletionItem(fun->argumentAt(i), FunctionArgumentsOrder);
             }
             break;
         } else {
@@ -1545,7 +1559,8 @@ void CppCompletionAssistProcessor::completeClass(CPlusPlus::ClassOrNamespace *b,
 
             scopesVisited.insert(scope);
 
-            addCompletionItem(scope); // add a completion item for the injected class name.
+            if (staticLookup)
+                addCompletionItem(scope, InjectedClassNameOrder); // add a completion item for the injected class name.
 
             for (Scope::iterator it = scope->firstMember(); it != scope->lastMember(); ++it) {
                 Symbol *member = *it;
@@ -1559,7 +1574,11 @@ void CppCompletionAssistProcessor::completeClass(CPlusPlus::ClassOrNamespace *b,
                     continue;
                 }
 
-                addCompletionItem(member);
+                if (member->isPublic()) {
+                    addCompletionItem(member, PublicClassMemberOrder);
+                } else {
+                    addCompletionItem(member);
+                }
             }
         }
     }
@@ -1678,7 +1697,7 @@ void CppCompletionAssistProcessor::addKeywords()
 
     // keyword completion items.
     for (int i = T_FIRST_KEYWORD; i < keywordLimit; ++i)
-        addCompletionItem(QLatin1String(Token::name(i)), m_icons.keywordIcon());
+        addCompletionItem(QLatin1String(Token::name(i)), m_icons.keywordIcon(), KeywordsOrder);
 }
 
 void CppCompletionAssistProcessor::addMacros(const QString &fileName, const CPlusPlus::Snapshot &snapshot)
@@ -1689,7 +1708,7 @@ void CppCompletionAssistProcessor::addMacros(const QString &fileName, const CPlu
     addMacros_helper(snapshot, fileName, &processed, &definedMacros);
 
     foreach (const QString &macroName, definedMacros)
-        addCompletionItem(macroName, m_icons.macroIcon());
+        addCompletionItem(macroName, m_icons.macroIcon(), MacrosOrder);
 }
 
 void CppCompletionAssistProcessor::addMacros_helper(const CPlusPlus::Snapshot &snapshot,
