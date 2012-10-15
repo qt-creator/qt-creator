@@ -597,7 +597,6 @@ _Lrestart:
         return usages;
     }
 
-    // ### FIXME: Pretty close to FindUsages::matchingLine.
     static QString matchingLine(unsigned position, const QString &source,
                                 unsigned *lineStart = 0)
     {
