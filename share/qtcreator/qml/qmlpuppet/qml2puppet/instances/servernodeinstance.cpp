@@ -213,8 +213,17 @@ ServerNodeInstance ServerNodeInstance::create(NodeInstanceServer *nodeInstanceSe
         object = Internal::ObjectNodeInstance::createPrimitive(instanceContainer.type(), instanceContainer.majorNumber(), instanceContainer.minorNumber(), nodeInstanceServer->context());
     }
 
-    if ((object == 0) && (instanceContainer.metaType() == InstanceContainer::ItemMetaType)) //If we cannot instanciate the object but we know it has to be an Ttem, we create an Item instead.
-        object = Internal::ObjectNodeInstance::createPrimitive("QtQuick/Item", 2, 0, nodeInstanceServer->context());
+    if (object == 0) {
+        if (instanceContainer.metaType() == InstanceContainer::ItemMetaType) { //If we cannot instanciate the object but we know it has to be an Ttem, we create an Item instead.
+            object = Internal::ObjectNodeInstance::createPrimitive("QtQuick/Item", 2, 0, nodeInstanceServer->context());
+
+            if (object == 0)
+                object = new QQuickItem;
+        } else {
+            object = new QObject;
+        }
+   }
+
 
     QQmlEnginePrivate::get(nodeInstanceServer->engine())->cache(object->metaObject());
 
