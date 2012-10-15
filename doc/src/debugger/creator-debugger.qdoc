@@ -631,6 +631,17 @@
     Also, the debugger displays access data for QFileInfo and provides
     access to the "real" contents of QVariant.
 
+    Right-click in the the \gui{Locals and Expressions} view to open a context
+    menu that provides additional options for viewing data. The available
+    options depend on the type of the current items, and are provided by the
+    \l{Using Debugging Helpers}{Debugging Helpers}. Typically, string-like data,
+    such as \c{QByteArray} and \c{std::string}, offer a selection of encodings,
+    as well as the possibility to use a full editor window. Map-like data, such
+    as \c{QMap}, \c{QHash}, and \c{std::map}, offer a compact option using the
+    \c{name} column for keys, resulting in a concise display of containers with
+    short keys, such as numbers or short strings. For example, to expand all the
+    values of QMap, select \gui {Change Local Display Format} > \gui Compact.
+
     You can use the \gui{Locals and Expressions} view to change the contents of
     variables of simple data types, for example, \c int or \c float when the
     program is interrupted. To do so, click the \gui Value column, modify
