@@ -57,7 +57,7 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
 namespace {
-const int MAX_LINECOUNT = 50000;
+const int MAX_LINECOUNT = 100000;
 }
 
 namespace ProjectExplorer {
