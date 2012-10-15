@@ -71,7 +71,6 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
-    CppModelManager *cppModelManager() { return m_modelManager; }
 
 private slots:
     void switchHeaderSource();
@@ -110,7 +109,6 @@ private:
 #endif
 
 private:
-    CppModelManager *m_modelManager;
     QSharedPointer<CppFileSettings> m_fileSettings;
     CppToolsSettings *m_settings;
 };

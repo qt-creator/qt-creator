@@ -80,7 +80,7 @@ class CPPTOOLS_EXPORT CppModelManager : public CPlusPlus::CppModelManagerInterfa
     Q_OBJECT
 
 public:
-    CppModelManager(QObject *parent);
+    CppModelManager(QObject *parent = 0);
     virtual ~CppModelManager();
 
     static CppModelManager *instance();
@@ -191,6 +191,10 @@ private:
     static void parse(QFutureInterface<void> &future,
                       CppPreprocessor *preproc,
                       QStringList files);
+
+private:
+    static QMutex m_modelManagerMutex;
+    static CppModelManager *m_modelManagerInstance;
 
 private:
     CPlusPlus::Snapshot m_snapshot;

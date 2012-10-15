@@ -309,7 +309,7 @@ public:
         _doc->check(_mode);
 
         if (_modelManager)
-            _modelManager->emitDocumentUpdated(_doc); // ### TODO: compress
+            _modelManager->emitDocumentUpdated(_doc);
 
         _doc->releaseSourceAndAST();
     }
@@ -654,13 +654,6 @@ void CppModelManager::updateModifiedSourceFiles()
     updateSourceFiles(sourceFiles);
 }
 
-CppModelManager *CppModelManager::instance()
-{
-    // TODO this is pretty stupid. use regular singleton pattern.
-    return ExtensionSystem::PluginManager::getObject<CppModelManager>();
-}
-
-
 /*!
     \class CppTools::CppModelManager
     \brief The CppModelManager keeps track of one CppCodeModel instance
@@ -669,6 +662,20 @@ CppModelManager *CppModelManager::instance()
     It also takes care of updating the code models when C++ files are
     modified within Qt Creator.
 */
+
+QMutex CppModelManager::m_modelManagerMutex;
+CppModelManager *CppModelManager::m_modelManagerInstance = 0;
+
+CppModelManager *CppModelManager::instance()
+{
+    if (m_modelManagerInstance)
+        return m_modelManagerInstance;
+    QMutexLocker locker(&m_modelManagerMutex);
+    if (!m_modelManagerInstance) {
+        m_modelManagerInstance = new CppModelManager;
+    }
+    return m_modelManagerInstance;
+}
 
 CppModelManager::CppModelManager(QObject *parent)
     : CppModelManagerInterface(parent)
