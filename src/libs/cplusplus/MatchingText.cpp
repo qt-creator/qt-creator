@@ -52,15 +52,6 @@ static bool shouldOverrideChar(QChar ch)
     }
 }
 
-// disable gcc warning:
-//
-//   qstring.h:1175:39: warning: assuming signed overflow does not occur when assuming that (X - c) > X is always false
-//
-// caused by Q_ASSERT in QStringRef::at()
-#if defined(Q_CC_GNU) && !defined(Q_CC_INTEL)
-#    pragma GCC diagnostic ignored "-Wstrict-overflow"
-#endif
-
 static bool isCompleteStringLiteral(const BackwardsScanner &tk, int index)
 {
     const QStringRef text = tk.textRef(index);
