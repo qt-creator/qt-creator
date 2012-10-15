@@ -423,8 +423,8 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     sp->serverStartScript = newParameters.serverStartScript;
     sp->debugInfoLocation = newParameters.debugInfoLocation;
 
-    bool isLocal = DeviceKitInformation::device(kit)->type()
-         == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    IDevice::ConstPtr dev = DeviceKitInformation::device(kit);
+    bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     if (!attachRemote)
         sp->startMode = isLocal ? StartExternal : StartRemoteProcess;
     return true;
