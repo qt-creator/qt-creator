@@ -75,7 +75,9 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
         foreach (ServerNodeInstance instance,  rootNodeInstance().stateInstances()) {
             instance.activateState();
-            imageContainerVector.append(ImageContainer(instance.instanceId(), renderPreviewImage(), instance.instanceId()));
+            QImage previewImage = renderPreviewImage();
+            if (!previewImage.isNull())
+                imageContainerVector.append(ImageContainer(instance.instanceId(), renderPreviewImage(), instance.instanceId()));
             instance.deactivateState();
         }
 
