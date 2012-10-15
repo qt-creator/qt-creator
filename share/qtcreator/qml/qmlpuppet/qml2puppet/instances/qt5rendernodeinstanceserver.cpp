@@ -90,6 +90,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                         if (ancestorInstance.isValid())
                             m_dirtyInstanceSet.insert(ancestorInstance);
                     }
+                    DesignerSupport::updateDirtyNode(item);
                 }
             }
 
@@ -99,8 +100,6 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                 nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand(m_dirtyInstanceSet.toList()));
                 m_dirtyInstanceSet.clear();
             }
-
-            resetAllItems();
 
             slowDownRenderTimer();
             nodeInstanceClient()->flush();

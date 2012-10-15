@@ -341,6 +341,8 @@ void QuickItemNodeInstance::setPropertyVariant(const QString &name, const QVaria
 
     ObjectNodeInstance::setPropertyVariant(name, value);
 
+    quickItem()->update();
+
     refresh();
 
     if (isInPositioner())
@@ -353,6 +355,8 @@ void QuickItemNodeInstance::setPropertyBinding(const QString &name, const QStrin
         return; // states are only set by us
 
     ObjectNodeInstance::setPropertyBinding(name, expression);
+
+    quickItem()->update();
 
     refresh();
 
@@ -475,6 +479,8 @@ void QuickItemNodeInstance::resetProperty(const QString &name)
     }
 
     ObjectNodeInstance::resetProperty(name);
+
+    quickItem()->update();
 
     if (isInPositioner())
         parentInstance()->refreshPositioner();
