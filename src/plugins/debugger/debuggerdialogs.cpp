@@ -384,10 +384,9 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     StartApplicationDialog dialog(parent);
     dialog.setHistory(history);
     dialog.setParameters(history.back());
-    if (attachRemote) {
+    if (!attachRemote) {
         dialog.d->serverStartScriptPathChooser->setVisible(false);
         dialog.d->serverStartScriptLabel->setVisible(false);
-    } else {
         dialog.d->serverPortSpinBox->setVisible(false);
         dialog.d->serverPortLabel->setVisible(false);
     }
