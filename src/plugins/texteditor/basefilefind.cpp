@@ -34,6 +34,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
+#include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/refactoringchanges.h>
@@ -363,7 +364,26 @@ QStringList BaseFileFind::replaceAll(const QString &text,
     foreach (const Find::SearchResultItem &item, items)
         changes[QDir::fromNativeSeparators(item.path.first())].append(item);
 
+    // Checking for files without write permissions
     QHashIterator<QString, QList<Find::SearchResultItem> > it(changes);
+    QSet<QString> roFiles;
+    while (it.hasNext()) {
+        it.next();
+        const QFileInfo fileInfo(it.key());
+        if (!fileInfo.isWritable())
+            roFiles.insert(it.key());
+    }
+
+    // Query the user for permissions
+    if (!roFiles.isEmpty()) {
+        Core::Internal::ReadOnlyFilesDialog roDialog(roFiles.toList(),
+                                                     Core::ICore::instance()->mainWindow());
+        roDialog.setShowFailWarning(true, tr("Aborting replace."));
+        if (roDialog.exec() == Core::Internal::ReadOnlyFilesDialog::RO_Cancel)
+            return QStringList();
+    }
+
+    it.toFront();
     while (it.hasNext()) {
         it.next();
         const QString fileName = it.key();

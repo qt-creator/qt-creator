@@ -46,7 +46,6 @@ namespace Core {
 
 class IContext;
 class IDocument;
-class IVersionControl;
 
 class CORE_EXPORT DocumentManager : public QObject
 {
@@ -98,7 +97,7 @@ public:
                             const QString &filter = QString(), QString *selectedFilter = 0);
     static QString getSaveFileNameWithExtension(const QString &title, const QString &pathIn,
                                          const QString &filter);
-    static QString getSaveAsFileName(IDocument *document, const QString &filter = QString(),
+    static QString getSaveAsFileName(const IDocument *document, const QString &filter = QString(),
                               QString *selectedFilter = 0);
 
     static QList<IDocument *> saveModifiedDocumentsSilently(const QList<IDocument *> &documents, bool *cancelled = 0);
@@ -107,15 +106,6 @@ public:
                                      const QString &message = QString(),
                                      const QString &alwaysSaveMessage = QString(),
                                      bool *alwaysSave = 0);
-
-
-    // Helper to display a message dialog when encountering a read-only
-    // file, prompting the user about how to make it writeable.
-    enum ReadOnlyAction { RO_Cancel, RO_OpenVCS, RO_MakeWriteable, RO_SaveAs };
-    static ReadOnlyAction promptReadOnlyFile(const QString &fileName,
-                                             const IVersionControl *versionControl,
-                                             QWidget *parent,
-                                             bool displaySaveAsButton = false);
 
     static QString fileDialogLastVisitedDirectory();
     static void setFileDialogLastVisitedDirectory(const QString &);

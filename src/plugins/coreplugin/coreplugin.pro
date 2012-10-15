@@ -49,6 +49,7 @@ SOURCES += mainwindow.cpp \
     dialogs/settingsdialog.cpp \
     actionmanager/commandmappings.cpp \
     dialogs/shortcutsettings.cpp \
+    dialogs/readonlyfilesdialog.cpp \
     dialogs/openwithdialog.cpp \
     progressmanager/progressmanager.cpp \
     progressmanager/progressview.cpp \
@@ -134,6 +135,7 @@ HEADERS += mainwindow.h \
     dialogs/newdialog.h \
     dialogs/settingsdialog.h \
     actionmanager/commandmappings.h \
+    dialogs/readonlyfilesdialog.h \
     dialogs/shortcutsettings.h \
     dialogs/openwithdialog.h \
     dialogs/iwizard.h \
@@ -202,6 +204,7 @@ HEADERS += mainwindow.h \
 FORMS += dialogs/newdialog.ui \
     actionmanager/commandmappings.ui \
     dialogs/saveitemsdialog.ui \
+    dialogs/readonlyfilesdialog.ui \
     dialogs/openwithdialog.ui \
     generalsettings.ui \
     dialogs/externaltoolconfig.ui \

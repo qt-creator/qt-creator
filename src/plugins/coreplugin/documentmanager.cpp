@@ -35,10 +35,11 @@
 #include "ieditorfactory.h"
 #include "iexternaleditor.h"
 #include "idocument.h"
-#include "iversioncontrol.h"
 #include "mimedatabase.h"
 #include "saveitemsdialog.h"
 #include "coreconstants.h"
+
+#include "dialogs/readonlyfilesdialog.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -58,7 +59,6 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
-#include <QPushButton>
 
 /*!
   \class Core::DocumentManager
@@ -565,7 +565,9 @@ void DocumentManager::unexpectFileChange(const QString &fileName)
     \fn QList<IDocument*> DocumentManager::saveModifiedFilesSilently(const QList<IDocument*> &documents)
 
     Tries to save the files listed in \a documents. The \a cancelled argument is set to true
-    if the user cancelled the dialog. Returns the files that could not be saved.
+    if the user cancelled the dialog. Returns the files that could not be saved. If the files
+    listed in documents have no write permissions an additional dialog will be prompted to
+    query the user for these permissions.
 */
 QList<IDocument *> DocumentManager::saveModifiedDocumentsSilently(const QList<IDocument *> &documents, bool *cancelled)
 {
@@ -581,7 +583,8 @@ QList<IDocument *> DocumentManager::saveModifiedDocumentsSilently(const QList<ID
     of modified files (in this context).
     The \a cancelled argument is set to true if the user cancelled the dialog,
     \a alwaysSave is set to match the selection of the user, if files should
-    always automatically be saved.
+    always automatically be saved. If the files listed in documents have no write
+    permissions an additional dialog will be prompted to query the user for these permissions.
     Returns the files that have not been saved.
 */
 QList<IDocument *> DocumentManager::saveModifiedDocuments(const QList<IDocument *> &documents,
@@ -642,7 +645,25 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
                 *alwaysSave = dia.alwaysSaveChecked();
             documentsToSave = dia.itemsToSave();
         }
-
+        // Check for files without write permissions.
+        QList<IDocument *> roDocuments;
+        foreach (IDocument *document, documentsToSave) {
+            if (document->isFileReadOnly())
+                roDocuments << document;
+        }
+        if (!roDocuments.isEmpty()) {
+            Core::Internal::ReadOnlyFilesDialog roDialog(roDocuments, d->m_mainWindow);
+            roDialog.setShowFailWarning(true, QCoreApplication::translate(
+                                            "saveModifiedFilesHelper",
+                                            "Could not save the files.",
+                                            "error message"));
+            if (roDialog.exec() == Core::Internal::ReadOnlyFilesDialog::RO_Cancel) {
+                if (cancelled)
+                    (*cancelled) = true;
+                notSaved = modifiedDocuments;
+                return notSaved;
+            }
+        }
         foreach (IDocument *document, documentsToSave) {
             if (!EditorManager::instance()->saveDocument(document)) {
                 if (cancelled)
@@ -742,7 +763,7 @@ QString DocumentManager::getSaveFileNameWithExtension(const QString &title, cons
 
     Asks the user for a new file name (Save File As) for /arg document.
 */
-QString DocumentManager::getSaveAsFileName(IDocument *document, const QString &filter, QString *selectedFilter)
+QString DocumentManager::getSaveAsFileName(const IDocument *document, const QString &filter, QString *selectedFilter)
 {
     if (!document)
         return QLatin1String("");
@@ -802,61 +823,6 @@ QStringList DocumentManager::getOpenFileNames(const QString &filters,
     if (!files.isEmpty())
         setFileDialogLastVisitedDirectory(QFileInfo(files.front()).absolutePath());
     return files;
-}
-
-DocumentManager::ReadOnlyAction
-    DocumentManager::promptReadOnlyFile(const QString &fileName,
-                                      const IVersionControl *versionControl,
-                                      QWidget *parent,
-                                      bool displaySaveAsButton)
-{
-    // Version Control: If automatic open is desired, open right away.
-    bool promptVCS = false;
-    if (versionControl && versionControl->openSupportMode() != IVersionControl::NoOpen) {
-        if (versionControl->settingsFlags() & IVersionControl::AutoOpen)
-            return RO_OpenVCS;
-        promptVCS = true;
-    }
-
-    // Create message box.
-    QMessageBox msgBox(QMessageBox::Question, tr("File Is Read Only"),
-                       tr("The file <i>%1</i> is read only.").arg(QDir::toNativeSeparators(fileName)),
-                       QMessageBox::Cancel, parent);
-
-    QPushButton *vcsButton = 0;
-    if (promptVCS) {
-        vcsButton = msgBox.addButton(versionControl->vcsOpenText(), QMessageBox::AcceptRole);
-    }
-
-    QString makeWritableText;
-    QPushButton *makeWritableButton = 0;
-    // If the VCS has OpenMandatory we don't show "Make Writable"
-    if (versionControl->openSupportMode() != IVersionControl::OpenMandatory) {
-        makeWritableText = versionControl->vcsMakeWritableText();
-        if (makeWritableText.isEmpty())
-            makeWritableText = tr("Make &Writable");
-        makeWritableButton = msgBox.addButton(makeWritableText, QMessageBox::AcceptRole);
-    }
-
-    QPushButton *saveAsButton = 0;
-    if (displaySaveAsButton)
-        saveAsButton = msgBox.addButton(tr("&Save As..."), QMessageBox::ActionRole);
-
-    if (vcsButton)
-        msgBox.setDefaultButton(vcsButton);
-    else if (makeWritableButton)
-        msgBox.setDefaultButton(makeWritableButton);
-
-    msgBox.exec();
-
-    QAbstractButton *clickedButton = msgBox.clickedButton();
-    if (clickedButton == vcsButton)
-        return RO_OpenVCS;
-    if (clickedButton == makeWritableButton)
-        return RO_MakeWriteable;
-    if (displaySaveAsButton && clickedButton == saveAsButton)
-        return RO_SaveAs;
-    return  RO_Cancel;
 }
 
 void DocumentManager::changedFile(const QString &fileName)

@@ -163,7 +163,7 @@ QString PerforceVersionControl::vcsGetRepositoryURL(const QString &)
 
 QString PerforceVersionControl::vcsOpenText() const
 {
-    return tr("&Edit (%1)").arg(displayName());
+    return tr("&Edit");
 }
 
 QString PerforceVersionControl::vcsMakeWritableText() const

@@ -218,6 +218,12 @@ QString FileUtils::shortNativePath(const FileName &path)
     return path.toUserOutput();
 }
 
+bool FileUtils::makeWritable(const FileName &path)
+{
+    const QString fileName = path.toString();
+    return QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
+}
+
 QByteArray FileReader::fetchQrc(const QString &fileName)
 {
     QTC_ASSERT(fileName.startsWith(QLatin1Char(':')), return QByteArray());

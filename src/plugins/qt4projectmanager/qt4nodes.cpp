@@ -43,6 +43,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+#include <coreplugin/dialogs/readonlyfilesdialog.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1023,28 +1024,9 @@ bool Qt4PriFileNode::renameFile(const FileType fileType, const QString &filePath
 
 bool Qt4PriFileNode::priFileWritable(const QString &path)
 {
-    const QString dir = QFileInfo(path).dir().path();
-    Core::IVersionControl *versionControl = Core::ICore::vcsManager()->findVersionControlForDirectory(dir);
-    switch (Core::DocumentManager::promptReadOnlyFile(path, versionControl, Core::ICore::mainWindow(), false)) {
-    case Core::DocumentManager::RO_OpenVCS:
-        if (!versionControl->vcsOpen(path)) {
-            QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Open File"), tr("Cannot open the file for editing with VCS."));
-            return false;
-        }
-        break;
-    case Core::DocumentManager::RO_MakeWriteable: {
-        const bool permsOk = QFile::setPermissions(path, QFile::permissions(path) | QFile::WriteUser);
-        if (!permsOk) {
-            QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Set Permissions"),  tr("Cannot set permissions to writable."));
-            return false;
-        }
-        break;
-    }
-    case Core::DocumentManager::RO_SaveAs:
-    case Core::DocumentManager::RO_Cancel:
-        return false;
-    }
-    return true;
+    Core::Internal::ReadOnlyFilesDialog roDialog(path, Core::ICore::mainWindow());
+    roDialog.setShowFailWarning(true);
+    return roDialog.exec() != Core::Internal::ReadOnlyFilesDialog::RO_Cancel;
 }
 
 bool Qt4PriFileNode::saveModifiedEditors()

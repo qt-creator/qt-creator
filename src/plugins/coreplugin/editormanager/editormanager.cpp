@@ -52,6 +52,7 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/variablemanager.h>
+#include <coreplugin/dialogs/readonlyfilesdialog.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -1578,33 +1579,17 @@ MakeWritableResult EditorManager::makeFileWritable(IDocument *document)
 {
     if (!document)
         return Failed;
-    QString directory = QFileInfo(document->fileName()).absolutePath();
-    IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
-    const QString &fileName = document->fileName();
 
-    switch (DocumentManager::promptReadOnlyFile(fileName, versionControl, ICore::mainWindow(), document->isSaveAsAllowed())) {
-    case DocumentManager::RO_OpenVCS:
-        if (!versionControl->vcsOpen(fileName)) {
-            QMessageBox::warning(ICore::mainWindow(), tr("Cannot Open File"), tr("Cannot open the file for editing with SCC."));
-            return Failed;
-        }
-        document->checkPermissions();
-        return OpenedWithVersionControl;
-    case DocumentManager::RO_MakeWriteable: {
-        const bool permsOk = QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
-        if (!permsOk) {
-            QMessageBox::warning(ICore::mainWindow(), tr("Cannot Set Permissions"),  tr("Cannot set permissions to writable."));
-            return Failed;
-        }
-    }
-        document->checkPermissions();
+    ReadOnlyFilesDialog roDialog(document, ICore::mainWindow(), document->isSaveAsAllowed());
+    switch (roDialog.exec()) {
+    case ReadOnlyFilesDialog::RO_MakeWritable:
+    case ReadOnlyFilesDialog::RO_OpenVCS:
         return MadeWritable;
-    case DocumentManager::RO_SaveAs :
-        return saveDocumentAs(document) ? SavedAs : Failed;
-    case DocumentManager::RO_Cancel:
-        break;
+    case ReadOnlyFilesDialog::RO_SaveAs:
+        return SavedAs;
+    default:
+        return Failed;
     }
-    return Failed;
 }
 
 bool EditorManager::saveDocumentAs(IDocument *documentParam)
