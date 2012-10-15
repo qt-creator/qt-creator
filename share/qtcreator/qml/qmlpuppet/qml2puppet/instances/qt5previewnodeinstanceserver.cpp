@@ -65,6 +65,9 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
     static bool inFunction = false;
 
+    if (rootNodeInstance().internalSGItem() == 0)
+        return;
+
     if (!inFunction && nodeInstanceClient()->bytesToWrite() < 10000) {
         inFunction = true;
         QVector<ImageContainer> imageContainerVector;
