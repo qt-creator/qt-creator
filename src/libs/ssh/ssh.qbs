@@ -51,7 +51,7 @@ QtcLibrary {
     property var botanIncludes: ["../3rdparty"]
     property var botanLibs: qbs.targetOS === "windows" ? ["advapi32", "user32"] : ["rt", "dl"]
     property var botanDefines: {
-            var result = ['BOTAN_DLL=""']
+            var result = ['BOTAN_DLL=']
             if (qbs.toolchain === "msvc")
                 result.push("BOTAN_BUILD_COMPILER_IS_MSVC", "BOTAN_TARGET_OS_HAS_GMTIME_S")
             if (qbs.toolchain === "gcc" || qbs.toolchain === "mingw")
