@@ -1546,24 +1546,30 @@ class Dumper:
             self.putType(typeName)
             self.putNumChild(1)
             format = self.currentItemFormat()
-            if format == None and str(targetType.unqualified()) == "char":
+            isDefault = format == None and str(targetType.unqualified()) == "char"
+            if isDefault or (format >= 0 and format <= 2):
+                blob = readRawMemory(value.address, type.sizeof)
+
+            if isDefault:
                 # Use Latin1 as default for char [].
-                self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
+                self.putValue(blob, Hex2EncodedLatin1)
             elif format == 0:
                 # Explicitly requested Latin1 formatting.
-                self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
+                self.putValue(blob, Hex2EncodedLatin1)
             elif format == 1:
                 # Explicitly requested UTF-8 formatting.
-                self.putValue(encodeCharArray(value), Hex2EncodedUtf8)
+                self.putValue(blob, Hex2EncodedUtf8)
             elif format == 2:
                 # Explicitly requested Local 8-bit formatting.
-                self.putValue(encodeCharArray(value), Hex2EncodedLocal8Bit)
+                self.putValue(blob, Hex2EncodedLocal8Bit)
             else:
                 self.putValue("@0x%x" % long(value.cast(targetType.pointer())))
+
+
             if self.currentIName in self.expandedINames:
-                p = value.cast(targetType.pointer())
+                p = value.address
                 ts = targetType.sizeof
-                if not self.tryPutArrayContents(targetType, p, type.sizeof/ts):
+                if not self.tryPutArrayContents(targetType, p, type.sizeof / ts):
                     with Children(self, childType=targetType,
                             addrBase=p, addrStep=ts):
                         self.putFields(value)

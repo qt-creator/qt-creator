@@ -4486,6 +4486,31 @@ namespace namespc {
 } // namespace namespc
 
 
+namespace gccextensions {
+
+    void testGccExtensions()
+    {
+#ifdef __GNUC__
+        char v[8] = { 1, 2 };
+        char w __attribute__ ((vector_size (8))) = { 1, 2 };
+        int y[2] = { 1, 2 };
+        int z __attribute__ ((vector_size (8))) = { 1, 2 };
+        BREAK_HERE;
+        // Expand v.
+        // Check v.0 1 char.
+        // Check v.1 2 char.
+        // Check w.0 1 char.
+        // Check w.1 2 char.
+        // Check y.0 1 int.
+        // Check y.1 2 int.
+        // Check z.0 1 int.
+        // Check z.1 2 int.
+        // Continue.
+        dummyStatement(&v, &w, &y, &z);
+#endif
+    }
+
+} // namespace gccextension
 
 class Z : public QObject
 {
@@ -6566,6 +6591,7 @@ int main(int argc, char *argv[])
 
     // Check for normal dumpers.
     basic::testBasic();
+    gccextensions::testGccExtensions();
     qhostaddress::testQHostAddress();
     varargs::testVaList();
 
