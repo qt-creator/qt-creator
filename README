@@ -24,13 +24,15 @@ Prerequisites:
    * On Mac: XCode 2.5 or later, compiling on 10.4 requires setting the
      environment variable QTC_TIGER_COMPAT before running qmake
 
-We recommend that you build Qt Creator not in the source directory, but in a
-separate directory. To do that, use the following commands:
+You can build Qt Creator with
 
-mkdir $BUILD_DIRECTORY
-cd $BUILD_DIRECTORY
-qmake $SOURCE_DIRECTORY/qtcreator.pro
-make (or mingw32-make or nmake or jom, depending on your platform)
+    cd $SOURCE_DIRECTORY
+    qmake -r
+    make (or mingw32-make or nmake or jom, depending on your platform)
+
+Installation ("make install") is not needed. It is however possible, using
+
+    make install INSTALL_ROOT=$INSTALL_DIRECTORY
 
 Compiling Qt Quick Designer
 ---------------------------
