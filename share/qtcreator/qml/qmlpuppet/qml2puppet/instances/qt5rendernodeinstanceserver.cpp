@@ -79,6 +79,8 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction) {
         inFunction = true;
 
+        DesignerSupport::polishItems(quickView());
+
         if (quickView() && nodeInstanceClient()->bytesToWrite() < 10000) {
             foreach (QQuickItem *item, allItems()) {
                 if (item) {

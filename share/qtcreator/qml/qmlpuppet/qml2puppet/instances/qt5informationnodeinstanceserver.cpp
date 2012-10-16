@@ -92,6 +92,8 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
     if (!inFunction) {
         inFunction = true;
 
+        DesignerSupport::polishItems(quickView());
+
         QSet<ServerNodeInstance> informationChangedInstanceSet;
         QVector<InstancePropertyPair> propertyChangedList;
         bool adjustSceneRect = false;

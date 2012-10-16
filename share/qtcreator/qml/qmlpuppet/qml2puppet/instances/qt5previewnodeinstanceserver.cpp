@@ -70,6 +70,9 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
     if (!inFunction && nodeInstanceClient()->bytesToWrite() < 10000) {
         inFunction = true;
+
+        DesignerSupport::polishItems(quickView());
+
         QVector<ImageContainer> imageContainerVector;
         imageContainerVector.append(ImageContainer(0, renderPreviewImage(), -1));
 
