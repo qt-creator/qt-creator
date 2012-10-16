@@ -33,6 +33,7 @@
 
 #include "qnxconstants.h"
 
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 #include <QTextStream>
@@ -56,12 +57,41 @@ QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName)
         if (!line.contains(QLatin1Char('=')))
             continue;
 
-        const QStringList lineContent = line.split(QLatin1Char('='));
-        QString var = lineContent.value(0);
+        int equalIndex = line.indexOf(QLatin1Char('='));
+        QString var = line.left(equalIndex);
         //Remove set in front
         if (var.startsWith(QLatin1String("set ")))
             var = var.right(var.size() - 4);
-        QString value = lineContent.value(1).section(QLatin1Char('"'), 0, -1, QString::SectionSkipEmpty);
+
+        QString value = line.mid(equalIndex + 1);
+
+#if defined Q_OS_WIN
+        QRegExp systemVarRegExp(QLatin1String("IF NOT DEFINED ([\\w\\d]+)\\s+set ([\\w\\d]+)=([\\w\\d]+)"));
+        if (line.contains(systemVarRegExp)) {
+            var = systemVarRegExp.cap(2);
+            Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+            QString sysVar = systemVarRegExp.cap(1);
+            if (sysEnv.hasKey(sysVar))
+                value = sysEnv.value(sysVar);
+            else
+                value = systemVarRegExp.cap(3);
+        }
+#elif defined Q_OS_UNIX
+        QRegExp systemVarRegExp(QLatin1String("\\$\\{([\\w\\d]+):=([\\w\\d]+)\\}")); // to match e.g. "${QNX_HOST_VERSION:=10_0_9_52}"
+        if (value.contains(systemVarRegExp)) {
+            Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+            QString sysVar = systemVarRegExp.cap(1);
+            if (sysEnv.hasKey(sysVar))
+                value = sysEnv.value(sysVar);
+            else
+                value = systemVarRegExp.cap(2);
+        }
+#endif
+
+        if (value.startsWith(QLatin1Char('"')))
+            value = value.mid(1);
+        if (value.endsWith(QLatin1Char('"')))
+            value = value.left(value.size() - 1);
 
         fileContent[var] = value;
     }
@@ -79,7 +109,7 @@ QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName)
         foreach (const QString &value, values) {
             const QString ownKeyAsWindowsVar = QLatin1Char('%') + key + QLatin1Char('%');
             const QString ownKeyAsUnixVar = QLatin1Char('$') + key;
-            if (!value.contains(ownKeyAsWindowsVar) && !value.contains(ownKeyAsUnixVar)) {
+            if (value != ownKeyAsUnixVar && value != ownKeyAsWindowsVar) { // to ignore e.g. PATH=$PATH
                 QString val = value;
                 if (val.contains(QLatin1Char('%')) || val.contains(QLatin1Char('$'))) {
                     QMapIterator<QString, QString> replaceIt(fileContent);
