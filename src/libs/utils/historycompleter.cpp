@@ -146,10 +146,12 @@ void HistoryCompleterPrivate::clearHistory()
 void HistoryCompleterPrivate::saveEntry(const QString &str)
 {
     QTC_ASSERT(theSettings, return);
-    if (str.isEmpty())
-        return;
-    if (list.contains(str))
-        return;
+    int removeIndex = list.indexOf(str);
+    if (removeIndex != -1) {
+        beginRemoveRows(QModelIndex(), removeIndex, removeIndex);
+        list.removeAt(removeIndex);
+        endRemoveRows();
+    }
     beginInsertRows (QModelIndex(), list.count(), list.count());
     list.prepend(str);
     list = list.mid(0, maxLines);
