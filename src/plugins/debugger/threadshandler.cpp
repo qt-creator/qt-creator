@@ -154,6 +154,8 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
             return thread.targetId;
         case ThreadData::NameColumn:
             return thread.name;
+        case ThreadData::DetailsColumn:
+            return thread.details;
         case ThreadData::ComboNameColumn:
             return QString::fromLatin1("#%1 %2").arg(thread.id).arg(thread.name);
         }
@@ -192,6 +194,8 @@ QVariant ThreadsHandler::headerData
         return tr("State");
     case ThreadData::TargetIdColumn:
         return tr("Target ID");
+    case ThreadData::DetailsColumn:
+        return tr("Details");
     case ThreadData::NameColumn:
         return tr("Name");
     }
@@ -310,6 +314,7 @@ Threads ThreadsHandler::parseGdbmiThreads(const GdbMi &data, int *currentThread)
         ThreadData thread;
         thread.id = item.findChild("id").data().toInt();
         thread.targetId = QString::fromLatin1(item.findChild("target-id").data());
+        thread.details = QString::fromLatin1(item.findChild("details").data());
         thread.core = QString::fromLatin1(item.findChild("core").data());
         thread.state = QString::fromLatin1(item.findChild("state").data());
         thread.address = frame.findChild("addr").data().toULongLong(&ok, 0);

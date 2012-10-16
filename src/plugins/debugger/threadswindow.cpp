@@ -64,6 +64,7 @@ void ThreadsTreeView::setModel(QAbstractItemModel *model)
     resizeColumnToContents(ThreadData::NameColumn);
     resizeColumnToContents(ThreadData::StateColumn);
     resizeColumnToContents(ThreadData::TargetIdColumn);
+    resizeColumnToContents(ThreadData::DetailsColumn);
 }
 
 void ThreadsTreeView::contextMenuEvent(QContextMenuEvent *ev)

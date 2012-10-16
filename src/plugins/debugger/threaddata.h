@@ -58,6 +58,7 @@ struct ThreadData
         StateColumn,
         NameColumn,
         TargetIdColumn,
+        DetailsColumn,
         CoreColumn,
         ComboNameColumn,
         ColumnCount = CoreColumn
@@ -84,6 +85,7 @@ struct ThreadData
     QString function;
     QString module;
     QString fileName;
+    QString details;
     QString state;
     qint32  lineNumber;
     QString name;
