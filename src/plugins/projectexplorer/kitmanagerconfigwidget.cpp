@@ -33,6 +33,7 @@
 #include "kitmanager.h"
 
 #include <utils/detailswidget.h>
+#include <utils/qtcassert.h>
 
 #include <QHBoxLayout>
 #include <QFileDialog>
@@ -159,8 +160,8 @@ QString KitManagerConfigWidget::validityMessage() const
 
 void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *widget)
 {
-    Q_ASSERT(widget);
-    Q_ASSERT(!m_widgets.contains(widget));
+    QTC_ASSERT(widget, return);
+    QTC_ASSERT(!m_widgets.contains(widget), return);
 
     addToLayout(widget->displayName(), widget->toolTip(), widget, widget->buttonWidget());
     m_widgets.append(widget);

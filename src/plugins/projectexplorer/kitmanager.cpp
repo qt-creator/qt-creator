@@ -115,7 +115,7 @@ KitManager::KitManager(QObject *parent) :
     QObject(parent),
     d(new Internal::KitManagerPrivate())
 {
-    Q_ASSERT(!m_instance);
+    QTC_CHECK(!m_instance);
     m_instance = this;
 
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
@@ -256,7 +256,7 @@ void KitManager::registerKitInformation(KitInformation *ki)
 
 void KitManager::deregisterKitInformation(KitInformation *ki)
 {
-    Q_ASSERT(d->m_informationList.contains(ki));
+    QTC_CHECK(d->m_informationList.contains(ki));
     d->m_informationList.removeAll(ki);
     delete ki;
 }

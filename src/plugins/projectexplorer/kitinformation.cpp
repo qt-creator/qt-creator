@@ -89,7 +89,6 @@ QList<Task> SysRootKitInformation::validate(const Kit *k) const
 
 KitConfigWidget *SysRootKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(k);
     return new Internal::SysRootInformationConfigWidget(k);
 }
 
@@ -184,7 +183,6 @@ void ToolChainKitInformation::fix(Kit *k)
 
 KitConfigWidget *ToolChainKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(k);
     return new Internal::ToolChainInformationConfigWidget(k);
 }
 
@@ -280,7 +278,6 @@ QList<Task> DeviceTypeKitInformation::validate(const Kit *k) const
 
 KitConfigWidget *DeviceTypeKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(k);
     return new Internal::DeviceTypeInformationConfigWidget(k);
 }
 
@@ -373,7 +370,6 @@ void DeviceKitInformation::fix(Kit *k)
 
 KitConfigWidget *DeviceKitInformation::createConfigWidget(Kit *k) const
 {
-    Q_ASSERT(k);
     return new Internal::DeviceInformationConfigWidget(k);
 }
 
