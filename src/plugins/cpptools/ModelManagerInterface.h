@@ -58,6 +58,7 @@ namespace CppTools {
     class CppCompletionAssistProvider;
     class CppHighlightingSupport;
     class CppHighlightingSupportFactory;
+    class CppIndexingSupport;
 }
 
 namespace CPlusPlus {
@@ -219,6 +220,8 @@ public:
 
     virtual CppTools::CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const = 0;
     virtual void setHighlightingSupportFactory(CppTools::CppHighlightingSupportFactory *highlightingFactory) = 0;
+
+    virtual void addIndexingSupport(CppTools::CppIndexingSupport *indexingSupport) = 0;
 
 Q_SIGNALS:
     void documentUpdated(CPlusPlus::Document::Ptr doc);

@@ -47,7 +47,8 @@ HEADERS += completionsettingspage.h \
     cppsemanticinfo.h \
     cppcompletionassistprovider.h \
     ModelManagerInterface.h \
-    TypeHierarchyBuilder.h
+    TypeHierarchyBuilder.h \
+    cppindexingsupport.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -86,7 +87,8 @@ SOURCES += completionsettingspage.cpp \
     cppsemanticinfo.cpp \
     cppcompletionassistprovider.cpp \
     ModelManagerInterface.cpp \
-    TypeHierarchyBuilder.cpp
+    TypeHierarchyBuilder.cpp \
+    cppindexingsupport.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui \

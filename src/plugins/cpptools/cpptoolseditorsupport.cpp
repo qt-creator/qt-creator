@@ -124,7 +124,7 @@ void CppEditorSupport::updateDocumentNow()
 
         QStringList sourceFiles(_textEditor->document()->fileName());
         _cachedContents = _textEditor->contents().toUtf8();
-        _documentParser = _modelManager->refreshSourceFiles(sourceFiles);
+        _documentParser = _modelManager->updateSourceFiles(sourceFiles);
     }
 }
 
