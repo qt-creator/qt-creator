@@ -511,9 +511,7 @@ static Document::Ptr getParsedDocument(const QString &fileName, CppModelManagerI
             src = QString::fromLocal8Bit(reader.data()); // ### FIXME encoding
     }
 
-    QByteArray source = snapshot.preprocessedCode(src, fileName);
-
-    Document::Ptr doc = snapshot.documentFromSource(source, fileName);
+    Document::Ptr doc = snapshot.preprocessedDocument(src, fileName);
     doc->check();
     snapshot.insert(doc);
     return doc;

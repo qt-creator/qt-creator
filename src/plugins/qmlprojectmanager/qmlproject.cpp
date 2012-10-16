@@ -74,6 +74,9 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     Core::DocumentManager::addDocument(m_file, true);
 
     m_manager->registerProject(this);
+
+    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
+            this, SLOT(addedTarget(ProjectExplorer::Target*)));
 }
 
 QmlProject::~QmlProject()
@@ -84,6 +87,23 @@ QmlProject::~QmlProject()
 
     delete m_projectItem.data();
     delete m_rootNode;
+}
+
+void QmlProject::addedTarget(ProjectExplorer::Target *target)
+{
+    connect(target, SIGNAL(addedRunConfiguration(ProjectExplorer::RunConfiguration*)),
+            this, SLOT(addedRunConfiguration(ProjectExplorer::RunConfiguration*)));
+    foreach (ProjectExplorer::RunConfiguration *rc, target->runConfigurations())
+        addedRunConfiguration(rc);
+}
+
+void QmlProject::addedRunConfiguration(ProjectExplorer::RunConfiguration *rc)
+{
+    // The enabled state of qml runconfigurations can only be decided after
+    // they have been added to a project
+    QmlProjectRunConfiguration *qmlrc = qobject_cast<QmlProjectRunConfiguration *>(rc);
+    if (qmlrc)
+        qmlrc->updateEnabled();
 }
 
 QDir QmlProject::projectDir() const
@@ -309,13 +329,6 @@ bool QmlProject::fromMap(const QVariantMap &map)
         addTarget(createTarget(defaultKit));
 
     refresh(Everything);
-    // FIXME workaround to guarantee that run/debug actions are enabled if a valid file exists
-    if (activeTarget()) {
-        QmlProjectRunConfiguration *runConfig = qobject_cast<QmlProjectRunConfiguration*>(activeTarget()->activeRunConfiguration());
-        if (runConfig)
-            runConfig->changeCurrentFile(0);
-    }
-
     return true;
 }
 

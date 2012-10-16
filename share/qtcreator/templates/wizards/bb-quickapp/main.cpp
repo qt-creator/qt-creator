@@ -1,20 +1,15 @@
 #include <QApplication>
-#include <QDeclarativeView>
-#include <QObject>
+#include "qmlapplicationviewer.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QScopedPointer<QApplication> app(createApplication(argc, argv));
 
-    QDeclarativeView view;
-#ifdef Q_OS_QNX
-    view.setSource(QUrl("app/native/qml/main.qml"));
-#else
-    view.setSource(QUrl("qml/main.qml"));
-#endif
-    view.setAttribute(Qt::WA_AutoOrientation, true);
-    view.setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    view.showMaximized();
+    QmlApplicationViewer viewer;
+    viewer.addImportPath(QLatin1String("modules")); // ADDIMPORTPATH
+    viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto); // ORIENTATION
+    viewer.setMainQmlFile(QLatin1String("qml/main.qml")); // MAINQML
+    viewer.showExpanded();
 
-    return a.exec();
+    return app->exec();
 }

@@ -79,7 +79,8 @@ public:
 
     void appendMacro(const Macro &macro);
     void addMacroUse(const Macro &macro, unsigned offset, unsigned length,
-                     unsigned beginLine, const QVector<MacroArgumentReference> &range);
+                     unsigned beginLine,
+                     const QVector<MacroArgumentReference> &range);
     void addUndefinedMacroUse(const QByteArray &name, unsigned offset);
 
     Control *control() const;
@@ -254,8 +255,7 @@ public:
         unsigned _beginLine;
 
     public:
-        inline MacroUse(const Macro &macro,
-                        unsigned begin, unsigned end, unsigned beginLine)
+        inline MacroUse(const Macro &macro, unsigned begin, unsigned end, unsigned beginLine)
             : Block(begin, end),
               _macro(macro),
               _beginLine(beginLine)
@@ -371,10 +371,10 @@ public:
 
     Snapshot simplified(Document::Ptr doc) const;
 
-    QByteArray preprocessedCode(const QString &source,
-                                const QString &fileName) const;
+    Document::Ptr preprocessedDocument(const QString &source,
+                                       const QString &fileName) const;
 
-    Document::Ptr documentFromSource(const QByteArray &preprocessedCode,
+    Document::Ptr documentFromSource(const QByteArray &preprocessedDocument,
                                      const QString &fileName) const;
 
 private:

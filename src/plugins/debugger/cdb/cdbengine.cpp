@@ -2626,9 +2626,7 @@ static CPlusPlus::Document::Ptr getParsedDocument(const QString &fileName,
             src = QString::fromLocal8Bit(reader.data()); // ### FIXME encoding
     }
 
-    QByteArray source = snapshot.preprocessedCode(src, fileName);
-
-    CPlusPlus::Document::Ptr doc = snapshot.documentFromSource(source, fileName);
+    CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(src, fileName);
     doc->parse();
     return doc;
 }

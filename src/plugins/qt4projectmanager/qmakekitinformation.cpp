@@ -64,7 +64,7 @@ QVariant QmakeKitInformation::defaultValue(ProjectExplorer::Kit *k) const
     return QString();
 }
 
-QList<ProjectExplorer::Task> QmakeKitInformation::validate(ProjectExplorer::Kit *k) const
+QList<ProjectExplorer::Task> QmakeKitInformation::validate(const ProjectExplorer::Kit *k) const
 {
     QList<ProjectExplorer::Task> result;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);

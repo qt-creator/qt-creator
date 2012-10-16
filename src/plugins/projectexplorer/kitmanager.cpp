@@ -80,7 +80,6 @@ class KitManagerPrivate
 public:
     KitManagerPrivate();
     ~KitManagerPrivate();
-    QList<Task> validateKit(Kit *k) const;
 
     Kit *m_defaultKit;
     bool m_initialized;
@@ -99,22 +98,6 @@ KitManagerPrivate::~KitManagerPrivate()
     qDeleteAll(m_informationList);
     qDeleteAll(m_kitList);
     delete m_writer;
-}
-
-QList<Task> KitManagerPrivate::validateKit(Kit *k) const
-{
-    Q_ASSERT(k);
-    QList<Task> result;
-    bool hasError = false;
-    foreach (KitInformation *ki, m_informationList) {
-        QList<Task> tmp = ki->validate(k);
-        foreach (const Task &t, tmp)
-            if (t.type == Task::Error)
-                hasError = true;
-        result << tmp;
-    }
-    k->setValid(!hasError);
-    return result;
 }
 
 } // namespace Internal
@@ -265,6 +248,8 @@ void KitManager::registerKitInformation(KitInformation *ki)
     foreach (Kit *k, kits()) {
         if (!k->hasValue(ki->dataId()))
             k->setValue(ki->dataId(), ki->defaultValue(k));
+        else
+            ki->fix(k);
     }
 
     return;
@@ -375,22 +360,21 @@ QList<KitInformation *> KitManager::kitInformation() const
 
 Internal::KitManagerConfigWidget *KitManager::createConfigWidget(Kit *k) const
 {
-    if (!k)
-        return 0;
-
     Internal::KitManagerConfigWidget *result = new Internal::KitManagerConfigWidget(k);
     foreach (KitInformation *ki, d->m_informationList)
-        result->addConfigWidget(ki->createConfigWidget(k));
+        result->addConfigWidget(ki->createConfigWidget(result->workingCopy()));
 
     return result;
 }
 
 void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 {
-    if (!k || !kits().contains(k))
+    if (!k)
         return;
-    d->validateKit(k);
-    emit kitUpdated(k);
+    if (kits().contains(k))
+        emit kitUpdated(k);
+    else
+        emit unmanagedKitUpdated(k);
 }
 
 bool KitManager::registerKit(ProjectExplorer::Kit *k)
@@ -403,11 +387,6 @@ bool KitManager::registerKit(ProjectExplorer::Kit *k)
     }
 
     // make sure we have all the information in our kits:
-    foreach (KitInformation *ki, d->m_informationList) {
-        if (!k->hasValue(ki->dataId()))
-            k->setValue(ki->dataId(), ki->defaultValue(k));
-    }
-
     addKit(k);
     emit kitAdded(k);
     return true;
@@ -433,13 +412,6 @@ void KitManager::deregisterKit(Kit *k)
     delete k;
 }
 
-QList<Task> KitManager::validateKit(Kit *k)
-{
-    QList<Task> result = d->validateKit(k);
-    qSort(result);
-    return result;
-}
-
 void KitManager::setDefaultKit(Kit *k)
 {
     if (d->m_defaultKit == k)
@@ -453,15 +425,22 @@ void KitManager::setDefaultKit(Kit *k)
 void KitManager::validateKits()
 {
     foreach (Kit *k, kits())
-        d->validateKit(k);
+        k->validate();
 }
 
 void KitManager::addKit(Kit *k)
 {
     if (!k)
         return;
-    k->setDisplayName(k->displayName()); // make name unique
-    d->validateKit(k);
+
+    KitGuard g(k);
+    foreach (KitInformation *ki, d->m_informationList) {
+        if (!k->hasValue(ki->dataId()))
+            k->setValue(ki->dataId(), ki->defaultValue(k));
+        else
+            ki->fix(k);
+    }
+
     d->m_kitList.append(k);
     if (!d->m_defaultKit ||
             (!d->m_defaultKit->isValid() && k->isValid()))

@@ -53,15 +53,13 @@ public:
 
     void makeReadOnly();
 
-    void apply();
-    void discard();
-    bool isDirty() const;
+    void refresh();
     QWidget *buttonWidget() const;
 
 private slots:
     void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);
-    void kitUpdated(ProjectExplorer::Kit *k);
     void manageQtVersions();
+    void currentWasChanged(int idx);
 
 private:
     int findQtVersion(const int id) const;

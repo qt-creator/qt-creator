@@ -61,6 +61,9 @@ QString QmlApplicationViewerPrivate::adjustPath(const QString &path)
     if (!QDir::isAbsolutePath(path))
         return QString::fromLatin1("%1/../Resources/%2")
                 .arg(QCoreApplication::applicationDirPath(), path);
+#elif defined(Q_OS_QNX)
+    if (!QDir::isAbsolutePath(path))
+        return QString::fromLatin1("app/native/%1").arg(path);
 #elif !defined(Q_OS_ANDROID)
     const QString pathInInstallDir =
             QString::fromLatin1("%1/../%2").arg(QCoreApplication::applicationDirPath(), path);
@@ -154,7 +157,7 @@ void QmlApplicationViewer::showExpanded()
 {
 #if defined(MEEGO_EDITION_HARMATTAN) || defined(Q_WS_SIMULATOR)
     showFullScreen();
-#elif defined(Q_WS_MAEMO_5)
+#elif defined(Q_WS_MAEMO_5) || defined(Q_OS_QNX)
     showMaximized();
 #else
     show();

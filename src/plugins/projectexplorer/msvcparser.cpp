@@ -105,6 +105,22 @@ void MsvcParser::stdOutput(const QString &line)
 
     if (processCompileLine(line))
         return;
+    if (line.startsWith("Error:")) {
+        m_lastTask = Task(Task::Error,
+                          line.mid(6).trimmed(), /* description */
+                          Utils::FileName(), /* fileName */
+                          -1, /* linenumber */
+                          Core::Id(Constants::TASK_CATEGORY_COMPILE));
+        return;
+    }
+    if (line.startsWith("Warning:")) {
+        m_lastTask = Task(Task::Warning,
+                          line.mid(8).trimmed(), /* description */
+                          Utils::FileName(), /* fileName */
+                          -1, /* linenumber */
+                          Core::Id(Constants::TASK_CATEGORY_COMPILE));
+        return;
+    }
     if (infoPos > -1) {
         m_lastTask = Task(Task::Unknown,
                           m_additionalInfoRegExp.cap(3).trimmed(), /* description */
@@ -280,6 +296,17 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                         Utils::FileName::fromUserInput("debug\\Experimentation.exe"), -1,
                         Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
             << QString();
+    QTest::newRow("Linker error 3")
+            << QString::fromLatin1("Error: dependent '..\\..\\..\\..\\creator-2.5\\src\\plugins\\coreplugin\\ifile.h' does not exist.")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>()
+                << Task(Task::Error,
+                        QLatin1String("dependent '..\\..\\..\\..\\creator-2.5\\src\\plugins\\coreplugin\\ifile.h' does not exist."),
+                        Utils::FileName(), -1,
+                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE)))
+            << QString();
+
     QTest::newRow("Multiline error")
             << QString::fromLatin1("c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility(2227) : warning C4996: 'std::_Copy_impl': Function call with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'\n"
                                    "        c:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\INCLUDE\\xutility(2212) : see declaration of 'std::_Copy_impl'\n"

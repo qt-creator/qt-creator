@@ -156,8 +156,7 @@ Document::Ptr CppRefactoringFile::cppDocument() const
         const QString name = fileName();
         const Snapshot &snapshot = data()->m_snapshot;
 
-        const QByteArray contents = snapshot.preprocessedCode(source, name);
-        m_cppDocument = snapshot.documentFromSource(contents, name);
+        m_cppDocument = snapshot.preprocessedDocument(source, name);
         m_cppDocument->check();
     }
 

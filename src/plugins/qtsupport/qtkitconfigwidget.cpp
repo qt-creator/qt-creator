@@ -73,13 +73,11 @@ QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, QWidget *parent) :
         versionIds.append(v->uniqueId());
     versionsChanged(versionIds, QList<int>(), QList<int>());
 
-    discard();
-    connect(m_combo, SIGNAL(currentIndexChanged(int)), this, SIGNAL(dirty()));
+    refresh();
+    connect(m_combo, SIGNAL(currentIndexChanged(int)), this, SLOT(currentWasChanged(int)));
 
     connect(mgr, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(versionsChanged(QList<int>,QList<int>,QList<int>)));
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
 
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageQtVersions()));
 }
@@ -94,21 +92,9 @@ void QtKitConfigWidget::makeReadOnly()
     m_combo->setEnabled(false);
 }
 
-void QtKitConfigWidget::apply()
-{
-    int id = m_combo->itemData(m_combo->currentIndex()).toInt();
-    QtKitInformation::setQtVersionId(m_kit, id);
-}
-
-void QtKitConfigWidget::discard()
+void QtKitConfigWidget::refresh()
 {
     m_combo->setCurrentIndex(findQtVersion(QtKitInformation::qtVersionId(m_kit)));
-}
-
-bool QtKitConfigWidget::isDirty() const
-{
-    int id = m_combo->itemData(m_combo->currentIndex()).toInt();
-    return id != QtKitInformation::qtVersionId(m_kit);
 }
 
 QWidget *QtKitConfigWidget::buttonWidget() const
@@ -141,25 +127,15 @@ void QtKitConfigWidget::versionsChanged(const QList<int> &added, const QList<int
     }
 }
 
-void QtKitConfigWidget::kitUpdated(ProjectExplorer::Kit *k)
-{
-    if (k != m_kit)
-        return;
-
-    int id = QtKitInformation::qtVersionId(k);
-
-    for (int i = 0; i < m_combo->count(); ++i) {
-        if (m_combo->itemData(i).toInt() == id) {
-            m_combo->setCurrentIndex(i);
-            break;
-        }
-    }
-}
-
 void QtKitConfigWidget::manageQtVersions()
 {
     Core::ICore::showOptionsDialog(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY),
                                    QLatin1String(QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID));
+}
+
+void QtKitConfigWidget::currentWasChanged(int idx)
+{
+    QtKitInformation::setQtVersionId(m_kit, m_combo->itemData(idx).toInt());
 }
 
 int QtKitConfigWidget::findQtVersion(const int id) const

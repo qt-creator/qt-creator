@@ -1205,10 +1205,11 @@ void QMakeEvaluator::setupProject()
 {
     setTemplate();
     ProValueMap &vars = m_valuemapStack.top();
-    vars[ProKey("TARGET")] << ProString(QFileInfo(currentFileName()).baseName());
-    vars[ProKey("_PRO_FILE_")] << ProString(currentFileName());
-    vars[ProKey("_PRO_FILE_PWD_")] << ProString(currentDirectory());
-    vars[ProKey("OUT_PWD")] << ProString(m_outputDir);
+    ProFile *proFile = currentProFile();
+    vars[ProKey("TARGET")] << ProString(QFileInfo(currentFileName()).baseName()).setSource(proFile);
+    vars[ProKey("_PRO_FILE_")] << ProString(currentFileName()).setSource(proFile);
+    vars[ProKey("_PRO_FILE_PWD_")] << ProString(currentDirectory()).setSource(proFile);
+    vars[ProKey("OUT_PWD")] << ProString(m_outputDir).setSource(proFile);
 }
 
 void QMakeEvaluator::evaluateCommand(const QString &cmds, const QString &where)

@@ -128,14 +128,12 @@ public:
                 return usages; // skip this document, it's not using symbolId.
         }
         Document::Ptr doc;
-        QByteArray source;
         const QString unpreprocessedSource = getSource(fileName, workingCopy);
 
         if (symbolDocument && fileName == symbolDocument->fileName()) {
             doc = symbolDocument;
         } else {
-            source = snapshot.preprocessedCode(unpreprocessedSource, fileName);
-            doc = snapshot.documentFromSource(source, fileName);
+            doc = snapshot.preprocessedDocument(unpreprocessedSource, fileName);
             doc->tokenize();
         }
 
@@ -458,10 +456,8 @@ bool CppFindReferences::findSymbol(CppFindReferencesParameters *parameters,
     Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
     // document is not parsed and has no bindings yet, do it
     QString source = getSource(newSymbolDocument->fileName(), _modelManager->workingCopy());
-    const QByteArray &preprocessedCode =
-            snapshot.preprocessedCode(source, newSymbolDocument->fileName());
     Document::Ptr doc =
-            snapshot.documentFromSource(preprocessedCode, newSymbolDocument->fileName());
+            snapshot.preprocessedDocument(source, newSymbolDocument->fileName());
     doc->check();
 
     // construct id of old symbol
@@ -563,21 +559,31 @@ public:
     QList<Usage> operator()(const QString &fileName)
     {
         QList<Usage> usages;
+        Document::Ptr doc = snapshot.document(fileName);
+        QString source;
+
+_Lrestart:
         if (future->isPaused())
             future->waitForResume();
         if (future->isCanceled())
             return usages;
 
-        const Document::Ptr &doc = snapshot.document(fileName);
-        QByteArray source;
-
+        usages.clear();
         foreach (const Document::MacroUse &use, doc->macroUses()) {
             const Macro &useMacro = use.macro();
-            if (useMacro.line() == macro.line()
-                && useMacro.fileName() == macro.fileName())
-                {
+
+            if (useMacro.fileName() == macro.fileName()) { // Check if this is a match, but possibly against an outdated document.
+                if (macro.fileRevision() > useMacro.fileRevision()) {
+                    // yes, it is outdated, so re-preprocess and start from scratch for this file.
+                    source = getSource(fileName, workingCopy).toLatin1();
+                    doc = snapshot.preprocessedDocument(source, fileName);
+                    goto _Lrestart;
+                }
+            }
+
+            if (useMacro.fileName() == macro.fileName() && macro.name() == useMacro.name()) {
                 if (source.isEmpty())
-                    source = getSource(fileName, workingCopy).toLatin1(); // ### FIXME: Encoding?
+                    source = getSource(fileName, workingCopy);
 
                 unsigned lineStart;
                 const QString &lineSource = matchingLine(use.begin(), source, &lineStart);
@@ -591,30 +597,18 @@ public:
         return usages;
     }
 
-    // ### FIXME: Pretty close to FindUsages::matchingLine.
-    static QString matchingLine(unsigned position, const QByteArray &source,
+    static QString matchingLine(unsigned position, const QString &source,
                                 unsigned *lineStart = 0)
     {
-        const char *beg = source.constData();
-        const char *start = beg + position;
-        for (; start != beg - 1; --start) {
-            if (*start == '\n')
-                break;
-        }
-
-        ++start;
-
-        const char *end = start + 1;
-        for (; *end; ++end) {
-            if (*end == '\n')
-                break;
-        }
+        int lineBegin = source.lastIndexOf(QLatin1Char('\n'), position) + 1;
+        int lineEnd = source.indexOf(QLatin1Char('\n'), position);
+        if (lineEnd == -1)
+            lineEnd = source.length();
 
         if (lineStart)
-            *lineStart = start - beg;
+            *lineStart = lineBegin;
 
-        // ### FIXME: Encoding?
-        const QString matchingLine = QString::fromUtf8(start, end - start);
+        const QString matchingLine = source.mid(lineBegin, lineEnd - lineBegin);
         return matchingLine;
     }
 };
@@ -636,7 +630,6 @@ static void findMacroUses_helper(QFutureInterface<Usage> &future,
     files.removeDuplicates();
 
     future.setProgressRange(0, files.size());
-
     FindMacroUsesInFile process(workingCopy, snapshot, macro, &future);
     UpdateUI reduce(&future);
     // This thread waits for blockingMappedReduced to finish, so reduce the pool's used thread count
@@ -678,15 +671,11 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
 
     // add the macro definition itself
     {
-        // ### FIXME: Encoding?
-        const QByteArray &source = getSource(macro.fileName(), workingCopy).toLatin1();
-        int lineBegin = source.lastIndexOf('\n', macro.offset()) + 1;
-        int lineEnd = source.indexOf('\n', macro.offset());
-        if (lineEnd == -1)
-            lineEnd = source.length();
-        const QByteArray line = source.mid(lineBegin, lineEnd - lineBegin);
+        const QString &source = getSource(macro.fileName(), workingCopy);
+        unsigned lineStart;
+        const QString line = FindMacroUsesInFile::matchingLine(macro.offset(), source, &lineStart);
         search->addResult(macro.fileName(), macro.line(), line,
-                          line.indexOf(macro.name()), macro.name().length());
+                          macro.offset() - lineStart, macro.name().length());
     }
 
     QFuture<Usage> result;

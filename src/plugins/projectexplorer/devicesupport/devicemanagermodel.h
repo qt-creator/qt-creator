@@ -49,6 +49,7 @@ public:
     ~DeviceManagerModel();
 
     void setFilter(const QList<Core::Id> filter);
+    void setTypeFilter(const Core::Id &type);
 
     IDevice::ConstPtr device(int pos) const;
     Core::Id deviceId(int pos) const;
@@ -66,6 +67,7 @@ private slots:
 
 private:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    bool matchesTypeFilter(const IDevice::ConstPtr &dev) const;
 
     Internal::DeviceManagerModelPrivate * const d;
 };

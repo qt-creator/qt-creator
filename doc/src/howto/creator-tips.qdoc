@@ -100,6 +100,10 @@
 
     \endlist
 
+    To open the other output panes, such as \gui{General Messages} and
+    \gui{Version Control}, select \gui Window > \gui {Output Panes}. The menu
+    items also display the keyboard shortcuts that you can use.
+
     For more information about output panes, see \l{Viewing Output}.
 
     \section1 Using Keyboard Shortcuts

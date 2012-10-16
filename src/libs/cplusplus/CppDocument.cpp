@@ -676,10 +676,20 @@ void Snapshot::insert(Document::Ptr doc)
         _documents.insert(doc->fileName(), doc);
 }
 
-QByteArray Snapshot::preprocessedCode(const QString &source, const QString &fileName) const
+Document::Ptr Snapshot::preprocessedDocument(const QString &source, const QString &fileName) const
 {
+    Document::Ptr newDoc = Document::create(fileName);
+    if (Document::Ptr thisDocument = document(fileName)) {
+        newDoc->_revision = thisDocument->_revision;
+        newDoc->_editorRevision = thisDocument->_editorRevision;
+        newDoc->_lastModified = thisDocument->_lastModified;
+        newDoc->_includes = thisDocument->_includes;
+    }
+
     FastPreprocessor pp(*this);
-    return pp.run(fileName, source);
+    const QByteArray preprocessedCode = pp.run(newDoc, source);
+    newDoc->setUtf8Source(preprocessedCode);
+    return newDoc;
 }
 
 Document::Ptr Snapshot::documentFromSource(const QByteArray &preprocessedCode,

@@ -207,7 +207,7 @@ QString StartApplicationParameters::displayName() const
 
 void StartApplicationParameters::toSettings(QSettings *settings) const
 {
-    settings->setValue(_("LastProfileId"), kitId.toString());
+    settings->setValue(_("LastKitId"), kitId.toString());
     settings->setValue(_("LastServerPort"), serverPort);
     settings->setValue(_("LastExternalExecutable"), localExecutable);
     settings->setValue(_("LastExternalExecutableArguments"), processArgs);
@@ -220,7 +220,7 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
 
 void StartApplicationParameters::fromSettings(const QSettings *settings)
 {
-    const QString kitIdString = settings->value(_("LastProfileId")).toString();
+    const QString kitIdString = settings->value(_("LastKitId")).toString();
     kitId = kitIdString.isEmpty() ? Id() : Id(kitIdString);
     serverPort = settings->value(_("LastServerPort")).toUInt();
     localExecutable = settings->value(_("LastExternalExecutable")).toString();
@@ -264,7 +264,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
 
     d->runInTerminalCheckBox = new QCheckBox(this);
 
-    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::LocalDebugging, this);
+    d->kitChooser = new KitChooser(this);
     d->kitChooser->populate();
 
     d->breakAtMainCheckBox = new QCheckBox(this);
@@ -384,10 +384,9 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     StartApplicationDialog dialog(parent);
     dialog.setHistory(history);
     dialog.setParameters(history.back());
-    if (attachRemote) {
+    if (!attachRemote) {
         dialog.d->serverStartScriptPathChooser->setVisible(false);
         dialog.d->serverStartScriptLabel->setVisible(false);
-    } else {
         dialog.d->serverPortSpinBox->setVisible(false);
         dialog.d->serverPortLabel->setVisible(false);
     }
@@ -423,8 +422,8 @@ bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerS
     sp->serverStartScript = newParameters.serverStartScript;
     sp->debugInfoLocation = newParameters.debugInfoLocation;
 
-    bool isLocal = DeviceKitInformation::device(kit)->type()
-         == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    IDevice::ConstPtr dev = DeviceKitInformation::device(kit);
+    bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     if (!attachRemote)
         sp->startMode = isLocal ? StartExternal : StartRemoteProcess;
     return true;

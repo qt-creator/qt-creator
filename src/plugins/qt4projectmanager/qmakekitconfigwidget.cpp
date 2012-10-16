@@ -54,8 +54,8 @@ QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, QWidget *par
     m_lineEdit->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_lineEdit);
 
-    discard(); // set up everything according to kit
-    connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SIGNAL(dirty()));
+    refresh(); // set up everything according to kit
+    connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(mkspecWasChanged(QString)));
 }
 
 QString QmakeKitConfigWidget::displayName() const
@@ -68,19 +68,14 @@ void QmakeKitConfigWidget::makeReadOnly()
     m_lineEdit->setEnabled(false);
 }
 
-void QmakeKitConfigWidget::apply()
-{
-    QmakeKitInformation::setMkspec(m_kit, Utils::FileName::fromString(m_lineEdit->text()));
-}
-
-void QmakeKitConfigWidget::discard()
+void QmakeKitConfigWidget::refresh()
 {
     m_lineEdit->setText(QmakeKitInformation::mkspec(m_kit).toString());
 }
 
-bool QmakeKitConfigWidget::isDirty() const
+void QmakeKitConfigWidget::mkspecWasChanged(const QString &text)
 {
-    return m_lineEdit->text() != QmakeKitInformation::mkspec(m_kit).toString();
+    QmakeKitInformation::setMkspec(m_kit, Utils::FileName::fromString(text));
 }
 
 } // namespace Internal

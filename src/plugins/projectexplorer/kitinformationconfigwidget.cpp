@@ -69,7 +69,7 @@ SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, QWidget *
 
     m_chooser->setFileName(SysRootKitInformation::sysRoot(k));
 
-    connect(m_chooser, SIGNAL(changed(QString)), this, SIGNAL(dirty()));
+    connect(m_chooser, SIGNAL(changed(QString)), this, SLOT(pathWasChanged()));
 }
 
 QString SysRootInformationConfigWidget::displayName() const
@@ -77,19 +77,9 @@ QString SysRootInformationConfigWidget::displayName() const
     return tr("Sysroot:");
 }
 
-void SysRootInformationConfigWidget::apply()
-{
-    SysRootKitInformation::setSysRoot(m_kit, m_chooser->fileName());
-}
-
-void SysRootInformationConfigWidget::discard()
+void SysRootInformationConfigWidget::refresh()
 {
     m_chooser->setFileName(SysRootKitInformation::sysRoot(m_kit));
-}
-
-bool SysRootInformationConfigWidget::isDirty() const
-{
-    return SysRootKitInformation::sysRoot(m_kit) != m_chooser->fileName();
 }
 
 void SysRootInformationConfigWidget::makeReadOnly()
@@ -100,6 +90,11 @@ void SysRootInformationConfigWidget::makeReadOnly()
 QWidget *SysRootInformationConfigWidget::buttonWidget() const
 {
     return m_chooser->buttonAtIndex(0);
+}
+
+void SysRootInformationConfigWidget::pathWasChanged()
+{
+    SysRootKitInformation::setSysRoot(m_kit, m_chooser->fileName());
 }
 
 // --------------------------------------------------------------------------
@@ -128,8 +123,8 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, QWidg
 
     updateComboBox();
 
-    discard();
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(dirty()));
+    refresh();
+    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentToolChainChanged(int)));
 
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     m_manageButton->setText(tr("Manage..."));
@@ -148,23 +143,9 @@ QString ToolChainInformationConfigWidget::displayName() const
     return tr("Compiler:");
 }
 
-void ToolChainInformationConfigWidget::apply()
-{
-    const QString id = m_comboBox->itemData(m_comboBox->currentIndex()).toString();
-    ToolChain *tc = ToolChainManager::instance()->findToolChain(id);
-    ToolChainKitInformation::setToolChain(m_kit, tc);
-}
-
-void ToolChainInformationConfigWidget::discard()
+void ToolChainInformationConfigWidget::refresh()
 {
     m_comboBox->setCurrentIndex(indexOf(ToolChainKitInformation::toolChain(m_kit)));
-}
-
-bool ToolChainInformationConfigWidget::isDirty() const
-{
-    ToolChain *tc = ToolChainKitInformation::toolChain(m_kit);
-    return (m_comboBox->itemData(m_comboBox->currentIndex()).toString())
-            != (tc ? tc->id() : QString());
 }
 
 void ToolChainInformationConfigWidget::makeReadOnly()
@@ -205,6 +186,13 @@ void ToolChainInformationConfigWidget::manageToolChains()
                                    QLatin1String(ProjectExplorer::Constants::TOOLCHAIN_SETTINGS_PAGE_ID));
 }
 
+void ToolChainInformationConfigWidget::currentToolChainChanged(int idx)
+{
+    const QString id = m_comboBox->itemData(idx).toString();
+    ToolChain *tc = ToolChainManager::instance()->findToolChain(id);
+    ToolChainKitInformation::setToolChain(m_kit, tc);
+}
+
 void ToolChainInformationConfigWidget::updateComboBox()
 {
     // remove unavailable tool chain:
@@ -234,9 +222,9 @@ int ToolChainInformationConfigWidget::indexOf(const ToolChain *tc)
 // DeviceTypeInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *k, QWidget *parent) :
+DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workingCopy, QWidget *parent) :
     KitConfigWidget(parent),
-    m_isReadOnly(false), m_kit(k),
+    m_isReadOnly(false), m_kit(workingCopy),
     m_comboBox(new QComboBox)
 {
     setToolTip(tr("The type of device to run applications on."));
@@ -250,12 +238,12 @@ DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *k, QWi
             = ExtensionSystem::PluginManager::instance()->getObjects<IDeviceFactory>();
     foreach (IDeviceFactory *factory, factories) {
         foreach (Core::Id id, factory->availableCreationIds()) {
-            m_comboBox->addItem(factory->displayNameForId(id), QVariant::fromValue(id));
+            m_comboBox->addItem(factory->displayNameForId(id), id.uniqueIdentifier());
         }
     }
 
-    discard();
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(dirty()));
+    refresh();
+    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentTypeChanged(int)));
 }
 
 QString DeviceTypeInformationConfigWidget::displayName() const
@@ -263,33 +251,17 @@ QString DeviceTypeInformationConfigWidget::displayName() const
     return tr("Device type:");
 }
 
-void DeviceTypeInformationConfigWidget::apply()
-{
-    Core::Id devType;
-    if (m_comboBox->currentIndex() >= 0)
-        devType = m_comboBox->itemData(m_comboBox->currentIndex()).value<Core::Id>();
-    DeviceTypeKitInformation::setDeviceTypeId(m_kit, devType);
-}
-
-void DeviceTypeInformationConfigWidget::discard()
+void DeviceTypeInformationConfigWidget::refresh()
 {
     Core::Id devType = DeviceTypeKitInformation::deviceTypeId(m_kit);
     if (!devType.isValid())
         m_comboBox->setCurrentIndex(-1);
     for (int i = 0; i < m_comboBox->count(); ++i) {
-        if (m_comboBox->itemData(i).value<Core::Id>() == devType) {
+        if (m_comboBox->itemData(i).toInt() == devType.uniqueIdentifier()) {
             m_comboBox->setCurrentIndex(i);
             break;
         }
     }
-}
-
-bool DeviceTypeInformationConfigWidget::isDirty() const
-{
-    Core::Id devType;
-    if (m_comboBox->currentIndex() >= 0)
-        devType = m_comboBox->itemData(m_comboBox->currentIndex()).value<Core::Id>();
-    return DeviceTypeKitInformation::deviceTypeId(m_kit) != devType;
 }
 
 void DeviceTypeInformationConfigWidget::makeReadOnly()
@@ -297,13 +269,19 @@ void DeviceTypeInformationConfigWidget::makeReadOnly()
     m_comboBox->setEnabled(false);
 }
 
+void DeviceTypeInformationConfigWidget::currentTypeChanged(int idx)
+{
+    Core::Id type = idx < 0 ? Core::Id() : Core::Id::fromUniqueIdentifier(m_comboBox->itemData(idx).toInt());
+    DeviceTypeKitInformation::setDeviceTypeId(m_kit, type);
+}
+
 // --------------------------------------------------------------------------
 // DeviceInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *k, QWidget *parent) :
+DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy, QWidget *parent) :
     KitConfigWidget(parent),
-    m_isReadOnly(false), m_kit(k),
+    m_isReadOnly(false), m_kit(workingCopy),
     m_comboBox(new QComboBox), m_manageButton(new QPushButton(this)),
     m_model(new DeviceManagerModel(DeviceManager::instance()))
 {
@@ -323,8 +301,8 @@ DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *k, QWidget *pa
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     m_manageButton->setText(tr("Manage..."));
 
-    discard();
-    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SIGNAL(dirty()));
+    refresh();
+    connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentDeviceChanged()));
 
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageDevices()));
 }
@@ -334,24 +312,10 @@ QString DeviceInformationConfigWidget::displayName() const
     return tr("Device:");
 }
 
-void DeviceInformationConfigWidget::apply()
+void DeviceInformationConfigWidget::refresh()
 {
-    int idx = m_comboBox->currentIndex();
-    if (idx >= 0)
-        DeviceKitInformation::setDeviceId(m_kit, m_model->deviceId(idx));
-    else
-        DeviceKitInformation::setDeviceId(m_kit, IDevice::invalidId());
-}
-
-void DeviceInformationConfigWidget::discard()
-{
+    m_model->setTypeFilter(DeviceTypeKitInformation::deviceTypeId(m_kit));
     m_comboBox->setCurrentIndex(m_model->indexOf(DeviceKitInformation::device(m_kit)));
-}
-
-bool DeviceInformationConfigWidget::isDirty() const
-{
-    Core::Id devId = DeviceKitInformation::deviceId(m_kit);
-    return devId != m_model->deviceId(m_comboBox->currentIndex());
 }
 
 void DeviceInformationConfigWidget::makeReadOnly()
@@ -378,6 +342,11 @@ void DeviceInformationConfigWidget::modelAboutToReset()
 void DeviceInformationConfigWidget::modelReset()
 {
     m_comboBox->setCurrentIndex(m_model->indexForId(m_selectedId));
+}
+
+void DeviceInformationConfigWidget::currentDeviceChanged()
+{
+    DeviceKitInformation::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
 }
 
 } // namespace Internal

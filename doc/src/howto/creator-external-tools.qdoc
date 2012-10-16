@@ -73,8 +73,8 @@
     You can open files for editing in the default text editor for your system:
     Notepad on Windows and vi on Linux and Mac OS.
     To open the file you are currently viewing in an external editor, select
-    \gui {Tools > External > Text > Notepad} or \gui vi, depending on your
-    system.
+    \gui Tools > \gui External > \gui Text > \gui {Edit with Notepad} or
+    \gui {Edit with vi}, depending on your system.
 
     \QC looks for the editor path in the PATH environment variable
     of your operating system.

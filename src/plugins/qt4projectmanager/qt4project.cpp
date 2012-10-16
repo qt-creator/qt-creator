@@ -1412,7 +1412,8 @@ QString Qt4Project::buildNameFor(const Kit *k)
 {
     if (!k)
         return QLatin1String("unknown");
-    return QString::fromLatin1(k->id().name()).mid(31, 6); // part of the UUID, should be pretty unique;-)
+
+    return k->fileSystemFriendlyName();
 }
 
 Target *Qt4Project::createTarget(Kit *k, const QList<BuildConfigurationInfo> &infoList)

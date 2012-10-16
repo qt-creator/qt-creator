@@ -695,15 +695,18 @@ static bool byStartOfRange(const QTextLayout::FormatRange &range, const QTextLay
 void SyntaxHighlighter::setExtraAdditionalFormats(const QTextBlock& block,
                                                   const QList<QTextLayout::FormatRange> &fmts)
 {
-
 //    qDebug() << "setAdditionalFormats() on block" << block.blockNumber();
+//    qDebug() << "   is valid:" << (block.isValid() ? "Yes" : "No");
+//    qDebug() << "   has layout:" << (block.layout() ? "Yes" : "No");
+//    if (block.layout()) qDebug() << "   has text:" << (block.text().isEmpty() ? "No" : "Yes");
+
 //    for (int i = 0; i < overrides.count(); ++i)
 //        qDebug() << "   from " << overrides.at(i).start << "length"
 //                 << overrides.at(i).length
 //                 << "color:" << overrides.at(i).format.foreground().color();
     Q_D(SyntaxHighlighter);
 
-    if (block.layout() == 0)
+    if (block.layout() == 0 || block.text().isEmpty())
         return;
 
     QList<QTextLayout::FormatRange> formats;

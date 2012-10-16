@@ -46,8 +46,8 @@ def main():
                                                "text='Online Community'")),
                 "Verifying: Link to Qt forums exists.")
     test.verify(checkIfObjectExists(getQmlItem("LinkedText", ":Qt Creator_QDeclarativeView", False,
-                                               "text='Labs'")),
-                "Verifying: Link to Qt Labs – Developers blog exists.")
+                                               "text='Blogs'")),
+                "Verifying: Link to Planet Qt exists.")
     qmlItem = getQmlItem("Text", ":Qt Creator_QDeclarativeView", False, "text='IDE Overview'")
     expectedText = "QtCreator : IDE Overview"
     testDetails = "Verifying: Help with IDE Overview topic is being opened."

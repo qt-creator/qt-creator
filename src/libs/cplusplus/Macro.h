@@ -95,6 +95,12 @@ public:
     void setFileName(const QString &fileName)
     { _fileName = fileName; }
 
+    unsigned fileRevision() const
+    { return _fileRevision; }
+
+    void setFileRevision(unsigned fileRevision)
+    { _fileRevision = fileRevision; }
+
     unsigned line() const
     { return _line; }
 
@@ -154,6 +160,7 @@ private:
     QVector<PPToken> _definitionTokens;
     QVector<QByteArray> _formals;
     QString _fileName;
+    unsigned _fileRevision;
     unsigned _line;
     unsigned _offset;
     unsigned _length;

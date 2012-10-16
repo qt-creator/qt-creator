@@ -74,7 +74,8 @@ public:
     virtual bool visibleIn(Kit *) { return true; }
     virtual QVariant defaultValue(Kit *) const = 0;
 
-    virtual QList<Task> validate(Kit *) const = 0;
+    virtual QList<Task> validate(const Kit *) const = 0;
+    virtual void fix(Kit *) { return; }
 
     virtual ItemList toUserOutput(Kit *) const = 0;
 
@@ -115,7 +116,6 @@ public:
 public slots:
     bool registerKit(ProjectExplorer::Kit *k);
     void deregisterKit(ProjectExplorer::Kit *k);
-    QList<Task> validateKit(ProjectExplorer::Kit *k);
     void setDefaultKit(ProjectExplorer::Kit *k);
 
     void saveKits();
@@ -129,6 +129,7 @@ signals:
     void kitRemoved(ProjectExplorer::Kit *);
     // Kit was updated.
     void kitUpdated(ProjectExplorer::Kit *);
+    void unmanagedKitUpdated(ProjectExplorer::Kit *);
     // Default kit was changed.
     void defaultkitChanged();
     // Something changed.

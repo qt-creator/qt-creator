@@ -32,7 +32,7 @@
 #include "kitmodel.h"
 #include "kit.h"
 #include "projectexplorerconstants.h"
-#include "kitconfigwidget.h"
+#include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
 
 #include <coreplugin/icore.h>
@@ -173,18 +173,18 @@ void KitOptionsPage::kitSelectionChanged()
     QModelIndex current = currentIndex();
     m_currentWidget = current.isValid() ? m_model->widget(current) : 0;
 
-    if (m_currentWidget)
+    if (m_currentWidget) {
         m_currentWidget->setVisible(true);
+        m_kitsView->scrollTo(current);
+    }
     updateState();
 }
 
 void KitOptionsPage::addNewKit()
 {
-    Kit *k = new Kit;
-    m_model->markForAddition(k);
+    Kit *k = m_model->markForAddition(0);
 
     QModelIndex newIdx = m_model->indexOf(k);
-    m_kitsView->scrollTo(newIdx);
     m_selectionModel->select(newIdx,
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
@@ -197,10 +197,7 @@ void KitOptionsPage::cloneKit()
     if (!current)
         return;
 
-    Kit *k = current->clone();
-
-    m_model->markForAddition(k);
-
+    Kit *k = m_model->markForAddition(current);
     QModelIndex newIdx = m_model->indexOf(k);
     m_kitsView->scrollTo(newIdx);
     m_selectionModel->select(newIdx,
@@ -234,7 +231,7 @@ void KitOptionsPage::updateState()
     QModelIndex index = currentIndex();
     Kit *k = m_model->kit(index);
     if (k) {
-        canCopy = k->isValid();
+        canCopy = true;
         canDelete = !k->isAutoDetected();
         canMakeDefault = !m_model->isDefaultKit(index);
     }

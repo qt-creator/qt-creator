@@ -35,6 +35,8 @@
 #include "project.h"
 #include "toolchainmanager.h"
 
+#include <utils/qtcassert.h>
+
 #include <QApplication>
 #include <QIcon>
 #include <QStyle>
@@ -53,6 +55,22 @@ const char ICON_KEY[] = "PE.Profile.Icon";
 
 namespace ProjectExplorer {
 
+// --------------------------------------------------------------------
+// Helper:
+// --------------------------------------------------------------------
+
+static QString cleanName(const QString &name)
+{
+    QString result = name;
+    result.replace(QRegExp("\\W"), QLatin1String("_"));
+    result.replace(QRegExp("_+"), "_"); // compact _
+    result.remove(QRegExp("^_*")); // remove leading _
+    result.remove(QRegExp("_+$")); // remove trailing _
+    if (result.isEmpty())
+        result = QLatin1String("unknown");
+    return result;
+}
+
 // -------------------------------------------------------------------------
 // KitPrivate
 // -------------------------------------------------------------------------
@@ -62,11 +80,16 @@ namespace Internal {
 class KitPrivate
 {
 public:
-    KitPrivate() :
-        m_id(QUuid::createUuid().toString().toLatin1().constData()),
+    KitPrivate(Core::Id id) :
+        m_id(id),
         m_autodetected(false),
-        m_isValid(true)
-    { }
+        m_isValid(true),
+        m_nestedBlockingLevel(0),
+        m_mustNotify(false)
+    {
+        if (!id.isValid())
+            m_id = Core::Id(QUuid::createUuid().toString().toLatin1().constData());
+    }
 
     QString m_displayName;
     Core::Id m_id;
@@ -74,6 +97,8 @@ public:
     bool m_isValid;
     QIcon m_icon;
     QString m_iconPath;
+    int m_nestedBlockingLevel;
+    bool m_mustNotify;
 
     QHash<Core::Id, QVariant> m_data;
 };
@@ -84,12 +109,13 @@ public:
 // Kit:
 // -------------------------------------------------------------------------
 
-Kit::Kit() :
-    d(new Internal::KitPrivate)
+Kit::Kit(Core::Id id) :
+    d(new Internal::KitPrivate(id))
 {
     KitManager *stm = KitManager::instance();
+    KitGuard g(this);
     foreach (KitInformation *sti, stm->kitInformation())
-        d->m_data.insert(sti->dataId(), sti->defaultValue(this));
+        setValue(sti->dataId(), sti->defaultValue(this));
 
     setDisplayName(QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed"));
     setIconPath(QLatin1String(":///DESKTOP///"));
@@ -98,6 +124,21 @@ Kit::Kit() :
 Kit::~Kit()
 {
     delete d;
+}
+
+void Kit::blockNotification()
+{
+    ++d->m_nestedBlockingLevel;
+}
+
+void Kit::unblockNotification()
+{
+    --d->m_nestedBlockingLevel;
+    if (d->m_nestedBlockingLevel > 0)
+        return;
+    if (d->m_mustNotify)
+        kitUpdated();
+    d->m_mustNotify = false;
 }
 
 Kit *Kit::clone(bool keepName) const
@@ -116,18 +157,43 @@ Kit *Kit::clone(bool keepName) const
     return k;
 }
 
+void Kit::copyFrom(const Kit *k)
+{
+    KitGuard g(this);
+    d->m_data = k->d->m_data;
+    d->m_iconPath = k->d->m_iconPath;
+    d->m_icon = k->d->m_icon;
+    d->m_autodetected = k->d->m_autodetected;
+    d->m_displayName = k->d->m_displayName;
+}
+
 bool Kit::isValid() const
 {
     return d->m_id.isValid() && d->m_isValid;
 }
 
-QList<Task> Kit::validate()
+QList<Task> Kit::validate() const
 {
     QList<Task> result;
     QList<KitInformation *> infoList = KitManager::instance()->kitInformation();
-    foreach (KitInformation *i, infoList)
-        result.append(i->validate(this));
+    d->m_isValid = true;
+    foreach (KitInformation *i, infoList) {
+        QList<Task> tmp = i->validate(this);
+        foreach (const Task &t, tmp) {
+            if (t.type == Task::Error)
+                d->m_isValid = false;
+        }
+        result.append(tmp);
+    }
+    qSort(result);
     return result;
+}
+
+void Kit::fix()
+{
+    KitGuard g(this);
+    foreach (KitInformation *i, KitManager::instance()->kitInformation())
+        i->fix(this);
 }
 
 QString Kit::displayName() const
@@ -183,6 +249,22 @@ void Kit::setDisplayName(const QString &name)
         return;
     d->m_displayName = uniqueName;
     kitUpdated();
+}
+
+QString Kit::fileSystemFriendlyName() const
+{
+    QString name = cleanName(displayName());
+    foreach (Kit *i, KitManager::instance()->kits()) {
+        if (i == this)
+            continue;
+        if (name == cleanName(i->displayName())) {
+            // append part of the kit id: That should be unique enough;-)
+            // Leading { will be turned into _ which should be fine.
+            name = cleanName(name + QLatin1Char('_') + (id().toString().left(7)));
+            break;
+        }
+    }
+    return name;
 }
 
 bool Kit::isAutoDetected() const
@@ -245,6 +327,18 @@ void Kit::removeKey(const Core::Id &key)
     kitUpdated();
 }
 
+bool Kit::isDataEqual(const Kit *other) const
+{
+    return d->m_data == other->d->m_data;
+}
+
+bool Kit::isEqual(const Kit *other) const
+{
+    return isDataEqual(other)
+            && d->m_iconPath == other->d->m_iconPath
+            && d->m_displayName == other->d->m_displayName;
+}
+
 QVariantMap Kit::toMap() const
 {
     QVariantMap data;
@@ -259,11 +353,6 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(DATA_KEY), extra);
 
     return data;
-}
-
-bool Kit::operator==(const Kit &other) const
-{
-    return d->m_data == other.d->m_data;
 }
 
 void Kit::addToEnvironment(Utils::Environment &env) const
@@ -288,10 +377,10 @@ QString Kit::toHtml()
             str << "<b>";
             switch (t.type) {
             case Task::Error:
-                QCoreApplication::translate("ProjectExplorer::Kit", "Error:");
+                str << QCoreApplication::translate("ProjectExplorer::Kit", "Error:");
                 break;
             case Task::Warning:
-                QCoreApplication::translate("ProjectExplorer::Kit", "Warning:");
+                str << QCoreApplication::translate("ProjectExplorer::Kit", "Warning:");
                 break;
             case Task::Unknown:
             default:
@@ -314,17 +403,18 @@ QString Kit::toHtml()
 
 bool Kit::fromMap(const QVariantMap &data)
 {
+    KitGuard g(this);
     const QString id = data.value(QLatin1String(ID_KEY)).toString();
     if (id.isEmpty())
         return false;
     d->m_id = Core::Id(id);
-    d->m_displayName = data.value(QLatin1String(DISPLAYNAME_KEY)).toString();
     d->m_autodetected = data.value(QLatin1String(AUTODETECTED_KEY)).toBool();
+    setDisplayName(data.value(QLatin1String(DISPLAYNAME_KEY)).toString());
     setIconPath(data.value(QLatin1String(ICON_KEY)).toString());
 
     QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
     foreach (const QString &key, extra.keys())
-        d->m_data.insert(Core::Id(key), extra.value(key));
+        setValue(Core::Id(key), extra.value(key));
 
     return true;
 }
@@ -334,13 +424,13 @@ void Kit::setAutoDetected(bool detected)
     d->m_autodetected = detected;
 }
 
-void Kit::setValid(bool valid)
-{
-    d->m_isValid = valid;
-}
-
 void Kit::kitUpdated()
 {
+    if (d->m_nestedBlockingLevel > 0) {
+        d->m_mustNotify = true;
+        return;
+    }
+    validate();
     KitManager::instance()->notifyAboutUpdate(this);
 }
 

@@ -61,11 +61,12 @@ public:
     explicit SysRootInformationConfigWidget(Kit *k, QWidget *parent = 0);
 
     QString displayName() const;
-    void apply();
-    void discard();
-    bool isDirty() const;
+    void refresh();
     void makeReadOnly();
     QWidget *buttonWidget() const;
+
+private slots:
+    void pathWasChanged();
 
 private:
     Kit *m_kit;
@@ -84,9 +85,7 @@ public:
     explicit ToolChainInformationConfigWidget(Kit *k, QWidget *parent = 0);
 
     QString displayName() const;
-    void apply();
-    void discard();
-    bool isDirty() const;
+    void refresh();
     void makeReadOnly();
     QWidget *buttonWidget() const;
 
@@ -95,6 +94,7 @@ private slots:
     void toolChainRemoved(ProjectExplorer::ToolChain *tc);
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
     void manageToolChains();
+    void currentToolChainChanged(int idx);
 
 private:
     void updateComboBox();
@@ -115,13 +115,14 @@ class DeviceTypeInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit DeviceTypeInformationConfigWidget(Kit *k, QWidget *parent = 0);
+    explicit DeviceTypeInformationConfigWidget(Kit *workingCopy, QWidget *parent = 0);
 
     QString displayName() const;
-    void apply();
-    void discard();
-    bool isDirty() const;
+    void refresh();
     void makeReadOnly();
+
+private slots:
+    void currentTypeChanged(int idx);
 
 private:
     bool m_isReadOnly;
@@ -138,12 +139,10 @@ class DeviceInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit DeviceInformationConfigWidget(Kit *k, QWidget *parent = 0);
+    explicit DeviceInformationConfigWidget(Kit *workingCopy, QWidget *parent = 0);
 
     QString displayName() const;
-    void apply();
-    void discard();
-    bool isDirty() const;
+    void refresh();
     void makeReadOnly();
     QWidget *buttonWidget() const;
 
@@ -151,6 +150,7 @@ private slots:
     void manageDevices();
     void modelAboutToReset();
     void modelReset();
+    void currentDeviceChanged();
 
 private:
     bool m_isReadOnly;

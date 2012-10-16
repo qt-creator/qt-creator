@@ -480,12 +480,19 @@ void CppPreprocessor::macroAdded(const Macro &macro)
     m_currentDoc->appendMacro(macro);
 }
 
+static inline const Macro revision(const CppModelManagerInterface::WorkingCopy &s, const Macro &macro)
+{
+    Macro newMacro(macro);
+    newMacro.setFileRevision(s.get(macro.fileName()).second);
+    return newMacro;
+}
+
 void CppPreprocessor::passedMacroDefinitionCheck(unsigned offset, unsigned line, const Macro &macro)
 {
     if (! m_currentDoc)
         return;
 
-    m_currentDoc->addMacroUse(macro, offset, macro.name().length(), line,
+    m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line,
                               QVector<MacroArgumentReference>());
 }
 
@@ -502,7 +509,7 @@ void CppPreprocessor::notifyMacroReference(unsigned offset, unsigned line, const
     if (! m_currentDoc)
         return;
 
-    m_currentDoc->addMacroUse(macro, offset, macro.name().length(), line,
+    m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line,
                               QVector<MacroArgumentReference>());
 }
 
@@ -513,7 +520,7 @@ void CppPreprocessor::startExpandingMacro(unsigned offset, unsigned line,
     if (! m_currentDoc)
         return;
 
-    m_currentDoc->addMacroUse(macro, offset, macro.name().length(), line, actuals);
+    m_currentDoc->addMacroUse(revision(m_workingCopy, macro), offset, macro.name().length(), line, actuals);
 }
 
 void CppPreprocessor::stopExpandingMacro(unsigned, const Macro &)

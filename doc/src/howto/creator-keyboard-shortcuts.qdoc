@@ -195,6 +195,11 @@
             \o Toggle \gui{Compile Output} pane
             \o Alt+4 (Cmd+4 on Mac OS X)
         \row
+            \o Toggle other output panes
+            \o Alt+number (Cmd+number on Mac OS X)
+
+            Where the number is the number of the output pane.
+        \row
             \o Activate \gui Bookmarks pane
             \o Alt+M
         \row

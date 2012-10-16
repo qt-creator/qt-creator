@@ -60,7 +60,7 @@ public:
 
     QVariant defaultValue(Kit *k) const;
 
-    QList<Task> validate(Kit *k) const;
+    QList<Task> validate(const Kit *k) const;
 
     KitConfigWidget *createConfigWidget(Kit *k) const;
 
@@ -102,7 +102,8 @@ public:
 
     QVariant defaultValue(Kit *k) const;
 
-    QList<Task> validate(Kit *k) const;
+    QList<Task> validate(const Kit *k) const;
+    void fix(Kit *k);
 
     KitConfigWidget *createConfigWidget(Kit *k) const;
 
@@ -149,7 +150,7 @@ public:
 
     QVariant defaultValue(Kit *k) const;
 
-    QList<Task> validate(Kit *k) const;
+    QList<Task> validate(const Kit *k) const;
 
     KitConfigWidget *createConfigWidget(Kit *k) const;
 
@@ -193,7 +194,8 @@ public:
 
     QVariant defaultValue(Kit *k) const;
 
-    QList<Task> validate(Kit *k) const;
+    QList<Task> validate(const Kit *k) const;
+    void fix(Kit *k);
 
     KitConfigWidget *createConfigWidget(Kit *k) const;
 

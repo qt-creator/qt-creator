@@ -61,7 +61,7 @@ class DebuggerKitConfigWidget : public ProjectExplorer::KitConfigWidget
     Q_OBJECT
 
 public:
-    DebuggerKitConfigWidget(ProjectExplorer::Kit *k,
+    DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy,
                             const DebuggerKitInformation *ki,
                             QWidget *parent = 0);
 
@@ -69,9 +69,8 @@ public:
 
     void makeReadOnly();
 
-    void apply();
-    void discard();
-    bool isDirty() const { return m_dirty; }
+    void refresh();
+
     QWidget *buttonWidget() const;
 
 private slots:
@@ -79,13 +78,8 @@ private slots:
     void showDialog();
 
 private:
-    void setItem(const DebuggerKitInformation::DebuggerItem &item);
-    void doSetItem(const DebuggerKitInformation::DebuggerItem &item);
-
     ProjectExplorer::Kit *m_kit;
     const DebuggerKitInformation *m_info;
-    DebuggerKitInformation::DebuggerItem m_item;
-    bool m_dirty;
     QLabel *m_label;
     QPushButton *m_button;
 };

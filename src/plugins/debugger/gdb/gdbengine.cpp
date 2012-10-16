@@ -644,6 +644,9 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     if (!handler->isOneShot(id))
                         handler->removeAlienBreakpoint(id);
                 }
+            } else if (asyncClass == "cmd-param-changed") {
+                // New since 2012-08-09
+                //  "{param="debug remote",value="1"}"
             } else {
                 qDebug() << "IGNORED ASYNC OUTPUT"
                     << asyncClass << result.toString();

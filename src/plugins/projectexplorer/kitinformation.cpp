@@ -76,7 +76,7 @@ QVariant SysRootKitInformation::defaultValue(Kit *k) const
     return QString();
 }
 
-QList<Task> SysRootKitInformation::validate(Kit *k) const
+QList<Task> SysRootKitInformation::validate(const Kit *k) const
 {
     QList<Task> result;
     const Utils::FileName dir = SysRootKitInformation::sysRoot(k);
@@ -160,17 +160,24 @@ QVariant ToolChainKitInformation::defaultValue(Kit *k) const
     return tcList.at(0)->id();
 }
 
-QList<Task> ToolChainKitInformation::validate(Kit *k) const
+QList<Task> ToolChainKitInformation::validate(const Kit *k) const
 {
     QList<Task> result;
     if (!toolChain(k)) {
-        qWarning("Tool chain is no longer known, removing from kit \"%s\".",
-                 qPrintable(k->displayName()));
-        setToolChain(k, 0); // make sure to clear out no longer known tool chains
         result << Task(Task::Error, ToolChainKitInformation::msgNoToolChainInTarget(),
                        Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
     return result;
+}
+
+void ToolChainKitInformation::fix(Kit *k)
+{
+    if (toolChain(k))
+        return;
+
+    qWarning("Tool chain is no longer known, removing from kit \"%s\".",
+             qPrintable(k->displayName()));
+    setToolChain(k, 0); // make sure to clear out no longer known tool chains
 }
 
 KitConfigWidget *ToolChainKitInformation::createConfigWidget(Kit *k) const
@@ -256,14 +263,10 @@ QVariant DeviceTypeKitInformation::defaultValue(Kit *k) const
     return QByteArray(Constants::DESKTOP_DEVICE_TYPE);
 }
 
-QList<Task> DeviceTypeKitInformation::validate(Kit *k) const
+QList<Task> DeviceTypeKitInformation::validate(const Kit *k) const
 {
-    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
-    QList<Task> result;
-    if (!dev.isNull() && dev->type() != DeviceTypeKitInformation::deviceTypeId(k))
-        result.append(Task(Task::Error, tr("Device does not match device type."),
-                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
-    return result;
+    Q_UNUSED(k);
+    return QList<Task>();
 }
 
 KitConfigWidget *DeviceTypeKitInformation::createConfigWidget(Kit *k) const
@@ -329,15 +332,32 @@ unsigned int DeviceKitInformation::priority() const
 
 QVariant DeviceKitInformation::defaultValue(Kit *k) const
 {
-    Q_UNUSED(k);
-    return QByteArray(Constants::DESKTOP_DEVICE_ID);
+    Core::Id type = DeviceTypeKitInformation::deviceTypeId(k);
+    IDevice::ConstPtr dev = DeviceManager::instance()->defaultDevice(type);
+    return dev.isNull() ? QString() : dev->id().toString();
 }
 
-QList<Task> DeviceKitInformation::validate(Kit *k) const
+QList<Task> DeviceKitInformation::validate(const Kit *k) const
 {
-    Q_UNUSED(k);
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
     QList<Task> result;
+    if (!dev.isNull() && dev->type() != DeviceTypeKitInformation::deviceTypeId(k))
+        result.append(Task(Task::Error, tr("Device does not match device type."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
+    if (dev.isNull())
+        result.append(Task(Task::Warning, tr("No Device set."),
+                           Utils::FileName(), -1, Core::Id(Constants::TASK_CATEGORY_BUILDSYSTEM)));
     return result;
+}
+
+void DeviceKitInformation::fix(Kit *k)
+{
+    IDevice::ConstPtr dev = DeviceKitInformation::device(k);
+    if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
+        return;
+
+    const QString id = defaultValue(k).toString();
+    setDeviceId(k, id.isEmpty() ? Core::Id() : Core::Id(id));
 }
 
 KitConfigWidget *DeviceKitInformation::createConfigWidget(Kit *k) const

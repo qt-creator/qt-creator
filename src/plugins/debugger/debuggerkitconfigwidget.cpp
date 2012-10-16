@@ -64,13 +64,12 @@ static const char dgbToolsDownloadLink64C[] = "http://www.microsoft.com/whdc/dev
 // DebuggerKitConfigWidget:
 // -----------------------------------------------------------------------
 
-DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *k,
+DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy,
                                                  const DebuggerKitInformation *ki,
                                                  QWidget *parent) :
     ProjectExplorer::KitConfigWidget(parent),
-    m_kit(k),
+    m_kit(workingCopy),
     m_info(ki),
-    m_dirty(false),
     m_label(new QLabel(this)),
     m_button(new QPushButton(tr("Manage..."), this))
 {
@@ -88,7 +87,7 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(ProjectExplorer::Kit *k,
     connect(changeAction, SIGNAL(triggered()), this, SLOT(showDialog()));
     m_button->setMenu(buttonMenu);
 
-    discard();
+    refresh();
 }
 
 QWidget *DebuggerKitConfigWidget::buttonWidget() const
@@ -106,45 +105,23 @@ void DebuggerKitConfigWidget::makeReadOnly()
     m_button->setEnabled(false);
 }
 
-void DebuggerKitConfigWidget::apply()
+void DebuggerKitConfigWidget::refresh()
 {
-    DebuggerKitInformation::setDebuggerItem(m_kit, m_item);
-    m_dirty = false;
-}
-
-void DebuggerKitConfigWidget::discard()
-{
-    doSetItem(DebuggerKitInformation::debuggerItem(m_kit));
-    m_dirty = false;
+    m_label->setText(DebuggerKitInformation::userOutput(DebuggerKitInformation::debuggerItem(m_kit)));
 }
 
 void DebuggerKitConfigWidget::autoDetectDebugger()
 {
-    setItem(DebuggerKitInformation::autoDetectItem(m_kit));
-}
-
-void DebuggerKitConfigWidget::doSetItem(const DebuggerKitInformation::DebuggerItem &item)
-{
-    m_item = item;
-    m_label->setText(DebuggerKitInformation::userOutput(m_item));
-}
-
-void DebuggerKitConfigWidget::setItem(const DebuggerKitInformation::DebuggerItem &item)
-{
-    if (m_item != item) {
-        m_dirty = true;
-        doSetItem(item);
-        emit dirty();
-    }
+    DebuggerKitInformation::setDebuggerItem(m_kit, DebuggerKitInformation::autoDetectItem(m_kit));
 }
 
 void DebuggerKitConfigWidget::showDialog()
 {
     DebuggerKitConfigDialog dialog;
     dialog.setWindowTitle(tr("Debugger for \"%1\"").arg(m_kit->displayName()));
-    dialog.setDebuggerItem(m_item);
+    dialog.setDebuggerItem(DebuggerKitInformation::debuggerItem(m_kit));
     if (dialog.exec() == QDialog::Accepted)
-        setItem(dialog.item());
+        DebuggerKitInformation::setDebuggerItem(m_kit, dialog.item());
 }
 
 // -----------------------------------------------------------------------

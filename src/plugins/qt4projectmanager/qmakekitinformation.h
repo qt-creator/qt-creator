@@ -49,7 +49,7 @@ public:
 
     QVariant defaultValue(ProjectExplorer::Kit *k) const;
 
-    QList<ProjectExplorer::Task> validate(ProjectExplorer::Kit *k) const;
+    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const;
 
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
 
