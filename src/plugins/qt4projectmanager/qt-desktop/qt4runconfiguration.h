@@ -113,7 +113,7 @@ signals:
 
 private slots:
     void kitChanged();
-    void kitUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
+    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
 
 protected:
     Qt4RunConfiguration(ProjectExplorer::Target *parent, Qt4RunConfiguration *source);

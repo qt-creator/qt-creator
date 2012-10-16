@@ -151,7 +151,7 @@ QString Qt4RunConfiguration::disabledReason() const
     return QString();
 }
 
-void Qt4RunConfiguration::kitUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
+void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
     if (m_proFilePath != pro->path()) {
         if (!parseInProgress) {
@@ -184,8 +184,8 @@ void Qt4RunConfiguration::ctor()
 
     connect(target(), SIGNAL(environmentChanged()),
             this, SIGNAL(baseEnvironmentChanged()));
-    connect(target()->project(), SIGNAL(kitUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SLOT(kitUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+    connect(target()->project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
     connect(target(), SIGNAL(kitChanged()),
             this, SLOT(kitChanged()));
 }
