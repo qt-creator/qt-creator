@@ -93,6 +93,7 @@ def main():
         config_postfix = '-windows'
     if sys.platform.startswith('linux'):
         config_postfix = '-linux'
+        installer_name = installer_name + '.bin'
 
     config_name = 'config' + config_postfix + '.xml'
 
