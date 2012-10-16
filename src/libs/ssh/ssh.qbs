@@ -4,17 +4,17 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "QtcSsh"
 
-    cpp.defines: base.concat(["QSSH_LIBRARY"])
+    cpp.defines: base.concat(["QSSH_LIBRARY"]).concat(botanDefines)
+    cpp.dynamicLibraries: botanLibs
     cpp.includePaths: [
         ".",
         "..",
         "../..",
         buildDirectory
-    ]
+    ].concat(botanIncludes)
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "network" ] }
-    Depends { name: "Botan" }
 
     files: [
         "sftpchannel.h", "sftpchannel_p.h", "sftpchannel.cpp",
@@ -46,7 +46,48 @@ QtcLibrary {
         "sshexception_p.h",
         "sshpseudoterminal.h",
         "sshbotanconversions_p.h"
-    ]
+    ].concat(botanFiles)
+
+    property var botanIncludes: ["../3rdparty"]
+    property var botanLibs: qbs.targetOS === "windows" ? ["advapi32", "user32"] : ["rt", "dl"]
+    property var botanDefines: {
+            var result = ['BOTAN_DLL=""']
+            if (qbs.toolchain === "msvc")
+                result.push("BOTAN_BUILD_COMPILER_IS_MSVC", "BOTAN_TARGET_OS_HAS_GMTIME_S")
+            if (qbs.toolchain === "gcc" || qbs.toolchain === "mingw")
+                result.push("BOTAN_BUILD_COMPILER_IS_GCC")
+            if (qbs.targetOS === "linux")
+                result.push("BOTAN_TARGET_OS_IS_LINUX", "BOTAN_TARGET_OS_HAS_CLOCK_GETTIME",
+                            "BOTAN_TARGET_OS_HAS_DLOPEN", " BOTAN_TARGET_OS_HAS_GMTIME_R",
+                            "BOTAN_TARGET_OS_HAS_POSIX_MLOCK", "BOTAN_HAS_DYNAMICALLY_LOADED_ENGINE",
+                            "BOTAN_HAS_DYNAMIC_LOADER", "BOTAN_TARGET_OS_HAS_GETTIMEOFDAY",
+                            "BOTAN_HAS_ALLOC_MMAP", "BOTAN_HAS_ENTROPY_SRC_DEV_RANDOM",
+                            "BOTAN_HAS_ENTROPY_SRC_EGD", "BOTAN_HAS_ENTROPY_SRC_FTW",
+                            "BOTAN_HAS_ENTROPY_SRC_UNIX", "BOTAN_HAS_MUTEX_PTHREAD", "BOTAN_HAS_PIPE_UNIXFD_IO")
+            if (qbs.targetOS === "mac")
+                result.push("BOTAN_TARGET_OS_IS_DARWIN", "BOTAN_TARGET_OS_HAS_GETTIMEOFDAY",
+                            "BOTAN_HAS_ALLOC_MMAP", "BOTAN_HAS_ENTROPY_SRC_DEV_RANDOM",
+                            "BOTAN_HAS_ENTROPY_SRC_EGD", "BOTAN_HAS_ENTROPY_SRC_FTW",
+                            "BOTAN_HAS_ENTROPY_SRC_UNIX", "BOTAN_HAS_MUTEX_PTHREAD", "BOTAN_HAS_PIPE_UNIXFD_IO")
+            if (qbs.targetOS === "windows")
+                result.push("BOTAN_TARGET_OS_IS_WINDOWS",
+                            "BOTAN_TARGET_OS_HAS_LOADLIBRARY", "BOTAN_TARGET_OS_HAS_WIN32_GET_SYSTEMTIME",
+                            "BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK", "BOTAN_HAS_DYNAMICALLY_LOADED_ENGINE",
+                            "BOTAN_HAS_DYNAMIC_LOADER", "BOTAN_HAS_ENTROPY_SRC_CAPI",
+                            "BOTAN_HAS_ENTROPY_SRC_WIN32", "BOTAN_HAS_MUTEX_WIN32")
+            return result
+        }
+    property var botanFiles: [ "../3rdparty/botan/botan.h", "../3rdparty/botan/botan.cpp" ]
+
+    // For Botan.
+    Properties {
+        condition: qbs.toolchain === "mingw"
+        cpp.cxxFlags: [
+            "-fpermissive",
+            "-finline-functions",
+            "-Wno-long-long"
+        ]
+    }
 
     ProductModule {
         Depends { name: "cpp" }

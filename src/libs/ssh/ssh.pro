@@ -65,3 +65,5 @@ HEADERS = $$PWD/sshsendfacility_p.h \
     $$PWD/ssh_global.h
 
 FORMS = $$PWD/sshkeycreationdialog.ui
+
+include(../3rdparty/botan/botan.pri)
