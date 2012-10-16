@@ -135,7 +135,8 @@ bool SshKeyExchange::sendDhInitPacket(const SshIncomingPacket &serverKexInit)
         kexInitParams.compressionAlgorithmsServerToClient.names);
 
     AutoSeeded_RNG rng;
-    m_dhKey = createDhPrivateKey(rng, DL_Group(botanKeyExchangeAlgoName(keyAlgo)));
+    m_dhKey.reset(new DH_PrivateKey(rng,
+        DL_Group(botanKeyExchangeAlgoName(keyAlgo))));
 
     m_serverKexInitPayload = serverKexInit.payLoad();
     m_sendFacility.sendKeyDhInitPacket(m_dhKey->get_y());
@@ -182,24 +183,28 @@ void SshKeyExchange::sendNewKeysPacket(const SshIncomingPacket &dhReply,
     printData("H", m_h);
 #endif // CREATOR_SSH_DEBUG
 
-    QSharedPointer<Public_Key> publicKey;
-    QByteArray algorithm;
+    QScopedPointer<Public_Key> sigKey;
+    QScopedPointer<PK_Verifier> verifier;
     if (m_serverHostKeyAlgo == SshCapabilities::PubKeyDss) {
         const DL_Group group(reply.parameters.at(0), reply.parameters.at(1),
             reply.parameters.at(2));
-        publicKey = createDsaPublicKey(group, reply.parameters.at(3));
-        algorithm = SshCapabilities::PubKeyDss;
+        DSA_PublicKey * const dsaKey
+            = new DSA_PublicKey(group, reply.parameters.at(3));
+        sigKey.reset(dsaKey);
+        verifier.reset(new PK_Verifier(*dsaKey, botanEmsaAlgoName(SshCapabilities::PubKeyDss)));
     } else if (m_serverHostKeyAlgo == SshCapabilities::PubKeyRsa) {
-        publicKey = createRsaPublicKey(reply.parameters.at(1), reply.parameters.at(0));
-        algorithm = SshCapabilities::PubKeyRsa;
+        RSA_PublicKey * const rsaKey
+            = new RSA_PublicKey(reply.parameters.at(1), reply.parameters.at(0));
+        sigKey.reset(rsaKey);
+        verifier.reset(new PK_Verifier(*rsaKey, botanEmsaAlgoName(SshCapabilities::PubKeyRsa)));
     } else {
         Q_ASSERT(!"Impossible: Neither DSS nor RSA!");
     }
     const byte * const botanH = convertByteArray(m_h);
     const Botan::byte * const botanSig
         = convertByteArray(reply.signatureBlob);
-    if (!PK_Verifier(*publicKey, botanEmsaAlgoName(algorithm)).verify_message(botanH, m_h.size(),
-            botanSig, reply.signatureBlob.size())) {
+    if (!verifier->verify_message(botanH, m_h.size(), botanSig,
+        reply.signatureBlob.size())) {
         throw SSH_SERVER_EXCEPTION(SSH_DISCONNECT_KEY_EXCHANGE_FAILED,
             "Invalid signature in SSH_MSG_KEXDH_REPLY packet.");
     }

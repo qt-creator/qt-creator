@@ -9,7 +9,6 @@
 #define BOTAN_AMALGAMATION_H__
 
 #include <QtGlobal>
-#include <QSharedPointer>
 
 #include <iosfwd>
 #include <map>
@@ -16182,26 +16181,7 @@ class BOTAN_DLL ANSI_X919_MAC : public MessageAuthenticationCode
       SecureVector<byte> state;
       size_t position;
    };
-}
 
-namespace Botan {
-typedef QSharedPointer<Public_Key> PublicKeyPtr;
-BOTAN_DLL PublicKeyPtr createRsaPublicKey(const BigInt &e, const BigInt &n);
-BOTAN_DLL PublicKeyPtr createDsaPublicKey(const DL_Group& group, const BigInt& y);
-
-typedef QSharedPointer<Private_Key> PrivateKeyPtr;
-BOTAN_DLL PrivateKeyPtr createRsaPrivateKey(RandomNumberGenerator& rng, const BigInt& p,
-        const BigInt& q, const BigInt& e, const BigInt& d = 0, const BigInt& n = 0);
-BOTAN_DLL PrivateKeyPtr createRsaPrivateKey(RandomNumberGenerator& rng, size_t bits,
-        size_t exp = 65537);
-BOTAN_DLL PrivateKeyPtr createDsaPrivateKey(RandomNumberGenerator& rng, const DL_Group& group,
-        const BigInt& private_key = 0);
-BOTAN_DLL PrivateKeyPtr loadPkcs8PrivateKey(DataSource& source, RandomNumberGenerator& rng,
-        const User_Interface& ui);
-
-typedef QSharedPointer<DH_PrivateKey> DhPrivateKeyPtr;
-BOTAN_DLL DhPrivateKeyPtr createDhPrivateKey(RandomNumberGenerator& rng, const DL_Group& grp,
-        const BigInt& x = 0);
 }
 
 
