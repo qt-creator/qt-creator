@@ -264,7 +264,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
 
     d->runInTerminalCheckBox = new QCheckBox(this);
 
-    d->kitChooser = new DebuggerKitChooser(DebuggerKitChooser::LocalDebugging, this);
+    d->kitChooser = new KitChooser(this);
     d->kitChooser->populate();
 
     d->breakAtMainCheckBox = new QCheckBox(this);
