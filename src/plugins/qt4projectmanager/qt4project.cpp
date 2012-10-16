@@ -423,8 +423,8 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     updateCodeModels();
 
     // We have the profile nodes now, so we know the runconfigs!
-    connect(m_nodesWatcher, SIGNAL(kitUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SIGNAL(kitUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
 
     // Now we emit update once :)
     m_rootProjectNode->emitProFileUpdatedRecursive();

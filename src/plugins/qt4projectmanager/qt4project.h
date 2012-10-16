@@ -144,7 +144,7 @@ public:
     void emitBuildDirectoryInitialized();
 
 signals:
-    void kitUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
+    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
     void buildDirectoryInitialized();
     void proFilesEvaluated();
 
