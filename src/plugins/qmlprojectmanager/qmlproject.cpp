@@ -74,9 +74,6 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     Core::DocumentManager::addDocument(m_file, true);
 
     m_manager->registerProject(this);
-
-    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            this, SLOT(addedTarget(ProjectExplorer::Target*)));
 }
 
 QmlProject::~QmlProject()
@@ -329,6 +326,15 @@ bool QmlProject::fromMap(const QVariantMap &map)
         addTarget(createTarget(defaultKit));
 
     refresh(Everything);
+
+    // addedTarget calls updateEnabled on the runconfigurations
+    // which needs to happen after refresh
+    foreach (ProjectExplorer::Target *t, targets())
+        addedTarget(t);
+
+    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
+            this, SLOT(addedTarget(ProjectExplorer::Target*)));
+
     return true;
 }
 
