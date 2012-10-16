@@ -75,7 +75,8 @@ private slots:
     void onItemClicked(const QModelIndex &index);
 
 private:
-    void buildHierarchy(const CppClass &cppClass, QStandardItem *parent, bool isRoot, const QList<CppClass> &classes);
+    typedef QList<CppClass> CppClass::*HierarchyMember;
+    void buildHierarchy(const CppClass &cppClass, QStandardItem *parent, bool isRoot, HierarchyMember member);
 
     CPPEditorWidget *m_cppEditor;
     Utils::NavigationTreeView *m_treeView;

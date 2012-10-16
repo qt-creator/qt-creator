@@ -183,24 +183,24 @@ void CppTypeHierarchyWidget::perform()
             m_inspectedClass->setup(cppClass);
             QStandardItem *bases = new QStandardItem(tr("Bases"));
             m_model->invisibleRootItem()->appendRow(bases);
-            buildHierarchy(*cppClass, bases, true, cppClass->bases);
+            buildHierarchy(*cppClass, bases, true, &CppClass::bases);
             QStandardItem *derived = new QStandardItem(tr("Derived"));
             m_model->invisibleRootItem()->appendRow(derived);
-            buildHierarchy(*cppClass, derived, true, cppClass->derived);
+            buildHierarchy(*cppClass, derived, true, &CppClass::derived);
             m_treeView->expandAll();
         }
     }
 }
 
-void CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, QStandardItem *parent, bool isRoot, const QList<CppClass> &classes)
+void CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, QStandardItem *parent, bool isRoot, const HierarchyMember member)
 {
     if (!isRoot) {
         QStandardItem *item = itemForClass(cppClass);
         parent->appendRow(item);
         parent = item;
     }
-    foreach (const CppClass &klass, sortClasses(classes))
-        buildHierarchy(klass, parent, false, classes);
+    foreach (const CppClass &klass, sortClasses(cppClass.*member))
+        buildHierarchy(klass, parent, false, member);
 }
 
 void CppTypeHierarchyWidget::onItemClicked(const QModelIndex &index)
