@@ -668,19 +668,21 @@ bool fillParameters(DebuggerStartParameters *sp, const Kit *kit /* = 0 */, QStri
             *errorMessage = DebuggerKitInformation::tr("No kit found.");
         return false;
     }
-    const QList<ProjectExplorer::Task> tasks = DebuggerKitInformation::validateDebugger(kit);
-    if (!tasks.isEmpty()) {
-        sp->startMode = NoStartMode;
-        if (errorMessage) {
-            foreach (const ProjectExplorer::Task &t, tasks) {
-                if (errorMessage->isEmpty())
-                    errorMessage->append(QLatin1Char('\n'));
-                errorMessage->append(t.description);
+    // validate debugger if C++ debugging is enabled
+    if (sp->languages & CppLanguage) {
+        const QList<ProjectExplorer::Task> tasks = DebuggerKitInformation::validateDebugger(kit);
+        if (!tasks.isEmpty()) {
+            sp->startMode = NoStartMode;
+            if (errorMessage) {
+                foreach (const ProjectExplorer::Task &t, tasks) {
+                    if (errorMessage->isEmpty())
+                        errorMessage->append(QLatin1Char('\n'));
+                    errorMessage->append(t.description);
+                }
             }
+            return false;
         }
-        return false;
     }
-
     sp->cppEngineType = DebuggerKitInformation::engineType(kit);
     sp->sysRoot = SysRootKitInformation::sysRoot(kit).toString();
     sp->debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
