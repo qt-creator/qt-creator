@@ -901,8 +901,7 @@ bool SessionManager::loadSession(const QString &session)
 
 QString SessionManager::lastSession() const
 {
-    QString fileName = ICore::settings()->value(QLatin1String("ProjectExplorer/StartupSession")).toString();
-    return QFileInfo(fileName).completeBaseName();
+    return ICore::settings()->value(QLatin1String("ProjectExplorer/StartupSession")).toString();
 }
 
 SessionNode *SessionManager::sessionNode() const
