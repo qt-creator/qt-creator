@@ -77,7 +77,6 @@ Project {
         "src/plugins/valgrind/valgrind.qbs",
         "src/plugins/vcsbase/vcsbase.qbs",
         "src/plugins/welcome/welcome.qbs",
-        "src/share/share.qbs",
         "src/tools/qtcdebugger/qtcdebugger.qbs",
         "src/tools/qtcreatorcrashhandler/qtcreatorcrashhandler.qbs",
         "src/tools/qtpromaker/qtpromaker.qbs",
