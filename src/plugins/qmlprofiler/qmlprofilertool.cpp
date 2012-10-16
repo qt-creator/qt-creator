@@ -692,6 +692,7 @@ void QmlProfilerTool::profilerStateChanged()
     }
     case QmlProfilerStateManager::AppKilled : {
         showNonmodalWarning(tr("Application finished before loading profiled data.\nPlease use the stop button instead."));
+        d->m_profilerDataModel->clear();
         break;
     }
     case QmlProfilerStateManager::Idle :
@@ -720,6 +721,7 @@ void QmlProfilerTool::serverRecordingChanged()
         // clear the old data each time we start a new profiling session
         if (d->m_profilerState->serverRecording()) {
             clearData();
+            d->m_profilerDataModel->prepareForWriting();
         }
     }
 }

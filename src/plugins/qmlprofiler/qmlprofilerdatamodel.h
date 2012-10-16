@@ -165,6 +165,7 @@ signals:
 public slots:
     void clear();
 
+    void prepareForWriting();
     void addRangedEvent(int type, int bindingType, qint64 startTime, qint64 length,
                         const QStringList &data, const QmlDebug::QmlEventLocation &location);
     void addV8Event(int depth,const QString &function,const QString &filename, int lineNumber, double totalTime, double selfTime);

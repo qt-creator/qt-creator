@@ -290,6 +290,11 @@ void QmlProfilerDataModel::clear()
     setState(Empty);
 }
 
+void QmlProfilerDataModel::prepareForWriting()
+{
+    setState(AcquiringData);
+}
+
 void QmlProfilerDataModel::addRangedEvent(int type, int bindingType, qint64 startTime,
                                           qint64 length, const QStringList &data,
                                           const QmlDebug::QmlEventLocation &location)
