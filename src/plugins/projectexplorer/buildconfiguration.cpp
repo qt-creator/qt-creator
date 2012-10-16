@@ -36,6 +36,7 @@
 #include "kitmanager.h"
 #include "target.h"
 #include "project.h"
+#include "kit.h"
 
 #include <coreplugin/variablemanager.h>
 #include <extensionsystem/pluginmanager.h>
@@ -203,6 +204,7 @@ Utils::Environment BuildConfiguration::baseEnvironment() const
     Utils::Environment result;
     if (useSystemEnvironment())
         result = Utils::Environment::systemEnvironment();
+    target()->kit()->addToEnvironment(result);
     return result;
 }
 

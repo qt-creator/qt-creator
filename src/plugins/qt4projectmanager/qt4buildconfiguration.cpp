@@ -161,7 +161,6 @@ void Qt4BuildConfiguration::emitBuildDirectoryChanged()
 Utils::Environment Qt4BuildConfiguration::baseEnvironment() const
 {
     Utils::Environment env = BuildConfiguration::baseEnvironment();
-    target()->kit()->addToEnvironment(env);
     return env;
 }
 
