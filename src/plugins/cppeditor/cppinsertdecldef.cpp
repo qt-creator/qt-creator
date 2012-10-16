@@ -212,7 +212,7 @@ QString InsertDeclOperation::generateDeclaration(Function *function)
     oo.showArgumentNames = true;
 
     QString decl;
-    decl += oo(function->type(), function->unqualifiedName());
+    decl += oo.prettyType(function->type(), function->unqualifiedName());
     decl += QLatin1String(";\n");
 
     return decl;
@@ -271,7 +271,7 @@ public:
         FullySpecifiedType tn = rewriteType(m_decl->type(), &env, control);
 
         // rewrite the function name
-        QString name = oo(LookupContext::minimalName(m_decl, targetCoN, control));
+        QString name = oo.prettyName(LookupContext::minimalName(m_decl, targetCoN, control));
 
         QString defText = oo.prettyType(tn, name) + QLatin1String("\n{\n}");
 

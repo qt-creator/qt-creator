@@ -304,25 +304,25 @@ private:
         virtual void visit(const DestructorNameId *name)
         {
             Overview oo;
-            qWarning() << "ignored name:" << oo(name);
+            qWarning() << "ignored name:" << oo.prettyName(name);
         }
 
         virtual void visit(const OperatorNameId *name)
         {
             Overview oo;
-            qWarning() << "ignored name:" << oo(name);
+            qWarning() << "ignored name:" << oo.prettyName(name);
         }
 
         virtual void visit(const ConversionNameId *name)
         {
             Overview oo;
-            qWarning() << "ignored name:" << oo(name);
+            qWarning() << "ignored name:" << oo.prettyName(name);
         }
 
         virtual void visit(const SelectorNameId *name)
         {
             Overview oo;
-            qWarning() << "ignored name:" << oo(name);
+            qWarning() << "ignored name:" << oo.prettyName(name);
         }
 
     private:

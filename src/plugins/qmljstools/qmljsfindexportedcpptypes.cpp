@@ -516,7 +516,7 @@ static FullySpecifiedType stripPointerAndReference(const FullySpecifiedType &typ
 static QString toQmlType(const FullySpecifiedType &type)
 {
     Overview overview;
-    QString result = overview(stripPointerAndReference(type));
+    QString result = overview.prettyType(stripPointerAndReference(type));
     if (result == QLatin1String("QString"))
         result = QLatin1String("string");
     return result;
@@ -553,7 +553,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
 
     Overview namePrinter;
 
-    fmo->setClassName(namePrinter(klass->name()));
+    fmo->setClassName(namePrinter.prettyName(klass->name()));
     // add the no-package export, so the cpp name can be used in properties
     fmo->addExport(fmo->className(), QmlJS::CppQmlTypes::cppPackage, ComponentVersion());
 
@@ -564,7 +564,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
         if (Function *func = member->type()->asFunctionType()) {
             if (!func->isSlot() && !func->isInvokable() && !func->isSignal())
                 continue;
-            FakeMetaMethod method(namePrinter(func->name()), toQmlType(func->returnType()));
+            FakeMetaMethod method(namePrinter.prettyName(func->name()), toQmlType(func->returnType()));
             if (func->isSignal())
                 method.setMethodType(FakeMetaMethod::Signal);
             else
@@ -573,7 +573,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
                 Symbol *arg = func->argumentAt(a);
                 QString name;
                 if (arg->name())
-                    name = namePrinter(arg->name());
+                    name = namePrinter.prettyName(arg->name());
                 method.addParameter(name, toQmlType(arg->type()));
             }
             fmo->addMethod(method);
@@ -585,7 +585,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
             const bool isPointer = type.type() && type.type()->isPointerType();
             const int revision = 0; // ### fixme
             FakeMetaProperty property(
-                        namePrinter(propDecl->name()),
+                        namePrinter.prettyName(propDecl->name()),
                         toQmlType(type),
                         isList, isWritable, isPointer,
                         revision);
@@ -594,7 +594,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
         if (QtEnum *qtEnum = member->asQtEnum()) {
             // find the matching enum
             Enum *e = 0;
-            QList<LookupItem> result = typeOf(namePrinter(qtEnum->name()).toUtf8(), klass);
+            QList<LookupItem> result = typeOf(namePrinter.prettyName(qtEnum->name()).toUtf8(), klass);
             foreach (const LookupItem &item, result) {
                 if (item.declaration()) {
                     e = item.declaration()->asEnum();
@@ -605,12 +605,12 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
             if (!e)
                 continue;
 
-            FakeMetaEnum metaEnum(namePrinter(e->name()));
+            FakeMetaEnum metaEnum(namePrinter.prettyName(e->name()));
             for (unsigned j = 0; j < e->memberCount(); ++j) {
                 Symbol *enumMember = e->memberAt(j);
                 if (!enumMember->name())
                     continue;
-                metaEnum.addKey(namePrinter(enumMember->name()), 0);
+                metaEnum.addKey(namePrinter.prettyName(enumMember->name()), 0);
             }
             fmo->addEnum(metaEnum);
         }
@@ -622,7 +622,7 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
         if (!base->name())
             return fmo;
 
-        const QString baseClassName = namePrinter(base->name());
+        const QString baseClassName = namePrinter.prettyName(base->name());
         fmo->setSuperclassName(baseClassName);
 
         Class *baseClass = lookupClass(baseClassName, klass, typeOf);

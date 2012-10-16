@@ -55,13 +55,13 @@ static QString indent(QString s, int level = 2)
 QString CPlusPlus::toString(const Name *name, QString id)
 {
     Overview oo;
-    return QString("%0: %1").arg(id, name ? oo(name) : QLatin1String("(null)"));
+    return QString("%0: %1").arg(id, name ? oo.prettyName(name) : QLatin1String("(null)"));
 }
 
 QString CPlusPlus::toString(FullySpecifiedType ty, QString id)
 {
     Overview oo;
-    return QString("%0: %1 (a %2)").arg(id, oo(ty), ty.type() ? typeid(*ty.type()).name() : "(null)");
+    return QString("%0: %1 (a %2)").arg(id, oo.prettyType(ty), ty.type() ? typeid(*ty.type()).name() : "(null)");
 }
 
 QString CPlusPlus::toString(const Symbol *s, QString id)

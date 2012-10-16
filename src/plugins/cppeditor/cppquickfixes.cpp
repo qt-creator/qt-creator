@@ -1702,7 +1702,7 @@ private:
                 FullySpecifiedType tn = rewriteType(result.first().type(), &env, control);
 
                 Overview oo;
-                QString ty = oo(tn);
+                QString ty = oo.prettyType(tn);
                 if (! ty.isEmpty()) {
                     const QChar ch = ty.at(ty.size() - 1);
 
@@ -1848,7 +1848,7 @@ public:
         if (!existingResults.isEmpty())
             return noResult();
 
-        const QString &className = Overview()(innermostName->name);
+        const QString &className = Overview().prettyName(innermostName->name);
         if (className.isEmpty())
             return noResult();
 

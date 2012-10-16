@@ -250,7 +250,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     Overview overview;
     Find::SearchResult *search = Find::SearchResultWindow::instance()->startNewSearch(tr("C++ Usages:"),
                                                 QString(),
-                                                overview(context.fullyQualifiedName(symbol)),
+                                                overview.prettyName(context.fullyQualifiedName(symbol)),
                                                 replace ? Find::SearchResultWindow::SearchAndReplace
                                                         : Find::SearchResultWindow::SearchOnly,
                                                 QLatin1String("CppEditor"));

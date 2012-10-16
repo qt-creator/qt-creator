@@ -604,7 +604,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
     // abort if the name of the newly parsed function is not the expected one
     DeclaratorIdAST *newDeclId = getDeclaratorId(newDef->declarator);
     if (!newDeclId || !newDeclId->name || !newDeclId->name->name
-            || overview(newDeclId->name->name) != nameInitial) {
+            || overview.prettyName(newDeclId->name->name) != nameInitial) {
         return changes;
     }
 
@@ -650,7 +650,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
         if (!newFunction->returnType().isEqualTo(sourceFunction->returnType())
                 && !newFunction->returnType().isEqualTo(targetFunction->returnType())) {
             FullySpecifiedType type = rewriteType(newFunction->returnType(), &env, control);
-            const QString replacement = overview(type, targetFunction->name());
+            const QString replacement = overview.prettyType(type, targetFunction->name());
             changes.replace(returnTypeStart,
                             targetFile->startOf(targetFunctionDeclarator->lparen_token),
                             replacement);
@@ -706,19 +706,19 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
             QMultiHash<QString, int> sourceParamNameToIndex;
             for (int i = 0; i < existingParamCount; ++i) {
                 Symbol *sourceParam = sourceFunction->argumentAt(i);
-                sourceParamNameToIndex.insert(overview(sourceParam->name()), i);
+                sourceParamNameToIndex.insert(overview.prettyName(sourceParam->name()), i);
             }
 
             QMultiHash<QString, int> newParamNameToIndex;
             for (int i = 0; i < newParamCount; ++i) {
                 Symbol *newParam = newFunction->argumentAt(i);
-                newParamNameToIndex.insert(overview(newParam->name()), i);
+                newParamNameToIndex.insert(overview.prettyName(newParam->name()), i);
             }
 
             // name-based binds (possibly disambiguated by type)
             for (int sourceParamIndex = 0; sourceParamIndex < existingParamCount; ++sourceParamIndex) {
                 Symbol *sourceParam = sourceFunction->argumentAt(sourceParamIndex);
-                const QString &name = overview(sourceParam->name());
+                const QString &name = overview.prettyName(sourceParam->name());
                 QList<int> newParams = newParamNameToIndex.values(name);
                 QList<int> sourceParams = sourceParamNameToIndex.values(name);
 
@@ -783,7 +783,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
             // if it's genuinely new, add it
             if (existingParamIndex == -1) {
                 FullySpecifiedType type = rewriteType(newParam->type(), &env, control);
-                newTargetParam = overview(type, newParam->name());
+                newTargetParam = overview.prettyType(type, newParam->name());
                 hadChanges = true;
             }
             // otherwise preserve as much as possible from the existing parameter
@@ -821,7 +821,7 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
 
                 // track renames
                 if (replacementName != targetParam->name() && replacementName)
-                    renamedTargetParameters[targetParam] = overview(replacementName);
+                    renamedTargetParameters[targetParam] = overview.prettyName(replacementName);
 
                 // need to change the type (and name)?
                 if (!newParam->type().isEqualTo(sourceParam->type())
@@ -837,14 +837,14 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
 
                     FullySpecifiedType replacementType = rewriteType(newParam->type(), &env, control);
                     newTargetParam = targetFile->textOf(parameterStart, parameterTypeStart);
-                    newTargetParam += overview(replacementType, replacementName);
+                    newTargetParam += overview.prettyType(replacementType, replacementName);
                     newTargetParam += targetFile->textOf(parameterTypeEnd, parameterEnd);
                     hadChanges = true;
                 }
                 // change the name only?
                 else if (!namesEqual(targetParam->name(), replacementName)) {
                     DeclaratorIdAST *id = getDeclaratorId(targetParamAst->declarator);
-                    const QString &replacementNameStr = overview(replacementName);
+                    const QString &replacementNameStr = overview.prettyName(replacementName);
                     if (id) {
                         newTargetParam += targetFile->textOf(parameterStart, targetFile->startOf(id));
                         QString rest = targetFile->textOf(targetFile->endOf(id), parameterEnd);

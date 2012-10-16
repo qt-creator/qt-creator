@@ -79,7 +79,7 @@ public:
                                                                 scope);
                 if (!candidates .isEmpty() && candidates.first().declaration()) {
                     Symbol *decl = candidates.first().declaration();
-                    values << prettyPrint(LookupContext::fullyQualifiedName(decl));
+                    values << prettyPrint.prettyName(LookupContext::fullyQualifiedName(decl));
                 }
             }
             return true;
@@ -194,7 +194,7 @@ QList<CppQuickFixOperation::Ptr> CompleteSwitchCaseStatement::match(
                 Overview prettyPrint;
                 for (unsigned i = 0; i < e->memberCount(); ++i) {
                     if (Declaration *decl = e->memberAt(i)->asDeclaration()) {
-                        values << prettyPrint(LookupContext::fullyQualifiedName(decl));
+                        values << prettyPrint.prettyName(LookupContext::fullyQualifiedName(decl));
                     }
                 }
                 // Get the used values

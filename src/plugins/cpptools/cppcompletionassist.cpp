@@ -1134,9 +1134,9 @@ void CppCompletionAssistProcessor::completeObjCMsgSend(CPlusPlus::ClassOrNamespa
                             text += QLatin1Char(':');
                             text += TextEditor::Snippet::kVariableDelimiter;
                             text += QLatin1Char('(');
-                            text += oo(arg->type());
+                            text += oo.prettyType(arg->type());
                             text += QLatin1Char(')');
-                            text += oo(arg->name());
+                            text += oo.prettyName(arg->name());
                             text += TextEditor::Snippet::kVariableDelimiter;
                         }
                     } else {
@@ -1907,7 +1907,7 @@ bool CppCompletionAssistProcessor::completeConstructorOrFunction(const QList<CPl
                     const FullySpecifiedType localTy = rewriteType(f->type(), &env, control);
 
                     // gets: "parameter list) cv-spec",
-                    QString completion = overview(localTy).mid(1);
+                    QString completion = overview.prettyType(localTy).mid(1);
 
                     addCompletionItem(completion, QIcon(), 0,
                                       QVariant::fromValue(CompleteFunctionDeclaration(f)));

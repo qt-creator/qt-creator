@@ -345,7 +345,7 @@ void TypePrettyPrinter::visit(Function *type)
                 if (_overview->showArgumentNames)
                     name = arg->name();
 
-                _text += argumentText(arg->type(), name);
+                _text += argumentText.prettyType(arg->type(), name);
 
                 if (_overview->showDefaultArguments) {
                     if (const StringLiteral *initializer = arg->initializer()) {

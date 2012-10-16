@@ -1106,7 +1106,7 @@ bool CreateBindings::visit(Declaration *decl)
                     _currentClassOrNamespace->addNestedType(decl->name(), e);
                 } else if (false) {
                     Overview oo;
-                    qDebug() << "found entity not found for" << oo(namedTy->name());
+                    qDebug() << "found entity not found for" << oo.prettyName(namedTy->name());
                 }
             } else if (Class *klass = ty->asClassType()) {
                 if (const Identifier *nameId = decl->name()->asNameId()) {
@@ -1131,7 +1131,7 @@ bool CreateBindings::visit(BaseClass *b)
         _currentClassOrNamespace->addUsing(base);
     } else if (false) {
         Overview oo;
-        qDebug() << "no entity for:" << oo(b->name());
+        qDebug() << "no entity for:" << oo.prettyName(b->name());
     }
     return false;
 }
@@ -1157,7 +1157,7 @@ bool CreateBindings::visit(UsingNamespaceDirective *u)
         _currentClassOrNamespace->addUsing(e);
     } else if (false) {
         Overview oo;
-        qDebug() << "no entity for namespace:" << oo(u->name());
+        qDebug() << "no entity for namespace:" << oo.prettyName(u->name());
     }
     return false;
 }
@@ -1173,7 +1173,7 @@ bool CreateBindings::visit(NamespaceAlias *a)
 
     } else if (false) {
         Overview oo;
-        qDebug() << "no entity for namespace:" << oo(a->namespaceName());
+        qDebug() << "no entity for namespace:" << oo.prettyName(a->namespaceName());
     }
 
     return false;
@@ -1201,7 +1201,7 @@ bool CreateBindings::visit(ObjCBaseClass *b)
         _currentClassOrNamespace->addUsing(base);
     } else if (false) {
         Overview oo;
-        qDebug() << "no entity for:" << oo(b->name());
+        qDebug() << "no entity for:" << oo.prettyName(b->name());
     }
     return false;
 }
@@ -1233,7 +1233,7 @@ bool CreateBindings::visit(ObjCBaseProtocol *b)
         _currentClassOrNamespace->addUsing(base);
     } else if (false) {
         Overview oo;
-        qDebug() << "no entity for:" << oo(b->name());
+        qDebug() << "no entity for:" << oo.prettyName(b->name());
     }
     return false;
 }

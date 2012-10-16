@@ -102,7 +102,7 @@ QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(
         Symbol *member = c->memberAt(i);
         FullySpecifiedType type = member->type();
         if (member->asFunction() || (type.isValid() && type->asFunctionType())) {
-            const QString name = overview(member->name());
+            const QString name = overview.prettyName(member->name());
             if (name == getterName) {
                 generateFlags &= ~GenerateGetter;
             } else if (name == setterName) {
@@ -111,7 +111,7 @@ QList<CppQuickFixOperation::Ptr> InsertQtPropertyMembers::match(
                 generateFlags &= ~GenerateSignal;
             }
         } else if (member->asDeclaration()) {
-            const QString name = overview(member->name());
+            const QString name = overview.prettyName(member->name());
             if (name == storageName)
                 generateFlags &= ~GenerateStorage;
         }
