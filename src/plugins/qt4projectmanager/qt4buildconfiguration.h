@@ -55,8 +55,6 @@ public:
     explicit Qt4BuildConfiguration(ProjectExplorer::Target *target);
     ~Qt4BuildConfiguration();
 
-    Utils::Environment baseEnvironment() const;
-
     ProjectExplorer::BuildConfigWidget *createConfigWidget();
     QString buildDirectory() const;
     bool shadowBuild() const;

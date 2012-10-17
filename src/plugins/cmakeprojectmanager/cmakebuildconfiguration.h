@@ -60,8 +60,6 @@ public:
 
     ProjectExplorer::IOutputParser *createOutputParser() const;
 
-    Utils::Environment baseEnvironment() const;
-
     BuildType buildType() const;
 
     bool useNinja() const;

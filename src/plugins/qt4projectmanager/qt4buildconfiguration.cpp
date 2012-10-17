@@ -158,12 +158,6 @@ void Qt4BuildConfiguration::emitBuildDirectoryChanged()
     }
 }
 
-Environment Qt4BuildConfiguration::baseEnvironment() const
-{
-    Environment env = BuildConfiguration::baseEnvironment();
-    return env;
-}
-
 BuildConfigWidget *Qt4BuildConfiguration::createConfigWidget()
 {
     return new Qt4ProjectConfigWidget(target());
