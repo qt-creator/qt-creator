@@ -48,6 +48,8 @@ public:
     void updateFileName(const QString &fileName);
     bool isDraggable() const { return true; }
     void dragToLine(int lineNumber);
+    bool isClickable() const { return true; }
+    void clicked();
 
 private:
     BreakpointModelId m_id;

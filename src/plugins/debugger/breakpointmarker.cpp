@@ -73,6 +73,11 @@ void BreakpointMarker::dragToLine(int lineNumber)
     breakHandler()->changeLineNumberFromMarker(m_id, lineNumber);
 }
 
+void BreakpointMarker::clicked()
+{
+    breakHandler()->removeBreakpoint(m_id);
+}
+
 void BreakpointMarker::updateFileName(const QString &fileName)
 {
     BaseTextMark::updateFileName(fileName);
