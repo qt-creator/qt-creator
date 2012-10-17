@@ -41,8 +41,11 @@
 
         \row
             \o  Learn more about Qt
-            \o  \l{http://qt.nokia.com/developer/learning/online/training/specialized-elearning/}
-                {Specialized eLearning Modules Based on Qt Training Modules}
+            \o  \l{http://qt.digia.com/product/learning/}{Learning}
+                from Digia
+
+                \l{http://qt-project.org/wiki/developer-guides}
+                {Qt Developer Guides} from Qt Project
 
         \row
             \o  Develop Qt applications for desktop and mobile devices
@@ -55,15 +58,15 @@
 
         \row
             \o  Participate in Qt development
-            \o  \l{http://qt.gitorious.org/}{Qt Git Hosting}
+            \o  \l{http://qt-project.org/contribute}{Contribute to Qt}
 
         \row
             \o  Find free Qt-based applications
             \o  \l{http://qt-apps.org/}{Qt Apps}
 
         \row
-            \o  Buy commercial Qt support from Digia
-            \o  \l{http://qt.digia.com/}{Qt Commercial}
+            \o  Develop with a commercial Qt license and support - Qt by Digia
+            \o  \l{http://qt.digia.com/Product/Licensing/}{Qt Licensing}
     \endtable
 
 */
