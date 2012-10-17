@@ -625,8 +625,10 @@ QString BaseQtVersion::findQtBinary(Binaries binary) const
         ensureMkSpecParsed();
         switch (binary) {
         case QmlScene:
-        case QmlViewer:
             baseDir = m_mkspecValues.value(QLatin1String("QT.qml.bins"));
+            break;
+        case QmlViewer:
+            baseDir = m_mkspecValues.value(QLatin1String("QT.declarative.bins"));
             break;
         case Designer:
         case Linguist:
