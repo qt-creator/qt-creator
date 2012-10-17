@@ -50,6 +50,28 @@ Item {
     property int relativey : y - yoffset
     onYChanged: relativey = y - yoffset
 
+    // keep inside view
+    Connections {
+        target: root
+        onWidthChanged: fitInView();
+        onCandidateHeightChanged: fitInView();
+    }
+
+    function fitInView() {
+        // don't reposition if it does not fit
+        if (root.width < width || root.candidateHeight < height)
+            return;
+
+        if (x + width > root.width)
+            x = root.width - width;
+        if (x < 0)
+            x = 0;
+        if (y + height > root.candidateHeight)
+            y = root.candidateHeight - height;
+        if (y < 0)
+            y = 0;
+    }
+
     // shadow
     BorderImage {
         property int px: 4
@@ -134,6 +156,10 @@ Item {
         width: col.width + 45
         height: col.height + 30
         drag.target: parent
+        drag.minimumX: 0
+        drag.maximumX: root.width - parent.width
+        drag.minimumY: 0
+        drag.maximumY: root.candidateHeight - parent.height
         onClicked: {
             if ((selectionRange.x < flick.contentX) ^ (selectionRange.x+selectionRange.width > flick.contentX + flick.width)) {
                 root.recenter(selectionRange.startTime + selectionRange.duration/2);
