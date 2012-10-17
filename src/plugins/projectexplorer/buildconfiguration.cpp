@@ -92,8 +92,8 @@ BuildConfiguration::BuildConfiguration(Target *target, const Core::Id id) :
     bsl->setDefaultDisplayName(tr("Clean"));
     m_stepLists.append(bsl);
 
-    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(handleKitUpdate(ProjectExplorer::Kit*)));
+    connect(target, SIGNAL(kitChanged()),
+            this, SLOT(handleKitUpdate()));
 }
 
 BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *source) :
@@ -107,8 +107,8 @@ BuildConfiguration::BuildConfiguration(Target *target, BuildConfiguration *sourc
     // otherwise BuildStepFactories might reject to set up a BuildStep for us
     // since we are not yet the derived class!
 
-    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(handleKitUpdate(ProjectExplorer::Kit*)));
+    connect(target, SIGNAL(kitChanged()),
+            this, SLOT(handleKitUpdate()));
 }
 
 BuildConfiguration::~BuildConfiguration()
@@ -187,10 +187,8 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     return ProjectConfiguration::fromMap(map);
 }
 
-void BuildConfiguration::handleKitUpdate(ProjectExplorer::Kit *k)
+void BuildConfiguration::handleKitUpdate()
 {
-    if (k != target()->kit())
-        return;
     emit environmentChanged();
 }
 
