@@ -45,6 +45,8 @@ QtKitInformation::QtKitInformation()
     setObjectName(QLatin1String("QtKitInformation"));
     connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SIGNAL(validationNeeded()));
+    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+            this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 }
 
 Core::Id QtKitInformation::dataId() const
@@ -164,6 +166,17 @@ void QtKitInformation::setQtVersion(ProjectExplorer::Kit *k, const BaseQtVersion
         setQtVersionId(k, -1);
     else
         setQtVersionId(k, v->uniqueId());
+}
+
+void QtKitInformation::qtVersionsChanged(const QList<int> &addedIds,
+                                         const QList<int> &removedIds,
+                                         const QList<int> &changedIds)
+{
+    Q_UNUSED(addedIds);
+    Q_UNUSED(removedIds);
+    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::instance()->kits())
+        if (changedIds.contains(qtVersionId(k)))
+            notifyAboutUpdate(k);
 }
 
 QtPlatformKitMatcher::QtPlatformKitMatcher(const QString &platform) :

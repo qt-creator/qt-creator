@@ -117,6 +117,8 @@ public:
     static void setToolChain(Kit *k, ToolChain *tc);
 
     static QString msgNoToolChainInTarget();
+private slots:
+    void toolChainUpdated(ProjectExplorer::ToolChain *tc);
 };
 
 class PROJECTEXPLORER_EXPORT ToolChainMatcher : public KitMatcher
@@ -207,6 +209,8 @@ public:
     static Core::Id deviceId(const Kit *k);
     static void setDevice(Kit *k, IDevice::ConstPtr dev);
     static void setDeviceId(Kit *k, const Core::Id id);
+private slots:
+    void deviceUpdated(const Core::Id &id);
 };
 
 class PROJECTEXPLORER_EXPORT DeviceMatcher : public KitMatcher

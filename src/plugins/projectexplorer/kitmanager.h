@@ -85,6 +85,9 @@ public:
 
     virtual QString displayNamePostfix(const Kit *k) const;
 
+protected:
+    void notifyAboutUpdate(Kit *k);
+
 signals:
     void validationNeeded();
 };
@@ -165,6 +168,7 @@ private:
     friend class ProjectExplorerPlugin; // for constructor
     friend class Kit;
     friend class Internal::KitModel;
+    friend class KitInformation; // for notifyAbutUpdate
 };
 
 } // namespace ProjectExplorer

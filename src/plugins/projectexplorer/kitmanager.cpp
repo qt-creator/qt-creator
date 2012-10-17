@@ -459,4 +459,9 @@ QString KitInformation::displayNamePostfix(const Kit *k) const
     return QString();
 }
 
+void KitInformation::notifyAboutUpdate(Kit *k)
+{
+    KitManager::instance()->notifyAboutUpdate(k);
+}
+
 } // namespace ProjectExplorer
