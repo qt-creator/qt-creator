@@ -4474,7 +4474,9 @@ void BaseTextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
             d->m_markDragging = false;
             QTextBlock block = cursor.document()->findBlockByNumber(n);
             if (TextBlockUserData *data = static_cast<TextBlockUserData *>(block.userData())) {
-                foreach (ITextMark *mark, data->marks()) {
+                TextMarks marks = data->marks();
+                for (int i = marks.size(); --i >= 0; ) {
+                    ITextMark *mark = marks.at(i);
                     if (sameLine) {
                         if (mark->isClickable()) {
                             mark->clicked();
