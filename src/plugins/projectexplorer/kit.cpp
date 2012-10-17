@@ -165,6 +165,7 @@ void Kit::copyFrom(const Kit *k)
     d->m_icon = k->d->m_icon;
     d->m_autodetected = k->d->m_autodetected;
     d->m_displayName = k->d->m_displayName;
+    d->m_mustNotify = true;
 }
 
 bool Kit::isValid() const
