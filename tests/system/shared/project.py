@@ -68,17 +68,6 @@ def openCmakeProject(projectPath, buildDir):
         return False
     return True
 
-def shadowBuildDir(path, project, qtVersion, debugVersion):
-    qtVersion = qtVersion.replace(" ", "_")
-    qtVersion = qtVersion.replace(".", "_")
-    qtVersion = qtVersion.replace("(", "_")
-    qtVersion = qtVersion.replace(")", "_")
-    buildDir = path + os.sep + project + "-build-desktop-" + qtVersion
-    if debugVersion:
-        return buildDir + "_Debug"
-    else:
-        return buildDir + "_Release"
-
 # this function returns a list of available targets - this is not 100% error proof
 # because the Simulator target is added for some cases even when Simulator has not
 # been set up inside Qt versions/Toolchains

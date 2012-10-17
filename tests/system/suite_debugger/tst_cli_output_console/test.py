@@ -1,6 +1,5 @@
 source("../../shared/qtcreator.py")
 
-projectsPath = tempDir()
 project = "untitled"
 
 def __handlerunControlFinished__(object, runControlP):
@@ -18,7 +17,7 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     installLazySignalHandler("{type='ProjectExplorer::Internal::ProjectExplorerPlugin' unnamed='1'}",
                              "runControlFinished(ProjectExplorer::RunControl*)", "__handlerunControlFinished__")
-    createProject_Qt_Console(projectsPath, project)
+    createProject_Qt_Console(tempDir(), project)
 
     mainEditor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     replaceEditorContent(mainEditor, "")
@@ -88,11 +87,3 @@ def main():
         clickButton(waitForObject(":Qt Creator_CloseButton"))
 
     invokeMenuItem("File", "Exit")
-    waitForCleanShutdown()
-
-def init():
-    cleanup()
-
-def cleanup():
-    deleteDirIfExists(projectsPath + os.sep + project)
-    deleteDirIfExists(shadowBuildDir(projectsPath, project, defaultQtVersion, 1))
