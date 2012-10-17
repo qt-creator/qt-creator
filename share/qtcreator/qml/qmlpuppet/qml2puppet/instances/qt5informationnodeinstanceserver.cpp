@@ -30,6 +30,7 @@
 #include "qt5informationnodeinstanceserver.h"
 
 #include <QQuickItem>
+#include <QQuickView>
 
 #include "servernodeinstance.h"
 #include "childrenchangeeventfilter.h"
