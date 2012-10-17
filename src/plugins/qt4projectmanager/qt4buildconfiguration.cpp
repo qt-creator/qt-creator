@@ -143,7 +143,6 @@ void Qt4BuildConfiguration::ctor()
 void Qt4BuildConfiguration::kitChanged()
 {
     emitProFileEvaluateNeeded();
-    emit environmentChanged();
     emitBuildDirectoryChanged();
 }
 
@@ -256,7 +255,6 @@ void Qt4BuildConfiguration::setShadowBuildAndDirectory(bool shadowBuild, const Q
     m_shadowBuild = toSet;
     m_buildDirectory = directoryToSet;
 
-    emit environmentChanged();
     emitBuildDirectoryChanged();
     emitProFileEvaluateNeeded();
 }
