@@ -114,10 +114,13 @@ private slots:
     void handleKitUpdate();
 
 private:
+    void emitEnvironmentChanged();
+
     bool m_clearSystemEnvironment;
     QList<Utils::EnvironmentItem> m_userEnvironmentChanges;
     QList<BuildStepList *> m_stepLists;
     Utils::AbstractMacroExpander *m_macroExpander;
+    Utils::Environment m_lastEnvironment;
 };
 
 class PROJECTEXPLORER_EXPORT IBuildConfigurationFactory :

@@ -157,6 +157,8 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     m_clearSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY)).toBool();
     m_userEnvironmentChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
 
+    m_lastEnvironment = environment();
+
     qDeleteAll(m_stepLists);
     m_stepLists.clear();
 
@@ -187,9 +189,18 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     return ProjectConfiguration::fromMap(map);
 }
 
+void BuildConfiguration::emitEnvironmentChanged()
+{
+   Utils::Environment env = environment();
+   if (env == m_lastEnvironment)
+       return;
+   m_lastEnvironment = env;
+   emit environmentChanged();
+}
+
 void BuildConfiguration::handleKitUpdate()
 {
-    emit environmentChanged();
+    emitEnvironmentChanged();
 }
 
 Target *BuildConfiguration::target() const
@@ -226,7 +237,7 @@ void BuildConfiguration::setUseSystemEnvironment(bool b)
     if (useSystemEnvironment() == b)
         return;
     m_clearSystemEnvironment = !b;
-    emit environmentChanged();
+    emitEnvironmentChanged();
 }
 
 bool BuildConfiguration::useSystemEnvironment() const
@@ -244,7 +255,7 @@ void BuildConfiguration::setUserEnvironmentChanges(const QList<Utils::Environmen
     if (m_userEnvironmentChanges == diff)
         return;
     m_userEnvironmentChanges = diff;
-    emit environmentChanged();
+    emitEnvironmentChanged();
 }
 
 void BuildConfiguration::cloneSteps(BuildConfiguration *source)
