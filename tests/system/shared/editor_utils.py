@@ -269,7 +269,7 @@ def validateSearchResult(expectedCount):
         for chRow in range(model.rowCount(index)):
             chIndex = model.index(chRow, 0, index)
             resultTreeView.scrollTo(chIndex)
-            text = str(chIndex.data())
+            text = str(chIndex.data()).rstrip('\r')
             rect = resultTreeView.visualRect(chIndex)
             doubleClick(resultTreeView, rect.x+5, rect.y+5, 0, Qt.LeftButton)
             editor = getEditorForFileSuffix(itemText)
