@@ -115,6 +115,7 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
     m_runningStateTimer->setInterval(3000);
     m_runningStateTimer->setSingleShot(true);
     connect(m_runningStateTimer, SIGNAL(timeout()), this, SLOT(determineRunningState()));
+    connect(this, SIGNAL(started()), this, SLOT(checkSlog2Info()));
 }
 
 void BlackBerryApplicationRunner::start()
