@@ -29,7 +29,7 @@ Product {
     }
 
     Group {
-        files: [ name + ".pluginspec.in" ]
+        files: [ product.name + ".pluginspec.in" ]
         fileTags: ["pluginSpecIn"]
     }
 }
