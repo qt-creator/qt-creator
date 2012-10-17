@@ -397,6 +397,32 @@ void Qt4Project::updateFileList()
     }
 }
 
+bool Qt4Project::setupTarget(ProjectExplorer::Target *t)
+{
+    QList<BuildConfigurationInfo> infoList
+            = Qt4BuildConfigurationFactory::availableBuildConfigurations(t->kit(), m_fileInfo->fileName());
+    setupTarget(t, infoList);
+    return true;
+}
+
+void Qt4Project::setupTarget(ProjectExplorer::Target *t, const QList<BuildConfigurationInfo> &infoList)
+{
+    // Build Configurations:
+    foreach (const BuildConfigurationInfo &info, infoList) {
+        QString name = info.buildConfig & QtSupport::BaseQtVersion::DebugBuild
+                ? tr("Debug") : tr("Release");
+        Qt4BuildConfiguration *bc
+                = Qt4BuildConfiguration::setup(t, name, name,
+                                               info.buildConfig, info.additionalArguments,
+                                               info.directory, info.importing);
+        t->addBuildConfiguration(bc);
+    }
+
+    // Deploy Configurations:
+    t->updateDefaultDeployConfigurations();
+    // Do not create Run Configurations: Those will be generated later anyway.
+}
+
 bool Qt4Project::fromMap(const QVariantMap &map)
 {
     if (!Project::fromMap(map))
@@ -1422,22 +1448,7 @@ Target *Qt4Project::createTarget(Kit *k, const QList<BuildConfigurationInfo> &in
         return 0;
 
     Target *t = new Target(this, k);
-
-    // Build Configurations:
-    foreach (const BuildConfigurationInfo &info, infoList) {
-        QString name = info.buildConfig & QtSupport::BaseQtVersion::DebugBuild
-                ? tr("Debug") : tr("Release");
-        Qt4BuildConfiguration *bc
-                = Qt4BuildConfiguration::setup(t, name, name,
-                                               info.buildConfig, info.additionalArguments,
-                                               info.directory, info.importing);
-        t->addBuildConfiguration(bc);
-    }
-
-    // Deploy Configurations:
-    t->updateDefaultDeployConfigurations();
-    // Do not create Run Configurations: Those will be generated later anyway.
-
+    setupTarget(t, infoList);
     return t;
 }
 

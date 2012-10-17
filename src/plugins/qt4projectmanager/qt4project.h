@@ -155,6 +155,8 @@ public slots:
 
 protected:
     bool fromMap(const QVariantMap &map);
+    bool setupTarget(ProjectExplorer::Target *t);
+    void setupTarget(ProjectExplorer::Target *t, const QList<BuildConfigurationInfo> &infoList);
 
 private slots:
     void asyncUpdate();
