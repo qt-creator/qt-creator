@@ -209,7 +209,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
         return 0;
 
     // Make sure we a clean absolute path:
-    const QString directory = QDir(inputDirectory).absolutePath();
+    const QString directory = QDir(inputDirectory).canonicalPath();
 
     VcsManagerPrivate::VcsInfo *cachedData = d->findInCache(directory);
     if (cachedData) {
@@ -242,7 +242,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     }
 
     // Register Vcs(s) with the cache
-    QString tmpDir = directory;
+    QString tmpDir = QFileInfo(directory).canonicalFilePath();
     const QChar slash = QLatin1Char('/');
     const StringVersionControlPairs::const_iterator cend = allThatCanManage.constEnd();
     for (StringVersionControlPairs::const_iterator i = allThatCanManage.constBegin(); i != cend; ++i) {
