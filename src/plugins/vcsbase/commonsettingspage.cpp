@@ -97,6 +97,7 @@ QString CommonSettingsWidget::searchKeyWordMatchString() const
             + blank + m_ui->nickNameMailMapLabel->text()
             + blank + m_ui->nickNameFieldsFileLabel->text()
             + blank + m_ui->sshPromptLabel->text()
+            + blank + m_ui->patchCommandLabel->text()
             ;
     rc.remove(QLatin1Char('&')); // Strip buddy markers.
     return rc;
