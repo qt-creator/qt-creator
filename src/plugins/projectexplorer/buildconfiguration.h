@@ -63,7 +63,7 @@ public:
     virtual BuildConfigWidget *createConfigWidget() = 0;
 
     // Maybe the BuildConfiguration is not the best place for the environment
-    virtual Utils::Environment baseEnvironment() const;
+    Utils::Environment baseEnvironment() const;
     QString baseEnvironmentText() const;
     Utils::Environment environment() const;
     void setUserEnvironmentChanges(const QList<Utils::EnvironmentItem> &diff);
