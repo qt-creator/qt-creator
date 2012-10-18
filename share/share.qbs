@@ -934,9 +934,9 @@ Product {
     }
 
     Group {
-        qbs.installDir: "share/qtcreator/templates/qtquickapp/qml/app/qtdeclarative0"
+        qbs.installDir: "share/qtcreator/templates/qtquickapp/qml/app/qtquick10"
         fileTags: ["install"]
-        prefix: "qtcreator/templates/qtquickapp/qml/app/qtdeclarative0/"
+        prefix: "qtcreator/templates/qtquickapp/qml/app/qtquick10/"
         files: [
             "main.qml",
         ]
