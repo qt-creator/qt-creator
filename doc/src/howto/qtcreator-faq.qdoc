@@ -132,8 +132,7 @@
     Python-enabled GDB. Follow the instructions in
     \l{http://qt-project.org/wiki/QtCreatorBuildGdb}{Building GDB}.
 
-    You must use at least Python version 2.5, but we recommend that you use
-    version 2.6.
+    You must use Python version 2.6 or 2.7.
 
     For more information on setting up debugger, see \l{Setting Up Debugger}.
 
@@ -148,13 +147,6 @@
     To generate a temporary core file, select \gui {Create Snapshot} in the
     context menu in the \gui Snapshot view. The core file is deleted when you
     stop debugging.
-
-    \section1 Code Editor Questions
-
-    \bold {How can I get code-completion to work on the standard headers and
-    phonon?}
-
-    Install a build from March 31, 2009, or later.
 
     \section1 Compiler Questions
 
@@ -181,7 +173,7 @@
 
     The Qt build in the SDK is built with QT_NO_OPENSSL defined. Rebuilding it
      is possible. For more information, see
-     \l{http://www.qtcentre.org/forum/f-qt-programming-2/t-qssl-19222-post94842.html}.
+     \l{http://www.qtcentre.org/threads/19222-Qssl}.
 
     \bold {Which development packages from the distribution are needed on
     Ubuntu or Debian?}
