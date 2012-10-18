@@ -136,6 +136,10 @@ private:
     AlreadyConsideredClassContainer<Class> _alreadyConsideredClasses;
     AlreadyConsideredClassContainer<TemplateNameId> _alreadyConsideredTemplates;
 
+#ifdef DEBUG_LOOKUP
+    const Name *_name;
+#endif // DEBUG_LOOKUP
+
     friend class CreateBindings;
 };
 

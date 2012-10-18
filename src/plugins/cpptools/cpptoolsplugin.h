@@ -74,7 +74,6 @@ public:
 
 private slots:
     void switchHeaderSource();
-
 #ifdef WITH_TESTS
 
     // codegen tests
@@ -95,6 +94,8 @@ private slots:
     void test_completion_template_1();
     void test_completion_template_2();
     void test_completion_template_3();
+    void test_completion_template_4();
+    void test_completion_template_5();
     void test_completion_template_as_base();
     void test_completion_template_as_base_data();
     void test_completion_use_global_identifier_as_base_class();

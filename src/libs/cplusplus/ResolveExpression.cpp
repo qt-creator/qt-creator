@@ -830,16 +830,22 @@ ClassOrNamespace *ResolveExpression::findClass(const FullySpecifiedType &origina
 
 static void resolveTypedefs(const LookupContext &context,
                             FullySpecifiedType *type,
-                            Scope **scope)
+                            Scope **scope, ClassOrNamespace *binding)
 {
     QSet<Symbol *> visited;
     while (NamedType *namedTy = (*type)->asNamedType()) {
-        ClassOrNamespace *scopeCoN = context.lookupType(*scope);
-        if (!scopeCoN)
-            break;
 
         // check if namedTy->name() resolves to a typedef
-        QList<LookupItem> namedTypeItems = scopeCoN->lookup(namedTy->name());
+        QList<LookupItem> namedTypeItems;
+        if (binding)
+            namedTypeItems = binding->lookup(namedTy->name());
+        if (ClassOrNamespace *scopeCon = context.lookupType(*scope))
+            namedTypeItems += scopeCon->lookup(namedTy->name());
+
+#ifdef DEBUG_LOOKUP
+        qDebug() << "-- we have" << namedTypeItems.size() << "candidates";
+#endif // DEBUG_LOOKUP
+
         bool foundTypedef = false;
         foreach (const LookupItem &it, namedTypeItems) {
             if (it.declaration() && it.declaration()->isTypedef()) {
@@ -864,11 +870,26 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                                                     int accessOp,
                                                     bool *replacedDotOperator) const
 {
+#ifdef DEBUG_LOOKUP
+    qDebug() << "In ResolveExpression::baseExpression with" << baseResults.size() << "results...";
+    int i = 0;
+    Overview oo;
+#endif // DEBUG_LOOKUP
+
     foreach (const LookupItem &r, baseResults) {
         FullySpecifiedType ty = r.type().simplified();
         Scope *scope = r.scope();
 
-        resolveTypedefs(_context, &ty, &scope);
+#ifdef DEBUG_LOOKUP
+        qDebug("trying result #%d", ++i);
+        qDebug()<<"- before typedef resolving we have:"<<oo(ty);
+#endif // DEBUG_LOOKUP
+
+        resolveTypedefs(_context, &ty, &scope, r.binding());
+
+#ifdef DEBUG_LOOKUP
+        qDebug()<<"-  after typedef resolving:"<<oo(ty);
+#endif // DEBUG_LOOKUP
 
         if (accessOp == T_ARROW) {
             if (PointerType *ptrTy = ty->asPointerType()) {
@@ -892,7 +913,7 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
 
                         FullySpecifiedType retTy = instantiatedFunction->returnType().simplified();
 
-                        resolveTypedefs(_context, &retTy, &functionScope);
+                        resolveTypedefs(_context, &retTy, &functionScope, r.binding());
 
                         if (PointerType *ptrTy = retTy->asPointerType()) {
                             if (ClassOrNamespace *retBinding = findClass(ptrTy->elementType(), functionScope))
