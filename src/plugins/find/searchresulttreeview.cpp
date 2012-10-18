@@ -31,6 +31,7 @@
 #include "searchresulttreeitemroles.h"
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitemdelegate.h"
+#include "searchresultcolor.h"
 
 #include <QHeaderView>
 #include <QKeyEvent>
@@ -57,9 +58,9 @@ void SearchResultTreeView::setAutoExpandResults(bool expand)
     m_autoExpandResults = expand;
 }
 
-void SearchResultTreeView::setTextEditorFont(const QFont &font)
+void SearchResultTreeView::setTextEditorFont(const QFont &font, const SearchResultColor color)
 {
-    m_model->setTextEditorFont(font);
+    m_model->setTextEditorFont(font, color);
 }
 
 void SearchResultTreeView::clear()

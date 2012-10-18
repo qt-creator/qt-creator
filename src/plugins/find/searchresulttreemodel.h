@@ -31,6 +31,7 @@
 #define SEARCHRESULTTREEMODEL_H
 
 #include "searchresultwindow.h"
+#include "searchresultcolor.h"
 
 #include <QAbstractItemModel>
 #include <QRegExp>
@@ -51,7 +52,7 @@ public:
     ~SearchResultTreeModel();
 
     void setShowReplaceUI(bool show);
-    void setTextEditorFont(const QFont &font);
+    void setTextEditorFont(const QFont &font, const SearchResultColor color);
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -86,6 +87,7 @@ private:
 
     SearchResultTreeItem *m_rootItem;
     SearchResultTreeItem *m_currentParent;
+    SearchResultColor m_color;
     QModelIndex m_currentIndex;
     QStringList m_currentPath; // the path that belongs to the current parent
     QFont m_textEditorFont;

@@ -29,6 +29,7 @@
 
 #include "searchresultwindow.h"
 #include "searchresultwidget.h"
+#include "searchresultcolor.h"
 #include "findtoolwindow.h"
 
 #include <coreplugin/icore.h>
@@ -96,6 +97,7 @@ namespace Internal {
         QList<SearchResult *> m_searchResults;
         int m_currentIndex;
         QFont m_font;
+        SearchResultColor m_color;
 
     public slots:
         void setCurrentIndex(int index);
@@ -398,7 +400,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     connect(widget, SIGNAL(navigateStateChanged()), this, SLOT(navigateStateChanged()));
     connect(widget, SIGNAL(restarted()), d, SLOT(moveWidgetToTop()));
     connect(widget, SIGNAL(requestPopup(bool)), d, SLOT(popupRequested(bool)));
-    widget->setTextEditorFont(d->m_font);
+    widget->setTextEditorFont(d->m_font, d->m_color);
     widget->setShowReplaceUI(searchOrSearchAndReplace != SearchOnly);
     widget->setAutoExpandResults(d->m_expandCollapseAction->isChecked());
     widget->setInfo(label, toolTip, searchTerm);
@@ -470,11 +472,25 @@ void SearchResultWindow::setFocus()
     \fn void SearchResultWindow::setTextEditorFont(const QFont &font)
     \internal
 */
-void SearchResultWindow::setTextEditorFont(const QFont &font)
+void SearchResultWindow::setTextEditorFont(const QFont &font,
+                                           const QColor &textForegroundColor,
+                                           const QColor &textBackgroundColor,
+                                           const QColor &highlightForegroundColor,
+                                           const QColor &highlightBackgroundColor)
 {
     d->m_font = font;
+    Internal::SearchResultColor color;
+    color.textBackground = textBackgroundColor;
+    color.textForeground = textForegroundColor;
+    color.highlightBackground = highlightBackgroundColor.isValid()
+            ? highlightBackgroundColor
+            : textBackgroundColor;
+    color.highlightForeground = highlightForegroundColor.isValid()
+            ? highlightForegroundColor
+            : textForegroundColor;
+    d->m_color = color;
     foreach (Internal::SearchResultWidget *widget, d->m_searchResultWidgets)
-        widget->setTextEditorFont(font);
+        widget->setTextEditorFont(font, color);
 }
 
 void SearchResultWindow::openNewSearchPanel()

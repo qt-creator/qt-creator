@@ -12,6 +12,7 @@ HEADERS += findtoolwindow.h \
     find_global.h \
     findtoolbar.h \
     findplugin.h \
+    searchresultcolor.h \
     searchresulttreeitemdelegate.h \
     searchresulttreeitemroles.h \
     searchresulttreeitems.h \
@@ -37,5 +38,4 @@ SOURCES += findtoolwindow.cpp \
 FORMS += findwidget.ui \
     finddialog.ui
 RESOURCES += find.qrc
-
 

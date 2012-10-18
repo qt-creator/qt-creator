@@ -260,6 +260,12 @@ void FontSettings::setAntialias(bool antialias)
  * Returns the format for the given font category.
  */
 Format &FontSettings::formatFor(TextStyle category)
+
+{
+    return m_scheme.formatFor(category);
+}
+
+Format FontSettings::formatFor(TextStyle category) const
 {
     return m_scheme.formatFor(category);
 }

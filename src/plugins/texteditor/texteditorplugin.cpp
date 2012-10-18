@@ -274,9 +274,14 @@ void TextEditorPlugin::invokeQuickFix()
 
 void TextEditorPlugin::updateSearchResultsFont(const FontSettings &settings)
 {
-    if (m_searchResultWindow)
+    if (m_searchResultWindow) {
         m_searchResultWindow->setTextEditorFont(QFont(settings.family(),
-                                                      settings.fontSize() * settings.fontZoom() / 100));
+                                                      settings.fontSize() * settings.fontZoom() / 100),
+                                                settings.formatFor(TextEditor::C_TEXT).foreground(),
+                                                settings.formatFor(TextEditor::C_TEXT).background(),
+                                                settings.formatFor(TextEditor::C_SEARCH_RESULT).foreground(),
+                                                settings.formatFor(TextEditor::C_SEARCH_RESULT).background());
+    }
 }
 
 void TextEditorPlugin::updateVariable(const QByteArray &variable)

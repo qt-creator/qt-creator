@@ -44,6 +44,7 @@ namespace Find {
 namespace Internal {
 
 class SearchResultTreeView;
+class SearchResultColor;
 
 class SearchResultWidget : public QWidget
 {
@@ -73,7 +74,7 @@ public:
 
     void notifyVisibilityChanged(bool visible);
 
-    void setTextEditorFont(const QFont &font);
+    void setTextEditorFont(const QFont &font, const SearchResultColor color);
 
     void setAutoExpandResults(bool expand);
     void expandAll();

@@ -157,7 +157,11 @@ public:
     void goToPrev();
     bool canNavigate() const;
 
-    void setTextEditorFont(const QFont &font);
+    void setTextEditorFont(const QFont &font,
+                           const QColor &textForegroundColor,
+                           const QColor &textBackgroundColor,
+                           const QColor &highlightForegroundColor,
+                           const QColor &highlightBackgroundColor);
     void openNewSearchPanel();
 
     // The search result window owns the returned SearchResult

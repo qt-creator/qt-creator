@@ -43,7 +43,8 @@ public:
 
 private:
     int drawLineNumber(QPainter *painter, const QStyleOptionViewItemV3 &option, const QRect &rect, const QModelIndex &index) const;
-    void drawMarker(QPainter *painter, const QModelIndex &index, const QString text, const QRect &rect) const;
+    void drawText(QPainter *painter, const QStyleOptionViewItem &opt,
+                           const QRect &rect, const QModelIndex &index) const;
 
     static const int m_minimumLineNumberDigits = 6;
 };

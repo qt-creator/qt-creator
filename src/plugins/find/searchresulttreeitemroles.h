@@ -42,6 +42,8 @@ enum Roles
     ResultLineRole,
     ResultLineNumberRole,
     ResultIconRole,
+    ResultHighlightBackgroundColor,
+    ResultHighlightForegroundColor,
     SearchTermStartRole,
     SearchTermLengthRole,
     IsGeneratedRole

@@ -32,6 +32,7 @@
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
 #include "searchresulttreeitemroles.h"
+#include "searchresultcolor.h"
 
 #include "ifindsupport.h"
 #include "treeviewfind.h"
@@ -318,9 +319,9 @@ void SearchResultWidget::notifyVisibilityChanged(bool visible)
     emit visibilityChanged(visible);
 }
 
-void SearchResultWidget::setTextEditorFont(const QFont &font)
+void SearchResultWidget::setTextEditorFont(const QFont &font, const SearchResultColor color)
 {
-    m_searchResultTreeView->setTextEditorFont(font);
+    m_searchResultTreeView->setTextEditorFont(font, color);
 }
 
 void SearchResultWidget::setAutoExpandResults(bool expand)

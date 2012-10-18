@@ -97,19 +97,8 @@ void SearchResultTreeItemDelegate::paint(QPainter *painter, const QStyleOptionVi
     int lineNumberAreaWidth = drawLineNumber(painter, opt, textRect, index);
     textRect.adjust(lineNumberAreaWidth, 0, 0, 0);
 
-    // selected text
-    QString displayString = index.model()->data(index, Qt::DisplayRole).toString();
-    drawMarker(painter, index, displayString, textRect);
-
-    // show number of subresults in displayString
-    if (index.model()->hasChildren(index)) {
-        displayString += QString::fromLatin1(" (")
-                         + QString::number(index.model()->rowCount(index))
-                         + QLatin1Char(')');
-    }
-
     // text and focus/selection
-    QItemDelegate::drawDisplay(painter, opt, textRect, displayString);
+    drawText(painter, opt, textRect, index);
     QItemDelegate::drawFocus(painter, opt, opt.rect);
 
     // check mark
@@ -159,20 +148,65 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
     return lineNumberAreaWidth;
 }
 
-void SearchResultTreeItemDelegate::drawMarker(QPainter *painter, const QModelIndex &index, const QString text,
-                                              const QRect &rect) const
+void SearchResultTreeItemDelegate::drawText(QPainter *painter,
+                                            const QStyleOptionViewItem &opt,
+                                            const QRect &rect,
+                                            const QModelIndex &index) const
 {
-    int searchTermStart = index.model()->data(index, ItemDataRoles::SearchTermStartRole).toInt();
+    QString text = index.model()->data(index, Qt::DisplayRole).toString();
+    // show number of subresults in displayString
+    if (index.model()->hasChildren(index)) {
+        text += QLatin1String(" (")
+                + QString::number(index.model()->rowCount(index))
+                + QLatin1Char(')');
+    }
+
+    const int searchTermStart = index.model()->data(index, ItemDataRoles::SearchTermStartRole).toInt();
     int searchTermLength = index.model()->data(index, ItemDataRoles::SearchTermLengthRole).toInt();
-    if (searchTermStart < 0 || searchTermStart >= text.length() || searchTermLength < 1)
+    if (searchTermStart < 0 || searchTermStart >= text.length() || searchTermLength < 1) {
+        QItemDelegate::drawDisplay(painter, opt, rect, text);
         return;
+    }
     // clip searchTermLength to end of line
     searchTermLength = qMin(searchTermLength, text.length() - searchTermStart);
     const int textMargin = QApplication::style()->pixelMetric(QStyle::PM_FocusFrameHMargin) + 1;
     int searchTermStartPixels = painter->fontMetrics().width(text.left(searchTermStart));
     int searchTermLengthPixels = painter->fontMetrics().width(text.mid(searchTermStart, searchTermLength));
+
+    // Text before the highlighting
+    QRect beforeHighlightRect(rect);
+    beforeHighlightRect.setRight(beforeHighlightRect.left() + searchTermStartPixels);
+    QStyleOptionViewItem noHighlightOpt = opt;
+    noHighlightOpt.rect = beforeHighlightRect;
+    noHighlightOpt.textElideMode = Qt::ElideNone;
+    QItemDelegate::drawDisplay(painter, noHighlightOpt,
+                               beforeHighlightRect, text.mid(0, searchTermStart));
+
+    // Highlight background
+    QRect highlightBackgroundRect(rect);
+    highlightBackgroundRect.setLeft(highlightBackgroundRect.left()
+                                    + searchTermStartPixels + textMargin - 1); // -1: Cosmetics
+    highlightBackgroundRect.setRight(highlightBackgroundRect.left()
+                                     + searchTermLengthPixels + 1); // +1: Cosmetics
+    const QColor highlightBackground =
+            index.model()->data(index, ItemDataRoles::ResultHighlightBackgroundColor).value<QColor>();
+    painter->fillRect(highlightBackgroundRect, QBrush(highlightBackground));
+
+    // Highlight text
     QRect resultHighlightRect(rect);
-    resultHighlightRect.setLeft(resultHighlightRect.left() + searchTermStartPixels + textMargin - 1); // -1: Cosmetics
-    resultHighlightRect.setRight(resultHighlightRect.left() + searchTermLengthPixels + 1); // +1: Cosmetics
-    painter->fillRect(resultHighlightRect, QBrush(qRgb(255, 240, 120)));
+    resultHighlightRect.setLeft(beforeHighlightRect.right());
+    resultHighlightRect.setRight(resultHighlightRect.left() + searchTermLengthPixels + textMargin);
+    QStyleOptionViewItem highlightOpt = noHighlightOpt;
+    const QColor highlightForeground =
+            index.model()->data(index, ItemDataRoles::ResultHighlightForegroundColor).value<QColor>();
+    highlightOpt.palette.setColor(QPalette::Text, highlightForeground);
+    QItemDelegate::drawDisplay(painter, highlightOpt, resultHighlightRect,
+                               text.mid(searchTermStart, searchTermLength));
+
+    // Text after the Highlight
+    QRect afterHighlightRect(rect);
+    afterHighlightRect.setLeft(resultHighlightRect.right());
+    noHighlightOpt.rect = afterHighlightRect;
+    QItemDelegate::drawDisplay(painter, noHighlightOpt, afterHighlightRect,
+                               text.mid(searchTermStart + searchTermLength));
 }

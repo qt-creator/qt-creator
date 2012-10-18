@@ -30,6 +30,7 @@
 #include "searchresulttreemodel.h"
 #include "searchresulttreeitems.h"
 #include "searchresulttreeitemroles.h"
+#include "searchresultcolor.h"
 
 #include <QApplication>
 #include <QFont>
@@ -64,10 +65,11 @@ void SearchResultTreeModel::setShowReplaceUI(bool show)
     m_showReplaceUI = show;
 }
 
-void SearchResultTreeModel::setTextEditorFont(const QFont &font)
+void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColor color)
 {
     layoutAboutToBeChanged();
     m_textEditorFont = font;
+    m_color = color;
     layoutChanged();
 }
 
@@ -251,6 +253,14 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
         else
             result = QVariant();
         break;
+    case Qt::TextColorRole:
+        if (row->item.useTextEditorFont)
+            result = m_color.textForeground;
+        break;
+    case Qt::BackgroundRole:
+        if (row->item.useTextEditorFont)
+            result = m_color.textBackground;
+        break;
     case ItemDataRoles::ResultLineRole:
     case Qt::DisplayRole:
         result = row->item.text;
@@ -263,6 +273,14 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
         break;
     case ItemDataRoles::ResultIconRole:
         result = row->item.icon;
+        break;
+    case ItemDataRoles::ResultHighlightBackgroundColor:
+        if (row->item.useTextEditorFont)
+            result = m_color.highlightBackground;
+        break;
+    case ItemDataRoles::ResultHighlightForegroundColor:
+        if (row->item.useTextEditorFont)
+            result = m_color.highlightForeground;
         break;
     case ItemDataRoles::SearchTermStartRole:
         result = row->item.textMarkPos;

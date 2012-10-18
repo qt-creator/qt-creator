@@ -35,6 +35,7 @@ QtcPlugin {
         "ifindfilter.h",
         "ifindsupport.cpp",
         "ifindsupport.h",
+        "searchresultcolor.h",
         "searchresulttreeitemdelegate.cpp",
         "searchresulttreeitemdelegate.h",
         "searchresulttreeitemroles.h",

@@ -38,6 +38,7 @@ namespace Find {
 namespace Internal {
 
 class SearchResultTreeModel;
+class SearchResultColor;
 
 class SearchResultTreeView : public QTreeView
 {
@@ -47,7 +48,7 @@ public:
     explicit SearchResultTreeView(QWidget *parent = 0);
 
     void setAutoExpandResults(bool expand);
-    void setTextEditorFont(const QFont &font);
+    void setTextEditorFont(const QFont &font, const SearchResultColor color);
 
     SearchResultTreeModel *model() const;
     void addResults(const QList<Find::SearchResultItem> &items, SearchResult::AddMode mode);
