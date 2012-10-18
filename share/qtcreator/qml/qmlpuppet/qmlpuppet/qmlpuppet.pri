@@ -1,11 +1,6 @@
-QT += core gui network
+QT += core gui network declarative
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += quick1 quick1-private core-private widgets-private gui-private script-private
-} else {
-    QT += declarative
-}
-
+greaterThan(QT_MAJOR_VERSION, 4): QT += declarative-private core-private widgets-private gui-private script-private
 
 greaterThan(QT_MAJOR_VERSION, 4) {
 } else {

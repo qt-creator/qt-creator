@@ -4,7 +4,7 @@ include(../../../qtcreator.pri)
 include(../../private_headers.pri)
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += qtquick1-private core-private
+    QT += declarative-private core-private
     SUBDIRS += qmlpuppet
 } else {
     exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {

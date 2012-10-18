@@ -15,5 +15,5 @@ OTHER_FILES += \
     qml/ItemsView.qml
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += quick1-private core-private script-private
+    QT += declarative-private core-private script-private
 }

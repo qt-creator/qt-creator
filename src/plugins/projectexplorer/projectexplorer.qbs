@@ -6,7 +6,7 @@ import "../../../qbs/defaults.js" as Defaults
 QtcPlugin {
     name: "ProjectExplorer"
 
-    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script", "quick1"] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script", "declarative"] }
     Depends { name: "Core" }
     Depends { name: "Locator" }
     Depends { name: "Find" }

@@ -4,11 +4,7 @@
 # It is recommended not to modify this file, since newer versions of Qt Creator
 # may offer an updated version of it.
 
-equals(QT_MAJOR_VERSION, 5) {
-    QT += quick1
-} else {
-    QT += declarative
-}
+QT += declarative
 
 SOURCES += $$PWD/qmlapplicationviewer.cpp
 HEADERS += $$PWD/qmlapplicationviewer.h
