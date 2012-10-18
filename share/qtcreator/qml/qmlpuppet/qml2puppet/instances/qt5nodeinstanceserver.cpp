@@ -118,8 +118,8 @@ QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
     QList<QQuickItem*> itemList;
 
     if (quickView()) {
-        itemList.append(quickView()->rootItem());
-        itemList.append(subItems(quickView()->rootItem()));
+        itemList.append(quickView()->rootObject());
+        itemList.append(subItems(quickView()->rootObject()));
     }
 
     return itemList;
