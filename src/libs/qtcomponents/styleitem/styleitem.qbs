@@ -5,7 +5,7 @@ DynamicLibrary {
     destination: "lib/qtcreator/qtcomponents/plugin"
 
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ["core", "widgets", "quick1", "script"] }
+    Depends { name: "Qt"; submodules: ["core", "widgets", "declarative", "script"] }
 
     cpp.defines: project.additionalCppDefines
 

@@ -7,7 +7,7 @@ QtcPlugin {
 
     condition: qtcore.versionMajor == 4
     Depends { id: qtcore; name: "Qt.core" }
-    Depends { name: "Qt"; submodules: ["widgets", "quick1"] }
+    Depends { name: "Qt"; submodules: ["widgets", "declarative"] }
     Depends { name: "Core" }
     Depends { name: "QmlJS" }
     Depends { name: "QmlEditorWidgets" }

@@ -1,11 +1,6 @@
 TEMPLATE = lib
 TARGET = ProjectExplorer
-QT += xml script network
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += quick1
-} else {
-    QT += declarative
-}
+QT += xml script network declarative
 
 include(../../qtcreatorplugin.pri)
 include(projectexplorer_dependencies.pri)

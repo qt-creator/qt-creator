@@ -60,7 +60,7 @@ linux-* {
 
 include(../../qtcreator.pri)
 
-contains(QT_CONFIG, declarative)|contains(QT_CONFIG, quick1) {
+contains(QT_CONFIG, declarative) {
     SUBDIRS += \
             plugin_qmlprojectmanager \
             plugin_qmlprofiler
@@ -78,7 +78,7 @@ contains(QT_CONFIG, declarative)|contains(QT_CONFIG, quick1) {
         }
     }
 } else {
-    warning("QmlProjectManager, QmlProfiler and QmlDesigner plugins have been disabled: The plugins require QtDeclarative (Qt 4.x) or QtQuick1 (Qt 5.x)");
+    warning("QmlProjectManager, QmlProfiler and QmlDesigner plugins have been disabled: The plugins require QtDeclarative");
 }
 
 include (debugger/lldb/guest/qtcreator-lldb.pri)

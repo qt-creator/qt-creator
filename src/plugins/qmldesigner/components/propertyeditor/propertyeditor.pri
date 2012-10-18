@@ -39,11 +39,7 @@ HEADERS += propertyeditor.h \
     declarativewidgetview.h \
     gradientlineqmladaptor.h
     
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += quick1
-} else {
-    QT += declarative
-}
+QT += declarative
 
 RESOURCES += propertyeditor.qrc
 FORMS += behaviordialog.ui

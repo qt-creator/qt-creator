@@ -6,10 +6,7 @@ SOURCES += $$PWD/easinggraph.cpp \
 HEADERS += $$PWD/easinggraph.h \
     $$PWD/easingcontextpane.h
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += quick1
-} else {
-    QT += declarative
-}
+QT += declarative
+
 RESOURCES += $$PWD/easingpane.qrc
 FORMS += $$PWD/easingcontextpane.ui

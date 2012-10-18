@@ -1,11 +1,6 @@
 TEMPLATE = lib
 TARGET = Welcome
-QT += network
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += quick1
-} else {
-    QT += declarative
-}
+QT += network declarative
 
 include(../../qtcreatorplugin.pri)
 include(welcome_dependencies.pri)
