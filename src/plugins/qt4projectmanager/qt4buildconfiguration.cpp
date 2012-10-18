@@ -43,12 +43,14 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
+#include <qt4projectmanager/qmakekitinformation.h>
 #include <QDebug>
 
 #include <QInputDialog>
@@ -127,6 +129,12 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     m_lastEmmitedBuildDirectory = buildDirectory();
     m_qtVersionSupportsShadowBuilds =  supportsShadowBuilds();
 
+    m_lastKitState = LastKitState(target()->kit());
+
+    connect(ProjectExplorer::ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain *)),
+            this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain *)));
+    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+            this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
     return true;
 }
 
@@ -142,8 +150,27 @@ void Qt4BuildConfiguration::ctor()
 
 void Qt4BuildConfiguration::kitChanged()
 {
-    emitProFileEvaluateNeeded();
-    emitBuildDirectoryChanged();
+    LastKitState newState = LastKitState(target()->kit());
+    if (newState != m_lastKitState) {
+        // This only checks if the ids have changed!
+        // For that reason the Qt4BuildConfiguration is also connected
+        // to the toolchain and qtversion managers
+        emitProFileEvaluateNeeded();
+        emitBuildDirectoryChanged();
+        m_lastKitState = newState;
+    }
+}
+
+void Qt4BuildConfiguration::toolChainUpdated(ProjectExplorer::ToolChain *tc)
+{
+    if (ToolChainKitInformation::toolChain(target()->kit()) == tc)
+        emitProFileEvaluateNeeded();
+}
+
+void Qt4BuildConfiguration::qtVersionsChanged(const QList<int> &,const QList<int> &, const QList<int> &changed)
+{
+    if (changed.contains(QtKitInformation::qtVersionId(target()->kit())))
+        emitProFileEvaluateNeeded();
 }
 
 void Qt4BuildConfiguration::emitBuildDirectoryChanged()
@@ -750,5 +777,34 @@ Qt4BuildConfiguration *Qt4BuildConfiguration::setup(Target *t, QString defaultDi
 
     return bc;
 }
+
+Qt4BuildConfiguration::LastKitState::LastKitState()
+{
+
+}
+
+Qt4BuildConfiguration::LastKitState::LastKitState(Kit *k)
+    : m_qtVersion(QtKitInformation::qtVersionId(k)),
+      m_sysroot(SysRootKitInformation::sysRoot(k).toString()),
+      m_mkspec(QmakeKitInformation::mkspec(k).toString())
+{
+    ToolChain *tc = ToolChainKitInformation::toolChain(k);
+    m_toolchain = tc ? tc->id() : QString();
+}
+
+bool Qt4BuildConfiguration::LastKitState::operator ==(const LastKitState &other)
+{
+    return m_qtVersion == other.m_qtVersion
+            && m_toolchain == other.m_toolchain
+            && m_sysroot == other.m_sysroot
+            && m_mkspec == other.m_mkspec;
+}
+
+bool Qt4BuildConfiguration::LastKitState::operator !=(const LastKitState &other)
+{
+    return !operator ==(other);
+}
+
+
 
 } // namespace Qt4ProjectManager
