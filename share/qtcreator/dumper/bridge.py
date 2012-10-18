@@ -78,16 +78,16 @@ try:
         if isGoodGdb():
             return gdb.parse_and_eval(exp)
         # Work around non-existing gdb.parse_and_eval as in released 7.0
-        gdb.execute("set logging redirect on")
+#        gdb.execute("set logging redirect on")
         gdb.execute("set logging on")
         try:
             gdb.execute("print %s" % exp)
         except:
             gdb.execute("set logging off")
-            gdb.execute("set logging redirect off")
+#            gdb.execute("set logging redirect off")
             return None
         gdb.execute("set logging off")
-        gdb.execute("set logging redirect off")
+#        gdb.execute("set logging redirect off")
         return gdb.history(0)
 
 
@@ -193,9 +193,9 @@ try:
             #warn("VARLIST: %s " % varList)
             #warn("FILENAME: %s " % filename)
             gdb.execute("set logging off")
-            gdb.execute("set logging redirect off")
+#            gdb.execute("set logging redirect off")
             gdb.execute("set logging file %s" % filename)
-            gdb.execute("set logging redirect on")
+#            gdb.execute("set logging redirect on")
             gdb.execute("set logging on")
             try:
                 gdb.execute("info args")
@@ -215,7 +215,7 @@ try:
             except:
                 pass
             gdb.execute("set logging off")
-            gdb.execute("set logging redirect off")
+#            gdb.execute("set logging redirect off")
 
             try:
                 temp = open(filename, "r")
@@ -262,9 +262,9 @@ try:
             pass
         filename = createTempFile()
         gdb.execute("set logging off")
-        gdb.execute("set logging redirect off")
+#        gdb.execute("set logging redirect off")
         gdb.execute("set logging file %s" % filename)
-        gdb.execute("set logging redirect on")
+#        gdb.execute("set logging redirect on")
         gdb.execute("set logging on")
         msg = ""
         try:
@@ -276,7 +276,7 @@ try:
         except:
             msg = "Unknown error"
         gdb.execute("set logging off")
-        gdb.execute("set logging redirect off")
+#        gdb.execute("set logging redirect off")
         if len(msg):
             # Having that might confuse result handlers in the gdbengine.
             #warn("CLI ERROR: %s " % msg)
