@@ -3495,7 +3495,7 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
                 downCase(currentRange());
             else if (input.is('U'))
                 upCase(currentRange());
-            setDotCommand("%1" + input.raw(), count());
+            setDotCommand(input.raw(), count());
             endEditBlock();
         }
         finishMovement();
