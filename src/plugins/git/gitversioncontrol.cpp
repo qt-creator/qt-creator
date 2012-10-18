@@ -140,7 +140,12 @@ QString GitVersionControl::vcsGetRepositoryURL(const QString &directory)
     return m_client->vcsGetRepositoryURL(directory);
 }
 
-/* Snapshots are implement using stashes, relying on stash messages for
+QString GitVersionControl::vcsTopic(const QString &directory)
+{
+    return m_client->synchronousBranch(directory);
+}
+
+/* Snapshots are implemented using stashes, relying on stash messages for
  * naming as the actual stash names (stash{n}) are rotated as one adds stashes.
  * Note that the snapshot interface does not care whether we have an unmodified
  * repository state, in which case git refuses to stash.
