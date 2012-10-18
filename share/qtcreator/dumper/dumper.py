@@ -24,11 +24,12 @@ tempFileCounter = 0
 try:
     # Test if 2.6 is used (Windows), trigger exception and default
     # to 2nd version.
-    tempfile.NamedTemporaryFile(prefix="py_",delete=True)
+    file = tempfile.NamedTemporaryFile(prefix="py_",delete=True)
+    file.close()
     def createTempFile():
-        file = tempfile.NamedTemporaryFile(prefix="py_",delete=False)
+        file = tempfile.NamedTemporaryFile(prefix="py_",delete=True)
         file.close()
-        return file.name, file
+        return file.name
 
 except:
     def createTempFile():
@@ -36,9 +37,9 @@ except:
         tempFileCounter += 1
         fileName = "%s/py_tmp_%d_%d" \
             % (tempfile.gettempdir(), os.getpid(), tempFileCounter)
-        return fileName, None
+        return fileName
 
-def removeTempFile(name, file):
+def removeTempFile(name):
     try:
         os.remove(name)
     except:

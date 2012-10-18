@@ -189,7 +189,7 @@ try:
                 block = block.superblock
         else:
             # Assuming gdb 7.0 release or 6.8-symbianelf.
-            filename, file = createTempFile()
+            filename = createTempFile()
             #warn("VARLIST: %s " % varList)
             #warn("FILENAME: %s " % filename)
             gdb.execute("set logging off")
@@ -230,7 +230,7 @@ try:
                 temp.close()
             except:
                 pass
-            removeTempFile(filename, file)
+            removeTempFile(filename)
             #warn("VARLIST: %s " % varList)
             for name in varList:
                 #warn("NAME %s " % name)
@@ -260,7 +260,7 @@ try:
             return gdb.execute(command, to_string=True).split("\n")
         except:
             pass
-        filename, file = createTempFile()
+        filename = createTempFile()
         gdb.execute("set logging off")
         gdb.execute("set logging redirect off")
         gdb.execute("set logging file %s" % filename)
@@ -280,13 +280,14 @@ try:
         if len(msg):
             # Having that might confuse result handlers in the gdbengine.
             #warn("CLI ERROR: %s " % msg)
+            removeTempFile(filename)
             return "CLI ERROR: %s " % msg
         temp = open(filename, "r")
         lines = []
         for line in temp:
             lines.append(line)
         temp.close()
-        removeTempFile(filename, file)
+        removeTempFile(filename)
         return lines
 
     def selectedInferior():
