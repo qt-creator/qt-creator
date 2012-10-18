@@ -13,7 +13,6 @@ Project {
         "lib/qtcreator/qtcomponents/qtcomponents.qbs",
         "share/share.qbs",
         "share/qtcreator/translations/translations.qbs",
-        "src/libs/3rdparty/botan/botan.qbs",
         "src/libs/aggregation/aggregation.qbs",
         "src/libs/cplusplus/cplusplus.qbs",
         "src/libs/extensionsystem/extensionsystem.qbs",

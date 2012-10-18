@@ -98,6 +98,7 @@ static inline QString formWindowEditorContents(const QObject *editor)
 */
 CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
     : m_manager(manager),
+      m_activeTarget(0),
       m_fileName(fileName),
       m_rootNode(new CMakeProjectNode(m_fileName)),
       m_lastEditor(0)
@@ -107,8 +108,6 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
 
     m_file = new CMakeFile(this, fileName);
 
-    connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),
-            SLOT(targetAdded(ProjectExplorer::Target*)));
     connect(this, SIGNAL(buildTargetsChanged()),
             this, SLOT(updateRunConfigurations()));
 }
@@ -139,7 +138,7 @@ void CMakeProject::fileChanged(const QString &fileName)
 
 void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration *bc)
 {
-    if (!bc || bc->target() != activeTarget())
+    if (!bc)
         return;
 
     CMakeBuildConfiguration *cmakebc = static_cast<CMakeBuildConfiguration *>(bc);
@@ -170,13 +169,22 @@ void CMakeProject::changeActiveBuildConfiguration(ProjectExplorer::BuildConfigur
     parseCMakeLists();
 }
 
-void CMakeProject::targetAdded(ProjectExplorer::Target *t)
+void CMakeProject::activeTargetWasChanged(Target *target)
 {
-    if (!t)
+    if (m_activeTarget) {
+        disconnect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+                   this, SLOT(changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    }
+
+    m_activeTarget = target;
+
+    if (!m_activeTarget)
         return;
 
-    connect(t, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
-            SLOT(changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+    connect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+
+    changeActiveBuildConfiguration(m_activeTarget->activeBuildConfiguration());
 }
 
 void CMakeProject::changeBuildDirectory(CMakeBuildConfiguration *bc, const QString &newBuildDirectory)
@@ -603,6 +611,14 @@ bool CMakeProject::fromMap(const QVariantMap &map)
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
+
+    m_activeTarget = activeTarget();
+    if (m_activeTarget)
+        connect(m_activeTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+                this, SLOT(changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*)));
+
+    connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
+            this, SLOT(activeTargetWasChanged(ProjectExplorer::Target*)));
 
     return true;
 }

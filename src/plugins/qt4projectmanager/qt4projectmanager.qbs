@@ -12,7 +12,6 @@ QtcPlugin {
     Depends { name: "CppTools" }
     Depends { name: "Debugger" }
     Depends { name: "QmlJS" }
-    Depends { name: "Botan" }
     Depends { name: "CPlusPlus" }
     Depends { name: "TextEditor" }
 

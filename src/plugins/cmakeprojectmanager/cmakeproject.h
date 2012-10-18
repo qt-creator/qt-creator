@@ -51,6 +51,8 @@ QT_BEGIN_NAMESPACE
 class QFileSystemWatcher;
 QT_END_NAMESPACE
 
+namespace ProjectExplorer { class Target; }
+
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -116,8 +118,8 @@ protected:
 
 private slots:
     void fileChanged(const QString &fileName);
+    void activeTargetWasChanged(ProjectExplorer::Target *target);
     void changeActiveBuildConfiguration(ProjectExplorer::BuildConfiguration*);
-    void targetAdded(ProjectExplorer::Target *);
 
     void editorChanged(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
@@ -135,6 +137,7 @@ private:
     void updateRunConfigurations(ProjectExplorer::Target *t);
 
     CMakeManager *m_manager;
+    ProjectExplorer::Target *m_activeTarget;
     QString m_fileName;
     CMakeFile *m_file;
     QString m_projectName;

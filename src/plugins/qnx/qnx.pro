@@ -3,9 +3,6 @@ TARGET = Qnx
 QT += network xml
 PROVIDER = RIM
 
-isEmpty(QNX_ENABLE):QNX_EXPERIMENTAL_STR="true"
-else:QNX_EXPERIMENTAL_STR="false"
-
 include(../../qtcreatorplugin.pri)
 include(qnx_dependencies.pri)
 

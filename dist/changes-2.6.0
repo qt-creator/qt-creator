@@ -37,7 +37,7 @@ Managing Projects
    * Moved the debugger setting from tool chains to kits
      and renamed tool chains to compilers
    * Added experimental support for Android (enable the plugin in Help > About Plugins)
-   * Added experimental support for QNX (enable the plugin in Help > About Plugins)
+   * Added support for QNX
    * Made it possible to disable deploy configurations
    * Added double-clicking of file names in compile errors to open the file
    * Added a Cancel Build button to the Compile Output pane

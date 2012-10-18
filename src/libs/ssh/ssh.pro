@@ -68,3 +68,5 @@ HEADERS = $$PWD/sshsendfacility_p.h \
     $$PWD/sshdirecttcpiptunnel.h
 
 FORMS = $$PWD/sshkeycreationdialog.ui
+
+include(../3rdparty/botan/botan.pri)
