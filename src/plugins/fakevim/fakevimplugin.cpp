@@ -859,7 +859,7 @@ private slots:
     void highlightMatches(const QString &needle);
     void moveToMatchingParenthesis(bool *moved, bool *forward, QTextCursor *cursor);
     void checkForElectricCharacter(bool *result, QChar c);
-    void indentRegion(int beginLine, int endLine, QChar typedChar);
+    void indentRegion(int beginBlock, int endBlock, QChar typedChar);
     void handleExCommand(bool *handled, const ExCommand &cmd);
 
     void writeSettings();
@@ -1778,7 +1778,7 @@ void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,
     }
 }
 
-void FakeVimPluginPrivate::indentRegion(int beginLine, int endLine,
+void FakeVimPluginPrivate::indentRegion(int beginBlock, int endBlock,
       QChar typedChar)
 {
     FakeVimHandler *handler = qobject_cast<FakeVimHandler *>(sender());
@@ -1796,14 +1796,14 @@ void FakeVimPluginPrivate::indentRegion(int beginLine, int endLine,
             ? TabSettings::SpacesOnlyTabPolicy : TabSettings::TabsOnlyTabPolicy;
 
     QTextDocument *doc = bt->document();
-    QTextBlock startBlock = doc->findBlockByNumber(beginLine);
+    QTextBlock startBlock = doc->findBlockByNumber(beginBlock);
 
     // Record line lenghts for mark adjustments
-    QVector<int> lineLengths(endLine - beginLine + 1);
+    QVector<int> lineLengths(endBlock - beginBlock + 1);
     QTextBlock block = startBlock;
 
-    for (int i = beginLine; i <= endLine; ++i) {
-        lineLengths[i - beginLine] = block.text().length();
+    for (int i = beginBlock; i <= endBlock; ++i) {
+        lineLengths[i - beginBlock] = block.text().length();
         if (typedChar == 0 && block.text().simplified().isEmpty()) {
             // clear empty lines
             QTextCursor cursor(block);

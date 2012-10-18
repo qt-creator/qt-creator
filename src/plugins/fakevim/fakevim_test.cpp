@@ -215,6 +215,22 @@ void FakeVimPlugin::test_vim_movement()
     KEYS("e",     "123" N "45"   "."   "6" N "" N " " N "78" X "9");
     KEYS("ge",    "123" N "45"   "."   "6" N X "" N " " N "789");
     KEYS("2ge",   "123" N "45" X "."   "6" N   "" N " " N "789");
+
+    // do not move behind end of line in normal mode
+    data.setText("abc def" N "ghi");
+    KEYS("$h", "abc d" X "ef" N "ghi");
+    data.setText("abc def" N "ghi");
+    KEYS("4e", "abc def" N "gh" X "i");
+    data.setText("abc def" N "ghi");
+    KEYS("$i", "abc de" X "f" N "ghi");
+
+    // move behind end of line in insert mode
+    data.setText("abc def" N "ghi");
+    KEYS("i<end>", "abc def" X N "ghi");
+    data.setText("abc def" N "ghi");
+    KEYS("A", "abc def" X N "ghi");
+    data.setText("abc def" N "ghi");
+    KEYS("$a", "abc def" X N "ghi");
 }
 
 void FakeVimPlugin::test_vim_fFtT()
@@ -314,6 +330,18 @@ void FakeVimPlugin::test_vim_delete()
     KEYS("3dw", X "jkl");
     data.setText("abc  " N "  def" N "  ghi" N "jkl");
     KEYS("d3w", X "jkl");
+
+    // delete empty line
+    data.setText("a" N X "" N "  b");
+    KEYS("dd", "a" N "  " X "b");
+
+    // delete on an empty line
+    data.setText("a" N X "" N "  b");
+    KEYS("d$", "a" N X "" N "  b");
+
+    // delete in empty document
+    data.setText("");
+    KEYS("dd", X);
 }
 
 void FakeVimPlugin::test_vim_delete_inner_word()
@@ -426,6 +454,60 @@ void FakeVimPlugin::test_vim_change_a_word()
     KEYS("3caw#", "#" X N " jkl");
 }
 
+void FakeVimPlugin::test_vim_change_replace()
+{
+    TestData data;
+    setup(&data);
+
+    // preserve lines in replace mode
+    data.setText("abc" N "def");
+    KEYS("llvjhrX", "ab" X "X" N "XXf");
+
+    // change empty line
+    data.setText("a" N X "" N "  b");
+    KEYS("ccABC", "a" N "ABC" X N "  b");
+
+    // change on empty line
+    data.setText("a" N X "" N "  b");
+    KEYS("c$ABC<esc>", "a" N "AB" X "C" N "  b");
+    KEYS("u", "a" N X "" N "  b");
+    KEYS("rA", "a" N X "" N "  b");
+
+    // change in empty document
+    data.setText("");
+    KEYS("ccABC", "ABC" X);
+    KEYS("u", "");
+    KEYS("SABC", "ABC" X);
+    KEYS("u", "");
+    KEYS("sABC", "ABC" X);
+    KEYS("u", "");
+    KEYS("rA", "" X);
+
+    // indentation with change
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=2");
+    data.setText("int main()" N
+         "{" N
+         " " X "   return 0;" N
+         "}" N
+         "");
+
+    KEYS("cc" "int i = 0;",
+         "int main()" N
+         "{" N
+         "  int i = 0;" X N
+         "}" N
+         "");
+
+    KEYS("uS" "int i = 0;" N "int j = 1;",
+         "int main()" N
+         "{" N
+         "  int i = 0;" N
+         "  int j = 1;" X N
+         "}" N
+         "");
+}
+
 void FakeVimPlugin::test_vim_block_selection()
 {
     TestData data;
@@ -458,6 +540,11 @@ void FakeVimPlugin::test_vim_block_selection()
 
     data.setText("{" N " { " N " } " N "}");
     KEYS("di{", "{" N "}");
+
+    data.setText("(" X "())");
+    KEYS("di(", "((" X "))");
+    data.setText("\"\"");
+    KEYS("di\"", "\"" X "\"");
 }
 
 void FakeVimPlugin::test_vim_repeat()
@@ -815,6 +902,92 @@ void FakeVimPlugin::test_vim_undo_redo()
     data.setText("abc" N "  def" N "ghi");
     KEYS("jlllSxyz<ESC>", "abc" N "xyz" N "ghi");
     KEYS("u", "abc" N "  " X "def" N "ghi");
+}
+
+void FakeVimPlugin::test_vim_letter_case()
+{
+    TestData data;
+    setup(&data);
+
+    // upper- and lower-case
+    data.setText("abc DEF");
+    KEYS("lv3l~", "a" X "BC dEF");
+    KEYS("v4lU", "a" X "BC DEF");
+    KEYS("v4$u", "a" X "bc def");
+    KEYS("v4$gU", "a" X "BC DEF");
+    KEYS("gu$", "a" X "bc def");
+    KEYS("lg~~", X "ABC DEF");
+    KEYS(".", X "abc def");
+    KEYS("gUiw", X "ABC def");
+
+    data.setText("  ab" X "c" N "def");
+    KEYS("2gUU", "  " X "ABC" N "DEF");
+    KEYS("u", "  " X "abc" N "def");
+    KEYS("<c-r>", "  " X "ABC" N "DEF");
+}
+
+void FakeVimPlugin::test_vim_code_autoindent()
+{
+    TestData data;
+    setup(&data);
+
+    data.doCommand("set expandtab");
+    data.doCommand("set shiftwidth=3");
+
+    data.setText("int main()" N
+         X "{" N
+         "}" N
+         "");
+    KEYS("o" "return 0;",
+         "int main()" N
+         "{" N
+         "   return 0;" X N
+         "}" N
+         "");
+    KEYS("O" "int i = 0;",
+         "int main()" N
+         "{" N
+         "   int i = 0;" X N
+         "   return 0;" N
+         "}" N
+         "");
+    KEYS("ddO" "int i = 0;" N "int j = 0;",
+         "int main()" N
+         "{" N
+         "   int i = 0;" N
+         "   int j = 0;" X N
+         "   return 0;" N
+         "}" N
+         "");
+    KEYS("^i" "int x = 1;" N,
+         "int main()" N
+         "{" N
+         "   int i = 0;" N
+         "   int x = 1;" N
+         "   " X "int j = 0;" N
+         "   return 0;" N
+         "}" N
+         "");
+    KEYS("c2k" "if (true) {" N ";" N "}",
+         "int main()" N
+         "{" N
+         "   if (true) {" N
+         "      ;" N
+         "   }" X N
+         "   return 0;" N
+         "}" N
+         "");
+    KEYS("jci{" "return 1;",
+         "int main()" N
+         "{" N
+         "   return 1;" X N
+         "}" N
+         "");
+    KEYS("di{",
+         "int main()" N
+         "{" N
+         X "}" N
+         "");
 }
 
 void FakeVimPlugin::test_vim_code_folding()
