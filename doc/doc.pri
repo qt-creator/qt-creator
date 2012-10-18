@@ -1,10 +1,11 @@
 greaterThan(QT_MAJOR_VERSION, 4) {
+    HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator) -platform minimal
     QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc)
 } else {
+    HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator)
     QDOC_BIN = $$targetPath($$[QT_INSTALL_BINS]/qdoc3)
 }
 
-HELPGENERATOR = $$targetPath($$[QT_INSTALL_BINS]/qhelpgenerator)
 
 VERSION_TAG = $$replace(QTCREATOR_VERSION, "[-.]", )
 
