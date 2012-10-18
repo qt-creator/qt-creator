@@ -36,7 +36,7 @@
         featuresRequired="QtSupport.Wizards.FeatureBlackBerry">
     <icon>icon.png</icon>
     <displayname>BlackBerry Qt5 Gui Application</displayname>;
-    <description>Creates a Qt5 Gui application for BlackBerry.</description>
+    <description>Creates an experimental Qt5 Gui application for BlackBerry 10. You need an own Qt5 build for BlackBerry 10 since Qt5 is not provided in the current BlackBerry 10 NDK and is not included in DevAlpha devices.</description>
     <files>
         <file source="main.cpp" openeditor="true"/>
         <file source="mainwidget.cpp" openeditor="true"/>
