@@ -49,7 +49,6 @@ class ProjectFileFactory : public Core::IDocumentFactory
 
 public:
     virtual QStringList mimeTypes() const;
-    bool canOpen(const QString &fileName);
     Core::Id id() const;
     QString displayName() const;
 
