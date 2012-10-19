@@ -63,7 +63,7 @@ def waitForCleanShutdown(timeOut=10):
                     shutdownDone=True
             if not shutdownDone and datetime.utcnow() > endtime:
                 break
-    snooze(1)
+    snooze(4)
 
 def __removeTmpSettingsDir__():
     waitForCleanShutdown()
