@@ -61,6 +61,7 @@ private:
 private slots:
     void cleanup();
     void test_vim_movement();
+    void test_vim_insert();
     void test_vim_fFtT();
     void test_vim_transform_numbers();
     void test_vim_delete();

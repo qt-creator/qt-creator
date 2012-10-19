@@ -2954,13 +2954,13 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         finishMovement();
     } else if ((!isVisualMode() && input.is('a')) || (isVisualMode() && input.is('A'))) {
         leaveVisualMode();
-        setUndoPosition();
         breakEditBlock();
         enterInsertMode();
-        setDotCommand(QString(QLatin1Char('a')));
+        setDotCommand("%1a", count());
         m_lastInsertion.clear();
         if (!atEndOfLine())
             moveRight();
+        setUndoPosition();
         updateMiniBuffer();
     } else if (input.is('A')) {
         breakEditBlock();
@@ -2969,6 +2969,7 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         setAnchor();
         enterInsertMode();
         setDotCommand(QString(QLatin1Char('A')));
+        setDotCommand("%1A", count());
         m_lastInsertion.clear();
         updateMiniBuffer();
     } else if (input.isControl('a')) {
@@ -3151,7 +3152,7 @@ EventResult FakeVimHandler::Private::handleCommandMode1(const Input &input)
         handleStartOfLine();
         finishMovement();
     } else if (!isVisualMode() && (input.is('i') || input.isKey(Key_Insert))) {
-        setDotCommand(QString(QLatin1Char('i'))); // setDotCommand("%1i", count());
+        setDotCommand("%1i", count());
         breakEditBlock();
         enterInsertMode();
         updateMiniBuffer();
@@ -3169,7 +3170,7 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
 
     if (input.is('I')) {
         setUndoPosition();
-        setDotCommand(QString(QLatin1Char('I'))); // setDotCommand("%1I", count());
+        setDotCommand("%1I", count());
         if (isVisualMode()) {
             int beginLine = lineForPosition(anchor());
             int endLine = lineForPosition(position());
@@ -3288,6 +3289,7 @@ EventResult FakeVimHandler::Private::handleCommandMode2(const Input &input)
         }
         beginEditBlock();
         insertText(QString("\n"));
+        m_lastInsertion += '\n';
         if (!appendLine)
             moveUp();
         insertAutomaticIndentation(insertAfter);
@@ -3638,15 +3640,24 @@ EventResult FakeVimHandler::Private::handleInsertMode(const Input &input)
         } else {
             // Normal insertion. Start with '1', as one instance was
             // already physically inserted while typing.
-            QString data;
-            for (int i = 1; i < count(); ++i)
-                data += m_lastInsertion;
-            insertText(data);
+            const int repeat = count();
+            if (repeat > 1) {
+                const QString text = m_lastInsertion;
+                for (int i = 1; i < repeat; ++i) {
+                    m_lastInsertion.truncate(0);
+                    foreach (const QChar &c, text)
+                        handleInsertMode(Input(c));
+                }
+                m_lastInsertion = text;
+            }
             moveLeft(qMin(1, leftDist()));
             setTargetColumn();
             leaveVisualMode();
             breakEditBlock();
         }
+        // If command is 'o' or 'O' don't include the first line feed in dot command.
+        if (g.dotCommand.endsWith(QChar('o'), Qt::CaseInsensitive))
+            m_lastInsertion.remove(0, 1);
         g.dotCommand += m_lastInsertion;
         g.dotCommand += QChar(27);
         enterCommandMode();

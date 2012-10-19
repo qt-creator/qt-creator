@@ -114,7 +114,9 @@ static const QString helpFormat =
     } while (false)
 
 // Test undo, redo and repeat of last single command. This doesn't test cursor position.
-#define INTEGRITY() \
+// Set afterEnd to true if cursor position after undo and redo differs at the end of line
+// (e.g. undoing 'A' operation moves cursor at the end of line and redo moves it one char right).
+#define INTEGRITY(afterEnd) \
     do { \
         data.doKeys("<ESC>"); \
         const int newPosition = data.position(); \
@@ -123,7 +125,8 @@ static const QString helpFormat =
         KEYS("u", data.oldText); \
         const QTextCursor tc = data.cursor(); \
         const int pos = tc.position(); \
-        const int col = tc.positionInBlock(); \
+        const int col = tc.positionInBlock() \
+            + ((afterEnd && tc.positionInBlock() + 2 == tc.block().length()) ? 1 : 0); \
         const int line = tc.block().blockNumber(); \
         const QTextDocument *doc = data.editor()->document(); \
         KEYS("<c-r>", textWithCursor(redo, doc->findBlockByNumber(line), col)); \
@@ -278,6 +281,62 @@ void FakeVimPlugin::test_vim_movement()
     KEYS("$a", "abc def" X N "ghi");
 }
 
+void FakeVimPlugin::test_vim_insert()
+{
+    TestData data;
+    setup(&data);
+
+    // basic insert text
+    data.setText("ab" X "c" N "def");
+    KEYS("i 123", "ab 123" X "c" N "def");
+    INTEGRITY(false);
+
+    data.setText("ab" X "c" N "def");
+    KEYS("a 123", "abc 123" X N "def");
+    INTEGRITY(true);
+
+    data.setText("ab" X "c" N "def");
+    KEYS("I 123", " 123" X "abc" N "def");
+    INTEGRITY(false);
+
+    data.setText("abc" N "def");
+    KEYS("A 123", "abc 123" X N "def");
+    INTEGRITY(true);
+
+    data.setText("abc" N "def");
+    KEYS("o 123", "abc" N " 123" X N "def");
+    INTEGRITY(false);
+
+    data.setText("abc" N "def");
+    KEYS("O 123", " 123" X N "abc" N "def");
+    INTEGRITY(false);
+
+    // insert text [count] times
+    data.setText("ab" X "c" N "def");
+    KEYS("3i 123<esc>", "ab 123 123 12" X "3c" N "def");
+    INTEGRITY(false);
+
+    data.setText("ab" X "c" N "def");
+    KEYS("3a 123<esc>", "abc 123 123 12" X "3" N "def");
+    INTEGRITY(true);
+
+    data.setText("ab" X "c" N "def");
+    KEYS("3I 123<esc>", " 123 123 12" X "3abc" N "def");
+    INTEGRITY(false);
+
+    data.setText("abc" N "def");
+    KEYS("3A 123<esc>", "abc 123 123 12" X "3" N "def");
+    INTEGRITY(true);
+
+    data.setText("abc" N "def");
+    KEYS("3o 123<esc>", "abc" N " 123" N " 123" N " 12" X "3" N "def");
+    INTEGRITY(false);
+
+    data.setText("abc" N "def");
+    KEYS("3O 123<esc>", " 123" N " 123" N " 12" X "3" N "abc" N "def");
+    INTEGRITY(false);
+}
+
 void FakeVimPlugin::test_vim_fFtT()
 {
     TestData data;
@@ -306,18 +365,18 @@ void FakeVimPlugin::test_vim_transform_numbers()
 
     data.setText("8");
     KEYS("<c-a>", X "9");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("<c-x>", X "8");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("<c-a>", X "9");
     KEYS("<c-a>", "1" X "0");
     KEYS("<c-a>", "1" X "1");
     KEYS("5<c-a>", "1" X "6");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("10<c-a>", "2" X "6");
     KEYS("h100<c-a>", "12" X "6");
     KEYS("100<c-x>", "2" X "6");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("10<c-x>", "1" X "6");
     KEYS("5<c-x>", "1" X "1");
     KEYS("5<c-x>", X "6");
@@ -356,33 +415,33 @@ void FakeVimPlugin::test_vim_delete()
 
     data.setText("123" N "456");
     KEYS("x",  "23" N "456");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("dd", "456");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("2x", "6");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("dd", "");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("void main()");
     KEYS("dt(", "()");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("void main()");
     KEYS("df(", ")");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("void " X "main()");
     KEYS("D", "void ");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("ggd$", "");
 
     data.setText("abc def ghi");
     KEYS("2dw", X "ghi");
-    INTEGRITY();
+    INTEGRITY(false);
     data.setText("abc def ghi");
     KEYS("d2w", X "ghi");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("abc  " N "  def" N "  ghi" N "jkl");
     KEYS("3dw", X "jkl");
@@ -396,7 +455,7 @@ void FakeVimPlugin::test_vim_delete()
     // delete on an empty line
     data.setText("a" N X "" N "  b");
     KEYS("d$", "a" N X "" N "  b");
-    INTEGRITY();
+    INTEGRITY(false);
 
     // delete in empty document
     data.setText("");
@@ -413,11 +472,11 @@ void FakeVimPlugin::test_vim_delete_inner_word()
 
     data.setText("abc def ghi jkl");
     KEYS("3diw", X  " ghi jkl");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("abc " X "  def");
     KEYS("diw", "abc" X "def");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("diw", "");
 
     data.setText("abc  " N "  def");
@@ -460,9 +519,9 @@ void FakeVimPlugin::test_vim_delete_a_word()
 
     data.setText("abc" X " def ghi");
     KEYS("daw", "abc" X " ghi");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("daw", "ab" X "c");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("daw", "");
 
     data.setText(X " ghi jkl");
@@ -471,7 +530,7 @@ void FakeVimPlugin::test_vim_delete_a_word()
 
     data.setText("abc def ghi jkl");
     KEYS("3daw", X "jkl");
-    INTEGRITY();
+    INTEGRITY(false);
 
     // remove trailing spaces
     data.setText("abc  " N "  def" N "  ghi" N "jkl");
@@ -500,7 +559,7 @@ void FakeVimPlugin::test_vim_change_a_word()
 
     data.setText("abc " X "def ghi");
     KEYS("caw#", "abc #" X "ghi");
-    INTEGRITY();
+    INTEGRITY(false);
     data.setText("abc d" X "ef ghi");
     KEYS("caw#", "abc #" X "ghi");
     data.setText("abc de" X "f ghi");
@@ -508,7 +567,7 @@ void FakeVimPlugin::test_vim_change_a_word()
 
     data.setText("abc de" X "f ghi jkl");
     KEYS("2caw#", "abc #" X "jkl");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("abc" X " def ghi jkl");
     KEYS("2caw#", "abc#" X " jkl");
@@ -532,12 +591,12 @@ void FakeVimPlugin::test_vim_change_replace()
     // change empty line
     data.setText("a" N X "" N "  b");
     KEYS("ccABC", "a" N "ABC" X N "  b");
-    INTEGRITY();
+    INTEGRITY(false);
 
     // change on empty line
     data.setText("a" N X "" N "  b");
     KEYS("c$ABC<esc>", "a" N "AB" X "C" N "  b");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("u", "a" N X "" N "  b");
     KEYS("rA", "a" N X "" N "  b");
 
@@ -566,7 +625,7 @@ void FakeVimPlugin::test_vim_change_replace()
          "  int i = 0;" X N
          "}" N
          "");
-    INTEGRITY();
+    INTEGRITY(false);
 
     KEYS("uS" "int i = 0;" N "int j = 1;",
          "int main()" N
@@ -585,12 +644,12 @@ void FakeVimPlugin::test_vim_block_selection()
     data.setText("int main(int /* (unused) */, char *argv[]);");
     KEYS("f(", "int main" X "(int /* (unused) */, char *argv[]);");
     KEYS("da(", "int main" X ";");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("int main(int /* (unused) */, char *argv[]);");
     KEYS("f(", "int main" X "(int /* (unused) */, char *argv[]);");
     KEYS("di(", "int main(" X ");");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("int main(int /* (unused) */, char *argv[]);");
     KEYS("2f)", "int main(int /* (unused) */, char *argv[]" X ");");
@@ -604,12 +663,12 @@ void FakeVimPlugin::test_vim_block_selection()
     KEYS("2f{l", "{ { {" X " } } }");
     KEYS("da{", "{ { " X " } }");
     KEYS("da{", "{ " X " }");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("{ { { } } }");
     KEYS("2f{l", "{ { {" X " } } }");
     KEYS("2da{", "{ " X " }");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("{" N " { " N " } " N "}");
     KEYS("di{", "{" N "}");
@@ -629,7 +688,7 @@ void FakeVimPlugin::test_vim_repeat()
     data.setText("abc" N "def" N "ghi");
     KEYS("dd", X "def" N "ghi");
     KEYS(".", X "ghi");
-    INTEGRITY();
+    INTEGRITY(false);
 
     // delete to next word
     data.setText("abc def ghi jkl");
@@ -787,7 +846,7 @@ void FakeVimPlugin::test_vim_indent()
         "    " X "ghi" N
         "    jkl" N
         "mno");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("k3<<",
         "abc" N
         X "def" N
@@ -810,7 +869,7 @@ void FakeVimPlugin::test_vim_indent()
 
     data.setText("abc");
     KEYS(">>", "    " X "abc");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("abc");
     data.doCommand("set shiftwidth=2");
@@ -828,7 +887,7 @@ void FakeVimPlugin::test_vim_indent()
     data.doCommand("set shiftwidth=7");
     data.setText("abc");
     KEYS(">>", "\t\t abc");
-    INTEGRITY();
+    INTEGRITY(false);
 }
 
 void FakeVimPlugin::test_vim_marks()
@@ -869,7 +928,7 @@ void FakeVimPlugin::test_vim_copy_paste()
     data.setText("123" N "456");
     KEYS("yyp", "123" N X "123" N "456");
     KEYS("2p", "123" N "123" N X "123" N "123" N "456");
-    INTEGRITY();
+    INTEGRITY(false);
 
     data.setText("123 456");
     KEYS("yw2P", "123 123" X " 123 456");
@@ -1022,7 +1081,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "   return 0;" X N
          "}" N
          "");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("O" "int i = 0;",
          "int main()" N
          "{" N
@@ -1030,7 +1089,7 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "   return 0;" N
          "}" N
          "");
-    INTEGRITY();
+    INTEGRITY(false);
     KEYS("ddO" "int i = 0;" N "int j = 0;",
          "int main()" N
          "{" N
@@ -1068,7 +1127,18 @@ void FakeVimPlugin::test_vim_code_autoindent()
          "{" N
          X "}" N
          "");
-    INTEGRITY();
+    INTEGRITY(false);
+
+    // autoindent
+    data.doCommand("set nosmartindent");
+    data.setText("abc" N "def");
+    KEYS("3o 123<esc>", "abc" N " 123" N "  123" N "   12" X "3" N "def");
+    INTEGRITY(false);
+
+    data.setText("abc" N "def");
+    KEYS("3O 123<esc>", " 123" N "  123" N "   12" X "3" N "abc" N "def");
+    INTEGRITY(false);
+    data.doCommand("set smartindent");
 }
 
 void FakeVimPlugin::test_vim_code_folding()
