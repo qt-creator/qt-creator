@@ -343,7 +343,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     m_buildTargetsList = new QListWidget;
     m_buildTargetsList->setMinimumHeight(200);
-    fl->addRow(tr("Targets:"), m_buildTargetsList);
+    fl->addRow(tr("Kits:"), m_buildTargetsList);
 
     // TODO update this list also on rescans of the CMakeLists.txt
     CMakeProject *pro = static_cast<CMakeProject *>(m_makeStep->target()->project());
@@ -403,7 +403,7 @@ void MakeStepConfigWidget::updateDetails()
     if (!bc)
         bc = static_cast<CMakeBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
     if (!bc) {
-        m_summaryText = tr("<b>No build configuration found on this target.</b>");
+        m_summaryText = tr("<b>No build configuration found on this kit.</b>");
         updateSummary();
         return;
     }

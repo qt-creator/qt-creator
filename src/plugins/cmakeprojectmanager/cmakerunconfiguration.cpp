@@ -199,7 +199,7 @@ bool CMakeRunConfiguration::fromMap(const QVariantMap &map)
 QString CMakeRunConfiguration::defaultDisplayName() const
 {
     if (m_title.isEmpty())
-        return tr("Run CMake target");
+        return tr("Run CMake kit");
     return m_title + (m_enabled ? "" : tr(" (disabled)"));
 }
 
