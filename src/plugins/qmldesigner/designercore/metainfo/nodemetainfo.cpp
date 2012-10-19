@@ -84,16 +84,53 @@ using namespace QmlJS;
 
 typedef QPair<QString, QString> PropertyInfo;
 
+static QString resolveTypeName(const ASTPropertyReference *ref, const ContextPtr &context)
+{
+    QString type = QLatin1String("unknown");
+
+    if (!ref->ast()->memberType.isEmpty()) {
+        type = ref->ast()->memberType.toString();
+
+        if (type == QLatin1String("alias")) {
+            const Value *value = context->lookupReference(ref);
+
+            if (!value)
+                return type;
+
+            if (const ASTObjectValue * astObjectValue = value->asAstObjectValue()) {
+                if (astObjectValue->typeName())
+                    type = astObjectValue->typeName()->name.toString();
+            } else if (const ObjectValue * objectValue = value->asObjectValue()) {
+                type = objectValue->className();
+            } else if (value->asColorValue()) {
+                type = QLatin1String("color");
+            } else if (value->asUrlValue()) {
+                type = QLatin1String("url");
+            } else if (value->asStringValue()) {
+                type = QLatin1String("string");
+            } else if (value->asRealValue()) {
+                type = QLatin1String("real");
+            } else if (value->asIntValue()) {
+                type = QLatin1String("int");
+            } else if (value->asBooleanValue()) {
+                type = QLatin1String("boolean");
+            }
+        }
+    }
+
+    return type;
+}
+
 class PropertyMemberProcessor : public MemberProcessor
 {
 public:
+    PropertyMemberProcessor(const ContextPtr &context) : m_context(context)
+    {}
     virtual bool processProperty(const QString &name, const Value *value)
     {
         const ASTPropertyReference *ref = value_cast<ASTPropertyReference>(value);
         if (ref) {
-            QString type = "unknown";
-            if (!ref->ast()->memberType.isEmpty())
-                type = ref->ast()->memberType.toString();
+            const QString type = resolveTypeName(ref, m_context);
             m_properties.append(qMakePair(name, type));
         } else {
             if (const CppComponentValue * ov = value_cast<CppComponentValue>(value)) {
@@ -119,6 +156,7 @@ public:
 
 private:
     QList<PropertyInfo> m_properties;
+    const ContextPtr m_context;
 };
 
 static inline bool isValueType(const QString &type)
@@ -178,7 +216,7 @@ QList<PropertyInfo> getQmlTypes(const CppComponentValue *ov, const ContextPtr &c
     if (ov->className().isEmpty())
         return list;
 
-    PropertyMemberProcessor processor;
+    PropertyMemberProcessor processor(context);
     ov->processMembers(&processor);
 
     QList<PropertyInfo> newList = processor.properties();
@@ -254,7 +292,7 @@ QList<PropertyInfo> getObjectTypes(const ObjectValue *ov, const ContextPtr &cont
     if (ov->className().isEmpty())
         return list;
 
-    PropertyMemberProcessor processor;
+    PropertyMemberProcessor processor(context);
     ov->processMembers(&processor);
 
     list << processor.properties();
@@ -834,7 +872,7 @@ bool NodeMetaInfoPrivate::isValid() const
 QString NodeMetaInfoPrivate::propertyType(const QString &propertyName) const
 {
     if (!m_properties.contains(propertyName))
-        return QString();
+        return QLatin1String("Property does not exist...");
     return m_propertyTypes.at(m_properties.indexOf(propertyName));
 }
 
