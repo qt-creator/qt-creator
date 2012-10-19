@@ -36,14 +36,12 @@
 #include <QSysInfo>
 #include <qglobal.h>
 
-#if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_6
 enum {
-    NSWindowCollectionBehaviorFullScreenPrimary = (1 << 7)
+    Qtc_NSWindowCollectionBehaviorFullScreenPrimary = (1 << 7)
 };
 
-static const NSString *NSWindowDidEnterFullScreenNotification = @"NSWindowDidEnterFullScreenNotification";
-static const NSString *NSWindowDidExitFullScreenNotification = @"NSWindowDidExitFullScreenNotification";
-#endif
+static NSString *Qtc_NSWindowDidEnterFullScreenNotification = @"NSWindowDidEnterFullScreenNotification";
+static NSString *Qtc_NSWindowDidExitFullScreenNotification = @"NSWindowDidExitFullScreenNotification";
 
 @interface WindowObserver : NSObject {
     Core::Internal::MainWindow *window;
@@ -58,7 +56,7 @@ static const NSString *NSWindowDidExitFullScreenNotification = @"NSWindowDidExit
 
 @implementation WindowObserver
 
-- (id)initWithMainWindow:(Core::Internal::MainWindow *)w;
+- (id)initWithMainWindow:(Core::Internal::MainWindow *)w
 {
     if ((self = [self init])) {
         window = w;
@@ -86,11 +84,7 @@ using namespace Core::Internal;
 
 bool MacFullScreen::supportsFullScreen()
 {
-#if QT_VERSION >= 0x040800
     return QSysInfo::MacintoshVersion >= QSysInfo::MV_LION;
-#else
-    return QSysInfo::MacintoshVersion >= 0x0009; /* MV_LION not defined */
-#endif
 }
 
 void MacFullScreen::addFullScreen(MainWindow *window)
@@ -98,15 +92,15 @@ void MacFullScreen::addFullScreen(MainWindow *window)
     if (supportsFullScreen()) {
         NSView *nsview = (NSView *) window->winId();
         NSWindow *nswindow = [nsview window];
-        [nswindow setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+        [nswindow setCollectionBehavior:Qtc_NSWindowCollectionBehaviorFullScreenPrimary];
 
         if (observer == nil)
             observer = [[WindowObserver alloc] initWithMainWindow:window];
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
         [nc addObserver:observer selector:@selector(notifyDidEnterFullScreen:)
-            name:NSWindowDidEnterFullScreenNotification object:nswindow];
+            name:Qtc_NSWindowDidEnterFullScreenNotification object:nswindow];
         [nc addObserver:observer selector:@selector(notifyDidExitFullScreen:)
-            name:NSWindowDidExitFullScreenNotification object:nswindow];
+            name:Qtc_NSWindowDidExitFullScreenNotification object:nswindow];
     }
 }
 
