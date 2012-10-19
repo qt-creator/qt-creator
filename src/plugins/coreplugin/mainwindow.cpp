@@ -109,6 +109,7 @@
 #include <QMessageBox>
 #include <QMenuBar>
 #include <QPushButton>
+#include <QStyleFactory>
 
 /*
 #ifdef Q_OS_UNIX
@@ -188,12 +189,16 @@ MainWindow::MainWindow() :
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     if (baseName == QLatin1String("windows")) {
         // Sometimes we get the standard windows 95 style as a fallback
-        // e.g. if we are running on a KDE4 desktop
-        QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
-        if (desktopEnvironment == "kde")
-            baseName = QLatin1String("plastique");
-        else
-            baseName = QLatin1String("cleanlooks");
+        if (QStyleFactory::keys().contains("Fusion"))
+            baseName = QLatin1String("fusion"); // Qt5
+        else { // Qt4
+            // e.g. if we are running on a KDE4 desktop
+            QByteArray desktopEnvironment = qgetenv("DESKTOP_SESSION");
+            if (desktopEnvironment == "kde")
+                baseName = QLatin1String("plastique");
+            else
+                baseName = QLatin1String("cleanlooks");
+        }
     }
 #endif
     qApp->setStyle(new ManhattanStyle(baseName));

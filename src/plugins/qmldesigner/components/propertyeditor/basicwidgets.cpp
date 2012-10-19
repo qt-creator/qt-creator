@@ -44,48 +44,43 @@
 #include <QDebug>
 #include <QApplication>
 #include <QGraphicsOpacityEffect>
-#include <QCleanlooksStyle>
-#include <QPlastiqueStyle>
+#include <QWindowsStyle>
 
 #include <QTextEdit>
 
 
 QT_BEGIN_NAMESPACE
 
-class CleanLooksSingleton
+class WindowsStyleSingleton
 {
    public:
-     static CleanLooksSingleton* instance();
+     static WindowsStyleSingleton* instance();
      QStyle* style() {return &m_style; };
 
    private:
-     static CleanLooksSingleton *m_instance;
+     static WindowsStyleSingleton *m_instance;
 
-#ifdef Q_OS_MAC
-     QPlastiqueStyle m_style;
-#else
-     QCleanlooksStyle m_style;
-#endif //Q_OS_MAC
+     QWindowsStyle m_style;
 
-     CleanLooksSingleton() {}
-     CleanLooksSingleton( const CleanLooksSingleton& );
+     WindowsStyleSingleton() {}
+     WindowsStyleSingleton( const WindowsStyleSingleton& );
 
-     class CleanLooksWatcher {
-         public: ~CleanLooksWatcher() {
-           if( CleanLooksSingleton::m_instance != 0 )
-             delete CleanLooksSingleton::m_instance;
+     class WindowsWatcher {
+         public: ~WindowsWatcher() {
+           if ( WindowsStyleSingleton::m_instance != 0 )
+             delete WindowsStyleSingleton::m_instance;
          }
      };
-     friend class CleanLooksWatcher;
+     friend class WindowsWatcher;
 };
 
-CleanLooksSingleton* CleanLooksSingleton::m_instance = 0;
+WindowsStyleSingleton* WindowsStyleSingleton::m_instance = 0;
 
-CleanLooksSingleton* CleanLooksSingleton::instance()
+WindowsStyleSingleton* WindowsStyleSingleton::instance()
 {
-  static CleanLooksWatcher w;
+  static WindowsWatcher w;
   if( m_instance == 0 )
-    m_instance = new CleanLooksSingleton();
+    m_instance = new WindowsStyleSingleton();
   return m_instance;
 }
 
@@ -170,7 +165,7 @@ public:
         filter->setDuiTarget(this);
         m_mouseOver = false;
         q->installEventFilter(filter);
-        q->setStyle(CleanLooksSingleton::instance()->style());
+        q->setStyle(WindowsStyleSingleton::instance()->style());
         Q_ASSERT(q);
     }
     virtual ~QWidgetDeclarativeUI() {
