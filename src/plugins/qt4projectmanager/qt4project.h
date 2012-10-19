@@ -206,7 +206,6 @@ private:
     enum AsyncUpdateState { NoState, Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState m_asyncUpdateState;
     bool m_cancelEvaluate;
-    bool m_codeModelCanceled;
     QList<Qt4ProFileNode *> m_partialEvaluate;
 
     QFuture<void> m_codeModelFuture;

@@ -359,7 +359,6 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_pendingEvaluateFuturesCount(0),
     m_asyncUpdateState(NoState),
     m_cancelEvaluate(false),
-    m_codeModelCanceled(false),
     m_centralizedFolderWatcher(0),
     m_activeTarget(0)
 {
@@ -739,7 +738,6 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
 
         // Cancel running code model update
         m_codeModelFuture.cancel();
-        m_codeModelCanceled = true;
     } else if (m_asyncUpdateState == AsyncUpdateInProgress) {
         // A update is in progress
         // And this slot only gets called if a file changed on disc
@@ -788,7 +786,6 @@ void Qt4Project::scheduleAsyncUpdate()
 
     // Cancel running code model update
     m_codeModelFuture.cancel();
-    m_codeModelCanceled = true;
 }
 
 
