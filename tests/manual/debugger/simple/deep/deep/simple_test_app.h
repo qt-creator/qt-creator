@@ -149,7 +149,7 @@ namespace breakpoints {
         // <=== Break here.
         Twice<int> cc = Twice<int>(1);
         Twice<float> dd = Twice<float>(1.0);
-        dummyStatement(&a, &b, &c, &d, &e, &f, &z, bb, aa, cc, dd);
+        dummyStatement(&a, &b, &c, &d, &e, &f, &z, &bb, &aa, &cc, &dd);
     }
 
 } // namespace breakpoints
