@@ -70,6 +70,7 @@ public:
 
     QString vcsOpenText() const;
     QString vcsMakeWritableText() const;
+    QString vcsTopic(const QString &directory);
 
     void emitRepositoryChanged(const QString &);
     void emitFilesChanged(const QStringList &);

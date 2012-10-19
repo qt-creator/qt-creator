@@ -1762,8 +1762,6 @@ void ClearCasePlugin::projectChanged(ProjectExplorer::Project *project)
         updateStreamAndView();
         if (m_view.isEmpty())
             return;
-        Core::EditorManager *editorManager = Core::ICore::editorManager();
-        editorManager->setWindowTitleAddition(editorManager->windowTitleAddition() + QLatin1String(" - ") + m_view);
         updateIndex();
     }
     if ( ClearCase::Constants::debug )

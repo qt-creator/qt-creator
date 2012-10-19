@@ -144,6 +144,11 @@ QString ClearCaseControl::vcsMakeWritableText() const
     return tr("&Hijack");
 }
 
+QString ClearCaseControl::vcsTopic(const QString &directory)
+{
+    return m_plugin->ccGetView(directory);
+}
+
 void ClearCaseControl::emitRepositoryChanged(const QString &s)
 {
     emit repositoryChanged(s);

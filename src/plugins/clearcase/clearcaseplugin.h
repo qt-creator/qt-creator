@@ -141,6 +141,7 @@ public:
     QList<QStringPair> activities(int *current = 0) const;
     QString ccGetPredecessor(const QString &version) const;
     QStringList ccGetActiveVobs() const;
+    QString ccGetView(const QString &workingDir, bool *isDynamic = 0, bool *isUcm = 0) const;
     bool ccFileOp(const QString &workingDir, const QString &title, const QStringList &args,
                   const QString &fileName, const QString &file2 = QString());
     FileStatus vcsStatus(const QString &file) const;
@@ -217,7 +218,6 @@ private:
     static void rmdir(const QString &path);
     QString runExtDiff(const QString &workingDir, const QStringList &arguments,
                        int timeOut, QTextCodec *outputCodec = 0);
-    QString ccGetView(const QString &workingDir, bool *isDynamic = 0, bool *isUcm = 0) const;
 
     ClearCaseSettings m_settings;
 
