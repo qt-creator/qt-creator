@@ -6,6 +6,7 @@ QtcLibrary {
 
     cpp.defines: base.concat(["QSSH_LIBRARY"]).concat(botanDefines)
     cpp.includePaths: botanIncludes
+    cpp.dynamicLibraries: botanLibs
 
     Depends { name: "cpp" }
     Depends { name: "Qt"; submodules: ["widgets", "network" ] }
