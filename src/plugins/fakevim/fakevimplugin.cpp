@@ -161,6 +161,7 @@ public:
 
         if (m_eventFilter != eventFilter) {
             if (m_eventFilter != 0) {
+                m_label->setText(QString());
                 m_edit->removeEventFilter(m_eventFilter);
                 disconnect(SIGNAL(edited(QString,int)));
             }
