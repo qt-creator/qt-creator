@@ -218,13 +218,11 @@ def getEditorForFileSuffix(curFile):
     glslEditorSuffixes= ["frag", "vert", "fsh", "vsh", "glsl", "shader", "gsh"]
     suffix = __getFileSuffix__(curFile)
     if suffix in cppEditorSuffixes:
-        editor = waitForObject("{type='CppEditor::Internal::CPPEditorWidget' unnamed='1' "
-                               "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+        editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     elif suffix in qmlEditorSuffixes:
         editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     elif suffix in proEditorSuffixes:
-        editor = waitForObject("{type='Qt4ProjectManager::Internal::ProFileEditorWidget' unnamed='1' "
-                               "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
+        editor = waitForObject(":Qt Creator_ProFileEditorWidget")
     elif suffix in glslEditorSuffixes:
         editor = waitForObject("{type='GLSLEditor::GLSLTextEditorWidget' unnamed='1' "
                                "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")

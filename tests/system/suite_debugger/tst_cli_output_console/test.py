@@ -31,8 +31,7 @@ def main():
     # Rely on code completion for closing bracket
     invokeMenuItem("File", "Save All")
     selectFromLocator(project + ".pro")
-    proEditor = waitForObject("{type='Qt4ProjectManager::Internal::ProFileEditorWidget' unnamed='1' visible='1'"
-                              "window=':Qt Creator_Core::Internal::MainWindow'}", 20000)
+    proEditor = waitForObject(":Qt Creator_ProFileEditorWidget", 20000)
     test.verify("CONFIG   += console" in str(proEditor.plainText), "Verifying that program is configured with console")
     setRunInTerminal(1, 0, False)
 
