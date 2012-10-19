@@ -438,9 +438,9 @@ void ScriptEngine::activateFrame(int index)
     Q_UNUSED(index)
 }
 
-void ScriptEngine::selectThread(int index)
+void ScriptEngine::selectThread(ThreadId threadId)
 {
-    Q_UNUSED(index)
+    Q_UNUSED(threadId)
 }
 
 bool ScriptEngine::acceptsBreakpoint(BreakpointModelId id) const

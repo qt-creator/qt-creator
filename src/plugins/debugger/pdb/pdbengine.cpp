@@ -321,9 +321,9 @@ void PdbEngine::activateFrame(int frameIndex)
     gotoLocation(handler->currentFrame());
 }
 
-void PdbEngine::selectThread(int index)
+void PdbEngine::selectThread(ThreadId threadId)
 {
-    Q_UNUSED(index)
+    Q_UNUSED(threadId)
 }
 
 bool PdbEngine::acceptsBreakpoint(BreakpointModelId id) const

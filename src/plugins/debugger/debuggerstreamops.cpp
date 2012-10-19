@@ -40,7 +40,7 @@ namespace Internal {
 
 QDataStream &operator<<(QDataStream &stream, const ThreadData &d)
 {
-    stream << (qint64)d.id;
+    stream << d.id.raw();
     stream << d.address;
     stream << d.function;
     stream << d.fileName;
@@ -54,7 +54,7 @@ QDataStream &operator>>(QDataStream &stream, ThreadData &d)
 {
     qint64 id;
     stream >> id;
-    d.id = id;
+    d.id = ThreadId(id);
     stream >> d.address;
     stream >> d.function;
     stream >> d.fileName;

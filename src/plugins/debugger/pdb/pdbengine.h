@@ -86,7 +86,7 @@ private:
     void executeJumpToLine(const ContextData &data);
 
     void activateFrame(int index);
-    void selectThread(int index);
+    void selectThread(ThreadId threadId);
 
     bool acceptsBreakpoint(BreakpointModelId id) const;
     void insertBreakpoint(BreakpointModelId id);

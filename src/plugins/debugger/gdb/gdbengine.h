@@ -35,6 +35,7 @@
 #include "stackframe.h"
 #include "watchhandler.h"
 #include "watchutils.h"
+#include "threaddata.h"
 
 #include <QByteArray>
 #include <QProcess>
@@ -437,7 +438,7 @@ private: ////////// Inferior Management //////////
 private: ////////// View & Data Stuff //////////
     protected:
 
-    void selectThread(int index);
+    void selectThread(ThreadId threadId);
     void activateFrame(int index);
     void resetLocation();
 
@@ -664,7 +665,6 @@ protected:
 
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded;
-    int m_currentThreadId;
 
     //
     // Qml

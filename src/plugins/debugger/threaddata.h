@@ -30,11 +30,32 @@
 #ifndef THREADDATA_H
 #define THREADDATA_H
 
-#include <QVector>
 #include <QString>
+#include <QVector>
 
 namespace Debugger {
 namespace Internal {
+
+////////////////////////////////////////////////////////////////////////
+//
+// ThreadId
+//
+////////////////////////////////////////////////////////////////////////
+
+/*! A typesafe identifier. */
+class ThreadId
+{
+public:
+    ThreadId() : m_id(-1) {}
+    explicit ThreadId(qint64 id) : m_id(id) {}
+
+    bool isValid() const { return m_id != -1; }
+    qint64 raw() const { return m_id; }
+    bool operator==(const ThreadId other) const { return m_id == other.m_id; }
+
+private:
+    qint64 m_id;
+};
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -42,12 +63,16 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////
 
-/*! A structure containing information about a single thread */
+/*! A structure containing information about a single thread. */
 struct ThreadData
 {
-    ThreadData(quint64 threadid = 0)
-        : id(threadid), frameLevel(-1), address (0), lineNumber(-1)
-    {}
+    ThreadData()
+    {
+        frameLevel = -1;
+        lineNumber = -1;
+        address = 0;
+        stopped = true;
+    }
 
     enum {
         IdColumn,
@@ -61,7 +86,9 @@ struct ThreadData
         DetailsColumn,
         CoreColumn,
         ComboNameColumn,
-        ColumnCount = CoreColumn
+        ColumnCount = CoreColumn,
+
+        IdRole = Qt::UserRole
     };
 
     void notifyRunning() // Clear state information.
@@ -72,22 +99,25 @@ struct ThreadData
         frameLevel = -1;
         state.clear();
         lineNumber = -1;
+        stopped = false;
     }
 
     // Permanent data.
-    quint64 id;
+    ThreadId id;
+    QByteArray groupId;
     QString targetId;
     QString core;
+    bool stopped;
 
     // State information when stopped.
     qint32  frameLevel;
+    qint32  lineNumber;
     quint64 address;
     QString function;
     QString module;
     QString fileName;
     QString details;
     QString state;
-    qint32  lineNumber;
     QString name;
 };
 

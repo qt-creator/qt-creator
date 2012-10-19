@@ -53,7 +53,8 @@ ThreadsTreeView::ThreadsTreeView()
 
 void ThreadsTreeView::rowActivated(const QModelIndex &index)
 {
-    debuggerCore()->currentEngine()->selectThread(index.row());
+    ThreadId id = ThreadId(index.data(ThreadData::IdRole).toLongLong());
+    debuggerCore()->currentEngine()->selectThread(id);
 }
 
 void ThreadsTreeView::setModel(QAbstractItemModel *model)

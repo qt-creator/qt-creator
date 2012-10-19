@@ -267,9 +267,9 @@ bool QmlCppEngine::acceptsBreakpoint(BreakpointModelId id) const
         || d->m_qmlEngine->acceptsBreakpoint(id);
 }
 
-void QmlCppEngine::selectThread(int index)
+void QmlCppEngine::selectThread(ThreadId threadId)
 {
-    d->m_activeEngine->selectThread(index);
+    d->m_activeEngine->selectThread(threadId);
 }
 
 void QmlCppEngine::assignValueInDebugger(const WatchData *data,

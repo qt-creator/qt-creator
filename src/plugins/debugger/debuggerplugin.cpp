@@ -494,6 +494,7 @@ public:
     bool hasCapability(unsigned cap) const;
     bool acceptsBreakpoint(BreakpointModelId) const { return false; }
     bool acceptsDebuggerCommands() const { return false; }
+    void selectThread(ThreadId) {}
 };
 
 bool DummyEngine::hasCapability(unsigned cap) const
@@ -781,7 +782,8 @@ public slots:
 
     void selectThread(int index)
     {
-        currentEngine()->selectThread(index);
+        ThreadId id = m_currentEngine->threadsHandler()->threadAt(index);
+        m_currentEngine->selectThread(id);
     }
 
     void breakpointSetMarginActionTriggered()
@@ -2205,7 +2207,7 @@ void DebuggerPluginPrivate::updateState(DebuggerEngine *engine)
     QTC_ASSERT(m_returnWindow->model(), return);
     QTC_ASSERT(!engine->isSlaveEngine(), return);
 
-    m_threadBox->setCurrentIndex(engine->threadsHandler()->currentThread());
+    m_threadBox->setCurrentIndex(engine->threadsHandler()->currentThreadIndex());
     engine->watchHandler()->updateWatchersWindow();
 
     const DebuggerState state = engine->state();

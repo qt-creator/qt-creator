@@ -208,7 +208,6 @@ void IPCEngineHost::executeJumpToLine(const ContextData &data)
     rpcCall(ExecuteJumpToLine, p);
 }
 
-
 void IPCEngineHost::activateFrame(int index)
 {
     resetLocation();
@@ -221,16 +220,15 @@ void IPCEngineHost::activateFrame(int index)
     rpcCall(ActivateFrame, p);
 }
 
-void IPCEngineHost::selectThread(int index)
+void IPCEngineHost::selectThread(ThreadId id)
 {
     resetLocation();
-    Threads threads = threadsHandler()->threads();
-    QTC_ASSERT(index < threads.size(), return);
+    QTC_ASSERT(id.isValid(), return);
     QByteArray p;
     {
         QDataStream s(&p, QIODevice::WriteOnly);
         SET_NATIVE_BYTE_ORDER(s);
-        s << quint64(threads.at(index).id);
+        s << id.raw();
     }
     rpcCall(SelectThread, p);
 }
@@ -442,7 +440,7 @@ void IPCEngineHost::rpcCallback(quint64 f, QByteArray payload)
                 SET_NATIVE_BYTE_ORDER(s);
                 quint64 token;
                 s >> token;
-                threadsHandler()->setCurrentThreadId(token);
+                threadsHandler()->setCurrentThread(ThreadId(token));
             }
             break;
         case IPCEngineGuest::ListFrames:

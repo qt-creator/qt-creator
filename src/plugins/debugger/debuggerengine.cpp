@@ -1233,10 +1233,6 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
             handler->notifyBreakpointReleased(id);
     }
 
-    const bool running = d->m_state == InferiorRunOk;
-    if (running)
-        threadsHandler()->notifyRunning();
-
     showMessage(msg, LogDebug);
     updateViews();
 
@@ -1584,10 +1580,6 @@ void DebuggerEngine::changeBreakpoint(BreakpointModelId id)
     BreakpointState state = breakHandler()->state(id);
     QTC_ASSERT(state == BreakpointChangeRequested, qDebug() << id << this << state);
     QTC_CHECK(false);
-}
-
-void DebuggerEngine::selectThread(int)
-{
 }
 
 void DebuggerEngine::assignValueInDebugger(const WatchData *,

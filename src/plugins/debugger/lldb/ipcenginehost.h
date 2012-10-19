@@ -104,7 +104,7 @@ public:
     void executeRunToFunction(const QString &functionName);
     void executeJumpToLine(const ContextData &data);
     void activateFrame(int index);
-    void selectThread(int index);
+    void selectThread(ThreadId index);
     void fetchDisassembler(DisassemblerAgent *);
     bool acceptsBreakpoint(BreakpointModelId) const { return true; } // FIXME
     void insertBreakpoint(BreakpointModelId id);

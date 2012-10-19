@@ -32,6 +32,7 @@
 
 #include "debuggerengine.h"
 #include "breakpoint.h"
+#include "threaddata.h"
 
 #include <QSharedPointer>
 #include <QProcess>
@@ -113,7 +114,7 @@ public:
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
 
     virtual void activateFrame(int index);
-    virtual void selectThread(int index);
+    virtual void selectThread(ThreadId threadId);
 
     virtual bool stateAcceptsBreakpointChanges() const;
     virtual bool acceptsBreakpoint(BreakpointModelId id) const;
@@ -242,7 +243,6 @@ private:
     int elapsedLogTime() const;
     void addLocalsOptions(ByteArrayInputStream &s) const;
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);
-    void parseThreads(const GdbMi &, int forceCurrentThreadId = -1);
 
     const QByteArray m_creatorExtPrefix;
     const QByteArray m_tokenPrefix;

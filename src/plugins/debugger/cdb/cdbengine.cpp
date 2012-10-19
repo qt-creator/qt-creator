@@ -1302,15 +1302,6 @@ void CdbEngine::assignValueInDebugger(const WatchData *w, const QString &expr, c
     updateLocals();
 }
 
-void CdbEngine::parseThreads(const GdbMi &data, int forceCurrentThreadId /* = -1 */)
-{
-    int currentThreadId;
-    Threads threads = ThreadsHandler::parseGdbmiThreads(data, &currentThreadId);
-    threadsHandler()->setThreads(threads);
-    threadsHandler()->setCurrentThreadId(forceCurrentThreadId >= 0 ?
-                                         forceCurrentThreadId : currentThreadId);
-}
-
 void CdbEngine::handleThreads(const CdbExtensionCommandPtr &reply)
 {
     if (debug)
@@ -1318,7 +1309,7 @@ void CdbEngine::handleThreads(const CdbExtensionCommandPtr &reply)
     if (reply->success) {
         GdbMi data;
         data.fromString(reply->reply);
-        parseThreads(data);
+        threadsHandler()->updateThreads(data);
         // Continue sequence
         postCommandSequence(reply->commandSequence);
     } else {
@@ -1514,15 +1505,14 @@ void CdbEngine::updateLocals(bool forNewStackFrame)
                          QVariant(flags));
 }
 
-void CdbEngine::selectThread(int index)
+void CdbEngine::selectThread(ThreadId threadId)
 {
-    if (index < 0 || index == threadsHandler()->currentThread())
+    if (!threadId.isValid() || threadId == threadsHandler()->currentThread())
         return;
 
-    const int newThreadId = threadsHandler()->threads().at(index).id;
-    threadsHandler()->setCurrentThread(index);
+    threadsHandler()->setCurrentThread(threadId);
 
-    const QByteArray cmd = '~' + QByteArray::number(newThreadId) + " s";
+    const QByteArray cmd = '~' + QByteArray::number(threadId.raw()) + " s";
     postBuiltinCommand(cmd, 0, &CdbEngine::dummyHandler, CommandListStack);
 }
 
@@ -2179,7 +2169,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
     // Further examine stop and report to user
     QString message;
     QString exceptionBoxMessage;
-    int forcedThreadId = -1;
+    ThreadId forcedThreadId;
     const unsigned stopFlags = examineStopReason(stopReason, &message, &exceptionBoxMessage,
                                                  conditionalBreakPointTriggered);
     // Do the non-blocking log reporting
@@ -2216,7 +2206,7 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         if (stopFlags & StopInArtificialThread) {
             showMessage(tr("Switching to main thread..."), LogMisc);
             postCommand("~0 s", 0);
-            forcedThreadId = 0;
+            forcedThreadId = ThreadId(0);
             // Re-fetch stack again.
             postCommandSequence(CommandListStack);
         } else {
@@ -2232,7 +2222,9 @@ void CdbEngine::processStop(const GdbMi &stopReason, bool conditionalBreakPointT
         }
         const GdbMi threads = stopReason.findChild("threads");
         if (threads.isValid()) {
-            parseThreads(threads, forcedThreadId);
+            threadsHandler()->updateThreads(threads);
+            if (forcedThreadId.isValid())
+                threadsHandler()->setCurrentThread(forcedThreadId);
         } else {
             showMessage(QString::fromLatin1(stopReason.findChild("threaderror").data()), LogError);
         }
@@ -2938,7 +2930,7 @@ void CdbEngine::postCommandSequence(unsigned mask)
         return;
     }
     if (mask & CommandListRegisters) {
-        QTC_ASSERT(threadsHandler()->currentThread() >= 0,  return);
+        QTC_ASSERT(threadsHandler()->currentThreadIndex() >= 0,  return);
         postExtensionCommand("registers", QByteArray(), 0, &CdbEngine::handleRegisters, mask & ~CommandListRegisters);
         return;
     }

@@ -467,6 +467,8 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 m_pendingLogStreamOutput.clear();
                 m_pendingConsoleStreamOutput.clear();
             } else if (asyncClass == "running") {
+                GdbMi threads = result.findChild("thread-id");
+                threadsHandler()->notifyRunning(threads.data());
                 if (state() == InferiorRunOk || state() == InferiorSetupRequested) {
                     // We get multiple *running after thread creation and in Windows terminals.
                     showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
@@ -527,6 +529,10 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 //"{id="1",group-id="28902"}"
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Thread %1 created").arg(_(id)), 1000);
+                ThreadData thread;
+                thread.id = ThreadId(id.toLong());
+                thread.groupId = result.findChild("group-id").data();
+                threadsHandler()->updateThread(thread);
             } else if (asyncClass == "thread-group-exited") {
                 // Archer has "{id="28902"}"
                 QByteArray id = result.findChild("id").data();
@@ -538,6 +544,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 QByteArray groupid = result.findChild("group-id").data();
                 showStatusMessage(tr("Thread %1 in group %2 exited")
                     .arg(_(id)).arg(_(groupid)), 1000);
+                threadsHandler()->removeThread(ThreadId(id.toLong()));
             } else if (asyncClass == "thread-selected") {
                 QByteArray id = result.findChild("id").data();
                 showStatusMessage(tr("Thread %1 selected").arg(_(id)), 1000);
@@ -1397,6 +1404,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
+    GdbMi threads = data.findChild("stopped-thread");
+    threadsHandler()->notifyStopped(threads.data());
+
     const QByteArray reason = data.findChild("reason").data();
 
     if (isExitedReason(reason)) {
@@ -1748,10 +1758,6 @@ void GdbEngine::handleStop2(const GdbMi &data)
 
     // Let the event loop run before deciding whether to update the stack.
     m_stackNeeded = true; // setTokenBarrier() might reset this.
-    if (isStopperThread)
-        m_currentThreadId = 0;
-    else
-        m_currentThreadId = data.findChild("thread-id").data().toInt();
     QTimer::singleShot(0, this, SLOT(handleStop2()));
 }
 
@@ -3489,15 +3495,12 @@ void GdbEngine::reloadSourceFilesInternal()
 //
 //////////////////////////////////////////////////////////////////////
 
-void GdbEngine::selectThread(int index)
+void GdbEngine::selectThread(ThreadId threadId)
 {
-    threadsHandler()->setCurrentThread(index);
-    Threads threads = threadsHandler()->threads();
-    QTC_ASSERT(index < threads.size(), return);
-    const int id = threads.at(index).id;
+    threadsHandler()->setCurrentThread(threadId);
     showStatusMessage(tr("Retrieving data for stack view thread 0x%1...")
-        .arg(id, 0, 16), 10000);
-    postCommand("-thread-select " + QByteArray::number(id), Discardable,
+        .arg(threadId.raw(), 0, 16), 10000);
+    postCommand("-thread-select " + QByteArray::number(threadId.raw()), Discardable,
         CB(handleStackSelectThread));
 }
 
@@ -3641,11 +3644,7 @@ void GdbEngine::handleStackSelectFrame(const GdbResponse &response)
 void GdbEngine::handleThreadInfo(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
-        int currentThreadId;
-        const Threads threads =
-            ThreadsHandler::parseGdbmiThreads(response.data, &currentThreadId);
-        threadsHandler()->setThreads(threads);
-        threadsHandler()->setCurrentThreadId(currentThreadId);
+        threadsHandler()->updateThreads(response.data);
         updateViews(); // Adjust Threads combobox.
         if (m_hasInferiorThreadList && debuggerCore()->boolSetting(ShowThreadNames)) {
             postCommand("threadnames " +
@@ -3663,37 +3662,28 @@ void GdbEngine::handleThreadListIds(const GdbResponse &response)
 {
     // "72^done,{thread-ids={thread-id="2",thread-id="1"},number-of-threads="2"}
     // In gdb 7.1+ additionally: current-thread-id="1"
+    ThreadsHandler *handler = threadsHandler();
     const QList<GdbMi> items = response.data.findChild("thread-ids").children();
-    Threads threads;
     for (int index = 0, n = items.size(); index != n; ++index) {
         ThreadData thread;
-        thread.id = items.at(index).data().toInt();
-        threads.append(thread);
+        thread.id = ThreadId(items.at(index).data().toInt());
+        handler->updateThread(thread);
     }
-    threadsHandler()->setThreads(threads);
-    threadsHandler()->setCurrentThreadId(m_currentThreadId);
 }
 
 void GdbEngine::handleThreadNames(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
+        ThreadsHandler *handler = threadsHandler();
         GdbMi names;
         names.fromString(response.consoleStreamOutput);
-
-        Threads threads = threadsHandler()->threads();
-
         foreach (const GdbMi &name, names.children()) {
-            int id = name.findChild("id").data().toInt();
-            for (int index = 0, n = threads.size(); index != n; ++index) {
-                ThreadData &thread = threads[index];
-                if (thread.id == quint64(id)) {
-                    thread.name = decodeData(name.findChild("value").data(),
-                        name.findChild("valueencoded").data().toInt());
-                    break;
-                }
-            }
+            ThreadData thread;
+            thread.id = ThreadId(name.findChild("id").data().toInt());
+            thread.name = decodeData(name.findChild("value").data(),
+                name.findChild("valueencoded").data().toInt());
+            handler->updateThread(thread);
         }
-        threadsHandler()->setThreads(threads);
         updateViews();
     }
 }

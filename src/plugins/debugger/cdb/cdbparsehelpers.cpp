@@ -263,7 +263,7 @@ static inline bool parseThread(QByteArray line, ThreadData *thread, bool *curren
             thread->targetId = QLatin1String("0x") + QString::fromLatin1(pidTid.mid(dotPos + 1));
     }
     case 1:
-        thread->id = tokens.at(0).toInt();
+        thread->id = ThreadId(tokens.at(0).toInt());
         break;
     } // switch size
     return true;

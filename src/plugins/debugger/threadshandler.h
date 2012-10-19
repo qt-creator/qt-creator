@@ -57,26 +57,35 @@ class ThreadsHandler : public QAbstractTableModel
 public:
     ThreadsHandler();
 
-    int currentThread() const { return m_currentIndex; }
-    void setCurrentThread(int index);
-    int currentThreadId() const;
-    void setCurrentThreadId(int id);
-    int indexOf(quint64 threadId) const;
+    int currentThreadIndex() const { return m_currentIndex; }
+    ThreadId currentThread() const;
+    ThreadId threadAt(int index) const;
+    void setCurrentThread(ThreadId id);
 
+    void updateThread(const ThreadData &thread);
+    void updateThreads(const GdbMi &data);
+
+    void removeThread(ThreadId threadId);
     void setThreads(const Threads &threads);
     void removeAll();
     Threads threads() const;
+    ThreadData thread(ThreadId id) const;
     QAbstractItemModel *model();
 
     // Clear out all frame information
-    void notifyRunning();
+    void notifyRunning(const QByteArray &data);
+    void notifyRunning(ThreadId id);
+    void notifyAllRunning();
 
-    static Threads parseGdbmiThreads(const GdbMi &data, int *currentThread = 0);
+    void notifyStopped(const QByteArray &data);
+    void notifyStopped(ThreadId id);
+    void notifyAllStopped();
 
     void resetLocation();
     void scheduleResetLocation();
 
 private:
+    int indexOf(ThreadId threadId) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -84,6 +93,7 @@ private:
         int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     void updateThreadBox();
+    void dataChanged(int index);
 
     Threads m_threads;
     int m_currentIndex;
@@ -91,9 +101,8 @@ private:
     const QIcon m_emptyIcon;
 
     bool m_resetLocationScheduled;
-    bool m_contentsValid;
 
-    QSortFilterProxyModel *m_proxyModel;
+    //QSortFilterProxyModel *m_proxyModel;
 };
 
 } // namespace Internal

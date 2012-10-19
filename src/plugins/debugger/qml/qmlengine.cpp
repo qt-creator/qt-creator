@@ -778,9 +778,9 @@ void QmlEngine::activateFrame(int index)
     gotoLocation(stackHandler()->frames().value(index));
 }
 
-void QmlEngine::selectThread(int index)
+void QmlEngine::selectThread(ThreadId threadId)
 {
-    Q_UNUSED(index)
+    Q_UNUSED(threadId)
 }
 
 void QmlEngine::insertBreakpoint(BreakpointModelId id)

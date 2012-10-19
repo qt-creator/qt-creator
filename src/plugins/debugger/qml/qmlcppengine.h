@@ -77,7 +77,7 @@ public:
 
     void attemptBreakpointSynchronization();
     bool acceptsBreakpoint(BreakpointModelId id) const;
-    void selectThread(int index);
+    void selectThread(ThreadId threadId);
 
     void assignValueInDebugger(const WatchData *data,
         const QString &expr, const QVariant &value);

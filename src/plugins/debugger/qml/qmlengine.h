@@ -139,7 +139,7 @@ private:
     void executeJumpToLine(const ContextData &data);
 
     void activateFrame(int index);
-    void selectThread(int index);
+    void selectThread(ThreadId threadId);
 
     void attemptBreakpointSynchronization();
     void removeBreakpoint(BreakpointModelId id);
