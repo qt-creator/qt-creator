@@ -1093,25 +1093,26 @@ const QString &History::move(const QStringRef &prefix, int skip)
 class CommandBuffer
 {
 public:
-    CommandBuffer() : m_pos(0), m_userPos(0), m_historyAutoSave(true) {}
+    CommandBuffer() : m_pos(0), m_anchor(0), m_userPos(0), m_historyAutoSave(true) {}
 
     void setPrompt(const QChar &prompt) { m_prompt = prompt; }
-    void setContents(const QString &s) { m_buffer = s; m_pos = s.size(); }
+    void setContents(const QString &s) { m_buffer = s; m_anchor = m_pos = s.size(); }
 
-    void setContents(const QString &s, int pos) { m_buffer = s; m_pos = m_userPos = pos; }
+    void setContents(const QString &s, int pos) { m_buffer = s; m_anchor = m_pos = m_userPos = pos; }
 
     QStringRef userContents() const { return m_buffer.leftRef(m_userPos); }
     const QChar &prompt() const { return m_prompt; }
     const QString &contents() const { return m_buffer; }
     bool isEmpty() const { return m_buffer.isEmpty(); }
     int cursorPos() const { return m_pos; }
+    int anchorPos() const { return m_anchor; }
 
-    void insertChar(QChar c) { m_buffer.insert(m_pos++, c); m_userPos = m_pos; }
+    void insertChar(QChar c) { m_buffer.insert(m_pos++, c); m_anchor = m_userPos = m_pos; }
     void insertText(const QString &s)
     {
-        m_buffer.insert(m_pos, s); m_userPos = m_pos = m_pos + s.size();
+        m_buffer.insert(m_pos, s); m_anchor = m_userPos = m_pos = m_pos + s.size();
     }
-    void deleteChar() { if (m_pos) m_buffer.remove(--m_pos, 1); m_userPos = m_pos; }
+    void deleteChar() { if (m_pos) m_buffer.remove(--m_pos, 1); m_anchor = m_userPos = m_pos; }
 
     void moveLeft() { if (m_pos) m_userPos = --m_pos; }
     void moveRight() { if (m_pos < m_buffer.size()) m_userPos = ++m_pos; }
@@ -1132,7 +1133,7 @@ public:
         if (m_historyAutoSave)
             historyPush();
         m_buffer.clear();
-        m_userPos = m_pos = 0;
+        m_anchor = m_userPos = m_pos = 0;
     }
 
     QString display() const
@@ -1150,22 +1151,55 @@ public:
         return msg;
     }
 
+    void deleteSelected()
+    {
+        if (m_pos < m_anchor) {
+            m_buffer.remove(m_pos, m_anchor - m_pos);
+            m_anchor = m_pos;
+        } else {
+            m_buffer.remove(m_anchor, m_pos - m_anchor);
+            m_pos = m_anchor;
+        }
+    }
+
     bool handleInput(const Input &input)
     {
-        if (input.isKey(Key_Left)) {
+        if (input.isShift(Key_Left)) {
             moveLeft();
+        } else if (input.isShift(Key_Right)) {
+            moveRight();
+        } else if (input.isShift(Key_Home)) {
+            moveStart();
+        } else if (input.isShift(Key_End)) {
+            moveEnd();
+        } else if (input.isKey(Key_Left)) {
+            moveLeft();
+            m_anchor = m_pos;
         } else if (input.isKey(Key_Right)) {
             moveRight();
+            m_anchor = m_pos;
         } else if (input.isKey(Key_Home)) {
             moveStart();
+            m_anchor = m_pos;
         } else if (input.isKey(Key_End)) {
             moveEnd();
+            m_anchor = m_pos;
+        } else if (input.isKey(Key_Up) || input.isKey(Key_PageUp)) {
+            historyUp();
+        } else if (input.isKey(Key_Down) || input.isKey(Key_PageDown)) {
+            historyDown();
         } else if (input.isKey(Key_Delete)) {
-            if (m_pos < m_buffer.size())
-                m_buffer.remove(m_pos, 1);
-            else
-                deleteChar();
+            if (m_anchor == m_pos) {
+                if (m_pos < m_buffer.size())
+                    m_buffer.remove(m_pos, 1);
+                else
+                    deleteChar();
+            } else {
+                deleteSelected();
+            }
         } else if (!input.text().isEmpty()) {
+            if (m_anchor != m_pos)
+                deleteSelected();
             insertText(input.text());
         } else {
             return false;
@@ -1178,6 +1212,7 @@ private:
     QChar m_prompt;
     History m_history;
     int m_pos;
+    int m_anchor;
     int m_userPos; // last position of inserted text (for retrieving history items)
     bool m_historyAutoSave; // store items to history on clear()?
 };
@@ -2812,6 +2847,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
 
     QString msg;
     int cursorPos = -1;
+    int anchorPos = -1;
     MessageLevel messageLevel = MessageMode;
 
     if (g.mapStates.last().silent && g.currentMessageLevel < MessageInfo)
@@ -2821,12 +2857,16 @@ void FakeVimHandler::Private::updateMiniBuffer()
         msg = _("PASSING");
     } else if (m_subsubmode == SearchSubSubMode) {
         msg = g.searchBuffer.display();
-        if (g.mapStates.size() == 1)
+        if (g.mapStates.size() == 1) {
             cursorPos = g.searchBuffer.cursorPos() + 1;
+            anchorPos = g.searchBuffer.anchorPos() + 1;
+        }
     } else if (m_mode == ExMode) {
         msg = g.commandBuffer.display();
-        if (g.mapStates.size() == 1)
+        if (g.mapStates.size() == 1) {
             cursorPos = g.commandBuffer.cursorPos() + 1;
+            anchorPos = g.commandBuffer.anchorPos() + 1;
+        }
     } else if (!g.currentMessage.isEmpty()) {
         msg = g.currentMessage;
         g.currentMessage.clear();
@@ -2859,7 +2899,7 @@ void FakeVimHandler::Private::updateMiniBuffer()
             msg = _("(replace)");
     }
 
-    emit q->commandBufferChanged(msg, cursorPos, messageLevel, q);
+    emit q->commandBufferChanged(msg, cursorPos, anchorPos, messageLevel, q);
 
     int linesInDoc = linesInDocument();
     int l = cursorLine();
@@ -4334,18 +4374,12 @@ EventResult FakeVimHandler::Private::handleExMode(const Input &input)
     } else if (input.isKey(Key_Tab)) {
         // FIXME: Complete actual commands.
         g.commandBuffer.historyUp();
-    } else if (input.isKey(Key_Left)) {
-        g.commandBuffer.moveLeft();
     } else if (input.isReturn()) {
         showMessage(MessageCommand, g.commandBuffer.display());
         handleExCommand(g.commandBuffer.contents());
         g.commandBuffer.clear();
         if (m_textedit || m_plaintextedit)
             leaveVisualMode();
-    } else if (input.isKey(Key_Up) || input.isKey(Key_PageUp)) {
-        g.commandBuffer.historyUp();
-    } else if (input.isKey(Key_Down) || input.isKey(Key_PageDown)) {
-        g.commandBuffer.historyDown();
     } else if (!g.commandBuffer.handleInput(input)) {
         qDebug() << "IGNORED IN EX-MODE: " << input.key() << input.text();
         return EventUnhandled;
@@ -4371,10 +4405,6 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
         } else {
             g.searchBuffer.deleteChar();
         }
-    } else if (input.isKey(Key_Left)) {
-        g.searchBuffer.moveLeft();
-    } else if (input.isKey(Key_Right)) {
-        g.searchBuffer.moveRight();
     } else if (input.isReturn()) {
         const QString &needle = g.searchBuffer.contents();
         if (!needle.isEmpty())
@@ -4394,10 +4424,6 @@ EventResult FakeVimHandler::Private::handleSearchSubSubMode(const Input &input)
         enterCommandMode(g.returnToMode);
         resetCommandMode();
         g.searchBuffer.clear();
-    } else if (input.isKey(Key_Up) || input.isKey(Key_PageUp)) {
-        g.searchBuffer.historyUp();
-    } else if (input.isKey(Key_Down) || input.isKey(Key_PageDown)) {
-        g.searchBuffer.historyDown();
     } else if (input.isKey(Key_Tab)) {
         g.searchBuffer.insertChar(QChar(9));
     } else if (!g.searchBuffer.handleInput(input)) {
@@ -5647,7 +5673,10 @@ void FakeVimHandler::Private::miniBufferTextEdited(const QString &text, int curs
         CommandBuffer &cmdBuf = (m_mode == ExMode) ? g.commandBuffer : g.searchBuffer;
         // prepend prompt character if missing
         if (!text.startsWith(cmdBuf.prompt())) {
-            emit q->commandBufferChanged(cmdBuf.prompt() + text, cmdBuf.cursorPos() + 1, 0, q);
+            emit q->commandBufferChanged(cmdBuf.prompt() + text,
+                                         cmdBuf.cursorPos() + 1,
+                                         cmdBuf.anchorPos() + 1,
+                                         0, q);
             cmdBuf.setContents(text, cursorPos - 1);
         } else {
             cmdBuf.setContents(text.mid(1), cursorPos - 1);

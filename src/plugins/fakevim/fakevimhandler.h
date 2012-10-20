@@ -130,7 +130,8 @@ public slots:
     bool jumpToLocalMark(QChar mark, bool backTickMode);
 
 signals:
-    void commandBufferChanged(const QString &msg, int pos, int messageLevel, QObject *eventFilter);
+    void commandBufferChanged(const QString &msg, int cursorPos,
+        int anchorPos, int messageLevel, QObject *eventFilter);
     void statusDataChanged(const QString &msg);
     void extraInformationChanged(const QString &msg);
     void selectionChanged(const QList<QTextEdit::ExtraSelection> &selection);
