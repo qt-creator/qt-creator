@@ -35,11 +35,9 @@
 #include <QAbstractItemModel>
 
 QT_BEGIN_NAMESPACE
-class QBoxLayout;
 class QItemSelectionModel;
 class QPushButton;
 class QTreeView;
-class QTreeWidgetItem;
 QT_END_NAMESPACE
 
 namespace Utils { class DetailsWidget; }
@@ -49,7 +47,6 @@ namespace ProjectExplorer {
 class ToolChain;
 class ToolChainConfigWidget;
 class ToolChainFactory;
-class ToolChainManager;
 
 namespace Internal {
 
@@ -101,9 +98,9 @@ private:
     QModelIndex index(ToolChainNode *, int column = 0) const;
     ToolChainNode *createNode(ToolChainNode *parent, ToolChain *tc, bool changed);
 
-    ToolChainNode * m_root;
-    ToolChainNode * m_autoRoot;
-    ToolChainNode * m_manualRoot;
+    ToolChainNode *m_root;
+    ToolChainNode *m_autoRoot;
+    ToolChainNode *m_manualRoot;
 
     QList<ToolChainNode *> m_toAddList;
     QList<ToolChainNode *> m_toRemoveList;
