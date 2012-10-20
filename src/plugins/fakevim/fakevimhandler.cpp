@@ -2675,7 +2675,7 @@ EventResult FakeVimHandler::Private::handleCommandMode(const Input &input)
                 endEditBlock();
             } else {
                 replaceText(range, QString(count(), input.asChar()));
-                moveLeft();
+                moveRight(count() - 1);
             }
             setTargetColumn();
             setDotCommand("%1r" + input.text(), count());
@@ -5798,7 +5798,9 @@ void FakeVimHandler::Private::endEditBlock()
 
 char FakeVimHandler::Private::currentModeCode() const
 {
-    if (m_mode == ExMode)
+    if (m_submode != NoSubMode)
+        return ' ';
+    else if (m_mode == ExMode)
         return 'c';
     else if (isVisualMode())
         return 'v';

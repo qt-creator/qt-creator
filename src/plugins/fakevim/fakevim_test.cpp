@@ -1306,6 +1306,13 @@ void FakeVimPlugin::test_map()
     KEYS("<c-r>", "abc" N "def" X "xxx" N "yyy" N "ghi");
     data.doCommand("unmap  X");
 
+    /* QTCREATORBUG-7913 */
+    data.setText("");
+    data.doCommand("noremap l k|noremap k j|noremap j h");
+    KEYS("ikkk<esc>", "kk" X "k");
+    KEYS("rj", "kk" X "j");
+    data.doCommand("unmap l k|unmap k j|unmap j h");
+
     NOT_IMPLEMENTED
     // <C-o>
     data.setText("abc def");
