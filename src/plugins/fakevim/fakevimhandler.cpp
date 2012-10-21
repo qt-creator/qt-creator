@@ -420,6 +420,49 @@ static QRegExp vimPatternToQtPattern(QString needle, bool smartcase)
     return QRegExp(pattern);
 }
 
+static bool substituteText(QString *text, QRegExp &pattern, const QString &replacement,
+    bool global)
+{
+    bool substituted = false;
+    int pos = 0;
+    while (true) {
+        pos = pattern.indexIn(*text, pos, QRegExp::CaretAtZero);
+        if (pos == -1)
+            break;
+        substituted = true;
+        QString matched = text->mid(pos, pattern.cap(0).size());
+        QString repl;
+        bool escape = false;
+        // insert captured texts
+        for (int i = 0; i < replacement.size(); ++i) {
+            const QChar &c = replacement[i];
+            if (escape) {
+                escape = false;
+                if (c.isDigit()) {
+                    if (c.digitValue() <= pattern.captureCount())
+                        repl += pattern.cap(c.digitValue());
+                } else {
+                    repl += c;
+                }
+            } else {
+                if (c == '\\')
+                    escape = true;
+                else if (c == '&')
+                    repl += pattern.cap(0);
+                else
+                    repl += c;
+            }
+        }
+        text->replace(pos, matched.size(), repl);
+        pos += qMax(1, repl.size());
+
+        if (pos >= text->size() || !global)
+            break;
+    }
+
+    return substituted;
+}
+
 static void setClipboardData(const QString &content, RangeMode mode,
     QClipboard::Mode clipboardMode)
 {
@@ -476,7 +519,34 @@ bool ExCommand::matches(const QString &min, const QString &full) const
 void ExCommand::setContentsFromLine(const QString &line)
 {
     // split command to subcommands
-    subCommands = line.split('|');
+    QChar close;
+    bool subst = false;
+    int j = 0;
+    for (int i = 0; i < line.size(); ++i) {
+        const QChar c = line[i];
+        if (c == '\\') {
+            ++i; // skip escaped character
+        } else if (close.isNull()) {
+            if (c == '|') {
+                // split on |
+                subCommands.append(line.mid(j, i - j));
+                j = i + 1;
+            } else if (c == '/') {
+                subst = i > 0 && (line[i - 1] == 's');
+                close = c;
+            } else if (c == '"' || c == '\'') {
+                close = c;
+            }
+        } else if (c == close) {
+            if (subst)
+                subst = false;
+            else
+                close = QChar();
+        }
+    }
+
+    if (j < line.size())
+        subCommands.append(line.mid(j));
 }
 
 bool ExCommand::nextSubcommand()
@@ -4032,7 +4102,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
     QString flags;
     QRegExp pattern;
     QString replacement;
-    int count = 0;
+    int count = 1;
 
     if (cmd.cmd.startsWith("&&")) {
         flags = cmd.cmd.mid(2);
@@ -4093,6 +4163,9 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
         replacement = line.mid(pos1 + 1, pos2 - pos1 - 1);
         flags = line.mid(pos2 + 1);
 
+        if (flags.contains('i'))
+            needle.prepend("\\c");
+
         pattern = vimPatternToQtPattern(needle, hasConfig(ConfigSmartCase));
 
         m_lastSubstituteFlags = flags;
@@ -4100,55 +4173,23 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
         m_lastSubstituteReplacement = replacement;
     }
 
-    if (count == 0)
-        count = 1;
-
-    if (flags.contains('i'))
-        pattern.setCaseSensitivity(Qt::CaseInsensitive);
-
     int lastLine = -1;
     int firstLine = -1;
     const bool global = flags.contains('g');
     for (int a = 0; a != count; ++a) {
-        const Range range = cmd.range.endPos == 0 ? rangeFromCurrentLine() : cmd.range;
+        const Range range = cmd.range.endPos <= 0 ? rangeFromCurrentLine() : cmd.range;
         const int beginLine = lineForPosition(range.beginPos);
         const int endLine = lineForPosition(range.endPos);
         for (int line = endLine; line >= beginLine; --line) {
-            QString origText = lineContents(line);
-            QString text = origText;
-            int pos = 0;
-            while (true) {
-                pos = pattern.indexIn(text, pos, QRegExp::CaretAtZero);
-                if (pos == -1)
-                    break;
-                if (pattern.cap(0).isEmpty())
-                    break;
-                QStringList caps = pattern.capturedTexts();
-                QString matched = text.mid(pos, caps.at(0).size());
-                QString repl = replacement;
-                for (int i = 1; i < caps.size(); ++i)
-                    repl.replace("\\" + QString::number(i), caps.at(i));
-                for (int i = 0; i < repl.size(); ++i) {
-                    if (repl.at(i) == '&' && (i == 0 || repl.at(i - 1) != '\\')) {
-                        repl.replace(i, 1, caps.at(0));
-                        i += caps.at(0).size();
-                    }
-                }
-                repl.replace("\\&", "&");
-                text = text.left(pos) + repl + text.mid(pos + matched.size());
-                pos += repl.size();
-
+            QString text = lineContents(line);
+            if (substituteText(&text, pattern, replacement, global)) {
                 firstLine = line;
                 if (lastLine == -1) {
                     lastLine = line;
                     beginEditBlock();
                 }
-
-                if (!global)
-                    break;
-            }
-            if (text != origText)
                 setLineContents(line, text);
+            }
         }
     }
 

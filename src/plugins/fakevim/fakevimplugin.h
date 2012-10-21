@@ -79,6 +79,7 @@ private slots:
     void test_vim_letter_case();
     void test_vim_code_autoindent();
     void test_vim_code_folding();
+    void test_vim_substitute();
     void test_advanced_commands();
     void test_map();
 

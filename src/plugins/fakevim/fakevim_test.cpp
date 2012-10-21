@@ -1235,6 +1235,62 @@ void FakeVimPlugin::test_vim_code_folding()
     // Opening folds recursively isn't supported (previous position in fold isn't restored).
 }
 
+void FakeVimPlugin::test_vim_substitute()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abcabc");
+    COMMAND("s/abc/123/", X "123abc");
+    COMMAND("u", X "abcabc");
+    COMMAND("s/abc/123/g", X "123123");
+    COMMAND("u", X "abcabc");
+
+    data.setText("abc" N "def");
+    COMMAND("%s/^/ -- /", " -- abc" N " " X "-- def");
+    COMMAND("u", X "abc" N "def");
+
+    data.setText("  abc" N "  def");
+    COMMAND("%s/$/./", "  abc." N "  " X "def.");
+
+    data.setText("abc" N "def");
+    COMMAND("%s/.*/(&)", "(abc)" N X "(def)");
+    COMMAND("u", X "abc" N "def");
+    COMMAND("%s/.*/X/g", "X" N X "X");
+
+    data.setText("abc" N "" N "def");
+    COMMAND("%s/^\\|$/--", "--abc" N "--" N X "--def");
+    COMMAND("u", X "abc" N "" N "def");
+    COMMAND("%s/^\\|$/--/g", "--abc--" N "--" N X "--def--");
+
+    // captures
+    data.setText("abc def ghi");
+    COMMAND("s/\\w\\+/'&'/g", X "'abc' 'def' 'ghi'");
+    COMMAND("u", X "abc def ghi");
+    COMMAND("s/\\w\\+/'\\&'/g", X "'&' '&' '&'");
+    COMMAND("u", X "abc def ghi");
+    COMMAND("s/\\(\\w\\{3}\\)/(\\1)/g", X "(abc) (def) (ghi)");
+    COMMAND("u", X "abc def ghi");
+    COMMAND("s/\\(\\w\\{3}\\) \\(\\w\\{3\\}\\)/\\2 \\1 \\\\1/g", X "def abc \\1 ghi");
+
+    // case-insensitive
+    data.setText("abc ABC abc");
+    COMMAND("s/ABC/123/gi", X "123 123 123");
+
+    // replace on a line
+    data.setText("abc" N "def" N "ghi");
+    COMMAND("2s/^/ + /", "abc" N " " X "+ def" N "ghi");
+    COMMAND("1s/^/ * /", " " X "* abc" N " + def" N "ghi");
+    COMMAND("$s/^/ - /", " * abc" N " + def" N " " X "- ghi");
+
+    // replace on lines
+    data.setText("abc" N "def" N "ghi");
+    COMMAND("2,$s/^/ + /", "abc" N " + def" N " " X "+ ghi");
+    COMMAND("1,2s/^/ * /", " * abc" N " " X "*  + def" N " + ghi");
+    COMMAND("3,3s/^/ - /", " * abc" N " *  + def" N " " X "-  + ghi");
+    COMMAND("%s/\\( \\S \\)*//g", "abc" N "def" N X "ghi");
+}
+
 void FakeVimPlugin::test_advanced_commands()
 {
     TestData data;
@@ -1250,6 +1306,10 @@ void FakeVimPlugin::test_advanced_commands()
 
     // redundant characters
     COMMAND(":::   %s/\\S\\S\\S/ZZZ/g   |   ::::   %s/ZZZ/XXX/g ", "XXX" N "  XXX" N "  XXX" N X "XXX");
+
+    // bar character in regular expression is not command separator
+    data.setText("abc");
+    COMMAND("%s/a\\|b\\||/X/g|%s/[^X]/Y/g", "XXY");
 }
 
 void FakeVimPlugin::test_map()
