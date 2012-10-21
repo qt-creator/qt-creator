@@ -993,9 +993,9 @@ bool VcsBasePlugin::runFullySynchronous(const QString &workingDirectory,
         return false;
     }
 
-    if (!SynchronousProcess::readDataFromProcess(process, timeoutMS,
-                                                        outputText, errorText, true)) {
-        errorText->append(tr("Error: Executable timed out after %1s.").arg(timeoutMS / 1000).toLocal8Bit());
+    if (!SynchronousProcess::readDataFromProcess(process, timeoutMS, outputText, errorText, true)) {
+        if (errorText)
+            errorText->append(tr("Error: Executable timed out after %1s.").arg(timeoutMS / 1000).toLocal8Bit());
         SynchronousProcess::stopProcess(process);
         return false;
     }
