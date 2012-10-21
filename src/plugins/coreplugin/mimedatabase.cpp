@@ -1495,8 +1495,8 @@ MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f, unsigned *priorityP
 
     // Pass 1) Try to match on suffix
     const TypeMimeTypeMap::const_iterator cend = m_typeMimeTypeMap.constEnd();
-    for (int level = m_maxLevel; level >= 0 && candidate.isNull(); level--)
-        for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
+    for (int level = m_maxLevel; level >= 0 && candidate.isNull(); level--) {
+        for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it) {
             if (it.value().level == level) {
                 const unsigned suffixPriority = it.value().type.matchesFileBySuffix(context);
                 if (suffixPriority && suffixPriority > *priorityPtr) {
@@ -1506,12 +1506,14 @@ MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f, unsigned *priorityP
                         return candidate;
                 }
             }
+        }
+    }
 
     // Pass 2) Match on content
     if (!f.isReadable())
         return candidate;
-    for (int level = m_maxLevel; level >= 0; level--)
-        for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it)
+    for (int level = m_maxLevel; level >= 0; level--) {
+        for (TypeMimeTypeMap::const_iterator it = m_typeMimeTypeMap.constBegin(); it != cend; ++it) {
             if (it.value().level == level) {
                 const unsigned contentPriority = it.value().type.matchesFileByContent(context);
                 if (contentPriority && contentPriority > *priorityPtr) {
@@ -1519,6 +1521,8 @@ MimeType MimeDatabasePrivate::findByFile(const QFileInfo &f, unsigned *priorityP
                     candidate = it.value().type;
                 }
             }
+        }
+    }
 
     return candidate;
 }
