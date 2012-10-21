@@ -1098,64 +1098,43 @@ static inline QString msgCannotDetermineBranch(const QString &workingDirectory, 
     return GitClient::tr("Cannot retrieve branch of \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), why);
 }
 
-// Retrieve head revision/branch
-bool GitClient::synchronousTopRevision(const QString &workingDirectory, QString *revision,
-                                       QString *branch, QString *errorMessageIn)
+// Retrieve head branch
+QString GitClient::synchronousBranch(const QString &workingDirectory)
+{
+    QByteArray outputTextData;
+    QStringList arguments;
+    arguments << QLatin1String("symbolic-ref") << QLatin1String("--short") << QLatin1String("HEAD");
+    // if HEAD is detached, the command is expected to fail.
+    if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData))
+        return QString();
+    QString branch = commandOutputFromLocal8Bit(outputTextData);
+    branch.remove(QLatin1Char('\n'));
+    return branch;
+}
+
+// Retrieve head revision
+QString GitClient::synchronousTopRevision(const QString &workingDirectory, QString *errorMessageIn)
 {
     QByteArray outputTextData;
     QByteArray errorText;
     QStringList arguments;
     QString errorMessage;
-    do {
-        // get revision
-        if (revision) {
-            revision->clear();
-            arguments << QLatin1String("log") << QLatin1String(noColorOption)
-                    <<  QLatin1String("--max-count=1") << QLatin1String("--pretty=format:%H");
-            if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
-                errorMessage = tr("Cannot retrieve top revision of \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
-                break;
-            }
-            *revision = commandOutputFromLocal8Bit(outputTextData);
-            revision->remove(QLatin1Char('\n'));
-        } // revision desired
-        // get branch
-        if (branch) {
-            branch->clear();
-            arguments.clear();
-            arguments << QLatin1String("branch") << QLatin1String(noColorOption);
-            if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
-                errorMessage = msgCannotDetermineBranch(workingDirectory, commandOutputFromLocal8Bit(errorText));
-                break;
-            }
-            /* parse output for current branch: \code
-* master
-  branch2
-\endcode */
-            const QString branchPrefix = QLatin1String("* ");
-            foreach(const QString &line, commandOutputLinesFromLocal8Bit(outputTextData)) {
-                if (line.startsWith(branchPrefix)) {
-                    *branch = line;
-                    branch->remove(0, branchPrefix.size());
-                    break;
-                }
-            }
-            if (branch->isEmpty()) {
-                errorMessage = msgCannotDetermineBranch(workingDirectory,
-                                                        QString::fromLatin1("Internal error: Failed to parse output: %1").arg(commandOutputFromLocal8Bit(outputTextData)));
-                break;
-            }
-        } // branch
-    } while (false);
-    const bool failed = (revision && revision->isEmpty()) || (branch && branch->isEmpty());
-    if (failed && !errorMessage.isEmpty()) {
-        if (errorMessageIn) {
-            *errorMessageIn = errorMessage;
-        } else {
-            outputWindow()->appendError(errorMessage);
-        }
+    // get revision
+    arguments << QLatin1String("rev-parse") << QLatin1String("HEAD");
+    if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText)) {
+        errorMessage = tr("Cannot retrieve top revision of \"%1\": %2")
+                .arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+        return QString();
     }
-    return !failed;
+    QString revision = commandOutputFromLocal8Bit(outputTextData);
+    revision.remove(QLatin1Char('\n'));
+    if (revision.isEmpty() && !errorMessage.isEmpty()) {
+        if (errorMessageIn)
+            *errorMessageIn = errorMessage;
+        else
+            outputWindow()->appendError(errorMessage);
+    }
+    return revision;
 }
 
 // Format an entry in a one-liner for selection list using git log.

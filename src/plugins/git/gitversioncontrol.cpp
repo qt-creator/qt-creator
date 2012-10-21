@@ -161,10 +161,10 @@ QString GitVersionControl::vcsCreateSnapshot(const QString &topLevel)
         return stashMessage;
     if (repositoryUnchanged) {
         // For unchanged repository state: return identifier + top revision
-        QString topRevision;
-        QString branch;
-        if (!m_client->synchronousTopRevision(topLevel, &topRevision, &branch))
+        QString topRevision = m_client->synchronousTopRevision(topLevel);
+        if (topRevision.isEmpty())
             return QString();
+        QString branch = m_client->synchronousBranch(topLevel);
         const QChar colon = QLatin1Char(':');
         QString id = QLatin1String(stashRevisionIdC);
         id += colon;
@@ -201,9 +201,13 @@ bool GitVersionControl::vcsRestoreSnapshot(const QString &topLevel, const QStrin
                 break;
             const QString branch = tokens.at(1);
             const QString revision = tokens.at(2);
-            success = m_client->synchronousReset(topLevel)
-                      && m_client->synchronousCheckoutBranch(topLevel, branch)
-                      && m_client->synchronousCheckoutFiles(topLevel, QStringList(), revision);
+            success = m_client->synchronousReset(topLevel);
+            if (success && !branch.isEmpty()) {
+                success = m_client->synchronousCheckoutBranch(topLevel, branch) &&
+                        m_client->synchronousCheckoutFiles(topLevel, QStringList(), revision);
+            } else {
+                success = m_client->synchronousCheckoutBranch(topLevel, revision);
+            }
         } else {
             // Restore stash if it can be resolved.
             QString stashName;

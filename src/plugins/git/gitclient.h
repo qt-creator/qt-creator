@@ -160,8 +160,8 @@ public:
     QString synchronousShortDescription(const QString &workingDirectory, const QString &revision);
     QString synchronousShortDescription(const QString &workingDirectory, const QString &revision,
                                      const QString &format);
-    bool synchronousTopRevision(const QString &workingDirectory, QString *revision = 0,
-                                QString *branch = 0, QString *errorMessage = 0);
+    QString synchronousBranch(const QString &workingDirectory);
+    QString synchronousTopRevision(const QString &workingDirectory, QString *errorMessage = 0);
 
     bool cloneRepository(const QString &directory, const QByteArray &url);
     QString vcsGetRepositoryURL(const QString &directory);
@@ -266,7 +266,7 @@ private:
     bool fullySynchronousGit(const QString &workingDirectory,
                         const QStringList &arguments,
                         QByteArray* outputText,
-                        QByteArray* errorText,
+                        QByteArray* errorText = 0,
                         bool logCommandToWindow = true) const;
 
     // Synchronous git execution using Utils::SynchronousProcess, with
