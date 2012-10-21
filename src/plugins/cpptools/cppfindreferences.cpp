@@ -573,22 +573,21 @@ _Lrestart:
             const Macro &useMacro = use.macro();
 
             if (useMacro.fileName() == macro.fileName()) { // Check if this is a match, but possibly against an outdated document.
-                if (macro.fileRevision() > useMacro.fileRevision()) {
-                    // yes, it is outdated, so re-preprocess and start from scratch for this file.
-                    source = getSource(fileName, workingCopy).toLatin1();
-                    doc = snapshot.preprocessedDocument(source, fileName);
-                    goto _Lrestart;
-                }
-            }
-
-            if (useMacro.fileName() == macro.fileName() && macro.name() == useMacro.name()) {
                 if (source.isEmpty())
                     source = getSource(fileName, workingCopy);
 
-                unsigned lineStart;
-                const QString &lineSource = matchingLine(use.begin(), source, &lineStart);
-                usages.append(Usage(fileName, lineSource, use.beginLine(),
-                                    use.begin() - lineStart, useMacro.name().length()));
+                if (macro.fileRevision() > useMacro.fileRevision()) {
+                    // yes, it is outdated, so re-preprocess and start from scratch for this file.
+                    doc = snapshot.preprocessedDocument(source, fileName);
+                    goto _Lrestart;
+                }
+
+                if (macro.name() == useMacro.name()) {
+                    unsigned lineStart;
+                    const QString &lineSource = matchingLine(use.begin(), source, &lineStart);
+                    usages.append(Usage(fileName, lineSource, use.beginLine(),
+                                        use.begin() - lineStart, useMacro.name().length()));
+                }
             }
         }
 
