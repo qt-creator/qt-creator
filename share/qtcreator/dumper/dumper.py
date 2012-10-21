@@ -1787,6 +1787,17 @@ class Dumper:
             #except:
             #    pass
 
+        # D arrays, gdc compiled.
+        if typeName.endswith("[]"):
+            n = value["length"]
+            base = value["ptr"]
+            self.putType(typeName)
+            self.putAddress(value.address)
+            self.putItemCount(n)
+            if self.isExpanded():
+                self.putArrayData(base.type.target(), base, n)
+            return
+
         #warn("GENERIC STRUCT: %s" % type)
         #warn("INAME: %s " % self.currentIName)
         #warn("INAMES: %s " % self.expandedINames)
