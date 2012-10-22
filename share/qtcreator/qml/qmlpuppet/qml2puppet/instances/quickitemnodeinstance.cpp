@@ -143,9 +143,18 @@ QPointF QuickItemNodeInstance::position() const
     return quickItem()->pos();
 }
 
+static QTransform transformForItem(QQuickItem *item, NodeInstanceServer *nodeInstanceServer)
+{
+    QTransform toParentTransform = DesignerSupport::parentTransform(item);
+    if (item->parentItem() && !nodeInstanceServer->hasInstanceForObject(item->parentItem()))
+        return transformForItem(item->parentItem(), nodeInstanceServer) * toParentTransform;
+
+    return toParentTransform;
+}
+
 QTransform QuickItemNodeInstance::transform() const
 {
-    return DesignerSupport::parentTransform(quickItem());
+    return transformForItem(quickItem(), nodeInstanceServer());
 }
 
 QTransform QuickItemNodeInstance::customTransform() const
