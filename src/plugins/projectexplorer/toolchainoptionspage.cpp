@@ -73,13 +73,16 @@ public:
 
     ~ToolChainNode()
     {
-        if (parent)
-            parent->childNodes.removeOne(this);
-
-        qDeleteAll(childNodes);
         // Do not delete tool chain, we do not own it.
 
-        Q_ASSERT(childNodes.isEmpty());
+        for (int i = childNodes.size(); --i >= 0; ) {
+            ToolChainNode *child = childNodes.at(i);
+            child->parent = 0;
+            delete child;
+        }
+
+        if (parent)
+            parent->childNodes.removeOne(this);
     }
 
     ToolChainNode *parent;
