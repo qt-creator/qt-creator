@@ -48,11 +48,15 @@ public:
     explicit AttachCoreDialog(QWidget *parent);
     ~AttachCoreDialog();
 
+    int exec();
+
     QString localExecutableFile() const;
     QString localCoreFile() const;
     QString remoteCoreFile() const;
     QString overrideStartScript() const;
-    bool isLocal() const;
+    bool useLocalCoreFile() const;
+    bool forcesLocalCoreFile() const;
+    bool isLocalKit() const;
 
     // For persistance.
     ProjectExplorer::Kit *kit() const;
@@ -61,6 +65,7 @@ public:
     void setRemoteCoreFile(const QString &core);
     void setOverrideStartScript(const QString &scriptName);
     void setKitId(const Core::Id &id);
+    void setForceLocalCoreFile(bool on);
 
 private slots:
     void changed();
