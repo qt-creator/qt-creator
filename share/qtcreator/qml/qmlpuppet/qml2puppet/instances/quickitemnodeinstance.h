@@ -117,6 +117,7 @@ protected:
     QRectF boundingRectWithStepChilds(QQuickItem *parentItem) const;
     void updateDirtyNodeRecursive(QQuickItem *parentItem) const;
     static bool anyItemHasContent(QQuickItem *graphicsItem);
+    static bool childItemsHaveContent(QQuickItem *graphicsItem);
 
 private: //variables
     bool m_hasHeight;
