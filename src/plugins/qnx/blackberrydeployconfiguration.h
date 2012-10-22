@@ -67,6 +67,8 @@ protected:
 
 private:
     void ctor();
+    void setupBarDescriptor();
+    void addBarDescriptorToProject(const QString& barDescriptorPath);
 };
 
 } // namespace Internal

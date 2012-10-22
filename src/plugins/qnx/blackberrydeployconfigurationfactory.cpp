@@ -92,6 +92,7 @@ ProjectExplorer::DeployConfiguration *BlackBerryDeployConfigurationFactory::crea
         return 0;
 
     BlackBerryDeployConfiguration *dc = new BlackBerryDeployConfiguration(parent);
+    dc->setupBarDescriptor();
     dc->stepList()->insertStep(0, new BlackBerryCreatePackageStep(dc->stepList()));
     dc->stepList()->insertStep(1, new BlackBerryDeployStep(dc->stepList()));
     return dc;
