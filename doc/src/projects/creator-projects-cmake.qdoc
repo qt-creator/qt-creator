@@ -49,7 +49,7 @@
     \note Before you open a \c CMake project, you must modify the \c{PATH}
     environment variable to include the bin folders of \c mingw and Qt.
 
-    For instance, if the \QSDK is installed in \c {C:\SDK}, you would use the
+    For instance, if the Qt 4 SDK is installed in \c {C:\SDK}, you would use the
     following command to set the environment variables in the command line
     prompt:
     \code

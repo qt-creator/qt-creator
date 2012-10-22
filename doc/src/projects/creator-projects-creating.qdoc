@@ -68,7 +68,7 @@
     build the project.
 
     You can install tools for mobile devices
-    as part of the \QSDK. The \l{glossary-buildandrun-kit}{kits} and build and run settings for the
+    as part of an SDK. The \l{glossary-buildandrun-kit}{kits} and build and run settings for the
     installed device types are set up automatically. However, you might need to
     install and configure some additional software on the devices to be able to
     connect to them from the development PC.
