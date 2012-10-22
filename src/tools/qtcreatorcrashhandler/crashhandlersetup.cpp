@@ -58,7 +58,7 @@
 static const char *crashHandlerPathC;
 static void *signalHandlerStack;
 
-extern "C" void signalHandler(int /*signal*/)
+extern "C" void signalHandler(int signal)
 {
 #ifdef Q_WS_X11
     // Kill window since it's frozen anyway.
@@ -70,7 +70,7 @@ extern "C" void signalHandler(int /*signal*/)
     case -1: // error
         break;
     case 0: // child
-        execl(crashHandlerPathC, crashHandlerPathC, (char *) 0);
+        execl(crashHandlerPathC, crashHandlerPathC, strsignal(signal), (char *) 0);
         _exit(EXIT_FAILURE);
     default: // parent
         waitpid(pid, 0, 0);
@@ -117,8 +117,10 @@ void setupCrashHandler()
     sa.sa_flags = SA_RESETHAND | SA_NODEFER | SA_ONSTACK;
     const int signalsToHandle[] = { SIGILL, SIGFPE, SIGSEGV, SIGBUS, 0 };
     for (int i = 0; signalsToHandle[i]; ++i) {
-        if (sigaction(signalsToHandle[i], &sa, 0) == -1 )
-            qWarning("Warning: Failed to install signal handler for SIGILL (%s).", Q_FUNC_INFO);
+        if (sigaction(signalsToHandle[i], &sa, 0) == -1 ) {
+            qWarning("Warning: Failed to install signal handler for signal \"%s\" (%s).",
+                strsignal(signalsToHandle[i]), Q_FUNC_INFO);
+        }
     }
 #endif // BUILD_CRASH_HANDLER
 }

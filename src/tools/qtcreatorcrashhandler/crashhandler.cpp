@@ -88,10 +88,10 @@ public:
 class CrashHandlerPrivate
 {
 public:
-    CrashHandlerPrivate(pid_t pid, CrashHandler *crashHandler)
+    CrashHandlerPrivate(pid_t pid, const QString &signalName, CrashHandler *crashHandler)
         : pid(pid),
           creatorInPath(Utils::Environment::systemEnvironment().searchInPath(QtCreatorExecutable)),
-          dialog(crashHandler) {}
+          dialog(crashHandler, signalName) {}
 
     const pid_t pid;
     const QString creatorInPath; // Backup debugger.
@@ -103,8 +103,8 @@ public:
     QStringList restartAppEnvironment;
 };
 
-CrashHandler::CrashHandler(pid_t pid, QObject *parent)
-    : QObject(parent), d(new CrashHandlerPrivate(pid, this))
+CrashHandler::CrashHandler(pid_t pid, const QString &signalName, QObject *parent)
+    : QObject(parent), d(new CrashHandlerPrivate(pid, signalName, this))
 {
     connect(&d->backtraceCollector, SIGNAL(error(QString)), SLOT(onError(QString)));
     connect(&d->backtraceCollector, SIGNAL(backtraceChunk(QString)), SLOT(onBacktraceChunk(QString)));

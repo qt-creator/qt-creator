@@ -43,7 +43,7 @@ class CrashHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit CrashHandler(pid_t pid, QObject *parent = 0);
+    explicit CrashHandler(pid_t pid, const QString &signalName, QObject *parent = 0);
     ~CrashHandler();
 
     void run();

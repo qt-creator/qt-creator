@@ -33,6 +33,7 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
+class QString;
 namespace Ui {
 class CrashHandlerDialog;
 }
@@ -45,11 +46,12 @@ class CrashHandlerDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CrashHandlerDialog(CrashHandler *handler, QWidget *parent = 0);
+    explicit CrashHandlerDialog(CrashHandler *handler, const QString &signalName,
+                                QWidget *parent = 0);
     ~CrashHandlerDialog();
 
 public:
-    void setApplicationInfo();
+    void setApplicationInfo(const QString &signalName);
     void appendDebugInfo(const QString &chunk);
     void selectLineWithContents(const QString &text);
     void setToFinalState();

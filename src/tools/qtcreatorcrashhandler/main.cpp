@@ -41,6 +41,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+// Called by signal handler of qtcreator.
+// Usage: $0 <name of signal causing the crash>
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -51,15 +53,15 @@ int main(int argc, char *argv[])
     Q_PID parentPid = getppid();
     QString parentExecutable = QFile::symLinkTarget(QString::fromLatin1("/proc/%1/exe")
         .arg(QString::number(parentPid)));
-    if (argc > 1 || !parentExecutable.contains("qtcreator")) {
+    if (argc > 2 || !parentExecutable.contains("qtcreator")) {
         QTextStream err(stderr);
         err << QString::fromLatin1("This crash handler will be called by Qt Creator itself. "
-                                   "Don't call this manually.\n");
+                                   "Do not call this manually.\n");
         return EXIT_FAILURE;
     }
 
     // Run.
-    CrashHandler *crashHandler = new CrashHandler(parentPid);
+    CrashHandler *crashHandler = new CrashHandler(parentPid, app.arguments().at(1));
     crashHandler->run();
 
     return app.exec();

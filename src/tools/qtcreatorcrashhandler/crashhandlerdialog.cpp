@@ -43,7 +43,8 @@ static const char SettingsApplication[] = "QtCreator";
 static const char SettingsKeySkipWarningAbortingBacktrace[]
     = "CrashHandler/SkipWarningAbortingBacktrace";
 
-CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler, QWidget *parent) :
+CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler, const QString &signalName,
+                                       QWidget *parent) :
     QDialog(parent),
     m_crashHandler(handler),
     m_ui(new Ui::CrashHandlerDialog)
@@ -67,7 +68,7 @@ CrashHandlerDialog::CrashHandlerDialog(CrashHandler *handler, QWidget *parent) :
     connect(m_ui->debugAppButton, SIGNAL(clicked()), m_crashHandler, SLOT(debugApplication()));
     connect(m_ui->closeButton, SIGNAL(clicked()), this, SLOT(close()));
 
-    setApplicationInfo();
+    setApplicationInfo(signalName);
 }
 
 CrashHandlerDialog::~CrashHandlerDialog()
@@ -120,14 +121,16 @@ void CrashHandlerDialog::disableDebugAppButton()
     m_ui->debugAppButton->setDisabled(true);
 }
 
-void CrashHandlerDialog::setApplicationInfo()
+void CrashHandlerDialog::setApplicationInfo(const QString &signalName)
 {
     const QString ideName = QLatin1String("Qt Creator");
-    const QString contents = tr(
-        "<p><b>%1 has closed unexpectedly.</b></p>"
+    const QString title = tr("%1 has closed unexpectedly (Signal \"%2\")").arg(ideName, signalName);
+    const QString introLabelContents = tr(
+        "<p><b>%1.</b></p>"
         "<p>Please file a <a href='%2'>bug report</a> with the debug information provided below.</p>")
-        .arg(ideName, QLatin1String(URL_BUGTRACKER));
-    m_ui->introLabel->setText(contents);
+        .arg(title, QLatin1String(URL_BUGTRACKER));
+    m_ui->introLabel->setText(introLabelContents);
+    setWindowTitle(title);
 
     QString revision;
 #ifdef IDE_REVISION
