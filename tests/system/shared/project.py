@@ -68,17 +68,6 @@ def openCmakeProject(projectPath, buildDir):
         return False
     return True
 
-def shadowBuildDir(path, project, qtVersion, debugVersion):
-    qtVersion = qtVersion.replace(" ", "_")
-    qtVersion = qtVersion.replace(".", "_")
-    qtVersion = qtVersion.replace("(", "_")
-    qtVersion = qtVersion.replace(")", "_")
-    buildDir = path + os.sep + project + "-build-desktop-" + qtVersion
-    if debugVersion:
-        return buildDir + "_Debug"
-    else:
-        return buildDir + "_Release"
-
 # this function returns a list of available targets - this is not 100% error proof
 # because the Simulator target is added for some cases even when Simulator has not
 # been set up inside Qt versions/Toolchains
@@ -463,7 +452,11 @@ def __getSupportedPlatforms__(text, getAsStrings=False):
 # copy example project (sourceExample is path to project) to temporary directory inside repository
 def prepareTemplate(sourceExample):
     templateDir = os.path.abspath(tempDir() + "/template")
-    shutil.copytree(sourceExample, templateDir)
+    try:
+        shutil.copytree(sourceExample, templateDir)
+    except:
+        test.fatal("Error while copying '%s' to '%s'" % (sourceExample, templateDir))
+        return None
     return templateDir
 
 def __sortFilenamesOSDependent__(filenames):
@@ -509,3 +502,26 @@ def compareProjectTree(rootObject, dataset):
                       'Line %s in dataset' % str(i + 1))
             return
     test.passes("No errors found in project tree")
+
+def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False):
+    if name == None:
+        test.fatal("File must have a name - got None.")
+        return
+    __createProjectOrFileSelectType__("  C++", template, isProject=False)
+    window = "{type='Utils::FileWizardDialog' unnamed='1' visible='1'}"
+    basePath = str(waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1' "
+                                 "window=%s}" % window).text)
+    lineEdit = waitForObject("{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' "
+                             "visible='1' window=%s}" % window)
+    replaceEditorContent(lineEdit, name)
+    clickButton(waitForObject(":Next_QPushButton"))
+    __createProjectHandleLastPage__()
+    if (os.path.exists(os.path.join(basePath, name))):
+        overwriteDialog = "{type='Core::Internal::PromptOverwriteDialog' unnamed='1' visible='1'}"
+        waitForObject(overwriteDialog)
+        if forceOverwrite:
+            buttonToClick = 'OK'
+        else:
+            buttonToClick = 'Cancel'
+        clickButton("{text='%s' type='QPushButton' unnamed='1' visible='1' window=%s}"
+                    % (buttonToClick, overwriteDialog))

@@ -1,15 +1,24 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    if not neededFilePresent(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro"):
+    projectDir = os.path.join(srcPath, "creator", "tests", "manual", "cplusplus-tools")
+    proFileName = "cplusplus-tools.pro"
+    if not neededFilePresent(os.path.join(projectDir, proFileName)):
         return
+    # copy example project to temp directory
+    tempDir = prepareTemplate(projectDir)
+    if not tempDir:
+        return
+    # make sure the .user files are gone
+    proFile = os.path.join(tempDir, proFileName)
+    cleanUpUserFiles(proFile)
 
     startApplication("qtcreator" + SettingsPath)
     overrideInstallLazySignalHandler()
     installLazySignalHandler(":Qt Creator_CppEditor::Internal::CPPEditorWidget", "textChanged()",
                              "__handleTextChanged__")
     prepareForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)")
-    openQmakeProject(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
+    openQmakeProject(proFile)
     waitForSignal("{type='CppTools::Internal::CppModelManager' unnamed='1'}", "sourceFilesRefreshed(QStringList)", 20000)
     selectFromLocator("dummy.cpp")
 
@@ -67,23 +76,7 @@ def main():
     cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
     __typeAndWaitForAction__(cppwindow, "<Shift+F2>")
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "Dummy::Dummy(int)")
-
     invokeMenuItem("File", "Exit")
-    waitForCleanShutdown()
-
-def init():
-    cleanup()
-
-def cleanup():
-    # Make sure the .user files are gone
-    cleanUpUserFiles(srcPath + "/creator/tests/manual/cplusplus-tools/cplusplus-tools.pro")
-
-    BuildPath = glob.glob(srcPath + "/qtcreator-build-*")
-    BuildPath += glob.glob(srcPath + "/projects-build-*")
-
-    for dir in BuildPath:
-        if os.access(dir, os.F_OK):
-            shutil.rmtree(dir)
 
 def __handleTextChanged__(object):
     global textChanged

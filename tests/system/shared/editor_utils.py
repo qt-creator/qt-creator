@@ -269,7 +269,7 @@ def validateSearchResult(expectedCount):
         for chRow in range(model.rowCount(index)):
             chIndex = model.index(chRow, 0, index)
             resultTreeView.scrollTo(chIndex)
-            text = str(chIndex.data())
+            text = str(chIndex.data()).rstrip('\r')
             rect = resultTreeView.visualRect(chIndex)
             doubleClick(resultTreeView, rect.x+5, rect.y+5, 0, Qt.LeftButton)
             editor = getEditorForFileSuffix(itemText)
@@ -295,3 +295,14 @@ def invokeFindUsage(editor, line, typeOperation, n=1):
         type(editor, typeOperation)
     invokeContextMenuItem(editor, "Find Usages")
     return True
+
+def openDocument(treeElement):
+    try:
+        navigator = waitForObject(":Qt Creator_Utils::NavigationTreeView")
+        fileName = waitForObjectItem(navigator, treeElement).text
+        doubleClickItem(navigator, treeElement, 5, 5, 0, Qt.LeftButton)
+        mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
+        waitFor("fileName in str(mainWindow.windowTitle)")
+        return True
+    except:
+        return False

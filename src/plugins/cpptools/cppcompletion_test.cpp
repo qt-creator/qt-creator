@@ -296,6 +296,76 @@ void CppToolsPlugin::test_completion_template_3()
     QVERIFY(completions.contains("Tupple"));
     QVERIFY(completions.contains("a"));
     QVERIFY(completions.contains("b"));
+}
+
+void CppToolsPlugin::test_completion_template_4()
+{
+    TestData data;
+    data.srcText = "\n"
+            "template <class T>\n"
+            "struct List\n"
+            "{\n"
+            "    typedef T U;\n"
+            "    U u;\n"
+            "};\n"
+            "\n"
+            "struct Tupple { int a; int b; };\n"
+            "\n"
+            "void func() {\n"
+            "    List<Tupple> l;\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("l.u.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 3);
+    QVERIFY(completions.contains("Tupple"));
+    QVERIFY(completions.contains("a"));
+    QVERIFY(completions.contains("b"));
+}
+
+void CppToolsPlugin::test_completion_template_5()
+{
+    TestData data;
+    data.srcText = "\n"
+            "template <class T>\n"
+            "struct List\n"
+            "{\n"
+            "    T u;\n"
+            "};\n"
+            "\n"
+            "struct Tupple { int a; int b; };\n"
+            "\n"
+            "void func() {\n"
+            "    typedef List<Tupple> LT;\n"
+            "    LT l;"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}";
+
+    setup(&data);
+
+    Utils::ChangeSet change;
+    QString txt = QLatin1String("l.u.");
+    change.insert(data.pos, txt);
+    QTextCursor cursor(data.doc);
+    change.apply(&cursor);
+    data.pos += txt.length();
+
+    QStringList completions = getCompletions(data);
+
+    QCOMPARE(completions.size(), 3);
+    QVERIFY(completions.contains("Tupple"));
     QVERIFY(completions.contains("a"));
     QVERIFY(completions.contains("b"));
 }

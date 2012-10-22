@@ -263,10 +263,22 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope) cons
         return 0;
     } else if (Block *block = scope->asBlock()) {
         for (unsigned i = 0; i < block->memberCount(); ++i) {
-            if (UsingNamespaceDirective *u = block->memberAt(i)->asUsingNamespaceDirective()) {
+            Symbol *m = block->memberAt(i);
+            if (UsingNamespaceDirective *u = m->asUsingNamespaceDirective()) {
                 if (ClassOrNamespace *uu = lookupType(u->name(), scope->enclosingNamespace())) {
                     if (ClassOrNamespace *r = uu->lookupType(name))
                         return r;
+                }
+            } else if (Declaration *d = m->asDeclaration()) {
+                if (d->name() && d->name()->isEqualTo(name->asNameId())) {
+                    if (d->isTypedef() && d->type()) {
+#ifdef DEBUG_LOOKUP
+                        Overview oo;
+                        qDebug() << "Looks like" << oo(name) << "is a typedef for" << oo(d->type());
+#endif // DEBUG_LOOKUP
+                        if (const NamedType *namedTy = d->type()->asNamedType())
+                            return lookupType(namedTy->name(), scope);
+                    }
                 }
             }
         }
@@ -380,6 +392,9 @@ ClassOrNamespace *LookupContext::lookupParent(Symbol *symbol) const
 
 ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *parent)
     : _factory(factory), _parent(parent), _templateId(0), _instantiationOrigin(0)
+#ifdef DEBUG_LOOKUP
+    , _name(0)
+#endif // DEBUG_LOOKUP
 {
 }
 
@@ -574,6 +589,11 @@ void CreateBindings::lookupInScope(const Name *name, Scope *scope,
             else if (s->name()->isQualifiedNameId())
                 continue; // skip qualified ids.
 
+#ifdef DEBUG_LOOKUP
+            Overview oo;
+            qDebug() << "Found" << id->chars() << "in" << (binding ? oo(binding->_name) : "<null>");
+#endif // DEBUG_LOOKUP
+
             LookupItem item;
             item.setDeclaration(s);
             item.setBinding(binding);
@@ -616,6 +636,11 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                                                       bool searchInEnclosingScope,
                                                       ClassOrNamespace *origin)
 {
+#ifdef DEBUG_LOOKUP
+    Overview oo;
+    qDebug() << "Looking up" << oo(name) << "in" << oo(_name);
+#endif // DEBUG_LOOKUP
+
     if (const QualifiedNameId *q = name->asQualifiedNameId()) {
 
         QSet<ClassOrNamespace *> innerProcessed;
@@ -721,6 +746,9 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
     if (templId) {
         _alreadyConsideredTemplates.insert(templId);
         ClassOrNamespace *instantiation = _factory->allocClassOrNamespace(reference);
+#ifdef DEBUG_LOOKUP
+        instantiation->_name = templId;
+#endif // DEBUG_LOOKUP
         instantiation->_templateId = templId;
         instantiation->_instantiationOrigin = origin;
 
@@ -734,6 +762,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
             const unsigned argumentCount = templId->templateArgumentCount();
 
             if (_factory->expandTemplates()) {
+                Clone cloner(_control.data());
                 Subst subst(_control.data());
                 for (unsigned i = 0, ei = std::min(argumentCount, templ->templateParameterCount()); i < ei; ++i) {
                     const TypenameArgument *tParam = templ->templateParameterAt(i)->asTypenameArgument();
@@ -743,12 +772,16 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     if (!name)
                         continue;
                     const FullySpecifiedType &ty = templId->templateArgumentAt(i);
-                    subst.bind(name, ty);
+                    subst.bind(cloner.name(name, &subst), ty);
                 }
 
-                Clone cloner(_control.data());
                 foreach (Symbol *s, reference->symbols()) {
-                    instantiation->_symbols.append(cloner.symbol(s, &subst));
+                    Symbol *clone = cloner.symbol(s, &subst);
+                    instantiation->_symbols.append(clone);
+#ifdef DEBUG_LOOKUP
+                    Overview oo;oo.setShowFunctionSignatures(true);oo.setShowReturnTypes(true);oo.setShowTemplateParameters(true);
+                    qDebug()<<"cloned"<<oo(clone->type());
+#endif // DEBUG_LOOKUP
                 }
             } else {
                 instantiation->_symbols.append(reference->symbols());
@@ -917,6 +950,9 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNa
 
         if (! e) {
             e = _factory->allocClassOrNamespace(this);
+#ifdef DEBUG_LOOKUP
+            e->_name = name;
+#endif // DEBUG_LOOKUP
             _classOrNamespaces[name] = e;
         }
 

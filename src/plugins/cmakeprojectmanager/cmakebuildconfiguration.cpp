@@ -197,6 +197,7 @@ CMakeBuildConfiguration *CMakeBuildConfigurationFactory::create(ProjectExplorer:
     CMakeOpenProjectWizard::BuildInfo info;
     info.sourceDirectory = project->projectDirectory();
     info.environment = Utils::Environment::systemEnvironment();
+    parent->kit()->addToEnvironment(info.environment);
     info.buildDirectory = project->defaultBuildDirectory();
     info.kit = parent->kit();
     info.useNinja = false; // This is ignored anyway

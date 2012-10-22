@@ -18,6 +18,9 @@
     <publisher>PUBLISHER</publisher>
     <copyright>COPYRIGHT</copyright>
 
+    <arg>-platform</arg>
+    <arg>qnx</arg>
+
     <action system="true">run_native</action>
     <asset entry="true" path="%ProjectName%" type="Qnx/Elf">%ProjectName%</asset>
 

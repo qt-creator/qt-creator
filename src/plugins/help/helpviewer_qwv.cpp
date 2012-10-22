@@ -322,8 +322,6 @@ HelpViewer::HelpViewer(qreal zoom, QWidget *parent)
     setAcceptDrops(false);
     installEventFilter(this);
 
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::JavaEnabled, true);
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::DnsPrefetchEnabled, true);
 
     setPage(new HelpPage(this));

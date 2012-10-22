@@ -130,6 +130,8 @@ ToolChainKitInformation::ToolChainKitInformation()
             this, SIGNAL(validationNeeded()));
     connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
             this, SIGNAL(validationNeeded()));
+    connect(ToolChainManager::instance(), SIGNAL(toolChainUpdated(ProjectExplorer::ToolChain*)),
+            this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain*)));
 }
 
 Core::Id ToolChainKitInformation::dataId() const
@@ -235,6 +237,13 @@ QString ToolChainKitInformation::msgNoToolChainInTarget()
     return tr("No compiler set in kit.");
 }
 
+void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
+{
+    foreach (Kit *k, KitManager::instance()->kits())
+        if (toolChain(k) == tc)
+            notifyAboutUpdate(k);
+}
+
 // --------------------------------------------------------------------------
 // DeviceTypeInformation:
 // --------------------------------------------------------------------------
@@ -317,6 +326,8 @@ DeviceKitInformation::DeviceKitInformation()
             this, SIGNAL(validationNeeded()));
     connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
             this, SIGNAL(validationNeeded()));
+    connect(DeviceManager::instance(), SIGNAL(deviceUpdated(Core::Id)),
+            this, SLOT(deviceUpdated(Core::Id)));
 }
 
 Core::Id DeviceKitInformation::dataId() const
@@ -401,6 +412,13 @@ void DeviceKitInformation::setDevice(Kit *k, IDevice::ConstPtr dev)
 void DeviceKitInformation::setDeviceId(Kit *k, const Core::Id id)
 {
     k->setValue(Core::Id(DEVICE_INFORMATION), id.toString());
+}
+
+void DeviceKitInformation::deviceUpdated(const Core::Id &id)
+{
+    foreach (Kit *k, KitManager::instance()->kits())
+        if (deviceId(k) == id)
+            notifyAboutUpdate(k);
 }
 
 } // namespace ProjectExplorer

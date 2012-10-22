@@ -59,7 +59,6 @@ public:
 
 private slots:
     void handleStartFailed(const QString &message);
-    void launchTailProcess();
 
 private:
     BlackBerryApplicationRunner *m_runner;

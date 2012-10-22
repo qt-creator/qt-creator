@@ -44,17 +44,11 @@ def main():
 
 def init():
     global SpeedCrunchPath
-    SpeedCrunchPath = srcPath + "/creator-test-data/speedcrunch/src/speedcrunch.pro"
+    SpeedCrunchPath = os.path.join(srcPath, "creator-test-data", "speedcrunch", "src", "speedcrunch.pro")
     cleanup()
 
 def cleanup():
     # Make sure the .user files are gone
     cleanUpUserFiles(SpeedCrunchPath)
-
-    BuildPath = glob.glob(srcPath + "/creator-test-data/speedcrunch/speedcrunch-build-*")
-    BuildPath += glob.glob(srcPath + "/creator-test-data/speedcrunch/qtcreator-build-*")
-
-    if BuildPath:
-        for dir in BuildPath:
-            if os.access(dir, os.F_OK):
-                shutil.rmtree(dir)
+    for dir in glob.glob(os.path.join(srcPath, "creator-test-data", "speedcrunch", "speedcrunch-build-*")):
+        deleteDirIfExists(dir)

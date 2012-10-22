@@ -18,6 +18,9 @@
     <env var="QT_PLUGIN_PATH" value="app/native/plugins"/>
     <env var="LD_LIBRARY_PATH" value="app/native/lib"/>
 
+    <arg>-platform</arg>
+    <arg>qnx</arg>
+
     <action system="true">run_native</action>
     <asset entry="true" path="%ProjectName%" type="Qnx/Elf">%ProjectName%</asset>
 
