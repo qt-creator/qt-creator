@@ -37,6 +37,9 @@ using namespace Qt4ProjectManager::Internal;
 
 int main(int argc, char *argv[])
 {
+    Q_UNUSED(argc)
+    Q_UNUSED(argv)
+
     QString errorMessage;
 
     const QString projectPath = QLatin1String("testprojects");
@@ -52,7 +55,7 @@ int main(int argc, char *argv[])
     {
         QtQuickApp sAppNew;
         sAppNew.setProjectPath(projectPath);
-        sAppNew.setComponentSet(QtQuickApp::ComponentSetQtQuick2_0);
+        sAppNew.setComponentSet(QtQuickApp::QtQuick20Components);
         sAppNew.setProjectName(QLatin1String("new_qtquick2_app"));
         if (!sAppNew.generateFiles(&errorMessage))
            return 1;
