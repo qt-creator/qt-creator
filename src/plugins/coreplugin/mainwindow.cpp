@@ -109,6 +109,7 @@
 #include <QMessageBox>
 #include <QMenuBar>
 #include <QPushButton>
+#include <QStyleFactory>
 
 /*
 #ifdef Q_OS_UNIX
