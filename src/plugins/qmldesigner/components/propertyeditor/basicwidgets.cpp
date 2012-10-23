@@ -44,9 +44,12 @@
 #include <QDebug>
 #include <QApplication>
 #include <QGraphicsOpacityEffect>
-#include <QCleanlooksStyle>
-#include <QPlastiqueStyle>
-
+#if QT_VERSION >= 0x050000
+#  include <QFusionStyle>
+#else
+#  include <QCleanlooksStyle>
+#  include <QPlastiqueStyle>
+#endif
 #include <QTextEdit>
 
 
@@ -61,11 +64,13 @@ class CleanLooksSingleton
    private:
      static CleanLooksSingleton *m_instance;
 
-#ifdef Q_OS_MAC
+#if QT_VERSION >= 0x050000
+     QFusionStyle m_style;
+#elif defined(Q_OS_MAC)
      QPlastiqueStyle m_style;
 #else
      QCleanlooksStyle m_style;
-#endif //Q_OS_MAC
+#endif
 
      CleanLooksSingleton() {}
      CleanLooksSingleton( const CleanLooksSingleton& );
