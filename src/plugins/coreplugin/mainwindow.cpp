@@ -1122,9 +1122,8 @@ void MainWindow::updateFocusWidget(QWidget *old, QWidget *now)
         return;
 
     IContext *newContext = 0;
-    if (focusWidget()) {
+    if (QWidget *p = qApp->focusWidget()) {
         IContext *context = 0;
-        QWidget *p = focusWidget();
         while (p) {
             context = m_contextWidgets.value(p);
             if (context) {
