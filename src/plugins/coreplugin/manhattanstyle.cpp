@@ -646,7 +646,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         painter->save();
         if (const QStyleOptionMenuItem *mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             QColor highlightOutline = Utils::StyleHelper::borderColor().lighter(120);
-            bool act = mbi->state & State_Selected && mbi->state & State_Sunken;
+            bool act = mbi->state & State_Sunken;
             bool dis = !(mbi->state & State_Enabled);
             Utils::StyleHelper::menuGradient(painter, option->rect, option->rect);
             QStyleOptionMenuItem item = *mbi;
