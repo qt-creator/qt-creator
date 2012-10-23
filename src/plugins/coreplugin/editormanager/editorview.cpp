@@ -413,11 +413,12 @@ void EditorView::goBackInNavigationHistory()
     while (m_currentNavigationHistoryPosition > 0) {
         --m_currentNavigationHistoryPosition;
         EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
-        IEditor *editor;
+        IEditor *editor = 0;
         if (location.document) {
             editor = em->activateEditorForDocument(this, location.document,
                                         EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
-        } else {
+        }
+        if (!editor) {
             editor = em->openEditor(this, location.fileName, location.id,
                                     EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
             if (!editor) {
@@ -439,11 +440,12 @@ void EditorView::goForwardInNavigationHistory()
         return;
     ++m_currentNavigationHistoryPosition;
     EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
-    IEditor *editor;
+    IEditor *editor = 0;
     if (location.document) {
         editor = em->activateEditorForDocument(this, location.document,
                                     EditorManager::IgnoreNavigationHistory | EditorManager::ModeSwitch);
-    } else {
+    }
+    if (!editor) {
         editor = em->openEditor(this, location.fileName, location.id, EditorManager::IgnoreNavigationHistory);
         if (!editor) {
             //TODO
