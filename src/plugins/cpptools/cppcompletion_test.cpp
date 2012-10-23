@@ -930,4 +930,43 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     QTest::newRow("case: indirect cyclic inheritance with templates")
             << code << completions;
 
+    completions.clear();
+    code = "\n"
+           "namespace NS\n"
+           "{\n"
+           "template <typename T> struct SuperClass\n"
+           "{\n"
+           "    typedef T Type;\n"
+           "    Type super_class_type;\n"
+           "};\n"
+           "}\n"
+           "\n"
+           "template <typename T>\n"
+           "struct Class;\n"
+           "\n"
+           "template <typename T, typename S>\n"
+           "struct ClassRecurse : Class<S>\n"
+           "{\n"
+           "    T class_recurse_t;\n"
+           "    S class_recurse_s;\n"
+           "};\n"
+           "\n"
+           "template <typename T>\n"
+           "struct Class : ClassRecurse< T, typename ::NS::SuperClass<T>::Type >\n"
+           "{\n"
+           "    T class_t;\n"
+           "};\n"
+           "\n"
+           "Class<int> c;\n"
+           "c.\n"
+           "@\n"
+            ;
+    completions.append("Class");
+    completions.append("ClassRecurse");
+    completions.append("class_t");
+    completions.append("class_recurse_s");
+    completions.append("class_recurse_t");
+    QTest::newRow("case: direct cyclic inheritance with templates, more complex situation")
+            << code << completions;
+
 }
