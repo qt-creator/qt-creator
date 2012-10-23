@@ -493,6 +493,8 @@ void RewriterView::applyChanges()
         throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "RewriterView::applyChanges() already in error state", content);
     }
 
+    m_differenceHandling = Validate;
+
     try {
         modelToTextMerger()->applyChanges();
         if (!errors().isEmpty()) {
@@ -504,6 +506,8 @@ void RewriterView::applyChanges()
         qDebug() << "Content:" << content;
         enterErrorState(e.description());
     }
+
+    m_differenceHandling = Amend;
 
     if (inErrorState()) {
         const QString content = textModifierContent();
