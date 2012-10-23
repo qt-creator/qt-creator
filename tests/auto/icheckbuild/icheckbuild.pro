@@ -1,10 +1,10 @@
-CONFIG += qtestlib testcase
+CONFIG += testcase
 
 include(../../../qtcreator.pri)
 include($$IDE_SOURCE_TREE/src/libs/cplusplus/cplusplus.pri)
 include($$IDE_SOURCE_TREE/src/plugins/cpptools/cpptools.pri)
 
-QT += testlib
+QT += $$QTESTLIB
 
 DEFINES += ICHECK_BUILD ICHECK_APP_BUILD
 

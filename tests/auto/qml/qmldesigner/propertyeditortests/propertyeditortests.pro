@@ -1,12 +1,11 @@
+include(../../../../../qtcreator.pri)
 TEMPLATE = app
-QT += script declarative webkit
-CONFIG += qtestlib testcase
+QT += script declarative webkit $$QTESTLIB
+CONFIG += testcase
 CONFIG += console
 CONFIG -= app_bundle
 
-include(../../../../../qtcreator.pri)
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/config.pri)
-
 include($$IDE_SOURCE_TREE/src/plugins/qmldesigner/designercore/designercore.pri)
 include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs-lib.pri)
 HEADERS+=$$IDE_SOURCE_TREE/src/libs/utils/changeset.h

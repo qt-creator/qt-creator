@@ -2,7 +2,8 @@ include(../../qtcreator.pri)
 include(qttestrpath.pri)
 
 isEmpty(TEMPLATE):TEMPLATE=app
-CONFIG += qt warn_on console depend_includepath testcase qtestlib
+QT += $$QTESTLIB
+CONFIG += qt warn_on console depend_includepath testcase
 CONFIG -= app_bundle
 
 # prefix test binary with tst_
