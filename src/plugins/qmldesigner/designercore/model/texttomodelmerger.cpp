@@ -740,6 +740,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         m_document = doc;
 
         QList<RewriterView::Error> errors;
+        QList<RewriterView::Error> warnings;
 
         foreach (const QmlJS::DiagnosticMessage &diagnosticMessage, ctxt.diagnosticLinkMessages()) {
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
@@ -766,15 +767,50 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             check.disableMessage(StaticAnalysis::ErrPrototypeCycle);
             check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototype);
             check.disableMessage(StaticAnalysis::ErrCouldNotResolvePrototypeOf);
+
+            foreach (StaticAnalysis::Type type, StaticAnalysis::Message::allMessageTypes()) {
+                StaticAnalysis::Message message(type, AST::SourceLocation());
+                if (message.severity == StaticAnalysis::MaybeWarning
+                    || message.severity == StaticAnalysis::Warning) {
+                    check.disableMessage(type);
+                }
+            }
+
+            check.enableMessage(StaticAnalysis::WarnImperativeCodeNotEditableInVisualDesigner);
+            check.enableMessage(StaticAnalysis::WarnUnsupportedTypeInVisualDesigner);
+            check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
+            check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
+            check.enableMessage(StaticAnalysis::WarnStatesOnlyInRootItemForVisualDesigner);
+
             foreach (const StaticAnalysis::Message &message, check()) {
                 if (message.severity == StaticAnalysis::Error)
                     errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                if (message.severity == StaticAnalysis::Warning)
+                    warnings.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
             }
 
             if (!errors.isEmpty()) {
                 m_rewriterView->setErrors(errors);
                 setActive(false);
                 return false;
+            }
+
+            if (!warnings.isEmpty() && differenceHandler.isValidator()) {
+
+                QString title = QCoreApplication::translate("QmlDesigner::TextToModelMerger warning message", "This .qml file contains features"
+                                                            "which are not supported by Qt Quick Designer");
+
+                QString message;
+
+                foreach (const RewriterView::Error &warning, warnings) {
+                    message += QLatin1String("Line: ") +  QString::number(warning.line()) + ": "  + warning.description() + QLatin1String("\n");
+                }
+
+                if (QMessageBox::warning(0, title, message, QMessageBox::Ignore | QMessageBox::Cancel) == QMessageBox::Cancel) {
+                    m_rewriterView->setErrors(warnings);
+                    setActive(false);
+                    return false;
+                }
             }
         }
 
