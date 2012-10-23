@@ -67,6 +67,6 @@ private:
     Internal::DeviceProcessesDialogPrivate * const d;
 };
 
-} // namespace RemoteLinux
+} // namespace ProjectExplorer
 
-#endif // REMOTELINUXPROCESSESDIALOG_H
+#endif // DEVICEPROCESSESDIALOG_H
