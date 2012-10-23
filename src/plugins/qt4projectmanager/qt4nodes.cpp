@@ -2112,24 +2112,65 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
     if (!reader)
         return result;
 
+    QtSupport::ProFileReader *readerBP = 0;
+    QStringList builds = reader->values("BUILDS");
+    QString buildTarget;
+    if (!builds.isEmpty()) {
+        QString build = builds.first();
+        buildTarget = reader->value(build + ".target");
+
+        QHash<QString, QStringList> basevars;
+        QStringList basecfgs = reader->values(build + QLatin1String(".CONFIG"));
+        basecfgs += build;
+        basecfgs += "build_pass";
+        basevars["BUILD_PASS"] = QStringList(build);
+        QStringList buildname = reader->values(build + QLatin1String(".name"));
+        basevars["BUILD_NAME"] = (buildname.isEmpty() ? QStringList(build) : buildname);
+
+        readerBP = m_project->createProFileReader(this);
+        readerBP->setExtraVars(basevars);
+        readerBP->setExtraConfigs(basecfgs);
+
+        EvalResult evalResult = EvalOk;
+        if (ProFile *pro = readerBP->parsedProFile(m_projectFilePath)) {
+            if (!readerBP->accept(pro, QMakeEvaluator::LoadAll))
+                evalResult = EvalPartial;
+            pro->deref();
+        } else {
+            evalResult = EvalFail;
+        }
+
+        if (evalResult != EvalOk)
+            return result;
+
+        reader = readerBP;
+    }
+
+    // BUILD DIR
     result.buildDir = buildDir();
     const QString baseDir = result.buildDir;
     // qDebug() << "base build dir is:"<<baseDir;
 
-    // Working Directory
-    const QString destDir = QLatin1String("DESTDIR");
-    if (reader->contains(destDir)) {
-        //qDebug() << "reader contains destdir:" << reader->value("DESTDIR");
-        result.workingDir = reader->value(destDir);
-        if (QDir::isRelativePath(result.workingDir)) {
-            result.workingDir = baseDir + QLatin1Char('/') + result.workingDir;
-            //qDebug() << "was relative and expanded to" << result.workingDir;
-        }
+    QString destDir;
+    if (reader->contains(QLatin1String("DESTDIR"))) {
+        destDir = reader->value(QLatin1String("DESTDIR"));
+        bool workingDirIsBaseDir = false;
+        if (destDir == buildTarget) // special case for "debug" or "release"
+            workingDirIsBaseDir = true;
+
+        if (QDir::isRelativePath(destDir))
+            destDir = baseDir + QLatin1Char('/') + destDir;
+
+        if (workingDirIsBaseDir)
+            result.workingDir = baseDir;
+        else
+            result.workingDir = destDir;
     } else {
-        //qDebug() << "reader didn't contain DESTDIR, setting to " << baseDir;
+        destDir = baseDir;
         result.workingDir = baseDir;
     }
 
+    // Target
     result.target = reader->value(QLatin1String("TARGET"));
     if (result.target.isEmpty())
         result.target = QFileInfo(m_projectFilePath).baseName();
@@ -2143,31 +2184,16 @@ TargetInformation Qt4ProFileNode::targetInformation(QtSupport::ProFileReader *re
 
     result.workingDir = QDir::cleanPath(result.workingDir);
 
-    QString wd = result.workingDir;
-    if ( (!reader->contains(destDir) || reader->value(destDir) == QLatin1String("."))) {
-        const QStringList configValues = reader->values(QLatin1String("CONFIG"));
-        if (configValues.contains(QLatin1String("debug_and_release"))
-            && configValues.contains(QLatin1String("debug_and_release_target"))) {
-            // If we don't have a destdir and debug and release is set
-            // then the executable is in a debug/release folder
-            //qDebug() << "reader has debug_and_release_target";
-
-            // Hmm can we find out whether it's debug or release in a saner way?
-            // Theoretically it's in CONFIG
-            QString qmakeBuildConfig = QLatin1String("release");
-            ProjectExplorer::Target *target = m_project->activeTarget();
-            Qt4BuildConfiguration *bc = target ? qobject_cast<Qt4BuildConfiguration *>(target->activeBuildConfiguration()) : 0;
-            if (!target || !bc || bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild)
-                qmakeBuildConfig = QLatin1String("debug");
-            wd += QLatin1Char('/') + qmakeBuildConfig;
-        }
-    }
-
-    result.executable = QDir::cleanPath(wd + QLatin1Char('/') + result.target);
+    /// should this really be in this method?
+    result.executable = QDir::cleanPath(destDir + QLatin1Char('/') + result.target);
     //qDebug() << "##### updateTarget sets:" << result.workingDir << result.executable;
 
     Utils::HostOsInfo::appendExecutableSuffix(result.executable);
     result.valid = true;
+
+    if (readerBP)
+        m_project->destroyProFileReader(readerBP);
+
     return result;
 }
 

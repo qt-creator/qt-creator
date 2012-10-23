@@ -959,7 +959,7 @@ void Qt4Project::proFileParseError(const QString &errorMessage)
     Core::ICore::messageManager()->printToOutputPanePopup(errorMessage);
 }
 
-QtSupport::ProFileReader *Qt4Project::createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)
+QtSupport::ProFileReader *Qt4Project::createProFileReader(const Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)
 {
     if (!m_qmakeGlobals) {
         m_qmakeGlobals = new ProFileGlobals;

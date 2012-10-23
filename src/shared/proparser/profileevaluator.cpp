@@ -215,6 +215,21 @@ void ProFileEvaluator::setCumulative(bool on)
 }
 #endif
 
+void ProFileEvaluator::setExtraVars(const QHash<QString, QStringList> &extraVars)
+{
+    ProValueMap map;
+    QHash<QString, QStringList>::const_iterator it = extraVars.constBegin();
+    QHash<QString, QStringList>::const_iterator end = extraVars.constEnd();
+    for ( ; it != end; ++it)
+        map.insert(ProKey(it.key()), ProStringList(it.value()));
+    d->setExtraVars(map);
+}
+
+void ProFileEvaluator::setExtraConfigs(const QStringList &extraConfigs)
+{
+     d->setExtraConfigs(ProStringList(extraConfigs));
+}
+
 void ProFileEvaluator::setOutputDir(const QString &dir)
 {
     d->m_outputDir = dir;

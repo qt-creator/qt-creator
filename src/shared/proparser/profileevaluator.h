@@ -72,6 +72,8 @@ public:
 #ifdef PROEVALUATOR_CUMULATIVE
     void setCumulative(bool on); // Default is false
 #endif
+    void setExtraVars(const QHash<QString, QStringList> &extraVars);
+    void setExtraConfigs(const QStringList &extraConfigs);
     void setOutputDir(const QString &dir); // Default is empty
 
     bool loadNamedSpec(const QString &specDir, bool hostSpec);

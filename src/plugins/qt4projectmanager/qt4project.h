@@ -102,7 +102,7 @@ public:
     void notifyChanged(const QString &name);
 
     /// \internal
-    QtSupport::ProFileReader *createProFileReader(Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
+    QtSupport::ProFileReader *createProFileReader(const Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
     /// \internal
     ProFileGlobals *qmakeGlobals();
     /// \internal
