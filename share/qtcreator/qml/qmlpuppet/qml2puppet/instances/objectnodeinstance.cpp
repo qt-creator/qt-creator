@@ -130,14 +130,15 @@ static bool hasPropertiesWitoutNotifications(const QMetaObject *metaObject)
 void ObjectNodeInstance::initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance)
 {
     const QMetaObject *metaObject = objectNodeInstance->object()->metaObject();
-    m_metaObject = new NodeInstanceMetaObject(objectNodeInstance, nodeInstanceServer()->engine());
-    QQmlEnginePrivate::get(engine())->cache(m_metaObject);
+    m_metaObject = NodeInstanceMetaObject::createNodeInstanceMetaObject(objectNodeInstance, nodeInstanceServer()->engine());
     for (int propertyIndex = QObject::staticMetaObject.propertyCount(); propertyIndex < metaObject->propertyCount(); propertyIndex++) {
         if (QQmlMetaType::isQObject(metaObject->property(propertyIndex).userType())) {
             QObject *propertyObject = QQmlMetaType::toQObject(metaObject->property(propertyIndex).read(objectNodeInstance->object()));
             if (propertyObject && hasPropertiesWitoutNotifications(propertyObject->metaObject())) {
-                QMetaObject *childMetaObject = new NodeInstanceMetaObject(objectNodeInstance, propertyObject, metaObject->property(propertyIndex).name(), nodeInstanceServer()->engine());
-                QQmlEnginePrivate::get(engine())->cache(childMetaObject);
+                NodeInstanceMetaObject::createNodeInstanceMetaObject(objectNodeInstance,
+                                                                          propertyObject,
+                                                                          metaObject->property(propertyIndex).name(),
+                                                                          nodeInstanceServer()->engine());
             }
         }
     }

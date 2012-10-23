@@ -32,7 +32,9 @@
 #define NODEINSTANCEMETAOBJECT_H
 
 #include <QQmlContext>
+#include <QScopedPointer>
 #include <private/qqmlopenmetaobject_p.h>
+#include <private/qqmlvmemetaobject_p.h>
 
 namespace QmlDesigner {
 namespace Internal {
@@ -41,21 +43,63 @@ class ObjectNodeInstance;
 typedef QSharedPointer<ObjectNodeInstance> ObjectNodeInstancePointer;
 typedef QWeakPointer<ObjectNodeInstance> ObjectNodeInstanceWeakPointer;
 
-class NodeInstanceMetaObject : public QQmlOpenMetaObject
+struct MetaPropertyData;
+
+class NodeInstanceMetaObject : public QQmlVMEMetaObject
 {
 public:
-    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QQmlEngine *engine);
-    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QQmlEngine *engine);
+    static NodeInstanceMetaObject *createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QQmlEngine *engine);
+    static NodeInstanceMetaObject *createNodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QQmlEngine *engine);
+    ~NodeInstanceMetaObject();
     void createNewProperty(const QString &name);
 
 protected:
+    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QQmlEngine *engine);
+    NodeInstanceMetaObject(const ObjectNodeInstancePointer &nodeInstance, QObject *object, const QString &prefix, QQmlEngine *engine);
+
+    int openMetaCall(QMetaObject::Call _c, int _id, void **_a);
     int metaCall(QMetaObject::Call _c, int _id, void **_a);
     void notifyPropertyChange(int id);
+    void setValue(int id, const QVariant &value);
+    int createProperty(const char *, const char *);
+    QVariant propertyWriteValue(int, const QVariant &);
+
+    QObject *myObject() const { return QQmlVMEMetaObject::object; }
+    QAbstractDynamicMetaObject *parent() const { return const_cast<QAbstractDynamicMetaObject *>(dynamicMetaObjectParent()); }
+
+    const QAbstractDynamicMetaObject *dynamicMetaObjectParent() const
+    {
+        if (QQmlVMEMetaObject::parent.isT1())
+            return QQmlVMEMetaObject::parent.asT1()->toDynamicMetaObject(QQmlVMEMetaObject::object);
+        else
+            return 0;
+    }
+
+    const QMetaObject *metaObjectParent() const
+    {
+        if (QQmlVMEMetaObject::parent.isT1())
+            return QQmlVMEMetaObject::parent.asT1()->toDynamicMetaObject(QQmlVMEMetaObject::object);
+
+        return QQmlVMEMetaObject::parent.asT2();
+    }
+
+    int propertyOffset() const { return cache->propertyOffset(); }
+
+    int count() const;
+    QByteArray name(int) const;
+
+    void copyTypeMetaObject();
 
 private:
+    void init(QObject *, QQmlEngine *engine);
+
     ObjectNodeInstanceWeakPointer m_nodeInstance;
     QString m_prefix;
-    QPointer<QQmlContext> m_context;
+    QPointer<QQmlContext>  m_context;
+    QQmlOpenMetaObjectType *m_type;
+    QScopedPointer<MetaPropertyData> m_data;
+    //QAbstractDynamicMetaObject *m_parent;
+    QQmlPropertyCache *m_cache;
 };
 
 } // namespace Internal
