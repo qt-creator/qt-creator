@@ -4,6 +4,8 @@ import os
 import sys
 import tokenize
 from optparse import OptionParser
+from toolfunctions import checkDirectory
+from toolfunctions import getFileContent
 
 objMap = None
 
@@ -30,24 +32,6 @@ def parseCommandLine():
         sys.exit(1)
     onlyRemovable = options.onlyRemovable
     fileType = options.fileType
-
-def checkDirectory():
-    global directory, objMap
-    if not os.path.exists(directory):
-        print "Given path '%s' does not exist" % directory
-        sys.exit(1)
-    objMap = os.path.join(directory, "objects.map")
-    if not os.path.exists(objMap):
-        print "Given path '%s' does not contain an objects.map file" % directory
-        sys.exit(1)
-
-def getFileContent(filePath):
-    if os.path.isfile(filePath):
-        f = open(filePath, "r")
-        data = f.read()
-        f.close()
-        return data
-    return ""
 
 def collectObjects():
     global objMap
@@ -99,8 +83,8 @@ def printResult():
     return None
 
 def main():
-    global useCounts
-    checkDirectory()
+    global useCounts, objMap
+    objMap = checkDirectory(directory)
     useCounts = dict.fromkeys(collectObjects(), 0)
     findUsages()
     atLeastOneRemovable = printResult()
