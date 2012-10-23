@@ -917,6 +917,36 @@ void FakeVimPlugin::test_vim_marks()
     KEYS("`'",   "  "   "abc" N   "  " X "def" N   "  "   "ghi");
 }
 
+void FakeVimPlugin::test_vim_jumps()
+{
+    TestData data;
+    setup(&data);
+
+    // last position
+    data.setText("  abc" N "  def" N "  ghi");
+    KEYS("G", "  abc" N "  def" N "  " X "ghi");
+    KEYS("`'", X "  abc" N "  def" N "  ghi");
+    KEYS("`'", "  abc" N "  def" N "  " X "ghi");
+    KEYS("''", "  " X "abc" N "  def" N "  ghi");
+    KEYS("<C-O>", "  abc" N "  def" N "  " X "ghi");
+    KEYS("<C-I>", "  " X "abc" N "  def" N "  ghi");
+
+    KEYS("lgUlhj", "  aBc" N "  " X "def" N "  ghi");
+    KEYS("`.", "  a" X "Bc" N "  def" N "  ghi");
+    KEYS("`'", "  aBc" N "  " X "def" N "  ghi");
+    KEYS("'.", "  " X "aBc" N "  def" N "  ghi");
+    KEYS("G", "  aBc" N "  def" N "  " X "ghi");
+    KEYS("u", "  a" X "bc" N "  def" N "  ghi");
+    KEYS("`'", "  abc" N "  def" N "  " X "ghi");
+    KEYS("<c-r>", "  a" X "Bc" N "  def" N "  ghi");
+    KEYS("jd$", "  aBc" N "  " X "d" N "  ghi");
+    KEYS("''", "  aBc" N "  d" N "  " X "ghi");
+    KEYS("`'", "  aBc" N "  " X "d" N "  ghi");
+    KEYS("u", "  aBc" N "  d" X "ef" N "  ghi");
+    KEYS("''", "  aBc" N "  " X "def" N "  ghi");
+    KEYS("`'", "  aBc" N "  d" X "ef" N "  ghi");
+}
+
 void FakeVimPlugin::test_vim_copy_paste()
 {
     TestData data;
