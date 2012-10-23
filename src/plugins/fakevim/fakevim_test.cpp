@@ -1321,6 +1321,49 @@ void FakeVimPlugin::test_vim_substitute()
     COMMAND("%s/\\( \\S \\)*//g", "abc" N "def" N X "ghi");
 }
 
+void FakeVimPlugin::test_vim_yank()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abc" N "def");
+    COMMAND("y x", X "abc" N "def");
+    KEYS("\"xp", "abc" N X "abc" N "def");
+    COMMAND("u", X "abc" N "def");
+    COMMAND("redo", X "abc" N "abc" N "def");
+
+    KEYS("uw", "abc" N X "def");
+    COMMAND("1y y", "abc" N X "def");
+    KEYS("\"yP", "abc" N X "abc" N "def");
+    COMMAND("u", "abc" N X "def");
+
+    COMMAND("-1,$y x", "abc" N X "def");
+    KEYS("\"xP", "abc" N X "abc" N "def" N "def");
+    COMMAND("u", "abc" N X "def");
+
+    COMMAND("$-1y", "abc" N X "def");
+    KEYS("P", "abc" N X "abc" N "def");
+    COMMAND("u", "abc" N X "def");
+}
+
+void FakeVimPlugin::test_vim_move()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText("abc" N "def" N "ghi" N "jkl");
+    COMMAND("m +1", "def" N X "abc" N "ghi" N "jkl");
+    COMMAND("u", X "abc" N "def" N "ghi" N "jkl");
+    COMMAND("redo", X "def" N "abc" N "ghi" N "jkl");
+    COMMAND("m -2", X "def" N "abc" N "ghi" N "jkl");
+    COMMAND("2m0", X "abc" N "def" N "ghi" N "jkl");
+
+    COMMAND("m $-2", "def" N X "abc" N "ghi" N "jkl");
+    KEYS("`'", X "def" N "abc" N "ghi" N "jkl");
+    KEYS("Vj:m+2<cr>", "ghi" N "def" N X "abc" N "jkl");
+    KEYS("u", X "def" N "abc" N "ghi" N "jkl");
+}
+
 void FakeVimPlugin::test_advanced_commands()
 {
     TestData data;

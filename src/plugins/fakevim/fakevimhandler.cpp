@@ -708,14 +708,14 @@ public:
 
     bool operator==(const Input &a) const
     {
-        return m_key == a.m_key && m_modifiers == a.m_modifiers && m_text == a.m_text;
+        return m_key == a.m_key && m_modifiers == a.m_modifiers;
     }
 
     bool operator!=(const Input &a) const { return !operator==(a); }
 
     bool operator<(const Input &a) const
     {
-        return m_key < a.m_key || m_modifiers < a.m_modifiers || m_text < a.m_text;
+        return m_key < a.m_key || m_modifiers < a.m_modifiers;
     }
 
     QString text() const { return m_text; }
@@ -1284,7 +1284,7 @@ public:
     // The following use all zero-based counting.
     int cursorLineOnScreen() const;
     int cursorLine() const;
-    int cursorBlockNumber() const;
+    int cursorBlockNumber() const; // "." address
     int physicalCursorColumn() const; // as stored in the data
     int logicalCursorColumn() const; // as visible on screen
     int physicalToLogicalColumn(int physical, const QString &text) const;
@@ -1583,6 +1583,8 @@ public:
     bool handleExPluginCommand(const ExCommand &cmd); // Handled by plugin?
     bool handleExBangCommand(const ExCommand &cmd);
     bool handleExDeleteCommand(const ExCommand &cmd);
+    bool handleExYankCommand(const ExCommand &cmd);
+    bool handleExMoveCommand(const ExCommand &cmd);
     bool handleExGotoCommand(const ExCommand &cmd);
     bool handleExHistoryCommand(const ExCommand &cmd);
     bool handleExRegisterCommand(const ExCommand &cmd);
@@ -4019,22 +4021,17 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
     //qDebug() << "CMD: " << cmd;
     if (cmd.isEmpty())
         return -1;
-    QChar c = cmd.at(0);
-    cmd = cmd.mid(1);
-    if (c == '.') {
-        if (cmd.isEmpty())
-            return cursorBlockNumber();
-        QChar c1 = cmd.at(0);
-        if (c1 == '+' || c1 == '-') {
-            // Repeat for things like  .+4
-            cmd = cmd.mid(1);
-            return cursorBlockNumber() + readLineCode(cmd);
-        }
-        return cursorBlockNumber();
-    }
-    if (c == '$')
-        return document()->blockCount() - 1;
-    if (c == '\'' && !cmd.isEmpty()) {
+
+    int result = -1;
+    const QChar &c = cmd[0];
+    if (c == '.') { // current line
+        result = cursorBlockNumber();
+        cmd.remove(0, 1);
+    } else if (c == '$') { // last line
+        result = document()->blockCount() - 1;
+        cmd.remove(0, 1);
+    } else if (c == '\'') { // mark
+        cmd.remove(0, 1);
         if (cmd.isEmpty()) {
             showMessage(MessageError, msgMarkNotSet(QString()));
             return -1;
@@ -4042,35 +4039,42 @@ int FakeVimHandler::Private::readLineCode(QString &cmd)
         CursorPosition m = mark(cmd.at(0).unicode());
         if (!m.isValid()) {
             showMessage(MessageError, msgMarkNotSet(cmd.at(0)));
-            cmd = cmd.mid(1);
             return -1;
         }
-        cmd = cmd.mid(1);
-        return m.line;
+        cmd.remove(0, 1);
+        result = m.line;
+    } else if (c.isDigit()) { // line with given number
+        result = 0;
+    } else if (c == '-' || c == '+') { // add or subtract from current line number
+        result = cursorBlockNumber();
+    } else {
+        return -1;
     }
-    if (c == '-') {
-        int n = readLineCode(cmd);
-        return cursorBlockNumber() - (n == -1 ? 1 : n);
-    }
-    if (c == '+') {
-        int n = readLineCode(cmd);
-        return cursorBlockNumber() + (n == -1 ? 1 : n);
-    }
-    if (c.isDigit()) {
-        int n = c.unicode() - '0';
-        while (!cmd.isEmpty()) {
-            c = cmd.at(0);
-            if (!c.isDigit())
-                break;
-            cmd = cmd.mid(1);
-            n = n * 10 + (c.unicode() - '0');
+    // FIXME: /.../ ?...? \/ \? \&
+
+    // basic arithmetic ("-3+5" or "++" means "+2" etc.)
+    int n = 0;
+    bool add = true;
+    int i = 0;
+    for (; i < cmd.size(); ++i) {
+        const QChar &c = cmd[i];
+        if (c == '-' || c == '+') {
+            if (n != 0)
+                result = result + (add ? n - 1 : -(n - 1));
+            add = c == '+';
+            result = result + (add ? 1 : -1);
+            n = 0;
+        } else if (c.isDigit()) {
+            n = n * 10 + c.digitValue();
+        } else if (!c.isSpace()) {
+            break;
         }
-        //qDebug() << "N: " << n;
-        return n - 1;
     }
-    // Parsing failed.
-    cmd = c + cmd;
-    return -1;
+    if (n != 0)
+        result = result + (add ? n - 1 : -(n - 1));
+    cmd.remove(0, i);
+
+    return result;
 }
 
 void FakeVimHandler::Private::setCurrentRange(const Range &range)
@@ -4085,6 +4089,7 @@ Range FakeVimHandler::Private::rangeFromCurrentLine() const
     QTextBlock block = cursor().block();
     range.beginPos = block.position();
     range.endPos = range.beginPos + block.length() - 1;
+    range.rangemode = RangeLineMode;
     return range;
 }
 
@@ -4410,7 +4415,7 @@ bool FakeVimHandler::Private::handleExDeleteCommand(const ExCommand &cmd)
     if (!cmd.matches("d", "delete"))
         return false;
 
-    Range range = cmd.range.endPos == 0 ? rangeFromCurrentLine() : cmd.range;
+    Range range = cmd.range.endPos <= 0 ? rangeFromCurrentLine() : cmd.range;
     setCurrentRange(range);
     QString reg = cmd.args;
     QString text = selectText(range);
@@ -4419,6 +4424,69 @@ bool FakeVimHandler::Private::handleExDeleteCommand(const ExCommand &cmd)
         const int r = reg.at(0).unicode();
         setRegister(r, text, RangeLineMode);
     }
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExYankCommand(const ExCommand &cmd)
+{
+    // :[range]y[ank] [x]
+    if (!cmd.matches("y", "yank"))
+        return false;
+
+    Range range = cmd.range.endPos <= 0 ? rangeFromCurrentLine() : cmd.range;
+    const int r = cmd.args.isEmpty() ? m_register : cmd.args.at(0).unicode();
+    yankText(range, r);
+
+    return true;
+}
+
+bool FakeVimHandler::Private::handleExMoveCommand(const ExCommand &cmd)
+{
+    // :[range]m[ove] {address}
+    QRegExp re("^m(?=ove)?([\\d+-$%./'\\\\?].*|$)"); // address can follow immediately
+    if (re.indexIn(cmd.cmd) == -1)
+        return false;
+
+    QString lineCode = re.cap(1) + cmd.args;
+
+    Range range = cmd.range.endPos <= 0 ? rangeFromCurrentLine() : cmd.range;
+    const int startLine = document()->findBlock(range.beginPos).blockNumber();
+    const int endLine = document()->findBlock(range.endPos).blockNumber();
+    const int lines = endLine - startLine + 1;
+
+    const int line = lineCode == "0" ? -1 : readLineCode(lineCode);
+    if (line >= startLine && line < endLine) {
+        showMessage(MessageError, FakeVimHandler::tr("Move lines into themselves"));
+        return true;
+    }
+
+    setUndoPosition();
+    recordJump();
+
+    setCurrentRange(range);
+    QString text = selectText(range);
+    removeText(currentRange());
+
+    bool insertAtEnd = line == document()->blockCount();
+    const int targetLine = (line < startLine) ? line : line - lines;
+    QTextBlock block = document()->findBlockByNumber(insertAtEnd ? targetLine : targetLine + 1);
+    int pos = block.position();
+    setAnchorAndPosition(pos, pos);
+    if (insertAtEnd) {
+        moveToEndOfLine();
+        insertText(QString('\n'));
+    }
+    insertText(text);
+    if (insertAtEnd)
+        cursor().deleteChar();
+
+    moveUp(1);
+    if (hasConfig(ConfigStartOfLine))
+        moveToFirstNonBlankOnLine();
+
+    if (lines > 2)
+        showMessage(MessageInfo, FakeVimHandler::tr("%1 lines moved").arg(lines));
+
     return true;
 }
 
@@ -4703,7 +4771,7 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
     if (line.startsWith(QLatin1Char('%')))
         line.replace(0, 1, "1,$");
 
-    const int beginLine = readLineCode(line);
+    int beginLine = readLineCode(line);
     int endLine = -1;
     if (line.startsWith(',')) {
         line = line.mid(1);
@@ -4724,6 +4792,8 @@ bool FakeVimHandler::Private::handleExCommandHelper(ExCommand &cmd)
         || handleExHistoryCommand(cmd)
         || handleExRegisterCommand(cmd)
         || handleExDeleteCommand(cmd)
+        || handleExYankCommand(cmd)
+        || handleExMoveCommand(cmd)
         || handleExMapCommand(cmd)
         || handleExNohlsearchCommand(cmd)
         || handleExNormalCommand(cmd)
@@ -5236,7 +5306,7 @@ int FakeVimHandler::Private::cursorLine() const
 
 int FakeVimHandler::Private::cursorBlockNumber() const
 {
-    return cursor().block().blockNumber();
+    return document()->findBlock(qMin(anchor(), position())).blockNumber();
 }
 
 int FakeVimHandler::Private::physicalCursorColumn() const
@@ -5423,6 +5493,11 @@ QString FakeVimHandler::Private::selectText(const Range &range) const
 void FakeVimHandler::Private::yankText(const Range &range, int reg)
 {
     setRegister(reg, selectText(range), range.rangemode);
+
+    const int lines = document()->findBlock(range.endPos).blockNumber()
+        - document()->findBlock(range.beginPos).blockNumber() + 1;
+    if (lines > 2)
+        showMessage(MessageInfo, FakeVimHandler::tr("%1 lines yanked").arg(lines));
 }
 
 void FakeVimHandler::Private::transformText(const Range &range,
@@ -6381,13 +6456,17 @@ void FakeVimHandler::Private::setRegister(int reg, const QString &contents, Rang
     bool copyToSelection;
     getRegisterType(reg, &copyToClipboard, &copyToSelection);
 
+    QString contents2 = contents;
+    if (mode == RangeLineMode && !contents2.endsWith('\n'))
+        contents2.append('\n');
+
     if (copyToClipboard || copyToSelection) {
         if (copyToClipboard)
-            setClipboardData(contents, mode, QClipboard::Clipboard);
+            setClipboardData(contents2, mode, QClipboard::Clipboard);
         if (copyToSelection)
-            setClipboardData(contents, mode, QClipboard::Selection);
+            setClipboardData(contents2, mode, QClipboard::Selection);
     } else {
-        g.registers[reg].contents = contents;
+        g.registers[reg].contents = contents2;
         g.registers[reg].rangemode = mode;
     }
 }
