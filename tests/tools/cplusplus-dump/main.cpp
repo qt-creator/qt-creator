@@ -188,9 +188,9 @@ public:
     SymbolDump(TranslationUnit *unit)
         : translationUnit(unit)
     {
-        o.setShowArgumentNames(true);
-        o.setShowFunctionSignatures(true);
-        o.setShowReturnTypes(true);
+        o.showArgumentNames = true;
+        o.showFunctionSignatures = true;
+        o.showReturnTypes = true;
     }
 
     void operator()(Symbol *s) {

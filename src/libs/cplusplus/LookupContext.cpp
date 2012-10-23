@@ -779,7 +779,7 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                     Symbol *clone = cloner.symbol(s, &subst);
                     instantiation->_symbols.append(clone);
 #ifdef DEBUG_LOOKUP
-                    Overview oo;oo.setShowFunctionSignatures(true);oo.setShowReturnTypes(true);oo.setShowTemplateParameters(true);
+                    Overview oo;oo.showFunctionSignatures = true;oo.showReturnTypes = true; oo.showTemplateParameters = true;
                     qDebug()<<"cloned"<<oo(clone->type());
 #endif // DEBUG_LOOKUP
                 }

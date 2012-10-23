@@ -774,8 +774,8 @@ QList<LookupItem> ResolveExpression::getMembers(ClassOrNamespace *binding, const
                 FullySpecifiedType instantiatedTy = rewriteType(decl->type(), &env, _context.control().data());
 
                 Overview oo;
-                oo.setShowReturnTypes(true);
-                oo.setShowFunctionSignatures(true);
+                oo.showReturnTypes = true;
+                oo.showFunctionSignatures = true;
 
                 qDebug() << "original:" << oo(decl->type(), decl->name()) << "inst:" << oo(instantiatedTy, decl->name());
 

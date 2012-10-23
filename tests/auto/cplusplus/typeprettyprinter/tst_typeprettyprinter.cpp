@@ -208,7 +208,7 @@ void tst_TypePrettyPrinter::basic()
     QFETCH(QString, result);
 
     Overview o;
-    o.setShowReturnTypes(true);
+    o.showReturnTypes = true;
     TypePrettyPrinter pp(&o);
     QCOMPARE(pp(type, name), result);
 }
