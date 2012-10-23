@@ -2060,7 +2060,7 @@ void tst_CodeFormatter::attributeInAccessSpecifier()
     checkIndent(data);
 }
 
-QTEST_APPLESS_MAIN(tst_CodeFormatter)
+QTEST_MAIN(tst_CodeFormatter)
 
 #include "tst_codeformatter.moc"
 
