@@ -29,6 +29,7 @@
 
 #include "settingsaccessor.h"
 
+#include "abi.h"
 #include "buildconfiguration.h"
 #include "devicesupport/devicemanager.h"
 #include "project.h"
@@ -36,6 +37,8 @@
 #include "projectexplorersettings.h"
 #include "projectexplorerconstants.h"
 #include "target.h"
+#include "toolchain.h"
+#include "toolchainmanager.h"
 #include "kit.h"
 #include "kitmanager.h"
 
@@ -2360,7 +2363,35 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
                 tcId = bc.value(QLatin1String("ProjectExplorer.BuildCOnfiguration.ToolChain")).toString();
             const QString origTcId = tcId;
             tcId.replace(QLatin1String("Qt4ProjectManager.ToolChain.Maemo:"),
-                         QLatin1String("ProjectExplorer.ToolChain.Gcc:")); // convert Maemo to GCC
+                           QLatin1String("ProjectExplorer.ToolChain.Gcc:")); // convert Maemo to GCC
+            QString data = tcId.mid(tcId.indexOf(QLatin1Char(':')) + 1);
+            QStringList split = data.split('.', QString::KeepEmptyParts);
+            QString compilerPath;
+            QString debuggerPath;
+            Abi compilerAbi;
+            int debuggerEngine = 1; // GDB
+            for (int i = 1; i < split.count() - 1; ++i) {
+                compilerAbi = Abi(split.at(i));
+                if (!compilerAbi.isValid())
+                    continue;
+                if (compilerAbi.os() == Abi::WindowsOS
+                        && compilerAbi.osFlavor() != Abi::WindowsMSysFlavor)
+                    debuggerEngine = 4; // CDB
+                compilerPath = split.at(0);
+                for (int j = 1; j < i; ++j)
+                    compilerPath = compilerPath + QLatin1Char('.') + split.at(j);
+                debuggerPath = split.at(i + 1);
+                for (int j = i + 2; j < split.count(); ++j)
+                    debuggerPath = debuggerPath + QLatin1Char('.') + split.at(j);
+
+                foreach (ToolChain *tc, ToolChainManager::instance()->toolChains()) {
+                    if ((tc->compilerCommand() == Utils::FileName::fromString(compilerPath))
+                            && (tc->targetAbi() == compilerAbi)) {
+                        tcId = tc->id();
+                        break;
+                    }
+                }
+            }
             tmpKit->setValue(Core::Id("PE.Profile.ToolChain"), tcId);
 
             // QtVersion
@@ -2368,15 +2399,19 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             tmpKit->setValue(Core::Id("QtSupport.QtInformation"), qtVersionId);
 
             // Debugger + mkspec
-            QString debugger;
+            QVariantMap debugger;
             QString mkspec;
             if (m_toolChainExtras.contains(origTcId)) {
                 Utils::Environment env = Utils::Environment::systemEnvironment();
-                debugger = m_toolChainExtras.value(origTcId).m_debugger;
-                if (!debugger.isEmpty() && !QFileInfo(debugger).isAbsolute())
-                    debugger = env.searchInPath(debugger);
+                debuggerPath = m_toolChainExtras.value(origTcId).m_debugger;
+                if (!debuggerPath.isEmpty() && !QFileInfo(debuggerPath).isAbsolute())
+                    debuggerPath = env.searchInPath(debuggerPath);
+                if (debuggerPath.contains(QLatin1String("cdb")))
+                    debuggerEngine = 4; // CDB
                 mkspec = m_toolChainExtras.value(origTcId).m_mkspec;
             }
+            debugger.insert(QLatin1String("EngineType"), debuggerEngine);
+            debugger.insert(QLatin1String("Binary"), debuggerPath);
             tmpKit->setValue(Core::Id("Debugger.Information"), debugger);
             tmpKit->setValue(Core::Id("QtPM4.mkSpecInformation"), mkspec);
 
