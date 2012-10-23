@@ -79,6 +79,8 @@ public:
 
     QGroupBox *groupBoxStartupCommands;
     QTextEdit *textEditStartupCommands;
+    QGroupBox *groupBoxPostAttachCommands;
+    QTextEdit *textEditPostAttachCommands;
 
     //QGroupBox *groupBoxPluginDebugging;
     //QRadioButton *radioButtonAllPluginBreakpoints;
@@ -221,6 +223,19 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     textEditStartupCommands->setAcceptRichText(false);
     textEditStartupCommands->setToolTip(groupBoxStartupCommands->toolTip());
 
+    groupBoxPostAttachCommands = new QGroupBox(this);
+    groupBoxPostAttachCommands->setTitle(GdbOptionsPage::tr("Additional Attach Commands"));
+    groupBoxPostAttachCommands->setToolTip(GdbOptionsPage::tr(
+        "<html><head/><body><p>GDB commands entered here will be executed after "
+        "GDB has successfully attached to remote targets.</p>"
+        "<p>You can add commands to further set up the target here, "
+        "such as \"monitor reset\" or \"load\"."
+        "</body></html>"));
+
+    textEditPostAttachCommands = new QTextEdit(groupBoxPostAttachCommands);
+    textEditPostAttachCommands->setAcceptRichText(false);
+    textEditPostAttachCommands->setToolTip(groupBoxPostAttachCommands->toolTip());
+
     /*
     groupBoxPluginDebugging = new QGroupBox(q);
     groupBoxPluginDebugging->setTitle(GdbOptionsPage::tr(
@@ -268,14 +283,18 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     QGridLayout *startLayout = new QGridLayout(groupBoxStartupCommands);
     startLayout->addWidget(textEditStartupCommands, 0, 0, 1, 1);
 
+    QGridLayout *postAttachLayout = new QGridLayout(groupBoxPostAttachCommands);
+    postAttachLayout->addWidget(textEditPostAttachCommands, 0, 0, 1, 1);
+
     //QHBoxLayout *horizontalLayout = new QHBoxLayout();
     //horizontalLayout->addItem(new QSpacerItem(10, 10, QSizePolicy::Preferred, QSizePolicy::Minimum));
     //horizontalLayout->addWidget(labelSelectedPluginBreakpoints);
     //horizontalLayout->addWidget(lineEditSelectedPluginBreakpointsPattern);
 
     QGridLayout *gridLayout = new QGridLayout(this);
-    gridLayout->addWidget(groupBoxGeneral, 0, 0);
-    gridLayout->addWidget(groupBoxStartupCommands, 0, 1);
+    gridLayout->addWidget(groupBoxGeneral, 0, 0, 2, 1);
+    gridLayout->addWidget(groupBoxStartupCommands, 0, 1, 1, 1);
+    gridLayout->addWidget(groupBoxPostAttachCommands, 1, 1, 1, 1);
 
     //gridLayout->addWidget(groupBoxStartupCommands, 0, 1, 1, 1);
     //gridLayout->addWidget(radioButtonAllPluginBreakpoints, 0, 0, 1, 1);
@@ -287,6 +306,7 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
 
     DebuggerCore *dc = debuggerCore();
     group.insert(dc->action(GdbStartupCommands), textEditStartupCommands);
+    group.insert(dc->action(GdbPostAttachCommands), textEditPostAttachCommands);
     group.insert(dc->action(LoadGdbInit), checkBoxLoadGdbInit);
     group.insert(dc->action(AutoEnrichParameters), checkBoxAutoEnrichParameters);
     group.insert(dc->action(UseDynamicType), checkBoxUseDynamicType);

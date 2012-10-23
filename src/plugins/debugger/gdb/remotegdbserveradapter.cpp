@@ -282,6 +282,11 @@ void GdbRemoteServerEngine::handleTargetRemote(const GdbResponse &record)
         // gdb server will stop the remote application itself.
         showMessage(_("INFERIOR STARTED"));
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
+        QString postAttachCommands = debuggerCore()->stringSetting(GdbPostAttachCommands);
+        if (!postAttachCommands.isEmpty()) {
+            foreach (const QString &cmd, postAttachCommands.split(QLatin1Char('\n')))
+                postCommand(cmd.toLatin1());
+        }
         handleInferiorPrepared();
     } else {
         // 16^error,msg="hd:5555: Connection timed out."
