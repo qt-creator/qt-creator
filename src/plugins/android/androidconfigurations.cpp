@@ -520,9 +520,9 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
 
 QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) const
 {
-    QProcess *m_avdProcess = new QProcess();
-    connect(this, SIGNAL(destroyed()), m_avdProcess, SLOT(deleteLater()));
-    connect(m_avdProcess, SIGNAL(finished(int)), m_avdProcess, SLOT(deleteLater()));
+    QProcess *avdProcess = new QProcess();
+    connect(this, SIGNAL(destroyed()), avdProcess, SLOT(deleteLater()));
+    connect(avdProcess, SIGNAL(finished(int)), avdProcess, SLOT(deleteLater()));
 
     QString avdName = name;
     QVector<AndroidDeviceInfo> devices;
@@ -530,7 +530,7 @@ QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) cons
     while (true) {
         if (avdName.isEmpty()) {
             devices = androidVirtualDevices();
-            foreach (AndroidDeviceInfo device, devices)
+            foreach (const AndroidDeviceInfo &device, devices)
                 if (device.sdk >= *apiLevel) { // take first emulator how supports this package
                     *apiLevel = device.sdk;
                     avdName = device.serialNumber;
@@ -551,20 +551,23 @@ QString AndroidConfigurations::startAVD(int *apiLevel, const QString &name) cons
         return avdName;
 
     // start the emulator
-    m_avdProcess->start(emulatorToolPath().toString(),
+    avdProcess->start(emulatorToolPath().toString(),
                         QStringList() << QLatin1String("-partition-size") << QString::number(config().partitionSize)
                         << QLatin1String("-avd") << avdName);
-    if (!m_avdProcess->waitForStarted(-1)) {
-        delete m_avdProcess;
+    if (!avdProcess->waitForStarted(-1)) {
+        delete avdProcess;
         return QString();
     }
 
     // wait until the emulator is online
     QProcess proc;
     proc.start(adbToolPath().toString(), QStringList() << QLatin1String("-e") << QLatin1String("wait-for-device"));
-    if (!proc.waitForFinished(-1)) {
-        proc.terminate();
-        return QString();
+    while (!proc.waitForFinished(500)) {
+        if (avdProcess->waitForFinished(0)) {
+            proc.terminate();
+            proc.waitForFinished(-1);
+            return QString();
+        }
     }
     sleep(5);// wait for pm to start
 
