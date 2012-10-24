@@ -49,7 +49,7 @@ bool PositionerNodeInstance::isResizable() const
 
 void PositionerNodeInstance::setPropertyVariant(const QString &name, const QVariant &value)
 {
-    if (name == "move" || name == "add")
+    if (name == "move" || name == "add" || name == "populate")
         return;
 
     QuickItemNodeInstance::setPropertyVariant(name, value);
@@ -57,7 +57,7 @@ void PositionerNodeInstance::setPropertyVariant(const QString &name, const QVari
 
 void PositionerNodeInstance::setPropertyBinding(const QString &name, const QString &expression)
 {
-    if (name == "move" || name == "add")
+    if (name == "move" || name == "add" || name == "populate")
         return;
 
     QuickItemNodeInstance::setPropertyBinding(name, expression);
