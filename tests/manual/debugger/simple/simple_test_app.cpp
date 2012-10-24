@@ -3821,6 +3821,24 @@ namespace text {
 } // namespace text
 
 
+namespace qprocess {
+
+    void testQProcess()
+    {
+        return;
+        const int N = 14;
+        QProcess proc[N];
+        for (int i = 0; i != N; ++i) {
+            proc[i].start("sleep 10");
+            proc[i].waitForStarted();
+        }
+        BREAK_HERE;
+        dummyStatement(&thread);
+    }
+
+} // namespace qprocess
+
+
 namespace qthread {
 
     class Thread : public QThread
@@ -6646,6 +6664,7 @@ int main(int argc, char *argv[])
     qstringlist::testQStringList();
     qstring::testQString();
     qthread::testQThread();
+    qprocess::testQProcess();
     qurl::testQUrl();
     qvariant::testQVariant();
     qvector::testQVector();
