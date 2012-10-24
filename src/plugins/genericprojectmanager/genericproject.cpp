@@ -237,7 +237,7 @@ void GenericProject::refresh(RefreshOptions options)
     parseProject(options);
 
     if (options & Files)
-        m_rootNode->refresh();
+        m_rootNode->refresh(oldFileList);
 
     CPlusPlus::CppModelManagerInterface *modelManager =
         CPlusPlus::CppModelManagerInterface::instance();

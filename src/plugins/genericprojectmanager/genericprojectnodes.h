@@ -34,6 +34,7 @@
 
 #include <QStringList>
 #include <QHash>
+#include <QSet>
 
 namespace Core {
 class IDocument;
@@ -77,12 +78,13 @@ public:
 
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
-    void refresh();
+    void refresh(QSet<QString> oldFileList = QSet<QString>());
 
 private:
     typedef QHash<QString, FolderNode *> FolderByName;
-    FolderNode *findOrCreateFolderByName(FolderByName *folderByName,
-                                         const QStringList &components, int end);
+    FolderNode *createFolderByName(const QStringList &components, int end);
+    FolderNode *findFolderByName(const QStringList &components, int end);
+    void removeEmptySubFolders(FolderNode *gparent, FolderNode *parent);
 
 private:
     GenericProject *m_project;
