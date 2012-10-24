@@ -94,14 +94,14 @@ void GenericProjectNode::refresh()
 
     foreach (const QString &absoluteFileName, files) {
         QFileInfo fileInfo(absoluteFileName);
-        const QString absoluteFilePath = fileInfo.path();
+        Utils::FileName absoluteFilePath = Utils::FileName::fromString(fileInfo.path());
         QString relativeFilePath;
 
-        if (absoluteFilePath.startsWith(base)) {
-            relativeFilePath = absoluteFilePath.mid(base.length() + 1);
+        if (absoluteFilePath.isChildOf(baseDir)) {
+            relativeFilePath = absoluteFilePath.relativeChildPath(Utils::FileName::fromString(base)).toString();
         } else {
             // `file' is not part of the project.
-            relativeFilePath = baseDir.relativeFilePath(absoluteFilePath);
+            relativeFilePath = baseDir.relativeFilePath(absoluteFilePath.toString());
         }
 
         if (! filePaths.contains(relativeFilePath))
