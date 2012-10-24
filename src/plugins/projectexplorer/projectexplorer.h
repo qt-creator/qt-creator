@@ -81,6 +81,7 @@ public:
     Project *openProject(const QString &fileName, QString *error);
     QList<Project *> openProjects(const QStringList &fileNames, QString *error);
     Q_SLOT void openProjectWelcomePage(const QString &fileName);
+    void unloadProject(Project *project);
 
     SessionManager *session() const;
 

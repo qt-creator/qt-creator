@@ -1069,7 +1069,12 @@ void ProjectExplorerPlugin::unloadProject()
         return;
 
     addToRecentProjects(document->fileName(), d->m_currentProject->displayName());
-    d->m_session->removeProject(d->m_currentProject);
+    unloadProject(d->m_currentProject);
+}
+
+void ProjectExplorerPlugin::unloadProject(Project *project)
+{
+    d->m_session->removeProject(project);
     updateActions();
 }
 

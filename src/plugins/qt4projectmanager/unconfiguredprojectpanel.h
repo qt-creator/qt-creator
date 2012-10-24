@@ -66,6 +66,7 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 private slots:
     void done();
+    void cancel();
     void kitUpdated(ProjectExplorer::Kit *k);
     void updateNoteText();
     void completeChanged();
@@ -74,6 +75,7 @@ private:
     Qt4Project *m_project;
     TargetSetupPage *m_targetSetupPage;
     QPushButton *m_configureButton;
+    QPushButton *m_cancelButton;
 };
 
 }

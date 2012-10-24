@@ -43,10 +43,12 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QDialogButtonBox>
 
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
@@ -115,9 +117,18 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
     layout->addLayout(hbox);
     layout->setMargin(0);
     hbox->addStretch();
+
+    QDialogButtonBox *box = new QDialogButtonBox(this);
+
     m_configureButton = new QPushButton(this);
     m_configureButton->setText(tr("Configure Project"));
-    hbox->addWidget(m_configureButton);
+    box->addButton(m_configureButton, QDialogButtonBox::AcceptRole);
+
+    m_cancelButton = new QPushButton(this);
+    m_cancelButton->setText(tr("Cancel"));
+    box->addButton(m_cancelButton, QDialogButtonBox::RejectRole);
+
+    hbox->addWidget(box);
 
     layout->addStretch(10);
 
@@ -125,6 +136,8 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(ProjectExplorer::Project *project
 
     connect(m_configureButton, SIGNAL(clicked()),
             this, SLOT(done()));
+    connect(m_cancelButton, SIGNAL(clicked()),
+            this, SLOT(cancel()));
     connect(m_targetSetupPage, SIGNAL(completeChanged()),
             this, SLOT(completeChanged()));
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(defaultkitChanged()),
@@ -182,6 +195,13 @@ void TargetSetupPageWrapper::keyReleaseEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
         event->accept();
     }
+}
+
+void TargetSetupPageWrapper::cancel()
+{
+    ProjectExplorer::ProjectExplorerPlugin::instance()->unloadProject(m_project);
+    if (ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects().isEmpty())
+        Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_WELCOME);
 }
 
 void TargetSetupPageWrapper::done()
