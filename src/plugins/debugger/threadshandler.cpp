@@ -419,6 +419,18 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
     // frame={level="0",addr="0x080530bf",func="testQString",args=[],
     // file="/.../app.cpp",fullname="/../app.cpp",line="1175"},
     // state="stopped",core="0"}],current-thread-id="1"
+
+    // Emit changed for previous frame.
+    if (m_currentIndex != -1) {
+        dataChanged(m_currentIndex);
+        m_currentIndex = -1;
+    }
+
+    ThreadId currentId;
+    const GdbMi current = data.findChild("current-thread-id");
+    if (current.isValid())
+        currentId = ThreadId(current.data().toLongLong());
+
     const QList<GdbMi> items = data.findChild("threads").children();
     const int n = items.size();
     for (int index = 0; index != n; ++index) {
@@ -441,11 +453,14 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
         thread.name = QString::fromLatin1(frame.findChild("name").data());
         if (thread.state == QLatin1String("running"))
             thread.stopped = false;
+        if (thread.id == currentId)
+            m_currentIndex = index;
         updateThread(thread);
     }
-    const GdbMi current = data.findChild("current-thread-id");
-    if (current.isValid())
-        setCurrentThread(ThreadId(current.data().toLongLong()));
+
+    if (m_currentIndex != -1)
+        dataChanged(m_currentIndex);
+
     updateThreadBox();
 }
 

@@ -1767,8 +1767,6 @@ void GdbEngine::handleStop2()
     if (!m_stackNeeded)
         return;
 
-    reloadStack(false); // Will trigger register reload.
-
     if (supportsThreads()) {
         if (m_isMacGdb || m_gdbVersion < 70100) {
             postCommand("-thread-list-ids", Discardable, CB(handleThreadListIds));
@@ -1777,7 +1775,6 @@ void GdbEngine::handleStop2()
             postCommand("-thread-info", Discardable, CB(handleThreadInfo));
         }
     }
-
 }
 
 void GdbEngine::handleInfoProc(const GdbResponse &response)
@@ -3644,13 +3641,21 @@ void GdbEngine::handleStackSelectFrame(const GdbResponse &response)
 void GdbEngine::handleThreadInfo(const GdbResponse &response)
 {
     if (response.resultClass == GdbResultDone) {
-        threadsHandler()->updateThreads(response.data);
+        ThreadsHandler *handler = threadsHandler();
+        handler->updateThreads(response.data);
+        // This is necessary as the current thread might not be in the list.
+        if (!handler->currentThread().isValid()) {
+            ThreadId other = handler->threadAt(0);
+            if (other.isValid())
+                selectThread(other);
+        }
         updateViews(); // Adjust Threads combobox.
         if (m_hasInferiorThreadList && debuggerCore()->boolSetting(ShowThreadNames)) {
             postCommand("threadnames " +
                 debuggerCore()->action(MaximalStackDepth)->value().toByteArray(),
                 Discardable, CB(handleThreadNames));
         }
+        reloadStack(false); // Will trigger register reload.
     } else {
         // Fall back for older versions: Try to get at least a list
         // of running threads.
@@ -3669,6 +3674,7 @@ void GdbEngine::handleThreadListIds(const GdbResponse &response)
         thread.id = ThreadId(items.at(index).data().toInt());
         handler->updateThread(thread);
     }
+    reloadStack(false); // Will trigger register reload.
 }
 
 void GdbEngine::handleThreadNames(const GdbResponse &response)
