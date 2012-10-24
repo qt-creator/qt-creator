@@ -66,6 +66,8 @@ QtcPlugin {
         "cpphighlightingsupport.h",
         "cpphighlightingsupportinternal.cpp",
         "cpphighlightingsupportinternal.h",
+        "cppindexingsupport.cpp",
+        "cppindexingsupport.h",
         "cpplocalsymbols.cpp",
         "cpplocalsymbols.h",
         "cpplocatorfilter.cpp",
