@@ -27,13 +27,21 @@
 **
 ****************************************************************************/
 
-#include <QCoreApplication>
 #include <QStringList>
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QTextBlock>
 #include <QDir>
 #include <QDebug>
+
+#if QT_VERSION >= 0x050000
+    // Qt5: QTextDocument needs access to Fonts via QGuiApplication.
+    #include <QGuiApplication>
+    typedef QGuiApplication MyQApplication;
+#else
+    #include <QCoreApplication>
+    typedef QCoreApplication MyQApplication;
+#endif
 
 #include <Control.h>
 #include <Parser.h>
@@ -1660,7 +1668,8 @@ void generateASTPatternBuilder_h(const QDir &cplusplusDir)
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    MyQApplication app(argc, argv);
+
     QStringList files = app.arguments();
     files.removeFirst();
 
