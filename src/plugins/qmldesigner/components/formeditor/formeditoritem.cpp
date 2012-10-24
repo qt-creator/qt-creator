@@ -322,7 +322,7 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     painter->save();
 
-    if (qmlItemNode().instanceIsRenderPixmapNull()) {
+    if (qmlItemNode().instanceIsRenderPixmapNull() || !isContentVisible()) {
         if (scene()->showBoundingRects() && boundingRect().width() > 15 && boundingRect().height() > 15)
             paintPlaceHolderForInvisbleItem(painter);
     } else {
