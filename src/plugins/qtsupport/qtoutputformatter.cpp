@@ -43,8 +43,7 @@ using namespace QtSupport;
 
 QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     : OutputFormatter()
-    , m_qmlError(QLatin1String("^(?:\\[Qt Message\\] )?" // '[Qt Message] ' prefix (optional, on Symbian)
-                               "(file:///.+"      // file url
+    , m_qmlError(QLatin1String("^(file:///.+"    // file url
                                ":\\d+"           // colon, line
                                "(?::\\d+)?)"     // colon, column (optional)
                                ":"))             // colon
